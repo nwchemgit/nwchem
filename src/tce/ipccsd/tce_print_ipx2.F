@@ -38,28 +38,17 @@ c
       nodezero = (ga_nodeid().eq.0)
       if (nodezero) write(LuOut,9000) 'Doubles contributions'
       do p1b = noab+1,noab+nvab
-ckbn        do p2b = p1b,noab+nvab
         do p2b = 1,1
           do h3b = 1,noab
             do h4b = h3b,noab
-ckbn              if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) 
-ckbn     1          .eq. int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)) then
               if (int_mb(k_spin+p1b-1)+ ip_unused_spin  
      1          .eq. int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)) then
-ckbn              if ((.not.restricted).or.
-ckbn     1          (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)+
-ckbn     2          int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) then
               if ((.not.restricted).or.
      1          (int_mb(k_spin+p1b-1)+ ip_unused_spin +
      2          int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) then
-ckbn              if (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),
-ckbn     1          ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
-ckbn     2          .eq. irrep) then
               if (ieor(int_mb(k_sym+p1b-1),ieor(ip_unused_sym,
      1          ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
      2          .eq. irrep) then
-ckbn                size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
-ckbn     1               * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
                 size = int_mb(k_range+p1b-1) * 1
      1               * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
                 if (.not.ma_push_get(mt_dbl,size,'r2',l_r2,k_r2))
@@ -69,47 +58,21 @@ ckbn     1               * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
      2            *noab+h3b-1)*noab+h4b-1))
                 i = 0
                 do p1 = 1,int_mb(k_range+p1b-1)
-ckbn                  do p2 = 1,int_mb(k_range+p2b-1)
                   do p2 = 1,1
                     do h3 = 1,int_mb(k_range+h3b-1)
                       do h4 = 1,int_mb(k_range+h4b-1)
                         i = i + 1
               if (dabs(dbl_mb(k_r2+i-1)).gt.r2_thresh) then
                 call sym_irrepname(geom,int_mb(k_sym+p1b-1)+1,irrep_p1)
-ckbn                call sym_irrepname(geom,int_mb(k_sym+p2b-1)+1,irrep_p2)
-                call sym_irrepname(geom,ip_unused_sym+1,irrep_p2)
                 call sym_irrepname(geom,int_mb(k_sym+h3b-1)+1,irrep_h3)
                 call sym_irrepname(geom,int_mb(k_sym+h4b-1)+1,irrep_h4)
                 spin_p1 = spinnames(int_mb(k_spin+p1b-1))
-ckbn                spin_p2 = spinnames(int_mb(k_spin+p2b-1))
-                spin_p2 = spinnames(ip_unused_spin)
                 spin_h3 = spinnames(int_mb(k_spin+h3b-1))
                 spin_h4 = spinnames(int_mb(k_spin+h4b-1))
                 if (nodezero) write(LuOut,9010)
-c     1            int_mb(k_offset+p1b-1)+p1,irrep_p1,spin_p1,
-c     2            int_mb(k_offset+p2b-1)+p2,irrep_p2,spin_p2,
-c     3            int_mb(k_offset+h3b-1)+h3,irrep_h3,spin_h3,
-c     4            int_mb(k_offset+h4b-1)+h4,irrep_h4,spin_h4,
-c     5            dbl_mb(k_r2+i-1)
-ckbn     1            (int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1)+
-ckbn     1             2-int_mb(k_spin+p1b-1))/2,
-ckbn     1            irrep_p1,spin_p1,
-ckbn     2            (int_mb(k_mo_index+int_mb(k_offset+p2b-1)+p2-1)+
-ckbn     2             2-int_mb(k_spin+p2b-1))/2,
-ckbn     2            irrep_p2,spin_p2,
-ckbn     3            (int_mb(k_mo_index+int_mb(k_offset+h3b-1)+h3-1)+
-ckbn     3             2-int_mb(k_spin+h3b-1))/2,
-ckbn     3            irrep_h3,spin_h3,
-ckbn     4            (int_mb(k_mo_index+int_mb(k_offset+h4b-1)+h4-1)+
-ckbn     4             2-int_mb(k_spin+h4b-1))/2,
-ckbn     4            irrep_h4,spin_h4,
-ckbn     5            dbl_mb(k_r2+i-1)
      1            (int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1)+
      1             2-int_mb(k_spin+p1b-1))/2,
      1            irrep_p1,spin_p1,
-     2            (int_mb(k_mo_index+int_mb(k_offset+p2b-1)+p2-1)+
-     2             2-ip_unused_spin)/2,
-     2            irrep_p2,spin_p2,
      3            (int_mb(k_mo_index+int_mb(k_offset+h3b-1)+h3-1)+
      3             2-int_mb(k_spin+h3b-1))/2,
      3            irrep_h3,spin_h3,
@@ -133,7 +96,7 @@ ckbn     5            dbl_mb(k_r2+i-1)
       enddo
       call ga_sync()
  9000 format(/,1x,a)
- 9010 format(1x,i5,a4,'(',a5,') ',i5,a4,'(',a5,') --- ',
+ 9010 format(1x,i5,a4,'(',a5,') ',' --- ',
      1          i5,a4,'(',a5,') ',i5,a4,'(',a5,')',f20.10)
       return
       end
