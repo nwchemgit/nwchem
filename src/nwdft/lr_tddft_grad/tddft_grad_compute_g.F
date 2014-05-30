@@ -758,13 +758,13 @@ c
            write (luout,*)
          end if
 c
-c        Calculate the cosmo charges
+c        Calculate the cosmo charges using the excited-state density
 c
-         if (oroot) write(luout,*) "cosmo_on:" ,cosmo_on
+c        if (oroot) write(luout,*) "cosmo_on:" ,cosmo_on
          if (cosmo_on) then
            cosmo_file = "cosmo-exci.xyz"
            ecosmo = 0.d0
-           if (oroot) write(luout,*) "calling cosmo_charges_from_dmat"
+c          if (oroot) write(luout,*) "calling cosmo_charges_from_dmat"
            call cosmo_charges_from_dmat(rtdb,
      &                                  ihdl_bfao,
      &                                  ihdl_geom,
@@ -774,7 +774,7 @@ c
      &                                  g_p_ao,      ! input density
      &                                  cosmo_file)  ! cosmo charges file name
 c
-           if (oroot) write(luout,*) "ecosmo:" ,ecosmo
+c          if (oroot) write(luout,*) "ecosmo:" ,ecosmo
          end if ! cosmo check
 c
 c        end if ! odipole

@@ -128,6 +128,21 @@ c
       character*32 pname
 c
       parameter (oskel=.false.)
+      logical task_gradient
+      external task_gradient
+      logical task_energy
+      external task_energy
+c
+c MN solvation models -->
+c
+      integer do_cosmo_vem, istep_cosmo_vem
+      integer g_vem(3)
+c
+      if (.not. rtdb_get
+     $   (rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $    do_cosmo_vem = 0
+c
+c <-- MN solvation models
 c
       pname = "tddft_gradient: "
 c
@@ -169,6 +184,25 @@ c     Cosmo initialization, if necessary
       cosmo_on = .false.
       if (rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
        if(cosmo_on) then
+c
+c MN solvation models -->
+c
+c Tell hnd_coschg in src/property/cosmo.F that we have an excited-state
+c density (istep_cosmo_vem = 1) when it needs to know it (i.e., only when
+c a VEM calculation is called). After calling hnd_coschg via cosmo_initialize 
+c istep_cosmo_vem changes either to 2 (further iteration) or 
+c to 3 (exit the calculation upon convergence).
+c
+         istep_cosmo_vem = 0
+         if (do_cosmo_vem.ne.0) istep_cosmo_vem = 1
+         if (.not. rtdb_put
+     $   (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $   call errquit(
+     $ 'tddft_gradient: cannot put istep_cosmo_vem in rtdb',
+     $   0,rtdb_err)
+c
+c <-- MN solvation models
+c
         call cosmo_initialize(rtdb,ihdl_geom,ihdl_bfao,.false.)
         cosmo_phase = 2
         if (.not. rtdb_put(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
@@ -323,6 +357,13 @@ c     Deallocate arrays
       call tddft_grad_destroy_xy(tda,ipol,g_xpy,g_xmy)
       call tddft_grad_destroy_mo(ipol,g_mo)
       if (oroot.and.odebug) write(luout,*) "done deallocate arrays"
+c MN solvation models -->
+c
+c We don't need to print out the excited-state gradients in the case of VEM
+c
+      if (do_cosmo_vem.ne.0) goto 100
+c
+c <-- MN solvation models
 c
 c     Print gradients of the excited states of interest
       if (oroot.and.odebug) 
@@ -341,6 +382,12 @@ c     Print gradients of the excited states of interest
       endif
       if (oroot.and.odebug) 
      &      write(luout,*) "done tddft_grad_print_result"
+c
+c MN solvation models -->
+c
+ 100  continue
+c
+c <-- MN solvation models
 c
 c     Store gradients
       if (oroot.and.odebug)
@@ -390,6 +437,59 @@ c     Print end times and wrap up
      +                  f11.1,'s')")tddft_grad_cpu,tddft_grad_wall
         endif
       endif
+c
+c MN solvation models -->
+c
+c cosmo-vem: Do one more TDDFT iteration. The whole SCF--TDDFT energy--TDDFT density
+c calculation will be repeated as many times as needed to achieve 
+c convergence on the VEM energy as determined by hnd_coschg in src/property/cosmo.F.
+c When such a convergence is achieved istep_cosmo_vem is set to 3 and the program exits the loop.  
+c
+      cosmo_on = .false.
+      if (rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
+       if(cosmo_on) then
+        istep_cosmo_vem = 0
+        if (.not. rtdb_get
+     $(rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $  call errquit('tddft_grad: cannot get istep_cosmo_vem',
+     $ 0,rtdb_err)
+        if (istep_cosmo_vem.eq.2.and.do_cosmo_vem.ne.0) then
+         if (.not.task_gradient(rtdb)) call errquit
+     $('error: task_gradient(rtdb) failed for cosmo-vem',
+     & 0,geom_err)
+        endif
+c
+c cosmo-vem: Do an additional DFT energy calculation if emission is requested overwise do nothing. 
+c
+        if (istep_cosmo_vem.eq.3.and.do_cosmo_vem.eq.2) then
+         if (.not. rtdb_cput(rtdb, 'task:theory', 1, 'dft'))
+     $ call errquit('error: failed changing theory for for cosmo-vem',
+     1 0,rtdb_err)
+         if (.not. rtdb_put(rtdb,'dft:converged', mt_log, 1, .false.))
+     $ call errquit("task: could not write to rtdb",
+     $ 0,rtdb_err)
+         if (.not.task_energy(rtdb)) call errquit
+     $('error: task_energy(rtdb) failed for cosmo-vem',
+     & 0,geom_err)
+        endif
+c
+c cosmo-vem: Destroy global arrays
+c
+        if (istep_cosmo_vem.eq.3) then
+         if(rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem)) then
+          if (.not. ga_destroy(g_vem(1))) call errquit
+     $        ('hnd_coschg: could not destroy g_vem(1)', 0, ga_err)
+          if (.not. ga_destroy(g_vem(2))) call errquit
+     $        ('hnd_coschg: could not destroy g_vem(2)', 0, ga_err)
+          if (.not. ga_destroy(g_vem(3))) call errquit
+     $        ('hnd_coschg: could not destroy g_vem(3)', 0, ga_err)
+          call ga_sync()
+         endif
+        endif
+       endif
+      endif
+c
+c <-- MN solvation models 
 c
       return
       end

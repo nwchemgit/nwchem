@@ -283,7 +283,7 @@ c
       do ir = 1, nroot
        if (.not.tda) eroot(ir) = 0.5d0*eroot(ir)
        if (ga_nodeid().eq.0) then
-         write(luout,"('Energy Test(',i3,') = ',f22.14)")
+         write(luout,"('TDDFT Energy Check(',i3,') = ',f22.14)")
      &     ir,eroot(ir)
        endif
       enddo
