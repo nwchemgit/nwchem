@@ -397,11 +397,11 @@ c
       double precision cosff
       external         cosff
 c
-c MN solvation models -->
+c     MN solvation models -->
 c
       logical do_cosmo_smd
 c
-c <-- MN solvation models
+c     <-- MN solvation models
 c
       double precision dist, xi, yi, zi, xj, yj, zj, rin, rout, alphai
       parameter (alphai = 0.5d0)
@@ -2547,12 +2547,8 @@ c
 c
       if (do_cosmo_vem.ne.0.and.istep_cosmo_vem.eq.1) then
 c
-cng:   TODO: Fine for now, but this needs to be done in a different way
-c      check if excited-state charges were calculated after TDDFT
-c
-        if (cosmo_file.ne."cosmo-exci.xyz") ! written in tddft_grad_compute_g.F
-     &   call errquit('hnd_coschg: problem with cosmo charges for VEM',
-     & 0,0)
+c      at this stage the excited-state cosmo charges should have been
+c      calculated in tddft_grad_compute_g.F.
 c
 c      calculate noneq charges from current ES charges and saved GS charges
 c

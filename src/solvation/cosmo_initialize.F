@@ -348,7 +348,9 @@ c
      $    call errquit('cosmo_initialize: rtdb_put failed',0, RTDB_ERR)
 c
       if (me.eq.0) then
-        write(luout,'(A)') " after solv_data"
+c       write(luout,'(A)') " after solv_data"
+       write(luout,*) 
+        write(luout,'(A)')   " solvent parameters"
         write(luout,'(A,A)')" solvname_short: ",
      $ solvname_short
         write(luout,'(A,A)')" solvname_long:  ",solvname_long
