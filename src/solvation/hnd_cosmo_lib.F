@@ -2547,13 +2547,12 @@ c
 c
       if (do_cosmo_vem.ne.0.and.istep_cosmo_vem.eq.1) then
 c
+cng:   TODO: Fine for now, but this needs to be done in a different way
 c      check if excited-state charges were calculated after TDDFT
 c
-        if (cosmo_file.
-     + ne."./cosmo-exci.xyz")
-     + call errquit(
-     +'hnd_coschg: problem with cosmo charges for VEM', 0,
-     + 0)
+        if (cosmo_file.ne."cosmo-exci.xyz") ! written in tddft_grad_compute_g.F
+     &   call errquit('hnd_coschg: problem with cosmo charges for VEM',
+     & 0,0)
 c
 c      calculate noneq charges from current ES charges and saved GS charges
 c
