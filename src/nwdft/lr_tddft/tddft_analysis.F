@@ -38,6 +38,7 @@ c
 #include "stdio.fh"
 #include "dra.fh"
 #include "inp.fh"
+#include "cosmo.fh"
 c
       double precision thresh  ! Threshold for printing
       parameter (thresh=5.0d-2)
@@ -180,6 +181,26 @@ c
       double precision s2_save(nroots) 
       logical lstores2
       double precision s2_tmp(nroots)
+c
+c     MN solvation models --> 
+c
+      integer do_cosmo_vem, istep_cosmo_vem
+      double precision wgsrf_cosmo_vem, wstar_cosmo_vem
+c
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+       if (.not. rtdb_get
+     $ (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $  call errquit(
+     $ 'tddft_analysis: cannot get istep_cosmo_vem from rtdb',
+     $  0,rtdb_err)
+       if (.not. rtdb_get
+     $ (rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $  call errquit(
+     $ 'tddft_analysis: cannot get do_cosmo_vem from rtdb',
+     $  0,rtdb_err)
+      endif
+c
+c     <-- MN solvation models
 c
 c     ==================================================================
 
@@ -1603,6 +1624,36 @@ c
       if (.not.rtdb_put(rtdb,'tddft:energy',mt_dbl,1,energy))
      1  call errquit('tddft_analysis: failed to put tddft energy',0,
      &       RTDB_ERR)
+c
+c -----------------------
+c MN solvation models --> 
+c -----------------------
+c
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+       if (do_cosmo_vem.ne.0) then
+        if (istep_cosmo_vem.eq.0) then
+         wgsrf_cosmo_vem = tenergy
+         if (.not.rtdb_put(rtdb,
+     $ 'tddft:wgsrf_cosmo_vem',mt_dbl,1,wgsrf_cosmo_vem))
+     $  call errquit(
+     $ 'tddft_analysis: failed to put wgsrf_cosmo_vem in rtdb',
+     $  0,rtdb_err)
+        endif
+        if (istep_cosmo_vem.eq.2) then
+         wstar_cosmo_vem = tenergy 
+         if (.not.rtdb_put(rtdb,
+     $ 'tddft:wstar_cosmo_vem',mt_dbl,1,wstar_cosmo_vem))
+     $  call errquit(
+     $ 'tddft_analysis: failed to put wstar_cosmo_vem in rtdb',
+     $  0,rtdb_err)
+        endif
+       endif
+      endif
+c
+c -----------------------
+c <-- MN solvation models
+c -----------------------
+c
  9300 format('              Target root =',i7)
  9340 format('          Target symmetry =',1x,a4)
  9310 format('      Ground state energy =',f20.12)
