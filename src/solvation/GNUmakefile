@@ -1,16 +1,17 @@
 #
 # $Id: GNUmakefile 25404 2014-03-30 15:43:31Z niri $
 #
+   OBJ = mnsol_mem.o\
+         mnsol_interface.o\
+         mnsol.o \
+         solv_data.o
+
    OBJ_OPTIMIZE = cosmo_input.o \
          cosmo_initialize.o\
          cosmo_tidy.o\
          cosmo_def_radii.o\
          cosmo_charges.o\
-         hnd_cosmo_lib.o\
-         mnsol_mem.o\
-         mnsol_interface.o\
-         mnsol.o \
-         solv_data.o
+         hnd_cosmo_lib.o
 
    LIBRARY = libsolvation.a
 
