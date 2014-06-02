@@ -47,7 +47,8 @@ c
       integer l_dpz,k_dpz
       integer l_fosc,k_fosc
       integer nvirt(2)           ! number of virtuals
-      integer nexcite            ! spectrum size
+      integer nexcite_tot        ! total spectrum size
+      integer nexcite_win        ! user specified window
       double precision ea,ei     ! orbital energies
       logical nodezero
       integer i,j,k,l,nn,jsav,kend,nindex
@@ -86,6 +87,11 @@ C
      $        call errquit("dft_vspec: cannot calculate excitations "//
      $        "from virtual orbitals, please adjust vspec input",0,0)
       enddo
+c
+c     Check if the number of excitations have been specified
+      nexcite_win = 0
+      if (.not. rtdb_get(rtdb,'dft:nexcite_win',mt_int,1,nexcite_win))
+     &         nexcite_win = 0
 C
 C     Check that starting orbital less than ending one.
 C
@@ -103,20 +109,30 @@ c
 c
 c     Determine size of spectrum
 c
-      nexcite=0
+      nexcite_tot=0
       do i=1,ipol
         if (owstart(i).gt.0) then
-          nexcite = nexcite+(owend(i)-owstart(i)+1)*(nmo(i)-nocc(i))
+          nexcite_tot = nexcite_tot +
+     &     (owend(i)-owstart(i)+1)*(nmo(i)-nocc(i))
         endif
         nvirt(i) = nmo(i)-nocc(i)
       enddo
+      if (nexcite_win.eq.0) nexcite_win = nexcite_tot
+      if (nexcite_win.gt.nexcite_tot) then
+        if (nodezero) then
+          write(luout, *) "nexcite_win:", nexcite_win
+          write(luout, *) "nexcite_tot:", nexcite_tot
+        end if
+        call errquit ("dft_vspec: invalid excitation window: "//
+     $        "nexcite_win > nexcite_tot?",0,0)
+      end if
 c
 c     Check if there are no excitations present
 c
-      if (nexcite.eq.0) then
+      if (nexcite_tot.eq.0) then
         if (nodezero) then
           write(luout, *) "No excitations present"
-          write(luout, *) "nexcite :",nexcite
+          write(luout, *) "nexcite_tot :",nexcite_tot
           return
         endif
       end if
@@ -152,25 +168,25 @@ c
 c     Create local arrays based on spectrum size
 c
       if (.not.ma_push_get
-     &  (mt_dbl,nexcite,'excitation energies',l_exen,k_exen))
+     &  (mt_dbl,nexcite_tot,'excitation energies',l_exen,k_exen))
      &  call errquit('dft_vspec: failed exen alloc',0,MA_ERR)
       if (.not.ma_push_get
-     &  (mt_int,nexcite,'occupied',l_ex_occ,k_ex_occ))
+     &  (mt_int,nexcite_tot,'occupied',l_ex_occ,k_ex_occ))
      &  call errquit('dft_vspec: failed ex_occ',0,MA_ERR)
       if (.not.ma_push_get
-     &  (mt_int,nexcite,'virtuals',l_ex_virt,k_ex_virt))
+     &  (mt_int,nexcite_tot,'virtuals',l_ex_virt,k_ex_virt))
      &  call errquit('dft_vspec: failed ex_virt',0,MA_ERR)
       if (.not.ma_push_get
-     &  (mt_dbl,nexcite,'x dipoles',l_dpx,k_dpx))
+     &  (mt_dbl,nexcite_tot,'x dipoles',l_dpx,k_dpx))
      &  call errquit('dft_vspec: failed dpx alloc',0,MA_ERR)
       if (.not.ma_push_get
-     &  (mt_dbl,nexcite,'y dipoles',l_dpy,k_dpy))
+     &  (mt_dbl,nexcite_tot,'y dipoles',l_dpy,k_dpy))
      &  call errquit('dft_vspec: failed dpy alloc',0,MA_ERR)
       if (.not.ma_push_get
-     &  (mt_dbl,nexcite,'z dipoles',l_dpz,k_dpz))
+     &  (mt_dbl,nexcite_tot,'z dipoles',l_dpz,k_dpz))
      &  call errquit('dft_vspec: failed dpz alloc',0,MA_ERR)
       if (.not.ma_push_get
-     &  (mt_dbl,nexcite,'oscillator strength',l_fosc,k_fosc))
+     &  (mt_dbl,nexcite_tot,'oscillator strength',l_fosc,k_fosc))
      &  call errquit('dft_vspec: failed fosc alloc',0,MA_ERR)
 c
 c     Compute dipole integrals in the AO basis
@@ -230,10 +246,10 @@ c
         write(unitno, 1000)
         if (ipol.eq.1) then
         write(unitno,1401) nbf_ao,nmo(1),owstart(1),
-     &    owend(1),nocc(1),nexcite
+     &    owend(1),nocc(1),nexcite_tot
         else
         write(unitno,1400) nbf_ao,nmo(1),nmo(2),owstart(1),owstart(2),
-     &    owend(1),owend(2),nocc(1),nocc(2),nexcite
+     &    owend(1),owend(2),nocc(1),nocc(2),nexcite_tot
         end if
       endif
 c
@@ -257,7 +273,7 @@ c         account for openshell with no alpha excitations
 c
 c     Calculate Oscillator Strengths
 c
-      do i=1,nexcite
+      do i=1,nexcite_tot
         dbl_mb(k_fosc+i-1)=two/three*au2ev*dbl_mb(k_exen+i-1)*
      &    (dbl_mb(k_dpx+i-1)**2+dbl_mb(k_dpy+i-1)**2+
      &    dbl_mb(k_dpz+i-1)**2)
@@ -267,10 +283,10 @@ c
 c     Sort by energy
 c
       if (((owend(1)-owstart(1)).gt.0).or.(ipol.gt.1)) then
-        do i=1,nexcite-1 
+        do i=1,nexcite_tot-1 
           esav = dbl_mb(k_exen+i-1)
           jsav = i
-          do j=i+1,nexcite
+          do j=i+1,nexcite_tot
             if (dbl_mb(k_exen+j-1) .lt. esav) then
               esav = dbl_mb(k_exen+j-1)
               jsav = j
@@ -279,7 +295,9 @@ c
           sort=dbl_mb(k_exen+i-1)
           dbl_mb(k_exen+i-1)=dbl_mb(k_exen+jsav-1)
           dbl_mb(k_exen+jsav-1)=sort
+c
 c         sort transition moments and fosc
+c
 c         x
           sort=dbl_mb(k_dpx+i-1)
           dbl_mb(k_dpx+i-1)=dbl_mb(k_dpx+jsav-1)
@@ -292,18 +310,25 @@ c         z
           sort=dbl_mb(k_dpz+i-1)
           dbl_mb(k_dpz+i-1)=dbl_mb(k_dpz+jsav-1)
           dbl_mb(k_dpz+jsav-1)=sort
+c
 c         fosc
+c
           sort=dbl_mb(k_fosc+i-1)
           dbl_mb(k_fosc+i-1)=dbl_mb(k_fosc+jsav-1)
           dbl_mb(k_fosc+jsav-1)=sort
+c
 c         sort occupied orbitals
+c
           sort=int_mb(k_ex_occ+i-1)
           int_mb(k_ex_occ+i-1)=int_mb(k_ex_occ+jsav-1)
           int_mb(k_ex_occ+jsav-1)=sort
+c
 c         sort virtual orbitals
+c
           sort=int_mb(k_ex_virt+i-1)
           int_mb(k_ex_virt+i-1)=int_mb(k_ex_virt+jsav-1)
           int_mb(k_ex_virt+jsav-1)=sort
+c
         enddo ! sorting
       endif
 c
@@ -314,13 +339,15 @@ c
      $        "      N   Occ  Virt       Energy [eV]        "//
      $        "<x> [au]          <y> [au]          <z> [au]    "//
      $        "     fosc [au] "
-         write (unitno, "(a,i6)") "<START>",nexcite
-       do i=1,nexcite
-          write (unitno, "(i8,2i6,5e18.6)")
+         write (unitno, "(a,i10)") "<START>",nexcite_win
+       do i=1,nexcite_tot
+          if (i.le.nexcite_win) then
+           write (unitno, "(i8,2i6,5e18.6)")
      $         i, int_mb(k_ex_occ+i-1), int_mb(k_ex_virt+i-1),
      $         dbl_mb(k_exen+i-1)*au2ev,
      $         dbl_mb(k_dpx+i-1), dbl_mb(k_dpy+i-1), dbl_mb(k_dpz+i-1),
      $         dbl_mb(k_fosc+i-1)
+          end if ! nexcite_win
        enddo
        write (unitno, "(a)") "<END>"
        close(unitno)
@@ -334,23 +361,23 @@ c
 c
  1000 format('== Scalar DFT Virtual Spectrum ==')
 c
- 1400 format(  'Number of basis functions in AO basis: ',i5,
-     1       /,'Number of Alpha MOs:                   ',i5,
-     2       /,'Number of Beta Mos:                    ',i5,
-     3       /,'Occupied Win Start Alpha:              ',i5,
-     4       /,'Occupied Win Start Beta:               ',i5,
-     5       /,'Occupied Win End   Alpha:              ',i5,
-     5       /,'Occupied Win End   Beta:               ',i5,
-     6       /,'Number of Occupied Alpha MOs:          ',i5,
-     6       /,'Number of Occupied Beta MOs :          ',i5,
-     7       /,'Number of Excitations:                 ',i5)
+ 1400 format(  'Number of basis functions in AO basis: ',i10,
+     1       /,'Number of Alpha MOs:                   ',i10,
+     2       /,'Number of Beta Mos:                    ',i10,
+     3       /,'Occupied Win Start Alpha:              ',i10,
+     4       /,'Occupied Win Start Beta:               ',i10,
+     5       /,'Occupied Win End   Alpha:              ',i10,
+     5       /,'Occupied Win End   Beta:               ',i10,
+     6       /,'Number of Occupied Alpha MOs:          ',i10,
+     6       /,'Number of Occupied Beta MOs :          ',i10,
+     7       /,'Total Number of Excitations:           ',i10)
 c
- 1401 format(  'Number of basis functions in AO basis: ',i5,
-     1       /,'Number of Alpha MOs:                   ',i5,
-     3       /,'Occupied Win Start Alpha:              ',i5,
-     5       /,'Occupied Win End   Alpha:              ',i5,
-     6       /,'Number of Occupied Alpha MOs:          ',i5,
-     7       /,'Number of Excitations:                 ',i5)
+ 1401 format(  'Number of basis functions in AO basis: ',i10,
+     1       /,'Number of Alpha MOs:                   ',i10,
+     3       /,'Occupied Win Start Alpha:              ',i10,
+     5       /,'Occupied Win End   Alpha:              ',i10,
+     6       /,'Number of Occupied Alpha MOs:          ',i10,
+     7       /,'Total Number of Excitations:           ',i10)
 c
  1600 format(/,x,'N',7x,'Energy',13x,'<x>',14x,'<y>',14x,'<z>',14x,
      &       'fosc')
