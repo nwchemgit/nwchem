@@ -93,7 +93,7 @@ c compression
 c *** debug ***
        double precision xtot1,xtot2,xtot3
 c *************
-      double precision tot_zone(1000)
+      integer  tot_zone(1000)
       integer l_g12piece,k_g12piece,size_g12p
 c 
       integer l_4af_offset,k_4af_offset,d_4af
@@ -131,7 +131,7 @@ c
        taskl_az12(ii,2)=0
       enddo
       do ii=1,1000
-       tot_zone(ii)=0.0d0
+       tot_zone(ii)=0
       enddo
       if(atpart.gt.1000) 
      &  call errquit('tce_zones: atpart too big',1,MA_ERR)
