@@ -61,12 +61,16 @@ c
       double precision efield_z
       integer maxiter
 c
+c     vspec variables
       logical lvspec
       integer owstart(2), owend(2)
+      integer nexcite_win
 c
+c     xdm variables
       double precision xdm_a1, xdm_a2
       logical xdm_onlyc, xdm_varc
 c
+c     xps variables
       logical lxps
       integer lenstr
       character*255 inp_vecs
@@ -111,6 +115,7 @@ c
       owend(1) = 0
       owstart(2) = 0
       owend(2) = 0
+      nexcite_win = 0
 c
 c     Lebedev on by default
 c
@@ -751,7 +756,7 @@ c
 c
       goto 10
 c
-c     vspec: virtual spectrum
+c     vspec: virtual or raw spectrum (<f|d|i>)
 c
  4300 continue
       ispin=1
@@ -767,12 +772,16 @@ c
           if (.not.inp_i(owstart(ispin))) owstart(ispin) = 0
           if (.not.inp_i(owend(ispin))) owend(ispin) = 0
           goto 4301
+        else if (inp_compare(.false.,'nexcite_win',test)) then
+          if (.not.inp_i(nexcite_win)) nexcite_win = 0
         else  
           call errquit('dft_input: vspec: unknown subdirective',0,
      & INPUT_ERR)
         endif
       endif
       if (.not.rtdb_put(rtdb,'dft:lvspec',mt_log,1,lvspec))
+     &  call errquit('dft_input: rtdb_put failed',4300,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'dft:nexcite_win',mt_int,1,nexcite_win))
      &  call errquit('dft_input: rtdb_put failed',4300,RTDB_ERR)
       if (.not.rtdb_put(rtdb,'dft:owstart',mt_int,2,owstart))
      &  call errquit('dft_input: rtdb_put failed',4300,RTDB_ERR)
