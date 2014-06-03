@@ -121,7 +121,7 @@ c
       oprintw = util_print('quadrature warning', print_medium)
       grad=xc_chkgrad()
       kske = xc_chktau()
-      l3d = (nga_ndim(g_vxc).eq.3)
+      l3d = (ga_ndim(g_vxc).eq.3)
 c
       irdelchi_atom = 0
 c
