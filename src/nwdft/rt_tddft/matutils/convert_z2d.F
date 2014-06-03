@@ -141,7 +141,7 @@ C     == Variables ==
       end subroutine
 
 
-
+#if 0
 C====================================================================
 C
 C     Driver routine for unpacking g_z into real and imag parts.
@@ -210,12 +210,11 @@ C     not needed I think
 C      call ga_sync ()
       
       end subroutine
-
+#endif
 
 
       
 
-#if 0      
 C====================================================================
 C
 C     Driver routine for unpacking g_z into real and imag parts.
@@ -338,5 +337,4 @@ C
       call ga_sync ()
       
       end subroutine
-#endif
 c $Id$
