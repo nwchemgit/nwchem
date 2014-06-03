@@ -7153,8 +7153,14 @@ c#ifdef IPCCSD
        if(nodezero) call util_flush(LuOut)
       endif
 c#endif
-
-
+c
+c
+           if (ipccsd.and.(eom_solver.eq.2)) eom_solver=1
+           if (eaccsd.and.(eom_solver.eq.2)) eom_solver=1
+           if (ipccsd.and.(ccsd_var.eq.'ic')) ccsd_var='xx'
+           if (eaccsd.and.(ccsd_var.eq.'ic')) ccsd_var='xx'
+c
+c
 c
 c       Restricted closed shell: irrep_g is always zero.
 c
