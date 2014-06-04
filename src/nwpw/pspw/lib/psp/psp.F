@@ -2222,7 +2222,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                   dbl_mb(sw1a(1)+swstart*nn),
      >                                   dbl_mb(sw2a(1)+swstart*nn),
      >                                   eh_atom)
-c            write(*,*) "eh_atom=",ip,ii,eh_atom
+            write(*,*) "eh_atom=",ip,ii,eh_atom
 
 *           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
             call nwpw_xc_solve(ii,ia,
@@ -2272,11 +2272,11 @@ c            write(*,*) "eh_atom=",ip,ii,eh_atom
             if (.not.value) 
      >      call errquit('v_nonlocal:out of stack',4, MA_ERR)
 
-            call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-     >                                      dcpl_mb(dng_cmp(1)))
-            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
-            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
-     >                         dcpl_mb(vcmp_tmp(1)),ff(1))
+c            call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
+c     >                                      dcpl_mb(dng_cmp(1)))
+c            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
+c            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+c     >                         dcpl_mb(vcmp_tmp(1)),ff(1))
 c            write(*,*) "e_i-i=",0.5d0*ff(1)
 
             call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
@@ -2335,7 +2335,7 @@ c                        write(*,*) "ff=",ff(1)*omega
             if (.not.value) 
      >        call errquit('v_nonlocal:out of stack',4, MA_ERR)
 
-            call nwpw_compcharge_gen_dn_cmp2_zv(ispin,dbl_mb(zv(1)),
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
      >                                       dcpl_mb(dng_cmp(1)),
      >                                       dcpl_mb(dng_cmp_smooth(1)))
 
@@ -2366,7 +2366,7 @@ c                        write(*,*) "ff=",ff(1)*omega
                call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
                call coulomb2_v(dcpl_mb(dng_cmp_smooth(1)),
      >                        dcpl_mb(vcmp_smooth(1)))
-               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
+               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp_smooth(1)))
                call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
                call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
             end if
@@ -2392,7 +2392,7 @@ c                        write(*,*) "ff=",ff(1)*omega
      >                                    dcpl_mb(dng_cmp_smooth(1)),
      >                                    dcpl_mb(vcmp(1)),
      >                                    ff(2))
-c                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
+                        write(*,*) "ff=",ff(1)*omega,ff(2)*omega
                         call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
      >                                           (ff(1)+ff(2))*omega)
                      end if
