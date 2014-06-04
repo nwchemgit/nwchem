@@ -26,8 +26,8 @@ LIB_DEFINES = -DDEBUG_PRINT
 ##
 ## KAL: hack to allow symlinked directory
 ##
-#LIB_INCLUDES = -I../../include -I../../../ddscf
-LIB_INCLUDES = -I../headers -I$(NWCHEM_TOP)/src/nwdft/include -I$(NWCHEM)/src/ddscf
+LIB_INCLUDES = -I../../include -I../../../ddscf
+#LIB_INCLUDES = -I../headers -I$(NWCHEM_TOP)/src/nwdft/include -I$(NWCHEM)/src/ddscf
 
 HEADERS = 
 
@@ -35,8 +35,7 @@ HEADERS =
 ##
 ## KAL: hack to allow symlinked directory
 ##
-#include ../../../config/makefile.h
-#include ../../../config/makelib.h
-include $(NWCHEM_TOP)/src/config/makefile.h
-include $(NWCHEM_TOP)/src/config/makelib.h
-
+include ../../../config/makefile.h
+include ../../../config/makelib.h
+#include $(NWCHEM_TOP)/src/config/makefile.h
+#include $(NWCHEM_TOP)/src/config/makelib.h

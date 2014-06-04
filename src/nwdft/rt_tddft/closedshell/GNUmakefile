@@ -29,11 +29,11 @@ LIB_DEFINES = -DDEBUG_PRINT
 ##
 ## KAL: hack to allow symlinked directory
 ##
-#LIB_INCLUDES = -I../../include -I../../../ddscf
+LIB_INCLUDES = -I../../include -I../../../ddscf
 #LIB_INCLUDES = -I../headers -I$(NWCHEM_TOP)/src/nwdft/include -I$(NWCHEM)/src/ddscf
 
 #xxx for cgridfile
-LIB_INCLUDES = -I../headers -I$(NWCHEM_TOP)/src/nwdft/include -I$(NWCHEM_TOP)/src/ddscf -I$(NWCHEM_TOP)/src/nwdft/grid
+#LIB_INCLUDES = -I../headers -I$(NWCHEM_TOP)/src/nwdft/include -I$(NWCHEM_TOP)/src/ddscf -I$(NWCHEM_TOP)/src/nwdft/grid
 
 HEADERS = 
 
@@ -41,8 +41,7 @@ HEADERS =
 ##
 ## KAL: hack to allow symlinked directory
 ##
-#include ../../../config/makefile.h
-#include ../../../config/makelib.h
-include $(NWCHEM_TOP)/src/config/makefile.h
-include $(NWCHEM_TOP)/src/config/makelib.h
-
+include ../../../config/makefile.h
+include ../../../config/makelib.h
+#include $(NWCHEM_TOP)/src/config/makefile.h
+#include $(NWCHEM_TOP)/src/config/makelib.h
