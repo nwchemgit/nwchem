@@ -164,8 +164,8 @@ c      call psi_1toelectron()
 
          E(46) = psp_ion_core()            !*** ion core energy - independent of psi ***
 
-         E(1) = E(1) + E(36) + E(45) 
-     >        - E(40) - E(41)  + E(43) - E(44)
+         E(1) = E(1) + E(36) + E(46) 
+     >        - E(41) - E(42) - E(43) + E(44) - E(45)
       end if
 
 *     **** get pspw_charge  energies ****
