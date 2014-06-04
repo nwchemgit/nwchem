@@ -828,22 +828,26 @@ c: take supermolecule total charge
 
 
 c: multiplicity
+c:    density methods
+        if ( theory(1:lentheo).eq.'dft' .or.
+     $       theory(1:lentheo).eq.'tddft') then
+          if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, m_spr))
+     $      call errquit('bsse_energy: rtdb_get of mult failed',
+     $                   0,RTDB_ERR )
 c:   wavefuntion methods
 
-        if( theory(1:lentheo).ne.'dft') then
+        elseif( theory(1:lentheo).ne.'dft' .and.
+     $          theory(1:lentheo).ne.'tddft') then
           if (.not. rtdb_get(rtdb,'scf:nopen', MT_INT, 1, m_spr))
-     $      call 
-     $ errquit('bsse_energy: rtdb_put of nopen failed',0,RTDB_ERR)
+     $      call errquit('bsse_energy: rtdb_get of nopen failed',
+     $                   0,RTDB_ERR)
 
-c:    density methods
-        elseif ( theory(1:lentheo).eq.'dft') then
-          if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, m_spr))
-     $      call errquit('bsse_energy: rtdb_put failed', 0,RTDB_ERR )
         endif
 
 c
 c: name of the original movecs
-        if(theory(1:lentheo).eq.'dft') then
+        if(theory(1:lentheo).eq.'dft' .or.
+     $     theory(1:lentheo).eq.'tddft') then
           vec_dbo= 'dft:output vectors'
           vec_dbi= 'dft:input vectors'
         elseif (theory(1:lentheo).eq.'mcscf') then
@@ -948,20 +952,24 @@ c:return to original  charge
 
 c: multiplicity
 
-c:   wavefuntion methods
-
-
-        if( theory(1:lentheo).ne.'dft') then
-
-          if (.not. rtdb_put(rtdb,'scf:nopen', MT_INT, 1, m_spr))
-     $      call 
-     $    errquit('bsse_energy: rtdb_put of nopen failed',0, RTDB_ERR)
 c:    density methods
 
-        elseif ( theory(1:lentheo).eq.'dft') then
+        if ( theory(1:lentheo).eq.'dft' .or.
+     $       theory(1:lentheo).eq.'tddft') then
 
           if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, m_spr))
-     $      call errquit('bsse_energy: rtdb_put failed', 0, RTDB_ERR)
+     $      call errquit('bsse_energy: rtdb_put of mult failed',
+     $                   0, RTDB_ERR)
+
+c:   wavefuntion methods
+
+        elseif( theory(1:lentheo).ne.'dft' .and.
+     $          theory(1:lentheo).ne.'tddft') then
+
+          if (.not. rtdb_put(rtdb,'scf:nopen', MT_INT, 1, m_spr))
+     $      call errquit('bsse_energy: rtdb_put of nopen failed',
+     $                   0, RTDB_ERR)
+
 
         endif
 c
@@ -1092,18 +1100,16 @@ c
 c: multiplicity
 c
 c:    wavefuntion methods
-
-
         if( theory(1:lentheo).ne.'dft') then
           if (.not. rtdb_get(rtdb,'scf:nopen', MT_INT, 1, m_spr))
      $      call 
-     $  errquit('bsse_gradient: rtdb_put of nopen failed',0,RTDB_ERR)
+     $  errquit('bsse_gradient: rtdb_get of nopen failed',0,RTDB_ERR)
 c
 c:    density methods
         elseif ( theory(1:lentheo).eq.'dft') then
           if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1, m_spr))
      $      call 
-     $  errquit('bsse_gradient: rtdb_put failed', 0,RTDB_ERR)
+     $  errquit('bsse_gradient: rtdb_get failed', 0,RTDB_ERR)
         endif
 c
 c: name of the original movecs
