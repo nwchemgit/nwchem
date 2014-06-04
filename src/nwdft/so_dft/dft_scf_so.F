@@ -1398,6 +1398,9 @@ c     == DY ==
       if (me.eq.0.and.oprint_info) write(luout,'(1x,a,3e15.7)')
      &     "ExchYRe, ExchYI, sum =", exchYr, exchYi, exchY
 c
+c     == attenuation ==
+      if (cam_exch) call case_setflags(.false.) ! turn off attenuation
+c
 c     == tally up exchange energy ==
       exchtot = exch0 + exchZ + exchX + exchY ! HF exchange
 c
