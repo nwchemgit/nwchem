@@ -43,8 +43,8 @@ c
      + P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
      + J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopat
      +a, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli,
-     +A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Pevera
-     +ti, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, R. J. Harrison, M. 
+     + A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Pever
+     +ati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, R. J. Harrison, M. 
      +Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju
      +, M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen,
      + M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Cr
