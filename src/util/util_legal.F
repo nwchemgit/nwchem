@@ -32,30 +32,44 @@ c
       implicit none
 c
 #include "stdio.fh"
+#include "inp.fh"
 #include "util.fh"
 c
       logical  next_line
       external next_line
-      integer  ibegin,iend,ilen
-      character*2048 chr
-      data chr/
-     +'E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T.
-     + P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
-     + J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopat
-     +a, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli,
-     + A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Pever
-     +ati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, R. J. Harrison, M. 
-     +Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju
-     +, M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen,
-     + M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Cr
-     +osby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. 
-     +Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. A
-     +nchell, D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel,
-     + M. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. He
-     +ss, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, 
-     +R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack,
-     + M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Th
-     +omas, J. H. van Lenthe, A. Wong, Z. Zhang.'/
+      integer  ibegin,iend,ilen,i
+      character*4096 newchr
+      integer maxno_authors,len_newchr
+      parameter(maxno_authors=91)
+      character*64 name_author(maxno_authors)
+      data name_author/
+     +     'E. Apra', 'E. J. Bylaska', 'W. A. de Jong', 
+     +     'N. Govind', 'K. Kowalski','T. P. Straatsma', 
+     +     'M. Valiev', 'H. J. J. van Dam', 'D. Wang', 'T. L. Windus',
+     +     'J. Hammond', 'J. Autschbach', 'K. Bhaskaran-Nair', 
+     +     'J. Brabec','K. Lopata', 'W. Ma', 'M. Klemme', 'O. Villa', 
+     +     'F. Aquino', 'S. Hirata', 'M. T. Hackler', 'T. Risthaus', 
+     +     'M. Malagoli', 'A. Marenich', 'A. Otero-de-la-Roza', 
+     +     'J. Mullin', 'P. Nichols', 'R. Peverati', 'J. Pittner', 
+     +     'Y. Zhao', 'P.-D. Fan', 'A. Fonari', 'R. J. Harrison', 
+     +     'M. Dupuis', 'D. Silverstein', 'D. M. A. Smith', 
+     +     'J. Nieplocha', 'V. Tipparaju', 'M. Krishnan', 
+     +     'B. E. Van Kuiken', 'A. Vazquez-Mayagoitia', 'L. Jensen',
+     +     'M. Swart', 'Q. Wu', 'T. Van Voorhis', 'A. A. Auer', 
+     +     'M. Nooijen', 'L. D. Crosby', 'E. Brown', 
+     +     'G. Cisneros', 'G. I. Fann', 'H. Fruchtl', 'J. Garza', 
+     +     'K. Hirao', 'R. A. Kendall', 'J. A. Nichols', 
+     +     'K. Tsemekhman', 'K. Wolinski', 'J. Anchell', 
+     +     'D. E. Bernholdt', 'P. Borowski', 'T. Clark', 
+     +     'D. Clerc', 'H. Dachsel', 'M. J. O. Deegan', 
+     +     'K. Dyall', 'D. Elwood', 'E. Glendening', 
+     +     'M. Gutowski', 'A. C. Hess', 'J. Jaffe', 'B. G. Johnson', 
+     +     'J. Ju', 'R. Kobayashi', 'R. Kutteh', 'Z. Lin', 
+     +     'R. Littlefield', 'X. Long', 'B. Meng', 
+     +     'T. Nakajima', 'S. Niu', 'L. Pollack',
+     +     'M. Rosing', 'K. Glaesemann', 'G. Sandrone', 'M. Stave', 
+     +     'H. Taylor', 'G. Thomas', 'J. H. van Lenthe', 
+     +     'A. T. Wong', 'Z. Zhang.'/
 c
 c     == default ==
       write(luout,*)
@@ -65,11 +79,20 @@ c     == default ==
       call util_print_centered(luout, 'AUTHORS & CONTRIBUTORS', 40, 
      & .true.)
 c
+      
+      ibegin = 1
+      do i=1,maxno_authors
+         ilen=inp_strlen(name_author(i))
+         newchr(ibegin:ibegin+ilen-1)=name_author(i)
+         len_newchr=ibegin+ilen-1
+         newchr(ibegin+ilen:ibegin+ilen+1)=', '
+         ibegin=ibegin+ilen+2
+      enddo
       ibegin = 0
       iend   = 0 
       ilen   = 80
-      do while (next_line(ibegin,iend,ilen,',',chr))
-        call util_print_centered(luout,chr(ibegin:iend),40,.false.)
+      do while (next_line(ibegin,iend,ilen,',',newchr(1:len_newchr)))
+        call util_print_centered(luout,newchr(ibegin:iend),40,.false.)
       enddo
 c
 c     == print high ==
