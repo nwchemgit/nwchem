@@ -1902,33 +1902,6 @@ fi
 if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
   export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
 fi
-#if [ "x$1" == "xpython" ]; then
-#  export PYTHONVERSION=2.4
-#  export PYTHONHOME=/usr
-#  export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
-#  export NWCHEM_MODULES="$NWCHEM_MODULES python"
-#  echo "===================================="
-#  echo "Building NWChem including Python $PYTHONVERSION"
-#  echo "===================================="
-#  echo
-#  option=""
-#elif [ "x$1" == "xpython64" ]; then
-#  export USE_PYTHON64=yes
-#  export PYTHONVERSION=2.4
-#  export PYTHONHOME=/usr
-#  export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
-#  export NWCHEM_MODULES="$NWCHEM_MODULES python"
-#  echo "===================================="
-#  echo "Building NWChem including Python $PYTHONVERSION"
-#  echo "===================================="
-#  echo
-#  option=""
-#else
-#  echo "==============="
-#  echo "Building NWChem"
-#  echo "==============="
-#  echo
-#fi
 echo "==============="
 echo "Building NWChem"
 echo "==============="
@@ -2206,6 +2179,9 @@ echo "   make FC=\$FC ; pushd \$NWCHEM_TOP/src ; make FC=\$FC link ; popd" >> ${
 echo "}"                                                                   >> ${NWCHEM_ENV_SH}
 echo "alias renwc 'make FC=\$FC ; pushd \$NWCHEM_TOP/src ; make FC=\$FC link ; popd'" >> ${NWCHEM_ENV_CSH}
 #
+# The USE_64TO32 environment variable is special and is dealt with below.
+#
+#
 # Stop if we find essential information missing.
 # I.e. no Fortran, C, or C++ compilers or settings to use obsolete versions
 # of GA.
@@ -2429,6 +2405,17 @@ if [ ${#OLD_GA} -eq 0 ] ; then
     fi
     echo "BLASOPT from GA = " ${BLASOPT}
   fi
+fi
+#
+# Deal with USE_64TO32 which is special because it also depends on how the
+# GA configuration process went
+#
+if [ ${#USE_64TO32} -ne 0 ] ; then
+  echo "USE_64TO32         =" ${USE_64TO32}
+  echo "export USE_64TO32=${USE_64TO32}"   >> ${NWCHEM_ENV_SH}
+  echo "setenv USE_64TO32 ${USE_64TO32}"   >> ${NWCHEM_ENV_CSH}
+  echo "unset USE_64TO32"                  >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv USE_64TO32"               >> ${NWCHEM_UNENV_CSH}
 fi
 echo "=== before    NWChem ==="
 echo "BLASOPT =" ${BLASOPT}
