@@ -564,13 +564,17 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 
 $(GA_DIR)/Makefile.in:
-	@echo "You must run ./get-tools" && exit 1
-$(GA_DIR)/armci/Makefile.in:
-	@echo "You must run ./get-tools" && exit 1
-$(GA_DIR)/configure:
-	@echo "You must run ./get-tools" && exit 1
-$(GA_DIR)/armci/configure:
-	@echo "You must run ./get-tools" && exit 1
+	@echo "No Global Arrays found: Attempting running ./get-tools"
+	./get-tools
+$(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
+	@echo "No Global Arrays found: Attempting running ./get-tools"
+	./get-tools
+$(GA_DIR)/configure: $(GA_DIR)/Makefile.in
+	@echo "No Global Arrays found: Attempting running ./get-tools"
+	./get-tools
+$(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
+	@echo "No Global Arrays found: Attempting running ./get-tools"
+	./get-tools
 $(STAMP_FC): 
 	rm -f ./*.FC.stamp
 	echo "" > $(STAMP_FC)
