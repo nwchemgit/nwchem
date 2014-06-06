@@ -146,19 +146,19 @@ task dft gradient
            ---------------
 
     hostname        = arcen
-    program         = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/../bin/LINUX64/nwchem
-    date            = Thu May  1 21:56:43 2014
+    program         = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/../bin/LINUX64/nwchem
+    date            = Thu Jun  5 14:33:31 2014
 
-    compiled        = Thu_May_01_19:13:12_2014
-    source          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17
+    compiled        = Thu_Jun_05_12:39:44_2014
+    source          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04
     nwchem branch   = Development
-    nwchem revision = 25543
-    ga revision     = 10478
+    nwchem revision = 25716
+    ga revision     = 10494
     input           = dft_s12gh.nw
     prefix          = dft_s12gh.
-    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.db
+    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.db
     status          = startup
-    nproc           =        4
+    nproc           =        2
     time left       =     -1s
 
 
@@ -166,8 +166,8 @@ task dft gradient
            Memory information
            ------------------
 
-    heap     =   13107194 doubles =    100.0 Mbytes
-    stack    =  157286399 doubles =   1200.0 Mbytes
+    heap     =   13107198 doubles =    100.0 Mbytes
+    stack    =  157286395 doubles =   1200.0 Mbytes
     global   =   78643200 doubles =    600.0 Mbytes (distinct from heap & stack)
     total    =  249036793 doubles =   1900.0 Mbytes
     verify   = yes
@@ -177,8 +177,8 @@ task dft gradient
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir
 
 
 
@@ -190,7 +190,7 @@ task dft gradient
                     (CAM-)S12g/(CAM-)S12h gradients/frequencies
                     -------------------------------------------
   library name resolved from: environment
-  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/../src/basis/libraries/>
+  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/../src/basis/libraries/>
   
 
 
@@ -496,36 +496,36 @@ task dft gradient
    Time after variat. SCF:      0.1
    Time prior to 1st pass:      0.1
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      8        Max. recs in file   = 253312716
+ Max. records in memory =     15        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.01            13005610
-          Stack Space remaining (MW):      157.29           157285956
+           Heap Space remaining (MW):       12.92            12919590
+          Stack Space remaining (MW):      157.29           157285948
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1    -56.5510494999 -6.85D+01  1.21D-02  4.34D-01     0.3
- d=80,ls=0.0,diis     2    -56.5587363907 -7.69D-03  5.73D-03  2.23D-01     0.4
- d= 0,ls=0.0,diis     3    -56.5613904691 -2.65D-03  5.30D-03  1.58D-01     0.6
- d= 0,ls=0.0,diis     4    -56.5779193091 -1.65D-02  3.49D-04  7.67D-04     0.7
- d= 0,ls=0.0,diis     5    -56.5779992385 -7.99D-05  1.49D-05  1.69D-06     0.9
- d= 0,ls=0.0,diis     6    -56.5779994171 -1.79D-07  1.87D-06  1.29D-08     1.0
+ d=80,ls=0.0,diis     1    -56.5510494999 -6.85D+01  1.21D-02  4.34D-01     0.4
+ d=80,ls=0.0,diis     2    -56.5587363907 -7.69D-03  5.73D-03  2.23D-01     0.7
+ d= 0,ls=0.0,diis     3    -56.5613904691 -2.65D-03  5.30D-03  1.58D-01     0.9
+ d= 0,ls=0.0,diis     4    -56.5779193091 -1.65D-02  3.49D-04  7.67D-04     1.2
+ d= 0,ls=0.0,diis     5    -56.5779992384 -7.99D-05  1.49D-05  1.69D-06     1.4
+ d= 0,ls=0.0,diis     6    -56.5779994171 -1.79D-07  1.87D-06  1.29D-08     1.6
 
 
-         Total DFT energy =      -56.578020245595
-      One electron energy =      -99.738361928996
-           Coulomb energy =       39.215493958586
-    Exchange-Corr. energy =       -8.032626525202
+         Total DFT energy =      -56.577999417107
+      One electron energy =      -99.738361929769
+           Coulomb energy =       39.215493959499
+    Exchange-Corr. energy =       -8.032626525310
  Nuclear repulsion energy =       11.977515906929
 
     Dispersion correction =       -0.000020828456
 
- Numeric. integr. density =       10.000000204620
+ Numeric. integr. density =       10.000000204080
 
-     Total iterative time =      0.9s
+     Total iterative time =      1.5s
 
 
 
@@ -543,35 +543,35 @@ task dft gradient
                        ------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-1.396809D+01  Symmetry=a1
-              MO Center=  1.1D-21, -6.6D-23, -1.1D-01, r^2= 2.0D-02
+              MO Center=  2.9D-19, -7.8D-18, -1.1D-01, r^2= 2.0D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.620306  1 N  s                  1      0.450210  1 N  s          
 
  Vector    2  Occ=2.000000D+00  E=-7.832763D-01  Symmetry=a1
-              MO Center= -1.8D-16, -4.9D-17,  9.0D-02, r^2= 6.8D-01
+              MO Center= -2.8D-16, -1.9D-16,  9.0D-02, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.522549  1 N  s                  3      0.229285  1 N  s          
      2     -0.206476  1 N  s          
 
  Vector    3  Occ=2.000000D+00  E=-4.153602D-01  Symmetry=e
-              MO Center= -1.8D-01,  5.3D-02,  5.5D-02, r^2= 9.7D-01
+              MO Center=  7.2D-02, -1.7D-01,  5.5D-02, r^2= 9.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.338576  1 N  px                44     -0.233046  3 H  s          
-     9      0.230231  1 N  px                43     -0.176939  3 H  s          
+     7      0.342802  1 N  py                10      0.233104  1 N  py         
+    50     -0.232483  4 H  s                 49     -0.176511  4 H  s          
 
  Vector    4  Occ=2.000000D+00  E=-4.153602D-01  Symmetry=e
-              MO Center=  1.8D-01, -5.3D-02,  5.5D-02, r^2= 9.7D-01
+              MO Center= -7.2D-02,  1.7D-01,  5.5D-02, r^2= 9.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.338576  1 N  py                10      0.230231  1 N  py         
-    50     -0.203612  4 H  s                 38      0.200035  2 H  s          
-    49     -0.154592  4 H  s                 37      0.151875  2 H  s          
+     6      0.342802  1 N  px                 9      0.233104  1 N  px         
+    44     -0.209626  3 H  s                 38      0.193047  2 H  s          
+    43     -0.159157  3 H  s          
 
  Vector    5  Occ=2.000000D+00  E=-2.212363D-01  Symmetry=a1
-              MO Center=  8.4D-17,  1.4D-16, -2.6D-01, r^2= 9.3D-01
+              MO Center= -1.5D-16, -1.6D-16, -2.6D-01, r^2= 9.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      0.400934  1 N  pz                14      0.354809  1 N  pz         
@@ -579,7 +579,7 @@ task dft gradient
      5     -0.151951  1 N  s          
 
  Vector    6  Occ=0.000000D+00  E= 5.384481D-03  Symmetry=a1
-              MO Center= -7.8D-15,  4.9D-15,  4.4D-01, r^2= 4.5D+00
+              MO Center= -3.6D-16, -1.0D-16,  4.4D-01, r^2= 4.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      2.132586  1 N  s                 39     -1.002468  2 H  s          
@@ -589,41 +589,40 @@ task dft gradient
     26     -0.179121  1 N  dzz        
 
  Vector    7  Occ=0.000000D+00  E= 8.780008D-02  Symmetry=e
-              MO Center=  6.9D-01,  4.2D-02,  4.5D-01, r^2= 4.2D+00
+              MO Center= -6.3D-01,  2.8D-01,  4.5D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.021771  2 H  s                 51     -1.673854  4 H  s          
-    13     -0.876400  1 N  py                12     -0.394995  1 N  px         
-    45     -0.347917  3 H  s                  7     -0.245725  1 N  py         
+    45      2.155384  3 H  s                 39     -1.222381  2 H  s          
+    12      0.944995  1 N  px                51     -0.933003  4 H  s          
+     6      0.264958  1 N  px                13     -0.176299  1 N  py         
 
  Vector    8  Occ=0.000000D+00  E= 8.780008D-02  Symmetry=e
-              MO Center= -6.9D-01, -4.2D-02,  4.5D-01, r^2= 4.2D+00
+              MO Center=  6.3D-01, -2.8D-01,  4.5D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      2.133670  3 H  s                 51     -1.368140  4 H  s          
-    12      0.876400  1 N  px                39     -0.765530  2 H  s          
-    13     -0.394995  1 N  py                 6      0.245725  1 N  px         
+    51     -1.950154  4 H  s                 39      1.783081  2 H  s          
+    13     -0.944995  1 N  py                 7     -0.264958  1 N  py         
+    12     -0.176299  1 N  px                45      0.167073  3 H  s          
 
  Vector    9  Occ=0.000000D+00  E= 2.706850D-01  Symmetry=e
-              MO Center=  2.1D-01, -2.6D-02, -2.4D-01, r^2= 2.8D+00
+              MO Center=  1.7D-01, -1.2D-01, -2.4D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.529774  1 N  px                44      1.498619  3 H  s          
-    50     -0.838616  4 H  s                 38     -0.660004  2 H  s          
-    13     -0.524844  1 N  py                23      0.254259  1 N  dxz        
-     9      0.179712  1 N  px         
+    12      1.612054  1 N  px                44      1.477569  3 H  s          
+    38     -0.973226  2 H  s                 50     -0.504343  4 H  s          
+    23      0.267934  1 N  dxz                9      0.189378  1 N  px         
 
  Vector   10  Occ=0.000000D+00  E= 2.706850D-01  Symmetry=e
-              MO Center= -2.1D-01,  2.6D-02, -2.4D-01, r^2= 2.8D+00
+              MO Center= -1.7D-01,  1.2D-01, -2.4D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.529774  1 N  py                38     -1.349403  2 H  s          
-    50      1.246281  4 H  s                 12      0.524844  1 N  px         
-    25      0.254259  1 N  dyz               22      0.204618  1 N  dxy        
-    10      0.179712  1 N  py         
+    13      1.612054  1 N  py                50      1.414967  4 H  s          
+    38     -1.144257  2 H  s                 44     -0.270710  3 H  s          
+    25      0.267934  1 N  dyz               10      0.189378  1 N  py         
+    22      0.173510  1 N  dxy        
 
  Vector   11  Occ=0.000000D+00  E= 3.026653D-01  Symmetry=a1
-              MO Center= -6.0D-16,  2.4D-16, -4.8D-01, r^2= 2.8D+00
+              MO Center= -1.2D-15,  2.0D-16, -4.8D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     14      1.407943  1 N  pz                11     -1.004167  1 N  pz         
@@ -633,7 +632,7 @@ task dft gradient
     38     -0.288836  2 H  s                 44     -0.288836  3 H  s          
 
  Vector   12  Occ=0.000000D+00  E= 4.053846D-01  Symmetry=a1
-              MO Center=  2.5D-14,  8.5D-15,  4.5D-01, r^2= 3.7D+00
+              MO Center= -1.1D-14,  3.3D-14,  4.5D-01, r^2= 3.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      4.260441  1 N  s                 39     -1.335672  2 H  s          
@@ -643,7 +642,7 @@ task dft gradient
     38      0.757588  2 H  s                 44      0.757588  3 H  s          
 
  Vector   13  Occ=0.000000D+00  E= 4.609293D-01  Symmetry=a1
-              MO Center=  3.0D-13,  2.2D-13,  3.6D-01, r^2= 2.6D+00
+              MO Center= -7.5D-14,  1.9D-13,  3.6D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      6.045352  1 N  s                 38     -1.280211  2 H  s          
@@ -653,33 +652,34 @@ task dft gradient
     45     -0.902946  3 H  s                 51     -0.902946  4 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 4.681028D-01  Symmetry=e
-              MO Center=  3.2D-01,  1.8D-01,  1.8D-01, r^2= 3.6D+00
+              MO Center=  2.4D-01, -2.7D-01,  1.8D-01, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.492608  2 H  s                 13     -1.753212  1 N  py         
-    51     -1.542473  4 H  s                 12     -1.330171  1 N  px         
-    10      1.232954  1 N  py                45     -0.950135  3 H  s          
-     9      0.935449  1 N  px                38     -0.857839  2 H  s          
-    50      0.530847  4 H  s                 44      0.326992  3 H  s          
+    51      2.451025  4 H  s                 13      2.199426  1 N  py         
+    39     -1.717341  2 H  s                 10     -1.546756  1 N  py         
+    50     -0.843528  4 H  s                 45     -0.733684  3 H  s          
+    38      0.591028  2 H  s                  7     -0.305147  1 N  py         
+    44      0.252500  3 H  s                 35      0.209875  1 N  fyzz       
 
  Vector   15  Occ=0.000000D+00  E= 4.681028D-01  Symmetry=e
-              MO Center= -3.2D-01, -1.8D-01,  1.8D-01, r^2= 3.6D+00
+              MO Center= -2.4D-01,  2.7D-01,  1.8D-01, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      2.329655  3 H  s                 51     -1.987669  4 H  s          
-    12      1.753212  1 N  px                13     -1.330171  1 N  py         
-     9     -1.232954  1 N  px                10      0.935449  1 N  py         
-    44     -0.801758  3 H  s                 50      0.684063  4 H  s          
-    39     -0.341986  2 H  s                  6     -0.243239  1 N  px         
+    45      2.406607  3 H  s                 12      2.199426  1 N  px         
+    39     -1.838693  2 H  s                  9     -1.546756  1 N  px         
+    44     -0.828241  3 H  s                 38      0.632792  2 H  s          
+    51     -0.567914  4 H  s                  6     -0.305147  1 N  px         
+    32      0.209875  1 N  fxzz              50      0.195450  4 H  s          
 
  Vector   16  Occ=0.000000D+00  E= 8.494494D-01  Symmetry=e
-              MO Center= -1.5D-02,  1.3D-04, -2.5D-02, r^2= 1.1D+00
+              MO Center= -5.6D-04,  1.5D-02, -2.5D-02, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.908797  1 N  dxz               21      0.416191  1 N  dxx        
-    24     -0.416191  1 N  dyy               25     -0.371933  1 N  dyz        
-    22     -0.348923  1 N  dxy               44     -0.188370  3 H  s          
-    12     -0.180005  1 N  px         
+    23      0.914014  1 N  dxz               22     -0.827316  1 N  dxy        
+    25      0.358921  1 N  dyz               12     -0.181039  1 N  px         
+    21      0.180386  1 N  dxx               24     -0.180386  1 N  dyy        
+    38      0.174061  2 H  s                 52      0.157029  4 H  px         
+    44     -0.152765  3 H  s          
 
 
  center of mass
@@ -739,12 +739,12 @@ task dft gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.10   |
+                 |  CPU   |       0.00   |       0.00   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.10   |
+                 |  WALL  |       0.00   |       0.53   |
                  ----------------------------------------
 
- Task  times  cpu:        1.4s     wall:        1.6s
+ Task  times  cpu:        2.0s     wall:        6.0s
 
 
                                 NWChem Input Module
@@ -853,35 +853,30 @@ task dft gradient
 
 (CAM-)S12g/(CAM-)S12h gradients/frequencies
 
-   Time after variat. SCF:      1.5
-   Time prior to 1st pass:      1.5
-
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
- Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     15        Max. recs in file   = 253312716
-
+   Time after variat. SCF:      2.0
+   Time prior to 1st pass:      2.0
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.92            12919586
-          Stack Space remaining (MW):      157.29           157285956
+           Heap Space remaining (MW):       13.10            13103942
+          Stack Space remaining (MW):      157.29           157285948
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1    -56.5779994606 -6.86D+01  2.96D-07  1.12D-10     1.9
- d=80,ls=0.0,diis     2    -56.5779994606 -4.18D-12  1.44D-07  4.41D-11     2.3
+ d=80,ls=0.0,diis     1    -56.5779994607 -6.86D+01  2.96D-07  1.12D-10     2.0
+ d=80,ls=0.0,diis     2    -56.5779994607 -4.58D-12  1.44D-07  4.41D-11     2.1
 
 
-         Total DFT energy =      -56.578020289091
-      One electron energy =      -99.738527735259
-           Coulomb energy =       39.215674189797
-    Exchange-Corr. energy =       -8.032640993646
+         Total DFT energy =      -56.577999460699
+      One electron energy =      -99.738527735757
+           Coulomb energy =       39.215674190391
+    Exchange-Corr. energy =       -8.032640993806
  Nuclear repulsion energy =       11.977515906929
 
     Dispersion correction =       -0.000020828456
 
- Numeric. integr. density =       10.000000259720
+ Numeric. integr. density =       10.000000259841
 
-     Total iterative time =      0.8s
+     Total iterative time =      0.1s
 
 
 
@@ -905,18 +900,18 @@ task dft gradient
               MO Center=  1.3D-01,  1.3D-01,  5.5D-02, r^2= 9.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.246869  1 N  px                 7      0.246869  1 N  py         
+     6      0.246895  1 N  px                 7      0.246842  1 N  py         
     38      0.233074  2 H  s                 37      0.176960  2 H  s          
-     9      0.167870  1 N  px                10      0.167870  1 N  py         
+     9      0.167888  1 N  px                10      0.167852  1 N  py         
 
  Vector    4  Occ=2.000000D+00  E=-4.153629D-01
               MO Center= -1.3D-01, -1.3D-01,  5.5D-02, r^2= 9.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.246869  1 N  px                 7     -0.246869  1 N  py         
-    44     -0.201848  3 H  s                 50      0.201848  4 H  s          
-     9      0.167870  1 N  px                10     -0.167870  1 N  py         
-    43     -0.153252  3 H  s                 49      0.153252  4 H  s          
+     6      0.246842  1 N  px                 7     -0.246895  1 N  py         
+    44     -0.201836  3 H  s                 50      0.201861  4 H  s          
+     9      0.167852  1 N  px                10     -0.167888  1 N  py         
+    43     -0.153242  3 H  s                 49      0.153261  4 H  s          
 
  Vector    5  Occ=2.000000D+00  E=-2.212385D-01
               MO Center= -5.4D-09, -5.4D-09, -2.6D-01, r^2= 9.3D-01
@@ -940,35 +935,35 @@ task dft gradient
               MO Center=  4.9D-01,  4.9D-01,  4.5D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.161846  2 H  s                 45     -1.080922  3 H  s          
-    51     -1.080924  4 H  s                 12     -0.679741  1 N  px         
-    13     -0.679741  1 N  py                 6     -0.190587  1 N  px         
-     7     -0.190587  1 N  py         
+    39      2.161846  2 H  s                 45     -1.080861  3 H  s          
+    51     -1.080984  4 H  s                 12     -0.679719  1 N  px         
+    13     -0.679763  1 N  py                 6     -0.190580  1 N  px         
+     7     -0.190593  1 N  py         
 
  Vector    8  Occ=0.000000D+00  E= 8.779891D-02
               MO Center= -4.9D-01, -4.9D-01,  4.5D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      1.872214  3 H  s                 51     -1.872213  4 H  s          
-    12      0.679741  1 N  px                13     -0.679741  1 N  py         
-     6      0.190587  1 N  px                 7     -0.190587  1 N  py         
+    45      1.872249  3 H  s                 51     -1.872178  4 H  s          
+    12      0.679763  1 N  px                13     -0.679719  1 N  py         
+     6      0.190593  1 N  px                 7     -0.190580  1 N  py         
 
  Vector    9  Occ=0.000000D+00  E= 2.706837D-01
               MO Center= -1.5D-01, -1.5D-01, -2.4D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    38      1.502164  2 H  s                 12     -1.143600  1 N  px         
-    13     -1.143600  1 N  py                44     -0.751083  3 H  s          
-    50     -0.751083  4 H  s                 22     -0.227781  1 N  dxy        
-    23     -0.190076  1 N  dxz               25     -0.190076  1 N  dyz        
+    38      1.502164  2 H  s                 12     -1.143589  1 N  px         
+    13     -1.143611  1 N  py                44     -0.751070  3 H  s          
+    50     -0.751096  4 H  s                 22     -0.227781  1 N  dxy        
+    23     -0.190074  1 N  dxz               25     -0.190077  1 N  dyz        
 
  Vector   10  Occ=0.000000D+00  E= 2.706837D-01
               MO Center=  1.5D-01,  1.5D-01, -2.4D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    44      1.300913  3 H  s                 50     -1.300912  4 H  s          
-    12      1.143600  1 N  px                13     -1.143600  1 N  py         
-    23      0.190076  1 N  dxz               25     -0.190076  1 N  dyz        
+    44      1.300920  3 H  s                 50     -1.300905  4 H  s          
+    12      1.143611  1 N  px                13     -1.143589  1 N  py         
+    23      0.190077  1 N  dxz               25     -0.190074  1 N  dyz        
 
  Vector   11  Occ=0.000000D+00  E= 3.026643D-01
               MO Center= -4.6D-07, -4.6D-07, -4.8D-01, r^2= 2.8D+00
@@ -981,7 +976,7 @@ task dft gradient
     38     -0.288842  2 H  s                 44     -0.288840  3 H  s          
 
  Vector   12  Occ=0.000000D+00  E= 4.053828D-01
-              MO Center= -6.3D-08, -6.3D-08,  4.5D-01, r^2= 3.7D+00
+              MO Center= -6.4D-08, -6.3D-08,  4.5D-01, r^2= 3.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      4.260397  1 N  s                 39     -1.335666  2 H  s          
@@ -1004,28 +999,28 @@ task dft gradient
               MO Center= -2.6D-01, -2.6D-01,  1.8D-01, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      2.178884  3 H  s                 51     -2.178889  4 H  s          
-    12      1.556135  1 N  px                13     -1.556142  1 N  py         
-     9     -1.094354  1 N  px                10      1.094359  1 N  py         
-    44     -0.749864  3 H  s                 50      0.749866  4 H  s          
-     6     -0.215896  1 N  px                 7      0.215897  1 N  py         
+    45      2.179364  3 H  s                 51     -2.178409  4 H  s          
+    12      1.556729  1 N  px                13     -1.555548  1 N  py         
+     9     -1.094772  1 N  px                10      1.093941  1 N  py         
+    44     -0.750029  3 H  s                 50      0.749701  4 H  s          
+     6     -0.215979  1 N  px                 7      0.215815  1 N  py         
 
  Vector   15  Occ=0.000000D+00  E= 4.681012D-01
               MO Center=  2.6D-01,  2.6D-01,  1.8D-01, r^2= 3.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.515958  2 H  s                 12     -1.556141  1 N  px         
-    13     -1.556135  1 N  py                45     -1.257989  3 H  s          
-    51     -1.257980  4 H  s                  9      1.094358  1 N  px         
-    10      1.094354  1 N  py                38     -0.865875  2 H  s          
-    44      0.432931  3 H  s                 50      0.432928  4 H  s          
+    39      2.515958  2 H  s                 12     -1.555548  1 N  px         
+    13     -1.556729  1 N  py                45     -1.257157  3 H  s          
+    51     -1.258811  4 H  s                  9      1.093941  1 N  px         
+    10      1.094772  1 N  py                38     -0.865874  2 H  s          
+    44      0.432645  3 H  s                 50      0.433214  4 H  s          
 
  Vector   16  Occ=0.000000D+00  E= 8.494471D-01
               MO Center=  1.1D-02,  1.1D-02, -2.5D-02, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      0.902556  1 N  dxy               23     -0.694353  1 N  dxz        
-    25     -0.694348  1 N  dyz               38     -0.189892  2 H  s          
+    22      0.902555  1 N  dxy               23     -0.693082  1 N  dxz        
+    25     -0.695616  1 N  dyz               38     -0.189892  2 H  s          
 
 
  center of mass
@@ -1057,18 +1052,18 @@ task dft gradient
      2   0 0 2     -6.886991     -3.985246     -3.985246      1.083501
 
 
- HESSIAN: the one electron contributions are done in       0.0s
+ HESSIAN: the one electron contributions are done in       0.1s
 
 
- HESSIAN: 2-el 1st deriv. term done in                     0.3s
+ HESSIAN: 2-el 1st deriv. term done in                     0.6s
 
 
- HESSIAN: 2-el 2nd deriv. term done in                     0.9s
+ HESSIAN: 2-el 2nd deriv. term done in                     1.9s
 
-  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess
- stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.fd_ddipole
+  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess
+ stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.fd_ddipole
 
- HESSIAN: the two electron contributions are done in       6.1s
+ HESSIAN: the two electron contributions are done in      23.4s
 
                                 NWChem CPHF Module
                                 ------------------
@@ -1084,7 +1079,7 @@ task dft gradient
   max iterations   =       50
   max subspace     =      120
 
- SCF residual:   3.956793988191471E-006
+ SCF residual:   3.956993344670944E-006
 
 
 Iterative solution of linear equations
@@ -1093,19 +1088,19 @@ Iterative solution of linear equations
   Maximum subspace      120
         Iterations       50
        Convergence  1.0D-04
-        Start time     13.7
+        Start time     49.6
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     12    2.47D-01      16.9
-     2     24    3.15D-02      20.0
-     3     36    3.03D-03      23.3
-     4     48    2.66D-04      26.5
-     5     60    2.40D-06      29.7
+     1     12    2.47D-01      63.8
+     2     24    3.15D-02      78.0
+     3     36    3.03D-03      92.0
+     4     48    2.66D-04     106.3
+     5     60    2.40D-06     119.8
  HESSIAN: the CPHF contributions are done
-  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess
- stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.fd_ddipole
+  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess
+ stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.fd_ddipole
 
  Derivative Dipole
 
@@ -1155,7 +1150,7 @@ Iterative solution of linear equations
   
   
  HESSIAN: the Hessian is done
- Read old hessian file : /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess                                                                                                                                                                                     
+ Read old hessian file : /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess                                                                                                                                                                                     
  vdW contribution to hessian 
 
               1        2        3        4        5        6        7        8
@@ -1241,8 +1236,8 @@ Iterative solution of linear equations
    10   -0.0160   0.0784  -0.0898   0.0374
    11    0.0071  -0.0898   0.3894  -0.1395
    12   -0.0005   0.0374  -0.1395   0.0695
-  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess
- New hessian file vdw corrected has been                                written:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess                                                                                                                                                                                     
+  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess
+ New hessian file vdw corrected has been                                written:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess                                                                                                                                                                                     
 
 
   Vibrational analysis via the FX method 
@@ -1258,7 +1253,7 @@ Iterative solution of linear equations
  ---------------------------- Atom information ----------------------------
      atom    #        X              Y              Z            mass
  --------------------------------------------------------------------------
-    N        1  0.0000000D+00  1.9132395D-42 -2.1548954D-01  1.4003070D+01
+    N        1  4.7830988D-43  0.0000000D+00 -2.1548954D-01  1.4003070D+01
     H        2  1.2509394D+00  1.2509394D+00  5.0280892D-01  1.0078250D+00
     H        3 -1.7088150D+00  4.5787561D-01  5.0280892D-01  1.0078250D+00
     H        4  4.5787561D-01 -1.7088150D+00  5.0280892D-01  1.0078250D+00
@@ -1275,8 +1270,8 @@ Iterative solution of linear equations
                1            2            3            4            5            6            7            8            9           10
    ----- ----- ----- ----- -----
     1    4.65238D+01
-    2   -2.23058D-04  4.65238D+01
-    3    2.29619D-04  2.29622D-04  1.46692D+01
+    2   -2.22417D-04  4.65238D+01
+    3    2.28984D-04  2.30687D-04  1.46692D+01
     4   -5.78106D+01 -4.32668D+01 -2.30380D+01  2.32112D+02
     5   -4.32668D+01 -5.78106D+01 -2.30380D+01  1.78157D+02  2.32112D+02
     6   -3.36862D+01 -3.36862D+01 -1.82205D+01  1.01345D+02  1.01345D+02  6.89322D+01
@@ -1304,35 +1299,35 @@ Iterative solution of linear equations
  
  Frequency       -277.75     -277.75     -265.04      -10.52      -10.01        9.88
  
-           1    -0.03703     0.03700     0.00000    -0.17127    -0.17135     0.00557
-           2    -0.03700    -0.03703     0.00000    -0.17126     0.17136     0.00556
-           3     0.00000     0.00000     0.00000     0.00787     0.00001     0.24221
-           4     0.17042    -0.17185    -0.40665    -0.17134    -0.17141     0.00557
-           5     0.17028     0.17199     0.40665    -0.17133     0.17142     0.00555
-           6    -0.72038    -0.00029     0.00000     0.00810     0.00001     0.24225
-           7     0.17092    -0.17001    -0.14884    -0.17133    -0.17142     0.00557
-           8     0.17212     0.17147    -0.55552    -0.17132     0.17141     0.00556
-           9     0.36045    -0.62373     0.00002     0.00775    -0.00018     0.24224
-          10     0.17226    -0.17133     0.55552    -0.17133    -0.17140     0.00557
-          11     0.17078     0.17015     0.14884    -0.17133     0.17143     0.00556
-          12     0.35994     0.62402    -0.00002     0.00775     0.00020     0.24224
+           1    -0.03703     0.03700     0.00000    -0.17120     0.17141     0.00555
+           2    -0.03701    -0.03702     0.00000    -0.17132    -0.17129     0.00559
+           3     0.00000     0.00000     0.00000     0.00788     0.00002     0.24221
+           4     0.17040    -0.17187    -0.40665    -0.17127     0.17148     0.00555
+           5     0.17031     0.17197     0.40665    -0.17139    -0.17136     0.00558
+           6    -0.72038    -0.00020     0.00000     0.00811     0.00002     0.24225
+           7     0.17089    -0.17003    -0.14884    -0.17127     0.17148     0.00556
+           8     0.17214     0.17145    -0.55552    -0.17138    -0.17135     0.00558
+           9     0.36038    -0.62377     0.00002     0.00776     0.00021     0.24224
+          10     0.17224    -0.17135     0.55552    -0.17126     0.17147     0.00555
+          11     0.17080     0.17013     0.14884    -0.17139    -0.17136     0.00559
+          12     0.36002     0.62398    -0.00002     0.00776    -0.00017     0.24224
 
                     7           8           9          10          11          12
  
  Frequency        975.68     1625.86     1625.86     3515.69     3656.33     3656.33
  
-           1     0.00000     0.04580    -0.04579     0.00000    -0.06725     0.03509
-           2     0.00000     0.04579     0.04580     0.00000    -0.03509    -0.06725
+           1     0.00000     0.04579    -0.04581     0.00000    -0.07108    -0.02648
+           2     0.00000     0.04581     0.04579     0.00000     0.02648    -0.07108
            3     0.10638     0.00000     0.00000    -0.03698     0.00000     0.00000
-           4     0.13354     0.09681     0.52112     0.38411     0.48441     0.16898
-           5     0.13354     0.09694    -0.52110     0.38411     0.49399     0.13852
-           6    -0.49261    -0.24648    -0.00003     0.17127     0.27281     0.08574
-           7    -0.18242    -0.09899    -0.20999    -0.52470     0.51207    -0.47802
-           8     0.04888    -0.63417    -0.32529     0.14059    -0.15302     0.11087
-           9    -0.49262     0.12327    -0.21345     0.17127    -0.21066     0.19339
-          10     0.04888    -0.63425     0.32514     0.14059    -0.06208    -0.17847
-          11    -0.18242    -0.09904     0.20996    -0.52470     0.14653     0.68501
-          12    -0.49262     0.12322     0.21348     0.17127    -0.06215    -0.27913
+           4     0.13354     0.09698     0.52109     0.38411     0.19871     0.47300
+           5     0.13354     0.09678    -0.52113     0.38411     0.22774     0.45972
+           6    -0.49261    -0.24648     0.00005     0.17127     0.11891     0.26007
+           7    -0.18242    -0.09906    -0.20996    -0.52470     0.69789     0.06046
+           8     0.04888    -0.63427    -0.32509     0.14059    -0.18479    -0.03947
+           9    -0.49262     0.12320    -0.21349     0.17127    -0.28468    -0.02706
+          10     0.04888    -0.63415     0.32534     0.14059     0.09104    -0.16558
+          11    -0.18242    -0.09898     0.20999    -0.52470    -0.41083     0.56739
+          12    -0.49262     0.12328     0.21344     0.17127     0.16577    -0.23301
 
 
 
@@ -1343,15 +1338,15 @@ Iterative solution of linear equations
     1     -277.753 ||       0.905               0.904             0.000
     2     -277.751 ||      -0.904               0.905             0.000
     3     -265.042 ||       0.000               0.000             0.000
-    4      -10.518 ||       0.000               0.000             0.000
-    5      -10.006 ||       0.000               0.000             0.000
-    6        9.880 ||       0.000               0.000             0.000
+    4      -10.519 ||       0.000               0.000             0.000
+    5      -10.008 ||       0.000               0.000             0.000
+    6        9.879 ||       0.000               0.000             0.000
     7      975.680 ||       0.000               0.000             1.948
     8     1625.862 ||      -0.487              -0.487             0.000
     9     1625.863 ||       0.487              -0.487             0.000
    10     3515.694 ||       0.000               0.000            -0.232
-   11     3656.332 ||       0.158               0.083             0.000
-   12     3656.332 ||      -0.083               0.158             0.000
+   11     3656.332 ||       0.167              -0.062             0.000
+   12     3656.332 ||       0.062               0.167             0.000
  ----------------------------------------------------------------------------
 
 
@@ -1365,9 +1360,9 @@ Iterative solution of linear equations
     1     -277.753 ||    0.070905           1.636        69.122      24.145
     2     -277.751 ||    0.070905           1.636        69.121      24.145
     3     -265.042 ||    0.000000           0.000         0.000       0.000
-    4      -10.518 ||    0.000000           0.000         0.000       0.000
-    5      -10.006 ||    0.000000           0.000         0.000       0.000
-    6        9.880 ||    0.000000           0.000         0.000       0.000
+    4      -10.519 ||    0.000000           0.000         0.000       0.000
+    5      -10.008 ||    0.000000           0.000         0.000       0.000
+    6        9.879 ||    0.000000           0.000         0.000       0.000
     7      975.680 ||    0.164423           3.793       160.288      55.990
     8     1625.862 ||    0.020531           0.474        20.014       6.991
     9     1625.863 ||    0.020531           0.474        20.014       6.991
@@ -1383,7 +1378,7 @@ Iterative solution of linear equations
         Vibrational analysis via the FX method 
   --- with translations and rotations projected out ---
   --- via the Eckart algorithm                      ---
- Projected Nuclear Hessian trans-rot subspace norm:4.3671D-33
+ Projected Nuclear Hessian trans-rot subspace norm:2.2229D-33
                          (should be close to zero!) 
 
           --------------------------------------------------------
@@ -1394,8 +1389,8 @@ Iterative solution of linear equations
                1            2            3            4            5            6            7            8            9           10
    ----- ----- ----- ----- -----
     1    4.66163D+01
-    2   -1.05698D-04  4.66163D+01
-    3    1.21720D-04  1.21693D-04  1.46670D+01
+    2   -1.05386D-04  4.66163D+01
+    3    1.21385D-04  1.22251D-04  1.46670D+01
     4   -5.79210D+01 -4.32662D+01 -2.30378D+01  2.32695D+02
     5   -4.32662D+01 -5.79210D+01 -2.30378D+01  1.77716D+02  2.32695D+02
     6   -3.32587D+01 -3.32587D+01 -1.82240D+01  1.00817D+02  1.00817D+02  7.01006D+01
@@ -1403,7 +1398,7 @@ Iterative solution of linear equations
     8    2.16333D+01 -2.04512D+01 -8.43252D+00 -2.58263D+01  5.84107D+00  9.63406D+00 -8.88582D+01  7.87877D+01
     9    4.54320D+01 -1.21738D+01 -1.82238D+01 -1.65264D+01  1.58309D+00 -1.08518D+00 -1.37718D+02  3.69019D+01  7.01001D+01
    10   -2.04512D+01  2.16333D+01 -8.43252D+00  5.84107D+00 -2.58263D+01  9.63406D+00 -8.39665D+00  3.40460D+01 -1.51036D+01  7.87877D+01
-   11    2.16333D+01 -9.53908D+01  3.14699D+01  9.38563D+00 -2.26343D+01  1.35212D+01 -1.16573D+00 -8.39665D+00  6.89286D+00 -8.88582D+01
+   11    2.16333D+01 -9.53908D+01  3.14699D+01  9.38563D+00 -2.26343D+01  1.35212D+01 -1.16572D+00 -8.39665D+00  6.89286D+00 -8.88582D+01
    12   -1.21738D+01  4.54320D+01 -1.82238D+01  1.58309D+00 -1.65264D+01 -1.08518D+00  6.89286D+00 -1.51036D+01 -1.08567D+00  3.69019D+01
 
 
@@ -1411,10 +1406,6 @@ Iterative solution of linear equations
    ----- ----- ----- ----- -----
    11    3.86601D+02
    12   -1.37718D+02  7.01001D+01
-
-
-From the projected analysis 
-The Zero-Point Energy (Kcal/mol) =          21.51936572
 
  center of mass
  --------------
@@ -1461,35 +1452,35 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
  
  P.Frequency        0.00        0.00        0.00        0.00        0.00        0.00
  
-           1     0.03069    -0.04714     0.24060     0.00205    -0.00076     0.01947
-           2    -0.00221     0.01449     0.00032    -0.01906     0.24236     0.04603
-           3     0.00255     0.05295     0.00238     0.22555     0.00111     0.07102
-           4    -0.37490     0.21714     0.29051    -0.01884     0.00041    -0.09835
-           5     0.40332    -0.08453    -0.05109     0.08006     0.24520    -0.20780
-           6     0.00266    -0.23486     0.00500     0.08931    -0.00588     0.71827
-           7    -0.11915     0.21889     0.25825    -0.02188     0.00239    -0.09811
-           8    -0.55117    -0.09107     0.06933     0.09142     0.23779    -0.20870
-           9    -0.00399     0.75311     0.00037     0.09818     0.01152    -0.04633
-          10     0.57958     0.22368     0.17009    -0.03020     0.00782    -0.09745
-          11     0.14756    -0.08628    -0.01883     0.08310     0.24322    -0.20804
-          12     0.00896    -0.35942     0.00176     0.48915    -0.00233    -0.45888
+           1    -0.00076     0.01947     0.03069     0.00205    -0.04714     0.24060
+           2     0.24236     0.04603    -0.00221    -0.01906     0.01449     0.00032
+           3     0.00111     0.07102     0.00255     0.22555     0.05295     0.00238
+           4     0.00041    -0.09835    -0.37490    -0.01884     0.21714     0.29051
+           5     0.24520    -0.20780     0.40332     0.08006    -0.08453    -0.05109
+           6    -0.00588     0.71827     0.00266     0.08931    -0.23486     0.00500
+           7     0.00239    -0.09811    -0.11915    -0.02188     0.21889     0.25825
+           8     0.23779    -0.20870    -0.55117     0.09142    -0.09107     0.06933
+           9     0.01152    -0.04633    -0.00399     0.09818     0.75311     0.00037
+          10     0.00782    -0.09745     0.57958    -0.03020     0.22368     0.17009
+          11     0.24322    -0.20804     0.14756     0.08310    -0.08628    -0.01883
+          12    -0.00233    -0.45888     0.00896     0.48915    -0.35942     0.00176
 
                     7           8           9          10          11          12
  
  P.Frequency      975.84     1623.52     1623.53     3515.71     3654.95     3654.95
  
-           1     0.00000     0.04596    -0.04596     0.00000    -0.05363     0.05363
-           2     0.00000     0.04596     0.04596     0.00000    -0.05363    -0.05363
+           1     0.00000     0.04595    -0.04597     0.00000    -0.05361     0.05364
+           2     0.00000     0.04597     0.04595     0.00000    -0.05364    -0.05361
            3     0.10636     0.00000     0.00000    -0.03698     0.00000     0.00000
-           4     0.13355     0.09591     0.52164     0.38410     0.51300     0.01627
-           5     0.13355     0.09594    -0.52163     0.38410     0.51300    -0.01625
-           6    -0.49262    -0.24445    -0.00001     0.17128     0.28523     0.00001
-           7    -0.18243    -0.09983    -0.20895    -0.52470     0.34524    -0.60985
-           8     0.04889    -0.63465    -0.32589     0.14059    -0.11313     0.15150
-           9    -0.49262     0.12222    -0.21169     0.17128    -0.14262     0.24701
-          10     0.04889    -0.63466     0.32586     0.14059    -0.11312    -0.15151
-          11    -0.18243    -0.09984     0.20894    -0.52470     0.34521     0.60986
-          12    -0.49262     0.12221     0.21170     0.17128    -0.14261    -0.24702
+           4     0.13355     0.09605     0.52161     0.38410     0.51300     0.01611
+           5     0.13355     0.09580    -0.52166     0.38410     0.51299    -0.01642
+           6    -0.49262    -0.24445     0.00006     0.17128     0.28523    -0.00009
+           7    -0.18243    -0.09989    -0.20892    -0.52470     0.34504    -0.60996
+           8     0.04889    -0.63473    -0.32572     0.14059    -0.11308     0.15154
+           9    -0.49262     0.12217    -0.21173     0.17128    -0.14254     0.24706
+          10     0.04889    -0.63458     0.32603     0.14059    -0.11317    -0.15147
+          11    -0.18243    -0.09979     0.20897    -0.52470     0.34541     0.60975
+          12    -0.49262     0.12227     0.21167     0.17128    -0.14269    -0.24697
 
 
 
@@ -1497,15 +1488,15 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
  Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
   Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
  ------ ---------- || ------------------ ------------------ -----------------
-    1        0.000 ||      -0.010               0.009             0.000
-    2        0.000 ||       1.164              -0.444             0.000
-    3        0.000 ||      -0.004              -0.002             0.000
+    1        0.000 ||       0.019              -0.001             0.000
+    2        0.000 ||      -0.512              -1.108             0.000
+    3        0.000 ||      -0.010               0.009             0.000
     4        0.000 ||      -0.112               0.453             0.000
-    5        0.000 ||       0.019              -0.001             0.000
-    6        0.000 ||      -0.512              -1.108             0.000
+    5        0.000 ||       1.164              -0.444             0.000
+    6        0.000 ||      -0.004              -0.002             0.000
     7      975.838 ||       0.000               0.000             1.948
-    8     1623.525 ||      -0.490              -0.490             0.000
-    9     1623.531 ||       0.490              -0.490             0.000
+    8     1623.525 ||      -0.489              -0.490             0.000
+    9     1623.531 ||       0.490              -0.489             0.000
    10     3515.708 ||       0.000               0.000            -0.232
    11     3654.952 ||       0.127               0.127             0.000
    12     3654.954 ||      -0.127               0.127             0.000
@@ -1519,12 +1510,12 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
  Normal Eigenvalue ||           Projected Infra Red Intensities
   Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
  ------ ---------- || -------------- ----------------- ---------- -----------
-    1        0.000 ||    0.000008           0.000         0.007       0.003
-    2        0.000 ||    0.067258           1.552        65.567      22.903
-    3        0.000 ||    0.000001           0.000         0.001       0.000
+    1        0.000 ||    0.000015           0.000         0.015       0.005
+    2        0.000 ||    0.064579           1.490        62.955      21.991
+    3        0.000 ||    0.000008           0.000         0.007       0.003
     4        0.000 ||    0.009437           0.218         9.200       3.214
-    5        0.000 ||    0.000015           0.000         0.015       0.005
-    6        0.000 ||    0.064579           1.490        62.955      21.991
+    5        0.000 ||    0.067258           1.552        65.567      22.903
+    6        0.000 ||    0.000001           0.000         0.001       0.000
     7      975.838 ||    0.164424           3.793       160.288      55.991
     8     1623.525 ||    0.020780           0.479        20.258       7.076
     9     1623.531 ||    0.020780           0.479        20.258       7.076
@@ -1537,7 +1528,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
 
  vib:animation  F
 
- Task  times  cpu:       25.6s     wall:       27.2s
+ Task  times  cpu:        5.7s     wall:      112.9s
 
 
                                 NWChem Input Module
@@ -1760,7 +1751,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
 
  !! nbf/nmo/basis-name mismatch 
            nbf= 102 nbf_file=  54
-           nmo= 102nmo_file=  54
+           nmo= 102 nmo_file=  54
            basis="ao basis" basis_file="ao basis"
 
   Either an incorrect movecs file was specified, or linear dependence has changed,
@@ -1788,42 +1779,42 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
  HOMO         =      -0.390060
  LUMO         =       0.044432
 
-   Time after variat. SCF:     27.2
-   Time prior to 1st pass:     27.2
+   Time after variat. SCF:      8.0
+   Time prior to 1st pass:      8.0
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   = 253312716
+ Max. records in memory =     48        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.80            12795714
-          Stack Space remaining (MW):      157.29           157285676
+           Heap Space remaining (MW):       12.51            12513070
+          Stack Space remaining (MW):      157.29           157285668
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1   -132.9754511127 -1.72D+02  1.05D-02  1.04D+00    28.7
- d=80,ls=0.0,diis     2   -132.9944346322 -1.90D-02  4.11D-03  5.06D-01    30.2
- d= 0,ls=0.0,diis     3   -133.0015698771 -7.14D-03  3.71D-03  3.53D-01    31.6
- d= 0,ls=0.0,diis     4   -133.0398072458 -3.82D-02  4.23D-04  6.05D-03    33.0
- d= 0,ls=0.0,diis     5   -133.0402545986 -4.47D-04  1.56D-04  1.47D-03    34.5
+ d=80,ls=0.0,diis     1   -132.9754511128 -1.72D+02  1.05D-02  1.04D+00    11.5
+ d=80,ls=0.0,diis     2   -132.9944346323 -1.90D-02  4.11D-03  5.06D-01    14.8
+ d= 0,ls=0.0,diis     3   -133.0015698772 -7.14D-03  3.71D-03  3.53D-01    18.1
+ d= 0,ls=0.0,diis     4   -133.0398072460 -3.82D-02  4.23D-04  6.05D-03    21.4
+ d= 0,ls=0.0,diis     5   -133.0402545988 -4.47D-04  1.56D-04  1.47D-03    24.7
   Resetting Diis
- d= 0,ls=0.0,diis     6   -133.0404017052 -1.47D-04  1.71D-05  1.40D-05    35.9
- d= 0,ls=0.0,diis     7   -133.0404030572 -1.35D-06  5.81D-06  3.03D-07    37.4
- d= 0,ls=0.0,diis     8   -133.0404030590 -1.87D-09  3.11D-06  3.13D-07    38.8
+ d= 0,ls=0.0,diis     6   -133.0404017054 -1.47D-04  1.71D-05  1.40D-05    28.0
+ d= 0,ls=0.0,diis     7   -133.0404030574 -1.35D-06  5.81D-06  3.03D-07    31.4
+ d= 0,ls=0.0,diis     8   -133.0404030592 -1.88D-09  3.11D-06  3.13D-07    34.7
 
 
-         Total DFT energy =     -133.041436079597
-      One electron energy =     -257.751511995022
-           Coulomb energy =      103.501827138230
-    Exchange-Corr. energy =      -17.353262316201
+         Total DFT energy =     -133.040403059236
+      One electron energy =     -257.751511993001
+           Coulomb energy =      103.501827135896
+    Exchange-Corr. energy =      -17.353262316086
  Nuclear repulsion energy =       38.563577134515
 
     Dispersion correction =       -0.001033020560
 
- Numeric. integr. density =       19.999999811535
+ Numeric. integr. density =       19.999999813317
 
-     Total iterative time =     11.6s
+     Total iterative time =     26.6s
 
 
 
@@ -1925,7 +1916,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
               MO Center= -5.6D-01,  2.0D+00,  8.4D-02, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    93      2.065615  6 H  s                 87     -1.357008  5 H  s          
+    93      2.065615  6 H  s                 87     -1.357009  5 H  s          
     60      0.735153  4 N  px                99     -0.693435  7 H  s          
     62     -0.597514  4 N  pz                54      0.209800  4 N  px         
     56     -0.171407  4 N  pz                61     -0.154279  4 N  py         
@@ -2066,7 +2057,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
 
  moments of inertia (a.u.)
  ------------------
-         290.684534368250           0.000000000000           0.000000000000
+         290.684534368251           0.000000000000           0.000000000000
            0.000000000000          12.365155545698           0.000000000000
            0.000000000000           0.000000000000         293.455941489252
 
@@ -2118,12 +2109,12 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       1.34   |
+                 |  CPU   |       0.01   |       3.59   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       1.36   |
+                 |  WALL  |       0.01   |       3.59   |
                  ----------------------------------------
 
- Task  times  cpu:       14.9s     wall:       15.5s
+ Task  times  cpu:       34.5s     wall:       35.1s
 
 
                                 NWChem Input Module
@@ -2338,7 +2329,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
 
  !! nbf/nmo/basis-name mismatch 
            nbf=  54 nbf_file= 102
-           nmo=  54nmo_file= 102
+           nmo=  54 nmo_file= 102
            basis="ao basis" basis_file="ao basis"
 
   Either an incorrect movecs file was specified, or linear dependence has changed,
@@ -2380,39 +2371,39 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
      6 a1          7 e           8 e           9 e          10 e       
     11 a1         12 a1         13 e          14 e          15 a1      
 
-   Time after variat. SCF:     42.0
-   Time prior to 1st pass:     42.0
+   Time after variat. SCF:     42.3
+   Time prior to 1st pass:     42.3
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      8        Max. recs in file   = 253312716
+ Max. records in memory =     15        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.01            13005610
-          Stack Space remaining (MW):      157.29           157285956
+           Heap Space remaining (MW):       12.92            12919590
+          Stack Space remaining (MW):      157.29           157285948
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1    -56.5495663517 -6.85D+01  8.63D-03  3.44D-01    42.3
- d=80,ls=0.0,diis     2    -56.5564282913 -6.86D-03  4.26D-03  1.77D-01    42.5
- d= 0,ls=0.0,diis     3    -56.5596898386 -3.26D-03  3.90D-03  1.23D-01    42.7
- d= 0,ls=0.0,diis     4    -56.5744960623 -1.48D-02  1.45D-04  2.02D-04    42.9
- d= 0,ls=0.0,diis     5    -56.5745159074 -1.98D-05  1.11D-05  3.88D-07    43.1
- d= 0,ls=0.0,diis     6    -56.5745159458 -3.84D-08  2.73D-06  1.44D-08    43.3
+ d=80,ls=0.0,diis     1    -56.5495663518 -6.85D+01  8.63D-03  3.44D-01    42.8
+ d=80,ls=0.0,diis     2    -56.5564282913 -6.86D-03  4.26D-03  1.77D-01    43.2
+ d= 0,ls=0.0,diis     3    -56.5596898387 -3.26D-03  3.90D-03  1.23D-01    43.7
+ d= 0,ls=0.0,diis     4    -56.5744960623 -1.48D-02  1.45D-04  2.02D-04    44.1
+ d= 0,ls=0.0,diis     5    -56.5745159074 -1.98D-05  1.11D-05  3.88D-07    44.6
+ d= 0,ls=0.0,diis     6    -56.5745159458 -3.84D-08  2.73D-06  1.44D-08    45.1
 
 
-         Total DFT energy =      -56.574534347073
-      One electron energy =      -99.740001319959
-           Coulomb energy =       39.217820381011
-    Exchange-Corr. energy =       -8.029832512465
+         Total DFT energy =      -56.574515945815
+      One electron energy =      -99.740001320090
+           Coulomb energy =       39.217820381177
+    Exchange-Corr. energy =       -8.029832512536
  Nuclear repulsion energy =       11.977515906929
 
     Dispersion correction =       -0.000018401295
 
- Numeric. integr. density =       10.000000213577
+ Numeric. integr. density =       10.000000213676
 
-     Total iterative time =      1.3s
+     Total iterative time =      2.8s
 
 
 
@@ -2430,42 +2421,42 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
                        ------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-1.436820D+01  Symmetry=a1
-              MO Center=  1.9D-21,  2.5D-21, -1.1D-01, r^2= 2.0D-02
+              MO Center=  8.5D-22,  1.5D-21, -1.1D-01, r^2= 2.0D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.622559  1 N  s                  1      0.449892  1 N  s          
 
  Vector    2  Occ=2.000000D+00  E=-8.800502D-01  Symmetry=a1
-              MO Center=  1.2D-18, -4.3D-18,  8.3D-02, r^2= 6.9D-01
+              MO Center= -9.8D-18, -1.3D-17,  8.3D-02, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.489666  1 N  s                  3      0.246389  1 N  s          
      2     -0.207175  1 N  s          
 
  Vector    3  Occ=2.000000D+00  E=-4.760748D-01  Symmetry=e
-              MO Center= -1.8D-01,  1.3D-02,  5.5D-02, r^2= 9.6D-01
+              MO Center=  3.3D-02, -1.8D-01,  5.5D-02, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.323647  1 N  px                44     -0.235250  3 H  s          
-     9      0.231145  1 N  px                43     -0.173002  3 H  s          
+     7      0.329857  1 N  py                10      0.235579  1 N  py         
+    50     -0.236145  4 H  s                 49     -0.173660  4 H  s          
 
  Vector    4  Occ=2.000000D+00  E=-4.760748D-01  Symmetry=e
-              MO Center=  1.8D-01, -1.3D-02,  5.5D-02, r^2= 9.6D-01
+              MO Center= -3.3D-02,  1.8D-01,  5.5D-02, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.323647  1 N  py                10      0.231145  1 N  py         
-    38      0.215073  2 H  s                 50     -0.192391  4 H  s          
-    37      0.158164  2 H  s          
+     6      0.329857  1 N  px                 9      0.235579  1 N  px         
+    38      0.209315  2 H  s                 44     -0.199700  3 H  s          
+    37      0.153930  2 H  s          
 
  Vector    5  Occ=2.000000D+00  E=-2.802133D-01  Symmetry=a1
-              MO Center= -9.4D-17,  2.4D-17, -2.6D-01, r^2= 9.3D-01
+              MO Center= -3.2D-17,  2.2D-18, -2.6D-01, r^2= 9.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      0.399769  1 N  pz                14      0.348254  1 N  pz         
     11      0.319467  1 N  pz                 4     -0.157325  1 N  s          
 
  Vector    6  Occ=0.000000D+00  E= 3.505174D-02  Symmetry=a1
-              MO Center=  2.4D-14, -3.2D-14,  4.5D-01, r^2= 4.6D+00
+              MO Center=  2.8D-16,  4.7D-17,  4.5D-01, r^2= 4.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      2.272918  1 N  s                 39     -1.046558  2 H  s          
@@ -2475,40 +2466,41 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
     26     -0.205451  1 N  dzz        
 
  Vector    7  Occ=0.000000D+00  E= 1.190502D-01  Symmetry=e
-              MO Center=  6.2D-01, -3.7D-01,  4.7D-01, r^2= 4.3D+00
+              MO Center= -6.4D-01, -3.3D-01,  4.7D-01, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    51      2.093560  4 H  s                 39     -1.781926  2 H  s          
-    13      0.997236  1 N  py                45     -0.311634  3 H  s          
-     7      0.249150  1 N  py         
+    45      2.105861  3 H  s                 51     -1.761234  4 H  s          
+    12      0.810636  1 N  px                13     -0.593845  1 N  py         
+    39     -0.344627  2 H  s                  6      0.202529  1 N  px         
 
  Vector    8  Occ=0.000000D+00  E= 1.190502D-01  Symmetry=e
-              MO Center= -6.2D-01,  3.7D-01,  4.7D-01, r^2= 4.3D+00
+              MO Center=  6.4D-01,  3.3D-01,  4.7D-01, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      2.237513  3 H  s                 39     -1.388639  2 H  s          
-    12      0.997236  1 N  px                51     -0.848873  4 H  s          
-     6      0.249150  1 N  px                44     -0.157053  3 H  s          
+    39      2.232669  2 H  s                 51     -1.414790  4 H  s          
+    45     -0.817879  3 H  s                 13     -0.810636  1 N  py         
+    12     -0.593845  1 N  px                 7     -0.202529  1 N  py         
+    38     -0.156713  2 H  s          
 
  Vector    9  Occ=0.000000D+00  E= 3.084262D-01  Symmetry=e
-              MO Center= -4.2D-02, -2.2D-01, -2.6D-01, r^2= 2.8D+00
+              MO Center= -2.2D-01, -6.9D-02, -2.6D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.509570  1 N  px                38     -1.443167  2 H  s          
-    44      1.106085  3 H  s                 13      0.799266  1 N  py         
-    50      0.337082  4 H  s                 23      0.247502  1 N  dxz        
-    22      0.233783  1 N  dxy        
+    38     -1.467444  2 H  s                 13      1.458300  1 N  py         
+    50      1.041692  4 H  s                 12      0.889376  1 N  px         
+    44      0.425752  3 H  s                 25      0.239096  1 N  dyz        
+    22      0.237716  1 N  dxy        
 
  Vector   10  Occ=0.000000D+00  E= 3.084262D-01  Symmetry=e
-              MO Center=  4.2D-02,  2.2D-01, -2.6D-01, r^2= 2.8D+00
+              MO Center=  2.2D-01,  6.9D-02, -2.6D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.509570  1 N  py                50      1.471811  4 H  s          
-    44     -1.027827  3 H  s                 12     -0.799266  1 N  px         
-    38     -0.443984  2 H  s                 25      0.247502  1 N  dyz        
+    12      1.458300  1 N  px                44      1.448651  3 H  s          
+    50     -1.093037  4 H  s                 13     -0.889376  1 N  py         
+    38     -0.355613  2 H  s                 23      0.239096  1 N  dxz        
 
  Vector   11  Occ=0.000000D+00  E= 3.410823D-01  Symmetry=a1
-              MO Center=  6.0D-17, -5.9D-16, -4.8D-01, r^2= 2.9D+00
+              MO Center=  6.9D-16,  9.0D-16, -4.8D-01, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     14      1.409058  1 N  pz                11     -1.020209  1 N  pz         
@@ -2518,7 +2510,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
     38     -0.302956  2 H  s                 44     -0.302956  3 H  s          
 
  Vector   12  Occ=0.000000D+00  E= 4.508164D-01  Symmetry=a1
-              MO Center=  4.0D-15,  1.7D-14,  4.7D-01, r^2= 3.8D+00
+              MO Center=  4.1D-14,  4.3D-14,  4.7D-01, r^2= 3.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.147092  1 N  s                  3     -1.457403  1 N  s          
@@ -2528,7 +2520,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
     14      0.955483  1 N  pz                11     -0.722714  1 N  pz         
 
  Vector   13  Occ=0.000000D+00  E= 5.020935D-01  Symmetry=a1
-              MO Center=  1.8D-15,  3.1D-15,  3.3D-01, r^2= 2.4D+00
+              MO Center= -4.1D-15, -1.6D-15,  3.3D-01, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.338827  1 N  s                 38     -1.411413  2 H  s          
@@ -2538,24 +2530,24 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
     45     -0.684936  3 H  s                 51     -0.684936  4 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 5.185477D-01  Symmetry=e
-              MO Center=  3.2D-01, -1.7D-01,  1.8D-01, r^2= 3.4D+00
+              MO Center= -3.0D-01,  2.0D-01,  1.8D-01, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    51      2.254636  4 H  s                 13      2.115742  1 N  py         
-    39     -1.979453  2 H  s                 10     -1.618615  1 N  py         
-    50     -0.877247  4 H  s                 38      0.770177  2 H  s          
-    12      0.319117  1 N  px                 7     -0.291530  1 N  py         
-    45     -0.275183  3 H  s                  9     -0.244135  1 N  px         
+    45      2.427607  3 H  s                 12      2.129120  1 N  px         
+     9     -1.628850  1 N  px                39     -1.558355  2 H  s          
+    44     -0.944548  3 H  s                 51     -0.869252  4 H  s          
+    38      0.606334  2 H  s                 50      0.338214  4 H  s          
+     6     -0.293373  1 N  px                32      0.224477  1 N  fxzz       
 
  Vector   15  Occ=0.000000D+00  E= 5.185477D-01  Symmetry=e
-              MO Center= -3.2D-01,  1.7D-01,  1.8D-01, r^2= 3.4D+00
+              MO Center=  3.0D-01, -2.0D-01,  1.8D-01, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      2.444552  3 H  s                 12      2.115742  1 N  px         
-     9     -1.618615  1 N  px                39     -1.460592  2 H  s          
-    51     -0.983961  4 H  s                 44     -0.951141  3 H  s          
-    38      0.568296  2 H  s                 50      0.382845  4 H  s          
-    13     -0.319117  1 N  py                 6     -0.291530  1 N  px         
+    51      2.301296  4 H  s                 13      2.129120  1 N  py         
+    39     -1.903442  2 H  s                 10     -1.628850  1 N  py         
+    50     -0.895402  4 H  s                 38      0.740603  2 H  s          
+    45     -0.397854  3 H  s                  7     -0.293373  1 N  py         
+    35      0.224477  1 N  fyzz              12      0.212240  1 N  px         
 
 
  center of mass
@@ -2615,12 +2607,12 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.10   |
+                 |  CPU   |       0.00   |       0.26   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.10   |
+                 |  WALL  |       0.00   |       0.27   |
                  ----------------------------------------
 
- Task  times  cpu:        1.8s     wall:        2.0s
+ Task  times  cpu:        3.8s     wall:        3.9s
 
 
                                 NWChem Input Module
@@ -2730,35 +2722,35 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
 
 (CAM-)S12g/(CAM-)S12h gradients/frequencies
 
-   Time after variat. SCF:     43.8
-   Time prior to 1st pass:     43.8
+   Time after variat. SCF:     46.0
+   Time prior to 1st pass:     46.0
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     15        Max. recs in file   = 253312716
+ Max. records in memory =     28        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.92            12919586
-          Stack Space remaining (MW):      157.29           157285956
+           Heap Space remaining (MW):       12.76            12759838
+          Stack Space remaining (MW):      157.29           157285948
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1    -56.5745159779 -6.86D+01  3.11D-07  1.52D-10    44.3
- d=80,ls=0.0,diis     2    -56.5745159779 -5.94D-12  2.80D-07  6.58D-11    44.6
+ d=80,ls=0.0,diis     1    -56.5745159779 -6.86D+01  3.11D-07  1.52D-10    46.9
+ d=80,ls=0.0,diis     2    -56.5745159780 -5.76D-12  2.80D-07  6.58D-11    47.8
 
 
-         Total DFT energy =      -56.574534379230
-      One electron energy =      -99.740171522013
-           Coulomb energy =       39.218011674595
-    Exchange-Corr. energy =       -8.029853636150
+         Total DFT energy =      -56.574515977953
+      One electron energy =      -99.740171522112
+           Coulomb energy =       39.218011674721
+    Exchange-Corr. energy =       -8.029853636195
  Nuclear repulsion energy =       11.977515906929
 
     Dispersion correction =       -0.000018401295
 
- Numeric. integr. density =       10.000000255890
+ Numeric. integr. density =       10.000000255939
 
-     Total iterative time =      0.8s
+     Total iterative time =      1.8s
 
 
 
@@ -2772,7 +2764,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
      2      0.622559  1 N  s                  1      0.449892  1 N  s          
 
  Vector    2  Occ=2.000000D+00  E=-8.800477D-01
-              MO Center=  5.2D-10,  5.2D-10,  8.3D-02, r^2= 6.9D-01
+              MO Center=  5.3D-10,  5.0D-10,  8.3D-02, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.489666  1 N  s                  3      0.246389  1 N  s          
@@ -2782,18 +2774,18 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
               MO Center=  1.3D-01,  1.3D-01,  5.5D-02, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.244337  1 N  px                 7      0.244337  1 N  py         
-    38      0.236341  2 H  s                  9      0.174502  1 N  px         
-    10      0.174503  1 N  py                37      0.173804  2 H  s          
+     6      0.244278  1 N  px                 7      0.244396  1 N  py         
+    38      0.236341  2 H  s                  9      0.174460  1 N  px         
+    10      0.174545  1 N  py                37      0.173804  2 H  s          
 
  Vector    4  Occ=2.000000D+00  E=-4.760729D-01
               MO Center= -1.3D-01, -1.3D-01,  5.5D-02, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.244337  1 N  px                 7     -0.244337  1 N  py         
-    44     -0.204678  3 H  s                 50      0.204677  4 H  s          
-     9      0.174503  1 N  px                10     -0.174502  1 N  py         
-    43     -0.150519  3 H  s                 49      0.150519  4 H  s          
+     6      0.244396  1 N  px                 7     -0.244278  1 N  py         
+    44     -0.204706  3 H  s                 50      0.204649  4 H  s          
+     9      0.174545  1 N  px                10     -0.174460  1 N  py         
+    43     -0.150540  3 H  s                 49      0.150498  4 H  s          
 
  Vector    5  Occ=2.000000D+00  E=-2.802120D-01
               MO Center= -2.2D-09, -2.2D-09, -2.6D-01, r^2= 9.3D-01
@@ -2816,35 +2808,35 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
               MO Center=  5.1D-01,  5.1D-01,  4.7D-01, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.259112  2 H  s                 45     -1.129561  3 H  s          
-    51     -1.129551  4 H  s                 12     -0.710559  1 N  px         
-    13     -0.710555  1 N  py                 6     -0.177526  1 N  px         
-     7     -0.177525  1 N  py                38     -0.158571  2 H  s          
+    39      2.259112  2 H  s                 45     -1.129521  3 H  s          
+    51     -1.129590  4 H  s                 12     -0.710544  1 N  px         
+    13     -0.710570  1 N  py                 6     -0.177522  1 N  px         
+     7     -0.177529  1 N  py                38     -0.158571  2 H  s          
 
  Vector    8  Occ=0.000000D+00  E= 1.190511D-01
               MO Center= -5.1D-01, -5.1D-01,  4.7D-01, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      1.956445  3 H  s                 51     -1.956451  4 H  s          
-    12      0.710555  1 N  px                13     -0.710559  1 N  py         
-     6      0.177525  1 N  px                 7     -0.177526  1 N  py         
+    45      1.956468  3 H  s                 51     -1.956428  4 H  s          
+    12      0.710570  1 N  px                13     -0.710544  1 N  py         
+     6      0.177529  1 N  px                 7     -0.177522  1 N  py         
 
  Vector    9  Occ=0.000000D+00  E= 3.084268D-01
               MO Center= -1.6D-01, -1.6D-01, -2.6D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    38      1.509918  2 H  s                 12     -1.207817  1 N  px         
-    13     -1.207815  1 N  py                44     -0.754961  3 H  s          
-    50     -0.754959  4 H  s                 22     -0.244597  1 N  dxy        
-    23     -0.198028  1 N  dxz               25     -0.198028  1 N  dyz        
+    38      1.509918  2 H  s                 12     -1.207813  1 N  px         
+    13     -1.207819  1 N  py                44     -0.754956  3 H  s          
+    50     -0.754963  4 H  s                 22     -0.244597  1 N  dxy        
+    23     -0.198027  1 N  dxz               25     -0.198028  1 N  dyz        
 
  Vector   10  Occ=0.000000D+00  E= 3.084268D-01
               MO Center=  1.6D-01,  1.6D-01, -2.6D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    44      1.307627  3 H  s                 50     -1.307628  4 H  s          
-    12      1.207815  1 N  px                13     -1.207817  1 N  py         
-    23      0.198028  1 N  dxz               25     -0.198028  1 N  dyz        
+    44      1.307630  3 H  s                 50     -1.307626  4 H  s          
+    12      1.207819  1 N  px                13     -1.207812  1 N  py         
+    23      0.198028  1 N  dxz               25     -0.198027  1 N  dyz        
 
  Vector   11  Occ=0.000000D+00  E= 3.410830D-01
               MO Center= -3.5D-07, -3.5D-07, -4.8D-01, r^2= 2.9D+00
@@ -2880,21 +2872,21 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
               MO Center= -2.6D-01, -2.6D-01,  1.8D-01, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      2.130422  3 H  s                 51     -2.130408  4 H  s          
-    12      1.512984  1 N  px                13     -1.512967  1 N  py         
-     9     -1.157487  1 N  px                10      1.157474  1 N  py         
-    44     -0.828919  3 H  s                 50      0.828914  4 H  s          
-     6     -0.208476  1 N  px                 7      0.208473  1 N  py         
+    45      2.130431  3 H  s                 51     -2.130398  4 H  s          
+    12      1.512996  1 N  px                13     -1.512956  1 N  py         
+     9     -1.157496  1 N  px                10      1.157465  1 N  py         
+    44     -0.828923  3 H  s                 50      0.828910  4 H  s          
+     6     -0.208477  1 N  px                 7      0.208472  1 N  py         
 
  Vector   15  Occ=0.000000D+00  E= 5.185489D-01
               MO Center=  2.6D-01,  2.6D-01,  1.8D-01, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.459990  2 H  s                 12     -1.512967  1 N  px         
-    13     -1.512984  1 N  py                45     -1.229984  3 H  s          
-    51     -1.230008  4 H  s                  9      1.157474  1 N  px         
-    10      1.157487  1 N  py                38     -0.957152  2 H  s          
-    44      0.478568  3 H  s                 50      0.478578  4 H  s          
+    39      2.459990  2 H  s                 12     -1.512956  1 N  px         
+    13     -1.512996  1 N  py                45     -1.229968  3 H  s          
+    51     -1.230024  4 H  s                  9      1.157465  1 N  px         
+    10      1.157496  1 N  py                38     -0.957152  2 H  s          
+    44      0.478562  3 H  s                 50      0.478584  4 H  s          
 
 
  center of mass
@@ -2925,21 +2917,21 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
      2   0 1 1      0.000000      0.000000      0.000000      0.000000
      2   0 0 2     -6.848042     -3.965771     -3.965771      1.083501
 
-  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess
- stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.fd_ddipole
+  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess
+ stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.fd_ddipole
 
- HESSIAN: the one electron contributions are done in       0.0s
-
-
- HESSIAN: 2-el 1st deriv. term done in                     0.3s
+ HESSIAN: the one electron contributions are done in       0.1s
 
 
- HESSIAN: 2-el 2nd deriv. term done in                     0.8s
+ HESSIAN: 2-el 1st deriv. term done in                     0.6s
 
-  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess
- stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.fd_ddipole
 
- HESSIAN: the two electron contributions are done in       6.1s
+ HESSIAN: 2-el 2nd deriv. term done in                     1.9s
+
+  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess
+ stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.fd_ddipole
+
+ HESSIAN: the two electron contributions are done in      12.8s
 
                                 NWChem CPHF Module
                                 ------------------
@@ -2955,7 +2947,7 @@ The Zero-Point Energy (Kcal/mol) =          21.51936572
   max iterations   =       50
   max subspace     =      120
 
- SCF residual:   3.260022057454542E-006
+ SCF residual:   3.260056608377240E-006
 
 
 Iterative solution of linear equations
@@ -2964,19 +2956,19 @@ Iterative solution of linear equations
   Maximum subspace      120
         Iterations       50
        Convergence  1.0D-04
-        Start time     58.5
+        Start time    181.9
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     12    2.13D-01      61.7
-     2     24    7.44D-02      65.0
-     3     36    3.81D-03      68.2
-     4     48    2.75D-04      71.5
-     5     60    2.68D-05      74.8
+     1     12    2.13D-01     189.1
+     2     24    7.44D-02     196.6
+     3     36    3.81D-03     205.6
+     4     48    2.75D-04     213.3
+     5     60    2.68D-05     221.8
  HESSIAN: the CPHF contributions are done
-  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess
- stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.fd_ddipole
+  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess
+ stpr_wrt_fd_dipole: overwrite of existing file/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.fd_ddipole
 
  Derivative Dipole
 
@@ -3026,7 +3018,7 @@ Iterative solution of linear equations
   
   
  HESSIAN: the Hessian is done
- Read old hessian file : /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess                                                                                                                                                                                     
+ Read old hessian file : /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess                                                                                                                                                                                     
  vdW contribution to hessian 
 
               1        2        3        4        5        6        7        8
@@ -3112,8 +3104,8 @@ Iterative solution of linear equations
    10   -0.0164   0.0831  -0.0891   0.0372
    11    0.0067  -0.0891   0.3917  -0.1389
    12    0.0003   0.0372  -0.1389   0.0730
-  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess
- New hessian file vdw corrected has been                                written:/home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.hess                                                                                                                                                                                     
+  stpr_wrt_fd_from_sq: overwrite of existing file:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess
+ New hessian file vdw corrected has been                                written:/home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.hess                                                                                                                                                                                     
 
 
   Vibrational analysis via the FX method 
@@ -3129,7 +3121,7 @@ Iterative solution of linear equations
  ---------------------------- Atom information ----------------------------
      atom    #        X              Y              Z            mass
  --------------------------------------------------------------------------
-    N        1  0.0000000D+00  1.9132395D-42 -2.1548954D-01  1.4003070D+01
+    N        1  4.7830988D-43  0.0000000D+00 -2.1548954D-01  1.4003070D+01
     H        2  1.2509394D+00  1.2509394D+00  5.0280892D-01  1.0078250D+00
     H        3 -1.7088150D+00  4.5787561D-01  5.0280892D-01  1.0078250D+00
     H        4  4.5787561D-01 -1.7088150D+00  5.0280892D-01  1.0078250D+00
@@ -3146,8 +3138,8 @@ Iterative solution of linear equations
                1            2            3            4            5            6            7            8            9           10
    ----- ----- ----- ----- -----
     1    4.72619D+01
-    2   -4.28451D-04  4.72619D+01
-    3    1.27960D-05  1.27980D-05  1.57726D+01
+    2   -4.28251D-04  4.72619D+01
+    3    1.27820D-05  1.32636D-05  1.57726D+01
     4   -5.87480D+01 -4.26868D+01 -2.30256D+01  2.35586D+02
     5   -4.26868D+01 -5.87480D+01 -2.30256D+01  1.76797D+02  2.35586D+02
     6   -3.36920D+01 -3.36920D+01 -1.95943D+01  1.00925D+02  1.00925D+02  7.24058D+01
@@ -3175,35 +3167,35 @@ Iterative solution of linear equations
  
  Frequency        -23.58      -21.85      -21.38        6.97       37.20       37.22
  
-           1     0.00323     0.17290     0.17292    -0.00002    -0.02860     0.02841
-           2    -0.00329     0.17299    -0.17283     0.00002    -0.02814    -0.02886
+           1     0.00323     0.17283     0.17299    -0.00002    -0.02859     0.02841
+           2    -0.00329     0.17306    -0.17276     0.00003    -0.02815    -0.02885
            3     0.00001     0.00001     0.00003     0.24234     0.00008     0.00001
-           4    -0.40357     0.16279     0.17085    -0.00007     0.17976    -0.17633
-           5     0.40352     0.16302    -0.17075    -0.00007     0.17706     0.17903
-           6     0.00000     0.03500     0.00000     0.24259    -0.72070    -0.00549
-           7    -0.14581     0.16283     0.16600    -0.00006     0.17963    -0.17686
-           8    -0.55848     0.16286    -0.15264    -0.00004     0.17657     0.17932
-           9    -0.00064    -0.01750    -0.02931     0.24228     0.36523    -0.62149
-          10     0.55843     0.16294     0.15274    -0.00009     0.17927    -0.17662
-          11     0.14575     0.16298    -0.16590    -0.00005     0.17693     0.17957
-          12     0.00066    -0.01747     0.02939     0.24222     0.35570     0.62702
+           4    -0.40357     0.16272     0.17091    -0.00007     0.17973    -0.17636
+           5     0.40352     0.16309    -0.17068    -0.00006     0.17710     0.17900
+           6     0.00000     0.03500     0.00002     0.24259    -0.72070    -0.00535
+           7    -0.14581     0.16276     0.16606    -0.00007     0.17960    -0.17690
+           8    -0.55848     0.16292    -0.15257    -0.00004     0.17660     0.17929
+           9    -0.00064    -0.01749    -0.02932     0.24228     0.36511    -0.62156
+          10     0.55843     0.16288     0.15281    -0.00009     0.17923    -0.17665
+          11     0.14575     0.16305    -0.16583    -0.00005     0.17696     0.17954
+          12     0.00066    -0.01748     0.02939     0.24222     0.35582     0.62695
 
                     7           8           9          10          11          12
  
  Frequency       1052.94     1679.02     1679.02     3528.52     3661.10     3661.10
  
-           1     0.00000    -0.04548     0.04630     0.00000    -0.05252    -0.05487
-           2     0.00000    -0.04630    -0.04548     0.00000    -0.05487     0.05252
+           1     0.00000    -0.04546     0.04632     0.00000    -0.05176    -0.05559
+           2     0.00000    -0.04632    -0.04546     0.00000    -0.05559     0.05176
            3     0.10630     0.00000     0.00000    -0.03721     0.00000     0.00000
-           4     0.13435    -0.10128    -0.52093     0.38382     0.51308    -0.00410
-           5     0.13435    -0.09200     0.52265     0.38382     0.51241     0.02657
-           6    -0.49225     0.24333    -0.00216     0.17231     0.28542     0.00625
-           7    -0.18353     0.10126     0.20894    -0.52431     0.33200     0.61696
-           8     0.04918     0.63787     0.32011     0.14049    -0.10865    -0.15451
-           9    -0.49225    -0.11979     0.21181     0.17231    -0.13730    -0.25031
-          10     0.04918     0.63208    -0.33141     0.14049    -0.11531     0.14961
-          11    -0.18353     0.09753    -0.21071    -0.52431     0.35870    -0.60183
-          12    -0.49225    -0.12354    -0.20965     0.17231    -0.14813     0.24406
+           4     0.13435    -0.10152    -0.52089     0.38382     0.51309     0.00294
+           5     0.13435    -0.09176     0.52269     0.38382     0.51200     0.03359
+           6    -0.49225     0.24333    -0.00228     0.17231     0.28531     0.01017
+           7    -0.18353     0.10136     0.20889    -0.52431     0.32351     0.62145
+           8     0.04918     0.63802     0.31982     0.14049    -0.10652    -0.15599
+           9    -0.49225    -0.11969     0.21187     0.17231    -0.13385    -0.25217
+          10     0.04918     0.63192    -0.33170     0.14049    -0.11735     0.14801
+          11    -0.18353     0.09743    -0.21075    -0.52431     0.36692    -0.59685
+          12    -0.49225    -0.12364    -0.20959     0.17231    -0.15146     0.24200
 
 
 
@@ -3213,7 +3205,7 @@ Iterative solution of linear equations
  ------ ---------- || ------------------ ------------------ -----------------
     1      -23.583 ||      -0.001               0.001             0.000
     2      -21.853 ||      -0.045              -0.045             0.000
-    3      -21.382 ||      -0.043               0.044             0.000
+    3      -21.382 ||      -0.044               0.044             0.000
     4        6.969 ||       0.000               0.000             0.000
     5       37.197 ||       0.931               0.917             0.000
     6       37.215 ||      -0.917               0.931             0.000
@@ -3221,8 +3213,8 @@ Iterative solution of linear equations
     8     1679.016 ||       0.500               0.509             0.000
     9     1679.016 ||      -0.509               0.500             0.000
    10     3528.515 ||       0.000               0.000            -0.153
-   11     3661.104 ||       0.163               0.170             0.000
-   12     3661.104 ||       0.170              -0.163             0.000
+   11     3661.104 ||       0.161               0.172             0.000
+   12     3661.104 ||       0.172              -0.161             0.000
  ----------------------------------------------------------------------------
 
 
@@ -3254,7 +3246,7 @@ Iterative solution of linear equations
         Vibrational analysis via the FX method 
   --- with translations and rotations projected out ---
   --- via the Eckart algorithm                      ---
- Projected Nuclear Hessian trans-rot subspace norm:7.8151D-33
+ Projected Nuclear Hessian trans-rot subspace norm:5.9283D-33
                          (should be close to zero!) 
 
           --------------------------------------------------------
@@ -3265,8 +3257,8 @@ Iterative solution of linear equations
                1            2            3            4            5            6            7            8            9           10
    ----- ----- ----- ----- -----
     1    4.72636D+01
-    2   -2.00000D-04  4.72636D+01
-    3    1.14869D-05  1.17052D-05  1.57714D+01
+    2   -1.99898D-04  4.72636D+01
+    3    1.14784D-05  1.19545D-05  1.57714D+01
     4   -5.87253D+01 -4.26861D+01 -2.30255D+01  2.35563D+02
     5   -4.26861D+01 -5.87253D+01 -2.30255D+01  1.76795D+02  2.35563D+02
     6   -3.37203D+01 -3.37203D+01 -1.95961D+01  1.00962D+02  1.00962D+02  7.24641D+01
@@ -3275,17 +3267,13 @@ Iterative solution of linear equations
     9    4.60631D+01 -1.23428D+01 -1.95961D+01 -1.74770D+01  2.34322D+00  2.90288D-01 -1.37917D+02  3.69549D+01  7.24644D+01
    10   -2.17578D+01  2.13435D+01 -8.42791D+00  6.98091D+00 -2.71638D+01  1.07673D+01 -8.33178D+00  3.60039D+01 -1.63070D+01  8.24532D+01
    11    2.13434D+01 -9.56927D+01  3.14534D+01  9.48158D+00 -2.36445D+01  1.39639D+01 -6.41320D-01 -8.33178D+00  6.70970D+00 -8.83980D+01
-   12   -1.23428D+01  4.60631D+01 -1.95961D+01  2.34322D+00 -1.74770D+01  2.90288D-01  6.70970D+00 -1.63070D+01  2.89952D-01  3.69549D+01
+   12   -1.23428D+01  4.60631D+01 -1.95961D+01  2.34322D+00 -1.74770D+01  2.90288D-01  6.70969D+00 -1.63070D+01  2.89952D-01  3.69549D+01
 
 
               11           12
    ----- ----- ----- ----- -----
    11    3.88672D+02
-   12   -1.37917D+02  7.24644D+01
-
-
-From the projected analysis 
-The Zero-Point Energy (Kcal/mol) =          21.82496551
+   12   -1.37917D+02  7.24643D+01
 
  center of mass
  --------------
@@ -3332,35 +3320,35 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
  
  P.Frequency        0.00        0.00        0.00        0.00        0.00        0.00
  
-           1    -0.00075     0.03268     0.03332    -0.01808    -0.24253     0.01043
-           2     0.24235    -0.00257     0.02129     0.00523    -0.00058    -0.04707
-           3     0.00105     0.00083     0.10104     0.20743     0.00171     0.07409
-           4     0.00026    -0.38036    -0.20264     0.12132    -0.28090    -0.05259
-           5     0.24533     0.40497    -0.09271    -0.03424     0.05279     0.21306
-           6    -0.00588     0.01041     0.71050     0.03338    -0.02443    -0.26916
-           7     0.00229    -0.12485    -0.20757     0.12449    -0.24764    -0.05839
-           8     0.23776    -0.54864    -0.07431    -0.04607    -0.07133     0.23470
-           9     0.01119    -0.02583    -0.41111     0.57932     0.03466    -0.26926
-          10     0.00783     0.57324    -0.22104     0.13316    -0.15678    -0.07424
-          11     0.24330     0.14945    -0.08778    -0.03741     0.01953     0.21886
-          12    -0.00215     0.01790     0.00372     0.00960    -0.00510     0.76069
+           1     0.01040     0.03268     0.03335    -0.01802    -0.24254    -0.00076
+           2    -0.04708    -0.00253     0.02121     0.00514    -0.00058     0.24236
+           3     0.07394     0.00079     0.10098     0.20752     0.00174     0.00113
+           4    -0.05268    -0.38045    -0.20258     0.12115    -0.28088     0.00028
+           5     0.21356     0.40473    -0.09262    -0.03434     0.05274     0.24532
+           6    -0.27011     0.01102     0.71011     0.03390    -0.02435    -0.00583
+           7    -0.05825    -0.12493    -0.20766     0.12434    -0.24763     0.00232
+           8     0.23434    -0.54889    -0.07366    -0.04626    -0.07133     0.23769
+           9    -0.26878    -0.02589    -0.41190     0.57897     0.03471     0.01143
+          10    -0.07347     0.57316    -0.22154     0.13307    -0.15680     0.00791
+          11     0.21912     0.14921    -0.08754    -0.03753     0.01950     0.24328
+          12     0.76070     0.01724     0.00473     0.00968    -0.00515    -0.00220
 
                     7           8           9          10          11          12
  
  P.Frequency     1053.04     1679.12     1679.13     3528.52     3661.20     3661.20
  
-           1     0.00000    -0.04587     0.04586     0.00000    -0.05372    -0.05370
-           2     0.00000    -0.04586    -0.04587     0.00000    -0.05370     0.05372
+           1     0.00000    -0.04585     0.04588     0.00000    -0.05368    -0.05373
+           2     0.00000    -0.04588    -0.04585     0.00000    -0.05373     0.05368
            3     0.10629     0.00000     0.00000    -0.03721     0.00000     0.00000
-           4     0.13436    -0.09677    -0.52167     0.38382     0.51282    -0.01544
-           5     0.13436    -0.09687     0.52165     0.38382     0.51283     0.01525
-           6    -0.49226     0.24395     0.00002     0.17232     0.28566    -0.00005
-           7    -0.18354     0.09921     0.21002    -0.52431     0.34552     0.60943
-           8     0.04918     0.63482     0.32567     0.14049    -0.11204    -0.15206
-           9    -0.49226    -0.12199     0.21125     0.17232    -0.14287    -0.24736
-          10     0.04918     0.63488    -0.32555     0.14049    -0.11198     0.15210
-          11    -0.18354     0.09925    -0.21000    -0.52431     0.34529    -0.60955
-          12    -0.49226    -0.12195    -0.21127     0.17232    -0.14278     0.24741
+           4     0.13436    -0.09699    -0.52163     0.38382     0.51283    -0.01511
+           5     0.13436    -0.09665     0.52169     0.38382     0.51282     0.01559
+           6    -0.49226     0.24395    -0.00008     0.17232     0.28566     0.00013
+           7    -0.18354     0.09930     0.20998    -0.52431     0.34512     0.60965
+           8     0.04918     0.63496     0.32541     0.14049    -0.11194    -0.15213
+           9    -0.49226    -0.12191     0.21130     0.17232    -0.14271    -0.24745
+          10     0.04918     0.63475    -0.32581     0.14049    -0.11208     0.15203
+          11    -0.18354     0.09916    -0.21004    -0.52431     0.34569    -0.60933
+          12    -0.49226    -0.12204    -0.21122     0.17232    -0.14294     0.24732
 
 
 
@@ -3368,18 +3356,18 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
  Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
   Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
  ------ ---------- || ------------------ ------------------ -----------------
-    1        0.000 ||       0.019              -0.001             0.000
-    2        0.000 ||      -0.045               0.020             0.000
-    3        0.000 ||      -1.089              -0.475             0.000
-    4        0.000 ||       0.645              -0.199             0.000
+    1        0.000 ||      -0.321               1.204             0.000
+    2        0.000 ||      -0.045               0.019             0.000
+    3        0.000 ||      -1.090              -0.473             0.000
+    4        0.000 ||       0.644              -0.199             0.000
     5        0.000 ||       0.063               0.004             0.000
-    6        0.000 ||      -0.322               1.203             0.000
+    6        0.000 ||       0.019              -0.001             0.000
     7     1053.040 ||       0.000               0.000             2.016
     8     1679.121 ||       0.504               0.504             0.000
     9     1679.132 ||      -0.504               0.504             0.000
    10     3528.521 ||       0.000               0.000            -0.153
-   11     3661.197 ||       0.167               0.166             0.000
-   12     3661.202 ||       0.166              -0.167             0.000
+   11     3661.197 ||       0.166               0.167             0.000
+   12     3661.202 ||       0.167              -0.166             0.000
  ----------------------------------------------------------------------------
 
 
@@ -3390,12 +3378,12 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
  Normal Eigenvalue ||           Projected Infra Red Intensities
   Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
  ------ ---------- || -------------- ----------------- ---------- -----------
-    1        0.000 ||    0.000015           0.000         0.015       0.005
-    2        0.000 ||    0.000104           0.002         0.101       0.033
-    3        0.000 ||    0.061162           1.411        59.624      19.600
-    4        0.000 ||    0.019753           0.456        19.256       6.330
+    1        0.000 ||    0.067273           1.552        65.581      21.559
+    2        0.000 ||    0.000103           0.002         0.101       0.033
+    3        0.000 ||    0.061175           1.411        59.637      19.605
+    4        0.000 ||    0.019708           0.455        19.212       6.316
     5        0.000 ||    0.000173           0.004         0.169       0.055
-    6        0.000 ||    0.067241           1.551        65.550      21.549
+    6        0.000 ||    0.000016           0.000         0.015       0.005
     7     1053.040 ||    0.176158           4.064       171.728      56.453
     8     1679.121 ||    0.022015           0.508        21.461       7.055
     9     1679.132 ||    0.022015           0.508        21.461       7.055
@@ -3408,7 +3396,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  vib:animation  F
 
- Task  times  cpu:       25.9s     wall:       27.5s
+ Task  times  cpu:       57.8s     wall:       63.0s
 
 
                                 NWChem Input Module
@@ -3632,7 +3620,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  !! nbf/nmo/basis-name mismatch 
            nbf= 102 nbf_file=  54
-           nmo= 102nmo_file=  54
+           nmo= 102 nmo_file=  54
            basis="ao basis" basis_file="ao basis"
 
   Either an incorrect movecs file was specified, or linear dependence has changed,
@@ -3660,42 +3648,42 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
  HOMO         =      -0.390060
  LUMO         =       0.044432
 
-   Time after variat. SCF:     69.9
-   Time prior to 1st pass:     69.9
+   Time after variat. SCF:    103.9
+   Time prior to 1st pass:    103.9
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   = 253312716
+ Max. records in memory =     48        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.80            12795714
-          Stack Space remaining (MW):      157.29           157285676
+           Heap Space remaining (MW):       12.51            12513070
+          Stack Space remaining (MW):      157.29           157285668
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1   -132.9701115307 -1.72D+02  7.58D-03  8.34D-01    71.4
- d=80,ls=0.0,diis     2   -132.9869487814 -1.68D-02  3.20D-03  4.06D-01    72.9
- d= 0,ls=0.0,diis     3   -132.9949216202 -7.97D-03  2.90D-03  2.80D-01    74.3
- d= 0,ls=0.0,diis     4   -133.0292920044 -3.44D-02  1.99D-04  1.52D-03    75.8
- d= 0,ls=0.0,diis     5   -133.0294069134 -1.15D-04  6.32D-05  3.00D-04    77.2
+ d=80,ls=0.0,diis     1   -132.9701115308 -1.72D+02  7.58D-03  8.34D-01   107.3
+ d=80,ls=0.0,diis     2   -132.9869487815 -1.68D-02  3.20D-03  4.06D-01   110.4
+ d= 0,ls=0.0,diis     3   -132.9949216203 -7.97D-03  2.90D-03  2.80D-01   113.7
+ d= 0,ls=0.0,diis     4   -133.0292920045 -3.44D-02  1.99D-04  1.52D-03   116.8
+ d= 0,ls=0.0,diis     5   -133.0294069135 -1.15D-04  6.32D-05  3.00D-04   120.1
   Resetting Diis
- d= 0,ls=0.0,diis     6   -133.0294361415 -2.92D-05  5.37D-06  1.06D-06    78.7
- d= 0,ls=0.0,diis     7   -133.0294362423 -1.01D-07  1.54D-06  3.40D-08    80.1
- d= 0,ls=0.0,diis     8   -133.0294362447 -2.39D-09  5.01D-07  1.29D-08    81.6
+ d= 0,ls=0.0,diis     6   -133.0294361417 -2.92D-05  5.37D-06  1.06D-06   123.4
+ d= 0,ls=0.0,diis     7   -133.0294362425 -1.01D-07  1.54D-06  3.40D-08   126.6
+ d= 0,ls=0.0,diis     8   -133.0294362448 -2.39D-09  5.01D-07  1.29D-08   129.8
 
 
-         Total DFT energy =     -133.030472427947
-      One electron energy =     -257.778459178467
-           Coulomb energy =      103.532312392309
-    Exchange-Corr. energy =      -17.345830409786
+         Total DFT energy =     -133.029436244850
+      One electron energy =     -257.778459176962
+           Coulomb energy =      103.532312390560
+    Exchange-Corr. energy =      -17.345830409704
  Nuclear repulsion energy =       38.563577134515
 
     Dispersion correction =       -0.001036183259
 
- Numeric. integr. density =       19.999999819899
+ Numeric. integr. density =       19.999999821668
 
-     Total iterative time =     11.6s
+     Total iterative time =     25.9s
 
 
 
@@ -3926,7 +3914,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  moments of inertia (a.u.)
  ------------------
-         290.684534368250           0.000000000000           0.000000000000
+         290.684534368251           0.000000000000           0.000000000000
            0.000000000000          12.365155545698           0.000000000000
            0.000000000000           0.000000000000         293.455941489252
 
@@ -3978,12 +3966,12 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       1.35   |
+                 |  CPU   |       0.02   |       3.57   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       1.35   |
+                 |  WALL  |       0.03   |       3.80   |
                  ----------------------------------------
 
- Task  times  cpu:       15.0s     wall:       15.5s
+ Task  times  cpu:       33.4s     wall:       49.4s
 
 
                                 NWChem Input Module
@@ -4205,7 +4193,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  !! nbf/nmo/basis-name mismatch 
            nbf=  54 nbf_file= 102
-           nmo=  54nmo_file= 102
+           nmo=  54 nmo_file= 102
            basis="ao basis" basis_file="ao basis"
 
   Either an incorrect movecs file was specified, or linear dependence has changed,
@@ -4247,40 +4235,40 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
      6 a1          7 e           8 e           9 e          10 e       
     11 a1         12 a1         13 e          14 e          15 a1      
 
-   Time after variat. SCF:     84.8
-   Time prior to 1st pass:     84.8
+   Time after variat. SCF:    137.3
+   Time prior to 1st pass:    137.3
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      8        Max. recs in file   = 253312716
+ Max. records in memory =     15        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.01            13007954
-          Stack Space remaining (MW):      157.29           157285956
+           Heap Space remaining (MW):       12.92            12921934
+          Stack Space remaining (MW):      157.29           157285948
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1    -56.5287943434 -6.85D+01  9.03D-03  4.18D-01    85.1
- d=80,ls=0.0,diis     2    -56.5353456991 -6.55D-03  5.04D-03  2.30D-01    85.4
- d= 0,ls=0.0,diis     3    -56.5384880186 -3.14D-03  4.60D-03  1.59D-01    85.7
- d= 0,ls=0.0,diis     4    -56.5535264972 -1.50D-02  1.22D-04  1.53D-04    86.0
- d= 0,ls=0.0,diis     5    -56.5535413533 -1.49D-05  1.71D-05  6.18D-07    86.2
- d= 0,ls=0.0,diis     6    -56.5535414556 -1.02D-07  4.65D-06  1.73D-08    86.5
- d= 0,ls=0.0,diis     7    -56.5535414595 -3.86D-09  7.49D-07  3.62D-10    86.8
+ d=80,ls=0.0,diis     1    -56.5287943434 -6.85D+01  9.03D-03  4.18D-01   137.9
+ d=80,ls=0.0,diis     2    -56.5353456990 -6.55D-03  5.04D-03  2.30D-01   138.5
+ d= 0,ls=0.0,diis     3    -56.5384880186 -3.14D-03  4.60D-03  1.59D-01   139.1
+ d= 0,ls=0.0,diis     4    -56.5535264972 -1.50D-02  1.22D-04  1.53D-04   139.8
+ d= 0,ls=0.0,diis     5    -56.5535413533 -1.49D-05  1.71D-05  6.18D-07   140.4
+ d= 0,ls=0.0,diis     6    -56.5535414556 -1.02D-07  4.65D-06  1.73D-08   141.0
+ d= 0,ls=0.0,diis     7    -56.5535414595 -3.86D-09  7.49D-07  3.62D-10   141.6
 
 
-         Total DFT energy =      -56.553561879991
-      One electron energy =      -99.766733502364
-           Coulomb energy =       39.245683050185
-    Exchange-Corr. energy =       -8.009986493754
+         Total DFT energy =      -56.553541459466
+      One electron energy =      -99.766733502386
+           Coulomb energy =       39.245683050246
+    Exchange-Corr. energy =       -8.009986493761
  Nuclear repulsion energy =       11.977515906929
 
     Dispersion correction =       -0.000020420493
 
- Numeric. integr. density =       10.000000210717
+ Numeric. integr. density =       10.000000210722
 
-     Total iterative time =      2.0s
+     Total iterative time =      4.4s
 
 
 
@@ -4298,88 +4286,89 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
                        ------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-1.422660D+01  Symmetry=a1
-              MO Center= -1.7D-21,  6.8D-22, -1.1D-01, r^2= 2.0D-02
+              MO Center= -3.2D-18,  6.8D-18, -1.1D-01, r^2= 2.0D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.619322  1 N  s                  1      0.449841  1 N  s          
 
  Vector    2  Occ=2.000000D+00  E=-9.138227D-01  Symmetry=a1
-              MO Center=  4.5D-17,  1.0D-17,  8.2D-02, r^2= 6.9D-01
+              MO Center= -2.4D-17, -3.1D-17,  8.2D-02, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.504849  1 N  s                  3      0.237483  1 N  s          
      2     -0.207235  1 N  s          
 
  Vector    3  Occ=2.000000D+00  E=-4.992066D-01  Symmetry=e
-              MO Center= -2.8D-02, -1.8D-01,  5.5D-02, r^2= 9.6D-01
+              MO Center=  1.5D-01, -1.1D-01,  5.5D-02, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.308352  1 N  py                50     -0.232414  4 H  s          
-    10      0.220577  1 N  py                49     -0.169402  4 H  s          
-    44      0.158623  3 H  s                  6     -0.156436  1 N  px         
+     7      0.344790  1 N  py                10      0.246643  1 N  py         
+    50     -0.224167  4 H  s                 38      0.180078  2 H  s          
+    49     -0.163391  4 H  s          
 
  Vector    4  Occ=2.000000D+00  E=-4.992066D-01  Symmetry=e
-              MO Center=  2.8D-02,  1.8D-01,  5.5D-02, r^2= 9.6D-01
+              MO Center= -1.5D-01,  1.1D-01,  5.5D-02, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.308352  1 N  px                38      0.225765  2 H  s          
-     9      0.220577  1 N  px                44     -0.176788  3 H  s          
-    37      0.164556  2 H  s                  7      0.156436  1 N  py         
+     6      0.344790  1 N  px                 9      0.246643  1 N  px         
+    44     -0.233391  3 H  s                 43     -0.170114  3 H  s          
+    38      0.154878  2 H  s          
 
  Vector    5  Occ=2.000000D+00  E=-3.023293D-01  Symmetry=a1
-              MO Center= -4.7D-17, -6.9D-17, -2.6D-01, r^2= 9.2D-01
+              MO Center= -1.2D-16, -8.5D-17, -2.6D-01, r^2= 9.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      0.400808  1 N  pz                14      0.345071  1 N  pz         
     11      0.321813  1 N  pz                 4     -0.164648  1 N  s          
 
  Vector    6  Occ=0.000000D+00  E= 4.531056D-02  Symmetry=a1
-              MO Center= -2.9D-14, -1.0D-14,  4.6D-01, r^2= 4.7D+00
+              MO Center= -2.4D-14, -2.5D-14,  4.6D-01, r^2= 4.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      2.330495  1 N  s                 39     -1.064122  2 H  s          
     45     -1.064122  3 H  s                 51     -1.064122  4 H  s          
-     4      0.521143  1 N  s                 14      0.446955  1 N  pz         
+     4      0.521142  1 N  s                 14      0.446955  1 N  pz         
     21     -0.231938  1 N  dxx               24     -0.231938  1 N  dyy        
     26     -0.213632  1 N  dzz        
 
  Vector    7  Occ=0.000000D+00  E= 1.291852D-01  Symmetry=e
-              MO Center=  6.6D-01, -3.0D-01,  4.8D-01, r^2= 4.4D+00
+              MO Center=  2.4D-01, -6.9D-01,  4.8D-01, r^2= 4.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    51      2.071435  4 H  s                 39     -1.881404  2 H  s          
-    13      0.999653  1 N  py                 7      0.241764  1 N  py         
-    45     -0.190031  3 H  s                 12      0.180588  1 N  px         
-    50     -0.166965  4 H  s                 38      0.151648  2 H  s          
+    51      2.288575  4 H  s                 39     -1.215958  2 H  s          
+    45     -1.072617  3 H  s                 13      0.990080  1 N  py         
+     7      0.239449  1 N  py                12     -0.227286  1 N  px         
+    50     -0.184467  4 H  s          
 
  Vector    8  Occ=0.000000D+00  E= 1.291852D-01  Symmetry=e
-              MO Center= -6.6D-01,  3.0D-01,  4.8D-01, r^2= 4.4D+00
+              MO Center= -2.4D-01,  6.9D-01,  4.8D-01, r^2= 4.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      2.282173  3 H  s                 39     -1.305658  2 H  s          
-    12      0.999653  1 N  px                51     -0.976515  4 H  s          
-     6      0.241764  1 N  px                44     -0.183951  3 H  s          
-    13     -0.180588  1 N  py         
+    45     -2.023343  3 H  s                 39      1.940585  2 H  s          
+    12     -0.990080  1 N  px                 6     -0.239449  1 N  px         
+    13     -0.227286  1 N  py                44      0.163088  3 H  s          
+    38     -0.156418  2 H  s          
 
  Vector    9  Occ=0.000000D+00  E= 3.222885D-01  Symmetry=e
-              MO Center= -3.4D-02, -2.3D-01, -2.7D-01, r^2= 2.8D+00
+              MO Center=  1.2D-01, -2.0D-01, -2.7D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.558090  1 N  px                38     -1.434492  2 H  s          
-    44      1.129287  3 H  s                 13      0.781957  1 N  py         
-    50      0.305205  4 H  s                 23      0.254815  1 N  dxz        
-    22      0.238220  1 N  dxy        
+    12      1.730745  1 N  px                44      1.402459  3 H  s          
+    38     -1.189014  2 H  s                 23      0.283051  1 N  dxz        
+    50     -0.213446  4 H  s                 13      0.208860  1 N  py         
+    22      0.197454  1 N  dxy        
 
  Vector   10  Occ=0.000000D+00  E= 3.222885D-01  Symmetry=e
-              MO Center=  3.4D-02,  2.3D-01, -2.7D-01, r^2= 2.8D+00
+              MO Center= -1.2D-01,  2.0D-01, -2.7D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.558090  1 N  py                50      1.480198  4 H  s          
-    44     -1.004414  3 H  s                 12     -0.781957  1 N  px         
-    38     -0.475784  2 H  s                 25      0.254815  1 N  dyz        
+    13      1.730745  1 N  py                50      1.496188  4 H  s          
+    38     -0.932943  2 H  s                 44     -0.563244  3 H  s          
+    25      0.283051  1 N  dyz               12     -0.208860  1 N  px         
+    22      0.154930  1 N  dxy        
 
  Vector   11  Occ=0.000000D+00  E= 3.546502D-01  Symmetry=a1
-              MO Center=  1.1D-15, -1.2D-15, -4.9D-01, r^2= 2.9D+00
+              MO Center=  7.8D-16, -5.8D-16, -4.9D-01, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     14      1.411126  1 N  pz                11     -1.030168  1 N  pz         
@@ -4389,7 +4378,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
     38     -0.303350  2 H  s                 44     -0.303350  3 H  s          
 
  Vector   12  Occ=0.000000D+00  E= 4.675086D-01  Symmetry=a1
-              MO Center=  2.6D-15,  8.9D-15,  4.8D-01, r^2= 3.8D+00
+              MO Center=  5.7D-14,  1.7D-14,  4.8D-01, r^2= 3.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.399358  1 N  s                  3     -1.524097  1 N  s          
@@ -4399,7 +4388,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
     26     -1.008287  1 N  dzz               11     -0.717241  1 N  pz         
 
  Vector   13  Occ=0.000000D+00  E= 5.183730D-01  Symmetry=a1
-              MO Center=  2.5D-15,  2.8D-15,  3.2D-01, r^2= 2.4D+00
+              MO Center= -4.9D-14, -1.0D-14,  3.2D-01, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.099391  1 N  s                 38     -1.447899  2 H  s          
@@ -4409,24 +4398,24 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
     45     -0.615962  3 H  s                 51     -0.615962  4 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 5.360294D-01  Symmetry=e
-              MO Center= -2.2D-02, -3.6D-01,  1.8D-01, r^2= 3.4D+00
+              MO Center=  1.4D-01,  3.3D-01,  1.8D-01, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    51      2.406938  4 H  s                 13      1.932085  1 N  py         
-    45     -1.543823  3 H  s                 10     -1.516120  1 N  py         
-    50     -0.970031  4 H  s                 12     -0.871293  1 N  px         
-    39     -0.863115  2 H  s                  9      0.683709  1 N  px         
-    44      0.622183  3 H  s                 38      0.347848  2 H  s          
+    39      2.391230  2 H  s                 12     -1.764042  1 N  px         
+    45     -1.610789  3 H  s                  9      1.384256  1 N  px         
+    13     -1.174845  1 N  py                38     -0.963700  2 H  s          
+    10      0.921909  1 N  py                51     -0.780441  4 H  s          
+    44      0.649171  3 H  s                 50      0.314529  4 H  s          
 
  Vector   15  Occ=0.000000D+00  E= 5.360294D-01  Symmetry=e
-              MO Center=  2.2D-02,  3.6D-01,  1.8D-01, r^2= 3.4D+00
+              MO Center= -1.4D-01, -3.3D-01,  1.8D-01, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.280973  2 H  s                 12     -1.932085  1 N  px         
-    45     -1.887966  3 H  s                  9      1.516120  1 N  px         
-    38     -0.919265  2 H  s                 13     -0.871293  1 N  py         
-    44      0.760877  3 H  s                 10      0.683709  1 N  py         
-    51     -0.393007  4 H  s                  6      0.266159  1 N  px         
+    51      2.310566  4 H  s                 45     -1.831165  3 H  s          
+    13      1.764042  1 N  py                10     -1.384256  1 N  py         
+    12     -1.174845  1 N  px                50     -0.931191  4 H  s          
+     9      0.921909  1 N  px                44      0.737986  3 H  s          
+    39     -0.479401  2 H  s                  7     -0.243010  1 N  py         
 
 
  center of mass
@@ -4490,12 +4479,12 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.41   |
+                 |  CPU   |       0.00   |       0.89   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.41   |
+                 |  WALL  |       0.00   |       0.89   |
                  ----------------------------------------
 
- Task  times  cpu:        2.8s     wall:        3.0s
+ Task  times  cpu:        5.9s     wall:        6.8s
 
 
                                 NWChem Input Module
@@ -4726,7 +4715,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  !! nbf/nmo/basis-name mismatch 
            nbf= 102 nbf_file=  54
-           nmo= 102nmo_file=  54
+           nmo= 102 nmo_file=  54
            basis="ao basis" basis_file="ao basis"
 
   Either an incorrect movecs file was specified, or linear dependence has changed,
@@ -4754,41 +4743,41 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
  HOMO         =      -0.390060
  LUMO         =       0.044432
 
-   Time after variat. SCF:     87.8
-   Time prior to 1st pass:     87.8
+   Time after variat. SCF:    143.7
+   Time prior to 1st pass:    143.7
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   = 253312716
+ Max. records in memory =     48        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.80            12798826
-          Stack Space remaining (MW):      157.29           157285676
+           Heap Space remaining (MW):       12.52            12516182
+          Stack Space remaining (MW):      157.29           157285668
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1   -132.9276313874 -1.71D+02  7.56D-03  1.01D+00    90.9
- d=80,ls=0.0,diis     2   -132.9436009657 -1.60D-02  3.67D-03  5.36D-01    93.9
- d= 0,ls=0.0,diis     3   -132.9510507930 -7.45D-03  3.36D-03  3.70D-01    96.9
- d= 0,ls=0.0,diis     4   -132.9858441312 -3.48D-02  1.60D-04  1.02D-03    99.9
- d= 0,ls=0.0,diis     5   -132.9859205903 -7.65D-05  4.92D-05  1.87D-04   102.8
+ d=80,ls=0.0,diis     1   -132.9276313875 -1.71D+02  7.56D-03  1.01D+00   150.3
+ d=80,ls=0.0,diis     2   -132.9436009658 -1.60D-02  3.67D-03  5.36D-01   156.8
+ d= 0,ls=0.0,diis     3   -132.9510507932 -7.45D-03  3.36D-03  3.70D-01   163.6
+ d= 0,ls=0.0,diis     4   -132.9858441314 -3.48D-02  1.60D-04  1.02D-03   170.2
+ d= 0,ls=0.0,diis     5   -132.9859205905 -7.65D-05  4.92D-05  1.87D-04   176.9
   Resetting Diis
- d= 0,ls=0.0,diis     6   -132.9859385592 -1.80D-05  6.12D-06  7.00D-07   105.8
- d= 0,ls=0.0,diis     7   -132.9859386438 -8.47D-08  1.73D-06  3.17D-08   108.8
+ d= 0,ls=0.0,diis     6   -132.9859385593 -1.80D-05  6.12D-06  7.00D-07   183.9
+ d= 0,ls=0.0,diis     7   -132.9859386440 -8.47D-08  1.73D-06  3.17D-08   190.7
 
 
-         Total DFT energy =     -132.986931170927
-      One electron energy =     -257.847130646338
-           Coulomb energy =      103.605662468248
-    Exchange-Corr. energy =      -17.307055073132
+         Total DFT energy =     -132.985938643991
+      One electron energy =     -257.847130645135
+           Coulomb energy =      103.605662466804
+    Exchange-Corr. energy =      -17.307055073064
  Nuclear repulsion energy =       38.563577134515
 
     Dispersion correction =       -0.000992527110
 
- Numeric. integr. density =       19.999999822384
+ Numeric. integr. density =       19.999999824153
 
-     Total iterative time =     21.0s
+     Total iterative time =     47.0s
 
 
 
@@ -4968,7 +4957,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
               MO Center=  5.7D-01, -3.7D-01, -1.2D-02, r^2= 6.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    53      1.777939  4 N  s                 99     -1.041878  7 H  s          
+    53      1.777939  4 N  s                 99     -1.041879  7 H  s          
     98      0.906950  7 H  s                 12      0.868687  1 O  px         
     13     -0.842652  1 O  py                87     -0.817038  5 H  s          
     39      0.666655  2 H  s                 51     -0.638706  4 N  s          
@@ -4992,7 +4981,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
     44     -1.392539  3 H  s                 39      1.321379  2 H  s          
     38     -1.122985  2 H  s                 61      1.075719  4 N  py         
     92      0.682645  6 H  s                 58     -0.616948  4 N  py         
-    12     -0.599808  1 O  px                87     -0.554127  5 H  s          
+    12     -0.599808  1 O  px                87     -0.554128  5 H  s          
 
  Vector   24  Occ=0.000000D+00  E= 5.144259D-01
               MO Center=  3.8D-01,  1.4D+00,  1.4D-02, r^2= 4.1D+00
@@ -5011,7 +5000,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  moments of inertia (a.u.)
  ------------------
-         290.684534368250           0.000000000000           0.000000000000
+         290.684534368251           0.000000000000           0.000000000000
            0.000000000000          12.365155545698           0.000000000000
            0.000000000000           0.000000000000         293.455941489252
 
@@ -5067,12 +5056,12 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       8.50   |
+                 |  CPU   |       0.01   |      18.57   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       8.58   |
+                 |  WALL  |       0.01   |      18.69   |
                  ----------------------------------------
 
- Task  times  cpu:       31.5s     wall:       32.1s
+ Task  times  cpu:       70.1s     wall:       88.1s
 
 
                                 NWChem Input Module
@@ -5294,7 +5283,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  !! nbf/nmo/basis-name mismatch 
            nbf=  54 nbf_file= 102
-           nmo=  54nmo_file= 102
+           nmo=  54 nmo_file= 102
            basis="ao basis" basis_file="ao basis"
 
   Either an incorrect movecs file was specified, or linear dependence has changed,
@@ -5336,40 +5325,40 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
      6 a1          7 e           8 e           9 e          10 e       
     11 a1         12 a1         13 e          14 e          15 a1      
 
-   Time after variat. SCF:    119.1
-   Time prior to 1st pass:    119.1
+   Time after variat. SCF:    213.3
+   Time prior to 1st pass:    213.3
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      8        Max. recs in file   = 253312716
+ Max. records in memory =     15        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.01            13007954
-          Stack Space remaining (MW):      157.29           157285956
+           Heap Space remaining (MW):       12.92            12921934
+          Stack Space remaining (MW):      157.29           157285948
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1    -56.5530446725 -6.85D+01  8.08D-03  3.51D-01   119.4
- d=80,ls=0.0,diis     2    -56.5597088776 -6.66D-03  4.10D-03  1.86D-01   119.7
- d= 0,ls=0.0,diis     3    -56.5630117946 -3.30D-03  3.77D-03  1.28D-01   120.0
- d= 0,ls=0.0,diis     4    -56.5777738975 -1.48D-02  1.17D-04  1.40D-04   120.3
- d= 0,ls=0.0,diis     5    -56.5777877372 -1.38D-05  1.74D-05  5.92D-07   120.6
- d= 0,ls=0.0,diis     6    -56.5777878402 -1.03D-07  4.92D-06  2.07D-08   120.9
- d= 0,ls=0.0,diis     7    -56.5777878447 -4.45D-09  8.53D-07  4.89D-10   121.2
+ d=80,ls=0.0,diis     1    -56.5530446725 -6.85D+01  8.08D-03  3.51D-01   213.9
+ d=80,ls=0.0,diis     2    -56.5597088776 -6.66D-03  4.10D-03  1.86D-01   214.5
+ d= 0,ls=0.0,diis     3    -56.5630117946 -3.30D-03  3.77D-03  1.28D-01   215.1
+ d= 0,ls=0.0,diis     4    -56.5777738975 -1.48D-02  1.17D-04  1.40D-04   215.8
+ d= 0,ls=0.0,diis     5    -56.5777877372 -1.38D-05  1.74D-05  5.92D-07   216.4
+ d= 0,ls=0.0,diis     6    -56.5777878402 -1.03D-07  4.92D-06  2.07D-08   217.0
+ d= 0,ls=0.0,diis     7    -56.5777878447 -4.45D-09  8.53D-07  4.89D-10   217.6
 
 
-         Total DFT energy =      -56.577805911014
-      One electron energy =      -99.740932682532
-           Coulomb energy =       39.218212675062
-    Exchange-Corr. energy =       -8.032565677834
+         Total DFT energy =      -56.577787844701
+      One electron energy =      -99.740932682650
+           Coulomb energy =       39.218212675242
+    Exchange-Corr. energy =       -8.032565677902
  Nuclear repulsion energy =       11.977515906929
 
     Dispersion correction =       -0.000018066319
 
- Numeric. integr. density =       10.000000214379
+ Numeric. integr. density =       10.000000214477
 
-     Total iterative time =      2.0s
+     Total iterative time =      4.4s
 
 
 
@@ -5387,43 +5376,43 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
                        ------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-1.439826D+01  Symmetry=a1
-              MO Center= -6.6D-22,  7.9D-22, -1.1D-01, r^2= 2.0D-02
+              MO Center=  1.0D-18,  2.3D-18, -1.1D-01, r^2= 2.0D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.622096  1 N  s                  1      0.449990  1 N  s          
 
  Vector    2  Occ=2.000000D+00  E=-9.069158D-01  Symmetry=a1
-              MO Center=  3.0D-17,  6.5D-19,  8.3D-02, r^2= 6.9D-01
+              MO Center=  5.0D-18, -1.3D-16,  8.3D-02, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.478281  1 N  s                  3      0.250582  1 N  s          
      2     -0.206964  1 N  s          
 
  Vector    3  Occ=2.000000D+00  E=-4.968770D-01  Symmetry=e
-              MO Center= -1.4D-02, -1.8D-01,  5.5D-02, r^2= 9.6D-01
+              MO Center= -1.3D-01,  1.3D-01,  5.5D-02, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.314190  1 N  py                50     -0.233799  4 H  s          
-    10      0.224724  1 N  py                49     -0.170777  4 H  s          
-    44      0.151533  3 H  s          
+     6      0.345847  1 N  px                 9      0.247366  1 N  px         
+    44     -0.228906  3 H  s                 38      0.168281  2 H  s          
+    43     -0.167203  3 H  s          
 
  Vector    4  Occ=2.000000D+00  E=-4.968770D-01  Symmetry=e
-              MO Center=  1.4D-02,  1.8D-01,  5.5D-02, r^2= 9.6D-01
+              MO Center=  1.3D-01, -1.3D-01,  5.5D-02, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.314190  1 N  px                 9      0.224724  1 N  px         
-    38      0.222471  2 H  s                 44     -0.182480  3 H  s          
-    37      0.162503  2 H  s          
+     7      0.345847  1 N  py                10      0.247366  1 N  py         
+    50     -0.229316  4 H  s                 38      0.167161  2 H  s          
+    49     -0.167503  4 H  s          
 
  Vector    5  Occ=2.000000D+00  E=-3.007217D-01  Symmetry=a1
-              MO Center= -9.8D-19, -4.3D-19, -2.6D-01, r^2= 9.2D-01
+              MO Center= -5.4D-19, -8.7D-19, -2.6D-01, r^2= 9.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      0.400462  1 N  pz                14      0.347925  1 N  pz         
     11      0.322014  1 N  pz                 4     -0.151390  1 N  s          
 
  Vector    6  Occ=0.000000D+00  E= 4.610804D-02  Symmetry=a1
-              MO Center= -1.2D-16,  4.0D-16,  4.6D-01, r^2= 4.7D+00
+              MO Center=  9.6D-15,  1.4D-14,  4.6D-01, r^2= 4.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      2.321910  1 N  s                 39     -1.061078  2 H  s          
@@ -5433,43 +5422,41 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
     26     -0.215096  1 N  dzz        
 
  Vector    7  Occ=0.000000D+00  E= 1.302438D-01  Symmetry=e
-              MO Center= -2.1D-01, -6.9D-01,  4.8D-01, r^2= 4.4D+00
+              MO Center=  6.1D-01, -3.8D-01,  4.8D-01, r^2= 4.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    51      2.200667  4 H  s                 45     -1.637728  3 H  s          
-    13      0.874304  1 N  py                39     -0.562938  2 H  s          
-    12     -0.520096  1 N  px                 7      0.212805  1 N  py         
-    50     -0.174316  4 H  s          
+    51      2.127551  4 H  s                 39     -1.789130  2 H  s          
+    13      1.010788  1 N  py                45     -0.338421  3 H  s          
+     7      0.246026  1 N  py                50     -0.168524  4 H  s          
 
  Vector    8  Occ=0.000000D+00  E= 1.302438D-01  Symmetry=e
-              MO Center=  2.1D-01,  6.9D-01,  4.8D-01, r^2= 4.4D+00
+              MO Center= -6.1D-01,  3.8D-01,  4.8D-01, r^2= 4.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.216098  2 H  s                 45     -1.595568  3 H  s          
-    12     -0.874304  1 N  px                51     -0.620530  4 H  s          
-    13     -0.520096  1 N  py                 6     -0.212805  1 N  px         
-    38     -0.175538  2 H  s          
+    45      2.261297  3 H  s                 39     -1.423729  2 H  s          
+    12      1.010788  1 N  px                51     -0.837567  4 H  s          
+     6      0.246026  1 N  px                44     -0.179118  3 H  s          
 
  Vector    9  Occ=0.000000D+00  E= 3.224225D-01  Symmetry=e
-              MO Center=  1.4D-01, -1.8D-01, -2.7D-01, r^2= 2.8D+00
+              MO Center= -1.5D-01,  1.8D-01, -2.7D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.727501  1 N  px                44      1.429318  3 H  s          
-    38     -1.142556  2 H  s                 50     -0.286762  4 H  s          
-    23      0.283268  1 N  dxz               22      0.188818  1 N  dxy        
-     9      0.157675  1 N  px         
+    13      1.729676  1 N  py                50      1.478614  4 H  s          
+    38     -1.014233  2 H  s                 44     -0.464380  3 H  s          
+    25      0.283625  1 N  dyz               22      0.167611  1 N  dxy        
+    10      0.157874  1 N  py         
 
  Vector   10  Occ=0.000000D+00  E= 3.224225D-01  Symmetry=e
-              MO Center= -1.4D-01,  1.8D-01, -2.7D-01, r^2= 2.8D+00
+              MO Center=  1.5D-01, -1.8D-01, -2.7D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.727501  1 N  py                50      1.484872  4 H  s          
-    38     -0.990780  2 H  s                 44     -0.494093  3 H  s          
-    25      0.283268  1 N  dyz               22      0.163735  1 N  dxy        
-    10      0.157675  1 N  py         
+    12      1.729676  1 N  px                44      1.439246  3 H  s          
+    38     -1.121788  2 H  s                 50     -0.317458  4 H  s          
+    23      0.283625  1 N  dxz               22      0.185386  1 N  dxy        
+     9      0.157874  1 N  px         
 
  Vector   11  Occ=0.000000D+00  E= 3.552786D-01  Symmetry=a1
-              MO Center= -8.6D-16, -1.0D-15, -4.8D-01, r^2= 2.9D+00
+              MO Center= -5.2D-16, -6.7D-15, -4.8D-01, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     14      1.410018  1 N  pz                11     -1.025361  1 N  pz         
@@ -5479,7 +5466,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
     38     -0.304956  2 H  s                 44     -0.304956  3 H  s          
 
  Vector   12  Occ=0.000000D+00  E= 4.655640D-01  Symmetry=a1
-              MO Center= -2.9D-15,  1.8D-16,  4.8D-01, r^2= 3.8D+00
+              MO Center=  2.8D-15,  4.4D-15,  4.8D-01, r^2= 3.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.373070  1 N  s                  3     -1.511811  1 N  s          
@@ -5489,7 +5476,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
     26     -0.997699  1 N  dzz               11     -0.714356  1 N  pz         
 
  Vector   13  Occ=0.000000D+00  E= 5.175609D-01  Symmetry=a1
-              MO Center=  9.1D-16,  7.0D-16,  3.2D-01, r^2= 2.4D+00
+              MO Center= -5.1D-14,  1.6D-14,  3.2D-01, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.114494  1 N  s                 38     -1.442754  2 H  s          
@@ -5499,24 +5486,24 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
     45     -0.620957  3 H  s                 51     -0.620957  4 H  s          
 
  Vector   14  Occ=0.000000D+00  E= 5.347122D-01  Symmetry=e
-              MO Center=  3.3D-01,  1.5D-01,  1.8D-01, r^2= 3.4D+00
+              MO Center= -1.2D-01,  3.4D-01,  1.8D-01, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      2.401500  2 H  s                 13     -1.744776  1 N  py         
-    51     -1.579840  4 H  s                 10      1.362253  1 N  py         
-    12     -1.206778  1 N  px                38     -0.962471  2 H  s          
-     9      0.942206  1 N  px                45     -0.821660  3 H  s          
-    50      0.633167  4 H  s                 44      0.329304  3 H  s          
+    45      2.162375  3 H  s                 12      2.069988  1 N  px         
+    39     -2.062111  2 H  s                  9     -1.616166  1 N  px         
+    44     -0.866634  3 H  s                 38      0.826451  2 H  s          
+    13      0.464442  1 N  py                10     -0.362618  1 N  py         
+     6     -0.286812  1 N  px                32      0.223833  1 N  fxzz       
 
  Vector   15  Occ=0.000000D+00  E= 5.347122D-01  Symmetry=e
-              MO Center= -3.3D-01, -1.5D-01,  1.8D-01, r^2= 3.4D+00
+              MO Center=  1.2D-01, -3.4D-01,  1.8D-01, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    45      2.298628  3 H  s                 51     -1.860892  4 H  s          
-    12      1.744776  1 N  px                 9     -1.362253  1 N  px         
-    13     -1.206778  1 N  py                10      0.942206  1 N  py         
-    44     -0.921242  3 H  s                 50      0.745806  4 H  s          
-    39     -0.437736  2 H  s                  6     -0.241751  1 N  px         
+    51      2.439008  4 H  s                 13      2.069988  1 N  py         
+    10     -1.616166  1 N  py                39     -1.306335  2 H  s          
+    45     -1.132674  3 H  s                 50     -0.977503  4 H  s          
+    38      0.523551  2 H  s                 12     -0.464442  1 N  px         
+    44      0.453952  3 H  s                  9      0.362618  1 N  px         
 
 
  center of mass
@@ -5580,12 +5567,12 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.38   |
+                 |  CPU   |       0.00   |       0.90   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.44   |
+                 |  WALL  |       0.00   |       0.90   |
                  ----------------------------------------
 
- Task  times  cpu:        2.8s     wall:        3.0s
+ Task  times  cpu:        5.9s     wall:        6.1s
 
 
                                 NWChem Input Module
@@ -5816,7 +5803,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  !! nbf/nmo/basis-name mismatch 
            nbf= 102 nbf_file=  54
-           nmo= 102nmo_file=  54
+           nmo= 102 nmo_file=  54
            basis="ao basis" basis_file="ao basis"
 
   Either an incorrect movecs file was specified, or linear dependence has changed,
@@ -5844,41 +5831,41 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
  HOMO         =      -0.390060
  LUMO         =       0.044432
 
-   Time after variat. SCF:    122.2
-   Time prior to 1st pass:    122.2
+   Time after variat. SCF:    219.7
+   Time prior to 1st pass:    219.7
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-02-17/QA/scratchdir/dft_s12gh.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2014-06-04/QA/scratchdir/dft_s12gh.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     25        Max. recs in file   = 253312716
+ Max. records in memory =     48        Max. recs in file   = 506625431
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.80            12798826
-          Stack Space remaining (MW):      157.29           157285676
+           Heap Space remaining (MW):       12.52            12516182
+          Stack Space remaining (MW):      157.29           157285668
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d=80,ls=0.0,diis     1   -132.9782917953 -1.72D+02  7.10D-03  8.53D-01   125.2
- d=80,ls=0.0,diis     2   -132.9947051488 -1.64D-02  3.13D-03  4.29D-01   128.2
- d= 0,ls=0.0,diis     3   -133.0027264930 -8.02D-03  2.86D-03  2.94D-01   131.2
- d= 0,ls=0.0,diis     4   -133.0370964267 -3.44D-02  1.67D-04  1.12D-03   134.2
- d= 0,ls=0.0,diis     5   -133.0371810705 -8.46D-05  5.17D-05  2.10D-04   137.2
+ d=80,ls=0.0,diis     1   -132.9782917954 -1.72D+02  7.10D-03  8.53D-01   226.5
+ d=80,ls=0.0,diis     2   -132.9947051489 -1.64D-02  3.13D-03  4.29D-01   233.1
+ d= 0,ls=0.0,diis     3   -133.0027264931 -8.02D-03  2.86D-03  2.94D-01   239.8
+ d= 0,ls=0.0,diis     4   -133.0370964269 -3.44D-02  1.67D-04  1.12D-03   246.4
+ d= 0,ls=0.0,diis     5   -133.0371810707 -8.46D-05  5.17D-05  2.10D-04   253.1
   Resetting Diis
- d= 0,ls=0.0,diis     6   -133.0372011546 -2.01D-05  6.16D-06  7.43D-07   140.1
- d= 0,ls=0.0,diis     7   -133.0372012422 -8.77D-08  1.78D-06  3.17D-08   143.1
+ d= 0,ls=0.0,diis     6   -133.0372011547 -2.01D-05  6.16D-06  7.43D-07   259.8
+ d= 0,ls=0.0,diis     7   -133.0372012424 -8.77D-08  1.78D-06  3.17D-08   266.4
 
 
-         Total DFT energy =     -133.038227761553
-      One electron energy =     -257.779150238179
-           Coulomb energy =      103.531828514707
-    Exchange-Corr. energy =      -17.352430133974
+         Total DFT energy =     -133.037201242418
+      One electron energy =     -257.779150236939
+           Coulomb energy =      103.531828513226
+    Exchange-Corr. energy =      -17.352430133910
  Nuclear repulsion energy =       38.563577134515
 
     Dispersion correction =       -0.001026519311
 
- Numeric. integr. density =       19.999999820167
+ Numeric. integr. density =       19.999999821932
 
-     Total iterative time =     20.9s
+     Total iterative time =     46.7s
 
 
 
@@ -6100,7 +6087,7 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
 
  moments of inertia (a.u.)
  ------------------
-         290.684534368250           0.000000000000           0.000000000000
+         290.684534368251           0.000000000000           0.000000000000
            0.000000000000          12.365155545698           0.000000000000
            0.000000000000           0.000000000000         293.455941489252
 
@@ -6156,12 +6143,12 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       8.41   |
+                 |  CPU   |       0.01   |      18.59   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       8.58   |
+                 |  WALL  |       0.01   |      18.65   |
                  ----------------------------------------
 
- Task  times  cpu:       31.4s     wall:       32.2s
+ Task  times  cpu:       69.8s     wall:       70.2s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -6172,11 +6159,11 @@ The Zero-Point Energy (Kcal/mol) =          21.82496551
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 3253     3253     5.85e+05 2.90e+04 1.74e+05  724        0     5594     
-number of processes/call 1.12e+00 1.60e+00 1.28e+00 1.51e+00 0.00e+00
-bytes total:             5.31e+08 5.12e+07 3.07e+08 3.68e+06 0.00e+00 4.48e+04
-bytes remote:            2.57e+08 1.23e+07 1.89e+08 -6.10e+05 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 2032128 bytes
+calls: 3253     3253     1.12e+06 5.50e+04 2.79e+05  724        0     7147     
+number of processes/call 1.04e+00 1.38e+00 1.10e+00 1.17e+00 0.00e+00
+bytes total:             8.30e+08 7.98e+07 4.57e+08 7.41e+06 0.00e+00 5.72e+04
+bytes remote:            2.57e+08 8.64e+06 2.05e+08 -1.51e+06 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 2996352 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -6187,9 +6174,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        25	        54
 	current total bytes		         0	         0
-	maximum total bytes		   2494784	 113994456
-	maximum total K-bytes		      2495	    113995
-	maximum total M-bytes		         3	       114
+	maximum total bytes		   4755936	 113994424
+	maximum total K-bytes		      4756	    113995
+	maximum total M-bytes		         5	       114
 
 
                                 NWChem Input Module
@@ -6217,18 +6204,18 @@ MA usage statistics:
           E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
        T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
         J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
-          F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli,
+   F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli,  A. Marenich,
    A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
-         P.-D. Fan , A. Fonari, R. J. Harrison, M. Dupuis, D. Silverstein,
-    D. M. A. S mith, J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+          P.-D. Fan, A. Fonari, R. J. Harrison, M.Dupuis, D. Silverstein,
+    D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
         A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
-     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I . Fann,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
      H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman,
-     K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski , T. Clark, D. Clerc,
+      K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark, D. Clerc,
       H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
       A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
    R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                 A. Wong, Z. Zhang.
 
- Total times  cpu:      153.3s     wall:      160.7s
+ Total times  cpu:      288.9s     wall:      442.5s
