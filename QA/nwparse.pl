@@ -249,7 +249,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	    printf FILE_OUTPUT " %0.5f %s", set_to_digits(@line_tokens[3],5), @line_tokens[4];
 	    printf FILE_OUTPUT " %0.5f %s\n", set_to_digits(@line_tokens[5],5), @line_tokens[6];
 	}
-	if (/Zero-Point Energy/) {
+	if (/Zero-Point correction to Energy/) {
 	    if ($debug) {print "\ndebug: $_";}
 	    @line_tokens = split(' ');
 	    $num_line_tokens = @line_tokens;
@@ -257,7 +257,7 @@ foreach $filename (@FILES_TO_PARSE) {
 		print "debug:line_tokens: @line_tokens \n";
 		print "debug:number     : $num_line_tokens \n";
 	    }
-	    for($itok = 0;$itok < ($num_line_tokens-1); $itok++){
+	    for($itok = 0;$itok < ($num_line_tokens-5); $itok++){
 		if (! $quiet) {
 		    printf "%s ", @line_tokens[$itok];
 		}
@@ -265,9 +265,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
 	if (/nuclear/ && /repulsion/ && /energy/){
 	    if ($debug) {print "\ndebug: $_";}
