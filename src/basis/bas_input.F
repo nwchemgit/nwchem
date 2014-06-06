@@ -141,6 +141,8 @@ c
 c     nosegment
 c
  400     osegment = .false.
+         call errquit('bas_input: nosegment option disabled',
+     S        0,BASIS_ERR)
          goto 10
 c
 c     library
