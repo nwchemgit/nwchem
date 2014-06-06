@@ -89,7 +89,7 @@ void FATR util_getppn_(Integer *ppn_out){
 	modppn = result%ppn;
 	if (modppn){
 	  printf(" ERROR: result %d  ppn %d  mod %d\n", result, ppn,  modppn);
-         GA_Error("number of processors in not a multiple of ppn", (long) ppn);
+         GA_Error("number of processors is not a multiple of ppn", (long) ppn);
 	}}
       
       /*flush group and comm*/
@@ -120,7 +120,7 @@ void FATR util_getppn_(Integer *ppn_out){
     modppn = num_procs%ppn;
     if (modppn){
       printf(" ERROR: numprocs %d  ppn %d  mod %d\n", num_procs, ppn,  modppn);
-      GA_Error("number of processors in not a multiple of ppn", (long) ppn);
+      GA_Error("number of processors is not a multiple of ppn", (long) ppn);
     }
     ppn_initialized=1;
     *ppn_out = (long) ppn;
