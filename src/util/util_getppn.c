@@ -15,8 +15,7 @@ void FATR util_getppn_(Integer *ppn_out){
   const int mxlen = 255;
   char myhostname[mxlen];
   char* recvbuf;
-  int i, num_procs, me,  err, len, result ,modppn;
-  int lenbuf;
+  int i, num_procs, me,  err, result ,modppn;
   int size_group=SIZE_GROUP;
   MPI_Group wgroup_handle,group_handle;
   MPI_Comm group_comm;
@@ -90,7 +89,7 @@ void FATR util_getppn_(Integer *ppn_out){
 	modppn = result%ppn;
 	if (modppn){
 	  printf(" ERROR: result %d  ppn %d  mod %d\n", result, ppn,  modppn);
-	  GA_Error("util_getppn error", 0L);
+         GA_Error("number of processors in not a multiple of ppn", (long) ppn);
 	}}
       
       /*flush group and comm*/
@@ -121,7 +120,7 @@ void FATR util_getppn_(Integer *ppn_out){
     modppn = num_procs%ppn;
     if (modppn){
       printf(" ERROR: numprocs %d  ppn %d  mod %d\n", num_procs, ppn,  modppn);
-      GA_Error("number of processors in not a multiple of ppn", 0L);
+      GA_Error("number of processors in not a multiple of ppn", (long) ppn);
     }
     ppn_initialized=1;
     *ppn_out = (long) ppn;
