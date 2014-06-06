@@ -47,7 +47,7 @@ c
      +     'N. Govind', 'K. Kowalski','T. P. Straatsma', 
      +     'M. Valiev', 'H. J. J. van Dam', 'D. Wang', 'T. L. Windus',
      +     'J. Hammond', 'J. Autschbach', 'K. Bhaskaran-Nair', 
-     +     'J. Brabec','K. Lopata', 'W. Ma', 'M. Klemme', 'O. Villa', 
+     +     'J. Brabec','K. Lopata', 'W. Ma', 'M. Klemm', 'O. Villa', 
      +     'F. Aquino', 'S. Hirata', 'M. T. Hackler', 'T. Risthaus', 
      +     'M. Malagoli', 'A. Marenich', 'A. Otero-de-la-Roza', 
      +     'J. Mullin', 'P. Nichols', 'R. Peverati', 'J. Pittner', 
