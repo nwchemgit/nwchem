@@ -2278,6 +2278,30 @@ c      end do
       end
 
 
+      subroutine Pack_cct_iconjgMulb(nb,A,B,C)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     C(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        C(i) = dimag(A(i))*dble(B(i)) - dble(A(i))*dimag(B(i))
+      end do
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *                		        *
