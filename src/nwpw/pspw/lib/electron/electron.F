@@ -59,8 +59,11 @@
      >                     'vl2',vl(2),vl(1))
       if (paw_exist) then
          value = value.and.
-     >           MA_alloc_get(mt_dcpl,npack0,
+     >           MA_alloc_get(mt_dcpl,2*npack0,
      >                     'vlpaw2',vlpaw(2),vlpaw(1))
+         value = value.and.
+     >           MA_alloc_get(mt_dbl,n2ft3d,
+     >                     'vl_lr_paw',vl_lr_paw(2),vl_lr_paw(1))
       end if
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d,
@@ -129,6 +132,8 @@
       if (paw_exist) then
          value = value.and.
      >           MA_free_heap(vlpaw(2))
+         value = value.and.
+     >           MA_free_heap(vl_lr_paw(2))
       end if
       value = value.and.
      >        MA_free_heap(vl_lr(2))
@@ -340,19 +345,24 @@ c      end
       integer n2ft3d
       integer ii,ms,n1(2),n2(2),nx,ny,nz
       real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv
+      real*8  ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom
       real*8  total_energy
 
 *     **** external functions *****
-      logical  pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm
+      logical  pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm,psp_pawexist
       logical  pspw_HFX,pspw_HFX_relaxed,meta_found,nwpw_meta_gga_on
       integer  control_version
       real*8   lattice_omega,coulomb_e,electron_ehartree2
       real*8   nwpw_meta_gga_pxc
-      external pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm
+      real*8   psi_1hartree_atom,psi_1hartree_cmp_cmp
+      real*8   psi_1hartree_cmp_pw
+      external pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm,psp_pawexist
       external pspw_HFX,pspw_HFX_relaxed,meta_found,nwpw_meta_gga_on
       external control_version
       external lattice_omega,coulomb_e,electron_ehartree2
       external nwpw_meta_gga_pxc
+      external psi_1hartree_atom,psi_1hartree_cmp_cmp
+      external psi_1hartree_cmp_pw
       
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -430,9 +440,19 @@ c      end
       end if
 
 
-
       total_energy = eorbit + exc - ehartr - pxc
 
+
+
+*     **** PAW ee terms ****
+      if (psp_pawexist()) then
+         ehartree_atom = psi_1hartree_atom()
+         ecmp_cmp      = psi_1hartree_cmp_cmp()
+         ecmp_pw       = psi_1hartree_cmp_pw()
+         call psi_1xc_atom(exc_atom,pxc_atom)
+         total_energy = total_energy + exc_atom - pxc_atom
+     >                - ehartree_atom - ecmp_cmp - ecmp_pw
+      end if
 
 
 *     **** SIC corrections ****
@@ -1419,7 +1439,7 @@ cccc#include "frac_occ.fh"
      >             dbl_mb(psi_r(1)),
      >             dcpl_mb(vl(1)),
      >             dbl_mb(vl_lr(1)),
-     >             dcpl_mb(vlpaw(1)),paw_exist,
+     >             dcpl_mb(vlpaw(1)),dbl_mb(vl_lr_paw(1)),paw_exist,
      >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),
      >             dbl_mb(xcp(1)),
@@ -1904,6 +1924,8 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
         if (paw_exist) then
            call Pack_cc_daxpy(0,scal2,dcpl_mb(vlpaw(1)),
      >                                dbl_mb(vall(1)))
+           call Pack_cc_daxpy(0,scal2,dcpl_mb(vlpaw(1)+npack0),
+     >                                dbl_mb(vall(1)))
         end if
 c        call Pack_cc_Sum(0,dbl_mb(vall(1)),
 c     >                     dcpl_mb(vc(1)),
@@ -1931,6 +1953,8 @@ c     >                       dbl_mb(vall(1)))
         if (paw_exist) then
            call Pack_cc_daxpy(0,scal2,dcpl_mb(vlpaw(1)),
      >                                dbl_mb(vall(1)))
+           call Pack_cc_daxpy(0,scal2,dcpl_mb(vlpaw(1)+npack0),
+     >                                dbl_mb(vall(1)))
         end if
       
 *        **** fourier transform k-space potentials ****
@@ -1950,6 +1974,8 @@ c     >     call D3dB_rr_Sum(1,dbl_mb(vall(1)),
 c     >                        dbl_mb(v_field(1)),
 c     >                        dbl_mb(vall(1)))
          call D3dB_rr_Sum2(1,dbl_mb(vl_lr(1)),dbl_mb(vall(1)))
+         if (paw_exist) 
+     >      call D3dB_rr_Sum2(1,dbl_mb(vl_lr_paw(1)),dbl_mb(vall(1)))
          call D3dB_rr_Sum2(1,dcpl_mb(vc(1)),dbl_mb(vall(1)))
          if (field_exist)
      >     call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
@@ -2166,7 +2192,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >               dcpl_mb(tmp1(1)),
      >               dbl_mb(tmp2(1)))
       if (paw_exist) then
-         call v_local_paw(dcpl_mb(vlpaw(1)),
+         call v_locals_paw(dcpl_mb(vlpaw(1)),
      >                    move,
      >                    dcpl_mb(tmp1(1)),
      >                    dbl_mb(tmp2(1)))
@@ -2192,6 +2218,9 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
          if (control_version().eq.4) then
             call v_lr_local(dbl_mb(r_grid(1)),
      >                      dbl_mb(vl_lr(1)))
+            if (paw_exist) 
+     >         call v_lr_local_paw(dbl_mb(r_grid(1)),
+     >                             dbl_mb(vl_lr_paw(1)))
          end if
 
 *        **** zero out v_field ****
@@ -2366,8 +2395,7 @@ c    >                         sum)
       complex*16 dng(*)
 
 #include "mafdecls.fh"
-#include "electron_common.fh"
-#include "errquit.fh"
+#include "electron_common.fh" #include "errquit.fh"
 
 *     **** local variables ****
       real*8 elocal

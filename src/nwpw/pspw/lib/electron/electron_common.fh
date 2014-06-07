@@ -8,7 +8,8 @@
       integer Hpsi_k(2)
       integer psi_r(2)
       integer vl(2)         ! short-range local psp
-      integer vlpaw(2)      ! short-range local paw psp
+      integer vlpaw(2)      ! short-range local paw psps
+      integer vl_lr_paw(2)  ! long-range local paw psp
       integer vl_lr(2)      ! long-range local psp
       integer v_field(2)    ! used for qm/mm and charge fields
       integer vc(2)         ! coulomb potential
@@ -26,7 +27,8 @@
       common / electron_block / ehsic,exsic,phsic,pxsic,ehfx,phfx,
      >                          edftu,pdftu,emeta,pmeta,
      >                          Hpsi_k,psi_r,
-     >                          vl,vlpaw,vl_lr,v_field,vc,xcp,xce,vall,
+     >                          vl,vlpaw,vl_lr_paw,vl_lr,v_field,
+     >                          vc,xcp,xce,vall,
      >                          dng_cmp,dng_cmp_smooth,vcomp,vh,
      >                          ne,neq,ispin,nfft3d,npack1,npack0,
      >                          field_exist,paw_exist
