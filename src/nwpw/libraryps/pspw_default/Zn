@@ -12,6 +12,8 @@ Comment: relativistic TM, quadratic semicore
 [lmax] 2
 [locp] 0
 [rlocal] 1.0
+[cutoff] 50.0
+
 <atom>
 Zn
 30.0 65.0 5 3
