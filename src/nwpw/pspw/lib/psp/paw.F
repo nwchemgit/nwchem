@@ -80,13 +80,324 @@
 
 
 
+
+*     **********************************
+*     *                                *
+*     *       grad_v_lr_local_paw      *
+*     *                                *
+*     **********************************
+*
+*     This routine calculates the gradient of the long-range part of the
+*     local pseudopotential (used by version 4)
+*
+*     Entry -
+*     Exit -
+*
+      subroutine grad_v_lr_local_paw(r_grid,rho,fion)
+      implicit none
+      real*8  r_grid(3,*)
+      real*8  rho(*)
+      real*8  fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     **** Error function parameters ****
+      real*8  yerf,verf
+
+c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
+      real*8 c1,c2,c3,c4,c5,c6,fterf
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
+
+*     **** local variables ****
+      integer ftmp(2)
+      integer taskid_j,np_j
+      integer i,j,jj,np1,np2,np3,n2ft3d_map,nion,l,m,lm,n2ft3d
+      real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz
+
+*     **** external functions ****
+      logical  control_fast_erf
+      integer  ion_nion,ion_katm
+      real*8   lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
+      external control_fast_erf
+      external ion_nion,ion_katm
+      external lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
+      integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+      external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
+      call D3dB_n2ft3d(1,n2ft3d)
+      nion = ion_nion()
+
+*     **** constants ****
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+      dv = lattice_omega()/dble(np1*np2*np3)
+
+*     ***** allocate temporary space ****
+      if (.not.MA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
+     > call errquit('grad_v_lr_local:out of stack memory',0, MA_ERR)
+
+
+      call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
+
+      if (control_fast_erf()) then
+
+      do jj=1,nion_paw
+         if (mod(jj-1,np_j).eq.taskid_j) then
+            j = int_mb(ion_pawtoion(1)+jj-1)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            
+            q = -psp_zv(ion_katm(j))
+            c = 1.0d0/psp_rlocal(ion_katm(j))
+            fx = 0.0d0
+            fy = 0.0d0
+            fz = 0.0d0
+            do i=1,n2ft3d_map
+               rx = x - r_grid(1,i)
+               ry = y - r_grid(2,i)
+               rz = z - r_grid(3,i)
+               r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+               if (r .gt. 1.0d-8) then
+                 yerf=r*c
+                 fterf = (1.0d0
+     >                 + yerf*(c1 + yerf*(c2
+     >                 + yerf*(c3 + yerf*(c4
+     >                 + yerf*(c5 + yerf*c6))))))**4
+                 verf = (1.0d0 - 1.0d0/fterf**4)
+c                 verf = util_erf(yerf)
+                 v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                    - verf)/r**3
+               else
+                 v = 0.0d0
+               end if
+
+               fx = fx + rho(i)*rx*v
+               fy = fy + rho(i)*ry*v
+               fz = fz + rho(i)*rz*v
+            end do
+            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
+            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
+            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
+            
+         end if
+      end do
+
+      else
+
+      do jj=1,nion_paw
+         if (mod(jj-1,np_j).eq.taskid_j) then
+            j = int_mb(ion_pawtoion(1)+jj-1)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+
+            
+            q = -psp_zv(ion_katm(j))
+            c = 1.0d0/psp_rlocal(ion_katm(j))
+            fx = 0.0d0
+            fy = 0.0d0
+            fz = 0.0d0
+            do i=1,n2ft3d_map
+               rx = x - r_grid(1,i)
+               ry = y - r_grid(2,i)
+               rz = z - r_grid(3,i)
+               r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+               if (r .gt. 1.0d-8) then
+                 yerf=r*c
+c                fterf = (1.0d0
+c    >                 + yerf*(c1 + yerf*(c2
+c    >                 + yerf*(c3 + yerf*(c4
+c    >                 + yerf*(c5 + yerf*c6))))))**4
+c                verf = (1.0d0 - 1.0d0/fterf**4)
+                 verf = util_erf(yerf)
+                 v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                    - verf)/r**3
+               else
+                 v = 0.0d0
+               end if
+
+               fx = fx + rho(i)*rx*v
+               fy = fy + rho(i)*ry*v
+               fz = fz + rho(i)*rz*v
+            end do
+            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
+            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
+            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
+
+*        fion(1,j) = fion(1,j) - ddot(n2ft3d,rho,1,gv(1,1),3)*dv
+*        fion(2,j) = fion(2,j) - ddot(n2ft3d,rho,1,gv(2,1),3)*dv
+*        fion(3,j) = fion(3,j) - ddot(n2ft3d,rho,1,gv(3,1),3)*dv
+c         call D3dB_SumAll(fx)
+c         call D3dB_SumAll(fy)
+c         call D3dB_SumAll(fz)
+c         fion(1,j) = fion(1,j) - fx*dv
+c         fion(2,j) = fion(2,j) - fy*dv
+c         fion(3,j) = fion(3,j) - fz*dv
+
+         end if
+      end do
+
+      end if
+
+      call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
+      call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+
+      if (.not.MA_pop_stack(ftmp(2)))
+     > call errquit('paw_grad_v_lr_local:popping stack',1,MA_ERR)
+
+      call nwpw_timing_end(5)
+
+      return
+      end
+
+
+*     ***********************************
+*     *				        *
+*     *	 	  v_lr_local_paw  	*
+*     *					*
+*     ***********************************
+*
+*     This routine calculates the long-range part of the
+*     local pseudopotential (used by version4)
+*
+      subroutine v_lr_local_paw(r_grid,vlr_out)
+      implicit none
+      real*8     r_grid(3,*)
+      real*8     vlr_out(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     **** Error function parameters ****
+      real*8 xerf,yerf
+c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
+      real*8 c1,c2,c3,c4,c5,c6
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
+
+*     **** local variables ****
+      integer taskid_j,np_j
+      integer i,j,jj,n2ft3d,n2ft3d_map,l,m,lm
+      real*8 x,y,z,q,c,r,sqrt_pi
+
+*     **** external functions ****
+      logical  control_fast_erf
+      integer  ion_nion,ion_katm
+      real*8   ion_rion,psp_rlocal,psp_zv,util_erf
+      external control_fast_erf
+      external ion_nion,ion_katm
+      external ion_rion,psp_rlocal,psp_zv,util_erf
+      integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+      external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
+
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+      call dcopy(n2ft3d,0.0d0,0,vlr_out,1)
+
+
+      if (control_fast_erf()) then
+
+      do jj=1,nion_paw
+         if (mod(jj-1,np_j).eq.taskid_j) then
+            j = int_mb(ion_pawtoion(1)+jj-1)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            
+            q = -psp_zv(ion_katm(j))
+            c = 1.0d0/psp_rlocal(ion_katm(j))
+
+            do i=1,n2ft3d_map
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
+                 xerf=r*c
+                 yerf = (1.0d0
+     >                 + xerf*(c1 + xerf*(c2
+     >                 + xerf*(c3 + xerf*(c4
+     >                 + xerf*(c5 + xerf*c6))))))**4
+                 yerf = (1.0d0 - 1.0d0/yerf**4)
+c                 yerf = util_erf(xerf)
+                 vlr_out(i) = vlr_out(i) + (q/r)*yerf
+               else
+                 vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
+               end if
+            end do
+
+         end if
+      end do
+
+      else
+
+      do jj=1,nion_paw
+         if (mod(jj-1,np_j).eq.taskid_j) then
+            j = int_mb(ion_pawtoion(1)+jj-1)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+          
+            q = -psp_zv(ion_katm(j))
+            c = 1.0d0/psp_rlocal(ion_katm(j))
+
+            do i=1,n2ft3d_map
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
+                 xerf=r*c
+                 yerf = util_erf(xerf)
+                 vlr_out(i) = vlr_out(i) + (q/r)*yerf
+c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
+               else
+                 vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
+               end if
+            end do
+
+         end if
+      end do
+
+      end if
+      if (np_j.gt.1) call D1dB_Vector_SumAll(n2ft3d_map,vlr_out)
+
+      call nwpw_timing_end(5)
+
+      return
+      end
+
+
+
+
 *     ***********************************
 *     *					*
-*     *	 	   v_local_paw 		*
+*     *	 	v_locals_paw		*
 *     *					*
 *     ***********************************
 
-      subroutine v_local_paw(vlpaw_out,move,dng,fion)
+      subroutine v_locals_paw(vlpaw_out,move,dng,fion)
       implicit none
       complex*16 vlpaw_out(*)
       logical    move
@@ -122,23 +433,23 @@
       periodic = (control_version().eq.3)
 
       value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
       if (.not. value) 
-     >  call errquit('v_local:out of stack memory',0,MA_ERR)
+     >  call errquit('v_locals_paw:out of stack memory',0,MA_ERR)
 
 *     **** define Gx,Gy and Gz in packed space ****
       if (move) then
-         value = MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+         value = MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
          if (.not. value) 
-     >   call errquit('v_local: out of stack memory',0, MA_ERR)
+     >   call errquit('v_locals_paw: out of stack memory',0, MA_ERR)
          G(1)  = Pack_G_indx(0,1)
          G(2)  = Pack_G_indx(0,2)
          G(3)  = Pack_G_indx(0,3)
          call dcopy(3*nion,0.0d0,0,fion,1)
       end if
 
-      call dcopy((2*npack0),0.0d0,0,vlpaw_out,1)
+      call dcopy((4*npack0),0.0d0,0,vlpaw_out,1)
       do iii=1,nion_paw
        if (mod(iii-1,np_j).eq.taskid_j) then
           ii = int_mb(ion_pawtoion(1)+iii-1)
@@ -162,20 +473,21 @@
            call strfac_pack(0,ii,dcpl_mb(exi(1)))
        
 *          **** add to local psp ****
-           call Pack_tc_Mul(0,dbl_mb(vlpaw(1)+npack0*(ia-1)),
+           call Pack_tc_MulAdd(0,dbl_mb(vlpaw(1)+npack0*(ia-1)),
      >                      dcpl_mb(exi(1)),
-     >                      dcpl_mb(vtmp(1)))
-           call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vlpaw_out)
+     >                      vlpaw_out)
+           call Pack_tc_MulAdd(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                      dcpl_mb(exi(1)),
+     >                      vlpaw_out(1+npack0))
 
            if (move) then
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-             do i=1,npack0
-                dbl_mb(xtmp(1)+i-1) 
-     >          = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
-     >           - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
-             end do
+              call Pack_ttcc_AddMul(0,dbl_mb(vlpaw(1)+npack0*(ia-1)),
+     >                              dbl_mb(vl(1)+npack0*(ia-1)),
+     >                              dcpl_mb(exi(1)),
+     >                              dcpl_mb(vtmp(1)))
+            call Pack_cct_iconjgMulb(0,dng,
+     >                                 dcpl_mb(vtmp(1)),
+     >                                 dbl_mb(xtmp(1)))
             call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
             call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
             call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
@@ -185,14 +497,18 @@
        end if
       end do
       if (np_j.gt.1) then
-         call D1dB_Vector_SumAll(2*npack0,vlpaw_out)
+         call D1dB_Vector_SumAll(4*npack0,vlpaw_out)
       end if
       if (move) call Parallel_Vector_SumAll(3*nion,fion)
 
       value = .true.
-      if (move) value = value.and.MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(vtmp(2))
+      if (move) then
+         value = value.and.MA_pop_stack(xtmp(2))
+         value = value.and.MA_pop_stack(vtmp(2))
+      end if
       value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >   call errquit('v_locals_paw:popping stack',0, MA_ERR)
 
       call nwpw_timing_end(5)
       end if
@@ -204,7 +520,7 @@
 
 *     ***********************************
 *     *					*
-*     *	 	   f_vlocal_paw		*
+*     *	 	   f_vlocals_paw	*
 *     *					*
 *     ***********************************
       subroutine f_vlocal_paw(dng,fion)
@@ -280,14 +596,17 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                      dcpl_mb(exi(1)),
      >                      dcpl_mb(vtmp(1)))
 
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-            do i=1,npack0
-              dbl_mb(xtmp(1)+i-1) 
-     >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
-     >         - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
-           end do
+c#ifndef CRAY
+c!DIR$ ivdep
+c#endif
+c            do i=1,npack0
+c              dbl_mb(xtmp(1)+i-1) 
+c     >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
+c     >         - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
+c           end do
+           call Pack_cct_iconjgMulb(0,dng,
+     >                                dcpl_mb(vtmp(1)),
+     >                                dbl_mb(xtmp(1)))
            call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
            call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fion(2,ii))
            call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fion(3,ii))
@@ -300,6 +619,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       value =           MA_pop_stack(xtmp(2))
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) call errquit('popping stack',0, MA_ERR)
 
       call nwpw_timing_end(5)
       end if
