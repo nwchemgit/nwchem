@@ -1,0 +1,227 @@
+#!/bin/bash
+function usage ()
+{
+   cat<<EOF
+ autoxc - script to autogenerate Fortran code for Electron Density Functionals
+          and their derivatives using Maxima
+
+ Usage:
+
+    $0 [-o <source-file>] <functional>.max
+
+ The Autoxc script takes a file specifying an electron density functional 
+ and invokes Maxima [1] to generate expressions for the functional itself
+ and its partial derivatives up to 3rd order. Subsequently Maxima transforms
+ the expressions into Fortran code. 
+
+ The script is based on the idea published by Strange et al. [2]. However,
+ the dfauto script they published requires Maple [3] which is inconvenient
+ for free software projects because of the commercial licensing. Hence
+ this is a complete re-implementation of the approach.
+
+ The file containing the functional may specify three different expression:
+ - f : a correlation functional term
+ - g : an exchange functional term
+ - G : a limiting expression for the limit rho_s -> 0
+ These expressions should be specified as
+ - f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau)
+ - g(rho_s,sigma_ss,tau_s)
+ - G(rho_s,sigma_ss,tau_s)
+ The script will substitute
+ - rho   = rho_a + rho_b
+ - zeta  = (rho_a - rho_b) / rho
+ - sigma = sigma_aa + 2 * sigma_ab + sigma_bb
+ - tau   = tau_a + tau_b
+ Given this information the total functional is defined as:
+
+   When rho_a and rho_b > 0.0d0
+
+     - K = sum(s=(a,b),g(rho_s,sigma_ss,tau_s))
+         + f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,
+             tau_a,tau_b,tau)
+
+   when rho_a > 0.0d0 and rho_b = 0.0d0 and G defined
+
+     - K = g(rho_a,sigma_aa,tau_a)
+         + G(rho_a,sigma_aa,tau_a)
+ 
+   when rho_a = 0.0d0 and rho_b > 0.0d0 and G defined
+
+     - K = g(rho_b,sigma_bb,tau_b)
+         + G(rho_b,sigma_bb,tau_b)
+
+ 
+ [1] "Maxima, a Computer Algebra System", Version 5.27.0,
+     http://maxima.sourceforge.net/
+
+ [2] R. Strange, F.R. Manby, P.J. Knowles,
+     "Automatic code generation in density functional theory",
+     Comp. Phys. Commun. 136 (2001) 310,
+     DOI: 10.1016/S0010-4655(01)00148-5
+
+ [3] M.B. Monagan, K.O. Geddes, K.M. Heal, G. Labahn, S.M. Vorkoetter,
+     J. McCarron, P. DeMarco,
+     "Maple 10 Programming Guide",
+     Maplesoft, Waterloo ON, Canada, 2005.
+EOF
+}
+#
+# Variables in this script
+# ------------------------
+#
+# The input file containing the DFT functional specification as a
+# Maxima expression
+#
+inputfile=""
+#
+# The output file where the source code is written to
+#
+outputfile=""
+#
+# The intermediate density functional representation file that tells Maxima to
+# be relatively quiet
+#
+f_quiet=""
+#
+# In the Maxima definitions we will use:
+# - f : the correlation part of the functional
+# - g : the exchange part of the functional
+# - G : the limit of the correlation functional when one of the alpha or beta
+#       densities goes to 0 (this expression has an exchange like form)
+#
+# From the above definitions we will derive:
+# - excess      : Is there a special definition for when there is an excess of
+#                 alpha- or beta-electron density, i.e. is there a definition
+#                 of G?
+# - rho_deriv   : Is the functional density dependent?
+# - sigma_deriv : Is the functional density gradient dependent?
+# - tau_deriv   : Is the functional kinetic energy density dependent?
+#
+excess=false
+rho_deriv=false
+sigma_deriv=false
+tau_deriv=false
+#
+# Check the command line
+# ----------------------
+#
+# Are there a reasonable number of arguments?
+#
+if [ $# -lt 1 ] ; then
+  usage
+  exit 1
+elif [ $# -gt 3 ] ; then
+  usage
+  exit 1
+fi
+#
+# Go through argument list and pick up the outputfile (optional)
+# and the inputfile (required)
+#
+while getopts "o:" arg ; do
+    case $arg in
+    o)  outputfile="$OPTARG" ;;
+    esac
+done
+shift $((OPTIND - 1))
+inputfile="$1"
+#
+# If no outputfile was specified generate the outputfile from the inputfile
+# by replacing the .max extension with .F
+#
+if [ "x$outputfile" == "x" ] ; then
+  outputfile=`echo "$inputfile" | sed 's/\.max/.F/'`
+fi
+#
+# Normally Maxima will print everything it is doing. This behavior can be 
+# suppressed by terminating the lines with $-signs instead of ;-signs.
+# Hence create an intermediate Maxima specification of the functional that
+# suppresses all the printing.
+#
+functional=${inputfile%.max}
+f_quiet=${TMPDIR:-/tmp}/fnc_intermediate.$$
+sed -e 's/ *$//' -e 's/;$/$/' $inputfile > $f_quiet
+#
+# Analyze the functional definition we have been given. We want to know whether
+# f, g, and/or G are present. The presence of G requires additional source
+# code to be generated for when one of the alpha or beta density is 0.
+#
+sums=0
+list=`sed -e "s/^ *//" -e "/^[a-zA-Z0-9_,() ]*\[*[a-zA-Z0-9_,() ]*\]* *:=/p" -e "d" $f_quiet | sed -e 's/ *:=.*$//'`
+for i in $list ; do
+   if [ x$i = xf ] ; then
+       sums=$(($sums+1))
+   fi
+   if [ x$i = xg ] ; then
+       sums=$(($sums+1))
+   fi
+   if [ x$i = xG ] ; then
+       excess=true
+       sums=$(($sums+1))
+   fi
+done
+if [ $sums = 0 ] ; then
+    echo "No functional definition in $inputfile"
+    echo "Bombing"
+#   exit 10
+fi
+#
+# Write a Maxima script to work out what the functional depends on
+#
+f_maxima=${TMPDIR:-/tmp}/fnc_maxima.$$
+f_dependency=${TMPDIR:-/tmp}/fnc_dependency.$$.out
+f_dependency_sh=${TMPDIR:-/tmp}/fnc_dependency.$$.sh
+cat <<EOF > $f_maxima
+f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau):=0$
+g(rho_s,sigma_ss,tau_s):=0$
+G(rho_s,sigma_ss,tau_s):=0$
+functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=0$
+EOF
+cat $f_quiet >> $f_maxima
+cat <<EOF >> $f_maxima
+functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=  
+    f((rho_a-rho_b)/(rho_a+rho_b),rho_a,rho_b,rho_a+rho_b,        
+      sigma_aa,sigma_ab,sigma_bb,sigma_aa+2*sigma_ab+sigma_bb,    
+      tau_a,tau_b,tau_a+tau_b)                                    
+  + g(rho_a,sigma_aa,tau_a) + g(rho_b,sigma_bb,tau_b)             
+  + G(rho_a,sigma_aa,tau_a) + G(rho_b,sigma_bb,tau_b)$
+rho_deriv:is (diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                              tau_a,tau_b),rho_a)#0 or
+              diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                              tau_a,tau_b),rho_b)#0)$
+sigma_deriv:is (diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                                tau_a,tau_b),sigma_aa)#0 or
+                diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                                tau_a,tau_b),sigma_ab)#0 or  
+                diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                                tau_a,tau_b),sigma_bb)#0)$
+tau_deriv:is (diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                              tau_a,tau_b),tau_a)#0 or
+              diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                              tau_a,tau_b),tau_b)#0)$
+with_stdout("$f_dependency",        
+   print("rho_deriv=",rho_deriv),      
+   print("sigma_deriv=",sigma_deriv),  
+   print("tau_deriv=",tau_deriv))$
+/* printfile("$f_dependency"); */
+EOF
+maxima -b $f_maxima
+sed -e "s/ //" $f_dependency > $f_dependency_sh
+source $f_dependency_sh
+#
+# Now we know:
+#
+# - whether the functional depends on the density
+# - whether the functional depends on the gradient of the density
+# - whether the functional depends on the kinetic energy density
+# - whether the functional has a special limiting case for densities tending
+#   to zero
+#
+
+#
+# Cleaning up (i.e. deleting all the temporary files)
+#
+rm $f_quiet
+rm $f_maxima
+rm $f_dependency
+rm $f_dependency_sh
