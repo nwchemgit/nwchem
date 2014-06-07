@@ -45,11 +45,6 @@ c
 #include "schwarz.fh"
 #include "stdio.fh"
 #include "cdft.fh"
-
-ccase...start
-#include "case.fh"
-ccase...end
-
 c
 c     dftgrad module.
 c
