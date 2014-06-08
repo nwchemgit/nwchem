@@ -408,3 +408,4 @@ c     Clear T,...
      &    call errquit(pname//'failed to destroy g_temp',0, GA_ERR)
 c
       end
+c $Id$

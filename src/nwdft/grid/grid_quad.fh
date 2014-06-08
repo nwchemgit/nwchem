@@ -49,3 +49,4 @@ c
       logical do_gxc
       double precision Amat3(*)
       double precision Cmat3(*)
+c $Id$
