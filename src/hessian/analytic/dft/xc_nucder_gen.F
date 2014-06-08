@@ -299,3 +299,4 @@ c      call output(hess,1,3*natoms,1,3*natoms,3*natoms,3*natoms,1)
       return
       end
 c !!! BGJ test
+c $Id$

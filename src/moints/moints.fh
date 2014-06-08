@@ -1,4 +1,4 @@
-C $Id: $
+C $Id$
 C
 C mointdriver.F:       integer function moints_occrange( noper, ostart, ilo, ohi )
 C moints_aodisk.F:      integer function moints_nxttask( numnodes )
