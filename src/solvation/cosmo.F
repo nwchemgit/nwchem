@@ -4188,7 +4188,7 @@ c
       return
       end
 
-c $Id: cosmo.F 25454 2014-04-07 14:18:22Z niri $
+c $Id$
 C>
 C> @}
 c

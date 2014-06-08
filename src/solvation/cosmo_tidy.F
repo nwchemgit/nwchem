@@ -20,3 +20,4 @@ c
      $     ('cosmo_tidy: bq destroy failed', 0, GEOM_ERR)
       return
       end
+c $Id$

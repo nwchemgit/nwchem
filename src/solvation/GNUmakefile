@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile 25404 2014-03-30 15:43:31Z niri $
+# $Id$
 #
    OBJ = mnsol_mem.o\
          mnsol_interface.o\
