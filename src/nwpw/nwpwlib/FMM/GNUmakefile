@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile 23627 2013-02-23 02:05:08Z bylaska $
+# $Id$
 #
       SUBDIRS = 
 
