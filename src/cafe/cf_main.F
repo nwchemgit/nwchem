@@ -11,20 +11,8 @@ c
 c
       call cf_wbox(numw,nums,int_mb(i_iwa),isat,isml,ishop,
      + dbl_mb(i_wsm),dbl_mb(i_mas))
-cDEBUG
-      write(*,*)'*** HVD: cf_main.F: wbx=wbox'
-      call util_flush(6)
-      if (ma_verify_allocator_stuff()) then
-      endif
-cDEBUG
 c
       wbx=wbox
-cDEBUG
-      write(*,*)'*** HVD: cf_main.F: return'
-      call util_flush(6)
-      if (ma_verify_allocator_stuff()) then
-      endif
-cDEBUG
 c
       return
       end
@@ -123,41 +111,19 @@ c
       wbox=dble(numw)*wbox
       endif
 c
-cDEBUG
-      write(*,*)'*** HVD: cf_main.F: wsm=0'
-      call util_flush(6)
-      if (ma_verify_allocator_stuff()) then
-      endif
-      write(*,*)'*** numw,nums = ',numw,nums
-cDEBUG
       do 2 i=1,msm
       wsm(i)=zero
     2 continue
 c
-cDEBUG
-      write(*,*)'*** HVD: cf_main.F: wsm(isml)'
-      call util_flush(6)
-      if (ma_verify_allocator_stuff()) then
-      endif
-cDEBUG
       if(nums.gt.0) then
       do 3 i=1,nums
       if(iand(ishop(i),1).ne.1) then
       wbox=wbox+wgt(isat(i),iset)
-cDEBUG
-      write(*,*)'*** HVD: ',msm,msa,i,ishop(i),isml(i)
-cDEBUG
       wsm(isml(i))=wsm(isml(i))+wgt(isat(i),iset)
       endif
     3 continue
       endif
 c
-cDEBUG
-      write(*,*)'*** HVD: cf_main.F: ga_dgop'
-      call util_flush(6)
-      if (ma_verify_allocator_stuff()) then
-      endif
-cDEBUG
       if(np.gt.1) then
       call ga_dgop(mcf_34,wbox,1,'+')
       if(msm.gt.0) call ga_dgop(mcf_35,wsm,msm,'+')
