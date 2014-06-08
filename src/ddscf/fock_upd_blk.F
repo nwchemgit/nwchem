@@ -51,6 +51,10 @@ c
       double precision buf(*)
 c
       integer ilo, ihi, jlo, jhi, idim, jdim
+cDEBUG
+      integer itype, ndim, dims(ga_max_dim), ii
+      character*10 name
+cDEBUG
 c
 c     add atom block buf info of the matrix g_array (over basis functions)
 c
@@ -62,6 +66,16 @@ c
       idim = ihi - ilo + 1
       jdim = jhi - jlo + 1
 c     
+cDEBUG
+      if (ga_ndim(g_array).ne.2) then
+        call nga_inquire(g_array,itype,ndim,dims)
+        write(*,*)'*** upd_atom_block: itype = ',itype
+        write(*,*)'*** upd_atom_block: ndim  = ',ndim
+        write(*,*)'*** upd_atom_block: dims  = ',(dims(ii),ii=1,ndim)
+        call nga_inquire_name(g_array,name)
+        write(*,*)'*** upd_atom_block: name  = ',name
+      endif
+cDEBUG
       if (idim.gt.0 .and. jdim.gt.0) then
          call ga_acc(g_array, ilo, ihi, jlo, jhi, buf, idim,
      $        1.0d0)

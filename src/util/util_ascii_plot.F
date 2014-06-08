@@ -77,3 +77,4 @@
       ascii_yscale = NINT((y-YU)*(MaxRow-1)/(YD-YU)+1)
       return
       end
+c $Id$

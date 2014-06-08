@@ -152,3 +152,4 @@ c
      $     ('sym_bas_irreps: memory corrupt?',0, MA_ERR)
 c
       end
+c $Id$

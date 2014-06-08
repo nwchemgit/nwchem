@@ -60,3 +60,4 @@ c     Broadcast status to other nodes
       call ga_sync()
 c
       end
+c $Id$

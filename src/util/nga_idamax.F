@@ -12,7 +12,7 @@ C> the element position is `ga_max_dim` long. However, only
 C> the first `ga_ndim(g_a)` elements will be accessed.
 C>
       subroutine nga_idamax(g_a, indx, valmx)
-C     $Id: ga_maxelt.F 22960 2012-10-07 07:26:45Z d3y133 $
+C     $Id$
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
