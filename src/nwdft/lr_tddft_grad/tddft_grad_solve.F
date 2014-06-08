@@ -261,3 +261,4 @@ c     Reset fock_xc:triplet here for restricted triplet calculations
       endif
 c
       end
+c $Id$

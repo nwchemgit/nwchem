@@ -1,6 +1,6 @@
       subroutine tddft_grad_init_func(numfunc,xfac,cfac,eps)
 c
-c     $Id: tddft_grad_init_func.F,v 1.1 2009/09/24 10:34:09 hvd Exp $
+c     $Id$
 c
 c     The DFT library is a straightforward Fortran90 library without
 c     any knowledge of parallelism. In NWChem the initialisation of 

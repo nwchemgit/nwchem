@@ -45,3 +45,4 @@ c
      +  call errquit(pname//'failed to release root_e',0, MA_ERR)
 c
       end
+c $Id$

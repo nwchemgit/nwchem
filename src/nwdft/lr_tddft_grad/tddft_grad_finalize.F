@@ -44,3 +44,4 @@ c
      +    call errquit(pname//'failed to destroy basis set')
 c
       end
+c $Id$

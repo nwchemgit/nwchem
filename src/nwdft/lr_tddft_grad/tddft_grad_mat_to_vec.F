@@ -1,7 +1,7 @@
       subroutine tddft_grad_mat_to_vec(g_m, ilo, ihi, g_v, klo, col,
      $           scale, op)
 c
-c     $Id: tddft_grad_mat_to_vec.F,v 1.2 2007/09/11 11:29:17 hvd Exp hvd $
+c     $Id$
 c
 c     This subroutine is a copy of ga_mat_to_vec modified to handle
 c     3D global arrays as they are used in the TDDFT Gradients. 
@@ -91,7 +91,7 @@ c
       end
       subroutine tddft_grad_vec_to_mat(g_m, ilo, ihi, g_v, klo, col)
 c
-c     $Id: tddft_grad_mat_to_vec.F,v 1.2 2007/09/11 11:29:17 hvd Exp hvd $
+c     $Id$
 c
 c     This subroutine is a copy of ga_vec_to_mat modified to handle
 c     3D global arrays as they are used in the TDDFT Gradients. 

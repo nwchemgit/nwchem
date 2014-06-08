@@ -1,5 +1,5 @@
 c
-c     $Id: tddft_grad_solve_common.fh,v 1.1 2007/09/11 12:38:52 hvd Exp hvd $
+c     $Id$
 c
 c     Local common block to pass information from the linear system
 c     solver driver tddft_grad_solve to the matrix vector product

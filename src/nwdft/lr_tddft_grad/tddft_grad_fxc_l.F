@@ -10,7 +10,7 @@ c
      &                            rho,drho,amat2,amat3,force,exc)
       implicit none
 c
-c     $Id: tddft_grad_fxc_l.F,v 1.1 2007/09/07 12:19:20 hvd Exp hvd $
+c     $Id$
 c
 c     The general expression to evaluate 
 c

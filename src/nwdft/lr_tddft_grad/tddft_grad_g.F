@@ -53,3 +53,4 @@ c
      +  ("tddft_grad_destroy_g: could not destroy g_g",0, GA_ERR)
 c
       end
+c $Id$

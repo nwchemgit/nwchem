@@ -106,7 +106,7 @@ c
       subroutine print_matrix(a,nrow,ncol,ndim)
       implicit none
 c
-c     $Id: tddft_grad_print_array.F,v 1.4 2007/11/05 14:55:48 hvd Exp hvd $
+c     $Id$
 c
 c     Print the matrix A(1:nrow,1:ncol).
 c
@@ -149,7 +149,7 @@ c
       subroutine print_matrix_patch(a,irow,jrow,icol,jcol,ndim)
       implicit none
 c
-c     $Id: tddft_grad_print_array.F,v 1.4 2007/11/05 14:55:48 hvd Exp hvd $
+c     $Id$
 c
 c     Print the matrix A(irow:jrow,icol:jcol).
 c

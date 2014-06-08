@@ -3,7 +3,7 @@
      2  delrho, npert, ipol, nq, grad,
      3  crho, cdelrho, calctype)
 c
-c     $Id: tddft_grad_dvxc.F 19697 2012-07-12 13:26:34Z dwsilverstein $
+c     $Id$
 c
 c Routine for building the gradient of the XC-potential, based on the
 c recipe outlined in J. Chem. Phys., 124, 094107 (2006).

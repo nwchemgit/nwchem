@@ -5,7 +5,7 @@
      4  PPP, F, zzz, hh, g_dens, force, 
      5  oactive, nmat, calctype)
 c
-c     $Id: tddft_grad_quadv0b.F 19697 2012-07-12 13:26:34Z dwsilverstein $
+c     $Id$
 c
 c This routine constructs the gradient of XC-functional terms with
 c respect to nuclear coordinates.  Ideas for this routine are borrowed

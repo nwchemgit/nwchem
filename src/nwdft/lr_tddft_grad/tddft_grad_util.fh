@@ -1,5 +1,5 @@
 c
-c     $Id: tddft_grad_util.fh,v 1.1 2007/10/11 14:00:37 hvd Exp hvd $
+c     $Id$
 c
 c     Include file to pick up the print level definitions from
 c     util.fh and to define the type of the function

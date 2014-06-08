@@ -68,3 +68,4 @@ c
      +            0, MA_ERR)
       endif
       end
+c $Id$

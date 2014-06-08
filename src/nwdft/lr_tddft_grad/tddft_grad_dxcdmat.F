@@ -2,7 +2,7 @@
      1  pdelrho, nqpts, ipol, ngxc, grad, rho, delrho, 
      2  Amat, Cmat, Amat2, Cmat2, qwght, triplet, calc_type)
 c      
-c     $Id: tddft_grad_dxcdmat.F 23541 2013-02-04 22:50:07Z dwsilverstein $
+c     $Id$
 c
 c
 c Contracts the perturbed electron density with the XC-potential or

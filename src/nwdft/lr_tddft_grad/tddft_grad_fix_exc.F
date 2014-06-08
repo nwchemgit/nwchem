@@ -1,7 +1,7 @@
       subroutine tddft_grad_fix_exc(nq,exc,wght)
       implicit none
 c
-c     $Id: tddft_grad_fix_exc.F,v 1.1 2007/09/07 12:18:09 hvd Exp hvd $
+c     $Id$
 c
 c     This subroutine tweaks the energy expression in exc for the 
 c     derivatives of the weights contribution. The situation is that

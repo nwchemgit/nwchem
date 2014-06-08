@@ -1,6 +1,6 @@
       subroutine tddft_grad_solve_precond(g_x,shift)
 c
-c     $Id: tddft_grad_solve_precond.F,v 1.3 2007/10/11 14:18:43 hvd Exp hvd $
+c     $Id$
 c
 c     This subroutine applies a preconditioner to the new trial vectors
 c     stored in the global array g_x. The purpose of this is to 

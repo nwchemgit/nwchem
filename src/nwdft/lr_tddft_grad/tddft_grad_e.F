@@ -38,3 +38,4 @@ c
      +  call errquit(pname//'failed to release e_mo',0,MA_ERR)
 c
       end
+c $Id$

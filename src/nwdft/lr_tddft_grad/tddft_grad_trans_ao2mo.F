@@ -2,7 +2,7 @@
      +                                  nroot,facao,facmo,trans,
      +                                  g_mo,g_mao,g_mmo,block)
 c
-c     $Id: tddft_grad_trans_ao2mo.F,v 1.4 2007/10/11 14:18:43 hvd Exp hvd $
+c     $Id$
 c
 c     Transform a quantity from AO basis to MO basis. The quantities
 c     (both MO and AO basis) are assumed to be stored in 3 dimensional

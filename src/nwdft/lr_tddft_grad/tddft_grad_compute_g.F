@@ -1408,3 +1408,4 @@ c
      + call errquit(pname//"could not destroy g_ovlp",0,GA_ERR)
 c
       end
+c $Id$

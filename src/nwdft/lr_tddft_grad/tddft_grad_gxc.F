@@ -2,7 +2,7 @@
      &                          amat3,scr,scrmat)
       implicit none
 c
-c     $Id: tddft_grad_gxc.F,v 1.1 2007/09/07 12:23:32 hvd Exp hvd $
+c     $Id$
 c
 c     Compute the DFT contributions to R and W in AO basis. This routine
 c     will be called from within the DFT drivers, so it has to be

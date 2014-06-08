@@ -2,7 +2,7 @@
      &                                ibt,iet,g_g)
       implicit none
 c
-c     $Id: tddft_grad_irreg_acc.F,v 1.2 2007/10/11 14:18:43 hvd Exp hvd $
+c     $Id$
 c
 c     This is an unfortunate routine. The situation is that there is
 c     an array 'data' defined as

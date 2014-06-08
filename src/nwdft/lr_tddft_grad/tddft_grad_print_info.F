@@ -66,3 +66,4 @@ c
       endif  ! ga_nodeid()
 c
       end
+c $Id$
