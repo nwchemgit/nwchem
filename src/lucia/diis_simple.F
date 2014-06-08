@@ -111,3 +111,4 @@ C     WRITE(6,*) ' Leaving DIIS '
 
 
         
+c $Id$

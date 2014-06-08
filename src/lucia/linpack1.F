@@ -1,5 +1,5 @@
 c RCS cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c $Id: linpack1.f,v 1.2 2004/06/16 19:31:23 andreas Exp $
+c $Id$
 c $Log: linpack1.f,v $
 c Revision 1.2  2004/06/16 19:31:23  andreas
 c diverse changes for

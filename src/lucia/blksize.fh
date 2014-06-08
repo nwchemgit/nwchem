@@ -7,3 +7,4 @@
        Common /m_B_L/ min_Block_Length, ItoB
        Parameter (MBl_wa=8, MBl_nwa=512)
        Parameter (ItoBsize = 8)
+c $Id$

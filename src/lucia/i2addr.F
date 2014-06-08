@@ -1022,3 +1022,4 @@ c?    print *,' ijpairs,klpairs',ijpairs,klpairs
 *
       return
       end 
+c $Id$

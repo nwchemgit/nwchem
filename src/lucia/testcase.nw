@@ -1,5 +1,5 @@
 #
-# $Id: nwchem.nw 19708 2010-10-29 18:04:21Z d3y133 $
+# $Id$
 #
 
 title "Water geometry optimization in cc-pvdz basis set"

@@ -96,3 +96,4 @@
       If ( Query ) Call qExit('iDaFile')
       Return
       End
+c $Id$

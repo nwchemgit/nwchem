@@ -74,3 +74,4 @@
       If ( Query ) Call qExit('dDafile')
       Return
       End
+c $Id$

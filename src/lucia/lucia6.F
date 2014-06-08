@@ -1388,3 +1388,4 @@ C?        WRITE(6,*) ' MAXW, MAXV ', MAXW,MAXV
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'RESPON')
       RETURN
       END
+c $Id$

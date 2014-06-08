@@ -231,3 +231,4 @@ C            SXTYP2_GAS(NSXTYP,ITP,JTP,NGAS,ILTP,IRTP,IPHGAS)
 
       RETURN
       END
+c $Id$

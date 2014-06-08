@@ -1,4 +1,4 @@
-# $Id: GNUmakefile $
+# $Id$
 
 
   OBJ = atim.o cio.o  flush.o

@@ -7301,3 +7301,4 @@ C   TRNMAD(A,X,SCR,NDIMI,NDIMO)
 
 
 
+c $Id$

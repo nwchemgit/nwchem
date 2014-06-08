@@ -72,3 +72,4 @@
       If ( Query ) Call qExit('cDaFile')
       Return
       End
+c $Id$

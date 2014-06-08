@@ -1,5 +1,5 @@
 /* RCS *******************************************************************/
-/* $Id: flush.c,v 1.1 2004/06/16 19:27:22 andreas Exp $ */
+/* $Id$ */
 /* $Log: flush.c,v $
 /* Revision 1.1  2004/06/16 19:27:22  andreas
 /* new routines and includes for

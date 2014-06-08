@@ -17,3 +17,4 @@ void    atim_(double * cpu, double * wall)
 
 }
 
+/* $Id$ */

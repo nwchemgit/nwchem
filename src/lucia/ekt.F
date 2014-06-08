@@ -983,3 +983,4 @@ C            DIAVC2(VECOUT,VECIN,DIAG,SHIFT,NDIM)
 
 
       
+c $Id$
