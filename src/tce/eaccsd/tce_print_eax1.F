@@ -2,7 +2,7 @@ ckbn Kiran Bhaskaran-Nair modified from tce_print_x1.F
 ckbn Has to be debugged
       subroutine tce_print_eax1(d_r1,k_r1_offset,r1_thresh,irrep)
 c
-c $Id: tce_print_x1.F 20265 2011-05-05 00:09:26Z d3y133 $
+c $Id$
 c
 c Prints the X1 tensor
 c

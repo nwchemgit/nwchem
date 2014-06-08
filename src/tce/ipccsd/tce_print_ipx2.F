@@ -2,7 +2,7 @@ ckbn Kiran Bhaskaran-Nair modified from tce_print_x2.F
 ckbn Has to be debugged
       subroutine tce_print_ipx2(d_r2,k_r2_offset,r2_thresh,irrep)
 c
-c $Id: tce_print_x2.F 21233 2011-10-20 17:22:46Z kowalski $
+c $Id$
 c
 c Prints the X2 tensor
 c

@@ -1,7 +1,7 @@
 ckbn Kiran Bhaskaran-Nair modified from tce_jacobi_x1
       subroutine tce_jacobi_eax1(d_r1,k_r1_offset)
 c
-c $Id: tce_jacobi_x1.F 19706 2010-10-29 17:52:31Z d3y133 $
+c $Id$
 c
       implicit none
 #include "global.fh"
