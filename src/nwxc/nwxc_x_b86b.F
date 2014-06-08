@@ -38,7 +38,7 @@ c
      &                          func, Amat, Amat2, Cmat, Cmat2)
 #endif
 c
-c$Id: xc_xb86b.F 19696 2010-10-29 16:53:42Z d3y133 $
+c$Id$
 c
       implicit none
 c

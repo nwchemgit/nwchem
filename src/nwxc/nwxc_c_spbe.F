@@ -31,7 +31,7 @@ C>
      &                          ffunc, Amat, Amat2, Cmat, Cmat2)
 #endif
 c
-c$Id: xc_spbe96.F 20247 2011-04-28 18:58:49Z d3y133 $
+c$Id$
 c
       Implicit none
 #include "nwxc_param.fh"

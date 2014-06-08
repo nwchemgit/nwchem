@@ -32,7 +32,7 @@ C>
       Subroutine nwxc_c_op(kop,param,tol_rho,ipol,nq,wght,rho,rgamma,
      &                     func,Amat,Cmat)
 c
-C$Id: xc_op.F 20247 2011-04-28 18:58:49Z d3y133 $
+C$Id$
 c
       implicit none
 c      

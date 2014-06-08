@@ -86,7 +86,7 @@ C>
      &     Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3)
 #endif
 c
-c$Id: nwxc_x_campbe.F 23711 2013-03-08 22:18:42Z d3y133 $
+c$Id$
 c
       implicit none
 c

@@ -31,7 +31,7 @@ C>
      &                            func, Amat, Amat2, Cmat, Cmat2)
 #endif
 c
-c$Id: xc_ssbD_1.F 19696 2010-10-29 16:53:42Z d3y133 $
+c$Id$
 c
 c     SSB-D exchange functional part 1
 c         (the one that depends on s)

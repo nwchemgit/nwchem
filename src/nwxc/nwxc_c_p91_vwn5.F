@@ -54,7 +54,7 @@ C>
      &                              Cmat, Cmat2)
 #endif
 c
-c$Id: nwxc_c_p91.F 25116 2014-01-13 23:11:03Z d3y133 $
+c$Id$
 c
       Implicit none
 #include "nwxc_param.fh"
