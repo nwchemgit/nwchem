@@ -1810,3 +1810,4 @@ c     Compile source again for the 3rd derivative case
 c
 #include "xc_pbe96.F"
 #endif
+c $Id$

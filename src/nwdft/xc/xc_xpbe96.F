@@ -584,3 +584,4 @@ c     Compile source again for the 3rd derivative case
 c
 #include "xc_xpbe96.F"
 #endif
+c $Id$
