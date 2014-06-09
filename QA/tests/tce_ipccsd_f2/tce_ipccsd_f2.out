@@ -1,17 +1,17 @@
-refund: UserID = bhas990
-refund: SLURM Job ID = 6097387
+refund: UserID = kowalski
+refund: SLURM Job ID = 6201978
 refund: Number of nodes          = 1
-refund: Number of cores per node = 8
-refund: Number of cores          = 8
-refund: Amount of time requested = 0:30
-refund: Directory = /people/bhas990/NWChem/nwchem_trunk6.4/QA/tests/tce_ipccsd_f2
+refund: Number of cores per node = 16
+refund: Number of cores          = 16
+refund: Amount of time requested = 0:20
+refund: Directory = /people/kowalski/nwchem_6_5/QA/tests/tce_ipccsd_f2
  
 Processor list
  
-node0304
+node0305
  
 /share/apps/mvapich2/1.7/gcc/4.6.2/lib:/share/apps/gcc/4.6.2/lib:/share/apps/gcc/4.6.2/lib64:/usr/local/lib
- argument  1 = /people/bhas990/NWChem/nwchem_trunk6.4/QA/tests/tce_ipccsd_f2/tce_ipccsd_f2.nw
+ argument  1 = /people/kowalski/nwchem_6_5/QA/tests/tce_ipccsd_f2/tce_ipccsd_f2.nw
  
 
 
@@ -52,8 +52,12 @@ freeze atomic
 #symmetry
 #targetsym a1
 thresh 1.0e-7
+eomsol 2
 end
 #set tce:maxeorb 0.1
+
+set tce:nts T
+
 task tce energy
 
 
@@ -97,20 +101,20 @@ task tce energy
            Job information
            ---------------
 
-    hostname        = node0304.local
+    hostname        = node0305.local
     program         = /scratch/nwchem
-    date            = Tue May 20 13:18:02 2014
+    date            = Mon Jun  9 07:41:19 2014
 
-    compiled        = Tue_May_20_12:26:55_2014
-    source          = /people/bhas990/NWChem/nwchem_trunk6.4
+    compiled        = Mon_Jun_09_07:39:30_2014
+    source          = /pic/people/kowalski/nwchem_6_5
     nwchem branch   = Development
-    nwchem revision = 25653
+    nwchem revision = 25658
     ga revision     = 10494
-    input           = /people/bhas990/NWChem/nwchem_trunk6.4/QA/tests/tce_ipccsd_f2/tce_ipccsd_f2.nw
+    input           = /people/kowalski/nwchem_6_5/QA/tests/tce_ipccsd_f2/tce_ipccsd_f2.nw
     prefix          = tce_ipccsd_f2.
     data base       = ./tce_ipccsd_f2.db
     status          = startup
-    nproc           =        8
+    nproc           =       16
     time left       =     -1s
 
 
@@ -118,10 +122,10 @@ task tce energy
            Memory information
            ------------------
 
-    heap     =   26214394 doubles =    200.0 Mbytes
-    stack    =  131071999 doubles =   1000.0 Mbytes
+    heap     =   26214396 doubles =    200.0 Mbytes
+    stack    =  131072001 doubles =   1000.0 Mbytes
     global   =   65536000 doubles =    500.0 Mbytes (distinct from heap & stack)
-    total    =  222822393 doubles =   1700.0 Mbytes
+    total    =  222822397 doubles =   1700.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -284,7 +288,7 @@ task tce energy
 
 
 
- Forming initial guess at       0.6s
+ Forming initial guess at       0.4s
 
  
       Superposition of Atomic Density Guess
@@ -302,7 +306,7 @@ task tce energy
  LUMO         =      -0.177734
  
 
- Starting SCF solution at       0.7s
+ Starting SCF solution at       0.4s
 
 
 
@@ -318,9 +322,9 @@ task tce energy
  #quartets = 3.081D+03 #integrals = 2.185D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tce_ipccsd_f2.aoints.0
+ Integral file          = ./tce_ipccsd_f2.aoints.00
  Record size in doubles =    65536    No. of integs per rec  =    43688
- Max. records in memory =        2    Max. records in file   = ********
+ Max. records in memory =        2    Max. records in file   = 48151449
  No. of bits per label  =        8    No. of bits per value  =       64
 
 
@@ -329,12 +333,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -198.6636108524  7.47D-01  3.68D-01      0.5
-                 2     -198.6838208800  2.30D-01  1.10D-01      0.5
-                 3     -198.6848734418  1.59D-01  8.51D-02      0.5
+                 1     -198.6636108524  7.47D-01  3.68D-01      0.4
+                 2     -198.6838208800  2.30D-01  1.10D-01      0.4
+                 3     -198.6848734418  1.59D-01  8.51D-02      0.4
                  4     -198.6856693524  4.39D-03  1.74D-03      0.5
                  5     -198.6856703758  3.02D-06  2.02D-06      0.5
-                 6     -198.6856703758  9.62D-12  5.14D-12      0.6
+                 6     -198.6856703758  4.37D-12  2.32D-12      0.5
 
 
        Final RHF  results 
@@ -345,7 +349,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       Two-electron energy =    109.412663519577
  Nuclear repulsion energy =     30.357990246666
 
-        Time for solution =      0.4s
+        Time for solution =      0.3s
 
 
              Final eigenvalues
@@ -376,64 +380,64 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        -------------------------------------
  
  Vector    2  Occ=2.000000D+00  E=-2.643266D+01
-              MO Center= -1.4D-18,  1.9D-17, -5.3D-12, r^2= 5.1D-01
+              MO Center= -4.5D-20, -6.3D-20,  4.5D-12, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.707652  1 F  s                 15     -0.707652  2 F  s          
  
  Vector    3  Occ=2.000000D+00  E=-1.767902D+00
-              MO Center=  2.4D-16,  6.7D-16,  4.3D-15, r^2= 6.8D-01
+              MO Center= -5.9D-16,  3.2D-16,  1.2D-14, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.354487  1 F  s                 17      0.354487  2 F  s          
      2      0.342196  1 F  s                 16      0.342196  2 F  s          
  
  Vector    4  Occ=2.000000D+00  E=-1.499494D+00
-              MO Center=  3.2D-16, -2.2D-16, -3.1D-15, r^2= 9.7D-01
+              MO Center= -1.2D-15, -2.2D-17, -1.3D-14, r^2= 9.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.430585  1 F  s                 17     -0.430585  2 F  s          
      2      0.375473  1 F  s                 16     -0.375473  2 F  s          
  
  Vector    5  Occ=2.000000D+00  E=-8.066318D-01
-              MO Center=  4.0D-16, -7.2D-17, -1.4D-14, r^2= 8.9D-01
+              MO Center=  3.0D-15, -1.0D-15, -1.6D-15, r^2= 8.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.444029  1 F  px                18      0.444029  2 F  px         
-     7      0.283607  1 F  px                21      0.283607  2 F  px         
-     5     -0.159657  1 F  py                19     -0.159657  2 F  py         
+     4      0.443514  1 F  px                18      0.443514  2 F  px         
+     7      0.283278  1 F  px                21      0.283278  2 F  px         
+     5     -0.161084  1 F  py                19     -0.161084  2 F  py         
  
  Vector    6  Occ=2.000000D+00  E=-8.066318D-01
-              MO Center=  6.3D-16,  1.9D-15, -1.3D-14, r^2= 8.9D-01
+              MO Center= -3.6D-16, -1.1D-15,  1.1D-14, r^2= 8.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.444029  1 F  py                19      0.444029  2 F  py         
-     8      0.283607  1 F  py                22      0.283607  2 F  py         
-     4      0.159657  1 F  px                18      0.159657  2 F  px         
+     5      0.443514  1 F  py                19      0.443514  2 F  py         
+     8      0.283278  1 F  py                22      0.283278  2 F  py         
+     4      0.161084  1 F  px                18      0.161084  2 F  px         
  
  Vector    7  Occ=2.000000D+00  E=-7.441822D-01
-              MO Center= -1.6D-15, -2.5D-15,  1.3D-16, r^2= 1.0D+00
+              MO Center= -2.0D-15,  1.7D-15,  3.0D-15, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.444276  1 F  pz                20     -0.444276  2 F  pz         
      9      0.294008  1 F  pz                23     -0.294008  2 F  pz         
  
  Vector    8  Occ=2.000000D+00  E=-6.625475D-01
-              MO Center= -7.5D-17,  5.1D-16,  1.2D-14, r^2= 9.3D-01
+              MO Center=  3.1D-17, -6.4D-17, -2.1D-15, r^2= 9.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.510211  1 F  py                19     -0.510211  2 F  py         
-     8      0.342310  1 F  py                22     -0.342310  2 F  py         
+     5      0.515041  1 F  py                19     -0.515041  2 F  py         
+     8      0.345550  1 F  py                22     -0.345550  2 F  py         
  
  Vector    9  Occ=2.000000D+00  E=-6.625475D-01
-              MO Center= -8.5D-16, -7.2D-17,  1.5D-14, r^2= 9.3D-01
+              MO Center=  1.2D-15,  8.9D-18, -7.0D-15, r^2= 9.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.510211  1 F  px                18     -0.510211  2 F  px         
-     7      0.342310  1 F  px                21     -0.342310  2 F  px         
+     4      0.515041  1 F  px                18     -0.515041  2 F  px         
+     7      0.345550  1 F  px                21     -0.345550  2 F  px         
  
  Vector   10  Occ=0.000000D+00  E= 9.627397D-02
-              MO Center=  2.1D-16, -1.3D-16,  6.6D-16, r^2= 1.0D+00
+              MO Center=  1.3D-16, -4.3D-17, -2.9D-15, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.562785  1 F  pz                23      0.562785  2 F  pz         
@@ -441,25 +445,25 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      3     -0.280196  1 F  s                 17      0.280196  2 F  s          
  
  Vector   11  Occ=0.000000D+00  E= 1.309118D+00
-              MO Center=  1.3D-15,  3.3D-16,  8.4D-15, r^2= 1.3D+00
+              MO Center=  3.8D-17, -3.8D-17, -1.4D-14, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.637119  1 F  px                18      0.637119  2 F  px         
-     7     -0.625975  1 F  px                21     -0.625975  2 F  px         
-     5      0.158514  1 F  py                19      0.158514  2 F  py         
-     8     -0.155742  1 F  py                22     -0.155742  2 F  py         
+     5     -0.466180  1 F  py                19     -0.466180  2 F  py         
+     4      0.462302  1 F  px                18      0.462302  2 F  px         
+     8      0.458026  1 F  py                22      0.458026  2 F  py         
+     7     -0.454216  1 F  px                21     -0.454216  2 F  px         
  
  Vector   12  Occ=0.000000D+00  E= 1.309118D+00
-              MO Center= -1.1D-16,  4.3D-16, -5.8D-15, r^2= 1.3D+00
+              MO Center=  8.8D-17,  8.7D-17, -2.3D-14, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.637119  1 F  py                19      0.637119  2 F  py         
-     8     -0.625975  1 F  py                22     -0.625975  2 F  py         
-     4     -0.158514  1 F  px                18     -0.158514  2 F  px         
-     7      0.155742  1 F  px                21      0.155742  2 F  px         
+     4      0.466180  1 F  px                18      0.466180  2 F  px         
+     5      0.462302  1 F  py                19      0.462302  2 F  py         
+     7     -0.458026  1 F  px                21     -0.458026  2 F  px         
+     8     -0.454216  1 F  py                22     -0.454216  2 F  py         
  
  Vector   13  Occ=0.000000D+00  E= 1.352174D+00
-              MO Center=  1.9D-15,  4.6D-17,  5.7D-14, r^2= 2.2D+00
+              MO Center=  5.0D-16, -1.1D-18,  5.0D-15, r^2= 2.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      1.106040  1 F  pz                23      1.106040  2 F  pz         
@@ -468,25 +472,25 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      3     -0.218098  1 F  s                 17      0.218098  2 F  s          
  
  Vector   14  Occ=0.000000D+00  E= 1.496881D+00
-              MO Center= -1.1D-15, -5.0D-16, -6.9D-15, r^2= 1.6D+00
+              MO Center= -6.6D-18, -1.3D-16,  8.8D-15, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.831597  1 F  px                21     -0.831597  2 F  px         
-     4     -0.586154  1 F  px                18      0.586154  2 F  px         
-     8      0.354008  1 F  py                22     -0.354008  2 F  py         
-     5     -0.249524  1 F  py                19      0.249524  2 F  py         
+     8      0.841121  1 F  py                22     -0.841121  2 F  py         
+     5     -0.592867  1 F  py                19      0.592867  2 F  py         
+     7      0.330741  1 F  px                21     -0.330741  2 F  px         
+     4     -0.233124  1 F  px                18      0.233124  2 F  px         
  
  Vector   15  Occ=0.000000D+00  E= 1.496881D+00
-              MO Center= -1.7D-16,  3.9D-16,  4.4D-15, r^2= 1.6D+00
+              MO Center= -3.6D-16,  1.4D-16,  2.6D-14, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      0.831597  1 F  py                22     -0.831597  2 F  py         
-     5     -0.586154  1 F  py                19      0.586154  2 F  py         
-     7     -0.354008  1 F  px                21      0.354008  2 F  px         
-     4      0.249524  1 F  px                18     -0.249524  2 F  px         
+     7      0.841121  1 F  px                21     -0.841121  2 F  px         
+     4     -0.592867  1 F  px                18      0.592867  2 F  px         
+     8     -0.330741  1 F  py                22      0.330741  2 F  py         
+     5      0.233124  1 F  py                19     -0.233124  2 F  py         
  
  Vector   16  Occ=0.000000D+00  E= 1.575402D+00
-              MO Center= -9.6D-16, -1.1D-16, -5.4D-14, r^2= 2.0D+00
+              MO Center= -5.8D-17,  4.5D-17,  1.0D-15, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.723941  1 F  s                 17      0.723941  2 F  s          
@@ -496,7 +500,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1     -0.257470  1 F  s                 15     -0.257470  2 F  s          
  
  Vector   17  Occ=0.000000D+00  E= 1.822006D+00
-              MO Center= -7.5D-16, -6.4D-16,  1.9D-14, r^2= 7.1D-01
+              MO Center= -1.1D-16, -7.2D-17,  2.1D-14, r^2= 7.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.887075  1 F  s                 16      0.887075  2 F  s          
@@ -506,7 +510,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1      0.349716  1 F  s                 15      0.349716  2 F  s          
  
  Vector   18  Occ=0.000000D+00  E= 2.318984D+00
-              MO Center= -1.1D-16,  4.4D-17, -2.3D-14, r^2= 1.1D+00
+              MO Center= -7.2D-17, -5.8D-17, -2.5D-14, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      1.839311  1 F  s                 17     -1.839311  2 F  s          
@@ -516,7 +520,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      6      0.160614  1 F  pz                20      0.160614  2 F  pz         
  
  Vector   19  Occ=0.000000D+00  E= 3.477191D+00
-              MO Center=  5.3D-16,  1.5D-16,  4.1D-15, r^2= 8.1D-01
+              MO Center=  7.7D-17,  8.6D-18,  5.5D-15, r^2= 8.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     12      0.675222  1 F  d  0              26      0.675222  2 F  d  0       
@@ -559,7 +563,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   0 0 2     -6.495530      0.000000     32.035870
  
 
- Parallel integral file used       8 records with       0 large values
+ Parallel integral file used      16 records with       0 large values
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
@@ -579,7 +583,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
             General Information
             -------------------
-      Number of processors :     8
+      Number of processors :    16
          Wavefunction type : Restricted Hartree-Fock
           No. of electrons :    18
            Alpha electrons :     9
@@ -630,12 +634,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  READ_IN3:    F
  WRITE_IN3:   F
  SLICE:       F
- XMEM:                140737488341936
+ XMEM:                140737488341824
  D4D5:        F
  
             Memory Information
             ------------------
-          Available GA space size is     524287216 doubles
+          Available GA space size is    1048575216 doubles
           Available MA space size is     157284692 doubles
  
  Maximum block size        36 doubles
@@ -656,9 +660,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 3.081D+03 #integrals = 2.185D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tce_ipccsd_f2.aoints.0
+ Integral file          = ./tce_ipccsd_f2.aoints.00
  Record size in doubles =    65536    No. of integs per rec  =    43688
- Max. records in memory =        2    Max. records in file   = ********
+ Max. records in memory =        2    Max. records in file   = 48151223
  No. of bits per label  =        8    No. of bits per value  =       64
 
 
@@ -668,7 +672,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Fock matrix recomputed
  1-e file size   =              676
  1-e file name   = ./tce_ipccsd_f2.f1  
- Cpu & wall time / sec            0.2            1.7
+ Cpu & wall time / sec            0.2            1.9
  
  tce_ao2e: fast2e=1
  half-transformed integrals in memory
@@ -698,38 +702,40 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  t2 file size   =            35378
  t2 file name   = ./tce_ipccsd_f2.t2  
  t2 file handle =       -996
-
- CCSD iterations
- -----------------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall    V2*C2
- -----------------------------------------------------------------
-    1   0.1703541754138  -0.3939433686073     0.0     0.0     0.0
-    2   0.0469817497123  -0.3926753885084     0.0     0.0     0.0
-    3   0.0186955315330  -0.4004922181420     0.0     0.0     0.0
-    4   0.0089821612375  -0.4013832771643     0.0     0.0     0.0
-    5   0.0046067593996  -0.4022228723317     0.0     0.0     0.0
+CCSD iterations
+ ---------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall 
+ ---------------------------------------------------------
+NEW TASK SCHEDULING
+CCSD_T1_NTS --- OK
+CCSD_T2_NTS --- OK
+    1   0.1703541754138  -0.3939433686073     0.0     0.0
+    2   0.0469817497123  -0.3926753885084     0.0     0.0
+    3   0.0186955315330  -0.4004922181420     0.0     0.0
+    4   0.0089821612375  -0.4013832771643     0.0     0.0
+    5   0.0046067593996  -0.4022228723317     0.0     0.0
  MICROCYCLE DIIS UPDATE:                        5                        5
-    6   0.0015583069428  -0.4027120234563     0.0     0.0     0.0
-    7   0.0010296082060  -0.4027696551100     0.0     0.0     0.0
-    8   0.0007212005366  -0.4027750110449     0.0     0.0     0.0
-    9   0.0005143983369  -0.4027769459383     0.0     0.0     0.0
-   10   0.0003675170948  -0.4027802671113     0.0     0.0     0.0
+    6   0.0015583069428  -0.4027120234563     0.0     0.0
+    7   0.0010296082060  -0.4027696551100     0.0     0.0
+    8   0.0007212005366  -0.4027750110449     0.0     0.0
+    9   0.0005143983369  -0.4027769459383     0.0     0.0
+   10   0.0003675170948  -0.4027802671113     0.0     0.0
  MICROCYCLE DIIS UPDATE:                       10                        5
-   11   0.0000226731816  -0.4027890880999     0.0     0.0     0.0
-   12   0.0000095215543  -0.4027877162161     0.0     0.0     0.0
-   13   0.0000046112748  -0.4027882400282     0.0     0.0     0.0
-   14   0.0000024473860  -0.4027881928269     0.0     0.0     0.0
-   15   0.0000013539915  -0.4027882062416     0.0     0.0     0.0
+   11   0.0000226731816  -0.4027890880999     0.0     0.0
+   12   0.0000095215543  -0.4027877162161     0.0     0.0
+   13   0.0000046112748  -0.4027882400282     0.0     0.0
+   14   0.0000024473860  -0.4027881928269     0.0     0.0
+   15   0.0000013539915  -0.4027882062416     0.0     0.0
  MICROCYCLE DIIS UPDATE:                       15                        5
-   16   0.0000003377790  -0.4027881926615     0.0     0.0     0.0
-   17   0.0000002174648  -0.4027881893813     0.0     0.0     0.0
-   18   0.0000001481297  -0.4027881945008     0.0     0.0     0.0
-   19   0.0000001052287  -0.4027881940210     0.0     0.0     0.0
-   20   0.0000000749117  -0.4027881950019     0.0     0.0     0.0
+   16   0.0000003377790  -0.4027881926615     0.0     0.0
+   17   0.0000002174648  -0.4027881893813     0.0     0.0
+   18   0.0000001481297  -0.4027881945008     0.0     0.0
+   19   0.0000001052287  -0.4027881940210     0.0     0.0
+   20   0.0000000749117  -0.4027881950019     0.0     0.0
  -----------------------------------------------------------------
  Iterations converged
- CCSD correlation energy / hartree =        -0.402788195001883
- CCSD total energy / hartree       =      -199.088458570752948
+ CCSD correlation energy / hartree =        -0.402788195001882
+ CCSD total energy / hartree       =      -199.088458570752806
 
  Singles contributions
 
@@ -759,99 +765,53 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  --------------------------------------------------------------
 
  Iteration   1 using    2 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.6672841420592   0.7199115305060   19.58980     0.1     0.1
 
  Iteration   2 using    3 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0912121312900   0.5611252024723   15.26900     0.0     0.0
 
  Iteration   3 using    4 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0216655390841   0.5554934727587   15.11575     0.0     0.0
 
  Iteration   4 using    5 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0070510173409   0.5549733866762   15.10160     0.0     0.0
 
  Iteration   5 using    6 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0022285557717   0.5549282612650   15.10037     0.0     0.0
 
  Iteration   6 using    7 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0005553344462   0.5548873710039   15.09926     0.0     0.0
 
  Iteration   7 using    8 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0001197113703   0.5548805673526   15.09907     0.0     0.0
 
  Iteration   8 using    9 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0000190559104   0.5548804895181   15.09907     0.0     0.0
 
  Iteration   9 using   10 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0000031737488   0.5548804951796   15.09907     0.0     0.0
 
  Iteration  10 using   11 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0000005048535   0.5548805139571   15.09907     0.0     0.0
 
  Iteration  11 using   12 trial vectors
- I am here ipccsd_x1
- I am here ipccsd_x1 1
- I am here ipccsd_x2
- I am here ipccsd_x2 2
    0.0000000956882   0.5548805187089   15.09907     0.0     0.0
  --------------------------------------------------------------
  Iterations converged
  largest EOMCCSD amplitudes: R1 and R2
 
  Singles contributions
-     3a   (alpha) ---     8a   (alpha)        0.9552531110
+     9a   (alpha)        0.9550249799
 
  Doubles contributions
-    10a   (beta )     3a   (alpha) ---     6a   (alpha)     7a   (beta )       -0.1327499141
+    10a   (alpha)  ---     5a   (alpha)     7a   (alpha)       -0.1031875019
+    10a   (alpha)  ---     7a   (alpha)     5a   (alpha)        0.1031875019
+    10a   (beta )  ---     5a   (alpha)     7a   (beta )       -0.1407961991
 
- Parallel integral file used       8 records with       0 large values
+ Parallel integral file used      16 records with       0 large values
 
 
- Task  times  cpu:        2.0s     wall:        4.8s
+ Task  times  cpu:        1.6s     wall:        5.2s
  
  
                                 NWChem Input Module
@@ -868,11 +828,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 4259     4259     8528     4202     4111        0        0     6164     
-number of processes/call 3.65e+00 1.38e+00 3.73e+00 0.00e+00 0.00e+00
-bytes total:             4.72e+08 2.59e+07 1.00e+08 0.00e+00 0.00e+00 4.93e+04
-bytes remote:            2.74e+08 2.02e+07 6.65e+07 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 2135496 bytes
+calls: 3079     3079     5934     2839     2978        0        0     5106     
+number of processes/call 7.07e+00 2.22e+00 5.37e+00 0.00e+00 0.00e+00
+bytes total:             2.47e+08 2.22e+07 4.42e+07 0.00e+00 0.00e+00 4.08e+04
+bytes remote:            1.79e+08 1.99e+07 3.73e+07 0.00e+00 0.00e+00 1.05e+04
+Max memory consumed for GA by this process: 1068544 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -882,9 +842,9 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        17	        30
+	maximum number of blocks	        17	        36
 	current total bytes		         0	         0
-	maximum total bytes		   1060912	  22509592
+	maximum total bytes		   1060896	  22509608
 	maximum total K-bytes		      1061	     22510
 	maximum total M-bytes		         2	        23
  
@@ -921,4 +881,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                 A. Wong, Z. Zhang.
 
- Total times  cpu:        2.1s     wall:        5.5s
+ Total times  cpu:        1.6s     wall:        5.6s
