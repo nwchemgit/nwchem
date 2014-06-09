@@ -764,7 +764,7 @@ c
         write(LuOut,*)'READ_IN3:  ',read_in3
         write(LuOut,*)'WRITE_IN3: ',write_in3
         write(LuOut,*)'SLICE:     ',slice
-        write(LuOut,*)'XMEM:      ',xmem
+ccx        write(LuOut,*)'XMEM:      ',xmem
         write(LuOut,*)'D4D5:      ',d4d5
         call util_flush(6)
        end if
@@ -7159,6 +7159,9 @@ c
            if (eaccsd.and.(eom_solver.eq.2)) eom_solver=1
            if (ipccsd.and.(ccsd_var.eq.'ic')) ccsd_var='xx'
            if (eaccsd.and.(ccsd_var.eq.'ic')) ccsd_var='xx'
+c
+           if((ipccsd.or.eaccsd).and.(.not.restricted))
+     1      call errquit("EA-IP-CCSD requires RHF reference",24,MA_ERR) 
 c
 c
 c
