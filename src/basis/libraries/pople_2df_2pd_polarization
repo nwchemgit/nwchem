@@ -1,8 +1,9 @@
-#  Pople (2df,2pd) Polarization  EMSL  Basis Set Exchange Library  3/15/13 10:18 AM
+#  Pople (2df,2pd) Polarization  EMSL  Basis Set Exchange Library  6/9/14 1:07 PM
 # Elements                             References
 # --------                             ----------
 # H-Ne: M.J. Frisch, J.A. Pople and J.S. Binkley, J. Chem. Phys. 80, 3265 (1984)
-#   
+# 
+
 
 
 basis "H_Pople (2df,2pd) Polarization" SPHERICAL
@@ -71,7 +72,7 @@ O    F
 end
 basis "F_Pople (2df,2pd) Polarization" SPHERICAL
 F    D
-      2.3960000              1.0000000        
+      3.5000000              1.0000000        
 F    D
       0.8750000              1.0000000        
 F    F
