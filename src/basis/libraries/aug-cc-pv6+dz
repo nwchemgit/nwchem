@@ -1,4 +1,4 @@
-#  aug-cc-pV(6+d)Z  EMSL  Basis Set Exchange Library  3/15/13 10:18 AM
+#  aug-cc-pV(6+d)Z  EMSL  Basis Set Exchange Library  6/9/14 1:08 PM
 # Elements                             References
 # --------                             ----------
 # Al - Ar:   T. H. Dunning, Jr., K.A. Peterson and A.K. Wilson, J. Chem. Phys.
@@ -365,13 +365,13 @@ S    D
 S    D
       0.0609000              1.0000000        
 S    F
-      1.3222000              1.0000000        
+      2.2120000              1.0000000        
 S    F
-      0.7319000              1.0000000        
+      1.0630000              1.0000000        
 S    F
-      0.4051000              1.0000000        
+      0.5100000              1.0000000        
 S    F
-      0.2243000              1.0000000        
+      0.2450000              1.0000000        
 S    F
       0.1100000              1.0000000        
 S    G
