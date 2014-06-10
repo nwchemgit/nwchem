@@ -2108,13 +2108,13 @@ c
           write(LuOut,222)etnew+enuc,
      &                      ecore,
      &                      ecoul,
-     &                      exc(1),
+     &                      exchtot + exc(1),
      &                      enuc
          else
           write(LuOut,223)etnew+enuc,
      &                      ecore,
      &                      ecoul,
-     &                      exc(1),
+     &                      exchtot + exc(1),
      &                      exc(2),
      &                      enuc
          end if
