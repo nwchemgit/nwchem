@@ -2811,10 +2811,10 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 *     ***********************************  
 *     *                                 *  
-*     *       psi_1vloc_paw_residual    *
+*     *       psi_1ncmp_vloc            *
 *     *                                 *
 *     ***********************************
-      real*8 function psi_1vloc_paw_residual()
+      real*8 function psi_1ncmp_vloc()
       implicit none
          
 #include "mafdecls.fh"
@@ -2824,13 +2824,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 ave 
 
 *     **** external functions ****
-      real*8   psp_vloc_residual
-      external psp_vloc_residual
+      real*8   psp_ncmp_vloc
+      external psp_ncmp_vloc
      
-      ave =  psp_vloc_residual(ispin)
+      ave =  psp_ncmp_vloc(ispin)
       !call D1dB_SumAll(ave)
 
-      psi_1vloc_paw_residual = ave
+      psi_1ncmp_vloc = ave
       return
       end
 
@@ -2901,25 +2901,25 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 
-*     ***********************************
-*     *                                 *
-*     *         dng_1vlpaw_pw           *
-*     *                                 *
-*     ***********************************
-      real*8 function dng_1vlpaw_pw()
-      implicit none
-
-#include "mafdecls.fh"
-#include "psi.fh"
-
-*     **** external functions ****
-      real*8   electron_dng_vlpaw_ave
-      external electron_dng_vlpaw_ave
-
-      dng_1vlpaw_pw = electron_dng_vlpaw_ave(dcpl_mb(dng1(1)))
-
-      return
-      end
+c*     ***********************************
+c*     *                                 *
+c*     *         dng_1vlpaw_pw           *
+c*     *                                 *
+c*     ***********************************
+c      real*8 function dng_1vlpaw_pw()
+c      implicit none
+c
+c#include "mafdecls.fh"
+c#include "psi.fh"
+c
+c*     **** external functions ****
+c      real*8   electron_dng_vlpaw_ave
+c      external electron_dng_vlpaw_ave
+c
+c      dng_1vlpaw_pw = electron_dng_vlpaw_ave(dcpl_mb(dng1(1)))
+c
+c      return
+c      end
 
 
 

@@ -339,7 +339,6 @@ c
         if (control_version().eq.3)
      >  call psi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
-     >             dcpl_mb(vl(1)),.false.,
      >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,fion)
@@ -347,7 +346,6 @@ c
         if (control_version().eq.4)
      >     call psi_Hv4(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
-     >             dcpl_mb(vl(1)),.false.,
      >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,fion)

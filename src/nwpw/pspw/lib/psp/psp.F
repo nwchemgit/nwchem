@@ -1211,7 +1211,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
 *     **** local variables ****
       integer ftmp(2)
       integer taskid_j,np_j
-      integer i,j,jj,ia,np1,np2,np3,n2ft3d_map,nion,l,m,lm,n2ft3d
+      integer i,j,ia,np1,np2,np3,n2ft3d_map,nion,l,m,lm,n2ft3d
       real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz
 
 *     **** external functions ****
@@ -1269,13 +1269,11 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
 
       end if
 
-      jj = 1
       if (control_fast_erf()) then
 
       do j=1,nion
-       ia=ion_katm(j)
-       if ((int_mb(psp_type(1)+ia-1).ne.4)) then
-         if (mod(jj-1,np_j).eq.taskid_j) then
+         if (mod(j-1,np_j).eq.taskid_j) then
+            ia=ion_katm(j)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
@@ -1314,16 +1312,14 @@ c                 verf = util_erf(yerf)
             dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
             end if
          end if
-         jj = jj + 1
-       end if
       end do
 
       else
 
       do j=1,nion
-       ia=ion_katm(j)
-       if ((int_mb(psp_type(1)+ia-1).ne.4)) then
-         if (mod(jj-1,np_j).eq.taskid_j) then
+       
+         if (mod(j-1,np_j).eq.taskid_j) then
+            ia= ion_katm(j)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
@@ -1373,8 +1369,6 @@ c         fion(3,j) = fion(3,j) - fz*dv
 
             end if
          end if
-         jj = jj + 1
-       end if
       end do
 
       end if
@@ -1423,7 +1417,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
 
 *     **** local variables ****
       integer taskid_j,np_j
-      integer i,j,jj,ia,n2ft3d,n2ft3d_map,l,m,lm
+      integer i,j,ia,n2ft3d,n2ft3d_map,l,m,lm
       real*8 x,y,z,q,c,r,sqrt_pi
 
 *     **** external functions ****
@@ -1465,13 +1459,12 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
          end do
       end if
 
-      jj = 1
       if (control_fast_erf()) then
 
       do j=1,ion_nion()
-       ia=ion_katm(j)
-       if ((int_mb(psp_type(1)+ia-1).ne.4)) then
-         if (mod(jj-1,np_j).eq.taskid_j) then
+      
+         if (mod(j-1,np_j).eq.taskid_j) then
+            ia= ion_katm(j)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
@@ -1499,16 +1492,15 @@ c                 yerf = util_erf(xerf)
             end if
 
          end if
-         jj = jj + 1
-       end if
+      
       end do
 
       else
 
       do j=1,ion_nion()
-       ia=ion_katm(j)
-       if ((int_mb(psp_type(1)+ia-1).ne.4)) then
-         if (mod(jj-1,np_j).eq.taskid_j) then
+ 
+         if (mod(j-1,np_j).eq.taskid_j) then
+            ia= ion_katm(j)
             x = ion_rion(1,j)
             y = ion_rion(2,j)
             z = ion_rion(3,j)
@@ -1532,8 +1524,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
             end if
 
          end if
-         jj = jj + 1
-       end if
+
       end do
 
       end if
@@ -1569,7 +1560,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 *     *** local variables ***
       integer taskid_j,np_j
       integer npack0,nion
-      integer i,ii,jj,ia
+      integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
       logical value,periodic,inside
       real*8  rxyz(3),fxyz(3)
@@ -1604,12 +1595,10 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
          call dcopy(3*nion,0.0d0,0,fion,1)
       end if
 
-      jj = 1
       call dcopy((2*npack0),0.0d0,0,vl_out,1)
       do ii=1,nion
-       ia=ion_katm(ii)
-       if ((int_mb(psp_type(1)+ia-1).ne.4)) then
-          if (mod(jj-1,np_j).eq.taskid_j) then
+    
+          if (mod(ii-1,np_j).eq.taskid_j) then
 
              if (.not.periodic) then
                 rxyz(1) = ion_rion(1,ii)
@@ -1624,16 +1613,25 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
              end if
 
              if (inside) then
+              ia=ion_katm(ii)
 
 *             **** structure factor and local pseudopotential ****
               call strfac_pack(0,ii,dcpl_mb(exi(1)))
        
 *             **** add to local psp ****
-              call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
-     >                         dcpl_mb(exi(1)),
-     >                         dcpl_mb(vtmp(1)))
+              if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+                 call Pack_ttcc_AddMul(0,
+     >                                 dbl_mb(vl(1)+npack0*(ia-1)),
+     >                                 dbl_mb(vlpaw(1)+npack0*(ia-1)),
+     >                                 dcpl_mb(exi(1)),
+     >                                 dcpl_mb(vtmp(1)))
+              else
+                 call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                              dcpl_mb(exi(1)),
+     >                              dcpl_mb(vtmp(1)))
+              end if
 
-                 call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
+              call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
               if (move) then
 c#ifndef CRAY
@@ -1657,8 +1655,7 @@ c                end do
              end if
 
           end if
-          jj = jj + 1
-       end if
+
       end do
 
       if (np_j.gt.1) then
@@ -1791,7 +1788,7 @@ c                end do
       logical value,periodic,inside
       integer taskid_j,np_j
       integer npack0,nion
-      integer i,ii,jj,ia
+      integer i,ii,ia
       integer exi(2),vtmp(2),xtmp(2),G(3)
 c      integer Gx(2),Gy(2),Gz(2)
       real*8 rxyz(3),fxyz(3)
@@ -1822,12 +1819,9 @@ c     **** define Gx,Gy and Gz in packed space ****
       G(3)  = Pack_G_indx(0,3)
       call dcopy(3*nion,0.0d0,0,fion,1)
 
-      jj = 1
       do ii=1,nion
-       ia=ion_katm(ii)
-       if ((int_mb(psp_type(1)+ia-1).ne.4)) then
        
-         if (mod(jj-1,np_j).eq.taskid_j) then
+         if (mod(ii-1,np_j).eq.taskid_j) then
 
           if (.not.periodic) then
              rxyz(1) = ion_rion(1,ii)
@@ -1842,14 +1836,23 @@ c     **** define Gx,Gy and Gz in packed space ****
           endif
 
           if (inside) then
+           ia=ion_katm(ii)
 
 *          **** structure factor and local pseudopotential ****
            call strfac_pack(0,ii,dcpl_mb(exi(1)))
 
 *          **** add to local psp ****
-           call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
-     >                      dcpl_mb(exi(1)),
-     >                      dcpl_mb(vtmp(1)))
+           if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+              call Pack_ttcc_AddMul(0,
+     >                              dbl_mb(vl(1)+npack0*(ia-1)),
+     >                              dbl_mb(vlpaw(1)+npack0*(ia-1)),
+     >                              dcpl_mb(exi(1)),
+     >                              dcpl_mb(vtmp(1)))
+           else
+              call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                         dcpl_mb(exi(1)),
+     >                         dcpl_mb(vtmp(1)))
+           end if
 
 c#ifndef CRAY
 c!DIR$ ivdep
@@ -1868,8 +1871,7 @@ c           end do
           end if
 
          end if
-         jj = jj + 1
-       end if
+
       end do
       call Parallel_Vector_SumAll(3*nion,fion)
 

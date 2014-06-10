@@ -46,7 +46,7 @@
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
-      paw_exist = psp_pawexist()
+c      paw_exist = psp_pawexist()
 
 *     **** allocate memory ****
       value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
@@ -57,14 +57,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack0,
      >                     'vl2',vl(2),vl(1))
-      if (paw_exist) then
-         value = value.and.
-     >           MA_alloc_get(mt_dcpl,2*npack0,
-     >                     'vlpaw2',vlpaw(2),vlpaw(1))
-         value = value.and.
-     >           MA_alloc_get(mt_dbl,n2ft3d,
-     >                     'vl_lr_paw',vl_lr_paw(2),vl_lr_paw(1))
-      end if
+
       value = value.and.
      >        MA_alloc_get(mt_dbl,n2ft3d,
      >                     'vl_lr',vl_lr(2),vl_lr(1))
@@ -129,12 +122,6 @@
      >        MA_free_heap(psi_r(2))
       value = value.and.
      >        MA_free_heap(vl(2))
-      if (paw_exist) then
-         value = value.and.
-     >           MA_free_heap(vlpaw(2))
-         value = value.and.
-     >           MA_free_heap(vl_lr_paw(2))
-      end if
       value = value.and.
      >        MA_free_heap(vl_lr(2))
       value = value.and.
@@ -1425,7 +1412,6 @@ cccc#include "frac_occ.fh"
      >  call psi_H(ispin,neq,psi_k,
      >             dbl_mb(psi_r(1)),
      >             dcpl_mb(vl(1)),
-     >             dcpl_mb(vlpaw(1)),paw_exist,
      >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),
      >             dbl_mb(xcp(1)),
@@ -1439,7 +1425,6 @@ cccc#include "frac_occ.fh"
      >             dbl_mb(psi_r(1)),
      >             dcpl_mb(vl(1)),
      >             dbl_mb(vl_lr(1)),
-     >             dcpl_mb(vlpaw(1)),dbl_mb(vl_lr_paw(1)),paw_exist,
      >             dbl_mb(v_field(1)),field_exist,
      >             dcpl_mb(vc(1)),
      >             dbl_mb(xcp(1)),
@@ -1921,12 +1906,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
 *       **** add up k-space potentials, vall = scal2*vl + vc  ****
         call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
      >                           dbl_mb(vall(1)))
-        if (paw_exist) then
-           call Pack_cc_daxpy(0,scal2,dcpl_mb(vlpaw(1)),
-     >                                dbl_mb(vall(1)))
-           call Pack_cc_daxpy(0,scal2,dcpl_mb(vlpaw(1)+npack0),
-     >                                dbl_mb(vall(1)))
-        end if
+
 c        call Pack_cc_Sum(0,dbl_mb(vall(1)),
 c     >                     dcpl_mb(vc(1)),
 c     >                     dbl_mb(vall(1)))
@@ -1950,12 +1930,6 @@ c     >                       dbl_mb(vall(1)))
 *       **** add up k-space potentials, vall = scal2*vsr_l    ****
         call Pack_c_SMul(0,scal2,dcpl_mb(vl(1)),
      >                           dbl_mb(vall(1)))
-        if (paw_exist) then
-           call Pack_cc_daxpy(0,scal2,dcpl_mb(vlpaw(1)),
-     >                                dbl_mb(vall(1)))
-           call Pack_cc_daxpy(0,scal2,dcpl_mb(vlpaw(1)+npack0),
-     >                                dbl_mb(vall(1)))
-        end if
       
 *        **** fourier transform k-space potentials ****
          call Pack_c_unpack(0,dbl_mb(vall(1)))
@@ -1974,8 +1948,6 @@ c     >     call D3dB_rr_Sum(1,dbl_mb(vall(1)),
 c     >                        dbl_mb(v_field(1)),
 c     >                        dbl_mb(vall(1)))
          call D3dB_rr_Sum2(1,dbl_mb(vl_lr(1)),dbl_mb(vall(1)))
-         if (paw_exist) 
-     >      call D3dB_rr_Sum2(1,dbl_mb(vl_lr_paw(1)),dbl_mb(vall(1)))
          call D3dB_rr_Sum2(1,dcpl_mb(vc(1)),dbl_mb(vall(1)))
          if (field_exist)
      >     call D3dB_rr_Sum2(1,dbl_mb(v_field(1)),dbl_mb(vall(1)))
@@ -2191,12 +2163,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >               move,
      >               dcpl_mb(tmp1(1)),
      >               dbl_mb(tmp2(1)))
-      if (paw_exist) then
-         call v_locals_paw(dcpl_mb(vlpaw(1)),
-     >                    move,
-     >                    dcpl_mb(tmp1(1)),
-     >                    dbl_mb(tmp2(1)))
-      end if
+
       value = MA_pop_stack(tmp2(2))
       value = value.and.
      >        MA_pop_stack(tmp1(2))
@@ -2218,9 +2185,6 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
          if (control_version().eq.4) then
             call v_lr_local(dbl_mb(r_grid(1)),
      >                      dbl_mb(vl_lr(1)))
-            if (paw_exist) 
-     >         call v_lr_local_paw(dbl_mb(r_grid(1)),
-     >                             dbl_mb(vl_lr_paw(1)))
          end if
 
 *        **** zero out v_field ****
@@ -2340,6 +2304,7 @@ c    >                         sum)
        call D3dB_rr_dot(1,dn(1+(ispin-1)*n2ft3d),
      >                    dbl_mb(vl_lr(1)),sum)
        elocal = elocal + sum*dv
+
       end if
 
 *     **** add in other real-space fields ****
@@ -2351,26 +2316,47 @@ c    >                         sum)
        elocal = elocal + sum*dv
       end if
 
-*     ***** ncmp_smooth*Vl paw term ****
-      if (paw_exist) then
-         call nwpw_compcharge_gen_dn_cmp_smooth(ispin,dbl_mb(tmp1(1)))
-         call Pack_cc_dot(0,dbl_mb(tmp1(1)),dcpl_mb(vl(1)),sum)
-         elocal = elocal + sum
-         if ((control_version().eq.4).or.(field_exist)) then
-            call Pack_c_unpack(0,dbl_mb(tmp1(1)))
-            call D3dB_cr_pfft3b(1,0,dbl_mb(tmp1(1)))
-         end if
-         if (control_version().eq.4) then
-            call D3dB_rr_dot(1,dbl_mb(tmp1(1)),
-     >                         dbl_mb(vl_lr(1)),sum)
-            elocal = elocal + sum*dv
-         end if
-         if (field_exist) then
-            call D3dB_rr_dot(1,dbl_mb(tmp1(1)),
-     >                         dbl_mb(v_field(1)),sum)
-            elocal = elocal + sum*dv
-         end if
-      end if
+
+*     ***** ncmp*Vl+ncmp_smooth*vlpaw terms ****
+c      if (paw_exist) then
+c         call nwpw_compcharge_gen_dn_cmp2(ispin,
+c     >                                    dbl_mb(tmp1(1)),
+c     >                                    dbl_mb(tmp2(1)))
+c         call Pack_cc_dot(0,
+c     >                    dbl_mb(tmp1(1)),
+c     >                    dcpl_mb(vl(1)),
+c     >                    sum)
+c         elocal = elocal + sum
+c         call Pack_cc_dot(0,
+c     >                    dbl_mb(tmp2(1)),
+c     >                    dcpl_mb(vlpaw(1)),
+c     >                    sum)
+c         elocal = elocal + sum
+c
+c         if ((control_version().eq.4).or.(field_exist)) then
+c            call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+c            call D3dB_cr_pfft3b(1,0,dbl_mb(tmp1(1)))
+c            call Pack_c_unpack(0,dbl_mb(tmp2(1)))
+c            call D3dB_cr_pfft3b(1,0,dbl_mb(tmp2(1)))
+c         end if
+c         if (control_version().eq.4) then
+c            call D3dB_rr_dot(1,
+c     >                       dbl_mb(tmp1(1)),
+c     >                       dbl_mb(vl_lr(1)),
+c     >                       sum)
+c            elocal = elocal + sum*dv
+c            call D3dB_rr_dot(1,
+c     >                       dbl_mb(tmp2(1)),
+c     >                       dbl_mb(vl_lr_paw(1)),
+c     >                       sum)
+c            elocal = elocal + sum*dv
+c         end if
+c         if (field_exist) then
+c            call D3dB_rr_dot(1,dbl_mb(tmp1(1)),
+c     >                         dbl_mb(v_field(1)),sum)
+c            elocal = elocal + sum*dv
+c         end if
+c      end if
  
       value = MA_pop_stack(tmp2(2))
       value = value.and.
@@ -2380,31 +2366,6 @@ c    >                         sum)
      &       MA_ERR)
 
       electron_psi_vl_ave = elocal
-      return
-      end
-
-
-*     ***********************************
-*     *			 		*
-*     *   electron_dng_vlpaw_ave 	*
-*     *					*
-*     ***********************************
-
-      real*8 function electron_dng_vlpaw_ave(dng)
-      implicit none
-      complex*16 dng(*)
-
-#include "mafdecls.fh"
-#include "electron_common.fh" #include "errquit.fh"
-
-*     **** local variables ****
-      real*8 elocal
-
-*     **** average Kohn-Sham v_local energy ****
-      call Pack_cc_dot(0,dcpl_mb(vlpaw(1)),dng,elocal)
-      if (ispin.eq.1) elocal = 2.0d0*elocal
-
-      electron_dng_vlpaw_ave = elocal
       return
       end
 
@@ -2567,29 +2528,29 @@ c      electron_psi_vnl_ave = enlocal
 
 
 
-*     ***********************************
-*     *			 		*
-*     *     electron_dn_cmp_coulomb     *
-*     *					*
-*     ***********************************
-
-      real*8 function electron_dn_cmp_coulomb()
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "electron_common.fh"
-
-*     **** local variables ****
-      real*8 E
-
-      E = 0.0d0
-      if (paw_exist) then
-         call  nwpw_compcharge_gen_dn_cmp2(ispin,
-     >                                     dcpl_mb(dng_cmp(1)),
-     >                                     dcpl_mb(dng_cmp_smooth(1)))
-      end if
-
-      electron_dn_cmp_coulomb = E
-      return
-      end
+c*     ***********************************
+c*     *			 		*
+c*     *     electron_dn_cmp_coulomb     *
+c*     *					*
+c*     ***********************************
+c
+c      real*8 function electron_dn_cmp_coulomb()
+c      implicit none
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "electron_common.fh"
+c
+c*     **** local variables ****
+c      real*8 E
+c
+c      E = 0.0d0
+c      if (paw_exist) then
+c         call  nwpw_compcharge_gen_dn_cmp2(ispin,
+c     >                                     dcpl_mb(dng_cmp(1)),
+c     >                                     dcpl_mb(dng_cmp_smooth(1)))
+c      end if
+c
+c      electron_dn_cmp_coulomb = E
+c      return
+c      end
 
