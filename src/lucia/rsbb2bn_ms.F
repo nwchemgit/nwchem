@@ -122,7 +122,7 @@ C     INTEGER JASM_MS(8),JBSM_MS(8)
 *
       INCLUDE 'comjep.inc'
       INCLUDE 'oper.inc'
-      CALL LUCIAQENTER('RS2B ')
+      CALL LUCIAQENTER('RS2Bs')
 *
       NTESTL = 00
       NTEST = MAX(NTESTG,NTESTL)
@@ -497,7 +497,7 @@ C    &                         SIRES,IB_SKAIIB)
  9999 CONTINUE
 *
 *
-      CALL LUCIAQEXIT('RS2B ')
+      CALL LUCIAQEXIT('RS2Bs')
       RETURN
       END
       SUBROUTINE GET_CKAJJB_MS(CB,ICSM,NJA_MS,NJB_MS,IB_C,KABOT,
