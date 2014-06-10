@@ -21,7 +21,7 @@ geometry units au
   o 3.9810552 3.9810552 0.0 
 end
 
-basis nosegment noprint
+basis noprint
   fe library 3-21g
   o  library 3-21g
   c  library 3-21g
