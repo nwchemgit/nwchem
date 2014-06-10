@@ -47,31 +47,7 @@ end
 task rimp2
 
 
-basis "ao basis" cartesian nosegment
-He   SP
-     13.62310172             0.17525420       0.001
-      1.99894370             0.89346310       0.45
-      0.38294258             0.1000000        0.55
-He   F
-      0.7610000              1.0000000 
-end
-
-task rimp2
-
-
 basis "ao basis" spherical
-He   SP
-     13.62310172             0.17525420       0.001
-      1.99894370             0.89346310       0.45
-      0.38294258             0.1000000        0.55
-He   F
-      0.7610000              1.0000000 
-end
-
-task rimp2
-
-
-basis "ao basis" spherical nosegment
 He   SP
      13.62310172             0.17525420       0.001
       1.99894370             0.89346310       0.45
@@ -104,31 +80,7 @@ end
 task rimp2
 
 
-basis "ao basis" cartesian nosegment
-He   SP
-     13.62310172             0.17525420       0.001
-      1.99894370             0.89346310       0.45
-      0.38294258             0.1000000        0.55
-He   F
-      0.7610000              1.0000000 
-end
-
-task rimp2
-
-
 basis "ao basis" spherical
-He   SP
-     13.62310172             0.17525420       0.001
-      1.99894370             0.89346310       0.45
-      0.38294258             0.1000000        0.55
-He   F
-      0.7610000              1.0000000 
-end
-
-task rimp2
-
-
-basis "ao basis" spherical nosegment
 He   SP
      13.62310172             0.17525420       0.001
       1.99894370             0.89346310       0.45
