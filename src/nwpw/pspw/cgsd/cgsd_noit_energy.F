@@ -204,14 +204,13 @@ c        **** paw energies ****
 
          write(luout,1683) E(38),E(38)/neall
          write(luout,1684) E(39),E(39)/neall
-         write(luout,1691) E(40),E(40)/neall
 
-         write(luout,1685) E(41),E(41)/neall
-         write(luout,1686) E(42),E(42)/neall
-         write(luout,1687) E(43),E(43)/neall
-         write(luout,1688) E(44),E(44)/neall
-         write(luout,1689) E(45),E(45)/ion_nion()
-         write(luout,1690) E(46),E(46)/ion_nion()
+         write(luout,1685) E(40),E(40)/neall
+         write(luout,1686) E(41),E(41)/neall
+         write(luout,1687) E(42),E(42)/neall
+         write(luout,1688) E(43),E(43)/neall
+         write(luout,1689) E(44),E(44)/ion_nion()
+         write(luout,1690) E(45),E(45)/ion_nion()
          end if
 
         if (pspw_qmmm_found()) then
@@ -452,7 +451,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
  1682 FORMAT( ' valence-core        :',E19.10,' (',E15.5,'/electron)')
- 1683 FORMAT( ' V_lpaw    (pw basis):',E19.10,' (',E15.5,'/electron)')
+ 1683 FORMAT( ' ncmp*V_l  (pw basis):',E19.10,' (',E15.5,'/electron)')
  1684 FORMAT( ' V_lpaw  (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1685 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1686 FORMAT( ' coulomb  (ncmp-ncmp):',E19.10,' (',E15.5,'/electron)')
