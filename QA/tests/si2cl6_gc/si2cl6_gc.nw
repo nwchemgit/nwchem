@@ -2,7 +2,7 @@ echo
 
 start si2cl6
 
-title "disilicon hexachloride McM-D general contraction test"
+title "disilicon hexachloride McM-D test"
 
 geometry units angstrom autosym
   Si  0.0     0.0      0.0 
@@ -20,10 +20,6 @@ basis segbas spherical noprint
   Cl  library aug-cc-pvdz
 end
 
-basis genbas nosegment spherical noprint
-  Si library cc-pvdz
-  Cl  library aug-cc-pvdz
-end
 
 set atomscf:tags_z Si Cl
 set atomscf:z +1.5 -0.5
@@ -36,13 +32,4 @@ scf
 end
 set "ao basis" segbas
 task scf
-
-scf
- thresh 1e-10
- vectors atomic
-end
-set "ao basis" genbas
-task scf
-
-eof
 
