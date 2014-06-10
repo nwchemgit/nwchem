@@ -2004,6 +2004,7 @@ c           end do
      >                                dcpl_mb(vl_notpaw(1)))
             call nwpw_compcharge_gen_v_cmp_smooth(dbl_mb(zv(1)),
      >                                            dcpl_mb(dng_cmp(1)))
+
             call Pack_cc_Sub2(0,dcpl_mb(dng_cmp(1)),
      >                          dcpl_mb(vl1(1)))
             call Pack_cc_Sum2(0,dcpl_mb(dng_cmp(1)),
@@ -2012,13 +2013,14 @@ c           end do
             call nwpw_compcharge_gen_dn_cmp2(ispin,
      >                                       dcpl_mb(dng_cmp(1)),
      >                                       dcpl_mb(dng_cmp_smooth(1)))
-            call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
-     >                         dcpl_mb(vl1(1)),e1)
 
             call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
-     >                         dcpl_mb(vl_notpaw(1)),e2)
+     >                         dcpl_mb(vl_notpaw(1)),e1)
 
-            eh = eh+e1+e2
+            call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
+     >                         dcpl_mb(vl1(1)),e2)
+
+            eh = eh + (e1+e2)
          end if
          ok =        MA_pop_stack(vl_notpaw(2))
          ok = ok.and.MA_pop_stack(vl1(2))
@@ -2087,7 +2089,7 @@ c           end do
      >                         dbl_mb(vl_notpaw(1)),e1)
             call Pack_cc_dot(0,dbl_mb(rho_cmp_smooth(1)),
      >                         dbl_mb(vl1(1)),e2)
-            eh = eh + e1 + e2
+            eh = eh + (e1+e2)
 
 
 *           **** long-range terms ****
