@@ -63,6 +63,8 @@ function usage ()
      J. McCarron, P. DeMarco,
      "Maple 10 Programming Guide",
      Maplesoft, Waterloo ON, Canada, 2005.
+
+$Id $
 EOF
 }
 #
@@ -215,6 +217,419 @@ fi
 # - whether the functional has a special limiting case for densities tending
 #   to zero
 #
+# So, now we do the real thing:
+#
+# - Initialize all the expressions f, g, and G
+# - Pick up the functional specification
+# - Work out the derivative expressions
+# - Generate the Fortran (currently compiler support many more continuation
+#   lines, hopefully it is enough...)
+# 
+cat <<EOF > $f_maxima
+f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau):=0$
+g(rho_s,sigma_ss,tau_s):=0$
+G(rho_s,sigma_ss,tau_s):=0$
+/* Func is the functional for the regular case: f(a,b) + g(a) + g(b).
+   I.e. both spin channels have non-zero density. */
+func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=0$
+/* Funcs is the functional for one spin channel assuming that the density
+   in the other spin channel vanishes: g(s) + G(s). */
+funcs(rho_s,sigma_ss,tau_s):=0$
+EOF
+cat $f_quiet >> $f_maxima
+cat <<EOF >> $f_maxima
+excess:$excess\$
+rho_deriv:$rho_deriv\$
+sigma_deriv:$sigma_deriv\$
+tau_deriv:$tau_deriv\$
+EOF
+cat <<EOF >> $f_maxima
+func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=
+   f((rho_a-rho_b)/(rho_a+rho_b),rho_a,rho_b,rho_a+rho_b,
+      sigma_aa,sigma_ab,sigma_bb,sigma_aa+2*sigma_ab+sigma_bb,
+      tau_a,tau_b,tau_a+tau_b)
+  + g(rho_a,sigma_aa,tau_a) + g(rho_b,sigma_bb,tau_b)$
+funcs(rho_s,sigma_ss,tau_s):=g(rho_s,sigma_ss,tau_s) + G(rho_s,sigma_ss,tau_s)$
+
+/* 1st order derivatives */
+/* Alpha and Beta spin channel */
+
+df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_a)$
+df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df1gbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df1ta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df1tb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* One spin channel */
+
+dfs1rs(rho_s,sigma_ss,tau_s)
+:=diff(funcs(rho_s,sigma_ss,tau_s),rho_s)$
+dfs1gss(rho_s,sigma_ss,tau_s)
+:=diff(funcs(rho_s,sigma_ss,tau_s),sigma_ss)$
+dfs1ts(rho_s,sigma_ss,tau_s)
+:=diff(funcs(rho_s,sigma_ss,tau_s),tau_s)$
+
+/* 2nd order derivatives */
+/* Alpha and Beta spin channel */
+/* Rho Rho */
+
+df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_a)$
+df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+
+/* Rho Sigma */
+df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+/* Rho Tau */
+
+df2rata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2ratb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df2rbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2rbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* Sigma Sigma */
+
+df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df2gaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df2gabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df2gbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+/* Sigma Tau */
+
+df2gaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2gaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df2gabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2gabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df2gbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2gbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1gbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* Tau Tau */
+
+df2tata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2tatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1ta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df2tbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df1tb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* 2nd order derivatives */
+/* One spin channel */
+
+dfs2rsrs(rho_s,sigma_ss,tau_s)
+:=diff(dfs1rs(rho_s,sigma_ss,tau_s),rho_s)$
+dfs2rsgss(rho_s,sigma_ss,tau_s)
+:=diff(dfs1rs(rho_s,sigma_ss,tau_s),sigma_ss)$
+dfs2rsts(rho_s,sigma_ss,tau_s)
+:=diff(dfs1rs(rho_s,sigma_ss,tau_s),tau_s)$
+dfs2gssgss(rho_s,sigma_ss,tau_s)
+:=diff(dfs1gss(rho_s,sigma_ss,tau_s),sigma_ss)$
+dfs2gssts(rho_s,sigma_ss,tau_s)
+:=diff(dfs1gss(rho_s,sigma_ss,tau_s),tau_s)$
+dfs2tsts(rho_s,sigma_ss,tau_s)
+:=diff(dfs1ts(rho_s,sigma_ss,tau_s),tau_s)$
+
+/* 3rd order derivatives */
+/* Alpha and Beta spin channel */
+/* Rho Rho Rho */
+
+df3rarara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_a)$
+df3rararb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+df3rarbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+df3rbrbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+
+/* Rho Rho Sigma */
+
+df3raragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3raragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3raragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3rarbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3rarbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3rarbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3rbrbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3rbrbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3rbrbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+/* Rho Rho Tau */
+
+df3rarata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3raratb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rarbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rarbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbrbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbrbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* Rho Sigma Sigma */
+
+df3ragaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3ragaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3ragaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3ragabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3ragabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3ragbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+/* Rho Sigma Tau */
+
+df3ragaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3ragaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3ragabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3ragabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3ragbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3ragbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbgaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbgaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbgabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbgabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbgbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbgbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* Rho Tau Tau */
+
+df3ratata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3ratatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3ratbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2ratb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbtata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbtatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* Sigma Sigma Sigma */
+
+df3gaagaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3gaagaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3gaagaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gaagabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3gaagabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gaagbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gabgabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3gabgabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gabgbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gbbgbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+/* Sigma Sigma Tau */
+
+df3gaagaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gaagaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gaagabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gaagabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gaagbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gaagbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gabgabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gabgabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gabgbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gabgbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gbbgbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gbbgbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* Sigma Tau Tau */
+
+df3gaatata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gaatatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gaatbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gabtata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gabtatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gabtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gbbtata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gbbtatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gbbtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2gbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* Tau Tau Tau */
+
+df3tatata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2tata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3tatatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2tata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3tatbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2tatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3tbtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2tbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+/* 3rd order derivatives */
+/* One spin channel */
+
+dfs3rsrsrs(rho_s,sigma_ss,tau_s)
+:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s),rho_s)$
+dfs3rsrsgss(rho_s,sigma_ss,tau_s)
+:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s),sigma_ss)$
+dfs3rsrsts(rho_s,sigma_ss,tau_s)
+:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s),tau_s)$
+dfs3rsgssgss(rho_s,sigma_ss,tau_s)
+:=diff(dfs2rsgss(rho_s,sigma_ss,tau_s),sigma_ss)$
+dfs3rsgssts(rho_s,sigma_ss,tau_s)
+:=diff(dfs2rsgss(rho_s,sigma_ss,tau_s),tau_s)$
+dfs3rststs(rho_s,sigma_ss,tau_s)
+:=diff(dfs2rsts(rho_s,sigma_ss,tau_s),tau_s)$
+dfs3gssgssgss(rho_s,sigma_ss,tau_s)
+:=diff(dfs2gssgss(rho_s,sigma_ss,tau_s),sigma_ss)$
+dfs3gssgssts(rho_s,sigma_ss,tau_s)
+:=diff(dfs2gssgss(rho_s,sigma_ss,tau_s),tau_s)$
+dfs3gsststs(rho_s,sigma_ss,tau_s)
+:=diff(dfs2gssts(rho_s,sigma_ss,tau_s),tau_s)$
+dfs3tststs(rho_s,sigma_ss,tau_s)
+:=diff(dfs2tsts(rho_s,sigma_ss,tau_s),tau_s)$
+
+if excess then
+  if rho_deriv then
+    if sigma_deriv then
+      if tau_deriv then
+        with_stdout("fortran.F",print("excess,rho_deriv,sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("excess,rho_deriv,sigma_deriv,!tau_deriv"))
+    else
+      if tau_deriv then
+        with_stdout("fortran.F",print("excess,rho_deriv,!sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("excess,rho_deriv,!sigma_deriv,!tau_deriv"))
+  else
+    if sigma_deriv then
+      if tau_deriv then
+        with_stdout("fortran.F",print("excess,!rho_deriv,sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("excess,!rho_deriv,sigma_deriv,!tau_deriv"))
+    else
+      if tau_deriv then
+        with_stdout("fortran.F",print("excess,!rho_deriv,!sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("excess,!rho_deriv,!sigma_deriv,!tau_deriv"))
+else
+  if rho_deriv then
+    if sigma_deriv then
+      if tau_deriv then
+        with_stdout("fortran.F",print("!excess,rho_deriv,sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("!excess,rho_deriv,sigma_deriv,!tau_deriv"))
+    else
+      if tau_deriv then
+        with_stdout("fortran.F",print("!excess,rho_deriv,!sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("!excess,rho_deriv,!sigma_deriv,!tau_deriv"))
+  else
+    if sigma_deriv then
+      if tau_deriv then
+        with_stdout("fortran.F",print("!excess,!rho_deriv,sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("!excess,!rho_deriv,sigma_deriv,!tau_deriv"))
+    else
+      if tau_deriv then
+        with_stdout("fortran.F",print("!excess,!rho_deriv,!sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("!excess,!rho_deriv,!sigma_deriv,!tau_deriv"))$
+
+EOF
+maxima -b $f_maxima
 
 #
 # Cleaning up (i.e. deleting all the temporary files)
