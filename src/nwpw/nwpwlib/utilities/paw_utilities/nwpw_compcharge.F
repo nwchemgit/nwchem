@@ -283,6 +283,8 @@
          dbl_mb(gk_smooth(1)+k-1) = fourpioveromega*dexp(-gg*scal)
       end do
 
+
+
 *     **** define gk(k,iia)  = 4*pi * Exp[-k*k*sigma(iia**2 / 4] ****
       do iia=1,nkatm_paw
          do k=1,npack0
