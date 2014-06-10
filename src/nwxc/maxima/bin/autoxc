@@ -142,31 +142,11 @@ functional=${inputfile%.max}
 f_quiet=${TMPDIR:-/tmp}/fnc_intermediate.$$
 sed -e 's/ *$//' -e 's/;$/$/' $inputfile > $f_quiet
 #
+# Write Maxima code to analyze the functional given
+#
 # Analyze the functional definition we have been given. We want to know whether
 # f, g, and/or G are present. The presence of G requires additional source
 # code to be generated for when one of the alpha or beta density is 0.
-#
-sums=0
-list=`sed -e "s/^ *//" -e "/^[a-zA-Z0-9_,() ]*\[*[a-zA-Z0-9_,() ]*\]* *:=/p" -e "d" $f_quiet | sed -e 's/ *:=.*$//'`
-for i in $list ; do
-   if [ x$i = xf ] ; then
-       sums=$(($sums+1))
-   fi
-   if [ x$i = xg ] ; then
-       sums=$(($sums+1))
-   fi
-   if [ x$i = xG ] ; then
-       excess=true
-       sums=$(($sums+1))
-   fi
-done
-if [ $sums = 0 ] ; then
-    echo "No functional definition in $inputfile"
-    echo "Bombing"
-#   exit 10
-fi
-#
-# Write a Maxima script to work out what the functional depends on
 #
 f_maxima=${TMPDIR:-/tmp}/fnc_maxima.$$
 f_dependency=${TMPDIR:-/tmp}/fnc_dependency.$$.out
@@ -199,7 +179,20 @@ tau_deriv:is (diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
                               tau_a,tau_b),tau_a)#0 or
               diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
                               tau_a,tau_b),tau_b)#0)$
+sums : 0$
+if (f((rho_a-rho_b)/(rho_a+rho_b),rho_a,rho_b,rho_a+rho_b,        
+      sigma_aa,sigma_ab,sigma_bb,sigma_aa+2*sigma_ab+sigma_bb,    
+      tau_a,tau_b,tau_a+tau_b)#0) then
+  sums : sums + 1$
+if (g(rho_a,sigma_aa,tau_a)#0) then
+  sums : sums + 1$
+if (G(rho_a,sigma_aa,tau_a)#0) then
+  sums : sums + 1$
+excess: is (G(rho_a,sigma_aa,tau_a)#0)$
+
 with_stdout("$f_dependency",        
+   print("sums=",sums),      
+   print("excess=",excess),      
    print("rho_deriv=",rho_deriv),      
    print("sigma_deriv=",sigma_deriv),  
    print("tau_deriv=",tau_deriv))$
@@ -208,6 +201,11 @@ EOF
 maxima -b $f_maxima
 sed -e "s/ //" $f_dependency > $f_dependency_sh
 source $f_dependency_sh
+if [ $sums = 0 ] ; then
+    echo "No functional definition in $inputfile"
+    echo "Bombing"
+    exit 10
+fi
 #
 # Now we know:
 #
