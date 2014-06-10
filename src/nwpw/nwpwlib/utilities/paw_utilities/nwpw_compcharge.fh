@@ -30,6 +30,7 @@ c      integer sigma(2)
       integer Qlmy(2)        ! Qlmy(lm=1:(mult_l+1)**2,2,1:nion_paw) = compensation charge coefficients
       integer Qlmz(2)        ! Qlmz(lm=1:(mult_l+1)**2,2,1:nion_paw) = compensation charge coefficients
       integer dEmult_Qlm(2)  ! dEmult_Qlm(lm=1:(mult_l+1)**2,2,1:nion_paw) = dEmult/dQlm
+      integer dElocal_Qlm(2) ! dElocal_Qlm(lm=1:(mult_l+1)**2,2,1:nion_paw) = dElocal/dQlm
       integer dE_Qlm(2)      ! dE_Qlm(lm=1:(mult_l+1)**2,2,1:nion_paw) = dE/dQlm where E is the total energy of the system
 
       integer nindx_Tndiff(2)
@@ -40,7 +41,7 @@ c      integer sigma(2)
       integer coeff_Tndiff(2)   
 
       common / nwpw_compcharge_block / vk_smooth,gk_smooth,gk,glm,Qlm,
-     >                  Qlmx,Qlmy,Qlmz,dEmult_Qlm,dE_Qlm,
+     >                  Qlmx,Qlmy,Qlmz,dEmult_Qlm,dElocal_Qlm,dE_Qlm,
      >                  sigma_smooth,sigma_paw,
      >                  mult_l,lm_size,
      >                  nindx_Tndiff,shift_Tndiff,

@@ -207,6 +207,9 @@
      >                     "dEmult_Qlm",dEmult_Qlm(2),dEmult_Qlm(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >                     "dElocal_Qlm",dElocal_Qlm(2),dElocal_Qlm(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "dE_Qlm",dE_Qlm(2),dE_Qlm(1))
       value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
@@ -218,6 +221,8 @@
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmy(1)),1)
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(Qlmz(1)),1)
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
+     >           dbl_mb(dElocal_Qlm(1)),1)
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dE_Qlm(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
@@ -568,6 +573,7 @@
       value = value.and.MA_free_heap(Qlmy(2))
       value = value.and.MA_free_heap(Qlmz(2))
       value = value.and.MA_free_heap(dEmult_Qlm(2))
+      value = value.and.MA_free_heap(dElocal_Qlm(2))
       value = value.and.MA_free_heap(dE_Qlm(2))
       value = value.and.MA_free_heap(shift_Tndiff(2))
       value = value.and.MA_free_heap(nindx_Tndiff(2))
@@ -3076,6 +3082,189 @@ c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
       return
       end
 
+
+*     *************************************************
+*     *                                               *
+*     *     nwpw_compcharge_gen_dE_ncmp_vloc_Qlm      *
+*     *                                               *
+*     *************************************************
+*
+*    This routine calulates dE_ncmp_vloc/dQlm where
+*  
+*                  /
+*   E_ncmp_vloc  = | (ncmp(r)*Vl2(r) + ncmp_smooth(r)*(Vl1(r)-Vl2(r))) dr - plane-wave integrals
+*                  /
+*
+*                  /
+*                + | (ncmp(r)-ncmp_smooth(r))*(Vl1(r)-Vl2(r)) dr  - Gaussian two-center integrals
+*                  /
+*  
+*   vcmp = V2l and vcmp_smooth=Vl1-Vl2
+*
+
+      subroutine nwpw_compcharge_gen_dE_ncmp_vloc_Qlm(ispin,zv,
+     >                                           vcmp,vcmp_smooth)
+      implicit none
+      integer ispin
+      real*8     zv(*)
+      complex*16 vcmp(*)
+      complex*16 vcmp_smooth(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     *** local variables ****
+      logical value
+      integer np,np_j,np_k,taskid,taskid_j,taskid_k,pcount
+      integer iii,iia,ii,ia,lm,l,m,k,jjj,ja,jja,l2,m2,ms
+      integer indx1up,indx2up,indx
+      integer glm_cmp(2),glm_cmp_smooth(2)
+      real*8  q22,e1,e2,fourpi
+
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
+     >           dbl_mb(dElocal_Qlm(1)),1)
+
+*     **** allocating stack memory ****
+      value = MA_push_get(mt_dcpl,npack0,'glm_cmp',
+     >                    glm_cmp(2),glm_cmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
+     >                    glm_cmp_smooth(2),glm_cmp_smooth(1))
+      if (.not.value)
+     >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:out of stack',
+     >               0,MA_ERR)
+
+      if (isgamma) then
+     
+      call Parallel2d_taskid_j(taskid_j)
+      call Parallel2d_np_j(np_j)
+      pcount = 0
+      do iii=1,nion_paw
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+         do m=-l,l
+            if (mod(pcount,np_j).eq.taskid_j) then
+               call nwpw_compcharge_gen_glm2(ii,l,m,
+     >                              dcpl_mb(glm_cmp(1)),
+     >                              dcpl_mb(glm_cmp_smooth(1)))
+               call Pack_cc_idot(0,
+     >                           dcpl_mb(glm_cmp(1)),
+     >                           vcmp,
+     >                           e1)
+               call Pack_cc_idot(0,
+     >                           dcpl_mb(glm_cmp_smooth(1)),
+     >                           vcmp_smooth,
+     >                           e2)
+               !lm = l*(l+1)+m
+               do ms =1,ispin
+                  indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+                  dbl_mb(dElocal_Qlm(1)+indx) = (e1+e2)
+               end do
+
+            end if
+            lm     = lm + 1
+            pcount = pcount + 1
+         end do
+         end do
+      end do
+
+
+
+      else
+
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_np_k(np_k)
+      taskid = taskid_j + np_j*taskid_k
+      np     = np_j+np_k
+      pcount = 0
+      do iii=1,nion_paw
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+         do m=-l,l
+            if (mod(pcount,np).eq.taskid) then
+               call nwpw_compcharge_gen_glm2(ii,l,m,
+     >                              dcpl_mb(glm_cmp(1)),
+     >                              dcpl_mb(glm_cmp_smooth(1)))
+               call Cram_cc_idot(0,
+     >                           dcpl_mb(glm_cmp(1)),
+     >                           vcmp,
+     >                           e1)
+               call Cram_cc_idot(0,
+     >                           dcpl_mb(glm_cmp_smooth(1)),
+     >                           vcmp_smooth,
+     >                           e2)
+               !lm = l*(l+1)+m
+               do ms =1,ispin
+                  indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+                  dbl_mb(dElocal_Qlm(1)+indx) = (e1+e2)
+               end do
+
+            end if
+            lm     = lm + 1
+            pcount = pcount + 1
+         end do
+         end do
+      end do
+
+      end if
+
+*     **** popping stack memory ****
+      value =           MA_pop_stack(glm_cmp_smooth(2))
+      value = value.and.MA_pop_stack(glm_cmp(2))
+      if (.not.value)
+     >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:popping stack',
+     >               1,MA_ERR)
+
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      pcount = 0
+      fourpi = 16.0d0*datan(1.0d0)
+      do k=1,ngauss
+         if (mod(pcount,np).eq.taskid) then
+            indx1up = int_mb(lm1_gauss(1)+k-1)
+            !indx1dn = indx1up + (ispin-1)*lm_size_max
+            indx2up = int_mb(lm2_gauss(1)+k-1)
+            !indx2dn = indx2up + (ispin-1)*lm_size_max
+
+c            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
+            call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
+
+            if (l2.eq.0) then
+               jja = int_mb(katm_paw(1)+jjj-1)
+               ja  = int_mb(katm_pawtoion(1)+jja-1)
+               q22 = -2.0d0*zv(ja)/dsqrt(fourpi)
+            else
+               q22 = 0.0d0
+            end if
+
+            !q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+            !q2 = q22
+            !E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
+            do ms =1,ispin
+               indx = indx1up + (ms-1)*lm_size_max
+               dbl_mb(dElocal_Qlm(1)+indx) = dbl_mb(dElocal_Qlm(1)+indx)
+     >                                     + q22*dbl_mb(e_gauss(1)+k-1)
+            end do
+         end if
+
+      end do
+      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
+     >                            dbl_mb(dElocal_Qlm(1)))
+
+      return
+      end
 
 
 *     *************************************************
