@@ -96,7 +96,7 @@ H  P
   0.6401216923D+00 1.0
 end
 
-basis "nsp_cart_gc" nosegment cartesian
+basis "nsp_cart_gc"  cartesian
 C  S
   0.1675097360D+02   0.56376    -0.14469 
   0.2888377460D+01   0.69771    -0.31014 
@@ -195,7 +195,7 @@ H  P
 end
 
 
-basis "nsp_sph_gc" nosegment spherical
+basis "nsp_sph_gc"  spherical
 C  S
   0.1675097360D+02   0.56376    -0.14469 
   0.2888377460D+01   0.69771    -0.31014 
@@ -244,7 +244,7 @@ H  P
   0.6401216923D+00 1.0
 end
 
-basis "sp_cart_ngc" nosegment cartesian
+basis "sp_cart_ngc"  cartesian
 C  SP
   0.1675097360D+02   0.56376  0.01728
   0.2888377460D+01   0.69771  0.12274
@@ -298,7 +298,7 @@ H  S
 H  P
   0.6401216923D+00 1.0
 end
-basis "sp_sph_ngc" nosegment spherical
+basis "sp_sph_ngc"  spherical
 C  SP
   0.1675097360D+02   0.56376  0.01728
   0.2888377460D+01   0.69771  0.12274
