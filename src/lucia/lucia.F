@@ -8225,16 +8225,34 @@ C     CALL GTJKL(RJ,RK,NTOOB)
 * from complete integral list stored in core
 *
       IMPLICIT REAL*8           (A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       REAL*8           J(NORB,NORB),K(NORB,NORB)
+      integer nxtask, next, itask, icount
+      external nxtask
 *	
+      itask = 0
+      next = nxtask(nproc, 1)
       DO 200 IORB = 1, NORB
         DO 100 JORB = 1, NORB
+         if (itask.eq.next) then
          J(IORB,JORB) = GTIJKL_GN(IORB,IORB,JORB,JORB)
          K(IORB,JORB) = GTIJKL_GN(IORB,JORB,JORB,IORB)
+         next = nxtask(nproc, 1)
+         else
+         J(IORB,JORB) = 0.0d0
+         K(IORB,JORB) = 0.0d0
+         endif
+         itask = itask + 1
 cGLM         J(IORB,JORB) = GTIJKL(IORB,IORB,JORB,JORB)
 cGLM         K(IORB,JORB) = GTIJKL(IORB,JORB,JORB,IORB)
   100   CONTINUE
   200 CONTINUE
+      next = nxtask(-nproc, 1)
+      call ga_sync()
+      call ga_dgop(1, J, NORB*NORB, '+')
+      call ga_dgop(1, K, NORB*NORB, '+')
 *
       NTEST = 0
       IF(NTEST.GT.10) THEN
