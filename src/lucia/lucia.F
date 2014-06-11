@@ -8229,10 +8229,11 @@ C     CALL GTJKL(RJ,RK,NTOOB)
 #include "mafdecls.fh"
 #include "global.fh"
       REAL*8           J(NORB,NORB),K(NORB,NORB)
-      integer nxtask, next, itask, icount
+      integer nxtask, next, itask, icount, nproc
       external nxtask
 *	
       itask = 0
+      nproc = ga_nnodes()
       next = nxtask(nproc, 1)
       DO 200 IORB = 1, NORB
         DO 100 JORB = 1, NORB

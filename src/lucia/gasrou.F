@@ -5518,7 +5518,7 @@ C     REAL * 8  INPROD
 CNW   DIMENSION DIAG(*)
       integer diag
 *
-      integer nxtask, next, itask, icount
+      integer nxtask, next, itask, icount, nproc
       external nxtask
 * 
       NTEST = 0000
@@ -5568,6 +5568,7 @@ CNW   DIMENSION DIAG(*)
       IF(LUDIA.GT.0) CALL REWINO(LUDIA)
 *
       itask = 0
+      nproc = ga_nnodes()
       next = nxtask(nproc, 1)
       DO IBLK = 1, NBLOCK
 *
@@ -9674,7 +9675,7 @@ C     REAL * 8  INPROD
 cnw   DIMENSION DIAG(*)
       integer diag
 *
-      integer nxtask, next, itask, icount
+      integer nxtask, next, itask, icount, nproc
       external nxtask
 *
       NTEST =  000
@@ -9728,6 +9729,7 @@ cnw   DIMENSION DIAG(*)
       IF(LUDIA.GT.0) CALL REWINO(LUDIA)
 *
       itask = 0
+      nproc = ga_nnodes()
       next = nxtask(nproc, 1)
       DO IBLK = 1, NBLOCK
 *
