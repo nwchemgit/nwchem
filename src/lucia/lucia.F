@@ -15239,7 +15239,7 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
             CALL ITODS(LEN,1,-1,LUHC)
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            if (LEN.gt.0)
+            if (LEN.gt.0.and.ga_nodeid().eq.0)
      &      call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
