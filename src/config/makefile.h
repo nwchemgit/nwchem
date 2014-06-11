@@ -1738,6 +1738,11 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	  else
           FOPTIONS   += -Wuninitialized # -Wextra -Wunused
         endif
+        ifdef USE_OPENMP
+           FOPTIONS  += -fopenmp
+           LDOPTIONS += -fopenmp
+           DEFINES += -DUSE_OPENMP
+        endif
       endif
       ifeq ($(_FC),gfortran)
         ifdef USE_I4FLAGS
