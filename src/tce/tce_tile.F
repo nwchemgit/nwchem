@@ -130,31 +130,31 @@ c     previous estimation scheme led to huge tilesies in some cases
 c     and users encountered segfaults
 c     these estimates are what Jeff and Karol recommend anyways
 c
-      isize = 36
+      isize = 32
       if ((model.eq."ccd").or.(model.eq."lccd").or.(model.eq."cis")
      1.or.(model.eq."ccsd").or.(model.eq."lccsd")
      2.or.(model.eq."qcisd").or.(model.eq."cisd")
      4.or.(model.eq."mbpt2").or.(model.eq."mbpt3")
      5.or.(model.eq."ccsd_act")) then
-        isize = 36
+        isize = 32
         if (rtdb_cget(rtdb,'tce:perturbative',1,perturbative)) then
-          if (perturbative.eq.'(t)') isize = 20
-          if (perturbative.eq.'[t]') isize = 20
-          if (perturbative.eq.'lambda(t)') isize = 20
-          if (perturbative.eq.'cr_(t)') isize = 20
-          if (perturbative.eq.'cr_[t]') isize = 20
+          if (perturbative.eq.'(t)') isize = 24
+          if (perturbative.eq.'[t]') isize = 24
+          if (perturbative.eq.'lambda(t)') isize = 24
+          if (perturbative.eq.'cr_(t)') isize = 24
+          if (perturbative.eq.'cr_[t]') isize = 24
           if (perturbative.eq.'creom_(t)') isize = 20
-          if (perturbative.eq.'emb1') isize = 20
-          if (perturbative.eq.'emb2') isize = 20
-          if (perturbative.eq.'2_t') isize = 20
-          if (perturbative.eq.'2_tq') isize = 15
-          if (perturbative.eq.'2_q') isize = 15
-          if (perturbative.eq.'lr_(t)') isize = 20
-          if (perturbative.eq.'lr_(tq1)') isize = 15
-          if (perturbative.eq.'lr_(tq1p)') isize = 15
+          if (perturbative.eq.'emb1') isize = 24
+          if (perturbative.eq.'emb2') isize = 24
+          if (perturbative.eq.'2_t') isize = 24
+          if (perturbative.eq.'2_tq') isize = 16
+          if (perturbative.eq.'2_q') isize = 16
+          if (perturbative.eq.'lr_(t)') isize = 24
+          if (perturbative.eq.'lr_(tq1)') isize = 16
+          if (perturbative.eq.'lr_(tq1p)') isize = 16
         endif
       else if (model.eq."ccsdta") then
-        isize = 20
+        isize = 24
       elseif ((model.eq."ccsdt").or.(model.eq."cisdt")) then
         isize = 20
       elseif ((model.eq."ccsdtq").or.(model.eq."cisdtq")
@@ -162,14 +162,12 @@ c
         isize = 12
 c       special case of mbpt4sdq(t) can use CCSD(T)-like tilesizes
         if (rtdb_cget(rtdb,'tce:perturbative',1,perturbative)) then
-          if (perturbative.eq.'(t)') isize = 20
+          if (perturbative.eq.'(t)') isize = 24
         endif
       else
-        isize = 36
+        isize = 32
         if (nodezero) then
-          write(LuOut,*) 
-          write(LuOut,*) 
-     1    'Warning: unknown model, assuming CCSD-like (tce_tile.F)'
+          write(LuOut,*) 'Warning: unknown model (tce_tile.F)'
         endif
 c        call errquit("tce_tile: the model NYI",0,CAPMIS_ERR)
       endif
