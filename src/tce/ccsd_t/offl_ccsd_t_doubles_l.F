@@ -380,9 +380,9 @@ c     MIC:  xfer data
          call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-         call offl_sd_t_d1_1(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d1_1(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d1_1(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d1_1(k_range_h3b_1,k_range_h2b_1,
 #endif
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -402,9 +402,9 @@ c     MIC:  xfer data
      3     k_range_h7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-         call offl_sd_t_d1_2(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d1_2(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -429,9 +429,9 @@ c     MIC:  xfer data
 c     c     h1d,p5d,p4d,h7d)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-      call offl_sd_t_d1_3(k_range_h3b_1,k_range_h2b_1,
+      call offl_sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
 #else
-      call sd_t_d1_3(k_range_h3b_1,k_range_h2b_1,
+      call sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
 #endif
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -451,9 +451,9 @@ c     c     h1d,p5d,p4d,h7d)
          call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-         call offl_sd_t_d1_4(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d1_4(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d1_4(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d1_4(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -473,9 +473,9 @@ c     c     h1d,p5d,p4d,h7d)
      3     k_range_h7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-      call offl_sd_t_d1_5(k_range_h3b_1,k_range_h2b_1,
+      call offl_sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
 #else
-      call sd_t_d1_5(k_range_h3b_1,k_range_h2b_1,
+      call sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
 #endif
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -499,9 +499,9 @@ c     c     h1d,p5d,p4d,h7d)
      3     k_range_h7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-         call offl_sd_t_d1_6(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d1_6(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -521,9 +521,9 @@ c     c     h1d,p5d,p4d,h7d)
          call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-         call offl_sd_t_d1_7(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d1_7(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d1_7(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d1_7(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -539,9 +539,9 @@ c     c     h1d,p5d,p4d,h7d)
          call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-         call offl_sd_t_d1_8(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d1_8(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d1_8(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d1_8(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -561,9 +561,9 @@ c     c     h1d,p5d,p4d,h7d)
      3     k_range_h7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_1.fh"
-         call offl_sd_t_d1_9(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d1_9(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
 #endif
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -767,9 +767,9 @@ c     MIC:  xfer data
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_1(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_1(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -795,9 +795,9 @@ c     MIC:  xfer data
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_2(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_2(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -818,9 +818,9 @@ c     MIC:  xfer data
          call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_3(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_3(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_3(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_3(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -841,9 +841,9 @@ c     MIC:  xfer data
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_4(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_4(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -870,9 +870,9 @@ c     MIC:  xfer data
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_5(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_5(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -893,9 +893,9 @@ c     MIC:  xfer data
          call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_6(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_6(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_6(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_6(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -911,9 +911,9 @@ c     MIC:  xfer data
          call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_7(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_7(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_7(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_7(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -934,9 +934,9 @@ c     MIC:  xfer data
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_8(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_8(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -957,9 +957,9 @@ c     MIC:  xfer data
          call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
 #include "offl_l_2.fh"
-         call offl_sd_t_d2_9(k_range_h3b_1,k_range_h2b_1,
+         call offl_sdtransp_t_d2_9(k_range_h3b_1,k_range_h2b_1,
 #else
-         call sd_t_d2_9(k_range_h3b_1,k_range_h2b_1,
+         call sdtransp_t_d2_9(k_range_h3b_1,k_range_h2b_1,
 #endif
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
@@ -1008,9 +1008,9 @@ c     &   REUSE)
       END
 
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_1(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_1(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_1(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_1(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1018,9 +1018,9 @@ c     &   REUSE)
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_1)
+!$omp declare target (offl_sdtransp_t_d1_1)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_1
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_1
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1052,9 +1052,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_1
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_2(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_2(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_2(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_2(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1062,9 +1062,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_2) 
+!$omp declare target (offl_sdtransp_t_d1_2) 
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_2
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_2
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1100,9 +1100,9 @@ cold      double precision t2sub(h7d,p4d,p5d,h1d)
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_3(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_3(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_3(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_3(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1110,9 +1110,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_3)
+!$omp declare target (offl_sdtransp_t_d1_3)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_3
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_3
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1144,9 +1144,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_3
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_4(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_4(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_4(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_4(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1154,9 +1154,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_4)
+!$omp declare target (offl_sdtransp_t_d1_4)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_4
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_4
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1188,9 +1188,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_4
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_5(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_5(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_5(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_5(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1198,9 +1198,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_5)
+!$omp declare target (offl_sdtransp_t_d1_5)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_5
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_5
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1235,9 +1235,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_5
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_6(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_6(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_6(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_6(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1245,9 +1245,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_6)
+!$omp declare target (offl_sdtransp_t_d1_6)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_6
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_6
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1279,9 +1279,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_6
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_7(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_7(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_7(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_7(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1289,9 +1289,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_7)
+!$omp declare target (offl_sdtransp_t_d1_7)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_7
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_7
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1323,9 +1323,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_7
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_8(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_8(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_8(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_8(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1333,9 +1333,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_8)
+!$omp declare target (offl_sdtransp_t_d1_8)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_8
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_8
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1370,9 +1370,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_8
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d1_9(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d1_9(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d1_9(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d1_9(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
      2               triplesx,t2sub,v2sub,
@@ -1380,9 +1380,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d1_9)
+!$omp declare target (offl_sdtransp_t_d1_9)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_9
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_9
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1414,9 +1414,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_9
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_1(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_1(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_1(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_1(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1424,9 +1424,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_1)
+!$omp declare target (offl_sdtransp_t_d2_1)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_1
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_1
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1461,9 +1461,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_1
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_2(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_2(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_2(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_2(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1471,9 +1471,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_2)
+!$omp declare target (offl_sdtransp_t_d2_2)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_2
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_2
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1505,9 +1505,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_2
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_3(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_3(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_3(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_3(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1515,9 +1515,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_3)
+!$omp declare target (offl_sdtransp_t_d2_3)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_3
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_3
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1552,9 +1552,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_3
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_4(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_4(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_4(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_4(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1562,9 +1562,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_4)
+!$omp declare target (offl_sdtransp_t_d2_4)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_4
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_4
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1600,9 +1600,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_4
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_5(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_5(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_5(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_5(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1610,9 +1610,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_5)
+!$omp declare target (offl_sdtransp_t_d2_5)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_5
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_5
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1645,9 +1645,9 @@ c      enddo
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_6(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_6(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_6(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_6(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1655,9 +1655,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_6)
+!$omp declare target (offl_sdtransp_t_d2_6)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_6
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_6
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1691,9 +1691,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_6
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_7(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_7(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_7(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_7(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1701,9 +1701,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_7)
+!$omp declare target (offl_sdtransp_t_d2_7)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_7
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_7
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1737,9 +1737,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_7
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_8(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_8(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_8(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_8(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1747,9 +1747,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_8)
+!$omp declare target (offl_sdtransp_t_d2_8)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_8
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_8
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1781,9 +1781,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_8
       end
 c
 #ifdef OFFLOAD_CODE
-      subroutine offl_sd_t_d2_9(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine offl_sdtransp_t_d2_9(h3d,h2d,h1d,p6d,p5d,p4d,
 #else
-      subroutine sd_t_d2_9(h3d,h2d,h1d,p6d,p5d,p4d,
+      subroutine sdtransp_t_d2_9(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
      2               triplesx,t2sub,v2sub,
@@ -1791,9 +1791,9 @@ c
       IMPLICIT NONE
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_sd_t_d2_9)
+!$omp declare target (offl_sdtransp_t_d2_9)
 #else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_9
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
 #endif
 #endif
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
