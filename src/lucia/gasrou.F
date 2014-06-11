@@ -5498,6 +5498,9 @@ C    &                  NSTR,IOUSTR)
 *     = 2 =>      one+two-body part
 *
       IMPLICIT REAL*8           (A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 C     REAL * 8  INPROD
 *.General input
       DIMENSION NSSOA(NSMST,*),NSSOB(NSMST,*)
@@ -5510,11 +5513,14 @@ C     REAL * 8  INPROD
       DIMENSION RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
       DIMENSION XA(NORB),XB(NORB),SCR(2*NORB)
       DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
-      DIMENSION RJKAA(*)
+      DIMENSION RJKAA(*), buffer(100)
 *. Output
 CNW   DIMENSION DIAG(*)
       integer diag
 *
+      integer nxtask, next, itask, icount
+      external nxtask
+* 
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
@@ -5561,6 +5567,8 @@ CNW   DIMENSION DIAG(*)
       ITDET = 0
       IF(LUDIA.GT.0) CALL REWINO(LUDIA)
 *
+      itask = 0
+      next = nxtask(nproc, 1)
       DO IBLK = 1, NBLOCK
 *
         IATP = IBLKFO(1,IBLK)
@@ -5632,23 +5640,34 @@ CNW   DIMENSION DIAG(*)
           END IF
           IASTOP = NSSOA(IASM,IATP) 
 *
+          if (itask.eq.next) then
+          icount = 0
           DO IA = IASTRT,IASTOP
             IDET = IDET + 1
+            icount = icount + 1
             IF(NTEST.GE.1000) WRITE(6,*) ' IA IB,IDET = ',
      &      IA,IB,IDET
             ITDET = ITDET + 1
-            X = EB + RJKAA(IA-IOFF+1)
+            buffer(icount) = EB + RJKAA(IA-IOFF+1)
             DO IEL = 1, NAEL
-              X = X +XB(IASTR(IEL,IA)) 
+              buffer(icount) = buffer(icount) +XB(IASTR(IEL,IA)) 
             END DO
 CNW         DIAG(IDET) = X
 CNW         IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
 CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
             IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
-     &         IB.EQ.IA) X = X + XADD
-            call ga_put(DIAG,IDET,IDET,1,1,X,1)
+     &         IB.EQ.IA) buffer(icount) = buffer(icount) + XADD
+            if (icount.eq.100.OR.IA.eq.IASTOP) then
+               call ga_put(DIAG,IDET-icount+1,IDET,1,1,buffer,1)
+               icount = 0
+            endif
           END DO
 *         ^ End of loop over alpha strings|
+          else
+          IDET = IDET + IASTOP - IASTART + 1
+          endif
+          itask = itask + 1
+*         ^ End task loop
         END DO
 *       ^ End of loop over betastrings
 *. Yet a RAS block of the diagonal has been constructed
@@ -5664,6 +5683,8 @@ CNW         CALL WRTMAT(DIAG,1,IDET,1,IDET)
         END IF
       END DO
 *        ^ End of loop over blocks
+      next = nxtask(-nproc, 1)
+      call ga_sync()
  
       IF(NTEST.GE.10) WRITE(6,*)
      &' Number of diagonal elements generated ',ITDET
@@ -9631,6 +9652,9 @@ C?   &                  IEL, IORB, NPHEL
 *     = 2 =>      one+two-body part
 *
       IMPLICIT REAL*8           (A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 C     REAL * 8  INPROD
 *.General input
       DIMENSION NSSOA(NSMST,*),NSSOB(NSMST,*)
@@ -9645,10 +9669,13 @@ C     REAL * 8  INPROD
       DIMENSION XA(NTOOB),XB(NTOOB),SCR(2*NTOOB),ISCR(NTOOB)
       DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
       DIMENSION IPHSTR(*)
-      DIMENSION RJKAA(*)
+      DIMENSION RJKAA(*), buffer(100)
 *. Output
 cnw   DIMENSION DIAG(*)
       integer diag
+*
+      integer nxtask, next, itask, icount
+      external nxtask
 *
       NTEST =  000
       NTEST = MAX(NTEST,IPRNT)
@@ -9700,6 +9727,8 @@ cnw   DIMENSION DIAG(*)
       ITDET = 0
       IF(LUDIA.GT.0) CALL REWINO(LUDIA)
 *
+      itask = 0
+      next = nxtask(nproc, 1)
       DO IBLK = 1, NBLOCK
 *
         IATP = IBLKFO(1,IBLK)
@@ -9807,25 +9836,38 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
           END IF
           IASTOP = NSSOA(IASM,IATP) 
 *
+          if (itask.eq.next) then
+          icount = 0
           DO IA = IASTRT,IASTOP
             IDET = IDET + 1
             ITDET = ITDET + 1
-            X = EB + RJKAA(IA-IOFF+1)
+            icount = icount + 1
+            buffer(icount) = EB + RJKAA(IA-IOFF+1)
             DO IEL = 1, NPHELA
               IF(IPHSTR((IA-1)*NPHELA+IEL).GT.0) THEN
-                X = X + XB(IPHSTR((IA-1)*NPHELA+IEL)) 
+                buffer(icount) = buffer(icount) 
+     &                           + XB(IPHSTR((IA-1)*NPHELA+IEL)) 
               ELSE
-                X = X - XB(-IPHSTR((IA-1)*NPHELA+IEL)) 
+                buffer(icount) = buffer(icount) 
+     &                           - XB(-IPHSTR((IA-1)*NPHELA+IEL)) 
               END IF
             END DO
 CNW         DIAG(IDET) = X
 CNW         IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
 CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
             IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP.AND.
-     &         IB.EQ.IA) X = X + XADD
-            call ga_put(DIAG,IDET,IDET,1,1,X,1)
+     &         IB.EQ.IA) buffer(icount) = buffer(icount) + XADD
+            if (icount.eq.100.OR.IA.eq.IASTOP) then
+               call ga_put(DIAG,IDET-icount+1,IDET,1,1,buffer,1)
+               icount = 0
+            endif
           END DO
 *         ^ End of loop over alpha strings|
+          else
+          IDET = IDET + IASTOP - IASTART + 1
+          endif
+          itask = itask + 1
+*         ^ End task loop
         END DO
 *       ^ End of loop over betastrings
 *. Yet a RAS block of the diagonal has been constructed
@@ -9840,6 +9882,8 @@ CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
         END IF
       END DO
 *        ^ End of loop over blocks
+      next = nxtask(-nproc, 1)
+      call ga_sync()
       IF(NTEST.GE.10) WRITE(6,*)
      &' Number of diagonal elements generated ',ITDET
 *
@@ -11295,4 +11339,3 @@ C?        write(6,*) ' before call to add_str_group '
 *
       RETURN
       END 
-c $Id$
