@@ -639,7 +639,7 @@ c
       integer nvec    !< [Output] The number of vectors generated
       logical oprint  !< [Input] A print flag
 c
-c     Make a set of orthnormal vectors that are
+c     Make a set of orthonormal vectors that are
 c     1) totally symmetric
 c     2) orthogonal to rotations
 c     3) orthogonal to translations
@@ -663,7 +663,7 @@ c
 c     Get list of active atoms.  If there are ANY frozen atoms then
 c     we cannot use or translational, or rotational invariance
 c     and we will just use the cartesian coordinates of the active atoms
-c     plus symmetry (assuming that the frozen atoms presever symmetry)
+c     plus symmetry (assuming that the frozen atoms preserve symmetry)
 c
       call grad_active_atoms(rtdb, natoms, oactive, nactive)
       call dfill(natoms3*natoms3,0.0d0,vectors,1)
@@ -718,6 +718,13 @@ c
                   xx = -y
                   yy =  x
                   zz =  0.0d0
+               else
+c                 HvD: Shutting the compiler up about uninitialized 
+c                 variables.
+                  xx = 0.0d0
+                  yy = 0.0d0
+                  zz = 0.0d0
+                  call errquit("fd_make_vectors: invalid k",k,UERR)
                endif
                i3 = (i-1)*3
                work(i3+1,k) = xx
@@ -794,10 +801,18 @@ c
 c
 c phase align each vector with a positive maximum magnitude value
 c
-      do i = 1,nvec
-        k = ifirstmax(natoms3,vectors(1,i),1)
-        if (vectors(k,i).lt.0.0d00) then
-          call dscal(natoms3,-1.0d00,vectors(1,i),1)
+c     do i = 1,nvec
+c       k = ifirstmax(natoms3,vectors(1,i),1)
+c       if (vectors(k,i).lt.0.0d00) then
+c         call dscal(natoms3,-1.0d00,vectors(1,i),1)
+c       endif
+c     enddo
+c
+c     Phase align vectors so that their directions are body fixed
+c
+      do i = 1, nvec
+        if (ddot(natoms3,coords,1,vectors(1,i),1).lt.0.0d0) then
+          call dscal(natoms3,-1.0d0,vectors(1,i),1)
         endif
       enddo
 c
@@ -860,3 +875,5 @@ c
        enddo
       return
       end
+C>
+C> @}
