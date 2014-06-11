@@ -3232,7 +3232,7 @@ c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
       pcount = 0
       fourpi = 16.0d0*datan(1.0d0)
       do k=1,ngauss
-         if (mod(pcount,np).eq.taskid) then
+         if (mod(k,np).eq.taskid) then
             indx1up = int_mb(lm1_gauss(1)+k-1)
             !indx1dn = indx1up + (ispin-1)*lm_size_max
             indx2up = int_mb(lm2_gauss(1)+k-1)
@@ -3258,13 +3258,144 @@ c            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
      >                                     + q22*dbl_mb(e_gauss(1)+k-1)
             end do
          end if
-
       end do
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dElocal_Qlm(1)))
 
       return
       end
+
+
+*     *************************************************
+*     *                                               *
+*     *     nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_pw   *
+*     *                                               *
+*     *************************************************
+*
+*    This routine calulates dE_ncmp_vloc/dQlm where
+*  
+*                  /
+*   E_ncmp_vloc  = | ncmp(r)*Vl2(r) dr - plane-wave integrals
+*                  /
+*
+*   vcmp = V2l 
+*
+
+      subroutine nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_pw(ispin,vcmp)
+      implicit none
+      integer ispin
+      complex*16 vcmp(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     *** local variables ****
+      logical value
+      integer np,np_j,np_k,taskid,taskid_j,taskid_k,pcount
+      integer iii,iia,ii,ia,lm,l,m,k,jjj,ja,jja,l2,m2,ms
+      integer indx
+      integer glm_cmp(2)
+      real*8  e1
+
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
+     >           dbl_mb(dElocal_Qlm(1)),1)
+
+*     **** allocating stack memory ****
+      value = MA_push_get(mt_dcpl,npack0,'glm_cmp',
+     >                    glm_cmp(2),glm_cmp(1))
+      if (.not.value)
+     >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:out of stack',
+     >               0,MA_ERR)
+
+      if (isgamma) then
+     
+      call Parallel2d_taskid_j(taskid_j)
+      call Parallel2d_np_j(np_j)
+      pcount = 0
+      do iii=1,nion_paw
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+         do m=-l,l
+            if (mod(pcount,np_j).eq.taskid_j) then
+               call nwpw_compcharge_gen_glm(ii,l,m,
+     >                              dcpl_mb(glm_cmp(1)))
+               call Pack_cc_idot(0,
+     >                           dcpl_mb(glm_cmp(1)),
+     >                           vcmp,
+     >                           e1)
+               !lm = l*(l+1)+m
+               do ms =1,ispin
+                  indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+                  dbl_mb(dElocal_Qlm(1)+indx) = e1
+               end do
+
+            end if
+            lm     = lm + 1
+            pcount = pcount + 1
+         end do
+         end do
+      end do
+
+
+
+      else
+
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_np_k(np_k)
+      taskid = taskid_j + np_j*taskid_k
+      np     = np_j+np_k
+      pcount = 0
+      do iii=1,nion_paw
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+         do m=-l,l
+            if (mod(pcount,np).eq.taskid) then
+               call nwpw_compcharge_gen_glm(ii,l,m,
+     >                              dcpl_mb(glm_cmp(1)))
+               call Cram_cc_idot(0,
+     >                           dcpl_mb(glm_cmp(1)),
+     >                           vcmp,
+     >                           e1)
+               !lm = l*(l+1)+m
+               do ms =1,ispin
+                  indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+                  dbl_mb(dElocal_Qlm(1)+indx) = e1
+               end do
+
+            end if
+            lm     = lm + 1
+            pcount = pcount + 1
+         end do
+         end do
+      end do
+
+      end if
+
+*     **** popping stack memory ****
+      value = MA_pop_stack(glm_cmp(2))
+      if (.not.value)
+     >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:popping stack',
+     >               1,MA_ERR)
+
+
+      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
+     >                            dbl_mb(dElocal_Qlm(1)))
+
+      return
+      end
+
+
 
 
 *     *************************************************
