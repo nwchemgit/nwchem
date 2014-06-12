@@ -120,7 +120,7 @@ c     complex*16 vpsi(nfft3d)
 *     *********************************************************
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
-      if (psp_pawexist()) call psp_set_vcandvl(vc,vl)
+      if (psp_pawexist()) call psp_set_vc(vc)
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,fractional,occ)
 
 
@@ -170,18 +170,12 @@ c     complex*16 vpsi(nfft3d)
       end if
 
 
-
-*     **********************************************************
-*     **** add up k-space potentials, vall = scal2*vl + vc  ****
-*     **********************************************************
-c      if (psp_pawexist()) then
-c         call psp_get_vcmpvlpaw(dcpl_mb(vall(1)))
-c         call Pack_cc_daxpy(0,scal2,vl,dcpl_mb(vall(1)))
-c      else
-c         call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
-c      end if
+*     **************************************************************************
+*     **** add up k-space potentials, vall = scal2*vl + vc  (+ vcmp if paw) ****
+*     **************************************************************************
       call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
       call Pack_cc_Sum2(0,vc,dcpl_mb(vall(1)))
+      if (psp_pawexist()) call psp_add_vcmp(dcpl_mb(vall(1)))
       
 *     **********************************************
 *     **** fourier transform k-space potentials ****

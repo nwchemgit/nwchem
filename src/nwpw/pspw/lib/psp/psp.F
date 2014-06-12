@@ -316,19 +316,15 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value = value.and.
      >            MA_alloc_get(mt_dcpl,npack0,'vcmptmp',
      >                         vcmp_tmp(2),vcmp_tmp(1))
-         value = value.and.
-     >            MA_alloc_get(mt_dcpl,npack0,'vlpaw_tmp',
-     >                         vlpaw_tmp(2),vlpaw_tmp(1))
       end if
       if (.not. value)
      >   call errquit('psp_proj_init:out of heap memory',0,MA_ERR)
       return
       end
 
-      subroutine psp_set_vcandvl(vcin,vlin)
+      subroutine psp_set_vc(vcin)
       implicit none
       complex*16 vcin(*)
-      complex*16 vlin(*)
 
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -341,14 +337,13 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       real*8   lattice_omega
       external lattice_omega
 
-      scal = 1.0d0/lattice_omega()
-
       call Pack_c_Copy(0,vcin,dcpl_mb(vc_tmp(1))) 
-      call Pack_cc_daxpy(0,scal,vlin,dcpl_mb(vc_tmp(1))) 
       return
       end 
 
-      subroutine psp_get_vcmpvlpaw(vcmpout)
+
+
+      subroutine psp_get_vcmp(vcmpout)
       implicit none
       complex*16 vcmpout(*)
 
@@ -356,39 +351,19 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 #include "mafdecls.fh"
 #include "psp.fh"
 
-*     **** local variables ****
-      real*8 scal
-
-*     **** external functions ****
-      real*8   lattice_omega
-      external lattice_omega
-
-      scal = 1.0d0/lattice_omega()
-
       call Pack_c_Copy(0,dcpl_mb(vcmp_tmp(1)),vcmpout) 
-      call Pack_cc_daxpy(0,scal,dcpl_mb(vlpaw_tmp(1)),vcmpout) 
       return
       end 
 
-
-
-      real*8 function psp_vlpaw_e(dng)
+      subroutine psp_add_vcmp(vall)
       implicit none
-      complex*16 dng(*)
+      complex*16 vall(*)
 
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "psp.fh"
 
-*     **** local variables ****
-      real*8 e
-
-*     **** external functions ****
-      real*8   lattice_omega
-      external lattice_omega
-
-      call Pack_cc_dot(0,dcpl_mb(vlpaw_tmp(1)),dng,e)
-      psp_vlpaw_e = e
+      call Pack_cc_Sum2(0,dcpl_mb(vcmp_tmp(1)),vall)
       return
       end
 
@@ -462,7 +437,6 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value = value.and.MA_free_heap(wtmp(2))
          value = value.and.MA_free_heap(vc_tmp(2))
          value = value.and.MA_free_heap(vcmp_tmp(2))
-         value = value.and.MA_free_heap(vlpaw_tmp(2))
       end if
       value = value.and.MA_free_heap(vl(2))
       value = value.and.MA_free_heap(vnl(2))
@@ -2327,7 +2301,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                          dbl_mb(sw2a(1)+swstart*nn))
 
      
-*        **** paw operations #1 - generate it's compcharge, add atomic coulomb, and add xc potential ****
+*        **** paw operations #1 - generate it's compcharge, add atomic coulomb, and add atomic xc potential ****
          if ((int_mb(psp_type(1)+ia-1).eq.4)) then
 
 *           **** paw atom - generate it's atomic density matrix ****
@@ -2442,7 +2416,6 @@ c                        write(*,*) "ff=",ff(1)*omega
 
          else
 
-            call nwpw_compcharge_add_dEmult_Qlm(ispin)
 
             value = MA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                          dng_cmp(2),dng_cmp(1))
@@ -2470,14 +2443,14 @@ c                        write(*,*) "ff=",ff(1)*omega
      >                        dcpl_mb(vcmp_smooth(1)))
 
                call Pack_c_Copy(0,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
-               call Pack_cc_Sub(0,dcpl_mb(vcmp_tmp(1)),
-     >                            dcpl_mb(vcmp_smooth(1)),
-     >                            dcpl_mb(vcmp(1)))
+               call Pack_cc_Sub2(0,
+     >                           dcpl_mb(vcmp_smooth(1)),
+     >                           dcpl_mb(vcmp(1)))
+
                call Pack_cc_Sum2(0,dcpl_mb(vc_tmp(1)),
      >                             dcpl_mb(vcmp_smooth(1)))
-
-               !call v_local_addto_vcmp(dcpl_mb(vcmp(1)))
-
+               call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
+               call Pack_c_SMul1(0,omega,dcpl_mb(vcmp(1)))
             else
                call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
                call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
@@ -2494,42 +2467,14 @@ c                        write(*,*) "ff=",ff(1)*omega
                call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
                call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
 
-               !call v_local_addto_vcmp(dcpl_mb(vcmp(1)))
-               !call lattice_r_grid(dbl_mb(rg(1)))
-               !call v_lr_local(dbl_mb(rg(1))),dcpl_mb(dng_cmp(1)))
-               !call v_local_addto_vcmp(dcpl_mb(vcmp(1)))
             end if
-         
 
-            pcount = 0
-            do ip=1,nion_prj_indx
-               ii          = int_mb(ii_prj_indx(1)+ip-1)
-               ia          = int_mb(ia_prj_indx(1)+ip-1)
-               if ((int_mb(psp_type(1)+ia-1).eq.4)) then
-                  mult_l = nwpw_compcharge_mult_l(ia)
-                  do l=0,mult_l
-                  do m=-l,l
-                     if (mod(pcount,np_j).eq.taskid_j) then
-                        call nwpw_compcharge_gen_glm2(ii,l,m,
-     >                           dcpl_mb(dng_cmp(1)),
-     >                           dcpl_mb(dng_cmp_smooth(1)))
-                        call Pack_cc_idot(0,
-     >                                    dcpl_mb(dng_cmp(1)),
-     >                                    dcpl_mb(vcmp_smooth(1)),
-     >                                    ff(1))
-                        call Pack_cc_idot(0,
-     >                                    dcpl_mb(dng_cmp_smooth(1)),
-     >                                    dcpl_mb(vcmp(1)),
-     >                                    ff(2))
-                        !write(*,*) "ff=",ff(1)*omega,ff(2)*omega
-                        call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
-     >                                           (ff(1)+ff(2))*omega)
-                     end if
-                     pcount = pcount + 1
-                  end do
-                  end do
-               end if
-            end do
+            call nwpw_compcharge_gen_dE_Qlm(ispin,
+     >                                   dcpl_mb(vcmp_smooth(1)),
+     >                                   dcpl_mb(vcmp(1)))
+         
+            call nwpw_compcharge_gen_dEmult_Qlm(ispin)
+            call nwpw_compcharge_add_dEmult_Qlm(ispin)
 
             value =           MA_pop_stack(vcmp_smooth(2))
             value = value.and.MA_pop_stack(vcmp(2))
@@ -2539,7 +2484,8 @@ c                        write(*,*) "ff=",ff(1)*omega
      >        call errquit('v_nonlocal:popping stack',5,MA_ERR)
          end if
 
-         call nwpw_compcharge_reduce_dE_Qlm()
+
+         call nwpw_compcharge_add_dElocal_Qlm(ispin)
 
          do ip=1,nion_prj_indx
             ii          = int_mb(ii_prj_indx(1)+ip-1)

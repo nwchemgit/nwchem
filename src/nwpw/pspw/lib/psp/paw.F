@@ -2000,6 +2000,7 @@ c           end do
 *        **** Using gaussian two-electron integrals and pw grid ***
          else
             eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))  !*** Gaussian integrals
+
             call v_local_seperate_paw(dcpl_mb(vl1(1)),
      >                                dcpl_mb(vl_notpaw(1)))
             call nwpw_compcharge_gen_v_cmp_smooth(dbl_mb(zv(1)),
@@ -2233,7 +2234,6 @@ c     >                         dcpl_mb(vl1(1)),eh)
 
 *        **** Using gaussian two-electron integrals and pw grid ***
          else
-c            eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))  !*** Gaussian integrals
             call v_local_seperate_paw(dcpl_mb(vl1(1)),
      >                                dcpl_mb(vl_notpaw(1)))
             call nwpw_compcharge_gen_v_cmp_smooth(dbl_mb(zv(1)),
@@ -2243,17 +2243,6 @@ c            eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))  !*** G
      >                          dcpl_mb(vl1(1)))
             call Pack_cc_Sum2(0,dcpl_mb(dng_cmp(1)),
      >                          dcpl_mb(vl_notpaw(1)))
-
-c            call nwpw_compcharge_gen_dn_cmp2(ispin,
-c     >                                       dcpl_mb(dng_cmp(1)),
-c     >                                       dcpl_mb(dng_cmp_smooth(1)))
-c
-c            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
-c     >                         dcpl_mb(vl_notpaw(1)),e1)
-c
-c            call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
-c     >                         dcpl_mb(vl1(1)),e2)
-c            eh = eh + (e1+e2)
 
           call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm(ispin,dbl_mb(zv(1)),
      >                                            dcpl_mb(vl_notpaw(1)),
@@ -2311,7 +2300,6 @@ c            eh = eh + (e1+e2)
 
 *        **** Using gaussian two-electron integrals and pw grid ***
          else
-c            eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
 *           **** long-range terms ****
             call v_lr_local_seperate_paw(dbl_mb(r_grid(1)),
@@ -2340,20 +2328,9 @@ c            eh = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
      >                        dbl_mb(rho_cmp_smooth(1)),
      >                        dbl_mb(vl1(1)))
 
-c            call nwpw_compcharge_gen_dn_cmp2(ispin,
-c     >                                       dbl_mb(rho_cmp(1)),
-c     >                                       dbl_mb(rho_cmp_smooth(1)))
-c            call Pack_cc_dot(0,dbl_mb(rho_cmp(1)),
-c     >                         dbl_mb(vl_notpaw(1)),e1)
-c            call Pack_cc_dot(0,dbl_mb(rho_cmp_smooth(1)),
-c     >                         dbl_mb(vl1(1)),e2)
-c            eh = eh + (e1+e2)
-
           call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm(ispin,dbl_mb(zv(1)),
      >                                            dbl_mb(vl_notpaw(1)),
      >                                            dbl_mb(vl1(1)))
-
-
          end if
          ok =        MA_pop_stack(r_grid(2))
          ok = ok.and.MA_pop_stack(vl2(2))
