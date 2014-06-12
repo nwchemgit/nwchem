@@ -186,6 +186,7 @@
 
           matrix(i,j,la+1) = tmp
           matrix(j,i,la+1) = tmp
+
         end do
         end do
 

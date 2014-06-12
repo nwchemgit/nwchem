@@ -51,7 +51,6 @@
            end do   
          end do
       end do
-      write(*,*) "paw_ion_e=",eion
  
       paw_energy_ion_atom = eion
 
