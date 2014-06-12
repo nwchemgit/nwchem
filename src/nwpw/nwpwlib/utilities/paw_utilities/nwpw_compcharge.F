@@ -1005,6 +1005,144 @@
 
 *     *************************************************
 *     *                                               *
+*     *         nwpw_compcharge_gen_dE_Qlm            *
+*     *                                               *
+*     *************************************************
+*
+*
+      subroutine nwpw_compcharge_gen_dE_Qlm(ispin,vcmp,vcmp_smooth)
+      implicit none
+      integer ispin
+      complex*16 vcmp(*)
+      complex*16 vcmp_smooth(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     *** local variables ****
+      logical value
+      integer np,np_j,np_k,taskid,taskid_j,taskid_k,pcount
+      integer iii,iia,ii,ia,lm,l,m,k,jjj,ja,jja,l2,m2,ms
+      integer indx1up,indx2up,indx
+      integer glm_cmp(2),glm_cmp_smooth(2)
+      real*8  q22,e1,e2,fourpi
+
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
+     >           dbl_mb(dE_Qlm(1)),1)
+
+*     **** allocating stack memory ****
+      value = MA_push_get(mt_dcpl,npack0,'glm_cmp',
+     >                    glm_cmp(2),glm_cmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
+     >                    glm_cmp_smooth(2),glm_cmp_smooth(1))
+      if (.not.value)
+     >  call errquit('nwpw_compcharge_gen_dE_Qlm:out of stack',
+     >               0,MA_ERR)
+
+      if (isgamma) then
+     
+      call Parallel2d_taskid_j(taskid_j)
+      call Parallel2d_np_j(np_j)
+      pcount = 0
+      do iii=1,nion_paw
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+         do m=-l,l
+            if (mod(pcount,np_j).eq.taskid_j) then
+               call nwpw_compcharge_gen_glm2(ii,l,m,
+     >                              dcpl_mb(glm_cmp(1)),
+     >                              dcpl_mb(glm_cmp_smooth(1)))
+               call Pack_cc_idot(0,
+     >                           dcpl_mb(glm_cmp(1)),
+     >                           vcmp,
+     >                           e1)
+               call Pack_cc_idot(0,
+     >                           dcpl_mb(glm_cmp_smooth(1)),
+     >                           vcmp_smooth,
+     >                           e2)
+               !lm = l*(l+1)+m
+               do ms=1,ispin
+                  indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+                  dbl_mb(dE_Qlm(1)+indx) = (e1+e2)
+               end do
+
+            end if
+            lm     = lm + 1
+            pcount = pcount + 1
+         end do
+         end do
+      end do
+
+
+
+      else
+
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_np_k(np_k)
+      taskid = taskid_j + np_j*taskid_k
+      np     = np_j+np_k
+      pcount = 0
+      do iii=1,nion_paw
+         ii  = int_mb(ion_pawtoion(1)+iii-1)
+         iia = int_mb(katm_paw(1)+iii-1)
+         ia  = int_mb(katm_pawtoion(1)+iia-1)
+
+         lm = 0
+         do l=0,int_mb(mult_l(1)+iia-1)
+         do m=-l,l
+            if (mod(pcount,np).eq.taskid) then
+               call nwpw_compcharge_gen_glm2(ii,l,m,
+     >                              dcpl_mb(glm_cmp(1)),
+     >                              dcpl_mb(glm_cmp_smooth(1)))
+               call Cram_cc_idot(0,
+     >                           dcpl_mb(glm_cmp(1)),
+     >                           vcmp,
+     >                           e1)
+               call Cram_cc_idot(0,
+     >                           dcpl_mb(glm_cmp_smooth(1)),
+     >                           vcmp_smooth,
+     >                           e2)
+               !lm = l*(l+1)+m
+               do ms=1,ispin
+                  indx = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+                  dbl_mb(dE_Qlm(1)+indx) = (e1+e2)
+               end do
+
+            end if
+            lm     = lm + 1
+            pcount = pcount + 1
+         end do
+         end do
+      end do
+
+      end if
+
+*     **** popping stack memory ****
+      value =           MA_pop_stack(glm_cmp_smooth(2))
+      value = value.and.MA_pop_stack(glm_cmp(2))
+      if (.not.value)
+     >  call errquit('nwpw_compcharge_gen_dE_Qlm:popping stack',
+     >               1,MA_ERR)
+
+
+      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
+     >                            dbl_mb(dE_Qlm(1)))
+
+      return
+      end
+
+
+
+*     *************************************************
+*     *                                               *
 *     *              nwpw_compcharge_gen_sw2          *
 *     *                                               *
 *     *************************************************
@@ -1052,13 +1190,10 @@
          coeff = dbl_mb(coeff_Tndiff(1)+shift+k-1)
          do ms=1,ispin
             indx1 = indx + (ms-1)*lm_size_max + lm
-            !w     = dbl_mb(dEmult_Qlm(1)+indx1)*coeff
             w     = dbl_mb(dE_Qlm(1)+indx1)*coeff
-
             do n=n1(ms),n2(ms)
                sw2(n,iprj) = sw2(n,iprj) + sw1(n,jprj)*w
             end do
-
          end do
       end do
 
@@ -3161,7 +3296,7 @@ c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
      >                           vcmp_smooth,
      >                           e2)
                !lm = l*(l+1)+m
-               do ms =1,ispin
+               do ms=1,ispin
                   indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
                   dbl_mb(dElocal_Qlm(1)+indx) = (e1+e2)
                end do
@@ -3205,8 +3340,8 @@ c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
      >                           vcmp_smooth,
      >                           e2)
                !lm = l*(l+1)+m
-               do ms =1,ispin
-                  indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+               do ms=1,ispin
+                  indx = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
                   dbl_mb(dElocal_Qlm(1)+indx) = (e1+e2)
                end do
 
@@ -3252,7 +3387,8 @@ c            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
             !q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
             !q2 = q22
             !E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
-            do ms =1,ispin
+      
+            do ms=1,ispin
                indx = indx1up + (ms-1)*lm_size_max
                dbl_mb(dElocal_Qlm(1)+indx) = dbl_mb(dElocal_Qlm(1)+indx)
      >                                     + q22*dbl_mb(e_gauss(1)+k-1)
@@ -3396,6 +3532,72 @@ c            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
       end
 
 
+*     *************************************************
+*     *                                               *
+*     *        nwpw_compcharge_add_dElocal_Qlm        *
+*     *                                               *
+*     *************************************************
+*
+      subroutine nwpw_compcharge_add_dElocal_Qlm(ispin)
+      implicit none
+      integer ispin
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+      call daxpy(2*nion_paw*lm_size_max,1.0d0,
+     >           dbl_mb(dElocal_Qlm(1)),1,
+     >           dbl_mb(dE_Qlm(1)),1)
+      return
+      end
+
+*     *************************************************
+*     *                                               *
+*     *        nwpw_compcharge_gen_dEmult_Qlm         *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_gen_dEmult_Qlm(ispin)
+      implicit none
+      integer ispin
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer taskid,np
+      integer ms,k,indx1up,indx1dn,indx2up,indx2dn,indx1,indx2
+      real*8  q1,q2
+ 
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
+      do k=1,ngauss
+         if (mod(k,np).eq.taskid) then
+            indx1up = int_mb(lm1_gauss(1)+k-1)
+            indx1dn = indx1up + (ispin-1)*lm_size_max
+            indx2up = int_mb(lm2_gauss(1)+k-1)
+            indx2dn = indx2up + (ispin-1)*lm_size_max
+            q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+            q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+
+            do ms=1,ispin
+               indx1 = indx1up + (ms-1)*lm_size_max
+               indx2 = indx2up + (ms-1)*lm_size_max
+               dbl_mb(dEmult_Qlm(1)+indx1) = dbl_mb(dEmult_Qlm(1)+indx1)
+     >                                     + q2*dbl_mb(e_gauss(1)+k-1)
+               dbl_mb(dEmult_Qlm(1)+indx2) = dbl_mb(dEmult_Qlm(1)+indx2)
+     >                                     + q1*dbl_mb(e_gauss(1)+k-1)
+            end do
+         end if
+      end do
+      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
+     >                            dbl_mb(dEmult_Qlm(1)))
+
+      return
+      end
 
 
 *     *************************************************
@@ -3419,28 +3621,32 @@ c            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
       integer k,indx1up,indx1dn,indx2up,indx2dn
       real*8 q1,q2
 
-c      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
-      do k=1,ngauss
-         indx1up = int_mb(lm1_gauss(1)+k-1)
-         indx1dn = indx1up + (ispin-1)*lm_size_max
-         indx2up = int_mb(lm2_gauss(1)+k-1)
-         indx2dn = indx2up + (ispin-1)*lm_size_max
-         q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
-         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+      call daxpy(2*nion_paw*lm_size_max,1.0d0,
+     >           dbl_mb(dEmult_Qlm(1)),1,
+     >           dbl_mb(dE_Qlm(1)),1)
 
-         dbl_mb(dE_Qlm(1)+indx1up) = dbl_mb(dE_Qlm(1)+indx1up) 
-     >                                 + q2*dbl_mb(e_gauss(1)+k-1)
-         dbl_mb(dE_Qlm(1)+indx1dn) = dbl_mb(dE_Qlm(1)+indx1dn) 
-     >                                 + q2*dbl_mb(e_gauss(1)+k-1)
-
-         dbl_mb(dE_Qlm(1)+indx2up) = dbl_mb(dE_Qlm(1)+indx2up) 
-     >                                 + q1*dbl_mb(e_gauss(1)+k-1)
-         dbl_mb(dE_Qlm(1)+indx2dn) = dbl_mb(dE_Qlm(1)+indx2dn) 
-     >                                 + q1*dbl_mb(e_gauss(1)+k-1)
-
-      end do
-c      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
-c     >                            dbl_mb(dE_Qlm(1)))
+cc      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
+c      do k=1,ngauss
+c         indx1up = int_mb(lm1_gauss(1)+k-1)
+c         indx1dn = indx1up + (ispin-1)*lm_size_max
+c         indx2up = int_mb(lm2_gauss(1)+k-1)
+c         indx2dn = indx2up + (ispin-1)*lm_size_max
+c         q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+c         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+c
+c         dbl_mb(dE_Qlm(1)+indx1up) = dbl_mb(dE_Qlm(1)+indx1up) 
+c     >                                 + q2*dbl_mb(e_gauss(1)+k-1)
+c         dbl_mb(dE_Qlm(1)+indx1dn) = dbl_mb(dE_Qlm(1)+indx1dn) 
+c     >                                 + q2*dbl_mb(e_gauss(1)+k-1)
+c
+c         dbl_mb(dE_Qlm(1)+indx2up) = dbl_mb(dE_Qlm(1)+indx2up) 
+c     >                                 + q1*dbl_mb(e_gauss(1)+k-1)
+c         dbl_mb(dE_Qlm(1)+indx2dn) = dbl_mb(dE_Qlm(1)+indx2dn) 
+c     >                                 + q1*dbl_mb(e_gauss(1)+k-1)
+c
+c      end do
+cc      call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
+cc     >                            dbl_mb(dE_Qlm(1)))
       
       return
       end
