@@ -1962,6 +1962,11 @@ endif
         FVECTORIZE   = -fast  -fastsse  -O3   -Mipa=fast
         FDEBUG = -g -O2
         DEFINES  += -DCHKUNDFLW -DPGLINUX
+        ifdef USE_OPENMP
+           FOPTIONS  += -mp -Minfo=mp
+           LDOPTIONS += -mp
+           DEFINES += -DUSE_OPENMP
+        endif
        ifeq ($(FC),ftn)
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
        endif
@@ -1983,7 +1988,7 @@ endif
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
       endif
       ifeq ($(_CC),pgcc)
-        COPTIONS   =   -O
+#        COPTIONS   =   -O
       endif
       ifeq ($(_CC),icc)
         COPTIONS   +=   -xHOST -ftz
