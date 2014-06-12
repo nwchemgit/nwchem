@@ -609,6 +609,24 @@ dfs3gsststs(rho_s,sigma_ss,tau_s)
 dfs3tststs(rho_s,sigma_ss,tau_s)
 :=diff(dfs2tsts(rho_s,sigma_ss,tau_s),tau_s)$
 
+texput(zeta,"\\zeta")$
+texput(rhoa,"\\rho_\\alpha")$
+texput(rhob,"\\rho_\\beta")$
+texput(rho,"\\rho")$
+texput(sigmaaa,"\\sigma_{\\alpha\\alpha}")$
+texput(sigmaab,"\\sigma_{\\alpha\\beta}")$
+texput(sigmabb,"\\sigma_{\\beta\\beta}")$
+texput(sigma,"\\sigma")$
+texput(taua,"\\tau_\\alpha")$
+texput(taub,"\\tau_\\beta")$
+texput(tau,"\\tau")$
+texput(rhos,"\\rho_s")$
+texput(sigmass,"\\sigma_{ss}")$
+texput(taus,"\\tau_s")$
+texf: tex1(f=f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau))$
+texg: tex1(g=g(rhos,sigmass,taus))$
+texG: tex1(G=G(rhos,sigmass,taus))$
+
 fortindent: 6$
 /* if excess then */
   if rho_deriv then
@@ -628,6 +646,16 @@ fortindent: 6$
           print("C> @{"),
           print("C>"),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texf)),
+          print("C> \\\\f}"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texg)),
+          print("C> \\\\f}"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texG)),
+          print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
           print("C>"),
@@ -940,6 +968,16 @@ fortindent: 6$
           print("C>"),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texf)),
+          print("C> \\\\f}"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texg)),
+          print("C> \\\\f}"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texG)),
+          print("C> \\\\f}"),
+          print("C>"),
           print("C> ### References ###"),
           print("C>"),
           print("C> [1] $reference, DOI:"),
@@ -1149,6 +1187,16 @@ fortindent: 6$
           print("C>"),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texf)),
+          print("C> \\\\f}"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texg)),
+          print("C> \\\\f}"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texG)),
+          print("C> \\\\f}"),
+          print("C>"),
           print("C> ### References ###"),
           print("C>"),
           print("C> [1] $reference, DOI:"),
@@ -1336,6 +1384,16 @@ fortindent: 6$
           print("C> @{"),
           print("C>"),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texf)),
+          print("C> \\\\f}"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texg)),
+          print("C> \\\\f}"),
+          print("C> \\\\f{eqnarray*}{"),
+          print(concat("C>   ",texG)),
+          print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
           print("C>"),
