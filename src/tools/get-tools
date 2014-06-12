@@ -25,6 +25,7 @@ do
 done
 
 TOOLDIR=`pwd`
+TOOLSVN=`which svn`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
    GA_DEV_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
        GA_DEV=ga-dev
@@ -72,6 +73,19 @@ fi
 
 if [ $ga_version == 1 ] ; then
   echo $GA_DIRNAME
+  exit 0
+fi
+
+if [ ${#TOOLSVN} -eq 0 ] ; then
+  echo "No Subversion found!"
+  echo "Giving up and hoping for the best..."
+  exit 0
+fi
+svn log ./get-tools 2>&1 > /dev/null
+stat=$?
+if [ $stat -ne 0 ] ; then
+  echo "No access to repository!"
+  echo "Giving up and hoping for the best..."
   exit 0
 fi
 
