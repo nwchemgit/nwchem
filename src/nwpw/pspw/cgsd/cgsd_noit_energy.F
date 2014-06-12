@@ -73,6 +73,8 @@ c     $Id$
       if (control_version().eq.3) call ewald_phafac()
       call electron_gen_vl_potential()
       if (psp_semicore(0)) call semicore_density_update()
+      if (psp_pawexist())  call psp_dE_ncmp_vloc_Qlm(psi_ispin())
+
 
 
       call nominimize(E)

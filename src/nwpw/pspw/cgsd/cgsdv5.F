@@ -269,11 +269,6 @@
          call ewald_phafac()
       end if
 
-*     **** initialize two-electron Gaussian integrals ****
-      if (psp_pawexist()) then
-         call nwpw_gintegrals_init()
-         call nwpw_gintegrals_set((flag.gt.0))
-      end if
 
 *     **** read in wavefunctions and initialize psi ****
       if (.not.control_check_charge_multiplicity()) then
@@ -300,6 +295,12 @@
         call geodesic2_init()
       else
          call geodesic_init()
+      end if
+
+*     **** initialize two-electron Gaussian integrals ****
+      if (psp_pawexist()) then
+         call nwpw_gintegrals_init()
+         call nwpw_gintegrals_set((flag.gt.0))
       end if
 
 
