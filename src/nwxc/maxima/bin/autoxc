@@ -34,7 +34,10 @@ function usage ()
  These expressions should be specified as
  - f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau)
  - g(rho_s,sigma_ss,tau_s)
- - G(rho_s,sigma_ss,tau_s)
+ - G(rho_s,sigma_ss,tau_s,tau_u)
+ where "s" refers to one spin-channel and then "u" refers to the other one,
+ i.e. if "u" refers to the alpha spin-channel then "u" refers to the beta
+ one and vice versa.
  The script will substitute
  - rho   = rho_a + rho_b
  - zeta  = (rho_a - rho_b) / rho
@@ -51,12 +54,12 @@ function usage ()
    when rho_a > 0.0d0 and rho_b = 0.0d0 and G defined
 
      - K = g(rho_a,sigma_aa,tau_a)
-         + G(rho_a,sigma_aa,tau_a)
+         + G(rho_a,sigma_aa,tau_a,tau_b)
  
    when rho_a = 0.0d0 and rho_b > 0.0d0 and G defined
 
      - K = g(rho_b,sigma_bb,tau_b)
-         + G(rho_b,sigma_bb,tau_b)
+         + G(rho_b,sigma_bb,tau_b,tau_a)
 
  
  [1] "Maxima, a Computer Algebra System", Version 5.27.0,
@@ -75,6 +78,23 @@ function usage ()
 $Id $
 EOF
 }
+# Note on the mathematics
+# -----------------------
+#
+# In the expressions for G only the densities and gradients for one
+# spin channel are used, but the kinetic energy density for both
+# appears.
+#
+# These expressions are correct because when the density goes to 
+# zero so do the gradients of the density, therefore rho_s equals zero
+# implies that sigma_ss and sigma_st are also zero.
+#
+# The proof follows simply from the fact that the density is a non-negative
+# expression and hence zero density corresponds to a minimum. At the minimum
+# the gradient is zero also.
+#
+# A similar argument cannot be constructed for the kinetic energy density or
+# the Laplacian of the density (which we currently do not use).
 #
 # Variables in this script
 # ------------------------
@@ -178,7 +198,7 @@ reference: "unpublished"$
 doi: "unpublished"$
 f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau):=0$
 g(rho_s,sigma_ss,tau_s):=0$
-G(rho_s,sigma_ss,tau_s):=0$
+G(rho_s,sigma_ss,tau_s,tau_u):=0$
 functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=0$
 EOF
 cat $f_quiet >> $f_maxima
@@ -187,8 +207,8 @@ functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=
     f((rho_a-rho_b)/(rho_a+rho_b),rho_a,rho_b,rho_a+rho_b,        
       sigma_aa,sigma_ab,sigma_bb,sigma_aa+2*sigma_ab+sigma_bb,    
       tau_a,tau_b,tau_a+tau_b)                                    
-  + g(rho_a,sigma_aa,tau_a) + g(rho_b,sigma_bb,tau_b)             
-  + G(rho_a,sigma_aa,tau_a) + G(rho_b,sigma_bb,tau_b)$
+  + g(rho_a,sigma_aa,tau_a)       + g(rho_b,sigma_bb,tau_b)             
+  + G(rho_a,sigma_aa,tau_a,tau_b) + G(rho_b,sigma_bb,tau_b,tau_a)$
 rho_deriv:is (diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
                               tau_a,tau_b),rho_a)#0 or
               diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
@@ -210,9 +230,9 @@ if (f((rho_a-rho_b)/(rho_a+rho_b),rho_a,rho_b,rho_a+rho_b,
   sums : sums + 1$
 if (g(rho_a,sigma_aa,tau_a)#0) then
   sums : sums + 1$
-if (G(rho_a,sigma_aa,tau_a)#0) then
+if (G(rho_a,sigma_aa,tau_a,tau_b)#0) then
   sums : sums + 1$
-excess: is (G(rho_a,sigma_aa,tau_a)#0)$
+excess: is (G(rho_a,sigma_aa,tau_a,tau_b)#0)$
 
 /* Set line length to something huge to avoid strings getting wrapped */
 linel: 20000$
@@ -254,13 +274,13 @@ fi
 cat <<EOF > $f_maxima
 f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau):=0$
 g(rho_s,sigma_ss,tau_s):=0$
-G(rho_s,sigma_ss,tau_s):=0$
+G(rho_s,sigma_ss,tau_s,tau_u):=0$
 /* Func is the functional for the regular case: f(a,b) + g(a) + g(b).
    I.e. both spin channels have non-zero density. */
 func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=0$
 /* Funcs is the functional for one spin channel assuming that the density
    in the other spin channel vanishes: g(s) + G(s). */
-funcs(rho_s,sigma_ss,tau_s):=0$
+funcs(rho_s,sigma_ss,tau_s,tau_u):=0$
 EOF
 cat $f_quiet >> $f_maxima
 cat <<EOF >> $f_maxima
@@ -276,11 +296,12 @@ func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=
            tau_a,tau_b,tau_a+tau_b)
        + g(rho_a,sigma_aa,tau_a) + g(rho_b,sigma_bb,tau_b))$
 if excess then
-   funcs(rho_s,sigma_ss,tau_s):=
-      wght*(g(rho_s,sigma_ss,tau_s) + G(rho_s,sigma_ss,tau_s))
+   funcs(rho_s,sigma_ss,tau_s,tau_u):=
+      wght*(g(rho_s,sigma_ss,tau_s) + G(rho_s,sigma_ss,tau_s,tau_u))
 else
-   funcs(rho_s,sigma_ss,tau_s):=
-      wght*(g(rho_s,sigma_ss,tau_s) + f(1,rho_s,0,rho_s,sigma_ss,0,0,sigma_ss,tau_s,0,tau_s))$
+   funcs(rho_s,sigma_ss,tau_s,tau_u):=
+      wght*(g(rho_s,sigma_ss,tau_s)
+          + f(1,rho_s,0,rho_s,sigma_ss,0,0,sigma_ss,tau_s,tau_u,tau_s+tau_u))$
 
 /* 1st order derivatives */
 /* Alpha and Beta spin channel */
@@ -302,12 +323,14 @@ df1tb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
 
 /* One spin channel */
 
-dfs1rs(rho_s,sigma_ss,tau_s)
-:=diff(funcs(rho_s,sigma_ss,tau_s),rho_s)$
-dfs1gss(rho_s,sigma_ss,tau_s)
-:=diff(funcs(rho_s,sigma_ss,tau_s),sigma_ss)$
-dfs1ts(rho_s,sigma_ss,tau_s)
-:=diff(funcs(rho_s,sigma_ss,tau_s),tau_s)$
+dfs1rs(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(funcs(rho_s,sigma_ss,tau_s,tau_u),rho_s)$
+dfs1gss(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(funcs(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs1ts(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(funcs(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs1tu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(funcs(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
 
 /* 2nd order derivatives */
 /* Alpha and Beta spin channel */
@@ -387,18 +410,26 @@ df2tbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
 /* 2nd order derivatives */
 /* One spin channel */
 
-dfs2rsrs(rho_s,sigma_ss,tau_s)
-:=diff(dfs1rs(rho_s,sigma_ss,tau_s),rho_s)$
-dfs2rsgss(rho_s,sigma_ss,tau_s)
-:=diff(dfs1rs(rho_s,sigma_ss,tau_s),sigma_ss)$
-dfs2rsts(rho_s,sigma_ss,tau_s)
-:=diff(dfs1rs(rho_s,sigma_ss,tau_s),tau_s)$
-dfs2gssgss(rho_s,sigma_ss,tau_s)
-:=diff(dfs1gss(rho_s,sigma_ss,tau_s),sigma_ss)$
-dfs2gssts(rho_s,sigma_ss,tau_s)
-:=diff(dfs1gss(rho_s,sigma_ss,tau_s),tau_s)$
-dfs2tsts(rho_s,sigma_ss,tau_s)
-:=diff(dfs1ts(rho_s,sigma_ss,tau_s),tau_s)$
+dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1rs(rho_s,sigma_ss,tau_s,tau_u),rho_s)$
+dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1rs(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs2rsts(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1rs(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs2rstu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1rs(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs2gssgss(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1gss(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs2gssts(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1gss(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs2gsstu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1gss(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs2tsts(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1ts(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs2tstu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1ts(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs2tutu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs1tu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
 
 /* 3rd order derivatives */
 /* Alpha and Beta spin channel */
@@ -591,26 +622,44 @@ df3tbtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
 /* 3rd order derivatives */
 /* One spin channel */
 
-dfs3rsrsrs(rho_s,sigma_ss,tau_s)
-:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s),rho_s)$
-dfs3rsrsgss(rho_s,sigma_ss,tau_s)
-:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s),sigma_ss)$
-dfs3rsrsts(rho_s,sigma_ss,tau_s)
-:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s),tau_s)$
-dfs3rsgssgss(rho_s,sigma_ss,tau_s)
-:=diff(dfs2rsgss(rho_s,sigma_ss,tau_s),sigma_ss)$
-dfs3rsgssts(rho_s,sigma_ss,tau_s)
-:=diff(dfs2rsgss(rho_s,sigma_ss,tau_s),tau_s)$
-dfs3rststs(rho_s,sigma_ss,tau_s)
-:=diff(dfs2rsts(rho_s,sigma_ss,tau_s),tau_s)$
-dfs3gssgssgss(rho_s,sigma_ss,tau_s)
-:=diff(dfs2gssgss(rho_s,sigma_ss,tau_s),sigma_ss)$
-dfs3gssgssts(rho_s,sigma_ss,tau_s)
-:=diff(dfs2gssgss(rho_s,sigma_ss,tau_s),tau_s)$
-dfs3gsststs(rho_s,sigma_ss,tau_s)
-:=diff(dfs2gssts(rho_s,sigma_ss,tau_s),tau_s)$
-dfs3tststs(rho_s,sigma_ss,tau_s)
-:=diff(dfs2tsts(rho_s,sigma_ss,tau_s),tau_s)$
+dfs3rsrsrs(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),rho_s)$
+dfs3rsrsgss(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs3rsrsts(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3rsgssgss(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs3rsgssts(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3rsgsstu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3rststs(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rsts(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3rststu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rsts(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3rstutu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2rstu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3gssgssgss(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2gssgss(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs3gssgssts(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2gssgss(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3gssgsstu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2gssgss(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3gsststs(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2gssts(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3gsststu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2gssts(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3gsstutu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2gsstu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3tststs(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2tsts(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3tststu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2tsts(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3tstutu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2tstu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3tututu(rho_s,sigma_ss,tau_s,tau_u)
+:=diff(dfs2tutu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
 
 texput(zeta,"\\\\zeta")$
 texput(rhoa,"\\\\rho_\\\\alpha")$
@@ -626,19 +675,20 @@ texput(tau,"\\\\tau")$
 texput(rhos,"\\\\rho_s")$
 texput(sigmass,"\\\\sigma_{ss}")$
 texput(taus,"\\\\tau_s")$
+texput(tauu,"\\\\tau_{\\\\bar s}")$
 texf: tex1(f=f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau))$
 texg: tex1(g=g(rhos,sigmass,taus))$
-texG: tex1(G=G(rhos,sigmass,taus))$
+texG: tex1(G=G(rhos,sigmass,taus,tauu))$
 
 /* Increase the indentation to generate properly indented code */
 fortindent: 6$
 /* Set line length to something huge to avoid strings getting wrapped */
 linel: 20000$
 /* The usual phychosis:
-   Running fortran(%pi) produces "%pi" instead of a number or something else a Fortran
-   compiler would recognize. Getting Maxima to produce actual Fortran with "fortran"
-   we need to tell it to evaluate everything numerically. So we need to create a 
-   function for that. */
+   Running fortran(%pi) produces "%pi" instead of a number or something else a
+   Fortran compiler would recognize. Getting Maxima to produce actual Fortran
+   with "fortran" we need to tell it to evaluate everything numerically. So we
+   need to create a function for that. */
 Fortran(expr):= fortran(ev(expr,numer))$
 /* if excess then */
   if rho_deriv then
@@ -947,54 +997,84 @@ Fortran(expr):= fortran(ev(expr,numer))$
           Fortran(Mmat3(iq,D3_TB_TB_TB) = Mmat3(iq,D3_TB_TB_TB) + df3tbtbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub)),
           print("#endif"),
           print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
-          Fortran(fnc(iq) = fnc(iq) + funcs(rhoa,gammaaa,taua)),
-          Fortran(Amat(iq,D1_RA) = Amat(iq,D1_RA) + dfs1rs(rhoa,gammaaa,taua)),
-          Fortran(Cmat(iq,D1_GAA) = Cmat(iq,D1_GAA) + dfs1gss(rhoa,gammaaa,taua)),
-          Fortran(Mmat(iq,D1_TA) = Mmat(iq,D1_TA) + dfs1ts(rhoa,gammaaa,taua)),
+          Fortran(fnc(iq) = fnc(iq) + funcs(rhoa,gammaaa,taua,taub)),
+          Fortran(Amat(iq,D1_RA) = Amat(iq,D1_RA) + dfs1rs(rhoa,gammaaa,taua,taub)),
+          Fortran(Cmat(iq,D1_GAA) = Cmat(iq,D1_GAA) + dfs1gss(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat(iq,D1_TA) = Mmat(iq,D1_TA) + dfs1ts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat(iq,D1_TB) = Mmat(iq,D1_TB) + dfs1tu(rhoa,gammaaa,taua,taub)),
           print("#if defined(SECOND_DERIV) || defined(THIRD_DERIV)"),
-          Fortran(Amat2(iq,D2_RA_RA) = Amat2(iq,D2_RA_RA) + dfs2rsrs(rhoa,gammaaa,taua)),
-          Fortran(Cmat2(iq,D2_RA_GAA) = Cmat2(iq,D2_RA_GAA) + dfs2rsgss(rhoa,gammaaa,taua)),
-          Fortran(Cmat2(iq,D2_GAA_GAA) = Cmat2(iq,D2_GAA_GAA) + dfs2gssgss(rhoa,gammaaa,taua)),
-          Fortran(Mmat2(iq,D2_RA_TA) = Mmat2(iq,D2_RA_TA) + dfs2rsts(rhoa,gammaaa,taua)),
-          Fortran(Mmat2(iq,D2_GAA_TA) = Mmat2(iq,D2_GAA_TA) + dfs2gssts(rhoa,gammaaa,taua)),
-          Fortran(Mmat2(iq,D2_TA_TA) = Mmat2(iq,D2_TA_TA) + dfs2tsts(rhoa,gammaaa,taua)),
+          Fortran(Amat2(iq,D2_RA_RA) = Amat2(iq,D2_RA_RA) + dfs2rsrs(rhoa,gammaaa,taua,taub)),
+          Fortran(Cmat2(iq,D2_RA_GAA) = Cmat2(iq,D2_RA_GAA) + dfs2rsgss(rhoa,gammaaa,taua,taub)),
+          Fortran(Cmat2(iq,D2_GAA_GAA) = Cmat2(iq,D2_GAA_GAA) + dfs2gssgss(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_RA_TA) = Mmat2(iq,D2_RA_TA) + dfs2rsts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_RA_TB) = Mmat2(iq,D2_RA_TB) + dfs2rstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_GAA_TA) = Mmat2(iq,D2_GAA_TA) + dfs2gssts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_GAA_TB) = Mmat2(iq,D2_GAA_TB) + dfs2gsstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_TA_TA) = Mmat2(iq,D2_TA_TA) + dfs2tsts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_TA_TB) = Mmat2(iq,D2_TA_TB) + dfs2tstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_TB_TB) = Mmat2(iq,D2_TB_TB) + dfs2tutu(rhoa,gammaaa,taua,taub)),
           print("#endif"),
           print("#if defined(THIRD_DERIV)"),
-          Fortran(Amat3(iq,D3_RA_RA_RA) = Amat3(iq,D3_RA_RA_RA) + dfs3rsrsrs(rhoa,gammaaa,taua)),
-          Fortran(Cmat3(iq,D3_RA_RA_GAA) = Cmat3(iq,D3_RA_RA_GAA) + dfs3rsrsgss(rhoa,gammaaa,taua)),
-          Fortran(Cmat3(iq,D3_RA_GAA_GAA) = Cmat3(iq,D3_RA_GAA_GAA) + dfs3rsgssgss(rhoa,gammaaa,taua)),
-          Fortran(Cmat3(iq,D3_GAA_GAA_GAA) = Cmat3(iq,D3_GAA_GAA_GAA) + dfs3gssgssgss(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_RA_RA_TA) = Mmat3(iq,D3_RA_RA_TA) + dfs3rsrsts(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_RA_GAA_TA) = Mmat3(iq,D3_RA_GAA_TA) + dfs3rsgssts(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_RA_TA_TA) = Mmat3(iq,D3_RA_TA_TA) + dfs3rststs(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_GAA_GAA_TA) = Mmat3(iq,D3_GAA_GAA_TA) + dfs3gssgssts(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_GAA_TA_TA) = Mmat3(iq,D3_GAA_TA_TA) + dfs3gsststs(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_TA_TA_TA) = Mmat3(iq,D3_TA_TA_TA) + dfs3tststs(rhoa,gammaaa,taua)),
+          Fortran(Amat3(iq,D3_RA_RA_RA) = Amat3(iq,D3_RA_RA_RA) + dfs3rsrsrs(rhoa,gammaaa,taua,taub)),
+          Fortran(Cmat3(iq,D3_RA_RA_GAA) = Cmat3(iq,D3_RA_RA_GAA) + dfs3rsrsgss(rhoa,gammaaa,taua,taub)),
+          Fortran(Cmat3(iq,D3_RA_GAA_GAA) = Cmat3(iq,D3_RA_GAA_GAA) + dfs3rsgssgss(rhoa,gammaaa,taua,taub)),
+          Fortran(Cmat3(iq,D3_GAA_GAA_GAA) = Cmat3(iq,D3_GAA_GAA_GAA) + dfs3gssgssgss(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_RA_TA) = Mmat3(iq,D3_RA_RA_TA) + dfs3rsrsts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_RA_TB) = Mmat3(iq,D3_RA_RA_TB) + dfs3rsrstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_GAA_TA) = Mmat3(iq,D3_RA_GAA_TA) + dfs3rsgssts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_GAA_TB) = Mmat3(iq,D3_RA_GAA_TB) + dfs3rsgsstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_TA_TA) = Mmat3(iq,D3_RA_TA_TA) + dfs3rststs(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_TA_TB) = Mmat3(iq,D3_RA_TA_TB) + dfs3rststu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_TB_TB) = Mmat3(iq,D3_RA_TB_TB) + dfs3rstutu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_GAA_GAA_TA) = Mmat3(iq,D3_GAA_GAA_TA) + dfs3gssgssts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_GAA_GAA_TB) = Mmat3(iq,D3_GAA_GAA_TB) + dfs3gssgsstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_GAA_TA_TA) = Mmat3(iq,D3_GAA_TA_TA) + dfs3gsststs(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_GAA_TA_TB) = Mmat3(iq,D3_GAA_TA_TB) + dfs3gsststu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_GAA_TB_TB) = Mmat3(iq,D3_GAA_TB_TB) + dfs3gsstutu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_TA_TA_TA) = Mmat3(iq,D3_TA_TA_TA) + dfs3tststs(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_TA_TA_TB) = Mmat3(iq,D3_TA_TA_TB) + dfs3tststu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_TA_TB_TB) = Mmat3(iq,D3_TA_TB_TB) + dfs3tstutu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_TB_TB_TB) = Mmat3(iq,D3_TB_TB_TB) + dfs3tututu(rhoa,gammaaa,taua,taub)),
           print("#endif"),
           print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
-          Fortran(fnc(iq) = fnc(iq) + funcs(rhob,gammabb,taub)),
-          Fortran(Amat(iq,D1_RB) = Amat(iq,D1_RB) + dfs1rs(rhob,gammabb,taub)),
-          Fortran(Cmat(iq,D1_GBB) = Cmat(iq,D1_GBB) + dfs1gss(rhob,gammabb,taub)),
-          Fortran(Mmat(iq,D1_TB) = Mmat(iq,D1_TB) + dfs1ts(rhob,gammabb,taub)),
+          Fortran(fnc(iq) = fnc(iq) + funcs(rhob,gammabb,taub,taua)),
+          Fortran(Amat(iq,D1_RB) = Amat(iq,D1_RB) + dfs1rs(rhob,gammabb,taub,taua)),
+          Fortran(Cmat(iq,D1_GBB) = Cmat(iq,D1_GBB) + dfs1gss(rhob,gammabb,taub,taua)),
+          Fortran(Mmat(iq,D1_TA) = Mmat(iq,D1_TA) + dfs1tu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat(iq,D1_TB) = Mmat(iq,D1_TB) + dfs1ts(rhob,gammabb,taub,taua)),
           print("#if defined(SECOND_DERIV) || defined(THIRD_DERIV)"),
-          Fortran(Amat2(iq,D2_RB_RB) = Amat2(iq,D2_RB_RB) + dfs2rsrs(rhob,gammabb,taub)),
-          Fortran(Cmat2(iq,D2_RB_GBB) = Cmat2(iq,D2_RB_GBB) + dfs2rsgss(rhob,gammabb,taub)),
-          Fortran(Cmat2(iq,D2_GBB_GBB) = Cmat2(iq,D2_GBB_GBB) + dfs2gssgss(rhob,gammabb,taub)),
-          Fortran(Mmat2(iq,D2_RB_TB) = Mmat2(iq,D2_RB_TB) + dfs2rsts(rhob,gammabb,taub)),
-          Fortran(Mmat2(iq,D2_GBB_TB) = Mmat2(iq,D2_GBB_TB) + dfs2gssts(rhob,gammabb,taub)),
-          Fortran(Mmat2(iq,D2_TB_TB) = Mmat2(iq,D2_TB_TB) + dfs2tsts(rhob,gammabb,taub)),
+          Fortran(Amat2(iq,D2_RB_RB) = Amat2(iq,D2_RB_RB) + dfs2rsrs(rhob,gammabb,taub,taua)),
+          Fortran(Cmat2(iq,D2_RB_GBB) = Cmat2(iq,D2_RB_GBB) + dfs2rsgss(rhob,gammabb,taub,taua)),
+          Fortran(Cmat2(iq,D2_GBB_GBB) = Cmat2(iq,D2_GBB_GBB) + dfs2gssgss(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_RB_TA) = Mmat2(iq,D2_RB_TA) + dfs2rstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_RB_TB) = Mmat2(iq,D2_RB_TB) + dfs2rsts(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_GBB_TA) = Mmat2(iq,D2_GBB_TA) + dfs2gsstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_GBB_TB) = Mmat2(iq,D2_GBB_TB) + dfs2gssts(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_TA_TA) = Mmat2(iq,D2_TA_TA) + dfs2tutu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_TA_TB) = Mmat2(iq,D2_TA_TB) + dfs2tstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_TB_TB) = Mmat2(iq,D2_TB_TB) + dfs2tsts(rhob,gammabb,taub,taua)),
           print("#endif"),
           print("#if defined(THIRD_DERIV)"),
-          Fortran(Amat3(iq,D3_RB_RB_RB) = Amat3(iq,D3_RB_RB_RB) + dfs3rsrsrs(rhob,gammabb,taub)),
-          Fortran(Cmat3(iq,D3_RB_RB_GBB) = Cmat3(iq,D3_RB_RB_GBB) + dfs3rsrsgss(rhob,gammabb,taub)),
-          Fortran(Cmat3(iq,D3_RB_GBB_GBB) = Cmat3(iq,D3_RB_GBB_GBB) + dfs3rsgssgss(rhob,gammabb,taub)),
-          Fortran(Cmat3(iq,D3_GBB_GBB_GBB) = Cmat3(iq,D3_GBB_GBB_GBB) + dfs3gssgssgss(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_RB_RB_TB) = Mmat3(iq,D3_RB_RB_TB) + dfs3rsrsts(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_RB_GBB_TB) = Mmat3(iq,D3_RB_GBB_TB) + dfs3rsgssts(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB) + dfs3rststs(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_GBB_GBB_TB) = Mmat3(iq,D3_GBB_GBB_TB) + dfs3gssgssts(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_GBB_TB_TB) = Mmat3(iq,D3_GBB_TB_TB) + dfs3gsststs(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_TB_TB_TB) = Mmat3(iq,D3_TB_TB_TB) + dfs3tststs(rhob,gammabb,taub)),
+          Fortran(Amat3(iq,D3_RB_RB_RB) = Amat3(iq,D3_RB_RB_RB) + dfs3rsrsrs(rhob,gammabb,taub,taua)),
+          Fortran(Cmat3(iq,D3_RB_RB_GBB) = Cmat3(iq,D3_RB_RB_GBB) + dfs3rsrsgss(rhob,gammabb,taub,taua)),
+          Fortran(Cmat3(iq,D3_RB_GBB_GBB) = Cmat3(iq,D3_RB_GBB_GBB) + dfs3rsgssgss(rhob,gammabb,taub,taua)),
+          Fortran(Cmat3(iq,D3_GBB_GBB_GBB) = Cmat3(iq,D3_GBB_GBB_GBB) + dfs3gssgssgss(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_RB_TA) = Mmat3(iq,D3_RB_RB_TA) + dfs3rsrstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_RB_TB) = Mmat3(iq,D3_RB_RB_TB) + dfs3rsrsts(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_GBB_TA) = Mmat3(iq,D3_RB_GBB_TA) + dfs3rsgsstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_GBB_TB) = Mmat3(iq,D3_RB_GBB_TB) + dfs3rsgssts(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA) + dfs3rstutu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB) + dfs3rststu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB) + dfs3rststs(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA) + dfs3gssgsstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_GBB_GBB_TB) = Mmat3(iq,D3_GBB_GBB_TB) + dfs3gssgssts(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_GBB_TA_TA) = Mmat3(iq,D3_GBB_TA_TA) + dfs3gsstutu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_GBB_TA_TB) = Mmat3(iq,D3_GBB_TA_TB) + dfs3gsststu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_GBB_TB_TB) = Mmat3(iq,D3_GBB_TB_TB) + dfs3gsststs(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_TA_TA_TA) = Mmat3(iq,D3_TA_TA_TA) + dfs3tututu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_TA_TA_TB) = Mmat3(iq,D3_TA_TA_TB) + dfs3tstutu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_TA_TB_TB) = Mmat3(iq,D3_TA_TB_TB) + dfs3tststu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_TB_TB_TB) = Mmat3(iq,D3_TB_TB_TB) + dfs3tststs(rhob,gammabb,taub,taua)),
           print("#endif"),
           print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
           print("        endif ! ipol.eq.1"),
@@ -1436,34 +1516,54 @@ Fortran(expr):= fortran(ev(expr,numer))$
           Fortran(Mmat3(iq,D3_TB_TB_TB) = Mmat3(iq,D3_TB_TB_TB) + df3tbtbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub)),
           print("#endif"),
           print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
-          Fortran(fnc(iq) = fnc(iq) + funcs(rhoa,gammaaa,taua)),
-          Fortran(Amat(iq,D1_RA) = Amat(iq,D1_RA) + dfs1rs(rhoa,gammaaa,taua)),
-          Fortran(Mmat(iq,D1_TA) = Mmat(iq,D1_TA) + dfs1ts(rhoa,gammaaa,taua)),
+          Fortran(fnc(iq) = fnc(iq) + funcs(rhoa,gammaaa,taua,taub)),
+          Fortran(Amat(iq,D1_RA) = Amat(iq,D1_RA) + dfs1rs(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat(iq,D1_TA) = Mmat(iq,D1_TA) + dfs1ts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat(iq,D1_TB) = Mmat(iq,D1_TB) + dfs1tu(rhoa,gammaaa,taua,taub)),
           print("#if defined(SECOND_DERIV) || defined(THIRD_DERIV)"),
-          Fortran(Amat2(iq,D2_RA_RA) = Amat2(iq,D2_RA_RA) + dfs2rsrs(rhoa,gammaaa,taua)),
-          Fortran(Mmat2(iq,D2_RA_TA) = Mmat2(iq,D2_RA_TA) + dfs2rsts(rhoa,gammaaa,taua)),
-          Fortran(Mmat2(iq,D2_TA_TA) = Mmat2(iq,D2_TA_TA) + dfs2tsts(rhoa,gammaaa,taua)),
+          Fortran(Amat2(iq,D2_RA_RA) = Amat2(iq,D2_RA_RA) + dfs2rsrs(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_RA_TA) = Mmat2(iq,D2_RA_TA) + dfs2rsts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_RA_TB) = Mmat2(iq,D2_RA_TB) + dfs2rstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_TA_TA) = Mmat2(iq,D2_TA_TA) + dfs2tsts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_TA_TB) = Mmat2(iq,D2_TA_TB) + dfs2tstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat2(iq,D2_TB_TB) = Mmat2(iq,D2_TB_TB) + dfs2tutu(rhoa,gammaaa,taua,taub)),
           print("#endif"),
           print("#if defined(THIRD_DERIV)"),
-          Fortran(Amat3(iq,D3_RA_RA_RA) = Amat3(iq,D3_RA_RA_RA) + dfs3rsrsrs(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_RA_RA_TA) = Mmat3(iq,D3_RA_RA_TA) + dfs3rsrsts(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_RA_TA_TA) = Mmat3(iq,D3_RA_TA_TA) + dfs3rststs(rhoa,gammaaa,taua)),
-          Fortran(Mmat3(iq,D3_TA_TA_TA) = Mmat3(iq,D3_TA_TA_TA) + dfs3tststs(rhoa,gammaaa,taua)),
+          Fortran(Amat3(iq,D3_RA_RA_RA) = Amat3(iq,D3_RA_RA_RA) + dfs3rsrsrs(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_RA_TA) = Mmat3(iq,D3_RA_RA_TA) + dfs3rsrsts(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_RA_TB) = Mmat3(iq,D3_RA_RA_TB) + dfs3rsrstu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_TA_TA) = Mmat3(iq,D3_RA_TA_TA) + dfs3rststs(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_TA_TB) = Mmat3(iq,D3_RA_TA_TB) + dfs3rststu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_RA_TB_TB) = Mmat3(iq,D3_RA_TB_TB) + dfs3rstutu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_TA_TA_TA) = Mmat3(iq,D3_TA_TA_TA) + dfs3tststs(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_TA_TA_TB) = Mmat3(iq,D3_TA_TA_TB) + dfs3tststu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_TA_TB_TB) = Mmat3(iq,D3_TA_TB_TB) + dfs3tstutu(rhoa,gammaaa,taua,taub)),
+          Fortran(Mmat3(iq,D3_TB_TB_TB) = Mmat3(iq,D3_TB_TB_TB) + dfs3tututu(rhoa,gammaaa,taua,taub)),
           print("#endif"),
           print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
-          Fortran(fnc(iq) = fnc(iq) + funcs(rhob,gammabb,taub)),
-          Fortran(Amat(iq,D1_RB) = Amat(iq,D1_RB) + dfs1rs(rhob,gammabb,taub)),
-          Fortran(Mmat(iq,D1_TB) = Mmat(iq,D1_TB) + dfs1ts(rhob,gammabb,taub)),
+          Fortran(fnc(iq) = fnc(iq) + funcs(rhob,gammabb,taub,taua)),
+          Fortran(Amat(iq,D1_RB) = Amat(iq,D1_RB) + dfs1rs(rhob,gammabb,taub,taua)),
+          Fortran(Mmat(iq,D1_TA) = Mmat(iq,D1_TA) + dfs1tu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat(iq,D1_TB) = Mmat(iq,D1_TB) + dfs1ts(rhob,gammabb,taub,taua)),
           print("#if defined(SECOND_DERIV) || defined(THIRD_DERIV)"),
-          Fortran(Amat2(iq,D2_RB_RB) = Amat2(iq,D2_RB_RB) + dfs2rsrs(rhob,gammabb,taub)),
-          Fortran(Mmat2(iq,D2_RB_TB) = Mmat2(iq,D2_RB_TB) + dfs2rsts(rhob,gammabb,taub)),
-          Fortran(Mmat2(iq,D2_TB_TB) = Mmat2(iq,D2_TB_TB) + dfs2tsts(rhob,gammabb,taub)),
+          Fortran(Amat2(iq,D2_RB_RB) = Amat2(iq,D2_RB_RB) + dfs2rsrs(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_RB_TA) = Mmat2(iq,D2_RB_TA) + dfs2rstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_RB_TB) = Mmat2(iq,D2_RB_TB) + dfs2rsts(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_TA_TA) = Mmat2(iq,D2_TA_TA) + dfs2tutu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_TA_TB) = Mmat2(iq,D2_TA_TB) + dfs2tstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat2(iq,D2_TB_TB) = Mmat2(iq,D2_TB_TB) + dfs2tsts(rhob,gammabb,taub,taua)),
           print("#endif"),
           print("#if defined(THIRD_DERIV)"),
-          Fortran(Amat3(iq,D3_RB_RB_RB) = Amat3(iq,D3_RB_RB_RB) + dfs3rsrsrs(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_RB_RB_TB) = Mmat3(iq,D3_RB_RB_TB) + dfs3rsrsts(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB) + dfs3rststs(rhob,gammabb,taub)),
-          Fortran(Mmat3(iq,D3_TB_TB_TB) = Mmat3(iq,D3_TB_TB_TB) + dfs3tststs(rhob,gammabb,taub)),
+          Fortran(Amat3(iq,D3_RB_RB_RB) = Amat3(iq,D3_RB_RB_RB) + dfs3rsrsrs(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_RB_TA) = Mmat3(iq,D3_RB_RB_TA) + dfs3rsrstu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_RB_TB) = Mmat3(iq,D3_RB_RB_TB) + dfs3rsrsts(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA) + dfs3rstutu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB) + dfs3rststu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB) + dfs3rststs(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_TA_TA_TA) = Mmat3(iq,D3_TA_TA_TA) + dfs3tututu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_TA_TA_TB) = Mmat3(iq,D3_TA_TA_TB) + dfs3tstutu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_TA_TB_TB) = Mmat3(iq,D3_TA_TB_TB) + dfs3tststu(rhob,gammabb,taub,taua)),
+          Fortran(Mmat3(iq,D3_TB_TB_TB) = Mmat3(iq,D3_TB_TB_TB) + dfs3tststs(rhob,gammabb,taub,taua)),
           print("#endif"),
           print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
           print("        endif ! ipol.eq.1"),
