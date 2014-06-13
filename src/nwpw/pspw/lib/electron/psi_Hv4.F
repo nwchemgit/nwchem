@@ -70,11 +70,11 @@
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
-      logical  nwpw_meta_gga_on,tamd_found
+      logical  nwpw_meta_gga_on,tamd_found,psp_pawexist
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
-      external nwpw_meta_gga_on,tamd_found
+      external nwpw_meta_gga_on,tamd_found,psp_pawexist
       external lattice_omega
 
 
@@ -124,6 +124,7 @@
 *     **************************
 *     **** add non-local psp ***
 *     **************************
+      if (psp_pawexist()) call psp_set_vc(vc)
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,fractional,occ)
 
 *     *********************************************************
@@ -191,6 +192,7 @@ c      if (field_exist)
 c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
       call D3dB_rr_Sum2(1,vlr_l,dcpl_mb(vall(1)))
       call D3dB_rr_Sum2(1,vc,   dcpl_mb(vall(1)))
+      if (psp_pawexist()) call psp_add_vcmp(dcpl_mb(vall(1)))
       if (field_exist)
      >  call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
 
