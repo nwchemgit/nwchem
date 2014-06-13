@@ -292,15 +292,22 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 #include "psp.fh"
 
 *     ***** local variables ****
-      logical value
-      integer npack1,npack0
+      logical value,periodic
+      integer npack1,npack0,n2ft3d
 
 *     ***** external functions *****
-      integer  psp_nprj_max,control_nprj_mult
-      external psp_nprj_max,control_nprj_mult
+      integer  psp_nprj_max,control_nprj_mult,control_version
+      external psp_nprj_max,control_nprj_mult,control_version
 
+      periodic = (control_version().eq.3)
 
-      call Pack_npack(0,npack0)
+      if (periodic) then
+         call Pack_npack(0,npack0)
+      else
+         call D3dB_n2ft3d(1,n2ft3d)
+         npack0 = n2ft3d/2
+      end if
+
       call Pack_npack(1,npack1)
       nprj_mult= control_nprj_mult()
       nprj_max = psp_nprj_max()
@@ -322,6 +329,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       return
       end
 
+
       subroutine psp_set_vc(vcin)
       implicit none
       complex*16 vcin(*)
@@ -330,17 +338,20 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 #include "mafdecls.fh"
 #include "psp.fh"
 
-*     **** local variables ****
-      real*8 scal
+      logical  periodic
+      integer  control_version
+      external control_version
 
-*     **** external functions ****
-      real*8   lattice_omega
-      external lattice_omega
+      periodic = (control_version().eq.3)
 
-      call Pack_c_Copy(0,vcin,dcpl_mb(vc_tmp(1))) 
+      if (periodic) then
+         call Pack_c_Copy(0,vcin,dcpl_mb(vc_tmp(1))) 
+      else
+         call D3dB_r_Copy(1,vcin,dcpl_mb(vc_tmp(1))) 
+      end if
+
       return
       end 
-
 
 
       subroutine psp_get_vcmp(vcmpout)
@@ -351,9 +362,21 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 #include "mafdecls.fh"
 #include "psp.fh"
 
-      call Pack_c_Copy(0,dcpl_mb(vcmp_tmp(1)),vcmpout) 
+      logical  periodic
+      integer  control_version
+      external control_version
+
+      periodic = (control_version().eq.3)
+
+      if (periodic) then
+         call Pack_c_Copy(0,dcpl_mb(vcmp_tmp(1)),vcmpout) 
+      else
+         call D3dB_r_Copy(1,dcpl_mb(vcmp_tmp(1)),vcmpout) 
+      end if
+
       return
       end 
+
 
       subroutine psp_add_vcmp(vall)
       implicit none
@@ -363,7 +386,17 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 #include "mafdecls.fh"
 #include "psp.fh"
 
-      call Pack_cc_Sum2(0,dcpl_mb(vcmp_tmp(1)),vall)
+      logical  periodic
+      integer  control_version
+      external control_version
+
+      periodic = (control_version().eq.3)
+
+      if (periodic) then
+         call Pack_cc_Sum2(0,dcpl_mb(vcmp_tmp(1)),vall)
+      else
+         call D3dB_rr_Sum2(1,dcpl_mb(vcmp_tmp(1)),vall)
+      end if
       return
       end
 
@@ -2452,19 +2485,35 @@ c                        write(*,*) "ff=",ff(1)*omega
                call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
                call Pack_c_SMul1(0,omega,dcpl_mb(vcmp(1)))
             else
+               !*** dng_cmp(G),dng_cmp_smooth(G) --> dng_cmp(r),dng_cmp_smooth(r) ***
                call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
-               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
-               call coulomb2_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
-               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp(1)))
-               call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
-               call Pack_c_pack(0,dcpl_mb(vcmp(1)))
-            
                call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
+               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
                call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
+
+               !*** generate vcmp and vcmp_smooth ***
+               call coulomb2_v(dcpl_mb(dng_cmp(1)),
+     >                         dcpl_mb(vcmp(1)))
                call coulomb2_v(dcpl_mb(dng_cmp_smooth(1)),
-     >                        dcpl_mb(vcmp_smooth(1)))
-               call D3dB_r_SMul1(1,scal1,dcpl_mb(vcmp_smooth(1)))
+     >                         dcpl_mb(vcmp_smooth(1)))
+               call D3dB_r_Copy(1,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
+
+               !*** vcmp        = vcmp-vcmp_smooth ***
+               !*** vcmp_smooth = vcmp_smooth + vc ***
+               call D3dB_rr_Sub2(1,
+     >                           dcpl_mb(vcmp_smooth(1)),
+     >                           dcpl_mb(vcmp(1)))
+               call D3dB_rr_Sum2(1,
+     >                           dcpl_mb(vc_tmp(1)),
+     >                           dcpl_mb(vcmp_smooth(1)))
+
+               !*** vcmp(r),vcmp_smooth(r) --> vcmp(G),vcmp_smooth(G) ***
+               !*** May want to change nwpw_compcharge_gen_dE_Qlm to remove these FFTs ***
+               call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp(1)))
+               call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp_smooth(1)))
+               call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
                call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
+               call Pack_c_pack(0,dcpl_mb(vcmp(1)))
                call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
 
             end if
