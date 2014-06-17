@@ -2748,8 +2748,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8   psp_kinetic_atom
       external psp_kinetic_atom
 
-      ave =  psp_kinetic_atom(ispin,neq,dcpl_mb(psi1(1)))
-      call D1dB_SumAll(ave)
+      ave = psp_kinetic_atom(ispin,neq,dcpl_mb(psi1(1)))
 
       psi_1ke_atom = ave
       return
@@ -2774,7 +2773,6 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external psp_valence_core_atom
 
       ave =  psp_valence_core_atom(ispin,neq,dcpl_mb(psi1(1)))
-      call D1dB_SumAll(ave)
 
       psi_1valence_core_atom = ave
       return
@@ -2801,7 +2799,6 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external psp_vloc_atom
 
       ave =  psp_vloc_atom(ispin,neq,dcpl_mb(psi1(1)))
-      call D1dB_SumAll(ave)
 
       psi_1vloc_atom = ave
       return
@@ -2828,7 +2825,6 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external psp_ncmp_vloc
      
       ave =  psp_ncmp_vloc(ispin)
-      !call D1dB_SumAll(ave)
 
       psi_1ncmp_vloc = ave
       return
@@ -2855,7 +2851,6 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external psp_hartree_atom
 
       ave =  psp_hartree_atom(ispin,neq,dcpl_mb(psi1(1)))
-      call D1dB_SumAll(ave)
          
       psi_1hartree_atom = ave
       return
