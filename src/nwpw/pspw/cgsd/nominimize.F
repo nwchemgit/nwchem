@@ -74,13 +74,11 @@ c
       real*8   psi_1ncmp_vloc,psi_1vloc_atom
       real*8   psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
       real*8   psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
-      real*8   psi_1vloc_paw_residual
       external psp_pawexist
       external psp_kinetic_core,psi_1ke_atom
       external psi_1ncmp_vloc,psi_1vloc_atom
       external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
       external psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
-      external psi_1vloc_paw_residual
 
       logical  nwpw_meta_gga_on,ion_disp_on
       external nwpw_meta_gga_on,ion_disp_on

@@ -68,7 +68,7 @@ c     $Id$
 
 
 *     **** generate phaze factors and local psp and core density ****
-      call dcopy(30,0.0d0,0,E,1)
+      call dcopy(50,0.0d0,0,E,1)
       call phafac()
       if (control_version().eq.3) call ewald_phafac()
       call electron_gen_vl_potential()
