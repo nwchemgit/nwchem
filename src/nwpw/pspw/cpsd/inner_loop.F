@@ -58,6 +58,7 @@ cccccccc#include "frac_occ.fh"
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  deltamm
       real*8  e_lj, e_q, e_spring
+      real*8  ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom
       !real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
@@ -84,13 +85,13 @@ c     real*8     fion(3,natmx)
       integer npack0
 
 *     ***** external functions ****
-      logical  control_move,psp_semicore
+      logical  control_move,psp_semicore,psp_pawexist
       logical  pspw_SIC,pspw_SIC_relaxed
       logical  pspw_HFX,pspw_HFX_relaxed
       integer  ion_nion,control_gga
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,coulomb_e,ewald_e
-      external control_move,psp_semicore
+      external control_move,psp_semicore,psp_pawexist
       external pspw_SIC,pspw_SIC_relaxed
       external pspw_HFX,pspw_HFX_relaxed
       external ion_nion,control_gga
@@ -118,6 +119,15 @@ c     real*8     fion(3,natmx)
       external nwpw_meta_gga_on,ion_disp_on
       real*8   nwpw_meta_gga_pxc,ion_disp_energy
       external nwpw_meta_gga_pxc,ion_disp_energy
+
+*     **** paw external functions ****
+      real*8   psp_kinetic_atom,psp_kinetic_core,psp_valence_core_atom
+      real*8   psp_ncmp_vloc,psp_vloc_atom,psp_ion_core
+      real*8   psp_hartree_atom,psp_hartree_cmp_cmp,psp_hartree_cmp_pw
+      external psp_kinetic_atom,psp_kinetic_core,psp_valence_core_atom
+      external psp_ncmp_vloc,psp_vloc_atom,psp_ion_core
+      external psp_hartree_atom,psp_hartree_cmp_cmp,psp_hartree_cmp_pw
+
 
 
 
@@ -219,6 +229,7 @@ c     real*8     fion(3,natmx)
         call phafac()
         if (control_version().eq.3) call ewald_phafac()
         call nwpw_timing_start(11)
+
 *       *******************;
 *       **** get psi_r ****
 *       *******************
@@ -296,6 +307,12 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         end do
         
         call nwpw_timing_end(11)
+
+*       **************************
+*       **** update ncmp*Vloc ****
+*       **************************
+        if (psp_pawexist().and.(move .or. (it.eq.1)))
+     >     call psp_dE_ncmp_vloc_Qlm(ispin)
 
 
 *       *****************************************
@@ -422,7 +439,13 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
 
-        if (fractional) then
+        if (psp_pawexist()) then
+        call psp_overlap_S(ispin,ne,psi1,psi_r)
+        call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
+     >                  dte,
+     >                  lmd,dbl_mb(tmp_L(1)),ierr)
+
+        else if (fractional) then
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                  dte,occ1,
      >                  lmd,dbl_mb(tmp_L(1)),ierr)
@@ -558,6 +581,35 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          E(12) = e_q
          E(13) = e_spring
       end if
+
+*     **** PAW ee terms ****
+      if (psp_pawexist()) then
+         E(35) = psp_kinetic_atom(ispin,ne,psi1)      !*** kinetic atom ***
+         E(36) = psp_kinetic_core()                   !*** kinetic core  - independent of psi ***
+         E(37) = psp_valence_core_atom(ispin,ne,psi1) !*** valence core energy ***
+
+         E(38) = psp_ncmp_vloc(ispin)         !*** (ncmp)*Vlocal
+         E(39) = psp_vloc_atom(ispin,ne,psi1) !*** Vlocal (local basis) -  nv*Vsrloc + nloc*Vloc - ncmp*Vloc ***
+
+         ehartree_atom = psp_hartree_atom(ispin,ne,psi1)
+         ecmp_cmp      = psp_hartree_cmp_cmp(ispin)
+         ecmp_pw       = psp_hartree_cmp_pw(ispin,dcpl_mb(dng(1)),dn)
+         E(40) = ehartree_atom             !*** vcoulomb atom  ***
+         E(41) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
+         E(42) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
+
+         call psp_xc_atom(ispin,ne,psi1,exc_atom,pxc_atom)
+         E(43) = exc_atom                  !*** exc atom  ***
+         E(44) = pxc_atom                  !*** pxc atom  ***
+
+         E(45) = psp_ion_core()            !*** ion core energy - independent of psi ***
+
+
+         E(1) = E(1) + E(36) + E(45) 
+     >        + exc_atom - pxc_atom
+     >        - ehartree_atom - ecmp_cmp - ecmp_pw
+      end if
+
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then

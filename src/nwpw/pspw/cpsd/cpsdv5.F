@@ -43,7 +43,7 @@ cccc#include "frac_occ.fh"
       real*8 icharge
       integer ispin
       integer ne(2),n1(2),n2(2),nemax,neq(2),nemaxq
-      real*8  en(2)
+      real*8  en(2),en1(2),en2(2)
       real*8  dipole(3)
 
 *     complex*16 psi1(nfft3d,nemax)
@@ -58,7 +58,7 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(40)
+      real*8  E(50)
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -84,10 +84,11 @@ cccc#include "frac_occ.fh"
       integer i,j,k,ia,n,nn
       integer ii,jj,indx,indx1
       integer icount,it_in,it_out
-      real*8 w,sumall,virial
+      real*8 w,sumall,virial,dv
       integer nfft3
       parameter (nfft3=32)
       character*255 full_filename
+      integer tmp1(1)
 
       logical value,psi_nogrid
       integer hversion,hnfft(3),hispin,hne(2)
@@ -141,11 +142,11 @@ cccc#include "frac_occ.fh"
       external     control_boundry
 
       logical      pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
-      logical      pspw_HFX,pspw_HFX_relaxed
+      logical      pspw_HFX,pspw_HFX_relaxed,psp_pawexist
       logical      psp_semicore,control_Mulliken
       real*8       psp_rcore,psp_ncore,psp_rlocal
       external     pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
-      external     pspw_HFX,pspw_HFX_relaxed
+      external     pspw_HFX,pspw_HFX_relaxed,psp_pawexist
       external     psp_semicore,control_Mulliken
       external     psp_rcore,psp_ncore,psp_rlocal
       logical      control_check_charge_multiplicity
@@ -180,7 +181,7 @@ cccc#include "frac_occ.fh"
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(30,0.0d0,0,E,1)
+      call dcopy(50,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -264,6 +265,7 @@ cccc#include "frac_occ.fh"
       if (control_version().eq.3) call coulomb_init()
       if (control_version().eq.4) call coulomb2_init()
       call strfac_init()
+      call phafac()
       if (control_version().eq.3) call ewald_init()
 
 *     **** generate initial wavefunction if it does not exist ****
@@ -365,18 +367,31 @@ cccc#include "frac_occ.fh"
       nemax = ne(1)+ne(2)
 
 *     **** Ortho Check ****
+      if (psp_pawexist()) then
+      call psp_overlap_S(ispin,neq,dcpl_mb(psi2(1)),dcpl_mb(psi1(1)))
+      call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
+     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(psi2(1)),
+     >                        sum2)
+      else
       call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
      >                        dcpl_mb(psi2(1)),
      >                        dcpl_mb(psi2(1)),
      >                        sum2)
+      end if
       call D1dB_SumAll(sum2)
 
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then
          if (taskid.eq.MASTER)
      >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
+         if (psp_pawexist()) then
+            call Dneall_f_Sortho(0,dcpl_mb(psi2(1)),
+     >                             dcpl_mb(psi1(1)),npack1)
+         else
+            call Dneall_f_GramSchmidt(0,dcpl_mb(psi2(1)),npack1)
+         end if
 c         call Dneall_f_ortho(0,dcpl_mb(psi2(1)),npack1)
-         call Dneall_f_GramSchmidt(0,dcpl_mb(psi2(1)),npack1)
 c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
 c         if (ispin.gt.1) then
 c           call Grsm_g_MakeOrtho(npack1,ne(2),
@@ -402,6 +417,12 @@ c         end if
       if (.not. value) 
      >   call errquit('cpsdv5:out of heap memory',0,MA_ERR)
 
+
+*     **** initialize two-electron Gaussian integrals ****
+      if (psp_pawexist()) then
+         call nwpw_gintegrals_init()
+         call nwpw_gintegrals_set(control_move())
+      end if
 
 *     **** initialize SIC and HFX  ****
       call pspw_init_SIC(rtdb,ne)
@@ -632,12 +653,43 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 *     **** check total number of electrons ****
       do ms =1,ispin
          call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
-         en(ms) = sumall*lattice_omega()
+         en1(ms) = sumall*lattice_omega()
      >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
       end do
+
+      if (psp_pawexist()) then
+         if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
+     >   call errquit(
+     >        'cgsdv5: out of stack memory',0,MA_ERR)
+
+         call psp_qlm_atom(ispin,neq,dcpl_mb(psi1(1)))
+         do ms=1,ispin
+           call nwpw_compcharge_gen_dn_cmp_smooth_ms(ms,dbl_mb(tmp1(1)))
+           call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+           call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+           call D3dB_r_dsum(1,dbl_mb(tmp1(1)),sumall)
+           en2(ms) = sumall*lattice_omega()
+     >              /dble(ngrid(1)*ngrid(2)*ngrid(3))
+         end do
+         if (.not.MA_pop_stack(tmp1(2)))
+     >   call errquit(
+     >        'cgsdv5: popping stack memory',0,MA_ERR)
+      else
+         en2(1) = 0.0d0
+         en2(2) = 0.0d0
+      end if
+      en(1) = en1(1)+en2(1)
+      en(2) = en1(2)+en2(2)
       if (taskid.eq.MASTER) then
          write(17,1320) (en(ms),ms=1,ispin)
+         if (psp_pawexist()) then
+            write(17,1322) (en1(ms),ms=1,ispin)
+            write(17,1323) (en2(ms),ms=1,ispin)
+         end if
       end if
+
+
 
 *     **** comparison between hamiltonian an lambda matrix ****
       if (taskid.eq.MASTER) write(17,1330)
@@ -737,6 +789,11 @@ c         end do
 
          write(luout,*)
          write(luout,1320) en(1),en(ispin),' (real space)'
+         if (psp_pawexist()) then
+            write(luout,1322) en1(1),en1(ispin),' (real space)'
+            write(luout,1323) en2(1),en2(ispin),' (real space)'
+         end if
+
 
          write(luout,1430) E(1),E(1)/ion_nion()
          if (pspw_qmmm_found()) then
@@ -784,6 +841,24 @@ c         end do
          end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
+
+c        **** paw energies ****
+         if (psp_pawexist()) then
+         write(luout,1680) E(35),E(35)/n2(ispin)
+         write(luout,1681) E(36),E(36)/ion_nion()
+         write(luout,1682) E(37),E(37)/n2(ispin)
+
+         write(luout,1683) E(38),E(38)/n2(ispin)
+         write(luout,1684) E(39),E(39)/n2(ispin)
+
+         write(luout,1685) E(40),E(40)/n2(ispin)
+         write(luout,1686) E(41),E(41)/n2(ispin)
+         write(luout,1687) E(42),E(42)/n2(ispin)
+         write(luout,1688) E(43),E(43)/n2(ispin)
+         write(luout,1689) E(44),E(44)/ion_nion()
+         write(luout,1690) E(45),E(45)/ion_nion()
+         end if
+
  
       if (pspw_qmmm_found()) then
             write(luout,1700)
@@ -912,6 +987,8 @@ c            write(luout,1706) E(18)
       call pspw_end_APC()
       call pspw_qmmm_end()
       call meta_finalize(rtdb)
+      if (psp_pawexist()) call nwpw_gintegrals_end()
+
 c      call frac_occ_end()
 
       value = MA_free_heap(psir(2))
@@ -1050,6 +1127,10 @@ c      call frac_occ_end()
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
+ 1321 FORMAT(' total charge of system:',F11.5,A)
+ 1322 FORMAT('     plane-wave part:         ',F11.5,'       ',F11.5,A)
+ 1323 FORMAT('      augmented part:         ',F11.5,'       ',F11.5,A)
+
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
@@ -1094,6 +1175,19 @@ c      call frac_occ_end()
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
+
+ 1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
+ 1682 FORMAT( ' valence-core        :',E19.10,' (',E15.5,'/electron)')
+ 1683 FORMAT( ' ncmp*V_local        :',E19.10,' (',E15.5,'/electron)')
+ 1684 FORMAT( ' V_lpaw  (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1685 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1686 FORMAT( ' coulomb  (ncmp-ncmp):',E19.10,' (',E15.5,'/electron)')
+ 1687 FORMAT( ' coulomb    (ncmp-pw):',E19.10,' (',E15.5,'/electron)')
+ 1688 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1689 FORMAT( ' pxc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1690 FORMAT( ' ion-core            :',E19.10,' (',E15.5,'/ion)')
+ 1691 FORMAT( ' V_local PAW residual:',E19.10,' (',E15.5,'/electron)')
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
