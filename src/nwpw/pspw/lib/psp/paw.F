@@ -948,7 +948,7 @@ c           end do
 #include "errquit.fh"
 
 *     *** local variables ***
-      integer npack1
+      integer npack1,ij
       integer ii,ia,iii,l,nn
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,scalsqr
@@ -1059,7 +1059,7 @@ c           end do
 
 
         end if !** nproj>0 **
-      end do !** ii **
+      end do !** iii **
 
       value =           MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
@@ -1578,6 +1578,7 @@ c           end do
       kinetic_atom = kinetic_atom*scal
 
       end if
+      call D1dB_SumAll(kinetic_atom)
       psp_kinetic_atom = kinetic_atom
       return 
       end
@@ -1722,6 +1723,7 @@ c           end do
      >   valence_core_atom = valence_core_atom+valence_core_atom
       valence_core_atom = valence_core_atom*scal
       end if
+      call D1dB_SumAll(valence_core_atom)
 
       psp_valence_core_atom = valence_core_atom
       return 
@@ -1903,6 +1905,8 @@ c           end do
       if (ispin.eq.1) vloc_atom = vloc_atom+vloc_atom
       vloc_atom = vloc_atom*scal
       end if
+
+      call D1dB_SumAll(vloc_atom)
 
       psp_vloc_atom = vloc_atom
       return 
@@ -2481,14 +2485,14 @@ c     >                         dcpl_mb(vl1(1)),eh)
 
         end if !** nproj>0 **
       end do !** ii **
-      pxc = pxc*scal
-
+      pxc = pxc*scal 
       value =           MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_xc_atom: popping stack',3,
      &       MA_ERR)
 
+      call D1dB_SumAll(pxc)
       exc = nwpw_xc_energy_atom()
       end if
       return 
@@ -3121,6 +3125,7 @@ c     >                          l_prj(i),m_prj(i))
      >  call errquit('psp_hartree_atom:popping stack',1,MA_ERR)
 
       end if
+      call D1dB_SumAll(Watom)
 
       psp_hartree_atom = Watom
       return
