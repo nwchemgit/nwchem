@@ -3351,6 +3351,10 @@ C     WRITE(6,*) ' MEMCHECK passed '
 *
       IMPLICIT REAL*8(A-H,O-Z)
       INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer nproc
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),DXSTST(NSMDX,NSMST)
       INTEGER STSTDX(NSMST,NSMST)
@@ -3386,7 +3390,7 @@ C     WRITE(6,*) ' MEMCHECK passed '
       CALL LUCIAQENTER('RS2A') 
       NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.100) THEN
         WRITE(6,*) ' ================'
         WRITE(6,*) ' RSBB2A speaking '
         WRITE(6,*) ' ================'
@@ -3410,6 +3414,7 @@ C     WRITE(6,*) ' MEMCHECK passed '
       IF(IDXSM.EQ.0)  GOTO 2001
 *. Connecting double excitations
       CALL DXTYP2_GAS(NDXTYP,ITP,JTP,KTP,LTP,NGAS,ISOC,ICOC,IPHGAS)
+      nproc = ga_nnodes()
       DO 2000 IDXTYP = 1, NDXTYP
         ITYP = ITP(IDXTYP)
         JTYP = JTP(IDXTYP)
@@ -3630,13 +3635,94 @@ C         ISCR( I4_REO(IJKL) ) = I4_TP(IJKL)
               IF(NTEST.GE.1000) WRITE(6,*) ' IKBTC = ', IKBTC
 *. Loop over batches of JL strings 
               DO 1930 JLBTC = 1, NJLBT
-                IFIRST = 1
 *. Loop over batches of I strings
-                NPART = NROW/MAXI
-                IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
-                IF(NTEST.GE.2000)
+*.Obtain two electron integrals xint(ik,jl) = (ij!kl)-(il!kj)
+                IXCHNG = 1
+* Obtain integrals in ik batch
+                NIKT = IKBT(3,IKBTC)
+                NJLT = JLBT(3,JLBTC)
+                JLOFF = 1
+                DO JLPAIR = 1, JLBT(2,JLBTC)
+                IKOFF = 1
+                DO IKPAIR = 1, IKBT(2,IKBTC)
+*
+                  ISM = IKSMBT(1,IKBT(1,IKBTC)-1+IKPAIR)
+                  KSM = IKSMBT(2,IKBT(1,IKBTC)-1+IKPAIR)
+                  JSM = JLSMBT(1,JLBT(1,JLBTC)-1+JLPAIR)
+                  LSM = JLSMBT(2,JLBT(1,JLBTC)-1+JLPAIR)
+*
+                  IF(ISM.EQ.KSM.AND.ITYP.EQ.KTYP) THEN
+                    IKSM = 1
+                    NIK =
+     &              NOBPTS(ITYP,ISM)*(NOBPTS(ITYP,ISM)+1)/2
+                  ELSE
+                    IKSM = 0
+                    NIK =
+     &              NOBPTS(ITYP,ISM)*NOBPTS(KTYP,KSM)
+                  END IF
+*
+                  IF(JSM.EQ.LSM.AND.JTYP.EQ.LTYP) THEN
+                    JLSM = 1
+                    NJL =
+     &              NOBPTS(JTYP,JSM)*(NOBPTS(JTYP,JSM)+1)/2
+                  ELSE
+                    JLSM = 0
+                    NJL =
+     &              NOBPTS(JTYP,JSM)*NOBPTS(LTYP,LSM)
+                  END IF
+* ================================================================
+*. Required form of integrals : Coulomb - Exchange of just Coulomb
+* ================================================================
+                  ICOUL = 0
+*. Use coulomb - exchange 
+                  IXCHNG = 1
+*. fetch integrals
+                  ONE = 1.0D0
+                  IF(IH2FORM.EQ.1) THEN
+*. Full conjugation symmetry, do do not worry
+                  CALL LUCIAGETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,
+     &                        LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
+     &                        ONE,ONE)
+                  ELSE IF(IH2FORM.EQ.2) THEN
+*. Integrals do not neccessarily have full conjugation symmetry 
+                  IF(I4_AC(1).EQ.2) THEN
+* a + a+ a a
+                    CALL LUCIAGETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,
+     &                          KSM,
+     &                          LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
+     &                          ONE,ONE)
+                  ELSE
+*. a a a+ a+ : Obtain (jl|ik) and transpose
+C?                        WRITE(6,*) ' Memcheck before GETINT '
+C?                        CALL MEMCHK
+C?                        WRITE(6,*) ' Check passes '
+                    CALL LUCIAGETINT(XINT2,JTYP,JSM,ITYP,ISM,LTYP,
+     &                          LSM,
+     &                          KTYP,KSM,IXCHNG,JLSM,IKSM,ICOUL,
+     &                          ONE,ONE)
+C?                        WRITE(6,*) ' Memcheck before TRPMT3 '
+C?                        CALL MEMCHK
+C?                        WRITE(6,*) ' Check passes '
+                    CALL TRPMT3(XINT2,NJL,NIK,SCR)
+                   END IF
+                  END IF
+*                 ^ End if Hamiltonian without cc symmetry is used
+*                   used
+                  DO JL = 1, NJL
+                    CALL COPVEC(SCR((JL-1)*NIK+1),
+     &                   XINT((JLOFF-1+JL-1)*NIKT+IKOFF),NIK)
+                  END DO
+                  IKOFF = IKOFF + NIK
+                END DO
+                JLOFF = JLOFF + NJL
+                END DO
+*               ^ End if integrals should be fetched
+*
+                NPART = NROW/max(MAXI,nproc)
+                IF(NPART*max(MAXI,nproc).NE.NROW) NPART = NPART + 1
+                IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
-                DO 1801 IIPART = 1, NPART
+                DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
                   IBOT = 1+(IIPART-1)*MAXI
                   ITOP = MIN(IBOT+MAXI-1,NROW)
                   NIBTC = ITOP-IBOT+1
@@ -3662,7 +3748,6 @@ C         ISCR( I4_REO(IJKL) ) = I4_TP(IJKL)
                         NJL = NJ * NL
                         JLSM = 0
                       END IF
-     
 *
 *. obtain cb(KB,IA,jl) = sum(JB)<KB!a lb a jb !IB>C(IA,JB)
 *
@@ -3722,90 +3807,6 @@ CT                    CALL LUCIAQEXIT ('MATCG')
 *==============================================
 *. SSCR(I,K,ik) = CSR(I,K,jl)*((ij!kl)-(il!jk))
 *===============================================
-*.Obtain two electron integrals xint(ik,jl) = (ij!kl)-(il!kj)
-                    IF(IFIRST.EQ.1) THEN
-                      IXCHNG = 1
-* Obtain integrals in ik batch
-                      NIKT = IKBT(3,IKBTC)
-                      NJLT = JLBT(3,JLBTC)
-                      JLOFF = 1
-                      DO JLPAIR = 1, JLBT(2,JLBTC)
-                      IKOFF = 1
-                      DO IKPAIR = 1, IKBT(2,IKBTC)
-*
-                        ISM = IKSMBT(1,IKBT(1,IKBTC)-1+IKPAIR)
-                        KSM = IKSMBT(2,IKBT(1,IKBTC)-1+IKPAIR)
-                        JSM = JLSMBT(1,JLBT(1,JLBTC)-1+JLPAIR)
-                        LSM = JLSMBT(2,JLBT(1,JLBTC)-1+JLPAIR)
-*
-                        IF(ISM.EQ.KSM.AND.ITYP.EQ.KTYP) THEN
-                          IKSM = 1
-                          NIK = 
-     &                    NOBPTS(ITYP,ISM)*(NOBPTS(ITYP,ISM)+1)/2
-                        ELSE
-                          IKSM = 0
-                          NIK = 
-     &                    NOBPTS(ITYP,ISM)*NOBPTS(KTYP,KSM)
-                        END IF
-*
-                        IF(JSM.EQ.LSM.AND.JTYP.EQ.LTYP) THEN
-                          JLSM = 1
-                          NJL = 
-     &                    NOBPTS(JTYP,JSM)*(NOBPTS(JTYP,JSM)+1)/2
-                        ELSE
-                          JLSM = 0
-                          NJL = 
-     &                    NOBPTS(JTYP,JSM)*NOBPTS(LTYP,LSM)
-                        END IF
-* ================================================================
-*. Required form of integrals : Coulomb - Exchange of just Coulomb
-* ================================================================
-                        ICOUL = 0
-*. Use coulomb - exchange 
-                        IXCHNG = 1
-*. fetch integrals
-                        ONE = 1.0D0
-                        IF(IH2FORM.EQ.1) THEN
-*. Full conjugation symmetry, do do not worry
-                        CALL LUCIAGETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,
-     &                              LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
-     &                              ONE,ONE)
-                        ELSE IF(IH2FORM.EQ.2) THEN
-*. Integrals do not neccessarily have full conjugation symmetry 
-                        IF(I4_AC(1).EQ.2) THEN
-* a + a+ a a
-                          CALL LUCIAGETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,
-     &                                KSM,
-     &                                LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
-     &                                ONE,ONE)
-                        ELSE
-*. a a a+ a+ : Obtain (jl|ik) and transpose
-C?                        WRITE(6,*) ' Memcheck before GETINT '
-C?                        CALL MEMCHK
-C?                        WRITE(6,*) ' Check passes '
-                          CALL LUCIAGETINT(XINT2,JTYP,JSM,ITYP,ISM,LTYP,
-     &                                LSM,
-     &                                KTYP,KSM,IXCHNG,JLSM,IKSM,ICOUL,
-     &                                ONE,ONE)
-C?                        WRITE(6,*) ' Memcheck before TRPMT3 '
-C?                        CALL MEMCHK
-C?                        WRITE(6,*) ' Check passes '
-                          CALL TRPMT3(XINT2,NJL,NIK,SCR)
-                         END IF
-                        END IF
-*                       ^ End if Hamiltonian without cc symmetry is used
-*                         used
-                        DO JL = 1, NJL 
-                          CALL COPVEC(SCR((JL-1)*NIK+1),
-     &                         XINT((JLOFF-1+JL-1)*NIKT+IKOFF),NIK)
-                        END DO
-                        IKOFF = IKOFF + NIK 
-                      END DO
-                      JLOFF = JLOFF + NJL
-                      END DO
-                    END IF
-*                   ^ End if integrals should be fetched
-                    IFIRST = 0
 *.and now ,to the work
                     LIKB = NIBTC*NKBTC
                     IF(NTEST.GE.3000) THEN
@@ -3979,13 +3980,80 @@ C               JSM = ISCR(I4_REO(4))
                 IF(ITPSM_ORIG.GE.KTPSM_ORIG.AND.
      &             JTPSM_ORIG.GE.LTPSM_ORIG) THEN
 *
-                IFIRST = 1
+*.Obtain two electron integrals as xint(ik,jl) = (ij!kl)-(il!kj)
+                IKSM = 0
+                JLSM = 0
+                IF(I4_AC(1).EQ.I4_AC(3)) THEN
+* a+ a a+ a
+                  ICOUL = 2
+                ELSE
+* a+ a a a+ or a+ a a a+
+                  ICOUL = 1
+                END IF
+*. Use coulomb - exchange or just coulomb integrals ?
+                IF(ITPSM_ORIG.EQ.KTPSM_ORIG
+     &            .AND.JTPSM_ORIG.EQ.LTPSM_ORIG)THEN
+*. No use of exchange
+                  IXCHNG = 0
+                  FACX = -0.5D0
+                ELSE IF(ITPSM_ORIG.NE.KTPSM_ORIG
+     &            .OR.JTPSM_ORIG.NE.LTPSM_ORIG) THEN
+*. Exchange used, combines two terms
+                  IXCHNG = 1
+                  FACX = -0.5D0
+                END IF
+                IF(ITPSM_ORIG.NE.KTPSM_ORIG
+     &            .AND.JTPSM_ORIG.NE.LTPSM_ORIG)THEN
+*. Exchange used, combines four terms
+                  IXCHNG = 1
+                  FACX = -1.0D0
+                END IF
+           IF( NTEST.GE.1000) WRITE(6,*)
+     &   ' ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX',
+     &     ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX
+*. fetch integrals
+* we want the operator in the form a+i ak a+l aj ((ij!lk)-(ik!lj))
+                ONE = 1.0D0
+                IF(ICOUL.EQ.2) THEN
+*. Obtain X2(ik,lj) = (ij!lk)
+                  CALL LUCIAGETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,
+     &                        KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL,
+     &                        ONE,ONE)
+                ELSE IF (ICOUL.EQ.1) THEN
+                  IF(I_USE_SIMTRH.EQ.0) THEN
+                      CALL LUCIAGETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,
+     &                        JSM,
+     &                        LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
+     &                        ONE,ONE)
+                  ELSE
+                   IF(I4_AC(1).EQ.2) THEN
+*. a+i ak al a+j (ik|jl) 
+*. obtain integrals (ik!jl) 
+                    CALL LUCIAGETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,
+     &                       JSM,
+     &                        LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
+     &                        ONE,ONE)
+                   ELSE IF(I4_AC(1).EQ.1) THEN
+*. a i a+k a+l a j (ki!lj) 
+*. Obtain (ki!lj) and transpose first two and last two indeces 
+                    CALL LUCIAGETINT(XINT,KTYP,KSM,ITYP,ISM,LTYP,
+     &                      LSM,
+     &                      JTYP,JSM,IXCHNG,IKSM,JLSM,ICOUL,
+     &                      ONE,ONE)
+C                            TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
+                    CALL TRP_H2_BLK(XINT,46,NK,NI,NL,NJ,XINT2)
+                   END IF
+                  END IF
+                END IF
+*               ^ End if integrals should be fetched
+
+
 *. Loop over batches of I strings
-                NPART = NROW/MAXI
-                IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
-                IF(NTEST.GE.2000)
+                NPART = NROW/max(MAXI,nproc)
+                IF(NPART*max(MAXI,nproc).NE.NROW) NPART = NPART + 1
+                IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
-                DO 2801 IIPART = 1, NPART
+                DO 2801 IIPART = ga_nodeid()+1, NPART,nproc
                   IBOT = 1+(IIPART-1)*MAXI
                   ITOP = MIN(IBOT+MAXI-1,NROW)
                   NIBTC = ITOP-IBOT+1
@@ -4042,76 +4110,8 @@ CT                  CALL LUCIAQEXIT ('MATCG')
 *==============================================
 *. SSCR(I,K,ik) = CSR(I,K,jl)*((ij!kl)-(il!jk))
 *===============================================
-*.Obtain two electron integrals as xint(ik,jl) = (ij!kl)-(il!kj)
                     IKSM = 0
                     JLSM = 0
-                    IF(IFIRST.EQ.1) THEN
-                      IF(I4_AC(1).EQ.I4_AC(3)) THEN
-* a+ a a+ a
-                        ICOUL = 2
-                      ELSE
-* a+ a a a+ or a+ a a a+
-                        ICOUL = 1 
-                      END IF
-*. Use coulomb - exchange or just coulomb integrals ?
-                      IF(ITPSM_ORIG.EQ.KTPSM_ORIG
-     &                .AND.JTPSM_ORIG.EQ.LTPSM_ORIG)THEN
-*. No use of exchange
-                        IXCHNG = 0
-                        FACX = -0.5D0
-                      ELSE IF(ITPSM_ORIG.NE.KTPSM_ORIG
-     &                .OR.JTPSM_ORIG.NE.LTPSM_ORIG) THEN
-*. Exchange used, combines two terms
-                        IXCHNG = 1
-                        FACX = -0.5D0
-                      END IF
-                      IF(ITPSM_ORIG.NE.KTPSM_ORIG
-     &                .AND.JTPSM_ORIG.NE.LTPSM_ORIG)THEN
-*. Exchange used, combines four terms
-                        IXCHNG = 1
-                        FACX = -1.0D0
-                      END IF
-           IF( NTEST.GE.1000) WRITE(6,*) 
-     &   ' ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX',
-     &     ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX
-*. fetch integrals
-* we want the operator in the form a+i ak a+l aj ((ij!lk)-(ik!lj))
-                      ONE = 1.0D0
-                      IF(ICOUL.EQ.2) THEN
-*. Obtain X2(ik,lj) = (ij!lk)
-                      CALL LUCIAGETINT(XINT,ITYP,ISM,JTYP,JSM,LTYP,LSM,
-     &                            KTYP,KSM,IXCHNG,IKSM,JLSM,ICOUL,
-     &                            ONE,ONE)
-                      ELSE IF (ICOUL.EQ.1) THEN 
-                        IF(I_USE_SIMTRH.EQ.0) THEN
-                        CALL LUCIAGETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,
-     &                              JSM,
-     &                              LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
-     &                            ONE,ONE)
-                        ELSE
-                         IF(I4_AC(1).EQ.2) THEN
-*. a+i ak al a+j (ik|jl) 
-*. obtain integrals (ik!jl) 
-                          CALL LUCIAGETINT(XINT,ITYP,ISM,KTYP,KSM,JTYP,
-     &                                 JSM,
-     &                                LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL,
-     &                            ONE,ONE)
-                         ELSE IF(I4_AC(1).EQ.1) THEN
-*. a i a+k a+l a j (ki!lj) 
-*. Obtain (ki!lj) and transpose first two and last two indeces 
-                          CALL LUCIAGETINT(XINT,KTYP,KSM,ITYP,ISM,LTYP,
-     &                              LSM,
-     &                                JTYP,JSM,IXCHNG,IKSM,JLSM,ICOUL,
-     &                            ONE,ONE)
-C                              TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
-                          CALL TRP_H2_BLK(XINT,46,NK,NI,NL,NJ,XINT2)
-                         END IF
-                        END IF
-                      END IF
-*
-                    END IF
-*                   ^ End if integrals should be fetched
-                    IFIRST = 0
 *.and now ,to the work
                     LIKB = NIBTC*NKBTC
                     IF(NTEST.GE.3000) THEN
@@ -6063,7 +6063,7 @@ C    &      IJ_DIM(2)*LKABTC*NJB, IJ_DIM(1)*LKABTC*NIB
               DO 1930 KSM = 1, NSMOB
                 IFIRST = 1
                 LSM = ADSXA(KSM,KLSM)
-                IF(NTEST.GE.500) THEN
+                IF(NTEST.GE.1500) THEN
                   WRITE(6,*) ' KSM, LSM', KSM, LSM
                 END IF
                 IF(LSM.EQ.0) GOTO 1930
@@ -6156,7 +6156,7 @@ C?              WRITE(6,*) ' I_USE_SIMTRH = ', I_USE_SIMTRH
      &               FACS,IROUTE )
                 END IF
 *
-                IF(NTEST.GE.500) THEN
+                IF(NTEST.GE.2500) THEN
                   WRITE(6,*) ' Updated Sires as S(Kai,Ib)'
                   CALL WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
                 END IF
@@ -6486,7 +6486,7 @@ c      INCLUDE 'mxpdim.inc'
 * (NKSTR,*), Where NKSTR is the number of K-strings of 
 *  correct symmetry . Nk is provided by this routine.
 *
-C!    CALL LUCIAQENTER('ADAST ')
+       CALL LUCIAQENTER('ADAST')
 *
       NTEST = 000
       IF(NTEST.GE.100) THEN
@@ -6743,7 +6743,7 @@ C       IF(NGASL-1.GT.0) GOTO 1000
         END IF
       END IF
 *
-C!    CALL LUCIAQEXIT('ADAST ')
+      CALL LUCIAQEXIT('ADAST')
       RETURN
       END
       SUBROUTINE ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,
@@ -10290,7 +10290,7 @@ C?        WRITE(6,*) ' IL, SCLFAC_L(IL) = ', IL, SCLFAC_L(IL)
             IOFF_R_BLOCK = 1
           END IF
 *
-          IF(NTEST.GE.200)
+          IF(NTEST.GE.2200)
      &    WRITE(6,'(A,4(2X,I4))') ' JATP JBTP JASM JBSM ',
      &                              JATP,JBTP,JASM,JBSM
 *. Read R blocks into core
@@ -10332,7 +10332,7 @@ C?        INTERACT = 1
             ISCALE = 1
 C?          WRITE(6,*) ' LUR before GSTTBL', LUR
             PLR = 1.0D0
-            IF(NTEST.GE.100) THEN
+            IF(NTEST.GE.2100) THEN
               WRITE(6,*) ' PSR, PLR before GSTTBL for R ',
      &                     PSR, PLR
             END IF
@@ -10605,18 +10605,18 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
       DIMENSION C2(*)
 *
       CALL LUCIAQENTER('GSDNB')
-      NTEST = 00
+      NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       NTESTO= NTEST
       IF(NTEST.GE.200) THEN
-        WRITE(6,*) ' ================'
-        WRITE(6,*) ' GSDNBB2: R block '
-        WRITE(6,*) ' ================='
-        CALL WRTMAT(CB,NJA,NJB,NJA,NJB)
-        WRITE(6,*) ' ================='
-        WRITE(6,*) ' GSDNBB2: L block '
-        WRITE(6,*) ' ================='
-        CALL WRTMAT(SB,NIA,NIB,NIA,NIB)
+c       WRITE(6,*) ' ================'
+c       WRITE(6,*) ' GSDNBB2: R block '
+c       WRITE(6,*) ' ================='
+c       CALL WRTMAT(CB,NJA,NJB,NJA,NJB)
+c       WRITE(6,*) ' ================='
+c       WRITE(6,*) ' GSDNBB2: L block '
+c       WRITE(6,*) ' ================='
+c       CALL WRTMAT(SB,NIA,NIB,NIA,NIB)
 *
         WRITE(6,'(A,4(2X,I8))') ' NJA, NJB, NIA, NIB = ',
      &                            NJA, NJB, NIA, NIB
@@ -12963,6 +12963,11 @@ C
       IMPLICIT REAL*8(A-H,O-Z)
 *. General input
       INCLUDE 'mxpdim.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer nxtask, next, itask, icount, nproc
+      external nxtask
       INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
       INTEGER NOBPTS(MXPNGAS,*)
       REAL*8 INPROD
@@ -13006,7 +13011,7 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
       NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
 *
-      IF(NTEST.GE.500) THEN
+      IF(NTEST.GE.500.and. ga_nodeid().eq.0) THEN
 *
         WRITE(6,*) ' ================ '
         WRITE(6,*) ' RSBB2BN2 speaking '
@@ -13041,7 +13046,7 @@ C     CALL GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
       IJSM = STSTSX(IASM,JASM)
       KLSM = STSTSX(IBSM,JBSM)
       IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
-      IF(NTEST.GE.600) THEN
+      IF(NTEST.GE.600.and.ga_nodeid().eq.0) THEN
         write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
         write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
       END IF
@@ -13072,6 +13077,7 @@ C     CALL GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
       JBFRST = 1
 *
       IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
+      nproc = ga_nnodes()
       DO 2001 IJTYP = 1, NIJTYP
 *
         IJFIRST = 1
@@ -13181,19 +13187,9 @@ C  NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
           END IF
             
 *. Loop over batches of KA strings
-          NKABTC = NKAEFF/MAXK   
-          IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
+          NKABTC = NKAEFF/max(MAXK,nproc)
+          IF(NKABTC*max(MAXK,nproc).LT.NKAEFF) NKABTC = NKABTC + 1
 *
-          DO 1801 IKABTC = 1, NKABTC
-            KABOT = (IKABTC-1)*MAXK + 1
-            KATOP = MIN(KABOT+MAXK-1,NKAEFF)
-            LKABTC = KATOP-KABOT+1
-CJTEST      WRITE(6,*) ' JTEST: Dimension of CJRES and SIRES ',
-C    &      IJ_DIM(2)*LKABTC*NJB, IJ_DIM(1)*LKABTC*NIB
-*. Obtain C(ka,J,JB) for Ka in batch
-            I_SHOULD_CONSTRUCT_SICJ = 1
-*
-            FACS = 1.0D0
             DO 2000 KLTYP = 1, NKLTYP
               KTYP = KTP(KLTYP)
               LTYP = LTP(KLTYP)
@@ -13329,59 +13325,59 @@ C?              WRITE(6,*) ' I_USE_SIMTRH = ', I_USE_SIMTRH
 *
 C               IJKL_DIM = IJ_DIM(1)*IJ_DIM(2)*KL_DIM(1)*KL_DIM(2)
 C               IF(INPROD(XINT,XINT,IJKL_DIM).NE.0.0D0) THEN
-            IF(I_SHOULD_CONSTRUCT_SICJ.EQ.1) THEN
-             DO JJ = 1, IJ_DIM(2)
-               CALL GET_CKAJJB(CB,IJ_DIM(2),NJA,CJRES,LKABTC,NJB,
-     &              JJ,I1(KABOT+(JJ-1)*NKASTR),
-     &              XI1S(KABOT+(JJ-1)*NKASTR))
-C              GET_CKAJJB(CB,NJ,NJA,CKAJJB,NKA,NJB,J,ISCA,SSCA)
+          DO 1801 IKABTC = ga_nodeid()+1, NKABTC, nproc
+            KABOT = (IKABTC-1)*MAXK + 1
+            KATOP = MIN(KABOT+MAXK-1,NKAEFF)
+            LKABTC = KATOP-KABOT+1
+CJTEST      WRITE(6,*) ' JTEST: Dimension of CJRES and SIRES ',
+C    &      IJ_DIM(2)*LKABTC*NJB, IJ_DIM(1)*LKABTC*NIB
+*. Obtain C(ka,J,JB) for Ka in batch
+*
+            FACS = 1.0D0
+            DO JJ = 1, IJ_DIM(2)
+              CALL GET_CKAJJB(CB,IJ_DIM(2),NJA,CJRES,LKABTC,NJB,
+     &             JJ,I1(KABOT+(JJ-1)*NKASTR),
+     &             XI1S(KABOT+(JJ-1)*NKASTR))
+C             GET_CKAJJB(CB,NJ,NJA,CKAJJB,NKA,NJB,J,ISCA,SSCA)
 
-             END DO
-             IF(NTEST.GE.500) THEN
-               WRITE(6,*) ' Updated CJRES as C(Kaj,Jb)'
-               CALL WRTMAT(CJRES,NKASTR*NJ,NJB,NKASTR*NJ,NJB)
-             END IF
-*
-             ISETVECOPS(2) = ISETVECOPS(2) + NIB*LKABTC*IJ_DIM(1)
-             MXACJ=MAX(MXACJ,NIB*LKABTC*IJ_DIM(1),NJB*LKABTC*IJ_DIM(2))
-             CALL SETVEC(SIRES,ZERO,NIB*LKABTC*IJ_DIM(1))
-*
-             I_SHOULD_CONSTRUCT_SICJ = 0
+            END DO
+            IF(NTEST.GE.2500) THEN
+              WRITE(6,*) ' Updated CJRES as C(Kaj,Jb)'
+              CALL WRTMAT(CJRES,NKASTR*NJ,NJB,NKASTR*NJ,NJB)
             END IF
-                IROUTE = 3
-                CALL SKICKJ(SIRES,CJRES,LKABTC,NIB,NJB,
+*
+            ISETVECOPS(2) = ISETVECOPS(2) + NIB*LKABTC*IJ_DIM(1)
+            MXACJ=MAX(MXACJ,NIB*LKABTC*IJ_DIM(1),NJB*LKABTC*IJ_DIM(2))
+            CALL SETVEC(SIRES,ZERO,NIB*LKABTC*IJ_DIM(1))
+*
+            IROUTE = 3
+            CALL SKICKJ(SIRES,CJRES,LKABTC,NIB,NJB,
      &               NKBSTR,XINT,IJ_DIM(1),IJ_DIM(2),
      &               KL_DIM(1),KL_DIM(2),
      &               NKBSTR,I4,XI4S,I2,XI2S,IKORD,
      &               FACS,IROUTE )
 C               END IF
 *
-                IF(NTEST.GE.500) THEN
-                  WRITE(6,*) ' Updated Sires as S(Kai,Ib)'
-                  CALL WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
-                END IF
-*
- 1930         CONTINUE
-*             ^ End of loop over KSM
- 2000       CONTINUE
-*           ^ End of loop over KLTYP
+            IF(NTEST.GE.2500) THEN
+               WRITE(6,*) ' Updated Sires as S(Kai,Ib)'
+               CALL WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
+            END IF
 *
 *. Scatter out from s(Ka,Ib,i)
 *
-            IF(NTEST.GE.1000) THEN
-              WRITE(6,*) ' S(Ka,Ib,i) as S(Ka,Ibi)'
-              CALL WRTMAT(SIRES,LKABTC,NIB*IJ_DIM(1),LKABTC,IJ_DIM(1))
-            END IF
-*. Was anything done ?
-            IF(I_SHOULD_CONSTRUCT_SICJ.EQ.0) THEN
             DO II = 1, IJ_DIM(1)
               CALL ADD_SKAIIB(SB,IJ_DIM(1),NIA,SIRES,LKABTC,NIB,II,
      &             I3(KABOT+(II-1)*NKASTR),
      &             XI3S(KABOT+(II-1)*NKASTR))
             END DO
-            END IF
  1801     CONTINUE
 *.        ^End of loop over partitioning of alpha strings
+*
+ 1930     CONTINUE
+*         ^ End of loop over KSM
+ 2000     CONTINUE
+*         ^ End of loop over KLTYP
+*. Was anything done ?
  1940   CONTINUE
 *       ^ End of loop over ISM
  2001 CONTINUE

@@ -2822,7 +2822,7 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
    50 CONTINUE
   100 CONTINUE
 *
-      NTEST = 5
+      NTEST = 1
       NTEST = MAX(NTEST,IPRNT)
       if (ga_nodeid().eq.0) then
       WRITE(6,*) 
@@ -5643,6 +5643,7 @@ CNW   DIMENSION DIAG(*)
 *
           if (itask.eq.next) then
           icount = 0
+          CALL SETVEC(buffer,0.0d0,100)
           DO IA = IASTRT,IASTOP
             IDET = IDET + 1
             icount = icount + 1
@@ -5660,12 +5661,14 @@ CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
      &         IB.EQ.IA) buffer(icount) = buffer(icount) + XADD
             if (icount.eq.100.OR.IA.eq.IASTOP) then
                call ga_put(DIAG,IDET-icount+1,IDET,1,1,buffer,1)
+               CALL SETVEC(buffer,0.0d0,100)
                icount = 0
             endif
           END DO
 *         ^ End of loop over alpha strings|
+          next = nxtask(nproc,1)
           else
-          IDET = IDET + IASTOP - IASTART + 1
+          IDET = IDET + IASTOP - IASTRT + 1
           endif
           itask = itask + 1
 *         ^ End task loop
@@ -9840,6 +9843,7 @@ C    &                ITFT,NINOB,NACOB,NPHEL)
 *
           if (itask.eq.next) then
           icount = 0
+          call SETVEC(buffer,0.0d0,100)
           DO IA = IASTRT,IASTOP
             IDET = IDET + 1
             ITDET = ITDET + 1
@@ -9861,12 +9865,14 @@ CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
      &         IB.EQ.IA) buffer(icount) = buffer(icount) + XADD
             if (icount.eq.100.OR.IA.eq.IASTOP) then
                call ga_put(DIAG,IDET-icount+1,IDET,1,1,buffer,1)
+               call SETVEC(buffer,0.0d0,100)
                icount = 0
             endif
           END DO
 *         ^ End of loop over alpha strings|
+          next = nxtask(nproc, 1)
           else
-          IDET = IDET + IASTOP - IASTART + 1
+          IDET = IDET + IASTOP - IASTRT + 1
           endif
           itask = itask + 1
 *         ^ End task loop

@@ -4328,7 +4328,7 @@ C
        EXTERNAL MV7
 *
        TEST = 1.0D-6
-       IPRT= 0
+       IPRT= 001
        IF(IPRT.GE.1.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' MINDV4 in action '
          WRITE(6,*) ' Convergence threshold for residual = ', TEST
@@ -4420,7 +4420,7 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
 ** LOOP OVER ITERATIONS
 *
  1000 CONTINUE
-      IF(IPRT  .GE. 10 .and. ga_nodeid().eq.0) THEN
+      IF(IPRT  .GE. 5 .and. ga_nodeid().eq.0) THEN
        WRITE(6,*) ' INFO FORM ITERATION .... ', ITER
       END IF
  
@@ -4518,10 +4518,10 @@ CNW             CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 CNW             CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
                 call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
    59         CONTINUE
-cbert         IF ( IPRT  .GE. 600 ) THEN
+              IF ( IPRT  .GE. 600 ) THEN
                 WRITE(6,*) ' And X  '
 CNW             CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-cbert         END IF
+              END IF
 CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
               if (dra_write_section(.false.,VEC1,1,NVAR,1,1,LU3,1,NVAR,
      &            2,2,itask).ne.0) call errquit('dra error',itask,911)
@@ -5046,7 +5046,7 @@ CNW   CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
           WRITE(6,1190) FINEIG(IROOT)
  1190     FORMAT(' The final approximation to eigenvalue ',F18.10)
           endif
-          IF(IPRT.GE.400) THEN
+          IF(IPRT.GE.1000) THEN
             WRITE(6,1200)
  1200       FORMAT(1H0,'The final approximation to eigenvector')
             CALL REWINO( LU1)

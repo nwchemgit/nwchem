@@ -373,6 +373,7 @@ CNW   CALL COPVEC(WORK(KINT_2EMO) ,WORK(KINT2_INI),NINT2)
       IIUSEH0P = 0
       MPORENP_E = 0
       IPRDIAL = IPRMCSCF
+      IPRDIAL = 0
 *. Transfer to common block for communicating with EMCSCF
 C     COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI, IREFSPC_MCSCFL,
 C    &               IPRDIALL,IIUSEH0PL,MPORENP_EL,
@@ -1286,6 +1287,7 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
      &' Projecting final (MO2) on initial (MO1) occupied orbitals'
       CALL PROJ_ORBSPC_ON_ORBSPC(dbl_mb(KLCOCC_INI),dbl_mb(KLCOCC_FIN),
      &     NOCOBS,NOCOBS)
+      if(ga_nodeid().eq.0) WRITE(6,*)
 C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
 *
 *. Projection of final active orbitals on initial set of active orbitals
@@ -1304,6 +1306,7 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
      &' Projecting final (MO2) on initial (MO1) active orbitals'
       CALL PROJ_ORBSPC_ON_ORBSPC(dbl_mb(KLCOCC_INI),dbl_mb(KLCOCC_FIN),
      &     NACOBS,NACOBS)
+      if(ga_nodeid().eq.0) WRITE(6,*)
 C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
 *. Print summary
       CALL PRINT_MCSCF_CONV_SUMMARY(dbl_mb(KL_SUMMARY),NOUTIT)

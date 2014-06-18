@@ -2193,7 +2193,7 @@ C?      WRITE(6,*) ' MAXA1 1', MAXA1
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB,MXSTBL0)
-      IF(IPRCIX.GE.2 ) WRITE(6,*)
+      IF(IPRCIX.GE.2.and.ga_nodeid().eq.0) WRITE(6,*)
      &' Largest block of strings with given symmetry and type',MXSTBL
 *. Largest number of resolution strings and spectator strings
 *  that can be treated simultaneously
@@ -4832,7 +4832,7 @@ C     DIMENSION INIDET(100)
 *. 
       DIMENSION EROOT(NROOT)
       IF( IPRT.GT.1.and.ga_nodeid().eq.0) WRITE(6,*)
-      IF( IPRT.GT. 1.and.ga_nodeid().eq.0 )  WRITE(6,'(/A)')
+      IF( IPRT.GT.1.and.ga_nodeid().eq.0 )  WRITE(6,'(/A)')
      &'          *** information from ci diagonalization  ***'
 C?    WRITE(6,*)
 C?    WRITE(6,*) ' IROOT_SEL in CIEIG5 ', IROOT_SEL
@@ -4844,7 +4844,7 @@ C?    WRITE(6,*) ' ICISTR,LBLK = ', ICISTR,LBLK
 C?    WRITE(6,*) ' IPRT = ', IPRT
 C?    WRITE(6,*) ' ILAST in CIEIG5 ', ILAST 
       NTEST=0000
-      IPRT= 0
+      IPRT= 5
 *
 *               ====================================
 ** 1:               INITIAL VARIATIONAL SUBSPACE
@@ -5209,6 +5209,7 @@ C
 #include "mafdecls.fh"
 #include "global.fh"
 #include "dra.fh"
+      character*64 filename
 * =========================
 * Standard input and output
 * =========================
@@ -5250,19 +5251,22 @@ C
 CNW   LUDIA = IGETUNIT(20)
 CNW   CALL DANAME(LUDIA,'CIDIA')
       NVAR = XISPSM(IREFSM,1)
-      istat = dra_create(MT_DBL, NVAR, 1, 'cidia','cidia',DRA_RW,
+      call util_file_name('cidia',.false.,.false.,filename)
+      istat = dra_create(MT_DBL, NVAR, 1, 'cidia',filename,DRA_RW,
      &    NVAR,1,LUDIA)
       if(istat.ne.0) call errquit('DISKUN dra_create ludia',istat,911)
 *. CI vector
 CNW   LUC = IGETUNIT(21)
 CNW   CALL DANAME(LUC,'LUCVECT')
-      istat = dra_create(MT_DBL,NVAR,MXCIV,'lucvect','lucvect',DRA_RW,
+      call util_file_name('lucvect',.false.,.false.,filename)
+      istat = dra_create(MT_DBL,NVAR,MXCIV,'lucvect',filename,DRA_RW,
      &    NVAR,1,LUC) 
       if(istat.ne.0) call errquit('DISKUN dra_create luc',istat,911)
 *. Sigma vector file
 CNW   LUHC = IGETUNIT(22)
 CNW   CALL DANAME(LUHC,'HCFILE')
-      istat = dra_create(MT_DBL,NVAR,MXCIV,'hcfile','hcfile',DRA_RW,
+      call util_file_name('hcfile',.false.,.false.,filename)
+      istat = dra_create(MT_DBL,NVAR,MXCIV,'hcfile',filename,DRA_RW,
      &    NVAR,1,LUHC) 
       if(istat.ne.0) call errquit('DISKUN dra_create luc',istat,911)
 *** the following unit are deactivated
@@ -5279,7 +5283,8 @@ CNW   CALL DANAME(LUHC,'HCFILE')
 * =================
 * Scratch files
 * =================
-      istat = dra_create(MT_DBL,NVAR,3,'lusc1','lusc1',DRA_RW,
+      call util_file_name('lusc1',.false.,.false.,filename)
+      istat = dra_create(MT_DBL,NVAR,3,'lusc1',filename,DRA_RW,
      &    NVAR,1,LUSC1) 
       if(istat.ne.0) call errquit('DISKUN dra_create luc',istat,911)
 CNW   LUSC1 = IGETUNIT(31)
@@ -5671,7 +5676,6 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
           ELSE
             KBLK = -1
           END IF
-            print*,'read',SEGMNT,LBL,LU,NVAR
             if(dra_read_section(.false.,SEGMNT,1,LBL,1,1,LU,1,LBL,
      &         1,1,itask).ne.0) call errquit('dra error',911)
           if (dra_wait(itask).ne.0) call errquit('dra read err',
@@ -9933,7 +9937,7 @@ c.. add offset
       endif
       if(.not.ga_destroy(g_hcore)) call 
      &  errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
-      CALL LUCIAQENTER('MO1EXIT')
+      CALL LUCIAQEXIT('MO1GA')
 c
 c..  2-e integrals
       noper = norbt*(norbt+1)/2
@@ -10108,7 +10112,7 @@ CNW         CALL COPVEC(WORK(KINT1),WORK(KHINA),NINT1)
             call ga_copy(KINT1,KHINA)
             CALL FISM_OLD(KHINA,ECC)
             ECORE_INA = ECORE + ECC
-            if (ga_nodeid().eq.0) WRITE(6,*) ' ECORE_INA = ', ECORE_INA
+C           if (ga_nodeid().eq.0) WRITE(6,*) ' ECORE_INA = ', ECORE_INA
 *. One-electron integrals with contributions from inactive orbitals and 
 *  particle-hole reorganization
             CALL FI(KINT1,ECORE_HEX,1)
@@ -12031,7 +12035,7 @@ C?   &               WORK(KINT1), WORK(KINT2)
       if (ga_nodeid().eq.0) CALL KERNEL_ROU_STAT_PRINT
 *
       CALL LUCIAQEXIT('REST ')
-      CALL LUCIAQSTAT
+      if (ga_nodeid().eq.0) CALL LUCIAQSTAT
       IDUM=0
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'LUCIA')
       istat = dra_delete(LUDIA)
@@ -12958,9 +12962,9 @@ c      INCLUDE 'mxpdim.inc'
         if (.not. ma_verify_allocator_stuff()) call 
      &      errquit('MEMMAN: ma verify failed',911, MA_ERR)
       ELSE IF( TASK(1:5).EQ.'PRINT') THEN
-        call ma_summarize_allocated_blocks()
+        if (ga_nodeid().eq.0) call ma_summarize_allocated_blocks()
       ELSE IF( TASK(1:5).EQ.'STATI') THEN
-        call ma_print_stats(.true.)
+        if (ga_nodeid().eq.0) call ma_print_stats(.true.)
       ELSE 
           WRITE(6,'(A,A6)') ' MEMMAN: Unknown task parameter ',TASK
           WRITE(6,'(A,A6)') ' MEMMAN: Corresponding IDENT ', IDENT
@@ -15206,7 +15210,7 @@ CNW   DIMENSION SV(*),CV(*)
       CHARACTER*6 ITASK
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 00
+      NTEST = 000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -15224,8 +15228,12 @@ CNW   DIMENSION SV(*),CV(*)
      &                                  JBATS, LBATS(JBATS)
 *. Obtain sigma for batch of blocks
 C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK) 
+        LEN = 0
+        DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
+          LEN = LEN + IBATS(8,ISBLK)
+        ENDDO
         CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
-     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK)
+     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN)
 *. Transfer S block to permanent storage
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           IATP = IBATS(1,ISBLK)
@@ -15239,7 +15247,7 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
             CALL ITODS(LEN,1,-1,LUHC)
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            if (LEN.gt.0.and.ga_nodeid().eq.0)
+            if (LEN.gt.0.and.ga_nodeid().eq.0) 
      &      call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
@@ -15248,7 +15256,7 @@ CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
       END DO
 *
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.200) THEN
         IF(ICISTR.NE.1) THEN
           if (ga_nodeid().eq.0) WRITE(6,*) ' Final S-vector on disc'
           CALL WRTVCD(SB,LUHC,1,-1)
@@ -18006,6 +18014,7 @@ cnw         GOTO 999
 * ==================================================================================
 *
 cnw       IF(CARD(2:7) .EQ. 'USEH0P') THEN
+       IUSEH0P = 0
        if(rtdb_get(rtdb,'lucia:use0p',mt_log,1,use0p_on))then
          IUSEH0P = 1
          ISETKW(105) = 1
@@ -18016,6 +18025,7 @@ cnw         GOTO 999
 * 107: Calculate expectation value of Lz^2
 * ==========================================
 cnw       IF(CARD(2:4).EQ.'LZ2') THEN
+       I_DO_LZ2 = 0
        if(rtdb_get(rtdb,'lucia:lz2',mt_log,1,lz2_on))then
          ISETKW(107) = 1
          I_DO_LZ2 = 1
@@ -18751,7 +18761,6 @@ cglm        GOTO 999
       END IF
 *
 * 169: Print level for MCSCF
-      IPRMCSCF = 0
       IF(rtdb_get(rtdb,'lucia:IPRMCSCF',mt_int,1,IPRMCSCF)) then
 cglm       IF(CARD(2:7).EQ.'IPRMCS') THEN
 cglm         READ(5,*)  IPRMCSCF

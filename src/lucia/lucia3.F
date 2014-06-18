@@ -17,6 +17,7 @@
 *. For statistics 
        INCLUDE 'rou_stat.inc'
 *
+       CALL LUCIAQENTER('SKAII')
        NCALL_ADD_SKAIIB = NCALL_ADD_SKAIIB  + 1
 *. To get rid of annoying and incorrect compiler warnings
       ICOFF = 0
@@ -64,6 +65,7 @@ C             IADR = KA + (I-1)*NKA+(ICOFF-1-1)*NKA*NI
         END IF
 *       ^ End of test of ICOFF=ICEND
       END DO
+      CALL LUCIAQEXIT('SKAII')
 *
       RETURN
       END
@@ -3116,7 +3118,7 @@ C         END IF
 *
       NTEST =  000
 *
-C     CALL LUCIAQENTER('SKICK')
+      CALL LUCIAQENTER('SKICK')
       IF(IROUTE.EQ.3) THEN
 * S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
         DO KB = 1, NKB
@@ -3300,7 +3302,7 @@ C1000 CONTINUE
       END IF
 *. End of IROUTE branchning 
 *
-C     CALL LUCIAQEXIT('SKICK')
+      CALL LUCIAQEXIT('SKICK')
       RETURN
       END
       SUBROUTINE GSAXPY(AB,A,B,NABCOL,NACOL,NROW,IABCOL,IACOL)
@@ -4034,6 +4036,9 @@ C            SYMCOM(ITASK,IOBJ,I1,I2,I12)
       IMPLICIT REAL*8(A-H,O-Z)
       REAL*8 INPROD
 *. MAX dimensions 
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'mxpdim.inc'
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(NSMSX,NSMST),
@@ -4239,12 +4244,14 @@ C               CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
                   CALL WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
                 END IF
 *.S(I,a+ K) =  S(I, a+ K) + sgn*Sscr(I,K,i)
+                if (ga_nodeid().eq.0) then
                 DO IIORB = 1,IJ_DIM(1)
                   ISBOFF = 1+(IIORB-1)*LKABTC*NIBTC
                   CALL MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,
      &                 LKABTC,I2(KBOT+(IIORB-1)*NKASTR),
      &                 XI2S(KBOT+(IIORB-1)*NKASTR))
                 END DO
+                endif
 *
   701       CONTINUE
 *.end of this K partitioning
