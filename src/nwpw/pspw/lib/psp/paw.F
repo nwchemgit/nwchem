@@ -937,9 +937,9 @@ c           end do
 *    This routine computes the paw overlap S operator to psi1
 *      psi2 = S*psi1
 *
-      subroutine psp_overlap_S(ispin,ne,psi1,psi2)
+      subroutine psp_overlap_S(ispin,neq,psi1,psi2)
       implicit none
-      integer    ispin,ne(2)
+      integer    ispin,neq(2)
       complex*16 psi1(*)
       complex*16 psi2(*)
 
@@ -966,7 +966,7 @@ c           end do
       call nwpw_timing_start(6) 
 
 *     **** allocate local memory ****
-      nn = ne(1)+ne(2)
+      nn = neq(1)+neq(2)
       call Pack_npack(1,npack1)
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
@@ -1049,8 +1049,10 @@ c           end do
         
 *       **** do Kleinman-Bylander Multiplication ****
         !scal = 1.0d0/(omega)
-        call dscal(nn*int_mb(nprj(1)+ia-1),scal,dbl_mb(sw2(1)),1)
-        call DGEMM('N','T',2*npack1,nn,int_mb(nprj(1)+ia-1),
+        !nproj = int_mb(nprj(1)+ia-1)
+        !call dscal(nn*int_mb(nprj(1)+ia-1),scal,dbl_mb(sw2(1)),1)
+        call dscal(nn*nproj,scal,dbl_mb(sw2(1)),1)
+        call DGEMM('N','T',2*npack1,nn,nproj,
      >             (1.0d0),
      >             dcpl_mb(prjtmp(1)), 2*npack1,
      >             dbl_mb(sw2(1)),     nn,
@@ -1072,16 +1074,16 @@ c           end do
 
 *     ***********************************
 *     *					*
-*     *	 	   psp_overlap		*
+*     *	 	   psp_overlap1		*
 *     *					*
 *     ***********************************
 
 *    This routine computes the paw overlap S operator to psi1
-*      psi2 = S*psi1
+*      Smatrix = <psi1| S|psi1>
 *
-      subroutine psp_overlap(ispin,ne,psi1,S)
+      subroutine psp_overlap1(ispin,neq,psi1,S)
       implicit none
-      integer    ispin,ne(2)
+      integer    ispin,neq(2)
       complex*16 psi1(*)
       real*8     S(*)
 
@@ -1112,7 +1114,7 @@ c           end do
       call Dneall_ffm_sym_Multiply(0,psi1,psi1,npack1,S)
 
 *     **** allocate local memory ****
-      nn = ne(1)+ne(2)
+      nn = neq(1)+neq(2)
       call Pack_npack(1,npack1)
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
@@ -1121,7 +1123,7 @@ c           end do
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
-     >  call errquit('psp_overlap: out of stack',0,MA_ERR)
+     >  call errquit('psp_overlap1: out of stack',0,MA_ERR)
 
       omega = lattice_omega()
       scal    = 1.0d0/(omega)
@@ -1191,19 +1193,23 @@ c           end do
      >                         dbl_mb(sw1(1)),
      >                         dbl_mb(sw2(1)))
 
-*       *** routine needs to be parallelized over orbitals ****
 *       **** S = S + sw1*transpose(sw2) ****
-        do ms=1,ispin
-          shifts  = 1+(ms-1)*ne(1)*ne(1)
-          shiftsw =   (ms-1)*ne(1)
-          call DGEMM('N','T',
-     >              ne(ms),ne(ms),int_mb(nprj(1)+ia-1),
-     >              (scal),
-     >              dbl_mb(sw1(1)+shiftsw), nn,
-     >              dbl_mb(sw2(1)+shiftsw), nn,
-     >              (1.0d0),
-     >              S(shifts), ne(ms))
-        end do
+        call Dneall_m_add_sw1sw2(0,nproj,scal,
+     >                           dbl_mb(sw1(1)),
+     >                           dbl_mb(sw2(1)),S)
+
+c*       *** routine needs to be parallelized over orbitals ****
+c        do ms=1,ispin
+c          shifts  = 1+(ms-1)*ne(1)*ne(1)
+c          shiftsw =   (ms-1)*ne(1)
+c          call DGEMM('N','T',
+c     >              ne(ms),ne(ms),int_mb(nprj(1)+ia-1),
+c     >              (scal),
+c     >              dbl_mb(sw1(1)+shiftsw), nn,
+c     >              dbl_mb(sw2(1)+shiftsw), nn,
+c     >              (1.0d0),
+c     >              S(shifts), ne(ms))
+c        end do
         
 
         end if !** nproj>0 **
@@ -1212,12 +1218,177 @@ c           end do
       value =           MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('psp_overlap: popping stack',3,
+      if (.not.value) call errquit('psp_overlap1: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)
       end if
       return 
       end
+
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_overlap2		*
+*     *					*
+*     ***********************************
+
+*    This routine computes the paw overlap S operator to psi1
+*      Smatrix = <psi1| S|psi2>
+*
+      subroutine psp_overlap2(ispin,neq,psi1,psi2,S)
+      implicit none
+      integer    ispin,neq(2)
+      complex*16 psi1(*)
+      complex*16 psi2(*)
+      real*8     S(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     *** local variables ***
+      integer npack1
+      integer ii,ia,iii,l,nn,ms,shifts,shiftsw
+      integer k,shift,l_prj,nproj,Gijl_indx
+      real*8  omega,scal,scalsqr
+      integer exi(2),sw0(2),sw1(2),sw2(2)
+      logical value,sd_function
+
+*     **** external functions ****
+      integer  ion_katm
+      integer  psi_data_get_ptr
+      real*8   lattice_omega
+      external ion_katm
+      external psi_data_get_ptr
+      external lattice_omega
+
+      if (pawexist) then
+      call nwpw_timing_start(6) 
+
+*     **** S = transpose(psi)*psi ****
+      call Dneall_ffm_Multiply(0,psi1,psi2,npack1,S)
+
+*     **** allocate local memory ****
+      nn = neq(1)+neq(2)
+      call Pack_npack(1,npack1)
+
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw0',sw0(2),sw0(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+      if (.not.value) 
+     >  call errquit('psp_overlap2:out of stack',0,MA_ERR)
+
+      omega = lattice_omega()
+      scal    = 1.0d0/(omega)
+      scalsqr = scal*scal
+
+      do iii=1,nion_paw
+
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
+        ia    = ion_katm(ii)
+        nproj = int_mb(nprj(1)+ia-1)
+
+        if (nproj.gt.0) then
+
+*       **** structure factor and local pseudopotential ****
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+
+*       **** generate sw1's and projectors ****
+        do l=1,nproj
+
+           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
+           l_prj = int_mb(l_projector(1)+(l-1) 
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
+           !sd_function = .not.and(l_prj,1)
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
+           k = and(l_prj,1)
+#endif
+           sd_function = (k.eq.0)
+
+
+*          **** phase factor does not matter therefore ****
+*          **** (-i)^l is the same as (i)^l in the     ****
+*          **** Rayleigh scattering formula            ****
+
+*          *** current function is s or d ****
+           if (sd_function) then
+              call Pack_tc_Mul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+*          *** current function is p or f ****
+           else
+              call Pack_tc_iMul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+           end if
+           call Pack_cc_indot(1,nn,
+     >                        psi1,
+     >                        dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                        dbl_mb(sw0(1)+(l-1)*nn))
+           call Pack_cc_indot(1,nn,
+     >                        psi2,
+     >                        dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                        dbl_mb(sw2(1)+(l-1)*nn))
+        end do
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw0(1)))
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw2(1)))
+
+*       **** sw2 = Sijl*sw1 ******
+        Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),2)
+        call Multiply_Gijl_sw1(nn,
+     >                         nproj,
+     >                         int_mb(nmax(1)+ia-1),
+     >                         int_mb(lmax(1)+ia-1),
+     >                         int_mb(n_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(l_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(m_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         dbl_mb(Gijl_indx),
+     >                         dbl_mb(sw0(1)),
+     >                         dbl_mb(sw1(1)))
+
+*       **** S = S + sw1*transpose(sw2) ****
+        call Dneall_m_add_sw1sw2(0,nproj,scal,
+     >                           dbl_mb(sw1(1)),
+     >                           dbl_mb(sw2(1)),S)
+
+c*       *** routine needs to be parallelized over orbitals ****
+c        do ms=1,ispin
+c          shifts  = 1+(ms-1)*ne(1)*ne(1)
+c          shiftsw =   (ms-1)*ne(1)
+c          call DGEMM('N','T',
+c     >              ne(ms),ne(ms),int_mb(nprj(1)+ia-1),
+c     >              (scal),
+c     >              dbl_mb(sw1(1)+shiftsw), nn,
+c     >              dbl_mb(sw2(1)+shiftsw), nn,
+c     >              (1.0d0),
+c     >              S(shifts), ne(ms))
+c        end do
+        
+
+        end if !** nproj>0 **
+      end do !** iii **
+
+      value =           MA_pop_stack(sw2(2))
+      value = value.and.MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(sw0(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) call errquit('psp_overlap2: popping stack',3,
+     &       MA_ERR)
+      call nwpw_timing_end(6)
+      end if
+      return 
+      end
+
+
 
 
 
