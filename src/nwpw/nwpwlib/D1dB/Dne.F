@@ -400,6 +400,7 @@
       end
 
 
+
 *     ***********************************
 *     *					*
 *     *	        Dneall_neq		*	
@@ -3419,6 +3420,8 @@ c     ****************************************
       return
       end
 
+
+
       real*8 function  Dneall_m_value(mb,ms,i,j,A)
       implicit none
       integer mb,ms,i,j
@@ -3483,7 +3486,41 @@ c     ****************************************
      >                 mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)))
          else
             shift2 = (ms-1)*ne(1)*ne(1)
-             A(i+(j-1)*ne(ms)+shift2) = w
+            A(i+(j-1)*ne(ms)+shift2) = w
+         end if
+      end if
+
+      return
+      end
+
+
+
+
+      subroutine Dneall_m_add_value(w,mb,ms,i,j,A)
+      implicit none
+      real*8 w
+      integer mb,ms,i,j
+      real*8  A(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ishift2,shift2
+
+      if (ne(ms).gt.0)  then
+         if (mparallelized) then
+            if (mb.eq.0) then
+               ishift2 = mcq(1)*ncq(1)
+            else
+               ishift2 = 0
+            end if
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_m_add_value(w,i,j,A(shift2),
+     >                 mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)))
+         else
+            shift2 = (ms-1)*ne(1)*ne(1)
+            A(i+(j-1)*ne(ms)+shift2) = A(i+(j-1)*ne(ms)+shift2) + w
          end if
       end if
 
@@ -3520,6 +3557,117 @@ c     ****************************************
       Dneall_sm_value = w
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *       Dneall_m_add_sw1sw2       *
+*     *                                 *
+*     ***********************************
+      subroutine Dneall_m_add_sw1sw2(mb,nprj,scal,sw1,sw2,S)
+      implicit none
+      integer mb,nprj
+      real*8 scal
+      real*8 sw1(*)
+      real*8 sw2(*)
+      real*8 S(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer ms,q,n,nn,nnq,ishift1,ishift2
+      integer i,j,ii,jj,pto,taskid
+      integer sw1b(2),sw2b(2)
+      real*8  w
+
+*     **** external functions ****
+      real*8   ddot
+      external ddot
+
+      if (parallelized) then
+         nn  = ne(1)  + ne(2)
+         nnq = neq(1) + neq(2)
+         value = MA_push_get(mt_dbl,nn*nprj,'sw1b',sw1b(2),sw1b(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,nn*nprj,'sw2b',sw2b(2),sw2b(1))
+         if (.not.value)
+     >   call errquit('Dneall_m_add_sw1sw2:push stack',0,MA_ERR)
+
+         call dcopy(nn*nprj,0.0d0,0,dbl_mb(sw1b(1)),1)
+         call dcopy(nn*nprj,0.0d0,0,dbl_mb(sw2b(1)),1)
+         do q=1,nnq
+            call Dneall_qton(q,n)
+            !do prj = 1,nprj
+            !   sw1b(n,prj) = sw1(q,prj)
+            !   sw2b(n,prj) = sw2(q,prj)
+            !end do
+            call dcopy(nprj,sw1(q),nnq,dbl_mb(sw1b(1)+n-1),nn)
+            call dcopy(nprj,sw2(q),nnq,dbl_mb(sw2b(1)+n-1),nn)
+         end do
+         call D1dB_SumAll(nn*nprj,dbl_mb(sw1b(1)))
+         call D1dB_SumAll(nn*nprj,dbl_mb(sw2b(1)))
+
+         if (mparallelized) then
+            call Parallel_taskid(taskid)
+            do ms=1,ispin
+               do j=1,ne(ms)
+               do i=1,ne(ms)
+                  call DMatrix_m_ijtoiijjp(i,j,ii,jj,pto,
+     >                                     mcq(ms),
+     >                                     int_mb(mc(1,ms)),
+     >                                     int_mb(nc(1,ms)))
+                  if (pto.eq.taskid) then
+                     w = ddot(nprj,dbl_mb(sw1b(1)+i-1),nn,
+     >                             dbl_mb(sw2b(1)+j-1),nn)
+                     call Dneall_m_add_value(scal*w,0,ms,i,j,S)
+                  end if
+               end do
+               end do
+            end do
+
+         else
+            do ms=1,ispin
+               ishift2 = 1+(ms-1)*ne(1)*ne(1)
+               ishift1 =   (ms-1)*ne(1)
+               call DGEMM('N','T',ne(ms),ne(ms),nprj,
+     >                    scal,
+     >                    dbl_mb(sw1b(1)+ishift1), nn,
+     >                    dbl_mb(sw2b(1)+ishift2), nn,
+     >                    1.0d0,
+     >                    S(ishift2),ne(ms))
+            end do
+         end if
+         value =           MA_pop_stack(sw2b(2))
+         value = value.and.MA_pop_stack(sw1b(2))
+         if (.not.value)
+     >   call errquit('Dneall_m_add_sw1sw2:pop stack',1,MA_ERR)
+      else
+        do ms=1,ispin
+          ishift2 = 1+(ms-1)*ne(1)*ne(1)
+          ishift1 = 1+(ms-1)*ne(1)
+          call DGEMM('N','T',
+     >              ne(ms),ne(ms),nprj,
+     >              scal,
+     >              sw1(ishift1), nn,
+     >              sw2(ishift2), nn,
+     >              1.0d0,
+     >              S(ishift2), ne(ms))
+        end do
+      end if
+
+      return
+      end
+
+
+
+
+
+
+
+
 
 
 
