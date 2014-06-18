@@ -585,6 +585,45 @@ c     >            work1,work2)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_m_ijtoiijjp     *
+*     *                                 *
+*     ***********************************
+      subroutine DMatrix_m_ijtoiijjp(i1,j1,ii,jj,p,ldq,mq,nq)
+      implicit none
+      integer i1,j1,ii,jj,p
+      integer ldq,mq(*),nq(*)
+
+*     **** local variables ****
+      integer i,j,icur,jcur
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
+      jj   = 1
+      jcur = 0
+      do j=1,j1-1
+          jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      ii   = 1
+      icur = 0
+      do i=1,i1-1
+         ii = ii +1
+         if (ii.gt.mq(icur+1)) then
+            icur = icur + 1
+            ii   = 1
+         end if
+      end do
+      p = Parallel2d_convert_taskid_ij(icur,jcur)
+      return
+      end
 
 
 *     ***********************************
@@ -592,7 +631,6 @@ c     >            work1,work2)
 *     *         DMatrix_m_get_value     *
 *     *                                 *
 *     ***********************************
-
       real*8 function DMatrix_m_get_value(i1,j1,A,ldq,mq,nq)
       implicit none
       integer i1,j1
@@ -649,10 +687,9 @@ c     >            work1,work2)
 
 *     ***********************************
 *     *                                 *
-*     *         DMatrix_m_set_value     *
+*     *       DMatrix_m_set_value       *
 *     *                                 *
 *     ***********************************
-
       subroutine DMatrix_m_set_value(w,i1,j1,A,ldq,mq,nq)
       implicit none
       real*8  w
@@ -701,6 +738,64 @@ c     >            work1,work2)
 
       return
       end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       DMatrix_m_add_value       *
+*     *                                 *
+*     ***********************************
+      subroutine DMatrix_m_add_value(w,i1,j1,A,ldq,mq,nq)
+      implicit none
+      real*8  w
+      integer i1,j1
+      integer ldq,mq(*),nq(*)
+      real*8  A(ldq,*)
+
+*     **** local variables ****
+      logical value
+      integer taskid
+      integer i,j
+      integer ii,jj
+      integer icur,jcur
+      integer precv
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
+      call Parallel_taskid(taskid)
+
+      jj   = 1
+      jcur = 0
+      do j=1,j1-1
+          jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+      end do
+
+      ii   = 1
+      icur = 0
+      do i=1,i1-1
+         ii = ii +1
+         if (ii.gt.mq(icur+1)) then
+            icur = icur + 1
+            ii   = 1
+         end if
+      end do
+
+      precv = Parallel2d_convert_taskid_ij(icur,jcur)
+      if (precv.eq.taskid) then
+          A(ii,jj) = A(ii,jj) + w
+      end if
+
+      return
+      end
+
 
 
 
