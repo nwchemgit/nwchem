@@ -1,5 +1,6 @@
 all: test_sin.log test_cos.log test_tan.log \
-     test_asin.log test_acos.log test_atan.log
+     test_asin.log test_acos.log test_atan.log \
+     test_sinh.log test_cosh.log test_tanh.log 
 
 test_sin.log: test_sin
 	echo "Running " $^
