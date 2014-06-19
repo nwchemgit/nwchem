@@ -48,10 +48,10 @@ C>
 C>
 C> \brief The test routine
 C>
-      subroutine subad_sin(x,f)
+      subroutine subad_cos(x,f)
       use nwad
       implicit none
       type(nwad_dble) :: x, f
-      f = sin(sin(x))
+      f = cos(sin(x))
       end
 C> @}

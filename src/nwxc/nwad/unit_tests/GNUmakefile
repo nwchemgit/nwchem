@@ -1,4 +1,4 @@
-all: test_sin.log
+all: test_sin.log test_cos.log test_tan.log
 
 test_sin.log: test_sin
 	echo "Running " $^
