@@ -1,0 +1,21 @@
+fx(x):=atan(sin(x));
+dfx(x):=diff(fx(x),x);
+df2x(x):=diff(dfx(x),x);
+df3x(x):=diff(df2x(x),x);
+Fortran(expr):= fortran(ev(expr,numer));
+with_stdout("submaxima_atan.F",
+  print("      subroutine submaxima_atan(x,f,df,df2,df3)"),
+  print("      implicit none"),
+  print("      double precision x,f,df,df2,df3"),
+  print("      double precision sec"),
+  print("      external         sec"),
+  Fortran(f = fx(x)),
+  Fortran(df = dfx(x)),
+  Fortran(df2 = df2x(x)),
+  Fortran(df3 = df3x(x)),
+  print("      end"),
+  print("      double precision function sec(x)"),
+  print("      implicit double precision (a-z)"),
+  print("      sec=1.d0/cos(x)"),
+  print("      return"),
+  print("      end"));
