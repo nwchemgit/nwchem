@@ -1081,9 +1081,9 @@ c           end do
 *    This routine computes the paw overlap S operator to psi1
 *      Smatrix = <psi1| S|psi1>
 *
-      subroutine psp_overlap1(ispin,neq,psi1,S)
+      subroutine psp_overlap1(mb,psi1,S)
       implicit none
-      integer    ispin,neq(2)
+      integer    mb
       complex*16 psi1(*)
       real*8     S(*)
 
@@ -1094,7 +1094,7 @@ c           end do
 *     *** local variables ***
       integer npack1
       integer ii,ia,iii,l,nn,ms,shifts,shiftsw
-      integer k,shift,l_prj,nproj,Gijl_indx
+      integer k,shift,l_prj,nproj,Gijl_indx,neq(2),ishift
       real*8  omega,scal,scalsqr
       integer exi(2),sw1(2),sw2(2)
       logical value,sd_function
@@ -1107,11 +1107,22 @@ c           end do
       external psi_data_get_ptr
       external lattice_omega
 
-      if (pawexist) then
       call nwpw_timing_start(6) 
 
+      call Pack_npack(1,npack1)
+      call Dneall_neq(neq)
+      if (mb.eq.0) then
+         nn = neq(1) + neq(2)
+         ishift = 1
+      else
+         nn = neq(mb)
+         ishift = 1 + (mb-1)*neq(1)*npack1
+      end if
+
 *     **** S = transpose(psi)*psi ****
-      call Dneall_ffm_sym_Multiply(0,psi1,psi1,npack1,S)
+      call Dneall_ffm_sym_Multiply(mb,psi1,psi1,npack1,S)
+
+      if (pawexist) then
 
 *     **** allocate local memory ****
       nn = neq(1)+neq(2)
@@ -1171,7 +1182,7 @@ c           end do
      >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
            end if
            call Pack_cc_indot(1,nn,
-     >                      psi1,
+     >                      psi1(ishift),
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dbl_mb(sw1(1)+(l-1)*nn))
         end do
@@ -1194,7 +1205,7 @@ c           end do
      >                         dbl_mb(sw2(1)))
 
 *       **** S = S + sw1*transpose(sw2) ****
-        call Dneall_m_add_sw1sw2(0,nproj,scal,
+        call Dneall_m_add_sw1sw2(mb,nproj,scal,
      >                           dbl_mb(sw1(1)),
      >                           dbl_mb(sw2(1)),S)
 
@@ -1235,9 +1246,9 @@ c        end do
 *    This routine computes the paw overlap S operator to psi1
 *      Smatrix = <psi1| S|psi2>
 *
-      subroutine psp_overlap2(ispin,neq,psi1,psi2,S)
+      subroutine psp_overlap2(mb,psi1,psi2,S)
       implicit none
-      integer    ispin,neq(2)
+      integer    mb
       complex*16 psi1(*)
       complex*16 psi2(*)
       real*8     S(*)
@@ -1248,8 +1259,8 @@ c        end do
 
 *     *** local variables ***
       integer npack1
-      integer ii,ia,iii,l,nn,ms,shifts,shiftsw
-      integer k,shift,l_prj,nproj,Gijl_indx
+      integer ii,ia,iii,l,nn,ms,shifts,shiftsw,ishift
+      integer k,shift,l_prj,nproj,Gijl_indx,neq(2)
       real*8  omega,scal,scalsqr
       integer exi(2),sw0(2),sw1(2),sw2(2)
       logical value,sd_function
@@ -1262,15 +1273,23 @@ c        end do
       external psi_data_get_ptr
       external lattice_omega
 
-      if (pawexist) then
       call nwpw_timing_start(6) 
 
-*     **** S = transpose(psi)*psi ****
-      call Dneall_ffm_Multiply(0,psi1,psi2,npack1,S)
-
-*     **** allocate local memory ****
-      nn = neq(1)+neq(2)
       call Pack_npack(1,npack1)
+      call Dneall_neq(neq)
+      if (mb.eq.0) then
+         nn = neq(1) + neq(2)
+         ishift = 1
+      else
+         nn = neq(mb)
+         ishift = 1+ (mb-1)*neq(1)*npack1
+      end if
+
+*     **** S = transpose(psi)*psi ****
+      call Dneall_ffm_Multiply(mb,psi1,psi2,npack1,S)
+
+      if (pawexist) then
+*     **** allocate local memory ****
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
@@ -1328,11 +1347,11 @@ c        end do
      >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
            end if
            call Pack_cc_indot(1,nn,
-     >                        psi1,
+     >                        psi1(ishift),
      >                        dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                        dbl_mb(sw0(1)+(l-1)*nn))
            call Pack_cc_indot(1,nn,
-     >                        psi2,
+     >                        psi2(ishift),
      >                        dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                        dbl_mb(sw2(1)+(l-1)*nn))
         end do
@@ -1356,7 +1375,7 @@ c        end do
      >                         dbl_mb(sw1(1)))
 
 *       **** S = S + sw1*transpose(sw2) ****
-        call Dneall_m_add_sw1sw2(0,nproj,scal,
+        call Dneall_m_add_sw1sw2(mb,nproj,scal,
      >                           dbl_mb(sw1(1)),
      >                           dbl_mb(sw2(1)),S)
 
