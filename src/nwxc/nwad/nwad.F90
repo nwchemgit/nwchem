@@ -92,24 +92,24 @@ module nwad
   interface tan
     module procedure nwad_dble_tan
   end interface
-! interface asin
-!   module procedure nwad_dble_asin
-! end interface
-! interface acos
-!   module procedure nwad_dble_acos
-! end interface
-! interface atan
-!   module procedure nwad_dble_atan
-! end interface
-! interface sinh
-!   module procedure nwad_dble_sinh
-! end interface
-! interface cosh
-!   module procedure nwad_dble_cosh
-! end interface
-! interface tanh
-!   module procedure nwad_dble_tanh
-! end interface
+  interface asin
+    module procedure nwad_dble_asin
+  end interface
+  interface acos
+    module procedure nwad_dble_acos
+  end interface
+  interface atan
+    module procedure nwad_dble_atan
+  end interface
+  interface sinh
+    module procedure nwad_dble_sinh
+  end interface
+  interface cosh
+    module procedure nwad_dble_cosh
+  end interface
+  interface tanh
+    module procedure nwad_dble_tanh
+  end interface
   interface asinh
     module procedure nwad_dble_asinh
   end interface
@@ -777,6 +777,199 @@ contains
     s%d3 = x%d3/cos(x%d0)**2 + 6*x%d1*x%d2*tan(x%d0)/cos(x%d0)**2 &
          + 4*x%d1**3*tan(x%d0)**2/cos(x%d0)**2 + 2*x%d1**3/cos(x%d0)**4
   end function nwad_dble_tan
+  !>
+  !> \brief Evaluate the \f$\sinh\f$ function
+  !>
+  !> The implementation of the \f$\sinh\f$ function. The chain rule is used
+  !> to evaluate the derivatives. I.e. we consider \f$s(r) = \sinh(x(r))\f$.
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \sinh{x(r)} \\\\
+  !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
+  !>      \cosh{x(r)}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
+  !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
+  !>      \cosh{x(r)}\frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} 
+  !>     +\sinh{x(r)}\left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^2 \\\\
+  !>   \frac{\mathrm{d}^3s(r)}{\mathrm{d}r^3} &=& 
+  !>      \cosh{x(r)}\frac{\mathrm{d}^3x(r)}{\mathrm{d}r^3} 
+  !>     +3\sinh{x(r)}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}
+  !>                  \frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2}
+  !>     +\cosh{x(r)}\left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
+  !> \f}
+  function nwad_dble_sinh(x) result (s)
+    type(nwad_dble), intent(in)  :: x
+    type(nwad_dble)              :: s
+    s%d0 = sinh(x%d0)
+    s%d1 = x%d1*cosh(x%d0)
+    s%d2 = x%d2*cosh(x%d0) + x%d1**2*sinh(x%d0)
+    s%d3 = x%d3*cosh(x%d0) + 3*x%d1*x%d2*sinh(x%d0) + x%d1**3*cosh(x%d0)
+  end function nwad_dble_sinh
+  !>
+  !> \brief Evaluate the \f$\cosh\f$ function
+  !>
+  !> The implementation of the \f$\cosh\f$ function. The chain rule is used
+  !> to evaluate the derivatives. I.e. we consider \f$s(r) = \cosh(x(r))\f$.
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \cosh{x(r)} \\\\
+  !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
+  !>      \sinh{x(r)}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
+  !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
+  !>      \sinh{x(r)}\frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} 
+  !>     +\cosh{x(r)}\left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^2 \\\\
+  !>   \frac{\mathrm{d}^3s(r)}{\mathrm{d}r^3} &=& 
+  !>      \sinh{x(r)}\frac{\mathrm{d}^3x(r)}{\mathrm{d}r^3} 
+  !>     +3\cosh{x(r)}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}
+  !>                  \frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2}
+  !>     +\sinh{x(r)}\left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
+  !> \f}
+  function nwad_dble_cosh(x) result (s)
+    type(nwad_dble), intent(in)  :: x
+    type(nwad_dble)              :: s
+    s%d0 = cosh(x%d0)
+    s%d1 = x%d1*sinh(x%d0)
+    s%d2 = x%d2*sinh(x%d0) + x%d1**2*cosh(x%d0)
+    s%d3 = x%d3*sinh(x%d0) + 3*x%d1*x%d2*cosh(x%d0) + x%d1**3*sinh(x%d0)
+  end function nwad_dble_cosh
+  !>
+  !> \brief Evaluate the \f$\tanh\f$ function
+  !>
+  !> The implementation of the \f$\tanh\f$ function. The chain rule is used
+  !> to evaluate the derivatives. I.e. we consider \f$s(r) = \tanh(x(r))\f$.
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \tanh{x(r)} \\\\
+  !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
+  !>      \frac{1}{\cosh^2{x(r)}}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
+  !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
+  !>      \frac{1}{\cosh^2{x(r)}}\frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} 
+  !>     -\frac{2\tanh{x(r)}}{\cosh^2{x(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^2 \\\\
+  !>   \frac{\mathrm{d}^3s(r)}{\mathrm{d}r^3} &=& 
+  !>      \frac{1}{\cosh^2{x(r)}}\frac{\mathrm{d}^3x(r)}{\mathrm{d}r^3} 
+  !>     -\frac{6\tanh{x(r)}}{\cosh^2{x(r)}}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}
+  !>                                      \frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2}
+  !>     +\frac{4\tanh^2{x(r)}}{\cosh^2{x(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3
+  !>     -\frac{2}{\cosh^4{x(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
+  !> \f}
+  function nwad_dble_tanh(x) result (s)
+    type(nwad_dble), intent(in)  :: x
+    type(nwad_dble)              :: s
+    s%d0 = tanh(x%d0)
+    s%d1 = x%d1/cosh(x%d0)**2
+    s%d2 = x%d2/cosh(x%d0)**2 - x%d1**2*(2*tanh(x%d0)/cosh(x%d0)**2)
+    s%d3 = x%d3/cosh(x%d0)**2 - 6*x%d1*x%d2*tanh(x%d0)/cosh(x%d0)**2 &
+         + 4*x%d1**3*tanh(x%d0)**2/cosh(x%d0)**2 - 2*x%d1**3/cosh(x%d0)**4
+  end function nwad_dble_tanh
+  !>
+  !> \brief Evaluate the \f$\mathrm{asin}\f$ function
+  !>
+  !> The implementation of the \f$\mathrm{asin}\f$ function. The chain rule is
+  !> used to evaluate the derivatives. I.e. we consider
+  !> \f$s(r) = \mathrm{asin}(x(r))\f$.
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \asin{x(r)} \\\\
+  !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
+  !>      \frac{1}{\sqrt{1-x^2(r)}}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
+  !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
+  !>      \frac{1}{\sqrt{1-x^2(r)}}\frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} 
+  !>     +\frac{x(r)}{\left(1-x^2(r)\right)\sqrt{1-x^2(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^2 \\\\
+  !>   \frac{\mathrm{d}^3s(r)}{\mathrm{d}r^3} &=& 
+  !>      \frac{1}{\sqrt{1-x^2(r)}}\frac{\mathrm{d}^3x(r)}{\mathrm{d}r^3} 
+  !>     +\frac{3x(r)}{\left(1-x^2(r)\right)\sqrt{1-x^2(r)}}
+  !>            \frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}
+  !>            \frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} \\\\
+  !>  && +\frac{1}{\left(1-x^2(r)\right)\sqrt{1-x^2(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3
+  !>     +\frac{3x^2(r)}{\left(1-x^2(r)\right)^2\sqrt{1-x^2(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
+  !> \f}
+  !>
+  function nwad_dble_asin(x) result (s)
+    type(nwad_dble), intent(in)  :: x
+    type(nwad_dble)              :: s
+    double precision             :: t1, t12
+    t1 = 1.0d0 - x%d0*x%d0
+    t12 = sqrt(t1)
+    s%d0 = asin(x%d0)
+    s%d1 = x%d1/t12
+    s%d2 = x%d2/t12 + x%d1**2*x%d0/(t1*t12)
+    s%d3 = x%d3/t12 + 3*x%d1*x%d2*x%d0/(t1*t12) + x%d1**3/(t1*t12) &
+         + 3*x%d1**3*x%d0**2/(t1*t1*t12)
+  end function nwad_dble_asin
+  !>
+  !> \brief Evaluate the \f$\mathrm{acos}\f$ function
+  !>
+  !> The implementation of the \f$\mathrm{acos}\f$ function. The chain rule is
+  !> used to evaluate the derivatives. I.e. we consider
+  !> \f$s(r) = \mathrm{acos}(x(r))\f$.
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \acos{x(r)} \\\\
+  !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
+  !>     -\frac{1}{\sqrt{1-x^2(r)}}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
+  !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
+  !>     -\frac{1}{\sqrt{1-x^2(r)}}\frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} 
+  !>     -\frac{x(r)}{\left(1-x^2(r)\right)\sqrt{1-x^2(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^2 \\\\
+  !>   \frac{\mathrm{d}^3s(r)}{\mathrm{d}r^3} &=& 
+  !>     -\frac{1}{\sqrt{1-x^2(r)}}\frac{\mathrm{d}^3x(r)}{\mathrm{d}r^3} 
+  !>     -\frac{3x(r)}{\left(1-x^2(r)\right)\sqrt{1-x^2(r)}}
+  !>            \frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}
+  !>            \frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} \\\\
+  !>  && -\frac{1}{\left(1-x^2(r)\right)\sqrt{1-x^2(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3
+  !>     -\frac{3x^2(r)}{\left(1-x^2(r)\right)^2\sqrt{1-x^2(r)}}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
+  !> \f}
+  !>
+  function nwad_dble_acos(x) result (s)
+    type(nwad_dble), intent(in)  :: x
+    type(nwad_dble)              :: s
+    double precision             :: t1, t12
+    t1 = 1.0d0 - x%d0*x%d0
+    t12 = sqrt(t1)
+    s%d0 = acos(x%d0)
+    s%d1 = -x%d1/t12
+    s%d2 = -x%d2/t12 - x%d1**2*x%d0/(t1*t12)
+    s%d3 = -x%d3/t12 - 3*x%d1*x%d2*x%d0/(t1*t12) - x%d1**3/(t1*t12) &
+         - 3*x%d1**3*x%d0**2/(t1*t1*t12)
+  end function nwad_dble_acos
+  !>
+  !> \brief Evaluate the \f$\mathrm{atan}\f$ function
+  !>
+  !> The implementation of the \f$\mathrm{atan}\f$ function. The chain rule is
+  !> used to evaluate the derivatives. I.e. we consider
+  !> \f$s(r) = \mathrm{atan}(x(r))\f$.
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \atan{x(r)} \\\\
+  !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
+  !>      \frac{1}{1+x^2(r)}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
+  !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
+  !>      \frac{1}{1+x^2(r)}\frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} 
+  !>     -\frac{2x(r)}{\left(1+x^2(r)\right)^2}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^2 \\\\
+  !>   \frac{\mathrm{d}^3s(r)}{\mathrm{d}r^3} &=& 
+  !>      \frac{1}{1+x^2(r)}\frac{\mathrm{d}^3x(r)}{\mathrm{d}r^3} 
+  !>     -\frac{6x(r)}{\left(1+x^2(r)\right)^2}
+  !>            \frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}
+  !>            \frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} \\\\
+  !>  && -\frac{2}{\left(1+x^2(r)\right)^2}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3
+  !>     +\frac{8x^2(r)}{\left(1+x^2(r)\right)^3}
+  !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
+  !> \f}
+  !>
+  function nwad_dble_atan(x) result (s)
+    type(nwad_dble), intent(in)  :: x
+    type(nwad_dble)              :: s
+    double precision             :: t1
+    t1 = 1.0d0 + x%d0*x%d0
+    s%d0 = atan(x%d0)
+    s%d1 = x%d1/t1
+    s%d2 = x%d2/t1 - x%d1**2*x%d0/(t1*t1)
+    s%d3 = x%d3/t1 - 6*x%d1*x%d2*x%d0/(t1*t1) - 2*x%d1**3/(t1*t1) &
+         + 8*x%d1**3*x%d0**2/(t1*t1*t1)
+  end function nwad_dble_atan
   !>
   !> \brief Evaluate the \f$\mathrm{asinh}\f$ function
   !>
