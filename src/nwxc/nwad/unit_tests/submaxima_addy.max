@@ -1,0 +1,14 @@
+fx(x,y):=cos(y)+sin(x);
+dfx(x,y):=diff(fx(x,y),x);
+df2x(x,y):=diff(dfx(x,y),x);
+df3x(x,y):=diff(df2x(x,y),x);
+Fortran(expr):= fortran(ev(expr,numer));
+with_stdout("submaxima_addx.F",
+  print("      subroutine submaxima_addx(x,f,df,df2,df3)"),
+  print("      implicit none"),
+  print("      double precision x,f,df,df2,df3"),
+  Fortran(f = fx(x,x)),
+  Fortran(df = dfx(x,x)),
+  Fortran(df2 = df2x(x,x)),
+  Fortran(df3 = df3x(x,x)),
+  print("      end"));
