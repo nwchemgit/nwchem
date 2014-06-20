@@ -1,13 +1,13 @@
 C> \ingroup nwad
 C> @{
 C>
-C> \brief test the implementation of the SINH function
+C> \brief test the implementation of the ERF function
 C>
-C> This is an NWAD unit test. The derivatives of SINH function are compared
+C> This is an NWAD unit test. The derivatives of ERF function are compared
 C> against analytic derivatives. The function is 1-dimensional as that is
 C> sufficient for this test. The input data set is randomly generated.
 C> 
-      program test_sinh
+      program test_erf
       use nwad
       implicit none
       integer :: npt, i
@@ -21,8 +21,8 @@ C>
         call random_number(tmp)
         tmp = tmp*0.5d0*acos(-1.0d0)
         x(i) = active(tmp)
-        call submaxima_sinh(x(i)%d0,fa(i),dfa(i),dfa2(i),dfa3(i))
-        call subad_sinh(x(i),f(i))
+        call submaxima_erf(x(i)%d0,fa(i),dfa(i),dfa2(i),dfa3(i))
+        call subad_erf(x(i),f(i))
         if (abs((fa(i)-f(i)%d0)/(fa(i)+f(i)%d0)).gt.tol) then
           write(*,*)"F  : fail:",i,x(i)%d0,fa(i)
           write(*,*)"F  : fail:",i,x(i)%d0,f(i)%d0
@@ -48,10 +48,10 @@ C>
 C>
 C> \brief The test routine
 C>
-      subroutine subad_sinh(x,f)
+      subroutine subad_erf(x,f)
       use nwad
       implicit none
       type(nwad_dble) :: x, f
-      f = sinh(sin(x))
+      f = erf(sin(x))
       end
 C> @}

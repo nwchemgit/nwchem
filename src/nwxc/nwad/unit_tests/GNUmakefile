@@ -1,6 +1,9 @@
 all: test_sin.log test_cos.log test_tan.log \
      test_asin.log test_acos.log test_atan.log \
-     test_sinh.log test_cosh.log test_tanh.log 
+     test_sinh.log test_cosh.log test_tanh.log \
+     test_asinh.log test_erf.log test_erfc.log \
+     test_abs.log test_exp.log test_sqrt.log  \
+     test_log.log
 
 test_sin.log: test_sin
 	echo "Running " $^
@@ -38,6 +41,34 @@ test_tanh.log: test_tanh
 	echo "Running " $^
 	./test_tanh | tee test_tanh.log
 
+test_asinh.log: test_asinh
+	echo "Running " $^
+	./test_asinh | tee test_asinh.log
+
+test_erf.log: test_erf
+	echo "Running " $^
+	./test_erf | tee test_erf.log
+
+test_erfc.log: test_erfc
+	echo "Running " $^
+	./test_erfc | tee test_erfc.log
+
+test_abs.log: test_abs
+	echo "Running " $^
+	./test_abs | tee test_abs.log
+
+test_exp.log: test_exp
+	echo "Running " $^
+	./test_exp | tee test_exp.log
+
+test_sqrt.log: test_sqrt
+	echo "Running " $^
+	./test_sqrt | tee test_sqrt.log
+
+test_log.log: test_log
+	echo "Running " $^
+	./test_log | tee test_log.log
+
 test_sin: nwad.mod submaxima_sin.o test_sin.o
 	gfortran test_sin.o submaxima_sin.o nwad.o -o test_sin
 
@@ -64,6 +95,27 @@ test_cosh: nwad.mod submaxima_cosh.o test_cosh.o
 
 test_tanh: nwad.mod submaxima_tanh.o test_tanh.o
 	gfortran test_tanh.o submaxima_tanh.o nwad.o -o test_tanh
+
+test_asinh: nwad.mod submaxima_asinh.o test_asinh.o
+	gfortran test_asinh.o submaxima_asinh.o nwad.o -o test_asinh
+
+test_erf: nwad.mod submaxima_erf.o test_erf.o
+	gfortran test_erf.o submaxima_erf.o nwad.o -o test_erf
+
+test_erfc: nwad.mod submaxima_erfc.o test_erfc.o
+	gfortran test_erfc.o submaxima_erfc.o nwad.o -o test_erfc
+
+test_abs: nwad.mod submaxima_abs.o test_abs.o
+	gfortran test_abs.o submaxima_abs.o nwad.o -o test_abs
+
+test_exp: nwad.mod submaxima_exp.o test_exp.o
+	gfortran test_exp.o submaxima_exp.o nwad.o -o test_exp
+
+test_sqrt: nwad.mod submaxima_sqrt.o test_sqrt.o
+	gfortran test_sqrt.o submaxima_sqrt.o nwad.o -o test_sqrt
+
+test_log: nwad.mod submaxima_log.o test_log.o
+	gfortran test_log.o submaxima_log.o nwad.o -o test_log
 
 nwad.mod: ../nwad.F90
 	gfortran -c $^

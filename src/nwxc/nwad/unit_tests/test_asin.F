@@ -19,28 +19,28 @@ C>
       call random_seed
       do i = 1, npt
         call random_number(tmp)
-        tmp = tmp*0.5d0*acos(1.0d0)
+        tmp = tmp*0.5d0*acos(-1.0d0)
         x(i) = active(tmp)
         call submaxima_asin(x(i)%d0,fa(i),dfa(i),dfa2(i),dfa3(i))
         call subad_asin(x(i),f(i))
         if (abs((fa(i)-f(i)%d0)/(fa(i)+f(i)%d0)).gt.tol) then
-          write(*,*)"F  : fail:",i,x%d0,fa(i)
-          write(*,*)"F  : fail:",i,x%d0,f(i)%d0
+          write(*,*)"F  : fail:",i,x(i)%d0,fa(i)
+          write(*,*)"F  : fail:",i,x(i)%d0,f(i)%d0
           write(*,*)
         endif
         if (abs((dfa(i)-f(i)%d1)/(dfa(i)+f(i)%d1)).gt.tol) then
-          write(*,*)"DF : fail:",i,x%d0,dfa(i)
-          write(*,*)"DF : fail:",i,x%d0,f(i)%d1
+          write(*,*)"DF : fail:",i,x(i)%d0,dfa(i)
+          write(*,*)"DF : fail:",i,x(i)%d0,f(i)%d1
           write(*,*)
         endif
         if (abs((dfa2(i)-f(i)%d2)/(dfa2(i)+f(i)%d2)).gt.tol) then
-          write(*,*)"DF2: fail:",i,x%d0,dfa2(i)
-          write(*,*)"DF2: fail:",i,x%d0,f(i)%d2
+          write(*,*)"DF2: fail:",i,x(i)%d0,dfa2(i)
+          write(*,*)"DF2: fail:",i,x(i)%d0,f(i)%d2
           write(*,*)
         endif
         if (abs((dfa3(i)-f(i)%d3)/(dfa3(i)+f(i)%d3)).gt.tol) then
-          write(*,*)"DF3: fail:",i,x%d0,dfa3(i)
-          write(*,*)"DF3: fail:",i,x%d0,f(i)%d3
+          write(*,*)"DF3: fail:",i,x(i)%d0,dfa3(i)
+          write(*,*)"DF3: fail:",i,x(i)%d0,f(i)%d3
           write(*,*)
         endif
       enddo
