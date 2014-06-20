@@ -2402,17 +2402,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
             if (.not.value) 
      >      call errquit('v_nonlocal:out of stack',4, MA_ERR)
 
-c            call nwpw_compcharge_gen_zv_cmp(dbl_mb(zv(1)),
-c     >                                      dcpl_mb(dng_cmp(1)))
-c            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
-c            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
-c     >                         dcpl_mb(vcmp_tmp(1)),ff(1))
-c            write(*,*) "e_i-i=",0.5d0*ff(1)
-
             call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
-
-c            call nwpw_compcharge_gen_dn_cmp_zv(ispin,dbl_mb(zv(1)),
-c     >                                         dcpl_mb(dng_cmp(1)))
 
             call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
             call Pack_cc_Sum(0,

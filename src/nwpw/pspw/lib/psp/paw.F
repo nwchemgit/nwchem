@@ -1072,16 +1072,18 @@ c           end do
       return 
       end
 
+
+
 *     ***********************************
 *     *					*
-*     *	 	   psp_overlap1		*
+*     *	    psp_add_paw_extra_overlap1	*
 *     *					*
 *     ***********************************
 
-*    This routine computes the paw overlap S operator to psi1
-*      Smatrix = <psi1| S|psi1>
+*    This routine adds the extra part of the paw overlap S operator to psi1
+*      S = S + Smatrix, where Smatrix = <psi1| S-I|psi1>
 *
-      subroutine psp_overlap1(mb,psi1,S)
+      subroutine psp_add_paw_extra_overlap1(mb,psi1,S)
       implicit none
       integer    mb
       complex*16 psi1(*)
@@ -1109,6 +1111,13 @@ c           end do
 
       call nwpw_timing_start(6) 
 
+
+cc*     **** S = transpose(psi)*psi ****
+cc      call Dneall_ffm_sym_Multiply(mb,psi1,psi1,npack1,S)
+
+
+      if (pawexist) then
+
       call Pack_npack(1,npack1)
       call Dneall_neq(neq)
       if (mb.eq.0) then
@@ -1118,11 +1127,6 @@ c           end do
          nn = neq(mb)
          ishift = 1 + (mb-1)*neq(1)*npack1
       end if
-
-*     **** S = transpose(psi)*psi ****
-      call Dneall_ffm_sym_Multiply(mb,psi1,psi1,npack1,S)
-
-      if (pawexist) then
 
 *     **** allocate local memory ****
       nn = neq(1)+neq(2)
@@ -1134,7 +1138,7 @@ c           end do
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
-     >  call errquit('psp_overlap1: out of stack',0,MA_ERR)
+     >  call errquit('psp_paw_extra_overlap1:out of stack',0,MA_ERR)
 
       omega = lattice_omega()
       scal    = 1.0d0/(omega)
@@ -1229,8 +1233,8 @@ c        end do
       value =           MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('psp_overlap1: popping stack',3,
-     &       MA_ERR)
+      if (.not.value) 
+     >   call errquit('psp_paw_extra_overlap1: popping stack',3,MA_ERR)
       call nwpw_timing_end(6)
       end if
       return 
@@ -1239,14 +1243,14 @@ c        end do
 
 *     ***********************************
 *     *					*
-*     *	 	   psp_overlap2		*
+*     *	    psp_add_paw_extra_overlap2	*
 *     *					*
 *     ***********************************
 
-*    This routine computes the paw overlap S operator to psi1
-*      Smatrix = <psi1| S|psi2>
+*    This routine adds the extra part of the paw overlap S operator to psi1
+*      S = S + Smatrix where Smatrix = <psi1|S-I|psi2>
 *
-      subroutine psp_overlap2(mb,psi1,psi2,S)
+      subroutine psp_add_paw_extra_overlap2(mb,psi1,psi2,S)
       implicit none
       integer    mb
       complex*16 psi1(*)
@@ -1275,6 +1279,12 @@ c        end do
 
       call nwpw_timing_start(6) 
 
+c*     **** S = transpose(psi)*psi ****
+c      call Dneall_ffm_Multiply(mb,psi1,psi2,npack1,S)
+
+
+      if (pawexist) then
+
       call Pack_npack(1,npack1)
       call Dneall_neq(neq)
       if (mb.eq.0) then
@@ -1285,10 +1295,6 @@ c        end do
          ishift = 1+ (mb-1)*neq(1)*npack1
       end if
 
-*     **** S = transpose(psi)*psi ****
-      call Dneall_ffm_Multiply(mb,psi1,psi2,npack1,S)
-
-      if (pawexist) then
 *     **** allocate local memory ****
 
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
@@ -1299,7 +1305,7 @@ c        end do
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
-     >  call errquit('psp_overlap2:out of stack',0,MA_ERR)
+     > call errquit('psp_add_paw_extra_overlap2:out of stack',0,MA_ERR)
 
       omega = lattice_omega()
       scal    = 1.0d0/(omega)
@@ -1400,161 +1406,161 @@ c        end do
       value = value.and.MA_pop_stack(sw1(2))
       value = value.and.MA_pop_stack(sw0(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('psp_overlap2: popping stack',3,
-     &       MA_ERR)
-      call nwpw_timing_end(6)
-      end if
-      return 
-      end
-
-
-
-
-
-*     ***********************************
-*     *					*
-*     *	 	   psp_overlap_orb	*
-*     *					*
-*     ***********************************
-
-*    This routine computes the paw overlap S operator to psi1
-*      psi2 = S*psi1
-*
-      subroutine psp_overlap_orb(n,psi1,S)
-      implicit none
-      integer    n
-      complex*16 psi1(*)
-      real*8     S(*)
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "psp.fh"
-
-*     *** local variables ***
-      integer npack1
-      integer ii,ia,iii,l
-      integer k,shift,l_prj,nproj,Gijl_indx
-      real*8  omega,scal,scalsqr
-      integer exi(2),sw1(2),sw2(2)
-      logical value,sd_function
-
-*     **** external functions ****
-      integer  ion_katm
-      integer  psi_data_get_ptr
-      real*8   lattice_omega
-      external ion_katm
-      external psi_data_get_ptr
-      external lattice_omega
-
-      if (pawexist) then
-      call nwpw_timing_start(6) 
-
-*     **** S = transpose(psi)*psi ****
-      call Pack_ccm_sym_dot(1,n,psi1,psi1,S)
-
-
-*     **** allocate local memory ****
-      call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,n*nprj_max,'sw1',sw1(2),sw1(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,n*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
-     >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
-
-      omega = lattice_omega()
-      scal    = 1.0d0/(omega)
-      scalsqr = scal*scal
-
-
-      do iii=1,nion_paw
-        ii    = int_mb(ion_pawtoion(1)+iii-1)
-        ia    = ion_katm(ii)
-        nproj = int_mb(nprj(1)+ia-1)
-
-        if (nproj.gt.0) then
-
-*       **** structure factor and local pseudopotential ****
-        call strfac_pack(1,ii,dcpl_mb(exi(1)))
-
-*       **** generate sw1's and projectors ****
-        do l=1,nproj
-
-           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
-           l_prj = int_mb(l_projector(1)+(l-1) 
-     >                                  + (ia-1)*(nmax_max*lmmax_max))
-           !sd_function = .not.and(l_prj,1)
-#ifdef GCC4
-           k = iand(l_prj,1)
-#else
-           k = and(l_prj,1)
-#endif
-           sd_function = (k.eq.0)
-
-
-*          **** phase factor does not matter therefore ****
-*          **** (-i)^l is the same as (i)^l in the     ****
-*          **** Rayleigh scattering formula            ****
-
-*          *** current function is s or d ****
-           if (sd_function) then
-              call Pack_tc_Mul(1,dbl_mb(shift),
-     >                           dcpl_mb(exi(1)),
-     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
-*          *** current function is p or f ****
-           else
-              call Pack_tc_iMul(1,dbl_mb(shift),
-     >                           dcpl_mb(exi(1)),
-     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
-           end if
-           call Pack_cc_indot(1,n,
-     >                      psi1,
-     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
-     >                      dbl_mb(sw1(1)+(l-1)*n))
-
-        end do
-        call D3dB_Vector_SumAll((n*nproj),dbl_mb(sw1(1)))
-
-
-*       **** sw2 = Sijl*sw1 ******
-        Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),2)
-        call Multiply_Gijl_sw1(n,
-     >                         nproj,
-     >                         int_mb(nmax(1)+ia-1),
-     >                         int_mb(lmax(1)+ia-1),
-     >                         int_mb(n_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         int_mb(l_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         int_mb(m_projector(1)
-     >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         dbl_mb(Gijl_indx),
-     >                         dbl_mb(sw1(1)),
-     >                         dbl_mb(sw2(1)))
-
-*       *** routine needs to be parallelized over orbitals ****
-*       **** S = S + sw1*transpose(sw2) ****
-        call DGEMM('N','T',n,n,int_mb(nprj(1)+ia-1),
-     >              (scal),
-     >              dbl_mb(sw1(1)), n,
-     >              dbl_mb(sw2(1)), n,
-     >              (1.0d0),
-     >              S, n)
-
-        end if !** nproj>0 **
-      end do !** ii **
-
-      value =           MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('psp_overlap_orb: popping stack',3,
-     &       MA_ERR)
+     > call errquit('psp_add_paw_extra_overlap2:popping stack',3,MA_ERR)
       call nwpw_timing_end(6)
       end if
       return 
       end
 
+
+
+
+
+c*     ***********************************
+c*     *					*
+c*     *	       psp_overlap_orb	        *
+c*     *					*
+c*     ***********************************
+c
+c*    This routine computes the paw overlap S operator to psi1
+c*      psi2 = S*psi1
+c*
+c      subroutine psp_overlap_orb(n,psi1,S)
+c      implicit none
+c      integer    n
+c      complex*16 psi1(*)
+c      real*8     S(*)
+c
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "psp.fh"
+c
+c*     *** local variables ***
+c      integer npack1
+c      integer ii,ia,iii,l
+c      integer k,shift,l_prj,nproj,Gijl_indx
+c      real*8  omega,scal,scalsqr
+c      integer exi(2),sw1(2),sw2(2)
+c      logical value,sd_function
+c
+c*     **** external functions ****
+c      integer  ion_katm
+c      integer  psi_data_get_ptr
+c      real*8   lattice_omega
+c      external ion_katm
+c      external psi_data_get_ptr
+c      external lattice_omega
+c
+c      if (pawexist) then
+c      call nwpw_timing_start(6) 
+c
+c*     **** S = transpose(psi)*psi ****
+c      call Pack_ccm_sym_dot(1,n,psi1,psi1,S)
+c
+c
+c*     **** allocate local memory ****
+c      call Pack_npack(1,npack1)
+c      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+c      value = value.and.
+c     >        MA_push_get(mt_dbl,n*nprj_max,'sw1',sw1(2),sw1(1))
+c      value = value.and.
+c     >        MA_push_get(mt_dbl,n*nprj_max,'sw2',sw2(2),sw2(1))
+c      if (.not.value) 
+c     >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
+c
+c      omega = lattice_omega()
+c      scal    = 1.0d0/(omega)
+c      scalsqr = scal*scal
+c
+c
+c      do iii=1,nion_paw
+c        ii    = int_mb(ion_pawtoion(1)+iii-1)
+c        ia    = ion_katm(ii)
+c        nproj = int_mb(nprj(1)+ia-1)
+c
+c        if (nproj.gt.0) then
+c
+c*       **** structure factor and local pseudopotential ****
+c        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+c
+c*       **** generate sw1's and projectors ****
+c        do l=1,nproj
+c
+c           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
+c           l_prj = int_mb(l_projector(1)+(l-1) 
+c     >                                  + (ia-1)*(nmax_max*lmmax_max))
+c           !sd_function = .not.and(l_prj,1)
+c#ifdef GCC4
+c           k = iand(l_prj,1)
+c#else
+c           k = and(l_prj,1)
+c#endif
+c           sd_function = (k.eq.0)
+c
+c
+c*          **** phase factor does not matter therefore ****
+c*          **** (-i)^l is the same as (i)^l in the     ****
+c*          **** Rayleigh scattering formula            ****
+c
+c*          *** current function is s or d ****
+c           if (sd_function) then
+c              call Pack_tc_Mul(1,dbl_mb(shift),
+c     >                           dcpl_mb(exi(1)),
+c     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+c*          *** current function is p or f ****
+c           else
+c              call Pack_tc_iMul(1,dbl_mb(shift),
+c     >                           dcpl_mb(exi(1)),
+c     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+c           end if
+c           call Pack_cc_indot(1,n,
+c     >                      psi1,
+c     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+c     >                      dbl_mb(sw1(1)+(l-1)*n))
+c
+c        end do
+c        call D3dB_Vector_SumAll((n*nproj),dbl_mb(sw1(1)))
+c
+c
+c*       **** sw2 = Sijl*sw1 ******
+c        Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),2)
+c        call Multiply_Gijl_sw1(n,
+c     >                         nproj,
+c     >                         int_mb(nmax(1)+ia-1),
+c     >                         int_mb(lmax(1)+ia-1),
+c     >                         int_mb(n_projector(1)
+c     >                                + (ia-1)*(nmax_max*lmmax_max)),
+c     >                         int_mb(l_projector(1)
+c     >                                + (ia-1)*(nmax_max*lmmax_max)),
+c     >                         int_mb(m_projector(1)
+c     >                                + (ia-1)*(nmax_max*lmmax_max)),
+c     >                         dbl_mb(Gijl_indx),
+c     >                         dbl_mb(sw1(1)),
+c     >                         dbl_mb(sw2(1)))
+c
+c*       *** routine needs to be parallelized over orbitals ****
+c*       **** S = S + sw1*transpose(sw2) ****
+c        call DGEMM('N','T',n,n,int_mb(nprj(1)+ia-1),
+c     >              (scal),
+c     >              dbl_mb(sw1(1)), n,
+c     >              dbl_mb(sw2(1)), n,
+c     >              (1.0d0),
+c     >              S, n)
+c
+c        end if !** nproj>0 **
+c      end do !** ii **
+c
+c      value =           MA_pop_stack(sw2(2))
+c      value = value.and.MA_pop_stack(sw1(2))
+c      value = value.and.MA_pop_stack(exi(2))
+c      if (.not.value) call errquit('psp_overlap_orb: popping stack',3,
+c     &       MA_ERR)
+c      call nwpw_timing_end(6)
+c      end if
+c      return 
+c      end
+c
 
 
 
@@ -2676,6 +2682,8 @@ c     >                         dcpl_mb(vl1(1)),eh)
         end if !** nproj>0 **
       end do !** ii **
       pxc = pxc*scal 
+      if (ispin.eq.1) pxc = pxc + pxc
+
       value =           MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
       value = value.and.MA_pop_stack(exi(2))
