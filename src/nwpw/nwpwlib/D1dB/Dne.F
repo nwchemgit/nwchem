@@ -3519,7 +3519,11 @@ c     ****************************************
             call DMatrix_m_add_value(w,i,j,A(shift2),
      >                 mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)))
          else
-            shift2 = (ms-1)*ne(1)*ne(1)
+            if (mb.eq.0) then
+               shift2 = (ms-1)*ne(1)*ne(1)
+            else
+               shift2 = 0
+            end if
             A(i+(j-1)*ne(ms)+shift2) = A(i+(j-1)*ne(ms)+shift2) + w
          end if
       end if
@@ -3578,8 +3582,8 @@ c     ****************************************
 
 *     **** local variables ****
       logical value
-      integer ms,q,n,nn,nnq,ishift1,ishift2
-      integer i,j,ii,jj,pto,taskid
+      integer ms,q,n,nn,nnq,shift1,shift2,ishift1,ishift2
+      integer i,j,ii,jj,pto,taskid,ms1,ms2
       integer sw1b(2),sw2b(2)
       real*8  w
 
@@ -3587,9 +3591,15 @@ c     ****************************************
       real*8   ddot
       external ddot
 
+
       if (parallelized) then
-         nn  = ne(1)  + ne(2)
-         nnq = neq(1) + neq(2)
+         if (mb.eq.0) then
+            nn  = ne(1)  + ne(2)
+            nnq = neq(1) + neq(2)
+         else
+            nn  = ne(mb)
+            nnq = neq(mb)
+         end if
          value = MA_push_get(mt_dbl,nn*nprj,'sw1b',sw1b(2),sw1b(1))
          value = value.and.
      >           MA_push_get(mt_dbl,nn*nprj,'sw2b',sw2b(2),sw2b(1))
@@ -3612,7 +3622,17 @@ c     ****************************************
 
          if (mparallelized) then
             call Parallel_taskid(taskid)
-            do ms=1,ispin
+            if (mb.eq.0) then
+               ms1 = 1
+               ms2 = ispin
+               ishift1 = ne(1)
+            else
+               ms1 = mb
+               ms2 = mb
+               ishift1 = 0
+            end if
+            do ms=ms1,ms2
+               shift1 =   (ms-1)*ishift1
                do j=1,ne(ms)
                do i=1,ne(ms)
                   call DMatrix_m_ijtoiijjp(i,j,ii,jj,pto,
@@ -3620,24 +3640,35 @@ c     ****************************************
      >                                     int_mb(mc(1,ms)),
      >                                     int_mb(nc(1,ms)))
                   if (pto.eq.taskid) then
-                     w = ddot(nprj,dbl_mb(sw1b(1)+i-1),nn,
-     >                             dbl_mb(sw2b(1)+j-1),nn)
-                     call Dneall_m_add_value(scal*w,0,ms,i,j,S)
+                     w = ddot(nprj,dbl_mb(sw1b(1)+i-1+shift1),nn,
+     >                             dbl_mb(sw2b(1)+j-1+shift1),nn)
+                     call Dneall_m_add_value(scal*w,mb,ms,i,j,S)
                   end if
                end do
                end do
             end do
 
          else
-            do ms=1,ispin
-               ishift2 = 1+(ms-1)*ne(1)*ne(1)
-               ishift1 =   (ms-1)*ne(1)
+            if (mb.eq.0) then
+               ms1 = 1
+               ms2 = ispin
+               ishift1 = ne(1)
+               ishift2 = ne(1)*ne(1)
+            else
+               ms1 = mb
+               ms2 = mb
+               ishift1 = 0
+               ishift2 = 0
+            end if
+            do ms=ms1,ms2
+               shift1 =   (ms-1)*ishift1
+               shift2 = 1+(ms-1)*ishift2
                call DGEMM('N','T',ne(ms),ne(ms),nprj,
      >                    scal,
-     >                    dbl_mb(sw1b(1)+ishift1), nn,
-     >                    dbl_mb(sw2b(1)+ishift2), nn,
+     >                    dbl_mb(sw1b(1)+shift1), nn,
+     >                    dbl_mb(sw2b(1)+shift1), nn,
      >                    1.0d0,
-     >                    S(ishift2),ne(ms))
+     >                    S(shift2),ne(ms))
             end do
          end if
          value =           MA_pop_stack(sw2b(2))
@@ -3645,17 +3676,30 @@ c     ****************************************
          if (.not.value)
      >   call errquit('Dneall_m_add_sw1sw2:pop stack',1,MA_ERR)
       else
-        do ms=1,ispin
-          ishift2 = 1+(ms-1)*ne(1)*ne(1)
-          ishift1 = 1+(ms-1)*ne(1)
-          call DGEMM('N','T',
-     >              ne(ms),ne(ms),nprj,
-     >              scal,
-     >              sw1(ishift1), nn,
-     >              sw2(ishift2), nn,
-     >              1.0d0,
-     >              S(ishift2), ne(ms))
-        end do
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+            nn = ne(1) + ne(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            nn = ne(mb)
+         end if
+         do ms=ms1,ms2
+           shift1 = 1+(ms-1)*ishift1
+           shift2 = 1+(ms-1)*ishift2
+           call DGEMM('N','T',
+     >               ne(ms),ne(ms),nprj,
+     >               scal,
+     >               sw1(shift1), nn,
+     >               sw2(shift1), nn,
+     >               1.0d0,
+     >               S(shift2), ne(ms))
+         end do
       end if
 
       return
