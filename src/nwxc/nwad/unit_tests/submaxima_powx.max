@@ -1,0 +1,15 @@
+fx(x,y):=(1.01+cos(x))^sin(y);
+dfx(x,y):=diff(fx(x,y),x);
+df2x(x,y):=diff(dfx(x,y),x);
+df3x(x,y):=diff(df2x(x,y),x);
+Fortran(expr):= fortran(ev(expr,numer));
+with_stdout("submaxima_powx.F",
+  print("      subroutine submaxima_powx(x,f,df,df2,df3)"),
+  print("      implicit none"),
+  print("      double precision x,y,f,df,df2,df3"),
+  print("      y = x"),
+  Fortran(f = fx(x,y)),
+  Fortran(df = dfx(x,y)),
+  Fortran(df2 = df2x(x,y)),
+  Fortran(df3 = df3x(x,y)),
+  print("      end"));
