@@ -386,7 +386,7 @@ contains
          - 3 * x%d2 * y%d1        / (y%d0 ** 2) &
          + 6 * x%d1 * y%d1 ** 2   / (y%d0 ** 3) &
          - 6 * x%d0 * y%d1 ** 3   / (y%d0 ** 4) &
-         - 3 * x%d1 * y%d2        / (y%d0 ** 3) &
+         - 3 * x%d1 * y%d2        / (y%d0 ** 2) &
          + 6 * x%d0 * y%d1 * y%d2 / (y%d0 ** 3) &
          -     x%d0 * y%d3        / (y%d0 ** 2)
   end function nwad_dble_div
