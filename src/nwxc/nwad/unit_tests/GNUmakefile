@@ -174,14 +174,14 @@ test_subx: nwad.mod submaxima_subx.o test_subx.o
 test_suby: nwad.mod submaxima_suby.o test_suby.o
 	gfortran test_suby.o submaxima_suby.o nwad.o -o test_suby
 
-test_mul: nwad.mod mulmaxima_mul.o test_mul.o
-	gfortran test_mul.o mulmaxima_mul.o nwad.o -o test_mul
+test_mul: nwad.mod submaxima_mul.o test_mul.o
+	gfortran test_mul.o submaxima_mul.o nwad.o -o test_mul
 
-test_mulx: nwad.mod mulmaxima_mulx.o test_mulx.o
-	gfortran test_mulx.o mulmaxima_mulx.o nwad.o -o test_mulx
+test_mulx: nwad.mod submaxima_mulx.o test_mulx.o
+	gfortran test_mulx.o submaxima_mulx.o nwad.o -o test_mulx
 
-test_muly: nwad.mod mulmaxima_muly.o test_muly.o
-	gfortran test_muly.o mulmaxima_muly.o nwad.o -o test_muly
+test_muly: nwad.mod submaxima_muly.o test_muly.o
+	gfortran test_muly.o submaxima_muly.o nwad.o -o test_muly
 
 nwad.mod: ../nwad.F90
 	gfortran -c $^
