@@ -660,7 +660,7 @@ contains
   function nwad_dble_exp(x) result (s)
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
-    s%d0 = x%d0*exp(x%d0)
+    s%d0 = exp(x%d0)
     s%d1 = x%d1*exp(x%d0)
     s%d2 = x%d2*exp(x%d0) + x%d1**2*exp(x%d0)
     s%d3 = x%d3*exp(x%d0) + 3*x%d1*x%d2*exp(x%d0) + x%d1**3*exp(x%d0)
@@ -867,7 +867,7 @@ contains
   !> used to evaluate the derivatives. I.e. we consider
   !> \f$s(r) = \mathrm{asin}(x(r))\f$.
   !> \f{eqnarray*}{
-  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \asin{x(r)} \\\\
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \mathrm{asin}(x(r)) \\\\
   !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
   !>      \frac{1}{\sqrt{1-x^2(r)}}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
   !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
@@ -888,14 +888,14 @@ contains
   function nwad_dble_asin(x) result (s)
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
-    double precision             :: t1, t12
-    t1 = 1.0d0 - x%d0*x%d0
-    t12 = sqrt(t1)
     s%d0 = asin(x%d0)
-    s%d1 = x%d1/t12
-    s%d2 = x%d2/t12 + x%d1**2*x%d0/(t1*t12)
-    s%d3 = x%d3/t12 + 3*x%d1*x%d2*x%d0/(t1*t12) + x%d1**3/(t1*t12) &
-         + 3*x%d1**3*x%d0**2/(t1*t1*t12)
+    s%d1 = x%d1/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0))
+    s%d2 = x%d2/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0)) &
+         + x%d0*(x%d1**2.0d0)/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0))
+    s%d3 = x%d3/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0)) &
+         + 3.0d0*x%d0*x%d1*x%d2/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0)) &
+         + (x%d1**3.0d0)/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0)) &
+         + 3.0d0*(x%d0**2.0d0)*(x%d1**3.0d0)/((1.0d0-x%d0*x%d0)**(5.0d0/2.0d0))
   end function nwad_dble_asin
   !>
   !> \brief Evaluate the \f$\mathrm{acos}\f$ function
@@ -904,7 +904,7 @@ contains
   !> used to evaluate the derivatives. I.e. we consider
   !> \f$s(r) = \mathrm{acos}(x(r))\f$.
   !> \f{eqnarray*}{
-  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \acos{x(r)} \\\\
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \mathrm{acos}(x(r)) \\\\
   !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
   !>     -\frac{1}{\sqrt{1-x^2(r)}}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
   !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
@@ -925,14 +925,14 @@ contains
   function nwad_dble_acos(x) result (s)
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
-    double precision             :: t1, t12
-    t1 = 1.0d0 - x%d0*x%d0
-    t12 = sqrt(t1)
     s%d0 = acos(x%d0)
-    s%d1 = -x%d1/t12
-    s%d2 = -x%d2/t12 - x%d1**2*x%d0/(t1*t12)
-    s%d3 = -x%d3/t12 - 3*x%d1*x%d2*x%d0/(t1*t12) - x%d1**3/(t1*t12) &
-         - 3*x%d1**3*x%d0**2/(t1*t1*t12)
+    s%d1 = -x%d1/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0))
+    s%d2 = -x%d2/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0)) &
+         - x%d0*(x%d1**2.0d0)/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0))
+    s%d3 = -x%d3/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0)) &
+         - 3.0d0*x%d0*x%d1*x%d2/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0)) &
+         - (x%d1**3.0d0)/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0)) &
+         - 3.0d0*(x%d0**2.0d0)*(x%d1**3.0d0)/((1.0d0-x%d0*x%d0)**(5.0d0/2.0d0))
   end function nwad_dble_acos
   !>
   !> \brief Evaluate the \f$\mathrm{atan}\f$ function
@@ -941,7 +941,7 @@ contains
   !> used to evaluate the derivatives. I.e. we consider
   !> \f$s(r) = \mathrm{atan}(x(r))\f$.
   !> \f{eqnarray*}{
-  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \atan{x(r)} \\\\
+  !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& \mathrm{atan}(x(r)) \\\\
   !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
   !>      \frac{1}{1+x^2(r)}\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
   !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
@@ -962,13 +962,14 @@ contains
   function nwad_dble_atan(x) result (s)
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
-    double precision             :: t1
-    t1 = 1.0d0 + x%d0*x%d0
     s%d0 = atan(x%d0)
-    s%d1 = x%d1/t1
-    s%d2 = x%d2/t1 - x%d1**2*x%d0/(t1*t1)
-    s%d3 = x%d3/t1 - 6*x%d1*x%d2*x%d0/(t1*t1) - 2*x%d1**3/(t1*t1) &
-         + 8*x%d1**3*x%d0**2/(t1*t1*t1)
+    s%d1 = x%d1/(1.0d0+x%d0*x%d0)
+    s%d2 = x%d2/(1.0d0+x%d0*x%d0) &
+         - 2.0d0*x%d0*(x%d1**2.0d0)/((1.0d0+x%d0*x%d0)**2.0d0)
+    s%d3 = x%d3/(1.0d0+x%d0*x%d0) &
+         - 6.0d0*x%d0*x%d1*x%d2/((1.0d0+x%d0*x%d0)**2.0d0) &
+         - 2.0d0*(x%d1**3.0d0)/((1.0d0+x%d0*x%d0)**2.0d0) &
+         + 8.0d0*(x%d0**2.0d0)*(x%d1**3.0d0)/((1.0d0+x%d0*x%d0)**3.0d0)
   end function nwad_dble_atan
   !>
   !> \brief Evaluate the \f$\mathrm{asinh}\f$ function
