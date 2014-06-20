@@ -1,0 +1,45 @@
+/*
+Generate the derivative expansion of expressions for AD
+=======================================================
+
+To implement the Automatic Differentiation (AD) approach [1] the chain rule
+is used to derive the expressions to implement. A quick way to generate these 
+expressions is to use a symbol algebra package such as Maxima [2]. Below an
+example is provided detailing the approach applied to multiplication.
+This example is extremely simple and demonstrates both the AD approach as well
+as the peculiarities of the Maxima system.
+
+[1] See: http://www.autodiff.org
+
+[2] See: http://http://maxima.sourceforge.net
+*/
+
+/* 
+To work out how to implement the derivatives of the multiplication operator
+we start by specifying two functions F(X) and G(X).
+*/
+depends(f,x);
+depends(g,x);
+/*
+Next we differentiate their product.
+*/
+diff(f*g,x);
+diff(diff(f*g,x),x);
+diff(diff(diff(f*g,x),x),x);
+/*
+Run this script through Maxima using the command:
+
+   maxima -b generate_expansions.max
+
+and Maxima will generate the derivatives on screen.
+
+Subsequently, one replaces F with the variable for the function value,
+DF/DX with the variable for the first derivative, D2F/DX2 with the variable
+for the second derivative, etc. Vice versa for G. And one assigns the results
+to the appropriate output variable. After that it is all done, one has
+implemented the AD approach to the multiplication operator. If desired one
+can look at the corresponding code in nwad_dble_mult [nwad.F90].
+
+Huub van Dam, 2014.
+*/
+
