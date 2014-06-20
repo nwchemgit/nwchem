@@ -1,3 +1,21 @@
+# $Id: $
+#
+# Unit Tests for the NWAD Automatic Differentiation code
+# ======================================================
+#
+# Running these unit tests requires the Maxima symbolic algebra package.
+# See http://maxima.sourceforge.net/ for details. Maxima is used to 
+# derive the reference implementations of the tests.
+#
+# Every test case, when run, produces a log-file listing all the errors.
+# Hence empty log-files are a good thing. The labels on log-lines indicate
+# which level of derivative shows problems:
+# - F   : the basic expression is evaluated incorrectly
+# - DF  : the 1st derivative expression is evaluated incorrectly
+# - DF2 : the 2nd derivative expression is evaluated incorrectly
+# - DF3 : the 3rd derivative expression is evaluated incorrectly
+# The code compares against relative errors.
+#
 all: test_sin.log test_cos.log test_tan.log \
      test_asin.log test_acos.log test_atan.log \
      test_sinh.log test_cosh.log test_tanh.log \
