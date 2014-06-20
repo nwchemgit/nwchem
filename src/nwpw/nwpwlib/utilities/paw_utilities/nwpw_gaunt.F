@@ -94,7 +94,7 @@ c     work arrays for integration
             n = newn
          end do
          tp = (abs(mm(1)).eq.(abs(mm(2))+abs(mm(3))) )
-         tm = (abs(mm(1)).eq.(abs(mm(2))-abs(mm(3))) )
+         tm = (abs(mm(1)).eq.abs((abs(mm(2))-abs(mm(3)))) )
 
          if ((mm(1).gt.0).and.(mm(2).gt.0).and.(mm(3).gt.0).and.tp) then
             coeff = piover2
@@ -111,7 +111,7 @@ c     work arrays for integration
      >                        .and.(mm(3).eq.0)) then
             coeff = twopi
          else if ((mm(1).eq.0).and.(mm(2).lt.0)
-     >                        .and.(mm(3).lt.0).and.(tp.or.tm)) then
+     >                        .and.(mm(3).lt.0).and.(tm)) then
             coeff = pi
          else
             nwpw_gaunt = 0.0d0
