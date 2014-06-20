@@ -54,13 +54,14 @@ c $Id: psi_lmbda_paw.f 21177 2011-10-10 17:09:43Z bylaska $
         IF(ne(ms).le.0) go to 640
 
 *       ***** compute the overlap matrices ****
-c        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(A))
-c        call Dneall_ffm_Multiply(ms,psi1,psi2,npack1,tmp(B))
-c        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(C))
+        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(A))
+        call Dneall_ffm_Multiply(ms,psi1,psi2,npack1,tmp(B))
+        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(C))
 
-        call psp_overlap1(ms,psi2,tmp(A))
-        call psp_overlap2(ms,psi1,psi2,tmp(B))
-        call psp_overlap1(ms,psi1,tmp(C))
+*       *** add the extra paw overlap part ***
+        call psp_add_paw_extra_overlap1(ms,psi2,tmp(A))
+        call psp_add_paw_extra_overlap2(ms,psi1,psi2,tmp(B))
+        call psp_add_paw_extra_overlap1(ms,psi1,tmp(C))
 
 
         call psi_gen_Ba_Bs(ms,nn,tmp(B),tmp(Bs),tmp(Ba))
