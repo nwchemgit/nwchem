@@ -4,7 +4,8 @@ all: test_sin.log test_cos.log test_tan.log \
      test_asinh.log test_erf.log test_erfc.log \
      test_abs.log test_exp.log test_sqrt.log  \
      test_log.log \
-     test_add.log test_addx.log test_addy.log
+     test_add.log test_addx.log test_addy.log \
+     test_sub.log test_subx.log test_suby.log
 
 test_sin.log: test_sin
 	echo "Running " $^
@@ -82,6 +83,18 @@ test_addy.log: test_addy
 	echo "Running " $^
 	./test_addy | tee test_addy.log
 
+test_sub.log: test_sub
+	echo "Running " $^
+	./test_sub | tee test_sub.log
+
+test_subx.log: test_subx
+	echo "Running " $^
+	./test_subx | tee test_subx.log
+
+test_suby.log: test_suby
+	echo "Running " $^
+	./test_suby | tee test_suby.log
+
 test_sin: nwad.mod submaxima_sin.o test_sin.o
 	gfortran test_sin.o submaxima_sin.o nwad.o -o test_sin
 
@@ -138,6 +151,15 @@ test_addx: nwad.mod submaxima_addx.o test_addx.o
 
 test_addy: nwad.mod submaxima_addy.o test_addy.o
 	gfortran test_addy.o submaxima_addy.o nwad.o -o test_addy
+
+test_sub: nwad.mod submaxima_sub.o test_sub.o
+	gfortran test_sub.o submaxima_sub.o nwad.o -o test_sub
+
+test_subx: nwad.mod submaxima_subx.o test_subx.o
+	gfortran test_subx.o submaxima_subx.o nwad.o -o test_subx
+
+test_suby: nwad.mod submaxima_suby.o test_suby.o
+	gfortran test_suby.o submaxima_suby.o nwad.o -o test_suby
 
 nwad.mod: ../nwad.F90
 	gfortran -c $^
