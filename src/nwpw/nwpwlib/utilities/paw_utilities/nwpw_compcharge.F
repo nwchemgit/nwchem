@@ -387,6 +387,7 @@
                      bi = b_prj(i,ia)
                      taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
      >                    *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
+
                      if (dabs(taunt).gt.1.0d-11) then
                         int_mb(lm_Tndiff(1)+indx)   = lm
                         int_mb(iprj_Tndiff(1)+indx) = i
@@ -3105,7 +3106,7 @@ c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
 
 *     **** local variables ****
       integer k,indx1up,indx1dn,indx2up,indx2dn
-      real*8 E,q1,q2,fourpi
+      real*8 E,q1,q2,fourpi,es,ep,ed
       integer iii,jjj,l1,m1,l2,m2
 
       fourpi = 16.0d0*datan(1.0d0)
@@ -3117,12 +3118,16 @@ c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
          indx2up = int_mb(lm2_gauss(1)+k-1)
          indx2dn = indx2up + (ispin-1)*lm_size_max
 
-c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
-c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
+         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
+         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
 
          q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
          q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
          E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
+
+         if (l1.eq.0) es = es + q1*q2*dbl_mb(e_gauss(1)+k-1)
+         if (l1.eq.1) ep = ep + q1*q2*dbl_mb(e_gauss(1)+k-1)
+         if (l1.eq.2) ed = ed + q1*q2*dbl_mb(e_gauss(1)+k-1)
 
       end do
       call Parallel_SumAll(E)
@@ -3362,38 +3367,33 @@ c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
      >               1,MA_ERR)
 
 
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
-      pcount = 0
       fourpi = 16.0d0*datan(1.0d0)
       do k=1,ngauss
-         if (mod(k,np).eq.taskid) then
-            indx1up = int_mb(lm1_gauss(1)+k-1)
-            !indx1dn = indx1up + (ispin-1)*lm_size_max
-            indx2up = int_mb(lm2_gauss(1)+k-1)
-            !indx2dn = indx2up + (ispin-1)*lm_size_max
+         indx1up = int_mb(lm1_gauss(1)+k-1)
+         !indx1dn = indx1up + (ispin-1)*lm_size_max
+         indx2up = int_mb(lm2_gauss(1)+k-1)
+         !indx2dn = indx2up + (ispin-1)*lm_size_max
 
-c            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
-            call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
+c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
+c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
 
-            if (l2.eq.0) then
-               jja = int_mb(katm_paw(1)+jjj-1)
-               ja  = int_mb(katm_pawtoion(1)+jja-1)
-               q22 = -2.0d0*zv(ja)/dsqrt(fourpi)
-            else
-               q22 = 0.0d0
-            end if
-
-            !q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
-            !q2 = q22
-            !E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
-      
-            do ms=1,ispin
-               indx = indx1up + (ms-1)*lm_size_max
-               dbl_mb(dElocal_Qlm(1)+indx) = dbl_mb(dElocal_Qlm(1)+indx)
-     >                                     + q22*dbl_mb(e_gauss(1)+k-1)
-            end do
+         if (l2.eq.0) then
+            jja = int_mb(katm_paw(1)+jjj-1)
+            ja  = int_mb(katm_pawtoion(1)+jja-1)
+            q22 = -2.0d0*zv(ja)/dsqrt(fourpi)
+         else
+            q22 = 0.0d0
          end if
+
+         !q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+         !q2 = q22
+         !E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
+      
+         do ms=1,ispin
+            indx = indx1up + (ms-1)*lm_size_max
+            dbl_mb(dElocal_Qlm(1)+indx) = dbl_mb(dElocal_Qlm(1)+indx)
+     >                                  + q22*dbl_mb(e_gauss(1)+k-1)
+         end do
       end do
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dElocal_Qlm(1)))
@@ -3549,6 +3549,7 @@ c            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
       call daxpy(2*nion_paw*lm_size_max,1.0d0,
      >           dbl_mb(dElocal_Qlm(1)),1,
      >           dbl_mb(dE_Qlm(1)),1)
+
       return
       end
 
@@ -3575,23 +3576,21 @@ c            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
 
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
       do k=1,ngauss
-         if (mod(k,np).eq.taskid) then
-            indx1up = int_mb(lm1_gauss(1)+k-1)
-            indx1dn = indx1up + (ispin-1)*lm_size_max
-            indx2up = int_mb(lm2_gauss(1)+k-1)
-            indx2dn = indx2up + (ispin-1)*lm_size_max
-            q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
-            q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+         indx1up = int_mb(lm1_gauss(1)+k-1)
+         indx1dn = indx1up + (ispin-1)*lm_size_max
+         indx2up = int_mb(lm2_gauss(1)+k-1)
+         indx2dn = indx2up + (ispin-1)*lm_size_max
+         q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
 
-            do ms=1,ispin
-               indx1 = indx1up + (ms-1)*lm_size_max
-               indx2 = indx2up + (ms-1)*lm_size_max
-               dbl_mb(dEmult_Qlm(1)+indx1) = dbl_mb(dEmult_Qlm(1)+indx1)
-     >                                     + q2*dbl_mb(e_gauss(1)+k-1)
-               dbl_mb(dEmult_Qlm(1)+indx2) = dbl_mb(dEmult_Qlm(1)+indx2)
-     >                                     + q1*dbl_mb(e_gauss(1)+k-1)
-            end do
-         end if
+         do ms=1,ispin
+            indx1 = indx1up + (ms-1)*lm_size_max
+            indx2 = indx2up + (ms-1)*lm_size_max
+            dbl_mb(dEmult_Qlm(1)+indx1) = dbl_mb(dEmult_Qlm(1)+indx1)
+     >                                  + q2*dbl_mb(e_gauss(1)+k-1)
+            dbl_mb(dEmult_Qlm(1)+indx2) = dbl_mb(dEmult_Qlm(1)+indx2)
+     >                                  + q1*dbl_mb(e_gauss(1)+k-1)
+         end do
       end do
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dEmult_Qlm(1)))
