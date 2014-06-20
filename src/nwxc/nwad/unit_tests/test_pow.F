@@ -48,7 +48,7 @@ C>
 C>
 C> \brief The test routine
 C>
-      subroutine subad_mul(x,f)
+      subroutine subad_pow(x,f)
       use nwad
       implicit none
       type(nwad_dble) :: x, f
