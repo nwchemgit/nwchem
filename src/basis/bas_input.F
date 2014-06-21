@@ -830,13 +830,13 @@ c
 #include "ecpso_decP.fh"
 #include "stdio.fh"
 #include "util.fh"
-      integer basis             ! [input] basis handle
-      logical osegment          ! [input] segment if true
-      character*16 tag          ! [input] tag
-      character*16 tag_in_lib   ! [input] tag to lookup in library
-      character*(*) standard    ! [input] name of standard basis set
-      character*(*) filename    ! [input] name of library file
-      logical oshell_is_rel     ! [input] flag for relativistic shell(s)
+      integer basis             !< [Input] basis handle
+      logical osegment          !< [Input] segment if true
+      character*16 tag          !< [Input] tag
+      character*16 tag_in_lib   !< [Input] tag to lookup in library
+      character*(*) standard    !< [Input] name of standard basis set
+      character*(*) filename    !< [Input] name of library file
+      logical oshell_is_rel     !< [Input] flag for relativistic shell(s)
 c
       character*5 id_string
       character*2 symbol
@@ -981,6 +981,7 @@ c
  35   call inp_restore_state    ! Failure ... restore unit 5 and abort
       call inp_clear_err
       write(LuOut,*) ' bas_tag_lib: failed to locate ', 
+     C     id_string(1:inp_strlen(id_string)),' ',
      C     string(1:inp_strlen(string)), 
      C     ' in file ',filename(1:inp_strlen(filename))
       call errquit('bas_tag_lib: no such basis available', 0,
