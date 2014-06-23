@@ -839,6 +839,7 @@ c
       logical oshell_is_rel     !< [Input] flag for relativistic shell(s)
 c
       character*5 id_string
+      character*14 id_str_ecp
       character*2 symbol
       character*16 element
       character*255 string
@@ -866,6 +867,7 @@ c
 c
 #include "ecpso_sfnP.fh"
 c
+      id_str_ecp = ""
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
 c
@@ -908,7 +910,7 @@ c
       call inp_lcase(string)
 c
 c two possibilities for filename:
-c 1. user defined file -> don not do anything, just read file
+c 1. user defined file -> do not do anything, just read file
 c 2. default path or user defined path -> append a file, check if it exists
 c
       filestring = filename
@@ -978,6 +980,51 @@ c
          endif
          goto 33
       endif
+c
+c     We did not find what we were looking for in the current file!
+c
+c     If we were looking for an ECP or SO the basis file might provide
+c     an alternative location with the ASSOCIATED_ECP keyword, so let us
+c     see if we can find that.
+c
+      if ((oIs_ecp.or.oIs_so).and.
+     +    inp_compare(.false.,"",id_str_ecp)) then
+c
+c       Restart the I/O on the current basis set file to get ready to
+c       look for the "ASSOCIATED_ECP" keyword.
+c
+        rewind(33)
+        call inp_init(33,6)
+        id_str_ecp = "ASSOCIATED_ECP"
+ 333    if (inp_search_fast(id_str_ecp)) then
+c
+c         Found the "ASSOCIATED_ECP" keyword, now read the basis set
+c         name it is pointing to.
+c
+          status = inp_a(field)
+          if (inp_a(field)) then
+c
+c           Got the basis set name. Now replace the original basis set
+c           name with the ecp basis set name and re-issue the I/O
+c
+            standard = field
+            lenn = inp_strlen(standard)
+            do ind = 1, lenn
+               if (standard(ind:ind).eq.'_') standard(ind:ind) = ' '
+            enddo
+c
+c           Restore the I/O as if we are leaving the current basis set
+c           file.
+c
+            call inp_restore_state
+            call inp_clear_err
+            goto 21 ! Re-issue to I/O on the ecp basis set file.
+          else
+            goto 35
+          endif
+          goto 333
+        endif
+      endif
  35   call inp_restore_state    ! Failure ... restore unit 5 and abort
       call inp_clear_err
       write(LuOut,*) ' bas_tag_lib: failed to locate ', 
@@ -998,6 +1045,7 @@ c
 c     Start parsing current line
 c     
  20   call inp_set_field(0)
+      id_str_ecp = ""
       if (.not. inp_a(field)) goto 10000 ! tag
       if (inp_compare(.false., 'end', field)) goto 9000 ! End
       if (.not. inp_a(field)) goto 10000 ! type_of_cont or 'nelec'
