@@ -1,7 +1,7 @@
 !> \ingroup nwad
 !> @{
 !>
-!> A module implementing Automatic Differentiation [1] capabilities in 
+!> A module implementing Automatic Differentiation [1,2] capabilities in 
 !> Fortran 90. The main aim is to enable calculating derivatives of existing
 !> capabilities with minimal code changes. In particular executable statements
 !> should not have to be changed.
@@ -18,7 +18,12 @@
 !>
 !> ### References ###
 !>
-!> [1] See e.g. <a href="http://www.autodiff.org/">www.autodiff.org</a>
+!> [1] R. E. Wengert (1964) "A simple automatic derivative evaluation program",
+!>     Communications of the ACM, <b>7</b>, pp. 463-464, DOI:
+!>     <a href="http://dx.doi.org/10.1145/355586.364791">
+!>     10.1145/355586.364791</a>.
+!>
+!> [2] See e.g. <a href="http://www.autodiff.org/">www.autodiff.org</a>
 !>
 !> $Id: $
 !>
