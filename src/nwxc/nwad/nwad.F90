@@ -14,7 +14,7 @@
 !> overhead of copying data low. In addition applications are targetted where
 !> all partial derivatives of an expression are needed. The method chosen 
 !> requires multiple executions of the function to obtain all its derivatives.
-!> Every function execution computes only one specific partial derivative.
+!> Every function execution computes only one specific partial derivative [3].
 !>
 !> ### References ###
 !>
@@ -24,6 +24,12 @@
 !>     10.1145/355586.364791</a>.
 !>
 !> [2] See e.g. <a href="http://www.autodiff.org/">www.autodiff.org</a>
+!>
+!> [3] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+!>     tensors by forward propagation of univariate Taylor series",
+!>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+!>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+!>     10.1090/S0025-5718-00-01120-0</a>.
 !>
 !> $Id: $
 !>
