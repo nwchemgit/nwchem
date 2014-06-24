@@ -1306,11 +1306,11 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
      &' Projecting final (MO2) on initial (MO1) active orbitals'
       CALL PROJ_ORBSPC_ON_ORBSPC(dbl_mb(KLCOCC_INI),dbl_mb(KLCOCC_FIN),
      &     NACOBS,NACOBS)
-      if(ga_nodeid().eq.0) WRITE(6,*)
+      if(ga_nodeid().eq.0) then
+      WRITE(6,*)
 C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
 *. Print summary
       CALL PRINT_MCSCF_CONV_SUMMARY(dbl_mb(KL_SUMMARY),NOUTIT)
-      if(ga_nodeid().eq.0) then
       WRITE(6,'(A,F20.12)') ' Final energy = ', EFINAL
       WRITE(6,'(A,F20.12)') ' Final norm of orbital gradient = ', 
      &                        E1NRM_ORB
@@ -4218,11 +4218,11 @@ CNW     END DO
       DIMENSION CMOAO1(*), CMOAO2(*)
 *
       NTEST = 10
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Info from PROJ_ORBSPC_ON_ORBSPC '
         WRITE(6,*) ' =============================== '
       END IF
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' MO1: ' 
         CALL APRBLM2(CMOAO1,NTOOBS,NMO1PSM,NSMOB,0)
         WRITE(6,*) ' MO2: ' 
@@ -4251,7 +4251,7 @@ C    &              LAROW,LACOL,LBROW,LBCOL,ITRNSP)
 * C1(T) (S C2) in MAT2
       CALL MULT_BLOC_MAT(dbl_mb(KLMAT2),CMOAO1,dbl_mb(KLMAT1),NSMOB,
      &     NMO1PSM,NMO2PSM,NTOOBS,NMO1PSM,NTOOBS,NMO2PSM,1)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' C1(T) S C2: '
         CALL APRBLM2(dbl_mb(KLMAT2),NMO1PSM,NMO2PSM,NSMOB,0)
       END IF
@@ -4259,7 +4259,7 @@ C    &              LAROW,LACOL,LBROW,LBCOL,ITRNSP)
       CALL MULT_BLOC_MAT(dbl_mb(KLMAT1),CMOAO1,dbl_mb(KLMAT2),NSMOB,
      &     NTOOBS,NMO2PSM,NTOOBS,NMO1PSM,NMO1PSM,NMO2PSM,0)
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' The matrix C1 C1(T) S C2 '
         CALL APRBLM2(dbl_mb(KLMAT1),NTOOBS,NMO2PSM,NSMOB,0)
       END IF
@@ -4269,7 +4269,7 @@ C    &              LAROW,LACOL,LBROW,LBCOL,ITRNSP)
 * X(T) S X in MAT3
       CALL MULT_BLOC_MAT(dbl_mb(KLMAT3),dbl_mb(KLMAT1),dbl_mb(KLMAT2),
      &     NSMOB,NMO2PSM,NMO2PSM,NTOOBS,NMO2PSM,NTOOBS,NMO2PSM,1)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' The matrix X(T) S X '
         CALL APRBLM2(dbl_mb(KLMAT3),NMO2PSM,NMO2PSM,NSMOB,0)
       END IF
@@ -4277,7 +4277,7 @@ C    &              LAROW,LACOL,LBROW,LBCOL,ITRNSP)
 C GET_DIAG_BLMAT(A,DIAG,NBLK,LBLK,ISYM)
       CALL GET_DIAG_BLMAT(dbl_mb(KLMAT3),dbl_mb(KLMAT2),NSMOB,NMO2PSM,0)
 *. And print
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Part of CMO2 that is spanned by CMO1'
         CALL PRINT_SCALAR_PER_ORB(dbl_mb(KLMAT2),NMO2PSM)
       END IF

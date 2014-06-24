@@ -2351,7 +2351,7 @@ c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
 *.
       REAL * 8 INPROD
 *
-      CALL LUCIAQENTER('SBLOC')
+      CALL LUCIAQENTER('SBLO2')
       NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.10) THEN
@@ -2601,7 +2601,7 @@ C?              write(6,*) ' checked passed '
 C?    write(6,*) ' Memory check , exit from SBLOCKS2'
 C?    call memchk
 C?    write(6,*) ' checked passed '
-      CALL LUCIAQEXIT('SBLOC')
+      CALL LUCIAQEXIT('SBLO2')
       RETURN
       END
       FUNCTION SCALAR_PRODUCT_OF_B
@@ -4785,6 +4785,7 @@ CNW   DIMENSION CV(*)
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
 *
+      CALL LUCIAQENTER('SBLOK')
       NTEST = 000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.10) THEN
@@ -5125,6 +5126,7 @@ C     END IF
       IDUM = 0
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving SBLOCK '
       CALL MEMMAN(IDUM ,IDUM,'FLUSM ',2,'SBLOCK')
+      CALL LUCIAQEXIT('SBLOK')
       RETURN
       END
       SUBROUTINE SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,
@@ -5251,7 +5253,7 @@ CNW   DIMENSION CV(*)
 *.
       REAL * 8 INPROD
 *
-      CALL LUCIAQENTER('SBLOC')
+      CALL LUCIAQENTER('SBLOS')
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCS')
 *
@@ -5823,7 +5825,7 @@ C?   &          NSSOA(IASM,IATP)* NSSOB(IBSM,IBTP))
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving SBLOCKS'
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'SBLOCS')
-      CALL LUCIAQEXIT('SBLOC')
+      CALL LUCIAQEXIT('SBLOS')
       RETURN
       END
       SUBROUTINE IAIBCM(ICISPC,IAIB)
@@ -8315,6 +8317,7 @@ CM    IREW = 1
 *
 C?    WRITE(6,*) ' Entering RSSBCB2, NTEST = ', NTEST
       CALL MEMCHK2('RSSBEN')
+      CALL LUCIAQENTER('RSSBE')
 *
 CT    IF(ITASK(1:5).EQ.'SIGMA') THEN
 CT    DO I = 1, 100
@@ -8795,6 +8798,7 @@ C?      WRITE(6,*) ' Home from TRACI_FCIBLK for alpha'
         WRITE(6,*) ' ==================================='
         CALL WRTMAT(SB,NIB,NIA,NIB,NIA)
       END IF
+      CALL LUCIAQEXIT('RSSBE')
 *
 CT    IF(ITASK(1:5).EQ.'SIGMA')
 CT   &STOP ' Enforced stop at end of RSSBCB2' 

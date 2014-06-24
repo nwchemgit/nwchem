@@ -2238,6 +2238,8 @@ CNW   DIMENSION X2INTOUT(*)
       DIMENSION IP2INTOUT(NSMOB,NSMOB,NSMOB)
 *. Local scratch
       INTEGER IPERM_SSSS(7,16)
+      integer nxtask, next, itask, icount, nproc
+      external nxtask
       NTEST = 00
       NTESTO = 0
       IF(NTEST.GE.10) THEN
@@ -2279,6 +2281,9 @@ C     WRITE(6,*) ' Two integral blocks allocated '
       CALL MEMMAN(KLINTM2,LEN2IBL,'ADDL  ',2,'INTM2 ')
   
 *. Loop over input symmetry blocks
+      itask = 0
+      nproc = ga_nnodes()
+      next = nxtask(nproc, 1)
       DO ISM = 1, NSMOB
         IF(I12S.EQ.1) THEN
          JSM_MX = ISM
@@ -2344,6 +2349,7 @@ CM   &                     IOFF, JOFF, KOFF, LOFF
 *. it may be convenient to do some common work for transformations 
 *. containing more than one block.
 *
+               if (itask.eq.next) then
                I12P = IPERM_SSSS(5,IPERM) 
                I34P = IPERM_SSSS(6,IPERM) 
                I1234P = IPERM_SSSS(7,IPERM) 
@@ -2652,6 +2658,9 @@ C    &                         I12P,I34P,I1234P)
      &              NK_O,NL_O,NI_O,NJ_O,I34S_O,I12S_O,0,
      &              I12S_O,I34S_O,I1234S_O,0,0,1)
 *. Finito !!!
+              next = nxtask(nproc, 1)
+              endif
+              itask = itask + 1
               END DO ! End of loop over Permutations
             END IF ! End if correct combination of symmetries
             END DO

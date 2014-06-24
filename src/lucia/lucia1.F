@@ -2707,6 +2707,7 @@ CNW   DIMENSION CSD(*),CCM(*),ISGVST(*)
       DIMENSION CSD(*),ISGVST(*)
       integer CCM, ICOFF
 *
+      CALL LUCIAQENTER('SDCMR')
       NTEST = 000
       IF(NTEST.GE.100)  THEN
        WRITE(6,*) ' SDCMRF: NA, NB =', NA,NB
@@ -2818,6 +2819,7 @@ CNW         CALL WRTMAT(CCM,NA,NB,NA,NB)
           END IF
         END IF
       END IF
+      CALL LUCIAQEXIT('SDCMR')
 *
       RETURN
       END
