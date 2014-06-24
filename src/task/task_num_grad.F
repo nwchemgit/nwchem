@@ -655,8 +655,8 @@ cedo  integer info
       integer nactive
       double precision work(natoms3,nwork), eval(natoms3)
       double precision centroid(3), x, y, z, xx, yy, zz, fx
-      integer ifirstmax
-      external ifirstmax
+      integer ifirstmax, idamax
+      external ifirstmax, idamax
       double precision ddot
       external ddot
 c
@@ -809,10 +809,33 @@ c       endif
 c     enddo
 c
 c     Phase align vectors so that their directions are body fixed
+c     - Note that the diagonalization of the metric left the vectors
+c       in random order. So we need to sort them as well as fixing
+c       the phase. We will sort them in order of decreasing dot product
+c       with the geometry.
 c
       do i = 1, nvec
-        if (ddot(natoms3,coords,1,vectors(1,i),1).lt.0.0d0) then
+        eval(i) = ddot(natoms3,coords,1,vectors(1,i),1)
+        if (eval(i).lt.0.0d0) then
           call dscal(natoms3,-1.0d0,vectors(1,i),1)
+          eval(i) = -eval(i)
+        endif
+      enddo
+      do i = 1, nvec - 1
+        k = idamax(nvec-i+1,eval(i),1)
+        k = i+k-1
+        if (k.ne.i) then
+c
+c         swap the vectors
+c
+          xx = eval(i)
+          eval(i) = eval(k)
+          eval(k) = xx
+          do j = 1, natoms3
+            xx           = vectors(j,i)
+            vectors(j,i) = vectors(j,k)
+            vectors(j,k) = xx
+          enddo
         endif
       enddo
 c
