@@ -3718,8 +3718,12 @@ C?                        WRITE(6,*) ' Check passes '
                 END DO
 *               ^ End if integrals should be fetched
 *
-                NPART = NROW/max(MAXI,nproc)
-                IF(NPART*max(MAXI,nproc).NE.NROW) NPART = NPART + 1
+                NPART = NROW/MAXI
+                IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
+                if (npart.lt.nproc) then
+                   npart = min(nrow,nproc)
+                   write(6,*) 'Less partitions than procs',npart,nrow
+                endif
                 IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
                 DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
@@ -4049,8 +4053,12 @@ C                            TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
 
 
 *. Loop over batches of I strings
-                NPART = NROW/max(MAXI,nproc)
-                IF(NPART*max(MAXI,nproc).NE.NROW) NPART = NPART + 1
+                NPART = NROW/MAXI
+                IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
+                if (npart.lt.nproc) then
+                   npart = min(nrow,nproc)
+                   write(6,*) 'Less partitions than procs',npart,nrow
+                endif
                 IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
                 DO 2801 IIPART = ga_nodeid()+1, NPART,nproc
@@ -13187,8 +13195,12 @@ C  NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
           END IF
             
 *. Loop over batches of KA strings
-          NKABTC = NKAEFF/max(MAXK,nproc)
-          IF(NKABTC*max(MAXK,nproc).LT.NKAEFF) NKABTC = NKABTC + 1
+          NKABTC = NKAEFF/MAXK
+          IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
+          if (npart.lt.nproc) then
+             npart = min(nrow,nproc)
+             write(6,*) 'Less parts than procs',nkabtc,nkaeff
+          endif
 *
             DO 2000 KLTYP = 1, NKLTYP
               KTYP = KTP(KLTYP)
