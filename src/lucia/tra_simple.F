@@ -2667,7 +2667,8 @@ C    &                         I12P,I34P,I1234P)
           END DO
         END DO
       END DO ! End of loop over KSM, LSM, JSM, ISM
-               CALL MEMCHK2('FINOTO')
+      CALL MEMCHK2('FINOTO')
+      next = nxtask(nproc,-1)
 
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'TRA2_G')
 *

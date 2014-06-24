@@ -7956,6 +7956,7 @@ CNW   DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       DIMENSION SCR(*)
       REAL*8 INPROD
 *
+      CALL LUCIAQENTER('GSTBL')
       NTEST = 000
       IF(NTEST.GE.100) THEN
         write(6,*) ' GSTTBL  ,IATP,IASM,IBTP,IBSM,ISCALE'
@@ -8019,6 +8020,7 @@ C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
          WRITE(6,*) ' ISCALE, IMZERO, SCLFAC on return in GSTTBL',
      &   ISCALE, IMZERO, SCLFAC  
         END IF
+      CALL LUCIAQEXIT('GSTBL')
 *
       RETURN
       END
