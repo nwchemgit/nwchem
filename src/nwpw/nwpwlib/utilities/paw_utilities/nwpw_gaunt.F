@@ -49,10 +49,10 @@ c $Id$
 *     *** local variables ****
       double precision pi
       double precision piover2,twopi,fourpi
-      parameter(pi = 3.14159265358979323846264338327950288419d0)
-      parameter(piover2= pi*0.5d0)
-      parameter(twopi  = pi*2.0d0)
-      parameter(fourpi = pi*4.0d0)
+c      parameter(pi = 3.14159265358979323846264338327950288419d0)
+c      parameter(piover2= pi*0.5d0)
+c      parameter(twopi  = pi*2.0d0)
+c      parameter(fourpi = pi*4.0d0)
 
 c     work arrays for integration
       double precision x(100),w(100),coeff
@@ -61,6 +61,11 @@ c     work arrays for integration
       integer mm(3),newn,n,itmp
       real*8   rtheta_lm,ytheta_lm
       external rtheta_lm,ytheta_lm
+
+      pi = 4.0d0*datan(1.0d0)
+      twopi   = 2.0d0*pi
+      fourpi  = 4.0d0*pi
+      piover2 = pi/2.0d0
 
       !**** Error Checking ****
       if (l1.lt.0 .or. l2.lt.0 .or. l3.lt.0) 
@@ -111,7 +116,7 @@ c     work arrays for integration
      >                        .and.(mm(3).eq.0)) then
             coeff = twopi
          else if ((mm(1).eq.0).and.(mm(2).lt.0)
-     >                        .and.(mm(3).lt.0).and.(tm)) then
+     >                        .and.(mm(3).lt.0).and.(tm.or.tp)) then
             coeff = pi
          else
             nwpw_gaunt = 0.0d0
