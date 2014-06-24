@@ -3722,7 +3722,7 @@ C?                        WRITE(6,*) ' Check passes '
                 IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
                 if (npart.lt.nproc) then
                    npart = min(nrow,nproc)
-                   write(6,*) 'Less partitions than procs',npart,nrow
+                   write(6,*) 'Less parts than procs RSBB2A',npart,nrow
                 endif
                 IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
@@ -4057,7 +4057,7 @@ C                            TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
                 IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
                 if (npart.lt.nproc) then
                    npart = min(nrow,nproc)
-                   write(6,*) 'Less partitions than procs',npart,nrow
+                   write(6,*) 'Less parts than procs RSBB2A',npart,nrow
                 endif
                 IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
@@ -9968,6 +9968,11 @@ C    &       WORK(KSIBT),
 C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
        END IF! CSF Switch for incore version
       END IF! ICISTR switch
+      call ga_sync()
+      call ga_dgop(1,RHO1,NDACTORB ** 2,'+')
+      if (I12.EQ.2) call ga_dgop(1,RHO2,
+     &   (NDACTORB**2)*(NDACTORB**2+1)/2,'+')
+
       IF(NTEST.GE.100) WRITE(6,*) ' Returned from GASDN2' 
 *
       IF(NTEST.GE.1000) THEN
@@ -10861,6 +10866,7 @@ C?    CALL PRSYM(RHO2,NACOB**2)
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+      integer nproc
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(NSMSX,NSMST),
      &        STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS)
@@ -10879,6 +10885,7 @@ C?    CALL PRSYM(RHO2,NACOB**2)
       DIMENSION ITP(256),JTP(256),KTP(256),LTP(256)
 C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
 *
+      CALL LUCIAQENTER('GSBDA')
       NTEST = 000
       IF(NTEST.GE.1000) THEN
         WRITE(6,*)
@@ -10903,6 +10910,7 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
       IF(IDXSM.EQ.0) GOTO 2001
       IF(NTEST.GE.1000)    
      &WRITE(6,*) ' ISCSM,ICCSM IDXSM ', ISCSM,ICCSM,IDXSM
+      nproc = ga_nnodes()
       DO 2000 IDXTP =  1, NDXTP
         ITYP = ITP(IDXTP)
         JTYP = JTP(IDXTP)
@@ -10947,9 +10955,13 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
 *. Loop over batches of I strings
               NPART = NROW/MAXI
               IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
+              if (npart.lt.nproc) then
+                 npart = min(nrow,nproc)
+                 write(6,*) 'Less parts than procs gsbbd2a',npart,nrow
+              endif
               IF(NTEST.GE.2000)
      &        write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
-              DO 1801 IIPART = 1, NPART
+              DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
                 IBOT = 1+(IIPART-1)*MAXI
                 ITOP = MIN(IBOT+MAXI-1,NROW)
                 NIBTC = ITOP-IBOT+1
@@ -11158,6 +11170,7 @@ C    &                  NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
  1950   CONTINUE
  2000 CONTINUE
  2001 CONTINUE
+      CALL LUCIAQEXIT('GSBDA')
 *
       RETURN
       END
@@ -11470,6 +11483,10 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
 * Updated for GAS , August '95
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer nproc
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(NSMSX,NSMST),
      &        STSTSX(NSMST,NSMST)
@@ -11500,6 +11517,7 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
       END IF
 *.Local arrays
       NTEST = 000
+      CALL LUCIAQENTER('GSBD1')
       IF(NTEST.GE.1000) THEN
         WRITE(6,*)
         WRITE(6,*) ' ================='
@@ -11517,9 +11535,14 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
 *
       IFRST = 1
       JFRST = 1
+      nproc = ga_nnodes()
 *. Number of partitionings over column strings
           NIPART = NROW/MAXI
           IF(NIPART*MAXI.NE.NROW) NIPART = NIPART + 1
+          if (nipart.lt.nproc) then
+             nipart = min(nrow,nproc)
+             write(6,*) 'Less part than procs gsbbd1',nipart,nrow
+          endif
 *. Groups defining supergroups
 C          GET_SPGP_INF(ISPGP,ITP,IGRP)
       CALL GET_SPGP_INF(ICCTP,IGRP,ICGRP)
@@ -11628,7 +11651,7 @@ C         WRITE(6,*) ' NKAEFF NKASTR', NKAEFF,NKASTR
               LKABTC = KTOP - KBOT +1
 
 *. This is the place to start over partitioning of I strings
-              DO 701 IIPART = 1, NIPART
+              DO 701 IIPART = ga_nodeid()+1, NIPART,nproc
                 IBOT = (IIPART-1)*MAXI+1
                 ITOP = MIN(IBOT+MAXI-1,NROW)
                 NIBTC = ITOP - IBOT + 1
@@ -11694,6 +11717,7 @@ C         WRITE(6,*) ' NKAEFF NKASTR', NKAEFF,NKASTR
  1001 CONTINUE
 *
 C!    stop ' enforrced stop in RSBBD1 '
+      CALL LUCIAQEXIT('GSBD1')
       RETURN
       END
       FUNCTION IB_H1(ISM,IHSM,NR,NC)
@@ -13197,9 +13221,9 @@ C  NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
 *. Loop over batches of KA strings
           NKABTC = NKAEFF/MAXK
           IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
-          if (npart.lt.nproc) then
-             npart = min(nrow,nproc)
-             write(6,*) 'Less parts than procs',nkabtc,nkaeff
+          if (nkabtc.lt.nproc) then
+             nkabtc = min(nkaeff,nproc)
+             write(6,*) 'Less part than procs RSBB2BN2',nkabtc,nkaeff
           endif
 *
             DO 2000 KLTYP = 1, NKLTYP
@@ -15398,6 +15422,10 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
 *
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer nproc
 *. General input
       INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
       INTEGER NOBPTS(MXPNGAS,*),IOBPTS(MXPNGAS,*)
@@ -15415,7 +15443,7 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
       DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
       DIMENSION IASPGP(20),IBSPGP(20),JASPGP(20),JBSPGP(20)
 *
-      CALL LUCIAQENTER('GSD2B')
+      CALL LUCIAQENTER('GSD2N')
       NTESTL = 00
       NTEST = MAX(NTESTL,NTESTG)
       IF(NTEST.GE.500) THEN
@@ -15454,6 +15482,7 @@ C?    WRITE(6,*) ' NSMOB = ', NSMOB
       CALL SXTYP_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC)
       CALL SXTYP_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC)           
       IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
+      nproc = ga_nnodes()
       DO 2001 IJTYP = 1, NIJTYP
         ITYP = ITP(IJTYP)
         JTYP = JTP(IJTYP)
@@ -15499,7 +15528,11 @@ C             COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
 *. Loop over batches of KA strings
           NKABTC = NKAEFF/MAXK   
           IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
-          DO 1801 IKABTC = 1, NKABTC
+          if(nkabtc.lt.nproc) then
+            nkabtc = min(nkaeff,nproc)
+            write(6,*) 'Less parts than procs GSBBD2BN',nkabtc,nkaeff
+          endif
+          DO 1801 IKABTC = ga_nodeid()+1, NKABTC,nproc
 C?          write(6,*) ' Batch over kstrings ', IKABTC
             KABOT = (IKABTC-1)*MAXK + 1
             KATOP = MIN(KABOT+MAXK-1,NKAEFF)
@@ -15621,7 +15654,7 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
  9999 CONTINUE
 *
 *
-      CALL LUCIAQEXIT('GSD2B')
+      CALL LUCIAQEXIT('GSD2N')
       RETURN
       END
       SUBROUTINE ADVICE_SIGMA3(IAOCC,IBOCC,JAOCC,JBOCC,ITERM,LADVICE,
