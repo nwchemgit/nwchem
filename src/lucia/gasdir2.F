@@ -8792,7 +8792,7 @@ C?      WRITE(6,*) ' Home from TRACI_FCIBLK for alpha'
         CALL COPVEC(C2,SB,NIA*NIB)
       END IF
 *
-      IF(NTEST.GE.500.and.ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ==================================='
         WRITE(6,*) ' RSSBCB2 : Final S block (transposed)'
         WRITE(6,*) ' ==================================='

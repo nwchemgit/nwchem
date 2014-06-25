@@ -2771,7 +2771,7 @@ C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 *. Combination => SD transformation
 *
       IF(IWAY.EQ.2) THEN
-c       if (ga_nodeid().eq.0) then
+        if (ga_nodeid().eq.0) then
         IF(IPACK.EQ.1) THEN
 *. Unpack from triangular form
            CALL TRIPK3G(CSD,CCM,ICOFF,2,NA,NA,SIGN)
@@ -2779,10 +2779,10 @@ c       if (ga_nodeid().eq.0) then
 CNW        CALL COPVEC(CCM,CSD,NA*NB)
            call ga_get(CCM,ICOFF,ICOFF+NA*NB-1,1,1,CSD,NA*NB)
         END IF
-c       endif
-c       call ga_sync()
-c       mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*NA*NB
-c       if (ga_nnodes().gt.1) call ga_brdcst(123456,CSD,mybyte,0)
+        endif
+        call ga_sync()
+        mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*NA*NB
+        if (ga_nnodes().gt.1) call ga_brdcst(123456,CSD,mybyte,0)
 *. Scale
         IF(FACTOR.NE.1.0D0) THEN
           IF(ISCALE.EQ.1) THEN

@@ -16713,7 +16713,6 @@ c            READ(LUIN,'(A)') CARD1
              write(ctmp(2),'(i2)'),ici
              tag=trim('lucia:seq_'//trim(adjustl(ctmp(1)))//'_'//
      &            trim(adjustl(ctmp(2))))
-             write(6,*)'tag=',tag
              if(.not.rtdb_cget(rtdb,tag,1,card1))
 c            if(.not.rtdb_cget(rtdb,'lucia:seq_1_1',1,card1))
      &        call errquit('lucia input: sequence wrong',911)

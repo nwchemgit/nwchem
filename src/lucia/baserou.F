@@ -1308,12 +1308,12 @@ C
   100 CONTINUE
 *
       NTEST =00
-      IF(NTEST.GE.100) THEN
+c     IF(NTEST.GE.100) THEN
       WRITE(6,*) 'DIAVC3 : VECIN, DIAG,VECOUT '
       DO I = 1, NDIM
         WRITE(6,'(3E15.8)') VECIN(I),DIAG(I),VECOUT(I)
       END DO
-      END IF
+c     END IF
       RETURN
       END
 *
@@ -1358,6 +1358,7 @@ c
       call ga_release(DIAG,ilo,ihi,1,1)
       call ga_release(VECIN,ilo,ihi,1,1)
       endif
+      call ga_dgop(1,VDSV,1,'+')
       RETURN
       END
 *
@@ -2435,7 +2436,6 @@ CNW     CALL GATVEC(dbl_mb(KLV1),VECIN,IPNTR,NPQDM)
 * X(T)(DIAG+SHIFT)-1 X in subspace, for later subtraction
 CNW     CALL GATVEC(dbl_mb(KLV2),DIAG,IPNTR,NPQDM)
         call ga_gather(DIAG,WORK(KLV2),IPNTR,WORK(KLGA),NPQDM)
-        call ga_sync()
         CALL DIAVC3(WORK(KLV2),WORK(KLV1),
      &       WORK(KLV2),SHIFT,NPQDM,X1)
        ELSE
@@ -2457,7 +2457,6 @@ C?     write(6,*) ' KLPHP KLPHQ KLQHQ ',KLPHP,KLPHQ,KLQHQ
      &               NTEST )
          X3 = INPROD(WORK(KLV1),WORK(KLV2),NPQDM)
 CNW      CALL SCAVEC(VECUT,dbl_mb(KLV2),IPNTR,NPQDM)
-         call ga_sync()
          call ga_scatter(VECUT,WORK(KLV2),IPNTR,WORK(KLGA),NPQDM)
          call ga_sync()
       ELSE
@@ -4379,8 +4378,6 @@ C?       call ga_print(VEC1)
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
          CALL MV7(VEC1,VEC2,0,0,0,0)
-C?       WRITE(6,*) ' Testing: initial MV7'
-C?       call ga_print(VEC2)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)

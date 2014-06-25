@@ -87,8 +87,8 @@ set lucia:ncispc 1
 set lucia:nirrep 8
 set lucia:gsoccx 12 12
 set lucia:nseqci 1
-set lucia:seq_1_1 "MCSCF,20,1"
-#set lucia:seq_1_1 "MCSCF,1,1"
+#set lucia:seq_1_1 "MCSCF,20,1"
+set lucia:seq_1_1 "MCSCF,1,1"
 set lucia:mxciv 20
 set lucia:maxitm 100
 set lucia:resdim 20

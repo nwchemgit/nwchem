@@ -2667,9 +2667,10 @@ C    &                         I12P,I34P,I1234P)
           END DO
         END DO
       END DO ! End of loop over KSM, LSM, JSM, ISM
-      CALL MEMCHK2('FINOTO')
-      next = nxtask(nproc,-1)
+      next = nxtask(-nproc,1)
+      call ga_sync()
 
+      CALL MEMCHK('FINOTO')
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'TRA2_G')
 *
       RETURN
@@ -3590,7 +3591,7 @@ C            PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GEN2EI')
 *
-      NTEST = 00
+      NTEST = 000
       IPRNT_TRAINT = 0
       IF(IPRINTEGRAL.GE.1000) IPRNT_TRAINT = 1
       IF(NTEST.GE.100) THEN

@@ -3722,7 +3722,6 @@ C?                        WRITE(6,*) ' Check passes '
                 IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
                 if (npart.lt.nproc) then
                    npart = min(nrow,nproc)
-                   write(6,*) 'Less parts than procs RSBB2A',npart,nrow
                 endif
                 IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
@@ -4057,7 +4056,6 @@ C                            TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
                 IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
                 if (npart.lt.nproc) then
                    npart = min(nrow,nproc)
-                   write(6,*) 'Less parts than procs RSBB2A',npart,nrow
                 endif
                 IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
@@ -10957,7 +10955,6 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
               IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
               if (npart.lt.nproc) then
                  npart = min(nrow,nproc)
-                 write(6,*) 'Less parts than procs gsbbd2a',npart,nrow
               endif
               IF(NTEST.GE.2000)
      &        write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
@@ -11541,7 +11538,6 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
           IF(NIPART*MAXI.NE.NROW) NIPART = NIPART + 1
           if (nipart.lt.nproc) then
              nipart = min(nrow,nproc)
-             write(6,*) 'Less part than procs gsbbd1',nipart,nrow
           endif
 *. Groups defining supergroups
 C          GET_SPGP_INF(ISPGP,ITP,IGRP)
@@ -12998,8 +12994,6 @@ C
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      integer nxtask, next, itask, icount, nproc
-      external nxtask
       INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
       INTEGER NOBPTS(MXPNGAS,*)
       REAL*8 INPROD
@@ -13223,7 +13217,6 @@ C  NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
           IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
           if (nkabtc.lt.nproc) then
              nkabtc = min(nkaeff,nproc)
-             write(6,*) 'Less part than procs RSBB2BN2',nkabtc,nkaeff
           endif
 *
             DO 2000 KLTYP = 1, NKLTYP
@@ -13387,6 +13380,7 @@ C             GET_CKAJJB(CB,NJ,NJA,CKAJJB,NKA,NJB,J,ISCA,SSCA)
             CALL SETVEC(SIRES,ZERO,NIB*LKABTC*IJ_DIM(1))
 *
             IROUTE = 3
+            FACS = 1.0D0
             CALL SKICKJ(SIRES,CJRES,LKABTC,NIB,NJB,
      &               NKBSTR,XINT,IJ_DIM(1),IJ_DIM(2),
      &               KL_DIM(1),KL_DIM(2),
@@ -15530,10 +15524,8 @@ C             COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
           IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
           if(nkabtc.lt.nproc) then
             nkabtc = min(nkaeff,nproc)
-            write(6,*) 'Less parts than procs GSBBD2BN',nkabtc,nkaeff
           endif
           DO 1801 IKABTC = ga_nodeid()+1, NKABTC,nproc
-C?          write(6,*) ' Batch over kstrings ', IKABTC
             KABOT = (IKABTC-1)*MAXK + 1
             KATOP = MIN(KABOT+MAXK-1,NKAEFF)
             LKABTC = KATOP-KABOT+1
