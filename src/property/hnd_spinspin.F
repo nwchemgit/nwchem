@@ -240,13 +240,15 @@ c
          if (.not. geom_cent_get(geom, i, tagi, dbl_mb(k_xyz), znuc))
      &       call errquit('hnd_spinspin: geom_cent_get',0, GEOM_ERR)
          if (.not. geom_tag_to_element(tagi,symbola,element,atn)) call
-     &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
+     &       errquit('hnd_spinspin: geom_tag_to_element failed',
+     &       0,GEOM_ERR)
          if (.not. atom_gfac(znuc,gfaci,isonra)) call
      &       errquit('hnd_spinspin: atom_gfac failed',0, UERR)
          if (.not. geom_cent_get(geom, j, tagj, dbl_mb(k_xyz), znuc))
      &       call errquit('hnd_spinspin: geom_cent_get',0, GEOM_ERR)
          if (.not. geom_tag_to_element(tagj,symbolb,element,atn)) call
-     &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
+     &       errquit('hnd_spinspin: geom_tag_to_element failed',
+     &       0,GEOM_ERR)
          if (.not. atom_gfac(znuc,gfacj,isonrb)) call
      &       errquit('hnd_spinspin: atom_gfac failed',0, UERR)
          call dscal(45,gfaci*gfacj,dbl_mb(i_off),1)
