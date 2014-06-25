@@ -1071,7 +1071,7 @@ C          ORBHES(OOHES,IOOEXC,NOOEXC,IOOSM,ITTACT)
 #include "global.fh"
 *. Specific input
 CNW   DIMENSION F(*)
-      integer F
+      integer F, ilo, ihi, ifp
 *. Output
       DIMENSION E1(*)
 *
@@ -1081,6 +1081,9 @@ CNW   DIMENSION F(*)
 C?    WRITE(6,*) ' NOOEXC = ', NOOEXC
       CALL SETVEC(E1,ZERO,NOOEXC)
 *
+      call ga_distribution(F,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
+      call ga_access(F, ilo, ihi, 1, 1, ifp, idum)
       IOFF = 1
       DO ISM = 1, NSMOB
         JSM = MULTD2H(ISM,IOPSM)
@@ -1101,21 +1104,25 @@ C?      WRITE(6,*) ' ISM,JSM,NI,NJ,IB,JB ', ISM,JSM,NI,NJ,IB,JB
             IF(NTEST.GE.100)
      &      WRITE(6,*) ' IORB,JORB,IJEXC', IORB,JORB,IJEXC
             IINDX = IOFF-1+(JORB-1)*NI+IORB
-CBERT REDO WITH GA ACCESS
-            call ga_get(F,IINDX,IINDX,1,1,FVAL,1)
+            if (IINDX.ge.ilo.and.IINDX.le.ihi) then
             IF(IJEXC.GT.0) THEN
 CNW           E1(IJEXC) = E1(IJEXC) + 2.0D0*F(IOFF-1+(JORB-1)*NI+IORB)
-              E1(IJEXC) = E1(IJEXC) + 2.0D0*FVAL                        
+              E1(IJEXC) = E1(IJEXC) + 2.0D0*dbl_mb(ifp+IINDX-ilo)       
 C?            WRITE(6,*) ' Updated E1 = ',  E1(IJEXC)
             ELSE IF(IJEXC.LT.0) THEN
 CNW           E1(-IJEXC) = E1(-IJEXC) - 2.0D0*F(IOFF-1+(JORB-1)*NI+IORB)
-              E1(-IJEXC) = E1(-IJEXC) - 2.0D0*FVAL
+              E1(-IJEXC) = E1(-IJEXC) - 2.0D0*dbl_mb(ifp+IINDX-ilo)
 C?            WRITE(6,*) ' Updated E1 = ',  E1(-IJEXC)
             END IF
+            endif
           END DO
         END DO
         IOFF = IOFF + NI*NJ
       END DO
+      call ga_release(F,ilo,ihi,1,1)
+      endif
+      call ga_sync()
+      call ga_dgop(1,E1,NOOEXC,'+')
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' E1 vector '
