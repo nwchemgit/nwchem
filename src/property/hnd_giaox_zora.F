@@ -15,6 +15,7 @@ c
 #include "prop.fh"
 #include "bgj.fh"
 #include "case.fh"
+#include "inp.fh"
 #include "zora.fh"
 c
       integer rtdb    ! [input] rtdb handle
@@ -253,7 +254,7 @@ c WARNING: For restricted calc nocc(1)=9 nocc(2)=0 <=== PROBLEM
         if (npol.eq.2) then   
           if (.not. rtdb_put(rtdb, 'scf:nopen', 
      &         MT_INT, 1, nocc(1)-nocc(2)))
-     *         call errquit('scfinit:rtdbput nopen failed',
+     *         call errquit('hnd_giaox_zora:rtdbput nopen failed',
      &         nocc(1)-nocc(2),
      &       RTDB_ERR)
         endif
@@ -349,13 +350,13 @@ c     Build "first order fock matrix"
 c
       if (use_theory.eq.'dft') then
          if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
-     $     call errquit('hess_cphf: rtdb_put of xc_active failed',0,
-     &       RTDB_ERR)
+     $     call errquit('hnd_giaox_zora: rtdb_put of xc_active failed',
+     &       0,RTDB_ERR)
          if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
-     $     call errquit('hess_cphf: rtdb_put of calc_type failed',0,
-     &       RTDB_ERR)
+     $     call errquit('hnd_giaox_zora: rtdb_put of calc_type failed',
+     &       0,RTDB_ERR)
          if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
-     $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0,
+     $     call errquit('hnd_giaox_zora: rtdb_put of j_derfit failed',0,
      &       RTDB_ERR)
       endif
       clo(1) = 3*npol*2  
@@ -365,7 +366,7 @@ c
       chi(2) = -1 
       chi(3) = -1
       if (.not.nga_create(MT_DBL,3,clo,'Fock matrix',chi,g_fock)) call 
-     &    errquit('hnd_gshift: nga_create failed g_fock',0,GA_ERR)
+     &    errquit('hnd_giaox_zora: nga_create failed g_fock',0,GA_ERR)
       call ga_zero(g_fock)
 c
 c     Note: Just the exchange: jfac = 0.d0 (see above)
@@ -386,7 +387,7 @@ c
 c
       if(use_theory.eq.'dft') then
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
-     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
+     $      call errquit('hnd_giaox_zora: rtdb_put failed',0,RTDB_ERR)
       endif
       if      (npol.eq.1) then
        nocc(1)=nclosed(1)
@@ -419,9 +420,9 @@ c
 
 c     Cleanup of g_d1 and g_fock, not needed for now
       if (.not.ga_destroy(g_d1)) call 
-     &    errquit('hnd_gshift: ga_destroy failed g_d1',0,GA_ERR)
+     &    errquit('hnd_giaox_zora: ga_destroy failed g_d1',0,GA_ERR)
       if (.not.ga_destroy(g_fock)) call 
-     &    errquit('hnd_gshift: ga_destroy failed g_fock',0,GA_ERR)
+     &    errquit('hnd_giaox_zora: ga_destroy failed g_fock',0,GA_ERR)
 
       if (debug_giaox.eq.1) then
        write(*,*) '---- g_rhs-bef-add_H10 -------- START'
@@ -477,7 +478,7 @@ c     Calculate Sum(r,s) D0(r,s) * G10(m,n,r,s) in AO basis
       ahi(2) = nbf
       ahi(3) = 3*npol
       if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',alo,g_fock)) call 
-     &    errquit('hnd_giaox: nga_create failed g_fock',0,GA_ERR)
+     &    errquit('hnd_giaox_zora: nga_create failed g_fock',0,GA_ERR)
       call ga_zero(g_fock)
       if (switch_nmrcs_analysis) then    
         if (ga_nodeid().eq.0)
@@ -485,18 +486,18 @@ c     Calculate Sum(r,s) D0(r,s) * G10(m,n,r,s) in AO basis
 c -- TEST: create g_fock_Coul,g_fock_Exch ----------- START
        if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',
      &    alo,g_fock_Coul)) call 
-     &    errquit('hnd_gshift: nga_create failed g_fockJ',0,GA_ERR)
+     &    errquit('hnd_giaox_zora: nga_create failed g_fockJ',0,GA_ERR)
        call ga_zero(g_fock_Coul)
        if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',
      &    alo,g_fock_Exch)) call 
-     &    errquit('hnd_gshift: nga_create failed g_fockX',0,GA_ERR)
+     &    errquit('hnd_giaox_zora: nga_create failed g_fockX',0,GA_ERR)
        call ga_zero(g_fock_Exch)
 c -- TEST: create g_fock_Coul,g_fock_Exch ----------- END
       endif
       if(use_theory.eq.'dft') then
          ifld = 4
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
-     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
+     $      call errquit('hnd_giaox_zora: rtdb_put failed',0,RTDB_ERR)
       endif
 c +++++++++++++++++++++++++++++++++++++
 c ++++++++ calling new_giao_2e() ++++++
@@ -549,10 +550,10 @@ c +++++++++++++++++++++++++++++++++++++
       if(use_theory.eq.'dft') then
          ifld = 0
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
-     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
+     $      call errquit('hnd_giaox_zora: rtdb_put failed',0,RTDB_ERR)
          if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
-     $       call errquit('hess_cphf: rtdb_put of xc_active failed',0,
-     &       RTDB_ERR)
+     $      call errquit('hnd_giaox_zora: rtdb_put of xc_active failed',
+     &      0,RTDB_ERR)
       endif
       if (debug_giaox.eq.1) then
        write(*,114) npol,nocc(1),nocc(2),
@@ -633,7 +634,7 @@ c ------- Store g_rhs without Coulomb and Exchange ---- END
        write(*,*) '---- g_rhs-aft-add_fock1 -------- END'
       endif
       if (.not.ga_destroy(g_fock)) call 
-     &    errquit('hnd_gshift: ga_destroy failed g_fock',0,GA_ERR)
+     &    errquit('hnd_giaox_zora: ga_destroy failed g_fock',0,GA_ERR)
 
       if (switch_skip_cphf) then
        if (switch_nmrcs_analysis) then    
@@ -665,9 +666,9 @@ c ------- Store g_rhs without Coulomb and Exchange ---- END
 
 c -------free allocated memory -------------- START
       if (.not.ma_pop_stack(l_eval)) call
-     &    errquit('hnd_gshift: ma_pop_stack failed k_eval',0,MA_ERR)
+     &    errquit('hnd_giaox_zora: ma_pop_stack failed k_eval',0,MA_ERR)
       if (.not.ma_pop_stack(l_occ)) call
-     &    errquit('hnd_gshift: ma_pop_stack failed k_occ',0,MA_ERR)
+     &    errquit('hnd_giaox_zora: ma_pop_stack failed k_occ',0,MA_ERR)
 c -------free allocated memory -------------- END
       if (debug_giaox.eq.1) then
        if (ga_nodeid().eq.0)
@@ -687,7 +688,7 @@ c     Write ga_rhs to disk
        call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
        call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
        if(.not.file_write_ga(cphf_rhs,g_rhs)) call errquit
-     $  ('hnd_giaox: could not write cphf_rhs',0, DISK_ERR)
+     $  ('hnd_giaox_zora: could not write cphf_rhs',0, DISK_ERR)
        call schwarz_tidy()
        call int_terminate()
 c
@@ -697,17 +698,17 @@ c     We do need to tell the CPHF that the density is skew symmetric.
 c     Done via rtdb, put cphf:skew .false. on rtdb and later remove it.
 
        if (.not. rtdb_put(rtdb, 'cphf:skew', mt_log, 1,.false.)) call
-     $   errquit('hnd_giaox: failed to write skew ', 0, RTDB_ERR)
+     $   errquit('hnd_giaox_zora: failed to write skew ', 0, RTDB_ERR)
        if (.not.cphf2(rtdb)) call errquit
-     $  ('hnd_giaox: failure in cphf ',0, RTDB_ERR)
+     $  ('hnd_giaox_zora: failure in cphf ',0, RTDB_ERR)
        if (.not. rtdb_delete(rtdb, 'cphf:skew')) call
-     $   errquit('hnd_giaox: rtdb_delete failed ', 0, RTDB_ERR)
+     $   errquit('hnd_giaox_zora: rtdb_delete failed ', 0, RTDB_ERR)
 c
 c     Occ-virt blocks are the solution pieces of the CPHF
 c     Read solution vector from disk and put solutions in U matrices
         call ga_zero(g_rhs)
        if(.not.file_read_ga(cphf_sol,g_rhs)) call errquit
-     $  ('hnd_giaox: could not read cphf_rhs',0, DISK_ERR)  
+     $  ('hnd_giaox_zora: could not read cphf_rhs',0, DISK_ERR)  
 c ----- write CPHF data to file ----------------- START
 c       Note.- lbl_cphfhyp defined in zora.fh
        call util_file_name(lbl_cphfshield,
@@ -829,9 +830,10 @@ c     &            nbf,nmo,npol,nocc,nvirt,rtdb)
 c     Now we have in g_d1(nmo,nmo,3) the derivative densities and
 c     hence we can calculate the contributions to the shielding tensor
       if (.not. ma_push_get(mt_dbl,9*nat_slc,'sh para',l_para,k_para)) 
-     &    call errquit('hnd_giaox: ma_push_get failed k_para',0,MA_ERR)
+     &    call errquit('hnd_giaox_zora: ma_push_get failed k_para',
+     &    0,MA_ERR)
       if (.not. ma_push_get(mt_dbl,9*nat_slc,'sh dia',l_dia,k_dia)) call
-     &    errquit('hnd_giaox: ma_push_get failed k_dia',0,MA_ERR)
+     &    errquit('hnd_giaox_zora: ma_push_get failed k_dia',0,MA_ERR)
 c     Before we start getting the integrals we need to reinitialize the
 c     integrals. They were terminated by the cphf.
       call int_init(rtdb,1,basis)
@@ -970,9 +972,10 @@ c +++++++++ print-total-pardia-transferred +++ START
       endif ! end-if-debug_cs
 c +++++++++ print-total-dia-transferred +++ END
       if (.not.ma_pop_stack(l_fukui)) call
-     &    errquit('hnd_giaox: ma_pop_stack failed k_fukui',0,MA_ERR)
+     &    errquit('hnd_giaox_zora: ma_pop_stack failed k_fukui',
+     &    0,MA_ERR)
       if (.not.ma_pop_stack(l_pararr)) call
-     &    errquit('hnd_giaox: ma_pop_stack failed k_para',0,MA_ERR)
+     &    errquit('hnd_giaox_zora: ma_pop_stack failed k_para',0,MA_ERR)
        do ispin=1,ndens
         if (.not.ga_destroy(g_dens(ispin))) call 
      &    errquit('hnd_giaox_zora: ga_destroy failed g_dens',
@@ -998,9 +1001,12 @@ c     Print out tensor information, and write to Ecce file if necessary
          ioff = (iatom-1)*9
          if (.not. geom_cent_get(geom, int_mb(k_AtNr+iatom-1), tag, 
      &       dbl_mb(k_xyz), dbl_mb(k_zan))) call 
-     &       errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
-         if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
-     &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
+     &       errquit('hnd_giaox_zora: geom_cent_tag failed',0,GEOM_ERR)
+         if (.not. geom_tag_to_element(tag, symbol, element, atn)) then
+           if (.not. inp_compare(0,tag(1:2),'bq')) call ! check for bq as a fall back
+     &       errquit('hnd_giaox_zora: geom_tag_to_element failed',
+     &               0,GEOM_ERR)
+         endif
 c
 c      Print tensor pieces and sum for total shielding tensor
          if (ga_nodeid().eq.0) then
@@ -1077,7 +1083,7 @@ c
       if (shldfile.eq.1) then ! ------- hypfile-if++++ START
          if (.not. ga_create(mt_dbl,1,nat_slc*9,
      &       'munu4nbo: g_tvec',0,0,g_tvec)) 
-     $       call errquit('munu4nbo: g_tvec', 0,GA_ERR)
+     $       call errquit('hnd_giaox_zora: g_tvec', 0,GA_ERR)
         call ga_dgop(msg_efgs_col,dbl_mb(k_tvec),nat_slc*9,'+')
         call ga_put(g_tvec,1,1,1,nat_slc*9,dbl_mb(k_tvec),1)      
         call create_munu4nbo_shield(
@@ -1122,11 +1128,11 @@ c     Clean up all remaining memory
 c      if (.not.ga_destroy(vectors_scl(1))) call 
 c     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
       if (.not.ma_pop_stack(l_zan)) call
-     &    errquit('hnd_giaox: ma_pop_stack failed k_zan',0,MA_ERR)
+     &    errquit('hnd_giaox_zora: ma_pop_stack failed k_zan',0,MA_ERR)
       if (.not.ma_pop_stack(l_xyz)) call
-     &    errquit('hnd_giaox: ma_pop_stack failed k_xyz',0,MA_ERR)
+     &    errquit('hnd_giaox_zora: ma_pop_stack failed k_xyz',0,MA_ERR)
        if (.not.ma_free_heap(l_AtNr)) call
-     &     errquit('hnd_giaox: ma_free_heap l_AtNr',0,MA_ERR)    
+     &     errquit('hnd_giaox_zora: ma_free_heap l_AtNr',0,MA_ERR)    
       call schwarz_tidy()
       call int_terminate()
       return
@@ -1665,22 +1671,22 @@ c ----- store in par_arr ------- END
       else ! Nonrel calc
        if (.not. ga_create(mt_dbl,nbf,nbf,
      &     'gd2p1: g_t1',0,0,g_t1))
-     $ call errquit('get_par: g_t1',0,GA_ERR)
+     $ call errquit('get_par_JK: g_t1',0,GA_ERR)
        call ga_zero(g_t1)
        if (.not. ga_create(mt_dbl,nbf,nbf,
      &     'gd2p1: g_t2',0,0,g_t2))
-     $ call errquit('get_par: g_t2',0,GA_ERR)
+     $ call errquit('get_par_JK: g_t2',0,GA_ERR)
        call ga_zero(g_t2)
        if (.not. ga_create(mt_dbl,nbf,nbf,
      &     'gd2p1: g_t3',0,0,g_t3))
-     $ call errquit('get_par: g_t3',0,GA_ERR)
+     $ call errquit('get_par_JK: g_t3',0,GA_ERR)
        call ga_zero(g_t3)
 c -------- get R_nu ------------- START
        dims(1) =nbf
        chunk(1)=nbf 
        do i=1,3
         if (.not. nga_create(mt_dbl,1,dims,"Array R",chunk,g_R(i)))
-     $    call errquit('get_par: g_R', 0,GA_ERR)
+     $    call errquit('get_par_JK: g_R', 0,GA_ERR)
        enddo
        call get_chi_centers_ga(g_R,basis,nbf,geom,natoms_tot)
 c -------- get R_nu ------------- END
@@ -1694,7 +1700,7 @@ c ----- Calculate g_h01 --------- START
       ahi(2) = nbf
       ahi(3) = 3*natoms_slc
       if (.not.nga_create(MT_DBL,3,ahi,'H01 matrix',alo,g_h01)) call 
-     &    errquit('get_par: nga_create failed g_h01',0,GA_ERR)
+     &    errquit('get_par_JK: nga_create failed g_h01',0,GA_ERR)
       call ga_zero(g_h01)
       call int_giao_1ega(basis,basis,g_h01,'h01',pos(1),
      &                   natoms_slc,oskel)
@@ -1787,16 +1793,16 @@ c ----- store in par_arr ------- END
         enddo ! end-loop-iy
        enddo ! end-loop-iatom
         if (.not.ga_destroy(g_h01)) call 
-     &    errquit('get_par: ga_destroy failed g_h01',0,GA_ERR)
+     &    errquit('get_par_JK: ga_destroy failed g_h01',0,GA_ERR)
         if (.not.ga_destroy(g_t1)) call 
-     &    errquit('get_par: ga_destroy failed g_t1',0,GA_ERR)
+     &    errquit('get_par_JK: ga_destroy failed g_t1',0,GA_ERR)
         if (.not.ga_destroy(g_t2)) call 
-     &    errquit('get_par: ga_destroy failed g_t2',0,GA_ERR)
+     &    errquit('get_par_JK: ga_destroy failed g_t2',0,GA_ERR)
         if (.not.ga_destroy(g_t3)) call 
-     &    errquit('get_par: ga_destroy failed g_t3',0,GA_ERR)
+     &    errquit('get_par_JK: ga_destroy failed g_t3',0,GA_ERR)
         do i=1,3
           if (.not.ga_destroy(g_R(i))) call 
-     &    errquit('get_par: ga_destroy failed g_R',0,GA_ERR)
+     &    errquit('get_par_JK: ga_destroy failed g_R',0,GA_ERR)
         enddo
       endif
 c -------- symmetrize total par ------------ START
@@ -1979,7 +1985,7 @@ c             endif
          enddo
        enddo
        if (.not.ga_destroy(g_h11)) call 
-     &    errquit('hnd_giaox: ga_destroy failed g_h11',0,GA_ERR)
+     &    errquit('get_dia: ga_destroy failed g_h11',0,GA_ERR)
       endif ! get-dia---- END
 c ---------- symmetrize dia ----------- START
        do iatom=1,natoms
