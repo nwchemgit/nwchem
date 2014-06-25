@@ -1129,9 +1129,6 @@ cc      call Dneall_ffm_sym_Multiply(mb,psi1,psi1,npack1,S)
       end if
 
 *     **** allocate local memory ****
-      nn = neq(1)+neq(2)
-      call Pack_npack(1,npack1)
-
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
@@ -1296,7 +1293,6 @@ c      call Dneall_ffm_Multiply(mb,psi1,psi2,npack1,S)
       end if
 
 *     **** allocate local memory ****
-
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nn*nprj_max,'sw0',sw0(2),sw0(1))
@@ -2987,7 +2983,6 @@ c     >                          l_prj(i),m_prj(i))
          else
 
 *           **** multipole energy ****
-            eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
             eh = nwpw_compcharge_E_multipole(ispin)
 
             ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
@@ -3007,6 +3002,7 @@ c     >                          l_prj(i),m_prj(i))
 
 *           **** add cmp energies ****
             eh = eh + (e1-0.5d0*e2)*lattice_omega()
+
 
 
             ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))
@@ -3055,9 +3051,9 @@ c     >                          l_prj(i),m_prj(i))
 
 *           **** multipole energy ****
             eh  = nwpw_compcharge_E_multipole(ispin)
-            eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
-            eh2 = nwpw_compcharge_E_multipole_zv_zv(ispin,dbl_mb(zv(1)))
-            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
+c            eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
+c            eh2 = nwpw_compcharge_E_multipole_zv_zv(ispin,dbl_mb(zv(1)))
+c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
             ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                       rho_cmp_smooth(2),rho_cmp_smooth(1))
@@ -3305,9 +3301,9 @@ c     >                          l_prj(i),m_prj(i))
      >                                  dbl_mb(sw1(1)),
      >                                  dbl_mb(wtmp(1)))
 
-*           **** paw atom - generate it's compcharge ***
-            call nwpw_compcharge_gen_Qlm(ii,ia,ispin,nproj,
-     >                                   dbl_mb(wtmp(1)))
+c*           **** paw atom - generate it's compcharge ***
+c            call nwpw_compcharge_gen_Qlm(ii,ia,ispin,nproj,
+c     >                                   dbl_mb(wtmp(1)))
 
 
             Watom = Watom 
@@ -3324,6 +3320,7 @@ c     >                          l_prj(i),m_prj(i))
 
       end if
       call D1dB_SumAll(Watom)
+
 
       psp_hartree_atom = Watom
       return

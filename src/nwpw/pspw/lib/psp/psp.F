@@ -2352,7 +2352,6 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                   dbl_mb(sw1a(1)+swstart*nn),
      >                                   dbl_mb(sw2a(1)+swstart*nn),
      >                                   eh_atom)
-            !write(*,*) "eh_atom=",ip,ii,eh_atom
 
 *           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
             call nwpw_xc_solve(ii,ia,
@@ -2390,10 +2389,10 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
             npack0 = npack0/2
          end if
 
-*        **** zero out dE/dQlm array ****
-         call nwpw_compcharge_zero_dE_Qlm()
 
          if (use_grid_cmp) then
+
+
             value = MA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                          dng_cmp(2),dng_cmp(1))
             value = value.and.
@@ -2401,6 +2400,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                          vcmp(2),vcmp(1))
             if (.not.value) 
      >      call errquit('v_nonlocal:out of stack',4, MA_ERR)
+
+*           **** zero out dE/dQlm array ****
+            call nwpw_compcharge_zero_dE_Qlm()
 
             call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
 
@@ -2423,7 +2425,6 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                      dcpl_mb(dng_cmp(1)))
                         call Pack_cc_idot(0,dcpl_mb(dng_cmp(1)),
      >                                      dcpl_mb(vcmp(1)),ff(1))
-c                        write(*,*) "ff=",ff(1)*omega
                         call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
      >                                                  ff(1)*omega)
                      end if
@@ -2462,18 +2463,19 @@ c                        write(*,*) "ff=",ff(1)*omega
             !*** compute hartree potential ncmp   - ncmp_tilde ***
             if (periodic) then
                call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
+               call Pack_c_Copy(0,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
                call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
      >                        dcpl_mb(vcmp_smooth(1)))
 
-               call Pack_c_Copy(0,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
                call Pack_cc_Sub2(0,
      >                           dcpl_mb(vcmp_smooth(1)),
      >                           dcpl_mb(vcmp(1)))
 
                call Pack_cc_Sum2(0,dcpl_mb(vc_tmp(1)),
      >                             dcpl_mb(vcmp_smooth(1)))
-               call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
+
                call Pack_c_SMul1(0,omega,dcpl_mb(vcmp(1)))
+               call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
             else
                !*** dng_cmp(G),dng_cmp_smooth(G) --> dng_cmp(r),dng_cmp_smooth(r) ***
                call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
@@ -2508,10 +2510,20 @@ c                        write(*,*) "ff=",ff(1)*omega
 
             end if
 
+
+c            call dcopy(2*npack0,dcpl_mb(vc_tmp(1)),1,
+c     >                    dcpl_mb(vcmp_smooth(1)),1)
+c            call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
+c            call dcopy(2*npack0,0.0d0,0,dcpl_mb(vcmp(1)),1)
+c
+c            call dcopy(2*npack0,0.0d0,0,dcpl_mb(vcmp_smooth(1)),1)
+c            call dcopy(2*npack0,0.0d0,0,dcpl_mb(vcmp_tmp(1)),1)
+
             call nwpw_compcharge_gen_dE_Qlm(ispin,
      >                                   dcpl_mb(vcmp_smooth(1)),
      >                                   dcpl_mb(vcmp(1)))
          
+c            call nwpw_compcharge_zero_dE_Qlm()
             call nwpw_compcharge_gen_dEmult_Qlm(ispin)
             call nwpw_compcharge_add_dEmult_Qlm(ispin)
 
@@ -2522,7 +2534,6 @@ c                        write(*,*) "ff=",ff(1)*omega
             if (.not.value) 
      >        call errquit('v_nonlocal:popping stack',5,MA_ERR)
          end if
-
 
          call nwpw_compcharge_add_dElocal_Qlm(ispin)
 
