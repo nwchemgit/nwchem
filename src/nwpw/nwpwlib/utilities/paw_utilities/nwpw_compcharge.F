@@ -2892,7 +2892,9 @@ c                           W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
 c     >                                         l2,m2,s1,Rab)
                            W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
-                           e1=e1+0.5d0*W1+0.5d0*W4-W2
+                           !e1=e1+0.5d0*W1+0.5d0*W4-0.5d0*W2-0.5d0*W3
+                           e1=e1+W1+W4-2.0d0*W2
+                           !e1=e1+0.5d0*W1+0.5d0*W4-W2
                         end if
                      end do
                      if (dabs(e1).gt.tole) then
@@ -3617,12 +3619,9 @@ c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
 
          do ms=1,ispin
             indx1 = indx1up + (ms-1)*lm_size_max
+            indx2 = indx2up + (ms-1)*lm_size_max
             dbl_mb(dEmult_Qlm(1)+indx1) = dbl_mb(dEmult_Qlm(1)+indx1)
      >                                  + q2*dbl_mb(e_gauss(1)+k-1)
-         end do
-
-         do ms=1,ispin
-            indx2 = indx2up + (ms-1)*lm_size_max
             dbl_mb(dEmult_Qlm(1)+indx2) = dbl_mb(dEmult_Qlm(1)+indx2)
      >                                  + q1*dbl_mb(e_gauss(1)+k-1)
          end do
