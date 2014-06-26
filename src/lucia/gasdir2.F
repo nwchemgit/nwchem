@@ -8759,7 +8759,9 @@ C             MAT_P_MATT(A,B,NR,NC,COEF)
         END IF
 *
         call ga_sync()
+        call luciaqenter('gdgop')
         call ga_dgop(1, SB, nia*nib, '+')
+        call luciaqexit('gdgop')
  9999 CONTINUE
         IF(IHAPR.NE.0) THEN
 *. Clean up

@@ -14804,6 +14804,7 @@ C?       NTEST = 10000
 C?       WRITE(6,*) ' Jeppe raised NTEST in GETINCN2_A '
 C?    END IF
 *
+      call luciaqenter('gin2a')
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from GETINCN2_A'
         WRITE(6,*) ' ======================'
@@ -15350,6 +15351,7 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
       endif
       call ga_sync()
       call ga_dgop(1, XINT, NIJKL, '+')
+      call luciaqexit('gin2a')
 *
       RETURN
       END

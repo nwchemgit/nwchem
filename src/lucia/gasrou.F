@@ -7977,6 +7977,7 @@ c      INCLUDE 'mxpdim.inc'
 #include "mafdecls.fh"
 #include "global.fh"
 *
+      call luciaqenter('enden')
       NTEST = 000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Energy under construction '
@@ -8091,6 +8092,7 @@ C?              write(6,*) ' Updated 2e-energy ', E2
       END IF
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'EN_FRM')
+      call luciaqexit('enden')
 *
       RETURN
       END
@@ -9443,16 +9445,20 @@ CNW   CALL SETVEC(F,ZERO,LEN_F)
                IJSYM = IJMAX*(IJMAX-1)/2 + IJMIN + IFOFFS - 1
 CNW            dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 2.0D0*
 CNW  &         (FI(IFOFFS-1+IJSYM)+FA(IFOFFS-1+IJSYM))
-               if (IJSYM.ge.ilo.and.IJSYM.le.ihi)
-     &         dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 
+               if (IJSYM.ge.ilo.and.IJSYM.le.ihi) then 
+               dbl_mb(KLFBLK-1+(I-1)*NJ+J) = 
      &           2.0D0*(dbl_mb(ikfi+IJSYM-ilo)+dbl_mb(ikfa+IJSYM-ilo))
-C?             WRITE(6,*) ' IJSM, I, J, FI(IJ), FA(IJ), F(IJ) =',
+c              WRITE(6,*) ' IJSM, I, J, FI(IJ), FA(IJ), F(IJ) =',
+c    &         IJSM,I,J,dbl_mb(ikfi+IJSYM-ilo),dbl_mb(ikfa+IJSYM-ilo),
+c    &         dbl_mb(KLFBLK-1+(I-1)*NJ+J)
 C?   &         IJSM,I,J,FI(IFOFFS-1+IJSYM), FA(IFOFFS-1+IJSYM),
 C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
+               endif
               END DO
              END DO
             call ga_release(FI, ilo, ihi, 1, 1)
             call ga_release(FA, ilo, ihi, 1, 1)
+            call ga_dgop(1,dbl_mb(KLFBLK),ni*nj,'+')
             endif
             ELSE IF(JGAS.LE.NGAS) THEN
 *
@@ -9551,9 +9557,10 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
 C?              WRITE(6,*) 'IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1',
 C?   &                      IFOFF-1+(J+IJ-1-1)*NIJS + I+II-1
                 IINDX = IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1
-                if (iindx.ge.ilo.and.iindx.le.ihi)
-     &          call ga_put(F,IINDX,IINDX,1,1,
+                if (iindx.ge.ilo.and.iindx.le.ihi) then
+                call ga_put(F,IINDX,IINDX,1,1,
      &                      dbl_mb(KLFBLK-1+(I-1)*NJ+J),1)
+                endif
 CNW             F(IFOFF-1+(I+II-1-1)*NIJS + J+IJ-1 ) = 
 CNW  &          dbl_mb(KLFBLK-1+(I-1)*NJ+J)
               END DO

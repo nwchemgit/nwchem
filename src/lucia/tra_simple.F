@@ -3359,8 +3359,11 @@ C            PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
       DIMENSION XIN(*)
 *. Output
       integer XOUT
+      dimension xbuf(100)
+      integer id1(100), id2(100), icount
 CNW   DIMENSION XOUT(*)
 *
+      call luciaqenter('m2ess')
       NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' MOD_2E_SSSSBLK reporting:'
@@ -3378,6 +3381,11 @@ CNW   DIMENSION XOUT(*)
         WRITE(6,'(A,4I4)') ' Dimensions: NI_IN, NJ_IN, NK_IN, NL_IN = ',
      &                                   NI_IN, NJ_IN, NK_IN, NL_IN
       END IF
+*
+      do icount = 1, 100
+         id2(icount) = 1
+      enddo
+      icount = 0
 *
       IF(I12S_IN.EQ.1) THEN
        NIJ_IN = NI_IN*(NI_IN+1)/2
@@ -3544,7 +3552,14 @@ C               IJKL_IN = (IJ_IN-1)*NIJ_IN + KL_IN
      &        I,J,K,L,IJ_IN,KL_IN,IJKL_IN,IJKL_OUT
             END IF
 *
-CBERT IN PARALLEL THIS WOULD BE A SCATTER
+c           icount = icount + 1
+c           id1(icount) = IOFF+IJKL_OUT-1
+c           xbuf(icount) = xin(ijkl_in)
+c           if (icount.eq.100.or.
+c    &         (k.eq.nk.and.l.eq.max_l.and.i.eq.ni.and.j.eq.max_j)) then
+c              call ga_scatter(XOUT,xbuf,id1,id2,icount)
+c              icount = 0
+c           endif
             call ga_put(XOUT,IOFF+IJKL_OUT-1,IOFF+IJKL_OUT-1,1,1,
      &                  XIN(IJKL_IN),1)
 CNW         XOUT(IJKL_OUT) = XIN(IJKL_IN)
@@ -3562,7 +3577,7 @@ C            PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
         CALL PRINT_2EBLK_G(XOUT,NI,NJ,NK,NL,I12S_OUT,I34S_OUT,
      &                     I1234S_OUT)
       END IF
-        
+      call luciaqexit('m2ess')
 *
       RETURN
       END

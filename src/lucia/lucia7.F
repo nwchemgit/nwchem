@@ -1868,7 +1868,7 @@ C?                WRITE(6,*) ' IPQRS, I2PQRS', IPQRS,I2PQRS
 *
       DIMENSION SCR1(*),SCR2(*),SCR3(*),SCR4(*)
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.100) THEN
        WRITE(6,*) ' Hessian block E2(pq),(rs) will be calculated for '
        WRITE(6,'(A,2I4)') ' Type and symmetry of P ' ,IPTP, IPSM
@@ -4452,13 +4452,16 @@ CNW   DIMENSION F(*), FI(*), FA(*), H(*)
 *. Output 
       DIMENSION E2BLK(NP*NQ*NR*NS)
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Scratch : each SCR matrix should be able to hold largest 4 index matrix
 *            of orbitals with given type-symmetry 
 *
       DIMENSION SCR1(*),SCR2(*),SCR3(*),SCR4(*)
 *
       NTEST = 00
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' Hessian block E2(pq),(rs) will be calculated for '
        WRITE(6,'(A,2I4)') ' Type and symmetry of P ' ,IPTP, IPSM
        WRITE(6,'(A,2I4)') ' Type and symmetry of Q ' ,IQTP, IQSM
@@ -4658,7 +4661,7 @@ C?   &        IPQRS, I2PQRS, SCR1(I2PQRS)
       END DO
 *     ^ End of loop over IPQ
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' =========================='
         WRITE(6,*) ' Hessian block E2(p,q,r,s) '

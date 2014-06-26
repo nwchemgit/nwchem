@@ -5731,15 +5731,16 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
       CALL TRAN_SYM_BLOC_MAT4b(FA,CINI,CINIB,NSMOB,NTOOBS,NTOOBS,
      &                        dbl_mb(KLCT),dbl_mb(KLSCR),0)
       IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' FA in initial basis'
-        CALL APRBLM2(dbl_mb(KLCT),NTOOBS,NTOOBS,NSMOB,0)
+        if (ga_nodeid().eq.0) WRITE(6,*) ' FA in initial basis'
+        call ga_print(FA)
+c       CALL APRBLM2(dbl_mb(KLCT),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *. Pack to lower half form
       IF(IPACK.NE.0) THEN
         CALL TRIPAK_BLKMG2(dbl_mb(KLCT),FA,1,NTOOBS,NSMOB,3)
       ELSE
 CNW     CALL COPVEC(dbl_mb(KLCT),FA,LEN_F)
-        call ga_get(FA,1,LEN_F,1,1,dbl_mb(KLCT),LEN_F)
+        call ga_put(FA,1,LEN_F,1,1,dbl_mb(KLCT),LEN_F)
       END IF
 *
        IF(NTEST.GE.100) THEN

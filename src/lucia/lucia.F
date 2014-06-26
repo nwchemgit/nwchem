@@ -6248,7 +6248,7 @@ c      INCLUDE 'mxpdim.inc'
       call ga_dgop(1, H , IJ, '+')
 *
       NTEST = 00
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' One-electron integral block from GETH1'
         WRITE(6,*) ' ======================================'
         WRITE(6,*) ' IH1FORM = ', IH1FORM
@@ -6780,7 +6780,7 @@ C?              print '(7i6)',ijkl,ij,kl,i,j,k,l
 *.Output
       DIMENSION XINT(*)
 *
-      CALL LUCIAQENTER('GETIN')
+      CALL LUCIAQENTER('GTINL')
       NI = NTSOB(ITP,ISM)
       NJ = NTSOB(JTP,JSM)
       NK = NTSOB(KTP,KSM)
@@ -6831,7 +6831,7 @@ CBERT THIS SHOULD BE A GATHER OF MANY INTEGRALS
         CALL WRTMAT(XINT,NIK,NJL,NIK,NJL)
       END IF
 *
-      CALL LUCIAQEXIT('GETIN')
+      CALL LUCIAQEXIT('GTINL')
       RETURN
       END
       SUBROUTINE GETINM(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
@@ -8156,8 +8156,9 @@ CNW   DIMENSION H(*)
 CNW   GTH1ES = H(IJ)
       GTH1ES = 0.0d0
       call ga_distribution(H,ga_nodeid(),ilo,ihi,idum,idum)
-      if (IJ.LE.ihi.and.IJ.GE.ilo)
-     &call ga_get(H,IJ,IJ,1,1,GTH1ES,1)
+      if (IJ.LE.ihi.and.IJ.GE.ilo) 
+     &   call ga_get(H,IJ,IJ,1,1,GTH1ES,1)
+      
 *
       IF(NTEST.NE.0) THEN
         WRITE(6,*) ' One electron integral from GTH1ES '
