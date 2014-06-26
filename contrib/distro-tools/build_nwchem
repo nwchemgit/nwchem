@@ -1474,7 +1474,10 @@ if [ ${#OLD_GA} -eq 0 ] ; then
     # try some more options.
     which mpicc
     result=$?
-    if [ ${result} -eq 0 ] ; then
+    if [ ${#NWCHEM_MPIC_WRAP} -ne 0 ] ; then
+      ${NWCHEM_MPIC_WRAP} -o ./mpi_threads$$.x ./mpi_threads$$.c
+      result=$?
+    elif [ ${result} -eq 0 ] ; then
       mpicc -o ./mpi_threads$$.x ./mpi_threads$$.c
       result=$?
     else
