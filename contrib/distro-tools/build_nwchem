@@ -1470,23 +1470,11 @@ if [ ${#OLD_GA} -eq 0 ] ; then
     echo "   result = result || MPI_Finalize();"                        >> ./mpi_threads$$.c
     echo "   return result;"                                            >> ./mpi_threads$$.c
     echo "}"                                                            >> ./mpi_threads$$.c
-    # On some systems there is no mpicc to compile an MPI code, so we need to
-    # try some more options.
-    which mpicc
-    result=$?
     if [ ${#NWCHEM_MPIC_WRAP} -ne 0 ] ; then
       ${NWCHEM_MPIC_WRAP} -o ./mpi_threads$$.x ./mpi_threads$$.c
       result=$?
-    elif [ ${result} -eq 0 ] ; then
-      mpicc -o ./mpi_threads$$.x ./mpi_threads$$.c
-      result=$?
     else
-      which mpxlc_r
-      result=$?
-      if [ ${result} -eq 0 ] ; then
-        mpxlc_r -o ./mpi_threads$$.x ./mpi_threads$$.c
-        result=$?
-      fi
+      result=1
     fi
     if [ ${result} -ne 0 ] ; then
       # Compiling with multi-threaded support did not work, so no hope here
