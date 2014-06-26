@@ -4520,7 +4520,7 @@ CNW   DIMENSION F(*), FI(*), FA(*), H(*)
             LF = LF + NTOOBS(ISM)**2
           END DO
 CNW       CALL COPVEC(F,WORK(KINT1),LF)
-          call ga_copy_patch('n',F,1,LF-1,1,1,KINT1,1,LF-1,1,1)
+          call ga_copy_patch('n',F,1,LF,1,1,KINT1,1,LF,1,1)
 *. F(pr)
           CALL GETH1(SCR2,IPPSM,IPPTP,IRRSM,IRRTP)
 *. F(rp)
@@ -4570,7 +4570,7 @@ CERR &      - XPQ*XRS*(SCR2((IPP-1)*NRR+IRR)+SCR3((IRR-1)*NPP+IPP))
      &        IPPTP.EQ.0.AND.IRRTP.EQ.0       ) ) THEN 
 *.h(qq,ss)
 CNW       CALL COPVEC(H,WORK(KINT1),NINT1)
-          call ga_copy_patch('n',H,1,NINT1-1,1,1,KINT1,1,NINT1-1,1,1)
+          call ga_copy_patch('n',H,1,NINT1,1,1,KINT1,1,NINT1,1,1)
           CALL GETH1(SCR2,IQQSM,IQQTP,ISSSM,ISSTP)
 *. D(pp,rr)
           IF(IPPTP.EQ.0.AND.IRRTP.EQ.0) THEN
