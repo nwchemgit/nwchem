@@ -252,11 +252,9 @@ COLD &             I_DO_NEWTON, I_DO_UPDATE
       CALL MEMMAN(KL_SUMMARY,LEN_SUMMARY,'ADDL  ',2,'SUMMRY')
 *. Memory for the initial set of MO integrals
 CNW   CALL MEMMAN(KINT1_INI,NINT1,'ADDL  ',2,'INT1_IN')
-CNW   CALL MEMMAN(KINT2_INI,NINT2,'ADDL  ',2,'INT2_IN')
+      CALL MEMMAN(KINT2_INI,NINT2,'ADDL  ',2,'INT2_IN')
       if(.not.ga_create(mt_dbl,NINT1,1,'INT1_IN',0,1,KINT1_INI))
      &   call errquit('cannot create lucia_mc: kint1_ini',0,GA_ERR)
-      if(.not.ga_create(mt_dbl,NINT2,1,'INT2_IN',0,1,KINT2_INI))
-     &   call errquit('cannot create lucia_mc: kint2_ini',0,GA_ERR)
 *. And for two extra MO matrices 
       LEN_CMO =  NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
       CALL MEMMAN(KLMO1,LEN_CMO,'ADDL  ',2,'MO1   ')
@@ -361,10 +359,9 @@ C KLRANK2, KLUPDVEC, KLCLKSCR,KLE1PREV,KLKPPREV
       CALL MEMMAN(KLSTEP, NOOEXC,'ADDL  ',2,'STEP  ')
 *. Save the initial set of MO integrals 
 CNW   CALL COPVEC(WORK(KINT1O),WORK(KINT1_INI),NINT1)
-CNW   CALL COPVEC(WORK(KINT_2EMO) ,WORK(KINT2_INI),NINT2)
+      CALL COPVEC(dbl_mb(KINT_2EMO),dbl_mb(KINT2_INI),NINT2)
       call ga_copy_patch('N',KINT1O,1,nint1,1,1,
      &                   KINT1_INI,1,nint1,1,1)
-      call ga_copy(KINT_2EMO,KINT2_INI)
 *. Print will be reduced for densities
       IPRDEN_SAVE = IPRDEN
       IPRDEN = 0
@@ -436,10 +433,9 @@ C    &               I_DO_CI_IN_INNER_ACT
 * Save initial integrals 
 *
 CNW     CALL COPVEC(WORK(KINT1_INI),WORK(KINT1O),NINT1)
-CNW     CALL COPVEC(WORK(KINT2_INI),WORK(KINT_2EMO),NINT2)
+        CALL COPVEC(dbl_mb(KINT2_INI),dbl_mb(KINT_2EMO),NINT2)
         call ga_copy_patch('N',KINT1_INI,1,nint1,1,1,
      &                   KINT1O,1,nint1,1,1)
-        call ga_copy(KINT2_INI,KINT_2EMO)
 *
 *. Transform integrals to current set of MO's
 *
@@ -1323,8 +1319,6 @@ C?    WRITE(6,*) ' Final energy = ', EFINAL
       CALL MEMMAN(IDUMMY, IDUMMY, 'FLUSM', IDUMMY,'MCSCF ') 
       if(.not.ga_destroy(KINT1_INI))
      &   call errquit('cannot destroy: kint1_ini',0,GA_ERR)
-      if(.not.ga_destroy(KINT2_INI))
-     &   call errquit('cannot destroy: kint2_ini',0,GA_ERR)
       CALL LUCIAQEXIT('MCSCF')
       RETURN
       END
@@ -1869,18 +1863,17 @@ C?    WRITE(6,*) ' PREPARE.. IH1FORM, IH2FORM = ', IH1FORM, IH2FORM
 #include "mafdecls.fh"
 #include "global.fh"
 *
-      NTEST = 00
+      NTEST = 000
 *
       DO IE2LIST = 1, NE2LIST
         N_IA = IE2LIST_N(IE2LIST)
         IB_IA = IE2LIST_IB(IE2LIST)
         DO II_AR = IB_IA, IB_IA-1+N_IA
           I_AR = IE2LIST_I(II_AR)
-CBERT GA POINTS ARE NEGATIVE, I.E. LOGIC NEEDS TO BE REVERSED
           IF(IE2LIST.EQ.IACT_LIST) THEN
-           KINT2_A(I_AR) = -IABS(KINT2_A(I_AR))
-          ELSE
            KINT2_A(I_AR) = IABS(KINT2_A(I_AR))
+          ELSE
+           KINT2_A(I_AR) = -IABS(KINT2_A(I_AR))
           END IF
         END DO
       END DO

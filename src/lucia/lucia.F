@@ -1600,9 +1600,11 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'cintfo.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *
-CNW   CALL SCALVE(WORK(KINT2),XLAMBDA,NINT2)
-      call ga_scale(KINT2,XLAMBDA)
+      CALL SCALVE(dbl_mb(KINT2),XLAMBDA,NINT2)
 *
       RETURN
       END 
@@ -3979,17 +3981,9 @@ c     CALL MEMMAN(KTPAM,NTOOB**2,'ADDS  ',2,'TPAM  ')
          igalist(igalstnr) = KTPAM
 *.2: Two electron integrals
       IF(NOINT.EQ.0.AND.INCORE.EQ.1.AND.ISVMEM.EQ.0) THEN
-CNW      CALL MEMMAN(KINT_2EMO,NINT2,'ADDS  ',2,'INT2  ')
-         if(.not.ga_create(mt_dbl,nint2,1,'INT2   ',0,1,KINT_2EMO))
-     &       call errquit('cannot create lucia_2e: kint_2emo',0,GA_ERR)
-         igalstnr = igalstnr + 1
-         igalist(igalstnr) = KINT_2EMO
+         CALL MEMMAN(KINT_2EMO,NINT2,'ADDS  ',2,'INT2  ')
 *. For initial set of integrals
-CNW      CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
-         if(.not.ga_create(mt_dbl,nint2,1,'INT2   ',0,1,KINT_2EINI))
-     &       call errquit('cannot create lucia_2e: kint_2eini',0,GA_ERR)
-         igalstnr = igalstnr + 1
-         igalist(igalstnr) = KINT_2EINI
+         CALL MEMMAN(KINT_2EINI,NINT2,'ADDS  ',2,'INT2_I')
       END IF
 *. Pointers to symmetry block of integrals
       CALL MEMMAN(KPINT1,NBINT1,'ADDS  ',1,'PINT1 ')  !done
@@ -7394,7 +7388,7 @@ C       GETINCN2_A(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
 C    &             IXCHNG,IKSM,JLSM,INTLST,IJKLOF,I2INDX,
 C    &             ICOUL,CFAC,EFAC)
          CALL GETINCN2_A(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                    IXCHNG,IKSM,JLSM,KINT2_LA,
+     &                    IXCHNG,IKSM,JLSM,dbl_mb(KINT2_LA),
      &                    int_mb(KPINT2_LA),KINH1,ICOUL,CFAC,
      &                    EFAC)
       END IF! End of ITRA_ROUTE switch
@@ -9848,9 +9842,8 @@ c      INCLUDE 'mxpdim.inc'
         WRITE(6,*) ' GET_QD_INTS will be called '
         ZERO = 0.0D0
 CNW     CALL SETVEC(WORK(KINT1), ZERO, NINT1)
-CNW     CALL SETVEC(WORK(KINT2), ZERO, NINT2)
+        CALL SETVEC(WORK(KINT2), ZERO, NINT2)
         call ga_zero(KINT1)
-        call ga_zero(KINT2)
         CALL GET_QD_INTS(KINT1,KINT2,int_mb(KPINT1))
         INTIMP = 1
        ELSE IF(IDOQD.EQ.0.AND.INTIMP.EQ.1) THEN
@@ -9962,16 +9955,15 @@ c
   
 c.. To write in LUCIA format
       CALL LUCIAQENTER('MO2GA')
-      call ga_distribution(kint2,ga_nodeid(),ilo,ihi,idum,idum)
-      if (ihi.gt.0) then
-      call ga_access(kint2,ilo,ihi,1,1,kint2_l,idum)
-      myelem = ihi-ilo+1
-      if(.not.ma_push_get(mt_int,myelem,'indexi',lint_i,kint_i)) call
-     $  errquit('intim: ma indexi failed',myelem, MA_ERR)
-      if(.not.ma_push_get(mt_int,myelem,'indexj',lint_j,kint_j)) call
-     $  errquit('intim: ma indexj failed',myelem, MA_ERR)
+      ZERO = 0.0d0
+      CALL SETVEC(dbl_mb(KINT2), ZERO, NINT2)
+c     call ga_distribution(g_coul,ga_nodeid(),ilo,ihi,jlo,jhi)
+c     print*,'il',ilo,ihi,jlo,jhi,ilda
+c     if (ihi.gt.0.and.jhi.gt.0) then
+c     call ga_access(g_coul,ilo,ihi,jlo,jhi,1,kint2_l,ilda)
 c.. 2e ints
 
+      if (ga_nodeid().eq.0) then
       do ism_lu=1,nirrep
          do jsm_lu=1,ism_lu
             smij=(ism_lu-1)*nirrep+jsm_lu
@@ -10028,10 +10020,8 @@ c.. add on the offset for each irep
 c.. look for index in ga_coul
                         ij = (j-1)*norbt+i 
                         kl = k*(k-1)/2 + l
-                        if (ind2e.ge.ilo.and.ind2e.le.ihi) then
-                           int_mb(kint_i+ind2e-ilo) = ij
-                           int_mb(kint_j+ind2e-ilo) = kl
-                        endif
+                        call ga_get(g_coul,ij,ij,kl,kl,
+     &                       dbl_mb(KINT2+ind2e-1),1)
                      end do
                   endif
                end do
@@ -10039,15 +10029,11 @@ c.. look for index in ga_coul
          end do
       end do
 c
-      call ga_gather(g_coul,dbl_mb(kint2_l),int_mb(kint_i),
-     $               int_mb(kint_j),myelem)
-      call ga_release(kint2,ilo,ihi,1,1)
       endif
       call ga_sync()
+      call ga_dgop(1,dbl_mb(KINT2),NINT2,'+')
       CALL LUCIAQEXIT('MO2GA')
 c
-      if (.not.ma_chop_stack(lint_i)) call
-     $   errquit('intim:chop_stack failed', lbuf, MA_ERR)
       if(.not.ga_destroy(g_coul)) call 
      &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
       if(.not.ga_destroy(g_moreo)) call 
@@ -11099,7 +11085,6 @@ C GET_NSD_MINMAX_SPACE(MIN_OCC,MAX_OCC,ISYM,MS2X,MULTSX, NSD,NCM,NCSF,NCONF)
       END IF
       IF (NTEST.GT.10) WRITE(6,*) ' MXP1_MAX, fresh = ', MXP1_MAX
 
-CBERT MOVED TO GET ADDITIONAL INPUT INFO READY
 *. Assign diskunits
       CALL DISKUN
 *
@@ -11213,8 +11198,7 @@ C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
         call schwarz_tidy()
         call int_terminate()
 *. copy to list of initial 2 e integrals
-CNW     CALL COPVEC(WORK(KINT_2EMO),WORK(KINT_2EINI),NINT2)
-        call ga_copy(KINT_2EMO,KINT_2EINI)
+        CALL COPVEC(dbl_mb(KINT_2EMO),dbl_mb(KINT_2EINI),NINT2)
       ELSE
         if (ga_nodeid().eq.0) WRITE(6,*) ' No integrals imported '
       END IF
@@ -11458,17 +11442,13 @@ C    &                              IALIGN)
      &  WRITE(6,*) ' TEST: IE2ARR_F = ', IE2ARR_F
         NINT2_F = NINT2_G(IE2ARR_F)
         KINT2_F = KINT2_A(IE2ARR_F)
-CNW     CALL COPVEC(WORK(KINT_2EINI),WORK(KINT2_F),NINT2_F)
-        call ga_copy_patch('n',KINT_2EINI,1,NINT2_F,1,1,
-     &                         KINT2_F,1,NINT2_F,1,1)
+        CALL COPVEC(dbl_mb(KINT_2EINI),dbl_mb(KINT2_F),NINT2_F)
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) 
      &    ' Full integral list copied to WORK(KINT2(IE2ARR_F))'
           WRITE(6,*) ' TEST: KINT2_F, NINT2_F = ', KINT2_F, NINT2_F
-CNW       WRITE(6,*) ' WORK(KINT_2EINI),WORK(KINT2_F)',
-CNW  &                 WORK(KINT_2EINI),WORK(KINT2_F)
-          call ga_print_patch(KINT_2EINI,1,NINT2_F,1,1,0)
-          call ga_print_patch(KINT2_F,1,NINT2_F,1,1,0)
+          WRITE(6,*) ' WORK(KINT_2EINI),WORK(KINT2_F)',
+     &                 WORK(KINT_2EINI),WORK(KINT2_F)
         END IF
 * Tell program to work with full two-electron integral list (until further notice)
         IE2LIST_A = IE2LIST_FULL
@@ -11511,14 +11491,11 @@ C     IF(I_DO_NORTCI.EQ.0.AND.INI_MO_TP.NE.3) THEN
         IE2ARR_F = IE2LIST_I(IE2LIST_IB(IE2LIST_FULL))
         NINT2_F = NINT2_G(IE2ARR_F)
         KINT2_F = KINT2_A(IE2ARR_F)
-CNW     CALL COPVEC(WORK(KINT2_F),WORK(KINT_2EMO),NINT2_F)
-        call ga_copy_patch('n',KINT2_F,1,NINT2_F,1,1,
-     &                         KINT_2EMO,1,NINT2_F,1,1)
+        CALL COPVEC(dbl_mb(KINT2_F),dbl_mb(KINT_2EMO),NINT2_F)
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' NINT2_F = ', NINT2_F
           WRITE(6,*) ' Integrals transformed to KINT_2EMO'
-CNW       CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
-          call ga_print_patch(KINT_2EMO,1,NINT2_F,1,1,0)
+          CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
         END IF
 *. one-electron integrals to KINT1O
 CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
@@ -35278,12 +35255,7 @@ C  I2ELIST_INUSE(MXPI2ARR),IOCOBTP_INUSE(MXPI2ARR)
           NINT2_G(IIARR) = LINT
           INTSM_G(IIARR) = INTSM_A
 C?        WRITE(6,*) ' JEPTEST, LINT = ', LINT
-CNW       CALL MEMMAN(KINT2_A(IIARR),LINT,'ADDL  ',2,'INT2A ')
-          if ( .not. ga_create( mt_dbl, lint, 1, 'INT2A',
-     $     0,0, KINT2_A(IIARR)) ) call errquit(
-     $     'Z_ACT: ga_create INT2A failed', lint , GA_ERR)
-          igalstnr = igalstnr + 1
-          igalist(igalstnr) = KINT2_A(IIARR)
+          CALL MEMMAN(KINT2_A(IIARR),LINT,'ADDL  ',2,'INT2A ')
        END DO
       END DO
 *

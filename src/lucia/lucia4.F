@@ -1791,6 +1791,7 @@ CNW  &    ECC = ECC + 2*FI(II)
       END DO
       call ga_release(FI,ilo,ihi,1,1)
       endif
+      call ga_dgop(1, ECC, 1, '+')
 C?    WRITE(6,*) ' one-electron part to ECC ', ECC
 *. Two-electron part
       IF(IDOH2.NE.0) THEN
@@ -1815,7 +1816,7 @@ C?            END IF
         END DO
       END IF
       call ga_sync()
-      call ga_dgop(1, ECC, 1, '+')
+c     call ga_dgop(1, ECC, 1, '+')
 *
       IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
@@ -1855,7 +1856,7 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                 ii = ii + 1
               END DO
             END DO
-            if (ij.ge.istart)
+            if (ij.ge.istart.and.ga_nodeid().eq.0)
      &      call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
           END IF
         END DO
@@ -1954,6 +1955,7 @@ C?          WRITE(6,*) ' Updated ECC = ', ECC
       END DO
       call ga_release(FI,ilo,ihi,1,1)
       endif
+      call ga_dgop(1, ECC, 1, '+')
       IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
      & WRITE(6,*) ' one-electron term to Ecore ', ECC
 *. Two-electron part
@@ -1991,7 +1993,7 @@ C?            WRITE(6,*) ' Updated ECC = ', ECC
         END DO
       END IF
       call ga_sync()
-      call ga_dgop(1, ECC, 1, '+')
+c     call ga_dgop(1, ECC, 1, '+')
 *
       IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
@@ -2036,7 +2038,7 @@ CNW  &            + 2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP)
                 ii = ii + 1
               END DO
             END DO
-            if (ij.ge.istart)
+            if (ij.ge.istart.and.ga_nodeid().eq.0)
      &      call ga_acc(FI,istart,IJ,1,1,dbl_mb(kbuf),1,1.0d0)
           END IF
         END DO
@@ -2278,7 +2280,7 @@ C gtijkl zero if not in my range
       END DO
       END DO
       call ga_sync()
-      call ga_dgop(1, ECC, 1, '+')
+c     call ga_dgop(1, ECC, 1, '+')
 *
       IF(NTEST.NE.0.and. ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Core-Core interaction energy ', ECC
@@ -2317,7 +2319,7 @@ CNW  &          +(2.0D0*GTIJKL(IP,JP,KP,KP)-GTIJKL(IP,KP,KP,JP))
               ii = ii + 1
             END DO
           END DO
-          if (ij.ge.istart)
+          if (ij.ge.istart.and.ga_nodeid().eq.0)
      &    call ga_acc(FI,istart,IJ,1,1,dbl_mb(lbuf),1,1.0d0)
         END IF
       END DO

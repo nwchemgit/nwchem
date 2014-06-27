@@ -2281,9 +2281,6 @@ C     WRITE(6,*) ' Two integral blocks allocated '
       CALL MEMMAN(KLINTM2,LEN2IBL,'ADDL  ',2,'INTM2 ')
   
 *. Loop over input symmetry blocks
-      itask = 0
-      nproc = ga_nnodes()
-      next = nxtask(nproc, 1)
       DO ISM = 1, NSMOB
         IF(I12S.EQ.1) THEN
          JSM_MX = ISM
@@ -2349,7 +2346,6 @@ CM   &                     IOFF, JOFF, KOFF, LOFF
 *. it may be convenient to do some common work for transformations 
 *. containing more than one block.
 *
-               if (itask.eq.next) then
                I12P = IPERM_SSSS(5,IPERM) 
                I34P = IPERM_SSSS(6,IPERM) 
                I1234P = IPERM_SSSS(7,IPERM) 
@@ -2654,22 +2650,19 @@ C              MOD_2E_SSSSBLK(XIN,XOUT,NI_IN,NJ_IN,NK_IN,NL_NL_IN,
 C    &                         I12S_IN,I34S_IN,I1234S_IN,
 C    &                         I12S_OUT,I34S_OUT,I1234S_OUT,
 C    &                         I12P,I34P,I1234P)
-               CALL MOD_2E_SSSSBLKG(dbl_mb(KLBL3),X2INTOUT,IOFF_BL,
+               CALL MOD_2E_SSSSBLK(dbl_mb(KLBL3),
+     &              dbl_mb(X2INTOUT+IOFF_BL-1),
      &              NK_O,NL_O,NI_O,NJ_O,I34S_O,I12S_O,0,
      &              I12S_O,I34S_O,I1234S_O,0,0,1)
 *. Finito !!!
-              next = nxtask(nproc, 1)
-              endif
-              itask = itask + 1
               END DO ! End of loop over Permutations
             END IF ! End if correct combination of symmetries
             END DO
           END DO
         END DO
       END DO ! End of loop over KSM, LSM, JSM, ISM
-      next = nxtask(-nproc,1)
       call ga_sync()
-
+*
       CALL MEMCHK('FINOTO')
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'TRA2_G')
 *
@@ -2691,6 +2684,9 @@ C!    INCLUDE 'mxpdim.inc'
       INCLUDE 'cintfo.inc'
       INCLUDE 'lucinp.inc'
       INCLUDE 'orbinp.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 *. Input
       INTEGER IPINT2(NSMOB,NSMOB,NSMOB)
 *. Output
@@ -2713,9 +2709,7 @@ C!    INCLUDE 'mxpdim.inc'
         WRITE(6,*) ' KINT_2EMO = ', KINT_2EMO
       END IF
 *
-CNW   CALL COPVEC(WORK(KINT2-1+IOFF),XINT,NIJKL)
-      if (NIJKL.gt.0)
-     &call ga_get(KINT2,IOFF,IOFF+NIJKL-1,1,1,XINT,NIJKL)
+      CALL COPVEC(dbl_mb(KINT2-1+IOFF),XINT,NIJKL)
 *
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Symmetry block of integrals, GET_2EBLK'
@@ -4013,8 +4007,7 @@ C     PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
       IARR_FOUND = 0
       DO IARR = 1, NE2ARR
 *. Is this array active
-CBERT OPPOSITE LOGIC FOR KINT2_A, MINUS MEANS ACTIVE
-        IF(KINT2_A(IARR).LT.0) THEN
+        IF(KINT2_A(IARR).GT.0) THEN
            IOCOBTP = IOCOBTP_G(IARR)
            DO INDEX = 1, 4
              IG = IJKL_GAS(INDEX)

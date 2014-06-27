@@ -14784,8 +14784,7 @@ C            PRHONE(H,NFUNC,IHSM,NSM,IPACK)
 #include "mafdecls.fh"
 #include "global.fh"
 *. Integral list
-CNW   Real * 8 Intlst(*)
-      integer INTLST 
+      Real * 8 Intlst(*)
       Dimension IJKLof(NsmOB,NsmOb,NsmOB)
 *. Pair of orbital indeces ( symmetry ordered ) => address in symmetry packed 
 *. matrix ( not active pt)
@@ -14818,10 +14817,6 @@ C?    END IF
      &                        I12S_A, I34S_A, I1234S_A
 CNW     WRITE(6,*) ' First integral in input block = ', INTLST(1)
       END IF
-*
-      call ga_distribution(INTLST,ga_nodeid(),ilo,ihi,idum,idum)
-      if (ihi.gt.0) then
-      call ga_access(INTLST, ilo, ihi, 1, 1, kintl, idum)
 *
 *Number of orbitals for the four indeces
 *
@@ -15041,9 +15036,7 @@ CNW     WRITE(6,*) ' First integral in input block = ', INTLST(1)
      &                         I_ABS, J_ABS, K_ABS, L_ABS
                 END IF
 *
-                if (IJKL.ge.ilo.and.IJKL.le.ihi)     
-     &          XINT(IINT) = CFAC*dbl_mb(kintl+IJKL-ilo)
-CNW             XINT(IINT) = CFAC*INTLST(IJKL)   
+                XINT(IINT) = CFAC*INTLST(IJKL)   
                 IF(NTEST.GE.10000)
      &          WRITE(6,*) ' IINT, XINT = ', IINT, XINT(IINT)
               END DO
@@ -15080,10 +15073,7 @@ C                 IJKL=IJ+(KL-1)*NIJS-KLOFF
                   WRITE(6,'(A,4I4)') ' I_ABS, J_ABS, K_ABS, L_ABS = ', 
      &                         I_ABS, J_ABS, K_ABS, L_ABS
                 END IF
-                IELEM = IBLOFF-1+IJKL
-                if (IELEM.ge.ilo.and.IELEM.le.ihi)
-     &          XINT(IINT) = CFAC*dbl_mb(kintl+IELEM-ilo)
-CNW             XINT(IINT) = CFAC*INTLST(IBLOFF-1+IJKL)
+                XINT(IINT) = CFAC*INTLST(IBLOFF-1+IJKL)
                 IF(NTEST.GE.10000)
      &          WRITE(6,*) ' IINT, XINT = ', IINT, XINT(IINT)
               END DO
@@ -15108,9 +15098,7 @@ CNW             XINT(IINT) = CFAC*INTLST(IBLOFF-1+IJKL)
                   WRITE(6,*) ' I_ABS, J_ABS, IJ = ', I_ABS, J_ABS, IJ
                   WRITE(6,*) ' IINT, IJKL = ', IINT, IJKL
                 END IF
-                if (IJKL.ge.ilo.and.IJKL.le.ihi) 
-     &          XINT(IINT) = CFAC*dbl_mb(kintl+IJKL-ilo)
-CNW             XINT(IINT) = CFAC*INTLST(IJKL)
+                XINT(IINT) = CFAC*INTLST(IJKL)
                 IF(NTEST.GE.10000) THEN
                   WRITE(6,*) ' Updated integral = ', XINT(IINT)
                 END IF
@@ -15270,9 +15258,7 @@ CER  &               + (L-1)      *NI
                   END IF
                   ILKJ = ILKJ0 + IL
                   IINT=IINT+1
-                  if (ILKJ.ge.ilo.and.ILKJ.le.ihi)
-     &            XINT(IINT)=XINT(IINT)-EFAC*dbl_mb(kintl+ILKJ-ilo)
-CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
+                  XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
 CNW               IF(NTEST.GE.10000) THEN 
 CNW                 WRITE(6,*) 
 CNW  &            ' IINT, ILKJ, INTLST(ILKJ), XINT(IINT) =',
@@ -15311,10 +15297,7 @@ C                     ILKJ = IL + (KJ-1)*NILS - KJ*(KJ-1)/2
                    WRITE(6,*) ' IINT, ILKJ = ', IINT, ILKJ
                   END IF
 *
-                  IELEM = IBLOFF-1+ILKJ
-                  if (IELEM.ge.ilo.and.IELEM.le.ihi)
-     &            XINT(IINT)=XINT(IINT)-EFAC*dbl_mb(kintl+IELEM-ilo)
-CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(IBLOFF-1+ILKJ)
+                  XINT(IINT)=XINT(IINT)-EFAC*INTLST(IBLOFF-1+ILKJ)
                   IF(NTEST.GE.10000)
      &            WRITE(6,*) ' updated integral ', XINT(IINT)
                 END DO
@@ -15331,9 +15314,7 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(IBLOFF-1+ILKJ)
                   END IF
                   ILKJ = ILKJ0 + IL*NKJS
                   IINT = IINT + 1
-                  if (ILKJ.ge.ilo.and.ILKJ.le.ihi)     
-     &            XINT(IINT)=XINT(IINT)-EFAC*dbl_mb(kintl+ILKJ-ilo)
-CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
+                  XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
                 END DO
               END IF
 *
@@ -15347,10 +15328,6 @@ CNW               XINT(IINT)=XINT(IINT)-EFAC*INTLST(ILKJ)
         END IF
 *
       END IF
-      call ga_release(INTLST,ilo,ihi,1,1)
-      endif
-      call ga_sync()
-      call ga_dgop(1, XINT, NIJKL, '+')
       call luciaqexit('gin2a')
 *
       RETURN

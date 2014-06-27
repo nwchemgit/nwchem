@@ -663,15 +663,13 @@ c      INCLUDE 'mxpdim.inc'
      &              int_mb(KP2ADR),NOCCSYM,NO12SYM)
       END IF
 
-      call ga_distribution(K2ADR,ga_nodeid(),ilo,ihi,idum,idum)
-      IF (IADR.GT.0.and.IADR.ge.ilo.and.IADR.le.ihi) THEN
-CNW     XIJKL = WORK(K2ADR-1+IADR)
-        call ga_get(K2ADR,IADR,IADR,1,1,GTIJKL,1)
+      IF (IADR.GT.0) THEN
+        XIJKL = dbl_mb(K2ADR-1+IADR)
       ELSE
-        GTIJKL = 0D0
+        XIJKL = 0D0
       END IF
 *
-CNW   GTIJKL = XIJKL
+      GTIJKL = XIJKL
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -796,8 +794,7 @@ c      INCLUDE 'mxpdim.inc'
      &         int_mb(KPINT2_LA),IST)
 *
       IF(I2ADDR.GT.0) THEN
-        call ga_get(KINT2_LA,I2ADDR,I2ADDR,1,1,GTIJKL_GN,1)
-CNW     XINT = WORK(KINT2_LA-1+I2ADDR)
+        XINT = dbl_mb(KINT2_LA-1+I2ADDR)
       ELSE
         WRITE(6,*) ' Negative integral address '
         WRITE(6,*) ' IORB, JORB, KORB, LORB, I2ADDR = ',
@@ -807,7 +804,7 @@ CNW     XINT = WORK(KINT2_LA-1+I2ADDR)
         STOP ' Negative integral address '
       END IF
 *
-CNW   GTIJKL_GN = XINT
+      GTIJKL_GN = XINT
 *
       IF(NTEST.GE.100) THEN
        WRITE(6,*)  ' Output from GT_IJKL_GN '
