@@ -96,7 +96,7 @@
              do i=2,nrho
                a=sn(i)/(Q*rho(i))
                a=15.0d0*(a-cs(i))/(Q*rho(i))**2 - 6*a + cs(i)
-               f(i)=A*prj_ps(i,ib)
+               f(i)=a*prj_ps(i,ib)
              end do
              d=p3*log_integrate_def(power_f,f,0,rho,log_amesh,nrho)/Q
              vnl_ray(k1,ib)=d
@@ -107,7 +107,7 @@
              f(1)=0.0d0
              do i=2,nrho
                a=3.0d0*(sn(i)/(Q*rho(i))-cs(i))/(Q*rho(i))-sn(i)
-               f(i)=A*prj_ps(i,ib)
+               f(i)=a*prj_ps(i,ib)
              end do
              d=p2*log_integrate_def(power_f,f,0,rho,log_amesh,nrho)/Q
              vnl_ray(k1,ib)=D

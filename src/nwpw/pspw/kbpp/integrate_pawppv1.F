@@ -619,19 +619,20 @@ c           vnl(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
 c     >                          /dsqrt(60.0d0)
           end if
 *         ::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
+*         ::::::::::::::::::::::: -1 phase factor added ::::::::::::::::::::::::
           if (la.eq.2) then
             D=nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
             lcount = lcount+1
-            vnl(k1,k2,k3,lcount)=D*GX*GY
+            vnl(k1,k2,k3,lcount)=-D*GX*GY
             lcount = lcount+1
-            vnl(k1,k2,k3,lcount)=D*GY*GZ
+            vnl(k1,k2,k3,lcount)=-D*GY*GZ
             lcount = lcount+1
-            vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+            vnl(k1,k2,k3,lcount)=-D*(3.0d0*GZ*GZ-1.0d0)
      >                            /(2.0d0*dsqrt(3.0d0))
             lcount = lcount+1
-            vnl(k1,k2,k3,lcount)=D*GZ*GX
+            vnl(k1,k2,k3,lcount)=-D*GZ*GX
             lcount = lcount+1
-            vnl(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
+            vnl(k1,k2,k3,lcount)=-D*(GX*GX-GY*GY)/(2.0d0)
 
 c            lcount = lcount+1
 c            vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
@@ -646,14 +647,15 @@ c            lcount = lcount+1
 c            vnl(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
           end if
 *         ::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
+*         ::::::::::::::::::::::: -1 phase factor added ::::::::::::::::::::::::
           if (la.eq.1) then
            P=nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
            lcount = lcount+1
-           vnl(k1,k2,k3,lcount)=P*GY
+           vnl(k1,k2,k3,lcount)=-P*GY
            lcount = lcount+1
-           vnl(k1,k2,k3,lcount)=P*GZ
+           vnl(k1,k2,k3,lcount)=-P*GZ
            lcount = lcount+1
-           vnl(k1,k2,k3,lcount)=P*GX
+           vnl(k1,k2,k3,lcount)=-P*GX
           end if
 *         ::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
           if (la.eq.0) then
