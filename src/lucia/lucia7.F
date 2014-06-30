@@ -1077,6 +1077,7 @@ CNW   DIMENSION F(*)
 *
       NTEST = 00
 *
+      call luciaqenter('e1frf')
       ZERO = 0.0D0
 C?    WRITE(6,*) ' NOOEXC = ', NOOEXC
       CALL SETVEC(E1,ZERO,NOOEXC)
@@ -1131,6 +1132,7 @@ C       CALL WRTMAT(E1,1,NOOEXC,1,NOOEXC)
 C            WRT_EXCVEC(VEC,IOOEXCC,NOOEXC)
         CALL WRT_EXCVEC(E1,IOOEXCC,NOOEXC)
       END IF
+      call luciaqexit('e1frf')
 *
       RETURN
       END

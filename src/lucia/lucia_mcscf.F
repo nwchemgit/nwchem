@@ -1167,6 +1167,7 @@ C           WRITE(6,*) ' Number of CI-iterations reduced to 1 '
 *. Obtain FI +FA
             CALL DO_ORBTRA(0,1,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
 CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
+            stop 'vecsum not done'
             CALL VECSUM(dbl_mb(KLMO1),KFI,KFA,ONE,ONE,
      &                  NINT1)
 *. Diagonalize FI+FA and save in KLMO2
@@ -4145,6 +4146,7 @@ CNW   DIMENSION F(*)
 *. Output
       DIMENSION BRT(*)
 *
+      call luciaqenter('gbrtf')
       IOFF = 1
       call ga_distribution(F,ga_nodeid(),ilo,ihi,idum,idum)
       call ga_access(F, ilo, ihi, 1, 1, ikf, idum)
@@ -4184,6 +4186,7 @@ CNW     END DO
        WRITE(6,*) ' ================================='
        CALL APRBLM2(BRT,NTOOBS,NTOOBS,NSMOB,0)
       END IF
+      call luciaqexit('gbrtf')
 *
       RETURN
       END

@@ -9325,6 +9325,7 @@ CNW   DIMENSION FI(*), FA(*)
 CNW   DIMENSION F(*)
       integer F
 *
+      call luciaqenter('fmats')
       NTEST = 00
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
@@ -9580,6 +9581,7 @@ CNW  &          dbl_mb(KLFBLK-1+(I-1)*NJ+J)
 CNW     CALL APRBLM2(F,NTOOBS,NTOOBS,NSMOB,0)
         call ga_print(F)
       END IF
+      call luciaqexit('fmats')
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'FOO   ')
       RETURN

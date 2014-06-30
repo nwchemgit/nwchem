@@ -1400,14 +1400,19 @@ C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 * Some considerations on cache minimization used for IMET = 2 Loop
 *
       IMPLICIT REAL*8(A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       DIMENSION AUTPAK(MATDIM,MATDIM)
-      integer APAK,ICOFF
+      integer APAK,ICOFF,mybyte,icast,ihandle
 *. To get rid of annoying and incorrect compiler warnings
       IOFF = 0
       JOFF = 0
+      icast = 94568
 *
 *. Packing : No problem with cache misses    
 *
+      call luciaqenter('trp3g')
       IF( IWAY .EQ. 1 ) THEN
         IJ = ICOFF
         DO J = 1,NDIM
@@ -1422,44 +1427,28 @@ CNW       END DO
 * Unpacking : cache misses can occur so two routes
 *
       IF( IWAY .EQ. 2 ) THEN
-*. Blocking
-        LBLK = 40
+*. Blocking led to lots of small gets, now one row at a time
+        LBLK = MATDIM
         NBLK = MATDIM/LBLK
-        IF(LBLK*NBLK.LT.MATDIM) NBLK = NBLK + 1
-        DO JBLK = 1, NBLK
-          IF(JBLK.EQ.1) THEN
-            JOFF = 1     
-          ELSE 
-            JOFF = JOFF + LBLK
-          END IF
-          JEND = MIN(JOFF+LBLK-1,MATDIM)
-          DO IBLK = JBLK, NBLK
-            IF(IBLK.EQ.JBLK) THEN
-              IOFF = JOFF
-            ELSE
-              IOFF = IOFF + LBLK
-            END IF
-            IEND = MIN(IOFF+LBLK-1,MATDIM)
-              DO J = JOFF,JEND
-                IF(IBLK.EQ.JBLK) THEN
-                  IOFF2 = J
-                ELSE 
-                  IOFF2 = IOFF
-                END IF
-CNW             IJOFF = (J-1)*MATDIM-J*(J-1)/2 
-                IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
-                call ga_get(APAK,IJOFF+IOFF2,IJOFF+IEND,1,1,
-     &                      AUTPAK(IOFF2,J),1)
-                DO I = IOFF2,IEND
-                  IF(I.NE.J) AUTPAK(J,I) = SIGN*AUTPAK(I,J)
+        JOFF = 1     
+        JEND = MATDIM
+        IOFF = JOFF
+        IEND = MATDIM
+        DO J = 1,MATDIM
+           IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
+           if (ga_nodeid().eq.0)
+     &     call ga_get(APAK,IJOFF+J,IJOFF+MATDIM,1,1,
+     &                   AUTPAK(J,J),1)
+           mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*(MATDIM-J+1)
+           if (ga_nnodes().gt.1) 
+     &        call ga_brdcst(icast,AUTPAK(J,J),mybyte,0)
+           DO I = J-1,MATDIM
+              IF(I.NE.J) AUTPAK(J,I) = SIGN*AUTPAK(I,J)
 CNW               AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
 CNW               AUTPAK(I,J) = APAK(IJOFF+I)
-                END DO
-              END DO
+           END DO
+        END DO
 *. End of loop over I and J
-            END DO
-          END DO
-*. End of loop over blocks of I and J
       END IF
 *
       NTEST = 0
@@ -1468,6 +1457,7 @@ CNW               AUTPAK(I,J) = APAK(IJOFF+I)
         CALL WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
 CNW     CALL PRSM2(APAK,NDIM)
       END IF
+      call luciaqexit('trp3g')
 *
       RETURN
       END
@@ -4244,14 +4234,12 @@ C               CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
                   CALL WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
                 END IF
 *.S(I,a+ K) =  S(I, a+ K) + sgn*Sscr(I,K,i)
-                if (ga_nodeid().eq.0) then
                 DO IIORB = 1,IJ_DIM(1)
                   ISBOFF = 1+(IIORB-1)*LKABTC*NIBTC
                   CALL MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,
      &                 LKABTC,I2(KBOT+(IIORB-1)*NKASTR),
      &                 XI2S(KBOT+(IIORB-1)*NKASTR))
                 END DO
-                endif
 *
   701       CONTINUE
 *.end of this K partitioning

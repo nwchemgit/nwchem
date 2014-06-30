@@ -8327,7 +8327,6 @@ CT    CB(1) = 0.0D0
 CT    CB(4) = 0.0D0
 *
 CT    END IF
-      if (ga_nodeid().ne.0) CALL SETVEC(SB,0.0d0,NIA*NIB)
 *
       IF(NTEST.GE.50) THEN
         WRITE(6,*) ' RSSBCB2 speaking '
@@ -8759,9 +8758,9 @@ C             MAT_P_MATT(A,B,NR,NC,COEF)
         END IF
 *
         call ga_sync()
-        call luciaqenter('gdgop')
-        call ga_dgop(1, SB, nia*nib, '+')
-        call luciaqexit('gdgop')
+c       call luciaqenter('gdgop')
+c       call ga_dgop(1, SB, nia*nib, '+')
+c       call luciaqexit('gdgop')
  9999 CONTINUE
         IF(IHAPR.NE.0) THEN
 *. Clean up

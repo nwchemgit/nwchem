@@ -1946,6 +1946,7 @@ c      INCLUDE 'mxpdim.inc'
       COMMON/H_OCC_CONS/IH_OCC_CONS
 *
       character*100 nam,fil
+      call luciaqenter('gasci')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
@@ -3034,6 +3035,7 @@ C?      WRITE(6,*) ' Home from CI_RESPONS'
       if (.not. ga_destroy(KCOMVEC1)) call 
      &     errquit('GASCI: ga_destroy kcomvec1 failed', 0 , GA_ERR)
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUM,'GASCI ')
+      call luciaqexit('gasci')
       RETURN
       END
       SUBROUTINE HMATAPR_OLD(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,
@@ -7943,6 +7945,9 @@ C       CALL IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
 * ISCALE, SCLFAC added May 97
 *
       IMPLICIT REAL*8           (A-H,O-Z)
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
 CNW   DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       integer C, ICOFF
       DIMENSION CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
@@ -7976,10 +7981,23 @@ C?      write(6,*) ' LBL = ', LBL
           CALL FRMDSC2(SCR,LBL,-1,LUC,IMZERO,IAMPACK,NO_ZEROING)
         END IF
       ELSE
+        XNORM = 0.0d0
+        call ga_distribution(C, ga_nodeid(),ilo,ihi,idum,idum)
+        call ga_access(C,ilo,ihi,1,1,ivecin,idum)
+        if (ilo.le.ICOFF+NCMB_IN.and.ihi.ge.ICOFF) then
+           mylow  = max(ilo,ICOFF) - ilo
+           myhigh = min(ihi,ICOFF+NCMB_IN) - ilo
+           do i = mylow,myhigh
+              XNORM = XNORM + dbl_mb(ivecin+i)
+           enddo
+        endif
+        call ga_release(C,ilo,ihi,1,1)
+        call ga_dgop(1,XNORM,1,'+')
+        
 *. It is assumed pt that vector is nonvanising
 CNW     XNORM = INPROD(C,C,NCMB_IN)
-        XNORM = ga_ddot_patch(C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1,
-     &                        C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1) 
+c       XNORM = ga_ddot_patch(C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1,
+c    &                        C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1) 
 C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
         IF(XNORM.EQ.0.0D0) THEN
           IMZERO = 1
@@ -15205,7 +15223,7 @@ CNW   DIMENSION SV(*),CV(*)
       IOFF_S = 1
       DO JBATS = 1, NBATS
         IF(NTEST.GE.10000) WRITE(6,*) ' JBATS, LBATS(..) = ',
-     &                                  JBATS, LBATS(JBATS)
+     &                                  JBATS, LBATS(JBATS),NBATS
 *. Obtain sigma for batch of blocks
 C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK) 
         LEN = 0
@@ -15227,9 +15245,14 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
             CALL ITODS(LEN,1,-1,LUHC)
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            if (LEN.gt.0.and.ga_nodeid().eq.0) 
+            if (LEN.gt.0) then
+            call luciaqenter('gdgop')
+            call ga_dgop(1, SB(IOFF), LEN, '+')
+            call luciaqexit('gdgop')
+            if (ga_nodeid().eq.0) 
      &      call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
+            endif
             IOFF_S = IOFF_S + LEN
           END IF
         END DO
@@ -31772,32 +31795,35 @@ C
       PARAMETER ( D0=0.0D0 , D1=1.0D0 , DM1 = -1.0D0 )
       LOGICAL FULL
 C
+      call ga_distribution(WRK,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(WRK, ilo, ihi, 1, 1, ikf, idum)
       IF(KEXST2.GE.KZVAR) THEN
          FULL = .TRUE.
          KEXSTV = KZVAR
       ELSE
          FULL = .FALSE.
-         KEXSTV = KEXST2+1
+         KEXSTV = KEXST2
       END IF
 C     write(6,*) ' SORLOW: KZVAR KEXST2 KEXSTV ',
 C    &                      KZVAR,KEXST2,KEXSTV
 *
-      DO 100 K=1,KEXSTV
-         ISTART(K) = K
-CNW      STVAL(K)  = WRK(K)
+      ioff = ga_nodeid()*KEXSTV
+      CALL SETVEC(STVAL,0.0D0,KEXSTV*ga_nnodes())
+      DO 100 K=1,MIN(KEXSTV,ihi-ilo+1)
+         ISTART(ioff+K) = ioff+K
+         STVAL(ioff+K)  = dbl_mb(ikf+K-1)
  100  CONTINUE
-      call ga_get(WRK,1,KEXSTV,1,1,STVAL,1)
       KK=KEXSTV
 C
       DO 210 I=1,KEXSTV
          DO 220 J=I+1,KEXSTV
-            IF ((STVAL(J)-STVAL(I)) .LT. D0) THEN
-               X =STVAL(I)
-               II=ISTART(I)
-               STVAL(I) =STVAL(J)
-               ISTART(I)=ISTART(J)
-               STVAL(J) =X
-               ISTART(J)=II
+            IF ((STVAL(ioff+J)-STVAL(ioff+I)) .LT. D0) THEN
+               X =STVAL(ioff+I)
+               II=ISTART(ioff+I)
+               STVAL(ioff+I) =STVAL(ioff+J)
+               ISTART(ioff+I)=ISTART(ioff+J)
+               STVAL(ioff+J) =X
+               ISTART(ioff+J)=II
             ENDIF
  220     CONTINUE
  210  CONTINUE
@@ -31805,6 +31831,45 @@ C
 C     REPEAT UNTIL ...
  105  CONTINUE
          DO 110 I = KEXSTV,2,-1
+            J = I - 1
+            IF ((STVAL(ioff+J)-STVAL(ioff+I)) .GT. D0) THEN
+               X =STVAL(ioff+I)
+               II=ISTART(ioff+I)
+               STVAL(ioff+I) =STVAL(ioff+J)
+               ISTART(ioff+I)=ISTART(ioff+J)
+               STVAL(ioff+J) =X
+               ISTART(ioff+J)=II
+            ELSE
+               GO TO 115
+            ENDIF
+ 110     CONTINUE
+ 115     CONTINUE
+         STMAX=STVAL(ioff+KEXSTV)
+C
+ 125     CONTINUE
+            KK=KK+1
+            IF (KK.LE.(ihi-ilo+1)) THEN
+               IF ((STMAX-dbl_mb(ikf+KK-1)).GT.D0) THEN
+                  ISTART(ioff+KEXSTV) = ioff+KK
+                  STVAL(ioff+KEXSTV)  = dbl_mb(ikf+KK-1)
+                  GO TO 105
+C     ^--------------------
+               ENDIF
+               GO TO 125
+C        ^--------------
+            END IF
+C
+C     Each nnode has it's bottom list, now global sum to get full list
+C
+      if (ga_nnodes().gt.1) then
+      call ga_dgop(1,STVAL(1),KEXSTV*ga_nnodes(),'+')
+C
+C     And sort full list again, locally, to get global minimum
+C
+      KK=KEXSTV
+      GOTO 315
+ 305  CONTINUE
+         DO 310 I = KEXSTV,2,-1
             J = I - 1
             IF ((STVAL(J)-STVAL(I)) .GT. D0) THEN
                X =STVAL(I)
@@ -31814,27 +31879,25 @@ C     REPEAT UNTIL ...
                STVAL(J) =X
                ISTART(J)=II
             ELSE
-               GO TO 115
+               GO TO 315
             ENDIF
- 110     CONTINUE
- 115     CONTINUE
+ 310     CONTINUE
+ 315     CONTINUE
          STMAX=STVAL(KEXSTV)
 C
- 125     CONTINUE
+ 325     CONTINUE
             KK=KK+1
-            IF (KK.LE.KZVAR) THEN
-               call ga_get(wrk,kk,kk,1,1,WRKVAL,1)
-CNW            IF ((STMAX-WRK(KK)).GT.D0) THEN
-               IF ((STMAX-WRKVAL).GT.D0) THEN
+            IF (KK.LE.KEXSTV*ga_nnodes()) THEN
+               IF ((STMAX-STVAL(KK)).GT.D0) THEN
                   ISTART(KEXSTV) = KK
-CNW               STVAL(KEXSTV)  = WRK(KK)
-                  STVAL(KEXSTV)  = WRKVAL 
-                  GO TO 105
+                  STVAL(KEXSTV)  = STVAL(KK)
+                  GO TO 305
 C     ^--------------------
                ENDIF
-               GO TO 125
+               GO TO 325
 C        ^--------------
             END IF
+      endif
 C
 C     Check for degeneracy among diagonal elements
 C
@@ -32402,10 +32465,12 @@ CNW   DIMENSION VEC1(*)
       IF(LBLK.GT.0) THEN
 *. Write the vector without markers in one block
 CNW      CALL SETVEC(VEC1,0.0D0,NDIM)
+         call ga_distribution(VEC1,ga_nodeid(),ilo,ihi,idum,idum)
          call ga_zero(VEC1)
          DO 100 IEFF = 1, NSCAT
 CNW        VEC1(IPLAC(IEFF)) = VAL(IEFF)
-           call ga_put(VEC1,IPLAC(IEFF),IPLAC(IEFF),1,1,VAL(IEFF),1)
+           if (IPLAC(IEFF).ge.ilo.and.IPLAC(IEFF).le.ihi)
+     &     call ga_put(VEC1,IPLAC(IEFF),IPLAC(IEFF),1,1,VAL(IEFF),1)
   100    CONTINUE
 CNW      CALL TODSC(VEC1,NDIM,-1,LU)
          if (dra_write_section(.false.,VEC1,1,NDIM,1,1,LU,1,NDIM,
