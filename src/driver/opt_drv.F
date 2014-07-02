@@ -1693,19 +1693,14 @@ c
 c
 c     Linearly dependent modes, and rotations and translations
 c     have been shifted up.  Zero modes here are either accidental,
-c     or dependencies that we don't know about.  As long as there is
-c     not much gradient in the mode zero the step.  If there is
-c     some gradient, then steepest descent with step restriction.
+c     or dependencies that we don't know about.  In this case just
+c     use steepest descent with step restriction.
 c
 c     This would be more sensible in normalized coordinates.
 c
-            if (abs(gv(i)) .gt. 1d-2*gmax_tol) then
-               dv(i) = sign(trust,-gv(i))
-            else
-               dv(i) = 0d0
-            endif
+            dv(i) = sign(min(trust,abs(gv(i))),-gv(i))
             if (oprint) write(6,1) i, e(i), dv(i)
- 1          format(' Restricting step in mode',i5,
+ 1          format(' Using steepest descent step in mode',i5,
      $           ' due to tiny eigenvalue=', 1p,d8.1,
      $           ' step=',d8.1)
          endif
@@ -3103,7 +3098,7 @@ c
       nzero =0
       negeig=0
       do i=1,nvar
-         if(abs(e(i)).lt.smalleig.and.abs(gv(i)).lt.1d-2*gmax_tol) then
+         if(abs(e(i)).lt.smalleig.and.abs(gv(i)).lt.gmax_tol) then
             nzero=nzero+1
          else if(e(i) .lt. -smalleig) then
             negeig=negeig+1
@@ -3320,13 +3315,9 @@ c
      $                 ' eval=', 1p,d8.1,' grad=',d8.1,' new=',
      $                 d8.1)
                else
-                  if (abs(gv(i)) .gt. 1d-2*gmax_tol) then
-                     dv(i) = sign(trust,-gv(i))
-                  else
-                     dv(i) = 0d0
-                  endif
+                  dv(i) = sign(min(trust,abs(gv(i))),-gv(i))
                   if (oprint) write(6,1) i, e(i), dv(i)
- 1                format(' Restricting step in mode',i5,
+ 1                format(' Using steepest descent step in mode',i5,
      $                 ' due to tiny eigenvalue=', 1p,d8.1,
      $                 ' step=',d8.1)
                endif
