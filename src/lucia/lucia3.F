@@ -4234,13 +4234,14 @@ C               CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
                   CALL WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
                 END IF
 *.S(I,a+ K) =  S(I, a+ K) + sgn*Sscr(I,K,i)
+                if (ga_nodeid().eq.0) then
                 DO IIORB = 1,IJ_DIM(1)
                   ISBOFF = 1+(IIORB-1)*LKABTC*NIBTC
                   CALL MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,
      &                 LKABTC,I2(KBOT+(IIORB-1)*NKASTR),
      &                 XI2S(KBOT+(IIORB-1)*NKASTR))
                 END DO
-*
+                endif
   701       CONTINUE
 *.end of this K partitioning
             IF(KEND.EQ.0) GOTO 700
