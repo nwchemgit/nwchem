@@ -95,9 +95,9 @@ c
 c
  100  if(.not.inp_read())
      $  call errquit('bsse_input: unexpected eof ',911,INPUT_ERR )
-
 c
-
+      nfield = inp_n_field()
+c
  150  if (.not.inp_a(field))
      $  call errquit('bsse_input: failed to read field',911,INPUT_ERR )
 c
@@ -136,9 +136,7 @@ c
 c
       nmon  = nmon + 1
 c   
-      mon_name(nmon) = field  ! took the fist field however use to name
-c
-      nfield = inp_n_field()
+      mon_name(nmon) = field  ! took the first field however use to name
 c
       if (.not.inp_a(mon_name(nmon)))
      $  call errquit
