@@ -1,0 +1,38 @@
+echo
+start methane-plus-h-dat
+
+geometry units angstrom
+  symmetry c1
+  C    8.77882    4.09466    8.18421
+  H    9.37839    4.74587    7.64094
+  H    8.17915    3.55170    7.53275
+  H    9.37839    3.44344    8.72748
+  H    8.478984    4.366134    8.509940
+  H    7.920094    4.872164    9.117099
+end
+
+charge 0
+
+basis
+  H library cc-pvdz
+  C library cc-pvdz
+  bqH library H cc-pvdz
+  bqC library C cc-pvdz
+end
+
+BSSE
+  MON first 1 2 3 4 5
+  MON second 6
+      mult 2
+END
+
+scf
+  doublet; rohf
+end
+
+TCE
+  scf
+  ccsd
+END
+
+task tce energy
