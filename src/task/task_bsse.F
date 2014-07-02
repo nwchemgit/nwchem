@@ -21,10 +21,11 @@ c
       integer geom
       integer atm_tot           ! to check total atoms
       integer qtot              ! to print total charge
+      integer nopen             ! to print spin multiplicity
       integer i, j,l,k
       integer nfield
       integer nopt
-      parameter (nopt = 8)
+      parameter (nopt = 9)
       integer ind
 c
       character*80 buf
@@ -41,7 +42,7 @@ c:
       external bsse_rtdb_load
 c
       data opt /'end', 'on', 'off','tidy','charge', 'input',
-     &  'input_wghost', 'mon'/
+     &  'input_wghost', 'mon', 'mult'/
 
 c
 c     ------------------welcome------------------------
@@ -79,7 +80,7 @@ c
       call inp_set_field(0)     ! goto the begin of line
 
 c
-c:preliminaries
+c:    preliminaries
 c
       qtot    = 0
       atm_tot = 0
@@ -97,17 +98,16 @@ c
 
 c
 
-      if (.not.inp_a(field))
+ 150  if (.not.inp_a(field))
      $  call errquit('bsse_input: failed to read field',911,INPUT_ERR )
-
 c
       if (.not. inp_match(nopt, .false., field, opt, ind)) 
      $    goto 10 
 
-      goto (900,  850, 800, 700, 600, 500, 400, 300) ind
+      goto (900,  850, 800, 700, 600, 500, 400, 300, 200) ind
 
 c
-c: none 
+c:    none 
 c
 
   10  write(LuOut,20)
@@ -120,6 +120,7 @@ c
      $  '     input <input line>  '/
      $  '     input_wghost <input line>  '/
      $  '     charge <double charge> '/
+     $  '     mult <integer multiplicity> '/
      $  '   off                    '/
      $  '   on                     '/
      $  ' end                      '/
@@ -128,7 +129,7 @@ c
       call errquit('bsse_input: unknown directive', 911,INPUT_ERR)
 c
 c
-c:mon
+c:    mon
 c
 
  300  continue 
@@ -139,40 +140,55 @@ c
 c
       nfield = inp_n_field()
 c
-      atm_tot = atm_tot  + nfield - 2   ! increase to check total atoms
-c
       if (.not.inp_a(mon_name(nmon)))
      $  call errquit
      $          ('bsse_input: failed to read name field',911,INPUT_ERR)
 c
-      mon_atm(nmon) = nfield - 2          ! Number of atoms in each monomer
+c     Read the atom numbers and count the number of atoms as we go along.
+c     If we read something else than an integer it might be the next
+c     keyword on the line. So, leave the loop, and check if we have reached
+c     the end of the line. If we are not at the end of the line goto 150
+c     to read the next keyword, otherwise goto 100 to read the next line.
 c
-      do i = 1, mon_atm(nmon)
-
-          if (.not.inp_i( mon(nmon,i)))
-     $      call errquit
-     $      ('bsse_input: error reading integer field',911,INPUT_ERR)
-
+      i = 0
+      do while (inp_i(mon(nmon,i+1)))
+        i = i + 1
+        mon_atm(nmon) = i
+        atm_tot = atm_tot + 1
       enddo
+      if (inp_cur_field().lt.nfield) goto 150
 c
       go to 100
 c
-c: input_wghost
+c:    mult
+c
+ 200  continue
+        if(nmon.eq.0) goto 10
+        if (.not. inp_i(mmon(nmon) )) call errquit
+     $    ('bsse_input: failed reading monomer multiplicity',
+     $     nmon,INPUT_ERR)
+        if (mmon(nmon).eq.0) call errquit
+     $    ('bsse_input: invalid multiplicity ',mmon(nmon),
+     $     INPUT_ERR)
+        if (inp_cur_field().lt.nfield) goto 150
+      goto 100
+c
+c:    input_wghost
 c
  400  continue
 c
       if(nmon.eq.0) goto 10
 
-       i=(nmon)*2
+      i=(nmon)*2
 
       if (.not. inp_a(input(i) )) call errquit
      $  ('bsse_input: failed reading input [input]',911,INPUT_ERR)
+      if (inp_cur_field().lt.nfield) goto 150
 
       go to 100
 c
-
-c: input
-
+c:    input
+c
  500  continue
       if(nmon.eq.0) goto 10
 
@@ -182,28 +198,30 @@ c: input
      $  call errquit
      $     ('bsse_input: failed reading input [input]',911,INPUT_ERR)
 c
+      if (inp_cur_field().lt.nfield) goto 150
 c
-
       go to 100
 c
 
  600  continue
 c
-
+c:    charge
+c
       if(nmon.eq.0) goto 10
 c
-
       if(.not. inp_f( qmon(nmon)))
-     $  call errquit('bsse_input: reading monomer chage',911,INPUT_ERR)
+     $  call errquit('bsse_input: reading monomer charge',911,INPUT_ERR)
 c
+      if (inp_cur_field().lt.nfield) goto 150
 
       go to 100
 c
-c: tidy
-c      clean database of any bsse info
+c:    tidy
+c       clean database of any bsse info
   700 continue
 c
-c: off
+c:    off
+c
       if(.not. rtdb_delete(rtdb, 'bsse'))
      $  call errquit('bsse_input: cannot clean database',911,RTDB_ERR)
       goto 100
@@ -230,7 +248,8 @@ c
       atm_tot= natoms
 c
       goto 100
-c:end
+c
+c:    end
 c
   900 continue
 
@@ -244,7 +263,7 @@ c
 
       endif
 c
-c: done
+c:    done
 c
  1000 continue
 
@@ -306,11 +325,21 @@ c     ------------------------------------------------------
 
       enddo
 c
-
-      write(LuOut, 60)  spr_name, nmon, qtot 
+c     ------------------------------------------------------
+c     check : unpaired electrons
+c     ------------------------------------------------------
+c
+      nopen = 0
+      do j = 1, nmon
+        nopen = nopen + abs(mmon(j)) - 1
+      enddo
+c
+      write(LuOut, 60)  spr_name, nmon,
+     $                  mod(nopen,2)+1, nopen+1, qtot
  60   format(/
      $  '    supermolecule geometry name = ', a50/
      $  '             number of monomers = ', i4/
+     $  '             total multiplicity = ', i4,' to ',i4/
      $  '                   total charge = ', i4/)
 c
 
@@ -367,13 +396,21 @@ c
       return
 c
       end
-      subroutine bsse_param(rtdb, charge, j_mon_name, 
+C>
+C> \brief Initialize monomer calculation 
+C>
+C> Initialize the monomer calculation by modifying the contents of
+C> the RunTime Data Base for the current calculation.
+C>
+      subroutine bsse_param(rtdb, mult, charge, j_mon_name, 
      &                      i_input,theory)
       implicit none
-      integer rtdb !input
-      character*(*) j_mon_name, i_input !input
-      character*(*) theory !input
-      double precision charge
+      integer rtdb !< [Input] The RTDB handle
+      character*(*) j_mon_name !< [Input] Monomer name
+      character*(*) i_input !< [Input] Line of input for monomer calculation
+      character*(*) theory !< [Input] The theory to apply
+      integer mult !< [Input] Monomer spin multiplicity
+      double precision charge !< [Input] Monomer charge
       logical first_j
       character*255 vec_dbi, vec_dbo,tmp
       integer lentheo, lenname
@@ -395,6 +432,22 @@ c
       lenname = inp_strlen(j_mon_name)
 c
       lentheo = inp_strlen(theory)
+c
+c:    multiplicity
+c:      density methods
+      if ( theory(1:lentheo).eq.'dft' .or.
+     $     theory(1:lentheo).eq.'tddft') then
+        if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
+     $    call errquit('bsse_param: rtdb_put of mult failed',
+     $                 0,RTDB_ERR )
+c:      wavefuntion methods
+
+      elseif( theory(1:lentheo).ne.'dft' .and.
+     $        theory(1:lentheo).ne.'tddft') then
+        if (.not. rtdb_put(rtdb,'scf:nopen', MT_INT, 1, mult-1))
+     $    call errquit('bsse_param: rtdb_put of nopen failed',
+     $                 0,RTDB_ERR)
+      endif
 c
       if (charge .ne. -999.0d0) then
 c
@@ -507,6 +560,10 @@ c
        if (.not. rtdb_put( rtdb, ctmp, mt_dbl ,nmon, qmon))
      $   call errquit('bsse_rtdb_store: rtdb_put failed',0,RTDB_ERR)
 c
+      ctmp = 'bsse:mmon'
+       if (.not. rtdb_put( rtdb, ctmp, mt_int ,nmon, mmon))
+     $   call errquit('bsse_rtdb_store: rtdb_put failed',0,RTDB_ERR)
+c
       ctmp= 'bsse:input'
        if(.not.rtdb_cput(rtdb, ctmp, nmon*2, input))
      $    call errquit('bsse_rtdb_store: rtdb_put failed',0,RTDB_ERR)
@@ -554,6 +611,10 @@ c
 c
       ctmp = 'bsse:qmon'
        if (.not.rtdb_get( rtdb, ctmp, mt_dbl, nmon,    qmon ))
+     $   call errquit('bsse_rtdb_load: rtdb_get failed',0,RTDB_ERR)
+c
+      ctmp = 'bsse:mmon'
+       if (.not. rtdb_get( rtdb, ctmp, mt_int ,nmon, mmon))
      $   call errquit('bsse_rtdb_load: rtdb_get failed',0,RTDB_ERR)
 c
       ctmp = 'bsse:input'
@@ -869,7 +930,7 @@ c: create geom for monomers within supermolecular geom
 
 
 c
-c:Obtain monomers energies from forzen geometries;
+c:Obtain monomers energies from frozen geometries;
 c:it makes a couple jobs for each monomer (no ghost, ghost)
 c
 
@@ -888,7 +949,8 @@ c
 
         endif
 c      
-        call bsse_param(rtdb, qmon(j), j_mon_name, input(i),theory)
+        call bsse_param(rtdb, mmon(j), qmon(j), j_mon_name, input(i),
+     $                  theory)
 c
 c:evaluate energy
         if (.not. task_energy_doit(rtdb,theory, mon_energy(i)))
@@ -1150,7 +1212,8 @@ c
           lenname = lenname + 1 
         endif
 c      
-        call bsse_param(rtdb, qmon(j), j_mon_name, input(i),theory)
+        call bsse_param(rtdb, mmon(j), qmon(j), j_mon_name, input(i),
+     $                  theory)
 c
 c: evaluate gradient
 
@@ -1500,7 +1563,8 @@ c
 c
 c
 
-        call bsse_param(rtdb, qmon(j), j_mon_name, input(i),theory)
+        call bsse_param(rtdb, mmon(j), qmon(j), j_mon_name, input(i),
+     $                  theory)
 c
 c
 c
