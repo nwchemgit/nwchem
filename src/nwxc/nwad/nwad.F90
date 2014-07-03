@@ -1,6 +1,8 @@
 !> \ingroup nwad
 !> @{
 !>
+!> # NW Automatic Differentiation #
+!>
 !> A module implementing Automatic Differentiation [1,2] capabilities in 
 !> Fortran 90. The main aim is to enable calculating derivatives of existing
 !> capabilities with minimal code changes. In particular executable statements
@@ -16,6 +18,182 @@
 !> requires multiple executions of the function to obtain all its derivatives.
 !> Every function execution computes only one specific partial derivative [3].
 !>
+!> ## The chain rule and Taylor series ##
+!>
+!> The chain rule is fundamental to automatic differentiation. The way 
+!> derivatives can be described using the chain rule separates into two
+!> classes. In one class the chain rule is directly applied to expressions
+!> operating on functions. In the other class the functions are first written
+!> as Taylor series, and the chain rule is applied to expressions on Taylor
+!> series. In this section the two approaches are compared.
+!>
+!> In general we have to consider two kinds of expressions. One kind involves
+!> unary operators and functions of one argument. Examples are: the negation
+!> operator \f$-\f$, the factorial operator \f$!\f$, the trigoniometric
+!> functions \f$\sin\f$, \f$\cos\f$, \f$\tan\f$, etc. The other kind of
+!> expressions involves binary operators, i.e. the addition \f$+\f$,
+!> subtraction \f$-\f$, division \f$/\f$, multiplication \f$*\f$, and 
+!> exponentiation \f$\fbox{}^\fbox{}\f$. These kinds of expressions can be
+!> summarized in the equations
+!> \f{eqnarray*}{
+!>   z &=& F(x)
+!> \f}
+!> for the first kind and
+!> \f{eqnarray*}{
+!>   z &=& F(x,y)
+!> \f}
+!> for the second.
+!>
+!> To derive expressions for the derivatives of \f$z\f$ in terms of derivatives
+!> of \f$x\f$ and \f$y\f$ using the chain rule first consider these quantities
+!> formally as functions \f$z(t), x(t)\f$ and \f$y(t)\f$. Applying the chain
+!> rule up to 3rd order one obtains
+!> \f{eqnarray*}{
+!>   \frac{\partial^0 z(t)}{\partial t^0}
+!>   &=& \frac{\partial^0 F(x(t))}{\partial t^0} \\\\
+!>   \frac{\partial^1 z(t)}{\partial t^1}
+!>   &=& \frac{\partial^1 F(x(t))}{\partial x^1}
+!>       \frac{\partial^1 x(t)}{\partial t^1} \\\\
+!>   \frac{\partial^2 z(t)}{\partial t^2}
+!>   &=& \frac{\partial^2 F(x(t))}{\partial x^2}
+!>       \left(\frac{\partial^1 x(t)}{\partial t^1}\right)^2
+!>    +  \frac{\partial^1 F(x(t))}{\partial x^1}
+!>       \frac{\partial^2 x(t)}{\partial t^2} \\\\
+!>   \frac{\partial^3 z(t)}{\partial t^3}
+!>   &=& \frac{\partial^3 F(x(t))}{\partial x^3}
+!>       \left(\frac{\partial^1 x(t)}{\partial t^1}\right)^3
+!>    + 3\frac{\partial^2 F(x(t))}{\partial x^2}
+!>       \frac{\partial^2 x(t)}{\partial t^2}
+!>       \frac{\partial^1 x(t)}{\partial t^1}
+!>    +  \frac{\partial^1 F(x(t))}{\partial x^1}
+!>       \frac{\partial^3 x(t)}{\partial t^3} \\\\
+!> \f}
+!> and
+!> \f{eqnarray*}{
+!>   \frac{\partial^0 z(t)}{\partial t^0}
+!>   &=& \frac{\partial^0 F(x(t),y(t))}{\partial t^0} \\\\
+!>   \frac{\partial^1 z(t)}{\partial t^1}
+!>   &=& \frac{\partial^1 F(x(t),y(t))}{\partial x^1}
+!>       \frac{\partial^1 x(t)}{\partial t^1}
+!>    +  \frac{\partial^1 F(x(t),y(t))}{\partial y^1}
+!>       \frac{\partial^1 y(t)}{\partial t^1} \\\\
+!>   \frac{\partial^2 z(t)}{\partial t^2}
+!>   &=& \frac{\partial^2 F(x(t),y(t))}{\partial x^2}
+!>       \left(\frac{\partial^1 x(t)}{\partial t^1}\right)^2
+!>    + 2\frac{\partial^2 F(x(t),y(t))}{\partial x^1\partial y^1}
+!>       \frac{\partial^1 x(t)}{\partial t^1}
+!>       \frac{\partial^1 y(t)}{\partial t^1} 
+!>    +  \frac{\partial^2 F(x(t),y(t))}{\partial y^2}
+!>       \left(\frac{\partial^1 y(t)}{\partial t^1}\right)^2 \\\\
+!>   &+& \frac{\partial^1 F(x(t),y(t))}{\partial x^1}
+!>       \frac{\partial^2 x(t)}{\partial t^2}
+!>    +  \frac{\partial^1 F(x(t),y(t))}{\partial y^1}
+!>       \frac{\partial^2 y(t)}{\partial t^2} \\\\
+!>   \frac{\partial^3 z(t)}{\partial t^3}
+!>   &=& \frac{\partial^3 F(x(t),y(t))}{\partial x^3}
+!>       \left(\frac{\partial^1 x(t)}{\partial t^1}\right)^3
+!>    + 3\frac{\partial^3 F(x(t),y(t))}{\partial x^2\partial y}
+!>       \left(\frac{\partial^1 x(t)}{\partial t^1}\right)^2
+!>       \frac{\partial^1 y(t)}{\partial t^1}
+!>    + 3\frac{\partial^3 F(x(t),y(t))}{\partial x\partial y^2}
+!>       \frac{\partial^1 x(t)}{\partial t^1}
+!>       \left(\frac{\partial^1 y(t)}{\partial t^1}\right)^2
+!>    +  \frac{\partial^3 F(x(t),y(t))}{\partial y^3}
+!>       \left(\frac{\partial^1 y(t)}{\partial t^1}\right)^3 \\\\
+!>   &+&3\frac{\partial^2 F(x(t),y(t))}{\partial x^2}
+!>       \frac{\partial^2 x(t)}{\partial t^2}
+!>       \frac{\partial^1 x(t)}{\partial t^1}
+!>    + 3\frac{\partial^2 F(x(t),y(t))}{\partial x^1\partial y^1}
+!>       \frac{\partial^2 x(t)}{\partial t^2}
+!>       \frac{\partial^1 y(t)}{\partial t^1}
+!>    + 3\frac{\partial^2 F(x(t),y(t))}{\partial x^1\partial y^1}
+!>       \frac{\partial^1 x(t)}{\partial t^1}
+!>       \frac{\partial^2 y(t)}{\partial t^2}
+!>    + 3\frac{\partial^2 F(x(t),y(t))}{\partial y^2}
+!>       \frac{\partial^2 y(t)}{\partial t^2}
+!>       \frac{\partial^1 y(t)}{\partial t^1}  \\\\
+!>   &+& \frac{\partial^1 F(x(t),y(t))}{\partial x^1}
+!>       \frac{\partial^3 x(t)}{\partial t^3}
+!>    +  \frac{\partial^1 F(x(t),y(t))}{\partial y^1}
+!>       \frac{\partial^3 y(t)}{\partial t^3}
+!> \f}
+!> Alternatively one can consider the functions \f$z(t), x(t)\f$ and \f$y(t)\f$
+!> in terms of their Taylor expansions up to degree \f$d\f$ (where \f$d=3\f$
+!> here) [4] (see page 147):
+!> \f{eqnarray*}{
+!>    z(t) &=& \sum_{j=0}^{d} z_j t^j \\\\
+!>    x(t) &=& \sum_{j=0}^{d} x_j t^j \\\\
+!>    y(t) &=& \sum_{j=0}^{d} y_j t^j \\\\
+!> \f}
+!> where \f$z_j, x_j, y_j \in \mathbb{R}^n\f$ and \f$t \in \mathbb{R}\f$.
+!> Thus \f$z, x\f$ and \f$y\f$ are vector polynomials in the scalar variable
+!> \f$t\f$. The Taylor coefficients are given by
+!> \f{eqnarray*}{
+!>    x_j &=& \left.\frac{1}{j!}\frac{\partial^j}{\partial t^j}x(t)\right|_{t=0}
+!> \f}
+!> Now the problem \f$z(t) = F(x(t))\f$ can be approached by substituting the
+!> Taylor expansions, differentiating the equation with respect to \f$t\f$ and
+!> evaluating the resulting expression at \f$t=0\f$ to get the Taylor
+!> coefficients of \f$z\f$ in terms of those of \f$x\f$. From this we have
+!> \f{eqnarray*}{
+!>   z_0 &=& F(x_0) \\\\
+!>   z_1 &=& \frac{\partial F(x_0)}{\partial x}x_1  \\\\
+!>  2z_2 &=& \frac{\partial^2 F(x_0)}{\partial x^2}x_1^2 
+!>        + 2\frac{\partial F(x_0)}{\partial x}x_2  \\\\
+!>  6z_3 &=& \frac{\partial^3 F(x_0)}{\partial x^3}x_1^3
+!>        + 6\frac{\partial^2 F(x_0)}{\partial x^2}x_2 x_1
+!>        + 6\frac{\partial   F(x_0)}{\partial x}x_3
+!> \f}
+!> Similarly the problem \f$z(t) = F(x(t),y(t))\f$ can approached to yield
+!> \f{eqnarray*}{
+!>   z_0 &=& F(x_0,y_0) \\\\
+!>   z_1 &=& \frac{\partial F(x_0,y_0)}{\partial x}x_1
+!>        +  \frac{\partial F(x_0,y_0)}{\partial y}y_1 \\\\
+!>  2z_2 &=& \frac{\partial^2 F(x_0,y_0)}{\partial x^2}x_1^2
+!>        + 2\frac{\partial^2 F(x_0,y_0)}{\partial x \partial y}x_1 y_1
+!>        +  \frac{\partial^2 F(x_0,y_0)}{\partial y^2}y_1^2 \\\\
+!>       &+&2\frac{\partial F(x_0,y_0)}{\partial x}x_2
+!>        + 2\frac{\partial F(x_0,y_0)}{\partial y}y_2 \\\\
+!>  6z_3 &=& \frac{\partial^3 F(x_0,y_0)}{\partial x^3}x_1^3
+!>        + 3\frac{\partial^3 F(x_0,y_0)}{\partial x^2 \partial y}x_1^2 y_1
+!>        + 3\frac{\partial^3 F(x_0,y_0)}{\partial x \partial y^2}x_1 y_1^2
+!>        +  \frac{\partial^3 F(x_0,y_0)}{\partial y^3}y_1^3 \\\\
+!>       &+&6\frac{\partial^2 F(x_0,y_0)}{\partial x^2}x_2 x_1 
+!>        + 6\frac{\partial^2 F(x_0,y_0)}{\partial x \partial y}x_2 y_1
+!>        + 6\frac{\partial^2 F(x_0,y_0)}{\partial x \partial y}x_1 y_2
+!>        + 6\frac{\partial^2 F(x_0,y_0)}{\partial y^2}y_2 y_1  \\\\
+!>       &+&6\frac{\partial   F(x_0,y_0)}{\partial x}x_3
+!>        + 6\frac{\partial   F(x_0,y_0)}{\partial y}y_3
+!> \f}
+!> Substituting the expressions for the Taylor coefficients we get for 
+!> \f$z(t) = F(x(t))\f$ case (the \f$z(t) = F(x(t),y(t))\f$ case is left as 
+!> an excercise for the reader)
+!> \f{eqnarray*}{
+!>   \frac{\partial^0 z(t)}{\partial t^0}
+!>   &=& \frac{\partial^0 F(x(t))}{\partial t^0} \\\\
+!>   \frac{\partial^1 z(t)}{\partial t^1}
+!>   &=& \frac{\partial^1 F(x(t))}{\partial x^1}
+!>       \frac{\partial^1 x(t)}{\partial t^1} \\\\
+!>   \frac{\partial^2 z(t)}{\partial t^2}
+!>   &=& \frac{\partial^2 F(x(t))}{\partial x^2}
+!>       \left(\frac{\partial^1 x(t)}{\partial t^1}\right)^2
+!>    +  \frac{\partial^1 F(x(t))}{\partial x^1}
+!>       \frac{\partial^2 x(t)}{\partial t^2} \\\\
+!>   \frac{\partial^3 z(t)}{\partial t^3}
+!>   &=& \frac{\partial^3 F(x(t))}{\partial x^3}
+!>       \left(\frac{\partial^1 x(t)}{\partial t^1}\right)^3
+!>    + 3\frac{\partial^2 F(x(t))}{\partial x^2}
+!>       \frac{\partial^2 x(t)}{\partial t^2}
+!>       \frac{\partial^1 x(t)}{\partial t^1}
+!>    +  \frac{\partial^1 F(x(t))}{\partial x^1}
+!>       \frac{\partial^3 x(t)}{\partial t^3} \\\\
+!> \f}
+!> Hence we find that applying the chain rule directly or expressing the
+!> problem in terms of Taylor series leads to exactly the same results overall.
+!> 
+!> The advantage of Taylor series is that the formal properties of polynomials
+!> can be used as has been done by Griewank et al. [3].
+!>
 !> ### References ###
 !>
 !> [1] R. E. Wengert (1964) "A simple automatic derivative evaluation program",
@@ -30,6 +208,12 @@
 !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
 !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
 !>     10.1090/S0025-5718-00-01120-0</a>.
+!>
+!> [4] A. Griewank, D. Juedes, J. Utke (1996) "Algorithm 755: ADOL-C: A package
+!>     for the automatic differentiation of algorithms written in C/C++",
+!>     ACM Transactions on Mathematical Software, <b>22</b>, pp. 131-167, DOI:
+!>     <a href="http://dx.doi.org/10.1145/229473.229474">
+!>     10.1145/229473.229474</a>.
 !>
 !> $Id: $
 !>
@@ -138,6 +322,18 @@ module nwad
   end interface
   interface inactive
     module procedure nwad_dble_inactive
+  end interface
+  interface extract_dxdy
+    module procedure nwad_dble_extract_dxdy
+  end interface
+  interface extract_dx2dy
+    module procedure nwad_dble_extract_dx2dy
+  end interface
+  interface extract_dxdy2
+    module procedure nwad_dble_extract_dxdy2
+  end interface
+  interface extract_dxdydz
+    module procedure nwad_dble_extract_dxdydz
   end interface
 contains
   !>
@@ -1166,5 +1362,61 @@ contains
     s%d2 =  0
     s%d3 =  0
   end function nwad_dble_active_neg
+  !>
+  !> \brief Extract the \f$\frac{\mathrm{d}^2f}{\mathrm{d}x\mathrm{d}y}\f$
+  !> partial derivative from \f$\frac{\mathrm{d}^2f}{\mathrm{d}(x+y)^2}\f$
+  !>
+  !> In this library the derivatives with respect to the sum of all active
+  !> variables are calculated. I.e. 
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^nf(x_1,\ldots,x_n)}
+  !>        {\mathrm{d}(\sum_{x_i\in\{x_{\mathrm{active}}\}}x_i)^n}
+  !> \f}
+  !> The result is a linear combination of partial derivatives that looks like
+  !> a polynomial
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^nf(x_1,\ldots,x_n)}
+  !>        {\mathrm{d}(\sum_{x_i\in\{x_{\mathrm{active}}\}}x_i)^n} &=&
+  !>   \sum_j \frac{\mathrm{d}^nf(x_1,\ldots,x_n)}{\prod_{k_j} \mathrm{d}x_k}
+  !>          \frac{\prod_{k_j} \mathrm{d}x_k}
+  !>        {\mathrm{d}(\sum_{x_i\in\{x_{\mathrm{active}}\}}x_i)^n} \\\\
+  !>   &=&\sum_j\frac{\mathrm{d}^nf(x_1,\ldots,x_n)}{\prod_{k_j} \mathrm{d}x_k}
+  !>      \left(\frac{\mathrm{d}(\sum_{x_i\in\{x_{\mathrm{active}}\}}x_i)^n}
+  !>            {\prod_{k_j} \mathrm{d}x_k}\right)^{-1} \\\\
+  !> \f}
+  !> The last factor in round brackets is the weight of the corresponding 
+  !> term in a polynomial. E.g. in the case of this routine
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^2 f}{\mathrm{d}(x^2+2xy+y^2)}
+  !>   &=& \frac{\mathrm{d}^2 f}{\mathrm{d}x^2}
+  !>       \left(\frac{\mathrm{d}(x^2+2xy+y^2)}{\mathrm{d}x^2}\right)^{-1}
+  !>    +  \frac{\mathrm{d}^2 f}{\mathrm{d}(xy)}
+  !>       \left(\frac{\mathrm{d}(x^2+2xy+y^2)}{\mathrm{d}(xy)}\right)^{-1}
+  !>    +  \frac{\mathrm{d}^2 f}{\mathrm{d}y^2}
+  !>       \left(\frac{\mathrm{d}(x^2+2xy+y^2)}{\mathrm{d}y^2}\right)^{-1} \\\\
+  !>   &=& \frac{\mathrm{d}^2 f}{\mathrm{d}x^2}
+  !>    +  \frac{1}{2}\frac{\mathrm{d}^2 f}{\mathrm{d}(xy)}
+  !>    +  \frac{\mathrm{d}^2 f}{\mathrm{d}y^2}
+  !> \f}
+  !> In order to extract the second term we need to evaluate
+  !> \f{eqnarray*}{
+  !>   \frac{\mathrm{d}^2 f}{\mathrm{d}(xy)}
+  !>   &=& 2\left(\frac{\mathrm{d}^2 f}{\mathrm{d}(x^2+2xy+y^2)}
+  !>    -         \frac{\mathrm{d}^2 f}{\mathrm{d}x^2}
+  !>    -         \frac{\mathrm{d}^2 f}{\mathrm{d}y^2}\right)
+  !> \f}
+  function nwad_dble_extract_dxdy(dx2,dxpy2,dy2) result (s)
+    type(nwad_dble),intent(in)::dx2   !> \f$\frac{\mathrm{d}^nf}{\mathrm{d}x^n}\f$
+    type(nwad_dble),intent(in)::dxpy2 !> \f$\frac{\mathrm{d}^nf}{\mathrm{d}(x+y)^n}\f$
+    type(nwad_dble),intent(in)::dy2   !> \f$\frac{\mathrm{d}^nf}{\mathrm{d}y^n}\f$
+    double precision          ::s
+    s = 0.5d0 * (dxpy2%d2 - 0.25d0 * dx2%d2 - 0.25d0 * dy2%d2)
+  end function nwad_dble_extract_dxdy
+  function nwad_dble_extract_dxdy2
+  end function nwad_dble_extract_dxdy2
+  function nwad_dble_extract_dx2dy
+  end function nwad_dble_extract_dx2dy
+  function nwad_dble_extract_dxdydz
+  end function nwad_dble_extract_dxdydz
 end module nwad
 !> @}
