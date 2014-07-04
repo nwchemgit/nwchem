@@ -1,0 +1,19 @@
+fxy(x,y):=exp(sin(x)*cos(y));
+df1x(x,y):=diff(fxy(x,y),x);
+df1y(x,y):=diff(fxy(x,y),y);
+df2xx(x,y):=diff(diff(fxy(x,y),x),x);
+df2xy(x,y):=diff(diff(fxy(x,y),x),y);
+df2yy(x,y):=diff(diff(fxy(x,y),y),y);
+Fortran(expr):= fortran(ev(expr,numer));
+with_stdout("submaxima_dxy.F",
+  print("      subroutine submaxima_dxy(x,y,dfdx,dfdy,"),
+  print("     +                         d2fdx2,d2fdxy,d2fdy2)"),
+  print("      implicit none"),
+  print("      double precision x,y,dfdx,dfdy"),
+  print("      double precision d2fdx2,d2fdxy,d2fdy2"),
+  Fortran(dfdx = df1x(x,y)),
+  Fortran(dfdy = df1y(x,y)),
+  Fortran(d2fdx2 = df2xx(x,y)),
+  Fortran(d2fdxy = df2xy(x,y)),
+  Fortran(d2fdy2 = df2yy(x,y)),
+  print("      end"));
