@@ -26,7 +26,8 @@ all: test_sin.log test_cos.log test_tan.log \
      test_sub.log test_subx.log test_suby.log \
      test_mul.log test_mulx.log test_muly.log \
      test_div.log test_divx.log test_divy.log \
-     test_pow.log test_powx.log test_powy.log
+     test_pow.log test_powx.log test_powy.log \
+     test_dx.log  test_dxy.log  test_dxyz.log
 
 test_sin.log: test_sin
 	echo "Running " $^
@@ -152,6 +153,18 @@ test_powy.log: test_powy
 	echo "Running " $^
 	./test_powy | tee test_powy.log
 
+test_dx.log: test_dx
+	echo "Running " $^
+	./test_dx | tee test_dx.log
+
+test_dxy.log: test_dxy
+	echo "Running " $^
+	./test_dxy | tee test_dxy.log
+
+test_dxyz.log: test_dxyz
+	echo "Running " $^
+	./test_dxyz | tee test_dxyz.log
+
 test_sin: nwad.mod submaxima_sin.o test_sin.o
 	gfortran test_sin.o submaxima_sin.o nwad.o -o test_sin
 
@@ -245,8 +258,19 @@ test_powx: nwad.mod submaxima_powx.o test_powx.o
 test_powy: nwad.mod submaxima_powy.o test_powy.o
 	gfortran test_powy.o submaxima_powy.o nwad.o -o test_powy
 
+test_dx: nwad.mod submaxima_dx.o test_dx.o
+	gfortran test_dx.o submaxima_dx.o nwad.o -o test_dx
+
+test_dxy: nwad.mod submaxima_dxy.o test_dxy.o
+	gfortran test_dxy.o submaxima_dxy.o nwad.o -o test_dxy
+
+test_dxyz: nwad.mod submaxima_dxyz.o test_dxyz.o
+	gfortran test_dxyz.o submaxima_dxyz.o nwad.o -o test_dxyz
+
+# NWADDEG not used yet, but planned as a way to generate modules for different
+# degrees of differentiation
 nwad.mod: ../nwad.F90
-	gfortran -c $^
+	gfortran -c -DNWADDEG=3 $^
 
 %.o:	%.F
 	gfortran -c $^

@@ -1,0 +1,52 @@
+fxyz(x,y,z):=exp(sin(x)*cos(y)+cos(x*z)+sin(y*z));
+df1x(x,y,z):=diff(fxyz(x,y,z),x);
+df1y(x,y,z):=diff(fxyz(x,y,z),y);
+df1z(x,y,z):=diff(fxyz(x,y,z),z);
+df2xx(x,y,z):=diff(diff(fxyz(x,y,z),x),x);
+df2xy(x,y,z):=diff(diff(fxyz(x,y,z),x),y);
+df2xz(x,y,z):=diff(diff(fxyz(x,y,z),x),z);
+df2yy(x,y,z):=diff(diff(fxyz(x,y,z),y),y);
+df2yz(x,y,z):=diff(diff(fxyz(x,y,z),y),z);
+df2zz(x,y,z):=diff(diff(fxyz(x,y,z),z),z);
+df3xxx(x,y,z):=diff(diff(diff(fxyz(x,y,z),x),x),x);
+df3xxy(x,y,z):=diff(diff(diff(fxyz(x,y,z),x),x),y);
+df3xxz(x,y,z):=diff(diff(diff(fxyz(x,y,z),x),x),z);
+df3xyy(x,y,z):=diff(diff(diff(fxyz(x,y,z),x),y),y);
+df3xyz(x,y,z):=diff(diff(diff(fxyz(x,y,z),x),y),z);
+df3xzz(x,y,z):=diff(diff(diff(fxyz(x,y,z),x),z),z);
+df3yyy(x,y,z):=diff(diff(diff(fxyz(x,y,z),y),y),y);
+df3yyz(x,y,z):=diff(diff(diff(fxyz(x,y,z),y),y),z);
+df3yzz(x,y,z):=diff(diff(diff(fxyz(x,y,z),y),z),z);
+df3zzz(x,y,z):=diff(diff(diff(fxyz(x,y,z),z),z),z);
+Fortran(expr):= fortran(ev(expr,numer));
+with_stdout("submaxima_dxyz.F",
+  print("      subroutine submaxima_dxyz(x,y,z,dfdx,dfdy,dfdz,"),
+  print("     +           d2fdx2,d2fdy2,d2fdz2,d2fdxy,d2fdxz,d2fdyz,"),
+  print("     +           d3fdx3,d3fdy3,d3fdz3,d3fdx2y,d3fdx2z,d3fdxy2,"),
+  print("     +           d3fdy2z,d3fdxz2,d3fdyz2,d3fdxyz)"),
+  print("      implicit none"),
+  print("      double precision x,y,z,dfdx,dfdy,dfdz"),
+  print("      double precision d2fdx2,d2fdy2,d2fdz2,d2fdxy,d2fdxz"),
+  print("      double precision d2fdyz,d3fdx3,d3fdy3,d3fdz3"),
+  print("      double precision d3fdx2y,d3fdx2z,d3fdxy2,d3fdy2z"),
+  print("      double precision d3fdxz2,d3fdyz2,d3fdxyz"),
+  Fortran(dfdx = df1x(x,y,z)),
+  Fortran(dfdy = df1y(x,y,z)),
+  Fortran(dfdz = df1z(x,y,z)),
+  Fortran(d2fdx2 = df2xx(x,y,z)),
+  Fortran(d2fdy2 = df2yy(x,y,z)),
+  Fortran(d2fdz2 = df2zz(x,y,z)),
+  Fortran(d2fdxy = df2xy(x,y,z)),
+  Fortran(d2fdxz = df2xz(x,y,z)),
+  Fortran(d2fdyz = df2yz(x,y,z)),
+  Fortran(d3fdx3 = df3xxx(x,y,z)),
+  Fortran(d3fdy3 = df3yyy(x,y,z)),
+  Fortran(d3fdz3 = df3zzz(x,y,z)),
+  Fortran(d3fdx2y = df3xxy(x,y,z)),
+  Fortran(d3fdx2z = df3xxz(x,y,z)),
+  Fortran(d3fdxy2 = df3xyy(x,y,z)),
+  Fortran(d3fdy2z = df3yyz(x,y,z)),
+  Fortran(d3fdxz2 = df3xzz(x,y,z)),
+  Fortran(d3fdyz2 = df3yzz(x,y,z)),
+  Fortran(d3fdxyz = df3xyz(x,y,z)),
+  print("      end"));
