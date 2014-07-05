@@ -25,14 +25,25 @@ C>
       double precision tmp(3)
       double precision tol
       parameter( tol = 1.0d-10)
-      double precision f13, f19, f127, f29, f227, f527, f536
-      parameter( f13  = 1.0d0/3.0d0)
-      parameter( f19  = 1.0d0/9.0d0)
-      parameter( f127 = 1.0d0/27.0d0)
-      parameter( f227 = 2.0d0/27.0d0)
-      parameter( f527 = 5.0d0/27.0d0)
-      parameter( f536 = 5.0d0/36.0d0)
-      parameter( f29  = 2.0d0/9.0d0)
+      double precision f13, f14, f16, f18, f19, f118, f127, f136, f181
+      double precision f23, f29, f227, f527, f536
+      double precision f572, f5162
+      parameter( f13   = 1.0d0/3.0d0)
+      parameter( f14   = 1.0d0/4.0d0)
+      parameter( f16   = 1.0d0/6.0d0)
+      parameter( f18   = 1.0d0/8.0d0)
+      parameter( f19   = 1.0d0/9.0d0)
+      parameter( f118  = 1.0d0/18.0d0)
+      parameter( f127  = 1.0d0/27.0d0)
+      parameter( f136  = 1.0d0/36.0d0)
+      parameter( f181  = 1.0d0/81.0d0)
+      parameter( f23   = 2.0d0/3.0d0)
+      parameter( f29   = 2.0d0/9.0d0)
+      parameter( f227  = 2.0d0/27.0d0)
+      parameter( f527  = 5.0d0/27.0d0)
+      parameter( f536  = 5.0d0/36.0d0)
+      parameter( f572  = 5.0d0/72.0d0)
+      parameter( f5162 = 5.0d0/162.0d0)
       call random_seed
       do i = 1, npt
         call random_number(tmp)
@@ -115,8 +126,14 @@ C       endif
         write(*,*)i,fz3%d2*f19
         write(*,*)i,d2fdz2
         write(*,*)'d2fdxy:'
-        write(*,*)i,f29*(fx2y%d2+fxy2%d2-f13*(fx3%d2+fy3%d2))
+        write(*,*)i,f18*(fx2y%d2+fxy2%d2)-f572*(fx3%d2+fy3%d2)
         write(*,*)i,d2fdxy
+        write(*,*)'d2fdxz:'
+        write(*,*)i,f18*(fx2z%d2+fxz2%d2)-f572*(fx3%d2+fz3%d2)
+        write(*,*)i,d2fdxz
+        write(*,*)'d2fdyz:'
+        write(*,*)i,f18*(fy2z%d2+fyz2%d2)-f572*(fy3%d2+fz3%d2)
+        write(*,*)i,d2fdyz
         write(*,*)'d3fdx3:'
         write(*,*)i,fx3%d3*f127
         write(*,*)i,d3fdx3
@@ -126,9 +143,29 @@ C       endif
         write(*,*)'d3fdz3:'
         write(*,*)i,fz3%d3*f127
         write(*,*)i,d3fdz3
-c       write(*,*)'d2fdxy:'
-c       write(*,*)i,0.5d0*(fpxpy%d2-0.25d0*(fx2%d2+fy2%d2))
-c       write(*,*)i,d2fdxy
+        write(*,*)'d3fdx2y:'
+        write(*,*)i,-f5162*fx3%d3+f19*fx2y%d3-f118*fxy2%d3+f181*fy3%d3
+        write(*,*)i,d3fdx2y
+        write(*,*)'d3fdx2z:'
+        write(*,*)i,-f5162*fx3%d3+f19*fx2z%d3-f118*fxz2%d3+f181*fz3%d3
+        write(*,*)i,d3fdx2z
+        write(*,*)'d3fdxy2:'
+        write(*,*)i,-f5162*fy3%d3+f19*fxy2%d3-f118*fx2y%d3+f181*fx3%d3
+        write(*,*)i,d3fdxy2
+        write(*,*)'d3fdy2z:'
+        write(*,*)i,-f5162*fy3%d3+f19*fy2z%d3-f118*fyz2%d3+f181*fz3%d3
+        write(*,*)i,d3fdy2z
+        write(*,*)'d3fdxz2:'
+        write(*,*)i,-f5162*fz3%d3+f19*fxz2%d3-f118*fx2z%d3+f181*fx3%d3
+        write(*,*)i,d3fdxz2
+        write(*,*)'d3fdyz2:'
+        write(*,*)i,-f5162*fz3%d3+f19*fyz2%d3-f118*fy2z%d3+f181*fy3%d3
+        write(*,*)i,d3fdyz2
+        write(*,*)'d3fdxyz:'
+        write(*,*)i,f16*fxyz%d3+f181*(fx3%d3+fy3%d3+fz3%d3)
+     +              -f136*(fx2y%d3+fx2z%d3+fxy2%d3+fy2z%d3
+     +                     +fxz2%d3+fyz2%d3)
+        write(*,*)i,d3fdxyz
         write(*,*)
       enddo
       end
