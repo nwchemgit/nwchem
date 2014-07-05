@@ -316,12 +316,16 @@ module nwad
   end interface
   interface active
     module procedure nwad_dble_active
+    module procedure nwad_dble_active_n
   end interface
   interface active_neg
     module procedure nwad_dble_active_neg
   end interface
   interface inactive
     module procedure nwad_dble_inactive
+  end interface
+  interface extract_dx2
+    module procedure nwad_dble_extract_dx2
   end interface
   interface extract_dxdy
     module procedure nwad_dble_extract_dxdy
@@ -1342,6 +1346,37 @@ contains
     s%d3 = 0
   end function nwad_dble_active
   !>
+  !> \brief Initialize an active variable of a given order
+  !>
+  !> Initialize an active variable. Active variables are those with respect
+  !> to which the derivatives are calculated in the current evaluation of the
+  !> code. The code calculates the derivatives with respect to some 
+  !> multi-index \f$\mathbf{i}\f$. The norm of \f$\mathbf{i}\f$ is given by
+  !> \f$|\mathbf{i}|=\sum_{j=1}^n\mathbf{i}_j\f$. All multi indeces are allowed
+  !> as long as \f$|\mathbf{i}| \le d\f$ where \f$d\f$ is the order of
+  !> differentiation. In particular a component of \f$\mathbf{i}\f$ may occur
+  !> more than once. This routine specifies the integer number of times this
+  !> particular variables is differentiated with respect to.
+  !>
+  !> In practice it means that the components are initialized as
+  !> \f{eqnarray*}{
+  !>   d0 &=& \frac{\mathrm{d}^0 x}{\mathrm{d}x^0} = x \\\\
+  !>   d1 &=& \frac{\mathrm{d}^1 x}{\mathrm{d}x^1} = n \\\\
+  !>   d2 &=& \frac{\mathrm{d}^2 x}{\mathrm{d}x^2} = 0 \\\\
+  !>   d3 &=& \frac{\mathrm{d}^3 x}{\mathrm{d}x^3} = 0 \\\\
+  !> \f}
+  !> See [3] for details.
+  !>
+  function nwad_dble_active_n(x,n) result (s)
+    double precision, intent(in) :: x
+    integer, intent(in)          :: n
+    type(nwad_dble)              :: s
+    s%d0 = x
+    s%d1 = n
+    s%d2 = 0
+    s%d3 = 0
+  end function nwad_dble_active_n
+  !>
   !> \brief Initialize an negatively active variable
   !>
   !> Initialize an negatively active variable. Active variables are those with
@@ -1362,6 +1397,14 @@ contains
     s%d2 =  0
     s%d3 =  0
   end function nwad_dble_active_neg
+  !> 
+  !> \brief Extract the 2nd order derivative with respect to one variable
+  !>
+  function nwad_dble_extract_dx2(dx2) result (s)
+    type(nwad_dble),intent(in)::dx2   !> \f$\frac{\mathrm{d}^nf}{\mathrm{d}x^n}\f$
+    double precision          ::s
+    s = 0.25d0 * dx2%d2
+  end function nwad_dble_extract_dx2
   !>
   !> \brief Extract the \f$\frac{\mathrm{d}^2f}{\mathrm{d}x\mathrm{d}y}\f$
   !> partial derivative from \f$\frac{\mathrm{d}^2f}{\mathrm{d}(x+y)^2}\f$
