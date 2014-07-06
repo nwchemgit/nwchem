@@ -215,6 +215,11 @@
 !>     <a href="http://dx.doi.org/10.1145/229473.229474">
 !>     10.1145/229473.229474</a>.
 !>
+!> [5] I. Charpentier, J. Utke, "Rapsodia: User Manual", Argonne National
+!>     Laboratory, <a href="http://www.mcs.anl.gov/Rapsodia/userManual.pdf">
+!>     http://wwww.mcs.anl.gov/Rapsodia/userManual.pdf</a> (referenced
+!>     July 3, 2014).
+!>
 !> $Id: $
 !>
 !> Huub van Dam, 2014
@@ -238,12 +243,19 @@ module nwad
   interface assignment (=)
     module procedure nwad_dble_assign
   end interface
+  interface max
+    module procedure nwad_dble_max
+  end interface
+  interface min
+    module procedure nwad_dble_min
+  end interface
   interface operator (+)
     module procedure nwad_dble_add
     module procedure nwad_dble_addx
     module procedure nwad_dble_addy
   end interface
   interface operator (-)
+    module procedure nwad_dble_minus
     module procedure nwad_dble_sub
     module procedure nwad_dble_subx
     module procedure nwad_dble_suby
@@ -262,6 +274,41 @@ module nwad
     module procedure nwad_dble_pow
     module procedure nwad_dble_powx
     module procedure nwad_dble_powy
+  end interface
+  interface operator (.eq.)
+    module procedure nwad_dble_equal
+    module procedure nwad_dble_equalx
+    module procedure nwad_dble_equaly
+  end interface operator (==)
+  interface operator (.ne.)
+    module procedure nwad_dble_notequal
+    module procedure nwad_dble_notequalx
+    module procedure nwad_dble_notequaly
+  end interface operator (/=)
+  interface operator (.lt.)
+    module procedure nwad_dble_lessthan
+    module procedure nwad_dble_lessthanx
+    module procedure nwad_dble_lessthany
+  end interface operator (<)
+  interface operator (.le.)
+    module procedure nwad_dble_lessequal
+    module procedure nwad_dble_lessequalx
+    module procedure nwad_dble_lessequaly
+  end interface operator (<=)
+  interface operator (.gt.)
+    module procedure nwad_dble_greaterthan
+    module procedure nwad_dble_greaterthanx
+    module procedure nwad_dble_greaterthany
+  end interface operator (>)
+  interface operator (.ge.)
+    module procedure nwad_dble_greaterequal
+    module procedure nwad_dble_greaterequalx
+    module procedure nwad_dble_greaterequaly
+  end interface operator (>=)
+  interface sign
+    module procedure nwad_dble_sign
+    module procedure nwad_dble_signx
+    module procedure nwad_dble_signy
   end interface
   interface abs
     module procedure nwad_dble_abs
@@ -330,15 +377,15 @@ module nwad
   interface extract_dxdy
     module procedure nwad_dble_extract_dxdy
   end interface
-  interface extract_dx2dy
-    module procedure nwad_dble_extract_dx2dy
-  end interface
-  interface extract_dxdy2
-    module procedure nwad_dble_extract_dxdy2
-  end interface
-  interface extract_dxdydz
-    module procedure nwad_dble_extract_dxdydz
-  end interface
+! interface extract_dx2dy
+!   module procedure nwad_dble_extract_dx2dy
+! end interface
+! interface extract_dxdy2
+!   module procedure nwad_dble_extract_dxdy2
+! end interface
+! interface extract_dxdydz
+!   module procedure nwad_dble_extract_dxdydz
+! end interface
 contains
   !>
   !> \brief Assign a value to an inactive variable
@@ -361,6 +408,138 @@ contains
     s%d2 = 0
     s%d3 = 0
   end subroutine nwad_dble_assign
+  !>
+  !> Find the maximum value of the arguments
+  !>
+  !> This routine finds the maximum value of all the presented arguments.
+  !> In Fortran the MAX function must have at least 2 arguments but can
+  !> have any arbitrary number of arguments. Also the arguments all have to be
+  !> of the same type. Here this capability is implemented using optional
+  !> arguments, allowing for a maximum of 5 arguments. Whereas Fortran 90 
+  !> allows optional arguments to be specified by name, this implementation
+  !> will produce incorrect results if an optional argument in the middle
+  !> is left out!
+  !>
+  function nwad_dble_max(a,b,c,d,e) result (s)
+    type(nwad_dble), intent(in)           :: a
+    type(nwad_dble), intent(in)           :: b
+    type(nwad_dble), intent(in), optional :: c
+    type(nwad_dble), intent(in), optional :: d
+    type(nwad_dble), intent(in), optional :: e
+    type(nwad_dble)                       :: s
+    type(nwad_dble)                       :: t1
+    type(nwad_dble)                       :: t2
+    if (.not.present(c)) then
+      if (a%d0 .ge. b%d0 ) then
+        s = a
+      else
+        s = b
+      endif
+    else
+      if (a%d0 .ge. b%d0) then
+        t1 = a
+      else
+        t1 = b
+      endif
+      if (.not.present(d)) then
+        if (t1%d0 .ge. c%d0) then
+          s = t1
+        else
+          s = c
+        endif
+      else
+        if (t1%d0 .ge. c%d0) then
+          t2 = t1
+        else
+          t2 = c
+        endif
+        if (.not.present(e)) then
+          if (t2%d0 .ge. d%d0) then
+            s = t2
+          else
+            s = d
+          endif
+        else
+          if (t2%d0 .ge. d%d0) then
+            t1 = t2
+          else
+            t1 = d
+          endif
+          if (t1%d0 .ge. e%d0) then
+            s = t1
+          else
+            s = e
+          endif
+        endif
+      endif
+    endif
+  end function nwad_dble_max
+  !>
+  !> Find the minimum value of the arguments
+  !>
+  !> This routine finds the minimum value of all the presented arguments.
+  !> In Fortran the MIN function must have at least 2 arguments but can
+  !> have any arbitrary number of arguments. Also the arguments all have to be
+  !> of the same type. Here this capability is implemented using optional
+  !> arguments, allowing for a maximum of 5 arguments. Whereas Fortran 90 
+  !> allows optional arguments to be specified by name, this implementation
+  !> will produce incorrect results if an optional argument in the middle
+  !> is left out!
+  !>
+  function nwad_dble_min(a,b,c,d,e) result (s)
+    type(nwad_dble), intent(in)           :: a
+    type(nwad_dble), intent(in)           :: b
+    type(nwad_dble), intent(in), optional :: c
+    type(nwad_dble), intent(in), optional :: d
+    type(nwad_dble), intent(in), optional :: e
+    type(nwad_dble)                       :: s
+    type(nwad_dble)                       :: t1
+    type(nwad_dble)                       :: t2
+    if (.not.present(c)) then
+      if (a%d0 .lt. b%d0 ) then
+        s = a
+      else
+        s = b
+      endif
+    else
+      if (a%d0 .lt. b%d0) then
+        t1 = a
+      else
+        t1 = b
+      endif
+      if (.not.present(d)) then
+        if (t1%d0 .lt. c%d0) then
+          s = t1
+        else
+          s = c
+        endif
+      else
+        if (t1%d0 .lt. c%d0) then
+          t2 = t1
+        else
+          t2 = c
+        endif
+        if (.not.present(e)) then
+          if (t2%d0 .lt. d%d0) then
+            s = t2
+          else
+            s = d
+          endif
+        else
+          if (t2%d0 .lt. d%d0) then
+            t1 = t2
+          else
+            t1 = d
+          endif
+          if (t1%d0 .lt. e%d0) then
+            s = t1
+          else
+            s = e
+          endif
+        endif
+      endif
+    endif
+  end function nwad_dble_min
   !>
   !> \brief Evaluate the addition operator and its derivatives
   !>
@@ -795,6 +974,307 @@ contains
     s%d3 = x**y%d0*(log(x)*y%d3 + 3*log(x)**2*y%d1*y%d2+(log(x)*y%d1)**3)
   end function nwad_dble_powy
   !>
+  !> \brief Return whether \f$x\f$ equals \f$y\f$
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ equals \f$y\f$. In 
+  !> context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives.
+  !>
+  function nwad_dble_equal(x,y) result(s)
+    type(nwad_dble), intent(in) :: x
+    type(nwad_dble), intent(in) :: y
+    logical                     :: s
+    s = x%d0 .eq. y%d0
+  end function nwad_dble_equal
+  !>
+  !> \brief Return whether \f$x\f$ equals \f$y\f$ where the latter is inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ equals \f$y\f$. In 
+  !> context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$y\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_equalx(x,y) result(s)
+    type(nwad_dble),  intent(in) :: x
+    double precision, intent(in) :: y
+    logical                      :: s
+    s = x%d0 .eq. y
+  end function nwad_dble_equalx
+  !>
+  !> \brief Return whether \f$x\f$ equals \f$y\f$ where the former is inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ equals \f$y\f$. In 
+  !> context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$x\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_equaly(x,y) result(s)
+    double precision, intent(in) :: x
+    type(nwad_dble),  intent(in) :: y
+    logical                      :: s
+    s = x .eq. y%d0
+  end function nwad_dble_equaly
+  !>
+  !> \brief Return whether \f$x\f$ does not equal \f$y\f$
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ does not equal \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives.
+  !>
+  function nwad_dble_notequal(x,y) result(s)
+    type(nwad_dble), intent(in) :: x
+    type(nwad_dble), intent(in) :: y
+    logical                     :: s
+    s = .not. (x .eq. y)
+  end function nwad_dble_notequal
+  !>
+  !> \brief Return whether \f$x\f$ does not equal \f$y\f$ where the latter is
+  !> inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ does not equal \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$y\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_notequalx(x,y) result(s)
+    type(nwad_dble),  intent(in) :: x
+    double precision, intent(in) :: y
+    logical                      :: s
+    s = .not. (x .eq. y)
+  end function nwad_dble_notequalx
+  !>
+  !> \brief Return whether \f$x\f$ does not equal \f$y\f$ where the former is
+  !> inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ does not equal \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$x\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_notequaly(x,y) result(s)
+    double precision, intent(in) :: x
+    type(nwad_dble),  intent(in) :: y
+    logical                      :: s
+    s = .not. (x .eq. y)
+  end function nwad_dble_notequaly
+  !>
+  !> \brief Return whether \f$x\f$ is less than \f$y\f$
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is less than \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives.
+  !>
+  function nwad_dble_lessthan(x,y) result(s)
+    type(nwad_dble), intent(in) :: x
+    type(nwad_dble), intent(in) :: y
+    logical                     :: s
+    s = x%d0 .lt. y%d0
+  end function nwad_dble_lessthan
+  !>
+  !> \brief Return whether \f$x\f$ is less than \f$y\f$ where the latter is
+  !> inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is less than \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$y\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_lessthanx(x,y) result(s)
+    type(nwad_dble),  intent(in) :: x
+    double precision, intent(in) :: y
+    logical                      :: s
+    s = x%d0 .lt. y
+  end function nwad_dble_lessthanx
+  !>
+  !> \brief Return whether \f$x\f$ is less than \f$y\f$ where the former is
+  !> inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is less than \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$x\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_lessthany(x,y) result(s)
+    double precision, intent(in) :: x
+    type(nwad_dble),  intent(in) :: y
+    logical                      :: s
+    s = x .lt. y%d0
+  end function nwad_dble_lessthany
+  !>
+  !> \brief Return whether \f$x\f$ is less than or equal to \f$y\f$
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is less than or equal
+  !> to\f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives.
+  !>
+  function nwad_dble_lessequal(x,y) result(s)
+    type(nwad_dble), intent(in) :: x
+    type(nwad_dble), intent(in) :: y
+    logical                     :: s
+    s = x%d0 .le. y%d0
+  end function nwad_dble_lessequal
+  !>
+  !> \brief Return whether \f$x\f$ is less than or equal to \f$y\f$ where the
+  !> latter is inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is less than or equal
+  !> to \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$y\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_lessequalx(x,y) result(s)
+    type(nwad_dble),  intent(in) :: x
+    double precision, intent(in) :: y
+    logical                      :: s
+    s = x%d0 .le. y
+  end function nwad_dble_lessequalx
+  !>
+  !> \brief Return whether \f$x\f$ is less than or equal to \f$y\f$ where the
+  !> former is inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is less than or equal
+  !> to \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$x\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_lessequaly(x,y) result(s)
+    double precision, intent(in) :: x
+    type(nwad_dble),  intent(in) :: y
+    logical                      :: s
+    s = x .le. y%d0
+  end function nwad_dble_lessequaly
+  !>
+  !> \brief Return whether \f$x\f$ is greater than \f$y\f$
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is greater than \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives.
+  !>
+  function nwad_dble_greaterthan(x,y) result(s)
+    type(nwad_dble), intent(in) :: x
+    type(nwad_dble), intent(in) :: y
+    logical                     :: s
+    s = x%d0 .lt. y%d0
+  end function nwad_dble_greaterthan
+  !>
+  !> \brief Return whether \f$x\f$ is greater than \f$y\f$ where the latter is
+  !> inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is greater than \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$y\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_greaterthanx(x,y) result(s)
+    type(nwad_dble),  intent(in) :: x
+    double precision, intent(in) :: y
+    logical                      :: s
+    s = x%d0 .lt. y
+  end function nwad_dble_greaterthanx
+  !>
+  !> \brief Return whether \f$x\f$ is greater than \f$y\f$ where the former is
+  !> inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is greater than \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$x\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_greaterthany(x,y) result(s)
+    double precision, intent(in) :: x
+    type(nwad_dble),  intent(in) :: y
+    logical                      :: s
+    s = x .lt. y%d0
+  end function nwad_dble_greaterthany
+  !>
+  !> \brief Return whether \f$x\f$ is greater than or equal to \f$y\f$
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is greater than or equal
+  !> to\f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives.
+  !>
+  function nwad_dble_greaterequal(x,y) result(s)
+    type(nwad_dble), intent(in) :: x
+    type(nwad_dble), intent(in) :: y
+    logical                     :: s
+    s = x%d0 .ge. y%d0
+  end function nwad_dble_greaterequal
+  !>
+  !> \brief Return whether \f$x\f$ is greater than or equal to \f$y\f$ where the
+  !> latter is inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is greater than or equal
+  !> to \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$y\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_greaterequalx(x,y) result(s)
+    type(nwad_dble),  intent(in) :: x
+    double precision, intent(in) :: y
+    logical                      :: s
+    s = x%d0 .ge. y
+  end function nwad_dble_greaterequalx
+  !>
+  !> \brief Return whether \f$x\f$ is greater than or equal to \f$y\f$ where the
+  !> former is inactive
+  !>
+  !> Return a logical value reflecting whether \f$x\f$ is greater than or equal
+  !> to \f$y\f$.
+  !> In context of derivative calculations the comparison only applies to the
+  !> the values and not to any of the derivatives. In this function \f$x\f$
+  !> is an inactive variable.
+  !>
+  function nwad_dble_greaterequaly(x,y) result(s)
+    double precision, intent(in) :: x
+    type(nwad_dble),  intent(in) :: y
+    logical                      :: s
+    s = x .ge. y%d0
+  end function nwad_dble_greaterequaly
+  !>
+  !> \brief Evaluate the sign function 
+  !> 
+  !> The function \f$\mathrm{sign}(x,y)\f$ returns the value of \f$x\f$ with
+  !> the sign of \f$y\f$. This routine implements this function for the case
+  !> where both \f$x\f$ and \f$y\f$ are active variables.
+  !>
+  function nwad_dble_sign(x,y) result(s)
+    type(nwad_dble), intent(in) :: x
+    type(nwad_dble), intent(in) :: y
+    type(nwad_dble)             :: s
+    s = abs(x) * sign(1.0d0,y%d0)
+  end function nwad_dble_sign
+  !>
+  !> \brief Evaluate the sign function where \f$y\f$ is inactive
+  !> 
+  !> The function \f$\mathrm{sign}(x,y)\f$ returns the value of \f$x\f$ with
+  !> the sign of \f$y\f$. This routine implements this function for the case
+  !> where \f$x\f$ is an active and \f$y\f$ is an inactive variable.
+  !>
+  function nwad_dble_signx(x,y) result(s)
+    type(nwad_dble),  intent(in) :: x
+    double precision, intent(in) :: y
+    type(nwad_dble)              :: s
+    s = abs(x) * sign(1.0d0,y)
+  end function nwad_dble_signx
+  !>
+  !> \brief Evaluate the sign function where \f$x\f$ is inactive
+  !> 
+  !> The function \f$\mathrm{sign}(x,y)\f$ returns the value of \f$x\f$ with
+  !> the sign of \f$y\f$. This routine implements this function for the case
+  !> where \f$x\f$ is an inactive and \f$y\f$ is an active variable.
+  !>
+  function nwad_dble_signy(x,y) result(s)
+    double precision, intent(in) :: x
+    type(nwad_dble),  intent(in) :: y
+    double precision             :: s
+    s = abs(x) * sign(1.0d0,y%d0)
+  end function nwad_dble_signy
+  !>
   !> \brief Evaluate the \f$|\;\;|\f$ function
   !>
   !> The implementation of the \f$|\;\;|\f$ function. The chain rule is used
@@ -830,6 +1310,20 @@ contains
       s%d3 =  0.0d0
     endif
   end function nwad_dble_abs
+  !>
+  !> \brief Evaluate the unary negation operator \f$-\f$
+  !>
+  !> The unary negation operator simply replaces the value and all the
+  !> derivatives with the same with the opposite sign.
+  !>
+  function nwad_dble_minus(x) result (s)
+    type(nwad_dble), intent(in)  :: x
+    type(nwad_dble)              :: s
+    s%d0 = -x%d0
+    s%d1 = -x%d1
+    s%d2 = -x%d2
+    s%d3 = -x%d3
+  end function nwad_dble_minus
   !>
   !> \brief Evaluate the \f$\sqrt{\;\;\;}\f$ function
   !>
@@ -1455,11 +1949,11 @@ contains
     double precision          ::s
     s = 0.5d0 * (dxpy2%d2 - 0.25d0 * dx2%d2 - 0.25d0 * dy2%d2)
   end function nwad_dble_extract_dxdy
-  function nwad_dble_extract_dxdy2
-  end function nwad_dble_extract_dxdy2
-  function nwad_dble_extract_dx2dy
-  end function nwad_dble_extract_dx2dy
-  function nwad_dble_extract_dxdydz
-  end function nwad_dble_extract_dxdydz
+! function nwad_dble_extract_dxdy2
+! end function nwad_dble_extract_dxdy2
+! function nwad_dble_extract_dx2dy
+! end function nwad_dble_extract_dx2dy
+! function nwad_dble_extract_dxdydz
+! end function nwad_dble_extract_dxdydz
 end module nwad
 !> @}
