@@ -1,0 +1,6 @@
+/**
+
+@defgroup nwad_tests Unit Tests for Automatic Differentation
+  @ingroup nwad
+
+*/

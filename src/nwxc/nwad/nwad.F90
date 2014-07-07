@@ -1,5 +1,10 @@
+!> @defgroup nwad NW Automatic Differentiation
+!>   @ingroup nwxc_priv
+!>
 !> \ingroup nwad
 !> @{
+!>
+!> \brief NW Automatic Differentation
 !>
 !> # NW Automatic Differentiation #
 !>

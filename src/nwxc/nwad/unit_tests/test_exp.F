@@ -1,4 +1,4 @@
-C> \ingroup nwad
+C> \ingroup nwad_tests
 C> @{
 C>
 C> \brief test the implementation of the EXP function
