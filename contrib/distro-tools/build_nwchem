@@ -1728,6 +1728,9 @@ if [ ${#BLAS_LIB} -eq 0 ] ; then
     MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
   fi
   BLAS_LIB=`get_blas_lib ${MPI_F90} 0 "${MPI_LIB_TMP} ${LIBMPI}"`
+  if [ ${#BLAS_LIB} -ne 0 ] ; then
+    BLAS_LIB="${MPI_LIB_TMP} ${BLAS_LIB}"
+  fi
   export BLAS_LIB
 fi
 if [ ${#BLAS_SIZE} -eq 0 ] ; then
@@ -1752,6 +1755,9 @@ if [ ${#LAPACK_LIB} -eq 0 ] ; then
     MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
   fi
   LAPACK_LIB=`get_lapack_lib ${MPI_F90} "${BLAS_LIB}" 0 "${MPI_LIB_TMP} ${LIBMPI}"`
+  if [ ${#LAPACK_LIB} -ne 0 ] ; then
+    LAPACK_LIB="${MPI_LIB_TMP} ${LAPACK_LIB}"
+  fi
   export LAPACK_LIB
 fi
 if [ ${#LAPACK_SIZE} -eq 0 ] ; then
@@ -1776,6 +1782,9 @@ if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
     MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
   fi
   SCALAPACK_LIB=`get_scalapack_lib ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB}" 0 "${MPI_LIB_TMP} ${LIBMPI}"`
+  if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
+    SCALAPACK_LIB="${MPI_LIB_TMP} ${SCALAPACK_LIB}"
+  fi
   export SCALAPACK_LIB
 fi
 if [ ${#SCALAPACK_SIZE} -eq 0 ] ; then
@@ -2079,6 +2088,10 @@ if [ ${#BLAS_LIB} -ne 0 ] ; then
   echo "setenv BLAS_SIZE ${BLAS_SIZE}" >> ${NWCHEM_ENV_CSH}
   echo "unset BLAS_SIZE"               >> ${NWCHEM_UNENV_SH}
   echo "unsetenv BLAS_SIZE"            >> ${NWCHEM_UNENV_CSH}
+  echo "export BLAS_LIB=${BLAS_LIB}"   >> ${NWCHEM_ENV_SH}
+  echo "setenv BLAS_LIB ${BLAS_LIB}"   >> ${NWCHEM_ENV_CSH}
+  echo "unset BLAS_LIB"                >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv BLAS_LIB"             >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#LAPACK_LIB} -ne 0 ] ; then
   echo "LAPACK_LIB         =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
@@ -2086,6 +2099,10 @@ if [ ${#LAPACK_LIB} -ne 0 ] ; then
   echo "setenv LAPACK_SIZE ${LAPACK_SIZE}" >> ${NWCHEM_ENV_CSH}
   echo "unset LAPACK_SIZE"                 >> ${NWCHEM_UNENV_SH}
   echo "unsetenv LAPACK_SIZE"              >> ${NWCHEM_UNENV_CSH}
+  echo "export LAPACK_LIB=${LAPACK_LIB}"   >> ${NWCHEM_ENV_SH}
+  echo "setenv LAPACK_LIB ${LAPACK_LIB}"   >> ${NWCHEM_ENV_CSH}
+  echo "unset LAPACK_LIB"                  >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv LAPACK_LIB"               >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
   echo "SCALAPACK_LIB      =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
@@ -2093,6 +2110,10 @@ if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
   echo "setenv SCALAPACK_SIZE ${SCALAPACK_SIZE}" >> ${NWCHEM_ENV_CSH}
   echo "unset SCALAPACK_SIZE"                    >> ${NWCHEM_UNENV_SH}
   echo "unsetenv SCALAPACK_SIZE"                 >> ${NWCHEM_UNENV_CSH}
+  echo "export SCALAPACK_LIB=${SCALAPACK_LIB}"   >> ${NWCHEM_ENV_SH}
+  echo "setenv SCALAPACK_LIB ${SCALAPACK_LIB}"   >> ${NWCHEM_ENV_CSH}
+  echo "unset SCALAPACK_LIB"                     >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv SCALAPACK_LIB"                  >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#CUDA} -ne 0 ] ; then
   echo "CUDA               =" ${CUDA}
