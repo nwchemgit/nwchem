@@ -26,13 +26,11 @@ C>
         call random_number(tmp)
         tmp = tmp*2.0d0*acos(-1.0d0)
         call submaxima_dxy(tmp(1),tmp(2),dfdx,dfdy,d2fdx2,d2fdxy,d2fdy2)
-        x = active(tmp(1))
-        x%d1 = 2
+        x = active(tmp(1),2)
         y = inactive(tmp(2))
         call subad_dxy(x,y,fx2)
         x = inactive(tmp(1))
-        y = active(tmp(2))
-        y%d1 = 2
+        y = active(tmp(2),2)
         call subad_dxy(x,y,fy2)
         x = active(tmp(1))
         y = active(tmp(2))
