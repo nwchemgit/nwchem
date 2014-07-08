@@ -31809,11 +31809,12 @@ C    &                      KZVAR,KEXST2,KEXSTV
 *
       ioff = ga_nodeid()*KEXSTV
       CALL SETVEC(STVAL,0.0D0,KEXSTV*ga_nnodes())
-      DO 100 K=1,MIN(KEXSTV,ihi-ilo+1)
-         ISTART(ioff+K) = ioff+K
+      CALL SETVECI(ISTART,0,KEXSTV*ga_nnodes())
+      DO 100 K=1,KEXSTV
+         ISTART(ioff+K) = ilo+K-1
          STVAL(ioff+K)  = dbl_mb(ikf+K-1)
  100  CONTINUE
-      KK=KEXSTV
+      KK=ilo+KEXSTV-1
 C
       DO 210 I=1,KEXSTV
          DO 220 J=I+1,KEXSTV
@@ -31848,10 +31849,10 @@ C     REPEAT UNTIL ...
 C
  125     CONTINUE
             KK=KK+1
-            IF (KK.LE.(ihi-ilo+1)) THEN
-               IF ((STMAX-dbl_mb(ikf+KK-1)).GT.D0) THEN
-                  ISTART(ioff+KEXSTV) = ioff+KK
-                  STVAL(ioff+KEXSTV)  = dbl_mb(ikf+KK-1)
+            IF (KK.LE.ihi) THEN
+               IF ((STMAX-dbl_mb(ikf+KK-ilo)).GT.D0) THEN
+                  ISTART(ioff+KEXSTV) = KK
+                  STVAL(ioff+KEXSTV)  = dbl_mb(ikf+KK-ilo)
                   GO TO 105
 C     ^--------------------
                ENDIF
@@ -31863,43 +31864,24 @@ C     Each nnode has it's bottom list, now global sum to get full list
 C
       if (ga_nnodes().gt.1) then
       call ga_dgop(1,STVAL(1),KEXSTV*ga_nnodes(),'+')
+      call ga_igop(1,ISTART(1),KEXSTV*ga_nnodes(),'+')
 C
 C     And sort full list again, locally, to get global minimum
 C
-      KK=KEXSTV
-      GOTO 315
- 305  CONTINUE
-         DO 310 I = KEXSTV,2,-1
-            J = I - 1
-            IF ((STVAL(J)-STVAL(I)) .GT. D0) THEN
+    
+      DO 310 I=1,KEXSTV*ga_nnodes()
+         DO 320 J=I+1,KEXSTV*ga_nnodes()
+            IF ((STVAL(J)-STVAL(I)) .LT. D0) THEN
                X =STVAL(I)
                II=ISTART(I)
                STVAL(I) =STVAL(J)
                ISTART(I)=ISTART(J)
                STVAL(J) =X
                ISTART(J)=II
-            ELSE
-               GO TO 315
             ENDIF
- 310     CONTINUE
- 315     CONTINUE
-         STMAX=STVAL(KEXSTV)
-C
- 325     CONTINUE
-            KK=KK+1
-            IF (KK.LE.KEXSTV*ga_nnodes()) THEN
-               IF ((STMAX-STVAL(KK)).GT.D0) THEN
-                  ISTART(KEXSTV) = KK
-                  STVAL(KEXSTV)  = STVAL(KK)
-                  GO TO 305
-C     ^--------------------
-               ENDIF
-               GO TO 325
-C        ^--------------
-            END IF
+ 320     CONTINUE
+ 310  CONTINUE
       endif
-C
-C     Check for degeneracy among diagonal elements
 C
       I_DO_DEG_CHECK = 0
       JEXSTV = KEXSTV
