@@ -9168,7 +9168,7 @@ C    &                  ICOPY,IDO_REO,NTEST)
         CALL GEN_CNF_INFO_FOR_OCCLS(IOCCLS,1,ISYM)
         NCSF_OCCLS = IELSUM(NCS_FOR_OC_OP_ACT,MAXOP+1)
         NCM_OCCLS = IELSUM(NCM_FOR_OC_OP_ACT,MAXOP+1)
-        ncm_occls_ab=int_mb(kncman_for_occls+(ioccls-1)*nsmst+isym-1)
+        ncm_occls_ab=int_mb(kncmab_for_occls+(ioccls-1)*nsmst+isym-1)
 c       NCM_OCCLS_AB = 
 c    &  IFRMR(WORK,KNCMAB_FOR_OCCLS,(IOCCLS-1)*NSMST+ISYM)
 C?      WRITE(6,*) ' TESTY, NCM_OCCLS_AB = ', NCM_OCCLS_AB
