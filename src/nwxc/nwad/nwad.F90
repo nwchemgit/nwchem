@@ -376,21 +376,39 @@ module nwad
   interface inactive
     module procedure nwad_dble_inactive
   end interface
-  interface extract_dx2
-    module procedure nwad_dble_extract_dx2
+  interface value
+    module procedure nwad_dble_value
   end interface
-  interface extract_dxdy
-    module procedure nwad_dble_extract_dxdy
+  interface inter_d1_dx
+    module procedure nwad_dble_inter_d1_dx
   end interface
-! interface extract_dx2dy
-!   module procedure nwad_dble_extract_dx2dy
-! end interface
-! interface extract_dxdy2
-!   module procedure nwad_dble_extract_dxdy2
-! end interface
-! interface extract_dxdydz
-!   module procedure nwad_dble_extract_dxdydz
-! end interface
+  interface inter_d2_dx
+    module procedure nwad_dble_inter_d2_dx
+  end interface
+  interface inter_d2_dx2
+    module procedure nwad_dble_inter_d2_dx2
+  end interface
+  interface inter_d2_dxy
+    module procedure nwad_dble_inter_d2_dxy
+  end interface
+  interface inter_d3_dx
+    module procedure nwad_dble_inter_d3_dx
+  end interface
+  interface inter_d3_dx2
+    module procedure nwad_dble_inter_d3_dx2
+  end interface
+  interface inter_d3_dxy
+    module procedure nwad_dble_inter_d3_dxy
+  end interface
+  interface inter_d3_dx3
+    module procedure nwad_dble_inter_d3_dx3
+  end interface
+  interface inter_d3_dx2y
+    module procedure nwad_dble_inter_d3_dx2y
+  end interface
+  interface inter_d3_dxyz
+    module procedure nwad_dble_inter_d3_dxyz
+  end interface
 contains
   !>
   !> \brief Assign a value to an inactive variable
@@ -1896,69 +1914,285 @@ contains
     s%d2 =  0
     s%d3 =  0
   end function nwad_dble_active_neg
-  !> 
-  !> \brief Extract the 2nd order derivative with respect to one variable
   !>
-  function nwad_dble_extract_dx2(dx2) result (s)
-    type(nwad_dble),intent(in)::dx2   !> \f$\frac{\mathrm{d}^nf}{\mathrm{d}x^n}\f$
-    double precision          ::s
-    s = 0.25d0 * dx2%d2
-  end function nwad_dble_extract_dx2
+  !> \brief Return the value 
   !>
-  !> \brief Extract the \f$\frac{\mathrm{d}^2f}{\mathrm{d}x\mathrm{d}y}\f$
-  !> partial derivative from \f$\frac{\mathrm{d}^2f}{\mathrm{d}(x+y)^2}\f$
+  !> Simply return the value, i.e. 0th order derivative, of the quantity
   !>
-  !> In this library the derivatives with respect to the sum of all active
-  !> variables are calculated. I.e. 
-  !> \f{eqnarray*}{
-  !>   \frac{\mathrm{d}^nf(x_1,\ldots,x_n)}
-  !>        {\mathrm{d}(\sum_{x_i\in\{x_{\mathrm{active}}\}}x_i)^n}
-  !> \f}
-  !> The result is a linear combination of partial derivatives that looks like
-  !> a polynomial
-  !> \f{eqnarray*}{
-  !>   \frac{\mathrm{d}^nf(x_1,\ldots,x_n)}
-  !>        {\mathrm{d}(\sum_{x_i\in\{x_{\mathrm{active}}\}}x_i)^n} &=&
-  !>   \sum_j \frac{\mathrm{d}^nf(x_1,\ldots,x_n)}{\prod_{k_j} \mathrm{d}x_k}
-  !>          \frac{\prod_{k_j} \mathrm{d}x_k}
-  !>        {\mathrm{d}(\sum_{x_i\in\{x_{\mathrm{active}}\}}x_i)^n} \\\\
-  !>   &=&\sum_j\frac{\mathrm{d}^nf(x_1,\ldots,x_n)}{\prod_{k_j} \mathrm{d}x_k}
-  !>      \left(\frac{\mathrm{d}(\sum_{x_i\in\{x_{\mathrm{active}}\}}x_i)^n}
-  !>            {\prod_{k_j} \mathrm{d}x_k}\right)^{-1} \\\\
-  !> \f}
-  !> The last factor in round brackets is the weight of the corresponding 
-  !> term in a polynomial. E.g. in the case of this routine
-  !> \f{eqnarray*}{
-  !>   \frac{\mathrm{d}^2 f}{\mathrm{d}(x^2+2xy+y^2)}
-  !>   &=& \frac{\mathrm{d}^2 f}{\mathrm{d}x^2}
-  !>       \left(\frac{\mathrm{d}(x^2+2xy+y^2)}{\mathrm{d}x^2}\right)^{-1}
-  !>    +  \frac{\mathrm{d}^2 f}{\mathrm{d}(xy)}
-  !>       \left(\frac{\mathrm{d}(x^2+2xy+y^2)}{\mathrm{d}(xy)}\right)^{-1}
-  !>    +  \frac{\mathrm{d}^2 f}{\mathrm{d}y^2}
-  !>       \left(\frac{\mathrm{d}(x^2+2xy+y^2)}{\mathrm{d}y^2}\right)^{-1} \\\\
-  !>   &=& \frac{\mathrm{d}^2 f}{\mathrm{d}x^2}
-  !>    +  \frac{1}{2}\frac{\mathrm{d}^2 f}{\mathrm{d}(xy)}
-  !>    +  \frac{\mathrm{d}^2 f}{\mathrm{d}y^2}
-  !> \f}
-  !> In order to extract the second term we need to evaluate
-  !> \f{eqnarray*}{
-  !>   \frac{\mathrm{d}^2 f}{\mathrm{d}(xy)}
-  !>   &=& 2\left(\frac{\mathrm{d}^2 f}{\mathrm{d}(x^2+2xy+y^2)}
-  !>    -         \frac{\mathrm{d}^2 f}{\mathrm{d}x^2}
-  !>    -         \frac{\mathrm{d}^2 f}{\mathrm{d}y^2}\right)
-  !> \f}
-  function nwad_dble_extract_dxdy(dx2,dxpy2,dy2) result (s)
-    type(nwad_dble),intent(in)::dx2   !> \f$\frac{\mathrm{d}^nf}{\mathrm{d}x^n}\f$
-    type(nwad_dble),intent(in)::dxpy2 !> \f$\frac{\mathrm{d}^nf}{\mathrm{d}(x+y)^n}\f$
-    type(nwad_dble),intent(in)::dy2   !> \f$\frac{\mathrm{d}^nf}{\mathrm{d}y^n}\f$
-    double precision          ::s
-    s = 0.5d0 * (dxpy2%d2 - 0.25d0 * dx2%d2 - 0.25d0 * dy2%d2)
-  end function nwad_dble_extract_dxdy
-! function nwad_dble_extract_dxdy2
-! end function nwad_dble_extract_dxdy2
-! function nwad_dble_extract_dx2dy
-! end function nwad_dble_extract_dx2dy
-! function nwad_dble_extract_dxdydz
-! end function nwad_dble_extract_dxdydz
+  function nwad_dble_value(x) result (s)
+    type(nwad_dble), intent(in) :: x
+    double precision            :: s
+    s = x%d0
+  end function nwad_dble_value
+  !>
+  !> \brief Interpolate the 1st order partial derivative from an evaluation
+  !> up to 1st order
+  !>
+  !> Interpolate the 1st order partial derivative from a variable involved
+  !> in a functional evaluation with up to 1st order partial derivatives.
+  !> The corresponding interpolation expression is particularly simply but
+  !> this function is provided for completeness.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d1_dx(dx) result (s)
+    type(nwad_dble), intent(in) :: dx 
+    double precision            :: s
+    s = dx%d1
+  end function nwad_dble_inter_d1_dx
+  !>
+  !> \brief Interpolate the 1st order partial derivative from an evaluation
+  !> up to 2nd order
+  !>
+  !> Interpolate the 1st order partial derivative from a variable involved
+  !> in a functional evaluation with up to 2nd order partial derivatives.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d2_dx(dx) result (s)
+    type(nwad_dble), intent(in) :: dx 
+    double precision            :: s
+    double precision :: f12
+    f12 = 1.0d0/2.0d0
+    s = f12*dx%d1
+  end function nwad_dble_inter_d2_dx
+  !>
+  !> \brief Interpolate the diagonal 2nd order partial derivative from an
+  !> evaluation up to 2nd order
+  !>
+  !> Interpolate the 2nd order partial derivative from a variable involved
+  !> in a functional evaluation with up to 2nd order partial derivatives.
+  !> This routine takes care of the diagonal term, i.e. 
+  !> \f$\frac{\partial^2 f}{\partial x^2}\f$.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d2_dx2(dx2) result (s)
+    type(nwad_dble), intent(in) :: dx2
+    double precision            :: s
+    double precision :: f14
+    f14 = 1.0d0/4.0d0
+    s = f14*dx2%d2
+  end function nwad_dble_inter_d2_dx2
+  !>
+  !> \brief Interpolate the off-diagonal 2nd order partial derivative from an
+  !> evaluation up to 2nd order
+  !>
+  !> Interpolate the 2nd order partial derivative from a variable involved
+  !> in a functional evaluation with up to 2nd order partial derivatives.
+  !> This routine takes care of the diagonal term, i.e. 
+  !> \f$\frac{\partial^2 f}{\partial x\partial y}\f$.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d2_dxy(dx2,dxy,dy2) result (s)
+    type(nwad_dble), intent(in) :: dx2
+    type(nwad_dble), intent(in) :: dxy
+    type(nwad_dble), intent(in) :: dy2
+    double precision            :: s
+    double precision :: f12
+    double precision :: f18
+    f12 = 1.0d0/2.0d0
+    f18 = 1.0d0/8.0d0
+    s = f12*dxy%d2-f18*dx2%d2-f18*dy2%d2
+  end function nwad_dble_inter_d2_dxy
+  !>
+  !> \brief Interpolate the 1st order partial derivative from an evaluation
+  !> up to 3rd order
+  !>
+  !> Interpolate the 1st order partial derivative from a variable involved
+  !> in a functional evaluation with up to 3rd order partial derivatives.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d3_dx(dx) result (s)
+    type(nwad_dble), intent(in) :: dx 
+    double precision            :: s
+    double precision :: f13
+    f13 = 1.0d0/3.0d0
+    s = f13*dx%d1
+  end function nwad_dble_inter_d3_dx
+  !>
+  !> \brief Interpolate the diagonal 2nd order partial derivative from an
+  !> evaluation up to 3rd order
+  !>
+  !> Interpolate the 2nd order partial derivative from a variable involved
+  !> in a functional evaluation with up to 3rd order partial derivatives.
+  !> This routine takes care of the diagonal term, i.e. 
+  !> \f$\frac{\partial^2 f}{\partial x^2}\f$.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d3_dx2(dx2) result (s)
+    type(nwad_dble), intent(in) :: dx2
+    double precision            :: s
+    double precision :: f19
+    f19 = 1.0d0/9.0d0
+    s = f19*dx2%d2
+  end function nwad_dble_inter_d3_dx2
+  !>
+  !> \brief Interpolate the off-diagonal 2nd order partial derivative from an
+  !> evaluation up to 3rd order
+  !>
+  !> Interpolate the 2nd order partial derivative from a variable involved
+  !> in a functional evaluation with up to 3rd order partial derivatives.
+  !> This routine takes care of the diagonal term, i.e. 
+  !> \f$\frac{\partial^2 f}{\partial x\partial y}\f$.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d3_dxy(dx3,dx2y,dxy2,dy3) result (s)
+    type(nwad_dble), intent(in) :: dx3
+    type(nwad_dble), intent(in) :: dx2y
+    type(nwad_dble), intent(in) :: dxy2
+    type(nwad_dble), intent(in) :: dy3
+    double precision            :: s
+    double precision :: f18
+    double precision :: f572
+    f18  = 1.0d0/8.0d0
+    f572 = 5.0d0/72.0d0
+    s = f18*(dx2y%d2+dxy2%d2)-f572*(dx3%d2+dy3%d2)
+  end function nwad_dble_inter_d3_dxy
+  !>
+  !> \brief Interpolate the diagonal 3rd order partial derivative from an
+  !> evaluation up to 3rd order
+  !>
+  !> Interpolate the 3rd order partial derivative from a variable involved
+  !> in a functional evaluation with up to 3rd order partial derivatives.
+  !> This routine takes care of the diagonal term, i.e. 
+  !> \f$\frac{\partial^3 f}{\partial x^3}\f$.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d3_dx3(dx3) result (s)
+    type(nwad_dble), intent(in) :: dx3
+    double precision            :: s
+    double precision :: f127
+    f127 = 1.0d0/27.0d0
+    s = f127*dx3%d3
+  end function nwad_dble_inter_d3_dx3
+  !>
+  !> \brief Interpolate the semi off-diagonal 3rd order partial derivative from
+  !> an evaluation up to 3rd order
+  !>
+  !> Interpolate the 3rd order partial derivative from a variable involved
+  !> in a functional evaluation with up to 3rd order partial derivatives.
+  !> This routine takes care of the semi off-diagonal term, i.e. 
+  !> \f$\frac{\partial^3 f}{\partial x^2\partial y}\f$.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d3_dx2y(dx3,dx2y,dxy2,dy3) result (s)
+    type(nwad_dble), intent(in) :: dx3
+    type(nwad_dble), intent(in) :: dx2y
+    type(nwad_dble), intent(in) :: dxy2
+    type(nwad_dble), intent(in) :: dy3
+    double precision            :: s
+    double precision :: f118
+    double precision :: f181
+    double precision :: f19
+    double precision :: f5162
+    f118  = 1.0d0/18.0d0
+    f181  = 1.0d0/81.0d0
+    f19   = 1.0d0/9.0d0
+    f5162 = 5.0d0/162.0d0
+    s = f19*dx2y%d3+f181*dy3%d3-f5162*dx3%d3-f118*dxy2%d3
+  end function nwad_dble_inter_d3_dx2y
+  !>
+  !> \brief Interpolate the off-diagonal 3rd order partial derivative from
+  !> an evaluation up to 3rd order
+  !>
+  !> Interpolate the 3rd order partial derivative from a variable involved
+  !> in a functional evaluation with up to 3rd order partial derivatives.
+  !> This routine takes care of the off-diagonal term, i.e. 
+  !> \f$\frac{\partial^3 f}{\partial x\partial y\partial z}\f$.
+  !> See also Eq.(17) [1].
+  !>
+  !> ### References ###
+  !>
+  !> [1] A. Griewank, J. Utke, A. Walther (2000) "Evaluating higher derivative
+  !>     tensors by forward propagation of univariate Taylor series",
+  !>     Mathematics of Computation, <b>69</b>, pp. 1117-1130, DOI:
+  !>     <a href="http://dx.doi.org/10.1090/S0025-5718-00-01120-0">
+  !>     10.1090/S0025-5718-00-01120-0</a>.
+  !>
+  function nwad_dble_inter_d3_dxyz(dx3,dy3,dz3,dx2y,dx2z,dxy2,dy2z,dxz2,dyz2, &
+                                   dxyz) result (s)
+    type(nwad_dble), intent(in) :: dx3, dy3, dz3
+    type(nwad_dble), intent(in) :: dx2y, dx2z, dxy2, dy2z, dxz2, dyz2
+    type(nwad_dble), intent(in) :: dxyz
+    double precision            :: s
+    double precision :: f136
+    double precision :: f16
+    double precision :: f181
+    f136  = 1.0d0/36.0d0
+    f16   = 1.0d0/6.0d0
+    f181  = 1.0d0/81.0d0
+    s = f16*dxyz%d3+f181*(dx3%d3+dy3%d3+dz3%d3) &
+      - f136*(dx2y%d3+dx2z%d3+dxy2%d3+dy2z%d3+dxz2%d3+dyz2%d3)
+  end function nwad_dble_inter_d3_dxyz
 end module nwad
 !> @}
