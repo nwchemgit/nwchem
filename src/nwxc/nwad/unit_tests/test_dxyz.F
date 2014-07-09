@@ -22,6 +22,9 @@ C>
       double precision d3fdx3, d3fdy3, d3fdz3
       double precision d3fdx2y,d3fdx2z,d3fdxy2,d3fdy2z,d3fdxz2,d3fdyz2
       double precision d3fdxyz
+      double precision adx, ady, adz, adx2, ady2, adz2, adxy, adxz, adyz
+      double precision adx3, ady3, adz3, adx2y, adx2z, adxy2, ady2z
+      double precision adxz2, adyz2, adxyz
       double precision tmp(3)
       double precision tol
       parameter( tol = 1.0d-10)
@@ -92,81 +95,102 @@ C>
         y = active(tmp(2))
         z = active(tmp(3))
         call subad_dxyz(x,y,z,fxyz)
-c       x = active(tmp(1))
-c       y = active_neg(tmp(2))
-c       call subad_dxy(x,y,fpxmy)
-c       x = active_neg(tmp(1))
-c       y = active(tmp(2))
-c       call subad_dxy(x,y,fmxpy)
-c       x = active_neg(tmp(1))
-c       y = active_neg(tmp(2))
-c       call subad_dxy(x,y,fmxmy)
-c       adfxy = extract_dxdy(fx2,fxpy,fy2)
-C       if (abs((d2fdxy-adfxy)/(d2fdxy+adfxy)).gt.tol) then
-C         write(*,*)"D2FDXY: fail:",i,x%d0,y%d0,d2fdxy
-C         write(*,*)"D2FDXY: fail:",i,x%d0,y%d0,adfxy
-C         write(*,*)
-C       endif
-        write(*,*)'dfdx:'
-        write(*,*)i,fx3%d1*f13
-        write(*,*)i,dfdx
-        write(*,*)'dfdy:'
-        write(*,*)i,fy3%d1*f13
-        write(*,*)i,dfdy
-        write(*,*)'dfdz:'
-        write(*,*)i,fz3%d1*f13
-        write(*,*)i,dfdz
-        write(*,*)'d2fdx2:'
-        write(*,*)i,fx3%d2*f19
-        write(*,*)i,d2fdx2
-        write(*,*)'d2fdy2:'
-        write(*,*)i,fy3%d2*f19
-        write(*,*)i,d2fdy2
-        write(*,*)'d2fdz2:'
-        write(*,*)i,fz3%d2*f19
-        write(*,*)i,d2fdz2
-        write(*,*)'d2fdxy:'
-        write(*,*)i,f18*(fx2y%d2+fxy2%d2)-f572*(fx3%d2+fy3%d2)
-        write(*,*)i,d2fdxy
-        write(*,*)'d2fdxz:'
-        write(*,*)i,f18*(fx2z%d2+fxz2%d2)-f572*(fx3%d2+fz3%d2)
-        write(*,*)i,d2fdxz
-        write(*,*)'d2fdyz:'
-        write(*,*)i,f18*(fy2z%d2+fyz2%d2)-f572*(fy3%d2+fz3%d2)
-        write(*,*)i,d2fdyz
-        write(*,*)'d3fdx3:'
-        write(*,*)i,fx3%d3*f127
-        write(*,*)i,d3fdx3
-        write(*,*)'d3fdy3:'
-        write(*,*)i,fy3%d3*f127
-        write(*,*)i,d3fdy3
-        write(*,*)'d3fdz3:'
-        write(*,*)i,fz3%d3*f127
-        write(*,*)i,d3fdz3
-        write(*,*)'d3fdx2y:'
-        write(*,*)i,-f5162*fx3%d3+f19*fx2y%d3-f118*fxy2%d3+f181*fy3%d3
-        write(*,*)i,d3fdx2y
-        write(*,*)'d3fdx2z:'
-        write(*,*)i,-f5162*fx3%d3+f19*fx2z%d3-f118*fxz2%d3+f181*fz3%d3
-        write(*,*)i,d3fdx2z
-        write(*,*)'d3fdxy2:'
-        write(*,*)i,-f5162*fy3%d3+f19*fxy2%d3-f118*fx2y%d3+f181*fx3%d3
-        write(*,*)i,d3fdxy2
-        write(*,*)'d3fdy2z:'
-        write(*,*)i,-f5162*fy3%d3+f19*fy2z%d3-f118*fyz2%d3+f181*fz3%d3
-        write(*,*)i,d3fdy2z
-        write(*,*)'d3fdxz2:'
-        write(*,*)i,-f5162*fz3%d3+f19*fxz2%d3-f118*fx2z%d3+f181*fx3%d3
-        write(*,*)i,d3fdxz2
-        write(*,*)'d3fdyz2:'
-        write(*,*)i,-f5162*fz3%d3+f19*fyz2%d3-f118*fy2z%d3+f181*fy3%d3
-        write(*,*)i,d3fdyz2
-        write(*,*)'d3fdxyz:'
-        write(*,*)i,f16*fxyz%d3+f181*(fx3%d3+fy3%d3+fz3%d3)
-     +              -f136*(fx2y%d3+fx2z%d3+fxy2%d3+fy2z%d3
-     +                     +fxz2%d3+fyz2%d3)
-        write(*,*)i,d3fdxyz
-        write(*,*)
+        adx   = inter_d3_dx(fx3)
+        ady   = inter_d3_dx(fy3)
+        adz   = inter_d3_dx(fz3)
+        adx2  = inter_d3_dx2(fx3)
+        ady2  = inter_d3_dx2(fy3)
+        adz2  = inter_d3_dx2(fz3)
+        adxy  = inter_d3_dxy(fx3,fx2y,fxy2,fy3)
+        adxz  = inter_d3_dxy(fx3,fx2z,fxz2,fz3)
+        adyz  = inter_d3_dxy(fy3,fy2z,fyz2,fz3)
+        adx3  = inter_d3_dx3(fx3)
+        ady3  = inter_d3_dx3(fy3)
+        adz3  = inter_d3_dx3(fz3)
+        adx2y = inter_d3_dx2y(fx3,fx2y,fxy2,fy3)
+        adx2z = inter_d3_dx2y(fx3,fx2z,fxz2,fz3)
+        adxy2 = inter_d3_dx2y(fy3,fxy2,fx2y,fx3)
+        ady2z = inter_d3_dx2y(fy3,fy2z,fyz2,fz3)
+        adxz2 = inter_d3_dx2y(fz3,fxz2,fx2z,fx3)
+        adyz2 = inter_d3_dx2y(fz3,fyz2,fy2z,fy3)
+        adxyz = inter_d3_dxyz(fx3,fy3,fz3,fx2y,fx2z,fxy2,fy2z,
+     +                        fxz2,fyz2,fxyz)
+        if (abs((dfdx-adx)/(dfdx+adx)).gt.tol) then
+          write(*,*)"DX  : fail:",i,tmp(1),tmp(2),tmp(3),adx,dfdx
+          write(*,*)
+        endif
+        if (abs((dfdy-ady)/(dfdy+ady)).gt.tol) then
+          write(*,*)"DY  : fail:",i,tmp(1),tmp(2),tmp(3),ady,dfdy
+          write(*,*)
+        endif
+        if (abs((dfdz-adz)/(dfdz+adz)).gt.tol) then
+          write(*,*)"DZ  : fail:",i,tmp(1),tmp(2),tmp(3),adz,dfdz
+          write(*,*)
+        endif
+        if (abs((d2fdx2-adx2)/(d2fdx2+adx2)).gt.tol) then
+          write(*,*)"DX2 : fail:",i,tmp(1),tmp(2),tmp(3),adx2,d2fdx2
+          write(*,*)
+        endif
+        if (abs((d2fdy2-ady2)/(d2fdy2+ady2)).gt.tol) then
+          write(*,*)"DY2 : fail:",i,tmp(1),tmp(2),tmp(3),ady2,d2fdy2
+          write(*,*)
+        endif
+        if (abs((d2fdz2-adz2)/(d2fdz2+adz2)).gt.tol) then
+          write(*,*)"DZ2 : fail:",i,tmp(1),tmp(2),tmp(3),adz2,d2fdz2
+          write(*,*)
+        endif
+        if (abs((d2fdxy-adxy)/(d2fdxy+adxy)).gt.tol) then
+          write(*,*)"DXY : fail:",i,tmp(1),tmp(2),tmp(3),adxy,d2fdxy
+          write(*,*)
+        endif
+        if (abs((d2fdxz-adxz)/(d2fdxz+adxz)).gt.tol) then
+          write(*,*)"DXZ : fail:",i,tmp(1),tmp(2),tmp(3),adxz,d2fdxz
+          write(*,*)
+        endif
+        if (abs((d2fdyz-adyz)/(d2fdyz+adyz)).gt.tol) then
+          write(*,*)"DYZ : fail:",i,tmp(1),tmp(2),tmp(3),adyz,d2fdyz
+          write(*,*)
+        endif
+        if (abs((d3fdx3-adx3)/(d3fdx3+adx3)).gt.tol) then
+          write(*,*)"DX3 : fail:",i,tmp(1),tmp(2),tmp(3),adx3,d3fdx3
+          write(*,*)
+        endif
+        if (abs((d3fdy3-ady3)/(d3fdy3+ady3)).gt.tol) then
+          write(*,*)"DY3 : fail:",i,tmp(1),tmp(2),tmp(3),ady3,d3fdy3
+          write(*,*)
+        endif
+        if (abs((d3fdz3-adz3)/(d3fdz3+adz3)).gt.tol) then
+          write(*,*)"DZ3 : fail:",i,tmp(1),tmp(2),tmp(3),adz3,d3fdz3
+          write(*,*)
+        endif
+        if (abs((d3fdx2y-adx2y)/(d3fdx2y+adx2y)).gt.tol) then
+          write(*,*)"DX2Y: fail:",i,tmp(1),tmp(2),tmp(3),adx2y,d3fdx2y
+          write(*,*)
+        endif
+        if (abs((d3fdx2z-adx2z)/(d3fdx2z+adx2z)).gt.tol) then
+          write(*,*)"DX2Z: fail:",i,tmp(1),tmp(2),tmp(3),adx2z,d3fdx2z
+          write(*,*)
+        endif
+        if (abs((d3fdxy2-adxy2)/(d3fdxy2+adxy2)).gt.tol) then
+          write(*,*)"DXY2: fail:",i,tmp(1),tmp(2),tmp(3),adxy2,d3fdxy2
+          write(*,*)
+        endif
+        if (abs((d3fdy2z-ady2z)/(d3fdy2z+ady2z)).gt.tol) then
+          write(*,*)"DY2Z: fail:",i,tmp(1),tmp(2),tmp(3),ady2z,d3fdy2z
+          write(*,*)
+        endif
+        if (abs((d3fdxz2-adxz2)/(d3fdxz2+adxz2)).gt.tol) then
+          write(*,*)"DXZ2: fail:",i,tmp(1),tmp(2),tmp(3),adxz2,d3fdxz2
+          write(*,*)
+        endif
+        if (abs((d3fdyz2-adyz2)/(d3fdyz2+adyz2)).gt.tol) then
+          write(*,*)"DYZ2: fail:",i,tmp(1),tmp(2),tmp(3),adyz2,d3fdyz2
+          write(*,*)
+        endif
+        if (abs((d3fdxyz-adxyz)/(d3fdxyz+adxyz)).gt.tol) then
+          write(*,*)"DXYZ: fail:",i,tmp(1),tmp(2),tmp(3),adxyz,d3fdxyz
+          write(*,*)
+        endif
       enddo
       end
 C>
