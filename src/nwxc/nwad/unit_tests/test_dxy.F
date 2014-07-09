@@ -16,8 +16,9 @@ C>
       implicit none
       integer :: npt, i
       parameter (npt = 100)
-      type(nwad_dble) :: x, y, fx2, fy2, fpxpy, fpxmy, fmxpy, fmxmy
-      double precision dfdx, dfdy, d2fdx2, d2fdxy, d2fdy2, adfxy
+      type(nwad_dble) :: x, y, fx2, fy2, fxy
+      double precision dfdx, dfdy, d2fdx2, d2fdxy, d2fdy2
+      double precision adx, ady, adx2, adxy, ady2
       double precision tmp(2)
       double precision tol
       parameter( tol = 1.0d-10)
@@ -34,38 +35,32 @@ C>
         call subad_dxy(x,y,fy2)
         x = active(tmp(1))
         y = active(tmp(2))
-        call subad_dxy(x,y,fpxpy)
-c       x = active(tmp(1))
-c       y = active_neg(tmp(2))
-c       call subad_dxy(x,y,fpxmy)
-c       x = active_neg(tmp(1))
-c       y = active(tmp(2))
-c       call subad_dxy(x,y,fmxpy)
-c       x = active_neg(tmp(1))
-c       y = active_neg(tmp(2))
-c       call subad_dxy(x,y,fmxmy)
-c       adfxy = extract_dxdy(fx2,fxpy,fy2)
-C       if (abs((d2fdxy-adfxy)/(d2fdxy+adfxy)).gt.tol) then
-C         write(*,*)"D2FDXY: fail:",i,x%d0,y%d0,d2fdxy
-C         write(*,*)"D2FDXY: fail:",i,x%d0,y%d0,adfxy
-C         write(*,*)
-C       endif
-        write(*,*)'dfdx:'
-        write(*,*)i,fx2%d1*0.5d0
-        write(*,*)i,dfdx
-        write(*,*)'dfdy:'
-        write(*,*)i,fy2%d1*0.5d0
-        write(*,*)i,dfdy
-        write(*,*)'d2fdx2:'
-        write(*,*)i,fx2%d2*0.25d0
-        write(*,*)i,d2fdx2
-        write(*,*)'d2fdy2:'
-        write(*,*)i,fy2%d2*0.25d0
-        write(*,*)i,d2fdy2
-        write(*,*)'d2fdxy:'
-        write(*,*)i,0.5d0*(fpxpy%d2-0.25d0*(fx2%d2+fy2%d2))
-        write(*,*)i,d2fdxy
-        write(*,*)
+        call subad_dxy(x,y,fxy)
+        adx  = inter_d2_dx(fx2)
+        ady  = inter_d2_dx(fy2)
+        adx2 = inter_d2_dx2(fx2)
+        ady2 = inter_d2_dx2(fy2)
+        adxy = inter_d2_dxy(fx2,fxy,fy2)
+        if (abs((dfdx-adx)/(dfdx+adx)).gt.tol) then
+          write(*,*)"DX  : fail:",i,tmp(1),tmp(2),adx,dfdx
+          write(*,*)
+        endif
+        if (abs((dfdy-ady)/(dfdy+ady)).gt.tol) then
+          write(*,*)"DY  : fail:",i,tmp(1),tmp(2),ady,dfdy
+          write(*,*)
+        endif
+        if (abs((d2fdx2-adx2)/(d2fdx2+adx2)).gt.tol) then
+          write(*,*)"DX2 : fail:",i,tmp(1),tmp(2),adx2,d2fdx2
+          write(*,*)
+        endif
+        if (abs((d2fdxy-adxy)/(d2fdxy+adxy)).gt.tol) then
+          write(*,*)"DXY : fail:",i,tmp(1),tmp(2),adxy,d2fdxy
+          write(*,*)
+        endif
+        if (abs((d2fdy2-ady2)/(d2fdy2+ady2)).gt.tol) then
+          write(*,*)"DY2 : fail:",i,tmp(1),tmp(2),ady2,d2fdy2
+          write(*,*)
+        endif
       enddo
       end
 C>
