@@ -1886,6 +1886,7 @@ endif
        _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
        _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
        _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|awk ' /n 1/ {print "Y"; exit}')
+	   _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
         defineFCE: 
@@ -1904,11 +1905,20 @@ endif
        FDEBUG= -O2 -g
        FOPTIMIZE = -O3  -unroll  -ip
        FOPTIONS += -align
-       ifdef USE_OPENMP
-          FOPTIONS += -openmp
-          FOPTIONS += -openmp-report2
-          COPTIONS += -openmp
-          DEFINES+= -DUSE_OPENMP 
+	   ifeq ($(_IFCV15ORNEWER), Y)
+         ifdef USE_OPENMP
+           FOPTIONS += -qopenmp
+           FOPTIONS += -qopt-report-phase:openmp
+           COPTIONS += -qopenmp
+           DEFINES+= -DUSE_OPENMP 
+         endif		   
+	   else
+         ifdef USE_OPENMP
+           FOPTIONS += -openmp
+           FOPTIONS += -openmp-report2
+           COPTIONS += -openmp
+           DEFINES+= -DUSE_OPENMP 
+         endif
        endif
            
        ifdef USE_OFFLOAD
@@ -1920,14 +1930,25 @@ endif
           EXTRA_LIBS += -loffload
           DEFINES+= -DUSE_OFFLOAD
           DEFINES+= -DINTEL_64ALIGN
-          FOPTIONS += -opt-report-phase=offload
-#          FOPTIONS += -offload-option,mic,compiler,"-mP2OPT_hlo_use_const_second_pref_dist=1"
-          FOPTIONS += -offload-option,mic,compiler,"-align array64byte"
-          FOPTIONS += -align array64byte
-          FOPTIONS += -offload-option,mic,compiler,"-opt-report-phase=hlo"
-	 FOPTIONS += -offload-option,mic,compiler," -Wl,-zmuldefs"
-          FOPTIONS += -watch=mic_cmd 
-          COPTIONS += -opt-report-phase=offload
+          ifeq ($(_IFCV15ORNEWER), Y)
+            FOPTIONS += -qopt-report-phase=offload
+#           FOPTIONS += -qoffload-option,mic,compiler,"-mP2OPT_hlo_use_const_second_pref_dist=1"
+            FOPTIONS += -qoffload-option,mic,compiler,"-align array64byte"
+            FOPTIONS += -align array64byte
+            FOPTIONS += -qoffload-option,mic,compiler,"-qopt-report-phase=hlo"
+	        FOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
+            FOPTIONS += -watch=mic_cmd 
+            COPTIONS += -qopt-report-phase=offload
+		  else
+            FOPTIONS += -opt-report-phase=offload
+#           FOPTIONS += -offload-option,mic,compiler,"-mP2OPT_hlo_use_const_second_pref_dist=1"
+            FOPTIONS += -offload-option,mic,compiler,"-align array64byte"
+            FOPTIONS += -align array64byte
+            FOPTIONS += -offload-option,mic,compiler,"-opt-report-phase=hlo"
+	        FOPTIONS += -offload-option,mic,compiler," -Wl,-zmuldefs"
+            FOPTIONS += -watch=mic_cmd 
+            COPTIONS += -opt-report-phase=offload
+		  endif
        else
           ifdef USE_OPENMP
              FOPTIONS += -no-openmp-offload
@@ -1991,8 +2012,13 @@ endif
 #        COPTIONS   =   -O
       endif
       ifeq ($(_CC),icc)
+	    ICCV15ORNEWER=$(shell icc -V  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
         COPTIONS   +=   -xHOST -ftz
-	     COPTIONS   +=  -openmp-report=2 -vec-report=1
+		ifeq ($(ICCV15ORNEWER), Y)
+   	      COPTIONS   +=  -qopt-report-phase:openmp -vec-report=1
+		else
+   	      COPTIONS   +=  -openmp-report=2 -vec-report=1
+		endif
 #old        COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
         COPTIMIZE =  -O3
         COPTIMIZE += -ip -no-prec-div
