@@ -78,6 +78,7 @@ c
       cur_cub = -99
       nsubb=0
       ntot_sub=0
+      availkb=0
       rec_len_in_dbl = 4*buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call grid_buf_clear()
       call dfill(4*buffer_size, 0.0d0, values, 1)

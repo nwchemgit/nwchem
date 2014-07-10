@@ -202,7 +202,7 @@ c with subroutine calls after this one.
      ,     Ex, Ec, amat,cmat,idum1,
      ,     Amat2, Cmat2,
      ,     idum1, ldum1, ldum1, do_cpks_r,ldum1,ddum1,
-     ,     ldum1,ldum1,
+     ,     ldum1,ldum1,ldum1,
      &     ttau, kske, Mmat, Mmat2,
      ,     int_mb(k_qat),
      ,     int_mb(k_qsh),dbl_mb(irqbuf),dbl_mb(irij),rho_int,
