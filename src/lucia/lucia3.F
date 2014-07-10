@@ -1442,7 +1442,7 @@ CNW       END DO
            mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*(MATDIM-J+1)
            if (ga_nnodes().gt.1) 
      &        call ga_brdcst(icast,AUTPAK(J,J),mybyte,0)
-           DO I = J-1,MATDIM
+           DO I = J+1,MATDIM
               IF(I.NE.J) AUTPAK(J,I) = SIGN*AUTPAK(I,J)
 CNW               AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
 CNW               AUTPAK(I,J) = APAK(IJOFF+I)
