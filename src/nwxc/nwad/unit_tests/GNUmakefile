@@ -27,7 +27,8 @@ all: test_sin.log test_cos.log test_tan.log \
      test_mul.log test_mulx.log test_muly.log \
      test_div.log test_divx.log test_divy.log \
      test_pow.log test_powx.log test_powy.log \
-     test_dx.log  test_dxy.log  test_dxyz.log
+     test_dx.log  test_dxy.log  test_dxyz.log \
+     test_lt.log  test_le.log   test_gt.log   test_ge.log
 
 test_sin.log: test_sin
 	echo "Running " $^
@@ -165,6 +166,22 @@ test_dxyz.log: test_dxyz
 	echo "Running " $^
 	./test_dxyz | tee test_dxyz.log
 
+test_lt.log: test_lt
+	echo "Running " $^
+	./test_lt | tee test_lt.log
+
+test_le.log: test_le
+	echo "Running " $^
+	./test_le | tee test_le.log
+
+test_gt.log: test_gt
+	echo "Running " $^
+	./test_gt | tee test_gt.log
+
+test_ge.log: test_ge
+	echo "Running " $^
+	./test_ge | tee test_ge.log
+
 test_sin: nwad.mod submaxima_sin.o test_sin.o
 	gfortran test_sin.o submaxima_sin.o nwad.o -o test_sin
 
@@ -266,6 +283,18 @@ test_dxy: nwad.mod submaxima_dxy.o test_dxy.o
 
 test_dxyz: nwad.mod submaxima_dxyz.o test_dxyz.o
 	gfortran test_dxyz.o submaxima_dxyz.o nwad.o -o test_dxyz
+
+test_lt: nwad.mod test_lt.o
+	gfortran test_lt.o nwad.o -o test_lt
+
+test_le: nwad.mod test_le.o
+	gfortran test_le.o nwad.o -o test_le
+
+test_gt: nwad.mod test_gt.o
+	gfortran test_gt.o nwad.o -o test_gt
+
+test_ge: nwad.mod test_ge.o
+	gfortran test_ge.o nwad.o -o test_ge
 
 # NWADDEG not used yet, but planned as a way to generate modules for different
 # degrees of differentiation
