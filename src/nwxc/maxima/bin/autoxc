@@ -495,6 +495,20 @@ df3ragabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
 df3ragbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
 :=diff(df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
 
+df3rbgaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3rbgaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3rbgaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3rbgabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3rbgabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3rbgbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=diff(df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+
 /* Rho Sigma Tau */
 
 df3ragaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
