@@ -1180,7 +1180,7 @@ contains
     type(nwad_dble), intent(in) :: x
     type(nwad_dble), intent(in) :: y
     logical                     :: s
-    s = x%d0 .lt. y%d0
+    s = x%d0 .gt. y%d0
   end function nwad_dble_greaterthan
   !>
   !> \brief Return whether \f$x\f$ is greater than \f$y\f$ where the latter is
@@ -1195,7 +1195,7 @@ contains
     type(nwad_dble),  intent(in) :: x
     double precision, intent(in) :: y
     logical                      :: s
-    s = x%d0 .lt. y
+    s = x%d0 .gt. y
   end function nwad_dble_greaterthanx
   !>
   !> \brief Return whether \f$x\f$ is greater than \f$y\f$ where the former is
@@ -1210,7 +1210,7 @@ contains
     double precision, intent(in) :: x
     type(nwad_dble),  intent(in) :: y
     logical                      :: s
-    s = x .lt. y%d0
+    s = x .gt. y%d0
   end function nwad_dble_greaterthany
   !>
   !> \brief Return whether \f$x\f$ is greater than or equal to \f$y\f$
