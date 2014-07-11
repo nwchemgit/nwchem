@@ -5392,6 +5392,7 @@ C    &                  IJSM,ISM2,IPNTR,MXPOBS)
 *
       CALL MEMMAN(KL2EBLK,LBLOCK,'ADDL  ',2,'E2BLK ')
       CALL MEMMAN(KFI2BLK,LBLKMX*LBLKMX,'ADDL  ',2,'FI2BLK ')
+      call ga_zero(F2)
 *
 * FI2(IAL,IBE) = SUM(IGA,IDE) ((IAL,IBE!IGA, IDE)-0.5(IAL,IDE!IGA,IBE))
 *                             * D(IGA,IDE)
@@ -5411,7 +5412,7 @@ C    &                  IJSM,ISM2,IPNTR,MXPOBS)
        NBEOB = NTOOBS(IBESM)
        ZERO = 0.0D0
 CNW    CALL SETVEC(F2(IFOFF),ZERO,NALOB*NBEOB)
-       CALL SETVEC(dbl_mb(KFI2BLK),ZERO,LBLKMX*LBLKMX)
+       CALL SETVEC(dbl_mb(KFI2BLK),ZERO,NALOB*NBEOB)
 *
        DO IGASM = 1, NSMOB
         IABGSM = MULTD2H(IABSM,IGASM)
@@ -5459,14 +5460,12 @@ CNW     CALL MATML7(F2(IFOFF),dbl_mb(KL2EBLK),DINI(IDOFF),
         CALL MATML7(dbl_mb(KFI2BLK),dbl_mb(KL2EBLK),DINI(IDOFF),
      &              NALOB*NBEOB,1,NALOB*NBEOB,NGAOB*NDEOBL,
      &              NGAOB*NDEOBL,1,FACC,FACAB,0)
-        if (NALOB*NBEOB.gt.0)
-     &  call ga_put(F2,IFOFF,IFOFF+NALOB*NBEOB-1,1,1,dbl_mb(KFI2BLK),
-     &              NALOB*NBEOB)
 C     MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,
 C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
-
-
        END DO
+       if (NALOB*NBEOB.gt.0)
+     &  call ga_put(F2,IFOFF,IFOFF+NALOB*NBEOB-1,1,1,dbl_mb(KFI2BLK),
+     &              NALOB*NBEOB)
       END DO
       call ga_sync()
 *
@@ -5677,7 +5676,7 @@ CNW   DIMENSION FA(*)
 *. Local scratch
       DIMENSION NOBPTS_L(0:6+MXPR4T,MXPOBS)
 *
-      NTEST = 00
+      NTEST = 000
       IF(IPRINTEGRAL.GE.100) NTEST = 100
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info form FA_FROM_INI'
@@ -5719,7 +5718,7 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
       CALL TRAN_SYM_BLOC_MAT4a(dbl_mb(KLDBLK),dbl_mb(KLCT),
      &     dbl_mb(KLCBT),NSMOB,NACOBS,NTOOBS,dbl_mb(KLDINI),
      &     dbl_mb(KLSCR),0)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' Density matrix over active orbitals, initial basis'
        CALL APRBLM2(dbl_mb(KLDINI),NTOOBS,NTOOBS,NSMOB,0)
       END IF
@@ -5732,10 +5731,9 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
 *. Transform to current basis- and save result in KLCT
       CALL TRAN_SYM_BLOC_MAT4b(FA,CINI,CINIB,NSMOB,NTOOBS,NTOOBS,
      &                        dbl_mb(KLCT),dbl_mb(KLSCR),0)
-      IF(NTEST.GE.1000) THEN
-        if (ga_nodeid().eq.0) WRITE(6,*) ' FA in initial basis'
-        call ga_print(FA)
-c       CALL APRBLM2(dbl_mb(KLCT),NTOOBS,NTOOBS,NSMOB,0)
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
+        WRITE(6,*) ' FA in initial basis'
+        CALL APRBLM2(dbl_mb(KLCT),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *. Pack to lower half form
       IF(IPACK.NE.0) THEN
