@@ -5731,6 +5731,7 @@ C    &(AIN,XL,XR,NBLOCK,LX_ROW,LX_COL,AOUT,SCR,ISYM)
 *. Transform to current basis- and save result in KLCT
       CALL TRAN_SYM_BLOC_MAT4b(FA,CINI,CINIB,NSMOB,NTOOBS,NTOOBS,
      &                        dbl_mb(KLCT),dbl_mb(KLSCR),0)
+      call ga_sync()
       IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' FA in initial basis'
         CALL APRBLM2(dbl_mb(KLCT),NTOOBS,NTOOBS,NSMOB,0)
