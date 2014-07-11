@@ -1412,8 +1412,8 @@ C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 *
 *. Packing : No problem with cache misses    
 *
-      call luciaqenter('trp3g')
       IF( IWAY .EQ. 1 ) THEN
+      call luciaqenter('tr3g1')
         IJ = ICOFF
         DO J = 1,NDIM
 CNW       DO I = J , NDIM
@@ -1422,33 +1422,77 @@ CNW       END DO
           call ga_put(APAK,IJ+J,IJ+NDIM,1,1,AUTPAK(J,J),1)
           IJ = IJ +NDIM-J
         END DO   
+      call luciaqexit('tr3g1')
       END IF
 *
 * Unpacking : cache misses can occur so two routes
 *
       IF( IWAY .EQ. 2 ) THEN
 *. Blocking led to lots of small gets, now one row at a time
-        LBLK = MATDIM
-        NBLK = MATDIM/LBLK
-        JOFF = 1     
-        JEND = MATDIM
-        IOFF = JOFF
-        IEND = MATDIM
-        DO J = 1,MATDIM
-           IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
-           if (ga_nodeid().eq.0)
-     &     call ga_get(APAK,IJOFF+J,IJOFF+MATDIM,1,1,
-     &                   AUTPAK(J,J),1)
-           mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*(MATDIM-J+1)
-           if (ga_nnodes().gt.1) 
-     &        call ga_brdcst(icast,AUTPAK(J,J),mybyte,0)
-           DO I = J+1,MATDIM
-              IF(I.NE.J) AUTPAK(J,I) = SIGN*AUTPAK(I,J)
-CNW               AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
-CNW               AUTPAK(I,J) = APAK(IJOFF+I)
-           END DO
-        END DO
+       call luciaqenter('tr3g2')
+       LBLK = MATDIM
+       NBLK = MATDIM/LBLK
+       JOFF = 1     
+       JEND = MATDIM
+       IOFF = JOFF
+       IEND = MATDIM
+       IJOFF = ICOFF - 1
+       MDIM = MATDIM/2
+       mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*MATDIM
+*
+* Node zero gets all blocks and packs it for broadcast
+*
+* First complete row
+*
+       if (ga_nodeid().eq.0) 
+     &  call ga_get(APAK,IJOFF+1,IJOFF+MATDIM,1,1,
+     &             AUTPAK(1,1),1)
+       if (ga_nnodes().gt.1) call ga_brdcst(2367,AUTPAK(1,1),mybyte,0)
+*
+* Next row and it's complement from the end pack in front
+*
+       DO J = 2,MDIM
+        IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
+        if (ga_nodeid().eq.0)
+     &    call ga_get(APAK,IJOFF+J,IJOFF+MATDIM,1,1,
+     &                  AUTPAK(J,J),1)
+        K = MATDIM - J + 2
+        IJOFF = ICOFF + (K-1)*MATDIM-K*(K-1)/2 - 1
+        if (ga_nodeid().eq.0)
+     &    call ga_get(APAK,IJOFF+K,IJOFF+MATDIM,1,1,
+     &                AUTPAK(1,J),1)
+        if (ga_nnodes().gt.1) call ga_brdcst(2368,AUTPAK(1,J),mybyte,0)
+       ENDDO
+*
+* Even matrix, need the MATDIM/2+1 row
+*
+       if (MDIM*2.lt.MATDIM) then
+        J = MDIM + 1
+        IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
+        if (ga_nodeid().eq.0)
+     &    call ga_get(APAK,IJOFF+J,IJOFF+MATDIM,1,1,
+     &                AUTPAK(J,J),1)
+        mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*(J-1)
+        if (ga_nnodes().gt.1) call ga_brdcst(2369,AUTPAK(J,J),mybyte,0)
+       endif
+*
+* All nodes unpack and do their thing
+*
+       if (MDIM*2.lt.MATDIM) MDIM = MDIM+1
+       DO J = 2,MDIM
+          DO I = 1,J-1
+             AUTPAK(MATDIM-J+1+I,MATDIM-J+2) = AUTPAK(I,J)
+          ENDDO
+       ENDDO
+       DO J = 1,MATDIM
+          DO I = J+1,MATDIM
+             IF(I.NE.J) AUTPAK(J,I) = SIGN*AUTPAK(I,J)
+CNW              AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
+CNW              AUTPAK(I,J) = APAK(IJOFF+I)
+          END DO
+       END DO
 *. End of loop over I and J
+       call luciaqexit('tr3g2')
       END IF
 *
       NTEST = 0
@@ -1457,7 +1501,6 @@ CNW               AUTPAK(I,J) = APAK(IJOFF+I)
         CALL WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
 CNW     CALL PRSM2(APAK,NDIM)
       END IF
-      call luciaqexit('trp3g')
 *
       RETURN
       END
