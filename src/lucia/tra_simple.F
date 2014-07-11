@@ -1414,21 +1414,10 @@ C?     CALL WRTMAT(SCR(K1),LXC,LXC,LXC,LXC)
        SIGN = 1.0D0
        IF(ISYM.EQ.1) THEN
 CNW      CALL TRIPAK(SCR(K1),AIN(IOFFP_IN),2,LXR,LXR)
-         IJ = 0
-         IJF = 0
-         DO I = 1,LXC
-           SCR(K2+IJF+I-1) = SCR(K1+IJ+I-1)      ! (I,I)
-           DO J = 1, I-1
-             SCR(K2+IJF+J-1) = SCR(K1+IJ+J-1)    ! (I,J)
-             SCR(K2+LXC*J+I-1) = SCR(K1+IJ+J-1)  ! (J,I)
-           END DO
-           IJ = IJ + I
-           IJF = IJF + LXC
-         END DO
-         IBLK = LXC*LXC
-         if (LXC.gt.0)
-     &   call ga_put(AIN,IOFFP_IN,IOFFP_IN+IBLK-1,1,1,
-     &               SCR(K2),IBLK)
+         if (LXR.gt.0)
+     &   call ga_get(AIN,IOFFP_IN,(IOFFP_IN+LXR*(LXR+1)/2-1),1,1,
+     &               SCR(K2),LXR*LXR)
+         CALL TRIPAK(SCR(K1),SCR(K2),2,LXR,LXR)
 C             TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
        ELSE
          if (LXR.gt.0) call
