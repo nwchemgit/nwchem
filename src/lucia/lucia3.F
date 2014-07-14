@@ -1466,7 +1466,7 @@ CNW       END DO
 *
 * Even matrix, need the MATDIM/2+1 row
 *
-       if (MDIM*2.lt.MATDIM) then
+       if (MDIM*2.eq.MATDIM) then
         J = MDIM + 1
         IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
         if (ga_nodeid().eq.0)
