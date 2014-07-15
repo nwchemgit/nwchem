@@ -2137,7 +2137,7 @@ endif
 
      ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
-     EXTRA_LIBS +=    -lnwcutil  -lpthread -lutil -ldl
+     EXTRA_LIBS += -lnwcutil  -lpthread -lutil -ldl -lz
   LDOPTIONS = -Wl,--export-dynamic 
      endif
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
