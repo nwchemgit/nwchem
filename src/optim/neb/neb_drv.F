@@ -252,9 +252,9 @@ c
       goodjj = 0
       time_step0 = time_step
 
-      do i=1,ng
-       write(*,*) "i,c1(i)=",i,dbl_mb(c1(1)+i-1)
-      end do
+c      do i=1,ng
+c       write(*,*) "i,c1(i)=",i,dbl_mb(c1(1)+i-1)
+c      end do
 
       call neb_path_energy(bead_list,
      >                     path_distance,
