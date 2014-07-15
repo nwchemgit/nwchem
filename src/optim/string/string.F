@@ -378,8 +378,6 @@ C> @}
       implicit none
       
 ! External stuff
-      logical task_gradient, task_energy
-      external task_gradient, task_energy
       real*8 zts_distance
       external zts_distance
       integer ga_nodeid
@@ -1549,7 +1547,7 @@ C> @}
 #include "inp.fh"
 
 *     **** local variables ****
-      logical skip1,skip2,status,oprint
+      logical skip1,skip2,status,oprint,ignore
       integer i,j,k
       integer permlen,movecslen
       character*255 movecs_name,perm_name
@@ -1595,6 +1593,8 @@ C> @}
             end if
 
 *           *** run gradient task ***
+            if (.not.rtdb_get(rtdb,"task:ignore",mt_log,1,ignore))
+     >         ignore = .false.
             if(.not.rtdb_put(rtdb,"scf:converged",mt_log,1,.false.))
      >        call errquit('scf:converged put',0,0)
             if(.not.rtdb_put(rtdb,"dft:converged",mt_log,1,.false.))
@@ -1602,7 +1602,7 @@ C> @}
 
             if (oprint) write(*,*) "string: running bead ",i
             call ga_sync()
-            if ( .not. task_gradient(rtdb))
+            if ( .not. (task_gradient(rtdb).or.ignore))
      >         call errquit('zts_meps: gradient failed',0, 0)
 
 
