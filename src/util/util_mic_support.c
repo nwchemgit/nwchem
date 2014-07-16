@@ -59,6 +59,7 @@ int offload_master_(){
   }  else{
     if(GA_Nodeid()%(ppn/ranks_per_device/util_mic_get_num_devices_()) == 0) nnn = 1;
   }
+
 #ifdef DEBUG2
   /* internal check valid only for Cascade */
   if((GA_Nodeid()%2 == 0) && (nnn != 1) ){
@@ -69,7 +70,7 @@ int offload_master_(){
       fflush(stdout);
       free(myhostname);
     GA_Error("offload master check error", 0L);
-  }
+}
 
 #endif
   return nnn;
@@ -158,11 +159,16 @@ int util_mic_get_num_devices_() {
 }
 
 int util_mic_get_device_() {
+        int count;
 	if (!offload_master_()) {
 		fprintf(stdout, "%02d: need to be offload master\n", GA_Nodeid());
 		GA_Error("util_mic_get_device error", 0L);
 	}
-	return ((util_my_smp_index()/(util_cgetppn()/util_mic_get_num_devices_())));
+        count = util_cgetppn()/util_mic_get_num_devices_();
+        if (count > 0) {
+          count=util_my_smp_index()/(util_cgetppn()/util_mic_get_num_devices_());
+        }
+	return count;
 
 
 }
