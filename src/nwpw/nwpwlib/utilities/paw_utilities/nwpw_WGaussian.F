@@ -30,7 +30,7 @@ c
       real*8  sa,sb,Rab(3)
  
 *     *** local variables ***
-      integer l,m,fac
+      integer l,m,fac,fac2
       real*8 c,x,y,pi,tmp,mtmp,alpha
       real*8 cos_theta,phi,R
 
@@ -53,13 +53,13 @@ c
          phi = datan2(Rab(2),Rab(1))
       end if
 
-      if (mod(2*la+lb,1).eq.1) then 
+      if (mod(2*la+lb,2).eq.1) then 
          c = -32.0d0*pi/(x*y)
       else
          c = 32.0d0*pi/(x*y)
       end if
 
-      if (mod((abs(la-lb)+la+lb)/2,1).eq.1) then 
+      if (mod((abs(la-lb)+la+lb)/2,2).eq.1) then 
          fac = -1
       else
          fac = 1
@@ -129,13 +129,13 @@ c
       cos_theta = Rab(3)/R
       phi       = datan2(Rab(2),Rab(1))
 
-      if (mod(2*la+lb,1).eq.1) then 
+      if (mod(2*la+lb,2).eq.1) then 
          c = -32.0d0*pi/(x*y)
       else
          c = 32.0d0*pi/(x*y)
       end if
 
-      if (mod((abs(la-lb)+la+lb)/2,1).eq.1) then 
+      if (mod((abs(la-lb)+la+lb)/2,2).eq.1) then 
          fac = -1
       else
          fac = 1

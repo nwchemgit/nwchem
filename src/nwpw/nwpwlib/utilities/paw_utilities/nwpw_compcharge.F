@@ -2880,9 +2880,9 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
                   if (mod(pcount,np).eq.taskid) then
                      e1 = 0.0d0
                      do l=2,nshl3d
-                        Rab(1) = dbl_mb(rcell+l-1)
-                        Rab(2) = dbl_mb(rcell+l-1+nshl3d)
-                        Rab(3) = dbl_mb(rcell+l-1+2*nshl3d)
+                        Rab(1) = -dbl_mb(rcell+l-1)
+                        Rab(2) = -dbl_mb(rcell+l-1+nshl3d)
+                        Rab(3) = -dbl_mb(rcell+l-1+2*nshl3d)
                         R = dsqrt(Rab(1)**2 + Rab(2)**2 + Rab(3)**2)
                         if (R.lt.(4*sigma_smooth)) then
                            W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s1,Rab)
@@ -2893,10 +2893,11 @@ c     >                                         l2,m2,s1,Rab)
                            W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
                            !e1=e1+0.5d0*W1+0.5d0*W4-0.5d0*W2-0.5d0*W3
-                           e1=e1+W1+W4-2.0d0*W2
                            !e1=e1+0.5d0*W1+0.5d0*W4-W2
+                           e1=e1+(W1+W4-2.0d0*W2)
                         end if
                      end do
+
                      if (dabs(e1).gt.tole) then
                         dbl_mb(e_gauss(1)+indx) = e1
                         int_mb(lm1_gauss(1)+indx) 
@@ -2947,9 +2948,9 @@ c     >                                         l2,m2,s1,Rab)
                      de1(2) = 0.0d0
                      de1(3) = 0.0d0
                      do l=1,nshl3d
-                        Rab(1) = R12(1) + dbl_mb(rcell+l-1)
-                        Rab(2) = R12(2) + dbl_mb(rcell+l-1+nshl3d)
-                        Rab(3) = R12(3) + dbl_mb(rcell+l-1+2*nshl3d)
+                        Rab(1) = R12(1) - dbl_mb(rcell+l-1)
+                        Rab(2) = R12(2) - dbl_mb(rcell+l-1+nshl3d)
+                        Rab(3) = R12(3) - dbl_mb(rcell+l-1+2*nshl3d)
                         R = dsqrt(Rab(1)**2 + Rab(2)**2 + Rab(3)**2)
                         if (R.lt.(4*sigma_smooth)) then
                         if (move) then
@@ -2964,10 +2965,10 @@ c     >                                         l2,m2,s1,Rab)
                            call nwpw_dWGaussian(l1,m1,sigma_smooth,
      >                                          l2,m2,sigma_smooth,Rab,
      >                                          W4,dW4)
-                           e1 = e1 + W1 + W4 - W2 - W3
-                           de1(1)=de1(1)+dW1(1)+dW4(1)-dW2(1)-dW3(1)
-                           de1(2)=de1(2)+dW1(2)+dW4(2)-dW2(2)-dW3(2)
-                           de1(3)=de1(3)+dW1(3)+dW4(3)-dW2(3)-dW3(3)
+                           e1 = e1 + (W1 + W4 - W2 - W3)
+                           de1(1)=de1(1)+(dW1(1)+dW4(1)-dW2(1)-dW3(1))
+                           de1(2)=de1(2)+(dW1(2)+dW4(2)-dW2(2)-dW3(2))
+                           de1(3)=de1(3)+(dW1(3)+dW4(3)-dW2(3)-dW3(3))
 
                         else
                            W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s2,Rab)
@@ -2977,7 +2978,7 @@ c     >                                         l2,m2,s1,Rab)
      >                                      l2,m2,s2,Rab)
                            W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
-                           e1 = e1 + W1 + W4 - W2 - W3
+                           e1 = e1 + (W1 + W4 - W2 - W3)
                         end if
                         end if
                      end do
@@ -3149,26 +3150,20 @@ c      !ljc = 1
 
 c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
 c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
-c         if ((iic.eq.iii).and.(lic.eq.l1).and.
-c     >       (jjc.eq.jjj).and.(ljc.eq.l2)) then
-c            etest = etest + q1*q2*dbl_mb(e_gauss(1)+k-1)
-c         end if
-
+c         etest= q1*q2*dbl_mb(e_gauss(1)+k-1)
+c         if (dabs(etest).gt.1.0d-9) 
+c     >    write(*,'(A,6I3,2E11.3,F14.9)') "ii,li,mi,jj,lj,mj=", 
+c     >      iii,l1,m1,jjj,l2,m2,q1,q2,etest
+c
+cc         if ((iic.eq.iii).and.(lic.eq.l1).and.
+cc     >       (jjc.eq.jjj).and.(ljc.eq.l2)) then
+cc            etest = etest + q1*q2*dbl_mb(e_gauss(1)+k-1)
+cc         end if
+c
       end do
+
       call Parallel_SumAll(E)
 
-      
-c      call Parallel_SumAll(etest)
-c      write(*,'(A,4I4,E25.15)') 
-c     >  "ii,jj,li,lj,etest=",iic,jjc,lic,ljc,etest
-c      etest2= etest2 + etest
-c      end do
-c      end do
-c      write(*,*)
-c      write(*,'(A,2I4,E25.15)') " EE(ii,jj)",iic,jjc,etest2
-c      write(*,*)
-c      end do
-c      end do
 
       nwpw_compcharge_E_multipole = E
       return
