@@ -15,6 +15,7 @@
 #include "util.fh"
 #include "cscfps.fh"
 #include "cosmo.fh"
+#include "geom.fh"
 #include "case.fh"
 #include "frozemb.fh"
 c     
@@ -143,6 +144,12 @@ c
       external xc_hfexch
 c
       integer itype_wfn
+c     AOR begin                                                                 
+      double precision exdm
+      integer ixdm_v, ixdm_a, ixdm_ml, natoms
+      external xc_xdm_lxdm
+      integer xc_xdm_lxdm
+c     AOR end         
       logical odebug
       character*255 cosmo_file
 c
@@ -435,6 +442,21 @@ c
       if (xc_gotxc()) then
         call fock_xc(geom, nbf, basis, nfockxc, iv_dens(4), iv_fock(4),
      +               Exc, nExc,.false.)
+c     AOR begin
+        call xc_xdm_init(rtdb,ixdm_v,ixdm_ml)
+        if (.not. rtdb_put(rtdb,'dft:xdmsave', mt_log, 1, .false.)) 
+     &  call errquit('dftrocks: rtdbput failed ',0,RTDB_ERR)
+
+        if (xc_xdm_lxdm() .eq. 1) then
+           if(.not.geom_ncent(geom, natoms)) call 
+     c          errquit('geomncent failed ',0,GEOM_ERR)
+           call xc_xdm(rtdb,iv_dens(4),iv_fock(4),natoms,nexc,exdm,
+     D          dum,dbl_mb(ixdm_v),dbl_mb(ixdm_ml),'energy')
+         exc = exc + exdm
+c     deallocate xdm arrays
+         call xc_xdm_cleanup(rtdb)
+      endif
+c     AOR end
       endif
       if(util_print('dft timings', print_high))
      &      time2_xc=util_cpusec()   ! end xc build time

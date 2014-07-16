@@ -969,3 +969,10 @@ c rho(r) = sum_i C_i * exp(-r/zeta_i)
       xdm_rhop = xdm_rhop + rc7(iz) * exp(-r/zeta7(iz))
 
       end
+      integer function xc_xdm_lxdm()
+      implicit none
+
+#include "cdft.fh"
+      xc_xdm_lxdm=lxdm
+      return
+      end
