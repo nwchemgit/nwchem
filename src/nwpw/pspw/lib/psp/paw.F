@@ -2984,6 +2984,7 @@ c     >                          l_prj(i),m_prj(i))
 
 *           **** multipole energy ****
             eh = nwpw_compcharge_E_multipole(ispin)
+c            write(*,*) "mult-mult=",eh
 
             ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                       dng_cmp_smooth(2),dng_cmp_smooth(1))
@@ -3002,7 +3003,6 @@ c     >                          l_prj(i),m_prj(i))
 
 *           **** add cmp energies ****
             eh = eh + (e1-0.5d0*e2)*lattice_omega()
-
 
 
             ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))

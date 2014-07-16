@@ -2209,7 +2209,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
 *     *** local variables ***
       integer pcount,taskid_j,np_j
-      integer G(3),npack0,npack1,nion,nu,mult_l,m,ms
+      integer G(3),npack0,npack1,nion,nu,mult_l,m,ms,lm
       integer i,j,ii,ia,l,n,nn,l1,ip,iip,iipmax,jp,swstart
       integer k,shift,l_prj,m_prj,nproj,Gijl_indx
       integer nx,ny,nz
@@ -2285,6 +2285,9 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 *           **** phase factor does not matter therefore ****
 *           **** (-i)^l is the same as (i)^l in the     ****
 *           **** Rayleigh scattering formula            ****
+
+*           **** phase fact DOES matter for compensation charge!!!!     ****
+*           **** assume that sign factor for proj is in kbpp formatting ****
 
 *           *** current function is s or d ****
             if (sd_function) then
@@ -2372,6 +2375,21 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
          end if
       end do
+
+c*     *** debug printing ***
+c      do ii=1,nion
+c         ia = ion_katm(ia)
+c         lm = 1
+c         do l=0,nwpw_compcharge_mult_l(ia)
+c         do m=-l,l
+c            ff(1) = nwpw_compcharge_Qlm(1,ii,l,m)
+c     >            + nwpw_compcharge_Qlm(ispin,ii,l,m)
+c            write(*,'(A,4I2,F16.6)') 'Qlm=',ii,l,m,lm,ff(1)
+c            lm = lm + 1
+c         end do
+c         end do
+c      end do
+c*     *** debug printing ***
 
 
 *     **** paw operations #2 - generate vcmp,.... and Gaussian Multipole  ****
@@ -2535,6 +2553,7 @@ c            call nwpw_compcharge_zero_dE_Qlm()
      >        call errquit('v_nonlocal:popping stack',5,MA_ERR)
          end if
 
+         !call nwpw_compcharge_zero_dE_Qlm()
          call nwpw_compcharge_add_dElocal_Qlm(ispin)
 
          do ip=1,nion_prj_indx
