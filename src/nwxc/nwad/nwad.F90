@@ -1,3 +1,4 @@
+#if !defined(NWAD_DEG)
 !> @defgroup nwad NW Automatic Differentiation
 !>   @ingroup nwxc_priv
 !>
@@ -229,7 +230,19 @@
 !>
 !> Huub van Dam, 2014
 !>
-module nwad
+#endif
+#if !defined(NWAD_DEG)
+#define NWAD_DEG 0
+#endif
+#if NWAD_DEG <= 0
+module nwad0
+#elif NWAD_DEG <= 1
+module nwad1
+#elif NWAD_DEG <= 2
+module nwad2
+#else
+module nwad3
+#endif
   !>
   !> The data type to hold a double precision value and the derivatives of this
   !> expression with respect to the sum of the active variables. I.e. the
@@ -241,9 +254,15 @@ module nwad
   !>
   type :: nwad_dble
     double precision :: d0
+#if NWAD_DEG >= 1
     double precision :: d1
+#endif
+#if NWAD_DEG >= 2
     double precision :: d2
+#endif
+#if NWAD_DEG >= 3
     double precision :: d3
+#endif
   end type nwad_dble
   interface assignment (=)
     module procedure nwad_dble_assign
@@ -370,18 +389,21 @@ module nwad
     module procedure nwad_dble_active
     module procedure nwad_dble_active_n
   end interface
-  interface active_neg
-    module procedure nwad_dble_active_neg
-  end interface
+! interface active_neg
+!   module procedure nwad_dble_active_neg
+! end interface
   interface inactive
     module procedure nwad_dble_inactive
   end interface
   interface value
     module procedure nwad_dble_value
   end interface
+#if NWAD_DEG >= 1
   interface inter_d1_dx
     module procedure nwad_dble_inter_d1_dx
   end interface
+#endif
+#if NWAD_DEG >= 2
   interface inter_d2_dx
     module procedure nwad_dble_inter_d2_dx
   end interface
@@ -391,6 +413,8 @@ module nwad
   interface inter_d2_dxy
     module procedure nwad_dble_inter_d2_dxy
   end interface
+#endif
+#if NWAD_DEG >= 3
   interface inter_d3_dx
     module procedure nwad_dble_inter_d3_dx
   end interface
@@ -409,6 +433,7 @@ module nwad
   interface inter_d3_dxyz
     module procedure nwad_dble_inter_d3_dxyz
   end interface
+#endif
 contains
   !>
   !> \brief Assign a value to an inactive variable
@@ -427,9 +452,15 @@ contains
     double precision, intent(in) :: x
     type(nwad_dble), intent(out) :: s
     s%d0 = x
+#if NWAD_DEG >= 1
     s%d1 = 0
+#endif
+#if NWAD_DEG >= 2
     s%d2 = 0
+#endif
+#if NWAD_DEG >= 3
     s%d3 = 0
+#endif
   end subroutine nwad_dble_assign
   !>
   !> Find the maximum value of the arguments
@@ -589,9 +620,15 @@ contains
     type(nwad_dble), intent(in) :: y
     type(nwad_dble)             :: s
     s%d0 = x%d0 + y%d0
+#if NWAD_DEG >= 1
     s%d1 = x%d1 + y%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2 + y%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3 + y%d3
+#endif
   end function nwad_dble_add
   !>
   !> \brief Evaluate the addition where \f$y\f$ is inactive
@@ -604,9 +641,15 @@ contains
     double precision, intent(in) :: y
     type(nwad_dble)              :: s
     s%d0 = x%d0 + y
+#if NWAD_DEG >= 1
     s%d1 = x%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3
+#endif
   end function nwad_dble_addx
   !>
   !> \brief Evaluate the addition where \f$x\f$ is inactive
@@ -619,9 +662,15 @@ contains
     type(nwad_dble),  intent(in) :: y
     type(nwad_dble)              :: s
     s%d0 = x + y%d0
+#if NWAD_DEG >= 1
     s%d1 =     y%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 =     y%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 =     y%d3
+#endif
   end function nwad_dble_addy
   !>
   !> \brief Evaluation of the subtraction operator
@@ -634,9 +683,15 @@ contains
     type(nwad_dble), intent(in) :: x, y
     type(nwad_dble)             :: s
     s%d0 = x%d0 - y%d0
+#if NWAD_DEG >= 1
     s%d1 = x%d1 - y%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2 - y%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3 - y%d3
+#endif
   end function nwad_dble_sub
   !>
   !> \brief Evaluation of the subtraction operator where \f$y\f$ is inactive
@@ -649,9 +704,15 @@ contains
     double precision, intent(in) :: y
     type(nwad_dble)              :: s
     s%d0 = x%d0 - y
+#if NWAD_DEG >= 1
     s%d1 = x%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3
+#endif
   end function nwad_dble_subx
   !>
   !> \brief Evaluation of the subtraction operator where \f$x\f$ is inactive
@@ -664,9 +725,15 @@ contains
     type(nwad_dble), intent(in)  :: y
     type(nwad_dble)              :: s
     s%d0 = x - y%d0
+#if NWAD_DEG >= 1
     s%d1 =   - y%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 =   - y%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 =   - y%d3
+#endif
   end function nwad_dble_suby
   !>
   !> \brief Evaluate the multiplicition operator and its derivatives
@@ -705,11 +772,17 @@ contains
     type(nwad_dble), intent(in) :: x, y
     type(nwad_dble)             :: s
     s%d0 =    x%d0 * y%d0
+#if NWAD_DEG >= 1
     s%d1 =    x%d1 * y%d0 +     x%d0 * y%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 =    x%d2 * y%d0 + 2 * x%d1 * y%d1 + &
               x%d0 * y%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 =    x%d3 * y%d0 + 3 * x%d2 * y%d1 + &
            3* x%d1 * y%d2 +     x%d0 * y%d3
+#endif
   end function nwad_dble_mult
   !>
   !> \brief Evaluate the multiplication operator where \f$y\f$ is inactive
@@ -722,9 +795,15 @@ contains
     double precision, intent(in) :: y
     type(nwad_dble)              :: s
     s%d0 = x%d0 * y
+#if NWAD_DEG >= 1
     s%d1 = x%d1 * y
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2 * y
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3 * y
+#endif
   end function nwad_dble_multx
   !>
   !> \brief Evaluate the multiplication operator where \f$x\f$ is inactive
@@ -737,9 +816,15 @@ contains
     type(nwad_dble), intent(in)  :: y
     type(nwad_dble)              :: s
     s%d0 = x * y%d0
+#if NWAD_DEG >= 1
     s%d1 = x * y%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x * y%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x * y%d3
+#endif
   end function nwad_dble_multy
   !>
   !> \brief Evaluate the division operator
@@ -792,9 +877,14 @@ contains
     type(nwad_dble), intent(in) :: x, y
     type(nwad_dble)             :: s
     s%d0 = x%d0 / y%d0
+#if NWAD_DEG >= 1
     s%d1 = x%d1 / y%d0               -     x%d0 * y%d1 / (y%d0 ** 2)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2 / y%d0               - 2 * x%d1 * y%d1 / (y%d0 ** 2) &
          - x%d0 * y%d2 / (y%d0 ** 2) + 2 * x%d0 * y%d1 ** 2 / (y%d0 ** 3)
+#endif
+#if NWAD_DEG >= 3
     s%d3 =     x%d3               /  y%d0       &
          - 3 * x%d2 * y%d1        / (y%d0 ** 2) &
          + 6 * x%d1 * y%d1 ** 2   / (y%d0 ** 3) &
@@ -802,6 +892,7 @@ contains
          - 3 * x%d1 * y%d2        / (y%d0 ** 2) &
          + 6 * x%d0 * y%d1 * y%d2 / (y%d0 ** 3) &
          -     x%d0 * y%d3        / (y%d0 ** 2)
+#endif
   end function nwad_dble_div
   !>
   !> \brief Evaluate the division operator where \f$y\f$ is inactive
@@ -814,9 +905,15 @@ contains
     double precision, intent(in) :: y
     type(nwad_dble)              :: s
     s%d0 = x%d0 / y
+#if NWAD_DEG >= 1
     s%d1 = x%d1 / y
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2 / y
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3 / y
+#endif
   end function nwad_dble_divx
   !>
   !> \brief Evaluate the division operator where \f$x\f$ is inactive
@@ -848,11 +945,17 @@ contains
     type(nwad_dble), intent(in)  :: y
     type(nwad_dble)              :: s
     s%d0 =   x / y%d0
+#if NWAD_DEG >= 1
     s%d1 = - x * y%d1 / (y%d0 ** 2)
+#endif
+#if NWAD_DEG >= 2
     s%d2 =   2 * x * y%d1 ** 2 / (y%d0 ** 3) - x * y%d2 / (y%d0 ** 2)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = -     x * y%d3        / (y%d0 ** 2) &
            + 6 * x * y%d1 * y%d2 / (y%d0 ** 3) &
            - 6 * x * y%d1 ** 3   / (y%d0 ** 4)
+#endif
   end function nwad_dble_divy
   !>
   !> \brief Evaluate the exponentiation operator
@@ -915,10 +1018,15 @@ contains
     type(nwad_dble), intent(in) :: x, y
     type(nwad_dble)             :: s
     s%d0 = x%d0**y%d0
+#if NWAD_DEG >= 1
     s%d1 = x%d0**y%d0*(log(x%d0)*y%d1 + (y%d0/x%d0)*x%d1)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d0**y%d0*(log(x%d0)*y%d2 + (2.0d0/x%d0)*x%d1*y%d1 &
                       +(y%d0/x%d0)*x%d2 - (y%d0/x%d0**2)*x%d1**2) &
          + x%d0**y%d0*(log(x%d0)*y%d1 + (y%d0/x%d0)*x%d1)**2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d0**y%d0* &
            (log(x%d0)*y%d3 + (3.0d0/x%d0)*x%d1*y%d2 &
             +(3.0d0/x%d0)*x%d2*y%d1 + (y%d0/x%d0)*x%d3 &
@@ -928,6 +1036,7 @@ contains
            (log(x%d0)*y%d2 + (2.0d0/x%d0)*x%d1*y%d1 &
             +(y%d0/x%d0)*x%d2 - (y%d0/x%d0**2)*x%d1**2) &
          + x%d0**y%d0*(log(x%d0)*y%d1 + (y%d0/x%d0)*x%d1)**3
+#endif
   end function nwad_dble_pow
   !>
   !> \brief Evaluate the exponentiation operator where \f$y\f$ is inactive
@@ -959,12 +1068,18 @@ contains
     double precision, intent(in) :: y
     type(nwad_dble)              :: s
     s%d0 = x%d0**y
+#if NWAD_DEG >= 1
     s%d1 = x%d1*y*x%d0**(y - 1.0d0)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d1**2 * y*(y-1.0d0)*x%d0**(y - 2.0d0) + &
            x%d2    * y*x%d0**(y - 1.0d0)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d1**3    * y*(y-1.0d0)*(y-2.0d0)*x%d0**(y - 3.0d0) + &
            x%d1*x%d2  * 3*y*(y-1.0d0)*x%d0**(y - 2.0d0) + &
            x%d3       * y*x%d0**(y - 1.0d0)
+#endif
   end function nwad_dble_powx
   !>
   !> \brief Evaluate the exponentiation operator where \f$x\f$ is inactive
@@ -992,9 +1107,15 @@ contains
     type(nwad_dble), intent(in)  :: y
     type(nwad_dble)              :: s
     s%d0 = x**y%d0
+#if NWAD_DEG >= 1
     s%d1 = x**y%d0*log(x)*y%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x**y%d0*(log(x)*y%d2 + (log(x)*y%d1)**2)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x**y%d0*(log(x)*y%d3 + 3*log(x)**2*y%d1*y%d2+(log(x)*y%d1)**3)
+#endif
   end function nwad_dble_powy
   !>
   !> \brief Return whether \f$x\f$ equals \f$y\f$
@@ -1319,19 +1440,33 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = abs(x%d0)
+#if NWAD_DEG >= 1
     if (x%d0.lt.0.0d0) then
       s%d1 = -x%d1
+#if NWAD_DEG >= 2
       s%d2 = -x%d2
+#endif
+#if NWAD_DEG >= 3
       s%d3 = -x%d3
+#endif
     else if (x%d0.gt.0.0d0) then
       s%d1 =  x%d1
+#if NWAD_DEG >= 2
       s%d2 =  x%d2
+#endif
+#if NWAD_DEG >= 3
       s%d3 =  x%d3
+#endif
     else
       s%d1 =  0.0d0
+#if NWAD_DEG >= 2
       s%d2 =  0.0d0
+#endif
+#if NWAD_DEG >= 3
       s%d3 =  0.0d0
+#endif
     endif
+#endif
   end function nwad_dble_abs
   !>
   !> \brief Evaluate the unary negation operator \f$-\f$
@@ -1343,9 +1478,15 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = -x%d0
+#if NWAD_DEG >= 1
     s%d1 = -x%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = -x%d2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = -x%d3
+#endif
   end function nwad_dble_minus
   !>
   !> \brief Evaluate the \f$\sqrt{\;\;\;}\f$ function
@@ -1374,10 +1515,16 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = sqrt(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = 0.5d0/sqrt(x%d0)*x%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = 0.5d0/sqrt(x%d0)*x%d2-0.25d0/(x%d0*sqrt(x%d0))*x%d1**2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = 0.5d0/sqrt(x%d0)*x%d3-0.75d0/(x%d0*sqrt(x%d0))*x%d1*x%d2 &
          + 3.0d0/(8.0d0*x%d0**2*sqrt(x%d0))*x%d1**3
+#endif
   end function nwad_dble_sqrt
   !>
   !> \brief Evaluate the \f$\exp\f$ function
@@ -1389,9 +1536,15 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = exp(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1*exp(x%d0)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2*exp(x%d0) + x%d1**2*exp(x%d0)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3*exp(x%d0) + 3*x%d1*x%d2*exp(x%d0) + x%d1**3*exp(x%d0)
+#endif
   end function nwad_dble_exp
   !>
   !> \brief Evaluate the \f$\log\f$ function
@@ -1418,9 +1571,15 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = log(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1/x%d0
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2/x%d0 - (x%d1/x%d0)**2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3/x%d0 - 3*(x%d1/x%d0)*(x%d2/x%d0) + 2*(x%d1/x%d0)**3
+#endif
   end function nwad_dble_log
   !>
   !> \brief Evaluate the \f$\sin\f$ function
@@ -1444,9 +1603,15 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = sin(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1*cos(x%d0)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2*cos(x%d0) - x%d1**2*sin(x%d0)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3*cos(x%d0) - 3*x%d1*x%d2*sin(x%d0) - x%d1**3*cos(x%d0)
+#endif
   end function nwad_dble_sin
   !>
   !> \brief Evaluate the \f$\cos\f$ function
@@ -1470,9 +1635,15 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = cos(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = -x%d1*sin(x%d0)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = -x%d2*sin(x%d0) - x%d1**2*cos(x%d0)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = -x%d3*sin(x%d0) - 3*x%d1*x%d2*cos(x%d0) + x%d1**3*sin(x%d0)
+#endif
   end function nwad_dble_cos
   !>
   !> \brief Evaluate the \f$\tan\f$ function
@@ -1500,10 +1671,16 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = tan(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1/cos(x%d0)**2
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2/cos(x%d0)**2 + x%d1**2*(2*tan(x%d0)/cos(x%d0)**2)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3/cos(x%d0)**2 + 6*x%d1*x%d2*tan(x%d0)/cos(x%d0)**2 &
          + 4*x%d1**3*tan(x%d0)**2/cos(x%d0)**2 + 2*x%d1**3/cos(x%d0)**4
+#endif
   end function nwad_dble_tan
   !>
   !> \brief Evaluate the \f$\sinh\f$ function
@@ -1527,9 +1704,15 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = sinh(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1*cosh(x%d0)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2*cosh(x%d0) + x%d1**2*sinh(x%d0)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3*cosh(x%d0) + 3*x%d1*x%d2*sinh(x%d0) + x%d1**3*cosh(x%d0)
+#endif
   end function nwad_dble_sinh
   !>
   !> \brief Evaluate the \f$\cosh\f$ function
@@ -1553,9 +1736,15 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = cosh(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1*sinh(x%d0)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2*sinh(x%d0) + x%d1**2*cosh(x%d0)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3*sinh(x%d0) + 3*x%d1*x%d2*cosh(x%d0) + x%d1**3*sinh(x%d0)
+#endif
   end function nwad_dble_cosh
   !>
   !> \brief Evaluate the \f$\tanh\f$ function
@@ -1583,10 +1772,16 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = tanh(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1/cosh(x%d0)**2
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2/cosh(x%d0)**2 - x%d1**2*(2*tanh(x%d0)/cosh(x%d0)**2)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3/cosh(x%d0)**2 - 6*x%d1*x%d2*tanh(x%d0)/cosh(x%d0)**2 &
          + 4*x%d1**3*tanh(x%d0)**2/cosh(x%d0)**2 - 2*x%d1**3/cosh(x%d0)**4
+#endif
   end function nwad_dble_tanh
   !>
   !> \brief Evaluate the \f$\mathrm{asin}\f$ function
@@ -1617,13 +1812,19 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = asin(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0))
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0)) &
          + x%d0*(x%d1**2.0d0)/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0))
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0)) &
          + 3.0d0*x%d0*x%d1*x%d2/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0)) &
          + (x%d1**3.0d0)/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0)) &
          + 3.0d0*(x%d0**2.0d0)*(x%d1**3.0d0)/((1.0d0-x%d0*x%d0)**(5.0d0/2.0d0))
+#endif
   end function nwad_dble_asin
   !>
   !> \brief Evaluate the \f$\mathrm{acos}\f$ function
@@ -1654,13 +1855,19 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = acos(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = -x%d1/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0))
+#endif
+#if NWAD_DEG >= 2
     s%d2 = -x%d2/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0)) &
          - x%d0*(x%d1**2.0d0)/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0))
+#endif
+#if NWAD_DEG >= 3
     s%d3 = -x%d3/((1.0d0-x%d0*x%d0)**(1.0d0/2.0d0)) &
          - 3.0d0*x%d0*x%d1*x%d2/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0)) &
          - (x%d1**3.0d0)/((1.0d0-x%d0*x%d0)**(3.0d0/2.0d0)) &
          - 3.0d0*(x%d0**2.0d0)*(x%d1**3.0d0)/((1.0d0-x%d0*x%d0)**(5.0d0/2.0d0))
+#endif
   end function nwad_dble_acos
   !>
   !> \brief Evaluate the \f$\mathrm{atan}\f$ function
@@ -1691,13 +1898,19 @@ contains
     type(nwad_dble), intent(in)  :: x
     type(nwad_dble)              :: s
     s%d0 = atan(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = x%d1/(1.0d0+x%d0*x%d0)
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2/(1.0d0+x%d0*x%d0) &
          - 2.0d0*x%d0*(x%d1**2.0d0)/((1.0d0+x%d0*x%d0)**2.0d0)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3/(1.0d0+x%d0*x%d0) &
          - 6.0d0*x%d0*x%d1*x%d2/((1.0d0+x%d0*x%d0)**2.0d0) &
          - 2.0d0*(x%d1**3.0d0)/((1.0d0+x%d0*x%d0)**2.0d0) &
          + 8.0d0*(x%d0**2.0d0)*(x%d1**3.0d0)/((1.0d0+x%d0*x%d0)**3.0d0)
+#endif
   end function nwad_dble_atan
   !>
   !> \brief Evaluate the \f$\mathrm{asinh}\f$ function
@@ -1733,10 +1946,16 @@ contains
     t1 = 1.0d0 + x%d0*x%d0
     t12 = sqrt(t1)
     s%d0 = log(x%d0+t12)
+#if NWAD_DEG >= 1
     s%d1 = x%d1/t12
+#endif
+#if NWAD_DEG >= 2
     s%d2 = x%d2/t12 - x%d1**2*x%d0/(t1*t12)
+#endif
+#if NWAD_DEG >= 3
     s%d3 = x%d3/t12 - 3*x%d1*x%d2*x%d0/(t1*t12) - x%d1**3/(t1*t12) &
          + 3*x%d1**3*x%d0**2/(t1*t1*t12)
+#endif
   end function nwad_dble_asinh
   !>
   !> \brief Evaluate the \f$\mathrm{erf}\f$ function
@@ -1774,10 +1993,16 @@ contains
     double precision             :: t1
     t1 = exp(-(x%d0**2))/sqrt(acos(-1.0d0))
     s%d0 = erf(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = 2*t1*x%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = 2*t1*x%d2 - 4*x%d0*t1*x%d1**2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = 2*t1*x%d3 - 12*x%d0*t1*x%d1*x%d2 + 8*x%d0**2*t1*x%d1**3 &
          - 4*t1*x%d1**3
+#endif
   end function nwad_dble_erf
   !>
   !> \brief Evaluate the \f$\mathrm{erfc}\f$ function
@@ -1815,10 +2040,16 @@ contains
     double precision             :: t1
     t1 = exp(-(x%d0**2))/sqrt(acos(-1.0d0))
     s%d0 = 1.0d0-erf(x%d0)
+#if NWAD_DEG >= 1
     s%d1 = -2*t1*x%d1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = -2*t1*x%d2 + 4*x%d0*t1*x%d1**2
+#endif
+#if NWAD_DEG >= 3
     s%d3 = -2*t1*x%d3 + 12*x%d0*t1*x%d1*x%d2 - 8*x%d0**2*t1*x%d1**3 &
          + 4*t1*x%d1**3
+#endif
   end function nwad_dble_erfc
   !>
   !> \brief Initialize an inactive variable
@@ -1837,9 +2068,15 @@ contains
     double precision, intent(in) :: x
     type(nwad_dble)              :: s
     s%d0 = x
+#if NWAD_DEG >= 1
     s%d1 = 0
+#endif
+#if NWAD_DEG >= 2
     s%d2 = 0
+#endif
+#if NWAD_DEG >= 3
     s%d3 = 0
+#endif
   end function nwad_dble_inactive
   !>
   !> \brief Initialize an active variable
@@ -1858,9 +2095,15 @@ contains
     double precision, intent(in) :: x
     type(nwad_dble)              :: s
     s%d0 = x
+#if NWAD_DEG >= 1
     s%d1 = 1
+#endif
+#if NWAD_DEG >= 2
     s%d2 = 0
+#endif
+#if NWAD_DEG >= 3
     s%d3 = 0
+#endif
   end function nwad_dble_active
   !>
   !> \brief Initialize an active variable of a given order
@@ -1889,31 +2132,37 @@ contains
     integer, intent(in)          :: n
     type(nwad_dble)              :: s
     s%d0 = x
+#if NWAD_DEG >= 1
     s%d1 = n
+#endif
+#if NWAD_DEG >= 2
     s%d2 = 0
+#endif
+#if NWAD_DEG >= 3
     s%d3 = 0
+#endif
   end function nwad_dble_active_n
-  !>
-  !> \brief Initialize an negatively active variable
-  !>
-  !> Initialize an negatively active variable. Active variables are those with
-  !> respect to which the derivatives are calculated in the current evaluation
-  !> of the code. In practice it means that the components are initialized as
-  !> \f{eqnarray*}{
-  !>   d0 &=& \frac{\mathrm{d}^0 x}{\mathrm{d}(-x)^0} =  x \\\\
-  !>   d1 &=& \frac{\mathrm{d}^1 x}{\mathrm{d}(-x)^1} = -1 \\\\
-  !>   d2 &=& \frac{\mathrm{d}^2 x}{\mathrm{d}(-x)^2} =  0 \\\\
-  !>   d3 &=& \frac{\mathrm{d}^3 x}{\mathrm{d}(-x)^3} =  0 \\\\
-  !> \f}
-  !>
-  function nwad_dble_active_neg(x) result (s)
-    double precision, intent(in) :: x
-    type(nwad_dble)              :: s
-    s%d0 =  x
-    s%d1 = -1
-    s%d2 =  0
-    s%d3 =  0
-  end function nwad_dble_active_neg
+  ! >
+  ! > \brief Initialize an negatively active variable
+  ! >
+  ! > Initialize an negatively active variable. Active variables are those with
+  ! > respect to which the derivatives are calculated in the current evaluation
+  ! > of the code. In practice it means that the components are initialized as
+  ! > \f{eqnarray*}{
+  ! >   d0 &=& \frac{\mathrm{d}^0 x}{\mathrm{d}(-x)^0} =  x \\\\
+  ! >   d1 &=& \frac{\mathrm{d}^1 x}{\mathrm{d}(-x)^1} = -1 \\\\
+  ! >   d2 &=& \frac{\mathrm{d}^2 x}{\mathrm{d}(-x)^2} =  0 \\\\
+  ! >   d3 &=& \frac{\mathrm{d}^3 x}{\mathrm{d}(-x)^3} =  0 \\\\
+  ! > \f}
+  ! >
+  !function nwad_dble_active_neg(x) result (s)
+  !  double precision, intent(in) :: x
+  !  type(nwad_dble)              :: s
+  !  s%d0 =  x
+  !  s%d1 = -1
+  !  s%d2 =  0
+  !  s%d3 =  0
+  !end function nwad_dble_active_neg
   !>
   !> \brief Return the value 
   !>
@@ -1924,6 +2173,7 @@ contains
     double precision            :: s
     s = x%d0
   end function nwad_dble_value
+#if NWAD_DEG >= 1
   !>
   !> \brief Interpolate the 1st order partial derivative from an evaluation
   !> up to 1st order
@@ -1947,6 +2197,8 @@ contains
     double precision            :: s
     s = dx%d1
   end function nwad_dble_inter_d1_dx
+#endif
+#if NWAD_DEG >= 2
   !>
   !> \brief Interpolate the 1st order partial derivative from an evaluation
   !> up to 2nd order
@@ -2024,6 +2276,8 @@ contains
     f18 = 1.0d0/8.0d0
     s = f12*dxy%d2-f18*dx2%d2-f18*dy2%d2
   end function nwad_dble_inter_d2_dxy
+#endif
+#if NWAD_DEG >= 3
   !>
   !> \brief Interpolate the 1st order partial derivative from an evaluation
   !> up to 3rd order
@@ -2194,5 +2448,29 @@ contains
     s = f16*dxyz%d3+f181*(dx3%d3+dy3%d3+dz3%d3) &
       - f136*(dx2y%d3+dx2z%d3+dxy2%d3+dy2z%d3+dxz2%d3+dyz2%d3)
   end function nwad_dble_inter_d3_dxyz
-end module nwad
+#endif
+#if NWAD_DEG <= 0
+end module nwad0
+#elif NWAD_DEG <= 1
+end module nwad1
+#elif NWAD_DEG <= 2
+end module nwad2
+#else
+end module nwad3
+#endif
+#if NWAD_DEG < 1
+#undef NWAD_DEG
+#define NWAD_DEG 1
+#include "nwad.F90"
+#endif
+#if NWAD_DEG < 2
+#undef NWAD_DEG
+#define NWAD_DEG 2
+#include "nwad.F90"
+#endif
+#if NWAD_DEG < 3
+#undef NWAD_DEG
+#define NWAD_DEG 3
+#include "nwad.F90"
+#endif
 !> @}
