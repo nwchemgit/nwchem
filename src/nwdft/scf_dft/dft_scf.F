@@ -1718,7 +1718,7 @@ c     AOR begin
       if (lxdm .eq. 1) then
          call xc_xdm(rtdb,g_dens,g_vxc,natoms,nexc,exdm,dum,
      &        dbl_mb(ixdm_v),dbl_mb(ixdm_ml),'energy')
-         etnew = etnew + exdm
+         edisp = edisp + exdm
       endif
 c     AOR end
 
