@@ -65,6 +65,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np tddft_h2o_uhf
 ./runtests.mpi.unix procs $np tddft_n2+
 ./runtests.mpi.unix procs $np tddft_ac_co
+./runtests.mpi.unix procs $np dft_xdm1
 ./runtests.mpi.unix procs $np tce_h2o
 ./runtests.mpi.unix procs $np tce_h2o_dipole
 ./runtests.mpi.unix procs $np tce_h2o_eomcc
