@@ -146,7 +146,8 @@ c     atomic densities
       integer ngau, k, ii
       double precision pi, vfree, rmid, qq, rr, h, rwei, rhofree
       parameter (ngau = 251)
-      parameter (pi=3.141592653589793238462643383279502884197169d0)
+c
+      pi=acos(-1d0)
 c     
       
 c     read input parameters
