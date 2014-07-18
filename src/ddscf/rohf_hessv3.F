@@ -165,7 +165,15 @@ c
 c         no damping: initialize Ax with terms proportional omega
          do ipm=1,ncomp
           wls   = lshift + 4d0 * omg(ipm)
-          call ga_dadd(wls,g_x(ipm),wlsim,g_x_im(ipm),g_ax(ipm))
+c
+c         HvD: g_x_im does not exist if (.not.lifetime) (see
+c         cphf_solve3.F line 406) so the code on the next line fails. I
+c         am assuming that a non-existing imaginary part equates to it
+c         being zero. Hence the copy and scale operation on the
+c         subsequent two lines should do what is required.
+c         call ga_dadd(wls,g_x(ipm),wlsim,g_x_im(ipm),g_ax(ipm))
+          call ga_copy(g_x(ipm),g_ax(ipm))
+          call ga_scale(g_ax(ipm),wls)
          enddo
         else                    ! lifetime
 c         take care of damping here: Re and Im are coupled by gamwidth
