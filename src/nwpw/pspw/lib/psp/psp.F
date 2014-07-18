@@ -1649,7 +1649,8 @@ c                   dbl_mb(xtmp(1)+i-1)
 c     >             = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
 c     >              - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
 c                end do
-               call Pack_cct_iconjgMulb(dng,
+               call Pack_cct_iconjgMulb(0,
+     >                                  dng,
      >                                  dcpl_mb(vtmp(1)),
      >                                  dbl_mb(xtmp(1)))
                call Pack_tt_idot(0,dbl_mb(G(1)),
@@ -1869,7 +1870,8 @@ c              dbl_mb(xtmp(1)+i-1)
 c     >        = dimag(dng(i))* dble(dcpl_mb(vtmp(1)+i-1))
 c     >         - dble(dng(i))*dimag(dcpl_mb(vtmp(1)+i-1))
 c           end do
-           call Pack_cct_iconjgMulb(dng,
+           call Pack_cct_iconjgMulb(0,
+     >                              dng,
      >                              dcpl_mb(vtmp(1)),
      >                              dbl_mb(xtmp(1)))
            call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fion(1,ii))
