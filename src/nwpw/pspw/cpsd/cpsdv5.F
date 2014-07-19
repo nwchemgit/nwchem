@@ -88,7 +88,7 @@ cccc#include "frac_occ.fh"
       integer nfft3
       parameter (nfft3=32)
       character*255 full_filename
-      integer tmp1(1)
+      integer tmp1(2)
 
       logical value,psi_nogrid
       integer hversion,hnfft(3),hispin,hne(2)

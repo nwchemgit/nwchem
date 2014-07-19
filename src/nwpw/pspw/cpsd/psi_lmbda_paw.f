@@ -80,8 +80,9 @@ c $Id: psi_lmbda_paw.f 21177 2011-10-10 17:09:43Z bylaska $
             write(*,*) '        +Try using a smaller time step'
             write(*,*) '        +Gram-Schmidt being performed, spin:',ms
           end if
-c          call Dneall_f_ortho(ms,psi2,npack1)
-          call Dneall_f_GramSchmidt(ms,psi2,npack1)
+c          call Dneall_f_GramSchmidt(ms,psi2,npack1)
+           call Dneall_f_Sortho(ms,psi2,psi1,npack1)
+
           ierr = 1
         else
           call Dneall_fmf_Multiply(ms,
