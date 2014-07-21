@@ -834,5 +834,22 @@ c      end
       end
 
 
+*     ***************************************
+*     *                                     *
+*     *        FMM_reduce_levels            *
+*     *                                     *
+*     ***************************************
+*
+*    This function translates index values between different levels of an octree grid
 
-c $Id$
+      integer function FMM_reduce_levels(nl,l,lr)
+      implicit none
+      integer nl,l,lr
+
+      FMM_reduce_levels = ishft(ishft(ibits(nl,2*l,l),-lr),2*(l-lr))
+     >                  + ishft(ishft(ibits(nl,l,l),-lr),(l-lr)) 
+     >                  + ishft(ibits(nl,0,l),-lr)
+      return
+      end
+
+
