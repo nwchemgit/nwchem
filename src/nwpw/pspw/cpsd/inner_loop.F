@@ -444,7 +444,6 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
      >                  dte,
      >                  lmd,dbl_mb(tmp_L(1)),ierr)
-
         else if (fractional) then
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                  dte,occ1,

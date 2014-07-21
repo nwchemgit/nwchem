@@ -29,6 +29,7 @@ c $Id: psi_lmbda_paw.f 21177 2011-10-10 17:09:43Z bylaska $
       integer ms,nn
       integer st1,st2
       integer A,B,C,U,D,Ba,Bs,fnm
+      integer i,j
 
       call nwpw_timing_start(3)
 
@@ -62,7 +63,6 @@ c $Id: psi_lmbda_paw.f 21177 2011-10-10 17:09:43Z bylaska $
         call psp_add_paw_extra_overlap1(ms,psi2,tmp(A))
         call psp_add_paw_extra_overlap2(ms,psi1,psi2,tmp(B))
         call psp_add_paw_extra_overlap1(ms,psi1,tmp(C))
-
 
         call psi_gen_Ba_Bs(ms,nn,tmp(B),tmp(Bs),tmp(Ba))
 

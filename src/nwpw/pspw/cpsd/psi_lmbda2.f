@@ -113,8 +113,8 @@ c          call Dneall_f_ortho(ms,psi2,npack1)
       call daxpy(nn,1.0d0,Ba,1,Bs,1)
       call dscal(nn,0.5d0,Bs,1)
 
-      call daxpy(nn,1.0d0,B,1,Ba,1)
-      call dscal(nn,0.5d0,Ba,1)
+      call daxpy(nn,-1.0d0,B,1,Ba,1)
+      call dscal(nn,-0.5d0,Ba,1)
 
       return
       end
