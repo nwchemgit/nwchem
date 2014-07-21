@@ -2984,7 +2984,6 @@ c     >                          l_prj(i),m_prj(i))
 
 *           **** multipole energy ****
             eh = nwpw_compcharge_E_multipole(ispin)
-c            write(*,*) "mult-mult=",eh
 
             ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                       dng_cmp_smooth(2),dng_cmp_smooth(1))
