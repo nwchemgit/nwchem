@@ -2531,19 +2531,10 @@ c*     *** debug printing ***
             end if
 
 
-c            call dcopy(2*npack0,dcpl_mb(vc_tmp(1)),1,
-c     >                    dcpl_mb(vcmp_smooth(1)),1)
-c            call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
-c            call dcopy(2*npack0,0.0d0,0,dcpl_mb(vcmp(1)),1)
-c
-c            call dcopy(2*npack0,0.0d0,0,dcpl_mb(vcmp_smooth(1)),1)
-c            call dcopy(2*npack0,0.0d0,0,dcpl_mb(vcmp_tmp(1)),1)
-
             call nwpw_compcharge_gen_dE_Qlm(ispin,
      >                                   dcpl_mb(vcmp_smooth(1)),
      >                                   dcpl_mb(vcmp(1)))
          
-c            call nwpw_compcharge_zero_dE_Qlm()
             call nwpw_compcharge_gen_dEmult_Qlm(ispin)
             call nwpw_compcharge_add_dEmult_Qlm(ispin)
 
@@ -2555,7 +2546,6 @@ c            call nwpw_compcharge_zero_dE_Qlm()
      >        call errquit('v_nonlocal:popping stack',5,MA_ERR)
          end if
 
-         !call nwpw_compcharge_zero_dE_Qlm()
          call nwpw_compcharge_add_dElocal_Qlm(ispin)
 
          do ip=1,nion_prj_indx
