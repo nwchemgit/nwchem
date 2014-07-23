@@ -227,7 +227,7 @@
       mapping   = control_mapping()
 
 *     **** initialize psi_data ****
-      call psi_data_init(20)
+      call psi_data_init(100)
 
 
 *     **** initialize a bunch of stuff ***
