@@ -60,6 +60,10 @@ c     **********************************************
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetacount)) 
      >      maxmetacount = 1
 
+         rtdb_name = 'tamd_zfixed'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,zfixed)) 
+     >      zfixed = .false.
+
          rtdb_name = 'tamd_metacount'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metacount)) 
      >      metacount = 0
@@ -295,6 +299,8 @@ c     **********************************************
       if (taskid.eq.MASTER) then
          write(luout,*) 
          write(luout,*)  "TAMD parameters:"
+         if (zfixed) 
+     >     write(luout,'(A)') "   - z fixed - determining average force"
          write(luout,'(A,5x,I6," * inner iterations")')
      >   "   - update      = ",maxmetacount
          write(luout,'(A,5x,I6," * inner iterations")')
@@ -507,6 +513,7 @@ c     **********************************************
       integer i,j,yshift,k
       real*8 temp,fac
       character*80 filename,rtdb_name
+      character*60 gauss_filename
       character*255 full_filename
 
 *     **** external functions ****
@@ -566,6 +573,17 @@ c     **********************************************
 
             call nwpw_interp_end()
             call tamd_gauss_write_end()
+ 
+
+*           **** analyze tamd_data_file ****
+            if (zfixed) then
+               rtdb_name = 'tamd_gaussian_filename'
+               gauss_filename = 
+     >   '                                                           '
+               if(.not.rtdb_cget(rtdb,rtdb_name,1,gauss_filename))
+     >            call util_file_prefix('tamd_data',gauss_filename)
+               call tamd_gauss_analyze(gauss_filename)
+            end if
 
          end if
 
@@ -1351,8 +1369,9 @@ c     **** bond_difference2 ****
      >                                    move,fmeta)
 
 c              **** update ztamd and vztamd ****
-               call tamd_zupdate(dt,gam,k,mz,ztemp,r(d),
-     >                           ztamd(d),vztamd(d))
+               if (.not.zfixed)
+     >            call tamd_zupdate(dt,gam,k,mz,ztemp,r(d),
+     >                              ztamd(d),vztamd(d))
             end do
 
          end if
@@ -1746,7 +1765,7 @@ c               close(53)
       call Parallel_taskid(taskid)
 
 
-*     **** produce META-GAUSS FILE ****
+*     **** produce TAMD_DATA FILE ****
       if (taskid.eq.MASTER) then
 
          call util_file_name_noprefix(filename,.false.,
@@ -1754,13 +1773,13 @@ c               close(53)
      >                       full_filename)
 
 *        **** check for backup file ***
-         call util_file_name_noprefix('META-GAUSS99-bak',.false.,
+         call util_file_name_noprefix('TAMD-Z99-bak',.false.,
      >                                  .false.,
      >                                  full_bak)
          inquire(file=full_bak,exist=found_bak)
          if (found_bak) then
             write(luout,*)
-            write(luout,*) "META-GAUSS99-bak exists:"
+            write(luout,*) "TAMD-Z99-bak exists:"
             l1=index(full_bak,' ')
             l2=index(full_filename,' ')
             write(luout,*) "   Copying ",full_bak(1:l2),
@@ -1788,7 +1807,7 @@ c               close(53)
      >           status='new')
 
            write(54,'(A,A40)') 
-     >        "#tamd gaussian filename=",filename
+     >        "#tamd data filename=",filename
            write(54,'(A,I6)') "#nmeta ",nmeta
            write(54,'(A,10I6)') "#nxmeta ",
      >                          (int_mb(nxmeta(1)+i-1),i=1,nmeta) 
@@ -1813,14 +1832,14 @@ c               close(53)
            write(54,'(A,I8)') "#metarayshift ",metarayshift
            write(54,'(A,I8)') "#metaraycount ",metaraycount
            write(54,'(A,I8)') "#maxmetaprintcount ",maxmetaprintcount
-           write(54,'(A)') "# (r(i),i=1,n),(sigma(i),i=1,n),w,",
-     >                     "E(2)-E(31)+E(32),E(3),E(4),E(31),E(32)"
+           write(54,'(AA)') 
+     >        "# (theta(i),i=1,n),(z(i),i=1,n),(vz(i),i=1,n),",
+     >        "E(2)-E(33)+E(34),E(3),E(4),E(33),E(34)"
          end if
       end if
 
       return
       end
-
 
 
 
@@ -1844,7 +1863,7 @@ c               close(53)
          close(unit=54)
 
 *        **** remove backup file ***
-         call util_file_name_noprefix('META-GAUSS99-bak',.false.,
+         call util_file_name_noprefix('TAMD-Z99-bak',.false.,
      >                                .false.,
      >                                full_bak)
          call util_file_unlink(full_bak)
@@ -1881,6 +1900,142 @@ c               close(53)
 
       return
       end
+
+
+
+*     ***********************************************
+*     *                                             *
+*     *          tamd_gauss_analyze                 *
+*     *                                             *
+*     ***********************************************
+      subroutine tamd_gauss_analyze(filename)
+      implicit none
+      character*(*) filename
+
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "tamd.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical found,samez
+      integer i,s1,s2,ndim,nparam,nindx,ntype,count,sindx(10),sparam(10)
+      integer indx(50)
+      real*8 gamma,kspring
+      real*8 f,ff,fold,param(50),tmp(50)
+      real*8 z(10),k(10),fsum(10),fsum2(10),fdelta(10)
+      character*255 full_filename,atmp
+
+      call Parallel_taskid(taskid)
+
+      if ((taskid.eq.MASTER).and.(zfixed)) then
+
+         call util_file_name_noprefix(filename,.false.,
+     >                                .false.,
+     >                       full_filename)
+         open(unit=55,file=full_filename,form='formatted',
+     >          status='old')
+
+         read(55,*,end=100)
+         read(55,*,end=100) atmp,ndim
+         read(55,*,end=100)
+         read(55,*,end=100) atmp,(sindx(i), i=1,ndim)
+         read(55,*,end=100) atmp,(sparam(i),i=1,ndim)
+         read(55,*,end=100)
+         read(55,*,end=100)
+         read(55,*,end=100)
+         read(55,*,end=100) atmp,nindx
+         read(55,*,end=100) atmp,(indx(i),i=1,nindx)
+         read(55,*,end=100) atmp,nparam
+         read(55,*,end=100) atmp,(param(i),i=1,nparam) 
+         read(55,*,end=100)
+         read(55,*,end=100)
+         read(55,*,end=100)
+         read(55,*,end=100)
+         read(55,*,end=100)
+         read(55,*,end=100)
+
+         do i=1,ndim
+            fsum(i)   = 0.0d0
+            fsum2(i)  = 0.0d0
+            fdelta(i) = 0.0d0
+            k(i) = param(sparam(i)+2)
+            z(i) = param(sparam(i)+5)
+         end do
+         fold = 0.0d0
+
+         count = 0
+         found = .true.
+         do while (found)
+           read(55,111,end=100) (tmp(i),i=1,3*ndim+5)
+           samez = .true.
+           do i=1,ndim
+              if (dabs(tmp(ndim+i)-z(i)).gt.1.0d-9) samez=.false.
+           end do
+           if (samez) then
+              do i=1,ndim
+                 if (count.gt.0) fold = fsum(i)/dble(count)
+                 f         = -k(i)*(tmp(i)-tmp(ndim+i))
+                 fsum(i)   = fsum(i)   + f
+                 fsum2(i)  = fsum2(i) + f*f
+                 fdelta(i) = dabs(fsum(i)/dble(count+1) - fold)
+              end do
+              count = count + 1
+           end if
+         end do
+
+  100    continue
+         close(unit=55)
+
+         write(luout,*) 
+         write(luout,*)
+         write(luout,*) "================================"
+         write(luout,*) "====      TAMD Analysis     ===="
+         write(luout,*) "================================"
+         write(luout,*)
+         write(luout,*) " == Average Forces =="
+         write(luout,*)
+
+         write(luout,112) count
+         write(luout,113) ndim
+
+         do i=1,ndim
+            s1 = sindx(i) +1
+            s2 = sparam(i)+1
+            ntype = indx(s1)
+            f  = fsum(i)/dble(count)
+            ff = fsum2(i)/dble(count)
+            if (ntype.eq.1) then
+               write(luout,120) indx(s1+1),indx(s1+2),z(i),k(i),
+     >                           f,fdelta(i),ff-f*f
+            end if
+         end do
+         write(luout,*)
+         write(luout,114) (z(i),i=1,ndim),(fsum(i)/dble(count),i=1,ndim)
+         write(luout,*)
+      end if
+
+
+  111 format(99e14.6)
+  112    format(1x,'frames used           =',I8)
+  113    format(1x,'number of dimensions  =',I8)
+  114 format(1x,'TAMD Force =',99e14.6)
+  120 format(1x,'atoms=',I5,I5,
+     >          1x,'dist=',E10.3,
+     >          1x,'k=',E10.3,
+     >          3x,'<F>=',E14.6,
+     >          2x,'Delta <F>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+
+
+      return
+      end
+
+
+
+
 
 
 

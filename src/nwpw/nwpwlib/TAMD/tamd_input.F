@@ -20,9 +20,10 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 20)
+      parameter (num_dirs = 21)
       character*18 dirs(num_dirs)
       data dirs / 'update',
+     >            'zfixed',
      >            'print',
      >            'print_shift',
      >            'bond',
@@ -72,7 +73,7 @@ c
      >             'nrange',
      >             'nvector'/
 c
-      logical       value,spline
+      logical       value,spline,zfixed
       character*80  rtdb_name
       character*255 test,dir_name,sdir_name
       character*4   elem1,elem2
@@ -154,7 +155,7 @@ c
      >  call errquit(
      >  'tamd_input: unknown_directive',ind,INPUT_ERR)
 
-      goto ( 100, 120,150, 200, 300, 400, 500, 600, 701,702,703, 800,
+      goto ( 100, 110, 120,150, 200, 300, 400, 500,600,701,702,703,800,
      >       900,1000,1100,1200,1300,1400,1500,
      >      9999) ind
       call errquit(
@@ -169,6 +170,21 @@ c
          if (.not. value) call errquit(
      >   'tamd_input:failed writing update',0, RTDB_ERR)
       end if
+
+      goto 10
+
+c
+c  zfixed [True|False|...]
+c
+ 110  if (inp_a(sdir_name)) then
+         zfixed = nwpw_parse_boolean(sdir_name,.true.)
+      else
+         zfixed = .true.
+      end if
+      rtdb_name = 'tamd_zfixed'
+      value = rtdb_put(rtdb,rtdb_name,mt_log,1,zfixed)
+      if (.not. value) call errquit(
+     >'tamd_input:failed writing update',0, RTDB_ERR)
 
       goto 10
 

@@ -1,6 +1,6 @@
 c $Id$
 
-      logical tamdfound
+      logical tamdfound,zfixed
       integer metacount,maxmetacount
       integer metaprintcount,maxmetaprintcount
       integer metaraycount,metarayshift
@@ -12,6 +12,7 @@ c $Id$
 
       real*8  dTtempered,ztamd(10),vztamd(10),dt
 
+
       common / tamdcommon / ztamd,vztamd,dt,dTtempered,
      >                      pmeta,ameta,bmeta,nxmeta,ymeta,
      >                      indxmeta,parammeta,sindxmeta,sparammeta,
@@ -19,6 +20,6 @@ c $Id$
      >                      metacount,maxmetacount,
      >                      metaprintcount,maxmetaprintcount,
      >                      metaraycount,metarayshift,
-     >                      tamdfound
+     >                      tamdfound,zfixed
 
 
