@@ -455,7 +455,7 @@ c      double precision gamm4        ! Dipole second hyperpolarizability term 4
       double precision alphaani         ! Anisotropic dipole polarizability
       double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
       double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
-      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
+      double precision aeigvec(3,3)     ! dummy ygeev eigenvectors
 c      integer iter             ! Iteration counter
 c
 c     Excited-state CI, CC, & MBPT
@@ -775,8 +775,8 @@ c     ==============
 c     Create a mutex
 c     ==============
 c
-ccx      if (.not.ga_create_mutexes(1))
-ccx     1  call errquit('tce_energy: GA problem',0,GA_ERR)
+      if (.not.ga_create_mutexes(1))
+     1  call errquit('tce_energy: GA problem',0,GA_ERR)
 c
 c     =========================
 c     Reorder and tile orbitals
@@ -11364,8 +11364,8 @@ c     ===============
 c     Destroy a mutex
 c     ===============
 c
-ccx      if (.not.ga_destroy_mutexes())
-ccx     1  call errquit('tce_energy: GA problem',1,GA_ERR)
+      if (.not.ga_destroy_mutexes())
+     1  call errquit('tce_energy: GA problem',1,GA_ERR)
 c
 c     =========
 c     Terminate
