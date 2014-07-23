@@ -226,7 +226,7 @@
 
 
 *     **** initialize psi_data ****
-      call psi_data_init(20)
+      call psi_data_init(100)
 
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
