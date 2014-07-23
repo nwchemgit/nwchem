@@ -1012,6 +1012,9 @@ c           end do
 *          **** (-i)^l is the same as (i)^l in the     ****
 *          **** Rayleigh scattering formula            ****
 
+*           **** phase fact DOES matter for compensation charge!!!!     ****
+*           **** assume that sign factor for proj is in kbpp formatting ****
+
 *          *** current function is s or d ****
            if (sd_function) then
               call Pack_tc_Mul(1,dbl_mb(shift),
