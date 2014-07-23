@@ -2817,7 +2817,6 @@ CM    END IF
       ISROOT = NROOT
       IF((IRESTR.EQ.0.OR.ISEL_ONLY_INI.EQ.0).AND.
      &    ITG_SROOT.NE.NROOT) THEN
-        call errquit('select ref root not done',911,1)
         WRITE(6,*) ' Before select'
         CALL SELECT_ROOT(NROOT,ISROOT)
 C            SELECT_ROOT(NROOT_ACT,ISROOT)
@@ -5280,7 +5279,7 @@ CNW   CALL DANAME(LUHC,'HCFILE')
 * Scratch files
 * =================
       call util_file_name('lusc1',.false.,.false.,filename)
-      istat = dra_create(MT_DBL,NVAR,3,'lusc1',filename,DRA_RW,
+      istat = dra_create(MT_DBL,NVAR,NROOT,'lusc1',filename,DRA_RW,
      &    NVAR,1,LUSC1) 
       if(istat.ne.0) call errquit('DISKUN dra_create luc',istat,911)
 CNW   LUSC1 = IGETUNIT(31)
@@ -36692,10 +36691,10 @@ C            FIND_XVAL_WITH_THRES(A,THRES, XVAL, NDIM,IVAL)
 *
       INCLUDE 'implicit.inc'
 *. Vector holding complete or block of vector
-      DIMENSION VEC1(*)
+      integer VEC1,LUCIN,LUCOUT
 *
-      CALL REWINO(LUCIN)
-      CALL REWINO(LUCOUT)
+CNW   CALL REWINO(LUCIN)
+CNW   CALL REWINO(LUCOUT)
       LBLK = -1
 *
       NTEST = 100 
@@ -36739,30 +36738,59 @@ C            FIND_XVAL_WITH_THRES(A,THRES, XVAL, NDIM,IVAL)
         END IF ! I should copy back
       ELSE
 *. Vectors are stored in one block
-        DO IVEC = 1, ISROOT
-            CALL FRMDSC(VEC1,NVAR,-1  ,LUCIN,IMZERO,IAMPACK)
-        END DO
-        CALL TODSC(VEC1,NVAR,-1  ,LUCOUT)
+CNW     DO IVEC = 1, ISROOT
+CNW         CALL FRMDSC(VEC1,NVAR,-1  ,LUCIN,IMZERO,IAMPACK)
+CNW     END DO
+        if (dra_read_section(.false.,VEC1,1,NVAR,1,1,LUCIN,1,NVAR,
+     &     ISROOT,ISROOT,itask).ne.0) call errquit('dra error',itask,
+     &     911)
+        if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &     itask,911)
+CNW     CALL TODSC(VEC1,NVAR,-1  ,LUCOUT)
+        if (dra_write_section(.false.,VEC1,1,NVAR,1,1,LUCOUT,1,NVAR,
+     &     1,1,itask).ne.0) call errquit('dra error',itask,911)
+        if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &     itask,911)
         IF(ISROOT.LE.NROOTUT) THEN
           LROOT = NROOTUT
         ELSE
           LROOT = NROOTUT-1
         END IF
-        CALL REWINO(LUCIN)
+CNW     CALL REWINO(LUCIN)
+        MROOT = 2
         DO IROOT = 1, LROOT
-          CALL FRMDSC(VEC1,NVAR,-1  ,LUCIN,IMZERO,IAMPACK)
+CNW       CALL FRMDSC(VEC1,NVAR,-1  ,LUCIN,IMZERO,IAMPACK)
+          if (dra_read_section(.false.,VEC1,1,NVAR,1,1,LUCIN,1,NVAR,
+     &    IROOT,IROOT,itask).ne.0) call errquit('dra error',itask,911)
+          if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &    itask,911)
           IF(IROOT.NE.ISROOT) THEN
-            CALL TODSC(VEC1,NVAR,-1  ,LUCOUT)
+CNW         CALL TODSC(VEC1,NVAR,-1  ,LUCOUT)
+            if (dra_write_section(.false.,VEC1,1,NVAR,1,1,LUCOUT,1,NVAR,
+     &         MROOT,MROOT,itask).ne.0) call errquit('dra error',itask,
+     &         911)
+            if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &         itask,911)
+            MROOT = MROOT + 1
           END IF
         END DO
 *
         IF(ICOPY.EQ.1) THEN
 *. Copy back
-         CALL REWINO(LUCIN)
-         CALL REWINO(LUCOUT)
+CNW      CALL REWINO(LUCIN)
+CNW      CALL REWINO(LUCOUT)
          DO IROOT = 1, NROOTUT
-            CALL FRMDSC(VEC1,NVAR,-1  ,LUCOUT,IMZERO,IAMPACK)
-            CALL TODSC(VEC1,NVAR,-1  ,LUCIN)
+CNW       CALL FRMDSC(VEC1,NVAR,-1  ,LUCOUT,IMZERO,IAMPACK)
+          if (dra_read_section(.false.,VEC1,1,NVAR,1,1,LUCOUT,1,NVAR,
+     &    IROOT,IROOT,itask).ne.0) call errquit('dra error',itask,911)
+          if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &    itask,911)
+CNW       CALL TODSC(VEC1,NVAR,-1  ,LUCIN)
+          if (dra_write_section(.false.,VEC1,1,NVAR,1,1,LUCIN,1,NVAR,
+     &       MROOT,MROOT,itask).ne.0) call errquit('dra error',itask,
+     &       911)
+          if (dra_wait(itask).ne.0) call errquit('dra read err',
+     &       itask,911)
          END DO
         END IF ! I should copy back
       END IF ! ICISTR switch
