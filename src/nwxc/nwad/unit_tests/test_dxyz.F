@@ -11,7 +11,7 @@ C> extracted from the sum. This program tests the computation of
 C> \f$\frac{d^3f}{d(xyz)}\f$.
 C> 
       program test_dxyz
-      use nwad
+      use nwad3
       implicit none
       integer :: npt, i
       parameter (npt = 100)
@@ -197,7 +197,7 @@ C>
 C> \brief The test routine
 C>
       subroutine subad_dxyz(x,y,z,f)
-      use nwad
+      use nwad3
       implicit none
       type(nwad_dble) :: x, y, z, f
       type(nwad_dble) :: c, s

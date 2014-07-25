@@ -8,7 +8,7 @@ C> against the result of this operator on traditional double precision
 C> values. The input data set is randomly generated.
 C> 
       program test_ge
-      use nwad
+      use nwad3
       implicit none
       integer :: npt, i
       parameter (npt = 100)

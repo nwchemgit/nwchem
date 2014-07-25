@@ -15,7 +15,7 @@ C> passing the memory section and apply a type change through the declarations
 C> in the routine called. 
 C>
       program test_memory
-      use nwad
+      use nwad3
       implicit none
       integer         :: npt
       parameter (npt = 100)
@@ -32,7 +32,7 @@ C
       end
 c
       subroutine init_nwad_dble(x,nx)
-      use nwad
+      use nwad3
       implicit none
       integer                        :: nx
       type(nwad_dble), intent(inout) :: x(nx)

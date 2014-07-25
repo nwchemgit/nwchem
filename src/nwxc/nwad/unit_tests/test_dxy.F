@@ -12,7 +12,7 @@ C> \f$\frac{d^2f}{d(xy)}\f$ given \f$\frac{d^2f}{dx^2}\f$,
 C> \f$\frac{d^2f}{dy^2}\f$ and \f$\frac{d^2f}{d(x+y)^2}\f$.
 C> 
       program test_dxy
-      use nwad
+      use nwad3
       implicit none
       integer :: npt, i
       parameter (npt = 100)
@@ -67,7 +67,7 @@ C>
 C> \brief The test routine
 C>
       subroutine subad_dxy(x,y,f)
-      use nwad
+      use nwad3
       implicit none
       type(nwad_dble) :: x, y, f
       type(nwad_dble) :: c, s

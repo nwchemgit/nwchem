@@ -182,124 +182,124 @@ test_ge.log: test_ge
 	echo "Running " $^
 	./test_ge | tee test_ge.log
 
-test_sin: nwad.mod submaxima_sin.o test_sin.o
+test_sin: nwad3.mod submaxima_sin.o test_sin.o
 	gfortran test_sin.o submaxima_sin.o nwad.o -o test_sin
 
-test_cos: nwad.mod submaxima_cos.o test_cos.o
+test_cos: nwad3.mod submaxima_cos.o test_cos.o
 	gfortran test_cos.o submaxima_cos.o nwad.o -o test_cos
 
-test_tan: nwad.mod submaxima_tan.o test_tan.o
+test_tan: nwad3.mod submaxima_tan.o test_tan.o
 	gfortran test_tan.o submaxima_tan.o nwad.o -o test_tan
 
-test_asin: nwad.mod submaxima_asin.o test_asin.o
+test_asin: nwad3.mod submaxima_asin.o test_asin.o
 	gfortran test_asin.o submaxima_asin.o nwad.o -o test_asin
 
-test_acos: nwad.mod submaxima_acos.o test_acos.o
+test_acos: nwad3.mod submaxima_acos.o test_acos.o
 	gfortran test_acos.o submaxima_acos.o nwad.o -o test_acos
 
-test_atan: nwad.mod submaxima_atan.o test_atan.o
+test_atan: nwad3.mod submaxima_atan.o test_atan.o
 	gfortran test_atan.o submaxima_atan.o nwad.o -o test_atan
 
-test_sinh: nwad.mod submaxima_sinh.o test_sinh.o
+test_sinh: nwad3.mod submaxima_sinh.o test_sinh.o
 	gfortran test_sinh.o submaxima_sinh.o nwad.o -o test_sinh
 
-test_cosh: nwad.mod submaxima_cosh.o test_cosh.o
+test_cosh: nwad3.mod submaxima_cosh.o test_cosh.o
 	gfortran test_cosh.o submaxima_cosh.o nwad.o -o test_cosh
 
-test_tanh: nwad.mod submaxima_tanh.o test_tanh.o
+test_tanh: nwad3.mod submaxima_tanh.o test_tanh.o
 	gfortran test_tanh.o submaxima_tanh.o nwad.o -o test_tanh
 
-test_asinh: nwad.mod submaxima_asinh.o test_asinh.o
+test_asinh: nwad3.mod submaxima_asinh.o test_asinh.o
 	gfortran test_asinh.o submaxima_asinh.o nwad.o -o test_asinh
 
-test_erf: nwad.mod submaxima_erf.o test_erf.o
+test_erf: nwad3.mod submaxima_erf.o test_erf.o
 	gfortran test_erf.o submaxima_erf.o nwad.o -o test_erf
 
-test_erfc: nwad.mod submaxima_erfc.o test_erfc.o
+test_erfc: nwad3.mod submaxima_erfc.o test_erfc.o
 	gfortran test_erfc.o submaxima_erfc.o nwad.o -o test_erfc
 
-test_abs: nwad.mod submaxima_abs.o test_abs.o
+test_abs: nwad3.mod submaxima_abs.o test_abs.o
 	gfortran test_abs.o submaxima_abs.o nwad.o -o test_abs
 
-test_exp: nwad.mod submaxima_exp.o test_exp.o
+test_exp: nwad3.mod submaxima_exp.o test_exp.o
 	gfortran test_exp.o submaxima_exp.o nwad.o -o test_exp
 
-test_sqrt: nwad.mod submaxima_sqrt.o test_sqrt.o
+test_sqrt: nwad3.mod submaxima_sqrt.o test_sqrt.o
 	gfortran test_sqrt.o submaxima_sqrt.o nwad.o -o test_sqrt
 
-test_log: nwad.mod submaxima_log.o test_log.o
+test_log: nwad3.mod submaxima_log.o test_log.o
 	gfortran test_log.o submaxima_log.o nwad.o -o test_log
 
-test_add: nwad.mod submaxima_add.o test_add.o
+test_add: nwad3.mod submaxima_add.o test_add.o
 	gfortran test_add.o submaxima_add.o nwad.o -o test_add
 
-test_addx: nwad.mod submaxima_addx.o test_addx.o
+test_addx: nwad3.mod submaxima_addx.o test_addx.o
 	gfortran test_addx.o submaxima_addx.o nwad.o -o test_addx
 
-test_addy: nwad.mod submaxima_addy.o test_addy.o
+test_addy: nwad3.mod submaxima_addy.o test_addy.o
 	gfortran test_addy.o submaxima_addy.o nwad.o -o test_addy
 
-test_sub: nwad.mod submaxima_sub.o test_sub.o
+test_sub: nwad3.mod submaxima_sub.o test_sub.o
 	gfortran test_sub.o submaxima_sub.o nwad.o -o test_sub
 
-test_subx: nwad.mod submaxima_subx.o test_subx.o
+test_subx: nwad3.mod submaxima_subx.o test_subx.o
 	gfortran test_subx.o submaxima_subx.o nwad.o -o test_subx
 
-test_suby: nwad.mod submaxima_suby.o test_suby.o
+test_suby: nwad3.mod submaxima_suby.o test_suby.o
 	gfortran test_suby.o submaxima_suby.o nwad.o -o test_suby
 
-test_mul: nwad.mod submaxima_mul.o test_mul.o
+test_mul: nwad3.mod submaxima_mul.o test_mul.o
 	gfortran test_mul.o submaxima_mul.o nwad.o -o test_mul
 
-test_mulx: nwad.mod submaxima_mulx.o test_mulx.o
+test_mulx: nwad3.mod submaxima_mulx.o test_mulx.o
 	gfortran test_mulx.o submaxima_mulx.o nwad.o -o test_mulx
 
-test_muly: nwad.mod submaxima_muly.o test_muly.o
+test_muly: nwad3.mod submaxima_muly.o test_muly.o
 	gfortran test_muly.o submaxima_muly.o nwad.o -o test_muly
 
-test_div: nwad.mod submaxima_div.o test_div.o
+test_div: nwad3.mod submaxima_div.o test_div.o
 	gfortran test_div.o submaxima_div.o nwad.o -o test_div
 
-test_divx: nwad.mod submaxima_divx.o test_divx.o
+test_divx: nwad3.mod submaxima_divx.o test_divx.o
 	gfortran test_divx.o submaxima_divx.o nwad.o -o test_divx
 
-test_divy: nwad.mod submaxima_divy.o test_divy.o
+test_divy: nwad3.mod submaxima_divy.o test_divy.o
 	gfortran test_divy.o submaxima_divy.o nwad.o -o test_divy
 
-test_pow: nwad.mod submaxima_pow.o test_pow.o
+test_pow: nwad3.mod submaxima_pow.o test_pow.o
 	gfortran test_pow.o submaxima_pow.o nwad.o -o test_pow
 
-test_powx: nwad.mod submaxima_powx.o test_powx.o
+test_powx: nwad3.mod submaxima_powx.o test_powx.o
 	gfortran test_powx.o submaxima_powx.o nwad.o -o test_powx
 
-test_powy: nwad.mod submaxima_powy.o test_powy.o
+test_powy: nwad3.mod submaxima_powy.o test_powy.o
 	gfortran test_powy.o submaxima_powy.o nwad.o -o test_powy
 
-test_dx: nwad.mod submaxima_dx.o test_dx.o
+test_dx: nwad3.mod submaxima_dx.o test_dx.o
 	gfortran test_dx.o submaxima_dx.o nwad.o -o test_dx
 
-test_dxy: nwad.mod submaxima_dxy.o test_dxy.o
+test_dxy: nwad3.mod submaxima_dxy.o test_dxy.o
 	gfortran test_dxy.o submaxima_dxy.o nwad.o -o test_dxy
 
-test_dxyz: nwad.mod submaxima_dxyz.o test_dxyz.o
+test_dxyz: nwad3.mod submaxima_dxyz.o test_dxyz.o
 	gfortran test_dxyz.o submaxima_dxyz.o nwad.o -o test_dxyz
 
-test_lt: nwad.mod test_lt.o
+test_lt: nwad3.mod test_lt.o
 	gfortran test_lt.o nwad.o -o test_lt
 
-test_le: nwad.mod test_le.o
+test_le: nwad3.mod test_le.o
 	gfortran test_le.o nwad.o -o test_le
 
-test_gt: nwad.mod test_gt.o
+test_gt: nwad3.mod test_gt.o
 	gfortran test_gt.o nwad.o -o test_gt
 
-test_ge: nwad.mod test_ge.o
+test_ge: nwad3.mod test_ge.o
 	gfortran test_ge.o nwad.o -o test_ge
 
 # NWADDEG not used yet, but planned as a way to generate modules for different
 # degrees of differentiation
-nwad.mod: ../nwad.F90
-	gfortran -c -DNWADDEG=3 $^
+nwad3.mod: ../nwad.F90
+	gfortran -c $^
 
 %.o:	%.F
 	gfortran -c $^
@@ -308,5 +308,5 @@ nwad.mod: ../nwad.F90
 	maxima -b $^
 
 clean:
-	rm -f *.o *.log submaxima_*.F nwad.mod
+	rm -f *.o *.log submaxima_*.F nwad?.mod
 	find . -maxdepth 1 -perm -u=x -type f -exec rm {} \; -print

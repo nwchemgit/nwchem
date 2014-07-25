@@ -9,7 +9,7 @@ C> This program tests the interpolation formula for
 C> \f$\frac{df}{dx}\f$.
 C> 
       program test_dx
-      use nwad
+      use nwad3
       implicit none
       integer :: npt, i
       parameter (npt = 100)
@@ -46,7 +46,7 @@ C>
 C> \brief The test routine
 C>
       subroutine subad_dx(x,y,f)
-      use nwad
+      use nwad3
       implicit none
       type(nwad_dble) :: x, y, f
       type(nwad_dble) :: c, s

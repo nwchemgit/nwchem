@@ -8,7 +8,7 @@ C> compared against analytic derivatives. The function is 1-dimensional as
 C> that is sufficient for this test. The input data set is randomly generated.
 C> 
       program test_div
-      use nwad
+      use nwad3
       implicit none
       integer :: npt, i
       parameter (npt = 100)
@@ -49,7 +49,7 @@ C>
 C> \brief The test routine
 C>
       subroutine subad_div(x,f)
-      use nwad
+      use nwad3
       implicit none
       type(nwad_dble) :: x, f
       type(nwad_dble) :: c, s

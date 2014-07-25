@@ -8,7 +8,7 @@ C> against analytic derivatives. The function is 1-dimensional as that is
 C> sufficient for this test. The input data set is randomly generated.
 C> 
       program test_cos
-      use nwad
+      use nwad3
       implicit none
       integer :: npt, i
       parameter (npt = 100)
@@ -49,7 +49,7 @@ C>
 C> \brief The test routine
 C>
       subroutine subad_cos(x,f)
-      use nwad
+      use nwad3
       implicit none
       type(nwad_dble) :: x, f
       f = cos(sin(x))
