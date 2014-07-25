@@ -2610,6 +2610,18 @@ CORE_LIBS += $(LIBFFTW3)
 endif
 
 
+# FEFF library inclusion
+ifdef USE_FEFF
+ifndef LIBFEFF
+  LIBFEFF = -lfeff
+endif
+ifdef FEFF_LIB
+      CORE_LIBS += -L$(FEFF_LIB)
+endif
+CORE_LIBS += $(LIBFEFF) 
+endif
+
+
 
 # slurm libraries for remaining wall time under slurm resource manager
 
