@@ -54,7 +54,7 @@ c     *** parameters ***
 
       write(luout,*)
       write(luout,*) 
-     =  '===== Calculating pair distribution function ===='
+     =  '===== Calculating pair distribution function ====='
       write(luout,*)
 
 *     *** get the number of frames from MOTION ***

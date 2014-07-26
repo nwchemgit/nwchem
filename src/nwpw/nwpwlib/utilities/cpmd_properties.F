@@ -20,7 +20,7 @@ c
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value,doit,oprint
+      logical value,doit,oprint,mdxs
       character*80 filename
       character*255 full_filename,full_filename2
 
@@ -83,6 +83,11 @@ c
          call shake_analysis(rtdb)
          call FixIon_analysis(rtdb)
       end if
+
+*     **** MD XS analysis ****
+      if (.not.rtdb_get(rtdb,'nwpw:md_xs',mt_log,1,mdxs)) mdxs=.false.
+      if (mdxs) call nwpw_md_xs_analysis(rtdb,full_filename)
+
 
       end if
 
