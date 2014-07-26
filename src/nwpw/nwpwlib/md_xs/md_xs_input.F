@@ -14,8 +14,7 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
 #include "rtdb.fh"
 #include "errquit.fh"
 
-
-
+*     **** local variables ****
       integer num_dirs          ! No. of known directives
       parameter (num_dirs = 5)
       character*18 dirs(num_dirs)
@@ -26,12 +25,20 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
      >            'end'/
 
 c
-      logical       value
+      logical       value,md_xs
       character*80  rtdb_name
       character*255 test,test2
       integer ind               ! Index of matched directive
 
+*     **** external functions ****
+      logical  nwpw_parse_boolean
+      external nwpw_parse_boolean
 
+      md_xs = .true.
+      if (inp_a(test)) then
+          md_xs = nwpw_parse_boolean(test,.true.)
+          go to 9999
+      end if
 
  10   if (.not. inp_read()) 
      >  call errquit(
@@ -53,7 +60,7 @@ c
 c  spectroscopy
 c
  100  if (inp_a(test2)) then
-         rtdb_name = 'ms_xs:spectroscopy'
+         rtdb_name = 'md_xs:spectroscopy'
          value = rtdb_cput(rtdb,rtdb_name,1,test2)
          if (.not. value) call errquit(
      >   'md_xs_input:failed writing spectroscopy',100,RTDB_ERR)
@@ -99,6 +106,12 @@ c
 
 
  9999 continue
+
+         if (.not.rtdb_put(rtdb,'nwpw:md_xs',mt_log,1,md_xs))
+     >    call errquit(
+     >   'md_xs_input:failed writing md_xs:',0,
+     >    RTDB_ERR)
+
       
       return
       end

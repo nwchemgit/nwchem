@@ -36,9 +36,9 @@ c     **********************************************
       
 #else
       if (oprint) then
-         write(luout,*) 
+         write(luout,*) "==== ",
      >     "FEFF library not inlucded in compile: ",
-     >     "MD XS analysis not performed"
+     >     "MD XS analysis not performed"," ===="
       end if
 #endif
       return
