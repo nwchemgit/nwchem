@@ -24,7 +24,7 @@
       integer	  ispin,multiplicity
       integer     est_finish_time,est_step_time
       logical     move,frac_coord,SA,fei,fei_quench,gram_schmidt
-      logical     rotation,translation,balance,spin_orbit
+      logical     rotation,translation,balance,spin_orbit,md_xs
       logical     two_comp_ppot,frozen,pio,fast_erf,fmm,smooth_cutoff
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     symm_number,minimizer
@@ -44,7 +44,7 @@
      >                         symm_number,
      >                         move,frac_coord,SA,fei,fei_quench,
      >                         gram_schmidt,rotation,translation,
-     >                         balance,spin_orbit,
+     >                         balance,spin_orbit,md_xs,
      >                         two_comp_ppot,frozen,pio,fast_erf,
      >                         fmm,smooth_cutoff
       common / control_blkchar / boutput_wavefunction_filename,

@@ -304,6 +304,9 @@ c       call nwxc_print()
         sa_decay(2) = 1.0d0
       end if
 
+      if (.not.rtdb_get(rtdb,'nwpw:md_xs',mt_log,1,md_xs))
+     >  md_xs = .false.
+
       if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
      >  fei = .false.
 
@@ -477,6 +480,9 @@ c       call nwxc_print()
         sa_decay(1) = 1.0d0
         sa_decay(2) = 1.0d0
       end if
+
+      if (.not.rtdb_get(rtdb,'nwpw:md_xs',mt_log,1,md_xs))
+     >  md_xs = .false.
 
       if (.not.rtdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
      >  fei = .false.
@@ -806,6 +812,9 @@ c       call nwxc_print()
         sa_decay(1) = 1.0d0
         sa_decay(2) = 1.0d0
       end if
+
+      if (.not.rtdb_get(rtdb,'nwpw:md_xs',mt_log,1,md_xs))
+     >  md_xs = .false.
 
       if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
      >  fei = .false.
@@ -3608,6 +3617,22 @@ c      end
       control_balance=balance
       return
       end
+
+*     ***************************
+*     *                         *
+*     *        control_md_xs    *
+*     *                         *
+*     ***************************  
+      logical function control_md_xs()
+      implicit none
+      
+#include "control.fh"
+      
+      control_md_xs=md_xs
+      return
+      end
+
+
 
 
 
