@@ -86,7 +86,7 @@ c
 
 *     **** MD XS analysis ****
       if (.not.rtdb_get(rtdb,'nwpw:md_xs',mt_log,1,mdxs)) mdxs=.false.
-      if (mdxs) call nwpw_md_xs_analysis(rtdb,full_filename)
+      if (mdxs) call md_xs_analysis(rtdb,full_filename)
 
 
       end if
