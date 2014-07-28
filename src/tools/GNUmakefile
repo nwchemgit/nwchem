@@ -492,6 +492,9 @@ ifdef USE_GPROF
     FFLAGS="-pg"
     CFLAGS="-pg"
     CXXFLAGS="-pg"
+    FFLAGS_FORGA+="-pg"
+    CFLAGS_FORGA+="-pg"
+    CXXFLAGS_FORGA+="-pg"
 endif
 
 ifdef USE_OFFLOAD
