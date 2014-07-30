@@ -16,18 +16,22 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
 
 *     **** local variables ****
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 5)
+      parameter (num_dirs = 7)
       character*18 dirs(num_dirs)
       data dirs / 'spectroscopy',
      >            'absorber',
      >            'edge',
      >            'center',
+     >            'rmax',
+     >            'stride',
      >            'end'/
 
 c
       logical       value,md_xs
       character*80  rtdb_name
       character*255 test,test2
+      real*8 rmax
+      integer icenter,istride
       integer ind               ! Index of matched directive
 
 *     **** external functions ****
@@ -51,7 +55,7 @@ c
      >  call errquit(
      >  'md_xs_input: unknown_directive',ind,INPUT_ERR)
 
-      goto ( 100, 200,300, 400,
+      goto ( 100, 200,300, 400, 500, 600,
      >      9999) ind
       call errquit(
      >     'md_xs_input: unimplemented directive',ind,INPUT_ERR)
@@ -95,11 +99,35 @@ c
 c
 c  center
 c
- 400  if (inp_a(test2)) then
+ 400  if (inp_i(icenter)) then
          rtdb_name = 'md_xs:center'
-         value = rtdb_cput(rtdb,rtdb_name,1,test2)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,icenter)
          if (.not. value) call errquit(
      >   'md_xs_input:failed writing update',400, RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c  rmax
+c
+ 500  if (inp_f(rmax)) then
+         rtdb_name = 'md_xs:rmax'
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,1,rmax)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',500, RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c  stride
+c
+ 600  if (inp_i(istride)) then
+         rtdb_name = 'md_xs:stride'
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,istride)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',600, RTDB_ERR)
       end if
 
       goto 10
