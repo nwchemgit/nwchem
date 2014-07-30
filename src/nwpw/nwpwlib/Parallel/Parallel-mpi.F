@@ -84,6 +84,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_sum     = MPI_SUM
       stupid_max     = MPI_MAX
       stupid_min     = MPI_MIN
+      stupid_character = MPI_CHARACTER
       stupid_integer = MPI_INTEGER
       stupid_double  = MPI_DOUBLE_PRECISION
       stupid_complex = MPI_DOUBLE_COMPLEX
@@ -1884,5 +1885,133 @@ c     implicit none
       end
 
 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_send_values       *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_send_values(pto,msgtype,nsize,rval)
+      implicit none
+      integer pto,msgtype,nsize
+      real*8 rval(*)
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+#ifdef MPI4
+      stupid_msglen = nsize
+      stupid_taskid = pto
+      stupid_type = msgtype
+      call MPI_SEND(rval,stupid_msglen,stupid_double,
+     >              stupid_taskid,
+     >              stupid_type,stupid_world,stupid_ierr)
+#else
+      call MPI_SEND(rval,nsize,MPI_DOUBLE_PRECISION,
+     >              pto,msgtype,comm_world,mpierr)
+#endif
+      return
+      end 
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_send_characters   *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_send_characters(pto,msgtype,nsize,cval)
+      implicit none
+      integer pto,msgtype,nsize
+      character cval(*)
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+#ifdef MPI4
+      stupid_msglen = nsize
+      stupid_taskid = pto
+      stupid_type   = msgtype
+      call MPI_SEND(cval,stupid_msglen,stupid_character,
+     >              stupid_taskid,
+     >              stupid_type,stupid_world,stupid_ierr)
+#else
+      call MPI_SEND(cval,nsize,MPI_CHARACTER,
+     >              pto,msgtype,comm_world,mpierr)
+#endif
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_recv_values       *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_recv_values(pfrom,msgtype,nsize,rval)
+      implicit none
+      integer pfrom,msgtype,nsize
+      real*8 rval(*)
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+#ifdef MPI4
+      stupid_msglen = nsize
+      stupid_taskid = pfrom
+      stupid_type = msgtype
+      call MPI_RECV(rval,stupid_msglen,stupid_double,
+     >              stupid_taskid,
+     >              stupid_type,stupid_world,stupid_ierr)
+#else
+      call MPI_RECV(rval,nsize,MPI_DOUBLE_PRECISION,
+     >              pfrom,msgtype,comm_world,mpierr)
+#endif
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_recv_characters   *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_recv_characters(pfrom,msgtype,nsize,cval)
+      implicit none
+      integer  pfrom,msgtype,nsize
+      character cval(*)
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+#ifdef MPI4
+      stupid_msglen = nsize
+      stupid_taskid = pfrom
+      stupid_type   = msgtype
+      call MPI_RECV(cval,stupid_msglen,stupid_character,
+     >              stupid_taskid,
+     >              stupid_type,stupid_world,stupid_ierr)
+#else
+      call MPI_RECV(cval,nsize,MPI_CHARACTER,
+     >              pfrom,msgtype,comm_world,mpierr)
+#endif
+      return
+      end
 
 
