@@ -1122,3 +1122,82 @@ c     implicit none
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_send_characters   *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_send_characters(pto,msgtype,nsize,cval)
+      implicit none
+      integer pto,msgtype,nsize
+      character cval(*)
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer  rcv_len,rcv_proc
+
+      call SND(9+MSGCHR,cval,nsize,pto,1)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_send_values       *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_send_values(pto,msgtype,nsize,rval)
+      implicit none                     
+      integer pto,msgtype,nsize
+      character rval(*)                 
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      call SND(9+MSGDBL,rval,mdtob(nsize),pto,1)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_recv_characters   *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_recv_characters(pfrom,msgtype,nsize,cval)
+      implicit none
+      integer  pfrom,msgtype,nsize
+      character cval(*)
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer  rcv_len,rcv_proc
+
+      call RCV(9+MSGCHR,cval,nsize,rcv_len,pfrom,rcv_proc,1)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_recv_values       *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_recv_values(pfrom,msgtype,nsize,rval)
+      implicit none
+      integer  pfrom,msgtype,nsize
+      real*8   rval(*)
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer  rcv_len,rcv_proc
+
+      call RCV(9+MSGDBL,rval,mdtob(nsize),rcv_len,pfrom,rcv_proc,1)
+      return
+      end
+
