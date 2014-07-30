@@ -41,10 +41,11 @@ c     **********************************************
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER)
 
-      call Parallel2d_np_j(npi)
+      call Parallel2d_np_i(npi)
       call Parallel2d_np_j(npj)
-      call Parallel2d_taskid_j(taskid_i)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+      write(*,*) "taskid,taskid_i,taskid_j=",taskid,taskid_i,taskid_j
 
 #ifdef FEFF
       call feff_codeversion(codeversion)
@@ -119,18 +120,20 @@ c     **********************************************
                     else
                        !*** send natoms1,tag,rion to icpu ***
                        pto = Parallel2d_convert_taskid_i(icpu)
-                       call Parallel_send_characters(pto,2*k,
+                       call Parallel_send_ivalues(pto,3*k,1,natoms1)
+                       call Parallel_send_characters(pto,3*k+1,
      >                                        2*natoms1,byte_mb(tag(1)))
-                       call Parallel_send_values(pto,2*k+1,
+                       call Parallel_send_values(pto,3*k+2,
      >                                        3*natoms1,dbl_mb(rion(1)))
                     end if
                  else
                     if (icpu.eq.taskid_i) then
                        !*** receive natoms1,tag,rion from MASTER ***
                        pfrom = Parallel2d_convert_taskid_i(MASTER)
-                       call Parallel_recv_characters(pfrom,2*k,
+                       call Parallel_recv_ivalues(pfrom,3*k,1,natoms1)
+                       call Parallel_recv_characters(pfrom,3*k+1,
      >                                        2*natoms1,byte_mb(tag(1)))
-                       call Parallel_recv_values(pfrom,2*k+1,
+                       call Parallel_recv_values(pfrom,3*k+2,
      >                                        3*natoms1,dbl_mb(rion(1)))
 
                        !*** compute md_xs with natoms1,tag,rion +--> kf,chif ***
@@ -202,6 +205,8 @@ c     **********************************************
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+c      write(*,*) "iam here, taskid=",taskid,symbols(1),
+c     >           rion(1,1),rion(2,1),rion(3,1)
 
 
       return
