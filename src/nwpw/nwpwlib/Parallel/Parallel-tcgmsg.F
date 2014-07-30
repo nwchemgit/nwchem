@@ -1160,6 +1160,25 @@ c     implicit none
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *      Parallel_send_ivalues      *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_send_ivalues(pto,msgtype,nsize,ival)
+      implicit none
+      integer pto,msgtype,nsize
+      integer   ival(*)
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      call SND(9+MSGINT,ival,mitob(nsize),pto,1)
+      return
+      end
+
+
+
 
 
 *     ***********************************
@@ -1198,6 +1217,26 @@ c     implicit none
       integer  rcv_len,rcv_proc
 
       call RCV(9+MSGDBL,rval,mdtob(nsize),rcv_len,pfrom,rcv_proc,1)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_recv_ivalues      *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_recv_ivalues(pfrom,msgtype,nsize,ival)
+      implicit none
+      integer  pfrom,msgtype,nsize
+      integer  ival(*)
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer  rcv_len,rcv_proc
+
+      call RCV(9+MSGINT,ival,mitob(nsize),rcv_len,pfrom,rcv_proc,1)
       return
       end
 

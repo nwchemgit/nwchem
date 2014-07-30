@@ -1921,6 +1921,53 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
+*     *      Parallel_send_ivalues      *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_send_ivalues(pto,msgtype,nsize,ival)
+      implicit none
+      integer pto,msgtype,nsize
+      integer ival(*)
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+#ifdef MPI4
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      logical value
+      integer ival4(2)
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_int,nsize,'ival4',ival4(2),ival4(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      call stupid_icopy8to4(nsize,ival,int_mb(ival4(1)))
+      stupid_msglen = nsize
+      stupid_taskid = pto
+      stupid_type = msgtype
+      call MPI_SEND(int_mb(ival4(1)),stupid_msglen,stupid_integer,
+     >              stupid_taskid,
+     >              stupid_type,stupid_world,stupid_ierr)
+      value = MA_pop_stack(ival4(2))
+      if (.not.value) call errquit('popping stack memory',0,MA_ERR)
+#else
+      call MPI_SEND(ival,nsize,MPI_INTEGER,
+     >              pto,msgtype,comm_world,mpierr)
+#endif
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *      Parallel_send_characters   *
 *     *                                 *
 *     ***********************************
@@ -1963,11 +2010,21 @@ c     implicit none
       real*8 rval(*)
 
 #include "Parallel.fh"
+#include "mpif.h"
 #ifdef MPI4
 #include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
 #endif
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      logical value
+      integer status(2),mpierr
+
+*     **** allocate status memory ****
+      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+     >                     'status',status(2),status(1)))
+     > call errquit('out of stack',0,MA_ERR)
 
 #ifdef MPI4
       stupid_msglen = nsize
@@ -1975,13 +2032,75 @@ c     implicit none
       stupid_type = msgtype
       call MPI_RECV(rval,stupid_msglen,stupid_double,
      >              stupid_taskid,
-     >              stupid_type,stupid_world,stupid_ierr)
+     >              stupid_type,stupid_world,int_mb(status(1)),
+     >              stupid_ierr)
 #else
       call MPI_RECV(rval,nsize,MPI_DOUBLE_PRECISION,
-     >              pfrom,msgtype,comm_world,mpierr)
+     >              pfrom,msgtype,comm_world,int_mb(status(1)),
+     >              mpierr)
 #endif
+
+      value = MA_pop_stack(status(2))
+      if (.not.value) call errquit('popping stack memory',0,MA_ERR)
+
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_recv_ivalues       *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_recv_ivalues(pfrom,msgtype,nsize,ival)
+      implicit none
+      integer pfrom,msgtype,nsize
+      integer ival(*)
+
+#include "Parallel.fh"
+#include "mpif.h"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      logical value
+      integer ival4(2),status(2),mpierr
+
+*     **** allocate status memory ****
+      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+     >                     'status',status(2),status(1)))
+     > call errquit('out of stack',0,MA_ERR)
+
+#ifdef MPI4
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_int,nsize,'ival4',ival4(2),ival4(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      stupid_msglen = nsize
+      stupid_taskid = pfrom
+      stupid_type = msgtype
+      call MPI_RECV(int_mb(ival4(1)),stupid_msglen,stupid_integer,
+     >              stupid_taskid,
+     >              stupid_type,stupid_world,int_mb(status(1)),
+     >              stupid_ierr)
+      call stupid_icopy4to8(nsize,int_mb(ival4(1)),ival)
+      value = MA_pop_stack(ival4(2))
+      if (.not. value) call errquit('popping stack memory',0,MA_ERR)
+      
+#else
+      call MPI_RECV(ival,nsize,MPI_INTEGER,
+     >              pfrom,msgtype,comm_world,int_mb(status(1)),mpierr)
+#endif
+
+      value = MA_pop_stack(status(2))
+      if (.not.value) call errquit('popping stack memory',0,MA_ERR)
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *                                 *
@@ -1994,11 +2113,23 @@ c     implicit none
       character cval(*)
 
 #include "Parallel.fh"
+
+#include "mpif.h"
+
 #ifdef MPI4
 #include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
 #endif
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      logical value
+      integer status(2),mpierr
+
+*     **** allocate status memory ****
+      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+     >                     'status',status(2),status(1)))
+     > call errquit('out of stack',0,MA_ERR)
 
 #ifdef MPI4
       stupid_msglen = nsize
@@ -2006,11 +2137,16 @@ c     implicit none
       stupid_type   = msgtype
       call MPI_RECV(cval,stupid_msglen,stupid_character,
      >              stupid_taskid,
-     >              stupid_type,stupid_world,stupid_ierr)
+     >              stupid_type,stupid_world,int_mb(status(1)),
+     >              stupid_ierr)
 #else
       call MPI_RECV(cval,nsize,MPI_CHARACTER,
-     >              pfrom,msgtype,comm_world,mpierr)
+     >              pfrom,msgtype,comm_world,int_mb(status(1)),
+     >              mpierr)
 #endif
+
+      value = MA_pop_stack(status(2))
+      if (.not.value) call errquit('popping stack memory',0,MA_ERR)
       return
       end
 
