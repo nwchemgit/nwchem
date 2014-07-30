@@ -209,7 +209,8 @@ c     **********************************************
          write(19,'(A,I8)') '# natoms=',natoms
          write(19,'(A,F16.8)') '#volume=',volume
          do i=1,nkf
-            write(19,'(4E20.9)') dbl_mb(kf(1)+i-1),dbl_mb(chif(1)+i-1)
+            write(19,'(F16.4,3E20.9)') 
+     >         dbl_mb(kf(1)+i-1),dbl_mb(chif(1)+i-1)
          end do
          close(19)
       end if
