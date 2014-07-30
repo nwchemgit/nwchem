@@ -194,9 +194,9 @@ c     **********************************************
 
       if (taskid.eq.MASTER) then
          open(unit=19,file=full_chi_filename,form='formatted')
-         write(19,'(A,A)') '# Chi data filename:',
+         write(19,'(A,A)') '#Chi data filename:',
      >                     trim(full_chi_filename)
-         write(19,'(A,I4)') "# nkf =",nkf
+         write(19,'(A,I4)') "#nkf =",nkf
          write(19,'(A,A)') "#spectroscopy:     ",trim(spectroscopy)
          write(19,'(A,A)') "#absorber:         ",trim(absorber)
          write(19,'(A,A)') "#edge:             ",trim(edge)
