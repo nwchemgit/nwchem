@@ -21,5 +21,8 @@ include ../../../config/makelib.h
 
 ifeq ($(USE_FEFF),y)
   LIB_DEFINES += -DFEFF
+  ifeq ($(USE_FEFF8),y)
+     LIB_DEFINES += -DFEFF8
+  endif
 endif
 
