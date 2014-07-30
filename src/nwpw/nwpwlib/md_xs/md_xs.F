@@ -121,7 +121,7 @@ c     **********************************************
                        pto = Parallel2d_convert_taskid_i(icpu)
                        call Parallel_send_characters(pto,2*k,
      >                                        2*natoms1,byte_mb(tag(1)))
-                       call Parallel_send_value(pto,2*k+1,
+                       call Parallel_send_values(pto,2*k+1,
      >                                        3*natoms1,dbl_mb(rion(1)))
                     end if
                  else
