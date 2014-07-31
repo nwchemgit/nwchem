@@ -1682,6 +1682,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
           _CC=craycc
 	  endif
           DEFINES  += -DCRAYXT -DNOIO
+          USE_NOIO=1
       endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
