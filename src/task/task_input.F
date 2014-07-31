@@ -157,6 +157,9 @@ c            oembed = .true.
      >                        'nwpw-optimize')) then
             operation='nwpw-optimize'
          else if (inp_compare(.false.,test,
+     >                        'aimd_properties')) then
+            operation='aimd_properties'
+         else if (inp_compare(.false.,test,
      >                        'conjugate_gradient')) then
             operation='conjugate_gradient'
          else if (inp_compare(.false.,test,
