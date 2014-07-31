@@ -1965,6 +1965,10 @@ endif
          FOPTIONS += -fpe0 -traceback #-fp-model  precise
        endif
         ifeq ($(_IFCV11),Y) 
+# 	    FOPTIMIZE +=  -xP
+#next 2 lines needed for fp accuracy
+	FOPTIONS += -fp-model source
+	FOPTIONS += -fimf-arch-consistency=true
         FOPTIMIZE += -xHost -no-prec-div
        else
         ifeq ($(_GOTSSE3),Y) 
