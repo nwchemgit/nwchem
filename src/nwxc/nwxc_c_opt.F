@@ -11,12 +11,37 @@ C> @{
 C>
 C> \brief The OPT correlation functional
 C>
-C> The OPTimized correlation functional [1].
+C> The OPTimized correlation functional [1]. This functional uses
+C> the Stoll partitioning of the correlation energy [2]. This is 
+C> formulated as (see Eq.(3) in [2]):
+C> \f{eqnarray*}
+C>   E_c \approx \int (\rho_\alpha+\rho_\beta)
+C>       \epsilon_c(\rho_\alpha,\rho_\beta)dr
+C>      -  \int\rho_\alpha\epsilon_c(\rho_\alpha,0)dr
+C>      -  \int\rho_\beta\epsilon_c(0,\rho_\beta)dr
+C> \f}
+C> However, this equation can be interpreted in two ways. The second
+C> and third terms can be interpreted as the full functional evaluated
+C> at zero density for one of the spin components. Alternatively,
+C> they can be interpreted as functionals of one component of the 
+C> spin density only (and not a functional of the other spin component
+C> at all). The text in [2] clearly states that the latter 
+C> interpretation is the correct one. In practice this means that for
+C> the second term all derivatives with respect to \f$\rho_\beta,
+C> \gamma_{\alpha\beta}\f$ and \f$\gamma_{\beta\beta}\f$ are zero.
+C> Similar consequences follow for the third term.
 C>
 C> [1] N.C. Handy, A.J. Cohen, "Dynamic correlation",
 C>     Mol. Phys. <b>99</b>, 607-615 (2001), DOI:
 C>     <A HREF="http://dx.doi.org/10.1080/00268970010023435">
 C>     10.1080/00268970010023435</A>.
+C>
+C> [2] H. Stoll, C.M.E. Pavlidou, H. Preu&szlig;,
+C>     "On the calculation of correlation energies in the spin-density
+C>     functional formalism", Theor. Chim. Acta <b>49</b>, 143-149
+C>     (1978), DOI:
+C>     <A HREF="http://dx.doi.org/10.1007/PL00020511">
+C>     10.1007/PL00020511</A>.
 c
 C$Id$
 c
@@ -118,11 +143,9 @@ c
            do ii = 0, num - 1
               func(iq+ii) = func(iq+ii) + 2*funcl(ii+1)
               Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA)
-     +                          + Amatl(ii+1,D1_RA) + Amatl(ii+1,D1_RB)
+     +                          + Amatl(ii+1,D1_RA)
               Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
-     +                           + (2.0d0)*Cmatl(ii+1,D1_GAA) 
-              Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
-     +                           + (2.0d0)*Cmatl(ii+1,D1_GAB)
+     +                           + Cmatl(ii+1,D1_GAA) 
            enddo
          enddo
 c
@@ -183,13 +206,8 @@ c
            do ii = 0, num - 1
               func(iq+ii) = func(iq+ii) + funcl(ii+1)
               Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
-              Amat(iq+ii,D1_RB) = Amat(iq+ii,D1_RB) + Amatl(ii+1,D1_RB)
               Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
      +                           + Cmatl(ii+1,D1_GAA)
-              Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
-     +                           + Cmatl(ii+1,D1_GAB)
-              Cmat(iq+ii,D1_GBB) = Cmat(iq+ii,D1_GBB)
-     +                           + Cmatl(ii+1,D1_GBB)
            enddo
 c
 c          (c2-c1)*Ec[0,b]
@@ -210,12 +228,7 @@ c
      +                     Amatl,Cmatl)
            do ii = 0, num - 1
               func(iq+ii) = func(iq+ii) + funcl(ii+1)
-              Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
               Amat(iq+ii,D1_RB) = Amat(iq+ii,D1_RB) + Amatl(ii+1,D1_RB)
-              Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
-     +                           + Cmatl(ii+1,D1_GAA)
-              Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
-     +                           + Cmatl(ii+1,D1_GAB)
               Cmat(iq+ii,D1_GBB) = Cmat(iq+ii,D1_GBB)
      +                           + Cmatl(ii+1,D1_GBB)
            enddo
