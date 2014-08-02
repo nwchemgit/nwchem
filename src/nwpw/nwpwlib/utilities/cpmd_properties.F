@@ -20,14 +20,11 @@ c
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value,doit,oprint,mdxs
+      logical value,doit,oprint,mdxs,fei
       character*80 filename
       character*255 full_filename,full_filename2
 
-*     **** external functions ****
-      logical  control_Fei
-      external control_Fei
-
+*     
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER)
 
@@ -79,7 +76,10 @@ c
 
 
 *     **** perform shake force averaging if Fei set *****
-      if (control_Fei()) then
+      if (.not.rtdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
+     >  fei = .false.
+
+      if (fei) then
          call shake_analysis(rtdb)
          call FixIon_analysis(rtdb)
       end if
@@ -93,4 +93,6 @@ c
 
       return
       end
+
+
 
