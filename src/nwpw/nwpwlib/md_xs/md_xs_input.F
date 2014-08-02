@@ -16,7 +16,7 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
 
 *     **** local variables ****
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 7)
+      parameter (num_dirs = 9)
       character*18 dirs(num_dirs)
       data dirs / 'spectroscopy',
      >            'absorber',
@@ -24,14 +24,16 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
      >            'center',
      >            'rmax',
      >            'stride',
+     >            'rcut',
+     >            'Fourier',
      >            'end'/
 
 c
       logical       value,md_xs
       character*80  rtdb_name
       character*255 test,test2
-      real*8 rmax
-      integer icenter,istride
+      real*8 rmax,rcut,ft(3)
+      integer icenter,istride,iw
       integer ind               ! Index of matched directive
 
 *     **** external functions ****
@@ -55,7 +57,7 @@ c
      >  call errquit(
      >  'md_xs_input: unknown_directive',ind,INPUT_ERR)
 
-      goto ( 100, 200,300, 400, 500, 600,
+      goto ( 100, 200,300, 400, 500, 600, 700,800,
      >      9999) ind
       call errquit(
      >     'md_xs_input: unimplemented directive',ind,INPUT_ERR)
@@ -129,6 +131,35 @@ c
          if (.not. value) call errquit(
      >   'md_xs_input:failed writing update',600, RTDB_ERR)
       end if
+
+      goto 10
+
+c
+c  rcut
+c
+ 700  if (inp_f(rcut)) then
+         rtdb_name = 'md_xs:rcut'
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,1,rcut)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',700, RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c  Fourier Kmin Kmax dK iw
+c
+ 800  if (.not.inp_f(ft(1))) ft(1) = 2.3
+      if (.not.inp_f(ft(2))) ft(2) = 17.0
+      if (.not.inp_f(ft(3))) ft(3) = 1.0
+      if (.not.inp_i(iw))    iw = 2
+         rtdb_name = 'md_xs:Fourier'
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,3,ft)
+         rtdb_name = 'md_xs:Fourier_iw'
+         value = value.and.
+     >           rtdb_put(rtdb,rtdb_name,mt_int,1,iw)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',800, RTDB_ERR)
 
       goto 10
 

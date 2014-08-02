@@ -1,6 +1,5 @@
 c $Id: md_xs.F 25353 2014-03-17 14:12:25Z jhammond $
 
-
 c     **********************************************
 c     *                                            *
 c     *                md_xs_analysis              *
@@ -25,13 +24,14 @@ c     **********************************************
       character*20 codeversion
       character*2 tag2
       character*4 tag4
-      integer nframes,natoms,stride,natoms1,center,nkf
-      integer iii,i,k,icount,icpu,pto,pfrom
-      real*8  rmax,x,y,z,vx,vy,vz,time1,volume,unita(3,3)
+      integer nframes,natoms,stride,natoms1,center,nkf,nr
+      integer iii,i,k,icount,icpu,pto,pfrom,iw
+      real*8  rmax,rcut,x,y,z,vx,vy,vz,time1,volume,unita(3,3),ft(3)
+      complex*16 zz
 
       integer nkf0
       parameter (nkf0 = 601)
-      integer kf(2),chif(2),rion(2),tag(2)
+      integer kf(2),chif(2),rion(2),tag(2),r(2),chi_r(2),tmpfft(2)
 
       character*30 spectroscopy,absorber,edge
       character*80 chi_filename
@@ -65,11 +65,22 @@ c     **********************************************
      >   center = 1
       if (.not.rtdb_get(rtdb,'md_xs:rmax',mt_dbl,1,rmax))
      >   rmax = 10.0d0
+      if (.not.rtdb_get(rtdb,'md_xs:rcut',mt_dbl,1,rcut))
+     >   rcut = 5.0d0
+      if (rcut.lt.1.0d-3) rcut = 0.0d0
+      rcut = rcut/0.529177d0
       call util_file_name_noprefix('md_xs',.true.,.true.,header)
 
       if (.not.rtdb_get(rtdb,'md_xs:stride',mt_int,1,stride))
      >   stride = 1
 
+      if (.not.rtdb_get(rtdb,'md_xs:Fourier',mt_dbl,3,ft)) then
+         ft(1) = 2.3d0
+         ft(2) = 17.0d0
+         ft(3) = 1.0d0
+      end if
+      if (.not.rtdb_get(rtdb,'md_xs:Fourier_iw',mt_int,1,iw))
+     >   iw = 2
 
 *     **** define the chi data filename ****
       if (.not.rtdb_cget(rtdb,'md_xs:chi_filename',1,chi_filename))
@@ -104,8 +115,14 @@ c     **********************************************
          write(luout,*) 'absorber:         ',absorber
          write(luout,*) 'edge:             ',edge
          write(luout,*) 'center:           ',center
-         write(luout,*) 'rmax:             ',rmax
+         write(luout,*) 'rmax (Angstroms): ',rmax
+         write(luout,*) 'rcut (Angstroms): ',rcut*0.529177d0
          write(luout,*)
+         write(luout,*) 'Fourier Transform Window'
+         write(luout,*) 'Kmin (Angstroms): ',ft(1)
+         write(luout,*) 'Kmax (Angstroms): ',ft(2)
+         write(luout,*) 'dK   (Angstroms): ',ft(3)
+         write(luout,*) 'w               : ',iw
       end if
 
 *     **** allocate memory from stack ****
@@ -147,31 +164,33 @@ c     **********************************************
                     if (icpu.eq.MASTER) then
                        !*** compute md_xs with natoms1,tag,rion +--> kf,chif ***
                        call md_xs(header,spectroscopy,absorber,edge,
-     >                            center,rmax,
+     >                         rmax,center,rcut,unita,
      >                         natoms1,byte_mb(tag(1)),dbl_mb(rion(1)),
      >                         nkf,nkf0,dbl_mb(kf(1)),dbl_mb(chif(1)))
                     else
                        !*** send natoms1,tag,rion to icpu ***
                        pto = Parallel2d_convert_taskid_i(icpu)
-                       call Parallel_send_ivalues(pto,3*k,1,natoms1)
-                       call Parallel_send_characters(pto,3*k+1,
+                       call Parallel_send_ivalues(pto,   4*k, 1,natoms1)
+                       call Parallel_send_values(pto,    4*k+1,9,unita)
+                       call Parallel_send_characters(pto,4*k+2,
      >                                        2*natoms1,byte_mb(tag(1)))
-                       call Parallel_send_values(pto,3*k+2,
+                       call Parallel_send_values(pto,    4*k+3,
      >                                        3*natoms1,dbl_mb(rion(1)))
                     end if
                  else
                     if (icpu.eq.taskid_i) then
                        !*** receive natoms1,tag,rion from MASTER ***
                        pfrom = Parallel2d_convert_taskid_i(MASTER)
-                       call Parallel_recv_ivalues(pfrom,3*k,1,natoms1)
-                       call Parallel_recv_characters(pfrom,3*k+1,
+                       call Parallel_recv_ivalues(pfrom,4*k,  1,natoms1)
+                       call Parallel_recv_values(pfrom, 4*k+1,9,unita)
+                       call Parallel_recv_characters(pfrom,4*k+2,
      >                                        2*natoms1,byte_mb(tag(1)))
-                       call Parallel_recv_values(pfrom,3*k+2,
+                       call Parallel_recv_values(pfrom,    4*k+3,
      >                                        3*natoms1,dbl_mb(rion(1)))
 
                        !*** compute md_xs with natoms1,tag,rion +--> kf,chif ***
                        call md_xs(header,spectroscopy,absorber,edge,
-     >                            center,rmax,
+     >                          rmax,center,rcut,unita,
      >                          natoms1,byte_mb(tag(1)),dbl_mb(rion(1)),
      >                          nkf,nkf0,dbl_mb(kf(1)),dbl_mb(chif(1)))
                     end if
@@ -187,41 +206,127 @@ c     **********************************************
       call Parallel_Vector_SumAll(nkf0,dbl_mb(chif(1)))
       call dscal(nkf0,x,dbl_mb(chif(1)),1)
 
+c     **** deallocate stack ****
+      value =           MA_pop_stack(tag(2))
+      value = value.and.MA_pop_stack(rion(2))
+      if (.not.value)
+     >   call errquit("md_xs_analysis: popping stack",2,MA_ERR)
+
       
+
+*     *********************************
 *     **** write out chi data file ****
+*     *********************************
+
+*     **** define the chi data filename ****
+      if (.not.rtdb_cget(rtdb,'md_xs:chi_filename',1,chi_filename))
+     >    call util_file_prefix('chi',chi_filename)
+      call util_file_name_noprefix(chi_filename,.false.,
+     >                             .false.,
+     >                             full_chi_filename)
       if (oprint) write(luout,*)
-     >            'Chi data filename:',trim(full_chi_filename)
+     >            'Chi_k data filename:',trim(full_chi_filename)
 
       if (taskid.eq.MASTER) then
          open(unit=19,file=full_chi_filename,form='formatted')
-         write(19,'(A,A)') '#Chi data filename:',
+         write(19,'(A,A)') '#Chi_k data filename:',
      >                     trim(full_chi_filename)
          write(19,'(A,I4)') "#nkf =",nkf
          write(19,'(A,A)') "#spectroscopy:     ",trim(spectroscopy)
          write(19,'(A,A)') "#absorber:         ",trim(absorber)
          write(19,'(A,A)') "#edge:             ",trim(edge)
-         write(19,'(A,I6)') "#center=",center
-         write(19,'(A,F16.8)') "#rmax=",rmax
+         write(19,'(A,I6)') "#center =",center
+         write(19,'(A,F16.8)') "#rmax =",rmax
          write(19,'(A,A)') '# MOTION filename:  ',trim(filename)
-         write(19,'(A,I8)') '# number of frames=',nframes
-         write(19,'(A,I8)') '# number of frames used, icount=',icount
-         write(19,'(A,I8)') '# stride=',stride
-         write(19,'(A,I8)') '# natoms=',natoms
-         write(19,'(A,F16.8)') '#volume=',volume
+         write(19,'(A,I8)') '# number of frames =',nframes
+         write(19,'(A,I8)') '# number of frames used, icount =',icount
+         write(19,'(A,I8)') '# stride =',stride
+         write(19,'(A,I8)') '# natoms =',natoms
+         write(19,'(A,F16.8)') '#volume =',volume
+         write(19,'(A,F16.8)') '#rcut =',rcut*0.529177d0
+         write(19,'(A,1x,A14,4A20)') '#','k(Ang**-1)','chi','k*chi',
+     >                               'k**2*chi','k**3*chi'
          do i=1,nkf
-            write(19,'(F16.4,3E20.9)') 
-     >         dbl_mb(kf(1)+i-1),dbl_mb(chif(1)+i-1)
+            x = dbl_mb(kf(1)+i-1)
+            y = dbl_mb(chif(1)+i-1)
+            write(19,'(F16.4,4E20.9)') x,y,x*y,x*x*y,x*x*x*y
          end do
          close(19)
       end if
 
+c     **** allocate stack - fft  ****
+      !nr = 2*nkf
+      nr = 2048
+      value = MA_push_get(mt_dcpl,(4*nr+15),'tmpfft',
+     >                     tmpfft(2),tmpfft(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nr),'chi_r',chi_r(2),chi_r(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nr),'rr_md_xs',r(2),r(1))
+      if (.not.value) 
+     >   call errquit("md_xs_analysis: out of stack",3,MA_ERR)
+      
+      call dcffti(nr,dcpl_mb(tmpfft(1)))
+
+*     ************************************
+*     **** write out chi_r data file ****
+*     ************************************
+
+*     **** define the chi_r data filename ****
+      call md_xs_fourier(iw,ft(1),ft(2),ft(3),
+     >                    nkf,dbl_mb(kf(1)),dbl_mb(chif(1)),
+     >                    nr, dbl_mb(r(1)),dcpl_mb(chi_r(1)),
+     >                    dcpl_mb(tmpfft(1)))
+      if (.not.rtdb_cget(rtdb,'md_xs:chi_r_filename',1,chi_filename))
+     >    call util_file_prefix('chi_r',chi_filename)
+      call util_file_name_noprefix(chi_filename,.false.,
+     >                             .false.,
+     >                             full_chi_filename)
+      if (oprint) write(luout,*)
+     >            'Chi_r data filename:',trim(full_chi_filename)
+
+      if (taskid.eq.MASTER) then
+         open(unit=19,file=full_chi_filename,form='formatted')
+         write(19,'(A,A)') '#Chi_r data filename:',
+     >                     trim(full_chi_filename)
+         write(19,'(A,I4)') "#nr  =",nr
+         write(19,'(A,I4)') "#iw  =",iw
+         write(19,'(A,F16.8)') "#Kmin =",ft(1)
+         write(19,'(A,F16.8)') "#Kmax =",ft(2)
+         write(19,'(A,F16.8)') "#dK =",ft(3)
+         write(19,'(A,A)') "#spectroscopy:     ",trim(spectroscopy)
+         write(19,'(A,A)') "#absorber:         ",trim(absorber)
+         write(19,'(A,A)') "#edge:             ",trim(edge)
+         write(19,'(A,I6)') "#center =",center
+         write(19,'(A,F16.8)') "#rmax =",rmax
+         write(19,'(A,A)') '# MOTION filename:  ',trim(filename)
+         write(19,'(A,I8)') '# number of frames =',nframes
+         write(19,'(A,I8)') '# number of frames used, icount =',icount
+         write(19,'(A,I8)') '# stride =',stride
+         write(19,'(A,I8)') '# natoms =',natoms
+         write(19,'(A,F16.8)') '#volume =',volume
+         write(19,'(A,F16.8)') '#rcut =',rcut*0.529177d0
+         write(19,'(A,1x,A14,3A20)') '#','r(Ang)','|chi_r|',
+     >                               'real(chi_r)','cmplx(chi_r)'
+         do i=1,nr/2
+            x  = dbl_mb(r(1)+i-1)
+            zz = dcpl_mb(chi_r(1)+i-1)
+            y  = dsqrt(dble(zz)**2 + dimag(zz)**2)
+            write(19,'(F16.4,4E20.9)') x,y,zz
+         end do
+         close(19)
+      end if
+
+
+
 c     **** deallocate stack ****
-      value =           MA_pop_stack(tag(2))
-      value = value.and.MA_pop_stack(rion(2))
+      value =           MA_pop_stack(r(2))
+      value = value.and.MA_pop_stack(chi_r(2))
+      value = value.and.MA_pop_stack(tmpfft(2))
       value = value.and.MA_pop_stack(chif(2))
       value = value.and.MA_pop_stack(kf(2))
       if (.not.value)
-     >   call errquit("md_xs_analysis: popping stack",3,MA_ERR)
+     >   call errquit("md_xs_analysis: popping stack",4,MA_ERR)
 
 #else
       if (oprint) then
@@ -234,6 +339,66 @@ c     **** deallocate stack ****
       end
 
 
+      subroutine md_xs_fourier(iw,wmin,wmax,dw,
+     >                         nk,k,chi_k,
+     >                         nr,r,chi_r,tmpfft)
+      integer iw
+      real*8 wmin,wmax,dw
+      integer nk
+      real*8 k(*),chi_k(*)
+      integer nr
+      real*8 r(*)
+      complex*16 chi_r(*)
+      complex*16 tmpfft(*)
+
+*     **** local variables ****
+      integer i
+      real*8 x,y,h,pi
+      real*8 dr,dk,scal
+
+      
+      pi = 4.0d0*datan(1.0d0)
+      dk = k(2)-k(1)
+      dr = pi/(dk*dble(nr))
+      scal = dk/dsqrt(pi*nr)
+
+      call dcopy(2*nr,0.0d0,0,chi_r,1)
+
+      do i=1,nk
+        x = k(i)
+        y = chi_k(i)
+
+        !**** Hanning window ****
+        if(x.le.(wmin-0.5d0*dw)) then
+           h = 0.0d0
+        else if ((x.ge.(wmin-0.5d0*dw)).and.(x.lt.(wmin+0.5d0*dw))) then
+           h = dsin(0.5d0*pi*(x-wmin+0.5*dw)/dw)**2
+        else if ((x.ge.(wmin+0.5d0*dw)).and.(x.le.(wmax-0.5d0*dw))) then
+           h = 1.0d0
+        else if ((x.gt.(wmax-0.5d0*dw)).and.(x.le.(wmax+0.5d0*dw))) then
+           h = dcos(0.5d0*pi*(x-wmax+0.5*dw)/dw)**2
+        else if (x.gt.(wmax+0.5d0*dw)) then
+           h = 0.0d0
+        else
+           h = 0.0d0
+        end if
+
+        chi_r(i) = dcmplx(h*y*(x**iw),0.0d0)
+      end do
+
+      call dcfftb(nr,chi_r,tmpfft)
+
+      do i=1,nr
+         r(i)     = (i-1)*dr
+         chi_r(i) = scal*chi_r(i)
+      end do
+
+      return
+      end 
+
+      
+        
+
 
 #ifdef FEFF
 c     **********************************************
@@ -242,11 +407,14 @@ c     *                md_xs                       *
 c     *                                            *
 c     **********************************************
       subroutine md_xs(header,spectroscopy,absorber,edge,
-     >                  center,rmax,nion,symb,rion,nkf,nkf0,kf,chi)
+     >                 rmax,center,rcut,unita,nion,symb,rion,
+     >                 nkf,nkf0,kf,chi)
       implicit none
       character*(*) header,spectroscopy,absorber,edge
-      integer center
       real*8  rmax
+      integer center
+      real*8 rcut
+      real*8 unita(3,3)
       integer nion
       character*2 symb(*)
       real*8      rion(3,*)
@@ -266,6 +434,7 @@ c     **********************************************
       integer nkf4,j,ii,ia,zi
       integer zion(2),katm(2),zkatm(2),nkatm
       integer zion4(2),katm4(2),zkatm4(2),tchi(2)
+      integer rion2(2),indx2(2),nion2,center2
       character*2 item
 
       character*2 symbols(112)
@@ -283,30 +452,47 @@ c     **********************************************
      $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
      $     'Rg', 'Cn'/
 
+*     **** external functions ****
+      integer  md_xs_size_cluster
+      external md_xs_size_cluster
+
       call Parallel_taskid(taskid)
       call Parallel_np(np)
+      
+      nion2 = md_xs_size_cluster(center,rcut,unita,nion,rion)
 
 *     ***** allocate stack ****
-      value = MA_push_get(mt_int,nion,'md_xs:zion',zion(2),zion(1))
+      value = MA_push_get(mt_int,nion2,'md_xs:zion',zion(2),zion(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion,'md_xs:zkatm',zkatm(2),zkatm(1))
+     >        MA_push_get(mt_int,nion2,'md_xs:zkatm',zkatm(2),zkatm(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion,'md_xs:katm',katm(2),katm(1))
+     >        MA_push_get(mt_int,nion2,'md_xs:katm',katm(2),katm(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion,'md_xs:zion4',zion4(2),zion4(1))
+     >        MA_push_get(mt_int,nion2,'md_xs:zion4',zion4(2),zion4(1))
       value = value.and.
-     >       MA_push_get(mt_int,nion,'md_xs:zkatm4',zkatm4(2),zkatm4(1))
+     >      MA_push_get(mt_int,nion2,'md_xs:zkatm4',zkatm4(2),zkatm4(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion,'md_xs:katm4',katm4(2),katm4(1))
+     >        MA_push_get(mt_int,nion2,'md_xs:katm4',katm4(2),katm4(1))
+      value = value.and.
+     >        MA_push_get(mt_int,nion2,'md_xs:indx2',indx2(2),indx2(1))
+      value = value.and.
+     >       MA_push_get(mt_dbl,3*nion2,'md_xs:rion2',rion2(2),rion2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nkf0,'md_xs:tchi',tchi(2),tchi(1))
       if (.not.value)
      >   call errquit("md_xs: pushing stack",0,MA_ERR)
       call dcopy(nkf0,0.0d0,0,dbl_mb(tchi(1)),1)
 
-      do ii=1,nion
+      call md_xs_gen_cluster(center,rcut,unita,nion,rion,
+     >                       nion2,dbl_mb(rion2(1)),
+     >                       int_mb(indx2(1)),center2)
+
+      
+
+
+      do ii=1,nion2
          item = '  '
-         item = symb(ii)
+         item = symb(int_mb(indx2(1)+ii-1))
          zi = -1
          do j=1,112
             if (item.eq.symbols(j)) zi = j
@@ -315,7 +501,7 @@ c     **********************************************
       end do
 
       nkatm = 0
-      do ii=1,nion
+      do ii=1,nion2
          found = .false.
          do j=1,nkatm
             if (int_mb(zion(1)+ii-1).eq.int_mb(zkatm(1)+j-1)) then
@@ -335,18 +521,18 @@ c     **********************************************
 
 
 #ifdef FEFF8
-      call icopy(nion,int_mb(zion(1)),1,int_mb(zion4(1)),1)
-      call icopy(nion,int_mb(katm(1)),1,int_mb(katm4(1)),1)
+      call icopy(nion2,int_mb(zion(1)),1,int_mb(zion4(1)),1)
+      call icopy(nion2,int_mb(katm(1)),1,int_mb(katm4(1)),1)
       call icopy(nkatm,int_mb(zkatm(1)),1,int_mb(zkatm4(1)),1)
 #else
-      call ftupid_icopy8to4(nion,int_mb(zion(1)),int_mb(zion4(1)))
-      call ftupid_icopy8to4(nion,int_mb(katm(1)),int_mb(katm4(1)))
+      call ftupid_icopy8to4(nion2,int_mb(zion(1)),int_mb(zion4(1)))
+      call ftupid_icopy8to4(nion2,int_mb(katm(1)),int_mb(katm4(1)))
       call ftupid_icopy8to4(nkatm,int_mb(zkatm(1)),int_mb(zkatm4(1)))
 #endif
       call feff_fortran(header,spectroscopy,absorber,edge,
-     >                  center,rmax,
+     >                  center2,rmax,
      >                  nkatm,int_mb(katm4(1)),int_mb(zkatm4(1)),
-     >                  nion,int_mb(zion4(1)),rion,
+     >                  nion2,int_mb(zion4(1)),dbl_mb(rion2(1)),
      >                  nkf4,kf,dbl_mb(tchi(1)))
 #ifdef FEFF8
       nkf = nkf4
@@ -360,6 +546,8 @@ c     **********************************************
 
 *     **** popping stack ****
       value =           MA_pop_stack(tchi(2))
+      value = value.and.MA_pop_stack(rion2(2))
+      value = value.and.MA_pop_stack(indx2(2))
       value = value.and.MA_pop_stack(katm4(2))
       value = value.and.MA_pop_stack(zkatm4(2))
       value = value.and.MA_pop_stack(zion4(2))
@@ -457,6 +645,176 @@ c      json = trim(json)//"}"
 c
 c      return
 c      end
+
+
+
+*     **********************************************   
+*     *                                            *
+*     *              md_xs_gen_cluster             *
+*     *                                            *
+*     **********************************************   
+*
+*     The routine generates a cluster spanning rcut from the center, rion(*,center).
+*
+*     Entry - center: location of center
+*             rcut: cluster radius
+*             unita: lattice vectors
+*             nion: number of ions in geometry
+*             rion: ions in geometry
+*     Exit  - nion2: number of ions in cluster
+*             rion: ions in cluster
+*
+      subroutine md_xs_gen_cluster(center,rcut,unita,nion,rion,
+     >                             nion2,rion2,indx2,center2)
+      implicit none
+      integer center
+      real*8  rcut
+      real*8  unita(3,3)
+      integer nion
+      real*8  rion(3,*)
+      integer nion2
+      real*8  rion2(3,*)
+      integer indx2(*)
+      integer center2
+
+*     **** local variables ****
+      integer i,j,k,ii,n,n1,n2
+      real*8 d,dmin,x,y,z,xc,yc,zc
+
+*     **** cluster center ****
+      xc = rion(1,center)
+      yc = rion(2,center)
+      zc = rion(3,center)
+
+      if (rcut.le.0.0d0) then
+         nion2 = nion
+         center2 = 1
+         rion2(1,1) = rion(1,center)-xc
+         rion2(2,1) = rion(2,center)-yc
+         rion2(3,1) = rion(3,center)-zc
+         indx2(1)   = center
+         do ii=1,nion
+            if (ii.ne.center) then
+               indx2(ii)   = ii
+               rion2(1,ii) = rion(1,ii)-xc
+               rion2(2,ii) = rion(2,ii)-yc
+               rion2(3,ii) = rion(3,ii)-zc
+            end if
+         end do
+         return
+      end if
+
+      dmin = 999999999.999d0
+      do i=1,3
+         d = dsqrt(unita(1,i)**2 + unita(2,i)**2 + unita(3,i)**2)
+         if (d.lt.dmin) dmin = d
+      end do
+      n = nint((rcut/dmin)+0.5d0)
+      if (n.lt.1) n = 1 
+      n1 = -n
+      n2 =  n
+
+
+      !*** make center first atom postion in rion2 ****
+      nion2 = 0
+      nion2 = nion2 + 1
+      rion2(1,nion2) = rion(1,center)-xc
+      rion2(2,nion2) = rion(2,center)-yc
+      rion2(3,nion2) = rion(3,center)-zc
+      indx2(nion2)   = center
+      center2 = 1
+
+      do k=n1,n2
+      do j=n1,n2
+      do i=n1,n2
+         do ii=1,nion
+            x = rion(1,ii) + i*unita(1,1) + j*unita(1,2) + k*unita(1,3)
+            y = rion(2,ii) + i*unita(2,1) + j*unita(2,2) + k*unita(2,3)
+            z = rion(3,ii) + i*unita(3,1) + j*unita(3,2) + k*unita(3,3)
+            d = dsqrt((x-xc)**2 + (y-yc)**2 + (z-zc)**2)
+
+            !*** d < rcut and ignore center ***
+            if ((d.le.rcut).and.(d.gt.1.0d-6)) then
+               nion2 = nion2 + 1
+               rion2(1,nion2) = x-xc
+               rion2(2,nion2) = y-yc
+               rion2(3,nion2) = z-zc
+               indx2(nion2)   = ii
+            end if
+         end do
+      end do
+      end do
+      end do
+
+      return
+      end
+
+
+     
+*     **********************************************
+*     *                                            *
+*     *              md_xs_size_cluster            *
+*     *                                            *
+*     **********************************************
+*
+*     The routine generates a cluster spanning rcut from the center, rion(*,center).
+*
+*     Entry - center: location of center
+*             rcut: cluster radius
+*             unita: lattice vectors
+*             nion: number of ions in geometry
+*             rion: ions in geometry
+*     Exit  - nion2: number of ions in cluster
+*
+      integer function md_xs_size_cluster(center,rcut,unita,nion,rion)
+      implicit none
+      integer center
+      real*8  rcut
+      real*8  unita(3,3)
+      integer nion
+      real*8  rion(3,*)
+
+*     **** local variables ****
+      integer nion2
+      integer i,j,k,ii,n,n1,n2
+      real*8 d,dmin,x,y,z,xc,yc,zc
+
+      if (rcut.le.0.0d0) then
+         md_xs_size_cluster = nion
+         return
+      end if
+
+      dmin = 999999999.999d0
+      do i=1,3
+         d = dsqrt(unita(1,i)**2 + unita(2,i)**2 + unita(3,i)**2)
+         if (d.lt.dmin) dmin = d
+      end do
+      n = nint((rcut/dmin)+0.5d0)
+      if (n.lt.1) n = 1
+      n1 = -n
+      n2 =  n
+
+      nion2 = 0
+      xc = rion(1,center)
+      yc = rion(2,center)
+      zc = rion(3,center)
+      do k=n1,n2
+      do j=n1,n2
+      do i=n1,n2
+         do ii=1,nion
+            x = rion(1,ii) + i*unita(1,1) + j*unita(1,2) + k*unita(1,3)
+            y = rion(2,ii) + i*unita(2,1) + j*unita(2,2) + k*unita(2,3)
+            z = rion(3,ii) + i*unita(3,1) + j*unita(3,2) + k*unita(3,3)
+            d = dsqrt((x-xc)**2 + (y-yc)**2 + (z-zc)**2)
+            if (d.le.rcut) nion2 = nion2 + 1
+         end do
+      end do
+      end do
+      end do
+
+      md_xs_size_cluster = nion2
+      return
+      end
 
 
       subroutine ftupid_icopy8to4(n,array8,array4)
