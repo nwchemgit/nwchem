@@ -18,7 +18,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 23)
+      parameter (num_dirs = 24)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -43,7 +43,8 @@ c
      >            'lcao',
      >            'pspw_et',
      >            'Metropolis',
-     >            'nwpw-optimize'/
+     >            'nwpw-optimize',
+     >            'aimd_properties'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
@@ -52,12 +53,16 @@ c     *** define external functions ****
       logical  pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
       logical  cgmontecarlov1,cgoptimize1
+      logical  control_read
+      integer  control_np_orbital
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       external pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       external pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
       external cgmontecarlov1,cgoptimize1
+      external control_read
+      external control_np_orbital
 c
 c
       value = .false.
@@ -71,7 +76,7 @@ c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
      >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     >       1900, 2000, 2100, 2200, 2300 ) ind
+     >       1900, 2000, 2100, 2200, 2300, 2400 ) ind
       call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -407,6 +412,33 @@ c
 
       call ga_sync()
       goto 9999
+
+c
+c  aimd_properties
+c
+ 2400 if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> PSPW Parallel Module - aimd_properties <<<<"
+      end if
+
+      value = .true.
+      value = rtdb_parallel(.true.)
+      if (.not.rtdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy))
+     >   dummy = .false.
+      value = rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,.true.)
+
+      call Parallel_Init()
+      value = control_read(2,rtdb)
+      call Parallel2d_Init(control_np_orbital())
+
+      call cpmd_properties(rtdb)
+
+      call ga_sync()
+      call Parallel2d_Finalize()
+      call Parallel_Finalize()
+      value = rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy)
+      goto 9999
+
+
 
 
 
