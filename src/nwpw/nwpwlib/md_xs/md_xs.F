@@ -109,7 +109,11 @@ c     **********************************************
          write(luout,*) 'number of frames: ',nframes
          write(luout,*) 'stride:           ',stride
          write(luout,*) 'natoms:           ',natoms
-         write(luout,*) 'volume:           ',volume
+         write(luout,1230) 
+         write(luout,1241) unita(1,1),unita(2,1),unita(3,1)
+         write(luout,1241) unita(1,2),unita(2,2),unita(3,2)
+         write(luout,1241) unita(1,3),unita(2,3),unita(3,3)
+         write(luout,1231) volume
          write(luout,*)
          write(luout,*) 'spectroscopy:     ',spectroscopy
          write(luout,*) 'absorber:         ',absorber
@@ -336,6 +340,11 @@ c     **** deallocate stack ****
       end if
 #endif
       return
+ 1230 FORMAT(/' supercell:')
+ 1231 FORMAT(5x,' volume : ',F12.1)
+ 1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
+ 1242 FORMAT(5x,'             a2=<',3f8.3,' >')
+ 1243 FORMAT(5x,'             a3=<',3f8.3,' >')
       end
 
 
@@ -679,14 +688,22 @@ c      end
 
 *     **** local variables ****
       integer i,j,k,ii,n,n1,n2
-      real*8 d,dmin,x,y,z,xc,yc,zc
+      real*8 d,dmin,x,y,z,xc,yc,zc,vol
+
 
 *     **** cluster center ****
       xc = rion(1,center)
       yc = rion(2,center)
       zc = rion(3,center)
 
-      if (rcut.le.0.0d0) then
+
+*     **** if rcut<=0 or unit cell volume is small then do a straight copy ****
+      vol = unita(1,1)*(unita(2,2)*unita(3,3)-unita(3,2)*unita(2,3))
+     >    + unita(2,1)*(unita(3,2)*unita(1,3)-unita(1,2)*unita(3,3))          
+     >    + unita(3,1)*(unita(1,2)*unita(2,3)-unita(2,2)*unita(1,3))
+      vol = dabs(vol)
+
+      if ((rcut.le.0.0d0).or.(vol.lt.2.0d0)) then
          nion2 = nion
          center2 = 1
          rion2(1,1) = rion(1,center)-xc
@@ -715,7 +732,7 @@ c      end
       n2 =  n
 
 
-      !*** make center first atom postion in rion2 ****
+*     **** make center first atom postion in rion2 ****
       nion2 = 0
       nion2 = nion2 + 1
       rion2(1,nion2) = rion(1,center)-xc
@@ -777,9 +794,15 @@ c      end
 *     **** local variables ****
       integer nion2
       integer i,j,k,ii,n,n1,n2
-      real*8 d,dmin,x,y,z,xc,yc,zc
+      real*8 d,dmin,x,y,z,xc,yc,zc,vol
 
-      if (rcut.le.0.0d0) then
+
+      vol = unita(1,1)*(unita(2,2)*unita(3,3)-unita(3,2)*unita(2,3))
+     >    + unita(2,1)*(unita(3,2)*unita(1,3)-unita(1,2)*unita(3,3))          
+     >    + unita(3,1)*(unita(1,2)*unita(2,3)-unita(2,2)*unita(1,3))
+      vol = dabs(vol)
+
+      if ((rcut.le.0.0d0).or.(vol.lt.2.0d0)) then
          md_xs_size_cluster = nion
          return
       end if
