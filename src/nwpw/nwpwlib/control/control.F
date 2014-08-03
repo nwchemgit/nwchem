@@ -921,6 +921,14 @@ c         return
 c         control_read = value
 c         return
 
+*     ********************************
+*     **** unknown but dont crash ****
+*     ********************************
+      else if (code.gt.99) then
+         call nwpw_timing_end(50)
+         control_read = value
+         return
+
 *     ***************************
 *     **** unknown code type ****
 *     ***************************
