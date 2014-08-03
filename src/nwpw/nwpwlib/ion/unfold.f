@@ -38,6 +38,9 @@
      >       + a(2,1)*b(2,1)
      >       + a(3,1)*b(3,1)
 
+*     **** no unfolding for small unit cell ****
+      if (dabs(volume).lt.2.0) return
+
       volume = 1.0d0/volume
       call dscal(9,volume,b,1)
 
