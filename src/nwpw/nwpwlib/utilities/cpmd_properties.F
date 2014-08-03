@@ -136,7 +136,7 @@ c
       hasxyz = .false.
       if (rtdb_cget(rtdb,'nwpw:aimd_properties_xyz',1,filenamexyz)) then
          hasxyz = .true.
-         if (.not.rtdb_get(rtdb,'nwpw:aimd_properties_unita',
+         if (.not.rtdb_get(rtdb,'cell_default:unita',
      >                     mt_dbl,9,unita)) then
             unita(1,1) = 1.0d0 !*** unita=Identity will be interpreted by md_xs_analysis as no unit cell
             unita(2,1) = 0.0d0
@@ -170,7 +170,7 @@ c
       end if
 
       call Parallel_Init()
-      value = value.and.control_read(2,rtdb)
+      value = value.and.control_read(999,rtdb)
       call Parallel2d_Init(control_np_orbital())
 
       call cpmd_properties(rtdb)
