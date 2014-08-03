@@ -155,9 +155,9 @@ c
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                                full_filename)
-         call nwpw_xyz_to_ion_motion(unita,
-     >                               full_filenamexyz,
-     >                               full_filename)
+         call nwpw_xyz_to_motion(unita,
+     >                           full_filenamexyz,
+     >                           full_filename)
          
 *        **** save nwpw:ion_motion_filename and change it to '.ion_motion_tmp' ****
          hasbak = .true.
@@ -198,4 +198,95 @@ c
 
       return
       end 
+
+
+*     *********************************
+*     *                               *
+*     *     nwpw_xyz_to_motion        *
+*     *                               *
+*     *********************************
+      subroutine nwpw_xyz_to_motion(unita,xyzfilename,motionfilename)
+      implicit none
+      real*8        unita(3,3)
+      character*(*) xyzfilename
+      character*(*) motionfilename
+
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+
+c     **** parameters ****
+      real*8    AACONV
+      parameter (AACONV=0.529177d0)
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+*     **** local variables ****
+      integer i,natoms,nframes,t
+      real*8  time1,volume
+      real*8  x,y,z,v1,v2,v3
+      character*2 tag2
+
+*     *** synchronization ***
+      call ga_sync()
+
+      call Parallel_taskid(taskid)
+
+      if (taskid.eq.MASTER) then
+
+
+      volume = unita(1,1)*(unita(2,2)*unita(3,3)-unita(3,2)*unita(2,3))
+     >       + unita(2,1)*(unita(3,2)*unita(1,3)-unita(1,2)*unita(3,3))
+     >       + unita(3,1)*(unita(1,2)*unita(2,3)-unita(2,2)*unita(1,3))
+      volume = dabs(volume)
+
+
+*     *** get the number of frames from MOTION ***
+      call xyz_nframes(xyzfilename,nframes,natoms)
+
+      write(luout,*)
+      write(luout,*) 
+     =  '===== Generating MOTION file from xyz trajectory file ===='
+      write(luout,*) 
+      write(luout,*) "nframes = ",nframes
+      write(luout,*) "natoms  = ",natoms
+      write(luout,*) 
+      write(luout,*) "xyz filename         : ",xyzfilename
+      write(luout,*) "MOTION filename      : ",motionfilename
+
+
+      open(unit=18,file=xyzfilename,form='formatted')
+      open(unit=19,file=motionfilename,form='formatted')
+
+      time1 = 0.0
+      do t=1,nframes
+        
+         read(18,*,ERR=30,END=30) natoms
+         read(18,*,ERR=30,END=30) 
+         write(19,110) time1,natoms,volume,unita
+
+         do i=1,natoms
+            read(18,*,ERR=30,END=30) tag2,x,y,z,v1,v2,v3
+            write(19,111) i,tag2,tag2,
+     >                    x/AACONV, y/AACONV, z/AACONV,
+     >                    v1/AACONV,v2/AACONV,v3/AACONV
+         end do
+         time1 = time1 + 50.0d0
+         call util_flush(19)
+
+      end do
+  30  continue
+      close(unit=18)
+      close(unit=19)
+
+      end if
+
+*     *** synchronization ***
+      call ga_sync()
+
+      return
+  110 format(e14.6,I6,e14.6,9e14.6)
+  111 format(i6,a3,a5,6e14.6)
+
+      end
 
