@@ -94,5 +94,108 @@ c
       return
       end
 
+*     *********************************
+*     *                               *
+*     *      task_aimd_roperties      *
+*     *                               *
+*     *********************************
+*
+*   This routine is a stand-alone task that calls cpmd_properties.
+*
+      logical function task_aimd_properties(rtdb)
+      implicit none
+      integer rtdb
 
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value,dummy,hasbak,hasxyz
+      real*8 unita(3,3)
+      character*80 filename,filenamexyz,filenamebak
+      character*255 full_filename,full_filenamexyz
+
+*     **** external functions ****
+      logical  control_read
+      external control_read
+      integer  control_np_orbital
+      external control_np_orbital
+
+      value = .true.
+
+*     **** save nwpw:cpmd_properties and change it .true. ****
+      if (.not.rtdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy))
+     >   dummy = .false.
+      value = value.and.
+     >        rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,.true.)
+
+*     **** if nwpw_aimd_properties_xyz exist, then                         ****
+*     **** convert xyz filename to MOTION filename (prefix.ion_motion_tmp) ****
+      hasxyz = .false.
+      if (rtdb_cget(rtdb,'nwpw:aimd_properties_xyz',1,filenamexyz)) then
+         hasxyz = .true.
+         if (.not.rtdb_get(rtdb,'nwpw:aimd_properties_unita',
+     >                     mt_dbl,9,unita)) then
+            unita(1,1) = 1.0d0 !*** unita=Identity will be interpreted by md_xs_analysis as no unit cell
+            unita(2,1) = 0.0d0
+            unita(3,1) = 0.0d0
+            unita(1,2) = 0.0d0
+            unita(2,2) = 1.0d0
+            unita(3,2) = 0.0d0
+            unita(1,3) = 0.0d0
+            unita(2,3) = 0.0d0
+            unita(3,3) = 1.0d0
+         end if
+         call util_file_name_noprefix(filenamexyz,.false.,
+     >                                .false.,
+     >                                full_filenamexyz)
+         call util_file_prefix('ion_motion_tmp',filename)
+         call util_file_name_noprefix(filename,.false.,
+     >                                .false.,
+     >                                full_filename)
+         call nwpw_xyz_to_ion_motion(unita,
+     >                               full_filenamexyz,
+     >                               full_filename)
+         
+*        **** save nwpw:ion_motion_filename and change it to '.ion_motion_tmp' ****
+         hasbak = .true.
+         if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',
+     >                      1,filenamebak))
+     >      hasbak = .false.
+         value = value.and.
+     >           rtdb_cput(rtdb,'cpmd:ion_motion_filename',1,filename)
+
+      end if
+
+      call Parallel_Init()
+      value = value.and.control_read(2,rtdb)
+      call Parallel2d_Init(control_np_orbital())
+
+      call cpmd_properties(rtdb)
+
+      call ga_sync()
+      call Parallel2d_Finalize()
+      call Parallel_Finalize()
+
+*     **** reset nwpw:ion_motion_filename to its saved value ****
+      if (hasxyz) then
+         if (hasbak) then
+            value = value.and.
+     >              rtdb_cput(rtdb,'cpmd:ion_motion_filename',
+     >                         1,filenamebak)
+
+         else
+            value = value.and.
+     >              rtdb_delete(rtdb,'cpmd:ion_motion_filename')
+         end if
+      end if
+
+*     **** reset nwpw:cpmd_properties to its saved value ****
+      value = value.and.
+     >        rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy)
+
+      return
+      end 
 
