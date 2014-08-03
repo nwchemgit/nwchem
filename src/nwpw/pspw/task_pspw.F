@@ -53,16 +53,14 @@ c     *** define external functions ****
       logical  pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
       logical  cgmontecarlov1,cgoptimize1
-      logical  control_read
-      integer  control_np_orbital
+      logical  task_aimd_properties
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       external pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       external pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
       external cgmontecarlov1,cgoptimize1
-      external control_read
-      external control_np_orbital
+      external task_aimd_properties
 c
 c
       value = .false.
@@ -422,20 +420,10 @@ c
 
       value = .true.
       value = rtdb_parallel(.true.)
-      if (.not.rtdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy))
-     >   dummy = .false.
-      value = rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,.true.)
 
-      call Parallel_Init()
-      value = control_read(2,rtdb)
-      call Parallel2d_Init(control_np_orbital())
-
-      call cpmd_properties(rtdb)
+      value = task_aimd_properties(rtdb)
 
       call ga_sync()
-      call Parallel2d_Finalize()
-      call Parallel_Finalize()
-      value = rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy)
       goto 9999
 
 
