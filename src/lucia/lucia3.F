@@ -1436,8 +1436,6 @@ CNW       END DO
        JEND = MATDIM
        IOFF = JOFF
        IEND = MATDIM
-       IJOFF = ICOFF - 1
-       MDIM = MATDIM/2
        mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*MATDIM
 *
 * Node zero gets all blocks and packs it for broadcast
@@ -1445,48 +1443,54 @@ CNW       END DO
 * First complete row
 *
        if (ga_nodeid().eq.0) 
-     &  call ga_get(APAK,IJOFF+1,IJOFF+MATDIM,1,1,
+     &  call ga_get(APAK,ICOFF,ICOFF+MATDIM-1,1,1,
      &             AUTPAK(1,1),1)
-       if (ga_nnodes().gt.1) call ga_brdcst(2367,AUTPAK(1,1),mybyte,0)
 *
-* Next row and it's complement from the end pack in front
+* Next row and it's complement from the end packed in front
 *
+       MDIM = MATDIM/2
+       IF (2*MDIM.LT.MATDIM) MDIM = MDIM + 1
        DO J = 2,MDIM
-        IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
+        IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 + J - 1
         if (ga_nodeid().eq.0)
-     &    call ga_get(APAK,IJOFF+J,IJOFF+MATDIM,1,1,
+     &    call ga_get(APAK,IJOFF,IJOFF+MATDIM-J,1,1,
      &                  AUTPAK(J,J),1)
         K = MATDIM - J + 2
-        IJOFF = ICOFF + (K-1)*MATDIM-K*(K-1)/2 - 1
+        IJOFF = ICOFF + (K-1)*MATDIM-K*(K-1)/2 + K - 1
         if (ga_nodeid().eq.0)
-     &    call ga_get(APAK,IJOFF+K,IJOFF+MATDIM,1,1,
+     &    call ga_get(APAK,IJOFF,IJOFF+MATDIM-K,1,1,
      &                AUTPAK(1,J),1)
-        if (ga_nnodes().gt.1) call ga_brdcst(2368,AUTPAK(1,J),mybyte,0)
+        if (ga_nnodes().gt.1) 
+     &     call ga_brdcst(2367+J,AUTPAK(1,J),mybyte,0)
        ENDDO
 *
-* Even matrix, need the MATDIM/2+1 row
+* All nodes unpack 
 *
-       if (MDIM*2.eq.MATDIM) then
-        J = MDIM + 1
-        IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 - 1
-        if (ga_nodeid().eq.0)
-     &    call ga_get(APAK,IJOFF+J,IJOFF+MATDIM,1,1,
-     &                AUTPAK(J,J),1)
-        mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*(J-1)
-        if (ga_nnodes().gt.1) call ga_brdcst(2369,AUTPAK(J,J),mybyte,0)
-       endif
-*
-* All nodes unpack and do their thing
-*
-       if (MDIM*2.lt.MATDIM) MDIM = MDIM+1
        DO J = 2,MDIM
           DO I = 1,J-1
              AUTPAK(MATDIM-J+1+I,MATDIM-J+2) = AUTPAK(I,J)
           ENDDO
        ENDDO
+*
+* Even matrix, need the MATDIM/2+1 row
+*
+       MDIM = MATDIM/2
+       if (MDIM*2.eq.MATDIM) then
+        J = MDIM + 1
+        IJOFF = ICOFF + (J-1)*MATDIM-J*(J-1)/2 + J - 1
+        if (ga_nodeid().eq.0)
+     &    call ga_get(APAK,IJOFF,IJOFF+MATDIM-J,1,1,
+     &                AUTPAK(J,J),1)
+        mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*(J-1)
+        if (ga_nnodes().gt.1) 
+     &     call ga_brdcst(2367+J,AUTPAK(J,J),mybyte,0)
+       endif
+*
+* All nodes do their sign and flip thing
+*
        DO J = 1,MATDIM
           DO I = J+1,MATDIM
-             IF(I.NE.J) AUTPAK(J,I) = SIGN*AUTPAK(I,J)
+             AUTPAK(J,I) = SIGN*AUTPAK(I,J)
 CNW              AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
 CNW              AUTPAK(I,J) = APAK(IJOFF+I)
           END DO

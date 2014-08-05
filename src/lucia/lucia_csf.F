@@ -11440,7 +11440,7 @@ C?    END IF
       INTEGER NOCCLS_BAT(*)
       INTEGER IBOCCLS_BAT(*)
 *
-      NTEST = 000
+      NTEST = 0000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' ================'
@@ -11579,7 +11579,7 @@ C?       I1BATCH(NBATCH+1) = NBLK + 1
          NOCCLS_BAT(NBATCH) = NNOCCLS_BAT
       END IF
 *
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.NE.100) THEN
 C?      WRITE(6,*) 'Output from PART_CIV'
 C?      WRITE(6,*) '====================='
         WRITE(6,*)

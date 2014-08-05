@@ -7925,6 +7925,7 @@ C       CALL IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
       SUBROUTINE GSTTBL(C,ICOFF,CTT,IATP,IASM,IBTP,IBSM,IOCOC,
      &                  NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICOOSC,IDC,
      &                  PLSIGN,LUC,SCR,NSMST,ISCALE,SCLFAC)
+
 *
 * obtain  determinant block (iatp iasm, ibtp ibsm )
 * from vector packed in combination format according to IDC
@@ -7991,7 +7992,7 @@ C?      write(6,*) ' LBL = ', LBL
            enddo
         endif
         call ga_release(C,ilo,ihi,1,1)
-        call ga_dgop(1,XNORM,1,'+')
+        if(ga_nnodes().gt.1) call ga_dgop(1,XNORM,1,'+')
         
 *. It is assumed pt that vector is nonvanising
 CNW     XNORM = INPROD(C,C,NCMB_IN)

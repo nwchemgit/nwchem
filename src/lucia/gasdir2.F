@@ -197,7 +197,7 @@ C?        write(6,*) ' Updated x', X
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 000
+      NTEST = 0000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='
@@ -338,7 +338,7 @@ C?      WRITE(6,*) ' IA IB LBLOCK_AS', IA,IB, LBLOCK_AS
       END IF
  2002 CONTINUE
 *
-      IF(NTEST.NE.0) THEN
+      IF(NTEST.GE.10) THEN
 C?      WRITE(6,*) 'Output from PART_CIV'
 C?      WRITE(6,*) '====================='
         WRITE(6,*)

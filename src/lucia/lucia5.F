@@ -3720,9 +3720,9 @@ C?                        WRITE(6,*) ' Check passes '
 *
                 NPART = NROW/MAXI
                 IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
-                if (npart.lt.nproc) then
-                   npart = min(nrow,nproc)
-                endif
+c               if (npart.lt.nproc) then
+c                  npart = min(nrow,nproc)
+c               endif
                 IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
                 DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
@@ -4054,9 +4054,9 @@ C                            TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
 *. Loop over batches of I strings
                 NPART = NROW/MAXI
                 IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
-                if (npart.lt.nproc) then
-                   npart = min(nrow,nproc)
-                endif
+c               if (npart.lt.nproc) then
+c                  npart = min(nrow,nproc)
+c               endif
                 IF(NTEST.GE.20)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
                 DO 2801 IIPART = ga_nodeid()+1, NPART,nproc
@@ -7608,7 +7608,7 @@ C    &     I_BLK_TO_CLS(IBLK)
       INTEGER I1BATCH(*)
       INTEGER LBLOCK_VEC(*)
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='
@@ -10953,9 +10953,9 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
 *. Loop over batches of I strings
               NPART = NROW/MAXI
               IF(NPART*MAXI.NE.NROW) NPART = NPART + 1
-              if (npart.lt.nproc) then
-                 npart = min(nrow,nproc)
-              endif
+c             if (npart.lt.nproc) then
+c                npart = min(nrow,nproc)
+c             endif
               IF(NTEST.GE.2000)
      &        write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
               DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
@@ -11536,9 +11536,9 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
 *. Number of partitionings over column strings
           NIPART = NROW/MAXI
           IF(NIPART*MAXI.NE.NROW) NIPART = NIPART + 1
-          if (nipart.lt.nproc) then
-             nipart = min(nrow,nproc)
-          endif
+c         if (nipart.lt.nproc) then
+c            nipart = min(nrow,nproc)
+c         endif
 *. Groups defining supergroups
 C          GET_SPGP_INF(ISPGP,ITP,IGRP)
       CALL GET_SPGP_INF(ICCTP,IGRP,ICGRP)
@@ -13215,9 +13215,9 @@ C  NEWTYP(INSPGP,IACOP,ITPOP,NOP,OUTSPGP)
 *. Loop over batches of KA strings
           NKABTC = NKAEFF/MAXK
           IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
-          if (nkabtc.lt.nproc) then
-             nkabtc = min(nkaeff,nproc)
-          endif
+c         if (nkabtc.lt.nproc) then
+c            nkabtc = min(nkaeff,nproc)
+c         endif
 *
             DO 2000 KLTYP = 1, NKLTYP
               KTYP = KTP(KLTYP)
@@ -15501,9 +15501,9 @@ C             COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
 *. Loop over batches of KA strings
           NKABTC = NKAEFF/MAXK   
           IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
-          if(nkabtc.lt.nproc) then
-            nkabtc = min(nkaeff,nproc)
-          endif
+c         if(nkabtc.lt.nproc) then
+c           nkabtc = min(nkaeff,nproc)
+c         endif
           DO 1801 IKABTC = ga_nodeid()+1, NKABTC,nproc
             KABOT = (IKABTC-1)*MAXK + 1
             KATOP = MIN(KABOT+MAXK-1,NKAEFF)
