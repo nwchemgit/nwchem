@@ -16,11 +16,12 @@ c $Id$
 #include "util.fh"
 #include "nwc_const.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 21)
+      parameter (num_dirs = 22)
       character*28 dirs(num_dirs)
       data dirs / 'update',
      >            'print',
@@ -42,6 +43,7 @@ c
      >            'ld_trace2diff',
      >            'bond_difference2',
      >            'bond_difference_shell',
+     >            'equation',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -67,7 +69,7 @@ c
      >             'nrange',
      >             'nvector'/
 c
-      logical       value,spline
+      logical       value,spline,dprint
       character*80  rtdb_name
       character*255 test,dir_name,sdir_name
       character*4   elem1,elem2
@@ -85,12 +87,18 @@ c
       integer nxmeta(2),parammeta(2),sparammeta(2),ymeta(2)
       real*8  sdist(50),dTtempered
 
+      integer code(5,200),nf,nc,print_level
+      real*8  fconst(50)
+      character*500 eqnstring
+
 *     **** external functions ****
       character*7 c_index_name
       external    c_index_name
-      logical     nwpw_parse_boolean
-      external    nwpw_parse_boolean
+      logical     nwpw_parse_boolean,control_print
+      external    nwpw_parse_boolean,control_print
 
+      call util_print_get_level(print_level)
+      dprint = (print_debug.le.print_level)
       metaindexmax = 1000
       nmeta = 0
       nxmeta_all = 1
@@ -150,7 +158,7 @@ c
      >  'metadynamics_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 120,150, 200, 300, 400, 500, 600, 701,702,703, 800,
-     >       900,1000,1100,1200,1300,1400,1500,1600,
+     >       900,1000,1100,1200,1300,1400,1500,1600,1700,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -1715,6 +1723,32 @@ c
 
       goto 10
 
+c
+c  equation
+c
+ 1700 eqnstring = repeat(" ",500)
+      if (inp_a(eqnstring)) then
+         
+         n1 = 500
+         call nwpw_emachine_parse(eqnstring,n1,nc,code,nf,fconst)
+         if (dprint) then
+            write(luout,'(A,A)') "eqnstring = ",trim(eqnstring)
+            write(luout,*)
+            do i=1,nc
+               write(luout,'(A,I3,A,5I6)') "emachine: ln=",i-1," code=",
+     >                                code(1,i),code(2,i),
+     >                                code(3,i),code(4,i),code(5,i)
+            end do
+            write(luout,*)
+            do i=1,nf
+               write(luout,'("emachine: fconst(",I3,")=",E15.6)') 
+     >             i-1,fconst(i)
+            end do
+            write(luout,*)
+            write(luout,*)
+         end if
+      end if
+      goto 10
 
 
 
