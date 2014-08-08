@@ -1,0 +1,17 @@
+       interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         subroutine nwxc_ft97_calcei(arg,result,int)
+           use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         subroutine nwxc_ft97_calcei_d2(arg,result,int)
+           use nwad2
+#else
+         subroutine nwxc_ft97_calcei_d3(arg,result,int)
+           use nwad3
+#endif
+           implicit none
+           type(nwad_dble),intent(in)::arg
+           type(nwad_dble),intent(out)::result
+           integer,intent(in) :: int
+         end subroutine
+       end interface

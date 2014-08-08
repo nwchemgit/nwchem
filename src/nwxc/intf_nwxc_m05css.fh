@@ -1,0 +1,23 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_m05css(param,DTol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                         Chi,EUEGP,ChiP,ChiG)
+          use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_m05css_d2(param,DTol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                            Chi,EUEGP,ChiP,ChiG)
+          use nwad2
+#else
+        Subroutine nwxc_m05css_d2(param,DTol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                            Chi,EUEGP,ChiP,ChiG)
+          use nwad3
+#endif
+          implicit none
+          double precision param(*)
+          double precision dtol
+          type(nwad_dble)::PX, GX, TX, F
+          double precision FP, FG, FT
+          type(nwad_dble)::EUEG, Chi
+          double precision EUEGP, ChiP, ChiG
+        end subroutine
+      end interface

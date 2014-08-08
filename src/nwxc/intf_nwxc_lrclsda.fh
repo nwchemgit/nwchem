@@ -1,0 +1,17 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_LRCLSDA(Emu,Rho,F)
+          use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_LRCLSDA_d2(Emu,Rho,F)
+          use nwad2
+#else
+        Subroutine nwxc_LRCLSDA_d3(Emu,Rho,F)
+          use nwad3
+#endif
+          implicit none
+          double precision Emu
+          type(nwad_dble)::Rho
+          type(nwad_dble)::F
+        end subroutine
+      end interface

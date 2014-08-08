@@ -1,0 +1,18 @@
+       interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         function nwxc_ft97_expei(x)
+           use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         function nwxc_ft97_expei_d2(x)
+           use nwad2
+#else
+         function nwxc_ft97_expei_d3(x)
+           use nwad3
+#endif
+           implicit none
+           type(nwad_dble)::nwxc_ft97_expei
+           type(nwad_dble)::nwxc_ft97_expei_d2
+           type(nwad_dble)::nwxc_ft97_expei_d3
+           type(nwad_dble),intent(in)::x
+         end function
+       end interface

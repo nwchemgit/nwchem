@@ -1,0 +1,16 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_EvPWLC(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
+          use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_EvPWLC_d2(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
+          use nwad2
+#else
+        Subroutine nwxc_EvPWLC_d3(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
+          use nwad3
+#endif
+          implicit none
+          double precision A,A1,B1,B2,B3,B4,dVdRS,d2VdRS
+          type(nwad_dble)::RS,V
+        end subroutine
+      end interface

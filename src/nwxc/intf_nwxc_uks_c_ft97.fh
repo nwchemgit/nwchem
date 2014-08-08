@@ -1,0 +1,20 @@
+       interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         subroutine nwxc_uks_c_ft97(tol_rho,ra,rb,gaa,gbb,
+     +              fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+           use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         subroutine nwxc_uks_c_ft97_d2(tol_rho,ra,rb,gaa,gbb,
+     +              fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+           use nwad2
+#else
+         subroutine nwxc_uks_c_ft97_d3(tol_rho,ra,rb,gaa,gbb,
+     +              fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+           use nwad3
+#endif
+           implicit none
+           double precision tol_rho
+           type(nwad_dble)::ra,rb,gaa,gbb,fc
+           double precision dfdrac,dfdrbc,dfdgaac,dfdgbbc
+         end subroutine
+       end interface

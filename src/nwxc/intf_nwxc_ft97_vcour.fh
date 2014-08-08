@@ -1,0 +1,24 @@
+       interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         SUBROUTINE nwxc_FT97_VCOUR(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1              EAA,EBB,EAB,EBA,DEAADR,DEBBDR,DEABDR,DEBADR,
+     3              DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+           use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         SUBROUTINE nwxc_FT97_VCOUR_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1              EAA,EBB,EAB,EBA,DEAADR,DEBBDR,DEABDR,DEBADR,
+     3              DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+           use nwad2
+#else
+         SUBROUTINE nwxc_FT97_VCOUR_d3(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1              EAA,EBB,EAB,EBA,DEAADR,DEBBDR,DEABDR,DEBADR,
+     3              DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+           use nwad3
+#endif
+           implicit none
+           type(nwad_dble)::rhoa,rhob,rhoa13,rhob13,ama,amb
+           type(nwad_dble)::eaa,ebb,eab,eba
+           double precision DEAADR,DEBBDR,DEABDR,DEBADR
+           double precision DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho
+         end subroutine
+       end interface

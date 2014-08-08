@@ -1,0 +1,19 @@
+       interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         SUBROUTINE nwxc_FT97_ECFUN(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,
+     1              V1,V2,V3,V4,tol_rho)
+           use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         SUBROUTINE nwxc_FT97_ECFUN_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1              EC,V1,V2,V3,V4,tol_rho)
+           use nwad2
+#else
+         SUBROUTINE nwxc_FT97_ECFUN_d3(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1              EC,V1,V2,V3,V4,tol_rho)
+           use nwad3
+#endif
+           implicit none
+           double precision v1, v2, v3, v4, tol_rho
+           type(nwad_dble)::rhoa,rhob,rhoa13,rhob13,ama,amb,ec
+         end subroutine
+       end interface

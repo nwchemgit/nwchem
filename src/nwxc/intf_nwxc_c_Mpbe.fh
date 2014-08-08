@@ -1,0 +1,19 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_c_Mpbe(tol_rho, ipol, rho, rgamma, Ec)
+          use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_c_Mpbe_d2(tol_rho, ipol, rho, rgamma, Ec)
+          use nwad2
+#else
+        Subroutine nwxc_c_Mpbe_d3(tol_rho, ipol, rho, rgamma, Ec)
+          use nwad3
+#endif
+          implicit none
+          double precision tol_rho
+          integer ipol
+          type(nwad_dble)::rho(ipol)
+          type(nwad_dble)::rgamma(ipol+1)
+          type(nwad_dble)::Ec
+        end subroutine
+      end interface

@@ -1,0 +1,24 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_c_p91(tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, func)
+          use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_c_p91_d2(tol_rho, ipol, nq, wght, rho,
+     &                           rgamma, func)
+          use nwad2
+#else
+        Subroutine nwxc_c_p91_d3(tol_rho, ipol, nq, wght, rho,
+     &                           rgamma, func)
+          use nwad3
+#endif
+          implicit none
+          double precision tol_rho
+          integer ipol
+          integer nq
+          double precision wght
+          type(nwad_dble)::rho(nq,*)
+          type(nwad_dble)::rgamma(nq,*)
+          type(nwad_dble)::func(*)
+        end subroutine
+      end interface

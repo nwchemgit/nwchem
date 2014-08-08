@@ -1,0 +1,20 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_EvFZet(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
+          use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_EvFZet_d2(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
+          use nwad2
+#else
+        Subroutine nwxc_EvFZet_d3(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
+          use nwad3
+#endif
+          implicit none
+          double precision tol_rho
+          double precision S
+          type(nwad_dble) :: zeta
+          type(nwad_dble) :: fzeta
+          double precision dfZdz
+          double precision d2fZdz
+        end subroutine
+      end interface

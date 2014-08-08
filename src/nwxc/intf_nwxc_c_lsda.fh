@@ -1,0 +1,21 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_c_lsda(tol_rho,rs,zeta,PotLC,dLdS,dLdZ,
+     &                         d2LdSS,d2LdSZ,d2LdZZ)
+          use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_c_lsda_d2(tol_rho,rs,zeta,PotLC,dLdS,dLdZ,
+     &                            d2LdSS,d2LdSZ,d2LdZZ)
+          use nwad2
+#else
+        Subroutine nwxc_c_lsda_d3(tol_rho,rs,zeta,PotLC,dLdS,dLdZ,
+     &                            d2LdSS,d2LdSZ,d2LdZZ)
+          use nwad3
+#endif
+          implicit none
+          double precision tol_rho
+          type(nwad_dble)::rs,zeta,potlc
+          type(nwad_dble)::Chi
+          double precision dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ
+        end subroutine
+      end interface

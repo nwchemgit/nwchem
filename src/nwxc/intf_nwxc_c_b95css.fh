@@ -1,0 +1,22 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_c_b95ss(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                          Chi,EUEGP,ChiP,ChiG)
+          use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxc_c_b95ss_d2(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                             Chi,EUEGP,ChiP,ChiG)
+          use nwad2
+#else
+        Subroutine nwxc_c_b95ss_d3(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                             Chi,EUEGP,ChiP,ChiG)
+          use nwad3
+#endif
+          implicit none
+          double precision param(2)
+          double precision dtol
+          type(nwad_dble)::PX, GX, TX, F, FP, FG, FT, EUEG
+          type(nwad_dble)::Chi
+          double precision EUEGP, ChiP, ChiG
+        end subroutine
+      end interface
