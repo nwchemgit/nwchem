@@ -298,7 +298,7 @@ clean:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
-	-$(RM) -f *.o *.a *core *stamp *trace mputil.mp* *events* *ipo $(LIB_TARGETS)
+	-$(RM) -f *.o *.a *core *stamp *trace mputil.mp* *events* *ipo *optrpt $(LIB_TARGETS)
 	if [ -f $(LIBRARY_PATH) ] ; then \
   		$(AR) d $(LIBRARY_PATH) $(OBJ) $(OBJ_OPTIMIZE) ; \
 		if [ `$(AR) t $(LIBRARY_PATH) | wc | awk ' {print $$1;}'` -eq 0 ] ; then \

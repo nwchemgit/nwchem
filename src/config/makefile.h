@@ -1907,6 +1907,7 @@ endif
        FOPTIMIZE = -O3  -unroll  -ip
        FOPTIONS += -align
 	   ifeq ($(_IFCV15ORNEWER), Y)
+         FOPTIONS += -vec-report6 -qopt-report-per-object # -qopt-report-file=stderr
          ifdef USE_OPENMP
            FOPTIONS += -qopenmp
            FOPTIONS += -qopt-report-phase:openmp
@@ -1914,6 +1915,7 @@ endif
            DEFINES+= -DUSE_OPENMP 
          endif		   
 	   else
+         FOPTIONS += -vec-report6
          ifdef USE_OPENMP
            FOPTIONS += -openmp
            FOPTIONS += -openmp-report2
@@ -1952,11 +1954,13 @@ endif
 		  endif
        else
           ifdef USE_OPENMP
+          ifeq ($(_IFCV15ORNEWER), Y)
+             FOPTIONS += -qno-openmp-offload
+          else
              FOPTIONS += -no-openmp-offload
           endif
+          endif
        endif
-#       FOPTIONS +=   -vec-report2
-       FOPTIONS +=   -vec-report6
        DEFINES+= -DIFCV8 -DIFCLINUX
        ifeq ($(FC),ifc)
          FOPTIONS += -quiet
@@ -1965,11 +1969,10 @@ endif
          FOPTIONS += -fpe0 -traceback #-fp-model  precise
        endif
         ifeq ($(_IFCV11),Y) 
-# 	    FOPTIMIZE +=  -xP
 #next 2 lines needed for fp accuracy
-	FOPTIONS += -fp-model source
-	FOPTIONS += -fimf-arch-consistency=true
-        FOPTIMIZE += -xHost -no-prec-div
+        FDEBUG += -fp-model source
+        FOPTIONS += -fimf-arch-consistency=true
+        FOPTIMIZE += -xHost
        else
         ifeq ($(_GOTSSE3),Y) 
          FOPTIMIZE += -xP -no-prec-div
