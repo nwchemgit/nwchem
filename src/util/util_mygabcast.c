@@ -13,7 +13,7 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   int ierr, len,  resultlen;
   long  len8,  istart, end8;
   int nsteps;
-  int64_t lo[2], hi[2], *ld64=NULL;
+  int64_t lo[2], hi[2];
   static int bigint = 2147482574;
   char err_buffer[MPI_MAX_ERROR_STRING];
   lo[0]=0;
@@ -22,14 +22,14 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   hi[1]=*m - 1;
   hi[0]=*n - 1;
 
-  if(GA_Nodeid() == 0)  NGA_Get64(*g_a, lo, hi, a, (int64_t *) ld);
-  GA_Sync();
-
   len8= (*m) * (*n);
 
   nsteps = (int) ceil(((double)len8)/((double)bigint));
 
-  istart=1;
+  istart=0;
+
+  if(GA_Nodeid() == 0) NGA_Get64(*g_a, lo, hi, a, (int64_t *) ld);
+  GA_Sync();
 
   for (i=0; i < nsteps; i++){
   
