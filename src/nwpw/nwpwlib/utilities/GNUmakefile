@@ -40,6 +40,7 @@
 		nwpw_double_factorial.o \
 		nwpw_kbpp_ray.o \
 		nwpw_talker.o \
+		nwpw_expression.o \
 		nwpw_emachine.o
 
 	  OBJ = 
