@@ -1887,7 +1887,9 @@ endif
        _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
        _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
        _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|awk ' /n 1/ {print "Y"; exit}')
-	   _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+       _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
+       _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
+       _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
         defineFCE: 
@@ -1925,6 +1927,7 @@ endif
        endif
            
        ifdef USE_OFFLOAD
+         ifeq ($(_IFCV14), Y)
           ### extra mic compile stuff; make FC=ifort CC=icc  AR=xiar
           FC = ifort
           _FC = ifort
@@ -1952,12 +1955,21 @@ endif
             FOPTIONS += -watch=mic_cmd 
             COPTIONS += -opt-report-phase=offload
 		  endif
+         else
+error100:
+$(info     )
+$(info USE_OFFLOAD requires ifort version 14 and later)
+$(info     )
+$(error )
+         endif
        else
           ifdef USE_OPENMP
           ifeq ($(_IFCV15ORNEWER), Y)
              FOPTIONS += -qno-openmp-offload
           else
+          ifeq ($(_IFCV14), Y)
              FOPTIONS += -no-openmp-offload
+          endif
           endif
           endif
        endif
@@ -1971,7 +1983,9 @@ endif
         ifeq ($(_IFCV11),Y) 
 #next 2 lines needed for fp accuracy
         FDEBUG += -fp-model source
+        ifeq ($(_IFCV12),Y) 
         FOPTIONS += -fimf-arch-consistency=true
+        endif
         FOPTIMIZE += -xHost
        else
         ifeq ($(_GOTSSE3),Y) 
