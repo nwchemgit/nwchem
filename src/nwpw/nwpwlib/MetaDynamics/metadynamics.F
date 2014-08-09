@@ -25,6 +25,7 @@ c     **********************************************
       character*80 rtdb_name,potential_filename
       character*60 gauss_filename
       character*4 celement1,celement2
+      character*500 eqnstring
 
 *     **** external functions ****
       logical     control_Nose
@@ -134,6 +135,7 @@ c     **********************************************
                   int_mb(indxmeta(1)+d-1) = 0
                end do
             end if
+
 
 
 *           ***** allocate and read pmeta,ameta,bmeta,parammeta, and ymeta ****
@@ -273,9 +275,13 @@ c     **********************************************
      >      call util_file_prefix('meta_gaussians',gauss_filename)
          call meta_gauss_write_init(gauss_filename)
 
+*        **** start nwpw_expression ****
+         call nwpw_expression_start(rtdb)
+
 
 *     **** write out header info ****
       call Parallel_taskid(taskid)
+      value = rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          write(luout,*) 
          write(luout,*)  "MetaDynamics parameters:"
@@ -480,6 +486,19 @@ c     **********************************************
                  write(luout,'(6x,A)') '- Sprik function form'
               end if
 
+            else if (ntype.eq.12) then
+               call nwpw_expression_eqnstring(rtdb,
+     >                                        int_mb(indxmeta(1)+s1+1),
+     >                                        eqnstring)
+               write(luout,'(A,/6x,A,A,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >           '  - Equation Parameters: ',
+     >           'equation= ',trim(eqnstring),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             end if
 
@@ -491,6 +510,7 @@ c     **********************************************
  1004 FORMAT(2x,"- Bath Indexes            (Index2) :",10I5)
 
       end if
+      value = rtdb_parallel(.true.)
       
       end if
       return
@@ -574,6 +594,8 @@ c     **********************************************
             value = value.and.MA_free_heap(ymeta(2))
             call nwpw_interp_end()
             call meta_gauss_write_end()
+
+            call nwpw_expression_end(rtdb)
 
          end if
 

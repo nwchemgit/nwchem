@@ -69,7 +69,7 @@ c
      >             'nrange',
      >             'nvector'/
 c
-      logical       value,spline,dprint
+      logical       value,spline
       character*80  rtdb_name
       character*255 test,dir_name,sdir_name
       character*4   elem1,elem2
@@ -87,8 +87,7 @@ c
       integer nxmeta(2),parammeta(2),sparammeta(2),ymeta(2)
       real*8  sdist(50),dTtempered
 
-      integer code(5,200),nf,nc,print_level
-      real*8  fconst(50)
+      integer nemach
       character*500 eqnstring
 
 *     **** external functions ****
@@ -96,9 +95,9 @@ c
       external    c_index_name
       logical     nwpw_parse_boolean,control_print
       external    nwpw_parse_boolean,control_print
+      integer     nwpw_expression_compile
+      external    nwpw_expression_compile
 
-      call util_print_get_level(print_level)
-      dprint = (print_debug.le.print_level)
       metaindexmax = 1000
       nmeta = 0
       nxmeta_all = 1
@@ -1726,30 +1725,105 @@ c
 c
 c  equation
 c
- 1700 eqnstring = repeat(" ",500)
-      if (inp_a(eqnstring)) then
+ 1700 if (inp_a(eqnstring)) then
          
-         n1 = 500
-         call nwpw_emachine_parse(eqnstring,n1,nc,code,nf,fconst)
-         if (dprint) then
-            write(luout,'(A,A)') "eqnstring = ",trim(eqnstring)
-            write(luout,*)
-            do i=1,nc
-               write(luout,'(A,I3,A,5I6)') "emachine: ln=",i-1," code=",
-     >                                code(1,i),code(2,i),
-     >                                code(3,i),code(4,i),code(5,i)
-            end do
-            write(luout,*)
-            do i=1,nf
-               write(luout,'("emachine: fconst(",I3,")=",E15.6)') 
-     >             i-1,fconst(i)
-            end do
-            write(luout,*)
-            write(luout,*)
-         end if
-      end if
-      goto 10
+      nemach = nwpw_expression_compile(rtdb,eqnstring)
 
+*     *** set defaults for w,sigma,range and nrange ***
+      sdist(1) = 0.00005d0
+      sdist(2) = 0.10000d0
+      sdist(3) = -999.0d0
+      sdist(4) = -999.0d0
+      sindx(3) = 501
+
+ 1701 if (.not.inp_a(test)) goto 1799
+      if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
+     >  call errquit(
+     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+
+      goto ( 1710,1720,1730,1740) ind3
+      call errquit(
+     >     'metadynamics_input: unimplemented directive',ind3,INPUT_ERR)
+
+c
+c w, default=0.00005 au = 0.03175 kcal/mol
+c
+ 1710 if (.not.inp_f(sdist(1))) sdist(1)=0.00005d0
+      goto 1701
+c
+c sigma, default = 0.1 au
+c
+ 1720 if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
+      goto 1701
+c
+c range
+c
+ 1730 if (.not.inp_f(sdist(3))) sdist(3)=-999.0d0
+      if (.not.inp_f(sdist(4))) sdist(4)=-999.0d0
+      goto 1701
+c
+c nrange, default = 501
+c
+ 1740 if (.not.inp_i(sindx(3))) sindx(3)=501
+      goto 1701
+
+ 1799 continue
+      int_mb(sindxmeta(1) +nmeta)     = nindxmeta
+      int_mb(indxmeta(1)+nindxmeta)   = 12
+      int_mb(indxmeta(1)+nindxmeta+1) = nemach
+      nindxmeta  = nindxmeta + 2
+
+      int_mb(sparammeta(1)+nmeta)       = nparammeta
+      dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
+      dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
+      nparammeta  = nparammeta + 2
+
+      nxmeta_all = nxmeta_all*sindx(3)
+      int_mb(nxmeta(1)+nmeta) = sindx(3)
+      dbl_mb(ameta(1)+nmeta)  = sdist(3)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+      int_mb(pmeta(1)+nmeta)  = 0
+
+      nmeta = nmeta + 1
+
+      rtdb_name = 'metadynamics_nindxmeta'
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      rtdb_name = 'metadynamics_sindxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sindxmeta(1)))
+      rtdb_name = 'metadynamics_indxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nindxmeta,int_mb(indxmeta(1)))
+      rtdb_name = 'metadynamics_nparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
+      rtdb_name = 'metadynamics_sparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sparammeta(1)))
+      rtdb_name = 'metadynamics_parammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                 nparammeta,dbl_mb(parammeta(1)))
+      rtdb_name = 'metadynamics_ameta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
+      rtdb_name = 'metadynamics_bmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
+      rtdb_name = 'metadynamics_nxmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
+      rtdb_name = 'metadynamics_nmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
+      rtdb_name = 'metadynamics_nxmeta_all'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
+      if (.not. value) call errquit(
+     >'metadynamics_input:failed writing bond',0,RTDB_ERR)
+
+      end if
+
+      goto 10
 
 
  9999 continue
