@@ -621,17 +621,19 @@ c     **********************************************
 
 *     **** local variables ****
       logical sprik
-      integer i,j,ntype,n1,n2,isgn
+      integer i,j,ntype,n1,n2,isgn,nion
       real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r2,r3
       real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f,la,lb
       real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2,d1a,d2a,d1b,d2b
       real*8 cf(100),v0,dv0
 
 *     **** external functions ****
-      integer  ion_rion_ptr
-      external ion_rion_ptr
+      integer  ion_rion_ptr,ion_nion
+      external ion_rion_ptr,ion_nion
       real*8   ion_rion,psp_ld_trace,metadynamics_coordspherediff
       external ion_rion,psp_ld_trace,metadynamics_coordspherediff
+      real*8   nwpw_expression_f
+      external nwpw_expression_f
 
       ntype = indx(1)
 
@@ -876,6 +878,9 @@ c     **** bond_difference_shell ****
      >                                    n2,indx(3+n1+1),
      >                                    dbl_mb(ion_rion_ptr()))
 
+      else if (ntype.eq.12) then
+          nion = ion_nion()
+          f = nwpw_expression_f(indx(2),nion,dbl_mb(ion_rion_ptr()))
       end if
 
       meta_collective = f
@@ -902,7 +907,7 @@ c     **********************************************
 
 *     **** local variables ****
       logical sprik
-      integer i,j,ntype,n1,n2
+      integer i,j,ntype,n1,n2,nion
       real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
       real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
@@ -912,8 +917,8 @@ c     **********************************************
       real*8 v0,dv0
 
 *     **** external functions ****
-      integer  ion_rion_ptr
-      external ion_rion_ptr
+      integer  ion_rion_ptr,ion_nion
+      external ion_rion_ptr,ion_nion
       real*8   ion_rion
       external ion_rion
 
@@ -1305,6 +1310,11 @@ c     **** bond_difference2 ****
      >                                        n2,indx(3+n1+1),
      >                                        dbl_mb(ion_rion_ptr()),
      >                                        fmeta)
+      else if (ntype.eq.12) then
+         nion = ion_nion()
+         call nwpw_expression_fion(dv,indx(2),
+     >                        nion,dbl_mb(ion_rion_ptr()),
+     >                        fmeta)
 
       end if
 
