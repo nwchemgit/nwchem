@@ -266,3 +266,99 @@
 
       return
       end
+
+*     **********************************************************
+*     *                                                        *
+*     *               nwpw_expression_f                        *
+*     *                                                        *
+*     **********************************************************
+*
+      real*8 function nwpw_expression_f(i,nion,rion)
+      implicit none
+      integer i
+      integer nion
+      real*8 rion(3,*)
+
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "errquit.fh"
+
+      logical started
+      integer nc(2),nf(2),code(2),fconst(2)
+      common /nwpw_expression/ nc,nf,code,fconst,started
+
+*     **** local variables ****
+      real*8 f
+
+*     **** external functions ****
+      real*8   nwpw_emachine_f
+      external nwpw_emachine_f
+
+      write(*,*)  "in nwpw_expression_f, i=",i
+      f = 0.0
+      if (started) then
+         f = nwpw_emachine_f(int_mb(nc(1)+i-1),
+     >                       int_mb(code(1)+(i-1)*5*200),
+     >                       int_mb(nf(1)+i-1),
+     >                       dbl_mb(fconst(1)+(i-1)*50),
+     >                       nion,rion)
+      end if
+      write(*,*) "f=",f
+
+      nwpw_expression_f = f
+      return
+      end
+
+
+*     **********************************************************
+*     *                                                        *
+*     *               nwpw_expression_fion                     *
+*     *                                                        *
+*     **********************************************************
+*
+      subroutine nwpw_expression_fion(alpha,i,nion,rion,fion)
+      implicit none
+      real*8 alpha
+      integer i
+      integer nion
+      real*8 rion(3,*)
+      real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "errquit.fh"
+
+      logical started
+      integer nc(2),nf(2),code(2),fconst(2)
+      common /nwpw_expression/ nc,nf,code,fconst,started
+
+*     **** local variables ****
+      integer i0,ii0
+      real*8 df
+
+*     **** external functions ****
+      real*8   nwpw_emachine_df
+      external nwpw_emachine_df
+
+      if (started) then
+         do ii0 = 1,nion
+         do i0=1,3
+            df = nwpw_emachine_df(i0,ii0,
+     >                            int_mb(nc(1)+i-1),
+     >                            int_mb(code(1)+(i-1)*5*200),
+     >                            int_mb(nf(1)+i-1),
+     >                            dbl_mb(fconst(1)+(i-1)*50),
+     >                            nion,rion)
+            write(*,*) "i0,ii0,df=",i0,ii0,df
+            fion(i0,ii0) = fion(i0,ii0) - alpha*df
+         end do
+         end do
+      end if
+
+      return
+      end
+
