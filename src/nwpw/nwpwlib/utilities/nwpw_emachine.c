@@ -58,6 +58,9 @@ static void nwpw_findsestride(char str[], int *s, int *e, int *stride)
     if (str[i]=='i') *s = -8888;
     if (str[i]=='j') *s = -7777;
     if (str[i]=='k') *s = -6666;
+    if (str[i+1]=='i') *s = -5555;
+    if (str[i+1]=='j') *s = -4444;
+    if (str[i+1]=='k') *s = -3333;
     done = 0; while (!done) { ++i; if (str[i]==':') done = 1; }
     ++i;
     if (isdigit(str[i])) sscanf(&str[i],"%d",e);
@@ -65,6 +68,9 @@ static void nwpw_findsestride(char str[], int *s, int *e, int *stride)
     if (str[i]=='i') *e = -8888;
     if (str[i]=='j') *e = -7777;
     if (str[i]=='k') *e = -6666;
+    if (str[i+1]=='i') *e = -5555;
+    if (str[i+1]=='j') *e = -4444;
+    if (str[i+1]=='k') *e = -3333;
     done = 0; while (!done) { ++i; if (str[i]==':') done = 1; }
     ++i;
     if (isdigit(str[i])) sscanf(&str[i],"%d",stride);
@@ -72,6 +78,9 @@ static void nwpw_findsestride(char str[], int *s, int *e, int *stride)
     if (str[i]=='i') *stride = -8888;
     if (str[i]=='j') *stride = -7777;
     if (str[i]=='k') *stride = -6666;
+    if (str[i+1]=='i') *stride = -5555;
+    if (str[i+1]=='j') *stride = -4444;
+    if (str[i+1]=='k') *stride = -3333;
 }
 
 static void nwpw_findrion(char str[], int *s, int *e) 
@@ -86,6 +95,9 @@ static void nwpw_findrion(char str[], int *s, int *e)
     if (str[i]=='i') *s = -8888;
     if (str[i]=='j') *s = -7777;
     if (str[i]=='k') *s = -6666;
+    if (str[i+1]=='i') *s = -5555;
+    if (str[i+1]=='j') *s = -4444;
+    if (str[i+1]=='k') *s = -3333;
     done = 0; while (!done) { ++i; if (str[i]==',') done = 1; }
     ++i;
     if (isdigit(str[i])) sscanf(&str[i],"%d",e);
@@ -93,6 +105,9 @@ static void nwpw_findrion(char str[], int *s, int *e)
     if (str[i]=='i') *e = -8888;
     if (str[i]=='j') *e = -7777;
     if (str[i]=='k') *e = -6666;
+    if (str[i+1]=='i') *e = -5555;
+    if (str[i+1]=='j') *e = -4444;
+    if (str[i+1]=='k') *e = -3333;
 }
 
 
