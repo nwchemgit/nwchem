@@ -199,6 +199,62 @@ static void nwpw_gencode(Integer code[], double fconst[], int ln, char expr[])
       nwpw_gencode(code,fconst,lnl,lexpr);
       nwpw_gencode(code,fconst,lnr,rexpr);
    }
+   else if ((t=nwpw_findtoken(expr,"sumii")) >= 0)
+   {
+      nwpw_findsestride(&expr[t+6],&s,&e,&stride);
+      t2 = nwpw_findtoken(&expr[t+6],"]");
+      strcpy(rexpr,&expr[t+6+t2]); ++cln; lnr = cln;
+      //printf("code: ln=%d   sumii  %d   ii=%d:%d:%d \n",ln,lnr,s,e,stride);
+      code[5*ln] = -22; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
+      nwpw_gencode(code,fconst,lnr,rexpr);
+      
+   }
+   else if ((t=nwpw_findtoken(expr,"sumjj")) >= 0)
+   {
+      nwpw_findsestride(&expr[t+6],&s,&e,&stride);
+      t2 = nwpw_findtoken(&expr[t+6],"]");
+      strcpy(rexpr,&expr[t+7+t2]); ++cln; lnr = cln;
+      //printf("code: ln=%d   sumjj  %d   jj=%d:%d:%d \n",ln,lnr,s,e,stride);
+      code[5*ln] = -23; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
+      nwpw_gencode(code,fconst,lnr,rexpr);
+   }
+   else if ((t=nwpw_findtoken(expr,"sumkk")) >= 0)
+   {
+      nwpw_findsestride(&expr[t+6],&s,&e,&stride);
+      t2 = nwpw_findtoken(&expr[t+6],"]");
+      strcpy(rexpr,&expr[t+6+t2]); ++cln; lnr = cln;
+      //printf("code: ln=%d   sumkk  %d   kk=%d:%d:%d \n",ln,lnr,s,e,stride);
+      code[5*ln] = -24; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
+      nwpw_gencode(code,fconst,lnr,rexpr);
+   }
+   else if ((t=nwpw_findtoken(expr,"sumi")) >= 0)
+   {
+      nwpw_findsestride(&expr[t+5],&s,&e,&stride);
+      t2 = nwpw_findtoken(&expr[t+5],"]");
+      strcpy(rexpr,&expr[t+6+t2]); ++cln; lnr = cln;
+      //printf("code: ln=%d   sumi  %d   i=%d:%d:%d \n",ln,lnr,s,e,stride);
+      code[5*ln] = -19; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
+      nwpw_gencode(code,fconst,lnr,rexpr);
+   }
+   else if ((t=nwpw_findtoken(expr,"sumj")) >= 0)
+   {
+      nwpw_findsestride(&expr[t+5],&s,&e,&stride);
+      t2 = nwpw_findtoken(&expr[t+5],"]");
+      strcpy(rexpr,&expr[t+5+t2]); ++cln; lnr = cln;
+      //printf("code: ln=%d   sumj  %d   j=%d:%d:%d \n",ln,lnr,s,e,stride);
+      code[5*ln] = -20; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
+      nwpw_gencode(code,fconst,lnr,rexpr);
+   }
+   else if ((t=nwpw_findtoken(expr,"sumk")) >= 0)
+   {
+      nwpw_findsestride(&expr[t+5],&s,&e,&stride);
+      t2 = nwpw_findtoken(&expr[t+5],"]");
+      strcpy(rexpr,&expr[t+5+t2]); ++cln; lnr = cln;
+      //printf("code: ln=%d   sumk  %d   k=%d:%d:%d \n",ln,lnr,s,e,stride);
+      code[5*ln] = -21; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
+      nwpw_gencode(code,fconst,lnr,rexpr);
+   }
+
    else if (((t=nwpw_findtoken(expr,"*")) >= 0) && (nwpw_findtoken(expr,"**") < 0))
    {
       strncpy(lexpr,expr,t); lexpr[t] = '\0'; strcpy(rexpr,&expr[t+1]); ++cln; lnl = cln; ++cln; lnr = cln;
@@ -322,61 +378,7 @@ static void nwpw_gencode(Integer code[], double fconst[], int ln, char expr[])
       code[5*ln] = -15; code[5*ln+1] = lnr; code[5*ln+2] = 0; code[5*ln+3] = 0; code[5*ln+4] = 0;
       nwpw_gencode(code,fconst,lnr,rexpr);
    }
-   else if ((t=nwpw_findtoken(expr,"sumii")) >= 0)
-   {
-      nwpw_findsestride(&expr[t+6],&s,&e,&stride);
-      t2 = nwpw_findtoken(&expr[t+6],"]");
-      strcpy(rexpr,&expr[t+6+t2]); ++cln; lnr = cln;
-      //printf("code: ln=%d   sumii  %d   ii=%d:%d:%d \n",ln,lnr,s,e,stride);
-      code[5*ln] = -22; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
-      nwpw_gencode(code,fconst,lnr,rexpr);
-      
-   }
-   else if ((t=nwpw_findtoken(expr,"sumjj")) >= 0)
-   {
-      nwpw_findsestride(&expr[t+6],&s,&e,&stride);
-      t2 = nwpw_findtoken(&expr[t+6],"]");
-      strcpy(rexpr,&expr[t+7+t2]); ++cln; lnr = cln;
-      //printf("code: ln=%d   sumjj  %d   jj=%d:%d:%d \n",ln,lnr,s,e,stride);
-      code[5*ln] = -23; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
-      nwpw_gencode(code,fconst,lnr,rexpr);
-   }
-   else if ((t=nwpw_findtoken(expr,"sumkk")) >= 0)
-   {
-      nwpw_findsestride(&expr[t+6],&s,&e,&stride);
-      t2 = nwpw_findtoken(&expr[t+6],"]");
-      strcpy(rexpr,&expr[t+6+t2]); ++cln; lnr = cln;
-      //printf("code: ln=%d   sumkk  %d   kk=%d:%d:%d \n",ln,lnr,s,e,stride);
-      code[5*ln] = -24; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
-      nwpw_gencode(code,fconst,lnr,rexpr);
-   }
-   else if ((t=nwpw_findtoken(expr,"sumi")) >= 0)
-   {
-      nwpw_findsestride(&expr[t+5],&s,&e,&stride);
-      t2 = nwpw_findtoken(&expr[t+5],"]");
-      strcpy(rexpr,&expr[t+6+t2]); ++cln; lnr = cln;
-      //printf("code: ln=%d   sumi  %d   i=%d:%d:%d \n",ln,lnr,s,e,stride);
-      code[5*ln] = -19; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
-      nwpw_gencode(code,fconst,lnr,rexpr);
-   }
-   else if ((t=nwpw_findtoken(expr,"sumj")) >= 0)
-   {
-      nwpw_findsestride(&expr[t+5],&s,&e,&stride);
-      t2 = nwpw_findtoken(&expr[t+5],"]");
-      strcpy(rexpr,&expr[t+5+t2]); ++cln; lnr = cln;
-      //printf("code: ln=%d   sumj  %d   j=%d:%d:%d \n",ln,lnr,s,e,stride);
-      code[5*ln] = -20; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
-      nwpw_gencode(code,fconst,lnr,rexpr);
-   }
-   else if ((t=nwpw_findtoken(expr,"sumk")) >= 0)
-   {
-      nwpw_findsestride(&expr[t+5],&s,&e,&stride);
-      t2 = nwpw_findtoken(&expr[t+5],"]");
-      strcpy(rexpr,&expr[t+5+t2]); ++cln; lnr = cln;
-      //printf("code: ln=%d   sumk  %d   k=%d:%d:%d \n",ln,lnr,s,e,stride);
-      code[5*ln] = -21; code[5*ln+1] = lnr; code[5*ln+2] = s; code[5*ln+3] = e; code[5*ln+4] = stride;
-      nwpw_gencode(code,fconst,lnr,rexpr);
-   }
+
    else if ((t=nwpw_findtoken(expr,"rion")) >= 0)
    {
       nwpw_findrion(&expr[t+5],&i,&ii);
@@ -693,7 +695,6 @@ double nwpw_fmachine(Integer i0, Integer ii0, Integer ln, Integer code[], double
          c = nwpw_fmachine(i0,ii0,ln1,code,fconst,nion,rion);
          d = nwpw_fmachine(i0,ii0,ln2,code,fconst,nion,rion);
          df = c*b + a*d;
-         printf("* df=%le a=%le b=%le c=%le d=%le\n\n",df,a,b,c,d);
          break;
 
       case -4: /* / */
@@ -716,7 +717,6 @@ double nwpw_fmachine(Integer i0, Integer ii0, Integer ln, Integer code[], double
          else
             fac2 = b*c;
          df = fac1*fac2;
-         printf("** df=%le a=%le b=%le c=%le d=%le fac1=%le fac2=%le\n",df,a,b,c,d,fac1,fac2);
          break;
 
       case -6: /* abs */
@@ -748,7 +748,6 @@ double nwpw_fmachine(Integer i0, Integer ii0, Integer ln, Integer code[], double
       case -9: /* sqrt */
          a = nwpw_emachine(ln1,code,fconst,nion,rion); 
          c = nwpw_fmachine(i0,ii0,ln1,code,fconst,nion,rion);
-         printf("sqrt a=%le c=%le\n",a,c);
          df = 0.5*c/sqrt(a);
          break;
 

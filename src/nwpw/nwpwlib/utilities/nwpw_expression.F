@@ -296,7 +296,6 @@
       real*8   nwpw_emachine_f
       external nwpw_emachine_f
 
-      write(*,*)  "in nwpw_expression_f, i=",i
       f = 0.0
       if (started) then
          f = nwpw_emachine_f(int_mb(nc(1)+i-1),
@@ -305,7 +304,6 @@
      >                       dbl_mb(fconst(1)+(i-1)*50),
      >                       nion,rion)
       end if
-      write(*,*) "f=",f
 
       nwpw_expression_f = f
       return
@@ -353,7 +351,6 @@
      >                            int_mb(nf(1)+i-1),
      >                            dbl_mb(fconst(1)+(i-1)*50),
      >                            nion,rion)
-            write(*,*) "i0,ii0,df=",i0,ii0,df
             fion(i0,ii0) = fion(i0,ii0) - alpha*df
          end do
          end do
