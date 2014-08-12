@@ -20,7 +20,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 21)
+      parameter (num_dirs = 22)
       character*18 dirs(num_dirs)
       data dirs / 'update',
      >            'zfixed',
@@ -42,6 +42,7 @@ c
      >            '2bonds',
      >            'ld_trace2diff',
      >            'bond_difference2',
+     >            'equation',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -91,11 +92,16 @@ c
       integer nxmeta(2),parammeta(2),sparammeta(2),ymeta(2)
       real*8  sdist(50),dTtempered
 
+      integer nemach
+      character*500 eqnstring
+
 *     **** external functions ****
       character*7 c_index_name
       external    c_index_name
       logical     nwpw_parse_boolean
       external    nwpw_parse_boolean
+      integer     nwpw_expression_compile
+      external    nwpw_expression_compile
 
       metaindexmax = 1000
       nmeta = 0
@@ -156,7 +162,7 @@ c
      >  'tamd_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 110, 120,150, 200, 300, 400, 500,600,701,702,703,800,
-     >       900,1000,1100,1200,1300,1400,1500,
+     >       900,1000,1100,1200,1300,1400,1500,1700,
      >      9999) ind
       call errquit(
      >     'tamd_input: unimplemented directive',ind,INPUT_ERR)
@@ -1573,6 +1579,138 @@ c
 
       end if
       end if
+      end if
+
+      goto 10
+
+
+c
+c  equation
+c
+ 1700 if (inp_a(eqnstring)) then
+
+      nemach = nwpw_expression_compile(rtdb,eqnstring)
+
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.05000d0
+      sdist(3) =   30.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = 0.0d0
+      sdist(6) = 0.0d0
+      sdist(7) = -1.0d0
+      sdist(8) = -1.0d0
+      sindx(3) = 501
+
+ 1701 if (.not.inp_a(test)) goto 1799
+      if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
+     >  call errquit(
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
+
+      goto (1710,1720,1730,1740,1750,1760,1770) ind3
+      call errquit(
+     >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
+
+c
+c gamma, default=0.00010 au = 0.06275 kcal/mol
+c
+ 1710 if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
+      goto 1701
+c
+c k, default = 0.05 au
+c
+ 1720 if (.not.inp_f(sdist(2))) sdist(2)=0.05d0
+      goto 1701
+c
+c mass, default=30.0 au
+c
+ 1730 if (.not.inp_f(sdist(3))) sdist(3)= 30.0d0
+      goto 1701
+c
+c ztemp, default = 1000.0K
+c
+ 1740 if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
+      goto 1701
+
+c
+c zinitial
+c
+ 1750 if (.not.inp_f(sdist(5))) sdist(5)=0.0d0
+      if (.not.inp_f(sdist(6))) sdist(6)=0.0d0
+      goto 1701
+
+c
+c range
+c
+ 1760 if (.not.inp_f(sdist(7))) sdist(7)=-1.0d0
+      if (.not.inp_f(sdist(8))) sdist(8)=-1.0d0
+      goto 1701
+
+c
+c nrange, default = 501
+c
+ 1770 if (.not.inp_i(sindx(3))) sindx(3)=501
+      goto 1701
+
+
+ 1799  continue
+      int_mb(sindxmeta(1) +nmeta)     = nindxmeta
+      int_mb(indxmeta(1)+nindxmeta)   = 12
+      int_mb(indxmeta(1)+nindxmeta+1) = nemach
+      nindxmeta  = nindxmeta + 2
+
+      int_mb(sparammeta(1)+nmeta)       = nparammeta
+      dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
+      dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
+      dbl_mb(parammeta(1)+nparammeta+2) = sdist(3)
+      dbl_mb(parammeta(1)+nparammeta+3) = sdist(4)
+      dbl_mb(parammeta(1)+nparammeta+4) = sdist(5)
+      dbl_mb(parammeta(1)+nparammeta+5) = sdist(6)
+      nparammeta  = nparammeta + 6
+
+      nxmeta_all = nxmeta_all*sindx(3)
+      int_mb(nxmeta(1)+nmeta) = sindx(3)
+      dbl_mb(ameta(1)+nmeta)  = sdist(7)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(8)
+      int_mb(pmeta(1)+nmeta)  = 0
+
+      nmeta = nmeta + 1
+
+      rtdb_name = 'tamd_nindxmeta'
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      rtdb_name = 'tamd_sindxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sindxmeta(1)))
+      rtdb_name = 'tamd_indxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nindxmeta,int_mb(indxmeta(1)))
+      rtdb_name = 'tamd_nparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
+      rtdb_name = 'tamd_sparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sparammeta(1)))
+      rtdb_name = 'tamd_parammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                 nparammeta,dbl_mb(parammeta(1)))
+      rtdb_name = 'tamd_ameta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
+      rtdb_name = 'tamd_bmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'tamd_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
+      rtdb_name = 'tamd_nxmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
+      rtdb_name = 'tamd_nmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
+      rtdb_name = 'tamd_nxmeta_all'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
+      if (.not. value) call errquit(
+     >'tamd_input:failed writing bond',0,RTDB_ERR)
+
       end if
 
       goto 10
