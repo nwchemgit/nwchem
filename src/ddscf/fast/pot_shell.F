@@ -71,10 +71,8 @@ c
       double precision q(-lmax2:lmax2,0:lmax2)
       double precision work(lenprod**2), ndens(lenprod**2),
      $     dens(lencart**2)
-      double precision expi(maxprim), coeffi(maxprim)
       integer k_expi,l_expi,k_coeffi,l_coeffi
       integer k_expj,l_expj,k_coeffj,l_coeffj
-      double precision expj(maxprim), coeffj(maxprim)
       double precision a, b, c, center(3), value
 c
       logical odoit
