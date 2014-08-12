@@ -72,6 +72,8 @@ c
       double precision work(lenprod**2), ndens(lenprod**2),
      $     dens(lencart**2)
       double precision expi(maxprim), coeffi(maxprim)
+      integer k_expi,l_expi,k_coeffi,l_coeffi
+      integer k_expj,l_expj,k_coeffj,l_coeffj
       double precision expj(maxprim), coeffj(maxprim)
       double precision a, b, c, center(3), value
 c
@@ -89,6 +91,7 @@ c
       double precision anls((lmax2+2)*(lmax2+3)/4), a00, a11, 
      $     dd, dd2, dd3, rar, radius, radius_sq, pi
       character*16 tag
+      integer nprim_max
       double precision anl_fit, fastj_gaussian_range
       external anl_fit, double_factorial, fastj_gaussian_range
 c
@@ -100,6 +103,21 @@ c
       if (otime) start = util_cpusec()
 c
       pi = 4.0d0*atan(1.0d0)
+      if(.not.(bas_nprim_cn_max(basis, nprim_max))) call errquit(
+     E     ' pot_shell: nprim_cn_max failed ',basis,BASIS_ERR)
+      if (.not. ma_push_get(mt_dbl, nprim_max, 'expi', 
+     $     l_expi, k_expi)) call errquit(
+     E     'pot_shell: expi alloc failed', nprim_max,    MA_ERR)
+      if (.not. ma_push_get(mt_dbl, nprim_max, 'expj', 
+     $     l_expj, k_expj)) call errquit(
+     E     'pot_shell: expj alloc failed', nprim_max,    MA_ERR)
+      if (.not. ma_push_get(mt_dbl, nprim_max, 'coeffi', 
+     $     l_coeffi, k_coeffi)) call errquit(
+     E     'pot_shell: coeffi alloc failed', nprim_max,    MA_ERR)
+      if (.not. ma_push_get(mt_dbl, nprim_max, 'coeffj', 
+     $     l_coeffj, k_coeffj)) call errquit(
+     E     'pot_shell: coeffj alloc failed', nprim_max,    MA_ERR)
+
 c
 c     Get info on the shells
 c
@@ -109,15 +127,17 @@ c
       if (.not.bas_continfo(basis, jsh, jtype, jnprim,jngen, 
      $     josph)) call errquit('fastJ: bas_cont_info', jsh,
      &       BASIS_ERR)
+      if(jnprim.gt.nprim_max) call errquit(
+     A     ' pot_shell: increas maxprim from ',nprim_max,0)
       if (jtype .lt. 0 .or. jngen.ne.1) call errquit
      $     ('fastJ: no general/SP functions yet',0, BASIS_ERR)
       if (jtype .gt. lmax) call errquit
      $     ('fastJ: hard dimension lmax exceeded ', lmax, BASIS_ERR)
       if (.not. bas_cn2bfr(basis, jsh, jbflo, jbfhi))
      $     call errquit('fastJ dens: bas_cn2bfr', jsh, BASIS_ERR)
-      if (.not.bas_get_exponent(basis, jsh, expj))
+      if (.not.bas_get_exponent(basis, jsh, dbl_mb(k_expj)))
      $     call errquit('fastJ: bas_get_exponent?',jsh, BASIS_ERR)
-      if (.not.bas_get_coeff(basis, jsh, coeffj))
+      if (.not.bas_get_coeff(basis, jsh, dbl_mb(k_coeffj)))
      $     call errquit('fastJ: bas_get_coeff?',jsh,
      &       BASIS_ERR)
       if (.not. bas_cn2ce(basis, jsh, jat))
@@ -128,15 +148,17 @@ c
 c
       if (.not.bas_continfo(basis,ish,itype,inprim,ingen, 
      $     iosph)) call errquit('fastJ: bas_cont_info',ish, BASIS_ERR)
+      if(inprim.gt.nprim_max) call errquit(
+     A     ' pot_shell: increas maxprim from ',nprim_max,0)
       if (itype .lt. 0 .or. ingen.ne.1) call errquit
      $     ('fastJ: no general/SP functions yet',0, BASIS_ERR)
       if (itype .gt. lmax) call errquit
      $     ('fastJ: hard dimension lmax exceeded ', lmax, BASIS_ERR)
       if (.not. bas_cn2bfr(basis, ish, ibflo, ibfhi))
      $     call errquit('fastJ dens: bas_cn2bfr', ish, BASIS_ERR)
-      if (.not.bas_get_exponent(basis, ish, expi))
+      if (.not.bas_get_exponent(basis, ish, dbl_mb(k_expi)))
      $     call errquit('fastJ: bas_get_exponent?',ish, BASIS_ERR)
-      if (.not.bas_get_coeff(basis, ish, coeffi))
+      if (.not.bas_get_coeff(basis, ish, dbl_mb(k_coeffi)))
      $     call errquit('fastJ: bas_get_coeff?',ish, BASIS_ERR)
       if (.not. bas_cn2ce(basis, ish, iat))
      $     call errquit('fastJ: bas_cn2ce?',ish, BASIS_ERR)
@@ -186,8 +208,10 @@ c
 c
       call pot_shell_pair_multipoles(
      $     dens,
-     $     itype, inprim, ingen, expi, coeffi, ri, numi,
-     $     jtype, jnprim, jngen, expj, coeffj, rj, numj,
+     $     itype, inprim, ingen, dbl_mb(k_expi), dbl_mb(k_coeffi), 
+     R     ri, numi,
+     $     jtype, jnprim, jngen, dbl_mb(k_expj), dbl_mb(k_coeffj), 
+     R     rj, numj,
      $     dinv, lmaxd,
      $     tol, 
      $     qn, tmp,
@@ -357,11 +381,12 @@ c
             
             if (odoit) then
                call gaussian_product(
-     $              expi(iprim), ri(1), ri(2), ri(3),
-     $              expj(jprim), rj(1), rj(2), rj(3),
+     $              dbl_mb(k_expi+iprim-1), ri(1), ri(2), ri(3),
+     $              dbl_mb(k_expj+jprim-1), rj(1), rj(2), rj(3),
      $              alpha, a, b, c, prefac)
 c     
-               prefac = prefac*coeffi(iprim)*coeffj(jprim)*
+               prefac = prefac*dbl_mb(k_coeffi+iprim-1)*
+     C              dbl_mb(k_coeffj+jprim-1)*
      $              4.0d0*pi / alpha
             else
                prefac = 0.0d0
@@ -494,7 +519,7 @@ c
 c
       if (otime) time_direct = time_direct + util_cpusec() - start
 c
-99999 if (.not. ma_pop_stack(l_not_done)) call errquit
+99999 if (.not. ma_chop_stack(l_not_done)) call errquit
      $     ('pot_shell: ma corrupt?',0, MA_ERR)
 c
       end
