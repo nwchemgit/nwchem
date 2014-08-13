@@ -2122,7 +2122,6 @@ c               close(53)
             s1 = sindx(i) +1
             s2 = sparam(i)+1
             ntype = indx(s1)
-            call nwpw_expression_eqnstring(rtdb,indx(s1+1),eqnstring)
 
             f  = fsum(i)/dble(count)
             ff = fsum2(i)/dble(count)
@@ -2130,6 +2129,7 @@ c               close(53)
                write(luout,120) indx(s1+1),indx(s1+2),z(i),k(i),
      >                           f,fdelta(i),ff-f*f
             else if (ntype.eq.12) then
+               call nwpw_expression_eqnstring(rtdb,indx(s1+1),eqnstring)
                write(luout,720) trim(eqnstring),z(i),k(i),
      >                           f,fdelta(i),ff-f*f
             end if
