@@ -336,10 +336,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic=',int_mb(pmeta(1)+d-1) 
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.2) then
              write(luout,'(A,3I4,
@@ -353,10 +353,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic=',int_mb(pmeta(1)+d-1) 
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.4) then
              n1 = int_mb(indxmeta(1)+s1+1)
@@ -368,24 +368,24 @@ c     **********************************************
              write(luout,1002) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
 
              write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
+     >                   /6x,A,F11.6,
      >                   /6x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,F11.6,
-     >                   /6x,A,F11.6,
      >                   /6x,A,F11.6,F11.6,
      >                   /6x,A,I5,
      >                   /6x,A,I2)')
      >       "  - Coordination Number Parameters: ",
      >           'n= ',n,'m=       ',m,
+     >           'r0=',r0,
      >           'gamma=',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'r0=',r0,
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
-     >           'periodix=  ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
+c     >           'periodix=  ',int_mb(pmeta(1)+d-1)
               if (dbl_mb(parammeta(1)+s2+5).lt.0) then
                  write(luout,'(6x,A)') '- LJ function form'
               else
@@ -411,10 +411,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic= ',int_mb(pmeta(1)+d-1)
             else if (ntype.eq.6) then
 
              if (int_mb(indxmeta(1)+s1+1).eq.1) then
@@ -429,10 +429,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic= ',int_mb(pmeta(1)+d-1)
              else if (int_mb(indxmeta(1)+s1+1).eq.2) then
              write(luout,'(A,5x,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
@@ -445,10 +445,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic= ',int_mb(pmeta(1)+d-1)
              else 
              write(luout,'(A,5x,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
@@ -461,10 +461,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic= ',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic= ',int_mb(pmeta(1)+d-1)
              end if
 
             else if (ntype.eq.7) then
@@ -480,10 +480,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic=',int_mb(pmeta(1)+d-1) 
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.8) then
              write(luout,'(A,
@@ -504,10 +504,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic=',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic=',int_mb(pmeta(1)+d-1)
 
             else if (ntype.eq.9) then
              write(luout,'(A,5x,A,I4,4x,A,I4,4x,A,I4,
@@ -523,10 +523,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic=',int_mb(pmeta(1)+d-1) 
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.10) then
              write(luout,'(A,
@@ -541,10 +541,10 @@ c     **********************************************
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic=',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5)
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic=',int_mb(pmeta(1)+d-1)
 
             else if (ntype.eq.12) then
                call nwpw_expression_eqnstring(rtdb,
@@ -555,16 +555,16 @@ c     **********************************************
      >                /6x,A,F11.6,4x,A,F11.6,
      >                /6x,A,F11.6,F11.6,
      >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
-     >           '  - Equation Parameters: ',
+     >           '   - Equation Parameters: ',
      >           'equation= ',trim(eqnstring),
      >           'gamma=',gamma,'k=',k,
      >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
      >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
      >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5),
-     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-     >           'periodic=',int_mb(pmeta(1)+d-1)
+     >                       dbl_mb(parammeta(1)+s2+5) 
+c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+c     >           'periodic=',int_mb(pmeta(1)+d-1)
 
             end if
 
