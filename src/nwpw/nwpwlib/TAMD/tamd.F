@@ -673,7 +673,7 @@ c     **********************************************
      >   '                                                           '
                if(.not.rtdb_cget(rtdb,rtdb_name,1,gauss_filename))
      >            call util_file_prefix('tamd_data',gauss_filename)
-               call tamd_gauss_analyze(gauss_filename)
+               call tamd_gauss_analyze(rtdb,gauss_filename)
             end if
 
          end if
@@ -2021,11 +2021,13 @@ c               close(53)
 *     *          tamd_gauss_analyze                 *
 *     *                                             *
 *     ***********************************************
-      subroutine tamd_gauss_analyze(filename)
+      subroutine tamd_gauss_analyze(rtdb,filename)
       implicit none
+      integer rtdb
       character*(*) filename
 
 #include "mafdecls.fh"
+#include "rtdb.fh"
 #include "stdio.fh"
 #include "tamd.fh"
 
@@ -2033,16 +2035,18 @@ c               close(53)
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      logical found,samez
+      logical found,samez,value
       integer i,s1,s2,ndim,nparam,nindx,ntype,count,sindx(10),sparam(10)
       integer indx(50)
       real*8 gamma,kspring
       real*8 f,ff,fold,param(50),tmp(50)
       real*8 z(10),k(10),fsum(10),fsum2(10),fdelta(10)
       character*255 full_filename,atmp
+      character*500 eqnstring
 
       call Parallel_taskid(taskid)
 
+      value = rtdb_parallel(.false.)
       if ((taskid.eq.MASTER).and.(zfixed)) then
 
          call util_file_name_noprefix(filename,.false.,
@@ -2118,10 +2122,15 @@ c               close(53)
             s1 = sindx(i) +1
             s2 = sparam(i)+1
             ntype = indx(s1)
+            call nwpw_expression_eqnstring(rtdb,indx(s1+1),eqnstring)
+
             f  = fsum(i)/dble(count)
             ff = fsum2(i)/dble(count)
             if (ntype.eq.1) then
                write(luout,120) indx(s1+1),indx(s1+2),z(i),k(i),
+     >                           f,fdelta(i),ff-f*f
+            else if (ntype.eq.12) then
+               write(luout,720) trim(eqnstring),z(i),k(i),
      >                           f,fdelta(i),ff-f*f
             end if
          end do
@@ -2129,6 +2138,7 @@ c               close(53)
          write(luout,114) (z(i),i=1,ndim),(fsum(i)/dble(count),i=1,ndim)
          write(luout,*)
       end if
+      value = rtdb_parallel(.true.)
 
 
   111 format(99e14.6)
@@ -2137,6 +2147,12 @@ c               close(53)
   114 format(1x,'TAMD Force =',99e14.6)
   120 format(1x,'atoms=',I5,I5,
      >          1x,'dist=',E10.3,
+     >          1x,'k=',E10.3,
+     >          3x,'<F>=',E14.6,
+     >          2x,'Delta <F>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+  720 format(1x,'equation=',A,
+     >          1x,'z=',E10.3,
      >          1x,'k=',E10.3,
      >          3x,'<F>=',E14.6,
      >          2x,'Delta <F>=',E14.6,
