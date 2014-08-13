@@ -25,6 +25,8 @@ c     **********************************************
       character*80 rtdb_name,potential_filename
       character*60 gauss_filename
       character*4 celement1,celement2
+      character*500 eqnstring
+
 
 *     **** external functions ****
       logical     control_Nose
@@ -293,9 +295,13 @@ c     **********************************************
      >      call util_file_prefix('tamd_data',gauss_filename)
          call tamd_gauss_write_init(gauss_filename)
 
+*        **** start nwpw_expression ****
+         call nwpw_expression_start(rtdb)
+
 
 *     **** write out header info ****
       call Parallel_taskid(taskid)
+      value = rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          write(luout,*) 
          write(luout,*)  "TAMD parameters:"
@@ -478,6 +484,21 @@ c     **********************************************
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'nrange= ',int_mb(nxmeta(1)+d-1),
      >           'periodic=',int_mb(pmeta(1)+d-1)
+
+            else if (ntype.eq.12) then
+               call nwpw_expression_eqnstring(rtdb,
+     >                                        int_mb(indxmeta(1)+s1+1),
+     >                                        eqnstring)
+               write(luout,'(A,/6x,A,A,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >           '  - Equation Parameters: ',
+     >           'equation= ',trim(eqnstring),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1)
+
             end if
 
          end do
@@ -486,6 +507,7 @@ c     **********************************************
  1002 FORMAT(2x,"- Coorination Number (Index2) :",10I5)
 
       end if
+      value = rtdb_parallel(.true.)
       
       end if
       return
@@ -573,6 +595,8 @@ c     **********************************************
 
             call nwpw_interp_end()
             call tamd_gauss_write_end()
+            call nwpw_expression_end(rtdb)
+
  
 
 *           **** analyze tamd_data_file ****
@@ -605,15 +629,22 @@ c     **********************************************
       integer ispin,ne(2)
       real*8  psi1(*)
 
+#include "mafdecls.fh"
+
 *     **** local variables ****
-      integer i,j,ntype,n1,n2
+      integer i,j,ntype,n1,n2,nion
       real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r2,r3
       real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f,la,lb
       real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2,d1a,d2a,d1b,d2b
 
 *     **** external functions ****
+      integer  ion_rion_ptr,ion_nion
+      external ion_rion_ptr,ion_nion
       real*8   ion_rion,psp_ld_trace
       external ion_rion,psp_ld_trace
+      real*8   nwpw_expression_f
+      external nwpw_expression_f
+
 
       ntype = indx(1)
 
@@ -843,6 +874,9 @@ c     **** n-plane ****
          r2 = (dx2**2 + dy2**2 + dz2**2)
          f = r1 - r2
 
+      else if (ntype.eq.12) then
+          nion = ion_nion()
+          f = nwpw_expression_f(indx(2),nion,dbl_mb(ion_rion_ptr()))
 
       end if
 
@@ -866,8 +900,10 @@ c     **********************************************
       logical move
       real*8 fmeta(3,*)
 
+#include "mafdecls.fh"
+
 *     **** local variables ****
-      integer i,j,ntype,n1,n2
+      integer i,j,ntype,n1,n2,nion
       real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
       real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
@@ -876,6 +912,8 @@ c     **********************************************
       real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2
 
 *     **** external functions ****
+      integer  ion_rion_ptr,ion_nion
+      external ion_rion_ptr,ion_nion
       real*8   ion_rion
       external ion_rion
 
@@ -1251,6 +1289,14 @@ c     **** bond_difference2 ****
          fmeta(1,indx(4)) = fmeta(1,indx(4)) - (2.0d0*dx2*df2)*dv
          fmeta(2,indx(4)) = fmeta(2,indx(4)) - (2.0d0*dy2*df2)*dv
          fmeta(3,indx(4)) = fmeta(3,indx(4)) - (2.0d0*dz2*df2)*dv
+
+      else if (ntype.eq.12) then
+         nion = ion_nion()
+         call nwpw_expression_fion(dv,indx(2),
+     >                        nion,dbl_mb(ion_rion_ptr()),
+     >                        fmeta)
+
+
 
       end if
 
