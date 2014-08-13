@@ -99,12 +99,11 @@
 #include "rtdb.fh"
 #include "errquit.fh"
 
+      logical value
       character*80 rtdb_name
 
       rtdb_name = 'nwpw:emachine:nemach'
-      if (.not.rtdb_delete(rtdb,rtdb_name))
-     >   call errquit(
-     >   'nwpw_expression_reset:error calling rtdb_delete',0,RTDB_ERR)
+      value = rtdb_delete(rtdb,rtdb_name)
 
       return
       end
@@ -221,17 +220,17 @@
       character*80 rtdb_name
 
       rtdb_name = 'nwpw:emachine:started'
-      value     = rtdb_delete(rtdb,rtdb_name)
+      value = rtdb_delete(rtdb,rtdb_name)
 
       if (started) then
-         value = value.and.MA_free_heap(nc(2))
+         value =           MA_free_heap(nc(2))
          value = value.and.MA_free_heap(nf(2))
          value = value.and.MA_free_heap(code(2))
          value = value.and.MA_free_heap(fconst(2))
-      end if
-      if (.not.value)
+         if (.not.value)
      >   call errquit(
      >   'nwpw_expression_end:error calling rtdb_delete',0,RTDB_ERR)
+      end if
 
       return
       end
