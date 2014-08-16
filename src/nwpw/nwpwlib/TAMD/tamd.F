@@ -1578,6 +1578,7 @@ c              **** update ztamd and vztamd ****
      >                                ispin,ne,psi1)
                v = v + 0.5d0*k*(r(d)-ztamd(d))**2
             end do
+            call Parallel_Brdcst_value(0,v)
 
          end if
 
@@ -1628,6 +1629,7 @@ c              **** update ztamd and vztamd ****
      >                                ispin,ne,psi1)
                e = e + 0.5d0*k*(r(d)-ztamd(d))**2
             end do
+            call Parallel_Brdcst_value(0,e)
 
          end if
 
