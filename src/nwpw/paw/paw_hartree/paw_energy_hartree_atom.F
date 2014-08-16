@@ -32,7 +32,7 @@
       double precision ehartree
 
       
-      ehartree = 0.D0
+      ehartree = 0.d0
       i_w = 0
       do in=1,ion_nion()
         ia = ion_katm(in)
@@ -51,13 +51,6 @@
 
                   ehartree = ehartree + dble(dcpl_mb(paw_ovlp_w(1)+i_w)*
      >                         dcpl_mb(paw_pot_hartree(1)+i_hp) )
-
-!                 write(24,'(A10,E19.10)') "tmp=",ehartree
-!
-!                 write(24,'(A10,2E19.10)') "w=",
-!    >                     dcpl_mb(paw_ovlp_w(1)+i_w)
-!                 write(24,'(A10,2E19.10)') "hpot=",
-!    >                     dcpl_mb(paw_pot_hartree(1)+i_hp)             
 
 
                   i_w = i_w + 1
