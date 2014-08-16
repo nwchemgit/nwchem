@@ -1466,6 +1466,8 @@ c     >                                    ispin,ne,psi1)
       real*8 r(10),dv(10)
 
 *     **** external functions ****
+      integer  ion_nion
+      external ion_nion
       real*8   meta_collective
       external meta_collective
       
@@ -1494,6 +1496,7 @@ c     >                                    ispin,ne,psi1)
      .                                    ispin,ne,psi1,fmeta_psi1,
      >                                    move,fmeta)
             end do
+      
          end if
 
       end if
@@ -1540,6 +1543,7 @@ c     >                                    ispin,ne,psi1)
      >                      int_mb(pmeta(1)),
      >                      dbl_mb(ymeta(1)),r)
 
+            call Parallel_Brdcst_value(0,v)  !*** syncing to master taskid ***
          end if
 
       end if
@@ -1605,6 +1609,8 @@ c     >                                    ispin,ne,psi1)
                end if
             end do
 
+            call Parallel_Brdcst_value(0,e)  !*** syncing to master taskid ***
+            call Parallel_Brdcst_value(0,p)
          end if
 
       end if
