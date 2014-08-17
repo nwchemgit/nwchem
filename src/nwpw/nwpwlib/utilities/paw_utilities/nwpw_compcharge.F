@@ -33,7 +33,7 @@
       integer i1,j1,li1,mi1,bi1,lj1,mj1,bj1
       integer indx,comp_charge_tag,comp_indx,matr_ptr
       real*8  scal,gg,fourpioveromega,sumall
-      real*8  taunt,rs,pi,w,rcut
+      real*8  taunt,rs,pi,w,rcut,phase
 
 *     **** external functions ****
       integer  control_code,G_indx,c_G_indx,ion_katm
@@ -241,6 +241,17 @@
       lm = 0
       do l =0,mult_l_max
 
+         phase = 1.0d0 
+         if (mod(l,4).eq.0) then
+            phase = 1.0d0
+         else if (mod(l,4).eq.1) then
+            phase = -1.0d0
+         else if (mod(l,4).eq.2) then
+            phase = -1.0d0
+         else if (mod(l,4).eq.3) then
+            phase = 1.0d0
+         end if
+
 *        **** define  |k|**l / (2*l+1)!! ****
          scal = 1.0d0/dble(nwpw_doublefactorial(2*l+1))
          if (l.gt.0) then
@@ -263,7 +274,7 @@
      >                               dbl_mb(glm(1)+lm*npack0))
             do k=1,npack0
                dbl_mb(glm(1)+lm*npack0+k-1) 
-     >            = dbl_mb(glm(1)+lm*npack0+k-1)*dbl_mb(gk(1)+k-1)
+     >            = phase*dbl_mb(glm(1)+lm*npack0+k-1)*dbl_mb(gk(1)+k-1)
             end do
 
             lm = lm + 1
