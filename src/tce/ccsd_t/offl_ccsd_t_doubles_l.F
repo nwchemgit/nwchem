@@ -1826,7 +1826,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
       return
       end
 #ifndef OFFLOAD_CODE
-#ifdef USE_OPENMP
+#ifdef USE_OFFLOAD
 #define OFFLOAD_CODE
 c
 c     Compile source again for offload code
