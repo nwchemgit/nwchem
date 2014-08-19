@@ -20,7 +20,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         esp hessian selci dplot mp2_grad qhop \
         property solvation nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq cons\
-        perfm dntmc transport smd nbo dangchang leps ccca lucia
+        perfm dntmc smd nbo dangchang leps ccca lucia
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -34,7 +34,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lnwxc -lsmd -lsmddb\
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -lnwpython -ldrdy -lvscf -lqmmm -lrism -lqmd -letrans\
-                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -ltransport -lccca\
+                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -lccca\
                     -llucia
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
@@ -68,7 +68,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm
 
-EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana transport nbo rism lucia,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana nbo rism lucia,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -88,8 +88,8 @@ EXP_classical  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian \
           ccsd vib property solvation mp2_grad geninterface bq cons
 # Need bq in front of cons?
-EXP_qmmm_valiev = $(filter-out argos leps transport nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
-EXP_rism = $(filter-out argos leps transport nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
+EXP_qmmm_valiev = $(filter-out argos leps nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
+EXP_rism = $(filter-out argos leps nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
 
 # Check each expansion
 
@@ -155,8 +155,6 @@ MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
 MODULES := $(patsubst etrans, etrans ddscf NWints,$(MODULES) )
 
-MODULES := $(patsubst transport, transport nwdft nwxc dplot gradients driver optim,$(MODULES) )
-
 MODULES := $(patsubst tce,tce nwdft nwxc ddscf NWints hessian gradients,$(MODULES) )
 
 MODULES := $(patsubst argos,argos cafe space fft qhop,$(MODULES) )
@@ -215,7 +213,6 @@ MOD_LIBS := $(patsubst vib,-lvib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst prepar,-lprepar,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst etrans,-letrans,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst transport,-ltransport,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst tce,-ltce,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst argos,-largos,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
@@ -281,7 +278,6 @@ STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst diana,diana dia_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst etrans,etrans et_calc et_input et_calc_fmo,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst transport,transport player transp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_gradient tce_input tce_prop_start tce_property tce_cholesky tce_imaginary,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst argos,argos argos_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
