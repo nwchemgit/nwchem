@@ -125,8 +125,6 @@ c
                call esp_input(rtdb)
             else if (inp_compare(.false.,test,'et')) then
                call et_input(rtdb)
-            else if (inp_compare(.false.,test,'transport')) then
-               call transp_input(rtdb)
             else if (inp_compare(.false.,test,'analysis')) then
                call ana_input(rtdb)
             else if (inp_compare(.false.,test,'analyze')) then

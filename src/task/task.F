@@ -73,7 +73,6 @@ c     logical oembed
       logical task_pspw,task_band,task_ofpw,task_smd
       logical task_drdy
       logical task_et
-      logical player,transport
       logical qmmm_init
       logical qmmm_end
 c     logical embed_init
@@ -315,10 +314,6 @@ c
             status = moints_full(rtdb)
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
-         else if (inp_compare(.false.,'player', theory)) then
-            status = player(rtdb)
-         else if (inp_compare(.false.,'transport', theory)) then
-            status = transport(rtdb)
          elseif(inp_compare(.false.,'esp',theory)) then
             if(oqmmm) then
               status = task_qmmm_esp(rtdb)
