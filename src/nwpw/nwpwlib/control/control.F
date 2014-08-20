@@ -304,6 +304,8 @@ c       call nwxc_print()
         sa_decay(2) = 1.0d0
       end if
 
+      if (.not.rtdb_get(rtdb,'cpmd:dipole',mt_log,1,dipole))
+     >  dipole = .false.
 
       if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
      >  fei = .false.
@@ -478,6 +480,9 @@ c       call nwxc_print()
         sa_decay(1) = 1.0d0
         sa_decay(2) = 1.0d0
       end if
+
+      if (.not.rtdb_get(rtdb,'nwpw:dipole',mt_log,1,dipole))
+     >  dipole = .false.
 
       if (.not.rtdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
      >  fei = .false.
@@ -808,6 +813,8 @@ c       call nwxc_print()
         sa_decay(2) = 1.0d0
       end if
 
+      if (.not.rtdb_get(rtdb,'cpmd:dipole',mt_log,1,dipole))
+     >  dipole = .false.
 
       if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
      >  fei = .false.
@@ -3559,6 +3566,19 @@ c      end
       return
       end
 
+*     ***************************
+*     *                         *
+*     *        control_dipole   *
+*     *                         *
+*     ***************************
+      logical function control_dipole()
+      implicit none
+
+#include "control.fh"
+
+      control_dipole=dipole
+      return
+      end
 
 *     ***************************
 *     *                	   	*
