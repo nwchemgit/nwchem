@@ -20,7 +20,7 @@ c
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value,doit,oprint,mdxs,fei
+      logical value,doit,oprint,mdxs,fei,dipole_motion
       character*80 filename
       character*255 full_filename,full_filename2
 
@@ -75,9 +75,11 @@ c
       call generate_unfolded_xyz(full_filename,full_filename2)
 
 
+     
+
 *     **** perform shake force averaging if Fei set *****
       if (.not.rtdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
-     >  fei = .false.
+     >   fei = .false.
 
       if (fei) then
          call shake_analysis(rtdb)
@@ -87,6 +89,21 @@ c
 *     **** MD XS analysis ****
       if (.not.rtdb_get(rtdb,'nwpw:md_xs',mt_log,1,mdxs)) mdxs=.false.
       if (mdxs) call md_xs_analysis(rtdb,full_filename)
+
+
+*     **** perform dipole correlation and power spectrum if dipole_motion set *****
+      if (.not.rtdb_get(rtdb,'nwpw:dipole_motion',mt_log,
+     >                  1,dipole_motion))
+     >   dipole_motion = .false.
+
+      if (dipole_motion) then
+       if(.not.rtdb_cget(rtdb,'nwpw:dipole_motion_filename',1,filename))
+     >   call util_file_prefix('ion_motion',filename)
+       call util_file_name_noprefix(filename,.false.,
+     >                              .false.,
+     >                              full_filename)
+
+      end if
 
 
       end if
