@@ -583,20 +583,12 @@ c dipole
 c
  3500 if (inp_a(ion_motion_filename)) then
          ind = index(ion_motion_filename,' ') - 1
-         value = rtdb_cput(rtdb,'cpmd:dipole_filename',
-     >                    1,ion_motion_filename(1:ind))
-         if (.not.value)
-     >   call errquit('cpmd_input: writing ', 3500,RTDB_ERR)
-         value = rtdb_cput(rtdb,'nwpw:dipole_filename',
-     >                    1,ion_motion_filename(1:ind))
-         if (.not.value)
-     >   call errquit('cpmd_input: writing ', 3500, RTDB_ERR)
+         if (.not.rtdb_cput(rtdb,'nwpw:dipole_motion_filename',
+     >                    1,ion_motion_filename(1:ind)))
+     >   call errquit('nwpw_input: writing filename',3500,RTDB_ERR)
       end if
-      value = .true.
-      if (.not.rtdb_put(rtdb,'cpmd:dipole',mt_log,1,value))
-     > call errquit('cpmd_input: writing fei ', 3500, RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'nwpw:dipole',mt_log,1,value))
-     > call errquit('cpmd_input: writing fei ', 3500, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'nwpw:dipole_motion',mt_log,1,value))
+     > call errquit('cpmd_input: writing dipole_motion',3500,RTDB_ERR)
       goto 10
 
 
