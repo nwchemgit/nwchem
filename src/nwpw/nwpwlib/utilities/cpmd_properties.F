@@ -98,11 +98,12 @@ c
 
       if (dipole_motion) then
        if(.not.rtdb_cget(rtdb,'nwpw:dipole_motion_filename',1,filename))
-     >   call util_file_prefix('ion_motion',filename)
+     >   call util_file_prefix('dipole_motion',filename)
        call util_file_name_noprefix(filename,.false.,
      >                              .false.,
      >                              full_filename)
 
+         call dipole_motion_autocorrelation(rtdb,full_filename)
       end if
 
 
