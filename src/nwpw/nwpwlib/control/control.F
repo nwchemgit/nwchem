@@ -304,7 +304,7 @@ c       call nwxc_print()
         sa_decay(2) = 1.0d0
       end if
 
-      if (.not.rtdb_get(rtdb,'cpmd:dipole',mt_log,1,dipole))
+      if (.not.rtdb_get(rtdb,'nwpw:dipole',mt_log,1,dipole))
      >  dipole = .false.
 
       if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
@@ -813,7 +813,7 @@ c       call nwxc_print()
         sa_decay(2) = 1.0d0
       end if
 
-      if (.not.rtdb_get(rtdb,'cpmd:dipole',mt_log,1,dipole))
+      if (.not.rtdb_get(rtdb,'nwpw:dipole',mt_log,1,dipole))
      >  dipole = .false.
 
       if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
