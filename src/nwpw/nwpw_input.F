@@ -14,7 +14,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 108)
+      parameter (num_dirs = 109)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -123,6 +123,7 @@ c
      >            'fmm',
      >            'smooth_cutoff',
      >            'md_xs',
+     >            'dipole',
      >            'end'/
 
       double precision kb
@@ -188,7 +189,7 @@ c
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
-     >       7700,7800,7900,8000,
+     >       7700,7800,7900,8000,8100,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1736,6 +1737,27 @@ c  md_xs
 c
  8000 call md_xs_input(rtdb)
       goto 10
+
+c
+c dipole
+c
+ 8100 if (inp_a(input_wavefunction_filename)) then
+         ind = index(input_wavefunction_filename,' ') - 1
+         value = rtdb_cput(rtdb,'cpmd:dipole_filename',
+     >                    1,input_wavefunction_filename(1:ind))
+     >      .and.rtdb_cput(rtdb,'nwpw:dipole_filename',
+     >                    1,input_wavefunction_filename(1:ind))
+          if (.not.value)
+     >    call errquit('nwpw_input: writing ', 8100, RTDB_ERR)
+      end if
+      value = .true.
+      if (.not.rtdb_put(rtdb,'cpmd:dipole',mt_log,1,value))
+     > call errquit('nwpw_input: writing dipole ',8100,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'nwpw:dipole',mt_log,1,value))
+     > call errquit('nwpw_input: writing dipole',8100,RTDB_ERR)
+
+      goto 10
+
 
 
 ************************************************************************
