@@ -1,13 +1,13 @@
 *
-* $Id: dipole_output.F 22501 2012-05-20 06:00:35Z d3y133 $
+* $Id: dipole_motion.F 22501 2012-05-20 06:00:35Z d3y133 $
 *
 
 *     ***************************************
 *     *                                     *
-*     *            dipole_init              *
+*     *            dipole_motion_init       *
 *     *                                     *
 *     ***************************************
-      subroutine dipole_init(rtdb)
+      subroutine dipole_motion_init(rtdb)
       implicit none
       integer rtdb
 
@@ -24,13 +24,14 @@
       real*8 time,dipole(3)
 
 *     **** external functions ****
-      logical  control_dipole
-      external control_dipole
+      logical  control_dipole_motion
+      external control_dipole_motion
 
 
-      if (control_dipole()) then
+      if (control_dipole_motion()) then
 
-        if (.not.rtdb_cget(rtdb,'cpmd:dipole_filename',1,filename))
+        if (.not.rtdb_cget(rtdb,'nwpw:dipole_motion_filename',
+     >                      1,filename))
      >     call util_file_prefix('dipole',filename)
 
         call util_file_name_noprefix(filename,.false.,
@@ -86,11 +87,10 @@
 
 *     ***************************************
 *     *                                     *
-*     *            dipole_end               *
+*     *            dipole_motion_end        *
 *     *                                     *
 *     ***************************************
-
-      subroutine dipole_end()
+      subroutine dipole_motion_end()
       implicit none
 
 *     **** local variables ****
@@ -99,10 +99,10 @@
       character*255 full_bak
 
 *     **** external functions ****
-      logical  control_dipole
-      external control_dipole
+      logical  control_dipole_motion
+      external control_dipole_motion
 
-      if (control_dipole()) then
+      if (control_dipole_motion()) then
 
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
@@ -122,11 +122,12 @@
 
 *     ***************************************
 *     *                                     *
-*     *            dipole_write             *
+*     *            dipole_motion_write      *
 *     *                                     *
 *     ***************************************
 
-      subroutine dipole_write(periodic,time,ispin,ne,n2ft3d,dn,psi)
+      subroutine dipole_motion_write(periodic,time,
+     >                               ispin,ne,n2ft3d,dn,psi)
       implicit none
       logical periodic
       real*8  time
@@ -142,10 +143,10 @@
       real*8 dipole(3)
 
 *     **** external functions ****
-      logical  control_dipole
-      external control_dipole
+      logical  control_dipole_motion
+      external control_dipole_motion
 
-      if (control_dipole()) then
+      if (control_dipole_motion()) then
 
         if (periodic) then
            !*** need to change this to Berry's phase calculation ***

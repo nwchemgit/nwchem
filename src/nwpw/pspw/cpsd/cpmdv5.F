@@ -646,7 +646,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 *     **** open xyz and MOTION and dipole file ****
       call xyz_init()          ! unit=18
       call MOTION_init(rtdb)   ! unit=19
-      call dipole_init(rtdb)   ! unit=36
+      call dipole_motion_init(rtdb)   ! unit=36
 
 *     *** fei io ****
       call fei_init(rtdb)
@@ -872,7 +872,7 @@ c      call xyz_write()
          call xyz_write()
          call MOTION_write((icount*it_in*control_time_step()))
 
-         call dipole_write((control_version().eq.3),
+         call dipole_motion_write((control_version().eq.3),
      >                     (icount*it_in*control_time_step()),
      >                     ispin,ne,n2ft3d,
      >                     dbl_mb(dn(1)),
@@ -912,7 +912,7 @@ c      call xyz_write()
 *     **** close xyz,MOTION and dipole files ****
       call xyz_end()
       call MOTION_end()
-      call dipole_end()
+      call dipole_motion_end()
       if (taskid.eq.MASTER) then
         close(unit=31)
         close(unit=32)
