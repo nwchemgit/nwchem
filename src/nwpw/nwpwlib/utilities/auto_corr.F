@@ -573,3 +573,30 @@ c
       return
       end
 
+
+
+*     *******************************************
+*     *                                         *
+*     *       dipole_motion_nframes             *
+*     *                                         *
+*     *******************************************
+      subroutine dipole_motion_nframes(filename,nframes)
+      implicit none
+      character*(*) filename
+      integer nframes
+
+      real*8    time,dipole(3)
+
+      nframes = 0
+
+      open(unit=36,file=filename,form='formatted',status='old')
+      do while(.true.)
+        read(36,*,ERR=30,END=30) time,dipole
+        nframes = nframes + 1
+      end do
+ 30   continue
+      close(unit=36)
+
+      return
+      end
+
