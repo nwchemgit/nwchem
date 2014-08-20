@@ -643,12 +643,14 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 *                |***************************|
 ******************     start iterations      **********************
 *                |***************************|
-*     **** open xyz and MOTION file ****
+*     **** open xyz and MOTION and dipole file ****
       call xyz_init()          ! unit=18
       call MOTION_init(rtdb)   ! unit=19
+      call dipole_init(rtdb)   ! unit=36
 
 *     *** fei io ****
       call fei_init(rtdb)
+
 
 *     **** ecce print ****
       call ecce_print_module_entry('task Car-Parrinello')
@@ -866,9 +868,16 @@ c      call xyz_write()
          end if
 
 
-*        **** write xyz data ****
+*        **** write xyz, MOTION, and dipole data ****
          call xyz_write()
          call MOTION_write((icount*it_in*control_time_step()))
+
+         call dipole_write((control_version().eq.3),
+     >                     (icount*it_in*control_time_step()),
+     >                     ispin,ne,n2ft3d,
+     >                     dbl_mb(dn(1)),
+     >                     dcpl_mb(psi1(1)))
+
 
 *        **** write OMOTION data ****
          if (mulliken) call Orb_Write(dcpl_mb(psi1(1)))
@@ -900,9 +909,10 @@ c      call xyz_write()
 
   102 continue
 
-*     **** close xyz and MOTION files ****
+*     **** close xyz,MOTION and dipole files ****
       call xyz_end()
       call MOTION_end()
+      call dipole_end()
       if (taskid.eq.MASTER) then
         close(unit=31)
         close(unit=32)

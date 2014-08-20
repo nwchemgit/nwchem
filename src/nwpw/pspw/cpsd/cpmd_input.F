@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 59)
+      parameter (num_dirs = 60)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -78,6 +78,7 @@ c
      >            'reset_Temperature',
      >            'rotation',
      >            'translation',
+     >            'dipole',
      >            'end'/
 
        character*50 cell_name
@@ -126,7 +127,7 @@ c      call cpmd_input_default(rtdb)
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
      >       2500,2600,2700,2800,2900,3000,1150,3100,3200,
-     >       3300,3400,
+     >       3300,3400,3500,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind,
@@ -571,6 +572,21 @@ c
      >  call errquit('cpmd_input: error writing to rtdb',3400,RTDB_ERR)
 
  3401 continue
+      goto 10
+
+c
+c dipole
+c
+ 3500 if (inp_a(ion_motion_filename)) then
+         ind = index(ion_motion_filename,' ') - 1
+         value = rtdb_cput(rtdb,'cpmd:dipole_filename',
+     >                    1,ion_motion_filename(1:ind))
+          if (.not.value)
+     >    call errquit('cpmd_input: writing ', 3500, RTDB_ERR)
+      end if
+      value = .true.
+      if (.not.rtdb_put(rtdb,'cpmd:dipole',mt_log,1,value))
+     > call errquit('cpmd_input: writing fei ', 3500, RTDB_ERR)
       goto 10
 
 

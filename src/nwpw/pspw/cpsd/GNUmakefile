@@ -12,6 +12,7 @@
                 mm_loop.o \
                 psi_lmbda.o psi_lmbda_sic.o psi_lmbda_paw.o psi_lmbda2.o psi_lmbda3.o \
 		fei_output.o \
+		dipole_output.o \
 		pspw_et.o
 ##                cpmd_qmmm_start.o cpmd_qmmm_step.o cpmd_qmmm_stop.o inner_loop_qmmm_step.o
 
