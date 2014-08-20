@@ -123,7 +123,7 @@ c
      >            'fmm',
      >            'smooth_cutoff',
      >            'md_xs',
-     >            'dipole',
+     >            'dipole_motion',
      >            'end'/
 
       double precision kb
@@ -1739,7 +1739,7 @@ c
       goto 10
 
 c
-c dipole
+c dipole_motion
 c
  8100 if (inp_a(input_wavefunction_filename)) then
          ind = index(input_wavefunction_filename,' ') - 1
