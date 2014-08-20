@@ -78,7 +78,7 @@ c
      >            'reset_Temperature',
      >            'rotation',
      >            'translation',
-     >            'dipole',
+     >            'dipole_motion',
      >            'end'/
 
        character*50 cell_name
@@ -579,7 +579,7 @@ c
       goto 10
 
 c
-c dipole
+c dipole_motion
 c
  3500 if (inp_a(ion_motion_filename)) then
          ind = index(ion_motion_filename,' ') - 1
