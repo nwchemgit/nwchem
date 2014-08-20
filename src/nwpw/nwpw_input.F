@@ -1743,17 +1743,13 @@ c dipole
 c
  8100 if (inp_a(input_wavefunction_filename)) then
          ind = index(input_wavefunction_filename,' ') - 1
-         value = rtdb_cput(rtdb,'cpmd:dipole_filename',
-     >                    1,input_wavefunction_filename(1:ind))
-     >      .and.rtdb_cput(rtdb,'nwpw:dipole_filename',
+         value = rtdb_cput(rtdb,'nwpw:dipole_motion_filename',
      >                    1,input_wavefunction_filename(1:ind))
           if (.not.value)
      >    call errquit('nwpw_input: writing ', 8100, RTDB_ERR)
       end if
       value = .true.
-      if (.not.rtdb_put(rtdb,'cpmd:dipole',mt_log,1,value))
-     > call errquit('nwpw_input: writing dipole ',8100,RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'nwpw:dipole',mt_log,1,value))
+      if (.not.rtdb_put(rtdb,'nwpw:dipole_motion',mt_log,1,value))
      > call errquit('nwpw_input: writing dipole',8100,RTDB_ERR)
 
       goto 10
