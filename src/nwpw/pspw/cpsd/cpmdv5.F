@@ -870,7 +870,7 @@ c      call xyz_write()
 
 *        **** write xyz, MOTION, and dipole data ****
          call xyz_write()
-         call MOTION_write((icount*it_in*control_time_step()))
+         call MOTION_write(icount*it_in*control_time_step())
 
          call dipole_motion_write((control_version().eq.3),
      >                     (icount*it_in*control_time_step()),
