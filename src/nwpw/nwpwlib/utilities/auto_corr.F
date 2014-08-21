@@ -330,7 +330,7 @@ c
       real*8  time1,time2,t,freq,dt,volume,volume1
       real*8  tmax
       real*8  x,y,z
-      real*8  v1,v2,v3
+      real*8  v1,v2,v3,sv1,sv2,sv3
       real*8  unita(3,3)
       character*80  tfilename
       character*255 full_filename1
@@ -452,6 +452,9 @@ c
      
       time1   = 0.0d0
       time2   = 0.0d0
+      sv1 = 0.0d0
+      sv2 = 0.0d0
+      sv3 = 0.0d0
       do k=1,nframes
         
          time1    = time2
@@ -459,8 +462,19 @@ c
          dcpl_mb(vx(1)+(k-1)) = v1
          dcpl_mb(vy(1)+(k-1)) = v2
          dcpl_mb(vz(1)+(k-1)) = v3        
+         sv1 = sv1 + v1
+         sv2 = sv2 + v2
+         sv3 = sv3 + v3
       end do
       close(unit=36)
+      sv1 = sv1/dble(nframes)
+      sv2 = sv2/dble(nframes)
+      sv3 = sv3/dble(nframes)
+      do k=1,nframes
+         dcpl_mb(vx(1)+k-1) = dcpl_mb(vx(1)+k-1) - sv1
+         dcpl_mb(vy(1)+k-1) = dcpl_mb(vy(1)+k-1) - sv2
+         dcpl_mb(vz(1)+k-1) = dcpl_mb(vz(1)+k-1) - sv3
+      end do
 
       dt   = time2-time1
       write(6,*)
