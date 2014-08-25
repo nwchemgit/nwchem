@@ -298,7 +298,7 @@ test_ge: nwad3.mod test_ge.o
 
 # NWADDEG not used yet, but planned as a way to generate modules for different
 # degrees of differentiation
-nwad3.mod: ../nwad.F90
+nwad3.mod: ../nwad.F
 	gfortran -c $^
 
 %.o:	%.F
@@ -306,6 +306,7 @@ nwad3.mod: ../nwad.F90
 
 %.F:	%.max
 	maxima -b $^
+	tar -zcf subs.tgz submaxima_*.F
 
 clean:
 	rm -f *.o *.log submaxima_*.F nwad?.mod
