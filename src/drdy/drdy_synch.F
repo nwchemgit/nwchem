@@ -62,6 +62,7 @@ c
             write(fu6,*)' could not determine drdy:theory'
             call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
           endif
+          call inp_lcase(drdy_theory)
           if (.not.rtdb_cput(my_rtdb,'task:theory',1,drdy_theory)) then
             write(fu6,*)' could not write drdy:theory -> theory'
             call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
