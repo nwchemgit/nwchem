@@ -1,6 +1,6 @@
 c
 c     Add (epsilon_a-epsilon_i) contribution to the product vector.
-c     HvD 6/2006m, June 2006.
+c     HvD 6/2006, NG 01/2013
 c
       subroutine tddft_grad_epsilon(g_x,g_Ax,ipol,nroot,nbf_ao,
      +                              nocc,nfc,eps)
@@ -46,6 +46,7 @@ c
       integer imo              ! current occupied orbital
       integer amo              ! current virtual orbital
       integer ihdl_x,iptr_x    ! handle and index of memory block
+      logical doit
 c
       character*32 pname
 c
@@ -58,36 +59,39 @@ c
       iproc=ga_nodeid()
       call ga_sync()
       do ip=1,ipol
+c
         call nga_distribution(g_x(ip),iproc,alo,ahi)
-        if (alo(1).ne.1.or.ahi(1).ne.nroot) 
-     +  call errquit(pname//'unexpected distribution of g_x',0,UERR)
-        mini = alo(2)
-        maxi = ahi(2)
-        numi = maxi-mini+1
-        mina = alo(3)
-        maxa = ahi(3)
-        numa = maxa-mina+1
-        if (.not.ma_push_get(mt_dbl,nroot*numi*numa,'block x',
+        doit = .not.(alo(1).ne.1.or.ahi(1).ne.nroot)
+c
+        if (doit) then
+          mini = alo(2)
+          maxi = ahi(2)
+          numi = maxi-mini+1
+          mina = alo(3)
+          maxa = ahi(3)
+          numa = maxa-mina+1
+          if (.not.ma_push_get(mt_dbl,nroot*numi*numa,'block x',
      +                       ihdl_x,iptr_x)) 
-     +   call errquit(pname//'failed to allocate block x',0,UERR)
-        ld(1) = nroot
-        ld(2) = numi
-        ld(3) = numa
-        call nga_get(g_x(ip),alo,ahi,dbl_mb(iptr_x),ld)
-        do a = 0, numa-1
-          amo = nocc(ip)+mina+a
-          do i = 0, numi-1
-            imo = nfc(ip)+mini+i
-            do ir = 0, nroot-1
-              dbl_mb(iptr_x+ir+nroot*i+nroot*numi*a)
+     +    call errquit(pname//'failed to allocate block x',0,UERR)
+          ld(1) = nroot
+          ld(2) = numi
+          ld(3) = numa
+          call nga_get(g_x(ip),alo,ahi,dbl_mb(iptr_x),ld)
+          do a = 0, numa-1
+            amo = nocc(ip)+mina+a
+            do i = 0, numi-1
+              imo = nfc(ip)+mini+i
+              do ir = 0, nroot-1
+                 dbl_mb(iptr_x+ir+nroot*i+nroot*numi*a)
      +        = dbl_mb(iptr_x+ir+nroot*i+nroot*numi*a)
      +        * (eps(amo,ip)-eps(imo,ip))
+              enddo
             enddo
           enddo
-        enddo
-        call nga_acc(g_Ax(ip),alo,ahi,dbl_mb(iptr_x),ld,1.0d0)
-        if (.not.ma_pop_stack(ihdl_x)) 
-     +   call errquit(pname//'failed to deallocate block x',0,UERR)
+          call nga_acc(g_Ax(ip),alo,ahi,dbl_mb(iptr_x),ld,1.0d0)
+          if (.not.ma_pop_stack(ihdl_x)) 
+     +       call errquit(pname//'failed to deallocate block x',0,UERR)
+        endif ! doit
 c
       enddo ! ipol
 c

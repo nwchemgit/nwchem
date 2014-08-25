@@ -130,6 +130,8 @@ c
 c     Initialize the common block for tddft_grad_solve_product and
 c     tddft_grad_solve_precond
 c
+      oroot = ga_nodeid().eq.0
+c
 c Daniel (1-5-13): For a CIS calculation, we still need to solve the
 c full Z vector equation (i.e. we need to have the equation solved when
 c B =/= 0).  This is confirmed by running an RPA calculation with B = 0,
@@ -220,9 +222,11 @@ c
         call ga_copy(g_b,g_x)
         call tddft_grad_solve_precond(g_x,0.0d0)
       endif
+c
       call ga_lkain(rtdb,g_x,g_b,tddft_grad_solve_product,
      +              tddft_grad_solve_precond,solve_thresh,
      +              solve_maxsub*nroots,solve_maxit,odiff,oprint)
+c
       call tddft_grad_solve_save_x(g_x,ipol,nao,nfc,naoc,nocc,nav,nfv,
      +              jdim,g_mo,fn_solve,solve_when,ihdl_geom,ihdl_bfao,
      +              oskel)
@@ -249,7 +253,6 @@ c
      +   call errquit(pname//'failed to destroy g_x',0, GA_ERR)
 c
       if (tddft_grad_util_print('tddft grad z',print_debug)) then
-        oroot = ga_nodeid().eq.0
         if (oroot) write(LuOut,*)'DEBUG: '//pname//'Z'
         call tddft_grad_print_array(ipol,nroots,g_z,dble(ipol))
       endif

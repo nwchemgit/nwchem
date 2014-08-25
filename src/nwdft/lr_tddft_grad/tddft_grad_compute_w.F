@@ -140,6 +140,9 @@ c
       double precision Exc(2)    ! Exchange-correlation energy
 c
       logical tdaloc
+      logical doitw,doitz
+      logical doitxpy1,doitxpy2
+      logical doitxmy1,doitxmy2
 c
       pname = "tddft_grad_compute_w: "
 c
@@ -170,11 +173,11 @@ c     distribution of g_w.
 c
       do ip = 1, ipol
         call nga_distribution(g_w(ip),iproc,alo,ahi)
-        if (alo(1).ne.1.or.ahi(1).ne.nroots) 
-     +   call errquit(pname//'unexpected distribution of w',0,UERR)
-        mini = max(alo(2),alo(3))
-        maxi = min(ahi(2),ahi(3),naoc(ip))
-        do i = mini, maxi
+        doitw = .not.(alo(1).ne.1.or.ahi(1).ne.nroots)
+        if (doitw) then
+         mini = max(alo(2),alo(3))
+         maxi = min(ahi(2),ahi(3),naoc(ip))
+         do i = mini, maxi
           imo = nfc(ip)+i
           do ir = 1, nroots
             blo(1) = ir
@@ -187,7 +190,8 @@ c
             ld(2)  = 1
             call nga_acc(g_w(ip),blo,bhi,(3-ipol)*eps(imo,ip),ld,1.0d0)
           enddo
-        enddo
+         enddo
+        endif ! doitw
       enddo ! ipol
 c
 c     Do the second term
@@ -246,35 +250,40 @@ c
 c         Do the (X+Y) terms first
 c
           call nga_distribution(g_xpy(ip),iproc,blo,bhi)
-          if (blo(1).ne.1.or.bhi(1).ne.nroots) 
-     +     call errquit(pname//'unexpected distribution of xpy',0,UERR)
-          minj = blo(2)
-          maxj = bhi(2)
-          numj = maxj-minj+1
-          mina = blo(3)
-          maxa = bhi(3)
-          numa = maxa-mina+1
-          if (.not.ma_push_get(mt_dbl,nroots*numa*numj,'block b',
+          doitxpy1 = .not.(blo(1).ne.1.or.bhi(1).ne.nroots)
+c
+          if (doitxpy1) then
+c
+           minj = blo(2)
+           maxj = bhi(2)
+           numj = maxj-minj+1
+           mina = blo(3)
+           maxa = bhi(3)
+           numa = maxa-mina+1
+           if (.not.ma_push_get(mt_dbl,nroots*numa*numj,'block b',
      +                         ihdl_b,iptr_b))
      +      call errquit(pname//'failed to allocate blockb',0,MA_ERR)
-          ld(1)  = nroots
-          ld(2)  = numj
-          call nga_get(g_xpy(ip),blo,bhi,dbl_mb(iptr_b),ld)
-          ic = 0
-          do a = 1, numa
-            do j = 1, numj
+           ld(1)  = nroots
+           ld(2)  = numj
+           call nga_get(g_xpy(ip),blo,bhi,dbl_mb(iptr_b),ld)
+           ic = 0
+           do a = 1, numa
+             do j = 1, numj
               imo = nocc(ip)+mina-1+a
               do ir = 1, nroots
                 dbl_mb(iptr_b+ic) = 0.5d0*eps(imo,ip)*dbl_mb(iptr_b+ic)
                 ic = ic + 1
               enddo
             enddo
-          enddo
-          do icount = 0, nproc-1
+           enddo
+c
+           do icount = 0, nproc-1
            jproc = mod(iproc+icount,nproc)
+c
            call nga_distribution(g_xpy(ip),jproc,alo,ahi)
-           if (alo(1).ne.1.or.ahi(1).ne.nroots) 
-     +      call errquit(pname//'unexpected distribution of xpy',0,UERR)
+           doitxpy2 = .not.(alo(1).ne.1.or.ahi(1).ne.nroots)
+c
+           if (doitxpy2.and.doitxpy1) then
             if (alo(3).eq.mina.and.ahi(3).eq.maxa) then
               mini = alo(2)
               maxi = ahi(2)
@@ -325,9 +334,13 @@ c less messy.
               if (.not.ma_pop_stack(ihdl_a)) 
      +         call errquit(pname//'failed to deallocate blocka',0,UERR)
             endif
-          enddo
-          if (.not.ma_pop_stack(ihdl_b)) 
-     +      call errquit(pname//'failed to deallocate blockb',0,UERR)
+           endif !doitxpy1 and doitxpy2
+           enddo  ! icount
+c
+             if (.not.ma_pop_stack(ihdl_b)) 
+     +         call errquit(pname//'failed to deallocate blockb',0,UERR)
+           endif ! doitxpy1 
+
           call ga_sync()
 c
           if (.not.tda) then
@@ -335,23 +348,24 @@ c
 c         Do the (X-Y) terms next
 c
             call nga_distribution(g_xmy(ip),iproc,blo,bhi)
-            if (blo(1).ne.1.or.bhi(1).ne.nroots) 
-     +        call errquit(pname//'unexpected distribution of xmy',0,
-     +          UERR)
-            minj = blo(2)
-            maxj = bhi(2)
-            numj = maxj-minj+1
-            mina = blo(3)
-            maxa = bhi(3)
-            numa = maxa-mina+1
-            if (.not.ma_push_get(mt_dbl,nroots*numa*numj,'block b',
+            doitxmy1 = .not.(blo(1).ne.1.or.bhi(1).ne.nroots)
+c
+            if (doitxmy1) then
+c
+             minj = blo(2)
+             maxj = bhi(2)
+             numj = maxj-minj+1
+             mina = blo(3)
+             maxa = bhi(3)
+             numa = maxa-mina+1
+             if (.not.ma_push_get(mt_dbl,nroots*numa*numj,'block b',
      +                           ihdl_b,iptr_b))
      +        call errquit(pname//'failed to allocate blockb',0,UERR)
-            ld(1)  = nroots
-            ld(2)  = numj
-            call nga_get(g_xmy(ip),blo,bhi,dbl_mb(iptr_b),ld)
-            ic = 0
-            do a = 1, numa
+             ld(1)  = nroots
+             ld(2)  = numj
+             call nga_get(g_xmy(ip),blo,bhi,dbl_mb(iptr_b),ld)
+             ic = 0
+             do a = 1, numa
               do i = 1, numj
                 imo = nocc(ip)+mina-1+a
                 do ir = 1, nroots
@@ -360,14 +374,15 @@ c
                   ic = ic + 1
                 enddo
               enddo
-            enddo
+             enddo
+c
             do icount = 0, nproc-1
               jproc = mod(iproc+icount,nproc)
               call nga_distribution(g_xmy(ip),jproc,alo,ahi)
-              if (alo(1).ne.1.or.ahi(1).ne.nroots) 
-     +          call errquit(pname//'unexpected distribution of xmy',0,
-     +          UERR)
-              if (alo(3).eq.mina.and.ahi(3).eq.maxa) then
+              doitxmy2 = .not.(alo(1).ne.1.or.ahi(1).ne.nroots)
+c
+               if (doitxmy2.and.doitxmy1) then
+               if (alo(3).eq.mina.and.ahi(3).eq.maxa) then
                 mini = alo(2)
                 maxi = ahi(2)
                 numi = maxi-mini+1
@@ -411,9 +426,14 @@ c               ahi(3) = maxa
      +            call errquit(pname//'failed to deallocate blocka',0,
      +              UERR)
               endif
-            enddo
-            if (.not.ma_pop_stack(ihdl_b)) 
+              endif ! doitxmy1 and doitxmy2
+            enddo ! icount
+c
+             if (.not.ma_pop_stack(ihdl_b)) 
      +        call errquit(pname//'failed to deallocate blockb',0,UERR)
+            endif ! doitxmy1
+c
+          call ga_sync()
 c
           endif ! tda
 c
@@ -632,22 +652,24 @@ c     Do the first term, drive the parallelization off the distribution
 c     of Zias
 c
       do ip = 1, ipol
+c
         call nga_distribution(g_z(ip),iproc,alo,ahi)
-        if (alo(1).ne.1.or.ahi(1).ne.nroots) 
-     +    call errquit(pname//'unexpected distribution of V',0, UERR)
-        mini = alo(2)
-        maxi = ahi(2)
-        numi = maxi-mini+1
-        mina = alo(3)
-        maxa = ahi(3)
-        numa = maxa-mina+1
-        if (.not.ma_push_get(mt_dbl,nroots*numi*numa,'block v',
+        doitz = .not.(alo(1).ne.1.or.ahi(1).ne.nroots)
+c
+        if (doitz) then
+         mini = alo(2)
+         maxi = ahi(2)
+         numi = maxi-mini+1
+         mina = alo(3)
+         maxa = ahi(3)
+         numa = maxa-mina+1
+         if (.not.ma_push_get(mt_dbl,nroots*numi*numa,'block v',
      +                       ihdl_v,iptr_v)) 
      +   call errquit(pname//'failed to allocate block v',0, UERR)
-        ld(1) = nroots
-        ld(2) = numi
-        call nga_get(g_z(ip),alo,ahi,dbl_mb(iptr_v),ld)
-        do a = 0, numa-1
+         ld(1) = nroots
+         ld(2) = numi
+         call nga_get(g_z(ip),alo,ahi,dbl_mb(iptr_v),ld)
+         do a = 0, numa-1
           do i = 0, numi-1
             imo = nfc(ip)+mini+i
             do ir = 0, nroots-1
@@ -656,13 +678,14 @@ c
      +        * eps(imo,ip)
             enddo
           enddo
-        enddo
+         enddo
         alo(3) = naoc(ip)+mina
         ahi(3) = naoc(ip)+maxa
         call nga_put(g_w(ip),alo,ahi,dbl_mb(iptr_v),ld)
         if (.not.ma_pop_stack(ihdl_v)) 
      +    call errquit(pname//'failed to deallocate block v',0, UERR)
-      enddo 
+       endif ! doitz 
+      enddo  ! ip
 c
 c     Do the second term
 c
@@ -942,22 +965,24 @@ c
 c         Do the (X+Y) terms first
 c
           call nga_distribution(g_xpy(ip),iproc,blo,bhi)
-          if (blo(1).ne.1.or.bhi(1).ne.nroots) 
-     +      call errquit(pname//'unexpected distribution of xpy',0,UERR)
-          mini = blo(2)
-          maxi = bhi(2)
-          numi = maxi-mini+1
-          minb = blo(3)
-          maxb = bhi(3)
-          numb = maxb-minb+1
-          if (.not.ma_push_get(mt_dbl,nroots*numb*numi,'block b',
+          doitxpy1 = .not.(blo(1).ne.1.or.bhi(1).ne.nroots)
+c
+          if (doitxpy1) then
+c
+           mini = blo(2)
+           maxi = bhi(2)
+           numi = maxi-mini+1
+           minb = blo(3)
+           maxb = bhi(3)
+           numb = maxb-minb+1
+           if (.not.ma_push_get(mt_dbl,nroots*numb*numi,'block b',
      +                         ihdl_b,iptr_b))
      +      call errquit(pname//'failed to allocate blockb',0,UERR)
-          ld(1)  = nroots
-          ld(2)  = numi
-          call nga_get(g_xpy(ip),blo,bhi,dbl_mb(iptr_b),ld)
-          ic = 0
-          do b = 1, numb
+           ld(1)  = nroots
+           ld(2)  = numi
+           call nga_get(g_xpy(ip),blo,bhi,dbl_mb(iptr_b),ld)
+           ic = 0
+           do b = 1, numb
             do i = 1, numi
               imo = nfc(ip)+mini-1+i
               do ir = 1, nroots
@@ -965,24 +990,27 @@ c
                 ic = ic + 1
               enddo
             enddo
-          enddo
-          do icount = 0, nproc-1
+           enddo
+c
+           do icount = 0, nproc-1
            jproc = mod(iproc+icount,nproc)
+c
            call nga_distribution(g_xpy(ip),jproc,alo,ahi)
-           if (alo(1).ne.1.or.ahi(1).ne.nroots) 
-     +      call errquit(pname//'unexpected distribution of xpy',0,UERR)
-            if (alo(2).eq.mini.and.ahi(2).eq.maxi) then
-            mina = alo(3)
-            maxa = ahi(3)
-            numa = maxa-mina+1
-            alo(2) = mini
-            ahi(2) = maxi
-            if (.not.ma_push_get(mt_dbl,nroots*numa*numi,'block a',
+           doitxpy2 = .not.(alo(1).ne.1.or.ahi(1).ne.nroots)
+c
+           if (doitxpy2.and.doitxpy1) then
+           if (alo(2).eq.mini.and.ahi(2).eq.maxi) then
+           mina = alo(3)
+           maxa = ahi(3)
+           numa = maxa-mina+1
+           alo(2) = mini
+           ahi(2) = maxi
+           if (.not.ma_push_get(mt_dbl,nroots*numa*numi,'block a',
      +                           ihdl_a,iptr_a)) 
-     +        call errquit(pname//'failed to allocate blockb',0, MA_ERR)
+     +      call errquit(pname//'failed to allocate blockb',0, MA_ERR)
             if (.not.ma_push_get(mt_dbl,nroots*numa*numb,'block r',
      +                           ihdl_r,iptr_r)) 
-     +        call errquit(pname//'failed to allocate blockr',0, MA_ERR)
+     +      call errquit(pname//'failed to allocate blockr',0, MA_ERR)
             ld(1)  = nroots
             ld(2)  = numi
             call nga_get(g_xpy(ip),alo,ahi,dbl_mb(iptr_a),ld)
@@ -1020,9 +1048,13 @@ c less messy.
             if (.not.ma_pop_stack(ihdl_a)) 
      +       call errquit(pname//'failed to deallocate blocka',0,MA_ERR)
             endif
-          enddo
-          if (.not.ma_pop_stack(ihdl_b)) 
+           endif ! doitxpy1 and doitxpy2
+          enddo ! icount
+c
+           if (.not.ma_pop_stack(ihdl_b)) 
      +      call errquit(pname//'failed to deallocate blockb',0,MA_ERR)
+          endif  ! doitxpy1
+c
           call ga_sync()
 c
           if (.not.tda) then
@@ -1030,22 +1062,24 @@ c
 c         Do the (X-Y) terms next
 c
           call nga_distribution(g_xmy(ip),iproc,blo,bhi)
-          if (blo(1).ne.1.or.bhi(1).ne.nroots) 
-     +     call errquit(pname//'unexpected distribution of xmy',0,UERR)
-          mini = blo(2)
-          maxi = bhi(2)
-          numi = maxi-mini+1
-          minb = blo(3)
-          maxb = bhi(3)
-          numb = maxb-minb+1
-          if (.not.ma_push_get(mt_dbl,nroots*numb*numi,'block b',
+          doitxmy1 = .not.(blo(1).ne.1.or.bhi(1).ne.nroots)
+c
+          if (doitxmy1) then
+c
+           mini = blo(2)
+           maxi = bhi(2)
+           numi = maxi-mini+1
+           minb = blo(3)
+           maxb = bhi(3)
+           numb = maxb-minb+1
+           if (.not.ma_push_get(mt_dbl,nroots*numb*numi,'block b',
      +                         ihdl_b,iptr_b))
      +      call errquit(pname//'failed to allocate blockb',0,UERR)
-          ld(1)  = nroots
-          ld(2)  = numi
-          call nga_get(g_xmy(ip),blo,bhi,dbl_mb(iptr_b),ld)
-          ic = 0
-          do b = 1, numb
+           ld(1)  = nroots
+           ld(2)  = numi
+           call nga_get(g_xmy(ip),blo,bhi,dbl_mb(iptr_b),ld)
+           ic = 0
+           do b = 1, numb
             do i = 1, numi
               imo = nfc(ip)+mini-1+i
               do ir = 1, nroots
@@ -1053,12 +1087,15 @@ c
                 ic = ic + 1
               enddo
             enddo
-          enddo
-          do icount = 0, nproc-1
-           jproc = mod(iproc+icount,nproc)
-           call nga_distribution(g_xmy(ip),jproc,alo,ahi)
-           if (alo(1).ne.1.or.ahi(1).ne.nroots) 
-     +      call errquit(pname//'unexpected distribution of xmy',0,UERR)
+           enddo
+c
+           do icount = 0, nproc-1
+            jproc = mod(iproc+icount,nproc)
+c
+            call nga_distribution(g_xmy(ip),jproc,alo,ahi)
+            doitxmy2 = .not.(alo(1).ne.1.or.ahi(1).ne.nroots)
+c
+            if (doitxmy2) then
             if (alo(2).eq.mini.and.ahi(2).eq.maxi) then
             mina = alo(3)
             maxa = ahi(3)
@@ -1067,10 +1104,10 @@ c
             ahi(2) = maxi
             if (.not.ma_push_get(mt_dbl,nroots*numa*numi,'block a',
      +                           ihdl_a,iptr_a)) 
-     +       call errquit(pname//'failed to allocate blockb',0, UERR)
+     +      call errquit(pname//'failed to allocate blockb',0, UERR)
             if (.not.ma_push_get(mt_dbl,nroots*numa*numb,'block r',
-     +                           ihdl_r,iptr_r)) 
-     +       call errquit(pname//'failed to allocate blockr',0, UERR)
+     +                          ihdl_r,iptr_r)) 
+     +      call errquit(pname//'failed to allocate blockr',0, UERR)
             ld(1)  = nroots
             ld(2)  = numi
             call nga_get(g_xmy(ip),alo,ahi,dbl_mb(iptr_a),ld)
@@ -1097,13 +1134,17 @@ c
             ld(2) = numa
             call nga_acc(g_w(ip),clo,chi,dbl_mb(iptr_r),ld,1.0d0)
             if (.not.ma_pop_stack(ihdl_r)) 
-     +       call errquit(pname//'failed to deallocate blockr',0,MA_ERR)
+     +      call errquit(pname//'failed to deallocate blockr',0,MA_ERR)
             if (.not.ma_pop_stack(ihdl_a)) 
-     +       call errquit(pname//'failed to deallocate blocka',0,MA_ERR)
+     +      call errquit(pname//'failed to deallocate blocka',0,MA_ERR)
             endif
-          enddo
-          if (.not.ma_pop_stack(ihdl_b)) 
+           endif ! doitxmy1 and doitxmy2
+          enddo ! icount
+c
+            if (.not.ma_pop_stack(ihdl_b)) 
      +       call errquit(pname//'failed to deallocate blockb',0,MA_ERR)
+          endif !doitxmy1
+
           call ga_sync()
 
           endif  ! tda

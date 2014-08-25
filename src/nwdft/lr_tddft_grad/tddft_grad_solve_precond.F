@@ -62,22 +62,26 @@ c
       integer ibo_start ! the first local beta occupied orbital
 c
       integer iproc     ! my processor rank
+      logical doit
 c
       call ga_sync()
       iproc = ga_nodeid()
       call ga_distribution(g_x,iproc,ilo,ihi,irlo,irhi)
-      call ga_access(g_x,ilo,ihi,irlo,irhi,k_x,ld_x)
+      doit = .not. (ilo.eq.0.and.ihi.eq.-1.and.
+     &     irlo.eq.0.and.irhi.eq.-1)
+      if (doit) then
+       call ga_access(g_x,ilo,ihi,irlo,irhi,k_x,ld_x)
 c
-c     Do we have alpha or beta orbitals or both?
+c      Do we have alpha or beta orbitals or both?
 c
-      oalpha = ilo.le.tdg_naoc(1)*tdg_nav(1)
-      obeta  = ihi.gt.tdg_naoc(1)*tdg_nav(1)
+       oalpha = ilo.le.tdg_naoc(1)*tdg_nav(1)
+       obeta  = ihi.gt.tdg_naoc(1)*tdg_nav(1)
 c
-c     If we have alpha orbitals then work on those elements
+c      If we have alpha orbitals then work on those elements
 c
-      ialo =  0
-      iahi = -1
-      if (oalpha) then
+       ialo =  0
+       iahi = -1
+       if (oalpha) then
 c
 c       First we work out the limits on the loops
 c
@@ -134,6 +138,9 @@ c
         enddo
       endif
       call ga_release(g_x,ilo,ihi,irlo,irhi)
+      endif ! doit
+c
       call ga_sync
+c
       return
       end

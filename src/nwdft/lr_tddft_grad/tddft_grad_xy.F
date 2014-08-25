@@ -15,6 +15,7 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       logical tda       ! .true. if Tamm-Dancoff approximation is used
       integer ipol      ! =1 (restricted), =2 (unrestricted)

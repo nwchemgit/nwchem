@@ -352,10 +352,10 @@ c     Deallocate arrays
       call tddft_grad_destroy_tp(ipol,g_w)
       call tddft_grad_destroy_r(ipol,g_z)
       call tddft_grad_destroy_tp(ipol,g_tp)
-      call tddft_grad_destroy_root_e(ihdl_root_e)
-      call tddft_grad_destroy_e(ihdl_mo_e)
       call tddft_grad_destroy_xy(tda,ipol,g_xpy,g_xmy)
       call tddft_grad_destroy_mo(ipol,g_mo)
+      call tddft_grad_destroy_root_e(ihdl_root_e)
+      call tddft_grad_destroy_e(ihdl_mo_e)
       if (oroot.and.odebug) write(luout,*) "done deallocate arrays"
 c MN solvation models -->
 c

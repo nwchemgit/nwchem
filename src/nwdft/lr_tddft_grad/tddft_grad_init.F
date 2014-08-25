@@ -286,13 +286,6 @@ c
       kfac   = xfac(1)
       lhashf = kfac.ne.0.0d0
 c
-c      if (ga_nodeid().eq.0) then
-c        write(luout,*) pname
-c        write(luout,*) "kfac: ",kfac
-c        write(luout,*) "lhashf: ",lhashf
-c      end if
-c      stop
-c
 c     TDDFT gradient settings
       nsroots = 0
       ihdl_sroots = 0
@@ -401,6 +394,8 @@ c
 c
 c     Checks
       ntotroots = nsroots+ntroots+nroots
+      if (ntotroots.gt.nov(1)+nov(2)) ntotroots=nov(1)+nov(2)
+c
       otriplet = .false.
       if (nroots.eq.0) then
         if (nsroots.eq.0.and.ntroots.gt.0) then
