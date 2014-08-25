@@ -1,8 +1,8 @@
 # $Id: $
 
-        OBJ = nwad.o
+ OBJ_OPTIMIZE = nwad.o
 
-    LIBRARY = libnwxc.a
+      LIBRARY = libnwxc.a
 
 include ../../config/makefile.h
 include ../../config/makelib.h
