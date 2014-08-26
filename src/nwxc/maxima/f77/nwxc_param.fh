@@ -1,0 +1,378 @@
+c $Id: nwxc_param.fh 25639 2014-05-16 21:48:34Z d3y133 $
+c
+c     Parameters to define sizes of tables and column of data
+c     =======================================================
+c
+c     Note that we used to use pre-processor macros here but they
+c     caused problems with the Maxima based code generation. The
+c     problem being that Maxima may wrap Fortran lines in the middle
+c     of an identifier. If that happens the pre-processor cannot
+c     recognize the macro anymore (even though it is still valid
+c     Fortran code).
+c
+c     For convenience we define parameters for everything. This
+c     includes the columns in:
+c     - rho
+c     - gamma
+c     - tau
+c     as well as the derivatives
+c     - 1st order in Amat
+c     - 1st order in Cmat
+c     - 1st order in Mmat
+c     - 2nd order in Amat2
+c     - 2nd order in Cmat2
+c     - 2nd order in Mmat2
+c     - 3rd order in Amat3
+c     - 3rd order in Cmat3
+c     - 3rd order in Mmat3
+c     and the number of columns in these tables as well.
+c
+c     At the end of the file we also define identifiers for different
+c     dispersion energy models.
+c
+c     Array sizes
+c
+      integer NCOL_Rho
+      integer NCOL_Gamma
+      integer NCOL_Tau
+c
+      parameter( NCOL_Rho   = 2 )
+      parameter( NCOL_Gamma = 3 )
+      parameter( NCOL_Tau   = 2 )
+c
+c     1st order derivatives
+c
+      integer NCol_AMAT
+      integer NCol_CMAT
+      integer NCol_MMAT
+c
+      parameter( NCol_AMAT = 2 )
+      parameter( NCol_CMAT = 3 )
+      parameter( NCol_MMAT = 2 )
+c
+c     2nd order derivatives
+c
+      integer NCol_AMAT2
+      integer NCol_CMAT2
+      integer NCol_MMAT2
+c
+      parameter( NCol_AMAT2 = 3 )
+      parameter( NCol_CMAT2 = 12 )
+      parameter( NCol_MMAT2 = 13 )
+c
+c     3rd order derivatives
+c
+      integer NCol_AMAT3
+      integer NCol_CMAT3
+      integer NCol_MMAT3
+c
+      parameter( NCol_AMAT3  =  4 )
+      parameter( NCol_CMAT3  = 31 )
+      parameter( NCol_MMAT3  = 49 )
+c
+c     Inputs
+c
+c     - closed shell
+c
+      integer R_t
+      integer G_tt
+      integer T_t
+c
+      parameter( R_t  = 1 )
+      parameter( G_tt = 1 )
+      parameter( T_t  = 1 )
+c
+c     - open shell
+c
+      integer R_a
+      integer R_b
+      integer G_aa
+      integer G_ab
+      integer G_bb
+      integer T_a
+      integer T_b
+c
+      parameter( R_a  = 1 )
+      parameter( R_b  = 2 )
+      parameter( G_aa = 1 )
+      parameter( G_ab = 2 )
+      parameter( G_bb = 3 )
+      parameter( T_a  = 1 )
+      parameter( T_b  = 2 )
+c
+c     With the derivatives the partials are numbered in such a way
+c     that RA^N, GAA^N, and TA^N where N is the order of the derivative
+c     equals the number of columns you need for the closed shell 
+c     implementations. Likewise the RB^N, GBB^N, and TB^N variants
+c     also equal the number of columns you need for the spin 
+c     unrestricted case. The latter numbers also equal the NCOL macros.
+c
+c     *** Currently the code in the rest of NWChem does not obey the
+c         guidelines above. Hence we do not actually does this, yet!
+c
+c     1st order derivatives
+c
+      integer D1_Ra
+      integer D1_Rb
+      integer D1_Gaa
+      integer D1_Gab
+      integer D1_Gbb
+      integer D1_Ta
+      integer D1_Tb
+c
+      parameter( D1_Ra  = 1 )
+      parameter( D1_Rb  = 2 )
+      parameter( D1_Gaa = 1 )
+      parameter( D1_Gab = 2 )
+      parameter( D1_Gbb = 3 )
+      parameter( D1_Ta  = 1 )
+      parameter( D1_Tb  = 2 )
+c
+c     2nd order derivatives
+c
+      integer D2_Ra_Ra
+      integer D2_Ra_Rb
+      integer D2_Rb_Rb
+      integer D2_Ra_Gaa
+      integer D2_Ra_Gab
+      integer D2_Ra_Gbb
+      integer D2_Rb_Gaa
+      integer D2_Rb_Gab
+      integer D2_Rb_Gbb
+      integer D2_Gaa_Gaa
+      integer D2_Gaa_Gab
+      integer D2_Gaa_Gbb
+      integer D2_Gab_Gab
+      integer D2_Gab_Gbb
+      integer D2_Gbb_Gbb
+      integer D2_Ra_Ta
+      integer D2_Ra_Tb
+      integer D2_Rb_Ta
+      integer D2_Rb_Tb
+      integer D2_Gaa_Ta
+      integer D2_Gaa_Tb
+      integer D2_Gab_Ta
+      integer D2_Gab_Tb
+      integer D2_Gbb_Ta
+      integer D2_Gbb_Tb
+      integer D2_Ta_Ta
+      integer D2_Ta_Tb
+      integer D2_Tb_Tb
+c
+      parameter( D2_Ra_Ra   = 1 )
+      parameter( D2_Ra_Rb   = 2 )
+      parameter( D2_Rb_Rb   = 3 )
+c
+      parameter( D2_Ra_Gaa  =  1 )
+      parameter( D2_Rb_Gaa  =  2 )
+      parameter( D2_Gaa_Gaa =  3 )
+      parameter( D2_Ra_Gab  =  4 )
+      parameter( D2_Rb_Gab  =  5 )
+      parameter( D2_Gaa_Gab =  6 )
+      parameter( D2_Gab_Gab =  7 )
+      parameter( D2_Ra_Gbb  =  8 )
+      parameter( D2_Rb_Gbb  =  9 )
+      parameter( D2_Gaa_Gbb = 10 )
+      parameter( D2_Gab_Gbb = 11 )
+      parameter( D2_Gbb_Gbb = 12 )
+c
+      parameter( D2_Ra_Ta   =  1 )
+      parameter( D2_Gaa_Ta  =  2 )
+      parameter( D2_Ta_Ta   =  3 )
+      parameter( D2_Rb_Ta   =  4 )
+      parameter( D2_Gab_Ta  =  5 )
+      parameter( D2_Gbb_Ta  =  6 )
+      parameter( D2_Ra_Tb   =  7 )
+      parameter( D2_Rb_Tb   =  8 )
+      parameter( D2_Gaa_Tb  =  9 )
+      parameter( D2_Gab_Tb  = 10 )
+      parameter( D2_Gbb_Tb  = 11 )
+      parameter( D2_Ta_Tb   = 12 )
+      parameter( D2_Tb_Tb   = 13 )
+c
+c     3rd order derivatives
+c
+      integer D3_Ra_Ra_Ra
+      integer D3_Ra_Ra_Rb
+      integer D3_Ra_Rb_Rb
+      integer D3_Rb_Rb_Rb
+c
+      integer D3_Ra_Ra_Gaa
+      integer D3_Ra_Gaa_Gaa
+      integer D3_Gaa_Gaa_Gaa
+      integer D3_Ra_Rb_Gaa
+      integer D3_Rb_Rb_Gaa
+      integer D3_Rb_Gaa_Gaa
+      integer D3_Ra_Ra_Gab
+      integer D3_Ra_Rb_Gab
+      integer D3_Ra_Gaa_Gab
+      integer D3_Ra_Gab_Gab
+      integer D3_Rb_Rb_Gab
+      integer D3_Rb_Gaa_Gab
+      integer D3_Rb_Gab_Gab
+      integer D3_Gaa_Gaa_Gab
+      integer D3_Gaa_Gab_Gab
+      integer D3_Gab_Gab_Gab
+      integer D3_Ra_Ra_Gbb
+      integer D3_Ra_Rb_Gbb
+      integer D3_Ra_Gaa_Gbb
+      integer D3_Ra_Gab_Gbb
+      integer D3_Ra_Gbb_Gbb
+      integer D3_Rb_Rb_Gbb
+      integer D3_Rb_Gaa_Gbb
+      integer D3_Rb_Gab_Gbb
+      integer D3_Rb_Gbb_Gbb
+      integer D3_Gaa_Gaa_Gbb
+      integer D3_Gaa_Gab_Gbb
+      integer D3_Gab_Gab_Gbb
+      integer D3_Gaa_Gbb_Gbb
+      integer D3_Gab_Gbb_Gbb
+      integer D3_Gbb_Gbb_Gbb
+c
+      integer D3_Ra_Ra_Ta
+      integer D3_Ra_Ta_Ta
+      integer D3_Ta_Ta_Ta
+      integer D3_Ra_Rb_Ta
+      integer D3_Rb_Rb_Ta
+      integer D3_Rb_Ta_Ta
+      integer D3_Ra_Ra_Tb
+      integer D3_Ra_Rb_Tb
+      integer D3_Ra_Ta_Tb
+      integer D3_Ra_Tb_Tb
+      integer D3_Rb_Rb_Tb
+      integer D3_Rb_Ta_Tb
+      integer D3_Rb_Tb_Tb
+      integer D3_Ta_Ta_Tb
+      integer D3_Ta_Tb_Tb
+      integer D3_Tb_Tb_Tb
+c
+      integer D3_Ra_Gaa_Ta
+      integer D3_Gaa_Gaa_Ta
+      integer D3_Gaa_Ta_Ta
+      integer D3_Ra_Gab_Ta
+      integer D3_Ra_Gbb_Ta
+      integer D3_Rb_Gaa_Ta
+      integer D3_Rb_Gab_Ta
+      integer D3_Rb_Gbb_Ta
+      integer D3_Gaa_Gab_Ta
+      integer D3_Gaa_Gbb_Ta
+      integer D3_Gab_Gab_Ta
+      integer D3_Gab_Gbb_Ta
+      integer D3_Gab_Ta_Ta
+      integer D3_Gbb_Gbb_Ta
+      integer D3_Gbb_Ta_Ta
+      integer D3_Ra_Gaa_Tb
+      integer D3_Ra_Gab_Tb
+      integer D3_Ra_Gbb_Tb
+      integer D3_Rb_Gaa_Tb
+      integer D3_Rb_Gab_Tb
+      integer D3_Rb_Gbb_Tb
+      integer D3_Gaa_Gaa_Tb
+      integer D3_Gaa_Gab_Tb
+      integer D3_Gaa_Gbb_Tb
+      integer D3_Gaa_Ta_Tb
+      integer D3_Gaa_Tb_Tb
+      integer D3_Gab_Gab_Tb
+      integer D3_Gab_Gbb_Tb
+      integer D3_Gab_Ta_Tb
+      integer D3_Gab_Tb_Tb
+      integer D3_Gbb_Gbb_Tb
+      integer D3_Gbb_Ta_Tb
+      integer D3_Gbb_Tb_Tb
+c
+      parameter( D3_Ra_Ra_Ra    =  1 )
+      parameter( D3_Ra_Ra_Rb    =  2 )
+      parameter( D3_Ra_Rb_Rb    =  3 )
+      parameter( D3_Rb_Rb_Rb    =  4 )
+c
+      parameter( D3_Ra_Ra_Gaa   =  1 )
+      parameter( D3_Ra_Gaa_Gaa  =  2 )
+      parameter( D3_Gaa_Gaa_Gaa =  3 )
+      parameter( D3_Ra_Rb_Gaa   =  4 )
+      parameter( D3_Rb_Rb_Gaa   =  5 )
+      parameter( D3_Rb_Gaa_Gaa  =  6 )
+      parameter( D3_Ra_Ra_Gab   =  7 )
+      parameter( D3_Ra_Rb_Gab   =  8 )
+      parameter( D3_Ra_Gaa_Gab  =  9 )
+      parameter( D3_Ra_Gab_Gab  = 10 )
+      parameter( D3_Rb_Rb_Gab   = 11 )
+      parameter( D3_Rb_Gaa_Gab  = 12 )
+      parameter( D3_Rb_Gab_Gab  = 13 )
+      parameter( D3_Gaa_Gaa_Gab = 14 )
+      parameter( D3_Gaa_Gab_Gab = 15 )
+      parameter( D3_Gab_Gab_Gab = 16 )
+      parameter( D3_Ra_Ra_Gbb   = 17 )
+      parameter( D3_Ra_Rb_Gbb   = 18 )
+      parameter( D3_Ra_Gaa_Gbb  = 19 )
+      parameter( D3_Ra_Gab_Gbb  = 20 )
+      parameter( D3_Ra_Gbb_Gbb  = 21 )
+      parameter( D3_Rb_Rb_Gbb   = 22 )
+      parameter( D3_Rb_Gaa_Gbb  = 23 )
+      parameter( D3_Rb_Gab_Gbb  = 24 )
+      parameter( D3_Rb_Gbb_Gbb  = 25 )
+      parameter( D3_Gaa_Gaa_Gbb = 26 )
+      parameter( D3_Gaa_Gab_Gbb = 27 )
+      parameter( D3_Gab_Gab_Gbb = 28 )
+      parameter( D3_Gaa_Gbb_Gbb = 29 )
+      parameter( D3_Gab_Gbb_Gbb = 30 )
+      parameter( D3_Gbb_Gbb_Gbb = 31 )
+c
+      parameter( D3_Ra_Ra_Ta    =  1 )
+      parameter( D3_Ra_Ta_Ta    =  2 )
+      parameter( D3_Ta_Ta_Ta    =  3 )
+      parameter( D3_Ra_Rb_Ta    =  4 )
+      parameter( D3_Rb_Rb_Ta    =  5 )
+      parameter( D3_Rb_Ta_Ta    =  6 )
+      parameter( D3_Ra_Ra_Tb    =  7 )
+      parameter( D3_Ra_Rb_Tb    =  8 )
+      parameter( D3_Ra_Ta_Tb    =  9 )
+      parameter( D3_Ra_Tb_Tb    = 10 )
+      parameter( D3_Rb_Rb_Tb    = 11 )
+      parameter( D3_Rb_Ta_Tb    = 12 )
+      parameter( D3_Rb_Tb_Tb    = 13 )
+      parameter( D3_Ta_Ta_Tb    = 14 )
+      parameter( D3_Ta_Tb_Tb    = 15 )
+      parameter( D3_Tb_Tb_Tb    = 16 )
+c
+      parameter( D3_Ra_Gaa_Ta   = 17 )
+      parameter( D3_Gaa_Gaa_Ta  = 18 )
+      parameter( D3_Gaa_Ta_Ta   = 19 )
+      parameter( D3_Ra_Gab_Ta   = 20 )
+      parameter( D3_Ra_Gbb_Ta   = 21 )
+      parameter( D3_Rb_Gaa_Ta   = 22 )
+      parameter( D3_Rb_Gab_Ta   = 23 )
+      parameter( D3_Rb_Gbb_Ta   = 24 )
+      parameter( D3_Gaa_Gab_Ta  = 25 )
+      parameter( D3_Gaa_Gbb_Ta  = 26 )
+      parameter( D3_Gab_Gab_Ta  = 27 )
+      parameter( D3_Gab_Gbb_Ta  = 28 )
+      parameter( D3_Gab_Ta_Ta   = 29 )
+      parameter( D3_Gbb_Gbb_Ta  = 30 )
+      parameter( D3_Gbb_Ta_Ta   = 31 )
+      parameter( D3_Ra_Gaa_Tb   = 32 )
+      parameter( D3_Ra_Gab_Tb   = 33 )
+      parameter( D3_Ra_Gbb_Tb   = 34 )
+      parameter( D3_Rb_Gaa_Tb   = 35 )
+      parameter( D3_Rb_Gab_Tb   = 36 )
+      parameter( D3_Rb_Gbb_Tb   = 37 )
+      parameter( D3_Gaa_Gaa_Tb  = 38 )
+      parameter( D3_Gaa_Gab_Tb  = 39 )
+      parameter( D3_Gaa_Gbb_Tb  = 40 )
+      parameter( D3_Gaa_Ta_Tb   = 41 )
+      parameter( D3_Gaa_Tb_Tb   = 42 )
+      parameter( D3_Gab_Gab_Tb  = 43 )
+      parameter( D3_Gab_Gbb_Tb  = 44 )
+      parameter( D3_Gab_Ta_Tb   = 45 )
+      parameter( D3_Gab_Tb_Tb   = 46 )
+      parameter( D3_Gbb_Gbb_Tb  = 47 )
+      parameter( D3_Gbb_Ta_Tb   = 48 )
+      parameter( D3_Gbb_Tb_Tb   = 49 )
+c
+#ifndef NWXC_PARAM_FH
+#define NWXC_PARAM_FH
+#define NWXC_DISP_NONE -1
+#define NWXC_DISP_VDW2  0
+#define NWXC_DISP_D1    1
+#define NWXC_DISP_D2    2
+#define NWXC_DISP_D3    3
+#endif
