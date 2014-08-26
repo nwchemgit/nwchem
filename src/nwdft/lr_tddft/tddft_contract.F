@@ -58,9 +58,21 @@ c
       integer i
       integer ndu,nfu
       integer g_temp           ! NGA handles for temp array
+      double precision scale_j, scale_k
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+c
+c -------------------------------
+c Get scale_j and scale_k factors
+c -------------------------------
+      scale_j = 1.d0
+      if (.not.rtdb_get(rtdb,'tddft:scale_j',mt_dbl,1,scale_j))
+     &   scale_j = 1.d0
+c
+      scale_k = 1.d0
+      if (.not.rtdb_get(rtdb,'tddft:scale_k',mt_dbl,1,scale_k))
+     &   scale_k = 1.d0
 c
 c --------------------
 c Allocate work arrays
@@ -117,8 +129,8 @@ c ---------------------
 c
       call ga_zero(g_nprd)
       if ((ipol.eq.1).and.(.not.triplet)) then
-        jf(1)=1.0d0
-        kf(1)=-kfac*0.5d0
+        jf(1)=1.0d0*scale_j
+        kf(1)=-kfac*0.5d0*scale_k
         if (.not.cam_exch) then            ! regular calculations
           call shell_fock_build(geom,ao_bas_han,0,1,
      &      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
@@ -127,8 +139,8 @@ c
      &      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         end if  ! cam_exch
       else if ((ipol.eq.1).and.(triplet)) then
-        jf(1)=0.0d0
-        kf(1)=-kfac*0.5d0
+        jf(1)=0.0d0*scale_j
+        kf(1)=-kfac*0.5d0*scale_k
         if (.not.cam_exch) then            ! regular calculations
           call shell_fock_build(geom,ao_bas_han,0,1,
      1      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
@@ -139,10 +151,10 @@ c
       else if (ipol.eq.2) then
         ndu=2
         nfu=2
-        jf(1)=1.0d0
-        kf(1)=kfac
-        jf(2)=1.0d0
-        kf(2)=kfac
+        jf(1)=1.0d0*scale_j
+        kf(1)=kfac*scale_k
+        jf(2)=1.0d0*scale_j
+        kf(2)=kfac*scale_k
         call uhf_fock_setup(g_ntrl,g_nprd,jf,kf,ndu,
      1       nfu,nbf_ao,.false.)
         if (.not.cam_exch) then     ! regular calculations
@@ -206,8 +218,8 @@ c ---------------------
 c
         call ga_zero(g_nprd)
         if (ipol.eq.1) then
-         jf(1)=0.0d0
-         kf(1)=-kfac*0.5d0
+         jf(1)=0.0d0*scale_j
+         kf(1)=-kfac*0.5d0*scale_k
          if (.not.cam_exch) then  ! regular calculations
            call shell_fock_build(geom,ao_bas_han,0,1,
      &       jf,kf,tol2e,g_ntrl,g_nprd,.false.)
@@ -218,10 +230,10 @@ c
         else
           ndu=2
           nfu=2
-          jf(1)=0.0d0
-          kf(1)=kfac
-          jf(2)=0.0d0
-          kf(2)=kfac
+          jf(1)=0.0d0*scale_j
+          kf(1)=kfac*scale_k
+          jf(2)=0.0d0*scale_j
+          kf(2)=kfac*scale_k
           call uhf_fock_setup(g_ntrl,g_nprd,jf,kf,ndu,
      1        nfu,nbf_ao,.false.)
           if (.not.cam_exch) then  ! regular calculations
@@ -354,8 +366,21 @@ c
       integer ndu,nfu
       integer g_temp           ! NGA handles for temp array
 c
+      double precision scale_j, scale_k
+c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+c
+c -------------------------------
+c Get scale_j and scale_k factors
+c -------------------------------
+      scale_j = 1.d0
+      if (.not.rtdb_get(rtdb,'tddft:scale_j',mt_dbl,1,scale_j))
+     &   scale_j = 1.d0
+c
+      scale_k = 1.d0
+      if (.not.rtdb_get(rtdb,'tddft:scale_k',mt_dbl,1,scale_k))
+     &   scale_k = 1.d0
 c
 c --------------------
 c Allocate work arrays
@@ -420,8 +445,8 @@ c
       call ga_zero(g_nprd_p)
       if ((ipol.eq.1).and.(.not.triplet)) then
        do n=1,nvectors
-          dbl_mb(k_jf+n-1)=1.0d0
-          dbl_mb(k_kf+n-1)=-kfac*0.5d0
+          dbl_mb(k_jf+n-1)=1.0d0*scale_j
+          dbl_mb(k_kf+n-1)=-kfac*0.5d0*scale_k
        enddo
        if(.not.cam_exch) then ! normal calculations
         call shell_fock_build(geom,ao_bas_han,0,nvectors,
@@ -432,8 +457,8 @@ c
        end if  ! cam_exch
       else if ((ipol.eq.1).and.(triplet)) then
        do n=1,nvectors
-          dbl_mb(k_jf+n-1)=0.0d0
-          dbl_mb(k_kf+n-1)=-kfac*0.5d0
+          dbl_mb(k_jf+n-1)=0.0d0*scale_j
+          dbl_mb(k_kf+n-1)=-kfac*0.5d0*scale_k
        enddo
        if (.not.cam_exch) then   ! normal calculations
         call shell_fock_build(geom,ao_bas_han,0,nvectors,
@@ -444,8 +469,8 @@ c
        end if  ! cam_exch
       else if (ipol.eq.2) then
         do n=1,2*nvectors
-          dbl_mb(k_jf+n-1)=1.0d0
-          dbl_mb(k_kf+n-1)=kfac
+          dbl_mb(k_jf+n-1)=1.0d0*scale_j
+          dbl_mb(k_kf+n-1)=kfac*scale_k
         enddo
         ndu=2*nvectors
         nfu=2*nvectors
@@ -499,8 +524,8 @@ c
         endif
         if (ipol.eq.1) then
           do n=1,nvectors
-            dbl_mb(k_jf+n-1)=0.0d0
-            dbl_mb(k_kf+n-1)=-kfac*0.5d0
+            dbl_mb(k_jf+n-1)=0.0d0*scale_j
+            dbl_mb(k_kf+n-1)=-kfac*0.5d0*scale_k
           enddo
           if (tda) then
             if (.not.cam_exch) then ! normal calculations
@@ -535,8 +560,8 @@ c
           endif ! tda
         else
           do n=1,2*nvectors
-            dbl_mb(k_jf+n-1)=0.0d0
-            dbl_mb(k_kf+n-1)=kfac
+            dbl_mb(k_jf+n-1)=0.0d0*scale_j
+            dbl_mb(k_kf+n-1)=kfac*scale_k
           enddo
           ndu=2*nvectors
           nfu=2*nvectors

@@ -32,6 +32,8 @@ c        [CDSPECTRUM <not default: compute rotatory strengths>]
 c        [GIAO <not default: calc. magnetic trans. dipoles with GIAOs>]
 c        [VELOCITY]  <not default: compute velocity gaude dipoles>]
 c        [GRADIENT] Calculate/optimize the gradients on this surface
+c        [SCALE_J] Scale the Coulomb part
+c        [SCALE_K] Scale the Exchange part
 c     END
 c     
       implicit none
@@ -66,6 +68,7 @@ c
       double precision diff_max
       logical lcivecs
       logical ltransden
+      double precision scale_j, scale_k
 c
 c ------------------
 c Set default values
@@ -297,6 +300,26 @@ c
      &       RTDB_ERR)
         if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lecut))
      &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     SCALE_J (scale the Coulomb interaction)
+c
+      else if (inp_compare(.false.,test,'scale_j')) then
+       if (.not.inp_f(scale_j)) then
+          scale_j  = 1.d0  ! default
+       endif
+       if (.not.rtdb_put(rtdb,'tddft:scale_j',mt_dbl,1,scale_j))
+     &  call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     SCALE_K (scale the Exchange interaction)
+c
+      else if (inp_compare(.false.,test,'scale_k')) then
+       if (.not.inp_f(scale_k)) then
+          scale_k  = 1.d0  ! default
+       endif
+       if (.not.rtdb_put(rtdb,'tddft:scale_k',mt_dbl,1,scale_k))
+     &  call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c
 c     VSHIFT (reference virtual state)
