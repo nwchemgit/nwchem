@@ -103,8 +103,8 @@ c
       integer owend(2)
       integer itmp, owtmp
 c
-c     logical cam_exch
-c     double precision cam_alpha, cam_beta, cam_omega
+      logical cam_exch
+      double precision cam_alpha, cam_beta, cam_omega
 c
       logical int_normalize
       external int_normalize
@@ -139,6 +139,17 @@ c ---------------------
       if (.not.rtdb_get(rtdb,'dft:adapt',mt_log,1,oadapt)) then
         oadapt=sym_number_ops(geom).gt.0
       endif
+c
+c      == Coulomb Attenuation Method (CAM/LC) parameters ==
+       if (.not.rtdb_get(rtdb,'dft:cam_exch',mt_log,1,cam_exch))
+     &   cam_exch=.false.
+       if (.not.rtdb_get(rtdb,'dft:cam_omega',mt_dbl,1,cam_omega))
+     &   cam_omega=0.d0
+       if (.not.rtdb_get(rtdb,'dft:cam_alpha',mt_dbl,1,cam_alpha))
+     &   cam_alpha=0.d0
+       if (.not.rtdb_get(rtdb,'dft:cam_beta',mt_dbl,1,cam_beta))
+     &   cam_beta=0.d0
+c
 c ---------
 c Basis set
 c ---------
@@ -583,20 +594,8 @@ c
           endif
         enddo
 c
-c       == Coulomb Attenuation Method (CAM/LC) parameters ==
-c       if (.not.rtdb_get(rtdb,'dft:cam_exch',mt_log,1,cam_exch))
-c     &   cam_exch=.false.
-c       if (.not.rtdb_get(rtdb,'dft:cam_omega',mt_dbl,1,cam_omega))
-c     &   cam_omega=0.d0
-c       if (.not.rtdb_get(rtdb,'dft:cam_alpha',mt_dbl,1,cam_alpha))
-c     &   cam_alpha=0.d0
-c       if (.not.rtdb_get(rtdb,'dft:cam_beta',mt_dbl,1,cam_beta))
-c     &   cam_beta=0.d0
-c
-c       if (cam_exch) then
-c              write(LuOut,*)
-c              write(LuOut,9500)cam_alpha,cam_beta,cam_omega
-c       end if ! cam_exch
+        if (cam_exch)
+     &        write(LuOut,9500)cam_alpha,cam_beta,cam_omega
 c
         if (cs00) then
           if (shift.gt.1.0d90) then
@@ -709,9 +708,9 @@ c
  9330 format(3x,a44)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
-c 9500 format(10x,' Alpha           :',f6.2,/,
-c     &       10x,' Beta            :',f6.2,/,
-c     &       10x,' Gamma           :',f6.2)
+ 9500 format(10x,' Alpha           :',f6.2,/,
+     &       10x,' Beta            :',f6.2,/,
+     &       10x,' Gamma           :',f6.2)
 c
       return
       end
