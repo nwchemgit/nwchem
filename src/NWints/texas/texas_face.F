@@ -997,7 +997,16 @@ c memory (as distinct from virtual memory)
 #if defined(KSR)||defined(CRAY)||defined(EXT_INT)
       intsize=1
 #else
-      intsize=2
+cold      intsize=2
+      intsize=8/ma_sizeof(MT_INT,1,MT_BYTE)
+      if(intsize.ne.2) then
+         write(6,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+         write(6,*) ' 64-bit Architecture, you need to add '
+         write(6,*) ' DEFINES+=-DEXT_INT in config/makefile.h'
+         write(6,*) ' and recompile'
+         write(6,*) ' !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+         call errquit(' txsarrg: compilation error',0,CAPMIS_ERR)
+      endif
 #endif
 c this above should not be used
       iacc=15
