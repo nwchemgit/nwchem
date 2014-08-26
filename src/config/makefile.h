@@ -1291,7 +1291,8 @@ endif
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
              MAKEFLAGS = -j 1 --no-print-directory
-             DEFINES =-DMACX
+             DEFINES   = -DMACX
+             DEFINES  += -DEXT_INT
 
       ifeq ($(FC),gfortran)
 #gcc version 
@@ -1300,7 +1301,6 @@ endif
         FOPTIONS += -fdefault-integer-8
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
        DEFINES  += -DGFORTRAN -DGCC4
-       DEFINES  += -DEXT_INT
 #
          FOPTIMIZE+= -funroll-all-loops -mtune=native 
          FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
@@ -1339,11 +1339,22 @@ else
    endif
 endif
       ifeq ($(FC),ifort)
+       _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
+       _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
+       _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
+       _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
         DEFINES  += -DIFCV8 -DIFCLINUX
         FOPTIONS += -i8
-        FOPTIONS +=  -w -g
+        FOPTIONS +=   -g
         FDEBUG    = -O2 -g
         FOPTIMIZE = -O3 -xHost
+        ifeq ($(_IFCV11),Y) 
+#next 2 lines needed for fp accuracy
+          FDEBUG += -fp-model source
+          ifeq ($(_IFCV12),Y) 
+            FOPTIONS += -fimf-arch-consistency=true
+          endif
+        endif
       endif
 
 #  _GCC4= $(shell gcc -v  2>&1|egrep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
