@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_c_opt.F
 C> The OPT correlation functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -45,8 +47,16 @@ C>     10.1007/PL00020511</A>.
 c
 C$Id$
 c
-      subroutine nwxc_c_opt(tol_rho, ipol, nq, wght, rho, rgamma, func,
-     &                      Amat, Cmat)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_c_opt(tol_rho, ipol, nq, wght, rho, rgamma, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_c_opt_d2(tol_rho,ipol,nq,wght,rho,rgamma,func)
+#else
+      subroutine nwxc_c_opt_d3(tol_rho,ipol,nq,wght,rho,rgamma,func)
+#endif
+c      
+#include "nwad.fh"
+c
       implicit none
 c      
 #include "nwxc_param.fh"
@@ -58,17 +68,17 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision func(nq)   !< [Output] The value of the functional
-      double precision Amat(nq,*) !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)   !< [Output] The value of the functional
+c     double precision Amat(nq,*) !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
 c
 c References:
 c
@@ -85,16 +95,20 @@ c
       integer num  ! the number of grid points in current batch
       integer maxp ! the maximum number of points in a batch
       parameter (maxp = 16)
-      double precision funcl(maxp)
-      double precision rhol(maxp,2)
-      double precision rgammal(maxp,3)
-      double precision Amatl(maxp,2)
-      double precision Cmatl(maxp,3)
+      type(nwad_dble)::funcl(maxp)
+      type(nwad_dble)::rhol(maxp,2)
+      type(nwad_dble)::rgammal(maxp,3)
+c     double precision Amatl(maxp,2)
+c     double precision Cmatl(maxp,3)
       double precision fac
+      double precision tmp(2)
+      integer lennw
 c
 c***************************************************************************
 c
 c
+      lennw = loc(tmp(2))-loc(tmp(1))
+      lennw = (loc(funcl(2))-loc(funcl(1))+lennw-1)/lennw
       if (ipol.eq.1) then
 c
 c        ======> SPIN-RESTRICTED <======
@@ -105,47 +119,61 @@ c
 c
 c          c1*Ec[a,b]
 c
-           call dfill(maxp,0.0d0,funcl,1)
-           call dfill(maxp*2,0.0d0,rhol,1)
-           call dfill(maxp*3,0.0d0,rgammal,1)
-           call dfill(maxp*2,0.0d0,Amatl,1)
-           call dfill(maxp*3,0.0d0,Cmatl,1)
+           call dfill(maxp*lennw,0.0d0,funcl,1)
+           call dfill(maxp*2*lennw,0.0d0,rhol,1)
+           call dfill(maxp*3*lennw,0.0d0,rgammal,1)
+c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
+c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
               rhol(ii+1,R_T) = rho(iq+ii,R_T)
               rgammal(ii+1,G_TT) = rgamma(iq+ii,G_TT)
            enddo
            fac = c1*wght
-           call nwxc_c_pw91lda(tol_rho,1,maxp,fac,rhol,funcl,Amatl)
-           call nwxc_c_p91(tol_rho,1,maxp,fac,rhol,rgammal,funcl,
-     +                     Amatl,Cmatl)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda(tol_rho,1,maxp,fac,rhol,funcl)
+           call nwxc_c_p91(tol_rho,1,maxp,fac,rhol,rgammal,funcl)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda_d2(tol_rho,1,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d2(tol_rho,1,maxp,fac,rhol,rgammal,funcl)
+#else
+           call nwxc_c_pw91lda_d3(tol_rho,1,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d3(tol_rho,1,maxp,fac,rhol,rgammal,funcl)
+#endif
            do ii = 0, num - 1
               func(iq+ii) = func(iq+ii) + funcl(ii+1)
-              Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
-              Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
-     +                           + Cmatl(ii+1,D1_GAA)
-              Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
-     +                           + Cmatl(ii+1,D1_GAB)
+c             Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
+c             Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
+c    +                           + Cmatl(ii+1,D1_GAA)
+c             Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
+c    +                           + Cmatl(ii+1,D1_GAB)
            enddo
 c
 c          {(c2-c1)*Ec[a,0]}(a) + {(c2-c1)*Ec[0,b]}(a)
 c
            fac = (c2-c1)*wght
-           call dfill(maxp,0.0d0,funcl,1)
-           call dfill(maxp*2,0.0d0,Amatl,1)
-           call dfill(maxp*3,0.0d0,Cmatl,1)
+           call dfill(maxp*lennw,0.0d0,funcl,1)
+c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
+c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
-              rhol(ii+1,R_A) = 0.5d0*rhol(ii+1,R_T)
+              rhol(ii+1,R_A)     = 0.5d0*rhol(ii+1,R_T)
               rgammal(ii+1,G_AA) = 0.25d0*rgammal(ii+1,G_TT)
            enddo
-           call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl,Amatl)
-           call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl,
-     +                     Amatl,Cmatl)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda_d2(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d2(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#else
+           call nwxc_c_pw91lda_d3(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d3(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#endif
            do ii = 0, num - 1
-              func(iq+ii) = func(iq+ii) + 2*funcl(ii+1)
-              Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA)
-     +                          + Amatl(ii+1,D1_RA)
-              Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
-     +                           + Cmatl(ii+1,D1_GAA) 
+              func(iq+ii) = func(iq+ii) + 2.0d0*funcl(ii+1)
+c             Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA)
+c    +                          + Amatl(ii+1,D1_RA) + Amatl(ii+1,D1_RB)
+c             Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
+c    +                           + (2.0d0)*Cmatl(ii+1,D1_GAA) 
            enddo
          enddo
 c
@@ -159,11 +187,11 @@ c
 c
 c          c1*Ec[a,b]
 c
-           call dfill(maxp,0.0d0,funcl,1)
-           call dfill(maxp*2,0.0d0,rhol,1)
-           call dfill(maxp*3,0.0d0,rgammal,1)
-           call dfill(maxp*2,0.0d0,Amatl,1)
-           call dfill(maxp*3,0.0d0,Cmatl,1)
+           call dfill(maxp*lennw,0.0d0,funcl,1)
+           call dfill(maxp*2*lennw,0.0d0,rhol,1)
+           call dfill(maxp*3*lennw,0.0d0,rgammal,1)
+c          call dfill(maxp*2,0.0d0,Amatl,1)
+c          call dfill(maxp*3,0.0d0,Cmatl,1)
            do ii = 0, num - 1
               rhol(ii+1,R_A) = rho(iq+ii,R_A)
               rhol(ii+1,R_B) = rho(iq+ii,R_B)
@@ -172,65 +200,86 @@ c
               rgammal(ii+1,G_BB) = rgamma(iq+ii,G_BB)
            enddo
            fac = c1*wght
-           call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl,Amatl)
-           call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl,
-     +                     Amatl,Cmatl)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda_d2(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d2(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#else
+           call nwxc_c_pw91lda_d3(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d3(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#endif
            do ii = 0, num - 1
               func(iq+ii) = func(iq+ii) + funcl(ii+1)
-              Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
-              Amat(iq+ii,D1_RB) = Amat(iq+ii,D1_RB) + Amatl(ii+1,D1_RB)
-              Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
-     +                           + Cmatl(ii+1,D1_GAA)
-              Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
-     +                           + Cmatl(ii+1,D1_GAB)
-              Cmat(iq+ii,D1_GBB) = Cmat(iq+ii,D1_GBB)
-     +                           + Cmatl(ii+1,D1_GBB)
+c             Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
+c             Amat(iq+ii,D1_RB) = Amat(iq+ii,D1_RB) + Amatl(ii+1,D1_RB)
+c             Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
+c    +                           + Cmatl(ii+1,D1_GAA)
+c             Cmat(iq+ii,D1_GAB) = Cmat(iq+ii,D1_GAB)
+c    +                           + Cmatl(ii+1,D1_GAB)
+c             Cmat(iq+ii,D1_GBB) = Cmat(iq+ii,D1_GBB)
+c    +                           + Cmatl(ii+1,D1_GBB)
            enddo
 c
 c          (c2-c1)*Ec[a,0]
 c
            fac = (c2-c1)*wght
-           call dfill(maxp  ,0.0d0,funcl,1)
-           call dfill(maxp*2,0.0d0,Amatl,1)
-           call dfill(maxp*3,0.0d0,Cmatl,1)
+           call dfill(maxp*lennw  ,0.0d0,funcl,1)
+c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
+c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
-              rhol(ii+1,R_A) = rho(iq+ii,R_A)
-              rhol(ii+1,R_B) = 0.0d0
+              rhol(ii+1,R_A)     = rho(iq+ii,R_A)
+              rhol(ii+1,R_B)     = 0.0d0
               rgammal(ii+1,G_AA) = rgamma(iq+ii,G_AA)
               rgammal(ii+1,G_AB) = 0.0d0
               rgammal(ii+1,G_BB) = 0.0d0
            enddo
-           call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl,Amatl)
-           call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl,
-     +                     Amatl,Cmatl)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda_d2(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d2(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#else
+           call nwxc_c_pw91lda_d3(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d3(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#endif
            do ii = 0, num - 1
               func(iq+ii) = func(iq+ii) + funcl(ii+1)
-              Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
-              Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
-     +                           + Cmatl(ii+1,D1_GAA)
+c             Amat(iq+ii,D1_RA) = Amat(iq+ii,D1_RA) + Amatl(ii+1,D1_RA)
+c             Cmat(iq+ii,D1_GAA) = Cmat(iq+ii,D1_GAA)
+c    +                           + Cmatl(ii+1,D1_GAA)
            enddo
 c
 c          (c2-c1)*Ec[0,b]
 c
            fac = (c2-c1)*wght
-           call dfill(maxp  ,0.0d0,funcl,1)
-           call dfill(maxp*2,0.0d0,Amatl,1)
-           call dfill(maxp*3,0.0d0,Cmatl,1)
+           call dfill(maxp*lennw  ,0.0d0,funcl,1)
+c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
+c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
-              rhol(ii+1,R_A) = 0.0d0
-              rhol(ii+1,R_B) = rho(iq+ii,R_B)
+              rhol(ii+1,R_A)     = 0.0d0
+              rhol(ii+1,R_B)     = rho(iq+ii,R_B)
               rgammal(ii+1,G_AA) = 0.0d0
               rgammal(ii+1,G_AB) = 0.0d0
               rgammal(ii+1,G_BB) = rgamma(iq+ii,G_BB)
            enddo
-           call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl,Amatl)
-           call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl,
-     +                     Amatl,Cmatl)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_c_pw91lda_d2(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d2(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#else
+           call nwxc_c_pw91lda_d3(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_d3(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#endif
            do ii = 0, num - 1
               func(iq+ii) = func(iq+ii) + funcl(ii+1)
-              Amat(iq+ii,D1_RB) = Amat(iq+ii,D1_RB) + Amatl(ii+1,D1_RB)
-              Cmat(iq+ii,D1_GBB) = Cmat(iq+ii,D1_GBB)
-     +                           + Cmatl(ii+1,D1_GBB)
+c             Amat(iq+ii,D1_RB) = Amat(iq+ii,D1_RB) + Amatl(ii+1,D1_RB)
+c             Cmat(iq+ii,D1_GBB) = Cmat(iq+ii,D1_GBB)
+c    +                           + Cmatl(ii+1,D1_GBB)
            enddo
          enddo
 c
@@ -238,5 +287,19 @@ c
 c
       return
       end
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_opt.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_c_opt.F"
+#endif
 C>
 C> @}

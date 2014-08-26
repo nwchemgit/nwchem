@@ -38,18 +38,19 @@ c     BGJ - 8/98
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_camlsd(param, tol_rho, ipol, nq, wght, rho,
-     +                         func, Amat)
+     +                         func)
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 c     For locations of 2nd derivatives of functionals in array
       Subroutine nwxc_x_camlsd_d2(param, tol_rho, ipol, nq, wght, rho,
-     +                            func, Amat, Amat2)
+     +                            func)
 #else
       Subroutine nwxc_x_camlsd_d3(param, tol_rho, ipol, nq, wght, rho,
-     +                            func, Amat, Amat2, Amat3)
+     +                            func)
 #endif
 c
 C$Id$
 c
+#include "nwad.fh"
       Implicit none
 c
 #include "nwxc_param.fh"
@@ -65,32 +66,33 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     The Exchange Energy Functional
 c
-      double precision func(nq)  !< [Output] The value of the functional
+      type(nwad_dble)::func(nq)  !< [Output] The value of the functional
 c
 c     Partial First Derivatives of the Exchange Energy Functional
 c
-      double precision Amat(nq,*) !< [Output] 1st order partial derivatives
+c     double precision Amat(nq,*) !< [Output] 1st order partial derivatives
 c
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c
 c     Partial Second Derivatives of the Exchange Energy Functional
 c
-      double precision Amat2(nq,*) !< [Output] 2nd order partial derivatives
+c     double precision Amat2(nq,*) !< [Output] 2nd order partial derivatives
 #endif
 #if defined(THIRD_DERIV)
 c
 c     Partial Third Order Derivatives of the Exchange Energy Functional
 c
-      double precision Amat3(nq,*) !< [Output] 3rd order partial derivatives
+c     double precision Amat3(nq,*) !< [Output] 3rd order partial derivatives
 #endif
 c
 c     Compute the partial derivatives of the exchange functional of Dirac.
 c
-      double precision Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp
+      double precision Atmp,Ctmp,A2tmp,C2tmp,C3tmp
+      type(nwad_dble):: Etmp
       double precision A3tmp, C4tmp, C5tmp, C6tmp
       double precision rhom23
       double precision P1, P2, P3, P4
@@ -104,7 +106,8 @@ c
       Parameter (P2 = -0.7385587663820219D+00)
       Parameter (P3 = -0.1240700981798799D+01)
       Parameter (P4 = -0.9305257363490993D+00)
-      double precision rho13, rho32, rho33, one_third,two_ninth
+      double precision  one_third,two_ninth
+      type(nwad_dble):: rho13, rho32, rho33
       Parameter (one_third = 1.d0/3.d0)
       Parameter (two_ninth = 2.d0/9.d0)
       integer n
@@ -117,39 +120,38 @@ c
             if (rho(n,R_T).gt.tol_rho)then
              rho13=rho(n,R_T)**one_third
              Etmp = rho(n,R_T)*rho13*P2*wght
-             Atmp = rho13*P1*wght
-             Ctmp = 0.d0
+c            Atmp = rho13*P1*wght
+c            Ctmp = 0.d0
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-             A2tmp = (rho13/rho(n,R_T))*2.0d0*one_third*P1*wght
-             C2tmp = 0.d0
-             C3tmp = 0.d0
+c            A2tmp = (rho13/rho(n,R_T))*2.0d0*one_third*P1*wght
+c            C2tmp = 0.d0
+c            C3tmp = 0.d0
 #endif
 #if defined(THIRD_DERIV)
-             rhom23 = rho13/rho(n,R_T)
-             A3tmp = (rhom23/rho(n,R_T))*(-4.0d0)*two_ninth*P1*wght
-             C4tmp = 0.0d0
-             C5tmp = 0.0d0
-             C6tmp = 0.0d0
+c            rhom23 = rho13/rho(n,R_T)
+c            A3tmp = (rhom23/rho(n,R_T))*(-4.0d0)*two_ninth*P1*wght
+c            C4tmp = 0.0d0
+c            C5tmp = 0.0d0
+c            C6tmp = 0.0d0
 #endif
 #if defined(THIRD_DERIV)
              call nwxc_x_att_d3(param,tol_rho,rho(n,R_T),ipol,
-     &            Etmp,Atmp,Ctmp,A2tmp,
-     &            C2tmp,C3tmp,A3tmp,C4tmp,C5tmp,C6tmp)
+     &            Etmp)
 c
-             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
+c            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 c
-             Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) + A3tmp
+c            Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) + A3tmp
 #elif defined(SECOND_DERIV)
 
              call nwxc_x_att_d2(param,tol_rho,rho(n,R_T),ipol,
-     &            Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
-             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
+     &            Etmp)
+c            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 #else
              call nwxc_x_att(param,tol_rho,rho(n,R_T),ipol,
-     &            Etmp,Atmp,Ctmp)
+     &            Etmp)
 #endif
              func(n) = func(n) + Etmp
-             Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
+c            Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
             endif
    10    continue
 c
@@ -158,98 +160,104 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1,nq
-             rho32=max(rho(n,R_A),0.0d0)**one_third
-             rho33=max(rho(n,R_B),0.0d0)**one_third
+             if (rho(n,R_A).gt.0.5d0*tol_rho) then
+               rho32=rho(n,R_A)**one_third
+             else
+               rho32=0.0d0
+             endif
+             if (rho(n,R_B).gt.0.5d0*tol_rho) then
+               rho33=rho(n,R_B)**one_third
+             else
+               rho33=0.0d0
+             endif
 c
              Etmp = rho32*rho(n,R_A)*P4*wght
-             Atmp = P3*rho32*wght
-             Ctmp = 0.d0
+c            Atmp = P3*rho32*wght
+c            Ctmp = 0.d0
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-             A2tmp = 0.d0
-             C2tmp = 0.d0
-             C3tmp = 0.d0
-             if (rho(n,R_A).gt.0.5d0*tol_rho) then
-               A2tmp = one_third*P3*rho32/rho(n,R_A)*wght
-             end if
+c            A2tmp = 0.d0
+c            C2tmp = 0.d0
+c            C3tmp = 0.d0
+c            if (rho(n,R_A).gt.0.5d0*tol_rho) then
+c              A2tmp = one_third*P3*rho32/rho(n,R_A)*wght
+c            end if
 #endif
 #if defined(THIRD_DERIV)
-             A3tmp = 0.0d0
-             C4tmp = 0.0d0
-             C5tmp = 0.0d0
-             C6tmp = 0.0d0
+c            A3tmp = 0.0d0
+c            C4tmp = 0.0d0
+c            C5tmp = 0.0d0
+c            C6tmp = 0.0d0
 c
-             if (rho(n,R_A).gt.0.5d0*tol_rho) then
-               A3tmp = -two_ninth*P3*rho32/(rho(n,R_A)**2)*wght
-             endif
+c            if (rho(n,R_A).gt.0.5d0*tol_rho) then
+c              A3tmp = -two_ninth*P3*rho32/(rho(n,R_A)**2)*wght
+c            endif
 #endif
 #if defined(THIRD_DERIV)
              if (rho(n,R_A).gt.0.5d0*tol_rho) then
                call nwxc_x_att_d3(param,tol_rho,rho(n,R_A),ipol,
-     &              Etmp,Atmp,Ctmp,A2tmp,
-     &              C2tmp,C3tmp,A3tmp,C4tmp,C5tmp,C6tmp)
+     &              Etmp)
              endif
 c
-             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
+c            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 c
-             Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) + A3tmp
+c            Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) + A3tmp
 #elif defined(SECOND_DERIV)
              if (rho(n,R_A).gt.0.5d0*tol_rho) then
                call nwxc_x_att_d2(param,tol_rho,rho(n,R_A),ipol,
-     &              Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
+     &              Etmp)
              end if
-             Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
+c            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 #else
              call nwxc_x_att(param,tol_rho,rho(n,R_A),ipol,
-     &            Etmp,Atmp,Ctmp)
+     &            Etmp)
 #endif
              func(n) = func(n) + Etmp
-             Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
+c            Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
 c
 c            Beta spin channel
 c
              Etmp = rho33*rho(n,R_B)*P4*wght
-             Atmp = P3*rho33*wght
-             Ctmp = 0.d0
+c            Atmp = P3*rho33*wght
+c            Ctmp = 0.d0
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-             A2tmp = 0.d0
-             C2tmp = 0.d0
-             C3tmp = 0.d0
-             if (rho(n,R_B).gt.0.5d0*tol_rho) then
-               A2tmp = one_third*P3*rho33/rho(n,R_B)*wght
-             end if
+c            A2tmp = 0.d0
+c            C2tmp = 0.d0
+c            C3tmp = 0.d0
+c            if (rho(n,R_B).gt.0.5d0*tol_rho) then
+c              A2tmp = one_third*P3*rho33/rho(n,R_B)*wght
+c            end if
 #endif
 #if defined(THIRD_DERIV)
-             A3tmp = 0.0d0
-             C4tmp = 0.0d0
-             C5tmp = 0.0d0
-             C6tmp = 0.0d0
+c            A3tmp = 0.0d0
+c            C4tmp = 0.0d0
+c            C5tmp = 0.0d0
+c            C6tmp = 0.0d0
 c
-             if (rho(n,R_B).gt.0.5d0*tol_rho) then
-               A3tmp = -two_ninth*P3*rho33/(rho(n,R_B)**2)*wght
-             endif
+c            if (rho(n,R_B).gt.0.5d0*tol_rho) then
+c              A3tmp = -two_ninth*P3*rho33/(rho(n,R_B)**2)*wght
+c            endif
 #endif
 #if defined(THIRD_DERIV)
              if (rho(n,R_B).gt.0.5d0*tol_rho) then
                call nwxc_x_att_d3(param,tol_rho,rho(n,R_B),ipol,
-     &              Etmp,Atmp,Ctmp,A2tmp,
-     &              C2tmp,C3tmp,A3tmp,C4tmp,C5tmp,C6tmp)
+     &              Etmp)
              endif
 c
-             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
+c            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
 c
-             Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB) + A3tmp
+c            Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB) + A3tmp
 #elif defined(SECOND_DERIV)
              if (rho(n,R_B).gt.0.5d0*tol_rho) then
                call nwxc_x_att_d2(param,tol_rho,rho(n,R_B),ipol,
-     &              Etmp,Atmp,Ctmp,A2tmp,C2tmp,C3tmp)
+     &              Etmp)
              end if
-             Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
+c            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
 #else
              call nwxc_x_att(param,tol_rho,rho(n,R_B),ipol,
-     &            Etmp,Atmp,Ctmp)
+     &            Etmp)
 #endif
              func(n) = func(n) + Etmp
-             Amat(n,D1_RB) = Amat(n,D1_RB) + Atmp
+c            Amat(n,D1_RB) = Amat(n,D1_RB) + Atmp
 c
 c            func(n) = func(n) + ( rho32*rho(n,R_A) + 
 c    &                             rho33*rho(n,R_B)   )*P4*wght

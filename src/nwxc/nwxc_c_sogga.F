@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_c_sogga.F
 C> The SOGGA11 and SOGGA-X correlation functionals
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -35,8 +37,16 @@ C>     (2011) 191102, DOI:
 C>     <a href="http://dx.doi.org/10.1063/1.3663871">
 C>     10.1063/1.3663871</a>.
 C>
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_c_sogga(param, tol_rho, ipol, nq, wght, rho, 
-     &                        rgamma, ffunc, Amat, Cmat)
+     &                        rgamma, ffunc)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_c_sogga_d2(param, tol_rho, ipol, nq, wght, rho, 
+     &                        rgamma, ffunc)
+#else
+      subroutine nwxc_c_sogga_d3(param, tol_rho, ipol, nq, wght, rho, 
+     &                        rgamma, ffunc)
+#endif
 c
 c$Id$
 c
@@ -56,7 +66,12 @@ c Coded by Roberto Peverati (12/11)                                    c
 c                                                                      c
 c**********************************************************************c
 c
+#include "nwad.fh"
       implicit none
+c
+#include "intf_nwxc_c_lsda.fh"
+#include "intf_nwxc_GZeta.fh"
+c
 #include "nwxc_param.fh"
 c
 c     Input and other parameters
@@ -82,22 +97,23 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*)    !< [Input] The density
+      type(nwad_dble)::rho(nq,*)    !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision ffunc(nq)    !< [Output] The value of the functional
-      double precision Amat(nq,*)   !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::ffunc(nq)    !< [Output] The value of the functional
+c     double precision Amat(nq,*)   !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
 c
 c     Intermediate derivative results, etc.
 c
       integer n
 c
+      type(nwad_dble)::RHOA,RHOB,rhoval,gammaval,RS,Zeta
       double precision CcA(0:5),CcB(0:5)
       double precision BETA, CC0
       double precision DELOCDA, DELOCDB, DFA1DG, DFA1DR, DFA1DZ
@@ -110,16 +126,18 @@ c
       double precision DFGGACDG, DFGGACDGX, DFGGACDR, DFGGACDZ
       double precision DGDGX, DGDZ, DLDA, DLDB, DLDS, DLDZ
       double precision DPONDG, DPONDR, DPONDZ, DSDR
-      double precision DT2DG, DT2DR, DT2DZ, DZDA, DZDB, ELOC
+      double precision DT2DG, DT2DR, DT2DZ, DZDA, DZDB
       double precision F1O3, F1O6, F7O6 
-      double precision FA0, FA1, FA2, FA3, FA4, FA5
-      double precision FB0, FB1, FB2, FB3, FB4, FB5
-      double precision FEXP, FFRAC, FGGAC, FKFAC
-      double precision GAMMAVAL, G, G2, G3, GRHO
+      type(nwad_dble)::FA1, FA2, FA3, FA4, FA5
+      type(nwad_dble)::FB1, FB2, FB3, FB4, FB5
+      type(nwad_dble)::FEXP, FFRAC
+      type(nwad_dble)::FGGAC
+      double precision FKFAC, FA0, FB0
+      type(nwad_dble)::G, G2, G3
       double precision PI, PI34
-      double precision PON, POTLC
-      double precision RHOA, RHOB, RHOVAL, RHO16, RHO76, RS
-      double precision SCFAC, SKFAC, T, T2, XNU, ZETA
+      type(nwad_dble)::PON, T, T2
+      type(nwad_dble)::RHO16, RHO76, GRHO, POTLC, ELOC
+      double precision SCFAC, SKFAC, XNU
       double precision dummy
 
  
@@ -197,7 +215,7 @@ c    &                delrho(n,3,1)*delrho(n,3,1))
          else
            RhoA = rho(n,R_A)
            RhoB = rho(n,R_B)
-           gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2*rgamma(n,G_AB)
+           gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
 c          gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &                delrho(n,1,2)*delrho(n,1,2) +
 c    &                delrho(n,2,1)*delrho(n,2,1) +
@@ -209,13 +227,24 @@ c    &                delrho(n,2,1)*delrho(n,2,2) +
 c    &                delrho(n,3,1)*delrho(n,3,2))
          endif
          Rhoval  = RhoA + RhoB
-         GRho = max(dsqrt(gammaval),tol_rho)
-         if (dabs(rhoval).le.tol_rho) goto 20
+c        GRho = max(dsqrt(gammaval),tol_rho)
+         GRho = sqrt(gammaval)
+         if (rhoval.le.tol_rho) goto 20
          rS = (Pi34/Rhoval)**F1o3
          Zeta = (RhoA-RhoB)/Rhoval
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          Call nwxc_c_lsda(tol_rho,
      $        RS,Zeta,PotLC,dLdS,dLdZ,dummy,dummy,dummy)
          Call nwxc_GZeta(Zeta,G,dGdZ,dummy,dummy)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         Call nwxc_c_lsda_d2(tol_rho,
+     $        RS,Zeta,PotLC,dLdS,dLdZ,dummy,dummy,dummy)
+         Call nwxc_GZeta_d2(Zeta,G,dGdZ,dummy,dummy)
+#else
+         Call nwxc_c_lsda_d3(tol_rho,
+     $        RS,Zeta,PotLC,dLdS,dLdZ,dummy,dummy,dummy)
+         Call nwxc_GZeta_d3(Zeta,G,dGdZ,dummy,dummy)
+#endif
 c
          Eloc = SCfac*Rhoval*PotLC
          FKFac = (F3*Pi*Pi)**F1o3
@@ -246,96 +275,98 @@ c
 C
 C     1st derivatives.
 C
-         dSdR  = -(F1o3*rS/Rhoval)
-         dZdA = (F1-Zeta)/Rhoval
-         dZdB = (-F1-Zeta)/Rhoval
-         dLdA = dLdS*dSdR + dLdz*dZdA
-         dLdB = dLdS*dSdR + dLdz*dZdB
-         dElocdA = SCfac*PotLC + SCfac*Rhoval*dLdA
-         dElocdB = SCfac*PotLC + SCfac*Rhoval*dLdB
-         dT2dR = -F2*F7o6*T2/Rhoval
-         dT2dG =  F2*T2/GRho
-         dT2dZ = -F2*dGdZ*T2/G
-         dPONdR = -(dLdS*dSdR*PON/PotLC)+dT2dR*PON/T2
-         dPONdG = dT2dG*PON/T2
-         dPONdZ = F3*dGdZ*PON/G-dLdZ*PON/PotLC+dT2dZ*PON/T2
-         dFfracdPON = -F1/((F1-PON)**F2)
-         dFexpdPON  = -exp(PON)
-         dfa1dR = CcA(1)                 *dFfracdPON*dPONdR
-         dfa2dR = CcA(2) *(F2 *Ffrac)    *dFfracdPON*dPONdR
-         dfa3dR = CcA(3) *(F3 *Ffrac**F2)*dFfracdPON*dPONdR
-         dfa4dR = CcA(4) *(F4 *Ffrac**F3)*dFfracdPON*dPONdR
-         dfa5dR = CcA(5) *(F5 *Ffrac**F4)*dFfracdPON*dPONdR
-         dfa1dG = CcA(1)                 *dFfracdPON*dPONdG
-         dfa2dG = CcA(2) *(F2 *Ffrac)    *dFfracdPON*dPONdG
-         dfa3dG = CcA(3) *(F3 *Ffrac**F2)*dFfracdPON*dPONdG
-         dfa4dG = CcA(4) *(F4 *Ffrac**F3)*dFfracdPON*dPONdG
-         dfa5dG = CcA(5) *(F5 *Ffrac**F4)*dFfracdPON*dPONdG
-         dfa1dZ = CcA(1)                 *dFfracdPON*dPONdZ
-         dfa2dZ = CcA(2) *(F2 *Ffrac)    *dFfracdPON*dPONdZ
-         dfa3dZ = CcA(3) *(F3 *Ffrac**F2)*dFfracdPON*dPONdZ
-         dfa4dZ = CcA(4) *(F4 *Ffrac**F3)*dFfracdPON*dPONdZ
-         dfa5dZ = CcA(5) *(F5 *Ffrac**F4)*dFfracdPON*dPONdZ
-         dfb1dR = CcB(1)                 *dFexpdPON*dPONdR
-         dfb2dR = CcB(2) *(F2 *Fexp)     *dFexpdPON*dPONdR
-         dfb3dR = CcB(3) *(F3 *Fexp**F2) *dFexpdPON*dPONdR
-         dfb4dR = CcB(4) *(F4 *Fexp**F3) *dFexpdPON*dPONdR
-         dfb5dR = CcB(5) *(F5 *Fexp**F4) *dFexpdPON*dPONdR
-         dfb1dG = CcB(1)                 *dFexpdPON*dPONdG
-         dfb2dG = CcB(2) *(F2 *Fexp)     *dFexpdPON*dPONdG
-         dfb3dG = CcB(3) *(F3 *Fexp**F2) *dFexpdPON*dPONdG
-         dfb4dG = CcB(4) *(F4 *Fexp**F3) *dFexpdPON*dPONdG
-         dfb5dG = CcB(5) *(F5 *Fexp**F4) *dFexpdPON*dPONdG
-         dfb1dZ = CcB(1)                 *dFexpdPON*dPONdZ
-         dfb2dZ = CcB(2) *(F2 *Fexp)     *dFexpdPON*dPONdZ
-         dfb3dZ = CcB(3) *(F3 *Fexp**F2) *dFexpdPON*dPONdZ
-         dfb4dZ = CcB(4) *(F4 *Fexp**F3) *dFexpdPON*dPONdZ
-         dfb5dZ = CcB(5) *(F5 *Fexp**F4) *dFexpdPON*dPONdZ
+c        dSdR  = -(F1o3*rS/Rhoval)
+c        dZdA = (F1-Zeta)/Rhoval
+c        dZdB = (-F1-Zeta)/Rhoval
+c        dLdA = dLdS*dSdR + dLdz*dZdA
+c        dLdB = dLdS*dSdR + dLdz*dZdB
+c        dElocdA = SCfac*PotLC + SCfac*Rhoval*dLdA
+c        dElocdB = SCfac*PotLC + SCfac*Rhoval*dLdB
+c        dT2dR = -F2*F7o6*T2/Rhoval
+c        dT2dG =  F2*T2/GRho
+c        dT2dZ = -F2*dGdZ*T2/G
+c        dPONdR = -(dLdS*dSdR*PON/PotLC)+dT2dR*PON/T2
+c        dPONdG = dT2dG*PON/T2
+c        dPONdZ = F3*dGdZ*PON/G-dLdZ*PON/PotLC+dT2dZ*PON/T2
+c        dFfracdPON = -F1/((F1-PON)**F2)
+c        dFexpdPON  = -exp(PON)
+c        dfa1dR = CcA(1)                 *dFfracdPON*dPONdR
+c        dfa2dR = CcA(2) *(F2 *Ffrac)    *dFfracdPON*dPONdR
+c        dfa3dR = CcA(3) *(F3 *Ffrac**F2)*dFfracdPON*dPONdR
+c        dfa4dR = CcA(4) *(F4 *Ffrac**F3)*dFfracdPON*dPONdR
+c        dfa5dR = CcA(5) *(F5 *Ffrac**F4)*dFfracdPON*dPONdR
+c        dfa1dG = CcA(1)                 *dFfracdPON*dPONdG
+c        dfa2dG = CcA(2) *(F2 *Ffrac)    *dFfracdPON*dPONdG
+c        dfa3dG = CcA(3) *(F3 *Ffrac**F2)*dFfracdPON*dPONdG
+c        dfa4dG = CcA(4) *(F4 *Ffrac**F3)*dFfracdPON*dPONdG
+c        dfa5dG = CcA(5) *(F5 *Ffrac**F4)*dFfracdPON*dPONdG
+c        dfa1dZ = CcA(1)                 *dFfracdPON*dPONdZ
+c        dfa2dZ = CcA(2) *(F2 *Ffrac)    *dFfracdPON*dPONdZ
+c        dfa3dZ = CcA(3) *(F3 *Ffrac**F2)*dFfracdPON*dPONdZ
+c        dfa4dZ = CcA(4) *(F4 *Ffrac**F3)*dFfracdPON*dPONdZ
+c        dfa5dZ = CcA(5) *(F5 *Ffrac**F4)*dFfracdPON*dPONdZ
+c        dfb1dR = CcB(1)                 *dFexpdPON*dPONdR
+c        dfb2dR = CcB(2) *(F2 *Fexp)     *dFexpdPON*dPONdR
+c        dfb3dR = CcB(3) *(F3 *Fexp**F2) *dFexpdPON*dPONdR
+c        dfb4dR = CcB(4) *(F4 *Fexp**F3) *dFexpdPON*dPONdR
+c        dfb5dR = CcB(5) *(F5 *Fexp**F4) *dFexpdPON*dPONdR
+c        dfb1dG = CcB(1)                 *dFexpdPON*dPONdG
+c        dfb2dG = CcB(2) *(F2 *Fexp)     *dFexpdPON*dPONdG
+c        dfb3dG = CcB(3) *(F3 *Fexp**F2) *dFexpdPON*dPONdG
+c        dfb4dG = CcB(4) *(F4 *Fexp**F3) *dFexpdPON*dPONdG
+c        dfb5dG = CcB(5) *(F5 *Fexp**F4) *dFexpdPON*dPONdG
+c        dfb1dZ = CcB(1)                 *dFexpdPON*dPONdZ
+c        dfb2dZ = CcB(2) *(F2 *Fexp)     *dFexpdPON*dPONdZ
+c        dfb3dZ = CcB(3) *(F3 *Fexp**F2) *dFexpdPON*dPONdZ
+c        dfb4dZ = CcB(4) *(F4 *Fexp**F3) *dFexpdPON*dPONdZ
+c        dfb5dZ = CcB(5) *(F5 *Fexp**F4) *dFexpdPON*dPONdZ
 c
-         dFggaCdR = dfa1dR+dfa2dR+dfa3dR+dfa4dR+dfa5dR +
-     $              dfb1dR+dfb2dR+dfb3dR+dfb4dR+dfb5dR 
-         dFggaCdG = dfa1dG+dfa2dG+dfa3dG+dfa4dG+dfa5dG +
-     $              dfb1dG+dfb2dG+dfb3dG+dfb4dG+dfb5dG 
-         dFggaCdZ = dfa1dZ+dfa2dZ+dfa3dZ+dfa4dZ+dfa5dZ +
-     $              dfb1dZ+dfb2dZ+dfb3dZ+dfb4dZ+dfb5dZ 
+c        dFggaCdR = dfa1dR+dfa2dR+dfa3dR+dfa4dR+dfa5dR +
+c    $              dfb1dR+dfb2dR+dfb3dR+dfb4dR+dfb5dR 
+c        dFggaCdG = dfa1dG+dfa2dG+dfa3dG+dfa4dG+dfa5dG +
+c    $              dfb1dG+dfb2dG+dfb3dG+dfb4dG+dfb5dG 
+c        dFggaCdZ = dfa1dZ+dfa2dZ+dfa3dZ+dfa4dZ+dfa5dZ +
+c    $              dfb1dZ+dfb2dZ+dfb3dZ+dfb4dZ+dfb5dZ 
 c
-         dFggaCdA = dFggaCdR + dFggaCdZ*dZdA
-         dFggaCdB = dFggaCdR + dFggaCdZ*dZdB
-         dGdGx = F1 / (F2*GRho)
-         dFggaCdGx = dFggaCdG*dGdGx
+c        dFggaCdA = dFggaCdR + dFggaCdZ*dZdA
+c        dFggaCdB = dFggaCdR + dFggaCdZ*dZdB
+c        dGdGx = F1 / (F2*GRho)
+c        dFggaCdGx = dFggaCdG*dGdGx
 c
 c        Ec = Ec+ (Eloc*FggaC)*qwght(n)
          ffunc(n) = ffunc(n)+ (Eloc*FggaC)*wght
 c         
-         Amat(n,D1_RA) = Amat(n,D1_RA) + dElocdA*FggaC*wght +
-     $                                   Eloc*dFggaCdA*wght
-         if (ipol.eq.2) then
-           Amat(n,D1_RB) = Amat(n,D1_RB) + dElocdB*FggaC*wght +
-     $                                     Eloc*dFggaCdB*wght
-         endif
-         if (ipol.eq.1) then
-           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) +   Eloc*dFggaCdGx*wght
-           Cmat(n,D1_GAB) = Cmat(n,D1_GAB) +F2*Eloc*dFggaCdGx*wght
-         else
-           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) +   Eloc*dFggaCdGx*wght
-           Cmat(n,D1_GAB) = Cmat(n,D1_GAB) +F2*Eloc*dFggaCdGx*wght
-           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) +   Eloc*dFggaCdGx*wght
-         endif
+c        Amat(n,D1_RA) = Amat(n,D1_RA) + dElocdA*FggaC*wght +
+c    $                                   Eloc*dFggaCdA*wght
+c        if (ipol.eq.2) then
+c          Amat(n,D1_RB) = Amat(n,D1_RB) + dElocdB*FggaC*wght +
+c    $                                     Eloc*dFggaCdB*wght
+c        endif
+c        if (ipol.eq.1) then
+c          Cmat(n,D1_GAA) = Cmat(n,D1_GAA) +   Eloc*dFggaCdGx*wght
+c          Cmat(n,D1_GAB) = Cmat(n,D1_GAB) +F2*Eloc*dFggaCdGx*wght
+c        else
+c          Cmat(n,D1_GAA) = Cmat(n,D1_GAA) +   Eloc*dFggaCdGx*wght
+c          Cmat(n,D1_GAB) = Cmat(n,D1_GAB) +F2*Eloc*dFggaCdGx*wght
+c          Cmat(n,D1_GBB) = Cmat(n,D1_GBB) +   Eloc*dFggaCdGx*wght
+c        endif
    20 continue
       end
 c
-      Subroutine nwxc_c_sogga_d2()
-      implicit none
-      call errquit(' not coded ',0,0)
-      return
-      end
-
-
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_GZeta(Zeta,GZet,dGZdz,d2GZdz,d3GZdz)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_GZeta_d2(Zeta,GZet,dGZdz,d2GZdz,d3GZdz)
+#else
+      Subroutine nwxc_GZeta_d3(Zeta,GZet,dGZdz,d2GZdz,d3GZdz)
+#endif
+#include "nwad.fh"
       Implicit Real*8(A-H,O-Z)
 C
 C     Evaluate G(Zeta) and its derivatives for DFT.
 C
+      type(nwad_dble)::Zeta,GZet
+      type(nwad_dble)::OMZ,OMZ2,OMZ3,OPZ,OPZ2,OPZ3
       Save F0,F1,F2,F3,F4,F9,F27
       Data F0/0.0d0/,F1/1.0d0/,F2/2.0d0/,F3/3.0d0/,F4/4.0d0/,
      $     F9/9.0d0/,F27/27.0D0/
@@ -347,34 +378,48 @@ c
       OMZ3   = F0
       OPZ3   = F0
       GZet   = F0
-      dGZdz  = F0
-      d2GZdz = F0
-      d3GZdz = F0
+c     dGZdz  = F0
+c     d2GZdz = F0
+c     d3GZdz = F0
 c
       OMZ = F1-Zeta
       OPZ = F1+Zeta
-      OMZ2 = OMZ**2
-      OPZ2 = OPZ**2
+      OMZ2 = OMZ**2.0d0
+      OPZ2 = OPZ**2.0d0
       if (OMZ.gt.F0) then
         OMZ3 = OMZ**(-F1o3)
-        d2GZdz = d2GZdz-OMZ3/OMZ
-        d3GZdz = d3GZdz-OMZ3/OMZ2
+c       d2GZdz = d2GZdz-OMZ3/OMZ
+c       d3GZdz = d3GZdz-OMZ3/OMZ2
       endif
       GZet = GZet+OMZ*OMZ3
-      dGZdz = dGZdz-OMZ3
+c     dGZdz = dGZdz-OMZ3
       if (OPZ.gt.F0) then
         OPZ3 = OPZ**(-F1o3)
-        d2GZdz = d2GZdz-OPZ3/OPZ
-        d3GZdz = d3GZdz+OPZ3/OPZ2
+c       d2GZdz = d2GZdz-OPZ3/OPZ
+c       d3GZdz = d3GZdz+OPZ3/OPZ2
       endif
       GZet = GZet+OPZ*OPZ3
-      dGZdz = dGZdz+OPZ3
+c     dGZdz = dGZdz+OPZ3
 c
       GZet   = GZet/F2
-      dGZdz  = dGZdz*F1o3
-      d2GZdz = d2GZdz*F1o9
-      d3GZdz = d3GZdz*F4o27
+c     dGZdz  = dGZdz*F1o3
+c     d2GZdz = d2GZdz*F1o9
+c     d3GZdz = d3GZdz*F4o27
       Return
       End
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_sogga.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_c_sogga.F"
+#endif
 C>
 C> @}

@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_x_tpss03.F
 C> The TPSS exchange functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -46,8 +48,19 @@ c     [a] J. Tao, J.P. Perdew, V.N.Staroverov, G. Scuseria
 c         PRL 91, 146401 (2003).
 c     [b] J. Tao, J.P. Perdew, V.N.Staroverov, G. Scuseria
 c         JCP 120, 6898 (2004).
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_tpss03(tol_rho, ipol, nq, wght, 
-     &                         rho, rgamma, tau, func, Amat, Cmat, Mmat)
+     &                         rho, rgamma, tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_tpss03_d2(tol_rho, ipol, nq, wght, 
+     &                            rho, rgamma, tau, func)
+#else
+      Subroutine nwxc_x_tpss03_d3(tol_rho, ipol, nq, wght, 
+     &                            rho, rgamma, tau, func)
+#endif
+c
+#include "nwad.fh"
+c
       implicit none
 c
 #include "nwxc_param.fh"
@@ -61,25 +74,25 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c      
 c     The functional
 c
-      double precision func(*)  !< [Output] The value of the functional
+      type(nwad_dble)::func(*)  !< [Output] The value of the functional
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,*) !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] The derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] The derivative wrt tau
 c
       integer ispin,cmatpos
 c
@@ -88,26 +101,57 @@ c
 c     SPIN-RESTRICTED
 c     Ex = Ex[n]
 c
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_x_tpss03_cs(1.0d0, tol_rho, ipol, nq, wght,
-     &                      rho, rgamma, tau, func, Amat, Cmat, Mmat)
+     &                      rho, rgamma, tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_x_tpss03_cs_d2(1.0d0, tol_rho, ipol, nq, wght,
+     &                      rho, rgamma, tau, func)
+#else
+         call nwxc_x_tpss03_cs_d3(1.0d0, tol_rho, ipol, nq, wght,
+     &                      rho, rgamma, tau, func)
+#endif
       else
 c     
 c     SPIN-UNRESTRICTED
 c     Ex = Ex[2n_up]/2 + Ex[2n_down]/2
 
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_x_tpss03_cs(2.0d0, tol_rho, ipol, nq, wght,
      &                      rho(1,R_A), rgamma(1,G_AA), tau(1,T_A),
-     &                      func, Amat(1,D1_RA), Cmat(1,D1_GAA),
-     &                      Mmat(1,D1_TA))
+     &                      func)
          call nwxc_x_tpss03_cs(2.0d0, tol_rho, ipol, nq, wght,
      &                      rho(1,R_B), rgamma(1,G_BB), tau(1,T_B),
-     &                      func, Amat(1,D1_RB), Cmat(1,D1_GBB),
-     &                      Mmat(1,D1_TB))
+     &                      func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_x_tpss03_cs_d2(2.0d0, tol_rho, ipol, nq, wght,
+     &                      rho(1,R_A), rgamma(1,G_AA), tau(1,T_A),
+     &                      func)
+         call nwxc_x_tpss03_cs_d2(2.0d0, tol_rho, ipol, nq, wght,
+     &                      rho(1,R_B), rgamma(1,G_BB), tau(1,T_B),
+     &                      func)
+#else
+         call nwxc_x_tpss03_cs_d3(2.0d0, tol_rho, ipol, nq, wght,
+     &                      rho(1,R_A), rgamma(1,G_AA), tau(1,T_A),
+     &                      func)
+         call nwxc_x_tpss03_cs_d3(2.0d0, tol_rho, ipol, nq, wght,
+     &                      rho(1,R_B), rgamma(1,G_BB), tau(1,T_B),
+     &                      func)
+#endif
       endif
       return
       end
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_tpss03_cs(facttwo, tol_rho, ipol, nq, wght,
-     &                      rho, rgamma, tau, func, Amat, Cmat, Mmat)
+     &                      rho, rgamma, tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_tpss03_cs_d2(facttwo, tol_rho, ipol, nq, wght,
+     &                      rho, rgamma, tau, func)
+#else
+      Subroutine nwxc_x_tpss03_cs_d3(facttwo, tol_rho, ipol, nq, wght,
+     &                      rho, rgamma, tau, func)
+#endif
+#include "nwad.fh"
       implicit none
 c
 c     Input and other parameters
@@ -122,39 +166,39 @@ c
 c      
 c     Charge Density
 c
-      double precision rho(nq) !< [Input] The density
+      type(nwad_dble)::rho(nq) !< [Input] The density
 c   
 c     Charge Density Gradient
 c
-      double precision rgamma(nq) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq) !< [Input] The norm of the density gradients
 c   
 c     Kinetic Energy Density 
 c   
-      double precision tau(nq) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq) !< [Input] The kinetic energy density
 c      
 c     The functional
 c
-      double precision func(*)  !< [Output] The value of the functional
+      type(nwad_dble)::func(*)  !< [Output] The value of the functional
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq) !< [Output] The derivative wrt rho
-      double precision Cmat(nq) !< [Output] The derivative wrt rgamma
-      double precision Mmat(nq) !< [Output] The derivative wrt tau
+c     double precision Amat(nq) !< [Output] The derivative wrt rho
+c     double precision Cmat(nq) !< [Output] The derivative wrt rgamma
+c     double precision Mmat(nq) !< [Output] The derivative wrt tau
 c
       double precision pi
       integer n
-      double precision rrho, rho43, rho13, gamma
-      double precision tauN, tauW, tauU
+      type(nwad_dble)::rrho, rho43, rho13, gamma
+      type(nwad_dble)::tauN, tauW, tauU
 
-      double precision  p, qtil, x,  al, mt, z
+      type(nwad_dble):: p, qtil, x,  al, mt, z
       double precision   F83, F23, F53, F43, F13
       double precision   G920 
       double precision  b,c,e,es
       double precision    C1, C2, C3
       double precision    kap, mu
-      double precision xb,xc,xd
-      double precision x1,x2,x3,x4,x5,x6,x7
+      type(nwad_dble)::xb,xc,xd
+      type(nwad_dble)::x1,x2,x3,x4,x5,x6,x7
       double precision   P32, Ax
 c     functional derivatives below FFFFFFFFFFFF
       double precision dzdn, dpdn, daldn, dqtdn
@@ -180,7 +224,7 @@ c     functional derivatives below FFFFFFFFFFFF
       double precision dx5dt
       double precision dxmanydt, dxdt, dmtdt, derivt
       double precision afact2
-      double precision rhoval
+      type(nwad_dble)::rhoval
       
 c     functional derivatives above FFFFFFFFFFFF
       
@@ -213,7 +257,7 @@ c     = n* Ax*n^(1/3)   or n*C*n^(1/3)
             
 C     Below we just sum up the LDA contribution to the functional
             func(n)= func(n) + rho43*wght*afact2
-            Amat(n) = Amat(n) + F43*rho13*wght
+c           Amat(n) = Amat(n) + F43*rho13*wght
 
 c     
 c           gamma = delrho(n,1)*delrho(n,1) +
@@ -236,14 +280,14 @@ c     al=dabs(al)
             qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0)) +
      +           F23*p
             
-            xb=(c*z**2)/( (1+z**2)**2 )
+            xb=(c*z**2.0d0)/( (1.0d0+z**2.0d0)**2.0d0 )
             x1=(C1 + xb)*p
             x2=C2*qtil*qtil
             xc=C3*qtil
-            xd=(0.5d0*(.6d0*z)**2  + .5d0*p*p)**.5d0
+            xd=(0.5d0*(.6d0*z)**2.0d0  + .5d0*p*p)**.5d0
             x3=xc*xd
             x4=C1*C1*p*p/kap
-            x5=2.d0*es*C1*(.6d0*z)**2
+            x5=2.d0*es*C1*(.6d0*z)**2.0d0
             x6= e*mu*p*p*p
             x7 = (1.d0+es*p)**(-2.d0)
             
@@ -254,107 +298,116 @@ c     al=dabs(al)
 c     functional derivatives FFFFFFFFFFFFFFFFFFFFFFFFFFFF
          
 C     Derivatives wrt n, density   below
-            dzdn=-z*rrho
-            dpdn = -p*rrho*F83
-            daldn=F53*( -p*dzdn/z**2 +dpdn*(-1.d0+1.d0/z) )
-            
-            til1=al-1.d0
-            til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
-            dtil1dn=daldn
-            dtil2dn=b*daldn*(2.d0*al-1d0)*
-     &           (-.5d0)*(til2**3)
-            dqtdn = G920*(til2*dtil1dn+til1*dtil2dn)+F23*dpdn
-            
-            ax1=c*p*z*z
-            bx1=(1+z*z)**(-2.d0)
-            dx1dn=(x1/p)*dpdn + 2d0*c*p*z*dzdn/((1d0+z*z)**3)*(1d0-z*z)
-            dx2dn=2.d0*C2*qtil*dqtdn
-            
-            dxddn=.5d0/xd*( (3d0/5d0)**2*z*dzdn +
-     +           p*dpdn)
-            dxcdn=C3*dqtdn
-            dx3dn=xc*dxddn+xd*dxcdn
-            
-            dx4dn=(2.d0*x4/p)*dpdn
-            dx5dn=(2.d0*x5/z)*dzdn
-            dx6dn=(3.d0*x6/p)*dpdn
-            dx7dn=-2.d0*es*dpdn/(1.d0+es*p)**3
-            
-            xmany=x1+x2+x3 +x4 +x5+x6
-            dxmanydn= dx1dn+dx2dn+dx3dn+dx4dn+dx5dn+dx6dn
-            dxdn=x7*dxmanydn+xmany*dx7dn
+c           dzdn=-z*rrho
+c           dpdn = -p*rrho*F83
+c           daldn=F53*( -p*dzdn/z**2 +dpdn*(-1.d0+1.d0/z) )
+c           
+c           til1=al-1.d0
+c           til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
+c           dtil1dn=daldn
+c           dtil2dn=b*daldn*(2.d0*al-1d0)*
+c    &           (-.5d0)*(til2**3)
+c           dqtdn = G920*(til2*dtil1dn+til1*dtil2dn)+F23*dpdn
+c           
+c           ax1=c*p*z*z
+c           bx1=(1+z*z)**(-2.d0)
+c           dx1dn=(x1/p)*dpdn + 2d0*c*p*z*dzdn/((1d0+z*z)**3)*(1d0-z*z)
+c           dx2dn=2.d0*C2*qtil*dqtdn
+c           
+c           dxddn=.5d0/xd*( (3d0/5d0)**2*z*dzdn +
+c    +           p*dpdn)
+c           dxcdn=C3*dqtdn
+c           dx3dn=xc*dxddn+xd*dxcdn
+c           
+c           dx4dn=(2.d0*x4/p)*dpdn
+c           dx5dn=(2.d0*x5/z)*dzdn
+c           dx6dn=(3.d0*x6/p)*dpdn
+c           dx7dn=-2.d0*es*dpdn/(1.d0+es*p)**3
+c           
+c           xmany=x1+x2+x3 +x4 +x5+x6
+c           dxmanydn= dx1dn+dx2dn+dx3dn+dx4dn+dx5dn+dx6dn
+c           dxdn=x7*dxmanydn+xmany*dx7dn
 C     Derivatives wrt n, density   above
             
 C     Derivatives wrt gamma,    below
          
-            dpdg=p/gamma
-            dzdg=z/gamma
-            daldg=(al/p)*dpdg-F53*(p/(z*z))*dzdg
-            
-            dtil2dg=-0.5d0*daldg*b*(2.d0*al-1d0)*til2**3.d0
-            dqtdg=G920*(til1*dtil2dg+til2*daldg)+F23*dpdg
-            dx1dg=(x1/p)*dpdg + 2d0*c*p*z*dzdg/((1d0+z*z)**3)*(1d0-z*z)
-         
-            dx2dg=C2*2.d0*qtil*dqtdg
-         
-            dxcdg=C3*dqtdg
-            dxddg=.5d0/xd*( (3d0/5d0)**2*z*dzdg +
-     +           p*dpdg)
-            dx3dg=xc*dxddg+xd*dxcdg
-         
-            dx4dg=(2.d0*x4/p)*dpdg
-            dx5dg=(2.d0*x5/z)*dzdg
-            dx6dg=(3.d0*x6/p)*dpdg
-         
-            dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
-         
-            dxmanydg= dx1dg+dx2dg+dx3dg+dx4dg+dx5dg+dx6dg
-            dxdg=x7*dxmanydg+xmany*dx7dg
+c           dpdg=p/gamma
+c           dzdg=z/gamma
+c           daldg=(al/p)*dpdg-F53*(p/(z*z))*dzdg
+c           
+c           dtil2dg=-0.5d0*daldg*b*(2.d0*al-1d0)*til2**3.d0
+c           dqtdg=G920*(til1*dtil2dg+til2*daldg)+F23*dpdg
+c           dx1dg=(x1/p)*dpdg + 2d0*c*p*z*dzdg/((1d0+z*z)**3)*(1d0-z*z)
+c        
+c           dx2dg=C2*2.d0*qtil*dqtdg
+c        
+c           dxcdg=C3*dqtdg
+c           dxddg=.5d0/xd*( (3d0/5d0)**2*z*dzdg +
+c    +           p*dpdg)
+c           dx3dg=xc*dxddg+xd*dxcdg
+c        
+c           dx4dg=(2.d0*x4/p)*dpdg
+c           dx5dg=(2.d0*x5/z)*dzdg
+c           dx6dg=(3.d0*x6/p)*dpdg
+c        
+c           dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
+c        
+c           dxmanydg= dx1dg+dx2dg+dx3dg+dx4dg+dx5dg+dx6dg
+c           dxdg=x7*dxmanydg+xmany*dx7dg
 
 C     Derivatives wrt tau,    below
 c     ttttttttttttttttttttttttttttttttttttttttttttttttt
-            dzdt= -z/tauN
-            daldt=1.d0/tauU
-         
-            dqtdt=g920*daldt*til2*(1d0-
-     -           0.5d0*b*til1*til2*til2*(2d0*al-1d0))
-            
-            dx1dt=c*p*dzdt*2d0*z*(1d0-z*z)/((1.d0+z*z)**3)
-            dx2dt=2*c2*qtil*dqtdt
-            dx3dt=x3*(dqtdt/qtil +
-     &           0.5d0*(3d0/5d0)**2*z*dzdt/(xd*xd))
-            dx5dt=2d0*(x5/z)*dzdt
-            
-            dxmanydt= dx1dt+dx2dt+dx3dt+dx5dt
-            dxdt=x7*dxmanydt
+c           dzdt= -z/tauN
+c           daldt=1.d0/tauU
+c        
+c           dqtdt=g920*daldt*til2*(1d0-
+c    -           0.5d0*b*til1*til2*til2*(2d0*al-1d0))
+c           
+c           dx1dt=c*p*dzdt*2d0*z*(1d0-z*z)/((1.d0+z*z)**3)
+c           dx2dt=2*c2*qtil*dqtdt
+c           dx3dt=x3*(dqtdt/qtil +
+c    &           0.5d0*(3d0/5d0)**2*z*dzdt/(xd*xd))
+c           dx5dt=2d0*(x5/z)*dzdt
+c           
+c           dxmanydt= dx1dt+dx2dt+dx3dt+dx5dt
+c           dxdt=x7*dxmanydt
 c     ttttttttttttttttttttttttttttttttttttttttttttttttttt
 
             mt = kap - kap/(1.d0 + x/kap)
             
             func(n)= func(n) + mt*rho43*wght*afact2
             
-            dmtdn=dxdn/(1.d0+x/kap)**2
-            derivn=mt*F43*rho13+rho43*dmtdn
+c           dmtdn=dxdn/(1.d0+x/kap)**2
+c           derivn=mt*F43*rho13+rho43*dmtdn
             
-            dmtdg=dxdg/(1.d0+x/kap)**2
-            derivg = rho43*dmtdg
-         
-            dmtdt=dxdt/(1.d0+x/kap)**2
-            derivt = rho43*dmtdt
-            Amat(n) = Amat(n) + derivn*wght
+c           dmtdg=dxdg/(1.d0+x/kap)**2
+c           derivg = rho43*dmtdg
+c        
+c           dmtdt=dxdt/(1.d0+x/kap)**2
+c           derivt = rho43*dmtdt
+c           Amat(n) = Amat(n) + derivn*wght
 c     
 c     4x factor comes from gamma_aa = gamma_total/4
 c     
-            Cmat(n)=  Cmat(n) + 2d0*derivg*wght
-            Mmat(n)=  Mmat(n) +0.5d0*derivt*wght
+c           Cmat(n)=  Cmat(n) + 2d0*derivg*wght
+c           Mmat(n)=  Mmat(n) +0.5d0*derivt*wght
          endif
       enddo
       return
       end
-
-      Subroutine nwxc_x_tpss03_d2()
-      call errquit(' xtpss03: d2 not coded ',0,0)
-      return
-      end
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_tpss03.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_x_tpss03.F"
+#endif
 C>
 C> @}

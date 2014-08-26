@@ -22,3 +22,4 @@
           type(nwad_dble)::func(*)
         end subroutine
       end interface
+c $Id$

@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_c_m11.F
 C> Implementation of the M08 and M11 correlation functionals
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -39,8 +41,16 @@ C>     J. Phys. Chem. Lett. <b>3</b>, 117-124 (2011), DOI:
 C>     <a href="http://dx.doi.org/10.1021/jz201525m">
 C>     10.1021/jz201525m</a>.
 C>
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_m11(param, tol_rho, ipol, nq, wght, rho, rgamma,
-     &                      tau, func, Amat, Cmat, Mmat)
+     &                      tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_c_m11_d2(param, tol_rho, ipol, nq, wght, 
+     &                         rho, rgamma, tau, func)
+#else
+      Subroutine nwxc_c_m11_d3(param, tol_rho, ipol, nq, wght, 
+     &                         rho, rgamma, tau, func)
+#endif
 
 c
 c$Id$
@@ -63,7 +73,9 @@ c       ijzy - 4 M11-L (c)                                             c
 c                                                                      c
 c Coded by Roberto Peverati (12/11)                                    c
 c                                                                      c
-c**********************************************************************c    
+c**********************************************************************c
+c
+#include "nwad.fh"
 c
       implicit none
 c
@@ -104,25 +116,25 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient Norm
 c
-      double precision rgamma(nq,*) !< [Input] The density gradient norm
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The density gradient norm
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c
 c     Functional values
 c
-      double precision func(*) !< [Output] The functional value
+      type(nwad_dble)::func(*) !< [Output] The functional value
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision Amat(nq,*) !< [Output] Derivative wrt density
-      double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] Derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] Derivative wrt density
+c     double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] Derivative wrt tau
 c
 c     Constants in PBE functional
 c
@@ -135,8 +147,8 @@ c     Threshold parameters
 c
       double precision EXPTOL
       parameter (EXPTOL = 40.0d0)
-      double precision rho_t(3)
-      double precision dsqgamma
+      type(nwad_dble)::rho_t(3)
+      type(nwad_dble)::dsqgamma
 c
 c     Intermediate derivative results, etc.
 c
@@ -146,8 +158,8 @@ c
       double precision at6, at7, at8, at9, at10, at11
       double precision bt0, bt1,  bt2, bt3, bt4, bt5
       double precision bt6, bt7, bt8, bt9, bt10, bt11
-      double precision rhoa, rhob, rhoval, gammaval, TA, TB
-      double precision E1, E2
+      type(nwad_dble)::rhoa, rhob, rhoval, gammaval, TA, TB
+      type(nwad_dble)::E1, E2
       double precision de1drb, de2dga, de2dgb, de2dgc, de2dk, de2dra
       double precision de2drb, df1dr, df1dtau, df1dw, df2dr, df2dtau
       double precision de2dgaa, de2dgab, de2dgbb
@@ -155,27 +167,31 @@ c
       double precision df2dw, dggadga, dggadgb, dggadgc, dggadra
       double precision dggadrb, dgrhody, dhdga, dhdgb, dhdgc, dhdy
       double precision dlsdadra, dlsdadrb, dtdr, dtdtau, dwdt
-      double precision fsig1, fsig2
-      double precision taup, tauueg, tsig, wsig 
+      type(nwad_dble)::fsig1, fsig2
+      type(nwad_dble)::taup, tauueg, tsig, wsig 
       
-      double precision nepsc, dnepscdn(2)
-      double precision epsc, depscdna, depscdnb
-      double precision H0, dH0dna, dH0dnb, dH0dg
+      type(nwad_dble)::nepsc(1),epsc
+      double precision dnepscdn(2)
+      double precision depscdna, depscdnb
+      type(nwad_dble)::H0
+      double precision dH0dna, dH0dnb, dH0dg
 
-      double precision phi, dphidna, dphidnb, dphidzeta
-      double precision zeta, dzetadna, dzetadnb
-      double precision arglog, darglogdna, darglogdnb, darglogdg
-      double precision fAt, dfAtdt, dfAtdA
-      double precision fAtnum, dfAtnumdt, dfAtnumdA
-      double precision fAtden, dfAtdendt, dfAtdendA
+      type(nwad_dble)::phi,zeta,arglog,fAt,fAtnum,fAtden,A,t,ks
+      type(nwad_dble)::argexp
+      double precision dphidna, dphidnb, dphidzeta
+      double precision dzetadna, dzetadnb
+      double precision darglogdna, darglogdnb, darglogdg
+      double precision dfAtdt, dfAtdA
+      double precision dfAtnumdt, dfAtnumdA
+      double precision dfAtdendt, dfAtdendA
       double precision dfAtdna, dfAtdnb, dfAtdg
-      double precision A, dAdna, dAdnb
-      double precision t, dtdna, dtdnb, dtdg
-      double precision ks, dksdna, dksdnb
-      double precision argexp, dargexpdna, dargexpdnb
-      double precision expinA
+      double precision dAdna, dAdnb
+      double precision dtdna, dtdnb, dtdg
+      double precision dksdna, dksdnb
+      double precision dargexpdna, dargexpdnb
+      type(nwad_dble)::expinA
     
-      double precision LSDA,GGA
+      type(nwad_dble)::LSDA,GGA
  
       double precision f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11
       double precision f1o3, f2o3, f4o3, f5o3     
@@ -386,17 +402,18 @@ c    &             delrho(n,3,2)*delrho(n,3,2) +
 c    &       2.d0*(delrho(n,1,1)*delrho(n,1,2) +
 c    &             delrho(n,2,1)*delrho(n,2,2) +
 c    &             delrho(n,3,1)*delrho(n,3,2))
-        gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2*rgamma(n,G_AB)
+        gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
         TA =  tau(n,T_A)
         TB =  tau(n,T_B)
       endif
       RHOVAL  = RHOA + RHOB
       TauP = TA+TB
-      dsqgamma = max(dsqrt(gammaval),tol_rho)
-      if (dabs(rhoval).le.tol_rho) goto 20
-      if(taup.lt.tol_rho) goto 20 
+      t = tol_rho
+      dsqgamma = max(sqrt(gammaval),t)
+      if (rhoval.le.tol_rho) goto 20
+      if (taup.lt.tol_rho) goto 20 
 c
-      nepsc = 0.0d0
+      nepsc(1) = 0.0d0
       dnepscdn(1) = 0.0d0
       if (ipol.eq.2) dnepscdn(2) = 0.0d0
 c
@@ -407,27 +424,35 @@ c
 c           call xc_pw91lda(tol_rho,1d0,.true.,.false.,rho_t,
 c    &         dnepscdn,1,ipol,nepsc,1d0,
 c    &         .false.,dummy)
-            call nwxc_c_pw91lda(tol_rho,ipol,1,1.0d0,rho_t,
-     &           nepsc,dnepscdn)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_pw91lda(tol_rho,ipol,1,1.0d0,rho_t,
+     &        nepsc)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_pw91lda_d2(tol_rho,ipol,1,1.0d0,rho_t,
+     &        nepsc)
+#else
+         call nwxc_c_pw91lda_d3(tol_rho,ipol,1,1.0d0,rho_t,
+     &        nepsc)
+#endif
         
 c
 c        PBE non-local part
 c        This part is a modified version of xc_cMpbe96.F
 c
-         if(abs(nepsc).lt.tol_rho*tol_rho) goto 20
+         if(abs(nepsc(1)).lt.tol_rho*tol_rho) goto 20
 c
-         epsc = nepsc/rhoval
-         if (ipol.eq.1) then
-            depscdna = dnepscdn(1)/rhoval-nepsc/(rhoval**2)
-            depscdnb = depscdna
-         else
-            depscdna = dnepscdn(1)/rhoval-nepsc/(rhoval**2)
-            depscdnb = dnepscdn(2)/rhoval-nepsc/(rhoval**2)
-         endif
+         epsc = nepsc(1)/rhoval
+c        if (ipol.eq.1) then
+c           depscdna = dnepscdn(1)/rhoval-nepsc/(rhoval**2)
+c           depscdnb = depscdna
+c        else
+c           depscdna = dnepscdn(1)/rhoval-nepsc/(rhoval**2)
+c           depscdnb = dnepscdn(2)/rhoval-nepsc/(rhoval**2)
+c        endif
 c
          ks = 2.0d0*(3.0d0*PI*PI*rhoval)**(1.0d0/6.0d0)/dsqrt(PI)
-         dksdna = (1.0d0/6.0d0)*ks/rhoval
-         dksdnb = dksdna
+c        dksdna = (1.0d0/6.0d0)*ks/rhoval
+c        dksdnb = dksdna
 c
          if (ipol.eq.1) then
             zeta = 0.0d0
@@ -436,72 +461,78 @@ c
          endif
          if(zeta.lt.-1.0d0) zeta=-1.0d0
          if(zeta.gt. 1.0d0) zeta= 1.0d0
-         if (ipol.eq.1) then
-            dzetadna = 1.0d0/rhoval
-            dzetadnb = -1.0d0/rhoval
-         else
-            dzetadna =  2.0d0*rho(n,R_B)/(rhoval**2)
-            dzetadnb = -2.0d0*rho(n,R_A)/(rhoval**2)
+         phi = 0.0d0
+         if (1.0d0+zeta.gt.1.0d-10) then
+           phi = phi + 0.5d0*(1.0d0+zeta)**(2.0d0/3.0d0)
          endif
-c
-         phi = 0.5d0*((1.0d0+zeta)**(2.0d0/3.0d0)
-     &               +(1.0d0-zeta)**(2.0d0/3.0d0))
-         if (dabs(1.0d0-zeta).lt.tol_rho) then
-            dphidzeta = 0.5d0*(2.0d0/3.0d0)*(
-     &             (1.0d0+zeta)**(2.0d0/3.0d0)/(1.0d0+zeta))
-         else if (dabs(1.0d0+zeta).lt.tol_rho) then
-            dphidzeta = 0.5d0*(2.0d0/3.0d0)*(
-     &            -(1.0d0-zeta)**(2.0d0/3.0d0)/(1.0d0-zeta))
-         else
-            dphidzeta = 0.5d0*(2.0d0/3.0d0)*(
-     &         (1.0d0+zeta)**(2.0d0/3.0d0)/(1.0d0+zeta)
-     &        -(1.0d0-zeta)**(2.0d0/3.0d0)/(1.0d0-zeta))
+         if (1.0d0-zeta.gt.1.0d-10) then
+           phi = phi + 0.5d0*(1.0d0-zeta)**(2.0d0/3.0d0)
          endif
-         dphidna = dphidzeta*dzetadna
-         dphidnb = dphidzeta*dzetadnb
+c        if (ipol.eq.1) then
+c           dzetadna = 1.0d0/rhoval
+c           dzetadnb = -1.0d0/rhoval
+c        else
+c           dzetadna =  2.0d0*rho(n,R_B)/(rhoval**2)
+c           dzetadnb = -2.0d0*rho(n,R_A)/(rhoval**2)
+c        endif
+c        phi = 0.5d0*((1.0d0+zeta)**(2.0d0/3.0d0)
+c    &               +(1.0d0-zeta)**(2.0d0/3.0d0))
+c        if (dabs(1.0d0-zeta).lt.tol_rho) then
+c           dphidzeta = 0.5d0*(2.0d0/3.0d0)*(
+c    &             (1.0d0+zeta)**(2.0d0/3.0d0)/(1.0d0+zeta))
+c        else if (dabs(1.0d0+zeta).lt.tol_rho) then
+c           dphidzeta = 0.5d0*(2.0d0/3.0d0)*(
+c    &            -(1.0d0-zeta)**(2.0d0/3.0d0)/(1.0d0-zeta))
+c        else
+c           dphidzeta = 0.5d0*(2.0d0/3.0d0)*(
+c    &         (1.0d0+zeta)**(2.0d0/3.0d0)/(1.0d0+zeta)
+c    &        -(1.0d0-zeta)**(2.0d0/3.0d0)/(1.0d0-zeta))
+c        endif
+c        dphidna = dphidzeta*dzetadna
+c        dphidnb = dphidzeta*dzetadnb
 c
          t = dsqgamma/(2.0d0*phi*ks*rhoval)
-         dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
-         dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
+c        dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
+c        dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
 c
-         argexp = -epsc/GAMMA/(phi**3)
-         dargexpdna = -depscdna/GAMMA/(phi**3)
-     &                +3.0d0*epsc/GAMMA/(phi**4)*dphidna
-         dargexpdnb = -depscdnb/GAMMA/(phi**3)
-     &                +3.0d0*epsc/GAMMA/(phi**4)*dphidnb
+         argexp = -epsc/GAMMA/(phi**3.0d0)
+c        dargexpdna = -depscdna/GAMMA/(phi**3)
+c    &                +3.0d0*epsc/GAMMA/(phi**4)*dphidna
+c        dargexpdnb = -depscdnb/GAMMA/(phi**3)
+c    &                +3.0d0*epsc/GAMMA/(phi**4)*dphidnb
 c
-         if (dabs(argexp).lt.EXPTOL) then
-            expinA=dexp(argexp)
+         if (abs(argexp).lt.EXPTOL) then
+            expinA=exp(argexp)
          else
             expinA=0.0d0
          endif
          A = BETA/GAMMA/(expinA-1.0d0)
-         dAdna = -BETA/GAMMA*dargexpdna*expinA/(expinA-1.0d0)**2
-         dAdnb = -BETA/GAMMA*dargexpdnb*expinA/(expinA-1.0d0)**2
+c        dAdna = -BETA/GAMMA*dargexpdna*expinA/(expinA-1.0d0)**2
+c        dAdnb = -BETA/GAMMA*dargexpdnb*expinA/(expinA-1.0d0)**2
 c
-         fAtnum = 1.0d0+A*t**2
-         fAtden = 1.0d0+A*t**2+A**2*t**4
+         fAtnum = 1.0d0+A*t**2.0d0
+         fAtden = 1.0d0+A*t**2.0d0+A**2.0d0*t**4.0d0
          fAt = fAtnum/fAtden
-         dfAtnumdt = 2.0d0*A*t
-         dfAtnumdA = t**2
-         dfAtdendt = 2.0d0*A*t+4.0d0*A**2*t**3
-         dfAtdendA = t**2+2.0d0*A*t**4
-         dfAtdt = (dfAtnumdt*fAtden-fAtnum*dfAtdendt)/(fAtden**2)
-         dfAtdA = (dfAtnumdA*fAtden-fAtnum*dfAtdendA)/(fAtden**2)
-         dfAtdna = dfAtdt * dtdna + dfAtdA * dAdna
-         dfAtdnb = dfAtdt * dtdnb + dfAtdA * dAdnb
+c        dfAtnumdt = 2.0d0*A*t
+c        dfAtnumdA = t**2
+c        dfAtdendt = 2.0d0*A*t+4.0d0*A**2*t**3
+c        dfAtdendA = t**2+2.0d0*A*t**4
+c        dfAtdt = (dfAtnumdt*fAtden-fAtnum*dfAtdendt)/(fAtden**2)
+c        dfAtdA = (dfAtnumdA*fAtden-fAtnum*dfAtdendA)/(fAtden**2)
+c        dfAtdna = dfAtdt * dtdna + dfAtdA * dAdna
+c        dfAtdnb = dfAtdt * dtdnb + dfAtdA * dAdnb
 c
-         arglog = 1.0d0 + BETA/GAMMA*t**2*fAt
-         darglogdna = BETA/GAMMA*(2.0d0*t*dtdna*fAt
-     &                            +t*t*dfAtdna)
-         darglogdnb = BETA/GAMMA*(2.0d0*t*dtdnb*fAt
-     &                            +t*t*dfAtdnb)
+         arglog = 1.0d0 + BETA/GAMMA*t**2.0d0*fAt
+c        darglogdna = BETA/GAMMA*(2.0d0*t*dtdna*fAt
+c    &                            +t*t*dfAtdna)
+c        darglogdnb = BETA/GAMMA*(2.0d0*t*dtdnb*fAt
+c    &                            +t*t*dfAtdnb)
 c
-         H0 = GAMMA*(phi**3)*dlog(arglog)
-         dH0dna = GAMMA*(3.0d0*(phi**2)*dphidna*dlog(arglog)
-     &                  +(phi**3)*darglogdna/arglog)
-         dH0dnb = GAMMA*(3.0d0*(phi**2)*dphidnb*dlog(arglog)
-     &                  +(phi**3)*darglogdnb/arglog)       
+         H0 = GAMMA*(phi**3.0d0)*log(arglog)
+c        dH0dna = GAMMA*(3.0d0*(phi**2)*dphidna*dlog(arglog)
+c    &                  +(phi**3)*darglogdna/arglog)
+c        dH0dnb = GAMMA*(3.0d0*(phi**2)*dphidnb*dlog(arglog)
+c    &                  +(phi**3)*darglogdnb/arglog)       
 c
         TauUEG=F3*(F3*Pi*Pi)**F2o3*rhoval**F5o3/F10
         Tsig =TauUEG/TauP
@@ -520,71 +551,80 @@ c
 c
 c        derivatives of the meta-GGA part, and total
 c
-         dF1dW=( at1 + Wsig*(F2  *at2 + Wsig*(F3*at3 + Wsig*(
-     &            F4 *at4 + Wsig*(F5 *at5 + Wsig*(F6  *at6 + Wsig*(
-     &            F7*at7 + Wsig*(F8*at8 + Wsig*(F9 *at9 + Wsig*(
-     &            F10  *at10+ Wsig*F11*at11))))))))))
-         dF2dW=( bt1 + Wsig*(F2  *bt2 + Wsig*(F3*bt3 + Wsig*(
-     &            F4 *bt4 + Wsig*(F5 *bt5 + Wsig*(F6  *bt6 + Wsig*(
-     &            F7*bt7 + Wsig*(F8*bt8 + Wsig*(F9 *bt9 + Wsig*(
-     &            F10  *bt10+ Wsig*F11*bt11))))))))))
-         dWdT = F2/((F1 + Tsig)**F2)
-         dTdR = Tsig*F5/(F3*rhoval) 
-         dTdTau = -Tsig/TauP
-         dF1dR = dF1dW*dWdT*dTdR
-         dF1dTau=dF1dW*dWdT*dTdTau
-         dF2dR = dF2dW*dWdT*dTdR
-         dF2dTau=dF2dW*dWdT*dTdTau
+c        dF1dW=( at1 + Wsig*(F2  *at2 + Wsig*(F3*at3 + Wsig*(
+c    &            F4 *at4 + Wsig*(F5 *at5 + Wsig*(F6  *at6 + Wsig*(
+c    &            F7*at7 + Wsig*(F8*at8 + Wsig*(F9 *at9 + Wsig*(
+c    &            F10  *at10+ Wsig*F11*at11))))))))))
+c        dF2dW=( bt1 + Wsig*(F2  *bt2 + Wsig*(F3*bt3 + Wsig*(
+c    &            F4 *bt4 + Wsig*(F5 *bt5 + Wsig*(F6  *bt6 + Wsig*(
+c    &            F7*bt7 + Wsig*(F8*bt8 + Wsig*(F9 *bt9 + Wsig*(
+c    &            F10  *bt10+ Wsig*F11*bt11))))))))))
+c        dWdT = F2/((F1 + Tsig)**F2)
+c        dTdR = Tsig*F5/(F3*rhoval) 
+c        dTdTau = -Tsig/TauP
+c        dF1dR = dF1dW*dWdT*dTdR
+c        dF1dTau=dF1dW*dWdT*dTdTau
+c        dF2dR = dF2dW*dWdT*dTdR
+c        dF2dTau=dF2dW*dWdT*dTdTau
 
-         dLSDAdRA=dnepscdn(1)
-         if (ipol.eq.2) dLSDAdRB=dnepscdn(2)
-         dGGAdRA=rhoval*dH0dna+H0
-         if (ipol.eq.2) dGGAdRB=rhoval*dH0dnb+H0
+c        dLSDAdRA=dnepscdn(1)
+c        if (ipol.eq.2) dLSDAdRB=dnepscdn(2)
+c        dGGAdRA=rhoval*dH0dna+H0
+c        if (ipol.eq.2) dGGAdRB=rhoval*dH0dnb+H0
 C
-         dE1dRA = dLSDAdRA*Fsig1 + LSDA*dF1dR
-         dE1dRB = 0.0d0
-         if (ipol.eq.2) dE1dRB = dLSDAdRB*Fsig1 + LSDA*dF1dR
+c        dE1dRA = dLSDAdRA*Fsig1 + LSDA*dF1dR
+c        dE1dRB = 0.0d0
+c        if (ipol.eq.2) dE1dRB = dLSDAdRB*Fsig1 + LSDA*dF1dR
 C
-         dE2dRA = dGGAdRA*Fsig2 + GGA*dF2dR
-         dE2dRB = 0.0d0
-         if (ipol.eq.2) dE2dRB = dGGAdRB*Fsig2 + GGA*dF2dR 
+c        dE2dRA = dGGAdRA*Fsig2 + GGA*dF2dR
+c        dE2dRB = 0.0d0
+c        if (ipol.eq.2) dE2dRB = dGGAdRB*Fsig2 + GGA*dF2dR 
 c
-         dtdg = 0.25d0/(phi*ks*rhoval)/dsqgamma
-         dfAtdg = dfAtdt*dtdg
-         darglogdg = BETA/GAMMA*(2.0d0*t*dtdg*fAt+t*t*dfAtdg)
-         dH0dg = GAMMA*(phi**3)*darglogdg/arglog
+c        dtdg = 0.25d0/(phi*ks*rhoval)/dsqgamma
+c        dfAtdg = dfAtdt*dtdg
+c        darglogdg = BETA/GAMMA*(2.0d0*t*dtdg*fAt+t*t*dfAtdg)
+c        dH0dg = GAMMA*(phi**3)*darglogdg/arglog
 C
-         dE2dGAA =    rhoval*dH0dg*Fsig2
-         dE2dGAB = F2*rhoval*dH0dg*Fsig2
-         dE2dGBB =    rhoval*dH0dg*Fsig2
+c        dE2dGAA =    rhoval*dH0dg*Fsig2
+c        dE2dGAB = F2*rhoval*dH0dg*Fsig2
+c        dE2dGBB =    rhoval*dH0dg*Fsig2
 c
-         dE1dK = LSDA*dF1dTau
-         dE2dK = GGA*dF2dTau
+c        dE1dK = LSDA*dF1dTau
+c        dE2dK = GGA*dF2dTau
 c
 c        Ec = Ec+ (E1+E2)*qwght(n)
          func(n) = func(n)+(E1+E2)*wght
-         Amat(n,D1_RA) = Amat(n,D1_RA) + (dE1dRA + dE2dRA)*wght
-         if (ipol.eq.2) then
-           Amat(n,D1_RB) = Amat(n,D1_RB) + (dE1dRB+dE2dRB)*wght
-         endif
-         if (ipol.eq.1) then
-           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dE2dGAA*wght
-           Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dE2dGAB*wght
-         else
-           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dE2dGAA*wght
-           Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dE2dGAB*wght
-           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dE2dGBB*wght
-         endif
-         Mmat(n,D1_TA)=Mmat(n,D1_TA)+ (de1dk+de2dk)/F2*wght
-         if (ipol.eq.2) then
-           Mmat(n,D1_TB)=Mmat(n,D1_TB)+(de1dk+de2dk)/F2*wght
-         endif
+c        Amat(n,D1_RA) = Amat(n,D1_RA) + (dE1dRA + dE2dRA)*wght
+c        if (ipol.eq.2) then
+c          Amat(n,D1_RB) = Amat(n,D1_RB) + (dE1dRB+dE2dRB)*wght
+c        endif
+c        if (ipol.eq.1) then
+c          Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dE2dGAA*wght
+c          Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dE2dGAB*wght
+c        else
+c          Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dE2dGAA*wght
+c          Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + dE2dGAB*wght
+c          Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dE2dGBB*wght
+c        endif
+c        Mmat(n,D1_TA)=Mmat(n,D1_TA)+ (de1dk+de2dk)/F2*wght
+c        if (ipol.eq.2) then
+c          Mmat(n,D1_TB)=Mmat(n,D1_TB)+(de1dk+de2dk)/F2*wght
+c        endif
    20 continue
       end
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
 c
-      Subroutine nwxc_c_m11_d2()
-      implicit none
-      call errquit(' not coded ',0,0)
-      return
-      end
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_m11.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_c_m11.F"
+#endif
+C>
 C> @}

@@ -59,3 +59,4 @@ C     c has to be positive as log(c) will be used
       f = c ** s
       end
 C> @}
+c $Id$

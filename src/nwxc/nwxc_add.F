@@ -253,6 +253,7 @@ c       nwxc_wght_hf = nwxc_wght_hf + 0.46d0*dfweight
         nwxc_cam_alpha  = 0.0d0
         nwxc_cam_beta   = 1.0d0
         nwxc_cam_gamma  = 0.5d0
+        nwxc_cam_srhfex = .false.
       else if (dfname.eq."xcamb88") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_X_CAMB88,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -1236,6 +1237,20 @@ c
       data dfdg/maxpt3*0.0d0/
       data dfdt/maxpt2*0.0d0/
 c
+c     Due to the Automatic Differentiation stuff nwxc_eval_df
+c     now does a lot more behind the scenes. The complication is 
+c     that the routine now wants to know whether we are using 
+c     an LDA, GGA, or meta-GGA functional, which is what we want
+c     to detect. 
+c
+c     The resolution of this problem is to assume, for now, that the
+c     functional depends on everything, run nwxc_eval_df, and then
+c     check what the functional really depends on.
+c
+      nwxc_depends_on_rho   = .true.
+      nwxc_depends_on_gamma = .true.
+      nwxc_depends_on_tau   = .true.
+c
       call nwxc_eval_df(2,maxpt,rho,rgamma,tau,func,dfdr,dfdg,dfdt)
 c
       abssum = 0.0d0
@@ -1377,8 +1392,6 @@ c
       double precision dfdr3(maxpt4)   !< 3rd derivative wrt rho
       double precision dfdg3(maxpt31)  !< 3rd derivative wrt rgamma
       double precision dfdt3(maxpt16)  !< 3rd derivative wrt rho tau
-      double precision dfdgt3(maxpt33) !< 3rd derivative wrt rho rgamma
-                                       !< tau
 c
       double precision abssum
 c
@@ -1401,12 +1414,11 @@ c
       data dfdr3/maxpt4*0.0d0/
       data dfdg3/maxpt31*0.0d0/
       data dfdt3/maxpt16*0.0d0/
-      data dfdgt3/maxpt33*0.0d0/
 c
       nwxc_has_3nd = .false.
 c
       call nwxc_eval_df3(2,maxpt,rho,rgamma,tau,func,dfdr,dfdr2,dfdr3,
-     &                   dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3,dfdgt3)
+     &                   dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
 c
       nwxc_has_3nd = .true.
 c

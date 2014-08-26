@@ -15,3 +15,4 @@
           type(nwad_dble)::F
         end subroutine
       end interface
+c $Id$

@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -23,12 +23,15 @@ C>     SN2 barriers", J. Chem. Phys. <b>131</b>, 094103 (2009), DOI:
 C>     <a href="http://dx.doi.org/10.1063/1.3213193">
 C>     10.1063/1.3213193</a>.
 C>
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_ssbD_1(tol_rho, ipol, nq, wght, rho, rgamma, 
-     &                         func, Amat, Cmat)
-#else
+     &                         func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_ssbD_1_d2(tol_rho, ipol, nq, wght, rho, rgamma, 
-     &                            func, Amat, Amat2, Cmat, Cmat2)
+     &                            func)
+#else
+      Subroutine nwxc_x_ssbD_1_d3(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                            func)
 #endif
 c
 c$Id$
@@ -39,6 +42,8 @@ c
 c     References:
 c     [a] J.P. Perdew, K. Burke, and M. Ernzerhof, PRL 77, 3865 (1996).
 c     [b] M. Swart, M. Sola, and F.M. Bickelhaupt, JCP 131, 094103 (2009).
+c
+#include "nwad.fh"
 c
       implicit none
 c
@@ -53,21 +58,21 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision func(nq)   !< [Output] The value of the functional
-      double precision amat(nq,*) !< [Output] The derivative wrt rho
-      double precision cmat(nq,*) !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)   !< [Output] The value of the functional
+c     double precision amat(nq,*) !< [Output] The derivative wrt rho
+c     double precision cmat(nq,*) !< [Output] The derivative wrt rgamma
 #ifdef SECOND_DERIV
-      double precision Amat2(nq,*) !< [Output] The 2nd derivative wrt rho
-      double precision Cmat2(nq,*) !< [Output] The 2nd derivative wrt rgamma
-                                   !< and possibly rho
+c     double precision Amat2(nq,*) !< [Output] The 2nd derivative wrt rho
+c     double precision Cmat2(nq,*) !< [Output] The 2nd derivative wrt rgamma
+c                                  !< and possibly rho
 #endif
 c
       double precision pi
@@ -75,7 +80,7 @@ c
       double precision C, Cs
       double precision F43, F13
 #ifdef SECOND_DERIV
-      double precision F73
+c     double precision F73
 #endif
       parameter (rA=1.079966d0, rB=0.197465d0, rC=0.272729d0)
       parameter (rE=5.873645d0, rU=-0.749940d0)
@@ -83,24 +88,24 @@ c
 c
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
 #ifdef SECOND_DERIV
-      parameter (F73=7.d0/3.d0)
+c     parameter (F73=7.d0/3.d0)
 #endif
 c
       integer n
-      double precision rrho, rho43, rho13, gamma, gam12, s, d1s(2),
-     &      d, g, gp, d1g(2), facSSB
+      double precision d1s(2), d, gp, d1g(2), facSSB
+      type(nwad_dble)::rrho, rho43, rho13, gamma, gam12, s, g
 #ifdef SECOND_DERIV
-      double precision rhom23, d2s(3), gpp, d2g(3), gssb2
+c     double precision rhom23, d2s(3), gpp, d2g(3), gssb2
 #endif
-      double precision gssb0,gssb1
+      type(nwad_dble)::gssb0,gssb1
       gssb0(s)= rB*s*s/(1d0+rC*s*s)
-     +               - rD*s*s/(1d0+rE*s**4)
-      gssb1(s)= 2d0*rB*s/(1d0+rC*s*s)**2 +
-     +         (2d0*rD*rE*s**5 - 2d0*rD*s)/(1d0+rE*s**4)**2
+     +               - rD*s*s/(1d0+rE*s**4.0d0)
+c     gssb1(s)= 2d0*rB*s/(1d0+rC*s*s)**2 +
+c    +         (2d0*rD*rE*s**5 - 2d0*rD*s)/(1d0+rE*s**4)**2
 #ifdef SECOND_DERIV
-      gssb2(s)= 8d0*rB/(1d0+rC*s*s)**3 - 6d0*rB/(1d0+rC*s*s)**2
-     +       + 36d0*rD/(1d0+rE*s**4)**2 - 32d0*rD/(1d0+rE*s**4)**3
-     -        - 6d0*rD/(1d0+rE*s**4)
+c     gssb2(s)= 8d0*rB/(1d0+rC*s*s)**3 - 6d0*rB/(1d0+rC*s*s)**2
+c    +       + 36d0*rD/(1d0+rE*s**4)**2 - 32d0*rD/(1d0+rE*s**4)**3
+c    -        - 6d0*rD/(1d0+rE*s**4)
 #endif
 c
       pi = acos(-1.d0)
@@ -121,47 +126,47 @@ CDEC$ NOSWP
             rrho = 1d0/rho(n,R_T)
             rho13 = F43*rho43*rrho
 #ifdef SECOND_DERIV
-            rhom23 = F13*rho13*rrho
+c           rhom23 = F13*rho13*rrho
 #endif
 c
             gamma = rgamma(n,G_TT)
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            gam12 = dsqrt(gamma)
+            gam12 = sqrt(gamma)
             if (.not.(gam12.gt.tol_rho**2)) goto 10
 c
             s = Cs*gam12/rho43
-            d1s(1) = -F43*s*rrho
-            d1s(2) = 0.5d0*s/gamma
+c           d1s(1) = -F43*s*rrho
+c           d1s(2) = 0.5d0*s/gamma
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
             g=gssb0(s)
-            gp=gssb1(s)
+c           gp=gssb1(s)
 c
-            d1g(1) = gp*d1s(1)
-            d1g(2) = gp*d1s(2)
+c           d1g(1) = gp*d1s(1)
+c           d1g(2) = gp*d1s(2)
             func(n) = func(n) + rho43*g*wght
-            Amat(n,D1_RA) = Amat(n,D1_RA) + (rho13*g+rho43*d1g(1))*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 2d0*rho43*d1g(2)*wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + (rho13*g+rho43*d1g(1))*wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 2d0*rho43*d1g(2)*wght
 #ifdef SECOND_DERIV
-            d2s(1) = -F73*d1s(1)*rrho
-            d2s(2) = -F43*d1s(2)*rrho
-            d2s(3) = -0.5d0*d1s(2)/gamma
-            gpp=gssb2(s)
-            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
-            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
-            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           +(rhom23*g
-     &           + 2.d0*rho13*d1g(1)
-     &           + rho43*d2g(1))*wght*2d0
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           +(rho13*d1g(2)
-     &           + rho43*d2g(2))*wght*4d0
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
-     &           + rho43*d2g(3)*wght*8d0
+c           d2s(1) = -F73*d1s(1)*rrho
+c           d2s(2) = -F43*d1s(2)*rrho
+c           d2s(3) = -0.5d0*d1s(2)/gamma
+c           gpp=gssb2(s)
+c           d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+c           d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+c           d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+c    &           +(rhom23*g
+c    &           + 2.d0*rho13*d1g(1)
+c    &           + rho43*d2g(1))*wght*2d0
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+c    &           +(rho13*d1g(2)
+c    &           + rho43*d2g(2))*wght*4d0
+c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+c    &           + rho43*d2g(3)*wght*8d0
 #endif
  10      continue
 c
@@ -182,46 +187,46 @@ c
             rrho = 0.5d0/rho(n,R_A)
             rho13 = F43*rho43*rrho
 #ifdef SECOND_DERIV
-            rhom23 = F13*rho13*rrho
+c           rhom23 = F13*rho13*rrho
 #endif
             gamma = rgamma(n,G_AA)
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            gam12 = 2d0*dsqrt(gamma)
+            gam12 = 2d0*sqrt(gamma)
             if (.not.(gam12.gt.tol_rho**2)) goto 25
 c
             s = Cs*gam12/rho43
-            d1s(1) = -F43*s*rrho
-            d1s(2) = 0.5d0*s/gamma
+c           d1s(1) = -F43*s*rrho
+c           d1s(2) = 0.5d0*s/gamma
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
             g=gssb0(s)
-            gp=gssb1(s)
+c           gp=gssb1(s)
 c
-            d1g(1) = gp*d1s(1)
-            d1g(2) = gp*d1s(2)
+c           d1g(1) = gp*d1s(1)
+c           d1g(2) = gp*d1s(2)
             func(n) = func(n) + rho43*g*wght*0.5d0
-            Amat(n,D1_RA) = Amat(n,D1_RA) + (rho13*g+rho43*d1g(1))*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 0.5d0*rho43*d1g(2)*wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + (rho13*g+rho43*d1g(1))*wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 0.5d0*rho43*d1g(2)*wght
 #ifdef SECOND_DERIV
-            d2s(1) = -F73*d1s(1)*rrho
-            d2s(2) = -F43*d1s(2)*rrho
-            d2s(3) = -0.5d0*d1s(2)/gamma
-            gpp=gssb2(s)
-            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
-            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
-            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           +(rhom23*g
-     &           + 2.d0*rho13*d1g(1)
-     &           + rho43*d2g(1))*wght*2d0
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           +(rho13*d1g(2)
-     &           + rho43*d2g(2))*wght
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
-     &           + rho43*d2g(3)*wght*0.5d0
+c           d2s(1) = -F73*d1s(1)*rrho
+c           d2s(2) = -F43*d1s(2)*rrho
+c           d2s(3) = -0.5d0*d1s(2)/gamma
+c           gpp=gssb2(s)
+c           d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+c           d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+c           d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+c    &           +(rhom23*g
+c    &           + 2.d0*rho13*d1g(1)
+c    &           + rho43*d2g(1))*wght*2d0
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+c    &           +(rho13*d1g(2)
+c    &           + rho43*d2g(2))*wght
+c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+c    &           + rho43*d2g(3)*wght*0.5d0
 #endif
 c
 c     Beta
@@ -232,46 +237,46 @@ c
             rrho = 0.5d0/rho(n,R_B)
             rho13 = F43*rho43*rrho
 #ifdef SECOND_DERIV
-            rhom23 = F13*rho13*rrho
+c           rhom23 = F13*rho13*rrho
 #endif
             gamma = rgamma(n,G_BB)
 c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
-            gam12 = 2d0*dsqrt(gamma)
+            gam12 = 2d0*sqrt(gamma)
             if (.not.(gam12.gt.tol_rho**2)) goto 20
 c
             s = Cs*gam12/rho43
-            d1s(1) = -F43*s*rrho
-            d1s(2) = 0.5d0*s/gamma
+c           d1s(1) = -F43*s*rrho
+c           d1s(2) = 0.5d0*s/gamma
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
             g=gssb0(s)
-            gp=gssb1(s)
+c           gp=gssb1(s)
 c
-            d1g(1) = gp*d1s(1)
-            d1g(2) = gp*d1s(2)
+c           d1g(1) = gp*d1s(1)
+c           d1g(2) = gp*d1s(2)
             func(n) = func(n) + rho43*g*wght*0.5d0
-            Amat(n,D1_RB) = Amat(n,D1_RB) + (rho13*g+rho43*d1g(1))*wght
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + 0.5d0*rho43*d1g(2)*wght
+c           Amat(n,D1_RB) = Amat(n,D1_RB) + (rho13*g+rho43*d1g(1))*wght
+c           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + 0.5d0*rho43*d1g(2)*wght
 #ifdef SECOND_DERIV
-            d2s(1) = -F73*d1s(1)*rrho
-            d2s(2) = -F43*d1s(2)*rrho
-            d2s(3) = -0.5d0*d1s(2)/gamma
-            gpp=gssb2(s)
-            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
-            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
-            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
-            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
-     &           +(rhom23*g
-     &           + 2.d0*rho13*d1g(1)
-     &           + rho43*d2g(1))*wght*2d0
-            Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
-     &           +(rho13*d1g(2)
-     &           + rho43*d2g(2))*wght
-            Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
-     &           + rho43*d2g(3)*wght*0.5d0
+c           d2s(1) = -F73*d1s(1)*rrho
+c           d2s(2) = -F43*d1s(2)*rrho
+c           d2s(3) = -0.5d0*d1s(2)/gamma
+c           gpp=gssb2(s)
+c           d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+c           d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+c           d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+c           Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+c    &           +(rhom23*g
+c    &           + 2.d0*rho13*d1g(1)
+c    &           + rho43*d2g(1))*wght*2d0
+c           Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
+c    &           +(rho13*d1g(2)
+c    &           + rho43*d2g(2))*wght
+c           Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
+c    &           + rho43*d2g(3)*wght*0.5d0
 #endif
 c
  20      continue
@@ -281,6 +286,13 @@ c
       end
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_ssbD_1.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
 c
 c     Compile source again for the 2nd derivative case
 c

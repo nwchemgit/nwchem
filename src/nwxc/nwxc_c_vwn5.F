@@ -33,18 +33,18 @@ c     wrt rs and zeta for the spin-unrestricted case - the rest has the
 c     same form for all VWN functionals and is handled in the header files.
 c
             dec_rsz = devwn_rsz
-            d1dec_rsz(1) = d1devwn_rsz(1)
-            d1dec_rsz(2) = d1devwn_rsz(2)
+c           d1dec_rsz(1) = d1devwn_rsz(1)
+c           d1dec_rsz(2) = d1devwn_rsz(2)
 #ifdef SECOND_DERIV
-            d2dec_rsz(1) = d2devwn_rsz(1)
-            d2dec_rsz(2) = d2devwn_rsz(2)
-            d2dec_rsz(3) = d2devwn_rsz(3)
+c           d2dec_rsz(1) = d2devwn_rsz(1)
+c           d2dec_rsz(2) = d2devwn_rsz(2)
+c           d2dec_rsz(3) = d2devwn_rsz(3)
 #endif
 #ifdef THIRD_DERIV
-            d3dec_rsz(1) = d3devwn_rsz(1)
-            d3dec_rsz(2) = d3devwn_rsz(2)
-            d3dec_rsz(3) = d3devwn_rsz(3)
-            d3dec_rsz(4) = d3devwn_rsz(4)
+c           d3dec_rsz(1) = d3devwn_rsz(1)
+c           d3dec_rsz(2) = d3devwn_rsz(2)
+c           d3dec_rsz(3) = d3devwn_rsz(3)
+c           d3dec_rsz(4) = d3devwn_rsz(4)
 #endif
 c
 #include "nwxc_c_vwn_b.fh"

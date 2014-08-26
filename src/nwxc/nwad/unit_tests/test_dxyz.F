@@ -206,3 +206,4 @@ C>
       f = exp(c * s + cos(x*z) + sin(y*z))
       end
 C> @}
+c $Id$

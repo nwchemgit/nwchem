@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_c_m05.F
 C> Implementation of the M05 correlation functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -47,11 +49,20 @@ c     [a]	Zhao, Y.; Schultz, N. E.; Truhlar, D. G. J. Chem. Phys. 2005, 123, 161
 c      Note that in this communication we interchanged cCab,i and cCss,i in Table 1. 
 c     [b]       Zhao, Y.; Schultz, N. E.; Truhlar, D. G. J. Chem. Theory Comput. 2006, in press.    
 
-
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_m05(param, tol_rho, ipol, nq, wght, rho, rgamma,
-     &                      tau, func, Amat, Cmat, Mmat)
+     &                      tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_m05_d2(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#else
+      Subroutine nwxc_x_m05_d3(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#endif
 c   
 c$Id$
+c
+#include "nwad.fh"
 c
       implicit none
 c
@@ -79,44 +90,46 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient Norm
 c
-      double precision rgamma(nq,*) !< [Input] The density gradient norm
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The density gradient norm
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c
 c     Functional values
 c
-      double precision func(*) !< [Output] The functional value
+      type(nwad_dble)::func(*) !< [Output] The functional value
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision Amat(nq,*) !< [Output] Derivative wrt density
-      double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] Derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] Derivative wrt density
+c     double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] Derivative wrt tau
 c      
       double precision pi
 c
       integer n
       double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
       double precision at, at10, at11, C1, C2, fL, fNL
-      double precision rrho, rho43, rho13, rhoo, rho53
-      double precision Gamma2, Gamma
-      double precision TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
-      double precision W7, W8, W9, W10, W11, Fsig
+      type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53
+      type(nwad_dble)::Gamma2, Gamma
+      type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+      type(nwad_dble)::W7, W8, W9, W10, W11, Fsig
 c
 c     kinetic energy density   or  tau
 c
-      double precision tauN,tauu,DTol
+      type(nwad_dble)::tauN,tauu
+      double precision DTol
       double precision F83, F23, F53, F43, F13, F1o3
       double precision F1o4, F2o3, F3o2, F4o3, F4o9, F3o5
       double precision One, Two, Three, Four, Five, Six, Seven, Eight
       double precision Nine, F10, F11
-      double precision Cs, Ax, P32, s, s2, En, Ed, E, dE, dEn, dEd
+      type(nwad_dble)::E,En,Ed,s,s2
+      double precision Cs, Ax, P32, dE, dEn, dEd
 
 c      functional derivatives below FFFFFFFFFFFF
 
@@ -190,9 +203,7 @@ C
       P32 = (3.d0*pi**2)**F23
          
 c     
-       Ax = (-0.75d0)*(3.0d0/pi)**F13
-
-
+      Ax = (-0.75d0)*(3.0d0/pi)**F13
 c
       if (ipol.eq.1 )then
 c
@@ -209,16 +220,14 @@ c
             rrho = 1d0/rhoo       ! reciprocal of rho
             rho13 = rho43*rrho
             rho53 = rhoo**F53
-
 c
-             
             tauN = tau(n,T_T)
             tauu=tauN 
 c           Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_TT)
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
             if (gamma.lt.DTol) goto 10
             TauUEG=0.3d0*P32*rho53
             Tsig =TauUEG/tauu
@@ -248,27 +257,27 @@ c           Ex = Ex + rho43*Ax*(fL+fNL*E)*(One+Fsig)*qwght(n)
 c
 c     functional derivatives 
 c
-            dEn   = Two*C1*s
-            dEd   = Two*C2*s
-            dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
-            dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
-     &             + Four*at4*W3 + Five*at5*W4
-     &             + Six*at6*W5 + Seven*at7*W6
-     &             + Eight*at8*W7 + Nine*at9*W8
-     &             + F10*at10*W9 + F11*at11*W10)
-            dWdT = Two/((One + Tsig)**2)
-            dTdR = (0.5d0*P32*rho13*rho13)/tauu
-            dTdTau = -TauUEG/tauu**2
-            dGGAdR = F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
-            dFdR = dFdW*dWdT*dTdR
-            dFdTau=dFdW*dWdT*dTdTau
-            dGGAdG =(fNL*dE*s/(Two*Gamma2))
-            Amat(n,D1_RA) = Amat(n,D1_RA) + dGGAdR*(One+Fsig)
-     &        + (fL+fNL*E)*Ax*rho43*dFdR
-            Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 
-     &                    Two*dGGAdG*Ax*rho43*(One+Fsig) 
-            Mmat(n,D1_TA)=  Mmat(n,D1_TA)
-     &                   + 0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
+c           dEn   = Two*C1*s
+c           dEd   = Two*C2*s
+c           dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
+c           dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
+c    &             + Four*at4*W3 + Five*at5*W4
+c    &             + Six*at6*W5 + Seven*at7*W6
+c    &             + Eight*at8*W7 + Nine*at9*W8
+c    &             + F10*at10*W9 + F11*at11*W10)
+c           dWdT = Two/((One + Tsig)**2)
+c           dTdR = (0.5d0*P32*rho13*rho13)/tauu
+c           dTdTau = -TauUEG/tauu**2
+c           dGGAdR = F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
+c           dFdR = dFdW*dWdT*dTdR
+c           dFdTau=dFdW*dWdT*dTdTau
+c           dGGAdG =(fNL*dE*s/(Two*Gamma2))
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + dGGAdR*(One+Fsig)
+c    &        + (fL+fNL*E)*Ax*rho43*dFdR
+c           Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 
+c    &                    Two*dGGAdG*Ax*rho43*(One+Fsig) 
+c           Mmat(n,D1_TA)=  Mmat(n,D1_TA)
+c    &                   + 0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
 
 
 
@@ -324,7 +333,7 @@ c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_AA)
             Gamma2 = Four*Gamma2
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
             if (gamma.lt.DTol) goto 25
 
             s      = Cs*Gamma/rho43
@@ -337,28 +346,28 @@ c           Ex = Ex + rho43*Ax*(fL+fNL*E)*(One+Fsig)*0.5d0*qwght(n)
 c
 c     functional derivatives
 c
-            dEn   = Two*C1*s
-            dEd   = Two*C2*s
-            dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
-            dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
-     &             + Four*at4*W3 + Five*at5*W4
-     &             + Six*at6*W5 + Seven*at7*W6
-     &             + Eight*at8*W7 + Nine*at9*W8
-     &             + F10*at10*W9 + F11*at11*W10)
-            dWdT = Two/((One + Tsig)**2)
-            dTdR = Two*(0.5d0*P32*rho13*rho13)/tauu
-            dTdTau = -Two*TauUEG/tauu**2
-            dGGAdR = Two*F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
-            dFdR = dFdW*dWdT*dTdR
-            dFdTau=dFdW*dWdT*dTdTau
-            dGGAdG =Four*(fNL*dE*s/(Two*Gamma2))
+c           dEn   = Two*C1*s
+c           dEd   = Two*C2*s
+c           dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
+c           dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
+c    &             + Four*at4*W3 + Five*at5*W4
+c    &             + Six*at6*W5 + Seven*at7*W6
+c    &             + Eight*at8*W7 + Nine*at9*W8
+c    &             + F10*at10*W9 + F11*at11*W10)
+c           dWdT = Two/((One + Tsig)**2)
+c           dTdR = Two*(0.5d0*P32*rho13*rho13)/tauu
+c           dTdTau = -Two*TauUEG/tauu**2
+c           dGGAdR = Two*F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
+c           dFdR = dFdW*dWdT*dTdR
+c           dFdTau=dFdW*dWdT*dTdTau
+c           dGGAdG =Four*(fNL*dE*s/(Two*Gamma2))
 
-            Amat(n,D1_RA) = Amat(n,D1_RA) + (dGGAdR*(One+Fsig)
-     &        + (fL+fNL*E)*Ax*rho43*dFdR)*0.5d0
-            Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 
-     &                      dGGAdG*Ax*rho43*(One+Fsig)*0.5d0
-            Mmat(n,D1_TA)=  Mmat(n,D1_TA) + 
-     &                  0.5d0*0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + (dGGAdR*(One+Fsig)
+c    &        + (fL+fNL*E)*Ax*rho43*dFdR)*0.5d0
+c           Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 
+c    &                      dGGAdG*Ax*rho43*(One+Fsig)*0.5d0
+c           Mmat(n,D1_TA)=  Mmat(n,D1_TA) + 
+c    &                  0.5d0*0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
 
 c             write (*,*) "Ex,Amat(n,1),Cmat(n,1)",
 c     &        Ex,Amat(n,1),Cmat(n,1)
@@ -407,7 +416,7 @@ c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             Gamma2 = rgamma(n,G_BB)
             Gamma2 = Four*Gamma2
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
             if (gamma.lt.DTol) goto 20
             s      = Cs*Gamma/rho43
             s2     = s*s
@@ -419,42 +428,34 @@ c           Ex = Ex + rho43*Ax*(fL+fNL*E)*(One+Fsig)*0.5d0*qwght(n)
 c
 c     functional derivatives
 c
-            dEn   = Two*C1*s
-            dEd   = Two*C2*s
-            dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
-            dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
-     &             + Four*at4*W3 + Five*at5*W4
-     &             + Six*at6*W5 + Seven*at7*W6
-     &             + Eight*at8*W7 + Nine*at9*W8
-     &             + F10*at10*W9 + F11*at11*W10)
-            dWdT = Two/((One + Tsig)**2)
-            dTdR = Two*(0.5d0*P32*rho13*rho13)/tauu
-            dTdTau = -Two*TauUEG/tauu**2
-            dGGAdR = Two*F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
-            dFdR = dFdW*dWdT*dTdR
-            dFdTau=dFdW*dWdT*dTdTau
-            dGGAdG =Four*(fNL*dE*s/(Two*Gamma2))
+c           dEn   = Two*C1*s
+c           dEd   = Two*C2*s
+c           dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
+c           dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
+c    &             + Four*at4*W3 + Five*at5*W4
+c    &             + Six*at6*W5 + Seven*at7*W6
+c    &             + Eight*at8*W7 + Nine*at9*W8
+c    &             + F10*at10*W9 + F11*at11*W10)
+c           dWdT = Two/((One + Tsig)**2)
+c           dTdR = Two*(0.5d0*P32*rho13*rho13)/tauu
+c           dTdTau = -Two*TauUEG/tauu**2
+c           dGGAdR = Two*F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
+c           dFdR = dFdW*dWdT*dTdR
+c           dFdTau=dFdW*dWdT*dTdTau
+c           dGGAdG =Four*(fNL*dE*s/(Two*Gamma2))
 
-            Amat(n,D1_RB) = Amat(n,D1_RB) + (dGGAdR*(One+Fsig)
-     &        + (fL+fNL*E)*Ax*rho43*dFdR)*0.5d0
-            Cmat(n,D1_GBB)=  Cmat(n,D1_GBB) + 
-     &                   dGGAdG*Ax*rho43*(One+Fsig)*0.5d0
-            Mmat(n,D1_TB)=  Mmat(n,D1_TB) +
-     &                  0.5d0*0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
+c           Amat(n,D1_RB) = Amat(n,D1_RB) + (dGGAdR*(One+Fsig)
+c    &        + (fL+fNL*E)*Ax*rho43*dFdR)*0.5d0
+c           Cmat(n,D1_GBB)=  Cmat(n,D1_GBB) + 
+c    &                   dGGAdG*Ax*rho43*(One+Fsig)*0.5d0
+c           Mmat(n,D1_TB)=  Mmat(n,D1_TB) +
+c    &                  0.5d0*0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
      
 
 c
 20      continue
       endif
 c
-      return
-      end
-
-
-
-
-      Subroutine nwxc_x_m05_d2()
-      call errquit(' xm05: d2 not coded ',0,0)
       return
       end
 
@@ -482,10 +483,19 @@ c                              tauU - uniform-gas KE density
 c                              
 c     References: 
 c     [a]	Pernal,Podeszwa,Patkowski,Szalewicz, PRL 103 263201 (2009)
-
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_dldf(tol_rho, ipol, nq, wght, rho, rgamma, tau,
-     &                       func, Amat, Cmat, Mmat)
+     &                       func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_dldf_d2(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                          tau, func)
+#else
+      Subroutine nwxc_x_dldf_d3(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                          tau, func)
+#endif
 c
+#include "nwad.fh"
+c      
       implicit none
 c
 #include "nwxc_param.fh"
@@ -500,44 +510,46 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient Norm
 c
-      double precision rgamma(nq,*) !< [Input] The density gradient norm
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The density gradient norm
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c
 c     Functional values
 c
-      double precision func(*) !< [Output] The functional value
+      type(nwad_dble)::func(*) !< [Output] The functional value
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision Amat(nq,*) !< [Output] Derivative wrt density
-      double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] Derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] Derivative wrt density
+c     double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] Derivative wrt tau
 c
       double precision pi
 c
       integer n
       double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
       double precision at, at10, at11, C1, C2, fL, fNL
-      double precision rrho, rho43, rho13, rhoo, rho53
-      double precision Gamma2, Gamma
-      double precision TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
-      double precision W7, W8, W9, W10, W11, Fsig
+      type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53
+      type(nwad_dble)::Gamma2, Gamma
+      type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+      type(nwad_dble)::W7, W8, W9, W10, W11, Fsig
 c
 c     kinetic energy density   or  tau
 c
-      double precision tauN,tauu,DTol
+      type(nwad_dble)::tauN,tauu
+      double precision DTol
       double precision F83, F23, F53, F43, F13, F1o3
       double precision F1o4, F2o3, F3o2, F4o3, F4o9, F3o5
       double precision One, Two, Three, Four, Five, Six, Seven, Eight
       double precision Nine, F10, F11
-      double precision Cs, Ax, P32, s, s2, En, Ed, E, dE, dEn, dEd
+      type(nwad_dble)::E,En,Ed,s,s2
+      double precision Cs, Ax, P32, dE, dEn, dEd
 
 c      functional derivatives below FFFFFFFFFFFF
 
@@ -585,7 +597,7 @@ C
       P32 = (3.d0*pi**2)**F23
          
 c     
-       Ax = (-0.75d0)*(3.0d0/pi)**F13
+      Ax = (-0.75d0)*(3.0d0/pi)**F13
 
 
 c
@@ -614,7 +626,7 @@ c           Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_TT)
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
             if (gamma.lt.DTol) goto 10
             TauUEG=0.3d0*P32*rho53
             Tsig =TauUEG/tauu
@@ -644,27 +656,27 @@ c           Ex = Ex + rho43*Ax*(fL+fNL*E)*(One+Fsig)*qwght(n)
 c
 c     functional derivatives 
 c
-            dEn   = Two*C1*s
-            dEd   = Two*C2*s
-            dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
-            dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
-     &             + Four*at4*W3 + Five*at5*W4
-     &             + Six*at6*W5 + Seven*at7*W6
-     &             + Eight*at8*W7 + Nine*at9*W8
-     &             + F10*at10*W9 + F11*at11*W10)
-            dWdT = Two/((One + Tsig)**2)
-            dTdR = (0.5d0*P32*rho13*rho13)/tauu
-            dTdTau = -TauUEG/tauu**2
-            dGGAdR = F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
-            dFdR = dFdW*dWdT*dTdR
-            dFdTau=dFdW*dWdT*dTdTau
-            dGGAdG =(fNL*dE*s/(Two*Gamma2))
-            Amat(n,D1_RA) = Amat(n,D1_RA) + dGGAdR*(One+Fsig)
-     &        + (fL+fNL*E)*Ax*rho43*dFdR
-            Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 
-     &                    Two*dGGAdG*Ax*rho43*(One+Fsig) 
-            Mmat(n,D1_TA)=  Mmat(n,D1_TA)
-     &                   + 0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
+c           dEn   = Two*C1*s
+c           dEd   = Two*C2*s
+c           dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
+c           dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
+c    &             + Four*at4*W3 + Five*at5*W4
+c    &             + Six*at6*W5 + Seven*at7*W6
+c    &             + Eight*at8*W7 + Nine*at9*W8
+c    &             + F10*at10*W9 + F11*at11*W10)
+c           dWdT = Two/((One + Tsig)**2)
+c           dTdR = (0.5d0*P32*rho13*rho13)/tauu
+c           dTdTau = -TauUEG/tauu**2
+c           dGGAdR = F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
+c           dFdR = dFdW*dWdT*dTdR
+c           dFdTau=dFdW*dWdT*dTdTau
+c           dGGAdG =(fNL*dE*s/(Two*Gamma2))
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + dGGAdR*(One+Fsig)
+c    &        + (fL+fNL*E)*Ax*rho43*dFdR
+c           Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 
+c    &                    Two*dGGAdG*Ax*rho43*(One+Fsig) 
+c           Mmat(n,D1_TA)=  Mmat(n,D1_TA)
+c    &                   + 0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
 
 
 
@@ -720,7 +732,7 @@ c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_AA)
             Gamma2 = Four*Gamma2
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
             if (gamma.lt.DTol) goto 25
 
             s      = Cs*Gamma/rho43
@@ -733,28 +745,28 @@ c           Ex = Ex + rho43*Ax*(fL+fNL*E)*(One+Fsig)*0.5d0*qwght(n)
 c
 c     functional derivatives
 c
-            dEn   = Two*C1*s
-            dEd   = Two*C2*s
-            dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
-            dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
-     &             + Four*at4*W3 + Five*at5*W4
-     &             + Six*at6*W5 + Seven*at7*W6
-     &             + Eight*at8*W7 + Nine*at9*W8
-     &             + F10*at10*W9 + F11*at11*W10)
-            dWdT = Two/((One + Tsig)**2)
-            dTdR = Two*(0.5d0*P32*rho13*rho13)/tauu
-            dTdTau = -Two*TauUEG/tauu**2
-            dGGAdR = Two*F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
-            dFdR = dFdW*dWdT*dTdR
-            dFdTau=dFdW*dWdT*dTdTau
-            dGGAdG =Four*(fNL*dE*s/(Two*Gamma2))
+c           dEn   = Two*C1*s
+c           dEd   = Two*C2*s
+c           dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
+c           dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
+c    &             + Four*at4*W3 + Five*at5*W4
+c    &             + Six*at6*W5 + Seven*at7*W6
+c    &             + Eight*at8*W7 + Nine*at9*W8
+c    &             + F10*at10*W9 + F11*at11*W10)
+c           dWdT = Two/((One + Tsig)**2)
+c           dTdR = Two*(0.5d0*P32*rho13*rho13)/tauu
+c           dTdTau = -Two*TauUEG/tauu**2
+c           dGGAdR = Two*F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
+c           dFdR = dFdW*dWdT*dTdR
+c           dFdTau=dFdW*dWdT*dTdTau
+c           dGGAdG =Four*(fNL*dE*s/(Two*Gamma2))
 
-            Amat(n,D1_RA) = Amat(n,D1_RA) + (dGGAdR*(One+Fsig)
-     &        + (fL+fNL*E)*Ax*rho43*dFdR)*0.5d0
-            Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 
-     &                      dGGAdG*Ax*rho43*(One+Fsig)*0.5d0
-            Mmat(n,D1_TA)=  Mmat(n,D1_TA) + 
-     &                  0.5d0*0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + (dGGAdR*(One+Fsig)
+c    &        + (fL+fNL*E)*Ax*rho43*dFdR)*0.5d0
+c           Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 
+c    &                      dGGAdG*Ax*rho43*(One+Fsig)*0.5d0
+c           Mmat(n,D1_TA)=  Mmat(n,D1_TA) + 
+c    &                  0.5d0*0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
 
 c             write (*,*) "Ex,Amat(n,1),Cmat(n,1)",
 c     &        Ex,Amat(n,1),Cmat(n,1)
@@ -803,7 +815,7 @@ c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             Gamma2 = rgamma(n,G_BB)
             Gamma2 = Four*Gamma2
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
             if (gamma.lt.DTol) goto 20
             s      = Cs*Gamma/rho43
             s2     = s*s
@@ -815,28 +827,28 @@ c           Ex = Ex + rho43*Ax*(fL+fNL*E)*(One+Fsig)*0.5d0*qwght(n)
 c
 c     functional derivatives
 c
-            dEn   = Two*C1*s
-            dEd   = Two*C2*s
-            dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
-            dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
-     &             + Four*at4*W3 + Five*at5*W4
-     &             + Six*at6*W5 + Seven*at7*W6
-     &             + Eight*at8*W7 + Nine*at9*W8
-     &             + F10*at10*W9 + F11*at11*W10)
-            dWdT = Two/((One + Tsig)**2)
-            dTdR = Two*(0.5d0*P32*rho13*rho13)/tauu
-            dTdTau = -Two*TauUEG/tauu**2
-            dGGAdR = Two*F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
-            dFdR = dFdW*dWdT*dTdR
-            dFdTau=dFdW*dWdT*dTdTau
-            dGGAdG =Four*(fNL*dE*s/(Two*Gamma2))
+c           dEn   = Two*C1*s
+c           dEd   = Two*C2*s
+c           dE    = (dEn*Ed-En*dEd)/(Ed*Ed)
+c           dFdW = at*(at1 + Two*at2*W1 + Three*at3*W2
+c    &             + Four*at4*W3 + Five*at5*W4
+c    &             + Six*at6*W5 + Seven*at7*W6
+c    &             + Eight*at8*W7 + Nine*at9*W8
+c    &             + F10*at10*W9 + F11*at11*W10)
+c           dWdT = Two/((One + Tsig)**2)
+c           dTdR = Two*(0.5d0*P32*rho13*rho13)/tauu
+c           dTdTau = -Two*TauUEG/tauu**2
+c           dGGAdR = Two*F4o3*rho13*Ax*(fL+fNL*(E-s*dE))
+c           dFdR = dFdW*dWdT*dTdR
+c           dFdTau=dFdW*dWdT*dTdTau
+c           dGGAdG =Four*(fNL*dE*s/(Two*Gamma2))
 
-            Amat(n,D1_RB) = Amat(n,D1_RB) + (dGGAdR*(One+Fsig)
-     &        + (fL+fNL*E)*Ax*rho43*dFdR)*0.5d0
-            Cmat(n,D1_GBB)=  Cmat(n,D1_GBB) + 
-     &                   dGGAdG*Ax*rho43*(One+Fsig)*0.5d0
-            Mmat(n,D1_TB)=  Mmat(n,D1_TB) +
-     &                  0.5d0*0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
+c           Amat(n,D1_RB) = Amat(n,D1_RB) + (dGGAdR*(One+Fsig)
+c    &        + (fL+fNL*E)*Ax*rho43*dFdR)*0.5d0
+c           Cmat(n,D1_GBB)=  Cmat(n,D1_GBB) + 
+c    &                   dGGAdG*Ax*rho43*(One+Fsig)*0.5d0
+c           Mmat(n,D1_TB)=  Mmat(n,D1_TB) +
+c    &                  0.5d0*0.5d0*rho43*Ax*(fL+fNL*E)*dFdTau
      
 
 c
@@ -846,12 +858,20 @@ c
       return
       end
 
-
-
-      Subroutine nwxc_x_dldf_d2()
-      call errquit('xdldf: d2 not coded',0,0)
-      return
-      end
+#if !defined(SECOND_DERIV)
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_m05.F"
+#endif
+#if !defined(THIRD_DERIV)
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_x_m05.F"
+#endif
 C> @}
 
 

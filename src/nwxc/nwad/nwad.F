@@ -229,7 +229,7 @@
 !>     http://wwww.mcs.anl.gov/Rapsodia/userManual.pdf</a> (referenced
 !>     July 3, 2014).
 !>
-!> $Id: $
+!> $Id$
 !>
 !> Huub van Dam, 2014
 !>

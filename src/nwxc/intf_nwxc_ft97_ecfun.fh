@@ -17,3 +17,4 @@
            type(nwad_dble)::rhoa,rhob,rhoa13,rhob13,ama,amb,ec
          end subroutine
        end interface
+c $Id$

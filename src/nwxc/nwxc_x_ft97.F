@@ -1,6 +1,7 @@
 c
 c$Id$
 c
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -8,6 +9,7 @@ C> \file nwxc_x_ft97.F
 C> The Filatov, Thiel exchange functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -44,8 +46,18 @@ C>     Math. Proc. Cambridge Philos. Soc. <b>26</b> (1930) 376-385, DOI:
 C>     <a href="http://dx.doi.org/10.1017/S0305004100016108">
 C>     10.1017/S0305004100016108</a>.
 C>
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_ft97(tol_rho, ipol, nq, wght,
-     &                       rho, rgamma, func, Amat, Cmat)
+     &                       rho, rgamma, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_ft97_d2(tol_rho, ipol, nq, wght,
+     &                          rho, rgamma, func)
+#else
+      Subroutine nwxc_x_ft97_d3(tol_rho, ipol, nq, wght,
+     &                          rho, rgamma, func)
+#endif
+#include "nwad.fh"
+c
       implicit none
 #include "nwxc_param.fh"
 c
@@ -58,28 +70,29 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*)    !< [Input] The density
+      type(nwad_dble)::rho(nq,*)    !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision func(nq)     !< [Output] The value of the functional
-      double precision Amat(nq,*)   !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)     !< [Output] The value of the functional
+c     double precision Amat(nq,*)   !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
 c
       integer n
-      double precision gammaval
+      type(nwad_dble)::gammaval
 c to hcth
-      double precision rhoa 
-      double precision rhob 
-      double precision za   
-      double precision zb   
+      type(nwad_dble)::rhoa 
+      type(nwad_dble)::rhob 
+      type(nwad_dble)::za   
+      type(nwad_dble)::zb   
       double precision dfdza,dfdzb
 c
-      double precision fx_ft97,dfdrax,dfdgaax,dfdrbx,dfdgbbx
+      type(nwad_dble)::fx_ft97
+      double precision dfdrax,dfdgaax,dfdrbx,dfdgbbx
 c
       if(ipol.eq.1) then
         do n=1,nq
@@ -88,11 +101,19 @@ c
 c           gammaval=delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_rks_x_ft97(rho(n,R_T),gammaval,
      *           fx_ft97,dfdrax,dfdgaax,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            call nwxc_rks_x_ft97_d2(rho(n,R_T),gammaval,
+     *           fx_ft97,dfdrax,dfdgaax,tol_rho)
+#else
+            call nwxc_rks_x_ft97_d3(rho(n,R_T),gammaval,
+     *           fx_ft97,dfdrax,dfdgaax,tol_rho)
+#endif
             func(n)=func(n)+fx_ft97*wght
-            Amat(n,D1_RA) = Amat(n,D1_RA)+dfdrax*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdgaax*wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA)+dfdrax*wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdgaax*wght
           endif
         enddo
       else
@@ -108,16 +129,26 @@ c    &           delrho(n,3,1)*delrho(n,3,1)
 c           zb=delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &           delrho(n,3,2)*delrho(n,3,2) 
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_uks_x_ft97(tol_rho,
      (           rhoa,rhob,za,zb,
      *           fx_ft97,dfdrax,dfdrbx,dfdgaax,dfdgbbx)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            call nwxc_uks_x_ft97_d2(tol_rho,
+     (           rhoa,rhob,za,zb,
+     *           fx_ft97,dfdrax,dfdrbx,dfdgaax,dfdgbbx)
+#else
+            call nwxc_uks_x_ft97_d3(tol_rho,
+     (           rhoa,rhob,za,zb,
+     *           fx_ft97,dfdrax,dfdrbx,dfdgaax,dfdgbbx)
+#endif
             func(n)=func(n)+fx_ft97*wght 
-            Amat(n,D1_RA) = Amat(n,D1_RA)+dfdrax*wght
-            Amat(n,D1_RB) = Amat(n,D1_RB)+dfdrbx*wght
-            dfdza=dfdgaax*wght
-            dfdzb=dfdgbbx*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb
+c           Amat(n,D1_RA) = Amat(n,D1_RA)+dfdrax*wght
+c           Amat(n,D1_RB) = Amat(n,D1_RB)+dfdrbx*wght
+c           dfdza=dfdgaax*wght
+c           dfdzb=dfdgbbx*wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza
+c           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb
           endif
         enddo
       endif
@@ -134,8 +165,16 @@ C prior written permission
 C
 
 c-----------------------------------------------------------------------
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_rks_x_ft97(r,g,fx,dfdrax,dfdgaax,
      ,     tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_rks_x_ft97_d2(r,g,fx,dfdrax,dfdgaax,
+     ,     tol_rho)
+#else
+      subroutine nwxc_rks_x_ft97_d3(r,g,fx,dfdrax,dfdgaax,
+     ,     tol_rho)
+#endif
 c
 c     This subroutine calculates the Filatov-Thiel 97 
 c     exchange-correlation functional [1,2] for the closed shell case. 
@@ -172,14 +211,18 @@ c            alpha-electron density
 c     dfdgaa On return the derivative of f with respect to the dot 
 c            product of the alpha-electron density gradient with itself
 c
+#include "nwad.fh"
+c
       implicit none
 c
-      double precision r, g
-      double precision fc ,dfdrac ,dfdrb ,dfdgaac ,dfdgbb
-      double precision fx,dfdrax,       dfdgaax
+      type(nwad_dble)::r, g
+      type(nwad_dble)::fc
+      type(nwad_dble)::fx
+      double precision dfdrac, dfdrb ,dfdgaac ,dfdgbb
+      double precision dfdrax,        dfdgaax
 c
-      double precision rhoa, rhob, rhoa13, rhob13
-      double precision gama, gamb
+      type(nwad_dble)::rhoa, rhob, rhoa13, rhob13
+      type(nwad_dble)::gama, gamb
 c
 c...  Parameters
 c
@@ -194,13 +237,31 @@ c
       gamb   = gama
 c     call FT97_ECFUN(rhoa,rhob,rhoa13,rhob13,gama,gamb,
 c    +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb,tol_rho)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_FT97_EXFUN(rhoa,rhob,rhoa13,rhob13,
      +                gama,gamb,fx,.false.,.false.,tol_rho)
-      call nwxc_FT97_EXGRAD(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
+c     call nwxc_FT97_EXGRAD(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      call nwxc_FT97_EXFUN_d2(rhoa,rhob,rhoa13,rhob13,
+     +                gama,gamb,fx,.false.,.false.,tol_rho)
+c     call nwxc_FT97_EXGRAD_d2(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
+#else
+      call nwxc_FT97_EXFUN_d3(rhoa,rhob,rhoa13,rhob13,
+     +                gama,gamb,fx,.false.,.false.,tol_rho)
+c     call nwxc_FT97_EXGRAD_d3(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
+#endif
       end
 c-----------------------------------------------------------------------
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_uks_x_ft97(tol_rho,ra,rb,gaa,gbb,
      ,     fx,dfdrax,dfdrbx,dfdgaax,dfdgbbx)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_uks_x_ft97_d2(tol_rho,ra,rb,gaa,gbb,
+     ,     fx,dfdrax,dfdrbx,dfdgaax,dfdgbbx)
+#else
+      subroutine nwxc_uks_x_ft97_d3(tol_rho,ra,rb,gaa,gbb,
+     ,     fx,dfdrax,dfdrbx,dfdgaax,dfdgbbx)
+#endif
 c
 c     This subroutine calculates the Filatov-Thiel 97 
 c     exchange-correlation functional [1,2] for the spin polarised case.
@@ -240,13 +301,16 @@ c     dfdrb  On return the derivative of f with respect to rb
 c     dfdgaa On return the derivative of f with respect to gaa
 c     dfdgbb On return the derivative of f with respect to gbb
 c
+#include "nwad.fh"
       implicit none
 c
-      double precision ra, rb, gaa, gbb
-      double precision fc ,dfdrac ,dfdrbc ,dfdgaac ,dfdgbbc
-      double precision fx,dfdrax,dfdrbx,dfdgaax,dfdgbbx
+      type(nwad_dble)::ra, rb, gaa, gbb
+      type(nwad_dble)::fc
+      type(nwad_dble)::fx
+      double precision dfdrac ,dfdrbc ,dfdgaac ,dfdgbbc
+      double precision dfdrax,dfdrbx,dfdgaax,dfdgbbx
 c
-      double precision rhoa13, rhob13
+      type(nwad_dble)::rhoa13, rhob13
 c
       double precision r13,tol_rho
       parameter (r13=1.0d0/3.0d0)
@@ -257,17 +321,47 @@ c
       if(rb.gt.tol_rho**2) rhob13 = rb**r13
 c     call FT97_ECFUN(ra,rb,rhoa13,rhob13,gaa,gbb,
 c    +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,tol_rho)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_FT97_EXFUN(ra,rb,rhoa13,rhob13,
      +           gaa,gbb,fx,.true.,.false.,tol_rho)
-      if(ra.gt.tol_rho**2) 
-     +     call nwxc_FT97_EXGRAD(ra,rhoa13,gaa,dfdrax,dfdgaax,.false.)
-      if(rb.gt.tol_rho**2) 
-     +     call nwxc_FT97_EXGRAD(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      call nwxc_FT97_EXFUN_d2(ra,rb,rhoa13,rhob13,
+     +           gaa,gbb,fx,.true.,.false.,tol_rho)
+#else
+      call nwxc_FT97_EXFUN_d3(ra,rb,rhoa13,rhob13,
+     +           gaa,gbb,fx,.true.,.false.,tol_rho)
+#endif
+      if(ra.gt.tol_rho**2) then
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+c       call nwxc_FT97_EXGRAD(ra,rhoa13,gaa,dfdrax,dfdgaax,.false.)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+c       call nwxc_FT97_EXGRAD_d2(ra,rhoa13,gaa,dfdrax,dfdgaax,.false.)
+#else
+c       call nwxc_FT97_EXGRAD_d3(ra,rhoa13,gaa,dfdrax,dfdgaax,.false.)
+#endif
+      endif
+      if(rb.gt.tol_rho**2) then
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+c       call nwxc_FT97_EXGRAD(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+c       call nwxc_FT97_EXGRAD_d2(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
+#else
+c       call nwxc_FT97_EXGRAD_d3(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
+#endif
+      endif
       end
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
-      SUBROUTINE nwxc_FT97_EXFUN (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,FT97,
-     +                            UHF,VARIA,tol_rho)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_FT97_EXFUN(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,FT97,
+     +                           UHF,VARIA,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_FT97_EXFUN_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     +           FT97,UHF,VARIA,tol_rho)
+#else
+      SUBROUTINE nwxc_FT97_EXFUN_d3(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     +           FT97,UHF,VARIA,tol_rho)
+#endif
 C     *
 C     VALUE OF THE FT97 EXCHANGE xc_ft97 AT A GIVEN POINT IN SPACE.
 C     *
@@ -286,7 +380,12 @@ C     VARIA    LOGICAL FLAG FOR CHOICE OF xc_ft97             (I)
 C              =.TRUE.  VARIANT A                                (I)
 C              =.FALSE. VARIANT B (RECOMMENDED)                  (I)
 C     *
+#include "nwad.fh"
       IMPLICIT double precision (A-H,O-Z)
+      type(nwad_dble)::RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,FT97
+      type(nwad_dble)::BETA
+      type(nwad_dble)::XALPHA,XBETA,SINHIA,SINHIB,DENOMA,DENOMB
+      type(nwad_dble)::CORRAI,CORRBI
       LOGICAL UHF,VARIA
       double precision tol_rho
 C     Variants A and B, see eqs.(15) and (16).
@@ -299,10 +398,10 @@ C     BETA   : Beta(sigma), eq.(16a) for variant B.
         BETA = BETA0+AX*AMA/(BX*BX+AMA)
       ENDIF
 C     XALPHA : Reduced density gradient xi(sigma), below eq.(11).
-      XALPHA = (AMA/(RHOA*RHOA13)**2)
+      XALPHA = (AMA/(RHOA*RHOA13)**2.0d0)
 C     DENOMA : Denominator in f(xi), eqs. (15) and (16).
       SINHIA = LOG(XALPHA+SQRT(XALPHA*XALPHA+1.0D0))
-      DENOMA = SQRT(1.0D0+9.D0*(BETA**2)*XALPHA*(SINHIA**2))
+      DENOMA = SQRT(1.0D0+9.D0*(BETA**2.0d0)*XALPHA*(SINHIA**2.0d0))
 C     CORRAI : Nonlocal correction to exchange energy density ex.
 C     CORRAI : See eqs.(9),(11),(15) and (16).
 C     CORRAI : Part of integrand in eq.(11) beyond ex(LDA).
@@ -312,9 +411,9 @@ C     CORRAI : Part of integrand in eq.(11) beyond ex(LDA).
             FT97   = CORRAI
          ELSE
             IF(.NOT.VARIA) BETA = BETA0+AX*AMB/(BX*BX+AMB)
-            XBETA  = (AMB/(RHOB*RHOB13)**2)
+            XBETA  = (AMB/(RHOB*RHOB13)**2.0d0)
             SINHIB = LOG(XBETA+SQRT(XBETA*XBETA+1.0D0))
-            DENOMB = SQRT(1.0D0+9.D0*BETA**2*XBETA*SINHIB**2)
+            DENOMB = SQRT(1.0D0+9.D0*BETA**2.0d0*XBETA*SINHIB**2.0d0)
             CORRBI =-BETA*RHOB*RHOB13*XBETA/DENOMB
             FT97   = CORRAI + CORRBI
          ENDIF
@@ -324,7 +423,13 @@ C     CORRAI : Part of integrand in eq.(11) beyond ex(LDA).
       RETURN
       END
 c-----------------------------------------------------------------------
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       SUBROUTINE nwxc_FT97_EXGRAD (RHO,RHO13,AM,TERM1,U,VARIA)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_FT97_EXGRAD_d2 (RHO,RHO13,AM,TERM1,U,VARIA)
+#else
+      SUBROUTINE nwxc_FT97_EXGRAD_d3 (RHO,RHO13,AM,TERM1,U,VARIA)
+#endif
 C     *
 C     DERIVATIVES OF THE FT97 EXCHANGE xc_ft97 WITH RESPECT TO THE
 C     DENSITY AT A GIVEN POINT IN SPACE (EXCHANGE POTENTIAL).
@@ -341,6 +446,7 @@ C     VARIA    LOGICAL FLAG FOR CHOICE OF xc_ft97             (I)
 C              =.TRUE.  VARIANT A                                (I)
 C              =.FALSE. VARIANT B (RECOMMENDED)                  (I)
 C
+#include "nwad.fh"
       IMPLICIT double precision (A-H,O-Z)
       LOGICAL VARIA
 C     Variants A and B, see eqs.(15) and (16).
@@ -349,6 +455,13 @@ C     Variants A and B, see eqs.(15) and (16).
       PARAMETER (FT=4.0D0/3.0D0)
 C     BETA   : Beta(sigma), eq.(16a) for variant B.
 C     DBDG   : Derivative of BETA w.r.t. square of density gradient.
+c
+c******************************************************
+c automatic differentiation makes this routine obsolete
+c******************************************************
+      return
+c******************************************************
+c
       IF(VARIA) THEN
         BETA = BETAA
         dbdg=0d0
@@ -382,4 +495,19 @@ C       EB   : Derivative of exchange energy with respect to BETA.
       RETURN
       END
 c-----------------------------------------------------------------------
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_ft97.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_x_ft97.F"
+#endif
+
 C> @}

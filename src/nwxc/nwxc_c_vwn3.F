@@ -33,52 +33,52 @@ c     wrt rs and zeta for the spin-unrestricted case - the rest has the
 c     same form for all VWN functionals and is handled in the header files.
 c
             dec_rsz = (dec_rs1/derpa_rs1)*devwn_rsz
-            d1dec_rsz(1) = (d1dec_rs1/derpa_rs1)*devwn_rsz
-     &           - (dec_rs1*d1derpa_rs1/derpa_rs1**2)*devwn_rsz
-     &           + (dec_rs1/derpa_rs1)*d1devwn_rsz(1)
-            d1dec_rsz(2) = (dec_rs1/derpa_rs1)*d1devwn_rsz(2)
+c           d1dec_rsz(1) = (d1dec_rs1/derpa_rs1)*devwn_rsz
+c    &           - (dec_rs1*d1derpa_rs1/derpa_rs1**2)*devwn_rsz
+c    &           + (dec_rs1/derpa_rs1)*d1devwn_rsz(1)
+c           d1dec_rsz(2) = (dec_rs1/derpa_rs1)*d1devwn_rsz(2)
 #ifdef SECOND_DERIV
-            d2dec_rsz(1) = (dec_rs1/derpa_rs1)*d2devwn_rsz(1)
-     &           + (d2dec_rs1/derpa_rs1)*devwn_rsz
-     &           - (dec_rs1*d2derpa_rs1/derpa_rs1**2)*devwn_rsz
-     &           + 2.d0*((d1dec_rs1/derpa_rs1)*d1devwn_rsz(1)
-     &           - (d1dec_rs1*d1derpa_rs1/derpa_rs1**2)*devwn_rsz
-     &           - (dec_rs1*d1derpa_rs1/derpa_rs1**2)*d1devwn_rsz(1)
-     &           + (dec_rs1*d1derpa_rs1**2/derpa_rs1**3)*devwn_rsz)
-            d2dec_rsz(2) = (dec_rs1/derpa_rs1)*d2devwn_rsz(2)
-     &           + ((d1dec_rs1/derpa_rs1)
-     &           - (dec_rs1*d1derpa_rs1/derpa_rs1**2))*d1devwn_rsz(2)
-            d2dec_rsz(3) = (dec_rs1/derpa_rs1)*d2devwn_rsz(3)
+c           d2dec_rsz(1) = (dec_rs1/derpa_rs1)*d2devwn_rsz(1)
+c    &           + (d2dec_rs1/derpa_rs1)*devwn_rsz
+c    &           - (dec_rs1*d2derpa_rs1/derpa_rs1**2)*devwn_rsz
+c    &           + 2.d0*((d1dec_rs1/derpa_rs1)*d1devwn_rsz(1)
+c    &           - (d1dec_rs1*d1derpa_rs1/derpa_rs1**2)*devwn_rsz
+c    &           - (dec_rs1*d1derpa_rs1/derpa_rs1**2)*d1devwn_rsz(1)
+c    &           + (dec_rs1*d1derpa_rs1**2/derpa_rs1**3)*devwn_rsz)
+c           d2dec_rsz(2) = (dec_rs1/derpa_rs1)*d2devwn_rsz(2)
+c    &           + ((d1dec_rs1/derpa_rs1)
+c    &           - (dec_rs1*d1derpa_rs1/derpa_rs1**2))*d1devwn_rsz(2)
+c           d2dec_rsz(3) = (dec_rs1/derpa_rs1)*d2devwn_rsz(3)
 #endif
 #ifdef THIRD_DERIV
-            d3dec_rsz(1) = (dec_rs1/derpa_rs1)*d3devwn_rsz(1)
-     &           + 3.0d0*(derpa_rs1*d1dec_rs1
-     &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(1)/derpa_rs1**2
-     &           + 3.0d0*(derpa_rs1**2*d2dec_rs1 
-     &             - derpa_rs1*(2.0d0*d1dec_rs1*d1derpa_rs1
-     &              +dec_rs1*d2derpa_rs1) 
-     &              +2.0d0*dec_rs1*d1derpa_rs1**2)
-     &              *d1devwn_rsz(1)/derpa_rs1**3
-     &           + (d3dec_rs1*derpa_rs1**3 
-     &              + 6.0d0*derpa_rs1*d1derpa_rs1
-     &               *(d1dec_rs1*d1derpa_rs1+dec_rs1*d2derpa_rs1)
-     &              - derpa_rs1**2*(3.0d0*d2dec_rs1*d1derpa_rs1
-     &               + 3.0d0*d1dec_rs1*d2derpa_rs1 
-     &               + dec_rs1*d3derpa_rs1)
-     &              - 6.0d0*dec_rs1*d1derpa_rs1**3)
-     &              *devwn_rsz/derpa_rs1**4
-            d3dec_rsz(2) = (dec_rs1/derpa_rs1)*d3devwn_rsz(2)
-     &           + 2.0d0*(derpa_rs1*d1dec_rs1
-     &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(2)/derpa_rs1**2
-     &           + (derpa_rs1**2*d2dec_rs1 
-     &             - derpa_rs1*(2.0d0*d1dec_rs1*d1derpa_rs1
-     &              +dec_rs1*d2derpa_rs1) 
-     &              +2.0d0*dec_rs1*d1derpa_rs1**2)
-     &              *d1devwn_rsz(2)/derpa_rs1**3
-            d3dec_rsz(3) = (dec_rs1/derpa_rs1)*d3devwn_rsz(3)
-     &           + (derpa_rs1*d1dec_rs1
-     &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(3)/derpa_rs1**2
-            d3dec_rsz(4) = (dec_rs1/derpa_rs1)*d3devwn_rsz(4)
+c           d3dec_rsz(1) = (dec_rs1/derpa_rs1)*d3devwn_rsz(1)
+c    &           + 3.0d0*(derpa_rs1*d1dec_rs1
+c    &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(1)/derpa_rs1**2
+c    &           + 3.0d0*(derpa_rs1**2*d2dec_rs1 
+c    &             - derpa_rs1*(2.0d0*d1dec_rs1*d1derpa_rs1
+c    &              +dec_rs1*d2derpa_rs1) 
+c    &              +2.0d0*dec_rs1*d1derpa_rs1**2)
+c    &              *d1devwn_rsz(1)/derpa_rs1**3
+c    &           + (d3dec_rs1*derpa_rs1**3 
+c    &              + 6.0d0*derpa_rs1*d1derpa_rs1
+c    &               *(d1dec_rs1*d1derpa_rs1+dec_rs1*d2derpa_rs1)
+c    &              - derpa_rs1**2*(3.0d0*d2dec_rs1*d1derpa_rs1
+c    &               + 3.0d0*d1dec_rs1*d2derpa_rs1 
+c    &               + dec_rs1*d3derpa_rs1)
+c    &              - 6.0d0*dec_rs1*d1derpa_rs1**3)
+c    &              *devwn_rsz/derpa_rs1**4
+c           d3dec_rsz(2) = (dec_rs1/derpa_rs1)*d3devwn_rsz(2)
+c    &           + 2.0d0*(derpa_rs1*d1dec_rs1
+c    &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(2)/derpa_rs1**2
+c    &           + (derpa_rs1**2*d2dec_rs1 
+c    &             - derpa_rs1*(2.0d0*d1dec_rs1*d1derpa_rs1
+c    &              +dec_rs1*d2derpa_rs1) 
+c    &              +2.0d0*dec_rs1*d1derpa_rs1**2)
+c    &              *d1devwn_rsz(2)/derpa_rs1**3
+c           d3dec_rsz(3) = (dec_rs1/derpa_rs1)*d3devwn_rsz(3)
+c    &           + (derpa_rs1*d1dec_rs1
+c    &              - dec_rs1*d1derpa_rs1)*d2devwn_rsz(3)/derpa_rs1**2
+c           d3dec_rsz(4) = (dec_rs1/derpa_rs1)*d3devwn_rsz(4)
 #endif
 c
 #include "nwxc_c_vwn_b.fh"

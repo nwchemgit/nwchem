@@ -24,3 +24,4 @@
           type(nwad_dble)::func(nq)
         end subroutine
       end interface
+c $Id$

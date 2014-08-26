@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_x_vs98.F
 C> Implementation of the VS98 exchange functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -45,12 +47,20 @@ c     [a] T. V. Voorhis and G. E. Scuseria, J. Chem. Phys. 109, 400 (1998).
 c     [b] Y. Zhao and D. G. Truhlar, J. Chem. Phys. 125, 194101 (2006).
 
 
-
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_vs98(param,tol_rho, ipol, nq, wght, rho, rgamma,
-     &                       tau, func, Amat, Cmat, Mmat) 
-
+     &                       tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_vs98_d2(param,tol_rho, ipol, nq, wght, rho,
+     &           rgamma, tau, func)
+#else
+      Subroutine nwxc_x_vs98_d3(param,tol_rho, ipol, nq, wght, rho,
+     &           rgamma, tau, func)
+#endif
 c   
 c$Id$
+c
+#include "nwad.fh"
 c
       implicit none
 c
@@ -70,36 +80,38 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c      
 c     The functional
 c
-      double precision func(*)  !< [Output] The value of the functional
+      type(nwad_dble)::func(*)  !< [Output] The value of the functional
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,*) !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] The derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] The derivative wrt tau
 c
 c     Local
 c
       integer n
       double precision pi
-      double precision rrho, rho43, rho13, rhoo, rho53, rho83
-      double precision  Gamma
+      type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53, rho83
+      type(nwad_dble):: Gamma
 c
-      double precision tauN,tauu,DTol
+      type(nwad_dble)::tauN,tauu
+      double precision DTol
       double precision Tiny, f13, f43, f53, f83, f113 
-      double precision gx, gg, x, z, kx,xk,zk
+      type(nwad_dble)::gx, x, z, kx,xk,zk
+      double precision gg
       double precision One, Two, Three, Four, Five, Six, Seven, Eight
       double precision Nine, F10, F11
       double precision cf, Axlsda, r1, r2, r3, r4, r5, r6
@@ -148,7 +160,7 @@ c                SPIN-UNPOLARIZED
 c
 c
          do 10 n = 1, nq
-            rhoo = rho(n,R_A)/Two   ! rho_sigma
+            rhoo = rho(n,R_T)/Two   ! rho_sigma
             if (rhoo.lt.DTol) goto 10
             rho43 = rhoo**f43  
             rrho = 1d0/rhoo       ! reciprocal of rho
@@ -156,32 +168,40 @@ c
             rho53 = rhoo**f53
             rho83 = rho53*rhoo 
 c
-            tauN = tau(n,T_A)
+            tauN = tau(n,T_T)
             if(taun.lt.dtol) goto 10
             tauu=tauN
-            gamma = rgamma(n,G_AA)
+            gamma = rgamma(n,G_TT)
             if(sqrt(gamma).lt.dtol) goto 10
             gamma = gamma/Four
             x = gamma/rho83
-            dxdr = -f83*x*rrho
-            dxdg = One/rho83
+c           dxdr = -f83*x*rrho
+c           dxdg = One/rho83
             z = tauu/rho53 - cf
-            dzdr = -f53 * tauu/rho83
-            dzdt = One/rho53
+c           dzdr = -f53 * tauu/rho83
+c           dzdt = One/rho53
             kx = One + gg*x + gg*z
             xk = x/kx
             zk = z/kx
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_gvt4(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
      &                     r1,r2,r3,r4,r5,r6)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            call nwxc_gvt4_d2(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     &                        r1,r2,r3,r4,r5,r6)
+#else
+            call nwxc_gvt4_d3(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     &                        r1,r2,r3,r4,r5,r6)
+#endif
            
             func(n)=func(n)+ Two*rho43*gx*wght
 c
 c     functional derivatives 
 c
-            Amat(n,D1_RA)  = Amat(n,D1_RA) + (f43*rho13*gx + 
-     &                       rho43*(dgdx*dxdr + dgdz*dzdr))*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + rho43*(dgdx*dxdg)*wght
-            Mmat(n,D1_TA)  = Mmat(n,D1_TA) + rho43*(dgdz*dzdt)*wght
+c           Amat(n,D1_RA)  = Amat(n,D1_RA) + (f43*rho13*gx + 
+c    &                       rho43*(dgdx*dxdr + dgdz*dzdr))*wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + rho43*(dgdx*dxdg)*wght
+c           Mmat(n,D1_TA)  = Mmat(n,D1_TA) + rho43*(dgdz*dzdt)*wght
 
 10      continue
 
@@ -212,24 +232,32 @@ c
            Gamma = rgamma(n,G_AA)
 
            x = gamma/rho83
-           dxdr = -f83*x*rrho
-           dxdg = One/rho83
+c          dxdr = -f83*x*rrho
+c          dxdg = One/rho83
            z = tauu/rho53 - cf
-           dzdr = -f53 * tauu/rho83
-           dzdt = One/rho53
+c          dzdr = -f53 * tauu/rho83
+c          dzdt = One/rho53
            kx = One + gg*x + gg*z
            xk = x/kx
            zk = z/kx
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_gvt4(gx,dgdx,dgdz,xk,zk,kx,gg,gg,r1,r2,r3,r4,r5,r6)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_gvt4_d2(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     +                       r1,r2,r3,r4,r5,r6)
+#else
+           call nwxc_gvt4_d3(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     +                       r1,r2,r3,r4,r5,r6)
+#endif
 c
            func(n)=func(n)+ rho43*gx*wght
 c
 c     functional derivatives
 c
-           Amat(n,D1_RA)  = Amat(n,D1_RA) + (f43*rho13*gx + 
-     &                      rho43*(dgdx*dxdr + dgdz*dzdr))*wght
-           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + rho43*(dgdx*dxdg)*wght
-           Mmat(n,D1_TA)  = Mmat(n,D1_TA) + rho43*(dgdz*dzdt)*wght
+c          Amat(n,D1_RA)  = Amat(n,D1_RA) + (f43*rho13*gx + 
+c    &                      rho43*(dgdx*dxdr + dgdz*dzdr))*wght
+c          Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + rho43*(dgdx*dxdg)*wght
+c          Mmat(n,D1_TA)  = Mmat(n,D1_TA) + rho43*(dgdz*dzdt)*wght
 c
 c     Beta               BETA           BETA
 c
@@ -252,24 +280,32 @@ c
            Gamma = rgamma(n,G_BB)
 c
            x = gamma/rho83
-           dxdr = -f83*x*rrho
-           dxdg = One/rho83
+c          dxdr = -f83*x*rrho
+c          dxdg = One/rho83
            z = tauu/rho53 - cf
-           dzdr = -f53 * tauu/rho83
-           dzdt = One/rho53
+c          dzdr = -f53 * tauu/rho83
+c          dzdt = One/rho53
            kx = One + gg*x + gg*z
            xk = x/kx
            zk = z/kx
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_gvt4(gx,dgdx,dgdz,xk,zk,kx,gg,gg,r1,r2,r3,r4,r5,r6)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+           call nwxc_gvt4_d2(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     +                       r1,r2,r3,r4,r5,r6)
+#else
+           call nwxc_gvt4_d3(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     +                       r1,r2,r3,r4,r5,r6)
+#endif
 
            func(n)=func(n)+ rho43*gx*wght
 c
 c     functional derivatives
 c
-           Amat(n,D1_RB)  = Amat(n,D1_RB) + (f43*rho13*gx +
-     &                      rho43*(dgdx*dxdr + dgdz*dzdr))*wght
-           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + rho43*(dgdx*dxdg)*wght
-           Mmat(n,D1_TB)  = Mmat(n,D1_TB) + rho43*(dgdz*dzdt)*wght
+c          Amat(n,D1_RB)  = Amat(n,D1_RB) + (f43*rho13*gx +
+c    &                      rho43*(dgdx*dxdr + dgdz*dzdr))*wght
+c          Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + rho43*(dgdx*dxdg)*wght
+c          Mmat(n,D1_TB)  = Mmat(n,D1_TB) + rho43*(dgdz*dzdt)*wght
 
 c
 20      continue
@@ -277,22 +313,26 @@ c
 c
       return
       end
-
-
-      Subroutine nwxc_x_vs98_d2()
-      implicit none
-      call errquit(' xvs98: d2 not coded ',0,0)
-      return
-      end
 C>
 C> \brief Evaluate the GVT4 form in the VS98 functional
 C>
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_gvt4(g,dgdx,dgdz,xk,zk,k,c,ct,r1,r2,r3,r4,r5,r6)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_gvt4_d2(g,dgdx,dgdz,xk,zk,k,c,ct,
+     +                        r1,r2,r3,r4,r5,r6)
+#else
+      Subroutine nwxc_gvt4_d3(g,dgdx,dgdz,xk,zk,k,c,ct,
+     +                        r1,r2,r3,r4,r5,r6)
+#endif
+#include "nwad.fh"
       Implicit none
 c
 c    some working variables
-      double precision g,dgdx,dgdz,xk,zk,k,c,ct,r1,r2,r3,r4,r5,r6
-      double precision sxk,szk,sk,sc,sct,sr1,sr2,sr3,sr4,sr5,sr6,sk2
+      type(nwad_dble)::g,xk,zk,k
+      type(nwad_dble)::sxk,szk,sk
+      double precision dgdx,dgdz,c,ct,r1,r2,r3,r4,r5,r6
+      double precision sc,sct,sr1,sr2,sr3,sr4,sr5,sr6,sk2
       double precision One, Two, Three, Four, Six
       Data One/1.0d0/, Two/2.0d0/, Three/3.0d0/, Four/4.0d0/, Six/6.0d0/
 C
@@ -307,22 +347,36 @@ C
       sr4 = r4
       sr5 = r5
       sr6 = r6
-      sk2 = sk*sk
+c     sk2 = sk*sk
       g =  (sr1 + sr2*sxk + sr3*szk
      $  +sr4*sxk*sxk + sr5*szk*sxk + sr6*szk*szk)/sk
-      dgdx =   (-sr1*sc
-     $  +sr2*(One-Two*sc*sxk)
-     $  -Two*sr3*szk*sc
-     $  +sr4*(Two*sxk-Three*sxk*sxk*sc)
-     $  +sr5*(szk -Three*szk*sxk*sc)
-     $  -Three*sr6*szk*szk*sc )/sk2
-      dgdz =   (-sr1*sct
-     $  -Two*sr2*sxk*sct
-     $  +sr3*(One-Two*szk*sct)
-     $  -Three*sr4*sxk*sxk*sct
-     $  +sr5*(sxk-Three*sxk*szk*sct)
-     $  +sr6*(Two*szk-Three*szk*szk*sct))/sk2
+c     dgdx =   (-sr1*sc
+c    $  +sr2*(One-Two*sc*sxk)
+c    $  -Two*sr3*szk*sc
+c    $  +sr4*(Two*sxk-Three*sxk*sxk*sc)
+c    $  +sr5*(szk -Three*szk*sxk*sc)
+c    $  -Three*sr6*szk*szk*sc )/sk2
+c     dgdz =   (-sr1*sct
+c    $  -Two*sr2*sxk*sct
+c    $  +sr3*(One-Two*szk*sct)
+c    $  -Three*sr4*sxk*sxk*sct
+c    $  +sr5*(sxk-Three*sxk*szk*sct)
+c    $  +sr6*(Two*szk-Three*szk*szk*sct))/sk2
 
       return
       end
+#if !defined(SECOND_DERIV)
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_vs98.F"
+#endif
+#if !defined(THIRD_DERIV)
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_x_vs98.F"
+#endif
 C> @}

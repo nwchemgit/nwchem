@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -37,15 +37,20 @@ C>     J. Chem. Phys. <b>131</b>, 094103 (2009), DOI:
 C>     <a href="http://dx.doi.org/10.1063/1.3213193">
 C>     10.1063/1.3213193</a>.
 C>
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_xc_kt1(tol_rho, ipol, nq, wght, rho, rgamma, 
-     &                       func, Amat, Cmat)
-#else
+     &                       func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_xc_kt1_d2(tol_rho, ipol, nq, wght, rho, rgamma, 
-     &                          func, Amat, Amat2, Cmat, Cmat2)
+     &                          func)
+#else
+      Subroutine nwxc_xc_kt1_d3(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                          func)
 #endif
 c
 C$Id$
+c
+#include "nwad.fh"
 c
       implicit none
 c      
@@ -60,25 +65,25 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*)    !< [Input] The density
+      type(nwad_dble)::rho(nq,*)    !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision func(nq)     !< [Output] The value of the functional
-      double precision Amat(nq,*)   !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)     !< [Output] The value of the functional
+c     double precision Amat(nq,*)   !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
 
 #ifdef SECOND_DERIV
 c
 c     Second Derivatives of the Exchange Energy Functional
 c
-      double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho
-      double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
-                                    !< and possibly rho
+c     double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho
+c     double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
+c                                   !< and possibly rho
 #endif
 c
       double precision DELTA, GAMKT
@@ -93,10 +98,10 @@ c
 c***************************************************************************
 c
       integer n
-      double precision hrho
-      double precision rho13, rho43, gamma, g, gdenom, gdenom2
+      type(nwad_dble)::hrho, rho13, rho43, gamma
+      type(nwad_dble)::g, gdenom, gdenom2
 #ifdef SECOND_DERIV
-      double precision rho23, rhom23, gdenom3
+c     double precision rho23, rhom23, gdenom3
 #endif
 c
 c     NOTE: the gamma from the KT1 formulation is here called
@@ -118,7 +123,7 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            if (dsqrt(gamma).gt.tol_rho) then
+            if (sqrt(gamma).gt.tol_rho) then
                gamma = 0.25d0 * gamma
             else
                goto 10
@@ -129,19 +134,19 @@ c
             g = GAMKT * gamma * gdenom
 c
             func(n) = func(n) + 2.d0*g*wght
-            Amat(n,D1_RA) = Amat(n,D1_RA) - (4d0/3d0)*GAMKT*gamma*rho13*
-     &                  wght*gdenom2
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + GAMKT*gdenom*wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA) - (4d0/3d0)*GAMKT*gamma*rho13*
+c    &                  wght*gdenom2
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + GAMKT*gdenom*wght
 c
 #ifdef SECOND_DERIV
-            rho23 = rho13*rho13
-            rhom23 = rho13 / (0.5d0*rho(n,R_T))
-            gdenom3 = gdenom2*gdenom
+c           rho23 = rho13*rho13
+c           rhom23 = rho13 / (0.5d0*rho(n,R_T))
+c           gdenom3 = gdenom2*gdenom
 c
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + (4d0/3d0)*GAMKT*
-     &          gamma*(rho23*7d0/3d0 - DELTA*rhom23/3d0)*gdenom3*wght
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (4d0/3d0)*GAMKT*rho13*gdenom2*wght
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + (4d0/3d0)*GAMKT*
+c    &          gamma*(rho23*7d0/3d0 - DELTA*rhom23/3d0)*gdenom3*wght
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+c    &           - (4d0/3d0)*GAMKT*rho13*gdenom2*wght
 c
 c      second derivative w.r.t. gamma is zero !
 c      (by construction)
@@ -167,7 +172,7 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            if (dsqrt(gamma).lt.tol_rho) then
+            if (sqrt(gamma).lt.tol_rho) then
                goto 25
             endif
 c
@@ -176,19 +181,19 @@ c
             g = GAMKT * gamma * gdenom
 c
             func(n) = func(n) + g*wght
-            Amat(n,D1_RA) = Amat(n,D1_RA) - (4d0/3d0)*GAMKT*gamma*rho13*
-     &                 gdenom2*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + GAMKT*gdenom*wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA) - (4d0/3d0)*GAMKT*gamma*rho13*
+c    &                 gdenom2*wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + GAMKT*gdenom*wght
 c
 #ifdef SECOND_DERIV
-            rho23 = rho13*rho13
-            rhom23 = rho13 / rho(n,R_A)
-            gdenom3 = gdenom2*gdenom
+c           rho23 = rho13*rho13
+c           rhom23 = rho13 / rho(n,R_A)
+c           gdenom3 = gdenom2*gdenom
 c
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + (4d0/3d0)*GAMKT*
-     &          gamma*(rho23*7d0/3d0 - DELTA*rhom23/3d0)*gdenom3*wght
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (4d0/3d0)*GAMKT*rho13*gdenom2*wght
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + (4d0/3d0)*GAMKT*
+c    &          gamma*(rho23*7d0/3d0 - DELTA*rhom23/3d0)*gdenom3*wght
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+c    &           - (4d0/3d0)*GAMKT*rho13*gdenom2*wght
 c
 c      second derivative w.r.t. gamma is zero !
 c      (by construction)
@@ -207,7 +212,7 @@ c
 c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
-            if (dsqrt(gamma).lt.tol_rho) then
+            if (sqrt(gamma).lt.tol_rho) then
                goto 20
             endif
 c           
@@ -216,19 +221,19 @@ c
             g = GAMKT * gamma * gdenom
 c           
             func(n) = func(n) + g*wght
-            Amat(n,D1_RB) = Amat(n,D1_RB) - (4d0/3d0)*GAMKT*gamma*rho13*
-     &            wght*gdenom2
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + GAMKT*gdenom*wght
+c           Amat(n,D1_RB) = Amat(n,D1_RB) - (4d0/3d0)*GAMKT*gamma*rho13*
+c    &            wght*gdenom2
+c           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + GAMKT*gdenom*wght
 c           
 #ifdef SECOND_DERIV
-            rho23 = rho13*rho13
-            rhom23 = rho13 / rho(n,R_B)
-            gdenom3 = gdenom2*gdenom
+c           rho23 = rho13*rho13
+c           rhom23 = rho13 / rho(n,R_B)
+c           gdenom3 = gdenom2*gdenom
 c
-            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + (4d0/3d0)*GAMKT*
-     &          gamma*(rho23*7d0/3d0 - DELTA*rhom23/3d0)*gdenom3*wght
-            Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
-     &           - (4d0/3d0)*GAMKT*rho13*gdenom2*wght
+c           Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + (4d0/3d0)*GAMKT*
+c    &          gamma*(rho23*7d0/3d0 - DELTA*rhom23/3d0)*gdenom3*wght
+c           Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
+c    &           - (4d0/3d0)*GAMKT*rho13*gdenom2*wght
 c
 c      second derivative w.r.t. gamma is zero !
 c      (by construction)
@@ -246,6 +251,13 @@ c
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_xc_kt1.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_xc_kt1.F"
 #endif

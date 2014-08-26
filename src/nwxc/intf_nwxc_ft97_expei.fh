@@ -16,3 +16,4 @@
            type(nwad_dble),intent(in)::x
          end function
        end interface
+c $Id$

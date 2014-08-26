@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_c_b95.F
 C> The B95 correlation functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -36,16 +38,27 @@ C         utilizes ingredients:
 c                              rho   -  density
 c                              delrho - gradient of density
 c                              tau (tauN)- K.S kinetic energy density
-
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_b95(param, tol_rho, ipol, nq, wght, 
-     &                      rho, rgamma, tau, func, Amat, Cmat, Mmat)
+     &                      rho, rgamma, tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_c_b95_d2(param, tol_rho, ipol, nq, wght, 
+     &                         rho, rgamma, tau, func)
+#else
+      Subroutine nwxc_c_b95_d3(param, tol_rho, ipol, nq, wght, 
+     &                         rho, rgamma, tau, func)
+#endif
 c
 c$Id$
 c
 c  Reference
 c    Becke, A. D. J. Chem. Phys. 1996, 104, 1040.
 c
+#include "nwad.fh"
+c
       implicit none
+#include "intf_nwxc_c_lsda.fh"
+#include "intf_nwxc_c_b95css.fh"
 c
 #include "nwxc_param.fh"
 c
@@ -59,25 +72,25 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c      
 c     The functional
 c
-      double precision func(*)  !< [Output] The value of the functional
+      type(nwad_dble)::func(*)  !< [Output] The value of the functional
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision Amat(nq,*) !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] The derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] The derivative wrt tau
 c
 c     Threshold parameters
 c
@@ -88,15 +101,15 @@ c
       integer n
 
 c    call to the bc95css subroutine
-      double precision PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ChiA,EUPA
-     &,ChiAP,ChiAG
-      double precision PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ChiB,EUPB
-     &,ChiBP,ChiBG
+      type(nwad_dble)::PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ChiA
+      type(nwad_dble)::PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ChiB
+      double precision EUPA,ChiAP,ChiAG,EUPB,ChiBP,ChiBG
 c
+      type(nwad_dble)::P,RS,RSP,Zeta,EUEG,Denom,PotLC
       double precision  sop
       double precision Pi, F6, F43, Pi34, F13, 
-     &RS,RSP,Zeta,dZdA,dZdB,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ
-      double precision P, EUEG,Denom, DenPA, DenPB, DenGA, DenGB
+     &dZdA,dZdB,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ
+      double precision DenPA, DenPB, DenGA, DenGB
       double precision EUEGPA,EUEGPB
 
       
@@ -133,15 +146,22 @@ c
 c        GAA = (    delrho(n,1,1)*delrho(n,1,1) +
 c    &                 delrho(n,2,1)*delrho(n,2,1) +
 c    &                 delrho(n,3,1)*delrho(n,3,1))/4.0d0
-         GAA = rgamma(n,G_TT)/4.0d0
+         GAA = rgamma(n,G_TT)/F4
 c  In the bc95css subroutine, we use 2*TA as the tau, so we do not divide 
 c  the tau by 2 here
 
-         TA = tau(n,T_T) 
+         TA = tau(n,T_T)
 !         TA=0.0005d0
-                  
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
          Call nwxc_c_b95ss(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                     ChiA,EUPA,ChiAP,ChiAG)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
+         Call nwxc_c_b95ss_d2(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                        ChiA,EUPA,ChiAP,ChiAG)
+#else
+         Call nwxc_c_b95ss_d3(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                        ChiA,EUPA,ChiAP,ChiAG)
+#endif
          PB = PA
          GBB = GAA
          TB = TA
@@ -156,9 +176,9 @@ c  the tau by 2 here
          ChiBG = ChiAG
 
          func(n)=func(n)+ 2.0d0*FA*wght
-         Amat(n,D1_RA)=Amat(n,D1_RA)+ FPA*wght
-         Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + FGA*wght
-         Mmat(n,D1_TA)=  Mmat(n,D1_TA) + FTA*wght
+c        Amat(n,D1_RA)=Amat(n,D1_RA)+ FPA*wght
+c        Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + FGA*wght
+c        Mmat(n,D1_TA)=  Mmat(n,D1_TA) + FTA*wght
 #if 0
       write (0,'(A,3F20.6)') " Amat Cmat Mmat",FPA,FGA,FTA
 #endif
@@ -184,13 +204,21 @@ c  In the bc95css subroutine, we use 2*TA as the tau
 c
          TA = tau(n,T_A)*2.0d0
 
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
          Call nwxc_c_b95ss(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                     ChiA,EUPA,ChiAP,ChiAG)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
+         Call nwxc_c_b95ss_d2(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                        ChiA,EUPA,ChiAP,ChiAG)
+#else
+         Call nwxc_c_b95ss_d3(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                        ChiA,EUPA,ChiAP,ChiAG)
+#endif
          func(n)=func(n)+ FA*wght
-         Amat(n,D1_RA)=Amat(n,D1_RA)+ FPA*wght
-         Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + FGA*wght
+c        Amat(n,D1_RA)=Amat(n,D1_RA)+ FPA*wght
+c        Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + FGA*wght
 c      2*0.5=1.0 for Mmat
-         Mmat(n,D1_TA)=  Mmat(n,D1_TA) + FTA*wght
+c        Mmat(n,D1_TA)=  Mmat(n,D1_TA) + FTA*wght
 #if 0
       write (0,'(A,3F20.6)') "AAmat Cmat Mmat",FPA,FGA,FTA
 #endif
@@ -210,12 +238,20 @@ c    &          delrho(n,3,2)*delrho(n,3,2)
 
          TB = tau(n,T_B)*2.0d0
 
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
          Call nwxc_c_b95ss(param,dtol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                     ChiB,EUPB,ChiBP,ChiBG)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
+         Call nwxc_c_b95ss_d2(param,dtol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                        ChiB,EUPB,ChiBP,ChiBG)
+#else
+         Call nwxc_c_b95ss_d3(param,dtol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                        ChiB,EUPB,ChiBP,ChiBG)
+#endif
          func(n)=func(n)+ FB*wght
-         Amat(n,D1_RB)= Amat(n,D1_RB)+ FPB*wght
-         Cmat(n,D1_GBB)=  Cmat(n,D1_GBB) + FGB*wght
-         Mmat(n,D1_TB)=  Mmat(n,D1_TB) + FTB*wght
+c        Amat(n,D1_RB)= Amat(n,D1_RB)+ FPB*wght
+c        Cmat(n,D1_GBB)=  Cmat(n,D1_GBB) + FGB*wght
+c        Mmat(n,D1_TB)=  Mmat(n,D1_TB) + FTB*wght
 #if 0
       write (0,'(A,3F20.6)') "BAmat Cmat Mmat",FPB,FGB,FTB
 #endif
@@ -226,35 +262,45 @@ c    &          delrho(n,3,2)*delrho(n,3,2)
           RS = (Pi34/P) ** F13 
           RSP = -RS/(F3*P)
           Zeta = (PA-PB)/P
-          dZdA = (F1-Zeta)/P
-          dZdB = (-F1-Zeta)/P
+c         dZdA = (F1-Zeta)/P
+c         dZdB = (-F1-Zeta)/P
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
           Call nwxc_c_lsda(dtol,
      D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
-     $      d2LdZZ)
+     $         d2LdZZ)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
+          Call nwxc_c_lsda_d2(dtol,
+     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
+     $         d2LdZZ)
+#else
+          Call nwxc_c_lsda_d3(dtol,
+     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
+     $         d2LdZZ)
+#endif
           EUEG = P*PotLC - EUA - EUB
           Denom = F1 + COpp*(ChiA+ChiB)
           func(n)=func(n)+ sop*EUEG/Denom*wght
-          DenPA = COpp*ChiAP
-          DenPB = COpp*ChiBP
-          DenGA = COpp*ChiAG
-          DenGB = COpp*ChiBG
-          EUEGPA = PotLC + P*dLdS*RSP + P*dLdZ*dZdA - EUPA
-          EUEGPB = PotLC + P*dLdS*RSP + P*dLdZ*dZdB - EUPB
-          if (ipol.eq.1) then 
-            Amat(n,D1_RA)  = Amat(n,D1_RA) + 
-     &               sop*(EUEGPA/Denom - EUEG*DenPA/Denom**2)*wght
-            Cmat(n,D1_GAA) =  Cmat(n,D1_GAA) 
-     &                     - sop*(EUEG*DenGA/Denom**2)*wght
-          else
-            Amat(n,D1_RA) = Amat(n,D1_RA) + 
-     &                 sop*(EUEGPA/Denom - EUEG*DenPA/Denom**2) *wght
-            Amat(n,D1_RB) = Amat(n,D1_RB) +
-     &                 sop*(EUEGPB/Denom - EUEG*DenPB/Denom**2) *wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA)
-     &                     - sop*EUEG*DenGA/Denom**2*wght
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB)
-     &                     - sop*EUEG*DenGB/Denom**2*wght
-          endif
+c         DenPA = COpp*ChiAP
+c         DenPB = COpp*ChiBP
+c         DenGA = COpp*ChiAG
+c         DenGB = COpp*ChiBG
+c         EUEGPA = PotLC + P*dLdS*RSP + P*dLdZ*dZdA - EUPA
+c         EUEGPB = PotLC + P*dLdS*RSP + P*dLdZ*dZdB - EUPB
+c         if (ipol.eq.1) then 
+c           Amat(n,D1_RA)  = Amat(n,D1_RA) + 
+c    &               sop*(EUEGPA/Denom - EUEG*DenPA/Denom**2)*wght
+c           Cmat(n,D1_GAA) =  Cmat(n,D1_GAA) 
+c    &                     - sop*(EUEG*DenGA/Denom**2)*wght
+c         else
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + 
+c    &                 sop*(EUEGPA/Denom - EUEG*DenPA/Denom**2) *wght
+c           Amat(n,D1_RB) = Amat(n,D1_RB) +
+c    &                 sop*(EUEGPB/Denom - EUEG*DenPB/Denom**2) *wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA)
+c    &                     - sop*EUEG*DenGA/Denom**2*wght
+c           Cmat(n,D1_GBB) = Cmat(n,D1_GBB)
+c    &                     - sop*EUEG*DenGB/Denom**2*wght
+c         endif
       endIf
 c      write (*,*) "Amat(n,1),Cmat(n,1),Mmat(n,1)",Amat(n,1),Cmat(n,1)
 c     & ,Mmat(n,1)
@@ -262,17 +308,21 @@ c      stop
 20    continue
       end
 
-      Subroutine nwxc_c_b95_d2()
-      call errquit(' bc95: d2 not coded ',0,0)
-      return
-      end
-
-
-
-
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_b95ss(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                        Chi,EUEGP,ChiP,ChiG)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_c_b95ss_d2(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                        Chi,EUEGP,ChiP,ChiG)
+#else
+      Subroutine nwxc_c_b95ss_d3(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                        Chi,EUEGP,ChiP,ChiG)
+#endif
+c
+#include "nwad.fh"
+c
       Implicit none
+#include "intf_nwxc_c_lsda.fh"
 C
 C     Compute the same-spin part of the bc95 correlation functional for one grid
 C     point and one spin-case.
@@ -282,12 +332,15 @@ c     integer ijmswitch
       double precision param(2)!< [Input] Parameters of the functional
                                !< - param(1): \f$ C_{opp} \f$
                                !< - param(2): \f$ C_{\sigma\sigma} \f$
-      double precision PX, GX, TX, F, FP, FG, FT, DTol
-      double precision EUEG, Chi, EUEGP, ChiP, ChiG,Css
+      double precision dtol
+      type(nwad_dble)::PX, GX, TX, F, FP, FG, FT, E
+      type(nwad_dble)::D, RS, RSP, EUEG, DUEG, Chi, Denom
+      type(nwad_dble)::Zeta,PotLC
+      double precision EUEGP, ChiP, ChiG,Css
       double precision Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11
       double precision Pi, Pi34, F13, F23, F43, F53, F83, F113
-      double precision RS, FDUEG, D,  RSP,DUEG, Denom, PotLC
-      double precision E, DenomG, DenomP, DUEGP, DP, DG, DT  
+      double precision FDUEG
+      double precision DenomG, DenomP, DUEGP, DP, DG, DT  
       double precision d2LdSS,d2LdSZ,d2LdZZ,dLdS,dLdZ
      
 
@@ -329,8 +382,17 @@ c     DTol =1.0d-6
         F113 = F11 / F3
         FDUEG = (F3/F5)*(F6*Pi*Pi)**F23
         RS = (Pi34/PX) ** F13
+        Zeta = F1
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Call nwxc_c_lsda(dtol,
-     D       RS,F1,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+     D       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Call nwxc_c_lsda_d2(dtol,
+     D       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#else
+        Call nwxc_c_lsda_d3(dtol,
+     D       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#endif
         EUEG = PX*PotLC
         D = TX - Pt25*GX/PX
         DUEG = FDUEG*PX**F53
@@ -341,25 +403,40 @@ c        write (*,*) "ijmswitch, Css, E= ",ijmswitch, Css, E
 c        stop
         F = E 
 c
-        RSP = -RS/(F3*Px)
-        ChiG = F1/PX**F83
-        ChiP = -F83*Chi/PX
-        DenomG = Css*ChiG
-        DenomP = Css*ChiP
-        DUEGP = F53*DUEG/PX
-        DP = Pt25*GX/PX**2
-        DG = -Pt25/PX
-        DT = F1
-        EUEGP = PotLC + PX*dLdS*RSP
-        FP = DP*EUEG/(DUEG*Denom*Denom) +
-     $      D*EUEGP/(DUEG*Denom*Denom)
-     $      - D*EUEG*DUEGP/(DUEG*Denom)**2 -
-     $      F2*D*EUEG*DenomP/(DUEG*Denom*Denom*Denom)
-        FG =DG*EUEG/(DUEG*Denom*Denom) -
-     $      F2*D*EUEG*DenomG/(DUEG*Denom*Denom*Denom)
-        FT =DT*EUEG/(DUEG*Denom*Denom)
+c       RSP = -RS/(F3*Px)
+c       ChiG = F1/PX**F83
+c       ChiP = -F83*Chi/PX
+c       DenomG = Css*ChiG
+c       DenomP = Css*ChiP
+c       DUEGP = F53*DUEG/PX
+c       DP = Pt25*GX/PX**2
+c       DG = -Pt25/PX
+c       DT = F1
+c       EUEGP = PotLC + PX*dLdS*RSP
+c       FP = DP*EUEG/(DUEG*Denom*Denom) +
+c    $      D*EUEGP/(DUEG*Denom*Denom)
+c    $      - D*EUEG*DUEGP/(DUEG*Denom)**2 -
+c    $      F2*D*EUEG*DenomP/(DUEG*Denom*Denom*Denom)
+c       FG =DG*EUEG/(DUEG*Denom*Denom) -
+c    $      F2*D*EUEG*DenomG/(DUEG*Denom*Denom*Denom)
+c       FT =DT*EUEG/(DUEG*Denom*Denom)
        Endif
        Return
        End
+
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_b95.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_c_b95.F"
+#endif
 C>
 C> @}

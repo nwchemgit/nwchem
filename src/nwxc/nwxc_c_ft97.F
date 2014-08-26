@@ -1,6 +1,7 @@
 c
 c$Id$
 c
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -8,6 +9,7 @@ C> \file nwxc_c_ft97.F
 C> The Filatov, Thiel correlation functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -44,9 +46,22 @@ C>     Math. Proc. Cambridge Philos. Soc. <b>26</b> (1930) 376-385, DOI:
 C>     <a href="http://dx.doi.org/10.1017/S0305004100016108">
 C>     10.1017/S0305004100016108</a>.
 C>
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_ft97(tol_rho, ipol, nq, wght, rho, rgamma,
-     &                       func, Amat, Cmat) 
+     &                       func) 
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_c_ft97_d2(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                          func) 
+#else
+      Subroutine nwxc_c_ft97_d3(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                          func) 
+#endif
+#include "nwad.fh"
       implicit none
+c
+#include "intf_nwxc_rks_c_ft97.fh"
+#include "intf_nwxc_uks_c_ft97.fh"
+c
 #include "nwxc_param.fh"
 c
 c     Input and other parameters
@@ -58,27 +73,28 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*)    !< [Input] The density
+      type(nwad_dble)::rho(nq,*)    !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision func(nq)     !< [Output] The value of the functional
-      double precision Amat(nq,*)   !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)     !< [Output] The value of the functional
+c     double precision Amat(nq,*)   !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
       integer n
-      double precision gammaval
+      type(nwad_dble)::gammaval
 c to hcth
-      double precision rhoa 
-      double precision rhob 
-      double precision za   
-      double precision zb   
+      type(nwad_dble)::rhoa 
+      type(nwad_dble)::rhob 
+      type(nwad_dble)::za   
+      type(nwad_dble)::zb   
       double precision dfdza,dfdzb
 c
-      double precision fc_ft97,dfdrac,dfdgaac,dfdrbc,dfdgbbc
+      type(nwad_dble)::fc_ft97
+      double precision dfdrac,dfdgaac,dfdrbc,dfdgbbc
 c
       if(ipol.eq.1) then
         do n=1,nq
@@ -87,11 +103,19 @@ c
 c           gammaval=delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_rks_c_ft97(rho(n,R_T),gammaval,
      *           fc_ft97,dfdrac,dfdgaac,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            call nwxc_rks_c_ft97_d2(rho(n,R_T),gammaval,
+     *           fc_ft97,dfdrac,dfdgaac,tol_rho)
+#else
+            call nwxc_rks_c_ft97_d3(rho(n,R_T),gammaval,
+     *           fc_ft97,dfdrac,dfdgaac,tol_rho)
+#endif
             func(n)=func(n)+fc_ft97*wght
-            Amat(n,D1_RA) = Amat(n,D1_RA)+dfdrac*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdgaac*wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA)+dfdrac*wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdgaac*wght
           endif
         enddo
       else
@@ -107,16 +131,26 @@ c    &           delrho(n,3,1)*delrho(n,3,1)
 c           zb=delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &           delrho(n,3,2)*delrho(n,3,2) 
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_uks_c_ft97(tol_rho,
      (           rhoa,rhob,za,zb,
      *           fc_ft97,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            call nwxc_uks_c_ft97_d2(tol_rho,
+     (           rhoa,rhob,za,zb,
+     *           fc_ft97,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#else
+            call nwxc_uks_c_ft97_d3(tol_rho,
+     (           rhoa,rhob,za,zb,
+     *           fc_ft97,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#endif
             func(n)=func(n)+fc_ft97*wght
-            Amat(n,D1_RA) = Amat(n,D1_RA)+dfdrac*wght
-            Amat(n,D1_RB) = Amat(n,D1_RB)+dfdrbc*wght
-            dfdza=dfdgaac*wght
-            dfdzb=dfdgbbc*wght
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb
+c           Amat(n,D1_RA) = Amat(n,D1_RA)+dfdrac*wght
+c           Amat(n,D1_RB) = Amat(n,D1_RB)+dfdrbc*wght
+c           dfdza=dfdgaac*wght
+c           dfdzb=dfdgbbc*wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdza
+c           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + dfdzb
           endif
         enddo
       endif
@@ -133,7 +167,13 @@ C prior written permission
 C
 
 c-----------------------------------------------------------------------
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_rks_c_ft97(r,g,fc,dfdrac,dfdgaac,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_rks_c_ft97_d2(r,g,fc,dfdrac,dfdgaac,tol_rho)
+#else
+      subroutine nwxc_rks_c_ft97_d3(r,g,fc,dfdrac,dfdgaac,tol_rho)
+#endif
 c
 c     This subroutine calculates the Filatov-Thiel 97 
 c     exchange-correlation functional [1,2] for the closed shell case. 
@@ -170,13 +210,17 @@ c            alpha-electron density
 c     dfdgaa On return the derivative of f with respect to the dot 
 c            product of the alpha-electron density gradient with itself
 c
+#include "nwad.fh"
       implicit none
 c
-      double precision r, g
-      double precision fc ,dfdrac ,dfdrb ,dfdgaac ,dfdgbb
+#include "intf_nwxc_ft97_ecfun.fh"
 c
-      double precision rhoa, rhob, rhoa13, rhob13
-      double precision gama, gamb
+      type(nwad_dble)::r, g
+      type(nwad_dble)::fc
+      double precision dfdrac ,dfdrb ,dfdgaac ,dfdgbb
+c
+      type(nwad_dble)::rhoa, rhob, rhoa13, rhob13
+      type(nwad_dble)::gama, gamb
 c
 c...  Parameters
 c
@@ -189,15 +233,31 @@ c
       rhob   = rhoa 
       rhob13 = rhoa13
       gamb   = gama
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_FT97_ECFUN(rhoa,rhob,rhoa13,rhob13,gama,gamb,
      +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      call nwxc_FT97_ECFUN_d2(rhoa,rhob,rhoa13,rhob13,gama,gamb,
+     +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb,tol_rho)
+#else
+      call nwxc_FT97_ECFUN_d3(rhoa,rhob,rhoa13,rhob13,gama,gamb,
+     +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb,tol_rho)
+#endif
 c     call FT97_EXFUN(rhoa,rhob,rhoa13,rhob13,
 c    +                gama,gamb,fx,.false.,.false.,tol_rho)
 c     call FT97_EXGRAD(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
       end
 c-----------------------------------------------------------------------
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_uks_c_ft97(tol_rho,ra,rb,gaa,gbb,
      ,     fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_uks_c_ft97_d2(tol_rho,ra,rb,gaa,gbb,
+     ,     fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#else
+      subroutine nwxc_uks_c_ft97_d3(tol_rho,ra,rb,gaa,gbb,
+     ,     fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#endif
 c
 c     This subroutine calculates the Filatov-Thiel 97 
 c     exchange-correlation functional [1,2] for the spin polarised case.
@@ -237,13 +297,18 @@ c     dfdrb  On return the derivative of f with respect to rb
 c     dfdgaa On return the derivative of f with respect to gaa
 c     dfdgbb On return the derivative of f with respect to gbb
 c
+#include "nwad.fh"
       implicit none
 c
-      double precision ra, rb, gaa, gbb
-      double precision fc ,dfdrac ,dfdrbc ,dfdgaac ,dfdgbbc
-      double precision fx,dfdrax,dfdrbx,dfdgaax,dfdgbbx
+#include "intf_nwxc_ft97_ecfun.fh"
 c
-      double precision rhoa13, rhob13
+      type(nwad_dble)::ra, rb, gaa, gbb
+      type(nwad_dble)::fc
+      type(nwad_dble)::fx
+      double precision dfdrac ,dfdrbc ,dfdgaac ,dfdgbbc
+      double precision dfdrax,dfdrbx,dfdgaax,dfdgbbx
+c
+      type(nwad_dble)::rhoa13, rhob13
 c
       double precision r13,tol_rho
       parameter (r13=1.0d0/3.0d0)
@@ -252,8 +317,16 @@ c
       if(ra.gt.tol_rho**2) rhoa13 = ra**r13
       rhob13=0d0
       if(rb.gt.tol_rho**2) rhob13 = rb**r13
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_FT97_ECFUN(ra,rb,rhoa13,rhob13,gaa,gbb,
      +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      call nwxc_FT97_ECFUN_d2(ra,rb,rhoa13,rhob13,gaa,gbb,
+     +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,tol_rho)
+#else
+      call nwxc_FT97_ECFUN_d3(ra,rb,rhoa13,rhob13,gaa,gbb,
+     +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,tol_rho)
+#endif
 c     call FT97_EXFUN(ra,rb,rhoa13,rhob13,
 c    +           gaa,gbb,fx,.true.,.false.,tol_rho)
 c     if(ra.gt.tol_rho**2) 
@@ -263,8 +336,16 @@ c    +     call FT97_EXGRAD(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
       end
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
-      SUBROUTINE nwxc_FT97_ECFUN (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_FT97_ECFUN(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,
      1                       V1,V2,V3,V4,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_FT97_ECFUN_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,
+     1                       V1,V2,V3,V4,tol_rho)
+#else
+      SUBROUTINE nwxc_FT97_ECFUN_d3(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,
+     1                       V1,V2,V3,V4,tol_rho)
+#endif
 C     *
 C     VALUE OF THE CORRELATION xc_ft97 (EC) AND ITS DERIVATIVES
 C     (V1,V2,V3,V4) WITH REGARD TO THE DENSITY AT A GIVEN POINT
@@ -278,6 +359,7 @@ C     *
 C     ARGUMENT LIST. I=INPUT, O=OUTPUT.
 C     RHOA     DENSITY rho.alpha                                 (I)
 C     RHOB     DENSITY rho.beta                                  (I)
+
 C     RHOA13   RHOA**(1.0/3.0), CUBIC ROOT OF rho.alpha          (I)
 C     RHOB13   RHOB**(1.0/3.0), CUBIC ROOT OF rho.beta           (I)
 C     AMA      NORM OF THE GRADIENT OF RHOA WRT X,Y,Z SQUARED    (I)
@@ -289,16 +371,34 @@ C     V3       DERIVATIVE d(Ec)/d(grad(rho.alpha)^2)             (I,O)
 C     V4       DERIVATIVE d(Ec)/d(grad(rho.beta)^2)              (I,O)
 C     UHF      LOGICAL FLAG (.TRUE. FOR UHF)                     (I)
 C     *
+#include "nwad.fh"
       IMPLICIT double precision (A-H,O-Z)
+c
+#include "intf_nwxc_ft97_vcour.fh"
+c
+      type(nwad_dble)::RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,
+     1                 EAB,EBA,EC
       EC     = 0.D0
       V1     = 0.D0
       V2     = 0.D0
       V3     = 0.D0
       V4     = 0.D0
-      CALL nwxc_FT97_VCOUR (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      CALL nwxc_FT97_VCOUR(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,
      1            EAB,EBA,
      2            DEAADR,DEBBDR,DEABDR,DEBADR,
      3            DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      CALL nwxc_FT97_VCOUR_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,
+     1            EAB,EBA,
+     2            DEAADR,DEBBDR,DEABDR,DEBADR,
+     3            DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#else
+      CALL nwxc_FT97_VCOUR_d3(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,
+     1            EAB,EBA,
+     2            DEAADR,DEBBDR,DEABDR,DEBADR,
+     3            DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#endif
 C     EC IS THE CONTRIBUTION TO THE CORRELATION ENERGY AT (X,Y,Z).
 C     EC IS DEFINED IN EQUATION (4) OF THE REFERENCE.
 C     Add parallel-spin contribution to the energy.
@@ -306,22 +406,34 @@ C     Add parallel-spin contribution to the energy.
 C     Add opposite-spin contribution to the energy.
       EC    = EC+RHOA*EAB+RHOB*EBA
 C     Add parallel-spin contribution to the derivatives.
-      V1    = V1 +EAA+RHOA*DEAADR
-      V2    = V2 +EBB+RHOB*DEBBDR
-      V3    = V3 +RHOA*DEAADG
-      V4    = V4 +RHOB*DEBBDG
+c     V1    = V1 +EAA+RHOA*DEAADR
+c     V2    = V2 +EBB+RHOB*DEBBDR
+c     V3    = V3 +RHOA*DEAADG
+c     V4    = V4 +RHOB*DEBBDG
 C     Add opposite-spin contribution to the derivatives.
-      V1    = V1 +EAB+RHOB*DEBADR
-      V2    = V2 +EBA+RHOA*DEABDR
-      V3    = V3 +RHOB*DEBADG
-      V4    = V4 +RHOA*DEABDG
+c     V1    = V1 +EAB+RHOB*DEBADR
+c     V2    = V2 +EBA+RHOA*DEABDR
+c     V3    = V3 +RHOB*DEBADG
+c     V4    = V4 +RHOA*DEABDG
       RETURN
       END
 c-----------------------------------------------------------------------
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       SUBROUTINE nwxc_FT97_VCOUR (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
      1                       EAA,EBB,EAB,EBA,
      2                       DEAADR,DEBBDR,DEABDR,DEBADR,
      3                       DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_FT97_VCOUR_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1                       EAA,EBB,EAB,EBA,
+     2                       DEAADR,DEBBDR,DEABDR,DEBADR,
+     3                       DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#else
+      SUBROUTINE nwxc_FT97_VCOUR_d3(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1                       EAA,EBB,EAB,EBA,
+     2                       DEAADR,DEBBDR,DEABDR,DEBADR,
+     3                       DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#endif
 C     *
 C     COMPUTATION OF TERMS IN THE CORRELATION xc_ft97.
 C     *
@@ -342,10 +454,28 @@ C     EBA    - epsilon(beta ,alpha)
 C     DEDRAA - d(Ec)/d(rho.alpha)
 C     DEDGAA - d(Ec)/d(grad(rho.alpha)^2)
 C     *
+#include "nwad.fh"
       IMPLICIT double precision (A-H,O-Z)
-      double precision KSSP0,KSS0,MUAB,MUBA,MUBB,MUAA,
-     *     KSSPBIG,big,kss0big
-      double precision nwxc_FT97_EXPEI
+c
+#include "intf_nwxc_ft97_expei.fh"
+c
+      type(nwad_dble)::RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,EAB,EBA
+      type(nwad_dble)::EEI,MUAB,MUBA,MUBB,MUAA,GA2,GB2,CFT,RSA,RSB
+      type(nwad_dble)::R,GR,T,EEI1,ECMUC0,DENOM,FA
+      type(nwad_dble)::KSSP0,KSS0,FSSP,USSP1,USSP2,WSSP,FSS,FACTOR,
+     .                 USS1,USS2,WSS,YSS,FF,DFFDMU
+      double precision KSSPBIG,big,kss0big
+c
+c     Nwxc_FT97_EXPEI is already declared in the corresponding
+c     interface block.
+c
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+c     type(nwad_dble)::nwxc_FT97_EXPEI
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+c     type(nwad_dble)::nwxc_FT97_EXPEI_d2
+#else
+c     type(nwad_dble)::nwxc_FT97_EXPEI_d3
+#endif
 C     NOTATION FOR CONSTANTS.
 C     C0 = (1-ln2)/(2*Pi**2), see eq.(9)
 C     C1 = 2*C0/3           , see eq.(13,(28),(33)
@@ -376,42 +506,44 @@ C     KSSP0    : See eq.(39) for k(sigma,sigma').
      .           EXP(-0.083275880D0*R**0.8D0))
 C     KSS0     : See eq.(40) for k(sigma,sigma).
       KSS0(R)  = 1.200801774D0 + 0.859614445D0*(1.D0-
-     .           EXP(-1.089338848*SQRT(R)))-
+     .           EXP(-1.089338848d0*SQRT(R)))-
      .           0.812904345D0*(1.D0-EXP(-0.655638823D0*R**0.4D0))
 C
 C     FSSP     : See eq.(45) for F(sigma,sigma').
-      FSSP(R,GR) = (1.D0+A1*GR+(A2*GR)**2)*
-     .             EXP(-(A2*GR)**2)/SQRT(1.D0+A3*GR/R)
+      FSSP(R,GR) = (1.D0+A1*GR+(A2*GR)**2.0d0)*
+     .             EXP(-(A2*GR)**2.0d0)/SQRT(1.D0+A3*GR/R)
 C     USSP1    : Derivative of ln(k(sigma,sigma')) with respect to Rs.
       USSP1(R) = -4.65098019D-2*EXP(-0.083275880D0*R**0.8D0)*R**0.8D0 
 C     USSP2    : Derivative of ln(F(sigma,sigma')) with respect to Rs.
       USSP2(R,GR) = A3*GR/(R+A3*GR)
 C     WSSP     : Derivative of ln(F(sigma,sigma')) w.r.t. Nabla(Rs)^2
-      WSSP(R,GR) = ((A1+A1)-A1*(A2+A2)**2*GR**2-(A2*(A2+A2))**2*GR**3)
-     .             /(1.D0+A1*GR+(A2*GR)**2) - A3/(R+A3*GR)
+      WSSP(R,GR) = ((A1+A1)-A1*(A2+A2)**2.0d0*GR**2.0d0
+     .             -(A2*(A2+A2))**2.0d0*GR**3.0d0)
+     .             /(1.D0+A1*GR+(A2*GR)**2.0d0) - A3/(R+A3*GR)
 C
 C     FSS      : See eq.(46) for F(sigma,sigma).
-      FSS(R,GR)= (1.D0+(A4*GR)**2)*EXP(-(A4*GR)**2)/
+      FSS(R,GR)= (1.D0+(A4*GR)**2.0d0)*EXP(-(A4*GR)**2.0d0)/
      .           SQRT(1.D0+A5*GR/R)
 C     FACTOR   : See eq.(34).
-      FACTOR(R)= EXP(-(R/(0.939016D0*SQRT(R)+1.733170D0*R))**2)
+      FACTOR(R)= EXP(-(R/(0.939016D0*SQRT(R)+1.733170D0*R))**2.0d0)
 C     USS1     : Derivative of ln(k(sigma,sigma)) with respect to Rs.
       USS1(R)  =-4.26377318D-1*R**0.4D0*EXP(-0.655638823D0*R**0.4D0)+
-     .           0.93641140924D0*SQRT(R)*EXP(-1.089338848*SQRT(R))
+     .           0.93641140924D0*SQRT(R)*EXP(-1.089338848d0*SQRT(R))
 C     USS2      : Derivative of ln(F(sigma,sigma)) with respect to Rs.
       USS2(R,GR)= A5*GR/(R+A5*GR)
 C     WSS       : Derivative of ln(F(sigma,sigma)) w.r.t. Nabla(Rs)^2
-      WSS(R,GR) =-(A4*(A4+A4))**2*GR**3/(1.D0+(A4*GR)**2)-A5/(R+A5*GR)
+      WSS(R,GR) =-(A4*(A4+A4))**2.0d0*GR**3.0d0/(1.D0+(A4*GR)**2.0d0)
+     .             -A5/(R+A5*GR)
 C     YSS       : Derivative of FACTOR (eq.(34)) with respect to Rs.
       YSS(R)    = 0.939016D0*SQRT(R)*R*R/(0.939016D0*SQRT(R)+
-     .            1.733170D0*R)**3
+     .            1.733170D0*R)**3.0d0
 C
 C     FF        : Used in approximate normalization, eq.(15).
       FF(T)     = (3.D0+2.D0*(SQRT(T)+T))/
      .            (3.D0+6.D0*(SQRT(T)+T))
 C     DFFDMU    : Derivative of FF with respect to the argument T.
       DFFDMU(T) =-(2.D0*(SQRT(T)+T+T))/
-     .            (3.D0*(1.D0+2.D0*(SQRT(T)+T))**2)
+     .            (3.D0*(1.D0+2.D0*(SQRT(T)+T))**2.0d0)
 C
 C *** RSA - Rs(alpha), GA - grad(Rs(alpha))
 C
@@ -428,18 +560,24 @@ C         MUBA = C1*RSA/(KSSP0(RSA)*FSSP(RSA,GA2))**2
           ECMUC0 = 0.D0
           DEBADR = 0.D0
           DEBADG = 0.D0
-          if((ga2*a2)**2.gt.big) then
+          if((ga2*a2)**2.0d0.gt.big) then
              DENOM  = 0d0
           else
              if(rsa.gt.big) then
-                DENOM  = (KSSPBIG*FSSP(RSA,GA2))**2
+                DENOM  = (KSSPBIG*FSSP(RSA,GA2))**2.0d0
              else
-                DENOM  = (KSSP0(RSA)*FSSP(RSA,GA2))**2
+                DENOM  = (KSSP0(RSA)*FSSP(RSA,GA2))**2.0d0
              endif
           endif
           IF(C1*RSA .LE. DENOM*CUTOFF) THEN
              MUBA = C1*RSA/DENOM
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
              EEI = nwxc_FT97_EXPEI(-MUBA)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+             EEI = nwxc_FT97_EXPEI_d2(-MUBA)
+#else
+             EEI = nwxc_FT97_EXPEI_d3(-MUBA)
+#endif
              EEI1 = MUBA*EEI+1.D0
 C            EBA : Correlation energy density, eq.(19)
              EBA = C0*(EEI+2.D0*FF(MUBA)*EEI1)
@@ -447,32 +585,38 @@ C            ECMUC0 : Derivative of EBA w.r.t. MUBA
              ECMUC0 = C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUBA)+MUBA*
      .                FF(MUBA)))+2.D0*FF(MUBA)*MUBA*EEI)
 C            d(Ec)/d(Nabla(rho)^2)  =  -CFT^2*(mu*dEcdmu)*Wss'
-             DEBADG = -WSSP(RSA,GA2)*ECMUC0*CFT*CFT 
+c            DEBADG = -WSSP(RSA,GA2)*ECMUC0*CFT*CFT 
 C            d(Ec)/d(rho)
-             DEBADR = -ECMUC0*(1.D0-USSP1(RSA)/KSSP0(RSA)-
-     .                 USSP2(RSA,GA2) -
-     .                 8.D0*WSSP(RSA,GA2)*GA2)
-     .                 / (3.D0*RHOA)
+c            DEBADR = -ECMUC0*(1.D0-USSP1(RSA)/KSSP0(RSA)-
+c    .                 USSP2(RSA,GA2) -
+c    .                 8.D0*WSSP(RSA,GA2)*GA2)
+c    .                 / (3.D0*RHOA)
          ENDIF
 C        mu(alpha,alpha), eq.(33)
 C        MUAA = C1*RSA/(KSS0(RSA)*FSS(RSA,GA2))**2
          FA   = FACTOR(RSA)
          EAA  = 0.D0
          ECMUC0 = 0.D0
-         DEAADR = 0.D0
-         DEAADG = 0.D0
-         if((ga2*a2)**2.gt.big) then
+c        DEAADR = 0.D0
+c        DEAADG = 0.D0
+         if((ga2*a2)**2.0d0.gt.big) then
             DENOM  = 0d0
          else
             if(rsa.gt.big) then
-              DENOM  = (KSS0big*FSS(RSA,GA2))**2
+              DENOM  = (KSS0big*FSS(RSA,GA2))**2.0d0
            else
-              DENOM  = (KSS0(RSA)*FSS(RSA,GA2))**2
+              DENOM  = (KSS0(RSA)*FSS(RSA,GA2))**2.0d0
            endif
         endif
          IF(C1*RSA .LE. DENOM*CUTOFF) THEN
             MUAA = C1*RSA/DENOM
-            EEI  = nwxc_FT97_EXPEI(-MUAA)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            EEI = nwxc_FT97_EXPEI(-MUAA)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            EEI = nwxc_FT97_EXPEI_d2(-MUAA)
+#else
+            EEI = nwxc_FT97_EXPEI_d3(-MUAA)
+#endif
             EEI1 = MUAA*EEI+1.D0
 C           EAA  : Correlation energy density, eqs.(19) and (31).
             EAA  = FA*C0*(EEI+2.D0*FF(MUAA)*EEI1)
@@ -480,19 +624,19 @@ C           ECMUC0 : Derivative of EAA w.r.t. MUAA
             ECMUC0 = FA*C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUAA)+MUAA*
      .               FF(MUAA)))+2.D0*FF(MUAA)*MUAA*EEI)
 C           d(Ec)/d(rho)
-            DEAADR = (-ECMUC0*(1.D0-USS1(RSA)/KSS0(RSA)-USS2(RSA,GA2) -
-     .               8.D0*WSS(RSA,GA2)*GA2) + YSS(RSA)*EAA)
-     .               / (3.D0*RHOA)
+c           DEAADR = (-ECMUC0*(1.D0-USS1(RSA)/KSS0(RSA)-USS2(RSA,GA2) -
+c    .               8.D0*WSS(RSA,GA2)*GA2) + YSS(RSA)*EAA)
+c    .               / (3.D0*RHOA)
 C           d(Ec)/d(Nabla(rho)^2) = -Cft^2*(mu*dEcdmu*Fa)*Wss
-            DEAADG = -WSS(RSA,GA2)*ECMUC0*CFT*CFT
+c           DEAADG = -WSS(RSA,GA2)*ECMUC0*CFT*CFT
          ENDIF
       ELSE
          EAA = 0.D0
          EBA = 0.D0
-         DEAADR = 0.D0
-         DEBADR = 0.D0
-         DEAADG = 0.D0
-         DEBADG = 0.D0
+c        DEAADR = 0.D0
+c        DEBADR = 0.D0
+c        DEAADG = 0.D0
+c        DEBADG = 0.D0
       ENDIF
 C *** RSB - Rs(beta), GB - grad(Rs(beta))
       IF(RHOB.GT.tol_rho) THEN
@@ -508,19 +652,25 @@ C        MUAB = C1*RSB/(KSSP0(RSB)*FSSP(RSB,GB2))**2
          ECMUC0 = 0.D0
          DEABDR = 0.D0
          DEABDG = 0.D0
-         DENOM  = (KSSP0(RSB)*FSSP(RSB,GB2))**2
-         if((gb2*a2)**2.gt.big) then
+         DENOM  = (KSSP0(RSB)*FSSP(RSB,GB2))**2.0d0
+         if((gb2*a2)**2.0d0.gt.big) then
             DENOM  = 0d0
          else
             if(rsb.gt.big) then
-               DENOM  = (KSSPBIG*FSSP(RSB,GB2))**2
+               DENOM  = (KSSPBIG*FSSP(RSB,GB2))**2.0d0
             else
-               DENOM  = (KSSP0(RSB)*FSSP(RSB,GB2))**2
+               DENOM  = (KSSP0(RSB)*FSSP(RSB,GB2))**2.0d0
             endif
          endif
          IF(C1*RSB .LE. DENOM*CUTOFF) THEN
             MUAB = C1*RSB/DENOM
-            EEI  = nwxc_FT97_EXPEI(-MUAB)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            EEI = nwxc_FT97_EXPEI(-MUAB)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            EEI = nwxc_FT97_EXPEI_d2(-MUAB)
+#else
+            EEI = nwxc_FT97_EXPEI_d3(-MUAB)
+#endif
             EEI1 = MUAB*EEI+1.D0
 C           EAB  : Correlation energy density, eqs.(19).
             EAB  = C0*(EEI+2.D0*FF(MUAB)*EEI1)
@@ -528,32 +678,38 @@ C           ECMUC0 : Derivative of EAB w.r.t. MUAB
             ECMUC0 = C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUAB)+MUAB*
      .               FF(MUAB)))+2.D0*FF(MUAB)*MUAB*EEI)
 C           d(Ec)/d(Nabla(rho)^2)  =  -CFT^2*(mu*dEcdmu)*Wss'
-            DEABDG = -WSSP(RSB,GB2)*ECMUC0*CFT*CFT 
+c           DEABDG = -WSSP(RSB,GB2)*ECMUC0*CFT*CFT 
 C           d(Ec)/d(rho)
-            DEABDR = -ECMUC0*(1.D0-USSP1(RSB)/KSSP0(RSB)-
-     .               USSP2(RSB,GB2) -
-     .               8.D0*WSSP(RSB,GB2)*GB2)
-     .               / (3.D0*RHOB)
+c           DEABDR = -ECMUC0*(1.D0-USSP1(RSB)/KSSP0(RSB)-
+c    .               USSP2(RSB,GB2) -
+c    .               8.D0*WSSP(RSB,GB2)*GB2)
+c    .               / (3.D0*RHOB)
          ENDIF
 C        mu(beta,beta), eq.(33)
 C        MUBB = C1*RSB/(KSS0(RSB)*FSS(RSB,GB2))**2
          FA   = FACTOR(RSB)
          EBB  = 0.D0
          ECMUC0 = 0.D0
-         DEBBDR = 0.D0
-         DEBBDG = 0.D0
-         if((gb2*a2)**2.gt.big) then
+c        DEBBDR = 0.D0
+c        DEBBDG = 0.D0
+         if((gb2*a2)**2.0d0.gt.big) then
             DENOM  = 0d0
          else
             if(rsb.gt.big) then
-               DENOM  = (KSS0big*FSS(RSB,GB2))**2
+               DENOM  = (KSS0big*FSS(RSB,GB2))**2.0d0
             else
-               DENOM  = (KSS0(RSB)*FSS(RSB,GB2))**2
+               DENOM  = (KSS0(RSB)*FSS(RSB,GB2))**2.0d0
             endif
          endif
          IF(C1*RSB .LE. DENOM*CUTOFF) THEN
             MUBB = C1*RSB/DENOM
-            EEI  = nwxc_FT97_EXPEI(-MUBB)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            EEI = nwxc_FT97_EXPEI(-MUBB)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+            EEI = nwxc_FT97_EXPEI_d2(-MUBB)
+#else
+            EEI = nwxc_FT97_EXPEI_d3(-MUBB)
+#endif
             EEI1 = MUBB*EEI+1.D0
 C           EBB  : Correlation energy density, eqs.(19) and (31).
             EBB  = FA*C0*(EEI+2.D0*FF(MUBB)*EEI1)
@@ -561,25 +717,31 @@ C           ECMUC0 : Derivative of EBB w.r.t. MUBB
             ECMUC0 = FA*C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUBB)+MUBB*
      .                FF(MUBB)))+2.D0*FF(MUBB)*MUBB*EEI)
 C           d(Ec)/d(rho)
-            DEBBDR = (-ECMUC0*(1.D0-USS1(RSB)/KSS0(RSB)
-     .                -USS2(RSB,GB2) -
-     .               8.D0*WSS(RSB,GB2)*GB2) + YSS(RSB)*EBB)
-     .               / (3.D0*RHOB)
+c           DEBBDR = (-ECMUC0*(1.D0-USS1(RSB)/KSS0(RSB)
+c    .                -USS2(RSB,GB2) -
+c    .               8.D0*WSS(RSB,GB2)*GB2) + YSS(RSB)*EBB)
+c    .               / (3.D0*RHOB)
 C           d(Ec)/d(Nabla(rho)^2) =  -Cft^2*(mu*dEcdmu*Fa)*Wss
-            DEBBDG = -WSS(RSB,GB2)*ECMUC0*CFT*CFT
+c           DEBBDG = -WSS(RSB,GB2)*ECMUC0*CFT*CFT
          ENDIF
       ELSE
          EAB = 0.D0
          EBB = 0.D0
-         DEABDR = 0.D0
-         DEBBDR = 0.D0
-         DEABDG = 0.D0
-         DEBBDG = 0.D0
+c        DEABDR = 0.D0
+c        DEBBDR = 0.D0
+c        DEABDG = 0.D0
+c        DEBBDG = 0.D0
       ENDIF
       RETURN
       END
 c-----------------------------------------------------------------------
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       FUNCTION nwxc_FT97_EXPEI(X)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      FUNCTION nwxc_FT97_EXPEI_d2(X)
+#else
+      FUNCTION nwxc_FT97_EXPEI_d3(X)
+#endif
 C
 C This function program computes approximate values for the
 C   function  exp(-x) * Ei(x), where  Ei(x)  is the exponential
@@ -589,15 +751,36 @@ C  Author: W. J. Cody
 C
 C  Latest modification: January 12, 1988
 C
+#include "nwad.fh"
+c
+#include "intf_nwxc_ft97_calcei.fh"
+c
       INTEGER INT
-      double precision  nwxc_FT97_EXPEI, X, RESULT
+      type(nwad_dble),intent(in):: X
+      type(nwad_dble):: nwxc_FT97_EXPEI, RESULT
+      type(nwad_dble):: nwxc_FT97_EXPEI_d2
+      type(nwad_dble):: nwxc_FT97_EXPEI_d3
       INT = 3
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       CALL nwxc_FT97_CALCEI(X,RESULT,INT)
       nwxc_FT97_EXPEI = RESULT
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      CALL nwxc_FT97_CALCEI_d2(X,RESULT,INT)
+      nwxc_FT97_EXPEI_d2 = RESULT
+#else
+      CALL nwxc_FT97_CALCEI_d3(X,RESULT,INT)
+      nwxc_FT97_EXPEI_d3 = RESULT
+#endif
       RETURN
       END
 c-----------------------------------------------------------------------
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       SUBROUTINE nwxc_FT97_CALCEI(ARG,RESULT,INT)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_FT97_CALCEI_d2(ARG,RESULT,INT)
+#else
+      SUBROUTINE nwxc_FT97_CALCEI_d3(ARG,RESULT,INT)
+#endif
 C
 C  This Fortran 77 packet computes the exponential integrals Ei(x),
 C  E1(x), and  exp(-x)*Ei(x)  for real arguments  x  where
@@ -719,12 +902,28 @@ C
 C  Latest modification: September 9, 1988
 C
 C----------------------------------------------------------------------
-      INTEGER I,INT
+c
+c The approach followed here to approximate the derivatives of the
+c integral is to differentiate the Chebychev approximation to the
+c the integral. Strictly speaking this is not correct but given the
+c implementation of EXPEI we have this the only feasible approach.
+c
+#include "nwad.fh"
+      implicit none
+      INTEGER,intent(in):: INT
+      INTEGER I
+      type(nwad_dble),intent(in)::arg
+      type(nwad_dble),intent(out)::result
+      type(nwad_dble)::
+     1       EI,FRAC,
+     2       PX,QX,SUMP,
+     3       SUMQ,T,W,X,XMX0,
+     4       Y,YSQ
       double precision 
-     1       A,ARG,B,C,D,EXP40,E,EI,F,FOUR,FOURTY,FRAC,HALF,ONE,P,
-     2       PLG,PX,P037,P1,P2,q,QLG,QX,Q1,Q2,R,RESULT,S,SIX,SUMP,
-     3       SUMQ,T,THREE,TWELVE,TWO,TWO4,W,X,XBIG,XINF,XMAX,XMX0,
-     4       X0,X01,X02,X11,Y,YSQ,ZERO
+     1       A,B,C,D,EXP40,E,F,FOUR,FOURTY,HALF,ONE,P,
+     2       PLG,P037,P1,P2,q,QLG,Q1,Q2,R,S,SIX,
+     3       THREE,TWELVE,TWO,TWO4,XBIG,XINF,XMAX,
+     4       X0,X01,X02,X11,ZERO
       DIMENSION  A(7),B(6),C(9),D(9),E(10),F(10),P(10),q(10),R(10),
      1   S(9),P1(10),Q1(9),P2(10),Q2(9),PLG(4),QLG(4),PX(10),QX(10)
 C----------------------------------------------------------------------
@@ -963,4 +1162,18 @@ C----------------------------------------------------------------------
       RETURN
       END
 c-----------------------------------------------------------------------
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_ft97.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_c_ft97.F"
+#endif
 C> @}

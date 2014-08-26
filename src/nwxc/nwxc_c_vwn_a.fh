@@ -76,15 +76,18 @@ c     Set which parameters to use for epsilon difference in beta(rs)
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine VWN_NAME(tol_rho, ipol, nq, wght, 
-     &                    rho, func, Amat)
+     &                    rho, func)
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 c     Could not get concatenation operator to work with g77 preprocessor
       Subroutine VWN_NAME_D2(tol_rho, ipol, nq, wght,
-     &                       rho, func, Amat, Amat2)
+     &                       rho, func)
 #else
       Subroutine VWN_NAME_D3(tol_rho, ipol, nq, wght,
-     &                       rho, func, Amat, Amat2, Amat3)
+     &                       rho, func)
 #endif
+c
+#include "nwad.fh"
+c
       implicit none
 #include "nwxc_param.fh"
 c
@@ -95,22 +98,22 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     The functional values
 c
-      double precision func(*) !< [Output] The value of the functional
+      type(nwad_dble)::func(*) !< [Output] The value of the functional
 c
 c     Partial Derivatives of the Correlation Energy Functional
 c
-      double precision Amat(nq,*)  !< [Output] The derivative wrt rho
+c     double precision Amat(nq,*)  !< [Output] The derivative wrt rho
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-      double precision Amat2(nq,*) !< [Output] The 2nd derivative wrt rho
+c     double precision Amat2(nq,*) !< [Output] The 2nd derivative wrt rho
 #endif
 c Daniel (5-23-12): Third order derivative of the functional with 
 c respect to the electron density.
 #if defined(THIRD_DERIV)
-      double precision Amat3(nq,*)
+c     double precision Amat3(nq,*)
 #endif
 c
       double precision onethird, fourthirds, twothirds, pi
@@ -142,42 +145,46 @@ c
       data x0 / -0.10498D0, -0.32500D0, -0.00475840D0,
      &          -0.409286D0, -0.743294D0, -0.228344D0 /
 c
-      double precision e(5), d1e(5), rhoval, rs, d1rs, x, d1x,
-     &     rchi, d1chi, t1, t2, t3, d1t1, d1t2, d1t3, s, d1s,
-     &     d1zeta(2), d1ersz(2), d1edrho(2), zeta, fz, d1fz, eps,
-     &     dec_rs1, dec_rsz, d1dec_rs1, d1dec_rsz(2)
+      type(nwad_dble)::rhoval,fz,rs,x,rchi,dec_rsz,d1chi,t1,t2,t3
+      type(nwad_dble)::dec_rs1,eps,e(5),s
+      type(nwad_dble)::zeta,zeta2,zeta3,zeta4
+      double precision d1e(5), d1rs, d1x,
+     &     d1t1, d1t2, d1t3, d1s,
+     &     d1zeta(2), d1ersz(2), d1edrho(2), d1fz,
+     &     d1dec_rs1, d1dec_rsz(2)
       double precision d2fz0
 #ifdef NEED_RPA_RS1
-      double precision derpa_rs1, d1derpa_rs1
+      type(nwad_dble)::derpa_rs1
+      double precision d1derpa_rs1
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-      double precision d2derpa_rs1
+c     double precision d2derpa_rs1
 #endif
 c Daniel (5-29-12): Third order derivative stuff for Delta[epsilon_RPA]
 #if defined(THIRD_DERIV)
-      double precision d3derpa_rs1
+c     double precision d3derpa_rs1
 #endif
 #endif
 #ifdef USE_VWN_DEC
-      double precision devwn_rsz, d1devwn_rsz(2), zeta2, zeta3, zeta4,
-     &     beta_rs1, d1beta_rs1, t_vwn, d1t_vwn
+      type(nwad_dble)::devwn_rsz, beta_rs1, t_vwn
+      double precision d1devwn_rsz(2),d1beta_rs1, d1t_vwn
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-      double precision d2beta_rs1, d2t_vwn, d2devwn_rsz(3)
+c     double precision d2beta_rs1, d2t_vwn, d2devwn_rsz(3)
 #endif
 c Daniel (5-30-12): Third derivative stuff
 #if defined(THIRD_DERIV)
-      double precision d3beta_rs1, d3t_vwn, d3devwn_rsz(4)
+c     double precision d3beta_rs1, d3t_vwn, d3devwn_rsz(4)
 #endif
 #endif
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-      double precision d2rs, d2x, d2t1, d2t2, d2t3, d2s,
-     &     d2e(5), d2zeta(3), d2dec_rs1, d2dec_rsz(3),
-     &     d2ersz(3), d2edrho(3), d2fz, rrho2
+c     double precision d2rs, d2x, d2t1, d2t2, d2t3, d2s,
+c    &     d2e(5), d2zeta(3), d2dec_rs1, d2dec_rsz(3),
+c    &     d2ersz(3), d2edrho(3), d2fz, rrho2
 #endif
 c Daniel (5-23-12): Third derivative stuff
 #ifdef THIRD_DERIV
-      double precision d3rs, d3x, d3t1, d3t2, d3t3, d3s,
-     &     d3e(5), d3fz, d3zeta(4), rrho3, d3dec_rs1,
-     &     d3dec_rsz(4), d3ersz(4), d3edrho(4)
+c     double precision d3rs, d3x, d3t1, d3t2, d3t3, d3s,
+c    &     d3e(5), d3fz, d3zeta(4), rrho3, d3dec_rs1,
+c    &     d3dec_rsz(4), d3ersz(4), d3edrho(4)
 #endif
       double precision p0, p1, p2, p3, p4
 c
@@ -273,20 +280,20 @@ c the tolerance.  rs => Wigner-Seitz radius
 c Daniel (5-23-12): x = rs**{1/2} is defined under Eq. [4.3] in VWN.
 c d1rs => 1st derivative of rs with respect to rho
 c d1x => 1st derivative of x with respect to rs
-         d1rs = -onethird*rs/rhoval
+c        d1rs = -onethird*rs/rhoval
          x = sqrt(rs)
-         d1x = 0.5d0/x
+c        d1x = 0.5d0/x
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c Daniel (5-23-12)
 c d2rs => 2nd derivative of rs with respect to rho
 c d2x => 2nd derivative of x with respect to rs
-         d2rs = -fourthirds*d1rs/rhoval
-         d2x = -0.5d0*d1x/rs
+c        d2rs = -fourthirds*d1rs/rhoval
+c        d2x = -0.5d0*d1x/rs
 #endif
 #if defined(THIRD_DERIV)
 c Daniel (5-23-12): Third order derivative stuff
-         d3rs = -seventhirds*d2rs/rhoval 
-         d3x = -threehalf*d2x/rs 
+c        d3rs = -seventhirds*d2rs/rhoval 
+c        d3x = -threehalf*d2x/rs 
 #endif
 c
 c        Evaluate the individual correlation energy formulas
@@ -302,42 +309,42 @@ c t3 = both inverse tangents
             rchi = 1.0d0/(rs + b(i)*x + c(i))
             d1chi = 2.0d0*x + b(i)
             s = Q(i)/d1chi
-            d1s = -2.0d0*s/d1chi
+c           d1s = -2.0d0*s/d1chi
             t1 = log(abs(rs*rchi))
-            d1t1=(x - x0(i))*(x - x0(i))*rchi
-            t2 = log(abs(d1t1))
+            t2 = (x - x0(i))*(x - x0(i))*rchi
+            t2 = log(abs(t2))
             t3 = atan(s)
 c d1t1 = derivative of the first term
 c d1t2 = derivative of the second term
 c d1t3 = derivative of the third term
-            d1t1 = 2.0d0/x - d1chi*rchi
-            d1t2 = 2.0d0/(x-x0(i)) - d1chi*rchi
-            d1t3 = d1s/(1.0d0 + s*s)
+c           d1t1 = 2.0d0/x - d1chi*rchi
+c           d1t2 = 2.0d0/(x-x0(i)) - d1chi*rchi
+c           d1t3 = d1s/(1.0d0 + s*s)
 c e(i) is the correlation energy per particle
 c d1e(i) is the derivative of the correlation energy per particle
             e(i) = ct1(i)*t1 + ct2(i)*t2 + ct3(i)*t3
-            d1e(i) = ct1(i)*d1t1 + ct2(i)*d1t2 + ct3(i)*d1t3
+c           d1e(i) = ct1(i)*d1t1 + ct2(i)*d1t2 + ct3(i)*d1t3
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-            d2s = -4.d0*d1s/d1chi
-            d2t1 =-2.0d0/rs + (d1chi*rchi)**2 - 2.d0*rchi
-            d2t2 =-2.0d0/(x-x0(i))**2 + (d1chi*rchi)**2 - 2.d0*rchi
-            d2t3 = (d2s - 2.d0*s*d1s*d1t3)/(1.0d0 + s*s)
+c           d2s = -4.d0*d1s/d1chi
+c           d2t1 =-2.0d0/rs + (d1chi*rchi)**2 - 2.d0*rchi
+c           d2t2 =-2.0d0/(x-x0(i))**2 + (d1chi*rchi)**2 - 2.d0*rchi
+c           d2t3 = (d2s - 2.d0*s*d1s*d1t3)/(1.0d0 + s*s)
 c d2e(i) is the second derivative of the correlation energy per particle
-            d2e(i) = ct1(i)*d2t1 + ct2(i)*d2t2 + ct3(i)*d2t3
+c           d2e(i) = ct1(i)*d2t1 + ct2(i)*d2t2 + ct3(i)*d2t3
 #endif
 #if defined(THIRD_DERIV)
 c Daniel (5-29-12): Third order derivative stuff
 c            d3s = -6.0d0*d2s/d1chi
 c Might be better to implement this using the following, so that we 
 c don't rely on the second derivative being defined:
-            d3s = 24.0d0*d1s/(d1chi*d1chi)
-            d3t1 = 4.0d0/x**3 + 6.0d0*d1chi*rchi*rchi
-     &        - 2.0d0*(d1chi*rchi)**3
-            d3t2 = 4.0d0/(x-x0(i))**3 + 6.0d0*d1chi*rchi*rchi
-     &        - 2.0d0*(d1chi*rchi)**3
-            d3t3 = (d3s + (6.0d0*s*s-2.0d0)*d1s*d1t3*d1t3 
-     &        - 6.0d0*s*d2s*d1t3)/(1.0d0 + s*s)
-            d3e(i) = ct1(i)*d3t1 + ct2(i)*d3t2 + ct3(i)*d3t3
+c           d3s = 24.0d0*d1s/(d1chi*d1chi)
+c           d3t1 = 4.0d0/x**3 + 6.0d0*d1chi*rchi*rchi
+c    &        - 2.0d0*(d1chi*rchi)**3
+c           d3t2 = 4.0d0/(x-x0(i))**3 + 6.0d0*d1chi*rchi*rchi
+c    &        - 2.0d0*(d1chi*rchi)**3
+c           d3t3 = (d3s + (6.0d0*s*s-2.0d0)*d1s*d1t3*d1t3 
+c    &        - 6.0d0*s*d2s*d1t3)/(1.0d0 + s*s)
+c           d3e(i) = ct1(i)*d3t1 + ct2(i)*d3t2 + ct3(i)*d3t3
 #endif
 c
 c           Transform derivatives wrt x to derivatives wrt rs
@@ -346,15 +353,15 @@ c
 c Daniel (5-29-12): Third order derivative stuff
 c Need to do this first because we need the first and second order
 c derivatives with respect to x that aren't replaced.
-            d3e(i) = d3e(i)*d1x*d1x*d1x + 3.0d0*d2e(i)*d1x*d2x
-     &        + d1e(i)*d3x
+c           d3e(i) = d3e(i)*d1x*d1x*d1x + 3.0d0*d2e(i)*d1x*d2x
+c    &        + d1e(i)*d3x
 #endif
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c           Do 2nd derivative first so the x first derivative in d1e
 c           is not lost
-            d2e(i) = d2e(i)*d1x*d1x + d1e(i)*d2x
+c           d2e(i) = d2e(i)*d1x*d1x + d1e(i)*d2x
 #endif
-            d1e(i) = d1e(i)*d1x
+c           d1e(i) = d1e(i)*d1x
          enddo
 c
 c        Compute the polarization function and its derivatives
@@ -374,71 +381,79 @@ c By definition, zeta should be between -1 and 1.
             zeta =-1.d0
          endif
 c Daniel (5-29-12): This is [2.3] in VWN.
-         fz = ((1.d0+zeta)**fourthirds + 
-     &         (1.d0-zeta)**fourthirds - 2.d0)*p1
+         fz = -2.0d0
+         if (1.0d0+zeta.gt.1.0d-10) then
+           fz = fz + (1.d0+zeta)**fourthirds
+         endif
+         if (1.0d0-zeta.gt.1.0d-10) then
+           fz = fz + (1.d0-zeta)**fourthirds
+         endif
+         fz = p1*fz
+c        fz = ((1.d0+zeta)**fourthirds + 
+c    &         (1.d0-zeta)**fourthirds - 2.d0)*p1
 c Daniel (5-29-12): Derivative of f[zeta] with respect
 c to zeta.
-         d1fz = ((1.d0+zeta)**onethird - 
-     &           (1.d0-zeta)**onethird)*p2
+c        d1fz = ((1.d0+zeta)**onethird - 
+c    &           (1.d0-zeta)**onethird)*p2
 c Daniel (5-29-12): Derivatives of zeta with respect to the 
 c spin-densities (1 = alpha, 2 = beta)
-         d1zeta(1) = (1.d0-zeta)/rhoval
-         d1zeta(2) =-(1.d0+zeta)/rhoval
+c        d1zeta(1) = (1.d0-zeta)/rhoval
+c        d1zeta(2) =-(1.d0+zeta)/rhoval
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c Daniel (5-29-12): If zeta is less than the tolerance on the
 c electron density, we insert zeta=0 into the equation.
-         if(dabs(zeta).lt.tol_rho) then
-            d2fz = d2fz0 
-         else
+c        if(dabs(zeta).lt.tol_rho) then
+c           d2fz = d2fz0 
+c        else
 c Daniel (5-29-12): If zeta is ~ -1 or ~ +1, we can have a problem with
 c numerical inaccuracy.  This part screens for that situation.
-            if (dabs(zeta+1.d0).le.tol_rho) then
-              d2fz = ((1.d0-zeta)**(-twothirds))*p3
-            else if (dabs(zeta-1.d0).le.tol_rho) then
-              d2fz = ((1.d0+zeta)**(-twothirds))*p3
-            else
-              d2fz = ((1.d0+zeta)**(-twothirds) +
-     &                (1.d0-zeta)**(-twothirds))*p3
-            endif
-         endif
-         rrho2 = 2.d0/(rhoval*rhoval)
+c           if (dabs(zeta+1.d0).le.tol_rho) then
+c             d2fz = ((1.d0-zeta)**(-twothirds))*p3
+c           else if (dabs(zeta-1.d0).le.tol_rho) then
+c             d2fz = ((1.d0+zeta)**(-twothirds))*p3
+c           else
+c             d2fz = ((1.d0+zeta)**(-twothirds) +
+c    &                (1.d0-zeta)**(-twothirds))*p3
+c           endif
+c        endif
+c        rrho2 = 2.d0/(rhoval*rhoval)
 c        1 = aa, 2 = ab, 3 = bb
-         d2zeta(1) =-rrho2*(1.d0-zeta)
-         d2zeta(2) = rrho2*zeta
-         d2zeta(3) = rrho2*(1.d0+zeta)
+c        d2zeta(1) =-rrho2*(1.d0-zeta)
+c        d2zeta(2) = rrho2*zeta
+c        d2zeta(3) = rrho2*(1.d0+zeta)
 #endif
 c
 c Daniel (5-29-12): Third order derivatives of spin polarization stuff
 #ifdef THIRD_DERIV
-         if (dabs(zeta+1.0d0).le.tol_rho) then
-           d3fz = (-(1.0d0-zeta)**(-fivethirds))*p4 
-         else if (dabs(zeta-1.0d0).le.tol_rho) then
-           d3fz = ((1.0d0+zeta)**(-fivethirds))*p4
-         else
-           d3fz = ((1.0d0+zeta)**(-fivethirds) -
-     &             (1.0d0-zeta)**(-fivethirds))*p4
-         end if          
-         rrho3 = 1.0d0/(rhoval*rhoval*rhoval) 
+c        if (dabs(zeta+1.0d0).le.tol_rho) then
+c          d3fz = (-(1.0d0-zeta)**(-fivethirds))*p4 
+c        else if (dabs(zeta-1.0d0).le.tol_rho) then
+c          d3fz = ((1.0d0+zeta)**(-fivethirds))*p4
+c        else
+c          d3fz = ((1.0d0+zeta)**(-fivethirds) -
+c    &             (1.0d0-zeta)**(-fivethirds))*p4
+c        end if          
+c        rrho3 = 1.0d0/(rhoval*rhoval*rhoval) 
 c 1 = aaa, 2 = aab, 3 = abb, 4 = bbb
-         d3zeta(1) = 6.0d0*(1.0d0-zeta)*rrho3
-         d3zeta(2) = 2.0d0*(1.0d0-3.0d0*zeta)*rrho3
-         d3zeta(3) = -2.0d0*(1.0d0+3.0d0*zeta)*rrho3
-         d3zeta(4) = -6.0d0*(1.0d0+3.0d0*zeta)*rrho3
+c        d3zeta(1) = 6.0d0*(1.0d0-zeta)*rrho3
+c        d3zeta(2) = 2.0d0*(1.0d0-3.0d0*zeta)*rrho3
+c        d3zeta(3) = -2.0d0*(1.0d0+3.0d0*zeta)*rrho3
+c        d3zeta(4) = -6.0d0*(1.0d0+3.0d0*zeta)*rrho3
 #endif
          dec_rs1 = e(2)-e(1)
-         d1dec_rs1 = d1e(2)-d1e(1)
+c        d1dec_rs1 = d1e(2)-d1e(1)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-         d2dec_rs1 = d2e(2)-d2e(1)
+c        d2dec_rs1 = d2e(2)-d2e(1)
 #endif
 #ifdef NEED_RPA_RS1
          derpa_rs1 = e(5)-e(4)
-         d1derpa_rs1 = d1e(5)-d1e(4)
+c        d1derpa_rs1 = d1e(5)-d1e(4)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-         d2derpa_rs1 = d2e(5)-d2e(4)
+c        d2derpa_rs1 = d2e(5)-d2e(4)
 #endif
 c Daniel (5-29-12): Third order derivative of Delta[epsilon_RPA]
 #if defined(THIRD_DERIV)
-         d3derpa_rs1 = d3e(5)-d3e(4)
+c        d3derpa_rs1 = d3e(5)-d3e(4)
 #endif
 #endif
 c
@@ -447,46 +462,46 @@ c Delta[epsilon]
 #ifdef USE_VWN_DEC
 c Delta[espilon](rs,1) in Eq. [4.8] in VWN and its derivative
          beta_rs1 = e(BETA_SET_RS1+1)-e(BETA_SET_RS1)
-         d1beta_rs1 = d1e(BETA_SET_RS1+1)-d1e(BETA_SET_RS1)
+c        d1beta_rs1 = d1e(BETA_SET_RS1+1)-d1e(BETA_SET_RS1)
          zeta2 = zeta*zeta
          zeta3 = zeta2*zeta
          zeta4 = zeta3*zeta
 c Eq. [4.8] in VWN and its derivative with respect to rs
          t_vwn = d2fz0*beta_rs1-e(3)
-         d1t_vwn = d2fz0*d1beta_rs1-d1e(3)
+c        d1t_vwn = d2fz0*d1beta_rs1-d1e(3)
 c Delta[epsilon_{VWN}](rs,zeta)
          devwn_rsz = fz/d2fz0*(e(3)+t_vwn*zeta4)
 c Derivatives: 1 = drs, 2 = dzeta
-         d1devwn_rsz(1) = fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
-         d1devwn_rsz(2) = d1fz/d2fz0*(e(3)+t_vwn*zeta4)
-     &        + fz/d2fz0*t_vwn*4.d0*zeta3
+c        d1devwn_rsz(1) = fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
+c        d1devwn_rsz(2) = d1fz/d2fz0*(e(3)+t_vwn*zeta4)
+c    &        + fz/d2fz0*t_vwn*4.d0*zeta3
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-         d2beta_rs1 = d2e(BETA_SET_RS1+1)-d2e(BETA_SET_RS1)
-         d2t_vwn = d2fz0*d2beta_rs1-d2e(3)
+c        d2beta_rs1 = d2e(BETA_SET_RS1+1)-d2e(BETA_SET_RS1)
+c        d2t_vwn = d2fz0*d2beta_rs1-d2e(3)
 c Derivatives: 1 = drsdrs, 2 = drsdzeta, 3 = dzetadzeta
-         d2devwn_rsz(1) = fz/d2fz0*(d2e(3)+d2t_vwn*zeta4)
-         d2devwn_rsz(2) = d1fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
-     &        + fz/d2fz0*d1t_vwn*4.d0*zeta3
-         d2devwn_rsz(3) = d2fz/d2fz0*(e(3)+t_vwn*zeta4)
-     &        + d1fz/d2fz0*t_vwn*8.d0*zeta3
-     &        + fz/d2fz0*t_vwn*12.d0*zeta2
+c        d2devwn_rsz(1) = fz/d2fz0*(d2e(3)+d2t_vwn*zeta4)
+c        d2devwn_rsz(2) = d1fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
+c    &        + fz/d2fz0*d1t_vwn*4.d0*zeta3
+c        d2devwn_rsz(3) = d2fz/d2fz0*(e(3)+t_vwn*zeta4)
+c    &        + d1fz/d2fz0*t_vwn*8.d0*zeta3
+c    &        + fz/d2fz0*t_vwn*12.d0*zeta2
 #endif
 c Daniel (5-30-12): Third order derivative stuff
 #ifdef THIRD_DERIV
-         d3beta_rs1 = d3e(BETA_SET_RS1+1)-d3e(BETA_SET_RS1) 
-         d3t_vwn = d2fz0*d3beta_rs1-d3e(3)
+c        d3beta_rs1 = d3e(BETA_SET_RS1+1)-d3e(BETA_SET_RS1) 
+c        d3t_vwn = d2fz0*d3beta_rs1-d3e(3)
 c Derivatives: 1 = drsdrsdrs, 2 = drsdrsdzeta, 3 = drsdzetadzeta,
 c              4 = dzetadzetadzeta
-         d3devwn_rsz(1) = fz/d2fz0*(d3e(3)+d3t_vwn*zeta4)
-         d3devwn_rsz(2) = d1fz/d2fz0*(d2e(3)+d2t_vwn*zeta4)
-     &        + fz/d2fz0*d2t_vwn*4.0d0*zeta3
-         d3devwn_rsz(3) = d2fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
-     &        + d1fz/d2fz0*d1t_vwn*8.0d0*zeta3
-     &        + fz/d2fz0*d1t_vwn*12.0d0*zeta2
-         d3devwn_rsz(4) = d3fz/d2fz0*(e(3)+t_vwn*zeta4)
-     &        + d2fz/d2fz0*t_vwn*12.0d0*zeta3
-     &        + d1fz/d2fz0*t_vwn*36.0d0*zeta2
-     &        + fz/d2fz0*t_vwn*24.0d0*zeta
+c        d3devwn_rsz(1) = fz/d2fz0*(d3e(3)+d3t_vwn*zeta4)
+c        d3devwn_rsz(2) = d1fz/d2fz0*(d2e(3)+d2t_vwn*zeta4)
+c    &        + fz/d2fz0*d2t_vwn*4.0d0*zeta3
+c        d3devwn_rsz(3) = d2fz/d2fz0*(d1e(3)+d1t_vwn*zeta4)
+c    &        + d1fz/d2fz0*d1t_vwn*8.0d0*zeta3
+c    &        + fz/d2fz0*d1t_vwn*12.0d0*zeta2
+c        d3devwn_rsz(4) = d3fz/d2fz0*(e(3)+t_vwn*zeta4)
+c    &        + d2fz/d2fz0*t_vwn*12.0d0*zeta3
+c    &        + d1fz/d2fz0*t_vwn*36.0d0*zeta2
+c    &        + fz/d2fz0*t_vwn*24.0d0*zeta
 #endif
 #endif
 c

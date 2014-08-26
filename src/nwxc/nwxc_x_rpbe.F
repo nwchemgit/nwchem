@@ -54,19 +54,18 @@ C> 10.1103/PhysRevB.59.7413</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_rpbe(
-     W     tol_rho, ipol, nq, wght, rho, rgamma, func,
-     &                     Amat, Cmat)
+     W     tol_rho, ipol, nq, wght, rho, rgamma, func)
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_rpbe_d2(
-     W     tol_rho, ipol, nq, wght, rho, rgamma, func,
-     &                        Amat, Amat2, Cmat, Cmat2)
+     W     tol_rho, ipol, nq, wght, rho, rgamma, func)
 #else
       Subroutine nwxc_x_rpbe_d3(
-     W     tol_rho, ipol, nq, wght, rho, rgamma, func,
-     &     Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3)
+     W     tol_rho, ipol, nq, wght, rho, rgamma, func)
 #endif
 c
 c$Id$
+c
+#include "nwad.fh"
 c
       implicit none
 c
@@ -79,61 +78,61 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision func(nq)   !< [Output] The value of the functional
-      double precision amat(nq,*) !< [Output] The derivative wrt rho
-      double precision cmat(nq,*) !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)   !< [Output] The value of the functional
+c     double precision amat(nq,*) !< [Output] The derivative wrt rho
+c     double precision cmat(nq,*) !< [Output] The derivative wrt rgamma
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-      double precision Amat2(nq,*) !< [Output] The 2nd derivative wrt rho
-      double precision Cmat2(nq,*) !< [Output] The 2nd derivative wrt rgamma
-                                   !< and possibly rho
+c     double precision Amat2(nq,*) !< [Output] The 2nd derivative wrt rho
+c     double precision Cmat2(nq,*) !< [Output] The 2nd derivative wrt rgamma
+c                                  !< and possibly rho
 #endif
 #if defined(THIRD_DERIV)
 c
 c     Sampling Matrices for the XC Kernel
 c
-      double precision Amat3(nq,*)  !< [Output] The 3rd derivative wrt rho
-      double precision Cmat3(nq,*)  !< [Output] The 3rd derivative wrt rgamma
-                                    !< and possibly rho
+c     double precision Amat3(nq,*)  !< [Output] The 3rd derivative wrt rho
+c     double precision Cmat3(nq,*)  !< [Output] The 3rd derivative wrt rgamma
+c                                   !< and possibly rho
 #endif
 c
       double precision pi, um, uk, umk,ukrev,umkrev
       double precision C, Cs
       double precision F43, F13, F23
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-      double precision F73
+c     double precision F73
 #endif
 #if defined(THIRD_DERIV)
-      double precision F10d3
+c     double precision F10d3
 #endif
       parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
 c     parameter(ukrev=1.245d0, umkrev=um/ukrev)
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0, F23=2.0d0/3.0d0)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-      parameter (F73=7.d0/3.d0)
+c     parameter (F73=7.d0/3.d0)
 #endif
 #ifdef THIRD_DERIV
-      parameter (F10d3=10.0d0/3.0d0)
+c     parameter (F10d3=10.0d0/3.0d0)
 #endif
 c
       integer n
-      double precision rrho, rho43, rho13, gamma, gam12, s, d1s(2),
-     &      d, g, gp, d1g(2)
+      type(nwad_dble)::rrho, rho43, rho13, gamma, gam12, s, g 
+      double precision d1s(2), d, gp, d1g(2)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-      double precision rhom23, d2s(3), gpp, d2g(3)
+c     double precision rhom23, d2s(3), gpp, d2g(3)
 #endif
 #if defined(THIRD_DERIV)
-      double precision d3s(4), d3g(4), rhom53, gppp
+c     double precision d3s(4), d3g(4), rhom53, gppp
 #endif
 c     double precision gpbe0,gpbe1,gpbe2
-      double precision grpbe0,grpbe1,grpbe2,grpbe3
+      type(nwad_dble)::grpbe0,grpbe1,grpbe2,grpbe3
 c     double precision grevpbe0,grevpbe1,grevpbe2
 c     gpbe0(s)= uk*(1.0d0 - 1.0d0/(1.0d0+umk*s*s))
 c     gpbe1(s)= 2.0d0*um*s/(1.0d0+umk*s*s)**2
@@ -144,9 +143,9 @@ c     grevpbe1(s)= 2.0d0*um*s/(1.0d0+umkrev*s*s)**2
 c     grevpbe2(s)= 2.0d0*um*(1.0d0-4.0d0*umkrev*s*s/(1.0d0+umkrev*s*s))/
 c    /     (1.0d0+umkrev*s*s)**2
       grpbe0(s)= uk*(1.0d0 - exp(-umk*s*s))
-      grpbe1(s)= 2.0d0*um*s*exp(-umk*s*s)
-      grpbe2(s)= 2.0d0*um*exp(-umk*s*s)*(1.0d0-2.0d0*umk*s*s)
-      grpbe3(s)= -4.0d0*umk*um*s*exp(-umk*s*s)*(3d0-2d0*umk*s*s)
+c     grpbe1(s)= 2.0d0*um*s*exp(-umk*s*s)
+c     grpbe2(s)= 2.0d0*um*exp(-umk*s*s)*(1.0d0-2.0d0*umk*s*s)
+c     grpbe3(s)= -4.0d0*umk*um*s*exp(-umk*s*s)*(3d0-2d0*umk*s*s)
 c
       pi = acos(-1.0d0)
       C = -3.0d0/(4.0d0*pi)*(3.0d0*pi*pi)**F13
@@ -197,10 +196,10 @@ CDEC$ NOSWP
             rrho = 1.0d0/rho(n,R_T)
             rho13 = F43*rho43*rrho
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-            rhom23 = F13*rho13*rrho
+c           rhom23 = F13*rho13*rrho
 #endif
 #if defined(THIRD_DERIV)
-            rhom53 = F23*rhom23*rrho
+c           rhom53 = F23*rhom23*rrho
 #endif
 c           if (lfac) then
 c              func(n) = func(n) + wght*rho43*fac
@@ -213,79 +212,79 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            gam12 = dsqrt(rgamma(n,G_TT))
+            gam12 = sqrt(rgamma(n,G_TT))
             if (gam12.lt.tol_rho**2) goto 10
 c
 
             s = Cs*gam12/rho43
-            d1s(1) = -F43*s*rrho
-            d1s(2) = 0.5d0*s/rgamma(n,G_TT)
+c           d1s(1) = -F43*s*rrho
+c           d1s(2) = 0.5d0*s/rgamma(n,G_TT)
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
             g=grpbe0(s)
-            gp=grpbe1(s)
+c           gp=grpbe1(s)
 c
-            d1g(1) = gp*d1s(1)
-            d1g(2) = gp*d1s(2)
+c           d1g(1) = gp*d1s(1)
+c           d1g(2) = gp*d1s(2)
             func(n) = func(n) + wght*rho43*g
-            Amat(n,D1_RA)  = Amat(n,D1_RA) 
-     +                     + wght*(rho13*g+rho43*d1g(1))
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) 
-     +                     + wght*2.0d0*rho43*d1g(2)
+c           Amat(n,D1_RA)  = Amat(n,D1_RA) 
+c    +                     + wght*(rho13*g+rho43*d1g(1))
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) 
+c    +                     + wght*2.0d0*rho43*d1g(2)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-            d2s(1) = -F73*d1s(1)*rrho
-            d2s(2) = -F43*d1s(2)*rrho
-            d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_TT)
-            gpp=grpbe2(s)
-            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
-            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
-            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           +wght*(rhom23*g
-     &           +      2.d0*rho13*d1g(1)
-     &           +      rho43*d2g(1))*2.0d0
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           +wght*(rho13*d1g(2)
-     &           +      rho43*d2g(2))*4.0d0
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
-     &           +wght*rho43*d2g(3)*8.0d0
+c           d2s(1) = -F73*d1s(1)*rrho
+c           d2s(2) = -F43*d1s(2)*rrho
+c           d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_TT)
+c           gpp=grpbe2(s)
+c           d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+c           d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+c           d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+c    &           +wght*(rhom23*g
+c    &           +      2.d0*rho13*d1g(1)
+c    &           +      rho43*d2g(1))*2.0d0
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+c    &           +wght*(rho13*d1g(2)
+c    &           +      rho43*d2g(2))*4.0d0
+c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+c    &           +wght*rho43*d2g(3)*8.0d0
 #endif
 #if defined(THIRD_DERIV)
 c 1 = drdrdr, 2 = drdrdg, 3 = drdgdg, 4 = dgdgdg
-            d3s(1) = -F10d3*d2s(1)*rrho
-            d3s(2) = 0.5d0*d2s(1)/gamma
-            d3s(3) = -F43*d2s(3)*rrho
-            d3s(4) = -1.5d0*d2s(3)/gamma
-            gppp = grpbe3(s)
+c           d3s(1) = -F10d3*d2s(1)*rrho
+c           d3s(2) = 0.5d0*d2s(1)/gamma
+c           d3s(3) = -F43*d2s(3)*rrho
+c           d3s(4) = -1.5d0*d2s(3)/gamma
+c           gppp = grpbe3(s)
 c Third derivatives of the enhancement factor
-            d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1) 
-     1             + gppp*d1s(1)*d1s(1)*d1s(1)
-            d3g(2) = gp*d3s(2)
-     1             + gpp*d1s(2)*d2s(1)
-     2             + 2.0d0*gpp*d1s(1)*d2s(2)
-     3             + gppp*d1s(1)*d1s(1)*d1s(2)
-            d3g(3) = gp*d3s(3)
-     1             + gpp*d1s(1)*d2s(3)
-     2             + 2.0d0*gpp*d1s(2)*d2s(2)
-     3             + gppp*d1s(1)*d1s(2)*d1s(2)
-            d3g(4) = gp*d3s(4) + 3.0d0*gpp*d1s(2)*d2s(3)
-     1             + gppp*d1s(2)*d1s(2)*d1s(2)
+c           d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1) 
+c    1             + gppp*d1s(1)*d1s(1)*d1s(1)
+c           d3g(2) = gp*d3s(2)
+c    1             + gpp*d1s(2)*d2s(1)
+c    2             + 2.0d0*gpp*d1s(1)*d2s(2)
+c    3             + gppp*d1s(1)*d1s(1)*d1s(2)
+c           d3g(3) = gp*d3s(3)
+c    1             + gpp*d1s(1)*d2s(3)
+c    2             + 2.0d0*gpp*d1s(2)*d2s(2)
+c    3             + gppp*d1s(1)*d1s(2)*d1s(2)
+c           d3g(4) = gp*d3s(4) + 3.0d0*gpp*d1s(2)*d2s(3)
+c    1             + gppp*d1s(2)*d1s(2)*d1s(2)
 c
-            Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
-     1           + (-rhom53*g
-     2           +  3.0d0*rhom23*d1g(1)
-     3           +  3.0d0*rho13*d2g(1)
-     4           +  rho43*d3g(1))*wght*4.0d0
-            Cmat3(n,D3_RA_RA_GAA) = Cmat3(n,D3_RA_RA_GAA)
-     1           + (rhom23*d1g(2)
-     2           +  2.0d0*rho13*d2g(2)
-     3           +  rho43*d3g(2))*wght*8.0d0
-            Cmat3(n,D3_RA_GAA_GAA) = Cmat3(n,D3_RA_GAA_GAA)
-     1           + (rho13*d2g(3) 
-     2           +  rho43*d3g(3))*wght*16.0d0
-            Cmat3(n,D3_GAA_GAA_GAA) = Cmat3(n,D3_GAA_GAA_GAA)
-     1           + (rho43*d3g(4))*wght*32.0d0
+c           Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
+c    1           + (-rhom53*g
+c    2           +  3.0d0*rhom23*d1g(1)
+c    3           +  3.0d0*rho13*d2g(1)
+c    4           +  rho43*d3g(1))*wght*4.0d0
+c           Cmat3(n,D3_RA_RA_GAA) = Cmat3(n,D3_RA_RA_GAA)
+c    1           + (rhom23*d1g(2)
+c    2           +  2.0d0*rho13*d2g(2)
+c    3           +  rho43*d3g(2))*wght*8.0d0
+c           Cmat3(n,D3_RA_GAA_GAA) = Cmat3(n,D3_RA_GAA_GAA)
+c    1           + (rho13*d2g(3) 
+c    2           +  rho43*d3g(3))*wght*16.0d0
+c           Cmat3(n,D3_GAA_GAA_GAA) = Cmat3(n,D3_GAA_GAA_GAA)
+c    1           + (rho43*d3g(4))*wght*32.0d0
 #endif
  10      continue
 c
@@ -336,10 +335,10 @@ c
             rrho = 0.5d0/rho(n,R_A)
             rho13 = F43*rho43*rrho
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-            rhom23 = F13*rho13*rrho
+c           rhom23 = F13*rho13*rrho
 #endif
 #if defined(THIRD_DERIV)
-            rhom53 = F23*rhom23*rrho
+c           rhom53 = F23*rhom23*rrho
 #endif
 c           if (lfac) then
 c              Ex = Ex + rho43*qwght(n)*fac*0.5d0
@@ -353,78 +352,78 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            gam12 = 2.0d0*dsqrt(rgamma(n,G_AA))
+            gam12 = 2.0d0*sqrt(rgamma(n,G_AA))
             if (gam12.lt.tol_rho**2) goto 25
 c
             s = Cs*gam12/rho43
-            d1s(1) = -F43*s*rrho
-            d1s(2) = 0.5d0*s/rgamma(n,G_AA)
+c           d1s(1) = -F43*s*rrho
+c           d1s(2) = 0.5d0*s/rgamma(n,G_AA)
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
             g=grpbe0(s)
-            gp=grpbe1(s)
+c           gp=grpbe1(s)
 c
-            d1g(1) = gp*d1s(1)
-            d1g(2) = gp*d1s(2)
+c           d1g(1) = gp*d1s(1)
+c           d1g(2) = gp*d1s(2)
             func(n) = func(n) + wght*rho43*g*0.5d0
-            Amat(n,D1_RA)  = Amat(n,D1_RA) 
-     +                     + wght*(rho13*g+rho43*d1g(1))
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA)
-     +                     + wght*0.5d0*rho43*d1g(2)
+c           Amat(n,D1_RA)  = Amat(n,D1_RA) 
+c    +                     + wght*(rho13*g+rho43*d1g(1))
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA)
+c    +                     + wght*0.5d0*rho43*d1g(2)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-            d2s(1) = -F73*d1s(1)*rrho
-            d2s(2) = -F43*d1s(2)*rrho
-            d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_AA)
-            gpp=grpbe2(s)
-            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
-            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
-            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           +wght*(rhom23*g
-     &           +      2.d0*rho13*d1g(1)
-     &           +      rho43*d2g(1))*2.0d0
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           +wght*(rho13*d1g(2)
-     &           +      rho43*d2g(2))
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
-     &           +wght*rho43*d2g(3)*0.5d0
+c           d2s(1) = -F73*d1s(1)*rrho
+c           d2s(2) = -F43*d1s(2)*rrho
+c           d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_AA)
+c           gpp=grpbe2(s)
+c           d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+c           d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+c           d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+c    &           +wght*(rhom23*g
+c    &           +      2.d0*rho13*d1g(1)
+c    &           +      rho43*d2g(1))*2.0d0
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+c    &           +wght*(rho13*d1g(2)
+c    &           +      rho43*d2g(2))
+c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+c    &           +wght*rho43*d2g(3)*0.5d0
 #endif
 #ifdef THIRD_DERIV
 c 1 = drdrdr, 2 = drdrdg, 3 = drdgdg, 4 = dgdgdg
-            d3s(1) = -F10d3*d2s(1)*rrho
-            d3s(2) = 0.5d0*d2s(1)/gamma
-            d3s(3) = -F43*d2s(3)*rrho
-            d3s(4) = -1.5d0*d2s(3)/gamma
-            gppp = grpbe3(s)
+c           d3s(1) = -F10d3*d2s(1)*rrho
+c           d3s(2) = 0.5d0*d2s(1)/gamma
+c           d3s(3) = -F43*d2s(3)*rrho
+c           d3s(4) = -1.5d0*d2s(3)/gamma
+c           gppp = grpbe3(s)
 c Third derivatives of the enhancement factor
-            d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1)
-     1             + gppp*d1s(1)*d1s(1)*d1s(1)
-            d3g(2) = gp*d3s(2)
-     1             + gpp*d1s(2)*d2s(1)
-     2             + 2.0d0*gpp*d1s(1)*d2s(2)
-     3             + gppp*d1s(1)*d1s(1)*d1s(2)
-            d3g(3) = gp*d3s(3)
-     1             + gpp*d1s(1)*d2s(3)
-     2             + 2.0d0*gpp*d1s(2)*d2s(2)
-     3             + gppp*d1s(1)*d1s(2)*d1s(2)
-            d3g(4) = gp*d3s(4) + 3.0d0*gpp*d1s(2)*d2s(3)
-     1             + gppp*d1s(2)*d1s(2)*d1s(2)
+c           d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1)
+c    1             + gppp*d1s(1)*d1s(1)*d1s(1)
+c           d3g(2) = gp*d3s(2)
+c    1             + gpp*d1s(2)*d2s(1)
+c    2             + 2.0d0*gpp*d1s(1)*d2s(2)
+c    3             + gppp*d1s(1)*d1s(1)*d1s(2)
+c           d3g(3) = gp*d3s(3)
+c    1             + gpp*d1s(1)*d2s(3)
+c    2             + 2.0d0*gpp*d1s(2)*d2s(2)
+c    3             + gppp*d1s(1)*d1s(2)*d1s(2)
+c           d3g(4) = gp*d3s(4) + 3.0d0*gpp*d1s(2)*d2s(3)
+c    1             + gppp*d1s(2)*d1s(2)*d1s(2)
 c
-            Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
-     1           + (-rhom53*g
-     2           +  3.0d0*rhom23*d1g(1)
-     3           +  3.0d0*rho13*d2g(1)
-     4           +  rho43*d3g(1))*wght*4.0d0
-            Cmat3(n,D3_RA_RA_GAA) = Cmat3(n,D3_RA_RA_GAA)
-     1           + (rhom23*d1g(2)
-     2           +  2.0d0*rho13*d2g(2)
-     3           +  rho43*d3g(2))*wght*2.0d0
-            Cmat3(n,D3_RA_GAA_GAA) = Cmat3(n,D3_RA_GAA_GAA)
-     1           + (rho13*d2g(3)
-     2           +  rho43*d3g(3))*wght
-            Cmat3(n,D3_GAA_GAA_GAA) = Cmat3(n,D3_GAA_GAA_GAA)
-     1           + (rho43*d3g(4))*wght*0.5d0
+c           Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA)
+c    1           + (-rhom53*g
+c    2           +  3.0d0*rhom23*d1g(1)
+c    3           +  3.0d0*rho13*d2g(1)
+c    4           +  rho43*d3g(1))*wght*4.0d0
+c           Cmat3(n,D3_RA_RA_GAA) = Cmat3(n,D3_RA_RA_GAA)
+c    1           + (rhom23*d1g(2)
+c    2           +  2.0d0*rho13*d2g(2)
+c    3           +  rho43*d3g(2))*wght*2.0d0
+c           Cmat3(n,D3_RA_GAA_GAA) = Cmat3(n,D3_RA_GAA_GAA)
+c    1           + (rho13*d2g(3)
+c    2           +  rho43*d3g(3))*wght
+c           Cmat3(n,D3_GAA_GAA_GAA) = Cmat3(n,D3_GAA_GAA_GAA)
+c    1           + (rho43*d3g(4))*wght*0.5d0
 #endif
 c
 c     Beta
@@ -437,10 +436,10 @@ c
             rrho = 0.5d0/rho(n,R_B)
             rho13 = F43*rho43*rrho
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-            rhom23 = F13*rho13*rrho
+c           rhom23 = F13*rho13*rrho
 #endif
 #if defined(THIRD_DERIV)
-            rhom53 = F23*rhom23*rrho
+c           rhom53 = F23*rhom23*rrho
 #endif
 c           if (lfac) then
 c              Ex = Ex + rho43*qwght(n)*fac*0.5d0
@@ -454,78 +453,78 @@ c
 c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
-            gam12 = 2.0d0*dsqrt(rgamma(n,G_BB))
+            gam12 = 2.0d0*sqrt(rgamma(n,G_BB))
             if (gam12.lt.tol_rho**2) goto 20
 c
             s = Cs*gam12/rho43
-            d1s(1) = -F43*s*rrho
-            d1s(2) = 0.5d0*s/rgamma(n,G_BB)
+c           d1s(1) = -F43*s*rrho
+c           d1s(2) = 0.5d0*s/rgamma(n,G_BB)
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
             g=grpbe0(s)
-            gp=grpbe1(s)
+c           gp=grpbe1(s)
 c
-            d1g(1) = gp*d1s(1)
-            d1g(2) = gp*d1s(2)
+c           d1g(1) = gp*d1s(1)
+c           d1g(2) = gp*d1s(2)
             func(n) = func(n) + wght*rho43*g*0.5d0
-            Amat(n,D1_RB)  = Amat(n,D1_RB)
-     +                     + wght*(rho13*g+rho43*d1g(1))
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB)
-     +                     + wght*0.5d0*rho43*d1g(2)
+c           Amat(n,D1_RB)  = Amat(n,D1_RB)
+c    +                     + wght*(rho13*g+rho43*d1g(1))
+c           Cmat(n,D1_GBB) = Cmat(n,D1_GBB)
+c    +                     + wght*0.5d0*rho43*d1g(2)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-            d2s(1) = -F73*d1s(1)*rrho
-            d2s(2) = -F43*d1s(2)*rrho
-            d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_BB)
-            gpp=grpbe2(s)
-            d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
-            d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
-            d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
-            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
-     &           +wght*(rhom23*g
-     &           +      2.d0*rho13*d1g(1)
-     &           +      rho43*d2g(1))*2.0d0
-            Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
-     &           +wght*(rho13*d1g(2)
-     &           +      rho43*d2g(2))
-            Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
-     &           +wght*rho43*d2g(3)*0.5d0
+c           d2s(1) = -F73*d1s(1)*rrho
+c           d2s(2) = -F43*d1s(2)*rrho
+c           d2s(3) = -0.5d0*d1s(2)/rgamma(n,G_BB)
+c           gpp=grpbe2(s)
+c           d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
+c           d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
+c           d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
+c           Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+c    &           +wght*(rhom23*g
+c    &           +      2.d0*rho13*d1g(1)
+c    &           +      rho43*d2g(1))*2.0d0
+c           Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
+c    &           +wght*(rho13*d1g(2)
+c    &           +      rho43*d2g(2))
+c           Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
+c    &           +wght*rho43*d2g(3)*0.5d0
 #endif
 #ifdef THIRD_DERIV
 c 1 = drdrdr, 2 = drdrdg, 3 = drdgdg, 4 = dgdgdg
-            d3s(1) = -F10d3*d2s(1)*rrho
-            d3s(2) = 0.5d0*d2s(1)/gamma
-            d3s(3) = -F43*d2s(3)*rrho
-            d3s(4) = -1.5d0*d2s(3)/gamma
-            gppp = grpbe3(s)
+c           d3s(1) = -F10d3*d2s(1)*rrho
+c           d3s(2) = 0.5d0*d2s(1)/gamma
+c           d3s(3) = -F43*d2s(3)*rrho
+c           d3s(4) = -1.5d0*d2s(3)/gamma
+c           gppp = grpbe3(s)
 c Third derivatives of the enhancement factor
-            d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1)
-     1             + gppp*d1s(1)*d1s(1)*d1s(1)
-            d3g(2) = gp*d3s(2)
-     1             + gpp*d1s(2)*d2s(1)
-     2             + 2.0d0*gpp*d1s(1)*d2s(2)
-     3             + gppp*d1s(1)*d1s(1)*d1s(2)
-            d3g(3) = gp*d3s(3)
-     1             + gpp*d1s(1)*d2s(3)
-     2             + 2.0d0*gpp*d1s(2)*d2s(2)
-     3             + gppp*d1s(1)*d1s(2)*d1s(2)
-            d3g(4) = gp*d3s(4) + 3.0d0*gpp*d1s(2)*d2s(3)
-     1             + gppp*d1s(2)*d1s(2)*d1s(2)
+c           d3g(1) = gp*d3s(1) + 3.0d0*gpp*d1s(1)*d2s(1)
+c    1             + gppp*d1s(1)*d1s(1)*d1s(1)
+c           d3g(2) = gp*d3s(2)
+c    1             + gpp*d1s(2)*d2s(1)
+c    2             + 2.0d0*gpp*d1s(1)*d2s(2)
+c    3             + gppp*d1s(1)*d1s(1)*d1s(2)
+c           d3g(3) = gp*d3s(3)
+c    1             + gpp*d1s(1)*d2s(3)
+c    2             + 2.0d0*gpp*d1s(2)*d2s(2)
+c    3             + gppp*d1s(1)*d1s(2)*d1s(2)
+c           d3g(4) = gp*d3s(4) + 3.0d0*gpp*d1s(2)*d2s(3)
+c    1             + gppp*d1s(2)*d1s(2)*d1s(2)
 c
-            Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB)
-     1           + (-rhom53*g
-     2           +  3.0d0*rhom23*d1g(1)
-     3           +  3.0d0*rho13*d2g(1)
-     4           +  rho43*d3g(1))*wght*4.0d0
-            Cmat3(n,D3_RB_RB_GBB) = Cmat3(n,D3_RB_RB_GBB)
-     1           + (rhom23*d1g(2)
-     2           +  2.0d0*rho13*d2g(2)
-     3           +  rho43*d3g(2))*wght*2.0d0
-            Cmat3(n,D3_RB_GBB_GBB) = Cmat3(n,D3_RB_GBB_GBB)
-     1           + (rho13*d2g(3)
-     2           +  rho43*d3g(3))*wght
-            Cmat3(n,D3_GBB_GBB_GBB) = Cmat3(n,D3_GBB_GBB_GBB)
-     1           + (rho43*d3g(4))*wght*0.5d0
+c           Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB)
+c    1           + (-rhom53*g
+c    2           +  3.0d0*rhom23*d1g(1)
+c    3           +  3.0d0*rho13*d2g(1)
+c    4           +  rho43*d3g(1))*wght*4.0d0
+c           Cmat3(n,D3_RB_RB_GBB) = Cmat3(n,D3_RB_RB_GBB)
+c    1           + (rhom23*d1g(2)
+c    2           +  2.0d0*rho13*d2g(2)
+c    3           +  rho43*d3g(2))*wght*2.0d0
+c           Cmat3(n,D3_RB_GBB_GBB) = Cmat3(n,D3_RB_GBB_GBB)
+c    1           + (rho13*d2g(3)
+c    2           +  rho43*d3g(3))*wght
+c           Cmat3(n,D3_GBB_GBB_GBB) = Cmat3(n,D3_GBB_GBB_GBB)
+c    1           + (rho43*d3g(4))*wght*0.5d0
 #endif
 c
  20      continue

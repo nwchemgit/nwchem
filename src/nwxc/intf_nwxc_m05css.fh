@@ -21,3 +21,4 @@
           double precision EUEGP, ChiP, ChiG
         end subroutine
       end interface
+c $Id$

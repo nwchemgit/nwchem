@@ -226,7 +226,7 @@
 !>     http://wwww.mcs.anl.gov/Rapsodia/userManual.pdf</a> (referenced
 !>     July 3, 2014).
 !>
-!> $Id: $
+!> $Id$
 !>
 !> Huub van Dam, 2014
 !>
@@ -397,6 +397,9 @@ module nwad3
   end interface
   interface value
     module procedure nwad_dble_value
+  end interface
+  interface print
+    module procedure nwad_dble_print
   end interface
 #if NWAD_DEG >= 1
   interface inter_d1_dx
@@ -2173,6 +2176,27 @@ contains
     double precision            :: s
     s = x%d0
   end function nwad_dble_value
+  !>
+  !> \brief Print the value of a NWAD_DBLE variable
+  !>
+  !> Generate formated output on the specified unit number, detailing
+  !> the contents of a NWAD_DBLE variable.
+  !>
+  subroutine nwad_dble_print(iunit,x)
+    integer,         intent(in) :: iunit
+    type(nwad_dble), intent(in) :: x
+    write(iunit,'("d0 = ",e14.6," ",$)')x%d0
+#if NWAD_DEG >= 1
+    write(iunit,'("d1 = ",e14.6," ",$)')x%d1
+#endif
+#if NWAD_DEG >= 2
+    write(iunit,'("d2 = ",e14.6," ",$)')x%d2
+#endif
+#if NWAD_DEG >= 3
+    write(iunit,'("d3 = ",e14.6," ",$)')x%d3
+#endif
+    write(iunit,*)
+  end subroutine nwad_dble_print
 #if NWAD_DEG >= 1
   !>
   !> \brief Interpolate the 1st order partial derivative from an evaluation

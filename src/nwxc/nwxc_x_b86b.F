@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -30,16 +30,20 @@ c
 c     References:
 c     [a] A. D. Becke J. Chem. Phys. 85 (1986) 7184
 c
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_b86b(tol_rho, ipol, nq, wght, rho, rgamma, 
-     &                       func, Amat, Cmat)
-#else
+     &                       func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_b86b_d2(tol_rho, ipol, nq, wght, rho, rgamma, 
-     &                          func, Amat, Amat2, Cmat, Cmat2)
+     &                          func)
+#else
+      Subroutine nwxc_x_b86b_d3(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                          func)
 #endif
 c
 c$Id$
 c
+#include "nwad.fh"
       implicit none
 c
 #include "nwxc_param.fh"
@@ -54,23 +58,23 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*)    !< [Input] The density
+      type(nwad_dble)::rho(nq,*)    !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision func(nq)    !< [Output] The value of the functional
-      double precision Amat(nq,*)   !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)    !< [Output] The value of the functional
+c     double precision Amat(nq,*)   !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
 #ifdef SECOND_DERIV
 c
 c     Sampling Matrices for the XC Kernel
 c
-      double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho
-      double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
+c     double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho
+c     double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
                                     !< and possibly rho
 #endif
       double precision pi
@@ -78,9 +82,11 @@ c
       double precision F13, F43, F45, FM45
       parameter (F13=1d0/3d0,F43=4d0/3d0,F45=4d0/5d0,FM45=-F45)
       integer n
-      double precision rrho, rho43, rho73, exnl
-      double precision crho43, crho13, crhom23, drho, drho2
-      double precision dr2_r43, dr2_r73, dr2_r83, dr4_r5, fac1, fac45
+      type(nwad_dble)::rrho, rho43, rho73, drho, drho2, exnl
+      type(nwad_dble)::crho13, crho43
+      type(nwad_dble)::dr2_r43, dr2_r73, dr2_r83, dr4_r5
+      type(nwad_dble)::fac1, fac45
+      double precision crhom23
       double precision gparam, bparam, gparamu, bparamu
       parameter (gparam=0.007d0, bparam=0.00375d0)
 c     parameter (gparamu=2.0d0**(2d0/3d0)*gparam)
@@ -109,7 +115,7 @@ CDEC$ NOSWP
             rrho = 1d0/rho(n,R_T)
             crho13 = F43*crho43*rrho
 #ifdef SECOND_DERIV
-            crhom23 = F13*crho13*rrho
+c           crhom23 = F13*crho13*rrho
 #endif
 c           if (lfac) then
 c              Ex = Ex + crho43*qwght(n)*fac
@@ -125,7 +131,7 @@ c           endif
 c           drho2 = (delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))
-            drho = dsqrt(drho2) 
+            drho = sqrt(drho2) 
             if (drho.le.tol_rho**2) goto 10
 
 c     Gradient correction
@@ -133,25 +139,25 @@ c     Gradient correction
             dr2_r73 = drho2 / rho73
             dr2_r83 = dr2_r43 / rho43
             dr4_r5 = dr2_r73 * dr2_r83 
-            fac1 = (1 + gparamu * dr2_r83)
+            fac1 = (1.0d0 + gparamu * dr2_r83)
             fac45 = fac1**FM45
 c     GC: exchange energy and energy density
             exnl = - bparamu * dr2_r43 * fac45 
             func(n) = func(n) + exnl * wght
 
 c     GC: dex/drho
-            Amat(n,D1_RA) = Amat(n,D1_RA) + bparamu * fac45 * 
-     &           (F43 * dr2_r73 - 
-     &           32d0/15d0 * gparamu * dr4_r5 / fac1) * wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + bparamu * fac45 * 
+c    &           (F43 * dr2_r73 - 
+c    &           32d0/15d0 * gparamu * dr4_r5 / fac1) * wght
 c     GC: 2*dex/d(grho2)
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 2 * exnl / drho2 * 
-     &           (1 - F45 * gparamu * dr2_r83 / fac1) * wght
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 2 * exnl / drho2 * 
+c    &           (1 - F45 * gparamu * dr2_r83 / fac1) * wght
 
 c     xxxx missing
 #ifdef SECOND_DERIV
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 0
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + 0
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + 0
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 0
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + 0
+c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + 0
 #endif
  10      continue
 c
@@ -175,7 +181,7 @@ c
             rrho = 1.d0/rho(n,R_A)
             crho13 = F43*crho43*rrho
 #ifdef SECOND_DERIV
-            crhom23 = F13*crho13*rrho
+c           crhom23 = F13*crho13*rrho
 #endif
 c           if (lfac) then
 c              Ex = Ex + 0.5d0*2**(4d0/3d0)*crho43*qwght(n)*fac
@@ -191,7 +197,7 @@ c           endif
 c           drho2 = (delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)) 
-            drho = dsqrt(drho2) 
+            drho = sqrt(drho2) 
             if (drho.le.tol_rho**2) goto 150
 
 c     Gradient correction
@@ -199,25 +205,25 @@ c     Gradient correction
             dr2_r73 = drho2 / rho73
             dr2_r83 = dr2_r43 / rho43
             dr4_r5 = dr2_r73 * dr2_r83 
-            fac1 = (1 + gparam * dr2_r83)
+            fac1 = (1.0d0 + gparam * dr2_r83)
             fac45 = fac1**FM45
 c     GC: exchange energy and energy density
             exnl = - bparam * dr2_r43 * fac45 * wght
             func(n) = func(n) + exnl
 
 c     GC: dex/drho
-            Amat(n,D1_RA) = Amat(n,D1_RA) + bparam * fac45 * 
-     &           (F43 * dr2_r73 - 
-     &           32d0/15d0 * gparam * dr4_r5 / fac1) * wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA) + bparam * fac45 * 
+c    &           (F43 * dr2_r73 - 
+c    &           32d0/15d0 * gparam * dr4_r5 / fac1) * wght
 c     GC: 2*dex/d(grho2)
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + exnl / drho2 * 
-     &           (1 - F45 * gparam * dr2_r83 / fac1)
+c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + exnl / drho2 * 
+c    &           (1 - F45 * gparam * dr2_r83 / fac1)
 
 c     xxxx missing
 #ifdef SECOND_DERIV
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 0
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + 0
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + 0
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 0
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + 0
+c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + 0
 #endif
 c
 c     beta
@@ -230,7 +236,7 @@ c
             rrho = 1d0/rho(n,R_B)
             crho13 = F43*crho43*rrho
 #ifdef SECOND_DERIV
-            crhom23 = F13*crho13*rrho
+c           crhom23 = F13*crho13*rrho
 #endif
 c           if (lfac) then
 c              Ex = Ex + 0.5d0*2**(4d0/3d0)*crho43*qwght(n)*fac
@@ -246,7 +252,7 @@ c           endif
 c           drho2 = (delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &           delrho(n,3,2)*delrho(n,3,2))
-            drho = dsqrt(drho2)  
+            drho = sqrt(drho2)  
             if (drho.le.tol_rho**2) goto 100
 
 c     Gradient correction
@@ -254,25 +260,25 @@ c     Gradient correction
             dr2_r73 = drho2 / rho73
             dr2_r83 = dr2_r43 / rho43
             dr4_r5 = dr2_r73 * dr2_r83 
-            fac1 = (1 + gparam * dr2_r83)
+            fac1 = (1.0d0 + gparam * dr2_r83)
             fac45 = fac1**FM45
 c     GC: exchange energy and energy density
             exnl = - bparam * dr2_r43 * fac45 * wght
             func(n) = func(n) + exnl
 
 c     GC: dex/drho
-            Amat(n,D1_RB) = Amat(n,D1_RB) + bparam * fac45 * 
-     &           (F43 * dr2_r73 - 
-     &           32d0/15d0 * gparam * dr4_r5 / fac1) * wght
+c           Amat(n,D1_RB) = Amat(n,D1_RB) + bparam * fac45 * 
+c    &           (F43 * dr2_r73 - 
+c    &           32d0/15d0 * gparam * dr4_r5 / fac1) * wght
 c     GC: 2*dex/d(grho2)
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + exnl / drho2 * 
-     &           (1 - F45 * gparam * dr2_r83 / fac1)
+c           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + exnl / drho2 * 
+c    &           (1 - F45 * gparam * dr2_r83 / fac1)
 
 c     xxxx missing
 #ifdef SECOND_DERIV
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 0
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + 0
-            Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + 0
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 0
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + 0
+c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + 0
 #endif
          
  100     continue
@@ -284,6 +290,13 @@ c
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_b86b.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_b86b.F"
 #endif

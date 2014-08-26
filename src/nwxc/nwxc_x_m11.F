@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_x_m11.F
 C> Implementation of the M08 and M11 exchange functionals
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -24,8 +26,16 @@ C>     J. Chem. Theory Comput. <b>4</b>, 1849-1868 (2008), DOI:
 C>     <a href="http://dx.doi.org/10.1021/ct800246v">
 C>     10.1021/ct800246v</a>.
 C>
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_m08(param, tol_rho, ipol, nq, wght, rho, rgamma,
-     &                      tau, func, Amat, Cmat, Mmat)
+     &                      tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_m08_d2(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#else
+      Subroutine nwxc_x_m08_d3(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#endif
 
 
 c   
@@ -50,9 +60,13 @@ c       ijzy - 4 M11-L (c)                                             c
 c                                                                      c
 c Coded by Roberto Peverati (12/11)                                    c
 c                                                                      c
-c**********************************************************************c    
+c**********************************************************************c
+c
+#include "nwad.fh"
 c
       implicit none
+c
+#include "intf_nwxc_lrclsda.fh"
 c
 #include "nwxc_param.fh"
 c
@@ -113,27 +127,28 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient Norm
 c
-      double precision rgamma(nq,*) !< [Input] The density gradient norm
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The density gradient norm
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c
 c     Functional values
 c
-      double precision func(*) !< [Output] The functional value
+      type(nwad_dble)::func(*) !< [Output] The functional value
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision Amat(nq,*) !< [Output] Derivative wrt density
-      double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] Derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] Derivative wrt density
+c     double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] Derivative wrt tau
 c
-      double precision pi,tauN,tauu,DTol
+      type(nwad_dble)::tauN,tauu
+      double precision pi,DTol
 c
 c      functional derivatives
 c
@@ -143,16 +158,18 @@ c     Intermediate derivative results, etc.
 c
       integer n
 c
-      double precision Ax, s, s2
+      double precision Ax
+      type(nwad_dble)::s, s2
       double precision kapa,kapas,mu,mus
 c
       double precision f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11
       double precision F1o3,F2o3,F3o5,F4o3,F5o3,F48,F81 
-      double precision Fsig1, Fsig2, Fsig3, Fsig4, Fx1, Fx2
-      double precision ElSR, ElLR
-      double precision PDUM
-      double precision GGA1, GGA2, GGA3, GGA4
-      double precision Emu, X, deno
+      type(nwad_dble)::Fsig1, Fsig2, Fsig3, Fsig4, Fx1, Fx2
+      type(nwad_dble)::ElSR, ElLR
+c     double precision PDUM
+      type(nwad_dble)::GGA1, GGA2, GGA3, GGA4
+      type(nwad_dble):: X, deno
+      double precision Emu
       double precision ds2drho, ds2dg, dfx1ds2
       double precision dfx2ds2, df1dw
       double precision dfx1drho,dfx1dg,dfx2drho,dfx2dg,df2dw
@@ -170,10 +187,10 @@ c
       double precision ct07,ct08,ct09,ct10,ct11
       double precision dt00,dt01,dt02,dt03,dt04,dt05,dt06
       double precision dt07,dt08,dt09,dt10,dt11
-      double precision rho43, rho13, rhoo, rho53
-      double precision Gamma2, Gamma
-      double precision TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
-      double precision W7, W8, W9, W10, W11
+      type(nwad_dble)::rho43, rho13, rhoo, rho53
+      type(nwad_dble)::Gamma2, Gamma
+      type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+      type(nwad_dble)::W7, W8, W9, W10, W11
       logical UseLC
 c
       parameter( F0=0.0D+00,  F1=1.0D+00,  F2=2.0D+00,
@@ -451,7 +468,7 @@ c           Gamma2 =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))/F4
             Gamma2 = rgamma(n,G_TT)/F4
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
          if(gamma.lt.dtol) goto 10
          
          X = GAMMA/RHO43
@@ -459,9 +476,15 @@ c    &              delrho(n,3,1)*delrho(n,3,1))/F4
          s2     = s*s
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
-         fx2=F1+kapas*(F1-DExp(-Mus*s2/kapas))
+         fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
          If(UseLC) then
-           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR,PDUM)
+#if defined(THIRD_DERIV)
+           CALL nwxc_LRCLSDA_d3(EMU,RHOO,ElSR)
+#elif defined(SECOND_DERIV)
+           CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
+#else
+           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
            ElLR = Ax*Rho43-ElSR
          else
            ElSR = Ax*Rho43
@@ -480,79 +503,79 @@ c    $           +    GGA3*Fsig3 + GGA4*Fsig4)*qwght(n)
 c
 c     functional derivatives 
 c
-            ds2dRho = -(F8/F3) * s2/rhoo
-            ds2dG = s2/Gamma2
+c           ds2dRho = -(F8/F3) * s2/rhoo
+c           ds2dG = s2/Gamma2
 C
-            dfx1ds2 = Mu*(F1/(Deno*Deno)) 
-            dfx1dRho = dfx1ds2*ds2dRho
-            dfx1dG = dfx1ds2*ds2dG
+c           dfx1ds2 = Mu*(F1/(Deno*Deno)) 
+c           dfx1dRho = dfx1ds2*ds2dRho
+c           dfx1dG = dfx1ds2*ds2dG
 C
-            dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
-            dfx2dRho = dfx2ds2*ds2dRho
-            dfx2dG = dfx2ds2*ds2dG
+c           dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
+c           dfx2dRho = dfx2ds2*ds2dRho
+c           dfx2dG = dfx2ds2*ds2dG
 c
-            dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
-     $                    + F4*at04*W3 + F5*at05*W4
-     $                    + F6*at06*W5 + F7*at07*W6
-     $                    + F8*at08*W7 + F9*at09*W8
-     $                    + F10*at10*W9+F11*at11*W10)
-            dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
-     $                    + F4*bt04*W3 + F5*bt05*W4
-     $                    + F6*bt06*W5 + F7*bt07*W6
-     $                    + F8*bt08*W7 + F9*bt09*W8
-     $                    + F10*Bt10*W9+F11*Bt11*W10)
-            dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
-     $                    + F4*ct04*W3 + F5*ct05*W4
-     $                    + F6*ct06*W5 + F7*ct07*W6
-     $                    + F8*ct08*W7 + F9*ct09*W8
-     $                    + F10*ct10*W9+F11*ct11*W10)
-            dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
-     $                    + F4*dt04*W3 + F5*dt05*W4
-     $                    + F6*dt06*W5 + F7*dt07*W6
-     $                    + F8*dt08*W7 + F9*dt09*W8
-     $                    + F10*dt10*W9+F11*dt11*W10)
+c           dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
+c    $                    + F4*at04*W3 + F5*at05*W4
+c    $                    + F6*at06*W5 + F7*at07*W6
+c    $                    + F8*at08*W7 + F9*at09*W8
+c    $                    + F10*at10*W9+F11*at11*W10)
+c           dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
+c    $                    + F4*bt04*W3 + F5*bt05*W4
+c    $                    + F6*bt06*W5 + F7*bt07*W6
+c    $                    + F8*bt08*W7 + F9*bt09*W8
+c    $                    + F10*Bt10*W9+F11*Bt11*W10)
+c           dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
+c    $                    + F4*ct04*W3 + F5*ct05*W4
+c    $                    + F6*ct06*W5 + F7*ct07*W6
+c    $                    + F8*ct08*W7 + F9*ct09*W8
+c    $                    + F10*ct10*W9+F11*ct11*W10)
+c           dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
+c    $                    + F4*dt04*W3 + F5*dt05*W4
+c    $                    + F6*dt06*W5 + F7*dt07*W6
+c    $                    + F8*dt08*W7 + F9*dt09*W8
+c    $                    + F10*dt10*W9+F11*dt11*W10)
 c
-            dWdT = F2/((F1 + Tsig)**F2)
-            dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
-            dTdTau = -TauUEG/tauN**F2
+c           dWdT = F2/((F1 + Tsig)**F2)
+c           dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
+c           dTdTau = -TauUEG/tauN**F2
 C
-           If(UseLC) then
-             dElSRdR = PDUM
-             dElLRdR = Ax*F4o3*Rho13-PDUM
-           else
-             dElSRdR=Ax*F4o3*Rho13
-             dElLRdR=F0
-           endIf  
-           dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
-           dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
-           dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
-           dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
+c          If(UseLC) then
+c            dElSRdR = PDUM
+c            dElLRdR = Ax*F4o3*Rho13-PDUM
+c          else
+c            dElSRdR=Ax*F4o3*Rho13
+c            dElLRdR=F0
+c          endIf  
+c          dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
+c          dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
+c          dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
+c          dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
 c
-           dF1dR = dF1dW*dWdT*dTdR
-           dF1dTau=dF1dW*dWdT*dTdTau
-           dF2dR = dF2dW*dWdT*dTdR
-           dF2dTau=dF2dW*dWdT*dTdTau
-           dF3dR = dF3dW*dWdT*dTdR
-           dF3dTau=dF3dW*dWdT*dTdTau
-           dF4dR = dF4dW*dWdT*dTdR
-           dF4dTau=dF4dW*dWdT*dTdTau
+c          dF1dR = dF1dW*dWdT*dTdR
+c          dF1dTau=dF1dW*dWdT*dTdTau
+c          dF2dR = dF2dW*dWdT*dTdR
+c          dF2dTau=dF2dW*dWdT*dTdTau
+c          dF3dR = dF3dW*dWdT*dTdR
+c          dF3dTau=dF3dW*dWdT*dTdTau
+c          dF4dR = dF4dW*dWdT*dTdR
+c          dF4dTau=dF4dW*dWdT*dTdTau
 c
-           dGGA1dG = ElSR*dfx1dG
-           dGGA2dG = ElSR*dfx2dG
-           dGGA3dG = ElLR*dfx1dG
-           dGGA4dG = ElLR*dfx2dG
+c          dGGA1dG = ElSR*dfx1dG
+c          dGGA2dG = ElSR*dfx2dG
+c          dGGA3dG = ElLR*dfx1dG
+c          dGGA4dG = ElLR*dfx2dG
 c
-           Amat(n,D1_RA) = Amat(n,D1_RA) 
-     $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
-     $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
-     $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
-     $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
-           Cmat(n,D1_GAA)=  Cmat(n,D1_GAA)
-     $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
-     $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
-           Mmat(n,D1_TA) =  Mmat(n,D1_TA)
-     $                   + (GGA1*dF1dTau + GGA2*dF2dTau
-     $                     +GGA3*dF3dTau + GGA4*dF4dTau)*wght
+c          Amat(n,D1_RA) = Amat(n,D1_RA) 
+c    $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
+c    $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
+c    $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
+c    $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
+c          Cmat(n,D1_GAA)=  Cmat(n,D1_GAA)
+c    $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
+c    $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
+c          Mmat(n,D1_TA) =  Mmat(n,D1_TA)
+c    $                   + (GGA1*dF1dTau + GGA2*dF2dTau
+c    $                     +GGA3*dF3dTau + GGA4*dF4dTau)*wght
 c    
 10      continue
 c
@@ -610,7 +633,7 @@ c           Gamma2 =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))
             Gamma2 = rgamma(n,G_AA)
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
          if(gamma.lt.dtol) goto 25
          
          X = GAMMA/RHO43
@@ -618,9 +641,15 @@ c    &              delrho(n,3,1)*delrho(n,3,1))
          s2     = s*s
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
-         fx2=F1+kapas*(F1-DExp(-Mus*s2/kapas))
+         fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
          If(UseLC) then
-           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR,PDUM)
+#if defined(THIRD_DERIV)
+           CALL nwxc_LRCLSDA_d3(EMU,RHOO,ElSR)
+#elif defined(SECOND_DERIV)
+           CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
+#else
+           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
            ElLR = Ax*Rho43-ElSR
          else
            ElSR = Ax*Rho43
@@ -638,79 +667,79 @@ c    $            +    GGA3*Fsig3 + GGA4*Fsig4)*qwght(n)
 c
 c     functional derivatives 
 c
-            ds2dRho = -(F8/F3) * s2/rhoo
-            ds2dG = s2/Gamma2
-C
-            dfx1ds2 = Mu*(F1/(Deno*Deno)) 
-            dfx1dRho = dfx1ds2*ds2dRho
-            dfx1dG = dfx1ds2*ds2dG
-C
-            dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
-            dfx2dRho = dfx2ds2*ds2dRho
-            dfx2dG = dfx2ds2*ds2dG
+c           ds2dRho = -(F8/F3) * s2/rhoo
+c           ds2dG = s2/Gamma2
 c
-            dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
-     $                    + F4*at04*W3 + F5*at05*W4
-     $                    + F6*at06*W5 + F7*at07*W6
-     $                    + F8*at08*W7 + F9*at09*W8
-     $                    + F10*at10*W9+F11*at11*W10)
-            dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
-     $                    + F4*bt04*W3 + F5*bt05*W4
-     $                    + F6*bt06*W5 + F7*bt07*W6
-     $                    + F8*bt08*W7 + F9*bt09*W8
-     $                    + F10*Bt10*W9+F11*Bt11*W10)
-            dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
-     $                    + F4*ct04*W3 + F5*ct05*W4
-     $                    + F6*ct06*W5 + F7*ct07*W6
-     $                    + F8*ct08*W7 + F9*ct09*W8
-     $                    + F10*ct10*W9+F11*ct11*W10)
-            dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
-     $                    + F4*dt04*W3 + F5*dt05*W4
-     $                    + F6*dt06*W5 + F7*dt07*W6
-     $                    + F8*dt08*W7 + F9*dt09*W8
-     $                    + F10*dt10*W9+F11*dt11*W10)
+c           dfx1ds2 = Mu*(F1/(Deno*Deno)) 
+c           dfx1dRho = dfx1ds2*ds2dRho
+c           dfx1dG = dfx1ds2*ds2dG
+c
+c           dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
+c           dfx2dRho = dfx2ds2*ds2dRho
+c           dfx2dG = dfx2ds2*ds2dG
+c
+c           dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
+c    $                    + F4*at04*W3 + F5*at05*W4
+c    $                    + F6*at06*W5 + F7*at07*W6
+c    $                    + F8*at08*W7 + F9*at09*W8
+c    $                    + F10*at10*W9+F11*at11*W10)
+c           dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
+c    $                    + F4*bt04*W3 + F5*bt05*W4
+c    $                    + F6*bt06*W5 + F7*bt07*W6
+c    $                    + F8*bt08*W7 + F9*bt09*W8
+c    $                    + F10*Bt10*W9+F11*Bt11*W10)
+c           dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
+c    $                    + F4*ct04*W3 + F5*ct05*W4
+c    $                    + F6*ct06*W5 + F7*ct07*W6
+c    $                    + F8*ct08*W7 + F9*ct09*W8
+c    $                    + F10*ct10*W9+F11*ct11*W10)
+c           dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
+c    $                    + F4*dt04*W3 + F5*dt05*W4
+c    $                    + F6*dt06*W5 + F7*dt07*W6
+c    $                    + F8*dt08*W7 + F9*dt09*W8
+c    $                    + F10*dt10*W9+F11*dt11*W10)
 
-            dWdT = F2/((F1 + Tsig)**F2)
-            dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
-            dTdTau = -TauUEG/tauN**F2
-C
-           If(UseLC) then
-             dElSRdR = PDUM
-             dElLRdR = Ax*F4o3*Rho13-PDUM
-           else
-             dElSRdR=Ax*F4o3*Rho13
-             dElLRdR=F0
-           endIf  
-           dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
-           dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
-           dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
-           dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
+c           dWdT = F2/((F1 + Tsig)**F2)
+c           dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
+c           dTdTau = -TauUEG/tauN**F2
 c
-           dF1dR = dF1dW*dWdT*dTdR
-           dF1dTau=dF1dW*dWdT*dTdTau
-           dF2dR = dF2dW*dWdT*dTdR
-           dF2dTau=dF2dW*dWdT*dTdTau
-           dF3dR = dF3dW*dWdT*dTdR
-           dF3dTau=dF3dW*dWdT*dTdTau
-           dF4dR = dF4dW*dWdT*dTdR
-           dF4dTau=dF4dW*dWdT*dTdTau
+c          If(UseLC) then
+c            dElSRdR = PDUM
+c            dElLRdR = Ax*F4o3*Rho13-PDUM
+c          else
+c            dElSRdR=Ax*F4o3*Rho13
+c            dElLRdR=F0
+c          endIf  
+c          dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
+c          dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
+c          dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
+c          dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
 c
-           dGGA1dG = ElSR*dfx1dG
-           dGGA2dG = ElSR*dfx2dG
-           dGGA3dG = ElLR*dfx1dG
-           dGGA4dG = ElLR*dfx2dG
+c          dF1dR = dF1dW*dWdT*dTdR
+c          dF1dTau=dF1dW*dWdT*dTdTau
+c          dF2dR = dF2dW*dWdT*dTdR
+c          dF2dTau=dF2dW*dWdT*dTdTau
+c          dF3dR = dF3dW*dWdT*dTdR
+c          dF3dTau=dF3dW*dWdT*dTdTau
+c          dF4dR = dF4dW*dWdT*dTdR
+c          dF4dTau=dF4dW*dWdT*dTdTau
 c
-           Amat(n,D1_RA) = Amat(n,D1_RA)
-     $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
-     $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
-     $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
-     $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
-           Cmat(n,D1_GAA)= Cmat(n,D1_GAA)
-     $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
-     $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
-           Mmat(n,D1_TA) = Mmat(n,D1_TA)
-     $                   + (GGA1*dF1dTau  + GGA2*dF2dTau
-     $                     +GGA3*dF3dTau  + GGA4*dF4dTau)*wght
+c          dGGA1dG = ElSR*dfx1dG
+c          dGGA2dG = ElSR*dfx2dG
+c          dGGA3dG = ElLR*dfx1dG
+c          dGGA4dG = ElLR*dfx2dG
+c
+c          Amat(n,D1_RA) = Amat(n,D1_RA)
+c    $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
+c    $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
+c    $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
+c    $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
+c          Cmat(n,D1_GAA)= Cmat(n,D1_GAA)
+c    $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
+c    $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
+c          Mmat(n,D1_TA) = Mmat(n,D1_TA)
+c    $                   + (GGA1*dF1dTau  + GGA2*dF2dTau
+c    $                     +GGA3*dF3dTau  + GGA4*dF4dTau)*wght
 c
 25         continue
 c
@@ -758,7 +787,7 @@ c           Gamma2 =(delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2))
             Gamma2 = rgamma(n,G_BB)
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
          if(gamma.lt.dtol) goto 20
          
          X = GAMMA/RHO43
@@ -766,9 +795,15 @@ c    &              delrho(n,3,2)*delrho(n,3,2))
          s2     = s*s
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
-         fx2=F1+kapas*(F1-DExp(-Mus*s2/kapas))
+         fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
          If(UseLC) then
-           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR,PDUM)
+#if defined(THIRD_DERIV)
+           CALL nwxc_LRCLSDA_d3(EMU,RHOO,ElSR)
+#elif defined(SECOND_DERIV)
+           CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
+#else
+           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
            ElLR = Ax*Rho43-ElSR
          else
            ElSR = Ax*Rho43
@@ -786,87 +821,82 @@ c    $            +    GGA3*Fsig3 + GGA4*Fsig4)*qwght(n)
 c
 c     functional derivatives 
 c
-            ds2dRho = -(F8/F3) * s2/rhoo
-            ds2dG = s2/Gamma2
-C
-            dfx1ds2 = Mu*(F1/(Deno*Deno)) 
-            dfx1dRho = dfx1ds2*ds2dRho
-            dfx1dG = dfx1ds2*ds2dG
-C
-            dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
-            dfx2dRho = dfx2ds2*ds2dRho
-            dfx2dG = dfx2ds2*ds2dG
+c           ds2dRho = -(F8/F3) * s2/rhoo
+c           ds2dG = s2/Gamma2
 c
-            dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
-     $                    + F4*at04*W3 + F5*at05*W4
-     $                    + F6*at06*W5 + F7*at07*W6
-     $                    + F8*at08*W7 + F9*at09*W8
-     $                    + F10*at10*W9+F11*at11*W10)
-            dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
-     $                    + F4*bt04*W3 + F5*bt05*W4
-     $                    + F6*bt06*W5 + F7*bt07*W6
-     $                    + F8*bt08*W7 + F9*bt09*W8
-     $                    + F10*Bt10*W9+F11*Bt11*W10)
-            dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
-     $                    + F4*ct04*W3 + F5*ct05*W4
-     $                    + F6*ct06*W5 + F7*ct07*W6
-     $                    + F8*ct08*W7 + F9*ct09*W8
-     $                    + F10*ct10*W9+F11*ct11*W10)
-            dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
-     $                    + F4*dt04*W3 + F5*dt05*W4
-     $                    + F6*dt06*W5 + F7*dt07*W6
-     $                    + F8*dt08*W7 + F9*dt09*W8
-     $                    + F10*dt10*W9+F11*dt11*W10)
+c           dfx1ds2 = Mu*(F1/(Deno*Deno)) 
+c           dfx1dRho = dfx1ds2*ds2dRho
+c           dfx1dG = dfx1ds2*ds2dG
+c
+c           dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
+c           dfx2dRho = dfx2ds2*ds2dRho
+c           dfx2dG = dfx2ds2*ds2dG
+c
+c           dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
+c    $                    + F4*at04*W3 + F5*at05*W4
+c    $                    + F6*at06*W5 + F7*at07*W6
+c    $                    + F8*at08*W7 + F9*at09*W8
+c    $                    + F10*at10*W9+F11*at11*W10)
+c           dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
+c    $                    + F4*bt04*W3 + F5*bt05*W4
+c    $                    + F6*bt06*W5 + F7*bt07*W6
+c    $                    + F8*bt08*W7 + F9*bt09*W8
+c    $                    + F10*Bt10*W9+F11*Bt11*W10)
+c           dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
+c    $                    + F4*ct04*W3 + F5*ct05*W4
+c    $                    + F6*ct06*W5 + F7*ct07*W6
+c    $                    + F8*ct08*W7 + F9*ct09*W8
+c    $                    + F10*ct10*W9+F11*ct11*W10)
+c           dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
+c    $                    + F4*dt04*W3 + F5*dt05*W4
+c    $                    + F6*dt06*W5 + F7*dt07*W6
+c    $                    + F8*dt08*W7 + F9*dt09*W8
+c    $                    + F10*dt10*W9+F11*dt11*W10)
 
-            dWdT = F2/((F1 + Tsig)**F2)
-            dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
-            dTdTau = -TauUEG/tauN**F2
+c           dWdT = F2/((F1 + Tsig)**F2)
+c           dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
+c           dTdTau = -TauUEG/tauN**F2
 C
-           If(UseLC) then
-             dElSRdR = PDUM
-             dElLRdR = Ax*F4o3*Rho13-PDUM
-           else
-             dElSRdR=Ax*F4o3*Rho13
-             dElLRdR=F0
-           endIf  
-           dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
-           dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
-           dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
-           dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
+c          If(UseLC) then
+c            dElSRdR = PDUM
+c            dElLRdR = Ax*F4o3*Rho13-PDUM
+c          else
+c            dElSRdR=Ax*F4o3*Rho13
+c            dElLRdR=F0
+c          endIf  
+c          dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
+c          dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
+c          dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
+c          dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
 c
-           dF1dR = dF1dW*dWdT*dTdR
-           dF1dTau=dF1dW*dWdT*dTdTau
-           dF2dR = dF2dW*dWdT*dTdR
-           dF2dTau=dF2dW*dWdT*dTdTau
-           dF3dR = dF3dW*dWdT*dTdR
-           dF3dTau=dF3dW*dWdT*dTdTau
-           dF4dR = dF4dW*dWdT*dTdR
-           dF4dTau=dF4dW*dWdT*dTdTau
+c          dF1dR = dF1dW*dWdT*dTdR
+c          dF1dTau=dF1dW*dWdT*dTdTau
+c          dF2dR = dF2dW*dWdT*dTdR
+c          dF2dTau=dF2dW*dWdT*dTdTau
+c          dF3dR = dF3dW*dWdT*dTdR
+c          dF3dTau=dF3dW*dWdT*dTdTau
+c          dF4dR = dF4dW*dWdT*dTdR
+c          dF4dTau=dF4dW*dWdT*dTdTau
 c
-           dGGA1dG = ElSR*dfx1dG
-           dGGA2dG = ElSR*dfx2dG
-           dGGA3dG = ElLR*dfx1dG
-           dGGA4dG = ElLR*dfx2dG
+c          dGGA1dG = ElSR*dfx1dG
+c          dGGA2dG = ElSR*dfx2dG
+c          dGGA3dG = ElLR*dfx1dG
+c          dGGA4dG = ElLR*dfx2dG
 c
-           Amat(n,D1_RB) = Amat(n,D1_RB)
-     $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
-     $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
-     $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
-     $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
-           Cmat(n,D1_GBB)= Cmat(n,D1_GBB)
-     $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
-     $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
-           Mmat(n,D1_TB) = Mmat(n,D1_TB)
-     $                   + (GGA1*dF1dTau  + GGA2*dF2dTau
-     $                     +GGA3*dF3dTau  + GGA4*dF4dTau)*wght
+c          Amat(n,D1_RB) = Amat(n,D1_RB)
+c    $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
+c    $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
+c    $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
+c    $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
+c          Cmat(n,D1_GBB)= Cmat(n,D1_GBB)
+c    $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
+c    $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
+c          Mmat(n,D1_TB) = Mmat(n,D1_TB)
+c    $                   + (GGA1*dF1dTau  + GGA2*dF2dTau
+c    $                     +GGA3*dF3dTau  + GGA4*dF4dTau)*wght
 c
 20      continue
       endif
-      return
-      end
-c
-      Subroutine nwxc_x_m08_d2()
-      call errquit(' not coded ',0,0)
       return
       end
 c
@@ -901,10 +931,16 @@ C>     J. Phys. Chem. Lett. <b>3</b>, 117-124 (2011), DOI:
 C>     <a href="http://dx.doi.org/10.1021/jz201525m">
 C>     10.1021/jz201525m</a>.
 C>
-      Subroutine nwxc_x_m11(param, tol_rho, ipol, nq, wght, rho, rgamma,
-     &                      tau, func, Amat, Cmat, Mmat)
-
-
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_m11(param, tol_rho, ipol, nq, wght, rho,
+     &                      rgamma, tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_x_m11_d2(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#else
+      Subroutine nwxc_x_m11_d3(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#endif
 c   
 c$Id$
 c
@@ -927,7 +963,9 @@ c       ijzy - 4 M11-L (c)                                             c
 c                                                                      c
 c Coded by Roberto Peverati (12/11)                                    c
 c                                                                      c
-c**********************************************************************c    
+c**********************************************************************c
+c
+#include "nwad.fh"
 c
       implicit none
 c
@@ -990,27 +1028,28 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient Norm
 c
-      double precision rgamma(nq,*) !< [Input] The density gradient norm
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The density gradient norm
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c
 c     Functional values
 c
-      double precision func(*) !< [Output] The functional value
+      type(nwad_dble)::func(*) !< [Output] The functional value
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision Amat(nq,*) !< [Output] Derivative wrt density
-      double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] Derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] Derivative wrt density
+c     double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] Derivative wrt tau
 c
-      double precision pi,tauN,tauu,DTol
+      double precision pi,DTol
+      type(nwad_dble)::tauN,tauu
 c
 c      functional derivatives
 c
@@ -1020,16 +1059,18 @@ c     Intermediate derivative results, etc.
 c
       integer n
 c
-      double precision Ax, s, s2
+      double precision Ax
+      type(nwad_dble)::s, s2
       double precision kapa,kapas,mu,mus
 c
       double precision f0,f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11
       double precision F1o3,F2o3,F3o5,F4o3,F5o3,F48,F81 
-      double precision Fsig1, Fsig2, Fsig3, Fsig4, Fx1, Fx2
-      double precision ElSR, ElLR
+      type(nwad_dble)::Fsig1, Fsig2, Fsig3, Fsig4, Fx1, Fx2
+      type(nwad_dble)::ElSR, ElLR
       double precision PDUM
-      double precision GGA1, GGA2, GGA3, GGA4
-      double precision Emu, X, deno
+      type(nwad_dble)::GGA1, GGA2, GGA3, GGA4
+      double precision Emu
+      type(nwad_dble)::X, deno
       double precision ds2drho, ds2dg, dfx1ds2
       double precision dfx2ds2, df1dw
       double precision dfx1drho,dfx1dg,dfx2drho,dfx2dg,df2dw
@@ -1047,10 +1088,10 @@ c
       double precision ct07,ct08,ct09,ct10,ct11
       double precision dt00,dt01,dt02,dt03,dt04,dt05,dt06
       double precision dt07,dt08,dt09,dt10,dt11
-      double precision rho43, rho13, rhoo, rho53
-      double precision Gamma2, Gamma
-      double precision TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
-      double precision W7, W8, W9, W10, W11
+      type(nwad_dble)::rho43, rho13, rhoo, rho53
+      type(nwad_dble)::Gamma2, Gamma
+      type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+      type(nwad_dble)::W7, W8, W9, W10, W11
       logical UseLC
 c
       parameter( F0=0.0D+00,  F1=1.0D+00,  F2=2.0D+00,
@@ -1328,7 +1369,7 @@ c           Gamma2 =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))/F4
             Gamma2 = rgamma(n,G_TT)/F4
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
          if(gamma.lt.dtol) goto 10
          
          X = GAMMA/RHO43
@@ -1336,9 +1377,15 @@ c    &              delrho(n,3,1)*delrho(n,3,1))/F4
          s2     = s*s
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
-         fx2=F1+kapas*(F1-DExp(-Mus*s2/kapas))
+         fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
          If(UseLC) then
-           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR,PDUM)
+#if defined(THIRD_DERIV)
+           CALL nwxc_LRCLSDA_d3(EMU,RHOO,ElSR)
+#elif defined(SECOND_DERIV)
+           CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
+#else
+           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
            ElLR = Ax*Rho43-ElSR
          else
            ElSR = Ax*Rho43
@@ -1357,79 +1404,79 @@ c    $           +    GGA3*Fsig3 + GGA4*Fsig4)*qwght(n)
 c
 c     functional derivatives 
 c
-            ds2dRho = -(F8/F3) * s2/rhoo
-            ds2dG = s2/Gamma2
-C
-            dfx1ds2 = Mu*(F1/(Deno*Deno)) 
-            dfx1dRho = dfx1ds2*ds2dRho
-            dfx1dG = dfx1ds2*ds2dG
-C
-            dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
-            dfx2dRho = dfx2ds2*ds2dRho
-            dfx2dG = dfx2ds2*ds2dG
+c           ds2dRho = -(F8/F3) * s2/rhoo
+c           ds2dG = s2/Gamma2
 c
-            dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
-     $                    + F4*at04*W3 + F5*at05*W4
-     $                    + F6*at06*W5 + F7*at07*W6
-     $                    + F8*at08*W7 + F9*at09*W8
-     $                    + F10*at10*W9+F11*at11*W10)
-            dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
-     $                    + F4*bt04*W3 + F5*bt05*W4
-     $                    + F6*bt06*W5 + F7*bt07*W6
-     $                    + F8*bt08*W7 + F9*bt09*W8
-     $                    + F10*Bt10*W9+F11*Bt11*W10)
-            dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
-     $                    + F4*ct04*W3 + F5*ct05*W4
-     $                    + F6*ct06*W5 + F7*ct07*W6
-     $                    + F8*ct08*W7 + F9*ct09*W8
-     $                    + F10*ct10*W9+F11*ct11*W10)
-            dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
-     $                    + F4*dt04*W3 + F5*dt05*W4
-     $                    + F6*dt06*W5 + F7*dt07*W6
-     $                    + F8*dt08*W7 + F9*dt09*W8
-     $                    + F10*dt10*W9+F11*dt11*W10)
+c           dfx1ds2 = Mu*(F1/(Deno*Deno)) 
+c           dfx1dRho = dfx1ds2*ds2dRho
+c           dfx1dG = dfx1ds2*ds2dG
 c
-            dWdT = F2/((F1 + Tsig)**F2)
-            dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
-            dTdTau = -TauUEG/tauN**F2
-C
-           If(UseLC) then
-             dElSRdR = PDUM
-             dElLRdR = Ax*F4o3*Rho13-PDUM
-           else
-             dElSRdR=Ax*F4o3*Rho13
-             dElLRdR=F0
-           endIf  
-           dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
-           dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
-           dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
-           dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
+c           dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
+c           dfx2dRho = dfx2ds2*ds2dRho
+c           dfx2dG = dfx2ds2*ds2dG
 c
-           dF1dR = dF1dW*dWdT*dTdR
-           dF1dTau=dF1dW*dWdT*dTdTau
-           dF2dR = dF2dW*dWdT*dTdR
-           dF2dTau=dF2dW*dWdT*dTdTau
-           dF3dR = dF3dW*dWdT*dTdR
-           dF3dTau=dF3dW*dWdT*dTdTau
-           dF4dR = dF4dW*dWdT*dTdR
-           dF4dTau=dF4dW*dWdT*dTdTau
+c           dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
+c    $                    + F4*at04*W3 + F5*at05*W4
+c    $                    + F6*at06*W5 + F7*at07*W6
+c    $                    + F8*at08*W7 + F9*at09*W8
+c    $                    + F10*at10*W9+F11*at11*W10)
+c           dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
+c    $                    + F4*bt04*W3 + F5*bt05*W4
+c    $                    + F6*bt06*W5 + F7*bt07*W6
+c    $                    + F8*bt08*W7 + F9*bt09*W8
+c    $                    + F10*Bt10*W9+F11*Bt11*W10)
+c           dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
+c    $                    + F4*ct04*W3 + F5*ct05*W4
+c    $                    + F6*ct06*W5 + F7*ct07*W6
+c    $                    + F8*ct08*W7 + F9*ct09*W8
+c    $                    + F10*ct10*W9+F11*ct11*W10)
+c           dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
+c    $                    + F4*dt04*W3 + F5*dt05*W4
+c    $                    + F6*dt06*W5 + F7*dt07*W6
+c    $                    + F8*dt08*W7 + F9*dt09*W8
+c    $                    + F10*dt10*W9+F11*dt11*W10)
 c
-           dGGA1dG = ElSR*dfx1dG
-           dGGA2dG = ElSR*dfx2dG
-           dGGA3dG = ElLR*dfx1dG
-           dGGA4dG = ElLR*dfx2dG
+c           dWdT = F2/((F1 + Tsig)**F2)
+c           dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
+c           dTdTau = -TauUEG/tauN**F2
 c
-           Amat(n,D1_RA) = Amat(n,D1_RA) 
-     $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
-     $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
-     $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
-     $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
-           Cmat(n,D1_GAA)=  Cmat(n,D1_GAA)
-     $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
-     $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
-           Mmat(n,D1_TA) =  Mmat(n,D1_TA)
-     $                   + (GGA1*dF1dTau + GGA2*dF2dTau
-     $                     +GGA3*dF3dTau + GGA4*dF4dTau)*wght
+c          If(UseLC) then
+c            dElSRdR = PDUM
+c            dElLRdR = Ax*F4o3*Rho13-PDUM
+c          else
+c            dElSRdR=Ax*F4o3*Rho13
+c            dElLRdR=F0
+c          endIf  
+c          dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
+c          dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
+c          dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
+c          dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
+c
+c          dF1dR = dF1dW*dWdT*dTdR
+c          dF1dTau=dF1dW*dWdT*dTdTau
+c          dF2dR = dF2dW*dWdT*dTdR
+c          dF2dTau=dF2dW*dWdT*dTdTau
+c          dF3dR = dF3dW*dWdT*dTdR
+c          dF3dTau=dF3dW*dWdT*dTdTau
+c          dF4dR = dF4dW*dWdT*dTdR
+c          dF4dTau=dF4dW*dWdT*dTdTau
+c
+c          dGGA1dG = ElSR*dfx1dG
+c          dGGA2dG = ElSR*dfx2dG
+c          dGGA3dG = ElLR*dfx1dG
+c          dGGA4dG = ElLR*dfx2dG
+c
+c          Amat(n,D1_RA) = Amat(n,D1_RA) 
+c    $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
+c    $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
+c    $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
+c    $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
+c          Cmat(n,D1_GAA)=  Cmat(n,D1_GAA)
+c    $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
+c    $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
+c          Mmat(n,D1_TA) =  Mmat(n,D1_TA)
+c    $                   + (GGA1*dF1dTau + GGA2*dF2dTau
+c    $                     +GGA3*dF3dTau + GGA4*dF4dTau)*wght
 c    
 10      continue
 c
@@ -1487,7 +1534,7 @@ c           Gamma2 =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))
             Gamma2 = rgamma(n,G_AA)
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
          if(gamma.lt.dtol) goto 25
          
          X = GAMMA/RHO43
@@ -1495,9 +1542,15 @@ c    &              delrho(n,3,1)*delrho(n,3,1))
          s2     = s*s
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
-         fx2=F1+kapas*(F1-DExp(-Mus*s2/kapas))
+         fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
          If(UseLC) then
-           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR,PDUM)
+#if defined(THIRD_DERIV)
+           CALL nwxc_LRCLSDA_d3(EMU,RHOO,ElSR)
+#elif defined(SECOND_DERIV)
+           CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
+#else
+           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
            ElLR = Ax*Rho43-ElSR
          else
            ElSR = Ax*Rho43
@@ -1515,79 +1568,79 @@ c    $            +    GGA3*Fsig3 + GGA4*Fsig4)*qwght(n)
 c
 c     functional derivatives 
 c
-            ds2dRho = -(F8/F3) * s2/rhoo
-            ds2dG = s2/Gamma2
-C
-            dfx1ds2 = Mu*(F1/(Deno*Deno)) 
-            dfx1dRho = dfx1ds2*ds2dRho
-            dfx1dG = dfx1ds2*ds2dG
-C
-            dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
-            dfx2dRho = dfx2ds2*ds2dRho
-            dfx2dG = dfx2ds2*ds2dG
+c           ds2dRho = -(F8/F3) * s2/rhoo
+c           ds2dG = s2/Gamma2
 c
-            dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
-     $                    + F4*at04*W3 + F5*at05*W4
-     $                    + F6*at06*W5 + F7*at07*W6
-     $                    + F8*at08*W7 + F9*at09*W8
-     $                    + F10*at10*W9+F11*at11*W10)
-            dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
-     $                    + F4*bt04*W3 + F5*bt05*W4
-     $                    + F6*bt06*W5 + F7*bt07*W6
-     $                    + F8*bt08*W7 + F9*bt09*W8
-     $                    + F10*Bt10*W9+F11*Bt11*W10)
-            dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
-     $                    + F4*ct04*W3 + F5*ct05*W4
-     $                    + F6*ct06*W5 + F7*ct07*W6
-     $                    + F8*ct08*W7 + F9*ct09*W8
-     $                    + F10*ct10*W9+F11*ct11*W10)
-            dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
-     $                    + F4*dt04*W3 + F5*dt05*W4
-     $                    + F6*dt06*W5 + F7*dt07*W6
-     $                    + F8*dt08*W7 + F9*dt09*W8
-     $                    + F10*dt10*W9+F11*dt11*W10)
+c           dfx1ds2 = Mu*(F1/(Deno*Deno)) 
+c           dfx1dRho = dfx1ds2*ds2dRho
+c           dfx1dG = dfx1ds2*ds2dG
+c
+c           dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
+c           dfx2dRho = dfx2ds2*ds2dRho
+c           dfx2dG = dfx2ds2*ds2dG
+c
+c           dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
+c    $                    + F4*at04*W3 + F5*at05*W4
+c    $                    + F6*at06*W5 + F7*at07*W6
+c    $                    + F8*at08*W7 + F9*at09*W8
+c    $                    + F10*at10*W9+F11*at11*W10)
+c           dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
+c    $                    + F4*bt04*W3 + F5*bt05*W4
+c    $                    + F6*bt06*W5 + F7*bt07*W6
+c    $                    + F8*bt08*W7 + F9*bt09*W8
+c    $                    + F10*Bt10*W9+F11*Bt11*W10)
+c           dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
+c    $                    + F4*ct04*W3 + F5*ct05*W4
+c    $                    + F6*ct06*W5 + F7*ct07*W6
+c    $                    + F8*ct08*W7 + F9*ct09*W8
+c    $                    + F10*ct10*W9+F11*ct11*W10)
+c           dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
+c    $                    + F4*dt04*W3 + F5*dt05*W4
+c    $                    + F6*dt06*W5 + F7*dt07*W6
+c    $                    + F8*dt08*W7 + F9*dt09*W8
+c    $                    + F10*dt10*W9+F11*dt11*W10)
 
-            dWdT = F2/((F1 + Tsig)**F2)
-            dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
-            dTdTau = -TauUEG/tauN**F2
-C
-           If(UseLC) then
-             dElSRdR = PDUM
-             dElLRdR = Ax*F4o3*Rho13-PDUM
-           else
-             dElSRdR=Ax*F4o3*Rho13
-             dElLRdR=F0
-           endIf  
-           dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
-           dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
-           dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
-           dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
+c           dWdT = F2/((F1 + Tsig)**F2)
+c           dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
+c           dTdTau = -TauUEG/tauN**F2
 c
-           dF1dR = dF1dW*dWdT*dTdR
-           dF1dTau=dF1dW*dWdT*dTdTau
-           dF2dR = dF2dW*dWdT*dTdR
-           dF2dTau=dF2dW*dWdT*dTdTau
-           dF3dR = dF3dW*dWdT*dTdR
-           dF3dTau=dF3dW*dWdT*dTdTau
-           dF4dR = dF4dW*dWdT*dTdR
-           dF4dTau=dF4dW*dWdT*dTdTau
+c          If(UseLC) then
+c            dElSRdR = PDUM
+c            dElLRdR = Ax*F4o3*Rho13-PDUM
+c          else
+c            dElSRdR=Ax*F4o3*Rho13
+c            dElLRdR=F0
+c          endIf  
+c          dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
+c          dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
+c          dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
+c          dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
 c
-           dGGA1dG = ElSR*dfx1dG
-           dGGA2dG = ElSR*dfx2dG
-           dGGA3dG = ElLR*dfx1dG
-           dGGA4dG = ElLR*dfx2dG
+c          dF1dR = dF1dW*dWdT*dTdR
+c          dF1dTau=dF1dW*dWdT*dTdTau
+c          dF2dR = dF2dW*dWdT*dTdR
+c          dF2dTau=dF2dW*dWdT*dTdTau
+c          dF3dR = dF3dW*dWdT*dTdR
+c          dF3dTau=dF3dW*dWdT*dTdTau
+c          dF4dR = dF4dW*dWdT*dTdR
+c          dF4dTau=dF4dW*dWdT*dTdTau
 c
-           Amat(n,D1_RA) = Amat(n,D1_RA)
-     $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
-     $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
-     $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
-     $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
-           Cmat(n,D1_GAA)= Cmat(n,D1_GAA)
-     $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
-     $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
-           Mmat(n,D1_TA) = Mmat(n,D1_TA)
-     $                   + (GGA1*dF1dTau  + GGA2*dF2dTau
-     $                     +GGA3*dF3dTau  + GGA4*dF4dTau)*wght
+c          dGGA1dG = ElSR*dfx1dG
+c          dGGA2dG = ElSR*dfx2dG
+c          dGGA3dG = ElLR*dfx1dG
+c          dGGA4dG = ElLR*dfx2dG
+c
+c          Amat(n,D1_RA) = Amat(n,D1_RA)
+c    $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
+c    $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
+c    $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
+c    $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
+c          Cmat(n,D1_GAA)= Cmat(n,D1_GAA)
+c    $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
+c    $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
+c          Mmat(n,D1_TA) = Mmat(n,D1_TA)
+c    $                   + (GGA1*dF1dTau  + GGA2*dF2dTau
+c    $                     +GGA3*dF3dTau  + GGA4*dF4dTau)*wght
 c
 25         continue
 c
@@ -1635,7 +1688,7 @@ c           Gamma2 =(delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2))
             Gamma2 = rgamma(n,G_BB)
-            Gamma = dsqrt(Gamma2)
+            Gamma = sqrt(Gamma2)
          if(gamma.lt.dtol) goto 20
          
          X = GAMMA/RHO43
@@ -1643,9 +1696,15 @@ c    &              delrho(n,3,2)*delrho(n,3,2))
          s2     = s*s
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
-         fx2=F1+kapas*(F1-DExp(-Mus*s2/kapas))
+         fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
          If(UseLC) then
-           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR,PDUM)
+#if defined(THIRD_DERIV)
+           CALL nwxc_LRCLSDA_d3(EMU,RHOO,ElSR)
+#elif defined(SECOND_DERIV)
+           CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
+#else
+           CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
            ElLR = Ax*Rho43-ElSR
          else
            ElSR = Ax*Rho43
@@ -1663,91 +1722,92 @@ c    $            +    GGA3*Fsig3 + GGA4*Fsig4)*qwght(n)
 c
 c     functional derivatives 
 c
-            ds2dRho = -(F8/F3) * s2/rhoo
-            ds2dG = s2/Gamma2
-C
-            dfx1ds2 = Mu*(F1/(Deno*Deno)) 
-            dfx1dRho = dfx1ds2*ds2dRho
-            dfx1dG = dfx1ds2*ds2dG
-C
-            dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
-            dfx2dRho = dfx2ds2*ds2dRho
-            dfx2dG = dfx2ds2*ds2dG
+c           ds2dRho = -(F8/F3) * s2/rhoo
+c           ds2dG = s2/Gamma2
 c
-            dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
-     $                    + F4*at04*W3 + F5*at05*W4
-     $                    + F6*at06*W5 + F7*at07*W6
-     $                    + F8*at08*W7 + F9*at09*W8
-     $                    + F10*at10*W9+F11*at11*W10)
-            dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
-     $                    + F4*bt04*W3 + F5*bt05*W4
-     $                    + F6*bt06*W5 + F7*bt07*W6
-     $                    + F8*bt08*W7 + F9*bt09*W8
-     $                    + F10*Bt10*W9+F11*Bt11*W10)
-            dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
-     $                    + F4*ct04*W3 + F5*ct05*W4
-     $                    + F6*ct06*W5 + F7*ct07*W6
-     $                    + F8*ct08*W7 + F9*ct09*W8
-     $                    + F10*ct10*W9+F11*ct11*W10)
-            dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
-     $                    + F4*dt04*W3 + F5*dt05*W4
-     $                    + F6*dt06*W5 + F7*dt07*W6
-     $                    + F8*dt08*W7 + F9*dt09*W8
-     $                    + F10*dt10*W9+F11*dt11*W10)
+c           dfx1ds2 = Mu*(F1/(Deno*Deno)) 
+c           dfx1dRho = dfx1ds2*ds2dRho
+c           dfx1dG = dfx1ds2*ds2dG
+C
+c           dfx2ds2 = Mus*DExp(-Mus*s2/kapas)
+c           dfx2dRho = dfx2ds2*ds2dRho
+c           dfx2dG = dfx2ds2*ds2dG
+c
+c           dF1dW = (at01 + F2*at02*W1 + F3*at03*W2
+c    $                    + F4*at04*W3 + F5*at05*W4
+c    $                    + F6*at06*W5 + F7*at07*W6
+c    $                    + F8*at08*W7 + F9*at09*W8
+c    $                    + F10*at10*W9+F11*at11*W10)
+c           dF2dW = (bt01 + F2*bt02*W1 + F3*bt03*W2
+c    $                    + F4*bt04*W3 + F5*bt05*W4
+c    $                    + F6*bt06*W5 + F7*bt07*W6
+c    $                    + F8*bt08*W7 + F9*bt09*W8
+c    $                    + F10*Bt10*W9+F11*Bt11*W10)
+c           dF3dW = (ct01 + F2*ct02*W1 + F3*ct03*W2
+c    $                    + F4*ct04*W3 + F5*ct05*W4
+c    $                    + F6*ct06*W5 + F7*ct07*W6
+c    $                    + F8*ct08*W7 + F9*ct09*W8
+c    $                    + F10*ct10*W9+F11*ct11*W10)
+c           dF4dW = (dt01 + F2*dt02*W1 + F3*dt03*W2
+c    $                    + F4*dt04*W3 + F5*dt05*W4
+c    $                    + F6*dt06*W5 + F7*dt07*W6
+c    $                    + F8*dt08*W7 + F9*dt09*W8
+c    $                    + F10*dt10*W9+F11*dt11*W10)
 
-            dWdT = F2/((F1 + Tsig)**F2)
-            dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
-            dTdTau = -TauUEG/tauN**F2
+c           dWdT = F2/((F1 + Tsig)**F2)
+c           dTdR = ((F6*PI*PI)**F2o3)*(rhoo**F2o3)/tauN
+c           dTdTau = -TauUEG/tauN**F2
 C
-           If(UseLC) then
-             dElSRdR = PDUM
-             dElLRdR = Ax*F4o3*Rho13-PDUM
-           else
-             dElSRdR=Ax*F4o3*Rho13
-             dElLRdR=F0
-           endIf  
-           dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
-           dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
-           dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
-           dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
+c          If(UseLC) then
+c            dElSRdR = PDUM
+c            dElLRdR = Ax*F4o3*Rho13-PDUM
+c          else
+c            dElSRdR=Ax*F4o3*Rho13
+c            dElLRdR=F0
+c          endIf  
+c          dGGA1dR = dElSRdR*fx1 + ElSR*dfx1dRho
+c          dGGA2dR = dElSRdR*fx2 + ElSR*dfx2dRho 
+c          dGGA3dR = dElLRdR*fx1 + ElLR*dfx1dRho
+c          dGGA4dR = dElLRdR*fx2 + ElLR*dfx2dRho 
 c
-           dF1dR = dF1dW*dWdT*dTdR
-           dF1dTau=dF1dW*dWdT*dTdTau
-           dF2dR = dF2dW*dWdT*dTdR
-           dF2dTau=dF2dW*dWdT*dTdTau
-           dF3dR = dF3dW*dWdT*dTdR
-           dF3dTau=dF3dW*dWdT*dTdTau
-           dF4dR = dF4dW*dWdT*dTdR
-           dF4dTau=dF4dW*dWdT*dTdTau
+c          dF1dR = dF1dW*dWdT*dTdR
+c          dF1dTau=dF1dW*dWdT*dTdTau
+c          dF2dR = dF2dW*dWdT*dTdR
+c          dF2dTau=dF2dW*dWdT*dTdTau
+c          dF3dR = dF3dW*dWdT*dTdR
+c          dF3dTau=dF3dW*dWdT*dTdTau
+c          dF4dR = dF4dW*dWdT*dTdR
+c          dF4dTau=dF4dW*dWdT*dTdTau
 c
-           dGGA1dG = ElSR*dfx1dG
-           dGGA2dG = ElSR*dfx2dG
-           dGGA3dG = ElLR*dfx1dG
-           dGGA4dG = ElLR*dfx2dG
+c          dGGA1dG = ElSR*dfx1dG
+c          dGGA2dG = ElSR*dfx2dG
+c          dGGA3dG = ElLR*dfx1dG
+c          dGGA4dG = ElLR*dfx2dG
 c
-           Amat(n,D1_RB) = Amat(n,D1_RB)
-     $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
-     $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
-     $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
-     $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
-           Cmat(n,D1_GBB)= Cmat(n,D1_GBB)
-     $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
-     $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
-           Mmat(n,D1_TB) = Mmat(n,D1_TB)
-     $                   + (GGA1*dF1dTau  + GGA2*dF2dTau
-     $                     +GGA3*dF3dTau  + GGA4*dF4dTau)*wght
+c          Amat(n,D1_RB) = Amat(n,D1_RB)
+c    $                   + (dGGA1dR*Fsig1 + GGA1*dF1dR
+c    $                     +dGGA2dR*Fsig2 + GGA2*dF2dR
+c    $                     +dGGA3dR*Fsig3 + GGA3*dF3dR
+c    $                     +dGGA4dR*Fsig4 + GGA4*dF4dR)*wght
+c          Cmat(n,D1_GBB)= Cmat(n,D1_GBB)
+c    $                   + (dGGA1dG*Fsig1 + dGGA2dG*Fsig2
+c    $                     +dGGA3dG*Fsig3 + dGGA4dG*Fsig4)*wght
+c          Mmat(n,D1_TB) = Mmat(n,D1_TB)
+c    $                   + (GGA1*dF1dTau  + GGA2*dF2dTau
+c    $                     +GGA3*dF3dTau  + GGA4*dF4dTau)*wght
 c
 20      continue
       endif
       return
       end
 c
-      Subroutine nwxc_x_m11_d2()
-      call errquit(' not coded ',0,0)
-      return
-      end
-c
-      SUBROUTINE nwxc_LRCLSDA(Emu,Rho,F,D1F)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_LRCLSDA(Emu,Rho,F)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      SUBROUTINE nwxc_LRCLSDA_d2(Emu,Rho,F)
+#else
+      SUBROUTINE nwxc_LRCLSDA_d3(Emu,Rho,F)
+#endif
 c
 c***********************************************
 c                                               
@@ -1761,7 +1821,19 @@ c      D1F    - First derivative
 c                                               
 c***********************************************
 c
-      IMPLICIT REAL*8 (a-h,o-z)
+#include "nwad.fh"
+c
+c     IMPLICIT REAL*8 (a-h,o-z)
+      implicit none
+      double precision Emu
+      type(nwad_dble)::Rho,F
+      type(nwad_dble)::tmu,tmu2,tmu3
+      type(nwad_dble)::erfv,rho13,rho43
+      type(nwad_dble)::fsr,w
+      double precision f1o2,f1o3,f1o4,f4o3,f8o3,pi12
+      double precision AX, Cmu
+      double precision D1F, Pi
+      double precision F1, F2, F3, F4, F5, F6, F7, F8, F9
       Save F1, F2, F3, F4, F5, F6, F7, F8, F9
       DATA F1/1.0D+00/,F2/2.0D+00/,F3/3.0D+00/,F4/4.0D+00/,F5/5.0D+00/,
      $     F6/6.0D+00/,F7/7.0D+00/,F8/8.0D+00/,F9/9.0D+00/
@@ -1785,19 +1857,34 @@ c
       tmu2 = tmu*tmu
       tmu3 = tmu*tmu2
 c
-      W    = DExp(-F1o4/tmu2)
-      ERFV = DErf( F1o2/tmu)
-      dtmudR = -F1o3*tmu / Rho
+      W    = Exp(-F1o4/tmu2)
+      ERFV = Erf( F1o2/tmu)
+c     dtmudR = -F1o3*tmu / Rho
 c
       Fsr = F1-F4o3*tmu*(-F6*tmu+F8*tmu3+W*
      $        (F4*tmu-F8*tmu3)+F2*PI12*ERFV)
-      dFsrdtmu = F8o3*(F2*tmu*(F3-F8*tmu2+W*
-     $          (-F1+F8*tmu2))-PI12*ERFV)
+c     dFsrdtmu = F8o3*(F2*tmu*(F3-F8*tmu2+W*
+c    $          (-F1+F8*tmu2))-PI12*ERFV)
 c
       F = Ax*Rho43*Fsr
-      D1F = Ax*F4o3*Rho13*Fsr + Ax*Rho43*(dFsrdtmu*dtmudR)
+c     D1F = Ax*F4o3*Rho13*Fsr + Ax*Rho43*(dFsrdtmu*dtmudR)
 c
       RETURN
       END
+#if !defined(SECOND_DERIV)
+#define SECOND_DERIV
+c
+c Recompile for 2nd order derivatives
+c
+#include "nwxc_x_m11.F"
+#endif
+#if !defined(THIRD_DERIV)
+#define THIRD_DERIV
+c
+c Recompile for 3rd order derivatives
+c
+#include "nwxc_x_m11.F"
+#endif
+c
 C>
 C> @}

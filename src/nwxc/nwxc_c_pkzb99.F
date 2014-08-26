@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -31,8 +31,16 @@ C>     Phys. Rev. Lett. <b>82</b>, 5179-5179 (1999), DOI:
 C>     <a href="http://dx.doi.org/10.1103/PhysRevLett.82.5179">
 C>     10.1103/PhysRevLett.82.5179</a>.
 C>
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_pkzb99(tol_rho, ipol, nq, wght, rho,
-     &                         rgamma, tau, func, Amat, Cmat, Mmat)
+     &                         rgamma, tau, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      Subroutine nwxc_c_pkzb99_d2(tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#else
+      Subroutine nwxc_c_pkzb99_d3(tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#endif
 c
 c$Id$
 c
@@ -40,7 +48,12 @@ c
 c     References:
 c     [a] J.P. Perdew, S. Kurth, A. Zupan and P. Blaha,
 c         PRL 82, 2544 (1999).
+c
+#include "nwad.fh"
+c
       Implicit none
+c
+#include "intf_nwxc_c_Mpbe.fh"
 c
 #include "nwxc_param.fh"
 c
@@ -53,62 +66,62 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient Norm
 c
-      double precision rgamma(nq,*) !< [Input] The density gradient norm
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The density gradient norm
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,*) !< [Input] The kinetic energy density
+      type(nwad_dble)::tau(nq,*) !< [Input] The kinetic energy density
 c
 c     Functional values
 c
-      double precision func(*) !< [Output] The functional value
+      type(nwad_dble)::func(*) !< [Output] The functional value
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision Amat(nq,*) !< [Output] Derivative wrt density
-      double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
-      double precision Mmat(nq,*) !< [Output] Derivative wrt tau
+c     double precision Amat(nq,*) !< [Output] Derivative wrt density
+c     double precision Cmat(nq,*) !< [Output] Derivative wrt rgamma
+c     double precision Mmat(nq,*) !< [Output] Derivative wrt tau
 c
       integer n
-      double precision rhoval,rhoa,rhob
+      type(nwad_dble)::rhoval,rhoa,rhob
 
 c    first sigma term
-      double precision  taun
+      type(nwad_dble):: taun
       double precision  ccc
       parameter (ccc = 0.53d0) !cpkzb empirical parameter
 
 c   Second call to the cPBE subroutine
 
-      double precision  neGGA, dneGGAdn(2), dneGGAdg(3)
-      double precision rho_t(3), rgamma_t(3)
-      double precision  tauNA,tauNB
+      type(nwad_dble):: neGGA, dneGGAdn(2), dneGGAdg(3)
+      type(nwad_dble)::rho_t(3), rgamma_t(3)
+      type(nwad_dble):: tauNA,tauNB
 c    
-      double precision gam12,pbe,tauw,xx2,en,
+      type(nwad_dble)::gam12,pbe,tauw,xx2,en,
      ,     tauwa,tauwb,xx2a,xx2b,dtwat2dg,dtwat2dn,
      ,     dtwbt2dg,dtwbt2dn
-      double precision pbeup,dtwt2dn,decggadn,dtwt2dg,
+      type(nwad_dble)::pbeup,dtwt2dn,decggadn,dtwt2dg,
      ,     delc,decggadg,drevdn,drevdg,drevdt,
      ,     dpbeupdn,dpbeupdg,atermn,btermn,atermg,btermg,
      ,     erevc,finaln,apartg,finalg,apartt,finalt
 c
-      double precision  neFSP, dneFSPdn(2), dneFSPdg(3)
+      type(nwad_dble):: neFSP, dneFSPdn(2), dneFSPdg(3)
 c
       double precision drevdna,drevdnb,drevdgaa,drevdgbb,
      A     drevdta,drevdtb,finalgbb
-      double precision delca,delcb,
+      type(nwad_dble)::delca,delcb,
      A     detiladga,detiladgb,detilbdga,detilbdgb,
      A     detiladna,detiladnb,detilbdna,detilbdnb
-      double precision etildea,etildeb,gaa,gbb,gab
-      double precision fabup,fabdown
+      type(nwad_dble)::etildea,etildeb,gaa,gbb,gab
+      type(nwad_dble)::fabup,fabdown
 c     double precision delrho_A(3,2)
-      double precision rho_A(3)
+      type(nwad_dble)::rho_A(3)
 c
-      double precision xx1,xx1a,xx1b,pbedown
-      double precision tauwplus,taunplus,rhoval2
+      type(nwad_dble)::xx1,xx1a,xx1b,pbedown
+      type(nwad_dble)::tauwplus,taunplus,rhoval2
       double precision dxx1dna,dxx1dnb
       double precision dxx1adna,dxx1bdnb
       double precision dxx1dgaa,dxx1dgbb
@@ -118,10 +131,10 @@ c
       double precision dxx1adta,dxx1bdtb
       double precision finalna,finalnb
       double precision finalgaa,finalgab
-      double precision rhoa2,rhob2
-      double precision detiladgaa,detiladgbb
-      double precision detilbdgaa,detilbdgbb
-      double precision gammaval, rgamma_A(3)
+      type(nwad_dble)::rhoa2,rhob2
+      type(nwad_dble)::detiladgaa,detiladgbb
+      type(nwad_dble)::detilbdgaa,detilbdgbb
+      type(nwad_dble)::gammaval, rgamma_A(3)
 c
       if (ipol.eq.1 )then
 c        ======> SPIN-RESTRICTED <======
@@ -143,7 +156,7 @@ c        gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
          gammaval = rgamma(n,G_TT)
-         gam12=dsqrt(gammaval)
+         gam12=sqrt(gammaval)
 c
 c     get E_GGA[rho,gamma]
 c
@@ -151,10 +164,13 @@ c
          dneGGAdn(1) = 0.0d0   !Amat in PBE
          dneGGAdg(1) = 0.0d0  !Cmat in PBE
          dneGGAdg(2) = 0.0d0  !Cmat in PBE
-
-         call nwxc_c_Mpbe(tol_rho, ipol,
-     &        rho_t, rgamma_t, neGGA,
-     &        dneGGAdn,dneGGAdg) 
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe_d2(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+#else
+         call nwxc_c_Mpbe_d3(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+#endif
          pbe = neGGA
 
          tauN = tau(n,T_T)
@@ -201,14 +217,19 @@ c        delrho_A(3,2) = 0.d0   ! set beta gradient to zero
 c
 c     get E_GGA[rho_alpha,0,gamma_alpha,0]
 c
-         call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A,
-     &        neFSP, dneFSPdn,dneFSPdg)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#else
+         call nwxc_c_Mpbe_d3(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#endif
          pbeup = neFSP
 
 c        functional deriv info below fffffffffffff
          dtwt2dn = -2.d0*xx2/rhoval
          decggadn= dneGGAdn(1)
-         dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
+         dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2.0d0)
          decggadg= dneGGAdg(1)
          delc= xx2*pbeup
 
@@ -237,18 +258,18 @@ c  note .25 above is because you want gamma=deln_tot*deln_tot
          func(n) = func(n) + rhoval*erevc*wght
  
 c     derivs wrt n
-         finaln= rhoval*drevdn + erevc 
-         Amat(n,D1_RA)=Amat(n,D1_RA)+(finaln)*wght
+c        finaln= rhoval*drevdn + erevc 
+c        Amat(n,D1_RA)=Amat(n,D1_RA)+(finaln)*wght
 
 c     derivs wrt g
-         apartg=rhoval*drevdg
-         finalg=apartg
-         Cmat(n,D1_GAA)=Cmat(n,D1_GAA)+ 2.d0*finalg*wght
+c        apartg=rhoval*drevdg
+c        finalg=apartg
+c        Cmat(n,D1_GAA)=Cmat(n,D1_GAA)+ 2.d0*finalg*wght
 
 c     derivs wrt t
-         apartt=rhoval*drevdt
-         finalt=apartt
-         Mmat(n,D1_TA)=Mmat(n,D1_TA)+0.5d0*finalt*wght
+c        apartt=rhoval*drevdt
+c        finalt=apartt
+c        Mmat(n,D1_TA)=Mmat(n,D1_TA)+0.5d0*finalt*wght
 
 12     continue
 c
@@ -284,9 +305,13 @@ c        delrho_t(3,2) = delrho(n,3,2)
 c
 c     get E_GGA[rho,gamma]
 c
-         call nwxc_c_Mpbe(tol_rho, ipol,
-     &        rho_t, rgamma_t, neGGA,
-     &        dneGGAdn,dneGGAdg) 
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe_d2(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+#else
+         call nwxc_c_Mpbe_d3(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+#endif
          pbe = neGGA
 c
 c        epGGA = (epsilon_c^GGA)  =cor. energy per electron
@@ -360,8 +385,13 @@ c        delrho_A(3,2) = 0.d0   ! set beta gradient to zero
          dneFSPdg(2) = 0.0d0  !Cmat in PBE
          dneFSPdg(3) = 0.0d0  !Cmat in PBE
 c
-         call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A,
-     &        neFSP, dneFSPdn,dneFSPdg)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#else
+         call nwxc_c_Mpbe_d3(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#endif
          pbeup = neFSP
 c
 c        functional deriv info below fffffffffffff
@@ -381,17 +411,17 @@ c    set up values to call PBE subroutine as
 c     Fully SpinPolarized system for beta spin
 c     to get E_GGA[rho_beta,0,gamma_beta,0]
 c
-       rho_A(1) = rhob
-       rho_A(2) = 0.d0          ! beta  equals zero
+       rho_A(1) = 0.0d0
+       rho_A(2) = rhob          ! beta  equals zero
 c      delrho_A(1,1) = delrho_t(1,2) ! nabla n_up x  
 c      delrho_A(2,1) = delrho_t(2,2) ! nabla n_up y
 c      delrho_A(3,1) = delrho_t(3,2) ! nabla n_up z
 c      delrho_A(1,2) = 0.d0     ! set beta gradient to zero
 c      delrho_A(2,2) = 0.d0     ! set beta gradient to zero
 c      delrho_A(3,2) = 0.d0     ! set beta gradient to zero
-       rgamma_A(1) = rgamma(n,G_BB)
+       rgamma_A(1) = 0.0d0
        rgamma_A(2) = 0.0d0
-       rgamma_A(3) = 0.0d0
+       rgamma_A(3) = rgamma(n,G_BB)
        
        neFSP = 0.0d0            !Ec in PBE
        dneFSPdn(1) = 0.0d0      !Amat in PBE
@@ -400,8 +430,13 @@ c      delrho_A(3,2) = 0.d0     ! set beta gradient to zero
        dneFSPdg(2) = 0.0d0      !Cmat in PBE
        dneFSPdg(3) = 0.0d0      !Cmat in PBE
 c
-       call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A,
-     &        neFSP, dneFSPdn,dneFSPdg)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+         call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#else
+         call nwxc_c_Mpbe_d3(tol_rho, 2, rho_A, rgamma_A, neFSP)
+#endif
        pbedown = neFSP
 c
 c      functional deriv info below fffffffffffff
@@ -419,84 +454,84 @@ c
        func(n) = func(n) + rhoval*erevc*wght
 c
 c na
-       dxx1dna = -0.125d0*gaa/(taun*rhoa2)
-       dxx1adna = -0.125d0*gaa/(tauna*rhoa2)
-       atermn=pbe*ccc*2.d0*xx1*dxx1dna + (1.d0+ccc*xx2)*dneggadn(1)
-       btermn= (1.d0+ccc)*(2.d0*xx1a*dxx1adna*fabup*etildea + 
-     &                     xx2a*etildea*fabdown/rhoval +
-     &                     xx2a*fabup*detiladna - 
-     &                     xx2b*etildeb*fabdown/rhoval)
-       drevdna = atermn - btermn
+c      dxx1dna = -0.125d0*gaa/(taun*rhoa2)
+c      dxx1adna = -0.125d0*gaa/(tauna*rhoa2)
+c      atermn=pbe*ccc*2.d0*xx1*dxx1dna + (1.d0+ccc*xx2)*dneggadn(1)
+c      btermn= (1.d0+ccc)*(2.d0*xx1a*dxx1adna*fabup*etildea + 
+c    &                     xx2a*etildea*fabdown/rhoval +
+c    &                     xx2a*fabup*detiladna - 
+c    &                     xx2b*etildeb*fabdown/rhoval)
+c      drevdna = atermn - btermn
 c
 c nb
-       dxx1dnb = -0.125d0*gbb/(taun*rhob2)
-       dxx1bdnb = -0.125d0*gbb/(taunb*rhob2)
-       atermn=pbe*ccc*2.d0*xx1*dxx1dnb + (1.d0+ccc*xx2)*dneggadn(2)
-       btermn= (1.d0+ccc)*(2.d0*xx1b*dxx1bdnb*fabdown*etildeb +
-     &                     xx2b*etildeb*fabup/rhoval +
-     &                     xx2b*fabdown*detilbdnb - 
-     &                     xx2a*etildea*fabup/rhoval)
-       drevdnb = atermn - btermn
+c      dxx1dnb = -0.125d0*gbb/(taun*rhob2)
+c      dxx1bdnb = -0.125d0*gbb/(taunb*rhob2)
+c      atermn=pbe*ccc*2.d0*xx1*dxx1dnb + (1.d0+ccc*xx2)*dneggadn(2)
+c      btermn= (1.d0+ccc)*(2.d0*xx1b*dxx1bdnb*fabdown*etildeb +
+c    &                     xx2b*etildeb*fabup/rhoval +
+c    &                     xx2b*fabdown*detilbdnb - 
+c    &                     xx2a*etildea*fabup/rhoval)
+c      drevdnb = atermn - btermn
 c
 c gaa
-       dxx1dgaa = 0.125d0/(taun*rhoa)
-       dxx1adgaa = 0.125d0/(tauna*rhoa)
-       atermg=(1.d0+ccc*xx2)*dneggadg(D1_GAA)+ pbe*ccc*2.d0*xx1*dxx1dgaa
-       btermg=(1.d0+ccc)*(2.d0*xx1a*dxx1adgaa*fabup*etildea + 
-     &    xx2a*fabup*detiladgaa)
-       drevdgaa = atermg - btermg
+c      dxx1dgaa = 0.125d0/(taun*rhoa)
+c      dxx1adgaa = 0.125d0/(tauna*rhoa)
+c      atermg=(1.d0+ccc*xx2)*dneggadg(D1_GAA)+ pbe*ccc*2.d0*xx1*dxx1dgaa
+c      btermg=(1.d0+ccc)*(2.d0*xx1a*dxx1adgaa*fabup*etildea + 
+c    &    xx2a*fabup*detiladgaa)
+c      drevdgaa = atermg - btermg
 c
 c gbb
-       dxx1dgbb = 0.125d0/(taun*rhob)
-       dxx1bdgbb = 0.125d0/(taunb*rhob)
-       atermg=(1.d0+ccc*xx2)*dneggadg(D1_GBB)+ pbe*ccc*2.d0*xx1*dxx1dgbb
-       btermg=(1.d0+ccc)*(2.d0*xx1b*dxx1bdgbb*fabdown*etildeb +
-     &   xx2b*fabdown*detilbdgbb)
-       drevdgbb = atermg - btermg
+c      dxx1dgbb = 0.125d0/(taun*rhob)
+c      dxx1bdgbb = 0.125d0/(taunb*rhob)
+c      atermg=(1.d0+ccc*xx2)*dneggadg(D1_GBB)+ pbe*ccc*2.d0*xx1*dxx1dgbb
+c      btermg=(1.d0+ccc)*(2.d0*xx1b*dxx1bdgbb*fabdown*etildeb +
+c    &   xx2b*fabdown*detilbdgbb)
+c      drevdgbb = atermg - btermg
 c
 c gab
-       atermg=(1.d0+ccc*xx2)*dneggadg(D1_GAB)
-       drevdgab = atermg
+c      atermg=(1.d0+ccc*xx2)*dneggadg(D1_GAB)
+c      drevdgab = atermg
 c
 c ta
-       dxx1dta=-xx1/taun
-       dxx1adta=-xx1a/tauna
-       drevdta=pbe*2.d0*ccc*xx1*dxx1dta
-     &        -(1.d0+ccc)*2.d0*xx1a*dxx1adta*fabup*etildea
+c      dxx1dta=-xx1/taun
+c      dxx1adta=-xx1a/tauna
+c      drevdta=pbe*2.d0*ccc*xx1*dxx1dta
+c    &        -(1.d0+ccc)*2.d0*xx1a*dxx1adta*fabup*etildea
 c
 c tb
-       dxx1dtb=-xx1/taun
-       dxx1bdtb=-xx1b/taunb
-       drevdtb=pbe*2.d0*ccc*xx1*dxx1dtb
-     &        -(1.d0+ccc)*2.d0*xx1b*dxx1bdtb*fabdown*etildeb
+c      dxx1dtb=-xx1/taun
+c      dxx1bdtb=-xx1b/taunb
+c      drevdtb=pbe*2.d0*ccc*xx1*dxx1dtb
+c    &        -(1.d0+ccc)*2.d0*xx1b*dxx1bdtb*fabdown*etildeb
 c
 c derivs wrt na,nb
-       finalna= rhoval*drevdna + erevc
-       Amat(n,D1_RA)=Amat(n,D1_RA)+finalna*wght
+c      finalna= rhoval*drevdna + erevc
+c      Amat(n,D1_RA)=Amat(n,D1_RA)+finalna*wght
 
-       finalnb= rhoval*drevdnb + erevc 
-       Amat(n,D1_RB)=Amat(n,D1_RB)+finalnb*wght
+c      finalnb= rhoval*drevdnb + erevc 
+c      Amat(n,D1_RB)=Amat(n,D1_RB)+finalnb*wght
 c
 c     derivs wrt gaa
-       finalgaa=rhoval*drevdgaa
-       Cmat(n,D1_GAA)=Cmat(n,D1_GAA)+ finalgaa*wght
+c      finalgaa=rhoval*drevdgaa
+c      Cmat(n,D1_GAA)=Cmat(n,D1_GAA)+ finalgaa*wght
 c
 c     derivs wrt gbb
-       finalgbb=rhoval*drevdgbb
-       Cmat(n,D1_GBB)=Cmat(n,D1_GBB)+ finalgbb*wght
+c      finalgbb=rhoval*drevdgbb
+c      Cmat(n,D1_GBB)=Cmat(n,D1_GBB)+ finalgbb*wght
 c
 c     derivs wrt gab
-       finalgab=rhoval*drevdgab
-       Cmat(n,D1_GAB)=Cmat(n,D1_GAB)+ finalgab*wght
+c      finalgab=rhoval*drevdgab
+c      Cmat(n,D1_GAB)=Cmat(n,D1_GAB)+ finalgab*wght
 c
 c     derivs wrt ta,tb
-       apartt=rhoval*drevdta
-       finalt=apartt
-       Mmat(n,D1_TA)=Mmat(n,D1_TA)+0.5d0*finalt*wght
+c      apartt=rhoval*drevdta
+c      finalt=apartt
+c      Mmat(n,D1_TA)=Mmat(n,D1_TA)+0.5d0*finalt*wght
 
-       apartt=rhoval*drevdtb
-       finalt=apartt
-       Mmat(n,D1_TB)=Mmat(n,D1_TB)+0.5d0*finalt*wght
+c      apartt=rhoval*drevdtb
+c      finalt=apartt
+c      Mmat(n,D1_TB)=Mmat(n,D1_TB)+0.5d0*finalt*wght
 
 20     continue
 
@@ -504,11 +539,20 @@ c     derivs wrt ta,tb
 
       return
       end
-
 c
-      Subroutine nwxc_c_pkzb99_d2()
-      call errquit(' cpkzb99: d2 not coded ',0,0)
-      return
-      end
+#ifndef SECOND_DERIV
+#define SECOND_DERIV
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_pkzb99.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
+c
+#include "nwxc_c_pkzb99.F"
+#endif
 C>
 C> @}

@@ -17,3 +17,4 @@
           type(nwad_dble)::Ec
         end subroutine
       end interface
+c $Id$

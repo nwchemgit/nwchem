@@ -1,4 +1,4 @@
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -25,15 +25,20 @@ C>
 #if defined(FUJITSU_VPP)
 !ocl scalar
 #endif
-#ifndef SECOND_DERIV
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_s12(param, tol_rho, ipol, nq, wght, rho, rgamma,
-     &                      func, Amat, Cmat)
-#else
+     &                      func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_s12_d2(param, tol_rho, ipol, nq, wght, rho,
-     &                         rgamma, func, Amat, Amat2, Cmat, Cmat2)
+     &                         rgamma, func)
+#else
+      Subroutine nwxc_x_s12_d3(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, func)
 #endif
 c
 C$Id$
+c
+#include "nwad.fh"
 c
       implicit none
 c      
@@ -56,28 +61,29 @@ c
 c
 c     Charge Density 
 c
-      double precision rho(nq,*)    !< [Input] The density
+      type(nwad_dble)::rho(nq,*)    !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential
 c
-      double precision func(nq)    !< [Output] The value of the functional
-      double precision Amat(nq,*)   !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)    !< [Output] The value of the functional
+c     double precision Amat(nq,*)   !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
 #ifdef SECOND_DERIV
 c
 c     Sampling Matrices for the XC Kernel
 c
-      double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho
-      double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
-                                    !< and possibly rho
+c     double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho
+c     double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
+c                                   !< and possibly rho
 #endif
 c
       double precision rB, rC, rD, rA, rK, rE, rH, rG2, rH2
-      double precision ums, vms, dudx, dvdx, d2udx2, d2vdx2
+      type(nwad_dble)::ums, vms
+      double precision dudx, dvdx, d2udx2, d2vdx2
 c
 c References:
 c
@@ -86,15 +92,16 @@ c
 c***************************************************************************
 c
       integer n
-      double precision C, rho13, rho43, gamma, x, g, gdenom, dg
-      double precision dgdenom, t, x2, x3, x4, g1, g2
+      double precision C, dg
+      type(nwad_dble)::rho13, rho43, gamma, x, x2, g, gdenom, hdenom
+      double precision dgdenom, t, x3, x4, g1, g2
       double precision g1h1, g2h1, g1h2, g2h2, g1h3, g3h1
-      double precision hdenom, dhdenom, d2hdenom, PI, rM
+      double precision dhdenom, d2hdenom, PI, rM
       double precision gc4, dgc4, d2gc4
       parameter (rM=60.770665d0)
       parameter (PI = 3.1415926535897932385d0)
 #ifdef SECOND_DERIV
-      double precision rhom23, d2g, d2gdenom, d2g1, d2g2, d2g3
+c     double precision rhom23, d2g, d2gdenom, d2g1, d2g2, d2g3
 #endif
 c
       rA = param(1)
@@ -144,14 +151,14 @@ c
 c           Spin alpha:
 c
             rho13 = (0.5d0*rho(n,R_T))**(1.d0/3.d0)
-            rho43 = rho13**4 
+            rho43 = rho13**4.0d0
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_TT)
-            if (dsqrt(gamma).gt.tol_rho)then
+            if (sqrt(gamma).gt.tol_rho)then
                gamma = 0.25d0 * gamma
-               x = dsqrt(gamma) / rho43
+               x = sqrt(gamma) / rho43
                x2 = x*x
             else
                x = 0d0
@@ -164,9 +171,9 @@ c
             vms = 1d0 - 1d0 / hdenom
             g = C*rB*ums*vms
 c
-            dudx = (2d0*rC*x + 4d0*rD*x2*x)/(gdenom**2)
-            dvdx = 2d0*rE*x/(hdenom**2)
-            dg = C*rB*(dudx*vms + ums*dvdx)
+c           dudx = (2d0*rC*x + 4d0*rD*x2*x)/(gdenom**2)
+c           dvdx = 2d0*rE*x/(hdenom**2)
+c           dg = C*rB*(dudx*vms + ums*dvdx)
 c
 cmswart            if (lfac) then
 cmswart               Ex = Ex + rA*2d0*rho43*C*qwght(n)*fac
@@ -176,32 +183,32 @@ cmswart            endif
 c
 c           if (nlfac) then
                func(n) = func(n) + 2.d0*rho43*g*wght
-               Amat(n,D1_RA) = Amat(n,D1_RA) 
-     +                       + (4d0/3d0)*rho13*(g-x*dg)*wght
+c              Amat(n,D1_RA) = Amat(n,D1_RA) 
+c    +                       + (4d0/3d0)*rho13*(g-x*dg)*wght
 c           endif
 c
-            if (x.gt.tol_rho) then
-               t = 0.5d0 * dg / sqrt(gamma) * wght
-               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t
-            endif
+c           if (x.gt.tol_rho) then
+c              t = 0.5d0 * dg / sqrt(gamma) * wght
+c              Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t
+c           endif
 c
 #ifdef SECOND_DERIV
 cmswart            if(lfac) g = g + rA*C           ! Add local contribution back to g
-            rhom23 = rho13 / (0.5d0*rho(n,R_T))
+c           rhom23 = rho13 / (0.5d0*rho(n,R_T))
 
-            d2udx2 = (2d0*rC-6d0*rC*rC*x2+12d0*rD*x2-18d0*rC*rD*x2*x2
-     &                -20d0*rD*rD*x2*x2*x2)/(gdenom**3)
-            d2vdx2 = (2d0*rE - 6d0*rE*rE*x2)/(hdenom**3)
-            d2g = C*rB*(d2udx2*vms + 2d0*dudx*dvdx + ums*d2vdx2)
+c           d2udx2 = (2d0*rC-6d0*rC*rC*x2+12d0*rD*x2-18d0*rC*rD*x2*x2
+c    &                -20d0*rD*rD*x2*x2*x2)/(gdenom**3)
+c           d2vdx2 = (2d0*rE - 6d0*rE*rE*x2)/(hdenom**3)
+c           d2g = C*rB*(d2udx2*vms + 2d0*dudx*dvdx + ums*d2vdx2)
 c
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
-            if (x.gt.tol_rho) then
-               Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
-     &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
-            endif
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+c    &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+c    &           - (4d0/3d0)*(rhom23**2/rho(n,R_T))*d2g*wght
+c           if (x.gt.tol_rho) then
+c              Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+c    &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
+c           endif
 #endif
 c
  10      continue
@@ -222,8 +229,8 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_AA)
-            if (dsqrt(gamma).gt.tol_rho)then
-               x = dsqrt(gamma) / rho43
+            if (sqrt(gamma).gt.tol_rho)then
+               x = sqrt(gamma) / rho43
                x2 = x*x
             else
                x = 0d0
@@ -236,9 +243,9 @@ c
             vms = 1d0 - 1d0 / hdenom
             g = C*rB*ums*vms
 c
-            dudx = (2d0*rC*x + 4d0*rD*x2*x)/(gdenom**2)
-            dvdx = 2d0*rE*x/(hdenom**2)
-            dg = C*rB*(dudx*vms + ums*dvdx)
+c           dudx = (2d0*rC*x + 4d0*rD*x2*x)/(gdenom**2)
+c           dvdx = 2d0*rE*x/(hdenom**2)
+c           dg = C*rB*(dudx*vms + ums*dvdx)
 c
 cmswart            if (lfac) then
 cmswart               Ex = Ex + rA*rho43*C*qwght(n)*fac
@@ -248,32 +255,32 @@ cmswart            endif
 c
 c           if (nlfac) then
                func(n) = func(n) + rho43*g*wght
-               Amat(n,D1_RA) = Amat(n,D1_RA)
-     +                       + (4d0/3d0)*rho13*(g-x*dg)*wght
+c              Amat(n,D1_RA) = Amat(n,D1_RA)
+c    +                       + (4d0/3d0)*rho13*(g-x*dg)*wght
 c           endif
 c
-            if (x.gt.tol_rho) then
-               t = dg / sqrt(gamma) * wght
-               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t * 0.5d0
-            endif
+c           if (x.gt.tol_rho) then
+c              t = dg / sqrt(gamma) * wght
+c              Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t * 0.5d0
+c           endif
 c
 #ifdef SECOND_DERIV
 cmswart            if (lfac) g = g + rA*C           ! Add local contribution back to g
-            rhom23 = rho13 / rho(n,R_A)
+c           rhom23 = rho13 / rho(n,R_A)
 
-            d2udx2 = (2d0*rC-6d0*rC*rC*x2+12d0*rD*x2-18d0*rC*rD*x2*x2
-     &                -20d0*rD*rD*x2*x2*x2)/(gdenom**3)
-            d2vdx2 = (2d0*rE - 6d0*rE*rE*x2)/(hdenom**3)
-            d2g = C*rB*(d2udx2*vms + 2d0*dudx*dvdx + ums*d2vdx2)
+c           d2udx2 = (2d0*rC-6d0*rC*rC*x2+12d0*rD*x2-18d0*rC*rD*x2*x2
+c    &                -20d0*rD*rD*x2*x2*x2)/(gdenom**3)
+c           d2vdx2 = (2d0*rE - 6d0*rE*rE*x2)/(hdenom**3)
+c           d2g = C*rB*(d2udx2*vms + 2d0*dudx*dvdx + ums*d2vdx2)
 c
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (2d0/3d0)*(rhom23**2/rho(n,R_A))*d2g*wght
-            if (x.gt.tol_rho) then
-               Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
-     &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
-            endif
+c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+c    &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
+c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
+c    &           - (2d0/3d0)*(rhom23**2/rho(n,R_A))*d2g*wght
+c           if (x.gt.tol_rho) then
+c              Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
+c    &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
+c           endif
 #endif
 c
  25         continue
@@ -288,8 +295,8 @@ c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             gamma = rgamma(n,G_BB)
-            if (dsqrt(gamma).gt.tol_rho)then
-               x = dsqrt(gamma) / rho43
+            if (sqrt(gamma).gt.tol_rho)then
+               x = sqrt(gamma) / rho43
                x2 = x*x
             else
                x = 0d0
@@ -302,9 +309,9 @@ c
             vms = 1d0 - 1d0 / hdenom
             g = C*rB*ums*vms
 c
-            dudx = (2d0*rC*x + 4d0*rD*x2*x)/(gdenom**2)
-            dvdx = 2d0*rE*x/(hdenom**2)
-            dg = C*rB*(dudx*vms + ums*dvdx)
+c           dudx = (2d0*rC*x + 4d0*rD*x2*x)/(gdenom**2)
+c           dvdx = 2d0*rE*x/(hdenom**2)
+c           dg = C*rB*(dudx*vms + ums*dvdx)
 c
 cmswart            if (lfac) then
 cmswart               Ex = Ex + rA*rho43*C*qwght(n)*fac
@@ -314,32 +321,32 @@ cmswart            endif
 c
 c           if (nlfac) then
                func(n) = func(n) +rho43*g*wght
-               Amat(n,2) = Amat(n,2) + (4d0/3d0)*rho13*(g-x*dg)*wght
+c              Amat(n,2) = Amat(n,2) + (4d0/3d0)*rho13*(g-x*dg)*wght
 c           endif
 c
-            if (x.gt.tol_rho) then
-               t = dg / sqrt(gamma) * wght
-               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + t * 0.5d0
-            endif
+c           if (x.gt.tol_rho) then
+c              t = dg / sqrt(gamma) * wght
+c              Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + t * 0.5d0
+c           endif
 c
 #ifdef SECOND_DERIV
 cmswart            if(lfac) g = g + rA*C           ! Add local contribution back to g
-            rhom23 = rho13 / rho(n,R_B)
+c           rhom23 = rho13 / rho(n,R_B)
 
-            d2udx2 = (2d0*rC-6d0*rC*rC*x2+12d0*rD*x2-18d0*rC*rD*x2*x2
-     &                -20d0*rD*rD*x2*x2*x2)/(gdenom**3)
-            d2vdx2 = (2d0*rE - 6d0*rE*rE*x2)/(hdenom**3)
-            d2g = C*rB*(d2udx2*vms + 2d0*dudx*dvdx + ums*d2vdx2)
+c           d2udx2 = (2d0*rC-6d0*rC*rC*x2+12d0*rD*x2-18d0*rC*rD*x2*x2
+c    &                -20d0*rD*rD*x2*x2*x2)/(gdenom**3)
+c           d2vdx2 = (2d0*rE - 6d0*rE*rE*x2)/(hdenom**3)
+c           d2g = C*rB*(d2udx2*vms + 2d0*dudx*dvdx + ums*d2vdx2)
 
 c
-            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
-     &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
-            Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
-     &           - (2d0/3d0)*(rhom23**2/rho(n,R_B))*d2g*wght
-            if (x.gt.tol_rho) then
-               Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
-     &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
-            endif
+c           Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
+c    &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*wght
+c           Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
+c    &           - (2d0/3d0)*(rhom23**2/rho(n,R_B))*d2g*wght
+c           if (x.gt.tol_rho) then
+c              Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
+c    &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*wght
+c           endif
 #endif
 c
  20      continue
@@ -352,6 +359,13 @@ c
 #define SECOND_DERIV
 c
 c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_s12.F"
+#endif
+#ifndef THIRD_DERIV
+#define THIRD_DERIV
+c
+c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_s12.F"
 #endif

@@ -1,3 +1,4 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 C> \ingroup nwxc
 C> @{
 C>
@@ -5,6 +6,7 @@ C> \file nwxc_x_opt.F
 C> The OPT exchange functional
 C>
 C> @}
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -25,8 +27,18 @@ C>     10.1080/00268970010023435</A>.
 c
 C$Id$
 c
-      subroutine nwxc_x_opt(tol_rho, ipol, nq, wght, rho, rgamma, func,
-     &                      Amat, Cmat)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_x_opt(tol_rho, ipol, nq, wght, rho, rgamma, func)
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      subroutine nwxc_x_opt_d2(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                         func)
+#else
+      subroutine nwxc_x_opt_d3(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                         func)
+#endif
+c
+#include "nwad.fh"
+c
       implicit none
 c      
 #include "nwxc_param.fh"
@@ -38,17 +50,17 @@ c
 c
 c     Charge Density
 c
-      double precision rho(nq,*) !< [Input] The density
+      type(nwad_dble)::rho(nq,*) !< [Input] The density
 c
 c     Charge Density Gradient
 c
-      double precision rgamma(nq,*) !< [Input] The norm of the density gradients
+      type(nwad_dble)::rgamma(nq,*) !< [Input] The norm of the density gradients
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
-      double precision func(nq)   !< [Output] The value of the functional
-      double precision Amat(nq,*) !< [Output] The derivative wrt rho
-      double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
+      type(nwad_dble)::func(nq)   !< [Output] The value of the functional
+c     double precision Amat(nq,*) !< [Output] The derivative wrt rho
+c     double precision Cmat(nq,*) !< [Output] The derivative wrt rgamma
 c
 c
 c References:
@@ -60,15 +72,15 @@ c
 c***************************************************************************
 c
       integer n
-      double precision rho13, rho43, gamma, x, g,  dg,
+      type(nwad_dble)::rho13, rho43, gamma, x, g,  dg,
      &     t, hrho
-      double precision gamma86
+      double precision gamma86,gx
       Parameter (gamma86=0.006d0)
-      double precision ux,uxp,gx
-      integer p
-      parameter (p = 2)
+      type(nwad_dble)::ux,uxp
+      double precision p
+      parameter (p = 2.0d0)
       ux(x,gx)=gx*x*x/(1d0+gx*x*x)
-      uxp(x,gx)=gx*x*2d0/(1d0+gx*x*x)**2
+c     uxp(x,gx)=gx*x*2d0/(1d0+gx*x*x)**2
 c
       if (ipol.eq.1) then
 c
@@ -86,7 +98,7 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_TT)
-            if (dsqrt(gamma).gt.tol_rho)then
+            if (sqrt(gamma).gt.tol_rho)then
                gamma = 0.25d0 * gamma
                x = sqrt(gamma) / rho43
             else
@@ -94,16 +106,16 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
             endif
 c
             g = -ux(x,gamma86)**p
-            dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
+c           dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
 c
 c
             func(n) = func(n) + 2.d0*rho43*g*wght
-            Amat(n,D1_RA) = Amat(n,D1_RA)+(4d0/3d0)*rho13*(g-x*dg)*wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA)+(4d0/3d0)*rho13*(g-x*dg)*wght
 c
-            if (x.gt.tol_rho) then
-               t = 0.5d0 * dg / sqrt(gamma) * wght
-               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t
-            endif
+c           if (x.gt.tol_rho) then
+c              t = 0.5d0 * dg / sqrt(gamma) * wght
+c              Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t
+c           endif
 c
 c
  10      continue
@@ -124,23 +136,23 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_AA)
-            if (dsqrt(gamma).gt.tol_rho)then
-               x = dsqrt(gamma) / rho43
+            if (sqrt(gamma).gt.tol_rho)then
+               x = sqrt(gamma) / rho43
             else
                x = 0d0
             endif
 c
             g = -ux(x,gamma86)**p
-            dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
+c           dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
 c
 c
             func(n) = func(n) + rho43*g*wght
-            Amat(n,D1_RA) = Amat(n,D1_RA)+(4d0/3d0)*rho13*(g-x*dg)*wght
+c           Amat(n,D1_RA) = Amat(n,D1_RA)+(4d0/3d0)*rho13*(g-x*dg)*wght
 c     
-            if (x.gt.tol_rho) then
-               t = dg / sqrt(gamma) * wght
-               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t * 0.5d0
-            endif
+c           if (x.gt.tol_rho) then
+c              t = dg / sqrt(gamma) * wght
+c              Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + t * 0.5d0
+c           endif
 c
 c
  25         continue
@@ -155,22 +167,22 @@ c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             gamma = rgamma(n,G_BB)
-            if (dsqrt(gamma).gt.tol_rho)then
-               x = dsqrt(gamma) / rho43
+            if (sqrt(gamma).gt.tol_rho)then
+               x = sqrt(gamma) / rho43
             else
                x = 0d0
             endif
             g = -ux(x,gamma86)**p
-            dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
+c           dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
 c
 c
             func(n) = func(n) +rho43*g*wght
-            Amat(n,D1_RB) = Amat(n,D1_RB)+(4d0/3d0)*rho13*(g-x*dg)*wght
+c           Amat(n,D1_RB) = Amat(n,D1_RB)+(4d0/3d0)*rho13*(g-x*dg)*wght
 c     
-            if (x.gt.tol_rho) then
-               t = dg / sqrt(gamma) * wght
-               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + t * 0.5d0
-            endif
+c           if (x.gt.tol_rho) then
+c              t = dg / sqrt(gamma) * wght
+c              Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + t * 0.5d0
+c           endif
 c
 c
  20      continue
@@ -179,4 +191,18 @@ c
 c
       return
       end
+#if !defined(SECOND_DERIV)
+#define SECOND_DERIV
+c
+c     Compile again for 2nd derivatives
+c
+#include "nwxc_x_opt.F"
+#endif
+#if !defined(THIRD_DERIV)
+#define THIRD_DERIV
+c
+c     Compile again for 3rd derivatives
+c
+#include "nwxc_x_opt.F"
+#endif
 C> @}

@@ -1,4 +1,4 @@
-# $Id: $
+# $Id$
 
  OBJ_OPTIMIZE = nwad.o
 
