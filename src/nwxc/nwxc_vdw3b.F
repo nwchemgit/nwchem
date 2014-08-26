@@ -1377,7 +1377,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
       character*80 line
       character*12 str1,str2
       integer iout(500)
-      integer*4 n,i,j,k,sta,sto
+      integer n,i,j,k,sta,sto
       character*11 nums
       
 c      write(*,*) 'In readfrag:'
