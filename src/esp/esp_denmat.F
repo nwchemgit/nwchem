@@ -28,6 +28,7 @@ c
       integer ioff
 c
       character*20 scftyp
+      character*255 dmat_file
 c
       logical ao_1prdm_read
       external ao_1prdm_read
@@ -48,7 +49,8 @@ c
 c
 c       read density matrix
 c
-        if (.not. ao_1prdm_read(nbf,lg_d))
+        call util_file_name('dmat',.false.,.false.,dmat_file) !
+        if (.not. ao_1prdm_read(nbf,lg_d,dmat_file))
      &     call errquit('esp_denmat: ao_1prdm_read failed',0,0)
 c
       else ! denmat
