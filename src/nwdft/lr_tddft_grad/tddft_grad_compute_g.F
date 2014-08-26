@@ -160,7 +160,7 @@ c
       double precision cntr(3)   ! center (arbitrary)
       logical odipole            ! dipole flag
       double precision ecosmo
-      character*255 cosmo_file    
+      character*255 cosmo_file,dmat_file
       logical odbug
 c
       integer lsqa    ! the size of one square block
@@ -726,28 +726,23 @@ c separately.  In both cases we get the excited state density matrix.
           call ga_add(1.0d0,g_d(2),1.0d0,g_d(4),g_d(4))
         endif
 c
-c       Calculate the excited-state dipole moment
+c       Calculate and write out the excited-state dipole moment
 c
-c        if (.not.(rtdb_get(rtdb,'tddft:dipole',mt_log,1,odipole)))
-c     &      odipole = .false.
-c        if (odipole.and.oroot) then
-c         call tddft_grad_multipole_analysis(rtdb, ihdl_bfao, ipol, 
-c     &               g_p_ao, g_p_ao) 
-c         call multipole_density(ihdl_bfao,cntr,1,g_p_ao,dipmom,4)
-c         if (oroot) then
-c           write(LuOut,9200) dipmom(2),dipmom(3),dipmom(4)
-c         end if
+        call multipole_density(ihdl_bfao,cntr,1,g_p_ao,dipmom,4)
+        if (ga_nodeid().eq.0) 
+     &       write(LuOut,9200) dipmom(2),dipmom(3),dipmom(4)
 c
-c        Write excited-state density in the ao basis
+c       Write excited-state density in the ao basis
 c
-         call ao_1prdm_write(nao,g_p_ao)
+        call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
+        call ao_1prdm_write(nao,g_p_ao,dmat_file)
 c
-c        Calculate the trace of P*S: Check normalization. Total number of electrons
+c       Calculate the trace of P*S: Check normalization. Total number of electrons
 c
-         if (.not.ga_create(mt_dbl,nao,nao,'AO overlap',-1,-1,g_ovlp))
+        if (.not.ga_create(mt_dbl,nao,nao,'AO overlap',-1,-1,g_ovlp))
      +       call errquit(pname//'failed to create g_ovlp',0, GA_ERR)
-         call ga_zero(g_ovlp)
-         call int_1e_ga(ihdl_bfao,ihdl_bfao,g_ovlp,'overlap',oskel)
+        call ga_zero(g_ovlp)
+        call int_1e_ga(ihdl_bfao,ihdl_bfao,g_ovlp,'overlap',oskel)
          if (oskel) call sym_symmetrize(ihdl_geom,ihdl_bfao,.false.,
      &          g_ovlp)
          pstrace=ga_ddot(g_p_ao,g_ovlp)
