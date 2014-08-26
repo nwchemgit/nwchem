@@ -51,6 +51,7 @@ c<-d3p975
       logical ocube
       logical do_output
       character*255 cube_name
+      character*255 dmat_file
 c
       if(.not.rtdb_get(rtdb,'bqforceprint',mt_log,1,bqprint))
      + bqprint = .false.
@@ -84,7 +85,8 @@ c
         if (.not. bas_numbf(basis,nbf)) call
      &    errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
 c
-        if(.not.ao_1prdm_read(nbf,g_dens(ndens)))
+        call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
+        if(.not.ao_1prdm_read(nbf,g_dens(ndens),dmat_file))
      1  call errquit('hnd_elfmap: ao_1prdm_read failed',0,0)
 
       else 

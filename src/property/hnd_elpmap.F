@@ -55,6 +55,7 @@ c
       logical ocube
       integer nsp(3)
       character*255 cube_name
+      character*255 dmat_file
 c
 c
 c     Initialize integrals
@@ -84,13 +85,13 @@ c
 c
 c    2. read the data
 c
-        if (.not. bas_numbf(basis,nbf)) call
-     &    errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
+        if (.not. bas_numbf(basis,nbf)) 
+     &    call errquit('hnd_elfmap: could not get nbf',0, BASIS_ERR)
 c
-        if(.not.ao_1prdm_read(nbf,g_dens(ndens)))
+        call util_file_name('dmat',.false.,.false.,dmat_file) ! get filename
+        if(.not.ao_1prdm_read(nbf,g_dens(ndens),dmat_file))
      1  call errquit('hnd_elpmap: ao_1prdm_read failed',0,0)
       endif
-c
 c
 
        call ecce_print_module_entry('Elpoten')

@@ -1,7 +1,7 @@
 c
 c     Read 1-particle reduced density matrix
 c
-      logical function ao_1prdm_read(nbf,g_dens)
+      logical function ao_1prdm_read(nbf,g_dens,filename)
 c
       implicit none
 c
@@ -16,9 +16,10 @@ c
 #include "util.fh"
 #include "stdio.fh"
 c
-      integer g_dens
-c
       integer nbf               ! No. of functions in basis
+      integer g_dens
+      character*255  filename
+c
       integer ok
       integer l_dens, k_dens
       integer i
@@ -37,7 +38,7 @@ c
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
-         open(unitno, status='old', form='unformatted', file='ao_1prdm',
+         open(unitno, status='old', form='unformatted', file=filename,
      $        err=1000)
          if (.not. ma_push_get(mt_dbl,nbf,'movecs_read',l_dens,k_dens))
      $        call errquit(pname//'ma failed', nbf, MA_ERR)
@@ -66,14 +67,12 @@ c
       endif
       return
 c
- 1000 write(6,*) pname//'failed to open ',
-     $     'ao_1prdm'
+ 1000 write(6,*) pname//'failed to open ', filename
       call util_flush(luout)
       ok = 0
       goto 10
 c
- 1002 write(6,*) pname//'failed to close',
-     $     'ao_1prdm'
+ 1002 write(6,*) pname//'failed to close', filename
       call util_flush(luout)
       ok = 0
       goto 10

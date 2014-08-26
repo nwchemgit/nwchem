@@ -1,7 +1,7 @@
 c
 c     Write out 1-particle reduced density matrix
 c
-      subroutine ao_1prdm_write(nbf,g_dens)
+      subroutine ao_1prdm_write(nbf,g_dens,filename)
 c
       implicit none
 c
@@ -21,6 +21,7 @@ c
 c
       integer nbf         ! [input] Number of basis functions
       integer g_dens      ! [input] 1-particle reduced density matrix
+      character*255 filename
 c
       integer l_dens, k_dens
       integer ok
@@ -40,7 +41,7 @@ c     Read the file
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
-       open(unitno,status='unknown',form='unformatted',file='ao_1prdm')
+       open(unitno,status='unknown',form='unformatted',file=filename)
        if (.not. ma_push_get(mt_dbl,nbf,'ao_1prdm_write',
      &     l_dens,k_dens)) call errquit(pname//'ma failed', nbf, MA_ERR)
        do i = 1,nbf
