@@ -457,8 +457,8 @@ c         first-order S-ket matrix (right-hand side S-derivative)
      &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
           call ga_zero(g_sket1)
 
-          if (ga_nodeid().eq.0)
-     &     write(*,*) 'FA-BEF. giao_b1_movecs ...'
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. giao_b1_movecs ...'
           call giao_b1_movecs(rtdb,basis,geom,g_vecB1,g_sket1)
           if (ga_nodeid().eq.0)
      &     write(*,*) 'FA-AFT. giao_b1_movecs ...'
@@ -469,8 +469,8 @@ c Note.- The use of g_sket1 is uncertain
 c        It needs to be destroyed
           call ga_scale(g_sket1,0.5d0)
         else
-          if (ga_nodeid().eq.0)
-     &     write(*,*) 'FA-BEF. fiao_b1_movecs ...'
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. fiao_b1_movecs ...'
           call fiao_b1_movecs(rtdb,basis,geom,g_vecB1)
           if (ga_nodeid().eq.0)
      &     write(*,*) 'FA-AFT. fiao_b1_movecs ...'
@@ -554,8 +554,8 @@ c     determine frequency and number of components
        write(*,100) lstatic,omega,ncomp
  100   format('(lstatic,omega,ncomp)=(',L1,',',f15.8,',',i3,')')
       endif
-          if (ga_nodeid().eq.0)
-     &     write(*,*) 'FA-BEF. fiao_f1_movecs-1 ...'
+c          if (ga_nodeid().eq.0)
+c     &     write(*,*) 'FA-BEF. fiao_f1_movecs-1 ...'
 
       call fiao_f1_movecs(
      &      rtdb,basis,geom,    ! in : handles

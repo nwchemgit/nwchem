@@ -440,11 +440,11 @@ c     Read solution vector from disk and put solutions in U matrices
      $  ('giao_b1: could not read cphf_rhs',0, DISK_ERR)  
 
       if (debug) then
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_rhs-BEF-write2file------- START'
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) '---- g_rhs-BEF-write2file------- START'
         call ga_print(g_rhs)
-       if (ga_nodeid().eq.0)
-     &  write(*,*) '---- g_rhs-BEF-write2file--------  END'
+c       if (ga_nodeid().eq.0)
+c     &  write(*,*) '---- g_rhs-BEF-write2file--------  END'
       endif ! end-if-debug
 
        call util_file_name(lbl_cphfaoresp,

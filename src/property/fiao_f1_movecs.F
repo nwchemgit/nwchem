@@ -327,8 +327,8 @@ c     &         L1,',',L1,')')
 c      endif   
   
       if (lstatic .and. .not.lifetime) then
-        if (ga_nodeid().eq.0)
-     &   write(*,*) 'FA-BEF cphf2()'
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) 'FA-BEF cphf2()'
 c       ... static CPKS solver:         
         if (.not.cphf2(rtdb)) call errquit
      &       ('fiao_f1: failure in cphf2 ',0, RTDB_ERR)

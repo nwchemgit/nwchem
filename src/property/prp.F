@@ -45,6 +45,11 @@ c
 c     Determine scftype
       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype)) 
      &     scftype = "RHF"
+      if (scftype.eq."RHF") then
+           ipol = 1
+      else 
+           ipol = 2
+      endif
 c
       status=rtdb_get(rtdb,'prop:dipole',MT_INT,1,nodip)            !done
       status=rtdb_get(rtdb,'prop:quadrupole',MT_INT,1,noqdp)        !done
@@ -84,11 +89,11 @@ c     ----- aoresponse: frequency dependent response -----
 c
       if (noaoresponse.eq.0) then
         iopt = 0
-        status=rtdb_get(rtdb,'prop:newaoresp',MT_INT,1,iopt)
+        if (ipol.gt.1.or.scftype.eq."UHF") iopt = 1  ! set newaoresp
         if (iopt.eq.1) then
-          call aoresponse_driver_new(rtdb, basis, geom)
+          call aoresponse_driver_new(rtdb, basis, geom) ! open shell solver
         else
-          call aoresponse_driver(rtdb, basis, geom)
+          call aoresponse_driver(rtdb, basis, geom)  ! closed shell solver
         end if
       end if
 c

@@ -3,9 +3,8 @@ c     == Raman input handler ==
 
       subroutine raman_input(rtdb)
 c
-c Authors: Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
-c          Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
-c --> Experimental (not published yet)
+c     Jonathan Mullin, Northwestern University (ver 1: Jan. 2011)
+c     Fredy W. Aquino, Northwestern University (ver 2: Oct. 2012)
 
       implicit none
 #include "errquit.fh"
