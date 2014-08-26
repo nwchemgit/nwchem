@@ -1353,6 +1353,9 @@ endif
     else
       EXTRA_LIBS += -lm -lcc_dynamic
     endif
+
+# required for mpich2 3.x and clang
+    COPTIONS +=-DMPICH_NO_ATTR_TYPE_TAGS
 #
 
 endif
