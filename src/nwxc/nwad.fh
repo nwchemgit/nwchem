@@ -1,0 +1,7 @@
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      use nwad1
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      use nwad2
+#else
+      use nwad3
+#endif
