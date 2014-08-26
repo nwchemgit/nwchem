@@ -15,7 +15,7 @@
       Parameter (master = 0)
 *
       Integer natomz
-      Parameter (natomz = 40) ! same as in drdyP.fh
+      Parameter (natomz = 50) ! same as in drdyP.fh
       Double Precision atomic_charge, copy_charge
       Double Precision nwcmass
       Character*16     atomic_labels, copy_labels

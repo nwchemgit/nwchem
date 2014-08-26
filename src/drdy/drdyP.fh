@@ -11,7 +11,7 @@
       Parameter (sprod  = +1.111d10)
 C
       Integer natoms,n3tm,n3tmp,nbardm,nsmax,fu6,fu30
-      Parameter (natoms=40)
+      Parameter (natoms=50)
       Parameter (n3tm=3*natoms,n3tmp=3*natoms+1)
       Parameter (nbardm=(n3tm*(n3tm+1))/2)
       Parameter (nsmax=100)
