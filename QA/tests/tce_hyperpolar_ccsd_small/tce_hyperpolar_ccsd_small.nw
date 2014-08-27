@@ -30,8 +30,7 @@ tce
   thresh 1.0e-9
   io ga
   2eorb
-  2emet 5
-  idiskx 1
+  2emet 13
   tilesize 28
   attilesize 40
 end
