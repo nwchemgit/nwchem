@@ -87,13 +87,16 @@ c     Boys localization
 c
 c     ----- aoresponse: frequency dependent response -----
 c
+      iopt = 1 ! default
+      if (.not. rtdb_get(rtdb,'prop:newaoresp',MT_INT,1,iopt))  
+     &   iopt = 1 ! toggle for old driver for closed shells
+      if (ipol.gt.1.or.scftype.eq."UHF") iopt = 1  ! always set new driver for open shells
+c
       if (noaoresponse.eq.0) then
-        iopt = 0
-        if (ipol.gt.1.or.scftype.eq."UHF") iopt = 1  ! set newaoresp
-        if (iopt.eq.1) then
-          call aoresponse_driver_new(rtdb, basis, geom) ! open shell solver
+        if (iopt.eq.0) then
+          call aoresponse_driver(rtdb, basis, geom)     ! old driver for closed shells only
         else
-          call aoresponse_driver(rtdb, basis, geom)  ! closed shell solver
+          call aoresponse_driver_new(rtdb, basis, geom) ! new driver for closed and open shells
         end if
       end if
 c
