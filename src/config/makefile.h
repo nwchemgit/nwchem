@@ -1123,6 +1123,14 @@ endif
                RANLIB = ranlib
              MAKEFLAGS = -j 1 --no-print-directory
              DEFINES =-DMACX
+             COPTIONS = -m32
+             FOPTIONS   = -m32
+             CFLAGS_FORGA = -m32
+             FFLAGS_FORGA = -m32
+# required for mpich2 3.x and clang
+             DEFINES +=-DMPICH_NO_ATTR_TYPE_TAGS
+             CFLAGS_FORGA +=-DMPICH_NO_ATTR_TYPE_TAGS
+
 
   ifeq ($(FC),xlf)
     _FC=xlf
@@ -1165,8 +1173,8 @@ endif
       ifeq ($(FC),gfortran)
     _FC=gfortran
 #gcc version 4.2.0 200512 (experimental)
-        LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = #-Wextra #-Wunused #-ffast-math
+        LINK.f = gfortran -m32  $(LDFLAGS) 
+        FDEBUG = -O0 -g
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
         DEFINES  += -DGFORTRAN
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
@@ -1181,6 +1189,8 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG += -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
+          
           FOPTIONS += -Warray-bounds
         endif
         ifdef USE_OPENMP
@@ -1221,7 +1231,7 @@ endif
     _FC=ifort
 #ifort 9.1
 #        LINK.f = ifort  $(LDFLAGS) 
-        FOPTIONS   = -align    -mp1 -w -g -vec-report1
+        FOPTIONS   += -align    -mp1 -w -g -vec-report1
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
@@ -1232,7 +1242,7 @@ endif
     ifeq ($(CC),xlc)
       COPTIONS  +=  -qlanglvl=extended
     else
-      COPTIONS   = -Wall #-no-cpp-precomp
+      COPTIONS   += -Wall #-no-cpp-precomp
       COPTIMIZE  = -g -O2
     endif
     ifdef  USE_GPROF
@@ -1318,6 +1328,7 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG += -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
         endif
         endif
@@ -1345,7 +1356,7 @@ endif
        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
         DEFINES  += -DIFCV8 -DIFCLINUX
         FOPTIONS += -i8
-        FOPTIONS +=   -g
+        FOPTIONS +=   -g -no-save-temps
         FDEBUG    = -O2 -g
         FOPTIMIZE = -O3 -xHost
         ifeq ($(_IFCV11),Y) 
@@ -1367,6 +1378,7 @@ endif
 
 # required for mpich2 3.x and clang
     COPTIONS +=-DMPICH_NO_ATTR_TYPE_TAGS
+    CFLAGS_FORGA +=-DMPICH_NO_ATTR_TYPE_TAGS
 #
 
 endif
@@ -1749,6 +1761,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
 	  else
           FOPTIONS   += -Wuninitialized # -Wextra -Wunused
