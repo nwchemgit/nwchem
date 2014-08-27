@@ -3,7 +3,7 @@
 # $Id$
 #
 if [ -f ~/.nwchemrc ]; then
-  if [ -w ~/nwchemrc ]; then
+  if [ -w ~/.nwchemrc ]; then
     echo "INFO: The NWChem configuration file ~/.nwchemrc exists and is writable "
     echo "INFO: The domknwchemrc script will overwrite it to run the tests cases"
     echo "INFO: in:" `pwd`
