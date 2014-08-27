@@ -1968,6 +1968,13 @@ if [ ${#NWCHEM_FSCHECK} -ne 0 ] ; then
   echo "unset NWCHEM_FSCHECK"                    >> ${NWCHEM_UNENV_SH}
   echo "unsetenv NWCHEM_FSCHECK"                 >> ${NWCHEM_UNENV_CSH}
 fi
+if [ ${#USE_NOFSCHECK} -ne 0 ] ; then
+  echo "USE_NOFSCHECK      =" ${USE_NOFSCHECK}
+  echo "export USE_NOFSCHECK=${USE_NOFSCHECK}" >> ${NWCHEM_ENV_SH}
+  echo "setenv USE_NOFSCHECK ${USE_NOFSCHECK}" >> ${NWCHEM_ENV_CSH}
+  echo "unset USE_NOFSCHECK"                   >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv USE_NOFSCHECK"                >> ${NWCHEM_UNENV_CSH}
+fi
 if [ ${#OBJECT_MODE} -ne 0 ] ; then
   echo "OBJECT_MODE        =" ${OBJECT_MODE}
   echo "export OBJECT_MODE=${OBJECT_MODE}" >> ${NWCHEM_ENV_SH}
