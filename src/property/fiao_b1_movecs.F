@@ -1,4 +1,4 @@
-      subroutine fiao_b1_movecs(rtdb,basis,geom, ! IN
+      subroutine fiao_b1_movecs(rtdb,basis,geom, ncomp, ! IN
      &                          g_vecB1)         ! OUT
 
 c $Id$
@@ -35,7 +35,8 @@ c --> Experimental (not published yet)
       integer rtdb      ! [in] rtdb handle
       integer basis     ! [in] basis handle
       integer geom      ! [in] geometry handle
-      integer g_vecB1(2)! [out] B-field perturbed MO coefficients GIAO
+      integer ncomp     ! [in] number of spin components
+      integer g_vecB1(ncomp)! [out] B-field perturbed MO coeffs FIAO
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
       integer sh_atom, ixy, ix, iy, iatom, iocc, ifld, ioff
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
@@ -143,6 +144,13 @@ c     First allocate some memory for occupation numbers and eigenvalues
      &    errquit('fiao_b1: ma_pop_stack failed k_eval',0,MA_ERR)
       if (.not.ma_pop_stack(l_occ)) call
      &    errquit('fiao_b1: ma_pop_stack failed k_occ',0,MA_ERR)
+
+      if (npol.lt.1 .or. npol.gt.2) call errquit(
+     &   'giao_b1_mov: npol out of range',0,CALC_ERR)
+      if (npol.ne.ncomp) call errquit(
+     &   'giao_b1_mov: npol not in sysnc with calling routine',
+     &   0,CALC_ERR)
+
 c
 c     Construction of right-hand side CPHF
 c     Create CPHF array of proper dimension : (nocc*nvirt,3)

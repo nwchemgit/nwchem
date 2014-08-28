@@ -108,7 +108,7 @@ c     GA handle for magnetic field perturbed MO vectors:
 
       integer idir, ipert ! field directions
       integer nbfx ! later set to nbf*(nbf+1)/2
-      integer ntmp
+      integer ntmp, npol
 
       double precision sum, sumim, zero, one, two
       parameter (zero = 0d0, one = 1d0, two = 2d0)
@@ -139,6 +139,8 @@ c     ==================================================================
 
       oprint = util_print('information', print_low)
       oprint = oprint .and. (ga_nodeid().eq.0)
+
+      npol = 1 ! we assume closed shell
       
 c     ----------------------
 c     start-up: print header
@@ -357,9 +359,9 @@ c         first-order S-ket matrix (right-hand side S-derivative)
      &       call 
      &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
           call ga_zero(g_sket1)
-          call giao_b1_movecs(rtdb,basis,geom, g_vecB1, g_sket1)
+          call giao_b1_movecs(rtdb,basis,geom,npol, g_vecB1, g_sket1)
         else
-          call fiao_b1_movecs(rtdb,basis,geom, g_vecB1)
+          call fiao_b1_movecs(rtdb,basis,geom,npol, g_vecB1)
         end if
         if (oprint) write (luout,*) '... done. Reinitializing integrals'
 

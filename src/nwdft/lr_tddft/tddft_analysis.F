@@ -148,7 +148,7 @@ c     We will declare the variables needed for the g_dip{x,y,z}
 c     This was modified from dft_main0d.F
       integer g_dipole(3)  ! ga for dipole integrals
       integer g_dipmag ! ga for magnetic dipole matrices (all 3)
-      integer g_vecB1  ! ga for B-field perturbed MOs, 3 components
+      integer g_vecB1(ipol)  ! ga for B-field perturbed MOs
       integer g_vecT   ! ga for 'transition perturbed MOs'
       integer g_sket1  ! ga for < AO | d AO / d B>, 3 components
       integer g_dipvel ! ga for dipole-velocity integrals
@@ -170,6 +170,7 @@ c     are hardwired here:
       double precision ga_trace_diag
       external ga_trace_diag
       character*32 pname
+      character*6,word
       character*3 theory
       double precision origin(3)
       data origin/0d0,0d0,0d0/
@@ -200,19 +201,6 @@ c
       integer do_cosmo_vem, istep_cosmo_vem
       double precision wgsrf_cosmo_vem, wstar_cosmo_vem
 c
-      if(cosmo_on.and.cosmo_phase.eq.2) then
-       if (.not. rtdb_get
-     $ (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
-     $  call errquit(
-     $ 'tddft_analysis: cannot get istep_cosmo_vem from rtdb',
-     $  0,rtdb_err)
-       if (.not. rtdb_get
-     $ (rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
-     $  call errquit(
-     $ 'tddft_analysis: cannot get do_cosmo_vem from rtdb',
-     $  0,rtdb_err)
-      endif
-c
 c     <-- MN solvation models
 c
 c     ==================================================================
@@ -227,7 +215,24 @@ c     Preliminaries
       nodezero=(ga_nodeid().eq.0)
       pname="tddft_analysis: "
 c
-c     CDSpecrum
+      if (ipol.lt.1 .or. ipol.gt.2) call errquit(
+     &   pname//'ipol out of range',0,CALC_ERR)
+c
+c     MN solvation models
+      if(cosmo_on.and.cosmo_phase.eq.2) then
+       if (.not. rtdb_get
+     $ (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
+     $  call errquit(
+     $ 'tddft_analysis: cannot get istep_cosmo_vem from rtdb',
+     $  0,rtdb_err)
+       if (.not. rtdb_get
+     $ (rtdb,'cosmo:do_cosmo_vem',mt_int,1,do_cosmo_vem))
+     $  call errquit(
+     $ 'tddft_analysis: cannot get do_cosmo_vem from rtdb',
+     $  0,rtdb_err)
+      endif
+c
+c     CDSpectrum
       if (.not.rtdb_get(rtdb,'tddft:cdspectrum',mt_log,1,cdspectrum))
      $  cdspectrum=.false.
 c
@@ -335,9 +340,8 @@ c        == Compute the dipole integrals for the 3 components ==
 c
        end if
 c
-       if (cdspectrum .and. .not.lgiao) then
+       if (cdspectrum) then
 c
-c        if we don't have GIAOs then we need
 c        magnetic dipole moment integrals (r x nabla), times 0.5:
 c
          alo(1) = nbf_ao
@@ -368,9 +372,12 @@ c     involved
         ahi(2) = nbf_ao
         ahi(3) = 3         
 c
-        if (.not.nga_create(MT_DBL,3,ahi,'vecB1',alo,g_vecB1))
-     &    call errquit('tddft_ana: nga_create failed vecB1',0,GA_ERR)
-        call ga_zero(g_vecB1)
+        do i = 1,ipol
+          write(word,'(a,i1)') 'vecB1',i
+          if (.not.nga_create(MT_DBL,3,ahi,word,alo,g_vecB1(i)))
+     &       call errquit('tddft_ana: nga_create failed'//word,0,GA_ERR)
+          call ga_zero(g_vecB1(i))
+        end do
 c        
         if (.not.nga_create(MT_DBL,2,ahi,'vecT',alo,g_vecT))
      &     call errquit('tddft_ana: nga_create failed vecT',0,GA_ERR)
@@ -383,11 +390,14 @@ c
 c       jochen: tested this first with FIAOs which also worked fine
        
         if (fakegiao) then
-          call fiao_b1_movecs(rtdb,ao_bas_han, geom, g_vecB1)
-          ! scaling by 0.5 was already done in that subroutine
+          call fiao_b1_movecs(rtdb,ao_bas_han, geom, ipol, g_vecB1)
+          ! scaling by 0.5 is done in that subroutine
         else
-          call giao_b1_movecs(rtdb,ao_bas_han, geom, g_vecB1, g_sket1)
-          call ga_scale (g_vecB1, 0.5d0)
+          call giao_b1_movecs(rtdb,ao_bas_han, geom, ipol,
+     &       g_vecB1, g_sket1)
+          do i = 1,ipol
+            call ga_scale (g_vecB1(ipol), 0.5d0)
+          end do
           call ga_scale (g_sket1, 0.5d0)
         end if
 
@@ -1020,7 +1030,7 @@ c             ----------------------
               call ga_zero(g_temp)
               call nga_matmul_patch('n','n',1d0,0d0,
      &           g_smat,alo,ahi,
-     &           g_vecB1,blo,bhi,
+     &           g_vecB1(i),blo,bhi,
      &           g_temp,clo,chi)
 
               if (debug) write (luout,*) 'giao: intermediate S*Z done'
@@ -1162,6 +1172,7 @@ c
                 
              end do ! icomp
 
+          if (debug) write (luout,*) 'el and mag transdip done'
           endif                 ! cdspectrum
 
           if (velocity .or. reverse) then
@@ -1180,7 +1191,9 @@ c
                 end if
                 vel_aux(icomp) = vel_aux(icomp) + rtemp
              end do             ! icomp
+             if (debug) write (luout,*) 'velocity transdip done'
           end if                ! velocity
+
 c
 c         ----------------------------------------------
 c         Electric dipoles and other multipoles:
@@ -1707,8 +1720,10 @@ c       Clean up arrays used for CD spectra
       end if
       
       if (cdspectrum .and. lgiao) then
-        if (.not.ga_destroy(g_vecB1)) call
-     &     errquit(pname//'ga_destroy failed g_vecB1',0,GA_ERR)
+        do i = 1,ipol
+          if (.not.ga_destroy(g_vecB1)) call
+     &       errquit(pname//'ga_destroy failed g_vecB1',0,GA_ERR)
+        end do
         if (.not.ga_destroy(g_vecT)) call
      &     errquit(pname//'ga_destroy failed g_vecT',0,GA_ERR)
         if (.not.ga_destroy(g_sket1)) call

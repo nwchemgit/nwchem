@@ -1,4 +1,4 @@
-      subroutine giao_b1_movecs(rtdb,basis,geom,  ! IN
+      subroutine giao_b1_movecs(rtdb,basis,geom, ncomp,  ! IN
      &                          g_vecB1, g_sket1) ! OUT
 c $Id$
 
@@ -36,7 +36,8 @@ c --> Experimental (not published yet)
       integer rtdb       ! [in] rtdb handle
       integer basis      ! [in] basis handle
       integer geom       ! [in] geometry handle
-      integer g_vecB1(2) ! [out] B-field perturbed MO coefficients GIAO
+      integer ncomp      ! [in] number of spin components
+      integer g_vecB1(ncomp) ! [out] B-field perturbed MO coeffs GIAO
       integer g_sket1 ! [out] GIAO right hand side overlap derivative
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
       integer ixy, ix, iy, iatom, iocc, ifld, ioff
@@ -163,6 +164,13 @@ c     First allocate some memory for occupation numbers and eigenvalues
      &        'nvirt=(',i3,',',i3,') ',
      &        'scftyp=',a,' ntot=',i3)
       endif
+
+      if (npol.lt.1 .or. npol.gt.2) call errquit(
+     &   'giao_b1_mov: npol out of range',0,CALC_ERR)
+      if (npol.ne.ncomp) call errquit(
+     &   'giao_b1_mov: npol not in sysnc with calling routine',
+     &   0,CALC_ERR)
+
 c
 c     Get Unperturbed Density Matrix
 
@@ -511,6 +519,12 @@ c      RHS arrays are no longer needed
         if (.not.ga_destroy(g_rhs)) call 
      &     errquit('fiao_f1: ga_destroy failed g_rhs',0,GA_ERR)
       call ga_sync()
+
+      if (.not.ma_pop_stack(l_eval)) call
+     &    errquit('giao_b1: ma_pop_stack failed k_eval',0,MA_ERR)
+      if (.not.ma_pop_stack(l_occ)) call
+     &    errquit('giao_b1: ma_pop_stack failed k_occ',0,MA_ERR)
+
       return
 
  7000 format(/,10x,'B-field perturbed MOs cannot be calculated for',

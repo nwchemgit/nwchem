@@ -393,6 +393,12 @@ c     call to fcprep:
      &              scftyp, ! in : string = UHF or RHF
      &              ntot)   ! out: sum_{i,npol} nocc(i)*nvirt(i)
 
+c     make sure npol is 1 or 2
+
+      if (npol.lt.1 .or. npol.gt.2)
+     &   call errquit ('aor_driver: npol out of range',
+     &   npol,CALC_ERR)
+
 c     if (ga_nodeid().eq.0) then
 c       write(*,10) nocc(1)   ,nocc(2),
 c    &              nopen(1)  ,nopen(2),
@@ -458,7 +464,7 @@ c         first-order S-ket matrix (right-hand side S-derivative)
      &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
           call ga_zero(g_sket1)
 
-          call giao_b1_movecs(rtdb,basis,geom,g_vecB1,g_sket1)
+          call giao_b1_movecs(rtdb,basis,geom,npol,g_vecB1,g_sket1)
           if (debug)
      &     write(*,*) 'FA-AFT. giao_b1_movecs ...'
           do ispin=1,npol
@@ -470,7 +476,7 @@ c        It needs to be destroyed
         else
 c          if (ga_nodeid().eq.0)
 c     &     write(*,*) 'FA-BEF. fiao_b1_movecs ...'
-          call fiao_b1_movecs(rtdb,basis,geom,g_vecB1)
+          call fiao_b1_movecs(rtdb,basis,geom,npol,g_vecB1)
           if (debug)
      &     write(*,*) 'FA-AFT. fiao_b1_movecs ...'
         endif ! end-if-lgiao
