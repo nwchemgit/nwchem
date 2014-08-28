@@ -13,12 +13,20 @@ c !! CAUTION !! au2ev conversion factor is hardwired here.
 c
 c Written by So Hirata, Mar 2002. (c) Battelle, PNNL, 2002.
 c
-c Circular dichroism and velocity-representation dipole moments:
-c J. Autschbach, SUNY Buffalo (2009).
-c reference: J.Chem.Phys. 116 (2002), pages 891 and 6930
+c Circular dichroism and velocity-representation dipole moments,
+c and addition of some (hopefully useful) comments in this routine:
+c
+c J. Autschbach, SUNY Buffalo (2009,2011,2014).
+c
+c References for CD spectra: 
+c  J.Chem.Phys. 116 (2002), pages 891 and 6930
+c  ChemPhysChem 12 (2011), 3224-3235
 c
 c GIAO rotatory strengths and GIAO Buckingham-Dunn Rotatory Strength 
-c tensors (2011): J. Autschbach, to be published.
+c tensors (2011): J. Autschbach, ChemPhysChem 12 (2011), 3224-3235
+c
+c 'LORG' type rotatory strengths ('reverse velocity gauge'):
+c J. Autschbach (2014)
 c
 c Note: Velocity gauge and GIAO has NOT yet been tested with the TDA, 
 c       only with full TDDFT / RPA (status: 01/2011)
@@ -128,13 +136,14 @@ c
       integer dummy,request
       double precision osc_str
 c
-c     jochen 11/2009 and 01/2011:
+c     jochen 2009, 2011, 2014:
 c     rotatory strengths, CD spectra, velocity gauge:
 c
       logical cdspectrum ! true if CDSPECTRUM in TDDFT input
       logical velocity   ! true if VELOCITY in TDDFT input
       logical lgiao      ! true if GIAO set in TDDFT block
-      logical lvelok     ! check for division by zero
+      logical reverse    ! true for 'reverse' velocity gauge
+      logical lvelok     ! check for division by zero in vel. gauge
 c     We will declare the variables needed for the g_dip{x,y,z}
 c     This was modified from dft_main0d.F
       integer g_dipole(3)  ! ga for dipole integrals
@@ -153,7 +162,11 @@ c     are hardwired here:
       double precision el_transdip(3)  ! length-gauge electric dipoles
       double precision mag_transdip(3) ! magnetic tr. dipoles (rxp)
       double precision magtd_giao(3)  ! mag. tr. dipoles using GIAOs
+      double precision magtd_velrev(3) ! mag. tr. dipoles for reverse-vel
       double precision vel_transdip(3) ! velocity electric dipoles
+      double precision vel_aux(3) ! velocity transition integrals
+      double precision cnc(3) ! center of nuclear charges
+      double precision rtemp, vectmp(3)  
       double precision ga_trace_diag
       external ga_trace_diag
       character*32 pname
@@ -222,16 +235,32 @@ c     Velocity
       if (.not.rtdb_get(rtdb,'tddft:velocity',mt_log,1,velocity))
      $  velocity=.false.
 c
+c     Reverse (reverse velocity gauge)
+      if (.not.rtdb_get(rtdb,'tddft:vel-reverse',mt_log,1,reverse))
+     $  reverse=.false.
+c
 c     GIAO
       if (.not.rtdb_get(rtdb,'tddft:giao',mt_log,1,lgiao))
      $  lgiao=.false.
+c
 c     velocity trumps giao, these options are mutually exclusive
-      if (velocity) lgiao = .false.
+      if ((velocity .or. reverse).and.lgiao) then
+        lgiao = .false.
+        if(nodezero) write(luout,*)
+     &     '*** Velocity integrals requested. Disabling GIAO ***'
+      end if
+c
+c     the 'reverse' option is only used in conjunction with
+c     cdspectrum, so we make that option dependent on cdspectrum
+c     
+      reverse = (reverse.and.cdspectrum)
+c
 c     sanity check: right now we can't do unrestricted calcs with GIAOs
       if (lgiao .and. ipol.ne.1) then
         call errquit('TDDFT: GIAO and Unrestricted not yet supported',
      &     0, INPUT_ERR)
       end if
+c
 c     calculate Buckingham-Dunn rotatory strength tensor?
       if (.not.rtdb_get(rtdb,'tddft:bdtensor',mt_log,1,lquad))
      $  lquad=.false.
@@ -277,7 +306,7 @@ c     Initialize for GMH coupling
         enddo
       end if  ! gmh  
 c        
-      if (cdspectrum .or. gmh) then         
+      if ((cdspectrum.and.lgiao) .or. gmh) then         
 c        
 c        Calculate the overlap: S matrix
          if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
@@ -286,6 +315,9 @@ c        Calculate the overlap: S matrix
          call ga_zero(g_smat)
          call int_1e_ga(ao_bas_han, ao_bas_han,g_smat,'overlap',oskel)
          if (oskel)call sym_symmetrize(geom, ao_bas_han,.false.,g_smat)
+       end if
+c
+       if (cdspectrum .or. gmh) then 
 c        
 c        We will create arrays for some dipole matrix elements here.
 c        adapted from dft_main0d.F
@@ -300,9 +332,14 @@ c
 c        == Compute the dipole integrals for the 3 components ==
          call int_dip_ga(ao_bas_han, ao_bas_han,
      $        g_dipole(1), g_dipole(2), g_dipole(3))
-
+c
+       end if
+c
+       if (cdspectrum .and. .not.lgiao) then
+c
 c        if we don't have GIAOs then we need
 c        magnetic dipole moment integrals (r x nabla), times 0.5:
+c
          alo(1) = nbf_ao
          alo(2) = -1
          alo(3) = -1
@@ -317,7 +354,7 @@ c        magnetic dipole moment integrals (r x nabla), times 0.5:
      $        origin,1, .false.)
          call ga_scale (g_dipmag, 0.5d0)
 
-      endif ! cdspectrum or ghmcoupling
+      endif 
 c
 c     if we do have GIAOs then the procedure is a bit more
 c     involved
@@ -362,31 +399,50 @@ c       need to re-initialize
       end if                    ! cdspectrum .and. lgiao
 
       if (cdspectrum .or. velocity) then
-           if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_tmpdip',
-     $       nbf_ao, 0, g_tmpdip))
-     $          call errquit(pname//'g_tmpdip',0, GA_ERR)
-           call ga_zero(g_tmpdip)
-      end if ! cdspectrum .or. velocity
+        if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_tmpdip',
+     $     nbf_ao, 0, g_tmpdip))
+     $     call errquit(pname//'g_tmpdip',0, GA_ERR)
+        call ga_zero(g_tmpdip)
+      end if                    ! cdspectrum .or. velocity
 c
-      if (velocity) then
-c        allocate workspace for dipole-velocity integrals
-         alo(1) = nbf_ao
-         alo(2) = -1
-         alo(3) = -1
-         ahi(1) = nbf_ao
-         ahi(2) = nbf_ao
-         ahi(3) = 3   
-           if (.not.nga_create(MT_DBL,3,ahi,'e-dipvel',alo,g_dipvel))
-     $        call 
-     &        errquit(pname//' nga_create failed g_dipvel',0,GA_ERR)
-           call ga_zero(g_dipvel)
-c          compute  dipole-velocity integrals
-           call int_giao_1ega(ao_bas_han,ao_bas_han,g_dipvel,'velocity',
-     $          origin,1,.false.)
-c          invert sign of velocity integrals for compatibility 
-c          w/ dipole-length formalism
-           call ga_scale (g_dipvel, -1d0) 
-      end if                  ! velocity
+c     check if we need velocity integrals, and calculate
+c     them if we do:
+c
+      if (velocity .or. reverse) then
+c       allocate workspace for dipole-velocity integrals
+        alo(1) = nbf_ao
+        alo(2) = -1
+        alo(3) = -1
+        ahi(1) = nbf_ao
+        ahi(2) = nbf_ao
+        ahi(3) = 3   
+        if (.not.nga_create(MT_DBL,3,ahi,'e-dipvel',alo,g_dipvel))
+     $     call 
+     &     errquit(pname//' nga_create failed g_dipvel',0,GA_ERR)
+        call ga_zero(g_dipvel)
+c       compute  dipole-velocity integrals
+        call int_giao_1ega(ao_bas_han,ao_bas_han,g_dipvel,'velocity',
+     $     origin,1,.false.)
+c       invert sign of velocity integrals for compatibility 
+c       w/ dipole-length formalism
+        call ga_scale (g_dipvel, -1d0) 
+
+        if (debug) write(luout,*) 'cnc =',cnc
+      end if                    ! velocity
+c       
+c     the  reverse velocity gauge uses the
+c     center of nuclear charges as a gauge origin:
+c
+      if (reverse) then
+        do icomp = 1,3
+          cnc(icomp) = 0.0d0
+        end do
+        if (.not.geom_center_of_charge(geom,cnc)) then
+          call errquit(
+     &       'tddft_analysis: cannot get cnc from rtdb',
+     &       0,rtdb_err)
+        end if
+      end if
 c
 c --------------------------------
 c Number of occupied virtual pairs
@@ -863,9 +919,10 @@ c     initialize transition dipoles for this transition (mainly debug)
               magtd_giao(icomp) = 0d0
            end do
         end if ! cdspectrum
-        if (velocity) then
+        if (velocity .or. reverse) then
            do icomp = 1,3
               vel_transdip(icomp) = 0d0 ! 3 components
+              vel_aux(icomp) = 0d0
            end do
            lvelok = (apbval(n) .gt. 1d-6) ! make sure excit. E is >0
         end if ! velocity
@@ -1069,13 +1126,13 @@ c       ------------------------------------------------
            bhi(2) = nbf_ao
         end if ! cdpectrum .or. velocity
 c
-c       calculates the X component of the transition density matrix
+c       calculates the transition density matrix contrib. from X
 c
         call tddft_transfm(n,g_x,g_movecs,nbf_ao,
      1    nocc,nmo,nfc,nfv,ipol,g_td,1)  ! x-transition density
 c
-c       copy x-component into total array
-c       g_td has x component here
+c       copy X-component into total array
+c       g_td has X component here
         do i = 1,ipol
           call ga_copy(g_td(i),g_tdtot(i))
         end do
@@ -1107,7 +1164,7 @@ c
 
           endif                 ! cdspectrum
 
-          if (velocity .and. lvelok) then
+          if (velocity .or. reverse) then
              do icomp = 1,3
                 blo(3) = icomp 
                 bhi(3) = icomp        
@@ -1115,8 +1172,13 @@ c
               call nga_copy_patch('n',g_dipvel,blo,bhi,g_tmpdip,alo,ahi)
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
      &               g_td(i), g_tmpdip, 0.d0, g_temp)
-                vel_transdip(icomp) = vel_transdip(icomp)  +
-     $               ga_trace_diag(g_temp) / apbval(n)
+                rtemp = ga_trace_diag(g_temp)
+
+                if (lvelok) then
+                  vel_transdip(icomp) = vel_transdip(icomp) +
+     $               rtemp / apbval(n)
+                end if
+                vel_aux(icomp) = vel_aux(icomp) + rtemp
              end do             ! icomp
           end if                ! velocity
 c
@@ -1125,7 +1187,7 @@ c         Electric dipoles and other multipoles:
 c         the call below to multipole_density comes from
 c         the original tddft code. We have it here 
 c         because of the higher multipoles. 
-c         -------------------------------------4---------
+c         ----------------------------------------------
 c
           call multipole_density(ao_bas_han,cntr,3,
      1      g_td(i),tmom,20)  ! transition moments
@@ -1134,7 +1196,7 @@ c
 
         if (.not.tda) then ! we have a also matrix Y to consider
 c
-c         calculates the Y component of the transition density matrix
+c         calculates the Y contribution to the transition density matrix
 c
           call tddft_transfm(n,g_y,g_movecs,nbf_ao,
      1      nocc,nmo,nfc,nfv,ipol,g_td,1)  ! transition density
@@ -1171,7 +1233,7 @@ c     jochen:
 
             endif ! cdspectrum
 
-          if (velocity .and. lvelok) then
+          if (velocity .or. reverse) then
              do icomp = 1,3
                 blo(3) = icomp 
                 bhi(3) = icomp 
@@ -1179,13 +1241,18 @@ c     jochen:
               call nga_copy_patch('n',g_dipvel,blo,bhi,g_tmpdip,alo,ahi)
                 call ga_dgemm('N', 'N', nbf_ao, nbf_ao, nbf_ao, 1.d0,
      &               g_td(i), g_tmpdip, 0.d0, g_temp)
-                vel_transdip(icomp) = vel_transdip(icomp)  -
-     $               ga_trace_diag(g_temp) / apbval(n)
+                rtemp = ga_trace_diag(g_temp)
+
+                if (lvelok) then
+                  vel_transdip(icomp) = vel_transdip(icomp) -
+     $               rtemp / apbval(n)
+                end if
+                  vel_aux(icomp) = vel_aux(icomp) - rtemp
              end do             ! icomp
           end if                ! velocity
 c
-            call multipole_density(ao_bas_han,cntr,3,
-     1        g_td(i),tmom,20)   ! transition moments
+          call multipole_density(ao_bas_han,cntr,3,
+     1       g_td(i),tmom,20)   ! transition moments
 c
          enddo ! ipol
 
@@ -1220,12 +1287,13 @@ c     jochen:
               magtd_giao(icomp) = magtd_giao(icomp) *dsqrt(2.0d0)
             end do
           end if
-          if (velocity) then
+          if (velocity .or. reverse) then
             do icomp = 1,3
                if (.not.cdspectrum) ! keep the old stuff for now
      $          el_transdip(icomp) = tmom(icomp+1)   
 
               vel_transdip(icomp) = vel_transdip(icomp) *dsqrt(2.0d0)
+              vel_aux(icomp) = vel_aux(icomp) *dsqrt(2.0d0)
             end do
          end if ! velocity
 c     /jochen
@@ -1248,45 +1316,142 @@ c
      2                        tmom(8),tmom(9),tmom(10),
      2                        osc_str
 c
+c           ------------------------
+c           print data related to CD
+c           ------------------------
+c
             if (cdspectrum) then
+c
+c             ------------------------------
+c             origin-dependent dipole-length
+c             rotatory strength:
+c             ------------------------------
+c
               write (LuOut,*)
               write (LuOut,9250) 'Electric Transition Dipole:',
      $           el_transdip(1), el_transdip(2), el_transdip(3)
               write (LuOut,9250) 'Magnetic Transition Dipole (Length):',
+     $           mag_transdip(1),
+     $           mag_transdip(2),
+     $           mag_transdip(3)
+              write (LuOut,9250) 'Magnetic Transition Dipole * 1/c :',
      $           mag_transdip(1)/cl,
      $           mag_transdip(2)/cl,
      $           mag_transdip(3)/cl
+              
               write (LuOut,9251)
      $           'Rotatory Strength (1E-40 esu**2cm**2):',
      $           (el_transdip(1)*mag_transdip(1) +
-     $            el_transdip(2)*mag_transdip(2) +
-     $            el_transdip(3)*mag_transdip(3))
+     $           el_transdip(2)*mag_transdip(2) +
+     $           el_transdip(3)*mag_transdip(3))
      $           * 2d0 * rau2cgs 
+c
+c             -------------
+c             GIAO results:
+c             -------------
+c
               if (lgiao) then
                 write (LuOut,9250) 'GIAO Magnetic Trans. Dipole:',
+     $             magtd_giao(1),
+     $             magtd_giao(2),
+     $             magtd_giao(3)
+                write (LuOut,9250) 'GIAO Magnetic Trans. Dipole * 1/c:',
      $             magtd_giao(1)/cl,
      $             magtd_giao(2)/cl,
      $             magtd_giao(3)/cl
                 write (LuOut,9251)
      $             'GIAO Rotatory Str.(1E-40 esu**2cm**2):',
      $             (el_transdip(1)*magtd_giao(1) +
-     $              el_transdip(2)*magtd_giao(2) +
-     $              el_transdip(3)*magtd_giao(3))
-     $             * 2d0 * rau2cgs 
+     $             el_transdip(2)*magtd_giao(2) +
+     $             el_transdip(3)*magtd_giao(3))
+     $             * 2d0 * rau2cgs                 
               endif             ! lgiao
+                  
+c             ------------------------
+c             'reverse' velocity gauge
+c             ------------------------
+
+              if (reverse) then
+
+                write(luout,*)
+                
+c               R = center of nuclear charge
+c               calculate R x <0 | Nabla | n>
+                
+                vectmp(1) = 0.5d0*(cnc(2)*vel_aux(3)-cnc(3)*vel_aux(2))
+                vectmp(2) = 0.5d0*(cnc(3)*vel_aux(1)-cnc(1)*vel_aux(3))
+                vectmp(3) = 0.5d0*(cnc(1)*vel_aux(2)-cnc(2)*vel_aux(1))
+                
+                if (debug) write (LuOut,9250)
+     &             '*debug* 0.5 * cnc x velocity:',
+     &             vectmp(1), vectmp(2), vectmp(3)
+                
+                do icomp = 1,3
+                  magtd_velrev(icomp) =
+     &               mag_transdip(icomp)-vectmp(icomp)
+                end do
+                
+                if (debug) write (LuOut,9250)
+     &             '*debug* 0.5*(r x velocity - cnc x velocity):',
+     &             magtd_velrev(1),
+     &             magtd_velrev(2),
+     &             magtd_velrev(3)
+                
+c               magtd_velrev is now the magnetic transition dipole
+c               for the gauge origin to coincide with the 
+c               center of nuclear charge.
+c               we now add the subtracted contribution back in, 
+c               but using the dipole form of <0 | Nabla | n>
+                
+                vectmp(1) = 0.5d0*(cnc(2)*el_transdip(3)
+     &             -cnc(3)*el_transdip(2))*apbval(n)
+                vectmp(2) = 0.5d0*(cnc(3)*el_transdip(1)
+     &             -cnc(1)*el_transdip(3))*apbval(n)
+                vectmp(3) = 0.5d0*(cnc(1)*el_transdip(2)
+     &             -cnc(2)*el_transdip(1))*apbval(n)
+
+                if (debug) write (LuOut,9250)
+     &             '*debug* 0.5 e(n) * cnc x trans-dipole:',
+     &             vectmp(1), vectmp(2), vectmp(3)
+
+                do icomp = 1,3
+                  magtd_velrev(icomp) =
+     &               magtd_velrev(icomp)+vectmp(icomp)
+                end do
+
+                write (LuOut,9250)
+     &             'Magnetic Transition Dipole (rev. vel.):',
+     &             magtd_velrev(1),
+     &             magtd_velrev(2),
+     &             magtd_velrev(3)
+
+                write (LuOut,9250)
+     &             'Magnetic Transition Dipole *1/c (rev. vel.):',
+     &             magtd_velrev(1)/cl,
+     &             magtd_velrev(2)/cl,
+     &             magtd_velrev(3)/cl
+
+                write (LuOut,9251)
+     $           'Rotatory Strength  (rev. vel. repr.) :',
+     $          (el_transdip(1)*magtd_velrev(1) +
+     $           el_transdip(2)*magtd_velrev(2) +
+     $           el_transdip(3)*magtd_velrev(3)) * 2d0 * rau2cgs 
+
+              end if ! reverse
 
               if (lgiao .and. lquad) then
-
+                
 c               ----------------------------------------
 c               Buckingham-Dunn rotatory strength tensor
 c               ----------------------------------------
-
+                
                 call tddft_bdtensor (tmom, apbval(n), el_transdip,
      &             magtd_giao)
                 
               end if            ! lgiao .and. lquad, BD tensor
+c
+            end if ! cdspectrum
 
-            end if              ! cdspectrum
             if (velocity .and. lvelok) then
                write (LuOut,*)
             write (LuOut,9250)
@@ -1565,7 +1730,7 @@ c
      &     (pname//'Could not destroy g_tmpdip', 0, GA_ERR)
       endif                     ! cdspectrum .or. velocity
       
-      if (velocity) then
+      if (velocity .or. reverse) then
 c       clean up arrays used for dipole-velocity integrals
         if (.not.ga_destroy(g_dipvel)) call
      &     errquit(pname//'ga_destroy failed g_dipvel',0,GA_ERR)

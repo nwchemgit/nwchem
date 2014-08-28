@@ -87,17 +87,23 @@ c     Boys localization
 c
 c     ----- aoresponse: frequency dependent response -----
 c
-      iopt = 1 ! default
-      if (.not. rtdb_get(rtdb,'prop:newaoresp',MT_INT,1,iopt))  
-     &   iopt = 1 ! toggle for old driver for closed shells
-      if (ipol.gt.1.or.scftype.eq."UHF") iopt = 1  ! always set new driver for open shells
 c
       if (noaoresponse.eq.0) then
-        if (iopt.eq.0) then
-          call aoresponse_driver(rtdb, basis, geom)     ! old driver for closed shells only
-        else
-          call aoresponse_driver_new(rtdb, basis, geom) ! new driver for closed and open shells
+        iopt = 1 ! new aoresp code is default
+        status=rtdb_get(rtdb,'prop:newaoresp',MT_INT,1,iopt)
+        if ((ipol.gt.1.or.scftype.eq."UHF").and.iopt.ne.1) then
+          iopt = 1  ! force newaoresp for open shell cases
+          write (luout,*)
+     &     '*** FORCE NEW AORESP DRIVER BECAUSE OF OPEN SHELL CALC. ***'
         end if
+        if (iopt.eq.1) then
+          call aoresponse_driver_new(rtdb, basis, geom) ! new driver
+        else
+          write (luout,*)
+     &     '*** CALLING OLD AORESP DRIVER BECAUSE OF INPUT FLAG  ***'
+          call aoresponse_driver(rtdb, basis, geom) ! old driver
+        end if
+
       end if
 c
 c     ----- dipole moment -----

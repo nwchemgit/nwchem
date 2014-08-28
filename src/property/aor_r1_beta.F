@@ -47,6 +47,7 @@ c             betare, betaim - electric-magnetic response matrices
 c     =================================================================
 c
 c  Written by J. Autschbach, SUNY Buffalo
+c
 c  Extension to spin-unrestricted case 
 c          by F. Aquino,     Northwestern University 
 c          03-15-12
@@ -127,8 +128,6 @@ c  ====================================================================
       debug  = .false. .and. me ! .true. during development
       dbgmat = .false. .and. me ! debug large matrices
 
-c      debug=.true.
-
 c     check for ROA keyword
       lroa = .false.
       if (rtdb_get(rtdb, 'aor:roadata', mt_log, 1,
@@ -187,7 +186,7 @@ c     set parameters that control the various computational options
 c     (later we will set most of this by input)
       lzora      = .false.      ! not yet available here 
 c     check if we should calculate OR beta directly or G'
-      if (ga_nodeid().eq.0) write (luout,*)
+      if (me) write (luout,'(/1x,a)')
      & 'Optical Rotation: will calculate Beta directly, not G'''
       if (debug) write (luout,*) 'giao, velocity',
      &    lgiao, lvelocity
@@ -260,7 +259,7 @@ c       -------------------------------------------------------
 c           -------------------------------------------------------
 c           (A) calculate optical rotation beta from C(E) S(0) C(B)
 c           ------------------------------------------------------    
-           if (ga_nodeid().eq.0) then
+           if (debug) then
             write(*,1) idir,iresp
  1          format('==== compute beta(',i3,',',i3,') ====== START')
            endif
@@ -281,12 +280,10 @@ c           ------------------------------------------------------
      &            debug,              ! in : logical var for debugging
      &            g_temp)             ! in : scratch GA array
 
-           if (ga_nodeid().eq.0) then
+           if (debug) then
             write(*,3) idir,iresp
  3          format('==== compute beta(',i3,',',i3,') ====== END')
            endif
-
-           debug=.true.
 
            if (debug) then
             if (ga_nodeid().eq.0) then
@@ -297,7 +294,6 @@ c           ------------------------------------------------------
             endif
            endif ! end-if-debug
 
-           debug=.false.
            
            if (debug) write (luout,*) 'beta: C(E) S(0) C(B) complete'
            if (lgiao) then          
@@ -305,7 +301,7 @@ c             --------------------------------------
 c             if we use GIAOs there is a second term
 c             in beta which is C(E) S(1ket) C(0)
 c             --------------------------------------  
-            if (ga_nodeid().eq.0) then
+            if (debug) then
              write(*,4) idir,iresp
  4           format('==== compute beta-giao(',
      &              i3,',',i3,') ====== START')
@@ -328,13 +324,12 @@ c     &            -coeffre, coeffim,1,! in : (coeffre,coeffim,caseAO) -FA-03-24
      &            debug,              ! in : logical var for debugging
      &            g_temp)             ! in : scratch GA array
 
-             if (ga_nodeid().eq.0) then
+             if (debug) then
               write(*,5) idir,iresp
  5            format('==== compute beta-giao(',
      &               i3,',',i3,') ====== END')
              endif
 
-             debug=.true.
              
              if (debug) then        
               if (ga_nodeid().eq.0) then
@@ -345,13 +340,12 @@ c     &            -coeffre, coeffim,1,! in : (coeffre,coeffim,caseAO) -FA-03-24
               endif
              endif ! end-if-debug
 
-             debug=.false.
 
            endif ! end-if-lgiao      
 c           --------------------------------------
 c           (B) calculate alfa from C(E) h(E) C(0)
 c           --------------------------------------  
-            if (ga_nodeid().eq.0) then
+            if (debug) then
              write(*,7) idir,iresp
  7           format('==== compute alfa(',i3,',',i3,') ====== START')
             endif  
@@ -372,23 +366,17 @@ c           --------------------------------------
      &            debug,              ! in : logical var for debugging
      &            g_temp)             ! in : scratch GA array 
 
-            if (ga_nodeid().eq.0) then
+            if (debug) then
              write(*,8) idir,iresp
  8           format('==== compute alfa(',i3,',',i3,') ====== END')
             endif     
 
-            debug=.true.
- 
             if (debug) then
-             if (ga_nodeid().eq.0) then
               write(*,9) ispin,idir,iresp,
      &                   alfare(idir,iresp),alfaim(idir,iresp)
  9            format('(alfa(',i3,',',i3,',',i3,
      &             ')=(',f15.8,',',f15.8,')')
-             endif
             endif ! end-if-debug
-
-            debug=.false.
 
           enddo                 ! iresp = 1,3
 c         ------------------------------------------------
@@ -399,7 +387,7 @@ c         ------------------------------------------------
           if (lquad) then
            do iresp = 1,6 
 
-             if (ga_nodeid().eq.0) then
+             if (debug) then
               write(*,11) idir,iresp
  11           format('==== compute dipquad(',i3,',',i3,') ====== START')
              endif
@@ -420,7 +408,7 @@ c         ------------------------------------------------
      &            debug,                ! in : logical var for debugging
      &            g_temp)               ! in : scratch GA array 
 
-            if (ga_nodeid().eq.0) then
+            if (debug) then
              write(*,50) idir,iresp
  50          format('==== compute dipquad(',
      &              i3,',',i3,') ====== END')
@@ -440,8 +428,6 @@ c         ------------------------------------------------
 
 c ============ visualize (alfa,beta) ========== START
 
-         debug=.true.
-
          if (debug) then
           if (ga_nodeid().eq.0) then
            do idir=1,ndir
@@ -457,7 +443,6 @@ c ============ visualize (alfa,beta) ========== START
           endif
          endif ! end-if-debug
 
-         debug=.false.
 
 c ============ visualize (alfa,beta) ========== END
 c       -------------------------------------------

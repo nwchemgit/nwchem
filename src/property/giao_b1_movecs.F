@@ -14,6 +14,7 @@ c     Note: integrals have to be initialized by the calling routine.
 c     Note: the CPHF call below terminates the integrals
 c
 c  Written by J. Autschbach, SUNY Buffalo
+c
 c  Extension to spin-unrestricted case 
 c          by F. Aquino,     Northwestern University 
 c          03-15-12
@@ -89,6 +90,7 @@ c      debug=.true.
         write (luout,*) 'giao_b1_movecs: xc_gotxc =',xc_gotxc()
         write (luout,*) 'giao_b1_movecs: use_theory =',use_theory
       end if
+
 c     there is a possibility that this routine is called from tddft
 c     in which case use_theory is not set. We set it to 'dft' in that case,
 c     assuming that we are indeed calling from some DFT response code
@@ -150,7 +152,7 @@ c     First allocate some memory for occupation numbers and eigenvalues
      &              scftyp, ! in : string = UHF or RHF
      &              ntot)   ! out: sum_{i,npol} nocc(i)*nvirt(i)
 
-      if (ga_nodeid().eq.0) then
+      if (debug) then
         write(*,10) nocc(1)   ,nocc(2),
      &              nopen(1)  ,nopen(2),
      &              nclosed(1),nclosed(2),

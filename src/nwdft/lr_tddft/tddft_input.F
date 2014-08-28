@@ -30,7 +30,8 @@ c        [PRINT (none||low||medium||high||debug)
 c          <string list_of_names ...>]
 c        [CDSPECTRUM <not default: compute rotatory strengths>]
 c        [GIAO <not default: calc. magnetic trans. dipoles with GIAOs>]
-c        [VELOCITY]  <not default: compute velocity gaude dipoles>]
+c        [VELOCITY]  <not default: compute velocity gauge dipoles>]
+c        [REVERSE] <not default: 'reverse' velocity gauge>
 c        [GRADIENT] Calculate/optimize the gradients on this surface
 c        [SCALE_J] Scale the Coulomb part
 c        [SCALE_K] Scale the Exchange part
@@ -54,7 +55,8 @@ c
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
-      logical tda,symmetry, cdspectrum, velocity, lgiao, gmh, grad
+      logical tda,symmetry, cdspectrum, velocity, reverse, lgiao,
+     &   gmh, grad
       double precision thresh
       double precision ecut
       integer vshift
@@ -218,6 +220,9 @@ c
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
       velocity  = .false.
       if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+      reverse  = .false.
+      if (.not.rtdb_put(rtdb,'tddft:vel-reverse',mt_log,1,reverse))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
       lgiao = .false.
       if (.not.rtdb_put(rtdb,'tddft:giao',mt_log,1,lgiao))
@@ -556,6 +561,14 @@ c
       else if (inp_compare(.false.,test,'velocity')) then
         velocity=.true.
         if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     REVERSE (reverse velocity gauge for CD spectra)
+c
+      else if (inp_compare(.false.,test,'velreverse')) then
+        reverse=.true.
+        if (.not.rtdb_put(rtdb,'tddft:vel-reverse',mt_log,1,reverse))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c

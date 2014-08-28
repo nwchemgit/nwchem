@@ -23,6 +23,7 @@ c     of New York at Buffalo (SUNY Buffalo). For questions please
 c     contact us by email at jochena@buffalo.edu. 
 c
 c     some references to the methods being used here are:
+c     ChemPhysChem 12 (2011), 3224-3235
 c     JPC-A 110 (2006), 2461
 c     JCP 123 (2005), 114103
 c     JCP 122 (2005), 224115
@@ -457,10 +458,8 @@ c         first-order S-ket matrix (right-hand side S-derivative)
      &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
           call ga_zero(g_sket1)
 
-c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'FA-BEF. giao_b1_movecs ...'
           call giao_b1_movecs(rtdb,basis,geom,g_vecB1,g_sket1)
-          if (ga_nodeid().eq.0)
+          if (debug)
      &     write(*,*) 'FA-AFT. giao_b1_movecs ...'
           do ispin=1,npol
            call ga_scale(g_vecB1(ispin),0.5d0)
@@ -472,7 +471,7 @@ c        It needs to be destroyed
 c          if (ga_nodeid().eq.0)
 c     &     write(*,*) 'FA-BEF. fiao_b1_movecs ...'
           call fiao_b1_movecs(rtdb,basis,geom,g_vecB1)
-          if (ga_nodeid().eq.0)
+          if (debug)
      &     write(*,*) 'FA-AFT. fiao_b1_movecs ...'
         endif ! end-if-lgiao
 c        if (oprint) write (luout,*) '... done. Reinitializing integrals'
@@ -550,12 +549,10 @@ c     determine frequency and number of components
       ncomp = 2                       ! no. of Fourier components to treat
       if (lstatic) ncomp = 1 
       
-      if (ga_nodeid().eq.0) then
+      if (debug) then
        write(*,100) lstatic,omega,ncomp
  100   format('(lstatic,omega,ncomp)=(',L1,',',f15.8,',',i3,')')
       endif
-c          if (ga_nodeid().eq.0)
-c     &     write(*,*) 'FA-BEF. fiao_f1_movecs-1 ...'
 
       call fiao_f1_movecs(
      &      rtdb,basis,geom,    ! in : handles
@@ -824,7 +821,7 @@ c     print result
 c     ------------
 
       if (oprint) then
-        write (LuOut,*)
+        write (LuOut,'(/1x,a)')
      &     'Electric Dipole Response Matrix (nonzero elements):'
         if (lmagpert) then
           if (lstatic) then
@@ -1067,18 +1064,18 @@ c     ==================================================================
  9010 format(' Response module for NWChem and dynamic CPKS solver'/
      &       ' developed by J. Autschbach and coworkers, SUNY Buffalo'/
      &       ' The methodology used in this program is described in '/
+     &       ' ChemPhysChem 12 (2011), 3224-3235 (main reference)'/
      &       ' J. Chem. Phys. 123 (2005), 114103'/
      &       ' J. Chem. Phys. 122 (2005), 224115'/
      &       ' J. Chem. Phys. 122 (2005), 074105'/
      &       ' Comp. Lett. 3 (2007), 131-150 (contact JA for a copy)'/
      &       ' Please cite this work in publications based on results'/
-     &       ' obtained with this code. Thank you!'/
+     &       ' obtained with this code. Thank you!'//
      &       ' For extension of response module to open shell'/
      &       ' calculations please acknowledge:'/    
      &       ' F. Aquino, Northwestern University, Schatz Rsrch Group'/
      &       ' The update to the methodology is described in'/
-     &       ' J. Phys. Chem. A 118 (2014) 517-525'/
-     &       ' ++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+     &       ' J. Phys. Chem. A 118 (2014) 517-525'//)
  9020 format(/,10x,'Open shell calculations not yet implemented',
      &      ' for the Response module. Exiting')
  9434 format(/,1x,A,' polarizability / au ',/
