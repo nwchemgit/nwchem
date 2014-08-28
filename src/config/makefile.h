@@ -1557,7 +1557,10 @@ endif
       ifeq ($(_FC),gfortran)
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   =  #-ffast-math # -Wextra -Wunused  
+        FOPTIONS  = -m32
+        COPTIONS  = -m32
+        CFLAGS_FORGA = -m32
+        FFLAGS_FORGA = -m32
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
@@ -1579,8 +1582,14 @@ endif
         ifdef GNUMAJOR
         GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         ifeq ($(GNU_GE_4_6),true)
           DEFINES  += -DGCC46
+        endif
+        ifeq ($(GNU_GE_4_8),true)
+          FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
+          FOPTIMIZE +=-fno-aggressive-loop-optimizations
+          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
         endif
         endif
       endif
