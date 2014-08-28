@@ -225,12 +225,12 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
             if (! $quiet) {
 		printf "%s %d %s", @line_tokens[0], @line_tokens[1], @line_tokens[2];
-		printf "% 0.5f %s", set_to_digits(@line_tokens[4],5), @line_tokens[5];
-		printf "% 0.3f %s\n", set_to_digits(@line_tokens[6],3), @line_tokens[7];
+		printf "% 0.3f %s", set_to_digits(@line_tokens[4],3), @line_tokens[5];
+		printf "% 0.2f %s\n", set_to_digits(@line_tokens[6],2), @line_tokens[7];
             }
 	    printf FILE_OUTPUT "%s %d %s", @line_tokens[0], @line_tokens[1], @line_tokens[2];
-	    printf FILE_OUTPUT " %0.5f %s", set_to_digits(@line_tokens[4],5), @line_tokens[5];
-	    printf FILE_OUTPUT " %0.3f %s\n", set_to_digits(@line_tokens[6],3), @line_tokens[7];
+	    printf FILE_OUTPUT " %0.3f %s", set_to_digits(@line_tokens[4],3), @line_tokens[5];
+	    printf FILE_OUTPUT " %0.2f %s\n", set_to_digits(@line_tokens[6],2), @line_tokens[7];
         }
 	if (/^  Root / && !(/ singlet / || / triplet /)){
 	    if ($debug) {print "\ndebug: $_";}
@@ -242,12 +242,12 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
             if (! $quiet) {
 		printf "%s %d", @line_tokens[0], @line_tokens[1];
-		printf "% 0.5f %s", set_to_digits(@line_tokens[3],5), @line_tokens[4];
-		printf "% 0.3f %s\n", set_to_digits(@line_tokens[5],3), @line_tokens[6];
+		printf "% 0.3f %s", set_to_digits(@line_tokens[3],3), @line_tokens[4];
+		printf "% 0.2f %s\n", set_to_digits(@line_tokens[5],2), @line_tokens[6];
             }
 	    printf FILE_OUTPUT "%s %d", @line_tokens[0], @line_tokens[1];
-	    printf FILE_OUTPUT " %0.5f %s", set_to_digits(@line_tokens[3],5), @line_tokens[4];
-	    printf FILE_OUTPUT " %0.3f %s\n", set_to_digits(@line_tokens[5],3), @line_tokens[6];
+	    printf FILE_OUTPUT " %0.3f %s", set_to_digits(@line_tokens[3],3), @line_tokens[4];
+	    printf FILE_OUTPUT " %0.2f %s\n", set_to_digits(@line_tokens[5],2), @line_tokens[6];
 	}
 	if (/Zero-Point correction to Energy/) {
 	    if ($debug) {print "\ndebug: $_";}
@@ -353,9 +353,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                   *** Assumes $itok was incremented above
 	    if (! $quiet) {
-	        printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+	        printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
         if (/MR-BWCCSD energy/ || (/BW-MRCCSD/ && /a posteriori/) || /MR-MkCCSD energy/ ) {
             if ($debug) {print "\ndebug: $_";}
