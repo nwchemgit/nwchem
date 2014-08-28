@@ -68,7 +68,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm
 
-EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana nbo rism lucia,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana nbo rism lucia nwxc,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -263,6 +263,7 @@ STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf mcscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft occup_input xc_chktau dft_fitcd grid_cleanup dft_fitvc grid_quadv0_gen dft_input xc_quadv0_gen dft_energy dft_energy_gradient sodft_energy tddft_input tddft_energy sodft_energy sodft_energy_gradient rt_dft_input xc_vdw_to_hessian,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwxc,nwxc_eval_df nwxc_eval_df2 nwxc_eval_df3 nwxc_get_cam nwxc_has_cam nwxc_has_disp nwxc_has_hfx nwxc_input nwxc_is_gga nwxc_is_lda nwxc_is_mgga nwxc_is_on nwxc_print_nwpw nwxc_rtdb_delete nwxc_rtdb_load nwxc_rtdb_store nwxc_vdw3_dftd3 nwxc_wght_hfx,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2_grad,rimp2g,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst oimp2,oimp2,$(STUBROUTINES) )
