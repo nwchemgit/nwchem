@@ -1945,10 +1945,13 @@ endif
        FOPTIMIZE = -O3  -unroll  -ip
        FOPTIONS += -align
 	   ifeq ($(_IFCV15ORNEWER), Y)
-         FOPTIONS += -vec-report6 -qopt-report-per-object # -qopt-report-file=stderr
+	  FOPTIONS += -qopt-report-file=stderr
+          ifdef USE_OPTREPORT
+	  FOPTIONS += -qopt-report=1 -qopt-report-phase=vec 
+          endif
          ifdef USE_OPENMP
            FOPTIONS += -qopenmp
-           FOPTIONS += -qopt-report-phase:openmp
+           FOPTIONS += -qopt-report-phase=openmp
            COPTIONS += -qopenmp
            DEFINES+= -DUSE_OPENMP 
          endif		   
@@ -1974,10 +1977,8 @@ endif
           DEFINES+= -DINTEL_64ALIGN
           ifeq ($(_IFCV15ORNEWER), Y)
             FOPTIONS += -qopt-report-phase=offload
-#           FOPTIONS += -qoffload-option,mic,compiler,"-mP2OPT_hlo_use_const_second_pref_dist=1"
             FOPTIONS += -qoffload-option,mic,compiler,"-align array64byte"
             FOPTIONS += -align array64byte
-            FOPTIONS += -qoffload-option,mic,compiler,"-qopt-report-phase=hlo"
 	        FOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
             FOPTIONS += -watch=mic_cmd 
             COPTIONS += -qopt-report-phase=offload
