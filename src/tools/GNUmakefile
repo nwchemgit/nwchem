@@ -186,6 +186,20 @@ ifeq ($(ARMCI_NETWORK),GEMINI)
 endif # GEMINI
 
 ifeq ($(ARMCI_NETWORK),DMAPP)
+  ifneq ($(GA_DIR),ga-cray)
+    nogacrayerror:
+	@echo "  "
+	@echo "   Please do the following for compiling ARMCI_NETWORK=DMAPP"
+	@echo "   cd $$NWCHEM_TOP/src/tools"
+	@echo "   wget https://github.com/ryanolson/ga/archive/cray.zip -O cray.zip"
+	@echo "   unzip cray.zip"
+	@echo "   export GA_DIR=ga-cray  (sh/bash)"
+	@echo "   setenv GA_DIR ga-cray (csh/tcsh)"
+	@echo "   make FC=ftn"
+	@echo "  " 
+	@echo
+	@exit 1
+   endif
     DMAPP_COMBINED =
     ifneq ($(DMAPP_INCLUDE),)
         DMAPP_COMBINED += $(DMAPP_INCLUDE)
