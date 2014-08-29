@@ -515,6 +515,11 @@ ifdef USE_OFFLOAD
     MAYBE_OFFLOAD= INTEL_64ALIGN=1
 endif
     MAYBE_SYSVSHMEM= "ARMCI_DEFAULT_SHMMAX_UBOUND=131072"
+GOTCGWIN32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep CYGWIN32|cut -c22)
+ifeq ($(GOTCGWIN32),1)
+# weak pragmas not working with cygwin
+   MAYBE_OFFLOAD += --disable-weak
+endif
 
 ifdef FFLAGS_FORGA
     MAYBE_FFLAGS=FFLAGS="$(FFLAGS_FORGA)"
