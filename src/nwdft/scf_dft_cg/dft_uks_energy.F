@@ -173,6 +173,7 @@ c
       if(util_print('dft timings', print_high))
      &      time1_2e=util_cpusec()   ! start 2e build time
       call do_riscf (.false.)
+c
       if (.not.cam_exch) then
         kfac(1)=0d0
         kfac(2)=xc_hfexch()
@@ -186,21 +187,8 @@ c       calculate the CAM exchange
 c
         do ifock = 1,nfock
            g_tmp(ifock) = ga_create_atom_blocked(geom, basis, 'tmp')
+           call ga_zero(g_tmp(ifock))
         end do
-        call ga_zero(g_tmp)
-c
-        call case_setflags(.true.)
-        jfac(1)=0d0
-        jfac(2)=0d0
-        jfac(3)=0d0
-        jfac(4)=0d0
-        kfac(1)=0d0
-        kfac(2)=xc_hfexch()
-        kfac(3)=0d0
-        kfac(4)=xc_hfexch()
-        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false., .false.)
-        call ga_dadd(1d0,f,1d0,g_tmp,f)
 c
 c       calculate the full Coulomb
 c
@@ -213,14 +201,43 @@ c
         kfac(2)=0d0
         kfac(3)=0d0
         kfac(4)=0d0
+        do ifock = 1,nfock
+         call ga_zero(g_tmp(ifock))
+        end do
         call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false., .true.)
-        call ga_dadd(1d0,f,1d0,g_tmp,f)
+     &     oskel, d, g_tmp, .false., .false.)
+        do ifock = 1,nfock
+         call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
+        end do 
+c
+c       calculate the screened exchange
+c
+        call case_setflags(.true.)
+        jfac(1)=0d0
+        jfac(2)=0d0
+        jfac(3)=0d0
+        jfac(4)=0d0
+        kfac(1)=0d0
+        kfac(2)=xc_hfexch()
+        kfac(3)=0d0
+        kfac(4)=xc_hfexch()
+        do ifock = 1,nfock
+         call ga_zero(g_tmp(ifock))
+        end do
+        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
+     &     oskel, d, g_tmp, .false., .false.)
+        do ifock = 1,nfock
+         call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
+        end do
+        call case_setflags(.false.)
 c
 c       destroy work space
-        if (.not. ga_destroy(g_tmp)) 
-     &   call errquit('uhf: ga corrupt?',0, GA_ERR)
-      end if
+        do ifock = 1,nfock
+           if (.not. ga_destroy(g_tmp(ifock)))
+     &       call errquit('uhf: ga corrupt?',0, GA_ERR)
+        end do
+c
+      end if  ! cam_exch
       call do_riscf (.true.)
       if(util_print('dft timings', print_high))
      &      time2_2e=util_cpusec()   ! end 2e build time

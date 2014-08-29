@@ -393,6 +393,7 @@ c
           call ga_zero(g_tmp(2))
           call ga_zero(g_tmp(3))
         endif
+c
         call case_setflags(.false.)
         jfactor(1)=1d0
         jfactor(2)=1d0
@@ -419,6 +420,7 @@ c       destroy work space
         endif
 c
       end if
+c
       call do_riscf (.true.)
       if ( nopen .eq. 0 ) call riscf_dovecs(.false., g_vecs)
       if(util_print('dft timings', print_high))
