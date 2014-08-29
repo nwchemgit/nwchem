@@ -2,6 +2,11 @@
 #include <sched.h>
 #include <stdio.h>
 #include <unistd.h>
+#ifndef __cpu_set_t_defined
+int linux_printaff_(){
+  return 0;
+}
+#else
 #ifdef MPI
 #include <mpi.h>
 #else
@@ -40,4 +45,5 @@ int linux_printaff_(){
   }
   return 0;
 }
-/* $Id$ */
+#endif
+/* $Id: linux_printaff.c 26101 2014-08-29 01:28:49Z edo $ */
