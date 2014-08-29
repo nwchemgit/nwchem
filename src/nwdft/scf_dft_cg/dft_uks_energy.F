@@ -198,7 +198,7 @@ c
         kfac(2)=xc_hfexch()
         kfac(3)=0d0
         kfac(4)=xc_hfexch()
-        call fock_2e_cam(geom, basis, nfock, jfac, kfac, tol2e, 
+        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
      &     oskel, d, g_tmp, .false., .false.)
         call ga_dadd(1d0,f,1d0,g_tmp,f)
 c
@@ -213,7 +213,7 @@ c
         kfac(2)=0d0
         kfac(3)=0d0
         kfac(4)=0d0
-        call fock_2e_cam(geom, basis, nfock, jfac, kfac, tol2e, 
+        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
      &     oskel, d, g_tmp, .false., .true.)
         call ga_dadd(1d0,f,1d0,g_tmp,f)
 c
