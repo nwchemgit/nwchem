@@ -2041,8 +2041,8 @@ c               close(53)
       integer i,s1,s2,ndim,nparam,nindx,ntype,count,sindx(10),sparam(10)
       integer indx(50)
       real*8 gamma,kspring
-      real*8 f,ff,fold,param(50),tmp(50)
-      real*8 z(10),k(10),fsum(10),fsum2(10),fdelta(10)
+      real*8 f,ff,zz,fold,param(50),tmp(50)
+      real*8 z(10),k(10),fsum(10),fsum2(10),fdelta(10),zave(10)
       character*255 full_filename,atmp
       character*500 eqnstring
 
@@ -2080,6 +2080,7 @@ c               close(53)
             fsum(i)   = 0.0d0
             fsum2(i)  = 0.0d0
             fdelta(i) = 0.0d0
+            zave(i)   = 0.0d0
             k(i) = param(sparam(i)+2)
             z(i) = param(sparam(i)+5)
          end do
@@ -2100,6 +2101,7 @@ c               close(53)
                  fsum(i)   = fsum(i)   + f
                  fsum2(i)  = fsum2(i) + f*f
                  fdelta(i) = dabs(fsum(i)/dble(count+1) - fold)
+                 zave(i)   = zave(i)   + tmp(i)
               end do
               count = count + 1
            end if
@@ -2127,17 +2129,20 @@ c               close(53)
 
             f  = fsum(i)/dble(count)
             ff = fsum2(i)/dble(count)
+            zz = zave(i)/dble(count)
             if (ntype.eq.1) then
-               write(luout,120) indx(s1+1),indx(s1+2),z(i),k(i),
+               write(luout,120) indx(s1+1),indx(s1+2),z(i),zz,k(i),
      >                           f,fdelta(i),ff-f*f
             else if (ntype.eq.12) then
                call nwpw_expression_eqnstring(rtdb,indx(s1+1),eqnstring)
-               write(luout,720) trim(eqnstring),z(i),k(i),
+               write(luout,720) trim(eqnstring),z(i),zz,k(i),
      >                           f,fdelta(i),ff-f*f
             end if
          end do
          write(luout,*)
-         write(luout,114) (z(i),i=1,ndim),(fsum(i)/dble(count),i=1,ndim)
+         write(luout,114) (z(i), i=1,ndim),
+     >                    (zave(i)/dble(count), i=1,ndim),
+     >                    (fsum(i)/dble(count),i=1,ndim)
          write(luout,*)
       end if
       value = rtdb_parallel(.true.)
@@ -2148,13 +2153,13 @@ c               close(53)
   113    format(1x,'number of dimensions  =',I8)
   114 format(1x,'TAMD Force =',99e14.6)
   120 format(1x,'atoms=',I5,I5,
-     >          1x,'dist=',E10.3,
+     >          1x,'dist=',E10.3,' (dave=',E10.3,')',
      >          1x,'k=',E10.3,
      >          3x,'<F>=',E14.6,
      >          2x,'Delta <F>=',E14.6,
      >          1x,'(<F**2>-<F>**2=',E10.3,')')
   720 format(1x,'equation=',A,
-     >          1x,'z=',E10.3,
+     >          1x,'z=',E10.3,' (zave=',E10.3,')',
      >          1x,'k=',E10.3,
      >          3x,'<F>=',E14.6,
      >          2x,'Delta <F>=',E14.6,
