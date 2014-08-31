@@ -84,6 +84,7 @@
      >   call errquit(
      >   'nwpw_expression_compile:error writing emachine',0,RTDB_ERR)
 
+      nwpw_expression_compile = nemach
       return
       end
 
