@@ -81,7 +81,7 @@ EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper driver ccsd vib mcscf property solvation selci dplot mp2_grad esp etrans vscf 
+          optim stepper driver ccsd vib mcscf property nwxc solvation selci dplot mp2_grad esp etrans vscf 
 EXP_tps = prepar nwmd analyz diana
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
