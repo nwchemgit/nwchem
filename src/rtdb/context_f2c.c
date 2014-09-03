@@ -5,7 +5,7 @@
 #if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>
 #endif
-#ifdef WIN32
+#if defined(WIN32) &&!defined(__MINGW32__)
 #include "typesf2c.h"
 #endif
 #include "context.h"

@@ -18,7 +18,7 @@ long onbitmask_( long *len )
   return ((long)mask);
 }
 #else  
-#if defined(CRAY_T3E) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY_T3E) || defined(CRAY_T3D) || defined(WIN32)) &&!defined(__MINGW32__)
 int FATR ONBITMASK( int *len )
 #else
 int FATR onbitmask_( int *len )

@@ -1,4 +1,4 @@
-#if (defined(CRAY) || defined(ARDENT) || defined(WIN32))&& !defined(__crayx1)
+#if (defined(CRAY) || defined(ARDENT) || defined(WIN32))&& !defined(__crayx1)&&!defined(__MINGW32__)
 #   define ga_access_callback_release_ GA_ACCESS_CALLBACK_RELEASE 
 #endif
 
@@ -11,7 +11,6 @@
 #ifdef WIN32
 #include "typesf2c.h"
 #endif
-
 #ifdef USE_FAPI
 #  define COPYC2F(carr, farr, n){\
    int i; for(i=0; i< (n); i++)(farr)[i]=(Integer)(carr)[i];} 

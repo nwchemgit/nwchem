@@ -516,7 +516,12 @@ ifdef USE_OFFLOAD
 endif
     MAYBE_SYSVSHMEM= "ARMCI_DEFAULT_SHMMAX_UBOUND=131072"
 GOTCGWIN32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep CYGWIN32|cut -c22)
+GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
 ifeq ($(GOTCGWIN32),1)
+# weak pragmas not working with cygwin
+   MAYBE_OFFLOAD += --disable-weak
+endif
+ifeq ($(GOTMINGW32),1)
 # weak pragmas not working with cygwin
    MAYBE_OFFLOAD += --disable-weak
 endif

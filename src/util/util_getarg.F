@@ -12,7 +12,7 @@
       integer*4 iarg
 #else
       integer iarg
-#if defined(WIN32)
+#if defined(WIN32) &&!defined(__MINGW32__)
       integer idum
 #endif
 #endif
@@ -34,7 +34,7 @@ c
       if (ierror.ne.0)
      + call errquit('util_getarg:pxfgetarg fatal error',ierror,
      &       UNKNOWN_ERR)
-#elif defined(WIN32)
+#elif defined(WIN32) &&!defined(__MINGW32__)
       call getarg(iarg,arg,idum)
 #else
       call getarg(iarg,arg)

@@ -3,7 +3,7 @@
  */
 
 #include <stdio.h>
-#ifndef WIN32
+#ifndef WIN32 
 #include <unistd.h>
 #endif
 
@@ -13,7 +13,7 @@ extern int system(const char *);
 #include <fortran.h>
 #define FATR
 #endif
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 #include "typesf2c.h"
 #endif
 #if defined (DECOSF)

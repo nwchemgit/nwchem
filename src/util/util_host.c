@@ -4,9 +4,11 @@
 #include <fortran.h>
 #define FATR
 #endif
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 #include "typesf2c.h"
 extern int FATR gethostname(char *, int);
+#elif defined(__MINGW32__)
+#include <winsock.h>
 #else
 extern int gethostname(char *, int);
 #endif

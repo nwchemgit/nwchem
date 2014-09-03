@@ -6,6 +6,7 @@
 #ifdef CRAY
 #include <fortran.h>
 #endif
+#define FATR 
 
 #define FORTRAN_TRUE  ((Logical) 1)
 #define FORTRAN_FALSE ((Logical) 0)
@@ -404,7 +405,7 @@ Logical FATR rtdb_cput_(const Integer *handle, const char *name,
        i++, array+=alen) {
 #if defined(CRAY) && !defined(__crayx1)
       _fcd element = _cptofcd(array, alen);
-#elif defined(WIN32)
+#elif defined(WIN32) &&! defined(__MINGW32__)
       _fcd element;
       element.string = array;
       element.len = alen;
@@ -586,7 +587,7 @@ Logical FATR rtdb_cget_(const Integer *handle, const char *name,
        i++, array+=alen, next=strtok((char *) 0, "\n")) {
 #if defined(CRAY) && !defined(__crayx1)
       _fcd element = _cptofcd(array, alen);
-#elif defined(WIN32)
+#elif defined(WIN32) &&! defined(__MINGW32__)
       _fcd element;
       element.string = array;
       element.len = alen;

@@ -1,4 +1,4 @@
-#if (defined(CRAY) || defined(WIN32) || defined(CATAMOUNT))&& !defined(__crayx1)
+#if (defined(CRAY) || defined(WIN32) || defined(CATAMOUNT))&& !defined(__crayx1) 
 
 #include "typesf2c.h"
 
@@ -6,10 +6,11 @@
 #define util_debug_ UTIL_DEBUG
 #include <fortran.h>
 #endif
-#ifdef WIN32
+#if defined(WIN32)&&!defined(__MINGW32__)
 #define util_debug_ UTIL_DEBUG
 #endif
 
+#include "ga.h"
 void FATR util_debug_(Integer *rtdb)
 {
   GA_Error("Don't know how to debug on this machine", 0);
@@ -22,7 +23,6 @@ void FATR util_debug_(Integer *rtdb)
 #include <unistd.h>
 #include <string.h>
 #include "macdecls.h"
-#include "ga.h"
 #include "rtdb.h"
 
 #include "typesf2c.h"

@@ -10,7 +10,7 @@
 #include <fortran.h>
 #define FATR
 #endif
-#ifdef WIN32
+#if defined(WIN32) &&!defined(__MINGW32__)
 #define util_date_ UTIL_DATE
 #include "typesf2c.h"
 #endif

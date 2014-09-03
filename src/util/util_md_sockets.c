@@ -3,11 +3,13 @@
  */
 
 #include <sys/types.h>
-#include <sys/socket.h>
 #include <stdio.h>
+#include <unistd.h>
+#if !defined(__MINGW32__)
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <unistd.h>
+#endif
 
 #if defined(CRAY) && !defined(__crayx1)
 #define create_server_socket_ CREATE_SERVER_SOCKET
@@ -23,7 +25,7 @@
  */
 int create_server_socket(char *host, int port)
 {
-#ifdef CATAMOUNT
+#if defined(CATAMOUNT) || defined(__MINGW32__)
     ga_error("system calls do not work on this machine", 0);
 #else
   int server_sockfd, client_sockfd;
@@ -62,7 +64,7 @@ int create_server_socket_(char *s, int *port)
  */
 int create_client_socket(char *host, int port)
 {
-#ifdef CATAMOUNT
+#if defined(CATAMOUNT) || defined(__MINGW32__)
     ga_error("system calls do not work on this machine", 0);
 #else
   int sockfd, len, result;

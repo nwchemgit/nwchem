@@ -27,7 +27,7 @@ c
       integer iseed
       if(iseed.gt.0) call ranset(iseed)
       util_random=ranf()
-#elif defined(WIN32)
+#elif defined(WIN32) &&!defined(__MINGW32__)
       integer iseed
       double precision drand
       external drand

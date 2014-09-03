@@ -1455,12 +1455,16 @@ ifeq ($(LINUXCPU),x86)
     endif
 endif
 
-
+     GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
+    ifeq ($(GOTMINGW32),1)
+        _CPU=i786
+    else
     ifeq ($(_CPU),i686)
      _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
       ifeq ($(_GOTSSE2),Y) 
         _CPU=i786
       endif
+    endif
     endif
 
     ifeq ($(_CPU),i786)
@@ -1659,7 +1663,7 @@ endif
       LINK.f = $(FC) $(FOPTIONS) $(LDFLAGS) 
 ifeq ($(LINUXCPU),x86)
   ifeq ($(FC),pgf77)
-   LDOPTIONS = -g -Wl,--export-dynamic
+   LDOPTIONS += -g -Wl,--export-dynamic
    EXTRA_LIBS += -lm
   else
     ifeq ($(_FC),ifc)
@@ -1674,9 +1678,14 @@ ifeq ($(LINUXCPU),x86)
       EXTRA_LIBS += #-static
    LDOPTIONS = -g -Wl,--export-dynamic
     else
+  ifeq ($(GOTMINGW32),1)
+  LDOPTIONS += -g -O0 
+  EXTRA_LIBS += -lwsock32
+  else
   LDOPTIONS = -Xlinker --export-dynamic 
 #  LDOPTIONS = --Xlinker -O -Xlinker -static
       EXTRA_LIBS += -lm
+   endif
     endif
   endif
 endif

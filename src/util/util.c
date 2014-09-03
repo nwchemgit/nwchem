@@ -15,7 +15,7 @@
 #define MAXDIM 10
 #define BASE 100
 
-#ifdef WIN32
+#if defined(WIN32)
 #  include <windows.h>
 #  define sleep(x) Sleep(1000*(x))
 #else

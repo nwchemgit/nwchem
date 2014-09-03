@@ -52,7 +52,7 @@ c $Id$
       double precision linux_cputime
       external linux_cputime
       util_cpusec = linux_cputime()
-#elif defined(WIN32) || defined(LINUXIA64)
+#elif defined(WIN32) &&!defined(__MINGW32__)
       double precision win32_cputime
       external win32_cputime
       util_cpusec = win32_cputime()

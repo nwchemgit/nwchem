@@ -455,7 +455,7 @@ c      double precision gamm4        ! Dipole second hyperpolarizability term 4
       double precision alphaani         ! Anisotropic dipole polarizability
       double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
       double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
-      double precision aeigvec(3,3)     ! dummy ygeev eigenvectors
+      double precision aeigvec(3,3)     ! dummy dgeev eigenvectors
 c      integer iter             ! Iteration counter
 c
 c     Excited-state CI, CC, & MBPT

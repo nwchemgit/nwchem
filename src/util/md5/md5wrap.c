@@ -17,7 +17,7 @@ extern int string_to_fortchar(_fcd f, int flen, char *buf);
 extern int string_to_fortchar(char *f, int flen, char *buf);
 #endif
 
-#if (defined(CRAY) || defined(WIN32))&& !defined(__crayx1)
+#if (defined(CRAY) || defined(WIN32))&& !defined(__crayx1) &&!defined(__MINGW32__)
 #define checksum_simple_ CHECKSUM_SIMPLE
 #define checksum_init_   CHECKSUM_INIT
 #define checksum_update_ CHECKSUM_UPDATE

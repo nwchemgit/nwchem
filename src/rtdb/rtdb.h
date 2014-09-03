@@ -179,7 +179,7 @@ extern int rtdb_seq_delete(const int, const char *);
 #define RTDB_SEQ_MODE 0 //* Sequential mode
 #define RTDB_PAR_MODE 1 //* Parallel mode
 
-#if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1)
+#if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1) &&!defined(__MINGW32__)
 #include "rtdb.cray.h"
 #endif
 
