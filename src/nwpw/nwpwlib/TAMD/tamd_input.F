@@ -227,8 +227,8 @@ c
 
 *     **** set defaults for gamma,k,mass,ztemp,zinitial ****
       sdist(1) =    0.00010d0
-      sdist(2) =    0.05000d0
-      sdist(3) =   30.0d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
       sdist(4) = 1000.0d0
       sdist(5) = -1.0
       sdist(6) = -1.0
@@ -239,7 +239,7 @@ c
  201  if (.not.inp_a(test)) goto 299
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
-     >  'tamd_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown bond directive',ind3,INPUT_ERR)
 
       goto ( 210,220,230,240,250,260,270) ind3
       call errquit(
@@ -251,14 +251,14 @@ c
  210  if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
       goto 201
 c
-c k, default = 0.05 au
+c k, default = 0.10 au
 c
- 220  if (.not.inp_f(sdist(2))) sdist(2)=0.05d0
+ 220  if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
       goto 201
 c
-c mass, default=30.0 au
+c mass, default=300.0 au
 c
- 230  if (.not.inp_f(sdist(3))) sdist(3)= 30.0d0
+ 230  if (.not.inp_f(sdist(3))) sdist(3)= 300.0d0
       goto 201
 c
 c ztemp, default = 1000.0K
@@ -359,42 +359,63 @@ c
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
 
-*     *** set defaults for w,sigma,range and nrange ***
-      sdist(1) = 0.00005d0
-      sdist(2) = 0.10000d0
-      sdist(3) = -999.0d0
-      sdist(4) = -999.0d0
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = 1.0d0
+      sdist(6) = 0.0d0
+      sdist(7) = 0.0d0
+      sdist(8) = 4.0d0*datan(1.0d0)+0.1d0
       sindx(4) = 501
+
 
  301  if (.not.inp_a(test)) goto 399
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown angle directive',ind3,INPUT_ERR)
 
-      goto (310,320,330,340) ind3
+      goto (310,320,330,340,350,360,370) ind3
       call errquit(
-     >     'metadynamics_input: unimplemented directive',ind3,INPUT_ERR)
+     >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
 
+
+c gamma, default=0.00010 au = 0.06275 kcal/mol
 c
-c w, default=0.00005 au = 0.03175 kcal/mol
-c
- 310  if (.not.inp_f(sdist(1))) sdist(1)=0.00005d0
+ 310  if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
       goto 301
 c
-c sigma, default = 0.1 au
+c k, default = 0.10 au
 c
- 320  if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
+ 320  if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
+      goto 301
+c
+c mass, default=300.0 au
+c
+ 330  if (.not.inp_f(sdist(3))) sdist(3)= 300.0d0
+      goto 301
+c
+c ztemp, default = 1000.0K
+c
+ 340  if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
+      goto 301
+c
+c zinitial
+c
+ 350  if (.not.inp_f(sdist(5))) sdist(5)= 1.0d0
+      if (.not.inp_f(sdist(6))) sdist(6)= 0.0d0
       goto 301
 c
 c range
 c
- 330  if (.not.inp_f(sdist(3))) sdist(3)=-999.0d0
-      if (.not.inp_f(sdist(4))) sdist(4)=-999.0d0
+ 360  if (.not.inp_f(sdist(7))) sdist(7)=-1.0d0
+      if (.not.inp_f(sdist(8))) sdist(8)=-1.0d0
       goto 301
 c
 c nrange, default = 501
 c
- 340  if (.not.inp_i(sindx(4))) sindx(4)=501
+ 370  if (.not.inp_i(sindx(4))) sindx(4)=501
       goto 301
 
  399  continue
@@ -408,50 +429,55 @@ c
       int_mb(sparammeta(1)+nmeta)       = nparammeta
       dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
       dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
-      nparammeta  = nparammeta + 2
+      dbl_mb(parammeta(1)+nparammeta+2) = sdist(3)
+      dbl_mb(parammeta(1)+nparammeta+3) = sdist(4)
+      dbl_mb(parammeta(1)+nparammeta+4) = sdist(5)
+      dbl_mb(parammeta(1)+nparammeta+5) = sdist(6)
+      nparammeta  = nparammeta + 6
 
       nxmeta_all = nxmeta_all*sindx(4)
       int_mb(nxmeta(1)+nmeta) = sindx(4)
-      dbl_mb(ameta(1)+nmeta)  = sdist(3)
-      dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+
+      dbl_mb(ameta(1)+nmeta)  = sdist(7)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(8)
       int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing angle',0,RTDB_ERR)
+     >'tamd_input:failed writing angle',0,RTDB_ERR)
 
       end if
       end if
@@ -467,43 +493,63 @@ c
       if (inp_i(sindx(3))) then
       if (inp_i(sindx(4))) then
 
-*     *** set defaults for w,sigma,range and nrange ***
-      sdist(1) = 0.00005d0
-      sdist(2) = 0.10000d0
-      sdist(3) = -999.0d0
-      sdist(4) = -999.0d0
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = 1.0d0
+      sdist(6) = 0.0d0
+      sdist(7) = -4.0d0*datan(1.0d0)
+      sdist(8) = 4.0d0*datan(1.0d0)
       sindx(5) = 501
 
  401  if (.not.inp_a(test)) goto 499
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown dihedral directive',ind3,INPUT_ERR)
 
-      goto (410,420,430,440) ind3
+      goto (410,420,430,440,450,460,470) ind3
       call errquit(
-     >     'metadynamics_input: unimplemented directive',ind3,INPUT_ERR)
+     >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
 
+c gamma, default=0.00010 au = 0.06275 kcal/mol
 c
-c w, default=0.00005 au = 0.03175 kcal/mol
-c
- 410  if (.not.inp_f(sdist(1))) sdist(1)=0.00005d0
+ 410  if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
       goto 401
 c
-c sigma, default = 0.1 au
+c k, default = 0.10 au
 c
- 420  if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
+ 420  if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
+      goto 401
+c
+c mass, default=300.0 au
+c
+ 430  if (.not.inp_f(sdist(3))) sdist(3)= 300.0d0
+      goto 401
+c
+c ztemp, default = 1000.0K
+c
+ 440  if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
+      goto 401
+c
+c zinitial
+c
+ 450  if (.not.inp_f(sdist(5))) sdist(5)= 1.0d0
+      if (.not.inp_f(sdist(6))) sdist(6)= 0.0d0
       goto 401
 c
 c range
 c
- 430  if (.not.inp_f(sdist(3))) sdist(3)=-4.0d0*datan(1.0d0)
-      if (.not.inp_f(sdist(4))) sdist(4)= 4.0d0*datan(1.0d0)
+ 460  if (.not.inp_f(sdist(7))) sdist(7)=-4.0d0*datan(1.0d0)
+      if (.not.inp_f(sdist(8))) sdist(8)= 4.0d0*datan(1.0d0)
       goto 401
 c
 c nrange, default = 501
 c
- 440  if (.not.inp_i(sindx(5))) sindx(5)=501
+ 470  if (.not.inp_i(sindx(5))) sindx(5)=501
       goto 401
+
 
  499  continue
       int_mb(sindxmeta(1) +nmeta)     = nindxmeta
@@ -517,50 +563,54 @@ c
       int_mb(sparammeta(1)+nmeta)       = nparammeta
       dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
       dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
-      nparammeta  = nparammeta + 2
+      dbl_mb(parammeta(1)+nparammeta+2) = sdist(3)
+      dbl_mb(parammeta(1)+nparammeta+3) = sdist(4)
+      dbl_mb(parammeta(1)+nparammeta+4) = sdist(5)
+      dbl_mb(parammeta(1)+nparammeta+5) = sdist(6)
+      nparammeta  = nparammeta + 6
 
       nxmeta_all = nxmeta_all*sindx(5)
       int_mb(nxmeta(1)+nmeta) = sindx(5)
-      dbl_mb(ameta(1)+nmeta)  = sdist(3)
-      dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+      dbl_mb(ameta(1)+nmeta)  = sdist(7)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(8)
       int_mb(pmeta(1)+nmeta)  = 1
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing dihedral',0,RTDB_ERR)
+     >'tamd_input:failed writing dihedral',0,RTDB_ERR)
 
       end if
       end if
@@ -575,31 +625,34 @@ c
  500  if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
      >                    index_start1(2),index_start1(1)))
      >    call errquit(
-     > 'metadynamics_input:failed allocating index_start1',0,MA_ERR)
+     > 'tamd_input:failed allocating index_start1',0,MA_ERR)
       if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
      >                    index_start2(2),index_start2(1)))
      >    call errquit(
-     > 'metadynamics_input:failed allocating index_start2',0,MA_ERR)
+     > 'tamd_input:failed allocating index_start2',0,MA_ERR)
 
-      sdist(1) = 0.00005d0
-      sdist(2) = 0.10000d0
-      sdist(3) = 6.0d0
-      sdist(4) = 12.0d0
-      sdist(5) = 3.0d0
-      sdist(6) = -1.0d0
-      sdist(7) = -1.0d0
-      sdist(8) = -1.0d0
+*     **** set defaults for gamma,k,mass,ztemp,zinitial ****
+      sdist(1) =    0.00010d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
+      sdist(4) = 1000.0d0
+      sdist(5) = -1.0
+      sdist(6) = -1.0
+      sdist(7) = -1.0
+      sdist(8) = -1.0
       sindx(1) = 501
       n1 = 0
       n2 = 0
  501  if (.not. inp_a(test)) goto 599
       if (.not. inp_match(num_dirs2,.false.,test,dirs2,ind2))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 510,520,530,540,550,560,570,580,590,595 ) ind2
+      goto ( 510,520,530,540,550,560,562,564,566,570,580,590,595 ) ind2
       call errquit(
-     >     'metadynamics_input: unimplemented directive',ind2,INPUT_ERR)
+     >     'tamd_input: unimplemented directive',ind2,INPUT_ERR)
+
+
 c
 c index1
 c
@@ -627,43 +680,65 @@ c
 c
 c n
 c
- 530  if (.not.inp_f(sdist(3))) sdist(3)=6.0d0
+ 530  if (.not.inp_f(sdist(9))) sdist(9)=6.0d0
       goto 501
 c
 c m
 c
- 540  if (.not.inp_f(sdist(4))) sdist(4)=12.0d0
+ 540  if (.not.inp_f(sdist(10))) sdist(10)=12.0d0
       goto 501
 c
 c r0
 c
- 550  if (.not.inp_f(sdist(5))) sdist(5)=3.0d0
+ 550  if (.not.inp_f(sdist(11))) sdist(11)=3.0d0
+      goto 501
+
+c
+c gamma, default=0.00010 au = 0.06275 kcal/mol
+c
+ 560  if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
       goto 501
 c
-c w
+c k, default = 0.10 au
 c
- 560  if (.not.inp_f(sdist(1))) sdist(1)=0.00005
+ 562  if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
       goto 501
+
 c
-c sigma
+c mass, default=300.0 au
 c
- 570  if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
+ 564  if (.not.inp_f(sdist(3))) sdist(3)=300.0d0
       goto 501
+
+c
+c ztemp, default = 1000.0K
+c
+ 566  if (.not.inp_f(sdist(4))) sdist(4)=1000.0d0
+      goto 501
+
+c
+c zinitial
+c
+ 570  if (.not.inp_f(sdist(5))) sdist(5)=-1.0d0
+      if (.not.inp_f(sdist(6))) sdist(6)=-1.0d0
+      goto 501
+
 c
 c range
 c
- 580  if (.not.inp_f(sdist(7))) sdist(7)=-1.0d0
-      if (.not.inp_f(sdist(8))) sdist(8)=-1.0d0
+ 580  if (.not.inp_f(sdist(7))) sdist(7)=0.0d0
+      if (.not.inp_f(sdist(8))) sdist(8)=10.0d0
       goto 501
 c
-c nrange
+c nrange, default = 501
 c
  590  if (.not.inp_i(sindx(1))) sindx(1)=501
       goto 501
+
 c
 c sprik
 c
- 595  sdist(6)=1.0d0
+ 595  sdist(12)=1.0d0
       goto 501
 
  599  continue
@@ -681,14 +756,20 @@ c
       end do
       nindxmeta  = nindxmeta + 3+n1+n2
 
-      int_mb(sparammeta(1)+nmeta)       = nparammeta
-      dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
-      dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
-      dbl_mb(parammeta(1)+nparammeta+2) = sdist(3)
-      dbl_mb(parammeta(1)+nparammeta+3) = sdist(4)
-      dbl_mb(parammeta(1)+nparammeta+4) = sdist(5)
-      dbl_mb(parammeta(1)+nparammeta+5) = sdist(6)
-      nparammeta  = nparammeta + 6
+      int_mb(sparammeta(1)+nmeta)        = nparammeta
+      dbl_mb(parammeta(1)+nparammeta)    = sdist(1)
+      dbl_mb(parammeta(1)+nparammeta+1)  = sdist(2)
+      dbl_mb(parammeta(1)+nparammeta+2)  = sdist(3)
+      dbl_mb(parammeta(1)+nparammeta+3)  = sdist(4)
+      dbl_mb(parammeta(1)+nparammeta+4)  = sdist(5)
+      dbl_mb(parammeta(1)+nparammeta+5)  = sdist(6)
+      dbl_mb(parammeta(1)+nparammeta+6)  = sdist(7)
+      dbl_mb(parammeta(1)+nparammeta+7)  = sdist(8)
+      dbl_mb(parammeta(1)+nparammeta+8)  = sdist(9)
+      dbl_mb(parammeta(1)+nparammeta+9)  = sdist(10)
+      dbl_mb(parammeta(1)+nparammeta+10) = sdist(11)
+      dbl_mb(parammeta(1)+nparammeta+11) = sdist(12)
+      nparammeta  = nparammeta + 12
 
       nxmeta_all = nxmeta_all*sindx(1)
       int_mb(nxmeta(1)+nmeta) = sindx(1)
@@ -698,45 +779,45 @@ c
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing coord_num',0,RTDB_ERR)
+     >'tamd_input:failed writing coord_num',0,RTDB_ERR)
 
       if (.not.MA_pop_stack(index_start2(2))) call errquit(
-     > 'metadynamics_input:failed deallocating index_start2',0,MA_ERR)
+     > 'tamd_input:failed deallocating index_start2',0,MA_ERR)
       if (.not.MA_pop_stack(index_start1(2))) call errquit(
-     > 'metadynamics_input:failed deallocating index_start1',0,MA_ERR)
+     > 'tamd_input:failed deallocating index_start1',0,MA_ERR)
 
       goto 10
 
@@ -765,11 +846,11 @@ c
  601  if (.not.inp_a(test)) goto 699
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
 
       goto ( 610,620,630,640,650) ind3
       call errquit(
-     >   'metadynamics_inputn: unimplemented directive',ind3,INPUT_ERR)
+     >   'tamd_inputn: unimplemented directive',ind3,INPUT_ERR)
 
 c
 c w, default=0.00005 au = 0.03175 kcal/mol
@@ -827,40 +908,40 @@ c
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing n-plane',0,RTDB_ERR)
+     >'tamd_input:failed writing n-plane',0,RTDB_ERR)
 
       end if
       goto 10
@@ -887,11 +968,11 @@ c
  705  if (.not.inp_a(test)) goto 799
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
 
       goto ( 710,720,730,740) ind3
       call errquit(
-     >     'metadynamics_input: unimplemented directive',ind3,INPUT_ERR)
+     >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
 
 c
 c w, default=0.00005 au = 0.03175 kcal/mol
@@ -936,40 +1017,40 @@ c
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing x,y,z',0,RTDB_ERR)
+     >'tamd_input:failed writing x,y,z',0,RTDB_ERR)
 
       end if
       goto 10
@@ -980,9 +1061,9 @@ c
 c  tempered
 c
  800  if (.not.inp_f(sdist(1))) sdist(1)=-1.0d0
-      rtdb_name='metadynamics_tempered'
+      rtdb_name='tamd_tempered'
       if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,1,sdist))
-     >   call errquit('metadynamics_input:failed writing tempered',
+     >   call errquit('tamd_input:failed writing tempered',
      >                 0,RTDB_ERR)
 
       goto 10
@@ -992,9 +1073,9 @@ c  boundary
 c
  900  if (.not.inp_f(sdist(1))) sdist(1)= 0.0d0
       if (.not.inp_f(sdist(2))) sdist(2)= 1.0d0
-      rtdb_name='metadynamics_boundary'
+      rtdb_name='tamd_boundary'
       if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,2,sdist))
-     >   call errquit('metadynamics_input:failed writing boundary',
+     >   call errquit('tamd_input:failed writing boundary',
      >                 0,RTDB_ERR)
       goto 10
 
@@ -1006,7 +1087,7 @@ c
      >                                 .false.,
      >                                 test)
           write(*,'(A,A)') 
-     >      "....Reading metadynamics potential_filename=",rtdb_name
+     >      "....Reading tamd potential_filename=",rtdb_name
           open(unit=53,file=test,form='formatted')
  
           read(53,*) test
@@ -1031,7 +1112,7 @@ c
 
           if (.not.MA_push_get(mt_dbl,nxmeta_all,'ymmeta',
      >                         ymeta(2),ymeta(1)))
-     >    call errquit('cannot allocate stack, metadynamics_input',22,
+     >    call errquit('cannot allocate stack, tamd_input',22,
      >                 MA_ERR)
 
           do d=1,nmeta
@@ -1054,61 +1135,61 @@ c
           end do
           close(53)
 
-          rtdb_name = 'metadynamics_nindxmeta'
+          rtdb_name = 'tamd_nindxmeta'
           value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-          rtdb_name = 'metadynamics_sindxmeta'
+          rtdb_name = 'tamd_sindxmeta'
           value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-          rtdb_name = 'metadynamics_indxmeta'
+          rtdb_name = 'tamd_indxmeta'
           value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                     nindxmeta,int_mb(indxmeta(1)))
-          rtdb_name = 'metadynamics_nparammeta'
+          rtdb_name = 'tamd_nparammeta'
           value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-          rtdb_name = 'metadynamics_sparammeta'
+          rtdb_name = 'tamd_sparammeta'
           value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                     nmeta,int_mb(sparammeta(1)))
-          rtdb_name = 'metadynamics_parammeta'
+          rtdb_name = 'tamd_parammeta'
           value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                     nparammeta,dbl_mb(parammeta(1)))
-          rtdb_name = 'metadynamics_ameta'
+          rtdb_name = 'tamd_ameta'
           value = value.and.
      >            rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-          rtdb_name = 'metadynamics_bmeta'
+          rtdb_name = 'tamd_bmeta'
           value = value.and.
      >            rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-          rtdb_name = 'metadynamics_pmeta'
+          rtdb_name = 'tamd_pmeta'
           value = value.and.
      >            rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-          rtdb_name = 'metadynamics_nxmeta'
+          rtdb_name = 'tamd_nxmeta'
           value = value.and.
      >           rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-          rtdb_name = 'metadynamics_nmeta'
+          rtdb_name = 'tamd_nmeta'
           value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-          rtdb_name = 'metadynamics_nxmeta_all'
+          rtdb_name = 'tamd_nxmeta_all'
           value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
 
-          rtdb_name = 'metadynamics_update'
+          rtdb_name = 'tamd_update'
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,maxmetacount)
-          rtdb_name = 'metadynamics_metacount'
+          rtdb_name = 'tamd_metacount'
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metacount)
-          rtdb_name = 'metadynamics_print_shift'
+          rtdb_name = 'tamd_print_shift'
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metarayshift)
-          rtdb_name = 'metadynamics_metaraycount'
+          rtdb_name = 'tamd_metaraycount'
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metaraycount)
-          rtdb_name = 'metadynamics_print'
+          rtdb_name = 'tamd_print'
           value=value.and.
      >          rtdb_put(rtdb,rtdb_name,mt_int,1,maxmetaprintcount)
-          rtdb_name = 'metadynamics_tempered'
+          rtdb_name = 'tamd_tempered'
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,1,dTtempered)
-          rtdb_name = 'metadynamics_ymeta'
+          rtdb_name = 'tamd_ymeta'
           value=value.and.
      >       rtdb_put(rtdb,rtdb_name,mt_dbl,nxmeta_all,dbl_mb(ymeta(1)))
 
           if (.not. value) call errquit(
-     >    'metadynamics_input:writing potential_filename',0,RTDB_ERR)
+     >    'tamd_input:writing potential_filename',0,RTDB_ERR)
 
           if (.not.MA_pop_stack(ymeta(2)))
-     >    call errquit('cannot pop stack for metadynamics_input',22,
+     >    call errquit('cannot pop stack for tamd_input',22,
      >                 MA_ERR)
       end if
       goto 10
@@ -1129,11 +1210,11 @@ c
  1101 if (.not.inp_a(test)) goto 1199
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
 
       goto ( 1110,1120,1130,1140) ind3
       call errquit(
-     >     'metadynamics_input: unimplemented directive',ind3,INPUT_ERR)
+     >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
 
 c
 c w, default=0.00005 au = 0.03175 kcal/mol
@@ -1178,40 +1259,40 @@ c
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing bond',0,RTDB_ERR)
+     >'tamd_input:failed writing bond',0,RTDB_ERR)
 
       end if
       end if
@@ -1234,9 +1315,9 @@ c
      >    inp_f(sdist(11)).and.
      >    inp_f(sdist(12)) ) then
 
-      rtdb_name = 'metadynamics_sn2-surface'
+      rtdb_name = 'tamd_sn2-surface'
       if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,12,sdist))
-     >   call errquit('metadynamics_input:failed writing sn2-surface',
+     >   call errquit('tamd_input:failed writing sn2-surface',
      >                 0,RTDB_ERR)
      
       end if
@@ -1265,11 +1346,11 @@ c
  1301 if (.not.inp_a(test)) goto 1399
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
 
       goto ( 1310,1320,1330,1340) ind3
       call errquit(
-     >     'metadynamics_input: unimplemented directive',ind3,INPUT_ERR)
+     >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
 
 c
 c w, default=0.00005 au = 0.03175 kcal/mol
@@ -1320,40 +1401,40 @@ c
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing bond',0,RTDB_ERR)
+     >'tamd_input:failed writing bond',0,RTDB_ERR)
 
       end if
       end if
@@ -1384,11 +1465,11 @@ c
  1401 if (.not.inp_a(test)) goto 1499
       if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
      >  call errquit(
-     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+     >  'tamd_input: unknown directive',0,INPUT_ERR)
 
       goto ( 1410,1420,1430,1440) ind3
       call errquit(
-     >     'metadynamics_input: unimplemented directive',ind3,INPUT_ERR)
+     >     'tamd_input: unimplemented directive',ind3,INPUT_ERR)
 
 c
 c w, default=0.00005 au = 0.03175 kcal/mol
@@ -1434,40 +1515,40 @@ c
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing bond',0,RTDB_ERR)
+     >'tamd_input:failed writing bond',0,RTDB_ERR)
 
       end if
       end if
@@ -1542,40 +1623,40 @@ c
 
       nmeta = nmeta + 1
 
-      rtdb_name = 'metadynamics_nindxmeta'
+      rtdb_name = 'tamd_nindxmeta'
       value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
-      rtdb_name = 'metadynamics_sindxmeta'
+      rtdb_name = 'tamd_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
-      rtdb_name = 'metadynamics_indxmeta'
+      rtdb_name = 'tamd_indxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nindxmeta,int_mb(indxmeta(1)))
-      rtdb_name = 'metadynamics_nparammeta'
+      rtdb_name = 'tamd_nparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
-      rtdb_name = 'metadynamics_sparammeta'
+      rtdb_name = 'tamd_sparammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sparammeta(1)))
-      rtdb_name = 'metadynamics_parammeta'
+      rtdb_name = 'tamd_parammeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                 nparammeta,dbl_mb(parammeta(1)))
-      rtdb_name = 'metadynamics_ameta'
+      rtdb_name = 'tamd_ameta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
-      rtdb_name = 'metadynamics_bmeta'
+      rtdb_name = 'tamd_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
-      rtdb_name = 'metadynamics_pmeta'
+      rtdb_name = 'tamd_pmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
-      rtdb_name = 'metadynamics_nxmeta'
+      rtdb_name = 'tamd_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
-      rtdb_name = 'metadynamics_nmeta'
+      rtdb_name = 'tamd_nmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
-      rtdb_name = 'metadynamics_nxmeta_all'
+      rtdb_name = 'tamd_nxmeta_all'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
       if (.not. value) call errquit(
-     >'metadynamics_input:failed writing bond',0,RTDB_ERR)
+     >'tamd_input:failed writing bond',0,RTDB_ERR)
 
       end if
       end if
@@ -1593,8 +1674,8 @@ c
 
 *     **** set defaults for gamma,k,mass,ztemp,zinitial ****
       sdist(1) =    0.00010d0
-      sdist(2) =    0.05000d0
-      sdist(3) =   30.0d0
+      sdist(2) =    0.10000d0
+      sdist(3) =  300.0d0
       sdist(4) = 1000.0d0
       sdist(5) = 0.0d0
       sdist(6) = 0.0d0
@@ -1617,14 +1698,14 @@ c
  1710 if (.not.inp_f(sdist(1))) sdist(1)=0.00010d0
       goto 1701
 c
-c k, default = 0.05 au
+c k, default = 0.10 au
 c
- 1720 if (.not.inp_f(sdist(2))) sdist(2)=0.05d0
+ 1720 if (.not.inp_f(sdist(2))) sdist(2)=0.10d0
       goto 1701
 c
-c mass, default=30.0 au
+c mass, default=300.0 au
 c
- 1730 if (.not.inp_f(sdist(3))) sdist(3)= 30.0d0
+ 1730 if (.not.inp_f(sdist(3))) sdist(3)= 300.0d0
       goto 1701
 c
 c ztemp, default = 1000.0K
@@ -1724,28 +1805,28 @@ c
       
 *     **** pop stack ****
       if (.not.MA_pop_stack(parammeta(2)))
-     >   call errquit('cannot pope stack for metadynamics_input',1,
+     >   call errquit('cannot pope stack for tamd_input',1,
      >                MA_ERR)
       if (.not.MA_pop_stack(bmeta(2)))
-     >   call errquit('cannot pop stack for metadynamics_input',3,
+     >   call errquit('cannot pop stack for tamd_input',3,
      >                MA_ERR)
       if (.not.MA_pop_stack(ameta(2)))
-     >   call errquit('cannot pop stack for metadynamics_input',2,
+     >   call errquit('cannot pop stack for tamd_input',2,
      >                MA_ERR)
       if (.not.MA_pop_stack(pmeta(2)))
-     >   call errquit('cannot pop stack for metadynamics_input',0,
+     >   call errquit('cannot pop stack for tamd_input',0,
      >                MA_ERR)
       if (.not.MA_pop_stack(indxmeta(2)))
-     >   call errquit('cannot pop stack for metadynamics_input',0,
+     >   call errquit('cannot pop stack for tamd_input',0,
      >                MA_ERR)
       if (.not.MA_pop_stack(sparammeta(2)))
-     >   call errquit('cannot pop stack for metadynamics_input',0,
+     >   call errquit('cannot pop stack for tamd_input',0,
      >                MA_ERR)
       if (.not.MA_pop_stack(sindxmeta(2)))
-     >   call errquit('cannot pop stack for metadynamics_input',0,
+     >   call errquit('cannot pop stack for tamd_input',0,
      >                MA_ERR)
       if (.not.MA_pop_stack(nxmeta(2)))
-     >   call errquit('cannot pop stack for metadynamics_input',0,
+     >   call errquit('cannot pop stack for tamd_input',0,
      >                MA_ERR)
 
       return

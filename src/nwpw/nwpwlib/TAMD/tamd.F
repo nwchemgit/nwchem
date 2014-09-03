@@ -21,7 +21,7 @@ c     **********************************************
       logical value,cnmeta_read
       integer d,i,j,n1,n2,s1,s2,yshift,ntype,seed
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0,gamma,k
-      real*8 boundary(2),temp,fac,sn2(12)
+      real*8 boundary(2),temp,fac,sn2(12),mass,ztemp,zinitial(2)
       character*80 rtdb_name,potential_filename
       character*60 gauss_filename
       character*4 celement1,celement2
@@ -323,6 +323,10 @@ c     **********************************************
             ntype = int_mb(indxmeta(1)+s1)
             gamma = dbl_mb(parammeta(1)+s2)
             k     = dbl_mb(parammeta(1)+s2+1)
+            mass  = dbl_mb(parammeta(1)+s2+2)
+            ztemp = dbl_mb(parammeta(1)+s2+3)
+            zinitial(1) = dbl_mb(parammeta(1)+s2+4)
+            zinitial(2) = dbl_mb(parammeta(1)+s2+5)
 
             if (ntype.eq.1) then
              write(luout,'(A,5x,2I4,
@@ -333,13 +337,12 @@ c     **********************************************
      >       "   - Bond Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,2),
      >           'gamma=   ',gamma,'k=    ',k,
-     >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
-     >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
-     >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic=',int_mb(pmeta(1)+d-1) 
+     >           'mass=    ',mass,
+     >           'ztemp=',ztemp,
+     >           'zinitial=',zinitial,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.2) then
              write(luout,'(A,3I4,
@@ -350,20 +353,35 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
      >       "   - Angle Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,3),
      >           'gamma=',gamma,'k=',k,
-     >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
-     >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
-     >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'nrange= ',int_mb(nxmeta(1)+d-1),
-c     >           'periodic=',int_mb(pmeta(1)+d-1) 
+     >           'mass=    ',mass,
+     >           'ztemp=',ztemp,
+     >           'zinitial=',zinitial,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
+
+            else if (ntype.eq.3) then
+             write(luout,'(A,4I4,
+     >             /6x,A,F11.6,4x,A,F11.6,
+     >             /6x,A,F11.6,4x,A,F11.6,
+     >             /6x,A,F11.6,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >       "   - Angle Parameters =  ",
+     >           (int_mb(indxmeta(1)+s1+j),j=1,4),
+     >           'gamma=',gamma,'k=',k,
+     >           'mass=    ',mass,
+     >           'ztemp=',ztemp,
+     >           'zinitial=',zinitial,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.4) then
              n1 = int_mb(indxmeta(1)+s1+1)
              n2 = int_mb(indxmeta(1)+s1+2)
-             n  =  dbl_mb(parammeta(1)+s2+2)
-             m  =  dbl_mb(parammeta(1)+s2+3)
-             r0 =  dbl_mb(parammeta(1)+s2+4)
+             n  =  dbl_mb(parammeta(1)+s2+8)
+             m  =  dbl_mb(parammeta(1)+s2+9)
+             r0 =  dbl_mb(parammeta(1)+s2+10)
              write(luout,1001) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
              write(luout,1002) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
 
@@ -375,18 +393,17 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
      >                   /6x,A,F11.6,F11.6,
      >                   /6x,A,I5,
      >                   /6x,A,I2)')
-     >       "  - Coordination Number Parameters: ",
+     >       "   - Coordination Number Parameters: ",
      >           'n= ',n,'m=       ',m,
      >           'r0=',r0,
      >           'gamma=',gamma,'k=',k,
-     >           'mass=    ',dbl_mb(parammeta(1)+s2+2),
-     >           'ztemp=',dbl_mb(parammeta(1)+s2+3),
-     >           'zinitial=',dbl_mb(parammeta(1)+s2+4),
-     >                       dbl_mb(parammeta(1)+s2+5)
-c     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-c     >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
-c     >           'periodix=  ',int_mb(pmeta(1)+d-1)
-              if (dbl_mb(parammeta(1)+s2+5).lt.0) then
+     >           'mass=    ',mass,
+     >           'ztemp=',ztemp,
+     >           'zinitial=',zinitial,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=  ',int_mb(pmeta(1)+d-1)
+              if (dbl_mb(parammeta(1)+s2+11).lt.0) then
                  write(luout,'(6x,A)') '- LJ function form'
               else
                  write(luout,'(6x,A)') '- Sprik function form'
@@ -570,8 +587,8 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
 
          end do
 
- 1001 FORMAT(2x,"- Coorination Number (Index1) :",10I5)
- 1002 FORMAT(2x,"- Coorination Number (Index2) :",10I5)
+ 1001 FORMAT(3x,"- Coorination Number (Index1) :",10I5)
+ 1002 FORMAT(3x,"- Coorination Number (Index2) :",10I5)
 
       end if
       value = rtdb_parallel(.true.)
@@ -799,11 +816,11 @@ c     **** coordination number ****
       else if (ntype.eq.4) then
          n1=indx(2)
          n2=indx(3)
-         if (param(6).lt.0.0d0) then
+         if (param(12).lt.0.0d0) then
             f = 0.0d0
-            n  = param(3)
-            m  = param(4)
-            r0 = param(5)
+            n  = param(9)
+            m  = param(10)
+            r0 = param(11)
             do i=1,n1
                do j=1,n2
                   x1 = ion_rion(1,indx(3+i))
@@ -822,9 +839,9 @@ c     **** coordination number ****
             end do
          else
             f = 0.0d0
-            n  = param(3)
-            m  = param(4)
-            r0 = param(5)
+            n  = param(9)
+            m  = param(10)
+            r0 = param(11)
             do i=1,n1
                do j=1,n2
                   x1 = ion_rion(1,indx(3+i))
@@ -847,9 +864,9 @@ c                 f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
 c     **** n-plane ****
       else if (ntype.eq.5) then
          f = 0.0d0
-         nx = param(3)
-         ny = param(4)
-         nz = param(5)
+         nx = param(9)
+         ny = param(10)
+         nz = param(11)
          x1 = ion_rion(1,indx(2))
          y1 = ion_rion(2,indx(2))
          z1 = ion_rion(3,indx(2))
@@ -903,10 +920,10 @@ c     **** n-plane ****
          dy2 = y4-y3
          dz2 = z4-z3
          call lattice_min_difference(dx2,dy2,dz2)
-         d1a = param(3)
-         d2a = param(4)
-         d1b = param(5)
-         d2b = param(6)
+         d1a = param(9)
+         d2a = param(10)
+         d1b = param(11)
+         d2b = param(12)
          r1 = dsqrt(dx1**2 + dy1**2 + dz1**2)
          r2 = dsqrt(dx2**2 + dy2**2 + dz2**2)
          la = dsqrt((r1-d1a)**2 + (r2-d2a)**2)
@@ -1130,10 +1147,10 @@ c     **** coordination number ***
       else if (ntype.eq.4) then
          n1 = indx(2)
          n2 = indx(3)
-         if (param(6).lt.0.0d0) then
-            n  = param(3)
-            m  = param(4)
-            r0 = param(5)
+         if (param(12).lt.0.0d0) then
+            n  = param(9)
+            m  = param(10)
+            r0 = param(11)
             do i=1,n1
                do j=1,n2
                   x1 = ion_rion(1,indx(3+i))
@@ -1163,9 +1180,9 @@ c     **** coordination number ***
                end do
             end do
          else
-            n  = param(3)
-            m  = param(4)
-            r0 = param(5)
+            n  = param(9)
+            m  = param(10)
+            r0 = param(11)
             do i=1,n1
                do j=1,n2
                   x1 = ion_rion(1,indx(3+i))
@@ -1200,9 +1217,9 @@ c    >                 / (rm**2)
 
 c     **** n-plane ****
       else if (ntype.eq.5) then
-         nx = param(3)
-         ny = param(4)
-         nz = param(5)
+         nx = param(9)
+         ny = param(10)
+         nz = param(11)
          x1 = ion_rion(1,indx(2))
          y1 = ion_rion(2,indx(2))
          z1 = ion_rion(3,indx(2))
@@ -1268,10 +1285,10 @@ c     **** 2bonds ****
          dz2 = z4-z3
          call lattice_min_difference(dx2,dy2,dz2)
          r2 = dsqrt(dx2**2 + dy2**2 + dz2**2)
-         d1a = param(3)
-         d2a = param(4)
-         d1b = param(5)
-         d2b = param(6)
+         d1a = param(9)
+         d2a = param(10)
+         d1b = param(11)
+         d2b = param(12)
          la = dsqrt((r1-d1a)**2 + (r2-d2a)**2)
          lb = dsqrt((r1-d1b)**2 + (r2-d2b)**2)
          if (dabs(la).lt.1.0d-6) then
@@ -1453,8 +1470,8 @@ c     **** bond_difference2 ****
 #include "tamd.fh"
 
 *     **** local variables ****
-      integer d,s1,s2
-      real*8 r(10),dv(10),k,gam,mz,ztemp
+      integer d,s1,s2,p
+      real*8 r(10),dv(10),k,gam,mz,ztemp,a,b
 
 *     **** external functions ****
       real*8   tamd_collective
@@ -1482,9 +1499,15 @@ c     **** bond_difference2 ****
      >                                    move,fmeta)
 
 c              **** update ztamd and vztamd ****
-               if (.not.zfixed)
-     >            call tamd_zupdate(dt,gam,k,mz,ztemp,r(d),
+               if (.not.zfixed) then
+                  call tamd_zupdate(dt,gam,k,mz,ztemp,r(d),
      >                              ztamd(d),vztamd(d))
+                  p = int_mb(pmeta(1)+d-1)
+                  a = dbl_mb(ameta(1)+d-1)
+                  b = dbl_mb(bmeta(1)+d-1)
+                  if (ztamd(d).lt.a) ztamd(d) = a + p*(b-a)
+                  if (ztamd(d).gt.b) ztamd(d) = b + p*(a-b)
+               end if
             end do
 
          end if
@@ -2132,11 +2155,23 @@ c               close(53)
             zz = zave(i)/dble(count)
             if (ntype.eq.1) then
                write(luout,120) indx(s1+1),indx(s1+2),z(i),zz,k(i),
-     >                           f,fdelta(i),ff-f*f
+     >                          f,fdelta(i),ff-f*f
+            else if (ntype.eq.2) then
+               write(luout,220) indx(s1+1),indx(s1+2),indx(s1+3),
+     >                          z(i),zz,k(i),
+     >                          f,fdelta(i),ff-f*f
+            else if (ntype.eq.3) then
+               write(luout,320) indx(s1+1),indx(s1+2),
+     >                          indx(s1+3),indx(s1+4),
+     >                          z(i),zz,k(i),
+     >                          f,fdelta(i),ff-f*f
+            else if (ntype.eq.4) then
+               write(luout,420) z(i),zz,k(i),
+     >                          f,fdelta(i),ff-f*f
             else if (ntype.eq.12) then
                call nwpw_expression_eqnstring(rtdb,indx(s1+1),eqnstring)
                write(luout,720) trim(eqnstring),z(i),zz,k(i),
-     >                           f,fdelta(i),ff-f*f
+     >                          f,fdelta(i),ff-f*f
             end if
          end do
          write(luout,*)
@@ -2153,7 +2188,24 @@ c               close(53)
   113    format(1x,'number of dimensions  =',I8)
   114 format(1x,'TAMD Force =',99e14.6)
   120 format(1x,'atoms=',I5,I5,
-     >          1x,'dist=',E10.3,' (dave=',E10.3,')',
+     >          1x,'dist=',E10.3,' (ave dist=',E10.3,')',
+     >          1x,'k=',E10.3,
+     >          3x,'<F>=',E14.6,
+     >          2x,'Delta <F>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+  220 format(1x,'atoms=',I5,I5,I5,
+     >          1x,'angle=',E10.3,' (ave angle=',E10.3,')',
+     >          1x,'k=',E10.3,
+     >          3x,'<F>=',E14.6,
+     >          2x,'Delta <F>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+  320 format(1x,'atoms=',I5,I5,I5,I5,
+     >          1x,'dihedral=',E10.3,' (ave dihedral=',E10.3,')',
+     >          1x,'k=',E10.3,
+     >          3x,'<F>=',E14.6,
+     >          2x,'Delta <F>=',E14.6,
+     >          1x,'(<F**2>-<F>**2=',E10.3,')')
+  420 format(1x,'coord_num=',E10.3,' (ave coord_num=',E10.3,')',
      >          1x,'k=',E10.3,
      >          3x,'<F>=',E14.6,
      >          2x,'Delta <F>=',E14.6,
