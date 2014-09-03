@@ -1405,11 +1405,15 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
          LINUXCPU = $(shell uname -m |\
                  awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"} ' )
 
+     GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
+
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
+  ifneq ($(GOTMINGW32),1)
    EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl -lsysfs
+  endif
 endif
 
   DEFINES = -DLINUX
@@ -1455,7 +1459,6 @@ ifeq ($(LINUXCPU),x86)
     endif
 endif
 
-     GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
     ifeq ($(GOTMINGW32),1)
         _CPU=i786
     else
@@ -2524,7 +2527,11 @@ endif
 ifdef USE_PYTHON64
 	CORE_LIBS += $(PYTHONHOME)/lib64/python$(PYTHONVERSION)/$(PYTHONCONFIGDIR)/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
 else
+  ifeq ($(GOTMINGW32),1)
+  CORE_LIBS += $(PYTHONHOME)/libs/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
+  else
   CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/$(PYTHONCONFIGDIR)/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
+  endif
 endif
 endif
 #

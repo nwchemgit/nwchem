@@ -9,18 +9,18 @@
 #define FATR
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
 #endif
-#ifndef WIN32
-#include <unistd.h>
-#else
+#if defined(WIN32) && !defined(__MINGW32)
 #include "typesf2c.h"
+#else
+#include <unistd.h>
 #endif
 
-#if defined(CRAY_T3E)  || defined(WIN32)
+#if (defined(CRAY_T3E)  || defined(WIN32)) && !defined(__MINGW32__)
 #define nw_inp_from_file_ NW_INP_FROM_FILE
 #define util_sgroup_mygroup_ UTIL_SGROUP_MYGROUP
 #endif
 
-#if defined(CRAY_T3E) || defined(USE_FCD) || defined(WIN32)
+#if (defined(CRAY_T3E) || defined(USE_FCD) || defined(WIN32)) && !defined(__MINGW32__)
 extern Integer FATR nw_inp_from_file_(Integer *rtdb, _fcd filename);
 #else
 extern Integer FATR nw_inp_from_file_(Integer *rtdb, char *filename, int flen);
@@ -31,7 +31,7 @@ int nw_inp_from_string(Integer rtdb, const char *input)
 {
     char filename[30];
     FILE *file;
-#if defined(USE_FCD) || defined(CRAY_T3E) || defined(WIN32)
+#if (defined(USE_FCD) || defined(CRAY_T3E) || defined(WIN32)) && !defined(__MINGW32__)
     _fcd fstring;
 #else
     char fstring[255];
@@ -64,7 +64,7 @@ int nw_inp_from_string(Integer rtdb, const char *input)
 #if defined(CRAY_T3E)
       fstring = _cptofcd(filename, strlen(filename));
       status = nw_inp_from_file_(&rtdb, fstring);
-#elif defined(WIN32)
+#elif defined(WIN32) && !defined(__MINGW32__)
     fstring.string = filename;
     fstring.len = strlen(filename);
     status = nw_inp_from_file_(&rtdb, fstring);

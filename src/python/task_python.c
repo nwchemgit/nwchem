@@ -15,7 +15,7 @@ extern void initnwchem();
 extern void util_file_parallel_copy(const char *, const char *);
 
 
-#if defined(CRAY_T3E) || defined(CRAY_T3D)  || defined(WIN32)
+#if (defined(CRAY_T3E) || defined(CRAY_T3D)  || defined(WIN32)) && !defined(__MINGW32__)
 int FATR TASK_PYTHON(Integer *rtdb_ptr)
 #else
 int FATR task_python_(Integer *rtdb_ptr)
