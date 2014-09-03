@@ -12,7 +12,7 @@ $Id$
 #include "typesf2c.h"
 #include "olist.h"
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 #define hilbert2d_map_ HILBERT2D_MAP
 #endif
 
@@ -30,7 +30,7 @@ $Id$
 int     hilbert2d(int i, int j, int level);
 int     hilbert_dir(int i, int j, int level, int high, int* start);
 
-#if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
 #define pspsolve_ PSPSOLVE
 #endif
 

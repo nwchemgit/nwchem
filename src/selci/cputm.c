@@ -3,6 +3,7 @@
  */
 
 #include <sys/types.h>
+#include <stdio.h>
 #ifdef WIN32
 #include "typesf2c.h"
 #else
@@ -10,7 +11,7 @@
 #endif
 
 
-#if (defined(CRAY)&& !defined(__crayx1)) || defined(WIN32) 
+#if (defined(CRAY) || defined(WIN32))&& !defined(__crayx1) && !defined (__MINGW32__)
 #ifndef WIN32
 #define FATR
 #endif

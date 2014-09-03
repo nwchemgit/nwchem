@@ -546,7 +546,7 @@ static void ReadArguments(argc, argv, ns, multi, print)
      */
 #endif
 
-#if (defined(CRAY)&& !defined(__crayx1)) || defined(WIN32)
+#if (defined(CRAY) ||defined(WIN32))&& !defined(__crayx1) && !defined(__MINGW32__)
 void FATR SELCI_COUPLE(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)
 #else
 void FATR selci_couple_(Integer *pmulti, Integer *pns, Integer *pprint, char *pfilename, int flen)

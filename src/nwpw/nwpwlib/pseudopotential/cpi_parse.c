@@ -20,7 +20,7 @@ extern void   cpi_Spline();
 #endif
 #endif
 
-#if (defined(CRAY) &&!defined(__crayx1)) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
 #define cpi_parse_ CPI_PARSE
 #endif
 

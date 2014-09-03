@@ -896,7 +896,7 @@ double nwpw_fmachine(Integer i0, Integer ii0, Integer ln, Integer code[], double
  *                                                      *
  ********************************************************/
 
-#if (defined(CRAY) &&!defined(__crayx1)) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
 #define nwpw_emachine_parse_ nwpw_emachine_parse
 #endif
 
@@ -949,7 +949,7 @@ double fconst0[];
  *                                                      *
  ********************************************************/
 
-#if (defined(CRAY) &&!defined(__crayx1)) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
 #define nwpw_emachine_f_ nwpw_emachine_f
 #endif
 
@@ -991,7 +991,7 @@ double rion0[];
  *                                                      *
  ********************************************************/
 
-#if (defined(CRAY) &&!defined(__crayx1)) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
 #define nwpw_emachine_df_ nwpw_emachine_df
 #endif
 
