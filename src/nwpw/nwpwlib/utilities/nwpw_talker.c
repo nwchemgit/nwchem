@@ -9,10 +9,12 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
+#if !defined(__MINGW32__)
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#endif
 #include "typesf2c.h"
 
 
@@ -24,7 +26,7 @@
 #endif
 #endif
 
-#if (defined(CRAY) &&!defined(__crayx1)) || defined(CRAY_T3D) || defined(WIN32)
+#if (defined(CRAY)  || defined(CRAY_T3D) || defined(WIN32)) &&!defined(__crayx1) &&!defined(__MINGW32__)
 #define nwpw_talker_ nwpw_talker
 #endif
 
@@ -53,6 +55,10 @@ Integer	*n3;
 
 #endif
 
+#if defined(__MINGW32__)
+        perror("talker: not coded for this architecture");
+        exit(1);
+#else
     int sockfd;
     struct addrinfo hints, *servinfo, *p;
     int rv;
@@ -92,6 +98,7 @@ Integer	*n3;
 
     printf("nwpw_talker: sent %d bytes to %s:%s\n", numbytes, addr_name,port_name);
     close(sockfd);
+#endif
 
 }
 

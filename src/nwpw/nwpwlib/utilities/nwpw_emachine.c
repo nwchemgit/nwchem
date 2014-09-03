@@ -9,10 +9,12 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/types.h>
+#if !defined(__MINGW32__)
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#endif
 #include "typesf2c.h"
 
 #include        <ctype.h>
