@@ -1,12 +1,5 @@
+ argument  1 = aump2.nw
  
-Processor list
- 
-cu05n[185-186]
- 
-ARMCI configured for 2 cluster nodes. Network protocol is 'OpenIB Verbs API'.
-All connections between all procs tested: SUCCESS
- argument  1 = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/aump2/aump2.nw
-
 
 
 ============================== echo of input deck ==============================
@@ -129,26 +122,26 @@ task ccsd(t)     # Perform a single point CCSD(T) calculation
 
                                          
                                          
-
-
-              Northwest Computational Chemistry Package (NWChem) 6.0
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 6.5
               ------------------------------------------------------
-
-
+ 
+ 
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
-
-                              Copyright (c) 1994-2010
+ 
+                              Copyright (c) 1994-2014
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
-
+ 
              NWChem is an open-source computational chemistry package
                         distributed under the terms of the
                       Educational Community License (ECL) 2.0
              A copy of the license is included with this distribution
                               in the LICENSE.TXT file
-
+ 
                                   ACKNOWLEDGMENT
                                   --------------
 
@@ -164,64 +157,66 @@ task ccsd(t)     # Perform a single point CCSD(T) calculation
            Job information
            ---------------
 
-    hostname      = cu5n185
-    program       = /scratch/nwchem
-    date          = Fri Oct 29 11:28:07 2010
+    hostname        = moser
+    program         = /home/edo/nwchem-6.5/bin/LINUX64/nwchem
+    date            = Thu Sep  4 10:24:48 2014
 
-    compiled      = Thu_Oct_28_07:10:53_2010
-    source        = /home/scicons/user/kurt/nwchem-6.0-release-pgf90-final/
-    nwchem branch = 6.0
-    input         = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/aump2/aump2.nw
-    prefix        = Au+.
-    data base     = ./Au+.db
-    status        = startup
-    nproc         =        8
-    time left     = 107963s
+    compiled        = Thu_Aug_28_21:54:58_2014
+    source          = /home/edo/nwchem-6.5
+    nwchem branch   = 6.5
+    nwchem revision = 26025
+    ga revision     = 10501
+    input           = aump2.nw
+    prefix          = Au+.
+    data base       = ./Au+.db
+    status          = startup
+    nproc           =        2
+    time left       =     -1s
 
 
 
            Memory information
            ------------------
 
-    heap     =  104857601 doubles =    800.0 Mbytes
-    stack    =  104857601 doubles =    800.0 Mbytes
-    global   =  209715200 doubles =   1600.0 Mbytes (distinct from heap & stack)
-    total    =  419430402 doubles =   3200.0 Mbytes
+    heap     =   13107200 doubles =    100.0 Mbytes
+    stack    =   13107197 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
     verify   = yes
     hardfail = no 
 
 
            Directory information
            ---------------------
-
+ 
   0 permanent = .
   0 scratch   = .
-
-
-
-
+ 
+ 
+ 
+ 
                                 NWChem Input Module
                                 -------------------
-
-
+ 
+ 
                Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
                -----------------------------------------------------
-
-
+ 
+ 
                              Geometry "geometry" -> ""
                              -------------------------
-
+ 
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
-
+ 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 Au                  79.0000     0.00000000     0.00000000     0.00000000
-
+ 
       Atomic Mass 
       ----------- 
-
+ 
       Au               196.966600
-
+ 
 
  Effective nuclear repulsion energy (a.u.)       0.0000000000
 
@@ -230,33 +225,31 @@ task ccsd(t)     # Perform a single point CCSD(T) calculation
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
-
+ 
       Symmetry information
       --------------------
-
+ 
  Group name             D2h       
  Group number             26
  Group order               8
  No. of unique centers     1
-
+ 
       Symmetry unique atoms
-
+ 
      1
-
-
+ 
+ 
             XYZ format geometry
             -------------------
      1
  geometry
  Au                    0.00000000     0.00000000     0.00000000
-
+ 
   library name resolved from: environment
-  library file name is: <
- /mscf/scicons/apps/nwchem-6.0.oct19//src/basis/libraries/>
+  library file name is: </usr/share/nwchem/libraries/>
   
   library name resolved from: environment
-  library file name is: <
- /mscf/scicons/apps/nwchem-6.0.oct19//src/basis/libraries/>
+  library file name is: </usr/share/nwchem/libraries/>
   
                  ECP       "ecp basis" -> "" (spherical)
                 -----
@@ -266,23 +259,23 @@ task ccsd(t)     # Perform a single point CCSD(T) calculation
          ------------ ---------------------------------------------------------
   1 U-s      2.00       13.205100     426.709840
   1 U-s      2.00        6.602550      35.938820
-
+ 
   2 U-p      2.00       10.452020     261.161020
   2 U-p      2.00        5.226010      26.626280
-
+ 
   3 U-d      2.00        7.851100     124.756830
   3 U-d      2.00        3.925550      15.772260
-
+ 
   4 U-f      2.00        4.789800      30.568470
   4 U-f      2.00        2.394910       5.183770
-
+ 
                                  NWChem SCF Module
                                  -----------------
-
-
+ 
+ 
                Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
-
-
+ 
+ 
 
   ao basis        = "ao basis"
   functions       =   131
@@ -306,7 +299,7 @@ task ccsd(t)     # Perform a single point CCSD(T) calculation
 
       Symmetry analysis of basis
       --------------------------
-
+ 
         ag         33
         au          5
         b1g        12
@@ -315,52 +308,52 @@ task ccsd(t)     # Perform a single point CCSD(T) calculation
         b2u        19
         b3g        12
         b3u        19
+ 
 
+ Forming initial guess at       0.3s
 
- Forming initial guess at       2.5s
-
-
+ 
       Superposition of Atomic Density Guess
       -------------------------------------
-
- Sum of atomic energies:        -159.23231676
+ 
+ Sum of atomic energies:        -152.70213399
 
  Renormalizing density from      19.00 to     18
-
+ 
       Non-variational initial energy
       ------------------------------
 
- Total energy =     391.648825
- 1-e energy   =     307.244015
- 2-e energy   =      84.404810
- HOMO         =      -1.968381
- LUMO         =      -1.539365
-
-
+ Total energy =    -132.677517
+ 1-e energy   =    -224.969612
+ 2-e energy   =      92.292095
+ HOMO         =      -1.065906
+ LUMO         =      -0.690489
+ 
+ 
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
+ 
 
-
- !! scf_movecs_sym_adapt:  120 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:  116 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:   45 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   95 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
-
+ 
      1 ag          2 au          3 b1g         4 b1u         5 b2g     
      6 b2u         7 b3g         8 b3u     
-
+ 
   Orbital symmetries:
-
-     1 ag          2 b2u         3 b3u         4 b1u         5 b1g     
-     6 b2g         7 b3g         8 ag          9 ag         10 ag      
+ 
+     1 ag          2 b3u         3 b1u         4 b2u         5 b1g     
+     6 ag          7 ag          8 b2g         9 b3g        10 ag      
     11 b3u        12 b2u        13 b1u        14 ag         15 b1u     
-    16 b3u        17 b2u        18 b3u        19 b2u     
+    16 b2u        17 b3u        18 b1g        19 ag      
+ 
 
-
- Starting SCF solution at       3.3s
+ Starting SCF solution at       1.7s
 
 
 
@@ -375,54 +368,52 @@ task ccsd(t)     # Perform a single point CCSD(T) calculation
 
  Integral file          = ./Au+.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     25        Max. records in file   = 169374
+ Max. records in memory =     96        Max. records in file   =   9163
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- #quartets = 1.988D+05 #integrals = 3.639D+06 #direct =  0.0% #cached =100.0%
+ #quartets = 1.988D+05 #integrals = 3.637D+06 #direct =  0.0% #cached =100.0%
 
 
-File balance: exchanges=     3  moved=     9  time=   0.0
+File balance: exchanges=     1  moved=    13  time=   0.0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -133.7092970344  7.88D+00  2.53D+00      4.0
-                 2     -134.5793041005  1.21D+00  3.22D-01      4.1
-                 3     -134.6756546770  6.02D-01  1.69D-01      4.1
-                 4     -134.6819881539  2.12D-01  5.47D-02      4.3
-                 5     -134.6843317661  5.67D-03  1.59D-03      4.5
-                 6     -134.6843340439  9.02D-06  2.81D-06      4.7
-                 7     -134.6843340439  1.23D-08  2.97D-09      4.9
+                 1     -134.4929368359  2.43D+00  5.95D-01      4.8
+                 2     -134.6756063375  4.21D-01  1.13D-01      4.9
+                 3     -134.6837419679  1.54D-01  4.38D-02      5.0
+                 4     -134.6843339171  1.68D-03  3.81D-04      5.3
+                 5     -134.6843340439  1.63D-07  4.56D-08      5.5
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -134.684334043875
-      One-electron energy =   -233.466922645236
-      Two-electron energy =     98.782588601361
+         Total SCF energy =   -134.684334043864
+      One-electron energy =   -233.466922512879
+      Two-electron energy =     98.782588469015
  Nuclear repulsion energy =      0.000000000000
 
-        Time for solution =      2.9s
+        Time for solution =      4.1s
 
 
-
+ 
        Symmetry analysis of molecular orbitals - final
        -----------------------------------------------
-
+ 
   Numbering of irreducible representations: 
-
+ 
      1 ag          2 au          3 b1g         4 b1u         5 b2g     
      6 b2u         7 b3g         8 b3u     
-
+ 
   Orbital symmetries:
-
-     1 ag          2 b3u         3 b2u         4 b1u         5 b1g     
-     6 ag          7 b3g         8 b2g         9 ag         10 ag      
-    11 b2u        12 b3u        13 b1u        14 ag         15 b3g     
+ 
+     1 ag          2 b2u         3 b3u         4 b1u         5 ag      
+     6 b1g         7 b3g         8 b2g         9 ag         10 ag      
+    11 b3u        12 b2u        13 b1u        14 ag         15 b3g     
     16 b2g        17 b1g        18 ag         19 ag      
-
+ 
              Final eigenvalues
              -----------------
 
@@ -446,231 +437,231 @@ File balance: exchanges=     3  moved=     9  time=   0.0
    17   -0.0460
    18   -0.0460
    19   -0.0460
-
+ 
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
-
- Vector    2  Occ=2.000000D+00  E=-3.036992D+00  Symmetry=b3u
-              MO Center=  8.6D-17, -2.7D-32,  8.0D-34, r^2= 3.8D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.691291  1 Au px                18     -0.358797  1 Au px         
-    21      0.309698  1 Au px                27      0.220256  1 Au px         
-
- Vector    3  Occ=2.000000D+00  E=-3.036992D+00  Symmetry=b2u
-              MO Center= -5.5D-33,  1.2D-16,  1.2D-32, r^2= 3.8D-01
+ 
+ Vector    2  Occ=2.000000D+00  E=-3.036992D+00  Symmetry=b2u
+              MO Center= -3.1D-32,  7.4D-17, -2.5D-32, r^2= 3.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     25      0.691291  1 Au py                19     -0.358797  1 Au py         
     22      0.309698  1 Au py                28      0.220256  1 Au py         
-
+ 
+ Vector    3  Occ=2.000000D+00  E=-3.036992D+00  Symmetry=b3u
+              MO Center= -3.8D-17, -1.1D-32,  3.2D-34, r^2= 3.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.691291  1 Au px                18     -0.358797  1 Au px         
+    21      0.309698  1 Au px                27      0.220256  1 Au px         
+ 
  Vector    4  Occ=2.000000D+00  E=-3.036992D+00  Symmetry=b1u
-              MO Center=  6.4D-32,  8.0D-34, -3.0D-16, r^2= 3.8D-01
+              MO Center= -1.1D-32, -1.0D-31, -1.6D-16, r^2= 3.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     26      0.691291  1 Au pz                20     -0.358797  1 Au pz         
     23      0.309698  1 Au pz                29      0.220256  1 Au pz         
-
- Vector    5  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=b1g
-              MO Center=  3.0D-33,  1.1D-32, -1.6D-33, r^2= 8.0D-01
+ 
+ Vector    5  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=ag
+              MO Center=  4.2D-20, -1.2D-20, -2.6D-22, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    61      0.500456  1 Au d  2              66      0.345318  1 Au d  2       
+    56      0.273448  1 Au d  2       
+ 
+ Vector    6  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=b1g
+              MO Center= -9.0D-31, -4.9D-31,  1.6D-33, r^2= 8.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     57      0.500457  1 Au d -2              62      0.345319  1 Au d -2       
     52      0.273449  1 Au d -2       
-
- Vector    6  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=ag
-              MO Center= -1.6D-28, -2.4D-28,  6.1D-30, r^2= 8.0D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    61      0.500418  1 Au d  2              66      0.345292  1 Au d  2       
-    56      0.273427  1 Au d  2       
-
+ 
  Vector    7  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=b3g
-              MO Center= -3.2D-33,  6.9D-32, -2.4D-32, r^2= 8.0D-01
+              MO Center= -1.8D-33, -7.2D-31, -2.9D-30, r^2= 8.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     58      0.500457  1 Au d -1              63      0.345319  1 Au d -1       
     53      0.273449  1 Au d -1       
-
+ 
  Vector    8  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=b2g
-              MO Center=  1.3D-32, -9.3D-36,  5.1D-34, r^2= 8.0D-01
+              MO Center=  4.1D-31,  2.0D-33,  1.7D-30, r^2= 8.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     60      0.500457  1 Au d  1              65      0.345319  1 Au d  1       
     55      0.273449  1 Au d  1       
-
+ 
  Vector    9  Occ=2.000000D+00  E=-7.663507D-01  Symmetry=ag
-              MO Center=  1.2D-26, -9.6D-27, -3.8D-26, r^2= 8.0D-01
+              MO Center=  9.1D-18,  2.7D-18, -3.9D-19, r^2= 8.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    59      0.500418  1 Au d  0              64      0.345292  1 Au d  0       
-    54      0.273427  1 Au d  0       
-
+    59      0.500456  1 Au d  0              64      0.345318  1 Au d  0       
+    54      0.273448  1 Au d  0       
+ 
  Vector   10  Occ=0.000000D+00  E=-2.737631D-01  Symmetry=ag
-              MO Center=  3.0D-15,  2.2D-15, -2.3D-15, r^2= 3.2D+00
+              MO Center=  2.8D-15,  1.9D-15, -5.1D-16, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      0.534858  1 Au s                  8      0.451885  1 Au s          
      4     -0.439693  1 Au s                  2      0.338801  1 Au s          
      5     -0.179639  1 Au s                  6      0.170929  1 Au s          
-
- Vector   11  Occ=0.000000D+00  E=-1.240633D-01  Symmetry=b2u
-              MO Center= -2.2D-29, -4.2D-14,  6.5D-31, r^2= 9.0D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    37      0.475151  1 Au py                40      0.326236  1 Au py         
-    34      0.273921  1 Au py         
-
- Vector   12  Occ=0.000000D+00  E=-1.240633D-01  Symmetry=b3u
-              MO Center= -3.7D-14, -2.0D-29, -3.8D-29, r^2= 9.0D+00
+ 
+ Vector   11  Occ=0.000000D+00  E=-1.240633D-01  Symmetry=b3u
+              MO Center=  1.3D-14,  4.3D-29, -3.8D-29, r^2= 9.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     36      0.475151  1 Au px                39      0.326236  1 Au px         
     33      0.273921  1 Au px         
-
+ 
+ Vector   12  Occ=0.000000D+00  E=-1.240633D-01  Symmetry=b2u
+              MO Center= -4.7D-29, -2.5D-14,  2.8D-28, r^2= 9.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    37      0.475151  1 Au py                40      0.326236  1 Au py         
+    34      0.273921  1 Au py         
+ 
  Vector   13  Occ=0.000000D+00  E=-1.240633D-01  Symmetry=b1u
-              MO Center=  2.9D-29, -5.9D-31,  2.4D-14, r^2= 9.0D+00
+              MO Center= -1.1D-28, -7.9D-28,  4.9D-14, r^2= 9.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     38      0.475151  1 Au pz                41      0.326236  1 Au pz         
     35      0.273921  1 Au pz         
-
+ 
  Vector   14  Occ=0.000000D+00  E=-8.315755D-02  Symmetry=ag
-              MO Center=  2.2D-13,  2.1D-13, -2.3D-13, r^2= 2.7D+01
+              MO Center= -9.1D-14,  1.0D-13, -2.6D-13, r^2= 2.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.989237  1 Au s                  8     -0.568065  1 Au s          
      7     -0.281727  1 Au s                  9      0.247978  1 Au s          
      4      0.157285  1 Au s          
-
+ 
  Vector   15  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=b3g
-              MO Center= -1.1D-32,  2.9D-27, -3.5D-27, r^2= 2.1D+01
+              MO Center=  3.9D-34, -2.2D-29, -2.2D-29, r^2= 2.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     78      1.035266  1 Au d -1       
-
+ 
  Vector   16  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=b2g
-              MO Center=  2.2D-27,  5.7D-34, -2.6D-27, r^2= 2.1D+01
+              MO Center= -2.7D-30,  2.7D-34, -6.8D-30, r^2= 2.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     80      1.035266  1 Au d  1       
-
+ 
  Vector   17  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=b1g
-              MO Center= -1.6D-27, -1.6D-27,  2.2D-33, r^2= 2.1D+01
+              MO Center=  5.3D-30,  1.2D-29, -3.4D-33, r^2= 2.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     77      1.035266  1 Au d -2       
-
+ 
  Vector   18  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=ag
-              MO Center= -1.9D-26,  9.2D-27,  7.1D-31, r^2= 2.1D+01
+              MO Center= -2.6D-22,  7.8D-23,  2.7D-24, r^2= 2.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     81      1.035266  1 Au d  2       
-
+ 
  Vector   19  Occ=0.000000D+00  E=-4.596356D-02  Symmetry=ag
-              MO Center= -3.9D-26, -1.2D-25, -1.5D-25, r^2= 2.1D+01
+              MO Center= -1.9D-17, -5.8D-18,  6.6D-19, r^2= 2.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     79      1.035266  1 Au d  0       
-
+ 
  Vector   20  Occ=0.000000D+00  E=-4.114152D-02  Symmetry=ag
-              MO Center= -1.4D-13, -3.5D-14,  1.1D-13, r^2= 9.0D+01
+              MO Center=  7.4D-14,  6.7D-14,  2.4D-14, r^2= 9.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      2.625479  1 Au s                 11     -2.483015  1 Au s          
      8     -0.295336  1 Au s                  7     -0.274571  1 Au s          
-
+ 
  Vector   21  Occ=0.000000D+00  E=-4.037265D-02  Symmetry=b3u
-              MO Center= -2.1D-13, -6.2D-28, -1.2D-27, r^2= 2.6D+01
+              MO Center=  3.7D-14, -9.9D-29, -8.1D-29, r^2= 2.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     39      1.704342  1 Au px                36     -1.480350  1 Au px         
     30     -0.204256  1 Au px         
-
+ 
  Vector   22  Occ=0.000000D+00  E=-4.037265D-02  Symmetry=b2u
-              MO Center= -6.7D-28, -1.8D-13,  1.6D-29, r^2= 2.6D+01
+              MO Center=  1.1D-28, -1.1D-13,  1.1D-27, r^2= 2.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     40      1.704342  1 Au py                37     -1.480350  1 Au py         
     31     -0.204256  1 Au py         
-
+ 
  Vector   23  Occ=0.000000D+00  E=-4.037265D-02  Symmetry=b1u
-              MO Center=  9.1D-28, -9.5D-30,  2.3D-13, r^2= 2.6D+01
+              MO Center= -2.0D-28, -2.9D-27,  2.0D-13, r^2= 2.6D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     41      1.704342  1 Au pz                38     -1.480350  1 Au pz         
     32     -0.204256  1 Au pz         
-
+ 
  Vector   24  Occ=0.000000D+00  E= 1.843183D-03  Symmetry=ag
-              MO Center=  2.5D-13,  3.8D-14, -3.7D-13, r^2= 6.3D+01
+              MO Center=  1.2D-13,  1.9D-13, -1.2D-13, r^2= 6.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      8.129307  1 Au s                 10     -7.410495  1 Au s          
      8     -3.954529  1 Au s                 11      2.790947  1 Au s          
      7      0.778871  1 Au s                  6     -0.513723  1 Au s          
      5      0.275756  1 Au s          
-
+ 
  Vector   25  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=b3g
-              MO Center= -5.4D-33, -2.7D-28,  1.7D-28, r^2= 1.5D+01
+              MO Center=  1.0D-32,  6.6D-30,  6.2D-28, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     73      1.754774  1 Au d -1              78     -1.130510  1 Au d -1       
     68     -0.375168  1 Au d -1       
-
+ 
  Vector   26  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=b2g
-              MO Center=  3.3D-29,  5.6D-33,  3.4D-28, r^2= 1.5D+01
+              MO Center= -3.3D-29,  1.3D-33, -5.7D-28, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     75      1.754774  1 Au d  1              80     -1.130510  1 Au d  1       
     70     -0.375168  1 Au d  1       
-
- Vector   27  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=b1g
-              MO Center=  1.4D-28,  1.1D-28,  9.7D-34, r^2= 1.5D+01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    72      1.754774  1 Au d -2              77     -1.130510  1 Au d -2       
-    67     -0.375168  1 Au d -2       
-
- Vector   28  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=ag
-              MO Center= -3.1D-26,  2.8D-27,  5.0D-30, r^2= 1.5D+01
+ 
+ Vector   27  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=ag
+              MO Center= -5.1D-20,  1.6D-20, -9.1D-23, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     76      1.754774  1 Au d  2              81     -1.130510  1 Au d  2       
     71     -0.375168  1 Au d  2       
-
+ 
+ Vector   28  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=b1g
+              MO Center=  2.8D-28,  1.8D-28,  1.6D-33, r^2= 1.5D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    72      1.754774  1 Au d -2              77     -1.130510  1 Au d -2       
+    67     -0.375168  1 Au d -2       
+ 
  Vector   29  Occ=0.000000D+00  E= 7.575540D-02  Symmetry=ag
-              MO Center=  1.2D-25,  4.9D-26,  2.9D-25, r^2= 1.5D+01
+              MO Center= -2.7D-15, -8.5D-16,  1.5D-16, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     74      1.754774  1 Au d  0              79     -1.130510  1 Au d  0       
     69     -0.375168  1 Au d  0       
-
+ 
  Vector   30  Occ=0.000000D+00  E= 1.134408D-01  Symmetry=b3u
-              MO Center= -1.0D-13, -5.4D-29, -5.3D-29, r^2= 1.5D+01
+              MO Center= -1.5D-13,  1.4D-28, -9.7D-29, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     36      3.449203  1 Au px                33     -2.928930  1 Au px         
     39     -1.465915  1 Au px                30      0.678850  1 Au px         
     24      0.293066  1 Au px                27     -0.224024  1 Au px         
-
+ 
  Vector   31  Occ=0.000000D+00  E= 1.134408D-01  Symmetry=b2u
-              MO Center= -1.7D-29, -4.2D-15,  4.7D-30, r^2= 1.5D+01
+              MO Center=  1.5D-28, -2.2D-13,  3.3D-28, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     37      3.449203  1 Au py                34     -2.928930  1 Au py         
     40     -1.465915  1 Au py                31      0.678850  1 Au py         
     25      0.293066  1 Au py                28     -0.224024  1 Au py         
-
+ 
  Vector   32  Occ=0.000000D+00  E= 1.134408D-01  Symmetry=b1u
-              MO Center=  2.1D-28,  1.7D-29,  2.1D-13, r^2= 1.5D+01
+              MO Center= -1.5D-29,  3.9D-29,  9.0D-14, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     38      3.449203  1 Au pz                35     -2.928930  1 Au pz         
     41     -1.465915  1 Au pz                32      0.678850  1 Au pz         
     26      0.293066  1 Au pz                29     -0.224024  1 Au pz         
-
+ 
  Vector   33  Occ=0.000000D+00  E= 1.657851D-01  Symmetry=ag
-              MO Center=  3.9D-14,  2.9D-14, -2.8D-14, r^2= 2.2D+01
+              MO Center=  1.0D-14, -5.3D-15, -1.7D-14, r^2= 2.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8     11.273819  1 Au s                  9     -9.477172  1 Au s          
@@ -678,53 +669,53 @@ File balance: exchanges=     3  moved=     9  time=   0.0
      6      2.351631  1 Au s                 11     -1.378540  1 Au s          
      5     -0.762507  1 Au s                  4      0.701169  1 Au s          
      2     -0.194479  1 Au s          
-
- Vector   34  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b1g
-              MO Center=  2.4D-29,  1.6D-28, -1.2D-32, r^2= 7.0D+00
+ 
+ Vector   34  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=ag
+              MO Center=  1.7D-19, -5.7D-20, -4.0D-22, r^2= 7.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    67      2.204840  1 Au d -2              72     -1.705735  1 Au d -2       
-    62     -0.753111  1 Au d -2              77      0.618145  1 Au d -2       
-    52     -0.181088  1 Au d -2       
-
- Vector   35  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=ag
-              MO Center= -1.8D-26,  2.2D-27,  3.3D-29, r^2= 7.0D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    71      2.204838  1 Au d  2              76     -1.705733  1 Au d  2       
-    66     -0.753110  1 Au d  2              81      0.618144  1 Au d  2       
+    71      2.204840  1 Au d  2              76     -1.705734  1 Au d  2       
+    66     -0.753111  1 Au d  2              81      0.618145  1 Au d  2       
     56     -0.181088  1 Au d  2       
-
- Vector   36  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b3g
-              MO Center= -2.5D-33, -9.8D-28, -3.4D-29, r^2= 7.0D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    68      2.204840  1 Au d -1              73     -1.705735  1 Au d -1       
-    63     -0.753111  1 Au d -1              78      0.618145  1 Au d -1       
-    53     -0.181088  1 Au d -1       
-
- Vector   37  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b2g
-              MO Center= -5.8D-28, -6.0D-33,  3.7D-28, r^2= 7.0D+00
+ 
+ Vector   35  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b2g
+              MO Center=  2.3D-30,  5.3D-32,  4.3D-29, r^2= 7.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     70      2.204840  1 Au d  1              75     -1.705735  1 Au d  1       
     65     -0.753111  1 Au d  1              80      0.618145  1 Au d  1       
     55     -0.181088  1 Au d  1       
-
+ 
+ Vector   36  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b3g
+              MO Center= -4.6D-32, -2.6D-29, -1.7D-29, r^2= 7.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    68      2.204840  1 Au d -1              73     -1.705735  1 Au d -1       
+    63     -0.753111  1 Au d -1              78      0.618145  1 Au d -1       
+    53     -0.181088  1 Au d -1       
+ 
+ Vector   37  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=b1g
+              MO Center=  5.1D-31, -1.7D-29,  6.1D-32, r^2= 7.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    67      2.204840  1 Au d -2              72     -1.705735  1 Au d -2       
+    62     -0.753111  1 Au d -2              77      0.618145  1 Au d -2       
+    52     -0.181088  1 Au d -2       
+ 
  Vector   38  Occ=0.000000D+00  E= 4.669842D-01  Symmetry=ag
-              MO Center=  8.0D-26, -3.4D-27,  2.5D-25, r^2= 7.0D+00
+              MO Center=  2.0D-16,  6.9D-17, -5.8D-18, r^2= 7.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    69      2.204838  1 Au d  0              74     -1.705733  1 Au d  0       
-    64     -0.753110  1 Au d  0              79      0.618144  1 Au d  0       
+    69      2.204840  1 Au d  0              74     -1.705734  1 Au d  0       
+    64     -0.753111  1 Au d  0              79      0.618145  1 Au d  0       
     54     -0.181088  1 Au d  0       
-
+ 
  Vector   39  Occ=0.000000D+00  E= 5.011874D-01  Symmetry=b2u
-              MO Center= -2.3D-32,  8.9D-33,  1.6D-34, r^2= 3.0D+00
+              MO Center=  5.5D-32, -5.0D-20, -2.1D-33, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    96      0.997349  1 Au f -3       
-
+    96      0.996874  1 Au f -3       
+ 
 
  center of mass
  --------------
@@ -735,43 +726,43 @@ File balance: exchanges=     3  moved=     9  time=   0.0
            0.000000000000           0.000000000000           0.000000000000
            0.000000000000           0.000000000000           0.000000000000
            0.000000000000           0.000000000000           0.000000000000
-
+ 
   Mulliken analysis of the total density
   --------------------------------------
 
     Atom       Charge   Shell Charges
  -----------   ------   -------------------------------------------------------
-    1 Au  19    18.00   0.05 -0.52  0.33  1.71  0.42  0.02 -0.01  0.00  0.00  0.00  0.00  0.00  0.03 -0.68  1.34  4.07  1.16  0.09 -0.01  0.00  0.00  0.00 -0.25  1.86  4.77
-  2.97  0.64  0.00  0.00  0.00  0.00  0.00  0.00  0.00  0.00
-
+    1 Au  19    18.00   0.05 -0.52  0.33  1.71  0.42  0.02 -0.01  0.00 -0.00  0.00 -0.00 -0.00  0.03 -0.68  1.34  4.07  1.16  0.09 -0.01  0.00 -0.00  0.00 -0.25  1.86  4.77
+  2.97  0.64  0.00  0.00  0.00 -0.00  0.00  0.00  0.00  0.00
+ 
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
-
+ 
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      1.000000      0.000000     19.000000
-
+ 
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
-     1   0 0 1      0.000000      0.000000      0.000000
-
+     1   0 0 1     -0.000000      0.000000      0.000000
+ 
      2   2 0 0    -12.935383      0.000000      0.000000
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0    -12.935383      0.000000      0.000000
-     2   0 1 1      0.000000      0.000000      0.000000
+     2   0 1 1     -0.000000      0.000000      0.000000
      2   0 0 2    -12.935383      0.000000      0.000000
+ 
 
-
- Parallel integral file used      88 records with       0 large values
+ Parallel integral file used      84 records with       0 large values
 
                    NWChem MP2 Semi-direct Energy/Gradient Module
                    ---------------------------------------------
-
-
+ 
+ 
                Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
-
-
+ 
+ 
   Basis functions       =    131
   Molecular orbitals    =    131
   Frozen core           =      0
@@ -788,57 +779,69 @@ File balance: exchanges=     3  moved=     9  time=   0.0
  GA uses MA = F    GA memory limited = T
 
  Available: 
-  local mem=  2.10D+08
- global mem=  2.10D+08
- local disk=  1.17D+10
-   1 passes of   9:        7033880                     139890                   1278745.
-
- Semi-direct pass number   1 of   1  for RHF alpha+beta  at        8.8s
-Node 0 wrote     10.0 Mb in      0.0 s     Agg I/O rate: 47935.8 Mb/s
- Done moints_semi at       12.9s
- Done maket at       13.2s
- Done multipass loop at       13.2s
+  local mem=  2.61D+07
+ global mem=  2.62D+07
+ local disk=  6.32D+08
+   1 passes of   9:        7646941                     153019                   4850408.
+ 
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        6.9s
+Node 0 wrote     38.0 Mb in      0.0 s     Agg I/O rate:  5453.0 Mb/s
+ Done moints_semi at       16.3s
+ Done maket at       18.0s
+ Done multipass loop at       18.0s
 
 
           -------------------------------------------
-          SCF energy                -134.684334043875
-          Correlation energy          -0.677993809110
-          Singlet pairs               -0.368808469862
-          Triplet pairs               -0.309185339248
-          Total MP2 energy          -135.362327852984
+          SCF energy                -134.684334043864
+          Correlation energy          -0.677993809583
+          Singlet pairs               -0.368808470147
+          Triplet pairs               -0.309185339435
+          Total MP2 energy          -135.362327853447
           -------------------------------------------
+
+
+
+          ---------------------------------------------------
+                    Spin Component Scaled (SCS) MP2
+          Same spin pairs                     -0.206123559623
+          Same spin scaling factor             0.333333333333
+          Opposite spin pairs                 -0.471870249959
+          Opposite spin scaling fact.          1.200000000000
+          SCS-MP2 correlation energy          -0.634952153159
+          Total SCS-MP2 energy              -135.319286197023
+          ---------------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  4.50D-06 seconds/call
+ Timer overhead =  1.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-mp2: moin     1     1     1    3.8     4.0     4.1      4.1     4.1     4.1     4.1      0.0     0.0     0.0   
-mp2: make     1     1     1   0.16    0.19    0.23     0.29    0.29    0.29    0.29      0.0     0.0     0.0   
-mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     5.7      0.0     0.0     0.0   
+mp2: moin     1     1     1    9.1     9.1     9.2      9.5     9.5     9.5     9.5      0.0     0.0     0.0   
+mp2: make     1     1     1    1.5     1.5     1.5      1.6     1.6     1.6     1.6      0.0     0.0     0.0   
+mp2: tota     1     1     1    11.     11.     11.      12.     12.     12.     12.      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 3.00D+00
- with a timing overhead of 1.35D-05s
+ with a timing overhead of 3.00D-07s
 
 
- Task  times  cpu:        9.5s     wall:       11.5s
-
-
+ Task  times  cpu:       17.2s     wall:       17.9s
+ 
+ 
                                 NWChem Input Module
                                 -------------------
-
-
+ 
+ 
                                  NWChem SCF Module
                                  -----------------
-
-
+ 
+ 
                Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
-
-
+ 
+ 
 
   ao basis        = "ao basis"
   functions       =   131
@@ -862,7 +865,7 @@ mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     
 
       Symmetry analysis of basis
       --------------------------
-
+ 
         ag         33
         au          5
         b1g        12
@@ -871,11 +874,11 @@ mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     
         b2u        19
         b3g        12
         b3u        19
-
+ 
 
   The SCF is already converged 
 
-         Total SCF energy =   -134.684334043875
+         Total SCF energy =   -134.684334043864
 
                           Direct MP2
                           ----------
@@ -890,32 +893,32 @@ mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     
           Use AO Integral blocking
           Twofold algorithm used
 
-     Pass:    1     Index range:    1  -    9     Time:      3.86
+     Pass:    1     Index range:    1  -    9     Time:      6.90
 
 
           -------------------------------------------
-          SCF energy                -134.684334043875
-          Correlation energy          -0.677993809110
-          Total MP2 energy          -135.362327852984
+          SCF energy                -134.684334043864
+          Correlation energy          -0.677993809583
+          Total MP2 energy          -135.362327853447
           -------------------------------------------
 
 
-          Total MP2 time:           4.17
+          Total MP2 time:           7.08
 
- Task  times  cpu:        4.2s     wall:        4.5s
-
-
+ Task  times  cpu:        7.1s     wall:        7.1s
+ 
+ 
                                 NWChem Input Module
                                 -------------------
-
-
+ 
+ 
                                  NWChem SCF Module
                                  -----------------
-
-
+ 
+ 
                Au+, Au(14s,10p,8d,3f,2g,1h) -> [11s,10p,8d,3f,2g,1h]
-
-
+ 
+ 
 
   ao basis        = "ao basis"
   functions       =   131
@@ -939,7 +942,7 @@ mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     
 
       Symmetry analysis of basis
       --------------------------
-
+ 
         ag         33
         au          5
         b1g        12
@@ -948,14 +951,14 @@ mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     
         b2u        19
         b3g        12
         b3u        19
-
+ 
 
   The SCF is already converged 
 
-         Total SCF energy =   -134.684334043875
+         Total SCF energy =   -134.684334043864
 
-
-
+ 
+ 
                    Four-Index Transformation
                    -------------------------
           Number of basis functions:            131
@@ -968,18 +971,18 @@ mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     
           MO coefficients read from:  ./Au+.movecs             
           Number of operator matrices in core:   90
           Half-transformed integrals produced
-
-     Pass:    1     Index range:    1  -    9     Time:      4.42
+ 
+     Pass:    1     Index range:    1  -    9     Time:     12.48
  ------------------------------------------
  MP2 Energy (coupled cluster initial guess)
  ------------------------------------------
- Reference energy:           -134.684334043874600
- MP2 Corr. energy:             -0.677993809109813
- Total MP2 energy:           -135.362327852984400
+ Reference energy:           -134.684334043864112
+ MP2 Corr. energy:             -0.677993809582520
+ Total MP2 energy:           -135.362327853446629
 
 
  ****************************************************************************
-              the segmented parallel ccsd program:    8 nodes
+              the segmented parallel ccsd program:    2 nodes
  ****************************************************************************
 
 
@@ -1001,8 +1004,8 @@ mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     
    convi  = 0.100E-05
    maxit  =    20
    mxvec  =     5
- memory                209632196
-  IO offset     20.00000000000000     
+ memory              26131316
+  IO offset    20.0000000000000     
   IO error message >End of File
   file_read_ga: failing writing to ./Au+.t2
   Failed reading restart vector from ./Au+.t2
@@ -1014,90 +1017,152 @@ mp2: tota     1     1     1    4.9     5.2     5.3      5.7     5.7     5.7     
              energy      energy      error      ampl     ampl      Block
                                                 time     time      time
 -------------------------------------------------------------------------
-   1     -0.6420739921 -6.421D-01  3.137D-01    17.32     0.00    16.62
-   2     -0.6552098614 -1.314D-02  1.378D-01     3.46     0.00     2.79
-   3     -0.6540434016  1.166D-03  2.942D-03     3.45     0.00     2.77
-   4     -0.6542433745 -2.000D-04  1.569D-03     3.46     0.01     2.78
-   5     -0.6543757709 -1.324D-04  7.223D-04     3.46     0.01     2.78
-   6     -0.6543564609  1.931D-05  4.284D-04     3.45     0.01     2.78
-   7     -0.6543542255  2.235D-06  4.116D-05     3.46     0.01     2.79
-   8     -0.6543546178 -3.923D-07  3.965D-05     3.46     0.01     2.79
-   9     -0.6543546764 -5.861D-08  2.309D-06     3.28     0.01     2.61
-  10     -0.6543547185 -4.204D-08  2.218D-06     3.28     0.01     2.61
-  11     -0.6543547311 -1.266D-08  6.755D-08     3.28     0.01     2.61
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   1     -0.6420739924 -6.421D-01  2.916D-01    55.84     0.01    53.44
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   2     -0.6552098617 -1.314D-02  1.372D-01     9.82     0.01     7.56
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   3     -0.6540434808  1.166D-03  2.199D-03     9.86     0.01     7.57
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   4     -0.6542408151 -1.973D-04  1.856D-03     9.84     0.01     7.58
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   5     -0.6543763801 -1.356D-04  8.170D-04     9.79     0.01     7.53
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   6     -0.6543565130  1.987D-05  4.223D-04     9.92     0.01     7.64
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   7     -0.6543541952  2.318D-06  4.692D-05     9.56     0.01     7.28
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   8     -0.6543546334 -4.382D-07  4.011D-05     9.88     0.01     7.63
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+   9     -0.6543546765 -4.316D-08  2.526D-06     9.61     0.01     7.36
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+  10     -0.6543547190 -4.252D-08  2.431D-06     9.60     0.01     7.37
+ g_st2 size:       5 MB
+ mem. avail      198 MB
+Memory based method: ST2 is allocated
+ ST2 array is replicated      0.01s
+  11     -0.6543547316 -1.258D-08  7.308D-08     9.58     0.01     7.35
                   *************converged*************
 -------------------------------------------------------------------------
 
  -----------
  CCSD Energy
  -----------
- Reference energy:            -134.684334043874600
- CCSD corr. energy:             -0.654354731115573
- Total CCSD energy:           -135.338688774990100
- memory                209632196
+ Reference energy:            -134.684334043864112
+ CCSD corr. energy:             -0.654354731609139
+ Total CCSD energy:           -135.338688775473258
+
+
+ --------------------------------
+ Spin Component Scaled (SCS) CCSD
+ --------------------------------
+ Same spin contribution:                 -0.183053878191715
+ Same spin scaling factor:                1.130000000000000
+ Opposite spin contribution:             -0.471300853417424
+ Opposite spin scaling fact.:             1.270000000000000
+ SCS-CCSD correlation energy:            -0.805402966196767
+ Total SCS-CCSD energy:                -135.489737010060878
+ memory              26131316
 
 
 *********triples calculation*********
 
-nkpass=    1; nvpass=    1; memdrv=         611830; memtrn=        8965270; memavail=      209631086
- memory available/node                      209631086
+nkpass=    1; nvpass=    1; memdrv=         646966; memtrn=        9566310; memavail=       26130204
+nkpass=    1; nvpass=    2; memdrv=         646966; memtrn=        8599399; memavail=       26130204
+ memory available/node                       26130204
  total number of virtual orbitals       122
- number of virtuals per integral pass   122
- number of integral evaluations           1
+ number of virtuals per integral pass    61
+ number of integral evaluations           2
  number of occupied per triples pass      9
  number of triples passes                 1
 
- commencing integral evaluation        1
+ commencing integral evaluation        1 at         191.61
+  symmetry use  T
  commencing triples evaluation - blocking       1
- Time for integral evaluation pass     1    13.61
- Time for triples evaluation pass      1    38.51
+ Time for integral evaluation pass     1    25.16
+ Time for triples evaluation pass      1    68.82
+ commencing integral evaluation        2 at         285.60
+  symmetry use  T
+ commencing triples evaluation - blocking       2
+ Time for integral evaluation pass     2    25.38
+ Time for triples evaluation pass      2    65.94
 
- pseudo-e(mp4)  -0.20388563024295E-01
- pseudo-e(mp5)   0.23839122399847E-03
-        e(t)    -0.20150171800296E-01
+ pseudo-e(mp4)  -0.20388563035997E-01
+ pseudo-e(mp5)   0.23839121342408E-03
+        e(t)    -0.20150171822573E-01
 
  --------------
  CCSD(T) Energy
  --------------
- Reference energy:                    -134.684334043874600
+ Reference energy:                    -134.684334043864112
 
- CCSD corr. energy:                     -0.654354731115573
- T(CCSD) corr. energy:                  -0.020388563024295
- Total CCSD+T(CCSD) energy:           -135.359077338014400
+ CCSD corr. energy:                     -0.654354731609139
+ T(CCSD) corr. energy:                  -0.020388563035997
+ Total CCSD+T(CCSD) energy:           -135.359077338509252
 
- CCSD corr. energy:                     -0.654354731115573
- (T) corr. energy:                      -0.020150171800296
- Total CCSD(T) energy:                -135.358838946790500
-
+ CCSD corr. energy:                     -0.654354731609139
+ (T) corr. energy:                      -0.020150171822573
+ Total CCSD(T) energy:                -135.358838947295823
+ 
  routine      calls  cpu(0)   cpu-min  cpu-ave  cpu-max   i/o 
- aoccsd          1     0.02     0.02     0.02     0.02    0.00
+ aoccsd          1     0.15     0.15     0.15     0.15    0.00
  iterdrv         1     0.16     0.16     0.16     0.16    0.00
- pampt          11     0.25     0.25     0.25     0.25    0.00
- t2pm           11     0.35     0.35     0.35     0.35    0.00
- sxy            11     2.26     1.91     3.54     6.15    0.00
- ints        49770    13.44    12.25    12.90    13.87    0.00
- f_write       158     0.18     0.15     0.16     0.18    0.00
- t2eri         869    23.62    21.23    23.08    25.28    0.00
- idx2          869     2.70     2.51     2.59     2.70    0.00
- idx34          11     0.29     0.26     0.27     0.29    0.00
- ht2pm          11     0.46     0.46     0.46     0.46    0.00
- itm            11     6.36     6.36     6.36     6.36    0.00
- pdiis          11     0.05     0.05     0.05     0.05    0.00
- r_read        790     1.28     0.98     1.22     1.29    0.00
- triples         1    13.65    13.65    13.65    13.65    0.00
- trpdrv          1     1.56     1.56     1.72     1.83    0.00
- dovvv       12240    26.27    26.00    26.17    26.27    0.00
- doooo       12240     3.25     2.89     3.17     3.30    0.00
- tengy       11016     7.30     7.18     7.32     7.54    0.00
- Total               103.44   103.44   103.45   103.45    0.00
+ pampt          11     0.98     0.98     0.98     0.98    0.00
+ t2pm           11     5.18     5.18     5.18     5.18    0.00
+ sxy            11     1.09     0.88     0.99     1.09    0.00
+ ints       198450    24.05    23.77    23.91    24.05    0.00
+ f_write       630     0.66     0.48     0.57     0.66    0.00
+ t2eri        3465    40.29    39.30    39.80    40.29    0.00
+ idx2         3465    59.68    59.68    60.55    61.42    0.00
+ idx34          11     0.68     0.66     0.67     0.68    0.00
+ ht2pm          11     1.74     1.74     1.74     1.74    0.00
+ itm            11    17.08    17.08    17.08    17.08    0.00
+ pdiis          11     0.11     0.11     0.11     0.11    0.00
+ r_read       3150     1.76     1.70     1.73     1.76    0.00
+ triples         1    50.65    50.65    50.65    50.65    0.00
+ trpdrv          2    42.29    42.29    45.13    47.96    0.00
+ dovvv       50940    70.60    66.38    68.49    70.60    0.00
+ doooo       50940     8.60     8.08     8.34     8.60    0.00
+ tengy       45846    13.19    12.26    12.73    13.19    0.00
+ Total               338.95   338.95   338.95   338.95    0.00
 
- Task  times  cpu:      107.1s     wall:      108.7s
-
-
+ Task  times  cpu:      338.6s     wall:      351.8s
+ 
+ 
                                 NWChem Input Module
                                 -------------------
-
-
+ 
+ 
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -1108,12 +1173,12 @@ nkpass=    1; nvpass=    1; memdrv=         611830; memtrn=        8965270; mema
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  600      600     6.28e+05 6.30e+04 6.90e+05    0        0        0     
-number of processes/call 1.04e+00 1.37e+00 1.03e+00 0.00e+00 0.00e+00
-bytes total:             7.25e+09 4.20e+08 1.65e+09 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            5.66e+09 1.29e+08 1.12e+09 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 47565320 bytes
-
+calls:  586      586     3.08e+05 2.92e+05 2.81e+06    0        0     3133     
+number of processes/call 1.07e+00 1.05e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             6.59e+09 1.42e+09 6.02e+09 0.00e+00 0.00e+00 2.51e+04
+bytes remote:            1.97e+09 3.11e+08 2.54e+09 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 106880392 bytes
+ 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1122,18 +1187,18 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        40	        29
+	maximum number of blocks	        40	        30
 	current total bytes		         0	         0
-	maximum total bytes		  13631376	1675057664
-	maximum total K-bytes		     13632	   1675058
-	maximum total M-bytes		        14	      1676
-
-
+	maximum total bytes		  50856672	 209023240
+	maximum total K-bytes		     50857	    209024
+	maximum total M-bytes		        51	       210
+ 
+ 
                                      CITATION
                                      --------
                 Please cite the following reference when publishing
                            results obtained with NWChem:
-
+ 
                  M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
               T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
                         E. Apra, T.L. Windus, W.A. de Jong
@@ -1141,21 +1206,24 @@ MA usage statistics:
                   solution for large scale molecular simulations"
                       Comput. Phys. Commun. 181, 1477 (2010)
                            doi:10.1016/j.cpc.2010.04.018
-
+ 
                               AUTHORS & CONTRIBUTORS
                               ----------------------
-      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+    J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata, W. Ma,
+       M. Klemm, O. Villa, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, R. J. Harrison,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
       Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:      120.9s     wall:      126.5s
+ Total times  cpu:      362.9s     wall:      376.9s
