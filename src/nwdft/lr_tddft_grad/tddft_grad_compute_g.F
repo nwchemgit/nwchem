@@ -37,6 +37,7 @@ c
 #include "tddft_grad_util.fh"
 #include "case.fh"
 #include "cosmo.fh"
+#include "cgridfile.fh"
 c
 c     Input:
 c
@@ -244,8 +245,6 @@ c
       parameter(msg_grad_dft = 199)
       parameter(msg_grad_2el_j = 200)
       parameter(msg_grad_2el_k = 201)
-c
-      logical grid_written ! is the quadrature present on file?
 c
       character*32 pname
       logical status
@@ -571,7 +570,10 @@ c
         call xc_init_index(ihdl_geom,ipol,nao,ihdl_bfao,g_d,
      &       l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &       l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom)
-        grid_written=grid_reopen(ihdl_geom)
+c
+         if(.not.grid_written) then
+            grid_written=grid_reopen(ihdl_geom)
+         endif
 c
 c Daniel (1-14-13): This call gives the gradient of the XC-potential,
 c which is the XC-kernel multiplied by the gradient of the ground state
@@ -852,7 +854,11 @@ c and therefore includes the quadrature weight gradients as well.
           call xc_init_index(ihdl_geom,ipol,nao,ihdl_bfao,g_d,
      &         l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &         l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom)
-          grid_written=grid_reopen(ihdl_geom)
+c
+          if(.not.grid_written) then
+            grid_written=grid_reopen(ihdl_geom)
+          endif
+c
           call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
      &         g_d, 
      &         dbl_mb(k_frc_df0), dum, idum, calc_type,
@@ -926,7 +932,11 @@ c this.
           call xc_init_index(ihdl_geom,ipol,nao,ihdl_bfao,g_dtmp,
      &         l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &         l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom)
-          grid_written=grid_reopen(ihdl_geom)
+c
+          if(.not.grid_written) then
+            grid_written=grid_reopen(ihdl_geom)
+          endif
+c
 c Daniel (1-16-13): Here I modified the gradient routine to include
 c the number of perturbed density matrices.  This is necessary so that we
 c can define a value for looping in xc_3rd_deriv and build the
