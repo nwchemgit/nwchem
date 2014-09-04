@@ -36,5 +36,9 @@ raman
   normal
 end
 
+driver
+ clear
+end
+
 task dft optimize
 task dft raman
