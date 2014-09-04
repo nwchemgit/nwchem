@@ -27,7 +27,7 @@ end
 
 set "ao basis" 6-31g*
 
-basis 6-31g* nosegment noprint
+basis 6-31g*  noprint
   O library 6-31g*
   H library 6-31g*
 end
