@@ -1,0 +1,128 @@
+#!/bin/bash -f
+#
+# $Id: doqmtests.mpi 25922 2014-07-18 22:40:13Z edo $
+#
+./runtests.mpi.unix_bash h2o_opt 
+./runtests.mpi.unix_bash c2h4
+./runtests.mpi.unix_bash auh2o 
+./runtests.mpi.unix_bash autosym 
+./runtests.mpi.unix_bash dft_he2+ 
+./runtests.mpi.unix_bash h2mp2 
+./runtests.mpi.unix_bash h2o 
+./runtests.mpi.unix_bash hess_h2o 
+./runtests.mpi.unix_bash prop_h2o 
+./runtests.mpi.unix_bash pyqa
+./runtests.mpi.unix_bash geom_zmatrix 
+./runtests.mpi.unix_bash rimp2_ne
+./runtests.mpi.unix_bash rimp2_he
+./runtests.mpi.unix_bash scf_feco5
+./runtests.mpi.unix_bash small_intchk
+./runtests.mpi.unix_bash tagcheck
+./runtests.mpi.unix_bash testtab
+./runtests.mpi.unix_bash h2o_dk
+./runtests.mpi.unix_bash u_sodft
+./runtests.mpi.unix_bash cosmo_h2o
+./runtests.mpi.unix_bash ch5n_nbo
+./runtests.mpi.unix_bash h2s_finite
+./runtests.mpi.unix_bash startag
+./runtests.mpi.unix_bash cosmo_na
+./runtests.mpi.unix_bash cosmo_cl
+./runtests.mpi.unix_bash cosmo_nacl
+./runtests.mpi.unix_bash cosmo_h2o_dft
+./runtests.mpi.unix_bash cosmo_h2o_bq
+./runtests.mpi.unix_bash be dft_s12gh
+./runtests.mpi.unix_bash cosmo_trichloroethene
+./runtests.mpi.unix_bash esp esp_uhf
+./runtests.mpi.unix_bash dft_bsse
+./runtests.mpi.unix_bash dft_bsse_d3
+./runtests.mpi.unix_bash dft_bsse_d3_opt
+./runtests.mpi.unix_bash bsse_dft_trimer
+./runtests.mpi.unix_bash bsse_tce_mult
+./runtests.mpi.unix_bash c4h4_wfn
+./runtests.mpi.unix_bash cosmo_h2cco2
+./runtests.mpi.unix_bash cosmo_h2cco2mg
+./runtests.mpi.unix_bash cosmo_h2cco2mg_ecp
+./runtests.mpi.unix_bash cosmo_h3co
+./runtests.mpi.unix_bash cosmo_h3co_ecp
+./runtests.mpi.unix_bash cosmo_h2cco2na
+./runtests.mpi.unix_bash cosmo_h3co_gp
+./runtests.mpi.unix_bash dplot
+./runtests.mpi.unix_bash dft_meta
+./runtests.mpi.unix_bash dft_mpwb1khf
+./runtests.mpi.unix_bash dft_m05nh2ch3
+./runtests.mpi.unix_bash prop_uhf_h2o
+./runtests.mpi.unix_bash et_zn_dimer
+./runtests.mpi.unix_bash vectors_rotate
+./runtests.mpi.unix_bash sad_ch3hf
+./runtests.mpi.unix_bash h2o_diag_to_cg
+./runtests.mpi.unix_bash h2o_cg_to_diag 
+./runtests.mpi.unix_bash h2o_diag_opt
+./runtests.mpi.unix_bash h2o_cg_opt
+./runtests.mpi.unix_bash h2o_diag_opt_ub3lyp
+./runtests.mpi.unix_bash h2o_cg_opt_ub3lyp
+./runtests.mpi.unix_bash h2o_cg_opt_rob3lyp
+./runtests.mpi.unix_bash h2o_diag_to_cg_ub3lyp
+./runtests.mpi.unix_bash h2o_cg_to_diag_ub3lyp
+#
+#---   small tests that should fail!
+echo ' '
+echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
+./runtests.mpi.unix_bash  oh2
+#
+#---   medium tests
+./runtests.mpi.unix_bash dft_feco5 
+./runtests.mpi.unix_bash dft_siosi3
+./runtests.mpi.unix_bash dft_cr2
+./runtests.mpi.unix_bash dft_x
+./runtests.mpi.unix_bash dft_mpw1k 
+./runtests.mpi.unix_bash dft_li2freq
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
+./runtests.mpi.unix_bash dielsalder
+echo 'The intermediate energy values for the numerical gradient '
+echo 'test may cause some differences.'
+echo 'Please check the final gradient values for correctness.'
+./runtests.mpi.unix_bash grad_ozone
+./runtests.mpi.unix_bash dft_ozone 
+./runtests.mpi.unix_bash hess_c6h6
+./runtests.mpi.unix_bash hess_nh3_ub3lyp
+./runtests.mpi.unix_bash intchk
+echo 'The intermediate values for this test may cause some differences.'
+echo 'Please check the final values for the last optimized structure.'
+./runtests.mpi.unix_bash sadsmall
+#
+#./runtests.mpi.unix_bash procs $np sadbig
+./runtests.mpi.unix_bash  br2_dk
+./runtests.mpi.unix_bash  uo2_sodft
+./runtests.mpi.unix_bash  uo2_sodft_grad
+./runtests.mpi.unix_bash  si2cl6_gc
+./runtests.mpi.unix_bash  pspw
+./runtests.mpi.unix_bash  pspw_SiC
+./runtests.mpi.unix_bash  pspw_md
+./runtests.mpi.unix_bash  paw
+./runtests.mpi.unix_bash  pspw_polarizability
+./runtests.mpi.unix_bash  pspw_stress
+./runtests.mpi.unix_bash  band
+./runtests.mpi.unix_bash  tddft_h2o
+./runtests.mpi.unix_bash  tddft_h2o_uhf
+./runtests.mpi.unix_bash  tddft_h2o_mxvc20
+./runtests.mpi.unix_bash  tddft_h2o_uhf_mxvc20
+./runtests.mpi.unix_bash  tddft_n2+
+./runtests.mpi.unix_bash  tddft_ac_co
+./runtests.mpi.unix_bash  dft_xdm1
+./runtests.mpi.unix_bash  tce_h2o
+./runtests.mpi.unix_bash  tce_h2o_dipole
+./runtests.mpi.unix_bash  tce_h2o_eomcc
+./runtests.mpi.unix_bash  tce_uhf_uccsd
+./runtests.mpi.unix_bash  tce_cr_eom_t_ch_rohf
+./runtests.mpi.unix_bash  tce_cr_eom_t_ozone
+./runtests.mpi.unix_bash  tce_active_ccsdt
+./runtests.mpi.unix_bash  tce_lr_ccsd_t
+./runtests.mpi.unix_bash  tce_lr_ccsd_tq
+./runtests.mpi.unix_bash  tce_ozone_2eorb
+./runtests.mpi.unix_bash  tce_polar_ccsd_small
+./runtests.mpi.unix_bash  tce_hyperpolar_ccsd_small
+./runtests.mpi.unix_bash  tce_eomsd_eomsol1
+./runtests.mpi.unix_bash  tce_eomsd_eomsol2
+./runtests.mpi.unix_bash  tce_uracil_creomact
+./runtests.mpi.unix_bash  li2h2_tce_ccsd

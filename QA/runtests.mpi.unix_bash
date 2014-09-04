@@ -1,0 +1,35 @@
+#!/bin/bash  -f
+CWD=`pwd`
+SCRATCHDIR=$CWD/scratchdir
+TESTOUTPUTS=$CWD/testoutputs
+INPUT=$CWD/tests/$1/$1.nw
+echo "Running tests/$1/$1.nw"
+NWPARSE=$CWD/nwparse.pl
+rm -rf $SCRATCHDIR
+mkdir -p $SCRATCHDIR $TESTOUTPUTS
+cd $SCRATCHDIR
+cp $INPUT .
+echo " Executing $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem"
+$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem $1 > $1.out
+RUNSTATUS=$?
+if [ $RUNSTATUS -ne 0 ];then
+   echo " Execution failed"
+   exit 
+fi
+cp $1.out $TESTOUTPUTS
+cd $TESTOUTPUTS
+perl $NWPARSE $1.out >/dev/null 2>&1
+cp $CWD/tests/$1/$1.out $1.ok.out
+echo " verifying output"
+perl $NWPARSE $1.ok.out >/dev/null 2>&1
+diff -w $1.ok.out.nwparse $1.out.nwparse > /dev/null 2>&1
+STATUS=$?
+if [ $STATUS -ne 0 ];then
+   echo " failed"
+else
+   echo " OK"
+fi
+  
+
+
+
