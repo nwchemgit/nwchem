@@ -5,7 +5,7 @@ start tce_hyperpolar_ccsd_big
 #permanent_dir /scratch1/scratchdirs/jhammond/permanent
 #scratch_dir /scratch1/scratchdirs/jhammond/scratch
 
-memory stack 1500 mb heap 100 mb global 1500 mb 
+memory stack 1100 mb heap 100 mb global 1500 mb 
 
 geometry units au
 # C2v B3LYP/cc-pVdz optimized geometry
@@ -67,7 +67,7 @@ tce
   thresh 1.0e-7
   io ga
   2eorb
-  2emet 13
+  2emet 15
   #split 4
   tilesize 30
   attilesize 40

@@ -1,16 +1,16 @@
- argument  1 = pNA_ccsd-qr.nw
+ argument  1 = tce_hyperpolar_ccsd_big.nw
  
 
 
 ============================== echo of input deck ==============================
 echo
 
-start pNA_ccsd-qr
+start tce_hyperpolar_ccsd_big
 
-permanent_dir /scratch1/scratchdirs/jhammond/permanent
-scratch_dir /scratch1/scratchdirs/jhammond/scratch
+#permanent_dir /scratch1/scratchdirs/jhammond/permanent
+#scratch_dir /scratch1/scratchdirs/jhammond/scratch
 
-memory stack 1500 mb heap 100 mb global 1500 mb
+memory stack 1100 mb heap 100 mb global 1500 mb
 
 geometry units au
 # C2v B3LYP/cc-pVdz optimized geometry
@@ -30,10 +30,6 @@ geometry units au
  H   0.00000000    -4.06191582     3.57969289
  H   0.00000000    -1.62194876     7.47682769
  H   0.00000000     1.62194876     7.47682769
-end
-
-basis "crap" cartesian noprint
-  * library 6-31G*
 end
 
 basis "dz" spherical noprint
@@ -63,11 +59,6 @@ scf
   rhf
   thresh 1e-8
   maxiter 1000
-  #nr 0.1
-  #level pcg 20 0.3 0.0 nr 0.2 0.005 0.0
-  # restart the movecs if you like
-  #vectors input atomic output pNA_rhf_aug-cc-pvdz.movecs
-  #vectors input pNA_rhf_aug-cc-pvdz.movecs output pNA_rhf_aug-cc-pvdz.movecs
   print low
   semidirect memsize 100000000 filesize 0
 end
@@ -81,7 +72,7 @@ tce
   thresh 1.0e-7
   io ga
   2eorb
-  2emet 13
+  2emet 15
   #split 4
   tilesize 30
   attilesize 40
@@ -101,7 +92,7 @@ task tce energy
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 6.3
+              Northwest Computational Chemistry Package (NWChem) 6.5
               ------------------------------------------------------
  
  
@@ -109,7 +100,7 @@ task tce energy
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
  
-                              Copyright (c) 1994-2013
+                              Copyright (c) 1994-2014
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
  
@@ -134,18 +125,18 @@ task tce energy
            Job information
            ---------------
 
-    hostname        = nid04380
-    program         = /project/projectdirs/m1907/bin/nwchem-trunk-tce60-intel14-armci3mpi620-mklpar
-    date            = Thu Feb  6 09:31:53 2014
+    hostname        = g607
+    program         = /dtemp/scicons/bin/nwchem.sep04
+    date            = Thu Sep  4 18:28:44 2014
 
-    compiled        = Thu_Feb_06_06:39:40_2014
-    source          = /global/homes/j/jhammond/NWCHEM/trunk
-    nwchem branch   = Development
-    nwchem revision = 25003
-    ga revision     = 10449
-    input           = pNA_ccsd-qr.nw
-    prefix          = pNA_ccsd-qr.
-    data base       = /scratch1/scratchdirs/jhammond/permanent/pNA_ccsd-qr.db
+    compiled        = Thu_Sep_04_13:57:21_2014
+    source          = /home/scicons/cascade/apps/nwchem-6.5
+    nwchem branch   = 6.5
+    nwchem revision = 26025
+    ga revision     = 10502
+    input           = tce_hyperpolar_ccsd_big.nw
+    prefix          = tce_hyperpolar_ccsd_big.
+    data base       = /scratch/tce_hyperpolar_ccsd_big.db
     status          = startup
     nproc           =      480
     time left       =     -1s
@@ -155,10 +146,10 @@ task tce energy
            Memory information
            ------------------
 
-    heap     =   13107201 doubles =    100.0 Mbytes
-    stack    =  196608001 doubles =   1500.0 Mbytes
+    heap     =   13107200 doubles =    100.0 Mbytes
+    stack    =  144179197 doubles =   1100.0 Mbytes
     global   =  196608000 doubles =   1500.0 Mbytes (distinct from heap & stack)
-    total    =  406323202 doubles =   3100.0 Mbytes
+    total    =  353894397 doubles =   2700.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -166,21 +157,370 @@ task tce energy
            Directory information
            ---------------------
  
-  0 permanent = /scratch1/scratchdirs/jhammond/permanent
-  0 scratch   = /scratch1/scratchdirs/jhammond/scratch
+  0 permanent = /scratch
+  0 scratch   = /scratch
  
  
+                     0  ppn                      4
+                     0  offload_master 
+                     1  offload_master 
+                     3  offload_master 
+                     2  offload_master 
+462: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+457: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+473: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+451: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+452: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+446: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+479: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+463: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+471: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+467: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+456: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+475: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+448: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+454: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+444: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+476: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+470: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+460: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+466: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+458: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+472: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+450: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+455: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+447: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+478: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+461: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+468: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+464: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+459: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+474: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+449: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+453: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+445: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+477: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+469: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+465: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+388: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+389: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+252: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+320: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+83: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+141: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+255: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+43: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+321: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+30: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+390: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+04: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+304: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+82: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+293: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+383: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+40: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+140: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+29: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+137: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+305: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+253: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+368: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+391: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+22: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+323: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+07: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+272: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+173: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+79: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+80: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+119: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+327: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+292: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+50: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+196: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+380: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+420: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+41: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+28: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+186: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+142: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+442: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+136: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+369: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+231: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+348: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+306: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+254: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+355: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+322: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+20: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+274: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+05: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+78: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+85: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+326: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+172: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+363: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+117: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+65: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+296: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+232: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+197: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+81: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+51: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+54: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+104: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+401: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+294: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+260: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+276: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+246: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+314: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+382: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+164: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+56: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+423: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+228: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+349: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+42: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+259: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+108: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+187: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+441: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+225: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+98: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+372: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+31: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+386: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+75: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+143: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+354: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+138: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+330: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+240: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+38: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+370: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+307: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+84: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+68: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+11: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+162: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+336: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+21: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+361: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+06: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+221: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+00: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+275: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+76: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
  
  
                                 NWChem Input Module
                                 -------------------
  
  
+91: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+66: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+287: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+120: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+213: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+15: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+234: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+297: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+144: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+359: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+324: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+135: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+175: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+55: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+417: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+158: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+116: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+346: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+168: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+151: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+404: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+378: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+312: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+433: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+203: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+189: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+247: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+112: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+291: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+268: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+198: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+25: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+58: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+403: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+263: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+48: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+106: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+236: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+295: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+282: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+279: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+35: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+332: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+45: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+17: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+431: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+265: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+381: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+409: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+102: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+399: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+427: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+166: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+436: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+303: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+63: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+181: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+207: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+413: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+319: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+224: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+395: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+124: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+422: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+73: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+211: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+230: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+243: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+194: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+256: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+93: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+218: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+329: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+111: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+39: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+373: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+130: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+154: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+340: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+99: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+440: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+350: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+70: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+184: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+364: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+385: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+177: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+139: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+309: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+353: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+337: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+248: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+371: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+222: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+23: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+10: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+163: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+86: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+356: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+03: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+360: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+273: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+347: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+121: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+215: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+64: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+77: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+90: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+286: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+159: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+235: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+169: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+145: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+12: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+132: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+416: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+174: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+379: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+325: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+298: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+27: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+118: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+188: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+52: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+237: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+149: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+407: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+432: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+47: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+271: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+333: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+32: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+201: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+113: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+313: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+244: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+288: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+199: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+301: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+49: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+283: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+59: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+400: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+261: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+62: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+105: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+19: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+408: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+278: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+316: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+396: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+430: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+264: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+103: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+167: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+425: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+439: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+412: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+180: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+125: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+204: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+195: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+341: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+226: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+394: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+92: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+210: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+72: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+219: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+421: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+328: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+241: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+110: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+250: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+152: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+229: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+308: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
  C2V symmetry detected
+257: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+351: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+37: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+128: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+185: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+366: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+387: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+375: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+443: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+69: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+179: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+96: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+352: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
 
           ------
           auto-z
           ------
+339: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+220: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+87: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+160: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+08: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+362: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+357: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
  
  
                              Geometry "geometry" -> ""
@@ -402,6 +742,142 @@ task tce energy
 
 
 
+67: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+345: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+212: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+89: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+122: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+233: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+284: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+147: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+133: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+170: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+156: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+418: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+13: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+24: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+299: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+53: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+148: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+376: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+202: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+405: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+269: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+44: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+34: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+114: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+245: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+289: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+315: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+434: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+191: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+335: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+402: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+300: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+262: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+107: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+16: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+277: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+57: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+238: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+398: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+280: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+101: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+317: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+60: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+424: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+410: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+438: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+266: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+429: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+165: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+205: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+126: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+182: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+415: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+343: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+227: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+393: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+192: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+242: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+74: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+153: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+216: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+94: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+331: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+249: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+209: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+109: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+129: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+36: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+258: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+365: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+374: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+311: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+384: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+176: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+97: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+71: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+02: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+338: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+161: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+223: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+09: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+358: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+214: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+344: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+88: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+123: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+285: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+134: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+419: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+14: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+146: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+26: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+157: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+406: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+150: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+171: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+33: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+46: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+200: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+377: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+270: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+290: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+115: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+435: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+190: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+302: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+334: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+18: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+281: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+61: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+239: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+397: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+100: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+267: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+437: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+318: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+428: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+411: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+426: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+206: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+183: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+414: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+127: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+392: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+193: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+342: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+251: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+95: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+217: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+155: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+310: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+208: micdev=0 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+131: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+367: micdev=1 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
+178: micdev=1 nprocs=59 rank_on_dev=0 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,0o' pos=27
+01: micdev=0 nprocs=59 rank_on_dev=1 ranks_per_device=2 affinity='KMP_PLACE_THREADS=29c,4t,29o' pos=28
                                  NWChem SCF Module
                                  -----------------
  
@@ -415,33 +891,33 @@ task tce energy
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = /scratch1/scratchdirs/jhammond/permanent/pNA_ccsd-qr.movecs
+  output vectors  = /scratch/tce_hyperpolar_ccsd_big.movecs
   use symmetry    = T
   symmetry adapt  = T
  
 
- Forming initial guess at       2.4s
+ Forming initial guess at      42.0s
 
 
- Starting SCF solution at      22.1s
+ Starting SCF solution at      43.3s
 
- Warning: symmetry breaking in RHF:   1.671506352426966E-008
- Warning: symmetry breaking in RHF:   1.002045429965293E-008
- Warning: symmetry breaking in RHF:   1.125629549986185E-008
- Warning: symmetry breaking in RHF:   7.732348081268547E-009
- Warning: symmetry breaking in RHF:   7.755783126839333E-009
- Warning: symmetry breaking in RHF:   7.755425671454597E-009
+ Warning: symmetry breaking in RHF:   3.859043457704603E-008
+ Warning: symmetry breaking in RHF:   2.322745869948184E-008
+ Warning: symmetry breaking in RHF:   3.435531249415535E-008
+ Warning: symmetry breaking in RHF:   2.464140393815262E-008
+ Warning: symmetry breaking in RHF:   2.472311794177173E-008
+ Warning: symmetry breaking in RHF:   2.472230881123139E-008
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -489.281078215732
-      One-electron energy =  -1650.959956613740
-      Two-electron energy =    665.129601634868
+         Total SCF energy =   -489.281078215735
+      One-electron energy =  -1650.959956613720
+      Two-electron energy =    665.129601634845
  Nuclear repulsion energy =    496.549276763140
 
-        Time for solution =     36.9s
+        Time for solution =      3.9s
 
 
                    NWChem Extensible Many-Electron Theory Module
@@ -495,11 +971,25 @@ task tce energy
    CC-T/L Amplitude update :  5-th order DIIS
     CC-LR Amplitude update :  5-th order DIIS
                 I/O scheme : Global Array Library
+        L-threshold : 0.10D-06
+        EOM-threshold : 0.10D-06
+ no EOMCCSD initial starts read in
+ TCE RESTART OPTIONS
+ READ_INT:   F
+ WRITE_INT:  F
+ READ_TA:    F
+ WRITE_TA:   F
+ READ_XA:    F
+ WRITE_XA:   F
+ READ_IN3:   F
+ WRITE_IN3:  F
+ SLICE:      F
+ D4D5:       F
  
             Memory Information
             ------------------
           Available GA space size is    ********** doubles
-          Available MA space size is     209704072 doubles
+          Available MA space size is     157275180 doubles
  
  Maximum block size supplied by input
  Maximum block size        30 doubles
@@ -548,6 +1038,8 @@ task tce energy
  Global array virtual files algorithm will be used
 
  Parallel file system coherency ......... OK
+ before tce_aoq1
+ after tce_aoq1
 
  SCF dipole moments / hartree & Debye
  ------------------------------------
@@ -562,19 +1054,69 @@ task tce energy
  X   axis ( b1  symmetry)
  
  dipole file size   =            28404
- dipole file name   = /scratch1/scratchdir
+ dipole file name   = /scratch/tce_hyperpo
  
  Y   axis ( b2  symmetry)
  
  dipole file size   =            35628
- dipole file name   = /scratch1/scratchdir
+ dipole file name   = /scratch/tce_hyperpo
  
  Z   axis ( a1  symmetry)
  
  dipole file size   =            36646
- dipole file name   = /scratch1/scratchdir
+ dipole file name   = /scratch/tce_hyperpo
+ 
+ X   axis ( a1  symmetry)
+ before tce_mod1_offset_new
+ after tce_mod1_offset_new
+ 
+ quadrupole file size   =            36646
+ quadrupole file name   = /scratch/tce_hyperpo
+ 
+ Y   axis ( a1  symmetry)
+ before tce_mod1_offset_new
+ after tce_mod1_offset_new
+ 
+ quadrupole file size   =            36646
+ quadrupole file name   = /scratch/tce_hyperpo
+ 
+ Z   axis ( a1  symmetry)
+ before tce_mod1_offset_new
+ after tce_mod1_offset_new
+ 
+ quadrupole file size   =            36646
+ quadrupole file name   = /scratch/tce_hyperpo
+ 
+ XX  axis ( a2  symmetry)
+ before tce_mod1_offset_new
+ after tce_mod1_offset_new
+ 
+ quadrupole file size   =            27486
+ quadrupole file name   = /scratch/tce_hyperpo
+ 
+ YY  axis ( b1  symmetry)
+ before tce_mod1_offset_new
+ after tce_mod1_offset_new
+ 
+ quadrupole file size   =            28404
+ quadrupole file name   = /scratch/tce_hyperpo
+ 
+ ZZ  axis ( b2  symmetry)
+ before tce_mod1_offset_new
+ after tce_mod1_offset_new
+ 
+ quadrupole file size   =            35628
+ quadrupole file name   = /scratch/tce_hyperpo
+ before tce_mom1
+ axis =                      1
+ axis =                      2
+ axis =                      3
+ axis =                      4
+ axis =                      5
+ axis =                      6
+ after tce_mom1
 
- Integral file          = /scratch1/scratchdirs/jhammond/scratch/pNA_ccsd-qr.aoints.000
+ Integral file          = /scratch/tce_hyperpolar_ccsd_big.aoints.000
  Record size in doubles =  65536        No. of integs per rec  =  32766
  Max. records in memory =   1524        Max. records in file   =      0
  No. of bits per label  =     16        No. of bits per value  =     64
@@ -582,18 +1124,27 @@ task tce energy
 
  #quartets = 8.305D+07 #integrals = 1.497D+09 #direct =  0.0% #cached =100.0%
 
+
+File balance: exchanges=  6471  moved=  4403  time=   0.0
+
  
  Fock matrix recomputed
  1-e file size   =            36646
- 1-e file name   = /scratch1/scratchdir
- Cpu & wall time / sec           28.1           28.1
+ 1-e file name   = /scratch/tce_hyperpo
+ Cpu & wall time / sec            1.0            1.0
  4-electron integrals stored in orbital form
  
  v2    file size   =        622324784
- 4-index algorithm nr.  13 is used
+ 4-index algorithm nr.  15 is used
  imaxsize =       40
  imaxsize ichop =        0
- Cpu & wall time / sec          224.7          225.7
+ starting step 0 at                59.23 secs 
+ starting step 1 at                67.15 secs 
+ starting step 2 at                95.19 secs 
+ starting step 3 at               105.17 secs 
+ starting step 4 at               153.19 secs 
+ done step 4 at               156.08 secs 
+ Cpu & wall time / sec           96.9           96.9
  do_pt =  F
  do_lam_pt =  F
  do_cr_pt =  F
@@ -602,53 +1153,53 @@ task tce energy
  T1-number-of-tasks                    14
  
  t1 file size   =             2597
- t1 file name   = /scratch1/scratchdir
- t1 file handle =       -997
+ t1 file name   = /scratch/tce_hyperpo
+ t1 file handle =       -994
  T2-number-of-boxes                  1062
  
  t2 file size   =         26700544
- t2 file name   = /scratch1/scratchdir
- t2 file handle =       -980
+ t2 file name   = /scratch/tce_hyperpo
+ t2 file handle =       -974
 
  CCSD iterations
  -----------------------------------------------------------------
  Iter          Residuum       Correlation     Cpu    Wall    V2*C2
  -----------------------------------------------------------------
-    1   0.3168053098253  -1.5623337910896    14.9    15.0     3.9
-    2   0.0865666323400  -1.5418160726146    16.6    16.6     3.9
-    3   0.0310998569816  -1.5817520909160    15.7    15.8     3.9
-    4   0.0154749785679  -1.5802239114961    17.2    17.3     3.9
-    5   0.0073531284765  -1.5846655189824    15.3    15.4     3.8
+    1   0.3168053108736  -1.5623337912540    11.9    11.7     3.2
+    2   0.0865666324788  -1.5418160721574    11.5    11.2     3.2
+    3   0.0310998570397  -1.5817520906266    11.6    11.3     3.2
+    4   0.0154749785911  -1.5802239111968    11.9    11.6     3.2
+    5   0.0073531284971  -1.5846655186957    11.7    11.4     3.2
  MICROCYCLE DIIS UPDATE:                     5                     5
-    6   0.0040228350139  -1.5854041380129    16.5    16.5     3.9
-    7   0.0021571790377  -1.5854522033476    16.5    16.6     3.9
-    8   0.0019040649693  -1.5854682597748    16.3    16.4     3.8
-    9   0.0011661035392  -1.5855161802006    16.8    17.0     3.9
-   10   0.0011726753454  -1.5855495529119    16.7    16.8     3.9
+    6   0.0040228350125  -1.5854041377352    11.9    11.6     3.3
+    7   0.0021571790372  -1.5854522030578    11.9    11.6     3.2
+    8   0.0019040649714  -1.5854682594843    12.0    11.7     3.3
+    9   0.0011661035417  -1.5855161799103    12.1    11.8     3.2
+   10   0.0011726753474  -1.5855495526212    11.9    11.6     3.3
  MICROCYCLE DIIS UPDATE:                    10                     5
-   11   0.0001929862120  -1.5856170399476    15.9    16.0     3.9
-   12   0.0001457785700  -1.5856115229718    15.3    15.4     3.8
-   13   0.0000682633994  -1.5856095346910    17.2    17.3     3.8
-   14   0.0000718970327  -1.5856095999028    16.5    16.5     3.8
-   15   0.0000304650294  -1.5856082911078    15.1    15.2     3.8
+   11   0.0001929862124  -1.5856170396579    11.9    11.7     3.3
+   12   0.0001457785698  -1.5856115226808    11.8    11.5     3.2
+   13   0.0000682633997  -1.5856095344002    12.0    11.8     3.3
+   14   0.0000718970325  -1.5856095996120    11.8    11.5     3.2
+   15   0.0000304650295  -1.5856082908170    11.9    11.6     3.2
  MICROCYCLE DIIS UPDATE:                    15                     5
-   16   0.0000123169336  -1.5856076894971    15.6    15.7     3.8
-   17   0.0000121833069  -1.5856075165386    15.3    15.4     3.9
-   18   0.0000060414763  -1.5856079698088    15.8    15.9     3.9
-   19   0.0000070384549  -1.5856081287013    16.3    16.4     3.9
-   20   0.0000038729168  -1.5856082652067    14.9    15.0     3.9
+   16   0.0000123169336  -1.5856076892064    12.1    11.9     3.3
+   17   0.0000121833069  -1.5856075162478    11.9    11.7     3.2
+   18   0.0000060414763  -1.5856079695180    11.9    11.6     3.2
+   19   0.0000070384548  -1.5856081284106    12.0    11.8     3.2
+   20   0.0000038729168  -1.5856082649160    12.0    11.7     3.2
  MICROCYCLE DIIS UPDATE:                    20                     5
-   21   0.0000008465060  -1.5856086302848    16.4    16.5     3.9
-   22   0.0000004657732  -1.5856085278619    16.9    17.0     3.8
-   23   0.0000002969958  -1.5856085243060    15.9    16.0     3.8
-   24   0.0000002185079  -1.5856085162435    15.6    15.6     3.8
-   25   0.0000001503746  -1.5856085109749    14.8    14.9     3.8
+   21   0.0000008465060  -1.5856086299940    11.9    11.7     3.2
+   22   0.0000004657732  -1.5856085275711    11.8    11.5     3.2
+   23   0.0000002969958  -1.5856085240153    11.7    11.4     3.2
+   24   0.0000002185079  -1.5856085159527    11.6    11.3     3.3
+   25   0.0000001503746  -1.5856085106841    11.1    10.8     3.3
  MICROCYCLE DIIS UPDATE:                    25                     5
-   26   0.0000000383506  -1.5856085025041    15.1    15.2     3.9
+   26   0.0000000383506  -1.5856085022134    12.0    11.7     3.3
  -----------------------------------------------------------------
  Iterations converged
- CCSD correlation energy / hartree =        -1.585608502504132
- CCSD total energy / hartree       =      -490.866686718236053
+ CCSD correlation energy / hartree =        -1.585608502213369
+ CCSD total energy / hartree       =      -490.866686717948085
 
  Singles contributions
 
@@ -658,21 +1209,21 @@ task tce energy
  ---------------------------------------------
  Iter          Residuum            Cpu    Wall
  ---------------------------------------------
-    1          5.1403795747910    33.0    33.1
-    2          0.1123658768965    32.1    32.3
-    3          0.0162302956911    35.1    35.2
-    4          0.0019681894462    33.7    33.9
-    5          0.0008068719072    33.5    33.6
+    1          5.1403795757418    27.4    25.4
+    2          0.1123658776090    27.0    24.9
+    3          0.0162302957113    26.9    24.8
+    4          0.0019681894511    26.6    24.5
+    5          0.0008068719085    26.7    24.6
  MICROCYCLE DIIS UPDATE:                     5                     5
-    6          0.0001275611113    33.7    33.9
-    7          0.0000345064138    31.7    31.8
-    8          0.0000129016600    34.2    34.3
-    9          0.0000059628433    33.6    33.7
-   10          0.0000027186793    34.6    34.8
+    6          0.0001275611119    27.4    25.3
+    7          0.0000345064139    26.6    24.5
+    8          0.0000129016601    26.8    24.7
+    9          0.0000059628433    26.8    24.7
+   10          0.0000027186793    27.1    24.9
  MICROCYCLE DIIS UPDATE:                    10                     5
-   11          0.0000002930653    30.3    30.4
-   12          0.0000001882090    31.0    31.1
-   13          0.0000000543241    30.9    31.0
+   11          0.0000002930653    26.5    24.4
+   12          0.0000001882090    26.5    24.5
+   13          0.0000000543241    26.3    24.2
  ---------------------------------------------
  Iterations converged
 
@@ -696,45 +1247,45 @@ task tce energy
  ---------------------------------------------
  Iter          Residuum            Cpu    Wall
  ---------------------------------------------
-    1          1.6801950772320    19.1    19.2
-    2          1.7908882799135    20.1    20.2
-    3          0.4672942832030    20.3    20.4
-    4          0.2974737401131    19.9    19.9
-    5          0.1259097421017    20.0    20.1
+    1          1.6801950772366    16.5    15.0
+    2          1.7908882797083    15.7    14.1
+    3          0.4672942830640    16.7    15.0
+    4          0.2974737401065    16.5    14.9
+    5          0.1259097421005    16.7    15.0
  MICROCYCLE DIIS UPDATE:                     5                     5
-    6          0.0530212789695    18.9    19.0
-    7          0.0309729100553    20.6    20.7
-    8          0.0198414631187    20.3    20.4
-    9          0.0130806148830    19.6    19.7
-   10          0.0096099479364    19.5    19.6
+    6          0.0530212788773    16.0    14.3
+    7          0.0309729100357    16.6    14.9
+    8          0.0198414631038    16.7    15.0
+    9          0.0130806148726    16.6    14.9
+   10          0.0096099479292    15.8    14.1
  MICROCYCLE DIIS UPDATE:                    10                     5
-   11          0.0033668832452    18.7    18.8
-   12          0.0024417191898    19.3    19.4
-   13          0.0016488660486    20.4    20.6
-   14          0.0012674511063    22.6    22.7
-   15          0.0009471502073    20.4    20.5
+   11          0.0033668832388    16.6    15.0
+   12          0.0024417191828    16.5    14.8
+   13          0.0016488660439    16.7    15.1
+   14          0.0012674511015    16.7    15.0
+   15          0.0009471502036    16.4    14.8
  MICROCYCLE DIIS UPDATE:                    15                     5
-   16          0.0002634374719    21.5    21.6
-   17          0.0001651889801    22.3    22.4
-   18          0.0001075210396    23.3    23.4
-   19          0.0000748756413    21.4    21.5
-   20          0.0000565506880    22.1    22.2
+   16          0.0002634374510    16.7    15.0
+   17          0.0001651889576    16.6    14.9
+   18          0.0001075210174    16.4    14.7
+   19          0.0000748756167    16.5    14.8
+   20          0.0000565506662    16.3    14.6
  MICROCYCLE DIIS UPDATE:                    20                     5
-   21          0.0000203943336    22.1    22.3
-   22          0.0000162739954    21.3    21.4
-   23          0.0000106107880    21.0    21.1
-   24          0.0000087441060    21.2    21.3
-   25          0.0000062303398    21.5    21.6
+   21          0.0000203943309    16.5    14.9
+   22          0.0000162739933    16.7    15.0
+   23          0.0000106107870    16.6    15.0
+   24          0.0000087441052    16.5    14.9
+   25          0.0000062303394    16.4    14.8
  MICROCYCLE DIIS UPDATE:                    25                     5
-   26          0.0000018564424    20.1    20.2
-   27          0.0000010561076    23.4    23.5
-   28          0.0000007250569    23.2    23.4
-   29          0.0000005088963    21.6    21.7
-   30          0.0000003978347    21.3    21.5
+   26          0.0000018564422    16.7    15.0
+   27          0.0000010561074    16.3    14.7
+   28          0.0000007250567    16.7    15.1
+   29          0.0000005088961    16.6    15.0
+   30          0.0000003978346    16.6    15.0
  MICROCYCLE DIIS UPDATE:                    30                     5
-   31          0.0000001392037    20.2    20.3
-   32          0.0000001147736    20.5    20.6
-   33          0.0000000734705    22.6    22.7
+   31          0.0000001392037    16.5    14.9
+   32          0.0000001147736    16.5    14.9
+   33          0.0000000734705    16.3    14.7
  ---------------------------------------------
  Iterations converged
  
@@ -746,43 +1297,43 @@ task tce energy
  ---------------------------------------------
  Iter          Residuum            Cpu    Wall
  ---------------------------------------------
-    1          1.9853850068033    23.2    23.3
-    2          3.3245648545203    22.4    22.5
-    3          0.8010851707544    23.1    23.2
-    4          0.9591498276872    24.3    24.4
-    5          0.2772283662256    22.8    22.9
+    1          1.9853850068023    17.5    15.9
+    2          3.3245648544338    17.2    15.6
+    3          0.8010851700984    17.1    15.5
+    4          0.9591498276525    17.3    15.6
+    5          0.2772283662076    17.5    15.9
  MICROCYCLE DIIS UPDATE:                     5                     5
-    6          0.1712087621836    22.4    22.5
-    7          0.1593820870540    21.8    21.9
-    8          0.0673463627238    23.2    23.3
-    9          0.0728143392615    24.0    24.2
-   10          0.0320452710557    23.0    23.1
+    6          0.1712087621871    17.5    15.9
+    7          0.1593820870069    17.8    16.1
+    8          0.0673463627291    17.1    15.5
+    9          0.0728143392423    17.5    15.8
+   10          0.0320452710628    17.5    15.9
  MICROCYCLE DIIS UPDATE:                    10                     5
-   11          0.0071105443444    22.5    22.6
-   12          0.0043511752515    22.8    23.0
-   13          0.0026158520022    24.0    24.1
-   14          0.0019190378865    22.2    22.3
-   15          0.0011559987817    22.3    22.4
+   11          0.0071105443418    17.6    15.9
+   12          0.0043511752531    17.5    15.9
+   13          0.0026158520035    17.3    15.7
+   14          0.0019190378876    17.5    15.8
+   15          0.0011559987831    17.2    15.6
  MICROCYCLE DIIS UPDATE:                    15                     5
-   16          0.0003318738385    21.5    21.6
-   17          0.0002556302395    23.7    23.8
-   18          0.0001288298384    23.1    23.2
-   19          0.0001219233724    22.8    22.9
-   20          0.0000681854862    22.4    22.6
+   16          0.0003318738421    17.4    15.7
+   17          0.0002556302416    17.4    15.7
+   18          0.0001288298420    17.1    15.4
+   19          0.0001219233743    17.5    15.9
+   20          0.0000681854887    16.8    15.2
  MICROCYCLE DIIS UPDATE:                    20                     5
-   21          0.0000151482335    22.6    22.7
-   22          0.0000098447621    21.3    21.4
-   23          0.0000055705809    20.2    20.3
-   24          0.0000039624263    23.0    23.2
-   25          0.0000027950634    22.2    22.3
+   21          0.0000151482336    17.7    16.0
+   22          0.0000098447620    17.0    15.3
+   23          0.0000055705808    17.3    15.6
+   24          0.0000039624261    17.5    15.8
+   25          0.0000027950632    17.7    16.0
  MICROCYCLE DIIS UPDATE:                    25                     5
-   26          0.0000009660730    22.3    22.4
-   27          0.0000005894557    23.3    23.4
-   28          0.0000003768676    24.1    24.2
-   29          0.0000002896510    22.6    22.7
-   30          0.0000001996305    24.7    24.8
+   26          0.0000009660731    17.2    15.6
+   27          0.0000005894558    17.3    15.6
+   28          0.0000003768676    17.3    15.6
+   29          0.0000002896510    17.5    15.8
+   30          0.0000001996305    17.2    15.5
  MICROCYCLE DIIS UPDATE:                    30                     5
-   31          0.0000000542835    23.7    23.8
+   31          0.0000000542835    17.5    15.8
  ---------------------------------------------
  Iterations converged
  
@@ -794,43 +1345,43 @@ task tce energy
  ---------------------------------------------
  Iter          Residuum            Cpu    Wall
  ---------------------------------------------
-    1          2.1126919451785    23.7    23.8
-    2          4.3902794102948    22.3    22.4
-    3          1.1274180883744    23.1    23.2
-    4          1.7161098037015    23.1    23.2
-    5          0.5303693234299    22.9    23.0
+    1          2.1126919452343    17.4    15.8
+    2          4.3902794103858    18.0    16.4
+    3          1.1274180875580    18.2    16.5
+    4          1.7161098034412    17.5    15.8
+    5          0.5303693231906    18.2    16.5
  MICROCYCLE DIIS UPDATE:                     5                     5
-    6          0.3713248126146    25.4    25.5
-    7          0.3981558314269    23.7    23.8
-    8          0.1817032594992    22.2    22.3
-    9          0.2348272664092    21.2    21.3
-   10          0.1168120432858    21.8    21.9
+    6          0.3713248124578    18.1    16.4
+    7          0.3981558311304    18.0    16.3
+    8          0.1817032594250    17.9    16.3
+    9          0.2348272662382    18.0    16.3
+   10          0.1168120432330    17.6    16.0
  MICROCYCLE DIIS UPDATE:                    10                     5
-   11          0.0149456985712    24.0    24.2
-   12          0.0097877254583    24.0    24.1
-   13          0.0053590279894    23.0    23.2
-   14          0.0040776020036    24.5    24.6
-   15          0.0027409628024    23.5    23.6
+   11          0.0149456985658    17.6    16.0
+   12          0.0097877254506    17.5    15.8
+   13          0.0053590279871    17.7    16.0
+   14          0.0040776019984    17.4    15.8
+   15          0.0027409628012    16.8    15.2
  MICROCYCLE DIIS UPDATE:                    15                     5
-   16          0.0007175137481    22.7    22.8
-   17          0.0005770035939    23.5    23.6
-   18          0.0002300206368    23.5    23.6
-   19          0.0003043267910    23.7    23.9
-   20          0.0001213260048    23.9    24.0
+   16          0.0007175137462    17.6    16.0
+   17          0.0005770035945    17.8    16.1
+   18          0.0002300206364    17.4    15.8
+   19          0.0003043267914    17.4    15.8
+   20          0.0001213260048    17.4    15.8
  MICROCYCLE DIIS UPDATE:                    20                     5
-   21          0.0000441775702    24.4    24.5
-   22          0.0000265569703    24.4    24.5
-   23          0.0000174472349    24.0    24.1
-   24          0.0000153376715    21.6    21.7
-   25          0.0000107934154    25.1    25.2
+   21          0.0000441775703    17.9    16.2
+   22          0.0000265569704    17.7    16.0
+   23          0.0000174472350    17.6    15.9
+   24          0.0000153376716    17.6    15.9
+   25          0.0000107934155    17.5    15.9
  MICROCYCLE DIIS UPDATE:                    25                     5
-   26          0.0000021817492    23.4    23.5
-   27          0.0000016674903    22.7    22.7
-   28          0.0000007464290    22.8    22.9
-   29          0.0000008394004    23.8    23.9
-   30          0.0000003822200    24.6    24.7
+   26          0.0000021817492    17.7    16.1
+   27          0.0000016674903    17.8    16.2
+   28          0.0000007464290    17.8    16.2
+   29          0.0000008394004    17.4    15.8
+   30          0.0000003822200    17.5    15.8
  MICROCYCLE DIIS UPDATE:                    30                     5
-   31          0.0000000823956    23.3    23.4
+   31          0.0000000823956    17.3    15.7
  ---------------------------------------------
  Iterations converged
 
@@ -856,37 +1407,37 @@ task tce energy
  Isotropic   =             105.0753098                  |                    15.5705578
  Anisotropic =              83.4001313                  |                    12.3586271
  -------------------------------------------------------|-----------------------------------------------
- Cpu & wall time / sec          420.2          422.3
+ Cpu & wall time / sec          259.8          232.5
  
  X   axis ( b1  symmetry)
 
  Frequency =       0.0000000 / au
  Forming RHS
- Cpu & wall time / sec           43.1           43.3
+ Cpu & wall time / sec           35.1           35.3
 
  CCSD-YR iterations
  ---------------------------------------------
  Iter          Residuum            Cpu    Wall
  ---------------------------------------------
-    1          7.2328776996158    32.5    32.6
-    2          3.3837406312655    32.9    33.0
-    3          0.2185516630872    28.7    28.8
-    4          0.0927924914425    31.3    31.4
-    5          0.0162419495855    31.1    31.2
+    1          7.2328776999574    23.3    21.3
+    2          3.3837406309291    24.9    22.8
+    3          0.2185516630128    24.8    22.8
+    4          0.0927924914463    24.5    22.5
+    5          0.0162419495851    25.4    23.3
  MICROCYCLE DIIS UPDATE:                     5                     5
-    6          0.0028880131573    33.2    33.3
-    7          0.0010288272999    32.8    33.0
-    8          0.0004126031748    32.4    32.5
-    9          0.0001877050789    29.6    29.7
-   10          0.0000990403220    33.3    33.5
+    6          0.0028880131494    25.3    23.2
+    7          0.0010288272989    24.7    22.7
+    8          0.0004126031742    24.4    22.4
+    9          0.0001877050787    25.6    23.5
+   10          0.0000990403219    25.4    23.3
  MICROCYCLE DIIS UPDATE:                    10                     5
-   11          0.0000127562893    30.0    30.1
-   12          0.0000062234816    30.2    30.3
-   13          0.0000030108846    31.5    31.6
-   14          0.0000016898252    32.4    32.6
-   15          0.0000009777605    33.8    34.0
+   11          0.0000127562892    25.5    23.5
+   12          0.0000062234816    24.2    22.2
+   13          0.0000030108846    24.6    22.5
+   14          0.0000016898252    25.3    23.3
+   15          0.0000009777605    25.0    23.0
  MICROCYCLE DIIS UPDATE:                    15                     5
-   16          0.0000000746330    31.0    31.1
+   16          0.0000000746330    25.4    23.3
  ---------------------------------------------
  Iterations converged
  
@@ -894,31 +1445,31 @@ task tce energy
 
  Frequency =       0.0000000 / au
  Forming RHS
- Cpu & wall time / sec           41.1           41.3
+ Cpu & wall time / sec           37.9           38.1
 
  CCSD-YR iterations
  ---------------------------------------------
  Iter          Residuum            Cpu    Wall
  ---------------------------------------------
-    1          9.4562956794613    33.9    34.0
-    2          8.0741718325912    35.7    35.8
-    3          0.5528777685186    35.5    35.6
-    4          0.6091560975975    34.0    34.2
-    5          0.0594695675295    32.8    33.0
+    1          9.4562956795970    25.7    23.7
+    2          8.0741718316879    26.9    24.8
+    3          0.5528777681292    25.7    23.7
+    4          0.6091560976178    26.0    24.0
+    5          0.0594695675270    26.3    24.2
  MICROCYCLE DIIS UPDATE:                     5                     5
-    6          0.0191042997365    33.7    33.9
-    7          0.0190290096958    34.5    34.7
-    8          0.0030684485286    34.5    34.7
-    9          0.0039297168547    36.7    36.9
-   10          0.0007167273874    35.3    35.5
+    6          0.0191042997602    25.5    23.5
+    7          0.0190290097121    25.8    23.7
+    8          0.0030684485326    25.7    23.6
+    9          0.0039297168579    24.9    22.8
+   10          0.0007167273885    27.2    25.1
  MICROCYCLE DIIS UPDATE:                    10                     5
-   11          0.0000358599268    34.6    34.8
-   12          0.0000131575439    32.3    32.5
-   13          0.0000046697339    35.0    35.1
-   14          0.0000024298056    35.2    35.4
-   15          0.0000008696124    36.2    36.3
+   11          0.0000358599269    26.8    24.7
+   12          0.0000131575439    26.2    24.1
+   13          0.0000046697339    25.9    23.9
+   14          0.0000024298056    26.1    24.0
+   15          0.0000008696124    25.5    23.4
  MICROCYCLE DIIS UPDATE:                    15                     5
-   16          0.0000000752348    34.9    35.0
+   16          0.0000000752348    25.8    23.7
  ---------------------------------------------
  Iterations converged
  
@@ -926,33 +1477,33 @@ task tce energy
 
  Frequency =       0.0000000 / au
  Forming RHS
- Cpu & wall time / sec           46.7           46.9
+ Cpu & wall time / sec           41.9           42.1
 
  CCSD-YR iterations
  ---------------------------------------------
  Iter          Residuum            Cpu    Wall
  ---------------------------------------------
-    1         12.1408889549239    35.5    35.6
-    2         15.5363325633710    36.4    36.5
-    3          1.1793695192509    34.7    34.9
-    4          2.3377441296161    36.2    36.3
-    5          0.2429332191974    33.9    34.1
+    1         12.1408889555983    26.9    24.8
+    2         15.5363325640925    27.4    25.3
+    3          1.1793695186191    26.7    24.7
+    4          2.3377441293943    27.3    25.1
+    5          0.2429332190834    27.0    24.9
  MICROCYCLE DIIS UPDATE:                     5                     5
-    6          0.1112977361509    35.4    35.5
-    7          0.1345937560975    34.1    34.2
-    8          0.0272900541417    36.8    36.9
-    9          0.0470020880802    34.4    34.5
-   10          0.0113002521975    34.3    34.4
+    6          0.1112977360927    27.4    25.3
+    7          0.1345937560373    27.1    25.0
+    8          0.0272900541297    27.4    25.3
+    9          0.0470020880549    26.5    24.4
+   10          0.0113002521918    27.1    25.0
  MICROCYCLE DIIS UPDATE:                    10                     5
-   11          0.0001823683857    33.9    34.0
-   12          0.0000770874134    34.9    35.0
-   13          0.0000221364301    35.3    35.4
-   14          0.0000127704626    34.8    35.0
-   15          0.0000056947496    34.3    34.5
+   11          0.0001823683857    26.9    24.8
+   12          0.0000770874134    27.1    25.1
+   13          0.0000221364301    26.9    24.8
+   14          0.0000127704626    26.9    24.8
+   15          0.0000056947496    27.1    25.0
  MICROCYCLE DIIS UPDATE:                    15                     5
-   16          0.0000004619892    36.6    36.7
-   17          0.0000002861474    33.1    33.3
-   18          0.0000000499466    32.7    32.9
+   16          0.0000004619892    27.4    25.3
+   17          0.0000002861474    26.6    24.5
+   18          0.0000000499466    26.9    24.8
  ---------------------------------------------
  Iterations converged
 
@@ -963,33 +1514,33 @@ task tce energy
                      atomic units (bohr^3)              |                   angstroms^3           
                   X              Y              Z       |             X              Y              Z
  -------------------------------------------------------|-----------------------------------------------
- X           56.9066520      0.0000000      0.0000000   |      8.4326976      0.0000000      0.0000000
+ X           56.9066521      0.0000000      0.0000000   |      8.4326976      0.0000000      0.0000000
  Y            0.0000000    105.1087894      0.0000000   |      0.0000000     15.5755190      0.0000000
  Z            0.0000000      0.0000000    153.2078343   |      0.0000000      0.0000000     22.7030636
  -------------------------------------------------------|-----------------------------------------------
- Eigs =      56.9066520    105.1087894    153.2078343   |      8.4326976     15.5755190     22.7030636
+ Eigs =      56.9066521    105.1087894    153.2078343   |      8.4326976     15.5755190     22.7030636
  Isotropic   =             105.0744252                  |                    15.5704268
  Anisotropic =              83.3992861                  |                    12.3585018
  -------------------------------------------------------|-----------------------------------------------
- Cpu & wall time / sec           23.3           23.4
+ Cpu & wall time / sec           11.1           11.0
  
  CCSD Quadratic Response
  Static Hyperpolarizability
  -----------------------------------------------
- beta(X,X,Z) =      -58.934825924 / au
- beta(X,Z,X) =      -58.934825924 / au
- beta(Y,Y,Z) =     -113.990514147 / au
- beta(Y,Z,Y) =     -113.990514147 / au
- beta(Z,X,X) =      -58.934825924 / au
- beta(Z,Y,Y) =     -113.990514147 / au
- beta(Z,Z,Z) =     1782.792053567 / au
+ beta(X,X,Z) =      -58.934825907 / au
+ beta(X,Z,X) =      -58.934825907 / au
+ beta(Y,Y,Z) =     -113.990514183 / au
+ beta(Y,Z,Y) =     -113.990514183 / au
+ beta(Z,X,X) =      -58.934825907 / au
+ beta(Z,Y,Y) =     -113.990514183 / au
+ beta(Z,Z,Z) =     1782.792053476 / au
  -----------------------------------------------
- Cpu & wall time / sec         1246.8         1253.0
+ Cpu & wall time / sec          655.8          643.0
 
- Parallel integral file used   45911 records with       0 large values
+ Parallel integral file used   45941 records with       0 large values
 
 
- Task  times  cpu:     6910.2s     wall:     6951.2s
+ Task  times  cpu:     4828.4s     wall:     4490.0s
  
  
                                 NWChem Input Module
@@ -998,7 +1549,12 @@ task tce energy
  
  Summary of allocated global arrays
 -----------------------------------
-  No active global arrays
+  array 0 => double precision /scratch/tce_hyperpolar_ccsd_b(36646,1),  handle: -998 
+  array 1 => double precision /scratch/tce_hyperpolar_ccsd_b(36646,1),  handle: -997 
+  array 2 => double precision /scratch/tce_hyperpolar_ccsd_b(36646,1),  handle: -996 
+  array 3 => double precision /scratch/tce_hyperpolar_ccsd_b(27486,1),  handle: -987 
+  array 4 => double precision /scratch/tce_hyperpolar_ccsd_b(28404,1),  handle: -986 
+  array 5 => double precision /scratch/tce_hyperpolar_ccsd_b(35628,1),  handle: -985 
 
 
 
@@ -1006,11 +1562,11 @@ task tce energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 3.09e+04 3.09e+04 1.57e+06 2.05e+04 7.10e+04    0        0     1.58e+06 
-number of processes/call 4.58e+00 1.10e+01 5.72e+00 0.00e+00 0.00e+00
-bytes total:             4.87e+11 9.17e+09 1.34e+10 0.00e+00 0.00e+00 1.26e+07
-bytes remote:            4.68e+11 8.92e+09 1.23e+10 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 137808912 bytes
+calls: 4.37e+04 4.37e+04 2.32e+06 3.48e+04 8.23e+04    0        0     4.99e+06 
+number of processes/call 4.55e+00 8.58e+00 9.76e+00 0.00e+00 0.00e+00
+bytes total:             7.57e+11 1.17e+10 1.56e+10 0.00e+00 0.00e+00 3.99e+07
+bytes remote:            7.18e+11 1.08e+10 1.31e+10 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 369757616 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1020,11 +1576,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        18	        53
+	maximum number of blocks	        18	        59
 	current total bytes		         0	         0
-	maximum total bytes		 799093656	 130718600
-	maximum total K-bytes		    799094	    130719
-	maximum total M-bytes		       800	       131
+	maximum total bytes		 799094056	  83420296
+	maximum total K-bytes		    799095	     83421
+	maximum total M-bytes		       800	        84
  
  
                                      CITATION
@@ -1044,19 +1600,19 @@ MA usage statistics:
                               ----------------------
           E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
        T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
-        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
-     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli,J. Mullin,
-        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
-     R. J. Harrison, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
-        V. Tipparaju, M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia,
-        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
-      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
-   K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-   B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
-        B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann,
-      G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
-                                     Z. Zhang.
+    J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata, W. Ma,
+       M. Klemm, O. Villa, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, R. J. Harrison,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:     6910.3s     wall:     6952.6s
+ Total times  cpu:     4831.0s     wall:     4525.3s
