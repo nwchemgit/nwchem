@@ -1,0 +1,42 @@
+# COSMO-SMD solvation results:
+#             internal energy in gas <Psi(g)|H|Psi(g)> =      -115.9533911674
+#    total free energy in solvent including G(SMD-CDS) =      -116.0794697262
+#                       G(SMD-CDS) energy contribution =         0.0053001956 (    3.33 kcal/mol)
+#     1 M fixed-concentration free energy of solvation =        -0.1260785589 (  -79.12 kcal/mol)
+#
+echo 'SMD/M06-2X/6-31G(d) solvation energy - protonated methanol CH3OH2+ in water'
+
+start CH3OH2pWat_SMD_M062X_opt_dat
+
+charge 1
+
+geometry nocenter
+ H    -0.996782    1.138765    0.000000
+ C     0.038330    0.800183    0.000000
+ O     0.038330   -0.725816    0.000000
+ H     0.585508    1.066678    0.901842
+ H     0.585508    1.066678   -0.901842
+ H    -0.355429   -1.133347   -0.803114
+ H    -0.355429   -1.133347    0.803114
+symmetry c1
+end
+
+basis 
+ * library 6-31G* 
+end
+
+dft
+ print forces
+ XC m06-2x
+end
+
+cosmo
+ do_cosmo_smd true
+ solvent water
+end
+
+driver
+  clear
+end
+
+task dft optimize

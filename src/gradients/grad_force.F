@@ -99,6 +99,8 @@ c
      $     l_frc_wgh, l_frc_cd, l_frc_mp2, k_frc_mp2
       integer l_frc_cos_nucq, l_frc_cos_elq, l_frc_cos_qq
       integer k_frc_cos_nucq, k_frc_cos_elq, k_frc_cos_qq
+      integer l_frc_smd
+      integer k_frc_smd
 
 c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer l_pdm2, l_pdm2a, l_pdm2b, l_pdm2c, l_pdm2d ! MCSCF 2-pdm
@@ -158,7 +160,7 @@ c
 c     cosmo flag
 c
       logical odbug
-      logical ocosmo
+      logical ocosmo, do_cosmo_smd
       logical osome
 c
       integer ifocc
@@ -215,6 +217,12 @@ c
      $     call errquit('grad: failed getting theory',0, RTDB_ERR)
       if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
         ocosmo = .false.
+        do_cosmo_smd = .false.
+      else
+        if (.not. rtdb_get(rtdb,'cosmo:do_cosmo_smd',mt_log,1,
+     $                     do_cosmo_smd)) then
+          do_cosmo_smd = .false.
+        endif
       endif
 
 C     get SCF MO vectors for density
@@ -412,6 +420,12 @@ c
      $        k_frc_cos_qq)) call errquit
      &      ('grad_force:could not allocate l_frc_cos_qq',
      &       lforce, MA_ERR)
+         if (do_cosmo_smd) then
+           if (.not. ma_push_get(mt_dbl,lforce,'cos_smd',l_frc_smd,
+     $          k_frc_smd)) call errquit
+     &        ('grad_force:could not allocate l_frc_smd',
+     &         lforce, MA_ERR)
+         endif
       end if
 
 C     global density
@@ -531,6 +545,9 @@ C     initialize for integral gradients
          call dfill(lforce, 0.0D0, dbl_mb(k_frc_cos_nucq), 1)
          call dfill(lforce, 0.0D0, dbl_mb(k_frc_cos_elq), 1)
          call dfill(lforce, 0.0D0, dbl_mb(k_frc_cos_qq), 1)
+         if (do_cosmo_smd) then
+           call dfill(lforce, 0.0D0, dbl_mb(k_frc_smd), 1)
+         endif
       endif
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
@@ -614,6 +631,12 @@ c
                write(luout,*) '-cosmo- ... found but .false.',
      $                        ocosmo,ga_nodeid()
             endif
+         endif
+         if (do_cosmo_smd) then
+           if (.not.rtdb_get(rtdb,'cosmo:dcds',mt_dbl,lforce,
+     $                       dbl_mb(k_frc_smd)))
+     $       call errquit("grad_force: SMD contributions not found",
+     $                    911,RTDB_ERR)
          endif
       else
          if(odbug) then
@@ -1033,6 +1056,12 @@ c
      $            + dbl_mb(k_frc_cos_elq+i) 
      $            + dbl_mb(k_frc_cos_qq+i) 
             end do
+            if (do_cosmo_smd) then
+              do i=0, 3*nat-1
+                 dbl_mb(k_force+i) = dbl_mb(k_force+i)
+     $              + dbl_mb(k_frc_smd+i) 
+              end do
+            endif
          endif
 c
          if (omp2) then
@@ -1092,6 +1121,10 @@ C     symmetrize
               write(luout,2200)'cosmo charge-cosmo charge gradient',
      $             ' ',' ',
      $             ((dbl_mb(k_frc_cos_qq+i-1+3*(j-1)),i=1,3),j=1,nat)
+              if (do_cosmo_smd) then
+                write(luout,2200)'cosmo SMD gradient',' ',' ',
+     $               ((dbl_mb(k_frc_smd+i-1+3*(j-1)),i=1,3),j=1,nat)
+              endif
             endif
             write(luout,2200) 'total ',
      $           theory(1:inp_strlen(theory)), ' gradient',
