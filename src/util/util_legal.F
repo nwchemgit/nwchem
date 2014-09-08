@@ -76,7 +76,7 @@ c     == default ==
       write(luout,*)
       call util_nwchem_paper()
       write(luout,*)
-      call util_print_centered(luout, 'AUTHORS & CONTRIBUTORS', 40, 
+      call util_print_centered(luout, 'AUTHORS', 40, 
      & .true.)
 c
       
