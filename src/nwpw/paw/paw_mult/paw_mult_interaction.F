@@ -101,7 +101,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         IF(R1(2) .EQ. R2(2) .AND. R1(1).EQ.R2(1)) THEN
         phi = 0.0d0
         ELSE
-        phi = ATAN2(R1(2)-R2(2),R1(1)-R2(1))
+        phi = DATAN2(R1(2)-R2(2),R1(1)-R2(1))
         END IF
 
         f = dcmplx(0.0,0.0)
@@ -380,7 +380,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       real*8 phase_factor2,phase_factor1, phase_factor
       real*8 const4_l,const2_l,const1_l,const,twopi
 
-      complex*16 f,f2
+      complex*16 f,f2,f3,f4,f5,f6
 
       !**** external functions ****
       integer    paw_double_factorial
@@ -545,8 +545,9 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
      >                    + (rcell(2,lshell))**2
      >                    + (rcell(3,lshell))**2)
 
-                 if (R.gt.1.0d-9) then
-                 cos_theta = (rcell(3,nshl3d))/R
+
+                 if ((R.gt.1.0d-9).and.(R.lt.(4*sigma_smooth))) then
+                 cos_theta = (rcell(3,lshell))/R
                  if (  (dabs(rcell(2,lshell)).lt.1.0d-9) 
      >           .and. (dabs(rcell(1,lshell)).lt.1.0d-9)) then
                     phi = 0.0d0
@@ -565,6 +566,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
                  phase_factor2 = (-1)**(m1+l1)/sigma2**(l1+l2+1)
                  phase_factor1 = (-1)**(m1+l1)/sigma1**(l1+l2+1)
                  phase_factor  = 1.0d0
+
                  do l=l1+l2,MAX(ABS(l1-l2),ABS(m1+m2)),-2
 
                  !*** gaunt coefficent is non-zero ***
@@ -587,16 +589,19 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
      > + (r_over_s1**l)
      >   *paw_hypergeom1F1(p1,l,-0.5d0*(r_over_s1)**2)*phase_factor1
      >                   ) 
+
                 end if
 
                  phase_factor = -phase_factor
                  end do !*l*
 
+
                end if !*R!=0*
               end do !*lshell*
 
+
               mult_energy_coeff(ii,il,ii,ilp) = 
-     >        mult_energy_coeff(ii,il,ii,ilp) + f2
+     >        mult_energy_coeff(ii,il,ii,ilp) + f2*2.0d0
 
 
               ilp = ilp+1
@@ -609,8 +614,6 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
         end do !*l1*
 
       end do !*ii*
-
-
 
 
       do ii=1,nion

@@ -162,6 +162,9 @@
       real*8 e_mult
       real*8 xxx
 
+c      complex*16 q1,q2,c12
+c      integer indx1,indx2,indx3,indx4
+
       call nwpw_timing_start(14)
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -200,6 +203,127 @@
      >             dcpl_mb(paw_qlm(1)+jl)
      >            *dcpl_mb(paw_qlm(1)+il)
      >            *dcpl_mb(mult_energy_coeff(1)+indx))
+
+c          if (ii.eq.jj) then
+c               etest2
+c     >          = etest2
+c     >          + 0.5d0*dble(
+c     >             dcpl_mb(paw_qlm(1)+jl)
+c     >            *dcpl_mb(paw_qlm(1)+il)
+c     >            *dcpl_mb(mult_energy_coeff(1)+indx))
+c          end if
+c
+c          if (mi.lt.0) then
+c             q1 = dcpl_mb(paw_qlm(1)+il+2*abs(mi))
+c             q1 =  (-1)**abs(mi)*q1
+c             q1 = q1 - dcpl_mb(paw_qlm(1)+il)
+c             q1 = q1*dcmplx(0.0d0,1.0d0)/dsqrt(2.0d0)
+c          else if (mi.gt.0) then
+c             q1 = dcpl_mb(paw_qlm(1)+il)
+c             q1 =  (-1)**abs(mi)*q1
+c             q1 = dcpl_mb(paw_qlm(1)+il-2*abs(mi)) + q1
+c             q1 = q1/dsqrt(2.0d0)
+c          else
+c             q1 = dble(dcpl_mb(paw_qlm(1)+il))
+c          end if
+c
+c          if (mj.lt.0) then
+c             q2 = dcpl_mb(paw_qlm(1)+jl+2*abs(mj))
+c             q2 =  (-1)**abs(mj)*q2
+c             q2 = q2 - dcpl_mb(paw_qlm(1)+jl)
+c             q2 = q2*dcmplx(0.0d0,1.0d0)/dsqrt(2.0d0)
+c          else if (mj.gt.0) then
+c             q2 = dcpl_mb(paw_qlm(1)+jl)
+c             q2 =  (-1)**abs(mj)*q2
+c             q2 = dcpl_mb(paw_qlm(1)+jl-2*abs(mj)) + q2
+c             q2 = q2/dsqrt(2.0d0)
+c          else
+c             q2 = dble(dcpl_mb(paw_qlm(1)+jl))
+c          end if
+c
+c          indx1 = indx 
+c          indx2 = indx - 2*mi*nion
+c          indx3 = indx - 2*mj*nion*lmax2*nion
+c          indx4 = indx - 2*mi*nion - 2*mj*nion*lmax2*nion
+c          if ((mi.gt.0).and.(mj.gt.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)*(-1)**abs(mi+mj)
+c             c12 = c12 
+c     >           + dcpl_mb(mult_energy_coeff(1)+indx2)*(-1)**abs(mj)
+c             c12 = c12 
+c     >           + dcpl_mb(mult_energy_coeff(1)+indx3)*(-1)**abs(mi)
+c             c12 = c12
+c     >           + dcpl_mb(mult_energy_coeff(1)+indx4)
+c              c12 = 0.5d0*c12
+c          else if ((mi.eq.0).and.(mj.gt.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)*(-1)**abs(mj)
+c             c12 = c12 
+c     >           + dcpl_mb(mult_energy_coeff(1)+indx3)
+c             c12 = c12/dsqrt(2.0d0)
+c          else if ((mi.lt.0).and.(mj.gt.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)*(-1)**abs(mj)
+c             c12 = c12 
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx2)*(-1)**abs(mi+mj)
+c             c12 = c12 
+c     >           + dcpl_mb(mult_energy_coeff(1)+indx3)
+c             c12 = c12 
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx4)*(-1)**abs(mi)
+c             c12 = dcmplx(0.0d0,0.5d0)*c12
+c
+c          else if ((mi.lt.0).and.(mj.eq.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)
+c             c12 = c12
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx2)*(-1)**abs(mi)
+c             c12 = c12*dcmplx(0.0d0,1.0d0/dsqrt(2.0d0))
+c          else if ((mi.eq.0).and.(mj.eq.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)
+c          else if ((mi.lt.0).and.(mj.eq.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)
+c             c12 = c12
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx2)*(-1)**abs(mi)
+c             c12 = c12*dcmplx(0.0d0,1.0d0/dsqrt(2.0d0))
+c
+c          else if ((mi.gt.0).and.(mj.lt.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)*(-1)**abs(mi)
+c             c12 = c12
+c     >           + dcpl_mb(mult_energy_coeff(1)+indx2)
+c             c12 = c12
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx3)*(-1)**abs(mi+mj)
+c             c12 = c12
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx4)*(-1)**abs(mj)
+c             c12 = c12*dcmplx(0.0d0,0.5d0)
+c          else if ((mi.eq.0).and.(mj.lt.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)
+c             c12 = c12
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx3)*(-1)**abs(mj)
+c             c12 = c12*dcmplx(0.0d0,1.0d0/dsqrt(2.0d0))
+c          else if ((mi.lt.0).and.(mj.lt.0)) then
+c             c12 = dcpl_mb(mult_energy_coeff(1)+indx1)
+c             c12 = c12
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx2)*(-1)**abs(mi)
+c             c12 = c12
+c     >           - dcpl_mb(mult_energy_coeff(1)+indx3)*(-1)**abs(mj)
+c             c12 = c12
+c     >           + dcpl_mb(mult_energy_coeff(1)+indx4)*(-1)**abs(mi+mj)
+c             c12 = -0.5d0*c12
+c          end if
+c
+c          write(23,'(A,6I3,E15.6,6E14.6)') 
+c     >           "paw emult=",ii,li,mi,jj,lj,mj,
+c     >            0.5d0*dble(
+c     >             dcpl_mb(paw_qlm(1)+jl)
+c     >            *dcpl_mb(paw_qlm(1)+il)
+c     >            *dcpl_mb(mult_energy_coeff(1)+indx)),
+c     >             q1,q2,c12
+c
+c          if (ii.eq.jj) then
+c          write(33,'(A,6I3,E15.6,6E14.6)') 
+c     >           "paw emult=",ii,li,mi,jj,lj,mj,
+c     >            0.5d0*dble(
+c     >             dcpl_mb(paw_qlm(1)+jl)
+c     >            *dcpl_mb(paw_qlm(1)+il)
+c     >            *dcpl_mb(mult_energy_coeff(1)+indx)),
+c     >             q1,q2,c12*0.5d0
+c          end if
 
               jl  = jl+1
               jll = jll+1
