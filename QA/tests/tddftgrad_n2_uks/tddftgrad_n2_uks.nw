@@ -1,0 +1,38 @@
+# Test case for TDDFT analytical gradients for the N2 molecule
+# using BNL/3-21G.
+
+echo
+
+start tddftgrad_n2_uks
+
+title "Unrestricted N2 TDDFT Gradients with BNL/3-21G"
+
+geometry nocenter
+N     0.00000000    0.00000000   -0.56556494
+N     0.00000000    0.00000000    0.56556494
+symmetry c1
+end
+
+basis spherical
+ * library "3-21G"
+end
+
+dft
+ xc xbnl07 0.90 lyp 1.00 hfexch 1.00
+ cam 0.33 cam_alpha 0.0 cam_beta 1.0
+ odft
+ direct
+ grid euler
+ grid xfine
+end
+
+tddft
+ nroots 10
+ notriplet
+ target 6
+ civecs
+ grad
+   root 6
+ end
+end
+task tddft gradient

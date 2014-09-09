@@ -20,6 +20,7 @@ dft
 end
 
 driver
+ clear
  maxiter 100
 end
 

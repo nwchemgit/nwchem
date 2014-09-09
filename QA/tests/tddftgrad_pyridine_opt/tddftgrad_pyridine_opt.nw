@@ -1,0 +1,50 @@
+echo
+
+start tddftgrad_pyridine_opt
+
+title "TDDFT/LDA geometry optimization of Pyridine with 6-31G"
+
+geometry nocenter
+N     0.00000000    0.00000000    1.41599295
+C     0.00000000   -1.15372936    0.72067272
+C     0.00000000    1.15372936    0.72067272
+C     0.00000000   -1.20168790   -0.67391011
+C     0.00000000    1.20168790   -0.67391011
+C     0.00000000    0.00000000   -1.38406147
+H     0.00000000   -2.07614628    1.31521089
+H     0.00000000    2.07614628    1.31521089
+H     0.00000000    2.16719803   -1.19243296
+H     0.00000000   -2.16719803   -1.19243296
+H     0.00000000    0.00000000   -2.48042299
+symmetry c1
+end
+
+basis spherical
+ * library "6-31G"
+end
+
+driver
+ clear
+ maxiter 100
+end
+
+dft
+ iterations 500
+ xc slater 1.0 vwn_5 1.0
+ grid xfine
+ grid euler
+ direct
+end
+
+tddft
+ nroots 2
+ algorithm 1
+ notriplet
+ target 1
+ targetsym a
+ civecs
+ grad
+   root 1
+ end
+end
+task tddft optimize

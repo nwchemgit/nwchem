@@ -39,15 +39,15 @@ task dft property
                                          
 
 
-             Northwest Computational Chemistry Package (NWChem) 6.1.1
-             --------------------------------------------------------
+              Northwest Computational Chemistry Package (NWChem) 6.5
+              ------------------------------------------------------
 
 
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2012
+                              Copyright (c) 1994-2014
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -74,13 +74,13 @@ task dft property
 
     hostname        = orion
     program         = ../../../bin/LINUX64/nwchem
-    date            = Tue Mar 12 10:15:06 2013
+    date            = Wed Sep  3 22:32:54 2014
 
-    compiled        = Tue_Mar_12_10:08:44_2013
-    source          = /home/niri/nwchem/nwchem-dev
-    nwchem branch   = Development
-    nwchem revision = 23633
-    ga revision     = 10143
+    compiled        = Sat_Aug_30_06:49:11_2014
+    source          = /home/niri/nwchem/nwchem-6.5
+    nwchem branch   = 6.5
+    nwchem revision = 26025
+    ga revision     = 10501
     input           = ch3f_rot.nw
     prefix          = ch3f_rot.
     data base       = ./ch3f_rot.db
@@ -93,10 +93,10 @@ task dft property
            Memory information
            ------------------
 
-    heap     =   13107201 doubles =    100.0 Mbytes
+    heap     =   13107196 doubles =    100.0 Mbytes
     stack    =   13107201 doubles =    100.0 Mbytes
     global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total    =   52428802 doubles =    400.0 Mbytes
+    total    =   52428797 doubles =    400.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -198,7 +198,7 @@ task dft property
 
 
   library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-dev/src/basis/libraries/>
+  library file name is: </home/niri/nwchem/nwchem-6.5/src/basis/libraries/>
   
 
 
@@ -304,6 +304,17 @@ task dft property
  h                           6-311G                  3        3   3s
 
 
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ c                           6-311G                  7       13   4s3p
+ f                           6-311G                  7       13   4s3p
+ h                           6-311G                  3        3   3s
+
+
   Caching 1-el integrals 
   itol2e modified to match energy
   convergence criterion.
@@ -392,7 +403,7 @@ task dft property
 
  Integral file          = ./ch3f_rot.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      3        Max. records in file   =   6879
+ Max. records in memory =      3        Max. records in file   =  16983
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -404,38 +415,34 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Grid_pts file          = ./ch3f_rot.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     18        Max. recs in file   =     36690
+ Max. records in memory =     18        Max. recs in file   =     90574
 
- Grid integrated density:      17.999997863580
- Requested integration accuracy:   0.10E-06
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.69            12687447
-          Stack Space remaining (MW):       13.11            13106861
+           Heap Space remaining (MW):       12.69            12687364
+          Stack Space remaining (MW):       13.11            13106836
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -139.7045934732 -1.77D+02  1.78D-02  5.05D-01     0.5
- Grid integrated density:      17.999997770624
- Requested integration accuracy:   0.10E-06
- d= 0,ls=0.0,diis     2   -139.6932249592  1.14D-02  1.02D-02  6.68D-01     0.8
- d= 0,ls=0.0,diis     3   -139.7494356800 -5.62D-02  1.59D-03  3.42D-02     1.1
- d= 0,ls=0.0,diis     4   -139.7513769807 -1.94D-03  6.05D-04  1.59D-03     1.4
- d= 0,ls=0.0,diis     5   -139.7515473590 -1.70D-04  1.23D-04  7.02D-05     1.7
+ d= 0,ls=0.0,diis     1   -139.7045943006 -1.77D+02  1.78D-02  5.05D-01     0.5
+ d= 0,ls=0.0,diis     2   -139.6932258052  1.14D-02  1.02D-02  6.68D-01     0.8
+ d= 0,ls=0.0,diis     3   -139.7494356785 -5.62D-02  1.59D-03  3.42D-02     1.1
+ d= 0,ls=0.0,diis     4   -139.7513769823 -1.94D-03  6.05D-04  1.59D-03     1.4
+ d= 0,ls=0.0,diis     5   -139.7515473583 -1.70D-04  1.23D-04  7.02D-05     1.6
   Resetting Diis
- d= 0,ls=0.0,diis     6   -139.7515541975 -6.84D-06  5.14D-06  8.51D-08     2.0
- d= 0,ls=0.0,diis     7   -139.7515542067 -9.24D-09  3.96D-07  1.74D-10     2.3
+ d= 0,ls=0.0,diis     6   -139.7515541970 -6.84D-06  5.14D-06  8.51D-08     1.9
+ d= 0,ls=0.0,diis     7   -139.7515542062 -9.23D-09  3.96D-07  1.74D-10     2.2
 
 
-         Total DFT energy =     -139.751554206706
-      One electron energy =     -266.590801561782
-           Coulomb energy =      106.458589200619
-    Exchange-Corr. energy =      -17.036744494621
+         Total DFT energy =     -139.751554206233
+      One electron energy =     -266.590801564215
+           Coulomb energy =      106.458589203750
+    Exchange-Corr. energy =      -17.036744494846
  Nuclear repulsion energy =       37.417402649077
 
- Numeric. integr. density =       18.000000050668
+ Numeric. integr. density =       18.000000050139
 
-     Total iterative time =      2.2s
+     Total iterative time =      2.0s
 
 
 
@@ -481,7 +488,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  3.2D-01, -2.3D-01,  8.1D-02, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.214336  1 C  pz                22      0.189717  2 F  pz         
+     9      0.214337  1 C  pz                22      0.189717  2 F  pz         
     26      0.163550  2 F  pz         
 
  Vector    7  Occ=2.000000D+00  E=-4.814896D-01
@@ -495,7 +502,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  7.1D-01, -1.6D-01,  3.7D-01, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.334712  2 F  py                21      0.319996  2 F  py         
+    25      0.334712  2 F  py                21      0.319997  2 F  py         
     17      0.230725  2 F  py                28     -0.221432  3 H  s          
     26      0.203616  2 F  pz                22      0.194666  2 F  pz         
      8     -0.152526  1 C  py         
@@ -506,9 +513,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     26      0.300834  2 F  pz                22      0.287608  2 F  pz         
     18      0.207372  2 F  pz                24     -0.193641  2 F  px         
-    31     -0.191763  4 H  s                 34      0.191772  5 H  s          
-    20     -0.185127  2 F  px                25     -0.163264  2 F  py         
-    21     -0.156086  2 F  py         
+    31     -0.191762  4 H  s                 34      0.191772  5 H  s          
+    20     -0.185127  2 F  px                25     -0.163263  2 F  py         
+    21     -0.156085  2 F  py         
 
  Vector   10  Occ=0.000000D+00  E= 4.747254D-02
               MO Center= -4.1D-01,  1.5D-01, -1.8D-01, r^2= 4.7D+00
@@ -532,9 +539,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -3.5D-01,  7.7D-01,  1.9D-01, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      1.984873  3 H  s                 32     -0.992799  4 H  s          
+    29      1.984873  3 H  s                 32     -0.992800  4 H  s          
     35     -0.992836  5 H  s                 12     -0.921836  1 C  py         
-    13     -0.561453  1 C  pz                 8     -0.216686  1 C  py         
+    13     -0.561452  1 C  pz                 8     -0.216686  1 C  py         
      4     -0.150820  1 C  py         
 
  Vector   13  Occ=0.000000D+00  E= 1.052441D-01
@@ -559,7 +566,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     12      1.341452  1 C  py                28     -1.314805  3 H  s          
-    13      0.816258  1 C  pz                31      0.656964  4 H  s          
+    13      0.816259  1 C  pz                31      0.656964  4 H  s          
     34      0.656938  5 H  s                 25     -0.236653  2 F  py         
     29      0.221176  3 H  s          
 
@@ -589,9 +596,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     29      1.931535  3 H  s                 12     -1.643804  1 C  py         
     13     -1.000260  1 C  pz                32     -0.965877  4 H  s          
-    35     -0.966034  5 H  s                  8      0.889962  1 C  py         
+    35     -0.966034  5 H  s                  8      0.889963  1 C  py         
      9      0.541667  1 C  pz                28     -0.518681  3 H  s          
-    31      0.260554  4 H  s                 34      0.260597  5 H  s          
+    31      0.260555  4 H  s                 34      0.260597  5 H  s          
 
  Vector   19  Occ=0.000000D+00  E= 5.538599D-01
               MO Center= -2.1D-01, -1.5D-01, -2.2D-01, r^2= 3.0D+00
@@ -600,7 +607,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     32      1.673229  4 H  s                 35     -1.673138  5 H  s          
     13     -1.477254  1 C  pz                11      0.950952  1 C  px         
      9      0.800003  1 C  pz                12      0.801906  1 C  py         
-     7     -0.514985  1 C  px                31     -0.450217  4 H  s          
+     7     -0.514985  1 C  px                31     -0.450216  4 H  s          
     34      0.450192  5 H  s                  8     -0.434270  1 C  py         
 
 
@@ -633,33 +640,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   0 0 2     -9.168663    -11.603957    -11.603957     14.039252
 
 
- Parallel integral file used       8 records with       0 large values
+ Parallel integral file used       6 records with       0 large values
 
- switch_skip_cphf= F
- switch_nmrcs_analysis= F
 
           -----------------------------------------
           Chemical Shielding Tensors (GIAO, in ppm)
           -----------------------------------------
 
-(j,k)(  1)=(     0.00000000,    -0.20000000)
-(j,k)(  2)=(     0.00000000,    -0.20000000)
-(j,k)(  3)=(     0.00000000,    -0.20000000)
-(j,k)(  4)=(     0.00000000,    -0.20000000)
-(j,k)(  5)=(     0.00000000,    -0.20000000)
-(j,k)(  6)=(     0.00000000,    -0.20000000)
-(j,k)(  7)=(     0.00000000,    -0.20000000)
-(j,k)(  8)=(     0.00000000,    -0.20000000)
-(j,k)(  9)=(     0.00000000,    -0.20000000)
-(j,k)( 10)=(     0.00000000,    -0.20000000)
-(j,k)( 11)=(     0.00000000,    -0.20000000)
-(j,k)( 12)=(     0.00000000,    -0.20000000)
- nat_slc=                    5
-atomnr(  1)=    1
-atomnr(  2)=    2
-atomnr(  3)=    3
-atomnr(  4)=    4
-atomnr(  5)=    5
                                 NWChem CPHF Module
                                 ------------------
 
@@ -677,7 +664,7 @@ atomnr(  5)=    5
 
  Integral file          = ./ch3f_rot.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      3        Max. records in file   =   6877
+ Max. records in memory =      3        Max. records in file   =  16981
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -686,7 +673,7 @@ atomnr(  5)=    5
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- SCF residual:   1.178615897628186E-005
+ SCF residual:   1.179442955731661E-005
 
 
 Iterative solution of linear equations
@@ -695,17 +682,17 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time      7.0
+        Start time      7.8
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    1.93D-01       7.8
-     2      6    3.38D-03       8.7
-     3      9    2.64D-04       9.5
-     4     12    1.93D-05      10.4
+     1      3    1.93D-01       9.4
+     2      6    3.38D-03      11.1
+     3      9    2.64D-04      12.8
+     4     12    1.93D-05      14.4
 
- Parallel integral file used       8 records with       0 large values
+ Parallel integral file used       6 records with       0 large values
 
 
  Wrote CPHF data to ./ch3f_rot.shieldcphf
@@ -857,7 +844,7 @@ Iterative solution of linear equations
 
 
 
- Task  times  cpu:        7.8s     wall:        9.3s
+ Task  times  cpu:       10.7s     wall:       14.6s
 
 
                                 NWChem Input Module
@@ -874,10 +861,10 @@ Iterative solution of linear equations
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  548      548     2.38e+05 1668     1.06e+05  136        0        0     
-number of processes/call 1.13e+00 1.76e+00 1.20e+00 2.31e+00 0.00e+00
-bytes total:             2.70e+07 1.76e+06 1.67e+07 4.07e+05 0.00e+00 0.00e+00
-bytes remote:            1.51e+07 5.01e+05 1.18e+07 -2.72e+05 0.00e+00 0.00e+00
+calls:  604      604     2.50e+05 1701     1.04e+05  136        0      591     
+number of processes/call 1.01e+00 1.75e+00 1.06e+00 2.31e+00 0.00e+00
+bytes total:             3.24e+07 1.90e+06 1.90e+07 4.07e+05 0.00e+00 4.73e+03
+bytes remote:            6.06e+06 5.01e+05 5.94e+06 -2.72e+05 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 216800 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
@@ -888,9 +875,9 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        26	        47
+	maximum number of blocks	        26	        50
 	current total bytes		         0	         0
-	maximum total bytes		   3358032	  22511376
+	maximum total bytes		   3358680	  22511656
 	maximum total K-bytes		      3359	     22512
 	maximum total M-bytes		         4	        23
 
@@ -912,17 +899,19 @@ MA usage statistics:
                               ----------------------
           E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
        T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
-    J. Hammond, J. Autschbach, F. Aquino, S. Hirata, M. T. Hackler, K. Lopata,
-      J. Mullin, P. Nichols, R. Peverati, Y. Zhao, P.-D. Fan, R. J. Harrison,
-        M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
-       B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu,
-   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
-      G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols,
-        K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,
-  T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening,
-         M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
-     R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu,
-      L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. Taylor,
-                  G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+    J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata, W. Ma,
+       M. Klemm, O. Villa, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, R. J. Harrison,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:        7.8s     wall:       10.5s
+ Total times  cpu:       10.7s     wall:       14.8s

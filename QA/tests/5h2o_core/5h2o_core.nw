@@ -1,4 +1,5 @@
 echo
+
 start 5h2o_core
 
 memory 1000 mb

@@ -1,0 +1,42 @@
+echo
+
+start tddftgrad_ch2o
+
+geometry nocenter
+O    -0.00872487   -0.68498262    0.00000000
+C     0.00401562    0.54500235    0.00000000
+H    -0.93426300    1.15321853    0.00000000
+H     0.95433234    1.13412348    0.00000000
+symmetry c1
+end
+
+basis spherical
+ * library "6-31G"
+end
+
+driver
+ maxiter 100
+end
+
+dft
+ iterations 500
+ xc slater 1.0 vwn_5 1.0
+ grid xfine
+ grid euler
+ tolerances tol_rho 1.0e-9
+ direct
+end
+
+tddft
+ nroots 2
+ algorithm 1
+ nosinglet
+ target 1
+ civecs
+ grad
+  root 1
+ end
+end
+
+#print "tddft grad"
+task tddft gradient

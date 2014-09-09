@@ -1,0 +1,34 @@
+# Test case for the CIS analytical excited state gradient 
+# functionality using the CO molecule for triplet states.
+
+echo
+
+start tddftgrad_co_cis
+
+geometry
+C     0.00000000     0.00000000    -0.64628342
+O     0.00000000     0.00000000     0.48264375
+symmetry c1
+end
+
+basis spherical
+ * library "3-21G"
+end
+
+dft
+ xc HFExch 1.0
+ direct
+end
+
+tddft
+ cis
+ nroots 3
+ nosinglet
+ triplet
+ target 1
+ civecs 
+ grad 
+  root 1
+ end
+end
+task tddft gradient

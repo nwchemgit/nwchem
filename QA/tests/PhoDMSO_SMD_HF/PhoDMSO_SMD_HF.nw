@@ -1,0 +1,46 @@
+# COSMO-SMD solvation results:
+#             internal energy in gas <Psi(g)|H|Psi(g)> =     -1714.7064243007
+#    total free energy in solvent including G(SMD-CDS) =     -1714.7202539145
+#                       G(SMD-CDS) energy contribution =        -0.0002001722 (   -0.13 kcal/mol)
+#     1 M fixed-concentration free energy of solvation =        -0.0138296138 (   -8.68 kcal/mol)
+echo 'SMD/RHF/6-31G(d) solvation energy - 2,2-dichloroethenyl dimethyl phosphate in DMSO'
+
+start PhoDMSO_SMD_HF
+
+geometry nocenter
+   C       0.886551   -0.538770   -0.226736
+   C       2.109190   -0.074290    0.021097
+   CL      3.518080   -0.909728   -0.542886
+   CL      2.401932    1.375529    0.919716
+   C      -2.465672   -0.979038    2.029287
+   C      -2.068974    2.143247   -0.946365
+   P      -1.697440   -0.391916   -0.374109
+   O      -0.220540    0.125132    0.263049
+   O      -1.640803   -1.790632   -0.933197
+   O      -2.118546    0.766386   -1.436114
+   O      -2.666476   -0.071969    0.901438
+   H      -3.288305   -0.770059    2.717206
+   H      -2.507263   -2.021027    1.692938
+   H      -1.504946   -0.768477    2.512545
+   H      -1.056232    2.392251   -0.612402
+   H      -2.345630    2.756441   -1.807206
+   H      -2.787066    2.283774   -0.132406
+   H       0.715195   -1.451011   -0.790243
+symmetry c1
+end
+
+basis 
+ * library 6-31G*            
+end
+
+dft
+ XC HFexch
+end
+
+cosmo
+ do_cosmo_smd true
+ solvent dmso
+end
+
+task dft energy
+

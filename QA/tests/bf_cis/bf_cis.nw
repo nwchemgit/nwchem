@@ -1,15 +1,14 @@
-start bf_cis
-
 echo
+
+start bf_cis
 
 # See Stanton, Gauss, Ishikawa, and Head-Gordon, J.Chem.Phys. 103 (1995) 4160.
 
 title "CIS/6-31G* BF Optimization"
 
-geometry 
+geometry noautosym noautoz
      B   0.00000000     0.00000000     0.
      F   0.00000000     0.00000000     1.2
-symmetry c2v
 end
 
 basis
@@ -26,9 +25,10 @@ cis
 nroots 3
 notriplet
 target 1
-thresh 1.0e-5
+thresh 1.0e-4
+civecs
+ grad
+   root 1
+ end
 end
-
 task tddft optimize
-
-task tddft frequencies

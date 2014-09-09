@@ -11,10 +11,9 @@ basis spherical
   * library aug-cc-pvdz
 end
 
-set int:cando_txs f
-
 #Long-range HF
 dft
+  odft
   xc xcampbe96 1.0 cpbe96 1.0 HFexch 1.0
   cam 0.30 cam_alpha 0.25 cam_beta 0.75
   iterations 100

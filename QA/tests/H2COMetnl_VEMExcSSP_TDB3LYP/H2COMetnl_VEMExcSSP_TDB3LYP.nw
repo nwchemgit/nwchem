@@ -1,0 +1,53 @@
+# COSMO-VEM solvation results:
+# excitation spectrum data:  GS = initial state, ES = final state
+# iteration #4
+# (1)          GS equilibrium total free energy =      -114.5504171786
+# (2)               GS polarization free energy =        -0.0132774342 (   -0.3613 eV)
+# (3)                 GSRF ES total free energy =      -114.3956240566
+# (4)          GSRF ES polarization free energy =        -0.0053607035 (   -0.1459 eV)
+# (5)          GSRF excitation energy (3) - (1) =         0.1547931220 (    4.2121 eV)
+# (6)                  VEM ES total free energy =      -114.3993180286
+# (7)           VEM ES polarization free energy =        -0.0074817473 (   -0.2036 eV)
+# (8)        fast polarization component of (7) =        -0.0045192778 (   -0.1230 eV)
+# (9)                 1/2 * delV * delQdyn term =        -0.0021210438 (   -0.0577 eV)
+# (10) VEM vertical excitation energy (6) - (1) =         0.1510991500 (    4.1116 eV)
+# (11)    SMSSP solute-solvent dispersion shift =         0.0004669883 (    0.0127 eV)
+#
+echo 'VEM/SMD/TDDFT-B3LYP/6-311+G(d) vertical excitation energy + SMSSP - formaldehyde in methanol'
+
+start H2COMetnl_VEMExcSSP_TDB3LYP
+
+geometry nocenter
+  O    0.0000000000    0.0000000000    0.6743110000
+  C    0.0000000000    0.0000000000   -0.5278530000
+  H    0.0000000000    0.9370330000   -1.1136860000
+  H    0.0000000000   -0.9370330000   -1.1136860000
+symmetry c1
+end
+
+basis
+ * library 6-311+G* 
+end
+
+dft
+ XC b3lyp
+end
+
+cosmo
+ do_cosmo_vem 1
+ solvent methanol
+end
+
+tddft
+ nroots 10
+ target 1
+ singlet
+ notriplet
+ algorithm 1
+ civecs
+ grad
+  root 1
+  solve_thresh 1d-05
+ end
+end
+task tddft gradient

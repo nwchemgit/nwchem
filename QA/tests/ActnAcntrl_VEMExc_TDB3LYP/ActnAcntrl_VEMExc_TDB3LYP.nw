@@ -1,0 +1,71 @@
+
+echo 'VEM/SMD/TDDFT-B3LYP/6-311+G(d) vertical excitation energy - acetone in acetonitrile and also in gas at the ground-state geometry'
+
+start ActnAcntrl_VEMExc_TDB3LYP
+
+geometry nocenter
+ O        0.00000     0.00000     1.40052
+ C        0.00000     0.00000     0.18938
+ C        0.00000     1.29054    -0.60972
+ C        0.00000    -1.29054    -0.60972
+ H        0.00000     2.14865     0.06128
+ H        0.00000    -2.14865     0.06128
+ H        0.87842     1.33868    -1.26162
+ H        0.87842    -1.33868    -1.26162
+ H       -0.87842     1.33868    -1.26162
+ H       -0.87842    -1.33868    -1.26162
+symmetry c1
+end
+
+basis
+ * library 6-311+G*
+end
+
+dft
+ XC b3lyp
+end
+
+cosmo
+ do_cosmo_smd true
+ do_cosmo_vem 1
+ solvent acetntrl
+end
+
+tddft
+ nroots 10
+ target 1
+ singlet
+ notriplet
+ algorithm 1
+ civecs
+ grad
+   root 1
+   solve_thresh 1d-05
+ end
+end
+
+# Calculation in the liquid phase
+
+task tddft gradient
+
+# Calculation in the gas phase at the same geometry
+
+geometry nocenter
+ O        0.00000    -0.00000     1.40076
+ C        0.00000     0.00000     0.18965
+ C        0.00000     1.29059    -0.60944
+ C        0.00000    -1.29059    -0.60944
+ H        0.00000     2.14875     0.06138
+ H        0.00000    -2.14875     0.06138
+ H        0.87809     1.33798    -1.26194
+ H        0.87809    -1.33798    -1.26194
+ H       -0.87809     1.33798    -1.26194
+ H       -0.87809    -1.33798    -1.26194
+symmetry c1
+end
+
+cosmo
+off
+end
+
+task tddft energy

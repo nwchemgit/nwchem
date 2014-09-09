@@ -1,0 +1,102 @@
+#
+# transition densities for 5 roots
+#
+echo
+
+start co-core-td
+title co-core-td
+
+memory 1000 mb
+
+geometry units angstrom noautosym nocenter
+ O 0.00000000     0.00000000     0.01225052
+ C 0.00000000     0.00000000     1.13774948
+end
+
+basis spherical
+  * library "def2-sv(p)"
+end
+
+dft
+  xc beckehandh
+end
+task dft
+
+tddft
+  cis
+  ecut -15
+  nroots 30
+  notriplet
+  thresh 1e-03
+end
+task tddft
+
+# cube file for td 1
+dplot
+  civecs co-core-td.civecs_singlet
+  root 1
+  tol_rho 1d-10
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-core-td-01.cube
+end
+task dplot
+
+# cube file for td 2
+dplot
+  civecs co-core-td.civecs_singlet
+  root 2
+  tol_rho 1d-10
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-core-td-02.cube
+end
+task dplot
+
+# cube file for td 3
+dplot
+  civecs co-core-td.civecs_singlet
+  root 3
+  tol_rho 1d-10
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-core-td-03.cube
+end
+task dplot
+
+# cube file for td 4
+dplot
+  civecs co-core-td.civecs_singlet
+  root 4
+  tol_rho 1d-10
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-core-td-04.cube
+end
+task dplot
+
+# cube file for td 5
+dplot
+  civecs co-core-td.civecs_singlet
+  root 5
+  tol_rho 1d-10
+  LimitXYZ
+ -4.0 4.0 50
+ -4.0 4.0 50
+ -4.0 4.0 50
+ gaussian
+ output co-core-td-05.cube
+end
+task dplot

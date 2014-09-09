@@ -1,4 +1,3 @@
-All connections between all procs tested: SUCCESS
  argument  1 = ch3f_trans_cosmo.nw
 
 
@@ -44,7 +43,7 @@ task dft property
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.3
+              Northwest Computational Chemistry Package (NWChem) 6.5
               ------------------------------------------------------
 
 
@@ -52,7 +51,7 @@ task dft property
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2013
+                              Copyright (c) 1994-2014
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -77,18 +76,18 @@ task dft property
            Job information
            ---------------
 
-    hostname        = arcen
-    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/../bin/LINUX64/nwchem
-    date            = Wed Oct 23 14:08:06 2013
+    hostname        = orion
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Wed Sep  3 22:42:23 2014
 
-    compiled        = Wed_Oct_23_13:57:40_2013
-    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16
-    nwchem branch   = Development
-    nwchem revision = 24691
-    ga revision     = 10432
+    compiled        = Sat_Aug_30_06:49:11_2014
+    source          = /home/niri/nwchem/nwchem-6.5
+    nwchem branch   = 6.5
+    nwchem revision = 26025
+    ga revision     = 10501
     input           = ch3f_trans_cosmo.nw
     prefix          = ch3f_trans_cosmo.
-    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/ch3f_trans_cosmo.db
+    data base       = ./ch3f_trans_cosmo.db
     status          = startup
     nproc           =        4
     time left       =     -1s
@@ -98,10 +97,10 @@ task dft property
            Memory information
            ------------------
 
-    heap     =   13107201 doubles =    100.0 Mbytes
+    heap     =   13107196 doubles =    100.0 Mbytes
     stack    =   13107201 doubles =    100.0 Mbytes
     global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total    =   52428802 doubles =    400.0 Mbytes
+    total    =   52428797 doubles =    400.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -109,8 +108,8 @@ task dft property
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir
+  0 permanent = .
+  0 scratch   = .
 
 
 
@@ -203,7 +202,7 @@ task dft property
 
 
   library name resolved from: environment
-  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/../src/basis/libraries/>
+  library file name is: </home/niri/nwchem/nwchem-6.5/src/basis/libraries/>
   
 
 
@@ -321,15 +320,21 @@ task dft property
 
 
 
+ solvent parameters
+ solvname_short: h2o     
+ solvname_long:  water                              
+ dielec:       78.0000
+ dielecinf:     1.7769
+
           ---------------
           -cosmo- solvent
           ---------------
  dielectric constant -eps-     =  78.00
  charge screening approach     =   2
  screen = (eps-1)/(eps    )    =   0.98718
- -lineq- algorithm             =   1
+ -lineq- algorithm             =   0
  -bem- low  level              =   2
- -bem- high level              =   4
+ -bem- high level              =   2
  -bem- from -octahedral-
  solvent radius (ang.)         =   0.000
  gaussian surface charge width =   0.98000
@@ -452,62 +457,66 @@ task dft property
  HOMO         =      -0.441631
  LUMO         =       0.112239
 
-   Time after variat. SCF:      0.1
-   Time prior to 1st pass:      0.1
+   Time after variat. SCF:      0.2
+   Time prior to 1st pass:      0.2
 
- Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/ch3f_trans_cosmo.gridpts.0
+ Grid_pts file          = ./ch3f_trans_cosmo.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     18        Max. recs in file   =     30631
+ Max. records in memory =     18        Max. recs in file   =     90524
 
+ Grid integrated density:      17.999997615224
+ Requested integration accuracy:   0.10E-06
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.88            12883691
-          Stack Space remaining (MW):       13.11            13106861
+           Heap Space remaining (MW):       12.88            12883604
+          Stack Space remaining (MW):       13.11            13106836
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
      COSMO gas phase
- d= 0,ls=0.0,diis     1   -139.7045933747 -1.77D+02  1.78D-02  5.05D-01     0.4
- d= 0,ls=0.0,diis     2   -139.6932246714  1.14D-02  1.02D-02  6.68D-01     0.7
- d= 0,ls=0.0,diis     3   -139.7494357093 -5.62D-02  1.59D-03  3.42D-02     1.0
- d= 0,ls=0.0,diis     4   -139.7513770022 -1.94D-03  6.05D-04  1.59D-03     1.3
- d= 0,ls=0.0,diis     5   -139.7515473791 -1.70D-04  1.23D-04  7.02D-05     1.7
+ d= 0,ls=0.0,diis     1   -139.7045924280 -1.77D+02  1.78D-02  5.05D-01     0.6
+ Grid integrated density:      17.999997663443
+ Requested integration accuracy:   0.10E-06
+ d= 0,ls=0.0,diis     2   -139.6932236724  1.14D-02  1.02D-02  6.68D-01     0.9
+ d= 0,ls=0.0,diis     3   -139.7494357173 -5.62D-02  1.59D-03  3.42D-02     1.2
+ d= 0,ls=0.0,diis     4   -139.7513769995 -1.94D-03  6.05D-04  1.59D-03     1.6
+ d= 0,ls=0.0,diis     5   -139.7515473795 -1.70D-04  1.23D-04  7.02D-05     2.0
   Resetting Diis
- d= 0,ls=0.0,diis     6   -139.7515542172 -6.84D-06  5.14D-06  8.51D-08     2.0
- d= 0,ls=0.0,diis     7   -139.7515542264 -9.24D-09  3.97D-07  1.74D-10     2.3
+ d= 0,ls=0.0,diis     6   -139.7515542173 -6.84D-06  5.14D-06  8.51D-08     2.3
+ d= 0,ls=0.0,diis     7   -139.7515542265 -9.24D-09  3.97D-07  1.74D-10     2.7
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.88            12883337
-          Stack Space remaining (MW):       13.11            13106861
+           Heap Space remaining (MW):       12.88            12883244
+          Stack Space remaining (MW):       13.11            13106836
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
      COSMO solvation phase
- d= 0,ls=0.0,diis     1   -139.7566201080 -5.07D-03  2.70D-03  2.10D-03     3.3
- d= 0,ls=0.0,diis     2   -139.7571912687 -5.71D-04  5.07D-04  1.65D-03     4.0
- d= 0,ls=0.0,diis     3   -139.7572992787 -1.08D-04  1.58D-04  2.43D-04     4.6
- d= 0,ls=0.0,diis     4   -139.7573139613 -1.47D-05  4.63D-05  5.03D-06     5.2
- d= 0,ls=0.0,diis     5   -139.7573143804 -4.19D-07  1.60D-05  1.70D-06     5.8
- d= 0,ls=0.0,diis     6   -139.7573145806 -2.00D-07  7.00D-07  1.29D-09     6.4
- d= 0,ls=0.0,diis     7   -139.7573145808 -1.73D-10  5.07D-08  5.14D-12     6.9
+ d= 0,ls=0.0,diis     1   -139.7566201080 -5.07D-03  2.70D-03  2.10D-03     3.1
+ d= 0,ls=0.0,diis     2   -139.7571912687 -5.71D-04  5.07D-04  1.65D-03     3.5
+ d= 0,ls=0.0,diis     3   -139.7572992788 -1.08D-04  1.58D-04  2.43D-04     3.9
+ d= 0,ls=0.0,diis     4   -139.7573139613 -1.47D-05  4.63D-05  5.03D-06     4.3
+ d= 0,ls=0.0,diis     5   -139.7573143805 -4.19D-07  1.60D-05  1.70D-06     4.7
+ d= 0,ls=0.0,diis     6   -139.7573145807 -2.00D-07  7.00D-07  1.29D-09     5.1
+ d= 0,ls=0.0,diis     7   -139.7573145809 -1.73D-10  5.09D-08  5.14D-12     5.5
 
 
-         Total DFT energy =     -139.757314580791
-      One electron energy =     -266.796244763781
-           Coulomb energy =      106.567131612028
-    Exchange-Corr. energy =      -17.043449357344
+         Total DFT energy =     -139.757314580880
+      One electron energy =     -266.796244769247
+           Coulomb energy =      106.567131591891
+    Exchange-Corr. energy =      -17.043449356338
  Nuclear repulsion energy =       37.417402594906
 
- Numeric. integr. density =       18.000000076325
+ Numeric. integr. density =       18.000000076614
 
-     Total iterative time =      6.8s
+     Total iterative time =      5.3s
 
 
                   COSMO solvation results
                   -----------------------
   
-                 gas phase energy =      -139.7515542264
-                 sol phase energy =      -139.7573145808
+                 gas phase energy =      -139.7515542265
+                 sol phase energy =      -139.7573145809
  (electrostatic) solvation energy =         0.0057603544 (    3.61 kcal/mol)
 
                        DFT Final Molecular Orbital Analysis
@@ -570,7 +579,7 @@ task dft property
   ----- ------------  ---------------      ----- ------------  ---------------
     25      0.379232  2 F  py                21      0.355028  2 F  py         
     17      0.256786  2 F  py                 8     -0.205616  1 C  py         
-    31     -0.194125  4 H  s                 34      0.194126  5 H  s          
+    31     -0.194126  4 H  s                 34      0.194125  5 H  s          
 
  Vector    9  Occ=2.000000D+00  E=-3.450411D-01
               MO Center=  1.1D+00,  3.0D+00,  5.7D+00, r^2= 1.5D+00
@@ -602,7 +611,7 @@ task dft property
               MO Center=  2.7D-01,  3.0D+00,  4.5D+00, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32      1.718548  4 H  s                 35     -1.718552  5 H  s          
+    32      1.718550  4 H  s                 35     -1.718550  5 H  s          
     12     -1.080110  1 C  py                 8     -0.254269  1 C  py         
      4     -0.176475  1 C  py         
 
@@ -611,14 +620,14 @@ task dft property
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     29      1.985857  3 H  s                 11     -1.078489  1 C  px         
-    32     -0.989672  4 H  s                 35     -0.989665  5 H  s          
+    32     -0.989668  4 H  s                 35     -0.989668  5 H  s          
      7     -0.254472  1 C  px                 3     -0.176484  1 C  px         
 
  Vector   14  Occ=0.000000D+00  E= 3.128520D-01
               MO Center=  1.2D+00,  3.0D+00,  5.0D+00, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.586219  1 C  py                31     -1.134231  4 H  s          
+    12      1.586219  1 C  py                31     -1.134232  4 H  s          
     34      1.134232  5 H  s                 25     -0.269525  2 F  py         
     32      0.178441  4 H  s                 35     -0.178441  5 H  s          
 
@@ -627,7 +636,7 @@ task dft property
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.587162  1 C  px                28     -1.309868  3 H  s          
-    31      0.655010  4 H  s                 34      0.655009  5 H  s          
+    31      0.655010  4 H  s                 34      0.655010  5 H  s          
     24     -0.269608  2 F  px                29      0.205164  3 H  s          
 
  Vector   16  Occ=0.000000D+00  E= 4.319006D-01
@@ -654,9 +663,9 @@ task dft property
               MO Center=  7.4D-01,  3.0D+00,  4.8D+00, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.918635  1 C  py                32     -1.676474  4 H  s          
-    35      1.676485  5 H  s                  8     -1.045108  1 C  py         
-    31      0.459395  4 H  s                 34     -0.459398  5 H  s          
+    12      1.918635  1 C  py                32     -1.676479  4 H  s          
+    35      1.676479  5 H  s                  8     -1.045108  1 C  py         
+    31      0.459397  4 H  s                 34     -0.459397  5 H  s          
      4     -0.273449  1 C  py         
 
  Vector   19  Occ=0.000000D+00  E= 5.648970D-01
@@ -664,10 +673,10 @@ task dft property
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     29     -1.935579  3 H  s                 11      1.919089  1 C  px         
-     7     -1.044995  1 C  px                32      0.968242  4 H  s          
-    35      0.968224  5 H  s                 28      0.530207  3 H  s          
-     3     -0.273428  1 C  px                31     -0.265045  4 H  s          
-    34     -0.265040  5 H  s          
+     7     -1.044995  1 C  px                32      0.968233  4 H  s          
+    35      0.968233  5 H  s                 28      0.530207  3 H  s          
+     3     -0.273428  1 C  px                31     -0.265042  4 H  s          
+    34     -0.265042  5 H  s          
 
 
  center of mass
@@ -696,7 +705,7 @@ task dft property
      2   1 0 1     -1.867133   -181.981170   -181.981170    362.095208
      2   0 2 0     -8.698443   -296.434071   -296.434071    584.169699
      2   0 1 1     -5.617515   -545.951570   -545.951570   1086.285624
-     2   0 0 2    -30.357478  -1053.558001  -1053.558001   2076.758525
+     2   0 0 2    -30.357478  -1053.558002  -1053.558002   2076.758525
 
 
           -----------------------------------------
@@ -708,15 +717,21 @@ task dft property
 
 
 
+ solvent parameters
+ solvname_short: h2o     
+ solvname_long:  water                              
+ dielec:       78.0000
+ dielecinf:     1.7769
+
           ---------------
           -cosmo- solvent
           ---------------
  dielectric constant -eps-     =  78.00
  charge screening approach     =   2
  screen = (eps-1)/(eps    )    =   0.98718
- -lineq- algorithm             =   1
+ -lineq- algorithm             =   0
  -bem- low  level              =   2
- -bem- high level              =   4
+ -bem- high level              =   2
  -bem- from -octahedral-
  solvent radius (ang.)         =   0.000
  gaussian surface charge width =   0.98000
@@ -765,7 +780,7 @@ task dft property
   max iterations   =       50
   max subspace     =       30
 
- SCF residual:   2.048531128275271E-007
+ SCF residual:   2.029513395949018E-007
 
 
 Iterative solution of linear equations
@@ -774,17 +789,17 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time     11.2
+        Start time     10.3
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    8.09D-01      12.1
-     2      6    2.63D-02      13.0
-     3      9    6.95D-04      13.9
-     4     12    6.43D-05      14.8
+     1      3    8.09D-01      12.0
+     2      6    2.63D-02      13.7
+     3      9    6.95D-04      15.3
+     4     12    6.43D-05      17.0
 
- Wrote CPHF data to /home/d3y133/nwchem-dev/nwchem-dev-2013-10-16/QA/scratchdir/ch3f_trans_cosmo.shieldcphf
+ Wrote CPHF data to ./ch3f_trans_cosmo.shieldcphf
 
  Calc. par tensor-> nonrel
       Atom:    1  C 
@@ -839,8 +854,8 @@ Iterative solution of linear equations
                  1           2           3
               495.8961    495.8824    418.1482
 
-      1         0.4256      0.9049      0.0011
-      2         0.9049     -0.4256      0.0000
+      1         0.4253      0.9050      0.0011
+      2         0.9050     -0.4253      0.0000
       3        -0.0005     -0.0010      1.0000
 
 
@@ -926,14 +941,20 @@ Iterative solution of linear equations
                  1           2           3
                33.0899     26.6317     25.2584
 
-      1         0.2459      0.4342      0.8666
+      1         0.2459      0.4343      0.8666
       2         0.4260      0.7547     -0.4990
       3         0.8707     -0.4919     -0.0006
 
 
 
 
- Task  times  cpu:       13.2s     wall:       14.0s
+ Task  times  cpu:       14.4s     wall:       17.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -944,11 +965,12 @@ Iterative solution of linear equations
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  685      685     2.27e+05 1796     9.73e+04  136        0      697     
-number of processes/call 1.15e+00 1.75e+00 1.24e+00 2.31e+00 0.00e+00
-bytes total:             2.66e+07 2.36e+06 1.67e+07 4.07e+05 0.00e+00 5.58e+03
-bytes remote:            1.39e+07 6.18e+05 1.04e+07 -2.72e+05 0.00e+00 0.00e+00
+calls:  740      740     2.40e+05 1830     1.05e+05  136        0     1217     
+number of processes/call 1.01e+00 1.73e+00 1.06e+00 2.31e+00 0.00e+00
+bytes total:             3.13e+07 2.59e+06 1.93e+07 4.07e+05 0.00e+00 9.74e+03
+bytes remote:            5.32e+06 6.18e+05 5.29e+06 -2.72e+05 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 216800 bytes
+
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -957,18 +979,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        29	        47
+	maximum number of blocks	        29	        50
 	current total bytes		         0	         0
-	maximum total bytes		   1790800	  22511376
-	maximum total K-bytes		      1791	     22512
+	maximum total bytes		   1791520	  22511656
+	maximum total K-bytes		      1792	     22512
 	maximum total M-bytes		         2	        23
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-
 
 
                                      CITATION
@@ -988,19 +1003,19 @@ MA usage statistics:
                               ----------------------
           E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
        T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
-        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
-     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, J. Mullin,
-        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
-     R. J. Harrison, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
-       V. Tipparaju, M. Krishnan, B. E. Van Kuiken,  A. Vazquez-Mayagoitia,
-        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
-      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
-   K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-   B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
-        B. Meng,T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann,
-      G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
-                                     Z.Zhang.
+    J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata, W. Ma,
+       M. Klemm, O. Villa, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus,
+       M. Malagoli, A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols,
+      R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, R. J. Harrison,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:       13.3s     wall:       15.0s
+ Total times  cpu:       14.4s     wall:       17.3s

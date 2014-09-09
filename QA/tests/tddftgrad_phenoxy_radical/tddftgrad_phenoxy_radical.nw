@@ -1,0 +1,53 @@
+# This test case illustrates the unrestricted TDDFT/CAM-B3LYP gradient 
+# using the phenoxy radical (doublet state) with the 6-311G** basis
+# set.
+
+echo
+
+start tddftgrad_phenoxy_radical
+
+memory 1000 mb
+
+title "TDDFT/CAM-B3LYP gradient of phenoxy radical using 6-311G**"
+
+geometry nocenter
+C     0.00000000    0.00000000   -1.04762363
+C     0.00000000    1.23091470   -0.29136545
+C     0.00000000    1.21824912    1.07841542
+C     0.00000000    0.00000000    1.77062259
+C     0.00000000   -1.21824912    1.07841542
+C     0.00000000   -1.23091470   -0.29136545
+H     0.00000000    2.15901944   -0.87282056
+H     0.00000000    2.15828033    1.64118250
+H     0.00000000    0.00000000    2.86579465
+H     0.00000000   -2.15828033    1.64118250
+H     0.00000000   -2.15901944   -0.87282056
+O     0.00000000    0.00000000   -2.29516432
+symmetry c1
+end
+
+basis spherical
+ * library "6-311G**"
+end
+
+dft
+ xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+ cam 0.33 cam_alpha 0.19 cam_beta 0.46
+ odft
+ mult 2
+ grid xfine
+ grid euler
+ direct
+ iterations 500
+end
+
+tddft
+ nroots 3
+ notriplet
+ target 2
+ civecs 
+ grad 
+  root 2
+ end
+end
+task tddft gradient

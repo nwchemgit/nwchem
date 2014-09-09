@@ -27,8 +27,6 @@ thresh 1d-8
 profile 
 end
 
-#set prop:newaoresp 1
-
 property
 response  1 8.8559E-2
 damping 0.007

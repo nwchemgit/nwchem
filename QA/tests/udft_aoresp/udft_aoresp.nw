@@ -29,6 +29,7 @@ property
  orbeta
  damping 0.007
  velocity
+ aoresponse
 end
 
 set dft:tol_rho 1d-30

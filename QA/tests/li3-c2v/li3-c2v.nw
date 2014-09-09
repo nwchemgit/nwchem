@@ -1,0 +1,25 @@
+echo
+
+start li3-c2v
+
+geometry
+Li    0.00000000     1.35216473     0.93460845
+Li    0.00000000    -1.35216473     0.93460845
+Li    0.00000000     0.00000000    -1.86921689
+END
+
+BASIS spherical
+  Li   library  def2-tzvp
+end
+
+dft
+  xc pbe0
+  mult 2
+end
+
+property
+  response  1 7.73178E-2   # response order and frequency in hartree
+  velocity                 # use modified velocity gauge for electric 
+  dipole
+end
+TASK dft property
