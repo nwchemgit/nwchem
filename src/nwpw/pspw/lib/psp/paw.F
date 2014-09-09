@@ -3057,6 +3057,7 @@ c            eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
 c            eh2 = nwpw_compcharge_E_multipole_zv_zv(ispin,dbl_mb(zv(1)))
 c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
+
             ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                       rho_cmp_smooth(2),rho_cmp_smooth(1))
             if (.not.ok)
