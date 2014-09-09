@@ -40,8 +40,8 @@
       external control_code,G_indx,c_G_indx,ion_katm
       integer  nwpw_doublefactorial
       external nwpw_doublefactorial
-      real*8   lattice_omega,ewald_rcut
-      external lattice_omega,ewald_rcut
+      real*8   lattice_omega
+      external lattice_omega
       integer  psi_data_get_ptr,psi_data_get_chnk
       external psi_data_get_ptr,psi_data_get_chnk
       real*8   nwpw_gaunt,lattice_unita,control_rcut
@@ -723,6 +723,7 @@
       real*8  tmpray(nray)
 
 *     **** local variables ****
+      logical periodic
       integer i,k
       real*8 q,sn,cs,xerf1,yerf1,xerf,yerf,yp1,dG,rlocal
       real*8 twopi,fourpi,ecut
@@ -730,8 +731,12 @@
 *     **** external functions ****
       logical  control_kbpp_filter
       external control_kbpp_filter
+      integer  control_version
+      external control_version
       real*8   util_erf,log_integrate_def,control_ecut
       external util_erf,log_integrate_def,control_ecut
+
+      periodic = (control_version().eq.3)
 
       twopi  = 8.0d0*datan(1.0d0)
       fourpi = 2.0d0*twopi
@@ -748,9 +753,14 @@
             f(i)=(-yerf1)*sn
          end do
          cs = dcos(q*rho(nrho))
-         vlray(k,1)=fourpi
+         if (periodic) then
+            vlray(k,1)=fourpi
      >            *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
      >           -fourpi*cs/(q*q)
+         else
+            vlray(k,1)=fourpi
+     >            *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
+         end if
       end do
 
       do i=1,nrho
@@ -758,9 +768,12 @@
          yerf1 = util_erf(xerf1)
          f(i)=(-yerf1)*rho(i)
       end do
-      vlray(1,1) = fourpi
-     >          *log_integrate_def(0,f,0,rho,log_amesh,nrho)
-     >         + twopi*rho(nrho)**2
+      if (periodic) then
+         vlray(1,1) = fourpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
+     >              + twopi*rho(nrho)**2
+      else
+         vlray(1,1) = fourpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
+      end if
 
       if (control_kbpp_filter())
      >  call nwpw_kbpp_filter_ray(nray,Gray,ecut,vlray)
@@ -2828,6 +2841,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       real*8 W1,W2,W3,W4,dW1(3),dW2(3),dW3(3),dW4(3)
       real*8 e1,de1(3)
 
+
 *     **** external functions ****
       real*8   ion_rion,nwpw_WGaussian,nwpw_UGaussian
       external ion_rion,nwpw_WGaussian,nwpw_UGaussian
@@ -3033,6 +3047,57 @@ c     >                                         l2,m2,s1,Rab)
       end
 
 
+      subroutine nwpw_gintegrals_tester()
+      implicit none
+
+      integer l1,m1,l2,m2,i,j,k
+      real*8 W4,sigma
+      real*8 R1(3),R2(3),Rab(3)
+      complex*16 CW4
+
+*     **** external functions ****
+      real*8   nwpw_WGaussian,nwpw_UGaussian
+      external nwpw_WGaussian,nwpw_UGaussian
+      complex*16 paw_mult_interaction
+      external   paw_mult_interaction
+
+      l1 = 1
+      m1 = 0
+      l2 = 1
+      m2 = 0
+      sigma = 6.0d0
+
+      do i=-1,1
+      do j=-1,1
+      do k=-1,1
+      if ((i.ne.0).or.(j.ne.0).or.(k.ne.0)) then
+
+      R1(1) = 0.0d0
+      R1(2) = 0.0d0
+      R1(3) = 0.0d0
+
+      R2(1) = 5.0d0*i
+      R2(2) = 5.0d0*j
+      R2(3) = 5.0d0*k
+
+      Rab(1) = R1(1) - R2(1)
+      Rab(2) = R1(2) - R2(2)
+      Rab(3) = R1(3) - R2(3)
+
+      W4  = nwpw_WGaussian(l1,m1,sigma,l2,m2,sigma,Rab)
+      CW4 = paw_mult_interaction(l1,m1,sigma,R1,l2,m2,sigma,R2)
+
+      write(*,*) "gintegral tester=",l1,m1,l2,m2,i,j,k,
+     >           W4,CW4,W4-dble(CW4)
+      end if
+      end do
+      end do
+      end do
+
+      return
+      end
+
+
 *     *****************************************************
 *     *                                                   *
 *     *        nwpw_compcharge_E_multipole_Zv_ee          *
@@ -3124,7 +3189,7 @@ c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
       integer iii,jjj,l1,m1,l2,m2,lm
 
       integer iic,jjc,lic,ljc
-      real*8  etest,etest2
+c      real*8  etest,etest2
 
 c      do iii=1,nion_paw
 c         lm = 1
@@ -3162,16 +3227,19 @@ c      !ljc = 1
 c         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
 c         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
 c         etest= q1*q2*dbl_mb(e_gauss(1)+k-1)
-c         if (dabs(etest).gt.1.0d-9) 
-c     >    write(*,'(A,6I3,2E11.3,F14.9)') "ii,li,mi,jj,lj,mj=", 
-c     >      iii,l1,m1,jjj,l2,m2,q1,q2,etest
+c
+cc         if (dabs(etest).gt.1.0d-9) 
+c     >    write(24,'(A,6I3,4E14.6)') "ii,li,mi,jj,lj,mj=", 
+c     >      iii,l1,m1,jjj,l2,m2,q1,q2,etest,
+c     >      dbl_mb(e_gauss(1)+k-1)
 c
 cc         if ((iic.eq.iii).and.(lic.eq.l1).and.
 cc     >       (jjc.eq.jjj).and.(ljc.eq.l2)) then
 cc            etest = etest + q1*q2*dbl_mb(e_gauss(1)+k-1)
 cc         end if
-c
+
       end do
+
 
       call Parallel_SumAll(E)
 
