@@ -126,10 +126,10 @@
       complex*16 itol,cscalf
     
       !**** external functions ****
-      integer  control_ncut,G_indx
+      integer  control_ncut,G_indx,control_version
       real*8   control_rcut,double_factorial,lattice_omega
       real*8   lattice_unita
-      external control_ncut,G_indx
+      external control_ncut,G_indx,control_version
       external control_rcut,double_factorial,lattice_omega
       external lattice_unita
 
@@ -205,7 +205,13 @@
 
       !**** initialize sigma_smooth and ncut***
       sigma_smooth = control_rcut()
-      ncut         = control_ncut()
+      if (control_version().eq.3) then
+         ncut         = control_ncut()
+      else
+         ncut         = 0
+         if (sigma_smooth.le.0.0d0) sigma_smooth=1.0d0
+      end if
+
       if (ncut.lt.0)     ncut=0
       if (sigma_smooth.le.0.0d0) then
          rs = lattice_unita(1,1)**2
