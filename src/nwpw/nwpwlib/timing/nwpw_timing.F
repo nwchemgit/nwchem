@@ -38,6 +38,14 @@
 *   31 - queue fft serial
 *   32 - queue fft parallel
 *   33 - HFX
+
+*   34 - paw gaussian integrals
+*   35 - paw atomic coulomb
+*   36 - paw atomic xc
+*   37 - paw gen dEmult/dQlm
+*   38 - paw gen dElocal/dQlm
+*   39 - paw cmp operations
+
 *   40 - qmmm LJ
 *   41 - qmmm residual Q
 
@@ -204,12 +212,31 @@ c     **** external functions ****
      >                 '  HFX potential              : ',
      >                 nwpw_timing(33),counter,ttime)
          call nwpw_timing_print(
+     >                 '  paw gaussian integrals     : ',
+     >                 nwpw_timing(34),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  paw atomic coulomb         : ',
+     >                 nwpw_timing(35),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  paw atomic xc              : ',
+     >                 nwpw_timing(36),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  paw gen dEmult/dQlm        : ',
+     >                 nwpw_timing(37),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  paw gen dElocal/dQlm       : ',
+     >                 nwpw_timing(38),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  paw cmp operations         : ',
+     >                 nwpw_timing(38),counter,ttime)
+         call nwpw_timing_print(
      >                 '  qmmm LJ                    : ',
      >                 nwpw_timing(40),counter,ttime)
          call nwpw_timing_print(
      >                 '  qmmm residual Q            : ',
      >                 nwpw_timing(41),counter,ttime)
       end if
+
 
       return 
  1808 FORMAT(A,E14.6,E14.6)
