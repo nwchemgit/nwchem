@@ -622,8 +622,7 @@ c      end if
       real*8   log_integrate_def
       external log_integrate_def
 
-      call nwpw_timing_start(4)
-      call nwpw_timing_start(22)
+      call nwpw_timing_start(36)
 
 *     *** index for spin down in temp arrays ***      
       lmax2  = (mult_l_max+1)**2
@@ -932,8 +931,7 @@ c        call D3dB_Vector_Sumall(paw_xc_e(3),dbl_mb(paw_xc_e(1)))
 c      end if
 c     
 c
-      call nwpw_timing_end(4)
-      call nwpw_timing_end(22)
+      call nwpw_timing_end(36)
 
       return
       end 

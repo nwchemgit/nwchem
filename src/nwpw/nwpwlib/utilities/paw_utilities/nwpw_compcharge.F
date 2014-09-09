@@ -38,8 +38,8 @@
 *     **** external functions ****
       integer  control_code,G_indx,c_G_indx,ion_katm
       external control_code,G_indx,c_G_indx,ion_katm
-      integer  nwpw_doublefactorial
-      external nwpw_doublefactorial
+      integer  nwpw_doublefactorial,control_version
+      external nwpw_doublefactorial,control_version
       real*8   lattice_omega
       external lattice_omega
       integer  psi_data_get_ptr,psi_data_get_chnk
@@ -55,6 +55,7 @@
 
       pi = 4.0d0*datan(1.0d0)
       rcut = control_rcut()
+      if ((control_version().eq.4).and.(rcut.le.0.0d0)) rcut = 1.0d0
       if (rcut.le.0.0d0) then
          rs = lattice_unita(1,1)**2 
      >      + lattice_unita(2,1)**2 
@@ -2851,6 +2852,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       external ewald_nshl3d,ewald_rcell_ptr
 
 
+      call nwpw_timing_start(34)
       call Parallel_taskid(taskid)
       call Parallel_np(np)
 
@@ -3043,6 +3045,7 @@ c     >                                         l2,m2,s1,Rab)
      >   call errquit("nwpw_compcharge_set_gintegrals:stack",2,MA_ERR)
       end if
 
+      call nwpw_timing_end(34)
       return
       end
 
@@ -3382,6 +3385,7 @@ cc         end if
       integer glm_cmp(2),glm_cmp_smooth(2)
       real*8  q11,q22,e1,e2,fourpi
 
+      call nwpw_timing_start(38)
 
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
      >           dbl_mb(dElocal_Qlm(1)),1)
@@ -3528,6 +3532,7 @@ cc         end if
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dElocal_Qlm(1)))
 
+      call nwpw_timing_end(38)
       return
       end
 
@@ -3563,6 +3568,8 @@ cc         end if
       integer indx
       integer glm_cmp(2)
       real*8  e1
+
+      call nwpw_timing_start(38)
 
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
      >           dbl_mb(dElocal_Qlm(1)),1)
@@ -3658,6 +3665,7 @@ cc         end if
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dElocal_Qlm(1)))
 
+      call nwpw_timing_end(38)
       return
       end
 
@@ -3700,6 +3708,7 @@ cc         end if
       integer ms,k,indx1up,indx1dn,indx2up,indx2dn,indx1,indx2
       real*8  q1,q2
  
+      call nwpw_timing_start(37)
 
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
       do k=1,ngauss
@@ -3723,6 +3732,7 @@ cc         end if
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dEmult_Qlm(1)))
 
+      call nwpw_timing_end(37)
       return
       end
 
@@ -3924,8 +3934,7 @@ cc     >                            dbl_mb(dE_Qlm(1)))
 *     **** local variables ****
       integer iia,shift
 
-      call nwpw_timing_start(4)
-      call nwpw_timing_start(22)
+      call nwpw_timing_start(35)
 
       iia = int_mb(katm_iontopaw(1)+ia-1)
 
@@ -3940,8 +3949,7 @@ cc     >                            dbl_mb(dE_Qlm(1)))
      >                           dbl_mb(coeff_hartree(1)+shift))
 
 
-      call nwpw_timing_end(4)
-      call nwpw_timing_end(22)
+      call nwpw_timing_end(35)
       return
       end
 
