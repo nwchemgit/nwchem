@@ -2341,6 +2341,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      
 *        **** paw operations #1 - generate it's compcharge, add atomic coulomb, and add atomic xc potential ****
          if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+            call nwpw_timing_start(39)
 
 *           **** paw atom - generate it's atomic density matrix ****
             call psp_gen_density_matrix(ispin,ne,nproj,
@@ -2350,6 +2351,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 *           **** paw atom - generate it's compcharge ***
             call nwpw_compcharge_gen_Qlm(ii,ia,ispin,nproj,
      >                                   dbl_mb(wtmp(1)))
+            call nwpw_timing_end(39)
 
 *           **** atomic coulomb matrix - sw2 = sw2 + Vhatomijl*sw1  ****
             call nwpw_compcharge_coulomb_atom(ii,ia,ispin,ne,nproj,
@@ -2378,24 +2380,11 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
          end if
       end do
 
-c*     *** debug printing ***
-c      do ii=1,nion
-c         ia = ion_katm(ia)
-c         lm = 1
-c         do l=0,nwpw_compcharge_mult_l(ia)
-c         do m=-l,l
-c            ff(1) = nwpw_compcharge_Qlm(1,ii,l,m)
-c     >            + nwpw_compcharge_Qlm(ispin,ii,l,m)
-c            write(*,'(A,4I2,F16.6)') 'Qlm=',ii,l,m,lm,ff(1)
-c            lm = lm + 1
-c         end do
-c         end do
-c      end do
-c*     *** debug printing ***
 
 
 *     **** paw operations #2 - generate vcmp,.... and Gaussian Multipole  ****
       if (pawexist) then
+         call nwpw_timing_start(39)
          call D3dB_nx(1,nx)
          call D3dB_ny(1,ny)
          call D3dB_nz(1,nz)
@@ -2559,6 +2548,7 @@ c*     *** debug printing ***
          end do
      
 
+         call nwpw_timing_end(39)
       end if
 
 
