@@ -1115,7 +1115,7 @@ c      call Pack_npack(1,npack1)
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_ffm_sym_Multiply      *
+c     *        Dneall_ffm_sym_Multiply       *
 c     *                                      *
 c     ****************************************
 
@@ -1785,7 +1785,7 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_f_SVD                 *
+c     *        Dneall_f_SVD                  *
 c     *                                      *
 c     ****************************************
 
@@ -1863,6 +1863,123 @@ c     ****************************************
 
       return
       end
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_f_SVD_ASA              *
+c     *                                      *
+c     ****************************************
+
+*   This routine computes the SVD decomposition of A = U*Sigma*V', such that U'SU = I
+*  where A has a dimension of A(npack1,neall)
+*
+*
+
+      subroutine Dneall_f_SVD_ASA1(mb,A,SA,USigma,npack1,Sigma,V)
+      implicit none
+      integer    mb
+      complex*16 A(*),SA(*),USigma(*)
+      integer    npack1
+      real*8     Sigma(*),V(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift,tmp2(2)
+      integer nj
+
+      if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+         nj  = ne(1)+ne(2)
+      else
+         ms1 = mb
+         ms2 = mb
+         nj  = ne(mb)
+      end if
+
+*     **** generate V and Sigma^2 ****
+      call Dneall_ffm_sym_Multiply(mb,A,SA,npack1,V)
+      call Dneall_m_diagonalize(mb,V,Sigma,.false.)
+
+*     **** generate U*Sigma ****
+      call Dneall_fmf_Multiply(mb,A,npack1,V,1.0d0,USigma,0.0d0)
+
+
+*     **** calculated sqrt(S^2) ****
+      do n=1,nj
+         if (Sigma(n).lt.0.0d0) Sigma(n) = dabs(Sigma(n))
+         Sigma(n) = dsqrt(Sigma(n))
+      end do
+
+      return
+      end
+
+      subroutine Dneall_f_SVD_ASA2(mb,U,SU,npack1)
+      implicit none
+      integer    mb
+      complex*16 U(*),SU(*)
+      integer    npack1
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift,tmp2(2)
+      integer nj
+
+      if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+         nj  = ne(1)+ne(2)
+      else
+         ms1 = mb
+         ms2 = mb
+         nj  = ne(mb)
+      end if
+
+*     **** normalize U*sigma ****
+      if (.not. MA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
+     >   call errquit('Dneall_f_SVD_ASA2:out of stack memory',0,MA_ERR)
+      call dcopy(neq(1),0.0d0,0,dbl_mb(tmp2(1)),1)
+
+      do ms=ms1,ms2
+         if (neq(ms).le.0) go to 30
+         shift = 1+(ms-1)*neq(1)*npack1
+         do n=1,neq(ms)
+            call Pack_cc_idot(1,U(shift),SU(shift),dbl_mb(tmp2(1)+n-1))
+            shift = shift + npack1
+         end do
+         call D3dB_Vector_SumAll(neq(ms),dbl_mb(tmp2(1)))
+
+
+         do n=1,neq(ms)
+            dbl_mb(tmp2(1)+n-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+n-1))
+         end do
+
+         shift = 1+(ms-1)*neq(1)*npack1
+         do n=1,neq(ms)
+            call dscal(2*npack1,dbl_mb(tmp2(1)+n-1),U(shift),1)
+            shift = shift + npack1
+         end do
+
+ 30     continue
+      end do
+
+      if (.not.MA_pop_stack(tmp2(2)))
+     >  call errquit('Dneall_f_SVD_ASA2: popping stack memory',0,MA_ERR)
+
+      return
+      end
+
+
+
+
+
 
 c     ****************************************
 c     *                                     *
