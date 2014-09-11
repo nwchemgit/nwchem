@@ -157,7 +157,7 @@ c
      $        dbl_mb(k_atmp), vg_dens, vg_fock)
       else
 c
-c        tell the screening statistics we're starting another fock build
+c        tell the screening statistics we are starting another fock build
 c
          iscreen(6) = iscreen(6) + 1
 c
