@@ -341,15 +341,15 @@ c      end
       integer  control_version
       real*8   lattice_omega,coulomb_e,electron_ehartree2
       real*8   nwpw_meta_gga_pxc,psp_kinetic_core,psp_ion_core
-      real*8   psi_1hartree_atom,psi_1hartree_cmp_cmp
-      real*8   psi_1hartree_cmp_pw
+      real*8   psp_hartree_atom,psp_hartree_cmp_cmp
+      real*8   psp_hartree_cmp_pw
       external pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm,psp_pawexist
       external pspw_HFX,pspw_HFX_relaxed,meta_found,nwpw_meta_gga_on
       external control_version
       external lattice_omega,coulomb_e,electron_ehartree2
       external nwpw_meta_gga_pxc,psp_kinetic_core,psp_ion_core
-      external psi_1hartree_atom,psi_1hartree_cmp_cmp
-      external psi_1hartree_cmp_pw
+      external psp_hartree_atom,psp_hartree_cmp_cmp
+      external psp_hartree_cmp_pw
       
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -426,7 +426,6 @@ c      end
          pxc = pxc + nwpw_meta_gga_pxc(ispin,neq,psi_k)
       end if
 
-
       total_energy = eorbit + exc - ehartr - pxc
 
 
@@ -435,15 +434,15 @@ c      end
       if (psp_pawexist()) then
          eke_core      = psp_kinetic_core()
          eion_core     = psp_ion_core()
-         ehartree_atom = psi_1hartree_atom()
-         ecmp_cmp      = psi_1hartree_cmp_cmp()
-         ecmp_pw       = psi_1hartree_cmp_pw()
-         call psi_1xc_atom(exc_atom,pxc_atom)
+         ehartree_atom = psp_hartree_atom(ispin,neq,psi_k)
+         ecmp_cmp      = psp_hartree_cmp_cmp(ispin)
+         ecmp_pw       = psp_hartree_cmp_pw(ispin,dng,dn)
+         call psp_xc_atom(ispin,neq,psi_k,exc_atom,pxc_atom)
+
          total_energy = total_energy + exc_atom - pxc_atom
      >                - ehartree_atom - ecmp_cmp - ecmp_pw
      >                + eke_core + eion_core
       end if
-
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then
