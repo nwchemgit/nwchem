@@ -1107,8 +1107,6 @@ ifeq ($(BUILDING_PYTHON),python)
 endif
 endif
 ifeq ($(TARGET),MACX)
-  FC = gfortran
-  _FC = gfortran
 #
 # MacOSX 
 #
@@ -1275,8 +1273,6 @@ endif
 
 endif
 ifeq ($(TARGET),MACX64)
-  FC = gfortran
-  _FC = gfortran
 #
 # MacOSX 64bit
 #
@@ -1330,9 +1326,9 @@ endif
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
           FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
-        endif
-        endif
-       endif
+        endif # GNU_GE_4_8
+        endif # GNUMAJOR
+       endif # gfortran
     ifdef  USE_GPROF
       FOPTIONS += -pg
       LDOPTIONS += -pg
