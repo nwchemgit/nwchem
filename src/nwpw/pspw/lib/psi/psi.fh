@@ -4,13 +4,13 @@
 
 *     ***** psi common block ****
       integer ispin,ne(2),neq(2),nfft3d,npack1,npack0
-      logical occupation_on
+      logical occupation_on,pawexist
       integer ne_excited(2),neq_excited(2)
       integer rho0(2)
       integer psi1_excited(2)
       integer psi2_excited(2)
-      integer psi1(2),occ1(2)
-      integer psi2(2),occ2(2)
+      integer psi1(2),occ1(2),spsi1(2)
+      integer psi2(2),occ2(2),spsi2(2)
       integer rho1(2)
       integer rho2(2)
       integer dng1(2)
@@ -19,10 +19,13 @@
       integer eig(2)
       integer eig_excited(2)
       integer lmd_cpmd(2),tmp_L_cpmd(2)
-      common / psi_block / psi1,occ1,psi2,occ2,rho1,rho2,dng1,dng2,
+      common / psi_block / psi1,occ1,psi2,occ2,
+     >                     rho1,rho2,dng1,dng2,
      >                     hml,eig,rho0,lmd_cpmd,tmp_L_cpmd,
      >                     ne,neq,ispin,nfft3d,npack1,npack0,
-     >                     occupation_on
+     >                     occupation_on,pawexist
+
+      common / psi_paw_block / spsi1,spsi2
 
       common / epsi_block / psi1_excited,psi2_excited,
      >                      eig_excited,ne_excited,neq_excited

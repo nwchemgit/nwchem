@@ -2931,8 +2931,8 @@ c      end
 #include "psi.fh"
 
       call psp_xc_atom(ispin,neq,dcpl_mb(psi1(1)),exc,pxc)
-      call D1dB_SumAll(exc)
-      call D1dB_SumAll(pxc)
+      !call D1dB_SumAll(exc)
+      !call D1dB_SumAll(pxc)
       return
       end
 
@@ -3394,6 +3394,8 @@ c      end
      >                        occupation_on,dbl_mb(occ1(1)))
       call electron_gen_hml(dcpl_mb(psi1(1)),
      >                       dbl_mb(tmp1(1)))
+
+*     **** get the tangent THpsi = Hpsi - psi1*tmp1 , TY = HY - Y*Y'HY ****
       call electron_get_Tgradient(dcpl_mb(psi1(1)),
      >                             dbl_mb(tmp1(1)),
      >                            THpsi)
@@ -3404,6 +3406,158 @@ c      end
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_1get_STgradient     *
+*     *                                 *
+*     ***********************************
+
+*     THpsi = Hpsi - Y*Y^t*Hpsi ! used by Grassman minimizers
+*
+      subroutine psi_1get_STgradient(Rpsi,THpsi,Eout)
+      implicit none
+      complex*16 Rpsi(*)
+      complex*16 THpsi(*)
+      real*8 Eout
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+      integer tmp1(2),i,n
+      logical value
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
+      real*8   electron_energy
+      external electron_energy
+
+      if (.not.Dneall_m_push_get(0,tmp1))
+     >   call errquit('out of stack memory in psi_1get_STradient',0,
+     >       MA_ERR)
+
+      call electron_run(dcpl_mb(psi1(1)),
+     >                   dbl_mb(rho1(1)),
+     >                  dcpl_mb(dng1(1)),
+     >                   dbl_mb(rho1_all(1)),
+     >                  occupation_on,dbl_mb(occ1(1)))
+      Eout =  electron_energy(dcpl_mb(psi1(1)),
+     >                        dbl_mb(rho1(1)),
+     >                        dcpl_mb(dng1(1)),
+     >                        dbl_mb(rho1_all(1)),
+     >                        occupation_on,dbl_mb(occ1(1)))
+      call electron_gen_hml(dcpl_mb(psi1(1)),
+     >                       dbl_mb(tmp1(1)))
+
+*     **** get the tangent Rpsi = Hpsi - Spsi1*tmp1 , TY = HY - SY*Y'HY ****
+      call psp_overlap_S(ispin,neq,dcpl_mb(psi1(1)),dcpl_mb(spsi1(1)))
+      call electron_get_Tgradient(dcpl_mb(spsi1(1)),
+     >                             dbl_mb(tmp1(1)),
+     >                            Rpsi)
+
+*     **** THpsi = Rpsi - psi1 * <spsi1|Rpsi> ****
+      call Grsm_gg_Copy(npack1,neq(1)+neq(2),Rpsi,THpsi)
+      call Dneall_ffm_sym_Multiply(0,dcpl_mb(spsi1(1)),Rpsi,npack1,
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                         dbl_mb(tmp1(1)),
+     >                         -1.0d0,THpsi,1.0d0)
+
+      if (.not.Dneall_m_pop_stack(tmp1))
+     > call errquit('psi_1get_STgradient:error popping stack',1,
+     >     MA_ERR)
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_2get_STgradient     *
+*     *                                 *
+*     ***********************************
+
+*     THpsi = Hpsi - Y*Y^t*Hpsi ! used by Grassman minimizers
+*
+      subroutine psi_2get_STgradient(option,Rpsi,THpsi,Eout)
+      implicit none
+      integer    option
+      complex*16 Rpsi(*)
+      complex*16 THpsi(*)
+      real*8 Eout
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** local variables ****
+      integer tmp1(2),i,n
+      logical value
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
+      real*8   electron_energy
+      external electron_energy
+
+      if (.not.Dneall_m_push_get(0,tmp1))
+     >   call errquit('out of stack memory in psi_2get_STradient',0,
+     >       MA_ERR)
+
+      if (option.le.1) then
+         call electron_run(dcpl_mb(psi2(1)),
+     >                   dbl_mb(rho2(1)),
+     >                  dcpl_mb(dng2(1)),
+     >                   dbl_mb(rho2_all(1)),
+     >                  occupation_on,dbl_mb(occ2(1)))
+      end if
+      Eout =  electron_energy(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(1)),
+     >                        dbl_mb(rho2_all(1)),
+     >                        occupation_on,dbl_mb(occ2(1)))
+      call electron_gen_hml(dcpl_mb(psi2(1)),
+     >                       dbl_mb(tmp1(1)))
+
+*     **** get the tangent Rpsi = Hpsi - Spsi2*tmp1 , TY = HY - SY*Y'HY ****
+      call psp_overlap_S(ispin,neq,dcpl_mb(psi2(1)),dcpl_mb(spsi1(1)))
+      call electron_get_Tgradient(dcpl_mb(spsi1(1)),
+     >                             dbl_mb(tmp1(1)),
+     >                            Rpsi)
+
+*     **** THpsi = Rpsi - psi2 * <spsi2|Rpsi> ****
+      call Grsm_gg_Copy(npack1,neq(1)+neq(2),Rpsi,THpsi)
+      call Dneall_ffm_sym_Multiply(0,dcpl_mb(spsi1(1)),Rpsi,npack1,
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
+     >                         dbl_mb(tmp1(1)),
+     >                         -1.0d0,THpsi,1.0d0)
+
+      if (.not.Dneall_m_pop_stack(tmp1))
+     > call errquit('psi_2get_STgradient:error popping stack',1,
+     >     MA_ERR)
+
+      return
+      end
+
+
+
 
 
 *     ***********************************
@@ -3947,7 +4101,6 @@ c      end
       real*8   electron_energy
       external electron_energy
 
-     
       call geodesic_get(t,dcpl_mb(psi1(1)),
      >                    dcpl_mb(psi2(1)))
     
@@ -4003,12 +4156,6 @@ c      end
 
 #include "mafdecls.fh"
 #include "psi.fh"
-
-      integer taskid,MASTER
-      parameter (MASTER=0)
-c     real*8 sum1,sum2
-     
-      call Parallel_taskid(taskid)
 
       call geodesic_get(t,dcpl_mb(psi1(1)),
      >                    dcpl_mb(psi2(1)))          
@@ -4206,13 +4353,24 @@ c     >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
 c     >                 dte,dbl_mb(occ1(1)),
 c     >                 dbl_mb(lmd(1)),
 c     >                 dbl_mb(tmp_L(1)),ierr)
-        if (pspw_SIC().or.occupation_on) then
-        call psi_lmbda_sic(ispin,ne,nemaxq,npack1,
+
+        if (pawexist) then
+           call psp_overlap_S(ispin,neq,
+     >                        dcpl_mb(psi1(1)),
+     >                        dcpl_mb(spsi1(1)))
+           call psi_lmbda_paw(ispin,neq,nemaxq,npack1,
+     >                        dcpl_mb(spsi1(1)),
+     >                        dcpl_mb(psi2(1)),
+     >                        dte,
+     >                        dbl_mb(lmd(1)),
+     >                        dbl_mb(tmp_L(1)),ierr)
+        else if (pspw_SIC().or.occupation_on) then
+           call psi_lmbda_sic(ispin,neq,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
         else
-        call psi_lmbda(ispin,ne,nemaxq,npack1,
+           call psi_lmbda(ispin,neq,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
@@ -5860,6 +6018,7 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
           value= band_reformat_c_wvfnc(1)
         end if
       end if
+      pawexist = psp_pawexist()
 
 
 *     *****  get ispin,ne,neq,nfft3d,npack0,npack1 ****
@@ -5879,6 +6038,11 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
+      if (pawexist) then
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >                     'spsi1',spsi1(2),spsi1(1))
+      end if
       value = value.and.
      >        MA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho1',rho1(2),rho1(1))
@@ -6002,7 +6166,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       end if 
 
 *     **** Ortho Check ****
-      if (psp_pawexist()) then
+      if (pawexist) then
          call psp_overlap_S(ispin,neq,dcpl_mb(psi1(1)),dcpl_mb(psi2(1)))
          call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
      >                        dcpl_mb(psi1(1)),
@@ -6020,7 +6184,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       sum1 = dble(ne(1) + ne(2))
       if ((control_ortho()).and.(dabs(sum2-sum1).gt.1.0d-10)) then
          call Parallel_taskid(taskid)
-         if (psp_pawexist()) then
+         if (pawexist) then
          call Dneall_f_Sortho(0,dcpl_mb(psi1(1)),
      >                          dcpl_mb(psi2(1)),npack1)
          call psp_overlap_S(ispin,neq,dcpl_mb(psi1(1)),
@@ -6113,6 +6277,9 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       value = value.and.MA_free_heap(rho1(2))
       value = value.and.MA_free_heap(psi2(2))
       value = value.and.MA_free_heap(psi1(2))
+      if (pawexist) then
+          value = value.and.MA_free_heap(spsi1(2))
+      end if
       value = value.and.MA_free_heap(rho2_all(2))
       value = value.and.MA_free_heap(rho1_all(2))
       if (occupation_on) then
