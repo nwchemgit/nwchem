@@ -28,7 +28,7 @@ c
        
 c      complex*16 H0(nfft3d,nemax)
 c      complex*16 G1(nfft3d,nemax)
-      integer H0(2),G0(2),G1(2)
+      integer H0(2),R1(2),G1(2)
       real*8  E0,dE0
 
       logical    precondition
@@ -43,10 +43,11 @@ c      complex*16 G1(nfft3d,nemax)
       real*8 tmin,deltat
       real*8 max_sigma
 
-      logical value
+      logical value,pawexist
       integer neall,npack1
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
+      real*8  exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
       
 
 *     **** external functions ****
@@ -96,6 +97,18 @@ c      complex*16 G1(nfft3d,nemax)
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
+*     ***** PAW functions ****
+      logical  psp_pawexist
+      real*8   psp_kinetic_core,psi_1ke_atom
+      real*8   psi_1ncmp_vloc,psi_1vloc_atom
+      real*8   psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
+      real*8   psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
+      external psp_pawexist
+      external psp_kinetic_core,psi_1ke_atom
+      external psi_1ncmp_vloc,psi_1vloc_atom
+      external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
+      external psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
+
       logical  control_precondition,pspw_HFX,psp_U_psputerm,meta_found
       external control_precondition,pspw_HFX,psp_U_psputerm,meta_found
       logical  nwpw_meta_gga_on,ion_disp_on
@@ -106,17 +119,23 @@ c      complex*16 G1(nfft3d,nemax)
   
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
+      pawexist = psp_pawexist()
 
 
-*     **** allocate H0, G0, and G1 ****
+*     **** allocate H0, G1, and R1 ****
       value = MA_alloc_get(mt_dcpl,npack1*neall,
      >                     'H0',H0(2),H0(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*neall,
-     >                     'G0',G0(2),G0(1))
+c      value = value.and.
+c     >        MA_alloc_get(mt_dcpl,npack1*neall,
+c     >                     'G0',G0(2),G0(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*neall,
      >                     'G1',G1(2),G1(1))
+      if (pawexist) then
+         value = value.and.
+     >           MA_alloc_get(mt_dcpl,npack1*neall,
+     >                        'R1',R1(2),R1(1))
+      end if
       if (.not. value) call errquit('cgminimize:out of heap memory',0,
      &       MA_ERR)
       call dcopy(2*npack1*neall,0.0d0,0,dcpl_mb(G1(1)),1)
@@ -129,21 +148,27 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     ***** get the initial gradient and direction ****
-      if (precondition) then
-         call psi_1get_TMgradient(dcpl_mb(G1(1)),E0)
+      if (pawexist) then
+         call psi_1get_STgradient(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
+         call Grsm_gg_trace(npack1,neall,
+     >                      dcpl_mb(G1(1)),
+     >                      dcpl_mb(R1(1)),sum1)
       else
-         call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
+         if (precondition) then
+            call psi_1get_TMgradient(dcpl_mb(G1(1)),E0)
+         else
+            call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
+         end if
+         call Grsm_gg_trace(npack1,neall,
+     >                      dcpl_mb(G1(1)),
+     >                      dcpl_mb(G1(1)),sum1)
       end if
-
-
-      call Grsm_gg_trace(npack1,neall,
-     >                   dcpl_mb(G1(1)),
-     >                   dcpl_mb(G1(1)),sum1)
       call D1dB_SumAll(sum1)
 
       call Grsm_gg_Copy(npack1,neall,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(H0(1)))
+
 
 *     ******************************************
 *     ****                                  ****
@@ -179,6 +204,7 @@ c    >                        0.5d0,tmin,deltae,2)
          call psi_geodesic_final(tmin)
          deltac = rho_error()
 
+
 *        **** exit loop early ****
          if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) then
             if (.not.precondition)  go to 30
@@ -187,12 +213,12 @@ c    >                        0.5d0,tmin,deltae,2)
    
 
 *        **** transport the previous search directions ****
-         call Grsm_gg_Copy(npack1,neall,
-     >                     dcpl_mb(G1(1)),
-     >                     dcpl_mb(G0(1)))
+c         call Grsm_gg_Copy(npack1,neall,
+c     >                     dcpl_mb(G1(1)),
+c     >                     dcpl_mb(G0(1)))
 
          call psi_1geodesic_transport(tmin,dcpl_mb(H0(1)))
-         call psi_1geodesic_Gtransport(tmin,dcpl_mb(G0(1)))
+c         call psi_1geodesic_Gtransport(tmin,dcpl_mb(G0(1)))
 
 *        **** make psi1 <--- psi2(tmin) ****
          call psi_2to1()
@@ -200,28 +226,34 @@ c        call rho_2to1()
 c        call dng_2to1()
 
 *        **** get the new gradient - also updates densities****
-         if (precondition) then
-           call psi_1get_TMgradient(dcpl_mb(G1(1)),E0)
-         else
-           call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
-         end if
-
-         call Grsm_ggg_Sub(npack1,neall,
-     >                       dcpl_mb(G1(1)),
-     >                       dcpl_mb(G0(1)),
-     >                       dcpl_mb(G0(1)))
-
          sum0  = sum1
-         call Grsm_gg_trace(npack1,neall,
-     >                        dcpl_mb(G1(1)),
-     >                        dcpl_mb(G1(1)),
-     >                        sum1)
+         if (pawexist) then
+            call psi_1get_STgradient(dcpl_mb(R1(1)),dcpl_mb(G1(1)),E0)
+            call Grsm_gg_trace(npack1,neall,
+     >                         dcpl_mb(G1(1)),
+     >                         dcpl_mb(R1(1)),sum1)
+         else
+            if (precondition) then
+              call psi_1get_TMgradient(dcpl_mb(G1(1)),E0)
+            else
+              call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
+            end if
+            call Grsm_gg_trace(npack1,neall,
+     >                           dcpl_mb(G1(1)),
+     >                           dcpl_mb(G1(1)),
+     >                           sum1)
+         end if
          call D1dB_SumAll(sum1)
-         call Grsm_gg_trace(npack1,neall,
-     >                        dcpl_mb(G0(1)),
-     >                        dcpl_mb(G1(1)),
-     >                        sum3)
-         call D1dB_SumAll(sum3)
+
+c         call Grsm_ggg_Sub(npack1,neall,
+c     >                       dcpl_mb(G1(1)),
+c     >                       dcpl_mb(G0(1)),
+c     >                       dcpl_mb(G0(1)))
+c         call Grsm_gg_trace(npack1,neall,
+c     >                        dcpl_mb(G0(1)),
+c     >                        dcpl_mb(G1(1)),
+c     >                        sum3)
+c         call D1dB_SumAll(sum3)
 
 c        write(*,*) "sum1:",sum1,sum0,sum3,max_sigma
 c        write(*,*) "Enew:",Enew
@@ -334,6 +366,30 @@ c     call psi_check()
          E(13) = e_spring
       end if
 
+*     **** paw energies ****
+      if (pawexist) then
+         E(35) = psi_1ke_atom()            !*** kinetic atom ***
+         E(36) = psp_kinetic_core()        !*** kinetic core  - independent of psi ***
+
+         E(37) = psi_1valence_core_atom()  !*** valence core energy ***
+
+         E(38) = psi_1ncmp_vloc() !*** (ncmp)*Vlocal
+         E(39) = psi_1vloc_atom() !*** Vlocal (local basis)-nv*Vsrloc+nloc*Vloc-ncmp*Vloc ***
+         ehartree_atom = psi_1hartree_atom()
+         ecmp_cmp      = psi_1hartree_cmp_cmp()
+         ecmp_pw       = psi_1hartree_cmp_pw()
+         E(40) = ehartree_atom             !*** vcoulomb atom  ***
+         E(41) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
+         E(42) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
+
+         call psi_1xc_atom(exc_atom,pxc_atom)
+         E(43) = exc_atom                  !*** exc atom  ***
+         E(44) = pxc_atom                  !*** pxc atom  ***
+
+         E(45) = psp_ion_core()            !*** ion core energy - independent of psi ***
+
+      end if
+
 *     **** get pspw_charge  energies ****
       if (pspw_charge_found()) then
          E(19)  = psi_1v_field()
@@ -371,8 +427,9 @@ c     call psi_check()
 
 
       value = MA_free_heap(G1(2))
-      value = value.and.MA_free_heap(G0(2))
       value = value.and.MA_free_heap(H0(2))
+      if (pawexist) 
+     >   value = value.and.MA_free_heap(R1(2))
       if (.not. value) 
      >  call errquit('cgminimize:error freeing heap memory',0, MA_ERR)
 

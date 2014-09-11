@@ -43,13 +43,13 @@ c
       real*8 deltat
       real*8 max_sigma,dt,kappa
 
-      logical value
+      logical value,pawexist
       integer neall,npack1
       !real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8 e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
-
+      real*8 exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
 
 
 *     **** external functions ****
@@ -95,6 +95,17 @@ c
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
+*     ***** PAW functions ****
+      logical  psp_pawexist
+      real*8   psp_kinetic_core,psi_1ke_atom
+      real*8   psi_1ncmp_vloc,psi_1vloc_atom
+      real*8   psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
+      real*8   psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
+      external psp_pawexist
+      external psp_kinetic_core,psi_1ke_atom
+      external psi_1ncmp_vloc,psi_1vloc_atom
+      external psp_ion_core,psi_1valence_core_atom,psi_1hartree_atom
+      external psi_1hartree_cmp_cmp,psi_1hartree_cmp_pw
 
       real*8   control_time_step,control_fake_mass,psi_1meta_gga_pxc
       external control_time_step,control_fake_mass,psi_1meta_gga_pxc
@@ -120,6 +131,7 @@ c     dte = 1.0d0
   
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
+      pawexist = psp_pawexist()
 
 
 *     **** allocate G0, S0 ****
@@ -135,10 +147,14 @@ c     dte = 1.0d0
 
 
 *     ***** get the initial direction ****
-      if (precondition) then
-         call psi_1get_TMgradient(dcpl_mb(G0(1)),E0)
+      if (pawexist) then
+         call psi_1get_STgradient(dcpl_mb(S0(1)),dcpl_mb(G0(1)),E0)
       else
-         call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
+         if (precondition) then
+            call psi_1get_TMgradient(dcpl_mb(G0(1)),E0)
+         else
+            call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
+         end if
       end if
 
       if (current_iteration.eq.1) then
@@ -208,10 +224,15 @@ c         deltat = 1.0d0  !** debug **
          end if
      
 *        **** get the new gradient - also updates densities****
-         if (precondition) then
-           call psi_2get_TMgradient(2,dcpl_mb(G0(1)),E0)
+         if (pawexist) then
+              call psi_2get_STgradient(2,dcpl_mb(S0(1)),
+     >                                   dcpl_mb(G0(1)),E0)
          else
-           call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
+            if (precondition) then
+              call psi_2get_TMgradient(2,dcpl_mb(G0(1)),E0)
+            else
+              call psi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
+            end if
          end if
 
          if (minimizer.eq.3) then
@@ -315,6 +336,29 @@ c     call psi_check()
          E(20)  = pspw_charge_Energy_ion()
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
+      end if
+
+*     **** paw energies ****
+      if (pawexist) then
+         E(35) = psi_1ke_atom()            !*** kinetic atom ***
+         E(36) = psp_kinetic_core()        !*** kinetic core  - independent of psi ***
+
+         E(37) = psi_1valence_core_atom()  !*** valence core energy ***
+
+         E(38) = psi_1ncmp_vloc() !*** (ncmp)*Vlocal
+         E(39) = psi_1vloc_atom() !*** Vlocal (local basis)-nv*Vsrloc+nloc*Vloc-ncmp*Vloc ***
+         ehartree_atom = psi_1hartree_atom()
+         ecmp_cmp      = psi_1hartree_cmp_cmp()
+         ecmp_pw       = psi_1hartree_cmp_pw()
+         E(40) = ehartree_atom             !*** vcoulomb atom  ***
+         E(41) = ecmp_cmp                  !*** ncmp-ncmp coulomb energy ***
+         E(42) = ecmp_pw                   !*** ncmp-pw coulomb energy ***
+
+         call psi_1xc_atom(exc_atom,pxc_atom)
+         E(43) = exc_atom                  !*** exc atom  ***
+         E(44) = pxc_atom                  !*** pxc atom  ***
+
+         E(45) = psp_ion_core()            !*** ion core energy - independent of psi ***
       end if
 
 *     **** HFX terms ****

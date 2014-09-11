@@ -25,14 +25,14 @@ c#include "rtdb.fh"
       logical stalled,value,oprint,psitmp,failed
       integer taskid
       integer minimizer
-      integer i,j,ms,neall,NN
+      integer i,j,ms,neall,NN,nx,ny,nz,n2ft3d,tmp1(2)
       integer it_in,it_out,icount,bfgscount
-      real*8  EV,virial
+      real*8  EV,virial,sumall,scal
       real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2),en1(2),en2(2)
-      real*8  E(40)
+      real*8  E(50)
       integer rtdb
 
 *     **** external functions ****
@@ -46,7 +46,7 @@ c#include "rtdb.fh"
       integer     psi_iptr_hml
       real*8      control_tole,control_tolc,psi_occupation
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
-      real*8      psi_smearfermi
+      real*8      psi_smearfermi,lattice_omega
       external psp_semicore,pspw_charge_found,pspw_qmmm_found
       external psp_pawexist,psp_U_psputerm,meta_found
       external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
@@ -57,7 +57,7 @@ c#include "rtdb.fh"
       external control_print,control_psi_tmp,control_fractional
       external control_tole,control_tolc,psi_occupation
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
-      external psi_smearfermi
+      external psi_smearfermi,lattice_omega
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
       integer     control_symmetry,control_version
@@ -81,6 +81,7 @@ c#include "rtdb.fh"
       if (control_version().eq.3) call ewald_phafac()
       call electron_gen_vl_potential()
       if (psp_semicore(0)) call semicore_density_update()
+      if (psp_pawexist())  call psp_dE_ncmp_vloc_Qlm(psi_ispin())
 
 
 *     :::::::::::  begin electron iteration  :::::::::::::::::::::::
@@ -246,8 +247,28 @@ c          **** reset minimizer if failed ****
 *     **** but skip if doing an SIC calculations   ****
       call psi_spin_density(en1)
       if (psp_pawexist()) then
-         en2(1) = 0.0d0
-         en2(2) = 0.0d0
+         call D3dB_n2ft3d(1,n2ft3d)
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         scal = lattice_omega()/dble(nx*ny*nz)
+         !en2(1) = 0.0
+         !en2(2) = 0.0
+         if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
+     >   call errquit(
+     >        'cgsd_energy: out of stack memory',0,MA_ERR)
+         call psi_1qlm_atom()
+         do ms=1,psi_ispin()
+           call nwpw_compcharge_gen_dn_cmp_smooth_ms(ms,dbl_mb(tmp1(1)))
+           call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+           call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+           call D3dB_r_dsum(1,dbl_mb(tmp1(1)),sumall)
+           en2(ms) = sumall*scal
+         end do
+         if (.not.MA_pop_stack(tmp1(2)))
+     >   call errquit(
+     >        'cgsd_energy: popping stack memory',0,MA_ERR)
       else
          en2(1) = 0.0d0
          en2(2) = 0.0d0
@@ -355,7 +376,24 @@ c        end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
 
-        if (pspw_qmmm_found()) then
+c        **** paw energies ****
+         if (psp_pawexist()) then
+            write(luout,1680) E(35),E(35)/neall
+            write(luout,1681) E(36),E(36)/ion_nion()
+            write(luout,1682) E(37),E(37)/neall
+
+            write(luout,1683) E(38),E(38)/neall
+            write(luout,1684) E(39),E(39)/neall
+
+            write(luout,1685) E(40),E(40)/neall
+            write(luout,1686) E(41),E(41)/neall
+            write(luout,1687) E(42),E(42)/neall
+            write(luout,1688) E(43),E(43)/neall
+            write(luout,1689) E(44),E(44)/ion_nion()
+            write(luout,1690) E(45),E(45)/ion_nion()
+         end if
+
+         if (pspw_qmmm_found()) then
             write(luout,1700)
             write(luout,1701)
             write(luout,1702) E(11)
@@ -369,19 +407,19 @@ c
 c            write(luout,1704) E(16)
 c            write(luout,1705) E(17)
 c            write(luout,1706) E(18)
-        end if
-        if (ion_disp_on()) then
+         end if
+         if (ion_disp_on()) then
             write(luout,1720) E(33)
-        end if
+         end if
 
-        if (pspw_charge_found()) then
+         if (pspw_charge_found()) then
             write(luout,1800)
             write(luout,1801)
             write(luout,1805) E(19)+E(20)+E(21)
             write(luout,1802) E(19)
             write(luout,1803) E(20)
             write(luout,1804) E(21)
-        end if
+         end if
 
 *        **** write out <psi|H|psi> matrix ****
          if (pspw_SIC()) then
@@ -583,9 +621,17 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1513 FORMAT(2(E18.7,' (',F8.3,'eV)',A4,' occ=',F5.3))
 
  1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/electron)')
- 1690 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
- 1696 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
- 1697 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
+ 1682 FORMAT( ' valence-core        :',E19.10,' (',E15.5,'/electron)')
+ 1683 FORMAT( ' ncmp*V_local        :',E19.10,' (',E15.5,'/electron)')
+ 1684 FORMAT( ' V_lpaw  (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1685 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1686 FORMAT( ' coulomb  (ncmp-ncmp):',E19.10,' (',E15.5,'/electron)')
+ 1687 FORMAT( ' coulomb    (ncmp-pw):',E19.10,' (',E15.5,'/electron)')
+ 1688 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1689 FORMAT( ' pxc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1690 FORMAT( ' ion-core            :',E19.10,' (',E15.5,'/ion)')
+ 1691 FORMAT( ' V_local PAW residual:',E19.10,' (',E15.5,'/electron)')
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')
