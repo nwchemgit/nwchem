@@ -8,7 +8,7 @@ The revision history is as follows:
 
 r25639 Unified DFT library of pre-existing code from the NWDFT and NWPW modules
 r26056 Univariate automatic differentiation implementation of derivatives
-r????? Multivariate automatic differentiation implementation
+r26255 Multivariate automatic differentiation implementation
 
 Before deciding on the path forward a performance evaluation on the three
 implementations listed above was performed. For this purpose the QA test
