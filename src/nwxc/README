@@ -1,7 +1,84 @@
 NWXC
 ====
 
-An implementation of shared density functional for the Gaussian and
+An implementation of shared density functionals for the Gaussian and
 Plane Wave DFT codes.
+
+The revision history is as follows:
+
+r25639 Unified DFT library of pre-existing code from the NWDFT and NWPW modules
+r26056 Univariate automatic differentiation implementation of derivatives
+r????? Multivariate automatic differentiation implementation
+
+Before deciding on the path forward a performance evaluation on the three
+implementations listed above was performed. For this purpose the QA test
+cases nwxc_nwdft_* and nwxc_tddft_* were used. These cases run all implemented
+function terms with 1st derivatives and 2nd derivatives respectively. The
+test cases were run in serial on Cascade (Intel Xeon E5-2670 processor cores).
+The code was compiled with the Intel 14.0.3 compilers and the Intel MPI 
+4.1.2.040 libraries. The NWChem BLAS and LAPACK routines were used for the
+linear algebra. All calculations were performed with the spin unrestricted
+Kohn-Sham formalism.
+
+Below the timing results are reported. The columns labeled "manual" correspond
+to the hand written code of the unified library (i.e. r25639), the columns
+labeled "univariate" relate to the univariate differentiation approach of
+revision r26056, whereas "multivariate" refers to the initial multivariate
+differentiation approach. 
+
+=============================================================================
+               | CPU time (s)                   | Wall clock time (s)
+-----------------------------------------------------------------------------
+Job            | Manual  | Uni-    | Multi-     | Manual  | Uni-    | Multi-
+               |         | variate | variate    | Manual  | variate | variate
+-----------------------------------------------------------------------------
+nwxc_nwdft_1he |    14.1 |    84.4 |    43.6    |   223.3 |   295.3 |   250.5
+nwxc_nwdft_1ne |    29.8 |    98.8 |    61.1    |   255.9 |   342.4 |   303.5
+nwxc_nwdft_1ar |    69.2 |   205.2 |   130.6    |   307.9 |   424.7 |   368.9
+nwxc_nwdft_1kr |   259.9 |   428.5 |   337.3    |   491.5 |   628.3 |   572.9
+nwxc_nwdft_1xe |   652.8 |   817.6 |   734.3    |   853.0 |  1023.0 |   936.0
+nwxc_nwdft_3he |    11.7 |    47.9 |    27.4    |   198.2 |   248.4 |   221.7
+nwxc_nwdft_4n  |    35.0 |   117.1 |   100.5    |   303.5 |   395.5 |   346.6
+nwxc_nwdft_4p  |    84.9 |   265.1 |   243.9    |   373.9 |   551.7 |   453.1
+nwxc_nwdft_4as |   314.9 |   536.1 |   478.3    |   594.4 |   825.1 |   701.7
+nwxc_nwdft_4sb |   788.4 |   997.7 |   815.8    |  1046.3 |  1241.9 |  1129.9
+-----------------------------------------------------------------------------
+nwxc_tddft_1he |    17.9 |   143.5 |    58.7    |   230.1 |   361.8 |   289.7
+nwxc_tddft_1ne |    35.9 |   162.5 |    77.3    |   283.5 |   330.3 |   311.1
+nwxc_tddft_1ar |    82.6 |   360.3 |   174.6    |   341.1 |   615.4 |   358.0
+nwxc_tddft_1kr |   243.5 |   609.3 |   362.5    |   445.7 |   949.1 |   632.0
+nwxc_tddft_1xe |   633.7 |  1015.9 |   746.2    |   956.6 |  1428.2 |  1117.7
+nwxc_tddft_3he |    10.2 |    52.0 |    25.7    |   153.0 |   182.6 |   159.5
+nwxc_tddft_4n  |    57.2 |   183.3 |   100.5    |   321.7 |   375.6 |   355.1
+nwxc_tddft_4p  |   142.5 |   425.2 |   243.9    |   402.3 |   646.3 |   452.5
+nwxc_tddft_4as |   367.9 |   677.1 |   478.3    |   575.2 |   985.3 |   702.1
+nwxc_tddft_4sb |   734.0 |   973.3 |   815.8    |   955.1 |  1282.7 |  1099.1
+=============================================================================
+
+The timings show that even the best automatic differentiation approach is up
+to 3 times slower than the hand written code in cases where the density 
+functional evaluation represents a large chunk of the compute. For heavier
+atoms the density and the matrix element evaluation (which scale as N**3) 
+dominates and the functional evaluation (which scales as N**1) has less of an
+impact.
+
+As the multivariate differentiation is clearly the best bet we will proceed
+with that. The next steps are to optimize this code. Opportunities for 
+optimization are:
+
+1. In binary operators the sets of input variables need to be merged. This can
+   be sped up using bit operations.
+2. After 1. the variable set is represented by a single integer and hence it
+   is easy to compare them. If in a binary operator the input sets of variables
+   are the same then a simpler loop structure can be used.
+3. In binary operations the array indeces can be pre-computed and re-used.
+4. In some operations quantities can be precalculated and re-used.
+5. In the functionals the code has been optimized for the calculation of the
+   energy AND the 1st derivatives. With automatic differentiation the code 
+   should be optimized for the energy evaluation only. E.g. in the manually
+   written code rho^4/3 is typically calculated as rho13 = rho**(1/3);
+   rho43 = rho*rho13. This is handy for the energy and gradient evaluation as
+   rho13 is needed for the latter anyway. In the automatic differentiation 
+   approach this just leads to a superfluous multiplication and assignment.
 
 At present this is still VERY MUCH UNDER CONSTRUCTION.
