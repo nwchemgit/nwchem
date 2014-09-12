@@ -363,6 +363,7 @@ C>
       use nwad1
       implicit none
 #include "nwxc_param.fh"
+#include "errquit.fh"
       integer ipol !< [Input] The number of spin channels
       integer nq   !< [Input] The number of points
 C
@@ -387,155 +388,87 @@ C
       external nwxc_is_gga  !< Is the functional a GGA
       external nwxc_is_mgga !< Is the functional a meta-GGA
 c
+      integer ix1           !< the variable rank
+      integer iv1           !< the variable label
+      integer nvar          !< the number of variables
+      double precision val  !< the functional (derivative) value
       integer iq, ip
 c
       if (ipol.eq.1) then
-        do ip = 1, 2
-          do iq = 1, nq
-            nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-          enddo
+        do iq = 1, nq
+          nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
         enddo
       else  ! ipol.eq.1
-        do ip = 1, 2
-          do iq = 1, nq
-            nwad_rho(iq,ip) = inactive(rho(iq,ip))
-          enddo
+        do iq = 1, nq
+          nwad_rho(iq,R_A) = set_rho_a(rho(iq,R_A))
+        enddo
+        do iq = 1, nq
+          nwad_rho(iq,R_B) = set_rho_b(rho(iq,R_B))
         enddo
       endif ! ipol.eq.1
       if (nwxc_is_gga().or.nwxc_is_mgga()) then
         if (ipol.eq.1) then
-          do ip = 1, 3
-            do iq = 1, nq
-              nwad_gam(iq,ip) = inactive(0.25d0*gamma(iq,G_TT))
-            enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_TT) = set_gamma_tt(gamma(iq,G_TT))
           enddo
         else  ! ipol.eq.1
-          do ip = 1, 3
-            do iq = 1, nq
-              nwad_gam(iq,ip) = inactive(gamma(iq,ip))
-            enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_AA) = set_gamma_aa(gamma(iq,G_AA))
+          enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_AB) = set_gamma_ab(gamma(iq,G_AB))
+          enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_BB) = set_gamma_bb(gamma(iq,G_BB))
           enddo
         endif ! ipol.eq.1
       endif
       if (nwxc_is_mgga()) then
         if (ipol.eq.1) then
-          do ip = 1, 2
-            do iq = 1, nq
-              nwad_tau(iq,ip) = inactive(0.5d0*tau(iq,T_T))
-            enddo
+          do iq = 1, nq
+            nwad_tau(iq,T_T) = set_tau_t(tau(iq,T_T))
           enddo
         else  ! ipol.eq.1
-          do ip = 1, 2
-            do iq = 1, nq
-              nwad_tau(iq,ip) = inactive(1.0d0*tau(iq,ip))
-            enddo
+          do iq = 1, nq
+            nwad_tau(iq,T_A) = set_tau_a(tau(iq,T_A))
+          enddo
+          do iq = 1, nq
+            nwad_tau(iq,T_B) = set_tau_b(tau(iq,T_B))
           enddo
         endif ! ipol.eq.1
       endif
 c
-c     Do derivatives wrt rho
+      call nwxc_eval_df_doit(ipol,nq,nwad_rho,nwad_gam,
+     +     nwad_tau,nwad_f,dfdr,dfdg,dfdt)
 c
-      do ip = 1, ipol
-c       do iq = 1, nq
-c         nwad_f(iq) = 0.0d0
-c       enddo
-        if (ipol.eq.1) then
-          do iq = 1, nq
-            nwad_rho(iq,ip) = active(0.5d0*rho(iq,R_T))
-          enddo
-        else  ! ipol.eq.1
-          do iq = 1, nq
-            nwad_rho(iq,ip) = active(rho(iq,ip))
-          enddo
-        endif ! ipol.eq.1
-        call nwxc_eval_df_doit(2,nq,nwad_rho,nwad_gam,
-     +       nwad_tau,nwad_f,dfdr,dfdg,dfdt)
-        do iq = 1, nq
-          dfdr(iq,ip) = inter_d1_dx(nwad_f(iq))
-        enddo
-        if (ipol.eq.1) then
-          do iq = 1, nq
-            nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-          enddo
-        else  ! ipol.eq.1
-          do iq = 1, nq
-            nwad_rho(iq,ip) = inactive(rho(iq,ip))
-          enddo
-        endif ! ipol.eq.1
-      enddo ! ip = 1, ipol
-c
-c     Do derivatives wrt gamma
-c
-      if (nwxc_is_gga().or.nwxc_is_mgga()) then
-        do ip = 1, ipol+1
-c         do iq = 1, nq
-c           nwad_f(iq) = 0.0d0
-c         enddo
-          if (ipol.eq.1) then
-            do iq = 1, nq
-              nwad_gam(iq,ip) = active(0.25d0*gamma(iq,G_TT))
-            enddo
-          else  ! ipol.eq.1
-            do iq = 1, nq
-              nwad_gam(iq,ip) = active(gamma(iq,ip))
-            enddo
-          endif ! ipol.eq.1
-          call nwxc_eval_df_doit(2,nq,nwad_rho,nwad_gam,
-     +         nwad_tau,nwad_f,dfdr,dfdg,dfdt)
-          do iq = 1, nq
-            dfdg(iq,ip) = inter_d1_dx(nwad_f(iq))
-          enddo
-          if (ipol.eq.1) then
-            do iq = 1, nq
-              nwad_gam(iq,ip) = inactive(0.25d0*gamma(iq,G_TT))
-            enddo
-          else  ! ipol.eq.1
-            do iq = 1, nq
-              nwad_gam(iq,ip) = inactive(gamma(iq,ip))
-            enddo
-          endif ! ipol.eq.1
-        enddo ! ip = 1, ipol
-      endif
-c
-c     Do derivatives wrt tau
-c
-      if (nwxc_is_mgga()) then
-        do ip = 1, ipol
-c         do iq = 1, nq
-c           nwad_f(iq) = 0.0d0
-c         enddo
-          if (ipol.eq.1) then
-            do iq = 1, nq
-              nwad_tau(iq,ip) = active(0.5d0*tau(iq,T_T))
-            enddo
-          else  ! ipol.eq.1
-            do iq = 1, nq
-              nwad_tau(iq,ip) = active(1.0d0*tau(iq,ip))
-            enddo
-          endif ! ipol.eq.1
-          call nwxc_eval_df_doit(2,nq,nwad_rho,nwad_gam,
-     +         nwad_tau,nwad_f,dfdr,dfdg,dfdt)
-          do iq = 1, nq
-            dfdt(iq,ip) = inter_d1_dx(nwad_f(iq))
-          enddo
-          if (ipol.eq.1) then
-            do iq = 1, nq
-              nwad_tau(iq,ip) = inactive(0.5d0*tau(iq,T_T))
-            enddo
-          else  ! ipol.eq.1
-            do iq = 1, nq
-              nwad_tau(iq,ip) = inactive(1.0d0*tau(iq,ip))
-            enddo
-          endif ! ipol.eq.1
-        enddo ! ip = 1, ipol
-      endif
-c
-c     Finally get the functional value
+c     Now unpack the results
 c
       do iq = 1, nq
-        f(iq) = value(nwad_f(iq))
+        f(iq) = get_val(nwad_f(iq))
+        nvar = get_nvar(nwad_f(iq))
+        do ix1 = 1, nvar
+          call get_d1(nwad_f(iq),ix1,val,iv1)
+          select case (iv1)
+            case (1)
+              dfdr(iq,D1_RA) = val
+            case (2)
+              dfdr(iq,D1_RB) = val
+            case (3)
+              dfdg(iq,D1_GAA) = val
+            case (4)
+              dfdg(iq,D1_GAB) = val
+            case (5)
+              dfdg(iq,D1_GBB) = val
+            case (6)
+              dfdt(iq,D1_TA) = val
+            case (7)
+              dfdt(iq,D1_TB) = val
+            case default
+              call errquit("nwxc_df_driver: illegal variable",iv1,UERR)
+          end select
+        enddo
       enddo
-C     
+c
       end
 C>
 C> \brief Evaluate the functional and its first order derivatives
@@ -1969,692 +1902,178 @@ c
       type(nwad_dble) :: nwad_rho(nq,2)
       type(nwad_dble) :: nwad_gam(nq,3)
       type(nwad_dble) :: nwad_tau(nq,2)
-      type(nwad_dble) :: nwad_f(nq,ndrv)
+      type(nwad_dble) :: nwad_f(nq)
       type(nwad_dble) :: nwad_scr(nq)
 C
       logical nwxc_is_gga  !< Is the functional a GGA
       logical nwxc_is_mgga !< Is the functional a meta-GGA
 c
-      integer iq, ip, id, ir
-      integer ip2, ir2, ipr, id2
+      integer iq
+      integer ix1, ix2
+      integer iv1, iv2
 c
-      do ip = 1, 2
-        if (ipol.eq.1) then
-          do iq = 1, nq
-            nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-          enddo
-        else  ! ipol.eq.1
-          do iq = 1, nq
-            nwad_rho(iq,ip) = inactive(rho(iq,ip))
-          enddo
-        endif ! ipol.eq.1
-      enddo
-      if (nwxc_is_gga().or.nwxc_is_mgga()) then
-        if (ipol.eq.1) then
-          do ip = 1, 3
-            do iq = 1, nq
-              nwad_gam(iq,ip) = inactive(0.25d0*gamma(iq,G_TT))
-            enddo
-          enddo
-        else  ! ipol.eq.1
-          do ip = 1, 3
-            do iq = 1, nq
-              nwad_gam(iq,ip) = inactive(gamma(iq,ip))
-            enddo
-          enddo
-        endif ! ipol.eq.1
-        if (nwxc_is_mgga()) then
-          do ip = 1, 2
-            if (ipol.eq.1) then
-              do iq = 1, nq
-                nwad_tau(iq,ip) = inactive(0.5d0*tau(iq,T_T))
-              enddo
-            else  ! ipol.eq.1
-              do iq = 1, nq
-                nwad_tau(iq,ip) = inactive(1.0d0*tau(iq,ip))
-              enddo
-            endif ! ipol.eq.1
-          enddo
-        endif
-      endif
-c
-c     Do closed shell and open shell separately
+      double precision val
 c
       if (ipol.eq.1) then
-c
-c       Do closed shell
-c
-c       First do d2f/dx2
-c
-        do ip = 1, nvar
-          id = ip*(ip+1)/2
-          if (ip.eq.1) then
-            do iq = 1, nq
-              nwad_rho(iq,ip) = active(0.5d0*rho(iq,R_T),2)
-            enddo
-          elseif (ip.eq.2) then
-c           do nothing, we copy the rho alpha-alpha result
-            id2 = 1*(1+1)/2
-          elseif (ip.le.4) then
-            do iq = 1, nq
-              nwad_gam(iq,ip-2) = active(0.25d0*gamma(iq,G_TT),2)
-            enddo
-          elseif (ip.eq.5) then
-c           do nothing, we copy the gamma alpha-alpha result
-            id2 = 3*(3+1)/2
-          elseif (ip.eq.6) then
-            do iq = 1, nq
-              nwad_tau(iq,ip-5) = active(0.5d0*tau(iq,T_T),2)
-            enddo
-          elseif (ip.eq.7) then
-c           do nothing, we copy the tau alpha-alpha result
-            id2 = 6*(6+1)/2
-          endif
-          if (ip.eq.1.or.ip.eq.3.or.ip.eq.4.or.ip.eq.6) then
-            call nwxc_eval_df2_doit(2,nq,nwad_rho,nwad_gam,
-     +           nwad_tau,nwad_f(1,id),dfdr,dfdr2,dfdg,dfdg2,
-     +           dfdt,dfdt2)
-          else
-            call dcopy(nq*ndbl,nwad_f(1,id2),1,nwad_f(1,id),1)
-          endif
-          if (ip.eq.1) then
-            do iq = 1, nq
-              nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-            enddo
-          elseif (ip.eq.2) then
-c           do nothing
-          elseif (ip.le.4) then
-            do iq = 1, nq
-              nwad_gam(iq,ip-2) = inactive(0.25d0*gamma(iq,G_TT))
-            enddo
-          elseif (ip.eq.5) then
-c           do nothing
-          elseif (ip.eq.6) then
-            do iq = 1, nq
-              nwad_tau(iq,ip-5) = inactive(0.5d0*tau(iq,T_T))
-            enddo
-          elseif (ip.eq.7) then
-c           do nothing
-          endif
+        do iq = 1, nq
+          nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
         enddo
-c
-c       Second do d2f/dxdy
-c
-        do ip = 1, nvar
-          do ir = 1, ip-1
-            id = ip*(ip-1)/2+ir
-            if (ip.le.2) then
-              do iq = 1, nq
-                nwad_rho(iq,ip) = active(0.5d0*rho(iq,R_T))
-              enddo
-            elseif (ip.le.5) then
-              do iq = 1, nq
-                nwad_gam(iq,ip-2) = active(0.25d0*gamma(iq,G_TT))
-              enddo
-            elseif (ip.le.7) then
-              do iq = 1, nq
-                nwad_tau(iq,ip-5) = active(0.5d0*tau(iq,T_T))
-              enddo
-            endif
-            if (ir.le.2) then
-              do iq = 1, nq
-                nwad_rho(iq,ir) = active(0.5d0*rho(iq,R_T))
-              enddo
-            elseif (ir.le.5) then
-              do iq = 1, nq
-                nwad_gam(iq,ir-2) = active(0.25d0*gamma(iq,G_TT))
-              enddo
-            elseif (ir.le.7) then
-              do iq = 1, nq
-                nwad_tau(iq,ir-5) = active(0.5d0*tau(iq,T_T))
-              enddo
-            endif
-            if ((ip.eq.2.and.ir.eq.1).or.(ip.eq.3.and.ir.le.2).or.
-     +          (ip.eq.4.and.(ir.eq.1.or.ir.eq.3)).or.
-     +          (ip.eq.5.and.ir.eq.3).or.(ip.eq.6).or.
-     +          (ip.eq.7.and.ir.eq.6)) then
-              call nwxc_eval_df2_doit(2,nq,nwad_rho,nwad_gam,
-     +             nwad_tau,nwad_f(1,id),dfdr,dfdr2,dfdg,dfdg2,
-     +             dfdt,dfdt2)
-            else
-              if (ip.eq.4.and.ir.eq.2) then
-c               d2_ra_gab -> d2_rb_gab
-                id2 = 4*(4-1)/2+1
-              elseif (ip.eq.5.and.ir.eq.1) then
-c               d2_rb_gaa -> d2_ra_gbb
-                id2 = 3*(3-1)/2+2
-              elseif (ip.eq.5.and.ir.eq.2) then
-c               d2_ra_gaa -> d2_rb_gbb
-                id2 = 3*(3-1)/2+1
-              elseif (ip.eq.5.and.ir.eq.4) then
-c               d2_gaa_gab -> d2_gab_gbb
-                id2 = 4*(4-1)/2+3
-              elseif (ip.eq.7.and.ir.eq.1) then
-c               d2_rb_ta -> d2_ra_tb
-                id2 = 6*(6-1)/2+2
-              elseif (ip.eq.7.and.ir.eq.2) then
-c               d2_ra_ta -> d2_rb_tb
-                id2 = 6*(6-1)/2+1
-              elseif (ip.eq.7.and.ir.eq.3) then
-c               d2_gbb_ta -> d2_gaa_tb
-                id2 = 6*(6-1)/2+5
-              elseif (ip.eq.7.and.ir.eq.4) then
-c               d2_gab_ta -> d2_gab_tb
-                id2 = 6*(6-1)/2+4
-              elseif (ip.eq.7.and.ir.eq.5) then
-c               d2_gaa_ta -> d2_gbb_tb
-                id2 = 6*(6-1)/2+3
-              endif
-              call dcopy(nq*ndbl,nwad_f(1,id2),1,nwad_f(1,id),1)
-            endif
-            if (ip.le.2) then
-              do iq = 1, nq
-                nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-              enddo
-            elseif (ip.le.5) then
-              do iq = 1, nq
-                nwad_gam(iq,ip-2) = inactive(0.25d0*gamma(iq,G_TT))
-              enddo
-            elseif (ip.le.7) then
-              do iq = 1, nq
-                nwad_tau(iq,ip-5) = inactive(0.5d0*tau(iq,T_T))
-              enddo
-            endif
-            if (ir.le.2) then
-              do iq = 1, nq
-                nwad_rho(iq,ir) = inactive(0.5d0*rho(iq,R_T))
-              enddo
-            elseif (ir.le.5) then
-              do iq = 1, nq
-                nwad_gam(iq,ir-2) = inactive(0.25d0*gamma(iq,G_TT))
-              enddo
-            elseif (ir.le.7) then
-              do iq = 1, nq
-                nwad_tau(iq,ir-5) = inactive(0.5d0*tau(iq,T_T))
-              enddo
-            endif
-          enddo ! ir
-        enddo ! ip
-c
-c       Done with all functional evaluations, now interpolate the results
-c
-c       First get the functional itself
-c
-c       do iq = 1, nq
-c         f(iq) = value(nwad_f(iq,1))
-c       enddo
-c
-c       Interpolate the first order partial derivatives
-c
-c       do ip = 1, nvar
-c         id = ip*(ip+1)/2
-c         if (ip.eq.1) then
-c           do iq = 1, nq
-c             dfdr(iq,ip) = inter_d2_dx(nwad_f(iq,id))
-c           enddo
-c         elseif (ip.eq.2) then
-c         elseif (ip.le.4) then
-c           do iq = 1, nq
-c             dfdg(iq,ip-2) = inter_d2_dx(nwad_f(iq,id))
-c           enddo
-c         elseif (ip.eq.6) then
-c           do iq = 1, nq
-c             dfdt(iq,ip-5) = inter_d2_dx(nwad_f(iq,id))
-c           enddo
-c         endif
-c       enddo
-c
-c       Interpolate the second order partial derivatives
-c
-c       First do d2fdx2
-c
-c       do ip = 1, nvar
-c         id = ip*(ip+1)/2
-c         if (ip.eq.1) then
-c           do iq = 1, nq
-c             dfdr2(iq,D2_RA_RA) = inter_d2_dx2(nwad_f(iq,id))
-c           enddo
-c         elseif (ip.eq.2) then
-c         elseif (ip.eq.3) then
-c           do iq = 1, nq
-c             dfdg2(iq,D2_GAA_GAA) = inter_d2_dx2(nwad_f(iq,id))
-c           enddo
-c         elseif (ip.eq.4) then
-c           do iq = 1, nq
-c             dfdg2(iq,D2_GAB_GAB) = inter_d2_dx2(nwad_f(iq,id))
-c           enddo
-c         elseif (ip.eq.6) then
-c           do iq = 1, nq
-c             dfdt2(iq,D2_TA_TA) = inter_d2_dx2(nwad_f(iq,id))
-c           enddo
-c         endif
-c       enddo
-c
-c       Second do d2fdxy
-c
-c       do ip = 1, nvar
-c         do ir = 1, ip-1
-c           ip2 = ip*(ip+1)/2
-c           ir2 = ir*(ir+1)/2
-c           ipr = ip*(ip-1)/2+ir
-c           id2 = 0
-c           if (ip.eq.2.and.ir.eq.1) then
-c             id2 = D2_RA_RB
-c           elseif (ip.eq.3.and.ir.eq.1) then
-c             id2 = D2_RA_GAA
-c           elseif (ip.eq.3.and.ir.eq.2) then
-c             id2 = D2_RB_GAA
-c           elseif (ip.eq.4.and.ir.eq.1) then
-c             id2 = D2_RA_GAB
-c           elseif (ip.eq.4.and.ir.eq.3) then
-c             id2 = D2_GAA_GAB
-c           elseif (ip.eq.5.and.ir.eq.3) then
-c             id2 = D2_GAA_GBB
-c           elseif (ip.eq.6.and.ir.eq.1) then
-c             id2 = D2_RA_TA
-c           elseif (ip.eq.6.and.ir.eq.2) then
-c             id2 = D2_RB_TA
-c           elseif (ip.eq.6.and.ir.eq.3) then
-c             id2 = D2_GAA_TA
-c           elseif (ip.eq.6.and.ir.eq.4) then
-c             id2 = D2_GAB_TA
-c           elseif (ip.eq.6.and.ir.eq.5) then
-c             id2 = D2_GBB_TA
-c           elseif (ip.eq.7.and.ir.eq.6) then
-c             id2 = D2_TA_TB
-c           endif
-c           if (id2.ne.0) then
-c             if (ip.le.2) then
-c               do iq = 1, nq
-c                 dfdr2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-c    +                            nwad_f(iq,ipr),nwad_f(iq,ir2))
-c               enddo
-c             elseif (ip.le.5) then
-c               do iq = 1, nq
-c                 dfdg2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-c    +                            nwad_f(iq,ipr),nwad_f(iq,ir2))
-c               enddo
-c             else
-c               do iq = 1, nq
-c                 dfdt2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-c    +                            nwad_f(iq,ipr),nwad_f(iq,ir2))
-c               enddo
-c             endif
-c           endif ! id2.ne.0
-c         enddo ! ir
-c       enddo ! ip
-c
-      elseif (ipol.eq.2) then
-c
-c        Do open shell
-c
-c        First do d2f/dx2
-c
-         do ip = 1, nvar
-           id = ip*(ip+1)/2
-           if (ip.le.2) then
-             do iq = 1, nq
-               nwad_rho(iq,ip) = active(rho(iq,ip),2)
-             enddo
-           elseif (ip.le.5) then
-             do iq = 1, nq
-               nwad_gam(iq,ip-2) = active(gamma(iq,ip-2),2)
-             enddo
-           else
-             do iq = 1, nq
-               nwad_tau(iq,ip-5) = active(1.0d0*tau(iq,ip-5),2)
-             enddo
-           endif
-           call nwxc_eval_df2_doit(ipol,nq,nwad_rho,nwad_gam,nwad_tau,
-     +                             nwad_f(1,id),dfdr,dfdr2,dfdg,dfdg2,
-     +                             dfdt,dfdt2)
-           if (ip.le.2) then
-             do iq = 1, nq
-               nwad_rho(iq,ip) = inactive(rho(iq,ip))
-             enddo
-           elseif (ip.le.5) then
-             do iq = 1, nq
-               nwad_gam(iq,ip-2) = inactive(gamma(iq,ip-2))
-             enddo
-           else
-             do iq = 1, nq
-               nwad_tau(iq,ip-5) = inactive(1.0d0*tau(iq,ip-5))
-             enddo
-           endif
-         enddo
-c
-c        Second do d2f/dxdy
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             id = ip*(ip-1)/2+ir
-             if (ip.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = active(rho(iq,ip))
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-2) = active(gamma(iq,ip-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ip-5) = active(1.0d0*tau(iq,ip-5))
-               enddo
-             endif
-             if (ir.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = active(rho(iq,ir))
-               enddo
-             elseif (ir.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-2) = active(gamma(iq,ir-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ir-5) = active(1.0d0*tau(iq,ir-5))
-               enddo
-             endif
-             call nwxc_eval_df2_doit(ipol,nq,nwad_rho,nwad_gam,nwad_tau,
-     +                               nwad_f(1,id),dfdr,dfdr2,dfdg,dfdg2,
-     +                               dfdt,dfdt2)
-             if (ip.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = inactive(rho(iq,ip))
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-2) = inactive(gamma(iq,ip-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ip-5) = inactive(1.0d0*tau(iq,ip-5))
-               enddo
-             endif
-             if (ir.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = inactive(rho(iq,ir))
-               enddo
-             elseif (ir.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-2) = inactive(gamma(iq,ir-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ir-5) = inactive(1.0d0*tau(iq,ir-5))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Done with all functional evaluations, now interpolate the results
-c
-c        First get the functional itself
-c
-c        do iq = 1, nq
-c          f(iq) = value(nwad_f(iq,1))
-c        enddo
-c
-c        Interpolate the first order partial derivatives
-c
-c        do ip = 1, nvar
-c          id = ip*(ip+1)/2
-c          if (ip.le.2) then
-c            do iq = 1, nq
-c              dfdr(iq,ip) = inter_d2_dx(nwad_f(iq,id))
-c            enddo
-c          elseif (ip.le.5) then
-c            do iq = 1, nq
-c              dfdg(iq,ip-2) = inter_d2_dx(nwad_f(iq,id))
-c            enddo
-c          else
-c            do iq = 1, nq
-c              dfdt(iq,ip-5) = inter_d2_dx(nwad_f(iq,id))
-c            enddo
-c          endif
-c        enddo
-c
-c        Interpolate the second order partial derivatives
-c
-c        First do d2fdx2
-c
-c        do ip = 1, nvar
-c          id = ip*(ip+1)/2
-c          id2 = D2_RA_RA
-c          if (ip.eq.2) then
-c            id2 = D2_RB_RB
-c          elseif (ip.eq.3) then
-c            id2 = D2_GAA_GAA
-c          elseif (ip.eq.4) then
-c            id2 = D2_GAB_GAB
-c          elseif (ip.eq.5) then
-c            id2 = D2_GBB_GBB
-c          elseif (ip.eq.6) then
-c            id2 = D2_TA_TA
-c          elseif (ip.eq.7) then
-c            id2 = D2_TB_TB
-c          endif
-c          if (ip.le.2) then
-c            do iq = 1, nq
-c              dfdr2(iq,id2) = inter_d2_dx2(nwad_f(iq,id))
-c            enddo
-c          elseif (ip.le.5) then
-c            do iq = 1, nq
-c              dfdg2(iq,id2) = inter_d2_dx2(nwad_f(iq,id))
-c            enddo
-c          else
-c            do iq = 1, nq
-c              dfdt2(iq,id2) = inter_d2_dx2(nwad_f(iq,id))
-c            enddo
-c          endif
-c        enddo
-c
-c        Second do d2fdxy
-c
-c        do ip = 1, nvar
-c          do ir = 1, ip-1
-c            ip2 = ip*(ip+1)/2
-c            ir2 = ir*(ir+1)/2
-c            ipr = ip*(ip-1)/2+ir
-c            id2 = 0
-c            if (ip.eq.2.and.ir.eq.1) then
-c              id2 = D2_RA_RB
-c            elseif (ip.eq.3.and.ir.eq.1) then
-c              id2 = D2_RA_GAA
-c            elseif (ip.eq.3.and.ir.eq.2) then
-c              id2 = D2_RB_GAA
-c            elseif (ip.eq.4.and.ir.eq.1) then
-c              id2 = D2_RA_GAB
-c            elseif (ip.eq.4.and.ir.eq.2) then
-c              id2 = D2_RB_GAB
-c            elseif (ip.eq.4.and.ir.eq.3) then
-c              id2 = D2_GAA_GAB
-c            elseif (ip.eq.5.and.ir.eq.1) then
-c              id2 = D2_RA_GBB
-c            elseif (ip.eq.5.and.ir.eq.2) then
-c              id2 = D2_RB_GBB
-c            elseif (ip.eq.5.and.ir.eq.3) then
-c              id2 = D2_GAA_GBB
-c            elseif (ip.eq.5.and.ir.eq.4) then
-c              id2 = D2_GAB_GBB
-c            elseif (ip.eq.6.and.ir.eq.1) then
-c              id2 = D2_RA_TA
-c            elseif (ip.eq.6.and.ir.eq.2) then
-c              id2 = D2_RB_TA
-c            elseif (ip.eq.6.and.ir.eq.3) then
-c              id2 = D2_GAA_TA
-c            elseif (ip.eq.6.and.ir.eq.4) then
-c              id2 = D2_GAB_TA
-c            elseif (ip.eq.6.and.ir.eq.5) then
-c              id2 = D2_GBB_TA
-c            elseif (ip.eq.7.and.ir.eq.1) then
-c              id2 = D2_RA_TB
-c            elseif (ip.eq.7.and.ir.eq.2) then
-c              id2 = D2_RB_TB
-c            elseif (ip.eq.7.and.ir.eq.3) then
-c              id2 = D2_GAA_TB
-c            elseif (ip.eq.7.and.ir.eq.4) then
-c              id2 = D2_GAB_TB
-c            elseif (ip.eq.7.and.ir.eq.5) then
-c              id2 = D2_GBB_TB
-c            elseif (ip.eq.7.and.ir.eq.6) then
-c              id2 = D2_TA_TB
-c            endif
-c            if (ip.le.2) then
-c              do iq = 1, nq
-c                dfdr2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-c    +                           nwad_f(iq,ipr),nwad_f(iq,ir2))
-c              enddo
-c            elseif (ip.le.5) then
-c              do iq = 1, nq
-c                dfdg2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-c    +                           nwad_f(iq,ipr),nwad_f(iq,ir2))
-c              enddo
-c            else
-c              do iq = 1, nq
-c                dfdt2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-c    +                           nwad_f(iq,ipr),nwad_f(iq,ir2))
-c              enddo
-c            endif
-c          enddo ! ir
-c        enddo ! ip
-c
-      else
-        call errquit("nwxc_eval_df2_driver: insane ipol",ipol,UERR)
+      else  ! ipol.eq.1
+        do iq = 1, nq
+          nwad_rho(iq,R_A) = set_rho_a(rho(iq,R_A))
+        enddo
+        do iq = 1, nq
+          nwad_rho(iq,R_B) = set_rho_b(rho(iq,R_B))
+        enddo
+      endif ! ipol.eq.1
+      if (nwxc_is_gga().or.nwxc_is_mgga()) then
+        if (ipol.eq.1) then
+          do iq = 1, nq
+            nwad_gam(iq,G_TT) = set_gamma_tt(gamma(iq,G_TT))
+          enddo
+        else  ! ipol.eq.1
+          do iq = 1, nq
+            nwad_gam(iq,G_AA) = set_gamma_aa(gamma(iq,G_AA))
+          enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_AB) = set_gamma_ab(gamma(iq,G_AB))
+          enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_BB) = set_gamma_bb(gamma(iq,G_BB))
+          enddo
+        endif ! ipol.eq.1
+      endif
+      if (nwxc_is_mgga()) then
+        if (ipol.eq.1) then
+          do iq = 1, nq
+            nwad_tau(iq,T_T) = set_tau_t(tau(iq,T_T))
+          enddo
+        else  ! ipol.eq.1
+          do iq = 1, nq
+            nwad_tau(iq,T_A) = set_tau_a(tau(iq,T_A))
+          enddo
+          do iq = 1, nq
+            nwad_tau(iq,T_B) = set_tau_b(tau(iq,T_B))
+          enddo
+        endif ! ipol.eq.1
       endif
 c
+      call nwxc_eval_df2_doit(ipol,nq,nwad_rho,nwad_gam,
+     +     nwad_tau,nwad_f,dfdr,dfdg,dfdt)
 c
-c     Done with all functional evaluations, now interpolate the results
-c
-c     First get the functional itself
+c     Now unpack the results
 c
       do iq = 1, nq
-        f(iq) = value(nwad_f(iq,1))
+        f(iq) = get_val(nwad_f(iq))
+        nvar = get_nvar(nwad_f(iq))
+        do ix1 = 1, nvar
+          call get_d1(nwad_f(iq),ix1,val,iv1)
+          select case (iv1)
+            case (1)
+              dfdr(iq,D1_RA) = val
+            case (2)
+              dfdr(iq,D1_RB) = val
+            case (3)
+              dfdg(iq,D1_GAA) = val
+            case (4)
+              dfdg(iq,D1_GAB) = val
+            case (5)
+              dfdg(iq,D1_GBB) = val
+            case (6)
+              dfdt(iq,D1_TA) = val
+            case (7)
+              dfdt(iq,D1_TB) = val
+            case default
+              call errquit("nwxc_df2_driver: illegal variable",iv1,UERR)
+          end select
+          do ix2 = 1, ix1
+            call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
+            select case (iv1)
+              case (1)
+                select case (iv2)
+                  case (1)
+                    dfdr2(iq,D2_RA_RA) = val
+                end select
+              case (2)
+                select case (iv2)
+                  case (1)
+                    dfdr2(iq,D2_RA_RB) = val
+                  case (2)
+                    dfdr2(iq,D2_RB_RB) = val
+                end select
+              case (3)
+                select case (iv2)
+                  case (1)
+                    dfdg2(iq,D2_RA_GAA) = val
+                  case (2)
+                    dfdg2(iq,D2_RB_GAA) = val
+                  case (3)
+                    dfdg2(iq,D2_GAA_GAA) = val
+                end select
+              case (4)
+                select case (iv2)
+                  case (1)
+                    dfdg2(iq,D2_RA_GAB) = val
+                  case (2)
+                    dfdg2(iq,D2_RB_GAB) = val
+                  case (3)
+                    dfdg2(iq,D2_GAA_GAB) = val
+                  case (4)
+                    dfdg2(iq,D2_GAB_GAB) = val
+                end select
+              case (5)
+                select case (iv2)
+                  case (1)
+                    dfdg2(iq,D2_RA_GBB) = val
+                  case (2)
+                    dfdg2(iq,D2_RB_GBB) = val
+                  case (3)
+                    dfdg2(iq,D2_GAA_GBB) = val
+                  case (4)
+                    dfdg2(iq,D2_GAB_GBB) = val
+                  case (5)
+                    dfdg2(iq,D2_GBB_GBB) = val
+                end select
+              case (6)
+                select case (iv2)
+                  case (1)
+                    dfdt2(iq,D2_RA_TA) = val
+                  case (2)
+                    dfdt2(iq,D2_RB_TA) = val
+                  case (3)
+                    dfdt2(iq,D2_GAA_TA) = val
+                  case (4)
+                    dfdt2(iq,D2_GAB_TA) = val
+                  case (5)
+                    dfdt2(iq,D2_GBB_TA) = val
+                  case (6)
+                    dfdt2(iq,D2_TA_TA) = val
+                end select
+              case (7)
+                select case (iv2)
+                  case (1)
+                    dfdt2(iq,D2_RA_TB) = val
+                  case (2)
+                    dfdt2(iq,D2_RB_TB) = val
+                  case (3)
+                    dfdt2(iq,D2_GAA_TB) = val
+                  case (4)
+                    dfdt2(iq,D2_GAB_TB) = val
+                  case (5)
+                    dfdt2(iq,D2_GBB_TB) = val
+                  case (6)
+                    dfdt2(iq,D2_TA_TB) = val
+                  case (7)
+                    dfdt2(iq,D2_TB_TB) = val
+                end select
+              case default
+                call errquit("nwxc_df2_driver: illegal variable",
+     &                       iv1,UERR)
+            end select
+          enddo
+        enddo
       enddo
 c
-c     Interpolate the first order partial derivatives
-c
-      do ip = 1, nvar
-        id = ip*(ip+1)/2
-        if (ip.le.2) then
-          do iq = 1, nq
-            dfdr(iq,ip) = inter_d2_dx(nwad_f(iq,id))
-          enddo
-        elseif (ip.le.5) then
-          do iq = 1, nq
-            dfdg(iq,ip-2) = inter_d2_dx(nwad_f(iq,id))
-          enddo
-        else
-          do iq = 1, nq
-            dfdt(iq,ip-5) = inter_d2_dx(nwad_f(iq,id))
-          enddo
-        endif
-      enddo
-c
-c     Interpolate the second order partial derivatives
-c
-c     First do d2fdx2
-c
-      do ip = 1, nvar
-        id = ip*(ip+1)/2
-        id2 = D2_RA_RA
-        if (ip.eq.2) then
-          id2 = D2_RB_RB
-        elseif (ip.eq.3) then
-          id2 = D2_GAA_GAA
-        elseif (ip.eq.4) then
-          id2 = D2_GAB_GAB
-        elseif (ip.eq.5) then
-          id2 = D2_GBB_GBB
-        elseif (ip.eq.6) then
-          id2 = D2_TA_TA
-        elseif (ip.eq.7) then
-          id2 = D2_TB_TB
-        endif
-        if (ip.le.2) then
-          do iq = 1, nq
-            dfdr2(iq,id2) = inter_d2_dx2(nwad_f(iq,id))
-          enddo
-        elseif (ip.le.5) then
-          do iq = 1, nq
-            dfdg2(iq,id2) = inter_d2_dx2(nwad_f(iq,id))
-          enddo
-        else
-          do iq = 1, nq
-            dfdt2(iq,id2) = inter_d2_dx2(nwad_f(iq,id))
-          enddo
-        endif
-      enddo
-c
-c     Second do d2fdxy
-c
-      do ip = 1, nvar
-        do ir = 1, ip-1
-          ip2 = ip*(ip+1)/2
-          ir2 = ir*(ir+1)/2
-          ipr = ip*(ip-1)/2+ir
-          id2 = 0
-          if (ip.eq.2.and.ir.eq.1) then
-            id2 = D2_RA_RB
-          elseif (ip.eq.3.and.ir.eq.1) then
-            id2 = D2_RA_GAA
-          elseif (ip.eq.3.and.ir.eq.2) then
-            id2 = D2_RB_GAA
-          elseif (ip.eq.4.and.ir.eq.1) then
-            id2 = D2_RA_GAB
-          elseif (ip.eq.4.and.ir.eq.2) then
-            id2 = D2_RB_GAB
-          elseif (ip.eq.4.and.ir.eq.3) then
-            id2 = D2_GAA_GAB
-          elseif (ip.eq.5.and.ir.eq.1) then
-            id2 = D2_RA_GBB
-          elseif (ip.eq.5.and.ir.eq.2) then
-            id2 = D2_RB_GBB
-          elseif (ip.eq.5.and.ir.eq.3) then
-            id2 = D2_GAA_GBB
-          elseif (ip.eq.5.and.ir.eq.4) then
-            id2 = D2_GAB_GBB
-          elseif (ip.eq.6.and.ir.eq.1) then
-            id2 = D2_RA_TA
-          elseif (ip.eq.6.and.ir.eq.2) then
-            id2 = D2_RB_TA
-          elseif (ip.eq.6.and.ir.eq.3) then
-            id2 = D2_GAA_TA
-          elseif (ip.eq.6.and.ir.eq.4) then
-            id2 = D2_GAB_TA
-          elseif (ip.eq.6.and.ir.eq.5) then
-            id2 = D2_GBB_TA
-          elseif (ip.eq.7.and.ir.eq.1) then
-            id2 = D2_RA_TB
-          elseif (ip.eq.7.and.ir.eq.2) then
-            id2 = D2_RB_TB
-          elseif (ip.eq.7.and.ir.eq.3) then
-            id2 = D2_GAA_TB
-          elseif (ip.eq.7.and.ir.eq.4) then
-            id2 = D2_GAB_TB
-          elseif (ip.eq.7.and.ir.eq.5) then
-            id2 = D2_GBB_TB
-          elseif (ip.eq.7.and.ir.eq.6) then
-            id2 = D2_TA_TB
-          endif
-          if (ip.le.2) then
-            do iq = 1, nq
-              dfdr2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-     +                        nwad_f(iq,ipr),nwad_f(iq,ir2))
-            enddo
-          elseif (ip.le.5) then
-            do iq = 1, nq
-              dfdg2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-     +                        nwad_f(iq,ipr),nwad_f(iq,ir2))
-            enddo
-          else
-            do iq = 1, nq
-              dfdt2(iq,id2) = inter_d2_dxy(nwad_f(iq,ip2),
-     +                        nwad_f(iq,ipr),nwad_f(iq,ir2))
-            enddo
-          endif
-        enddo ! ir
-      enddo ! ip
-C      
       end
 C>
 C> \brief Evaluate the exchange-correlation energy and its 1st and 2nd
@@ -4073,1252 +3492,458 @@ c
       type(nwad_dble) :: nwad_rho(nq,2)
       type(nwad_dble) :: nwad_gam(nq,3)
       type(nwad_dble) :: nwad_tau(nq,2)
-      type(nwad_dble) :: nwad_f(nq,ndrv)
+      type(nwad_dble) :: nwad_f(nq)
 C
       logical nwxc_is_gga  !< Is the functional a GGA
       logical nwxc_is_mgga !< Is the functional a meta-GGA
 c
-      integer iq, ip, id, ir, it
-      integer ip2, ir2, ipr, id2
-      integer ip3, ir3, it3, ip2r, ip2t, ipr2, ir2t, ipt2, irt2, iprt
+c     integer ir_t, ig_tt, it_t
+c     integer ir_a, ir_b, ig_aa, ig_ab, ig_bb, it_a, it_b
+c     integer iq, ip, id, ir, it
+c     integer ip2, ir2, ipr, id2
+c     integer ip3, ir3, it3, ip2r, ip2t, ipr2, ir2t, ipt2, irt2, iprt
+      integer iq
+      integer ix1, ix2, ix3
+      integer iv1, iv2, iv3
+c
+      double precision val
 c
       if (ipol.eq.1) then
-        do ip = 1, 2
-          do iq = 1, nq
-            nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-          enddo
+        do iq = 1, nq
+          nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
         enddo
       else  ! ipol.eq.1
-        do ip = 1, ipol
-          do iq = 1, nq
-            nwad_rho(iq,ip) = inactive(rho(iq,ip))
-          enddo
+        do iq = 1, nq
+          nwad_rho(iq,R_A) = set_rho_a(rho(iq,R_A))
+        enddo
+        do iq = 1, nq
+          nwad_rho(iq,R_B) = set_rho_b(rho(iq,R_B))
         enddo
       endif ! ipol.eq.1
       if (nwxc_is_gga().or.nwxc_is_mgga()) then
         if (ipol.eq.1) then
-          do ip = 1, 3
-            do iq = 1, nq
-              nwad_gam(iq,ip) = inactive(0.25d0*gamma(iq,G_TT))
-            enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_TT) = set_gamma_tt(gamma(iq,G_TT))
           enddo
         else  ! ipol.eq.1
-          do ip = 1, ipol+1
-            do iq = 1, nq
-              nwad_gam(iq,ip) = inactive(gamma(iq,ip))
-            enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_AA) = set_gamma_aa(gamma(iq,G_AA))
+          enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_AB) = set_gamma_ab(gamma(iq,G_AB))
+          enddo
+          do iq = 1, nq
+            nwad_gam(iq,G_BB) = set_gamma_bb(gamma(iq,G_BB))
           enddo
         endif ! ipol.eq.1
-        if (nwxc_is_mgga()) then
-          if (ipol.eq.1) then
-            do ip = 1, 2
-              do iq = 1, nq
-                nwad_tau(iq,ip) = inactive(1.0d0*tau(iq,T_T))
-              enddo
-            enddo
-          else
-            do ip = 1, ipol
-              do iq = 1, nq
-                nwad_tau(iq,ip) = inactive(2.0d0*tau(iq,ip))
-              enddo
-            enddo
-          endif
-        endif
+      endif
+      if (nwxc_is_mgga()) then
+        if (ipol.eq.1) then
+          do iq = 1, nq
+            nwad_tau(iq,T_T) = set_tau_t(tau(iq,T_T))
+          enddo
+        else  ! ipol.eq.1
+          do iq = 1, nq
+            nwad_tau(iq,T_A) = set_tau_a(tau(iq,T_A))
+          enddo
+          do iq = 1, nq
+            nwad_tau(iq,T_B) = set_tau_b(tau(iq,T_B))
+          enddo
+        endif ! ipol.eq.1
       endif
 c
-c     Do closed shell and open shell separately
+      call nwxc_eval_df3_doit(ipol,nq,nwad_rho,nwad_gam,
+     +     nwad_tau,nwad_f,dfdr,dfdg,dfdt)
 c
-      if (ipol.eq.1) then
+c     Now unpack the results
 c
-c       Do closed shell
-c
-c       First do d3f/dx3
-c
-        do ip = 1, nvar
-          id = ip*(ip+1)*(ip+2)/6
-          if (ip.eq.1) then
-            do iq = 1, nq
-              nwad_rho(iq,ip) = active(0.5d0*rho(iq,R_T),3)
+      do iq = 1, nq
+        f(iq) = get_val(nwad_f(iq))
+        nvar = get_nvar(nwad_f(iq))
+        do ix1 = 1, nvar
+          call get_d1(nwad_f(iq),ix1,val,iv1)
+          select case (iv1)
+            case (1)
+              dfdr(iq,D1_RA) = val
+            case (2)
+              dfdr(iq,D1_RB) = val
+            case (3)
+              dfdg(iq,D1_GAA) = val
+            case (4)
+              dfdg(iq,D1_GAB) = val
+            case (5)
+              dfdg(iq,D1_GBB) = val
+            case (6)
+              dfdt(iq,D1_TA) = val
+            case (7)
+              dfdt(iq,D1_TB) = val
+            case default
+              call errquit("nwxc_df3_driver: illegal variable",iv1,UERR)
+          end select
+          do ix2 = 1, ix1
+            call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
+            select case (iv1)
+              case (1)
+                select case (iv2)
+                  case (1)
+                    dfdr2(iq,D2_RA_RA) = val
+                end select
+              case (2)
+                select case (iv2)
+                  case (1)
+                    dfdr2(iq,D2_RA_RB) = val
+                  case (2)
+                    dfdr2(iq,D2_RB_RB) = val
+                end select
+              case (3)
+                select case (iv2)
+                  case (1)
+                    dfdg2(iq,D2_RA_GAA) = val
+                  case (2)
+                    dfdg2(iq,D2_RB_GAA) = val
+                  case (3)
+                    dfdg2(iq,D2_GAA_GAA) = val
+                end select
+              case (4)
+                select case (iv2)
+                  case (1)
+                    dfdg2(iq,D2_RA_GAB) = val
+                  case (2)
+                    dfdg2(iq,D2_RB_GAB) = val
+                  case (3)
+                    dfdg2(iq,D2_GAA_GAB) = val
+                  case (4)
+                    dfdg2(iq,D2_GAB_GAB) = val
+                end select
+              case (5)
+                select case (iv2)
+                  case (1)
+                    dfdg2(iq,D2_RA_GBB) = val
+                  case (2)
+                    dfdg2(iq,D2_RB_GBB) = val
+                  case (3)
+                    dfdg2(iq,D2_GAA_GBB) = val
+                  case (4)
+                    dfdg2(iq,D2_GAB_GBB) = val
+                  case (5)
+                    dfdg2(iq,D2_GBB_GBB) = val
+                end select
+              case (6)
+                select case (iv2)
+                  case (1)
+                    dfdt2(iq,D2_RA_TA) = val
+                  case (2)
+                    dfdt2(iq,D2_RB_TA) = val
+                  case (3)
+                    dfdt2(iq,D2_GAA_TA) = val
+                  case (4)
+                    dfdt2(iq,D2_GAB_TA) = val
+                  case (5)
+                    dfdt2(iq,D2_GBB_TA) = val
+                  case (6)
+                    dfdt2(iq,D2_TA_TA) = val
+                end select
+              case (7)
+                select case (iv2)
+                  case (1)
+                    dfdt2(iq,D2_RA_TB) = val
+                  case (2)
+                    dfdt2(iq,D2_RB_TB) = val
+                  case (3)
+                    dfdt2(iq,D2_GAA_TB) = val
+                  case (4)
+                    dfdt2(iq,D2_GAB_TB) = val
+                  case (5)
+                    dfdt2(iq,D2_GBB_TB) = val
+                  case (6)
+                    dfdt2(iq,D2_TA_TB) = val
+                  case (7)
+                    dfdt2(iq,D2_TB_TB) = val
+                end select
+            end select
+            do ix3 = 1, ix2
+              call get_d3(nwad_f(iq),ix1,ix2,ix3,val,iv1,iv2,iv3)
+              select case (iv1)
+                case (1)
+                  select case (iv2)
+                    case (1)
+                      select case (iv3)
+                        case (1)
+                          dfdr3(iq,D3_RA_RA_RA) = val
+                      end select
+                  end select
+                case (2)
+                  select case (iv2)
+                    case (1)
+                      select case (iv3)
+                        case (1)
+                          dfdr3(iq,D3_RA_RA_RB) = val
+                      end select
+                    case (2)
+                      select case (iv3)
+                        case (1)
+                          dfdr3(iq,D3_RA_RB_RB) = val
+                        case (2)
+                          dfdr3(iq,D3_RB_RB_RB) = val
+                      end select
+                  end select
+                case (3)
+                  select case (iv2)
+                    case (1)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_RA_GAA) = val
+                      end select
+                    case (2)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_RB_GAA) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_RB_GAA) = val
+                      end select
+                    case (3)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_GAA_GAA) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_GAA_GAA) = val
+                        case (3)
+                          dfdg3(iq,D3_GAA_GAA_GAA) = val
+                      end select
+                  end select
+                case (4)
+                  select case (iv2)
+                    case (1)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_RA_GAB) = val
+                      end select
+                    case (2)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_RB_GAB) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_RB_GAB) = val
+                      end select
+                    case (3)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_GAA_GAB) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_GAA_GAB) = val
+                        case (3)
+                          dfdg3(iq,D3_GAA_GAA_GAB) = val
+                      end select
+                    case (4)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_GAB_GAB) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_GAB_GAB) = val
+                        case (3)
+                          dfdg3(iq,D3_GAA_GAB_GAB) = val
+                        case (4)
+                          dfdg3(iq,D3_GAB_GAB_GAB) = val
+                      end select
+                  end select
+                case (5)
+                  select case (iv2)
+                    case (1)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_RA_GBB) = val
+                      end select
+                    case (2)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_RB_GBB) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_RB_GBB) = val
+                      end select
+                    case (3)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_GAA_GBB) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_GAA_GBB) = val
+                        case (3)
+                          dfdg3(iq,D3_GAA_GAA_GBB) = val
+                      end select
+                    case (4)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_GAB_GBB) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_GAB_GBB) = val
+                        case (3)
+                          dfdg3(iq,D3_GAA_GAB_GBB) = val
+                        case (4)
+                          dfdg3(iq,D3_GAB_GAB_GBB) = val
+                      end select
+                    case (5)
+                      select case (iv3)
+                        case (1)
+                          dfdg3(iq,D3_RA_GBB_GBB) = val
+                        case (2)
+                          dfdg3(iq,D3_RB_GBB_GBB) = val
+                        case (3)
+                          dfdg3(iq,D3_GAA_GBB_GBB) = val
+                        case (4)
+                          dfdg3(iq,D3_GAB_GBB_GBB) = val
+                        case (5)
+                          dfdg3(iq,D3_GBB_GBB_GBB) = val
+                      end select
+                  end select
+                case (6)
+                  select case (iv2)
+                    case (1)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_RA_TA) = val
+                      end select
+                    case (2)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_RB_TA) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_RB_TA) = val
+                      end select
+                    case (3)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_GAA_TA) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_GAA_TA) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_GAA_TA) = val
+                      end select
+                    case (4)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_GAB_TA) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_GAB_TA) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_GAB_TA) = val
+                        case (4)
+                          dfdt3(iq,D3_GAB_GAB_TA) = val
+                      end select
+                    case (5)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_GBB_TA) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_GBB_TA) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_GBB_TA) = val
+                        case (4)
+                          dfdt3(iq,D3_GAB_GBB_TA) = val
+                        case (5)
+                          dfdt3(iq,D3_GBB_GBB_TA) = val
+                      end select
+                    case (6)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_TA_TA) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_TA_TA) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_TA_TA) = val
+                        case (4)
+                          dfdt3(iq,D3_GAB_TA_TA) = val
+                        case (5)
+                          dfdt3(iq,D3_GBB_TA_TA) = val
+                        case (6)
+                          dfdt3(iq,D3_TA_TA_TA) = val
+                      end select
+                  end select
+                case (7)
+                  select case (iv2)
+                    case (1)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_RA_TB) = val
+                      end select
+                    case (2)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_RB_TB) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_RB_TB) = val
+                      end select
+                    case (3)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_GAA_TB) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_GAA_TB) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_GAA_TB) = val
+                      end select
+                    case (4)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_GAB_TB) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_GAB_TB) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_GAB_TB) = val
+                        case (4)
+                          dfdt3(iq,D3_GAB_GAB_TB) = val
+                      end select
+                    case (5)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_GBB_TB) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_GBB_TB) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_GBB_TB) = val
+                        case (4)
+                          dfdt3(iq,D3_GAB_GBB_TB) = val
+                        case (5)
+                          dfdt3(iq,D3_GBB_GBB_TB) = val
+                      end select
+                    case (6)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_TA_TB) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_TA_TB) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_TA_TB) = val
+                        case (4)
+                          dfdt3(iq,D3_GAB_TA_TB) = val
+                        case (5)
+                          dfdt3(iq,D3_GBB_TA_TB) = val
+                        case (6)
+                          dfdt3(iq,D3_TA_TA_TB) = val
+                      end select
+                    case (7)
+                      select case (iv3)
+                        case (1)
+                          dfdt3(iq,D3_RA_TB_TB) = val
+                        case (2)
+                          dfdt3(iq,D3_RB_TB_TB) = val
+                        case (3)
+                          dfdt3(iq,D3_GAA_TB_TB) = val
+                        case (4)
+                          dfdt3(iq,D3_GAB_TB_TB) = val
+                        case (5)
+                          dfdt3(iq,D3_GBB_TB_TB) = val
+                        case (6)
+                          dfdt3(iq,D3_TA_TB_TB) = val
+                        case (7)
+                          dfdt3(iq,D3_TB_TB_TB) = val
+                      end select
+                  end select
+              end select
             enddo
-          elseif (ip.le.3) then
-            do iq = 1, nq
-              nwad_gam(iq,ip-1) = active(0.25d0*gamma(iq,G_TT),3)
-            enddo
-          else
-            do iq = 1, nq
-              nwad_tau(iq,ip-3) = active(1.0d0*tau(iq,T_T),3)
-            enddo
-          endif
-          call nwxc_eval_df3_doit(2,nq,nwad_rho,nwad_gam,
-     +         nwad_tau,nwad_f(1,id),dfdr,dfdr2,dfdr3,
-     +         dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
-          if (ip.eq.1) then
-            do iq = 1, nq
-               nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-            enddo
-          elseif (ip.le.3) then
-            do iq = 1, nq
-              nwad_gam(iq,ip-1) = inactive(0.25d0*gamma(iq,G_TT))
-            enddo
-          else
-            do iq = 1, nq
-              nwad_tau(iq,ip-3) = inactive(1.0d0*tau(iq,T_T))
-            enddo
-          endif
+          enddo
         enddo
-c
-c       Second do d3f/dx2dy
-c
-        do ip = 1, nvar
-          do ir = 1, ip-1
-            id = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-            if (ip.eq.1) then
-              do iq = 1, nq
-                nwad_rho(iq,ip) = active(0.5d0*rho(iq,R_T),2)
-              enddo
-            elseif (ip.le.3) then
-              do iq = 1, nq
-                nwad_gam(iq,ip-1) = active(0.25d0*gamma(iq,G_TT),2)
-              enddo
-            elseif (ip.eq.4) then
-              do iq = 1, nq
-                nwad_tau(iq,ip-3) = active(1.0d0*tau(iq,T_T),2)
-              enddo
-            endif
-            if (ir.eq.1) then
-              do iq = 1, nq
-                nwad_rho(iq,ir) = active(0.5d0*rho(iq,R_T))
-              enddo
-            elseif (ir.le.3) then
-              do iq = 1, nq
-                nwad_gam(iq,ir-1) = active(0.25d0*gamma(iq,G_TT))
-              enddo
-            elseif (ir.eq.4) then
-              do iq = 1, nq
-                nwad_tau(iq,ir-3) = active(1.0d0*tau(iq,T_T))
-              enddo
-            endif
-            call nwxc_eval_df3_doit(2,nq,nwad_rho,nwad_gam,
-     +           nwad_tau,nwad_f(1,id),dfdr,dfdr2,dfdr3,
-     +           dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
-             if (ip.eq.1) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-               enddo
-             elseif (ip.le.3) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-1) = inactive(0.25d0*gamma(iq,G_TT))
-               enddo
-             elseif (ip.eq.4) then
-               do iq = 1, nq
-                 nwad_tau(iq,ip-3) = inactive(1.0d0*tau(iq,T_T))
-               enddo
-             endif
-             if (ir.eq.1) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = inactive(0.5d0*rho(iq,R_T))
-               enddo
-             elseif (ir.le.3) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-1) = inactive(0.25d0*gamma(iq,G_TT))
-               enddo
-             elseif (ir.eq.4) then
-               do iq = 1, nq
-                 nwad_tau(iq,ir-3) = inactive(1.0d0*tau(iq,T_T))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Third do d3f/dxdy2
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             id = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-             if (ip.eq.1) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = active(0.5d0*rho(iq,R_T))
-               enddo
-             elseif (ip.le.3) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-1) = active(0.25d0*gamma(iq,G_TT))
-               enddo
-             elseif (ip.eq.4) then
-               do iq = 1, nq
-                 nwad_tau(iq,ip-3) = active(1.0d0*tau(iq,T_T))
-               enddo
-             endif
-             if (ir.eq.1) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = active(0.5d0*rho(iq,R_T),2)
-               enddo
-             elseif (ir.le.3) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-1) = active(0.25d0*gamma(iq,G_TT),2)
-               enddo
-             elseif (ir.eq.4) then
-               do iq = 1, nq
-                 nwad_tau(iq,ir-3) = active(1.0d0*tau(iq,T_T),2)
-               enddo
-             endif
-             call nwxc_eval_df3_doit(2,nq,nwad_rho,nwad_gam,
-     +            nwad_tau,nwad_f(1,id),dfdr,dfdr2,dfdr3,
-     +            dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
-             if (ip.eq.1) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-               enddo
-             elseif (ip.le.3) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-1) = inactive(0.25d0*gamma(iq,G_TT))
-               enddo
-             elseif (ip.eq.4) then
-               do iq = 1, nq
-                 nwad_tau(iq,ip-3) = inactive(1.0d0*tau(iq,T_T))
-               enddo
-             endif
-             if (ir.eq.1) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = inactive(0.5d0*rho(iq,R_T))
-               enddo
-             elseif (ir.le.3) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-1) = inactive(0.25d0*gamma(iq,G_TT))
-               enddo
-             elseif (ir.eq.4) then
-               do iq = 1, nq
-                 nwad_tau(iq,ir-3) = inactive(1.0d0*tau(iq,T_T))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Fourth do d3f/dxdydz
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             do it = 1, ir-1
-               id = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+it
-               if (ip.eq.1) then
-                 do iq = 1, nq
-                   nwad_rho(iq,ip) = active(0.5d0*rho(iq,R_T))
-                 enddo
-               elseif (ip.le.3) then
-                 do iq = 1, nq
-                   nwad_gam(iq,ip-1) = active(0.25d0*gamma(iq,G_TT))
-                 enddo
-               elseif (ip.eq.4) then
-                 do iq = 1, nq
-                   nwad_tau(iq,ip-3) = active(1.0d0*tau(iq,T_T))
-                 enddo
-               endif
-               if (ir.eq.1) then
-                 do iq = 1, nq
-                   nwad_rho(iq,ir) = active(0.5d0*rho(iq,R_T))
-                 enddo
-               elseif (ir.le.3) then
-                 do iq = 1, nq
-                   nwad_gam(iq,ir-1) = active(0.25d0*gamma(iq,G_TT))
-                 enddo
-               elseif (ir.eq.4) then
-                 do iq = 1, nq
-                   nwad_tau(iq,ir-3) = active(1.0d0*tau(iq,T_T))
-                 enddo
-               endif
-               if (it.eq.1) then
-                 do iq = 1, nq
-                   nwad_rho(iq,it) = active(0.5d0*rho(iq,R_T))
-                 enddo
-               elseif (it.le.3) then
-                 do iq = 1, nq
-                   nwad_gam(iq,it-1) = active(0.25d0*gamma(iq,G_TT))
-                 enddo
-               elseif (it.eq.4) then
-                 do iq = 1, nq
-                   nwad_tau(iq,it-3) = active(1.0d0*tau(iq,T_T))
-                 enddo
-               endif
-               call nwxc_eval_df3_doit(2,nq,nwad_rho,
-     +              nwad_gam,nwad_tau,nwad_f(1,id),
-     +              dfdr,dfdr2,dfdr3,dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
-               if (ip.eq.1) then
-                 do iq = 1, nq
-                   nwad_rho(iq,ip) = inactive(0.5d0*rho(iq,R_T))
-                 enddo
-               elseif (ip.le.3) then
-                 do iq = 1, nq
-                   nwad_gam(iq,ip-1) = inactive(0.25d0*gamma(iq,G_TT))
-                 enddo
-               elseif (ip.eq.4) then
-                 do iq = 1, nq
-                   nwad_tau(iq,ip-3) = inactive(1.0d0*tau(iq,T_T))
-                 enddo
-               endif
-               if (ir.eq.1) then
-                 do iq = 1, nq
-                   nwad_rho(iq,ir) = inactive(0.5d0*rho(iq,R_T))
-                 enddo
-               elseif (ir.le.3) then
-                 do iq = 1, nq
-                   nwad_gam(iq,ir-1) = inactive(0.25d0*gamma(iq,G_TT))
-                 enddo
-               elseif (ir.eq.4) then
-                 do iq = 1, nq
-                   nwad_tau(iq,ir-3) = inactive(1.0d0*tau(iq,T_T))
-                 enddo
-               endif
-               if (it.eq.1) then
-                 do iq = 1, nq
-                   nwad_rho(iq,it) = inactive(0.5d0*rho(iq,R_T))
-                 enddo
-               elseif (it.le.3) then
-                 do iq = 1, nq
-                   nwad_gam(iq,it-1) = inactive(0.25d0*gamma(iq,G_TT))
-                 enddo
-               elseif (it.eq.4) then
-                 do iq = 1, nq
-                   nwad_tau(iq,it-3) = inactive(1.0d0*tau(iq,T_T))
-                 enddo
-               endif
-             enddo ! it
-           enddo ! ir
-         enddo ! ip
-c
-c        Done with all functional evaluations, now interpolate the results
-c
-c        First get the functional itself
-c
-         do iq = 1, nq
-           f(iq) = value(nwad_f(iq,1))
-         enddo
-c
-c        Interpolate the first order partial derivatives
-c
-         do ip = 1, nvar
-           id = ip*(ip+1)*(ip+2)/6
-           if (ip.eq.1) then
-             do iq = 1, nq
-               dfdr(iq,ip) = inter_d3_dx(nwad_f(iq,id))
-             enddo
-           elseif (ip.le.3) then
-             do iq = 1, nq
-               dfdg(iq,ip-1) = inter_d3_dx(nwad_f(iq,id))
-             enddo
-           elseif (ip.eq.4) then
-             do iq = 1, nq
-               dfdt(iq,ip-3) = inter_d3_dx(nwad_f(iq,id))
-             enddo
-           endif
-         enddo
-c
-c        Interpolate the second order partial derivatives
-c
-c        First do d2fdx2
-c
-         do ip = 1, nvar
-           id = ip*(ip+1)*(ip+2)/6
-           if (ip.eq.1) then
-             do iq = 1, nq
-               dfdr2(iq,D2_RA_RA) = inter_d3_dx2(nwad_f(iq,id))
-             enddo
-           elseif (ip.eq.2) then
-             do iq = 1, nq
-               dfdg2(iq,D2_GAA_GAA) = inter_d3_dx2(nwad_f(iq,id))
-             enddo
-           elseif (ip.eq.3) then
-             do iq = 1, nq
-               dfdg2(iq,D2_GAB_GAB) = inter_d3_dx2(nwad_f(iq,id))
-             enddo
-           elseif (ip.eq.4) then
-             do iq = 1, nq
-               dfdt2(iq,D2_TA_TA) = inter_d3_dx2(nwad_f(iq,id))
-             enddo
-           endif
-         enddo
-c
-c        Second do d2fdxy
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             ip3  = ip*(ip+1)*(ip+2)/6
-             ir3  = ir*(ir+1)*(ir+2)/6
-             ip2r = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-             ipr2 = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-             id2  = D2_RA_RA
-             if (ip.eq.2.and.ir.eq.1) then
-               id2 = D2_RA_GAA
-             elseif (ip.eq.3.and.ir.eq.1) then
-               id2 = D2_RA_GAB
-             elseif (ip.eq.3.and.ir.eq.2) then
-               id2 = D2_GAA_GAB
-             elseif (ip.eq.4.and.ir.eq.1) then
-               id2 = D2_RA_TA
-             elseif (ip.eq.4.and.ir.eq.2) then
-               id2 = D2_GAA_TA
-             elseif (ip.eq.4.and.ir.eq.3) then
-               id2 = D2_GAB_TA
-             endif
-             if (ip.le.3) then
-               do iq = 1, nq
-                 dfdg2(iq,id2) = inter_d3_dxy(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             else
-               do iq = 1, nq
-                 dfdt2(iq,id2) = inter_d3_dxy(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Interpolate the third order partial derivatives
-c
-c        First do d3fdx3
-c
-         do ip = 1, nvar
-           id = ip*(ip+1)*(ip+2)/6
-           if (ip.eq.1) then
-             do iq = 1, nq
-               dfdr3(iq,D3_RA_RA_RA) = inter_d3_dx3(nwad_f(iq,id))
-             enddo
-           elseif (ip.eq.2) then
-             do iq = 1, nq
-               dfdg3(iq,D3_GAA_GAA_GAA) = inter_d3_dx3(nwad_f(iq,id))
-             enddo
-           elseif (ip.eq.3) then
-             do iq = 1, nq
-               dfdg3(iq,D3_GAB_GAB_GAB) = inter_d3_dx3(nwad_f(iq,id))
-             enddo
-           elseif (ip.eq.4) then
-             do iq = 1, nq
-               dfdt3(iq,D3_TA_TA_TA) = inter_d3_dx3(nwad_f(iq,id))
-             enddo
-           endif
-         enddo
-c
-c        Second do d3fdx2y
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             ip3  = ip*(ip+1)*(ip+2)/6
-             ir3  = ir*(ir+1)*(ir+2)/6
-             ip2r = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-             ipr2 = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-             id2  = D3_RA_RA_RA
-             if (ip.eq.2.and.ir.eq.1) then
-               id2 = D3_RA_GAA_GAA
-             elseif (ip.eq.3.and.ir.eq.1) then
-               id2 = D3_RA_GAB_GAB
-             elseif (ip.eq.3.and.ir.eq.2) then
-               id2 = D3_GAA_GAB_GAB
-             elseif (ip.eq.4.and.ir.eq.1) then
-               id2 = D3_RA_TA_TA
-             elseif (ip.eq.4.and.ir.eq.2) then
-               id2 = D3_GAA_TA_TA
-             elseif (ip.eq.4.and.ir.eq.3) then
-               id2 = D3_GAB_TA_TA
-             endif
-             if (ip.le.3) then
-               do iq = 1, nq
-                 dfdg3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             else
-               do iq = 1, nq
-                 dfdt3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Third do d3fdxy2
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             ip3  = ip*(ip+1)*(ip+2)/6
-             ir3  = ir*(ir+1)*(ir+2)/6
-             ip2r = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-             ipr2 = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-             id2  = D3_RA_RA_RA
-             if (ip.eq.2.and.ir.eq.1) then
-               id2 = D3_RA_RA_GAA
-             elseif (ip.eq.3.and.ir.eq.1) then
-               id2 = D3_RA_RA_GAB
-             elseif (ip.eq.3.and.ir.eq.2) then
-               id2 = D3_GAA_GAA_GAB
-             elseif (ip.eq.4.and.ir.eq.1) then
-               id2 = D3_RA_RA_TA
-             elseif (ip.eq.4.and.ir.eq.2) then
-               id2 = D3_GAA_GAA_TA
-             elseif (ip.eq.4.and.ir.eq.3) then
-               id2 = D3_GAB_GAB_TA
-             endif
-             if (ip.le.3) then
-               do iq = 1, nq
-                 dfdg3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ir3),
-     +                           nwad_f(iq,ipr2),nwad_f(iq,ip2r),
-     +                           nwad_f(iq,ip3))
-               enddo
-             else
-               do iq = 1, nq
-                 dfdt3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ir3),
-     +                           nwad_f(iq,ipr2),nwad_f(iq,ip2r),
-     +                           nwad_f(iq,ip3))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Fourth do d3fdxyz
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             do it = 1, ir-1
-               ip3  = ip*(ip+1)*(ip+2)/6
-               ir3  = ir*(ir+1)*(ir+2)/6
-               it3  = it*(it+1)*(it+2)/6
-               ip2r = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-               ip2t = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+it
-               ipr2 = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-               ir2t = (ir-1)*ir*(ir+1)/6+ir*(ir-1)/2+it
-               ipt2 = (ip-1)*ip*(ip+1)/6+it*(it-1)/2+it
-               irt2 = (ir-1)*ir*(ir+1)/6+it*(it-1)/2+it
-               iprt = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+it
-               id2  = D3_RA_RA_RA
-               if (ip.eq.3.and.ir.eq.2.and.it.eq.1) then
-                 id2 = D3_RA_GAA_GAB
-               elseif (ip.eq.4.and.ir.eq.2.and.it.eq.1) then
-                 id2 = D3_RA_GAA_TA
-               elseif (ip.eq.4.and.ir.eq.3.and.it.eq.1) then
-                 id2 = D3_RA_GAB_TA
-               elseif (ip.eq.4.and.ir.eq.3.and.it.eq.2) then
-                 id2 = D3_GAA_GAB_TA
-               endif
-               if (ip.le.3) then
-                 do iq = 1, nq
-                   dfdg3(iq,id2)
-     +             = inter_d3_dxyz(nwad_f(iq,ip3),nwad_f(iq,ir3),
-     +                             nwad_f(iq,it3),nwad_f(iq,ip2r),
-     +                             nwad_f(iq,ip2t),nwad_f(iq,ipr2),
-     +                             nwad_f(iq,ir2t),nwad_f(iq,ipt2),
-     +                             nwad_f(iq,irt2),nwad_f(iq,iprt))
-                 enddo
-               else
-                 do iq = 1, nq
-                   dfdt3(iq,id2)
-     +             = inter_d3_dxyz(nwad_f(iq,ip3),nwad_f(iq,ir3),
-     +                             nwad_f(iq,it3),nwad_f(iq,ip2r),
-     +                             nwad_f(iq,ip2t),nwad_f(iq,ipr2),
-     +                             nwad_f(iq,ir2t),nwad_f(iq,ipt2),
-     +                             nwad_f(iq,irt2),nwad_f(iq,iprt))
-                 enddo
-               endif
-             enddo ! it
-           enddo ! ir
-         enddo ! ip
-c
-       elseif (ipol.eq.2) then
-c
-c        Do open shell
-c
-c        First do d3f/dx3
-c
-         do ip = 1, nvar
-           id = ip*(ip+1)/2
-           if (ip.le.2) then
-             do iq = 1, nq
-               nwad_rho(iq,ip) = active(rho(iq,ip),3)
-             enddo
-           elseif (ip.le.5) then
-             do iq = 1, nq
-               nwad_gam(iq,ip-2) = active(gamma(iq,ip-2),3)
-             enddo
-           else
-             do iq = 1, nq
-               nwad_tau(iq,ip-5) = active(2.0d0*tau(iq,ip-5),3)
-             enddo
-           endif
-           call nwxc_eval_df3_doit(ipol,nq,nwad_rho,nwad_gam,nwad_tau,
-     +                             nwad_f(1,id),dfdr,dfdr2,dfdr3,
-     +                             dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
-           if (ip.le.2) then
-             do iq = 1, nq
-               nwad_rho(iq,ip) = inactive(rho(iq,ip))
-             enddo
-           elseif (ip.le.5) then
-             do iq = 1, nq
-               nwad_gam(iq,ip-2) = inactive(gamma(iq,ip-2))
-             enddo
-           else
-             do iq = 1, nq
-               nwad_tau(iq,ip-5) = inactive(2.0d0*tau(iq,ip-5))
-             enddo
-           endif
-         enddo
-c
-c        Second do d3f/dx2dy
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             id = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-             if (ip.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = active(rho(iq,ip),2)
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-2) = active(gamma(iq,ip-2),2)
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ip-5) = active(2.0d0*tau(iq,ip-5),2)
-               enddo
-             endif
-             if (ir.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = active(rho(iq,ir))
-               enddo
-             elseif (ir.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-2) = active(gamma(iq,ir-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ir-5) = active(2.0d0*tau(iq,ir-5))
-               enddo
-             endif
-             call nwxc_eval_df3_doit(ipol,nq,nwad_rho,nwad_gam,nwad_tau,
-     +                               nwad_f(1,id),dfdr,dfdr2,dfdr3,
-     +                               dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
-             if (ip.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = inactive(rho(iq,ip))
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-2) = inactive(gamma(iq,ip-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ip-5) = inactive(2.0d0*tau(iq,ip-5))
-               enddo
-             endif
-             if (ir.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = inactive(rho(iq,ir))
-               enddo
-             elseif (ir.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-2) = inactive(gamma(iq,ir-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ir-5) = inactive(2.0d0*tau(iq,ir-5))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Third do d3f/dxdy2
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             id = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-             if (ip.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = active(rho(iq,ip))
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-2) = active(gamma(iq,ip-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ip-5) = active(2.0d0*tau(iq,ip-5))
-               enddo
-             endif
-             if (ir.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = active(rho(iq,ir),2)
-               enddo
-             elseif (ir.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-2) = active(gamma(iq,ir-2),2)
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ir-5) = active(2.0d0*tau(iq,ir-5),2)
-               enddo
-             endif
-             call nwxc_eval_df3_doit(ipol,nq,nwad_rho,nwad_gam,nwad_tau,
-     +                               nwad_f(1,id),dfdr,dfdr2,dfdr3,
-     +                               dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
-             if (ip.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ip) = inactive(rho(iq,ip))
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ip-2) = inactive(gamma(iq,ip-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ip-5) = inactive(2.0d0*tau(iq,ip-5))
-               enddo
-             endif
-             if (ir.le.2) then
-               do iq = 1, nq
-                 nwad_rho(iq,ir) = inactive(rho(iq,ir))
-               enddo
-             elseif (ir.le.5) then
-               do iq = 1, nq
-                 nwad_gam(iq,ir-2) = inactive(gamma(iq,ir-2))
-               enddo
-             else
-               do iq = 1, nq
-                 nwad_tau(iq,ir-5) = inactive(2.0d0*tau(iq,ir-5))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Fourth do d3f/dxdydz
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             do it = 1, ir-1
-               id = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+it
-               if (ip.le.2) then
-                 do iq = 1, nq
-                   nwad_rho(iq,ip) = active(rho(iq,ip))
-                 enddo
-               elseif (ip.le.5) then
-                 do iq = 1, nq
-                   nwad_gam(iq,ip-2) = active(gamma(iq,ip-2))
-                 enddo
-               else
-                 do iq = 1, nq
-                   nwad_tau(iq,ip-5) = active(2.0d0*tau(iq,ip-5))
-                 enddo
-               endif
-               if (ir.le.2) then
-                 do iq = 1, nq
-                   nwad_rho(iq,ir) = active(rho(iq,ir))
-                 enddo
-               elseif (ir.le.5) then
-                 do iq = 1, nq
-                   nwad_gam(iq,ir-2) = active(gamma(iq,ir-2))
-                 enddo
-               else
-                 do iq = 1, nq
-                   nwad_tau(iq,ir-5) = active(2.0d0*tau(iq,ir-5))
-                 enddo
-               endif
-               if (it.le.2) then
-                 do iq = 1, nq
-                   nwad_rho(iq,it) = active(rho(iq,it))
-                 enddo
-               elseif (it.le.5) then
-                 do iq = 1, nq
-                   nwad_gam(iq,it-2) = active(gamma(iq,it-2))
-                 enddo
-               else
-                 do iq = 1, nq
-                   nwad_tau(iq,it-5) = active(2.0d0*tau(iq,it-5))
-                 enddo
-               endif
-               call nwxc_eval_df3_doit(ipol,nq,nwad_rho,nwad_gam,
-     +              nwad_tau,nwad_f(1,id),dfdr,dfdr2,dfdr3,
-     +              dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
-               if (ip.le.2) then
-                 do iq = 1, nq
-                   nwad_rho(iq,ip) = inactive(rho(iq,ip))
-                 enddo
-               elseif (ip.le.5) then
-                 do iq = 1, nq
-                   nwad_gam(iq,ip-2) = inactive(gamma(iq,ip-2))
-                 enddo
-               else
-                 do iq = 1, nq
-                   nwad_tau(iq,ip-5) = inactive(2.0d0*tau(iq,ip-5))
-                 enddo
-               endif
-               if (ir.le.2) then
-                 do iq = 1, nq
-                   nwad_rho(iq,ir) = inactive(rho(iq,ir))
-                 enddo
-               elseif (ir.le.5) then
-                 do iq = 1, nq
-                   nwad_gam(iq,ir-2) = inactive(gamma(iq,ir-2))
-                 enddo
-               else
-                 do iq = 1, nq
-                   nwad_tau(iq,ir-5) = inactive(2.0d0*tau(iq,ir-5))
-                 enddo
-               endif
-               if (it.le.2) then
-                 do iq = 1, nq
-                   nwad_rho(iq,it) = inactive(rho(iq,it))
-                 enddo
-               elseif (it.le.5) then
-                 do iq = 1, nq
-                   nwad_gam(iq,it-2) = inactive(gamma(iq,it-2))
-                 enddo
-               else
-                 do iq = 1, nq
-                   nwad_tau(iq,it-5) = inactive(2.0d0*tau(iq,it-5))
-                 enddo
-               endif
-             enddo ! it
-           enddo ! ir
-         enddo ! ip
-c
-c        Done with all functional evaluations, now interpolate the results
-c
-c        First get the functional itself
-c
-         do iq = 1, nq
-           f(iq) = value(nwad_f(iq,1))
-         enddo
-c
-c        Interpolate the first order partial derivatives
-c
-         do ip = 1, nvar
-           id = ip*(ip+1)*(ip+2)/6
-           if (ip.le.2) then
-             do iq = 1, nq
-               dfdr(iq,ip) = inter_d3_dx(nwad_f(iq,id))
-             enddo
-           elseif (ip.le.5) then
-             do iq = 1, nq
-               dfdg(iq,ip-2) = inter_d3_dx(nwad_f(iq,id))
-             enddo
-           else
-             do iq = 1, nq
-               dfdt(iq,ip-5) = inter_d3_dx(nwad_f(iq,id))
-             enddo
-           endif
-         enddo
-c
-c        Interpolate the second order partial derivatives
-c
-c        First do d2fdx2
-c
-         do ip = 1, nvar
-           id = ip*(ip+1)*(ip+2)/6
-           id2 = D2_RA_RA
-           if (ip.eq.2) then
-             id2 = D2_RB_RB
-           elseif (ip.eq.3) then
-             id2 = D2_GAA_GAA
-           elseif (ip.eq.4) then
-             id2 = D2_GAB_GAB
-           elseif (ip.eq.5) then
-             id2 = D2_GBB_GBB
-           elseif (ip.eq.6) then
-             id2 = D2_TA_TA
-           elseif (ip.eq.7) then
-             id2 = D2_TB_TB
-           endif
-           if (ip.le.2) then
-             do iq = 1, nq
-               dfdr2(iq,id2) = inter_d3_dx2(nwad_f(iq,id))
-             enddo
-           elseif (ip.le.5) then
-             do iq = 1, nq
-               dfdg2(iq,id2) = inter_d3_dx2(nwad_f(iq,id))
-             enddo
-           else
-             do iq = 1, nq
-               dfdt2(iq,id2) = inter_d3_dx2(nwad_f(iq,id))
-             enddo
-           endif
-         enddo
-c
-c        Second do d2fdxy
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             ip3  = ip*(ip+1)*(ip+2)/6
-             ir3  = ir*(ir+1)*(ip+2)/6
-             ip2r = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-             ipr2 = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-             id2 = D2_RA_RA
-             if (ip.eq.2.and.ir.eq.1) then
-               id2 = D2_RA_RB
-             elseif (ip.eq.3.and.ir.eq.1) then
-               id2 = D2_RA_GAA
-             elseif (ip.eq.3.and.ir.eq.2) then
-               id2 = D2_RB_GAA
-             elseif (ip.eq.4.and.ir.eq.1) then
-               id2 = D2_RA_GAB
-             elseif (ip.eq.4.and.ir.eq.2) then
-               id2 = D2_RB_GAB
-             elseif (ip.eq.4.and.ir.eq.3) then
-               id2 = D2_GAA_GAB
-             elseif (ip.eq.5.and.ir.eq.1) then
-               id2 = D2_RA_GBB
-             elseif (ip.eq.5.and.ir.eq.2) then
-               id2 = D2_RB_GBB
-             elseif (ip.eq.5.and.ir.eq.3) then
-               id2 = D2_GAA_GBB
-             elseif (ip.eq.5.and.ir.eq.4) then
-               id2 = D2_GAB_GBB
-             elseif (ip.eq.6.and.ir.eq.1) then
-               id2 = D2_RA_TA
-             elseif (ip.eq.6.and.ir.eq.2) then
-               id2 = D2_RB_TA
-             elseif (ip.eq.6.and.ir.eq.3) then
-               id2 = D2_GAA_TA
-             elseif (ip.eq.6.and.ir.eq.4) then
-               id2 = D2_GAB_TA
-             elseif (ip.eq.6.and.ir.eq.5) then
-               id2 = D2_GBB_TA
-             elseif (ip.eq.7.and.ir.eq.1) then
-               id2 = D2_RA_TB
-             elseif (ip.eq.7.and.ir.eq.2) then
-               id2 = D2_RB_TB
-             elseif (ip.eq.7.and.ir.eq.3) then
-               id2 = D2_GAA_TB
-             elseif (ip.eq.7.and.ir.eq.4) then
-               id2 = D2_GAB_TB
-             elseif (ip.eq.7.and.ir.eq.5) then
-               id2 = D2_GBB_TB
-             elseif (ip.eq.7.and.ir.eq.6) then
-               id2 = D2_TA_TB
-             endif
-             if (ip.le.2) then
-               do iq = 1, nq
-                 dfdr2(iq,id2) = inter_d3_dxy(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 dfdg2(iq,id2) = inter_d3_dxy(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             else
-               do iq = 1, nq
-                 dfdt2(iq,id2) = inter_d3_dxy(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Interpolate the third order partial derivatives
-c
-c        First do d3fdx3
-c
-         do ip = 1, nvar
-           id = ip*(ip+1)*(ip+2)/6
-           id2 = D3_RA_RA_RA
-           if (ip.eq.2) then
-             id2 = D3_RB_RB_RB
-           elseif (ip.eq.3) then
-             id2 = D3_GAA_GAA_GAA
-           elseif (ip.eq.4) then
-             id2 = D3_GAB_GAB_GAB
-           elseif (ip.eq.5) then
-             id2 = D3_GBB_GBB_GBB
-           elseif (ip.eq.6) then
-             id2 = D3_TA_TA_TA
-           elseif (ip.eq.7) then
-             id2 = D3_TB_TB_TB
-           endif
-           if (ip.le.2) then
-             do iq = 1, nq
-               dfdr3(iq,id2) = inter_d3_dx3(nwad_f(iq,id))
-             enddo
-           elseif (ip.le.5) then
-             do iq = 1, nq
-               dfdg3(iq,id2) = inter_d3_dx3(nwad_f(iq,id))
-             enddo
-           else
-             do iq = 1, nq
-               dfdt3(iq,id2) = inter_d3_dx3(nwad_f(iq,id))
-             enddo
-           endif
-         enddo
-c
-c        Second do d3fdx2y
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             ip3  = ip*(ip+1)*(ip+2)/6
-             ir3  = ir*(ir+1)*(ip+2)/6
-             ip2r = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-             ipr2 = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-             id2 = D3_RA_RA_RA
-             if (ip.eq.2.and.ir.eq.1) then
-               id2 = D3_RA_RB_RB
-             elseif (ip.eq.3.and.ir.eq.1) then
-               id2 = D3_RA_GAA_GAA
-             elseif (ip.eq.3.and.ir.eq.2) then
-               id2 = D3_RB_GAA_GAA
-             elseif (ip.eq.4.and.ir.eq.1) then
-               id2 = D3_RA_GAB_GAB
-             elseif (ip.eq.4.and.ir.eq.2) then
-               id2 = D3_RB_GAB_GAB
-             elseif (ip.eq.4.and.ir.eq.3) then
-               id2 = D3_GAA_GAB_GAB
-             elseif (ip.eq.5.and.ir.eq.1) then
-               id2 = D3_RA_GBB_GBB
-             elseif (ip.eq.5.and.ir.eq.2) then
-               id2 = D3_RB_GBB_GBB
-             elseif (ip.eq.5.and.ir.eq.3) then
-               id2 = D3_GAA_GBB_GBB
-             elseif (ip.eq.5.and.ir.eq.4) then
-               id2 = D3_GAB_GBB_GBB
-             elseif (ip.eq.6.and.ir.eq.1) then
-               id2 = D3_RA_TA_TA
-             elseif (ip.eq.6.and.ir.eq.2) then
-               id2 = D3_RB_TA_TA
-             elseif (ip.eq.6.and.ir.eq.3) then
-               id2 = D3_GAA_TA_TA
-             elseif (ip.eq.6.and.ir.eq.4) then
-               id2 = D3_GAB_TA_TA
-             elseif (ip.eq.6.and.ir.eq.5) then
-               id2 = D3_GBB_TA_TA
-             elseif (ip.eq.7.and.ir.eq.1) then
-               id2 = D3_RA_TB_TB
-             elseif (ip.eq.7.and.ir.eq.2) then
-               id2 = D3_RB_TB_TB
-             elseif (ip.eq.7.and.ir.eq.3) then
-               id2 = D3_GAA_TB_TB
-             elseif (ip.eq.7.and.ir.eq.4) then
-               id2 = D3_GAB_TB_TB
-             elseif (ip.eq.7.and.ir.eq.5) then
-               id2 = D3_GBB_TB_TB
-             elseif (ip.eq.7.and.ir.eq.6) then
-               id2 = D3_TA_TB_TB
-             endif
-             if (ip.le.2) then
-               do iq = 1, nq
-                 dfdr3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 dfdg3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             else
-               do iq = 1, nq
-                 dfdt3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ip3),
-     +                           nwad_f(iq,ip2r),nwad_f(iq,ipr2),
-     +                           nwad_f(iq,ir3))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Third do d3fdxy2
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             ip3  = ip*(ip+1)*(ip+2)/6
-             ir3  = ir*(ir+1)*(ip+2)/6
-             ip2r = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-             ipr2 = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-             id2 = D3_RA_RA_RA
-             if (ip.eq.2.and.ir.eq.1) then
-               id2 = D3_RA_RA_RB
-             elseif (ip.eq.3.and.ir.eq.1) then
-               id2 = D3_RA_RA_GAA
-             elseif (ip.eq.3.and.ir.eq.2) then
-               id2 = D3_RB_RB_GAA
-             elseif (ip.eq.4.and.ir.eq.1) then
-               id2 = D3_RA_RA_GAB
-             elseif (ip.eq.4.and.ir.eq.2) then
-               id2 = D3_RB_RB_GAB
-             elseif (ip.eq.4.and.ir.eq.3) then
-               id2 = D3_GAA_GAA_GAB
-             elseif (ip.eq.5.and.ir.eq.1) then
-               id2 = D3_RA_RA_GBB
-             elseif (ip.eq.5.and.ir.eq.2) then
-               id2 = D3_RB_RB_GBB
-             elseif (ip.eq.5.and.ir.eq.3) then
-               id2 = D3_GAA_GAA_GBB
-             elseif (ip.eq.5.and.ir.eq.4) then
-               id2 = D3_GAB_GAB_GBB
-             elseif (ip.eq.6.and.ir.eq.1) then
-               id2 = D3_RA_RA_TA
-             elseif (ip.eq.6.and.ir.eq.2) then
-               id2 = D3_RB_RB_TA
-             elseif (ip.eq.6.and.ir.eq.3) then
-               id2 = D3_GAA_GAA_TA
-             elseif (ip.eq.6.and.ir.eq.4) then
-               id2 = D3_GAB_GAB_TA
-             elseif (ip.eq.6.and.ir.eq.5) then
-               id2 = D3_GBB_GBB_TA
-             elseif (ip.eq.7.and.ir.eq.1) then
-               id2 = D3_RA_RA_TB
-             elseif (ip.eq.7.and.ir.eq.2) then
-               id2 = D3_RB_RB_TB
-             elseif (ip.eq.7.and.ir.eq.3) then
-               id2 = D3_GAA_GAA_TB
-             elseif (ip.eq.7.and.ir.eq.4) then
-               id2 = D3_GAB_GAB_TB
-             elseif (ip.eq.7.and.ir.eq.5) then
-               id2 = D3_GBB_GBB_TB
-             elseif (ip.eq.7.and.ir.eq.6) then
-               id2 = D3_TA_TA_TB
-             endif
-             if (ip.le.2) then
-               do iq = 1, nq
-                 dfdr3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ir3),
-     +                           nwad_f(iq,ipr2),nwad_f(iq,ip2r),
-     +                           nwad_f(iq,ip3))
-               enddo
-             elseif (ip.le.5) then
-               do iq = 1, nq
-                 dfdg3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ir3),
-     +                           nwad_f(iq,ipr2),nwad_f(iq,ip2r),
-     +                           nwad_f(iq,ip3))
-               enddo
-             else
-               do iq = 1, nq
-                 dfdt3(iq,id2) = inter_d3_dx2y(nwad_f(iq,ir3),
-     +                           nwad_f(iq,ipr2),nwad_f(iq,ip2r),
-     +                           nwad_f(iq,ip3))
-               enddo
-             endif
-           enddo ! ir
-         enddo ! ip
-c
-c        Fourth do d3fdxyz
-c
-         do ip = 1, nvar
-           do ir = 1, ip-1
-             do it = 1, ir-1
-               ip3  = ip*(ip+1)*(ip+2)/6
-               ir3  = ir*(ir+1)*(ip+2)/6
-               it3  = it*(it+1)*(it+2)/6
-               ip2r = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+ir
-               ip2t = (ip-1)*ip*(ip+1)/6+ip*(ip-1)/2+it
-               ipr2 = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+ir
-               ir2t = (ir-1)*ir*(ir+1)/6+ir*(ir-1)/2+it
-               ipt2 = (ip-1)*ip*(ip+1)/6+it*(it-1)/2+it
-               irt2 = (ir-1)*ir*(ir+1)/6+it*(it-1)/2+it
-               iprt = (ip-1)*ip*(ip+1)/6+ir*(ir-1)/2+it
-               id2 = D3_RA_RA_RA
-               if (ip.eq.3.and.ir.eq.2.and.it.eq.1) then
-                 id2 = D3_RA_RB_GAA
-               elseif (ip.eq.4.and.ir.eq.2.and.it.eq.1) then
-                 id2 = D3_RA_RB_GAB
-               elseif (ip.eq.4.and.ir.eq.3.and.it.eq.1) then
-                 id2 = D3_RA_GAA_GAB
-               elseif (ip.eq.4.and.ir.eq.3.and.it.eq.2) then
-                 id2 = D3_RB_GAA_GAB
-               elseif (ip.eq.5.and.ir.eq.2.and.it.eq.1) then
-                 id2 = D3_RA_RB_GBB
-               elseif (ip.eq.5.and.ir.eq.3.and.it.eq.1) then
-                 id2 = D3_RA_GAA_GBB
-               elseif (ip.eq.5.and.ir.eq.3.and.it.eq.2) then
-                 id2 = D3_RB_GAA_GBB
-               elseif (ip.eq.5.and.ir.eq.4.and.it.eq.1) then
-                 id2 = D3_RA_GAB_GBB
-               elseif (ip.eq.5.and.ir.eq.4.and.it.eq.2) then
-                 id2 = D3_RB_GAB_GBB
-               elseif (ip.eq.5.and.ir.eq.4.and.it.eq.3) then
-                 id2 = D3_GAA_GAB_GBB
-               elseif (ip.eq.6.and.ir.eq.2.and.it.eq.1) then
-                 id2 = D3_RA_RB_TA
-               elseif (ip.eq.6.and.ir.eq.3.and.it.eq.1) then
-                 id2 = D3_RA_GAA_TA
-               elseif (ip.eq.6.and.ir.eq.3.and.it.eq.2) then
-                 id2 = D3_RB_GAA_TA
-               elseif (ip.eq.6.and.ir.eq.4.and.it.eq.1) then
-                 id2 = D3_RA_GAB_TA
-               elseif (ip.eq.6.and.ir.eq.4.and.it.eq.2) then
-                 id2 = D3_RB_GAB_TA
-               elseif (ip.eq.6.and.ir.eq.4.and.it.eq.3) then
-                 id2 = D3_GAA_GAB_TA
-               elseif (ip.eq.6.and.ir.eq.5.and.it.eq.1) then
-                 id2 = D3_RA_GBB_TA
-               elseif (ip.eq.6.and.ir.eq.5.and.it.eq.2) then
-                 id2 = D3_RB_GBB_TA
-               elseif (ip.eq.6.and.ir.eq.5.and.it.eq.3) then
-                 id2 = D3_GAA_GBB_TA
-               elseif (ip.eq.6.and.ir.eq.5.and.it.eq.4) then
-                 id2 = D3_GAB_GBB_TA
-               elseif (ip.eq.7.and.ir.eq.2.and.it.eq.1) then
-                 id2 = D3_RA_RB_TB
-               elseif (ip.eq.7.and.ir.eq.3.and.it.eq.1) then
-                 id2 = D3_RA_GAA_TB
-               elseif (ip.eq.7.and.ir.eq.3.and.it.eq.2) then
-                 id2 = D3_RB_GAA_TB
-               elseif (ip.eq.7.and.ir.eq.4.and.it.eq.1) then
-                 id2 = D3_RA_GAB_TB
-               elseif (ip.eq.7.and.ir.eq.4.and.it.eq.2) then
-                 id2 = D3_RB_GAB_TB
-               elseif (ip.eq.7.and.ir.eq.4.and.it.eq.3) then
-                 id2 = D3_GAA_GAB_TB
-               elseif (ip.eq.7.and.ir.eq.5.and.it.eq.1) then
-                 id2 = D3_RA_GBB_TB
-               elseif (ip.eq.7.and.ir.eq.5.and.it.eq.2) then
-                 id2 = D3_RB_GBB_TB
-               elseif (ip.eq.7.and.ir.eq.5.and.it.eq.3) then
-                 id2 = D3_GAA_GBB_TB
-               elseif (ip.eq.7.and.ir.eq.5.and.it.eq.4) then
-                 id2 = D3_GAB_GBB_TB
-               elseif (ip.eq.7.and.ir.eq.6.and.it.eq.1) then
-                 id2 = D3_RA_TA_TB
-               elseif (ip.eq.7.and.ir.eq.6.and.it.eq.2) then
-                 id2 = D3_RB_TA_TB
-               elseif (ip.eq.7.and.ir.eq.6.and.it.eq.3) then
-                 id2 = D3_GAA_TA_TB
-               elseif (ip.eq.7.and.ir.eq.6.and.it.eq.4) then
-                 id2 = D3_GAB_TA_TB
-               elseif (ip.eq.7.and.ir.eq.6.and.it.eq.5) then
-                 id2 = D3_GBB_TA_TB
-               endif
-               if (ip.le.2) then
-                 do iq = 1, nq
-                   dfdr3(iq,id2)
-     +             = inter_d3_dxyz(nwad_f(iq,ip3),nwad_f(iq,ir3),
-     +               nwad_f(iq,it3),nwad_f(iq,ip2r),nwad_f(iq,ip2t),
-     +               nwad_f(iq,ipr2),nwad_f(iq,ir2t),nwad_f(iq,ipt2),
-     +               nwad_f(iq,irt2),nwad_f(iq,iprt))
-                 enddo
-               elseif (ip.le.5) then
-                 do iq = 1, nq
-                   dfdg3(iq,id2)
-     +             = inter_d3_dxyz(nwad_f(iq,ip3),nwad_f(iq,ir3),
-     +               nwad_f(iq,it3),nwad_f(iq,ip2r),nwad_f(iq,ip2t),
-     +               nwad_f(iq,ipr2),nwad_f(iq,ir2t),nwad_f(iq,ipt2),
-     +               nwad_f(iq,irt2),nwad_f(iq,iprt))
-                 enddo
-               else
-                 do iq = 1, nq
-                   dfdt3(iq,id2)
-     +             = inter_d3_dxyz(nwad_f(iq,ip3),nwad_f(iq,ir3),
-     +               nwad_f(iq,it3),nwad_f(iq,ip2r),nwad_f(iq,ip2t),
-     +               nwad_f(iq,ipr2),nwad_f(iq,ir2t),nwad_f(iq,ipt2),
-     +               nwad_f(iq,irt2),nwad_f(iq,iprt))
-                 enddo
-               endif
-             enddo ! it
-           enddo ! ir
-         enddo ! ip
-c
-       else
-         call errquit("nwxc_eval_df3_driver: insane ipol",ipol,UERR)
-       endif
+      enddo
 C      
-       end
+      end
 C>
 C> \brief Evaluate the exchange-correlation energy and its 1st, 2nd
 C> and 3rd partial derivatives

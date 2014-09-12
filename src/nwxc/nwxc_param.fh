@@ -45,8 +45,7 @@ c     3rd order derivatives
 c
 #define NCOL_AMAT3 4
 #define NCOL_CMAT3 31
-#define NCOL_MMAT3 16
-#define NCOL_CMMAT3 33
+#define NCOL_MMAT3 49
 c
 c     Inputs
 c
@@ -185,41 +184,41 @@ c
 #define D3_RB_TB_TB    13
 #define D3_TA_TA_TB    14
 #define D3_TA_TB_TB    15
-#define D3_TB_TB_TB    46
+#define D3_TB_TB_TB    49
 c
-#define D3_RA_GAA_TA    1
-#define D3_GAA_GAA_TA   2
-#define D3_GAA_TA_TA    3
-#define D3_RA_GAB_TA    4
-#define D3_RA_GBB_TA    5
-#define D3_RB_GAA_TA    6
-#define D3_RB_GAB_TA    7
-#define D3_RB_GBB_TA    8
-#define D3_GAA_GAB_TA   9
-#define D3_GAA_GBB_TA  10
-#define D3_GAB_GAB_TA  11
-#define D3_GAB_GBB_TA  12
-#define D3_GAB_TA_TA   13
-#define D3_GBB_GBB_TA  14
-#define D3_GBB_TA_TA   15
-#define D3_RA_GAA_TB   16
-#define D3_RA_GAB_TB   17
-#define D3_RA_GBB_TB   18
-#define D3_RB_GAA_TB   19
-#define D3_RB_GAB_TB   20
-#define D3_RB_GBB_TB   21
-#define D3_GAA_GAA_TB  22
-#define D3_GAA_GAB_TB  23
-#define D3_GAA_GBB_TB  24
-#define D3_GAA_TA_TB   25
-#define D3_GAA_TB_TB   26
-#define D3_GAB_GAB_TB  27
-#define D3_GAB_GBB_TB  28
-#define D3_GAB_TA_TB   29
-#define D3_GAB_TB_TB   30
-#define D3_GBB_GBB_TB  31
-#define D3_GBB_TA_TB   32
-#define D3_GBB_TB_TB   33
+#define D3_RA_GAA_TA   16
+#define D3_GAA_GAA_TA  17
+#define D3_GAA_TA_TA   18
+#define D3_RA_GAB_TA   19
+#define D3_RA_GBB_TA   20
+#define D3_RB_GAA_TA   21
+#define D3_RB_GAB_TA   22
+#define D3_RB_GBB_TA   23
+#define D3_GAA_GAB_TA  24
+#define D3_GAA_GBB_TA  25
+#define D3_GAB_GAB_TA  26
+#define D3_GAB_GBB_TA  27
+#define D3_GAB_TA_TA   28
+#define D3_GBB_GBB_TA  29
+#define D3_GBB_TA_TA   30
+#define D3_RA_GAA_TB   31
+#define D3_RA_GAB_TB   32
+#define D3_RA_GBB_TB   33
+#define D3_RB_GAA_TB   34
+#define D3_RB_GAB_TB   35
+#define D3_RB_GBB_TB   36
+#define D3_GAA_GAA_TB  37
+#define D3_GAA_GAB_TB  38
+#define D3_GAA_GBB_TB  39
+#define D3_GAA_TA_TB   40
+#define D3_GAA_TB_TB   41
+#define D3_GAB_GAB_TB  42
+#define D3_GAB_GBB_TB  43
+#define D3_GAB_TA_TB   44
+#define D3_GAB_TB_TB   45
+#define D3_GBB_GBB_TB  46
+#define D3_GBB_TA_TB   47
+#define D3_GBB_TB_TB   48
 c
 #define NWXC_DISP_NONE -1
 #define NWXC_DISP_VDW2  0

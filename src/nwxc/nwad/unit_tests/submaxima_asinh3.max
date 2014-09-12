@@ -1,0 +1,46 @@
+fxyz(x,y,z):=asinh((sin(x)+sin(y)+sin(z))/3.0);
+dfx(x,y,z):=diff(fxyz(x,y,z),x);
+dfy(x,y,z):=diff(fxyz(x,y,z),y);
+dfz(x,y,z):=diff(fxyz(x,y,z),z);
+dfx2(x,y,z):=diff(dfx(x,y,z),x);
+dfxy(x,y,z):=diff(dfx(x,y,z),y);
+dfxz(x,y,z):=diff(dfx(x,y,z),z);
+dfy2(x,y,z):=diff(dfy(x,y,z),y);
+dfyz(x,y,z):=diff(dfy(x,y,z),z);
+dfz2(x,y,z):=diff(dfz(x,y,z),z);
+dfx3(x,y,z):=diff(dfx2(x,y,z),x);
+dfx2y(x,y,z):=diff(dfx2(x,y,z),y);
+dfx2z(x,y,z):=diff(dfx2(x,y,z),z);
+dfxy2(x,y,z):=diff(dfxy(x,y,z),y);
+dfxyz(x,y,z):=diff(dfxy(x,y,z),z);
+dfxz2(x,y,z):=diff(dfxz(x,y,z),z);
+dfy3(x,y,z):=diff(dfy2(x,y,z),y);
+dfy2z(x,y,z):=diff(dfy2(x,y,z),z);
+dfyz2(x,y,z):=diff(dfyz(x,y,z),z);
+dfz3(x,y,z):=diff(dfz2(x,y,z),z);
+Fortran(expr):= fortran(ev(expr,numer));
+with_stdout("submaxima_asinh3.F",
+  print("      subroutine submaxima_asinh3(x,y,z,f,df,df2,df3)"),
+  print("      implicit none"),
+  print("      double precision x,y,z,f,df(3),df2(3*4/2),df3(3*4*5/6)"),
+  Fortran(f = fxyz(x,y,z)),
+  Fortran(df(1) = dfx(x,y,z)),
+  Fortran(df(2) = dfy(x,y,z)),
+  Fortran(df(3) = dfz(x,y,z)),
+  Fortran(df2(1) = dfx2(x,y,z)),
+  Fortran(df2(2) = dfxy(x,y,z)),
+  Fortran(df2(3) = dfy2(x,y,z)),
+  Fortran(df2(4) = dfxz(x,y,z)),
+  Fortran(df2(5) = dfyz(x,y,z)),
+  Fortran(df2(6) = dfz2(x,y,z)),
+  Fortran(df3(1)  = dfx3(x,y,z)),
+  Fortran(df3(2)  = dfx2y(x,y,z)),
+  Fortran(df3(3)  = dfxy2(x,y,z)),
+  Fortran(df3(4)  = dfy3(x,y,z)),
+  Fortran(df3(5)  = dfx2z(x,y,z)),
+  Fortran(df3(6)  = dfxyz(x,y,z)),
+  Fortran(df3(7)  = dfy2z(x,y,z)),
+  Fortran(df3(8)  = dfxz2(x,y,z)),
+  Fortran(df3(9)  = dfyz2(x,y,z)),
+  Fortran(df3(10) = dfz3(x,y,z)),
+  print("      end"));
