@@ -15,6 +15,8 @@
 
   LIB_DEFINES =
 
+      HEADERS = ../nwxc/nwxc.fh
+
 
 
 
