@@ -91,6 +91,7 @@ c
 c     =================================================================
 
       debug = (.false. .and. ga_nodeid().eq.0) ! for code development
+      debug1=.false.
 
 c     check input key if we should check for convergence
 c     after the preconditioner has been applied to the residual
