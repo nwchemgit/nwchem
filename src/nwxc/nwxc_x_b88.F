@@ -93,7 +93,7 @@ c***************************************************************************
 c
       integer n
       type(nwad_dble)::rho13, rho43, gamma, x, g, dg
-      type(nwad_dble)::arcsinh, darcsinh, d2arcsinh
+c     type(nwad_dble)::arcsinh, darcsinh, d2arcsinh
       type(nwad_dble)::gdenom, gdenom2, dgdenom
       double precision C
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
@@ -104,9 +104,9 @@ c     double precision rhom53, d3g, d3gdenom
 c     double precision gdenom4
 #endif
 c
-      arcsinh(x)=log(x+sqrt(1d0+x*x))
-      darcsinh(x)=1d0/sqrt(1d0+x*x)
-      d2arcsinh(x) = -x/sqrt(1d0+x*x)**3.0d0
+c     arcsinh(x)=log(x+sqrt(1d0+x*x))
+c     darcsinh(x)=1d0/sqrt(1d0+x*x)
+c     d2arcsinh(x) = -x/sqrt(1d0+x*x)**3.0d0
 c
 c     Uniform electron gas constant
 c

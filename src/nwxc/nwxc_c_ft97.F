@@ -461,9 +461,10 @@ c
 c
       type(nwad_dble)::RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,EAB,EBA
       type(nwad_dble)::EEI,MUAB,MUBA,MUBB,MUAA,GA2,GB2,CFT,RSA,RSB
-      type(nwad_dble)::R,GR,T,EEI1,ECMUC0,DENOM,FA
-      type(nwad_dble)::KSSP0,KSS0,FSSP,USSP1,USSP2,WSSP,FSS,FACTOR,
-     .                 USS1,USS2,WSS,YSS,FF,DFFDMU
+      type(nwad_dble)::R,GR,T,EEI1,DENOM,FA
+c     type(nwad_dble)::ECMUC0
+      type(nwad_dble)::KSSP0,KSS0,FSSP,FSS,FACTOR,FF
+c     type(nwad_dble)::USSP1,USSP2,WSSP,USS1,USS2,WSS,YSS,DFFDMU
       double precision KSSPBIG,big,kss0big
 c
 c     Nwxc_FT97_EXPEI is already declared in the corresponding
@@ -502,48 +503,48 @@ C *** DEFINITION OF FORMULA FUNCTIONS.
 C
 C     R        : Density parameter Rs (Wigner radius), see eq.(8).
 C     KSSP0    : See eq.(39) for k(sigma,sigma').
-      KSSP0(R) = 1.291551074D0 - 0.349064173D0*(1.D0-
-     .           EXP(-0.083275880D0*R**0.8D0))
+chvd  KSSP0(R) = 1.291551074D0 - 0.349064173D0*(1.D0-
+chvd .           EXP(-0.083275880D0*R**0.8D0))
 C     KSS0     : See eq.(40) for k(sigma,sigma).
-      KSS0(R)  = 1.200801774D0 + 0.859614445D0*(1.D0-
-     .           EXP(-1.089338848d0*SQRT(R)))-
-     .           0.812904345D0*(1.D0-EXP(-0.655638823D0*R**0.4D0))
+chvd  KSS0(R)  = 1.200801774D0 + 0.859614445D0*(1.D0-
+chvd .           EXP(-1.089338848d0*SQRT(R)))-
+chvd .           0.812904345D0*(1.D0-EXP(-0.655638823D0*R**0.4D0))
 C
 C     FSSP     : See eq.(45) for F(sigma,sigma').
-      FSSP(R,GR) = (1.D0+A1*GR+(A2*GR)**2.0d0)*
-     .             EXP(-(A2*GR)**2.0d0)/SQRT(1.D0+A3*GR/R)
+chvd  FSSP(R,GR) = (1.D0+A1*GR+(A2*GR)**2.0d0)*
+chvd .             EXP(-(A2*GR)**2.0d0)/SQRT(1.D0+A3*GR/R)
 C     USSP1    : Derivative of ln(k(sigma,sigma')) with respect to Rs.
-      USSP1(R) = -4.65098019D-2*EXP(-0.083275880D0*R**0.8D0)*R**0.8D0 
+c     USSP1(R) = -4.65098019D-2*EXP(-0.083275880D0*R**0.8D0)*R**0.8D0 
 C     USSP2    : Derivative of ln(F(sigma,sigma')) with respect to Rs.
-      USSP2(R,GR) = A3*GR/(R+A3*GR)
+c     USSP2(R,GR) = A3*GR/(R+A3*GR)
 C     WSSP     : Derivative of ln(F(sigma,sigma')) w.r.t. Nabla(Rs)^2
-      WSSP(R,GR) = ((A1+A1)-A1*(A2+A2)**2.0d0*GR**2.0d0
-     .             -(A2*(A2+A2))**2.0d0*GR**3.0d0)
-     .             /(1.D0+A1*GR+(A2*GR)**2.0d0) - A3/(R+A3*GR)
+c     WSSP(R,GR) = ((A1+A1)-A1*(A2+A2)**2.0d0*GR**2.0d0
+c    .             -(A2*(A2+A2))**2.0d0*GR**3.0d0)
+c    .             /(1.D0+A1*GR+(A2*GR)**2.0d0) - A3/(R+A3*GR)
 C
 C     FSS      : See eq.(46) for F(sigma,sigma).
-      FSS(R,GR)= (1.D0+(A4*GR)**2.0d0)*EXP(-(A4*GR)**2.0d0)/
-     .           SQRT(1.D0+A5*GR/R)
+chvd  FSS(R,GR)= (1.D0+(A4*GR)**2.0d0)*EXP(-(A4*GR)**2.0d0)/
+chvd .           SQRT(1.D0+A5*GR/R)
 C     FACTOR   : See eq.(34).
-      FACTOR(R)= EXP(-(R/(0.939016D0*SQRT(R)+1.733170D0*R))**2.0d0)
+chvd  FACTOR(R)= EXP(-(R/(0.939016D0*SQRT(R)+1.733170D0*R))**2.0d0)
 C     USS1     : Derivative of ln(k(sigma,sigma)) with respect to Rs.
-      USS1(R)  =-4.26377318D-1*R**0.4D0*EXP(-0.655638823D0*R**0.4D0)+
-     .           0.93641140924D0*SQRT(R)*EXP(-1.089338848d0*SQRT(R))
+c     USS1(R)  =-4.26377318D-1*R**0.4D0*EXP(-0.655638823D0*R**0.4D0)+
+c    .           0.93641140924D0*SQRT(R)*EXP(-1.089338848d0*SQRT(R))
 C     USS2      : Derivative of ln(F(sigma,sigma)) with respect to Rs.
-      USS2(R,GR)= A5*GR/(R+A5*GR)
+c     USS2(R,GR)= A5*GR/(R+A5*GR)
 C     WSS       : Derivative of ln(F(sigma,sigma)) w.r.t. Nabla(Rs)^2
-      WSS(R,GR) =-(A4*(A4+A4))**2.0d0*GR**3.0d0/(1.D0+(A4*GR)**2.0d0)
-     .             -A5/(R+A5*GR)
+c     WSS(R,GR) =-(A4*(A4+A4))**2.0d0*GR**3.0d0/(1.D0+(A4*GR)**2.0d0)
+c    .             -A5/(R+A5*GR)
 C     YSS       : Derivative of FACTOR (eq.(34)) with respect to Rs.
-      YSS(R)    = 0.939016D0*SQRT(R)*R*R/(0.939016D0*SQRT(R)+
-     .            1.733170D0*R)**3.0d0
+c     YSS(R)    = 0.939016D0*SQRT(R)*R*R/(0.939016D0*SQRT(R)+
+c    .            1.733170D0*R)**3.0d0
 C
 C     FF        : Used in approximate normalization, eq.(15).
-      FF(T)     = (3.D0+2.D0*(SQRT(T)+T))/
-     .            (3.D0+6.D0*(SQRT(T)+T))
+chvd  FF(T)     = (3.D0+2.D0*(SQRT(T)+T))/
+chvd .            (3.D0+6.D0*(SQRT(T)+T))
 C     DFFDMU    : Derivative of FF with respect to the argument T.
-      DFFDMU(T) =-(2.D0*(SQRT(T)+T+T))/
-     .            (3.D0*(1.D0+2.D0*(SQRT(T)+T))**2.0d0)
+c     DFFDMU(T) =-(2.D0*(SQRT(T)+T+T))/
+c    .            (3.D0*(1.D0+2.D0*(SQRT(T)+T))**2.0d0)
 C
 C *** RSA - Rs(alpha), GA - grad(Rs(alpha))
 C
@@ -557,7 +558,7 @@ C         GA2 : Square of Nabla(Rs(alpha))
 C         mu(beta,alpha), eq.(13)
 C         MUBA = C1*RSA/(KSSP0(RSA)*FSSP(RSA,GA2))**2
           EBA = 0.D0
-          ECMUC0 = 0.D0
+c         ECMUC0 = 0.D0
           DEBADR = 0.D0
           DEBADG = 0.D0
           if((ga2*a2)**2.0d0.gt.big) then
@@ -582,8 +583,8 @@ C         MUBA = C1*RSA/(KSSP0(RSA)*FSSP(RSA,GA2))**2
 C            EBA : Correlation energy density, eq.(19)
              EBA = C0*(EEI+2.D0*FF(MUBA)*EEI1)
 C            ECMUC0 : Derivative of EBA w.r.t. MUBA
-             ECMUC0 = C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUBA)+MUBA*
-     .                FF(MUBA)))+2.D0*FF(MUBA)*MUBA*EEI)
+c            ECMUC0 = C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUBA)+MUBA*
+c    .                FF(MUBA)))+2.D0*FF(MUBA)*MUBA*EEI)
 C            d(Ec)/d(Nabla(rho)^2)  =  -CFT^2*(mu*dEcdmu)*Wss'
 c            DEBADG = -WSSP(RSA,GA2)*ECMUC0*CFT*CFT 
 C            d(Ec)/d(rho)
@@ -596,7 +597,7 @@ C        mu(alpha,alpha), eq.(33)
 C        MUAA = C1*RSA/(KSS0(RSA)*FSS(RSA,GA2))**2
          FA   = FACTOR(RSA)
          EAA  = 0.D0
-         ECMUC0 = 0.D0
+c        ECMUC0 = 0.D0
 c        DEAADR = 0.D0
 c        DEAADG = 0.D0
          if((ga2*a2)**2.0d0.gt.big) then
@@ -621,8 +622,8 @@ c        DEAADG = 0.D0
 C           EAA  : Correlation energy density, eqs.(19) and (31).
             EAA  = FA*C0*(EEI+2.D0*FF(MUAA)*EEI1)
 C           ECMUC0 : Derivative of EAA w.r.t. MUAA
-            ECMUC0 = FA*C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUAA)+MUAA*
-     .               FF(MUAA)))+2.D0*FF(MUAA)*MUAA*EEI)
+c           ECMUC0 = FA*C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUAA)+MUAA*
+c    .               FF(MUAA)))+2.D0*FF(MUAA)*MUAA*EEI)
 C           d(Ec)/d(rho)
 c           DEAADR = (-ECMUC0*(1.D0-USS1(RSA)/KSS0(RSA)-USS2(RSA,GA2) -
 c    .               8.D0*WSS(RSA,GA2)*GA2) + YSS(RSA)*EAA)
@@ -649,7 +650,7 @@ C        GB2 : Square of Nabla(Rs(beta))
 C        mu(alpha,beta), eq.(13)
 C        MUAB = C1*RSB/(KSSP0(RSB)*FSSP(RSB,GB2))**2
          EAB  = 0.D0
-         ECMUC0 = 0.D0
+c        ECMUC0 = 0.D0
          DEABDR = 0.D0
          DEABDG = 0.D0
          DENOM  = (KSSP0(RSB)*FSSP(RSB,GB2))**2.0d0
@@ -675,8 +676,8 @@ C        MUAB = C1*RSB/(KSSP0(RSB)*FSSP(RSB,GB2))**2
 C           EAB  : Correlation energy density, eqs.(19).
             EAB  = C0*(EEI+2.D0*FF(MUAB)*EEI1)
 C           ECMUC0 : Derivative of EAB w.r.t. MUAB
-            ECMUC0 = C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUAB)+MUAB*
-     .               FF(MUAB)))+2.D0*FF(MUAB)*MUAB*EEI)
+c           ECMUC0 = C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUAB)+MUAB*
+c    .               FF(MUAB)))+2.D0*FF(MUAB)*MUAB*EEI)
 C           d(Ec)/d(Nabla(rho)^2)  =  -CFT^2*(mu*dEcdmu)*Wss'
 c           DEABDG = -WSSP(RSB,GB2)*ECMUC0*CFT*CFT 
 C           d(Ec)/d(rho)
@@ -689,7 +690,7 @@ C        mu(beta,beta), eq.(33)
 C        MUBB = C1*RSB/(KSS0(RSB)*FSS(RSB,GB2))**2
          FA   = FACTOR(RSB)
          EBB  = 0.D0
-         ECMUC0 = 0.D0
+c        ECMUC0 = 0.D0
 c        DEBBDR = 0.D0
 c        DEBBDG = 0.D0
          if((gb2*a2)**2.0d0.gt.big) then
@@ -714,8 +715,8 @@ c        DEBBDG = 0.D0
 C           EBB  : Correlation energy density, eqs.(19) and (31).
             EBB  = FA*C0*(EEI+2.D0*FF(MUBB)*EEI1)
 C           ECMUC0 : Derivative of EBB w.r.t. MUBB
-            ECMUC0 = FA*C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUBB)+MUBB*
-     .                FF(MUBB)))+2.D0*FF(MUBB)*MUBB*EEI)
+c           ECMUC0 = FA*C0*(EEI1*(1.D0+2.D0*(DFFDMU(MUBB)+MUBB*
+c    .                FF(MUBB)))+2.D0*FF(MUBB)*MUBB*EEI)
 C           d(Ec)/d(rho)
 c           DEBBDR = (-ECMUC0*(1.D0-USS1(RSB)/KSS0(RSB)
 c    .                -USS2(RSB,GB2) -
@@ -733,6 +734,83 @@ c        DEABDG = 0.D0
 c        DEBBDG = 0.D0
       ENDIF
       RETURN
+c
+      CONTAINS
+c
+c     The combination of statement functions and derived types with
+c     overloaded operators is not properly supported in the Fortran 
+c     standard (apparently). Therefore the statement functions from
+c     the original subroutine had to be transformed into contained 
+c     functions.
+c
+c     WARNING: This code is EXTREMELY EVIL! Although there appears to be
+c     only one function there are actually three with the same name,
+c     each one returning results of a different data type. The trick is
+c     that depending on the data type the the subroutine that contains
+c     these functions changes its name and hence these different
+c     functions of the same name do not lead to conflicts. The 
+c     alternative would have been to add a forest of conditional 
+c     compilation constructs (#ifdef's) to change the function names
+c     in the declarations and all places where they are used. That 
+c     would have been extremely ugly, so we are between a rock and a
+c     hard place on this one.
+c
+      function KSS0(R) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: R
+        type(nwad_dble)             :: S
+        S = 1.200801774D0 + 0.859614445D0*(1.D0-
+     .      EXP(-1.089338848d0*SQRT(R)))-
+     .      0.812904345D0*(1.D0-EXP(-0.655638823D0*R**0.4D0))
+      end function
+c
+      function KSSP0(R) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: R
+        type(nwad_dble)             :: S
+        S = 1.291551074D0 - 0.349064173D0*(1.D0-
+     .      EXP(-0.083275880D0*R**0.8D0))
+      end function
+c
+      function FSSP(R,GR) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: R
+        type(nwad_dble), intent(in) :: GR
+        type(nwad_dble)             :: S
+        S = (1.D0+A1*GR+(A2*GR)**2.0d0)*
+     .      EXP(-(A2*GR)**2.0d0)/SQRT(1.D0+A3*GR/R)
+      end function
+c
+      function FSS(R,GR) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: R
+        type(nwad_dble), intent(in) :: GR
+        type(nwad_dble)             :: S
+        S = (1.D0+(A4*GR)**2.0d0)*EXP(-(A4*GR)**2.0d0)/
+     .      SQRT(1.D0+A5*GR/R)
+      end function
+c
+      function FACTOR(R) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: R
+        type(nwad_dble)             :: S
+        S = EXP(-(R/(0.939016D0*SQRT(R)+1.733170D0*R))**2.0d0)
+      end function
+c
+      function FF(T) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: T
+        type(nwad_dble)             :: S
+        S = (3.D0+2.D0*(SQRT(T)+T))/
+     .      (3.D0+6.D0*(SQRT(T)+T))
+      end function
+c
       END
 c-----------------------------------------------------------------------
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
