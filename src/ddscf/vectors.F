@@ -1081,7 +1081,7 @@ c
       call ga_brdcst(1, ok, inntsize, 0) ! Propagate status
       call ga_brdcst(2, nrow, inntsize, 0)
       call ga_brdcst(3, ncol, inntsize, 0)
-      call util_char_ga_brdcst(4, title, 0)
+      call util_char_ga_brdcst(4, title(1:len1), 0)
 c
       file_read_ga_info = ok .eq. 1
 c
