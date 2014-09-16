@@ -15,9 +15,9 @@
           implicit none
           double precision param(2)
           double precision dtol
-          type(nwad_dble)::PX, GX, TX, F, FP, FG, FT, EUEG
+          type(nwad_dble)::PX, GX, TX, F, EUEG
           type(nwad_dble)::Chi
-          double precision EUEGP, ChiP, ChiG
+          double precision EUEGP, ChiP, ChiG, FP, FG, FT
         end subroutine
       end interface
 c $Id$

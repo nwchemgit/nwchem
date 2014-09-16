@@ -101,9 +101,11 @@ c
       integer n
 
 c    call to the bc95css subroutine
-      type(nwad_dble)::PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ChiA
-      type(nwad_dble)::PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ChiB
+      type(nwad_dble)::PA,GAA,TA,FA,EUA,ChiA
+      type(nwad_dble)::PB,GBB,TB,FB,EUB,ChiB
       double precision EUPA,ChiAP,ChiAG,EUPB,ChiBP,ChiBG
+      double precision FPA,FGA,FTA
+      double precision FPB,FGB,FTB
 c
       type(nwad_dble)::P,RS,RSP,Zeta,EUEG,Denom,PotLC
       double precision  sop
@@ -333,9 +335,10 @@ c     integer ijmswitch
                                !< - param(1): \f$ C_{opp} \f$
                                !< - param(2): \f$ C_{\sigma\sigma} \f$
       double precision dtol
-      type(nwad_dble)::PX, GX, TX, F, FP, FG, FT, E
+      type(nwad_dble)::PX, GX, TX, F, E
       type(nwad_dble)::D, RS, RSP, EUEG, DUEG, Chi, Denom
       type(nwad_dble)::Zeta,PotLC
+      double precision FP, FG, FT
       double precision EUEGP, ChiP, ChiG,Css
       double precision Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11
       double precision Pi, Pi34, F13, F23, F43, F53, F83, F113
