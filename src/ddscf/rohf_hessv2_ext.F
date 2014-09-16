@@ -480,12 +480,12 @@ c ======= set (nmul,nset,nblock) values ===== END
 c ======= create (g_dens,g_fock) ========== START
       dims(2)  = nbf
       dims(3)  = nbf
-      chunk(1) = dims(1)
       chunk(2) = -1
       chunk(3) = -1
       do ipm = 1,nblock ! =1 or 2  for ncomp=1
 c ... allocate g_dens=[g_dens_re g_dens_im]
       dims(1)  = npol*nvec
+      chunk(1) = dims(1)
         if (.not. nga_create (MT_DBL,3,dims,'CPKS dens',chunk,
      &     g_dens(ipm)))
      &     call errquit('uhf_hessv_2e2_opt: could not allocate g_dens',

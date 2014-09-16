@@ -499,8 +499,10 @@ c --> Experimental (not published yet)
 #include "rtdb.fh"
 #include "bgj.fh"
       integer ipm,ncomp,iter_cphf
-      integer g_z(ncomp), ! [input]  A-matrix elements
-     &        g_Az(ncomp) ! [output] Perturbed Fock operator 
+      integer ncompmx
+      parameter(ncompmx=2)
+      integer g_z(ncompmx), ! [input]  A-matrix elements
+     &        g_Az(ncompmx) ! [output] Perturbed Fock operator 
       integer g_Az1,nsub,
      &        alo(3),ahi(3),
      &        n1,maxsub,
@@ -518,8 +520,8 @@ c --> Experimental (not published yet)
       double precision acc,lshift
       integer vlen, nvec,g_tmp,gtype
       double precision omega,gamwidth,
-     &                 omg(ncomp), 
-     &                 gam(ncomp),
+     &                 omg(ncompmx), 
+     &                 gam(ncompmx),
      &                 wls,wlsim
       double complex wls_cmplx
       logical oskel, noskew
