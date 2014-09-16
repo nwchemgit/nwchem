@@ -1,5 +1,5 @@
 /*
- $Id$
+ $Id: util_md_sockets.c 19707 2010-10-29 17:59:36Z d3y133 $
  */
 
 #include <sys/types.h>
@@ -26,7 +26,7 @@
 int create_server_socket(char *host, int port)
 {
 #if defined(CATAMOUNT) || defined(__MINGW32__)
-    ga_error("system calls do not work on this machine", 0);
+    GA_Error("system calls do not work on this machine", 0);
 #else
   int server_sockfd, client_sockfd;
   int server_len;
@@ -65,7 +65,7 @@ int create_server_socket_(char *s, int *port)
 int create_client_socket(char *host, int port)
 {
 #if defined(CATAMOUNT) || defined(__MINGW32__)
-    ga_error("system calls do not work on this machine", 0);
+    GA_Error("system calls do not work on this machine", 0);
 #else
   int sockfd, len, result;
   struct sockaddr_in address;
