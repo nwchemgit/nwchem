@@ -154,7 +154,7 @@ c     derivsssssssssssssssssssssssss
       double precision detiladgab,detilbdgab
       double precision pi
       type(nwad_dble)::fabup,fabdown
-      type(nwad_dble)::czeta0
+c     type(nwad_dble)::czeta0
       double precision czeta1
       type(nwad_dble)::gaa,gbb,gab
       type(nwad_dble)::xi2
@@ -166,7 +166,8 @@ c     derivsssssssssssssssssssssssss
       double precision dxi2dgaa
       double precision dxi2dgbb
       double precision dxi2dgab
-      type(nwad_dble)::denccc,onemzeta,onepzeta
+c     type(nwad_dble)::denccc,onemzeta,onepzeta
+      type(nwad_dble)::onemzeta,onepzeta
       type(nwad_dble)::rhoval2
       double precision rhoval3
       type(nwad_dble)::denxi2,denxi22
@@ -182,12 +183,12 @@ c
       parameter (F43 = 4d0/3d0)
       parameter (F73 = 7d0/3d0)
 c
-      czeta0(zeta)=
-     &  0.53d0+0.87d0*zeta**2.0d0+0.5d0*zeta**4.0d0+2.26d0*zeta**6.0d0
+c     czeta0(zeta)=
+c    &  0.53d0+0.87d0*zeta**2.0d0+0.5d0*zeta**4.0d0+2.26d0*zeta**6.0d0
 c     czeta1(zeta)=
 c    &  2.d0*0.87d0*zeta+4d0*0.5d0*zeta**3+6d0*2.26d0*zeta**5
-      denccc(zeta,xi2)= 
-     &  1.d0+0.5d0*xi2*((1.d0+zeta)**(-F43)+(1.d0-zeta)**(-F43))
+c     denccc(zeta,xi2)= 
+c    &  1.d0+0.5d0*xi2*((1.d0+zeta)**(-F43)+(1.d0-zeta)**(-F43))
 c
       pi=acos(-1d0)
       fac = wght
@@ -726,6 +727,45 @@ c
       endif  !end ipol=2 case
 
       return
+c
+      contains
+c
+c     The combination of statement functions and derived types with
+c     overloaded operators is not properly supported in the Fortran 
+c     standard (apparently). Therefore the statement functions from
+c     the original subroutine had to be transformed into contained 
+c     functions.
+c
+c     WARNING: This code is EXTREMELY EVIL! Although there appears to be
+c     only one function there are actually three with the same name,
+c     each one returning results of a different data type. The trick is
+c     that depending on the data type the the subroutine that contains
+c     these functions changes its name and hence these different
+c     functions of the same name do not lead to conflicts. The 
+c     alternative would have been to add a forest of conditional 
+c     compilation constructs (#ifdef's) to change the function names
+c     in the declarations and all places where they are used. That 
+c     would have been extremely ugly, so we are between a rock and a
+c     hard place on this one.
+c
+      function czeta0(zeta) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: zeta
+        type(nwad_dble)             :: s
+        s = 0.53d0 + 0.87d0*zeta**2.0d0 
+     &    + 0.5d0*zeta**4.0d0 + 2.26d0*zeta**6.0d0
+      end function
+c
+      function denccc(zeta,xi2) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: zeta
+        type(nwad_dble), intent(in) :: xi2
+        type(nwad_dble)             :: s
+        s = 1.d0 + 0.5d0*xi2*((1.d0+zeta)**(-F43) + (1.d0-zeta)**(-F43))
+      end function
+c
       end
 c
 #ifndef SECOND_DERIV

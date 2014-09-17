@@ -88,13 +88,14 @@ c
       integer n
       type(nwad_dble)::rho13, rho43, gamma, x
       type(nwad_dble)::kalpha,kbeta, rho13a, rho13b,rhoa,rhob
-      type(nwad_dble)::banb, hbab, hbabx
+c     type(nwad_dble)::banb, hbab, hbabx
+      type(nwad_dble)::banb, hbab
       double precision dhdab,dhdabx,dkadra,dkbdrb,dkadxa,dkbdxb,
      A     dbabdra,dbabdrb,dbabdga,dbabdgb,dkadga,dkbdgb,
      A     dbabdka,dbabdkb
 c
-      hbabx(x) = (1.5214d0*x + 0.5764d0)/
-     /           (x**2.0d0*(x**2.0d0+1.1284d0*x+0.3183d0))
+c     hbabx(x) = (1.5214d0*x + 0.5764d0)/
+c    /           (x**2.0d0*(x**2.0d0+1.1284d0*x+0.3183d0))
 c     dhdabx(x) = -(4.5642d0*x**4+5.7391d0*x**3+
 c    +     2.4355*x**2+0.3669d0*x)/
 c    /           ((x**4+1.1284d0*x**3+0.3183d0*x**2)**2)
@@ -285,6 +286,36 @@ c
       endif
 c
       return
+c
+      contains
+c
+c     The combination of statement functions and derived types with
+c     overloaded operators is not properly supported in the Fortran 
+c     standard (apparently). Therefore the statement functions from
+c     the original subroutine had to be transformed into contained 
+c     functions.
+c
+c     WARNING: This code is EXTREMELY EVIL! Although there appears to be
+c     only one function there are actually three with the same name,
+c     each one returning results of a different data type. The trick is
+c     that depending on the data type the the subroutine that contains
+c     these functions changes its name and hence these different
+c     functions of the same name do not lead to conflicts. The 
+c     alternative would have been to add a forest of conditional 
+c     compilation constructs (#ifdef's) to change the function names
+c     in the declarations and all places where they are used. That 
+c     would have been extremely ugly, so we are between a rock and a
+c     hard place on this one.
+c
+      function hbabx(x) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: x
+        type(nwad_dble)             :: s
+        s = (1.5214d0*x + 0.5764d0)/
+     .      (x**2.0d0*(x**2.0d0+1.1284d0*x+0.3183d0))
+      end function
+c
       end
 C>
 C> \brief The Becke88 exchange GGA enhancement factor
