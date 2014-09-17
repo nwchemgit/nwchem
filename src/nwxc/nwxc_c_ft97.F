@@ -463,7 +463,7 @@ c
       type(nwad_dble)::EEI,MUAB,MUBA,MUBB,MUAA,GA2,GB2,CFT,RSA,RSB
       type(nwad_dble)::R,GR,T,EEI1,DENOM,FA
 c     type(nwad_dble)::ECMUC0
-      type(nwad_dble)::KSSP0,KSS0,FSSP,FSS,FACTOR,FF
+c     type(nwad_dble)::KSSP0,KSS0,FSSP,FSS,FACTOR,FF
 c     type(nwad_dble)::USSP1,USSP2,WSSP,USS1,USS2,WSS,YSS,DFFDMU
       double precision KSSPBIG,big,kss0big
 c
