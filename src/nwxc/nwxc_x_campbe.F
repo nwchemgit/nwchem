@@ -674,7 +674,7 @@ c     in the declarations and all places where they are used. That
 c     would have been extremely ugly, so we are between a rock and a
 c     hard place on this one.
 c
-      function gpbe(r) result(s)
+      function gpbe0(r) result(s)
 #include "nwad.fh"
         implicit none
         type(nwad_dble), intent(in) :: r
