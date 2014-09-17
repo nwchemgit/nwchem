@@ -162,7 +162,7 @@ c     double precision d3s(4), d3g(4), rhom53, gppp
 c     double precision A3tmp, C4tmp, C5tmp, C6tmp
 #endif
 c     double precision gpbe0,gpbe1,gpbe2,gpbe3
-      type(nwad_dble)::grpbe0,grpbe1,grpbe2,grpbe3
+c     type(nwad_dble)::grpbe0,grpbe1,grpbe2,grpbe3
 c     double precision grevpbe0,grevpbe1,grevpbe2
 c     gpbe0(s)= uk*(1d0 - 1d0/(1d0+umk*s*s))
 c     gpbe1(s)= 2d0*um*s/(1d0+umk*s*s)**2
@@ -173,7 +173,7 @@ c     grevpbe0(s)= ukrev*(1d0 - 1d0/(1d0+umkrev*s*s))
 c     grevpbe1(s)= 2d0*um*s/(1d0+umkrev*s*s)**2
 c     grevpbe2(s)= 2d0*um*(1d0-4d0*umkrev*s*s/(1d0+umkrev*s*s))/
 c    /     (1d0+umkrev*s*s)**2
-      grpbe0(s)= uk*(1d0 - exp(-umk*s*s))
+c     grpbe0(s)= uk*(1d0 - exp(-umk*s*s))
 c     grpbe1(s)= 2d0*um*s*exp(-umk*s*s)
 c     grpbe2(s)= 2d0*um*exp(-umk*s*s)*(1d0-2d0*umk*s*s)
 c     grpbe3(s)= -4.0d0*umk*um*s*exp(-umk*s*s)*(3d0-2d0*umk*s*s)
@@ -657,6 +657,35 @@ c
       endif
 c
       return
+c
+      contains
+c
+c     The combination of statement functions and derived types with
+c     overloaded operators is not properly supported in the Fortran 
+c     standard (apparently). Therefore the statement functions from
+c     the original subroutine had to be transformed into contained 
+c     functions.
+c
+c     WARNING: This code is EXTREMELY EVIL! Although there appears to be
+c     only one function there are actually three with the same name,
+c     each one returning results of a different data type. The trick is
+c     that depending on the data type the the subroutine that contains
+c     these functions changes its name and hence these different
+c     functions of the same name do not lead to conflicts. The 
+c     alternative would have been to add a forest of conditional 
+c     compilation constructs (#ifdef's) to change the function names
+c     in the declarations and all places where they are used. That 
+c     would have been extremely ugly, so we are between a rock and a
+c     hard place on this one.
+c
+      function grpbe0(r) result(s)
+#include "nwad.fh"
+        implicit none
+        type(nwad_dble), intent(in) :: r
+        type(nwad_dble)             :: s
+        s = uk*(1d0 - exp(-umk*r*r))
+      end function
+c
       end
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
