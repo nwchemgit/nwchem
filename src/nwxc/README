@@ -30,7 +30,7 @@ differentiation approach.
                | CPU time (s)                   | Wall clock time (s)
 -----------------------------------------------------------------------------
 Job            | Manual  | Uni-    | Multi-     | Manual  | Uni-    | Multi-
-               |         | variate | variate    | Manual  | variate | variate
+               |         | variate | variate    |         | variate | variate
 -----------------------------------------------------------------------------
 nwxc_nwdft_1he |    14.1 |    84.4 |    43.6    |   223.3 |   295.3 |   250.5
 nwxc_nwdft_1ne |    29.8 |    98.8 |    61.1    |   255.9 |   342.4 |   303.5
@@ -80,5 +80,60 @@ optimization are:
    rho43 = rho*rho13. This is handy for the energy and gradient evaluation as
    rho13 is needed for the latter anyway. In the automatic differentiation 
    approach this just leads to a superfluous multiplication and assignment.
+
+Optimization steps 1 & 2
+========================
+
+At the moment optimization steps 1 and 2 as outlined above have been
+implemented. Below the timings are compared. The column "Opt Multi-variate"
+refers to the new optimized code. The "Multi-variate" column refers to the
+code prior to optimization.
+
+=============================================================================
+               | CPU time (s)                   | Wall clock time (s)
+-----------------------------------------------------------------------------
+Job            | Manual  | Multi-  | Opt Multi- | Manual  | Multi-  | Opt M-
+               |         | variate | variate    |         | variate | variate
+-----------------------------------------------------------------------------
+nwxc_nwdft_1he |    14.1 |    43.6 |    34.7    |   223.3 |   250.5 |   163.0
+nwxc_nwdft_1ne |    29.8 |    61.1 |    52.0    |   255.9 |   303.5 |   181.9
+nwxc_nwdft_1ar |    69.2 |   130.6 |   112.5    |   307.9 |   368.9 |   270.6
+nwxc_nwdft_1kr |   259.9 |   337.3 |   312.6    |   491.5 |   572.9 |   478.4
+nwxc_nwdft_1xe |   652.8 |   734.3 |   696.9    |   853.0 |   936.0 |   904.1
+nwxc_nwdft_3he |    11.7 |    27.4 |    23.3    |   198.2 |   221.7 |   171.8
+nwxc_nwdft_4n  |    35.0 |   100.5 |    60.8    |   303.5 |   346.6 |   242.8
+nwxc_nwdft_4p  |    84.9 |   243.9 |   142.1    |   373.9 |   453.1 |   315.7
+nwxc_nwdft_4as |   314.9 |   478.3 |   389.3    |   594.4 |   701.7 |   593.4
+nwxc_nwdft_4sb |   788.4 |   815.8 |   846.5    |  1046.3 |  1129.9 |  1086.5
+-----------------------------------------------------------------------------
+nwxc_tddft_1he |    17.9 |    58.7 |    46.8    |   230.1 |   289.7 |   405.5
+nwxc_tddft_1ne |    35.9 |    77.3 |    64.0    |   283.5 |   311.1 |   388.2
+nwxc_tddft_1ar |    82.6 |   174.6 |   144.7    |   341.1 |   358.0 |   443.3
+nwxc_tddft_1kr |   243.5 |   362.5 |   319.9    |   445.7 |   632.0 |   668.7
+nwxc_tddft_1xe |   633.7 |   746.2 |   703.6    |   956.6 |  1117.7 |   999.1
+nwxc_tddft_3he |    10.2 |    25.7 |    21.5    |   153.0 |   159.5 |   227.4
+nwxc_tddft_4n  |    57.2 |   100.5 |    86.2    |   321.7 |   355.1 |   433.7
+nwxc_tddft_4p  |   142.5 |   243.9 |   208.1    |   402.3 |   452.5 |   513.0
+nwxc_tddft_4as |   367.9 |   478.3 |   436.7    |   575.2 |   702.1 |   779.1
+nwxc_tddft_4sb |   734.0 |   815.8 |   776.9    |   955.1 |  1099.1 |  1045.2
+-----------------------------------------------------------------------------
+total          |  4586.1 |  6056.3 |  5479.1    |         |         |
+=============================================================================
+
+The results show that whereas the unoptimized code has an overall overhead of
+30% over the hand written code, the optimized code is 10% faster than the 
+unoptimized code leaving an overhead of about 20%.
+
+Potential optimization steps 3 and 4 are unlikely to help very much. 
+Precomputing the indeces only helps for higher order derivatives such as in the
+TDDFT calculations. In the regular energy evaluation we already use stored
+indeces and no further gain can be obtained from that approach. Also, the most
+costly operators are the multiplication and addition operators. In their 
+implementations there are no quantities we can precompute and reuse (this could
+be done for the division and exponentiation but they take relatively little
+time anyway).
+
+So the only remaining next step to optimize the code for energy evaluations
+(step 5) rather than for the original energy+gradient evaluation.
 
 At present this is still VERY MUCH UNDER CONSTRUCTION.

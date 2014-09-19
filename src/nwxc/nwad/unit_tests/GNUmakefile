@@ -321,219 +321,219 @@ test_ge.log: test_ge
 	./test_ge | tee test_ge.log
 
 test_sin: nwad3.mod submaxima_sin.o test_sin.o errquit.o
-	gfortran test_sin.o submaxima_sin.o nwad.o errquit.o -o test_sin
+	$(FC) test_sin.o submaxima_sin.o nwad.o errquit.o -o test_sin
 
 test_sin_m3: nwad3.mod submaxima_sin3.o test_sin_m3.o errquit.o
-	gfortran test_sin_m3.o submaxima_sin3.o nwad.o errquit.o -o test_sin_m3
+	$(FC) test_sin_m3.o submaxima_sin3.o nwad.o errquit.o -o test_sin_m3
 
 test_cos: nwad3.mod submaxima_cos.o test_cos.o errquit.o
-	gfortran test_cos.o submaxima_cos.o nwad.o errquit.o -o test_cos
+	$(FC) test_cos.o submaxima_cos.o nwad.o errquit.o -o test_cos
 
 test_cos_m3: nwad3.mod submaxima_cos3.o test_cos_m3.o errquit.o
-	gfortran test_cos_m3.o submaxima_cos3.o nwad.o errquit.o -o test_cos_m3
+	$(FC) test_cos_m3.o submaxima_cos3.o nwad.o errquit.o -o test_cos_m3
 
 test_tan: nwad3.mod submaxima_tan.o test_tan.o errquit.o
-	gfortran test_tan.o submaxima_tan.o nwad.o errquit.o -o test_tan
+	$(FC) test_tan.o submaxima_tan.o nwad.o errquit.o -o test_tan
 
 test_tan_m3: nwad3.mod submaxima_tan3.o test_tan_m3.o errquit.o
-	gfortran test_tan_m3.o submaxima_tan3.o nwad.o errquit.o -o test_tan_m3
+	$(FC) test_tan_m3.o submaxima_tan3.o nwad.o errquit.o -o test_tan_m3
 
 test_asin: nwad3.mod submaxima_asin.o test_asin.o errquit.o
-	gfortran test_asin.o submaxima_asin.o nwad.o errquit.o -o test_asin
+	$(FC) test_asin.o submaxima_asin.o nwad.o errquit.o -o test_asin
 
 test_asin_m3: nwad3.mod submaxima_asin3.o test_asin_m3.o errquit.o
-	gfortran test_asin_m3.o submaxima_asin3.o nwad.o errquit.o -o test_asin_m3
+	$(FC) test_asin_m3.o submaxima_asin3.o nwad.o errquit.o -o test_asin_m3
 
 test_acos: nwad3.mod submaxima_acos.o test_acos.o errquit.o
-	gfortran test_acos.o submaxima_acos.o nwad.o errquit.o -o test_acos
+	$(FC) test_acos.o submaxima_acos.o nwad.o errquit.o -o test_acos
 
 test_acos_m3: nwad3.mod submaxima_acos3.o test_acos_m3.o errquit.o
-	gfortran test_acos_m3.o submaxima_acos3.o nwad.o errquit.o -o test_acos_m3
+	$(FC) test_acos_m3.o submaxima_acos3.o nwad.o errquit.o -o test_acos_m3
 
 test_atan: nwad3.mod submaxima_atan.o test_atan.o errquit.o
-	gfortran test_atan.o submaxima_atan.o nwad.o errquit.o -o test_atan
+	$(FC) test_atan.o submaxima_atan.o nwad.o errquit.o -o test_atan
 
 test_atan_m3: nwad3.mod submaxima_atan3.o test_atan_m3.o errquit.o
-	gfortran test_atan_m3.o submaxima_atan3.o nwad.o errquit.o -o test_atan_m3
+	$(FC) test_atan_m3.o submaxima_atan3.o nwad.o errquit.o -o test_atan_m3
 
 test_sinh: nwad3.mod submaxima_sinh.o test_sinh.o errquit.o
-	gfortran test_sinh.o submaxima_sinh.o nwad.o errquit.o -o test_sinh
+	$(FC) test_sinh.o submaxima_sinh.o nwad.o errquit.o -o test_sinh
 
 test_sinh_m3: nwad3.mod submaxima_sinh3.o test_sinh_m3.o errquit.o
-	gfortran test_sinh_m3.o submaxima_sinh3.o nwad.o errquit.o -o test_sinh_m3
+	$(FC) test_sinh_m3.o submaxima_sinh3.o nwad.o errquit.o -o test_sinh_m3
 
 test_cosh: nwad3.mod submaxima_cosh.o test_cosh.o errquit.o
-	gfortran test_cosh.o submaxima_cosh.o nwad.o errquit.o -o test_cosh
+	$(FC) test_cosh.o submaxima_cosh.o nwad.o errquit.o -o test_cosh
 
 test_cosh_m3: nwad3.mod submaxima_cosh3.o test_cosh_m3.o errquit.o
-	gfortran test_cosh_m3.o submaxima_cosh3.o nwad.o errquit.o -o test_cosh_m3
+	$(FC) test_cosh_m3.o submaxima_cosh3.o nwad.o errquit.o -o test_cosh_m3
 
 test_tanh: nwad3.mod submaxima_tanh.o test_tanh.o errquit.o
-	gfortran test_tanh.o submaxima_tanh.o nwad.o errquit.o -o test_tanh
+	$(FC) test_tanh.o submaxima_tanh.o nwad.o errquit.o -o test_tanh
 
 test_tanh_m3: nwad3.mod submaxima_tanh3.o test_tanh_m3.o errquit.o
-	gfortran test_tanh_m3.o submaxima_tanh3.o nwad.o errquit.o -o test_tanh_m3
+	$(FC) test_tanh_m3.o submaxima_tanh3.o nwad.o errquit.o -o test_tanh_m3
 
 test_asinh: nwad3.mod submaxima_asinh.o test_asinh.o errquit.o
-	gfortran test_asinh.o submaxima_asinh.o nwad.o errquit.o -o test_asinh
+	$(FC) test_asinh.o submaxima_asinh.o nwad.o errquit.o -o test_asinh
 
 test_asinh_m3: nwad3.mod submaxima_asinh3.o test_asinh_m3.o errquit.o
-	gfortran test_asinh_m3.o submaxima_asinh3.o nwad.o errquit.o -o test_asinh_m3
+	$(FC) test_asinh_m3.o submaxima_asinh3.o nwad.o errquit.o -o test_asinh_m3
 
 test_erf: nwad3.mod submaxima_erf.o test_erf.o errquit.o
-	gfortran test_erf.o submaxima_erf.o nwad.o errquit.o -o test_erf
+	$(FC) test_erf.o submaxima_erf.o nwad.o errquit.o -o test_erf
 
 test_erf_m3: nwad3.mod submaxima_erf3.o test_erf_m3.o errquit.o
-	gfortran test_erf_m3.o submaxima_erf3.o nwad.o errquit.o -o test_erf_m3
+	$(FC) test_erf_m3.o submaxima_erf3.o nwad.o errquit.o -o test_erf_m3
 
 test_erfc: nwad3.mod submaxima_erfc.o test_erfc.o errquit.o
-	gfortran test_erfc.o submaxima_erfc.o nwad.o errquit.o -o test_erfc
+	$(FC) test_erfc.o submaxima_erfc.o nwad.o errquit.o -o test_erfc
 
 test_erfc_m3: nwad3.mod submaxima_erfc3.o test_erfc_m3.o errquit.o
-	gfortran test_erfc_m3.o submaxima_erfc3.o nwad.o errquit.o -o test_erfc_m3
+	$(FC) test_erfc_m3.o submaxima_erfc3.o nwad.o errquit.o -o test_erfc_m3
 
 test_abs: nwad3.mod submaxima_abs.o test_abs.o errquit.o
-	gfortran test_abs.o submaxima_abs.o nwad.o errquit.o -o test_abs
+	$(FC) test_abs.o submaxima_abs.o nwad.o errquit.o -o test_abs
 
 test_abs_m3: nwad3.mod submaxima_abs3.o test_abs_m3.o errquit.o
-	gfortran test_abs_m3.o submaxima_abs3.o nwad.o errquit.o -o test_abs_m3
+	$(FC) test_abs_m3.o submaxima_abs3.o nwad.o errquit.o -o test_abs_m3
 
 test_exp: nwad3.mod submaxima_exp.o test_exp.o errquit.o
-	gfortran test_exp.o submaxima_exp.o nwad.o errquit.o -o test_exp
+	$(FC) test_exp.o submaxima_exp.o nwad.o errquit.o -o test_exp
 
 test_exp_m3: nwad3.mod submaxima_exp3.o test_exp_m3.o errquit.o
-	gfortran test_exp_m3.o submaxima_exp3.o nwad.o errquit.o -o test_exp_m3
+	$(FC) test_exp_m3.o submaxima_exp3.o nwad.o errquit.o -o test_exp_m3
 
 test_sqrt: nwad3.mod submaxima_sqrt.o test_sqrt.o errquit.o
-	gfortran test_sqrt.o submaxima_sqrt.o nwad.o errquit.o -o test_sqrt
+	$(FC) test_sqrt.o submaxima_sqrt.o nwad.o errquit.o -o test_sqrt
 
 test_sqrt_m3: nwad3.mod submaxima_sqrt3.o test_sqrt_m3.o errquit.o
-	gfortran test_sqrt_m3.o submaxima_sqrt3.o nwad.o errquit.o -o test_sqrt_m3
+	$(FC) test_sqrt_m3.o submaxima_sqrt3.o nwad.o errquit.o -o test_sqrt_m3
 
 test_log: nwad3.mod submaxima_log.o test_log.o errquit.o
-	gfortran test_log.o submaxima_log.o nwad.o errquit.o -o test_log
+	$(FC) test_log.o submaxima_log.o nwad.o errquit.o -o test_log
 
 test_log_m3: nwad3.mod submaxima_log3.o test_log_m3.o errquit.o
-	gfortran test_log_m3.o submaxima_log3.o nwad.o errquit.o -o test_log_m3
+	$(FC) test_log_m3.o submaxima_log3.o nwad.o errquit.o -o test_log_m3
 
 test_add: nwad3.mod submaxima_add.o test_add.o errquit.o
-	gfortran test_add.o submaxima_add.o nwad.o errquit.o -o test_add
+	$(FC) test_add.o submaxima_add.o nwad.o errquit.o -o test_add
 
 test_add_m3: nwad3.mod submaxima_add3.o test_add_m3.o errquit.o
-	gfortran test_add_m3.o submaxima_add3.o nwad.o errquit.o -o test_add_m3
+	$(FC) test_add_m3.o submaxima_add3.o nwad.o errquit.o -o test_add_m3
 
 test_addx: nwad3.mod submaxima_addx.o test_addx.o errquit.o
-	gfortran test_addx.o submaxima_addx.o nwad.o errquit.o -o test_addx
+	$(FC) test_addx.o submaxima_addx.o nwad.o errquit.o -o test_addx
 
 test_addx_m3: nwad3.mod submaxima_addx3.o test_addx_m3.o errquit.o
-	gfortran test_addx_m3.o submaxima_addx3.o nwad.o errquit.o -o test_addx_m3
+	$(FC) test_addx_m3.o submaxima_addx3.o nwad.o errquit.o -o test_addx_m3
 
 test_addy: nwad3.mod submaxima_addy.o test_addy.o errquit.o
-	gfortran test_addy.o submaxima_addy.o nwad.o errquit.o -o test_addy
+	$(FC) test_addy.o submaxima_addy.o nwad.o errquit.o -o test_addy
 
 test_addy_m3: nwad3.mod submaxima_addy3.o test_addy_m3.o errquit.o
-	gfortran test_addy_m3.o submaxima_addy3.o nwad.o errquit.o -o test_addy_m3
+	$(FC) test_addy_m3.o submaxima_addy3.o nwad.o errquit.o -o test_addy_m3
 
 test_sub: nwad3.mod submaxima_sub.o test_sub.o errquit.o
-	gfortran test_sub.o submaxima_sub.o nwad.o errquit.o -o test_sub
+	$(FC) test_sub.o submaxima_sub.o nwad.o errquit.o -o test_sub
 
 test_sub_m3: nwad3.mod submaxima_sub3.o test_sub_m3.o errquit.o
-	gfortran test_sub_m3.o submaxima_sub3.o nwad.o errquit.o -o test_sub_m3
+	$(FC) test_sub_m3.o submaxima_sub3.o nwad.o errquit.o -o test_sub_m3
 
 test_subx: nwad3.mod submaxima_subx.o test_subx.o errquit.o
-	gfortran test_subx.o submaxima_subx.o nwad.o errquit.o -o test_subx
+	$(FC) test_subx.o submaxima_subx.o nwad.o errquit.o -o test_subx
 
 test_subx_m3: nwad3.mod submaxima_subx3.o test_subx_m3.o errquit.o
-	gfortran test_subx_m3.o submaxima_subx3.o nwad.o errquit.o -o test_subx_m3
+	$(FC) test_subx_m3.o submaxima_subx3.o nwad.o errquit.o -o test_subx_m3
 
 test_suby: nwad3.mod submaxima_suby.o test_suby.o errquit.o
-	gfortran test_suby.o submaxima_suby.o nwad.o errquit.o -o test_suby
+	$(FC) test_suby.o submaxima_suby.o nwad.o errquit.o -o test_suby
 
 test_suby_m3: nwad3.mod submaxima_suby3.o test_suby_m3.o errquit.o
-	gfortran test_suby_m3.o submaxima_suby3.o nwad.o errquit.o -o test_suby_m3
+	$(FC) test_suby_m3.o submaxima_suby3.o nwad.o errquit.o -o test_suby_m3
 
 test_mul: nwad3.mod submaxima_mul.o test_mul.o errquit.o
-	gfortran test_mul.o submaxima_mul.o nwad.o errquit.o -o test_mul
+	$(FC) test_mul.o submaxima_mul.o nwad.o errquit.o -o test_mul
 
 test_mul_m3: nwad3.mod submaxima_mul3.o test_mul_m3.o errquit.o
-	gfortran test_mul_m3.o submaxima_mul3.o nwad.o errquit.o -o test_mul_m3
+	$(FC) test_mul_m3.o submaxima_mul3.o nwad.o errquit.o -o test_mul_m3
 
 test_mulx: nwad3.mod submaxima_mulx.o test_mulx.o errquit.o
-	gfortran test_mulx.o submaxima_mulx.o nwad.o errquit.o -o test_mulx
+	$(FC) test_mulx.o submaxima_mulx.o nwad.o errquit.o -o test_mulx
 
 test_mulx_m3: nwad3.mod submaxima_mulx3.o test_mulx_m3.o errquit.o
-	gfortran test_mulx_m3.o submaxima_mulx3.o nwad.o errquit.o -o test_mulx_m3
+	$(FC) test_mulx_m3.o submaxima_mulx3.o nwad.o errquit.o -o test_mulx_m3
 
 test_muly: nwad3.mod submaxima_muly.o test_muly.o errquit.o
-	gfortran test_muly.o submaxima_muly.o nwad.o errquit.o -o test_muly
+	$(FC) test_muly.o submaxima_muly.o nwad.o errquit.o -o test_muly
 
 test_muly_m3: nwad3.mod submaxima_muly3.o test_muly_m3.o errquit.o
-	gfortran test_muly_m3.o submaxima_muly3.o nwad.o errquit.o -o test_muly_m3
+	$(FC) test_muly_m3.o submaxima_muly3.o nwad.o errquit.o -o test_muly_m3
 
 test_div: nwad3.mod submaxima_div.o test_div.o errquit.o
-	gfortran test_div.o submaxima_div.o nwad.o errquit.o -o test_div
+	$(FC) test_div.o submaxima_div.o nwad.o errquit.o -o test_div
 
 test_div_m3: nwad3.mod submaxima_div3.o test_div_m3.o errquit.o
-	gfortran test_div_m3.o submaxima_div3.o nwad.o errquit.o -o test_div_m3
+	$(FC) test_div_m3.o submaxima_div3.o nwad.o errquit.o -o test_div_m3
 
 test_divx: nwad3.mod submaxima_divx.o test_divx.o errquit.o
-	gfortran test_divx.o submaxima_divx.o nwad.o errquit.o -o test_divx
+	$(FC) test_divx.o submaxima_divx.o nwad.o errquit.o -o test_divx
 
 test_divx_m3: nwad3.mod submaxima_divx3.o test_divx_m3.o errquit.o
-	gfortran test_divx_m3.o submaxima_divx3.o nwad.o errquit.o -o test_divx_m3
+	$(FC) test_divx_m3.o submaxima_divx3.o nwad.o errquit.o -o test_divx_m3
 
 test_divy: nwad3.mod submaxima_divy.o test_divy.o errquit.o
-	gfortran test_divy.o submaxima_divy.o nwad.o errquit.o -o test_divy
+	$(FC) test_divy.o submaxima_divy.o nwad.o errquit.o -o test_divy
 
 test_divy_m3: nwad3.mod submaxima_divy3.o test_divy_m3.o errquit.o
-	gfortran test_divy_m3.o submaxima_divy3.o nwad.o errquit.o -o test_divy_m3
+	$(FC) test_divy_m3.o submaxima_divy3.o nwad.o errquit.o -o test_divy_m3
 
 test_pow: nwad3.mod submaxima_pow.o test_pow.o errquit.o
-	gfortran test_pow.o submaxima_pow.o nwad.o errquit.o -o test_pow
+	$(FC) test_pow.o submaxima_pow.o nwad.o errquit.o -o test_pow
 
 test_pow_m3: nwad3.mod submaxima_pow3.o test_pow_m3.o errquit.o
-	gfortran test_pow_m3.o submaxima_pow3.o nwad.o errquit.o -o test_pow_m3
+	$(FC) test_pow_m3.o submaxima_pow3.o nwad.o errquit.o -o test_pow_m3
 
 test_powx: nwad3.mod submaxima_powx.o test_powx.o errquit.o
-	gfortran test_powx.o submaxima_powx.o nwad.o errquit.o -o test_powx
+	$(FC) test_powx.o submaxima_powx.o nwad.o errquit.o -o test_powx
 
 test_powx_m3: nwad3.mod submaxima_powx3.o test_powx_m3.o errquit.o
-	gfortran test_powx_m3.o submaxima_powx3.o nwad.o errquit.o -o test_powx_m3
+	$(FC) test_powx_m3.o submaxima_powx3.o nwad.o errquit.o -o test_powx_m3
 
 test_powy: nwad3.mod submaxima_powy.o test_powy.o errquit.o
-	gfortran test_powy.o submaxima_powy.o nwad.o errquit.o -o test_powy
+	$(FC) test_powy.o submaxima_powy.o nwad.o errquit.o -o test_powy
 
 test_powy_m3: nwad3.mod submaxima_powy3.o test_powy_m3.o errquit.o
-	gfortran test_powy_m3.o submaxima_powy3.o nwad.o errquit.o -o test_powy_m3
+	$(FC) test_powy_m3.o submaxima_powy3.o nwad.o errquit.o -o test_powy_m3
 
 test_dx: nwad3.mod submaxima_dx.o test_dx.o errquit.o
-	gfortran test_dx.o submaxima_dx.o nwad.o errquit.o -o test_dx
+	$(FC) test_dx.o submaxima_dx.o nwad.o errquit.o -o test_dx
 
 test_dxy: nwad3.mod submaxima_dxy.o test_dxy.o errquit.o
-	gfortran test_dxy.o submaxima_dxy.o nwad.o errquit.o -o test_dxy
+	$(FC) test_dxy.o submaxima_dxy.o nwad.o errquit.o -o test_dxy
 
 test_dxyz: nwad3.mod submaxima_dxyz.o test_dxyz.o errquit.o
-	gfortran test_dxyz.o submaxima_dxyz.o nwad.o errquit.o -o test_dxyz
+	$(FC) test_dxyz.o submaxima_dxyz.o nwad.o errquit.o -o test_dxyz
 
 test_lt: nwad3.mod test_lt.o errquit.o
-	gfortran test_lt.o nwad.o errquit.o -o test_lt
+	$(FC) test_lt.o nwad.o errquit.o -o test_lt
 
 test_le: nwad3.mod test_le.o errquit.o
-	gfortran test_le.o nwad.o errquit.o -o test_le
+	$(FC) test_le.o nwad.o errquit.o -o test_le
 
 test_gt: nwad3.mod test_gt.o errquit.o
-	gfortran test_gt.o nwad.o errquit.o -o test_gt
+	$(FC) test_gt.o nwad.o errquit.o -o test_gt
 
 test_ge: nwad3.mod test_ge.o errquit.o
-	gfortran test_ge.o nwad.o errquit.o -o test_ge
+	$(FC) test_ge.o nwad.o errquit.o -o test_ge
 
 # NWAD_DEG not used yet, but planned as a way to generate modules for different
 # degrees of differentiation
 nwad3.mod: ../nwad.F
-	gfortran -c $^
+	$(FC) -c $^
 
 %.o:	%.F
-	gfortran -c $^
+	$(FC) -c $^
 
 %.F:	%.max
 	maxima -b $^

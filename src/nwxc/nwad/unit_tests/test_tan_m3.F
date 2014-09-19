@@ -17,6 +17,7 @@ C>
       parameter (mmvar = 3)
       parameter (npt = 100)
       integer :: iv(mmvar)
+      integer :: numvar 
       type(nwad_dble) :: x, y, z, f
       double precision fa,dfa(mmvar),dfa2(mmvar*(mmvar+1)/2)
       double precision dfa3(mmvar*(mmvar+1)*(mmvar+2)/6), tol
@@ -36,20 +37,18 @@ C>
           write(*,*)"F  : fail:",i,x%d0,y%d0,z%d0,f%d0
           write(*,*)
         endif
-        iv(1) = find_gamma_aa(f)
-        iv(2) = find_gamma_ab(f)
-        iv(3) = find_gamma_bb(f)
-        do i1 = 1, mmvar
-          tf = get_d1(f,iv(i1))
+        numvar = get_nvar(f)
+        do i1 = 1, numvar
+          call get_d1(f,i1,tf,iv(i1))
           if (abs((dfa(i1)-tf)/(dfa(i1)+tf)).gt.tol) then
             write(*,10)i,i1,x%d0,y%d0,z%d0,dfa(i)
             write(*,10)i,i1,x%d0,y%d0,z%d0,tf
             write(*,*)
           endif
         enddo
-        do i1 = 1, mmvar
+        do i1 = 1, numvar
           do i2 = 1, i1
-            tf = get_d2(f,iv(i1),iv(i2))
+            call get_d2(f,i1,i2,tf,iv(i1),iv(i2))
             df = dfa2(i1*(i1-1)/2+i2)
             if (abs((df-tf)/(df+tf)).gt.tol) then
               write(*,20)i,i1,i2,x%d0,y%d0,z%d0,df
@@ -58,10 +57,10 @@ C>
             endif
           enddo
         enddo
-        do i1 = 1, mmvar
+        do i1 = 1, numvar
           do i2 = 1, i1
             do i3 = 1, i2
-              tf = get_d3(f,iv(i1),iv(i2),iv(i3))
+              call get_d3(f,i1,i2,i3,tf,iv(i1),iv(i2),iv(i3))
               df = dfa3((i1+1)*i1*(i1-1)/6+i2*(i2-1)/2+i3)
               if (abs((df-tf)/(df+tf)).gt.tol) then
                 write(*,30)i,i1,i2,i3,x%d0,y%d0,z%d0,df

@@ -439,7 +439,7 @@ c
       endif
 c
       call nwxc_eval_df_doit(ipol,nq,nwad_rho,nwad_gam,
-     +     nwad_tau,nwad_f,dfdr,dfdg,dfdt)
+     +     nwad_tau,nwad_f)
 c
 c     Now unpack the results
 c
@@ -464,6 +464,7 @@ c
             case (7)
               dfdt(iq,D1_TB) = val
             case default
+              call print(6,nwad_f(iq))
               call errquit("nwxc_df_driver: illegal variable",iv1,UERR)
           end select
         enddo
@@ -478,8 +479,7 @@ C> derivatives are calculated for one direction. The loop over directions
 C> and the correct interpolation of the partial derivatives has to be handled
 C> in a driver routine.
 C>
-      subroutine nwxc_eval_df_doit(ipol,nq,rho,gamma,tau,f,
-     +                             dfdr,dfdg,dfdt)
+      subroutine nwxc_eval_df_doit(ipol,nq,rho,gamma,tau,f)
       use nwad1
       implicit none
 #include "intf_nwxc_c_p91.fh"
@@ -498,9 +498,9 @@ C
                                                  !< density
 C
       type(nwad_dble)::f(nq)           !< [Output] Energy
-      double precision dfdr(nq,ipol)   !< [Output] Derivative wrt rho
-      double precision dfdg(nq,ipol+1) !< [Output] Derivative wrt gamma
-      double precision dfdt(nq,ipol)   !< [Output] Derivative wrt tau
+!     double precision dfdr(nq,ipol)   !< [Output] Derivative wrt rho
+!     double precision dfdg(nq,ipol+1) !< [Output] Derivative wrt gamma
+!     double precision dfdt(nq,ipol)   !< [Output] Derivative wrt tau
 C
       integer iq !< Counter over points
       integer ip !< Counter over spin channels
@@ -1984,7 +1984,8 @@ c
             case (7)
               dfdt(iq,D1_TB) = val
             case default
-              call errquit("nwxc_df2_driver: illegal variable",iv1,UERR)
+              call errquit("nwxc_df2_driver: get_d1: illegal variable",
+     +                     iv1,UERR)
           end select
           do ix2 = 1, ix1
             call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
@@ -2067,8 +2068,8 @@ c
                     dfdt2(iq,D2_TB_TB) = val
                 end select
               case default
-                call errquit("nwxc_df2_driver: illegal variable",
-     &                       iv1,UERR)
+                call errquit("nwxc_df2_driver: get_d2: "//
+     &                       "illegal variable",iv1,UERR)
             end select
           enddo
         enddo
