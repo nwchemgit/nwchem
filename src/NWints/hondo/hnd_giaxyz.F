@@ -34,6 +34,7 @@ c
             enddo
             if(nk.lt.nkmax) then
                maxi=mmax-nk
+CDEC$ NOINLINE
                call hnd_giaxyz3(maxi,nmax,ng,
      D              dxkl,dykl,dzkl,gnm)
             endif
@@ -53,6 +54,7 @@ c
             enddo
             if(nl.lt.nlmax) then
                maxi=mmax-nl
+CDEC$ NOINLINE
                call hnd_giaxyz3(maxi,nmax,ng,
      D              dxkl,dykl,dzkl,gnm)
             endif
@@ -74,6 +76,7 @@ c
             enddo
             if(ni.lt.nimax) then
                maxi=nmax-ni
+CDEC$ NOINLINE
                call hnd_giaxyz4(maxi,nkmax,nlmax,ng,
      D              dxij,dyij,dzij,gnkl)
             endif
@@ -93,6 +96,7 @@ c
             enddo
             if(nj.lt.njmax) then
                maxi=nmax-nj
+CDEC$ NOINLINE
                call hnd_giaxyz4(maxi,nkmax,nlmax,ng,
      D              dxij,dyij,dzij,gnkl)
             endif
@@ -133,7 +137,6 @@ c
       double precision gnm(ng,3,nmax,*)
 c
       integer m,n,ig
-      
       do m=1,maxi
          do n=1,nmax
             do ig=1,ng
