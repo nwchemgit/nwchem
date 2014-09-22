@@ -7203,12 +7203,7 @@ c ccsd_act/eomccsd_act
        if (.not.ma_push_get(mt_dbl,hbard*hbard,'hbar',
      1  l_hbar,k_hbar)) call errquit('tce_eom_xdiagon: MA problem',0,
      2  MA_ERR)
-        do ihbar=1,hbard*hbard
-         dbl_mb(k_hbar+ihbar-1)=0.0d0
-        enddo
-        do ihbar=1,hbard
-         dbl_mb(k_hbar+(ihbar-1)*hbard+ihbar-1)=1.0d+8
-        enddo
+       call tce_hbarinit(dbl_mb(k_hbar),hbard)
         end if
         end if
 c
@@ -11540,4 +11535,21 @@ c Use 9431 for frequency
  9515 format(3x,'TCE RESTART OPTIONS')
  9520 format(3x,'     L-threshold : ',d8.2)
  9521 format(3x,'     EOM-threshold : ',d8.2)
+      end
+      subroutine tce_hbarinit(hbar,hbard)
+      implicit none
+      integer hbard
+      double precision hbar(hbard,hbard)
+c
+      integer i,j
+c
+      do i=1,hbard
+         do j=1,hbard
+            hbar(j,i)=0d0
+        enddo
+      enddo
+      do i=1,hbard
+         hbar(i,i)=1.0d+8
+      enddo
+      return
       end
