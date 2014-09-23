@@ -1903,6 +1903,7 @@ c     implicit none
 #include "stupid_mpi4.fh"
 #else
 #include "mpif.h"
+      integer mpierr
 #endif
 
 #ifdef MPI4
@@ -1934,6 +1935,7 @@ c     implicit none
 #include "stupid_mpi4.fh"
 #else
 #include "mpif.h"
+      integer mpierr
 #endif
 
 #ifdef MPI4
@@ -1981,6 +1983,7 @@ c     implicit none
 #include "stupid_mpi4.fh"
 #else
 #include "mpif.h"
+      integer mpierr
 #endif
 
 #ifdef MPI4
