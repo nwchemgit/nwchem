@@ -515,7 +515,7 @@ C     i1 ( p1 h4 )_dt + = 1 * Sum ( p2 ) * d ( p1 p2 )_d * t ( p2 h4 )_t
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO p1b = noab+1,noab+nvab
       DO h4b = 1,noab
       IF (next.eq.count) THEN

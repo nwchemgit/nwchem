@@ -6424,7 +6424,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = -1 * P( 9 ) * Sum ( h11 ) * i1 ( h4 h5 h1
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = 1,noab
@@ -6591,7 +6591,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = -1 * P( 9 ) * Sum ( h11 ) * i1 ( h4 h5 h1
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -6600,7 +6600,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = -1 * P( 9 ) * Sum ( h11 ) * i1 ( h4 h5 h1
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -6658,7 +6658,7 @@ C     i1 ( h4 h5 h11 p1 )_yt + = -1 * Sum ( p7 ) * t ( p7 h11 )_t * y ( h4 h5 p1
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO p1b = noab+1,noab+nvab
@@ -6747,14 +6747,14 @@ C     i1 ( h4 h5 h11 p1 )_yt + = -1 * Sum ( p7 ) * t ( p7 h11 )_t * y ( h4 h5 p1
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -6893,7 +6893,7 @@ C     i1 ( h4 h5 h11 p1 )_yt + = 1/2 * Sum ( h9 p8 p7 ) * t ( p7 p8 h9 h11 )_t *
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO p1b = noab+1,noab+nvab
@@ -7066,14 +7066,14 @@ C     i1 ( h4 h5 h11 p1 )_yt + = 1/2 * Sum ( h9 p8 p7 ) * t ( p7 p8 h9 h11 )_t *
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -7135,7 +7135,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytf + = -1 * P( 3 ) * Sum ( h7 ) * i1 ( h4 h5 h6 
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = h5b,noab
@@ -7242,7 +7242,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytf + = -1 * P( 3 ) * Sum ( h7 ) * i1 ( h4 h5 h6 
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -7251,7 +7251,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytf + = -1 * P( 3 ) * Sum ( h7 ) * i1 ( h4 h5 h6 
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -7313,7 +7313,7 @@ C     i1 ( h4 h5 h6 h7 p1 p2 )_yt + = 1 * Sum ( p8 ) * t ( p8 h7 )_t * y ( h4 h5
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = h5b,noab
@@ -7416,7 +7416,7 @@ C     i1 ( h4 h5 h6 h7 p1 p2 )_yt + = 1 * Sum ( p8 ) * t ( p8 h7 )_t * y ( h4 h5
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -7425,7 +7425,7 @@ C     i1 ( h4 h5 h6 h7 p1 p2 )_yt + = 1 * Sum ( p8 ) * t ( p8 h7 )_t * y ( h4 h5
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -7577,7 +7577,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1 * P( 9 ) * Sum ( h9 h8 ) * i1 ( h4 h5 h
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = 1,noab
@@ -7747,7 +7747,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1 * P( 9 ) * Sum ( h9 h8 ) * i1 ( h4 h5 h
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -7756,7 +7756,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1 * P( 9 ) * Sum ( h9 h8 ) * i1 ( h4 h5 h
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -7818,7 +7818,7 @@ C     i1 ( h4 h5 h9 h8 p1 p2 )_yt + = 1 * Sum ( p7 ) * t ( p7 h8 )_t * y ( h4 h5
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h9b = 1,noab
@@ -7970,7 +7970,7 @@ C     i1 ( h4 h5 h9 h8 p1 p2 )_yt + = 1 * Sum ( p7 ) * t ( p7 h8 )_t * y ( h4 h5
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -7979,7 +7979,7 @@ C     i1 ( h4 h5 h9 h8 p1 p2 )_yt + = 1 * Sum ( p7 ) * t ( p7 h8 )_t * y ( h4 h5
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -8131,7 +8131,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1 * P( 3 ) * Sum ( h8 p9 ) * i1 ( h4 h5 h
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = h5b,noab
@@ -8242,7 +8242,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1 * P( 3 ) * Sum ( h8 p9 ) * i1 ( h4 h5 h
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -8251,7 +8251,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1 * P( 3 ) * Sum ( h8 p9 ) * i1 ( h4 h5 h
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -8313,7 +8313,7 @@ C     i1 ( h4 h5 h6 h8 p1 p9 )_yt + = -1 * Sum ( p7 ) * t ( p7 h8 )_t * y ( h4 h
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = h5b,noab
@@ -8440,7 +8440,7 @@ C     i1 ( h4 h5 h6 h8 p1 p9 )_yt + = -1 * Sum ( p7 ) * t ( p7 h8 )_t * y ( h4 h
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -8449,7 +8449,7 @@ C     i1 ( h4 h5 h6 h8 p1 p9 )_yt + = -1 * Sum ( p7 ) * t ( p7 h8 )_t * y ( h4 h
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -8598,7 +8598,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1/2 * P( 9 ) * Sum ( p8 ) * i1 ( h4 p8 p1
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = 1,noab
       DO h6b = h5b,noab
@@ -8774,7 +8774,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1/2 * P( 9 ) * Sum ( p8 ) * i1 ( h4 p8 p1
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -8783,7 +8783,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1/2 * P( 9 ) * Sum ( p8 ) * i1 ( h4 p8 p1
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -8851,7 +8851,7 @@ C     i1 ( h4 p8 p1 p2 )_yt + = -1 * Sum ( h10 h9 p7 ) * t ( p7 p8 h9 h10 )_t * 
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO p8b = noab+1,noab+nvab
       DO p1b = noab+1,noab+nvab
@@ -9036,14 +9036,14 @@ C     i1 ( h4 p8 p1 p2 )_yt + = -1 * Sum ( h10 h9 p7 ) * t ( p7 p8 h9 h10 )_t * 
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -9183,7 +9183,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1/4 * P( 3 ) * Sum ( h11 h10 ) * i1 ( h4 
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = h5b,noab
@@ -9305,7 +9305,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1/4 * P( 3 ) * Sum ( h11 h10 ) * i1 ( h4 
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -9314,7 +9314,7 @@ C     i0 ( h4 h5 h6 p1 p2 p3 )_ytv + = 1/4 * P( 3 ) * Sum ( h11 h10 ) * i1 ( h4 
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -9383,7 +9383,7 @@ C     i1 ( h4 h5 h6 h10 h11 p1 )_yt + = 1 * Sum ( p8 p7 ) * t ( p7 p8 h10 h11 )_
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = h5b,noab
@@ -9499,7 +9499,7 @@ C     i1 ( h4 h5 h6 h10 h11 p1 )_yt + = 1 * Sum ( p8 p7 ) * t ( p7 p8 h10 h11 )_
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -9508,7 +9508,7 @@ C     i1 ( h4 h5 h6 h10 h11 p1 )_yt + = 1 * Sum ( p8 p7 ) * t ( p7 p8 h10 h11 )_
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -9657,7 +9657,7 @@ C     i1 ( h4 h5 h6 h10 h11 p1 )_ytt + = 2 * Sum ( p7 ) * t ( p7 h11 )_t * i2 ( 
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = h5b,noab
@@ -9755,7 +9755,7 @@ C     i1 ( h4 h5 h6 h10 h11 p1 )_ytt + = 2 * Sum ( p7 ) * t ( p7 h11 )_t * i2 ( 
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -9764,7 +9764,7 @@ C     i1 ( h4 h5 h6 h10 h11 p1 )_ytt + = 2 * Sum ( p7 ) * t ( p7 h11 )_t * i2 ( 
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
@@ -9826,7 +9826,7 @@ C     i2 ( h4 h5 h6 h10 p1 p7 )_yt + = -1 * Sum ( p9 ) * t ( p9 h10 )_t * y ( h4
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       DO h4b = 1,noab
       DO h5b = h4b,noab
       DO h6b = h5b,noab
@@ -9953,7 +9953,7 @@ C     i2 ( h4 h5 h6 h10 p1 p7 )_yt + = -1 * Sum ( p9 ) * t ( p9 h10 )_t * y ( h4
       END IF
       END IF
       END IF
-      next = NXTASK(nprocs)
+      next = NXTASK(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -9962,7 +9962,7 @@ C     i2 ( h4 h5 h6 h10 p1 p7 )_yt + = -1 * Sum ( p9 ) * t ( p9 h10 )_t * y ( h4
       END DO
       END DO
       END DO
-      next = NXTASK(-nprocs)
+      next = NXTASK(-nprocs,1)
       call GA_SYNC()
       RETURN
       END
