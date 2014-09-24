@@ -68,7 +68,7 @@ function get_mpi_include ()
 #  if [ ${len} -ge 3 ] ; then
 #    outlist="${outlist:3}"
 #  fi
-   echo ${outlist}
+   echo ${outlist} | cut -c 3-
 }
 function get_mpi_link ()
 {
@@ -109,7 +109,7 @@ function get_mpi_link ()
 #  if [ ${len} -ge 3 ] ; then
 #    outlist="${outlist:3}"
 #  fi
-   echo ${outlist}
+   echo ${outlist} | cut -c 3-
 }
 function get_mpi_lib ()
 {
