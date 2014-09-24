@@ -351,7 +351,7 @@ c
       character*20 scftype20    ! DECL MUST match movecs_converged routine
       character*128 basis_name, trans_name
       double precision energy, enrep
-      integer inntsize
+      integer inntsize,kcount
 c
       if (oscfps) call pstat_on(ps_vecio)
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
@@ -429,16 +429,21 @@ c
          write(unitno, err=1001) nsets
          write(unitno, err=1001) nbf
          write(unitno, err=1001) (nmo(i),i=1,nsets)
-         if (.not. ma_push_get(mt_dbl,nbf,'movecs_write',l_vecs,k_vecs))
+         if (.not. ma_push_get(mt_dbl,nbf*nbf,'movecs_write',l_vecs,
+     K        k_vecs))
      $        call errquit('movecs_write: ma failed', nbf, MA_ERR)
          do iset = 1, nsets
             write(unitno, err=1001) (occ(j,iset),j=1,nbf)
             write(unitno, err=1001) (evals(j,iset),j=1,nbf)
+            call ga_get(g_vecs(iset), 1, nbf, 1, nmo(iset),
+     D           dbl_mb(k_vecs),nbf)
+            kcount=k_vecs
             do i = 1, nmo(iset)
-               call ga_get(g_vecs(iset), 1, nbf, i, i, dbl_mb(k_vecs),1)
-               call swrite(unitno, dbl_mb(k_vecs), nbf)
-*               write(unitno, err=1001) (dbl_mb(k_vecs+j), j=0,nbf-1)
+               call swrite(unitno, dbl_mb(kcount), nbf)
+               kcount=kcount+nbf
+*               write(unitno, err=1001) (dbl_mb(k_vecs+j), j=0,nbf-1)           
             enddo
+
          enddo
          if (.not. ma_pop_stack(l_vecs))
      $        call errquit('movecs_write: ma pop failed', l_vecs,
@@ -1081,7 +1086,8 @@ c
       call ga_brdcst(1, ok, inntsize, 0) ! Propagate status
       call ga_brdcst(2, nrow, inntsize, 0)
       call ga_brdcst(3, ncol, inntsize, 0)
-      call util_char_ga_brdcst(4, title(1:len1), 0)
+cedo      call util_char_ga_brdcst(4, title(1:len1), 0)
+      call util_char_ga_brdcst(4, title, 0)
 c
       file_read_ga_info = ok .eq. 1
 c
