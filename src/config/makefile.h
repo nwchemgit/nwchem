@@ -1397,7 +1397,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
 			/bin/rm -f /tmp/$$$$.c) || exit 1
 
-         FC  = gfortran
+         FC=gfortran
          LINUXCPU = $(shell uname -m |\
                  awk ' /sparc/ { print "sparc" }; /i*86/ { print "x86" };  /ppc*/ { print "ppc"} ' )
 
@@ -1415,14 +1415,29 @@ endif
   DEFINES = -DLINUX
 
       FOPTIMIZE  = -O2 
+      COPTIONS   = -Wall
+      COPTIMIZE  = -g -O2
       ifeq ($(FC),gfortran)
         FOPTIONS   = # -Wextra -Wunused  
         FOPTIMIZE  += -ffast-math -Wuninitialized
         _FC=gfortran
         DEFINES  += -DGFORTRAN
-      endif
-      COPTIONS   = -Wall
-      COPTIMIZE  = -g -O2
+        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
+        ifdef GNUMAJOR
+          GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
+          GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
+          GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
+          ifeq ($(GNU_GE_4_6),true)
+            DEFINES  += -DGCC46
+          endif
+          ifeq ($(GNU_GE_4_8),true)
+            FDEBUG +=-O2 -g -fno-aggressive-loop-optimizations
+            FOPTIMIZE +=-fno-aggressive-loop-optimizations
+            FFLAGS_FORGA += -fno-aggressive-loop-optimizations
+          endif
+         endif
+       endif
 
 ifeq ($(LINUXCPU),x86) 
   ifeq ($(TARGET),CYGNUS)
@@ -1433,9 +1448,9 @@ ifeq ($(LINUXCPU),x86)
   endif
   
   _CPU = $(shell uname -m  )
-  _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
 
       ifeq ($(FC),g77)
+  _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
   FOPTIONS   += -fno-second-underscore   
   FOPTIONS   += -fno-f90  -ffixed-line-length-72 -ffixed-form
   FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
@@ -1475,7 +1490,7 @@ endif
         FOPTIMIZE +=-march=pentium4 -mcpu=pentium4# -msse2 -mfpmath=sse 
 #        FOPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
       else
-        FOPTIMIZE  += -march=i686
+#        FOPTIMIZE  += -march=i686
         COPTIONS   = -Wall -march=i686 -malign-double 
       endif
     else
@@ -1511,17 +1526,13 @@ endif
     endif
     FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
   endif
- _FC=g77
+# _FC=g77
  ifeq ($(FC),ifc)
      _FC=ifc
  endif
  ifeq ($(FC),ifort)
      _FC=ifc
  endif
-  ifeq ($(FC),gfortran)
-       _FC=gfortran
-       DEFINES  += -DGFORTRAN
-  endif
   ifeq ($(_FC),ifc)
   FOPTIONS   =  -align    -mp1 -w -g -vec-report1
   ifdef  USE_GPROF
@@ -1558,13 +1569,12 @@ endif
     endif
   endif
       ifeq ($(_FC),gfortran)
-#gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS  = -m32
-        COPTIONS  = -m32
-        CFLAGS_FORGA = -m32
-        FFLAGS_FORGA = -m32
-        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
+        FOPTIONS  += -m32
+        COPTIONS  += -m32
+        CFLAGS_FORGA += -m32
+        FFLAGS_FORGA += -m32
+        FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
           FVECTORIZE = $(FOPTIMIZE) -O3 -ftree-vectorize 
@@ -1578,23 +1588,8 @@ endif
 #http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
-        FDEBUG = -g -O0
+        FDEBUG += -g -O0
         DEFINES  += -DCHKUNDFLW -DGCC4
-        GNUMAJOR=$(shell $(FC) -dumpversion | cut -f1 -d.)
-        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c22)
-        ifdef GNUMAJOR
-        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
-        GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
-        GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
-        ifeq ($(GNU_GE_4_6),true)
-          DEFINES  += -DGCC46
-        endif
-        ifeq ($(GNU_GE_4_8),true)
-          FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
-          FOPTIMIZE +=-fno-aggressive-loop-optimizations
-          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
-        endif
-        endif
       endif
 
   ifeq ($(CC),icc)
