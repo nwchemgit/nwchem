@@ -31,7 +31,7 @@
 
 #        SUBDIRS = nwad
 
-#   LIB_INCLUDES = -I./nwad
+   LIB_INCLUDES = -I./nwad
 
      LIB_TARGETS = 
 
