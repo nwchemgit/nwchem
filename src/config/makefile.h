@@ -1107,6 +1107,8 @@ ifeq ($(BUILDING_PYTHON),python)
 endif
 endif
 ifeq ($(TARGET),MACX)
+  FC = gfortran
+  _FC = gfortran
 #
 # MacOSX 
 #
@@ -1273,6 +1275,8 @@ endif
 
 endif
 ifeq ($(TARGET),MACX64)
+  FC = gfortran
+  _FC = gfortran
 #
 # MacOSX 64bit
 #
