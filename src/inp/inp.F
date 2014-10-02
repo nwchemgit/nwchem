@@ -1082,6 +1082,7 @@ c
                if (atest.ne.btest) goto 00011
             enddo
             inp_contains = .true.
+            ipos = j + 1
             return
 00011    continue
          enddo
