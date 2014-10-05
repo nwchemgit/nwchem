@@ -14,8 +14,12 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   long  len8,  istart, end8;
   int nsteps;
   int64_t lo[2], hi[2];
-  static int bigint = 2147482574;
   char err_buffer[MPI_MAX_ERROR_STRING];
+  long bigint8 = ((long)pow(2.,31.)-1024)/sizeof(DoublePrecision);
+  int bigint = (int) bigint8;
+#ifdef DEBUG   
+    if(GA_Nodeid() == 0) printf(" bcast: bigint8 %11ld bigint %11d\n", bigint8, bigint);
+#endif
   lo[0]=0;
   lo[1]=0;
   /* swap column & rows when going from fortran to c */
@@ -47,9 +51,9 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
     ierr= MPI_Bcast(a+istart, len, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD);
     
     if (ierr != MPI_SUCCESS) {
-      fprintf(stderr,"util_mygabcast: MPI_Bcast failed\n");
+      fprintf(stdout,"util_mygabcast: MPI_Bcast failed step %2d len %11d\n", i, len);
       MPI_Error_string(ierr,err_buffer,&resultlen);
-      fprintf(stderr,"%s\n", err_buffer);
+      fprintf(stdout,"%s\n", err_buffer);
       GA_Error("util_mygabcast error", 0L);
     }
     
