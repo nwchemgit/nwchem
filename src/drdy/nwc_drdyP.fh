@@ -17,8 +17,10 @@
       Integer natomz
       Parameter (natomz = 50) ! same as in drdyP.fh
       Double Precision atomic_charge, copy_charge
+      Double Precision atomic_atomct, copy_atomct
       Double Precision nwcmass
       Character*16     atomic_labels, copy_labels
       Common /c_nwc_chrg/atomic_charge(natomz), copy_charge(natomz)
+      Common /c_nwc_atct/atomic_atomct(natomz), copy_atomct(natomz)
       Common /c_nwc_labs/atomic_labels(natomz), copy_labels(natomz)
       Common /c_nwc_mass/nwcmass(natomz)

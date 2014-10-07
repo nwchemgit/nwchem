@@ -59,6 +59,9 @@ C
       if (.not.geom_masses_set(geom,natom,nwcmass))
      &      call errquit('nwc_gen:geom_masses_set failed',911,
      &       GEOM_ERR)
+      if (.not.geom_atomct_set(geom,natom,atomic_atomct))
+     &      call errquit('nwc_gen:geom_atomct_set failed',911,
+     &       GEOM_ERR)
 *      if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
 *     &      call errquit('nwc_gen: geom_rtdb_store failed',911,
 *     &       RTDB_ERR)
@@ -79,12 +82,13 @@ c
         ncenter = natom
         call dcopy(n3,x,1,dx,1)   ! temporary use of dx 
         call dcopy(ncenter,atomic_charge,1,copy_charge,1)
+        call dcopy(ncenter,atomic_atomct,1,copy_atomct,1)
         do i = 1,ncenter
           copy_labels(i) = atomic_labels(i)
         enddo
-	call dcopy(3*n3,0.d0,0,velocities,1)
+        call dcopy(3*n3,0.d0,0,velocities,1)
         call geom_auto_sym(my_rtdb,geom,dx,
-     &      copy_charge,copy_labels,ncenter,
+     &      copy_charge,copy_labels,copy_atomct,ncenter,
      &      threquiv,groupname,velocities)
         if (op.ne.DRDY_CODE_SPENERGY)
      &    write(luout,10) groupname

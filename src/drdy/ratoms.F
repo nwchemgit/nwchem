@@ -121,6 +121,7 @@ c store atomic charge (number) and symbol for nwchem
 c
          atomic_charge(iatm) = dble(label(iatm))
          atomic_labels(iatm) = chat(iatm)
+         atomic_atomct(iatm) = 0.0d0
 c        atomic_labels(iatm) = asymb(label(iatm))
 c
 c        read in next atom
