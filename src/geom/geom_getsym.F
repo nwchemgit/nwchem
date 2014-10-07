@@ -3,7 +3,7 @@ C> @{
       subroutine geom_getsym0(rtdb,geom,oautosym,
      ,     ncenter,isys,
      ,     name,tags,
-     ,     threquiv,scale,coords,charge,velocities)
+     ,     threquiv,scale,coords,charge,velocities,atomct)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -21,7 +21,7 @@ c
       integer isys
       integer ncenter
       double precision scale,coords(3,*),charge(*),
-     ,     velocities(*),threquiv
+     ,     velocities(*),threquiv,atomct(*)
 c
       logical oprint,oprint_sym
       integer ncenter_before_auto
@@ -43,8 +43,8 @@ c
      $        call errquit('geom_input: geom_vel_get failed', 0,
      &       GEOM_ERR)
             ncenter_before_auto = ncenter
-            call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
-     $              threquiv,groupname,velocities)
+            call geom_auto_sym(rtdb,geom,coords,charge,tags,atomct,
+     $           ncenter,threquiv,groupname,velocities)
             if (geom_group_set(geom,groupname)) then
                if (.not.geom_cart_set(geom,ncenter,tags,coords,charge))
      $              call errquit('geom_input: geom_cart_set failed', 0,
@@ -125,7 +125,7 @@ c
      ,     ncenter(geom),isystype(geom),
      ,     name,tags(1,geom),
      ,     threquiv,scale,coords(1,1,geom),
-     ,        charge(1,geom),velocities(1,1,geom))
+     ,     charge(1,geom),velocities(1,1,geom),geom_atomct(1,geom))
 c
 c     store stuff to rtdb
 c

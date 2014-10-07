@@ -73,6 +73,9 @@ c
       logical geom_mass_get
       logical geom_tag_to_covalent_radius
 c
+      logical geom_atomct_set
+      logical geom_atomct_get
+c
       logical geom_nucexps_set
       logical geom_nucexps_get
       logical geom_nucexp_set

@@ -518,7 +518,7 @@ c
       end
 c
 C> \brief Load a geometry from the RTDB
-c
+C>
 C> Load a geometry from the RTDB with a specified name.
 C> The name is used also to define the name of the geometry.
 C>
@@ -609,6 +609,10 @@ c
       tmp(k:) = ':masses'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent, 
      $     geom_mass(1,geom))
+      tmp(k:) = ' ' 
+      tmp(k:) = ':atomct'
+      s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent, 
+     $     geom_atomct(1,geom))
 C     new
       tmp(k:) = ' ' 
       tmp(k:) = ':inv nuc expon'
@@ -1104,6 +1108,10 @@ c
       tmp(k:) = ':masses'
       s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
      $     geom_mass(1,geom))
+      tmp(k:) = ' ' 
+      tmp(k:) = ':atomct'
+      s = s .and. rtdb_put(rtdb, tmp, mt_dbl, ncenter(geom),
+     $     geom_atomct(1,geom))
 C     new
       tmp(k:) = ' ' 
       tmp(k:) = ':inv nuc expon'
@@ -4478,11 +4486,11 @@ c
       geom_atn_to_default_mass = .true.
 c
       end
-c
+C>
 C> \brief Define the atomic masses of the centers in a geometry instance
-c
+C>
 C> \return Return .true. if successfull, and .false. otherwise
-c
+C>
       logical function geom_masses_set(geom, ncent, masses)
       implicit none
 #include "nwc_const.fh"
@@ -4610,6 +4618,80 @@ c
       end if
 c
       mass = geom_mass(icent,geom)
+c
+      end      
+C>
+C> \brief Define the atom constraint type of the centers in a geometry
+C> instance
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
+      logical function geom_atomct_set(geom, ncent, atomct)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "stdio.fh"
+c
+      integer geom                   !< [Input] the geometry handle
+      integer ncent                  !< [Input] the number of centers
+      double precision atomct(ncent) !< [Input] the atom constraint type
+                                     !< on each center
+c
+      integer i
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_atomct_set = geom_check_handle(geom, 'geom_atomct_set')
+      if (.not. geom_atomct_set) return
+c
+      if (ncent.le.0) then
+         write(LuOut,*) ' geom_atomct_set: too few centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         geom_atomct_set = .false.
+         return
+      else if (ncent.gt.max_cent) then
+         write(LuOut,*) ' geom_atomct_set: too many centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         geom_atomct_set = .false.
+         return
+      end if
+c
+      do i = 1, ncent
+        geom_atomct(i,geom) = atomct(i)
+      enddo
+c
+      end      
+C>
+C> \brief Retrieve the atom constraint type of the centers in a geometry
+C> instance
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
+      logical function geom_atomct_get(geom, ncent, atomct)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "stdio.fh"
+c
+      integer geom                   !< [Input] the geometry handle
+      integer ncent                  !< [Output] the number of centers
+      double precision atomct(ncent) !< [Output] the atom constraint
+                                     !< type on each center
+c
+      integer i
+c
+      logical geom_check_handle
+      external geom_check_handle
+c
+      geom_atomct_get = geom_check_handle(geom, 'geom_atomct_set')
+      if (.not. geom_atomct_get) return
+c
+      ncent = ncenter(geom)
+c
+      do i = 1, ncent
+        atomct(i) = geom_atomct(i,geom)
+      enddo
 c
       end      
 c

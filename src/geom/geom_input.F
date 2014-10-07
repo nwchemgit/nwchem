@@ -49,6 +49,40 @@ c     .                           and for forcing symmetry
       double precision charge(max_center), mass(max_center)
       double precision invnucexp(max_center)
       double precision ainv(3,3),t(3)
+c
+c     Constraints in the geometry change the types of the atoms
+c     involved. E.g. in an H2O molecule the H involved in a bond of
+c     constraint length is not of the same type as the other one. See
+c     test case h2o_opt in the QA for an example. There are three
+c     different constraints:
+c
+c       bond lenghts:   A - A
+c       bond angles:    B - C - B
+c       torsion angles: D - E - E - D
+c
+c     These types can be represented as floating point values
+c
+c       A: sqrt(2)   B: sqrt(3)     C: sqrt(5)
+c       D: sqrt(7)   E: sqrt(11)
+c
+c     In the code they are represented by names:
+c
+c       A: bond_constraint_type
+c       B: end_angle_constraint_type
+c       C: center_angle_constraint_type
+c       D: end_torsion_constraint_type
+c       E: center_torsion_constraint_type
+c
+c     This ensures that n*X .ne. m*Y for all non-zero integer n and m, 
+c     and all types X and Y when X .ne. Y. The atom constraint types
+c     will be stored in the ATOMCT array. This array must be updated for
+c     every CONSTANT line in a zmatrix or zcoord block. The values are
+c     computed in the GEOM_ZMT_GEO and HND_AUTOZ_INPUT subroutines and
+c     used in the HND_MOLOPS subroutine in the SAMEATM statement
+c     function.
+c
+      double precision atomct(max_center) !< Atom constraint type
+c
       character*16 tags(max_center)
       character*2 symbol
       character*16 element
@@ -237,6 +271,9 @@ c
          if (.not. geom_rtdb_load(rtdb, geom, name)) call errquit
      $        ('geom_input: cannot find geometry to adjust',0,
      &       RTDB_ERR)
+         if (.not. geom_atomct_get(geom,ncenter,atomct)) call errquit
+     $        ('geom_input: cannot find current atom constraint types',
+     $         geom,GEOM_ERR)
          if (oprint) write(LuOut,778) name(1:inp_strlen(name))
  778     format(/,' Adjusting existing geometry named ',a,/)
       endif
@@ -363,6 +400,18 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
             oautoz    = .false.
             goto 20
          else if (inp_compare(.false.,'zcoord', field)) then
+c
+c           When the coordinates are being changed with ZCOORD the code
+c           should not enforce a previously found point group. The
+c           ZCOORD input very likely is going to change that point
+c           group. So, delete the symmetry information. (Of course we
+c           need to re-detect the symmetry when we are done (if needed)
+c           but that happens automatically).
+c
+            if (.not.geom_strip_sym(geom)) then
+              call errquit('geom_input: zcoord: could not delete '
+     $                   //'symmetry information',geom,GEOM_ERR)
+            endif
             call geom_autoz_input(geom,oprint)
             goto 20
          else if (inp_compare(.false.,'zmt', field).or.
@@ -375,7 +424,7 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
             if (oadjust) call errquit
      $           ('geom_input: zmatrix not allowed for adjust',0,
      &       GEOM_ERR)
-            call geom_zmt_input(geom,coords,tags,charge,mass,
+            call geom_zmt_input(geom,coords,tags,charge,mass,atomct,
      $           ncenter,scale,oprint,found_cart)
 c
 c           If (ofinite = .true.) set invnucexp finite nucleus values
@@ -572,6 +621,10 @@ c
      &        call errquit('geom_input: geom_nucexps_set failed', 0,
      &       GEOM_ERR)
 
+         if (.not. geom_atomct_set(geom, ncenter, atomct))
+     &        call errquit('geom_input: geom_atomct_set failed', 0,
+     &        GEOM_ERR)
+
       
 c
 c     Check to see if both autosym and symmetry are being used.  If so,
@@ -590,7 +643,7 @@ c
          call geom_getsym0(rtdb,geom,oautosym,
      ,     ncenter,isys,
      ,     name,tags,
-     ,     threquiv,scale,coords,charge,velocities)
+     ,     threquiv,scale,coords,charge,velocities,atomct)
       endif                     ! End of else clause for if(oadjust)
 
 c
@@ -1890,6 +1943,7 @@ c
      $     zmt_ijklto_frz(1,geom),
      $     zmt_ijklop_frz(1,geom),
      $     zmt_ijklnb_frz(1,geom),
+     $     geom_atomct(1,geom),
      $     max_zcoord,
      $     zmt_cvr_scaling(geom),
      $     zmt_maxtor(geom), oprint, scale)
@@ -1900,7 +1954,7 @@ c
      $     ijbond_nam,ijkang_nam,ijklto_nam,ijklop_nam,ijklnb_nam,
      $     ijbond_val,ijkang_val,ijklto_val,ijklop_val,ijklnb_val,
      $     ijbond_frz,ijkang_frz,ijklto_frz,ijklop_frz,ijklnb_frz,
-     $     max_zcoord, cvr_scaling,maxtor,oprint,scale)
+     $     atomct, max_zcoord, cvr_scaling,maxtor,oprint,scale)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -1918,6 +1972,7 @@ c
      $     ijklop_nam(*),ijklnb_nam(*)
       double precision ijbond_val(*),ijkang_val(*),ijklto_val(*),
      $     ijklop_val(*),ijklnb_val(*)
+      double precision atomct(*)
       logical ijbond_frz(*),ijkang_frz(*),ijklto_frz(*),ijklop_frz(*),
      $     ijklnb_frz(*)
       character*13 fff
@@ -1926,6 +1981,17 @@ c
       logical oprint
 c
       integer nbond, nangl, ntors, nopla, nlinb, i, j, nuser
+c
+      double precision bond_constraint_type
+      double precision end_angle_constraint_type
+      double precision center_angle_constraint_type
+      double precision end_torsion_constraint_type
+      double precision center_torsion_constraint_type
+      parameter(bond_constraint_type = sqrt(2.0d0))
+      parameter(end_angle_constraint_type = sqrt(3.0d0))
+      parameter(center_angle_constraint_type = sqrt(5.0d0))
+      parameter(end_torsion_constraint_type = sqrt(7.0d0))
+      parameter(center_torsion_constraint_type = sqrt(11.0d0))
 c
       cvr_scaling=cvr_factor
       nbond=0
@@ -2090,7 +2156,42 @@ c$$$     $        ('hnd_autoz_input: reading ijklnb',4)
       endif
       goto 10                   ! Read next line
 c
- 999  if (cvr_scaling.ne.cvr_factor .and. oprint) 
+ 999  continue
+c
+c     Update the atom constraint type array
+c
+      do i = 1, nbond
+        if (ijbond_frz(i)) then
+          atomct(ijbond(1,i)) = atomct(ijbond(1,i))
+     +                        + bond_constraint_type
+          atomct(ijbond(2,i)) = atomct(ijbond(2,i))
+     +                        + bond_constraint_type
+        endif
+      enddo
+      do i = 1, nangl
+        if (ijkang_frz(i)) then
+          atomct(ijkang(1,i)) = atomct(ijkang(1,i))
+     +                        + end_angle_constraint_type
+          atomct(ijkang(2,i)) = atomct(ijkang(2,i))
+     +                        + center_angle_constraint_type
+          atomct(ijkang(3,i)) = atomct(ijkang(3,i))
+     +                        + end_angle_constraint_type
+        endif
+      enddo
+      do i = 1, ntors
+        if (ijklto_frz(i)) then
+          atomct(ijklto(1,i)) = atomct(ijklto(1,i))
+     +                        + end_torsion_constraint_type
+          atomct(ijklto(2,i)) = atomct(ijklto(2,i))
+     +                        + center_torsion_constraint_type
+          atomct(ijklto(3,i)) = atomct(ijklto(3,i))
+     +                        + center_torsion_constraint_type
+          atomct(ijklto(4,i)) = atomct(ijklto(4,i))
+     +                        + end_torsion_constraint_type
+        endif
+      enddo
+c
+      if (cvr_scaling.ne.cvr_factor .and. oprint) 
      $     write(LuOut,9) cvr_scaling
  9    format('  cvr_scaling: ', f6.2)
       if (maxtor.ne.100 .and. oprint) write(LuOut,5) maxtor
@@ -2140,7 +2241,7 @@ c
 c
       end
       subroutine  geom_zmt_input(geom,
-     1                           coords,tags,charge,mass,ncenter,
+     1                           coords,tags,charge,mass,atomct,ncenter,
      2                           units,oprint,found_cart)
       implicit none
 #include "errquit.fh"
@@ -2197,6 +2298,7 @@ c
       double precision coords(3,*)
       double precision charge(*)
       double precision   mass(*)
+      double precision atomct(*)
       dimension tags(*)
 c
       iw = luout
@@ -2210,7 +2312,7 @@ c
 c
 c     ----- call routine to read z-matrix data -----
 c
-      call geom_zmt_geo(coords,charge,tags,ncenter,
+      call geom_zmt_geo(coords,charge,tags,atomct,ncenter,
      1                  nizmat,izmat,nzvar,izfrz,nzfrz,
      2                  units,zvarname,zvarsign,found_cart)
 c
@@ -2920,7 +3022,7 @@ c
       enddo
 c     
       end
-      SUBROUTINE GEOM_ZMT_GEO(COORDS,CHARGE,TAGS,NCENTER,
+      SUBROUTINE GEOM_ZMT_GEO(COORDS,CHARGE,TAGS,ATOMCT,NCENTER,
      1                        IZ,IZMAT,NZMOD,ICFRZ,NCFRZ,
      2                        UNITS,zvarname,zvarsign,
      3                        found_cart)
@@ -3029,6 +3131,7 @@ C
      1                  ATNAME(MAXGEO),ATNUM(MAXGEO),CART(MAXGEO)
       double precision COORDS(3,*)
       double precision CHARGE(  *)
+      double precision ATOMCT(  *)
       DIMENSION   TAGS(  *)
       DIMENSION  IZMAT(  *)   
       DIMENSION  ICFRZ(  *)    
@@ -3064,6 +3167,16 @@ C
       logical inp_compare 
       double precision zero
       double precision xxiat,yyiat,zziat
+      double precision bond_constraint_type
+      double precision end_angle_constraint_type
+      double precision center_angle_constraint_type
+      double precision end_torsion_constraint_type
+      double precision center_torsion_constraint_type
+      parameter(bond_constraint_type = sqrt(2.0d0))
+      parameter(end_angle_constraint_type = sqrt(3.0d0))
+      parameter(center_angle_constraint_type = sqrt(5.0d0))
+      parameter(end_torsion_constraint_type = sqrt(7.0d0))
+      parameter(center_torsion_constraint_type = sqrt(11.0d0))
       EQUIVALENCE (BLNK80,BLK(1))
       EQUIVALENCE (CHREND,WRDEND)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- ZGEO -'/
@@ -3287,6 +3400,7 @@ C           ATOMS IS DETECTED VIA A BLANK LINE
 C
       IAT = 0
   110 IAT = IAT + 1
+      ATOMCT(IAT) = 0.0d0
       CALL HND_RDFREE(IR,STRING,IERR)
       IF(IERR.NE.0) THEN
          WRITE(IW,8886)
@@ -3471,6 +3585,51 @@ C
 C     ----- WE HAVE THE -Z- MATRIX WITH THE INDICES IN -ZMT- -----
 C           AND THE VALUES IN -ZVAL-
 C
+c     -FRZVAL- lists which constraints are in place
+c     FRZVAL(1,iat).eqv..true. : bond length is a constant
+c     FRZVAL(2,iat).eqv..true. : bond angle is a constant
+c     FRZVAL(3,iat).eqv..true. : torsion angle is a constant
+c     Combined with the indices in -ZMT- this is all we need to
+c     compute -ATOMCT-.
+c
+c     update -ATOMCT- for constant bond lengths
+c
+      do iat = 2, nat
+        if (frzval(1,iat)) then
+          atomct(zmt(1,iat)) = atomct(zmt(1,iat)) 
+     +                       + bond_constraint_type
+          atomct(zmt(2,iat)) = atomct(zmt(2,iat)) 
+     +                       + bond_constraint_type
+        endif
+      enddo
+c
+c     update -ATOMCT- for constant bond angles
+c
+      do iat = 3, nat
+        if (frzval(2,iat)) then
+          atomct(zmt(1,iat)) = atomct(zmt(1,iat)) 
+     +                       + end_angle_constraint_type
+          atomct(zmt(2,iat)) = atomct(zmt(2,iat)) 
+     +                       + center_angle_constraint_type
+          atomct(zmt(3,iat)) = atomct(zmt(3,iat)) 
+     +                       + end_angle_constraint_type
+        endif
+      enddo
+c
+c     update -ATOMCT- for constant torsion angles
+c
+      do iat = 4, nat
+        if (frzval(3,iat)) then
+          atomct(zmt(1,iat)) = atomct(zmt(1,iat)) 
+     +                       + end_torsion_constraint_type
+          atomct(zmt(2,iat)) = atomct(zmt(2,iat)) 
+     +                       + center_torsion_constraint_type
+          atomct(zmt(3,iat)) = atomct(zmt(3,iat)) 
+     +                       + center_torsion_constraint_type
+          atomct(zmt(4,iat)) = atomct(zmt(4,iat)) 
+     +                       + end_torsion_constraint_type
+        endif
+      enddo
       IF(DBUG) THEN
          WRITE(IW,9998) TITLE
          WRITE(IW,9997)
@@ -3482,6 +3641,7 @@ C
                WRITE(IW,9996) IAT,(   ZMT(J,IAT),J=1,4),
      1                            (  ZVAL(J,IAT),J=1,3),
      2                            (FRZVAL(J,IAT),J=1,3)
+               write(iw,9970) IAT, atomct(iat)
             ENDIF
          ENDDO
          IF(LST) THEN
@@ -3746,6 +3906,7 @@ C
  9976 FORMAT(' ----- -LST- POINT NO. = ',I3,' -----')
  9975 FORMAT(' $PES     NPES =',I4,', IUNIT =1, $END')
  9974 FORMAT(' IAT=',I5,' ATNAME=',2X,A8)
+ 9970 FORMAT(i5,' ATOMCT=',f15.5)
  8889 FORMAT(/,10X,12(1H-),/,10X,'-$GEO- INPUT',/,10X,12(1H-))
  8888 FORMAT(A8)
  8887 FORMAT(' NO DATA GROUP -$GEO- FOUND AS ALTERNATE INPUT.     ')
@@ -3986,8 +4147,9 @@ c
      &    1x,' which is larger than the threshold:',6x,f20.13,/,/)
       end
       subroutine  geom_auto_sym(rtdb,geom,
-     1                          coords,charge,tags,ncenter,threquiv,
-     $     group,veloct)
+     1                          coords,charge,tags,atomct,
+     &                          ncenter,threquiv,
+     $                          group,veloct)
       implicit none
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -4010,6 +4172,7 @@ c
       double precision v
       double precision veloct
       double precision zan
+      double precision atomct(*)
       character*16 tags
       character*16 atmlab
       character*8  groupname
@@ -4063,7 +4226,7 @@ c
 c
 c     ----- call auto_sym -----
 c
-      call hnd_autsym(odone,rtdb,threquiv,groupname,geom)
+      call hnd_autsym(atomct,odone,rtdb,threquiv,groupname,geom)
 c
       group = groupname
 c
@@ -4082,7 +4245,7 @@ c
  9997 format(1x,i5,i5,3f10.6,f10.3)
 c
       end
-      SUBROUTINE HND_AUTSYM(ODONE,RTDB,THREQUIV,groupname,geom)
+      SUBROUTINE HND_AUTSYM(atomct,ODONE,RTDB,THREQUIV,groupname,geom)
 c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       implicit none
 #include "nwc_const.fh"
@@ -4113,6 +4276,7 @@ c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       double precision   AXS(3,3),EIG(3)
       double precision   RT(3,3)
       double precision   TR(3)
+      double precision   atomct(*)
       integer iat,i
 C
       DBUG=.FALSE.
@@ -4154,8 +4318,8 @@ C
 C
 C     ----- IDENTIFY SYMMETRY OPERATIONS -----
 C
-      CALL HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,THREQUIV,
-     $     groupname,geom,V,V2,V3)
+      CALL HND_MOLOPS(C,C1,C2,C3,atomct,NAT,AXS,EIG,RT,TR,ODONE,
+     $                THREQUIV,groupname,geom,V,V2,V3)
 C
 C     ----- CREATE ATOM AND SHELL MAPPINGS -----
 C
@@ -4192,7 +4356,7 @@ C
      2       /,10X,7(1H-))
  9996 FORMAT(/)
       END
-      SUBROUTINE HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,
+      SUBROUTINE HND_MOLOPS(C,C1,C2,C3,atomct,NAT,AXS,EIG,RT,TR,ODONE,
      $     THREQUIV,groupname,geom,V,V2,V3)
 c     IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       implicit none
@@ -4203,6 +4367,8 @@ C           CODE ADAPTED FROM A.M.CHAKA's ORIGINAL CODE.
 c
 c     RJH ... added parameter THREQUIV to provide user control
 c     .       for noisy geometries, and groupname to return value
+c     HvD ... Added ATOMCT to allow checking for symmetry breaking
+c             constraints on the geometry
 C
 #include "util.fh"
 #include "nwc_const.fh"
@@ -4281,6 +4447,7 @@ C
       double precision V3(3,*)
       double precision CM(3),AM(3,3)
       double precision AXM(3,3)
+      double precision atomct(*)
       logical C2AXS(3)
       logical C4AXS(3)
       logical S4AXS(3)
@@ -4314,7 +4481,8 @@ c     DATA TENM02 /1.0D-02/
       DATA TENM04 /1.0D-04/
       DATA TENM05 /1.0D-05/
       DATA EPS    /1.01D+00/
-      sameatm(JAT,IAT)=ATMLAB(JAT).EQ.ATMLAB(IAT)
+      sameatm(JAT,IAT)=ATMLAB(JAT).EQ.ATMLAB(IAT).and.
+     +                (abs(atomct(jat)-atomct(iat)).lt.1.0d-8)
       big=dlamch('o')**(0.125d0)
       QZERO=cmplx(ZERO,ZERO)
          PI=    FOUR*ATAN(ONE)
