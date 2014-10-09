@@ -192,7 +192,7 @@ c
       odbug=odbug.and.(ga_nodeid().eq.0)
       osome=osome.and.(ga_nodeid().eq.0)
       if(osome) then
-         write(6,*) 'in -int_1e_oldga- ... integ_type = ',
+         write(6,*) 'in -int_1e_ooldga- ... integ_type = ',
      $              integ_type,ga_nodeid()
          call util_flush(6)
       endif
@@ -491,7 +491,7 @@ cso
          call int_1e_oldga0(ibas, g, type,oskel,int_1epot1)
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
-         call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
+         call errquit('int_1e_oldga: unknown integ_type', 0, INT_ERR)
       end if
 
       return
@@ -554,7 +554,7 @@ c
       odbug=odbug.and.(ga_nodeid().eq.0)
       osome=osome.and.(ga_nodeid().eq.0)
       if(osome) then
-         write(6,*) 'in -int_1e_oldga- ... integ_type = ',
+         write(6,*) 'in -int_1e_oldga0- ... integ_type = ',
      $              type,ga_nodeid()
          call util_flush(6)
       endif
@@ -580,13 +580,13 @@ c      ocache = .false.
       if (ocache .and. (ibas.eq.bas1)) then
          call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
          if (oscfps) call pstat_off(ps_int_1e)
-	 return
+         return
       endif
 c     
 c     Get info about the basis sets
 c     
       if (.not. bas_numcont(ibas, nshell_i)) call errquit
-     $     ('rhf_fock_1e: bas_numcont failed for ibas', ibas,
+     $     ('int_1e_oldga0: bas_numcont failed for ibas', ibas,
      &       BASIS_ERR)
       nshell_j=nshell_i
 c     
@@ -603,12 +603,12 @@ c
 c     Loop thru shells with static parallel work decomposition
 c     
       if(.not.ga_duplicate(g,g_loc,'local g')) call
-     .     errquit('int1e: dupl failed',0, GA_ERR)
+     .     errquit('int_1e_oldga0: dupl failed',0, GA_ERR)
       call ga_zero(g_loc)
       iproc = ga_nodeid()
       nproc = ga_nnodes()
       if (.not. bas_geom(ibas, geom)) call errquit
-     $   ('int_1e_cache_ga: basis corrupt?', 0, BASIS_ERR)
+     $   ('int_1e_oldga0: basis corrupt?', 0, BASIS_ERR)
 c
       call int_mem_1e(max1e, mem1)
       call ga_get2eri(ibas, g_loc, oskel, max1e, mem1, int_call)
@@ -622,7 +622,7 @@ c
 c
       call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)
       call ga_sync()            ! So that no nasty races can result
-      if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0,
+      if (.not. ga_destroy(g_loc)) call errquit('int_1e_oldga0: gad?',0,
      &     GA_ERR)
       call ga_sync()            ! So that no nasty races can result
 c     
