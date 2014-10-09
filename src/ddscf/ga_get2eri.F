@@ -34,9 +34,9 @@ c
       external ga_create_atom_blocked,util_ga2atoms
       external int_call
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('int_1e_cache_ga: basis corrupt?', 0, BASIS_ERR)
+     $     ('ga_get2eri: basis corrupt?', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, natoms))
-     &     call errquit('ga_g2eri: geom_ncent failed',73, GEOM_ERR)
+     &     call errquit('ga_get2eri: geom_ncent failed',73, GEOM_ERR)
       g_2 = ga_create_atom_blocked(geom, basis,'g2g2')
 
       if (util_ga2atoms(g_2, natoms, basis,
@@ -129,7 +129,7 @@ c
      ,                    'I0',iptr+nintegrals-ibuf,vecl
                       write(0,*) ga_nodeid(),
      ,                    'NN',nintegrals
-                     call errquit('dim busted',0,0)
+                     call errquit('ga_get2eri:dim busted',0,0)
                      endif
 c     
                      call int_call(basis, ishq, basis, 
@@ -159,8 +159,8 @@ c
       call ga_release_update(g_2, i0, i1, j0, j1)
       endif
       call ga_copy(g_2,g_2ceri)
-      if (.not. ga_destroy(g_2)) call errquit('d2geri: gad?',0,
-     &     0)
+      if (.not. ga_destroy(g_2)) call errquit('ga_get2eri: gad?',
+     &     0, 0)
 c
       return
       end
