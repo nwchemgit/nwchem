@@ -47,7 +47,7 @@ c
          type = 4
       else
          write(6,*) ' integ_type = ', integ_type
-         call errquit('int_1e_ga: unknown integ_type', 0, GA_ERR)
+         call errquit('int_2c_ga: unknown integ_type', 0, GA_ERR)
       endif
 c
 c     Get info about the basis sets
