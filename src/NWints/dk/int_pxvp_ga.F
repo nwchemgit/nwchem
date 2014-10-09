@@ -66,10 +66,10 @@ c
      $              odoit = sym_shell_pair(ibas, ishell, jshell, q2)
                if (odoit) then
                   if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi))
-     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas,
+     $                 call errquit('int_pxvp_ga: bas_cn2bfr ?', ibas,
      &       GA_ERR)
                   if (.not. bas_cn2bfr(ibas, jshell, jlo, jhi))
-     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas,
+     $                 call errquit('int_pxvp_ga: bas_cn2bfr ?', ibas,
      &       BASIS_ERR)
                   idim = ihi - ilo + 1
 c
