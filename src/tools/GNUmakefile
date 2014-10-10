@@ -370,7 +370,7 @@ endif
 ifndef MPI_LIB
         MPI_LIB     = $(shell ./guess-mpidefs --mpi_lib)
 endif
-ifndef LIBMP
+ifndef LIBMPI
         LIBMPI      = $(shell ./guess-mpidefs --libmpi)
 endif
 
