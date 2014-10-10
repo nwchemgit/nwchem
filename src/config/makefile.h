@@ -2644,9 +2644,15 @@ endif
 # MPI version requires tcgmsg-mpi library
 
 ifdef USE_MPI 
-ifndef LIBMPI 
-  LIBMPI = -lmpi 
-endif 
+ifndef MPI_INCLUDE
+        MPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+endif
+ifndef MPI_LIB
+        MPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+endif
+ifndef LIBMPI
+        LIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+endif
 SKIP_LIBMPI = mpifrt mpfort mpif77 mpxlf mpif90 ftn
 ifneq (,$(findstring $(notdir $(FC)), $(SKIP_LIBMPI)))
   LIBMPI =

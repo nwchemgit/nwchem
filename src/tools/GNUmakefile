@@ -364,15 +364,6 @@ endif # SOCKETS
 
 
 ifdef USE_MPI
-ifndef MPI_INCLUDE
-        MPI_INCLUDE = $(shell ./guess-mpidefs --mpi_include)
-endif
-ifndef MPI_LIB
-        MPI_LIB     = $(shell ./guess-mpidefs --mpi_lib)
-endif
-ifndef LIBMPI
-        LIBMPI      = $(shell ./guess-mpidefs --libmpi)
-endif
 
     MPI_COMBINED =
     ifneq ($(MPI_INCLUDE),)
