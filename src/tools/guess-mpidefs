@@ -235,15 +235,14 @@ elif [ "$option" == "" ] ; then
   echo > /dev/null
 elif [ "$option" == "--mpi_include" ] ; then
   MPI_INCLUDE=`get_mpi_include`
-echo \"${MPI_INCLUDE}\"
+echo ${MPI_INCLUDE}
 exit 0
 elif [ "$option" == "--mpi_lib" ] ; then
   MPI_LIB=`get_mpi_link`
-echo \"${MPI_LIB}\"
+echo ${MPI_LIB}
 exit 0
 elif [ "$option" == "--libmpi" ] ; then
-  LIBMPI=`get_mpi_lib`
-echo \"${LIBMPI}\"
+  echo `get_mpi_lib`
 exit 0
 else
   usage
