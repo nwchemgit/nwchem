@@ -253,13 +253,15 @@ c
                   next=nxtask(nodes, 1)
                end if
             end do
-                  if(ga_nodeid().eq.0) then
-                     write(6,4321) ' ccsdt: done ',a-(ncor+nocc),
-     O                    ' out of ',(nocc/kchunk)*nvir,
-     O                    ' progress: ',
-     O                    ((a-(ncor+nocc))*100d0)/((nocc/kchunk)*nvir),
-     P                    '%'
- 4321                format(a,i8,a,i8,a,f6.1,a1)
+            if(ga_nodeid().eq.0) then
+               write(6,4321) ' ccsdt: done ',
+     A              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
+     O              ' out of ',(nocc/kchunk)*nvir,
+     O              ' progress: ',
+     O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100d0)/
+     D              ((nocc/kchunk)*nvir),
+     P              '%'
+ 4321          format(a,i8,a,i8,a,f6.1,a1)
                   endif
          end do
       end do
