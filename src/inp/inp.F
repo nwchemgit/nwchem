@@ -1350,7 +1350,7 @@ C
 c
       character*1 cdata(1)
       integer idata(1)
-      integer fdata(1)
+      integer fdata(2)
       integer i
 c
       equivalence (cdata(1),ia)
@@ -1389,7 +1389,7 @@ C
 c
       character*1 cdata(1)
       integer idata(1)
-      integer fdata(1)
+      integer fdata(2)
       integer i
 c
       equivalence (cdata(1),ia)
