@@ -1,3 +1,4 @@
+#include "ga.h"
 #if (defined(CRAY) || defined(WIN32) || defined(CATAMOUNT))&& !defined(__crayx1) 
 
 #include "typesf2c.h"
@@ -10,7 +11,6 @@
 #define util_debug_ UTIL_DEBUG
 #endif
 
-#include "ga.h"
 void FATR util_debug_(Integer *rtdb)
 {
   GA_Error("Don't know how to debug on this machine", 0);
@@ -136,4 +136,4 @@ void FATR util_debug_(Integer *rtdb)
 }
 #endif
 
-/* $Id$ */
+/* $Id: util_debug.c 21176 2011-10-10 06:35:49Z d3y133 $ */
