@@ -1,10 +1,10 @@
 /*
  $Id$
 */
+#include <Python.h>
 #include "macdecls.h"
 #include "ga.h"
 
-#include <Python.h>
 #include <import.h>
 #include <graminit.h>
 #include <pythonrun.h>

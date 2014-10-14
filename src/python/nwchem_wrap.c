@@ -1,6 +1,7 @@
 /*
  $Id$
 */
+#include <Python.h>
 #if defined(DECOSF)
 #include <alpha/varargs.h>
 #endif
@@ -10,7 +11,6 @@
 #include <assert.h>
 #include <math.h>
 
-#include <Python.h>
 #include <abstract.h>
 
 #include "rtdb.h"
@@ -21,6 +21,8 @@
 static PyObject *NwchemError;
 
 static Integer rtdb_handle;            /* handle to the rtdb */
+extern void task_(Integer *);
+extern void ga_pgroup_igop_(Integer *,Integer *,Integer *,Integer *,char *);
 
 #if (defined(CRAY_T3E) || defined(WIN32)) && !defined(__MINGW32__)
 #define task_energy_ TASK_ENERGY
@@ -1392,7 +1394,6 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
 
     if (is_double_array > 0) { // Has at least one double
       DoublePrecision *array = 0;
-      Integer message_id = 10 ;
       if (!(array = malloc(MA_sizeof(MT_F_DBL, nelem, MT_CHAR)))) {
             PyErr_SetString(PyExc_MemoryError,
                             "pgroup_global_op() failed allocating work array");
@@ -1422,7 +1423,8 @@ static PyObject *do_pgroup_global_op_work(PyObject *args, Integer my_group)
          }
       }
 
-      ga_pgroup_dgop_(&my_group,&message_id,array,&nelem,pchar);
+//      ga_pgroup_dgop_(&my_group,&message_id,array,&nelem,pchar);
+      GA_Pgroup_dgop(my_group,array,nelem,pchar);
       //gai_pgroup_gop(my_group, ga_type_f2c(MT_F_DBL), array, nelem, pchar);
 
       returnObj =  nwwrap_doubles(nelem, array);
@@ -1525,7 +1527,6 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
 
     if (is_double_array > 0) { // Has at least one double
       DoublePrecision *array = 0;
-      Integer message_id = 12 ;
       size = MA_sizeof(MT_F_DBL, nelem, MT_CHAR) ;
       if (!(array = malloc(size))) {
             PyErr_SetString(PyExc_MemoryError,"pgroup_broadcast() failed allocating work array");
@@ -1562,7 +1563,6 @@ static PyObject *do_pgroup_broadcast_work(PyObject *args, Integer my_group)
     }
     else { // Pure integer array
       Integer *array = 0;
-      Integer message_id = 13 ;
       size = MA_sizeof(MT_F_INT, nelem, MT_CHAR) ;
       if (!(array = malloc(size))) {
             PyErr_SetString(PyExc_MemoryError,"pgroup_broadcast() failed allocating work array");
