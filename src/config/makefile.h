@@ -2562,16 +2562,9 @@ ifdef USE_FDIST
   DEFINES += -DFDIST
 endif
 
-# either define USE_SCALAPACK (for i4) or USE_SCALAPACK_I8
-ifdef USE_SCALAPACK
-  _USE_SCALAPACK = y
-else
- ifdef USE_SCALAPACK_I8
- _USE_SCALAPACK = y
- endif
-endif
+_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
 
-ifeq ($(_USE_SCALAPACK),y)
+ifeq ($(_USE_SCALAPACK),Y)
   DEFINES += -DSCALAPACK
 ifeq ($(XLFBREN),y) 
   CORE_LIBS +=  -brename:.iceil_,.iceil \
