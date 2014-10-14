@@ -3,7 +3,8 @@
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \
-	      	compressed_io.o \
+	    compressed_io.o \
+	    ascii_io.o \
             nwpw_message.o \
             second.o
 

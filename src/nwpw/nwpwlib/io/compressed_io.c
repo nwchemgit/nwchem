@@ -47,7 +47,6 @@
 #define dshift_fileptr_  DSHIFT_FILEPTR
 #define ishift_fileptr_  ISHIFT_FILEPTR
 #define openfile_  OPENFILE
-#define ascii_openfile_  ASCII_OPENFILE
 #define closefile_ CLOSEFILE
 #endif
 
@@ -191,40 +190,4 @@ void FATR closefile_(const Integer *unit)
    (void) fclose(fd[*unit]);
 }
 
-
-void FATR ascii_openfile_
-#if defined(USE_FCD)
-(const Integer *unit, 
-                      _fcd fcd_filename,
-                      Integer *n1,
-       		      _fcd fcd_mode,
-		      Integer *n2)
-{
-   const char *filename = _fcdtocp(fcd_filename);
-   const char *mode = _fcdtocp(fcd_mode);
-
-#else
-(const  Integer *unit, 
-                      char *filename, Integer *n1,
-       		      char *mode,    
-		      Integer *n2)
-{
-#endif
-
-   char *file = (char *) malloc(*n1+1);
-
-
-   
-   (void) strncpy(file, filename, *n1);
-   file[*n1] = '\0';
-
-   if ((*mode == 'r') || (*mode == 'R')) {
-      if (!(fd[*unit] = fopen(file, "r")))
-         BAIL("ERROR:  Could not open pipe from input file\n");
-   } else {
-      if (!(fd[*unit] = fopen(file, "w")))
-         BAIL("ERROR:  Could not open pipe to output file\n");
-   }
-   free(file);
-}
 
