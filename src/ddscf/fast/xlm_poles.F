@@ -2263,6 +2263,7 @@ c
             qq1 = qq1 + qq11 + qq12 + qq13
             qq(m-1) = qq1
          end do
+cDEC$ NOVECTOR
          do m = j3 + 1, l + 1, 4
             qq2 = qq(m-1)
             qq3 = qq(m)
@@ -2308,6 +2309,7 @@ c
             qq6 = qq6 + qq61 + qq62 + qq63
             qq(m-1-l) = qq6
          end do
+cDEC$ NOVECTOR
          do m = j4 + 1, l, 4
             qq7 = qq(m-1-l)
             qq8 = qq(m-l)
