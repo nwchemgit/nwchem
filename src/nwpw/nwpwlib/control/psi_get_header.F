@@ -47,6 +47,7 @@
          if (filename_exist) then
             n = 1
             l = index(full_filename,' ') -1
+           
             call openfile(4,full_filename,l,'r',l)
             call iread(4,version,1)
             call iread(4,nfft,3)
