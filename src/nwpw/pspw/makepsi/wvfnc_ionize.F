@@ -23,7 +23,7 @@
 
       integer ne(2),ispin,nne(2)
 
-      character*50 new_wavefunction_filename
+      character*50 new_wavefunction_filename,filename
       character*50 old_wavefunction_filename
       character*255 full_filename,full_filename2
 
@@ -89,7 +89,10 @@
  
       nne(1) = ne(1) - norbs_up
       nne(2) = ne(2) - norbs_dn
-      call util_file_name('wvfnc_expander',
+      
+      l = index(new_wavefunction_filename,' ') - 1
+      filename = new_wavefunction_filename(1:l)//".xpander"
+      call util_file_name(filename,
      >                    .true.,
      >                    .false.,
      >                    full_filename)

@@ -16,7 +16,7 @@
 
       integer ne(2),ispin
 
-      character*50 new_wavefunction_filename
+      character*50 new_wavefunction_filename,filename
       character*50 old_wavefunction_filename
       character*255 full_filename,full_filename2
       character*50 cell_name,rtdb_unita
@@ -70,7 +70,9 @@
       call iread(5,ne,2)
       call iread(5,occupation,1)
  
-      call util_file_name('wvfnc_reformat',
+      l = index(new_wavefunction_filename,' ') - 1
+      filename = new_wavefunction_filename(1:l)//".reform"
+      call util_file_name(filename,
      >                    .true.,
      >                    .false.,
      >                    full_filename)

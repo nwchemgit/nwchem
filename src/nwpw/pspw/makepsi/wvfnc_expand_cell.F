@@ -22,7 +22,7 @@
 
       integer ne(2),ispin,dne(2)
 
-      character*50 new_wavefunction_filename
+      character*50 new_wavefunction_filename,filename
       character*50 old_wavefunction_filename
       character*255 full_filename,full_filename2
 
@@ -78,7 +78,10 @@
       unita(1,3) = unita(1,3)*cell_expand(3)
       unita(2,3) = unita(2,3)*cell_expand(3)
       unita(3,3) = unita(3,3)*cell_expand(3)
-      call util_file_name('wvfnc_expander',
+
+      l = index(new_wavefunction_filename,' ') - 1
+      filename = new_wavefunction_filename(1:l)//".expander"
+      call util_file_name(filename,
      >                    .true.,
      >                    .false.,
      >                    full_filename)
