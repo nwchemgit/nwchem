@@ -27,7 +27,7 @@ c
          call ga_dscal(g_search, scale)
          call ga_copy(g_tmp, g_movecs)
          if (.not. ga_destroy(g_tmp)) call errquit
-     $        ('rohf_nr_solve: tmp?', 0, GA_ERR)
+     $        ('rohf_rotate_movecs: tmp?', 0, GA_ERR)
       endif
 c     
       end
