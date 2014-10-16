@@ -88,7 +88,7 @@ c     complex*16 tmp(*)
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
          l = index(full_filename,' ') -1
-         if (lprint) write(*,1210) full_filename(1:l)
+         if (lprint)  write(*,1210) full_filename(1:l)
  1210    FORMAT(/' output vpsi filename:',A)
 
          l = index(full_filename,' ') -1

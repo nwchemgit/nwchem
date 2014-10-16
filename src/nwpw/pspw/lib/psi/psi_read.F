@@ -74,6 +74,7 @@ c     complex*16 tmp(*)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
        if (.not. value) call errquit('psi_read:pushing stack',0, MA_ERR)
 
+
 *     **** open ELCIN binary file ****
       if (taskid_p.eq.MASTER) then
          filename = control_input_psi()
@@ -85,7 +86,7 @@ c     complex*16 tmp(*)
             n = 1
             l = index(full_filename,' ') -1
             if (lprint) write(LuOut,1210) full_filename(1:l)
- 1210    FORMAT(/' input psi filename:',A)
+ 1210       FORMAT(/' input psi filename:',A)
 
             call openfile(5,full_filename,l,'r',l)
             call iread(5,version,1)
@@ -94,6 +95,7 @@ c     complex*16 tmp(*)
             call iread(5,ispin,1)
             call iread(5,ne,2)
             call iread(5,occupation,1)
+         
          else
             n = 0
             write(luout,*) 
@@ -170,7 +172,7 @@ c     **** send header to all nodes ****
 
          if (pio) then
             call D3dB_c_read_pio(1,5,dcpl_mb(tmp2(1)),
-     >                           dcpl_mb(tmp(1)),pj)
+     >                               dcpl_mb(tmp(1)),pj)
          else
             call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
      >                           dcpl_mb(tmp(1)),pj)
