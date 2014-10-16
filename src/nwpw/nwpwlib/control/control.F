@@ -282,7 +282,7 @@ c       call nwxc_print()
 
       if(.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
      >                  1,output_v_wavefunction_filename)) then
-         if(.not.rtdb_cget(rtdb,'pspw:output vectors',
+         if(.not.rtdb_cget(rtdb,'pspw:output vvectors',
      >                     1,output_v_wavefunction_filename)) then
             call util_file_prefix('vmovecs',
      >                            output_v_wavefunction_filename)
