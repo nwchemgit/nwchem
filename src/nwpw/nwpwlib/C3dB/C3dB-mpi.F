@@ -2962,7 +2962,7 @@ c      integer rcv_len,rcv_proc
 *     **** allocate status memory ****
       if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
-     > call errquit('D3dB_c_write:out of stack',0,MA_ERR)
+     > call errquit('C3dB_c_write:out of stack',0,MA_ERR)
 
 
       !**********************
