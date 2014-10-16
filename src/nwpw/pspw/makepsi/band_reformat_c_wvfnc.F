@@ -54,7 +54,8 @@
       call iread(5,occupation,1)
  
       version = 3  ! or 4
-      filename = "junk.wvfnc"
+      l = index(wavefunction_filename,' ') - 1
+      filename = wavefunction_filename(1:l)//".junk"
       call util_file_name_noprefix(filename,
      >                    .false.,
      >                    .false.,
@@ -201,7 +202,8 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
       call iread(5,occupation,1)
  
       version = 3  ! or 4
-      filename = "junk.wvfnc"
+      l = index(wavefunction_filename,' ') - 1
+      filename = wavefunction_filename(1:l)//".junk"
       call util_file_name_noprefix(filename,
      >                    .false.,
      >                    .false.,
