@@ -231,7 +231,7 @@ c
 c
             if(odbug) then
                if(ga_nodeid().eq.0) then
-                  write(LuOut,*) 'before calling rohf_step_energy ...'
+                  write(LuOut,*) 'before calling roks_step_energy ...'
                   write(LuOut,*) 'mode = ',mode
                   write(LuOut,*) 'iter, energy = ',iter,energy
                   write(LuOut,*) 'iter, eone   = ',iter,eone  
@@ -247,7 +247,7 @@ c
 c
             if(odbug) then
                if(ga_nodeid().eq.0) then
-                  write(LuOut,*) 'after  calling rohf_step_energy ...'
+                  write(LuOut,*) 'after  calling roks_step_energy ...'
                   write(LuOut,*) 'mode = ',mode
                   write(LuOut,*) 'iter, energy = ',iter,energy
                   write(LuOut,*) 'iter, eone   = ',iter,eone  

@@ -60,7 +60,7 @@ c
       endif
 c
       if(ga_nodeid().eq.0.and.osome) then
-         write(6,*) 'in  rohf_energy calling rohf_get_grad ...'
+         write(6,*) 'in  dft_roks_energy calling rohf_get_grad ...'
          call util_flush(6)
       endif
 
