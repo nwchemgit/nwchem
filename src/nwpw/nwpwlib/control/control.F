@@ -169,12 +169,37 @@
       if (.not.rtdb_cget(rtdb,'cpsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
+
+      input_wavefunction_ascii = .false.
       if (.not.rtdb_cget(rtdb,'cpsd:input_wavefunction_filename',
-     >                  1,input_wavefunction_filename))
-     >  call util_file_prefix('movecs',input_wavefunction_filename)
+     >                  1,input_wavefunction_filename)) then
+         if (.not.rtdb_cget(rtdb,'pspw:input vectors',
+     >                      1,input_wavefunction_filename)) then
+            if (rtdb_cget(rtdb,'pspw:input ascii vectors',
+     >                    1,input_wavefunction_filename)) then
+               input_wavefunction_ascii = .true.
+            else
+               call util_file_prefix('movecs',
+     >                               input_wavefunction_filename)
+            end if
+         end if
+      end if
+
+      output_wavefunction_ascii = .false.
       if (.not.rtdb_cget(rtdb,'cpsd:output_wavefunction_filename',
-     >                  1,output_wavefunction_filename))
-     > call util_file_prefix('movecs',output_wavefunction_filename)
+     >                  1,output_wavefunction_filename)) then
+         if (.not.rtdb_cget(rtdb,'pspw:output vectors',
+     >                      1,output_wavefunction_filename)) then
+            if (rtdb_cget(rtdb,'pspw:output ascii vectors',
+     >                    1,output_wavefunction_filename)) then
+               output_wavefunction_ascii = .true.
+            else
+               call util_file_prefix('movecs',
+     >                               output_wavefunction_filename)
+            end if
+         end if
+      end if
+
       if (.not.rtdb_cget(rtdb,'cpsd:exchange_correlation',
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
@@ -239,18 +264,67 @@ c       call nwxc_print()
       if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
+
+      input_wavefunction_ascii = .false.
       if(.not.rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
-     >                  1,input_wavefunction_filename))
-     >  call util_file_prefix('movecs',input_wavefunction_filename)
+     >                  1,input_wavefunction_filename)) then
+         if(.not.rtdb_cget(rtdb,'pspw:input vectors',
+     >                     1,input_wavefunction_filename)) then
+            if (rtdb_cget(rtdb,'pspw:input ascii vectors',
+     >                   1,input_wavefunction_filename)) then
+               input_wavefunction_ascii = .true.
+            else
+               call util_file_prefix('movecs',
+     >                               input_wavefunction_filename)
+            end if
+         end if
+      end if
+
+      output_wavefunction_ascii = .false.
       if(.not.rtdb_cget(rtdb,'cpmd:output_wavefunction_filename',
-     >                  1,output_wavefunction_filename))
-     >  call util_file_prefix('movecs',output_wavefunction_filename)
+     >                  1,output_wavefunction_filename)) then
+         if(.not.rtdb_cget(rtdb,'pspw:output vectors',
+     >                     1,output_wavefunction_filename)) then
+            if(rtdb_cget(rtdb,'pspw:output ascii vectors',
+     >                     1,output_wavefunction_filename)) then
+               output_wavefunction_ascii = .true.
+            else
+               call util_file_prefix('movecs',
+     >                               output_wavefunction_filename)
+            end if
+         end if
+      end if
+
+      vinput_wavefunction_ascii = .false.
       if(.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
-     >                  1,input_v_wavefunction_filename))
-     >  call util_file_prefix('vmovecs',input_v_wavefunction_filename)
+     >                  1,input_v_wavefunction_filename)) then
+         if(.not.rtdb_cget(rtdb,'pspw:input vvectors',
+     >                     1,input_v_wavefunction_filename)) then
+            if(rtdb_cget(rtdb,'pspw:input ascii vvectors',
+     >                   1,input_v_wavefunction_filename)) then
+               vinput_wavefunction_ascii = .true.
+            else
+               call util_file_prefix('vmovecs',
+     >                               input_v_wavefunction_filename)
+            end if
+         end if
+      end if
+
+      voutput_wavefunction_ascii = .false.
       if(.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
-     >                  1,output_v_wavefunction_filename))
-     >  call util_file_prefix('vmovecs',output_v_wavefunction_filename)
+     >                  1,output_v_wavefunction_filename)) then
+         if(.not.rtdb_cget(rtdb,'pspw:output vectors',
+     >                     1,output_v_wavefunction_filename)) then
+            if(rtdb_cget(rtdb,'pspw:output ascii vectors',
+     >                   1,output_v_wavefunction_filename)) then
+               voutput_wavefunction_ascii = .true.
+            else
+               call util_file_prefix('vmovecs',
+     >                               output_v_wavefunction_filename)
+            end if
+         end if
+      end if
+
       if(.not.rtdb_cget(rtdb,'cpmd:xyz_filename',
      >                  1,xyz_filename))
      >  call util_file_prefix('xyz',xyz_filename)
@@ -346,22 +420,40 @@ c       call nwxc_print()
 c
 c     **** Figure input/output MO vectors ****
 c
+      input_wavefunction_ascii = .false.
       if (.not. rtdb_cget(rtdb, 'pspw:input vectors', 
-     >                    1,input_wavefunction_filename))
-     >  input_wavefunction_filename = 'atomic'
-      if (.not. rtdb_cget(rtdb, 'pspw:output vectors', 
-     >                    1,output_wavefunction_filename))
-     >     output_wavefunction_filename = ' '
-      if (output_wavefunction_filename.eq.' ')then
-         if (input_wavefunction_filename.eq.'atomic')then
-           call util_file_prefix('movecs',output_wavefunction_filename)
-         else
-            output_wavefunction_filename = input_wavefunction_filename
-         endif
-      endif
-      if (input_wavefunction_filename.eq.'atomic')then
-         input_wavefunction_filename = output_wavefunction_filename
+     >                    1,input_wavefunction_filename)) then
+        if (rtdb_cget(rtdb, 'pspw:input ascii vectors', 
+     >                       1,input_wavefunction_filename)) then
+           input_wavefunction_ascii = .true.
+        else
+           input_wavefunction_filename = 'atomic'
+        end if
       end if
+
+      output_wavefunction_ascii = .false.
+      if (.not. rtdb_cget(rtdb, 'pspw:output vectors', 
+     >                    1,output_wavefunction_filename)) then
+         if (rtdb_cget(rtdb, 'pspw:output ascii vectors', 
+     >                 1,output_wavefunction_filename)) then
+            output_wavefunction_ascii = .true.
+         else
+            output_wavefunction_filename = ' '
+         end if
+
+         if (output_wavefunction_filename.eq.' ')then
+            if (input_wavefunction_filename.eq.'atomic')then
+              call util_file_prefix('movecs',
+     >                              output_wavefunction_filename)
+            else
+               output_wavefunction_filename=input_wavefunction_filename
+            endif
+         endif
+         if (input_wavefunction_filename.eq.'atomic')then
+            input_wavefunction_filename = output_wavefunction_filename
+         end if
+      end if
+
       if (.not.rtdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
      >                  1,input_ewavefunction_filename))
      >  call util_file_prefix('emovecs',input_ewavefunction_filename)
@@ -371,14 +463,37 @@ c
      >  call util_file_prefix('emovecs',output_ewavefunction_filename)
 
       if (code.eq.11) then
-         if(.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
-     >                  1,input_v_wavefunction_filename))
-     >    call util_file_prefix('vmovecs',input_v_wavefunction_filename)
-         if(.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
-     >                  1,output_v_wavefunction_filename))
-     >   call util_file_prefix('vmovecs',output_v_wavefunction_filename)
-      end if
+     
+         vinput_wavefunction_ascii = .false.
+         if(.not.rtdb_cget(rtdb,'pspw:input vvectors',
+     >                     1,input_v_wavefunction_filename)) then
+            if(.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
+     >                        1,input_v_wavefunction_filename)) then
+               if (rtdb_cget(rtdb,'pspw:input ascii vvectors',
+     >                      1,input_v_wavefunction_filename)) then
+                  vinput_wavefunction_ascii = .true.
+               else
+                  call util_file_prefix('vmovecs',
+     >                                  input_v_wavefunction_filename)
+               end if
+            end if
+         end if
 
+         voutput_wavefunction_ascii = .false.
+         if(.not.rtdb_cget(rtdb,'pspw:output vvectors',
+     >                     1,output_v_wavefunction_filename)) then
+           if(.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
+     >                        1,output_v_wavefunction_filename)) then
+               if (rtdb_cget(rtdb,'pspw:output ascii vvectors',
+     >                      1,output_v_wavefunction_filename)) then
+                  voutput_wavefunction_ascii = .true.
+               else
+                  call util_file_prefix('vmovecs',
+     >                                  output_v_wavefunction_filename)
+               end if
+           end if
+         end if
+      end if
 
 
       if (.not.rtdb_cget(rtdb,'cgsd:exchange_correlation',
@@ -551,23 +666,41 @@ c         return
 
 c     **** Figure input/output MO vectors ****
 c
-      if (.not. rtdb_cget(rtdb, 'pspw:input vectors', 
-     >                    1,input_wavefunction_filename))
-     >  input_wavefunction_filename = 'atomic'
-
-      if (.not. rtdb_cget(rtdb, 'pspw:output vectors', 
-     >                    1,output_wavefunction_filename))
-     >     output_wavefunction_filename = ' '
-      if (output_wavefunction_filename.eq.' ')then
-         if (input_wavefunction_filename.eq.'atomic')then
-           call util_file_prefix('movecs',output_wavefunction_filename)
+      input_wavefunction_ascii = .false.
+      if (.not.rtdb_cget(rtdb,'pspw:input vectors', 
+     >                    1,input_wavefunction_filename)) then
+         if (rtdb_cget(rtdb,'pspw:input ascii vectors', 
+     >                 1,input_wavefunction_filename)) then
+            input_wavefunction_ascii = .true.
          else
-            output_wavefunction_filename = input_wavefunction_filename
-         endif
-      endif
+           input_wavefunction_filename = 'atomic'
+         end if
+      end if
+
+      output_wavefunction_ascii = .false.
+      if (.not.rtdb_cget(rtdb, 'pspw:output vectors', 
+     >                    1,output_wavefunction_filename)) then
+         if (rtdb_cget(rtdb,'pspw:output ascii vectors', 
+     >                    1,output_wavefunction_filename)) then
+            output_wavefunction_ascii = .true.
+         else
+            output_wavefunction_filename = ' '
+         end if
+
+         if (output_wavefunction_filename.eq.' ')then
+            if (input_wavefunction_filename.eq.'atomic') then
+              call util_file_prefix('movecs',
+     >                              output_wavefunction_filename)
+            else
+               output_wavefunction_filename=input_wavefunction_filename
+            endif
+         end if
+      end if
+
       if (input_wavefunction_filename.eq.'atomic')then
          input_wavefunction_filename = output_wavefunction_filename
       end if
+
       if (.not.rtdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
      >                  1,input_ewavefunction_filename))
      >  call util_file_prefix('emovecs',input_ewavefunction_filename)
@@ -847,19 +980,34 @@ c       call nwxc_print()
       else if (code.eq.9) then
 
 c     **** Figure input/output MO vectors ****
-c
+
+      input_wavefunction_ascii = .false.
       if (.not.rtdb_cget(rtdb,'wannier:input vectors',
      >                  1,input_wavefunction_filename)) then
-      if (.not. rtdb_cget(rtdb, 'pspw:input vectors',
-     >                    1,input_wavefunction_filename))
-     >  input_wavefunction_filename = 'atomic'
+         if (.not.rtdb_cget(rtdb, 'pspw:input vectors',
+     >                      1,input_wavefunction_filename)) then
+            if (rtdb_cget(rtdb, 'pspw:input ascii vectors',
+     >                         1,input_wavefunction_filename)) then
+               input_wavefunction_ascii = .true.
+            else
+               input_wavefunction_filename = 'atomic'
+            end if
+         end if
       end if
 
+      output_wavefunction_ascii = .false.
       if (.not.rtdb_cget(rtdb,'wannier:output vectors',
      >                  1,output_wavefunction_filename)) then
-      if (.not. rtdb_cget(rtdb, 'pspw:output vectors',
-     >                    1,output_wavefunction_filename))
-     >     output_wavefunction_filename = ' '
+         if (.not.rtdb_cget(rtdb,'pspw:output vectors',
+     >                      1,output_wavefunction_filename)) then
+            if (rtdb_cget(rtdb,'pspw:output ascii vectors',
+     >                      1,output_wavefunction_filename)) then
+               output_wavefunction_ascii = .true.
+            else
+               output_wavefunction_filename = ' '
+            end if
+         end if
+      end if
 
       if (output_wavefunction_filename.eq.' ')then
          if (input_wavefunction_filename.eq.'atomic')then
@@ -867,7 +1015,6 @@ c
          else
             output_wavefunction_filename = input_wavefunction_filename
          endif
-      endif
       endif
 
       if (input_wavefunction_filename.eq.'atomic')then
@@ -2388,6 +2535,60 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *                                 *
+*     *     control_input_psi_ascii     *
+*     *                                 *
+*     ***********************************
+      logical function control_input_psi_ascii()
+      implicit none
+
+#include "control.fh"
+
+      control_input_psi_ascii = input_wavefunction_ascii
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *     control_output_psi_ascii    *
+*     *                                 *
+*     ***********************************
+      logical function control_output_psi_ascii()
+      implicit none
+
+#include "control.fh"
+
+      control_output_psi_ascii = output_wavefunction_ascii
+      return
+      end
+*     ***********************************
+*     *                                 *
+*     *     control_input_vpsi_ascii    *
+*     *                                 *
+*     ***********************************
+      logical function control_input_vpsi_ascii()
+      implicit none
+
+#include "control.fh"
+
+      control_input_vpsi_ascii = vinput_wavefunction_ascii
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *     control_output_vpsi_ascii   *
+*     *                                 *
+*     ***********************************
+      logical function control_output_vpsi_ascii()
+      implicit none
+
+#include "control.fh"
+
+      control_output_vpsi_ascii = voutput_wavefunction_ascii
+      return
+      end
 
 
 *     ***********************************

@@ -26,6 +26,8 @@
       logical     move,frac_coord,SA,fei,fei_quench,gram_schmidt
       logical     rotation,translation,balance,spin_orbit,dipole_motion
       logical     two_comp_ppot,frozen,pio,fast_erf,fmm,smooth_cutoff
+      logical     input_wavefunction_ascii, output_wavefunction_ascii
+      logical     vinput_wavefunction_ascii,voutput_wavefunction_ascii
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     symm_number,minimizer
       common / control_block / unita,unita_frozen,tolerances,
@@ -55,7 +57,11 @@
      >                         output_ewavefunction_filename,
      >                         input_ewavefunction_filename,
      >                         xyz_filename,cell_name,
-     >                         boundry
+     >                         boundry 
+      common / control_ascii / input_wavefunction_ascii,
+     >                         output_wavefunction_ascii,
+     >                         vinput_wavefunction_ascii,
+     >                         voutput_wavefunction_ascii
       common / control_blktime / cpu1_time,cpu2_time,
      >                           est_finish_time,
      >                           est_step_time
