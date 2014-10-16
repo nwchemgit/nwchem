@@ -28,6 +28,7 @@ c
       double precision eone     ! One electron energy
       double precision etwo     ! Two electron energy
       double precision enrep    ! Effective nuclear repulsion energy
+      double precision ecosmo   ! COSMO solvation energy
       double precision uhf_time
       double precision sz, s2
 c
@@ -53,13 +54,15 @@ c
 c
 c     Newton-Raphson based SCF
 c
+      ecosmo = 0.0d0
       if (maxiter .le. 0) then
          converged = .false.
          energy = 0.0d0
          eone = 0.0d0
          etwo = 0.0d0
       else
-         converged = uhf_nr_solve(rtdb, energy,  eone, etwo, enrep)
+         converged = uhf_nr_solve(rtdb, energy, eone, etwo, enrep,
+     &                            ecosmo)
       endif
 c
       call ga_sync()
@@ -82,15 +85,21 @@ c
      $           'Calculation failed to converge', 20, .true.)
             write(6,*)
          end if
-         write(6,2) scftype, energy, eone, etwo, enrep, 
-     $        sz, sz*(sz+1), s2, uhf_time
+         write(6,2) scftype, energy, eone, etwo, enrep  
+         if (abs(ecosmo).gt.0.0d0) then
+           write(6,3) ecosmo
+         endif
+         write(6,4) sz, sz*(sz+1), s2, uhf_time
  2       format(//
      $        '       Final ',a4,' results '/
      $        '       ------------------ '//
      $        '         Total SCF energy =', f20.12/
      $        '      One electron energy =', f20.12/
      $        '      Two electron energy =', f20.12/
-     $        ' Nuclear repulsion energy =', f20.12//
+     $        ' Nuclear repulsion energy =', f20.12) 
+ 3       format(
+     $        '             COSMO energy =', f20.12) 
+ 4       format(/
      $        '                       Sz =', f12.4/
      $        '                 Sz(Sz+1) =', f12.4/
      $        '                      S^2 =', f12.4//
@@ -217,7 +226,8 @@ c
       cuhf_init_flag = .false.
 c
       end
-      logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
+      logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep,
+     $                              ecosmo)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -238,6 +248,7 @@ c
       integer rtdb
       double precision energy   ! Return UHF energy
       double precision eone, etwo, enrep ! Return UHF energy contribs
+      double precision ecosmo !< [Output] The COSMO solvation energy
 c     
 c     Local GA handles 
 c     
@@ -340,7 +351,7 @@ c
 c     Compute the energy and gradient at step*search direction
 c     
             call uhf_step_energy(rtdb, step, g_search,
-     $           eone, etwo, enrep, energy, g_grad)
+     $           eone, etwo, enrep, ecosmo, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
             call ecce_print1('total energy', mt_dbl, energy, 1)
             call ecce_print1('orbital gradient norm', mt_dbl, gnorm, 1)
@@ -438,7 +449,7 @@ c
 c     
       end
       subroutine uhf_step_energy(rtdb, step, g_search,
-     $     eone, etwo, enrep, energy, g_grad)
+     $     eone, etwo, enrep, ecosmo, energy, g_grad)
       implicit none
 #include "errquit.fh"
 #include "cuhf.fh"
@@ -451,6 +462,7 @@ c
       double precision step
       integer g_search
       double precision eone, etwo, enrep, energy
+      double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_grad
 c
 c     Compute the energy and gradient at the given step
@@ -469,7 +481,8 @@ c
 c
 c     Compute energy and gradient
 c     
-      call uhf_energy(rtdb, g_tmp, eone, etwo, enrep, energy, g_grad)
+      call uhf_energy(rtdb, g_tmp, eone, etwo, enrep, ecosmo, energy,
+     $                g_grad)
 c     
 c     Tidy up
 c
@@ -620,8 +633,8 @@ c
      $     call errquit('uhf_k2cf: pop failed', 0, MA_ERR)
 c     
       end
-      subroutine uhf_energy(rtdb, g_vecs, eone, etwo, enrep, energy,
-     $     g_grad )
+      subroutine uhf_energy(rtdb, g_vecs, eone, etwo, enrep, ecosmo, 
+     $                      energy, g_grad )
 c
       implicit none
 c
@@ -663,7 +676,7 @@ c
       external ga_create_atom_blocked
       logical odebug
       logical cphf_uhf
-      double precision ecosmo
+      double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_dens(2),i
       character*255 cosmo_file
 c     

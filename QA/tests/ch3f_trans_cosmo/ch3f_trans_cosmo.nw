@@ -1,5 +1,5 @@
 echo
-start ch3f_trans_cosmo
+start ch3f_trans_cosmo_dat
 
 title ch3f_trans_cosmo
 
@@ -21,6 +21,7 @@ charge 0
 dft
   direct
   xc b3lyp
+  print cosmo_energies
 end
 
 cosmo

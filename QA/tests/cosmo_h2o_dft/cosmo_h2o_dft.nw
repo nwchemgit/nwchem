@@ -1,5 +1,5 @@
 echo
-start cosmo_h2o_dft
+start cosmo_h2o_dft_dat
 title "cosmo_h2o_dft"
 
 geometry nocenter noautosym noautoz
@@ -14,7 +14,7 @@ end
 
 
 dft
-  print medium
+  print medium cosmo_energies
   xc hfexch
   iterations 200
   noio

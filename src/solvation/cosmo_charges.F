@@ -1,6 +1,12 @@
-c
+C>
+C> \ingroup cosmo
+C> @{
+C>
+C> \file cosmo_charges.F
+C> The COSMO surface generator
+C>
 C> \brief Compute the COSMO charges
-c
+C>
       subroutine cosmo_charges(rtdb,basis,geom,ecos,some,
      &         itype_wfn,vectors,nclosed,nopen,nbf,nmo)
 c
@@ -39,9 +45,10 @@ c
 c
       double precision dielec,dielecinf,screen,rsolv,adiag,dsurf,dvol
       double precision srfmol,volmol,zeta,ptspatm,gammas,swtol
-      integer lineq,minbem,maxbem,ificos,ifscrn
+      integer do_cosmo_model,lineq,minbem,maxbem,ificos,cosmo_sccor
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
@@ -233,15 +240,16 @@ c
       double precision ecos !< [Output] The intra COSMO charges, interaction energy
       logical some          !< [Input] Do you want "some" additional output?
       integer ipol          !< [Input] 1: RHF type wavefunction, 2: UHF type wavefunction
-      integer g_dens_in(ipol)  ! 1: up, 2: down  (input density matrix to get the charges)
+      integer g_dens_in(ipol)  !< [Input] 1: up, 2: down  (input density matrix to get the charges)
 c
       logical dbug, out, status
 c
       double precision dielec,dielecinf,screen,rsolv,adiag,dsurf,dvol
       double precision srfmol,volmol,zeta,ptspatm,gammas,swtol
-      integer lineq,minbem,maxbem,ificos,ifscrn
+      integer do_cosmo_model,lineq,minbem,maxbem,ificos,cosmo_sccor
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
@@ -366,4 +374,6 @@ c
      1       /,10X,'-cosmo- charges',
      2       /,10X,15(1H-))
       end
+C>
+C> @}
 c $Id$

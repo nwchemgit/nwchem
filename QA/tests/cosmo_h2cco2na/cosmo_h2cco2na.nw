@@ -1,6 +1,6 @@
 echo
 
-start h2cco2na_dat
+start cosmo_h2cco2na_dat
 
 geometry
     na     0.00000000     0.00000000    -1.88952175
@@ -17,14 +17,13 @@ basis spherical
 end
 
 cosmo
-# minbem 3
-# maxbem 5
 end
 
 dft
   odft
   xc b3lyp
   mult 2
+  print cosmo_energies
 end
 
 task dft optimize

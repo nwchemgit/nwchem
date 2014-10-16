@@ -1,4 +1,5 @@
-      logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
+      logical function rohf_nr_solve(rtdb, energy, eone, etwo, ecosmo,
+     $                               enrep)
 c     $Id$
       implicit none
 #include "errquit.fh"
@@ -22,6 +23,7 @@ c
       integer rtdb
       double precision energy   ! Return ROHF energy
       double precision eone, etwo, enrep ! Return ROHF energy contribs
+      double precision ecosmo !< [Output] The COSMO solvation energy
 c     
 c     Local GA handles 
 c     
@@ -238,7 +240,7 @@ c
             if (ga_nodeid().eq.0) call util_flush(6)
 
             call rohf_step_energy(rtdb, step, g_search,
-     $           eone, etwo, enrep, energy, g_grad)
+     $           eone, etwo, enrep, ecosmo, energy, g_grad)
             gnorm = sqrt(ga_ddot(g_grad, g_grad))
 c
             if(odbug) then

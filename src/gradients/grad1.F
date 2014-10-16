@@ -304,6 +304,7 @@ c     1. All regular QM derivatives
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "global.fh"
+#include "cosmoP.fh"
 #include "geomP.fh"
 #include "geom.fh"
 #include "bq.fh"
@@ -340,10 +341,12 @@ C-------------------------parameters--------------------------------
 c
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag, dsurf, dvol, srfmol, volmol, ptspatm
-      integer          lineq, minbem, maxbem, ificos, ifscrn
+      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                 cosmo_sccor
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosdat/adiag, dsurf, dvol, srfmol, volmol, ptspatm
-      common/hnd_cosmod/lineq, minbem, maxbem, ificos, ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
 
 C-------------------------local variables--------------------------
 
@@ -600,26 +603,29 @@ c       Do the Nuclear - Cosmo charge part
 c       - 1. The derivative of matrix B (i.e. the Coulomb interaction
 c            between the nuclear charge and the surface charge).
 c       - 2. The derivative due to the change in the switching
-c            function (see [2] Eq.(74)).
+c            function (see [2] Eq.(74)). This only applies for the
+c            York-Karplus model.
 c
         invscreen = 1.0d0/(1.0d0*screen)
         do ich1 = 1, nefc
-          zeta1 = zeta*sqrt(ptspatm)
-     $          / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
-     $             * sqrt(2.0d0*pi))
-          xyzff = 1.0d0
-          do iat1 = 1, nat
-            if (iat1.ne.int_mb(k_efciat+ich1-1)) then
-              dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
-              dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
-              dz = coords(3,iat1,geom) - dbl_mb(2+3*(ich1-1)+iefc_c)
-              rr = sqrt(dx*dx+dy*dy+dz*dz)
-              if (rr.lt.rout(iat1)) then
-                xyzff = xyzff
-     $                * cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
+          if (do_cosmo_model.eq.DO_COSMO_YK) then
+            zeta1 = zeta*sqrt(ptspatm)
+     $            / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
+     $               * sqrt(2.0d0*pi))
+            xyzff = 1.0d0
+            do iat1 = 1, nat
+              if (iat1.ne.int_mb(k_efciat+ich1-1)) then
+                dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
+                dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
+                dz = coords(3,iat1,geom) - dbl_mb(2+3*(ich1-1)+iefc_c)
+                rr = sqrt(dx*dx+dy*dy+dz*dz)
+                if (rr.lt.rout(iat1)) then
+                  xyzff = xyzff
+     $                  * cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
+                endif
               endif
-            endif
-          enddo
+            enddo
+          endif
           do iat1 = 1, nat
             dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
             dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
@@ -633,12 +639,14 @@ c
 c
 c           - term 2.
 c
-            if (iat1.ne.int_mb(k_efciat+ich1-1)) then
-              fact = fact - 2.0d0*zeta1*sqrt(2.0d0/pi)*invscreen
-     $             * dbl_mb(iefc_q+ich1-1)**2
-     $             * cosdff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
-     $             / (rr*xyzff*(rout(iat1)-rin(iat1))
-     $                *cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1))))
+            if (do_cosmo_model.eq.DO_COSMO_YK) then
+              if (iat1.ne.int_mb(k_efciat+ich1-1)) then
+                fact = fact - 2.0d0*zeta1*sqrt(2.0d0/pi)*invscreen
+     $               * dbl_mb(iefc_q+ich1-1)**2
+     $               * cosdff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
+     $               / (rr*xyzff*(rout(iat1)-rin(iat1))
+     $                  *cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1))))
+              endif
             endif
 c
             dE = dx * fact
@@ -660,14 +668,18 @@ c       Do cosmo charge - cosmo charge interaction
 c
         invscreen = 1.0d0/(1.0d0*screen)
         do ich1 = 1, nefc
-          zeta1 = zeta*sqrt(ptspatm)
-     $          / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
-     $             * sqrt(2.0d0*pi))
-          do ich2 = 1, nefc
-            zeta2 = zeta*sqrt(ptspatm)
-     $            / (dbl_mb(k_rad+int_mb(k_efciat+ich2-1)-1)
+          if (do_cosmo_model.eq.DO_COSMO_YK) then
+            zeta1 = zeta*sqrt(ptspatm)
+     $            / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
      $               * sqrt(2.0d0*pi))
-            zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
+          endif
+          do ich2 = 1, ich1-1
+            if (do_cosmo_model.eq.DO_COSMO_YK) then
+              zeta2 = zeta*sqrt(ptspatm)
+     $              / (dbl_mb(k_rad+int_mb(k_efciat+ich2-1)-1)
+     $                 * sqrt(2.0d0*pi))
+              zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
+            endif
             if (ich1.ne.ich2) then
               dx = dbl_mb(0+3*(ich1-1)+iefc_c)
      $           - dbl_mb(0+3*(ich2-1)+iefc_c)
@@ -679,11 +691,19 @@ c
               if (rr.lt.1.0d-6) then
                 fact = 0.0d0
               else
-                fact = +0.5d0*invscreen*dbl_mb(iefc_q+ich1-1)
-     $               * dbl_mb(iefc_q+ich2-1) 
-     $               * (2.0d0*zeta12/sqrt(pi)/(rr**2)
-     $                  * exp(-(zeta12*rr)**2)
-     $                  - util_erf(zeta12*rr)/(rr**3))
+                if (do_cosmo_model.eq.DO_COSMO_KS) then
+                  fact = -invscreen*dbl_mb(iefc_q+ich1-1)
+     $                 * dbl_mb(iefc_q+ich2-1)/(rr**3)
+                else if (do_cosmo_model.eq.DO_COSMO_YK) then
+                  fact = +invscreen*dbl_mb(iefc_q+ich1-1)
+     $                 * dbl_mb(iefc_q+ich2-1) 
+     $                 * (2.0d0*zeta12/sqrt(pi)/(rr**2)
+     $                    * exp(-(zeta12*rr)**2)
+     $                    - util_erf(zeta12*rr)/(rr**3))
+                else
+                  call errquit("grad_hnd_cos: panic",
+     $                         do_cosmo_model,UERR)
+                endif
               endif
               dE = dx * fact
               frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 

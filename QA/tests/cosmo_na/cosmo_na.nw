@@ -10,4 +10,7 @@ basis
 end
 cosmo
 end
+scf
+  print cosmo_energies
+end
 task scf energy

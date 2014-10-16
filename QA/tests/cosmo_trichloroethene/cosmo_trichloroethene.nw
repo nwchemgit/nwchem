@@ -25,6 +25,7 @@ dft
    xc becke88 lyp
    convergence lshift 0.05
    iterations 5000
+   print cosmo_energies
 end
 task dft optimize
 cosmo

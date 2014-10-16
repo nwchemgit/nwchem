@@ -1,6 +1,6 @@
 echo
 
-start h2cco2_dat
+start cosmo_h2cco2_dat
 
 geometry
     symmetry c1
@@ -19,12 +19,10 @@ basis
 end
 
 cosmo
-# minbem 3
-# maxbem 5
 end
 
 scf
-  print forces
+  print forces cosmo_energies
 end
 
 task scf gradient

@@ -91,7 +91,7 @@ c
          crohf_init_flag = -1
       endif
       end
-      subroutine rohf_energy( g_vecs, eone, etwo, enrep, energy,
+      subroutine rohf_energy( g_vecs, eone, etwo, enrep, ecosmo, energy,
      $     g_grad, rtdb )
       implicit none
 #include "errquit.fh"
@@ -117,7 +117,7 @@ c
 c
       logical odbug
       logical osome
-      double precision ecosmo
+      double precision ecosmo !< [Output] The COSMO solvation energy
 
       odbug=.false.
       osome=.false.

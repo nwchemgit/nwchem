@@ -19,7 +19,8 @@ c     Initial vectors etc. are assumed to be loaded in common/cscf/
 c     by the driver routines
 c
       integer rtdb
-      double precision energy   ! [output] Total SCF energy
+      double precision energy !< [Output] Total SCF energy
+      double precision ecosmo !< The COSMO solvation energy
 c
 c     local variables
 c
@@ -62,15 +63,18 @@ c
 c
 c     Newton-Raphson based SCF
 c
+      ecosmo = 0.0d0
       if (maxiter .le. 0) then
          converged = .false.
          energy = 0.0d0
          eone = 0.0d0
          etwo = 0.0d0
       else if (odiis) then
-         converged = rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
+         converged = rohf_diis_solve(rtdb, energy, eone, etwo, ecosmo,
+     $                               enrep)
       else
-         converged = rohf_nr_solve(rtdb, energy,  eone, etwo, enrep)
+         converged = rohf_nr_solve(rtdb, energy, eone, etwo, ecosmo,
+     $                             enrep)
       endif
 c
       call ga_sync()
@@ -85,14 +89,21 @@ c
      $           'Calculation failed to converge', 20, .true.)
             write(luout,*)
          endif
-         write(luout,2) scftype, energy, eone, etwo, enrep, rohf_time
+         write(luout,2) scftype, energy, eone, etwo, enrep
+         if (abs(ecosmo).gt.0.0d0) then
+           write(luout,3) ecosmo
+         endif
+         write(luout,4) rohf_time
  2       format(//
      $        '       Final ',a4,' results '/
      $        '       ------------------ '//
      $        '         Total SCF energy =', f20.12/
      $        '      One-electron energy =', f20.12/
      $        '      Two-electron energy =', f20.12/
-     $        ' Nuclear repulsion energy =', f20.12//
+     $        ' Nuclear repulsion energy =', f20.12)
+ 3       format(
+     $        '             COSMO energy =', f20.12)
+ 4       format(/
      $        '        Time for solution =', f9.1,'s'//)
          call util_flush(6)
       endif

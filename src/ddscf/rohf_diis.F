@@ -1,4 +1,5 @@
-      logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
+      logical function rohf_diis_solve(rtdb, energy, eone, etwo, ecosmo,
+     $                                 enrep)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -54,7 +55,7 @@ c     cosmo code
 c
       logical odbug
       logical osome
-      double precision ecosmo
+      double precision ecosmo !< [Output] The COSMO solvation energy
 c
       double precision egas
       double precision esol
@@ -142,8 +143,8 @@ c
       ndiis = 0
       call ga_zero(g_err)
       do iter=1,maxiter
-        call rohf_energy( g_movecs, eone, etwo, enrep, energy, g_grad,
-     $                    rtdb)
+        call rohf_energy( g_movecs, eone, etwo, enrep, ecosmo, energy,
+     $                    g_grad, rtdb)
 c
 c   Check convergence
 c
@@ -238,11 +239,11 @@ c
      C           crohf_g_fpv)
          endif
          if (.not. ga_destroy(g_oexch)) call errquit
-     $        ('rohf_nr_solve: ga_destroy oexch', 0, GA_ERR)
+     $        ('rohf_diis_solve: ga_destroy oexch', 0, GA_ERR)
          if (.not. ga_destroy(g_cfock)) call errquit
-     $        ('rohf_nr_solve: ga_destroy cfock', 0, GA_ERR)
+     $        ('rohf_diis_solve: ga_destroy cfock', 0, GA_ERR)
          if (.not. ga_destroy(g_tmp)) call errquit
-     $        ('rohf_nr_solve: ga_destroy tmp', 0, GA_ERR)
+     $        ('rohf_diis_solve: ga_destroy tmp', 0, GA_ERR)
          call rohf_lagr()
       endif
 c

@@ -4,8 +4,8 @@ C>
 C> \ingroup cosmo
 C> @{
 C> 
-C> \file cosmo.F
-C> The COSMO energy implementation
+C> \file cosmo_input.F
+C> The COSMO input
 C>
 C> \brief The COSMO dielectric continuum solvation model
 C>
@@ -65,11 +65,13 @@ C>
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "cosmoP.fh"
 c
       integer rtdb !< [Input] the RTDB handle
 c
       integer iat, nfield, nrad, irad
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
+      integer cosmo_screen, cosmo_sccor
       integer l_rad, k_rad
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
@@ -83,6 +85,10 @@ c
       character*(rtdb_max_file) geom_geom  ! The "geometry" value
       character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
                                            ! parameters were set
+c
+c     COSMO models
+c
+      integer do_cosmo_model
 c
 c MN solvation models -->
 c
@@ -120,12 +126,13 @@ c     if solvent name is valid then database solvent descriptors will be
 c     used which can be overridden by user-provided values
 c
       do_cosmo = .true.
+      do_cosmo_model = DO_COSMO_YK 
       dielec   =78.4d+00
       dielecinf = 1.333d0*1.333d0 ! n**2 (refractive index squarred)
-      iscren   =0
-      ifscrn   =2 ! surface charge correction adapted for geometry optimzations
+      cosmo_screen = COSMO_SCREEN_ST
+      cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
-      maxbem   =2 ! used to be 4, is now obsolete anyway
+      maxbem   =4 ! used with the Klamt-Schuurmann model
       ificos   =0
       lineq    =0  ! 0 fast direct solver, 1 slow iterative solver
       rsolv    =0.00d+00
@@ -280,15 +287,30 @@ c
       else if(inp_compare(.false.,'off',field)) then
          do_cosmo=.false.
 c
-c   --- rsolv !!! Obsolete in York and Karplus approach
+c   --- do_cosmo_ks: switch to Klamt-Schuurmann model
+c
+      else if(inp_compare(.false.,'do_cosmo_ks',field)) then
+         do_cosmo_model=DO_COSMO_KS
+         if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     $                      do_cosmo_model))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- do_cosmo_yk: switch to York-Karplus model
+c
+      else if(inp_compare(.false.,'do_cosmo_yk',field)) then
+         do_cosmo_model=DO_COSMO_YK
+         if (.not. rtdb_put(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     $                      do_cosmo_model))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- rsolv: Used in Klamt-Schuurmann, but not in York-Karplus
+c   ---        approach
 c
       else if(inp_compare(.false.,'rsolv',field)) then
          if(.not. inp_f(rsolv))
      $        call errquit('cosmo_input: rsolv',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
-         write(LuOut,*)"Keyword RSOLV is obsolete and ignored "//
-     $        "(see York, Karplus, doi:10.1021/jp992097l)"
 c
 c   --- parameter file
 c
@@ -327,20 +349,103 @@ c
             go to 30
          endif
 c
-c   --- iscren
+c   --- iscren !!! Deprecated: use SCREEN instead
 c
       else if(inp_compare(.false.,'iscren',field)) then
          if(.not. inp_i(iscren))
      $        call errquit('cosmo_input: iscren',911, INPUT_ERR)
-         if (.not. rtdb_put(rtdb,'cosmo:iscren',mt_int,1,iscren))
+         if (iscren.eq.0) then
+           cosmo_screen = COSMO_SCREEN_ST
+         else if (iscren.gt.0) then 
+           cosmo_screen = COSMO_SCREEN_KS
+         else
+           cosmo_screen = COSMO_SCREEN_ID
+         endif
+         if (.not. rtdb_put(rtdb,'cosmo:screen',mt_int,1,cosmo_screen))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- ifscrn
+c   --- SCREEN: Dielectric screening to use
+c       SCREEN IDEAL : No screening to be used f(e)=1
+c       SCREEN KS    : Klamt-Schuurmann approach to be used
+c                      f(e)=(e-1)/(e+0.5)
+c       SCREEN ST    : Stefanovich-Truong approach to be used
+c                      f(e)=(e-1)/e
+c       the default is: 
+c       - SCREEN KS : with the Klamt-Schuurmann model
+c       - SCREEN ST : with the York-Karplus model
+c
+      else if(inp_compare(.false.,'screen',field)) then
+        if (.not.inp_a(token))
+     $        call errquit('cosmo_input: screen',911, INPUT_ERR)
+        if (inp_compare(.false.,'ideal',token)) then
+          cosmo_screen = COSMO_SCREEN_ID
+        else if (inp_compare(.false.,'ks',token)) then
+          cosmo_screen = COSMO_SCREEN_KS
+        else if (inp_compare(.false.,'st',token)) then
+          cosmo_screen = COSMO_SCREEN_ST
+        else
+          write(luout,*)"invalid option for SCREEN, valid options are:"
+          write(luout,*)"- ST    for Stefanovich-Truong f(e)=(e-1)/e"
+          write(luout,*)"- KS    for Klamt-Schuurmann   "
+     $                //"f(e)=(e-1)/(e+1/2)"
+          write(luout,*)"- IDEAL for ideal screening    f(e)=1"
+          call util_flush(luout)
+          call errquit("cosmo_input: invalid option for SCREEN",911,
+     $                 INPUT_ERR)
+        endif
+        if (.not. rtdb_put(rtdb,'cosmo:screen',mt_int,1,cosmo_screen))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- ifscrn !!! Deprecated use CHARGE_CORRECTION instead
 c
       else if(inp_compare(.false.,'ifscrn',field)) then
          if(.not. inp_i(ifscrn))
      $        call errquit('cosmo_input: ifscrn',911, INPUT_ERR)
-         if (.not. rtdb_put(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn))
+         if (ifscrn.eq.2) then
+           cosmo_sccor = COSMO_SCCOR_LAGRA
+         else if (ifscrn.eq.1) then
+           cosmo_sccor = COSMO_SCCOR_SCALE
+         else if (ifscrn.eq.0) then
+           cosmo_sccor = COSMO_SCCOR_NO
+         endif
+         if (.not. rtdb_put(rtdb,'cosmo:sccor',mt_int,1,cosmo_sccor))
+     $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+c
+c   --- CHARGE_CORRECTION: Surface charge correction to use
+c       CHARGE_CORRECTION NO         : No surface charge corrections to
+c                                      be used
+c       CHARGE_CORRECTION SCALE      : Scale the electron surface
+c                                      charges and the nuclear surface
+c                                      charges
+c       CHARGE_CORRECTION LAGRANGIAN : Use a Lagrangian constraint to
+c                                      variationally correct the charges
+c       the default is: CHARGE_CORRECTION LAGRANGIAN unless the
+c       Klamt-Schuurmann COSMO model is used when the default is
+c       CHARGE_CORRECTION SCALE
+c
+      else if(inp_compare(.false.,'charge_correction',field)) then
+        if (.not.inp_a(token))
+     $        call errquit('cosmo_input: charge_correction',911,
+     $                     INPUT_ERR)
+        if (inp_compare(.false.,'no',token)) then
+          cosmo_sccor = COSMO_SCCOR_NO
+        else if (inp_compare(.false.,'off',token)) then
+          cosmo_sccor = COSMO_SCCOR_NO
+        else if (inp_compare(.false.,'scale',token)) then
+          cosmo_sccor = COSMO_SCCOR_SCALE
+        else if (inp_compare(.false.,'lagrangian',token)) then
+          cosmo_sccor = COSMO_SCCOR_LAGRA
+        else
+          write(luout,*)"invalid option for CHARGE_CORRECTION, valid "
+     $                //"options are:"
+          write(luout,*)"- LAGRANGIAN for a variational constraint"
+          write(luout,*)"- SCALE      for a plain charge scaling"
+          write(luout,*)"- NO         for no correction"
+          call util_flush(luout)
+          call errquit("cosmo_input: invalid option for "
+     $               //"CHARGE_CORRECTION,",911,INPUT_ERR)
+        endif
+        if (.not. rtdb_put(rtdb,'cosmo:sccor',mt_int,1,cosmo_sccor))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
 c   --- minbem
@@ -351,15 +456,14 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:minbem',mt_int,1,minbem))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
-c   --- maxbem !!! Obsolete in York, Karplus approach
+c   --- maxbem: used in the Klamt-Schuurmann approach but not in 
+c   ---         the York-Karplus
 c
       else if(inp_compare(.false.,'maxbem',field)) then
          if(.not. inp_i(maxbem))
      $        call errquit('cosmo_input: maxbem',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'cosmo:maxbem',mt_int,1,maxbem))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
-         write(LuOut,*)"Keyword MAXBEM is obsolete and ignored "//
-     $        "(see York, Karplus, doi:10.1021/jp992097l)"
 c
 c   --- ificos
 c

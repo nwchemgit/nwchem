@@ -11,6 +11,8 @@ basis
   cl library 6-311+g*
 end
 cosmo
-  rsolv 0.5
+end
+scf
+  print cosmo_energies
 end
 task scf energy

@@ -1,0 +1,46 @@
+c
+c     COSMO model identifiers
+c     - DO_COSMO_KS: The Klamt and Schuurmann formulation
+c     - DO_COSMO_YK: The York and Karplus formulation
+c
+      integer DO_COSMO_KS
+      integer DO_COSMO_YK
+      parameter(DO_COSMO_KS = 1)
+      parameter(DO_COSMO_YK = 2)
+c
+c     COSMO screen approach identifiers
+c     - COSMO_SCREEN_ID: Ideal screening used, i.e. screen=1.0
+c     - COSMO_SCREEN_KS: Klamt-Schuurmann screening, i.e. (e-1)/(e+0.5)
+c     - COSMO_SCREEN_ST: Stefanovich-Truong screening, i.e. (e-1)/e
+c
+      integer COSMO_SCREEN_ID
+      integer COSMO_SCREEN_KS
+      integer COSMO_SCREEN_ST
+      parameter (COSMO_SCREEN_ID = 5)
+      parameter (COSMO_SCREEN_KS = 6)
+      parameter (COSMO_SCREEN_ST = 7)
+c
+c     COSMO surface charge correction identifiers
+c     - COSMO_SCCOR_NO: No surface charge correction
+c     - COSMO_SCCOR_SCALE: Scale electron and nucleii generated charges
+c                          to satisfy Gauss's theorem 
+c     - COSMO_SCCOR_LAGRA: Use Lagrangian constraint to satisfy Gauss's
+c                          theorem 
+c
+      integer COSMO_SCCOR_NO
+      integer COSMO_SCCOR_SCALE
+      integer COSMO_SCCOR_LAGRA
+      parameter (COSMO_SCCOR_NO    = 10)
+      parameter (COSMO_SCCOR_SCALE = 11)
+      parameter (COSMO_SCCOR_LAGRA = 12)
+c
+c     COSMO linear system solver identifier
+c     - COSMO_LINEQ_DIRECT    : Use the direct solver (matrix in memory
+c                               and fast for small systems)
+c     - COSMO_LINEQ_ITERATIVE : Use the iterative solver (matrix-vector
+c                               products on the fly)
+c
+      integer COSMO_LINEQ_DIRECT
+      integer COSMO_LINEQ_ITERATIVE
+      parameter (COSMO_LINEQ_DIRECT = 0)
+      parameter (COSMO_LINEQ_ITERATIVE = 1)

@@ -1,4 +1,10 @@
 C>
+C> \ingroup cosmo
+C> @{
+C>
+C> \file cosmo_initialize.F
+C> The COSMO initialization
+C>
 C> \brief Initialize COSMO data structures
 C>
 C> Initialize the COSMO data structures, in particular this involves
@@ -18,6 +24,7 @@ C>
 #include "bq.fh"
 #include "bas.fh"
 #include "msgids.fh"
+#include "cosmoP.fh"
 c
       integer rtdb   !< [Input] the RTDB handle
       integer geom   !< [Input] the geometry handle
@@ -27,7 +34,7 @@ c
       logical status
       logical cosmo
 c
-      integer iat, nrad, iscren
+      integer iat, nrad, cosmo_screen
       integer l_rad, k_rad, l_costag, k_costag, l_coszan, k_coszan
       integer l_coscoor, k_coscoor
       integer invnuc, nat, nefc, nmap
@@ -40,9 +47,11 @@ c
 c
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          lineq,minbem,maxbem,ificos,ifscrn
+      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
+     +                 cosmo_sccor
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     +                  cosmo_sccor
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       double precision vdwr(102)
       double precision vander(102)
@@ -249,13 +258,15 @@ c
       if(.not.ma_pop_stack(l_costag)) call
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
 c
+      do_cosmo_model = DO_COSMO_YK
       solvname_short  = 'h2o'
       dielec   =78.4d+00
       dielecinf = 1.333d0*1.333d0 ! n**2 (refractive index squarred)
-      iscren   =0
-      ifscrn   =2 ! surface charge correction adapted for geometry optimzations
+      cosmo_screen = COSMO_SCREEN_ST
+      cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
-      maxbem   =2 ! used to be 4, is now obsolete anyway
+      maxbem   =4 ! used in Klamt-Schuurmann model but not in 
+                  ! York-Karplus model
       ificos   =0
       lineq    =0 ! 0: fast direct solver, 1: slow iterative solver
       rsolv    =0.00d+00
@@ -285,8 +296,17 @@ c
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
       status = rtdb_get(rtdb,'cosmo:rsolv',mt_dbl,1,rsolv)
-      status = rtdb_get(rtdb,'cosmo:iscren',mt_int,1,iscren) 
-      status = rtdb_get(rtdb,'cosmo:ifscrn',mt_int,1,ifscrn)
+      status = rtdb_get(rtdb,'cosmo:do_cosmo_model',mt_int,1,
+     +                  do_cosmo_model) 
+      if (do_cosmo_model.eq.DO_COSMO_KS) then
+        cosmo_sccor  = COSMO_SCCOR_SCALE
+        cosmo_screen = COSMO_SCREEN_KS
+      else if (do_cosmo_model.eq.DO_COSMO_YK) then
+        cosmo_sccor  = COSMO_SCCOR_LAGRA
+        cosmo_screen = COSMO_SCREEN_ST
+      endif
+      status = rtdb_get(rtdb,'cosmo:screen',mt_int,1,cosmo_screen) 
+      status = rtdb_get(rtdb,'cosmo:sccor',mt_int,1,cosmo_sccor)
       status = rtdb_get(rtdb,'cosmo:minbem',mt_int,1,minbem) 
       status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
@@ -453,31 +473,44 @@ c
 c
       if(osome.and.me.eq.0) then
          write(Luout,9999)
+         if (do_cosmo_model.eq.DO_COSMO_KS) then
+           write(Luout,9970)
+         else if (do_cosmo_model.eq.DO_COSMO_YK) then
+           write(Luout,9971)
+         endif
          write(Luout,9997) dielec
-      endif
-c
-c     ----- charge screening approach ... -----
-c
-      if(osome.and.me.eq.0) then
-         write(Luout,9983) ifscrn
-      endif
-
-      if(ifscrn.ne.1.and.ifscrn.ne.2) then
-         iscren=-1
       endif
 c
 c     ----- screening factor -----
 c
-      if(iscren.lt.0) then
+      if (cosmo_screen.eq.COSMO_SCREEN_ID) then
          screen=one
          if (osome.and.me.eq.0) write(luout,9984) screen
-      elseif(iscren.gt.0) then
+      else if (cosmo_screen.eq.COSMO_SCREEN_KS) then
          screen=(dielec-one)/(dielec+pt5)
          if (osome.and.me.eq.0) write(luout,9996) screen
-      else
+      else if (cosmo_screen.eq.COSMO_SCREEN_ST) then
          screen=(dielec-one)/(dielec    )
          if (osome.and.me.eq.0) write(luout,9995) screen
+      else
+         call errquit("cosmo_initialize: invalid screening method",
+     &                cosmo_screen,UERR)
       endif
+c
+c     ----- surface charge correction -----
+c
+      if(osome.and.me.eq.0) then
+        if (cosmo_sccor.eq.COSMO_SCCOR_NO) then
+          write(Luout,9972)"no"
+        else if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+          write(Luout,9972)"scale"
+        else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
+          write(Luout,9972)"lagrangian"
+        else
+          write(Luout,9972)"*** invalid ***"
+        endif
+      endif
+
 c
 c     ----- tesselation -----
 c
@@ -485,10 +518,10 @@ c
          minbem=2
       endif
       if(maxbem.lt.1.or.maxbem.gt.mxpass) then
-         maxbem=2
+         maxbem=4
       endif
       if(maxbem.lt.minbem) then
-         maxbem=min(mxpass,minbem)
+         maxbem=min(mxpass,minbem+2)
       endif
 c
       ificos=abs(ificos)
@@ -496,16 +529,22 @@ c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
          write(luout,9991) minbem
-         write(luout,9992) maxbem
+         if (do_cosmo_model.eq.DO_COSMO_KS) then
+           write(luout,9992) maxbem
+         endif
          if(ificos.eq.0) then
             write(luout,9990)
          else
             write(luout,9989)
          endif
-         write(luout,9994) rsolv
-         write(luout,9980) zeta
-         write(luout,9979) gammas
-         write(luout,9978) swtol
+         if (do_cosmo_model.eq.DO_COSMO_KS) then
+           write(luout,9994) rsolv
+         endif
+         if (do_cosmo_model.eq.DO_COSMO_YK) then
+           write(luout,9980) zeta
+           write(luout,9979) gammas
+           write(luout,9978) swtol
+         endif
          write(luout,9988)
       endif
       do iat=1,nat
@@ -612,7 +651,7 @@ c
  9986 format(' ...... end of -cosmo- initialization ......')
  9985 format(/)
  9984 format(' screen =  one                 = ',f9.5)
- 9983 format(' charge screening approach     = ',i3)
+ 9983 format(' charge screening approach     = ',a)
  9982 format(' processing cosmo parameter file ',a)
  9981 format(a19,4x,f9.5)
  9980 format(' gaussian surface charge width = ',f9.5)
@@ -629,5 +668,10 @@ c
 c
 c <-- MN solvation models
 c
+ 9972 format(' surface charge correction     = ',a)
+ 9971 format(' Cosmo: York-Karplus, doi: 10.1021/jp992097l')
+ 9970 format(' Cosmo: Klamt-Schuurmann, doi: 10.1039/P29930000799')
       end
+C>
+C> @}
 c $Id$

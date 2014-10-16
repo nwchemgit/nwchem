@@ -50,6 +50,7 @@ c
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
       double precision residual
+      double precision ecosmo
       logical movecs_read_header, cphf_poliz
       external movecs_read_header, cphf_poliz
       logical int_normalize
@@ -238,10 +239,11 @@ c !!! BGJ
 c
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
-         call uhf_energy(rtdb,g_movecs,eone,etwo,enrep,energy,g_work)
+         call uhf_energy(rtdb,g_movecs,eone,etwo,enrep,ecosmo,energy,
+     $                   g_work)
       else
          call rohf_init(rtdb)
-         call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work,
+         call rohf_energy(g_movecs,eone,etwo,enrep,ecosmo,energy,g_work,
      ,        rtdb)
       endif
 c !!! BGJ

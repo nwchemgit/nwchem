@@ -1,5 +1,5 @@
       subroutine rohf_step_energy(rtdb, step, g_search,
-     $     eone, etwo, enrep, energy, g_grad)
+     $     eone, etwo, enrep, ecosmo, energy, g_grad)
 *
 * $Id$
 *
@@ -15,6 +15,7 @@ c
       double precision step
       integer g_search
       double precision eone, etwo, enrep, energy
+      double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_grad
 c
       double precision scale
@@ -27,7 +28,8 @@ c
 c     Generate MOs * Exp(-step*K) in temporary array
 c     
       if (.not. ga_create(MT_DBL, nbf, nmo, 'rohf_s_e: MOs',
-     $     32, 32, g_tmp)) call errquit('rohf_s_e: MOs', 0, GA_ERR)
+     $     32, 32, g_tmp)) call errquit('rohf_step_energy: MOs', 
+     $                                  0, GA_ERR)
 c      
       if (step .ne. 0.0d0) then
          call ga_dscal(g_search, step)
@@ -42,13 +44,13 @@ c
 c
 c     Compute energy and gradient
 c     
-      call rohf_energy( g_tmp, eone, etwo, enrep, energy, g_grad,
-     $                  rtdb)
+      call rohf_energy( g_tmp, eone, etwo, enrep, ecosmo, energy,
+     $                  g_grad, rtdb)
 c     
 c     Tidy up
 c
       if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('rohf_nr_solve: tmp?', 0, GA_ERR)
+     $     ('rohf_step_energy: tmp?', 0, GA_ERR)
 c
       if (oscfps) call pstat_off(ps_search)
 c

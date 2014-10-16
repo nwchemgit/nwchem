@@ -1,8 +1,42 @@
 C>
+C> \ingroup cosmo
+C> @{
+C>
+C> \file cosmo_def_radii.F
+C> Load default COSMO radii
+C>
 C> \brief Load the COSMO default atom radii
 C>
 C> Set the default atom radii values for the COSMO model. Currently
 C> the radii are returned in the unit Angstrom.
+C>
+C> For the regular COSMO model and where available the radii from
+C> Ref.[1] are used. Where Ref.[1] does not provide radii they are
+C> derived by multiplying the van der Waals radii of Ref.[2] with
+C> a factor 1.17 (for heavy elements the factor is 1.17*1.9).
+C>
+C> For the SMD model the radii were taken from Ref.[3] except for
+C> Hydrogen. For Hydrogen the radius by Bondi [2] is used.
+C> 
+C> ### References ###
+C>
+C> [1] A. Klamt, V. Jonas, T. B&uuml;rger, J.C.W. Lohrenz,
+C>     "Refinement and parametrization of COSMO-RS",
+C>     <i>J. Phys. Chem. A</i> (1998) <b>102</b>, pp 5074-5085, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp980017s">
+C>     10.1021/jp980017s</a>.
+C>
+C> [2] A. Bondi,
+C>     "van der Waals volumes and radii",
+C>     <i>J. Phys. Chem.</i> (1964) <b>68</b>, pp 441-451, DOI:
+C>     <a href="http://dx.doi.org/10.1021/j100785a001">
+C>     10.1021/j100785a001</a>.
+C>
+C> [3] M. Mantina, R. Valero, C.J. Cramer, D.G. Truhlar,
+C>     "Atomic radii of the elements", In CRC handbook of chemistry
+C>     and physics, 91st Edition, 2010-2011; W.M. Haynes, Ed.;
+C>     CRC Press, Boca Raton, FL, 2010; pp. 9-49 -- 9-50,
+C>     ISBN-13: 978-1439820773.
 C>
       subroutine cosmo_def_radii(rtdb,geom,nat,radius)
       implicit none
@@ -324,4 +358,6 @@ c
      &        a6,a4,f7.3)
 c
       end
+C>
+C> @}
 c $Id$

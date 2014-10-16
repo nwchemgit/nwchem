@@ -1,6 +1,12 @@
 c
+C> \ingroup cosmo
+C> @{
+C>
+C> \file cosmo_tidy.F
+C> Tidy up after COSMO
+C>
 C> \brief Tidy up COSMO data structures
-c
+C>
 C> This operation currently involves saving the current COSMO charges
 C> on the RTDB, and destroying the COSMO geometry instance.
 c
@@ -20,4 +26,6 @@ c
      $     ('cosmo_tidy: bq destroy failed', 0, GEOM_ERR)
       return
       end
+C>
+C> @}
 c $Id$

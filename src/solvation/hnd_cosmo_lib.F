@@ -1,4 +1,10 @@
-c
+C>
+C> \ingroup cosmo
+C> @{
+C>
+C> \file hnd_cosmo_lib.F
+C> Library of HONDO routines used to implement COSMO
+C>
 C> \brief Setup the COSMO cavity surface
 C>
       subroutine hnd_cosset(rtdb,nat,c,radius)
@@ -37,9 +43,11 @@ c
 c
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          lineq,minbem,maxbem,ificos,ifscrn
+      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                 cosmo_sccor
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer   mxface, mxapex
@@ -148,6 +156,7 @@ c
 #include "rtdb.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "cosmoP.fh"
 c
       integer rtdb, nat
       integer mxatm
@@ -177,9 +186,11 @@ c
       logical    dbug
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          lineq,minbem,maxbem,ificos,ifscrn
+      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                 cosmo_sccor
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer i, iat, lfac, lseg, ndiv, nfac, nseg
@@ -240,7 +251,11 @@ c
          if(radius(iat).eq.0.0d0) then
             ratm(iat)=0.0d0
          else
-            ratm(iat)=radius(iat)/bohr
+            if (do_cosmo_model.eq.DO_COSMO_KS) then
+              ratm(iat)=(radius(iat)+rsolv)/bohr
+            else
+              ratm(iat)=radius(iat)/bohr
+            endif
          endif
       enddo
 c
@@ -311,11 +326,17 @@ C> a smooth potential energy surface and this subroutine was changed
 C> to implement this new approach. This meant that some things stayed
 C> the same as before (for example minbem still works the same way
 C> to generate the surface charge positions), other things changed
-C> significantly (maxbem and rsolve are now entirely obsolete and not
-C> used anymore, also the elimination of point charges is no longer
-C> based on reducing the segment surface area until it vanishes, instead
-C> the surface charge of a segment is quenched with a switching function
-C> to eliminate the contribution of a surface point).
+C> significantly (maxbem and rsolv are not used anymore, also the
+C> elimination of point charges is no longer based on reducing the
+C> segment surface area until it vanishes, instead the surface charge
+C> of a segment is quenched with a switching function to eliminate the
+C> contribution of a surface point).
+C>
+C> ## Popular demand ##
+C>
+C> Due to popular demand this routine can do either the original
+C> Klamt-Schuurmann approach or the York-Karplus approach. The approach
+C> used is dictated by the `do_cosmo_model` variable.
 C>
 C> ### References ###
 C>
@@ -345,6 +366,7 @@ C>
 #include "stdio.fh"
 #include "bq.fh"
 #include "prop.fh"
+#include "cosmoP.fh"
 c
       integer rtdb    !< [Input] The RTDB handle
       integer nat     !< [Input] The actual number of atoms
@@ -358,9 +380,11 @@ c
       logical     dbug
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer lineq,minbem,maxbem,ificos,ifscrn
+      integer do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &        cosmo_sccor
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       double precision xyzatm(3,mxatom) !< [Input] The atom positions
       double precision   ratm(  mxatom) !< [Input] The atom radii
@@ -420,12 +444,18 @@ c
 c     ----- print atomic centers -----
 c
       if(ga_nodeid().eq.0) then
-         write(luout,9998)
-         do iat=1,nat
+        write(luout,9998)
+        do iat=1,nat
+          if (do_cosmo_model.eq.DO_COSMO_KS) then
+            write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
+     1                                       xyzatm(3,iat),
+     2                    (ratm(iat)*bohr-rsolv)
+          else if (do_cosmo_model.eq.DO_COSMO_YK) then
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
      2                    (ratm(iat)*bohr)
-         enddo
+          endif
+        enddo
       endif
 c
 c     ----- clear arrays ..... -----
@@ -470,9 +500,24 @@ c
      3                  xyzatm(1,jat),
      4                  xyzatm(2,jat),
      5                  xyzatm(3,jat))
-               if((jat.ne.iat).and.(ratm(jat).ne.zero)
+               if (do_cosmo_model.eq.DO_COSMO_KS) then
+                 if(jat.ne.iat.and.(dij.lt.(ratm(iat)+ratm(jat)))) then
+                   do ifac=1,nfac
+                     dum=dist(xyzspa(1,ifac+nseg,iat),
+     1                        xyzspa(2,ifac+nseg,iat),
+     2                        xyzspa(3,ifac+nseg,iat),
+     3                        xyzatm(1,jat),
+     4                        xyzatm(2,jat),
+     5                        xyzatm(3,jat))
+                     if(dum.lt.ratm(jat)) then
+                        ijkspa(ifac+nseg,iat)=0
+                     endif
+                   enddo
+                 endif
+               else if (do_cosmo_model.eq.DO_COSMO_YK) then
+                 if((jat.ne.iat).and.(ratm(jat).ne.zero)
      1                        .and.(dij.lt.(ratm(iat)+rout(jat)))) then
-                  do iseg=1,nseg
+                   do iseg=1,nseg
                      dum=dist(xyzspa(1,iseg,iat),
      1                        xyzspa(2,iseg,iat),
      2                        xyzspa(3,iseg,iat),
@@ -481,7 +526,8 @@ c
      5                        xyzatm(3,jat))
                      xyzff(iseg,iat) = xyzff(iseg,iat) *
      1                 cosff((dum-rin(jat))/(rout(jat)-rin(jat)))
-                  enddo
+                   enddo
+                 endif
                endif
             enddo
             if(dbug.and.ga_nodeid().eq.0) then
@@ -491,20 +537,54 @@ c
 c
 c     ----- check segments belonging to -sas- -----
 c
-            do iseg=1,nseg
-               insseg(iseg,iat)=.not.(xyzff(iseg,iat).ge.swtol)
-            enddo
+            if (do_cosmo_model.eq.DO_COSMO_KS) then
+              do ifac=1,nseg+nfac
+                insseg(ifac,iat)=.true.
+              enddo
+              do ifac=1,nfac
+                iseg=ijkspa(ifac+nseg,iat)
+                if(iseg.ne.0) then
+                   insseg(ifac+nseg,iat)=.false.
+                   insseg(     iseg,iat)=.false.
+                endif
+              enddo
+            else if (do_cosmo_model.eq.DO_COSMO_YK) then
+              do iseg=1,nseg
+                insseg(iseg,iat)=.not.(xyzff(iseg,iat).ge.swtol)
+              enddo
+            endif
             if(dbug.and.ga_nodeid().eq.0) then
                write(luout,9994) iat
-               write(luout,9993) (insseg(iseg,iat),iseg=1,nseg)
+               if (do_cosmo_model.eq.DO_COSMO_KS) then
+                 write(luout,9993) (insseg(ifac,iat),ifac=1,nseg+nfac)
+               else if (do_cosmo_model.eq.DO_COSMO_YK) then
+                 write(luout,9993) (insseg(iseg,iat),iseg=1,nseg)
+               endif
             endif
             mseg=0
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) mseg=mseg+1
             enddo
             mfac=0
+            if (do_cosmo_model.eq.DO_COSMO_KS) then
+              do ifac=1,nfac
+                if(.not.insseg(ifac+nseg,iat)) mfac=mfac+1
+              enddo
+            endif
             nspa(iat)=mseg
             nppa(iat)=mfac
+c
+c           ----- surface area of segments -----
+c
+            if (do_cosmo_model.eq.DO_COSMO_KS) then
+              do iseg=1,nseg
+                numpps(iseg,iat)=0
+              enddo
+              do ifac=1,nfac
+                iseg=ijkspa(ifac+nseg,iat)
+                if(iseg.ne.0) numpps(iseg,iat)=numpps(iseg,iat)+1
+              enddo
+            endif
 c
          endif
 c
@@ -564,7 +644,11 @@ c
       ief   =0
       do iat=1,nat
          if(ratm(iat).ne.zero) then
-            ratm_real=ratm(iat)
+            if (do_cosmo_model.eq.DO_COSMO_KS) then
+              ratm_real=ratm(iat)-rsolv/bohr
+            else if (do_cosmo_model.eq.DO_COSMO_YK) then
+              ratm_real=ratm(iat)
+            endif 
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) then
                   ief=ief+1
@@ -572,18 +656,24 @@ c
                      dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzatm(i,iat)
      1                          +xyzseg(i,iseg)*ratm_real
                   enddo
-c
-c                 --- eval eq.(67) from [2] ---
-c
                   ipp=numpps(iseg,iat)
-                  dum=4.00d0**(maxbem-minbem)
-                  dum=16.0d0 ! MAXBEM is obsolete in York and Karplus approach
-                  zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(2.0d0*pi))
-                  zetaii=zetai/sqrt(2.0d0)
-                  dbl_mb(k_efcs+ief-1) = (1.0d0/xyzff(iseg,iat))
-     1                                 * 2.0d0*zetaii/sqrt(pi)
-                  srfmol   = srfmol + xyzff(iseg,iat)*dsurf*ratm_real**2
-                  volmol   = volmol + xyzff(iseg,iat)*dvol *ratm_real**3
+                  if (do_cosmo_model.eq.DO_COSMO_KS) then
+                    dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm_real**2
+                    srfmol = srfmol + dble(ipp)*dsurf*ratm_real**2
+                    volmol = volmol + dble(ipp)*dvol *ratm_real**3
+                  else if (do_cosmo_model.eq.DO_COSMO_YK) then
+c
+c                   --- eval eq.(67) from [2] ---
+c
+                    dum=4.00d0**(maxbem-minbem)
+                    dum=16.0d0 ! MAXBEM is obsolete in York and Karplus approach
+                    zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(2.0d0*pi))
+                    zetaii=zetai/sqrt(2.0d0)
+                    dbl_mb(k_efcs+ief-1) = (1.0d0/xyzff(iseg,iat))
+     1                                   * 2.0d0*zetaii/sqrt(pi)
+                    srfmol = srfmol + xyzff(iseg,iat)*dsurf*ratm_real**2
+                    volmol = volmol + xyzff(iseg,iat)*dvol *ratm_real**3
+                  endif
                   int_mb(k_efciat+ief-1)=iat
                endif
             enddo
@@ -811,9 +901,11 @@ c
       dimension ijkfac(3,*)
       dimension ijkseg(  *)
       dimension xyzseg(3,*)
+      integer do_cosmo_model,cosmo_sccor
 c
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
 c
       parameter (mxpass=    7)
       dimension minfac(mxpass)
@@ -1078,7 +1170,7 @@ c
 c
 c     ----- calculate -dsurf dvol- for the -cosmo- theory -----
 c
-      nfac =nseg
+      if (do_cosmo_model.eq.DO_COSMO_YK) nfac =nseg
       ndiv =nfac/nseg
       dsurf=srf/dble(nfac)
       dvol =vol/dble(nfac)
@@ -1502,13 +1594,13 @@ C>              &=& a_{\mathrm{diag}} |S_\mu|^{-1/2}
 C> \f}
 C> where \f$ S_\mu \f$ is the surface area associated with the COSMO
 C> charge (see [1] Eqs. 7a and 7b). The quantity \f$a_{\mathrm{diag}}\f$
-C> is evaluated using Eq.(B1). This done in two steps in that the
+C> is evaluated using Eq.(B1). This is done in two steps in that the
 C> this quantity is evaluated for the unit sphere in `hnd_cossph`, any
 C> remaining scale factors are applied in the evaluation of \f$A\f$.
 C>
-C> The original COSMO approach has problems when charge approach each
+C> The original COSMO approach has problems when charges approach each
 C> other and the interaction becomes singular. Therefore we have 
-C> replaced this with a model where the interactions are smooth [4]
+C> added a model where the interactions are smooth [4]
 C> which is outlined below.
 C>
 C> ## Surface charges satisfying Gauss's theorem ##
@@ -1615,6 +1707,122 @@ C> the solution from the previous iteration rather than \f$ x=0 \f$ then
 C> \f$ k \f$ may be reduced as well. In practice \f$ k \f$ does not
 C> depend strongly on the initial value of \f$ x \f$, reductions by at
 C> most a factor 2 are seen when the SCF is nearly converged.
+C>
+C> ## Matching terms up ##
+C>
+C> When the COSMO charges have been calculated as described above on 
+C> would like to evaluate the \f$E(Q,q,\lambda)\f$ expression to
+C> obtain the energy of a solvated system. To do this successfully
+C> we need to account for every contribution and see where that is
+C> calculated. The \f$E(Q,q,\lambda)\f$ lists a number of terms:
+C>
+C> - The \f$\frac{1}{2}Q^TCQ\f$ term includes all terms that involve
+C>   the quantum system in vacuum. In particular \f$Q\f$ combines the
+C>   nuclear charges as well as the electron density. 
+C>
+C> - The \f$Q^TBq\f$ term includes all interactions between the charges
+C>   of the QM system and the COSMO point charges.
+C>
+C> - The \f$\frac{1}{2f(\epsilon)}q^TAq\f$ term includes the self
+C>   interaction between the COSMO charges.
+C>
+C> In reality the QM code must optimize the electronic structure under
+C> the influence of the COSMO charges. So while the total energy of
+C> the solvated system is calculated as 
+C> \f{eqnarray*}{
+C>    E_{\mathrm{tot}} &=&
+C>    E_1 + E_2 + E_{\mathrm{nuc}} + E_{\mathrm{COSMO}}
+C> \f}
+C> these terms involve non-trivial combinations of terms in 
+C> \f$E(Q,q,\lambda)\f$. The contributions included are
+C>
+C> - The term \f$E_1\f$ includes the electron-nuclear attraction 
+C>   as well as the electron-COSMO charge interaction.
+C>
+C> - The term \f$E_2\f$ is just the 2-electron term.
+C>
+C> - The term \f$E_{\mathrm{nuc}}\f$ just contains the nuclear-nuclear
+C>   repulsion.
+C>
+C> - The \f$E_{\mathrm{COSMO}}\f$ is a catch all entity that makes
+C>   \f$E_{\mathrm{tot}}\f$ match \f$E(Q,q,\lambda)\f$.
+C>
+C> In particular we need to establish what \f$E_{\mathrm{COSMO}}\f$
+C> actually is. Because the various terms partition in different ways
+C> we need to separate \f$Q\f$ into the charge of the nucleii and the
+C> electrons, i.e. \f$Q = Q_n + Q_e\f$. Within this context the terms 
+C> breakdown in the following way:
+C>
+C> - \f$\frac{1}{2}Q^TCQ=\frac{1}{2}(\sum_i\frac{p_i^2}{m_e}+Q_n^TCQ_n
+C>   +2Q_n^TCQ_e+Q_e^TCQ_e)\f$
+C>
+C> - \f$Q^TBq=Q_n^TBq+Q_e^TBq\f$
+C>
+C> - \f$\frac{1}{2f(\epsilon)}q^TAq\f$
+C>
+C> In the code we have
+C>
+C> - \f$E_1=\frac{1}{2}\sum_i\frac{p_i^2}{m_e}+Q_e^TCQ_n+Q_e^TBq\f$
+C>
+C> - \f$E_2=\frac{1}{2}Q_e^TCQ_e\f$
+C>
+C> - \f$E_{\mathrm{nuc}}=\frac{1}{2}Q_n^TCQ_n\f$
+C>
+C> Equating \f$E(Q,q,\lambda)\f$ to \f$E_{\mathrm{tot}}\f$ we find
+C> that
+C>
+C> - \f$E_{\mathrm{COSMO}}=Q_n^TBq+\frac{1}{2f(\epsilon)}q^TAq\f$
+C>
+C> Essentially this expression is evaluated at "COSMO contribution
+C> Alternative 1". Alternatively one could start from Ref.[1] Eq.(11)
+C> where \f$E(Q,q)=\frac{1}{2}Q^T(C-BA^{-1}B)Q=\frac{1}{2}(Q^TCQ+Q^TBq)\f$.
+C> Equating \f$E(Q,q)\f$ to \f$E_{\mathrm{tot}}\f$ from which we find
+C> that
+C>
+C> - \f$E_{\mathrm{COSMO}}=\frac{1}{2}(Q_n^TBq-Q_e^TBq)\f$
+C>
+C> This expression is evaluated at "COSMO contribution Alternative 2".
+C> Both these equations must produce the same result if no charge 
+C> corrections are imposed.
+C>
+C> In the case Lagrangian multipliers are used to enforce the Gauss
+C> theorem the solution for the COSMO charges have an extra term 
+C> involving the Lagrangian multiplier. Substituting this solution into
+C> \f$E(Q,q,\lambda)\f$ we get
+C> \f{eqnarray*}{
+C>   E(Q,q,\lambda) &=& \frac{1}{2}Q^TCQ+Q^TBq
+C>                   -  \frac{1}{2}qAA^{-1}(BQ+\Lambda) \\\\
+C>    &=& \frac{1}{2}Q^TCQ+\frac{1}{2}Q^TBq-\frac{1}{2}\lambda\sum_iq_i \\\\
+C>    &=& \frac{1}{2}Q^TCQ+\frac{1}{2}Q^TBq-\frac{1}{2}\lambda Q_{in}
+C> \f}
+C> Following the same arguments as above we find that the expression
+C> starting from Ref.[1] Eq.(11) gets an extra term in the COSMO
+C> energy. I.e. at "COSMO contribution Alternative 2" we should have
+C> \f{eqnarray*}{
+C>   E_{\mathrm{COSMO}}&=&\frac{1}{2}(Q_n^TBq-Q_e^TBq)
+C>                      +\frac{1}{2}\lambda Q_{\mathrm{in}}
+C> \f}
+C> I.e. adding a Lagrangian constraint to Ref.[1] Eq.(8) introduces a
+C> shift in Ref.[1] Eq.(11) that equals the product of the Lagrange
+C> multiplier and the target value of the charge. This also follows
+C> from the interpretation of the Lagrange multiplier as the rate of
+C> change of the energy as a function of the constraint value:
+C> \f{eqnarray*}{
+C>   \lambda &=& \frac{\partial E}{\partial Q_{\mathrm{in}}}
+C> \f}
+C> This is explained in [8] and it is also commonly used in economics
+C> where the constraint values can be chosen delibirately to shift
+C> the Lagrangian in the desired direction (the constraints are referred
+C> to as "choice sets", see e.g. [9]). This feature also has 
+C> implications for methods such a "charge equilibration", "density
+C> matrix functional theory", and "constrained DFT".
+C>
+C> In any case, here the constraint was introduced simply to obtain
+C> the correct surface charge. The associated shift in the energy is
+C> unintentional and hence when using \f$E(Q,q,\lambda)\f$ to calculate
+C> the energy we must correct for this shift ot obtain physically
+C> meaningful results (see the subtraction of `elambda` at "Alternative
+C> 1").
 C>
 C> ## Singularity free surface charge self-interaction ##
 C>
@@ -1804,6 +2012,18 @@ C>   <i>J. Chem. Phys.</i> (2010) <b>133</b>, 244111, DOI:
 C>   <a href="http://dx.doi.org/10.1063/1.3511297">
 C>   10.1063/1.3511297</a>.
 C>
+C>   [8] D. Klein,
+C>   "Lagrange multipliers without permanent scarring",
+C>   <a href="http://www.cs.berkeley.edu/~klein/papers/lagrange-multipliers.pdf">
+C>   http://www.cs.berkeley.edu/~klein/papers/lagrange-multipliers.pdf</a>
+C>   [accessed Oct 14, 2014].
+C>
+C>   [9] P. Milgrom, I. Segal,
+C>   "Envelope theorems for arbitrary choice sets",
+C>   <i>Econometrica</i> (2002) <b>70</b>, 583-601, DOI:
+C>   <a href="http://dx.doi.org/10.1111/1468-0262.00296">
+C>   10.1111/1468-0262.00296</a>.
+C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                      efcc,efcs,efcz,efciat,ratm,ecos,
      &                      cosmo_file)
@@ -1819,6 +2039,7 @@ C>
 #include "prop.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "cosmoP.fh"
 c
       integer ndens         !< [Input] the number of density matrices
       integer g_dens(ndens) !< [Input] the handle for the density
@@ -1850,8 +2071,9 @@ c
       integer lineq ! 0: fast direct solver, 1: slow iterative solver
       integer minbem 
       integer maxbem 
+      integer do_cosmo_model 
       integer ificos ! 0 use octahedron, 1 use icosahedron tesselation
-      integer ifscrn ! do screening/correction?
+      integer cosmo_sccor ! do correction?
       integer iat ! counter over atoms
       integer jef ! counter over COSMO charges
       integer l_i10, i10
@@ -1872,6 +2094,7 @@ c
       integer init ! memory requirement vector
       integer ierr ! error flag
       integer iep ! memory offset of b from Ax=b
+      integer ieq ! memory offset of x from Ax=b
       integer nodcmp ! flag specifying how to handle errors
       integer need ! the amount of memory needed
 c
@@ -1889,10 +2112,13 @@ c
       double precision rsolv
       double precision zeta,gammas,swtol
       double precision ptspatm
-      common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision charge ! the total QM region charge
+      double precision chgnuc ! the total nuclear charge
+      integer          nelec  ! the total number of electrons
       double precision chgfac ! scale factor for COSMO charges
       double precision chgcos ! the total COSMO surface charge
       double precision chgcvg ! the convergence of the COSMO charges
@@ -1913,6 +2139,8 @@ c
       double precision rr ! distance
       double precision solnrg ! solvation energy
       double precision dlambda ! lambda (surface charge correction)
+      double precision elambda ! lambda dependent energy term
+      double precision ecos2
       double precision pi
       double precision x(1)
       equivalence (x(1),dbl_mb(1))
@@ -1925,6 +2153,7 @@ c
       double precision bohr
       parameter (bohr=0.529177249d0)
       logical stat
+      logical oprint_energies
 c
       double precision util_erf
       logical util_io_unit
@@ -1952,6 +2181,9 @@ c
       integer iter_cosmo_vem
       integer l_efczfx, k_efczfx  ! memory handles for fixed cosmo-vem charges
       integer g_vem(3) ! ga handles for cosmo-vem GS potential, GS charges, and ES noneq charges
+c
+      oprint_energies = util_print("cosmo_energies",print_never)
+      oprint_energies = oprint_energies.and.(ga_nodeid().eq.0)
 c
       wgsrf_cosmo_vem = zero
       wstar_cosmo_vem = zero
@@ -2000,6 +2232,21 @@ c
 c
 c <-- MN solvation models
 c
+c     ----- number of electrons and charge from rtdb ... -----
+c
+      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
+     $     charge = 0.0d0
+      if (.not. geom_nuc_charge(geom, chgnuc))
+     $     call errquit('hnd_coschg: geom_nuc_charge failed',
+     $                  0, GEOM_ERR)
+      nelec = nint(chgnuc - charge)
+      if (nelec .le. 0)
+     $     call errquit('hnd_coschg: negative no. of electrons ?',
+     $                  nelec, INPUT_ERR)
+      if (abs(chgnuc - charge - dble(nelec)) .gt. 1d-8)
+     $     call errquit('hnd_coschg: non-integral no. of electrons ?',
+     $                  0, INPUT_ERR)
+c
       more=.false.
       dbug=.false.
       dbug=dbug.or.more
@@ -2014,7 +2261,10 @@ c
 c
       iefc_done=.false.
       all=.false.
+      elec=.false.
+      nucl=.false.
       ecos=zero
+      elambda=zero
       istrlen = 0
 c
 c     ----- get electrostatic potential at surface points -----
@@ -2137,143 +2387,240 @@ c
          endif
       endif
 c
+ 10   if (cosmo_sccor.eq.COSMO_SCCOR_NO) then
+        all  = .true.
+        nucl = .false.
+        elec = .false.
+      else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
+        all  = .true.
+        nucl = .false.
+        elec = .false.
+      else if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+        all  = .false.
+        if (.not.nucl.and..not.elec) then
+          nucl = .true.
+          elec = .false.
+        else if (nucl.and..not.elec) then
+          nucl = .false.
+          elec = .true.
+        endif
+      endif
+c
       if(lineq.eq.0) then
 c
-c     ----- in memory -----
+c        ===== in memory =====
 c
          if(out) then
             write(luout,*) '-lineq- in memory'
          endif
 c
-c     ----- calculate q* = A^{-1}BQ -----
+c        ----- calculate q* = A^{-1}BQ -----
 c
-         iep=i10
+         if (all) then
+           iep=i10
+           ieq=i20
+         else if (nucl) then 
+           iep=i11
+           ieq=i21
+         else if (elec) then
+           iep=i12
+           ieq=i22
+         endif
 
          do ief=1,nefc
-            x(ief+i20-1)=x(ief+iep-1)
+            x(ief+ieq-1)=x(ief+iep-1)
          enddo
 
          call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,x(i30))
 c
          nodcmp=1
-         call hnd_linequ(x(i30),nefc,x(i20),nefc,
+         call hnd_linequ(x(i30),nefc,x(ieq),nefc,
      1                   x(i40),x(i50),deta,ierr,nodcmp)
+         if (ierr.ne.0) call errquit("hnd_coschg: hnd_linequ failed",
+     &                               ierr,UERR)
 c
-c     ----- calculate t = A^{-1}1 -----
+c        ----- calculate t = A^{-1}1 -----
 c
-         do ief=1,nefc
-            x(ief+i80-1)=one
-         enddo
-
-         call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,x(i30))
+         if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
 c
-         nodcmp=1
-         call hnd_linequ(x(i30),nefc,x(i80),nefc,
-     1                   x(i40),x(i50),deta,ierr,nodcmp)
+           do ief=1,nefc
+              x(ief+i80-1)=one
+           enddo
+c
+           call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,x(i30))
+c
+           nodcmp=1
+           call hnd_linequ(x(i30),nefc,x(i80),nefc,
+     1                     x(i40),x(i50),deta,ierr,nodcmp)
+           if (ierr.ne.0) call errquit("hnd_coschg: hnd_linequ failed",
+     &                                 ierr,UERR)
+c
+         endif
 c
       else
 c
-c     ----- iterative -----
+c        ===== iterative =====
 c
          if(out) then
             write(luout,*) 'iterative -lineq-'
          endif
 c
-c     ----- calculate qraw = q* = A^{-1}BQ -----
+c        ----- calculate qraw = q* = A^{-1}BQ -----
 c
-         if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
-c
-c           If no raw COSMO charges were found initialize x=0
-c
-            do ief=1,nefc
-               x(ief+i20-1)=zero
-            enddo
+         if (all) then
+           if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
+c             If no raw total COSMO charges were found initialize x=0
+              do ief=1,nefc
+                 x(ief+i20-1)=zero
+              enddo
+           endif
+         else if (nucl) then
+           if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,x(i21)))then
+c             If no raw nuclear COSMO charges were found initialize x=0
+              do ief=1,nefc
+                 x(ief+i21-1)=zero
+              enddo
+           endif
+         else if (elec) then
+           if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,x(i22)))then
+c             If no raw electron COSMO charges were found initialize x=0
+              do ief=1,nefc
+                 x(ief+i22-1)=zero
+              enddo
+           endif
          endif
 c
          direct=.true.
 c
-c     ----- solve ... -----
+c        ----- solve ... -----
 c
-         iep=i10
+         if (all) then
+           iep=i10
+           ieq=i20
+         else if (nucl) then
+           iep=i11
+           ieq=i21
+         else if (elec) then
+           iep=i12
+           ieq=i22
+         endif
 
-         call hnd_cosequ(nat,x(iep),x(i20),nefc,
+         call hnd_cosequ(nat,x(iep),x(ieq),nefc,
      1                   x(i40),x(i50),x(i60),x(i70),
      2                   efcc,efcs,efciat,ratm)
 c
-         if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
-            call errquit('hnd_coschg: could not store raw COSMO charge',
-     1                   nefc,RTDB_ERR)
+         if (all) then
+           if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
+             call errquit('hnd_coschg: could not store raw COSMO '
+     1                  //'charge',nefc,RTDB_ERR)
+           endif
+         else if (nucl) then
+           if (.not.rtdb_put(rtdb,'cosmo:qrawn',mt_dbl,nefc,x(i21)))then
+             call errquit('hnd_coschg: could not store raw nuclear '
+     &                  //'COSMO charge',nefc,RTDB_ERR)
+           endif
+         else if (elec) then
+           if (.not.rtdb_put(rtdb,'cosmo:qrawe',mt_dbl,nefc,x(i22)))then
+             call errquit('hnd_coschg: could not store raw electron '
+     &                  //'COSMO charge',nefc,RTDB_ERR)
+           endif
          endif
 c
-c     ----- calculate t = A^{-1}1 -----
+c        ----- calculate t = A^{-1}1 -----
 c
-         if (.not.rtdb_get(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
+         if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
+           if (.not.rtdb_get(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
 c
-c           If no raw A^{-1}1 charges were found initialize x=0
+c             If no raw A^{-1}1 charges were found initialize x=0
 c
-            do ief=1,nefc
-               x(ief+i80-1)=zero
-            enddo
-         endif
+              do ief=1,nefc
+                 x(ief+i80-1)=zero
+              enddo
+           endif
 c
-         direct=.true.
+           direct=.true.
 c
-c     ----- solve ... -----
+c          ----- solve ... -----
 c
-         do ief=1,nefc
-            x(ief+i21-1)=one
-         enddo
-         iep=i21
-
-         call hnd_cosequ(nat,x(iep),x(i80),nefc,
-     1                   x(i40),x(i50),x(i60),x(i70),
-     2                   efcc,efcs,efciat,ratm)
+           do ief=1,nefc
+              x(ief+i30-1)=one
+           enddo
 c
-         if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
-            call errquit('hnd_coschg: could not store raw A^{-1}1',
-     1                   nefc,RTDB_ERR)
+           call hnd_cosequ(nat,x(i30),x(i80),nefc,
+     1                     x(i40),x(i50),x(i60),x(i70),
+     2                     efcc,efcs,efciat,ratm)
+c
+           if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
+              call errquit('hnd_coschg: could not store raw A^{-1}1',
+     1                     nefc,RTDB_ERR)
+           endif
          endif
       endif
 c
 c     ----- correct the COSMO charges ... -----
 c
-      chgcos=zero
-      chgina=zero ! inverse of A
-      do ief=1,nefc
-         chgief=x(ief+i20-1)
-         chgcos=chgcos+chgief
-         chgina=chgina+x(i80+ief-1)
-      enddo
-      if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
-     $     charge = 0.0d0
-      errcos=charge-chgcos
-      dlambda=errcos/chgina
-      if (ifscrn.ne.1) then
-         do ief=1,nefc
-            x(ief+i20-1)=x(ief+i20-1)+dlambda*x(i80+ief-1)
-         enddo
+      if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+c
+c       ----- correct the COSMO surface charge by scaling -----
+c
+        chgcos=zero
+        do ief=1,nefc
+          chgief=x(ief+ieq-1)
+          chgcos=chgcos+chgief
+        enddo
+        if (all) then
+c
+c         ----- should not get here: it does not make sense for neutrals
+c
+          errcos=charge-chgcos
+          chgfac=charge/chgcos
+        else if (nucl) then
+          errcos=chgnuc-chgcos
+          chgfac=chgnuc/chgcos
+        else if (elec) then
+          errcos=-dble(nelec)-chgcos
+          chgfac=-dble(nelec)/chgcos
+        endif
+        do ief=1,nefc
+          x(ief+ieq-1)=x(ief+ieq-1)*chgfac
+        enddo
+      else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
+c
+c       ----- correct the COSMO surface charge using Lagrangian -----
+c
+        chgcos=zero
+        chgina=zero ! inverse of A
+        do ief=1,nefc
+           chgief=x(ief+i20-1)
+           chgcos=chgcos+chgief
+           chgina=chgina+x(i80+ief-1)
+        enddo
+        errcos=charge-chgcos
+        dlambda=errcos/chgina
+        chgcos=zero
+        do ief=1,nefc
+           x(ief+i20-1)=x(ief+i20-1)+dlambda*x(i80+ief-1)
+           chgcos=chgcos+x(ief+i20-1)
+        enddo
+        elambda = 0.5d0*screen*dlambda*chgcos
+      endif
+      if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+        if (.not.all.and..not.elec) goto 10
+      endif
+      if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
+c
+c       ----- compute combined COSMO charges (nuclear + elec) -----
+c
+        do ief=1,nefc
+           x(ief+i20-1) = x(ief+i21-1) + x(ief+i22-1)
+        enddo
       endif
 c
 c     ----- charge screening due to the dielectric medium -----
 c
 c     ----- set screening factor -----
 c
-      if(ifscrn.eq.0) then
-         chgfac=one
-      elseif(ifscrn.eq.1) then
-         chgfac=screen
-      elseif(ifscrn.eq.2) then
-         chgfac=screen
-      else
-         write(luout,*) 'illegal -ifscrn- ... stop. = ',ifscrn
-         call errquit('hnd_coschg: illegal -ifscrn-...',911,UERR)
-         chgfac=one
-      endif
-
-      if(out) then
-         write(luout,*) ' ifscrn                       = ',ifscrn
-         write(luout,9984) chgfac
-      endif
+      chgfac=screen
 c
 c     ----- apply screening factor -----
 c
@@ -2294,7 +2641,7 @@ c
          if(delchg.gt.chgcvg) then
             chgcvg=delchg
          endif
-         efcz(ief)=chgief
+         efcz(ief)=x(ief+i20-1)
       enddo
 c
 c MN solvation models -->
@@ -2329,56 +2676,25 @@ c
 c
 c     ----- calculate energy terms from -cosmo- charges -----
 c
-      allefc=zero
-      atmefc=zero
-      efcefc=zero
-      do jef=1,nefc
-         xj=efcc(1,jef)
-         yj=efcc(2,jef)
-         zj=efcc(3,jef)
-         qj=efcz(  jef)
-         zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
+c     Below are two formulations of the COSMO energy ecos. When no
+c     surface charge corrections are used the results should be 
+c     identical. If surface charge corrections are employed using
+c     scaling factors or Lagrangian multipliers then additional 
+c     correction terms are needed to ensure the expressions agree.
 c
-         allefc=allefc+qj*x(jef+i10-1)
-c
-         do iat=1,nat
-            xi=dbl_mb(k_xyzpt  +3*(iat-1))
-            yi=dbl_mb(k_xyzpt+1+3*(iat-1))
-            zi=dbl_mb(k_xyzpt+2+3*(iat-1))
-            qi=dbl_mb(k_zanpt+iat-1)
-            dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-            bij=one/dij
-            atmefc=atmefc+qi*bij*qj
-         enddo
-c
-         do ief=1,nefc
-            zetai=zeta*sqrt(ptspatm)/(ratm(efciat(ief))*sqrt(2.0d0*pi))
-            xi=efcc(1,ief)
-            yi=efcc(2,ief)
-            zi=efcc(3,ief)
-            qi=efcz(  ief)
-            if(ief.eq.jef) then
-               aij=efcs(ief)
-            else
-               dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-               zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
-               if (dij.lt.1.0d-6) then
-                 aij=2.0d0*zetaij/sqrt(pi)
-               else
-                 aij=util_erf(zetaij*dij)/dij
-               endif
-            endif
-            efcefc=efcefc+qi*aij*qj
-         enddo
-      enddo
-      efcefc= efcefc/(two*chgfac)
-      elcefc= allefc-atmefc
+      call hnd_cos_energy(nat,nefc,chgfac,efcc,efcs,efcz,efciat,ratm,
+     &                    dbl_mb(k_xyzpt),dbl_mb(k_zanpt),x(i10),
+     &                    allefc,atmefc,elcefc,efcefc)
       solnrg= allefc+efcefc
-      ecos  = atmefc+efcefc
-      if (out) then
+c     COSMO contribution Alternative 1 (Ref.[1] Eq.(8))
+      ecos  = atmefc+efcefc-elambda
+c     ecos  = atmefc+efcefc
+      if (oprint_energies) then
+         write(luout,*)'Alternative 1'
          write(luout,9991) atmefc
          write(luout,9990) elcefc
          write(luout,9995) efcefc
+         write(luout,9983) elambda
          write(luout,9988) solnrg
          write(luout,9989) allefc,(-two*efcefc)
          write(luout,9994) ecos  
@@ -2400,14 +2716,16 @@ c
          elcefc=elcefc+qj*x(jef+i12-1)
       enddo
       solnrg= pt5* allefc
-c     no idea what the following line is supposed to mean
-c     ecos  = pt5*(atmefc-elcefc)
-      if (out) then
+c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
+c     ecos = pt5*(atmefc-elcefc)+elambda
+      ecos = pt5*(atmefc-elcefc)
+      if (oprint_energies) then
+         write(luout,*)'Alternative 2'
          write(luout,9991) atmefc
          write(luout,9990) elcefc
          write(luout,9989) allefc
          write(luout,9988) solnrg
-         write(luout,9994) ecos
+         write(luout,9994) ecos 
       endif
 
       if(dbug) then
@@ -2722,6 +3040,7 @@ c
  9986 format(' -wfntyp- = ',a8)
  9985 format(' -scftyp- = ',a8)
  9984 format(' applied screening factor -chgfac- = ',f10.6)
+ 9983 format(' -lambda- energy = ',f20.12)
 c
 c MN solvation models -->
 c
@@ -2786,6 +3105,179 @@ c <-- MN solvation models
 c
       end
 C>
+C> \brief Evaluate COSMO related energy terms
+C>
+C> Based on the COSMO charges a number of energy terms can be evaluated,
+C> including:
+C>
+C> - the nuclear - COSMO charge interaction energy
+C>
+C> - the electron - COSMO charge interaction energy
+C>
+C> - the total solute charge density - COSMO charge interaction energy
+C>
+C> - the COSMO charge - COSMO charge interaction energy
+C>
+C> These terms are inherent in Ref.[1] Eq.(8) and in Ref.[2] Eq.(39).
+C>
+C> ### References ###
+C>
+C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
+C>     "COSMO: a new approach to dielectric screening in solvents with
+C>      explicit expressions for the screening energy and its gradient",
+C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
+C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     10.1039/P29930000799</a>.
+C>
+C> [2] D.M. York, M. Karplus,
+C>     "A smooth solvation potential based on the conductor-like
+C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
+C>     pp 11060-11079, DOI:
+C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     10.1021/jp992097l</a>.
+C>
+      subroutine hnd_cos_energy(nat,nefc,chgscr,efcc,efcs,efcz,efciat,
+     &           ratm,catm,zatm,pot,allefc,atmefc,elcefc,efcefc)
+      implicit none
+c
+#include "cosmoP.fh"
+c
+      integer nat  !< [Input] The number of electrons
+      integer nefc !< [Input] The number of COSMO charges
+      integer efciat(nefc) !< [Input] Mapping of COSMO charges to the
+                           !< atom that generated the corresponding 
+                           !< solvent accessible surface area segment
+c
+      double precision chgscr !< [Input] The dielectric screening
+                              !< factor \f$f(\epsilon)\f$ (see Ref.[2]
+                              !< Eq.(46) with \f$\epsilon_1=1\f$ and
+                              !< \f$\epsilon_2=\epsilon\f$)
+      double precision efcc(3,nefc) !< [Input] The COSMO charge 
+                                    !< coordinates
+      double precision efcs(nefc)   !< [Input] The COSMO charge surface
+                                    !< area \f$|S_\mu|\f$ in Ref.[1]
+                                    !< (see e.g. Eq.(7b)) or Ref.[2]
+                                    !< Eq.(67).
+      double precision efcz(nefc)   !< [Input] The COSMO charges
+      double precision ratm(nat)    !< [Input] The atomic radii
+      double precision catm(3,nat)  !< [Input] The atomic coordinates
+      double precision zatm(nat)    !< [Input] The nuclear charges
+      double precision pot(nefc)    !< [Input] The molecular potential
+                                    !< at the COSMO charge positions
+c
+      double precision allefc !< [Output] The total solute charge 
+                              !< density - COSMO charge interaction
+                              !< energy
+      double precision atmefc !< [Output] The nuclear - COSMO charge
+                              !< interaction energy
+      double precision elcefc !< [Output] The electron - COSMO charge
+                              !< interaction energy
+      double precision efcefc !< [Output] The COSMO charge - COSMO
+                              !< charge interaction energy
+c
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
+      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                 cosmo_sccor
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+c
+      integer ief, jef !< Counters over COSMO charges
+      integer iat      !< Counter over atoms
+c
+      double precision xi,  yi,  zi,  qi
+      double precision xj,  yj,  zj,  qj
+      double precision aii, aij, bij, dij
+c
+      double precision zetai, zetaj, zetaij
+c
+      double precision zero, one, two
+      parameter (zero=0.0d0, one=1.0d0, two=2.0d0)
+      double precision pi
+      double precision util_erf
+      external         util_erf
+c
+      pi    =acos(-1.0d0)
+      allefc=zero
+      atmefc=zero
+      efcefc=zero
+      do jef=1,nefc
+         xj=efcc(1,jef)
+         yj=efcc(2,jef)
+         zj=efcc(3,jef)
+         qj=efcz(  jef)
+c
+         allefc=allefc+qj*pot(jef)
+c
+         do iat=1,nat
+            xi=catm(1,iat)
+            yi=catm(2,iat)
+            zi=catm(3,iat)
+            qi=zatm(  iat)
+            dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+            bij=one/dij
+            atmefc=atmefc+qi*bij*qj
+         enddo
+      enddo
+c
+      if (do_cosmo_model.eq.DO_COSMO_KS) then
+        do jef=1,nefc
+           xj=efcc(1,jef)
+           yj=efcc(2,jef)
+           zj=efcc(3,jef)
+           qj=efcz(  jef)
+           do ief=1,nefc
+              qi=efcz(  ief)
+              if(ief.eq.jef) then
+                 aii=adiag/sqrt(efcs(ief))
+                 aij=aii
+              else
+                 xi=efcc(1,ief)
+                 yi=efcc(2,ief)
+                 zi=efcc(3,ief)
+                 dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+                 aij=one/dij
+              endif
+              efcefc=efcefc+qi*aij*qj
+           enddo
+        enddo
+      else if (do_cosmo_model.eq.DO_COSMO_YK) then
+        do jef=1,nefc
+           xj=efcc(1,jef)
+           yj=efcc(2,jef)
+           zj=efcc(3,jef)
+           qj=efcz(  jef)
+           zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
+c
+           do ief=1,nefc
+              zetai=zeta*sqrt(ptspatm)
+     &             /(ratm(efciat(ief))*sqrt(2.0d0*pi))
+              xi=efcc(1,ief)
+              yi=efcc(2,ief)
+              zi=efcc(3,ief)
+              qi=efcz(  ief)
+              if(ief.eq.jef) then
+                 aij=efcs(ief)
+              else
+                 dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+                 zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
+                 if (dij.lt.1.0d-6) then
+                   aij=2.0d0*zetaij/sqrt(pi)
+                 else
+                   aij=util_erf(zetaij*dij)/dij
+                 endif
+              endif
+              efcefc=efcefc+qi*aij*qj
+           enddo
+        enddo
+      endif
+      efcefc= efcefc/(two*chgscr)
+      elcefc= allefc-atmefc
+c
+      end
+C>
 C> \brief Compute matrix A
 C> 
 C> Compute matrix `A` as needed for the in-memory COSMO
@@ -2793,6 +3285,7 @@ C> charge fitting.
 C>
       subroutine hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,a)
       implicit none
+#include "cosmoP.fh"
       integer          nat  !< [Input] The number of atoms
       integer          nefc !< [Input] The number of surface charges
       double precision efcc(3,nefc) !< [Input] The surface charge coords
@@ -2807,10 +3300,14 @@ c
       double precision zetai, zetaj, zetaij
       parameter (one = 1.0d0)
 c
+      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                 cosmo_sccor
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
 c
       double precision util_erf
       external util_erf
@@ -2818,12 +3315,31 @@ c
       double precision pi
       pi = acos(-1.0d0)
 c
-      do jef=1,nefc
-         zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
-         xj=efcc(1,jef)
-         yj=efcc(2,jef)
-         zj=efcc(3,jef)
-         do ief=1,nefc
+      if (do_cosmo_model.eq.DO_COSMO_KS) then
+        do jef=1,nefc
+          xj=efcc(1,jef)
+          yj=efcc(2,jef)
+          zj=efcc(3,jef)
+          do ief=1,nefc
+            if(ief.eq.jef) then
+              aii=adiag/sqrt(efcs(ief))
+              a(ief,jef)=aii
+            else
+              xi=efcc(1,ief)
+              yi=efcc(2,ief)
+              zi=efcc(3,ief)
+              dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+              a(ief,jef)=one/dij
+            endif
+          enddo
+        enddo
+      else if (do_cosmo_model.eq.DO_COSMO_YK) then
+        do jef=1,nefc
+          zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
+          xj=efcc(1,jef)
+          yj=efcc(2,jef)
+          zj=efcc(3,jef)
+          do ief=1,nefc
             if(ief.eq.jef) then
                aii=efcs(ief)
                a(ief,jef)=aii
@@ -2841,8 +3357,9 @@ c
                  a(ief,jef)=util_erf(zetaij*dij)/dij
                endif
             endif
-         enddo
-      enddo
+          enddo
+        enddo
+      endif
 c
       end
 C>
@@ -2857,6 +3374,7 @@ C>
       implicit none
 #include "global.fh"
 #include "msgids.fh"
+#include "cosmoP.fh"
 c
       integer          nat  !< [Input] The number of atoms
       integer          nefc !< [Input] The number of surface charges
@@ -2873,10 +3391,14 @@ c
       double precision zero, one
       parameter (zero=0.0d+00, one=1.0d+00)
 c
+      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                 cosmo_sccor
       double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
       common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
+     &                  cosmo_sccor
 c
       double precision util_erf
       external util_erf
@@ -2884,20 +3406,37 @@ c
 c     Introduced a trivial replicated data parallelization of this
 c     matrix-vector multiplication
 c
-      double precision r
+      double precision r, d
       integer i, j
       r (i,j)=sqrt((efcc(1,i)-efcc(1,j))**2+
      1             (efcc(2,i)-efcc(2,j))**2+
      2             (efcc(3,i)-efcc(3,j))**2)
-c     d (i  )=adiag/sqrt(efcs(i))
+      d (i  )=adiag/sqrt(efcs(i))
 c
       pi=acos(-1.0d0)
       call dfill(nefc,0.0d0,ax,1)
-      do i=ga_nodeid()+1,nefc,ga_nnodes()
-         zetai=zeta*sqrt(ptspatm) /
-     &         (ratm(efciat(i))*sqrt(2.0d0*pi))
-         dum=zero
-         do j=1,nefc
+c
+      if (do_cosmo_model.eq.DO_COSMO_KS) then
+        do i=ga_nodeid()+1,nefc,ga_nnodes()
+          dum=zero
+          do j=1,nefc
+            if (i.eq.j) then
+              aij = d(i)
+            else
+              dij = r(i,j)
+              aij = one/dij
+            endif
+            xj=x(j)
+            dum=dum+aij*xj
+          enddo
+          ax(i)=dum
+        enddo
+      else if (do_cosmo_model.eq.DO_COSMO_YK) then
+        do i=ga_nodeid()+1,nefc,ga_nnodes()
+          zetai=zeta*sqrt(ptspatm) /
+     &          (ratm(efciat(i))*sqrt(2.0d0*pi))
+          dum=zero
+          do j=1,nefc
             if(j.eq.i) then
                aij=efcs(i)
             else
@@ -2913,9 +3452,11 @@ c
             endif
             xj=x(j)
             dum=dum+aij*xj
-         enddo
-         ax(i)=dum
-      enddo
+          enddo
+          ax(i)=dum
+        enddo
+      endif
+c
       call ga_dgop(msg_cosaxd,ax,nefc,'+')
 c
       return
@@ -2970,7 +3511,7 @@ C>
      &                      ratm)
       implicit none
 c
-c     ----- solve a * x = b , using an iterative procedure       -----
+c     ----- solve A * x = b , using an iterative procedure       -----
 c
 c     ----- numerical recipes (p.70), cambridge university press -----
 c          w.h.press, b.p.flannery, s.a.teukolsky, w.t.vetterling
@@ -3086,15 +3627,29 @@ c
 C>
 C> \brief Direct linear system solver
 C>
-C> This is direct linear system solver. On return the matrix A has been
-C> destroyed.
+C> This is direct linear system solver, solving \f$Ax=b\f$ for \f$x\f$.
+C> On return the matrix \f$A\f$ has been destroyed, and \f$b\f$ has been
+C> overwritten with the answer \f$x\f$.
 C>
       subroutine hnd_linequ(a,lda,b,n,ib,t,deta,ierr,nodcmp)
-      implicit real*8 (a-h,o-z)
-      dimension a(lda,1),b(n),ib(n),t(n)
+      implicit none
+      integer lda !< [Input] The leading dimension of \f$A\f$
+      integer n   !< [Input] The dimension of matrix \f$A\f$
+      double precision a(lda,n) !< [In/Output] On input the matrix
+      !< \f$A\f$; On output the matrix has been destroyed
+      double precision b(n) !< [In/Output] On input the right-hand-side 
+      !< \f$b\f$; on output the solution \f$x\f$
+      double precision t(n)
+      integer ib(n)
+      double precision deta !< [Output] The determinant of \f$A\f$
+      integer ierr !< [Output] Error code
+      integer nodcmp !< [Input] Flag, if \f$\mathrm{nodcmp}\ne 1\f$
+      !< then skip the LU decomposition
+      integer j !< Counter
 c
 c     ----- solve a * x = b , with x returned in b -----
 c
+      ierr = 0
       if(nodcmp.ne.1) go to 20
 c
       call hnd_ludcmp(a,lda,n,ib,t,deta,ierr)
@@ -3106,7 +3661,9 @@ c
 c
       return
       end
-c
+C>
+C> \brief LU back substitution
+C>
       subroutine hnd_lubksb(a,lda,n,ib,b)
       implicit real*8 (a-h,o-z)
 c
@@ -3138,7 +3695,9 @@ c
    14 continue
       return
       end
-c
+C>
+C> \brief LU decomposition
+C>
       subroutine hnd_ludcmp(a,lda,n,ib,vv,d,ierr)
       implicit real*8 (a-h,o-z)
 c
@@ -3269,4 +3828,6 @@ c
 c
       return
       end
+C>
+C> @}
 c $Id$
