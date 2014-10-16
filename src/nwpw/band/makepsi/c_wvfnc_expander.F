@@ -20,7 +20,7 @@
 
       integer ne(2),ispin
 
-      character*50 new_wavefunction_filename
+      character*50 new_wavefunction_filename,filename
       character*50 old_wavefunction_filename
       character*255 full_filename,full_filename2
 
@@ -67,7 +67,9 @@
       call iread(5,nbrillioun,1)
       call iread(5,occupation,1)
  
-      call util_file_name('c_wvfnc_expander',
+      l = index(new_wavefunction_filename,' ') - 1
+      filename = new_wavefunction_filename(1:l)//".xpander"
+      call util_file_name(filename,
      >                    .true.,
      >                    .false.,
      >                    full_filename)
