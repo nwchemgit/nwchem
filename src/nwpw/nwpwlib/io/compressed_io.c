@@ -6,10 +6,10 @@
 *									*
 * These routines implement a simple input/output package for writing to	*
 * and reading from gzipped files.					*
-*                                                                       *
+* If filename ends in .ascii then ascii io is used                      *
 *									*
 * Fortran usage:							*
-*	call openfile(unit,'file', 'X', n)	X is either 'r' or 'w'	*
+*	call openfile(unit,'file', 'X', n)	X is either 'r' or 'w' 	*
 *					n is the length of the filename	*
 *	call cwrite(unit,c, n)		c is n element character array	*
 *	call iwrite(unit,i, n)		i is n element integer array	*
@@ -57,6 +57,8 @@
 
 static FILE* fd[MAX_UNIT];	/* the file descriptor of the pipe */
 
+static int ascii[MAX_UNIT];
+
 #define BAIL(X) { fprintf(stderr, X); exit(-1); }
 
 /*
@@ -82,7 +84,15 @@ void FATR cwrite_
 {
 #endif
 
-   (void) fwrite(c, sizeof(char), *n, fd[*unit]);
+   if (ascii[*unit])
+   {
+      int j;
+      for (j=0; j<(*n); ++j)
+         (void) fprintf(fd[*unit],"%c ",c[j]);
+      (void) fprintf(fd[*unit],"\n");
+   }
+   else
+      (void) fwrite(c, sizeof(char), *n, fd[*unit]);
 }
 
 void FATR cread_
@@ -100,27 +110,67 @@ void FATR cread_
 {
 #endif
 
-   (void) fread(c, sizeof(char), *n, fd[*unit]);
+   if (ascii[*unit])
+   {
+      int j;
+      for (j=0; j<(*n); ++j)
+         (void) fscanf(fd[*unit],"%c ",&c[j]);
+   }
+   else
+      (void) fread(c, sizeof(char), *n, fd[*unit]);
 }
 
 void FATR iwrite_(const Integer *unit, const Integer *i, const Integer *n)
 {
-   (void) fwrite(i, sizeof(Integer), *n, fd[*unit]);
+   if (ascii[*unit])
+   {
+      int j;
+      for (j=0; j<(*n); ++j)
+         fprintf(fd[*unit],"%d ",(int) i[j]);
+      fprintf(fd[*unit],"\n");
+   }
+   else
+      (void) fwrite(i, sizeof(Integer), *n, fd[*unit]);
 }
 
 void FATR iread_(const Integer *unit, Integer *i, const Integer *n)
 {
-   (void) fread(i, sizeof(Integer), *n, fd[*unit]);
+   if (ascii[*unit])
+   {
+      int j,k;
+       for (j=0; j<(*n); ++j)
+       {
+          (void) fscanf(fd[*unit],"%d ",&k);
+          i[j] = (Integer) k;
+       }
+   }
+   else
+      (void) fread(i, sizeof(Integer), *n, fd[*unit]);
 }
 
 void FATR dwrite_(const Integer *unit, const DoublePrecision *d, const Integer *n)
 {
-   (void) fwrite(d, sizeof(DoublePrecision), *n, fd[*unit]);
+   if (ascii[*unit])
+   {
+      int j;
+      for (j=0; j<(*n); ++j)
+         fprintf(fd[*unit],"%20.15le ",d[j]);
+      fprintf(fd[*unit],"\n");
+   }
+   else
+      (void) fwrite(d, sizeof(DoublePrecision), *n, fd[*unit]);
 }
 
 void FATR dread_(const Integer *unit, DoublePrecision *d, const Integer *n)
 {
-   (void) fread(d, sizeof(DoublePrecision), *n, fd[*unit]);
+   if (ascii[*unit])
+   {
+      int j;
+      for (j=0; j<(*n); ++j)
+         (void) fscanf(fd[*unit],"%le ",&d[j]);
+   }
+   else
+      (void) fread(d, sizeof(DoublePrecision), *n, fd[*unit]);
 }
 
 void FATR dshift_fileptr_(const Integer *unit, const Integer *n)
@@ -167,17 +217,34 @@ void FATR openfile_
 #endif
 
    char *file = (char *) malloc(*n1+1);
+   char *rc, *wc;
 
 
    
    (void) strncpy(file, filename, *n1);
    file[*n1] = '\0';
 
+   /* look for ".ascii" substring */
+   if (strstr(filename,".ascii"))
+   {
+      ascii[*unit] = 1;
+      rc = "r";
+      wc = "w";
+   }
+   else
+   {
+      ascii[*unit] = 0;
+      rc = "rb";
+      wc = "wb";
+   }
+
    if ((*mode == 'r') || (*mode == 'R')) {
-      if (!(fd[*unit] = fopen(file, "rb")))
+      if (!(fd[*unit] = fopen(file, rc)))
          BAIL("ERROR:  Could not open pipe from input file\n");
-   } else {
-      if (!(fd[*unit] = fopen(file, "wb")))
+   } 
+   else
+   {
+      if (!(fd[*unit] = fopen(file, wc)))
          BAIL("ERROR:  Could not open pipe to output file\n");
    }
 
