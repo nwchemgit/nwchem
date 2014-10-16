@@ -41,8 +41,8 @@ Here are some steps and notes on running the QA tests:
       that everything is working.  If a job did not work, the output can
       be found in the $NWCHEM_TOP/QA/testoutputs directory.  If the problem
       seems significant and/or you are unsure whether NWChem performed the
-      calculation correctly, please send a message to 
-      nwchem-support@emsl.pnl.gov
+      calculation correctly, please submit a post to the NWChem forum
+      http://www.nwchem-sw.org/index.php/Special:AWCforum
       with details about your computer, the environment variables that were
       set when you compiled NWChem, and the output of the calculation that
       you are concerned about.
