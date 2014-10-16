@@ -57,7 +57,8 @@
       call iread(5,occupation,1)
  
       version = 5
-      filename = "junk.wvfnc"
+      l = index(wavefunction_filename,' ') - 1
+      filename = wavefunction_filename(1:l)//".junk"
       call util_file_name_noprefix(filename,
      >                    .false.,
      >                    .false.,
@@ -92,8 +93,8 @@
      >                    full_filename3)
 
       if (oprint) then
-      write(*,109) wavefunction_filename
-      write(*,110) filename
+      write(*,109) full_filename
+      write(*,110) full_filename3
       end if
   109 format(' filename converted    : ',A)
   110 format(' pspw filename moved to: ',A)
@@ -129,7 +130,7 @@
       value = MA_free_heap(cfull(2))
       value = MA_free_heap(cfull_out(2))
 
-c     *** copy junk.wvfncr to wavefunction_filename ****
+c     *** copy .junk wvfncr to wavefunction_filename ****
       call util_file_copy(full_filename,full_filename3)
       call util_file_copy(full_filename2,full_filename)
       call util_file_unlink(full_filename2)
@@ -203,7 +204,8 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
       call iread(5,occupation,1)
  
       version = 5
-      filename = "junk.wvfnc"
+      l = index(wavefunction_filename,' ') - 1
+      filename = wavefunction_filename(1:l)//".junk"
       call util_file_name_noprefix(filename,
      >                    .false.,
      >                    .false.,
@@ -238,8 +240,8 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
      >                    full_filename3)
 
       if (oprint) then
-      write(*,109) wavefunction_filename
-      write(*,110) filename
+      write(*,109) full_filename
+      write(*,110) full_filename3
       end if
   109 format(' filename converted    : ',A)
   110 format(' pspw filename moved to: ',A)
@@ -275,7 +277,7 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
       value = MA_free_heap(cfull(2))
       value = MA_free_heap(cfull_out(2))
 
-c     *** copy junk.wvfncr to wavefunction_filename ****
+c     *** copy .junk wvfncr to wavefunction_filename ****
       call util_file_copy(full_filename,full_filename3)
       call util_file_copy(full_filename2,full_filename)
       call util_file_unlink(full_filename2)
@@ -333,6 +335,7 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
 
       version = 3  ! or 4
 
+
       wavefunction_filename = control_input_v_psi()
       call util_file_name_noprefix(wavefunction_filename,
      >                    .false.,
@@ -349,7 +352,8 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
       call iread(5,occupation,1)
 
       version = 5
-      filename = "junk.wvfnc"
+      l = index(wavefunction_filename,' ') - 1
+      filename = wavefunction_filename(1:l)//".junk"
       call util_file_name_noprefix(filename,
      >                    .false.,
      >                    .false.,
@@ -421,7 +425,7 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
       value = MA_free_heap(cfull(2))
       value = MA_free_heap(cfull_out(2))
 
-c     *** copy junk.wvfncr to wavefunction_filename ****
+c     *** copy . junk wvfncr to wavefunction_filename ****
       call util_file_copy(full_filename,full_filename3)
       call util_file_copy(full_filename2,full_filename)
       call util_file_unlink(full_filename2)

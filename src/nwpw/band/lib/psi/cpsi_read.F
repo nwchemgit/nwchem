@@ -78,8 +78,9 @@ c     complex*16 tmp(*)
      >                                .false.,
      >                        full_filename)
          l = index(full_filename,' ') -1
-         if (control_print(print_medium))
-     >     write(luout,1210) full_filename(1:l)
+         if (control_print(print_medium)) then
+           write(luout,1210) full_filename(1:l)
+         end if
  1210    FORMAT(/' input psi filename:',A)
 
          call openfile(5,full_filename,l,'r',l)
