@@ -1,0 +1,19 @@
+start cosmo_nacl_dat
+echo
+title "NaCl"
+geometry units angstrom
+  na 0.0 0.0  1.56077802
+  cl 0.0 0.0 -1.13220659
+end
+charge 0
+basis
+  na library 6-31g*
+  cl library 6-311+g*
+end
+cosmo
+  do_cosmo_ks
+end
+scf
+  print cosmo_energies
+end
+task scf energy
