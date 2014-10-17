@@ -1,0 +1,17 @@
+start cosmo_na_dat
+echo
+title "Na+"
+geometry
+  na 0.0 0.0 0.0
+end
+charge +1
+basis
+  na library 6-31g*
+end
+cosmo
+  do_cosmo_ks
+end
+scf
+  print cosmo_energies
+end
+task scf energy
