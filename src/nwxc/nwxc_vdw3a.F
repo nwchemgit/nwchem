@@ -1427,6 +1427,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      .           rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
      .           e6,e8,e10,e12,e63)
       implicit none  
+
+#include "global.fh"
+#include "msgtypesf.h"
+
       integer n,iz(*),max_elem,maxc,version,mxc(max_elem) 
       real*8 xyz(3,*),r0ab(max_elem,max_elem),r2r4(*)
       real*8 rs6,rs8,rs10,alp6,alp8,alp10,rcov(max_elem)
@@ -1443,6 +1447,12 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer ij,ik,jk
       integer,external :: lin
 
+      integer taskid,np,pcount
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
+
+
       e6 =0
       e8 =0
       e10=0
@@ -1458,6 +1468,7 @@ C DFT-D2
 
       do iat=1,n-1
          do jat=iat+1,n
+            if (mod(pcount,np).eq.taskid) then
             dx=xyz(1,iat)-xyz(1,jat)
             dy=xyz(2,iat)-xyz(2,jat)
             dz=xyz(3,iat)-xyz(3,jat)
@@ -1468,8 +1479,11 @@ c           if(r2.gt.rthr) cycle
             damp6=1./(1.+exp(-alp6*(r/(rs6*r0ab(iz(jat),iz(iat)))-1.)))
             r6=r2**3      
             e6 =e6+c6*damp6/r6
+            end if
+            pcount = pcount + 1
          enddo
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
 
       else
 C DFT-D3
@@ -1478,6 +1492,8 @@ C DFT-D3
       icomp=0
       do iat=1,n-1
          do jat=iat+1,n
+
+         if (mod(pcount,np).eq.taskid) then
             dx=xyz(1,iat)-xyz(1,jat)
             dy=xyz(2,iat)-xyz(2,jat)
             dz=xyz(3,iat)-xyz(3,jat)
@@ -1524,14 +1540,22 @@ c use BJ radius
 c              c10=(49.0d0/40.0d0)*c8**2/c6
 c             e10=e10+c10/(r8*r2+(a1*tmp+a2)**10)
             endif
+
+         end if 
+         pcount = pcount + 1
          enddo
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e10,1,'+')
 
       if(noabc)return
 
 C compute non-additive third-order energy using averaged C6
       do iat=1,n-1
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
+
             ij=lin(jat,iat)
             if(icomp(ij).eq.1)then
             do kat=jat+1,n
@@ -1560,8 +1584,11 @@ c C9 has negative sign
 
             enddo
             endif
+         end if
+         pcount = pcount + 1
          enddo
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e63,1,'+')
 
       endif
 
@@ -1832,6 +1859,10 @@ c
       implicit none  
       !include  'param'
 
+#include "global.fh"
+#include "msgtypesf.h"
+
+
       real*8 k1,k2,k3
 
 c global ad hoc parameters
@@ -1881,6 +1912,12 @@ c values >5 might lead to bumps in the potential
                               !dC6(iat,jat)/cCN(jat) in dc6ij(j,i)
       logical skip(n*(n+1)/2)                        
 
+      integer taskid,np,pcount
+
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
+
 
       dc6ij=0.0d0
 
@@ -1900,6 +1937,7 @@ c 2222222222222222222222222222222222222222222222222222222222222222222222222
       disp=0
       do iat=1,n-1
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
             R0=r0ab(iz(jat),iz(iat))*rs6
             dx=(xyz(1,iat)-xyz(1,jat))
             dy=(xyz(2,iat)-xyz(2,jat))
@@ -1926,8 +1964,12 @@ c           if(r2.gt.rthr) cycle
             g(2,jat)=g(2,jat)-gy2*c6      
             g(3,jat)=g(3,jat)-gz2*c6      
             disp=disp+c6*(1./damp1)/r2**3
+         end if
+         pcount = pcount + 1
          enddo
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
       disp=-disp
       goto 999
       endif
@@ -1974,6 +2016,7 @@ c standard correction
 
       disp=0
 
+      dc6ij = 0.0d0
       drij=0.0d0
       dc6_rest=0.0d0
       dcn=0.0d0
@@ -1981,139 +2024,116 @@ c standard correction
       skip=.true.
 
 
+*     *** compute dc6ij,dc6_rest and dcn  and non dcn part of drij****
+      do iat=1,n
+         do jat=1,iat-1
+             if (mod(pcount,np).eq.taskid) then
+             linij=lin(iat,jat)
+             rij=xyz(:,jat)-xyz(:,iat)
+             r2=sum(rij*rij)
+             if (r2.le.rthr) then
+
+                r0=r0ab(iz(jat),iz(iat))
+                r42=r2r4(iz(iat))*r2r4(iz(jat))
+                rcovij=rcov(iz(iat))+rcov(iz(jat))
+
+                call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
+     >            mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
+     >            c6,dc6ij(iat,jat),dc6ij(jat,iat))
+
+                r=dsqrt(r2)
+                r6=r2*r2*r2
+                r7=r6*r
+                r8=r6*r2
+                r9=r8*r
+
+                t6 = (r/(rs6*R0))**(-alp6)
+                damp6 =1.d0/( 1.d0+6.d0*t6 )
+                t8 = (r/(rs8*R0))**(-alp8)
+                damp8 =1.d0/( 1.d0+6.d0*t8 )
+
+                drij(linij)=drij(linij)-s6*(6.0/(r7)*C6*damp6)  ! d(r^(-6))/d(r_ij)
+     >            -s8*(24.0/(r9)*C6*r42*damp8)
+
+                drij(linij)=drij(linij)
+     >            +s6*C6/r7*6.d0*alp6*t6*damp6*damp6     !d(f_dmp)/d(r_ij)
+     >            +s8*C6*r42/r9*18.d0*alp8*t8*damp8*damp8
+
+                dc6_rest(linij)=s6/r6*damp6+3.d0*s8*r42/r8*damp8
+                disp=disp-dc6_rest(linij)*c6 
+
+                if (r2.lt.cn_thr) then
+                   expterm=exp(-k1*(rcovij/r-1.d0))
+                   dcn(linij)=-k1*rcovij*expterm/
+     >                 (r*r*(expterm+1.d0)*(expterm+1.d0))
+                end if
+
+             end if
+             end if
+             pcount = pcount + 1
+         end do
+      end do
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dcn,     n*(n+1)/2,'+')
+
+
+
+*     **** compute dcn part of drij ****
       do iat=1,n
         do jat=1,iat-1
-          rij=xyz(:,jat)-xyz(:,iat)
-          r2=sum(rij*rij)
-          if (r2.gt.rthr) cycle
+
+          if (mod(pcount,np).eq.taskid) then
           linij=lin(iat,jat)
-          skip(linij)=.false.
 
-          r0=r0ab(iz(jat),iz(iat))
-          r42=r2r4(iz(iat))*r2r4(iz(jat))
-          rcovij=rcov(iz(iat))+rcov(iz(jat))
-!
-!      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
-!      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
-!
-          call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
-     .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
-     .          c6,dc6ij(iat,jat),dc6ij(jat,iat))
-
-
-          r=dsqrt(r2)
-          r6=r2*r2*r2
-          r7=r6*r
-          r8=r6*r2
-          r9=r8*r
-
-!
-!  Calculates damping functions:
-          t6 = (r/(rs6*R0))**(-alp6)
-          damp6 =1.d0/( 1.d0+6.d0*t6 )
-          t8 = (r/(rs8*R0))**(-alp8)
-          damp8 =1.d0/( 1.d0+6.d0*t8 )
-
-          drij(linij)=drij(linij)-s6*(6.0/(r7)*C6*damp6)  ! d(r^(-6))/d(r_ij)
-     .        -s8*(24.0/(r9)*C6*r42*damp8)
-
-
-          drij(linij)=drij(linij)
-     .        +s6*C6/r7*6.d0*alp6*t6*damp6*damp6     !d(f_dmp)/d(r_ij)
-     .        +s8*C6*r42/r9*18.d0*alp8*t8*damp8*damp8
-
-
-!
-!      in dC6_rest all terms BUT C6-term is saved for the kat-loop
-!          
-          dc6_rest(linij)=s6/r6*damp6+3.d0*s8*r42/r8*damp8
-
-          disp=disp-dc6_rest(linij)*c6  ! calculate E_disp for sanity check
-!
-!         Calculate dCN(iat)/dr_ij which is identical to dCN(jat)/dr_ij
-!          this is needed for dC6/dr_ij          
-!         saved in dcn for the kat-loop
-!          
-
-          if (r2.lt.cn_thr) then
-          expterm=exp(-k1*(rcovij/r-1.d0))
-          dcn(linij)=-k1*rcovij*expterm/
-     .                 (r*r*(expterm+1.d0)*(expterm+1.d0))
-!     
-!     Combine dC6/dCN * dCN/dr_ij to get dC6/dr_ij          
           dc6=(dc6ij(iat,jat)+dc6ij(jat,iat))*dcn(linij)
-
-          drij(linij)=drij(linij)
-     .         + dc6_rest(linij)*dc6            !d(C6(ij))/d(r_ij)
-
-          else
-            dc6=0.0d0
-            skip(linij)=.true.
-          endif
-
+          drij(linij)=drij(linij)+dc6_rest(linij)*dc6 
 !
-!  The kat loop calculates the contributions of dC6(i,k)/dr_ij,
-!  dC6(j,k)/dr_ij, dC6(ij)/dr_ik, dC6(ij)/dr_jk
 !  Basically all term that depend on the coordinates of
 !  3 atoms
 !  This is the reason, why the gradient scales N^3            
 !            
-          DO kat=1,jat-1
+          do kat=1,jat-1
             linik=lin(iat,kat)
             linjk=lin(jat,kat)
 
+            drij(linij) = drij(linij)
+     >                  + dc6_rest(linik)*dc6ij(iat,kat)*dcn(linij)
+     >                  + dc6_rest(linjk)*dc6ij(jat,kat)*dcn(linij)
 
-!              dc6=dc6ij(iat,kat)*dcn(linij)
-
-            if (.not.skip(linij)) then
-              drij(linij)=drij(linij)+
-     .            dc6_rest(linik)*dc6ij(iat,kat)*dcn(linij)             
-
-              drij(linij)=drij(linij)+
-     .         dc6_rest(linjk)*dc6ij(jat,kat)*dcn(linij)
-            endif
-
-
-            if (.not.skip(linjk)) then
-              drij(linjk)=drij(linjk)+
-     .           dc6_rest(linik)*dc6ij(kat,iat)*dcn(linjk)
-
-              drij(linjk)=drij(linjk)+
-     .           dc6_rest(linij)*dc6ij(jat,iat)*dcn(linjk)
-            endif
+            drij(linjk) = drij(linjk)
+     >                  + dc6_rest(linik)*dc6ij(kat,iat)*dcn(linjk)
+     >                  + dc6_rest(linij)*dc6ij(jat,iat)*dcn(linjk)
              
-          
- 
+            drij(linik) = drij(linik)
+     >                  + dc6_rest(linjk)*dc6ij(kat,jat)*dcn(linik) 
+     >                  + dc6_rest(linij)*dc6ij(iat,jat)*dcn(linik)
 
-            
-            if (.not.skip(linik)) then
-              drij(linik)=drij(linik)+
-     .        dc6_rest(linjk)*dc6ij(kat,jat)*dcn(linik) 
+          end do!kat
 
-
-              drij(linik)=drij(linik)+
-     .          dc6_rest(linij)*dc6ij(iat,jat)*dcn(linik)
-            endif
-
-
-          ENDDO !kat
-!          g(:,iat)=g(:,iat)+drij*rij/r
-!          g(:,jat)=g(:,jat)-drij*rij/r
+        end if
+        pcount = pcount + 1
         enddo !jat
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,n*(n+1)/2,'+')
 
 ! After calculating all derivatives dE/dr_ij w.r.t. distances,
 ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
       do iat=2,n
         do jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           rij=xyz(:,jat)-xyz(:,iat)
           r=sqrt(sum(rij*rij))
           g(:,iat)=g(:,iat)+drij(lin(iat,jat))*rij/r
           g(:,jat)=g(:,jat)-drij(lin(iat,jat))*rij/r
 
 
+        end if
+        pcount = pcount + 1
         enddo !iat
       enddo !jat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
 
 !      stop('Bis hier und nicht weiter!')
       endif !version 3
@@ -2128,166 +2148,112 @@ c Becke-Johnson finite damping
       disp=0
       call ncoord(n,rcov,iz,xyz,cn,cn_thr)
 
+      dc6ij = 0.0d0
       drij=0.0d0
       dc6_rest=0.0d0
       dcn=0.0d0
       kat=0
       skip=.true.
 
-
+*     *** compute dc6ij,dc6_rest and dcn  and non dcn part of drij****
       do iat=1,n
-        do jat=1,iat-1
-          rij=xyz(:,jat)-xyz(:,iat)
-          r2=sum(rij*rij)
-          if (r2.gt.rthr) cycle
+         do jat=1,iat-1
+            rij=xyz(:,jat)-xyz(:,iat)
+            r2=sum(rij*rij)
+            if (r2.le.rthr) then
+               linij=lin(iat,jat)
+               r0=r0ab(iz(jat),iz(iat))
+               r42=r2r4(iz(iat))*r2r4(iz(jat))
+               rcovij=rcov(iz(iat))+rcov(iz(jat))
 
-          linij=lin(iat,jat)
-          skip(linij)=.false.
-          r0=r0ab(iz(jat),iz(iat))
-          r42=r2r4(iz(iat))*r2r4(iz(jat))
-          rcovij=rcov(iz(iat))+rcov(iz(jat))
-!
-!      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
-!      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
-!
-          call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
-     .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
-     .          c6,dc6ij(iat,jat),dc6ij(jat,iat))
+               call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
+     >           mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
+     >           c6,dc6ij(iat,jat),dc6ij(jat,iat))
+
+               r=dsqrt(r2)
+               r4=r2*r2
+               r6=r4*r2
+               r7=r6*r
+               r8=r6*r2
+               r9=r8*r
+
+               R0=a1*sqrt(3.0d0*r42)+a2  !c use BJ radius
+               t6=(r6+R0**6)
+               t8=(r8+R0**8)
+
+               drij(linij)=drij(linij)
+     >           -s6*C6*6.0d0*r4*r/(t6*t6)
+     >           -s8*C6*24.0d0*r42*r6*r/(t8*t8)
+
+               dc6_rest(linij)=s6/t6+3.d0*s8*r42/t8
+               disp=disp-dc6_rest(linij)*c6  ! calculate E_disp for sanity check
+
+               if (r2.lt.cn_thr) then
+                  expterm=exp(-k1*(rcovij/r-1.d0))
+                  dcn(linij)=-k1*rcovij*expterm/
+     >                 (r*r*(expterm+1.d0)*(expterm+1.d0))
+               end if
+            end if
+         end do
+      end do
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest,n*(n+1)/2,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dcn,     n*(n+1)/2,'+')
 
 
-          r=dsqrt(r2)
-          r4=r2*r2
-          r6=r4*r2
-          r7=r6*r
-          r8=r6*r2
-          r9=r8*r
+*     **** compute dcn part of drij ****
+      do iat=1,n
+         do jat=1,iat-1
+            if (mod(pcount,np).eq.taskid) then
+            linij=lin(iat,jat)
 
-c use BJ radius
-          R0=a1*sqrt(3.0d0*r42)+a2
- 
-          t6=(r6+R0**6)
-          t8=(r8+R0**8)
-
-          drij(linij)=drij(linij)
-     .        -s6*C6*6.0d0*r4*r/(t6*t6)
-     .        -s8*C6*24.0d0*r42*r6*r/(t8*t8)
-
-          dc6_rest(linij)=s6/t6+3.d0*s8*r42/t8
-          disp=disp-dc6_rest(linij)*c6  ! calculate E_disp for sanity check
-!
-!         Calculate dCN(iat)/dr_ij which is identical to dCN(jat)/dr_ij
-!          this is needed for dC6/dr_ij          
-!         saved in dcn for the kat-loop
-!          
-
-          if (r2.lt.cn_thr) then 
-            expterm=exp(-k1*(rcovij/r-1.d0))
-            dcn(linij)=-k1*rcovij*expterm/
-     .                 (r*r*(expterm+1.d0)*(expterm+1.d0))
-!     
-!     Combine dC6/dCN * dCN/dr_ij to get dC6/dr_ij          
             dc6=(dc6ij(iat,jat)+dc6ij(jat,iat))*dcn(linij)
-!
-!      in dC6_rest all terms BUT C6-term is saved for the kat-loop
-!          
+            drij(linij)=drij(linij) + dc6_rest(linij)*dc6            !d(C6(ij))/d(r_ij)
 
-            drij(linij)=drij(linij)
-     .         + dc6_rest(linij)*dc6            !d(C6(ij))/d(r_ij)
-
-
-          else 
-            dc6=0.0d0
-            dcn(linij)=0.0d0
-            skip(linij)=.true.
-          endif
-
-!
-!  The kat loop calculates the contributions of dC6(i,k)/dr_ij,
-!  dC6(j,k)/dr_ij, dC6(ij)/dr_ik, dC6(ij)/dr_jk
 !  Basically all term that depend on the coordinates of
 !  3 atoms
 !  This is the reason, why the gradient scales N^3            
 !            
-          DO kat=1,jat-1
+            do kat=1,jat-1
+               linik=lin(iat,kat)
+               linjk=lin(jat,kat)
 
-            linik=lin(iat,kat)
-            linjk=lin(jat,kat)
-              dc6=dc6ij(iat,kat)*dcn(linij)
+               drij(linij) = drij(linij)
+     >                     + dc6_rest(linik)*dc6ij(iat,kat)*dcn(linij)
+     >                     + dc6_rest(linjk)*dc6ij(jat,kat)*dcn(linij)
 
-              drij(linij)=drij(linij)+
-     .            dc6_rest(linik)*dc6              
+               drij(linjk) = drij(linjk)
+     >                     + dc6_rest(linik)*dc6ij(kat,iat)*dcn(linjk)
+     >                     + dc6_rest(linij)*dc6ij(jat,iat)*dcn(linjk)
 
-              dc6=dc6ij(jat,kat)*dcn(linij)
- 
-!              if (c6-c6chk.gt.1.d-9) stop('error in C6-grad')
+               drij(linik) = drij(linik)
+     >                     + dc6_rest(linjk)*dc6ij(kat,jat)*dcn(linik) 
+     >                     + dc6_rest(linij)*dc6ij(iat,jat)*dcn(linik)
 
-              drij(linij)=drij(linij)+
-     .         dc6_rest(linjk)*dc6
+            end do!kat
+            end if
+            pcount = pcount + 1
+         end do !jat
+      end do !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,n*(n+1)/2,'+')
 
-!            if (kat.eq.iat.or.kat.eq.jat) cycle
-!            rik=xyz(:,kat)-xyz(:,iat)
-!            rik_dist=sum(rik*rik)
-
-!            rjk=xyz(:,kat)-xyz(:,jat)
-!            rjk_dist=sum(rjk*rjk)
- 
-!            if (rik_dist.le.rthr) then
-          
-
-!              if (c6-c6chk.gt.1.d-9) stop('error in C6-grad')
-
-
-
-
-            if(.not.skip(linjk)) then 
-              drij(linjk)=drij(linjk)+
-     .           dc6_rest(linik)*dc6ij(kat,iat)*dcn(linjk)
-
-
-              drij(linjk)=drij(linjk)+
-     .           dc6_rest(linij)*dc6ij(jat,iat)*dcn(linjk)
-            endif 
-!              g(:,kat)=g(:,kat)-drjk*rjk/rjk_dist
-!              g(:,jat)=g(:,jat)+drjk*rjk/rjk_dist
-!            endif !rik<rthr
-
-
-
-!           if (rjk_dist.le.rthr) then
-          
-
-            if (.not.skip(linik)) then 
-              drij(linik)=drij(linik)+
-     .          dc6_rest(linjk)*dc6ij(kat,jat)*dcn(linik) 
-
-
-              drij(linik)=drij(linik)+
-     .          dc6_rest(linij)*dc6ij(iat,jat)*dcn(linik)
-            endif 
-
-!              g(:,kat)=g(:,kat)-drik*rik/rik_dist
-!              g(:,iat)=g(:,iat)+drjk*rik/rik_dist
-!            endif !rik<rthr
-
-          ENDDO !kat
-
-
-
-        enddo !jat
-
-      enddo !iat
 ! After calculating all derivatives dE/dr_ij w.r.t. distances,
 ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
       do iat=2,n
         do jat=1,iat-1
+          if (mod(pcount,np).eq.taskid) then
           rij=xyz(:,jat)-xyz(:,iat)
           r=sqrt(sum(rij*rij))
           g(:,iat)=g(:,iat)+drij(lin(iat,jat))*rij/r
           g(:,jat)=g(:,jat)-drij(lin(iat,jat))*rij/r
 
+        end if
+        pcount = pcount + 1
 
         enddo !iat
       enddo !jat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
 
 
       endif !version=4 (BJ)
@@ -2479,6 +2445,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none  
       !include 'param'
 
+#include "global.fh"
+#include "msgtypesf.h"
+
       real*8 k1,k2,k3
 
 c global ad hoc parameters
@@ -2500,10 +2469,18 @@ c values >5 might lead to bumps in the potential
 
       integer iat    
       real*8 dx,dy,dz,r,damp,xn,rr,rco,r2
+      integer taskid,np,pcount
+
+      call dcopy(natoms,0.0d0,0,cn,1)
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
+
 
       do i=1,natoms
       xn=0.0d0
       do iat=1,natoms
+      if (mod(pcount,np).eq.taskid) then
          if(iat.ne.i)then
             dx=xyz(1,iat)-xyz(1,i)
             dy=xyz(2,iat)-xyz(2,i)
@@ -2518,6 +2495,8 @@ c counting function exponential has a better long-range behavior than MHGs inver
             damp=1.d0/(1.d0+exp(-k1*(rr-1.0d0)))
             xn=xn+damp
          endif
+      end if
+      pcount = pcount + 1
       enddo
 c     if (iz(i).eq.19) then
 c        write(*,*) "Input CN of Kalium"
@@ -2527,6 +2506,8 @@ c      else
          cn(i)=xn
 c      endif  
       enddo
+
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,cn,natoms,'+')
 
       end subroutine ncoord
 

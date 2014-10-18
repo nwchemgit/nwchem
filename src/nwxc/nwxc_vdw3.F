@@ -4328,6 +4328,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none  
       !include 'param'
 
+#include "global.fh"
+#include "msgtypesf.h"
+
       real*8 k1,k2,k3
 
 c global ad hoc parameters
@@ -4353,10 +4356,17 @@ c values >5 might lead to bumps in the potential
       integer iat,taux,tauy,tauz    
       real*8 dx,dy,dz,r,damp,xn,rr,rco,tau(3)
       real*8, INTENT(IN) :: crit_cn
+      integer taskid,np,pcount
+
+      call dcopy(natoms,0.0d0,0,cn,1)
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
 
       do i=1,natoms
       xn=0.0d0
       do iat=1,natoms
+        if (mod(pcount,np).eq.taskid) then
         do taux=-rep_cn(1),rep_cn(1)
          do tauy=-rep_cn(2),rep_cn(2)
           do tauz=-rep_cn(3),rep_cn(3)
@@ -4380,9 +4390,13 @@ c            print '("cn(",I2,I2,"): ",E14.8)',i,iat,damp
           enddo !tauz
          enddo !tauy
         enddo !taux
+        end if
+        pcount = pcount + 1
       enddo !iat
       cn(i)=xn  
       enddo !i
+
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,cn,natoms,'+')
 
       end subroutine pbcncoord
 

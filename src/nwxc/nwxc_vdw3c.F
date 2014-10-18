@@ -145,6 +145,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       implicit none  
       !include 'param'
 
+#include "global.fh"
+#include "msgtypesf.h" 
+
       real*8 k1,k2,k3
 
 c global ad hoc parameters
@@ -170,10 +173,19 @@ c values >5 might lead to bumps in the potential
       integer iat,taux,tauy,tauz    
       real*8 dx,dy,dz,r,damp,xn,rr,rco,tau(3)
       real*8, INTENT(IN) :: crit_cn
+      integer taskid,np,pcount
+
+      call dcopy(natoms,0.0d0,0,cn,1)
+      taskid = GA_Nodeid()
+      np     = GA_Nnodes()
+      pcount = 0
 
       do i=1,natoms
       xn=0.0d0
       do iat=1,natoms
+
+        if (mod(pcount,np).eq.taskid) then
+
         do taux=-rep_cn(1),rep_cn(1)
          do tauy=-rep_cn(2),rep_cn(2)
           do tauz=-rep_cn(3),rep_cn(3)
@@ -197,9 +209,17 @@ c            print '("cn(",I2,I2,"): ",E14.8)',i,iat,damp
           enddo !tauz
          enddo !tauy
         enddo !taux
+
+        end if
+        pcount = pcount + 1
+
       enddo !iat
       cn(i)=xn  
       enddo !i
+
+
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,cn,natoms,'+')
+
 
       end subroutine pbcncoord
 
@@ -280,6 +300,10 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
      .           e6,e8,e10,e12,e63,lat,rthr,rep_vdw,cn_thr,rep_cn)
       implicit none  
+
+#include "global.fh"
+#include "msgtypesf.h"
+
       integer max_elem,maxc
       real*8 r2r4(max_elem),rcov(max_elem)
       real*8 rs6,rs8,rs10,alp6,alp8,alp10
@@ -303,6 +327,12 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       integer taux,tauy,tauz,counter
       real*8 a1,a2  !BJ-parameter
       real*8 bj_dmp6,bj_dmp8
+      integer taskid,np,pcount
+
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
+
 
 
       e6 =0
@@ -325,6 +355,7 @@ C DFT-D2
 
       do iat=1,n-1
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
            c6=c6ab(iz(jat),iz(iat),1,1,1)
            do taux=-rep_vdw(1),rep_vdw(1)
            do tauy=-rep_vdw(2),rep_vdw(2)
@@ -343,10 +374,13 @@ C DFT-D2
            enddo !taux
            enddo !tauy
            enddo !tauz
+         end if
+         pcount = pcount + 1
          enddo
       enddo
       
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
         jat=iat
         c6=c6ab(iz(jat),iz(iat),1,1,1)
         do taux=-rep_vdw(1),rep_vdw(1)
@@ -367,19 +401,26 @@ C DFT-D2
         enddo
         enddo
         enddo
+      end if
+      pcount = pcount + 1
       enddo !iat
 !      write(*,*)'counter: ',counter
+
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
       
       
 
       else if (version.eq.3) then
 C DFT-D3(zero-damping)
 
+      call dcopy(n*n,0.0d0,0,cc6ab,1)
+
       call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
       icomp=0
       do iat=1,n-1
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
 c get C6
           call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
@@ -426,10 +467,13 @@ c stored in main as sqrt
            enddo !tauz
            enddo !tauy
            enddo !taux
+         end if
+         pcount = pcount + 1
          enddo !jat
       enddo !iat
       
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
         jat=iat
 c get C6
         call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
@@ -476,10 +520,17 @@ c stored in main as sqrt
          enddo !tauz
         enddo !tauy
        enddo !taux
+      end if
+      pcount = pcount + 1
       enddo !iat
 !      write(*,*)'counter(edisp): ',counter
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
+
       else if (version.eq.4) then
 
+      call dcopy(n*n,0.0d0,0,cc6ab,1)
 
 C DFT-D3(BJ-damping)
       call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
@@ -487,6 +538,7 @@ C DFT-D3(BJ-damping)
       icomp=0
       do iat=1,n
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
 c get C6
            call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
      .                                  cn(iat),cn(jat),c6)
@@ -532,7 +584,11 @@ c stored in main as sqrt
            enddo !tauz
            enddo !tauy
            enddo !taux
+         end if
+         pcount = pcount + 1
          enddo !jat
+
+         if (mod(pcount,np).eq.taskid) then
 
 ! Now the self interaction
         jat=iat
@@ -584,7 +640,12 @@ c           e12=e12+c14*damp8 /(r10*r2*r2)
          enddo !tauz
         enddo !tauy
        enddo !taux
+      end if
+      pcount = pcount + 1
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,e8,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,cc6ab,n*n,'+')
 
 
       endif !version
@@ -621,11 +682,22 @@ C compute non-additive third-order energy using averaged C6
       REAL*8,PARAMETER::alp9=-16.0d0  !alpha saved with "-" sign
       INTEGER,EXTERNAL :: lin
 
+#include "global.fh"
+#include "msgtypesf.h"
+
+      integer taskid,np,pcount
+
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
+
+
       counter=0
       eabc=0.0d0
 
       do iat=1,n-2
         do jat=iat+1,n-1
+        if (mod(pcount,np).eq.taskid) then
           ijvec=xyz(:,jat)-xyz(:,iat)
           ij=lin(iat,jat)
           do kat=jat+1,n
@@ -692,6 +764,8 @@ C compute non-additive third-order energy using averaged C6
             ENDDO !jtaux
 
           ENDDO !kat
+        end if
+        pcount = pcount + 1
         ENDDO !jat
       ENDDO !iat
 !      write(*,*)'counter ijk: ',counter
@@ -700,6 +774,7 @@ C compute non-additive third-order energy using averaged C6
       ! But this counts only 1/2
 
       DO iat=1,n-1
+      if (mod(pcount,np).eq.taskid) then
       jat=iat
       ijvec=0.0d0
       ij=lin(iat,jat)
@@ -756,6 +831,8 @@ C compute non-additive third-order energy using averaged C6
           ENDDO !jtauy
           ENDDO !jtaux
         ENDDO !kat
+      end if
+      pcount = pcount + 1
       ENDDO !iat
 
 !      write(*,*)'counter iik: ',counter
@@ -763,6 +840,7 @@ C compute non-additive third-order energy using averaged C6
 ! And finally the self interaction iat=jat=kat all 
 
       DO iat=1,n
+      if (mod(pcount,np).eq.taskid) then
       jat=iat
       kat=iat
       ijvec=0.0d0
@@ -824,8 +902,12 @@ C compute non-additive third-order energy using averaged C6
         ENDDO !jtaux
 
 
+      end if
+      pcount = pcount + 1
       ENDDO !iat
 c      write(*,*)'counter iii: ',counter
+
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,eabc,1,'+')
 
       END SUBROUTINE pbcthreebody
 
@@ -879,6 +961,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       
       implicit none  
       !include  'param'
+
+#include "global.fh"
+#include "msgtypesf.h"
 
       real*8 k1,k2,k3
 
@@ -943,6 +1028,12 @@ c coversion factors
       logical, allocatable,dimension(:,:,:,:) ::  skip  !d(E)/d(r_ij) derivative wrt. dist. iat-jat
       integer linij,linik,linjk
       real*8 abc(3,n)
+
+      integer taskid,np,pcount,count
+
+      np     = GA_Nnodes()
+      taskid = GA_Nodeid()
+      pcount = 0
 
 
 
@@ -1039,8 +1130,10 @@ c      testsum=0.0d0
       if(echo)write(*,*) 'doing analytical gradient D-old O(N^2) ...'
       disp=0
       stress=0.0d0
+      sigma=0.0d0
       do iat=1,n-1
          do jat=iat+1,n
+         if (mod(pcount,np).eq.taskid) then
            R0=r0ab(iz(jat),iz(iat))*rs6
            c6=c6ab(iz(jat),iz(iat),1,1,1)*s6
            do taux=-rep_v(1),rep_v(1)
@@ -1071,10 +1164,13 @@ c      testsum=0.0d0
            enddo !tauz
            enddo !tauy
            enddo !taux
+         end if
+         pcount = pcount + 1
          enddo !jat
       enddo !iat
 c and now the self interaction, only for convenient energy in dispersion
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
          jat=iat
            R0=r0ab(iz(jat),iz(iat))*rs6
            c6=c6ab(iz(jat),iz(iat),1,1,1)*s6
@@ -1107,7 +1203,14 @@ c and now the self interaction, only for convenient energy in dispersion
            enddo !tauz
            enddo !tauy
            enddo !taux
+      end if
+      pcount = pcount + 1
       enddo !iat
+
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
+
       
       call inv_cell(lat,lat_1)
       do a=1,3
@@ -1154,9 +1257,12 @@ c precompute for analytical part
       dc6_rest_sum=0.0d0
       dcn=0.0d0
       kat=0
+      dc6ij = 0.0d0
 
 
       do iat=1,n
+        if (mod(pcount,np).eq.taskid) then
+
         call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6ij(iat,iat),fdum)
@@ -1229,10 +1335,14 @@ c precompute for analytical part
         ENDDO !tauy
         ENDDO !taux
 
+        end if
+        pcount = pcount + 1
+
 !!!!!!!!!!!!!!!!!!!!!!!!!!
 ! B E G I N   jat  L O O P 
 !!!!!!!!!!!!!!!!!!!!!!!!!!         
         do jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
 !
 !      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 !      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
@@ -1258,7 +1368,6 @@ c precompute for analytical part
             r2=sum(rij*rij)
             if (r2.gt.rthr) cycle
   
-            skip(tauz,tauy,taux,linij)=.false.
  
             r=dsqrt(r2)
             r6=r2*r2*r2
@@ -1300,9 +1409,66 @@ c precompute for analytical part
           enddo !tauy
           enddo !taux
   
+        end if
+        pcount = pcount + 1
         enddo !jat
 
       enddo !iat
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
+
+*     **** compute dcn ****
+      do iat=1,n
+         if (mod(pcount,np).eq.taskid) then
+         rcovij=rcov(iz(iat))+rcov(iz(iat))
+
+         do taux=-rep_cn(1),rep_cn(1)
+         do tauy=-rep_cn(2),rep_cn(2)
+         do tauz=-rep_cn(3),rep_cn(3)
+           tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
+           r2=sum(tau*tau)
+           if (r2.gt.0.1.and.r2.lt.crit_cn) then
+              r=dsqrt(r2)
+
+              expterm = exp(-k1*(rcovij/r-1.d0))
+              dcn(tauz,tauy,taux,lin(iat,iat))=-k1*rcovij*expterm/
+     >                  (r2*(expterm+1.d0)*(expterm+1.d0))
+
+           end if
+         end do
+         end do
+         end do
+         end if
+         pcount = pcount + 1
+
+         do jat=1,iat-1
+            if (mod(pcount,np).eq.taskid) then
+            rcovij = rcov(iz(iat))+rcov(iz(jat))
+            linij  = lin(iat,jat)
+
+            do taux=-rep_cn(1),rep_cn(1)
+            do tauy=-rep_cn(2),rep_cn(2)
+            do tauz=-rep_cn(3),rep_cn(3)
+               tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
+               rij=xyz(:,jat)-xyz(:,iat)+tau
+               r2=sum(rij*rij)
+               if (r2.le.crit_cn) then
+                  r=dsqrt(r2)
+                  expterm=exp(-k1*(rcovij/r-1.d0))
+                  dcn(tauz,tauy,taux,linij)=-k1*rcovij*expterm/
+     >                     (r2*(expterm+1.d0)*(expterm+1.d0))
+               end if
+            end do 
+            end do 
+            end do 
+
+            end if
+            pcount = pcount + 1
+         end do
+      end do
+      count=(2*rep_cn(3)+1)*(2*rep_cn(2)+1)*(2*rep_cn(1)+1)*(n*(n+1)/2)
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dcn,count,'+')
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -1310,117 +1476,60 @@ c precompute for analytical part
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      skip=.true.
 
       DO iat=1,n
-        r0=r0ab(iz(iat),iz(iat))
-        r42=r2r4(iz(iat))*r2r4(iz(iat))
-        rcovij=rcov(iz(iat))+rcov(iz(iat))
+        if (mod(pcount,np).eq.taskid) then
 
         do taux=-rep_cn(1),rep_cn(1)
         do tauy=-rep_cn(2),rep_cn(2)
         do tauz=-rep_cn(3),rep_cn(3)
-          tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-          r2=sum(tau*tau)
-          if (r2.gt.0.1.and.r2.lt.crit_cn) then
-            r=dsqrt(r2)
 
-            skip(tauz,tauy,taux,lin(iat,iat))=.false.
-!
-!         Calculate dCN(iat)/dr_ij which is identical to dCN(iat)/d(tau)
-!          this is needed for dC6/dr_ij          
-!         saved in dcn for the kat-loop
-!          
-          
-            expterm=exp(-k1*(rcovij/r-1.d0))
-            dcn(tauz,tauy,taux,lin(iat,iat))=-k1*rcovij*expterm/
-     .                 (r2*(expterm+1.d0)*(expterm+1.d0))
+          dc6= (dc6ij(iat,iat)+dc6ij(iat,iat))
+     >        *dcn(tauz,tauy,taux,lin(iat,iat))
+          drij(tauz,tauy,taux,lin(iat,iat)) =
+     >         drij(tauz,tauy,taux,lin(iat,iat))
+     >         +  dc6_rest_sum(lin(iat,iat))*dc6
 
-!     
-!     Combine dC6/dCN * dCN/dr_ij to get dC6/dr_ij          
-          dc6=(dc6ij(iat,iat)+dc6ij(iat,iat))*              !dC6(iat,iat)/dCN(iat) * dCN(iat)/dr(ii)
-     .         dcn(tauz,tauy,taux,lin(iat,iat))
-
-          drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,
-     .         lin(iat,iat))
-     .         +  dc6_rest_sum(lin(iat,iat))*dc6            !d(C6(ii))/d(tau)
-
-
-          endif ! r2<crit_cn
         enddo !tauz
         enddo !tauy
         enddo !taux
+        end if
+        pcount = pcount + 1
 
         DO jat=1,iat-1
+           if (mod(pcount,np).eq.taskid) then
+            linij=lin(iat,jat)
 
-          rcovij=rcov(iz(iat))+rcov(iz(jat))
-
-          linij=lin(iat,jat)
-
-!        write(*,*)'iat,jat:',iat,jat
             do taux=-rep_cn(1),rep_cn(1)
             do tauy=-rep_cn(2),rep_cn(2)
             do tauz=-rep_cn(3),rep_cn(3)
   
+               dc6 = (dc6ij(iat,jat))
+     >              *dcn(tauz,tauy,taux,lin(iat,iat))
+               drij(tauz,tauy,taux,lin(iat,iat)) =
+     >               drij(tauz,tauy,taux,lin(iat,iat))
+     >             + dc6_rest_sum(lin(iat,jat))*dc6  
 
-              if (.not.skip(tauz,tauy,taux,lin(iat,iat))) then
-                dc6=(dc6ij(iat,jat))*                             !dC6(iat,jat)/dCN(iat) * dCN(iat)/dr(ii)
-     .           dcn(tauz,tauy,taux,lin(iat,iat))
+               dc6= (dc6ij(jat,iat))*  
+     >             *dcn(tauz,tauy,taux,lin(jat,jat))
+               drij(tauz,tauy,taux,lin(jat,jat)) =
+     >               drij(tauz,tauy,taux,lin(jat,jat))
+     >            +  dc6_rest_sum(lin(jat,iat))*dc6    
 
-                drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,
-     .             lin(iat,iat))
-     .             +  dc6_rest_sum(lin(iat,jat))*dc6            !d(C6(ij))/d(tau)
-              endif
+               dc6= (dc6ij(iat,jat)+dc6ij(jat,iat))
+     >             *dcn(tauz,tauy,taux,linij)  
+               drij(tauz,tauy,taux,linij) = drij(tauz,tauy,taux,linij)
+     >                                    + dc6_rest_sum(linij)*dc6 
 
+               dc6= (dc6ij(iat,iat)+dc6ij(iat,iat))
+     >             *dcn(tauz,tauy,taux,linij)
+               drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
+     >                                  +dc6_rest_sum(lin(iat,iat))*dc6 
 
-              if (.not.skip(tauz,tauy,taux,lin(jat,jat))) then
-                dc6=(dc6ij(jat,iat))*                             !dC6(iat,jat)/dCN(iat) * dCN(iat)/dr(ii)
-     .           dcn(tauz,tauy,taux,lin(jat,jat))
-
-                drij(tauz,tauy,taux,lin(jat,jat))=drij(tauz,tauy,taux,
-     .           lin(jat,jat))
-     .           +  dc6_rest_sum(lin(jat,iat))*dc6            !d(C6(ij))/d(tau)
-              endif
-
-              tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-              rij=xyz(:,jat)-xyz(:,iat)+tau
-              r2=sum(rij*rij)
-              if (r2.gt.crit_cn) cycle
-              r=dsqrt(r2)
-              skip(tauz,tauy,taux,linij)=.false.
-
-!           Calculate dCN(iat)/dr_ij which is identical to dCN(iat)/d(tau)
-!           this is needed for dC6/dr_ij          
-!           saved in dcn for the kat-loop
-!          
-          
-              expterm=exp(-k1*(rcovij/r-1.d0))
-              dcn(tauz,tauy,taux,linij)=-k1*rcovij*expterm/
-     .                 (r2*(expterm+1.d0)*(expterm+1.d0))
-
-              dc6=(dc6ij(iat,jat)+dc6ij(jat,iat))*  !dC6(iat,jat)/dCN(iat) * dCN(iat)/dr(ij)
-     .             dcn(tauz,tauy,taux,linij)        !dC6(iat,jat)/dCN(jat) * dCN(jat)/dr(ij)
-
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .          linij)
-     .          +dc6_rest_sum(linij)*dc6 
-
-               dc6=(dc6ij(iat,iat)+dc6ij(iat,iat))* !dC6(iat,iat)/dCN(iat) * dCN(iat)/dr(ij)
-     .             dcn(tauz,tauy,taux,linij)
-
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .          linij)
-     .          +dc6_rest_sum(lin(iat,iat))*dc6 
-
-              dc6=(dc6ij(jat,jat)+dc6ij(jat,jat))* !dC6(jat,jat)/dCN(jat) * dCN(jat)/dr(ij)
-     .             dcn(tauz,tauy,taux,linij)
-
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .          linij)
-     .          +dc6_rest_sum(lin(jat,jat))*dc6 
-
-
-
+               dc6= (dc6ij(jat,jat)+dc6ij(jat,jat))
+     >             *dcn(tauz,tauy,taux,linij)
+               drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
+     >                                   +dc6_rest_sum(lin(jat,jat))*dc6 
             enddo !tauz
             enddo !tauy
             enddo !taux
@@ -1439,70 +1548,44 @@ c precompute for analytical part
             do taux=-rep_cn(1),rep_cn(1)
             do tauy=-rep_cn(2),rep_cn(2)
             do tauz=-rep_cn(3),rep_cn(3)
-!              tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
 
+               dc6=dc6ij(iat,kat)*dcn(tauz,tauy,taux,linij)
+               drij(tauz,tauy,taux,linij)= drij(tauz,tauy,taux,linij)
+     >                                    + dc6_rest_sum(linik)*dc6
 
+               dc6=dc6ij(jat,kat)*dcn(tauz,tauy,taux,linij)
+               drij(tauz,tauy,taux,linij)= drij(tauz,tauy,taux,linij)
+     >                                   + dc6_rest_sum(linjk)*dc6
 
+               dc6=dc6ij(kat,iat)*dcn(tauz,tauy,taux,linjk)
+               drij(tauz,tauy,taux,linjk)= drij(tauz,tauy,taux,linjk)
+     >                                   + dc6_rest_sum(linik)*dc6
 
-            if (.not.skip(tauz,tauy,taux,linij)) then
-              dc6=dc6ij(iat,kat)*dcn(tauz,tauy,taux,linij)
+               dc6=dc6ij(jat,iat)*dcn(tauz,tauy,taux,linjk)
+               drij(tauz,tauy,taux,linjk)= drij(tauz,tauy,taux,linjk)
+     >                                   + dc6_rest_sum(linij)*dc6
 
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .             linij)
-     .             +dc6_rest_sum(linik)*dc6
-
-              dc6=dc6ij(jat,kat)*dcn(tauz,tauy,taux,linij)
-
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .             linij)
-     .             +dc6_rest_sum(linjk)*dc6
-
-            endif
-
-
-            if (.not.skip(tauz,tauy,taux,linjk)) then
-              dc6=dc6ij(kat,iat)*dcn(tauz,tauy,taux,linjk)
-
-              drij(tauz,tauy,taux,linjk)=drij(tauz,tauy,taux,
-     .             linjk)
-     .             +dc6_rest_sum(linik)*dc6
-
-              dc6=dc6ij(jat,iat)*dcn(tauz,tauy,taux,linjk)
-
-              drij(tauz,tauy,taux,linjk)=drij(tauz,tauy,taux,
-     .             linjk)
-     .             +dc6_rest_sum(linij)*dc6
-
-            endif
-
-
-            if (.not.skip(tauz,tauy,taux,linik)) then
               dc6=dc6ij(kat,jat)*dcn(tauz,tauy,taux,linik)
-
-              drij(tauz,tauy,taux,linik)=drij(tauz,tauy,taux,
-     .             linik)
-     .             +dc6_rest_sum(linjk)*dc6
+              drij(tauz,tauy,taux,linik)= drij(tauz,tauy,taux,linik)
+     >                                  + dc6_rest_sum(linjk)*dc6
 
               dc6=dc6ij(iat,jat)*dcn(tauz,tauy,taux,linik)
-
-              drij(tauz,tauy,taux,linik)=drij(tauz,tauy,taux,
-     .             linik)
-     .             +dc6_rest_sum(linij)*dc6
-            endif
-
-
-
-          
-
+              drij(tauz,tauy,taux,linik)= drij(tauz,tauy,taux,linik)
+     >                                  + dc6_rest_sum(linij)*dc6
 
             enddo !tauz
             enddo !tauy
             enddo !taux
           enddo !kat
+
+          end if
+          pcount = pcount + 1
+
         ENDDO !jat
-
-
       ENDDO !iat
+
+      count = (2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,count,'+')
 
 
 
@@ -1513,6 +1596,7 @@ c precompute for analytical part
 ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
       do iat=2,n
         do jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           do taux=-rep_v(1),rep_v(1)
           do tauy=-rep_v(2),rep_v(2)
           do tauz=-rep_v(3),rep_v(3)
@@ -1536,10 +1620,13 @@ c precompute for analytical part
           enddo !tauz
           enddo !tauy
           enddo !taux
+        end if
+        pcount = pcount + 1
         enddo !jat
       enddo !iat
 
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
           do taux=-rep_v(1),rep_v(1)
           do tauy=-rep_v(2),rep_v(2)
           do tauz=-rep_v(3),rep_v(3)
@@ -1562,7 +1649,11 @@ c precompute for analytical part
           enddo !tauy
           enddo !taux
 
+      end if
+      pcount = pcount + 1
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
 
       stress=0.0d0
       call inv_cell(lat,lat_1)
@@ -1594,6 +1685,7 @@ c precompute for analytical part
       if (echo) write(*,*) 'doing analytical gradient O(N^3) ...'
       call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,crit_cn)
 
+
       a1 =rs6
       a2 =rs8
       s8 =s18
@@ -1602,6 +1694,7 @@ c precompute for analytical part
      .              -rep_v(1):rep_v(1),n*(n+1)/2))
       allocate(dc6_rest(-rep_v(3):rep_v(3),-rep_v(2):rep_v(2),
      .                  -rep_v(1):rep_v(1),n*(n+1)/2))
+
       allocate(dcn(-rep_cn(3):rep_cn(3),-rep_cn(2):rep_cn(2),
      .             -rep_cn(1):rep_cn(1),n*(n+1)/2))
 
@@ -1613,8 +1706,11 @@ c precompute for analytical part
       dc6_rest_sum=0.0d0
       dcn=0.0d0
       kat=0
+      dc6ij = 0
 
       do iat=1,n
+        if (mod(pcount,np).eq.taskid) then
+
         call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
      .          mxc(iz(iat)),cn(iat),cn(iat),iz(iat),iz(iat),iat,iat,
      .          c6,dc6ij(iat,iat),fdum)
@@ -1682,11 +1778,14 @@ c precompute for analytical part
         ENDDO !tauz
         ENDDO !tauy
         ENDDO !taux
+        end if
+        pcount = pcount + 1
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!
 ! B E G I N   jat  L O O P 
 !!!!!!!!!!!!!!!!!!!!!!!!!!         
         do jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
 !
 !      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 !      dC6(iat,jat)/dCN(jat). these are saved in dC6ij for the kat loop
@@ -1747,9 +1846,72 @@ c precompute for analytical part
           enddo !tauy
           enddo !taux
   
+        end if
+        pcount = pcount + 1
         enddo !jat
 
       enddo !iat
+
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6ij,n*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6_rest_sum,n*(n+1)/2,'+')
+
+      !write(*,*) "hello,disp=",disp
+      !if (taskid.eq.0) write(*,*) "hello,dc6ij=",dc6ij
+      !if (taskid.eq.0) write(*,*) "hello,dc6_rest_sum=",dc6_rest_sum
+
+
+*     **** compute dcn ****
+      do iat=1,n
+         if (mod(pcount,np).eq.taskid) then
+         rcovij=rcov(iz(iat))+rcov(iz(iat))
+         do taux=-rep_cn(1),rep_cn(1)
+         do tauy=-rep_cn(2),rep_cn(2)
+         do tauz=-rep_cn(3),rep_cn(3)
+            tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
+            r2=sum(tau*tau)
+            if (r2.gt.0.1.and.r2.lt.crit_cn) then
+               r=dsqrt(r2)
+               expterm=exp(-k1*(rcovij/r-1.d0))
+               dcn(tauz,tauy,taux,lin(iat,iat))=-k1*rcovij*expterm/
+     >                  (r2*(expterm+1.d0)*(expterm+1.d0))
+            end if
+         end do
+         end do
+         end do
+         end if
+         pcount = pcount + 1
+
+         do jat=1,iat-1
+            if (mod(pcount,np).eq.taskid) then
+            rcovij=rcov(iz(iat))+rcov(iz(jat))
+            linij=lin(iat,jat)
+
+            do taux=-rep_cn(1),rep_cn(1)
+            do tauy=-rep_cn(2),rep_cn(2)
+            do tauz=-rep_cn(3),rep_cn(3)
+               tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
+               rij=xyz(:,jat)-xyz(:,iat)+tau
+               r2=sum(rij*rij)
+               if (r2.le.crit_cn) then
+                  r=dsqrt(r2)
+                  expterm=exp(-k1*(rcovij/r-1.d0))
+                  dcn(tauz,tauy,taux,linij)=-k1*rcovij*expterm/
+     >                 (r2*(expterm+1.d0)*(expterm+1.d0))
+               end if
+            end do
+            end do
+            end do
+            end if 
+            pcount = pcount + 1
+
+         end do
+      end do
+      count=(2*rep_cn(3)+1)*(2*rep_cn(2)+1)*(2*rep_cn(1)+1)*(n*(n+1)/2)
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,dcn,count,'+')
+      !write(*,*) "hello,count=",count
+      !if (taskid.eq.0) write(*,*) "hello,dcn=",dcn
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -1757,114 +1919,58 @@ c precompute for analytical part
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-      skip=.true.
 
-      DO iat=1,n
-        r0=r0ab(iz(iat),iz(iat))
-        r42=r2r4(iz(iat))*r2r4(iz(iat))
-        rcovij=rcov(iz(iat))+rcov(iz(iat))
+      do iat=1,n
+         if (mod(pcount,np).eq.taskid) then
 
-        do taux=-rep_cn(1),rep_cn(1)
-        do tauy=-rep_cn(2),rep_cn(2)
-        do tauz=-rep_cn(3),rep_cn(3)
-          tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-          r2=sum(tau*tau)
-          if (r2.gt.0.1.and.r2.lt.crit_cn) then
-            r=dsqrt(r2)
-            skip(tauz,tauy,taux,lin(iat,iat))=.false.
-!
-!         Calculate dCN(iat)/dr_ij which is identical to dCN(iat)/d(tau)
-!          this is needed for dC6/dr_ij          
-!         saved in dcn for the kat-loop
-!          
-          
-            expterm=exp(-k1*(rcovij/r-1.d0))
-            dcn(tauz,tauy,taux,lin(iat,iat))=-k1*rcovij*expterm/
-     .                 (r2*(expterm+1.d0)*(expterm+1.d0))
+         do taux=-rep_cn(1),rep_cn(1)
+         do tauy=-rep_cn(2),rep_cn(2)
+         do tauz=-rep_cn(3),rep_cn(3)
 
-!     
-!     Combine dC6/dCN * dCN/dr_ij to get dC6/dr_ij          
-          dc6=(dc6ij(iat,iat)+dc6ij(iat,iat))*
-     .         dcn(tauz,tauy,taux,lin(iat,iat))
+            dc6= (dc6ij(iat,iat)+dc6ij(iat,iat))
+     >          *dcn(tauz,tauy,taux,lin(iat,iat))
+            drij(tauz,tauy,taux,lin(iat,iat)) = 
+     >           drij(tauz,tauy,taux,lin(iat,iat))
+     >        +  dc6_rest_sum(lin(iat,iat))*dc6           
 
-          drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,
-     .         lin(iat,iat))
-     .         +  dc6_rest_sum(lin(iat,iat))*dc6            !d(C6(ij))/d(tau)
+         enddo !tauz
+         enddo !tauy
+         enddo !taux
+         end if
+         pcount = pcount + 1
 
-
-          endif ! r2<crit_cn
-        enddo !tauz
-        enddo !tauy
-        enddo !taux
-
-        DO jat=1,iat-1
-
-          rcovij=rcov(iz(iat))+rcov(iz(jat))
-          linij=lin(iat,jat)
-
+         do jat=1,iat-1
+            if (mod(pcount,np).eq.taskid) then
+            linij=lin(iat,jat)
 
             do taux=-rep_cn(1),rep_cn(1)
             do tauy=-rep_cn(2),rep_cn(2)
             do tauz=-rep_cn(3),rep_cn(3)
 
-              if (.not.skip(tauz,tauy,taux,lin(iat,iat))) then
-                dc6=(dc6ij(iat,jat))*                             !dC6(iat,jat)/dCN(iat) * dCN(iat)/dr(ii)
-     .           dcn(tauz,tauy,taux,lin(iat,iat))
+               dc6=(dc6ij(iat,jat))*dcn(tauz,tauy,taux,lin(iat,iat))
+               drij(tauz,tauy,taux,lin(iat,iat)) =
+     >               drij(tauz,tauy,taux,lin(iat,iat))
+     .            +  dc6_rest_sum(lin(iat,jat))*dc6 
 
-                drij(tauz,tauy,taux,lin(iat,iat))=drij(tauz,tauy,taux,
-     .             lin(iat,iat))
-     .             +  dc6_rest_sum(lin(iat,jat))*dc6            !d(C6(ij))/d(tau)
-              endif
+               dc6=(dc6ij(jat,iat))*dcn(tauz,tauy,taux,lin(jat,jat))
+               drij(tauz,tauy,taux,lin(jat,jat)) =
+     >               drij(tauz,tauy,taux,lin(jat,jat))
+     >           +  dc6_rest_sum(lin(jat,iat))*dc6
 
+               dc6=(dc6ij(iat,jat)+dc6ij(jat,iat))
+     >             *dcn(tauz,tauy,taux,linij)
+               drij(tauz,tauy,taux,linij)= drij(tauz,tauy,taux,linij)
+     >                                   + dc6_rest_sum(linij)*dc6 
 
-              if (.not.skip(tauz,tauy,taux,lin(jat,jat))) then
-                dc6=(dc6ij(jat,iat))*                             !dC6(iat,jat)/dCN(iat) * dCN(iat)/dr(ii)
-     .           dcn(tauz,tauy,taux,lin(jat,jat))
+               dc6=(dc6ij(iat,iat)+dc6ij(iat,iat))
+     >             *dcn(tauz,tauy,taux,linij)
+               drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
+     >                                   +dc6_rest_sum(lin(iat,iat))*dc6 
 
-                drij(tauz,tauy,taux,lin(jat,jat))=drij(tauz,tauy,taux,
-     .           lin(jat,jat))
-     .           +  dc6_rest_sum(lin(jat,iat))*dc6            !d(C6(ij))/d(tau)
-              endif
-
-              tau=taux*lat(:,1)+tauy*lat(:,2)+tauz*lat(:,3)
-  
-              rij=xyz(:,jat)-xyz(:,iat)+tau
-              r2=sum(rij*rij)
-              if (r2.gt.crit_cn) cycle
-              r=dsqrt(r2)
-              skip(tauz,tauy,taux,linij)=.false.
-!           Calculate dCN(iat)/dr_ij which is identical to dCN(iat)/d(tau)
-!           this is needed for dC6/dr_ij          
-!           saved in dcn for the kat-loop
-!          
-          
-              expterm=exp(-k1*(rcovij/r-1.d0))
-              dcn(tauz,tauy,taux,linij)=-k1*rcovij*expterm/
-     .                 (r2*(expterm+1.d0)*(expterm+1.d0))
-
-              dc6=(dc6ij(iat,jat)+dc6ij(jat,iat))*
-     .             dcn(tauz,tauy,taux,linij)
-
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .          linij)
-     .          +dc6_rest_sum(linij)*dc6 
-
-               dc6=(dc6ij(iat,iat)+dc6ij(iat,iat))*
-     .             dcn(tauz,tauy,taux,linij)
-
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .          linij)
-     .          +dc6_rest_sum(lin(iat,iat))*dc6 
-
-              dc6=(dc6ij(jat,jat)+dc6ij(jat,jat))*
-     .             dcn(tauz,tauy,taux,linij)
-
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .          linij)
-     .          +dc6_rest_sum(lin(jat,jat))*dc6 
-
-
-
+               dc6=(dc6ij(jat,jat)+dc6ij(jat,jat))
+     >             *dcn(tauz,tauy,taux,linij)
+               drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
+     >                                   +dc6_rest_sum(lin(jat,jat))*dc6 
             enddo !tauz
             enddo !tauy
             enddo !taux
@@ -1877,70 +1983,59 @@ c precompute for analytical part
 !   To reduce the kat-loop to only jat-1, on gets 6 contributions
 !   
 !
-          do kat=1,jat-1
-            linik=lin(iat,kat)
-            linjk=lin(jat,kat)
-            do taux=-rep_cn(1),rep_cn(1)
-            do tauy=-rep_cn(2),rep_cn(2)
-            do tauz=-rep_cn(3),rep_cn(3)
+            do kat=1,jat-1
+               linik=lin(iat,kat)
+               linjk=lin(jat,kat)
 
+               do taux=-rep_cn(1),rep_cn(1)
+               do tauy=-rep_cn(2),rep_cn(2)
+               do tauz=-rep_cn(3),rep_cn(3)
 
-              if (.not.skip(tauz,tauy,taux,linij)) then
-              dc6=dc6ij(iat,kat)*dcn(tauz,tauy,taux,linij)
+                  dc6=dc6ij(iat,kat)*dcn(tauz,tauy,taux,linij)
+                  drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
+     >                                      +dc6_rest_sum(linik)*dc6
 
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .             linij)
-     .             +dc6_rest_sum(linik)*dc6
+                  dc6=dc6ij(jat,kat)*dcn(tauz,tauy,taux,linij)
+                  drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,linij)
+     >                                      +dc6_rest_sum(linjk)*dc6
 
-              dc6=dc6ij(jat,kat)*dcn(tauz,tauy,taux,linij)
+                  dc6=dc6ij(kat,iat)*dcn(tauz,tauy,taux,linjk)
+                  drij(tauz,tauy,taux,linjk)=drij(tauz,tauy,taux,linjk)
+     >                                      +dc6_rest_sum(linik)*dc6
 
-              drij(tauz,tauy,taux,linij)=drij(tauz,tauy,taux,
-     .             linij)
-     .             +dc6_rest_sum(linjk)*dc6
-              endif
+                  dc6=dc6ij(jat,iat)*dcn(tauz,tauy,taux,linjk)
+                  drij(tauz,tauy,taux,linjk)=drij(tauz,tauy,taux,linjk)
+     >                                      +dc6_rest_sum(linij)*dc6
 
-              if (.not.skip(tauz,tauy,taux,linjk)) then
-              dc6=dc6ij(kat,iat)*dcn(tauz,tauy,taux,linjk)
+                  dc6=dc6ij(kat,jat)*dcn(tauz,tauy,taux,linik)
+                  drij(tauz,tauy,taux,linik)=drij(tauz,tauy,taux,linik)
+     >                                      +dc6_rest_sum(linjk)*dc6
 
-              drij(tauz,tauy,taux,linjk)=drij(tauz,tauy,taux,
-     .             linjk)
-     .             +dc6_rest_sum(linik)*dc6
+                  dc6=dc6ij(iat,jat)*dcn(tauz,tauy,taux,linik)
+                  drij(tauz,tauy,taux,linik)=drij(tauz,tauy,taux,linik)
+     >                                      +dc6_rest_sum(linij)*dc6
 
-              dc6=dc6ij(jat,iat)*dcn(tauz,tauy,taux,linjk)
+               end do !tauz
+               end do !tauy
+               end do !taux
+            end do!kat
+            end if
+            pcount = pcount + 1
 
-              drij(tauz,tauy,taux,linjk)=drij(tauz,tauy,taux,
-     .             linjk)
-     .             +dc6_rest_sum(linij)*dc6
-              endif
+         end do!jat
+      end do!iat
 
+      count = (2*rep_v(3)+1)*(2*rep_v(2)+1)*(2*rep_v(1)+1)*(n*(n+1)/2)
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,count,'+')
 
-
-
-              if (.not.skip(tauz,tauy,taux,linik)) then
-              dc6=dc6ij(kat,jat)*dcn(tauz,tauy,taux,linik)
-
-              drij(tauz,tauy,taux,linik)=drij(tauz,tauy,taux,
-     .             linik)
-     .             +dc6_rest_sum(linjk)*dc6
-
-              dc6=dc6ij(iat,jat)*dcn(tauz,tauy,taux,linik)
-
-              drij(tauz,tauy,taux,linik)=drij(tauz,tauy,taux,
-     .             linik)
-     .             +dc6_rest_sum(linij)*dc6
-              endif
-
-            enddo !tauz
-            enddo !tauy
-            enddo !taux
-          enddo !kat
-        ENDDO !jat
-      ENDDO !iat
+      !write(*,*) "hello,count=",count
+      !if (taskid.eq.0) write(*,*) "hello,drij=",drij
 
 ! After calculating all derivatives dE/dr_ij w.r.t. distances,
 ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
       do iat=2,n
         do jat=1,iat-1
+        if (mod(pcount,np).eq.taskid) then
           do taux=-rep_v(1),rep_v(1)
           do tauy=-rep_v(2),rep_v(2)
           do tauz=-rep_v(3),rep_v(3)
@@ -1965,10 +2060,13 @@ c precompute for analytical part
           enddo !tauz
           enddo !tauy
           enddo !taux
+        end if
+        pcount = pcount + 1
         enddo !jat
       enddo !iat
 
       do iat=1,n
+      if (mod(pcount,np).eq.taskid) then
           do taux=-rep_v(1),rep_v(1)
           do tauy=-rep_v(2),rep_v(2)
           do tauz=-rep_v(3),rep_v(3)
@@ -1991,9 +2089,11 @@ c precompute for analytical part
           enddo !tauy
           enddo !taux
 
-
-
+      end if
+      pcount = pcount + 1
       enddo
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
+      if (np.gt.1) call GA_DGOP(9+MSGDBL,sigma,9,'+')
 
       stress=0.0d0
       call inv_cell(lat,lat_1)
