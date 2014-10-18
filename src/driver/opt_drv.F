@@ -1585,6 +1585,8 @@ c
       double precision trustds  ! Restriction of step in opt. variable
       double precision lattice(6), scaler(3) ! periodic scaling
       double precision dum1,dum2,dum3
+      double precision smalleig
+      parameter (smalleig = 1.0d-4)
       logical geom_print_zmatrix
       external geom_print_zmatrix
       logical ophigh
@@ -1667,9 +1669,9 @@ c
 c     Form the step applying trust radius on each mode.
 c
       do i = 1, nvar
-         if (e(i) .gt. 1d-8) then
+         if (e(i) .gt. smalleig) then
             dv(i) = -gv(i) / abs(e(i)) ! +ve curvature
-         else if (e(i) .lt. -1d-8) then
+         else if (e(i) .lt. -smalleig) then
             dum1 = -gv(i) / abs(e(i)) 
             dum2 = sign(0.3d0*trust,-gv(i)) ! upper limit
             dum3 = sign(0.03d0*trust,-gv(i)) ! lower limit
