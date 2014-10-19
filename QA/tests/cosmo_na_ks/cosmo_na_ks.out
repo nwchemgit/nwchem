@@ -63,9 +63,9 @@ task scf energy
 
     hostname        = arcen
     program         = ../../../bin/LINUX64/nwchem
-    date            = Fri Oct 17 13:50:53 2014
+    date            = Sat Oct 18 23:15:02 2014
 
-    compiled        = Thu_Oct_16_12:14:56_2014
+    compiled        = Sat_Oct_18_22:06:41_2014
     source          = /home/d3y133/nwchem-dev/nwchem-newest
     nwchem branch   = Development
     nwchem revision = 26300
@@ -209,7 +209,7 @@ task scf energy
  -bem- low  level              =   2
  -bem- high level              =   4
  -bem- from -octahedral-
- solvent radius (ang.)         =   0.000
+ solvent radius (ang.)         =   0.500
  atomic radii = 
  --------------
     1 11.000  1.755
@@ -223,11 +223,11 @@ task scf energy
  number of   points per atom =        640
  atom (   nspa,  nppa )
  ----------------------
-    1 (     32,   512 )     512
+    1 (     32,   640 )     640
  number of -cosmo- surface points =       32
- molecular surface =     30.964 angstrom**2
- molecular volume  =     18.114 angstrom**3
- G(cav/disp)       =      1.015 kcal/mol
+ molecular surface =     38.705 angstrom**2
+ molecular volume  =     22.642 angstrom**3
+ G(cav/disp)       =      1.054 kcal/mol
  ...... end of -cosmo- initialization ......
 
 
@@ -313,11 +313,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =      -3.253723825042
  -elcefc- energy =       2.957910547641
- -efcefc- energy =       0.151152276152
+ -efcefc- energy =       0.147887038068
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.144661001249
- -allefc- energy =      -0.295813277401     -0.302304552304
- -ecos  - energy =      -3.102571548890
+ -solnrg- energy =      -0.147926239333
+ -allefc- energy =      -0.295813277401     -0.295774076136
+ -ecos  - energy =      -3.105836786974
  Alternative 2
  -atmefc- energy =      -3.253723825042
  -elcefc- energy =       2.957910547641
@@ -331,11 +331,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =      -3.253723825042
  -elcefc- energy =       2.957909616012
- -efcefc- energy =       0.151152276152
+ -efcefc- energy =       0.147887038068
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.144661932877
- -allefc- energy =      -0.295814209029     -0.302304552304
- -ecos  - energy =      -3.102571548890
+ -solnrg- energy =      -0.147927170961
+ -allefc- energy =      -0.295814209029     -0.295774076136
+ -ecos  - energy =      -3.105836786974
  Alternative 2
  -atmefc- energy =      -3.253723825042
  -elcefc- energy =       2.957909616012
@@ -388,32 +388,31 @@ task scf energy
                        -------------------------------------
  
  Vector    2  Occ=2.000000D+00  E=-2.788988D+00
-              MO Center=  5.1D-17, -1.8D-16, -2.0D-17, r^2= 2.1D-01
+              MO Center=  1.5D-17, -2.1D-16,  1.6D-17, r^2= 2.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      1.028271  1 Na s                  1     -0.245818  1 Na s          
  
  Vector    3  Occ=2.000000D+00  E=-1.511331D+00
-              MO Center= -5.8D-17, -9.2D-19,  7.6D-18, r^2= 2.3D-01
+              MO Center= -1.3D-18,  2.2D-18, -1.0D-17, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.984279  1 Na px         
+     5      0.993446  1 Na pz         
  
  Vector    4  Occ=2.000000D+00  E=-1.511331D+00
-              MO Center=  1.7D-18,  4.0D-17,  4.6D-17, r^2= 2.3D-01
+              MO Center= -1.1D-17,  1.0D-17,  2.3D-18, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.864636  1 Na pz                 4      0.500167  1 Na py         
+     3      0.993472  1 Na px         
  
  Vector    5  Occ=2.000000D+00  E=-1.511331D+00
-              MO Center= -1.4D-17,  1.1D-16, -5.4D-17, r^2= 2.3D-01
+              MO Center=  3.9D-18,  1.4D-16,  4.2D-18, r^2= 2.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.852020  1 Na py                 5     -0.492816  1 Na pz         
-     3     -0.170168  1 Na px         
+     4      0.998834  1 Na py         
  
  Vector    6  Occ=0.000000D+00  E= 2.936071D-02
-              MO Center=  1.7D-15,  4.4D-16, -7.2D-15, r^2= 1.1D+01
+              MO Center=  6.1D-15, -5.1D-16,  3.2D-15, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      1.576746  1 Na s                  6     -1.045571  1 Na s          
@@ -421,28 +420,28 @@ task scf energy
     17      0.202940  1 Na dyy               19      0.202940  1 Na dzz        
  
  Vector    7  Occ=0.000000D+00  E= 5.708555D-02
-              MO Center= -9.0D-16,  2.4D-15,  6.4D-15, r^2= 1.5D+01
+              MO Center= -4.4D-16, -6.0D-16, -3.6D-15, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.041578  1 Na pz                12      0.366320  1 Na py         
-     9     -0.168539  1 Na pz         
+    13      1.085924  1 Na pz                12      0.176785  1 Na py         
+     9     -0.175715  1 Na pz                11      0.166243  1 Na px         
  
  Vector    8  Occ=0.000000D+00  E= 5.708555D-02
-              MO Center= -1.5D-15, -9.9D-16,  1.3D-16, r^2= 1.5D+01
+              MO Center= -2.6D-16,  1.4D-15, -2.0D-16, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      0.930685  1 Na px                12      0.603362  1 Na py         
-     7     -0.150595  1 Na px         
+    12      1.098277  1 Na py                13     -0.178627  1 Na pz         
+     8     -0.177713  1 Na py         
  
  Vector    9  Occ=0.000000D+00  E= 5.708555D-02
-              MO Center=  1.2D-15, -1.5D-15,  6.6D-16, r^2= 1.5D+01
+              MO Center= -6.0D-15,  4.0D-17,  7.3D-16, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.860166  1 Na py                11     -0.594055  1 Na px         
-    13     -0.381228  1 Na pz         
+    11      1.100219  1 Na px                 7     -0.178028  1 Na px         
+    13     -0.164263  1 Na pz         
  
  Vector   10  Occ=0.000000D+00  E= 1.560407D-01
-              MO Center=  1.1D-16,  1.0D-15, -2.6D-15, r^2= 1.1D+01
+              MO Center=  2.5D-15,  2.2D-16,  1.9D-15, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      4.220475  1 Na s                 10     -2.231658  1 Na s          
@@ -450,39 +449,40 @@ task scf energy
     19     -0.756387  1 Na dzz        
  
  Vector   11  Occ=0.000000D+00  E= 2.541217D-01
-              MO Center=  3.8D-16,  3.4D-16,  2.0D-15, r^2= 6.8D+00
+              MO Center=  1.1D-15, -1.1D-15, -1.4D-15, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.367451  1 Na pz                13     -0.777898  1 Na pz         
-     5     -0.215637  1 Na pz         
+     9      1.050283  1 Na pz                 8      0.872080  1 Na py         
+    13     -0.597471  1 Na pz                12     -0.496098  1 Na py         
+     5     -0.165622  1 Na pz         
  
  Vector   12  Occ=0.000000D+00  E= 2.541217D-01
-              MO Center=  8.0D-17, -2.4D-16, -3.5D-16, r^2= 6.8D+00
+              MO Center=  1.7D-16,  8.8D-16,  6.5D-17, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.346595  1 Na py                12     -0.766034  1 Na py         
-     7      0.238868  1 Na px                 4     -0.212349  1 Na py         
+     8      1.052073  1 Na py                 9     -0.859697  1 Na pz         
+    12     -0.598490  1 Na py                13      0.489053  1 Na pz         
+     4     -0.165904  1 Na py                 7      0.160876  1 Na px         
  
  Vector   13  Occ=0.000000D+00  E= 2.541217D-01
-              MO Center=  1.8D-16, -1.8D-16, -5.5D-16, r^2= 6.8D+00
+              MO Center= -2.2D-15, -7.2D-16, -4.1D-16, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.347053  1 Na px                11     -0.766295  1 Na px         
-     8     -0.238348  1 Na py                 3     -0.212421  1 Na px         
+     7      1.355631  1 Na px                11     -0.771174  1 Na px         
+     3     -0.213773  1 Na px                 9      0.172176  1 Na pz         
  
- Vector   14  Occ=0.000000D+00  E= 5.185927D-01
-              MO Center= -4.9D-17,  1.2D-16, -2.8D-16, r^2= 2.8D+00
+ Vector   14  Occ=0.000000D+00  E= 5.186155D-01
+              MO Center= -4.9D-16, -8.0D-18, -1.5D-16, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.430555  1 Na dxy               16     -0.865842  1 Na dxz        
-    18      0.451474  1 Na dyz        
+    16      1.685646  1 Na dxz               15     -0.386999  1 Na dxy        
  
- Vector   15  Occ=0.000000D+00  E= 5.185927D-01
-              MO Center= -1.7D-15,  6.9D-16,  8.4D-16, r^2= 2.8D+00
+ Vector   15  Occ=0.000000D+00  E= 5.186155D-01
+              MO Center= -4.8D-16,  1.5D-15, -5.6D-16, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.320312  1 Na dxz               15      0.974189  1 Na dxy        
-    18     -0.554736  1 Na dyz        
+    18      1.400784  1 Na dyz               15      1.007151  1 Na dxy        
+    16      0.153134  1 Na dxz        
  
 
  center of mass
@@ -511,11 +511,11 @@ task scf energy
  
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
-     1   0 0 1      0.000000      0.000000      0.000000
+     1   0 0 1     -0.000000      0.000000      0.000000
  
      2   2 0 0     -2.153339      0.000000      0.000000
-     2   1 1 0     -0.000000      0.000000      0.000000
-     2   1 0 1     -0.000000      0.000000      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -2.153339      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -2.153339      0.000000      0.000000
@@ -541,7 +541,7 @@ task scf energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  200      200     1506      881      792        0        0       36     
+calls:  200      200     1506      884      792        0        0       36     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
 bytes total:             7.76e+05 5.06e+05 1.17e+05 0.00e+00 0.00e+00 2.88e+02
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
@@ -595,4 +595,4 @@ MA usage statistics:
    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                A. T. Wong, Z. Zhang.
 
- Total times  cpu:        0.2s     wall:        0.3s
+ Total times  cpu:        0.2s     wall:        0.2s

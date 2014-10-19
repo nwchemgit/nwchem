@@ -1147,9 +1147,9 @@ c
 c        ----- only keep the faces at granularity maxbem -----
 c        ----- discard all other faces -----
 c
-         do lface=1,maxfac(maxbem-1)-minfac(minbem+1)+1
-           ijkseg(nseg+lface) = 0
-         enddo
+c        do lface=1,maxfac(maxbem-1)-minfac(minbem+1)+1
+c          ijkseg(nseg+lface) = 0
+c        enddo
       else
          do iseg=1,nseg
             ifac=iseg+nseg

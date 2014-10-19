@@ -269,7 +269,7 @@ c
                   ! York-Karplus model
       ificos   =0
       lineq    =0 ! 0: fast direct solver, 1: slow iterative solver
-      rsolv    =0.00d+00
+      rsolv    =0.50d+00
       zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus

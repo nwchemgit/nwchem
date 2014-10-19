@@ -63,9 +63,9 @@ task scf energy
 
     hostname        = arcen
     program         = ../../../bin/LINUX64/nwchem
-    date            = Fri Oct 17 13:46:31 2014
+    date            = Sat Oct 18 23:16:35 2014
 
-    compiled        = Thu_Oct_16_12:14:56_2014
+    compiled        = Sat_Oct_18_22:06:41_2014
     source          = /home/d3y133/nwchem-dev/nwchem-newest
     nwchem branch   = Development
     nwchem revision = 26300
@@ -214,7 +214,7 @@ task scf energy
  -bem- low  level              =   2
  -bem- high level              =   4
  -bem- from -octahedral-
- solvent radius (ang.)         =   0.000
+ solvent radius (ang.)         =   0.500
  atomic radii = 
  --------------
     1 17.000  2.050
@@ -228,11 +228,11 @@ task scf energy
  number of   points per atom =        640
  atom (   nspa,  nppa )
  ----------------------
-    1 (     32,   512 )     512
+    1 (     32,   640 )     640
  number of -cosmo- surface points =       32
- molecular surface =     42.248 angstrom**2
- molecular volume  =     28.870 angstrom**3
- G(cav/disp)       =      1.071 kcal/mol
+ molecular surface =     52.810 angstrom**2
+ molecular volume  =     36.087 angstrom**3
+ G(cav/disp)       =      1.124 kcal/mol
  ...... end of -cosmo- initialization ......
 
 
@@ -319,11 +319,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.545406889926
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.111134292790
- -allefc- energy =      -0.240535390398     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.113929655207
+ -allefc- energy =      -0.240535390398     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.545406889926
@@ -337,40 +337,40 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547889949220
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113617352084
- -allefc- energy =      -0.243018449692     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116412714501
+ -allefc- energy =      -0.243018449692     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547889949220
  -allefc- energy =      -0.243018449692
  -solnrg- energy =      -0.121509224846
  -ecos  - energy =       4.426380724374
-                 2     -459.6860515240  2.78D-03  1.24D-03      0.2
+                 2     -459.6860515240  2.78D-03  1.26D-03      0.2
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956784913
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113684187777
- -allefc- energy =      -0.243085285385     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116479550194
+ -allefc- energy =      -0.243085285385     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956784913
  -allefc- energy =      -0.243085285385
  -solnrg- energy =      -0.121542642693
- -ecos  - energy =       4.426414142221
+ -ecos  - energy =       4.426414142220
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934554145
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113661957009
- -allefc- energy =      -0.243063054617     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116457319426
+ -allefc- energy =      -0.243063054617     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934554145
@@ -380,11 +380,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919707078
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113647109942
- -allefc- energy =      -0.243048207550     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116442472360
+ -allefc- energy =      -0.243048207550     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919707078
@@ -394,11 +394,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956845972
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113684248836
- -allefc- energy =      -0.243085346444     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116479611253
+ -allefc- energy =      -0.243085346444     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956845972
@@ -408,11 +408,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594938
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113661997803
- -allefc- energy =      -0.243063095410     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116457360220
+ -allefc- energy =      -0.243063095410     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594938
@@ -422,11 +422,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734313
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113647137177
- -allefc- energy =      -0.243048234785     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116442499594
+ -allefc- energy =      -0.243048234785     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734313
@@ -436,11 +436,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113684248872
- -allefc- energy =      -0.243085346479     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116479611289
+ -allefc- energy =      -0.243085346479     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
@@ -450,11 +450,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594962
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113661997826
- -allefc- energy =      -0.243063095434     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116457360244
+ -allefc- energy =      -0.243063095434     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594962
@@ -464,11 +464,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734329
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113647137193
- -allefc- energy =      -0.243048234801     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116442499610
+ -allefc- energy =      -0.243048234801     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734329
@@ -478,11 +478,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113684248872
- -allefc- energy =      -0.243085346479     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116479611289
+ -allefc- energy =      -0.243085346479     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
@@ -492,11 +492,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594962
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113661997826
- -allefc- energy =      -0.243063095434     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116457360244
+ -allefc- energy =      -0.243063095434     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594962
@@ -506,11 +506,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734329
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113647137193
- -allefc- energy =      -0.243048234801     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116442499610
+ -allefc- energy =      -0.243048234801     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734329
@@ -520,11 +520,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113684248872
- -allefc- energy =      -0.243085346479     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116479611289
+ -allefc- energy =      -0.243085346479     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
@@ -534,11 +534,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594962
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113661997826
- -allefc- energy =      -0.243063095434     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116457360244
+ -allefc- energy =      -0.243063095434     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594962
@@ -548,11 +548,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734329
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113647137193
- -allefc- energy =      -0.243048234801     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116442499610
+ -allefc- energy =      -0.243048234801     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734329
@@ -562,11 +562,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113684248872
- -allefc- energy =      -0.243085346479     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116479611289
+ -allefc- energy =      -0.243085346479     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
@@ -576,11 +576,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594962
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113661997826
- -allefc- energy =      -0.243063095434     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116457360244
+ -allefc- energy =      -0.243063095434     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547934594962
@@ -590,11 +590,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734329
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113647137193
- -allefc- energy =      -0.243048234801     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116442499610
+ -allefc- energy =      -0.243048234801     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547919734329
@@ -604,11 +604,11 @@ task scf energy
  Alternative 1
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
- -efcefc- energy =       0.129401097608
+ -efcefc- energy =       0.126605735191
  -lambda- energy =       0.000000000000
- -solnrg- energy =      -0.113684248872
- -allefc- energy =      -0.243085346479     -0.258802195216
- -ecos  - energy =       4.434272597136
+ -solnrg- energy =      -0.116479611289
+ -allefc- energy =      -0.243085346479     -0.253211470382
+ -ecos  - energy =       4.431477234719
  Alternative 2
  -atmefc- energy =       4.304871499528
  -elcefc- energy =      -4.547956846007
@@ -665,114 +665,115 @@ task scf energy
                        -------------------------------------
  
  Vector    2  Occ=2.000000D+00  E=-1.046468D+01
-              MO Center=  2.1D-16,  1.2D-16,  3.9D-17, r^2= 6.5D-02
+              MO Center= -1.7D-17,  5.8D-17, -2.9D-17, r^2= 6.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.598500  1 Cl s                  3      0.513985  1 Cl s          
      2     -0.331695  1 Cl s          
  
  Vector    3  Occ=2.000000D+00  E=-7.931730D+00
-              MO Center= -1.8D-16, -4.2D-17, -1.4D-17, r^2= 5.7D-02
+              MO Center= -1.3D-17, -6.0D-18,  1.5D-18, r^2= 5.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.201245  1 Cl px                10      0.319329  1 Cl px         
-     8      0.252599  1 Cl py         
+     7      1.230087  1 Cl px                10      0.326996  1 Cl px         
  
  Vector    4  Occ=2.000000D+00  E=-7.931730D+00
-              MO Center= -4.8D-18,  5.3D-18,  3.2D-19, r^2= 5.7D-02
+              MO Center= -2.8D-18,  5.0D-18, -2.4D-17, r^2= 5.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.219795  1 Cl pz                12      0.324261  1 Cl pz         
-     8     -0.153798  1 Cl py         
+     9      1.230050  1 Cl pz                12      0.326986  1 Cl pz         
  
  Vector    5  Occ=2.000000D+00  E=-7.931730D+00
-              MO Center=  2.2D-17, -4.2D-17, -3.8D-18, r^2= 5.7D-02
+              MO Center=  1.2D-17, -4.0D-17, -2.3D-18, r^2= 5.7D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.194938  1 Cl py                11      0.317653  1 Cl py         
-     7     -0.261848  1 Cl px         
+     8      1.230953  1 Cl py                11      0.327227  1 Cl py         
  
  Vector    6  Occ=2.000000D+00  E=-9.741899D-01
-              MO Center= -3.5D-15,  4.4D-16,  2.7D-16, r^2= 8.5D-01
+              MO Center=  2.4D-15, -8.2D-16, -1.5D-16, r^2= 8.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.583854  1 Cl s                  5      0.580268  1 Cl s          
      4     -0.395070  1 Cl s                  3     -0.210153  1 Cl s          
  
  Vector    7  Occ=2.000000D+00  E=-3.922107D-01
-              MO Center=  6.0D-15,  1.6D-15, -4.3D-16, r^2= 1.4D+00
+              MO Center=  3.5D-17, -8.1D-18, -2.2D-16, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      0.526250  1 Cl px                19      0.407588  1 Cl px         
-     7     -0.309232  1 Cl px                13      0.221556  1 Cl px         
+    18      0.542281  1 Cl pz                21      0.420004  1 Cl pz         
+     9     -0.318652  1 Cl pz                15      0.228306  1 Cl pz         
  
  Vector    8  Occ=2.000000D+00  E=-3.922107D-01
-              MO Center=  2.2D-17, -1.6D-17, -3.1D-16, r^2= 1.4D+00
+              MO Center= -5.8D-16,  9.3D-15,  4.3D-16, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.541254  1 Cl pz                21      0.419209  1 Cl pz         
-     9     -0.318048  1 Cl pz                15      0.227873  1 Cl pz         
+    17      0.541653  1 Cl py                20      0.419518  1 Cl py         
+     8     -0.318283  1 Cl py                14      0.228041  1 Cl py         
  
  Vector    9  Occ=2.000000D+00  E=-3.922107D-01
-              MO Center= -1.5D-15,  6.3D-15,  5.8D-16, r^2= 1.4D+00
+              MO Center= -1.7D-15, -8.1D-17,  3.5D-17, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      0.527138  1 Cl py                20      0.408276  1 Cl py         
-     8     -0.309754  1 Cl py                14      0.221931  1 Cl py         
+    16      0.541415  1 Cl px                19      0.419334  1 Cl px         
+     7     -0.318143  1 Cl px                13      0.227941  1 Cl px         
  
  Vector   10  Occ=0.000000D+00  E= 1.116702D-01
-              MO Center=  1.3D-14,  2.9D-14,  1.5D-14, r^2= 6.8D+00
+              MO Center=  1.3D-14,  5.2D-14, -5.9D-16, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     22      1.498327  1 Cl s                  6     -1.086835  1 Cl s          
      4      0.180868  1 Cl s                  5     -0.161232  1 Cl s          
  
  Vector   11  Occ=0.000000D+00  E= 1.287036D-01
-              MO Center= -3.2D-15, -3.0D-14,  5.7D-15, r^2= 1.0D+01
+              MO Center=  2.9D-15, -5.3D-14, -1.0D-14, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      1.531041  1 Cl py                20     -0.876968  1 Cl py         
-    25     -0.287248  1 Cl pz                21      0.164534  1 Cl pz         
-    23      0.161486  1 Cl px         
+    24      1.536120  1 Cl py                20     -0.879877  1 Cl py         
+    25      0.293095  1 Cl pz                21     -0.167883  1 Cl pz         
  
  Vector   12  Occ=0.000000D+00  E= 1.287036D-01
-              MO Center=  6.2D-15, -3.2D-15, -1.3D-14, r^2= 1.0D+01
+              MO Center= -1.7D-14, -2.6D-15,  8.4D-15, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      1.384856  1 Cl pz                21     -0.793234  1 Cl pz         
-    23     -0.653290  1 Cl px                19      0.374200  1 Cl px         
-    24      0.328727  1 Cl py                20     -0.188292  1 Cl py         
+    23      1.393999  1 Cl px                19     -0.798472  1 Cl px         
+    25     -0.683125  1 Cl pz                21      0.391289  1 Cl pz         
+    24      0.206837  1 Cl py         
  
  Vector   13  Occ=0.000000D+00  E= 1.287036D-01
-              MO Center= -1.6D-14,  3.6D-16, -7.6D-15, r^2= 1.0D+01
+              MO Center=  1.2D-15, -4.0D-16,  2.3D-15, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      1.414146  1 Cl px                19     -0.810012  1 Cl px         
-    25      0.672561  1 Cl pz                21     -0.385238  1 Cl pz         
+    25      1.378445  1 Cl pz                21     -0.789562  1 Cl pz         
+    23      0.708756  1 Cl px                19     -0.405970  1 Cl px         
+    24     -0.224118  1 Cl py         
  
  Vector   14  Occ=0.000000D+00  E= 6.262913D-01
-              MO Center= -3.0D-16, -8.5D-16, -3.6D-17, r^2= 4.7D+00
+              MO Center= -2.8D-17, -1.0D-15,  8.6D-17, r^2= 4.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      2.175648  1 Cl py                17     -1.198037  1 Cl py         
-    24     -1.156414  1 Cl py                 8      0.204947  1 Cl py         
+    20      2.175115  1 Cl py                17     -1.197744  1 Cl py         
+    24     -1.156131  1 Cl py                 8      0.204897  1 Cl py         
  
  Vector   15  Occ=0.000000D+00  E= 6.262913D-01
-              MO Center=  1.4D-16,  7.6D-17,  2.3D-16, r^2= 4.7D+00
+              MO Center=  2.2D-17, -1.1D-16, -2.4D-17, r^2= 4.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      2.171751  1 Cl px                16     -1.195892  1 Cl px         
-    23     -1.154343  1 Cl px                 7      0.204580  1 Cl px         
+    19      2.133288  1 Cl px                16     -1.174712  1 Cl px         
+    23     -1.133899  1 Cl px                21      0.442857  1 Cl pz         
+    18     -0.243863  1 Cl pz                25     -0.235390  1 Cl pz         
+     7      0.200957  1 Cl px         
  
  Vector   16  Occ=0.000000D+00  E= 6.262913D-01
-              MO Center=  1.7D-16, -1.3D-16,  3.7D-16, r^2= 4.7D+00
+              MO Center=  1.3D-17, -1.1D-17, -1.1D-16, r^2= 4.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      2.174796  1 Cl pz                18     -1.197568  1 Cl pz         
-    25     -1.155962  1 Cl pz                 9      0.204867  1 Cl pz         
+    21      2.129565  1 Cl pz                18     -1.172661  1 Cl pz         
+    25     -1.131920  1 Cl pz                19     -0.444030  1 Cl px         
+    16      0.244509  1 Cl px                23      0.236014  1 Cl px         
+     9      0.200606  1 Cl pz         
  
  Vector   17  Occ=0.000000D+00  E= 9.577126D-01
-              MO Center= -8.0D-16, -3.0D-15, -2.6D-16, r^2= 2.8D+00
+              MO Center= -7.9D-16, -3.2D-15,  4.2D-17, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      2.917935  1 Cl s                  5     -1.208963  1 Cl s          
@@ -780,18 +781,18 @@ task scf energy
     29     -0.555556  1 Cl dyy               31     -0.555556  1 Cl dzz        
      3      0.259399  1 Cl s          
  
- Vector   18  Occ=0.000000D+00  E= 1.230175D+00
-              MO Center= -2.7D-18, -3.3D-16,  1.1D-17, r^2= 6.5D-01
+ Vector   18  Occ=0.000000D+00  E= 1.230177D+00
+              MO Center=  2.8D-16,  4.3D-18,  3.7D-17, r^2= 6.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      0.892045  1 Cl dxx               29     -0.837420  1 Cl dyy        
+    31     -0.876643  1 Cl dzz               26      0.855002  1 Cl dxx        
  
- Vector   19  Occ=0.000000D+00  E= 1.230175D+00
-              MO Center=  2.6D-16, -5.2D-17, -2.2D-16, r^2= 6.5D-01
+ Vector   19  Occ=0.000000D+00  E= 1.230177D+00
+              MO Center=  1.1D-16, -2.6D-16,  8.3D-17, r^2= 6.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31      0.998507  1 Cl dzz               29     -0.546560  1 Cl dyy        
-    26     -0.451947  1 Cl dxx        
+    29      0.999766  1 Cl dyy               26     -0.518624  1 Cl dxx        
+    31     -0.481142  1 Cl dzz        
  
 
  center of mass
@@ -826,7 +827,7 @@ task scf energy
      2   1 1 0     -0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0    -12.369238      0.000000      0.000000
-     2   0 1 1      0.000000      0.000000      0.000000
+     2   0 1 1     -0.000000      0.000000      0.000000
      2   0 0 2    -12.369238      0.000000      0.000000
  
 
@@ -850,7 +851,7 @@ task scf energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  562      562     8216     2713     3970        0        0       54     
+calls:  562      562     8216     2715     3970        0        0       54     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
 bytes total:             5.64e+06 3.68e+06 9.85e+05 0.00e+00 0.00e+00 4.32e+02
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
