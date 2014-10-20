@@ -17,7 +17,7 @@
       done = .false.
       do while (.not.done)
          k = ishft(ishft(i,-s),s)
-         if ((k.eq.i).and.(s.le.64)) then
+         if ((k.eq.i).and.(s.le.bit_size(i))) then
             s = s + 1
          else
             done = .true.
@@ -37,7 +37,7 @@
       done = .false.
       do while (.not.done)
          k = ishft(ishft(i,s),-s)
-         if ((k.eq.i).and.(s.le.64)) then
+         if ((k.eq.i).and.(s.le.bit_size(i))) then
             s = s + 1
          else
             done = .true.
