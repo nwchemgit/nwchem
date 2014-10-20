@@ -1987,11 +1987,11 @@ c
       double precision center_angle_constraint_type
       double precision end_torsion_constraint_type
       double precision center_torsion_constraint_type
-      parameter(bond_constraint_type = sqrt(2.0d0))
-      parameter(end_angle_constraint_type = sqrt(3.0d0))
-      parameter(center_angle_constraint_type = sqrt(5.0d0))
-      parameter(end_torsion_constraint_type = sqrt(7.0d0))
-      parameter(center_torsion_constraint_type = sqrt(11.0d0))
+      parameter(bond_constraint_type =  1.414213562373095d0)
+      parameter(end_angle_constraint_type = 1.732050807568877d0)
+      parameter(center_angle_constraint_type = 2.236067977499790d0)
+      parameter(end_torsion_constraint_type = 2.645751311064591d0)
+      parameter(center_torsion_constraint_type = 3.316624790355400d0)
 c
       cvr_scaling=cvr_factor
       nbond=0
@@ -3172,11 +3172,11 @@ C
       double precision center_angle_constraint_type
       double precision end_torsion_constraint_type
       double precision center_torsion_constraint_type
-      parameter(bond_constraint_type = sqrt(2.0d0))
-      parameter(end_angle_constraint_type = sqrt(3.0d0))
-      parameter(center_angle_constraint_type = sqrt(5.0d0))
-      parameter(end_torsion_constraint_type = sqrt(7.0d0))
-      parameter(center_torsion_constraint_type = sqrt(11.0d0))
+      parameter(bond_constraint_type = 1.414213562373095d0)
+      parameter(end_angle_constraint_type = 1.732050807568877d0)
+      parameter(center_angle_constraint_type = 2.236067977499790d0)
+      parameter(end_torsion_constraint_type = 2.645751311064591d0)
+      parameter(center_torsion_constraint_type = 3.316624790355400d0)
       EQUIVALENCE (BLNK80,BLK(1))
       EQUIVALENCE (CHREND,WRDEND)
       DATA ERRMSG /'PROGRAM ','STOP IN ','- ZGEO -'/
