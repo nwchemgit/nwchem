@@ -2637,8 +2637,7 @@ endif
 # MPI version requires tcgmsg-mpi library
 
 ifdef USE_MPI 
-SKIP_LIBMPI = mpifrt mpfort mpif77 mpxlf mpif90 ftn
-ifneq (,$(findstring $(notdir $(FC)), $(SKIP_LIBMPI)))
+ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn))
   LIBMPI =
   MPI_INCLUDE =
   MPI_LIB =
