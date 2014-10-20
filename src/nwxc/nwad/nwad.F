@@ -530,6 +530,9 @@
         integer :: ihbit  ! the highest number set bit
         integer :: ilbit  ! the lowest number set bit
 
+        integer  util_popcnt,util_leadz,util_trailz
+        external util_popcnt,util_leadz,util_trailz
+
         ! The result of the addition depends on the union of the sets of 
         ! variables that X and Y depend on. Here we construct this union as
         ! an ordered list.
@@ -537,10 +540,10 @@
         iy = 1
         is = 1
         s%ivar = ior(x%ivar,y%ivar)
-        s%nvar = popcnt(s%ivar)
+        s%nvar = util_popcnt(s%ivar)
         ivsize = bit_size(s%ivar)
-        ihbit  = ivsize - leadz(s%ivar) - 1
-        ilbit  = trailz(s%ivar)
+        ihbit  = ivsize - util_leadz(s%ivar) - 1
+        ilbit  = util_trailz(s%ivar)
         do ib = ilbit, ihbit
           if (btest(s%ivar,ib)) then
             if (btest(x%ivar,ib)) then
@@ -4118,6 +4121,10 @@ c
         integer ihbit ! the highest bit
         integer ilbit ! the lowest bit
         integer ib    ! local counter
+
+        integer  util_popcnt,util_leadz,util_trailz
+        external util_popcnt,util_leadz,util_trailz
+
 #ifndef NODEBUG
         if (ix.lt.1.or.ix.gt.x%nvar) then
           call errquit("nwad_dble_get_d1: ix out of range",ix,UERR)
@@ -4125,8 +4132,8 @@ c
 #endif
 #if NWAD_DEG >= 1
         s  = x%d1(ix)
-        ihbit = bit_size(x%ivar)-leadz(x%ivar)
-        ilbit = trailz(x%ivar)
+        ihbit = bit_size(x%ivar)-util_leadz(x%ivar)
+        ilbit = util_trailz(x%ivar)
         nb = ihbit-ilbit
         if (nb.eq.x%nvar) then
           !
@@ -4168,6 +4175,10 @@ c
         double precision, intent(out) :: s
         integer,          intent(out) :: iv
         integer,          intent(out) :: iv2
+
+        integer  util_popcnt,util_leadz,util_trailz
+        external util_popcnt,util_leadz,util_trailz
+
 #ifndef NODEBUG
         if (ix.lt.1.or.ix.gt.x%nvar) then
           call errquit("nwad_dble_get_d2: ix out of range",ix,UERR)
@@ -4181,8 +4192,8 @@ c
 #endif
 #if NWAD_DEG >= 2
         s     = x%d2(ix*(ix-1)/2+ix2)
-        ihbit = bit_size(x%ivar)-leadz(x%ivar)
-        ilbit = trailz(x%ivar)
+        ihbit = bit_size(x%ivar)-util_leadz(x%ivar)
+        ilbit = util_trailz(x%ivar)
         nb = ihbit-ilbit
         if (nb.eq.x%nvar) then
           !
@@ -4235,6 +4246,10 @@ c
         integer,          intent(out) :: iv
         integer,          intent(out) :: iv2
         integer,          intent(out) :: iv3
+
+        integer  util_popcnt,util_leadz,util_trailz
+        external util_popcnt,util_leadz,util_trailz
+
 #ifndef NODEBUG
         if (ix.lt.1.or.ix.gt.x%nvar) then
           call errquit("nwad_dble_get_d3: ix out of range",ix,UERR)
@@ -4259,8 +4274,8 @@ c       iv  = x%ivar(ix)
 c       iv2 = x%ivar(ix2)
 c       iv3 = x%ivar(ix3)
 c       s     = x%d2(ix*(ix-1)/2+ix2)
-        ihbit = bit_size(x%ivar)-leadz(x%ivar)
-        ilbit = trailz(x%ivar)
+        ihbit = bit_size(x%ivar)-util_leadz(x%ivar)
+        ilbit = util_trailz(x%ivar)
         nb = ihbit-ilbit
         if (nb.eq.x%nvar) then
           !
