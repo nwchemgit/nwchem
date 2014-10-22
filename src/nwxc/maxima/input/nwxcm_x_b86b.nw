@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_x_b86b.max
+  xc becke86b 1.0 slater -1.0
+end
+task print_df

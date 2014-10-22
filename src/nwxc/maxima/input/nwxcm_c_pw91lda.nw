@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_c_pw91lda.max
+  xc cpw91lda
+end
+task print_df

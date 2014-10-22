@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_x_camb88.max
+  xc xcamb88
+end
+task print_df

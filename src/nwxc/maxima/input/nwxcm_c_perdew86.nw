@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_c_perdew86.max
+  xc cperdew86 1.0 cperdew81 -1.0
+end
+task print_df

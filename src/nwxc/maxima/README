@@ -1,0 +1,85 @@
+$Id: $
+
+READMA Maxima
+=============
+
+This directory contains the various components associated with the Maxima 
+code generation tool chain. The idea is that Maxima takes a mathematical 
+expression that specifies a Density Functional, constructs the expressions
+for various partial derivatives, and finally write a Fortran77 subroutine
+that implements this functional.
+
+Obviously one is welcome to type such a Maxima expression in by hand. However
+we already had most functionals implemented, and generated various partial
+derivatives with the NWAD automatic differentiation library. A small modification
+to the NWAD library creates the possibility for the Fortran08 code to actually
+print the code it evaluates as a Maxima expression (see for limitations below).
+Maxima can then take this expression and generate the corresponding Fortran77
+implementation of the same functional. The advantage of this approach is that
+one only needs to code the energy expression, which is usually easy to understand
+but slow to run with automatic differentiation, then use Maxima to generate
+the corresponding Fortran77 that runs really fast as there are no hidden
+overheads. So a big performance improvement is obtained while keeping the
+automatic differentiation code as an easy to read base implementation for testing.
+
+The structure of the directories here is as follows:
+
+ -- maxima (this directory)
+    |
+    |-- input  (nwchem like input files that drive the Maxima
+    |           expression generation)
+    |
+    |-- bin    (Maxima scripts to generate Fortran77)
+    |
+    |
+    |-- max    (Maxima expressions for various functionals)
+    |
+    |
+    |-- f77    (Maxima generated Fortran77)
+
+
+Limitations
+-----------
+
+While the automatic differentiation tool can write Maxima expressions there are
+some limitations that stem from the fact that the tool can write Maxima code
+only for the parts that are being run. For example, if the code contains an
+if-statement like
+
+    if (rhoa.gt.tol_rho) then
+      ...
+    else
+      ...
+    endif
+
+then only the Maxima expression corresponding to the branch that is actually
+executed will be printed. Hence in those cases some manual intervention will be
+needed to obtain the complete Maxima expression. 
+
+Another problem case is with do-loops where the number of iterations is not
+a constant for a particular functional. In the Maxima expression all loops will
+be fully unrolled, and if the number of iterations is variable then there is
+no rigorous way to do that. However this is rare in DFT functionals (but might
+cause problems if you want to apply this approach in other domains). 
+
+To deal with these kinds of problems the NWAD library provides a few things that
+can help. First of all, every time a logical comparison is executed the library
+prints a comments with the tag "comp:" in the Maxima output. This makes locations
+of concern easy to identify in the Maxima expression. Another facility is that the
+counter used to generate the function/variable names in the Maxima expression
+can be reset at any time. Obviously wise choices should be made as the resulting
+names must remain unique. Nevertheless this allows one to generate easily 
+identifiable sub-expressions, e.g.:
+
+    if (rhoa.gt.tol_rho) then
+      call set_counter(10000)
+      ...
+    else
+      call set_counter(20000)
+      ...
+    endif
+    call set_counter(50000)
+
+This subsequently allows one to run the functional twice, ensuring that both
+branches are executed at least once, and then merge the Maxima expressions. 
+The merging has to be done by hand though, so this is not a free lunch but close.

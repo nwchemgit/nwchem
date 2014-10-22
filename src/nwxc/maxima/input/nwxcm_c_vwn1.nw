@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_c_vwn1.max
+  xc vwn_1
+end
+task print_df

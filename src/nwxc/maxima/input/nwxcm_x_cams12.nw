@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_x_cams12.max
+  xc xcams12g
+end
+task print_df

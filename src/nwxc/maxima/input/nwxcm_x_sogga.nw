@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_x_sogga.max
+  xc xsogga
+end
+task print_df

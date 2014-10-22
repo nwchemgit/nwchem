@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_x_pbe.max
+  xc xpbe96 1.0 slater -1.0
+end
+task print_df

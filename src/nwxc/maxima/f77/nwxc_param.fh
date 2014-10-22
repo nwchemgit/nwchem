@@ -108,7 +108,7 @@ c     also equal the number of columns you need for the spin
 c     unrestricted case. The latter numbers also equal the NCOL macros.
 c
 c     *** Currently the code in the rest of NWChem does not obey the
-c         guidelines above. Hence we do not actually does this, yet!
+c         guidelines above. Hence we do not actually do this, yet!
 c
 c     1st order derivatives
 c
