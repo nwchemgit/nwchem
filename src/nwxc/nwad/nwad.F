@@ -277,8 +277,8 @@
       !> ordered in increasing order.
       !>
       type :: nwad_dble
-        integer(kind=4)  :: nvar
-        integer(kind=4)  :: ivar
+        integer          :: nvar
+        integer          :: ivar
         double precision :: d0
 #if NWAD_DEG >= 1
         double precision :: d1(mxvar)
