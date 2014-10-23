@@ -1696,6 +1696,7 @@ endif
 
 ifneq ($(TARGET),LINUX)
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
+     _CPU = $(shell uname -m  )
 #ifeq ($(NWCHEM_TARGET),LINUX64)
    ifeq ($(FC),g77)
       g7764:
@@ -1810,7 +1811,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
       endif
       DEFINES  += -DEXT_INT
       MAKEFLAGS = -j 1 --no-print-directory
-     _CPU = $(shell uname -m  )
      ifeq ($(BLAS_LIB),)
        CORE_SUBDIRS_EXTRA += blas
      endif
