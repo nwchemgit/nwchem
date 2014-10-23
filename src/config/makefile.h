@@ -1412,7 +1412,7 @@ ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
   ifneq ($(GOTMINGW32),1)
-   EXTRA_LIBS += -lz  -lreadline -lncurses -lnwcutil  -lpthread -lutil -ldl -lsysfs
+   EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --libs) -lz -lnwcutil
   endif
 endif
 
@@ -2203,7 +2203,7 @@ endif
 
      ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
-     EXTRA_LIBS += -lnwcutil  -lpthread -lutil -ldl -lz
+   EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python-config --libs) -lz
   LDOPTIONS = -Wl,--export-dynamic 
      endif
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
