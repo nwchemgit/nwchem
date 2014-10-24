@@ -1,0 +1,30 @@
+/* Run this script using
+
+       maxima -b test_tex.mac
+
+   it will produce a file "test.tex" that contains optimized Fortran for
+   the collection of expressions fa, dfdx, and dfdy.
+
+*/
+
+fa(x,y):= exp(x*y+x*x+y*y);
+dfdx(x,y):= diff(fa(x,y),x);
+dfdy(x,y):= diff(fa(x,y),y);
+
+optimprefix: t;
+
+tex_block(l,e) := block( [n : 0],
+  for n:1 thru length(e) do
+    print(tex1(l[n] = l[n] + e[n]))
+  );
+
+tex_optimize(l,e) := block(
+  print("tex_optimize",l,e),
+  for p in rest(args(optimize(e))) do
+    if op(p)=":" then print(tex1(apply("=",args(p))))
+    else if listp(p) then tex_block(l,p)
+    else tex1(p)
+  );
+
+with_stdout("test.tex",
+   tex_optimize([d0,d1dx,d1dy],[fa(x,y),dfdx(x,y),dfdy(x,y)]));
