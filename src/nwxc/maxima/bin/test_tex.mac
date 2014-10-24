@@ -19,7 +19,6 @@ tex_block(l,e) := block( [n : 0],
   );
 
 tex_optimize(l,e) := block(
-  print("tex_optimize",l,e),
   for p in rest(args(optimize(e))) do
     if op(p)=":" then print(tex1(apply("=",args(p))))
     else if listp(p) then tex_block(l,p)
