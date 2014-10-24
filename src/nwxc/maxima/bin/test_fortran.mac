@@ -1,0 +1,29 @@
+/* Run this script using
+
+       maxima -b test_fortran.mac
+
+   it will produce a file "test.F" that contains optimized Fortran for
+   the collection of expressions fa, dfdx, and dfdy.
+
+*/
+
+fa(x,y):= exp(x*y+x*x+y*y);
+dfdx(x,y):= diff(fa(x,y),x);
+dfdy(x,y):= diff(fa(x,y),y);
+
+optimprefix: t;
+
+fortran_block(l,e) := block( [n : 0],
+  for n:1 thru length(e) do
+    fortran(l[n] = l[n] + e[n])
+  );
+
+fortran_optimize(l,e) := block(
+  for p in rest(args(optimize(e))) do
+    if op(p)=":" then fortran(apply("=",args(p)))
+    else if listp(p) then fortran_block(l,p)
+    else fortran(p)
+  );
+
+with_stdout("test.F",
+   fortran_optimize([d0,d1dx,d1dy],[fa(x,y),dfdx(x,y),dfdy(x,y)]));
