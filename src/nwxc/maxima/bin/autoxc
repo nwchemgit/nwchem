@@ -373,13 +373,37 @@ Fortran_block(l,e) := block( [ml: l, me : e, n : 0],
 */
 
 Fortran_opt(l,e) := block( [ll: l, le: optimize(e)],
-  if op(rest(args(le))[1])=":" then
+  if atom(rest(args(le))[1]) then
+    Fortran_block(ll,le)
+  else if op(rest(args(le))[1])=":" then
     for p in rest(args(le)) do
       if atom(p) then print("Pos1: What the heck?: ",p)
       else if op(p)=":" then Fortran(apply("=",args(p)))
       else if listp(p) then Fortran_block(ll,p)
       else print("Pos2: What the heck?: ",p)
   else Fortran_block(ll,le)
+  )$
+
+/* Generate and print optimized TeX to:
+   1. Get some readable expressions (i.e. not 10 screens wide)
+*/
+
+TeX_block(l,e) := block( [ml: l, me : e, n : 0],
+  for n:1 thru length(me) do
+    print(sconcat("C>   ",tex1(ml[n])," &=& ",tex1(me[n]),"\\\\\\\\\\\\\\\\"))
+  )$
+
+TeX_opt(l,e) := block( [ll: l, le: optimize(e)],
+  if atom(rest(args(le))[1]) then
+    TeX_block(ll,le)
+  else if op(rest(args(le))[1])=":" then
+    for p in rest(args(le)) do
+      if atom(p) then print("Pos1: What the heck?: ",p)
+      else if op(p)=":" then
+        print(sconcat("C>   ",tex1(args(p)[1])," &=& ",tex1(args(p)[2]),"\\\\\\\\\\\\\\\\"))
+      else if listp(p) then TeX_block(ll,p)
+      else print("Pos2: What the heck?: ",p)
+  else TeX_block(ll,le)
   )$
 
 /* Ideally we want reasonably compact expressions so we extend diff to try and
@@ -775,9 +799,10 @@ texput(rhos,"\\\\rho_s")$
 texput(sigmass,"\\\\sigma_{ss}")$
 texput(taus,"\\\\tau_s")$
 texput(tauu,"\\\\tau_{\\\\bar s}")$
-texf: tex1(f=combine(f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau)))$
-texg: tex1(g=combine(g(rhos,sigmass,taus)))$
-texG: tex1(G=combine(G(rhos,sigmass,taus,tauu)))$
+tl : [f, g, G] $
+te : [f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau),
+      g(rhos,sigmass,taus),
+      G(rhos,sigmass,taus,tauu)] $
 
 /* Lists of first order quantities */
 
@@ -1268,13 +1293,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
@@ -1339,13 +1358,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
@@ -1418,13 +1431,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
@@ -1555,13 +1562,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
@@ -1621,13 +1622,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
@@ -1693,13 +1688,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
@@ -1821,13 +1810,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
@@ -1880,13 +1863,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
@@ -1944,13 +1921,7 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("C> \\\\brief Evaluate the $functional_name functional [1]"),
           print("C>"),
           print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texf)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texg)),
-          print("C> \\\\f}"),
-          print("C> \\\\f{eqnarray*}{"),
-          print(sconcat("C>   ",texG)),
+          TeX_opt(tl,te),
           print("C> \\\\f}"),
           print("C>"),
           print("C> ### References ###"),
