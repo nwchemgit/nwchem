@@ -282,6 +282,9 @@ c     detect qmmm job
 c
       if (.not. rtdb_get(rtdb,'qmmm:init',mt_log,1,qmmm_init))
      $     qmmm_init=.false.
+      if (.not. rtdb_get(rtdb,'dft:bqdontcare',mt_log,1,bqdontcare))
+     $     bqdontcare=.false.
+      bqdontcare=bqdontcare.or.qmmm_init
 
 c
 c     initialize iangquad for lebmed and lebfine case
@@ -430,7 +433,7 @@ c
 c     we do not bail out ONLY  when X atom (for Zmatrix)
 c     or when we are in a QMMM job
 c
-               if(iptr.ne.2.and.(.not.qmmm_init)) then
+               if(iptr.ne.2.and.(.not.bqdontcare)) then
                if(ga_nodeid().eq.0) then
                   write(luout,*) ' *********************************'
                   write(luout,*) ' * INPUT ERROR                   *'
@@ -443,8 +446,17 @@ c
                     call errquit(
      X              ' bq DFT atom with no atom type ',0,INPUT_ERR)
                endif
-               nrad(itype) = 0
-               nang(itype) = 0
+               if(bqdontcare) then
+                  nrad(itype) = grid_params(min(grid_acc_index,5),
+     A                 1,grptr, 1)
+                  iangat=grid_params(min(grid_acc_index,5),
+     A                 2,grptr,       1)
+                  nang(itype) = xc_leb_acc2nrd(iangat)
+                  iangquad=max(iangquad,iangat)
+               else
+                  nrad(itype) = 0
+                  nang(itype) = 0
+               endif
             else
                if (grid_acc_index.eq.6)then
                   nrad(itype) = nradpts

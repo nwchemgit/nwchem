@@ -380,6 +380,11 @@ c     get minimum exponent of all basis functions
 c
          if (.not.bas_ce2cnr(ao_bas_han,iat,ic1,ic2))
      &        call errquit('Exiting in radtur.',11, BASIS_ERR)
+         if(geom_isbq(geom,iat).and.bqdontcare) then
+            range_max=10d0
+            minexp(iat)=.075d0
+            ldiff(iat)=2
+         else
          if(ic2.lt.0) then
             if (.not. geom_cent_get(geom, iat, tag, 
      &           ictr_coord, ictr_chg))call errquit
@@ -392,6 +397,7 @@ c
             write(0,*) ' ic1 ic2 ',ic1,ic2
             call errquit(
      .        'gridrtunc: no basis on ghost atom?',iat, BASIS_ERR)
+         endif
          endif
          range_max=0d0
          do icset = ic1,ic2

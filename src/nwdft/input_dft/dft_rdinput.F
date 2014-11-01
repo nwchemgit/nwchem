@@ -45,6 +45,7 @@ c
       Logical int_normalize
       Logical int_norm_2c
       Logical atom_tag_check
+      logical qmmm_init
       integer me
 c
       External int_normalize
@@ -56,6 +57,15 @@ c
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('dft_rdinput: failed getting theory',0,
      &       RTDB_ERR)
+c
+c     detect qmmm job
+c
+      if (.not. rtdb_get(rtdb,'qmmm:init',mt_log,1,qmmm_init))
+     $     qmmm_init=.false.
+      if (.not. rtdb_get(rtdb,'dft:bqdontcare',mt_log,1,bqdontcare))
+     $     bqdontcare=.false.
+      bqdontcare=bqdontcare.or.qmmm_init
+
 c
       do iline=1,numfunc
           xfac(iline)=0.d0

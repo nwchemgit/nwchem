@@ -34,7 +34,7 @@ c
      &     nodamping, nolevelshifting, nodiis, ltight, lmaxov, incore,
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
-     &     oadapt, lssw, lkeeps,trunc_neigh, lb94, cs00
+     &     oadapt, lssw, lkeeps,trunc_neigh, lb94, cs00, bqdontcare
       integer
      &     iAOacc, iCDacc, iXCacc, itol2e, imull, iangquad, 
      &     iterations, iguess, mult, noc(2), ipol, nfock, ncydp, ncysh, 
@@ -73,7 +73,7 @@ c
      ,     nlcfac(numfunc),lxfac(numfunc), nlxfac(numfunc), 
      ,     xccomb(numfunc), levelshift, damp, diis, 
      &     direct, oskel, oadapt, lssw, lkeeps,trunc_neigh, 
-     &     lb94, cs00, 
+     &     lb94, cs00, bqdontcare,
 c
 c     Integers
 c

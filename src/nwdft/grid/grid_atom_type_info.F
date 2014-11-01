@@ -31,7 +31,7 @@ c
       logical atom_tag_check
       logical oprint, oprint_grid
 c
-      External atom_tag_check
+      external atom_tag_check
 c
 c
 c     Table of Bragg-Slater Atomic Radii (Angstroms)
@@ -77,13 +77,14 @@ c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
      &   icoord))call errquit(
-     .     'grid_atom_type_info: failed to alloc coordinates',0, MA_ERR)
+     G     'grid_atom_type_info: failed to alloc coordinates',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
      &   icharge))call errquit(
-     '     'grid_atom_type_info: failed to alloc charges',0, MA_ERR)
+     G     'grid_atom_type_info: failed to alloc charges',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &   ltags, itags))call errquit(
-     .     'grid_atom_type_info: failed to alloc center tags',0, MA_ERR)
+     G     'grid_atom_type_info: failed to alloc center tags',0,
+     M     MA_ERR)
 c
 c     Get ncenter tags, coordinates, and charges from the geometry object.
 c     
@@ -179,7 +180,11 @@ c
             if (.not. geom_tag_to_element(tag(iptr:), symbol, 
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 
-                  i_atomic_number = 0
+                  if(bqdontcare) then
+                     i_atomic_number=1
+                  else
+                     i_atomic_number = 0
+                  endif
                elseif (inp_compare(.false.,tag(1:1),'X')) then 
                   i_atomic_number = 0
                else

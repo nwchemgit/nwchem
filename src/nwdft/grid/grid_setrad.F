@@ -35,11 +35,8 @@ c
       oprint_grid = util_print('griddebug', print_debug)
 c
       if (.not. rtdb_get(rtdb, 'dft:tol_reset', mt_log, 1,
-     &   tol_reset))then
-         tol_reset = .true.
-      endif
+     &   tol_reset)) tol_reset = .true.
 c
-      tol_reset=.true.
       llind=.false.
       if (.not. rtdb_get(rtdb, 'dft:check_s', mt_log, 1,
      &   check_s))then
@@ -271,7 +268,7 @@ c
          r_max = dble(rad_cutoff(1,itype))
 c
          nr = nrad(itype)
-c
+
          irsh = nr
 c
          do 410 ir = nr, 1, -1
