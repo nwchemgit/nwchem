@@ -522,7 +522,7 @@ ifeq ($(peigs_TARGET),MACX64)
         peigs_FC += -D$(peigs_CPU) -DSTD_DBL  -D$(peigs_COMM)
 endif
 
-ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX64 CATAMOUNT))
+ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX64 CYGWIN64 CATAMOUNT))
 #alpha with /tcgmsg
 _CPU = $(shell uname -m  )
 	peigs_COMM = TCGMSG

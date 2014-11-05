@@ -551,6 +551,17 @@ ifndef ARMCI_NETWORK
     ARMCI_NETWORK=MPI-TS
     MAYBE_ARMCI = --with-mpi-ts
 endif
+#
+# Apparently weak bindings do not work with CYGWIN64 at the moment. There seems
+# to be an issue with the COFF object format that gets in the way (with ELF
+# this is apparently not a problem). Some details can be found at
+# http://cygwin.com/ml/cygwin-developers/2013-04/msg00008.html
+# Anyway, I found when using weak bindings the code fails to link as the weak
+# symbols cannot be found. HVD (2014 Nov 4).
+#
+ifeq ($(TARGET),CYGWIN64) 
+        MAYBE_ARMCI += --disable-weak
+endif # CYGWIN64
 BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure

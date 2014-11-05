@@ -1,5 +1,5 @@
 #!/bin/bash
-#export RELEASE=6.3
+#export RELEASE=6.5
 function usage()
 {
    cat <<EOF
@@ -1580,18 +1580,8 @@ if [ ${#USE_MPI} -eq 0 ] ; then
   rm -f /tmp/$$.x /tmp/$$.c
 fi
 #
-# Work out whether this is a 32- or 64-bit platform
-# We need a C-compiler to do this, hence the compiler detection comes before
-# this step. To detect the linear algebra routines we need to have worked out
-# how to build code for this platform which requires detecting the 32- vs. 64-
-# bit characteristics before attempting to detect the linear algebra routines.
+# See if the current OS is something "special"
 #
-if [ ${#NWCHEM_PTR_SIZE} -eq 0 ] ; then
-  NWCHEM_PTR_SIZE=`get_pointer_size ${MPI_CC}`
-  if [ $? -ne 0 ] ; then
-    unset NWCHEM_PTR_SIZE
-  fi
-fi
 if [ ${#NWCHEM_OS} -eq 0 ] ; then
   NWCHEM_OS=`uname | tr '[a-z]' '[A-Z]'`
   if [ $? -ne 0 ] ; then
@@ -1608,10 +1598,13 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
       export NWCHEM_OS=IBM
     elif [ `expr match ${NWCHEM_OS} CYGWIN` != "0" ] ; then
       export NWCHEM_OS=CYGWIN
-      if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
-        # There is no CYGWIN64 target so set NWCHEM_TARGET here
-        export NWCHEM_TARGET=${NWCHEM_OS}
-      fi
+      #
+      # Now there is a 32- and a 64-bit CYGWIN version
+      #
+      #if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+      #  # There is no CYGWIN64 target so set NWCHEM_TARGET here
+      #  export NWCHEM_TARGET=${NWCHEM_OS}
+      #fi
       # If the user did not specify any compilers and we have not been able
       # to find them in the CYGWIN environment, then we will try and use the
       # regular GNU compilers
@@ -1626,9 +1619,9 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
       fi
       # I am not aware of any MPI implementations for CYGWIN so we assume to
       # be using TCGMSG.
-      if [ ${#MSG_COMMS} -eq 0 ] ; then
-        export MSG_COMMS=TCGMSG
-      fi
+      #if [ ${#MSG_COMMS} -eq 0 ] ; then
+      #  export MSG_COMMS=TCGMSG
+      #fi
     elif [ `expr match ${NWCHEM_OS} CYGNUS` != "0" ] ; then
       export NWCHEM_OS=CYGNUS
       if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
@@ -1642,6 +1635,19 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
         export NWCHEM_TARGET=${NWCHEM_OS}
       fi
     fi
+  fi
+fi
+#
+# Work out whether this is a 32- or 64-bit platform
+# We need a C-compiler to do this, hence the compiler detection comes before
+# this step. To detect the linear algebra routines we need to have worked out
+# how to build code for this platform which requires detecting the 32- vs. 64-
+# bit characteristics before attempting to detect the linear algebra routines.
+#
+if [ ${#NWCHEM_PTR_SIZE} -eq 0 ] ; then
+  NWCHEM_PTR_SIZE=`get_pointer_size ${MPI_CC}`
+  if [ $? -ne 0 ] ; then
+    unset NWCHEM_PTR_SIZE
   fi
 fi
 if [ ${#MSG_COMMS} -eq 0 ] ; then

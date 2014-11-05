@@ -1695,7 +1695,7 @@ CORE_LIBS += -llapack $(BLASOPT) -lblas
 endif
 
 ifneq ($(TARGET),LINUX)
-ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
      _CPU = $(shell uname -m  )
 #ifeq ($(NWCHEM_TARGET),LINUX64)
    ifeq ($(FC),g77)
@@ -1920,6 +1920,9 @@ endif # end of ia32 bit
 #
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
+      ifeq ($(NWCHEM_TARGET),CYGWIN64)
+        DEFINES += -DCYGWIN -DCYGNUS
+      endif
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
       FC=pgf90
       CC=gcc
