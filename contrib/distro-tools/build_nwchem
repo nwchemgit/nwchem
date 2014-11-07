@@ -1257,8 +1257,8 @@ if [ ${#PYTHON_EXE} -ne 0 ] ; then
   if [ ${#PYTHONHOME} -eq 0 ] ; then
     TMP1=`dirname $PYTHON_EXE`
     TMP2=`dirname $TMP1`
-    TMP1=`find $TMP2 -name os.py -print`
-    TMP2=`dirname $TMP1`
+    TMP1=(`find $TMP2 -name os.py -print`)
+    TMP2=`dirname ${TMP1[0]}`
     TMP1=`dirname $TMP2`
     export PYTHONHOME=`dirname $TMP1`
   fi
