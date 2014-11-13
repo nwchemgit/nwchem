@@ -920,7 +920,17 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C set parameters
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
+C>
+C> ### References ###
+C>
+C> [1] A. Hoffmann, R. Grunzke, S. Herres-Pawlis,
+C>     "Insights into the influence of dispersion correction in the
+C>      theoretical treatment of guanidine-quinoline copper(I)
+C>      complexes", J. Comput. Chem. (2014) <b>35</b>, pp. 1943-1950,
+C>     DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.23706">
+C>     10.1002/jcc.23706</a>.
+C>
       subroutine setfuncpar(func,version,TZ,s6,rs6,s18,rs18,alp)
       implicit none  
       integer version
@@ -1047,7 +1057,7 @@ c SE: Alp is only used in 3-body calculations
               rs6 =0.4634
               s18 =2.7495
               rs18=4.3153
-        case ("b3pw91")
+         case ("b3pw91")
               rs6 =0.4312
               s18 =2.8524
               rs18=4.4693
@@ -1059,7 +1069,7 @@ c SE: Alp is only used in 3-body calculations
               rs6 =0.4679
               s18 =1.7588
               rs18=3.7619
-         case ("tpssh")
+         case ("tpssh") !< See [1], Table 1.
               rs6 =0.4529
               s18 =2.2382
               rs18=4.6550
