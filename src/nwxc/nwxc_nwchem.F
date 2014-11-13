@@ -129,6 +129,8 @@ c
       double precision sr6   !< The Cr,6 coefficient
       double precision sr8   !< The Cr,8 coefficient
       double precision alpha !< The damping parameter
+      double precision a1    !< The BJ a1 damping parameter
+      double precision a2    !< The BJ a2 damping parameter
 c
 c     Functions
 c
@@ -176,7 +178,7 @@ c         endif
 c       endif
         if (nwxc_has_disp()) then
           if (ga_nodeid().eq.0) then
-            call nwxc_get_disp(dispid,s6,s8,sr6,sr8,alpha)
+            call nwxc_get_disp(dispid,s6,s8,sr6,sr8,alpha,a1,a2)
             select case (dispid)
               case (NWXC_DISP_D1)
                 write(luout,1010)"GRIMME D1","Correction type"
@@ -193,6 +195,12 @@ c       endif
                 write(luout,1000)sr6,"Cr,6 coefficient"
                 write(luout,1000)sr8,"Cr,8 coefficient"
                 write(luout,1000)alpha,"Alpha damping parameter"
+              case (NWXC_DISP_D3BJ)
+                write(luout,1010)"GRIMME D3BJ","Correction type"
+                write(luout,1000)s6,"C6 coefficient"
+                write(luout,1000)s8,"C8 coefficient"
+                write(luout,1000)a1,"A_1 parameter"
+                write(luout,1000)a1,"A_2 parameter"
               case default
                 call errquit("illegal dispersion correction",
      +                       dispid,UERR)

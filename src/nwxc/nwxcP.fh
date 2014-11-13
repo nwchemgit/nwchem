@@ -698,6 +698,8 @@ C
                                               !< R^-6 term
       double precision nwxc_disp_sr8          !< The dispersion strength
                                               !< R^-8 term
+      double precision nwxc_disp_a1           !< The BJ a_1 paramater
+      double precision nwxc_disp_a2           !< The BJ a_2 paramater
       double precision nwxc_rho_tol           !< The tolerance on the density
       double precision nwxc_wghts(NWXC_MAX_F) !< The functional weights
 c
@@ -727,7 +729,7 @@ c
      +       nwxc_rho_tol,
      +       nwxc_cam_alpha,nwxc_cam_beta,nwxc_cam_gamma,
      +       nwxc_disp_alpha,nwxc_disp_s6,nwxc_disp_s8,
-     +       nwxc_disp_sr6,nwxc_disp_sr8,
+     +       nwxc_disp_sr6,nwxc_disp_sr8,nwxc_disp_a1,nwxc_disp_a2,
      +       nwxc_wght_hf,nwxc_wght_mp2,nwxc_wght_cs00,nwxc_usr_wghts,
      +       nwxc_wghts,nwxc_ids,nwxc_num_f,nwxc_usr_num,
      +       nwxc_disp_id,nwxc_usr_ids,nwxc_cam_srhfex,

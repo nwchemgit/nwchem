@@ -6,7 +6,7 @@ c
       implicit none
       character *(*) what
       integer geom,rtdb
-      double precision exc,force(*),s6,s8,sr6,sr8
+      double precision exc,force(*),s6,s8,sr6,sr8,a1,a2
 c
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -73,10 +73,10 @@ c
 c
 c     Read in some user defined parameters
 c
-      call nwxc_get_disp(ivdw,s6,s8,sr6,sr8,alpha)
+      call nwxc_get_disp(ivdw,s6,s8,sr6,sr8,alpha,a1,a2)
 cDEBUG
-      write(*,*)'nwxc_vdw: after nwxc_get_disp: s6,s8,sr6,sr8=',
-     &          s6,s8,sr6,sr8
+      write(*,*)'nwxc_vdw: after nwxc_get_disp: s6,s8,sr6,sr8,a1,a2=',
+     &          s6,s8,sr6,sr8,a1,a2
 cDEBUG
 c     if (.not.rtdb_get(rtdb,'dft:vdwalpha',MT_DBL,1,alpha))
 c    &      alpha = 20.0d0
@@ -94,15 +94,17 @@ c
 c     Compute energy contribution
 c
         if(oprinth.and.ga_nodeid().eq.0) then
-           write(luout,*) ' s6 =',s6
-           write(luout,*) ' s8 =',s8
-           write(luout,*) ' sr6 =',sr6
-           write(luout,*) ' sr8 =',sr8
+           write(luout,*) ' s6     =',s6
+           write(luout,*) ' s8     =',s8
+           write(luout,*) ' sr6    =',sr6
+           write(luout,*) ' sr8    =',sr8
            write(luout,*) ' alpha  =',alpha
-           write(luout,*) ' ivdw  =',ivdw
-           write(luout,*) ' k1 = ',k1
-           write(luout,*) ' k2 = ',k2
-           write(luout,*) ' k3 = ',k3
+           write(luout,*) ' a1     =',a1
+           write(luout,*) ' a2     =',a2
+           write(luout,*) ' ivdw   =',ivdw
+           write(luout,*) ' k1     = ',k1
+           write(luout,*) ' k2     = ',k2
+           write(luout,*) ' k3     = ',k3
          endif
 c
          evdw=nwxc_vdw_e(s6,s8,sr6,sr8,n,dbl_mb(i_xyz),int_mb(iz))
@@ -122,6 +124,15 @@ c
      &     '          sr6 scale factor =', f22.12/
      &     '          sr8 scale factor =', f22.12/
      &     '              vdW contrib  =', f22.12//)
+           endif
+           if (ivdw.eq.4) then
+              write(luout,224) s6, s8, a1, a2, evdw
+ 224  format(//
+     &     '          s6 scale factor =', f22.12/
+     &     '          s8 scale factor =', f22.12/
+     &     '          a1 parameter    =', f22.12/
+     &     '          a2 parameter    =', f22.12/
+     &     '             vdW contrib  =', f22.12//)
            endif
          endif
 c

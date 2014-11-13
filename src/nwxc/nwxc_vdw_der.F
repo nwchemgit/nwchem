@@ -20,13 +20,13 @@ c
       integer z(n)
 c
       integer i,j,k,A,l_cnij,k_cnij,l_cnijk,k_cnijk
-      double precision c6ij_sk
-      external c6ij_sk
+      double precision nwxc_c6ij_sk
+      external nwxc_c6ij_sk
       double precision drajdxa
       double precision ff1,rr,ff
-      double precision fdmp,f1dmp,cnA,cnj
-      external c6cn,crd_nr
-      double precision c6cn,crd_nr
+      double precision nwxc_fdmp,nwxc_f1dmp,cnA,cnj
+      external nwxc_c6cn,nwxc_crd_nr
+      double precision nwxc_c6cn,nwxc_crd_nr
       double precision fac6,fac8,fdmp6,fdmp6a,fdmp8,fdmp8a,Qfac
       double precision rAj,rAk,rjk,r0aj,r0ak,r0jk,c6Aj,grad_c6(3)
       double precision dxAj,dyAj,dzAj,dxAk,dyAk,dzAk,dxjk,dyjk,dzjk
@@ -49,9 +49,9 @@ c
      +                 (x(2,A)-x(2,j))**2 +
      +                 (x(3,A)-x(3,j))**2)
                     r0aj=r0(z(A))+r0(z(j))
-                    ff= fdmp(rAj,r0aj)
-                    ff1= f1dmp(rAj,r0aj,ff)
-                    rr=c6ij_sk(A,j,z)/(rAj**6)*
+                    ff= nwxc_fdmp(rAj,r0aj)
+                    ff1= nwxc_f1dmp(rAj,r0aj,ff)
+                    rr=nwxc_c6ij_sk(A,j,z)/(rAj**6)*
      *               ((-6d0*ff/rAj)+ff1)
                     do i=1,3
                        drAjdxa=(x(i,A)-x(i,j))/rAj
@@ -75,7 +75,7 @@ c
          if (.not.ma_push_get(mt_dbl,3*n*n,'vdw cnijk',l_cnijk,k_cnijk))
      &      call errquit('vdw cnijk: cannot allocate cnijk',0, MA_ERR)
 c
-         call crd_nr_der(n,x,z,dbl_mb(k_cnij),dbl_mb(k_cnijk))
+         call nwxc_crd_nr_der(n,x,z,dbl_mb(k_cnij),dbl_mb(k_cnijk))
 c
          do A=1,n
            force(1,A)=0.0d0
@@ -107,14 +107,14 @@ c
 c
 c                 Coordination dependent C6_AB value
 c
-                  cnA=crd_nr(A,n,x,z)
-                  cnj=crd_nr(j,n,x,z)
-                  c6Aj=c6cn(z(A),z(j),cnA,cnj)
+                  cnA=nwxc_crd_nr(A,n,x,z)
+                  cnj=nwxc_crd_nr(j,n,x,z)
+                  c6Aj=nwxc_c6cn(z(A),z(j),cnA,cnj)
 c
 c                 Get gradient for coordination number dependent C6
 c
-                  call c6_grad(grad_c6,A,j,A,x,z,n,
-     &                         dbl_mb(k_cnij),dbl_mb(k_cnijk))
+                  call nwxc_c6_grad(grad_c6,A,j,A,x,z,n,
+     &                              dbl_mb(k_cnij),dbl_mb(k_cnijk))
 c
                   tmp6=6.0d0*fdmp6*s6*c6Aj/(rAj**4.0d0)
                   tmp8=6.0d0*fdmp8*s8*c6Aj*Qfac/(rAj**5.0d0)
@@ -189,8 +189,8 @@ c
 c
 c                      Get gradient for coordination number dependent C6 for three centers
 c
-                       call c6_grad(grad_c6,j,k,A,x,z,n,
-     &                              dbl_mb(k_cnij),dbl_mb(k_cnijk))
+                       call nwxc_c6_grad(grad_c6,j,k,A,x,z,n,
+     &                                   dbl_mb(k_cnij),dbl_mb(k_cnijk))
                        fac6=(sr6*r0jk/dsqrt(rjk))**(alpha)
                        fac8=(sr8*r0jk/dsqrt(rjk))**(alpha+2.0d0)
                        fdmp6=1.0d0/(1.0d0+6.0d0*fac6)

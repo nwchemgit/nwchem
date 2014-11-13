@@ -225,5 +225,6 @@ c
 #define NWXC_DISP_D1    1
 #define NWXC_DISP_D2    2
 #define NWXC_DISP_D3    3
+#define NWXC_DISP_D3BJ  4
 #endif
 c $Id$

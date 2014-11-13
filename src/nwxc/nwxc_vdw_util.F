@@ -4,7 +4,7 @@ c
 
 c      Interpolation of C6 to account for coordination number dependence
 c
-      double precision function c6cn(iat,jat,cni,cnj)
+      double precision function nwxc_c6cn(iat,jat,cni,cnj)
 c
       implicit none
 c
@@ -14,7 +14,7 @@ c
       double precision cni,cnj,top,bottom,dist,c6_ref
       double precision cna,cnb
 c
-      c6cn=0.0d0
+      nwxc_c6cn=0.0d0
       top=0.0d0
       bottom=0.0d0
       do i=1,maxcn(iat)
@@ -31,16 +31,16 @@ c
       enddo
 c
       if (bottom.gt.0.0d0) then
-         c6cn=top/bottom
+         nwxc_c6cn=top/bottom
       else
-         c6cn=0.0d0
+         nwxc_c6cn=0.0d0
       endif
       return
       end
 c
 c     Analytical gradient of coordination number dependent C6
 c
-      subroutine c6_grad(grad,iat,jat,kat,x,z,n,cnij,cnijk)
+      subroutine nwxc_c6_grad(grad,iat,jat,kat,x,z,n,cnij,cnijk)
 c
       implicit none
 c
@@ -49,13 +49,13 @@ c
       integer n,iat,jat,kat,z(n),i,j
       double precision x(3,n)
       double precision grad(3),cnij(3,n),cnijk(3,n,n),cni,cnj
-      double precision crd_nr,cnik(3),cnjk(3)
-      external crd_nr
+      double precision nwxc_crd_nr,cnik(3),cnjk(3)
+      external nwxc_crd_nr
       double precision t1,t2,dt1x,dt1y,dt1z,dt2x,dt2y,dt2z
       double precision tmp1,tmp2,tmp3,tmp4,fac1,fac2
 c
-      cni=crd_nr(iat,n,x,z)
-      cnj=crd_nr(jat,n,x,z)
+      cni=nwxc_crd_nr(iat,n,x,z)
+      cnj=nwxc_crd_nr(jat,n,x,z)
       if (iat.eq.kat) then
          cnik(1)=cnij(1,iat)
          cnik(2)=cnij(2,iat)
@@ -113,7 +113,7 @@ c
       endif
       end
 c
-      double precision function c6ij_sk(i,j,z)
+      double precision function nwxc_c6ij_sk(i,j,z)
 c
       implicit none
 c
@@ -124,14 +124,14 @@ c
 c     
       integer zi,zj
       double precision ni,nj
-      external xc_neff
-      double precision xc_neff,ci,cj
+      external nwxc_neff
+      double precision nwxc_neff,ci,cj
 c
-      c6ij_sk=0.0d0
+      nwxc_c6ij_sk=0.0d0
       zi=z(i)
       zj=z(j)
       if (zi.le.0.or.zj.le.0) then 
-         c6ij_sk=0.0d0
+         nwxc_c6ij_sk=0.0d0
          return
       end if
 c
@@ -141,25 +141,25 @@ c
 c     write(6,*) zi,zj,ci,cj
 c
       if(ci.le.0.d0.or.cj.le.0.d0) then
-         c6ij_sk=0.0d0
+         nwxc_c6ij_sk=0.0d0
          return
       endif
 c
       if(ivdw.eq.1)then
 c version 1 
 c     S. Grimme J Comp Chem 25, 1463 (2004)
-          c6ij_sk =2.d0*ci*cj/(ci+cj)
+          nwxc_c6ij_sk =2.d0*ci*cj/(ci+cj)
       else if(ivdw.eq.2) then
 c version 2
 c     S. Grimme J Comp Chem 27, 1787 (2006)
-          c6ij_sk =sqrt(ci*cj)
+          nwxc_c6ij_sk =sqrt(ci*cj)
       else if(ivdw.eq.3) then
 c version 3
 c     S. Grimme J Chem Phys 132, 154104 (2010)
       else if(ivdw.eq.0) then
-          ni=xc_neff(zi)
-          nj=xc_neff(zj)
-          c6ij_sk=2d0*(ci*ci*cj*cj*ni*nj)**(1d0/3d0)/
+          ni=nwxc_neff(zi)
+          nj=nwxc_neff(zj)
+          nwxc_c6ij_sk=2d0*(ci*ci*cj*cj*ni*nj)**(1d0/3d0)/
      /       ((nj*nj*ci)**(1d0/3d0)+(ni*ni*cj)**(1d0/3d0))
       endif
       return
@@ -167,7 +167,7 @@ c     S. Grimme J Chem Phys 132, 154104 (2010)
 c
 c     Derivatives of coordination number function
 c
-      subroutine crd_nr_der(n,xyz,iz,cnij,cnijk)
+      subroutine nwxc_crd_nr_der(n,xyz,iz,cnij,cnijk)
 c
       implicit none
 c
@@ -217,7 +217,7 @@ c
 c
 c     Coordination numbers based on inverse damping function 
 c
-      double precision function crd_nr(iat,nat,xyz,iz)
+      double precision function nwxc_crd_nr(iat,nat,xyz,iz)
 c
       implicit none
 c
@@ -226,7 +226,7 @@ c
       integer iat,nat,iz(nat),i
       double precision xyz(3,nat),dx,dy,dz,r,rcov
 c       
-      crd_nr=0.0d0
+      nwxc_crd_nr=0.0d0
       if (iz(iat).eq.0) return
       do i=1,nat
          if(iat.ne.i.and.iz(i).ne.0)then
@@ -235,48 +235,90 @@ c
             dz=xyz(3,iat)-xyz(3,i)
             r=dsqrt(dx*dx+dy*dy+dz*dz)
             rcov=cov_table(iz(i))+cov_table(iz(iat))
-            crd_nr=crd_nr+1.d0/(1.d0+dexp(-k1*(rcov/r-1.0d0)))
+            nwxc_crd_nr=nwxc_crd_nr+1.d0/(1.d0+dexp(-k1*(rcov/r-1.0d0)))
          endif
       enddo
       return
       end
 c
-c      f1dmp(x1,x2,ff)=(alpha/x2)*ff*ff*exp(-alpha*((x1/x2)-1.0d0))
+c      nwxc_f1dmp(x1,x2,ff)=(alpha/x2)*ff*ff*exp(-alpha*((x1/x2)-1.0d0))
 c
-      double precision function f1dmp(x1,x2,ff)
+      double precision function nwxc_f1dmp(x1,x2,ff)
 c
       implicit none
 c
 #include "nwxc_vdw.fh"
 c
       double precision x1,x2,ff
-      f1dmp=(alpha/x2)*ff*ff*dexp(-alpha*((x1/x2)-1.0d0))
+      nwxc_f1dmp=(alpha/x2)*ff*ff*dexp(-alpha*((x1/x2)-1.0d0))
       return
       end
 c
-c      fdmp3(x1,x2)=1.0d0/(1.0d0+6.0d0*(x1/x2)**-a)
+c      nwxc_fdmp3(x1,x2)=1.0d0/(1.0d0+6.0d0*(x1/x2)**-a)
 c
-      double precision function fdmp3(x1,x2,a)
+      double precision function nwxc_fdmp3(x1,x2,a)
 c
       implicit none
 c
 #include "nwxc_vdw.fh"
 c
       double precision x1,x2,a
-      fdmp3=1.0d0/(1.0d0+6.0d0*((x1/x2)**(-a)))
+      nwxc_fdmp3=1.0d0/(1.0d0+6.0d0*((x1/x2)**(-a)))
+      return
+      end
+C>
+C> \brief Evaluate the Becke-Johnson damping factor
+C>
+C> Evaluate the Becke-Johnson damping factor [1,2] for the dispersion
+C> correction:
+C> \f{eqnarray}{
+C>   \mathrm{nwxc_fdmpbj}(R,R^0,a_1,a_2,n) &=&
+C>   \frac{1}{R^n+f(R^0,a_1,a_2)^n} \\\\
+C>   f(R^0,a_1,a_2) &=& a_1 R^0 + a_2
+C> \f}
+C>
+C> ### References ###
+C>
+C> [1] A.D. Becke, E.R. Johnson,
+C>     "A unified density-functional treatment of dynamical,
+C>      nondynamical and dispersion correlations",
+C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     10.1063/1.2768530</a> (See appendix C).
+C>
+C> [2] S. Grimme, S. Ehrlich, L. Goerigk,
+C>     "Effect of the damping function in dispersion corrected
+C>      density functional theory", J. Comput. Chem. (2011)
+C>     <b>32</b>, pp. 1456-1465, DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
+C>
+      double precision function nwxc_fdmpbj(r,r0,a1,a2,n)
+c
+      implicit none
+c
+      integer          n !< [Input] The order of the term
+      double precision r !< [Input] Interactomic distance \f$R\f$
+      double precision r0 !< [Input] Parameter \f$R^0=\sqrt{C_8/C_6}\f$
+      double precision a1 !< [Input] Parameter \f$a_1\f$
+      double precision a2 !< [Input] Parameter \f$a_2\f$
+c
+      double precision f
+      f=a1*r0+a2
+      nwxc_fdmpbj=1.0d0/(r**n+f**n)
       return
       end
 c
-c      fdmp(x1,x2)=1.0d0/(1.0d0+exp(-alpha*((x1/x2)-1.0d0)))
+c      nwxc_fdmp(x1,x2)=1.0d0/(1.0d0+exp(-alpha*((x1/x2)-1.0d0)))
 c
-      double precision function fdmp(x1,x2)
+      double precision function nwxc_fdmp(x1,x2)
 c
       implicit none
 c
 #include "nwxc_vdw.fh"
 c
       double precision x1,x2
-      fdmp=1.0d0/(1.0d0+dexp(-alpha*((x1/x2)-1.0d0)))
+      nwxc_fdmp=1.0d0/(1.0d0+dexp(-alpha*((x1/x2)-1.0d0)))
       return
       end
 c

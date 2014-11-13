@@ -154,10 +154,10 @@ c      def2-QZVP PBE0 IP and alpha
         c6(54) = 29.99
 c       c6(92) = 101.70
       else if (ivdw.eq.3) then
-        call init_cov_rad_d3(angs2au)
-        call init_r0ab_d3(angs2au)
-        call init_c6_params_d3
-        call init_qat
+        call nwxc_init_cov_rad_d3(angs2au)
+        call nwxc_init_r0ab_d3(angs2au)
+        call nwxc_init_c6_params_d3
+        call nwxc_init_qat
       else if(ivdw.eq.0)then
 c scaled radii
         c6(1) = 0.163d0
@@ -195,7 +195,7 @@ c
 c
 c     initialize coordination number dependent c6ab directly from Grimme's tables
 c
-      subroutine init_c6_params_d3
+      subroutine nwxc_init_c6_params_d3
       implicit none
 #include "nwxc_vdw.fh"
       double precision grimme_c6_parameters(161925)
@@ -35859,7 +35859,7 @@ c
 c
 c     Initialize, scale, and convert covalent radii from angstrom to au
 c
-      subroutine init_cov_rad_d3(ang2au)
+      subroutine nwxc_init_cov_rad_d3(ang2au)
       implicit none
 #include "nwxc_vdw.fh"
       double precision ang2au
@@ -35889,7 +35889,7 @@ c
 c
 c     initialize Qat for c8ab term properly scaling with atom number Z
 c
-      subroutine init_qat
+      subroutine nwxc_init_qat
       implicit none
 #include "nwxc_vdw.fh"
       integer i
@@ -35921,7 +35921,7 @@ c
 c
 c     Initialize r0ab table and convert from angstrom to au
 c
-      subroutine init_r0ab_d3(ang2au)
+      subroutine nwxc_init_r0ab_d3(ang2au)
       implicit none
 #include "nwxc_vdw.fh"
       double precision ang2au

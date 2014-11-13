@@ -153,7 +153,7 @@ C> is assumed that the host code implements the actual expression
 C> and has tables of the atomic \f$C_6\f$, and if applicable, \f$C_8\f$
 C> coeffcients.
 C>
-      subroutine nwxc_get_disp(dispid,s6,s8,sr6,sr8,alpha)
+      subroutine nwxc_get_disp(dispid,s6,s8,sr6,sr8,alpha,a1,a2)
       implicit none
 #include "nwxcP.fh"
       integer dispid      !< [Output] The dispersion identifier
@@ -162,12 +162,16 @@ C>
       double precision sr6 !< [Output] The \f$S_{r6}\f$ scale factor
       double precision sr8 !< [Output] The \f$S_{r8}\f$ scale factor
       double precision alpha !< [Output] The \f$\alpha\f$ damping factor
+      double precision a1 !< [Output] The \f$a_1\f$ damping factor
+      double precision a2 !< [Output] The \f$a_2\f$ damping factor
       dispid = nwxc_disp_id
       s6     = nwxc_disp_s6
       s8     = nwxc_disp_s8
       sr6    = nwxc_disp_sr6
       sr8    = nwxc_disp_sr8
       alpha  = nwxc_disp_alpha
+      a1     = nwxc_disp_a1
+      a2     = nwxc_disp_a2
       end
 C>
 C> \brief Retrieve the Hartree-Fock exchange weight
