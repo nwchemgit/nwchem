@@ -245,6 +245,48 @@ c
       fdmp3=1.0d0/(1.0d0+6.0d0*((x1/x2)**(-a)))
       return
       end
+C>
+C> \brief Evaluate the Becke-Johnson damping factor
+C>
+C> Evaluate the Becke-Johnson damping factor [1,2] for the dispersion
+C> correction:
+C> \f{eqnarray}{
+C>   \mathrm{xc_fdmpbj}(R,R^0,a_1,a_2,n) &=&
+C>   \frac{1}{R^n+f(R^0,a_1,a_2)^n} \\\\
+C>   f(R^0,a_1,a_2) &=& a_1 R^0 + a_2
+C> \f}
+C>
+C> ### References ###
+C>
+C> [1] A.D. Becke, E.R. Johnson,
+C>     "A unified density-functional treatment of dynamical,
+C>      nondynamical and dispersion correlations",
+C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     10.1063/1.2768530</a> (See appendix C).
+C>
+C> [2] S. Grimme, S. Ehrlich, L. Goerigk,
+C>     "Effect of the damping function in dispersion corrected
+C>      density functional theory", J. Comput. Chem. (2011)
+C>     <b>32</b>, pp. 1456-1465, DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
+C>
+      double precision function xc_fdmpbj(r,r0,a1,a2,n)
+c
+      implicit none
+c
+      integer          n !< [Input] The order of the term
+      double precision r !< [Input] Interactomic distance \f$R\f$
+      double precision r0 !< [Input] Parameter \f$R^0=\sqrt{C_8/C_6}\f$
+      double precision a1 !< [Input] Parameter \f$a_1\f$
+      double precision a2 !< [Input] Parameter \f$a_2\f$
+c
+      double precision f
+      f=a1*r0+a2
+      xc_fdmpbj=1.0d0/(r**n+f**n)
+      return
+      end
 c
 c      fdmp(x1,x2)=1.0d0/(1.0d0+exp(-alpha*((x1/x2)-1.0d0)))
 c
@@ -255,13 +297,14 @@ c
       fdmp=1.0d0/(1.0d0+dexp(-alpha*((x1/x2)-1.0d0)))
       return
       end
-      subroutine get_scaling_fac(scales6,scales8,scalesr6,scalesr8)
+      subroutine get_scaling_fac(scales6,scales8,scalesr6,scalesr8,
+     +                           a1,a2)
       implicit none
 #include "cdft.fh"
 #include "xc_vdw.fh"
 #include "stdio.fh"
 #include "global.fh"
-      double precision scales6,scales8,scalesr6,scalesr8
+      double precision scales6,scales8,scalesr6,scalesr8,a1,a2
 c
 c DFT-D1 version
 c
@@ -524,11 +567,207 @@ c dftb
 c          scalesr6 = 1.699d0
 c          scales8  = 1.504d0
         endif
+      else if (ivdw.eq.4) then
+c
+c DFT-D3BJ version
+c
+        scales6  = 1.0d0
+        scalesr6 = 0.0d0
+        scalesr8 = 0.0d0
+c BLYP
+        if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
+c          scalesr6 = 1.094d0
+c          scales8  = 1.682d0
+c BP86 
+c       else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
+c          scalesr6 = 1.139d0
+c          scales8  = 1.683d0
+c B97-D
+c       else if (xccomb(37)) then
+c          scalesr6 = 0.892d0
+c          scales8  = 0.909d0
+c revPBE
+c          scalesr6 = 0.923d0
+c          scales8  = 1.010d0
+c PBE/PBE96
+c       else if(xccomb(58)) then
+c          scalesr6 = 1.217d0
+c          scales8  = 0.722d0
+c PBESOL
+c          scalesr6 = 1.320d0
+c          scales8  = 0.581d0
+c RPW86-PBE
+c          scalesr6 = 1.224d0
+c          scales8  = 0.901d0
+c rPBE
+c          scalesr6 = 0.872d0
+c          scales8  = 0.514d0
+c TPSS
+        else if(xfac(21).eq.1.0d0.and.cfac(27).eq.1.0d0) then
+           scales8  = 1.9435d0
+           a1       = 0.4535d0
+           a2       = 4.4752d0
+c B2-PLYP
+c       else if(xccomb(2).and.xfac(1).eq.0.53d0.and.
+c    &          xfac(3).eq.0.47d0.and.cfac(2).eq.0.73d0) then
+c          scales6  = 0.640d0
+c          scalesr6 = 1.094d0
+c          scales8  = 1.682d0
+c B3LYP
+        else if (xccomb(2)) then
+           scales8  = 1.9889d0
+           a1       = 0.3981d0
+           a2       = 4.4211d0
+c       else if (xccomb(10)) then
+c PBE0
+c          scalesr6 = 1.278d0
+c          scales8  = 0.928d0
+c revPBE38
+c          scalesr6 = 1.021d0
+c          scales8  = 0.862d0
+c PW6B95
+c       else if (xccomb(25)) then
+c          scalesr6 = 1.532d0
+c          scales8  = 1.682d0
+c TPSS0
+c          scalesr6 = 1.252d0
+c          scales8  = 1.242d0
+c PWPB95
+c          scales6  = 0.820d0
+c          scalesr6 = 1.557d0
+c          scales8  = 0.705d0
+c B2GP-PLYP
+c          scales6  = 0.560d0
+c          scalesr6 = 1.586d0
+c          scales8  = 0.760d0
+c PTPSS
+c          scales6  = 0.750d0
+c          scalesr6 = 1.541d0
+c          scales8  = 0.879d0
+c HF   
+c          scalesr6 = 1.158d0
+c          scales8  = 1.746d0
+c mpwlyp
+c          scalesr6 = 1.239d0
+c          scales8  = 1.098d0
+c bpbe
+c          scalesr6 = 1.087d0
+c          scales8  = 2.033d0
+c bhlyp
+        else if (xccomb(55)) then
+           scales8  = 1.0354d0
+           a1       = 0.2793d0
+           a2       = 4.9615d0
+c tpssh
+        else if (xccomb(18)) then
+           scales8  = 2.2382d0
+           a1       = 0.4529d0
+           a2       = 4.6550d0
+c pwb6k
+c       else if (xccomb(26)) then
+c          scalesr6 = 1.660d0
+c          scales8  = 0.550d0
+c b1b95
+c       else if (xccomb(23)) then
+c          scalesr6 = 1.613d0
+c          scales8  = 1.868d0
+c bop
+c          scalesr6 = 0.929d0
+c          scales8  = 1.975d0
+c o-lyp
+c          scalesr6 = 0.806d0
+c          scales8  = 1.764d0
+c o-pbe
+c          scalesr6 = 0.837d0
+c          scales8  = 1.868d0
+c ssb
+c       else if (xccomb(46)) then
+c          scalesr6 = 1.215d0
+c          scales8  = 0.663d0
+c revssb
+c          scalesr6 = 1.221d0
+c          scales8  = 0.560d0
+c otpss
+c          scalesr6 = 1.128d0
+c          scales8  = 1.494d0
+c b3pw91
+c       else if (xccomb(57)) then
+c          scalesr6 = 1.176d0
+c          scales8  = 1.775d0
+c s12g
+c       else if (xccomb(60)) then
+c          scalesr6 = 1.17755954d0
+c          scales8  = 0.84432515d0
+c s12h
+c       else if (xccomb(61)) then
+c          scalesr6 = 1.07735222d0
+c          scales8  = 0.37705816d0
+c cam-s12g
+c       else if (xccomb(62)) then
+c          scalesr6 = 1.20250451d0
+c          scales8  = 0.86124355d0
+c cam-s12h
+c       else if (xccomb(63)) then
+c          scalesr6 = 1.08034183d0
+c          scales8  = 0.37999939d0
+c revpbe0
+c          scalesr6 = 0.949d0
+c          scales8  = 0.792d0
+c pbe38
+c          scalesr6 = 1.333d0
+c          scales8  = 0.998d0
+c mpw1b95
+c       else if (xccomb(21)) then
+c          scalesr6 = 1.605d0
+c          scales8  = 1.118d0
+c mpwb1k
+c       else if (xccomb(22)) then
+c          scalesr6 = 1.671d0
+c          scales8  = 1.061d0
+c bmk
+c          scalesr6 = 1.931d0
+c          scales8  = 2.168d0
+c cam-b3lyp
+c          scalesr6 = 1.378d0
+c          scales8  = 1.217d0
+c lc-wpbe
+c          scalesr6 = 1.355d0
+c          scales8  = 1.279d0
+c m05
+c       else if (xccomb(29)) then
+c          scalesr6 = 1.373d0
+c          scales8  = 0.595d0
+c m052x
+c       else if (xccomb(30)) then
+c          scalesr6 = 1.417d0
+c          scales8  = 0.000d0
+c m06l
+c       else if (xccomb(33)) then
+c          scalesr6 = 1.581d0
+c          scales8  = 0.000d0
+c m06
+c       else if (xccomb(35)) then
+c          scalesr6 = 1.325d0
+c          scales8  = 0.000d0
+c m062x
+c       else if (xccomb(36)) then
+c          scalesr6 = 1.619d0
+c          scales8  = 0.000d0
+c m06hf
+c       else if (xccomb(34)) then
+c          scalesr6 = 1.446d0
+c          scales8  = 0.000d0
+c dftb
+c          scalesr6 = 1.699d0
+c          scales8  = 1.504d0
+        endif
       else
         scales6 = 0.0d0
         scales8 = 0.0d0
         scalesr6 = 0.0d0
         scalesr8 = 0.0d0
+        a1 = 0.0d0
+        a2 = 0.0d0
       endif
       return
       end
