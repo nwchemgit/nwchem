@@ -2,9 +2,10 @@
 
          LIBRARY = libnwxc.a
 
-    OBJ_OPTIMIZE = nwxc.o \
+    OBJ_OPTIMIZE = nwxc.o nwxcm_eval.o nwxc_eval_print.o \
                    nwxc_vdw_main.o nwxc_vdw_e.o nwxc_vdw_der.o nwxc_vdw_hess.o \
-                   nwxc_vdw_util.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o
+                   nwxc_vdw_util.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o \
+                   nwxc_fnc_print.o nwxcm_heaviside.o
 #   OBJ_OPTIMIZE = nwad.o nwxc_eval.o nwxc_x_att.o nwxc_x_b88.o nwxc_x_bnl.o \
 #                  nwxc_x_camb88.o nwxc_x_camlsd.o nwxc_x_campbe.o nwxc_x_camrpbe.o nwxc_x_cams12.o \
 #                  nwxc_x_dirac.o nwxc_x_gill.o nwxc_x_hse08.o nwxc_x_ft97.o nwxc_x_m05.o nwxc_x_m06.o \
@@ -25,13 +26,13 @@
 
 #            OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o \
 #                  nwxc_vdw_init.o nwxc_vdw3d.o
-             OBJ = nwxc_vdw_init.o nwxc_vdw3d.o
+             OBJ = nwxc_vdw_init.o nwxc_vdw3d.o stubs.o
 
          HEADERS = nwxc.fh nwxc_param.fh
 
-#        SUBDIRS = nwad
+         SUBDIRS = maxima
 
-   LIB_INCLUDES = -I./nwad
+    LIB_INCLUDES = -I./nwad
 
      LIB_TARGETS = 
 
@@ -42,11 +43,41 @@ USES_BLAS =  nwxc_vdw_main.F nwxc_vdw_e.F nwxc_vdw_der.F nwxc_vdw_hess.F nwxc_vd
 include ../config/makefile.h
 include ../config/makelib.h
 
-nwad.fh: nwad0.mod nwad1.mod nwad2.mod nwad3.mod
-	touch nwad.fh
+# NWXC_FNC_PRINT
+# ==============
+#
+# The nwxc_fnc_print target is specifically meant to print density
+# functionals as Maxima expressions. This target is not meant to do
+# any real computation. Therefore it should not be built as part of
+# routine compilations, but only upon a specific request.
+#
+# Also the are some special requirements to build this target. 
+# 1. It builds only with the internal BLAS libraries.
+# 2. You must build NWChem the regular first before attempting to 
+#    build this target. (There are many dependencies on include files
+#    and libraries).
+#
+# So the recommended approach to generating this target is to follow
+# the recipe:
+# 1. export BLASOPT=" "
+# 2. run ./contrib/distro-tools/build_nwchem realclean
+# 3. run ./contrib/distro-tools/build_nwchem
+# 4. source ./nwchem_make_env.sh
+# 5. cd src/nwxc
+# 6. make nwxc_fnc_print
+# 
+.PRECIOUS: nwxc_fnc_print
 
-nwad0.mod nwad1.mod nwad2.mod nwad3.mod nwad.o: ./nwad/nwad.F90
-	$(FC) -c $(FFLAGS) ./nwad/nwad.F90
+nwxc_fnc_print: nwxc_fnc_print.F stubs.F ../../lib/$(NWCHEM_TARGET)/$(LIBRARY)
+	@(env | sort)
+	$(FC) $(FFLAGS) $(INCLUDES) -o nwxc_fnc_print nwxc_fnc_print.F stubs.F $(LDFLAGS) -lnwctask -lnwxc -lcons -lnwcutil -lga -larmci -lperfm -lcons -lnwcutil -llapack -lblas $(MPI_LIB) $(LIBMPI) 
+#	$(LINK.f) -o nwxc_fnc_print nwxc_fnc_print.o -lnwctask -lnwxc -lcons -lnwcutil -lga -larmci -lperfm -lcons -lnwcutil -llapack -lblas $(MPI_LIB) $(LIBMPI) 
+
+#nwad.fh: nwad0.mod nwad1.mod nwad2.mod nwad3.mod
+#	touch nwad.fh
+
+#nwad0.mod nwad1.mod nwad2.mod nwad3.mod nwad.o: ./nwad/nwad.F90
+#	$(FC) -c $(FFLAGS) ./nwad/nwad.F90
 
 #nwad.fh: ./nwad/nwad.F90
 #	$(FC) -c $(FFLAGS) ./nwad/nwad.F90
