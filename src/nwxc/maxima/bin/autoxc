@@ -136,6 +136,20 @@ rho_deriv=false
 sigma_deriv=false
 tau_deriv=false
 #
+# Establish the script path and locations of utilities
+# ----------------------------------------------------
+#
+if [ -f "$0" ] ; then
+   # The first item on the command line is an actual file so this script must
+   # have been specified including the path.
+   script_path="`dirname \"$0\"`"
+else
+   # The first item on the command line is not a file so this script must have
+   # been found in PATH.
+   script_path="`which \"$0\"`"
+   script_path="`dirname \"$path\"`"
+fi
+#
 # Check the command line
 # ----------------------
 #
@@ -200,6 +214,7 @@ f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau):=0$
 g(rho_s,sigma_ss,tau_s):=0$
 G(rho_s,sigma_ss,tau_s,tau_u):=0$
 functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=0$
+gradef(nwxcm_heaviside(x),0)$
 EOF
 cat $f_quiet >> $f_maxima
 cat <<EOF >> $f_maxima
@@ -244,7 +259,7 @@ with_stdout("$f_dependency",
    print("tau_deriv=",tau_deriv),
    print("reference=\"",reference,"\""),
    print("doi=\"",doi,"\""))$
-/* printfile("$f_dependency"); */
+/* printfile("$f_dependency")$ */
 EOF
 maxima -b $f_maxima
 sed -e "s/ //" $f_dependency > $f_dependency_sh
@@ -281,6 +296,7 @@ func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=0$
 /* Funcs is the functional for one spin channel assuming that the density
    in the other spin channel vanishes: g(s) + G(s). */
 funcs(rho_s,sigma_ss,tau_s,tau_u):=0$
+gradef(nwxcm_heaviside(x),0)$
 EOF
 cat $f_quiet >> $f_maxima
 cat <<EOF >> $f_maxima
@@ -751,6 +767,8 @@ dfs3rsrsgss(rho_s,sigma_ss,tau_s,tau_u)
 :=Diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
 dfs3rsrsts(rho_s,sigma_ss,tau_s,tau_u)
 :=Diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3rsrstu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
 dfs3rsgssgss(rho_s,sigma_ss,tau_s,tau_u)
 :=Diff(dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
 dfs3rsgssts(rho_s,sigma_ss,tau_s,tau_u)
@@ -1328,6 +1346,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
@@ -1401,6 +1421,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
@@ -1483,6 +1505,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
@@ -1595,6 +1619,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
@@ -1661,6 +1687,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
@@ -1734,6 +1762,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
@@ -1840,6 +1870,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
@@ -1898,6 +1930,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
@@ -1960,6 +1994,8 @@ ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
           print("      double precision rhoa,rhob"),
           print("      double precision gammaaa,gammaab,gammabb"),
           print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
           print("      do iq = 1, nq"),
           print("        if (ipol.eq.1) then"),
           print("          rhoa    = 0.5d0*rho(iq,R_T)"),
