@@ -1,8 +1,14 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_c_vwn5_p(tol_rho, ipol, nq, wght, rho,
+     &                         func)
+          use nwadp1
+#else
         Subroutine nwxc_c_vwn5(tol_rho, ipol, nq, wght, rho,
      &                         func)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_c_vwn5_d2(tol_rho, ipol, nq, wght, rho,
      &                            func)

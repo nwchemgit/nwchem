@@ -1,9 +1,16 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_vs98ss_p(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,
+     +                         Chi,EUEGP,ChiP,ChiG,ZP,ZT,
+     +                         r13,r14,r15,r16,r17,r18)
+          use nwadp1
+#else
         Subroutine nwxc_vs98ss(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,
      +                         Chi,EUEGP,ChiP,ChiG,ZP,ZT,
      +                         r13,r14,r15,r16,r17,r18)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_vs98ss_d2(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,
      +                            Chi,EUEGP,ChiP,ChiG,ZP,ZT,
@@ -20,7 +27,15 @@
           type(nwad_dble)::PX, GX, TX, F, EUEG, Chi, RS, Z
           double precision FP, FG, FT
           double precision EUEGP, ChiP, ChiG, ZP, ZT
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          type(nwad_dble)::r13, r14, r15, r16, r17, r18
+#else
           double precision r13, r14, r15, r16, r17, r18
+#endif
+#else
+          double precision r13, r14, r15, r16, r17, r18
+#endif
         end subroutine
       end interface
 c $Id$

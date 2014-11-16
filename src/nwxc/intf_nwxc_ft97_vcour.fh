@@ -1,9 +1,16 @@
        interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         SUBROUTINE nwxc_FT97_VCOUR_p(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1              EAA,EBB,EAB,EBA,DEAADR,DEBBDR,DEABDR,DEBADR,
+     3              DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+           use nwadp1
+#else
          SUBROUTINE nwxc_FT97_VCOUR(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
      1              EAA,EBB,EAB,EBA,DEAADR,DEBBDR,DEABDR,DEBADR,
      3              DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
            use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          SUBROUTINE nwxc_FT97_VCOUR_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
      1              EAA,EBB,EAB,EBA,DEAADR,DEBBDR,DEABDR,DEBADR,

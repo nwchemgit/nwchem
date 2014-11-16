@@ -1,8 +1,14 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_m06css_p(param,DTol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                         Chi,EUEGP,ChiP,ChiG)
+          use nwadp1
+#else
         Subroutine nwxc_m06css(param,DTol,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                         Chi,EUEGP,ChiP,ChiG)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_m06css_d2(param,DTol,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                            Chi,EUEGP,ChiP,ChiG)
@@ -13,7 +19,15 @@
           use nwad3
 #endif
           implicit none
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          type(nwad_dble)::param(*)
+#else
           double precision param(*)
+#endif
+#else
+          double precision param(*)
+#endif
           double precision dtol
           type(nwad_dble)::PX, GX, TX, F
           double precision FP, FG, FT

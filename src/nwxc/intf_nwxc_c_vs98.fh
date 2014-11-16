@@ -1,8 +1,14 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_c_vs98_p(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+          use nwadp1
+#else
         Subroutine nwxc_c_vs98(param, tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_c_vs98_d2(param, tol_rho, ipol, nq, wght, rho,
      &                            rgamma, tau, func)
@@ -13,7 +19,15 @@
           use nwad3
 #endif
           implicit none
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          type(nwad_dble)::param(*)
+#else
           double precision param(*)
+#endif
+#else
+          double precision param(*)
+#endif
           double precision tol_rho
           integer ipol
           integer nq

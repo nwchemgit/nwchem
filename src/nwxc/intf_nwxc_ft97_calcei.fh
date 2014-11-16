@@ -1,7 +1,12 @@
        interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         subroutine nwxc_ft97_calcei_p(arg,result,int)
+           use nwadp1
+#else
          subroutine nwxc_ft97_calcei(arg,result,int)
            use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          subroutine nwxc_ft97_calcei_d2(arg,result,int)
            use nwad2

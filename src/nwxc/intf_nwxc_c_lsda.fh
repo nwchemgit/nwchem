@@ -1,8 +1,14 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_c_lsda(tol_rho,rs,zeta,PotLC,dLdS,dLdZ,
+     &                         d2LdSS,d2LdSZ,d2LdZZ)
+          use nwadp1
+#else
         Subroutine nwxc_c_lsda(tol_rho,rs,zeta,PotLC,dLdS,dLdZ,
      &                         d2LdSS,d2LdSZ,d2LdZZ)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_c_lsda_d2(tol_rho,rs,zeta,PotLC,dLdS,dLdZ,
      &                            d2LdSS,d2LdSZ,d2LdZZ)

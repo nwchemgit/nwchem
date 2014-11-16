@@ -1,7 +1,12 @@
        interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         function nwxc_ft97_expei_p(x)
+           use nwadp1
+#else
          function nwxc_ft97_expei(x)
            use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          function nwxc_ft97_expei_d2(x)
            use nwad2
@@ -10,6 +15,7 @@
            use nwad3
 #endif
            implicit none
+           type(nwad_dble)::nwxc_ft97_expei_p
            type(nwad_dble)::nwxc_ft97_expei
            type(nwad_dble)::nwxc_ft97_expei_d2
            type(nwad_dble)::nwxc_ft97_expei_d3

@@ -1,7 +1,12 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_LRCLSDA_p(Emu,Rho,F)
+          use nwadp1
+#else
         Subroutine nwxc_LRCLSDA(Emu,Rho,F)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_LRCLSDA_d2(Emu,Rho,F)
           use nwad2

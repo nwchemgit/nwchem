@@ -1,10 +1,18 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_x_pw91core_p(DPOW,BETA,n,ispin,
+     &                             rho,gamma,func,
+     &                             tol_rho, wght,
+     &                             nq, ipol)
+          use nwadp1
+#else
         Subroutine nwxc_x_pw91core(DPOW,BETA,n,ispin,
      &                             rho,gamma,func,
      &                             tol_rho, wght,
      &                             nq, ipol)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_x_pw91core_d2(DPOW,BETA,n,ispin,
      &                             rho,gamma,func,
@@ -19,8 +27,18 @@
           use nwad3
 #endif
           implicit none
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          type(nwad_dble)::dpow
+          type(nwad_dble)::beta
+#else
           double precision dpow
           double precision beta
+#endif
+#else
+          double precision dpow
+          double precision beta
+#endif
           integer n
           integer ispin
           type(nwad_dble)::rho

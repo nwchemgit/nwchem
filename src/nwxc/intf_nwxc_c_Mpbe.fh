@@ -1,7 +1,12 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_c_Mpbe_p(tol_rho, ipol, rho, rgamma, Ec)
+          use nwadp1
+#else
         Subroutine nwxc_c_Mpbe(tol_rho, ipol, rho, rgamma, Ec)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_c_Mpbe_d2(tol_rho, ipol, rho, rgamma, Ec)
           use nwad2

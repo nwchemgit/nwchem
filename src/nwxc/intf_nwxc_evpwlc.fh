@@ -1,7 +1,12 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_EvPWLC_p(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
+          use nwadp1
+#else
         Subroutine nwxc_EvPWLC(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_EvPWLC_d2(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
           use nwad2

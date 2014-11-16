@@ -1,8 +1,14 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_gvt4_p(g,dgdx,dgdz,xk,zk,k,c,ct,
+     +                       r1,r2,r3,r4,r5,r6)
+          use nwadp1
+#else
         Subroutine nwxc_gvt4(g,dgdx,dgdz,xk,zk,k,c,ct,
      +                       r1,r2,r3,r4,r5,r6)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_gvt4_d2(g,dgdx,dgdz,xk,zk,k,c,ct,
      +                          r1,r2,r3,r4,r5,r6)
@@ -16,7 +22,16 @@
           type(nwad_dble)::g
           double precision dgdx, dgdz
           type(nwad_dble)::xk, zk, k
-          double precision c, ct, r1, r2, r3, r4, r5, r6
+          double precision c, ct
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          type(nwad_dble)::r1, r2, r3, r4, r5, r6
+#else
+          double precision r1, r2, r3, r4, r5, r6
+#endif
+#else
+          double precision r1, r2, r3, r4, r5, r6
+#endif
         end subroutine
       end interface
 c $Id$

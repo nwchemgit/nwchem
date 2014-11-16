@@ -1,8 +1,14 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_c_b95ss_p(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                          Chi,EUEGP,ChiP,ChiG)
+          use nwadp1
+#else
         Subroutine nwxc_c_b95ss(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                          Chi,EUEGP,ChiP,ChiG)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_c_b95ss_d2(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                             Chi,EUEGP,ChiP,ChiG)
@@ -13,7 +19,15 @@
           use nwad3
 #endif
           implicit none
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          type(nwad_dble)::param(2)
+#else
           double precision param(2)
+#endif
+#else
+          double precision param(2)
+#endif
           double precision dtol
           type(nwad_dble)::PX, GX, TX, F, EUEG
           type(nwad_dble)::Chi

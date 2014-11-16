@@ -1,7 +1,12 @@
        interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         subroutine nwxc_rks_c_ft97_p(r,g,fc,dfdrac,dfdgaac,tol_rho)
+           use nwadp1
+#else
          subroutine nwxc_rks_c_ft97(r,g,fc,dfdrac,dfdgaac,tol_rho)
            use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          subroutine nwxc_rks_c_ft97_d2(r,g,fc,dfdrac,dfdgaac,tol_rho)
            use nwad2

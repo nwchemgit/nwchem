@@ -1,7 +1,12 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxc_EvFZet_p(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
+          use nwadp1
+#else
         Subroutine nwxc_EvFZet(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
           use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Subroutine nwxc_EvFZet_d2(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
           use nwad2

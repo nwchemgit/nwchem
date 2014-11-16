@@ -1,8 +1,14 @@
        interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         subroutine nwxc_uks_c_ft97_p(tol_rho,ra,rb,gaa,gbb,
+     +              fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+           use nwadp1
+#else
          subroutine nwxc_uks_c_ft97(tol_rho,ra,rb,gaa,gbb,
      +              fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
            use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          subroutine nwxc_uks_c_ft97_d2(tol_rho,ra,rb,gaa,gbb,
      +              fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
