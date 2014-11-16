@@ -1,5 +1,0 @@
-print_df
-  file ./max/nwxcm_c_op.max
-  xc cop
-end
-task print_df

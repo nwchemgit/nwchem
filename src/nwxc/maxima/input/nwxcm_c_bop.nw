@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_c_bop.max
+  xc bop 1.0 becke88 -1.0
+end
+task print_df

@@ -1,0 +1,5 @@
+print_df
+  file ./max/nwxcm_c_pbeop.max
+  xc pbeop 1.0 xpbe96 -1.0
+end
+task print_df

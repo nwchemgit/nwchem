@@ -1,5 +1,5 @@
 print_df
-  file ./max/nwxcm_xc_kt91.max
+  file ./max/nwxcm_xc_kt1.max
   xc kt1 1.0 slater -1.0 pw91lda -1.0
 end
 task print_df

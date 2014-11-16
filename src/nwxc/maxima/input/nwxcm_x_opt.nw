@@ -1,5 +1,5 @@
 print_df
   file ./max/nwxcm_x_opt.max
-  xc optx 1.0 slater -1.0
+  xc optx 0.69847522857601855150 slater -0.73445368759996926708
 end
 task print_df
