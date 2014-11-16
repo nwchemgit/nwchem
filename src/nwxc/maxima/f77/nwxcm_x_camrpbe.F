@@ -1,45 +1,23 @@
 C> \ingroup nwxc 
 C> @{ 
 C> 
-C> \file nwxcm_c_ft97.F 
-C> The nwxcm_c_ft97 functional 
+C> \file nwxcm_x_camrpbe.F 
+C> The nwxcm_x_camrpbe functional 
 C> 
 C> @} 
 C> 
 C> \ingroup nwxc_priv 
 C> @{ 
 C> 
-C> \brief Evaluate the nwxcm_c_ft97 functional [1] 
-C>
-C> Currently the symbolic algebra version of this functional is not 
-C> implemented. There are multiple reasons for this:
-C>
-C> 1. The functional is hard to differentiate with the symbolic
-C>    approach because it is a piecewise defined function were the
-C>    different pieces generate floating point overflows in the parts
-C>    where they should not be used. I.e. the Heaviside function
-C>    based approach to specifying a piecewise defined function
-C>    does not work here without additional manual intervention.
-C>
-C> 2. At the core the functional depends on an expression that again
-C>    is a piecewise defined function, where every piece is represented
-C>    as some series expansion. This is tedious to express as a 
-C>    piecewise function using the Heaviside function.
-C>
-C> 3. The functional is hardly ever used.
-C>
-C> If anyone really wants to use this functional and the automatic
-C> differentiation implementation is not fast enough, I can address
-C> the issue above to generate this missing implementation.
-C>    
+C> \brief Evaluate the nwxcm_x_camrpbe functional [1] 
 C> 
 C> ### References ### 
 C> 
-C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
-C> 10.1080/002689797170950 </a> 
+C> [1] OA Vydrov, GE Scuseria, JP Perdew, J.Chem.Phys. 126, 154109 (2007)  , DOI: 
+C> <a href="http://dx.doi.org/10.1063/1.2723119 "> 
+C> 10.1063/1.2723119 </a> 
 C> 
-      subroutine nwxcm_c_ft97(param,tol_rho,ipol,nq,wght, 
+      subroutine nwxcm_x_camrpbe(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
 c $Id: $ 
       implicit double precision (a-h,o-z), integer (i-n) 
@@ -63,20 +41,17 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
-      call errquit('nwxcm_c_ft97: not implemented, use "xc autodiff cft9
-     +7" instead',0,0)
       end 
 C> 
-C> \brief Evaluate the nwxcm_c_ft97 functional [1] 
-C> 
+C> \brief Evaluate the nwxcm_x_camrpbe functional [1] 
 C> 
 C> ### References ### 
 C> 
-C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
-C> 10.1080/002689797170950 </a> 
+C> [1] OA Vydrov, GE Scuseria, JP Perdew, J.Chem.Phys. 126, 154109 (2007)  , DOI: 
+C> <a href="http://dx.doi.org/10.1063/1.2723119 "> 
+C> 10.1063/1.2723119 </a> 
 C> 
-      subroutine nwxcm_c_ft97_d2(param,tol_rho,ipol,nq,wght, 
+      subroutine nwxcm_x_camrpbe_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
 c $Id: $ 
       implicit double precision (a-h,o-z), integer (i-n) 
@@ -106,8 +81,6 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
-      call errquit('nwxcm_c_ft97: not implemented, use "xc autodiff cft9
-     +7" instead',0,0)
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -128,15 +101,15 @@ c
       enddo ! iq 
       end 
 C> 
-C> \brief Evaluate the nwxcm_c_ft97 functional [1] 
+C> \brief Evaluate the nwxcm_x_camrpbe functional [1] 
 C> 
 C> ### References ### 
 C> 
-C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
-C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
-C> 10.1080/002689797170950 </a> 
+C> [1] OA Vydrov, GE Scuseria, JP Perdew, J.Chem.Phys. 126, 154109 (2007)  , DOI: 
+C> <a href="http://dx.doi.org/10.1063/1.2723119 "> 
+C> 10.1063/1.2723119 </a> 
 C> 
-      subroutine nwxcm_c_ft97_d3(param,tol_rho,ipol,nq,wght, 
+      subroutine nwxcm_x_camrpbe_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 
      +Cmat,Cmat2,Cmat3) 
 c $Id: $ 
@@ -173,8 +146,6 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
-      call errquit('nwxcm_c_ft97: not implemented, use "xc autodiff cft9
-     +7" instead',0,0)
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
