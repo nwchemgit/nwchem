@@ -1,0 +1,21 @@
+fxyz(x,y,z):=tan(1.57*sin(x)*sin(y)*sin(z));
+dfx(x,y,z):=diff(fxyz(x,y,z),x);
+dfy(x,y,z):=diff(fxyz(x,y,z),y);
+dfz(x,y,z):=diff(fxyz(x,y,z),z);
+Fortran(expr):= fortran(ev(expr,numer));
+with_stdout("submaxima_tan_p3.F",
+  print("      subroutine submaxima_tan_p3(x,y,z,f,df)"),
+  print("      implicit none"),
+  print("      double precision x,y,z,f,df(3)"),
+  print("      double precision sec"),
+  print("      external         sec"),
+  Fortran(f = fxyz(x,y,z)),
+  Fortran(df(1) = dfx(x,y,z)),
+  Fortran(df(2) = dfy(x,y,z)),
+  Fortran(df(3) = dfz(x,y,z)),
+  print("      end"),
+  print("      double precision function sec(x)"),
+  print("      implicit double precision (a-z)"),
+  print("      sec=1.d0/cos(x)"),
+  print("      return"),
+  print("      end"));

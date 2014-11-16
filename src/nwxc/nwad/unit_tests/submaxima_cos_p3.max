@@ -1,0 +1,14 @@
+fxyz(x,y,z):=cos(cos(x)+2*cos(y)+cos(z));
+dfx(x,y,z):=diff(fxyz(x,y,z),x);
+dfy(x,y,z):=diff(fxyz(x,y,z),y);
+dfz(x,y,z):=diff(fxyz(x,y,z),z);
+Fortran(expr):= fortran(ev(expr,numer));
+with_stdout("submaxima_cos_p3.F",
+  print("      subroutine submaxima_cos_p3(x,y,z,f,df)"),
+  print("      implicit none"),
+  print("      double precision x,y,z,f,df(3)"),
+  Fortran(f = fxyz(x,y,z)),
+  Fortran(df(1) = dfx(x,y,z)),
+  Fortran(df(2) = dfy(x,y,z)),
+  Fortran(df(3) = dfz(x,y,z)),
+  print("      end"));
