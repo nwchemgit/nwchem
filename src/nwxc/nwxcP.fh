@@ -645,6 +645,12 @@ c
       integer NWXCP_PBE_D1       !< The PBE-D1 functional 
                                  !< (exchange and correlation)
       parameter (NWXCP_PBE_D1 = NWXCP_VS98 + 1)
+c
+      integer NWXCP_EVAL_MAXIMA  !< The symbolic algebra based evaluator
+      parameter (NWXCP_EVAL_MAXIMA = -999)
+      integer NWXCP_EVAL_AUTODF  !< The automatic differentation based
+                                 !< evaluator
+      parameter (NWXCP_EVAL_AUTODF = -998)
 C  
 C  Internally the functional specification will be stored using 
 C  a collection of datastructures. For specific terms that the library
@@ -671,6 +677,7 @@ C
       logical nwxc_depends_on_tau   !< Does the functional depend on the
                                     !< kinetic energy density?
       logical nwxc_oroot            !< Is this the root process?
+      integer nwxc_eval_method      !< What evaluator should be used?
       integer NWXC_MAX_F !< The maximum number of terms in a functional
       parameter (NWXC_MAX_F = 50)
       integer          nwxc_num_f             !< The actual number of
@@ -734,7 +741,7 @@ c
      +       nwxc_wghts,nwxc_ids,nwxc_num_f,nwxc_usr_num,
      +       nwxc_disp_id,nwxc_usr_ids,nwxc_cam_srhfex,
      +       nwxc_depends_on_rho,nwxc_depends_on_gamma,
-     +       nwxc_depends_on_tau,nwxc_oroot
+     +       nwxc_depends_on_tau,nwxc_oroot,nwxc_eval_method
      +      ,nwxc_on
 C
 C  @}
