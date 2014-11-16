@@ -1,0 +1,78 @@
+doi: "10.1063/1.475007";
+reference: "AD Becke, J.Chem.Phys. 107, 8554 (1997) ";
+F000001:   0.0000000000000000E+00;
+/* comp: rhoa.gt.0.1000000000000000E-17
+*/
+/* comp: rhob.gt.0.1000000000000000E-17
+*/
+/* comp: rhoa.gt.0.1000000000000000E-17
+*/
+F000006(rhoa):= rhoa^(8/3);
+F000007(rhoa,sigmaaa):= sigmaaa/F000006(rhoa);
+F000008(rhoa,sigmaaa):= 0.4000000000000000E-02*F000007(rhoa,sigmaaa);
+F000009(rhoa,sigmaaa):= 0.1000000000000000E+01+F000008(rhoa,sigmaaa);
+F000010(rhoa,sigmaaa):= 0.4000000000000000E-02*F000007(rhoa,sigmaaa);
+F000011(rhoa,sigmaaa):= F000010(rhoa,sigmaaa)/F000009(rhoa,sigmaaa);
+F000012(rhoa,sigmaaa):= param(03)*F000011(rhoa,sigmaaa);
+F000013(rhoa,sigmaaa):= param(02)+F000012(rhoa,sigmaaa);
+F000014(rhoa,sigmaaa):= param(04)*F000011(rhoa,sigmaaa);
+F000015(rhoa,sigmaaa):= F000014(rhoa,sigmaaa)*F000011(rhoa,sigmaaa);
+F000016(rhoa,sigmaaa):= F000013(rhoa,sigmaaa)+F000015(rhoa,sigmaaa);
+F000017(rhoa):= rhoa^(4/3);
+F000018(rhoa):= 0.9305257363490993E+00*F000017(rhoa);
+F000019(rhoa):= -(F000018(rhoa));
+/* comp: rhob.gt.0.1000000000000000E-17
+*/
+F000020(rhob):= rhob^(8/3);
+F000021(rhob,sigmabb):= sigmabb/F000020(rhob);
+F000022(rhob,sigmabb):= 0.4000000000000000E-02*F000021(rhob,sigmabb);
+F000023(rhob,sigmabb):= 0.1000000000000000E+01+F000022(rhob,sigmabb);
+F000024(rhob,sigmabb):= 0.4000000000000000E-02*F000021(rhob,sigmabb);
+F000025(rhob,sigmabb):= F000024(rhob,sigmabb)/F000023(rhob,sigmabb);
+F000026(rhob,sigmabb):= param(03)*F000025(rhob,sigmabb);
+F000027(rhob,sigmabb):= param(02)+F000026(rhob,sigmabb);
+F000028(rhob,sigmabb):= param(04)*F000025(rhob,sigmabb);
+F000029(rhob,sigmabb):= F000028(rhob,sigmabb)*F000025(rhob,sigmabb);
+F000030(rhob,sigmabb):= F000027(rhob,sigmabb)+F000029(rhob,sigmabb);
+F000031(rhob):= rhob^(4/3);
+F000032(rhob):= 0.9305257363490993E+00*F000031(rhob);
+F000033(rhob):= -(F000032(rhob));
+F000034(rhoa,sigmaaa):= F000019(rhoa)*F000016(rhoa,sigmaaa);
+F000035(rhob,sigmabb):= F000033(rhob)*F000030(rhob,sigmabb);
+F000036(rhoa,rhob,sigmaaa,sigmabb):= F000034(rhoa,sigmaaa)+F000035(rhob,sigmabb);
+F000037(rhoa,rhob,sigmaaa,sigmabb):= 0.1000000000000000E+01*F000036(rhoa,rhob,sigmaaa,sigmabb);
+F000038(rhoa,rhob,sigmaaa,sigmabb):= F000037(rhoa,rhob,sigmaaa,sigmabb)*0.1000000000000000E+01;
+F000039(rhoa,rhob,sigmaaa,sigmabb):= F000001+F000038(rhoa,rhob,sigmaaa,sigmabb);
+f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000039(rhoa,rhob,sigmaaa,sigmabb);
+F000040:   0.0000000000000000E+00;
+/* comp: rhoa.gt.0.1000000000000000E-17
+*/
+/* comp: rhob.gt.0.1000000000000000E-17
+*/
+/* comp: rhoa.gt.0.1000000000000000E-17
+*/
+F000045(rhoa):= rhoa^(8/3);
+F000046(rhoa,sigmaaa):= sigmaaa/F000045(rhoa);
+F000047(rhoa,sigmaaa):= 0.4000000000000000E-02*F000046(rhoa,sigmaaa);
+F000048(rhoa,sigmaaa):= 0.1000000000000000E+01+F000047(rhoa,sigmaaa);
+F000049(rhoa,sigmaaa):= 0.4000000000000000E-02*F000046(rhoa,sigmaaa);
+F000050(rhoa,sigmaaa):= F000049(rhoa,sigmaaa)/F000048(rhoa,sigmaaa);
+F000051(rhoa,sigmaaa):= param(03)*F000050(rhoa,sigmaaa);
+F000052(rhoa,sigmaaa):= param(02)+F000051(rhoa,sigmaaa);
+F000053(rhoa,sigmaaa):= param(04)*F000050(rhoa,sigmaaa);
+F000054(rhoa,sigmaaa):= F000053(rhoa,sigmaaa)*F000050(rhoa,sigmaaa);
+F000055(rhoa,sigmaaa):= F000052(rhoa,sigmaaa)+F000054(rhoa,sigmaaa);
+F000056(rhoa):= rhoa^(4/3);
+F000057(rhoa):= 0.9305257363490993E+00*F000056(rhoa);
+F000058(rhoa):= -(F000057(rhoa));
+/* comp: rhob.gt.0.1000000000000000E-17
+*/
+F000059:   0.0000000000000000E+00;
+F000060:   0.0000000000000000E+00;
+F000061(rhoa,sigmaaa):= F000058(rhoa)*F000055(rhoa,sigmaaa);
+F000062: F000059*F000060;
+F000063(rhoa,sigmaaa):= F000061(rhoa,sigmaaa)+F000062;
+F000064(rhoa,sigmaaa):= 0.1000000000000000E+01*F000063(rhoa,sigmaaa);
+F000065(rhoa,sigmaaa):= F000064(rhoa,sigmaaa)*0.1000000000000000E+01;
+F000066(rhoa,sigmaaa):= F000040+F000065(rhoa,sigmaaa);
+G(rhoa,sigmaaa,taua,taub):=F000066(rhoa,sigmaaa);
