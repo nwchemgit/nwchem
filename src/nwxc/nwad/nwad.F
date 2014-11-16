@@ -250,6 +250,9 @@
 #if !defined(NWAD_DEG)
 #define NWAD_DEG 0
 #endif
+#ifdef NWAD_PRINT
+      module nwadp1
+#else
 #if NWAD_DEG <= 0
       module nwad0
 #elif NWAD_DEG <= 1
@@ -259,10 +262,20 @@
 #else
       module nwad3
 #endif
+#endif
       !> The maximum number of variables which determines the sizes of
       !> the data arrays. 
       integer mxvar
       parameter (mxvar = 7)
+#ifdef NWAD_PRINT
+      !> This option adds the capability to write a Maxima definition of the
+      !> functional being executed.
+      !>
+      integer nwad_iunit !< The file unit number
+      integer nwad_fid   !< The function ID counter
+      data nwad_iunit/6/
+      data nwad_fid/0/
+#endif
       !>
       !> The data type to hold a double precision value and the derivatives of this
       !> expression with respect to the sum of the active variables. I.e. the
@@ -277,17 +290,21 @@
       !> ordered in increasing order.
       !>
       type :: nwad_dble
+#ifdef NWAD_PRINT
+        integer(kind=8)   :: var_fid  = 0
+        character(len=16) :: var_name = ""
+#endif
         integer          :: nvar
         integer          :: ivar
         double precision :: d0
 #if NWAD_DEG >= 1
-        double precision :: d1(mxvar)
+        double precision  :: d1(mxvar)
 #endif
 #if NWAD_DEG >= 2
-        double precision :: d2(mxvar*(mxvar+1)/2)
+        double precision  :: d2(mxvar*(mxvar+1)/2)
 #endif
 #if NWAD_DEG >= 3
-        double precision :: d3(mxvar*(mxvar+1)*(mxvar+2)/6)
+        double precision  :: d3(mxvar*(mxvar+1)*(mxvar+2)/6)
 #endif
       end type nwad_dble
       interface assignment (=)
@@ -412,6 +429,9 @@
       interface erfc
         module procedure nwad_dble_erfc
       end interface
+      interface heaviside
+        module procedure nwad_dble_heaviside
+      end interface
       interface set_rho_a
         module procedure nwad_dble_rho_a
       end interface
@@ -466,41 +486,17 @@
         module procedure nwad_dble_get_d3
       end interface
 #endif
-!     interface find_rho_a
-!       module procedure nwad_dble_find_rho_a
-!     end interface
-!     interface find_rho_b
-!       module procedure nwad_dble_find_rho_b
-!     end interface
-!     interface find_rho_t
-!       module procedure nwad_dble_find_rho_t
-!     end interface
-!     interface find_gamma_aa
-!       module procedure nwad_dble_find_gamma_aa
-!     end interface
-!     interface find_gamma_ab
-!       module procedure nwad_dble_find_gamma_ab
-!     end interface
-!     interface find_gamma_bb
-!       module procedure nwad_dble_find_gamma_bb
-!     end interface
-!     interface find_gamma_tt
-!       module procedure nwad_dble_find_gamma_tt
-!     end interface
-!     interface find_tau_a
-!       module procedure nwad_dble_find_tau_a
-!     end interface
-!     interface find_tau_b
-!       module procedure nwad_dble_find_tau_b
-!     end interface
-!     interface find_tau_t
-!       module procedure nwad_dble_find_tau_t
-!     end interface
-!     interface value
-!       module procedure nwad_dble_value
-!     end interface
       interface print
         module procedure nwad_dble_print
+      end interface
+      interface set_unitno
+        module procedure nwad_set_unitno
+      end interface
+      interface set_counter
+        module procedure nwad_set_counter
+      end interface
+      interface set_name
+        module procedure nwad_set_name
       end interface
       contains
       !>
@@ -518,7 +514,7 @@
       subroutine nwad_merge_dependencies(s,x,y,ixto,iyto)
         type(nwad_dble), intent(in)  :: x !< [Input] Variable X
         type(nwad_dble), intent(in)  :: y !< [Input] Variable Y
-        type(nwad_dble), intent(out) :: s !< [Output] Variable S, the result
+        type(nwad_dble), intent(inout) :: s !< [Output] Variable S, the result
         integer,         intent(out) :: ixto(mxvar) !< [Output] Where X contributes
         integer,         intent(out) :: iyto(mxvar) !< [Output] Where Y contributes
 
@@ -566,10 +562,321 @@
       !>
       subroutine nwad_copy_dependencies(s,x)
         type(nwad_dble), intent(in)  :: x
-        type(nwad_dble), intent(out) :: s
+        type(nwad_dble), intent(inout) :: s
         s%ivar = x%ivar
         s%nvar = x%nvar
       end subroutine nwad_copy_dependencies
+#ifdef NWAD_PRINT
+      !>
+      !> \brief Find out how long a string is
+      !>
+      integer function nwad_strlen(name)
+        implicit none
+#include "inp.fh"
+        character*(*) name
+        nwad_strlen = inp_strlen(name)
+      end function nwad_strlen
+      !>
+      !> \brief Print the argument list of a NWAD_DBLE variable
+      !>
+      !> Generate formated output on the specified unit number, detailing
+      !> the dependencies of a NWAD_DBLE variable.
+      !>
+      subroutine nwad_print_args(x)
+        type(nwad_dble), intent(in) :: x
+        integer                     :: i,j
+        j = 0
+        if (x%nvar.eq.0) return
+        write(nwad_iunit,'("(",$)')
+        do i = 1, x%nvar
+          do while(.not.btest(x%ivar,j))
+            j = j + 1
+          enddo
+          select case (j)
+            case (0) 
+              write(nwad_iunit,'("rhoa",$)')
+            case (1) 
+              write(nwad_iunit,'("rhob",$)')
+            case (2) 
+              write(nwad_iunit,'("sigmaaa",$)')
+            case (3) 
+              write(nwad_iunit,'("sigmaab",$)')
+            case (4) 
+              write(nwad_iunit,'("sigmabb",$)')
+            case (5) 
+              write(nwad_iunit,'("taua",$)')
+            case (6) 
+              write(nwad_iunit,'("taub",$)')
+          end select
+          j = j + 1
+          if (i.lt.x%nvar) write(nwad_iunit,'(",",$)')
+        enddo
+        write(nwad_iunit,'(")",$)')
+      end subroutine nwad_print_args
+      !>
+      !> \brief Print an independent variable
+      !>
+      !> Generate formated output on the specified unit number, detailing
+      !> an independent variable. An independent variable is one with respect
+      !> to which you are differentiating your expression. I.e. if your
+      !> expression is of the form f(x,y) then x and y are your independent
+      !> variables.
+      !>
+      subroutine nwad_print_independent(x)
+        type(nwad_dble), intent(in) :: x
+        integer                     :: i,j
+        j = 0
+        if (x%nvar.ne.1) then
+           write(nwad_iunit,'("error not independent nvar")')
+           call nwad_dble_print(nwad_iunit,x)
+        endif
+        if (x%var_fid.ne.0)
+     +     write(nwad_iunit,'("error not independent id")')
+        do i = 1, x%nvar
+          do while(.not.btest(x%ivar,j))
+            j = j + 1
+          enddo
+          select case (j)
+            case (0) 
+              write(nwad_iunit,'("rhoa",$)')
+            case (1) 
+              write(nwad_iunit,'("rhob",$)')
+            case (2) 
+              write(nwad_iunit,'("sigmaaa",$)')
+            case (3) 
+              write(nwad_iunit,'("sigmaab",$)')
+            case (4) 
+              write(nwad_iunit,'("sigmabb",$)')
+            case (5) 
+              write(nwad_iunit,'("taua",$)')
+            case (6) 
+              write(nwad_iunit,'("taub",$)')
+          end select
+          j = j + 1
+        enddo
+      end subroutine nwad_print_independent
+      !>
+      !> \brief Print entity
+      !>
+      !> This subroutine prints an entity. That means either
+      !> - A named constant
+      !> - An independent variable (rhoa, rhob, etc.)
+      !> - A named function (including arguments)
+      !> - An unnamed function (including arguments)
+      !> No carriage return is printed at the end.
+      !>
+      subroutine nwad_print_entity(x)
+        implicit none
+        type(nwad_dble), intent(in) :: x
+        if (nwad_strlen(x%var_name).eq.0) then
+          if (x%var_fid.eq.0) then
+            if (x%nvar.eq.0) then
+              ! This is an unnamed constant
+              if (x%d0.ge.0.0d0) then
+                write(nwad_iunit,'(e22.16,$)')x%d0
+              else
+                write(nwad_iunit,'(e23.16,$)')x%d0
+              endif
+            else
+              ! No name and no valid ID, so this is an independent
+              ! variable
+              call nwad_print_independent(x)
+            endif
+          else
+            ! No name specified so this is an unnamed function
+            write(nwad_iunit,'("F",i6.6,$)')x%var_fid
+            call nwad_print_args(x)
+          endif
+        else
+          if (x%nvar.eq.0) then
+            ! This is a named constant
+            write(nwad_iunit,'(a,$)')
+     &        x%var_name(1:nwad_strlen(x%var_name))
+          else
+            if (x%var_fid.eq.0) then
+              ! This is an independent variable
+              write(nwad_iunit,'(a,$)')
+     &          x%var_name(1:nwad_strlen(x%var_name))
+            else
+              ! This is a named function
+              write(nwad_iunit,'(a,i6.6,$)')
+     &          x%var_name(1:nwad_strlen(x%var_name)),x%var_fid
+              call nwad_print_args(x)
+            endif
+          endif
+        endif
+      end subroutine nwad_print_entity
+      !>
+      !> \brief Print intrinsic operator line
+      !>
+      subroutine nwad_print_int_op(s,x,y,op)
+        implicit none
+        type(nwad_dble), intent(in) :: x
+        type(nwad_dble), intent(in) :: y
+        type(nwad_dble), intent(in) :: s
+        character*(*),   intent(in) :: op
+        integer                        ilen
+        call nwad_print_entity(s)
+        if (get_nvar(s).eq.0) then
+          ! s is a constant and not a function
+          write(nwad_iunit,'(": ",$)')
+        else
+          ! s is a function
+          write(nwad_iunit,'(":= ",$)')
+        endif
+        call nwad_print_entity(x)
+        ilen = nwad_strlen(op)
+        write(nwad_iunit,'(a,$)')op(1:ilen)
+        call nwad_print_entity(y)
+        write(nwad_iunit,'(";")')
+      end subroutine nwad_print_int_op
+      subroutine nwad_print_int_opx(s,x,y,op)
+        implicit none
+        type(nwad_dble),  intent(in) :: x
+        double precision, intent(in) :: y
+        type(nwad_dble),  intent(in) :: s
+        character*(*),    intent(in) :: op
+        integer                         ilen
+        double precision f13, f23, f43, f53, f83, f113
+        f13  =  1.0d0/3.0d0
+        f23  =  2.0d0/3.0d0
+        f43  =  4.0d0/3.0d0
+        f53  =  5.0d0/3.0d0
+        f83  =  8.0d0/3.0d0
+        f113 = 11.0d0/3.0d0
+        call nwad_print_entity(s)
+        if (get_nvar(s).eq.0) then
+          ! s is a constant and not a function
+          write(nwad_iunit,'(": ",$)')
+        else
+          ! s is a function
+          write(nwad_iunit,'(":= ",$)')
+        endif
+        call nwad_print_entity(x)
+        ilen = nwad_strlen(op)
+        write(nwad_iunit,'(a,$)')op(1:ilen)
+        if (abs(y-f13).lt.1.0d-14) then
+          write(nwad_iunit,'("(1/3)",$)')
+        else if (abs(y-f23).lt.1.0d-14) then
+          write(nwad_iunit,'("(2/3)",$)')
+        else if (abs(y-f43).lt.1.0d-14) then
+          write(nwad_iunit,'("(4/3)",$)')
+        else if (abs(y-f53).lt.1.0d-14) then
+          write(nwad_iunit,'("(5/3)",$)')
+        else if (abs(y-f83).lt.1.0d-14) then
+          write(nwad_iunit,'("(8/3)",$)')
+        else if (abs(y-f113).lt.1.0d-14) then
+          write(nwad_iunit,'("(11/3)",$)')
+        else
+          if (y.ge.0.0d0) then
+            write(nwad_iunit,'(e22.16,$)')y
+          else
+            write(nwad_iunit,'(e23.16,$)')y
+          endif
+        endif
+        write(nwad_iunit,'(";")')
+      end subroutine nwad_print_int_opx
+      subroutine nwad_print_int_opy(s,x,y,op)
+        implicit none
+        double precision, intent(in) :: x
+        type(nwad_dble),  intent(in) :: y
+        type(nwad_dble),  intent(in) :: s
+        character*(*),    intent(in) :: op
+        integer                         ilen
+        call nwad_print_entity(s)
+        if (get_nvar(s).eq.0) then
+          ! s is a constant and not a function
+          write(nwad_iunit,'(": ",$)')
+        else
+          ! s is a function
+          write(nwad_iunit,'(":= ",$)')
+        endif
+        if (x.ge.0.0d0) then
+          write(nwad_iunit,'(e22.16,$)')x
+        else
+          write(nwad_iunit,'(e23.16,$)')x
+        endif
+        ilen = nwad_strlen(op)
+        write(nwad_iunit,'(a,$)')op(1:ilen)
+        call nwad_print_entity(y)
+        write(nwad_iunit,'(";")')
+      end subroutine nwad_print_int_opy
+      !>
+      !> \brief Print intrinsic function line
+      !>
+      subroutine nwad_print_int_func(s,x,fnc)
+        implicit none
+        type(nwad_dble), intent(in) :: x
+        type(nwad_dble), intent(in) :: s
+        character*(*),   intent(in) :: fnc
+        call nwad_print_entity(s)
+        if (get_nvar(s).eq.0) then
+          write(nwad_iunit,'(": ",$)')
+        else
+          write(nwad_iunit,'(":= ",$)')
+        endif
+        write(nwad_iunit,'(a,"(",$)')fnc
+        call nwad_print_entity(x)
+        write(nwad_iunit,'(");")')
+      end subroutine nwad_print_int_func
+      subroutine nwad_print_int_funcx(s,x,fnc)
+        implicit none
+        double precision, intent(in) :: x
+        type(nwad_dble),  intent(in) :: s
+        character*(*),    intent(in) :: fnc
+        call nwad_print_entity(s)
+        write(nwad_iunit,'(":= ",$)')
+        write(nwad_iunit,'(a,"(",e24.16,");")')fnc,x
+      end subroutine nwad_print_int_funcx
+      !>
+      !> \brief Print comparison line
+      !>
+      !> This is printed as a Maxima comment line as it does not
+      !> change the numbers but one needs to know where the code
+      !> might branch.
+      !>
+      subroutine nwad_print_int_comp(x,y,comp)
+        implicit none
+        type(nwad_dble), intent(in) :: x
+        type(nwad_dble), intent(in) :: y
+        character*(*),   intent(in) :: comp
+        write(nwad_iunit,'("/* comp: ",$)')
+        call nwad_print_entity(x)
+        write(nwad_iunit,'(a,$)')comp
+        call nwad_print_entity(y)
+        write(nwad_iunit,'("*/")')
+      end subroutine nwad_print_int_comp
+      subroutine nwad_print_int_compx(x,y,comp)
+        implicit none
+        type(nwad_dble),  intent(in) :: x
+        double precision, intent(in) :: y
+        character*(*),    intent(in) :: comp
+        write(nwad_iunit,'("/* comp: ",$)')
+        call nwad_print_entity(x)
+        write(nwad_iunit,'(a,$)')comp
+        if (y.ge.0.0d0) then
+          write(nwad_iunit,'(e22.16)')y
+        else
+          write(nwad_iunit,'(e23.16)')y
+        endif
+        write(nwad_iunit,'("*/")')
+      end subroutine nwad_print_int_compx
+      subroutine nwad_print_int_compy(x,y,comp)
+        implicit none
+        double precision, intent(in) :: x
+        type(nwad_dble),  intent(in) :: y
+        character*(*),    intent(in) :: comp
+        write(nwad_iunit,'("/* comp: ",$)')
+        if (x.ge.0.0d0) then
+          write(nwad_iunit,'(e22.16)')x
+        else
+          write(nwad_iunit,'(e23.16)')x
+        endif
+        write(nwad_iunit,'(a,$)')comp
+        call nwad_print_entity(y)
+        write(nwad_iunit,'("*/")')
+      end subroutine nwad_print_int_compy
+#endif
       !>
       !> \brief Assign a value to an inactive variable
       !>
@@ -586,7 +893,16 @@
       !>
       subroutine nwad_dble_assignx(s,x)
         double precision, intent(in) :: x
-        type(nwad_dble), intent(out) :: s
+        type(nwad_dble), intent(inout) :: s
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        if (nwad_strlen(s%var_name).eq.0) then
+          write(nwad_iunit,'("F",i6.6,": ",e24.16,";")')s%var_fid,x
+        else
+          ! Named constant. Print only its name where the constant is used.
+        endif
+#endif
         s%d0   = x
 #if NWAD_DEG >= 1
         s%ivar = 0
@@ -609,7 +925,7 @@
       !>
       subroutine nwad_dble_assign(s,x)
         type(nwad_dble), intent(in)  :: x
-        type(nwad_dble), intent(out) :: s
+        type(nwad_dble), intent(inout) :: s
         integer i
         s%d0   = x%d0
 #if NWAD_DEG >= 1
@@ -627,6 +943,22 @@
         do i = 1, x%nvar*(x%nvar+1)*(x%nvar+2)/6
           s%d3(i) = x%d3(i)
         enddo
+#endif
+#ifdef NWAD_PRINT
+        if (nwad_strlen(s%var_name).eq.0) then
+          ! s is unnamed so copy name from x
+          s%var_name = x%var_name
+          s%var_fid  = x%var_fid
+        else
+          ! s is named already so do not overwrite the name
+          if (s%var_name(1:nwad_strlen(s%var_name)).ne.
+     +        x%var_name(1:nwad_strlen(x%var_name))) then
+            call nwad_print_int_func(s,x,"")
+          else
+            ! We are assigning a named variable to itself, 
+            ! and there is no need to print that.
+          endif
+        endif
 #endif
       end subroutine nwad_dble_assign
       !>
@@ -650,42 +982,88 @@
         type(nwad_dble)                       :: s
         type(nwad_dble)                       :: t1
         type(nwad_dble)                       :: t2
+#ifdef NWAD_PRINT
+c       The result depends on the largest set of variables of all 
+c       inputs. So first we need to work out those dependencies.
+        t1 = a + b
+        if (present(c)) then
+          t1 = t1 + c
+          if (present(d)) then
+            t1 = t1 + d
+            if (present(e)) then
+              t1 = t1 + e
+            endif
+          endif
+        endif
+c       Now t1 holds the correct data dependencies (the value of t1
+c       is garbage)
+        call nwad_copy_dependencies(s,t1)
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_entity(s)
+        write(nwad_iunit,'(":= max(",$)')
+        call nwad_print_entity(a)
+        write(nwad_iunit,'(",",$)')
+        call nwad_print_entity(b)
+#endif
         if (.not.present(c)) then
           if (a%d0 .ge. b%d0 ) then
             s = a
           else
             s = b
           endif
+#ifdef NWAD_PRINT
+          write(nwad_iunit,'(");")')
+#endif
         else
           if (a%d0 .ge. b%d0) then
             t1 = a
           else
             t1 = b
           endif
+#ifdef NWAD_PRINT
+          write(nwad_iunit,'(",",$)')
+          call nwad_print_entity(c)
+#endif
           if (.not.present(d)) then
             if (t1%d0 .ge. c%d0) then
               s = t1
             else
               s = c
             endif
+#ifdef NWAD_PRINT
+            write(nwad_iunit,'(");")')
+#endif
           else
             if (t1%d0 .ge. c%d0) then
               t2 = t1
             else
               t2 = c
             endif
+#ifdef NWAD_PRINT
+            write(nwad_iunit,'(",",$)')
+            call nwad_print_entity(d)
+#endif
             if (.not.present(e)) then
               if (t2%d0 .ge. d%d0) then
                 s = t2
               else
                 s = d
               endif
+#ifdef NWAD_PRINT
+              write(nwad_iunit,'(");")')
+#endif
             else
               if (t2%d0 .ge. d%d0) then
                 t1 = t2
               else
                 t1 = d
               endif
+#ifdef NWAD_PRINT
+              write(nwad_iunit,'(",",$)')
+              call nwad_print_entity(e)
+              write(nwad_iunit,'(");")')
+#endif
               if (t1%d0 .ge. e%d0) then
                 s = t1
               else
@@ -716,42 +1094,73 @@
         type(nwad_dble)                       :: s
         type(nwad_dble)                       :: t1
         type(nwad_dble)                       :: t2
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_entity(s)
+        write(nwad_iunit,'(":= min(",$)')
+        call nwad_print_entity(a)
+        write(nwad_iunit,'(",",$)')
+        call nwad_print_entity(b)
+#endif
         if (.not.present(c)) then
           if (a%d0 .lt. b%d0 ) then
             s = a
           else
             s = b
           endif
+#ifdef NWAD_PRINT
+          write(nwad_iunit,'(");")')
+#endif
         else
           if (a%d0 .lt. b%d0) then
             t1 = a
           else
             t1 = b
           endif
+#ifdef NWAD_PRINT
+          write(nwad_iunit,'(",",$)')
+          call nwad_print_entity(c)
+#endif
           if (.not.present(d)) then
             if (t1%d0 .lt. c%d0) then
               s = t1
             else
               s = c
             endif
+#ifdef NWAD_PRINT
+            write(nwad_iunit,'(");")')
+#endif
           else
             if (t1%d0 .lt. c%d0) then
               t2 = t1
             else
               t2 = c
             endif
+#ifdef NWAD_PRINT
+            write(nwad_iunit,'(",",$)')
+            call nwad_print_entity(d)
+#endif
             if (.not.present(e)) then
               if (t2%d0 .lt. d%d0) then
                 s = t2
               else
                 s = d
               endif
+#ifdef NWAD_PRINT
+              write(nwad_iunit,'(");")')
+#endif
             else
               if (t2%d0 .lt. d%d0) then
                 t1 = t2
               else
                 t1 = d
               endif
+#ifdef NWAD_PRINT
+              write(nwad_iunit,'(",",$)')
+              call nwad_print_entity(e)
+              write(nwad_iunit,'(");")')
+#endif
               if (t1%d0 .lt. e%d0) then
                 s = t1
               else
@@ -872,6 +1281,11 @@
 #if NWAD_DEG >= 1
         endif
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_op(s,x,y,"+")
+#endif
       end function nwad_dble_add
       !>
       !> \brief Evaluate the addition where \f$y\f$ is inactive
@@ -901,6 +1315,11 @@
           s%d3(i) = x%d3(i)
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opx(s,x,y,"+")
+#endif
       end function nwad_dble_addx
       !>
       !> \brief Evaluate the addition where \f$x\f$ is inactive
@@ -928,6 +1347,11 @@
         do i = 1, y%nvar*(y%nvar+1)*(y%nvar+2)/6
           s%d3(i) = y%d3(i)
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opy(s,x,y,"+")
 #endif
       end function nwad_dble_addy
       !>
@@ -1027,6 +1451,11 @@
 #if NWAD_DEG >= 1
         endif
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_op(s,x,y,"-")
+#endif
       end function nwad_dble_sub
       !>
       !> \brief Evaluation of the subtraction operator where \f$y\f$ is inactive
@@ -1056,6 +1485,11 @@
           s%d3(i) = x%d3(i)
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opx(s,x,y,"-")
+#endif
       end function nwad_dble_subx
       !>
       !> \brief Evaluation of the subtraction operator where \f$x\f$ is inactive
@@ -1084,6 +1518,11 @@
         do i = 1, y%nvar*(y%nvar+1)*(y%nvar+2)/6
           s%d3(i) = - y%d3(i)
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opy(s,x,y,"-")
 #endif
       end function nwad_dble_suby
       !>
@@ -1339,6 +1778,11 @@ c
 #if NWAD_DEG >= 1
         endif
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_op(s,x,y,"*")
+#endif
       end function nwad_dble_mult
       !>
       !> \brief Evaluate the multiplication operator where \f$y\f$ is inactive
@@ -1367,6 +1811,11 @@ c
           s%d3(i) = x%d3(i) * y
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opx(s,x,y,"*")
+#endif
       end function nwad_dble_multx
       !>
       !> \brief Evaluate the multiplication operator where \f$x\f$ is inactive
@@ -1394,6 +1843,11 @@ c
         do i = 1, y%nvar*(y%nvar+1)*(y%nvar+2)/6
           s%d3(i) = x * y%d3(i)
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opy(s,x,y,"*")
 #endif
       end function nwad_dble_multy
       !>
@@ -1697,6 +2151,11 @@ c
 #if NWAD_DEG >= 1
         endif
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_op(s,x,y,"/")
+#endif
       end function nwad_dble_div
       !>
       !> \brief Evaluate the division operator where \f$y\f$ is inactive
@@ -1724,6 +2183,11 @@ c
         do i = 1, x%nvar*(x%nvar+1)*(x%nvar+2)/6
           s%d3(i) = x%d3(i) / y
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opx(s,x,y,"/")
 #endif
       end function nwad_dble_divx
       !>
@@ -1786,6 +2250,11 @@ c
             enddo
           enddo
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opy(s,x,y,"/")
 #endif
       end function nwad_dble_divy
       !>
@@ -2131,6 +2600,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_op(s,x,y,"^")
+#endif
       end function nwad_dble_pow
       !>
       !> \brief Evaluate the exponentiation operator where \f$y\f$ is inactive
@@ -2201,6 +2675,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opx(s,x,y,"^")
+#endif
       end function nwad_dble_powx
       !>
       !> \brief Evaluate the exponentiation operator where \f$x\f$ is inactive
@@ -2263,6 +2742,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_opy(s,x,y,"^")
+#endif
       end function nwad_dble_powy
       !>
       !> \brief Return whether \f$x\f$ equals \f$y\f$
@@ -2276,6 +2760,9 @@ c
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .eq. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_comp(x,y,".eq.")
+#endif
       end function nwad_dble_equal
       !>
       !> \brief Return whether \f$x\f$ equals \f$y\f$ where the latter is inactive
@@ -2290,6 +2777,9 @@ c
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .eq. y
+#ifdef NWAD_PRINT
+        call nwad_print_int_compx(x,y,".eq.")
+#endif
       end function nwad_dble_equalx
       !>
       !> \brief Return whether \f$x\f$ equals \f$y\f$ where the former is inactive
@@ -2304,6 +2794,9 @@ c
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .eq. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_compy(x,y,".eq.")
+#endif
       end function nwad_dble_equaly
       !>
       !> \brief Return whether \f$x\f$ does not equal \f$y\f$
@@ -2317,6 +2810,9 @@ c
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = .not. (x .eq. y)
+#ifdef NWAD_PRINT
+        call nwad_print_int_comp(x,y,".ne.")
+#endif
       end function nwad_dble_notequal
       !>
       !> \brief Return whether \f$x\f$ does not equal \f$y\f$ where the latter is
@@ -2332,6 +2828,9 @@ c
         double precision, intent(in) :: y
         logical                      :: s
         s = .not. (x .eq. y)
+#ifdef NWAD_PRINT
+        call nwad_print_int_compx(x,y,".ne.")
+#endif
       end function nwad_dble_notequalx
       !>
       !> \brief Return whether \f$x\f$ does not equal \f$y\f$ where the former is
@@ -2347,6 +2846,9 @@ c
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = .not. (x .eq. y)
+#ifdef NWAD_PRINT
+        call nwad_print_int_compy(x,y,".ne.")
+#endif
       end function nwad_dble_notequaly
       !>
       !> \brief Return whether \f$x\f$ is less than \f$y\f$
@@ -2360,6 +2862,9 @@ c
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .lt. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_comp(x,y,".lt.")
+#endif
       end function nwad_dble_lessthan
       !>
       !> \brief Return whether \f$x\f$ is less than \f$y\f$ where the latter is
@@ -2375,6 +2880,9 @@ c
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .lt. y
+#ifdef NWAD_PRINT
+        call nwad_print_int_compx(x,y,".lt.")
+#endif
       end function nwad_dble_lessthanx
       !>
       !> \brief Return whether \f$x\f$ is less than \f$y\f$ where the former is
@@ -2390,6 +2898,9 @@ c
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .lt. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_compy(x,y,".lt.")
+#endif
       end function nwad_dble_lessthany
       !>
       !> \brief Return whether \f$x\f$ is less than or equal to \f$y\f$
@@ -2404,6 +2915,9 @@ c
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .le. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_comp(x,y,".le.")
+#endif
       end function nwad_dble_lessequal
       !>
       !> \brief Return whether \f$x\f$ is less than or equal to \f$y\f$ where the
@@ -2420,6 +2934,9 @@ c
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .le. y
+#ifdef NWAD_PRINT
+        call nwad_print_int_compx(x,y,".le.")
+#endif
       end function nwad_dble_lessequalx
       !>
       !> \brief Return whether \f$x\f$ is less than or equal to \f$y\f$ where the
@@ -2436,6 +2953,9 @@ c
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .le. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_compy(x,y,".le.")
+#endif
       end function nwad_dble_lessequaly
       !>
       !> \brief Return whether \f$x\f$ is greater than \f$y\f$
@@ -2449,6 +2969,9 @@ c
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .gt. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_comp(x,y,".gt.")
+#endif
       end function nwad_dble_greaterthan
       !>
       !> \brief Return whether \f$x\f$ is greater than \f$y\f$ where the latter is
@@ -2464,6 +2987,9 @@ c
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .gt. y
+#ifdef NWAD_PRINT
+        call nwad_print_int_compx(x,y,".gt.")
+#endif
       end function nwad_dble_greaterthanx
       !>
       !> \brief Return whether \f$x\f$ is greater than \f$y\f$ where the former is
@@ -2479,6 +3005,9 @@ c
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .gt. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_compy(x,y,".gt.")
+#endif
       end function nwad_dble_greaterthany
       !>
       !> \brief Return whether \f$x\f$ is greater than or equal to \f$y\f$
@@ -2493,6 +3022,9 @@ c
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .ge. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_comp(x,y,".ge.")
+#endif
       end function nwad_dble_greaterequal
       !>
       !> \brief Return whether \f$x\f$ is greater than or equal to \f$y\f$ where the
@@ -2509,6 +3041,9 @@ c
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .ge. y
+#ifdef NWAD_PRINT
+        call nwad_print_int_compx(x,y,".ge.")
+#endif
       end function nwad_dble_greaterequalx
       !>
       !> \brief Return whether \f$x\f$ is greater than or equal to \f$y\f$ where the
@@ -2525,6 +3060,9 @@ c
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .ge. y%d0
+#ifdef NWAD_PRINT
+        call nwad_print_int_compy(x,y,".ge.")
+#endif
       end function nwad_dble_greaterequaly
       !>
       !> \brief Evaluate the sign function 
@@ -2538,6 +3076,9 @@ c
         type(nwad_dble), intent(in) :: y
         type(nwad_dble)             :: s
         s = abs(x) * sign(1.0d0,y%d0)
+#ifdef NWAD_PRINT
+        call errquit("sign function",0,0)
+#endif
       end function nwad_dble_sign
       !>
       !> \brief Evaluate the sign function where \f$y\f$ is inactive
@@ -2551,6 +3092,9 @@ c
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
         s = abs(x) * sign(1.0d0,y)
+#ifdef NWAD_PRINT
+        call errquit("sign function",0,0)
+#endif
       end function nwad_dble_signx
       !>
       !> \brief Evaluate the sign function where \f$x\f$ is inactive
@@ -2564,6 +3108,9 @@ c
         type(nwad_dble),  intent(in) :: y
         double precision             :: s
         s = abs(x) * sign(1.0d0,y%d0)
+#ifdef NWAD_PRINT
+        call errquit("sign function",0,0)
+#endif
       end function nwad_dble_signy
       !>
       !> \brief Evaluate the \f$|\;\;|\f$ function
@@ -2634,6 +3181,11 @@ c
 #endif
         endif
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"abs")
+#endif
       end function nwad_dble_abs
       !>
       !> \brief Evaluate the unary negation operator \f$-\f$
@@ -2661,6 +3213,11 @@ c
         do ix = 1, x%nvar*(x%nvar+1)*(x%nvar+2)/6
           s%d3(ix) = -x%d3(ix)
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"-")
 #endif
       end function nwad_dble_minus
       !>
@@ -2729,6 +3286,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"sqrt")
+#endif
       end function nwad_dble_sqrt
       !>
       !> \brief Evaluate the \f$\exp\f$ function
@@ -2773,6 +3335,11 @@ c
             enddo
           enddo
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"exp")
 #endif
       end function nwad_dble_exp
       !>
@@ -2834,6 +3401,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"log")
+#endif
       end function nwad_dble_log
       !>
       !> \brief Evaluate the \f$\sin\f$ function
@@ -2891,6 +3463,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"sin")
+#endif
       end function nwad_dble_sin
       !>
       !> \brief Evaluate the \f$\cos\f$ function
@@ -2947,6 +3524,11 @@ c
             enddo
           enddo
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"cos")
 #endif
       end function nwad_dble_cos
       !>
@@ -3013,6 +3595,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"tan")
+#endif
       end function nwad_dble_tan
       !>
       !> \brief Evaluate the \f$\sinh\f$ function
@@ -3070,6 +3657,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"sinh")
+#endif
       end function nwad_dble_sinh
       !>
       !> \brief Evaluate the \f$\cosh\f$ function
@@ -3126,6 +3718,11 @@ c
             enddo
           enddo
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"cosh")
 #endif
       end function nwad_dble_cosh
       !>
@@ -3192,6 +3789,11 @@ c
             enddo
           enddo
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"tanh")
 #endif
       end function nwad_dble_tanh
       !>
@@ -3264,6 +3866,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"asin")
+#endif
       end function nwad_dble_asin
       !>
       !> \brief Evaluate the \f$\mathrm{acos}\f$ function
@@ -3334,6 +3941,11 @@ c
             enddo
           enddo
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"acos")
 #endif
       end function nwad_dble_acos
       !>
@@ -3406,6 +4018,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"atan")
+#endif
       end function nwad_dble_atan
       !>
       !> \brief Evaluate the \f$\mathrm{asinh}\f$ function
@@ -3475,6 +4092,11 @@ c
             enddo
           enddo
         enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"asinh")
 #endif
       end function nwad_dble_asinh
       !>
@@ -3550,6 +4172,11 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"erf")
+#endif
       end function nwad_dble_erf
       !>
       !> \brief Evaluate the \f$\mathrm{erfc}\f$ function
@@ -3624,159 +4251,54 @@ c
           enddo
         enddo
 #endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"erfc")
+#endif
       end function nwad_dble_erfc
-#ifdef JUNK
-      !>
-      !> \brief Find the rank of \f$\rho_\alpha\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\rho_\alpha\f$ in the variable list.
-      !> If \f$\rho_\alpha\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_rho_a(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.1) s = i
-        enddo
-      end function nwad_dble_find_rho_a
-      !>
-      !> \brief Find the rank of \f$\rho_\beta\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\rho_\beta\f$ in the variable list.
-      !> If \f$\rho_\beta\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_rho_b(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.2) s = i
-        enddo
-      end function nwad_dble_find_rho_b
-      !>
-      !> \brief Find the rank of \f$\rho_T\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\rho_T\f$ in the variable list.
-      !> If \f$\rho_T\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_rho_t(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.-3) s = i
-        enddo
-      end function nwad_dble_find_rho_t
-      !>
-      !> \brief Find the rank of \f$\gamma_{\alpha\alpha}\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\gamma_{\alpha\alpha}\f$ in the variable list.
-      !> If \f$\gamma_{\alpha\alpha}\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_gamma_aa(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.3) s = i
-        enddo
-      end function nwad_dble_find_gamma_aa
-      !>
-      !> \brief Find the rank of \f$\gamma_{\alpha\beta}\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\gamma_{\alpha\beta}\f$ in the variable list.
-      !> If \f$\gamma_{\alpha\beta}\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_gamma_ab(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.4) s = i
-        enddo
-      end function nwad_dble_find_gamma_ab
-      !>
-      !> \brief Find the rank of \f$\gamma_{\beta\beta}\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\gamma_{\beta\beta}\f$ in the variable list.
-      !> If \f$\gamma_{\beta\beta}\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_gamma_bb(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.5) s = i
-        enddo
-      end function nwad_dble_find_gamma_bb
-      !>
-      !> \brief Find the rank of \f$\gamma_{TT}\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\gamma_{TT}\f$ in the variable list.
-      !> If \f$\gamma_{TT}\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_gamma_tt(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.-2) s = i
-        enddo
-      end function nwad_dble_find_gamma_tt
-      !>
-      !> \brief Find the rank of \f$\tau_\alpha\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\tau_\alpha\f$ in the variable list.
-      !> If \f$\tau_\alpha\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_tau_a(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.6) s = i
-        enddo
-      end function nwad_dble_find_tau_a
-      !>
-      !> \brief Find the rank of \f$\tau_\beta\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\tau_\beta\f$ in the variable list.
-      !> If \f$\tau_\beta\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_tau_b(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.7) s = i
-        enddo
-      end function nwad_dble_find_tau_b
-      !>
-      !> \brief Find the rank of \f$\tau_T\f$ in the variable list
-      !>
-      !> Find and return the rank of \f$\tau_T\f$ in the variable list.
-      !> If \f$\tau_T\f$ is not found 0 will be returned.
-      !>
-      function nwad_dble_find_tau_t(x) result (s)
-        type(nwad_dble), intent(in) :: x
-        integer                     :: s
-        integer                     :: i
-        s = 0
-        do i = 1, x%nvar
-          if (x%ivar(i).eq.-1) s = i
-        enddo
-      end function nwad_dble_find_tau_t
-#endif 
+C>
+C> \brief Evaluate the Heaviside function
+C>
+C> The Heaviside function [1] is defined as
+C> \f{eqnarray*}{
+C>   H(x) &=& \int_{-\infty}^{x} \delta(s)\mathrm{d}s
+C> \f}
+C> Essentially this boils down to a step function that can be defined
+C> as
+C> \f{eqnarray*}{
+C>   H(x) &=& \left\{\begin{array}{cc}
+C>              0, & \iff x<0 \\\\ 
+C>              \frac{1}{2}, & \iff x=0 \\\\
+C>              1, & \iff x>0
+C>            \end{array}\right.
+C> \f}
+C>
+C> ### References ###
+C>
+C> [1] Oliver Heaviside (1850-1925), invented this function to 
+C>     model the current in an electric circuit, exact reference
+C>     unknown.
+C>
+      function nwad_dble_heaviside(x) result (s)
+        type(nwad_dble), intent(in)  :: x
+        type(nwad_dble)              :: s
+        if (x%d0.lt.0.0d0) then
+          s = 0.0d0
+        else if (x%d0.gt.0.0d0) then
+          s = 1.0d0
+        else
+          s = 0.5d0
+        endif
+#if NWAD_DEG >= 1
+        call nwad_copy_dependencies(s,x)
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        call nwad_print_int_func(s,x,"nwxcm_heaviside")
+#endif
+      end function nwad_dble_heaviside
       !>
       !> \brief Return the number of variables
       !>
@@ -3818,6 +4340,10 @@ c
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
 #endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "rhoa"
+#endif
       end function nwad_dble_rho_a
       !>
       !> \brief Initialize an active variable to \f$\rho_\beta\f$
@@ -3848,6 +4374,10 @@ c
 #endif
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
+#endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "rhob"
 #endif
       end function nwad_dble_rho_b
       !>
@@ -3880,6 +4410,10 @@ c
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
 #endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "rho"
+#endif
       end function nwad_dble_rho_t
       !>
       !> \brief Initialize an active variable to \f$\gamma_{\alpha\alpha}\f$
@@ -3910,6 +4444,10 @@ c
 #endif
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
+#endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "sigmaaa"
 #endif
       end function nwad_dble_gamma_aa
       !>
@@ -3942,6 +4480,10 @@ c
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
 #endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "sigmaab"
+#endif
       end function nwad_dble_gamma_ab
       !>
       !> \brief Initialize an active variable to \f$\gamma_{\beta\beta}\f$
@@ -3972,6 +4514,10 @@ c
 #endif
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
+#endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "sigmabb"
 #endif
       end function nwad_dble_gamma_bb
       !>
@@ -4004,6 +4550,10 @@ c
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
 #endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "sigma"
+#endif
       end function nwad_dble_gamma_tt
       !>
       !> \brief Initialize an active variable to \f$\tau_\alpha\f$
@@ -4034,6 +4584,10 @@ c
 #endif
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
+#endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "taua"
 #endif
       end function nwad_dble_tau_a
       !>
@@ -4066,6 +4620,10 @@ c
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
 #endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "taub"
+#endif
       end function nwad_dble_tau_b
       !>
       !> \brief Initialize an active variable to \f$\tau_T\f$
@@ -4096,6 +4654,10 @@ c
 #endif
 #if NWAD_DEG >= 3
         s%d3(1) = 0.0d0
+#endif
+#ifdef NWAD_PRINT
+        s%var_fid  = 0
+c       s%var_name = "tau"
 #endif
       end function nwad_dble_tau_t
       !>
@@ -4329,26 +4891,29 @@ c       s     = x%d2(ix*(ix-1)/2+ix2)
         type(nwad_dble), intent(in) :: x
         integer                     :: i,j
         j = 0
-        write(*,'(" ",$)')
+#ifdef NWAD_PRINT
+        write(iunit,'(" ",a,i6.6)')x%var_name,x%var_fid
+#endif
+        write(iunit,'(" ",$)')
         do i = 1, x%nvar
           do while(.not.btest(x%ivar,j))
             j = j + 1
           enddo
           select case (j)
             case (0) 
-              write(*,'("rho_a ",$)')
+              write(iunit,'("rhoa ",$)')
             case (1) 
-              write(*,'("rho_b ",$)')
+              write(iunit,'("rhob ",$)')
             case (2) 
-              write(*,'("gam_aa ",$)')
+              write(iunit,'("sigmaaa ",$)')
             case (3) 
-              write(*,'("gam_ab ",$)')
+              write(iunit,'("sigmaab ",$)')
             case (4) 
-              write(*,'("gam_bb ",$)')
+              write(iunit,'("sigmabb ",$)')
             case (5) 
-              write(*,'("tau_a ",$)')
+              write(iunit,'("taua ",$)')
             case (6) 
-              write(*,'("tau_b ",$)')
+              write(iunit,'("taub ",$)')
           end select
           j = j + 1
         enddo
@@ -4367,6 +4932,51 @@ c       s     = x%d2(ix*(ix-1)/2+ix2)
 #endif
         write(iunit,*)
       end subroutine nwad_dble_print
+      !>
+      !> \brief Set the unit number for the Maxima expression output
+      !>
+      subroutine nwad_set_unitno(iunit)
+        implicit none
+        integer, intent(in) :: iunit
+#ifdef NWAD_PRINT
+        nwad_iunit = iunit
+c       write(6,*)'nwad_iunit = ',nwad_iunit
+#endif
+      end subroutine nwad_set_unitno
+      !>
+      !> \brief Set the function counter for the Maxima expression output
+      !>
+      subroutine nwad_set_counter(icnt)
+        implicit none
+        integer, intent(in) :: icnt
+#ifdef NWAD_PRINT
+        if (icnt.gt.nwad_fid) then
+          nwad_fid = icnt
+        else if (icnt.eq.-1) then
+c         initialize the counter
+          nwad_fid = 0
+        endif
+#endif
+      end subroutine nwad_set_counter
+      !>
+      !> \brief Set the name of an entity
+      !>
+      !> This routine sets the name of an entity so this name can be
+      !> in the printed Maxima expression. For the correct behavior
+      !> the name MUST be set before a value is assigned to the entity.
+      !>
+      subroutine nwad_set_name(s,name)
+        implicit none
+        type(nwad_dble), intent(inout) :: s
+        character*(*),   intent(in)    :: name
+#ifdef NWAD_PRINT
+        s%var_name = name
+#endif
+      end subroutine nwad_set_name
+      !
+#ifdef NWAD_PRINT
+      end module nwadp1
+#else
 #if NWAD_DEG <= 0
       end module nwad0
 #elif NWAD_DEG <= 1
@@ -4376,18 +4986,25 @@ c       s     = x%d2(ix*(ix-1)/2+ix2)
 #else
       end module nwad3
 #endif
+#endif
 #if NWAD_DEG < 1
 #undef NWAD_DEG
+#undef NWAD_PRINT
 #define NWAD_DEG 1
 #include "nwad.F"
+#define NWAD_PRINT y
+#include "nwad.F"
+#undef NWAD_PRINT
 #endif
 #if NWAD_DEG < 2
 #undef NWAD_DEG
+#undef NWAD_PRINT
 #define NWAD_DEG 2
 #include "nwad.F"
 #endif
 #if NWAD_DEG < 3
 #undef NWAD_DEG
+#undef NWAD_PRINT
 #define NWAD_DEG 3
 #include "nwad.F"
 #endif
