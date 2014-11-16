@@ -259,11 +259,46 @@ C> in the norm of the total density gradient.
 C>
 C> \brief The functional and 1st order partial derivative evaluation
 C>
+      subroutine nwxc_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
+      implicit none
+#include "errquit.fh"
+#include "nwxcP.fh"
+C
+      integer ipol !< [Input] The number of spin channels
+      integer nq   !< [Input] The number of points
+C
+      double precision rho(nq,ipol)     !< [Input] Density
+      double precision gamma(nq,ipol+1) !< [Input] |Density gradient|^2
+      double precision tau(nq,ipol)     !< [Input] Kinetic energy
+                                        !< density
+C
+      double precision f(nq)           !< [Output] Energy
+      double precision dfdr(nq,ipol)   !< [Output] Derivative wrt rho
+      double precision dfdg(nq,ipol+1) !< [Output] Derivative wrt gamma
+      double precision dfdt(nq,ipol)   !< [Output] Derivative wrt tau
+C
+      if (nwxc_eval_method.eq.NWXCP_EVAL_AUTODF) then
+        call nwxca_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
+      else if (nwxc_eval_method.eq.NWXCP_EVAL_MAXIMA) then
+        call nwxcm_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
+      else
+        call errquit("nwxc_eval_df: unknown evaluator",nwxc_eval_method,
+     +               UERR)
+      endif
+      end
+C>
+C> @}
+C>
+C> \ingroup nwxc_priv
+C> @{
+C>
+C> \brief The functional and 1st order partial derivative evaluation with AD
+C>
 C> In actual fact this routine only sets up the memory and then calls the
 C> driver routine to drive the actual functional evaluation. The lack of 
 C> a Fortran90 typecast drives this code structure.
 C>
-      subroutine nwxc_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
+      subroutine nwxca_eval_df(ipol,nq,rho,gamma,tau,f,dfdr,dfdg,dfdt)
 #include "nwad.fh"
       implicit none
 #include "errquit.fh"
@@ -299,17 +334,17 @@ c
       length = (loc(memory_test_nwad(2))-loc(memory_test_nwad(1))
      +          +length-1)/length
       if(.not.ma_push_get(mt_dbl,length*nq*ipl,"nwad rho",l_rho,k_rho))
-     +  call errquit("nwxc_eval_df: cannot allocate nwad rho",
+     +  call errquit("nwxca_eval_df: cannot allocate nwad rho",
      +    ma_sizeof(mt_dbl,length*nq*ipl,mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq*(ipl+1),"nwad gamma",
      +                    l_gam,k_gam))
-     +  call errquit("nwxc_eval_df: cannot allocate nwad gamma",
+     +  call errquit("nwxca_eval_df: cannot allocate nwad gamma",
      +    ma_sizeof(mt_dbl,length*nq*(ipl+1),mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq*ipl,"nwad tau",l_tau,k_tau))
-     +  call errquit("nwxc_eval_df: cannot allocate nwad tau",
+     +  call errquit("nwxca_eval_df: cannot allocate nwad tau",
      +    ma_sizeof(mt_dbl,length*nq*ipl,mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq,"nwad fun",l_fun,k_fun))
-     +  call errquit("nwxc_eval_df: cannot allocate nwad fun",
+     +  call errquit("nwxca_eval_df: cannot allocate nwad fun",
      +    ma_sizeof(mt_dbl,length*nq,mt_byte),MA_ERR)
 c
       call nwxc_eval_df_driver(ipol,nq,rho,gamma,tau,dbl_mb(k_rho),
@@ -317,19 +352,14 @@ c
      +     dfdr,dfdg,dfdt)
 c
       if(.not.ma_pop_stack(l_fun)) call errquit(
-     +  "nwxc_eval_df: cannot deallocate nwad fun",0,MA_ERR)
+     +  "nwxca_eval_df: cannot deallocate nwad fun",0,MA_ERR)
       if(.not.ma_pop_stack(l_tau)) call errquit(
-     +  "nwxc_eval_df: cannot deallocate nwad tau",0,MA_ERR)
+     +  "nwxca_eval_df: cannot deallocate nwad tau",0,MA_ERR)
       if(.not.ma_pop_stack(l_gam)) call errquit(
-     +  "nwxc_eval_df: cannot deallocate nwad gam",0,MA_ERR)
+     +  "nwxca_eval_df: cannot deallocate nwad gam",0,MA_ERR)
       if(.not.ma_pop_stack(l_rho)) call errquit(
-     +  "nwxc_eval_df: cannot deallocate nwad rho",0,MA_ERR)
+     +  "nwxca_eval_df: cannot deallocate nwad rho",0,MA_ERR)
       end
-C>
-C> @}
-C>
-C> \ingroup nwxc_priv
-C> @{
 C>
 C> \brief Driver routine for the functional and first derivative evaluation
 C>
@@ -1747,14 +1777,57 @@ C>
 C> \ingroup nwad_api
 C> @{
 C>
+C> \brief The functional, 1st and 2nd order partial derivative
+C> evaluation
+C>
+      subroutine nwxc_eval_df2(ipol,nq,rho,gamma,tau,f,dfdr,dfdr2,
+     +                         dfdg,dfdg2,dfdt,dfdt2)
+      implicit none
+#include "errquit.fh"
+#include "nwxcP.fh"
+#include "nwxc_param.fh"
+      integer ipol !< [Input] The number of spin channels
+      integer nq   !< [Input] The number of points
+C
+      double precision rho(nq,ipol)     !< [Input] Density
+      double precision gamma(nq,ipol+1) !< [Input] |Density gradient|^2
+      double precision tau(nq,ipol)     !< [Input] Kinetic energy
+                                        !< density
+C
+      double precision f(nq)           !< [Output] Energy
+      double precision dfdr(nq,ipol)   !< [Output] Derivative wrt rho
+      double precision dfdg(nq,ipol+1) !< [Output] Derivative wrt gamma
+      double precision dfdt(nq,ipol)   !< [Output] Derivative wrt tau
+      double precision dfdr2(nq,NCOL_AMAT2) !< [Output] 2nd derivative wrt rho
+      double precision dfdg2(nq,NCOL_CMAT2) !< [Output] 2nd derivative wrt gamma
+      double precision dfdt2(nq,NCOL_MMAT2) !< [Output] 2nd derivative wrt tau
+C
+      if (nwxc_eval_method.eq.NWXCP_EVAL_AUTODF) then
+        call nwxca_eval_df2(ipol,nq,rho,gamma,tau,f,dfdr,dfdr2,
+     +                      dfdg,dfdg2,dfdt,dfdt2)
+      else if (nwxc_eval_method.eq.NWXCP_EVAL_MAXIMA) then
+        call nwxcm_eval_df2(ipol,nq,rho,gamma,tau,f,dfdr,dfdr2,
+     +                      dfdg,dfdg2,dfdt,dfdt2)
+      else
+        call errquit("nwxc_eval_df: unknown evaluator",nwxc_eval_method,
+     +               UERR)
+      endif
+      end
+C>
+C> @}
+C>
+C> \ingroup nwxc_priv
+C> @{
+C>
 C> \brief The functional, 1st and 2nd order partial derivative evaluation
+C> with AD
 C>
 C> In actual fact this routine only sets up the memory and then calls the
 C> driver routine to drive the actual functional evaluation. The lack of 
 C> a Fortran90 typecast drives this code structure.
 C>
-      subroutine nwxc_eval_df2(ipol,nq,rho,gamma,tau,f,dfdr,dfdr2,
-     +                         dfdg,dfdg2,dfdt,dfdt2)
+      subroutine nwxca_eval_df2(ipol,nq,rho,gamma,tau,f,dfdr,dfdr2,
+     +                          dfdg,dfdg2,dfdt,dfdt2)
       use nwad2
       implicit none
 #include "errquit.fh"
@@ -1812,17 +1885,17 @@ c
       length = (loc(memory_test_nwad(2))-loc(memory_test_nwad(1))
      +          +length-1)/length
       if(.not.ma_push_get(mt_dbl,length*nq*ipl,"nwad rho",l_rho,k_rho))
-     +  call errquit("nwxc_eval_df2: cannot allocate nwad rho",
+     +  call errquit("nwxca_eval_df2: cannot allocate nwad rho",
      +    ma_sizeof(mt_dbl,length*nq*ipl,mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq*(ipl+1),"nwad gamma",
      +                    l_gam,k_gam))
-     +  call errquit("nwxc_eval_df2: cannot allocate nwad gamma",
+     +  call errquit("nwxca_eval_df2: cannot allocate nwad gamma",
      +    ma_sizeof(mt_dbl,length*nq*(ipl+1),mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq*ipl,"nwad tau",l_tau,k_tau))
-     +  call errquit("nwxc_eval_df2: cannot allocate nwad tau",
+     +  call errquit("nwxca_eval_df2: cannot allocate nwad tau",
      +    ma_sizeof(mt_dbl,length*nq*ipl,mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq*ndrv,"nwad fun",l_fun,k_fun))
-     +  call errquit("nwxc_eval_df2: cannot allocate nwad fun",
+     +  call errquit("nwxca_eval_df2: cannot allocate nwad fun",
      +    ma_sizeof(mt_dbl,length*nq*ndrv,mt_byte),MA_ERR)
 c
       call nwxc_eval_df2_driver(ipol,nq,length,rho,gamma,tau,
@@ -1830,19 +1903,14 @@ c
      +     nvar,ndrv,f,dfdr,dfdr2,dfdg,dfdg2,dfdt,dfdt2)
 c
       if(.not.ma_pop_stack(l_fun)) call errquit(
-     +  "nwxc_eval_df2: cannot deallocate nwad fun",0,MA_ERR)
+     +  "nwxca_eval_df2: cannot deallocate nwad fun",0,MA_ERR)
       if(.not.ma_pop_stack(l_tau)) call errquit(
-     +  "nwxc_eval_df2: cannot deallocate nwad tau",0,MA_ERR)
+     +  "nwxca_eval_df2: cannot deallocate nwad tau",0,MA_ERR)
       if(.not.ma_pop_stack(l_gam)) call errquit(
-     +  "nwxc_eval_df2: cannot deallocate nwad gam",0,MA_ERR)
+     +  "nwxca_eval_df2: cannot deallocate nwad gam",0,MA_ERR)
       if(.not.ma_pop_stack(l_rho)) call errquit(
-     +  "nwxc_eval_df2: cannot deallocate nwad rho",0,MA_ERR)
+     +  "nwxca_eval_df2: cannot deallocate nwad rho",0,MA_ERR)
       end
-C>
-C> @}
-C>
-C> \ingroup nwad_priv
-C> @{
 C>
 C> \brief Driver routine for the functional, 1st and 2nd derivative evaluation
 C>
@@ -3349,14 +3417,60 @@ C>
 C> \ingroup nwad_api
 C> @{
 C>
-C> \brief The functional, 1st, 2nd, and 3rd order partial derivative evaluation
+C> \brief The functional, 1st, 2nd, and 3rd order partial derivative
+C> evaluation
 C>
-C> In actual fact this routine only sets up the memory and then calls the
-C> driver routine to drive the actual functional evaluation. The lack of 
-C> a Fortran90 typecast drives this code structure.
+      subroutine nwxc_eval_df3(ipol,nq,rho,gamma,tau,f,
+     +           dfdr,dfdr2,dfdr3,dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
+      implicit none
+#include "errquit.fh"
+#include "nwxcP.fh"
+#include "nwxc_param.fh"
+      integer ipol !< [Input] The number of spin channels
+      integer nq   !< [Input] The number of points
+C
+      double precision rho(nq,ipol)     !< [Input] Density
+      double precision gamma(nq,ipol+1) !< [Input] |Density gradient|^2
+      double precision tau(nq,ipol)     !< [Input] Kinetic energy
+                                        !< density
+C
+      double precision f(nq)           !< [Output] Energy
+      double precision dfdr(nq,ipol)   !< [Output] Derivative wrt rho
+      double precision dfdg(nq,ipol+1) !< [Output] Derivative wrt gamma
+      double precision dfdt(nq,ipol)   !< [Output] Derivative wrt tau
+      double precision dfdr2(nq,NCOL_AMAT2) !< [Output] 2nd derivative wrt rho
+      double precision dfdg2(nq,NCOL_CMAT2) !< [Output] 2nd derivative wrt gamma
+      double precision dfdt2(nq,NCOL_MMAT2) !< [Output] 2nd derivative wrt tau
+      double precision dfdr3(nq,NCOL_AMAT3) !< [Output] 3rd derivative wrt rho
+      double precision dfdg3(nq,NCOL_CMAT3) !< [Output] 3rd derivative wrt gamma
+      double precision dfdt3(nq,NCOL_MMAT3) !< [Output] 3rd derivative wrt tau
+      if (nwxc_eval_method.eq.NWXCP_EVAL_AUTODF) then
+        call nwxca_eval_df3(ipol,nq,rho,gamma,tau,f,
+     +       dfdr,dfdr2,dfdr3,dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
+      else if (nwxc_eval_method.eq.NWXCP_EVAL_MAXIMA) then
+        call nwxcm_eval_df3(ipol,nq,rho,gamma,tau,f,
+     +       dfdr,dfdr2,dfdr3,dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
+      else
+        call errquit("nwxc_eval_df3: unknown evaluator",
+     +               nwxc_eval_method,UERR)
+      endif
+
+      end
 C>
-      subroutine nwxc_eval_df3(ipol,nq,rho,gamma,tau,f,dfdr,dfdr2,dfdr3,
-     +                         dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
+C> @}
+C>
+C> \ingroup nwad_priv
+C> @{
+C>
+C> \brief The functional, 1st, 2nd, and 3rd order partial derivative
+C> evaluation with AD
+C>
+C> In actual fact this routine only sets up the memory and then calls
+C> the driver routine to drive the actual functional evaluation. The
+C> lack of a Fortran90 typecast drives this code structure.
+C>
+      subroutine nwxca_eval_df3(ipol,nq,rho,gamma,tau,f,
+     +           dfdr,dfdr2,dfdr3,dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
       use nwad3
       implicit none
 #include "errquit.fh"
@@ -3417,17 +3531,17 @@ c
       length = (loc(memory_test_nwad(2))-loc(memory_test_nwad(1))
      +          +length-1)/length
       if(.not.ma_push_get(mt_dbl,length*nq*ipl,"nwad rho",l_rho,k_rho))
-     +  call errquit("nwxc_eval_df3: cannot allocate nwad rho",
+     +  call errquit("nwxca_eval_df3: cannot allocate nwad rho",
      +    ma_sizeof(mt_dbl,length*nq*ipl,mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq*(ipl+1),"nwad gamma",
      +                    l_gam,k_gam))
-     +  call errquit("nwxc_eval_df3: cannot allocate nwad gamma",
+     +  call errquit("nwxca_eval_df3: cannot allocate nwad gamma",
      +    ma_sizeof(mt_dbl,length*nq*(ipl+1),mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq*ipl,"nwad tau",l_tau,k_tau))
-     +  call errquit("nwxc_eval_df3: cannot allocate nwad tau",
+     +  call errquit("nwxca_eval_df3: cannot allocate nwad tau",
      +    ma_sizeof(mt_dbl,length*nq*ipl,mt_byte),MA_ERR)
       if(.not.ma_push_get(mt_dbl,length*nq*ndrv,"nwad fun",l_fun,k_fun))
-     +  call errquit("nwxc_eval_df3: cannot allocate nwad fun",
+     +  call errquit("nwxca_eval_df3: cannot allocate nwad fun",
      +    ma_sizeof(mt_dbl,length*nq*ndrv,mt_byte),MA_ERR)
 c
       call nwxc_eval_df3_driver(ipol,nq,rho,gamma,tau,dbl_mb(k_rho),
@@ -3436,19 +3550,14 @@ c
      +     f,dfdr,dfdr2,dfdr3,dfdg,dfdg2,dfdg3,dfdt,dfdt2,dfdt3)
 c
       if(.not.ma_pop_stack(l_fun)) call errquit(
-     +  "nwxc_eval_df3: cannot deallocate nwad fun",0,MA_ERR)
+     +  "nwxca_eval_df3: cannot deallocate nwad fun",0,MA_ERR)
       if(.not.ma_pop_stack(l_tau)) call errquit(
-     +  "nwxc_eval_df3: cannot deallocate nwad tau",0,MA_ERR)
+     +  "nwxca_eval_df3: cannot deallocate nwad tau",0,MA_ERR)
       if(.not.ma_pop_stack(l_gam)) call errquit(
-     +  "nwxc_eval_df3: cannot deallocate nwad gam",0,MA_ERR)
+     +  "nwxca_eval_df3: cannot deallocate nwad gam",0,MA_ERR)
       if(.not.ma_pop_stack(l_rho)) call errquit(
-     +  "nwxc_eval_df3: cannot deallocate nwad rho",0,MA_ERR)
+     +  "nwxca_eval_df3: cannot deallocate nwad rho",0,MA_ERR)
       end
-C>
-C> @}
-C>
-C> \ingroup nwad_priv
-C> @{
 C>
 C> \brief Driver routine for the functional, 1st, 2nd and 3rd derivative
 C> evaluation

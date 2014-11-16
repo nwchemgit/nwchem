@@ -1271,6 +1271,11 @@ c
       enddo
       nwxc_depends_on_tau = (abssum.gt.0.0d0)
 c
+      nwxc_depends_on_gamma = nwxc_depends_on_gamma .or.
+     +                        nwxc_depends_on_tau
+      nwxc_depends_on_rho   = nwxc_depends_on_rho .or.
+     +                        nwxc_depends_on_gamma
+c
       end
 C>
 C> \brief Detect whether the functional supports 2nd derivatives

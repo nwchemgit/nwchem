@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_xc_kt1.F
 C> The KT1, KT2 and SSB-D functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -38,8 +40,13 @@ C>     <a href="http://dx.doi.org/10.1063/1.3213193">
 C>     10.1063/1.3213193</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_xc_kt1_p(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                         func)
+#else
       Subroutine nwxc_xc_kt1(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                       func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_xc_kt1_d2(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                          func)
@@ -247,6 +254,13 @@ c
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_xc_kt1.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -261,5 +275,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_xc_kt1.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

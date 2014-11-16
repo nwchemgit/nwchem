@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_vs98.F
 C> Implementation of the VS98 exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -48,8 +50,13 @@ c     [b] Y. Zhao and D. G. Truhlar, J. Chem. Phys. 125, 194101 (2006).
 
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_vs98_p(param,tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#else
       Subroutine nwxc_x_vs98(param,tol_rho, ipol, nq, wght, rho, rgamma,
      &                       tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_vs98_d2(param,tol_rho, ipol, nq, wght, rho,
      &           rgamma, tau, func)
@@ -66,6 +73,15 @@ c
 c
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of the functional (see Table 1 of [1])
+      type(nwad_dble)::r1, r2, r3, r4, r5, r6
+#else
+      double precision param(*) !< [Input] Parameters of the functional (see Table 1 of [1])
+      double precision r1, r2, r3, r4, r5, r6
+#endif
+#else
       double precision param(*) !< [Input] Parameters of the functional (see Table 1 of [1])
                                 !< - param(1): \f$ a \f$
                                 !< - param(2): \f$ b \f$
@@ -73,6 +89,8 @@ c
                                 !< - param(4): \f$ d \f$
                                 !< - param(5): \f$ e \f$
                                 !< - param(6): \f$ f \f$
+      double precision r1, r2, r3, r4, r5, r6
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -114,7 +132,7 @@ c
       double precision gg
       double precision One, Two, Three, Four, Five, Six, Seven, Eight
       double precision Nine, F10, F11
-      double precision cf, Axlsda, r1, r2, r3, r4, r5, r6
+      double precision cf, Axlsda
 
 c     functional derivatives below FFFFFFFFFFFF
 
@@ -184,8 +202,13 @@ c           dzdt = One/rho53
             xk = x/kx
             zk = z/kx
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            call nwxc_gvt4_p(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     &                       r1,r2,r3,r4,r5,r6)
+#else
             call nwxc_gvt4(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
      &                     r1,r2,r3,r4,r5,r6)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_gvt4_d2(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
      &                        r1,r2,r3,r4,r5,r6)
@@ -241,7 +264,12 @@ c          dzdt = One/rho53
            xk = x/kx
            zk = z/kx
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+           call nwxc_gvt4_p(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     +                      r1,r2,r3,r4,r5,r6)
+#else
            call nwxc_gvt4(gx,dgdx,dgdz,xk,zk,kx,gg,gg,r1,r2,r3,r4,r5,r6)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_gvt4_d2(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
      +                       r1,r2,r3,r4,r5,r6)
@@ -289,7 +317,12 @@ c          dzdt = One/rho53
            xk = x/kx
            zk = z/kx
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+           call nwxc_gvt4_p(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
+     +                      r1,r2,r3,r4,r5,r6)
+#else
            call nwxc_gvt4(gx,dgdx,dgdz,xk,zk,kx,gg,gg,r1,r2,r3,r4,r5,r6)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_gvt4_d2(gx,dgdx,dgdz,xk,zk,kx,gg,gg,
      +                       r1,r2,r3,r4,r5,r6)
@@ -317,7 +350,11 @@ C>
 C> \brief Evaluate the GVT4 form in the VS98 functional
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_gvt4_p(g,dgdx,dgdz,xk,zk,k,c,ct,r1,r2,r3,r4,r5,r6)
+#else
       Subroutine nwxc_gvt4(g,dgdx,dgdz,xk,zk,k,c,ct,r1,r2,r3,r4,r5,r6)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_gvt4_d2(g,dgdx,dgdz,xk,zk,k,c,ct,
      +                        r1,r2,r3,r4,r5,r6)
@@ -331,8 +368,20 @@ c
 c    some working variables
       type(nwad_dble)::g,xk,zk,k
       type(nwad_dble)::sxk,szk,sk
-      double precision dgdx,dgdz,c,ct,r1,r2,r3,r4,r5,r6
-      double precision sc,sct,sr1,sr2,sr3,sr4,sr5,sr6,sk2
+      double precision dgdx,dgdz,c,ct
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::r1,r2,r3,r4,r5,r6
+      type(nwad_dble)::sr1,sr2,sr3,sr4,sr5,sr6
+#else
+      double precision r1,r2,r3,r4,r5,r6
+      double precision sr1,sr2,sr3,sr4,sr5,sr6
+#endif
+#else
+      double precision r1,r2,r3,r4,r5,r6
+      double precision sr1,sr2,sr3,sr4,sr5,sr6
+#endif
+      double precision sc,sct,sk2
       double precision One, Two, Three, Four, Six
       Data One/1.0d0/, Two/2.0d0/, Three/3.0d0/, Four/4.0d0/, Six/6.0d0/
 C
@@ -365,6 +414,13 @@ c    $  +sr6*(Two*szk-Three*szk*szk*sct))/sk2
 
       return
       end
+#if !defined(NWAD_PRINT)
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_vs98.F"
+#endif
 #if !defined(SECOND_DERIV)
 #define SECOND_DERIV
 c
@@ -379,4 +435,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_vs98.F"
 #endif
+#undef NWAD_PRINT
 C> @}

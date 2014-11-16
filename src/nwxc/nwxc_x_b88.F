@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_b88.F
 C> The B88 exchange functional
 C>
 C> @}
+#endif
 #endif
 C> \ingroup nwxc_priv
 C> @{
@@ -27,8 +29,13 @@ C>
 !ocl scalar
 #endif
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_b88_p(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                        func)
+#else
       Subroutine nwxc_x_b88(tol_rho, ipol, nq, wght, rho, rgamma,
      &                      func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_b88_d2(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, func)
@@ -413,6 +420,13 @@ c
 c
       return
       end
+#if !defined(NWAD_PRINT) 
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_b88.F"
+#endif
 #if !defined(SECOND_DERIV) 
 #define SECOND_DERIV
 c
@@ -427,5 +441,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_b88.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

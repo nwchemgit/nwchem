@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_pbe.F
 C> The PBE correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -59,8 +61,13 @@ C> DOI: <a href="http://dx.doi.org/10.1103/PhysRevLett.102.039902">
 C> 10.1103/PhysRevLett.102.039902</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_pbe_p(param,tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, ffunc)
+#else
       Subroutine nwxc_c_pbe(param,tol_rho, ipol, nq, wght, rho, rgamma, 
      &                      ffunc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_pbe_d2(param,tol_rho, ipol, nq, wght, rho,
      &                         rgamma, ffunc)
@@ -79,8 +86,19 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)!< [Input] Parameters of functional
+      type(nwad_dble)::beta
+#else
+      double precision param(*)!< [Input] Parameters of functional
+      double precision beta
+#endif
+#else
       double precision param(*)!< [Input] Parameters of functional
                                !< - param(1): \f$ \beta \f$
+      double precision beta
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -118,7 +136,7 @@ c                                   !< and possibly rho
 c
 c     Constants in PBE functional
 c
-      double precision GAMMA, BETA, PI
+      double precision GAMMA, PI
       parameter (GAMMA = 0.03109069086965489503494086371273d0)
 c     parameter (BETA = 0.06672455060314922d0)
 c     parameter (PI = 3.1415926535897932385d0)
@@ -348,8 +366,13 @@ c        LDA part
 c        ========
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_pw91lda_p(tol_rho, ipol, 1, 1.0d0, rho_t,
+     &                         nepsc) 
+#else
          call nwxc_c_pw91lda(tol_rho, ipol, 1, 1.0d0, rho_t,
      &                       nepsc) 
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_pw91lda_d2(tol_rho, ipol, 1, 1.0d0, rho_t,
      &                          nepsc)
@@ -1661,6 +1684,13 @@ c
       return
       end
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_pbe.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -1675,3 +1705,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_pbe.F"
 #endif
+#undef NWAD_PRINT
+C> @}

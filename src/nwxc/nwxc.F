@@ -72,6 +72,7 @@
 #undef THIRD_DERIV
 #include "nwxc_c_vwn1.F"
 #undef FNL_VWN_1
+#undef VWN_NAME_P
 #undef VWN_NAME
 #undef VWN_NAME_D2
 #undef VWN_NAME_D3
@@ -81,6 +82,7 @@
 #undef THIRD_DERIV
 #include "nwxc_c_vwn1_rpa.F"
 #undef FNL_VWN_1_RPA
+#undef VWN_NAME_P
 #undef VWN_NAME
 #undef VWN_NAME_D2
 #undef VWN_NAME_D3
@@ -90,6 +92,7 @@
 #undef THIRD_DERIV
 #include "nwxc_c_vwn2.F"
 #undef FNL_VWN_2
+#undef VWN_NAME_P
 #undef VWN_NAME
 #undef VWN_NAME_D2
 #undef VWN_NAME_D3
@@ -101,6 +104,7 @@
 #undef THIRD_DERIV
 #include "nwxc_c_vwn3.F"
 #undef FNL_VWN_3
+#undef VWN_NAME_P
 #undef VWN_NAME
 #undef VWN_NAME_D2
 #undef VWN_NAME_D3
@@ -112,6 +116,7 @@
 #undef THIRD_DERIV
 #include "nwxc_c_vwn4.F"
 #undef FNL_VWN_4
+#undef VWN_NAME_P
 #undef VWN_NAME
 #undef VWN_NAME_D2
 #undef VWN_NAME_D3
@@ -122,6 +127,7 @@
 #undef THIRD_DERIV
 #include "nwxc_c_vwn5.F"
 #undef FNL_VWN_5
+#undef VWN_NAME_P
 #undef VWN_NAME
 #undef VWN_NAME_D2
 #undef VWN_NAME_D3

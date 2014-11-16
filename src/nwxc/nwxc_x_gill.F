@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_gill.F
 C> The gradient-corrected exchange functional of Gill
 C>
 C> @}
+#endif
 #endif
 C> \ingroup nwxc_priv
 C>
@@ -23,8 +25,13 @@ C>     <a href="http://dx.doi.org/10.1080/002689796173813">
 C>     10.1080/002689796173813</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_gill_p(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                         func)
+#else
       Subroutine nwxc_x_gill(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                       func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_gill_d2(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                          func)
@@ -281,6 +288,13 @@ c
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_gill.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -295,5 +309,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_gill.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

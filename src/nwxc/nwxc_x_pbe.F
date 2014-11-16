@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_pbe.F
 C> The PBE exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -77,8 +79,13 @@ C> <a href="http://dx.doi.org/10.1063/1.478522">
 C> 10.1063/1.478522</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_pbe_p(param,
+     W     tol_rho, ipol, nq, wght, rho, rgamma, func)
+#else
       Subroutine nwxc_x_pbe(param,
      W     tol_rho, ipol, nq, wght, rho, rgamma, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_pbe_d2(param,
      W     tol_rho, ipol, nq, wght, rho, rgamma, func)
@@ -95,9 +102,20 @@ c
 c
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)!< [Input] Parameters of functional
+      type(nwad_dble)::um, uk, umk
+#else
+      double precision param(*)!< [Input] Parameters of functional
+      double precision um, uk, umk
+#endif
+#else
       double precision param(*)!< [Input] Parameters of functional
                                !< - param(1): \f$ \kappa \f$
                                !< - param(2): \f$ \mu \f$
+      double precision um, uk, umk
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -130,7 +148,7 @@ c     double precision Cmat3(nq,*)  !< [Output] The 3rd derivative wrt rgamma
 c                                   !< and possibly rho
 #endif
 c
-      double precision pi, um, uk, umk,ukrev,umkrev
+      double precision pi, ukrev,umkrev
       double precision C, Cs
       double precision F43, F13, F23
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
@@ -598,6 +616,13 @@ c
       end function
 c
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_pbe.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -612,4 +637,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_pbe.F"
 #endif
+#undef NWAD_PRINT
 C> @}

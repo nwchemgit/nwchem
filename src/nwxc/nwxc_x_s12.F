@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_s12.F
 C> The S12 exchange functional
 C>
 C> @}
+#endif
 #endif
 C> \ingroup nwxc_priv
 C> @{
@@ -26,8 +28,13 @@ C>
 !ocl scalar
 #endif
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_s12_p(param, tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, func)
+#else
       Subroutine nwxc_x_s12(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_s12_d2(param, tol_rho, ipol, nq, wght, rho,
      &                         rgamma, func)
@@ -46,6 +53,15 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of the functional
+      type(nwad_dble)::rB, rC, rD, rA, rK, rE
+#else
+      double precision param(*) !< [Input] Parameters of the functional
+      double precision rB, rC, rD, rA, rK, rE
+#endif
+#else
       double precision param(*) !< [Input] Parameters of the functional
       !< (see Table 2 of [1])
       !< - param(1): \f$ A \f$
@@ -54,6 +70,8 @@ c
       !< - param(3): \f$ C \f$
       !< - param(4): \f$ D \f$
       !< - param(5): \f$ E \f$
+      double precision rB, rC, rD, rA, rK, rE
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -81,7 +99,7 @@ c     double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
 c                                   !< and possibly rho
 #endif
 c
-      double precision rB, rC, rD, rA, rK, rE, rH, rG2, rH2
+      double precision rH, rG2, rH2
       type(nwad_dble)::ums, vms
       double precision dudx, dvdx, d2udx2, d2vdx2
 c
@@ -355,6 +373,13 @@ c
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_s12.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -369,5 +394,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_s12.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

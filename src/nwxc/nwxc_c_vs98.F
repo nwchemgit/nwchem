@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_vs98.F
 C> Implementation of the VS98 correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -42,8 +44,13 @@ c                              ijzy - 4  M06
 c                              ijzy - 5  M06-2X
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_vs98_p(param, tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#else
       Subroutine nwxc_c_vs98(param, tol_rho, ipol, nq, wght, rho,
      &                       rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_vs98_d2(param, tol_rho, ipol, nq, wght, rho,
      &                          rgamma, tau, func)
@@ -70,6 +77,17 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of functional (table 1)
+      type(nwad_dble)::r7, r8, r9, r10, r11, r12
+      type(nwad_dble)::r13, r14, r15, r16, r17, r18
+#else
+      double precision param(*) !< [Input] Parameters of functional (table 1)
+      double precision r7, r8, r9, r10, r11, r12
+      double precision r13, r14, r15, r16, r17, r18
+#endif
+#else
       double precision param(*) !< [Input] Parameters of functional (table 1)
                                 !< - param(1): \f$ a_{\sigma\sigma'} \f$
                                 !< - param(2): \f$ b_{\sigma\sigma'} \f$
@@ -83,6 +101,9 @@ c
                                 !< - param(10): \f$ d_{\sigma\sigma} \f$
                                 !< - param(11): \f$ e_{\sigma\sigma} \f$
                                 !< - param(12): \f$ f_{\sigma\sigma} \f$
+      double precision r7, r8, r9, r10, r11, r12
+      double precision r13, r14, r15, r16, r17, r18
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -136,8 +157,6 @@ c
       type(nwad_dble)::XAB, kab, xk, zk
       double precision dgdx,dgdz,dgdPA,dgdGA,dgdTA,dgdPB,dgdGB,dgdTB
       double precision EUEGPA,EUEGPB
-      double precision r7, r8, r9, r10, r11, r12
-      double precision r13, r14, r15, r16, r17, r18
 
       
 c
@@ -187,9 +206,15 @@ c         not divide the tau by 2 here
           if(ta.lt.dtol) goto 20
                   
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+          Call nwxc_vs98ss_p(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
+     &                     ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
+     &                     r13,r14,r15,r16,r17,r18)
+#else
           Call nwxc_vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
      &                     ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
      &                     r13,r14,r15,r16,r17,r18)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           Call nwxc_vs98ss_d2(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
      &                     ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
@@ -239,9 +264,15 @@ c
          TA = tau(n,T_A)*2.0d0
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         Call nwxc_vs98ss_p(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
+     &                    ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
+     &                    r13,r14,r15,r16,r17,r18)
+#else
          Call nwxc_vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
      &                    ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
      &                    r13,r14,r15,r16,r17,r18)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          Call nwxc_vs98ss_d2(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
      &                    ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,
@@ -270,9 +301,15 @@ c
          TB = tau(n,T_B)*2.0d0
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         Call nwxc_vs98ss_p(tol_rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
+     &                    ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,
+     &                    r13,r14,r15,r16,r17,r18)
+#else
          Call nwxc_vs98ss(tol_rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
      &                    ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,
      &                    r13,r14,r15,r16,r17,r18)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          Call nwxc_vs98ss_d2(tol_rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
      &                    ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,
@@ -300,8 +337,13 @@ c         RSP = -RS/(F3*P)
 c         dZdA = (F1-Zeta)/P
 c         dZdB = (-F1-Zeta)/P
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+          Call nwxc_c_lsda_p(tol_rho,RS,Zeta,PotLC,
+     &               dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#else
           Call nwxc_c_lsda(tol_rho,RS,Zeta,PotLC,
      &               dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           Call nwxc_c_lsda_d2(tol_rho,RS,Zeta,PotLC,
      &               dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
@@ -316,8 +358,13 @@ c         dZdB = (-F1-Zeta)/P
           xk = XAB/kab
           zk = ZAB/kab
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+          call nwxc_gvt4_p(gcab,dgdx,dgdz,xk,zk,kab,gab,gab,
+     &                   r7,r8,r9,r10,r11,r12)
+#else
           call nwxc_gvt4(gcab,dgdx,dgdz,xk,zk,kab,gab,gab,
      &                   r7,r8,r9,r10,r11,r12)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxc_gvt4_d2(gcab,dgdx,dgdz,xk,zk,kab,gab,gab,
      &                   r7,r8,r9,r10,r11,r12)
@@ -362,9 +409,15 @@ C> This routine evaluates the same-spin part of the VS98 functional for
 C> 1 grid point and 1 spin-case.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_vs98ss_p(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,Chi,
+     +                         EUEGP,ChiP,ChiG,ZP,ZT,
+     +                         r13,r14,r15,r16,r17,r18)
+#else
       Subroutine nwxc_vs98ss(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,Chi,
      +                       EUEGP,ChiP,ChiG,ZP,ZT,
      +                       r13,r14,r15,r16,r17,r18)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_vs98ss_d2(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,Chi,
      +                       EUEGP,ChiP,ChiG,ZP,ZT,
@@ -385,7 +438,15 @@ C     point and one spin-case.
 C
 
       double precision tol_rho
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::r13, r14, r15, r16, r17, r18
+#else
       double precision r13, r14, r15, r16, r17, r18
+#endif
+#else
+      double precision r13, r14, r15, r16, r17, r18
+#endif
       type(nwad_dble)::PX, GX, TX, F, EUEG, Chi, RS, Z, P, E, PotLC
       type(nwad_dble)::rrho, rho13, rhoo, rho43, rho53, rho83
       type(nwad_dble)::kc,xk,zk,d,gc, Zeta
@@ -440,8 +501,13 @@ C
         RS = (Pi34/PX) ** F13
         Zeta = F1
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Call nwxc_c_lsda_p(tol_rho,
+     A       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#else
         Call nwxc_c_lsda(tol_rho,
      A       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Call nwxc_c_lsda_d2(tol_rho,
      A       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
@@ -457,8 +523,13 @@ C
         zk = Z/kc
         D = F1 - Chi/(F4*(Z + cf)) 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        call nwxc_gvt4_p(gc,dgdx,dgdz,xk,zk,kc,gcc,gcc,
+     &                 r13,r14,r15,r16,r17,r18)
+#else
         call nwxc_gvt4(gc,dgdx,dgdz,xk,zk,kc,gcc,gcc,
      &                 r13,r14,r15,r16,r17,r18)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         call nwxc_gvt4_d2(gc,dgdx,dgdz,xk,zk,kc,gcc,gcc,
      &                 r13,r14,r15,r16,r17,r18)
@@ -490,6 +561,13 @@ c       FT = DT*EUEG*gc + D*EUEG*dgdT
        Endif
        Return
        End
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_vs98.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -504,5 +582,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_vs98.F"
 #endif
-
+#undef NWAD_PRINT
 C> @}

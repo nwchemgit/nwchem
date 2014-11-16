@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_opt.F
 C> The OPT correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -48,7 +50,11 @@ c
 C$Id$
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_c_opt_p(tol_rho,ipol,nq,wght,rho,rgamma,func)
+#else
       subroutine nwxc_c_opt(tol_rho, ipol, nq, wght, rho, rgamma, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_c_opt_d2(tol_rho,ipol,nq,wght,rho,rgamma,func)
 #else
@@ -119,19 +125,25 @@ c
 c
 c          c1*Ec[a,b]
 c
-           call dfill(maxp*lennw,0.0d0,funcl,1)
-           call dfill(maxp*2*lennw,0.0d0,rhol,1)
-           call dfill(maxp*3*lennw,0.0d0,rgammal,1)
+c          call dfill(maxp*lennw,0.0d0,funcl,1)
+c          call dfill(maxp*2*lennw,0.0d0,rhol,1)
+c          call dfill(maxp*3*lennw,0.0d0,rgammal,1)
 c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
 c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
-              rhol(ii+1,R_T) = rho(iq+ii,R_T)
+              funcl(ii+1)        = 0.0d0
+              rhol(ii+1,R_T)     = rho(iq+ii,R_T)
               rgammal(ii+1,G_TT) = rgamma(iq+ii,G_TT)
            enddo
            fac = c1*wght
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+           call nwxc_c_pw91lda_p(tol_rho,1,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_p(tol_rho,1,maxp,fac,rhol,rgammal,funcl)
+#else
            call nwxc_c_pw91lda(tol_rho,1,maxp,fac,rhol,funcl)
            call nwxc_c_p91(tol_rho,1,maxp,fac,rhol,rgammal,funcl)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_c_pw91lda_d2(tol_rho,1,maxp,fac,rhol,funcl)
            call nwxc_c_p91_d2(tol_rho,1,maxp,fac,rhol,rgammal,funcl)
@@ -151,16 +163,22 @@ c
 c          {(c2-c1)*Ec[a,0]}(a) + {(c2-c1)*Ec[0,b]}(a)
 c
            fac = (c2-c1)*wght
-           call dfill(maxp*lennw,0.0d0,funcl,1)
+c          call dfill(maxp*lennw,0.0d0,funcl,1)
 c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
 c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
+              funcl(ii+1)        = 0.0d0
               rhol(ii+1,R_A)     = 0.5d0*rhol(ii+1,R_T)
               rgammal(ii+1,G_AA) = 0.25d0*rgammal(ii+1,G_TT)
            enddo
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+           call nwxc_c_pw91lda_p(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_p(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#else
            call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl)
            call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_c_pw91lda_d2(tol_rho,2,maxp,fac,rhol,funcl)
            call nwxc_c_p91_d2(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
@@ -187,22 +205,28 @@ c
 c
 c          c1*Ec[a,b]
 c
-           call dfill(maxp*lennw,0.0d0,funcl,1)
-           call dfill(maxp*2*lennw,0.0d0,rhol,1)
-           call dfill(maxp*3*lennw,0.0d0,rgammal,1)
+c          call dfill(maxp*lennw,0.0d0,funcl,1)
+c          call dfill(maxp*2*lennw,0.0d0,rhol,1)
+c          call dfill(maxp*3*lennw,0.0d0,rgammal,1)
 c          call dfill(maxp*2,0.0d0,Amatl,1)
 c          call dfill(maxp*3,0.0d0,Cmatl,1)
            do ii = 0, num - 1
-              rhol(ii+1,R_A) = rho(iq+ii,R_A)
-              rhol(ii+1,R_B) = rho(iq+ii,R_B)
+              funcl(ii+1)        = 0.0d0
+              rhol(ii+1,R_A)     = rho(iq+ii,R_A)
+              rhol(ii+1,R_B)     = rho(iq+ii,R_B)
               rgammal(ii+1,G_AA) = rgamma(iq+ii,G_AA)
               rgammal(ii+1,G_AB) = rgamma(iq+ii,G_AB)
               rgammal(ii+1,G_BB) = rgamma(iq+ii,G_BB)
            enddo
            fac = c1*wght
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+           call nwxc_c_pw91lda_p(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_p(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#else
            call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl)
            call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_c_pw91lda_d2(tol_rho,2,maxp,fac,rhol,funcl)
            call nwxc_c_p91_d2(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
@@ -225,10 +249,11 @@ c
 c          (c2-c1)*Ec[a,0]
 c
            fac = (c2-c1)*wght
-           call dfill(maxp*lennw  ,0.0d0,funcl,1)
+c          call dfill(maxp*lennw  ,0.0d0,funcl,1)
 c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
 c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
+              funcl(ii+1)        = 0.0d0
               rhol(ii+1,R_A)     = rho(iq+ii,R_A)
               rhol(ii+1,R_B)     = 0.0d0
               rgammal(ii+1,G_AA) = rgamma(iq+ii,G_AA)
@@ -236,8 +261,13 @@ c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
               rgammal(ii+1,G_BB) = 0.0d0
            enddo
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+           call nwxc_c_pw91lda_p(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_p(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#else
            call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl)
            call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_c_pw91lda_d2(tol_rho,2,maxp,fac,rhol,funcl)
            call nwxc_c_p91_d2(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
@@ -255,10 +285,11 @@ c
 c          (c2-c1)*Ec[0,b]
 c
            fac = (c2-c1)*wght
-           call dfill(maxp*lennw  ,0.0d0,funcl,1)
+c          call dfill(maxp*lennw  ,0.0d0,funcl,1)
 c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
 c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
+              funcl(ii+1)        = 0.0d0
               rhol(ii+1,R_A)     = 0.0d0
               rhol(ii+1,R_B)     = rho(iq+ii,R_B)
               rgammal(ii+1,G_AA) = 0.0d0
@@ -266,8 +297,13 @@ c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
               rgammal(ii+1,G_BB) = rgamma(iq+ii,G_BB)
            enddo
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+           call nwxc_c_pw91lda_p(tol_rho,2,maxp,fac,rhol,funcl)
+           call nwxc_c_p91_p(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#else
            call nwxc_c_pw91lda(tol_rho,2,maxp,fac,rhol,funcl)
            call nwxc_c_p91(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
            call nwxc_c_pw91lda_d2(tol_rho,2,maxp,fac,rhol,funcl)
            call nwxc_c_p91_d2(tol_rho,2,maxp,fac,rhol,rgammal,funcl)
@@ -287,6 +323,13 @@ c
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_opt.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -301,5 +344,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_opt.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

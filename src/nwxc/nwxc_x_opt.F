@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_opt.F
 C> The OPT exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -28,7 +30,12 @@ c
 C$Id$
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_x_opt_p(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                        func)
+#else
       subroutine nwxc_x_opt(tol_rho, ipol, nq, wght, rho, rgamma, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_x_opt_d2(tol_rho, ipol, nq, wght, rho, rgamma,
      &                         func)
@@ -221,6 +228,13 @@ c
       end function
 c
       end
+#if !defined(NWAD_PRINT)
+#define NWAD_PRINT
+c
+c     Compile again for Maxima
+c
+#include "nwxc_x_opt.F"
+#endif
 #if !defined(SECOND_DERIV)
 #define SECOND_DERIV
 c
@@ -235,4 +249,5 @@ c     Compile again for 3rd derivatives
 c
 #include "nwxc_x_opt.F"
 #endif
+#undef NWAD_PRINT
 C> @}

@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_p91_vwn5.F
 C> The Perdew 91 correlation functional with VWN5 for the LDA part
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -46,8 +48,13 @@ C>     Can. J. Phys. <b>58</b>, 1200-1211 (1980), DOI:
 C>     <a href="http://dx.doi.org/10.1139/p80-159">10.1139/p80-159</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_p91_vwn5_p(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                           ffunc)
+#else
       Subroutine nwxc_c_p91_vwn5(tol_rho, ipol, nq, wght, rho, rgamma,
      &                           ffunc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_p91_vwn5_d2(tol_rho, ipol, nq, wght, rho,
      &                              rgamma, ffunc)
@@ -309,7 +316,11 @@ c
          lqwght = 1.0d0
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_vwn5_p(tol_rho,ipol,lnq,lqwght,rho_t,nepsc)
+#else
          call nwxc_c_vwn5(tol_rho,ipol,lnq,lqwght,rho_t,nepsc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_vwn5_d2(tol_rho,ipol,lnq,lqwght,rho_t,nepsc)
 #else
@@ -1017,6 +1028,13 @@ c
       return
       end
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_p91_vwn5.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -1031,5 +1049,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_p91_vwn5.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

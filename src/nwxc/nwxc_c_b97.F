@@ -32,8 +32,13 @@ C>     <a href="http://dx.doi.org/10.1002/jcc.20495">
 C>     10.1002/jcc.20495</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      Subroutine nwxc_c_b97_p(param,tol_rho,ipol,nq,wght,rho,rgamma,
+     &                      func)
+#else
       Subroutine nwxc_c_b97(param,tol_rho,ipol,nq,wght,rho,rgamma,
      &                      func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_b97_d2(param,tol_rho,ipol,nq,wght,rho,rgamma,
      &                         func)
@@ -51,6 +56,13 @@ c
 c
 c     Input and other parameters
 c
+#ifdef NWAD_PRINT
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)
+#else
+      double precision param(*)
+#endif
+#else
       double precision param(*)!< [Input] Parameters of functional as
                                !< defined in [1]:
                                !< - param(1): \f$m\f$ of Eqs.(20).
@@ -64,6 +76,7 @@ c
                                !< - param(9): \f$C_{C\alpha\beta,3}\f$
                                !< - param(10): \f$C_{C\sigma\sigma,4}\f$
                                !< - param(11): \f$C_{C\alpha\beta,4}\f$
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -100,7 +113,11 @@ c
           rho_b(1) = rho_a(1)
           if (rho_a(0).gt.tol_rho) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+            call nwxcp_c_b97_p(rho_a,rho_b,1.0d0,tol_rho,FC,param)
+#else
             call nwxcp_c_b97(rho_a,rho_b,1.0d0,tol_rho,FC,param)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxcp_c_b97_d2(rho_a,rho_b,1.0d0,tol_rho,FC,param)
 #else
@@ -119,7 +136,11 @@ c
           rho_b(1) = rgamma(i,G_BB)
           if (rho_a(0).gt.tol_rho.or.rho_b(0).gt.tol_rho) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+            call nwxcp_c_b97_p(rho_a,rho_b,1.0d0,tol_rho,FC,param)
+#else
             call nwxcp_c_b97(rho_a,rho_b,1.0d0,tol_rho,FC,param)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxcp_c_b97_d2(rho_a,rho_b,1.0d0,tol_rho,FC,param)
 #else
@@ -137,7 +158,11 @@ c
       end
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      subroutine nwxcp_c_pwlda_p(ra,rb,FCLDA)
+#else
       subroutine nwxcp_c_pwlda(ra,rb,FCLDA)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxcp_c_pwlda_d2(ra,rb,FCLDA)
 #else
@@ -167,7 +192,11 @@ c
 !     Amat2(D2_RB_RB) = 0.0d0
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      call nwxc_c_pw91lda_p(1.0d-20,2,1,1.0d0,rho,ec)
+#else
       call nwxc_c_pw91lda(1.0d-20,2,1,1.0d0,rho,ec)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_c_pw91lda_d2(1.0d-20,2,1,1.0d0,rho,ec)
 #else
@@ -182,6 +211,13 @@ c
 !     FCLDA(_FXC_RBRB) = Amat2(D2_RB_RB)
 c
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_b97.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -196,5 +232,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_b97.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

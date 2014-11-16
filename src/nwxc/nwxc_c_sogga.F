@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_sogga.F
 C> The SOGGA11 and SOGGA-X correlation functionals
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -38,8 +40,13 @@ C>     <a href="http://dx.doi.org/10.1063/1.3663871">
 C>     10.1063/1.3663871</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_c_sogga_p(param, tol_rho, ipol, nq, wght, rho, 
+     &                          rgamma, ffunc)
+#else
       subroutine nwxc_c_sogga(param, tol_rho, ipol, nq, wght, rho, 
      &                        rgamma, ffunc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_c_sogga_d2(param, tol_rho, ipol, nq, wght, rho, 
      &                        rgamma, ffunc)
@@ -76,6 +83,17 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)!< [Input] Parameters of the functional,
+      type(nwad_dble)::CcA(0:5),CcB(0:5)
+      type(nwad_dble)::FA0, FB0
+#else
+      double precision param(*)!< [Input] Parameters of the functional,
+      double precision CcA(0:5),CcB(0:5)
+      double precision FA0, FB0
+#endif
+#else
       double precision param(*)!< [Input] Parameters of the functional,
                                !< see Table 1 of [1] and Table 1 of [2].
                                !< - param(1): \f$ a_0 \f$
@@ -90,6 +108,9 @@ c
                                !< - param(10): \f$ b_3 \f$
                                !< - param(11): \f$ b_4 \f$
                                !< - param(12): \f$ b_5 \f$
+      double precision CcA(0:5),CcB(0:5)
+      double precision FA0, FB0
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -114,7 +135,6 @@ c
       integer n
 c
       type(nwad_dble)::RHOA,RHOB,rhoval,gammaval,RS,Zeta
-      double precision CcA(0:5),CcB(0:5)
       double precision BETA, CC0
       double precision DELOCDA, DELOCDB, DFA1DG, DFA1DR, DFA1DZ
       double precision DFA2DG, DFA2DR, DFA2DZ, DFA3DG, DFA3DR, DFA3DZ
@@ -132,7 +152,7 @@ c
       type(nwad_dble)::FB1, FB2, FB3, FB4, FB5
       type(nwad_dble)::FEXP, FFRAC
       type(nwad_dble)::FGGAC
-      double precision FKFAC, FA0, FB0
+      double precision FKFAC
       type(nwad_dble)::G, G2, G3
       double precision PI, PI34
       type(nwad_dble)::PON, T, T2
@@ -233,9 +253,15 @@ c        GRho = max(dsqrt(gammaval),tol_rho)
          rS = (Pi34/Rhoval)**F1o3
          Zeta = (RhoA-RhoB)/Rhoval
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         Call nwxc_c_lsda_p(tol_rho,
+     $        RS,Zeta,PotLC,dLdS,dLdZ,dummy,dummy,dummy)
+         Call nwxc_GZeta_p(Zeta,G,dGdZ,dummy,dummy)
+#else
          Call nwxc_c_lsda(tol_rho,
      $        RS,Zeta,PotLC,dLdS,dLdZ,dummy,dummy,dummy)
          Call nwxc_GZeta(Zeta,G,dGdZ,dummy,dummy)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          Call nwxc_c_lsda_d2(tol_rho,
      $        RS,Zeta,PotLC,dLdS,dLdZ,dummy,dummy,dummy)
@@ -354,7 +380,11 @@ c        endif
       end
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_GZeta_p(Zeta,GZet,dGZdz,d2GZdz,d3GZdz)
+#else
       Subroutine nwxc_GZeta(Zeta,GZet,dGZdz,d2GZdz,d3GZdz)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_GZeta_d2(Zeta,GZet,dGZdz,d2GZdz,d3GZdz)
 #else
@@ -407,6 +437,13 @@ c     d2GZdz = d2GZdz*F1o9
 c     d3GZdz = d3GZdz*F4o27
       Return
       End
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_sogga.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -421,5 +458,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_sogga.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

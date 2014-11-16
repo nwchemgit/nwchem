@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_camb88.F
 C> The CAM-B88 exchange functional
 C>
 C> @}
+#endif
 #endif
 C> \ingroup nwxc_priv
 C> @{
@@ -35,9 +37,13 @@ C>
 !ocl scalar
 #endif
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_camb88_p(param,tol_rho, ipol, nq, wght, 
+     &                         rho, rgamma, func)
+#else
       Subroutine nwxc_x_camb88(param,tol_rho, ipol, nq, wght, 
      &                         rho, rgamma, func)
-
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_camb88_d2(param, tol_rho, ipol, nq, wght, rho,
      &                            rgamma, func)
@@ -58,10 +64,18 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of functional
+#else
+      double precision param(*) !< [Input] Parameters of functional
+#endif
+#else
       double precision param(*) !< [Input] Parameters of functional
                                 !< - param(1): \f$ \alpha_{CAM} \f$
                                 !< - param(2): \f$ \beta_{CAM} \f$
                                 !< - param(3): \f$ \omega_{CAM} \f$
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -256,7 +270,11 @@ c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
 c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
 #else
+#if defined(NWAD_PRINT)
+            call nwxc_x_att_p(param,tol_rho,rho(n,R_T),ipol,Etmp)
+#else
             call nwxc_x_att(param,tol_rho,rho(n,R_T),ipol,Etmp)
+#endif
 #endif
             func(n) = func(n) + Etmp
 c           Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
@@ -372,7 +390,11 @@ c           Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 c           Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA) + C2tmp
 c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + C3tmp
 #else
+#if defined(NWAD_PRINT)
+            call nwxc_x_att_p(param,tol_rho,rho(n,R_A),ipol,Etmp)
+#else
             call nwxc_x_att(param,tol_rho,rho(n,R_A),ipol,Etmp)
+#endif
 #endif
             func(n) = func(n) + Etmp
 c           Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
@@ -488,7 +510,11 @@ c           Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
 c           Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB) + C2tmp
 c           Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB) + C3tmp
 #else
+#if defined(NWAD_PRINT)
+            call nwxc_x_att_p(param,tol_rho,rho(n,R_B),ipol,Etmp)
+#else
             call nwxc_x_att(param,tol_rho,rho(n,R_B),ipol,Etmp)
+#endif
 #endif
             func(n) = func(n) + Etmp
 c           Amat(n,D1_RB) = Amat(n,D1_RB) + Atmp
@@ -499,6 +525,13 @@ c
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_camb88.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -513,5 +546,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_camb88.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

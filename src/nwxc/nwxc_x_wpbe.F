@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_wpbe.F
 C> The long range corrected WPBE exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -64,8 +66,13 @@ C> <a href="http://dx.doi.org/10.1103/PhysRevLett.80.890">
 C> 10.1103/PhysRevLett.80.890</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_wpbe_p(param,
+     &    tol_rho, ipol, nq, wght, rho, rgamma, func)
+#else
       Subroutine nwxc_x_wpbe(param,
      &    tol_rho, ipol, nq, wght, rho, rgamma, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_wpbe_d2(param,
      &    tol_rho, ipol, nq, wght, rho, rgamma, func)
@@ -82,8 +89,19 @@ c
 c
 #include "nwxc_param.fh"
 c      
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of functional
+      type(nwad_dble)::cam_omega
+#else
+      double precision param(*) !< [Input] Parameters of functional
+      double precision cam_omega
+#endif
+#else
       double precision param(*) !< [Input] Parameters of functional
                                 !< - param(1): \f$ \omega_{CAM} \f$
+      double precision cam_omega
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -145,7 +163,6 @@ c
      &      d, gp1, d1gs(2), gp2, d1gnu
       double precision nu, d1nu
       double precision Fxhse10,Fxhse01
-      double precision cam_omega
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c     double precision rhom23, gpp1, d2s(3),d2gs(3), gpp2, d2gnu
 c     double precision Fxhse20,Fxhse02,d2nu,gpp11,d2gsnu,Fxhse11
@@ -227,8 +244,12 @@ c    &           fxhse30,fxhse21,fxhse12,fxhse03)
             call nwxc_x_HSE08_d2(cam_omega,ipol,rho(n,R_T),s,fxhse)
 c    &           fxhse10,fxhse01,fxhse20,fxhse02,fxhse11)
 #else
+#if defined(NWAD_PRINT)
+            call nwxc_x_HSE08_p(cam_omega,ipol,rho(n,R_T),s,fxhse)
+#else
             call nwxc_x_HSE08(cam_omega,ipol,rho(n,R_T),s,fxhse)
 c    &           fxhse10,fxhse01)
+#endif
 #endif
             g = fxhse - 1.0d0
 c           gp1 = fxhse10
@@ -369,8 +390,12 @@ c    &           fxhse30,fxhse21,fxhse12,fxhse03)
             call nwxc_x_HSE08_d2(cam_omega,ipol,rho(n,R_A),s,fxhse)
 c    &                     fxhse10,fxhse01,fxhse20,fxhse02,fxhse11)
 #else
+#if defined(NWAD_PRINT)
+            call nwxc_x_HSE08_p(cam_omega,ipol,rho(n,R_A),s,fxhse)
+#else
             call nwxc_x_HSE08(cam_omega,ipol,rho(n,R_A),s,fxhse)
 c    &                     fxhse10,fxhse01)
+#endif
 #endif
             g = fxhse - 1.0d0
 c           gp1 = fxhse10
@@ -503,8 +528,12 @@ c    &           fxhse30,fxhse21,fxhse12,fxhse03)
             call nwxc_x_HSE08_d2(cam_omega,ipol,rho(n,R_B),s,fxhse)
 c    &           fxhse10,fxhse01,fxhse20,fxhse02,fxhse11)
 #else
+#if defined(NWAD_PRINT)
+            call nwxc_x_HSE08_p(cam_omega,ipol,rho(n,R_B),s,fxhse)
+#else
             call nwxc_x_HSE08(cam_omega,ipol,rho(n,R_B),s,fxhse)
 c    &           fxhse10,fxhse01)
+#endif
 #endif
             g = fxhse - 1.0d0
 c           gp1= fxhse10
@@ -604,6 +633,13 @@ c
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_wpbe.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -618,5 +654,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_wpbe.F"
 #endif
+#undef NWAD_PRINT
 c $Id$
 C> @}

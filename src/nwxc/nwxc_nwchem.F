@@ -57,6 +57,13 @@ c
       nwxc_on = .true.
       stat = .true.
       do while (inp_a(func))
+        if (inp_compare(.false.,'autodiff',func)) then
+          nwxc_eval_method = NWXCP_EVAL_AUTODF
+          cycle
+        else if (inp_compare(.false.,'maxima',func)) then
+          nwxc_eval_method = NWXCP_EVAL_MAXIMA
+          cycle
+        endif
         olocal = .true.
         ononlocal = .true.
 c
@@ -208,9 +215,6 @@ c       endif
           endif
         endif
       endif
-cDEBUG
-c     call nwxc_printP()
-cDEBUG
 c
  1000 format(1x,f14.8,"  ",a)
  1010 format(1x,a14,"  ",a)
@@ -311,6 +315,9 @@ c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_rho_tol"
       status=status.and.rtdb_put(rtdb,rtdb_key,MT_DBL,1,
      +                           nwxc_rho_tol)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_eval_method"
+      status=status.and.rtdb_put(rtdb,rtdb_key,MT_INT,1,
+     +                           nwxc_eval_method)
 cHACK
 c     This stuff is to be removed when the integration is finalized
       if (nwxc_has_cam()) then
@@ -445,6 +452,9 @@ c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_rho_tol"
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_DBL,1,
      +                           nwxc_rho_tol)
+      rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_eval_method"
+      status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,
+     +                           nwxc_eval_method)
 c
       nwxc_rtdb_load = status
       if (.not.status) then

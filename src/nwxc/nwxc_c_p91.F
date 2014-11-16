@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_p91.F
 C> The Perdew 91 correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -39,7 +41,11 @@ C>     <A HREF="http://dx.doi.org/10.1103/PhysRevB.48.4978.2">
 C>     10.1103/PhysRevB.48.4978.2</A>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_p91_p(tol_rho,ipol,nq,wght,rho,rgamma,ffunc)
+#else
       Subroutine nwxc_c_p91(tol_rho, ipol, nq, wght, rho, rgamma, ffunc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_p91_d2(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, ffunc)
@@ -301,7 +307,11 @@ c
          lqwght = 1.0d0
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_pw91lda_p(tol_rho,ipol,lnq,lqwght,rho_t,nepsc)
+#else
          call nwxc_c_pw91lda(tol_rho,ipol,lnq,lqwght,rho_t,nepsc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_pw91lda_d2(tol_rho,ipol,lnq,lqwght,rho_t,nepsc)
 #else
@@ -1010,6 +1020,13 @@ c
       return
       end
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_p91.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -1024,5 +1041,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_p91.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

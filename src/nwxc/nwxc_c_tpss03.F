@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_tpss03.F
 C> The TPSS correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -47,8 +49,13 @@ c                              tauU - uniform-gas KE density
 
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_tpss03_p(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                           tau, func)
+#else
       Subroutine nwxc_c_tpss03(tol_rho, ipol, nq, wght, rho, rgamma,
      &                         tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_tpss03_d2(tol_rho, ipol, nq, wght, rho, rgamma,
      &                            tau, func)
@@ -220,8 +227,13 @@ c        dneGGAdn(1) = 0.0d0   !Amat in PBE
 c        dneGGAdg(1) = 0.0d0  !Cmat in PBE
 c        dneGGAdg(2) = 0.0d0  !Cmat in PBE
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_Mpbe_p(tol_rho,ipol,rho_t,rgamma_t,
+     &        neGGA)
+#else
          call nwxc_c_Mpbe(tol_rho,ipol,rho_t,rgamma_t,
      &        neGGA)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_Mpbe_d2(tol_rho,ipol,rho_t,rgamma_t,
      &        neGGA)
@@ -268,8 +280,13 @@ c
 c     get E_GGA[rho_alpha,0,gamma_alpha,0]
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_Mpbe_p(tol_rho, 2, rho_A, rgamma_A,
+     &        neFSP) 
+#else
          call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A,
      &        neFSP) 
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A,
      &        neFSP) 
@@ -377,8 +394,13 @@ c
 c     get E_GGA[rho,gamma]
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_Mpbe_p(tol_rho, ipol, rho_t, rgamma_t,
+     &        neGGA)
+#else
          call nwxc_c_Mpbe(tol_rho, ipol, rho_t, rgamma_t,
      &        neGGA)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_Mpbe_d2(tol_rho, ipol, rho_t, rgamma_t,
      &        neGGA)
@@ -527,8 +549,13 @@ c        dneFSPdg(2) = 0.0d0  !Cmat in PBE
 c        dneFSPdg(3) = 0.0d0  !Cmat in PBE
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_Mpbe_p(tol_rho, 2, rho_A, rgamma_A,
+     &        neFSP)
+#else
          call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A,
      &        neFSP)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A,
      &        neFSP)
@@ -582,8 +609,13 @@ c        dneFSPdg(2) = 0.0d0  !Cmat in PBE
 c        dneFSPdg(3) = 0.0d0  !Cmat in PBE
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_Mpbe_p(tol_rho, 2, rho_A, rgamma_A,
+     &        neFSP)
+#else
          call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A,
      &        neFSP)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A,
      &        neFSP)
@@ -768,6 +800,13 @@ c
 c
       end
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_tpss03.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -782,4 +821,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_tpss03.F"
 #endif
+#undef NWAD_PRINT
 C> @}

@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 !> 
 !> \ingroup nwxc
 !> @{
@@ -43,13 +44,18 @@
 !> @}
 !>
 #endif
+#endif
 !>
 !> \ingroup nwxc_priv
 !> \@{
 #include "nwxcP_xc_b97.fh"
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      subroutine nwxcP_xc_gss3tar_p(r, g, alpha, a, f)
+#else
       subroutine nwxcP_xc_gss3tar(r, g, alpha, a, f)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxcP_xc_gss3tar_d2(r, g, alpha, a, f)
 #else
@@ -58,7 +64,16 @@
 #include "nwad.fh"
       implicit none
       type(nwad_dble):: r, g, f
-      double precision a(3), alpha
+      double precision alpha
+#ifdef NWAD_PRINT
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::a(3)
+#else
+      double precision a(3)
+#endif
+#else
+      double precision a(3)
+#endif
 !     B97 like 
 !     S. Grimme, J. Comput. Chem., 2006, 27, 1787-1799 
 !     doi: 10.1002/jcc.20495
@@ -79,7 +94,11 @@
       end
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      subroutine nwxcP_xc_gss5tar_p(r, g, alpha, a, f)
+#else
       subroutine nwxcP_xc_gss5tar(r, g, alpha, a, f)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxcP_xc_gss5tar_d2(r, g, alpha, a, f)
 #else
@@ -88,7 +107,16 @@
 #include "nwad.fh"
       implicit none
       type(nwad_dble):: r, g, f
-      double precision a(5), alpha
+      double precision alpha
+#ifdef NWAD_PRINT
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::a(5)
+#else
+      double precision a(5)
+#endif
+#else
+      double precision a(5)
+#endif
 
 !     B97 like 
 !     S. Grimme, J. Comput. Chem., 2006, 27, 1787-1799 
@@ -110,7 +138,11 @@
       end
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      subroutine nwxcP_xc_gab3tar_p(ra, rb, ga, gb, alpha, a, f)
+#else
       subroutine nwxcP_xc_gab3tar(ra, rb, ga, gb, alpha, a, f)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxcP_xc_gab3tar_d2(ra, rb, ga, gb, alpha, a, f)
 #else
@@ -118,7 +150,16 @@
 #endif
 #include "nwad.fh"
       implicit none
-      double precision a(3), alpha
+      double precision alpha
+#ifdef NWAD_PRINT
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::a(3)
+#else
+      double precision a(3)
+#endif
+#else
+      double precision a(3)
+#endif
       type(nwad_dble):: ra, rb, ga, gb, f
 
 !     B97 like 
@@ -146,7 +187,11 @@
       end
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      subroutine nwxcP_xc_gab5tar_p(ra, rb, ga, gb, alpha, a, f)
+#else
       subroutine nwxcP_xc_gab5tar(ra, rb, ga, gb, alpha, a, f)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxcP_xc_gab5tar_d2(ra, rb, ga, gb, alpha, a, f)
 #else
@@ -154,7 +199,16 @@
 #endif
 #include "nwad.fh"
       implicit none
-      double precision a(5), alpha
+      double precision alpha
+#ifdef NWAD_PRINT
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::a(5)
+#else
+      double precision a(5)
+#endif
+#else
+      double precision a(5)
+#endif
       type(nwad_dble):: ra, rb, ga, gb, f
 
 !     B97 like 
@@ -190,7 +244,11 @@
 
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      subroutine nwxcp_x_b97_p(rho_a,rho_b,ScalGGAX,tol_rho,FX,sol)
+#else
       subroutine nwxcp_x_b97(rho_a,rho_b,ScalGGAX,tol_rho,FX,sol)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxcp_x_b97_d2(rho_a,rho_b,ScalGGAX,tol_rho,FX,sol)
 #else
@@ -199,7 +257,16 @@
 #include "nwad.fh"
       implicit none
       type(nwad_dble):: rho_a(2), rho_b(2), FX(0:0)
-      double precision ScalGGAX, tol_rho, sol(6), xss(5)
+      double precision ScalGGAX, tol_rho
+#ifdef NWAD_PRINT
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::sol(6), xss(5)
+#else
+      double precision sol(6), xss(5)
+#endif
+#else
+      double precision sol(6), xss(5)
+#endif
       integer max_pow_u, i
       double precision gamma_xss
       parameter(gamma_xss = 0.004d0)
@@ -214,8 +281,15 @@
       rb   = rho_b(1)
       gaa  = rho_a(2) ! gamma_aa = G_AA
       gbb  = rho_b(2) ! gamma_bb = G_BB
-
+#ifdef NWAD_PRINT
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      max_pow_u = value(sol(1))
+#else
       max_pow_u = sol(1)
+#endif
+#else
+      max_pow_u = sol(1)
+#endif
 
 
       do i = 1, max_pow_u+1
@@ -230,7 +304,11 @@
       if(ra > tol_rho ) then
         if(max_pow_u == 2 ) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gss3tar_p(ra,gaa,gamma_xss,xss,exaa)
+#else
           call nwxcP_xc_gss3tar(ra,gaa,gamma_xss,xss,exaa)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gss3tar_d2(ra,gaa,gamma_xss,xss,exaa)
 #else
@@ -238,7 +316,11 @@
 #endif
         else
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gss5tar_p(ra,gaa,gamma_xss,xss,exaa)
+#else
           call nwxcP_xc_gss5tar(ra,gaa,gamma_xss,xss,exaa)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gss5tar_d2(ra,gaa,gamma_xss,xss,exaa)
 #else
@@ -259,7 +341,11 @@
       if(rb > tol_rho ) then
         if(max_pow_u == 2 )then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gss3tar_p(rb,gbb,gamma_xss,xss,exbb)
+#else
           call nwxcP_xc_gss3tar(rb,gbb,gamma_xss,xss,exbb)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gss3tar_d2(rb,gbb,gamma_xss,xss,exbb)
 #else
@@ -267,7 +353,11 @@
 #endif
         else
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gss5tar_p(rb,gbb,gamma_xss,xss,exbb)
+#else
           call nwxcP_xc_gss5tar(rb,gbb,gamma_xss,xss,exbb)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gss5tar_d2(rb,gbb,gamma_xss,xss,exbb)
 #else
@@ -299,7 +389,11 @@
 ! =============================================================================
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      subroutine nwxcp_c_b97_p(rho_a,rho_b,ScalGGAC,tol_rho,FC,sol)
+#else
       subroutine nwxcp_c_b97(rho_a,rho_b,ScalGGAC,tol_rho,FC,sol)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxcp_c_b97_d2(rho_a,rho_b,ScalGGAC,tol_rho,FC,sol)
 #else
@@ -308,15 +402,22 @@
 #include "nwad.fh"
       implicit none
       type(nwad_dble):: rho_a(2), rho_b(2), FC(0:0)
-      double precision ScalGGAC, tol_rho, sol(11)
+      double precision ScalGGAC, tol_rho
+#ifdef NWAD_PRINT
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::sol(11), css(5), cab(5)
+#else
+      double precision sol(11), css(5), cab(5)
+#endif
+#else
+      double precision sol(11), css(5), cab(5)
+#endif
 
       type(nwad_dble):: ra,rb,gaa,gbb, ec_a0, ec_b0, ec_ab
       type(nwad_dble):: gcaa, gcbb, gcab
       integer max_pow_u, i
       type(nwad_dble)::  FCLDA(0:0), t
 
-      double precision css(5)
-      double precision cab(5)
       double precision gamma_css, gamma_cab
       parameter(gamma_css = 0.2d0, gamma_cab = 0.006d0)
 
@@ -324,7 +425,15 @@
       rb   = rho_b(1)
       gaa  = rho_a(2)
       gbb  = rho_b(2)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      max_pow_u = value(sol(1))
+#else
       max_pow_u = sol(1)
+#endif
+#else
+      max_pow_u = sol(1)
+#endif
 
 
       do i = 1, max_pow_u+1
@@ -335,7 +444,11 @@
       ! normal
       if((ra > tol_rho) .or. (rb > tol_rho)) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+        call nwxcP_c_pwlda_p(ra, rb, FCLDA)
+#else
         call nwxcP_c_pwlda(ra, rb, FCLDA)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         call nwxcP_c_pwlda_d2(ra, rb, FCLDA)
 #else
@@ -351,7 +464,11 @@
       if(ra > tol_rho) then
         t = 0.0d0
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+        call nwxcP_c_pwlda_p(ra, t, FCLDA)
+#else
         call nwxcP_c_pwlda(ra, t, FCLDA)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         call nwxcP_c_pwlda_d2(ra, t, FCLDA)
 #else
@@ -366,7 +483,11 @@
       if(rb > tol_rho) then
         t = 0.0d0
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+        call nwxcP_c_pwlda_p(t, rb, FCLDA)
+#else
         call nwxcP_c_pwlda(t, rb, FCLDA)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         call nwxcP_c_pwlda_d2(t, rb, FCLDA)
 #else
@@ -382,7 +503,11 @@
       if(ra > tol_rho) then
         if(max_pow_u == 2 ) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gss3tar_p(ra,gaa,gamma_css,css,gcaa)
+#else
           call nwxcP_xc_gss3tar(ra,gaa,gamma_css,css,gcaa)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gss3tar_d2(ra,gaa,gamma_css,css,gcaa)
 #else
@@ -390,7 +515,11 @@
 #endif
         else
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gss5tar_p(ra,gaa,gamma_css,css,gcaa)
+#else
           call nwxcP_xc_gss5tar(ra,gaa,gamma_css,css,gcaa)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gss5tar_d2(ra,gaa,gamma_css,css,gcaa)
 #else
@@ -405,7 +534,11 @@
       if(rb > tol_rho) then
         if(max_pow_u == 2 ) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gss3tar_p(rb,gbb,gamma_css,css,gcbb)
+#else
           call nwxcP_xc_gss3tar(rb,gbb,gamma_css,css,gcbb)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gss3tar_d2(rb,gbb,gamma_css,css,gcbb)
 #else
@@ -413,7 +546,11 @@
 #endif
         else
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gss5tar_p(rb,gbb,gamma_css,css,gcbb)
+#else
           call nwxcP_xc_gss5tar(rb,gbb,gamma_css,css,gcbb)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gss5tar_d2(rb,gbb,gamma_css,css,gcbb)
 #else
@@ -428,7 +565,11 @@
       if(ra > tol_rho .and. rb > tol_rho) then
         if(max_pow_u == 2 ) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gab3tar_p(ra,rb,gaa,gbb,gamma_cab,cab,gcab)
+#else
           call nwxcP_xc_gab3tar(ra,rb,gaa,gbb,gamma_cab,cab,gcab)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gab3tar_d2(ra,rb,gaa,gbb,gamma_cab,cab,gcab)
 #else
@@ -436,7 +577,11 @@
 #endif
         else
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+          call nwxcP_xc_gab5tar_p(ra,rb,gaa,gbb,gamma_cab,cab,gcab)
+#else
           call nwxcP_xc_gab5tar(ra,rb,gaa,gbb,gamma_cab,cab,gcab)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           call nwxcP_xc_gab5tar_d2(ra,rb,gaa,gbb,gamma_cab,cab,gcab)
 #else
@@ -455,6 +600,13 @@
       FC( _FXC_E ) = ScalGGAC*(ec_a0*gcaa + ec_b0*gcbb + ec_ab*gcab)
 
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxcP_xc_b97.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -469,6 +621,7 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxcP_xc_b97.F"
 #endif
+#undef NWAD_PRINT
 !>
 !> @}
 !> 

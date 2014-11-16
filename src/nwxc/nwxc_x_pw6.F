@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_pw6.F
 C> The PW6 exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -31,8 +33,13 @@ C>     <a href="http://dx.doi.org/10.1021/jp050536c">
 C>     10.1021/jp050536c</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_pw6_p(param, tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, func)
+#else
       Subroutine nwxc_x_pw6(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_pw6_d2(param, tol_rho, ipol, nq, wght,
      &                         rho, rgamma, func)
@@ -51,11 +58,22 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)!< [Input] Parameters of functional
+      type(nwad_dble)::DPOW, BETA, CPW91
+#else
+      double precision param(*)!< [Input] Parameters of functional
+      double precision DPOW, BETA, CPW91
+#endif
+#else
       double precision param(*)!< [Input] Parameters of functional
                                !< (see [1] Eq.(5) and Table 2):
                                !< - param(1): \f$ b \f$
                                !< - param(2): \f$ c \f$
                                !< - param(3): \f$ d \f$
+      double precision DPOW, BETA, CPW91
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -84,8 +102,6 @@ c     Compute the partial derivatives of the exchange functional of Perdew91.
 c
 c     Becke & Perdew  Parameters
 c
-      double precision DPOW
-      double precision BETA,  CPW91
 
 c     Data BETA/0.00538d0/, CPW91/1.7382d0/,DPOW/3.8901d0/! PW6B95
 
@@ -119,10 +135,17 @@ c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)
             gamma=0.25d0*gamma
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            call nwxc_x_pw6core_p(DPOW,BETA,CPW91,n,1,
+     &           rho(n,R_T),gamma,func(n),
+     &           tol_rho, wght, 
+     &           nq, ipol)     
+#else
             call nwxc_x_pw6core(DPOW,BETA,CPW91,n,1,
      &           rho(n,R_T),gamma,func(n),
      &           tol_rho, wght, 
      &           nq, ipol)     
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_x_pw6core_d2(DPOW,BETA,CPW91,n,1,
      &           rho(n,R_T),gamma,func(n),
@@ -153,10 +176,17 @@ c             gamma =    delrho(n,1,1)*delrho(n,1,1) +
 c    &                   delrho(n,2,1)*delrho(n,2,1) +
 c    &                   delrho(n,3,1)*delrho(n,3,1)  
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+               call nwxc_x_pw6core_p(DPOW,BETA,CPW91,n,1,
+     &              rho(n,R_A),gamma,func(n),
+     &              tol_rho, wght, 
+     &              nq, ipol)     
+#else
                call nwxc_x_pw6core(DPOW,BETA,CPW91,n,1,
      &              rho(n,R_A),gamma,func(n),
      &              tol_rho, wght, 
      &              nq, ipol)     
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
                call nwxc_x_pw6core_d2(DPOW,BETA,CPW91,n,1,
      &              rho(n,R_A),gamma,func(n),
@@ -178,10 +208,17 @@ c              gamma =   delrho(n,1,2)*delrho(n,1,2) +
 c    &                   delrho(n,2,2)*delrho(n,2,2) +
 c    &                   delrho(n,3,2)*delrho(n,3,2)   
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+               call nwxc_x_pw6core_p(DPOW,BETA,CPW91,n,2,
+     &              rho(n,R_B),gamma,func(n),
+     &              tol_rho, wght, 
+     &              nq, ipol)     
+#else
                call nwxc_x_pw6core(DPOW,BETA,CPW91,n,2,
      &              rho(n,R_B),gamma,func(n),
      &              tol_rho, wght, 
      &              nq, ipol)     
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
                call nwxc_x_pw6core_d2(DPOW,BETA,CPW91,n,2,
      &              rho(n,R_B),gamma,func(n),
@@ -206,8 +243,13 @@ c
 
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_pw6core_p(DPOW,BETA,CPW91,n,ispin,
+     .     rho,gamma,func, tol_rho, wght, nq, ipol)     
+#else
       Subroutine nwxc_x_pw6core(DPOW,BETA,CPW91,n,ispin,
      .     rho,gamma,func, tol_rho, wght, nq, ipol)     
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_pw6core_d2(DPOW,BETA,CPW91,n,ispin,
      .     rho,gamma,func, tol_rho, wght, nq, ipol)
@@ -239,9 +281,16 @@ c     Compute the partial derivatives of the exchange functional of Perdew91.
 c
 c     Becke & Perdew  Parameters
 c
-      double precision DPOW
-      double precision BETA, tol_rho, AX, pi,
-     &     CPW91,BETAPW91,big
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::DPOW, BETA, CPW91
+#else
+      double precision DPOW, BETA, CPW91
+#endif
+#else
+      double precision DPOW, BETA, CPW91
+#endif
+      double precision tol_rho, AX, pi, BETAPW91,big
 
       Parameter (big=1d4)
 
@@ -366,6 +415,13 @@ c
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_pw6.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -380,5 +436,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_pw6.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

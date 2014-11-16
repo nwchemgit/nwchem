@@ -47,8 +47,13 @@ C>     <a href="http://dx.doi.org/10.1017/S0305004100016108">
 C>     10.1017/S0305004100016108</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_ft97_p(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                       func) 
+#else
       Subroutine nwxc_c_ft97(tol_rho, ipol, nq, wght, rho, rgamma,
      &                       func) 
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_ft97_d2(tol_rho, ipol, nq, wght, rho, rgamma,
      &                          func) 
@@ -104,8 +109,13 @@ c           gammaval=delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            call nwxc_rks_c_ft97_p(rho(n,R_T),gammaval,
+     *           fc_ft97,dfdrac,dfdgaac,tol_rho)
+#else
             call nwxc_rks_c_ft97(rho(n,R_T),gammaval,
      *           fc_ft97,dfdrac,dfdgaac,tol_rho)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_rks_c_ft97_d2(rho(n,R_T),gammaval,
      *           fc_ft97,dfdrac,dfdgaac,tol_rho)
@@ -132,9 +142,15 @@ c           zb=delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &           delrho(n,3,2)*delrho(n,3,2) 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            call nwxc_uks_c_ft97_p(tol_rho,
+     (           rhoa,rhob,za,zb,
+     *           fc_ft97,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#else
             call nwxc_uks_c_ft97(tol_rho,
      (           rhoa,rhob,za,zb,
      *           fc_ft97,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxc_uks_c_ft97_d2(tol_rho,
      (           rhoa,rhob,za,zb,
@@ -168,7 +184,11 @@ C
 
 c-----------------------------------------------------------------------
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_rks_c_ft97_p(r,g,fc,dfdrac,dfdgaac,tol_rho)
+#else
       subroutine nwxc_rks_c_ft97(r,g,fc,dfdrac,dfdgaac,tol_rho)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_rks_c_ft97_d2(r,g,fc,dfdrac,dfdgaac,tol_rho)
 #else
@@ -234,8 +254,13 @@ c
       rhob13 = rhoa13
       gamb   = gama
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      call nwxc_FT97_ECFUN_p(rhoa,rhob,rhoa13,rhob13,gama,gamb,
+     +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb,tol_rho)
+#else
       call nwxc_FT97_ECFUN(rhoa,rhob,rhoa13,rhob13,gama,gamb,
      +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb,tol_rho)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_FT97_ECFUN_d2(rhoa,rhob,rhoa13,rhob13,gama,gamb,
      +                fc,dfdrac,dfdrb,dfdgaac,dfdgbb,tol_rho)
@@ -249,8 +274,13 @@ c     call FT97_EXGRAD(rhoa,rhoa13,gama,dfdrax,dfdgaax,.false.)
       end
 c-----------------------------------------------------------------------
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_uks_c_ft97_p(tol_rho,ra,rb,gaa,gbb,
+     ,     fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#else
       subroutine nwxc_uks_c_ft97(tol_rho,ra,rb,gaa,gbb,
      ,     fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_uks_c_ft97_d2(tol_rho,ra,rb,gaa,gbb,
      ,     fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc)
@@ -318,8 +348,13 @@ c
       rhob13=0d0
       if(rb.gt.tol_rho**2) rhob13 = rb**r13
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      call nwxc_FT97_ECFUN_p(ra,rb,rhoa13,rhob13,gaa,gbb,
+     +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,tol_rho)
+#else
       call nwxc_FT97_ECFUN(ra,rb,rhoa13,rhob13,gaa,gbb,
      +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,tol_rho)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_FT97_ECFUN_d2(ra,rb,rhoa13,rhob13,gaa,gbb,
      +                fc,dfdrac,dfdrbc,dfdgaac,dfdgbbc,tol_rho)
@@ -337,8 +372,13 @@ c    +     call FT97_EXGRAD(rb,rhob13,gbb,dfdrbx,dfdgbbx,.false.)
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      SUBROUTINE nwxc_FT97_ECFUN_p(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,
+     1                       V1,V2,V3,V4,tol_rho)
+#else
       SUBROUTINE nwxc_FT97_ECFUN(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,
      1                       V1,V2,V3,V4,tol_rho)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       SUBROUTINE nwxc_FT97_ECFUN_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EC,
      1                       V1,V2,V3,V4,tol_rho)
@@ -384,10 +424,17 @@ c
       V3     = 0.D0
       V4     = 0.D0
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      CALL nwxc_FT97_VCOUR_p(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,
+     1            EAB,EBA,
+     2            DEAADR,DEBBDR,DEABDR,DEBADR,
+     3            DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#else
       CALL nwxc_FT97_VCOUR(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,
      1            EAB,EBA,
      2            DEAADR,DEBBDR,DEABDR,DEBADR,
      3            DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       CALL nwxc_FT97_VCOUR_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,EAA,EBB,
      1            EAB,EBA,
@@ -419,10 +466,17 @@ c     V4    = V4 +RHOA*DEABDG
       END
 c-----------------------------------------------------------------------
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      SUBROUTINE nwxc_FT97_VCOUR_p(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
+     1                       EAA,EBB,EAB,EBA,
+     2                       DEAADR,DEBBDR,DEABDR,DEBADR,
+     3                       DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#else
       SUBROUTINE nwxc_FT97_VCOUR (RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
      1                       EAA,EBB,EAB,EBA,
      2                       DEAADR,DEBBDR,DEABDR,DEBADR,
      3                       DEAADG,DEBBDG,DEABDG,DEBADG,tol_rho)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       SUBROUTINE nwxc_FT97_VCOUR_d2(RHOA,RHOB,RHOA13,RHOB13,AMA,AMB,
      1                       EAA,EBB,EAB,EBA,
@@ -573,7 +627,11 @@ c         ECMUC0 = 0.D0
           IF(C1*RSA .LE. DENOM*CUTOFF) THEN
              MUBA = C1*RSA/DENOM
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+             EEI = nwxc_FT97_EXPEI_p(-MUBA)
+#else
              EEI = nwxc_FT97_EXPEI(-MUBA)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
              EEI = nwxc_FT97_EXPEI_d2(-MUBA)
 #else
@@ -612,7 +670,11 @@ c        DEAADG = 0.D0
          IF(C1*RSA .LE. DENOM*CUTOFF) THEN
             MUAA = C1*RSA/DENOM
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            EEI = nwxc_FT97_EXPEI_p(-MUAA)
+#else
             EEI = nwxc_FT97_EXPEI(-MUAA)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             EEI = nwxc_FT97_EXPEI_d2(-MUAA)
 #else
@@ -666,7 +728,11 @@ c        ECMUC0 = 0.D0
          IF(C1*RSB .LE. DENOM*CUTOFF) THEN
             MUAB = C1*RSB/DENOM
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            EEI = nwxc_FT97_EXPEI_p(-MUAB)
+#else
             EEI = nwxc_FT97_EXPEI(-MUAB)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             EEI = nwxc_FT97_EXPEI_d2(-MUAB)
 #else
@@ -705,7 +771,11 @@ c        DEBBDG = 0.D0
          IF(C1*RSB .LE. DENOM*CUTOFF) THEN
             MUBB = C1*RSB/DENOM
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            EEI = nwxc_FT97_EXPEI_p(-MUBB)
+#else
             EEI = nwxc_FT97_EXPEI(-MUBB)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             EEI = nwxc_FT97_EXPEI_d2(-MUBB)
 #else
@@ -814,7 +884,11 @@ c
       END
 c-----------------------------------------------------------------------
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      FUNCTION nwxc_FT97_EXPEI_p(X)
+#else
       FUNCTION nwxc_FT97_EXPEI(X)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       FUNCTION nwxc_FT97_EXPEI_d2(X)
 #else
@@ -836,12 +910,18 @@ c
       INTEGER INT
       type(nwad_dble),intent(in):: X
       type(nwad_dble):: nwxc_FT97_EXPEI, RESULT
+      type(nwad_dble):: nwxc_FT97_EXPEI_p
       type(nwad_dble):: nwxc_FT97_EXPEI_d2
       type(nwad_dble):: nwxc_FT97_EXPEI_d3
       INT = 3
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      CALL nwxc_FT97_CALCEI_p(X,RESULT,INT)
+      nwxc_FT97_EXPEI_p = RESULT
+#else
       CALL nwxc_FT97_CALCEI(X,RESULT,INT)
       nwxc_FT97_EXPEI = RESULT
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       CALL nwxc_FT97_CALCEI_d2(X,RESULT,INT)
       nwxc_FT97_EXPEI_d2 = RESULT
@@ -853,7 +933,11 @@ c
       END
 c-----------------------------------------------------------------------
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      SUBROUTINE nwxc_FT97_CALCEI_p(ARG,RESULT,INT)
+#else
       SUBROUTINE nwxc_FT97_CALCEI(ARG,RESULT,INT)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       SUBROUTINE nwxc_FT97_CALCEI_d2(ARG,RESULT,INT)
 #else
@@ -1240,6 +1324,13 @@ C----------------------------------------------------------------------
       RETURN
       END
 c-----------------------------------------------------------------------
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_ft97.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -1254,4 +1345,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_ft97.F"
 #endif
+#undef NWAD_PRINT
 C> @}

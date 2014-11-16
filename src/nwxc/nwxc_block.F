@@ -25,6 +25,7 @@ C>
       data nwxc_depends_on_tau   / .false. /
       data nwxc_cam_srhfex       / .false. /
       data nwxc_on               / .false. /
+      data nwxc_eval_method      / NWXCP_EVAL_AUTODF /
       data nwxc_num_f      / 0 /
       data nwxc_usr_num    / 0 /
       data nwxc_wght_hf    / 0.0d0 /
@@ -61,6 +62,7 @@ C>
       nwxc_depends_on_tau   = .false.
       nwxc_cam_srhfex       = .false.
       nwxc_on               = .false. 
+      nwxc_eval_method      = NWXCP_EVAL_AUTODF 
       nwxc_num_f      = 0 
       nwxc_usr_num    = 0 
       nwxc_wght_hf    = 0.0d0 

@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_rpbe.F
 C> The RPBE exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -53,8 +55,13 @@ C> <a href="http://dx.doi.org/10.1103/PhysRevB.59.7413">
 C> 10.1103/PhysRevB.59.7413</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_rpbe_p(
+     W     tol_rho, ipol, nq, wght, rho, rgamma, func)
+#else
       Subroutine nwxc_x_rpbe(
      W     tol_rho, ipol, nq, wght, rho, rgamma, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_rpbe_d2(
      W     tol_rho, ipol, nq, wght, rho, rgamma, func)
@@ -561,6 +568,13 @@ c
       end function
 c
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_rpbe.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -575,4 +589,5 @@ c     Compile source again for the 2nd derivative case
 c
 #include "nwxc_x_rpbe.F"
 #endif
+#undef NWAD_PRINT
 C> @}

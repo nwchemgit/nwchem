@@ -6,7 +6,11 @@ C>
 C> \brief Utility routine to evaluate the TPSS and PKZB functionals
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_Mpbe_p(tol_rho, ipol, rho, rgamma, Ec)
+#else
       Subroutine nwxc_c_Mpbe(tol_rho, ipol, rho, rgamma, Ec)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_Mpbe_d2(tol_rho, ipol, rho, rgamma, Ec)
 #else
@@ -185,7 +189,11 @@ c        this implementation temporarily assigns the pw91LDA for
 c        use in the metaGGA local part
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_pw91lda_p(tol_rho,ipol,1,1.0d0,rho_t,nepsc)
+#else
          call nwxc_c_pw91lda(tol_rho,ipol,1,1.0d0,rho_t,nepsc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_pw91lda_d2(tol_rho,ipol,1,1.0d0,rho_t,nepsc)
 #else
@@ -272,11 +280,11 @@ c
 c
 c        A = BETA/GAMMA [exp{-epsilon_c/(GAMMA*phi**3)}-1]**(-1)
 c
-         if (abs(argexp).lt.EXPTOL) then
+c        if (abs(argexp).lt.EXPTOL) then
             expinA=exp(argexp)
-         else
-            expinA=0.0d0
-         endif
+c        else
+c           expinA=0.0d0
+c        endif
          A = BETA/GAMMA/(expinA-1.0d0)
          dAdna = -BETA/GAMMA*dargexpdna*expinA/(expinA-1.0d0)**2.0d0
          dAdnb = -BETA/GAMMA*dargexpdnb*expinA/(expinA-1.0d0)**2.0d0
@@ -341,6 +349,13 @@ c
 
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_Mpbe.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -355,5 +370,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_Mpbe.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

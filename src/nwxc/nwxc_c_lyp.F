@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_lyp.F
 C> The LYP correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -43,8 +45,13 @@ C> <a href="http://dx.doi.org/10.1063/1.464906">
 C> 10.1063/1.464906</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_lyp_p(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                      func)
+#else
       Subroutine nwxc_c_lyp(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                      func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_lyp_d2(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, func)
@@ -241,8 +248,10 @@ c
          do 20 n = 1,nq
             if (rho(n,R_A)+rho(n,R_B).lt.tol_rho)goto 20
             rrho = 1d0/(rho(n,R_A)+rho(n,R_B))
-            rhoa = max(zero,rho(n,R_A))
-            rhob = max(zero,rho(n,R_B))
+c           rhoa = max(zero,rho(n,R_A))
+c           rhob = max(zero,rho(n,R_B))
+            rhoa = rho(n,R_A)
+            rhob = rho(n,R_B)
             rrho2 = rrho*rrho
             rho2 = 1d0/rrho2
             rhoa2 = rhoa*rhoa
@@ -346,6 +355,13 @@ c
       endif
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_lyp.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -360,4 +376,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_lyp.F"
 #endif
+#undef NWAD_PRINT
 C> @}

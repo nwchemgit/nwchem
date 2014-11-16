@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_perdew81.F
 C> The Perdew Zunger correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -25,8 +27,13 @@ C>     <a href="http://dx.doi.org/10.1103/PhysRevB.23.5048">
 C>     10.1103/PhysRevB.23.5048</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_perdew81_p(tol_rho, ipol, nq, wght, rho, 
+     &                             func)
+#else
       Subroutine nwxc_c_perdew81(tol_rho, ipol, nq, wght, rho, 
      &                           func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_perdew81_d2(tol_rho, ipol, nq, wght, rho,
      &                              func)
@@ -177,10 +184,18 @@ c           d3zeta(2) = rrho3*(1.0d0 - 3.0d0*zeta)
 c           d3zeta(3) = -rrho3*(1.0d0 + 3.0d0*zeta)
 c           d3zeta(4) = -3.0d0*rrho3*(1.0d0 + zeta)
 #endif
-            if (rs.lt.1.d0)then
-               alnrs = log(rs)
-               do i = 1, 2
-                  e(i) = A(i)*alnrs+B(i)+C(i)*rs*alnrs+D(i)*rs
+            alnrs = log(rs)
+            sqrtrs = sqrt(rs)
+            do i = 1, 2
+              rden(i) = 1.d0/(1.d0+B1(i)*sqrtrs+B2(i)*rs)
+              e(i) = heaviside(1.0d0-rs)*(
+     +                   A(i)*alnrs+B(i)+C(i)*rs*alnrs+D(i)*rs)
+     +             + heaviside(rs-1.0d0)*G(i)*rden(i)
+            enddo
+c           if (rs.lt.1.d0)then
+c              alnrs = log(rs)
+c              do i = 1, 2
+c                 e(i) = A(i)*alnrs+B(i)+C(i)*rs*alnrs+D(i)*rs
 c                 d1e(i) = A(i)/rs+C(i)*(alnrs+1d0)+D(i)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c                 d2e(i) = (C(i)-A(i)/rs)/rs
@@ -189,13 +204,13 @@ c                 d2e(i) = (C(i)-A(i)/rs)/rs
 c                 d3e(i) = 2.0d0*A(i)/(rs*rs*rs)
 c    1                   - C(i)/(rs*rs) 
 #endif
-               enddo
-            else
-               sqrtrs = sqrt(rs)
-               do i = 1, 2
-                  rden(i) = 1.d0/(1.d0+B1(i)*sqrtrs+B2(i)*rs)
+c              enddo
+c           else
+c              sqrtrs = sqrt(rs)
+c              do i = 1, 2
+c                 rden(i) = 1.d0/(1.d0+B1(i)*sqrtrs+B2(i)*rs)
 c                 d1den(i) = B1(i)/(2.d0*sqrtrs)+B2(i)
-                  e(i) = G(i)*rden(i)
+c                 e(i) = G(i)*rden(i)
 c                 d1e(i) = -G(i)*d1den(i)*rden(i)**2
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c                 d2den(i) = -B1(i)/(4.d0*rs*sqrtrs)
@@ -210,8 +225,8 @@ c    2                           - d1den(i)*d1den(i)*d1den(i)*
 c    3                             rden(i)*rden(i) ) 
 c    4                   - d3den(i) )
 #endif
-               enddo
-            endif
+c              enddo
+c           endif
             eps = e(1) + fz*(e(2)-e(1))
 c           d1ersz(1) = d1e(1) + fz*(d1e(2)-d1e(1))
 c           d1ersz(2) = d1fz*(e(2)-e(1))
@@ -326,6 +341,13 @@ c    2           + ( 3.0d0*d2edrho(3) + rhoval*d3edrho(4) )*wght
       return
       end
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_perdew81.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -340,6 +362,7 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_perdew81.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}
 c $Id$

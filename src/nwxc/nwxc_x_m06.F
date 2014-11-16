@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_m06.F
 C> Implementation of the M06 exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -50,8 +52,13 @@ c     [a]	Zhao, Y. and  Truhlar, D. G. J. Chem. Phys. 2006, 125, 194101;
 c     [b]       Zhao, Y. and  Truhlar, D. G. J. Phys. Chem. A (2006),110(49),13126-13130.    
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_m06_p(param, tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, tau, func)
+#else
       Subroutine nwxc_x_m06(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_m06_d2(param, tol_rho, ipol, nq, wght, rho,
      &           rgamma, tau, func)
@@ -68,6 +75,17 @@ c
 c
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of the functional
+      type(nwad_dble)::at1, at2, at3, at4, at5, at6, at7, at8, at9
+      type(nwad_dble)::at10, at11, at0
+#else
+      double precision param(*) !< [Input] Parameters of the functional
+      double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
+      double precision at10, at11, at0
+#endif
+#else
       double precision param(*) !< [Input] Parameters of the functional
                                 !< - param( 1): \f$ d_0 \f$
                                 !< - param( 2): \f$ d_1 \f$
@@ -87,6 +105,9 @@ c
                                 !< - param(16): \f$ a_9 \f$
                                 !< - param(17): \f$ a_10 \f$
                                 !< - param(18): \f$ a_11 \f$
+      double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
+      double precision at10, at11, at0
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -117,8 +138,7 @@ c
       double precision pi
 c
       integer n
-      double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
-      double precision at, at10, at11, at0, C1, C2, fL, fNL
+      double precision at, C1, C2, fL, fNL
       type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53
       type(nwad_dble)::Gamma2, Gamma
       type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
@@ -224,8 +244,13 @@ c     endif
 
       at=1.0d0
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      call nwxc_x_vs98_p(param,tol_rho, ipol, nq, wght, rho, rgamma,
+     &                   tau, func)
+#else
       call nwxc_x_vs98(param,tol_rho, ipol, nq, wght, rho, rgamma, tau,
      &                 func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_x_vs98_d2(param,tol_rho, ipol, nq, wght, rho, rgamma,
      &                    tau, func)
@@ -525,8 +550,13 @@ C> <a href="http://dx.doi.org/10.1021/jp066479k">
 C> 10.1021/jp066479k</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_m06_2x_p(param, tol_rho, ipol, nq, wght, 
+     &                           rho, rgamma, tau, func)
+#else
       Subroutine nwxc_x_m06_2x(param, tol_rho, ipol, nq, wght, 
      &                         rho, rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_m06_2x_d2(param, tol_rho, ipol, nq, wght, 
      &                            rho, rgamma, tau, func)
@@ -543,6 +573,17 @@ c
 c
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of the functional
+      type(nwad_dble)::at1, at2, at3, at4, at5, at6, at7, at8, at9
+      type(nwad_dble)::at10, at11, at0
+#else
+      double precision param(*) !< [Input] Parameters of the functional
+      double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
+      double precision at10, at11, at0
+#endif
+#else
       double precision param(*) !< [Input] Parameters of the functional
                                 !< - param( 1): \f$ a_0 \f$
                                 !< - param( 2): \f$ a_1 \f$
@@ -556,6 +597,9 @@ c
                                 !< - param(10): \f$ a_9 \f$
                                 !< - param(11): \f$ a_10 \f$
                                 !< - param(12): \f$ a_11 \f$
+      double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
+      double precision at10, at11, at0
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -586,8 +630,7 @@ c
       double precision pi
 c
       integer n
-      double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
-      double precision at, at10, at11, at0, C1, C2, fL, fNL
+      double precision at, C1, C2, fL, fNL
       type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53
       type(nwad_dble)::Gamma2, Gamma
       type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
@@ -956,6 +999,13 @@ c
 c
       return
       end
+#if !defined(NWAD_PRINT)
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_m06.F"
+#endif
 #if !defined(SECOND_DERIV)
 #define SECOND_DERIV
 c
@@ -970,5 +1020,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_m06.F"
 #endif
-
+#undef NWAD_PRINT
 C> @}

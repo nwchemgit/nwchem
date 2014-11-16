@@ -23,8 +23,13 @@ c
 c Perdew 91 local correlation functional at one grid point 
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_lsda_p(tol_rho,
+     R     rs,zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#else
       Subroutine nwxc_c_lsda(tol_rho,
      R     rs,zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_lsda_d2(tol_rho,
      R     rs,zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
@@ -78,6 +83,15 @@ c
       GammaI = F1 / (F2*F2**Third-F2)
       
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Call nwxc_EvFZet_p(tol_rho,GammaI,Zeta,FZeta,dfZdz,d2fZdz)
+      Call nwxc_EvPWLC_p(eps0c(1),eps0c(2),eps0c(3),eps0c(4),eps0c(5),
+     &    eps0c(6),RS,EU,dEUdRS,d2UdRS)
+      Call nwxc_EvPWLC_p(eps1c(1),eps1c(2),eps1c(3),eps1c(4),eps1c(5),
+     &    eps1c(6),RS,EP,dEPdRS,d2PdRS)
+      Call nwxc_EvPWLC_p(epsc(1),epsc(2),epsc(3),epsc(4),epsc(5),
+     &    epsc(6),RS,AlphaM,dAMdRS,d2AdRS)
+#else
       Call nwxc_EvFZet(tol_rho,GammaI,Zeta,FZeta,dfZdz,d2fZdz)
       Call nwxc_EvPWLC(eps0c(1),eps0c(2),eps0c(3),eps0c(4),eps0c(5),
      &    eps0c(6),RS,EU,dEUdRS,d2UdRS)
@@ -85,6 +99,7 @@ c
      &    eps1c(6),RS,EP,dEPdRS,d2PdRS)
       Call nwxc_EvPWLC(epsc(1),epsc(2),epsc(3),epsc(4),epsc(5),
      &    epsc(6),RS,AlphaM,dAMdRS,d2AdRS)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Call nwxc_EvFZet_d2(tol_rho,GammaI,Zeta,FZeta,dfZdz,d2fZdz)
       Call nwxc_EvPWLC_d2(eps0c(1),eps0c(2),eps0c(3),eps0c(4),eps0c(5),
@@ -124,7 +139,11 @@ c
 c   f(zeta)
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_EvFZet_p(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
+#else
       Subroutine nwxc_EvFZet(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_EvFZet_d2(tol_rho,S,Zeta,FZeta,dfZdz,d2fZdz)
 #else
@@ -180,7 +199,11 @@ c
 c  pw91 local correlation
 c 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_EvPWLC_p(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
+#else
       Subroutine nwxc_EvPWLC(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_EvPWLC_d2(A,A1,B1,B2,B3,B4,RS,V,dVdRS,d2VdRS)
 #else
@@ -216,6 +239,13 @@ c     d2Q2dS = (F2*Q1+F1)*(dQ1dRS/(Q1+Q1**2))**2 - d2Q1dS/(Q1+Q1**2)
 c     d2VdRS = F2*dQ0dRS*dQ2dRS + Q0*d2Q2dS
       Return
       End
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_lsda.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -230,5 +260,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_lsda.F"
 #endif
+#undef NWAD_PRINT
 C> @}
 c $Id$

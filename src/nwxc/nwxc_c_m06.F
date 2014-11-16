@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_m06.F
 C> Implementation of the M06 correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -46,8 +48,13 @@ c                              ijzy - 3  M06
 c                              ijzy - 4  M06-2X
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_m06_p(param, tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, tau, func)
+#else
       Subroutine nwxc_c_m06(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_m06_d2(param, tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
@@ -73,6 +80,15 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)
+      type(nwad_dble):: sopp0, sopp1,sopp2, sopp3, sopp4
+#else
+      double precision param(*)
+      double precision  sopp0, sopp1,sopp2, sopp3, sopp4
+#endif
+#else
       double precision param(*) !< [Input] Parameters of functional
                                 !< - param(1): \f$ d_{C\alpha\beta,0} \f$
                                 !< - param(2): \f$ d_{C\alpha\beta,1} \f$
@@ -96,6 +112,8 @@ c
                                 !< - param(20): \f$ c_{C\sigma\sigma,2} \f$
                                 !< - param(21): \f$ c_{C\sigma\sigma,3} \f$
                                 !< - param(22): \f$ c_{C\sigma\sigma,4} \f$
+      double precision  sopp0, sopp1,sopp2, sopp3, sopp4
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -138,7 +156,7 @@ c    call to the m06css subroutine
       double precision FPB,FGB,FTB,EUEGB,EUPB,ChiBP,ChiBG
 c
       type(nwad_dble)::RS,Zeta,PotLC,P,U,W,EUEG
-      double precision  sop, sopp0, sopp1,sopp2, sopp3, sopp4
+      double precision  sop
       double precision Pi, F6, F43, Pi34, F13, 
      &RSP,dZdA,dZdB,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ
       double precision dUdChiA,dUdChiB,dUdPA,dUdPB,dUdGA,dUdGB,
@@ -184,8 +202,13 @@ c        sopp4= -1.852891D+01
 c     endif
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      call nwxc_c_vs98_p(param, tol_rho, ipol, nq, wght, rho,
+     &                 rgamma, tau, func)
+#else
       call nwxc_c_vs98(param, tol_rho, ipol, nq, wght, rho,
      &                 rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       call nwxc_c_vs98_d2(param, tol_rho, ipol, nq, wght, rho,
      &                    rgamma, tau, func)
@@ -219,8 +242,13 @@ c  the tau by 2 here
          if(ta.lt.tol_rho) goto 20
                   
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         Call nwxc_m06css_p(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                ChiA,EUPA,ChiAP,ChiAG)
+#else
          Call nwxc_m06css(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          Call nwxc_m06css_d2(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG)
@@ -269,8 +297,13 @@ c
          TA = 2.0d0*tau(n,T_A) 
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         Call nwxc_m06css_p(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                ChiA,EUPA,ChiAP,ChiAG)
+#else
          Call nwxc_m06css(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          Call nwxc_m06css_d2(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG)
@@ -300,8 +333,13 @@ c    &          delrho(n,3,2)*delrho(n,3,2)
          TB = 2.0d0*tau(n,T_B)
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         Call nwxc_m06css_p(param,Tol_Rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                ChiB,EUPB,ChiBP,ChiBG)
+#else
          Call nwxc_m06css(param,Tol_Rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                ChiB,EUPB,ChiBP,ChiBG)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          Call nwxc_m06css_d2(param,Tol_Rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                ChiB,EUPB,ChiBP,ChiBG)
@@ -326,9 +364,15 @@ c         RSP = -RS/(F3*P)
 c         dZdA = (F1-Zeta)/P
 c         dZdB = (-F1-Zeta)/P
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+          Call nwxc_c_lsda_p(tol_rho,
+     R         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
+     $         d2LdZZ)
+#else
           Call nwxc_c_lsda(tol_rho,
      R         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
      $         d2LdZZ)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           Call nwxc_c_lsda_d2(tol_rho,
      R         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
@@ -377,8 +421,13 @@ c      Stop
 
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_m06css_p(param,Tol_Rho,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                       Chi,EUEGP,ChiP,ChiG)
+#else
       Subroutine nwxc_m06css(param,Tol_Rho,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                       Chi,EUEGP,ChiP,ChiG)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_m06css_d2(param,Tol_Rho,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                       Chi,EUEGP,ChiP,ChiG)
@@ -396,13 +445,24 @@ C     Compute the same-spin part of the m06 correlation functional for one grid
 C     point and one spin-case.
 C
 C
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(22)
+      type(nwad_dble)::sss0, sss1, sss2, sss3, sss4
+#else
       double precision param(22)
+      double precision sss0, sss1, sss2, sss3, sss4
+#endif
+#else
+      double precision param(22)
+      double precision sss0, sss1, sss2, sss3, sss4
+#endif
       type(nwad_dble)::PX, GX, TX, F, EUEG, Fscc, Chi
       type(nwad_dble)::Rs, D, E, W, U, Zeta, PotLC
       double precision FP, FG, FT, Tol_Rho
       double precision EUEGP, ChiP, ChiG
       double precision Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11
-      double precision ss, sss0,sss1, sss2, sss3, sss4, Css
+      double precision ss, Css
       double precision Pi, Pi34, F13, F23, F43, F53, F83, F113
       double precision FDUEG, RSP, dFsccP, dFsccG
       double precision dFsccT, dUdChi, dWdU, dWdP, dWdG 
@@ -478,8 +538,13 @@ c     endif
         RS = (Pi34/PX) ** F13
         Zeta = F1
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Call nwxc_c_lsda_p(tol_rho,
+     R       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#else
         Call nwxc_c_lsda(tol_rho,
      R       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Call nwxc_c_lsda_d2(tol_rho,
      R       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
@@ -518,6 +583,13 @@ c       FT = ss*(dFsccT*W*EUEG)
 
        Return
        End
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_m06.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -532,4 +604,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_m06.F"
 #endif
+#undef NWAD_PRINT
 C> @}

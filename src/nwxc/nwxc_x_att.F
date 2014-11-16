@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -7,6 +8,7 @@ C> The Coulomb attenuated PBE exchange functional part
 C>
 C> @}
 #endif
+#endif
 C>
 C> \ingroup nwxc_priv
 C> @{
@@ -14,7 +16,11 @@ C> @{
 !ocl scalar
 #endif
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_att_p(param,tol_rho,rho,ipol,Ex)
+#else
       Subroutine nwxc_x_att(param,tol_rho,rho,ipol,Ex)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_att_d2(param,tol_rho,rho,ipol,Ex)
 #else
@@ -34,10 +40,24 @@ c
 c      
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of functional
+      type(nwad_dble)::cam_alpha, cam_beta, cam_omega
+      type(nwad_dble)::alpha,beta
+#else
+      double precision param(*) !< [Input] Parameters of functional
+      double precision cam_alpha, cam_beta, cam_omega
+      double precision alpha,beta
+#endif
+#else
       double precision param(*) !< [Input] Parameters of functional
                                 !< - param(1): \f$ \alpha_{CAM} \f$
                                 !< - param(2): \f$ \beta_{CAM} \f$
                                 !< - param(3): \f$ \omega_{CAM} \f$
+      double precision cam_alpha, cam_beta, cam_omega
+      double precision alpha,beta
+#endif
       double precision tol_rho  !< [Input] The lower limit on the density
       type(nwad_dble)::rho      !< [Input] The density
       integer ipol              !< [Input] The number of spin channels
@@ -70,12 +90,10 @@ c
 c
 c***************************************************************************
 c
-      double precision cam_alpha, cam_beta, cam_omega
 c
       double precision a_first,a2_first,btmp_first, btmp1
 c
       double precision sqrt_pi,t1,t2,t3,t4,t5,t6,t7
-      double precision alpha,beta
       double precision f10, f01, b_first
 c     double precision a2, a3, a4, a5, a6, a7, a8, a9, a10, a11
       type(nwad_dble)::a, a2, b, c, btmp, bfactor
@@ -338,6 +356,13 @@ c         Cmat = bfactor*Cmat + Ex*b_first*a2_first
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_att.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -352,4 +377,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_att.F"
 #endif
+#undef NWAD_PRINT
 C> @}

@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_op.F
 C> The OP correlation functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -32,8 +34,13 @@ C>     <a href="http://dx.doi.org/10.1063/1.479954">
 C>     10.1063/1.479954</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_op_p(kop,param,tol_rho,ipol,nq,wght,rho,rgamma,
+     &                     func)
+#else
       Subroutine nwxc_c_op(kop,param,tol_rho,ipol,nq,wght,rho,rgamma,
      &                     func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_op_d2(kop,param,tol_rho,ipol,nq,wght,rho,rgamma,
      &                     func)
@@ -54,9 +61,20 @@ c     Input and other parameters
 c
       external kop             !< [Input] Subroutine to evaluate the
       !< GGA exchange enhancement factor (see Eq.(14) in [1]).
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)!< [Input] Parameters of functional
+      type(nwad_dble)::QABOP
+#else
+      double precision param(*)!< [Input] Parameters of functional
+      double precision QABOP
+#endif
+#else
       double precision param(*)!< [Input] Parameters of functional
       !< - param(1): \f$ q^{\alpha\beta}_{OP} \f$ see Eq.(27) in [1] and
       !<   Table III in [2].
+      double precision QABOP
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -76,7 +94,7 @@ c
 c     double precision Amat(nq,*)   !< [Output] The derivative wrt rho
 c     double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma
 c
-      double precision QABOP,QAB88OP,QABPBOP
+      double precision QAB88OP,QABPBOP
 c     Parameter (QAB88OP=2.3670D0,QABPBOP=2.3789D0)
 c
 c References:
@@ -321,7 +339,11 @@ C>
 C> \brief The Becke88 exchange GGA enhancement factor
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_k_becke88_p(tol_rho,x, kalpha)
+#else
       subroutine nwxc_k_becke88(tol_rho,x, kalpha)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_k_becke88_d2(tol_rho,x, kalpha)
 #else
@@ -366,7 +388,11 @@ C>
 C> \brief The PBE96 exchange GGA enhancement factor
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_k_pbe96_p(tol_rho,x, kalpha)
+#else
       subroutine nwxc_k_pbe96(tol_rho,x, kalpha)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_k_pbe96_d2(tol_rho,x, kalpha)
 #else
@@ -410,7 +436,11 @@ C> Of course the Dirac functional is the exchange part for LDA
 C> so this subroutine just returns a constant.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_k_dirac_p(tol_rho,x, kalpha)
+#else
       subroutine nwxc_k_dirac(tol_rho,x, kalpha)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       subroutine nwxc_k_dirac_d2(tol_rho,x, kalpha)
 #else
@@ -437,6 +467,13 @@ c     dkadxa = 0d0
 
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_op.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -451,5 +488,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_op.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

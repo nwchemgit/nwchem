@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_ssbD_1.F
 C> The SSB-D exchange functional part 1
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -24,8 +26,13 @@ C>     <a href="http://dx.doi.org/10.1063/1.3213193">
 C>     10.1063/1.3213193</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_ssbD_1_p(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                           func)
+#else
       Subroutine nwxc_x_ssbD_1(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                         func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_ssbD_1_d2(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                            func)
@@ -314,6 +321,13 @@ c
       end function
 c
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_ssbD_1.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -328,5 +342,6 @@ c     Compile source again for the 2nd derivative case
 c
 #include "nwxc_x_ssbD_1.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

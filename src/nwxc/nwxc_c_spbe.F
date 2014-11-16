@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_spbe.F
 C> The simplified PBE correlation functional for SSB-D
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -24,8 +26,13 @@ C>     <a href="http://dx.doi.org/10.1063/1.3213193">
 C>     10.1063/1.3213193</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_spbe_p(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                         ffunc)
+#else
       Subroutine nwxc_c_spbe(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                       ffunc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_spbe_d2(tol_rho, ipol, nq, wght, rho, rgamma,
      &                          ffunc)
@@ -225,8 +232,13 @@ c        LDA part
 c        ========
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_pw91lda_p(tol_rho, ipol, 1, 1.0d0, rho_t,
+     &                         nepsc)
+#else
          call nwxc_c_pw91lda(tol_rho, ipol, 1, 1.0d0, rho_t,
      &                       nepsc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_pw91lda_d2(tol_rho, ipol, 1, 1.0d0, rho_t,
      &                          nepsc)
@@ -649,6 +661,13 @@ c
       return
       end
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_spbe.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -663,5 +682,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_spbe.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

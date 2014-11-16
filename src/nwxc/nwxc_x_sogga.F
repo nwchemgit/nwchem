@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_sogga.F
 C> The SOGGA, SOGGA11 and SOGGA-X exchange functionals
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -45,8 +47,13 @@ C>     <a href="http://dx.doi.org/10.1063/1.3663871">
 C>     10.1063/1.3663871</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_sogga_p(param, tol_rho, ipol, nq, wght, rho,
+     &                          rgamma, ffunc)
+#else
       Subroutine nwxc_x_sogga(param, tol_rho, ipol, nq, wght, rho,
      &                        rgamma, ffunc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_sogga_d2(param, tol_rho, ipol, nq, wght, rho,
      &                           rgamma, ffunc)
@@ -81,6 +88,21 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)!< [Input] Parameters of the functional,
+      type(nwad_dble)::CxA0,CxA1,CxA2,CxA3,CxA4,CxA5
+      type(nwad_dble)::CxB0,CxB1,CxB2,CxB3,CxB4,CxB5
+      type(nwad_dble)::FA0
+      type(nwad_dble)::FB0
+#else
+      double precision param(*)!< [Input] Parameters of the functional,
+      double precision CxA0,CxA1,CxA2,CxA3,CxA4,CxA5
+      double precision CxB0,CxB1,CxB2,CxB3,CxB4,CxB5
+      double precision FA0
+      double precision FB0
+#endif
+#else
       double precision param(*)!< [Input] Parameters of the functional,
                                !< see Table 1 of [1] and Table 1 of [2].
                                !< - param(1): \f$ a_0 \f$
@@ -95,6 +117,11 @@ c
                                !< - param(10): \f$ b_3 \f$
                                !< - param(11): \f$ b_4 \f$
                                !< - param(12): \f$ b_5 \f$
+      double precision CxA0,CxA1,CxA2,CxA3,CxA4,CxA5
+      double precision CxB0,CxB1,CxB2,CxB3,CxB4,CxB5
+      double precision FA0
+      double precision FB0
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -120,8 +147,6 @@ c     Intermediate derivative results, etc.
 c
       integer n
 c
-      double precision CxA0,CxA1,CxA2,CxA3,CxA4,CxA5
-      double precision CxB0,CxB1,CxB2,CxB3,CxB4,CxB5
       type(nwad_dble)::rho43, rho13, rhoo
 c
       double precision AS, ASO, AX, DELOCDR
@@ -137,8 +162,6 @@ c
       double precision DFB5DG, DFB5DR, DFB5DY
       double precision DFEXPDPON, DFFRACDPON, DFGGAXDG, DFGGAXDR
       double precision DYDG, DYDR, DTOL
-      double precision FA0
-      double precision FB0
       double precision MU
       type(nwad_dble)::FA1, FA2, FA3, FA4, FA5
       type(nwad_dble)::FB1, FB2, FB3, FB4, FB5
@@ -506,6 +529,13 @@ c
       endif
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     compile again for 2nd derivatives
+c
+#include "nwxc_x_sogga.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -520,5 +550,6 @@ c     compile again for 3rd derivatives
 c
 #include "nwxc_x_sogga.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

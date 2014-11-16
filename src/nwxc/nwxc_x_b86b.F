@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_b86b.F
 C> The B86b exchange functional
 C>
 C> @}
+#endif
 #endif
 C> \ingroup nwxc_priv
 C> @{
@@ -31,8 +33,13 @@ c     References:
 c     [a] A. D. Becke J. Chem. Phys. 85 (1986) 7184
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_b86b_p(tol_rho, ipol, nq, wght, rho, rgamma, 
+     &                       func)
+#else
       Subroutine nwxc_x_b86b(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                       func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_b86b_d2(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                          func)
@@ -286,6 +293,13 @@ c           Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA) + 0
 c
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_b86b.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -300,5 +314,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_b86b.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

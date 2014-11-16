@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -7,6 +8,7 @@ C> The B97 family of exchange functionals
 C>
 C> @}
 #include "nwxcP_xc_b97.fh"
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -32,8 +34,13 @@ C>     <a href="http://dx.doi.org/10.1002/jcc.20495">
 C>     10.1002/jcc.20495</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_b97_p(param,tol_rho,ipol,nq,wght,rho,rgamma,
+     &                      func)
+#else
       Subroutine nwxc_x_b97(param,tol_rho,ipol,nq,wght,rho,rgamma,
      &                      func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_b97_d2(param,tol_rho,ipol,nq,wght,rho,rgamma,
      &                      func)
@@ -51,6 +58,13 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)
+#else
+      double precision param(*)
+#endif
+#else
       double precision param(*)!< [Input] Parameters of functional as
                                !< defined in [1]:
                                !< - param(1): \f$m\f$ of Eqs.(20).
@@ -59,6 +73,7 @@ c
                                !< - param(4): \f$C_{X\sigma,2}\f$
                                !< - param(5): \f$C_{X\sigma,3}\f$
                                !< - param(6): \f$C_{X\sigma,4}\f$
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer ipol             !< [Input] The number of spin channels
       integer nq               !< [Input] The number of points
@@ -95,7 +110,11 @@ c
           rho_b(1) = rho_a(1)
           if (rho_a(0).gt.tol_rho) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            call nwxcp_x_b97_p(rho_a,rho_b,1.0d0,tol_rho,FX,param)
+#else
             call nwxcp_x_b97(rho_a,rho_b,1.0d0,tol_rho,FX,param)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxcp_x_b97_d2(rho_a,rho_b,1.0d0,tol_rho,FX,param)
 #else
@@ -114,7 +133,11 @@ c
           rho_b(1) = rgamma(i,G_BB)
           if (rho_a(0).gt.tol_rho.or.rho_b(0).gt.tol_rho) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            call nwxcp_x_b97_p(rho_a,rho_b,1.0d0,tol_rho,FX,param)
+#else
             call nwxcp_x_b97(rho_a,rho_b,1.0d0,tol_rho,FX,param)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             call nwxcp_x_b97_d2(rho_a,rho_b,1.0d0,tol_rho,FX,param)
 #else
@@ -131,6 +154,13 @@ c
 c
       end
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_b97.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -145,5 +175,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_b97.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

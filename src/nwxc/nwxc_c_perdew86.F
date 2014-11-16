@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_perdew86.F
 C> The Perdew correlation functional of 1986
 C>
 C> @}
+#endif
 #endif
 C> \ingroup nwxc_priv
 C> @{
@@ -38,8 +40,13 @@ C>     <a href="http://dx.doi.org/10.1103/PhysRevB.34.7406">
 C>     10.1103/PhysRevB.34.7406</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_perdew86_p(tol_rho, ipol, nq, wght, rho, rgamma,
+     &                             ffunc)
+#else
       Subroutine nwxc_c_perdew86(tol_rho, ipol, nq, wght, rho, rgamma, 
      &                           ffunc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_perdew86_d2(tol_rho, ipol, nq, wght,
      &                              rho, rgamma, ffunc) 
@@ -563,6 +570,13 @@ c           endif
       endif
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_perdew86.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -577,5 +591,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_perdew86.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_tpss03.F
 C> The TPSS exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -49,8 +51,13 @@ c         PRL 91, 146401 (2003).
 c     [b] J. Tao, J.P. Perdew, V.N.Staroverov, G. Scuseria
 c         JCP 120, 6898 (2004).
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_tpss03_p(tol_rho, ipol, nq, wght, 
+     &                           rho, rgamma, tau, func)
+#else
       Subroutine nwxc_x_tpss03(tol_rho, ipol, nq, wght, 
      &                         rho, rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_tpss03_d2(tol_rho, ipol, nq, wght, 
      &                            rho, rgamma, tau, func)
@@ -102,8 +109,13 @@ c     SPIN-RESTRICTED
 c     Ex = Ex[n]
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_x_tpss03_cs_p(1.0d0, tol_rho, ipol, nq, wght,
+     &                      rho, rgamma, tau, func)
+#else
          call nwxc_x_tpss03_cs(1.0d0, tol_rho, ipol, nq, wght,
      &                      rho, rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_x_tpss03_cs_d2(1.0d0, tol_rho, ipol, nq, wght,
      &                      rho, rgamma, tau, func)
@@ -117,12 +129,21 @@ c     SPIN-UNRESTRICTED
 c     Ex = Ex[2n_up]/2 + Ex[2n_down]/2
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_x_tpss03_cs_p(2.0d0, tol_rho, ipol, nq, wght,
+     &                      rho(1,R_A), rgamma(1,G_AA), tau(1,T_A),
+     &                      func)
+         call nwxc_x_tpss03_cs_p(2.0d0, tol_rho, ipol, nq, wght,
+     &                      rho(1,R_B), rgamma(1,G_BB), tau(1,T_B),
+     &                      func)
+#else
          call nwxc_x_tpss03_cs(2.0d0, tol_rho, ipol, nq, wght,
      &                      rho(1,R_A), rgamma(1,G_AA), tau(1,T_A),
      &                      func)
          call nwxc_x_tpss03_cs(2.0d0, tol_rho, ipol, nq, wght,
      &                      rho(1,R_B), rgamma(1,G_BB), tau(1,T_B),
      &                      func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_x_tpss03_cs_d2(2.0d0, tol_rho, ipol, nq, wght,
      &                      rho(1,R_A), rgamma(1,G_AA), tau(1,T_A),
@@ -142,8 +163,13 @@ c     Ex = Ex[2n_up]/2 + Ex[2n_down]/2
       return
       end
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_tpss03_cs_p(facttwo, tol_rho, ipol, nq, wght,
+     &                      rho, rgamma, tau, func)
+#else
       Subroutine nwxc_x_tpss03_cs(facttwo, tol_rho, ipol, nq, wght,
      &                      rho, rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_tpss03_cs_d2(facttwo, tol_rho, ipol, nq, wght,
      &                      rho, rgamma, tau, func)
@@ -395,6 +421,13 @@ c           Mmat(n)=  Mmat(n) +0.5d0*derivt*wght
       enddo
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_x_tpss03.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -409,5 +442,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_tpss03.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

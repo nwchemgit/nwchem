@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_vwn2.F
 C> The Vosko, Wilk, Nusair correlation functional #2
 C>
 C> @}
+#endif
 #endif
 C> \ingroup nwxc_priv
 C> @{
@@ -52,6 +54,13 @@ c    &                   + (dec_rs1-derpa_rs1)*d3fz
 c
 #include "nwxc_c_vwn_b.fh"
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_vwn2.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -66,5 +75,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_vwn2.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

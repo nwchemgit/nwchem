@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_pkzb99.F
 C> The Perdew, Kurth, Zupan, and Blaha exchange functional
 C>
 C> @}
+#endif
 #endif
 C> \ingroup nwxc_priv
 C> @{
@@ -43,8 +45,13 @@ c     [a] J.P. Perdew, S. Kurth, A. Zupan and P. Blaha,
 c         PRL 82, 2544 (1999).
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_pkzb99_p(tol_rho, ipol, nq, wght, rho,
+     &                         rgamma, tau, func)
+#else
       Subroutine nwxc_x_pkzb99(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_pkzb99_d2(tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
@@ -430,6 +437,13 @@ c           Mmat(n,D1_TB) = Mmat(n,D1_TB) + 0.5d0*rho43*d1mt(3)*wght
 c
       return
       end
+#if !defined(NWAD_PRINT)
+#define NWAD_PRINT
+c
+c     Include and compile for 2nd derivatives
+c
+#include "nwxc_x_pkzb99.F"
+#endif
 #if !defined(SECOND_DERIV)
 #define SECOND_DERIV
 c
@@ -444,4 +458,5 @@ c     Include and compile for 3rd derivatives
 c
 #include "nwxc_x_pkzb99.F"
 #endif
+#undef NWAD_PRINT
 C> @}

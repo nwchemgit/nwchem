@@ -44,7 +44,11 @@ c
 c     BGJ - 8/98
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_dirac_p(tol_rho, ipol, nq, wght, rho, func)
+#else
       Subroutine nwxc_x_dirac(tol_rho, ipol, nq, wght, rho, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 c     For locations of 2nd derivatives of functionals in array
       Subroutine nwxc_x_dirac_d2(tol_rho, ipol, nq, wght, rho, func)
@@ -189,6 +193,13 @@ c      write(LuOut,*)'from xc_dirac ; p4, exp, fac, Ex: ',
 c     &                           p4, exp, fac, Ex
       return
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_dirac.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -203,4 +214,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_dirac.F"
 #endif
+#undef NWAD_PRINT
 C> @}

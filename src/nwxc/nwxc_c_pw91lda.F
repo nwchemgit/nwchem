@@ -27,8 +27,13 @@ C>     10.1103/PhysRevB.45.13244</a>.
 * $Id$
 *
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#ifdef NWAD_PRINT
+      Subroutine nwxc_c_pw91lda_p(tol_rho, ipol, nq, wght, rho,
+     &                          func)
+#else
       Subroutine nwxc_c_pw91lda(tol_rho, ipol, nq, wght, rho,
      &                          func)
+#endif
 #elif  defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_pw91lda_d2(tol_rho, ipol, nq, wght, rho,
      &                             func)
@@ -458,6 +463,13 @@ c
       return
       end
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_pw91lda.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -472,4 +484,5 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_pw91lda.F"
 #endif
+#undef NWAD_PRINT
 C> @}

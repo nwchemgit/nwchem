@@ -1,5 +1,9 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      use nwadp1
+#else
       use nwad1
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       use nwad2
 #else

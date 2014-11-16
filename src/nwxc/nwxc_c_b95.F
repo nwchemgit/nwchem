@@ -39,8 +39,13 @@ c                              rho   -  density
 c                              delrho - gradient of density
 c                              tau (tauN)- K.S kinetic energy density
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_b95_p(param, tol_rho, ipol, nq, wght, 
+     &                        rho, rgamma, tau, func)
+#else
       Subroutine nwxc_c_b95(param, tol_rho, ipol, nq, wght, 
      &                      rho, rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_b95_d2(param, tol_rho, ipol, nq, wght, 
      &                         rho, rgamma, tau, func)
@@ -62,9 +67,17 @@ c
 c
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(2)
+#else
+      double precision param(2)
+#endif
+#else
       double precision param(2)!< [Input] Parameters of the functional
                                !< - param(1): \f$ C_{opp} \f$
                                !< - param(2): \f$ C_{\sigma\sigma} \f$
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -94,9 +107,18 @@ c     double precision Mmat(nq,*) !< [Output] The derivative wrt tau
 c
 c     Threshold parameters
 c
-      double precision DTol,F1, F2, F3, F4,COpp 
-      Data COpp/0.0031d0/,F1/1.0d0/,F2/2.0d0/,
-     & F3/3.0d0/,F4/4.0d0/ 
+      double precision DTol,F1, F2, F3, F4
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble) :: COpp
+#else
+      double precision COpp 
+#endif
+#else
+      double precision COpp 
+#endif
+      Data F1/1.0d0/,F2/2.0d0/,
+     &     F3/3.0d0/,F4/4.0d0/ 
 
       integer n
 
@@ -155,8 +177,13 @@ c  the tau by 2 here
          TA = tau(n,T_T)
 !         TA=0.0005d0
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
+#if defined(NWAD_PRINT)
+         Call nwxc_c_b95ss_p(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                       ChiA,EUPA,ChiAP,ChiAG)
+#else
          Call nwxc_c_b95ss(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                     ChiA,EUPA,ChiAP,ChiAG)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
          Call nwxc_c_b95ss_d2(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                        ChiA,EUPA,ChiAP,ChiAG)
@@ -207,8 +234,13 @@ c
          TA = tau(n,T_A)*2.0d0
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
+#if defined(NWAD_PRINT)
+         Call nwxc_c_b95ss_p(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                       ChiA,EUPA,ChiAP,ChiAG)
+#else
          Call nwxc_c_b95ss(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                     ChiA,EUPA,ChiAP,ChiAG)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
          Call nwxc_c_b95ss_d2(param,dtol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                        ChiA,EUPA,ChiAP,ChiAG)
@@ -241,8 +273,13 @@ c    &          delrho(n,3,2)*delrho(n,3,2)
          TB = tau(n,T_B)*2.0d0
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
+#if defined(NWAD_PRINT)
+         Call nwxc_c_b95ss_p(param,dtol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                       ChiB,EUPB,ChiBP,ChiBG)
+#else
          Call nwxc_c_b95ss(param,dtol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                     ChiB,EUPB,ChiBP,ChiBG)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
          Call nwxc_c_b95ss_d2(param,dtol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                        ChiB,EUPB,ChiBP,ChiBG)
@@ -267,9 +304,15 @@ c        Mmat(n,D1_TB)=  Mmat(n,D1_TB) + FTB*wght
 c         dZdA = (F1-Zeta)/P
 c         dZdB = (-F1-Zeta)/P
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
+#if defined(NWAD_PRINT)
+          Call nwxc_c_lsda_p(dtol,
+     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
+     $         d2LdZZ)
+#else
           Call nwxc_c_lsda(dtol,
      D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
      $         d2LdZZ)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
           Call nwxc_c_lsda_d2(dtol,
      D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
@@ -311,8 +354,13 @@ c      stop
       end
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_b95ss_p(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
+     &                          Chi,EUEGP,ChiP,ChiG)
+#else
       Subroutine nwxc_c_b95ss(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                        Chi,EUEGP,ChiP,ChiG)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_b95ss_d2(param,dtol,PX,GX,TX,F,FP,FG,FT,EUEG,
      &                        Chi,EUEGP,ChiP,ChiG)
@@ -331,26 +379,41 @@ C     point and one spin-case.
 C
 C
 c     integer ijmswitch
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(2)
+#else
+      double precision param(2)
+#endif
+#else
       double precision param(2)!< [Input] Parameters of the functional
                                !< - param(1): \f$ C_{opp} \f$
                                !< - param(2): \f$ C_{\sigma\sigma} \f$
+#endif
       double precision dtol
       type(nwad_dble)::PX, GX, TX, F, E
       type(nwad_dble)::D, RS, RSP, EUEG, DUEG, Chi, Denom
       type(nwad_dble)::Zeta,PotLC
       double precision FP, FG, FT
-      double precision EUEGP, ChiP, ChiG,Css
+      double precision EUEGP, ChiP, ChiG
       double precision Zero, Pt25, F1, F2, F3, F4, F5, F6, F8, F11
       double precision Pi, Pi34, F13, F23, F43, F53, F83, F113
       double precision FDUEG
       double precision DenomG, DenomP, DUEGP, DP, DG, DT  
       double precision d2LdSS,d2LdSZ,d2LdZZ,dLdS,dLdZ
-     
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::Css
+#else
+      double precision Css
+#endif
+#else
+      double precision Css
+#endif
 
 
       Data Zero/0.0d0/, Pt25/0.25d0/, F1/1.0d0/, F2/2.0d0/, F3/3.0d0/,
-     $  F4/4.0d0/, F5/5.0d0/, F6/6.0d0/, F8/8.0d0/, F11/11.0d0/,
-     $  Css/0.038d0/
+     $  F4/4.0d0/, F5/5.0d0/, F6/6.0d0/, F8/8.0d0/, F11/11.0d0/
 C
 c     if (ijmswitch.eq.1) then
 C     Parameters for PW6B95 Correlation
@@ -387,8 +450,13 @@ c     DTol =1.0d-6
         RS = (Pi34/PX) ** F13
         Zeta = F1
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Call nwxc_c_lsda_p(dtol,
+     D       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#else
         Call nwxc_c_lsda(dtol,
      D       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
         Call nwxc_c_lsda_d2(dtol,
      D       RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
@@ -427,6 +495,13 @@ c       FT =DT*EUEG/(DUEG*Denom*Denom)
        Return
        End
 
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for the 2nd derivative case
+c
+#include "nwxc_c_b95.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -441,5 +516,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_b95.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

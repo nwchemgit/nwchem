@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_hse08.F
 C> The range separated HSE exchange enhancement factor
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -29,8 +31,12 @@ C> <a href="http://dx.doi.org/10.1063/1.2204597">
 C> 10.1063/1.2204597</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_HSE08_p(cam_omega,ipol,rho,s,Fxhse)
+#else
       Subroutine nwxc_x_HSE08(cam_omega,ipol,rho,s,Fxhse)
 c    &           d10Fxhse,d01Fxhse)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_HSE08_d2(cam_omega,ipol,rho,s,Fxhse)
 c    &           d10Fxhse,d01Fxhse,d20Fxhse,d02Fxhse,d11Fxhse)
@@ -50,7 +56,15 @@ c
 c Calculates the enhancement factor
 c
       integer ipol
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::cam_omega
+#else
       double precision cam_omega
+#endif
+#else
+      double precision cam_omega
+#endif
       type(nwad_dble),intent(in) ::rho,s
       type(nwad_dble),intent(out)::Fxhse
 c     double precision d10Fxhse,d01Fxhse
@@ -1316,6 +1330,13 @@ c    1           d12Fxhse5 + d12Fxhse6
 #endif
       
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_x_hse08.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -1330,5 +1351,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_x_hse08.F"
 #endif
+#undef NWAD_PRINT
 c $Id$
 C> @}

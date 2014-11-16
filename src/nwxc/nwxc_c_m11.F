@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_c_m11.F
 C> Implementation of the M08 and M11 correlation functionals
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -42,8 +44,13 @@ C>     <a href="http://dx.doi.org/10.1021/jz201525m">
 C>     10.1021/jz201525m</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_c_m11_p(param, tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, tau, func)
+#else
       Subroutine nwxc_c_m11(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_c_m11_d2(param, tol_rho, ipol, nq, wght, 
      &                         rho, rgamma, tau, func)
@@ -83,6 +90,21 @@ c
 c
 c     Input and other parameters
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*)
+      type(nwad_dble)::at0, at1, at2, at3, at4, at5
+      type(nwad_dble)::at6, at7, at8, at9, at10, at11
+      type(nwad_dble)::bt0, bt1,  bt2, bt3, bt4, bt5
+      type(nwad_dble)::bt6, bt7, bt8, bt9, bt10, bt11
+#else
+      double precision param(*)
+      double precision at0, at1, at2, at3, at4, at5
+      double precision at6, at7, at8, at9, at10, at11
+      double precision bt0, bt1,  bt2, bt3, bt4, bt5
+      double precision bt6, bt7, bt8, bt9, bt10, bt11
+#endif
+#else
       double precision param(*) !< [Input] Parameters of the functional
                                 !< (see Table 2 of [1], and Table 1 of [2])
                                 !< - param(1): \f$ a_0 \f$
@@ -109,6 +131,11 @@ c
                                 !< - param(22): \f$ b_9 \f$
                                 !< - param(23): \f$ b_{10} \f$
                                 !< - param(24): \f$ b_{11} \f$
+      double precision at0, at1, at2, at3, at4, at5
+      double precision at6, at7, at8, at9, at10, at11
+      double precision bt0, bt1,  bt2, bt3, bt4, bt5
+      double precision bt6, bt7, bt8, bt9, bt10, bt11
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -154,10 +181,6 @@ c     Intermediate derivative results, etc.
 c
       integer n
       
-      double precision at0, at1, at2, at3, at4, at5
-      double precision at6, at7, at8, at9, at10, at11
-      double precision bt0, bt1,  bt2, bt3, bt4, bt5
-      double precision bt6, bt7, bt8, bt9, bt10, bt11
       type(nwad_dble)::rhoa, rhob, rhoval, gammaval, TA, TB
       type(nwad_dble)::E1, E2
       double precision de1drb, de2dga, de2dgb, de2dgc, de2dk, de2dra
@@ -409,7 +432,8 @@ c    &             delrho(n,3,1)*delrho(n,3,2))
       RHOVAL  = RHOA + RHOB
       TauP = TA+TB
       t = tol_rho
-      dsqgamma = max(sqrt(gammaval),t)
+c     dsqgamma = max(sqrt(gammaval),t)
+      dsqgamma = sqrt(gammaval)
       if (rhoval.le.tol_rho) goto 20
       if (taup.lt.tol_rho) goto 20 
 c
@@ -425,8 +449,13 @@ c           call xc_pw91lda(tol_rho,1d0,.true.,.false.,rho_t,
 c    &         dnepscdn,1,ipol,nepsc,1d0,
 c    &         .false.,dummy)
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+         call nwxc_c_pw91lda_p(tol_rho,ipol,1,1.0d0,rho_t,
+     &        nepsc)
+#else
          call nwxc_c_pw91lda(tol_rho,ipol,1,1.0d0,rho_t,
      &        nepsc)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
          call nwxc_c_pw91lda_d2(tol_rho,ipol,1,1.0d0,rho_t,
      &        nepsc)
@@ -612,6 +641,13 @@ c          Mmat(n,D1_TB)=Mmat(n,D1_TB)+(de1dk+de2dk)/F2*wght
 c        endif
    20 continue
       end
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+c     Compile source again for Maxima
+c
+#include "nwxc_c_m11.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -626,5 +662,6 @@ c     Compile source again for the 3rd derivative case
 c
 #include "nwxc_c_m11.F"
 #endif
+#undef NWAD_PRINT
 C>
 C> @}

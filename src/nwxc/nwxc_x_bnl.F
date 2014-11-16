@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_bnl.F
 C> The BNL LDA exchange functional
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -41,8 +43,13 @@ c     R. Baer, D. Neuhauser, Phys. Rev. Lett., 94, 043002 (2005)
 c     -----------------------------------------------------------------------
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      subroutine nwxc_x_bnl_p(param,tol_rho, ipol, nq, wght, rho, 
+     &                        func)
+#else
       subroutine nwxc_x_bnl(param,tol_rho, ipol, nq, wght, rho, 
      &                      func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 c     For locations of 2nd derivatives of functionals in array
       subroutine nwxc_x_bnl_d2(param,tol_rho, ipol, nq, wght, rho,
@@ -57,8 +64,19 @@ c
 c
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(1) !< [Input] Parameters of the functional
+      type(nwad_dble)::gamma
+#else
+      double precision param(1) !< [Input] Parameters of the functional
+      double precision gamma
+#endif
+#else
       double precision param(1) !< [Input] Parameters of the functional
                                 !< - param(1): \f$ \omega_{CAM} \f$
+      double precision gamma
+#endif
       double precision tol_rho  !< [Input] The lower limit on the density
       integer nq                !< [Input] The number of points
       integer ipol              !< [Input] The number of spin channels
@@ -91,10 +109,13 @@ c     double precision Amat3(nq,*) !< [Output] 3rd order partial derivatives
 c
       type(nwad_dble)::F(nq),RA(nq),RB(nq)
       type(nwad_dble)::rhoA, rhoB, rhoTotal, rhoA1, rhoB1
-      double precision gamma
       type(nwad_dble)::fA, fB, fpA, fpB, fppA, fppB, fpppA, fpppB
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      type(nwad_dble)::nwxc_EpsX_p
+#else
       type(nwad_dble)::nwxc_EpsX
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       type(nwad_dble)::nwxc_EpsX_d2
 #else
@@ -140,8 +161,13 @@ c
             end if
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+            fA   = nwxc_EpsX_p(rhoA1,gamma)
+            fB   = nwxc_EpsX_p(rhoB1,gamma)
+#else
             fA   = nwxc_EpsX(rhoA1,gamma)
             fB   = nwxc_EpsX(rhoB1,gamma)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
             fA   = nwxc_EpsX_d2(rhoA1,gamma)
             fB   = nwxc_EpsX_d2(rhoB1,gamma)
@@ -218,6 +244,7 @@ c     Return the value of pi
 c     ---------------------------------------------------------------------------------------
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
       double precision function nwxc_ValueOfPi()
 c 
       implicit none
@@ -227,12 +254,44 @@ c
       return
       end
 #endif
+#endif
 c
 c     ---------------------------------------------------------------------------------------
 c     Evaluates the actual function
 c     ---------------------------------------------------------------------------------------
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      function nwxc_HqBNL_p(q)
+
+#include "nwad.fh"
+
+      implicit none
+
+      type(nwad_dble):: nwxc_HqBNL_p
+      type(nwad_dble)::q,OneOverQ,q2
+      double precision nwxc_ValueOfPi,TwoSqrtPi
+
+      TwoSqrtPi = 2.0d0*dsqrt(nwxc_ValueOfPi()) 
+
+      if (q .lt. 1D-15) then
+         nwxc_HqBNL_p=1.d0
+         return
+      end if
+      OneOverQ = 1.0d0/q
+      q2 = q**2.0d0
+
+c     if (q .lt. 0.1d0) then
+c        nwxc_HqBNL_p=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi-q+q*(q2-2.0d0))
+c        return
+c     end if
+
+      nwxc_HqBNL_p=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi*ERF(OneOverQ)-q+
+     $     q*(q2-2.0d0)*(1.0d0-exp(-OneOverQ*OneOverQ)))
+
+      return
+      end
+#else
       function nwxc_HqBNL(q)
 
 #include "nwad.fh"
@@ -262,6 +321,7 @@ c
 
       return
       end
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       function nwxc_HqBNL_d2(q)
 
@@ -329,6 +389,23 @@ c     Calculate the local Fermi vector for the provided density
 c     ---------------------------------------------------------------------------------------
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      function nwxc_FermiK_p(den)
+
+#include "nwad.fh"
+
+      implicit none
+
+      type(nwad_dble):: nwxc_FermiK_p
+      type(nwad_dble):: den
+      double precision  F13, nwxc_ValueOfPi
+
+      F13 = 1.0D0 / 3.0D0
+      nwxc_FermiK_p = (3.d0*nwxc_ValueOfPi()*nwxc_ValueOfPi()*den)**F13
+
+      return
+      end
+#else
       function nwxc_FermiK(den)
 
 #include "nwad.fh"
@@ -344,6 +421,7 @@ c
 
       return
       end
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       function nwxc_FermiK_d2(den)
 
@@ -383,6 +461,33 @@ c     Calculate the function EpsX at the given density value and gamma
 c     ---------------------------------------------------------------------------------------
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      function nwxc_EpsX_p(Rho,gamma)
+
+#include "nwad.fh"
+
+      implicit none
+
+      type(nwad_dble)::nwxc_EpsX_p
+      type(nwad_dble)::kF,RHO
+      type(nwad_dble)::gamma
+      type(nwad_dble)::nwxc_HqBNL_p
+      type(nwad_dble)::nwxc_FermiK_p
+      double precision Cs
+      double precision nwxc_ValueOfPi
+
+      if (RHO.le.0D0) then
+         nwxc_EpsX_p = 0.0D0
+         return
+      end if
+
+      kF = nwxc_FermiK_p(Rho)
+      Cs = -3.0D0/(4.0d0*nwxc_ValueOfPi())
+      nwxc_EpsX_p = Cs * kF * nwxc_HqBNL_p(gamma/kF)
+
+      return
+      end      
+#else
       function nwxc_EpsX(Rho,gamma)
 
 #include "nwad.fh"
@@ -407,6 +512,7 @@ c
 
       return
       end      
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       function nwxc_EpsX_d2(Rho,gamma)
 
@@ -462,6 +568,11 @@ c
 c
 c**********************************************************************
 c
+#ifndef NWAD_PRINT
+#define NWAD_PRINT
+c
+#include "nwxc_x_bnl.F"
+#endif
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
@@ -472,5 +583,6 @@ c
 c
 #include "nwxc_x_bnl.F"
 #endif
+#undef NWAD_PRINT
 c $Id$
 C> @}

@@ -1,4 +1,5 @@
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if !defined(NWAD_PRINT)
 C> \ingroup nwxc
 C> @{
 C>
@@ -6,6 +7,7 @@ C> \file nwxc_x_m11.F
 C> Implementation of the M08 and M11 exchange functionals
 C>
 C> @}
+#endif
 #endif
 C>
 C> \ingroup nwxc_priv
@@ -27,8 +29,13 @@ C>     <a href="http://dx.doi.org/10.1021/ct800246v">
 C>     10.1021/ct800246v</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_m08_p(param, tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, tau, func)
+#else
       Subroutine nwxc_x_m08(param, tol_rho, ipol, nq, wght, rho, rgamma,
      &                      tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_m08_d2(param, tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
@@ -70,6 +77,29 @@ c
 c
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of the functional
+      type(nwad_dble)::at00,at01,at02,at03,at04,at05,at06
+      type(nwad_dble)::at07,at08,at09,at10,at11
+      type(nwad_dble)::bt00,bt01,bt02,bt03,bt04,bt05,bt06
+      type(nwad_dble)::bt07,bt08,bt09,bt10,bt11
+      type(nwad_dble)::ct00,ct01,ct02,ct03,ct04,ct05,ct06
+      type(nwad_dble)::ct07,ct08,ct09,ct10,ct11
+      type(nwad_dble)::dt00,dt01,dt02,dt03,dt04,dt05,dt06
+      type(nwad_dble)::dt07,dt08,dt09,dt10,dt11
+#else
+      double precision param(*) !< [Input] Parameters of the functional
+      double precision at00,at01,at02,at03,at04,at05,at06
+      double precision at07,at08,at09,at10,at11
+      double precision bt00,bt01,bt02,bt03,bt04,bt05,bt06
+      double precision bt07,bt08,bt09,bt10,bt11
+      double precision ct00,ct01,ct02,ct03,ct04,ct05,ct06
+      double precision ct07,ct08,ct09,ct10,ct11
+      double precision dt00,dt01,dt02,dt03,dt04,dt05,dt06
+      double precision dt07,dt08,dt09,dt10,dt11
+#endif
+#else
       double precision param(*) !< [Input] Parameters of the functional
                                 !< (see Table 2 of [1])
                                 !< - param(1): \f$ a_0 \f$
@@ -120,6 +150,15 @@ c
                                 !< - param(46): \f$ d_9 \f$
                                 !< - param(47): \f$ d_{10} \f$
                                 !< - param(48): \f$ d_{11} \f$
+      double precision at00,at01,at02,at03,at04,at05,at06
+      double precision at07,at08,at09,at10,at11
+      double precision bt00,bt01,bt02,bt03,bt04,bt05,bt06
+      double precision bt07,bt08,bt09,bt10,bt11
+      double precision ct00,ct01,ct02,ct03,ct04,ct05,ct06
+      double precision ct07,ct08,ct09,ct10,ct11
+      double precision dt00,dt01,dt02,dt03,dt04,dt05,dt06
+      double precision dt07,dt08,dt09,dt10,dt11
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -179,14 +218,6 @@ c     double precision PDUM
       double precision df3dr, df3dtau, df4dr, df4dtau
       double precision dgga1dg, dgga2dg, dgga3dg, dgga4dg
 c
-      double precision at00,at01,at02,at03,at04,at05,at06
-      double precision at07,at08,at09,at10,at11
-      double precision bt00,bt01,bt02,bt03,bt04,bt05,bt06
-      double precision bt07,bt08,bt09,bt10,bt11
-      double precision ct00,ct01,ct02,ct03,ct04,ct05,ct06
-      double precision ct07,ct08,ct09,ct10,ct11
-      double precision dt00,dt01,dt02,dt03,dt04,dt05,dt06
-      double precision dt07,dt08,dt09,dt10,dt11
       type(nwad_dble)::rho43, rho13, rhoo, rho53
       type(nwad_dble)::Gamma2, Gamma
       type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
@@ -483,7 +514,11 @@ c    &              delrho(n,3,1)*delrho(n,3,1))/F4
 #elif defined(SECOND_DERIV)
            CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
 #else
+#if defined(NWAD_PRINT)
+           CALL nwxc_LRCLSDA_p(EMU,RHOO,ElSR)
+#else
            CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
 #endif
            ElLR = Ax*Rho43-ElSR
          else
@@ -648,7 +683,11 @@ c    &              delrho(n,3,1)*delrho(n,3,1))
 #elif defined(SECOND_DERIV)
            CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
 #else
+#if defined(NWAD_PRINT)
+           CALL nwxc_LRCLSDA_p(EMU,RHOO,ElSR)
+#else
            CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
 #endif
            ElLR = Ax*Rho43-ElSR
          else
@@ -802,7 +841,11 @@ c    &              delrho(n,3,2)*delrho(n,3,2))
 #elif defined(SECOND_DERIV)
            CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
 #else
+#if defined(NWAD_PRINT)
+           CALL nwxc_LRCLSDA_p(EMU,RHOO,ElSR)
+#else
            CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
 #endif
            ElLR = Ax*Rho43-ElSR
          else
@@ -932,8 +975,13 @@ C>     <a href="http://dx.doi.org/10.1021/jz201525m">
 C>     10.1021/jz201525m</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      Subroutine nwxc_x_m11_p(param, tol_rho, ipol, nq, wght, rho,
+     &                        rgamma, tau, func)
+#else
       Subroutine nwxc_x_m11(param, tol_rho, ipol, nq, wght, rho,
      &                      rgamma, tau, func)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine nwxc_x_m11_d2(param, tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
@@ -971,6 +1019,29 @@ c
 c
 #include "nwxc_param.fh"
 c
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+      type(nwad_dble)::param(*) !< [Input] Parameters of the functional
+      type(nwad_dble)::at00,at01,at02,at03,at04,at05,at06
+      type(nwad_dble)::at07,at08,at09,at10,at11
+      type(nwad_dble)::bt00,bt01,bt02,bt03,bt04,bt05,bt06
+      type(nwad_dble)::bt07,bt08,bt09,bt10,bt11
+      type(nwad_dble)::ct00,ct01,ct02,ct03,ct04,ct05,ct06
+      type(nwad_dble)::ct07,ct08,ct09,ct10,ct11
+      type(nwad_dble)::dt00,dt01,dt02,dt03,dt04,dt05,dt06
+      type(nwad_dble)::dt07,dt08,dt09,dt10,dt11
+#else
+      double precision param(*) !< [Input] Parameters of the functional
+      double precision at00,at01,at02,at03,at04,at05,at06
+      double precision at07,at08,at09,at10,at11
+      double precision bt00,bt01,bt02,bt03,bt04,bt05,bt06
+      double precision bt07,bt08,bt09,bt10,bt11
+      double precision ct00,ct01,ct02,ct03,ct04,ct05,ct06
+      double precision ct07,ct08,ct09,ct10,ct11
+      double precision dt00,dt01,dt02,dt03,dt04,dt05,dt06
+      double precision dt07,dt08,dt09,dt10,dt11
+#endif
+#else
       double precision param(*) !< [Input] Parameters of the functional
                                 !< (see Table 2 of [1])
                                 !< - param(1): \f$ a_0 \f$
@@ -1021,6 +1092,15 @@ c
                                 !< - param(46): \f$ d_9 \f$
                                 !< - param(47): \f$ d_{10} \f$
                                 !< - param(48): \f$ d_{11} \f$
+      double precision at00,at01,at02,at03,at04,at05,at06
+      double precision at07,at08,at09,at10,at11
+      double precision bt00,bt01,bt02,bt03,bt04,bt05,bt06
+      double precision bt07,bt08,bt09,bt10,bt11
+      double precision ct00,ct01,ct02,ct03,ct04,ct05,ct06
+      double precision ct07,ct08,ct09,ct10,ct11
+      double precision dt00,dt01,dt02,dt03,dt04,dt05,dt06
+      double precision dt07,dt08,dt09,dt10,dt11
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -1080,14 +1160,6 @@ c
       double precision df3dr, df3dtau, df4dr, df4dtau
       double precision dgga1dg, dgga2dg, dgga3dg, dgga4dg
 c
-      double precision at00,at01,at02,at03,at04,at05,at06
-      double precision at07,at08,at09,at10,at11
-      double precision bt00,bt01,bt02,bt03,bt04,bt05,bt06
-      double precision bt07,bt08,bt09,bt10,bt11
-      double precision ct00,ct01,ct02,ct03,ct04,ct05,ct06
-      double precision ct07,ct08,ct09,ct10,ct11
-      double precision dt00,dt01,dt02,dt03,dt04,dt05,dt06
-      double precision dt07,dt08,dt09,dt10,dt11
       type(nwad_dble)::rho43, rho13, rhoo, rho53
       type(nwad_dble)::Gamma2, Gamma
       type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
@@ -1384,7 +1456,11 @@ c    &              delrho(n,3,1)*delrho(n,3,1))/F4
 #elif defined(SECOND_DERIV)
            CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
 #else
+#if defined(NWAD_PRINT)
+           CALL nwxc_LRCLSDA_p(EMU,RHOO,ElSR)
+#else
            CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
 #endif
            ElLR = Ax*Rho43-ElSR
          else
@@ -1549,7 +1625,11 @@ c    &              delrho(n,3,1)*delrho(n,3,1))
 #elif defined(SECOND_DERIV)
            CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
 #else
+#if defined(NWAD_PRINT)
+           CALL nwxc_LRCLSDA_p(EMU,RHOO,ElSR)
+#else
            CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
 #endif
            ElLR = Ax*Rho43-ElSR
          else
@@ -1703,7 +1783,11 @@ c    &              delrho(n,3,2)*delrho(n,3,2))
 #elif defined(SECOND_DERIV)
            CALL nwxc_LRCLSDA_d2(EMU,RHOO,ElSR)
 #else
+#if defined(NWAD_PRINT)
+           CALL nwxc_LRCLSDA_p(EMU,RHOO,ElSR)
+#else
            CALL nwxc_LRCLSDA(EMU,RHOO,ElSR)
+#endif
 #endif
            ElLR = Ax*Rho43-ElSR
          else
@@ -1802,7 +1886,11 @@ c
       end
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      SUBROUTINE nwxc_LRCLSDA_p(Emu,Rho,F)
+#else
       SUBROUTINE nwxc_LRCLSDA(Emu,Rho,F)
+#endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       SUBROUTINE nwxc_LRCLSDA_d2(Emu,Rho,F)
 #else
@@ -1871,6 +1959,13 @@ c     D1F = Ax*F4o3*Rho13*Fsr + Ax*Rho43*(dFsrdtmu*dtmudR)
 c
       RETURN
       END
+#if !defined(NWAD_PRINT)
+#define NWAD_PRINT
+c
+c Recompile for 2nd order derivatives
+c
+#include "nwxc_x_m11.F"
+#endif
 #if !defined(SECOND_DERIV)
 #define SECOND_DERIV
 c
@@ -1885,6 +1980,7 @@ c Recompile for 3rd order derivatives
 c
 #include "nwxc_x_m11.F"
 #endif
+#undef NWAD_PRINT
 c
 C>
 C> @}
