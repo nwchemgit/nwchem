@@ -47,6 +47,8 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      double precision nwxcm_heaviside 
+      external         nwxcm_heaviside 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -169,11 +171,47 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      double precision nwxcm_heaviside 
+      external         nwxcm_heaviside 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
           gammaaa = 0.25d0*rgamma(iq,G_TT) 
           if (rhoa.gt.tol_rho) then 
+            t1 = 7.000000000000001d-3*gammaaa/rhoa**2.6666666666666666d+
+     1         0+1.0d+0
+            t2 = 1/t1**8.0d-1
+            t3 = 1/rhoa**1.3333333333333333d+0
+            t4 = gammaaa**2
+            t5 = 1/t1**1.8d+0
+            t6 = 1/rhoa**5
+            t7 = 1/rhoa**2.3333333333333334d+0
+            t8 = 1/rhoa**4
+            t9 = 4.2000000000000004d-5*gammaaa*t5*t8*wght-7.5d-3*t2*t3*w
+     1         ght
+            t10 = 1/t1**2.7999999999999997d+0
+            t11 = 7.093333333333333d-4*t4*t5*wght/rhoa**6-2.333333333333
+     1         333d-2*gammaaa*t2*wght/rhoa**3.3333333333333337d+0-3.7632
+     2         d-6*gammaaa**3*t10*wght/rhoa**8.666666666666666d+0
+            t12 = 9.999999999999999d-3*t2*t7*wght-2.7999999999999997d-4*
+     1         gammaaa*t5*t6*wght+1.4112d-6*t10*t4*wght/rhoa**7.66666666
+     2         6666667d+0
+            t13 = 8.400000000000001d-5*t5*t8*wght-5.292d-7*gammaaa*t10*w
+     1         ght/rhoa**6.666666666666667d+0
+            fnc(iq) = fnc(iq)-7.5d-3*gammaaa*t2*t3*wght
+            Amat(iq,D1_RA) = 9.999999999999999d-3*gammaaa*t2*t7*wght-1.1
+     1         2d-4*t4*t5*t6*wght+Amat(iq,D1_RA)
+            Cmat(iq,D1_GAA) = t9+Cmat(iq,D1_GAA)
+            Cmat(iq,D1_GAB) = t9+Cmat(iq,D1_GAB)
+            Amat2(iq,D2_RA_RA) = t11+Amat2(iq,D2_RA_RA)
+            Amat2(iq,D2_RA_RB) = t11+Amat2(iq,D2_RA_RB)
+            Cmat2(iq,D2_RA_GAA) = t12+Cmat2(iq,D2_RA_GAA)
+            Cmat2(iq,D2_RA_GAB) = t12+Cmat2(iq,D2_RA_GAB)
+            Cmat2(iq,D2_RA_GBB) = t12+Cmat2(iq,D2_RA_GBB)
+            Cmat2(iq,D2_GAA_GAA) = t13+Cmat2(iq,D2_GAA_GAA)
+            Cmat2(iq,D2_GAA_GAB) = t13+Cmat2(iq,D2_GAA_GAB)
+            Cmat2(iq,D2_GAA_GBB) = t13+Cmat2(iq,D2_GAA_GBB)
+            Cmat2(iq,D2_GAB_GAB) = t13+Cmat2(iq,D2_GAB_GAB)
           endif ! rhoa.gt.tol_rho 
         else  ! ipol.eq.1 
           rhoa    = rho(iq,R_A) 
@@ -182,8 +220,118 @@ c
           gammaab = rgamma(iq,G_AB) 
           gammabb = rgamma(iq,G_BB) 
           if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then 
+            t1 = 7.000000000000001d-3*gammaaa/rhoa**2.6666666666666666d+
+     1         0+1.0d+0
+            t2 = 1/t1**8.0d-1
+            t3 = 1/rhoa**1.3333333333333333d+0
+            t4 = 7.000000000000001d-3*gammabb/rhob**2.6666666666666666d+
+     1         0+1.0d+0
+            t5 = 1/t4**8.0d-1
+            t6 = 1/rhob**1.3333333333333333d+0
+            t7 = gammaaa**2
+            t8 = 1/t1**1.8d+0
+            t9 = 1/rhoa**5
+            t10 = 1/rhoa**2.3333333333333334d+0
+            t11 = gammabb**2
+            t12 = 1/t4**1.8d+0
+            t13 = 1/rhob**5
+            t14 = 1/rhob**2.3333333333333334d+0
+            t15 = 1/rhoa**4
+            t16 = 1/rhob**4
+            t17 = 1/t1**2.7999999999999997d+0
+            t18 = 1/t4**2.7999999999999997d+0
+            fnc(iq) = (-3.75d-3*gammabb*t5*t6-3.75d-3*gammaaa*t2*t3)*wgh
+     1         t+fnc(iq)
+            Amat(iq,D1_RA) = (4.9999999999999994d-3*gammaaa*t10*t2-5.599
+     1         999999999999d-5*t7*t8*t9)*wght+Amat(iq,D1_RA)
+            Amat(iq,D1_RB) = (4.9999999999999994d-3*gammabb*t14*t5-5.599
+     1         999999999999d-5*t11*t12*t13)*wght+Amat(iq,D1_RB)
+            Cmat(iq,D1_GAA) = (2.1000000000000002d-5*gammaaa*t15*t8-3.75
+     1         d-3*t2*t3)*wght+Cmat(iq,D1_GAA)
+            Cmat(iq,D1_GAB) = Cmat(iq,D1_GAB)
+            Cmat(iq,D1_GBB) = (2.1000000000000002d-5*gammabb*t12*t16-3.7
+     1         5d-3*t5*t6)*wght+Cmat(iq,D1_GBB)
+            Amat2(iq,D2_RA_RA) = (3.5466666666666663d-4*t7*t8/rhoa**6-1.
+     1         1666666666666665d-2*gammaaa*t2/rhoa**3.3333333333333337d+
+     2         0-1.8816d-6*gammaaa**3*t17/rhoa**8.666666666666666d+0)*wg
+     3         ht+Amat2(iq,D2_RA_RA)
+            Amat2(iq,D2_RA_RB) = Amat2(iq,D2_RA_RB)
+            Amat2(iq,D2_RB_RB) = (-1.1666666666666665d-2*gammabb*t5/rhob
+     1         **3.3333333333333337d+0-1.8816d-6*gammabb**3*t18/rhob**8.
+     2         666666666666666d+0+3.5466666666666663d-4*t11*t12/rhob**6)
+     3         *wght+Amat2(iq,D2_RB_RB)
+            Cmat2(iq,D2_RA_GAA) = (-1.3999999999999999d-4*gammaaa*t8*t9+
+     1         7.056d-7*t17*t7/rhoa**7.666666666666667d+0+4.999999999999
+     2         9994d-3*t10*t2)*wght+Cmat2(iq,D2_RA_GAA)
+            Cmat2(iq,D2_RA_GAB) = Cmat2(iq,D2_RA_GAB)
+            Cmat2(iq,D2_RA_GBB) = Cmat2(iq,D2_RA_GBB)
+            Cmat2(iq,D2_RB_GAA) = Cmat2(iq,D2_RB_GAA)
+            Cmat2(iq,D2_RB_GAB) = Cmat2(iq,D2_RB_GAB)
+            Cmat2(iq,D2_RB_GBB) = (4.9999999999999994d-3*t14*t5+7.056d-7
+     1         *t11*t18/rhob**7.666666666666667d+0-1.3999999999999999d-4
+     2         *gammabb*t12*t13)*wght+Cmat2(iq,D2_RB_GBB)
+            Cmat2(iq,D2_GAA_GAA) = (4.2000000000000004d-5*t15*t8-2.646d-
+     1         7*gammaaa*t17/rhoa**6.666666666666667d+0)*wght+Cmat2(iq,D
+     2         2_GAA_GAA)
+            Cmat2(iq,D2_GAA_GAB) = Cmat2(iq,D2_GAA_GAB)
+            Cmat2(iq,D2_GAA_GBB) = Cmat2(iq,D2_GAA_GBB)
+            Cmat2(iq,D2_GAB_GAB) = Cmat2(iq,D2_GAB_GAB)
+            Cmat2(iq,D2_GAB_GBB) = Cmat2(iq,D2_GAB_GBB)
+            Cmat2(iq,D2_GBB_GBB) = (4.2000000000000004d-5*t12*t16-2.646d
+     1         -7*gammabb*t18/rhob**6.666666666666667d+0)*wght+Cmat2(iq,
+     2         D2_GBB_GBB)
           elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then 
+            t1 = 7.000000000000001d-3*gammaaa/rhoa**2.6666666666666666d+
+     1         0+1.0d+0
+            t2 = 1/t1**8.0d-1
+            t3 = 1/rhoa**1.3333333333333333d+0
+            t4 = gammaaa**2
+            t5 = 1/t1**1.8d+0
+            t6 = 1/rhoa**5
+            t7 = 1/rhoa**2.3333333333333334d+0
+            t8 = 1/rhoa**4
+            t9 = 1/t1**2.7999999999999997d+0
+            fnc(iq) = fnc(iq)-3.75d-3*gammaaa*t2*t3*wght
+            Amat(iq,D1_RA) = 4.9999999999999994d-3*gammaaa*t2*t7*wght-5.
+     1         599999999999999d-5*t4*t5*t6*wght+Amat(iq,D1_RA)
+            Cmat(iq,D1_GAA) = 2.1000000000000002d-5*gammaaa*t5*t8*wght-3
+     1         .75d-3*t2*t3*wght+Cmat(iq,D1_GAA)
+            Amat2(iq,D2_RA_RA) = -1.8816d-6*gammaaa**3*t9*wght/rhoa**8.6
+     1         66666666666666d+0+3.5466666666666663d-4*t4*t5*wght/rhoa**
+     2         6-1.1666666666666665d-2*gammaaa*t2*wght/rhoa**3.333333333
+     3         3333337d+0+Amat2(iq,D2_RA_RA)
+            Cmat2(iq,D2_RA_GAA) = 7.056d-7*t4*t9*wght/rhoa**7.6666666666
+     1         66667d+0+4.9999999999999994d-3*t2*t7*wght-1.3999999999999
+     2         999d-4*gammaaa*t5*t6*wght+Cmat2(iq,D2_RA_GAA)
+            Cmat2(iq,D2_GAA_GAA) = -2.646d-7*gammaaa*t9*wght/rhoa**6.666
+     1         666666666667d+0+4.2000000000000004d-5*t5*t8*wght+Cmat2(iq
+     2         ,D2_GAA_GAA)
           elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then 
+            t1 = 7.000000000000001d-3*gammabb/rhob**2.6666666666666666d+
+     1         0+1.0d+0
+            t2 = 1/t1**8.0d-1
+            t3 = 1/rhob**1.3333333333333333d+0
+            t4 = gammabb**2
+            t5 = 1/t1**1.8d+0
+            t6 = 1/rhob**5
+            t7 = 1/rhob**2.3333333333333334d+0
+            t8 = 1/rhob**4
+            t9 = 1/t1**2.7999999999999997d+0
+            fnc(iq) = fnc(iq)-3.75d-3*gammabb*t2*t3*wght
+            Amat(iq,D1_RB) = 4.9999999999999994d-3*gammabb*t2*t7*wght-5.
+     1         599999999999999d-5*t4*t5*t6*wght+Amat(iq,D1_RB)
+            Cmat(iq,D1_GBB) = 2.1000000000000002d-5*gammabb*t5*t8*wght-3
+     1         .75d-3*t2*t3*wght+Cmat(iq,D1_GBB)
+            Amat2(iq,D2_RB_RB) = -1.8816d-6*gammabb**3*t9*wght/rhob**8.6
+     1         66666666666666d+0+3.5466666666666663d-4*t4*t5*wght/rhob**
+     2         6-1.1666666666666665d-2*gammabb*t2*wght/rhob**3.333333333
+     3         3333337d+0+Amat2(iq,D2_RB_RB)
+            Cmat2(iq,D2_RB_GBB) = 7.056d-7*t4*t9*wght/rhob**7.6666666666
+     1         66667d+0+4.9999999999999994d-3*t2*t7*wght-1.3999999999999
+     2         999d-4*gammabb*t5*t6*wght+Cmat2(iq,D2_RB_GBB)
+            Cmat2(iq,D2_GBB_GBB) = -2.646d-7*gammabb*t9*wght/rhob**6.666
+     1         666666666667d+0+4.2000000000000004d-5*t5*t8*wght+Cmat2(iq
+     2         ,D2_GBB_GBB)
           endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho 
         endif ! ipol.eq.1 
       enddo ! iq 
@@ -240,11 +388,83 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      double precision nwxcm_heaviside 
+      external         nwxcm_heaviside 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
           gammaaa = 0.25d0*rgamma(iq,G_TT) 
           if (rhoa.gt.tol_rho) then 
+            t1 = 7.000000000000001d-3*gammaaa/rhoa**2.6666666666666666d+
+     1         0+1.0d+0
+            t2 = 1/t1**8.0d-1
+            t3 = 1/rhoa**1.3333333333333333d+0
+            t4 = gammaaa**2
+            t5 = 1/t1**1.8d+0
+            t6 = 1/rhoa**5
+            t7 = 1/rhoa**2.3333333333333334d+0
+            t8 = 1/rhoa**4
+            t9 = 4.2000000000000004d-5*gammaaa*t5*t8*wght-7.5d-3*t2*t3*w
+     1         ght
+            t10 = gammaaa**3
+            t11 = 1/t1**2.7999999999999997d+0
+            t12 = 1/rhoa**8.666666666666666d+0
+            t13 = 1/rhoa**6
+            t14 = 1/rhoa**3.3333333333333337d+0
+            t15 = 7.093333333333333d-4*t13*t4*t5*wght-2.333333333333333d
+     1         -2*gammaaa*t14*t2*wght-3.7632d-6*t10*t11*t12*wght
+            t16 = 1/rhoa**7.666666666666667d+0
+            t17 = 9.999999999999999d-3*t2*t7*wght-2.7999999999999997d-4*
+     1         gammaaa*t5*t6*wght+1.4112d-6*t11*t16*t4*wght
+            t18 = 1/rhoa**6.666666666666667d+0
+            t19 = 8.400000000000001d-5*t5*t8*wght-5.292d-7*gammaaa*t11*t
+     1         18*wght
+            t20 = 1/t1**3.8d+0
+            t21 = -4.604444444444444d-3*t4*t5*wght/rhoa**7-1.96689919999
+     1         99993d-7*gammaaa**4*t20*wght/rhoa**1.2333333333333334d+1+
+     2         7.777777777777778d-2*gammaaa*t2*wght/rhoa**4.333333333333
+     3         333d+0+5.6448d-5*t10*t11*wght/rhoa**9.666666666666666d+0
+            t22 = 1.5493333333333334d-3*gammaaa*t13*t5*wght-2.0227199999
+     1         999998d-5*t11*t12*t4*wght+7.375872d-8*t10*t20*wght/rhoa**
+     2         1.1333333333333334d+1-2.333333333333333d-2*t14*t2*wght
+            t23 = -3.3599999999999997d-4*t5*t6*wght-2.765952d-8*t20*t4*w
+     1         ght/rhoa**1.0333333333333333d+1+6.350399999999999d-6*gamm
+     2         aaa*t11*t16*wght
+            t24 = 1.0372320000000002d-8*gammaaa*t20*wght/rhoa**9.3333333
+     1         33333333d+0-1.5876000000000004d-6*t11*t18*wght
+            fnc(iq) = fnc(iq)-7.5d-3*gammaaa*t2*t3*wght
+            Amat(iq,D1_RA) = 9.999999999999999d-3*gammaaa*t2*t7*wght-1.1
+     1         2d-4*t4*t5*t6*wght+Amat(iq,D1_RA)
+            Cmat(iq,D1_GAA) = t9+Cmat(iq,D1_GAA)
+            Cmat(iq,D1_GAB) = t9+Cmat(iq,D1_GAB)
+            Amat2(iq,D2_RA_RA) = t15+Amat2(iq,D2_RA_RA)
+            Amat2(iq,D2_RA_RB) = t15+Amat2(iq,D2_RA_RB)
+            Cmat2(iq,D2_RA_GAA) = t17+Cmat2(iq,D2_RA_GAA)
+            Cmat2(iq,D2_RA_GAB) = t17+Cmat2(iq,D2_RA_GAB)
+            Cmat2(iq,D2_RA_GBB) = t17+Cmat2(iq,D2_RA_GBB)
+            Cmat2(iq,D2_GAA_GAA) = t19+Cmat2(iq,D2_GAA_GAA)
+            Cmat2(iq,D2_GAA_GAB) = t19+Cmat2(iq,D2_GAA_GAB)
+            Cmat2(iq,D2_GAA_GBB) = t19+Cmat2(iq,D2_GAA_GBB)
+            Cmat2(iq,D2_GAB_GAB) = t19+Cmat2(iq,D2_GAB_GAB)
+            Amat3(iq,D3_RA_RA_RA) = t21+Amat3(iq,D3_RA_RA_RA)
+            Amat3(iq,D3_RA_RA_RB) = t21+Amat3(iq,D3_RA_RA_RB)
+            Cmat3(iq,D3_RA_RA_GAA) = t22+Cmat3(iq,D3_RA_RA_GAA)
+            Cmat3(iq,D3_RA_RA_GAB) = t22+Cmat3(iq,D3_RA_RA_GAB)
+            Cmat3(iq,D3_RA_RA_GBB) = t22+Cmat3(iq,D3_RA_RA_GBB)
+            Cmat3(iq,D3_RA_RB_GAA) = t22+Cmat3(iq,D3_RA_RB_GAA)
+            Cmat3(iq,D3_RA_RB_GAB) = t22+Cmat3(iq,D3_RA_RB_GAB)
+            Cmat3(iq,D3_RA_GAA_GAA) = t23+Cmat3(iq,D3_RA_GAA_GAA)
+            Cmat3(iq,D3_RA_GAA_GAB) = t23+Cmat3(iq,D3_RA_GAA_GAB)
+            Cmat3(iq,D3_RA_GAA_GBB) = t23+Cmat3(iq,D3_RA_GAA_GBB)
+            Cmat3(iq,D3_RA_GAB_GAB) = t23+Cmat3(iq,D3_RA_GAB_GAB)
+            Cmat3(iq,D3_RA_GAB_GBB) = t23+Cmat3(iq,D3_RA_GAB_GBB)
+            Cmat3(iq,D3_RA_GBB_GBB) = t23+Cmat3(iq,D3_RA_GBB_GBB)
+            Cmat3(iq,D3_GAA_GAA_GAA) = t24+Cmat3(iq,D3_GAA_GAA_GAA)
+            Cmat3(iq,D3_GAA_GAA_GAB) = t24+Cmat3(iq,D3_GAA_GAA_GAB)
+            Cmat3(iq,D3_GAA_GAA_GBB) = t24+Cmat3(iq,D3_GAA_GAA_GBB)
+            Cmat3(iq,D3_GAA_GAB_GAB) = t24+Cmat3(iq,D3_GAA_GAB_GAB)
+            Cmat3(iq,D3_GAA_GAB_GBB) = t24+Cmat3(iq,D3_GAA_GAB_GBB)
+            Cmat3(iq,D3_GAB_GAB_GAB) = t24+Cmat3(iq,D3_GAB_GAB_GAB)
           endif ! rhoa.gt.tol_rho 
         else  ! ipol.eq.1 
           rhoa    = rho(iq,R_A) 
@@ -253,8 +473,227 @@ c
           gammaab = rgamma(iq,G_AB) 
           gammabb = rgamma(iq,G_BB) 
           if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then 
+            t1 = 7.000000000000001d-3*gammaaa/rhoa**2.6666666666666666d+
+     1         0+1.0d+0
+            t2 = 1/t1**8.0d-1
+            t3 = 1/rhoa**1.3333333333333333d+0
+            t4 = 7.000000000000001d-3*gammabb/rhob**2.6666666666666666d+
+     1         0+1.0d+0
+            t5 = 1/t4**8.0d-1
+            t6 = 1/rhob**1.3333333333333333d+0
+            t7 = gammaaa**2
+            t8 = 1/t1**1.8d+0
+            t9 = 1/rhoa**5
+            t10 = 1/rhoa**2.3333333333333334d+0
+            t11 = gammabb**2
+            t12 = 1/t4**1.8d+0
+            t13 = 1/rhob**5
+            t14 = 1/rhob**2.3333333333333334d+0
+            t15 = 1/rhoa**4
+            t16 = 1/rhob**4
+            t17 = gammaaa**3
+            t18 = 1/t1**2.7999999999999997d+0
+            t19 = 1/rhoa**8.666666666666666d+0
+            t20 = 1/rhoa**6
+            t21 = 1/rhoa**3.3333333333333337d+0
+            t22 = gammabb**3
+            t23 = 1/t4**2.7999999999999997d+0
+            t24 = 1/rhob**8.666666666666666d+0
+            t25 = 1/rhob**6
+            t26 = 1/rhob**3.3333333333333337d+0
+            t27 = 1/rhoa**7.666666666666667d+0
+            t28 = 1/rhob**7.666666666666667d+0
+            t29 = 1/rhoa**6.666666666666667d+0
+            t30 = 1/rhob**6.666666666666667d+0
+            t31 = 1/t1**3.8d+0
+            t32 = 1/t4**3.8d+0
+            fnc(iq) = (-3.75d-3*gammabb*t5*t6-3.75d-3*gammaaa*t2*t3)*wgh
+     1         t+fnc(iq)
+            Amat(iq,D1_RA) = (4.9999999999999994d-3*gammaaa*t10*t2-5.599
+     1         999999999999d-5*t7*t8*t9)*wght+Amat(iq,D1_RA)
+            Amat(iq,D1_RB) = (4.9999999999999994d-3*gammabb*t14*t5-5.599
+     1         999999999999d-5*t11*t12*t13)*wght+Amat(iq,D1_RB)
+            Cmat(iq,D1_GAA) = (2.1000000000000002d-5*gammaaa*t15*t8-3.75
+     1         d-3*t2*t3)*wght+Cmat(iq,D1_GAA)
+            Cmat(iq,D1_GAB) = Cmat(iq,D1_GAB)
+            Cmat(iq,D1_GBB) = (2.1000000000000002d-5*gammabb*t12*t16-3.7
+     1         5d-3*t5*t6)*wght+Cmat(iq,D1_GBB)
+            Amat2(iq,D2_RA_RA) = (3.5466666666666663d-4*t20*t7*t8-1.1666
+     1         666666666665d-2*gammaaa*t2*t21-1.8816d-6*t17*t18*t19)*wgh
+     2         t+Amat2(iq,D2_RA_RA)
+            Amat2(iq,D2_RA_RB) = Amat2(iq,D2_RA_RB)
+            Amat2(iq,D2_RB_RB) = (-1.1666666666666665d-2*gammabb*t26*t5+
+     1         3.5466666666666663d-4*t11*t12*t25-1.8816d-6*t22*t23*t24)*
+     2         wght+Amat2(iq,D2_RB_RB)
+            Cmat2(iq,D2_RA_GAA) = (-1.3999999999999999d-4*gammaaa*t8*t9+
+     1         7.056d-7*t18*t27*t7+4.9999999999999994d-3*t10*t2)*wght+Cm
+     2         at2(iq,D2_RA_GAA)
+            Cmat2(iq,D2_RA_GAB) = Cmat2(iq,D2_RA_GAB)
+            Cmat2(iq,D2_RA_GBB) = Cmat2(iq,D2_RA_GBB)
+            Cmat2(iq,D2_RB_GAA) = Cmat2(iq,D2_RB_GAA)
+            Cmat2(iq,D2_RB_GAB) = Cmat2(iq,D2_RB_GAB)
+            Cmat2(iq,D2_RB_GBB) = (4.9999999999999994d-3*t14*t5+7.056d-7
+     1         *t11*t23*t28-1.3999999999999999d-4*gammabb*t12*t13)*wght+
+     2         Cmat2(iq,D2_RB_GBB)
+            Cmat2(iq,D2_GAA_GAA) = (4.2000000000000004d-5*t15*t8-2.646d-
+     1         7*gammaaa*t18*t29)*wght+Cmat2(iq,D2_GAA_GAA)
+            Cmat2(iq,D2_GAA_GAB) = Cmat2(iq,D2_GAA_GAB)
+            Cmat2(iq,D2_GAA_GBB) = Cmat2(iq,D2_GAA_GBB)
+            Cmat2(iq,D2_GAB_GAB) = Cmat2(iq,D2_GAB_GAB)
+            Cmat2(iq,D2_GAB_GBB) = Cmat2(iq,D2_GAB_GBB)
+            Cmat2(iq,D2_GBB_GBB) = (4.2000000000000004d-5*t12*t16-2.646d
+     1         -7*gammabb*t23*t30)*wght+Cmat2(iq,D2_GBB_GBB)
+            Amat3(iq,D3_RA_RA_RA) = (-2.302222222222222d-3*t7*t8/rhoa**7
+     1         -9.834495999999997d-8*gammaaa**4*t31/rhoa**1.233333333333
+     2         3334d+1+3.888888888888889d-2*gammaaa*t2/rhoa**4.333333333
+     3         333333d+0+2.8224d-5*t17*t18/rhoa**9.666666666666666d+0)*w
+     4         ght+Amat3(iq,D3_RA_RA_RA)
+            Amat3(iq,D3_RA_RA_RB) = Amat3(iq,D3_RA_RA_RB)
+            Amat3(iq,D3_RA_RB_RB) = Amat3(iq,D3_RA_RB_RB)
+            Amat3(iq,D3_RB_RB_RB) = (3.888888888888889d-2*gammabb*t5/rho
+     1         b**4.333333333333333d+0-9.834495999999997d-8*gammabb**4*t
+     2         32/rhob**1.2333333333333334d+1+2.8224d-5*t22*t23/rhob**9.
+     3         666666666666666d+0-2.302222222222222d-3*t11*t12/rhob**7)*
+     4         wght+Amat3(iq,D3_RB_RB_RB)
+            Cmat3(iq,D3_RA_RA_GAA) = (7.746666666666666d-4*gammaaa*t20*t
+     1         8-1.0113599999999999d-5*t18*t19*t7+3.687936d-8*t17*t31/rh
+     2         oa**1.1333333333333334d+1-1.1666666666666665d-2*t2*t21)*w
+     3         ght+Cmat3(iq,D3_RA_RA_GAA)
+            Cmat3(iq,D3_RA_RA_GAB) = Cmat3(iq,D3_RA_RA_GAB)
+            Cmat3(iq,D3_RA_RA_GBB) = Cmat3(iq,D3_RA_RA_GBB)
+            Cmat3(iq,D3_RA_RB_GAA) = Cmat3(iq,D3_RA_RB_GAA)
+            Cmat3(iq,D3_RA_RB_GAB) = Cmat3(iq,D3_RA_RB_GAB)
+            Cmat3(iq,D3_RA_RB_GBB) = Cmat3(iq,D3_RA_RB_GBB)
+            Cmat3(iq,D3_RB_RB_GAA) = Cmat3(iq,D3_RB_RB_GAA)
+            Cmat3(iq,D3_RB_RB_GAB) = Cmat3(iq,D3_RB_RB_GAB)
+            Cmat3(iq,D3_RB_RB_GBB) = (-1.1666666666666665d-2*t26*t5+3.68
+     1         7936d-8*t22*t32/rhob**1.1333333333333334d+1+7.74666666666
+     2         6666d-4*gammabb*t12*t25-1.0113599999999999d-5*t11*t23*t24
+     3         )*wght+Cmat3(iq,D3_RB_RB_GBB)
+            Cmat3(iq,D3_RA_GAA_GAA) = (-1.6799999999999998d-4*t8*t9-1.38
+     1         2976d-8*t31*t7/rhoa**1.0333333333333333d+1+3.175199999999
+     2         9997d-6*gammaaa*t18*t27)*wght+Cmat3(iq,D3_RA_GAA_GAA)
+            Cmat3(iq,D3_RA_GAA_GAB) = Cmat3(iq,D3_RA_GAA_GAB)
+            Cmat3(iq,D3_RA_GAA_GBB) = Cmat3(iq,D3_RA_GAA_GBB)
+            Cmat3(iq,D3_RA_GAB_GAB) = Cmat3(iq,D3_RA_GAB_GAB)
+            Cmat3(iq,D3_RA_GAB_GBB) = Cmat3(iq,D3_RA_GAB_GBB)
+            Cmat3(iq,D3_RA_GBB_GBB) = Cmat3(iq,D3_RA_GBB_GBB)
+            Cmat3(iq,D3_RB_GAA_GAA) = Cmat3(iq,D3_RB_GAA_GAA)
+            Cmat3(iq,D3_RB_GAA_GAB) = Cmat3(iq,D3_RB_GAA_GAB)
+            Cmat3(iq,D3_RB_GAA_GBB) = Cmat3(iq,D3_RB_GAA_GBB)
+            Cmat3(iq,D3_RB_GAB_GAB) = Cmat3(iq,D3_RB_GAB_GAB)
+            Cmat3(iq,D3_RB_GAB_GBB) = Cmat3(iq,D3_RB_GAB_GBB)
+            Cmat3(iq,D3_RB_GBB_GBB) = (-1.382976d-8*t11*t32/rhob**1.0333
+     1         333333333333d+1+3.1751999999999997d-6*gammabb*t23*t28-1.6
+     2         799999999999998d-4*t12*t13)*wght+Cmat3(iq,D3_RB_GBB_GBB)
+            Cmat3(iq,D3_GAA_GAA_GAA) = (5.186160000000001d-9*gammaaa*t31
+     1         /rhoa**9.333333333333333d+0-7.938000000000002d-7*t18*t29)
+     2         *wght+Cmat3(iq,D3_GAA_GAA_GAA)
+            Cmat3(iq,D3_GAA_GAA_GAB) = Cmat3(iq,D3_GAA_GAA_GAB)
+            Cmat3(iq,D3_GAA_GAA_GBB) = Cmat3(iq,D3_GAA_GAA_GBB)
+            Cmat3(iq,D3_GAA_GAB_GAB) = Cmat3(iq,D3_GAA_GAB_GAB)
+            Cmat3(iq,D3_GAA_GAB_GBB) = Cmat3(iq,D3_GAA_GAB_GBB)
+            Cmat3(iq,D3_GAA_GBB_GBB) = Cmat3(iq,D3_GAA_GBB_GBB)
+            Cmat3(iq,D3_GAB_GAB_GAB) = Cmat3(iq,D3_GAB_GAB_GAB)
+            Cmat3(iq,D3_GAB_GAB_GBB) = Cmat3(iq,D3_GAB_GAB_GBB)
+            Cmat3(iq,D3_GAB_GBB_GBB) = Cmat3(iq,D3_GAB_GBB_GBB)
+            Cmat3(iq,D3_GBB_GBB_GBB) = (5.186160000000001d-9*gammabb*t32
+     1         /rhob**9.333333333333333d+0-7.938000000000002d-7*t23*t30)
+     2         *wght+Cmat3(iq,D3_GBB_GBB_GBB)
           elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then 
+            t1 = 7.000000000000001d-3*gammaaa/rhoa**2.6666666666666666d+
+     1         0+1.0d+0
+            t2 = 1/t1**8.0d-1
+            t3 = 1/rhoa**1.3333333333333333d+0
+            t4 = gammaaa**2
+            t5 = 1/t1**1.8d+0
+            t6 = 1/rhoa**5
+            t7 = 1/rhoa**2.3333333333333334d+0
+            t8 = 1/rhoa**4
+            t9 = gammaaa**3
+            t10 = 1/t1**2.7999999999999997d+0
+            t11 = 1/rhoa**8.666666666666666d+0
+            t12 = 1/rhoa**6
+            t13 = 1/rhoa**3.3333333333333337d+0
+            t14 = 1/rhoa**7.666666666666667d+0
+            t15 = 1/rhoa**6.666666666666667d+0
+            t16 = 1/t1**3.8d+0
+            fnc(iq) = fnc(iq)-3.75d-3*gammaaa*t2*t3*wght
+            Amat(iq,D1_RA) = 4.9999999999999994d-3*gammaaa*t2*t7*wght-5.
+     1         599999999999999d-5*t4*t5*t6*wght+Amat(iq,D1_RA)
+            Cmat(iq,D1_GAA) = 2.1000000000000002d-5*gammaaa*t5*t8*wght-3
+     1         .75d-3*t2*t3*wght+Cmat(iq,D1_GAA)
+            Amat2(iq,D2_RA_RA) = -1.8816d-6*t10*t11*t9*wght+3.5466666666
+     1         666663d-4*t12*t4*t5*wght-1.1666666666666665d-2*gammaaa*t1
+     2         3*t2*wght+Amat2(iq,D2_RA_RA)
+            Cmat2(iq,D2_RA_GAA) = 4.9999999999999994d-3*t2*t7*wght-1.399
+     1         9999999999999d-4*gammaaa*t5*t6*wght+7.056d-7*t10*t14*t4*w
+     2         ght+Cmat2(iq,D2_RA_GAA)
+            Cmat2(iq,D2_GAA_GAA) = 4.2000000000000004d-5*t5*t8*wght-2.64
+     1         6d-7*gammaaa*t10*t15*wght+Cmat2(iq,D2_GAA_GAA)
+            Amat3(iq,D3_RA_RA_RA) = 2.8224d-5*t10*t9*wght/rhoa**9.666666
+     1         666666666d+0-2.302222222222222d-3*t4*t5*wght/rhoa**7+3.88
+     2         8888888888889d-2*gammaaa*t2*wght/rhoa**4.333333333333333d
+     3         +0-9.834495999999997d-8*gammaaa**4*t16*wght/rhoa**1.23333
+     4         33333333334d+1+Amat3(iq,D3_RA_RA_RA)
+            Cmat3(iq,D3_RA_RA_GAA) = 3.687936d-8*t16*t9*wght/rhoa**1.133
+     1         3333333333334d+1+7.746666666666666d-4*gammaaa*t12*t5*wght
+     2         -1.0113599999999999d-5*t10*t11*t4*wght-1.1666666666666665
+     3         d-2*t13*t2*wght+Cmat3(iq,D3_RA_RA_GAA)
+            Cmat3(iq,D3_RA_GAA_GAA) = -1.6799999999999998d-4*t5*t6*wght-
+     1         1.382976d-8*t16*t4*wght/rhoa**1.0333333333333333d+1+3.175
+     2         1999999999997d-6*gammaaa*t10*t14*wght+Cmat3(iq,D3_RA_GAA_
+     3         GAA)
+            Cmat3(iq,D3_GAA_GAA_GAA) = 5.186160000000001d-9*gammaaa*t16*
+     1         wght/rhoa**9.333333333333333d+0-7.938000000000002d-7*t10*
+     2         t15*wght+Cmat3(iq,D3_GAA_GAA_GAA)
           elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then 
+            t1 = 7.000000000000001d-3*gammabb/rhob**2.6666666666666666d+
+     1         0+1.0d+0
+            t2 = 1/t1**8.0d-1
+            t3 = 1/rhob**1.3333333333333333d+0
+            t4 = gammabb**2
+            t5 = 1/t1**1.8d+0
+            t6 = 1/rhob**5
+            t7 = 1/rhob**2.3333333333333334d+0
+            t8 = 1/rhob**4
+            t9 = gammabb**3
+            t10 = 1/t1**2.7999999999999997d+0
+            t11 = 1/rhob**8.666666666666666d+0
+            t12 = 1/rhob**6
+            t13 = 1/rhob**3.3333333333333337d+0
+            t14 = 1/rhob**7.666666666666667d+0
+            t15 = 1/rhob**6.666666666666667d+0
+            t16 = 1/t1**3.8d+0
+            fnc(iq) = fnc(iq)-3.75d-3*gammabb*t2*t3*wght
+            Amat(iq,D1_RB) = 4.9999999999999994d-3*gammabb*t2*t7*wght-5.
+     1         599999999999999d-5*t4*t5*t6*wght+Amat(iq,D1_RB)
+            Cmat(iq,D1_GBB) = 2.1000000000000002d-5*gammabb*t5*t8*wght-3
+     1         .75d-3*t2*t3*wght+Cmat(iq,D1_GBB)
+            Amat2(iq,D2_RB_RB) = -1.8816d-6*t10*t11*t9*wght+3.5466666666
+     1         666663d-4*t12*t4*t5*wght-1.1666666666666665d-2*gammabb*t1
+     2         3*t2*wght+Amat2(iq,D2_RB_RB)
+            Cmat2(iq,D2_RB_GBB) = 4.9999999999999994d-3*t2*t7*wght-1.399
+     1         9999999999999d-4*gammabb*t5*t6*wght+7.056d-7*t10*t14*t4*w
+     2         ght+Cmat2(iq,D2_RB_GBB)
+            Cmat2(iq,D2_GBB_GBB) = 4.2000000000000004d-5*t5*t8*wght-2.64
+     1         6d-7*gammabb*t10*t15*wght+Cmat2(iq,D2_GBB_GBB)
+            Amat3(iq,D3_RB_RB_RB) = 2.8224d-5*t10*t9*wght/rhob**9.666666
+     1         666666666d+0-2.302222222222222d-3*t4*t5*wght/rhob**7+3.88
+     2         8888888888889d-2*gammabb*t2*wght/rhob**4.333333333333333d
+     3         +0-9.834495999999997d-8*gammabb**4*t16*wght/rhob**1.23333
+     4         33333333334d+1+Amat3(iq,D3_RB_RB_RB)
+            Cmat3(iq,D3_RB_RB_GBB) = 3.687936d-8*t16*t9*wght/rhob**1.133
+     1         3333333333334d+1+7.746666666666666d-4*gammabb*t12*t5*wght
+     2         -1.0113599999999999d-5*t10*t11*t4*wght-1.1666666666666665
+     3         d-2*t13*t2*wght+Cmat3(iq,D3_RB_RB_GBB)
+            Cmat3(iq,D3_RB_GBB_GBB) = -1.6799999999999998d-4*t5*t6*wght-
+     1         1.382976d-8*t16*t4*wght/rhob**1.0333333333333333d+1+3.175
+     2         1999999999997d-6*gammabb*t10*t14*wght+Cmat3(iq,D3_RB_GBB_
+     3         GBB)
+            Cmat3(iq,D3_GBB_GBB_GBB) = 5.186160000000001d-9*gammabb*t16*
+     1         wght/rhob**9.333333333333333d+0-7.938000000000002d-7*t10*
+     2         t15*wght+Cmat3(iq,D3_GBB_GBB_GBB)
           endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho 
         endif ! ipol.eq.1 
       enddo ! iq 

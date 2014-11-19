@@ -1,7 +1,7 @@
 C> \ingroup nwxc 
 C> @{ 
 C> 
-C> \file f77/nwxcm_c_lyp.F 
+C> \file nwxcm_c_lyp.F 
 C> The nwxcm_c_lyp functional 
 C> 
 C> @} 
@@ -36,9 +36,9 @@ C>   {\it t_{21}} &=& 0.349\,{\it t_{16}}\,{\it t_{17}}\\\\
 C>   {\it t_{22}} &=& {\it t_{21}}+{\it t_{19}}\\\\ 
 C>   {\it t_{23}} &=& {\it t_{21}}+{\it t_{19}}-11.0\\\\ 
 C>   {\it t_{24}} &=& -3.0\,{\it t_{22}}\\\\ 
-C>   f &=& 1.0\,\left(-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_{11}}+1.0\right)-\rho_\alpha^2\right)\,{\it t_8}\,\sigma_{\beta\beta}-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{12}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_8}\,\sigma_{\alpha\beta}-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_{11}}+1.0\right)+{\it t_9}\right)\,{\it t_8}\,\sigma_{\alpha\alpha}-.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left({\it t_6}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_8}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_{11}}+1.0\right)-\rho_\alpha^2\right)\,{\it t_8}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{12}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_8}\,\sigma_{\alpha\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_{11}}+1.0\right)+{\it t_9}\right)\,{\it t_8}\,\sigma_{\alpha\alpha}-0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left({\it t_6}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_8}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& 1.0\,\left(-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
+C>   G &=& 1.0\,\left(-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-0.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
 C> \f} 
 C> 
 C> ### References ### 
@@ -71,6 +71,8 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      double precision nwxcm_heaviside 
+      external         nwxcm_heaviside 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -328,9 +330,9 @@ C>   {\it t_{21}} &=& 0.349\,{\it t_{16}}\,{\it t_{17}}\\\\
 C>   {\it t_{22}} &=& {\it t_{21}}+{\it t_{19}}\\\\ 
 C>   {\it t_{23}} &=& {\it t_{21}}+{\it t_{19}}-11.0\\\\ 
 C>   {\it t_{24}} &=& -3.0\,{\it t_{22}}\\\\ 
-C>   f &=& 1.0\,\left(-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_{11}}+1.0\right)-\rho_\alpha^2\right)\,{\it t_8}\,\sigma_{\beta\beta}-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{12}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_8}\,\sigma_{\alpha\beta}-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_{11}}+1.0\right)+{\it t_9}\right)\,{\it t_8}\,\sigma_{\alpha\alpha}-.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left({\it t_6}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_8}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_{11}}+1.0\right)-\rho_\alpha^2\right)\,{\it t_8}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{12}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_8}\,\sigma_{\alpha\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_{11}}+1.0\right)+{\it t_9}\right)\,{\it t_8}\,\sigma_{\alpha\alpha}-0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left({\it t_6}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_8}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& 1.0\,\left(-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
+C>   G &=& 1.0\,\left(-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-0.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
 C> \f} 
 C> 
 C> ### References ### 
@@ -369,6 +371,8 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      double precision nwxcm_heaviside 
+      external         nwxcm_heaviside 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -934,9 +938,9 @@ C>   {\it t_{21}} &=& 0.349\,{\it t_{16}}\,{\it t_{17}}\\\\
 C>   {\it t_{22}} &=& {\it t_{21}}+{\it t_{19}}\\\\ 
 C>   {\it t_{23}} &=& {\it t_{21}}+{\it t_{19}}-11.0\\\\ 
 C>   {\it t_{24}} &=& -3.0\,{\it t_{22}}\\\\ 
-C>   f &=& 1.0\,\left(-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_{11}}+1.0\right)-\rho_\alpha^2\right)\,{\it t_8}\,\sigma_{\beta\beta}-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{12}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_8}\,\sigma_{\alpha\beta}-.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_{11}}+1.0\right)+{\it t_9}\right)\,{\it t_8}\,\sigma_{\alpha\alpha}-.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left({\it t_6}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_8}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_{11}}+1.0\right)-\rho_\alpha^2\right)\,{\it t_8}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{12}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_8}\,\sigma_{\alpha\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{13}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_{11}}+1.0\right)+{\it t_9}\right)\,{\it t_8}\,\sigma_{\alpha\alpha}-0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left({\it t_6}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_8}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& 1.0\,\left(-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
+C>   G &=& 1.0\,\left(-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-0.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
 C> \f} 
 C> 
 C> ### References ### 
@@ -982,6 +986,8 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      double precision nwxcm_heaviside 
+      external         nwxcm_heaviside 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
