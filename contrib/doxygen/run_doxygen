@@ -204,6 +204,7 @@ if [ "$task" == "doc" ] ; then
 elif [ "$task" == "update" ] ; then
   doxygen -u "$path/doxygen.rc"
 elif [ "$task" == "version" ] ; then
+  echo "$Id$"
   grep Doxyfile "$path"/*.rc
   echo -n "Doxygen "; doxygen --version
   dot -V 2>&1 cat
