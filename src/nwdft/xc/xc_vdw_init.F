@@ -158,6 +158,13 @@ c       c6(92) = 101.70
         call init_r0ab_d3(angs2au)
         call init_c6_params_d3
         call init_qat
+      else if (ivdw.eq.4) then
+c       As far as I understand the D3BJ scheme the parameters are the
+c       same as for D3 (just the damping function is different).
+        call init_cov_rad_d3(angs2au)
+        call init_r0ab_d3(angs2au)
+        call init_c6_params_d3
+        call init_qat
       else if(ivdw.eq.0)then
 c scaled radii
         c6(1) = 0.163d0

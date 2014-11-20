@@ -276,8 +276,8 @@ C>
 c
       implicit none
 c
-      integer          n !< [Input] The order of the term
-      double precision r !< [Input] Interactomic distance \f$R\f$
+      integer          n  !< [Input] The order of the term
+      double precision r  !< [Input] Interactomic distance \f$R\f$
       double precision r0 !< [Input] Parameter \f$R^0=\sqrt{C_8/C_6}\f$
       double precision a1 !< [Input] Parameter \f$a_1\f$
       double precision a2 !< [Input] Parameter \f$a_2\f$
@@ -285,6 +285,56 @@ c
       double precision f
       f=a1*r0+a2
       xc_fdmpbj=1.0d0/(r**n+f**n)
+      return
+      end
+C>
+C> \brief Evaluate the gradient of the Becke-Johnson damping factor
+C>
+C> The Becke-Johnson damping factor [1,2] for the dispersion
+C> correction is:
+C> \f{eqnarray}{
+C>   \mathrm{xc_fdmpbj}(R,R^0,a_1,a_2,n) &=&
+C>   \frac{1}{R^n+f(R^0,a_1,a_2)^n} \\\\
+C>   f(R^0,a_1,a_2) &=& a_1 R^0 + a_2
+C> \f}
+C> This function evaluates the gradient of the Becke-Johnson damping
+C> wrt. \f$R\f$:
+C> \f{eqnarray}{
+C>   \frac{\partial\mathrm{xc_fdmpbj}(R,R^0,a_1,a_2,n)}{\partial R} &=&
+C>   -n R^{n-1}\mathrm{xc_fdmpbj}(R,R^0,a_1,a_2,n)^2
+C> \f}
+C>
+C> ### References ###
+C>
+C> [1] A.D. Becke, E.R. Johnson,
+C>     "A unified density-functional treatment of dynamical,
+C>      nondynamical and dispersion correlations",
+C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     10.1063/1.2768530</a> (See appendix C).
+C>
+C> [2] S. Grimme, S. Ehrlich, L. Goerigk,
+C>     "Effect of the damping function in dispersion corrected
+C>      density functional theory", J. Comput. Chem. (2011)
+C>     <b>32</b>, pp. 1456-1465, DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
+C>
+      double precision function xc_fdmpbj_d1(r,r0,a1,a2,n)
+c
+      implicit none
+c
+      integer          n  !< [Input] The order of the term
+      double precision r  !< [Input] Interactomic distance \f$R\f$
+      double precision r0 !< [Input] Parameter \f$R^0=\sqrt{C_8/C_6}\f$
+      double precision a1 !< [Input] Parameter \f$a_1\f$
+      double precision a2 !< [Input] Parameter \f$a_2\f$
+c
+      double precision xc_fdmpbj
+      external         xc_fdmpbj
+c
+      xc_fdmpbj_d1=-n*r**(n-1)*(xc_fdmpbj(r,r0,a1,a2,n)**2)
+c
       return
       end
 c
@@ -297,6 +347,25 @@ c
       fdmp=1.0d0/(1.0d0+dexp(-alpha*((x1/x2)-1.0d0)))
       return
       end
+C>
+C> \brief Fetch the functional dependent scaling factors
+C>
+C> Different scaling factors are used for the different dispersion
+C> model. These scaling factors are also functional dependent. 
+C> This routine looks up the model and functional dependent
+C> factors. The models support are DFT-D1, DFT-D2, DFT-D3 and
+C> DFT-D3BJ [1] (see Table 1).
+C>
+C> ### References ###
+C>
+C> [1] A. Hoffmann, R. Grunzke, S. Herres-Pawlis,
+C>     "Insights into the influence of dispersion correction in the
+C>      theoretical treatment of Guanidine-Quinoline Copper(I)
+C>      complexes", J. Comput. Chem. (2014) <b>35</b>, pp. 1943-1950,
+C>      DOI:
+C>      <a href="http://dx.doi.org/10.1002/jcc.23706">
+C>      10.1002/jcc.23706</a>
+C>
       subroutine get_scaling_fac(scales6,scales8,scalesr6,scalesr8,
      +                           a1,a2)
       implicit none
