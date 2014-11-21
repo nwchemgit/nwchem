@@ -172,11 +172,11 @@ C
         itst = 0
         itag = 888
         call MPI_Recv(a(:,:),ldim*ldim,
-     &                MPI_DOUBLE_PRECISION,itst,itag,world,ierr)
+     &                MPI_DOUBLE_PRECISION,itst,itag,world,istatus,ierr)
         itst = 0
         itag = 889
         call MPI_Recv(b(:,:),ldim*ldim,
-     &                MPI_DOUBLE_PRECISION,itst,itag,world,ierr)
+     &                MPI_DOUBLE_PRECISION,itst,itag,world,istatus,ierr)
       endif
 C
 C     Get everyone on the same page, then do the work
@@ -202,8 +202,8 @@ C
             itst = jj*icore_dim+ii
             if (ii.ne.0.or.jj.ne.0) then
               itag = 888
-              call MPI_Recv(c(:,:),ldim*ldim,
-     &                      MPI_DOUBLE_PRECISION,itst,itag,world,ierr)
+              call MPI_Recv(c(:,:),ldim*ldim,MPI_DOUBLE_PRECISION,
+     &                      itst,itag,world,istatus,ierr)
               c1(ilo:ihi,jlo:jhi) = c(1:ldim,1:ldim)
             endif
           enddo
@@ -215,17 +215,19 @@ C
      &                MPI_DOUBLE_PRECISION,itst,itag,world,ierr)
       endif
 C
-      call dgemm('N','N',ndim,ndim,ndim,-1.0_w,A,ndim,B,ndim,1.0_w,
-     &           C,ndim)
-      tst = 0.0_w
-      do jj = 1, ndim
-        do ii = 1, ndim
-          tst = tst + C(ii,jj)**2
+      if (icore.eq.0) then
+        call dgemm('N','N',ndim,ndim,ndim,-1.0_w,A1,ndim,B1,ndim,1.0_w,
+     &             C1,ndim)
+        tst = 0.0_w
+        do jj = 1, ndim
+          do ii = 1, ndim
+            tst = tst + C1(ii,jj)**2
+          enddo
         enddo
-      enddo
-      tst = sqrt(tst)
-      write(*,*)"Norm = ",tst
-      write(*,*)"Time = ",time
+        tst = sqrt(tst)
+        write(*,*)"Norm = ",tst
+        write(*,*)"Time = ",time
+      endif
 C
       call MPI_Finalize(ierr)
 C
