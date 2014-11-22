@@ -193,8 +193,8 @@ C
 C       - Rank 0 collects the data from all other ranks
 C
         c1(1:ldim,1:ldim) = c(1:ldim,1:ldim)
-        do jj = icore_col-1,0,-1
-          do ii = icore_row-1,0,-1
+        do jj = icore_dim-1,0,-1
+          do ii = icore_dim-1,0,-1
             ilo = 1+(ii  )*ldim
             ihi =   (ii+1)*ldim
             jlo = 1+(jj  )*ldim
@@ -282,6 +282,7 @@ C
       integer row_comm
       integer col_comm_irank
       integer row_comm_irank
+      integer world_irank
 C
       integer ncore !< The number of cores
       integer icore !< My core rank
@@ -319,6 +320,12 @@ C
 C
       call MPI_Comm_split(world,icore_row,key,row_comm,ierr)
       call MPI_Comm_split(world,icore_col,key,col_comm,ierr)
+C
+      call MPI_Comm_rank(world,world_irank,ierr)
+C
+C     A bit confusing:
+C     - The rank in the row communicator corresponds to the column
+C     - The rank in the column communicator corresponds to the row
 C
       call MPI_Comm_rank(row_comm,row_comm_irank,ierr)
       call MPI_Comm_rank(col_comm,col_comm_irank,ierr)
