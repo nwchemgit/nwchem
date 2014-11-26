@@ -874,10 +874,10 @@ cl1g: [ Cmat(iq,D1_GAA), Cmat(iq,D1_GAB) ] $
 cl1t: [ Amat(iq,D1_TA) ] $
 
 ce0 : [ func(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
-ce1r: [ df1ra(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
-ce1g: [ df1gaa(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df1gab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
-ce1t: [ df1ta(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
+ce1r: [ at(df1ra(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+ce1g: [ at(df1gaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df1gab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+ce1t: [ at(df1ta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
 
 /* Lists of second order quantities */
 
@@ -975,22 +975,22 @@ cl2t: [ Mmat2(iq,D2_RA_TA),   Mmat2(iq,D2_RA_TB),
         Mmat2(iq,D2_GAB_TA),
         Mmat2(iq,D2_TA_TA),   Mmat2(iq,D2_TA_TB) ] $
 
-ce2r: [ df2rara(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2rarb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
-ce2g: [ df2ragaa(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2ragab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2ragbb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2gaagaa(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2gaagab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2gaagbb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2gabgab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
-ce2t: [ df2rata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2ratb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2gaata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2gaatb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2gabta(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2tata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df2tatb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
+ce2r: [ at(df2rara(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2rarb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+ce2g: [ at(df2ragaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2ragab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2ragbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+ce2t: [ at(df2rata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2ratb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2tata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2tatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
 
 /* Lists of third order quantities */
 
@@ -1219,44 +1219,44 @@ cl3t: [ Mmat3(iq,D3_RA_RA_TA),    Mmat3(iq,D3_RA_RA_TB),
         Mmat3(iq,D3_GAA_GBB_TA),  Mmat3(iq,D3_GAB_GAB_TA),
         Mmat3(iq,D3_TA_TA_TA),    Mmat3(iq,D3_TA_TA_TB) ] $
 
-ce3r: [ df3rarara(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3rararb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
+ce3r: [ at(df3rarara(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3rararb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
 
-ce3g: [ df3raragaa(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3raragab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3raragbb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3rarbgaa(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3rarbgab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragaagaa(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragaagab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragaagbb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragabgab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragabgbb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragbbgbb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagaagaa(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagaagab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagaagbb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagabgab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagabgbb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gabgabgab(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
+ce3g: [ at(df3raragaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3raragab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3raragbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3rarbgaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3rarbgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragbbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gabgabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
 
-ce3t: [ df3rarata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3raratb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3rarbta(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragaata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragaatb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragabta(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragabtb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragbbta(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3ragbbtb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagaata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagaatb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagabta(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagabtb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gaagbbta(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3gabgabta(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3tatata(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua),
-        df3tatatb(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
+ce3t: [ at(df3rarata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3raratb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3rarbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragbbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gabgabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3tatata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3tatatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
 
 /* if excess then */
   if rho_deriv then
