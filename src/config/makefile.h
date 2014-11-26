@@ -241,6 +241,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
           FDEBUG = -g
           CDEBUG = -g
               AR = ar
+        FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 
 ifdef OLD_GA
        CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
@@ -868,7 +869,6 @@ endif
 ##comment out from dtrmm_ inclusive
 
   EXPLICITF = TRUE
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
 
@@ -942,7 +942,6 @@ endif
 
 
   EXPLICITF = TRUE
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
 
@@ -1001,7 +1000,6 @@ CORE_LIBS +=  -llapack -lblas
   LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 # needed because of bigtoc
 
  EXPLICITF = TRUE
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
 
@@ -1057,7 +1055,6 @@ endif
   XLFBREN = y
 
  EXPLICITF = TRUE
-  FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
 #
 endif
 
@@ -1637,7 +1634,6 @@ endif
       EXPLICITF = TRUE
       DEFINES  +=   -DXLFLINUX
       CPP=/usr/bin/cpp  -P -C -traditional
-      FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
     endif
     ifeq ($(FC),g77)
       FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
@@ -1955,7 +1951,11 @@ endif
        FOPTIMIZE = -O3  -unroll  -ip
        FOPTIONS += -align
 	   ifeq ($(_IFCV15ORNEWER), Y)
-	  FOPTIONS += -qopt-report-file=stderr
+           FOPTIONS += -qopt-report-file=stderr
+#fpp seems to get lost with ifort 15 in the offload bit
+           EXPLICITF = TRUE
+           CPP=fpp -P -c_com=no  
+           FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
           ifdef USE_OPTREPORT
 	  FOPTIONS += -qopt-report=1 -qopt-report-phase=vec 
           endif
@@ -1989,7 +1989,7 @@ endif
             FOPTIONS += -qopt-report-phase=offload
             FOPTIONS += -qoffload-option,mic,compiler,"-align array64byte"
             FOPTIONS += -align array64byte
-	        FOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
+	        LDOPTIONS += -qoffload-option,mic,compiler," -Wl,-zmuldefs"
             FOPTIONS += -watch=mic_cmd 
             COPTIONS += -qopt-report-phase=offload
 		  else
@@ -1998,7 +1998,7 @@ endif
             FOPTIONS += -offload-option,mic,compiler,"-align array64byte"
             FOPTIONS += -align array64byte
             FOPTIONS += -offload-option,mic,compiler,"-opt-report-phase=hlo"
-	        FOPTIONS += -offload-option,mic,compiler," -Wl,-zmuldefs"
+	        LDOPTIONS += -offload-option,mic,compiler," -Wl,-zmuldefs"
             FOPTIONS += -watch=mic_cmd 
             COPTIONS += -opt-report-phase=offload
 		  endif
@@ -2191,7 +2191,6 @@ endif
         FOPTIMIZE= -O3 -qstrict -qarch=auto -qtune=auto -qcache=auto -qfloat=fltint 
         FDEBUG= -O2 -g
         EXPLICITF = TRUE
-        FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
         DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
         CPP=/usr/bin/cpp  -P -C -traditional
         ifdef USE_I4FLAGS
@@ -2363,7 +2362,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
    ARFLAGS = urs
    INSTALL = @echo $@ is built
    CPP=/usr/bin/cpp  -P -C -traditional
-   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
    LDOPTIONS =  -Wl,--relax
 
    DEFINES   = -DLINUX

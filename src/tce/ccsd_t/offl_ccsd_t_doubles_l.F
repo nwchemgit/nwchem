@@ -95,18 +95,24 @@ c --------------
       integer util_micdev
       external util_micdev
       integer mic_device
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_1
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_2
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_3,offl_sd_t_d1_4
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_5,offl_sd_t_d1_6
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_7,offl_sd_t_d1_8
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d1_9
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_1
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_2
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_3,offl_sd_t_d2_4
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_5,offl_sd_t_d2_6
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_7,offl_sd_t_d2_8
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sd_t_d2_9
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_1
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_2
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_3
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_4
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_5
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_6
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_7
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_8
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_9
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_1
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_2
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_3
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_4
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_5
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_6
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_7
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_8
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_zero
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_1
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_2
