@@ -53,9 +53,10 @@ c::passed
       double precision Kea(lKea) !< [Output] kinetic energy integral array
       double precision scr(lscr) !< [Scratch] scratch array
       double precision R(3)     !< [Input] translational vector fractional coordinates
-      integer idatom(*)         ! [Output] array identifying centers for derivatives
-c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
-c                       !       the second nint*3 derivatives go to center idatom(2)
+      integer idatom(*) !< [Output] array identifying centers for derivatives
+                        !< e.g.,
+                        !< - the first nint*3  derivatives go to center idatom(1)
+                        !< - the second nint*3 derivatives go to center idatom(2)
 c::local
       logical shells_ok
       integer i_geom, j_geom, ibas, jbas, ucont, mynint
