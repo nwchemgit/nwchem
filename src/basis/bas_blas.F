@@ -3,6 +3,15 @@
 *
 * $Id$
 *
+C> \ingroup bas
+C> @{
+C>
+C> \brief Retrieves the basis function exponents of a given shell 
+C>
+C> The values of the exponents are returned in the array `expon`.
+C>
+C> \return Return `.true.` if successful, and `.false.` otherwise.
+C>
       logical function bas_get_exponent(basisin,icont,expon)
 c
 c  returns the exponents of a given mapped contraction 
@@ -22,9 +31,10 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin         ! [input] basis set handle
-      integer icont           ! [input] mapped contraction index
-      double precision expon(*) ! [output] exponents
+      integer basisin         !< [Input] The basis set handle
+      integer icont           !< [Input] The mapped contraction (shell)
+                              !< index
+      double precision expon(*) !< [Output] The exponents
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
@@ -56,6 +66,17 @@ c
       return
       end
 *.....................................................................
+C>
+C> \brief Retrieves the basis function contraction coefficients of
+C> a given shell
+C>
+C> The values of the contraction coefficients are returned in the 
+C> matrix `coeff`. The coefficients are stored in Fortran ordering
+C> as `coeff(iprim,ibfunc)` where `iprim` labels the primitive Gaussians
+C> and `ibfunc` labels the contracted basis functions.
+C>
+C> \return Returns `.true.` if successful, and `.false.` otherwise.
+C>
       logical function bas_get_coeff(basisin,icont,coeff)
 c
 c returns the coefficients for the given mapped contraction
@@ -75,9 +96,11 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin            ! [input] basis set handle
-      integer icont              ! [input] mapped contraction index
-      double precision coeff(*)  ! [output] mapped contraction coeffs.
+      integer basisin            !< [Input] The basis set handle
+      integer icont              !< [Input] The mapped contraction
+                                 !< (shell) index
+      double precision coeff(*)  !< [Output] The mapped contraction
+                                 !< coefficients.
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
@@ -112,6 +135,13 @@ c
       return
       end
 *.....................................................................
+C>
+C> \brief Stores the basis function exponents for a given shell 
+C>
+C> The values of the exponents are provided in the array `expon`.
+C>
+C> \return Return `.true.` if successful, and `.false.` otherwise.
+C>
       logical function bas_set_exponent(basisin,icont,expon,nexp)
 c
 c sets the exponents to the input array for a given mapped contraction
@@ -131,11 +161,11 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin ! [input] basis set handle        
-      integer icont ! [input] mapped contraction index
-      integer nexp ! [input] number of exponents for contraction
-      double precision expon(nexp) ! [input] "new" exponents for 
-*. . . . . . . . . . . . . . . .            contraction    
+      integer basisin !< [Input] The basis set handle        
+      integer icont !< [Input] The mapped contraction index
+      integer nexp !< [Input] The number of exponents for contraction
+      double precision expon(nexp) !< [Input] "new" exponents for the
+                                   !< contraction (shell)
 c::local
       integer basis, myucont, icontmax
       integer myprim,myexptr
@@ -178,6 +208,15 @@ c
       return
       end
 *.....................................................................
+C>
+C> \brief Stores the basis function contraction coefficients for
+C> a given shell
+C>
+C> The values of the contraction coefficients are provided in the 
+C> array `coeff`. The function views `coeff` as a 1-D array.
+C>
+C> \return Returns `.true.` if successful, and `.false.` otherwise.
+C>
       logical function bas_set_coeff(basisin,icont,coeff,ncoeff)
 c
 c sets the coefficients of the given mapped contraction
@@ -197,11 +236,12 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer basisin ! [input] basis set handle                   
-      integer icont ! [input] mapped contraction index           
-      integer ncoeff ! [input] number of coeffs. for contraction
-      double precision coeff(ncoeff) ! [input] "new" coeffs. 
-*. . . . . . . . . . . . . . . . . .            for contraction    
+      integer basisin !< [Input] The basis set handle                   
+      integer icont !< [Input] The mapped contraction index           
+      integer ncoeff !< [Input] The number of coefficients for the
+                     !< contraction (shell)
+      double precision coeff(ncoeff) !< [Input] "new" contraction 
+                                     !< coefficients
 c::local
       integer basis, myucont, icontmax
       integer mycoeffptr, myprim, mygen
@@ -246,6 +286,13 @@ c
       return
       end
 *.....................................................................
+C>
+C> \brief Retrieves the ECP radial exponents of a given shell 
+C>
+C> The values of the exponents are returned in the array `expon`.
+C>
+C> \return Return `.true.` if successful, and `.false.` otherwise.
+C>
       logical function ecp_get_rexponent(ecpin,icont,expon)
 c
 c returns the r-exponents of a given mapped contraction
@@ -265,9 +312,9 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer ecpin         ! [input] ecp set handle
-      integer icont           ! [input] mapped contraction index
-      double precision expon(*) ! [output] exponents
+      integer ecpin         !< [Input] The ecp set handle
+      integer icont           !< [Input] The mapped contraction index
+      double precision expon(*) !< [Output] The exponents
 c::local
       integer ecp, myucont, icontmax
       integer myprim,myexptr
@@ -299,6 +346,13 @@ c
       return
       end
 *.....................................................................
+C>
+C> \brief Stores the ECP radial exponents of a given shell 
+C>
+C> The values of the exponents are provided in the array `expon`.
+C>
+C> \return Return `.true.` if successful, and `.false.` otherwise.
+C>
       logical function ecp_set_rexponent(ecpin,icont,expon,nexp)
 c
 c sets the exponents to the input array for a given mapped contraction
@@ -318,11 +372,11 @@ c::function
 c:blas
 c     dcopy
 c::passed
-      integer ecpin ! [input] ecp set handle        
-      integer icont ! [input] mapped contraction index
-      integer nexp ! [input] number of exponents for contraction
-      double precision expon(nexp) ! [input] "new" r-exponents 
-*. . . . . . . . . . . . . . . .            for contraction    
+      integer ecpin !< [Input] The ecp set handle        
+      integer icont !< [Input] The mapped contraction index
+      integer nexp !< [Input] The number of exponents for contraction
+      double precision expon(nexp) !< [Input] The "new" r-exponents 
+                                   !< for the contraction    
 c::local
       integer ecp, myucont, icontmax
       integer myprim,myexptr
@@ -365,3 +419,5 @@ c
       return
 *.....................................................................
       end
+C>
+C> @}

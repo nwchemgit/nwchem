@@ -141,8 +141,8 @@ c ifill from util
 c dfill from util
 c::passed
 c
-      integer basis     !< [Output] the basis handle
-      character*(*)name !< [Input] the name of basis set  
+      integer basis      !< [Output] the basis handle
+      character*(*) name !< [Input] the name of basis set  
 c
 *:debug:      integer iiii, jjjj
       integer ii ! dummy loop counter
