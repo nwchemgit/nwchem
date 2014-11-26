@@ -169,6 +169,457 @@ c     work arrays for integration
       return
       end 
 
+
+*     ***********************************
+*     *                                 *
+*     *          nwpw_gaunt2            *
+*     *                                 *
+*     ***********************************
+*
+* If iscmplx=.true. this routine computes the Gaunt coefficient
+*
+*  Gaunt2(l,m,l1,m1,l2,m2) =
+*
+*      /2pi  / pi 
+*     |     |
+*   = |     | dconjg(dY_lm(theta,phi)/dtheta) * dY_l1m1(theta,phi)/dtheta * dconjg(Y_l2m2(theta,phi))  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+*      /2pi  / pi
+*     |     |
+*   = |     | dY_lm(theta,phi)/dtheta * dconjg(dY_l1m1(theta,phi)/dtheta) * Y_l2m2(theta,phi)  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+*
+*
+* or if iscmplx=.false. this routine computes the Taunt coefficient
+*
+*  Taunt2(l,m,l1,m1,l2,m2) =
+*
+*      /2pi  / pi
+*     |     |
+*   = |     | dT_lm(theta,phi))/dtheta * dT_l1m1(theta,phi)/dtheta * T_l2m2(theta,phi))  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+      real*8 function nwpw_gaunt2(iscmplx,
+     >                            l1,m1,l2,m2,l3,m3)
+      implicit none
+      logical iscmplx
+      integer l1,l2,l3
+      integer m1,m2,m3
+      integer i
+      integer order
+      real*8  x1,x2
+     
+*     *** local variables ****
+      double precision pi
+      double precision piover2,twopi,fourpi
+c      parameter(pi = 3.14159265358979323846264338327950288419d0)
+c      parameter(piover2= pi*0.5d0)
+c      parameter(twopi  = pi*2.0d0)
+c      parameter(fourpi = pi*4.0d0)
+
+c     work arrays for integration
+      double precision x(100),w(100),coeff
+
+      logical tp,tm
+      integer mm(3),newn,n,itmp
+      real*8   rtheta_lm,rtheta2_lm,ytheta_lm,ytheta2_lm
+      external rtheta_lm,rtheta2_lm,ytheta_lm,ytheta2_lm
+
+      pi = 4.0d0*datan(1.0d0)
+      twopi   = 2.0d0*pi
+      fourpi  = 4.0d0*pi
+      piover2 = pi/2.0d0
+
+      !**** Error Checking ****
+      if (l1.lt.0 .or. l2.lt.0 .or. l3.lt.0) 
+     > write(*,*)'Invalid parameter in nwpw_gaunt2, negative l'
+
+      If (l1.lt.(abs(m1)+1).or.l2.lt.(abs(m2)+1).or.l3.lt.abs(m3)) then
+        nwpw_gaunt2 = 0.0d0
+        return
+      end if
+
+      !**** Do integration over angle phi ****
+      if (iscmplx) then
+         if ((-m1) + m2 - m3 .ne. 0) then
+            nwpw_gaunt2 = 0.0d0
+            return 
+         else
+           coeff = twopi
+         endif
+      else
+         mm(1) = m1
+         mm(2) = m2
+         mm(3) = m3
+         n = 3
+         do while (n>1) 
+            newn = 0
+            do i=1,n-1
+               if (mm(i).lt.mm(i+1)) then
+                  itmp    = mm(i) 
+                  mm(i)   = mm(i+1)
+                  mm(i+1) = itmp
+                  newn    = i
+               end if
+            end do
+            n = newn
+         end do
+         tp = (abs(mm(1)).eq.(abs(mm(2))+abs(mm(3))) )
+         tm = (abs(mm(1)).eq.abs((abs(mm(2))-abs(mm(3)))) )
+
+         if ((mm(1).gt.0).and.(mm(2).gt.0).and.(mm(3).gt.0).and.tp) then
+            coeff = piover2
+         else if ((mm(1).gt.0).and.(mm(2).gt.0)
+     >                        .and.(mm(3).eq.0).and.tp) then
+            coeff = pi
+         else if ((mm(1).gt.0).and.(mm(2).lt.0) 
+     >                        .and.(mm(3).lt.0).and.tp) then
+            coeff = -piover2
+         else if ((mm(1).gt.0).and.(mm(2).lt.0)
+     >                        .and.(mm(3).lt.0).and.tm) then
+            coeff = piover2
+         else if ((mm(1).eq.0).and.(mm(2).eq.0)
+     >                        .and.(mm(3).eq.0)) then
+            coeff = twopi
+         else if ((mm(1).eq.0).and.(mm(2).lt.0)
+     >                        .and.(mm(3).lt.0).and.(tm.or.tp)) then
+            coeff = pi
+         else
+            nwpw_gaunt2 = 0.0d0
+            return 
+         end if
+      endif
+
+      !**** Check the triangle rule ****
+      if (l3.gt.l1+l2 .or. l3.lt.abs(l1-l2)) then
+         nwpw_gaunt2 = 0.0d0
+         return 
+      endif
+
+      !**** Check if the integrand is odd function==>integral is zero ****
+      if (mod(l1 + l2 + l3,2) .eq. 1) then
+         nwpw_gaunt2 = 0.0d0
+         return 
+      endif
+
+      !**** hANDLE THE EXEPTIONAL CASE ****
+      if (l1.eq.0 .and. l2.eq.0 .and. l3.eq.0) then
+         nwpw_gaunt2 = 0.0d0
+         return 
+      endif
+      x1 = -1.0
+      x2 =  1.0
+      order = l1 + l2 + l3
+
+      !**** Generate weights and coordinates for Gauss-Legendre integration ****
+      CALL gauss_weights(x1,x2,x,w,order)
+      nwpw_gaunt2 = 0.0d0
+      if (iscmplx) then
+         do i = 1, order
+            nwpw_gaunt2 = nwpw_gaunt2
+     >                 + w(i)*ytheta2_lm(l1,m1,x(i)) 
+     >                       *ytheta2_lm(l2,m2,x(i))
+     >                       *ytheta_lm(l3,m3,x(i))
+         end do
+      else
+         do i = 1, order
+            nwpw_gaunt2 = nwpw_gaunt2
+     >                 + w(i)*rtheta2_lm(l1,m1,x(i)) 
+     >                       *rtheta2_lm(l2,m2+1,x(i))
+     >                       *rtheta_lm(l3,m3,x(i))
+         end do
+      end if
+
+      nwpw_gaunt2 = nwpw_gaunt2*coeff
+
+      return
+      end 
+
+
+*     ***********************************
+*     *                                 *
+*     *          nwpw_gaunt3            *
+*     *                                 *
+*     ***********************************
+*
+* If iscmplx=.true. this routine computes the Gaunt coefficient
+*
+*  Gaunt3(l,m,l1,m1,l2,m2) =
+*
+*      /2pi  / pi 
+*     |     |
+*   = |     | dconjg(dY_lm(theta,phi)/dphi) * dY_l1m1(theta,phi)/dphi * dconjg(Y_l2m2(theta,phi)) * 1/(sin(theta))**2 *  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+*      /2pi  / pi
+*     |     |
+*   = |     | dY_lm(theta,phi)/dphi * dconjg(dY_l1m1(theta,phi)/dphi) * Y_l2m2(theta,phi) 1/(sin(theta))**2  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+*
+*
+* or if iscmplx=.false. this routine computes the Taunt coefficient
+*
+*  Taunt3(l,m,l1,m1,l2,m2) =
+*
+*      /2pi  / pi
+*     |     |
+*   = |     | (1/sin(theta))**2 * dT_lm(theta,phi))/dphi * dT_l1m1(theta,phi)/dphi * T_l2m2(theta,phi))  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+      real*8 function nwpw_gaunt3(iscmplx,
+     >                           l1,m1,l2,m2,l3,m3)
+      implicit none
+      logical iscmplx
+      integer l1,l2,l3
+      integer m1,m2,m3
+      integer i
+      integer order
+      real*8  x1,x2
+     
+*     *** local variables ****
+      double precision pi
+      double precision piover2,twopi,fourpi
+c      parameter(pi = 3.14159265358979323846264338327950288419d0)
+c      parameter(piover2= pi*0.5d0)
+c      parameter(twopi  = pi*2.0d0)
+c      parameter(fourpi = pi*4.0d0)
+
+c     work arrays for integration
+      double precision x(100),w(100),coeff
+
+      logical tp,tm
+      integer mm(3),newn,n,itmp
+      real*8   rtheta_lm,rtheta_lm_div,ytheta_lm,theta_lm_div
+      external rtheta_lm,rtheta_lm_div,ytheta_lm,theta_lm_div
+
+      pi = 4.0d0*datan(1.0d0)
+      twopi   = 2.0d0*pi
+      fourpi  = 4.0d0*pi
+      piover2 = pi/2.0d0
+
+      !**** Error Checking ****
+      if (l1.lt.0 .or. l2.lt.0 .or. l3.lt.0) 
+     > write(*,*)'Invalid parameter in nwpw_gaunt3, negative l'
+      If (l1.lt.abs(m1) .or. l3.lt.abs(m3) .or. l2.lt.abs(m2))
+     1 write(*,*) 'Invalid parameter in nwpw_gaunt3, m > l'
+
+      !**** Do integration over angle phi ****
+      if (iscmplx) then
+         if ((-m1) + m2 - m3 .ne. 0) then
+            nwpw_gaunt3 = 0.0d0
+            return 
+         else
+           coeff = twopi
+         endif
+      else
+         m1 = -m1
+         m2 = -m2
+         mm(1) = m1
+         mm(2) = m2
+         mm(3) = m3
+         n = 3
+         do while (n>1) 
+            newn = 0
+            do i=1,n-1
+               if (mm(i).lt.mm(i+1)) then
+                  itmp    = mm(i) 
+                  mm(i)   = mm(i+1)
+                  mm(i+1) = itmp
+                  newn    = i
+               end if
+            end do
+            n = newn
+         end do
+         tp = (abs(mm(1)).eq.(abs(mm(2))+abs(mm(3))) )
+         tm = (abs(mm(1)).eq.abs((abs(mm(2))-abs(mm(3)))) )
+
+         if ((mm(1).gt.0).and.(mm(2).gt.0).and.(mm(3).gt.0).and.tp) then
+            coeff = piover2
+         else if ((mm(1).gt.0).and.(mm(2).gt.0)
+     >                        .and.(mm(3).eq.0).and.tp) then
+            coeff = pi
+         else if ((mm(1).gt.0).and.(mm(2).lt.0) 
+     >                        .and.(mm(3).lt.0).and.tp) then
+            coeff = -piover2
+         else if ((mm(1).gt.0).and.(mm(2).lt.0)
+     >                        .and.(mm(3).lt.0).and.tm) then
+            coeff = piover2
+         else if ((mm(1).eq.0).and.(mm(2).eq.0)
+     >                        .and.(mm(3).eq.0)) then
+            coeff = twopi
+         else if ((mm(1).eq.0).and.(mm(2).lt.0)
+     >                        .and.(mm(3).lt.0).and.(tm.or.tp)) then
+            coeff = pi
+         else
+            nwpw_gaunt3 = 0.0d0
+            return 
+         end if
+      endif
+
+c      !**** Check the triangle rule ****
+c      if (l3.gt.l1+l2 .or. l3.lt.abs(l1-l2)) then
+c         nwpw_gaunt3 = 0.0d0
+c         return 
+c      endif
+
+c      !**** Check if the integrand is odd function==>integral is zero ****
+c      if (mod(l1 + l2 + l3,2) .eq. 1) then
+c         nwpw_gaunt3 = 0.0d0
+c         return 
+c      endif
+
+      !**** hANDLE THE EXEPTIONAL CASE ****
+      if (l1.eq.0 .and. l2.eq.0 .and. l3.eq.0) then
+         nwpw_gaunt3 = 0.0d0
+         return 
+      endif
+      x1 = -1.0
+      x2 =  1.0
+      order = l1 + l2 + l3
+
+      !**** Generate weights and coordinates for Gauss-Legendre integration ****
+      CALL gauss_weights(x1,x2,x,w,order)
+      nwpw_gaunt3 = 0.0d0
+      if (iscmplx) then
+         do i = 1, order
+            nwpw_gaunt3 = nwpw_gaunt3
+     >                 - w(i)*theta_lm_div(l1,m1,x(i)) * (m1)
+     >                       *theta_lm_div(l2,m2,x(i)) * (m2)
+     >                       *ytheta_lm(l3,m3,x(i))
+         end do
+      else
+         do i = 1, order
+            nwpw_gaunt3 = nwpw_gaunt3
+     >                 + w(i)*rtheta_lm_div(l1,-m1,x(i)) * (m1)
+     >                       *rtheta_lm_div(l2,-m2,x(i)) * (m2)
+     >                       *rtheta_lm(l3,m3,x(i))
+         end do
+      end if
+
+      nwpw_gaunt3 = nwpw_gaunt3*coeff
+
+      return
+      end 
+
+
+
+
+c!  *************************************************
+c!  
+c!     Name    : rtheta2_lm
+c!  
+c!  
+c!     Purpose : calculates rtheta2_lm for a scalar cos_theta
+c!               such that
+c!                                                           {cos(|m|*phi)   m>0
+c!         dT_lm(cos_theta,phi)/dtheta=rtheta2_lm(cos_theta)*{1              m==0
+c!                                                           {sin(|m|*phi)   m<0
+c!  
+c!  
+c!  *************************************************
+      double precision function rtheta2_lm(l,m,cos_theta)
+      implicit none
+      integer l,m
+      double precision cos_theta
+
+      !*** local variables ***
+      integer i,mod_m
+      double precision coeff,twopi,fourpi,f
+
+      !*** external functions *** 
+      double precision rlegendre_lm
+      external         rlegendre_lm
+
+      twopi = 8.0d0*datan(1.0d0)
+
+      mod_m = abs(m)
+      if ((mod_m+1) .gt. l) then
+         rtheta2_lm = 0.0d0
+      end if
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then 
+         coeff= 0.5d0
+      else
+         coeff= 1.0d0 
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/twopi
+      coeff = dsqrt(coeff)
+      f     = coeff*rlegendre_lm(l,mod_m+1,cos_theta)
+
+      rtheta2_lm = -f
+      return
+      end 
+
+
+c!  *************************************************
+c!  
+c!     Name    : ytheta2_lm
+c!  
+c!  
+c!     Purpose : calculates ytheta_lm for a scalar cos_theta
+c!               such that
+c!                                                 
+c!         dY_lm(cos_theta,phi)/dtheta=ytheta_lm(cos_theta)*exp(i*m*phi)
+c!                                                
+c!  
+c!  *************************************************
+      double precision function ytheta2_lm(l,m,cos_theta)
+      implicit none
+      integer l,m
+      double precision cos_theta
+
+      !*** local variables ***
+      integer i,mod_m
+      double precision coeff,twopi,fourpi,f
+
+      !*** external functions *** 
+      double precision legendre_lm
+      external         legendre_lm
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      mod_m = abs(m) 
+      if (mod_m+1 .gt. l) then
+         ytheta2_lm = 0.0d0
+         return
+      end if
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 1.0d0
+      else
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif 
+      coeff = coeff*(2*l+1)/fourpi
+      coeff = dsqrt(coeff)
+      f     = coeff*legendre_lm(l,mod_m+1,cos_theta)
+      if ((m.lt.0).and.(mod(mod_m+1,2).eq.1)) f=-f
+
+      ytheta2_lm = -f
+      return
+      end
+
+
+
+
+
+
 *     ***************************
 *     *				*
 *     *   nwpw_factorial_init   *
