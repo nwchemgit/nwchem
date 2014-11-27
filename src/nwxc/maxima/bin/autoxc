@@ -871,7 +871,7 @@ ueb1t: [ dfs1ts(rhob,gammabb,taub,taua),
 cl0 : [ fnc(iq) ] $
 cl1r: [ Amat(iq,D1_RA) ] $
 cl1g: [ Cmat(iq,D1_GAA), Cmat(iq,D1_GAB) ] $
-cl1t: [ Amat(iq,D1_TA) ] $
+cl1t: [ Mmat(iq,D1_TA) ] $
 
 ce0 : [ func(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
 ce1r: [ at(df1ra(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
