@@ -52,7 +52,7 @@ c
           if (rhoa.gt.tol_rho) then 
             fnc(iq) = fnc(iq)-1.8610514726982d+0*rhoa**1.333333333333333
      1         3d+0*wght
-            Amat(iq,D1_RA) = Amat(iq,D1_RA)-2.4814019635975998d+0*rhoa**
+            Amat(iq,D1_RA) = Amat(iq,D1_RA)-1.2407009817987999d+0*rhoa**
      1         3.333333333333333d-1*wght
           endif ! rhoa.gt.tol_rho 
         else  ! ipol.eq.1 
@@ -126,13 +126,13 @@ c
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
           if (rhoa.gt.tol_rho) then 
-            t1 = -8.271339878658666d-1*wght/rhoa**6.666666666666666d-1
             fnc(iq) = fnc(iq)-1.8610514726982d+0*rhoa**1.333333333333333
      1         3d+0*wght
-            Amat(iq,D1_RA) = Amat(iq,D1_RA)-2.4814019635975998d+0*rhoa**
+            Amat(iq,D1_RA) = Amat(iq,D1_RA)-1.2407009817987999d+0*rhoa**
      1         3.333333333333333d-1*wght
-            Amat2(iq,D2_RA_RA) = t1+Amat2(iq,D2_RA_RA)
-            Amat2(iq,D2_RA_RB) = t1+Amat2(iq,D2_RA_RB)
+            Amat2(iq,D2_RA_RA) = Amat2(iq,D2_RA_RA)-4.135669939329333d-1
+     1         *wght/rhoa**6.666666666666666d-1
+            Amat2(iq,D2_RA_RB) = Amat2(iq,D2_RA_RB)
           endif ! rhoa.gt.tol_rho 
         else  ! ipol.eq.1 
           rhoa    = rho(iq,R_A) 
@@ -218,16 +218,16 @@ c
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
           if (rhoa.gt.tol_rho) then 
-            t1 = -8.271339878658666d-1*wght/rhoa**6.666666666666666d-1
-            t2 = 5.514226585772444d-1*wght/rhoa**1.6666666666666669d+0
             fnc(iq) = fnc(iq)-1.8610514726982d+0*rhoa**1.333333333333333
      1         3d+0*wght
-            Amat(iq,D1_RA) = Amat(iq,D1_RA)-2.4814019635975998d+0*rhoa**
+            Amat(iq,D1_RA) = Amat(iq,D1_RA)-1.2407009817987999d+0*rhoa**
      1         3.333333333333333d-1*wght
-            Amat2(iq,D2_RA_RA) = t1+Amat2(iq,D2_RA_RA)
-            Amat2(iq,D2_RA_RB) = t1+Amat2(iq,D2_RA_RB)
-            Amat3(iq,D3_RA_RA_RA) = t2+Amat3(iq,D3_RA_RA_RA)
-            Amat3(iq,D3_RA_RA_RB) = t2+Amat3(iq,D3_RA_RA_RB)
+            Amat2(iq,D2_RA_RA) = Amat2(iq,D2_RA_RA)-4.135669939329333d-1
+     1         *wght/rhoa**6.666666666666666d-1
+            Amat2(iq,D2_RA_RB) = Amat2(iq,D2_RA_RB)
+            Amat3(iq,D3_RA_RA_RA) = 2.757113292886222d-1*wght/rhoa**1.66
+     1         66666666666669d+0+Amat3(iq,D3_RA_RA_RA)
+            Amat3(iq,D3_RA_RA_RB) = Amat3(iq,D3_RA_RA_RB)
           endif ! rhoa.gt.tol_rho 
         else  ! ipol.eq.1 
           rhoa    = rho(iq,R_A) 
