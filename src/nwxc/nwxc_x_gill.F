@@ -110,7 +110,7 @@ c
 c        ======> SPIN-RESTRICTED <======
 c
          do 10 n = 1, nq
-            if (rho(n,R_T).lt.tol_rho) goto 10
+            if (rho(n,R_T).lt.2.0d0*tol_rho) goto 10
             rhoval = 0.5d0*rho(n,R_T)
 c
 c           Spin alpha:
@@ -134,7 +134,7 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            if (sqrt(gamma).gt.tol_rho)then
+c           if (sqrt(gamma).gt.tol_rho)then
                gamma = 0.25d0*gamma
                x = sqrt(gamma)/rho43
 c              d1x(1) = -FOUR3*x/rhoval
@@ -162,7 +162,7 @@ c    &              + rho43*(d2g*d1x(1)*d1x(2)+d1g*d2x(2))*wght
 c              Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
 c    &              + rho43*(d2g*d1x(2)*d1x(2)+d1g*d2x(3))*wght
 #endif
-            endif
+c           endif
 c
  10      continue
 c
@@ -196,7 +196,7 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            if (sqrt(gamma).gt.tol_rho)then
+c           if (sqrt(gamma).gt.tol_rho)then
                x = sqrt(gamma)/rho43
 c              d1x(1) = -FOUR3*x/rhoval
 c              d1x(2) = 0.5d0*x/gamma
@@ -223,7 +223,7 @@ c    &              + rho43*(d2g*d1x(1)*d1x(2)+d1g*d2x(2))*wght
 c              Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
 c    &              + rho43*(d2g*d1x(2)*d1x(2)+d1g*d2x(3))*wght
 #endif
-            endif
+c           endif
 c
 c
  25         continue
@@ -252,7 +252,7 @@ c
 c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
-            if (sqrt(gamma).gt.tol_rho)then
+c           if (sqrt(gamma).gt.tol_rho)then
                x = sqrt(gamma)/rho43
 c              d1x(1) = -FOUR3*x/rhoval
 c              d1x(2) = 0.5d0*x/gamma
@@ -279,7 +279,7 @@ c    &              + rho43*(d2g*d1x(1)*d1x(2)+d1g*d2x(2))*wght
 c              Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
 c    &              + rho43*(d2g*d1x(2)*d1x(2)+d1g*d2x(3))*wght
 #endif
-            endif
+c           endif
 c
 c
  20      continue
