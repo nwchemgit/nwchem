@@ -160,9 +160,9 @@ c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
 c            gam12 = dsqrt(gamma)
 c            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 10
-            tauN = 2.0d0*tau(n,T_T)
+            tauN = tau(n,T_T)
 
-            p=P32*gamma/(rho83*2.d0)
+            p=0.5d0*P32*gamma/(rho83)
             qtil=(3.d0*tauN*P32/rho53)-G920-(p/12.d0)
 c
 c     Evaluate the GC part of Fx, i.e. mt = Fx(p,qtil) - 1
