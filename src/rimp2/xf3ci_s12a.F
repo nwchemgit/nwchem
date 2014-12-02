@@ -170,7 +170,7 @@ C           ******************************
 C           Notice that we are thinking of the result we generate
 C           as an NPXF by NQXF*NS matrix, while in reality, it is
 C           an NPXF*NQXF by NS matrix.  Therefore, of the leading
-c           dimension is not exactly NPXF*NQXF, we're in trouble!  
+c           dimension is not exactly NPXF*NQXF, we are in trouble!  
 c           This is checked when we get access to the local patch,
 c           above.
 C

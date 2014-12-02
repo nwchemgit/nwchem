@@ -97,7 +97,7 @@ C
       QBFLo = 1
 C
 C     This is where we want end up -- careful not to run off the end of
-c     the basis, since the inquiry routines don't appreciate that.
+c     the basis, since the inquiry routines do not appreciate that.
 C
  1000 QBFHi = Min( QBFLo + QDim - 1, MaxQ)
 C
