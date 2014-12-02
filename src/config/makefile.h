@@ -1960,8 +1960,8 @@ endif
            FOPTIONS += -qopt-report-file=stderr
 #fpp seems to get lost with ifort 15 in the offload bit
            EXPLICITF = TRUE
-           CPP=fpp -P -c_com=no  
-           FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
+           CPP=fpp -P 
+#           FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
           ifdef USE_OPTREPORT
 	  FOPTIONS += -qopt-report=1 -qopt-report-phase=vec 
           endif
