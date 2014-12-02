@@ -115,6 +115,13 @@
      >                      'pspw:HFX_print_orbital_contribution',
      >                       mt_log,1,orb_contribution))
      >       orb_contribution = .false.
+
+         if (.not. rtdb_get(rtdb,
+     >                      'pspw:HFX_localize',
+     >                      mt_log,1,localize_on)) 
+     >       localize_on = .false.
+
+         write(*,*) "localize_on=",localize_on
  
 
 *        **** initialize coulomb_screened ****
@@ -468,7 +475,11 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
             end if
 
          else
-            call pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
+            if (localize_on) then
+               call pspw_potential_hfx_localize(psi_r,Hpsi_r)
+            else
+               call pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
+            end if
          end if
 
       end if

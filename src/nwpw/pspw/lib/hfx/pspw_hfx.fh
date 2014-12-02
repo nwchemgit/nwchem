@@ -3,7 +3,7 @@
 *
 
 *     **** PSPW_HFX common block ****
-      logical relaxed,orb_contribution,hfx_on
+      logical relaxed,orb_contribution,hfx_on,localize_on
       real*8  rcut,pp
       real*8  ehfx,phfx
       real*8  hfx_parameter
@@ -16,7 +16,8 @@
      >                          orbital_list,
      >                          ehfx_orb,
      >                          norbs,ispin,solver_type,flag,
-     >                          relaxed,orb_contribution,hfx_on
+     >                          relaxed,orb_contribution,hfx_on,
+     >                          localize_on
 
 *     **** PSPW_HFX_frac common block ****
       logical frac_on
