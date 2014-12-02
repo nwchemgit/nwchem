@@ -1723,6 +1723,9 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
           DEFINES  += -DCRAYXT -DNOIO
           USE_NOIO=1
       endif
+      ifeq ($(CC),gcc)
+        _CC=gcc
+      endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
       endif
@@ -1747,6 +1750,9 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
       ifndef _FC
       FC=gfortran
       _FC=gfortran
+      endif
+      ifndef _CC
+      _CC=gcc
       endif
       FOPTIMIZE  = -O2 
       ifeq ($(_FC),gfortran)
@@ -1962,7 +1968,6 @@ endif
          ifdef USE_OPENMP
            FOPTIONS += -qopenmp
            FOPTIONS += -qopt-report-phase=openmp
-           COPTIONS += -qopenmp
            DEFINES+= -DUSE_OPENMP 
          endif		   
 	   else
@@ -2081,19 +2086,29 @@ $(error )
 #        COPTIONS   =   -O
       endif
       ifeq ($(_CC),icc)
-	    ICCV15ORNEWER=$(shell icc -V  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-        COPTIONS   +=   -xHOST -ftz
-		ifeq ($(ICCV15ORNEWER), Y)
-   	      COPTIONS   +=  -qopt-report-phase:openmp -vec-report=1
-		else
-   	      COPTIONS   +=  -openmp-report=2 -vec-report=1
-		endif
-#old        COPTIMIZE =  -O3 -hlo   -mP2OPT_hlo_level=2  
-        COPTIMIZE =  -O3
-        COPTIMIZE += -ip -no-prec-div
+	 ICCV15ORNEWER=$(shell icc -V  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+         COPTIONS   +=   -xHOST -ftz
+         ifeq ($(ICCV15ORNEWER), Y)
+   	    COPTIONS   += -vec-report=1
+            ifdef USE_OPENMP
+              COPTIONS += -qopenmp
+   	      COPTIONS   +=  -qopt-report-phase:openmp
+            endif
+         else
+   	   COPTIONS   += -vec-report=1
+            ifdef USE_OPENMP
+              COPTIONS += -openmp
+   	      COPTIONS += -openmp-report=2
+            endif
+         endif
+         COPTIMIZE =  -O3
+         COPTIMIZE += -ip -no-prec-div
       endif
-      ifeq ($(CC),gcc)
-        COPTIONS   =   -O3 -funroll-loops -ffast-math
+      ifeq ($(_CC),gcc)
+        COPTIONS   =   -O3 -funroll-loops -ffast-math 
+        ifdef USE_OPENMP
+          COPTIONS += -fopenmp
+        endif
       endif
       ifdef USE_GCC34
         COPTIONS  +=   -march=k8 -mtune=k8
