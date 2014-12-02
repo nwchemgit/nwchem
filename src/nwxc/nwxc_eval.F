@@ -422,6 +422,7 @@ c
       integer iv1           !< the variable label
       integer nvar          !< the number of variables
       double precision val  !< the functional (derivative) value
+      double precision scale !< the closed shell GGA scaling factor
       integer iq, ip
 c
       if (ipol.eq.1) then
@@ -473,6 +474,11 @@ c
 c
 c     Now unpack the results
 c
+      if (ipol.eq.1) then
+        scale = 2.0d0
+      else
+        scale = 1.0d0
+      endif
       do iq = 1, nq
         f(iq) = get_val(nwad_f(iq))
         nvar = get_nvar(nwad_f(iq))
@@ -484,11 +490,11 @@ c
             case (2)
               dfdr(iq,D1_RB) = val
             case (3)
-              dfdg(iq,D1_GAA) = val
+              dfdg(iq,D1_GAA) = scale*val
             case (4)
-              dfdg(iq,D1_GAB) = val
+              dfdg(iq,D1_GAB) = scale*val
             case (5)
-              dfdg(iq,D1_GBB) = val
+              dfdg(iq,D1_GBB) = scale*val
             case (6)
               dfdt(iq,D1_TA) = val
             case (7)
