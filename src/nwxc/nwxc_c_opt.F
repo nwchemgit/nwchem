@@ -169,7 +169,10 @@ c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
               funcl(ii+1)        = 0.0d0
               rhol(ii+1,R_A)     = 0.5d0*rhol(ii+1,R_T)
+              rhol(ii+1,R_B)     = 0.0d0
               rgammal(ii+1,G_AA) = 0.25d0*rgammal(ii+1,G_TT)
+              rgammal(ii+1,G_AB) = 0.0d0
+              rgammal(ii+1,G_BB) = 0.0d0
            enddo
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
