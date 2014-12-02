@@ -52,11 +52,10 @@ c
       logical LResult
       integer ijcanon,i,j
       integer ntemp,info,ij,ijm1
-      integer lipiv,iipiv,liwork,iiwork,lwork,iwork,lcc,icc,
+      integer lipiv,iipiv,liwork,iiwork,lwork,iwork,l_cc,i_cc,
      ,     lafp,iafp
       double precision  rcond, ferr, berr
 c
-
       ijcanon(i,j) = i*(i-1)/2 +j
       
  1000 if (nhist.lt.2) then 
@@ -67,37 +66,38 @@ c
       LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 5',lipiv,iipiv)
       LResult = MA_Push_Get(MT_int,nhist+1,'Lapack 4',liwork,iiwork)
       LResult = MA_Push_Get(MT_Dbl,3*(nhist+1),'Lapack 3',lwork,iwork)
-      LResult = MA_Push_Get(MT_Dbl,nhist+1,'Lapack 2',lcc,icc)
+      LResult = MA_Push_Get(MT_Dbl,nhist+1,'Lapack 2',l_cc,i_cc)
       LResult = MA_Push_Get(MT_Dbl, ntemp,'Lapack 1', lafp,iafp)
 c
 c     Define the c array.
 c
-      call dcopy(nhist+1,0d0,0,Dbl_MB(icc), 1)
-      Dbl_MB(icc) = -1.0d0
-c      if(ga_nodeid().eq.0)then
-c        write(6,*)' pulay matrix '
-c        call stpr_tprntd(pulay,nhist+1)
-c        write(6,*)' rhs '
-c        call output(Dbl_MB(icc),1,nhist+1,1,1,nhist+1,1,1)
-c      endif
+      call dcopy(nhist+1,0d0,0,Dbl_MB(i_cc), 1)
+      Dbl_MB(i_cc) = -1.0d0
+#ifdef DEBUG
+      if(ga_nodeid().eq.0)then
+        write(6,*)'nhist ',nhist,' pulay matrix '
+        write(6,*) (pulay(i),i=1,ntemp)
+        write(6,*)' rhs '
+        call output(Dbl_MB(i_cc),1,nhist+1,1,1,nhist+1,1,1)
+      endif
+#endif
       call dspsvx( 'N', 'U', nhist+1, 1, pulay, Dbl_MB(iafp), 
-     &             Int_MB(iipiv), Dbl_MB(icc), nhist+1, wght, nhist+1, 
+     &             Int_MB(iipiv), Dbl_MB(i_cc), nhist+1, wght, nhist+1, 
      &             rcond, ferr, berr, Dbl_MB(iwork), Int_MB(iiwork), 
      &             info)
-c      if(ga_nodeid().eq.0)then
-c        write(6,*)' wght '
-c        call output(wght,1,nhist+1,1,1,nhist+1,1,1)
-c      endif
-      LResult = MA_Pop_Stack(lafp)
-      LResult = MA_Pop_Stack(lcc)
-      LResult = MA_Pop_Stack(lwork)
-      LResult = MA_Pop_Stack(liwork)
-      LResult = MA_Pop_Stack(lipiv)
+#ifdef DEBUG
+      if(ga_nodeid().eq.0)then
+        write(6,*)' wght '
+        call output(wght,1,nhist+1,1,1,nhist+1,1,1)
+      endif
+#endif
+      LResult = MA_chop_Stack(lipiv)
 c
 c     Check for singularity.  If linear dependency occurs, decrease nhist
 c     and modify the Pulay matrix accordingly.
 c     
       if(info.ne.0)then
+c        write(6,*)' info ',info
         if(ga_nodeid().eq.0 .and. util_print('warning',print_default))
      &        write(LuOut,*)' Singularity in Pulay matrix. ',
      &       'Error and Fock matrices removed. '
