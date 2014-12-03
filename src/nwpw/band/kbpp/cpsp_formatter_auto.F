@@ -72,7 +72,7 @@
 
 *     **** brillioun zone information ****
       nbrillioun = brillioun_nbrillioun()
-      value = MA_push_get(mt_dbl,3*nbrillioun,'kv',kv(2),kv(1))
+      value = BA_push_get(mt_dbl,3*nbrillioun,'kv',kv(2),kv(1))
       if(.not. value) 
      > call errquit('cpsp_formatter_auto: out of stack memory',0,
      >       MA_ERR)
@@ -122,7 +122,7 @@ c      call flush(6)
      >              psp_type,INPUT_ERR)
      
  50   continue
-      value = MA_pop_stack(kv(2))
+      value = BA_pop_stack(kv(2))
 *     *** exit if error found ***
       if(.not. value) 
      > call errquit('cpsp_formatter_auto: error popping stack',0,MA_ERR)

@@ -99,16 +99,16 @@
       prj_nkatm = ion_nkatm()
 
 *     *** number of basis functions for each atom kind ***
-      value = MA_alloc_get(mt_int,(prj_nkatm),
+      value = BA_alloc_get(mt_int,(prj_nkatm),
      >                     'prj_nbasis',prj_nbasis(2),prj_nbasis(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(prj_nkatm),
+     >        BA_alloc_get(mt_int,(prj_nkatm),
      >                     'prj_indx',prj_indx(2),prj_indx(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*prj_nkatm),
+     >        BA_alloc_get(mt_int,(2*prj_nkatm),
      >                     'i_prj_l',i_prj_l(2),i_prj_l(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*prj_nkatm),
+     >        BA_alloc_get(mt_int,(2*prj_nkatm),
      >                     'i_prj_m',i_prj_m(2),i_prj_m(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',0,0)
 
@@ -127,12 +127,12 @@
       end do
 
       do ia=1,prj_nkatm
-        value = MA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
+        value = BA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
      >                       'sub_i_prj_l',
      >                       int_mb(i_prj_l(1)+2*(ia-1)+1),
      >                       int_mb(i_prj_l(1)+2*(ia-1)))
         value = value.and.
-     >          MA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
+     >          BA_alloc_get(mt_int,(int_mb(prj_nbasis(1)+ia-1)),
      >                       'sub_i_prj_m',
      >                       int_mb(i_prj_m(1)+2*(ia-1)+1),
      >                       int_mb(i_prj_m(1)+2*(ia-1)))
@@ -142,7 +142,7 @@
 c     *** allocate kspace arrays***
       call Pack_npack(0,npack0)
       call Pack_npack(1,npack1)
-      value = MA_alloc_get(mt_dcpl,(prj_ntot*npack1),
+      value = BA_alloc_get(mt_dcpl,(prj_ntot*npack1),
      >                     'prj',prj(2),prj(1))
       if (.not.value) call errquit('paw_proj_init: alloc heap',0,1)
 
@@ -531,9 +531,9 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       call BRDCST(9+MSGINT,nbasis,mitob(msglen),MASTER)
       
       call D3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not.value) call errquit('paw_proj_read: push stack',0,0)
 
 *     **** read in projectors ****
@@ -554,8 +554,8 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       call Pack_t_pack(0,dcpl_mb(tmp1(1)))
       call Pack_t_Copy(0,dcpl_mb(tmp1(1)),vloc)
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('paw_proj_read: pop stack',0,1)
 
       if (taskid.eq.MASTER) then
@@ -712,22 +712,22 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 *     **** compute bessel transforms ****
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dbl,nfft3d,
+      value = BA_push_get(mt_dbl,nfft3d,
      >                    'rayleigh',rayleigh(2),rayleigh(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,
+     >        BA_push_get(mt_dcpl,nfft3d,
      >                    'prj',prj(2),prj(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,
+     >        BA_push_get(mt_dcpl,nfft3d,
      >                    'tmp',tmp(2),tmp(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,nr,'f',f(2),f(1))
+     >         BA_push_get(mt_dbl,nr,'f',f(2),f(1))
       value  = value.and.
-     >         MA_push_get(mt_int,nfft3d,'gm',gm(2),gm(1))
+     >         BA_push_get(mt_int,nfft3d,'gm',gm(2),gm(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,nfft3d,'ray small',ray(2),ray(1))
+     >         BA_push_get(mt_dbl,nfft3d,'ray small',ray(2),ray(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,nfft3d,'g',g(2),g(1))
+     >         BA_push_get(mt_dbl,nfft3d,'g',g(2),g(1))
       if (.not.value) 
      > call errquit('paw_proj_formatter_auto, push stack',0,0)
 
@@ -859,13 +859,13 @@ c      end do
          write(6,*) " Generated formatted filename:",full_filename(1:l)
       end if
 
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(ray(2))
-      value = value.and.MA_pop_stack(gm(2))
-      value = value.and.MA_pop_stack(f(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(prj(2))
-      value = value.and.MA_pop_stack(rayleigh(2))
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(ray(2))
+      value = value.and.BA_pop_stack(gm(2))
+      value = value.and.BA_pop_stack(f(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(prj(2))
+      value = value.and.BA_pop_stack(rayleigh(2))
       if (.not.value) 
      >  call errquit('paw_proj_formatter_auto, pop stack',1,0)
       
@@ -958,14 +958,14 @@ c      end do
       
       value = .true.
       do ia=1,prj_nkatm
-         value = value.and.MA_free_heap(int_mb(i_prj_l(1)+2*(ia-1)+1))
-         value = value.and.MA_free_heap(int_mb(i_prj_m(1)+2*(ia-1)+1))
+         value = value.and.BA_free_heap(int_mb(i_prj_l(1)+2*(ia-1)+1))
+         value = value.and.BA_free_heap(int_mb(i_prj_m(1)+2*(ia-1)+1))
       end do
-      value = value.and.MA_free_heap(i_prj_l(2))
-      value = value.and.MA_free_heap(i_prj_m(2))
-      value = value.and.MA_free_heap(prj_indx(2))
-      value = value.and.MA_free_heap(prj_nbasis(2))
-      value = value.and.MA_free_heap(prj(2))
+      value = value.and.BA_free_heap(i_prj_l(2))
+      value = value.and.BA_free_heap(i_prj_m(2))
+      value = value.and.BA_free_heap(prj_indx(2))
+      value = value.and.BA_free_heap(prj_nbasis(2))
+      value = value.and.BA_free_heap(prj(2))
       if (.not.value) call errquit('paw_proj_end: dealloc heap',0,0)
 
 

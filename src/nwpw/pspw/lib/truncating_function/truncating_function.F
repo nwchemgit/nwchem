@@ -101,7 +101,7 @@ c      integer rho(2),f(2)
 
       nt = ion_nkatm()
 
-      value = MA_alloc_get(mt_dbl,(nt),'Trnc',Trnc(2),Trnc(1))
+      value = BA_alloc_get(mt_dbl,(nt),'Trnc',Trnc(2),Trnc(1))
       if (.not. value) 
      >  call errquit('Truncating_Function_init: out of heap memory',0,
      &       MA_ERR)
@@ -136,7 +136,7 @@ c      integer rho(2),f(2)
 #include "bafdecls.fh"
 #include "truncating_function.fh"
 
-      if (.not. MA_free_heap(Trnc(2))) 
+      if (.not. BA_free_heap(Trnc(2))) 
      >  call errquit('Truncating_Function_end: freeing heap',0, MA_ERR)
       return
       end
@@ -168,7 +168,7 @@ c      integer rho(2),f(2)
 
 
       call D3dB_n2ft3d(1,n2ft3d)
-      value = MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
       if (.not. value)
      >  call errquit(' Switching_Charge_Generate_V:pushing stack',0,
      &       MA_ERR)
@@ -180,7 +180,7 @@ c      integer rho(2),f(2)
         call Truncating_Function_Union(n2ft3d,T,dbl_mb(tmp(1)),T)
       end do
 
-      value = MA_pop_stack(tmp(2))
+      value = BA_pop_stack(tmp(2))
       if (.not. value) 
      >  call errquit('Truncating_Function: popping stack',1, MA_ERR)
       return
@@ -208,7 +208,7 @@ c      integer rho(2),f(2)
       integer tmp(2)
 
       call D3dB_n2ft3d(1,n2ft3d)
-c      if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1)))
+c      if (.not.BA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1)))
 c     >  call errquit('Truncating_Function_index:pushing stack',0,
 c     >       MA_ERR)
 
@@ -217,7 +217,7 @@ c     >       MA_ERR)
         call Truncating_Function_atom(n2ft3d,indx(ii),rgrid,T)
       end do
 
-c      if (.not.MA_pop_stack(tmp(2)))
+c      if (.not.BA_pop_stack(tmp(2)))
 c     >  call errquit('Truncating_Function_index:pop stack',1,MA_ERR)
 
       return

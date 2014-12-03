@@ -37,13 +37,13 @@
       nemax = psi_ne(1)+psi_ne(2)
       nelc1 = psi_ne(1)
 
-      value = MA_alloc_get(mt_dcpl,npack1*nemax,
+      value = BA_alloc_get(mt_dcpl,npack1*nemax,
      >                     'U',U(2),U(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nelc1*nelc1,
+     >        BA_alloc_get(mt_dbl,2*nelc1*nelc1,
      >                     'Vt',Vt(2),Vt(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nemax,
+     >        BA_alloc_get(mt_dbl,nemax,
      >                     'S',S(2),S(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -74,11 +74,11 @@
 *     **** local variables ****
       logical value
 
-      value = MA_free_heap(S(2))
+      value = BA_free_heap(S(2))
       value = value.and.
-     >        MA_free_heap(Vt(2))
+     >        BA_free_heap(Vt(2))
       value = value.and.
-     >        MA_free_heap(U(2))
+     >        BA_free_heap(U(2))
       if (.not. value) call errquit('error freeing of heap memory',0,
      &       MA_ERR)
 
@@ -142,12 +142,12 @@ c      integer ierr
 
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(4*nemax*nemax),'tmp1',
+      value = BA_push_get(mt_dbl,(4*nemax*nemax),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dbl,(nemax),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'V',V(2),V(1))
+     >        BA_push_get(mt_dbl,(2*nemax*nemax),'V',V(2),V(1))
 
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
@@ -190,11 +190,11 @@ c      integer ierr
 
 *     **** deallocate tmp space ****     
       value = value.and.
-     >        MA_pop_stack(V(2))
+     >        BA_pop_stack(V(2))
       value = value.and.
-     >        MA_pop_stack(tmp2(2))
+     >        BA_pop_stack(tmp2(2))
       value = value.and.
-     >        MA_pop_stack(tmp1(2))
+     >        BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
 
@@ -231,10 +231,10 @@ c     real*8 sum1,sumv
       external ddot
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(4*ne*ne),'tmp1',
+      value = BA_push_get(mt_dbl,(4*ne*ne),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(ne),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dbl,(ne),'tmp2',tmp2(2),tmp2(1))
  
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
@@ -279,9 +279,9 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
 
 
       value = value.and.
-     >        MA_pop_stack(tmp2(2))
+     >        BA_pop_stack(tmp2(2))
       value = value.and.
-     >        MA_pop_stack(tmp1(2))
+     >        BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
        
@@ -335,13 +335,13 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
       nemax = psi_ne(1) + psi_ne(2)
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
+      value = BA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
+     >        BA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
      >                    tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
+     >        BA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
@@ -412,11 +412,11 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
 
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmp3(2))
+      value = BA_pop_stack(tmp3(2))
       value = value.and.
-     >        MA_pop_stack(tmp2(2))
+     >        BA_pop_stack(tmp2(2))
       value = value.and.
-     >        MA_pop_stack(tmp1(2))
+     >        BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
 
@@ -469,13 +469,13 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       nemax = psi_ne(1) + psi_ne(2)
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
+      value = BA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
+     >        BA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
      >                    tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
+     >        BA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
@@ -528,11 +528,11 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       end do
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmp3(2))
+      value = BA_pop_stack(tmp3(2))
       value = value.and.
-     >        MA_pop_stack(tmp2(2))
+     >        BA_pop_stack(tmp2(2))
       value = value.and.
-     >        MA_pop_stack(tmp1(2))
+     >        BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
 
@@ -587,13 +587,13 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       nemax = psi_ne(1) + psi_ne(2)
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
+      value = BA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
+     >        BA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
      >                    tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
+     >        BA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
@@ -649,11 +649,11 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       end do !*** ms ***
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmp3(2))
+      value = BA_pop_stack(tmp3(2))
       value = value.and.
-     >        MA_pop_stack(tmp2(2))
+     >        BA_pop_stack(tmp2(2))
       value = value.and.
-     >        MA_pop_stack(tmp1(2))
+     >        BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
 

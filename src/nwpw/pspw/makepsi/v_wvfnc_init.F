@@ -72,7 +72,7 @@
 
 
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = BA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull_hndl,cfull_indx)
 
 
@@ -119,7 +119,7 @@
  9111 IERR=11
       GO TO 9999
  
- 9999 value = MA_free_heap(cfull_hndl)
+ 9999 value = BA_free_heap(cfull_hndl)
       IF(IERR.EQ.0) THEN
         WRITE(6,*) ' JOB HAS BEEN COMPLETED.  CODE=',IERR
       ELSE

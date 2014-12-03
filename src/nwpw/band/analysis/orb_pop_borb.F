@@ -48,7 +48,7 @@ c
       n1(2) = ne(1)+1
       n2(2) = ne(1)+ne(2)
 
-      if (.not.MA_push_get(mt_dcpl, nfft3d,'phi',phi(2),phi(1)))
+      if (.not.BA_push_get(mt_dcpl, nfft3d,'phi',phi(2),phi(1)))
      >   call errquit('Orb_pop_borb:out of stack memory',0,MA_ERR)
 
 *     -------------------
@@ -202,7 +202,7 @@ c            end do
         end do
       end do
 
-      if (.not.MA_pop_stack(phi(2)))
+      if (.not.BA_pop_stack(phi(2)))
      > call errquit('Orb_pop_borb:popping stack',0, MA_ERR)
 
 

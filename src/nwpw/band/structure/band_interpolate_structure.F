@@ -59,7 +59,7 @@
 
 *     **** allocate eigs ****
       isize = neall(1)+neall(2)
-      if (.not.MA_push_get(mt_dbl,isize,'eigs',eigs(2),eigs(1)))
+      if (.not.BA_push_get(mt_dbl,isize,'eigs',eigs(2),eigs(1)))
      >  call errquit(
      > 'band_interpolate structure:out of stack memory',0,MA_ERR)
 
@@ -281,7 +281,7 @@ c            end do
         if (cpsi_ispin().eq.2) close(59)
       end if
 
-      if (.not.MA_pop_stack(eigs(2))) 
+      if (.not.BA_pop_stack(eigs(2))) 
      >  call errquit(
      > 'band_interpolate structure:popping stack memory',0,MA_ERR)
 

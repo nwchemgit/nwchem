@@ -55,7 +55,7 @@
 
 
 *     **** allocate gg and ss ****
-      value = MA_push_get(mt_dcpl,nsize,'gg',gg(2),gg(1))
+      value = BA_push_get(mt_dcpl,nsize,'gg',gg(2),gg(1))
 
 
       call pspw_Grsm_list_store(m,g)
@@ -98,7 +98,7 @@
          end do
       end if
 
-      value = MA_pop_stack(gg(2))
+      value = BA_pop_stack(gg(2))
       return 
       end
 

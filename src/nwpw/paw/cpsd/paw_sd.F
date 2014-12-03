@@ -473,10 +473,10 @@ c      call paw_vloc_init()
       call Dneall_neq(neq)
       nemaxq = neq(1)+neq(2)
 
-      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       if (.not. value) call errquit('paw_sd:out of heap memory',0,
      &       MA_ERR)
@@ -550,27 +550,27 @@ c      call paw_vloc_init()
 
 
 *     **** allocate other variables *****
-      value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
+      value = BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
+     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd',lmd(2),lmd(1))
+     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd',lmd(2),lmd(1))
       value = value.and.
-     >     MA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd1',lmd1(2),lmd1(1))
+     >     BA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd1',lmd1(2),lmd1(1))
       call dcopy(2*nemax*nemax,0.0d0,0,dbl_mb(lmd(1)), 1)
       call dcopy(2*nemax*nemax,0.0d0,0,dbl_mb(lmd1(1)),1)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(4*nfft3d),
+     >        BA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nfft3d),
+     >        BA_alloc_get(mt_dbl,(2*nfft3d),
      >             'dn_cmp_smooth',dn_cmp_smooth(2),dn_cmp_smooth(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
+     >        BA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
       if (.not. value) call errquit('paw_sd: out of heap memory',1,
      &       MA_ERR)
@@ -1029,16 +1029,16 @@ c      call paw_density_end()
       if (control_move()) call paw_force_end()
       call paw_gaunt_end()
 
-      value =           MA_free_heap(psir(2))
-      value = value.and.MA_free_heap(Hpsi(2))
-      value = value.and.MA_free_heap(dn(2))
-      value = value.and.MA_free_heap(dn_cmp_smooth(2))
-      value = value.and.MA_free_heap(eig(2))
-      value = value.and.MA_free_heap(hml(2))
-      value = value.and.MA_free_heap(lmd(2))
-      value = value.and.MA_free_heap(lmd1(2))
-      value = value.and.MA_free_heap(psi1(2))
-      value = value.and.MA_free_heap(psi2(2))
+      value =           BA_free_heap(psir(2))
+      value = value.and.BA_free_heap(Hpsi(2))
+      value = value.and.BA_free_heap(dn(2))
+      value = value.and.BA_free_heap(dn_cmp_smooth(2))
+      value = value.and.BA_free_heap(eig(2))
+      value = value.and.BA_free_heap(hml(2))
+      value = value.and.BA_free_heap(lmd(2))
+      value = value.and.BA_free_heap(lmd1(2))
+      value = value.and.BA_free_heap(psi1(2))
+      value = value.and.BA_free_heap(psi2(2))
       if (.not. value) call errquit('paw_sd:error freeing heap',2,
      &       MA_ERR)
 

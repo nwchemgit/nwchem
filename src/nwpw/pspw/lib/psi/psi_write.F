@@ -65,9 +65,9 @@ c     complex*16 tmp(*)
 
       lprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('psi_write:out of stack memory',0,MA_ERR)
 
@@ -145,8 +145,8 @@ c     complex*16 tmp(*)
       end if
       call ga_sync()
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('psi_write:error popping stack',0,MA_ERR)
 
@@ -220,9 +220,9 @@ c     complex*16 tmp(*)
       lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('epsi_write:out of stack memory',0,MA_ERR)
 
@@ -298,8 +298,8 @@ c      end do
         call closefile(6)
       end if
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('epsi_write:error popping stack',0,MA_ERR)
 
@@ -370,9 +370,9 @@ c     complex*16 tmp(*)
 
       lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('psi_write:out of stack memory',0,MA_ERR)
 
@@ -451,8 +451,8 @@ c      end if
         call closefile(6)
       end if
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('psi_write:error popping stack',0,MA_ERR)
 

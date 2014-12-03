@@ -68,9 +68,9 @@
       nshift1 = cpsi_data_nsize(psi_r_tag)
       nshift2 = cpsi_data_nsize(Hpsi_k_tag)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       if (dohfx) then
@@ -185,8 +185,8 @@ c     >                       dcpl_mb(vpsi(1)))
       value = .true.
       if (dohfx) call cpsi_data_dealloc(Hpsi_r_tag)
 
-      value = value.and.MA_pop_stack(vpsi(2))
-      value = value.and.MA_pop_stack(vall(2))
+      value = value.and.BA_pop_stack(vpsi(2))
+      value = value.and.BA_pop_stack(vall(2))
       if (.not.value)
      >  call errquit('cpsi_H: error popping stack',0,MA_ERR)
 
@@ -270,10 +270,10 @@ c     >                       dcpl_mb(vpsi(1)))
       call C3dB_nz(1,nz)
       call C3dB_nfft3d(1,nfft3d)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (dohfx) then
          value = value.and.
-     >          MA_push_get(mt_dcpl,nfft3d,'Horb_r',Horb_r(2),Horb_r(1))
+     >          BA_push_get(mt_dcpl,nfft3d,'Horb_r',Horb_r(2),Horb_r(1))
          call dcopy(2*nfft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
       end if
       if (.not. value)
@@ -331,8 +331,8 @@ c     >                       dcpl_mb(vpsi(1)))
      >                   Horb_k)
 
       value = .true.
-      if (dohfx) value = value.and.MA_pop_stack(Horb_r(2))
-      value = value.and.MA_pop_stack(vpsi(2))
+      if (dohfx) value = value.and.BA_pop_stack(Horb_r(2))
+      value = value.and.BA_pop_stack(vpsi(2))
       if (.not.value)
      >  call errquit('cpsi_Horb: popping stack',0,MA_ERR)
 
@@ -398,7 +398,7 @@ c     >                       dcpl_mb(vpsi(1)))
       shiftr=ne1*nfft3d + 1
       shiftk=ne1*npack1 + 1
 
-      value = MA_push_get(mt_dcpl,2*nfft3d,'vpsi',vpsi(2),vpsi(1))
+      value = BA_push_get(mt_dcpl,2*nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value)
      >  call errquit('cpsi_Horb2com:out of stack memory',0, MA_ERR)
 
@@ -451,7 +451,7 @@ c     >                       dcpl_mb(vpsi(1)))
      >                   Horb_k(shiftk))
 
 
-      value = MA_pop_stack(vpsi(2))
+      value = BA_pop_stack(vpsi(2))
       if (.not.value)
      >  call errquit('psi_Horb2com: popping stack',1, MA_ERR)
 
@@ -503,7 +503,7 @@ c     >                       dcpl_mb(vpsi(1)))
       call C3dB_nfft3d(1,nfft3d)
 c      call Cram_max_npack(npack1)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not.value) call errquit('cpsi_H_vall:out of stack',0,MA_ERR)
       
 
@@ -567,7 +567,7 @@ cccc         nb = Pneb_convert_nb(nbq)
          end do
       end do
 
-      value = MA_pop_stack(vpsi(2))
+      value = BA_pop_stack(vpsi(2))
       if(.not.value) call errquit('cpsi_H_vall:popping stack',0,MA_ERR)
 
       return

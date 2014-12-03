@@ -98,14 +98,14 @@
 
 *     **** allocate q_map,p_map,k_map *****
       id='qmap'//CHAR(ICHAR('a')+nb)
-      value = MA_alloc_get(mt_int,nz,id,qmap(2),qmap(1))
+      value = BA_alloc_get(mt_int,nz,id,qmap(2),qmap(1))
 
       id='pmap'//CHAR(ICHAR('a')+nb)
       value = value.and.
-     >        MA_alloc_get(mt_int,nz,id,pmap(2),pmap(1))
+     >        BA_alloc_get(mt_int,nz,id,pmap(2),pmap(1))
 
       id='kmap'//CHAR(ICHAR('a')+nb)
-      value = MA_alloc_get(mt_int,nz,id,kmap(2),kmap(1))
+      value = BA_alloc_get(mt_int,nz,id,kmap(2),kmap(1))
       if (.not. value) then
         call errquit('nwpw_mapping_init: out of heap memory',0, MA_ERR)
       end if
@@ -183,11 +183,11 @@
       call nwpw_ilist_get(mem_qmap2, nb,qmap2)
       call nwpw_ilist_get(mem_pmap2, nb,pmap2)
       call nwpw_ilist_get(mem_kmap2, nb,kmap2)
-      value = MA_free_heap(qmap2)
+      value = BA_free_heap(qmap2)
       value = value.and.
-     >        MA_free_heap(pmap2)
+     >        BA_free_heap(pmap2)
       value = value.and.
-     >        MA_free_heap(kmap2)
+     >        BA_free_heap(kmap2)
       if (.not. value) then
         call errquit('nwpw_mapping_end: error freeing heap memory',0,
      &       MA_ERR)

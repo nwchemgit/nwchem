@@ -75,7 +75,7 @@ c
 
 *     **** brillioun zone information ****
       nbrillioun = brillioun_nbrillioun()
-      value = MA_push_get(mt_dbl,3*nbrillioun,'kv',kv(2),kv(1))
+      value = BA_push_get(mt_dbl,3*nbrillioun,'kv',kv(2),kv(1))
       do nb=1,nbrillioun
          dbl_mb(kv(1)+3*(nb-1))   = brillioun_all_k(1,nb)
          dbl_mb(kv(1)+3*(nb-1)+1) = brillioun_all_k(2,nb)
@@ -106,7 +106,7 @@ c
      >              psp_type,INPUT_ERR)
       end if
 
-      value = value.and.MA_pop_stack(kv(2))
+      value = value.and.BA_pop_stack(kv(2))
 
 *     *** exit if error found ***
       if(.not. value) call errquit('cpsp_stress_formatter_auto: error',

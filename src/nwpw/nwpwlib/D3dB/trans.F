@@ -47,22 +47,22 @@
 *     ********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = MA_alloc_get(mt_int,((nx(nb)/2+1)*nq1(nb)),
+      value = BA_alloc_get(mt_int,((nx(nb)/2+1)*nq1(nb)),
      >                     'h_iq_to_i1_1',
      >                      h_iq_to_i1(2,1,nb),
      >                      h_iq_to_i1(1,1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(ny(nb)*nq2(nb)),
+     >        BA_alloc_get(mt_int,(ny(nb)*nq2(nb)),
      >                     'h_iq_to_i2_1',
      >                      h_iq_to_i2(2,1,nb),
      >                      h_iq_to_i2(1,1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_1',
      >                      h_i1_start(2,1,nb),
      >                      h_i1_start(1,1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_1',
      >                      h_i2_start(2,1,nb),
      >                      h_i2_start(1,1,nb))
@@ -119,22 +119,22 @@
 *     *********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = MA_alloc_get(mt_int,(ny(nb)*nq2(nb)),
+      value = BA_alloc_get(mt_int,(ny(nb)*nq2(nb)),
      >                     'h_iq_to_i1_2',
      >                      h_iq_to_i1(2,2,nb),
      >                      h_iq_to_i1(1,2,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nz(nb)*nq3(nb)),
+     >        BA_alloc_get(mt_int,(nz(nb)*nq3(nb)),
      >                     'h_iq_to_i2_2',
      >                      h_iq_to_i2(2,2,nb),
      >                      h_iq_to_i2(1,2,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_2',
      >                      h_i1_start(2,2,nb),
      >                      h_i1_start(1,2,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_2',
      >                      h_i2_start(2,2,nb),
      >                      h_i2_start(1,2,nb))
@@ -192,22 +192,22 @@
 *     ********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = MA_alloc_get(mt_int,(nz(nb)*nq3(nb)),
+      value = BA_alloc_get(mt_int,(nz(nb)*nq3(nb)),
      >                     'h_iq_to_i1_3',
      >                      h_iq_to_i1(2,3,nb),
      >                      h_iq_to_i1(1,3,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(ny(nb)*nq2(nb)),
+     >        BA_alloc_get(mt_int,(ny(nb)*nq2(nb)),
      >                     'h_iq_to_i2_3',
      >                      h_iq_to_i2(2,3,nb),
      >                      h_iq_to_i2(1,3,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_3',
      >                      h_i1_start(2,3,nb),
      >                      h_i1_start(1,3,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_3',
      >                      h_i2_start(2,3,nb),
      >                      h_i2_start(1,3,nb))
@@ -263,22 +263,22 @@
 *     ********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = MA_alloc_get(mt_int,(ny(nb)*nq2(nb)),
+      value = BA_alloc_get(mt_int,(ny(nb)*nq2(nb)),
      >                     'h_iq_to_i1_4',
      >                      h_iq_to_i1(2,4,nb),
      >                      h_iq_to_i1(1,4,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,((nx(nb)/2+1)*nq1(nb)),
+     >        BA_alloc_get(mt_int,((nx(nb)/2+1)*nq1(nb)),
      >                     'h_iq_to_i2_4',
      >                      h_iq_to_i2(2,4,nb),
      >                      h_iq_to_i2(1,4,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_4',
      >                      h_i1_start(2,4,nb),
      >                      h_i1_start(1,4,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_4',
      >                      h_i2_start(2,4,nb),
      >                      h_i2_start(1,4,nb))
@@ -335,22 +335,22 @@
 *     **********************************************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = MA_alloc_get(mt_int,((nx(nb)/2+1)*nq1(nb)),
+      value = BA_alloc_get(mt_int,((nx(nb)/2+1)*nq1(nb)),
      >                     'h_iq_to_i1_5',
      >                      h_iq_to_i1(2,5,nb),
      >                      h_iq_to_i1(1,5,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nz(nb)*nq3(nb)),
+     >        BA_alloc_get(mt_int,(nz(nb)*nq3(nb)),
      >                     'h_iq_to_i2_5',
      >                      h_iq_to_i2(2,5,nb),
      >                      h_iq_to_i2(1,5,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_5',
      >                      h_i1_start(2,5,nb),
      >                      h_i1_start(1,5,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_5',
      >                      h_i2_start(2,5,nb),
      >                      h_i2_start(1,5,nb))
@@ -408,22 +408,22 @@
 *     *************************
 
 *     **** allocate trans_blk_ijk common block ****
-      value = MA_alloc_get(mt_int,(nz(nb)*nq3(nb)),
+      value = BA_alloc_get(mt_int,(nz(nb)*nq3(nb)),
      >                     'h_iq_to_i1_6',
      >                      h_iq_to_i1(2,6,nb),
      >                      h_iq_to_i1(1,6,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,((nx(nb)/2+1)*nq1(nb)),
+     >        BA_alloc_get(mt_int,((nx(nb)/2+1)*nq1(nb)),
      >                     'h_iq_to_i2_6',
      >                      h_iq_to_i2(2,6,nb),
      >                      h_iq_to_i2(1,6,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i1_start_6',
      >                      h_i1_start(2,6,nb),
      >                      h_i1_start(1,6,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'h_i2_start_6',
      >                      h_i2_start(2,6,nb),
      >                      h_i2_start(1,6,nb))

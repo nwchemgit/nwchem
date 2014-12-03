@@ -33,22 +33,22 @@
       call C3dB_nz(1,nz)
        
 
-      value = MA_alloc_get(mt_dcpl,(nx*nion),'ex1',ex1(2),ex1(1))
+      value = BA_alloc_get(mt_dcpl,(nx*nion),'ex1',ex1(2),ex1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ny*nion),'ex2',ex2(2),ex2(1))
+     >        BA_alloc_get(mt_dcpl,(ny*nion),'ex2',ex2(2),ex2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nz*nion),'ex3',ex3(2),ex3(1))
+     >        BA_alloc_get(mt_dcpl,(nz*nion),'ex3',ex3(2),ex3(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nbrillq*nion),
+     >        BA_alloc_get(mt_dcpl,(nbrillq*nion),
      >                    'cxr',cxr(2),cxr(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*nbrillq+2),
+     >        BA_alloc_get(mt_int,(2*nbrillq+2),
      >                    'i_indx_list',i_indx_list(2),i_indx_list(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*nbrillq+2),
+     >        BA_alloc_get(mt_int,(2*nbrillq+2),
      >                    'j_indx_list',j_indx_list(2),j_indx_list(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*nbrillq+2),
+     >        BA_alloc_get(mt_int,(2*nbrillq+2),
      >                    'k_indx_list',k_indx_list(2),k_indx_list(1))
       if (.not. value) call errquit('cstrfac_init:out of heap',0,
      &       MA_ERR)
@@ -57,13 +57,13 @@
 *     **** allocate indx blocks ****
       do nb=0,nbrillq
         call C3dB_nfft3d(1,nfft3d)
-        value = MA_alloc_get(mt_int,nfft3d,'i_indx0',
+        value = BA_alloc_get(mt_int,nfft3d,'i_indx0',
      >                     i_indx(2),i_indx(1))
         value = value.and.
-     >          MA_alloc_get(mt_int,nfft3d,'j_indx0',
+     >          BA_alloc_get(mt_int,nfft3d,'j_indx0',
      >                     j_indx(2),j_indx(1))
         value = value.and.
-     >          MA_alloc_get(mt_int,nfft3d,'k_indx0',
+     >          BA_alloc_get(mt_int,nfft3d,'k_indx0',
      >                     k_indx(2),k_indx(1))
         if (.not. value) 
      >  call errquit('cstrfac_init:out of heap memory',nb+1, MA_ERR)
@@ -134,20 +134,20 @@ C     ***********************************
          i_indx=int_mb(i_indx_list(1)+2*nb+1)
          j_indx=int_mb(j_indx_list(1)+2*nb+1)
          k_indx=int_mb(k_indx_list(1)+2*nb+1)
-         value =           MA_free_heap(i_indx)
-         value = value.and.MA_free_heap(j_indx)
-         value = value.and.MA_free_heap(k_indx)
+         value =           BA_free_heap(i_indx)
+         value = value.and.BA_free_heap(j_indx)
+         value = value.and.BA_free_heap(k_indx)
          if (.not.value) call errquit('cstrfac_end:freeing heap',nb,
      &       MA_ERR)
       end do
 
-      value =           MA_free_heap(i_indx_list(2))
-      value = value.and.MA_free_heap(j_indx_list(2))
-      value = value.and.MA_free_heap(k_indx_list(2))
-      value = value.and.MA_free_heap(ex1(2))
-      value = value.and.MA_free_heap(ex2(2))
-      value = value.and.MA_free_heap(ex3(2))
-      value = value.and.MA_free_heap(cxr(2))
+      value =           BA_free_heap(i_indx_list(2))
+      value = value.and.BA_free_heap(j_indx_list(2))
+      value = value.and.BA_free_heap(k_indx_list(2))
+      value = value.and.BA_free_heap(ex1(2))
+      value = value.and.BA_free_heap(ex2(2))
+      value = value.and.BA_free_heap(ex3(2))
+      value = value.and.BA_free_heap(cxr(2))
       if (.not. value) call errquit('cstrfac_end:freeing heap',990,
      &       MA_ERR)
  

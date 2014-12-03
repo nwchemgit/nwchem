@@ -96,17 +96,17 @@
             nkatm_paw = nkatm_paw + 1
          end if
       end do
-      value =           MA_alloc_get(mt_int,nion,"ion_iontopaw",
+      value =           BA_alloc_get(mt_int,nion,"ion_iontopaw",
      >                               ion_iontopaw(2),ion_iontopaw(1))
-      value = value.and.MA_alloc_get(mt_int,nion_paw,"ion_pawtoion",
+      value = value.and.BA_alloc_get(mt_int,nion_paw,"ion_pawtoion",
      >                               ion_pawtoion(2),ion_pawtoion(1))
-      value = value.and.MA_alloc_get(mt_int,nkatm,"katm_iontopaw",
+      value = value.and.BA_alloc_get(mt_int,nkatm,"katm_iontopaw",
      >                               katm_iontopaw(2),katm_iontopaw(1))
-      value = value.and.MA_alloc_get(mt_int,nkatm_paw,"katm_pawtoion",
+      value = value.and.BA_alloc_get(mt_int,nkatm_paw,"katm_pawtoion",
      >                               katm_pawtoion(2),katm_pawtoion(1))
-      value = value.and.MA_alloc_get(mt_int,nion_paw,"katm_paw",
+      value = value.and.BA_alloc_get(mt_int,nion_paw,"katm_paw",
      >                               katm_paw(2),katm_paw(1))
-      value = value.and.MA_alloc_get(mt_dbl,nkatm_paw,"sigma_paw",
+      value = value.and.BA_alloc_get(mt_dbl,nkatm_paw,"sigma_paw",
      >                               sigma_paw(2),sigma_paw(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",0,MA_ERR)
@@ -141,10 +141,10 @@
 
 
 *     **** allocate mult_l and lm_size ****
-      value = value.and.MA_alloc_get(mt_int,nkatm_paw,
+      value = value.and.BA_alloc_get(mt_int,nkatm_paw,
      >                     "mult_l",mult_l(2),mult_l(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,nkatm_paw,
+     >        BA_alloc_get(mt_int,nkatm_paw,
      >                     "lm_size",lm_size(2),lm_size(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
@@ -181,39 +181,39 @@
 
       !*** allocate gk_smooth, gk,and glm ***
       lm_size_max = (mult_l_max+1)**2
-      value = MA_alloc_get(mt_dbl,npack0,
+      value = BA_alloc_get(mt_dbl,npack0,
      >                     "vk_smooth",vk_smooth(2),vk_smooth(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,npack0,
+     >        BA_alloc_get(mt_dbl,npack0,
      >                     "gk_smooth",gk_smooth(2),gk_smooth(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,npack0*nkatm_paw,"gk",gk(2),gk(1))
+     >        BA_alloc_get(mt_dbl,npack0*nkatm_paw,"gk",gk(2),gk(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,npack0*lm_size_max,
+     >        BA_alloc_get(mt_dbl,npack0*lm_size_max,
      >                     "glm",glm(2),glm(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >        BA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlm",Qlm(2),Qlm(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >        BA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlmx",Qlmx(2),Qlmx(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >        BA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlmy",Qlmy(2),Qlmy(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >        BA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "Qlmz",Qlmz(2),Qlmz(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >        BA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "dEmult_Qlm",dEmult_Qlm(2),dEmult_Qlm(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >        BA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "dElocal_Qlm",dElocal_Qlm(2),dElocal_Qlm(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
+     >        BA_alloc_get(mt_dbl,2*nion_paw*lm_size_max,
      >                     "dE_Qlm",dE_Qlm(2),dE_Qlm(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
+     >        BA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
@@ -313,7 +313,7 @@
      >           = fourpioveromega*dexp(-gg*scal)
          end do
       end do
-      if (.not.MA_pop_stack(Gall(2)))
+      if (.not.BA_pop_stack(Gall(2)))
      >   call errquit("nwpw_compcharge_init: pop stack",0,MA_ERR)
 
 
@@ -322,11 +322,11 @@
 *     *****  define indexing for compcharge evalulations ****
 *     *******************************************************
 
-      if (.not.MA_alloc_get(mt_int,nkatm_paw,"nindx_Tndiff",
+      if (.not.BA_alloc_get(mt_int,nkatm_paw,"nindx_Tndiff",
      >                      nindx_Tndiff(2),nindx_Tndiff(1)))
      >  call errquit("nwpw_compcharge_init:allocate fail",3,MA_ERR)
 
-      if (.not.MA_alloc_get(mt_int,nkatm_paw,"shift_Tndiff",
+      if (.not.BA_alloc_get(mt_int,nkatm_paw,"shift_Tndiff",
      >                      shift_Tndiff(2),shift_Tndiff(1)))
      >  call errquit("nwpw_compcharge_init:allocate fail",3,MA_ERR)
 
@@ -362,16 +362,16 @@
         int_mb(nindx_Tndiff(1)+iia-1)=indx-int_mb(shift_Tndiff(1)+iia-1)
       end do
 
-      value = MA_alloc_get(mt_int,indx,"lm_Tndiff",
+      value = BA_alloc_get(mt_int,indx,"lm_Tndiff",
      >                     lm_Tndiff(2),lm_Tndiff(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,indx,"iprj_Tndiff",
+     >        BA_alloc_get(mt_int,indx,"iprj_Tndiff",
      >                     iprj_Tndiff(2),iprj_Tndiff(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,indx,"jprj_Tndiff",
+     >        BA_alloc_get(mt_int,indx,"jprj_Tndiff",
      >                     jprj_Tndiff(2),jprj_Tndiff(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,indx,"coeff_Tndiff",
+     >        BA_alloc_get(mt_dbl,indx,"coeff_Tndiff",
      >                     coeff_Tndiff(2),coeff_Tndiff(1))
       if (.not.value)
      > call errquit(
@@ -420,11 +420,11 @@
 *     *****  define indexing for hartree matrix evalulations  ****
 *     ************************************************************
 
-      if (.not.MA_alloc_get(mt_int,nkatm_paw,"nindx_hartree",
+      if (.not.BA_alloc_get(mt_int,nkatm_paw,"nindx_hartree",
      >                      nindx_hartree(2),nindx_hartree(1)))
      >  call errquit("nwpw_compcharge_init:allocate fail",5,MA_ERR)
 
-      if (.not.MA_alloc_get(mt_int,nkatm_paw,"shift_hartree",
+      if (.not.BA_alloc_get(mt_int,nkatm_paw,"shift_hartree",
      >                      shift_hartree(2),shift_hartree(1)))
      >  call errquit("nwpw_compcharge_init:allocate fail",6,MA_ERR)
 
@@ -479,19 +479,19 @@
       end do
 
 
-      value = MA_alloc_get(mt_int,indx,"iprj_hartree",
+      value = BA_alloc_get(mt_int,indx,"iprj_hartree",
      >                 iprj_hartree(2),iprj_hartree(1))
       value = value.and.
-     >     MA_alloc_get(mt_int,indx,"jprj_hartree",
+     >     BA_alloc_get(mt_int,indx,"jprj_hartree",
      >                 jprj_hartree(2),jprj_hartree(1))
       value = value.and.
-     >     MA_alloc_get(mt_int,indx,"iprj1_hartree",
+     >     BA_alloc_get(mt_int,indx,"iprj1_hartree",
      >                 iprj1_hartree(2),iprj1_hartree(1))
       value = value.and.
-     >     MA_alloc_get(mt_int,indx,"jprj1_hartree",
+     >     BA_alloc_get(mt_int,indx,"jprj1_hartree",
      >                 jprj1_hartree(2),jprj1_hartree(1))
       value = value.and.
-     >     MA_alloc_get(mt_dbl,indx,"coeff_hartree",
+     >     BA_alloc_get(mt_dbl,indx,"coeff_hartree",
      >                 coeff_hartree(2),coeff_hartree(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_init:allocate fail",7,MA_ERR)
@@ -569,39 +569,39 @@
 #include "nwpw_compcharge.fh"
 
       logical value
-      value =           MA_free_heap(ion_iontopaw(2))
-      value = value.and.MA_free_heap(ion_pawtoion(2))
-      value = value.and.MA_free_heap(katm_iontopaw(2))
-      value = value.and.MA_free_heap(katm_pawtoion(2))
-      value = value.and.MA_free_heap(katm_paw(2))
-      value = value.and.MA_free_heap(sigma_paw(2))
-      value = value.and.MA_free_heap(mult_l(2))
-      value = value.and.MA_free_heap(lm_size(2))
-      value = value.and.MA_free_heap(vk_smooth(2))
-      value = value.and.MA_free_heap(gk_smooth(2))
-      value = value.and.MA_free_heap(gk(2))
-      value = value.and.MA_free_heap(glm(2))
-      value = value.and.MA_free_heap(Qlm(2))
-      value = value.and.MA_free_heap(Qlmx(2))
-      value = value.and.MA_free_heap(Qlmy(2))
-      value = value.and.MA_free_heap(Qlmz(2))
-      value = value.and.MA_free_heap(dEmult_Qlm(2))
-      value = value.and.MA_free_heap(dElocal_Qlm(2))
-      value = value.and.MA_free_heap(dE_Qlm(2))
-      value = value.and.MA_free_heap(shift_Tndiff(2))
-      value = value.and.MA_free_heap(nindx_Tndiff(2))
-      value = value.and.MA_free_heap(lm_Tndiff(2))
-      value = value.and.MA_free_heap(iprj_Tndiff(2))
-      value = value.and.MA_free_heap(jprj_Tndiff(2))
-      value = value.and.MA_free_heap(coeff_Tndiff(2))
+      value =           BA_free_heap(ion_iontopaw(2))
+      value = value.and.BA_free_heap(ion_pawtoion(2))
+      value = value.and.BA_free_heap(katm_iontopaw(2))
+      value = value.and.BA_free_heap(katm_pawtoion(2))
+      value = value.and.BA_free_heap(katm_paw(2))
+      value = value.and.BA_free_heap(sigma_paw(2))
+      value = value.and.BA_free_heap(mult_l(2))
+      value = value.and.BA_free_heap(lm_size(2))
+      value = value.and.BA_free_heap(vk_smooth(2))
+      value = value.and.BA_free_heap(gk_smooth(2))
+      value = value.and.BA_free_heap(gk(2))
+      value = value.and.BA_free_heap(glm(2))
+      value = value.and.BA_free_heap(Qlm(2))
+      value = value.and.BA_free_heap(Qlmx(2))
+      value = value.and.BA_free_heap(Qlmy(2))
+      value = value.and.BA_free_heap(Qlmz(2))
+      value = value.and.BA_free_heap(dEmult_Qlm(2))
+      value = value.and.BA_free_heap(dElocal_Qlm(2))
+      value = value.and.BA_free_heap(dE_Qlm(2))
+      value = value.and.BA_free_heap(shift_Tndiff(2))
+      value = value.and.BA_free_heap(nindx_Tndiff(2))
+      value = value.and.BA_free_heap(lm_Tndiff(2))
+      value = value.and.BA_free_heap(iprj_Tndiff(2))
+      value = value.and.BA_free_heap(jprj_Tndiff(2))
+      value = value.and.BA_free_heap(coeff_Tndiff(2))
 
-      value = value.and.MA_free_heap(shift_hartree(2))
-      value = value.and.MA_free_heap(nindx_hartree(2))
-      value = value.and.MA_free_heap(iprj_hartree(2))
-      value = value.and.MA_free_heap(jprj_hartree(2))
-      value = value.and.MA_free_heap(iprj1_hartree(2))
-      value = value.and.MA_free_heap(jprj1_hartree(2))
-      value = value.and.MA_free_heap(coeff_hartree(2))
+      value = value.and.BA_free_heap(shift_hartree(2))
+      value = value.and.BA_free_heap(nindx_hartree(2))
+      value = value.and.BA_free_heap(iprj_hartree(2))
+      value = value.and.BA_free_heap(jprj_hartree(2))
+      value = value.and.BA_free_heap(iprj1_hartree(2))
+      value = value.and.BA_free_heap(jprj1_hartree(2))
+      value = value.and.BA_free_heap(coeff_hartree(2))
 
       if (.not.value)
      >   call errquit("nwpw_compcharge_end: freeing heap",0,MA_ERR)
@@ -659,16 +659,16 @@
       log_bmesh = dlog(bmesh)
       nrho = int(dlog(25.0d0/0.00025d0)/log_bmesh) + 1
 
-      value = MA_push_get(mt_dbl,nray,'Gray',Gray(2),Gray(1))
+      value = BA_push_get(mt_dbl,nray,'Gray',Gray(2),Gray(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,3*nray,'vlray',vlray(2),vlray(1))
+     >        BA_push_get(mt_dbl,3*nray,'vlray',vlray(2),vlray(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,3*nray,'tmpray',tmpray(2),tmpray(1))
+     >        BA_push_get(mt_dbl,3*nray,'tmpray',tmpray(2),tmpray(1))
 
       value = value.and.
-     >        MA_push_get(mt_dbl,nrho,'fjky99',f(2),f(1))
+     >        BA_push_get(mt_dbl,nrho,'fjky99',f(2),f(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nrho,'rhoy99',rho(2),rho(1))
+     >        BA_push_get(mt_dbl,nrho,'rhoy99',rho(2),rho(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_vk_smooth:stack",4,MA_ERR)
 
@@ -694,11 +694,11 @@
      >                                   npack0,Gx,Gy,Gz,
      >                                   vk)
 
-      value =           MA_pop_stack(rho(2))
-      value = value.and.MA_pop_stack(f(2))
-      value = value.and.MA_pop_stack(tmpray(2))
-      value = value.and.MA_pop_stack(vlray(2))
-      value = value.and.MA_pop_stack(Gray(2))
+      value =           BA_pop_stack(rho(2))
+      value = value.and.BA_pop_stack(f(2))
+      value = value.and.BA_pop_stack(tmpray(2))
+      value = value.and.BA_pop_stack(vlray(2))
+      value = value.and.BA_pop_stack(Gray(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_vk_smooth:pop stack",4,MA_ERR)
 
@@ -1058,10 +1058,10 @@
      >           dbl_mb(dE_Qlm(1)),1)
 
 *     **** allocating stack memory ****
-      value = MA_push_get(mt_dcpl,npack0,'glm_cmp',
+      value = BA_push_get(mt_dcpl,npack0,'glm_cmp',
      >                    glm_cmp(2),glm_cmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
+     >        BA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
      >                    glm_cmp_smooth(2),glm_cmp_smooth(1))
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_dE_Qlm:out of stack',
@@ -1152,8 +1152,8 @@
       end if
 
 *     **** popping stack memory ****
-      value =           MA_pop_stack(glm_cmp_smooth(2))
-      value = value.and.MA_pop_stack(glm_cmp(2))
+      value =           BA_pop_stack(glm_cmp_smooth(2))
+      value = value.and.BA_pop_stack(glm_cmp(2))
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_dE_Qlm:popping stack',
      >               1,MA_ERR)
@@ -1401,9 +1401,9 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
       integer iii,iia,ii,ia,tmp(2),exi(2)
 
 
-      value = MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value) 
      >  call errquit("nwpw_compcharge_gen_v_cmp_smooth:stack",0,MA_ERR)
 
@@ -1438,8 +1438,8 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
 
       end if
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_v_cmp_smooth:stack",1,MA_ERR)
 
@@ -1584,11 +1584,11 @@ c                  yerf = util_erf(xerf)
       real*8  q,sumall
 
 
-      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = BA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",0,MA_ERR)
 
@@ -1665,9 +1665,9 @@ c                  yerf = util_erf(xerf)
       end if
 
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(QTlm(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(QTlm(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",1,MA_ERR)
 
@@ -1695,11 +1695,11 @@ c                  yerf = util_erf(xerf)
       real*8  q,sumall
 
 
-      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = BA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value) 
      >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",0,MA_ERR)
 
@@ -1779,9 +1779,9 @@ c                  yerf = util_erf(xerf)
       end if
 
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(QTlm(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(QTlm(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",1,MA_ERR)
 
@@ -1812,11 +1812,11 @@ c                  yerf = util_erf(xerf)
       integer iii,iia,ii,lm,l,m,indx1,indx2,QTlm(2),tmp(2),exi(2)
       real*8  q,sumall
 
-      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = BA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",0,MA_ERR)
 
@@ -1903,9 +1903,9 @@ c                  yerf = util_erf(xerf)
 
       end if
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(QTlm(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(QTlm(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",1,MA_ERR)
 
@@ -1937,11 +1937,11 @@ c                  yerf = util_erf(xerf)
       real*8  q,sumall
 
 
-      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = BA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",0,MA_ERR)
 
@@ -2022,9 +2022,9 @@ c                  yerf = util_erf(xerf)
 
       end if
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(QTlm(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(QTlm(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",1,MA_ERR)
 
@@ -2060,11 +2060,11 @@ c                  yerf = util_erf(xerf)
 
       fourpi = 16.0d0*datan(1.0d0)
 
-      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = BA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",0,MA_ERR)
 
@@ -2164,9 +2164,9 @@ c                  yerf = util_erf(xerf)
 
       end if
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(QTlm(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(QTlm(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",1,MA_ERR)
 
@@ -2201,11 +2201,11 @@ c                  yerf = util_erf(xerf)
 
       fourpi = 16.0d0*datan(1.0d0)
 
-      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = BA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",0,MA_ERR)
 
@@ -2298,9 +2298,9 @@ c                  yerf = util_erf(xerf)
 
       end if
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(QTlm(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(QTlm(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",1,MA_ERR)
 
@@ -2333,11 +2333,11 @@ c                  yerf = util_erf(xerf)
 
       fourpi = 16.0d0*datan(1.0d0)
 
-      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = BA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_zv_cmp:stack",0,MA_ERR)
 
@@ -2405,9 +2405,9 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
       end if
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(QTlm(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(QTlm(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_zv_cmp:stack",1,MA_ERR)
 
@@ -2439,9 +2439,9 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
       fourpi = 16.0d0*datan(1.0d0)
 
-      value = MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_zv_cmp_smooth:stack",0,MA_ERR)
 
@@ -2491,8 +2491,8 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
       end if
 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_zv_cmp_smooth:stack",1,MA_ERR)
 
@@ -2528,9 +2528,9 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       if ((l.le.int_mb(mult_l(1)+iia-1)).and.(abs(m).le.l)) then
          lm = l*(l+1) + m
 
-         value = MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+         value = BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >           BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
          if (.not.value)
      >     call errquit("nwpw_compcharge_gen_glm:stack",0,MA_ERR)
 
@@ -2564,8 +2564,8 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
      >                         glm_out)
 
          end if
-         value =           MA_pop_stack(exi(2))
-         value = value.and.MA_pop_stack(tmp(2))
+         value =           BA_pop_stack(exi(2))
+         value = value.and.BA_pop_stack(tmp(2))
          if (.not.value)
      >     call errquit("nwpw_compcharge_gen_glm:stack",1,MA_ERR)
 
@@ -2605,9 +2605,9 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       if ((l.le.int_mb(mult_l(1)+iia-1)).and.(abs(m).le.l)) then
          lm = l*(l+1) + m
 
-         value = MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+         value = BA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+     >           BA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
          if (.not.value)
      >     call errquit("nwpw_compcharge_gen_glm2:stack",0,MA_ERR)
 
@@ -2647,8 +2647,8 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
      >                         glm_smooth_out)
          end if
 
-         value =           MA_pop_stack(exi(2))
-         value = value.and.MA_pop_stack(tmp(2))
+         value =           BA_pop_stack(exi(2))
+         value = value.and.BA_pop_stack(tmp(2))
          if (.not.value)
      >     call errquit("nwpw_compcharge_gen_glm2:stack",1,MA_ERR)
 
@@ -2766,17 +2766,17 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
       call nwpw_gintegrals_set_gcount()
 
-      value =           MA_alloc_get(mt_int,ngauss_max,"lm1_gauss",
+      value =           BA_alloc_get(mt_int,ngauss_max,"lm1_gauss",
      >                              lm1_gauss(2),lm1_gauss(1))
-      value = value.and.MA_alloc_get(mt_int,ngauss_max,"lm2_gauss",
+      value = value.and.BA_alloc_get(mt_int,ngauss_max,"lm2_gauss",
      >                              lm2_gauss(2),lm2_gauss(1))
-      value = value.and.MA_alloc_get(mt_int,ngauss_max,"iii1_gauss",
+      value = value.and.BA_alloc_get(mt_int,ngauss_max,"iii1_gauss",
      >                              iii1_gauss(2),iii1_gauss(1))
-      value = value.and.MA_alloc_get(mt_int,ngauss_max,"iii2_gauss",
+      value = value.and.BA_alloc_get(mt_int,ngauss_max,"iii2_gauss",
      >                              iii2_gauss(2),iii2_gauss(1))
-      value = value.and.MA_alloc_get(mt_dbl,ngauss_max,"e_gauss",
+      value = value.and.BA_alloc_get(mt_dbl,ngauss_max,"e_gauss",
      >                              e_gauss(2),e_gauss(1))
-      value = value.and.MA_alloc_get(mt_dbl,3*ngauss_max,"f_gauss",
+      value = value.and.BA_alloc_get(mt_dbl,3*ngauss_max,"f_gauss",
      >                              f_gauss(2),f_gauss(1))
       if (.not.value)
      > call errquit("nwpw_gintegrals_init:cannot allocate memory",
@@ -2801,12 +2801,12 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 *     **** local variables ****
       logical value
 
-      value =           MA_free_heap(lm1_gauss(2))
-      value = value.and.MA_free_heap(lm2_gauss(2))
-      value = value.and.MA_free_heap(iii1_gauss(2))
-      value = value.and.MA_free_heap(iii2_gauss(2))
-      value = value.and.MA_free_heap(e_gauss(2))
-      value = value.and.MA_free_heap(f_gauss(2))
+      value =           BA_free_heap(lm1_gauss(2))
+      value = value.and.BA_free_heap(lm2_gauss(2))
+      value = value.and.BA_free_heap(iii1_gauss(2))
+      value = value.and.BA_free_heap(iii2_gauss(2))
+      value = value.and.BA_free_heap(e_gauss(2))
+      value = value.and.BA_free_heap(f_gauss(2))
       if (.not.value)
      > call errquit("nwpw_gintegrals_end:cannot allocate memory",
      >             0,MA_ERR)
@@ -2861,7 +2861,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
          nshl3d = ewald_nshl3d()
          rcell  = ewald_rcell_ptr()
       else
-         if (.not. MA_push_get(mt_dbl,3,"rcellflm",rcell_hndl,rcell))
+         if (.not. BA_push_get(mt_dbl,3,"rcellflm",rcell_hndl,rcell))
      >   call errquit("nwpw_compcharge_set_gintegrals:stack",1,MA_ERR)
 
          nshl3d = 1
@@ -3041,7 +3041,7 @@ c     >                                         l2,m2,s1,Rab)
       ngauss = indx
 
       if (.not.periodic) then
-        if (.not.MA_pop_stack(rcell_hndl))
+        if (.not.BA_pop_stack(rcell_hndl))
      >   call errquit("nwpw_compcharge_set_gintegrals:stack",2,MA_ERR)
       end if
 
@@ -3285,7 +3285,7 @@ cc         end if
       real*8   ion_rion
       external ion_rion
 
-      if (.not.MA_push_get(mt_dbl,3*nion_paw,"fmult",fmult(2),fmult(1)))
+      if (.not.BA_push_get(mt_dbl,3*nion_paw,"fmult",fmult(2),fmult(1)))
      >   call errquit("nwpw_compcharge_F_multipole:stack",1,MA_ERR)
       call dcopy(3*nion_paw,0.0d0,0,dbl_mb(fmult(1)))
 
@@ -3339,7 +3339,7 @@ cc         end if
       call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(fmult(1)))
 
 
-      if (.not.MA_pop_stack(fmult(2)))
+      if (.not.BA_pop_stack(fmult(2)))
      >  call errquit("nwpw_compcharge_F_multipole:stack",2,MA_ERR)
 
       return
@@ -3391,10 +3391,10 @@ cc         end if
      >           dbl_mb(dElocal_Qlm(1)),1)
 
 *     **** allocating stack memory ****
-      value = MA_push_get(mt_dcpl,npack0,'glm_cmp',
+      value = BA_push_get(mt_dcpl,npack0,'glm_cmp',
      >                    glm_cmp(2),glm_cmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
+     >        BA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
      >                    glm_cmp_smooth(2),glm_cmp_smooth(1))
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:out of stack',
@@ -3485,8 +3485,8 @@ cc         end if
       end if
 
 *     **** popping stack memory ****
-      value =           MA_pop_stack(glm_cmp_smooth(2))
-      value = value.and.MA_pop_stack(glm_cmp(2))
+      value =           BA_pop_stack(glm_cmp_smooth(2))
+      value = value.and.BA_pop_stack(glm_cmp(2))
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:popping stack',
      >               1,MA_ERR)
@@ -3575,7 +3575,7 @@ cc         end if
      >           dbl_mb(dElocal_Qlm(1)),1)
 
 *     **** allocating stack memory ****
-      value = MA_push_get(mt_dcpl,npack0,'glm_cmp',
+      value = BA_push_get(mt_dcpl,npack0,'glm_cmp',
      >                    glm_cmp(2),glm_cmp(1))
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:out of stack',
@@ -3656,7 +3656,7 @@ cc         end if
       end if
 
 *     **** popping stack memory ****
-      value = MA_pop_stack(glm_cmp(2))
+      value = BA_pop_stack(glm_cmp(2))
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:popping stack',
      >               1,MA_ERR)

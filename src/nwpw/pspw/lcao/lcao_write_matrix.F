@@ -35,7 +35,7 @@
       call Parallel_taskid(taskid)
       
       nbasis = aorbs_nbasis()
-      value = MA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
+      value = BA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
       if (.not. value)
      >  call errquit('lcao_write_matrix:out of stack memory',0, MA_ERR)
 
@@ -50,7 +50,7 @@
       end do
 
 
-      value = MA_pop_stack(coef(2))
+      value = BA_pop_stack(coef(2))
       if (.not. value)
      >  call errquit('lcao_write_matrix:popping stack memory',0, MA_ERR)
 

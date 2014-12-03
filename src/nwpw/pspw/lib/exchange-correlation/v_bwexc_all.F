@@ -26,13 +26,13 @@
 *     **** lda's ****
       if ((.not.nwxc_is_on().and.gga.eq.0).or.
      +    (nwxc_is_on().and.nwxc_is_lda())) then
-         if (.not.MA_push_get(mt_dbl,(ispin*n2ft3d),'tmp1',
+         if (.not.BA_push_get(mt_dbl,(ispin*n2ft3d),'tmp1',
      >                        tmp1(2),tmp1(1)))
      >      call errquit('v_bwexc_all: out of stack memory',0,MA_ERR)
 
          call vxc(n2ft3d,ispin,dn,xcp,xce,dbl_mb(tmp1(1)))
 
-        if (.not.MA_pop_stack(tmp1(2)))
+        if (.not.BA_pop_stack(tmp1(2)))
      >     call errquit('v_bwexc_all: error popping stack',0,MA_ERR)
 
 

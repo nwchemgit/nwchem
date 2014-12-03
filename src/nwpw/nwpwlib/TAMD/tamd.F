@@ -107,16 +107,16 @@ c     **********************************************
 
 *           **** allocate and read nxmeta,sindxmeta,sparameta,and indxmeta ****
             value = value.and.
-     >              MA_alloc_get(mt_int,nmeta,'nxmeta',
+     >              BA_alloc_get(mt_int,nmeta,'nxmeta',
      >                           nxmeta(2),nxmeta(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,nmeta,'sindxmeta',
+     >              BA_alloc_get(mt_int,nmeta,'sindxmeta',
      >                           sindxmeta(2),sindxmeta(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,nmeta,'sparammeta',
+     >              BA_alloc_get(mt_int,nmeta,'sparammeta',
      >                           sparammeta(2),sparammeta(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,nindxmeta,'indxmeta',
+     >              BA_alloc_get(mt_int,nindxmeta,'indxmeta',
      >                           indxmeta(2),indxmeta(1))
 
             rtdb_name = 'tamd_nxmeta'
@@ -151,16 +151,16 @@ c     **********************************************
 
 *           ***** allocate and read pmeta,ameta,bmeta,parammeta, and ymeta ****
             value = value.and.
-     >              MA_alloc_get(mt_int,nmeta,'pmeta',pmeta(2),pmeta(1))
+     >              BA_alloc_get(mt_int,nmeta,'pmeta',pmeta(2),pmeta(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nmeta,'ameta',ameta(2),ameta(1))
+     >              BA_alloc_get(mt_dbl,nmeta,'ameta',ameta(2),ameta(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nmeta,'bmeta',bmeta(2),bmeta(1))
+     >              BA_alloc_get(mt_dbl,nmeta,'bmeta',bmeta(2),bmeta(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nparammeta,'parammeta',
+     >              BA_alloc_get(mt_dbl,nparammeta,'parammeta',
      >                           parammeta(2),parammeta(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nxmeta_all,
+     >              BA_alloc_get(mt_dbl,nxmeta_all,
      >                           'ymeta',ymeta(2),ymeta(1))
 
             rtdb_name = 'tamd_pmeta'
@@ -665,15 +665,15 @@ c     **********************************************
             value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                        nxmeta_all,dbl_mb(ymeta(1)))
 
-            value = value.and.MA_free_heap(pmeta(2))
-            value = value.and.MA_free_heap(ameta(2))
-            value = value.and.MA_free_heap(bmeta(2))
-            value = value.and.MA_free_heap(nxmeta(2))
-            value = value.and.MA_free_heap(indxmeta(2))
-            value = value.and.MA_free_heap(parammeta(2))
-            value = value.and.MA_free_heap(sindxmeta(2))
-            value = value.and.MA_free_heap(sparammeta(2))
-            value = value.and.MA_free_heap(ymeta(2))
+            value = value.and.BA_free_heap(pmeta(2))
+            value = value.and.BA_free_heap(ameta(2))
+            value = value.and.BA_free_heap(bmeta(2))
+            value = value.and.BA_free_heap(nxmeta(2))
+            value = value.and.BA_free_heap(indxmeta(2))
+            value = value.and.BA_free_heap(parammeta(2))
+            value = value.and.BA_free_heap(sindxmeta(2))
+            value = value.and.BA_free_heap(sparammeta(2))
+            value = value.and.BA_free_heap(ymeta(2))
             if (.not.value)
      >         call errquit('tamd_end: cannot free heap',0,MA_ERR)
 

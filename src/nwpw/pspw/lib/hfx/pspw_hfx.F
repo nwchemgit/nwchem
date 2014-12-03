@@ -45,7 +45,7 @@
          !hfx_on = .true.
          do ms=1,ispin
            norbs(ms) = ne(ms)
-           if(.not.MA_alloc_get(mt_int,norbs(ms),
+           if(.not.BA_alloc_get(mt_int,norbs(ms),
      >       'orbital_list',orbital_list(2,ms),orbital_list(1,ms)))
      >        call errquit('pspw_init_HFX:out of heap memory',0,MA_ERR)
           
@@ -143,7 +143,7 @@
 
 *        **** initialize orb_contribution ****
          do ms=1,ispin
-           value = MA_alloc_get(mt_dbl,norbs(ms),
+           value = BA_alloc_get(mt_dbl,norbs(ms),
      >                'ehfx_orb',ehfx_orb(2,ms),ehfx_orb(1,ms))
            if (.not. value)   
      >       call errquit('pspw_init_HFX: out of heap memory',1, MA_ERR)
@@ -171,12 +171,12 @@ c     **** define extra psi and Hpsi  ****
            nrsize = (ne(1)+ne(2))*n2ft3d
         end if
 
-        value = MA_alloc_get(mt_dbl,nrsize,
+        value = BA_alloc_get(mt_dbl,nrsize,
      >                      'psi_r_replicated',
      >                       psi_r_replicated(2),
      >                       psi_r_replicated(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,nrsize,
+     >          BA_alloc_get(mt_dbl,nrsize,
      >                      'Hpsi_r_replicated',
      >                       Hpsi_r_replicated(2),
      >                       Hpsi_r_replicated(1))
@@ -239,11 +239,11 @@ c     **** define extra psi and Hpsi  ****
 *       **** deallocate memory ****
         value = .true.
         do ms=1,ispin
-          value = value.and.MA_free_heap(orbital_list(2,ms)) 
-          value = value.and.MA_free_heap(ehfx_orb(2,ms))
+          value = value.and.BA_free_heap(orbital_list(2,ms)) 
+          value = value.and.BA_free_heap(ehfx_orb(2,ms))
         end do
 c        if (fractional) 
-c     >     value = value.and.MA_free_heap(amatrix(2))
+c     >     value = value.and.BA_free_heap(amatrix(2))
 c        if (.not. value)
 c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 
@@ -262,8 +262,8 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 
 *        **** deallocate replicated space if necessary ****
         if (replicated) then
-           value = value.and.MA_free_heap(psi_r_replicated(2))
-           value = value.and.MA_free_heap(Hpsi_r_replicated(2))
+           value = value.and.BA_free_heap(psi_r_replicated(2))
+           value = value.and.BA_free_heap(Hpsi_r_replicated(2))
            if (.not. value)
      >     call errquit('pspw_end_HFX:error freeing heap memory',
      >                  0,MA_ERR)
@@ -580,11 +580,11 @@ c     **** nothing to do ****
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         !call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
@@ -648,9 +648,9 @@ c     >                      dbl_mb(vij(1)))
      >                        Horb_r)
         end do
 
-        value = value.and.MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(vij(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value = value.and.BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(vij(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >    call errquit('pspw_potential_HFX_orb:popping stack memory',0,
      &       MA_ERR)
@@ -781,13 +781,13 @@ c***************** sub/replicated routines *****************************
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         !call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
@@ -1016,10 +1016,10 @@ c     >                           Hpsi_r(index2))
 
         end if
 
-        value =           MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(vij(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value =           BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(vij(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >    call errquit('pspw_potential_HFX:popping stack memory',0,
      &       MA_ERR)
@@ -1067,9 +1067,9 @@ c     >                           Hpsi_r(index2))
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         !call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
@@ -1140,8 +1140,8 @@ c     >                                   dbl_mb(dn(1)))
         call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
         end do
 
-        value =           MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value =           BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >     call errquit('pspw_energy_HFX_sub:popping stack memory',0,
      &       MA_ERR)
@@ -1191,7 +1191,7 @@ c     >                                   dbl_mb(dn(1)))
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         !call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
         if (.not. value) call errquit('out of stack memory',0,MA_ERR)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
 
@@ -1261,7 +1261,7 @@ c     >                                   dbl_mb(dn(1)))
         end do
 
         call coulomb_screened_euv_end()
-        value = MA_pop_stack(dn(2))
+        value = BA_pop_stack(dn(2))
         if (.not. value) 
      >     call errquit('pspw_energy_euv_HFX_sub:popping stack memory',
      >                  0,MA_ERR)
@@ -1310,13 +1310,13 @@ c     >                                   dbl_mb(dn(1)))
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         !call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
@@ -1375,10 +1375,10 @@ c     >                                   dbl_mb(dn(1)))
               call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Horb_r)
            end if
         end do
-        value =           MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(vij(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value =           BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(vij(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >   call errquit('pspw_potential_HFX_orb_sub:popping stack memory',
      >                  0,MA_ERR)
@@ -1462,11 +1462,11 @@ c        call D1dB_SumAll(ph)
       call D3dB_nx(1,n1)
       call D3dB_ny(1,n2)
       call D3dB_nz(1,n3)
-      value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+      value = BA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('pspw_potential_HFX_sub: out of stack',0,MA_ERR)
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
@@ -1686,9 +1686,9 @@ c        call D1dB_SumAll(ph)
       end if
 
       !**** deallocate memory ****
-      value =           MA_pop_stack(tmp1(2))
-      value = value.and.MA_pop_stack(vij(2))
-      value = value.and.MA_pop_stack(dn(2))
+      value =           BA_pop_stack(tmp1(2))
+      value = value.and.BA_pop_stack(vij(2))
+      value = value.and.BA_pop_stack(dn(2))
       if (.not. value) call errquit(
      >   'pspw_potential_HFX_sub2:popping stack memory',0,MA_ERR)
 
@@ -1839,9 +1839,9 @@ c     **** nothing to do ****
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         !call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+     >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
@@ -1912,8 +1912,8 @@ c     >                                   dbl_mb(dn(1)))
         call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
         end do
 
-        value =           MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value =           BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >     call errquit('pspw_energy_HFX2_sub:popping stack memory',0,
      &       MA_ERR)

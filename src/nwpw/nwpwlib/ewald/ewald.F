@@ -342,14 +342,14 @@ c     **** allocate memory for common block ****
       notzero_enpack = (enpack.gt.0)  !** needed for very large numbers cpu
       value = .true.
       if (notzero_enpack) then 
-         value=MA_alloc_get(mt_dbl,3*enpack,'eG',eg_hndl,eG(1))
+         value=BA_alloc_get(mt_dbl,3*enpack,'eG',eg_hndl,eG(1))
          eG(2)=eG(1)+enpack
          eG(3)=eG(2)+enpack
-         value=value.and.MA_alloc_get(mt_dbl,enpack,'vg',vg(2),vg(1))
-         value=value.and.MA_alloc_get(mt_dbl,enpack,'vcx',vcx(2),vcx(1))
+         value=value.and.BA_alloc_get(mt_dbl,enpack,'vg',vg(2),vg(1))
+         value=value.and.BA_alloc_get(mt_dbl,enpack,'vcx',vcx(2),vcx(1))
       end if
       ntyp=ion_nkatm()      
-      value=value.and.MA_alloc_get(mt_dbl,ntyp,'zv',zv(2),zv(1))
+      value=value.and.BA_alloc_get(mt_dbl,ntyp,'zv',zv(2),zv(1))
       if (.not.value) call errquit('ewald_init:out of heap memory',0,0)
 
       call ewald_strfact_init()
@@ -622,7 +622,7 @@ cccccccccc  ewald summation
 
 cccccccccc allocate and fill rcell
       nshl3d=(2*ncut+1)**3
-      value=MA_alloc_get(mt_dbl,(3*nshl3d),'rcell',rcell(2),rcell(1))
+      value=BA_alloc_get(mt_dbl,(3*nshl3d),'rcell',rcell(2),rcell(1))
       if (.not. value)
      > call errquit('ewald_init:out of heap memory',0,MA_ERR)
 
@@ -661,12 +661,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call ewald_strfact_end()
       value = .true.
       if (notzero_enpack) then
-         value=value.and.MA_free_heap(eg_hndl)
-         value=value.and.MA_free_heap(vcx(2))
-         value=value.and.MA_free_heap(vg(2))
+         value=value.and.BA_free_heap(eg_hndl)
+         value=value.and.BA_free_heap(vcx(2))
+         value=value.and.BA_free_heap(vg(2))
       end if
-      value=value.and.MA_free_heap(rcell(2))
-      value=value.and.MA_free_heap(zv(2))
+      value=value.and.BA_free_heap(rcell(2))
+      value=value.and.BA_free_heap(zv(2))
       if (.not.value) then
         call errquit("ewald end can free heap",0,MA_ERR)
       end if
@@ -732,11 +732,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       nion = ion_nion()
       
       if (notzero_enpack) then
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
          value = value.and.
-     >           MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+     >           BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
          if (.not. value) 
      >     call errquit('ewald_e:out of stack memory',0,MA_ERR)
      
@@ -790,9 +790,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** deallocate temp workspace ****
       if (notzero_enpack) then
-         value =           MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >     call errquit('ewald_e:popping stack memory',0,MA_ERR)
       end if
@@ -849,14 +849,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       value = .true.
       if (notzero_enpack) then
          value = value.and.
-     >           MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+     >           BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
       end if
-      value = value.and.MA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
-      value = value.and.MA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
-      value = value.and.MA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
       if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
 
 
@@ -952,13 +952,13 @@ c         end do
       end do
       
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(fz(2))
-      value = value.and.MA_pop_stack(fy(2))
-      value = value.and.MA_pop_stack(fx(2))
+      value =           BA_pop_stack(fz(2))
+      value = value.and.BA_pop_stack(fy(2))
+      value = value.and.BA_pop_stack(fx(2))
       if (notzero_enpack) then
-         value = value.and.MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value = value.and.BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
       end if
       if (.not. value) 
      >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
@@ -1059,10 +1059,10 @@ c         end do
 
 *     **** get the structure factor ****
       if (notzero_enpack) then
-         value=            MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
-         value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
+         value=            BA_push_get(mt_dbl,enpack,'H',H(2),H(1))
+         value=value.and.BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
          value=value.and.
-     >         MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
+     >         BA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
          if (.not. value) 
      >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
@@ -1079,8 +1079,8 @@ c         end do
              ai=dimag(cz)
              dbl_mb(H(1)+i-1)=ar*ar+ai*ai
          end do
-         value =           MA_pop_stack(strf(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(strf(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >    call errquit('ewald_stress:error popping stack',0,MA_ERR)
 
@@ -1103,9 +1103,9 @@ c         call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
      
 *     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
       if (notzero_enpack) then
-         value=MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
+         value=BA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
          value=value.and.
-     >         MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
+     >         BA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
          if (.not.value) 
      >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
@@ -1156,8 +1156,8 @@ c        end do
 c      end do
 c      end do
 
-         value =           MA_pop_stack(tmp2(2))
-         value = value.and.MA_pop_stack(tmp1(2))
+         value =           BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
          value = value.and.MA_Pop_stack(H(2))
          if (.not.value) 
      >    call errquit(
@@ -1319,11 +1319,11 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       nion = ion_nion_qm()
 
       if (notzero_enpack) then      
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
          value = value.and.
-     >           MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+     >           BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
          if (.not. value) 
      >     call errquit('ewald_e:out of stack memory',0,MA_ERR)
      
@@ -1375,9 +1375,9 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 
 *     **** deallocate temp workspace ****
       if (notzero_enpack) then
-         value =           MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >     call errquit('ewald_e:popping stack memory',0,MA_ERR)
       end if
@@ -1433,14 +1433,14 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 *     **** allocate temp workspace ****
       value = .true.
       if (notzero_enpack) then
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
       end if
-      value = value.and.MA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
-      value = value.and.MA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
-      value = value.and.MA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
       if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
 
 
@@ -1534,13 +1534,13 @@ c         end do
       end do
       
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(fz(2))
-      value = value.and.MA_pop_stack(fy(2))
-      value = value.and.MA_pop_stack(fx(2))
+      value =           BA_pop_stack(fz(2))
+      value = value.and.BA_pop_stack(fy(2))
+      value = value.and.BA_pop_stack(fx(2))
       if (notzero_enpack) then
-         value = value.and.MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value = value.and.BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
       end if
       if (.not. value) 
      >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
@@ -1626,10 +1626,10 @@ c         end do
       if (notzero_enpack) then
 
 *        **** get the structure factor ****
-         value=          MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
-         value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
+         value=          BA_push_get(mt_dbl,enpack,'H',H(2),H(1))
+         value=value.and.BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
          value=value.and.
-     >         MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
+     >         BA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
          if (.not. value) 
      >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
@@ -1646,8 +1646,8 @@ c         end do
              ai=dimag(cz)
              dbl_mb(H(1)+i-1)=ar*ar+ai*ai
          end do
-         value =           MA_pop_stack(strf(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(strf(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >    call errquit('ewald_stress:error popping stack',0,MA_ERR)
 
@@ -1670,9 +1670,9 @@ c         call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
      
 *     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
       if (notzero_enpack) then
-         value=MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
+         value=BA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
          value=value.and.
-     >         MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
+     >         BA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
          if (.not.value) 
      >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
@@ -1723,8 +1723,8 @@ c        end do
 c      end do
 c      end do
 
-         value =           MA_pop_stack(tmp2(2))
-         value = value.and.MA_pop_stack(tmp1(2))
+         value =           BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
          value = value.and.MA_Pop_stack(H(2))
          if (.not.value) 
      >    call errquit(
@@ -1885,11 +1885,11 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       nion_mm = ion_nion_mm()
       
       if (notzero_enpack) then
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
          value = value.and.
-     >           MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+     >           BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
          if (.not. value) 
      >     call errquit('ewald_e:out of stack memory',0,MA_ERR)
      
@@ -1942,9 +1942,9 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 
 *     **** deallocate temp workspace ****
       if (notzero_enpack) then
-         value =           MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >     call errquit('ewald_e:popping stack memory',0,MA_ERR)
       end if
@@ -2002,14 +2002,14 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 *     **** allocate temp workspace ****
       value = .true.
       if (notzero_enpack) then
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
       end if
-      value = value.and.MA_push_get(mt_dbl,nion_mm,'fx',fx(2),fx(1)) 
-      value = value.and.MA_push_get(mt_dbl,nion_mm,'fy',fy(2),fy(1)) 
-      value = value.and.MA_push_get(mt_dbl,nion_mm,'fz',fz(2),fz(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion_mm,'fx',fx(2),fx(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion_mm,'fy',fy(2),fy(1)) 
+      value = value.and.BA_push_get(mt_dbl,nion_mm,'fz',fz(2),fz(1)) 
       if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
 
 
@@ -2095,13 +2095,13 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       end do
       
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(fz(2))
-      value = value.and.MA_pop_stack(fy(2))
-      value = value.and.MA_pop_stack(fx(2))
+      value =           BA_pop_stack(fz(2))
+      value = value.and.BA_pop_stack(fy(2))
+      value = value.and.BA_pop_stack(fx(2))
       if (notzero_enpack) then
-         value = value.and.MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value = value.and.BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
       end if
       if (.not. value) 
      >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
@@ -2189,10 +2189,10 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 
 *     **** get the structure factor ****
       if (notzero_enpack) then
-         value=MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
-         value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
+         value=BA_push_get(mt_dbl,enpack,'H',H(2),H(1))
+         value=value.and.BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
          value=value.and.
-     >         MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
+     >         BA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
          if (.not. value) 
      >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
@@ -2210,8 +2210,8 @@ c      call dcopy(9,0.0d0,0,Cus,1)
              ai=dimag(cz)
              dbl_mb(H(1)+i-1)=ar*ar+ai*ai
          end do
-         value =           MA_pop_stack(strf(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(strf(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >    call errquit('ewald_stress:error popping stack',0,MA_ERR)
 
@@ -2234,9 +2234,9 @@ c         call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
      
 *     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
       if (notzero_enpack) then
-         value=MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
+         value=BA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
          value=value.and.
-     >         MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
+     >         BA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
          if (.not.value) 
      >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
@@ -2287,8 +2287,8 @@ c        end do
 c      end do
 c      end do
 
-         value =           MA_pop_stack(tmp2(2))
-         value = value.and.MA_pop_stack(tmp1(2))
+         value =           BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
          value = value.and.MA_Pop_stack(H(2))
          if (.not.value) 
      >    call errquit(
@@ -2455,10 +2455,10 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 
 *     **** allocate temp workspace ****
       if (notzero_enpack) then
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
          if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
 
 *        **** get the structure factor ****
@@ -2535,9 +2535,9 @@ c         end do
       
 *     **** deallocate temp workspace ****
       if (notzero_enpack) then
-         value =           MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >     call errquit('ewald_f_async:popping stack memory',0,MA_ERR)
       end if
@@ -2591,10 +2591,10 @@ c         end do
 
 *     **** allocate temp workspace ****
       if (notzero_enpack) then
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
          if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
 
 *        **** get the structure factor ****
@@ -2669,9 +2669,9 @@ c         end do
       
 *     **** deallocate temp workspace ****
       if (notzero_enpack) then
-         value =           MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >     call errquit('ewald_f:popping stack memory',0,MA_ERR)
       end if
@@ -2727,10 +2727,10 @@ c         end do
 
 *     **** allocate temp workspace ****
       if (notzero_enpack) then
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = BA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.BA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
          value = value.and.
-     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+     >           BA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
          if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
      
 *        **** get the structure factor ****
@@ -2796,9 +2796,9 @@ c         end do
 
 *     **** deallocate temp workspace ****
       if (notzero_enpack) then
-         value =           MA_pop_stack(tmp3(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value =           BA_pop_stack(tmp3(2))
+         value = value.and.BA_pop_stack(s(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) 
      >     call errquit('ewald_f:popping stack memory',0,MA_ERR)
       end if

@@ -42,13 +42,13 @@
 
       nbasis = aorbs_nbasis()
 
-      value = MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*n2ft3d),'newdn',newdn(2),newdn(1))
+     >        BA_push_get(mt_dbl,(2*n2ft3d),'newdn',newdn(2),newdn(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*n2ft3d),'dnerr',dnerr(2),dnerr(1))
+     >        BA_push_get(mt_dbl,(2*n2ft3d),'dnerr',dnerr(2),dnerr(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
+     >        BA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
       if (.not. value) 
      >  call errquit('lcao_new_mix_dn:out of stack memory',0, MA_ERR)
 
@@ -129,13 +129,13 @@ c        sum = dble(ne(ms))/sum
 c        call D3dB_r_SMul(1,sum,dn(1,ms),dn(1,ms))
 c      end do
 
-      value = MA_pop_stack(coef(2))
+      value = BA_pop_stack(coef(2))
       value = value.and.
-     >        MA_pop_stack(dnerr(2))
+     >        BA_pop_stack(dnerr(2))
       value = value.and.
-     >        MA_pop_stack(newdn(2))
+     >        BA_pop_stack(newdn(2))
       value = value.and.
-     >        MA_pop_stack(tmp(2))
+     >        BA_pop_stack(tmp(2))
       if (.not. value) 
      >  call errquit('lcao_init_dn:popping stack memory',0, MA_ERR)
       return

@@ -98,17 +98,17 @@ c
       n1(2) = ne(1)+1
       n2(2) = ne(1)+ne(2)
 
-      value = MA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
+      value = BA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
+     >        BA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,36*nemax*nion,'a',a(2),a(1))
+     >        BA_alloc_get(mt_dbl,36*nemax*nion,'a',a(2),a(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nion,'total',total(2),total(1))
+     >        BA_alloc_get(mt_dbl,nion,'total',total(2),total(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
+     >        BA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
+     >        BA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
 
 
 *      ***********************************************
@@ -473,7 +473,7 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
 *     ***********************************************
       if (control_DOS()) then
 
-      value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value)
      >  call errquit('analysis:out of stack memory',0, MA_ERR)
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
@@ -653,7 +653,7 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
 
 *     *** free heap ***
       if(fixatoms) then
-        if (.not. MA_free_heap(h_actlist))
+        if (.not. BA_free_heap(h_actlist))
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
       end if
 
@@ -696,7 +696,7 @@ c 1802 FORMAT('DOS_alpha_atom_',I4.4)
 c 1803 FORMAT('DOS_beta_atom_',I4.4)
 c      end do
 
-      value = MA_pop_stack(weight(2))
+      value = BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('analysis: error freeing stack',0, MA_ERR)
 
@@ -709,12 +709,12 @@ c      end do
 *     **** free heap space ****
  1901 continue
       if (.not.mulliken_kawai) call aorbs_end()
-      value = MA_free_heap(lorb(2))
-      value = MA_free_heap(b0(2))
-      value = MA_free_heap(a(2))
-      value = MA_free_heap(total(2))
-      value = MA_free_heap(sum(2))
-      value = MA_free_heap(subtl(2))
+      value = BA_free_heap(lorb(2))
+      value = BA_free_heap(b0(2))
+      value = BA_free_heap(a(2))
+      value = BA_free_heap(total(2))
+      value = BA_free_heap(sum(2))
+      value = BA_free_heap(subtl(2))
 
       return
       end

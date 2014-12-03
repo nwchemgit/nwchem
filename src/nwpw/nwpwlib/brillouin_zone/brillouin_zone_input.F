@@ -88,7 +88,7 @@ c
      
 
       num_kvectors = num_kvectors + 1
-      if (.not. MA_alloc_get(mt_dbl,(4*num_kvectors), 
+      if (.not. BA_alloc_get(mt_dbl,(4*num_kvectors), 
      >        'kvs_new',kvs_new(2),kvs_new(1)))
      >     call errquit(
      >          'brillouine_zone_input: heap failed 1', 0,
@@ -101,7 +101,7 @@ c
          dbl_mb(kvs_new(1) + 4*(k-1)+2) = dbl_mb(kvs(1) + 4*(k-1)+2) 
          dbl_mb(kvs_new(1) + 4*(k-1)+3) = dbl_mb(kvs(1) + 4*(k-1)+3) 
         end do
-        if (.not.MA_free_heap(kvs(2)))
+        if (.not.BA_free_heap(kvs(2)))
      >     call errquit(
      >          'brillouine_zone_input: heap failed 2', 0, MA_ERR)
       end if
@@ -141,7 +141,7 @@ c
      &       RTDB_ERR)
 
 
-      if (.not.MA_free_heap(kvs(2)))
+      if (.not.BA_free_heap(kvs(2)))
      >  call errquit(
      >       'brillouine_zone_input: heap failed 3', 0, MA_ERR)
       return
@@ -188,7 +188,7 @@ c
       num_kvectors = nx*ny*nz
       weight       = 1.0d0/dble(num_kvectors)
 
-      if(.not.MA_alloc_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
+      if(.not.BA_alloc_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
      >     call errquit(
      >          'monkhorst_pack_set: heap failed 1', 0,
      >       MA_ERR)
@@ -256,7 +256,7 @@ c
      &       RTDB_ERR)
 
 
-      if (.not.MA_free_heap(kvs(2)))
+      if (.not.BA_free_heap(kvs(2)))
      >  call errquit(
      >       'monkhorst_pack_set: heap failed 3', 0, MA_ERR)
 
@@ -342,7 +342,7 @@ c
 
       num_kvectors = nx*ny*nz
 
-      if(.not.MA_alloc_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
+      if(.not.BA_alloc_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
      >     call errquit(
      >          'dos_states_set: heap failed 1', 0,
      >       MA_ERR)
@@ -391,7 +391,7 @@ c
      &       RTDB_ERR)
 
 
-      if (.not.MA_free_heap(kvs(2)))
+      if (.not.BA_free_heap(kvs(2)))
      >  call errquit(
      >       'dos_states_set: heap failed 3', 0, MA_ERR)
 
@@ -501,7 +501,7 @@ c Triclinic
      >               + (i-1)*((kvector2(3)-kvector1(3))/dble(count))
 
           nk = nk + 1
-          if (.not. MA_alloc_get(mt_dbl,(4*nk),
+          if (.not. BA_alloc_get(mt_dbl,(4*nk),
      >        'kvs_new',kvs_new(2),kvs_new(1)))
      >        call errquit(
      >       'band_path_set: heap failed 1', 0, MA_ERR)
@@ -513,7 +513,7 @@ c Triclinic
             dbl_mb(kvs_new(1) + 4*(k-1)+2) = dbl_mb(kvs(1) + 4*(k-1)+2)
             dbl_mb(kvs_new(1) + 4*(k-1)+3) = dbl_mb(kvs(1) + 4*(k-1)+3)
             end do
-            if (.not.MA_free_heap(kvs(2)))
+            if (.not.BA_free_heap(kvs(2)))
      >      call errquit(
      >          'band_path_set: heap failed 2', 0, MA_ERR)
            end if

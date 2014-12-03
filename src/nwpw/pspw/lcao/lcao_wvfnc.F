@@ -106,17 +106,17 @@
 
 *     ***** allocate memory from heap memory ****
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*n2ft3d),'dn',dn(2),dn(1))
+     >        BA_alloc_get(mt_dbl,(2*n2ft3d),'dn',dn(2),dn(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(npack1),'phi1',phi1(2),phi1(1))
+     >        BA_alloc_get(mt_dcpl,(npack1),'phi1',phi1(2),phi1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(npack1),'phi2',phi2(2),phi2(1))
+     >        BA_alloc_get(mt_dcpl,(npack1),'phi2',phi2(2),phi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nbasis),'ee',ee(2),ee(1))
+     >        BA_alloc_get(mt_dbl,(2*nbasis),'ee',ee(2),ee(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
+     >        BA_alloc_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
+     >        BA_alloc_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
       eigs(1) = ee(1)
       eigs(2) = ee(1) + nbasis
 
@@ -561,12 +561,12 @@ C     * write out the eigenvalues *
 
 *     ***** free heap memory ****
   100 continue
-      value2 = MA_free_heap(vc(2))
-      value2 = MA_free_heap(rho(2))
-      value2 = MA_free_heap(dn(2))
-      value2 = MA_free_heap(phi1(2))
-      value2 = MA_free_heap(phi2(2))
-      value2 = MA_free_heap(ee(2))
+      value2 = BA_free_heap(vc(2))
+      value2 = BA_free_heap(rho(2))
+      value2 = BA_free_heap(dn(2))
+      value2 = BA_free_heap(phi1(2))
+      value2 = BA_free_heap(phi2(2))
+      value2 = BA_free_heap(ee(2))
       value2 = ga_destroy(smatrix)
       value2 = ga_destroy(kematrix)
       value2 = ga_destroy(vlmatrix)

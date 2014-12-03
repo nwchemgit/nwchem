@@ -87,7 +87,7 @@ c
          else
             periodic = .false.
             nshl3d = 1
-            if (.not.MA_alloc_get(mt_dbl,3,'rcell',rcell(2),rcell(1))) 
+            if (.not.BA_alloc_get(mt_dbl,3,'rcell',rcell(2),rcell(1))) 
      >      call errquit(
      >      'pspw_qmmm_init:failed allocating rcell from heap',0,MA_ERR)
             dbl_mb(rcell(1))   = 0.0d0
@@ -113,129 +113,129 @@ c
 
          if (nfrag.eq.0) go to 999
 
-         value = MA_alloc_get(mt_int,nfrag,'index_frag_start',
+         value = BA_alloc_get(mt_int,nfrag,'index_frag_start',
      >                        indx_frag_start(2),indx_frag_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nfrag,'size_frag',
+     >           BA_alloc_get(mt_int,nfrag,'size_frag',
      >                        size_frag(2),size_frag(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nfrag,'kfrag',kfrag(2),kfrag(1))
+     >           BA_alloc_get(mt_int,nfrag,'kfrag',kfrag(2),kfrag(1))
 
          value = value.and.
-     >           MA_alloc_get(mt_log,nkfrag,'self_interaction',
+     >           BA_alloc_get(mt_log,nkfrag,'self_interaction',
      >                        self_interaction(2),self_interaction(1))
          value = value.and.
-     >           MA_alloc_get(mt_log,nkfrag,'incell_frag',
+     >           BA_alloc_get(mt_log,nkfrag,'incell_frag',
      >                        incell_frag(2),incell_frag(1))
          value = value.and.
-     >           MA_alloc_get(mt_dbl,nkfrag,'switch_Rin',
+     >           BA_alloc_get(mt_dbl,nkfrag,'switch_Rin',
      >                        switch_Rin(2),switch_Rin(1))
          value = value.and.
-     >           MA_alloc_get(mt_dbl,nkfrag,'switch_Rout',
+     >           BA_alloc_get(mt_dbl,nkfrag,'switch_Rout',
      >                        switch_Rout(2),switch_Rout(1))
 
 *        **** shake variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nshake',
+     >           BA_alloc_get(mt_int,nkfrag,'nshake',
      >                        nshake(2),nshake(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nab_shake_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nab_shake_start',
      >                        nab_shake_start(2),nab_shake_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_shake_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nindx_shake_start',
      >                        nindx_shake_start(2),nindx_shake_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'ndsq_shake_start',
+     >           BA_alloc_get(mt_int,nkfrag,'ndsq_shake_start',
      >                        ndsq_shake_start(2),ndsq_shake_start(1))
 
 *        **** bond variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nbond',
+     >           BA_alloc_get(mt_int,nkfrag,'nbond',
      >                        nbond(2),nbond(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_bond_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nindx_bond_start',
      >                        nindx_bond_start(2),nindx_bond_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nKr0_bond_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nKr0_bond_start',
      >                        nKr0_bond_start(2),nKr0_bond_start(1))
 
 *        **** angle variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nangle',
+     >           BA_alloc_get(mt_int,nkfrag,'nangle',
      >                        nangle(2),nangle(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_angle_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nindx_angle_start',
      >                        nindx_angle_start(2),nindx_angle_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nKr0_angle_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nKr0_angle_start',
      >                        nKr0_angle_start(2),nKr0_angle_start(1))
 
 *        **** cbond variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'ncbond',
+     >           BA_alloc_get(mt_int,nkfrag,'ncbond',
      >                        ncbond(2),ncbond(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_cbond_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nindx_cbond_start',
      >                        nindx_cbond_start(2),nindx_cbond_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nKr0_cbond_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nKr0_cbond_start',
      >                        nKr0_cbond_start(2),nKr0_cbond_start(1))
 
 *        **** mbond variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nmbond',
+     >           BA_alloc_get(mt_int,nkfrag,'nmbond',
      >                        nmbond(2),nmbond(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nindx_mbond_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nindx_mbond_start',
      >                        nindx_mbond_start(2),nindx_mbond_start(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'nKr0_mbond_start',
+     >           BA_alloc_get(mt_int,nkfrag,'nKr0_mbond_start',
      >                        nKr0_mbond_start(2),nKr0_mbond_start(1))
 
 *        **** dihedral spring variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'ndihedral_spring',
+     >           BA_alloc_get(mt_int,nkfrag,'ndihedral_spring',
      >                        ndihedral_spring(2),ndihedral_spring(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'nindx_dihedral_spring_start',
+     >         BA_alloc_get(mt_int,nkfrag,'nindx_dihedral_spring_start',
      >                        nindx_dihedral_spring_start(2),
      >                        nindx_dihedral_spring_start(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'nKr0_dihedral_spring_start',
+     >         BA_alloc_get(mt_int,nkfrag,'nKr0_dihedral_spring_start',
      >                      nKr0_dihedral_spring_start(2),
      >                      nKr0_dihedral_spring_start(1))
 
 *        **** dihedral variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'ndihedral',
+     >           BA_alloc_get(mt_int,nkfrag,'ndihedral',
      >                        ndihedral(2),ndihedral(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'nindx_dihedral_start',
+     >         BA_alloc_get(mt_int,nkfrag,'nindx_dihedral_start',
      >                        nindx_dihedral_start(2),
      >                        nindx_dihedral_start(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'nKr0_dihedral_start',
+     >         BA_alloc_get(mt_int,nkfrag,'nKr0_dihedral_start',
      >                      nKr0_dihedral_start(2),
      >                      nKr0_dihedral_start(1))
 
 *        **** coord variables ****
          value = value.and.
-     >           MA_alloc_get(mt_int,nkfrag,'ncoord',
+     >           BA_alloc_get(mt_int,nkfrag,'ncoord',
      >                        ncoord(2),ncoord(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'nindx0_coord_start',
+     >         BA_alloc_get(mt_int,nkfrag,'nindx0_coord_start',
      >                        nindx0_coord_start(2),
      >                        nindx0_coord_start(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'nindx1_coord_start',
+     >         BA_alloc_get(mt_int,nkfrag,'nindx1_coord_start',
      >                        nindx1_coord_start(2),
      >                        nindx1_coord_start(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'nindx2_coord_start',
+     >         BA_alloc_get(mt_int,nkfrag,'nindx2_coord_start',
      >                        nindx2_coord_start(2),
      >                        nindx2_coord_start(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'Kr0_coord_start',
+     >         BA_alloc_get(mt_int,nkfrag,'Kr0_coord_start',
      >                      nKr0_coord_start(2),
      >                      nKr0_coord_start(1))
 
@@ -455,14 +455,14 @@ c
          shake_found = (nabsize.gt.0)
          if (shake_found) then
 
-            value = MA_alloc_get(mt_int,nabsize,'na',na(2),na(1))
+            value = BA_alloc_get(mt_int,nabsize,'na',na(2),na(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,nabsize,'nb',nb(2),nb(1))
+     >              BA_alloc_get(mt_int,nabsize,'nb',nb(2),nb(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,nindxsize,'indx_shake',
+     >              BA_alloc_get(mt_int,nindxsize,'indx_shake',
      >                        indx_shake(2),indx_shake(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,ndsqsize,'dsq_shake',
+     >              BA_alloc_get(mt_dbl,ndsqsize,'dsq_shake',
      >                        dsq_shake(2),dsq_shake(1))
             if (.not.value) call errquit(
      >       'cannot allocate heap memory for qmmm shake',0,MA_ERR)
@@ -506,10 +506,10 @@ c
 *        *** more bond ****
          bond_found = (nbindxsize.gt.0)
          if (bond_found) then
-            value = MA_alloc_get(mt_int,nbindxsize,'indx_bond',
+            value = BA_alloc_get(mt_int,nbindxsize,'indx_bond',
      >                        indx_bond(2),indx_bond(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nKr0size,'Kr0_bond',
+     >              BA_alloc_get(mt_dbl,nKr0size,'Kr0_bond',
      >                        Kr0_bond(2),Kr0_bond(1))
             if (.not.value) call errquit(
      >       'cannot allocate heap memory for qmmm bond',0,MA_ERR)
@@ -543,10 +543,10 @@ c
 *        *** more angle ****
          angle_found = (naindxsize.gt.0)
          if (angle_found) then
-            value = MA_alloc_get(mt_int,naindxsize,'indx_angle',
+            value = BA_alloc_get(mt_int,naindxsize,'indx_angle',
      >                        indx_angle(2),indx_angle(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nQr0size,'Kr0_angle',
+     >              BA_alloc_get(mt_dbl,nQr0size,'Kr0_angle',
      >                        Kr0_angle(2),Kr0_angle(1))
             if (.not.value) call errquit(
      >       'cannot allocate heap memory for qmmm angle',0,MA_ERR)
@@ -578,10 +578,10 @@ c
 *        *** more cbond ****
          cbond_found = (ncbindxsize.gt.0)
          if (cbond_found) then
-            value = MA_alloc_get(mt_int,ncbindxsize,'indx_cbond',
+            value = BA_alloc_get(mt_int,ncbindxsize,'indx_cbond',
      >                        indx_cbond(2),indx_cbond(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,ncKr0size,'Kr0_cbond',
+     >              BA_alloc_get(mt_dbl,ncKr0size,'Kr0_cbond',
      >                        Kr0_cbond(2),Kr0_cbond(1))
             if (.not.value) call errquit(
      >       'cannot allocate heap memory for qmmm cbond',0,MA_ERR)
@@ -613,10 +613,10 @@ c
 *        *** more mbond ****
          mbond_found = (nmbindxsize.gt.0)
          if (mbond_found) then
-            value = MA_alloc_get(mt_int,nmbindxsize,'indx_mbond',
+            value = BA_alloc_get(mt_int,nmbindxsize,'indx_mbond',
      >                        indx_mbond(2),indx_mbond(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nmKr0size,'Kr0_mbond',
+     >              BA_alloc_get(mt_dbl,nmKr0size,'Kr0_mbond',
      >                        Kr0_mbond(2),Kr0_mbond(1))
             if (.not.value) call errquit(
      >       'cannot allocate heap memory for qmmm mbond',0,MA_ERR)
@@ -648,12 +648,12 @@ c
 *        *** more dihedral_spring ****
          dihedral_spring_found = (ndindxsize.gt.0)
          if (dihedral_spring_found) then
-            value = MA_alloc_get(mt_int,ndindxsize,
+            value = BA_alloc_get(mt_int,ndindxsize,
      >              'indx_dihedral_spring',
      >               indx_dihedral_spring(2),
      >               indx_dihedral_spring(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,ndKr0size,
+     >              BA_alloc_get(mt_dbl,ndKr0size,
      >                           'Kr0_dihedral_spring',
      >                            Kr0_dihedral_spring(2),
      >                            Kr0_dihedral_spring(1))
@@ -687,12 +687,12 @@ c
 *        *** more dihedral ****
          dihedral_found = (nddindxsize.gt.0)
          if (dihedral_found) then
-            value = MA_alloc_get(mt_int,nddindxsize,
+            value = BA_alloc_get(mt_int,nddindxsize,
      >              'indx_dihedral',
      >               indx_dihedral(2),
      >               indx_dihedral(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,nddKr0size,
+     >              BA_alloc_get(mt_dbl,nddKr0size,
      >                           'Kr0_dihedral',
      >                            Kr0_dihedral(2),
      >                            Kr0_dihedral(1))
@@ -728,24 +728,24 @@ c
 *        *** more coordination number ****
          coord_found = (ncnindxsize1.gt.0)
          if (coord_found) then
-            value = MA_alloc_get(mt_int,ncnindxsize0,
+            value = BA_alloc_get(mt_int,ncnindxsize0,
      >              'nsize1_coord',
      >               nsize1_coord(2),
      >               nsize1_coord(1))
-            value = value.and.MA_alloc_get(mt_int,ncnindxsize0,
+            value = value.and.BA_alloc_get(mt_int,ncnindxsize0,
      >              'nsize2_coord',
      >               nsize2_coord(2),
      >               nsize2_coord(1))
-            value = value.and.MA_alloc_get(mt_int,ncnindxsize1,
+            value = value.and.BA_alloc_get(mt_int,ncnindxsize1,
      >              'indx1_coord',
      >               indx1_coord(2),
      >               indx1_coord(1))
-            value = value.and.MA_alloc_get(mt_int,ncnindxsize2,
+            value = value.and.BA_alloc_get(mt_int,ncnindxsize2,
      >              'indx2_coord',
      >               indx2_coord(2),
      >               indx2_coord(1))
             value = value.and.
-     >              MA_alloc_get(mt_dbl,ncnKr0size,
+     >              BA_alloc_get(mt_dbl,ncnKr0size,
      >                           'Kr0_coord',
      >                            Kr0_coord(2),
      >                            Kr0_coord(1))
@@ -1170,87 +1170,87 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
 
       if (qmmm_found) then
         if (nfrag.gt.0) then
-        value =           MA_free_heap(indx_frag_start(2))
-        value = value.and.MA_free_heap(size_frag(2))
-        value = value.and.MA_free_heap(kfrag(2))
-        value = value.and.MA_free_heap(self_interaction(2))
-        value = value.and.MA_free_heap(incell_frag(2))
-        value = value.and.MA_free_heap(switch_Rin(2))
-        value = value.and.MA_free_heap(switch_Rout(2))
-        value = value.and.MA_free_heap(nshake(2))
-        value = value.and.MA_free_heap(nab_shake_start(2))
-        value = value.and.MA_free_heap(nindx_shake_start(2))
-        value = value.and.MA_free_heap(ndsq_shake_start(2))
+        value =           BA_free_heap(indx_frag_start(2))
+        value = value.and.BA_free_heap(size_frag(2))
+        value = value.and.BA_free_heap(kfrag(2))
+        value = value.and.BA_free_heap(self_interaction(2))
+        value = value.and.BA_free_heap(incell_frag(2))
+        value = value.and.BA_free_heap(switch_Rin(2))
+        value = value.and.BA_free_heap(switch_Rout(2))
+        value = value.and.BA_free_heap(nshake(2))
+        value = value.and.BA_free_heap(nab_shake_start(2))
+        value = value.and.BA_free_heap(nindx_shake_start(2))
+        value = value.and.BA_free_heap(ndsq_shake_start(2))
         if (shake_found) then
-          value = value.and.MA_free_heap(na(2))
-          value = value.and.MA_free_heap(nb(2))
-          value = value.and.MA_free_heap(indx_shake(2))
-          value = value.and.MA_free_heap(dsq_shake(2))
+          value = value.and.BA_free_heap(na(2))
+          value = value.and.BA_free_heap(nb(2))
+          value = value.and.BA_free_heap(indx_shake(2))
+          value = value.and.BA_free_heap(dsq_shake(2))
         end if
 
-        value = value.and.MA_free_heap(nbond(2))
-        value = value.and.MA_free_heap(nindx_bond_start(2))
-        value = value.and.MA_free_heap(nKr0_bond_start(2))
+        value = value.and.BA_free_heap(nbond(2))
+        value = value.and.BA_free_heap(nindx_bond_start(2))
+        value = value.and.BA_free_heap(nKr0_bond_start(2))
         if (bond_found) then
-          value = value.and.MA_free_heap(indx_bond(2))
-          value = value.and.MA_free_heap(Kr0_bond(2))
+          value = value.and.BA_free_heap(indx_bond(2))
+          value = value.and.BA_free_heap(Kr0_bond(2))
         end if
 
-        value = value.and.MA_free_heap(nangle(2))
-        value = value.and.MA_free_heap(nindx_angle_start(2))
-        value = value.and.MA_free_heap(nKr0_angle_start(2))
+        value = value.and.BA_free_heap(nangle(2))
+        value = value.and.BA_free_heap(nindx_angle_start(2))
+        value = value.and.BA_free_heap(nKr0_angle_start(2))
         if (angle_found) then
-          value = value.and.MA_free_heap(indx_angle(2))
-          value = value.and.MA_free_heap(Kr0_angle(2))
+          value = value.and.BA_free_heap(indx_angle(2))
+          value = value.and.BA_free_heap(Kr0_angle(2))
         end if
 
-        value = value.and.MA_free_heap(ncbond(2))
-        value = value.and.MA_free_heap(nindx_cbond_start(2))
-        value = value.and.MA_free_heap(nKr0_cbond_start(2))
+        value = value.and.BA_free_heap(ncbond(2))
+        value = value.and.BA_free_heap(nindx_cbond_start(2))
+        value = value.and.BA_free_heap(nKr0_cbond_start(2))
         if (cbond_found) then
-          value = value.and.MA_free_heap(indx_cbond(2))
-          value = value.and.MA_free_heap(Kr0_cbond(2))
+          value = value.and.BA_free_heap(indx_cbond(2))
+          value = value.and.BA_free_heap(Kr0_cbond(2))
         end if
 
-        value = value.and.MA_free_heap(nmbond(2))
-        value = value.and.MA_free_heap(nindx_mbond_start(2))
-        value = value.and.MA_free_heap(nKr0_mbond_start(2))
+        value = value.and.BA_free_heap(nmbond(2))
+        value = value.and.BA_free_heap(nindx_mbond_start(2))
+        value = value.and.BA_free_heap(nKr0_mbond_start(2))
         if (mbond_found) then
-          value = value.and.MA_free_heap(indx_mbond(2))
-          value = value.and.MA_free_heap(Kr0_mbond(2))
+          value = value.and.BA_free_heap(indx_mbond(2))
+          value = value.and.BA_free_heap(Kr0_mbond(2))
         end if
 
-        value = value.and.MA_free_heap(ndihedral_spring(2))
-        value = value.and.MA_free_heap(nindx_dihedral_spring_start(2))
-        value = value.and.MA_free_heap(nKr0_dihedral_spring_start(2))
+        value = value.and.BA_free_heap(ndihedral_spring(2))
+        value = value.and.BA_free_heap(nindx_dihedral_spring_start(2))
+        value = value.and.BA_free_heap(nKr0_dihedral_spring_start(2))
         if (dihedral_spring_found) then
-          value = value.and.MA_free_heap(indx_dihedral_spring(2))
-          value = value.and.MA_free_heap(Kr0_dihedral_spring(2))
+          value = value.and.BA_free_heap(indx_dihedral_spring(2))
+          value = value.and.BA_free_heap(Kr0_dihedral_spring(2))
         end if
 
-        value = value.and.MA_free_heap(ndihedral(2))
-        value = value.and.MA_free_heap(nindx_dihedral_start(2))
-        value = value.and.MA_free_heap(nKr0_dihedral_start(2))
+        value = value.and.BA_free_heap(ndihedral(2))
+        value = value.and.BA_free_heap(nindx_dihedral_start(2))
+        value = value.and.BA_free_heap(nKr0_dihedral_start(2))
         if (dihedral_found) then
-          value = value.and.MA_free_heap(indx_dihedral(2))
-          value = value.and.MA_free_heap(Kr0_dihedral(2))
+          value = value.and.BA_free_heap(indx_dihedral(2))
+          value = value.and.BA_free_heap(Kr0_dihedral(2))
         end if
 
-        value = value.and.MA_free_heap(ncoord(2))
-        value = value.and.MA_free_heap(nindx0_coord_start(2))
-        value = value.and.MA_free_heap(nindx1_coord_start(2))
-        value = value.and.MA_free_heap(nindx2_coord_start(2))
-        value = value.and.MA_free_heap(nKr0_coord_start(2))
+        value = value.and.BA_free_heap(ncoord(2))
+        value = value.and.BA_free_heap(nindx0_coord_start(2))
+        value = value.and.BA_free_heap(nindx1_coord_start(2))
+        value = value.and.BA_free_heap(nindx2_coord_start(2))
+        value = value.and.BA_free_heap(nKr0_coord_start(2))
         if (coord_found) then
-          value = value.and.MA_free_heap(indx1_coord(2))
-          value = value.and.MA_free_heap(indx2_coord(2))
-          value = value.and.MA_free_heap(Kr0_coord(2))
+          value = value.and.BA_free_heap(indx1_coord(2))
+          value = value.and.BA_free_heap(indx2_coord(2))
+          value = value.and.BA_free_heap(Kr0_coord(2))
         end if
 
 
         if (.not.auxiliary_only) then
         if (control_version().ne.3) then
-        value = value.and.MA_free_heap(rcell(2))
+        value = value.and.BA_free_heap(rcell(2))
         end if
         end if
 
@@ -1827,11 +1827,11 @@ c     **** external functions ***
 
          if (lmbda_flag.and.(dabs(qmmm_lmbda-1.0d0).gt.1.0d-6)) then
            nion3 = 3*ion_nion()
-           if (.not.MA_push_get(mt_dbl,nion3,'f2',f2(2),f2(1)))
+           if (.not.BA_push_get(mt_dbl,nion3,'f2',f2(2),f2(1)))
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',2,MA_ERR)
-           if (.not.MA_push_get(mt_dbl,nion3,'f3',f3(2),f3(1)))
+           if (.not.BA_push_get(mt_dbl,nion3,'f3',f3(2),f3(1)))
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',3,MA_ERR)
-           if (.not.MA_push_get(mt_dbl,nion3,'f4',f4(2),f4(1)))
+           if (.not.BA_push_get(mt_dbl,nion3,'f4',f4(2),f4(1)))
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',4,MA_ERR)
            call dcopy(nion3,0.0d0,0,dbl_mb(f2(1)),1)
            call dcopy(nion3,0.0d0,0,dbl_mb(f3(1)),1)
@@ -1848,11 +1848,11 @@ c     **** external functions ***
            call daxpy(nion3,(qmmm_lmbda-1.0d0),dbl_mb(f2(1)),1,fion,1)
            call daxpy(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f3(1)),1,fion,1)
            call daxpy(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f4(1)),1,fion,1)
-           if (.not.MA_pop_stack(f4(2)))
+           if (.not.BA_pop_stack(f4(2)))
      >     call errquit('pspw_qmmm_Q_fion:pop stack memory',4,MA_ERR)
-           if (.not.MA_pop_stack(f3(2)))
+           if (.not.BA_pop_stack(f3(2)))
      >     call errquit('pspw_qmmm_Q_fion:pop stack memory',3,MA_ERR)
-           if (.not.MA_pop_stack(f2(2)))
+           if (.not.BA_pop_stack(f2(2)))
      >     call errquit('pspw_qmmm_Q_fion:pop stack memory',2,MA_ERR)
          end if
       end  if
@@ -1932,7 +1932,7 @@ c     **** external functions ***
          call pspw_qmmm_spring_fion(fion)
       else
          nion3 = 3*ion_nion()
-         if (.not.MA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
+         if (.not.BA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
      >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
 
          call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
@@ -1946,7 +1946,7 @@ c     **** external functions ***
          call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
 
-         if (.not.MA_pop_stack(ftmp(2)))
+         if (.not.BA_pop_stack(ftmp(2)))
      >   call errquit('pspw_qmmm_fion:cannot pop stack memory',0,MA_ERR)
       end if
       return
@@ -1982,7 +1982,7 @@ c     **** external functions ***
          call pspw_qmmm_spring_fion(fion)
       else
          nion3 = 3*ion_nion()
-         if (.not.MA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
+         if (.not.BA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
      >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
 
          call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
@@ -1995,7 +1995,7 @@ c     **** external functions ***
 
          call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
-         if (.not.MA_pop_stack(ftmp(2)))
+         if (.not.BA_pop_stack(ftmp(2)))
      >   call errquit('pspw_qmmm_fion:cannot pop stack memory',0,MA_ERR)
       end if
       return

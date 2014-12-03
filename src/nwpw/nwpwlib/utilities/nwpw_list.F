@@ -21,7 +21,7 @@
       do i=1,size_list(nb)
          indx(i,nb) = i
          value = value.and.
-     >           MA_alloc_get(mt_dbl,nsize(nb),
+     >           BA_alloc_get(mt_dbl,nsize(nb),
      >            'Grsm_list1',grsm_mem(2,i,nb),grsm_mem(1,i,nb))
       end do
       if (.not. value) call errquit('nwpw_list_start:get heap',0,0)
@@ -44,7 +44,7 @@
       value = .true.
       do i=1,size_list(nb)
          value = value.and.
-     >           MA_free_heap(grsm_mem(2,i,nb))
+     >           BA_free_heap(grsm_mem(2,i,nb))
       end do
       if (.not. value) call errquit('nwpw_list_end:free heap',0,0)
 

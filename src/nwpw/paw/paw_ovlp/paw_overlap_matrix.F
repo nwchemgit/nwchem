@@ -243,11 +243,11 @@ c     >                        log_amesh,ic)
      >                  Sij,n)
 
       !*** allocate space from stack ****
-      ok = MA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
+      ok = BA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,ne*total_nbasis,'c2',c2(2),c2(1))
+     >     BA_push_get(mt_dcpl,ne*total_nbasis,'c2',c2(2),c2(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
+     >     BA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
       if (.not.ok)
      > call errquit('paw_overlap_matrix_gen: out of stack memory',0,0)
 
@@ -283,9 +283,9 @@ c     >                        log_amesh,ic)
       end do
 
 
-      ok =        MA_pop_stack(ct(2))
-      ok = ok.and.MA_pop_stack(c2(2))
-      ok = ok.and.MA_pop_stack(c1(2))
+      ok =        BA_pop_stack(ct(2))
+      ok = ok.and.BA_pop_stack(c2(2))
+      ok = ok.and.BA_pop_stack(c1(2))
       if (.not.ok)
      > call errquit('paw_overlap_matrix_gen: error popping stack',0,0)
       return
@@ -335,11 +335,11 @@ c     >                        log_amesh,ic)
      >                  Sij,n)
 
       !*** allocate space from stack ****
-      ok = MA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
+      ok = BA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,ne*total_nbasis,'c2',c2(2),c2(1))
+     >     BA_push_get(mt_dcpl,ne*total_nbasis,'c2',c2(2),c2(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
+     >     BA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
       if (.not.ok)
      > call errquit('paw_overlap_matrix_gen: out of stack memory',0,0)
 
@@ -375,9 +375,9 @@ c     >                        log_amesh,ic)
       end do
 
 
-      ok =        MA_pop_stack(ct(2))
-      ok = ok.and.MA_pop_stack(c2(2))
-      ok = ok.and.MA_pop_stack(c1(2))
+      ok =        BA_pop_stack(ct(2))
+      ok = ok.and.BA_pop_stack(c2(2))
+      ok = ok.and.BA_pop_stack(c1(2))
       if (.not.ok)
      > call errquit('paw_overlap_matrix_gen: error popping stack',0,0)
       return

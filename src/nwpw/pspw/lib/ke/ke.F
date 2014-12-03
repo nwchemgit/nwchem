@@ -51,14 +51,14 @@ c     real*8 tg(nfft3d)
       G(2)= G_indx(2)
       G(3)= G_indx(3)
 
-      value = MA_alloc_get(mt_dbl,npack1,
+      value = BA_alloc_get(mt_dbl,npack1,
      >                     'tg',tg_hndl,tg_indx)
       if (.not. value) 
      > call errquit('ke_init:out of heap memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dbl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('ke_init:out of stack memory',0, MA_ERR)
 
@@ -76,7 +76,7 @@ c     real*8 tg(nfft3d)
 *     **** Funny decay added to stabalize unitcell optimization and pressures ****
       filter = control_smooth_cutoff()
       if (filter) then
-         value = MA_alloc_get(mt_dbl,npack1,'df',df(2),df(1))
+         value = BA_alloc_get(mt_dbl,npack1,'df',df(2),df(1))
          if (.not. value) 
      >      call errquit('ke_init:out of heap memory',3,MA_ERR)
 
@@ -105,8 +105,8 @@ c     real*8 tg(nfft3d)
          call Pack_tt_Sum2(1,dbl_mb(tmp1(1)),dbl_mb(tg_indx))
       end if
       
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('ke_init:popping stack memory',0, MA_ERR)
       return
@@ -135,8 +135,8 @@ c     real*8 tg(nfft3d)
 
       logical value
 
-      value = MA_free_heap(tg_hndl)
-      if (filter) value = value.and.MA_free_heap(df(2))
+      value = BA_free_heap(tg_hndl)
+      if (filter) value = value.and.BA_free_heap(df(2))
       if (.not. value) 
      >   call errquit('ke_end:error freeing heap',0, MA_ERR)
       return
@@ -244,7 +244,7 @@ c     complex*16 tmp1(nfft3d)
       call Parallel_np(np)
 
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -277,7 +277,7 @@ c     complex*16 tmp1(nfft3d)
       if (ispin.eq.1) ave = 2.0d0*ave
       ave = -ave
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       return 
       end 
 
@@ -346,21 +346,21 @@ c     real*8 G(nfft3d,3)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dbl,nfft3d,
+      value = BA_push_get(mt_dbl,nfft3d,
      >                     'G1',G(2,1),G(1,1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dbl,nfft3d,
+      value = BA_push_get(mt_dbl,nfft3d,
      >                     'G2',G(2,2),G(1,2))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dbl,nfft3d,
+      value = BA_push_get(mt_dbl,nfft3d,
      >                     'G3',G(2,3),G(1,3))
       if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
 
 
-      value = MA_push_get(mt_dbl,npack1,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,npack1,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dcpl,npack1,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,npack1,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -417,11 +417,11 @@ c     real*8 G(nfft3d,3)
       end do
       end do
 
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_pop_stack(G(2,3)) 
-      value = value.and.MA_pop_stack(G(2,2)) 
-      value = value.and.MA_pop_stack(G(2,1))
+      value = BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
+      value = value.and.BA_pop_stack(G(2,3)) 
+      value = value.and.BA_pop_stack(G(2,2)) 
+      value = value.and.BA_pop_stack(G(2,1))
       if (.not. value) call errquit('error poping stack memory',0,
      &       MA_ERR)
       return
@@ -461,7 +461,7 @@ c     real*8 tg(nfft3d)
 c      integer  psi_ispin,psi_ne
 c      external psi_ispin,psi_ne
 
-c      value = MA_push_get(mt_dcpl,npack,'tmp1',tmp1(2),tmp1(1))
+c      value = BA_push_get(mt_dcpl,npack,'tmp1',tmp1(2),tmp1(1))
 c      if (.not. value) call errquit('out of stack memory',0)
 
 c      sum = lattice_wggcut()
@@ -541,7 +541,7 @@ c           gradk(k,n) = gradk(k,n)*cm
 c        end do
 c      end do
 
-c      value = MA_pop_stack(tmp1(2))
+c      value = BA_pop_stack(tmp1(2))
 c      if (.not. value) call errquit('error popping stack memory',0)
 
       return

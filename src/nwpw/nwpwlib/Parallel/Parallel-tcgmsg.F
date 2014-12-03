@@ -38,7 +38,7 @@ c      integer mpierr
 
 
 *     **** set up 3d processor grid = np x 1 x 1****
-      if (.not.MA_alloc_get(mt_int,np,'procNd',procNd(2),procNd(1)))
+      if (.not.BA_alloc_get(mt_int,np,'procNd',procNd(2),procNd(1)))
      >  call errquit('Parallel_init:out of heap memory',0, MA_ERR)
 
       np_i = np
@@ -97,7 +97,7 @@ c      integer mpierr
       end do
       end do
 
-      if (.not.MA_push_get(mt_int,np,'tmppp2',tmp(2),tmp(1)))
+      if (.not.BA_push_get(mt_int,np,'tmppp2',tmp(2),tmp(1)))
      >  call errquit('Parallel2d_init:out of stack memory',0, MA_ERR)
         do i=0,np_i-1
           int_mb(tmp(1)+i) = int_mb(procNd(1) + i + taskid_j*np_i) 
@@ -107,7 +107,7 @@ c      integer mpierr
           int_mb(tmp(1)+j) = int_mb(procNd(1) + taskid_i + j*np_i) 
         end do
         comm_j = ga_pgroup_create(int_mb(tmp(1)),np_j)
-      if (.not.MA_pop_stack(tmp(2)))
+      if (.not.BA_pop_stack(tmp(2)))
      >  call errquit('Parallel2d_init:popping stack memory',0, MA_ERR)
 
       end if
@@ -186,7 +186,7 @@ c      integer mpierr
       end do
       end do
 
-      if (.not.MA_push_get(mt_int,np,'tmppp2',tmp(2),tmp(1)))
+      if (.not.BA_push_get(mt_int,np,'tmppp2',tmp(2),tmp(1)))
      >  call errquit('Parallel3d_init:out of stack memory',0, MA_ERR)
         do i=0,np_i-1
           int_mb(tmp(1)+i) = int_mb(procNd(1) 
@@ -209,7 +209,7 @@ c      integer mpierr
      >                              + k*np_i*np_j) 
         end do
         comm_k = ga_pgroup_create(int_mb(tmp(1)),np_k)
-      if (.not.MA_pop_stack(tmp(2)))
+      if (.not.BA_pop_stack(tmp(2)))
      >  call errquit('Parallel3d_init:popping stack memory',0, MA_ERR)
 
       end if
@@ -892,7 +892,7 @@ c     implicit none
       end if
 
 *      /* determine psr - should be made w/o using tmp array! */
-      if (.not.MA_push_get(mt_int,mynp,'tmppp2',tmp(2),tmp(1)))
+      if (.not.BA_push_get(mt_int,mynp,'tmppp2',tmp(2),tmp(1)))
      >  call errquit('Parallela_start_rotate:out of stack',0,MA_ERR)
       do i=0,np-1
          int_mb(tmp(1)+i) = 0
@@ -906,7 +906,7 @@ c     implicit none
       end do
       psr = int_mb(tmp(1)+mytaskid)
       if (psr.eq.0) psr = 2
-      if (.not.MA_pop_stack(tmp(2)))
+      if (.not.BA_pop_stack(tmp(2)))
      >  call errquit('Parallela_start_rotate:popping stack',0,MA_ERR)
 
 *     **** send then receive ****
@@ -1031,7 +1031,7 @@ c     implicit none
       end if
 
 *      /* determine psr - should be made w/o using tmp array! */
-      if (.not.MA_push_get(mt_int,mynp,'tmppp2',tmp(2),tmp(1)))
+      if (.not.BA_push_get(mt_int,mynp,'tmppp2',tmp(2),tmp(1)))
      >  call errquit('Parallela_start_rotate:out of stack',0,MA_ERR)
       do i=0,np-1
          int_mb(tmp(1)+i) = 0
@@ -1045,7 +1045,7 @@ c     implicit none
       end do
       psr = int_mb(tmp(1)+mytaskid)
       if (psr.eq.0) psr = 2
-      if (.not.MA_pop_stack(tmp(2)))
+      if (.not.BA_pop_stack(tmp(2)))
      >  call errquit('Parallela_start_rotate:popping stack',0,MA_ERR)
 
 *     **** send then receive ****

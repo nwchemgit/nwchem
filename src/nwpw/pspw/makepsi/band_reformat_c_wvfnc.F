@@ -98,10 +98,10 @@ c      call iwrite(6,nbrill,1)
 
       neall = ne(1) + ne(2) 
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = BA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull(2),cfull(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d_in,
+     >        BA_alloc_get(mt_dcpl,nfft3d_in,
      >                     'cfull_in',cfull_in(2),cfull_in(1))
       if (.not.value) 
      > call errquit("band_reformat_c_wvfnc:alloc heap",0,MA_ERR)
@@ -122,8 +122,8 @@ c      call iwrite(6,nbrill,1)
 
       call closefile(5)
       call closefile(6)
-      value =           MA_free_heap(cfull(2))
-      value = value.and.MA_free_heap(cfull_in(2))
+      value =           BA_free_heap(cfull(2))
+      value = value.and.BA_free_heap(cfull_in(2))
       if (.not.value) 
      > call errquit("band_reformat_c_wvfnc:freeing heap",0,MA_ERR)
 
@@ -246,10 +246,10 @@ c      call iwrite(6,nbrill,1)
 
       neall = ne(1) + ne(2) 
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = BA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull(2),cfull(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d_in,
+     >        BA_alloc_get(mt_dcpl,nfft3d_in,
      >                     'cfull_in',cfull_in(2),cfull_in(1))
       if (.not.value) 
      > call errquit("band_reformat_c_ewvfnc:alloc heap",0,MA_ERR)
@@ -270,8 +270,8 @@ c      call iwrite(6,nbrill,1)
 
       call closefile(5)
       call closefile(6)
-      value =           MA_free_heap(cfull(2))
-      value = value.and.MA_free_heap(cfull_in(2))
+      value =           BA_free_heap(cfull(2))
+      value = value.and.BA_free_heap(cfull_in(2))
       if (.not.value) 
      > call errquit("band_reformat_c_ewvfnc:freeing heap",0,MA_ERR)
 

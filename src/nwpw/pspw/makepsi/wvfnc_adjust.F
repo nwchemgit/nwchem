@@ -47,7 +47,7 @@
       NMAX = ne(1)+ne(2)
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        value = MA_push_get(mt_int,8*NMAX,
+        value = BA_push_get(mt_int,8*NMAX,
      >                    'filling',filling(2),filling(1))
         if (.not. value) 
      >    call errquit('wvfnc_adjust:out of stack memory',0,MA_ERR)
@@ -74,7 +74,7 @@
         write(*,*) "wavefunction adjust, new psi:",
      >             wavefunction_filename
         write(*,*) "-   spin, nalpha, nbeta:",ispin,ne
-        value = MA_pop_stack(filling(2))
+        value = BA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
       call ga_sync()
@@ -170,7 +170,7 @@
       inc3c =inc2c*nfft2
 
 *     ***** allocate wavefunction memory ****
-      value = MA_push_get(mt_dcpl,nfft3d,
+      value = BA_push_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull_hndl,cfull_indx)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -277,7 +277,7 @@ c     **** add occupation - don't use previous start from scratch ****
       call closefile(5)
       call closefile(6)
  
-      value = MA_pop_stack(cfull_hndl)
+      value = BA_pop_stack(cfull_hndl)
       if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       
       return 

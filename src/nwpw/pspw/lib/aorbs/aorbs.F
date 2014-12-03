@@ -31,30 +31,30 @@
       nion   = ion_nion_qm()
       nkatmx = ion_nkatm_qm()
 
-      value = MA_alloc_get(mt_dbl,(norbs_max*nkatmx*npack1),
+      value = BA_alloc_get(mt_dbl,(norbs_max*nkatmx*npack1),
      >                    'aorbs',aorbs(2),aorbs(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nkatmx),'lmmax',lmmax(2),lmmax(1))
+     >        BA_alloc_get(mt_int,(nkatmx),'lmmax',lmmax(2),lmmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nkatmx),'lmax',lmax(2),lmax(1))
+     >        BA_alloc_get(mt_int,(nkatmx),'lmax',lmax(2),lmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nkatmx),'locp',locp(2),locp(1))
+     >        BA_alloc_get(mt_int,(nkatmx),'locp',locp(2),locp(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(nkatmx),'rcut',rcut(2),rcut(1))
+     >        BA_alloc_get(mt_dbl,(nkatmx),'rcut',rcut(2),rcut(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(nkatmx),'lmbda',lmbda(2),lmbda(1))
+     >        BA_alloc_get(mt_dbl,(nkatmx),'lmbda',lmbda(2),lmbda(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >        BA_alloc_get(mt_int,(nion*norbs_max),
      >                    'lmaorb',lmaorb(2),lmaorb(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >        BA_alloc_get(mt_int,(nion*norbs_max),
      >                    'iaaorb',iaaorb(2),iaaorb(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >        BA_alloc_get(mt_int,(nion*norbs_max),
      >                    'iiaorb',iiaorb(2),iiaorb(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >        BA_alloc_get(mt_int,(nion*norbs_max),
      >                    'basisaorb',basisaorb(2),basisaorb(1))
 
       if (value) 
@@ -79,16 +79,16 @@
 *     **** local variables ****
       logical value
 
-      value = MA_free_heap(aorbs(2))
-      value = value.and.MA_free_heap(lmmax(2))
-      value = value.and.MA_free_heap(lmax(2))
-      value = value.and.MA_free_heap(locp(2))
-      value = value.and.MA_free_heap(rcut(2))
-      value = value.and.MA_free_heap(lmbda(2))
-      value = value.and.MA_free_heap(lmaorb(2))
-      value = value.and.MA_free_heap(iaaorb(2))
-      value = value.and.MA_free_heap(iiaorb(2))
-      value = value.and.MA_free_heap(basisaorb(2))
+      value = BA_free_heap(aorbs(2))
+      value = value.and.BA_free_heap(lmmax(2))
+      value = value.and.BA_free_heap(lmax(2))
+      value = value.and.BA_free_heap(locp(2))
+      value = value.and.BA_free_heap(rcut(2))
+      value = value.and.BA_free_heap(lmbda(2))
+      value = value.and.BA_free_heap(lmaorb(2))
+      value = value.and.BA_free_heap(iaaorb(2))
+      value = value.and.BA_free_heap(iiaorb(2))
+      value = value.and.BA_free_heap(basisaorb(2))
       if (.not. value) call errquit('aorbs_end:freeing heap memory',0,
      &       MA_ERR)
 
@@ -442,7 +442,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
       if (.not. value) call errquit('aorbs_aorb:out of heap memory',0,
      &       MA_ERR)
 
@@ -477,7 +477,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
       end if
 
 
-      value = MA_pop_stack(exi(2))
+      value = BA_pop_stack(exi(2))
       if (.not. value) call errquit('aorbs_aorb:freeing heap memory',0,
      &       MA_ERR)
 
@@ -652,10 +652,10 @@ c       close(11)
       call Pack_npack(1,npack1)
       call Parallel_taskid(taskid)
 
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
       if (.not. value) go to 9000
 
-      value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) go to 9000
 
 *     **** read pseudopotentials ****
@@ -746,8 +746,8 @@ c       close(11)
       ibasis = icount
       call aorbs_normalize()
 
- 9000 value2 = MA_pop_stack(tmp2(2))
-      value2 = MA_pop_stack(tmp(2))
+ 9000 value2 = BA_pop_stack(tmp2(2))
+      value2 = BA_pop_stack(tmp(2))
       
 
       aorbs_readall = value

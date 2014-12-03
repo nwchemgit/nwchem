@@ -40,7 +40,7 @@
       n2ft3d=2*nfft3d
 
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = BA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull_hndl,cfull_indx)
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
 
@@ -87,7 +87,7 @@
  9111 ierr=11
       GO TO 9999
  
- 9999 value = MA_free_heap(cfull_hndl)
+ 9999 value = BA_free_heap(cfull_hndl)
 
       write(*,*) 
      >  "Generated initial cwavefunctions velocities:",

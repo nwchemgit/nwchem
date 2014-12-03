@@ -141,15 +141,15 @@ cccccccccccccccccccccccccccccccccccccc
       if (nprj_out.lt.2) nprj_out=2
 
 *     **** allocate rho, vp, and wp ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                     'rho',rho_hndl,rho_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax0+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax0+1),
      >                        'vp',vp_hndl,vp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax0+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax0+1),
      >                        'vpso',vpso_hndl,vpso_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(2*lmax0+2),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(2*lmax0+2),
      >                        'wp', wp_hndl,wp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.BA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
       if (.not.value)
      > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
@@ -185,41 +185,41 @@ cccccccccccccccccccccccccccccccccccccc
       end if
 
 *    **** more temporary space ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho,
+      value = value.and.BA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho,
+      value = value.and.BA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
 
 *     **** allocate vl,vnl,vnrm G ****
       nsize = ngrid(1)*ngrid(2)*ngrid(3)
-      value = value.and.MA_alloc_get(mt_dbl,nsize,
+      value = value.and.BA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = value.and.MA_alloc_get(mt_dcpl,(nsize*2*nprj_out),
+      value = value.and.BA_alloc_get(mt_dcpl,(nsize*2*nprj_out),
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nprj_out,
+      value = value.and.BA_alloc_get(mt_dbl,nprj_out,
      >                        'vnrm', vnrm_hndl, vnrm_indx)
-      value = value.and.MA_alloc_get(mt_dbl,(nsize*3),
+      value = value.and.BA_alloc_get(mt_dbl,(nsize*3),
      >                        'G',G_hndl, G_indx)
-      value = value.and.MA_alloc_get(mt_dbl,(4*nsize),
+      value = value.and.BA_alloc_get(mt_dbl,(4*nsize),
      >                        'sc_k',sc_k_hndl,sc_k_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj_out,
+      value = value.and.BA_alloc_get(mt_int,nprj_out,
      >                        'n_prj', n_prj_hndl, n_prj_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj_out,
+      value = value.and.BA_alloc_get(mt_int,nprj_out,
      >                        'l_prj', l_prj_hndl, l_prj_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj_out,
+      value = value.and.BA_alloc_get(mt_int,nprj_out,
      >                        'm_alf_prj', m_alf_hndl, 
      >                         m_alf_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj_out,
+      value = value.and.BA_alloc_get(mt_int,nprj_out,
      >                        'm_bet_prj', m_bet_hndl, 
      >                         m_bet_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj_out,
+      value = value.and.BA_alloc_get(mt_int,nprj_out,
      >			      'k_prj',k_prj_hndl, k_prj_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nprj_out,
+      value = value.and.BA_alloc_get(mt_dbl,nprj_out,
      >                        'c_alf_prj', c_alf_hndl, 
      >                         c_alf_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nprj_out,
+      value = value.and.BA_alloc_get(mt_dbl,nprj_out,
      >			      'c_bet_prj',c_bet_hndl, 
      >                         c_bet_indx)
       if (.not.value)
@@ -397,28 +397,28 @@ c  nmax = 1 since we have 1 projector per (kappa) states
       end if
      
 *     **** free heap space ****
-      value = MA_free_heap(rho_hndl)
-      value = value.and.MA_free_heap(vp_hndl)
-      value = value.and.MA_free_heap(vpso_hndl)
-      value = value.and.MA_free_heap(wp_hndl)
-      value = value.and.MA_free_heap(sc_r_hndl)
-      value = value.and.MA_free_heap(sc_k_hndl)
-      value = value.and.MA_free_heap(f_hndl)
-      value = value.and.MA_free_heap(cs_hndl)
-      value = value.and.MA_free_heap(sn_hndl)
+      value = BA_free_heap(rho_hndl)
+      value = value.and.BA_free_heap(vp_hndl)
+      value = value.and.BA_free_heap(vpso_hndl)
+      value = value.and.BA_free_heap(wp_hndl)
+      value = value.and.BA_free_heap(sc_r_hndl)
+      value = value.and.BA_free_heap(sc_k_hndl)
+      value = value.and.BA_free_heap(f_hndl)
+      value = value.and.BA_free_heap(cs_hndl)
+      value = value.and.BA_free_heap(sn_hndl)
 
-      value = value.and.MA_free_heap(vl_hndl)
-      value = value.and.MA_free_heap(vnl_hndl)
-      value = value.and.MA_free_heap(vnrm_hndl)
-      value = value.and.MA_free_heap(G_hndl)
-      value = value.and.MA_free_heap(n_prj_hndl)
-      value = value.and.MA_free_heap(l_prj_hndl)
-      value = value.and.MA_free_heap(k_prj_hndl)
-      value = value.and.MA_free_heap(m_alf_hndl)
-      value = value.and.MA_free_heap(m_bet_hndl)
-      value = value.and.MA_free_heap(k_prj_hndl)
-      value = value.and.MA_free_heap(c_alf_hndl)
-      value = value.and.MA_free_heap(c_bet_hndl)
+      value = value.and.BA_free_heap(vl_hndl)
+      value = value.and.BA_free_heap(vnl_hndl)
+      value = value.and.BA_free_heap(vnrm_hndl)
+      value = value.and.BA_free_heap(G_hndl)
+      value = value.and.BA_free_heap(n_prj_hndl)
+      value = value.and.BA_free_heap(l_prj_hndl)
+      value = value.and.BA_free_heap(k_prj_hndl)
+      value = value.and.BA_free_heap(m_alf_hndl)
+      value = value.and.BA_free_heap(m_bet_hndl)
+      value = value.and.BA_free_heap(k_prj_hndl)
+      value = value.and.BA_free_heap(c_alf_hndl)
+      value = value.and.BA_free_heap(c_bet_hndl)
       if (.not.value)
      > call errquit("rkbpp_band: out of heap memory",0,MA_ERR)
 

@@ -576,7 +576,7 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
 
 
       tmp1_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))
-c      value = MA_push_get(mt_dcpl,(2*ne(1)*ne(1)*nbrillioun),
+c      value = BA_push_get(mt_dcpl,(2*ne(1)*ne(1)*nbrillioun),
 c     >                   'tmp1',tmp1(2),tmp1(1))
 c      if (.not. value) 
 c     >   call errquit('out of stack memory in psi_1get_Tradient',0,
@@ -604,7 +604,7 @@ c     &       MA_ERR)
      >                             THpsi_tag)
       
       call cpsi_data_pop_stack(tmp1_tag)
-c      value = MA_pop_stack(tmp1(2))
+c      value = BA_pop_stack(tmp1(2))
 c      if (.not. value) 
 c     > call errquit('error popping stack memory in psi_1get_Tradient',0,
 c     &       MA_ERR)
@@ -1005,7 +1005,7 @@ c     &       MA_ERR)
       if ((gga.ge.10).and.(gga.lt.100)) then
          call D3dB_n2ft3d(1,n2ft3d)
          if (.not.
-     >      MA_push_get(mt_dbl,(ispin*n2ft3d),'trho',trho(2),trho(1)))
+     >      BA_push_get(mt_dbl,(ispin*n2ft3d),'trho',trho(2),trho(1)))
      >      call errquit(
      >      'c_rho_1exc_stress: out of stack memory',1,MA_ERR)
 
@@ -1021,7 +1021,7 @@ c     &       MA_ERR)
          end do
          end do
 
-         if (.not.MA_pop_stack(trho(2)))
+         if (.not.BA_pop_stack(trho(2)))
      >      call errquit(
      >     'c_rho_1exc_stress: error popping stack memory',1,MA_ERR)
       end if
@@ -1695,7 +1695,7 @@ c         end do
       integer  cpsi_data_get_ptr
       external cpsi_data_get_ptr
 
-      if (.not.MA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1)))
+      if (.not.BA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1)))
      >   call errquit('out of stack memory in psi_error',0,MA_ERR)
 
       error = 0.0d0
@@ -1714,7 +1714,7 @@ c         end do
       end do
       error = dsqrt(error)/size
       
-      if (.not.MA_pop_stack(tmp1(2)))
+      if (.not.BA_pop_stack(tmp1(2)))
      > call errquit('error popping stack memory in psi_error',0,MA_ERR)
 
       cpsi_error = error
@@ -1743,7 +1743,7 @@ c         end do
       real*8   lattice_omega
       external lattice_omega
 
-      value = MA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in rho_error',0, MA_ERR)
 
@@ -1768,7 +1768,7 @@ c         end do
       error = error*scale
 *     error = dsqrt(error)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory in rho_error',0, MA_ERR)
 
@@ -1972,10 +1972,10 @@ c         end do
        
 *     **** allocate memory ****
 
-c      value = MA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
+c      value = BA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
 c     >                     'psi2',psi2(2),psi2(1))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
+c     >        BA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
 c     >                     'psi1',psi1(2),psi1(1))
       psi2_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
       psi1_tag = cpsi_data_alloc(nbrillq,neall,2*npack1)
@@ -1990,35 +1990,35 @@ c     >                     'psi1',psi1(2),psi1(1))
         smearkT   = control_fractional_kT()
       end if
 
-      value = MA_alloc_get(mt_dbl,2*nfft3d,'rho1',rho1(2),rho1(1))
+      value = BA_alloc_get(mt_dbl,2*nfft3d,'rho1',rho1(2),rho1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nfft3d,
+     >        BA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho2',rho2(2),rho2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
+     >        BA_alloc_get(mt_dcpl,npack0,
      >                     'dng1',dng1(2),dng1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
+     >        BA_alloc_get(mt_dcpl,npack0,
      >                     'dng2',dng2(2),dng2(1))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,(2*n*n*nbrillioun),
+c     >        BA_alloc_get(mt_dcpl,(2*n*n*nbrillioun),
 c     >                    'hml',hml(2),hml(1))
 c      value = value.and.Pneb_w_allocate(0,0,hml)
 c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(neall*nbrillq),
+c     >        BA_alloc_get(mt_dbl,(neall*nbrillq),
 c     >                    'eig',eig(2),eig(1))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(3*ne(1)*nbrillq),
+c     >        BA_alloc_get(mt_dbl,(3*ne(1)*nbrillq),
 c     >                    'svec',svec(2),svec(1))
       hml_tag = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,1))
       eig_tag = cpsi_data_alloc(nbrillq,neall,1)
       svec_tag =cpsi_data_alloc(nbrillq,neq(1),3)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nfft3d,
+     >        BA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho1_all',rho1_all(2),rho1_all(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nfft3d,
+     >        BA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho2_all',rho2_all(2),rho2_all(1))
       if (.not. value) 
      >  call errquit('cpsi_initialize:out of heap memory',0, MA_ERR)
@@ -2124,11 +2124,11 @@ c     *****  read initial wavefunctions into psi1  ****
         call cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi1_tag)
       end if
     
-c      value = MA_free_heap(eig(2))
-c      value = value.and.MA_free_heap(svec(2))
+c      value = BA_free_heap(eig(2))
+c      value = value.and.BA_free_heap(svec(2))
 c      value = value.and.Pneb_w_free(hml)
-c      value = value.and.MA_free_heap(psi2(2))
-c      value = value.and.MA_free_heap(psi1(2))
+c      value = value.and.BA_free_heap(psi2(2))
+c      value = value.and.BA_free_heap(psi1(2))
       next1 = cpsi_data_get_next(psi1_tag)
       if (next1.ge.0) call cpsi_data_dealloc(next1)
       call cpsi_data_dealloc(psi1_tag)
@@ -2141,12 +2141,12 @@ c      value = value.and.MA_free_heap(psi1(2))
       call cpsi_data_dealloc(svec_tag)
       call cpsi_data_dealloc(hml_tag)
 
-      value =           MA_free_heap(dng2(2))
-      value = value.and.MA_free_heap(dng1(2))
-      value = value.and.MA_free_heap(rho2(2))
-      value = value.and.MA_free_heap(rho1(2))
-      value = value.and.MA_free_heap(rho2_all(2))
-      value = value.and.MA_free_heap(rho1_all(2))
+      value =           BA_free_heap(dng2(2))
+      value = value.and.BA_free_heap(dng1(2))
+      value = value.and.BA_free_heap(rho2(2))
+      value = value.and.BA_free_heap(rho1(2))
+      value = value.and.BA_free_heap(rho2_all(2))
+      value = value.and.BA_free_heap(rho1_all(2))
 
 
       cpsi_finalize = value
@@ -2178,21 +2178,21 @@ c      value = value.and.MA_free_heap(psi1(2))
 *     ***** write psi1 wavefunctions ****
       call cpsi_write2(spin_orbit,ispin,ne,nbrillioun,psi1_tag,wpsi)
     
-c      value = MA_free_heap(eig(2))
+c      value = BA_free_heap(eig(2))
 c      value = value.and.Pneb_w_free(hml)
-c      value = value.and.MA_free_heap(psi2(2))
-c      value = value.and.MA_free_heap(psi1(2))
+c      value = value.and.BA_free_heap(psi2(2))
+c      value = value.and.BA_free_heap(psi1(2))
       call cpsi_data_dealloc(eig_tag)
       call cpsi_data_dealloc(hml_tag)
       call cpsi_data_dealloc(svec_tag)
       call cpsi_data_dealloc(psi1_tag)
       call cpsi_data_dealloc(psi2_tag)
-      value =           MA_free_heap(dng2(2))
-      value = value.and.MA_free_heap(dng1(2))
-      value = value.and.MA_free_heap(rho2(2))
-      value = value.and.MA_free_heap(rho1(2))
-      value = value.and.MA_free_heap(rho2_all(2))
-      value = value.and.MA_free_heap(rho1_all(2))
+      value =           BA_free_heap(dng2(2))
+      value = value.and.BA_free_heap(dng1(2))
+      value = value.and.BA_free_heap(rho2(2))
+      value = value.and.BA_free_heap(rho1(2))
+      value = value.and.BA_free_heap(rho2_all(2))
+      value = value.and.BA_free_heap(rho1_all(2))
 
       cpsi_band_finalize = value
       return
@@ -2894,13 +2894,13 @@ c     *****  read initial wavefunctions into psi1  ****
       call Parallel3d_taskid_k(taskid_k)
       call K1dB_ktoqp(nb,nbq,p)
       if (p.eq.taskid_k) then
-         value = MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+         value = BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
          value = value.and.
-     >           MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >           BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
          value = value.and.
-     >           MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >           BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
          value = value.and.
-     >           MA_push_get(mt_dbl, 2*npack1,'tmp',tmp(2),tmp(1))
+     >           BA_push_get(mt_dbl, 2*npack1,'tmp',tmp(2),tmp(1))
          if (.not. value) 
      >      call errquit('ecpsi_generate_kb_H:pushing stack',1,MA_ERR)
 
@@ -2966,10 +2966,10 @@ c     *****  read initial wavefunctions into psi1  ****
             end do
          end do
          end do
-         value =           MA_pop_stack(tmp(2))
-         value = value.and.MA_pop_stack(Gz(2))
-         value = value.and.MA_pop_stack(Gy(2))
-         value = value.and.MA_pop_stack(Gx(2))
+         value =           BA_pop_stack(tmp(2))
+         value = value.and.BA_pop_stack(Gz(2))
+         value = value.and.BA_pop_stack(Gy(2))
+         value = value.and.BA_pop_stack(Gx(2))
          if (.not. value) 
      >      call errquit('ecpsi_generate_kb_H:popping stack',1,MA_ERR)
       end if
@@ -3034,9 +3034,9 @@ c     *****  read initial wavefunctions into psi1  ****
       call Parallel3d_taskid_k(taskid_k)
 
       nnmax = (ne(1)+ne(2))*nbrillq*4
-      value = MA_push_get(mt_dbl,(nnmax),'eweight',weight(2),weight(1))
+      value = BA_push_get(mt_dbl,(nnmax),'eweight',weight(2),weight(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(ne(1)+ne(2)),'tmp',tmp(2),tmp(1))
+     >        BA_push_get(mt_dbl,(ne(1)+ne(2)),'tmp',tmp(2),tmp(1))
       if (.not. value)
      >  call errquit(
      >         'cpsi_projected_dos_weighs:out of stack memory',0,MA_ERR)
@@ -3069,8 +3069,8 @@ c     *****  read initial wavefunctions into psi1  ****
       end do
       end do
 
-      value =           MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(weight(2))
+      value =           BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit(
      >       'cpsi_projected_dos_weights:error freeing stack',0,MA_ERR)
@@ -3130,7 +3130,7 @@ c     *****  read initial wavefunctions into psi1  ****
       external brillioun_weight
 
       nemax = ne(1)
-      value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value)
      >  call errquit('cpsi_dos:out of stack memory',0, MA_ERR)
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
@@ -3143,7 +3143,7 @@ c     *****  read initial wavefunctions into psi1  ****
       if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
         npoints = 500
       end if
-      value = MA_push_get(mt_dbl,(2*npoints),
+      value = BA_push_get(mt_dbl,(2*npoints),
      >                    'dstates',dstates(2),dstates(1))
       if (.not. value)
      >  call errquit('cpsi_dos:out of stack memory',0,MA_ERR)
@@ -3215,8 +3215,8 @@ c     *****  read initial wavefunctions into psi1  ****
      >                     dbl_mb(dstates(1)))
       end if
 
-      value =           MA_pop_stack(dstates(2))
-      value = value.and.MA_pop_stack(weight(2))
+      value =           BA_pop_stack(dstates(2))
+      value = value.and.BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('cpsi_dos: error freeing stack',0, MA_ERR)
 
@@ -3254,7 +3254,7 @@ c     *****  read initial wavefunctions into psi1  ****
       external brillioun_weight
 
       nemax = ne_excited(1)
-      value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value)
      >  call errquit('ecpsi_dos:out of stack memory',0, MA_ERR)
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
@@ -3267,7 +3267,7 @@ c     *****  read initial wavefunctions into psi1  ****
       if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
         npoints = 500
       end if
-      value = MA_push_get(mt_dbl,(2*npoints),
+      value = BA_push_get(mt_dbl,(2*npoints),
      >                    'dstates',dstates(2),dstates(1))
       if (.not. value)
      >  call errquit('ecpsi_dos:out of stack memory',0,MA_ERR)
@@ -3337,8 +3337,8 @@ c     *****  read initial wavefunctions into psi1  ****
      >                     dbl_mb(dstates(1)))
       end if
 
-      value =           MA_pop_stack(dstates(2))
-      value = value.and.MA_pop_stack(weight(2))
+      value =           BA_pop_stack(dstates(2))
+      value = value.and.BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('ecpsi_dos: error freeing stack',0, MA_ERR)
       return

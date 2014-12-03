@@ -279,21 +279,21 @@ cccc#include "frac_occ.fh"
       call Dneall_neq(neq)
       nemaxq = neq(1)+neq(2)
 
-      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi0',psi0(2),psi0(1))
       if (fractional) then
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ0',occ0(2),occ0(1))
+     >        BA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ0',occ0(2),occ0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ1',occ1(2),occ1(1))
+     >        BA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ1',occ1(2),occ1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ2',occ2(2),occ2(1))
+     >        BA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ2',occ2(2),occ2(1))
       end if
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -326,18 +326,18 @@ cccc#include "frac_occ.fh"
       nemax = ne(1)+ne(2)
 
 *     **** allocate other variables *****
-      value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
+      value = BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
       value = value.and.Dneall_m_allocate(0,hml)
       value = value.and.Dneall_m_allocate(0,lmd)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(4*nfft3d),
+     >        BA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,nfft3d*(neq(1)+neq(2)),
      >                     'psir',psir(2),psir(1))
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -1259,19 +1259,19 @@ c         end if
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
 
-      value = MA_free_heap(psir(2))
-      value = MA_free_heap(Hpsi(2))
-      value = MA_free_heap(dn(2))
-      value = MA_free_heap(eig(2))
+      value = BA_free_heap(psir(2))
+      value = BA_free_heap(Hpsi(2))
+      value = BA_free_heap(dn(2))
+      value = BA_free_heap(eig(2))
       value = Dneall_m_free(hml)
       value = Dneall_m_free(lmd)
-      value = MA_free_heap(psi0(2))
-      value = MA_free_heap(psi1(2))
-      value = MA_free_heap(psi2(2))
+      value = BA_free_heap(psi0(2))
+      value = BA_free_heap(psi1(2))
+      value = BA_free_heap(psi2(2))
       if (fractional) then
-      value = MA_free_heap(occ0(2))
-      value = MA_free_heap(occ1(2))
-      value = MA_free_heap(occ2(2))
+      value = BA_free_heap(occ0(2))
+      value = BA_free_heap(occ1(2))
+      value = BA_free_heap(occ2(2))
       end if
       call D3dB_pfft_end()
       call D3dB_end(1)

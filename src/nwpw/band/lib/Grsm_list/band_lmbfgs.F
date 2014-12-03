@@ -63,9 +63,9 @@ c      call BGrsm_ff_dScale(-1.0d0,g,g)
 
 *     **** allocate yy and ss ****
       if (ondisk) then
-        value = MA_push_get(mt_dbl,2*nsize,'yy',yy(2),yy(1))
+        value = BA_push_get(mt_dbl,2*nsize,'yy',yy(2),yy(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,2*nsize,'ss',ss(2),ss(1))
+     >          BA_push_get(mt_dbl,2*nsize,'ss',ss(2),ss(1))
         if (.not.value) call errquit('band_lmbfgs: push stack',0,0)
       end if
 
@@ -171,9 +171,9 @@ c      call BGrsm_ff_dScale(-1.0d0,g,g)
       call dscal(ngras, (-1.0d0),g,1)
 
       if (ondisk) then
-        value = MA_pop_stack(ss(2))
+        value = BA_pop_stack(ss(2))
         value = value.and.
-     >          MA_pop_stack(yy(2))
+     >          BA_pop_stack(yy(2))
         if (.not.value) call errquit('band_lmbfgs:pop stack',2,0)
       end if
 

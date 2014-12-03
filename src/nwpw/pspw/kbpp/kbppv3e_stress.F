@@ -129,13 +129,13 @@ c      call Parallel_init()
       
 
 *     **** allocate rho, vp, and wp ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1+n_extra),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax+1+n_extra),
      >                        'wp', wp_hndl, wp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.BA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
       if (.not.value)
      >  call errquit('kbppv3e_stress: out of heap memory',0,MA_ERR)
@@ -169,11 +169,11 @@ c      call Parallel_init()
 
 
 *    **** more temporary space ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho,
+      value = value.and.BA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho,
+      value = value.and.BA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
       if (.not.value)
      >  call errquit('kbppv3e_stress: out of heap memory',0,MA_ERR)
@@ -190,13 +190,13 @@ c      call Parallel_init()
       end do
       !lmmax = (lmax+1)**2 - (2*locp+1)
 
-      value = MA_alloc_get(mt_dbl,nsize,
+      value = BA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(nprj)*3,
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(nprj)*3,
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = value.and.MA_alloc_get(mt_dbl,4*nsize,
+      value = value.and.BA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
-      value = value.and.MA_alloc_get(mt_dcpl,nsize,'tmp',tmp(2),tmp(1))
+      value = value.and.BA_alloc_get(mt_dcpl,nsize,'tmp',tmp(2),tmp(1))
       if (.not.value)
      >  call errquit('kbppv3e_stress: out of heap memory',0,MA_ERR)
 
@@ -211,15 +211,15 @@ c      call Parallel_init()
         !**** allocate memory for rays ****
         nray = kbpp_calc_nray(nfft1,nfft2,nfft3,unita)
 
-        value =           MA_alloc_get(mt_dbl,nray,
+        value =           BA_alloc_get(mt_dbl,nray,
      >                  'G_ray',G_ray_hndl,G_ray_indx)
-        value = value.and.MA_alloc_get(mt_dbl,2*nray,
+        value = value.and.BA_alloc_get(mt_dbl,2*nray,
      >                  'dvl_ray',dvl_ray_hndl,dvl_ray_indx)
-        value = value.and.MA_alloc_get(mt_dbl,4*nray*(lmax+1+n_extra),
+        value = value.and.BA_alloc_get(mt_dbl,4*nray*(lmax+1+n_extra),
      >                  'dvnl_ray',dvnl_ray_hndl,dvnl_ray_indx)
-        value = value.and.MA_alloc_get(mt_dbl,2*nray,
+        value = value.and.BA_alloc_get(mt_dbl,2*nray,
      >              'rho_sc_k_ray',rho_sc_k_ray_hndl,rho_sc_k_ray_indx)
-        value = value.and.MA_alloc_get(mt_dbl,nray,
+        value = value.and.BA_alloc_get(mt_dbl,nray,
      >                  'tmp_ray',tmp_ray_hndl,tmp_ray_indx)
         if (.not.value)
      >   call errquit('kbppv3e_stress:out of heap memory',0,MA_ERR)
@@ -252,11 +252,11 @@ c      call Parallel_init()
      >                                dbl_mb(tmp_ray_indx),
      >                                filter,
      >                      ierr)
-        value = MA_free_heap(tmp_ray_hndl)
-        value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
-        value = value.and.MA_free_heap(dvnl_ray_hndl)
-        value = value.and.MA_free_heap(dvl_ray_hndl)
-        value = value.and.MA_free_heap(G_ray_hndl)
+        value = BA_free_heap(tmp_ray_hndl)
+        value = value.and.BA_free_heap(rho_sc_k_ray_hndl)
+        value = value.and.BA_free_heap(dvnl_ray_hndl)
+        value = value.and.BA_free_heap(dvl_ray_hndl)
+        value = value.and.BA_free_heap(G_ray_hndl)
         if (.not.value)
      >   call errquit('kbppv3_stress:Error freeing memory',0,MA_ERR)
 
@@ -361,18 +361,18 @@ c      call Parallel_init()
      
 
 *     **** free heap space ****
-      value = MA_free_heap(rho_hndl)
-      value = value.and.MA_free_heap(vp_hndl)
-      value = value.and.MA_free_heap(wp_hndl)
-      value = value.and.MA_free_heap(sc_r_hndl)
-      value = value.and.MA_free_heap(sc_k_hndl)
-      value = value.and.MA_free_heap(f_hndl)
-      value = value.and.MA_free_heap(cs_hndl)
-      value = value.and.MA_free_heap(sn_hndl)
+      value = BA_free_heap(rho_hndl)
+      value = value.and.BA_free_heap(vp_hndl)
+      value = value.and.BA_free_heap(wp_hndl)
+      value = value.and.BA_free_heap(sc_r_hndl)
+      value = value.and.BA_free_heap(sc_k_hndl)
+      value = value.and.BA_free_heap(f_hndl)
+      value = value.and.BA_free_heap(cs_hndl)
+      value = value.and.BA_free_heap(sn_hndl)
 
-      value = value.and.MA_free_heap(vl_hndl)
-      value = value.and.MA_free_heap(vnl_hndl)
-      value = value.and.MA_free_heap(tmp(2))
+      value = value.and.BA_free_heap(vl_hndl)
+      value = value.and.BA_free_heap(vnl_hndl)
+      value = value.and.BA_free_heap(tmp(2))
       if (.not.value)
      >  call errquit('kbppv3e_stress: error freeing heap',0,MA_ERR)
 

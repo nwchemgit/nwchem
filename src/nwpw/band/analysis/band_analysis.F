@@ -93,20 +93,20 @@ c
       n1(2) = ne(1)+1
       n2(2) = ne(1)+ne(2)
 
-      value = MA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
+      value = BA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
+     >        BA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nion,'total',total(2),total(1))
+     >        BA_alloc_get(mt_dbl,nion,'total',total(2),total(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,50,'subtl',subtl(2),subtl(1))
+     >        BA_alloc_get(mt_dbl,50,'subtl',subtl(2),subtl(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,36*nemax*nion,'a',a(2),a(1))
+     >        BA_alloc_get(mt_dcpl,36*nemax*nion,'a',a(2),a(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
+     >        BA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nemax,'eig',eig(2),eig(1))
+     >        BA_alloc_get(mt_dbl,nemax,'eig',eig(2),eig(1))
 
       A_tag   = cpsi_data_alloc(nbrillq,2*36*nemax*nion,1)
       sum_tag = cpsi_data_alloc(nbrillq,nemax,1)
@@ -550,7 +550,7 @@ c              END DO
       if (control_DOS()) then
 
       value = rtdb_parallel(.true.)
-      value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value)
      >  call errquit('analysis:out of stack memory',0, MA_ERR)
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
@@ -564,7 +564,7 @@ c              END DO
         npoints = 500
       end if
 
-      value = MA_push_get(mt_dbl,(2*npoints),
+      value = BA_push_get(mt_dbl,(2*npoints),
      >                    'dstates',dstates(2),dstates(1))
       if (.not. value)
      >  call errquit('analysis:out of stack memory',0, MA_ERR)
@@ -817,12 +817,12 @@ c              END DO
 
 *     *** free heap ***
       if(fixatoms) then
-        if (.not. MA_free_heap(h_actlist))
+        if (.not. BA_free_heap(h_actlist))
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
       end if
 
-      value =           MA_pop_stack(dstates(2))
-      value = value.and.MA_pop_stack(weight(2))
+      value =           BA_pop_stack(dstates(2))
+      value = value.and.BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('analysis: error freeing stack',0, MA_ERR)
 
@@ -834,13 +834,13 @@ c              END DO
       call borbs_end()
       call cpsi_data_dealloc(A_tag)
       call cpsi_data_dealloc(sum_tag)
-      value = MA_free_heap(a(2))
-      value = value.and.MA_free_heap(sum(2))
-      value = value.and.MA_free_heap(eig(2))
-      value = value.and.MA_free_heap(lorb(2))
-      value = value.and.MA_free_heap(b0(2))
-      value = value.and.MA_free_heap(total(2))
-      value = value.and.MA_free_heap(subtl(2))
+      value = BA_free_heap(a(2))
+      value = value.and.BA_free_heap(sum(2))
+      value = value.and.BA_free_heap(eig(2))
+      value = value.and.BA_free_heap(lorb(2))
+      value = value.and.BA_free_heap(b0(2))
+      value = value.and.BA_free_heap(total(2))
+      value = value.and.BA_free_heap(subtl(2))
       if (.not. value)
      >  call errquit('analysis: error freeing heap',0,MA_ERR)
 
@@ -950,18 +950,18 @@ c              END DO
       n1(2) = ne(1)+1
       n2(2) = ne(1)+ne(2)
 
-      value = MA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
+      value = BA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
+     >        BA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nion,'total',total(2),total(1))
+     >        BA_alloc_get(mt_dbl,nion,'total',total(2),total(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
+     >        BA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,36*nemax*nion,'a',a(2),a(1))
+     >        BA_alloc_get(mt_dcpl,36*nemax*nion,'a',a(2),a(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
+     >        BA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
 
       A_tag   = cpsi_data_alloc(nbrillq,2*36*nemax*nion,1)
       sum_tag = cpsi_data_alloc(nbrillq,nemax,1)
@@ -1116,7 +1116,7 @@ c              END DO
 
 *     *** free heap ***
       if(fixatoms) then
-        if (.not. MA_free_heap(h_actlist))
+        if (.not. BA_free_heap(h_actlist))
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
       end if
 
@@ -1127,12 +1127,12 @@ c              END DO
       call cpsi_data_dealloc(A_tag)
       call cpsi_data_dealloc(sum_tag)
 
-      value = MA_free_heap(a(2))
-      value = value.and.MA_free_heap(sum(2))
-      value = value.and.MA_free_heap(lorb(2))
-      value = value.and.MA_free_heap(b0(2))
-      value = value.and.MA_free_heap(total(2))
-      value = value.and.MA_free_heap(subtl(2))
+      value = BA_free_heap(a(2))
+      value = value.and.BA_free_heap(sum(2))
+      value = value.and.BA_free_heap(lorb(2))
+      value = value.and.BA_free_heap(b0(2))
+      value = value.and.BA_free_heap(total(2))
+      value = value.and.BA_free_heap(subtl(2))
       if (.not. value)
      >  call errquit('analysis: error freeing heap',0,MA_ERR)
 

@@ -46,11 +46,11 @@
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_ld: out of stack',0, MA_ERR)
 
@@ -124,9 +124,9 @@
       call D1dB_SumAll(ld)
 
       value = .true.
-      value = value.and.MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_ld_trace: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)
@@ -183,16 +183,16 @@
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw3',sw3(2),sw3(1))
-      value = value.and.MA_push_get(mt_dbl,npack1,
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw3',sw3(2),sw3(1))
+      value = value.and.BA_push_get(mt_dbl,npack1,
      >                               'xtmp',xtmp(2),xtmp(1))
-      value = value.and.MA_push_get(mt_dbl,3*nn,'asum',asum(2),asum(1))
+      value = value.and.BA_push_get(mt_dbl,3*nn,'asum',asum(2),asum(1))
       if (.not.value)
      >  call errquit('psp_ld: out of stack',0, MA_ERR)
 
@@ -349,12 +349,12 @@
       end if
 
       value = .true.
-      value = value.and.MA_pop_stack(asum(2))
-      value = value.and.MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(sw3(2))
-      value = value.and.MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(asum(2))
+      value = value.and.BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(sw3(2))
+      value = value.and.BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      >   call errquit('psp_ld_trace_gradient: popping stack',3,
      &                MA_ERR)
@@ -454,11 +454,11 @@
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_ld_matrix: out of stack',0, MA_ERR)
 
@@ -532,9 +532,9 @@
       call D1dB_Vector_SumAll(ispin*(2*ll+1)**2,ld_density)
 
       value = .true.
-      value = value.and.MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_ld_matrix: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)

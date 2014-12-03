@@ -27,7 +27,7 @@
       value     = value.and.geom_ncent(geom,nion)
       nionplus3 = nion+3
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
       call load_cellgeometry(geom,dbl_mb(r1(1)),unita)
 
 *     **** read in stress ****
@@ -64,7 +64,7 @@
       value = value.and.geom_rtdb_delete(rtdb,'geometry')
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
       value = value.and.geom_destroy(geom)
-      value = value.and.MA_free_heap(r1(2))
+      value = value.and.BA_free_heap(r1(2))
       write(*,*) "geometry adjusted......"
 
  

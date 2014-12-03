@@ -49,15 +49,15 @@ c
        
        call Parallel_taskid(taskid)
        nion = ion_nion()
-       value =           MA_push_get(mt_dbl,9*nion,'efg',
+       value =           BA_push_get(mt_dbl,9*nion,'efg',
      >                               efg(2),efg(1))
-       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_ion',
+       value = value.and.BA_push_get(mt_dbl,9*nion,'efg_ion',
      >                               efg_ion(2),efg_ion(1))
-       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_smooth_real',
+       value = value.and.BA_push_get(mt_dbl,9*nion,'efg_smooth_real',
      >                               efg_smoothr(2),efg_smoothr(1))
-       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_smooth_imag',
+       value = value.and.BA_push_get(mt_dbl,9*nion,'efg_smooth_imag',
      >                               efg_smoothi(2),efg_smoothi(1))
-       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_paw',
+       value = value.and.BA_push_get(mt_dbl,9*nion,'efg_paw',
      >                               efg_paw(2),efg_paw(1))
        if (.not.value) 
      >    call errquit('pspw_gen_Efield_grad:out of stack memory',0,
@@ -89,11 +89,11 @@ c
 
 
 
-       value =           MA_pop_stack(efg_paw(2))
-       value = value.and.MA_pop_stack(efg_smoothi(2))
-       value = value.and.MA_pop_stack(efg_smoothr(2))
-       value = value.and.MA_pop_stack(efg_ion(2))
-       value = value.and.MA_pop_stack(efg(2))
+       value =           BA_pop_stack(efg_paw(2))
+       value = value.and.BA_pop_stack(efg_smoothi(2))
+       value = value.and.BA_pop_stack(efg_smoothr(2))
+       value = value.and.BA_pop_stack(efg_ion(2))
+       value = value.and.BA_pop_stack(efg(2))
        if (.not.value) 
      >    call errquit('pspw_gen_Efield_grad:popping of stack memory',0,
      >                 MA_ERR)

@@ -50,15 +50,15 @@ c     logocal semicore(0:nkatmx)
       call D3dB_n2ft3d(1,n2ft3d)
       call Pack_npack(0,npack0)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vxcG',vxcG(2),vxcG(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'vxcG',vxcG(2),vxcG(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl, npack0,'tmpx',tmpx(2),tmpx(1))
+     >        BA_push_get(mt_dcpl, npack0,'tmpx',tmpx(2),tmpx(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl, npack0,'tmpy',tmpy(2),tmpy(1))
+     >        BA_push_get(mt_dcpl, npack0,'tmpy',tmpy(2),tmpy(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl, npack0,'tmpz',tmpz(2),tmpz(1))
+     >        BA_push_get(mt_dcpl, npack0,'tmpz',tmpz(2),tmpz(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -104,11 +104,11 @@ c     logocal semicore(0:nkatmx)
 
       end do
 
-      value = MA_pop_stack(tmpz(2))
-      value = MA_pop_stack(tmpy(2))
-      value = MA_pop_stack(tmpx(2))
-      value = MA_pop_stack(vxcG(2))
-      value = MA_pop_stack(exi(2))
+      value = BA_pop_stack(tmpz(2))
+      value = BA_pop_stack(tmpy(2))
+      value = BA_pop_stack(tmpx(2))
+      value = BA_pop_stack(vxcG(2))
+      value = BA_pop_stack(exi(2))
 
 
       return

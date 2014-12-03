@@ -64,11 +64,11 @@
 *     **** allocate eigs ****
       isize = neall(1)+neall(2)
       do i=1,4
-      if (.not.MA_push_get(mt_dbl,isize,'teigs',teigs(2,i),teigs(1,i)))
+      if (.not.BA_push_get(mt_dbl,isize,'teigs',teigs(2,i),teigs(1,i)))
      >  call errquit(
      > 'band_interpolate structure:out of stack memory',0,MA_ERR)
       end do
-      if (.not.MA_push_get(mt_dbl,isize,'eigs',eigs(2),eigs(1)))
+      if (.not.BA_push_get(mt_dbl,isize,'eigs',eigs(2),eigs(1)))
      >  call errquit(
      > 'band_interpolate structure:out of stack memory',0,MA_ERR)
       if (.not.Pneb_wne_allocate_block(0,1,1,neall,hml))
@@ -261,11 +261,11 @@ c         call band_kp_eigs(kv,tindx,ktet,dcpl_mb(hml(1)),dbl_mb(eigs(1)))
       if (.not.Pneb_w_free(hml))
      >  call errquit(
      > 'band_interpolate structure:popping stack memory',1,MA_ERR)
-      if (.not.MA_pop_stack(eigs(2))) 
+      if (.not.BA_pop_stack(eigs(2))) 
      >  call errquit(
      > 'band_interpolate structure:popping stack memory',0,MA_ERR)
       do j=4,1,-1
-      if (.not.MA_pop_stack(teigs(2,j))) 
+      if (.not.BA_pop_stack(teigs(2,j))) 
      >  call errquit(
      > 'band_interpolate structure:popping stack memory',0,MA_ERR)
       end do

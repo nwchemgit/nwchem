@@ -92,7 +92,7 @@
 *      
 *        **** initialize orb_contribution ****
 c         do ms=1,ispin
-c           value = MA_alloc_get(mt_dbl,norbs(ms),
+c           value = BA_alloc_get(mt_dbl,norbs(ms),
 c     >                'ehfx_orb',ehfx_orb(2,ms),ehfx_orb(1,ms))
 c           if (.not. value)   
 c     >       call errquit('band_init_HFX: out of heap memory',1, MA_ERR)
@@ -116,13 +116,13 @@ c     **** define extra psi and Hpsi  ****
          psi_rep2_tag  = cpsi_data_alloc(nbrillq_max,neall,2*nfft3d)
          Hpsi_rep1_tag = cpsi_data_alloc(nbrillq_max,neall,2*nfft3d)
          Hpsi_rep2_tag = cpsi_data_alloc(nbrillq_max,neall,2*nfft3d)
-         value = MA_alloc_get(mt_dbl,4*nbrillq_max,'kw_rep1',
+         value = BA_alloc_get(mt_dbl,4*nbrillq_max,'kw_rep1',
      >                        kw_rep1(2),kw_rep1(1))
          value = value.and.
-     >           MA_alloc_get(mt_dbl,4*nbrillq_max,'kw_rep2',
+     >           BA_alloc_get(mt_dbl,4*nbrillq_max,'kw_rep2',
      >                        kw_rep2(2),kw_rep2(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,npk,'nbrillq_rep',
+     >           BA_alloc_get(mt_int,npk,'nbrillq_rep',
      >                        nbrillq_rep(2),nbrillq_rep(1))
          if (.not. value)   
      >      call errquit('band_init_HFX: out of heap memory',1, MA_ERR)
@@ -187,7 +187,7 @@ c        end if
 *       **** deallocate memory ****
         value = .true.
 c        do ms=1,ispin
-c          value = value.and.MA_free_heap(ehfx_orb(2,ms))
+c          value = value.and.BA_free_heap(ehfx_orb(2,ms))
 c        end do
 
 *        **** end coulomb_screened ****
@@ -199,9 +199,9 @@ c        end do
             call cpsi_data_dealloc(psi_rep2_tag)
             call cpsi_data_dealloc(Hpsi_rep1_tag)
             call cpsi_data_dealloc(Hpsi_rep2_tag)
-            value =           MA_free_heap(kw_rep1(2))
-            value = value.and.MA_free_heap(kw_rep2(2))
-            value = value.and.MA_free_heap(nbrillq_rep(2))
+            value =           BA_free_heap(kw_rep1(2))
+            value = value.and.BA_free_heap(kw_rep2(2))
+            value = value.and.BA_free_heap(nbrillq_rep(2))
             if (.not. value)   
      >         call errquit('band_end_HFX: free heap memory',1,MA_ERR)
          end if
@@ -684,13 +684,13 @@ c***************** sub/replicated routines *****************************
          call C3dB_nx(1,n1)
          call C3dB_ny(1,n2)
          call C3dB_nz(1,n3)
-         value = MA_push_get(mt_dcpl,nfft3d,'dn_hfx',dn(2),dn(1))
+         value = BA_push_get(mt_dcpl,nfft3d,'dn_hfx',dn(2),dn(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'vij_hfx',vij(2),vij(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'vij_hfx',vij(2),vij(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'tmp1_hfx',tmp1(2),tmp1(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'tmp1_hfx',tmp1(2),tmp1(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'tmp2_hfx',tmp2(2),tmp2(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'tmp2_hfx',tmp2(2),tmp2(1))
          if (.not. value) 
      >      call errquit('band_potential_HFX:out of stack memory',0,
      >      MA_ERR)
@@ -812,10 +812,10 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
        end do !**** ms *****
 
  
-         value =           MA_pop_stack(tmp2(2))
-         value = value.and.MA_pop_stack(tmp1(2))
-         value = value.and.MA_pop_stack(vij(2))
-         value = value.and.MA_pop_stack(dn(2))
+         value =           BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         value = value.and.BA_pop_stack(vij(2))
+         value = value.and.BA_pop_stack(dn(2))
          if (.not. value) 
      >      call errquit('band_potential_HFX:popping stack memory',0,
      >      MA_ERR)
@@ -869,13 +869,13 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
          call C3dB_nx(1,n1)
          call C3dB_ny(1,n2)
          call C3dB_nz(1,n3)
-         value = MA_push_get(mt_dcpl,nfft3d,'dn12_hfx',dn12(2),dn12(1))
+         value = BA_push_get(mt_dcpl,nfft3d,'dn12_hfx',dn12(2),dn12(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'v12_hfx',v12(2),v12(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'v12_hfx',v12(2),v12(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'tmp1_hfx',tmp1(2),tmp1(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'tmp1_hfx',tmp1(2),tmp1(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'tmp2_hfx',tmp2(2),tmp2(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'tmp2_hfx',tmp2(2),tmp2(1))
          if (.not. value) 
      >      call errquit('band_potential_HFX:out of stack memory',0,
      >      MA_ERR)
@@ -982,10 +982,10 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
        end do !**** ms *****
 
  
-         value =           MA_pop_stack(tmp2(2))
-         value = value.and.MA_pop_stack(tmp1(2))
-         value = value.and.MA_pop_stack(v12(2))
-         value = value.and.MA_pop_stack(dn12(2))
+         value =           BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         value = value.and.BA_pop_stack(v12(2))
+         value = value.and.BA_pop_stack(dn12(2))
          if (.not. value) 
      >   call errquit('band_potential_HFX_sub2:popping stack memory',
      >                0,MA_ERR)
@@ -1037,11 +1037,11 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
          call C3dB_nx(1,n1)
          call C3dB_ny(1,n2)
          call C3dB_nz(1,n3)
-         value = MA_push_get(mt_dcpl,nfft3d,'dn12_hfx',dn12(2),dn12(1))
+         value = BA_push_get(mt_dcpl,nfft3d,'dn12_hfx',dn12(2),dn12(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'v12_hfx',v12(2),v12(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'v12_hfx',v12(2),v12(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'tmp2_hfx',tmp2(2),tmp2(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'tmp2_hfx',tmp2(2),tmp2(1))
          if (.not. value) 
      >      call errquit('band_potential_HFX:out of stack memory',0,
      >      MA_ERR)
@@ -1137,9 +1137,9 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
 
        end do !**** ms *****
 
-       value =           MA_pop_stack(tmp2(2))
-       value = value.and.MA_pop_stack(v12(2))
-       value = value.and.MA_pop_stack(dn12(2))
+       value =           BA_pop_stack(tmp2(2))
+       value = value.and.BA_pop_stack(v12(2))
+       value = value.and.BA_pop_stack(dn12(2))
        if (.not. value) 
      > call errquit('band_potential_HFX_sub3:popping stack memory',
      >              0,MA_ERR)
@@ -1188,9 +1188,9 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
         call C3dB_nx(1,n1)
         call C3dB_ny(1,n2)
         call C3dB_nz(1,n3)
-        value = MA_push_get(mt_dcpl,(2*nfft3d),'dn_hfx',dn(2),dn(1))
+        value = BA_push_get(mt_dcpl,(2*nfft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dcpl,(nfft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+     >          BA_push_get(mt_dcpl,(nfft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) 
      >     call errquit('band_energy_HFX_sub:out of stack memory',0,
      >       MA_ERR)
@@ -1261,8 +1261,8 @@ c        end do
 c        call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
 c        end do
 
-        value =           MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value =           BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >     call errquit('band_energy_HFX_sub:popping stack memory',0,
      >       MA_ERR)
@@ -1310,11 +1310,11 @@ c        call D1dB_SumAll(phfx)
          call C3dB_nx(1,n1)
          call C3dB_ny(1,n2)
          call C3dB_nz(1,n3)
-         value = MA_push_get(mt_dcpl,nfft3d,'dn12_hfx',dn12(2),dn12(1))
+         value = BA_push_get(mt_dcpl,nfft3d,'dn12_hfx',dn12(2),dn12(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'v12_hfx',v12(2),v12(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'v12_hfx',v12(2),v12(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'tmp1_hfx',tmp1(2),tmp1(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'tmp1_hfx',tmp1(2),tmp1(1))
          if (.not. value) 
      >      call errquit('band_potential_HFX:out of stack memory',0,
      >      MA_ERR)
@@ -1381,9 +1381,9 @@ c        call D1dB_SumAll(phfx)
             done = (k1.gt.N).and.(k2.gt.N).and.(k3.gt.N)
          end do !**** while ****
  
-         value =           MA_pop_stack(tmp1(2))
-         value = value.and.MA_pop_stack(v12(2))
-         value = value.and.MA_pop_stack(dn12(2))
+         value =           BA_pop_stack(tmp1(2))
+         value = value.and.BA_pop_stack(v12(2))
+         value = value.and.BA_pop_stack(dn12(2))
          if (.not. value) 
      >   call errquit('band_potential_HFX_orb_sub:popping stack memory',
      >                0,MA_ERR)

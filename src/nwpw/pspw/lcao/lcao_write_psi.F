@@ -47,11 +47,11 @@
       call D3dB_nfft3d(1,nfft3d)
       nbasis = aorbs_nbasis()
 
-      value = MA_push_get(mt_dcpl,nfft3d,'psi',psi(2),psi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'psi',psi(2),psi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp',tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
+     >        BA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
       if (.not. value)
      >  call errquit('lcao_write_psi:out of stack memory',0, MA_ERR)
 
@@ -101,11 +101,11 @@
         call closefile(6)
       end if
 
-      value = MA_pop_stack(coef(2))
+      value = BA_pop_stack(coef(2))
       value = value.and.
-     >        MA_pop_stack(tmp(2))
+     >        BA_pop_stack(tmp(2))
       value = value.and.
-     >        MA_pop_stack(psi(2))
+     >        BA_pop_stack(psi(2))
       if (.not. value)
      >  call errquit('lcao_write_psi:popping stack memory',0, MA_ERR)
       return
@@ -159,11 +159,11 @@
       call D3dB_nfft3d(1,nfft3d)
       nbasis = aorbs_nbasis()
 
-      value = MA_push_get(mt_dcpl,nfft3d,'psi',psi(2),psi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'psi',psi(2),psi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp',tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
+     >        BA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
       if (.not. value)
      >  call errquit('lcao_write_epsi:out of stack memory',0,0)
 
@@ -212,9 +212,9 @@
         call closefile(6)
       end if
 
-      value =           MA_pop_stack(coef(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(psi(2))
+      value =           BA_pop_stack(coef(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(psi(2))
       if (.not. value)
      >  call errquit('lcao_write_epsi:popping stack memory',0,0)
       return

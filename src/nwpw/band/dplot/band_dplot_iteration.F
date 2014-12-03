@@ -53,7 +53,7 @@
       if (exist) then
 
 *        **** free heap ****
-         if (.not. MA_free_heap(iteration(2))) then
+         if (.not. BA_free_heap(iteration(2))) then
           call errquit('band_dplot_iteration_end:freeing heap',0,MA_ERR)
          end if
 

@@ -70,17 +70,17 @@
          ncqmax = 0
          do ms=1,ispin
              value = value.and.
-     >               MA_alloc_get(mt_int,np_i,'ma',ma(2,ms),ma(1,ms))
+     >               BA_alloc_get(mt_int,np_i,'ma',ma(2,ms),ma(1,ms))
              value = value.and.
-     >               MA_alloc_get(mt_int,np_i,'ma1',ma1(2,ms),ma1(1,ms))
+     >               BA_alloc_get(mt_int,np_i,'ma1',ma1(2,ms),ma1(1,ms))
              value = value.and.
-     >               MA_alloc_get(mt_int,np_i,'ma2',ma2(2,ms),ma2(1,ms))
+     >               BA_alloc_get(mt_int,np_i,'ma2',ma2(2,ms),ma2(1,ms))
              value = value.and.
-     >               MA_alloc_get(mt_int,np_i,'mc',mc(2,ms),mc(1,ms))
+     >               BA_alloc_get(mt_int,np_i,'mc',mc(2,ms),mc(1,ms))
              value = value.and.
-     >               MA_alloc_get(mt_int,np_j,'na',na(2,ms),na(1,ms))
+     >               BA_alloc_get(mt_int,np_j,'na',na(2,ms),na(1,ms))
              value = value.and.
-     >               MA_alloc_get(mt_int,np_j,'nc',nc(2,ms),nc(1,ms))
+     >               BA_alloc_get(mt_int,np_j,'nc',nc(2,ms),nc(1,ms))
              if (.not.value) then
                call errquit('Dne_init: out of heap memory',0,MA_ERR)
              end if
@@ -135,9 +135,9 @@
          mdq = 0
          ndq = 0
          if ((ispin.eq.2).and.(ne(2).gt.0)) then
-            value = MA_alloc_get(mt_int,np_i,'md',md(2),md(1))
+            value = BA_alloc_get(mt_int,np_i,'md',md(2),md(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,np_j,'nd',nd(2),nd(1))
+     >              BA_alloc_get(mt_int,np_j,'nd',nd(2),nd(1))
             if (.not.value) then
                call errquit('Dne_init: out of heap memory',1,MA_ERR)
             end if
@@ -160,42 +160,42 @@
          end if
 
 
-         value = value.and.MA_alloc_get(mt_dbl,
+         value = value.and.BA_alloc_get(mt_dbl,
      >                                  2*2*64*int_mb(ma(1,1)+taskid_i),
      >                                  'work1',work1(2),work1(1))
 
          nework = 2*64*int_mb(nc(1,1)+taskid_j)
          if (nework.lt.mcq(1)*ncq(1)) nework = mcq(1)*ncq(1)
-         value = value.and.MA_alloc_get(mt_dbl,
+         value = value.and.BA_alloc_get(mt_dbl,
      >                                  3*nework,
      >                                  'work2',work2(2),work2(1))
 
-         value = value.and.MA_alloc_get(mt_dbl,
+         value = value.and.BA_alloc_get(mt_dbl,
      >                              ne(1)*ncqmax,
      >                              'bcolwork',bcolwork(2),bcolwork(1))
-         value = value.and.MA_alloc_get(mt_dbl,
+         value = value.and.BA_alloc_get(mt_dbl,
      >                              ne(1)*ncqmax,
      >                              'bwork2',bwork2(2),bwork2(1))
          nework = int_mb(na(1,1))
-         value = value.and.MA_alloc_get(mt_dbl,
+         value = value.and.BA_alloc_get(mt_dbl,
      >                              2*nework*int_mb(ma(1,1)+taskid_i),
      >                              'rwork1',rwork1(2),rwork1(1))
-         value = value.and.MA_alloc_get(mt_dbl,
+         value = value.and.BA_alloc_get(mt_dbl,
      >                              2*nework*int_mb(ma(1,1)+taskid_i),
      >                              'rwork2',rwork2(2),rwork2(1))
          nework = mcq(1)*ncq(1) + mcq(2)*ncq(2)
-         value = value.and.MA_alloc_get(mt_dbl,3*nework,
+         value = value.and.BA_alloc_get(mt_dbl,3*nework,
      >                              'mat_tmp',mat_tmp(2),mat_tmp(1))
 
          nework = mcq(1)*ncq(1) + mcq(2)*ncq(2)
-         value = value.and.MA_alloc_get(mt_int,nework,
+         value = value.and.BA_alloc_get(mt_int,nework,
      >                                 'mindx0',mindx(2,0),mindx(1,0))
          nework = mcq(1)*ncq(1)
-         value = value.and.MA_alloc_get(mt_int,nework,
+         value = value.and.BA_alloc_get(mt_int,nework,
      >                                 'mindx1',mindx(2,1),mindx(1,1))
          if (ispin.eq.2) then
          nework = mcq(2)*ncq(2)
-         value = value.and.MA_alloc_get(mt_int,nework,
+         value = value.and.BA_alloc_get(mt_int,nework,
      >                                 'mindx2',mindx(2,2),mindx(1,2))
          endif
          if (.not.value) 
@@ -263,7 +263,7 @@
 
          if ((ispin.eq.2).and.(ne(2).gt.0)) then
             nework = mdq*ndq
-            value = value.and.MA_alloc_get(mt_int,nework,
+            value = value.and.BA_alloc_get(mt_int,nework,
      >                                 'smindx',smindx(2),smindx(1))
             small  = ne(1)*ne(2)
             smpack = mdq*ndq
@@ -320,28 +320,28 @@
       if (parallelized) then
          value = .true.
          do ms=1,ispin
-            value = value.and.MA_free_heap(ma(2,ms))
-            value = value.and.MA_free_heap(ma1(2,ms))
-            value = value.and.MA_free_heap(ma2(2,ms))
-            value = value.and.MA_free_heap(na(2,ms))
-            value = value.and.MA_free_heap(mc(2,ms))
-            value = value.and.MA_free_heap(nc(2,ms))
+            value = value.and.BA_free_heap(ma(2,ms))
+            value = value.and.BA_free_heap(ma1(2,ms))
+            value = value.and.BA_free_heap(ma2(2,ms))
+            value = value.and.BA_free_heap(na(2,ms))
+            value = value.and.BA_free_heap(mc(2,ms))
+            value = value.and.BA_free_heap(nc(2,ms))
          end do
          if ((ispin.eq.2).and.(ne(2).gt.0)) then
-            value = value.and.MA_free_heap(md(2))
-            value = value.and.MA_free_heap(nd(2))
-            value = value.and.MA_free_heap(smindx(2))
+            value = value.and.BA_free_heap(md(2))
+            value = value.and.BA_free_heap(nd(2))
+            value = value.and.BA_free_heap(smindx(2))
          end if
-         value = value.and.MA_free_heap(work1(2))
-         value = value.and.MA_free_heap(work2(2))
-         value = value.and.MA_free_heap(bcolwork(2))
-         value = value.and.MA_free_heap(bwork2(2))
-         value = value.and.MA_free_heap(rwork1(2))
-         value = value.and.MA_free_heap(rwork2(2))
-         value = value.and.MA_free_heap(mat_tmp(2))
-         value = value.and.MA_free_heap(mindx(2,0))
-         value = value.and.MA_free_heap(mindx(2,1))
-         if (ispin.eq.2) value = value.and.MA_free_heap(mindx(2,2))
+         value = value.and.BA_free_heap(work1(2))
+         value = value.and.BA_free_heap(work2(2))
+         value = value.and.BA_free_heap(bcolwork(2))
+         value = value.and.BA_free_heap(bwork2(2))
+         value = value.and.BA_free_heap(rwork1(2))
+         value = value.and.BA_free_heap(rwork2(2))
+         value = value.and.BA_free_heap(mat_tmp(2))
+         value = value.and.BA_free_heap(mindx(2,0))
+         value = value.and.BA_free_heap(mindx(2,1))
+         if (ispin.eq.2) value = value.and.BA_free_heap(mindx(2,2))
         if (.not.value) then
            call errquit('Dne_end: error deallocating heap memory',
      >                  0,MA_ERR)
@@ -539,7 +539,7 @@ c     ****************************************
       end if
      
       Dneall_m_allocate_block 
-     > = MA_alloc_get(mt_dbl,nb*size,'hmlab',hml(2),hml(1))
+     > = BA_alloc_get(mt_dbl,nb*size,'hmlab',hml(2),hml(1))
       return
       end
 c
@@ -574,7 +574,7 @@ c     ****************************************
          end if
       end if
      
-      Dneall_m_allocate = MA_alloc_get(mt_dbl,size,'hmla',hml(2),hml(1))
+      Dneall_m_allocate = BA_alloc_get(mt_dbl,size,'hmla',hml(2),hml(1))
       return
       end
 
@@ -611,7 +611,7 @@ c     ****************************************
          end if
       end if
 
-      Dneall_w_allocate=MA_alloc_get(mt_dcpl,size,'hmla',hml(2),hml(1))
+      Dneall_w_allocate=BA_alloc_get(mt_dcpl,size,'hmla',hml(2),hml(1))
       return
       end
 
@@ -648,7 +648,7 @@ c     ****************************************
          end if
       end if
 
-      Dneall_w_push_get=MA_push_get(mt_dcpl,size,'hmla',hml(2),hml(1))
+      Dneall_w_push_get=BA_push_get(mt_dcpl,size,'hmla',hml(2),hml(1))
       return
       end
 
@@ -665,7 +665,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Dneall_m_free = MA_free_heap(hml(2))
+      Dneall_m_free = BA_free_heap(hml(2))
       return
       end
 
@@ -682,7 +682,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Dneall_w_free = MA_free_heap(hml(2))
+      Dneall_w_free = BA_free_heap(hml(2))
       return
       end
 
@@ -716,7 +716,7 @@ c     ****************************************
          end if
       end if
 
-      Dneall_m_push_get = MA_push_get(mt_dbl,size,'hmls',hml(2),hml(1))
+      Dneall_m_push_get = BA_push_get(mt_dbl,size,'hmls',hml(2),hml(1))
       return
       end
 
@@ -752,7 +752,7 @@ c     ****************************************
       end if
 
       Dneall_m_push_get_block 
-     >  = MA_push_get(mt_dbl,nb*size,'hmlsb',hml(2),hml(1))
+     >  = BA_push_get(mt_dbl,nb*size,'hmlsb',hml(2),hml(1))
       return
       end
 
@@ -768,7 +768,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Dneall_m_pop_stack = MA_pop_stack(hml(2))
+      Dneall_m_pop_stack = BA_pop_stack(hml(2))
       return
       end
 
@@ -785,7 +785,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Dneall_w_pop_stack = MA_pop_stack(hml(2))
+      Dneall_w_pop_stack = BA_pop_stack(hml(2))
       return
       end
 
@@ -832,7 +832,7 @@ c     ****************************************
          size = ne(1)*ne(2)
       end if
 
-      Dneall_sm_push_get = MA_push_get(mt_dbl,size,'hmls',hml(2),hml(1))
+      Dneall_sm_push_get = BA_push_get(mt_dbl,size,'hmls',hml(2),hml(1))
       return
       end
 
@@ -848,7 +848,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Dneall_sm_pop_stack = MA_pop_stack(hml(2))
+      Dneall_sm_pop_stack = BA_pop_stack(hml(2))
       return
       end
 
@@ -1575,15 +1575,15 @@ c     ****************************************
             ishift2 = 0
             call dcopy(ne(mb),0.0d0,0,eig,1)
          end if
-         value = MA_push_get(mt_dbl,mcq(1)*ncq(1),'V',V(2),V(1))
+         value = BA_push_get(mt_dbl,mcq(1)*ncq(1),'V',V(2),V(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,mcq(1)*ncq(1),'VV',VV(2),VV(1))
+     >           BA_push_get(mt_dbl,mcq(1)*ncq(1),'VV',VV(2),VV(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,mcq(1)*ncq(1),'Q',Q(2),Q(1))
+     >           BA_push_get(mt_dbl,mcq(1)*ncq(1),'Q',Q(2),Q(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,ne(1),'tu',tu(2),tu(1))
+     >           BA_push_get(mt_dbl,ne(1),'tu',tu(2),tu(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,ne(1),'ework',ework(2),ework(1))
+     >           BA_push_get(mt_dbl,ne(1),'ework',ework(2),ework(1))
          if (.not. value) 
      >      call errquit('Dneall_m_diagonalize:out of stack',
      >                    0,MA_ERR)
@@ -1643,11 +1643,11 @@ c     ****************************************
   
  
 
-         value =           MA_pop_stack(ework(2))
-         value = value.and.MA_pop_stack(tu(2))
-         value = value.and.MA_pop_stack(Q(2))
-         value = value.and.MA_pop_stack(VV(2))
-         value = value.and.MA_pop_stack(V(2))
+         value =           BA_pop_stack(ework(2))
+         value = value.and.BA_pop_stack(tu(2))
+         value = value.and.BA_pop_stack(Q(2))
+         value = value.and.BA_pop_stack(VV(2))
+         value = value.and.BA_pop_stack(V(2))
          if (.not. value) 
      >    call errquit('error popping stack in Dneall_m_diagonalize',
      >                 0,MA_ERR)
@@ -1668,7 +1668,7 @@ c     ****************************************
             call dcopy(ne(mb),0.0d0,0,eig,1)
          end if
 
-         value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),
+         value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),
      >                       'tmp1',tmp1(2),tmp1(1))
          if (.not. value) 
      >      call errquit('Dneall_m_diagonalize:out of stack',
@@ -1700,7 +1700,7 @@ c     ****************************************
             call Parallel_Brdcst_values(MASTER,ne(mb)*ne(mb),hml)
          end if
 
-         value = MA_pop_stack(tmp1(2))
+         value = BA_pop_stack(tmp1(2))
          if (.not. value) 
      >    call errquit('error popping stack in Dneall_m_diagonalize',
      >                 0,MA_ERR)
@@ -1826,7 +1826,7 @@ c     ****************************************
 
       
 *     **** normalize U*sigma ****
-      if (.not. MA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
+      if (.not. BA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
      >   call errquit('Dneall_f_SVD:out of stack memory',0,MA_ERR)
 
       do ms=ms1,ms2
@@ -1851,7 +1851,7 @@ c     ****************************************
  30     continue
       end do
 
-      if (.not.MA_pop_stack(tmp2(2))) 
+      if (.not.BA_pop_stack(tmp2(2))) 
      >  call errquit('Dneall_f_SVD: popping stack memory',0,MA_ERR)
 
 
@@ -1943,7 +1943,7 @@ c     ****************************************
       end if
 
 *     **** normalize U*sigma ****
-      if (.not. MA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
+      if (.not. BA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
      >   call errquit('Dneall_f_SVD_ASA2:out of stack memory',0,MA_ERR)
       call dcopy(neq(1),0.0d0,0,dbl_mb(tmp2(1)),1)
 
@@ -1970,7 +1970,7 @@ c     ****************************************
  30     continue
       end do
 
-      if (.not.MA_pop_stack(tmp2(2)))
+      if (.not.BA_pop_stack(tmp2(2)))
      >  call errquit('Dneall_f_SVD_ASA2: popping stack memory',0,MA_ERR)
 
       return
@@ -2019,18 +2019,18 @@ c     ****************************************
          end if
 
       
-         if (.not.MA_push_get(mt_dcpl,asize,'A',A(2),A(1)))
+         if (.not.BA_push_get(mt_dcpl,asize,'A',A(2),A(1)))
      >   call errquit('Dneall_f_ortho:out of stack memory',0,MA_ERR)
          if (.not.Dneall_m_allocate(mb,V))
      >   call errquit('Dneall_f_ortho:out of stack memory',1,MA_ERR)
-         if (.not.MA_push_get(mt_dbl,(ne(1)+ne(2)),'S',S(2),S(1)))
+         if (.not.BA_push_get(mt_dbl,(ne(1)+ne(2)),'S',S(2),S(1)))
      >   call errquit('Dneall_f_ortho:out of stack memory',2,MA_ERR)
 
 
 *        **** generate V and Sigma^2 ****
          call Dneall_ffm_sym_Multiply(mb,U,U,npack1,dbl_mb(V(1)))
          call Dneall_m_diagonalize(mb,dbl_mb(V(1)),dbl_mb(S(1)),.false.)
-         if (.not.MA_pop_stack(S(2)))
+         if (.not.BA_pop_stack(S(2)))
      >   call errquit('Dneall_f_ortho: popping stack memory',2,MA_ERR)
 
 *        **** generate U*Sigma ****
@@ -2046,7 +2046,7 @@ c     ****************************************
 
 
 *        **** normalize U*sigma ****
-         if (.not. MA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
+         if (.not. BA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
      >      call errquit('Dneall_f_ortho:out of stack memory',3,MA_ERR)
 
          do ms=ms1,ms2
@@ -2070,7 +2070,7 @@ c     ****************************************
 
  30        continue
          end do
-         if (.not.MA_pop_stack(tmp2(2)))
+         if (.not.BA_pop_stack(tmp2(2)))
      >     call errquit('Dneall_f_ortho: popping stack memory',3,MA_ERR)
 
 
@@ -3717,9 +3717,9 @@ c     ****************************************
             nn  = ne(mb)
             nnq = neq(mb)
          end if
-         value = MA_push_get(mt_dbl,nn*nprj,'sw1b',sw1b(2),sw1b(1))
+         value = BA_push_get(mt_dbl,nn*nprj,'sw1b',sw1b(2),sw1b(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,nn*nprj,'sw2b',sw2b(2),sw2b(1))
+     >           BA_push_get(mt_dbl,nn*nprj,'sw2b',sw2b(2),sw2b(1))
          if (.not.value)
      >   call errquit('Dneall_m_add_sw1sw2:push stack',0,MA_ERR)
 
@@ -3788,8 +3788,8 @@ c     ****************************************
      >                    S(shift2),ne(ms))
             end do
          end if
-         value =           MA_pop_stack(sw2b(2))
-         value = value.and.MA_pop_stack(sw1b(2))
+         value =           BA_pop_stack(sw2b(2))
+         value = value.and.BA_pop_stack(sw1b(2))
          if (.not.value)
      >   call errquit('Dneall_m_add_sw1sw2:pop stack',1,MA_ERR)
       else
@@ -4407,18 +4407,18 @@ c     ****************************************
          end if
 
       
-         if (.not.MA_push_get(mt_dcpl,asize,'A',A(2),A(1)))
+         if (.not.BA_push_get(mt_dcpl,asize,'A',A(2),A(1)))
      >   call errquit('Dneall_f_ortho:out of stack memory',0,MA_ERR)
          if (.not.Dneall_m_allocate(mb,V))
      >   call errquit('Dneall_f_ortho:out of stack memory',1,MA_ERR)
-         if (.not.MA_push_get(mt_dbl,(ne(1)+ne(2)),'S',S(2),S(1)))
+         if (.not.BA_push_get(mt_dbl,(ne(1)+ne(2)),'S',S(2),S(1)))
      >   call errquit('Dneall_f_ortho:out of stack memory',2,MA_ERR)
 
 
 *        **** generate V and Sigma^2 ****
          call Dneall_ffm_sym_Multiply(mb,U,SU,npack1,dbl_mb(V(1)))
          call Dneall_m_diagonalize(mb,dbl_mb(V(1)),dbl_mb(S(1)),.false.)
-         if (.not.MA_pop_stack(S(2)))
+         if (.not.BA_pop_stack(S(2)))
      >   call errquit('Dneall_f_ortho: popping stack memory',2,MA_ERR)
 
 *        **** generate U*Sigma ****
@@ -4434,7 +4434,7 @@ c     ****************************************
 
 
 *        **** normalize U*sigma ****
-         if (.not. MA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
+         if (.not. BA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
      >      call errquit('Dneall_f_ortho:out of stack memory',3,MA_ERR)
 
          do ms=ms1,ms2
@@ -4458,7 +4458,7 @@ c     ****************************************
 
  30        continue
          end do
-         if (.not.MA_pop_stack(tmp2(2)))
+         if (.not.BA_pop_stack(tmp2(2)))
      >    call errquit('Dneall_f_Sortho: popping stack memory',3,MA_ERR)
 
 
@@ -4548,7 +4548,7 @@ c     **** local variables ****
       if (parallelized) then
 
 c        **** allocate temporary memory ****
-         if (.not.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1)))
+         if (.not.BA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1)))
      >   call errquit('Dneall_fm_QR:out of stack memory',0,MA_ERR)
 
 c        **** mparallized ****
@@ -4728,7 +4728,7 @@ c              *** set j = k+1 ***
          end if
 
 c        **** deallocate local memory ****
-         if (.not.MA_pop_stack(tmp(2)))
+         if (.not.BA_pop_stack(tmp(2)))
      >   call errquit('Dneall_fm_QR:popping stack memory',0,MA_ERR)
 
 c     **** not parallized ****
@@ -4831,7 +4831,7 @@ c     ****************************************
       end if
      
       Dneall_4m_allocate_block 
-     > = MA_alloc_get(mt_dbl,nb*size,'hmlab',hml(2),hml(1))
+     > = BA_alloc_get(mt_dbl,nb*size,'hmlab',hml(2),hml(1))
       return
       end
 
@@ -4864,7 +4864,7 @@ c     ****************************************
          end if
       end if
      
-      Dneall_4m_allocate = MA_alloc_get(mt_dbl,size,'hma',hml(2),hml(1))
+      Dneall_4m_allocate = BA_alloc_get(mt_dbl,size,'hma',hml(2),hml(1))
       return
       end
 
@@ -4897,7 +4897,7 @@ c     ****************************************
          end if
       end if
 
-      Dneall_4m_push_get = MA_push_get(mt_dbl,size,'hmls',hml(2),hml(1))
+      Dneall_4m_push_get = BA_push_get(mt_dbl,size,'hmls',hml(2),hml(1))
       return
       end
 
@@ -4931,7 +4931,7 @@ c     ****************************************
       end if
 
       Dneall_4m_push_get_block 
-     >  = MA_push_get(mt_dbl,nb*size,'hmlsb',hml(2),hml(1))
+     >  = BA_push_get(mt_dbl,nb*size,'hmlsb',hml(2),hml(1))
       return
       end
 
@@ -5241,8 +5241,8 @@ c     ****************************************
          end if
          value =           Dneall_4m_push_get(mb,A)
          value = value.and.Dneall_4m_push_get(mb,B)
-         value = value.and.MA_push_get(mt_dbl,nj,'SA',SA(2),SA(1))
-         value = value.and.MA_push_get(mt_dbl,nj,'SB',SB(2),SB(1))
+         value = value.and.BA_push_get(mt_dbl,nj,'SA',SA(2),SA(1))
+         value = value.and.BA_push_get(mt_dbl,nj,'SB',SB(2),SB(1))
          if (.not. value) 
      >   call errquit('Dneall_4mm_RotateSkew: pushing stack',0,MA_ERR)
 
@@ -5267,8 +5267,8 @@ c     ****************************************
          call Dneall_4mmm_Multiply3(mb,V,dbl_mb(A(1)),1.0d0,R,0.0d0)
          call Dneall_4mmm_Multiply3(mb,W,dbl_mb(B(1)),1.0d0,R,1.0d0)
 
-         value =           MA_pop_stack(SB(2))
-         value = value.and.MA_pop_stack(SA(2))
+         value =           BA_pop_stack(SB(2))
+         value = value.and.BA_pop_stack(SA(2))
          value = value.and.Dneall_m_pop_stack(B)
          value = value.and.Dneall_m_pop_stack(A)
          if (.not. value) 
@@ -6202,7 +6202,7 @@ c     **** local variables ****
       if (parallelized) then
 
 c        **** allocate temporary memory ****
-         if (.not.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1)))
+         if (.not.BA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1)))
      >   call errquit('Dneall_f_Gramschmidt:out of stack',0,MA_ERR)
 
          if (mb.eq.0) then
@@ -6269,7 +6269,7 @@ c              *** set j = k+1 ***
          end do
 
 c        **** deallocate local memory ****
-         if (.not.MA_pop_stack(tmp(2)))
+         if (.not.BA_pop_stack(tmp(2)))
      >   call errquit('Dneall_f_GramSchmidt:popping stack',0,MA_ERR)
 
 
@@ -6351,9 +6351,9 @@ c     ****************************************
          ncqin(2) = 0
          do ms=1,ispin
              value = value.and.
-     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+     >           BA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
              value = value.and.
-     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+     >           BA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
              if (.not.value) then
                call errquit(': out of heap memory',0,MA_ERR)
              end if
@@ -6376,12 +6376,12 @@ c     ****************************************
 *        ***************************************************************
 *        ****** allocate work1in and work2in ***************************
 *        ***************************************************************
-         value = value.and.MA_push_get(mt_dbl,
+         value = value.and.BA_push_get(mt_dbl,
      >                                2*2*64*int_mb(mcin(1,1)+taskid_i),
      >                                  'work1in',work1in(2),work1in(1))
          nework = 2*64*int_mb(ncin(1,1)+taskid_j)
          if (nework.lt.mcqin(1)*ncqin(1)) nework = mcqin(1)*ncqin(1)
-         value = value.and.MA_push_get(mt_dbl,
+         value = value.and.BA_push_get(mt_dbl,
      >                                  3*nework,
      >                                  'work2in',work2in(2),work2in(1))
          if (.not.value) 
@@ -6404,15 +6404,15 @@ c     ****************************************
             ishift2 = 0
             call dcopy(nein(mb),0.0d0,0,eig,1)
          end if
-         value = MA_push_get(mt_dbl,mcqin(1)*ncqin(1),'V',V(2),V(1))
+         value = BA_push_get(mt_dbl,mcqin(1)*ncqin(1),'V',V(2),V(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,mcqin(1)*ncqin(1),'VV',VV(2),VV(1))
+     >           BA_push_get(mt_dbl,mcqin(1)*ncqin(1),'VV',VV(2),VV(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,mcqin(1)*ncqin(1),'Q',Q(2),Q(1))
+     >           BA_push_get(mt_dbl,mcqin(1)*ncqin(1),'Q',Q(2),Q(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,nein(1),'tu',tu(2),tu(1))
+     >           BA_push_get(mt_dbl,nein(1),'tu',tu(2),tu(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,nein(1),'ework',ework(2),ework(1))
+     >           BA_push_get(mt_dbl,nein(1),'ework',ework(2),ework(1))
          if (.not. value) 
      >      call errquit('Dneall_m_diagonalize:out of stack',
      >                    0,MA_ERR)
@@ -6469,11 +6469,11 @@ c     ****************************************
 
          end do
 
-         value =           MA_pop_stack(ework(2))
-         value = value.and.MA_pop_stack(tu(2))
-         value = value.and.MA_pop_stack(Q(2))
-         value = value.and.MA_pop_stack(VV(2))
-         value = value.and.MA_pop_stack(V(2))
+         value =           BA_pop_stack(ework(2))
+         value = value.and.BA_pop_stack(tu(2))
+         value = value.and.BA_pop_stack(Q(2))
+         value = value.and.BA_pop_stack(VV(2))
+         value = value.and.BA_pop_stack(V(2))
          if (.not. value) 
      >    call errquit('error popping stack in Dneall_mne_diagonalize',
      >                 0,MA_ERR)
@@ -6482,11 +6482,11 @@ c     ****************************************
 *        **** deallocate mcin,ncin,work1in,work2in       ****
 *        ****************************************************
          value = .true.
-         value = value.and.MA_pop_stack(work2in(2))
-         value = value.and.MA_pop_stack(work1in(2))
+         value = value.and.BA_pop_stack(work2in(2))
+         value = value.and.BA_pop_stack(work1in(2))
          do ms=ispin,1,-1
-            value = value.and.MA_pop_stack(ncin(2,ms))
-            value = value.and.MA_pop_stack(mcin(2,ms))
+            value = value.and.BA_pop_stack(ncin(2,ms))
+            value = value.and.BA_pop_stack(mcin(2,ms))
          end do
         if (.not.value) 
      >     call errquit('Dne_end: error deallocating stack',
@@ -6510,7 +6510,7 @@ c     ****************************************
             call dcopy(nein(mb),0.0d0,0,eig,1)
          end if
 
-         value = MA_push_get(mt_dbl,(2*nein(1)*nein(1)),
+         value = BA_push_get(mt_dbl,(2*nein(1)*nein(1)),
      >                       'tmp1',tmp1(2),tmp1(1))
          if (.not. value) 
      >      call errquit('Dneall_mne_diagonalize:out of stack',
@@ -6542,7 +6542,7 @@ c     ****************************************
             call Parallel_Brdcst_values(MASTER,nein(mb)*nein(mb),hml)
          end if
 
-         value = MA_pop_stack(tmp1(2))
+         value = BA_pop_stack(tmp1(2))
          if (.not. value) 
      >    call errquit('error popping stack in Dneall_mne_diagonalize',
      >                 0,MA_ERR)
@@ -6588,9 +6588,9 @@ c     ****************************************
          ncqin(2) = 0
          do ms=1,ispin
              value = value.and.
-     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+     >           BA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
              value = value.and.
-     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+     >           BA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
              if (.not.value) then
                call errquit(': out of heap memory',0,MA_ERR)
              end if
@@ -6620,8 +6620,8 @@ c     ****************************************
 
 
          do ms=ispin,1,-1
-            value = value.and.MA_pop_stack(ncin(2,ms))
-            value = value.and.MA_pop_stack(mcin(2,ms))
+            value = value.and.BA_pop_stack(ncin(2,ms))
+            value = value.and.BA_pop_stack(mcin(2,ms))
          end do
         if (.not.value) 
      >     call errquit('Dne_end: error deallocating stack',
@@ -6676,9 +6676,9 @@ c     ****************************************
          ncqin(2) = 0
          do ms=1,ispin
              value = value.and.
-     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+     >           BA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
              value = value.and.
-     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+     >           BA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
              if (.not.value) then
                call errquit(': out of heap memory',0,MA_ERR)
              end if
@@ -6711,8 +6711,8 @@ c     ****************************************
 
 
          do ms=ispin,1,-1
-            value = value.and.MA_pop_stack(ncin(2,ms))
-            value = value.and.MA_pop_stack(mcin(2,ms))
+            value = value.and.BA_pop_stack(ncin(2,ms))
+            value = value.and.BA_pop_stack(mcin(2,ms))
          end do
         if (.not.value)
      >     call errquit('Dne_end: error deallocating stack',
@@ -6769,9 +6769,9 @@ c     ****************************************
          ncqin(2) = 0
          do ms=1,ispin
              value = value.and.
-     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+     >           BA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
              value = value.and.
-     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+     >           BA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
              if (.not.value) 
      >         call errquit(': out of stackmemory',0,MA_ERR)
      
@@ -6799,8 +6799,8 @@ c     ****************************************
 
 
          do ms=ispin,1,-1
-            value = value.and.MA_pop_stack(ncin(2,ms))
-            value = value.and.MA_pop_stack(mcin(2,ms))
+            value = value.and.BA_pop_stack(ncin(2,ms))
+            value = value.and.BA_pop_stack(mcin(2,ms))
          end do
         if (.not.value)
      >     call errquit('Dne_end: error deallocating stack',
@@ -6816,7 +6816,7 @@ c     ****************************************
       end if
      
       Dneall_mne_allocate_block 
-     > = MA_alloc_get(mt_dbl,nb*size,'hmlab',hml(2),hml(1))
+     > = BA_alloc_get(mt_dbl,nb*size,'hmlab',hml(2),hml(1))
       return
       end
 
@@ -6855,9 +6855,9 @@ c     ****************************************
          ncqin(2) = 0
          do ms=1,ispin
              value = value.and.
-     >           MA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
+     >           BA_push_get(mt_int,np_i,'mcin',mcin(2,ms),mcin(1,ms))
              value = value.and.
-     >           MA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
+     >           BA_push_get(mt_int,np_j,'ncin',ncin(2,ms),ncin(1,ms))
              if (.not.value) 
      >         call errquit(': out of stackmemory',0,MA_ERR)
      
@@ -6885,8 +6885,8 @@ c     ****************************************
 
 
          do ms=ispin,1,-1
-            value = value.and.MA_pop_stack(ncin(2,ms))
-            value = value.and.MA_pop_stack(mcin(2,ms))
+            value = value.and.BA_pop_stack(ncin(2,ms))
+            value = value.and.BA_pop_stack(mcin(2,ms))
          end do
         if (.not.value)
      >     call errquit('Dne_end: error deallocating stack',

@@ -130,13 +130,13 @@ c     **********************************************
       end if
 
 *     **** allocate memory from stack ****
-      value =  MA_push_get(mt_dbl,nkf0,'kf',kf(2),kf(1))
+      value =  BA_push_get(mt_dbl,nkf0,'kf',kf(2),kf(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nkf0,'chif',chif(2),chif(1))
+     >        BA_push_get(mt_dbl,nkf0,'chif',chif(2),chif(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,3*natoms,'rion',rion(2),rion(1)) 
+     >        BA_push_get(mt_dbl,3*natoms,'rion',rion(2),rion(1)) 
       value = value.and.
-     >        MA_push_get(mt_byte,2*natoms,'tag',tag(2),tag(1)) 
+     >        BA_push_get(mt_byte,2*natoms,'tag',tag(2),tag(1)) 
       if (.not.value) 
      >   call errquit("md_xs_analysis: out of stack",1,MA_ERR)
 
@@ -211,8 +211,8 @@ c     **********************************************
       call dscal(nkf0,x,dbl_mb(chif(1)),1)
 
 c     **** deallocate stack ****
-      value =           MA_pop_stack(tag(2))
-      value = value.and.MA_pop_stack(rion(2))
+      value =           BA_pop_stack(tag(2))
+      value = value.and.BA_pop_stack(rion(2))
       if (.not.value)
      >   call errquit("md_xs_analysis: popping stack",2,MA_ERR)
 
@@ -261,12 +261,12 @@ c     **** deallocate stack ****
 c     **** allocate stack - fft  ****
       !nr = 2*nkf
       nr = 2048
-      value = MA_push_get(mt_dcpl,(4*nr+15),'tmpfft',
+      value = BA_push_get(mt_dcpl,(4*nr+15),'tmpfft',
      >                     tmpfft(2),tmpfft(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nr),'chi_r',chi_r(2),chi_r(1))
+     >        BA_push_get(mt_dcpl,(nr),'chi_r',chi_r(2),chi_r(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nr),'rr_md_xs',r(2),r(1))
+     >        BA_push_get(mt_dbl,(nr),'rr_md_xs',r(2),r(1))
       if (.not.value) 
      >   call errquit("md_xs_analysis: out of stack",3,MA_ERR)
       
@@ -324,11 +324,11 @@ c     **** allocate stack - fft  ****
 
 
 c     **** deallocate stack ****
-      value =           MA_pop_stack(r(2))
-      value = value.and.MA_pop_stack(chi_r(2))
-      value = value.and.MA_pop_stack(tmpfft(2))
-      value = value.and.MA_pop_stack(chif(2))
-      value = value.and.MA_pop_stack(kf(2))
+      value =           BA_pop_stack(r(2))
+      value = value.and.BA_pop_stack(chi_r(2))
+      value = value.and.BA_pop_stack(tmpfft(2))
+      value = value.and.BA_pop_stack(chif(2))
+      value = value.and.BA_pop_stack(kf(2))
       if (.not.value)
      >   call errquit("md_xs_analysis: popping stack",4,MA_ERR)
 
@@ -471,23 +471,23 @@ c     **********************************************
       nion2 = md_xs_size_cluster(center,rcut,unita,nion,rion)
 
 *     ***** allocate stack ****
-      value = MA_push_get(mt_int,nion2,'md_xs:zion',zion(2),zion(1))
+      value = BA_push_get(mt_int,nion2,'md_xs:zion',zion(2),zion(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion2,'md_xs:zkatm',zkatm(2),zkatm(1))
+     >        BA_push_get(mt_int,nion2,'md_xs:zkatm',zkatm(2),zkatm(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion2,'md_xs:katm',katm(2),katm(1))
+     >        BA_push_get(mt_int,nion2,'md_xs:katm',katm(2),katm(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion2,'md_xs:zion4',zion4(2),zion4(1))
+     >        BA_push_get(mt_int,nion2,'md_xs:zion4',zion4(2),zion4(1))
       value = value.and.
-     >      MA_push_get(mt_int,nion2,'md_xs:zkatm4',zkatm4(2),zkatm4(1))
+     >      BA_push_get(mt_int,nion2,'md_xs:zkatm4',zkatm4(2),zkatm4(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion2,'md_xs:katm4',katm4(2),katm4(1))
+     >        BA_push_get(mt_int,nion2,'md_xs:katm4',katm4(2),katm4(1))
       value = value.and.
-     >        MA_push_get(mt_int,nion2,'md_xs:indx2',indx2(2),indx2(1))
+     >        BA_push_get(mt_int,nion2,'md_xs:indx2',indx2(2),indx2(1))
       value = value.and.
-     >       MA_push_get(mt_dbl,3*nion2,'md_xs:rion2',rion2(2),rion2(1))
+     >       BA_push_get(mt_dbl,3*nion2,'md_xs:rion2',rion2(2),rion2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nkf0,'md_xs:tchi',tchi(2),tchi(1))
+     >        BA_push_get(mt_dbl,nkf0,'md_xs:tchi',tchi(2),tchi(1))
       if (.not.value)
      >   call errquit("md_xs: pushing stack",0,MA_ERR)
       call dcopy(nkf0,0.0d0,0,dbl_mb(tchi(1)),1)
@@ -554,15 +554,15 @@ c     **********************************************
 
 
 *     **** popping stack ****
-      value =           MA_pop_stack(tchi(2))
-      value = value.and.MA_pop_stack(rion2(2))
-      value = value.and.MA_pop_stack(indx2(2))
-      value = value.and.MA_pop_stack(katm4(2))
-      value = value.and.MA_pop_stack(zkatm4(2))
-      value = value.and.MA_pop_stack(zion4(2))
-      value = value.and.MA_pop_stack(katm(2))
-      value = value.and.MA_pop_stack(zkatm(2))
-      value = value.and.MA_pop_stack(zion(2))
+      value =           BA_pop_stack(tchi(2))
+      value = value.and.BA_pop_stack(rion2(2))
+      value = value.and.BA_pop_stack(indx2(2))
+      value = value.and.BA_pop_stack(katm4(2))
+      value = value.and.BA_pop_stack(zkatm4(2))
+      value = value.and.BA_pop_stack(zion4(2))
+      value = value.and.BA_pop_stack(katm(2))
+      value = value.and.BA_pop_stack(zkatm(2))
+      value = value.and.BA_pop_stack(zion(2))
       if (.not.value)
      >   call errquit("md_xs: popping stack",1,MA_ERR)
      

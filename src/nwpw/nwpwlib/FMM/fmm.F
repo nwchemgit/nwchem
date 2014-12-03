@@ -60,13 +60,13 @@ c      end
          call Parallel_np(np)
          oprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
-c         value = MA_alloc_get(mt_dbl,26*(lmax+1)**2,'first_tlm_fmm',
+c         value = BA_alloc_get(mt_dbl,26*(lmax+1)**2,'first_tlm_fmm',
 c     >                       first_tlm_fmm(2),first_tlm_fmm(1))
 c         value = value.and.
-c     >           MA_alloc_get(mt_dbl,98*(lmax+1)**2,'second_tlm_fmm',
+c     >           BA_alloc_get(mt_dbl,98*(lmax+1)**2,'second_tlm_fmm',
 c     >                        second_tlm_fmm(2),second_tlm_fmm(1))
 c         value = value.and.
-c     >           MA_alloc_get(mt_dbl,7216,'interaction_tlm_fmm',
+c     >           BA_alloc_get(mt_dbl,7216,'interaction_tlm_fmm',
 c     >                        interaction_tlm_fmm(2),interaction_tlm_fmm(1))
 c
 c*        **** first neigbors of the current box      ****
@@ -517,14 +517,14 @@ c      end
       n = (2*lmax+2)*(4*lmax+2)
 
 *     **** allocate stack ****
-      value = MA_push_get(mt_dcpl,(lmax+1)**2,'rYlm',rYlm(2),rYlm(1))
-      value=value.and.MA_push_get(mt_dcpl,n,'A',  A(2), A(1))
-      value=value.and.MA_push_get(mt_dcpl,n,'B',  B(2), B(1))
-      value=value.and.MA_push_get(mt_dcpl,n,'AB',AB(2),AB(1))
+      value = BA_push_get(mt_dcpl,(lmax+1)**2,'rYlm',rYlm(2),rYlm(1))
+      value=value.and.BA_push_get(mt_dcpl,n,'A',  A(2), A(1))
+      value=value.and.BA_push_get(mt_dcpl,n,'B',  B(2), B(1))
+      value=value.and.BA_push_get(mt_dcpl,n,'AB',AB(2),AB(1))
       value=value.and.
-     >      MA_push_get(mt_dcpl,(2*lmax+2),'tmp22',tmp22(2),tmp22(1))
+     >      BA_push_get(mt_dcpl,(2*lmax+2),'tmp22',tmp22(2),tmp22(1))
       value=value.and.
-     >      MA_push_get(mt_dcpl,(4*lmax+2),'tmp42',tmp42(2),tmp42(1))
+     >      BA_push_get(mt_dcpl,(4*lmax+2),'tmp42',tmp42(2),tmp42(1))
       if (.not.value)
      >   call errquit('FMM_Translate_Mlm:out of stack',0,MA_ERR)
 
@@ -549,12 +549,12 @@ c      end
             
 
 *     **** deallocate stack ****
-      value = MA_pop_stack(tmp42(2))
-      value = value.and.MA_pop_stack(tmp22(2))
-      value = value.and.MA_pop_stack(AB(2))
-      value = value.and.MA_pop_stack(B(2))
-      value = value.and.MA_pop_stack(A(2))
-      value = value.and.MA_pop_stack(rYlm(2))
+      value = BA_pop_stack(tmp42(2))
+      value = value.and.BA_pop_stack(tmp22(2))
+      value = value.and.BA_pop_stack(AB(2))
+      value = value.and.BA_pop_stack(B(2))
+      value = value.and.BA_pop_stack(A(2))
+      value = value.and.BA_pop_stack(rYlm(2))
       if (.not.value)
      >   call errquit('FMM_Translate_Mlm:popping stack',0,MA_ERR)
       return
@@ -708,14 +708,14 @@ c      end
       n = (2*lmax+2)*(4*lmax+2)
 
 *     **** allocate stack ****
-      value = MA_push_get(mt_dcpl,(lmax+1)**2,'rYlm',rYlm(2),rYlm(1))
-      value=value.and.MA_push_get(mt_dcpl,n,'A',  A(2), A(1))
-      value=value.and.MA_push_get(mt_dcpl,n,'B',  B(2), B(1))
-      value=value.and.MA_push_get(mt_dcpl,n,'AB',AB(2),AB(1))
+      value = BA_push_get(mt_dcpl,(lmax+1)**2,'rYlm',rYlm(2),rYlm(1))
+      value=value.and.BA_push_get(mt_dcpl,n,'A',  A(2), A(1))
+      value=value.and.BA_push_get(mt_dcpl,n,'B',  B(2), B(1))
+      value=value.and.BA_push_get(mt_dcpl,n,'AB',AB(2),AB(1))
       value=value.and.
-     >      MA_push_get(mt_dcpl,2*lmax+2,'tmp22',tmp22(2),tmp22(1))
+     >      BA_push_get(mt_dcpl,2*lmax+2,'tmp22',tmp22(2),tmp22(1))
       value=value.and.
-     >      MA_push_get(mt_dcpl,4*lmax+2,'tmp42',tmp42(2),tmp42(1))
+     >      BA_push_get(mt_dcpl,4*lmax+2,'tmp42',tmp42(2),tmp42(1))
       if (.not.value)
      >   call errquit('FMM_Translate_Llm:out of stack',0,MA_ERR)
 
@@ -740,12 +740,12 @@ c      end
 
 
 *     **** deallocate stack ****
-      value = MA_pop_stack(tmp42(2))
-      value = value.and.MA_pop_stack(tmp22(2))
-      value = value.and.MA_pop_stack(AB(2))
-      value = value.and.MA_pop_stack(B(2))
-      value = value.and.MA_pop_stack(A(2))
-      value = value.and.MA_pop_stack(rYlm(2))
+      value = BA_pop_stack(tmp42(2))
+      value = value.and.BA_pop_stack(tmp22(2))
+      value = value.and.BA_pop_stack(AB(2))
+      value = value.and.BA_pop_stack(B(2))
+      value = value.and.BA_pop_stack(A(2))
+      value = value.and.BA_pop_stack(rYlm(2))
       if (.not.value)
      >   call errquit('FMM_Translate_Llm:popping stack',0,MA_ERR)
       return

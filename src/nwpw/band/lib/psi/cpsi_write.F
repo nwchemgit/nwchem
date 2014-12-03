@@ -54,11 +54,11 @@ c     complex*16 tmp(*)
       call C3dB_nfft3d(1,nfft3d)
       occupation = cpsi_data_get_next(psi2_tag)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
+      value = BA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       version = 5 ! version 5 - band, version 3 and 4 - pspw
@@ -143,9 +143,9 @@ c     complex*16 tmp(*)
         call closefile(6)
       end if
 
-      value =           MA_pop_stack(tmpe(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmpe(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
       return
       end
@@ -199,9 +199,9 @@ c     complex*16 tmp(*)
       call C3dB_nfft3d(1,nfft3d)
       occupation = cpsi_data_get_next(psi2_tag)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       version = 5 ! version 5 - band, version 3 and 4 - pspw
@@ -265,8 +265,8 @@ c     complex*16 tmp(*)
         call closefile(6)
       end if
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
       return
       end
@@ -318,9 +318,9 @@ c     complex*16 tmp(*)
       call C3dB_nfft3d(1,nfft3d)
       occupation = cpsi_data_get_next(psi2_tag)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       version = 5 ! version 5 - band, version 3 and 4 - pspw
@@ -398,8 +398,8 @@ c     complex*16 tmp(*)
         call closefile(6)
         call closefile(37)
       end if
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
       return
       end
@@ -459,11 +459,11 @@ c     complex*16 tmp(*)
       call C3dB_nfft3d(1,nfft3d)
       occupation = -1
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      value = MA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
+      value = BA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       version = 5 ! version 5 - band, version 3 and 4 - pspw
@@ -531,9 +531,9 @@ c     complex*16 tmp(*)
         call closefile(6)
       end if
 
-      value =           MA_pop_stack(tmpe(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmpe(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
       return
       end

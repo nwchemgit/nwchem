@@ -240,13 +240,13 @@
       !**** initialize gk_smooth, gk, and g_lm ****
 
       !**** allocate stack memory ****
-      ok = MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
+      ok = BA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
       ok = ok.and.
-     >     MA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
+     >     BA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
       ok = ok.and.
-     >     MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
+     >     BA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'Ylm',Ylm(2),Ylm(1))
+     >     BA_push_get(mt_dcpl,npack0,'Ylm',Ylm(2),Ylm(1))
       if (.not.ok) 
      > call errquit("paw_mult_init: out of stack memory",0,2)
 
@@ -314,10 +314,10 @@
       end do !*k*
 
       !**** deallocate stack memory ****
-      ok =        MA_pop_stack(Ylm(2))
-      ok = ok.and.MA_pop_stack(Gz(2))
-      ok = ok.and.MA_pop_stack(Gy(2))
-      ok = ok.and.MA_pop_stack(Gx(2))
+      ok =        BA_pop_stack(Ylm(2))
+      ok = ok.and.BA_pop_stack(Gz(2))
+      ok = ok.and.BA_pop_stack(Gy(2))
+      ok = ok.and.BA_pop_stack(Gx(2))
       if (.not.ok) 
      > call errquit('paw_mult_init:error popping stack',0,2)
 
@@ -426,9 +426,9 @@
 
       !**** allocate stack memory ****
       call Pack_npack(0,npack0)
-      ok = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      ok = BA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
+     >     BA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
       tmp(1) = exi(1)
       tmp(2) = exi(2)
       if (.not.ok)
@@ -503,8 +503,8 @@ c     >                    dn_cmp)
 
 
       !**** deallocate stack memory ****
-      ok =        MA_pop_stack(QYlm(2))
-      ok = ok.and.MA_pop_stack(exi(2))
+      ok =        BA_pop_stack(QYlm(2))
+      ok = ok.and.BA_pop_stack(exi(2))
       if (.not.ok)
      >  call errquit('paw_mult_dn_cmp_get: error popping stack',0,1)
 
@@ -552,22 +552,22 @@ c     >                    dn_cmp)
       !**** allocate stack memory ****
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
-      ok = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      ok = BA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
+     >     BA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'ncmp',ncmp(2),ncmp(1))
+     >     BA_push_get(mt_dcpl,npack0,'ncmp',ncmp(2),ncmp(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,
+     >     BA_push_get(mt_dcpl,npack0,
      >     'ncmp_smooth',ncmp_smooth(2),ncmp_smooth(1))
       ok = ok.and.
-     >       MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+     >       BA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
       ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
       ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       if (.not.ok)
      > call errquit(
      >  'paw_mult_pw_force: out of stack memory',0,0)
@@ -644,14 +644,14 @@ c     >                    dcpl_mb(QYlm(1)))
       end do !*ii*
 
       !**** deallocate stack memory ****
-      ok =        MA_pop_stack(Gz(2))
-      ok = ok.and.MA_pop_stack(Gy(2))
-      ok = ok.and.MA_pop_stack(Gx(2))
-      ok = ok.and.MA_pop_stack(xtmp(2))
-      ok = ok.and.MA_pop_stack(ncmp_smooth(2))
-      ok = ok.and.MA_pop_stack(ncmp(2))
-      ok = ok.and.MA_pop_stack(QYlm(2))
-      ok = ok.and.MA_pop_stack(exi(2))
+      ok =        BA_pop_stack(Gz(2))
+      ok = ok.and.BA_pop_stack(Gy(2))
+      ok = ok.and.BA_pop_stack(Gx(2))
+      ok = ok.and.BA_pop_stack(xtmp(2))
+      ok = ok.and.BA_pop_stack(ncmp_smooth(2))
+      ok = ok.and.BA_pop_stack(ncmp(2))
+      ok = ok.and.BA_pop_stack(QYlm(2))
+      ok = ok.and.BA_pop_stack(exi(2))
       if (.not.ok)
      >  call errquit('paw_mult_pw_force: error popping stack',0,1)
 
@@ -709,15 +709,15 @@ c     >                    dcpl_mb(QYlm(1)))
 
       !**** allocate stack memory ****
       call Pack_npack(0,npack0)
-      ok = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      ok = BA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'tmp1',tmp1(2),tmp1(1))
+     >     BA_push_get(mt_dcpl,npack0,'tmp1',tmp1(2),tmp1(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'gl',gl(2),gl(1))
+     >     BA_push_get(mt_dcpl,npack0,'gl',gl(2),gl(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'gls',gls(2),gls(1))
+     >     BA_push_get(mt_dcpl,npack0,'gls',gls(2),gls(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,v_mult(3),
+     >     BA_push_get(mt_dcpl,v_mult(3),
      >                 't_mult',t_mult(2),t_mult(1))
       if (.not.ok)
      > call errquit(
@@ -929,11 +929,11 @@ c     >                    dcpl_mb(QYlm(1)))
 
 
       !**** deallocate stack memory ****
-      ok =        MA_pop_stack(t_mult(2))
-      ok = ok.and.MA_pop_stack(gls(2))
-      ok = ok.and.MA_pop_stack(gl(2))
-      ok = ok.and.MA_pop_stack(tmp1(2))
-      ok = ok.and.MA_pop_stack(exi(2))
+      ok =        BA_pop_stack(t_mult(2))
+      ok = ok.and.BA_pop_stack(gls(2))
+      ok = ok.and.BA_pop_stack(gl(2))
+      ok = ok.and.BA_pop_stack(tmp1(2))
+      ok = ok.and.BA_pop_stack(exi(2))
       if (.not.ok)
      >  call errquit('paw_mult_coeff_set: error popping stack',0,1)
 
@@ -1256,9 +1256,9 @@ c     >                    dcpl_mb(QYlm(1)))
 
       !**** allocate stack memory ****
       call Pack_npack(0,npack0)
-      ok = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      ok = BA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
+     >     BA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
       tmp(1) = exi(1)
       tmp(2) = exi(2)
       if (.not.ok)
@@ -1319,8 +1319,8 @@ c     >                    dn_cmp_smooth)
 
 
       !**** deallocate stack memory ****
-      ok =        MA_pop_stack(QYlm(2))
-      ok = ok.and.MA_pop_stack(exi(2))
+      ok =        BA_pop_stack(QYlm(2))
+      ok = ok.and.BA_pop_stack(exi(2))
       if (.not.ok)
      >  call errquit(
      >  'paw_mult_dn_cmp_smooth_get2:error popping stack',0,1)

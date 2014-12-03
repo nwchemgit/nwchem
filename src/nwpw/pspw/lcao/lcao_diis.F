@@ -126,7 +126,7 @@
       end if
 
 *     **** calculate A  matrices ***
-      value = MA_push_get(mt_dbl,size*size,'A',A(2),A(1))
+      value = BA_push_get(mt_dbl,size*size,'A',A(2),A(1))
       if (.not.value)
      > call errquit('lcao_diis: out of memory',0, MA_ERR)
 
@@ -206,7 +206,7 @@ c     call lcao_write_matrix_seq(6,size,dbl_mb(A(1)))
 
 *     **** calculate d(i) coefficients ****
       failed = .false.
-      value = MA_push_get(mt_dbl,(size),'d',d(2),d(1))
+      value = BA_push_get(mt_dbl,(size),'d',d(2),d(1))
       if (.not. value)
      > call errquit('lcao_diis_dn_generate: out of stack memory',0,
      &       MA_ERR)
@@ -246,8 +246,8 @@ c     call lcao_write_matrix_seq(6,size,dbl_mb(A(1)))
       write(*,*) "sum(d(*)):",sumt
       end if
 
-      value = MA_pop_stack(d(2))
-      value = value.and.MA_pop_stack(A(2))
+      value = BA_pop_stack(d(2))
+      value = value.and.BA_pop_stack(A(2))
       if (.not. value)
      > call errquit('lcao_diis_dn_generate: popping stack memory',0,
      &       MA_ERR)

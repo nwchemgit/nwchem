@@ -60,9 +60,9 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
 
 *     **** allocate yy and ss ****
       if (ondisk) then
-        value = MA_push_get(mt_dbl,2*nsize,'yy',yy(2),yy(1))
+        value = BA_push_get(mt_dbl,2*nsize,'yy',yy(2),yy(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,2*nsize,'ss',ss(2),ss(1))
+     >          BA_push_get(mt_dbl,2*nsize,'ss',ss(2),ss(1))
         if (.not.value) call errquit('paw_lmbfgs: push stack',0,0)
       end if
       call dcopy(ngras,g,1,s,1)
@@ -167,9 +167,9 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
       call dscal(ngras, (-1.0d0),g,1)
 
       if (ondisk) then
-        value = MA_pop_stack(ss(2))
+        value = BA_pop_stack(ss(2))
         value = value.and.
-     >          MA_pop_stack(yy(2))
+     >          BA_pop_stack(yy(2))
         if (.not.value) call errquit('paw_lmbfgs:pop stack',2,0)
       end if
 

@@ -41,10 +41,10 @@
          sic_on = .true.
          norbs_all = ne(1)+ne(2)
          norbs     = neq(1)+neq(2)
-         if(.not.MA_alloc_get(mt_int,norbs_all,
+         if(.not.BA_alloc_get(mt_int,norbs_all,
      >      'orbital_list_all',orbital_list_all(2),orbital_list_all(1)))
      >       call errquit('pspw_init_SIC:out of heap memory',0,MA_ERR)
-         if(.not.MA_alloc_get(mt_int,norbs,
+         if(.not.BA_alloc_get(mt_int,norbs,
      >      'orbital_list',orbital_list(2),orbital_list(1)))
      >       call errquit('pspw_init_SIC:out of heap memory',0,MA_ERR)
           
@@ -70,7 +70,7 @@
             call Dneall_ntoqp(n,q,pj)
             if (pj.eq.taskid_j) norbs = norbs + 1
          end do
-         if(.not.MA_alloc_get(mt_int,norbs,
+         if(.not.BA_alloc_get(mt_int,norbs,
      >      'orbital_list',orbital_list(2),orbital_list(1)))
      >        call errquit('pspw_init_SIC:out of heap',0,MA_ERR)
          norbs = 0
@@ -148,10 +148,10 @@
 
 *        **** initialize orb_contribution ****
          if (orb_contribution) then
-           value = MA_alloc_get(mt_dbl,norbs,
+           value = BA_alloc_get(mt_dbl,norbs,
      >                'eh_orb',eh_orb(2),eh_orb(1))
            value = value.and.
-     >             MA_alloc_get(mt_dbl,norbs,
+     >             BA_alloc_get(mt_dbl,norbs,
      >                'xc_orb',xc_orb(2),xc_orb(1))
            if (.not. value)   
      >       call errquit('pspw_init_SIC: out of heap memory',1, MA_ERR)
@@ -231,11 +231,11 @@ c              end do
 
 
 *       **** deallocate memory ****
-        value =  MA_free_heap(orbital_list_all(2)) 
-        value =  MA_free_heap(orbital_list(2)) 
+        value =  BA_free_heap(orbital_list_all(2)) 
+        value =  BA_free_heap(orbital_list(2)) 
         if (orb_contribution) then
-          value = value.and.MA_free_heap(eh_orb(2))
-          value = value.and.MA_free_heap(xc_orb(2))
+          value = value.and.BA_free_heap(eh_orb(2))
+          value = value.and.BA_free_heap(xc_orb(2))
         end if
 
         if (.not. value)
@@ -359,13 +359,13 @@ c              end do
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
+     >          BA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
+     >          BA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
         value = value.and.
-     >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
+     >             BA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
@@ -476,10 +476,10 @@ c     >                        dbl_mb(xcp(1)))
            end if
         end do
 
-        value = MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(xce(2))
-        value = value.and.MA_pop_stack(xcp(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value = BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(xce(2))
+        value = value.and.BA_pop_stack(xcp(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >    call errquit('pspw_potential_SIC:popping stack memory',0,
      &       MA_ERR)
@@ -538,13 +538,13 @@ c     >                        dbl_mb(xcp(1)))
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
+     >          BA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
+     >          BA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
         value = value.and.
-     >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
+     >             BA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
@@ -625,10 +625,10 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
 
           end do
 
-        value = MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(xce(2))
-        value = value.and.MA_pop_stack(xcp(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value = BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(xce(2))
+        value = value.and.BA_pop_stack(xcp(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >     call errquit('pspw_energy_SIC:popping stack memory',0,
      >       MA_ERR)
@@ -716,24 +716,24 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
         call D3dB_ny(1,ny)
         call D3dB_nz(1,nz)
         call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
+     >          BA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
+     >          BA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
         value = value.and.
-     >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
+     >             BA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
         value = value.and.
-     >             MA_push_get(mt_dbl,((ne(1)+ne(2))*n2ft3d),
+     >             BA_push_get(mt_dbl,((ne(1)+ne(2))*n2ft3d),
      >                         'rhoi',rhoi(2),rhoi(1))
         value = value.and.
-     >             MA_push_get(mt_dbl,((ne(1)+ne(2))*n2ft3d),
+     >             BA_push_get(mt_dbl,((ne(1)+ne(2))*n2ft3d),
      >                         'vsic',vsic(2),vsic(1))
         value = value.and.
-     >             MA_push_get(mt_dbl,((ne(1)*ne(1))*2),
+     >             BA_push_get(mt_dbl,((ne(1)*ne(1))*2),
      >                         'M',M(2),M(1))
         value = value.and.
-     >             MA_push_get(mt_dbl,((ne(1)+ne(2))),
+     >             BA_push_get(mt_dbl,((ne(1)+ne(2))),
      >                         'b',b(2),b(1))
         if (.not. value) 
      >    call errquit('pspw_potential_SIC_OEP:out of stack memory',0,0)
@@ -909,7 +909,7 @@ c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
 
 
         !*** solve Ax = b ***
-        value = MA_push_get(mt_int,(ne(1)+ne(2)),
+        value = BA_push_get(mt_int,(ne(1)+ne(2)),
      >                      'ipiv',ipv(2),ipv(1))
         if (.not. value) 
      >    call errquit('pspw_potential_SIC_OEP:out of stack memory',1,0)
@@ -920,7 +920,7 @@ c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
      >             dbl_mb(b(1)+(ms-1)*ne(1)),ne(ms),
      >             info)
         end do
-        value = MA_pop_stack(ipv(2))
+        value = BA_pop_stack(ipv(2))
         if (.not. value) 
      >    call errquit(
      >    'pspw_potential_SIC_OEP:popping stack memory',2,0)
@@ -962,14 +962,14 @@ c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
         end do
 
       
-        value =           MA_pop_stack(b(2))
-        value = value.and.MA_pop_stack(M(2))
-        value = value.and.MA_pop_stack(vsic(2))
-        value = value.and.MA_pop_stack(rhoi(2))
-        value = value.and.MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(xce(2))
-        value = value.and.MA_pop_stack(xcp(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value =           BA_pop_stack(b(2))
+        value = value.and.BA_pop_stack(M(2))
+        value = value.and.BA_pop_stack(vsic(2))
+        value = value.and.BA_pop_stack(rhoi(2))
+        value = value.and.BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(xce(2))
+        value = value.and.BA_pop_stack(xcp(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >    call errquit(
      >     'pspw_potential_SIC_OEP:popping stack memory',3,0)
@@ -1027,13 +1027,13 @@ c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
         call D3dB_ny(1,n2)
         call D3dB_nz(1,n3)
         call D3dB_n2ft3d(1,n2ft3d)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
+        value = BA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
+     >          BA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
+     >          BA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
         value = value.and.
-     >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
+     >             BA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
@@ -1122,10 +1122,10 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
         end do
 
         call coulomb_screened_euv_end()
-        value = MA_pop_stack(tmp1(2))
-        value = value.and.MA_pop_stack(xce(2))
-        value = value.and.MA_pop_stack(xcp(2))
-        value = value.and.MA_pop_stack(dn(2))
+        value = BA_pop_stack(tmp1(2))
+        value = value.and.BA_pop_stack(xce(2))
+        value = value.and.BA_pop_stack(xcp(2))
+        value = value.and.BA_pop_stack(dn(2))
         if (.not. value) 
      >     call errquit('pspw_SIC_euv:popping stack memory',0,
      &       MA_ERR)

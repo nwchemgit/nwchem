@@ -37,14 +37,14 @@
 
       if (Nbasis.gt.0) then
 
-        value = MA_alloc_get(mt_int,Nbasis,'iatom',
+        value = BA_alloc_get(mt_int,Nbasis,'iatom',
      >                       iatom(2),iatom(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,Nbasis,'c',c(2),c(1))
+     >          BA_alloc_get(mt_dbl,Nbasis,'c',c(2),c(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,Nbasis,'coeff',coeff(2),coeff(1))
+     >          BA_alloc_get(mt_dbl,Nbasis,'coeff',coeff(2),coeff(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,Nbasis,'g',g(2),g(1))
+     >          BA_alloc_get(mt_dbl,Nbasis,'g',g(2),g(1))
         if (.not. value) 
      >   call errquit('init_BLCJ_SR:out of heap memory',0, MA_ERR)
 
@@ -113,11 +113,11 @@
       logical value
 
       if (Nbasis.gt.0) then
-         value = MA_free_heap(iatom(2))
-         value = value.and.MA_free_heap(c(2))
-         value = value.and.MA_free_heap(coeff(2))
-         value = value.and.MA_free_heap(g(2))
-         if (.not.value) call errquit('error MA_free_heap',0, MA_ERR)
+         value = BA_free_heap(iatom(2))
+         value = value.and.BA_free_heap(c(2))
+         value = value.and.BA_free_heap(coeff(2))
+         value = value.and.BA_free_heap(g(2))
+         if (.not.value) call errquit('error BA_free_heap',0, MA_ERR)
       end if
 
       return

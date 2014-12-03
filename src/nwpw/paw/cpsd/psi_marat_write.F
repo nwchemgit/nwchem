@@ -44,14 +44,14 @@ c     complex*16 tmp(*)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(ne(1)+ne(2)),
+     >        BA_push_get(mt_dbl,(ne(1)+ne(2)),
      >                    'psi_occup',psi_occup(2),psi_occup(1))
       value = value.and.
-     >        MA_push_get(mt_int,(ne(1)+ne(2)),
+     >        BA_push_get(mt_int,(ne(1)+ne(2)),
      >                    'psi_spin',psi_spin(2),psi_spin(1))
       if (.not. value) call errquit('psi_marat_write: push stack',0,0)
 
@@ -131,10 +131,10 @@ c     >                      dcpl_mb(tmp2(1)))
         close(87)
       end if
 
-      value =           MA_pop_stack(psi_spin(2))
-      value = value.and.MA_pop_stack(psi_occup(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(psi_spin(2))
+      value = value.and.BA_pop_stack(psi_occup(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       return
       end
 

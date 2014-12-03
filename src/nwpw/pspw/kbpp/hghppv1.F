@@ -201,22 +201,22 @@ c      call Parallel_init()
 
 *     **** allocate vl, vnl, G ****
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
-      value = MA_alloc_get(mt_dbl,nsize,
+      value = BA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(nprj),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(nprj),
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nsize,
+      value = value.and.BA_alloc_get(mt_dbl,nsize,
      >                        'Ylm',Ylm_hndl, Ylm_indx)
 
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj,
+      value = value.and.BA_alloc_get(mt_int,nprj,
      >                        'n_prj', n_prj_hndl, n_prj_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj,
+      value = value.and.BA_alloc_get(mt_int,nprj,
      >                        'l_prj', l_prj_hndl, l_prj_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj,
+      value = value.and.BA_alloc_get(mt_int,nprj,
      >                        'm_prj', m_prj_hndl, m_prj_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj,
+      value = value.and.BA_alloc_get(mt_int,nprj,
      >                        'b_prj', b_prj_hndl, b_prj_indx)
       if(.not.value)
      >    call errquit('hghppv1: out of heap memory', 0, MA_ERR)
@@ -373,14 +373,14 @@ c      call Parallel_init()
       end if
      
 *     **** free heap space ****
-      value = MA_free_heap(vl_hndl)
-      value = value.and.MA_free_heap(vnl_hndl)
-      value = value.and.MA_free_heap(Ylm_hndl)
-      value = value.and.MA_free_heap(G_hndl)
-      value = value.and.MA_free_heap(n_prj_hndl)
-      value = value.and.MA_free_heap(l_prj_hndl)
-      value = value.and.MA_free_heap(m_prj_hndl)
-      value = value.and.MA_free_heap(b_prj_hndl)
+      value = BA_free_heap(vl_hndl)
+      value = value.and.BA_free_heap(vnl_hndl)
+      value = value.and.BA_free_heap(Ylm_hndl)
+      value = value.and.BA_free_heap(G_hndl)
+      value = value.and.BA_free_heap(n_prj_hndl)
+      value = value.and.BA_free_heap(l_prj_hndl)
+      value = value.and.BA_free_heap(m_prj_hndl)
+      value = value.and.BA_free_heap(b_prj_hndl)
       if(.not.value)
      >  call errquit('hghppv1: deallocatin heap memory', 0, MA_ERR)
 

@@ -42,7 +42,7 @@
          end do
 
 *       **** free heap ****
-        if (.not. MA_free_heap(h_actlist))
+        if (.not. BA_free_heap(h_actlist))
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
 
       end if
@@ -89,11 +89,11 @@
       call Parallel_taskid(taskid)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_dbl,3*n2ft3d,'rgrid', rgrid(2), rgrid(1))
+      value = BA_push_get(mt_dbl,3*n2ft3d,'rgrid', rgrid(2), rgrid(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'rgx', rgx(2), rgx(1))
+     >        BA_push_get(mt_dbl,n2ft3d,'rgx', rgx(2), rgx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'fcut',fcut(2),fcut(1))     
+     >        BA_push_get(mt_dbl, n2ft3d,'fcut',fcut(2),fcut(1))     
       if (.not. value) 
      >   call errquit('atom_analysis: out of stack memory',0, MA_ERR)
 
@@ -135,9 +135,9 @@
       end if
 
 *     **** pop stack memory ****
-      value = value.and.MA_pop_stack(fcut(2))
-      value = value.and.MA_pop_stack(rgx(2))
-      value = value.and.MA_pop_stack(rgrid(2))
+      value = value.and.BA_pop_stack(fcut(2))
+      value = value.and.BA_pop_stack(rgx(2))
+      value = value.and.BA_pop_stack(rgrid(2))
       if (.not. value) 
      >   call errquit('atom analysis: cannot pop stack memory',0,
      >       MA_ERR)

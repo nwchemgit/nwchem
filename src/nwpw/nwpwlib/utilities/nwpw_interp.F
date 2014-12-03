@@ -26,11 +26,11 @@
 
       ndim_max   = ndim0
       norder_max = norder0
-      value = MA_alloc_get(mt_dbl,norder_max,'root',root(2),root(1))
+      value = BA_alloc_get(mt_dbl,norder_max,'root',root(2),root(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,norder_max,'coef',coeff(2),coeff(1))
+     >        BA_alloc_get(mt_dbl,norder_max,'coef',coeff(2),coeff(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,norder_max*ndim_max*2,
+     >        BA_alloc_get(mt_dbl,norder_max*ndim_max*2,
      >                     'pbasis',pbasis(2),pbasis(1))
       if (.not.value) 
      >   call errquit('nwpw_interp_init:out of heap',0,MA_ERR)
@@ -70,9 +70,9 @@
 *     **** local variables ****
       logical value
 
-      value =           MA_free_heap(pbasis(2))
-      value = value.and.MA_free_heap(coeff(2))
-      value = value.and.MA_free_heap(root(2))
+      value =           BA_free_heap(pbasis(2))
+      value = value.and.BA_free_heap(coeff(2))
+      value = value.and.BA_free_heap(root(2))
       if (.not.value)
      >   call errquit('nwpw_interp_end:freeing heap',0,MA_ERR)
       return

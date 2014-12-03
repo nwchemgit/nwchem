@@ -233,13 +233,13 @@ ccc#include "frac_occ.fh"
 
 *     ***** allocate psi2, psi1, and psi0 wavefunctions ****
       call psi_get_ne(ispin,ne)
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi0',psi0(2),psi0(1))
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -268,20 +268,20 @@ ccc#include "frac_occ.fh"
       nemax = ne(1)+ne(2)
 
 *     **** allocate other variables *****
-      value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
+      value = BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
+     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd',lmd(2),lmd(1))
+     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd',lmd(2),lmd(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(4*nfft3d),
+     >        BA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
+     >        BA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 

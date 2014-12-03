@@ -54,7 +54,7 @@ c     $Id$
 
 
 *     ***** allocate ion data structure *****
-      value = MA_push_get(mt_dbl,(3*nion),'rion',rion(2),rion(1))
+      value = BA_push_get(mt_dbl,(3*nion),'rion',rion(2),rion(1))
       call dcopy(3*nion,0.0d0,0,dbl_mb(rion(1)),1)
  
 *     **** get ion positions in fractional coordinates ****
@@ -135,7 +135,7 @@ c     $Id$
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0, GEOM_ERR)
 
-      value = MA_pop_stack(rion(2))
+      value = BA_pop_stack(rion(2))
       return
       END
 
@@ -196,7 +196,7 @@ c     $Id$
 
 
 *     ***** allocate ion data structure *****
-      value = MA_push_get(mt_dbl,(3*nion),'rion',rion(2),rion(1))
+      value = BA_push_get(mt_dbl,(3*nion),'rion',rion(2),rion(1))
       call dcopy(3*nion,0.0d0,0,dbl_mb(rion(1)),1)
  
 *     **** get ion positions in fractional coordinates ****
@@ -289,7 +289,7 @@ c     $Id$
       if (.not. geom_destroy(geom))
      $     call errquit('geom_input: geom_destroy failed', 0, GEOM_ERR)
       
-      value = MA_pop_stack(rion(2))
+      value = BA_pop_stack(rion(2))
 
       return
       END

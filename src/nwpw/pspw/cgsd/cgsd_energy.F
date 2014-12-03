@@ -254,7 +254,7 @@ c          **** reset minimizer if failed ****
          scal = lattice_omega()/dble(nx*ny*nz)
          !en2(1) = 0.0
          !en2(2) = 0.0
-         if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
+         if (.not.BA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
      >   call errquit(
      >        'cgsd_energy: out of stack memory',0,MA_ERR)
          call psi_1qlm_atom()
@@ -266,7 +266,7 @@ c          **** reset minimizer if failed ****
            call D3dB_r_dsum(1,dbl_mb(tmp1(1)),sumall)
            en2(ms) = sumall*scal
          end do
-         if (.not.MA_pop_stack(tmp1(2)))
+         if (.not.BA_pop_stack(tmp1(2)))
      >   call errquit(
      >        'cgsd_energy: popping stack memory',0,MA_ERR)
       else

@@ -3125,7 +3125,7 @@ c      end
 
       num_kvectors = control_num_kvectors()
 
-      if (.not.MA_push_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
+      if (.not.BA_push_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
      >  call errquit('control_ksvector: out of stack', 0,MA_ERR)
 
       if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
@@ -3144,7 +3144,7 @@ c      end
       ks(3) = dbl_mb(kvs(1)+4*(i-1)+2)
       ks(4) = dbl_mb(kvs(1)+4*(i-1)+3)
 
-      if (.not.MA_pop_stack(kvs(2)))
+      if (.not.BA_pop_stack(kvs(2)))
      >  call errquit('control_ksvector: failed to free stack',0,MA_ERR)
 
       return
@@ -3249,7 +3249,7 @@ c      end
 
       num_kvectors = control_num_kvectors()
 
-      if (.not.MA_push_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
+      if (.not.BA_push_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
      >  call errquit('control_ksvector: out of stack', 0,MA_ERR)
 
       if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
@@ -3275,7 +3275,7 @@ c      end
          if (d2.lt.1.0e-6) i2 = i
       end do
     
-      if (.not.MA_pop_stack(kvs(2)))
+      if (.not.BA_pop_stack(kvs(2)))
      >  call errquit('control_ksvector: failed to free stack',0,MA_ERR)
 
       if (i1.eq.-1) i1 = i2
@@ -4220,7 +4220,7 @@ c      end
       external control_num_kvectors_structure
 
       num_kvectors = control_num_kvectors_structure()
-      value = MA_push_get(mt_dbl,(4*num_kvectors),
+      value = BA_push_get(mt_dbl,(4*num_kvectors),
      >        'kvs',kvs(2),kvs(1))
       if (.not. value)
      >  call errquit('control_ksvector: failed to get zone name', 0,
@@ -4248,7 +4248,7 @@ c      end
       ks(3) = dbl_mb(kvs(1)+4*(i-1)+2)
       ks(4) = dbl_mb(kvs(1)+4*(i-1)+3)
 
-      value = value.and.MA_pop_stack(kvs(2))
+      value = value.and.BA_pop_stack(kvs(2))
 
       if (.not. value)
      >  call errquit('control_ksvector: failed to free stack', 0,
@@ -5234,7 +5234,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   upm(int_mb(l_actlist+i-1))     = tm
                   upscale(int_mb(l_actlist+i-1)) = tscale
                end do
-               if (.not. MA_free_heap(h_actlist))
+               if (.not. BA_free_heap(h_actlist))
      >         call errquit(
      >         'control_set_pspspin:error freeing heap memory',0,MA_ERR)
             end if
@@ -5275,7 +5275,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   downm(int_mb(l_actlist+i-1))     = tm
                   downscale(int_mb(l_actlist+i-1)) = tscale
                end do
-               if (.not.MA_free_heap(h_actlist))
+               if (.not.BA_free_heap(h_actlist))
      >         call errquit(
      >         'control_set_pspspin:error freeing heap memory',1,MA_ERR)
             end if
@@ -5412,7 +5412,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             do i=1,nactive_atoms
                ions(int_mb(l_actlist+i-1),nu) = .true.
             end do
-            if (.not. MA_free_heap(h_actlist))
+            if (.not. BA_free_heap(h_actlist))
      >       call errquit(
      >        'control_set_psputerm:error freeing heap memory',0,MA_ERR)
          end if

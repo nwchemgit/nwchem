@@ -33,21 +33,21 @@
       psputerm   = control_psputerm().and.(pspnuterms.gt.0)
       if (psputerm) then
          nion  = ion_nion()
-         value = MA_alloc_get(mt_int,pspnuterms,'psputerm_l',
+         value = BA_alloc_get(mt_int,pspnuterms,'psputerm_l',
      >                psputerm_l(2),psputerm_l(1))
 
          value = value.and.
-     >   MA_alloc_get(mt_dbl,pspnuterms,'psputerm_uscale',
+     >   BA_alloc_get(mt_dbl,pspnuterms,'psputerm_uscale',
      >                psputerm_uscale(2),psputerm_uscale(1))
          value = value.and.
-     >   MA_alloc_get(mt_dbl,pspnuterms,'psputerm_jscale',
+     >   BA_alloc_get(mt_dbl,pspnuterms,'psputerm_jscale',
      >                psputerm_jscale(2),psputerm_jscale(1))
          value = value.and.
-     >   MA_alloc_get(mt_log,nion*pspnuterms,'psputerm_ions',
+     >   BA_alloc_get(mt_log,nion*pspnuterms,'psputerm_ions',
      >                psputerm_ions(2),psputerm_ions(1))
 
          value = value.and.
-     >   MA_alloc_get(mt_int,pspnuterms,'psputerm_vstart',
+     >   BA_alloc_get(mt_int,pspnuterms,'psputerm_vstart',
      >                psputerm_vstart(2),psputerm_vstart(1))
 
          if (.not. value)
@@ -74,7 +74,7 @@
          end if
          end do
          end do
-         value = MA_alloc_get(mt_int,j,'psputerm_ld_start',
+         value = BA_alloc_get(mt_int,j,'psputerm_ld_start',
      >             psputerm_ld_start(2),psputerm_ld_start(1))
          if (.not. value)
      >   call errquit('psp_U_init:out of heap memory',1, MA_ERR)
@@ -94,10 +94,10 @@
          end do
 
          value = 
-     >   MA_alloc_get(mt_dbl,psputerm_vcount,'psputerm_vmmmm',
+     >   BA_alloc_get(mt_dbl,psputerm_vcount,'psputerm_vmmmm',
      >                psputerm_vmmmm(2),psputerm_vmmmm(1))
          value = value.and.
-     >   MA_alloc_get(mt_dbl,psputerm_ld_count,'psputerm_ld',
+     >   BA_alloc_get(mt_dbl,psputerm_ld_count,'psputerm_ld',
      >                psputerm_ld(2),psputerm_ld(1))
          if (.not. value)
      >   call errquit('psp_U_init:out of heap memory',2, MA_ERR)
@@ -134,14 +134,14 @@
 
       value = .true.
       if (psputerm) then
-         value = value.and.MA_free_heap(psputerm_l(2))
-         value = value.and.MA_free_heap(psputerm_uscale(2))
-         value = value.and.MA_free_heap(psputerm_jscale(2))
-         value = value.and.MA_free_heap(psputerm_ions(2))
-         value = value.and.MA_free_heap(psputerm_vstart(2))
-         value = value.and.MA_free_heap(psputerm_vmmmm(2))
-         value = value.and.MA_free_heap(psputerm_ld_start(2))
-         value = value.and.MA_free_heap(psputerm_ld(2))
+         value = value.and.BA_free_heap(psputerm_l(2))
+         value = value.and.BA_free_heap(psputerm_uscale(2))
+         value = value.and.BA_free_heap(psputerm_jscale(2))
+         value = value.and.BA_free_heap(psputerm_ions(2))
+         value = value.and.BA_free_heap(psputerm_vstart(2))
+         value = value.and.BA_free_heap(psputerm_vmmmm(2))
+         value = value.and.BA_free_heap(psputerm_ld_start(2))
+         value = value.and.BA_free_heap(psputerm_ld(2))
       end if
 
       if (.not.value) 
@@ -224,20 +224,20 @@
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw1',zsw1(2),zsw1(1))
+     > BA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw2',zsw2(2),zsw2(1))
+     > BA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw2',zsw2(2),zsw2(1))
       value = value.and.
-     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw3',zsw3(2),zsw3(1))
+     > BA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw3',zsw3(2),zsw3(1))
       if (.not.value) 
      >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
       if (move) then
-       value = value.and.MA_push_get(mt_dbl,npack1,
+       value = value.and.BA_push_get(mt_dbl,npack1,
      >                               'xtmp',xtmp(2),xtmp(1))
-       value = value.and.MA_push_get(mt_dbl,3*nn,'asum',asum(2),asum(1))
+       value = value.and.BA_push_get(mt_dbl,3*nn,'asum',asum(2),asum(1))
        if (.not. value) 
      >  call errquit('v_nonlocal:out of stack memory',1,MA_ERR)
 
@@ -439,13 +439,13 @@
 
       value = .true.
       if (move) then
-      value = value.and.MA_pop_stack(asum(2))
-      value = value.and.MA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(asum(2))
+      value = value.and.BA_pop_stack(xtmp(2))
       end if
-      value = value.and.MA_pop_stack(zsw3(2))
-      value = value.and.MA_pop_stack(zsw2(2))
-      value = value.and.MA_pop_stack(zsw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(zsw3(2))
+      value = value.and.BA_pop_stack(zsw2(2))
+      value = value.and.BA_pop_stack(zsw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('v_nonlocal: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)
@@ -508,19 +508,19 @@
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw1',zsw1(2),zsw1(1))
+     > BA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw2',zsw2(2),zsw2(1))
+     > BA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw2',zsw2(2),zsw2(1))
       value = value.and.
-     > MA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw3',zsw3(2),zsw3(1))
+     > BA_push_get(mt_dcpl,nn*nprj_max*nprj_mult,'zsw3',zsw3(2),zsw3(1))
       if (.not.value) 
      >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
-      value = value.and.MA_push_get(mt_dbl,npack1,
+      value = value.and.BA_push_get(mt_dbl,npack1,
      >                               'xtmp',xtmp(2),xtmp(1))
-      value = value.and.MA_push_get(mt_dbl,3*nn,'asum',asum(2),asum(1))
+      value = value.and.BA_push_get(mt_dbl,3*nn,'asum',asum(2),asum(1))
       if (.not. value) 
      > call errquit('v_nonlocal:out of stack memory',1,MA_ERR)
 
@@ -709,12 +709,12 @@
       end do !** ii **
 
       value = .true.
-      value = value.and.MA_pop_stack(asum(2))
-      value = value.and.MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(zsw3(2))
-      value = value.and.MA_pop_stack(zsw2(2))
-      value = value.and.MA_pop_stack(zsw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(asum(2))
+      value = value.and.BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(zsw3(2))
+      value = value.and.BA_pop_stack(zsw2(2))
+      value = value.and.BA_pop_stack(zsw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('v_nonlocal: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)

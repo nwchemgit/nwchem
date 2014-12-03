@@ -101,7 +101,7 @@ c
       call Switching_Charge_Vmm(n2ft3d,rgrid,Vqm)
 
 *     *** generate Tall(r) ****
-      value = MA_push_get(mt_dbl,n2ft3d,'xtmp',xtmp(2),xtmp(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'xtmp',xtmp(2),xtmp(1))
       if (.not. value) 
      >  call errquit(' Switching_Charge_Generate_V:pushing stack',0,
      &       MA_ERR)
@@ -127,7 +127,7 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 c      call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
       call D3dB_rr_Mul2(1,dbl_mb(xtmp(1)),Vqm)
 
-      value = MA_pop_stack(xtmp(2))
+      value = BA_pop_stack(xtmp(2))
       if (.not. value)
      >  call errquit(' Switching_Charge_Generate_V:popping stack',1,
      &       MA_ERR)
@@ -165,7 +165,7 @@ c      call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
       call D3dB_nz(1,nz)
       scal1 = 1.0d0/dble(nx*ny*nz)
 
-      value = MA_push_get(mt_dbl,n2ft3d,'Amm',Amm(2),Amm(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'Amm',Amm(2),Amm(1))
       if (.not. value)
      >  call errquit(' Switching_Charge_Generate_Fion:pushing stack',0,
      &       MA_ERR)
@@ -188,7 +188,7 @@ c      call Pack_c_SMul(0,scal1,dbl_mb(Amm(1)),dbl_mb(Amm(1)))
 
       call grad_Truncating_Function(dbl_mb(Amm(1)),fion)
 
-      value = MA_pop_stack(Amm(2))
+      value = BA_pop_stack(Amm(2))
       if (.not. value)
      >  call errquit(' Switching_Charge_Generate_Fion:popping stack',1,
      &       MA_ERR)
@@ -236,7 +236,7 @@ c      call Pack_c_SMul(0,scal1,dbl_mb(Amm(1)),dbl_mb(Amm(1)))
       scal2   = 1.0d0/lattice_omega()
 
 *     *** generate Tall ****
-      value = MA_push_get(mt_dbl,n2ft3d,'xtmp',xtmp(2),xtmp(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'xtmp',xtmp(2),xtmp(1))
       if (.not. value) 
      >  call errquit(' Switching_Charge_Potentail_Fmm:pushing stack',0,
      &       MA_ERR)
@@ -283,7 +283,7 @@ c      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
          fmm(3,j) = fmm(3,j) - fz*dv
       end do
 
-      value = MA_pop_stack(xtmp(2))
+      value = BA_pop_stack(xtmp(2))
       if (.not. value)
      >  call errquit(' Switching_Charge_Potentail_Fmm:popping stack',1,
      &       MA_ERR)

@@ -101,10 +101,10 @@
 
       neall = ne(1) + ne(2) 
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = BA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull(2),cfull(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d_out,
+     >        BA_alloc_get(mt_dcpl,nfft3d_out,
      >                     'cfull_out',cfull_out(2),cfull_out(1))
       if (.not.value) 
      > call errquit("pspw_reformat_c_wvfnc:push stack",0, MA_ERR)
@@ -127,8 +127,8 @@
       end do
       call closefile(5)
       call closefile(6)
-      value = MA_free_heap(cfull(2))
-      value = MA_free_heap(cfull_out(2))
+      value = BA_free_heap(cfull(2))
+      value = BA_free_heap(cfull_out(2))
 
 c     *** copy .junk wvfncr to wavefunction_filename ****
       call util_file_copy(full_filename,full_filename3)
@@ -248,10 +248,10 @@ c     *** copy .junk wvfncr to wavefunction_filename ****
 
       neall = ne(1) + ne(2) 
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = BA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull(2),cfull(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d_out,
+     >        BA_alloc_get(mt_dcpl,nfft3d_out,
      >                     'cfull_out',cfull_out(2),cfull_out(1))
       if (.not.value) 
      > call errquit("pspw_reformat_c_ewvfnc:push stack",0, MA_ERR)
@@ -274,8 +274,8 @@ c     *** copy .junk wvfncr to wavefunction_filename ****
       end do
       call closefile(5)
       call closefile(6)
-      value = MA_free_heap(cfull(2))
-      value = MA_free_heap(cfull_out(2))
+      value = BA_free_heap(cfull(2))
+      value = BA_free_heap(cfull_out(2))
 
 c     *** copy .junk wvfncr to wavefunction_filename ****
       call util_file_copy(full_filename,full_filename3)
@@ -397,10 +397,10 @@ c     *** copy .junk wvfncr to wavefunction_filename ****
 
       neall = ne(1) + ne(2)
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = BA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull(2),cfull(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d_out,
+     >        BA_alloc_get(mt_dcpl,nfft3d_out,
      >                     'cfull_out',cfull_out(2),cfull_out(1))
       if (.not.value)
      > call errquit("pspw_reformat_c_ewvfnc:push stack",0, MA_ERR)
@@ -422,8 +422,8 @@ c     *** copy .junk wvfncr to wavefunction_filename ****
       end do
       call closefile(5)
       call closefile(6)
-      value = MA_free_heap(cfull(2))
-      value = MA_free_heap(cfull_out(2))
+      value = BA_free_heap(cfull(2))
+      value = BA_free_heap(cfull_out(2))
 
 c     *** copy . junk wvfncr to wavefunction_filename ****
       call util_file_copy(full_filename,full_filename3)

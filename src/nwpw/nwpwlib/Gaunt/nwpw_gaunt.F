@@ -34,7 +34,7 @@ c
       sizel  = (gaunt_lmax+1)
       sizel2 = sizel**2
 
-      value = MA_alloc_get(mt_dbl,sizel*sizel2*sizel2,
+      value = BA_alloc_get(mt_dbl,sizel*sizel2*sizel2,
      >                    'gaunt_coeff',
      >                     gaunt_coeff(2),
      >                     gaunt_coeff(1))
@@ -87,7 +87,7 @@ c
 
       call nwpw_timing_start(15)
 
-      if (.not.MA_free_heap(nwpw_gaunt_coeff(2)))
+      if (.not.BA_free_heap(nwpw_gaunt_coeff(2)))
      > call errquit('paw_gaunt_end:error freeing heap memory',0,MA_ERR)
 
       call nwpw_timing_end(15)

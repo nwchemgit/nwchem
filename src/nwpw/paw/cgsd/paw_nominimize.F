@@ -74,10 +74,10 @@ c
       neall = paw_psi_ne(1)+paw_psi_ne(2)
 
 *     **** allocate G1, and R1 ****
-      value = MA_alloc_get(mt_dcpl,npack1*neall,
+      value = BA_alloc_get(mt_dcpl,npack1*neall,
      >                     'G1',G1(2),G1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*neall,
+     >        BA_alloc_get(mt_dcpl,npack1*neall,
      >                     'R1',R1(2),R1(1))
       if (.not. value) 
      >  call errquit('paw_cgminimize:out of heap memory',0,MA_ERR)
@@ -164,8 +164,8 @@ c      write(*,*) "evloc_atom     =",evloc_atom
 
       E(11) = eorbit
 
-      value = MA_free_heap(R1(2))
-      value = value.and.MA_free_heap(G1(2))
+      value = BA_free_heap(R1(2))
+      value = value.and.BA_free_heap(G1(2))
       if (.not. value) 
      >  call errquit('paw_nominimize:error freeing heap',0, MA_ERR)
 

@@ -104,42 +104,42 @@ c
       nindxmeta  = 0
       nparammeta = 0
 
-      if (.not.MA_push_get(mt_int,10,'nxmeta',
+      if (.not.BA_push_get(mt_int,10,'nxmeta',
      >                    nxmeta(2),nxmeta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',0,
      >                MA_ERR)
 
-      if (.not.MA_push_get(mt_int,10,'sindxmeta',
+      if (.not.BA_push_get(mt_int,10,'sindxmeta',
      >                    sindxmeta(2),sindxmeta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',0,
      >                MA_ERR)
 
-      if (.not.MA_push_get(mt_int,10,'sparammeta',
+      if (.not.BA_push_get(mt_int,10,'sparammeta',
      >                    sparammeta(2),sparammeta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',0,
      >                MA_ERR)
 
-      if (.not.MA_push_get(mt_int,metaindexmax,'indxmeta',
+      if (.not.BA_push_get(mt_int,metaindexmax,'indxmeta',
      >                    indxmeta(2),indxmeta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',0,
      >                MA_ERR)
 
-      if (.not.MA_push_get(mt_int,10,'pmmeta',
+      if (.not.BA_push_get(mt_int,10,'pmmeta',
      >                    pmeta(2),pmeta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',2,
      >                MA_ERR)
 
-      if (.not.MA_push_get(mt_dbl,10,'ammeta',
+      if (.not.BA_push_get(mt_dbl,10,'ammeta',
      >                    ameta(2),ameta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',2,
      >                MA_ERR)
 
-      if (.not.MA_push_get(mt_dbl,10,'bmmeta',
+      if (.not.BA_push_get(mt_dbl,10,'bmmeta',
      >                    bmeta(2),bmeta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',3,
      >                MA_ERR)
 
-      if (.not.MA_push_get(mt_dbl,metaindexmax,'parammeta',
+      if (.not.BA_push_get(mt_dbl,metaindexmax,'parammeta',
      >                    parammeta(2),parammeta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',1,
      >                MA_ERR)
@@ -524,11 +524,11 @@ c
 c
 c  coord_number
 c
- 500  if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
+ 500  if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start1',
      >                    index_start1(2),index_start1(1)))
      >    call errquit(
      > 'metadynamics_input:failed allocating index_start1',0,MA_ERR)
-      if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
+      if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start2',
      >                    index_start2(2),index_start2(1)))
      >    call errquit(
      > 'metadynamics_input:failed allocating index_start2',0,MA_ERR)
@@ -685,9 +685,9 @@ c
       if (.not. value) call errquit(
      >'metadynamics_input:failed writing coord_num',0,RTDB_ERR)
 
-      if (.not.MA_pop_stack(index_start2(2))) call errquit(
+      if (.not.BA_pop_stack(index_start2(2))) call errquit(
      > 'metadynamics_input:failed deallocating index_start2',0,MA_ERR)
-      if (.not.MA_pop_stack(index_start1(2))) call errquit(
+      if (.not.BA_pop_stack(index_start1(2))) call errquit(
      > 'metadynamics_input:failed deallocating index_start1',0,MA_ERR)
 
       goto 10
@@ -981,7 +981,7 @@ c
           read(53,*) test,dTtempered
           read(53,*) test,nxmeta_all
 
-          if (.not.MA_push_get(mt_dbl,nxmeta_all,'ymmeta',
+          if (.not.BA_push_get(mt_dbl,nxmeta_all,'ymmeta',
      >                         ymeta(2),ymeta(1)))
      >    call errquit('cannot allocate stack, metadynamics_input',22,
      >                 MA_ERR)
@@ -1059,7 +1059,7 @@ c
           if (.not. value) call errquit(
      >    'metadynamics_input:writing potential_filename',0,RTDB_ERR)
 
-          if (.not.MA_pop_stack(ymeta(2)))
+          if (.not.BA_pop_stack(ymeta(2)))
      >    call errquit('cannot pop stack for metadynamics_input',22,
      >                 MA_ERR)
       end if
@@ -1538,11 +1538,11 @@ c
 c
 c  bond_difference_shell
 c
- 1600 if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
+ 1600 if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start1',
      >                    index_start1(2),index_start1(1)))
      >    call errquit(
      > 'metadynamics_input:failed allocating index_start1',0,MA_ERR)
-      if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
+      if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start2',
      >                    index_start2(2),index_start2(1)))
      >    call errquit(
      > 'metadynamics_input:failed allocating index_start2',0,MA_ERR)
@@ -1715,9 +1715,9 @@ c
       if (.not. value) call errquit(
      >'metadynamics_input:failed writing coord_num',0,RTDB_ERR)
 
-      if (.not.MA_pop_stack(index_start2(2))) call errquit(
+      if (.not.BA_pop_stack(index_start2(2))) call errquit(
      > 'metadynamics_input:failed deallocating index_start2',0,MA_ERR)
-      if (.not.MA_pop_stack(index_start1(2))) call errquit(
+      if (.not.BA_pop_stack(index_start1(2))) call errquit(
      > 'metadynamics_input:failed deallocating index_start1',0,MA_ERR)
 
       goto 10
@@ -1829,28 +1829,28 @@ c
  9999 continue
       
 *     **** pop stack ****
-      if (.not.MA_pop_stack(parammeta(2)))
+      if (.not.BA_pop_stack(parammeta(2)))
      >   call errquit('cannot pope stack for metadynamics_input',1,
      >                MA_ERR)
-      if (.not.MA_pop_stack(bmeta(2)))
+      if (.not.BA_pop_stack(bmeta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',3,
      >                MA_ERR)
-      if (.not.MA_pop_stack(ameta(2)))
+      if (.not.BA_pop_stack(ameta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',2,
      >                MA_ERR)
-      if (.not.MA_pop_stack(pmeta(2)))
+      if (.not.BA_pop_stack(pmeta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',0,
      >                MA_ERR)
-      if (.not.MA_pop_stack(indxmeta(2)))
+      if (.not.BA_pop_stack(indxmeta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',0,
      >                MA_ERR)
-      if (.not.MA_pop_stack(sparammeta(2)))
+      if (.not.BA_pop_stack(sparammeta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',0,
      >                MA_ERR)
-      if (.not.MA_pop_stack(sindxmeta(2)))
+      if (.not.BA_pop_stack(sindxmeta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',0,
      >                MA_ERR)
-      if (.not.MA_pop_stack(nxmeta(2)))
+      if (.not.BA_pop_stack(nxmeta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',0,
      >                MA_ERR)
 

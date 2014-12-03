@@ -48,7 +48,7 @@ c
       n2(2) = ne(1)+ne(2)
 
 
-      value = MA_push_get(mt_dcpl, nfft3d,'phi',phi(2),phi(1))
+      value = BA_push_get(mt_dcpl, nfft3d,'phi',phi(2),phi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -216,7 +216,7 @@ c
         END DO
       END DO
 
-      value = MA_pop_stack(phi(2))
+      value = BA_pop_stack(phi(2))
 
       return 
       end

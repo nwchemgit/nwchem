@@ -27,15 +27,15 @@ c $Id$
       npsp   = npsp0
       tagmax = 0
 
-      value = MA_alloc_get(mt_int,npsp,'nsize_prj',
+      value = BA_alloc_get(mt_int,npsp,'nsize_prj',
      >                     nsize_prj(2),nsize_prj(1))
-      value = value.and.MA_alloc_get(mt_int,npsp,'nprj_prj',
+      value = value.and.BA_alloc_get(mt_int,npsp,'nprj_prj',
      >                               nprj_prj(2),nprj_prj(1))
-      value = value.and.MA_alloc_get(mt_int,npsp,'nbrill_prj',
+      value = value.and.BA_alloc_get(mt_int,npsp,'nbrill_prj',
      >                               nbrill_prj(2),nbrill_prj(1))
-      value = value.and.MA_alloc_get(mt_int,npsp,'indx_prj',
+      value = value.and.BA_alloc_get(mt_int,npsp,'indx_prj',
      >                               indx_prj(2),indx_prj(1))
-      value = value.and.MA_alloc_get(mt_int,npsp,'hndl_prj',
+      value = value.and.BA_alloc_get(mt_int,npsp,'hndl_prj',
      >                               hndl_prj(2),hndl_prj(1))
       if (.not.value) 
      > call errquit('borb_projector_init: out of heap memory',0,MA_ERR)
@@ -66,7 +66,7 @@ c $Id$
       int_mb(nprj_prj(1)+tag)   = nprj
       int_mb(nsize_prj(1)+tag)  = nsize
 
-      value = MA_alloc_get(mt_dbl,nbrill*nprj*nsize,
+      value = BA_alloc_get(mt_dbl,nbrill*nprj*nsize,
      >                     'prj_alloc',hndl,indx)
       if (.not.value) 
      > call errquit('borb_projector_alloc: out of heap memory',0,MA_ERR)
@@ -101,13 +101,13 @@ c $Id$
       value = .true.
       do tag=0,tagmax-1
          hndl = int_mb(hndl_prj(1)+tag)
-         value = value.and.MA_free_heap(hndl)
+         value = value.and.BA_free_heap(hndl)
       end do
-      value = value.and.MA_free_heap(nbrill_prj(2))
-      value = value.and.MA_free_heap(nprj_prj(2))
-      value = value.and.MA_free_heap(nsize_prj(2))
-      value = value.and.MA_free_heap(indx_prj(2))
-      value = value.and.MA_free_heap(hndl_prj(2))
+      value = value.and.BA_free_heap(nbrill_prj(2))
+      value = value.and.BA_free_heap(nprj_prj(2))
+      value = value.and.BA_free_heap(nsize_prj(2))
+      value = value.and.BA_free_heap(indx_prj(2))
+      value = value.and.BA_free_heap(hndl_prj(2))
       if (.not.value) 
      > call errquit('borb_projector_end:error freeing heap',0,MA_ERR)
 

@@ -56,13 +56,13 @@ c      CONST =       (16.0d0*datan(1.0d0)/3.0d0)*(natoms1/volume)
 c      CONST = CONST*(16.0d0*datan(1.0d0)/3.0d0)*(natoms2/volume)
       CONST =       (16.0d0*datan(1.0d0)/3.0d0)*(natoms1*natoms2/volume)
 
-      value = MA_push_get(mt_int,MAXBIN,'hst89',hst(2),hst(1))
+      value = BA_push_get(mt_int,MAXBIN,'hst89',hst(2),hst(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,natoms,'rx',rx(2),rx(1))
+     >        BA_push_get(mt_dbl,natoms,'rx',rx(2),rx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,natoms,'ry',ry(2),ry(1))
+     >        BA_push_get(mt_dbl,natoms,'ry',ry(2),ry(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,natoms,'rz',rz(2),rz(1))
+     >        BA_push_get(mt_dbl,natoms,'rz',rz(2),rz(1))
       if (.not. value) 
      >    call errquit('cpmd_properties: out of stack memory',0, MA_ERR)
       
@@ -176,10 +176,10 @@ c     open(unit=19,file='PAIR_DISTRIBUTION',form='formatted')
         end do
       close(unit=19)
 
-      value =           MA_pop_stack(rz(2))
-      value = value.and.MA_pop_stack(ry(2))
-      value = value.and.MA_pop_stack(rx(2))
-      value = value.and.MA_pop_stack(hst(2))
+      value =           BA_pop_stack(rz(2))
+      value = value.and.BA_pop_stack(ry(2))
+      value = value.and.BA_pop_stack(rx(2))
+      value = value.and.BA_pop_stack(hst(2))
       if (.not. value) 
      >  call errquit('pair_dist2: cannot release stack memory',0,
      &       MA_ERR)

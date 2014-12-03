@@ -138,20 +138,20 @@ c     *** size of packed grid ***
       call Pack_npack(1,npack1)
 
 c     *** allocate temporary space ***
-      value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
-      value = value.and.MA_push_get(mt_dcpl,npack1,'tmp0',
+      value =           BA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      value = value.and.BA_push_get(mt_dcpl,npack1,'tmp0',
      >                     tmp0(2),tmp0(1))
-      value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
-      value = value.and.MA_push_get(mt_dcpl,npack1,'tmpx',
+      value = value.and.BA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
+      value = value.and.BA_push_get(mt_dcpl,npack1,'tmpx',
      >                   tmpx(2),tmpx(1))
-      value = value.and.MA_push_get(mt_dcpl,npack1,'tmpy',
+      value = value.and.BA_push_get(mt_dcpl,npack1,'tmpy',
      >                   tmpy(2),tmpy(1))
-      value = value.and.MA_push_get(mt_dcpl,npack1,'tmpz',
+      value = value.and.BA_push_get(mt_dcpl,npack1,'tmpz',
      >                   tmpz(2),tmpz(1))
 
-      value = value.and. MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
-      value = value.and. MA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
-      value = value.and. MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
+      value = value.and. BA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
+      value = value.and. BA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
+      value = value.and. BA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
       if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0,0)
 
 c    *** get reciprocal lattice arrays ***
@@ -236,15 +236,15 @@ c     *** compute force overlap coefficients ***
       end do     
 
 
-      value = value.and.MA_pop_stack(Gz(2))
-      value = value.and.MA_pop_stack(Gy(2))
-      value = value.and.MA_pop_stack(Gx(2))
-      value = value.and.MA_pop_stack(tmpz(2))
-      value = value.and.MA_pop_stack(tmpy(2))
-      value = value.and.MA_pop_stack(tmpx(2))
-      value = value.and.MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(tmp0(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(Gz(2))
+      value = value.and.BA_pop_stack(Gy(2))
+      value = value.and.BA_pop_stack(Gx(2))
+      value = value.and.BA_pop_stack(tmpz(2))
+      value = value.and.BA_pop_stack(tmpy(2))
+      value = value.and.BA_pop_stack(tmpx(2))
+      value = value.and.BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(tmp0(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',0,1)
 
       
@@ -474,7 +474,7 @@ c           !*** this loop is not computed when ispin=1 ***
       call Parallel_taskid(taskid)
 
       nion = ion_nion()
-      value = MA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
+      value = BA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
       if (.not.value) call errquit('paw_force_atom: push stack',0,0)
       call dcopy(3*nion,0.0d0,0,dbl_mb(ft(1)),1)
 
@@ -537,7 +537,7 @@ c        fion(3,in) = fion(3,in) - dble(tmp_fz)
       if (np.gt.1) call D3dB_Vector_SumAll(3*nion,dbl_mb(ft(1)))
       call daxpy(3*nion,1.0d0,dbl_mb(ft(1)),1,fion,1)
 
-      value = MA_pop_stack(ft(2))
+      value = BA_pop_stack(ft(2))
       if (.not.value) call errquit('paw_force_atom: pop stack',0,1)
 
       return
@@ -583,7 +583,7 @@ c        fion(3,in) = fion(3,in) - dble(tmp_fz)
 
 
       nion     = ion_nion()
-      value = MA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
+      value = BA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
       if (.not.value) 
      > call errquit('paw_force_constraint: push stack',0,0)
       call dcopy(3*nion,0.0d0,0,dbl_mb(ft(1)),1)
@@ -706,7 +706,7 @@ c            fion(3,ii) = fion(3,ii) + occup*wz_tmp*dbl_mb(overlap_ptr)
       if (np.gt.1) call D3dB_Vector_SumAll(3*nion,dbl_mb(ft(1)))
       call daxpy(3*nion,1.0d0,dbl_mb(ft(1)),1,fion,1)
 
-      value = MA_pop_stack(ft(2))
+      value = BA_pop_stack(ft(2))
       if (.not.value) call errquit('paw_force_contraint: pop stack',0,1)
 
       return
@@ -762,7 +762,7 @@ c            fion(3,ii) = fion(3,ii) + occup*wz_tmp*dbl_mb(overlap_ptr)
       call Parallel_taskid(taskid)
 
       nion = ion_nion()
-      value = MA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
+      value = BA_push_get(mt_dbl,(3*nion),'ft',ft(2),ft(1))
       if (.not.value) call errquit('paw_force_mult: push stack',0,0)
       call dcopy(3*nion,0.0d0,0,dbl_mb(ft(1)),1)
 
@@ -905,7 +905,7 @@ c     >                          dble(comp_charge_coeff*f_tmp(k))
       if (np.gt.1) call D3dB_Vector_SumAll(3*nion,dbl_mb(ft(1)))
       call daxpy(3*nion,1.0d0,dbl_mb(ft(1)),1,f_mult,1)
 
-      value = MA_pop_stack(ft(2))
+      value = BA_pop_stack(ft(2))
       if (.not.value) call errquit('paw_force_mult: pop stack',0,1)
 
       return

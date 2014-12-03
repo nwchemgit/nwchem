@@ -37,54 +37,54 @@
       call cpsp_projector_init(5*npsp)
 
 *     ***** allocate local potentitals *****
-      value = MA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
+      value = BA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
 
 
 *     ***** allocate projector tag lists *****
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
+     >        BA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'vnlso',vnlso(2),vnlso(1))
+     >        BA_alloc_get(mt_int,npsp,'vnlso',vnlso(2),vnlso(1))
 
 *     **** nonlocal coeffiencients *****
       axsize=npsp*gij_stride
       value = value.and.
-     >      MA_alloc_get(mt_dbl,axsize,'Gijl',Gijl(2),Gijl(1))
+     >      BA_alloc_get(mt_dbl,axsize,'Gijl',Gijl(2),Gijl(1))
       axsize=npsp*kij_stride
       value = value.and.
-     >      MA_alloc_get(mt_dbl,axsize,'Kijl',Kijl(2),Kijl(1))
+     >      BA_alloc_get(mt_dbl,axsize,'Kijl',Kijl(2),Kijl(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'nprj',nprj(2),nprj(1))
+     >        BA_alloc_get(mt_int,(npsp),'nprj',nprj(2),nprj(1))
 
       axsize=npsp*jmmax_max
       value = value.and.
-     >        MA_alloc_get(mt_int,axsize,
+     >        BA_alloc_get(mt_int,axsize,
      >                     'n_projector',n_projector(2),n_projector(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,axsize,
+     >        BA_alloc_get(mt_int,axsize,
      >                     'l_projector',l_projector(2),l_projector(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,axsize,
+     >        BA_alloc_get(mt_int,axsize,
      >                     'm_projector',m_projector(2),m_projector(1))
 
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp),'zv',zv(2),zv(1))
+     >        BA_alloc_get(mt_dbl,(npsp),'zv',zv(2),zv(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp),'amass',amass(2),amass(1))
+     >        BA_alloc_get(mt_dbl,(npsp),'amass',amass(2),amass(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp*(lmax_max+1)),'rc',rc(2),rc(1))
+     >        BA_alloc_get(mt_dbl,(npsp*(lmax_max+1)),'rc',rc(2),rc(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'lmmax',lmmax(2),lmmax(1))
+     >        BA_alloc_get(mt_int,(npsp),'lmmax',lmmax(2),lmmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'lmax',lmax(2),lmax(1))
+     >        BA_alloc_get(mt_int,(npsp),'lmax',lmax(2),lmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'locp',locp(2),locp(1))
+     >        BA_alloc_get(mt_int,(npsp),'locp',locp(2),locp(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'nmax',nmax(2),nmax(1))
+     >        BA_alloc_get(mt_int,(npsp),'nmax',nmax(2),nmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),
+     >        BA_alloc_get(mt_int,(npsp),
      >                     'psp_type',psp_type(2),psp_type(1))
 
 *     **** setup pspspin structure - used for generating antiferromagnetic structures ****
@@ -92,10 +92,10 @@
       if (pspspin) then
          nion  = ion_nion()
          value = value.and.
-     >   MA_alloc_get(mt_log,nion,'pspspin_upions',
+     >   BA_alloc_get(mt_log,nion,'pspspin_upions',
      >                pspspin_upions(2),pspspin_upions(1))
          value = value.and.
-     >   MA_alloc_get(mt_log,nion,'pspspin_downions',
+     >   BA_alloc_get(mt_log,nion,'pspspin_downions',
      >                pspspin_downions(2),pspspin_downions(1))
          if (.not. value)
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
@@ -144,7 +144,7 @@
       call Cram_max_npack(npack1)
 
       axsize=npack1*nprj_max*2
-      value = MA_alloc_get(mt_dcpl,axsize,'prjtmp',prjtmp(2),prjtmp(1))
+      value = BA_alloc_get(mt_dcpl,axsize,'prjtmp',prjtmp(2),prjtmp(1))
       if (.not. value) 
      >   call errquit('cpsp_proj_init:out of heap memory',0,MA_ERR)
 
@@ -174,27 +174,27 @@
 *     **** deallocate semicore data ****
       call c_semicore_end()
 
-      value = MA_free_heap(prjtmp(2))
-      value = value.and.MA_free_heap(vl(2))
-      value = value.and.MA_free_heap(vnlso(2))
-      value = value.and.MA_free_heap(vnl(2))
-      value = value.and.MA_free_heap(Kijl(2))
-      value = value.and.MA_free_heap(Gijl(2))
-      value = value.and.MA_free_heap(nprj(2))
-      value = value.and.MA_free_heap(n_projector(2))
-      value = value.and.MA_free_heap(l_projector(2))
-      value = value.and.MA_free_heap(m_projector(2))
-      value = value.and.MA_free_heap(zv(2))
-      value = value.and.MA_free_heap(amass(2))
-      value = value.and.MA_free_heap(rc(2))
-      value = value.and.MA_free_heap(lmmax(2))
-      value = value.and.MA_free_heap(lmax(2))
-      value = value.and.MA_free_heap(locp(2))
-      value = value.and.MA_free_heap(nmax(2))
-      value = value.and.MA_free_heap(psp_type(2))
+      value = BA_free_heap(prjtmp(2))
+      value = value.and.BA_free_heap(vl(2))
+      value = value.and.BA_free_heap(vnlso(2))
+      value = value.and.BA_free_heap(vnl(2))
+      value = value.and.BA_free_heap(Kijl(2))
+      value = value.and.BA_free_heap(Gijl(2))
+      value = value.and.BA_free_heap(nprj(2))
+      value = value.and.BA_free_heap(n_projector(2))
+      value = value.and.BA_free_heap(l_projector(2))
+      value = value.and.BA_free_heap(m_projector(2))
+      value = value.and.BA_free_heap(zv(2))
+      value = value.and.BA_free_heap(amass(2))
+      value = value.and.BA_free_heap(rc(2))
+      value = value.and.BA_free_heap(lmmax(2))
+      value = value.and.BA_free_heap(lmax(2))
+      value = value.and.BA_free_heap(locp(2))
+      value = value.and.BA_free_heap(nmax(2))
+      value = value.and.BA_free_heap(psp_type(2))
       if (pspspin) then
-         value = value.and.MA_free_heap(pspspin_upions(2))
-         value = value.and.MA_free_heap(pspspin_downions(2))
+         value = value.and.BA_free_heap(pspspin_upions(2))
+         value = value.and.BA_free_heap(pspspin_downions(2))
       end if
       if (.not. value)
      >  call errquit('cpsp_end:error freeing heap memory',0,MA_ERR)
@@ -443,20 +443,20 @@
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
 
-      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       if (.not. value) call errquit('cpsp_v_local: pushing stack',0,
      &       MA_ERR)
       
       if (move) then
-        value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+        value = BA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         if (.not. value) call errquit('cpsp_v_local: pushing stack',1,
      &       MA_ERR)
         G(1)  = c_G_indx(1)
@@ -503,15 +503,15 @@ c        call Cram_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
       end do
 
       if (move) then
-        value = MA_pop_stack(Gz(2))
-        value = value.and.MA_pop_stack(Gy(2))
-        value = value.and.MA_pop_stack(Gx(2))
-        value = value.and.MA_pop_stack(xtmp(2))
+        value = BA_pop_stack(Gz(2))
+        value = value.and.BA_pop_stack(Gy(2))
+        value = value.and.BA_pop_stack(Gx(2))
+        value = value.and.BA_pop_stack(xtmp(2))
         if (.not. value) call errquit('cpsp_v_local: popping stack',0,
      &       MA_ERR)
       end if
-      value = MA_pop_stack(vtmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value) call errquit('cpsp_v_local: popping stack',1,
      &       MA_ERR)
 
@@ -551,17 +551,17 @@ c        call Cram_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
       
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
-      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+     >        BA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       if (.not. value) call errquit('cpsp_f_vlocal:pushing stack',0,
      &       MA_ERR)
       G(1)  = c_G_indx(1)
@@ -600,12 +600,12 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
         call Cram_rr_dot(0,dbl_mb(Gz(1)),dbl_mb(xtmp(1)),fion(3,ii))
  
       end do
-      value = MA_pop_stack(Gz(2))
-      value = value.and.MA_pop_stack(Gy(2))
-      value = value.and.MA_pop_stack(Gx(2))
-      value = value.and.MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(vtmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = BA_pop_stack(Gz(2))
+      value = value.and.BA_pop_stack(Gy(2))
+      value = value.and.BA_pop_stack(Gx(2))
+      value = value.and.BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value) call errquit('cpsp_f_vlocal:popping stack',1,
      &       MA_ERR)
 
@@ -672,10 +672,10 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       call Cram_max_npack(npack1)
       nshift = 2*npack1
 
-      value = MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
-      value = value.and.MA_push_get(mt_dcpl,nn*nprj_max,
+      value = BA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      value = value.and.BA_push_get(mt_dcpl,nn*nprj_max,
      >                              'zsw1',zsw1(2),zsw1(1))
-      value = value.and.MA_push_get(mt_dcpl,nn*nprj_max,
+      value = value.and.BA_push_get(mt_dcpl,nn*nprj_max,
      >                              'zsw2',zsw2(2),zsw2(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
      >       MA_ERR)
@@ -683,17 +683,17 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 ccccccccccccccc if move we do this ccccccccccccccccccccccccc
       if (move) then
         occ_tag = cpsi_data_get_next(psi1_tag)
-        value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+        value = BA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         value = value.and.
-     >        MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+     >        BA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
         value = value.and.
-     >        MA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1))
+     >        BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1))
         if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1,
      &       MA_ERR)
         G(1)  = c_G_indx(1)
@@ -959,19 +959,19 @@ c                    end do
       if (move) then
         call K1dB_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
         call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
-        value = MA_pop_stack(ftmp(2))
-        value = value.and.MA_pop_stack(sum(2))
-        value = value.and.MA_pop_stack(Gz(2))
-        value = value.and.MA_pop_stack(Gy(2))
-        value = value.and.MA_pop_stack(Gx(2))
-        value = value.and.MA_pop_stack(xtmp(2))
+        value = BA_pop_stack(ftmp(2))
+        value = value.and.BA_pop_stack(sum(2))
+        value = value.and.BA_pop_stack(Gz(2))
+        value = value.and.BA_pop_stack(Gy(2))
+        value = value.and.BA_pop_stack(Gx(2))
+        value = value.and.BA_pop_stack(xtmp(2))
         if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',2,
      &       MA_ERR)
       end if
 
-      value =           MA_pop_stack(zsw2(2))
-      value = value.and.MA_pop_stack(zsw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(zsw2(2))
+      value = value.and.BA_pop_stack(zsw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',3,
      &       MA_ERR)
 
@@ -1083,12 +1083,12 @@ c      parameter  (ione=(0.0d0,1.0d0))
       call Cram_max_npack(npack1)
 c      nbrill = brillioun_nbrillioun()
       ne1=cpsi_neq(1)
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) 
      > call errquit('cpsp_v_nonlocal_orb:pushing stack',0,MA_ERR)
@@ -1187,9 +1187,9 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
          end if !** nproj>0 **
 500   continue !** ii ****
 
-      value =           MA_pop_stack(zsw2(2))
-      value = value.and.MA_pop_stack(zsw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(zsw2(2))
+      value = value.and.BA_pop_stack(zsw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      > call errquit('cpsp_v_nonlocal_orb:popping stack',3,MA_ERR)
 
@@ -1252,28 +1252,28 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
       nshift = 2*npack1
       occ1_tag = cpsi_data_get_next(psi1_tag)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nprj_max,
+     >        BA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nprj_max,
+     >        BA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
      &       MA_ERR)
 
-      value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+      value = BA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
 
       value = value.and.
-     >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+     >      BA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
       value = value.and.
-     >      MA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1))
+     >      BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1,
      &       MA_ERR)
       call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
@@ -1455,18 +1455,18 @@ c                    end do
 
       call K1dB_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
       call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
-      value =           MA_pop_stack(ftmp(2))
-      value = value.and.MA_pop_stack(sum(2))
-      value = value.and.MA_pop_stack(Gz(2))
-      value = value.and.MA_pop_stack(Gy(2))
-      value = value.and.MA_pop_stack(Gx(2))
-      value = value.and.MA_pop_stack(xtmp(2))
+      value =           BA_pop_stack(ftmp(2))
+      value = value.and.BA_pop_stack(sum(2))
+      value = value.and.BA_pop_stack(Gz(2))
+      value = value.and.BA_pop_stack(Gy(2))
+      value = value.and.BA_pop_stack(Gx(2))
+      value = value.and.BA_pop_stack(xtmp(2))
       if (.not.value) call errquit('cpsp_f_vnonlocal:popping stack',2,
      &       MA_ERR)
 
-      value =           MA_pop_stack(zsw2(2))
-      value = value.and.MA_pop_stack(zsw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(zsw2(2))
+      value = value.and.BA_pop_stack(zsw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('cpsp_f_vnonlocal:popping stack',3,
      &       MA_ERR)
 
@@ -1838,11 +1838,11 @@ cccccccccccccccccccc
 *     *** set semicore(0) *****
       log_mb(semicore(1)) = .false.
 
-      value = MA_push_get(mt_dbl,(4*nfft3d),'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dbl,(4*nfft3d),'tmp',tmp(2),tmp(1))
       if (.not. value) 
      > call errquit('cpsp_readall:out of stack memory',0,MA_ERR)
 
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dbl,(2*nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('cpsp_readall:out of stack memory',0,MA_ERR)
 
@@ -1969,8 +1969,8 @@ cccccccccccccccccccc
 
       end do
 
- 9000 value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+ 9000 value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('cpsp_readall:error popping stack',0,MA_ERR)
 

@@ -158,13 +158,13 @@
 
 
 *     **** calculate the center of density ****
-      value = MA_push_get(mt_dbl,3*n2ft3d,'rgrid', rgrid(2), rgrid(1))
+      value = BA_push_get(mt_dbl,3*n2ft3d,'rgrid', rgrid(2), rgrid(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'rgx',rgx(2),rgx(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'rgx',rgx(2),rgx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'rgy',rgy(2),rgy(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'rgy',rgy(2),rgy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'rgz',rgz(2),rgz(1))     
+     >        BA_push_get(mt_dbl, n2ft3d,'rgz',rgz(2),rgz(1))     
       if (.not. value) 
      >   call errquit('Calculate_Dipole: out of stack memory',0, MA_ERR)
 
@@ -310,10 +310,10 @@
  1240 FORMAT(//'== Crystal Dipole =='/)
 
 *     **** pop stack memory ****
-      value = value.and.MA_pop_stack(rgz(2))
-      value = value.and.MA_pop_stack(rgy(2))
-      value = value.and.MA_pop_stack(rgx(2))
-      value = value.and.MA_pop_stack(rgrid(2))
+      value = value.and.BA_pop_stack(rgz(2))
+      value = value.and.BA_pop_stack(rgy(2))
+      value = value.and.BA_pop_stack(rgx(2))
+      value = value.and.BA_pop_stack(rgrid(2))
       if (.not. value) 
      >   call errquit('Calculate_Dipole: cannot pop stack memory',0,
      &       MA_ERR)
@@ -410,13 +410,13 @@
       qGZ=qGZ/tcharge
 
 *     **** calculate the center of density ****
-      value = MA_push_get(mt_dbl,3*n2ft3d,'rgrid',rgrid(2),rgrid(1))
+      value = BA_push_get(mt_dbl,3*n2ft3d,'rgrid',rgrid(2),rgrid(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'rgx',rgx(2),rgx(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'rgx',rgx(2),rgx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'rgy',rgy(2),rgy(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'rgy',rgy(2),rgy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'rgz',rgz(2),rgz(1))     
+     >        BA_push_get(mt_dbl, n2ft3d,'rgz',rgz(2),rgz(1))     
       if (.not. value) 
      > call errquit('Calculate_Molecular Dipole:out of stack',0,MA_ERR)
 
@@ -504,10 +504,10 @@
 
 
 *     **** pop stack memory ****
-      value =           MA_pop_stack(rgz(2))
-      value = value.and.MA_pop_stack(rgy(2))
-      value = value.and.MA_pop_stack(rgx(2))
-      value = value.and.MA_pop_stack(rgrid(2))
+      value =           BA_pop_stack(rgz(2))
+      value = value.and.BA_pop_stack(rgy(2))
+      value = value.and.BA_pop_stack(rgx(2))
+      value = value.and.BA_pop_stack(rgrid(2))
       if (.not.value) 
      >call errquit('Calculate_Molecular_Dipole:cannot pop stack memory',
      >             0,MA_ERR)

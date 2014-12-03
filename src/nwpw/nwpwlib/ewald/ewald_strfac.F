@@ -24,18 +24,18 @@ cccccccc exec
       nz    = ewald_grid_nz()
       notzero_npack = (npack.gt.0)
 
-      value=MA_alloc_get(mt_dcpl,(nx*nion),'ewx1',ewx1(2),ewx1(1))
+      value=BA_alloc_get(mt_dcpl,(nx*nion),'ewx1',ewx1(2),ewx1(1))
       value=value.and.
-     >      MA_alloc_get(mt_dcpl,(ny*nion),'ewx2',ewx2(2),ewx2(1))
+     >      BA_alloc_get(mt_dcpl,(ny*nion),'ewx2',ewx2(2),ewx2(1))
       value=value.and.
-     >      MA_alloc_get(mt_dcpl,(nz*nion),'ewx3',ewx3(2),ewx3(1))
+     >      BA_alloc_get(mt_dcpl,(nz*nion),'ewx3',ewx3(2),ewx3(1))
 
       if (notzero_npack) then
-         value=MA_alloc_get(mt_int,npack,'i_indxe',i_indx(2),i_indx(1))
+         value=BA_alloc_get(mt_int,npack,'i_indxe',i_indx(2),i_indx(1))
          value=value.and.
-     >         MA_alloc_get(mt_int,npack,'j_indxe',j_indx(2),j_indx(1))
+     >         BA_alloc_get(mt_int,npack,'j_indxe',j_indx(2),j_indx(1))
          value=value.and.
-     >         MA_alloc_get(mt_int,npack,'k_indxe',k_indx(2),k_indx(1))
+     >         BA_alloc_get(mt_int,npack,'k_indxe',k_indx(2),k_indx(1))
       end if
       if (.not.value) 
      >  call errquit("EWALD_STRUCTFACTOR_INIT: OUT OF HEAP MEMORY",0,
@@ -50,14 +50,14 @@ cccccccccccccccccccccccc
 #include "ewald_strfac.fh"
       logical value
 cccccccc exec
-      value=          MA_free_heap(ewx1(2))
-      value=value.and.MA_free_heap(ewx2(2))
-      value=value.and.MA_free_heap(ewx3(2))
+      value=          BA_free_heap(ewx1(2))
+      value=value.and.BA_free_heap(ewx2(2))
+      value=value.and.BA_free_heap(ewx3(2))
 
       if (notzero_npack) then
-         value=value.and.MA_free_heap(i_indx(2))
-         value=value.and.MA_free_heap(j_indx(2))
-         value=value.and.MA_free_heap(k_indx(2))
+         value=value.and.BA_free_heap(i_indx(2))
+         value=value.and.BA_free_heap(j_indx(2))
+         value=value.and.BA_free_heap(k_indx(2))
       end if
       if (.not.value) then
         call errquit("ewald_strfact_end: error free heap",0,MA_ERR)

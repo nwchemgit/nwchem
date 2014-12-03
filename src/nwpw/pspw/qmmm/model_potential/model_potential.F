@@ -56,7 +56,7 @@ c
 
 *     **** Allocate Memory from heap ****
       count = pspw_qmmm_nkatm()
-      value = MA_alloc_get(mt_dbl,count,'lr_cutoff',
+      value = BA_alloc_get(mt_dbl,count,'lr_cutoff',
      >                       lr_cutoff(2),lr_cutoff(1))
 
 *     **** read lr_cutoff from rtdb ****
@@ -110,14 +110,14 @@ c
       if (Nbasis.gt.0) then
 
 *       **** Allocate Memory from heap ****
-        value = MA_alloc_get(mt_int,Nbasis,'iatom',
+        value = BA_alloc_get(mt_int,Nbasis,'iatom',
      >                       iatom(2),iatom(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,Nbasis,'c',c(2),c(1))
+     >          BA_alloc_get(mt_dbl,Nbasis,'c',c(2),c(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,Nbasis,'g',g(2),g(1))
+     >          BA_alloc_get(mt_dbl,Nbasis,'g',g(2),g(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,Nbasis,'coeff',coeff(2),coeff(1))
+     >          BA_alloc_get(mt_dbl,Nbasis,'coeff',coeff(2),coeff(1))
         if (.not. value) 
      >   call errquit('Model_Potentail_init:out of heap memory',0,
      &       MA_ERR)
@@ -137,7 +137,7 @@ c
 
           if (basis_length.gt.1) then
             value = value.and.
-     >         MA_push_get(mt_dbl,(2*basis_length),'tmp',tmp(2),tmp(1))
+     >         BA_push_get(mt_dbl,(2*basis_length),'tmp',tmp(2),tmp(1))
               if (.not. value)
      >         call errquit(
      >        'Model_Potential_init:failed pushing stack:',0, MA_ERR)
@@ -152,7 +152,7 @@ c
               dbl_mb(c(1)    +count+i-1) = dbl_mb(tmp(1)+2*(i-1)  )
               dbl_mb(g(1)    +count+i-1) = dbl_mb(tmp(1)+2*(i-1)+1) 
             end do
-            value = MA_pop_stack(tmp(2))
+            value = BA_pop_stack(tmp(2))
             if (.not. value)
      >       call errquit(
      >      'Model_Potential_init:failed popping stack:',0, MA_ERR)
@@ -205,14 +205,14 @@ c
 *     **** local variables ***
       logical value
 
-      value = MA_free_heap(lr_cutoff(2))
+      value = BA_free_heap(lr_cutoff(2))
       if (Nbasis.gt.0) then
-         value = value.and.MA_free_heap(iatom(2))
-         value = value.and.MA_free_heap(c(2))
-         value = value.and.MA_free_heap(g(2))
-         value = value.and.MA_free_heap(coeff(2))
+         value = value.and.BA_free_heap(iatom(2))
+         value = value.and.BA_free_heap(c(2))
+         value = value.and.BA_free_heap(g(2))
+         value = value.and.BA_free_heap(coeff(2))
       end if
-      if (.not.value) call errquit('error MA_free_heap',0, MA_ERR)
+      if (.not.value) call errquit('error BA_free_heap',0, MA_ERR)
 
       return
       end

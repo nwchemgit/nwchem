@@ -113,13 +113,13 @@
       locp = lmax
 
 *     **** allocate rho, vp, and wp ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.BA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
       if (.not.value)
      > call errquit("kbpp_band_orb: out of stack memory",0,MA_ERR)
@@ -150,11 +150,11 @@ c      call read_semicore_band(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
 
 
 *    **** more temporary space ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
       if (.not.value)
      > call errquit("kbpp_band_orb: out of stack memory",0,MA_ERR)
@@ -163,9 +163,9 @@ c      call read_semicore_band(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
       lmmax = (lmax+1)**2 - (2*locp+1)
       nsize = ngrid(1)*ngrid(2)*ngrid(3)
 
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(lmmax),
      >                        'borbs',borbs_hndl, borbs_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
 
       if (.not.value)
@@ -272,17 +272,17 @@ c      call read_semicore_band(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
       end if
      
 *     **** free heap space ****
-      value = MA_free_heap(rho_hndl)
-      value = value.and.MA_free_heap(vp_hndl)
-      value = value.and.MA_free_heap(wp_hndl)
-      value = value.and.MA_free_heap(sc_r_hndl)
+      value = BA_free_heap(rho_hndl)
+      value = value.and.BA_free_heap(vp_hndl)
+      value = value.and.BA_free_heap(wp_hndl)
+      value = value.and.BA_free_heap(sc_r_hndl)
 
-      value = value.and.MA_free_heap(f_hndl)
-      value = value.and.MA_free_heap(cs_hndl)
-      value = value.and.MA_free_heap(sn_hndl)
+      value = value.and.BA_free_heap(f_hndl)
+      value = value.and.BA_free_heap(cs_hndl)
+      value = value.and.BA_free_heap(sn_hndl)
 
-      value = value.and.MA_free_heap(borbs_hndl)
-      value = value.and.MA_free_heap(G_hndl)
+      value = value.and.BA_free_heap(borbs_hndl)
+      value = value.and.BA_free_heap(G_hndl)
 
       if (.not.value)
      > call errquit("kbpp_band_orb: error freeing memory",0,MA_ERR)

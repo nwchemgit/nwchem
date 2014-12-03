@@ -58,7 +58,7 @@
         nconstraints = nion
 
 *       ***** allocate constraint list, ion_number, from heap ****
-        if (.not. MA_alloc_get(mt_int,nconstraints,
+        if (.not. BA_alloc_get(mt_int,nconstraints,
      >     'ion_number',ion_number(2),ion_number(1)))
      >      call errquit('out of heap memory',0, MA_ERR)
 
@@ -97,7 +97,7 @@
         if (nconstraints.gt.0) then
 
 *          ***** allocate constraint list, ion_number, from heap ****
-           if (.not. MA_alloc_get(mt_int,nconstraints,
+           if (.not. BA_alloc_get(mt_int,nconstraints,
      >       'ion_number',ion_number(2),ion_number(1)))
      >         call errquit('out of heap memory',0, MA_ERR)
 
@@ -119,7 +119,7 @@
         end if
 
 *       *** free heap ***
-        if (.not. MA_free_heap(h_actlist)) 
+        if (.not. BA_free_heap(h_actlist)) 
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
 
 *     ********************************************************
@@ -151,7 +151,7 @@
         if (nconstraints.gt.0) then
 
 *          ***** allocate constraint list, ion_number, from heap ****
-           if (.not. MA_alloc_get(mt_int,nconstraints,
+           if (.not. BA_alloc_get(mt_int,nconstraints,
      >       'ion_number',ion_number(2),ion_number(1)))
      >         call errquit('out of heap memory',0, MA_ERR)
 
@@ -173,7 +173,7 @@
         end if
 
 *       *** free heap ***
-        if (.not. MA_free_heap(h_actlist))
+        if (.not. BA_free_heap(h_actlist))
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
 
 
@@ -205,7 +205,7 @@
 
            countz = nconstraints
 *          ***** allocate constraint list, ion_number, from heap ****
-           if (.not. MA_alloc_get(mt_int,nconstraints,
+           if (.not. BA_alloc_get(mt_int,nconstraints,
      >       'ion_numberz',ion_numberz(2),ion_numberz(1)))
      >         call errquit('out of heap memory',0, MA_ERR)
 
@@ -214,7 +214,7 @@
            end do
 
 *        *** free heap ***
-         if (.not. MA_free_heap(h_actlist))
+         if (.not. BA_free_heap(h_actlist))
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
       end if
 
@@ -244,10 +244,10 @@
 
            count2 = nconstraints/2
 *          ***** allocate constraint list, ion_number, from heap ****
-           if (.not. MA_alloc_get(mt_int,count2,
+           if (.not. BA_alloc_get(mt_int,count2,
      >       'ion_number1',ion_number1(2),ion_number1(1)))
      >         call errquit('out of heap memory',0, MA_ERR)
-           if (.not. MA_alloc_get(mt_int,count2,
+           if (.not. BA_alloc_get(mt_int,count2,
      >       'ion_number1r',ion_number1r(2),ion_number1r(1)))
      >         call errquit('out of heap memory',0, MA_ERR)
 
@@ -259,7 +259,7 @@
 
 
 *       *** free heap ***
-        if (.not. MA_free_heap(h_actlist))
+        if (.not. BA_free_heap(h_actlist))
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
       end if
 
@@ -417,14 +417,14 @@
       logical value
 
       if (count.gt.0) then
-        value =  MA_free_heap(ion_number(2)) 
+        value =  BA_free_heap(ion_number(2)) 
         if (.not. value)
      >  call errquit('ion_number(2):error freeing heap memory',0,
      &       MA_ERR)
       end if
 
       if (countz.gt.0) then
-        value =  MA_free_heap(ion_numberz(2)) 
+        value =  BA_free_heap(ion_numberz(2)) 
         if (.not. value)
      >  call errquit('ion_numberz(2):error freeing heap memory',0,
      >       MA_ERR)
@@ -432,8 +432,8 @@
 
 
       if (count2.gt.0) then
-        value =            MA_free_heap(ion_number1(2)) 
-        value =  value.and.MA_free_heap(ion_number1r(2)) 
+        value =            BA_free_heap(ion_number1(2)) 
+        value =  value.and.BA_free_heap(ion_number1r(2)) 
         if (.not. value)
      >  call errquit('ion_number1(2):error freeing heap memory',0,
      &       MA_ERR)
@@ -550,11 +550,11 @@
          read(35,*) nion
          close(unit=35)
 
-         ok =        MA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
-         ok = ok.and.MA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
-         ok = ok.and.MA_push_get(mt_dbl,countz,'af1',af1(2),af1(1))
-         ok = ok.and.MA_push_get(mt_dbl,countz,'af2',af2(2),af2(1))
-         ok = ok.and.MA_push_get(mt_dbl,countz,'ac1',ac1(2),ac1(1))
+         ok =        BA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
+         ok = ok.and.BA_push_get(mt_dbl,countz,'af1',af1(2),af1(1))
+         ok = ok.and.BA_push_get(mt_dbl,countz,'af2',af2(2),af2(1))
+         ok = ok.and.BA_push_get(mt_dbl,countz,'ac1',ac1(2),ac1(1))
          if (.not.ok)
      >    call errquit('zFixIon_force_average: out of stack',1,MA_ERR)
          call dcopy(countz,0.0d0,0,dbl_mb(af1(1)),1)
@@ -620,11 +620,11 @@
      >          4x,'<Fz>=',E14.6,
      >          1x,'(<F**2>-<F>**2=',E10.3,')')
 
-         ok =        MA_pop_stack(ac1(2))
-         ok = ok.and.MA_pop_stack(af2(2))
-         ok = ok.and.MA_pop_stack(af1(2))
-         ok = ok.and.MA_pop_stack(f1(2))
-         ok = ok.and.MA_pop_stack(r1(2))
+         ok =        BA_pop_stack(ac1(2))
+         ok = ok.and.BA_pop_stack(af2(2))
+         ok = ok.and.BA_pop_stack(af1(2))
+         ok = ok.and.BA_pop_stack(f1(2))
+         ok = ok.and.BA_pop_stack(r1(2))
          if (.not.ok)
      >    call errquit(
      >         'zFixIon_force_average: error popping stack',1,MA_ERR)
@@ -700,11 +700,11 @@
          read(35,*) nion
          close(unit=35)
 
-         ok =        MA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
-         ok = ok.and.MA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
-         ok = ok.and.MA_push_get(mt_dbl,3*count,'af1',af1(2),af1(1))
-         ok = ok.and.MA_push_get(mt_dbl,3*count,'af2',af2(2),af2(1))
-         ok = ok.and.MA_push_get(mt_dbl,3*count,'ac1',ac1(2),ac1(1))
+         ok =        BA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*count,'af1',af1(2),af1(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*count,'af2',af2(2),af2(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*count,'ac1',ac1(2),ac1(1))
          if (.not.ok)
      >    call errquit('zFixIon_force_average: out of stack',1,MA_ERR)
          call dcopy(3*count,0.0d0,0,dbl_mb(af1(1)),1)
@@ -786,11 +786,11 @@
      >          4x,'<Fz>=',E14.6,
      >          1x,'(<Fz**2>-<Fz>**2=',E10.3,')')
 
-         ok =        MA_pop_stack(ac1(2))
-         ok = ok.and.MA_pop_stack(af2(2))
-         ok = ok.and.MA_pop_stack(af1(2))
-         ok = ok.and.MA_pop_stack(f1(2))
-         ok = ok.and.MA_pop_stack(r1(2))
+         ok =        BA_pop_stack(ac1(2))
+         ok = ok.and.BA_pop_stack(af2(2))
+         ok = ok.and.BA_pop_stack(af1(2))
+         ok = ok.and.BA_pop_stack(f1(2))
+         ok = ok.and.BA_pop_stack(r1(2))
          if (.not.ok)
      >    call errquit(
      >         'FixIon_force_average: error popping stack',1,MA_ERR)

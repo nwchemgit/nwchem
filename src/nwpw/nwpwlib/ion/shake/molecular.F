@@ -340,11 +340,11 @@
             nconst = nconst + nb
          end do
 
-         ok =        MA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
-         ok = ok.and.MA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
-         ok = ok.and.MA_push_get(mt_dbl,nconst,'af1',af1(2),af1(1))
-         ok = ok.and.MA_push_get(mt_dbl,nconst,'af2',af2(2),af2(1))
-         ok = ok.and.MA_push_get(mt_dbl,nconst,'ac1',ac1(2),ac1(1))
+         ok =        BA_push_get(mt_dbl,3*nion,'r1',r1(2),r1(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*nion,'f1',f1(2),f1(1))
+         ok = ok.and.BA_push_get(mt_dbl,nconst,'af1',af1(2),af1(1))
+         ok = ok.and.BA_push_get(mt_dbl,nconst,'af2',af2(2),af2(1))
+         ok = ok.and.BA_push_get(mt_dbl,nconst,'ac1',ac1(2),ac1(1))
          if (.not.ok)
      >    call errquit('molecular_force_average: out of stack',1,MA_ERR)
          call dcopy(nconst,0.0d0,0,dbl_mb(af1(1)),1)
@@ -457,11 +457,11 @@
      >          4x,'<F>=',E14.6,
      >          1x,'(<F**2>-<F>**2=',E10.3,')')
 
-         ok =        MA_pop_stack(ac1(2))
-         ok = ok.and.MA_pop_stack(af2(2))
-         ok = ok.and.MA_pop_stack(af1(2))
-         ok = ok.and.MA_pop_stack(f1(2))
-         ok = ok.and.MA_pop_stack(r1(2))
+         ok =        BA_pop_stack(ac1(2))
+         ok = ok.and.BA_pop_stack(af2(2))
+         ok = ok.and.BA_pop_stack(af1(2))
+         ok = ok.and.BA_pop_stack(f1(2))
+         ok = ok.and.BA_pop_stack(r1(2))
          if (.not.ok)
      >    call errquit(
      >         'molecular_force_average: error popping stack',1,MA_ERR)

@@ -2042,26 +2042,26 @@ c     integer i2_start(NFFT3+1)
 *     **** Define Channels - which are used to avoid ****
 *     **** asynchronous communications               ****
 
-      value = MA_alloc_get(mt_int,(2*np),
+      value = BA_alloc_get(mt_int,(2*np),
      >        'channel_proc',channel_proc(2,nb),channel_proc(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(2*np),
+     >        BA_alloc_get(mt_int,(2*np),
      >        'channel_type',channel_type(2,nb),channel_type(1,nb))
       if (.not. value) 
      > call errquit('D3dB_channel_init:out of heap memory',0, MA_ERR)
 
 
 
-      value = MA_push_get(mt_int,(np*(np-1)/2),
+      value = BA_push_get(mt_int,(np*(np-1)/2),
      >                    'pair1',pair1(2),pair1(1))
       value = value.and.
-     >        MA_push_get(mt_int,(np*(np-1)/2),
+     >        BA_push_get(mt_int,(np*(np-1)/2),
      >                    'pair2',pair2(2),pair2(1))
       value = value.and.
-     >        MA_push_get(mt_int,(np*(np-1)/2),
+     >        BA_push_get(mt_int,(np*(np-1)/2),
      >                'pair_step',pair_step(2),pair_step(1))
       value = value.and.
-     >        MA_push_get(mt_int,(np*(np-1)/2),
+     >        BA_push_get(mt_int,(np*(np-1)/2),
      >                'pair_tmp',pair_tmp(2),pair_tmp(1))
       if (.not. value) 
      >  call errquit('D3dB_channel_init:out of stack memory',0, MA_ERR)
@@ -2148,10 +2148,10 @@ c      do while(.not. full_ps(int_mb(pair_step(1)),np))
       end do
 
 
-      value=          MA_pop_stack(pair_tmp(2))
-      value=value.and.MA_pop_stack(pair_step(2))
-      value=value.and.MA_pop_stack(pair2(2))
-      value=value.and.MA_pop_stack(pair1(2))
+      value=          BA_pop_stack(pair_tmp(2))
+      value=value.and.BA_pop_stack(pair_step(2))
+      value=value.and.BA_pop_stack(pair2(2))
+      value=value.and.BA_pop_stack(pair1(2))
       if (.not. value) 
      >  call errquit('D3dB_channel_init:popping stack',0, MA_ERR)
 
@@ -2335,10 +2335,10 @@ c         jend   = jcol
       
 
 *     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >      BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
       call D3dB_c_transpose_ijk(nb,5,A,
@@ -2346,8 +2346,8 @@ c         jend   = jcol
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -2696,10 +2696,10 @@ c         jend   = jcol
       end if
 
 *     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >      BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
       call D3dB_t_transpose_ijk(nb,5,A,
@@ -2707,8 +2707,8 @@ c         jend   = jcol
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
 
@@ -2846,10 +2846,10 @@ c         jend   = jcol
       if (taskid_j.eq.jcol) then
 
 *       **** allocate temporary space  ****
-        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+        value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                      tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
         call D3dB_c_transpose_ijk(nb,6,A,
@@ -2857,8 +2857,8 @@ c         jend   = jcol
      >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
 *       **** deallocate temporary space  ****
-        value = MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
+        value = BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -3214,10 +3214,10 @@ c         jend   = jcol
       if (taskid_j.eq.jcol) then
 
 *       **** allocate temporary space  ****
-        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+        value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                      tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
         call D3dB_t_transpose_ijk(nb,6,A,
@@ -3225,8 +3225,8 @@ c         jend   = jcol
      >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
 *       **** deallocate temporary space  ****
-        value = MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
+        value = BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -3448,10 +3448,10 @@ c         jend   = jcol
       
 
 *     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >      BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
       call D3dB_c_transpose_ijk(nb,5,A,
@@ -3459,8 +3459,8 @@ c         jend   = jcol
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -3775,10 +3775,10 @@ c         jend   = jcol
       end if
 
 *     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >      BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
       call D3dB_t_transpose_ijk(nb,5,A,
@@ -3786,8 +3786,8 @@ c         jend   = jcol
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
 
@@ -3913,10 +3913,10 @@ c         jend   = jcol
       if (taskid_j.eq.jcol) then
 
 *       **** allocate temporary space  ****
-        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+        value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                      tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
         call D3dB_c_transpose_ijk(nb,6,A,
@@ -3924,8 +3924,8 @@ c         jend   = jcol
      >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
 *       **** deallocate temporary space  ****
-        value = MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
+        value = BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -4253,10 +4253,10 @@ c         jend   = jcol
       if (taskid_j.eq.jcol) then
 
 *       **** allocate temporary space  ****
-        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+        value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                      tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
         call D3dB_t_transpose_ijk(nb,6,A,
@@ -4264,8 +4264,8 @@ c         jend   = jcol
      >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
 *       **** deallocate temporary space  ****
-        value = MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
+        value = BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if

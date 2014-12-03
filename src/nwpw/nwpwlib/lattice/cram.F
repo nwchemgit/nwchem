@@ -41,22 +41,22 @@
       
       maxsize = brillioun_nbrillq()+1
 
-      value = MA_alloc_get(mt_int,maxsize,
+      value = BA_alloc_get(mt_int,maxsize,
      >                     'nidb_list',
      >                      nidb_list(2),
      >                      nidb_list(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,maxsize,
+     >        BA_alloc_get(mt_int,maxsize,
      >                     'nidb2_list',
      >                      nidb2_list(2),
      >                      nidb2_list(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,maxsize,
+     >        BA_alloc_get(mt_int,maxsize,
      >                     'nwaveall_list',
      >                      nwaveall_list(2),
      >                      nwaveall_list(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,2*maxsize,
+     >        BA_alloc_get(mt_int,2*maxsize,
      >                     'pack_list',
      >                      pack_list(2),
      >                      pack_list(1))
@@ -75,7 +75,7 @@
       nzh = nz/2
 
       do nb=0,maxsize-1
-         value = MA_alloc_get(mt_int,nfft3d,
+         value = BA_alloc_get(mt_int,nfft3d,
      >                     'pack',pack(2),pack(1))
           if (.not. value) 
      >     call errquit('Cram_init: out of heap memory',0, MA_ERR)
@@ -169,12 +169,12 @@
       value = .true.
       do nb=0,maxsize-1
          dum2 = int_mb(pack_list(1)+2*nb+1)
-         value = value.and.MA_free_heap(dum2)
+         value = value.and.BA_free_heap(dum2)
       end do
-      value = value.and.MA_free_heap(nidb_list(2))
-      value = value.and.MA_free_heap(nidb2_list(2))
-      value = value.and.MA_free_heap(nwaveall_list(2))
-      value = value.and.MA_free_heap(pack_list(2))
+      value = value.and.BA_free_heap(nidb_list(2))
+      value = value.and.BA_free_heap(nidb2_list(2))
+      value = value.and.BA_free_heap(nwaveall_list(2))
+      value = value.and.BA_free_heap(pack_list(2))
 
       if (.not. value) 
      >  call errquit('Cram_end:error freeing heap memory',0, MA_ERR)
@@ -213,7 +213,7 @@
       pack = int_mb(pack_list(1)+2*nb)
 
       call C3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(2*nfft3d,A,1,dcpl_mb(tmp1(1)),1)
@@ -223,7 +223,7 @@
         A(i) = dcpl_mb(tmp1(1) + int_mb(pack+i-1) - 1)
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('Cram_c_pack:error popping stack',0,
      &       MA_ERR)
 
@@ -342,7 +342,7 @@
       pack = int_mb(pack_list(1)+2*nb)
 
       call C3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) 
      >  call errquit('Cram_r_pack:out of stack memory',0, MA_ERR)
 
@@ -352,7 +352,7 @@
         A(i) = dbl_mb(tmp1(1) + int_mb(pack+i-1) - 1)
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) 
      >  call errquit('Cram_r_pack:error popping stack',0, MA_ERR)
 
@@ -390,7 +390,7 @@
       pack = int_mb(pack_list(1)+2*nb)
 
       call C3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_int,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_int,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) 
      >  call errquit('Cram_i_pack:out of stack memory',0, MA_ERR)
 
@@ -400,7 +400,7 @@
         A(i) = int_mb(tmp1(1) + int_mb(pack+i-1) - 1)
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) 
      >  call errquit('Cram_i_pack:error popping stack',1, MA_ERR)
 
@@ -441,7 +441,7 @@
 
       call C3dB_nfft3d(1,nfft3d)
       
-      value = MA_push_get(mt_dcpl,(nidb),
+      value = BA_push_get(mt_dcpl,(nidb),
      >                    'tmp1',tmp1(2),tmp1(1))
       if (.not.value) 
      >  call errquit('Cram_c_unpack:out of stack memory',0, MA_ERR)
@@ -451,7 +451,7 @@
       do i=1,(nidb)
         A(int_mb(pack+i-1)) = dcpl_mb(tmp1(1)+i-1)
       end do
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) 
      >  call errquit('Cram_c_unpack:error popping stack',0, MA_ERR)
 

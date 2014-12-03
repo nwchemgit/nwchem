@@ -437,7 +437,7 @@ c     >              dbl_mb(psi1_shift))
 
 
 *     **** allocate stack memory ****
-      ok = MA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
+      ok = BA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
       if (.not.ok)
      > call errquit('cpsi_project_out_orb: out of stack memory',0,
      >       MA_ERR)
@@ -465,7 +465,7 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
       end do
 
 *     **** release stack memory ****
-      ok = MA_pop_stack(x(2))
+      ok = BA_pop_stack(x(2))
       if (.not. ok)
      > call errquit('cpsi_project_out_orb: poping stack memory',0,
      &       MA_ERR)
@@ -510,7 +510,7 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
       end if
 
 *     **** allocate stack memory ****
-      ok = MA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
+      ok = BA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
       if (.not.ok)
      > call errquit('cpsi_project_out_orb: out of stack memory',0,
      &       MA_ERR)
@@ -545,7 +545,7 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
 
 
 *     **** release stack memory ****
-      ok = MA_pop_stack(x(2))
+      ok = BA_pop_stack(x(2))
       if (.not. ok)
      > call errquit('cpsi_project_out_orb: poping stack memory',0,
      &       MA_ERR)
@@ -640,13 +640,13 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
       end if
 
 
-      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'cpsi_KS_update_orb: out of stack memory',0, MA_ERR)
 
@@ -752,10 +752,10 @@ c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2))
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2))
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb: popping stack memory',1, MA_ERR)
 
@@ -817,10 +817,10 @@ c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       pi = 4.0d0*datan(1.0d0)
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_update: out of stack memory',0, MA_ERR)
@@ -875,8 +875,8 @@ c     >                  tau_t)
 
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))
       if (.not. value) call errquit(
      >     'psi_linesearch_update: popping stack memory',1, MA_ERR)
 
@@ -942,13 +942,13 @@ c     >                  tau_t)
       end if
 
 
-      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'cpsi_KS_minimize_orb: out of stack memory',0, MA_ERR)
 
@@ -1040,10 +1040,10 @@ c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2))
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2))
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'psi_KS_minimize_orb: popping stack memory',1, MA_ERR)
 
@@ -1107,10 +1107,10 @@ c     >           theta
       pi = 4.0d0*datan(1.0d0)
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_minimize: out of stack memory',0, MA_ERR)
@@ -1158,8 +1158,8 @@ c     >           theta
 
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))
       if (.not. value) call errquit(
      >     'psi_linesearch_minimize: popping stack memory',1, MA_ERR)
 
@@ -1189,7 +1189,7 @@ c     >           theta
         return
       end if
 
-      value = MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       if (.not. value) call errquit(
      >     'psi_sort_sort_minimize: out of stack memory',0,MA_ERR)
 
@@ -1225,7 +1225,7 @@ c     >           theta
       end do
       end do
 
-      value = MA_pop_stack(r1(2))
+      value = BA_pop_stack(r1(2))
       if (.not. value) call errquit(
      >     'cpsi_sort_minimize: popping stack memory',1, MA_ERR)
       return
@@ -1460,7 +1460,7 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
       external cpsi_data_get_chnk
 
 *     **** allocate stack memory ****
-      ok = MA_push_get(mt_dcpl,2*ne(1),'x',x(2),x(1))
+      ok = BA_push_get(mt_dcpl,2*ne(1),'x',x(2),x(1))
       if (.not.ok)
      > call errquit('cpsi_project_out_orb: out of stack memory',0,
      &       MA_ERR)
@@ -1492,7 +1492,7 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
       end do
 
 *     **** release stack memory ****
-      ok = MA_pop_stack(x(2))
+      ok = BA_pop_stack(x(2))
       if (.not. ok)
      > call errquit('cpsi_project_out_orb: poping stack memory',0,
      &       MA_ERR)
@@ -1532,7 +1532,7 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
       external cpsi_data_get_chnk
 
 *     **** allocate stack memory ****
-      ok = MA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
+      ok = BA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
       if (.not.ok)
      > call errquit('cpsi_project_out_orb: out of stack memory',0,
      &       MA_ERR)
@@ -1568,7 +1568,7 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
 
 
 *     **** release stack memory ****
-      ok = MA_pop_stack(x(2))
+      ok = BA_pop_stack(x(2))
       if (.not. ok)
      > call errquit('cpsi_project_out_orb: poping stack memory',0,
      &       MA_ERR)
@@ -1623,13 +1623,13 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
       end if
 
 
-      value = MA_push_get(mt_dcpl,2*npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,2*npack1,'t0',t0(2),t0(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,2*npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,2*npack1,'r1',r1(2),r1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,2*npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,2*npack1,'g',g(2),g(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,2*npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,2*npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'cpsi_KS_update_orb: out of stack memory',0, MA_ERR)
 
@@ -1759,10 +1759,10 @@ c     >        dcpl_mb(t(1)+npack1))
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2))
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2))
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb: popping stack memory',1, MA_ERR)
 
@@ -1821,10 +1821,10 @@ c     >           theta
       pi = 4.0d0*datan(1.0d0)
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1*2,'orb',
+      value = BA_push_get(mt_dcpl,npack1*2,'orb',
      >                       orb(2),orb(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1*2,'g',
+     >        BA_push_get(mt_dcpl,npack1*2,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_update2com: out of stack memory',0, MA_ERR)
@@ -1905,8 +1905,8 @@ c     >                  tau_t(npack1+1))
 
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))
       if (.not. value) call errquit(
      >     'psi_linesearch_update2com: popping stack memory',
      >     1, MA_ERR)
@@ -1960,13 +1960,13 @@ c     >                  tau_t(npack1+1))
       end if
 
 
-      value = MA_push_get(mt_dcpl,2*npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,2*npack1,'t0',t0(2),t0(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,2*npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,2*npack1,'r1',r1(2),r1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,2*npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,2*npack1,'g',g(2),g(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,2*npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,2*npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'cpsi_KS_minimize_orb: out of stack memory',0, MA_ERR)
 
@@ -2084,10 +2084,10 @@ c         write(*,*)"de0=",de0,(de0-tmp),tmp
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2))
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2))
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'psi_KS_minimize_orb: popping stack memory',1, MA_ERR)
 
@@ -2147,9 +2147,9 @@ c     >           theta
       pi = 4.0d0*datan(1.0d0)
  
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,2*npack1,'orb',orb(2),orb(1))
+      value = BA_push_get(mt_dcpl,2*npack1,'orb',orb(2),orb(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,2*npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,2*npack1,'g',g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_minimize: out of stack memory',0, MA_ERR)
 
@@ -2219,8 +2219,8 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       psi_error=psi_error+tmp
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))
       if (.not. value) call errquit(
      >     'psi_linesearch_minimize: popping stack memory',1, MA_ERR)
 
@@ -2244,7 +2244,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       integer  cpsi_data_get_chnk
       external cpsi_data_get_chnk
 
-      value = MA_push_get(mt_dcpl,npack1*2,'r1',r1(2),r1(1))
+      value = BA_push_get(mt_dcpl,npack1*2,'r1',r1(2),r1(1))
       if (.not. value) call errquit(
      >     'psi_sort_sort_minimize2com: out of stack memory',0,MA_ERR)
 
@@ -2286,7 +2286,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 
       end do
 
-      value = MA_pop_stack(r1(2))
+      value = BA_pop_stack(r1(2))
       if (.not. value) call errquit(
      >     'cpsi_sort_minimize: popping stack memory',1, MA_ERR)
       return
@@ -2374,7 +2374,7 @@ c      integer  cpsi_data_get_chnk,cpsi_data_nsize
 c      external cpsi_data_get_chnk,cpsi_data_nsize
 c
 c*     **** allocate stack memory ****
-c      if(.not.MA_push_get(mt_dcpl,(neq(1)+ne_excited(1)),'x',x(2),x(1)))
+c      if(.not.BA_push_get(mt_dcpl,(neq(1)+ne_excited(1)),'x',x(2),x(1)))
 c     > call errquit('cpsi_project_out_virtual1: out of stack memory',0,
 c     >       MA_ERR)
 c
@@ -2410,7 +2410,7 @@ c         end do
 c      end if
 c
 c*     **** release stack memory ****
-c      if (.not.MA_pop_stack(x(2)))
+c      if (.not.BA_pop_stack(x(2)))
 c     > call errquit('cpsi_project_out_virtual1:popping stack memory',0,
 c     &       MA_ERR)
 c
@@ -2445,7 +2445,7 @@ c      end
       external cpsi_data_get_chnk,cpsi_data_nsize
 
 *     **** allocate stack memory ****
-      if(.not.MA_push_get(mt_dcpl,(neq(1)+ne_excited(1)),'x',x(2),x(1)))
+      if(.not.BA_push_get(mt_dcpl,(neq(1)+ne_excited(1)),'x',x(2),x(1)))
      > call errquit('cpsi_project_out_virtual1: out of stack memory',0,
      >       MA_ERR)
 
@@ -2487,7 +2487,7 @@ c     >               dcpl_mb(x(1)))
       end if
 
 *     **** release stack memory ****
-      if (.not.MA_pop_stack(x(2)))
+      if (.not.BA_pop_stack(x(2)))
      > call errquit('cpsi_project_out_virtual1:popping stack memory',0,
      &       MA_ERR)
 
@@ -2522,7 +2522,7 @@ c     >               dcpl_mb(x(1)))
       external cpsi_data_get_chnk,cpsi_data_nsize
 
 *     **** allocate stack memory ****
-      if (.not.MA_push_get(mt_dcpl,neq(1)+ne_excited(1),'x',x(2),x(1)))
+      if (.not.BA_push_get(mt_dcpl,neq(1)+ne_excited(1),'x',x(2),x(1)))
      > call errquit('cpsi_project_out_virtual: out of stack memory',0,
      >       MA_ERR)
 
@@ -2562,7 +2562,7 @@ c     >            dcpl_mb(x(1)))
       end do
 
 *     **** release stack memory ****
-      if (.not.MA_pop_stack(x(2)))
+      if (.not.BA_pop_stack(x(2)))
      > call errquit('cpsi_project_out_virtual:popping stack memory',0,
      &       MA_ERR)
 
@@ -2611,13 +2611,13 @@ c     >            dcpl_mb(x(1)))
 
       lmbda_r0 = 1.0d0
 
-      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'cpsi_KS_update_virtual: out of stack memory',0, MA_ERR)
 
@@ -2694,10 +2694,10 @@ c     >            dcpl_mb(x(1)))
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2))
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2))
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not.value) call errquit(
      >     'cpsi_KS_update_virtual: popping stack memory',1,MA_ERR)
 
@@ -2786,10 +2786,10 @@ c     >            dcpl_mb(x(1)))
       dtheta_min = 0.01*theta
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >  'cpsi_linesearch_virtual: out of stack memory',0,MA_ERR)
@@ -2830,8 +2830,8 @@ c     >            dcpl_mb(x(1)))
      >                   dbl_mb(psi_ptr))
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))
       if (.not. value) call errquit(
      >     'cpsi_linesearch_virtual: popping stack memory',1, MA_ERR)
 
@@ -2866,7 +2866,7 @@ c        call cpsi_sort_minimize2com()
 c        return
 c      end if
 
-      if (.not.MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1)))
+      if (.not.BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1)))
      >  call errquit(
      >     'cpsi_sort_sort_virtual: out of stack memory',0,MA_ERR)
 
@@ -2901,7 +2901,7 @@ c      end if
       end do
       end do
 
-      if (.not.MA_pop_stack(r1(2)))
+      if (.not.BA_pop_stack(r1(2)))
      >  call errquit(
      >     'cpsi_sort_virtual: popping stack memory',1, MA_ERR)
       return

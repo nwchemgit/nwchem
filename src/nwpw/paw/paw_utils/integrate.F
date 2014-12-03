@@ -41,7 +41,7 @@
       integer integrand(2)
 
 
-      value = MA_push_get(mt_dcpl,nrange,
+      value = BA_push_get(mt_dcpl,nrange,
      >                    'integrand',integrand(2),integrand(1))
       if (.not.value) call errquit('def_integr: push stack',0, MA_ERR)
 
@@ -65,7 +65,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
      >        *(dcpl_mb(integrand(1))
      >         +dcpl_mb(integrand(1)+nrange-1))
 
-      value = MA_pop_stack(integrand(2))
+      value = BA_pop_stack(integrand(2))
       if (.not.value) call errquit('def_integr: pop stack',1, MA_ERR)
 
       c_def_integr = sum_f
@@ -114,7 +114,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
       real*8   dsum
       external dsum
 
-      value = MA_push_get(mt_dbl,nrange,
+      value = BA_push_get(mt_dbl,nrange,
      >                    'integrand',integrand(2),integrand(1))
       if (.not.value) call errquit('def_integr: push stack',0, MA_ERR)
 
@@ -139,7 +139,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
      >        *(dbl_mb(integrand(1))
      >         +dbl_mb(integrand(1)+nrange-1))
 
-      value = MA_pop_stack(integrand(2))
+      value = BA_pop_stack(integrand(2))
       if (.not.value) call errquit('def_integr: pop stack',1, MA_ERR)
 
       def_integr = sum_f
@@ -183,7 +183,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
       integer k
       integer integrand(2)
 
-      value = MA_push_get(mt_dbl,nrange,
+      value = BA_push_get(mt_dbl,nrange,
      >                    'integrand',integrand(2),integrand(1))
       if (.not.value) call errquit('indef_integr: push stack',0, MA_ERR)
 
@@ -207,7 +207,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
 
       end if
 
-      value = MA_pop_stack(integrand(2))
+      value = BA_pop_stack(integrand(2))
       if (.not.value) call errquit('indef_integr: pop stack',0, MA_ERR)
 
 
@@ -255,7 +255,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
       integer integrand(2)
 
 
-      value = MA_push_get(mt_dcpl,nrange,
+      value = BA_push_get(mt_dcpl,nrange,
      >                    'integrand',integrand(2),integrand(1))
       if (.not.value) call errquit('c_def_integr1: push stack',0,MA_ERR)
 
@@ -283,7 +283,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
      >        *(dcpl_mb(integrand(1))
      >         +dcpl_mb(integrand(1)+nrange-1))
 
-      value = MA_pop_stack(integrand(2))
+      value = BA_pop_stack(integrand(2))
       if (.not.value) call errquit('c_def_integr1: pop stack',1,MA_ERR)
 
       c_def_integr1 = sum_f
@@ -332,7 +332,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
       real*8   dsum
       external dsum
 
-      value = MA_push_get(mt_dbl,nrange,
+      value = BA_push_get(mt_dbl,nrange,
      >                    'integrand',integrand(2),integrand(1))
       if (.not.value) call errquit('def_integr1: push stack',0,MA_ERR)
 
@@ -361,7 +361,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
      >        *(dbl_mb(integrand(1))
      >         +dbl_mb(integrand(1)+nrange-1))
 
-      value = MA_pop_stack(integrand(2))
+      value = BA_pop_stack(integrand(2))
       if (.not.value) call errquit('def_integr1: pop stack',1,MA_ERR)
 
       def_integr1 = sum_f

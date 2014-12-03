@@ -541,7 +541,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 *     ****  calculate gradient ***
       if (flag.gt.0) then
       nion = ion_nion()
-      value = MA_push_get(mt_dbl,(3*nion),
+      value = BA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -575,7 +575,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
       if (flag.gt.0) then
         value = value.and.rtdb_put(rtdb,'band:gradient',mt_dbl,
      >                             3*nion,dbl_mb(fion(1)))
-        value = value.and.MA_pop_stack(fion(2))
+        value = value.and.BA_pop_stack(fion(2))
       end if
       if (flag.eq.3) then
         value = value.and.

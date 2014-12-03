@@ -39,154 +39,154 @@
       call Pack_npack(0,npack0)
       npsp = ion_nkatm()
 
-c      value = MA_alloc_get(mt_dcpl,(nmax_max*lmmax_max*npack1),
+c      value = BA_alloc_get(mt_dcpl,(nmax_max*lmmax_max*npack1),
 c     >                    'prjtmp',prjtmp(2),prjtmp(1))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(nmax_max*lmmax_max*npsp*npack1),
+c     >        BA_alloc_get(mt_dbl,(nmax_max*lmmax_max*npsp*npack1),
 c     >                    'vnl',vnl(2),vnl(1))
 c     value = value.and.
-c    >         MA_alloc_get(mt_dbl,(lmmax_max*npsp),
+c    >         BA_alloc_get(mt_dbl,(lmmax_max*npsp),
 c    >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
 
-      value = MA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
+      value = BA_alloc_get(mt_dbl,(npsp*npack0),'vl',vl(2),vl(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp*npack0),
+     >        BA_alloc_get(mt_dbl,(npsp*npack0),
      >                     'vlpaw',vlpaw(2),vlpaw(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
+     >        BA_alloc_get(mt_int,npsp,'vnl',vnl(2),vnl(1))
 c      value = value.and.
-c     >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
+c     >      BA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
 c     >                    'Gijl',Gijl(2),Gijl(1))
-      value = value.and.MA_alloc_get(mt_int,npsp,'Gijl',Gijl(2),Gijl(1))
+      value = value.and.BA_alloc_get(mt_int,npsp,'Gijl',Gijl(2),Gijl(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'nprj',nprj(2),nprj(1))
+     >        BA_alloc_get(mt_int,(npsp),'nprj',nprj(2),nprj(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        BA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'n_projector',n_projector(2),n_projector(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        BA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'l_projector',l_projector(2),l_projector(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        BA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'm_projector',m_projector(2),m_projector(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        BA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'b_projector',b_projector(2),b_projector(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp),'zv',zv(2),zv(1))
+     >        BA_alloc_get(mt_dbl,(npsp),'zv',zv(2),zv(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp),'amass',amass(2),amass(1))
+     >        BA_alloc_get(mt_dbl,(npsp),'amass',amass(2),amass(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp*(lmax_max+1)),'rc',rc(2),rc(1))
+     >        BA_alloc_get(mt_dbl,(npsp*(lmax_max+1)),'rc',rc(2),rc(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'lmmax',lmmax(2),lmmax(1))
+     >        BA_alloc_get(mt_int,(npsp),'lmmax',lmmax(2),lmmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'lmax',lmax(2),lmax(1))
+     >        BA_alloc_get(mt_int,(npsp),'lmax',lmax(2),lmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'locp',locp(2),locp(1))
+     >        BA_alloc_get(mt_int,(npsp),'locp',locp(2),locp(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),'nmax',nmax(2),nmax(1))
+     >        BA_alloc_get(mt_int,(npsp),'nmax',nmax(2),nmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp),
+     >        BA_alloc_get(mt_int,(npsp),
      >                     'psp_type',psp_type(2),psp_type(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp),'rlocal',rlocal(2),rlocal(1))
+     >        BA_alloc_get(mt_dbl,(npsp),'rlocal',rlocal(2),rlocal(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'r3_matrix',
+     >        BA_alloc_get(mt_int,npsp,'r3_matrix',
      >                     r3_matrix(2),r3_matrix(1))
 
 *     ***** PAW variables *****
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'hartree_matrix',
+     >        BA_alloc_get(mt_int,npsp,'hartree_matrix',
      >                     hartree_matrix(2),hartree_matrix(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'comp_charge_matrix',
+     >        BA_alloc_get(mt_int,npsp,'comp_charge_matrix',
      >                     comp_charge_matrix(2),comp_charge_matrix(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'comp_pot_matrix',
+     >        BA_alloc_get(mt_int,npsp,'comp_pot_matrix',
      >                     comp_pot_matrix(2),comp_pot_matrix(1))
       value = value.and.
-     > MA_alloc_get(mt_dbl,(npsp),'log_amesh',log_amesh(2),log_amesh(1))
+     > BA_alloc_get(mt_dbl,(npsp),'log_amesh',log_amesh(2),log_amesh(1))
       value = value.and.
-     >  MA_alloc_get(mt_dbl,(npsp),'r1',r1(2),r1(1))
+     >  BA_alloc_get(mt_dbl,(npsp),'r1',r1(2),r1(1))
       value = value.and.
-     >  MA_alloc_get(mt_dbl,(npsp),'rmax',rmax(2),rmax(1))
+     >  BA_alloc_get(mt_dbl,(npsp),'rmax',rmax(2),rmax(1))
       value = value.and.
-     >  MA_alloc_get(mt_dbl,(npsp),'sigma',sigma(2),sigma(1))
+     >  BA_alloc_get(mt_dbl,(npsp),'sigma',sigma(2),sigma(1))
       value = value.and.
-     >  MA_alloc_get(mt_dbl,(npsp),'zion',zion(2),zion(1))
+     >  BA_alloc_get(mt_dbl,(npsp),'zion',zion(2),zion(1))
       value = value.and.
-     >  MA_alloc_get(mt_dbl,(npsp),'core_kin',core_kin(2),core_kin(1))
+     >  BA_alloc_get(mt_dbl,(npsp),'core_kin',core_kin(2),core_kin(1))
       value = value.and.
-     >  MA_alloc_get(mt_dbl,(npsp),'core_ion',core_ion(2),core_ion(1))
+     >  BA_alloc_get(mt_dbl,(npsp),'core_ion',core_ion(2),core_ion(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'n1dgrid',n1dgrid(2),n1dgrid(1))
+     >        BA_alloc_get(mt_int,npsp,'n1dgrid',n1dgrid(2),n1dgrid(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,
+     >        BA_alloc_get(mt_int,npsp,
      >                     'n1dbasis',n1dbasis(2),n1dbasis(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        BA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'nae',nae(2),nae(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        BA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'nps',nps(2),nps(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >        BA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'lps',lps(2),lps(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'icut',icut(2),icut(1))
+     >        BA_alloc_get(mt_int,npsp,'icut',icut(2),icut(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'eig',eig(2),eig(1))
+     >        BA_alloc_get(mt_int,npsp,'eig',eig(2),eig(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'phi_ae',phi_ae(2),phi_ae(1))
+     >        BA_alloc_get(mt_int,npsp,'phi_ae',phi_ae(2),phi_ae(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'dphi_ae',dphi_ae(2),dphi_ae(1))
+     >        BA_alloc_get(mt_int,npsp,'dphi_ae',dphi_ae(2),dphi_ae(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'phi_ps',phi_ps(2),phi_ps(1))
+     >        BA_alloc_get(mt_int,npsp,'phi_ps',phi_ps(2),phi_ps(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'dphi_ps',dphi_ps(2),dphi_ps(1))
+     >        BA_alloc_get(mt_int,npsp,'dphi_ps',dphi_ps(2),dphi_ps(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'core_ae',core_ae(2),core_ae(1))
+     >        BA_alloc_get(mt_int,npsp,'core_ae',core_ae(2),core_ae(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'core_ps',core_ps(2),core_ps(1))
+     >        BA_alloc_get(mt_int,npsp,'core_ps',core_ps(2),core_ps(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'core_ae_prime',
+     >        BA_alloc_get(mt_int,npsp,'core_ae_prime',
      >                    core_ae_prime(2),core_ae_prime(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'core_ps_prime',
+     >        BA_alloc_get(mt_int,npsp,'core_ps_prime',
      >                     core_ps_prime(2),core_ps_prime(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,npsp,'rgrid',rgrid(2),rgrid(1))
+     >        BA_alloc_get(mt_int,npsp,'rgrid',rgrid(2),rgrid(1))
 
 *     **** setup pspspin structure - used for generating antiferromagnetic structures ****
       pspspin = control_pspspin()
       if (pspspin) then
          nion  = ion_nion()
          value = value.and.
-     >   MA_alloc_get(mt_log,nion,'pspspin_upions',
+     >   BA_alloc_get(mt_log,nion,'pspspin_upions',
      >                pspspin_upions(2),pspspin_upions(1))
          value = value.and.
-     >   MA_alloc_get(mt_log,nion,'pspspin_downions',
+     >   BA_alloc_get(mt_log,nion,'pspspin_downions',
      >                pspspin_downions(2),pspspin_downions(1))
          value = value.and.
-     >   MA_alloc_get(mt_int,nion,'pspspin_upl',
+     >   BA_alloc_get(mt_int,nion,'pspspin_upl',
      >                pspspin_upl(2),pspspin_upl(1))
          value = value.and.
-     >   MA_alloc_get(mt_int,nion,'pspspin_downl',
+     >   BA_alloc_get(mt_int,nion,'pspspin_downl',
      >                pspspin_downl(2),pspspin_downl(1))
          value = value.and.
-     >   MA_alloc_get(mt_int,nion,'pspspin_upm',
+     >   BA_alloc_get(mt_int,nion,'pspspin_upm',
      >                pspspin_upm(2),pspspin_upm(1))
          value = value.and.
-     >   MA_alloc_get(mt_int,nion,'pspspin_downm',
+     >   BA_alloc_get(mt_int,nion,'pspspin_downm',
      >                pspspin_downm(2),pspspin_downm(1))
          value = value.and.
-     >   MA_alloc_get(mt_dbl,nion,'pspspin_upscale',
+     >   BA_alloc_get(mt_dbl,nion,'pspspin_upscale',
      >                pspspin_upscale(2),pspspin_upscale(1))
          value = value.and.
-     >   MA_alloc_get(mt_dbl,nion,'pspspin_downm',
+     >   BA_alloc_get(mt_dbl,nion,'pspspin_downm',
      >                pspspin_downscale(2),pspspin_downscale(1))
          if (.not. value) 
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
@@ -237,18 +237,18 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          psp_fmm_lmax = FMM_lmax()
          call D3dB_n2ft3d(1,n2ft3d)
 
-         value=MA_alloc_get(mt_dbl,n2ft3d*(psp_fmm_lmax+1)**2,
+         value=BA_alloc_get(mt_dbl,n2ft3d*(psp_fmm_lmax+1)**2,
      >          'psp_fmm_rTlm',psp_fmm_rTlm(2),psp_fmm_rTlm(1))
          value=value.and.
-     >         MA_alloc_get(mt_dbl,(psp_fmm_lmax+1)**2,
+     >         BA_alloc_get(mt_dbl,(psp_fmm_lmax+1)**2,
      >          'psp_fmm_Llm',psp_fmm_Llm(2),psp_fmm_Llm(1))
          value=value.and.
-     >         MA_alloc_get(mt_dbl,(psp_fmm_lmax+1)**2,
+     >         BA_alloc_get(mt_dbl,(psp_fmm_lmax+1)**2,
      >          'psp_fmm_Mlm',psp_fmm_Mlm(2),psp_fmm_Mlm(1))
          if (.not.value) 
      >      call errquit('psp_init:out of heap memory',0, MA_ERR)
 
-         value=MA_push_get(mt_dbl,3*n2ft3d,
+         value=BA_push_get(mt_dbl,3*n2ft3d,
      >          'tmp_rgrid',tmp_rgrid(2),tmp_rgrid(1))
          if (.not.value) 
      >      call errquit('psp_init:out of stack memory',0,MA_ERR)
@@ -272,7 +272,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          end do
          end do
 
-         if (.not.MA_pop_stack(tmp_rgrid(2)))
+         if (.not.BA_pop_stack(tmp_rgrid(2)))
      >      call errquit('psp_init:popping stack',0,MA_ERR)
       end if
 
@@ -311,17 +311,17 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       call Pack_npack(1,npack1)
       nprj_mult= control_nprj_mult()
       nprj_max = psp_nprj_max()
-      value = MA_alloc_get(mt_dcpl,npack1*nprj_max*nprj_mult,
+      value = BA_alloc_get(mt_dcpl,npack1*nprj_max*nprj_mult,
      >                     'prjtmp',prjtmp(2),prjtmp(1))
       if (pawexist) then
          value = value.and.
-     >            MA_alloc_get(mt_dbl,2*nprj_max*nprj_max,
+     >            BA_alloc_get(mt_dbl,2*nprj_max*nprj_max,
      >                        'wtmp',wtmp(2),wtmp(1))
          value = value.and.
-     >            MA_alloc_get(mt_dcpl,npack0,'vc_tmp',
+     >            BA_alloc_get(mt_dcpl,npack0,'vc_tmp',
      >                         vc_tmp(2),vc_tmp(1))
          value = value.and.
-     >            MA_alloc_get(mt_dcpl,npack0,'vcmptmp',
+     >            BA_alloc_get(mt_dcpl,npack0,'vcmptmp',
      >                         vcmp_tmp(2),vcmp_tmp(1))
       end if
       if (.not. value)
@@ -428,9 +428,9 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 
 *     **** deallocate FMM data ****
       if (psp_fmm) then
-         value =           MA_free_heap(psp_fmm_rTlm(2))
-         value = value.and.MA_free_heap(psp_fmm_Llm(2))
-         value = value.and.MA_free_heap(psp_fmm_Mlm(2))
+         value =           BA_free_heap(psp_fmm_rTlm(2))
+         value = value.and.BA_free_heap(psp_fmm_Llm(2))
+         value = value.and.BA_free_heap(psp_fmm_Mlm(2))
          if (.not.value)
      >     call errquit('psp_end:error freeing fmm heap',0,MA_ERR)
       end if
@@ -464,75 +464,75 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
         end if
       end do
 
-      value = MA_free_heap(prjtmp(2))
+      value = BA_free_heap(prjtmp(2))
       if (pawexist) then
          call psp_paw_end()
-         value = value.and.MA_free_heap(wtmp(2))
-         value = value.and.MA_free_heap(vc_tmp(2))
-         value = value.and.MA_free_heap(vcmp_tmp(2))
+         value = value.and.BA_free_heap(wtmp(2))
+         value = value.and.BA_free_heap(vc_tmp(2))
+         value = value.and.BA_free_heap(vcmp_tmp(2))
       end if
-      value = value.and.MA_free_heap(vl(2))
-      value = value.and.MA_free_heap(vnl(2))
-c     value = value.and.MA_free_heap(vnlnrm(2))
-      value = value.and.MA_free_heap(Gijl(2))
-      value = value.and.MA_free_heap(nprj(2))
-      value = value.and.MA_free_heap(n_projector(2))
-      value = value.and.MA_free_heap(l_projector(2))
-      value = value.and.MA_free_heap(m_projector(2))
-      value = value.and.MA_free_heap(b_projector(2))
-      value = value.and.MA_free_heap(zv(2))
-      value = value.and.MA_free_heap(amass(2))
-      value = value.and.MA_free_heap(rc(2))
-      value = value.and.MA_free_heap(lmmax(2))
-      value = value.and.MA_free_heap(lmax(2))
-      value = value.and.MA_free_heap(locp(2))
-      value = value.and.MA_free_heap(nmax(2))
-      value = value.and.MA_free_heap(psp_type(2))
-      value = value.and.MA_free_heap(rlocal(2))
+      value = value.and.BA_free_heap(vl(2))
+      value = value.and.BA_free_heap(vnl(2))
+c     value = value.and.BA_free_heap(vnlnrm(2))
+      value = value.and.BA_free_heap(Gijl(2))
+      value = value.and.BA_free_heap(nprj(2))
+      value = value.and.BA_free_heap(n_projector(2))
+      value = value.and.BA_free_heap(l_projector(2))
+      value = value.and.BA_free_heap(m_projector(2))
+      value = value.and.BA_free_heap(b_projector(2))
+      value = value.and.BA_free_heap(zv(2))
+      value = value.and.BA_free_heap(amass(2))
+      value = value.and.BA_free_heap(rc(2))
+      value = value.and.BA_free_heap(lmmax(2))
+      value = value.and.BA_free_heap(lmax(2))
+      value = value.and.BA_free_heap(locp(2))
+      value = value.and.BA_free_heap(nmax(2))
+      value = value.and.BA_free_heap(psp_type(2))
+      value = value.and.BA_free_heap(rlocal(2))
 
 *     **** PAW variables ****
       if (pawexist) then
          call nwpw_compcharge_end()
          call nwpw_xc_end()
       end if
-      value = value.and.MA_free_heap(vlpaw(2))
-      value = value.and.MA_free_heap(r3_matrix(2))
-      value = value.and.MA_free_heap(hartree_matrix(2))
-      value = value.and.MA_free_heap(comp_charge_matrix(2))
-      value = value.and.MA_free_heap(comp_pot_matrix(2))
-      value = value.and.MA_free_heap(log_amesh(2))
-      value = value.and.MA_free_heap(r1(2))
-      value = value.and.MA_free_heap(rmax(2))
-      value = value.and.MA_free_heap(sigma(2))
-      value = value.and.MA_free_heap(zion(2))
-      value = value.and.MA_free_heap(core_kin(2))
-      value = value.and.MA_free_heap(core_ion(2))
-      value = value.and.MA_free_heap(n1dgrid(2))
-      value = value.and.MA_free_heap(n1dbasis(2))
-      value = value.and.MA_free_heap(nae(2))
-      value = value.and.MA_free_heap(nps(2))
-      value = value.and.MA_free_heap(lps(2))
-      value = value.and.MA_free_heap(icut(2))
-      value = value.and.MA_free_heap(eig(2))
-      value = value.and.MA_free_heap(phi_ae(2))
-      value = value.and.MA_free_heap(dphi_ae(2))
-      value = value.and.MA_free_heap(phi_ps(2))
-      value = value.and.MA_free_heap(dphi_ps(2))
-      value = value.and.MA_free_heap(core_ae(2))
-      value = value.and.MA_free_heap(core_ps(2))
-      value = value.and.MA_free_heap(core_ae_prime(2))
-      value = value.and.MA_free_heap(core_ps_prime(2))
-      value = value.and.MA_free_heap(rgrid(2))
+      value = value.and.BA_free_heap(vlpaw(2))
+      value = value.and.BA_free_heap(r3_matrix(2))
+      value = value.and.BA_free_heap(hartree_matrix(2))
+      value = value.and.BA_free_heap(comp_charge_matrix(2))
+      value = value.and.BA_free_heap(comp_pot_matrix(2))
+      value = value.and.BA_free_heap(log_amesh(2))
+      value = value.and.BA_free_heap(r1(2))
+      value = value.and.BA_free_heap(rmax(2))
+      value = value.and.BA_free_heap(sigma(2))
+      value = value.and.BA_free_heap(zion(2))
+      value = value.and.BA_free_heap(core_kin(2))
+      value = value.and.BA_free_heap(core_ion(2))
+      value = value.and.BA_free_heap(n1dgrid(2))
+      value = value.and.BA_free_heap(n1dbasis(2))
+      value = value.and.BA_free_heap(nae(2))
+      value = value.and.BA_free_heap(nps(2))
+      value = value.and.BA_free_heap(lps(2))
+      value = value.and.BA_free_heap(icut(2))
+      value = value.and.BA_free_heap(eig(2))
+      value = value.and.BA_free_heap(phi_ae(2))
+      value = value.and.BA_free_heap(dphi_ae(2))
+      value = value.and.BA_free_heap(phi_ps(2))
+      value = value.and.BA_free_heap(dphi_ps(2))
+      value = value.and.BA_free_heap(core_ae(2))
+      value = value.and.BA_free_heap(core_ps(2))
+      value = value.and.BA_free_heap(core_ae_prime(2))
+      value = value.and.BA_free_heap(core_ps_prime(2))
+      value = value.and.BA_free_heap(rgrid(2))
 
       if (pspspin) then
-         value = value.and.MA_free_heap(pspspin_upions(2))
-         value = value.and.MA_free_heap(pspspin_downions(2))
-         value = value.and.MA_free_heap(pspspin_upm(2))
-         value = value.and.MA_free_heap(pspspin_downm(2))
-         value = value.and.MA_free_heap(pspspin_upl(2))
-         value = value.and.MA_free_heap(pspspin_downl(2))
-         value = value.and.MA_free_heap(pspspin_upscale(2))
-         value = value.and.MA_free_heap(pspspin_downscale(2))
+         value = value.and.BA_free_heap(pspspin_upions(2))
+         value = value.and.BA_free_heap(pspspin_downions(2))
+         value = value.and.BA_free_heap(pspspin_upm(2))
+         value = value.and.BA_free_heap(pspspin_downm(2))
+         value = value.and.BA_free_heap(pspspin_upl(2))
+         value = value.and.BA_free_heap(pspspin_downl(2))
+         value = value.and.BA_free_heap(pspspin_upscale(2))
+         value = value.and.BA_free_heap(pspspin_downscale(2))
       end if
 
 
@@ -587,26 +587,26 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
         end if !** nproj>0 **
       end do !** ii **
 
-      value = MA_alloc_get(mt_int,nion_prj_indx,'ii_prj_indx',
+      value = BA_alloc_get(mt_int,nion_prj_indx,'ii_prj_indx',
      >                     ii_prj_indx(2),ii_prj_indx(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,nion_prj_indx,'ia_prj_indx',
+     >        BA_alloc_get(mt_int,nion_prj_indx,'ia_prj_indx',
      >                     ia_prj_indx(2),ia_prj_indx(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,nion_prj_indx,'nproj_prj_indx',
+     >        BA_alloc_get(mt_int,nion_prj_indx,'nproj_prj_indx',
      >                     nproj_prj_indx(2),nproj_prj_indx(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,nion_prj_indx,'swstart_prj_indx',
+     >        BA_alloc_get(mt_int,nion_prj_indx,'swstart_prj_indx',
      >                     swstart_prj_indx(2),swstart_prj_indx(1))
 
-      value = MA_alloc_get(mt_int,n_prj_indx,'shift_prj_indx',
+      value = BA_alloc_get(mt_int,n_prj_indx,'shift_prj_indx',
      >                     shift_prj_indx(2),shift_prj_indx(1))
-      value = MA_alloc_get(mt_int,n_prj_indx,'l_prj_prj_indx',
+      value = BA_alloc_get(mt_int,n_prj_indx,'l_prj_prj_indx',
      >                     l_prj_prj_indx(2),l_prj_prj_indx(1))
-      value = MA_alloc_get(mt_int,n_prj_indx,'m_prj_prj_indx',
+      value = BA_alloc_get(mt_int,n_prj_indx,'m_prj_prj_indx',
      >                     m_prj_prj_indx(2),m_prj_prj_indx(1))
       value = value.and.
-     >        MA_alloc_get(mt_log,n_prj_indx,'sd_function_prj_indx',
+     >        BA_alloc_get(mt_log,n_prj_indx,'sd_function_prj_indx',
      >              sd_function_prj_indx(2),sd_function_prj_indx(1))
       if (.not.value)
      >  call errquit('psp_prj_indx_init: out of memory',0, MA_ERR)
@@ -669,8 +669,8 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       logical ok
 
       if (swaset.and.(nn.gt.swann)) then
-         ok =        MA_free_heap(sw1a(2))
-         ok = ok.and.MA_free_heap(sw2a(2))
+         ok =        BA_free_heap(sw1a(2))
+         ok = ok.and.BA_free_heap(sw2a(2))
          if (.not.ok)
      >     call errquit('psp_prj_indx_alloc_sw1a_sw2a:freeing heap',
      >                  0,MA_ERR)
@@ -678,9 +678,9 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       end if
 
       if (.not.swaset) then
-         ok = MA_alloc_get(mt_dbl,nn*n_prj_indx,'sw1a',sw1a(2),sw1a(1))
+         ok = BA_alloc_get(mt_dbl,nn*n_prj_indx,'sw1a',sw1a(2),sw1a(1))
          ok = ok.and.
-     >        MA_alloc_get(mt_dbl,nn*n_prj_indx,'sw2a',sw2a(2),sw2a(1))
+     >        BA_alloc_get(mt_dbl,nn*n_prj_indx,'sw2a',sw2a(2),sw2a(1))
          if (.not.ok)
      >     call errquit('psp_prj_indx_alloc_sw1a_sw2a: out of memory',
      >                  0,MA_ERR)
@@ -708,17 +708,17 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 *     **** local variables ****
       logical value
 
-      value =           MA_free_heap(ii_prj_indx(2))
-      value = value.and.MA_free_heap(ia_prj_indx(2))
-      value = value.and.MA_free_heap(nproj_prj_indx(2))
-      value = value.and.MA_free_heap(swstart_prj_indx(2))
-      value = value.and.MA_free_heap(shift_prj_indx(2))
-      value = value.and.MA_free_heap(l_prj_prj_indx(2))
-      value = value.and.MA_free_heap(m_prj_prj_indx(2))
-      value = value.and.MA_free_heap(sd_function_prj_indx(2))
+      value =           BA_free_heap(ii_prj_indx(2))
+      value = value.and.BA_free_heap(ia_prj_indx(2))
+      value = value.and.BA_free_heap(nproj_prj_indx(2))
+      value = value.and.BA_free_heap(swstart_prj_indx(2))
+      value = value.and.BA_free_heap(shift_prj_indx(2))
+      value = value.and.BA_free_heap(l_prj_prj_indx(2))
+      value = value.and.BA_free_heap(m_prj_prj_indx(2))
+      value = value.and.BA_free_heap(sd_function_prj_indx(2))
       if (swaset) then
-         value = value.and.MA_free_heap(sw1a(2))
-         value = value.and.MA_free_heap(sw2a(2))
+         value = value.and.BA_free_heap(sw1a(2))
+         value = value.and.BA_free_heap(sw2a(2))
       end if
       if (.not.value)
      >  call errquit('psp_prj_indx_end:error freeing heap',0,MA_ERR)
@@ -1247,7 +1247,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
       dv = lattice_omega()/dble(np1*np2*np3)
 
 *     ***** allocate temporary space ****
-      if (.not.MA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
+      if (.not.BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
      > call errquit('grad_v_lr_local:out of stack memory',0, MA_ERR)
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
@@ -1383,7 +1383,7 @@ c         fion(3,j) = fion(3,j) - fz*dv
       call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
       call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
-      if (.not.MA_pop_stack(ftmp(2)))
+      if (.not.BA_pop_stack(ftmp(2)))
      > call errquit('grad_v_lr_local:popping stack',1,MA_ERR)
 
       call nwpw_timing_end(5)
@@ -1585,15 +1585,15 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       nion     = ion_nion()
       periodic = (control_version().eq.3)
 
-      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+     >        BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
       if (.not. value) 
      >  call errquit('v_local:out of stack memory',0,MA_ERR)
 
 *     **** define Gx,Gy and Gz in packed space ****
       if (move) then
-         value = MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+         value = BA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
          if (.not. value) 
      >   call errquit('v_local: out of stack memory',0, MA_ERR)
          G(1)  = Pack_G_indx(0,1)
@@ -1672,9 +1672,9 @@ c                end do
       if (move) call Parallel_Vector_SumAll(3*nion,fion)
 
       value = .true.
-      if (move) value = value.and.MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(vtmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      if (move) value = value.and.BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value) 
      >  call errquit('v_local:popping stack',0,MA_ERR)
 
@@ -1720,9 +1720,9 @@ c                end do
       periodic = (control_version().eq.3)
       scal1 = 1.0d0/lattice_omega()
 
-      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+     >        BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
       if (.not. value)
      >  call errquit('v_local_addto_vcmp:out of stack memory',0,MA_ERR)
 
@@ -1763,8 +1763,8 @@ c                end do
 
 
       value = .true. 
-      value = value.and.MA_pop_stack(vtmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value)
      >  call errquit('v_local_addto_vcmp:popping stack',1,MA_ERR)
 
@@ -1814,11 +1814,11 @@ c      integer Gx(2),Gy(2),Gz(2)
       nion     = ion_nion()
       periodic = (control_version().eq.3)
 
-      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+     >        BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+     >        BA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 c     **** define Gx,Gy and Gz in packed space ****
@@ -1884,9 +1884,9 @@ c           end do
       end do
       call Parallel_Vector_SumAll(3*nion,fion)
 
-      value =           MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(vtmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
 
       call nwpw_timing_end(5)
       return 
@@ -1952,18 +1952,18 @@ c           end do
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
       if (move) then
-       value = value.and.MA_push_get(mt_dbl,npack1,
+       value = value.and.BA_push_get(mt_dbl,npack1,
      >                               'xtmp',xtmp(2),xtmp(1))
-       value = value.and.MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+       value = value.and.BA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
        if (.not. value) 
      >  call errquit('v_nonlocal:out of stack memory',1,MA_ERR)
 
@@ -2162,12 +2162,12 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
       value = .true.
       if (move) then
-      value = value.and.MA_pop_stack(sum(2))
-      value = value.and.MA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(sum(2))
+      value = value.and.BA_pop_stack(xtmp(2))
       end if
-      value = value.and.MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('v_nonlocal: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)
@@ -2250,14 +2250,14 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       call Pack_npack(1,npack1)
 
       call psp_prj_indx_alloc_sw1a_sw2a(nn)
-      value = MA_push_get(mt_dcpl,npack1,'exi',exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi',exi(2), exi(1))
       if (.not.value) 
      >  call errquit('v_nonlocal:out of stack',0, MA_ERR)
 
       if (move) then
-       value = value.and.MA_push_get(mt_dbl,npack1,
+       value = value.and.BA_push_get(mt_dbl,npack1,
      >                               'xtmp',xtmp(2),xtmp(1))
-       value = value.and.MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+       value = value.and.BA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
        if (.not. value) 
      >  call errquit('v_nonlocal:out of stack',1,MA_ERR)
 
@@ -2402,10 +2402,10 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
          if (use_grid_cmp) then
 
 
-            value = MA_push_get(mt_dcpl,npack0,'dng_cmp',
+            value = BA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                          dng_cmp(2),dng_cmp(1))
             value = value.and.
-     >              MA_push_get(mt_dcpl,npack0,'vcmp',
+     >              BA_push_get(mt_dcpl,npack0,'vcmp',
      >                          vcmp(2),vcmp(1))
             if (.not.value) 
      >      call errquit('v_nonlocal:out of stack',4, MA_ERR)
@@ -2442,24 +2442,24 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
                   end do
                end if
             end do
-            value =           MA_pop_stack(vcmp(2))
-            value = value.and.MA_pop_stack(dng_cmp(2))
+            value =           BA_pop_stack(vcmp(2))
+            value = value.and.BA_pop_stack(dng_cmp(2))
             if (.not.value) 
      >      call errquit('v_nonlocal:popping stack',4, MA_ERR)
 
          else
 
 
-            value = MA_push_get(mt_dcpl,npack0,'dng_cmp',
+            value = BA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                          dng_cmp(2),dng_cmp(1))
             value = value.and.
-     >              MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+     >              BA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                          dng_cmp_smooth(2),dng_cmp_smooth(1))
             value = value.and.
-     >              MA_push_get(mt_dcpl,npack0,'vcmp',
+     >              BA_push_get(mt_dcpl,npack0,'vcmp',
      >                          vcmp(2),vcmp(1))
             value = value.and.
-     >              MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
+     >              BA_push_get(mt_dcpl,npack0,'vcmp_smooth',
      >                          vcmp_smooth(2),vcmp_smooth(1))
             if (.not.value) 
      >        call errquit('v_nonlocal:out of stack',4, MA_ERR)
@@ -2527,10 +2527,10 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
             call nwpw_compcharge_gen_dEmult_Qlm(ispin)
             call nwpw_compcharge_add_dEmult_Qlm(ispin)
 
-            value =           MA_pop_stack(vcmp_smooth(2))
-            value = value.and.MA_pop_stack(vcmp(2))
-            value = value.and.MA_pop_stack(dng_cmp_smooth(2))
-            value = value.and.MA_pop_stack(dng_cmp(2))
+            value =           BA_pop_stack(vcmp_smooth(2))
+            value = value.and.BA_pop_stack(vcmp(2))
+            value = value.and.BA_pop_stack(dng_cmp_smooth(2))
+            value = value.and.BA_pop_stack(dng_cmp(2))
             if (.not.value) 
      >        call errquit('v_nonlocal:popping stack',5,MA_ERR)
          end if
@@ -2692,10 +2692,10 @@ c                 end do
 
       value = .true.
       if (move) then
-      value = value.and.MA_pop_stack(sum(2))
-      value = value.and.MA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(sum(2))
+      value = value.and.BA_pop_stack(xtmp(2))
       end if
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('v_nonlocal: popping stack',3,
      &       MA_ERR)
 
@@ -2850,17 +2850,17 @@ c      integer Gx(2),Gy(2),Gz(2)
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1,'vtmp',vtmp(2),vtmp(1))
+     >        BA_push_get(mt_dcpl,npack1,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, npack1,'xtmp',xtmp(2),xtmp(1))
+     >        BA_push_get(mt_dbl, npack1,'xtmp',xtmp(2),xtmp(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+     >   BA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
       value = value.and.
-     >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+     >      BA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
       if (.not. value) 
      >  call errquit('f_vnonlocal: out of stack memory',0, MA_ERR)
 
@@ -3056,12 +3056,12 @@ c     **** define Gx,Gy and Gz in packed space ****
 
       end do !** ii **
 
-      value = MA_pop_stack(sum(2))
-      value = value.and.MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(vtmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = BA_pop_stack(sum(2))
+      value = value.and.BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value) 
      >  call errquit('f_vnonlocal: popping stack memory',0, MA_ERR)
 
@@ -3132,10 +3132,10 @@ c     **** define Gx,Gy and Gz in packed space ****
       call Pack_npack(1,npack1)
 
       call psp_prj_indx_alloc_sw1a_sw2a(nn)
-      value = MA_push_get(mt_dcpl,npack1,'exi',exi(2), exi(1))
-      value = value.and.MA_push_get(mt_dbl,npack1,
+      value = BA_push_get(mt_dcpl,npack1,'exi',exi(2), exi(1))
+      value = value.and.BA_push_get(mt_dbl,npack1,
      >                               'xtmp',xtmp(2),xtmp(1))
-      value = value.and.MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+      value = value.and.BA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
       if (.not.value) 
      >  call errquit('f_vnonlocal:out of stack',0, MA_ERR)
 
@@ -3328,9 +3328,9 @@ c     **** define Gx,Gy and Gz in packed space ****
 
       end do !** iip **
 
-      value =           MA_pop_stack(sum(2))
-      value = value.and.MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sum(2))
+      value = value.and.BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('f_vnonlocal: popping stack',3,
      &       MA_ERR)
 
@@ -3853,10 +3853,10 @@ c     logocal semicore(0:nkatmx)
 *     *** set semicore(0) *****
       log_mb(semicore(1)) = .false.
 
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** read pseudopotentials ****
@@ -4011,8 +4011,8 @@ c     logocal semicore(0:nkatmx)
 
 
       end do
- 9000 value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+ 9000 value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value)
      > call errquit('psp_readall:error popping stack',0,MA_ERR)
 

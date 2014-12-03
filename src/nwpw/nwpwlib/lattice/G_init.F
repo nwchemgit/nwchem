@@ -51,7 +51,7 @@ c
 
 *       **** allocate G_block common block ****
         call D3dB_nfft3d(1,nfft3d)
-        value = MA_alloc_get(mt_dbl,(3*nfft3d),'G',g_hndl,G(1))
+        value = BA_alloc_get(mt_dbl,(3*nfft3d),'G',g_hndl,G(1))
         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
         G(2) = G(1) + nfft3d
@@ -119,7 +119,7 @@ c    >                  + i+1
 
        logical value
 
-       value = MA_free_heap(g_hndl)
+       value = BA_free_heap(g_hndl)
        return
        end
 

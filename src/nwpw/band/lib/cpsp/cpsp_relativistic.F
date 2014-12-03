@@ -217,18 +217,18 @@ c      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
       call Cram_max_npack(npack1)
       nbrill = brillioun_nbrillioun()
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1u',zsw1u(2),zsw1u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2u',zsw2u(2),zsw2u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1d',zsw1d(2),zsw1d(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2d',zsw2d(2),zsw2d(1))
       if (.not.value) 
      > call errquit('cpsp_v_nonlocal_orb2com:pushing stack',0,MA_ERR)
@@ -343,11 +343,11 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
          end if !** nproj>0 **
       end do !** ii***
 
-      value =           MA_pop_stack(zsw2d(2))
-      value = value.and.MA_pop_stack(zsw1d(2))
-      value = value.and.MA_pop_stack(zsw2u(2))
-      value = value.and.MA_pop_stack(zsw1u(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(zsw2d(2))
+      value = value.and.BA_pop_stack(zsw1d(2))
+      value = value.and.BA_pop_stack(zsw2u(2))
+      value = value.and.BA_pop_stack(zsw1u(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      > call errquit('cpsp_v_nonlocal_orb:popping stack',3,MA_ERR)
 
@@ -414,26 +414,26 @@ c      complex*16 psi1(*),psi2(*)
       call Cram_max_npack(npack1)
       nshift = 2*npack1
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nprj_max,
+     >        BA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw1',zsw1(2),zsw1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn*nprj_max,
+     >        BA_push_get(mt_dcpl,nn*nprj_max,
      >                    'zsw2',zsw2(2),zsw2(1))
       if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
      &       MA_ERR)
 
       if (move) then
-        value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+        value = BA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
         value = value.and.
-     >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >          BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         value = value.and.
-     >        MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
+     >        BA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
         if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1,
      &       MA_ERR)
         G(1)  = c_G_indx(1)
@@ -603,18 +603,18 @@ c                    end do
 200   continue !**ii**
 
       if (move) then
-        value = MA_pop_stack(sum(2))
-        value = value.and.MA_pop_stack(Gz(2))
-        value = value.and.MA_pop_stack(Gy(2))
-        value = value.and.MA_pop_stack(Gx(2))
-        value = value.and.MA_pop_stack(xtmp(2))
+        value = BA_pop_stack(sum(2))
+        value = value.and.BA_pop_stack(Gz(2))
+        value = value.and.BA_pop_stack(Gy(2))
+        value = value.and.BA_pop_stack(Gx(2))
+        value = value.and.BA_pop_stack(xtmp(2))
         if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',2,
      &       MA_ERR)
       end if
 
-      value =           MA_pop_stack(zsw2(2))
-      value = value.and.MA_pop_stack(zsw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(zsw2(2))
+      value = value.and.BA_pop_stack(zsw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',3,
      &       MA_ERR)
 
@@ -667,18 +667,18 @@ c                    end do
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1u',zsw1u(2),zsw1u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2u',zsw2u(2),zsw2u(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw1d',zsw1d(2),zsw1d(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nprj_max,
+     >        BA_push_get(mt_dcpl,nprj_max,
      >                    'zsw2d',zsw2d(2),zsw2d(1))
       if (.not.value) 
      > call errquit('cpsp_v_spin_orbit_orb2com:pushing stack',0,MA_ERR)
@@ -782,11 +782,11 @@ c     >                      +(ia-1)*npack1*vso_stride*nbrill
          end if !** nproj>0 **
 200   continue !** ii***
 
-      value =           MA_pop_stack(zsw2d(2))
-      value = value.and.MA_pop_stack(zsw1d(2))
-      value = value.and.MA_pop_stack(zsw2u(2))
-      value = value.and.MA_pop_stack(zsw1u(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(zsw2d(2))
+      value = value.and.BA_pop_stack(zsw1d(2))
+      value = value.and.BA_pop_stack(zsw2u(2))
+      value = value.and.BA_pop_stack(zsw1u(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      > call errquit('cpsp_v_spin_orbit_orb:popping stack',3,MA_ERR)
 

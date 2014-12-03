@@ -265,16 +265,16 @@
       call Dneall_neq(neq)
       nemaxq = neq(1)+neq(2)
       
-      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1f',psi1f(2),psi1f(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2f',psi2f(2),psi2f(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -292,10 +292,10 @@
 
 *     **** allocate other variables *****
       field_exist = pspw_charge_found()
-      value = MA_alloc_get(mt_dbl,(2*nemax),'Sigma_ab',
+      value = BA_alloc_get(mt_dbl,(2*nemax),'Sigma_ab',
      >                     Sigma_ab(2),Sigma_ab(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax),'Cigma_ab',
+     >        BA_alloc_get(mt_dbl,(2*nemax),'Cigma_ab',
      >                     Cigma_ab(2),Cigma_ab(1))
       value = value.and.Dneall_m_allocate(0,itmp)
       value = value.and.Dneall_m_allocate(0,U_ab)
@@ -304,21 +304,21 @@
       value = value.and.Dneall_m_allocate(0,W_ab)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                     'psi1_r',psi1_r(2),psi1_r(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                     'psi2_r',psi2_r(2),psi2_r(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                     'psi1f_r',psi1f_r(2),psi1f_r(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                     'psi2f_r',psi2f_r(2),psi2f_r(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'rho',rho(2),rho(1))
+     >        BA_alloc_get(mt_dbl,n2ft3d,'rho',rho(2),rho(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'vcdkfj',vc(2),vc(1))
+     >        BA_alloc_get(mt_dbl,n2ft3d,'vcdkfj',vc(2),vc(1))
       if (.not. value) 
      >   call errquit('pspw_et:out of heap memory',0,MA_ERR)
 
@@ -1109,18 +1109,18 @@ c           end do
       value = value.and.Dneall_m_free(V_ab)
       value = value.and.Dneall_m_free(Vt)
       value = value.and.Dneall_m_free(W_ab)
-      value = value.and.MA_free_heap(Cigma_ab(2))
-      value = value.and.MA_free_heap(Sigma_ab(2))
-      value = value.and.MA_free_heap(psi1(2))
-      value = value.and.MA_free_heap(psi2(2))
-      value = value.and.MA_free_heap(psi1f(2))
-      value = value.and.MA_free_heap(psi2f(2))
-      value = value.and.MA_free_heap(psi1_r(2))
-      value = value.and.MA_free_heap(psi2_r(2))
-      value = value.and.MA_free_heap(psi1f_r(2))
-      value = value.and.MA_free_heap(psi2f_r(2))
-      value = value.and.MA_free_heap(rho(2))
-      value = value.and.MA_free_heap(vc(2))
+      value = value.and.BA_free_heap(Cigma_ab(2))
+      value = value.and.BA_free_heap(Sigma_ab(2))
+      value = value.and.BA_free_heap(psi1(2))
+      value = value.and.BA_free_heap(psi2(2))
+      value = value.and.BA_free_heap(psi1f(2))
+      value = value.and.BA_free_heap(psi2f(2))
+      value = value.and.BA_free_heap(psi1_r(2))
+      value = value.and.BA_free_heap(psi2_r(2))
+      value = value.and.BA_free_heap(psi1f_r(2))
+      value = value.and.BA_free_heap(psi2f_r(2))
+      value = value.and.BA_free_heap(rho(2))
+      value = value.and.BA_free_heap(vc(2))
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
@@ -1494,22 +1494,22 @@ c           end do
       call D3dB_nfft3d(1,nfft3d)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_dcpl,(nemaxq*npack1),
+      value = BA_push_get(mt_dcpl,(nemaxq*npack1),
      >                    'Hpsi2',Hpsi2(2),Hpsi2(1))
       if (aperiodic) then
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
       end if
       if (field_exist.or.aperiodic) then
          value = value.and.
-     >            MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
+     >            BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
      >                        r_grid(2),r_grid(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,(n2ft3d),'v_field',
+     >           BA_push_get(mt_dbl,(n2ft3d),'v_field',
      >                       v_field(2),v_field(1))
       end if
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vloc',vl(2),vl(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vloc',vl(2),vl(1))
       if (.not. value)
      >   call errquit('pspw_et_sub1:out of stack',0,MA_ERR)
 
@@ -1569,15 +1569,15 @@ c           end do
 
 
 *     **** deallocate memory ****
-      value = MA_pop_stack(vl(2))
+      value = BA_pop_stack(vl(2))
       if (field_exist.or.aperiodic) then
-         value = value.and.MA_pop_stack(v_field(2))
-         value = value.and.MA_pop_stack(r_grid(2))
+         value = value.and.BA_pop_stack(v_field(2))
+         value = value.and.BA_pop_stack(r_grid(2))
       end if
       if (aperiodic) then
-         value = value.and.MA_pop_stack(vlr_l(2))
+         value = value.and.BA_pop_stack(vlr_l(2))
       end if
-      value = value.and.MA_pop_stack(Hpsi2(2))
+      value = value.and.BA_pop_stack(Hpsi2(2))
       if (.not.value)
      >   call errquit('pspw_et_H1:pop stack',0,MA_ERR)
  
@@ -1618,8 +1618,8 @@ c           end do
       value =           Dneall_m_push_get(0,tmp1)
       value = value.and.Dneall_m_push_get(0,tmp2)
       value = value.and.Dneall_m_push_get(0,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not.value) 
      > call errquit('pspw_et_get_yandyexcited:out of stack',0,MA_ERR)
 
@@ -1651,8 +1651,8 @@ c           end do
      >                          yexcited,1.0d0)
 
 *     **** deallocate tmp space ****
-      value = MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value = BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Dneall_m_pop_stack(tmp3)
       value = value.and.Dneall_m_pop_stack(tmp2)
       value = value.and.Dneall_m_pop_stack(tmp1)

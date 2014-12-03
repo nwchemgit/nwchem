@@ -62,21 +62,21 @@ c
        nion = ion_nion()
 
 *      **** get memory from stack ****
-       value =           MA_push_get(mt_dcpl,nfft3d,'vc',vc(2),vc(1))
-       value = value.and.MA_push_get(mt_dcpl,nfft3d,
+       value =           BA_push_get(mt_dcpl,nfft3d,'vc',vc(2),vc(1))
+       value = value.and.BA_push_get(mt_dcpl,nfft3d,
      >                               'tmpx',tmpx(2),tmpx(1))
-       value = value.and.MA_push_get(mt_dcpl,nfft3d,
+       value = value.and.BA_push_get(mt_dcpl,nfft3d,
      >                               'tmpy',tmpy(2),tmpy(1))
-       value = value.and.MA_push_get(mt_dcpl,nfft3d,
+       value = value.and.BA_push_get(mt_dcpl,nfft3d,
      >                               'tmpz',tmpz(2),tmpz(1))
-       value = value.and.MA_push_get(mt_dcpl,nfft3d,
+       value = value.and.BA_push_get(mt_dcpl,nfft3d,
      >                               'tmp1',tmp1(2),tmp1(1))
-       value = value.and.MA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
-       value = value.and.MA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
-       value = value.and.MA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
-       value = value.and.MA_push_get(mt_dbl,(3*nion),'E1',E1(2),E1(1))
-       value = value.and.MA_push_get(mt_dbl,(3*nion),'Ea',Ea(2),Ea(1))
-       value = value.and.MA_push_get(mt_dbl,(3*nion),'Ee',Ee(2),Ee(1))
+       value = value.and.BA_push_get(mt_dbl,nfft3d,'Gx',Gx(2),Gx(1))
+       value = value.and.BA_push_get(mt_dbl,nfft3d,'Gy',Gy(2),Gy(1))
+       value = value.and.BA_push_get(mt_dbl,nfft3d,'Gz',Gz(2),Gz(1))
+       value = value.and.BA_push_get(mt_dbl,(3*nion),'E1',E1(2),E1(1))
+       value = value.and.BA_push_get(mt_dbl,(3*nion),'Ea',Ea(2),Ea(1))
+       value = value.and.BA_push_get(mt_dbl,(3*nion),'Ee',Ee(2),Ee(1))
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -169,17 +169,17 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
      >                                dbl_mb(Ee(1)))
        end if
 
-       value =           MA_pop_stack(Ee(2))
-       value = value.and.MA_pop_stack(Ea(2))
-       value = value.and.MA_pop_stack(E1(2))
-       value = value.and.MA_pop_stack(Gz(2))
-       value = value.and.MA_pop_stack(Gy(2))
-       value = value.and.MA_pop_stack(Gx(2))
-       value = value.and.MA_pop_stack(tmp1(2))
-       value = value.and.MA_pop_stack(tmpz(2))
-       value = value.and.MA_pop_stack(tmpy(2))
-       value = value.and.MA_pop_stack(tmpx(2))
-       value = value.and.MA_pop_stack(vc(2))
+       value =           BA_pop_stack(Ee(2))
+       value = value.and.BA_pop_stack(Ea(2))
+       value = value.and.BA_pop_stack(E1(2))
+       value = value.and.BA_pop_stack(Gz(2))
+       value = value.and.BA_pop_stack(Gy(2))
+       value = value.and.BA_pop_stack(Gx(2))
+       value = value.and.BA_pop_stack(tmp1(2))
+       value = value.and.BA_pop_stack(tmpz(2))
+       value = value.and.BA_pop_stack(tmpy(2))
+       value = value.and.BA_pop_stack(tmpx(2))
+       value = value.and.BA_pop_stack(vc(2))
        if (.not. value) 
      >    call errquit('pspw_gen_Efield:popping of stack memory',0,
      >    MA_ERR)

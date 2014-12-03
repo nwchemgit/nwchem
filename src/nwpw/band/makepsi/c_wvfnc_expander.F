@@ -99,10 +99,10 @@
      >                     I3,'x',I3,'x',I3)
  
 *     ***** allocate wavefunction memory ****
-      value = MA_alloc_get(mt_dcpl,nfft3d,
+      value = BA_alloc_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull(2),cfull(1))
 
-      value = MA_alloc_get(mt_dcpl,dnfft3d,
+      value = BA_alloc_get(mt_dcpl,dnfft3d,
      >                     'dcfull',dcfull(2),dcfull(1))
 
       do nb=1,nbrillioun
@@ -148,8 +148,8 @@ c     *** copy wvfnc_expander to new_wavefunction_filename ****
  9111 IERR=11
       GO TO 9999
  
- 9999 value = MA_free_heap(cfull(2))
-      value = MA_free_heap(dcfull(2))
+ 9999 value = BA_free_heap(cfull(2))
+      value = BA_free_heap(dcfull(2))
       !IF(IERR.EQ.0) THEN
       !  WRITE(6,*) ' JOB HAS BEEN COMPLETED.  CODE=',IERR
       !ELSE

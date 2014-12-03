@@ -46,32 +46,32 @@
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'vxcG',vxcG(2),vxcG(1))
+     >        BA_push_get(mt_dbl,nfft3d,'vxcG',vxcG(2),vxcG(1))
 
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
 
       value = value.and.
-     >        MA_push_get(mt_dcpl, nfft3d,'dng',dng(2),dng(1))
+     >        BA_push_get(mt_dcpl, nfft3d,'dng',dng(2),dng(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl, nfft3d,'cngx',cngx(2),cngx(1))
+     >        BA_push_get(mt_dcpl, nfft3d,'cngx',cngx(2),cngx(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl, nfft3d,'cngy',cngy(2),cngy(1))
+     >        BA_push_get(mt_dcpl, nfft3d,'cngy',cngy(2),cngy(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl, nfft3d,'cngz',cngz(2),cngz(1))
+     >        BA_push_get(mt_dcpl, nfft3d,'cngz',cngz(2),cngz(1))
 
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'dngx',dngx(2),dngx(1))
+     >        BA_push_get(mt_dbl, nfft3d,'dngx',dngx(2),dngx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'dngy',dngy(2),dngy(1))
+     >        BA_push_get(mt_dbl, nfft3d,'dngy',dngy(2),dngy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'dngz',dngz(2),dngz(1))
+     >        BA_push_get(mt_dbl, nfft3d,'dngz',dngz(2),dngz(1))
 
       if (.not. value) 
      > call errquit(' c_semicore_xc_F:out of stack memory',0,MA_ERR)
@@ -151,18 +151,18 @@ c     call C3dB_r_SMul(1,0.5d0,dcpl_mb(vxcG(1)),dcpl_mb(vxcG(1)))
 
       end do
 
-      value = MA_pop_stack(dngz(2))
-      value = value.and.MA_pop_stack(dngy(2))
-      value = value.and.MA_pop_stack(dngx(2))
-      value = value.and.MA_pop_stack(cngz(2))
-      value = value.and.MA_pop_stack(cngy(2))
-      value = value.and.MA_pop_stack(cngx(2))
-      value = value.and.MA_pop_stack(dng(2))
-      value = value.and.MA_pop_stack(Gz(2))
-      value = value.and.MA_pop_stack(Gy(2))
-      value = value.and.MA_pop_stack(Gx(2))
-      value = value.and.MA_pop_stack(vxcG(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = BA_pop_stack(dngz(2))
+      value = value.and.BA_pop_stack(dngy(2))
+      value = value.and.BA_pop_stack(dngx(2))
+      value = value.and.BA_pop_stack(cngz(2))
+      value = value.and.BA_pop_stack(cngy(2))
+      value = value.and.BA_pop_stack(cngx(2))
+      value = value.and.BA_pop_stack(dng(2))
+      value = value.and.BA_pop_stack(Gz(2))
+      value = value.and.BA_pop_stack(Gy(2))
+      value = value.and.BA_pop_stack(Gx(2))
+      value = value.and.BA_pop_stack(vxcG(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value) 
      > call errquit('c_semicore_force:error popping stack',0, MA_ERR)
 

@@ -146,13 +146,13 @@ c
       call D3dB_n2ft3d(1,n2ft3d)
 
 *     **** allocate rho_in and rho_out ****
-      value = MA_push_get(mt_dbl,2*n2ft3d,
+      value = BA_push_get(mt_dbl,2*n2ft3d,
      >                     'rho_in',rho_in(2),rho_in(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,2*n2ft3d,
+     >        BA_push_get(mt_dbl,2*n2ft3d,
      >                     'rho_out',rho_out(2),rho_out(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,2*n2ft3d,
+     >        BA_push_get(mt_dbl,2*n2ft3d,
      >                   'rho_junk',rho_junk(2),rho_junk(1))
       if (.not. value) 
      >   call errquit('bybminimize2:out of stack memory',0,0)
@@ -352,9 +352,9 @@ c     >       .or. (sd_count.ge.MAX_SD_COUNT))
 *     **** free memory ****
       call nwpw_scf_mixing_end()
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_end()
-      value =           MA_pop_stack(rho_junk(2))
-      value = value.and.MA_pop_stack(rho_out(2))
-      value = value.and.MA_pop_stack(rho_in(2))
+      value =           BA_pop_stack(rho_junk(2))
+      value = value.and.BA_pop_stack(rho_out(2))
+      value = value.and.BA_pop_stack(rho_in(2))
       if (.not. value) 
      >  call errquit('bybminimize2: popping stack',1,0)
 

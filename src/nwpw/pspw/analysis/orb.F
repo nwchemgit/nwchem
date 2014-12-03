@@ -52,13 +52,13 @@ c
       call Pack_npack(1,npack1)
       mulliken_kawai = control_mulliken_kawai()
 
-      value = MA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
+      value = BA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
+     >        BA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,36*nemax*nion,'a',a(2),a(1))
+     >        BA_alloc_get(mt_dbl,36*nemax*nion,'a',a(2),a(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
+     >        BA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
 
 
 *     ****************************************
@@ -146,10 +146,10 @@ c
       if (.not.mulliken_kawai) call aorbs_end()
 
 *     **** free heap space ****
-      value = MA_free_heap(lorb(2))
-      value = MA_free_heap(b0(2))
-      value = MA_free_heap(a(2))
-      value = MA_free_heap(sum(2))
+      value = BA_free_heap(lorb(2))
+      value = BA_free_heap(b0(2))
+      value = BA_free_heap(a(2))
+      value = BA_free_heap(sum(2))
 
       return
       end

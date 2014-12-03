@@ -5,7 +5,7 @@
 *     *                                        *
 *     ******************************************
 
-*   This is a wrapper around MA_alloc_get to make it thread save.
+*   This is a wrapper around BA_alloc_get to make it thread save.
 
       logical function BA_alloc_get(datatype,nelem,name,memhandle,index)
       implicit none
@@ -26,7 +26,7 @@
 *     *                                        *
 *     ******************************************
 
-*   This is a wrapper around MA_free_heap to make it thread save.
+*   This is a wrapper around BA_free_heap to make it thread save.
 
       logical function BA_free_heap(memhandle)
       implicit none
@@ -45,7 +45,7 @@
 *     *                                        *
 *     ******************************************
 
-*   This is a wrapper around MA_push_get to make it thread save.
+*   This is a wrapper around BA_push_get to make it thread save.
 
       logical function BA_push_get(datatype,nelem,name,memhandle,index)
       implicit none
@@ -66,7 +66,7 @@
 *     *                                        *
 *     ******************************************
 
-*   This is a wrapper around MA_pop_stack to make it thread save.
+*   This is a wrapper around BA_pop_stack to make it thread save.
 
       logical function BA_pop_stack(memhandle)
       implicit none

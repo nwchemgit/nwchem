@@ -50,8 +50,8 @@ c        end do
 c        write(*,*)
 c        end if
 
-        value = MA_push_get(mt_dbl,(ne(1)*ne(1)),'mm',mm(2),mm(1))
-        value = MA_push_get(mt_dcpl,(neall*nfft3d),
+        value = BA_push_get(mt_dbl,(ne(1)*ne(1)),'mm',mm(2),mm(1))
+        value = BA_push_get(mt_dcpl,(neall*nfft3d),
      >                      'psi2',psi2(2),psi2(1))
 
 
@@ -126,8 +126,8 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
      >                       psi(1+(ms-1)*nfft3d*ne(1)))
         end do
 
-        value = MA_pop_stack(psi2(2))
-        value = MA_pop_stack(mm(2))
+        value = BA_pop_stack(psi2(2))
+        value = BA_pop_stack(mm(2))
       end if
       end if
 
@@ -181,15 +181,15 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
       if (taskid.eq.MASTER) then
 
       nion = ion_nion()
-      value = MA_push_get(mt_dbl,3*nion,'rion1',rion1(2),rion1(1))
+      value = BA_push_get(mt_dbl,3*nion,'rion1',rion1(2),rion1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,3*nion,'rion2',rion2(2),rion2(1))
+     >        BA_push_get(mt_dbl,3*nion,'rion2',rion2(2),rion2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*nion*size),'gion',gion(2),gion(1))
+     >        BA_push_get(mt_dbl,(3*nion*size),'gion',gion(2),gion(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(size*size),'M',M(2),M(1))
+     >        BA_push_get(mt_dbl,(size*size),'M',M(2),M(1))
       value = value.and.
-     >        MA_push_get(mt_int,(size),'ipiv',ipiv(2),ipiv(1))
+     >        BA_push_get(mt_int,(size),'ipiv',ipiv(2),ipiv(1))
       if (.not. value) call errquit('psi_history_generate_coef',1,
      &       MA_ERR)
 
@@ -321,11 +321,11 @@ c      write(*,*) "diff:",dsqrt(gx)
 
  1500 format(5x,I3, '(', 3F8.3, ') (' ,3F8.3, ')' )
 
-      value = MA_pop_stack(ipiv(2))
-      value = value.and.MA_pop_stack(M(2))
-      value = value.and.MA_pop_stack(gion(2))
-      value = value.and.MA_pop_stack(rion2(2))
-      value = value.and.MA_pop_stack(rion1(2))
+      value = BA_pop_stack(ipiv(2))
+      value = value.and.BA_pop_stack(M(2))
+      value = value.and.BA_pop_stack(gion(2))
+      value = value.and.BA_pop_stack(rion2(2))
+      value = value.and.BA_pop_stack(rion1(2))
       if (.not. value) call errquit('psi_history_generate_coef',2,
      &       MA_ERR)
 
@@ -415,7 +415,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       end if
 
       nion = ion_nion()
-      value = MA_push_get(mt_dbl,3*nion,'rion',rion(2),rion(1))
+      value = BA_push_get(mt_dbl,3*nion,'rion',rion(2),rion(1))
       if (.not. value) call errquit('psi_history_check_last',1, MA_ERR)
 
       ptr = psi_history_pointer_start() - 1
@@ -436,7 +436,7 @@ c      write(*,*) "diff:",dsqrt(gx)
          if (dabs(diff).gt.1.0d-5) check=.true.
       end do
 
-      value = MA_pop_stack(rion(2))
+      value = BA_pop_stack(rion(2))
       if (.not. value) call errquit('psi_history_check_last',2, MA_ERR)
 
       icheck = 0
@@ -675,7 +675,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       call Parallel_taskid(taskid)
 
       nion = ion_nion()
-      value = MA_push_get(mt_dbl,3*nion,'rion',rion(2),rion(1))
+      value = BA_push_get(mt_dbl,3*nion,'rion',rion(2),rion(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       do i=1,nion
@@ -703,7 +703,7 @@ c      write(*,*) "diff:",dsqrt(gx)
         call closefile(6)
       end if
 
-      value = MA_pop_stack(rion(2))
+      value = BA_pop_stack(rion(2))
       call nwpw_timing_end(50)
       return
       end

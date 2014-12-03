@@ -51,10 +51,10 @@
 *     **** allocate pack memory ****
       call D3dB_nfft3d(1,nfft3d)
 
-      value = MA_alloc_get(mt_int,nfft3d,
+      value = BA_alloc_get(mt_int,nfft3d,
      >                     'pack',pack(2,0),pack(1,0))
       value = value.and.
-     >        MA_alloc_get(mt_int,nfft3d,
+     >        BA_alloc_get(mt_int,nfft3d,
      >                     'pack',pack(2,1),pack(1,1))
       if (.not. value) 
      > call errquit('Pack_init: out of heap memory',0,MA_ERR)
@@ -180,9 +180,9 @@ c     >                                      nidb(1),nidb2(1)
 
 *     **** allocate and define G_pack ****
       nsize = 3*((nida(0)+nidb2(0)) + (nida(1)+nidb2(1)))
-      value = MA_push_get(mt_dbl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dbl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nsize,
+     >        BA_alloc_get(mt_dbl,nsize,
      >                     'G_pack',G_pack_hndl,G_pack(1,0))
       if (.not. value) 
      > call errquit('Pack_init:error pushing stack',0,MA_ERR)
@@ -198,7 +198,7 @@ c     >                                      nidb(1),nidb2(1)
             call Pack_t_Copy(nb,dbl_mb(tmp(1)),dbl_mb(G_pack(i,nb)))
          end do
       end do
-      value = MA_pop_stack(tmp(2))
+      value = BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('Pack_init:error popping stack',0,MA_ERR)
 
@@ -249,9 +249,9 @@ c     **** common block for G_pack ****
       logical  control_balance
       external control_balance
 
-      value =           MA_free_heap(pack(2,0))
-      value = value.and.MA_free_heap(pack(2,1))
-      value = value.and.MA_free_heap(G_pack_hndl)
+      value =           BA_free_heap(pack(2,0))
+      value = value.and.BA_free_heap(pack(2,1))
+      value = value.and.BA_free_heap(G_pack_hndl)
       if (.not. value) 
      > call errquit('Pack_end:error freeing heap',0,MA_ERR)
       if (control_balance()) call Balance_End()
@@ -294,7 +294,7 @@ c     **** common block for G_pack ****
       call nwpw_timing_start(9)
 
       call D3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(2*nfft3d,A,1,dcpl_mb(tmp1(1)),1)
@@ -306,7 +306,7 @@ c      end do
       n = nida(nb)+nidb(nb)
       call Pack_c_indexcopy(n,int_mb(pack(1,nb)),dcpl_mb(tmp1(1)),A)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 
@@ -354,7 +354,7 @@ c      end do
 
 
       call D3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       shift=1
@@ -369,7 +369,7 @@ c      end do
         shift = shift+nfft3d
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
       call nwpw_timing_end(9)
@@ -424,7 +424,7 @@ c      end do
       call nwpw_timing_start(9)
 
       call D3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(nfft3d,A,1,dbl_mb(tmp1(1)),1)
@@ -433,7 +433,7 @@ c      end do
         A(i) = dbl_mb(tmp1(1) + int_mb(pack(1,nb)+i-1) - 1)
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
       if (control_balance()) call Balance_t_balance(nb,A)
@@ -478,7 +478,7 @@ c      end do
       call nwpw_timing_start(9)
 
       call D3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_int,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_int,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call icopy(nfft3d,A,1,int_mb(tmp1(1)),1)
@@ -488,7 +488,7 @@ c      end do
         A(i) = int_mb(tmp1(1) + int_mb(pack(1,nb)+i-1)-1)
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 
@@ -541,7 +541,7 @@ c      integer indx1,indx2
 
       call D3dB_nfft3d(1,nfft3d)
       
-      value = MA_push_get(mt_dcpl,(nida(nb)+nidb(nb)),
+      value = BA_push_get(mt_dcpl,(nida(nb)+nidb(nb)),
      >                    'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -550,7 +550,7 @@ c      integer indx1,indx2
       do i=1,(nida(nb)+nidb(nb))
         A(int_mb(pack(1,nb)+i-1)) = dcpl_mb(tmp1(1)+i-1)
       end do
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 
@@ -558,15 +558,15 @@ c      integer indx1,indx2
       !call D3dB_ny(1,ny)
       !call D3dB_nq(1,nq)
       call D3dB_zplane_size(1,zplane_size)
-      value = MA_push_get(mt_dcpl,(zplane_size),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(zplane_size),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(zplane_size),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(zplane_size),'tmp2',tmp2(2),tmp2(1))
 
       call D3dB_c_timereverse(1,A,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)))
 
-      value = MA_pop_stack(tmp2(2))
+      value = BA_pop_stack(tmp2(2))
       value = value.and.
-     >        MA_pop_stack(tmp1(2))
+     >        BA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 c     call D3dB_nx(1,nx)

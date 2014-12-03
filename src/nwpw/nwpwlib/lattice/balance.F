@@ -30,38 +30,38 @@
       call Parallel2d_taskid_i(taskid)
 
 *     **** allocate balance memory ****
-      value =  MA_alloc_get(mt_int,2*maxsize,
+      value =  BA_alloc_get(mt_int,2*maxsize,
      >                      'psizea_list',
      >                      packet_size_list(2),
      >                      packet_size_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_int,2*maxsize,
+     >       BA_alloc_get(mt_int,2*maxsize,
      >                    'indxsa_list',
      >                    indx_start_list(2),
      >                    indx_start_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_int,2*maxsize,
+     >       BA_alloc_get(mt_int,2*maxsize,
      >                    'prctoa_list',
      >                    proc_to_list(2),
      >                    proc_to_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_int,2*maxsize,
+     >       BA_alloc_get(mt_int,2*maxsize,
      >                   'prcfra_list',
      >                    proc_from_list(2),
      >                    proc_from_list(1))
 
       value = value.and.
-     >       MA_alloc_get(mt_int,maxsize,
+     >       BA_alloc_get(mt_int,maxsize,
      >                   'npacket_list',
      >                    npacket_list(2),
      >                    npacket_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_log,maxsize,
+     >       BA_alloc_get(mt_log,maxsize,
      >                   'receiver_list',
      >                    receiver_list(2),
      >                    receiver_list(1))
       value = value.and.
-     >       MA_alloc_get(mt_log,maxsize,
+     >       BA_alloc_get(mt_log,maxsize,
      >                   'sender_list',
      >                    sender_list(2),
      >                    sender_list(1))
@@ -70,25 +70,25 @@
 
 *        **** allocate balance memory ****
          value =  value.and.
-     >          MA_alloc_get(mt_int,np,
+     >          BA_alloc_get(mt_int,np,
      >                   'psizea',dum(2),dum(1))
          int_mb(packet_size_list(1)+2*nb  ) = dum(1)
          int_mb(packet_size_list(1)+2*nb+1) = dum(2)
 
          value = value.and.
-     >       MA_alloc_get(mt_int,np,
+     >       BA_alloc_get(mt_int,np,
      >                   'indxsa',dum(2),dum(1))
          int_mb(indx_start_list(1)+2*nb  ) = dum(1)
          int_mb(indx_start_list(1)+2*nb+1) = dum(2)
 
          value = value.and.
-     >       MA_alloc_get(mt_int,np,
+     >       BA_alloc_get(mt_int,np,
      >                   'prctoa',dum(2),dum(1))
          int_mb(proc_to_list(1)+2*nb  ) = dum(1)
          int_mb(proc_to_list(1)+2*nb+1) = dum(2)
 
          value = value.and.
-     >       MA_alloc_get(mt_int,np,
+     >       BA_alloc_get(mt_int,np,
      >                   'prcfra',dum(2),dum(1))
          int_mb(proc_from_list(1)+2*nb  ) = dum(1)
          int_mb(proc_from_list(1)+2*nb+1) = dum(2)
@@ -140,27 +140,27 @@
       do nb=0,maxsize-1
 
          dum2 = int_mb(packet_size_list(1)+2*nb+1)
-         value = value.and.MA_free_heap(dum2)
+         value = value.and.BA_free_heap(dum2)
 
          dum2 = int_mb(indx_start_list(1)+2*nb+1) 
-         value = value.and.MA_free_heap(dum2)
+         value = value.and.BA_free_heap(dum2)
 
          dum2 = int_mb(proc_to_list(1)+2*nb+1)
-         value = value.and.MA_free_heap(dum2)
+         value = value.and.BA_free_heap(dum2)
 
          dum2 = int_mb(proc_from_list(1)+2*nb+1)
-         value = value.and.MA_free_heap(dum2)
+         value = value.and.BA_free_heap(dum2)
 
       end do
 
-      value = value.and.MA_free_heap(packet_size_list(2))
-      value = value.and.MA_free_heap(indx_start_list(2))
-      value = value.and.MA_free_heap(proc_to_list(2))
-      value = value.and.MA_free_heap(proc_from_list(2))
+      value = value.and.BA_free_heap(packet_size_list(2))
+      value = value.and.BA_free_heap(indx_start_list(2))
+      value = value.and.BA_free_heap(proc_to_list(2))
+      value = value.and.BA_free_heap(proc_from_list(2))
 
-      value = value.and.MA_free_heap(npacket_list(2))
-      value = value.and.MA_free_heap(receiver_list(2))
-      value = value.and.MA_free_heap(sender_list(2))
+      value = value.and.BA_free_heap(npacket_list(2))
+      value = value.and.BA_free_heap(receiver_list(2))
+      value = value.and.BA_free_heap(sender_list(2))
       if (.not. value) 
      >  call errquit('Balance_end: error freeing heap memory',0, MA_ERR)
 
@@ -203,10 +203,10 @@ c      integer indx(0:(np-1))
       integer nwave2(2),indx(2)     
 
 *     **** allocate nwave2 and indx off the stack ****
-      value = MA_push_get(mt_int,(np),
+      value = BA_push_get(mt_int,(np),
      >                     'nwave2',nwave2(2),nwave2(1))
       value = value.and.
-     >        MA_push_get(mt_int,(np),
+     >        BA_push_get(mt_int,(np),
      >                     'indx',indx(2),indx(1))
       if (.not. value) 
      >  call errquit('Balance_init_a:out of stack memory',0, MA_ERR)
@@ -346,8 +346,8 @@ c        ave = ave + nwave2(i)
 
       nwave_out = int_mb(nwave2(1)+taskid)
 
-      value =           MA_pop_stack(indx(2))
-      value = value.and.MA_pop_stack(nwave2(2))
+      value =           BA_pop_stack(indx(2))
+      value = value.and.BA_pop_stack(nwave2(2))
       if (.not. value) 
      > call errquit('Balance_init_a:error freeing stack memory',0,
      &       MA_ERR)

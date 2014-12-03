@@ -53,13 +53,13 @@
 
       call dcopy(n2ft3d,0.0d0,0,elf,1)
 
-      value = MA_push_get(mt_dbl,n2ft3d,'dns',dns(2),dns(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'dns',dns(2),dns(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'dnsp',dnsp(2),dnsp(1))
+     >        BA_push_get(mt_dbl,n2ft3d,'dnsp',dnsp(2),dnsp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'dng',dng(2),dng(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'dng',dng(2),dng(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'dng2',dng2(2),dng2(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'dng2',dng2(2),dng2(1))
       if (.not.value) call errquit('generate_ELF:pushing stack',0,
      &       MA_ERR)
       call Ursenbach_smoother(n2ft3d,dn,
@@ -118,10 +118,10 @@ c      call D3dB_r_SMul(1,(-0.25d0),elf,elf)
 
  10   continue
 
-      value =           MA_pop_stack(dng2(2))
-      value = value.and.MA_pop_stack(dng(2))
-      value = value.and.MA_pop_stack(dnsp(2))
-      value = value.and.MA_pop_stack(dns(2))
+      value =           BA_pop_stack(dng2(2))
+      value = value.and.BA_pop_stack(dng(2))
+      value = value.and.BA_pop_stack(dnsp(2))
+      value = value.and.BA_pop_stack(dns(2))
       if (.not.value) call errquit('generate_ELF:popping stack',1,
      &       MA_ERR)
 
@@ -162,17 +162,17 @@ c      call D3dB_r_SMul(1,(-0.25d0),elf,elf)
 
 
       nfft3d = n2ft3d/2
-      value =           MA_push_get(mt_dbl,n2ft3d,
+      value =           BA_push_get(mt_dbl,n2ft3d,
      >                               'fx',fx(2),fx(1))
-      value = value.and.MA_push_get(mt_dbl,n2ft3d,
+      value = value.and.BA_push_get(mt_dbl,n2ft3d,
      >                                'fy',fy(2),fy(1))
-      value = value.and.MA_push_get(mt_dbl,n2ft3d,
+      value = value.and.BA_push_get(mt_dbl,n2ft3d,
      >                                'fz',fz(2),fz(1))
-      value = value.and.MA_push_get(mt_dbl,nfft3d,
+      value = value.and.BA_push_get(mt_dbl,nfft3d,
      >                                'Gx',Gx(2),Gx(1))
-      value = value.and.MA_push_get(mt_dbl,nfft3d,
+      value = value.and.BA_push_get(mt_dbl,nfft3d,
      >                                'Gy',Gy(2),Gy(1))
-      value = value.and.MA_push_get(mt_dbl,nfft3d,
+      value = value.and.BA_push_get(mt_dbl,nfft3d,
      >                                'Gz',Gz(2),Gz(1))
       if (.not.value) 
      >  call errquit('gradient_energy_density:push stack',0, MA_ERR)
@@ -193,9 +193,9 @@ c      call D3dB_r_SMul(1,(-0.25d0),elf,elf)
       call Pack_itc_Mul(nb,dbl_mb(Gy(1)),f,dbl_mb(fy(1)))
       call Pack_itc_Mul(nb,dbl_mb(Gz(1)),f,dbl_mb(fz(1)))
 
-      value =           MA_pop_stack(Gz(2))
-      value = value.and.MA_pop_stack(Gy(2))
-      value = value.and.MA_pop_stack(Gx(2))
+      value =           BA_pop_stack(Gz(2))
+      value = value.and.BA_pop_stack(Gy(2))
+      value = value.and.BA_pop_stack(Gx(2))
       if (.not.value) 
      >  call errquit('gradient_energy_density:pop stack',1, MA_ERR)
 
@@ -221,9 +221,9 @@ c      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
       call D3dB_rr_Sum2(1,dbl_mb(fy(1)),df)
       call D3dB_rr_Sum2(1,dbl_mb(fz(1)),df)
 
-      value =           MA_pop_stack(fz(2))
-      value = value.and.MA_pop_stack(fy(2))
-      value = value.and.MA_pop_stack(fx(2))
+      value =           BA_pop_stack(fz(2))
+      value = value.and.BA_pop_stack(fy(2))
+      value = value.and.BA_pop_stack(fx(2))
       if (.not.value) 
      >  call errquit('gradient_energy_density:pop stack',2, MA_ERR)
 
@@ -264,24 +264,24 @@ c      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
 
 
       nfft3d = n2ft3d/2
-      value =           MA_push_get(mt_dbl,n2ft3d,
+      value =           BA_push_get(mt_dbl,n2ft3d,
      >                                'hx',hx(2),hx(1))
-      value = value.and.MA_push_get(mt_dbl,n2ft3d,
+      value = value.and.BA_push_get(mt_dbl,n2ft3d,
      >                                'hy',hy(2),hy(1))
-      value = value.and.MA_push_get(mt_dbl,n2ft3d,
+      value = value.and.BA_push_get(mt_dbl,n2ft3d,
      >                                'hz',hz(2),hz(1))
-      value = value.and.MA_push_get(mt_dbl,n2ft3d,
+      value = value.and.BA_push_get(mt_dbl,n2ft3d,
      >                               'fx',fx(2),fx(1))
-      value = value.and.MA_push_get(mt_dbl,n2ft3d,
+      value = value.and.BA_push_get(mt_dbl,n2ft3d,
      >                                'fy',fy(2),fy(1))
-      value = value.and.MA_push_get(mt_dbl,n2ft3d,
+      value = value.and.BA_push_get(mt_dbl,n2ft3d,
      >                                'fz',fz(2),fz(1))
 
-      value = value.and.MA_push_get(mt_dbl,nfft3d,
+      value = value.and.BA_push_get(mt_dbl,nfft3d,
      >                                'Gx',Gx(2),Gx(1))
-      value = value.and.MA_push_get(mt_dbl,nfft3d,
+      value = value.and.BA_push_get(mt_dbl,nfft3d,
      >                                'Gy',Gy(2),Gy(1))
-      value = value.and.MA_push_get(mt_dbl,nfft3d,
+      value = value.and.BA_push_get(mt_dbl,nfft3d,
      >                                'Gz',Gz(2),Gz(1))
       if (.not.value) 
      >  call errquit('gradient_energy_density:push stack',0, MA_ERR)
@@ -305,9 +305,9 @@ c      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
       call Pack_itc_Mul(nb,dbl_mb(Gy(1)),h,dbl_mb(hy(1)))
       call Pack_itc_Mul(nb,dbl_mb(Gz(1)),h,dbl_mb(hz(1)))
 
-      value =           MA_pop_stack(Gz(2))
-      value = value.and.MA_pop_stack(Gy(2))
-      value = value.and.MA_pop_stack(Gx(2))
+      value =           BA_pop_stack(Gz(2))
+      value = value.and.BA_pop_stack(Gy(2))
+      value = value.and.BA_pop_stack(Gx(2))
       if (.not.value) 
      >  call errquit('gradient_energy_density2:pop stack',1, MA_ERR)
 
@@ -340,12 +340,12 @@ c      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
       call D3dB_rr_Sum2(1,dbl_mb(fy(1)),df)
       call D3dB_rr_Sum2(1,dbl_mb(fz(1)),df)
 
-      value =           MA_pop_stack(fz(2))
-      value = value.and.MA_pop_stack(fy(2))
-      value = value.and.MA_pop_stack(fx(2))
-      value = value.and.MA_pop_stack(hz(2))
-      value = value.and.MA_pop_stack(hy(2))
-      value = value.and.MA_pop_stack(hx(2))
+      value =           BA_pop_stack(fz(2))
+      value = value.and.BA_pop_stack(fy(2))
+      value = value.and.BA_pop_stack(fx(2))
+      value = value.and.BA_pop_stack(hz(2))
+      value = value.and.BA_pop_stack(hy(2))
+      value = value.and.BA_pop_stack(hx(2))
       if (.not.value) 
      >  call errquit('gradient_energy_density2:pop stack',2, MA_ERR)
 

@@ -358,9 +358,9 @@
       call Pack_npack(1,npack1)
       nion  = ion_nion()
 
-      ok = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      ok = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,npack1,'p',p(2),p(1))
+     >     BA_push_get(mt_dcpl,npack1,'p',p(2),p(1))
       if (.not. ok) call errquit('paw_nonlocal:out of stack memory',0,0)
 
       nlmii = 0
@@ -397,8 +397,8 @@
 
       end do
       
-      ok =        MA_pop_stack(p(2))
-      ok = ok.and.MA_pop_stack(exi(2))
+      ok =        BA_pop_stack(p(2))
+      ok = ok.and.BA_pop_stack(exi(2))
       if (.not. ok) 
      > call errquit('paw_nonlocal:error popping stack ',0,2)
 

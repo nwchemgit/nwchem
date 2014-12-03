@@ -62,13 +62,13 @@ c     complex*16 tmp(*)
       call Cram_max_npack(npack1)
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
+      value = BA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
      
 *     **** open ELCIN binary file ****
@@ -274,9 +274,9 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         call closefile(5)
       end if
  
-      value =           MA_pop_stack(tmpe(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmpe(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
 *     end if
 
       return
@@ -333,10 +333,10 @@ c     complex*16 tmp(*)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
@@ -490,8 +490,8 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         call closefile(5)
       end if
  
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
 
 *     end if
 
@@ -559,13 +559,13 @@ c     complex*16 tmp(*)
       call Cram_max_npack(npack1)
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
+      value = BA_push_get(mt_dbl,(ne(1)+ne(2)),'tmpe',tmpe(2),tmpe(1))
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
      
 *     **** open ELCIN binary file ****
@@ -731,9 +731,9 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         call closefile(5)
       end if
  
-      value =           MA_pop_stack(tmpe(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmpe(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
 *     end if
 
       return

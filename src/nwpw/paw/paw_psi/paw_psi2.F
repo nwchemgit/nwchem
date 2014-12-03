@@ -125,13 +125,13 @@ c      write(*,*) "TIME ALL=",tim
 
       call Parallel_taskid(taskid)
 
-      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'paw_psi_KS_update_orb: out of stack memory',0, MA_ERR)
 
@@ -238,10 +238,10 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2)) 
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2)) 
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'paw_psi_KS_update_orb: popping stack memory',1, MA_ERR)
 
@@ -292,10 +292,10 @@ c     >           theta
       pi = 4.0d0*datan(1.0d0)
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'paw_psi_linesearch_update: out of stack memory',0, MA_ERR)
@@ -361,8 +361,8 @@ c     write(*,*) "i,theta,es:",i,theta,e0,e1,e2
 c     write(*,*)
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))      
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))      
       if (.not. value) call errquit(
      >     'paw_psi_linesearch_update: popping stack memory',1, MA_ERR)
 
@@ -412,10 +412,10 @@ c     write(*,*)
       pi = 4.0d0*datan(1.0d0)
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'paw_psi_linesearch_update: out of stack memory',0,MA_ERR)
@@ -471,8 +471,8 @@ c     >                  tau_t)
 
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))      
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))      
       if (.not. value) call errquit(
      >     'paw_psi_linesearch_update: popping stack memory',1,MA_ERR)
 
@@ -615,7 +615,7 @@ c     >                  tau_t)
       call Parallel_np(np)
 
 *     **** allocate stack memory ****
-      ok = MA_push_get(mt_dbl,ne(1),'x',x(2),x(1))
+      ok = BA_push_get(mt_dbl,ne(1),'x',x(2),x(1))
       if (.not.ok) 
      > call errquit('paw_psi_project_out_orb: out of stack memory',0,
      &       MA_ERR)
@@ -674,7 +674,7 @@ c     >                  tau_t)
       end if
 
 *     **** release stack memory ****
-      ok = MA_pop_stack(x(2))
+      ok = BA_pop_stack(x(2))
       if (.not. ok) 
      > call errquit('paw_psi_project_out_orb: poping stack memory',0,
      &       MA_ERR)
@@ -1238,7 +1238,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       do ms=1,ispin      
          n = ne(ms)
          if (n.eq.0) go to 101  !*** ferromagnetic check ***
-         value = MA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
+         value = BA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
          if (.not. value) 
      >   call errquit('out of stack memory in paw_psi_1check_Tangent',0,
      &       MA_ERR)
@@ -1262,7 +1262,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
             
 
 
-         value = MA_pop_stack(MM(2))
+         value = BA_pop_stack(MM(2))
          if (.not. value) 
      >    call errquit(
      >         'error popping stack memory in paw_psi_1check_Tangent',0,
@@ -1304,7 +1304,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       do ms=1,ispin
          n = ne(ms)
          if (n.eq.0) go to 101  !*** ferromagnetic check ***
-         value = MA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
+         value = BA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
          if (.not. value)
      >   call errquit('out of stack memory in paw_psi_1check_Tangent',0,
      >        MA_ERR)
@@ -1328,7 +1328,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 
-         value = MA_pop_stack(MM(2))
+         value = BA_pop_stack(MM(2))
          if (.not. value)
      >    call errquit(
      >         'error popping stack memory in paw_psi_2check_Tangent',0,
@@ -1372,7 +1372,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external paw_electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in paw_psi_1get_Tradient',0,
      &       MA_ERR)
@@ -1390,7 +1390,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                             dbl_mb(tmp1(1)),
      >                            THpsi)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('paw_psi_1get_Tgradient:error popping stack',1,
      >     MA_ERR)
@@ -1427,7 +1427,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external paw_electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value)
      >   call errquit('out of stack memory in paw_psi_1gen_residual',0,
      &       MA_ERR)
@@ -1448,7 +1448,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       call paw_electron_get_Tgradient(Spsi,dbl_mb(tmp1(1)),R) ! R = Hpsi - Spsi*tmp
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value)
      > call errquit('paw_psi_1get_residual:error popping stack',1,
      >     MA_ERR)
@@ -1486,7 +1486,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external paw_electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value)
      >   call errquit('out of stack memory in paw_psi_2get_residual',0,
      &       MA_ERR)
@@ -1508,7 +1508,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       call paw_electron_get_Tgradient(Spsi,dbl_mb(tmp1(1)),R) ! R = Hpsi - Spsi*tmp
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value)
      > call errquit('paw_psi_2get_residual:error popping stack',1,
      >     MA_ERR)
@@ -1577,7 +1577,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       integer tmp1(2),ii,jj
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >call errquit('paw_psi_1gen_Tangent:out of stack memory',0,MA_ERR)
 
@@ -1588,7 +1588,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                          dbl_mb(tmp1(1)),
      >                          T)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit(
      > 'error popping stack memory in paw_psi_1gen_Tangent',0,MA_ERR)
@@ -1625,7 +1625,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external paw_electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in paw_psi_1get_Tradient',0,
      &       MA_ERR)
@@ -1645,7 +1645,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                             dbl_mb(tmp1(1)),
      >                             THpsi)
       
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit(
      > 'paw_psi_2get_Tgradient:error popping stack',1,MA_ERR)
@@ -1713,7 +1713,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       integer tmp1(2),ii,jj
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value)
      >call errquit('paw_psi_2gen_Tangent:out of stack memory',0,MA_ERR)
 
@@ -1724,7 +1724,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                          dbl_mb(tmp1(1)),
      >                          T)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value)
      > call errquit(
      > 'error popping stack memory in paw_psi_2gen_Tangent',0,MA_ERR)
@@ -1761,7 +1761,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external paw_electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('paw_psi_1get_TSradient:pushing stack',0, MA_ERR)
 
@@ -1782,7 +1782,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                            THpsi)
       
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('paw_psi_1get_TSgradient:popping stack',1, MA_ERR)
 
@@ -1817,7 +1817,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       external paw_electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('paw_psi_2get_TSgradient:pushing stack',0, MA_ERR)
 
@@ -1837,7 +1837,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                             dbl_mb(tmp1(1)),
      >                             THpsi)
       
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('paw_psi_2get_TSgradient:popping stack',1, MA_ERR)
 
@@ -2102,10 +2102,10 @@ c     real*8 sum1,sum2
       nemax = ne(1)+ne(2)
 
 *     **** allocate MA local variables ****
-      value = MA_push_get(mt_dbl,(8*nemax*nemax),
+      value = BA_push_get(mt_dbl,(8*nemax*nemax),
      >                    'tmp_L',tmp_L(2),tmp_L(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),
+     >        BA_push_get(mt_dbl,(2*nemax*nemax),
      >                    'lmd',lmd(2),lmd(1))
 
         call paw_ovlp_S(nemax,dcpl_mb(psi1(1)),dcpl_mb(psi1(1)))
@@ -2115,8 +2115,8 @@ c     real*8 sum1,sum2
      >                 dbl_mb(tmp_L(1)),ierr)
 
 
-      value = value.and.MA_pop_stack(lmd(2))
-      value = value.and.MA_pop_stack(tmp_L(2))
+      value = value.and.BA_pop_stack(lmd(2))
+      value = value.and.BA_pop_stack(tmp_L(2))
       if (.not. value)
      >     call errquit(
      >          'psi1to2_sd_update: stack failure', 0, MA_ERR)
@@ -2331,7 +2331,7 @@ c     real*8 sum1,sum2
          en1(ms) = sumall*scale
       end do
 
-      if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
+      if (.not.BA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
      >   call errquit(
      >        'paw_psi_spin_density: out of stack memory',0,MA_ERR)
 
@@ -2346,7 +2346,7 @@ c     real*8 sum1,sum2
          en2(ms) = sumall*scale
 
       end do
-      if (.not.MA_pop_stack(tmp1(2)))
+      if (.not.BA_pop_stack(tmp1(2)))
      >   call errquit(
      >        'paw_psi_spin_density: popping stack memory',0,MA_ERR)
 
@@ -2461,7 +2461,7 @@ c     real*8 sum1,sum2
       integer tmp1(2)
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      > call errquit(
      > 'out of stack memory in paw_psi_diagonalize_hml',0,MA_ERR)
@@ -2488,7 +2488,7 @@ c     real*8 sum1,sum2
       end do
 
       
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit(
      > 'error popping stack in paw_psi_diagonalize_hml',0,MA_ERR)
@@ -2515,7 +2515,7 @@ c     real*8 sum1,sum2
       integer tmp1(2)
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit(
      >    'out of stack memory in paw_psi_diagonalize_hml_assending',0,
@@ -2539,7 +2539,7 @@ c     real*8 sum1,sum2
       end do
 
       
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit(
      >   'error popping stack in paw_psi_diagonalize_hml_assending',0,
@@ -2568,7 +2568,7 @@ c     real*8 sum1,sum2
       real*8  error,sum,size
       integer tmp1(2)
 
-      value = MA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in paw_psi_error',0, MA_ERR)
 
@@ -2587,7 +2587,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       end do
       error = dsqrt(error)/size
       
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit(
      > 'error popping stack memory in paw_psi_error',0,MA_ERR)
@@ -2619,7 +2619,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       real*8   lattice_omega
       external lattice_omega
 
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*nfft3d),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in rho_error',0, MA_ERR)
 
@@ -2644,7 +2644,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       error = error*scale
 *     error = dsqrt(error)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory in rho_error',0, MA_ERR)
 
@@ -2755,29 +2755,29 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       nemax = ne(1)+ne(2)
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        BA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho1',rho1(2),rho1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        BA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho2',rho2(2),rho2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
+     >        BA_alloc_get(mt_dcpl,npack0,
      >                     'dng1',dng1(2),dng1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
+     >        BA_alloc_get(mt_dcpl,npack0,
      >                     'dng2',dng2(2),dng2(1))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
+c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       value = value.and.Dneall_m_allocate(0,hml)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
+     >        BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
 
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -2926,14 +2926,14 @@ c     >                      dcpl_mb(psi2(1)))
 c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
       end if
     
-      value = MA_free_heap(eig(2))
-      value = value.and.MA_free_heap(hml(2))
-      value = value.and.MA_free_heap(dng2(2))
-      value = value.and.MA_free_heap(dng1(2))
-      value = value.and.MA_free_heap(rho2(2))
-      value = value.and.MA_free_heap(rho1(2))
-      value = value.and.MA_free_heap(psi2(2))
-      value = value.and.MA_free_heap(psi1(2))
+      value = BA_free_heap(eig(2))
+      value = value.and.BA_free_heap(hml(2))
+      value = value.and.BA_free_heap(dng2(2))
+      value = value.and.BA_free_heap(dng1(2))
+      value = value.and.BA_free_heap(rho2(2))
+      value = value.and.BA_free_heap(rho1(2))
+      value = value.and.BA_free_heap(psi2(2))
+      value = value.and.BA_free_heap(psi1(2))
       if (.not. value) 
      >  call errquit('paw_psi_finalize: error freeing heap',0, MA_ERR)
 
@@ -2996,13 +2996,13 @@ c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
       nemax = ne_excited(1)+ne_excited(2)
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*(nemax),
+      value = BA_alloc_get(mt_dcpl,npack1*(nemax),
      >         'psi2_excited',psi2_excited(2),psi2_excited(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(nemax),
+     >        BA_alloc_get(mt_dcpl,npack1*(nemax),
      >         'psi1_excited',psi1_excited(2),psi1_excited(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
+     >        BA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
      >                     eig_excited(2),eig_excited(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -3102,9 +3102,9 @@ c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
       if (writepsi)
      >  call epsi_write(ispin,ne_excited,dcpl_mb(psi1_excited(1)))
     
-      value = MA_free_heap(eig_excited(2))
-      value = value.and.MA_free_heap(psi2_excited(2))
-      value = value.and.MA_free_heap(psi1_excited(2))
+      value = BA_free_heap(eig_excited(2))
+      value = value.and.BA_free_heap(psi2_excited(2))
+      value = value.and.BA_free_heap(psi1_excited(2))
       if (.not. value) 
      >  call errquit('epaw_psi_finalize: error freeing heap',0, MA_ERR)
 

@@ -38,13 +38,13 @@
 #include "integrate.fh"
 
 
-      value =           MA_push_get(mt_dbl,ngrid,
+      value =           BA_push_get(mt_dbl,ngrid,
      >                              'my_sin',my_sin(2),my_sin(1))
-      value = value.and.MA_push_get(mt_dbl,ngrid,
+      value = value.and.BA_push_get(mt_dbl,ngrid,
      >                              'my_cos',my_cos(2),my_cos(1))
-      value = value.and.MA_push_get(mt_dbl,ngrid,
+      value = value.and.BA_push_get(mt_dbl,ngrid,
      >                              'tmp_r',tmp_r(2),tmp_r(1))
-      value = value.and.MA_push_get(mt_dbl,ngrid,'J',J(2),J(1))
+      value = value.and.BA_push_get(mt_dbl,ngrid,'J',J(2),J(1))
       if (.not.value) 
      >   call errquit('spher_bessel_transform: push stack',0,0)
 
@@ -70,10 +70,10 @@
      >                   power_r,r,
      >                   log_amesh,ngrid)
          
-      value =           MA_pop_stack(J(2))
-      value = value.and.MA_pop_stack(tmp_r(2))
-      value = value.and.MA_pop_stack(my_cos(2))
-      value = value.and.MA_pop_stack(my_sin(2)) 
+      value =           BA_pop_stack(J(2))
+      value = value.and.BA_pop_stack(tmp_r(2))
+      value = value.and.BA_pop_stack(my_cos(2))
+      value = value.and.BA_pop_stack(my_sin(2)) 
       if (.not.value) call errquit('spher_bessel_transform',0,1)
 
       spher_bessel_transform = phi_G

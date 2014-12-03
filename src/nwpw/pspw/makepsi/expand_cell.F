@@ -136,25 +136,25 @@ ccc      value = value.and.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
 
 
       value = value.and.
-     >        MA_push_get(mt_dbl, (3*nion1), 'rt1',rt1(2),rt1(1))
+     >        BA_push_get(mt_dbl, (3*nion1), 'rt1',rt1(2),rt1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (3*nion2), 'rt2',rt2(2),rt2(1))
+     >        BA_push_get(mt_dbl, (3*nion2), 'rt2',rt2(2),rt2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (3*nion1), 'vt1',vt1(2),vt1(1))
+     >        BA_push_get(mt_dbl, (3*nion1), 'vt1',vt1(2),vt1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (3*nion2), 'vt2',vt2(2),vt2(1))
+     >        BA_push_get(mt_dbl, (3*nion2), 'vt2',vt2(2),vt2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (nion1),   'qt1',qt1(2),qt1(1))
+     >        BA_push_get(mt_dbl, (nion1),   'qt1',qt1(2),qt1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (nion2),   'qt2',qt2(2),qt2(1))
+     >        BA_push_get(mt_dbl, (nion2),   'qt2',qt2(2),qt2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (nion1),   'mt1',mt1(2),mt1(1))
+     >        BA_push_get(mt_dbl, (nion1),   'mt1',mt1(2),mt1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (nion2),   'mt2',mt2(2),mt2(1))
+     >        BA_push_get(mt_dbl, (nion2),   'mt2',mt2(2),mt2(1))
       value = value.and.
-     >        MA_push_get(mt_byte,(16*nion1),'tt1',tt1(2),tt1(1))
+     >        BA_push_get(mt_byte,(16*nion1),'tt1',tt1(2),tt1(1))
       value = value.and.
-     >        MA_push_get(mt_byte,(16*nion2),'tt2',tt2(2),tt2(1))
+     >        BA_push_get(mt_byte,(16*nion2),'tt2',tt2(2),tt2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     *** get geometry from rtdb ****
@@ -184,16 +184,16 @@ ccc      value = value.and.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
 
       value = value.and.geom_rtdb_store(rtdb,geom1,'geometry')
       value = value.and.geom_destroy(geom1)
-      value = value.and.MA_pop_stack(tt2(2))
-      value = value.and.MA_pop_stack(tt1(2))
-      value = value.and.MA_pop_stack(mt2(2))
-      value = value.and.MA_pop_stack(mt1(2))
-      value = value.and.MA_pop_stack(qt2(2))
-      value = value.and.MA_pop_stack(qt1(2))
-      value = value.and.MA_pop_stack(vt2(2))
-      value = value.and.MA_pop_stack(vt1(2))
-      value = value.and.MA_pop_stack(rt2(2))
-      value = value.and.MA_pop_stack(rt1(2))
+      value = value.and.BA_pop_stack(tt2(2))
+      value = value.and.BA_pop_stack(tt1(2))
+      value = value.and.BA_pop_stack(mt2(2))
+      value = value.and.BA_pop_stack(mt1(2))
+      value = value.and.BA_pop_stack(qt2(2))
+      value = value.and.BA_pop_stack(qt1(2))
+      value = value.and.BA_pop_stack(vt2(2))
+      value = value.and.BA_pop_stack(vt1(2))
+      value = value.and.BA_pop_stack(rt2(2))
+      value = value.and.BA_pop_stack(rt1(2))
 
 *     **** IO ****
       write(*,110) 1,1,1,cell_expand

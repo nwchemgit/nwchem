@@ -90,10 +90,10 @@
      >                     I3,'x',I3,'x',I3)
  
 *     ***** allocate wavefunction memory ****
-      value = MA_push_get(mt_dcpl,nfft3d,
+      value = BA_push_get(mt_dcpl,nfft3d,
      >                    'cfull',cfull(2),cfull(1))
 
-      value = MA_push_get(mt_dcpl,dnfft3d,
+      value = BA_push_get(mt_dcpl,dnfft3d,
      >                    'dcfull',dcfull(2),dcfull(1))
 
       do ms=1,ispin
@@ -124,8 +124,8 @@ c     *** copy wvfnc_expander to new_wavefunction_filename ****
  9111 IERR=11
       GO TO 9999
  
- 9999 value =           MA_pop_stack(dcfull(2))
-      value = value.and.MA_pop_stack(cfull(2))
+ 9999 value =           BA_pop_stack(dcfull(2))
+      value = value.and.BA_pop_stack(cfull(2))
       !IF(IERR.EQ.0) THEN
       !  WRITE(6,*) ' JOB HAS BEEN COMPLETED.  CODE=',IERR
       !ELSE

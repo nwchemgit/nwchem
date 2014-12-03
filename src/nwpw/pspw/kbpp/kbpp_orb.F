@@ -119,13 +119,13 @@ c      call Parallel_Init()
       
 
 *     **** allocate rho, vp, and wp ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.BA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
 
       if (taskid.eq.MASTER) then
@@ -154,20 +154,20 @@ c      call Parallel_Init()
 
 
 *    **** more temporary space ****
-      value = value.and.MA_alloc_get(mt_dbl,nrho,
+      value = value.and.BA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho,
+      value = value.and.BA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho,
+      value = value.and.BA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
 
 *     **** allocate aorbs and  G ****
       lmmax = (lmax+1)**2 - (2*locp+1)
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
 
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(lmmax),
      >                        'aorbs',aorbs_hndl,aorbs_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
 
       call damp_kbpp_orb(nrho,lmax,rcut,lmbda,
@@ -285,16 +285,16 @@ c      call Parallel_Init()
      
 
 *     **** free heap space ****
-      value = value.and.MA_free_heap(rho_hndl)
-      value = value.and.MA_free_heap(vp_hndl)
-      value = value.and.MA_free_heap(wp_hndl)
-      value = value.and.MA_free_heap(sc_r_hndl)
-      value = value.and.MA_free_heap(f_hndl)
-      value = value.and.MA_free_heap(cs_hndl)
-      value = value.and.MA_free_heap(sn_hndl)
+      value = value.and.BA_free_heap(rho_hndl)
+      value = value.and.BA_free_heap(vp_hndl)
+      value = value.and.BA_free_heap(wp_hndl)
+      value = value.and.BA_free_heap(sc_r_hndl)
+      value = value.and.BA_free_heap(f_hndl)
+      value = value.and.BA_free_heap(cs_hndl)
+      value = value.and.BA_free_heap(sn_hndl)
 
-      value = value.and.MA_free_heap(aorbs_hndl)
-      value = value.and.MA_free_heap(G_hndl)
+      value = value.and.BA_free_heap(aorbs_hndl)
+      value = value.and.BA_free_heap(G_hndl)
 
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)

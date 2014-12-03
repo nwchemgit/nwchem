@@ -427,7 +427,7 @@
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
 
-      value = MA_push_get(mt_dbl,(3*nion),
+      value = BA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -620,7 +620,7 @@ c       **** inner loop ****
      >        rtdb_put(rtdb,'pspw:lstress',mt_dbl,
      >                 6,lstress)
       end if
-      value = value.and.MA_pop_stack(fion(2))
+      value = value.and.BA_pop_stack(fion(2))
       if (.not. value) call errquit('cgmdv5: error writing rtdb',0,
      &       RTDB_ERR)
 

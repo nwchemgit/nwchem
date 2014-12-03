@@ -114,10 +114,10 @@ c     dte = 1.0d0
 
 
 *     **** allocate G0, S0 ****
-      value = MA_push_get(mt_dcpl,npack1*neall,
+      value = BA_push_get(mt_dcpl,npack1*neall,
      >                     'S0',S0(2),S0(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack1*neall,
+     >        BA_push_get(mt_dcpl,npack1*neall,
      >                     'G0',G0(2),G0(1))
       if (.not. value) call errquit('cgminimize:out of heap memory',0,
      &       MA_ERR)
@@ -226,9 +226,9 @@ c     dte = 1.0d0
       deltac = paw_rho_error()
 
 *     **** free memory ****
- 30   value = MA_pop_stack(G0(2))
+ 30   value = BA_pop_stack(G0(2))
       value = value.and.
-     >        MA_pop_stack(S0(2))
+     >        BA_pop_stack(S0(2))
       if (.not. value) 
      >  call errquit('paw_bfgsminimize:error freeing heap memory',
      >               0,MA_ERR)

@@ -74,24 +74,24 @@ c     **** local variables ****
 
 c        ***** tempory variables needed rho,grx,gry,grz *****
 c        *****                          agr,fn,fdn      *****
-        value = MA_push_get(mt_dbl,n2ft3d,'rho', rho(2), rho(1))
+        value = BA_push_get(mt_dbl,n2ft3d,'rho', rho(2), rho(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grx',grx(2),grx(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grx',grx(2),grx(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'gry',gry(2),gry(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'gry',gry(2),gry(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grz',grz(2),grz(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grz',grz(2),grz(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'agr',agr(2),agr(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'agr',agr(2),agr(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'fn',fn(2),fn(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'fn',fn(2),fn(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, 2*n2ft3d,'fdn',fdn(2),fdn(1))
+     >        BA_push_get(mt_dbl, 2*n2ft3d,'fdn',fdn(2),fdn(1))
         tmp(1) = fdn(1)
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'rhog',rhog(2),rhog(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'rhog',rhog(2),rhog(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
       if (.not. value) call errquit('out of stack memory',0,0)
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(rho(1)),1)
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(agr(1)),1)
@@ -314,15 +314,15 @@ c     >                            dbl_mb(grz(1)))
 
 
 *        **** deallocate temporary memory ****
-         value = MA_pop_stack(xce(2))
-         value = value.and.MA_pop_stack(rhog(2))
-         value = value.and.MA_pop_stack(fdn(2))
-         value = value.and.MA_pop_stack(fn(2))
-         value = value.and.MA_pop_stack(agr(2))
-         value = value.and.MA_pop_stack(grz(2))
-         value = value.and.MA_pop_stack(gry(2))
-         value = value.and.MA_pop_stack(grx(2))
-         value = value.and.MA_pop_stack(rho(2))
+         value = BA_pop_stack(xce(2))
+         value = value.and.BA_pop_stack(rhog(2))
+         value = value.and.BA_pop_stack(fdn(2))
+         value = value.and.BA_pop_stack(fn(2))
+         value = value.and.BA_pop_stack(agr(2))
+         value = value.and.BA_pop_stack(grz(2))
+         value = value.and.BA_pop_stack(gry(2))
+         value = value.and.BA_pop_stack(grx(2))
+         value = value.and.BA_pop_stack(rho(2))
          if (.not. value) call errquit('cannot pop stack memory',0,0)
 
 
@@ -334,51 +334,51 @@ c     >                            dbl_mb(grz(1)))
 
 c        ***** tempory variables needed rho,grx,gry,grz *****
 c        *****                          agr,fn,fdn      *****
-        value = MA_push_get(mt_dbl,n2ft3d,'rhoup', rhoup(2), rhoup(1))
+        value = BA_push_get(mt_dbl,n2ft3d,'rhoup', rhoup(2), rhoup(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grupx',grupx(2),grupx(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grupx',grupx(2),grupx(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grupy',grupy(2),grupy(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grupy',grupy(2),grupy(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grupz',grupz(2),grupz(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grupz',grupz(2),grupz(1))
 
         value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'rhodn', rhodn(2), rhodn(1))
+     >        BA_push_get(mt_dbl,n2ft3d,'rhodn', rhodn(2), rhodn(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grdnx',grdnx(2),grdnx(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grdnx',grdnx(2),grdnx(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grdny',grdny(2),grdny(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grdny',grdny(2),grdny(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grdnz',grdnz(2),grdnz(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grdnz',grdnz(2),grdnz(1))
 
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grallx',grallx(2),grallx(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grallx',grallx(2),grallx(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grally',grally(2),grally(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grally',grally(2),grally(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grallz',grallz(2),grallz(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grallz',grallz(2),grallz(1))
 
         value = value.and.
-     >        MA_push_get(mt_dbl, 3*n2ft3d,'xagr',xagr(2),xagr(1))
+     >        BA_push_get(mt_dbl, 3*n2ft3d,'xagr',xagr(2),xagr(1))
         agr(1) = xagr(1)
         agr(2) = xagr(1) +   n2ft3d
         agr(3) = xagr(1) + 2*n2ft3d
         value = value.and.
-     >        MA_push_get(mt_dbl, 3*n2ft3d,'grad',grad(2),grad(1))
+     >        BA_push_get(mt_dbl, 3*n2ft3d,'grad',grad(2),grad(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, 3*n2ft3d,'gtmp',gtmp(2),gtmp(1))
+     >        BA_push_get(mt_dbl, 3*n2ft3d,'gtmp',gtmp(2),gtmp(1))
         value = value.and.
-     >        MA_push_get(mt_dbl, 2*n2ft3d,'xfn',xfn(2),xfn(1))
+     >        BA_push_get(mt_dbl, 2*n2ft3d,'xfn',xfn(2),xfn(1))
         fn(1) = xfn(1)
         fn(2) = xfn(1)+n2ft3d
         value = value.and.
-     >        MA_push_get(mt_dbl, 3*n2ft3d,'xfdn',xfdn(2),xfdn(1))
+     >        BA_push_get(mt_dbl, 3*n2ft3d,'xfdn',xfdn(2),xfdn(1))
         fdn(1) = xfdn(1)
         fdn(2) = xfdn(1) +   n2ft3d
         fdn(3) = xfdn(1) + 2*n2ft3d
         tmp(1) = xfdn(1)
         value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
         if (.not. value) call errquit('out of stack memory',0,0)
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoup(1)),1)
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhodn(1)),1)
@@ -840,24 +840,24 @@ c     >                            dbl_mb(grdnz(1)))
 
 
 *        **** deallocate temporary memory ****
-         value = MA_pop_stack(xce(2))
-         value = value.and.MA_pop_stack(xfdn(2))
-         value = value.and.MA_pop_stack(xfn(2))
-         value = value.and.MA_pop_stack(gtmp(2))
-         value = value.and.MA_pop_stack(grad(2))
-         value = value.and.MA_pop_stack(xagr(2))
+         value = BA_pop_stack(xce(2))
+         value = value.and.BA_pop_stack(xfdn(2))
+         value = value.and.BA_pop_stack(xfn(2))
+         value = value.and.BA_pop_stack(gtmp(2))
+         value = value.and.BA_pop_stack(grad(2))
+         value = value.and.BA_pop_stack(xagr(2))
 
-         value = value.and.MA_pop_stack(grallz(2))
-         value = value.and.MA_pop_stack(grally(2))
-         value = value.and.MA_pop_stack(grallx(2))
-         value = value.and.MA_pop_stack(grdnz(2))
-         value = value.and.MA_pop_stack(grdny(2))
-         value = value.and.MA_pop_stack(grdnx(2))
-         value = value.and.MA_pop_stack(rhodn(2))
-         value = value.and.MA_pop_stack(grupz(2))
-         value = value.and.MA_pop_stack(grupy(2))
-         value = value.and.MA_pop_stack(grupx(2))
-         value = value.and.MA_pop_stack(rhoup(2))
+         value = value.and.BA_pop_stack(grallz(2))
+         value = value.and.BA_pop_stack(grally(2))
+         value = value.and.BA_pop_stack(grallx(2))
+         value = value.and.BA_pop_stack(grdnz(2))
+         value = value.and.BA_pop_stack(grdny(2))
+         value = value.and.BA_pop_stack(grdnx(2))
+         value = value.and.BA_pop_stack(rhodn(2))
+         value = value.and.BA_pop_stack(grupz(2))
+         value = value.and.BA_pop_stack(grupy(2))
+         value = value.and.BA_pop_stack(grupx(2))
+         value = value.and.BA_pop_stack(rhoup(2))
          if (.not. value) call errquit('cannot pop stack memory',0,0)
 
 

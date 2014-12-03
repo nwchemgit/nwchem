@@ -517,7 +517,7 @@ c
 c
 c atom_truncate
 c
- 1100 if (.not.MA_push_get(mt_int,nw_max_atom,'idx',idx(2),idx(1)))
+ 1100 if (.not.BA_push_get(mt_int,nw_max_atom,'idx',idx(2),idx(1)))
      >   call errquit(
      >   'pspw_dplot_input:failed allocating idx',0,MA_ERR)
 
@@ -536,7 +536,7 @@ c
      >                  mt_int,nx,int_mb(idx(1))))
      >   call errquit('pspw_dplot_input:failed writing atom_truncate',
      >                0,RTDB_ERR)
-      if (.not.MA_pop_stack(idx(2)))
+      if (.not.BA_pop_stack(idx(2)))
      >   call errquit('pspw_dplot_input:failed deallocating idx',
      >                 0,MA_ERR)
 

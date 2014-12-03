@@ -40,18 +40,18 @@ c
 
       if (cosmo_found) then
          value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'fcut',fcut(2),fcut(1))
+     >        BA_alloc_get(mt_dbl,n2ft3d,'fcut',fcut(2),fcut(1))
          value = value.and.
-     >        MA_alloc_get(mt_dbl,3*n2ft3d,'gradfcut',
+     >        BA_alloc_get(mt_dbl,3*n2ft3d,'gradfcut',
      >                     gradfcut(2),gradfcut(1))
          value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'lapfcut',
+     >        BA_alloc_get(mt_dbl,n2ft3d,'lapfcut',
      >                     lapfcut(2),lapfcut(1))
 
          value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'vcond',vcond(2),vcond(1))
+     >        BA_alloc_get(mt_dbl,n2ft3d,'vcond',vcond(2),vcond(1))
          value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d,'Avcond',Avcond(2),Avcond(1))
+     >        BA_alloc_get(mt_dbl,n2ft3d,'Avcond',Avcond(2),Avcond(1))
 
       end if
 
@@ -76,8 +76,8 @@ c
       logical value
 
       if (cosmo_found) then
-         value =           MA_free_heap(fcut(2))
-         value = value.and.MA_free_heap(vcond(2))
+         value =           BA_free_heap(fcut(2))
+         value = value.and.BA_free_heap(vcond(2))
       end if
 
       return
@@ -158,16 +158,16 @@ c
       call daxpy(n2ft3d,1.0d0,vc,1,vcosmo,1)
 
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'fcut',fcut(2),grx(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'fcut',fcut(2),grx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'vconductor',vconductor(2),vconductor(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'vconductor',vconductor(2),vconductor(1))
 
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grx',grx(2),grx(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grx',grx(2),grx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'gry',gry(2),gry(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'gry',gry(2),gry(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, n2ft3d,'grz',grz(2),grz(1))
+     >        BA_push_get(mt_dbl, n2ft3d,'grz',grz(2),grz(1))
       if (.not. value) 
      >   call errquit('pspw_cosmo:out of stack memory',0,MA_ERR)
 
@@ -282,7 +282,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       real*8   util_erf
       external util_erf
 
-      if (.not.MA_push_get(mt_dbl, n2ft3d,'tmp',tmp(2),tmp(1)))
+      if (.not.BA_push_get(mt_dbl, n2ft3d,'tmp',tmp(2),tmp(1)))
      >   call errquit('pspw_cosmo_gen_fcut:out of stack',0,MA_ERR)
 
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp(1)),1)
@@ -296,7 +296,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
          fcut(i) = util_erf(dbl_mb(tmp(1)+i-1)/rcut)
       end do
 
-      if (.not.MA_pop_stack(tmp(2))) 
+      if (.not.BA_pop_stack(tmp(2))) 
      >   call errquit('pspw_cosmo_gen_fcut:popping stack',1,MA_ERR)
       return
       end

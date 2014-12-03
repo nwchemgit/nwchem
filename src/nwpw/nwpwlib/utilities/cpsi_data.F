@@ -29,23 +29,23 @@
       tagmax = 0
       tagmin = npsi-1
 
-      value = MA_alloc_get(mt_int,npsi,'nsize_psi',
+      value = BA_alloc_get(mt_int,npsi,'nsize_psi',
      >                     nsize_psi(2),nsize_psi(1))
-      value = value.and.MA_alloc_get(mt_int,npsi,'neall_psi',
+      value = value.and.BA_alloc_get(mt_int,npsi,'neall_psi',
      >                               neall_psi(2),neall_psi(1))
-      value = value.and.MA_alloc_get(mt_int,npsi,'nbrill_psi',
+      value = value.and.BA_alloc_get(mt_int,npsi,'nbrill_psi',
      >                               nbrill_psi(2),nbrill_psi(1))
-      value = value.and.MA_alloc_get(mt_int,npsi,'indx_psi',
+      value = value.and.BA_alloc_get(mt_int,npsi,'indx_psi',
      >                               indx_psi(2),indx_psi(1))
-      value = value.and.MA_alloc_get(mt_int,npsi,'hndl_psi',
+      value = value.and.BA_alloc_get(mt_int,npsi,'hndl_psi',
      >                               hndl_psi(2),hndl_psi(1))
-      value = value.and.MA_alloc_get(mt_int,npsi,'curnb_psi',
+      value = value.and.BA_alloc_get(mt_int,npsi,'curnb_psi',
      >                               curnb_psi(2),curnb_psi(1))
-      value = value.and.MA_alloc_get(mt_int,npsi,'update_psi',
+      value = value.and.BA_alloc_get(mt_int,npsi,'update_psi',
      >                               update_psi(2),update_psi(1))
-      value = value.and.MA_alloc_get(mt_int,npsi,'list_psi',
+      value = value.and.BA_alloc_get(mt_int,npsi,'list_psi',
      >                               list_psi(2),list_psi(1))
-      value = value.and.MA_alloc_get(mt_int,npsi,'next_psi',
+      value = value.and.BA_alloc_get(mt_int,npsi,'next_psi',
      >                               next_psi(2),next_psi(1))
 
       call icopy(npsi,0,0,int_mb(update_psi(1)),1)
@@ -80,17 +80,17 @@
       do ltag=0,tagmax-1
          tag  = int_mb(list_psi(1)+ltag)
          hndl = int_mb(hndl_psi(1)+tag)
-         value = value.and.MA_free_heap(hndl)
+         value = value.and.BA_free_heap(hndl)
       end do
-      value = value.and.MA_free_heap(nbrill_psi(2))
-      value = value.and.MA_free_heap(neall_psi(2))
-      value = value.and.MA_free_heap(nsize_psi(2))
-      value = value.and.MA_free_heap(indx_psi(2))
-      value = value.and.MA_free_heap(hndl_psi(2))
-      value = value.and.MA_free_heap(curnb_psi(2))
-      value = value.and.MA_free_heap(update_psi(2))
-      value = value.and.MA_free_heap(list_psi(2))
-      value = value.and.MA_free_heap(next_psi(2))
+      value = value.and.BA_free_heap(nbrill_psi(2))
+      value = value.and.BA_free_heap(neall_psi(2))
+      value = value.and.BA_free_heap(nsize_psi(2))
+      value = value.and.BA_free_heap(indx_psi(2))
+      value = value.and.BA_free_heap(hndl_psi(2))
+      value = value.and.BA_free_heap(curnb_psi(2))
+      value = value.and.BA_free_heap(update_psi(2))
+      value = value.and.BA_free_heap(list_psi(2))
+      value = value.and.BA_free_heap(next_psi(2))
       if (.not.value)
      > call errquit('cpsi_data_end:error freeing heap',0,MA_ERR)
 
@@ -127,7 +127,7 @@
       int_mb(update_psi(1)+tag) = 0
       int_mb(next_psi(1)+tag)   = -1
 
-      value = MA_alloc_get(mt_dbl,(nbrill*neall*nsize),
+      value = BA_alloc_get(mt_dbl,(nbrill*neall*nsize),
      >                     'cpsi_alloc',hndl,indx)
       if (.not.value) 
      > call errquit('cpsi_data_alloc: out of heap memory',0,MA_ERR)
@@ -160,7 +160,7 @@
       integer ltagin,taglast,hndl
 
       hndl = int_mb(hndl_psi(1)+tagin)
-      if (.not. MA_free_heap(hndl))
+      if (.not. BA_free_heap(hndl))
      > call errquit('cpsi_data_dealloc: error freeing heap',0,MA_ERR)
 
       tagmax  = tagmax - 1
@@ -209,7 +209,7 @@
       int_mb(update_psi(1)+tag) = 0
       int_mb(next_psi(1)+tag)   = -1
 
-      value = MA_push_get(mt_dbl,nbrill*neall*nsize,
+      value = BA_push_get(mt_dbl,nbrill*neall*nsize,
      >                     'cpsi_stack',hndl,indx)
       if (.not.value)
      > call errquit('cpsi_data_push_stack: out of stack',0,MA_ERR)
@@ -245,7 +245,7 @@
 
       tagmin = tagmin + 1
       hndl = int_mb(hndl_psi(1)+tag) 
-      if (.not.MA_pop_stack(hndl))
+      if (.not.BA_pop_stack(hndl))
      > call errquit('cpsi_data_pop_stack: error popping stack',1,MA_ERR)
 
       return

@@ -37,7 +37,7 @@
          end do
 
 *        **** allocate dummy variables ****
-         if (.not.MA_alloc_get(mt_int,nion_paw,"ion_pawtoion",
+         if (.not.BA_alloc_get(mt_int,nion_paw,"ion_pawtoion",
      >                         ion_pawtoion(2),ion_pawtoion(1)))
      >      call errquit("psp_paw_init:allocate heap",0,MA_ERR)
 
@@ -71,7 +71,7 @@
 #include "psp.fh"
 
       if (pawexist) then
-        if (.not.MA_free_heap(ion_pawtoion(2)))
+        if (.not.BA_free_heap(ion_pawtoion(2)))
      >      call errquit("psp_paw_end:deallocate heap",0,MA_ERR)
       end if
 
@@ -302,7 +302,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       nion     = ion_nion()
       periodic = (control_version().eq.3)
 
-      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       if (.not.value) 
      > call errquit('v_local_seperate_paw:out of stack',0,MA_ERR)
 
@@ -352,7 +352,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
          call D1dB_Vector_SumAll(2*npack0,vl_notpaw)
       end if
 
-      value = MA_pop_stack(exi(2))
+      value = BA_pop_stack(exi(2))
       if (.not.value) 
      >  call errquit('v_local_seperate_paw:popping stack',0,MA_ERR)
 
@@ -429,7 +429,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
       dv = lattice_omega()/dble(np1*np2*np3)
 
 *     ***** allocate temporary space ****
-      if (.not.MA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
+      if (.not.BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
      > call errquit('grad_v_lr_local:out of stack memory',0, MA_ERR)
 
 
@@ -541,7 +541,7 @@ c         fion(3,j) = fion(3,j) - fz*dv
       call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
       call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
-      if (.not.MA_pop_stack(ftmp(2)))
+      if (.not.BA_pop_stack(ftmp(2)))
      > call errquit('paw_grad_v_lr_local:popping stack',1,MA_ERR)
 
       call nwpw_timing_end(5)
@@ -716,15 +716,15 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       nion     = ion_nion()
       periodic = (control_version().eq.3)
 
-      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       if (.not. value) 
      >  call errquit('v_locals_paw:out of stack memory',0,MA_ERR)
 
 *     **** define Gx,Gy and Gz in packed space ****
       if (move) then
-         value = MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+         value = BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
          value = value.and.
-     >           MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+     >           BA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
          if (.not. value) 
      >   call errquit('v_locals_paw: out of stack memory',0, MA_ERR)
          G(1)  = Pack_G_indx(0,1)
@@ -787,10 +787,10 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
       value = .true.
       if (move) then
-         value = value.and.MA_pop_stack(xtmp(2))
-         value = value.and.MA_pop_stack(vtmp(2))
+         value = value.and.BA_pop_stack(xtmp(2))
+         value = value.and.BA_pop_stack(vtmp(2))
       end if
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value) 
      >   call errquit('v_locals_paw:popping stack',0, MA_ERR)
 
@@ -840,11 +840,11 @@ c      integer Gx(2),Gy(2),Gz(2)
       nion     = ion_nion()
       periodic = (control_version().eq.3)
 
-      value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+     >        BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
+     >        BA_push_get(mt_dbl, npack0,'xtmp',xtmp(2),xtmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 c     **** define Gx,Gy and Gz in packed space ****
@@ -900,9 +900,9 @@ c           end do
       end do
       call Parallel_Vector_SumAll(3*nion,fion)
 
-      value =           MA_pop_stack(xtmp(2))
-      value = value.and.MA_pop_stack(vtmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value) call errquit('popping stack',0, MA_ERR)
 
       call nwpw_timing_end(5)
@@ -968,11 +968,11 @@ c           end do
       nn = neq(1)+neq(2)
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_overlap_S: out of stack',0,MA_ERR)
 
@@ -1065,9 +1065,9 @@ c           end do
         end if !** nproj>0 **
       end do !** iii **
 
-      value =           MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_overlap_S: popping stack',3,
      &       MA_ERR)
       call nwpw_timing_end(6)
@@ -1132,11 +1132,11 @@ cc      call Dneall_ffm_sym_Multiply(mb,psi1,psi1,npack1,S)
       end if
 
 *     **** allocate local memory ****
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_paw_extra_overlap1:out of stack',0,MA_ERR)
 
@@ -1230,9 +1230,9 @@ c        end do
         end if !** nproj>0 **
       end do !** iii **
 
-      value =           MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      >   call errquit('psp_paw_extra_overlap1: popping stack',3,MA_ERR)
       call nwpw_timing_end(6)
@@ -1296,13 +1296,13 @@ c      call Dneall_ffm_Multiply(mb,psi1,psi2,npack1,S)
       end if
 
 *     **** allocate local memory ****
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw0',sw0(2),sw0(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw0',sw0(2),sw0(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      > call errquit('psp_add_paw_extra_overlap2:out of stack',0,MA_ERR)
 
@@ -1401,10 +1401,10 @@ c        end do
         end if !** nproj>0 **
       end do !** iii **
 
-      value =           MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(sw0(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(sw0(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      > call errquit('psp_add_paw_extra_overlap2:popping stack',3,MA_ERR)
       call nwpw_timing_end(6)
@@ -1460,11 +1460,11 @@ c
 c
 c*     **** allocate local memory ****
 c      call Pack_npack(1,npack1)
-c      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+c      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
 c      value = value.and.
-c     >        MA_push_get(mt_dbl,n*nprj_max,'sw1',sw1(2),sw1(1))
+c     >        BA_push_get(mt_dbl,n*nprj_max,'sw1',sw1(2),sw1(1))
 c      value = value.and.
-c     >        MA_push_get(mt_dbl,n*nprj_max,'sw2',sw2(2),sw2(1))
+c     >        BA_push_get(mt_dbl,n*nprj_max,'sw2',sw2(2),sw2(1))
 c      if (.not.value) 
 c     >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
 c
@@ -1550,9 +1550,9 @@ c
 c        end if !** nproj>0 **
 c      end do !** ii **
 c
-c      value =           MA_pop_stack(sw2(2))
-c      value = value.and.MA_pop_stack(sw1(2))
-c      value = value.and.MA_pop_stack(exi(2))
+c      value =           BA_pop_stack(sw2(2))
+c      value = value.and.BA_pop_stack(sw1(2))
+c      value = value.and.BA_pop_stack(exi(2))
 c      if (.not.value) call errquit('psp_overlap_orb: popping stack',3,
 c     &       MA_ERR)
 c      call nwpw_timing_end(6)
@@ -1677,11 +1677,11 @@ c
 *     **** allocate local memory ****
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
 
@@ -1763,9 +1763,9 @@ c
         end if !** nproj>0 **
       end do !** ii **
 
-      value =           MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_overlap_orb: popping stack',3,
      &       MA_ERR)
 
@@ -1821,11 +1821,11 @@ c
 
 *     **** allocate local memory ****
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
 
@@ -1908,9 +1908,9 @@ c
         end if !** nproj>0 **
       end do !** ii **
 
-      value =           MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_overlap_orb: popping stack',3,
      &       MA_ERR)
 
@@ -1973,11 +1973,11 @@ c
 
 *     **** allocate local memory ****
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
 
@@ -2091,9 +2091,9 @@ c
         end if !** nproj>0 **
       end do !** ii **
 
-      value =           MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_overlap_orb: popping stack',3,
      &       MA_ERR)
 
@@ -2175,13 +2175,13 @@ c
 *     *************************************
       if (periodic) then
          call Pack_npack(0,npack0)
-         ok =        MA_push_get(mt_dcpl,npack0,'dng_cmp',
+         ok =        BA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                           dng_cmp(2),dng_cmp(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                           dng_cmp_smooth(2),dng_cmp_smooth(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'vl1',
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'vl1',
      >                           vl1(2),vl1(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'vl_notpaw',
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'vl_notpaw',
      >                           vl_notpaw(2),vl_notpaw(1))
          if (.not.ok)
      >      call errquit('psp_ncmp_vloc:out of stack',0,MA_ERR)
@@ -2222,10 +2222,10 @@ c
 
             eh = eh + (e1+e2)
          end if
-         ok =        MA_pop_stack(vl_notpaw(2))
-         ok = ok.and.MA_pop_stack(vl1(2))
-         ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))
-         ok = ok.and.MA_pop_stack(dng_cmp(2))
+         ok =        BA_pop_stack(vl_notpaw(2))
+         ok = ok.and.BA_pop_stack(vl1(2))
+         ok = ok.and.BA_pop_stack(dng_cmp_smooth(2))
+         ok = ok.and.BA_pop_stack(dng_cmp(2))
          if (.not.ok)
      >      call errquit('psp_vloc_residual:pop stack',1,MA_ERR)
 
@@ -2234,17 +2234,17 @@ c
 *     **************************************
       else
          call D3dB_n2ft3d(1,n2ft3d)
-         ok =         MA_push_get(mt_dbl,n2ft3d,'rho_cmp',
+         ok =         BA_push_get(mt_dbl,n2ft3d,'rho_cmp',
      >                            rho_cmp(2),rho_cmp(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                           rho_cmp_smooth(2),rho_cmp_smooth(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vl1',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl1',
      >                           vl1(2),vl1(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vl_notpaw',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl_notpaw',
      >                           vl_notpaw(2),vl_notpaw(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vl2',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl2',
      >                           vl2(2),vl2(1))
-         ok = ok.and.MA_push_get(mt_dbl,3*n2ft3d,'rgrid_cmp',
+         ok = ok.and.BA_push_get(mt_dbl,3*n2ft3d,'rgrid_cmp',
      >                           r_grid(2),r_grid(1))
          if (.not.ok)
      >      call errquit('psp_ncmp_vloc:out of stack',2,MA_ERR)
@@ -2350,12 +2350,12 @@ c     >                         dbl_mb(vl1(1)),e2)
 c            eh = eh + (e1+e2)*dv
 
          end if
-         ok =        MA_pop_stack(r_grid(2))
-         ok = ok.and.MA_pop_stack(vl2(2))
-         ok = ok.and.MA_pop_stack(vl_notpaw(2))
-         ok = ok.and.MA_pop_stack(vl1(2))
-         ok = ok.and.MA_pop_stack(rho_cmp_smooth(2))
-         ok = ok.and.MA_pop_stack(rho_cmp(2))
+         ok =        BA_pop_stack(r_grid(2))
+         ok = ok.and.BA_pop_stack(vl2(2))
+         ok = ok.and.BA_pop_stack(vl_notpaw(2))
+         ok = ok.and.BA_pop_stack(vl1(2))
+         ok = ok.and.BA_pop_stack(rho_cmp_smooth(2))
+         ok = ok.and.BA_pop_stack(rho_cmp(2))
          if (.not.ok)
      >      call errquit('psp_vloc_ncmp_vloc:pop stack',3,MA_ERR)
 
@@ -2407,13 +2407,13 @@ c            eh = eh + (e1+e2)*dv
 *     *************************************
       if (periodic) then
          call Pack_npack(0,npack0)
-         ok =        MA_push_get(mt_dcpl,npack0,'dng_cmp',
+         ok =        BA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                           dng_cmp(2),dng_cmp(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                           dng_cmp_smooth(2),dng_cmp_smooth(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'vl1',
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'vl1',
      >                           vl1(2),vl1(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'vl_notpaw',
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'vl_notpaw',
      >                           vl_notpaw(2),vl_notpaw(1))
          if (.not.ok)
      >      call errquit('psp_ncmp_vloc:out of stack',0,MA_ERR)
@@ -2448,10 +2448,10 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >                                            dcpl_mb(vl1(1)))
 
          end if
-         ok =        MA_pop_stack(vl_notpaw(2))
-         ok = ok.and.MA_pop_stack(vl1(2))
-         ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))
-         ok = ok.and.MA_pop_stack(dng_cmp(2))
+         ok =        BA_pop_stack(vl_notpaw(2))
+         ok = ok.and.BA_pop_stack(vl1(2))
+         ok = ok.and.BA_pop_stack(dng_cmp_smooth(2))
+         ok = ok.and.BA_pop_stack(dng_cmp(2))
          if (.not.ok)
      >      call errquit('psp_vloc_residual:pop stack',1,MA_ERR)
 
@@ -2460,17 +2460,17 @@ c     >                         dcpl_mb(vl1(1)),eh)
 *     **************************************
       else
          call D3dB_n2ft3d(1,n2ft3d)
-         ok =         MA_push_get(mt_dbl,n2ft3d,'rho_cmp',
+         ok =         BA_push_get(mt_dbl,n2ft3d,'rho_cmp',
      >                            rho_cmp(2),rho_cmp(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                           rho_cmp_smooth(2),rho_cmp_smooth(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vl1',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl1',
      >                           vl1(2),vl1(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vl_notpaw',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl_notpaw',
      >                           vl_notpaw(2),vl_notpaw(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vl2',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl2',
      >                           vl2(2),vl2(1))
-         ok = ok.and.MA_push_get(mt_dbl,3*n2ft3d,'rgrid_cmp',
+         ok = ok.and.BA_push_get(mt_dbl,3*n2ft3d,'rgrid_cmp',
      >                           r_grid(2),r_grid(1))
          if (.not.ok)
      >      call errquit('psp_ncmp_vloc:out of stack',2,MA_ERR)
@@ -2531,12 +2531,12 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >                                            dbl_mb(vl_notpaw(1)),
      >                                            dbl_mb(vl1(1)))
          end if
-         ok =        MA_pop_stack(r_grid(2))
-         ok = ok.and.MA_pop_stack(vl2(2))
-         ok = ok.and.MA_pop_stack(vl_notpaw(2))
-         ok = ok.and.MA_pop_stack(vl1(2))
-         ok = ok.and.MA_pop_stack(rho_cmp_smooth(2))
-         ok = ok.and.MA_pop_stack(rho_cmp(2))
+         ok =        BA_pop_stack(r_grid(2))
+         ok = ok.and.BA_pop_stack(vl2(2))
+         ok = ok.and.BA_pop_stack(vl_notpaw(2))
+         ok = ok.and.BA_pop_stack(vl1(2))
+         ok = ok.and.BA_pop_stack(rho_cmp_smooth(2))
+         ok = ok.and.BA_pop_stack(rho_cmp(2))
          if (.not.ok)
      >      call errquit('psp_vloc_ncmp_vloc:pop stack',3,MA_ERR)
 
@@ -2593,11 +2593,11 @@ c     >                         dcpl_mb(vl1(1)),eh)
 
 *     **** allocate local memory ****
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
 
@@ -2683,9 +2683,9 @@ c     >                         dcpl_mb(vl1(1)),eh)
       pxc = pxc*scal 
       if (ispin.eq.1) pxc = pxc + pxc
 
-      value =           MA_pop_stack(sw2(2))
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_xc_atom: popping stack',3,
      &       MA_ERR)
 
@@ -2829,9 +2829,9 @@ c     >                          l_prj(i),m_prj(i))
 
 *     **** allocate local memory ****
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       if (.not.value) 
      >  call errquit('psp_qlm_atom: out of stack',0,MA_ERR)
 
@@ -2902,8 +2902,8 @@ c     >                          l_prj(i),m_prj(i))
         end if !** nproj>0 **
       end do !** ii **
 
-      value = value.and.MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_qlm_atom: popping stack',3,
      >       MA_ERR)
 
@@ -2967,9 +2967,9 @@ c     >                          l_prj(i),m_prj(i))
 *     *************************************
       if (periodic) then
          call Pack_npack(0,npack0)
-         ok =        MA_push_get(mt_dcpl,npack0,'dng_cmp',
+         ok =        BA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                           dng_cmp(2),dng_cmp(1))
-         ok = ok.and.MA_push_get(mt_dcpl,npack0,'vcmp_smooth',
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'vcmp_smooth',
      >                           vcmp_smooth(2),vcmp_smooth(1))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_cmp:out of stack',0,MA_ERR)
@@ -2988,7 +2988,7 @@ c     >                          l_prj(i),m_prj(i))
 *           **** multipole energy ****
             eh = nwpw_compcharge_E_multipole(ispin)
 
-            ok = MA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+            ok = BA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                       dng_cmp_smooth(2),dng_cmp_smooth(1))
             if (.not.ok)
      >         call errquit('psp_hartree_cmp_cmp:out of stack',1,MA_ERR)
@@ -3007,14 +3007,14 @@ c     >                          l_prj(i),m_prj(i))
             eh = eh + (e1-0.5d0*e2)*lattice_omega()
 
 
-            ok = ok.and.MA_pop_stack(dng_cmp_smooth(2))
+            ok = ok.and.BA_pop_stack(dng_cmp_smooth(2))
             if (.not.ok)
      >        call errquit('psp_hartree_cmp_cmp:popping stack',2,MA_ERR)
 
          end if
 
-         ok =        MA_pop_stack(vcmp_smooth(2))
-         ok = ok.and.MA_pop_stack(dng_cmp(2))
+         ok =        BA_pop_stack(vcmp_smooth(2))
+         ok = ok.and.BA_pop_stack(dng_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_cmp:popping stack',3,MA_ERR)
 
@@ -3024,9 +3024,9 @@ c     >                          l_prj(i),m_prj(i))
 *     **************************************
       else
          call D3dB_n2ft3d(1,n2ft3d)
-         ok =         MA_push_get(mt_dbl,n2ft3d,'rho_cmp',
+         ok =         BA_push_get(mt_dbl,n2ft3d,'rho_cmp',
      >                            rho_cmp(2),rho_cmp(1))
-         ok = ok.and.MA_push_get(mt_dbl,n2ft3d,'vcmp_smooth',
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vcmp_smooth',
      >                           vcmp_smooth(2),vcmp_smooth(1))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_cmp:out of stack',4,MA_ERR)
@@ -3058,7 +3058,7 @@ c            eh2 = nwpw_compcharge_E_multipole_zv_zv(ispin,dbl_mb(zv(1)))
 c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
 
-            ok = MA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
+            ok = BA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
      >                       rho_cmp_smooth(2),rho_cmp_smooth(1))
             if (.not.ok)
      >         call errquit('psp_hartree_cmp_cmp:out of stack',5,MA_ERR)
@@ -3081,13 +3081,13 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
             eh = eh + (e1-0.5d0*e2)*dv
 
-            ok = MA_pop_stack(rho_cmp_smooth(2))
+            ok = BA_pop_stack(rho_cmp_smooth(2))
             if (.not.ok)
      >        call errquit('psp_hartree_cmp_cmp:popping stack',2,MA_ERR)
          end if
 
-         ok =        MA_pop_stack(vcmp_smooth(2))
-         ok = ok.and.MA_pop_stack(rho_cmp(2))
+         ok =        BA_pop_stack(vcmp_smooth(2))
+         ok = ok.and.BA_pop_stack(rho_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_cmp:popping stack',6,MA_ERR)
       end if
@@ -3144,8 +3144,8 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 *     ****************************************
       if (periodic) then
          call Pack_npack(0,npack0)
-         ok =MA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
-         ok =ok.and.MA_push_get(mt_dcpl,npack0,'vcmp',vcmp(2),vcmp(1))
+         ok =BA_push_get(mt_dcpl,npack0,'dng_cmp',dng_cmp(2),dng_cmp(1))
+         ok =ok.and.BA_push_get(mt_dcpl,npack0,'vcmp',vcmp(2),vcmp(1))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:out of stack',0,MA_ERR)
 
@@ -3154,8 +3154,8 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
          call Pack_cc_dot(0,dng,dcpl_mb(vcmp(1)),eh)
          eh = eh*lattice_omega()
 
-         ok =        MA_pop_stack(vcmp(2))
-         ok = ok.and.MA_pop_stack(dng_cmp(2))
+         ok =        BA_pop_stack(vcmp(2))
+         ok = ok.and.BA_pop_stack(dng_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:popping stack',1,MA_ERR)
 
@@ -3165,8 +3165,8 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 *     *****************************************
       else
          call D3dB_n2ft3d(1,n2ft3d)
-         ok =MA_push_get(mt_dbl,n2ft3d,'rho_cmp',rho_cmp(2),rho_cmp(1))
-         ok =ok.and.MA_push_get(mt_dbl,n2ft3d,'vcmp',vcmp(2),vcmp(1))
+         ok =BA_push_get(mt_dbl,n2ft3d,'rho_cmp',rho_cmp(2),rho_cmp(1))
+         ok =ok.and.BA_push_get(mt_dbl,n2ft3d,'vcmp',vcmp(2),vcmp(1))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:out of stack',2,MA_ERR)
          call D3db_nx(1,nx)
@@ -3185,8 +3185,8 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
          call D3dB_rr_dot(1,dbl_mb(vcmp(1)),dbl_mb(rho_cmp(1)),eh)
          eh = eh*dv
 
-         ok =        MA_pop_stack(vcmp(2))
-         ok = ok.and.MA_pop_stack(rho_cmp(2))
+         ok =        BA_pop_stack(vcmp(2))
+         ok = ok.and.BA_pop_stack(rho_cmp(2))
          if (.not.ok)
      >      call errquit('psp_hartree_cmp_pw:popping stack',2,MA_ERR)
       end if
@@ -3248,9 +3248,9 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
 
 *     **** allocate local memory ****
       call Pack_npack(1,npack1)
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       if (.not.value) 
      >  call errquit('psp_hartree_atom: out of stack',0,MA_ERR)
 
@@ -3316,8 +3316,8 @@ c     >                                   dbl_mb(wtmp(1)))
       end do
 
 *     **** deallocate stack memory ****
-      value =           MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      >  call errquit('psp_hartree_atom:popping stack',1,MA_ERR)
 
@@ -3418,9 +3418,9 @@ c     >                                   dbl_mb(wtmp(1)))
       nion = ion_nion()
       call Pack_npack(1,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       if (.not.value) 
      >  call errquit('psp_efg_atoms: out of stack',0,MA_ERR)
 
@@ -3485,8 +3485,8 @@ c     >                                   dbl_mb(wtmp(1)))
         end if !** nproj>0 **
       end do !** ii **
 
-      value =           MA_pop_stack(sw1(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_efg_atom: popping stack',3,
      &       MA_ERR)
       return 

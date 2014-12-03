@@ -57,10 +57,10 @@ c     **** external functions ****
       call D3dB_n2ft3d(2,n2ft3d)
 
 *     **** allocate vc memory ****
-      value = MA_alloc_get(mt_dbl,nfft3d,'gk',gk(2),gk(1))
+      value = BA_alloc_get(mt_dbl,nfft3d,'gk',gk(2),gk(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(nfft3d,0.0d0,0,dbl_mb(gk(1)),1)
       call dcopy(n2ft3d,0.0d0,0,dbl_mb(glr(1)),1)
@@ -287,7 +287,7 @@ c                 temp = yerf/temp
      >                     + dbl_mb(glr(1)+2*(k-1)) 
       end do
 
-      if (.not.MA_pop_stack(glr(2)))
+      if (.not.BA_pop_stack(glr(2)))
      > call errquit('coulomb2_init:error popping stack memory',0,MA_ERR)
 
       return
@@ -304,7 +304,7 @@ c                 temp = yerf/temp
       integer gk(2)
       common / vc_block2 / gk
 
-      if (.not.MA_free_heap(gk(2)))
+      if (.not.BA_free_heap(gk(2)))
      > call errquit('coulomb2_end:error freeing heap memory',0,MA_ERR)
 
       return
@@ -350,7 +350,7 @@ c                 temp = yerf/temp
       real*8 scale
                   
       call D3dB_nfft3d(2,nfft3d)
-      value = MA_push_get(mt_dcpl,nfft3d,'tmpx',tmpx(2),tmpx(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmpx',tmpx(2),tmpx(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(tmpx(1)),1)
 
@@ -375,7 +375,7 @@ c     **** contract tmpx to extract vh ****
 c      call D3dB_r_SMul(1,scale,vh,vh)
       call D3dB_r_SMul1(1,scale,vh)
            
-      value = MA_pop_stack(tmpx(2))
+      value = BA_pop_stack(tmpx(2))
       if (.not. value) call errquit('error popping stack memory',0,
      &       MA_ERR)
       return

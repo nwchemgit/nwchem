@@ -38,7 +38,7 @@
       size    = 0
 
 *    ***** allocate memory from heap memory ****
-      value = MA_alloc_get(mt_int,(ispin*maxsize),'mlist',
+      value = BA_alloc_get(mt_int,(ispin*maxsize),'mlist',
      >                     mlist(2),mlist(1))
       if (.not. value)
      > call errquit('lcao_mlist_init: out of heap memory',0, MA_ERR)
@@ -77,7 +77,7 @@
          value = value.and.ga_destroy(mindx)
         end do
       end if
-      value = value.and.MA_free_heap(mlist(2))
+      value = value.and.BA_free_heap(mlist(2))
       if (.not. value)
      > call errquit('lcao_mlist_init: freeing heap memory',0, MA_ERR)
 

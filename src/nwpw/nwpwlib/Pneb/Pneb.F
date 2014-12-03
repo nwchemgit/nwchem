@@ -480,7 +480,7 @@ c     ****************************************
       external Pneb_m_size
      
       size = Pneb_m_size(mb,nb)
-      Pneb_m_allocate = MA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
+      Pneb_m_allocate = BA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
 
       return
       end
@@ -506,7 +506,7 @@ c     ****************************************
       external Pneb_w_size
      
       size = Pneb_w_size(mb,nb)
-      Pneb_w_allocate = MA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      Pneb_w_allocate = BA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
       return
       end
 
@@ -534,7 +534,7 @@ c     ****************************************
 
       size = nblocks*Pneb_wne_size(mb,nb,nein)
       Pneb_wne_allocate_block 
-     > = MA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+     > = BA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
       return
       end
 
@@ -561,7 +561,7 @@ c     ****************************************
       size = nblocks*Pneb_m_size(mb,nb)
      
       Pneb_m_allocate_block =
-     >   MA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
+     >   BA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
       return
       end
 
@@ -590,7 +590,7 @@ c     ****************************************
       size = nblocks*Pneb_w_size(mb,nb)
      
       Pneb_w_allocate_block =
-     >   MA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+     >   BA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
       return
       end
 
@@ -607,7 +607,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Pneb_m_free = MA_free_heap(hml(2))
+      Pneb_m_free = BA_free_heap(hml(2))
       return
       end
 
@@ -622,7 +622,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Pneb_w_free = MA_free_heap(hml(2))
+      Pneb_w_free = BA_free_heap(hml(2))
       return
       end
 
@@ -649,7 +649,7 @@ c     ****************************************
       external Pneb_m_size
 
       size = Pneb_m_size(mb,nb)
-      Pneb_m_push_get = MA_push_get(mt_dbl,size,'hml',hml(2),hml(1))
+      Pneb_m_push_get = BA_push_get(mt_dbl,size,'hml',hml(2),hml(1))
       return
       end
 
@@ -674,7 +674,7 @@ c     ****************************************
       external Pneb_w_size
 
       size = Pneb_w_size(mb,nb)
-      Pneb_w_push_get = MA_push_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      Pneb_w_push_get = BA_push_get(mt_dcpl,size,'hml',hml(2),hml(1))
       return
       end
 
@@ -703,7 +703,7 @@ c     ****************************************
 
       nsize = nblock*Pneb_m_size(mb,nb)
       Pneb_m_push_get_block = 
-     >    MA_push_get(mt_dbl,nsize,'hml',hml(2),hml(1))
+     >    BA_push_get(mt_dbl,nsize,'hml',hml(2),hml(1))
       return
       end
 
@@ -729,7 +729,7 @@ c     ****************************************
 
       nsize = nblock*Pneb_w_size(mb,nb)
       Pneb_w_push_get_block = 
-     >    MA_push_get(mt_dcpl,nsize,'hml',hml(2),hml(1))
+     >    BA_push_get(mt_dcpl,nsize,'hml',hml(2),hml(1))
       return
       end
 
@@ -746,7 +746,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Pneb_m_pop_stack = MA_pop_stack(hml(2))
+      Pneb_m_pop_stack = BA_pop_stack(hml(2))
       return
       end
 
@@ -762,7 +762,7 @@ c     ****************************************
 
 #include "bafdecls.fh"
 
-      Pneb_w_pop_stack = MA_pop_stack(hml(2))
+      Pneb_w_pop_stack = BA_pop_stack(hml(2))
       return
       end
 
@@ -1431,8 +1431,8 @@ c     *** local variables ***
 
 c     **** get temp memory from stack ****
       lwork=3*ne(1)*ne(1)
-      value =MA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
-      value =value.and.MA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
+      value =BA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
+      value =value.and.BA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
       if (.not.value) call errquit('Pneb_w_diag: out of stack',0,MA_ERR)
 
       sindex = 1
@@ -1460,8 +1460,8 @@ c     **** get temp memory from stack ****
       call Parallela_Brdcst_values(1,MASTER,(sindex-1),S)
 
 c     ***** pop stack memory *****
-      value=          MA_pop_stack(work(2))
-      value=value.and.MA_pop_stack(rwork(2))
+      value=          BA_pop_stack(work(2))
+      value=value.and.BA_pop_stack(rwork(2))
       if (.not.value) then
         call errquit('Pneb_w_diag:error popping stack',0,MA_ERR)
       end if
@@ -1514,8 +1514,8 @@ c     *** local variables ***
 
 c     **** get temp memory from stack ****
       lwork=3*nein(1)*nein(1)
-      value =MA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
-      value =value.and.MA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
+      value =BA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
+      value =value.and.BA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
       if (.not.value) 
      >  call errquit('Pneb_wne_diag: out of stack',0,MA_ERR)
 
@@ -1544,8 +1544,8 @@ c     **** get temp memory from stack ****
              
 
 c     ***** pop stack memory *****
-      value=          MA_pop_stack(work(2))
-      value=value.and.MA_pop_stack(rwork(2))
+      value=          BA_pop_stack(work(2))
+      value=value.and.BA_pop_stack(rwork(2))
       if (.not.value) then
         call errquit('Pneb_wne_diag:error popping stack',0,MA_ERR)
       end if
@@ -1616,7 +1616,7 @@ c     *** compute U*S=Y*V ****
       call Pneb_fwf_Multiply(mbb,nbb,one,Y,npack1,V,zero,U)
 
 *     **** normalize U*S ****
-      if (.not.MA_push_get(mt_dbl,neq(1),'tmp',tmp(2),tmp(1)))
+      if (.not.BA_push_get(mt_dbl,neq(1),'tmp',tmp(2),tmp(1)))
      > call errquit('Dneb_f_SVD: out of stack memory',0,MA_ERR)
 
       soshift = neq(1)*npack1
@@ -1663,7 +1663,7 @@ c     *** compute U*S=Y*V ****
          end do
       end do
 
-      if (.not.MA_pop_stack(tmp(2)))
+      if (.not.BA_pop_stack(tmp(2)))
      >   call errquit('Pneb_f_SVD: popping stack memory',0,MA_ERR)
       return 
       end  
@@ -1836,8 +1836,8 @@ c     ccccc local variables ccccc
       end if
 
 *     **** allocate tmp space from the stack ****
-      value =           MA_push_get(mt_dbl,asize,'sm2',sm2(2),sm2(1))
-      value = value.and.MA_push_get(mt_dbl,asize,'sm3',sm3(2),sm3(1))
+      value =           BA_push_get(mt_dbl,asize,'sm2',sm2(2),sm2(1))
+      value = value.and.BA_push_get(mt_dbl,asize,'sm3',sm3(2),sm3(1))
       if (.not.value) then
        call errquit('Pneb_orthCheckMake: out of stack memory',0,MA_ERR)
       end if
@@ -1904,8 +1904,8 @@ c     ccccc local variables ccccc
       end if
 
 *     **** pop stack ****
-      value = MA_pop_stack(sm3(2))
-      value = value.and.MA_pop_stack(sm2(2))
+      value = BA_pop_stack(sm3(2))
+      value = value.and.BA_pop_stack(sm2(2))
       if (.not. value)
      > call errquit('pneb_orthocheckmake:popping stack memory',0,0)
 
@@ -1969,8 +1969,8 @@ c     ccccc local variables ccccc
          ms2=1
       end if
 
-      value =           MA_push_get(mt_dbl,2*nbrill,'sm2',sm2(2),sm2(1))
-      value = value.and.MA_push_get(mt_dbl,2*nbrill,'sm3',sm3(2),sm3(1))
+      value =           BA_push_get(mt_dbl,2*nbrill,'sm2',sm2(2),sm2(1))
+      value = value.and.BA_push_get(mt_dbl,2*nbrill,'sm3',sm3(2),sm3(1))
       if (.not.value) 
      >   call errquit('Pneb_orthCheckMake_tag:out of stack',0,MA_ERR)
       call dcopy(2*nbrill,0.0d0,0,dbl_mb(sm2(1)),1)
@@ -2018,8 +2018,8 @@ c     ccccc local variables ccccc
          end do
       end do
       end if
-      value =           MA_pop_stack(sm3(2))
-      value = value.and.MA_pop_stack(sm2(2))
+      value =           BA_pop_stack(sm3(2))
+      value = value.and.BA_pop_stack(sm2(2))
       if (.not. value)
      >   call errquit('Pneb_orthCheckMake_tag:popping stack',0,MA_ERR)
 
@@ -2327,7 +2327,7 @@ c     ** external functions
         nb2 = nbb
       end if
 
-      value=MA_push_get(mt_dbl,(2*nbrillq),'tmp2',tmp2(2),tmp2(1))
+      value=BA_push_get(mt_dbl,(2*nbrillq),'tmp2',tmp2(2),tmp2(1))
       if (.not.value) then
        call errquit('out of stack memory',0,MA_ERR)
       end if
@@ -2358,7 +2358,7 @@ c     ** external functions
           end do
         end do
       end if
-      value=MA_pop_stack(tmp2(2))
+      value=BA_pop_stack(tmp2(2))
       if (.not.value) then
         call errquit('error popping the stack',0,MA_ERR)
       end if
@@ -3159,7 +3159,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer ss,Pneb_s_size
       external Pneb_s_size  
       ss=Pneb_s_size(mbb,nbb)
-      Pneb_s_push_get=MA_push_get(mt_dbl,ss,'Sblk',sxi(2),sxi(1))
+      Pneb_s_push_get=BA_push_get(mt_dbl,ss,'Sblk',sxi(2),sxi(1))
       return
       end
 cccccccccccccccccc
@@ -3170,7 +3170,7 @@ cccccccccccccccccccccc
       integer sx(2)
 #include "Pneb.fh"
 #include "bafdecls.fh"
-      Pneb_s_pop_stack=MA_pop_stack(sx(2))
+      Pneb_s_pop_stack=BA_pop_stack(sx(2))
       return
       end
 cccccccccccccccccccccccccccccccccccccccccccccc

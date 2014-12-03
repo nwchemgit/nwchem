@@ -123,17 +123,17 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     **** allocate H0, G1, and R1 ****
-      value = MA_alloc_get(mt_dcpl,npack1*neall,
+      value = BA_alloc_get(mt_dcpl,npack1*neall,
      >                     'H0',H0(2),H0(1))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,npack1*neall,
+c     >        BA_alloc_get(mt_dcpl,npack1*neall,
 c     >                     'G0',G0(2),G0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*neall,
+     >        BA_alloc_get(mt_dcpl,npack1*neall,
      >                     'G1',G1(2),G1(1))
       if (pawexist) then
          value = value.and.
-     >           MA_alloc_get(mt_dcpl,npack1*neall,
+     >           BA_alloc_get(mt_dcpl,npack1*neall,
      >                        'R1',R1(2),R1(1))
       end if
       if (.not. value) call errquit('cgminimize:out of heap memory',0,
@@ -426,10 +426,10 @@ c     call psi_check()
       end if
 
 
-      value = MA_free_heap(G1(2))
-      value = value.and.MA_free_heap(H0(2))
+      value = BA_free_heap(G1(2))
+      value = value.and.BA_free_heap(H0(2))
       if (pawexist) 
-     >   value = value.and.MA_free_heap(R1(2))
+     >   value = value.and.BA_free_heap(R1(2))
       if (.not. value) 
      >  call errquit('cgminimize:error freeing heap memory',0, MA_ERR)
 

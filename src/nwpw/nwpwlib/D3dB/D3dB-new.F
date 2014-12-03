@@ -88,11 +88,11 @@ ccccccccccc  #define TCGMSG
       if (mapping.eq.1) then
 
 *     **** allocate q_map,p_map,k_map
-      value = MA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
+      value = BA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
      >                                       q_map(1,nb))
-      value = value.and.MA_alloc_get(mt_int,nz(nb),'p_map',p_map(2,nb),
+      value = value.and.BA_alloc_get(mt_int,nz(nb),'p_map',p_map(2,nb),
      >                                       p_map(1,nb))
-      value = value.and.MA_alloc_get(mt_int,nz(nb),'k_map',k_map(2,nb),
+      value = value.and.BA_alloc_get(mt_int,nz(nb),'k_map',k_map(2,nb),
      >                                       k_map(1,nb))
       if (.not. value)
      > call errquit('Mapping_init:out of heap memory',0, MA_ERR)
@@ -184,29 +184,29 @@ c           k_map(q_map(k)) = k
 
 
 *     **** allocate q_map1,p_map1,q_map2,p_map2,q_map3,p_map3 ****
-      value =           MA_alloc_get(mt_int,ny(nb)*nz(nb),
+      value =           BA_alloc_get(mt_int,ny(nb)*nz(nb),
      >                              'q_map1',
      >                               q_map1(2,nb),
      >                               q_map1(1,nb))
-      value = value.and.MA_alloc_get(mt_int,ny(nb)*nz(nb),
+      value = value.and.BA_alloc_get(mt_int,ny(nb)*nz(nb),
      >                              'p_map1',
      >                               p_map1(2,nb),
      >                               p_map1(1,nb))
 
-      value = value.and.MA_alloc_get(mt_int,nz(nb)*(nx(nb)/2+1),
+      value = value.and.BA_alloc_get(mt_int,nz(nb)*(nx(nb)/2+1),
      >                              'q_map2',
      >                               q_map2(2,nb),
      >                               q_map2(1,nb))
-      value = value.and.MA_alloc_get(mt_int,nz(nb)*(nx(nb)/2+1),
+      value = value.and.BA_alloc_get(mt_int,nz(nb)*(nx(nb)/2+1),
      >                              'p_map2',
      >                               p_map2(2,nb),
      >                               p_map2(1,nb))
 
-      value = value.and.MA_alloc_get(mt_int,ny(nb)*(nx(nb)/2+1),
+      value = value.and.BA_alloc_get(mt_int,ny(nb)*(nx(nb)/2+1),
      >                              'q_map3',
      >                               q_map3(2,nb),
      >                               q_map3(1,nb))
-      value = value.and.MA_alloc_get(mt_int,ny(nb)*(nx(nb)/2+1),
+      value = value.and.BA_alloc_get(mt_int,ny(nb)*(nx(nb)/2+1),
      >                              'p_map3',
      >                               p_map3(2,nb),
      >                               p_map3(1,nb))
@@ -343,42 +343,42 @@ c     integer i2_start(NFFT3+1)
 
       !**** slab mapping ****
       if (mapping.eq.1) then
-      value = value.and.MA_free_heap(q_map(2,nb))
-      value = value.and.MA_free_heap(p_map(2,nb))
-      value = value.and.MA_free_heap(k_map(2,nb))
+      value = value.and.BA_free_heap(q_map(2,nb))
+      value = value.and.BA_free_heap(p_map(2,nb))
+      value = value.and.BA_free_heap(k_map(2,nb))
       end if
 
       !**** hilbert mappings ****
       if (mapping.eq.2) then
-      value = value.and.MA_free_heap(q_map1(2,nb))
-      value = value.and.MA_free_heap(p_map1(2,nb))
-      value = value.and.MA_free_heap(q_map2(2,nb))
-      value = value.and.MA_free_heap(p_map2(2,nb))
-      value = value.and.MA_free_heap(q_map3(2,nb))
-      value = value.and.MA_free_heap(p_map3(2,nb))
+      value = value.and.BA_free_heap(q_map1(2,nb))
+      value = value.and.BA_free_heap(p_map1(2,nb))
+      value = value.and.BA_free_heap(q_map2(2,nb))
+      value = value.and.BA_free_heap(p_map2(2,nb))
+      value = value.and.BA_free_heap(q_map3(2,nb))
+      value = value.and.BA_free_heap(p_map3(2,nb))
       end if
 
       !**** slab transpose mappings ****
       if (mapping.eq.1) then
-      value = value.and.MA_free_heap(i1_start(2,nb))
-      value = value.and.MA_free_heap(i2_start(2,nb))
-      value = value.and.MA_free_heap(iq_to_i1(2,nb))
-      value = value.and.MA_free_heap(iq_to_i2(2,nb))
+      value = value.and.BA_free_heap(i1_start(2,nb))
+      value = value.and.BA_free_heap(i2_start(2,nb))
+      value = value.and.BA_free_heap(iq_to_i1(2,nb))
+      value = value.and.BA_free_heap(iq_to_i2(2,nb))
       end if
 
       !**** hilbert transpose mappings ****
       if (mapping.eq.2) then
       do i=1,6
-      value = value.and.MA_free_heap(h_i1_start(2,i,nb))
-      value = value.and.MA_free_heap(h_i2_start(2,i,nb))
-      value = value.and.MA_free_heap(h_iq_to_i1(2,i,nb))
-      value = value.and.MA_free_heap(h_iq_to_i2(2,i,nb))
+      value = value.and.BA_free_heap(h_i1_start(2,i,nb))
+      value = value.and.BA_free_heap(h_i2_start(2,i,nb))
+      value = value.and.BA_free_heap(h_iq_to_i1(2,i,nb))
+      value = value.and.BA_free_heap(h_iq_to_i2(2,i,nb))
       end do
       end if
 
 #ifndef MPI
-      value = value.and.MA_free_heap(channel_proc(2,nb))
-      value = value.and.MA_free_heap(channel_type(2,nb))
+      value = value.and.BA_free_heap(channel_proc(2,nb))
+      value = value.and.BA_free_heap(channel_type(2,nb))
 #endif
 
       if (.not. value)
@@ -1027,21 +1027,21 @@ c      end
 
       !call D3dB_nfft3d(nb,nfft3d)
 
-c      value = MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+c      value = BA_alloc_get(mt_dcpl,(nfft3d(nb)),
 c     >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+c     >        BA_alloc_get(mt_dcpl,(nfft3d(nb)),
 c     >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+c     >        BA_alloc_get(mt_dcpl,(nfft3d(nb)),
 c     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
-      value = MA_alloc_get(mt_dcpl,(2*nx(nb)+15),
+      value = BA_alloc_get(mt_dcpl,(2*nx(nb)+15),
      >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(2*ny(nb)+15),
+     >        BA_alloc_get(mt_dcpl,(2*ny(nb)+15),
      >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(2*nz(nb)+15),
+     >        BA_alloc_get(mt_dcpl,(2*nz(nb)+15),
      >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
       if (.not. value) 
      >   call errquit('D3dB_fft_init:out of heap memory',0, MA_ERR)
@@ -1077,7 +1077,7 @@ c       iestimate = FFTW_EXHAUSTIVE
          nxh = (nx(nb)/2+1)
          nxhz = nxh*nz(nb)
          nxhy = nxh*ny(nb)
-         if (.not.MA_alloc_get(mt_dcpl,nx(nb)*ny(nb)*nq(nb),
+         if (.not.BA_alloc_get(mt_dcpl,nx(nb)*ny(nb)*nq(nb),
      >                       'Atest',Atest(2),Atest(1)))
      >     call errquit('D3dB_fft_init:out of heap memory',0,MA_ERR)
 
@@ -1128,13 +1128,13 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                        iforward,FFTW_EXHAUSTIVE)
 
 
-         if (.not.MA_free_heap(Atest(2)))
+         if (.not.BA_free_heap(Atest(2)))
      >   call errquit('D3dB_fft_init:freeing heap',0,MA_ERR)
 
       else
 
          nxh  = (nx(nb)/2+1)
-         if (.not.MA_alloc_get(mt_dcpl,nfft3d(nb),'Atest',
+         if (.not.BA_alloc_get(mt_dcpl,nfft3d(nb),'Atest',
      >                         Atest(2),Atest(1)))
      >     call errquit('D3dB_fft_init:out of heap memory',0,MA_ERR)
 
@@ -1184,7 +1184,7 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                        dcpl_mb(Atest(1)),nz(nb),1,1,
      >                        iforward,FFTW_EXHAUSTIVE)
 
-         if (.not.MA_free_heap(Atest(2)))
+         if (.not.BA_free_heap(Atest(2)))
      >   call errquit('D3dB_fft_init:freeing heap',0,MA_ERR)
 
       end if
@@ -1222,9 +1222,9 @@ c       iestimate = FFTW_EXHAUSTIVE
 c      call dfftw_cleanup_threads()
 #endif
 
-      value =           MA_free_heap(tmpx(2,nb))
-      value = value.and.MA_free_heap(tmpy(2,nb))
-      value = value.and.MA_free_heap(tmpz(2,nb))
+      value =           BA_free_heap(tmpx(2,nb))
+      value = value.and.BA_free_heap(tmpy(2,nb))
+      value = value.and.BA_free_heap(tmpz(2,nb))
       if (.not.value)
      >   call errquit(
      >   'D3dB_fft_end:error deallocatingof heap memory',0, MA_ERR)
@@ -1253,10 +1253,10 @@ c      logical value
 c      integer nfft3d
 c
 c      call D3dB_nfft3d(nb,nfft3d)
-c      value = MA_alloc_get(mt_dcpl,(ne*nfft3d),
+c      value = BA_alloc_get(mt_dcpl,(ne*nfft3d),
 c     >        'fttmp2_h',tmp2(2,nb),tmp2(1,nb))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(2*ne*nfft3d),
+c     >        BA_alloc_get(mt_dbl,(2*ne*nfft3d),
 c     >        'fttmp3_h',tmp3(2,nb),tmp3(1,nb))
 c      if (.not. value)
 c     > call errquit('D3dB_n_fft_init:out of heap memory',0, MA_ERR)
@@ -1282,8 +1282,8 @@ c      common    / D3dB_n_fft / tmp2,tmp3
 c
 c      logical value
 c
-c      value =           MA_free_heap(tmp2(2,nb))
-c      value = value.and.MA_free_heap(tmp3(2,nb))
+c      value =           BA_free_heap(tmp2(2,nb))
+c      value = value.and.BA_free_heap(tmp3(2,nb))
 c      if (.not.value)
 c     > call errquit(
 c     > 'D3dB_n_fft_end:error deallocatingof heap memory',0,MA_ERR)
@@ -1348,10 +1348,10 @@ c      end
 
 *     ***** allocate temporary space ****
       !call D3dB_nfft3d(nb,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'ffttmp2',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'ffttmp2',
      >                    tmp2(2),tmp2(1))
       value = value.and.
-     >      MA_push_get(mt_dbl,(n2ft3d(nb)),'ffttmp3',tmp3(2),tmp3(1))
+     >      BA_push_get(mt_dbl,(n2ft3d(nb)),'ffttmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
        nxh = (nx(nb)/2+1)
@@ -1637,9 +1637,9 @@ c      end do
 
     
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      !value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp3(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      !value = BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(1)
@@ -1994,9 +1994,9 @@ c      end
 
 *     ***** allocate temporary space ****
       !call D3dB_nfft3d(nb,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
+     >        BA_push_get(mt_dbl,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       nxh = (nx(nb)/2+1)
@@ -2282,9 +2282,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end if
 
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp3(2))
-      value = MA_pop_stack(tmp2(2))
-      !value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp3(2))
+      value = BA_pop_stack(tmp2(2))
+      !value = BA_pop_stack(tmp1(2))
 
       call nwpw_timing_end(1)
       return
@@ -2445,9 +2445,9 @@ c
 c
 c*     ***** allocate temporary space ****
 c      !call D3dB_nfft3d(nb,nfft3d)
-c      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+c      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
 c      value = value.and.
-c     >        MA_push_get(mt_dbl,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
+c     >        BA_push_get(mt_dbl,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
 c      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 c
 c
@@ -2595,9 +2595,9 @@ cc     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 c
 c
 c*     **** deallocate temporary space  ****
-c      value = MA_pop_stack(tmp3(2))
-c      value = MA_pop_stack(tmp2(2))
-c      !value = MA_pop_stack(tmp1(2))
+c      value = BA_pop_stack(tmp3(2))
+c      value = BA_pop_stack(tmp2(2))
+c      !value = BA_pop_stack(tmp1(2))
 
 c      call nwpw_timing_end(1)
 c      return
@@ -2963,14 +2963,14 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** allocate trans_blk common block ****
-      value = MA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
+      value = BA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
-      value=value.and.MA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
+      value=value.and.BA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
      >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
 
-      value = value.and.MA_alloc_get(mt_int,(nz(nb)+1),
+      value = value.and.BA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i1_start',i1_start(2,nb),i1_start(1,nb))
-      value = value.and.MA_alloc_get(mt_int,(nz(nb)+1),
+      value = value.and.BA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
       if (.not. value) 
      > call errquit('D3dB_transpose_jk_init:out of heap',0,MA_ERR)
@@ -4671,7 +4671,7 @@ c      call nwpw_timing_start(2)
 c      if (np.gt.1) then
 c
 c*     ***** allocate temporary space ****
-c      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+c      value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
 c      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 c
 c      msglen = n
@@ -4686,7 +4686,7 @@ cc     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 c
 c
 c      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
-c      value = MA_pop_stack(sumall(2))
+c      value = BA_pop_stack(sumall(2))
 c
 c      end if
 c      call nwpw_timing_end(2)
@@ -4731,7 +4731,7 @@ c
 c      call nwpw_timing_start(2)
 c
 c*     ***** allocate temporary space ****
-c      value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
+c      value = BA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
 c      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 c
 c      msglen = n
@@ -4744,7 +4744,7 @@ cc     call GA_IGOP(9+MSGINT,int_mb(sumall(1)),n,'+')
 c
 c
 c      call icopy(n,int_mb(sumall(1)),1,sum,1)
-c      value = MA_pop_stack(sumall(2))
+c      value = BA_pop_stack(sumall(2))
 c
 c      call nwpw_timing_end(2)
 c      return
@@ -5055,17 +5055,17 @@ c     integer i2_start(NFFT3+1)
       zplane_size(nb) = D3dB_timereverse_size(nb)
       
 *     **** allocate timereverse_blk common block ****
-      value = MA_alloc_get(mt_int,zplane_size(nb),
+      value = BA_alloc_get(mt_int,zplane_size(nb),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,zplane_size(nb),
+     >        BA_alloc_get(mt_int,zplane_size(nb),
      >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
 
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'i1_start',i1_start(2,nb),i1_start(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_int,(np+1),
+     >        BA_alloc_get(mt_int,(np+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -5200,13 +5200,13 @@ c     integer i2_start(NFFT3+1)
 
       logical value
 
-      value = MA_free_heap(i1_start(2,nb))
+      value = BA_free_heap(i1_start(2,nb))
       value = value.and.
-     >        MA_free_heap(i2_start(2,nb))
+     >        BA_free_heap(i2_start(2,nb))
       value = value.and.
-     >        MA_free_heap(iq_to_i1(2,nb))
+     >        BA_free_heap(iq_to_i1(2,nb))
       value = value.and.
-     >        MA_free_heap(iq_to_i2(2,nb))
+     >        BA_free_heap(iq_to_i2(2,nb))
       if (.not.value) call errquit('error freeing heap',0, MA_ERR)
       return
       end

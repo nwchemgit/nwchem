@@ -63,13 +63,13 @@ c     *** parameters ***
       open(unit=18,file=xyzfilename,form='formatted')
       open(unit=19,file=motionfilename,form='formatted')
 
-      value = MA_push_get(mt_dbl,3*natoms,'rion1',rion1(2),rion1(1))
+      value = BA_push_get(mt_dbl,3*natoms,'rion1',rion1(2),rion1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,3*natoms,'rion2',rion2(2),rion2(1))
+     >        BA_push_get(mt_dbl,3*natoms,'rion2',rion2(2),rion2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,3*natoms,'vion2',vion2(2),vion2(1))
+     >        BA_push_get(mt_dbl,3*natoms,'vion2',vion2(2),vion2(1))
       value = value.and.
-     >        MA_push_get(mt_byte,2*natoms,'tags',tags(2),tags(1))
+     >        BA_push_get(mt_byte,2*natoms,'tags',tags(2),tags(1))
       if (.not. value) 
      >    call errquit(
      >         'generate_unfolded_xyz: out of stack memory',0, MA_ERR)
@@ -117,10 +117,10 @@ c     *** parameters ***
       close(unit=18)
       close(unit=19)
 
-      value =           MA_pop_stack(tags(2))
-      value = value.and.MA_pop_stack(vion2(2))
-      value = value.and.MA_pop_stack(rion2(2))
-      value = value.and.MA_pop_stack(rion1(2))
+      value =           BA_pop_stack(tags(2))
+      value = value.and.BA_pop_stack(vion2(2))
+      value = value.and.BA_pop_stack(rion2(2))
+      value = value.and.BA_pop_stack(rion1(2))
       if (.not. value) 
      >  call errquit(
      >       'generate_unfolded_xyz: cannot release stack memory',0,

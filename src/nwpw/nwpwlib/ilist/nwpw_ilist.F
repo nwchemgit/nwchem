@@ -56,7 +56,7 @@
       
 *     **** allocate q_map,p_map,k_map *****
       id='ilist'//CHAR(ICHAR('a')+tag)
-      value = MA_alloc_get(mt_int,4,id,node(2),node(1))
+      value = BA_alloc_get(mt_int,4,id,node(2),node(1))
       if (.not. value) then
         call errquit('nwpw_ilist_add: out of heap memory',0, MA_ERR)
       end if
@@ -177,7 +177,7 @@
       end if
 
 *     **** remove node from heap ****
-      if (.not.MA_free_heap(del_node(2))) then
+      if (.not.BA_free_heap(del_node(2))) then
          call errquit('nwpw_ilist_delete: cannot free heap',0, MA_ERR)
       end if
       

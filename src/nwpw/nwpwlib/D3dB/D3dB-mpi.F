@@ -69,7 +69,7 @@ c     integer i2_start(NFFT3+1)
       call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,np,
+      value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' D3dB_c_transpose_jk:out of stack',0,MA_ERR)
@@ -174,7 +174,7 @@ c     integer i2_start(NFFT3+1)
       
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
+      value =           BA_pop_stack(request(2))
       if (.not. value)
      > call errquit(' D3dB_c_transpose_jk:popping stack',0,MA_ERR)
 
@@ -248,7 +248,7 @@ c     integer i2_start(NFFT3+1)
       call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,np,
+      value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' D3dB_c_timereverse:out of stack',0,MA_ERR)
@@ -351,7 +351,7 @@ c     integer i2_start(NFFT3+1)
 
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
+      value =           BA_pop_stack(request(2))
       if (.not. value)
      > call errquit(' D3dB_c_timereverse:popping stack',0,MA_ERR)
 
@@ -430,7 +430,7 @@ c     integer i2_start(NFFT3+1)
       call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,np,
+      value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value) 
      > call errquit(' D3dB_c_transpose_ijk:out of stack',0,MA_ERR)
@@ -536,7 +536,7 @@ c     integer i2_start(NFFT3+1)
       end do 
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
+      value =           BA_pop_stack(request(2))
       if (.not. value) 
      > call errquit(' D3dB_c_transpose_ijk:popping stack',0,MA_ERR)
       
@@ -614,7 +614,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,np,
+      value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' D3dB_t_transpose_ijk:out of stack',0,MA_ERR)
@@ -721,7 +721,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
+      value =           BA_pop_stack(request(2))
       if (.not. value)
      > call errquit(' D3dB_t_transpose_ijk:popping stack',0,MA_ERR)
 
@@ -857,7 +857,7 @@ c     implicit none
       if (np.gt.1) then
 
 *     ***** allocate temporary space ****
-      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+      value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
       if (.not. value) 
      > call errquit('D3dB_Vector_SumAll:out of stack',0, MA_ERR)
 
@@ -874,7 +874,7 @@ c     implicit none
 #endif
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
-      value = MA_pop_stack(sumall(2))
+      value = BA_pop_stack(sumall(2))
 
       end if
       call nwpw_timing_end(2)
@@ -921,12 +921,12 @@ c     implicit none
       if (np.gt.1) then
 
 *     ***** allocate temporary space ****
-      value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
+      value = BA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
       if (.not. value) 
      > call errquit('D3dB_Vector_ISumall:out of stack',0,MA_ERR)
 
 #ifdef MPI4
-      if (.not.MA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
+      if (.not.BA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
      > call errquit('D3dB_Vector_ISumAll:out of stack',1, MA_ERR)
       stupid_msglen = n
       call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
@@ -935,7 +935,7 @@ c     implicit none
      >                stupid_integer,
      >                stupid_sum,stupid_comm_i,stupid_ierr)
       call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
-      if (.not.MA_pop_stack(sumall1(2)))
+      if (.not.BA_pop_stack(sumall1(2)))
      >  call errquit('D3dB_Vector_ISumAll:popping stack',0, MA_ERR)
 #else
       msglen = n
@@ -945,7 +945,7 @@ c     implicit none
       call icopy(n,int_mb(sumall(1)),1,sum,1)
 #endif
 
-      value = MA_pop_stack(sumall(2))
+      value = BA_pop_stack(sumall(2))
       if (.not. value) 
      > call errquit('D3dB_Vector_ISumAll:popping stack',0, MA_ERR)
 
@@ -1022,7 +1022,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,np,
+      value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' D3dB_c_ptranspose1_jk:out of stack',0,MA_ERR)
@@ -1116,7 +1116,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
+      value =           BA_pop_stack(request(2))
       if (.not. value)
      > call errquit(' D3dB_c_ptranspose1_jk:popping stack',0,MA_ERR)
 
@@ -1188,7 +1188,7 @@ c     **** external functions ****
       call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,np,
+      value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
      > call errquit(' D3dB_c_ptranspose2_jk:out of stack',0,MA_ERR)
@@ -1281,7 +1281,7 @@ c     **** external functions ****
       
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
+      value =           BA_pop_stack(request(2))
       if (.not. value)
      > call errquit(' D3dB_c_ptranspose2_jk:popping stack',0,MA_ERR)
 
@@ -1360,7 +1360,7 @@ c     **** external functions ****
       call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,np,
+      value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value) 
      > call errquit(' D3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
@@ -1459,7 +1459,7 @@ c     **** external functions ****
 
 
       !*** deallocate memory ***
-      value =           MA_pop_stack(request(2))
+      value =           BA_pop_stack(request(2))
       if (.not. value) 
      > call errquit(' D3dB_c_transpose_ijk:popping stack',0,MA_ERR)
       
@@ -2615,7 +2615,7 @@ c         jend   = jcol
       if (readcolumn) then
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_c_read:out of stack',0,MA_ERR)
 
@@ -2779,10 +2779,10 @@ c     >                  source,rcv_proc,1)
       
 
 *     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >      BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('D3dB_c_read:out of stack',0,MA_ERR)
 *
@@ -2791,15 +2791,15 @@ c     >                  source,rcv_proc,1)
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('D3dB_c_read:popping stack',0,MA_ERR)
 
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_c_read:popping stack',0,MA_ERR)
 
 
@@ -2864,7 +2864,7 @@ c     >                  source,rcv_proc,1)
 
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_c_read:out of stack',0,MA_ERR)
 
@@ -3024,10 +3024,10 @@ c     >                  source,rcv_proc,1)
       
 
 *     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >      BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('D3dB_c_read:out of stack',0,MA_ERR)
 *
@@ -3036,15 +3036,15 @@ c     >                  source,rcv_proc,1)
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('D3dB_c_read:popping stack',0,MA_ERR)
 
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_c_read:popping stack',0,MA_ERR)
 
 
@@ -3106,7 +3106,7 @@ c         jend   = jcol
       if (readcolumn) then
 
 c     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_r_read:out of stack',0,MA_ERR)
 
@@ -3287,7 +3287,7 @@ c     >                  source,rcv_proc,1)
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_r_read:popping stack',0,MA_ERR)
 
 
@@ -3349,7 +3349,7 @@ c     >                  source,rcv_proc,1)
 
 
 c     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_r_read:out of stack',0,MA_ERR)
 
@@ -3526,7 +3526,7 @@ c     >                  source,rcv_proc,1)
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_r_read:popping stack',0,MA_ERR)
 
 
@@ -3592,7 +3592,7 @@ c         jend   = jcol
       if (readcolumn) then
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_t_read:out of stack',0,MA_ERR)
 
@@ -3755,10 +3755,10 @@ c     >                  source,rcv_proc,1)
       end if
 
 *     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >      BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
       call D3dB_t_transpose_ijk(nb,5,A,
@@ -3766,14 +3766,14 @@ c     >                  source,rcv_proc,1)
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_t_read:popping stack',0,MA_ERR)
 
 
@@ -3836,7 +3836,7 @@ c     >                  source,rcv_proc,1)
 
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_t_read:out of stack',0,MA_ERR)
 
@@ -3995,10 +3995,10 @@ c     >                  source,rcv_proc,1)
       end if
 
 *     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                    tmp1(2),tmp1(1))
       value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >      BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
       call D3dB_t_transpose_ijk(nb,5,A,
@@ -4006,14 +4006,14 @@ c     >                  source,rcv_proc,1)
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_t_read:popping stack',0,MA_ERR)
 
 
@@ -4073,7 +4073,7 @@ c     >                  source,rcv_proc,1)
       if (writecolumn) then
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_c_write:out of stack',0,MA_ERR)
 
@@ -4196,10 +4196,10 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       if (taskid_j.eq.jcol) then
 
 *       **** allocate temporary space  ****
-        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+        value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                      tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
         call D3dB_c_transpose_ijk(nb,6,A,
@@ -4207,8 +4207,8 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
      >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
 *       **** deallocate temporary space  ****
-        value = MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
+        value = BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -4326,7 +4326,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_c_write:popping stack',0,MA_ERR)
 
 
@@ -4379,7 +4379,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_c_write:out of stack',0,MA_ERR)
 
@@ -4500,10 +4500,10 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       if (taskid_j.eq.jcol) then
 
 *       **** allocate temporary space  ****
-        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+        value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                      tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
         call D3dB_c_transpose_ijk(nb,6,A,
@@ -4511,8 +4511,8 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
      >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
 *       **** deallocate temporary space  ****
-        value = MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
+        value = BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -4628,7 +4628,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_c_write:popping stack',0,MA_ERR)
 
       return
@@ -4672,7 +4672,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       call Parallel2d_taskid_j(taskid_j)
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_r_write:out of stack',0,MA_ERR)
 
@@ -4849,7 +4849,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_r_write:popping stack',0,MA_ERR)
 
       return
@@ -4893,7 +4893,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       call Parallel2d_taskid_j(taskid_j)
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_t_write:out of stack',0,MA_ERR)
 
@@ -5016,10 +5016,10 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       if (taskid_j.eq.jcol) then
 
 *       **** allocate temporary space  ****
-        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+        value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
      >                      tmp1(2),tmp1(1))
         value = value.and.
-     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 *
         call D3dB_t_transpose_ijk(nb,6,A,
@@ -5027,8 +5027,8 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
      >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
 
 *       **** deallocate temporary space  ****
-        value = MA_pop_stack(tmp2(2))
-        value = value.and.MA_pop_stack(tmp1(2))
+        value = BA_pop_stack(tmp2(2))
+        value = value.and.BA_pop_stack(tmp1(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if
@@ -5148,7 +5148,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_t_write:popping stack',0,MA_ERR)
 
       return
@@ -5190,7 +5190,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       call Parallel_taskid(taskid)
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_r_FormatWrite:out of stack',0,MA_ERR)
 
@@ -5376,7 +5376,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_r_FormatWrite:popstack',0,MA_ERR)
 
 *     **** wait ****
@@ -5418,7 +5418,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       call Parallel_taskid(taskid)
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_r_FormatWrite_reverse:out stack',0,MA_ERR)
 
@@ -5633,7 +5633,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       end if
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_r_FormatWrite_reverse:popstack',0,MA_ERR)
 
 *     **** wait ****
@@ -5675,7 +5675,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       call Parallel_taskid(taskid)
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_r_FormatWrite_paw:out of stack',0,MA_ERR)
 
@@ -5768,7 +5768,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
 
 *     *** deallocate status memory ***
-      if (.not.MA_pop_stack(status(2)))
+      if (.not.BA_pop_stack(status(2)))
      > call errquit('D3dB_r_FormatWrite_paw:popstack',0,MA_ERR)
 
 *     **** wait ****

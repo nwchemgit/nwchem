@@ -1795,7 +1795,7 @@ c     implicit none
       msgtype = 1
 
 *    **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE,
+      value = BA_push_get(mt_int,MPI_STATUS_SIZE,
      >                     'status',status(2),status(1))
       if (.not. value)
      > call errquit(' DMatrix_m_transpose:out of stack',0,MA_ERR)
@@ -1888,7 +1888,7 @@ c     implicit none
       end do
 
       !*** deallocate memory ***
-      value = MA_pop_stack(status(2))
+      value = BA_pop_stack(status(2))
       if (.not. value)
      > call errquit(' DMatrix_m_transpose:popping stack',0,MA_ERR)
 

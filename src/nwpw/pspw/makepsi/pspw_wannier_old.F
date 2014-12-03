@@ -189,13 +189,13 @@
 
 
 
-      value = MA_alloc_get(mt_dcpl,npack1*nemaxq,
+      value = BA_alloc_get(mt_dcpl,npack1*nemaxq,
      >                     'psi',psi(2),psi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*nemaxq,
+     >        BA_alloc_get(mt_dcpl,npack1*nemaxq,
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*nemaxq,
+     >        BA_alloc_get(mt_dbl,n2ft3d*nemaxq,
      >                     'psi_r',psi_r(2),psi_r(1))
       if (.not. value) 
      >   call errquit('pspw_wannier:out of heap memory',0,0)
@@ -249,16 +249,16 @@
 
 
 *     ***** allocate X,Y,Z  ****
-      value = MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
+      value = BA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                     'X',X(2),X(1))      
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
+     >        BA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                     'Y',Y(2),Y(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
+     >        BA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                     'Z',Z(2),Z(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
+     >        BA_alloc_get(mt_dcpl,(ne(1)*ne(1)+ne(2)*ne(2)),
      >                     'A',A(2),A(1))
       if (.not. value) 
      >   call errquit('pspw_wannier:out of heap memory',1,0)
@@ -422,13 +422,13 @@ c        end if
       call D3dB_end(1)
       call Dne_end()
 
-      value =           MA_free_heap(A(2))      
-      value = value.and.MA_free_heap(X(2))
-      value = value.and.MA_free_heap(Y(2))
-      value = value.and.MA_free_heap(Z(2))
-      value = value.and.MA_free_heap(psi_r(2))
-      value = value.and.MA_free_heap(psi2(2))
-      value = value.and.MA_free_heap(psi(2))
+      value =           BA_free_heap(A(2))      
+      value = value.and.BA_free_heap(X(2))
+      value = value.and.BA_free_heap(Y(2))
+      value = value.and.BA_free_heap(Z(2))
+      value = value.and.BA_free_heap(psi_r(2))
+      value = value.and.BA_free_heap(psi2(2))
+      value = value.and.BA_free_heap(psi(2))
       if (.not. value) 
      >   call errquit('pspw_wannier:deallocating heap memory',2,0)
 

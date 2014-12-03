@@ -70,10 +70,10 @@ c
      &       GEOM_ERR)
 
 *        ***** Allocate pspw_charge geometries, and charges *****
-         value = MA_alloc_get(mt_dbl,(3*nion),
+         value = BA_alloc_get(mt_dbl,(3*nion),
      >                        'charge_r1',r1(2),r1(1))
          value = value.and.
-     >           MA_alloc_get(mt_dbl,(nion),
+     >           BA_alloc_get(mt_dbl,(nion),
      >                        'charge_charge',charge(2),charge(1))
          if (.not. value)
      >      call errquit('pspw_charge_init: pushing heap memory',0,
@@ -144,14 +144,14 @@ c
            G(3) = G_indx(3)
 
 *          **** allocate vc_charge memory ****
-           value =           MA_alloc_get(mt_dbl,npack0,'point_vc',
+           value =           BA_alloc_get(mt_dbl,npack0,'point_vc',
      >                                    vc_charge(2),vc_charge(1))
-           value = value.and.MA_alloc_get(mt_dbl,npack0,'point_vc2',
+           value = value.and.BA_alloc_get(mt_dbl,npack0,'point_vc2',
      >                                    vc2_charge(2),vc2_charge(1))
            if (.not.value) call errquit('out of heap memory',0,MA_ERR)
-           value = MA_push_get(mt_dbl,nfft3d,'gk',gk(2),gk(1))
+           value = BA_push_get(mt_dbl,nfft3d,'gk',gk(2),gk(1))
            value = value.and.
-     >             MA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
+     >             BA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
            if (.not.value) call errquit('out of stack memory',0,MA_ERR)
 
 
@@ -189,8 +189,8 @@ c     >                              dbl_mb(vc2_charge(1)))
            call Pack_t_SMul1(0,scal2,dbl_mb(vc_charge(1)))
            call Pack_t_SMul1(0,scal2,dbl_mb(vc2_charge(1)))
 
-           value =           MA_pop_stack(gk2(2))
-           value = value.and.MA_pop_stack(gk(2))
+           value =           BA_pop_stack(gk2(2))
+           value = value.and.BA_pop_stack(gk(2))
            if (.not. value)
      >     call errquit('pspw_charge_init_init: poppingstack memory',0,
      >       MA_ERR)
@@ -390,13 +390,13 @@ c
       if (nion.gt.0) then
         value = .true.
         if (bqgeom) then
-           value = value.and.MA_free_heap(r1(2))
-           value = value.and.MA_free_heap(charge(2))
+           value = value.and.BA_free_heap(r1(2))
+           value = value.and.BA_free_heap(charge(2))
         end if
 
         if (charge_type.eq.4) then
-          value=value.and.MA_free_heap(vc2_charge(2))
-          value=value.and.MA_free_heap(vc_charge(2))
+          value=value.and.BA_free_heap(vc2_charge(2))
+          value=value.and.BA_free_heap(vc_charge(2))
           call qstrfac_end()
         end if
         if (.not.value) 
@@ -654,9 +654,9 @@ c
            scal1  = 1.0d0/dble(nx*ny*nz)
            scal2  = 1.0d0/lattice_omega()
            call Pack_npack(0,npack0)
-           value = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+           value = BA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
            value = value.and.
-     >             MA_push_get(mt_dcpl,npack0,'tmp',tmp(2),tmp(1))
+     >             BA_push_get(mt_dcpl,npack0,'tmp',tmp(2),tmp(1))
            if (.not.value) call errquit('out of stack memory',0,MA_ERR)
 
            call dcopy(n2ft3d,0.0d0,0,Vqm,1)
@@ -677,8 +677,8 @@ c     >                                              dcpl_mb(tmp(1)))
            !call Pack_cc_Sum(0,dcpl_mb(tmp(1)),Vqm,Vqm)
            call Pack_c_unpack(0,Vqm)
            call D3dB_cr_fft3b(1,Vqm)
-           value =           MA_pop_stack(tmp(2))
-           value = value.and.MA_pop_stack(exi(2))
+           value =           BA_pop_stack(tmp(2))
+           value = value.and.BA_pop_stack(exi(2))
            if (.not. value)
      >     call errquit('pspw_charge_Generate_V:poppingstack memory',0,
      >       MA_ERR)

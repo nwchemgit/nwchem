@@ -86,11 +86,11 @@
 
 
 *     **** allocate q_map,p_map,k_map
-      value = MA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
+      value = BA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
      >                                       q_map(1,nb))
-      value = value.and.MA_alloc_get(mt_int,nz(nb),'p_map',p_map(2,nb),
+      value = value.and.BA_alloc_get(mt_int,nz(nb),'p_map',p_map(2,nb),
      >                                       p_map(1,nb))
-      value = value.and.MA_alloc_get(mt_int,nz(nb),'k_map',k_map(2,nb),
+      value = value.and.BA_alloc_get(mt_int,nz(nb),'k_map',k_map(2,nb),
      >                                       k_map(1,nb))
       if (.not. value)
      > call errquit('Mapping_init:out of heap memory',1, MA_ERR)
@@ -132,29 +132,29 @@
 
 
 *     **** allocate q_map1,p_map1,q_map2,p_map2,q_map3,p_map3 ****
-      value =           MA_alloc_get(mt_int,ny(nb)*nz(nb),
+      value =           BA_alloc_get(mt_int,ny(nb)*nz(nb),
      >                              'q_map1',
      >                               q_map1(2,nb),
      >                               q_map1(1,nb))
-      value = value.and.MA_alloc_get(mt_int,ny(nb)*nz(nb),
+      value = value.and.BA_alloc_get(mt_int,ny(nb)*nz(nb),
      >                              'p_map1',
      >                               p_map1(2,nb),
      >                               p_map1(1,nb))
 
-      value = value.and.MA_alloc_get(mt_int,nz(nb)*nx(nb),
+      value = value.and.BA_alloc_get(mt_int,nz(nb)*nx(nb),
      >                              'q_map2',
      >                               q_map2(2,nb),
      >                               q_map2(1,nb))
-      value = value.and.MA_alloc_get(mt_int,nz(nb)*nx(nb),
+      value = value.and.BA_alloc_get(mt_int,nz(nb)*nx(nb),
      >                              'p_map2',
      >                               p_map2(2,nb),
      >                               p_map2(1,nb))
 
-      value = value.and.MA_alloc_get(mt_int,ny(nb)*nx(nb),
+      value = value.and.BA_alloc_get(mt_int,ny(nb)*nx(nb),
      >                              'q_map3',
      >                               q_map3(2,nb),
      >                               q_map3(1,nb))
-      value = value.and.MA_alloc_get(mt_int,ny(nb)*nx(nb),
+      value = value.and.BA_alloc_get(mt_int,ny(nb)*nx(nb),
      >                              'p_map3',
      >                               p_map3(2,nb),
      >                               p_map3(1,nb))
@@ -285,45 +285,45 @@ c      end if
 
       !**** slab mappings ****
       if (mapping.eq.1) then
-      value = value.and.MA_free_heap(q_map(2,nb))
-      value = value.and.MA_free_heap(p_map(2,nb))
-      value = value.and.MA_free_heap(k_map(2,nb))
+      value = value.and.BA_free_heap(q_map(2,nb))
+      value = value.and.BA_free_heap(p_map(2,nb))
+      value = value.and.BA_free_heap(k_map(2,nb))
       end if
 
       !**** hilbert mappings ****
       if (mapping.eq.2) then
-      value = value.and.MA_free_heap(q_map1(2,nb))
-      value = value.and.MA_free_heap(p_map1(2,nb))
-      value = value.and.MA_free_heap(q_map2(2,nb))
-      value = value.and.MA_free_heap(p_map2(2,nb))
-      value = value.and.MA_free_heap(q_map3(2,nb))
-      value = value.and.MA_free_heap(p_map3(2,nb))
+      value = value.and.BA_free_heap(q_map1(2,nb))
+      value = value.and.BA_free_heap(p_map1(2,nb))
+      value = value.and.BA_free_heap(q_map2(2,nb))
+      value = value.and.BA_free_heap(p_map2(2,nb))
+      value = value.and.BA_free_heap(q_map3(2,nb))
+      value = value.and.BA_free_heap(p_map3(2,nb))
       end if
 
 
       !**** slab transpose mappings ****
       if (mapping.eq.1) then
-      value = value.and.MA_free_heap(i1_start(2,nb))
-      value = value.and.MA_free_heap(i2_start(2,nb))
-      value = value.and.MA_free_heap(iq_to_i1(2,nb))
-      value = value.and.MA_free_heap(iq_to_i2(2,nb))
+      value = value.and.BA_free_heap(i1_start(2,nb))
+      value = value.and.BA_free_heap(i2_start(2,nb))
+      value = value.and.BA_free_heap(iq_to_i1(2,nb))
+      value = value.and.BA_free_heap(iq_to_i2(2,nb))
       end if
 
       !**** hilbert transpose mappings ****
       if (mapping.eq.2) then
       do i=1,6
-      value = value.and.MA_free_heap(h_i1_start(2,i,nb))
-      value = value.and.MA_free_heap(h_i2_start(2,i,nb))
-      value = value.and.MA_free_heap(h_iq_to_i1(2,i,nb))
-      value = value.and.MA_free_heap(h_iq_to_i2(2,i,nb))
+      value = value.and.BA_free_heap(h_i1_start(2,i,nb))
+      value = value.and.BA_free_heap(h_i2_start(2,i,nb))
+      value = value.and.BA_free_heap(h_iq_to_i1(2,i,nb))
+      value = value.and.BA_free_heap(h_iq_to_i2(2,i,nb))
       end do
       end if
 
 
 
 #ifndef MPI
-      value = value.and.MA_free_heap(channel_proc(2,nb))
-      value = value.and.MA_free_heap(channel_type(2,nb))
+      value = value.and.BA_free_heap(channel_proc(2,nb))
+      value = value.and.BA_free_heap(channel_type(2,nb))
 #endif
 
       if (.not. value)
@@ -909,13 +909,13 @@ c     p = p_map(k)
       logical value
 
 
-      value = MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+      value = BA_alloc_get(mt_dcpl,(nfft3d(nb)),
      >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+     >        BA_alloc_get(mt_dcpl,(nfft3d(nb)),
      >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+     >        BA_alloc_get(mt_dcpl,(nfft3d(nb)),
      >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
       if (.not. value)
      >   call errquit('C3dB_fft_init:out of heap memory',0, MA_ERR)
@@ -960,9 +960,9 @@ c     p = p_map(k)
 
       logical value
 
-      value =           MA_free_heap(tmpx(2,nb))
-      value = value.and.MA_free_heap(tmpy(2,nb))
-      value = value.and.MA_free_heap(tmpz(2,nb))
+      value =           BA_free_heap(tmpx(2,nb))
+      value = value.and.BA_free_heap(tmpy(2,nb))
+      value = value.and.BA_free_heap(tmpz(2,nb))
       if (.not.value)
      >   call errquit(
      >   'C3dB_fft_end:error deallocatingof heap memory',0, MA_ERR)
@@ -1030,10 +1030,10 @@ c     real*8      tmp3(*)
 
 *     ***** allocate temporary space ****
       !call C3dB_nfft3d(nb,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)), 
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)), 
      >                    'ffttmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d(nb)), 
+     >        BA_push_get(mt_dcpl,(nfft3d(nb)), 
      >                   'ffttmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -1211,8 +1211,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end if
     
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp2(2))
+      value = BA_pop_stack(tmp1(2))
 
       call nwpw_timing_end(1)
       return
@@ -1273,9 +1273,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 *     ***** allocate temporary space ****
       !call C3dB_nfft3d(nb,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -1419,8 +1419,8 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       end if
 
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp2(2))
+      value = BA_pop_stack(tmp1(2))
 
       call nwpw_timing_end(1)
       return
@@ -1790,14 +1790,14 @@ c     integer i2_start(NFFT3+1)
 *     **** external functions ****
 
 *     **** allocate c_trans_blk common block ****
-      value = MA_alloc_get(mt_int,(nx(nb)*ny(nb)*nq(nb)),
+      value = BA_alloc_get(mt_int,(nx(nb)*ny(nb)*nq(nb)),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
-      value = MA_alloc_get(mt_int,(nx(nb)*ny(nb)*nq(nb)),
+      value = BA_alloc_get(mt_int,(nx(nb)*ny(nb)*nq(nb)),
      >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
 
-      value = MA_alloc_get(mt_int,(nz(nb)+1),
+      value = BA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i1_start',i1_start(2,nb),i1_start(1,nb))
-      value = MA_alloc_get(mt_int,(nz(nb)+1),
+      value = BA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
 
       call Parallel3d_taskid_i(taskid)

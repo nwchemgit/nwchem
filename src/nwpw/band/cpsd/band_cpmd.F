@@ -351,7 +351,7 @@ c     **** allocate other variables ****
       hml_tag  = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,1))
       eig_tag  = cpsi_data_alloc(nbrillq,ne(1)+ne(2),1)
       svec_tag = cpsi_data_alloc(nbrillq,neq(1),3)
-      value = MA_alloc_get(mt_dbl,2*nfft3d,'dn',dn(2),dn(1))
+      value = BA_alloc_get(mt_dbl,2*nfft3d,'dn',dn(2),dn(1))
       if (.not. value)
      >  call errquit('band_cpmd:out of heap memory',0,MA_ERR)
 
@@ -1238,7 +1238,7 @@ c      call pspw_qmmm_end()
       call cpsi_data_dealloc(hml_tag)
       call cpsi_data_dealloc(eig_tag)
       call cpsi_data_dealloc(svec_tag)
-      value = MA_free_heap(dn(2))
+      value = BA_free_heap(dn(2))
       if (.not. value)
      >  call errquit('band_cpmd:error freeing heap',0,MA_ERR)
 

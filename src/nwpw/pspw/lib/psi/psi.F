@@ -328,7 +328,7 @@ c     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
       integer r1(2)
       real*8  ei,ej
 
-      value = MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       if (.not. value) call errquit(
      >     'psi_sort_f_orb: out of stack memory',0,MA_ERR)
 
@@ -359,7 +359,7 @@ c     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
 
       end do
 
-      value = MA_pop_stack(r1(2))
+      value = BA_pop_stack(r1(2))
       if (.not. value) call errquit(
      >     'psi_sort_f_orb: popping stack memory',1, MA_ERR)
       return
@@ -402,13 +402,13 @@ c     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
 
       call Parallel_taskid(taskid)
 
-      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'psi_KS_update_f_orb: out of stack memory',0, MA_ERR)
 
@@ -490,10 +490,10 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2)) 
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2)) 
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'psi_KS_update_f_orb: popping stack memory',1, MA_ERR)
 
@@ -536,10 +536,10 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       dtheta_min = 0.01*theta
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_f_orb: out of stack memory',0, MA_ERR)
@@ -585,8 +585,8 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))      
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))      
       if (.not. value) call errquit(
      >     'psi_linesearch_f_orb: popping stack memory',1,MA_ERR)
 
@@ -805,7 +805,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       integer r1(2)
       real*8  ei,ej
 
-      value = MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       if (.not. value) call errquit(
      >     'psi_sort_virtual: out of stack memory',0, MA_ERR)
 
@@ -836,7 +836,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
       end do
 
-      value = MA_pop_stack(r1(2))
+      value = BA_pop_stack(r1(2))
       if (.not. value) call errquit(
      >     'psi_sort_virtual: popping stack memory',1, MA_ERR)
       return
@@ -888,13 +888,13 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
 
-      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'psi_KS_update_virtual: out of stack memory',0, MA_ERR)
 
@@ -995,10 +995,10 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2)) 
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2)) 
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'psi_KS_update_virtual: popping stack memory',1, MA_ERR)
 
@@ -1048,10 +1048,10 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       dtheta_min = 0.01*theta
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_virtual: out of stack memory',0, MA_ERR)
@@ -1101,8 +1101,8 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))      
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))      
       if (.not. value) call errquit(
      >     'psi_linesearch_virtual: popping stack memory',1, MA_ERR)
 
@@ -1194,7 +1194,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
       else
 
-      if (.not.MA_push_get(mt_dcpl,npack1,'etmp',etmp(2),etmp(1)))
+      if (.not.BA_push_get(mt_dcpl,npack1,'etmp',etmp(2),etmp(1)))
      > call errquit('psi_project_out_virtual1: out of stack',0,MA_ERR)
 
          call dcopy(2*npack1,0.0d0,0,dcpl_mb(etmp(1)),1)
@@ -1210,7 +1210,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
          call D1dB_Vector_SumAll(2*npack1,dcpl_mb(etmp(1)))
          call daxpy(2*npack1,1.0d0,dcpl_mb(etmp(1)),1,Horb,1)
 
-      if (.not.MA_pop_stack(etmp(2)))
+      if (.not.BA_pop_stack(etmp(2)))
      > call errquit('psi_project_out_virtual1:popping stack',0,MA_ERR)
 
       end if
@@ -1285,7 +1285,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
          end do      
 
       else
-      if (.not.MA_push_get(mt_dcpl,npack1,'etmp',etmp(2),etmp(1)))
+      if (.not.BA_push_get(mt_dcpl,npack1,'etmp',etmp(2),etmp(1)))
      > call errquit('psi_project_out_virtual1: out of stack',0,MA_ERR)
 
          call dcopy(2*npack1,0.0d0,0,dcpl_mb(etmp(1)),1)
@@ -1301,7 +1301,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
          call D1dB_Vector_SumAll(2*npack1,dcpl_mb(etmp(1)))
          call daxpy(2*npack1,1.0d0,dcpl_mb(etmp(1)),1,Horb,1)
 
-      if (.not.MA_pop_stack(etmp(2)))
+      if (.not.BA_pop_stack(etmp(2)))
      > call errquit('psi_project_out_virtual:popping stack',0,MA_ERR)
 
       end if
@@ -1449,13 +1449,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 
       call Parallel_taskid(taskid)
 
-      value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
+      value = BA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+     >        BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
+     >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+     >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb: out of stack memory',0, MA_ERR)
 
@@ -1562,10 +1562,10 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 
 *     **** release stack memory ****
- 4    value =           MA_pop_stack(t(2)) 
-      value = value.and.MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(r1(2))
-      value = value.and.MA_pop_stack(t0(2))
+ 4    value =           BA_pop_stack(t(2)) 
+      value = value.and.BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(r1(2))
+      value = value.and.BA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb: popping stack memory',1, MA_ERR)
 
@@ -1622,8 +1622,8 @@ c     >           theta
       call Parallel_taskid(taskid)
 
 *     **** allocate memory ****
-      value =            MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
-      value = value.and. MA_push_get(mt_dcpl,npack1,'g1',g1(2),g1(1))
+      value =            BA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
+      value = value.and. BA_push_get(mt_dcpl,npack1,'g1',g1(2),g1(1))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb2: out of stack memory',0, MA_ERR)
 
@@ -1711,8 +1711,8 @@ c     >                 dcpl_mb(psi_ptr+(i-1)*npack1))
 
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g1(2))
-      value = value.and.MA_pop_stack(r1(2))
+      value =           BA_pop_stack(g1(2))
+      value = value.and.BA_pop_stack(r1(2))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb2: popping stack memory',1, MA_ERR)
       error_out = dabs(e0-eold)
@@ -1767,10 +1767,10 @@ c     >            lambda
       pi = 4.0d0*datan(1.0d0)
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_update: out of stack memory',0, MA_ERR)
@@ -1836,8 +1836,8 @@ c     write(*,*) "i,theta,es:",i,theta,e0,e1,e2
 c     write(*,*)
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))      
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))      
       if (.not. value) call errquit(
      >     'psi_linesearch_update: popping stack memory',1, MA_ERR)
 
@@ -1885,10 +1885,10 @@ c     write(*,*)
       pi = 4.0d0*datan(1.0d0)
 
 *     **** allocate stack memory ****
-      value = MA_push_get(mt_dcpl,npack1,'orb',
+      value = BA_push_get(mt_dcpl,npack1,'orb',
      >                       orb(2),orb(1))
       value = value.and. 
-     >        MA_push_get(mt_dcpl,npack1,'g',
+     >        BA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
      >     'psi_linesearch_update: out of stack memory',0, MA_ERR)
@@ -1944,8 +1944,8 @@ c     >                  tau_t)
 
 
 *     **** release stack memory ****
-      value =           MA_pop_stack(g(2))
-      value = value.and.MA_pop_stack(orb(2))      
+      value =           BA_pop_stack(g(2))
+      value = value.and.BA_pop_stack(orb(2))      
       if (.not. value) call errquit(
      >     'psi_linesearch_update: popping stack memory',1, MA_ERR)
 
@@ -2088,7 +2088,7 @@ c     >                  tau_t)
       call Parallel_np(np)
 
 *     **** allocate stack memory ****
-      ok = MA_push_get(mt_dbl,ne(1),'x',x(2),x(1))
+      ok = BA_push_get(mt_dbl,ne(1),'x',x(2),x(1))
       if (.not.ok) 
      > call errquit('psi_project_out_orb: out of stack memory',0,
      &       MA_ERR)
@@ -2147,7 +2147,7 @@ c     >                  tau_t)
       end if
 
 *     **** release stack memory ****
-      ok = MA_pop_stack(x(2))
+      ok = BA_pop_stack(x(2))
       if (.not. ok) 
      > call errquit('psi_project_out_orb: poping stack memory',0,
      &       MA_ERR)
@@ -3057,10 +3057,10 @@ c      end
 
 
 *     **** Push memory ****
-      value = MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
+      value = BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
      >                       r_grid(2),r_grid(1))
       value = value.and. 
-     >        MA_push_get(mt_dbl,(3*n2ft3d),'rho',
+     >        BA_push_get(mt_dbl,(3*n2ft3d),'rho',
      >                       rho(2),rho(1))
       if (.not. value) call errquit(
      >     'rho_1Fcharge: out of stack memory',0, MA_ERR)
@@ -3079,8 +3079,8 @@ c      end
      >                            dv,Fcharge)
 
 *     **** Pop memory ****
-      value =           MA_pop_stack(rho(2))
-      value = value.and.MA_pop_stack(r_grid(2))
+      value =           BA_pop_stack(rho(2))
+      value = value.and.BA_pop_stack(r_grid(2))
       if (.not. value) call errquit(
      >     'rho_1Fcharge: error popping stack memory',0, MA_ERR)
 
@@ -3241,7 +3241,7 @@ c      end
       do ms=1,ispin      
          n = ne(ms)
          if (n.eq.0) go to 101  !*** ferromagnetic check ***
-         value = MA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
+         value = BA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
          if (.not. value) 
      >   call errquit('out of stack memory in psi_1check_Tangent',0,
      &       MA_ERR)
@@ -3265,7 +3265,7 @@ c      end
             
 
 
-         value = MA_pop_stack(MM(2))
+         value = BA_pop_stack(MM(2))
          if (.not. value) 
      >    call errquit(
      >         'error popping stack memory in psi_1check_Tangent',0,
@@ -3307,7 +3307,7 @@ c      end
       do ms=1,ispin
          n = ne(ms)
          if (n.eq.0) go to 101  !*** ferromagnetic check ***
-         value = MA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
+         value = BA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
          if (.not. value)
      >   call errquit('out of stack memory in psi_1check_Tangent',0,
      >        MA_ERR)
@@ -3331,7 +3331,7 @@ c      end
 
 
 
-         value = MA_pop_stack(MM(2))
+         value = BA_pop_stack(MM(2))
          if (.not. value)
      >    call errquit(
      >         'error popping stack memory in psi_2check_Tangent',0,
@@ -4417,10 +4417,10 @@ c    >                            dcpl_mb(dng1(1)))
       call f_vlocal(dcpl_mb(dng1(1)),fion)
 
       if (control_version().eq.4) then
-          value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',
+          value = BA_push_get(mt_dbl,(2*nfft3d),'tmp',
      >                        tmp(2),tmp(1))
           value = value.and.
-     >            MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
+     >            BA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                        r_grid(2),r_grid(1))
          if (.not. value) call errquit('out of stack memory',0, MA_ERR)
           call dcopy(2*nfft3d,0.0d0,0,dbl_mb(tmp(1)),1)
@@ -4433,8 +4433,8 @@ c    >                            dcpl_mb(dng1(1)))
      >                         dbl_mb(tmp(1)),
      >                         fion)
 
-          value = MA_pop_stack(r_grid(2))
-          value = value.and.MA_pop_stack(tmp(2))
+          value = BA_pop_stack(r_grid(2))
+          value = value.and.BA_pop_stack(tmp(2))
          if (.not. value) call errquit('error popping stack memory',0,
      &       MA_ERR)
       end if
@@ -4484,10 +4484,10 @@ c    >                            dcpl_mb(dng1(1)))
       call f_vlocal(dcpl_mb(dng1(1)),fion)
 
       if (control_version().eq.4) then
-          value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',
+          value = BA_push_get(mt_dbl,(2*nfft3d),'tmp',
      >                        tmp(2),tmp(1))
           value = value.and.
-     >            MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
+     >            BA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                        r_grid(2),r_grid(1))
          if (.not. value) call errquit('out of stack memory',0, MA_ERR)
           call dcopy(2*nfft3d,0.0d0,0,dbl_mb(tmp(1)),1)
@@ -4500,8 +4500,8 @@ c    >                            dcpl_mb(dng1(1)))
      >                         dbl_mb(tmp(1)),
      >                         fion)
 
-          value = MA_pop_stack(r_grid(2))
-          value = value.and.MA_pop_stack(tmp(2))
+          value = BA_pop_stack(r_grid(2))
+          value = value.and.BA_pop_stack(tmp(2))
          if (.not. value) call errquit('error popping stack memory',0,
      &       MA_ERR)
       end if
@@ -5374,7 +5374,7 @@ c      integer tmp1(2)
       call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
      >                             dbl_mb(eig(1)),.false.)
 
-c      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+c      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
 c      if (.not. value) 
 c     >   call errquit('out of stack memory in psi_diagonalize_hml',0,
 c     &       MA_ERR)
@@ -5406,7 +5406,7 @@ c  30    continue
 c      end do
 c
 c      
-c      value = MA_pop_stack(tmp1(2))
+c      value = BA_pop_stack(tmp1(2))
 c      if (.not. value) 
 c     > call errquit('error popping stack in psi_diagonalize_hml',0,
 c     &       MA_ERR)
@@ -5433,7 +5433,7 @@ c      integer tmp1(2)
 
       call Dneall_m_diagonalize(0,dbl_mb(hml(1)),dbl_mb(eig(1)),.true.)
 
-c      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+c      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
 c      if (.not. value) 
 c     >   call errquit(
 c     >    'out of stack memory in psi_diagonalize_hml_assending',0,
@@ -5457,7 +5457,7 @@ c   30    continue
 c      end do
 
       
-c      value = MA_pop_stack(tmp1(2))
+c      value = BA_pop_stack(tmp1(2))
 c      if (.not. value) 
 c     > call errquit(
 c     >   'error popping stack in psi_diagonalize_hml_assending',0,
@@ -5486,7 +5486,7 @@ c     >     MA_ERR)
       real*8  error,sum,size
       integer tmp1(2)
 
-      value = MA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in psi_error',0, MA_ERR)
 
@@ -5506,7 +5506,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       call D1dB_SumAll(error)
       error = dsqrt(error)/size
       
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory in psi_error',0, MA_ERR)
 
@@ -5537,7 +5537,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       real*8   lattice_omega
       external lattice_omega
 
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,(2*nfft3d),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('out of stack memory in rho_error',0, MA_ERR)
 
@@ -5562,7 +5562,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       error = error*scale
 *     error = dsqrt(error)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('error popping stack memory in rho_error',0, MA_ERR)
 
@@ -5698,7 +5698,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
          nn  = ne(1)+ne(2)
       end if
 
-      if (.not.MA_alloc_get(mt_int,nn,
+      if (.not.BA_alloc_get(mt_int,nn,
      >                     'irreps',irreps(2),irreps(1)))
      > call errquit('psi_ab_gen_irrep_names',0, MA_ERR)
 
@@ -5736,7 +5736,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       integer irreps(2)
       common / ab_irrep / irreps
      
-      if (.not.MA_free_heap(irreps(2)))
+      if (.not.BA_free_heap(irreps(2)))
      >  call errquit('psi_ab_gen_irrep_names: error freeing heap',
      >               0, MA_ERR)
 
@@ -5867,7 +5867,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       logical value
 
-      value = MA_alloc_get(mt_dbl,2*ispin*nfft3d,'rho0',rho0(2),rho0(1))
+      value = BA_alloc_get(mt_dbl,2*ispin*nfft3d,'rho0',rho0(2),rho0(1))
       if (.not.value)
      >   call errquit('psi_cpmd_start',0,MA_ERR)
 
@@ -5887,7 +5887,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 #include "errquit.fh"
 #include "psi.fh"
 
-      if (.not.MA_free_heap(rho0(2)))
+      if (.not.BA_free_heap(rho0(2)))
      >   call errquit('psi_cpmd_end',0,MA_ERR)
       return
       end
@@ -6033,49 +6033,49 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
 
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       if (pawexist) then
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'spsi1',spsi1(2),spsi1(1))
       end if
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        BA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho1',rho1(2),rho1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        BA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho2',rho2(2),rho2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
+     >        BA_alloc_get(mt_dcpl,npack0,
      >                     'dng1',dng1(2),dng1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
+     >        BA_alloc_get(mt_dcpl,npack0,
      >                     'dng2',dng2(2),dng2(1))
 c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
+c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       value = value.and.Dneall_m_allocate(0,hml)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
+     >        BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
 
       if (occupation_on) then
         value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax),'occ1',occ1(2),occ1(1))
+     >        BA_alloc_get(mt_dbl,(2*nemax),'occ1',occ1(2),occ1(1))
         value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax),'occ2',occ2(2),occ2(1))
+     >        BA_alloc_get(mt_dbl,(2*nemax),'occ2',occ2(2),occ2(1))
         smeartype = control_fractional_smeartype()
         smearkT   = control_fractional_kT()
       end if
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        BA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho1_all',rho1_all(2),rho1_all(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,4*nfft3d,
+     >        BA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho2_all',rho2_all(2),rho2_all(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(rho1_all(1)),1)
@@ -6269,22 +6269,22 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
         call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
       end if
     
-      value = MA_free_heap(eig(2))
+      value = BA_free_heap(eig(2))
       value = value.and.Dneall_m_free(hml)
-      value = value.and.MA_free_heap(dng2(2))
-      value = value.and.MA_free_heap(dng1(2))
-      value = value.and.MA_free_heap(rho2(2))
-      value = value.and.MA_free_heap(rho1(2))
-      value = value.and.MA_free_heap(psi2(2))
-      value = value.and.MA_free_heap(psi1(2))
+      value = value.and.BA_free_heap(dng2(2))
+      value = value.and.BA_free_heap(dng1(2))
+      value = value.and.BA_free_heap(rho2(2))
+      value = value.and.BA_free_heap(rho1(2))
+      value = value.and.BA_free_heap(psi2(2))
+      value = value.and.BA_free_heap(psi1(2))
       if (pawexist) then
-          value = value.and.MA_free_heap(spsi1(2))
+          value = value.and.BA_free_heap(spsi1(2))
       end if
-      value = value.and.MA_free_heap(rho2_all(2))
-      value = value.and.MA_free_heap(rho1_all(2))
+      value = value.and.BA_free_heap(rho2_all(2))
+      value = value.and.BA_free_heap(rho1_all(2))
       if (occupation_on) then
-         value = value.and.MA_free_heap(occ2(2))
-         value = value.and.MA_free_heap(occ1(2))
+         value = value.and.BA_free_heap(occ2(2))
+         value = value.and.BA_free_heap(occ1(2))
       end if
 
       if (.not. value) 
@@ -6350,13 +6350,13 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       nemax  = ne_excited(1)  + ne_excited(2)
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*(nemax),
+      value = BA_alloc_get(mt_dcpl,npack1*(nemax),
      >         'psi2_excited',psi2_excited(2),psi2_excited(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(nemax),
+     >        BA_alloc_get(mt_dcpl,npack1*(nemax),
      >         'psi1_excited',psi1_excited(2),psi1_excited(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
+     >        BA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
      >                     eig_excited(2),eig_excited(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -6495,9 +6495,9 @@ c      end if
       if (writepsi)
      >  call epsi_write(ispin,ne_excited,dcpl_mb(psi1_excited(1)))
     
-      value = MA_free_heap(eig_excited(2))
-      value = value.and.MA_free_heap(psi2_excited(2))
-      value = value.and.MA_free_heap(psi1_excited(2))
+      value = BA_free_heap(eig_excited(2))
+      value = value.and.BA_free_heap(psi2_excited(2))
+      value = value.and.BA_free_heap(psi1_excited(2))
       if (.not. value) 
      >  call errquit('epsi_finalize: error freeing heap',0, MA_ERR)
 
@@ -6589,7 +6589,7 @@ c      end if
       character*255 filename
 
       nemax = ne(1)
-      value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value) 
      >  call errquit('psi_dos:out of stack memory',0, MA_ERR)
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
@@ -6639,7 +6639,7 @@ c      end if
       end if
 
  
-      value = MA_pop_stack(weight(2))
+      value = BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('psi_dos: error freeing stack',0, MA_ERR)
 
@@ -6668,7 +6668,7 @@ c      end if
       real*8 emin,emax,alpha
       character*255 filename
 
-      value = MA_push_get(mt_dbl,(ne_excited(1)+ne_excited(2)),
+      value = BA_push_get(mt_dbl,(ne_excited(1)+ne_excited(2)),
      >                    'weight',weight(2),weight(1))
       if (.not. value)
      >  call errquit('epsi_dos:out of stack memory',0, MA_ERR)
@@ -6723,7 +6723,7 @@ c      end if
      >           -1.0d0,alpha,npoints,emin,emax)
       end if
 
-      value = MA_pop_stack(weight(2))
+      value = BA_pop_stack(weight(2))
       if (.not. value)
      >  call errquit('epsi_dos: error freeing stack',0, MA_ERR)
 
@@ -6775,13 +6775,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       neall(1) = ne(1)+ne_excited(1)
       neall(2) = ne(2)+ne_excited(2)
 
-      value = MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+      value = BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, 2*npack1,'tmp',tmp(2),tmp(1))
+     >        BA_push_get(mt_dbl, 2*npack1,'tmp',tmp(2),tmp(1))
          if (.not. value)
      >      call errquit('epsi_generate_kb_vnm:pushing stack',1,MA_ERR)
 
@@ -6857,10 +6857,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
          end do
       end do
 
-      value =           MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(Gz(2))
-      value = value.and.MA_pop_stack(Gy(2))
-      value = value.and.MA_pop_stack(Gx(2))
+      value =           BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(Gz(2))
+      value = value.and.BA_pop_stack(Gy(2))
+      value = value.and.BA_pop_stack(Gx(2))
       if (.not. value)
      >   call errquit('epsi_generate_kb_vnm:popping stack',1,MA_ERR)
 
@@ -6935,11 +6935,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** allocate memory from heap ****
       call D3dB_n2ft3d(1,n2ft3d)
-      value = MA_alloc_get(mt_dcpl,nfft3d,'v1h',v1h(2),v1h(1))
+      value = BA_alloc_get(mt_dcpl,nfft3d,'v1h',v1h(2),v1h(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d,'v2h',v2h(2),v2h(1))
+     >        BA_alloc_get(mt_dcpl,nfft3d,'v2h',v2h(2),v2h(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(ne_excited(1)+ne_excited(2)),
+     >        BA_alloc_get(mt_dbl,n2ft3d*(ne_excited(1)+ne_excited(2)),
      >                     'vpsi_r',vpsi_r(2),vpsi_r(1))
       if (.not. value)
      >  call errquit('psi_MP2_energy: error allocating heap memory',0,
@@ -6974,9 +6974,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (ispin.eq.1) e2=e2+e2
 
 *     **** deallocate memory from heap ****
-      value =     MA_free_heap(v1h(2))
-     >       .and.MA_free_heap(v2h(2))
-     >       .and.MA_free_heap(vpsi_r(2))
+      value =     BA_free_heap(v1h(2))
+     >       .and.BA_free_heap(v2h(2))
+     >       .and.BA_free_heap(vpsi_r(2))
       if (.not. value)
      >  call errquit('psi_MP2_energy: error freeing heap memory',1,
      &       MA_ERR)

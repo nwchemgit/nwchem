@@ -34,10 +34,10 @@
       size    = 0
 
 *    ***** allocate memory from heap memory ****
-      value = MA_alloc_get(mt_int,(maxsize),'dnlist',
+      value = BA_alloc_get(mt_int,(maxsize),'dnlist',
      >                     dnlist(2),dnlist(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(maxsize),'dnlist_tag',
+     >        BA_alloc_get(mt_int,(maxsize),'dnlist_tag',
      >                     dnlist_tag(2),dnlist_tag(1))
       if (.not. value)
      > call errquit('lcao_dnlist_init: out of heap memory',0, MA_ERR)
@@ -67,10 +67,10 @@
       value = .true.
       do i=1,size
          mindx = int_mb(dnlist_tag(1)+i-1)
-         value = value.and.MA_free_heap(mindx)
+         value = value.and.BA_free_heap(mindx)
       end do
-      value = value.and.MA_free_heap(dnlist_tag(2))
-      value = value.and.MA_free_heap(dnlist(2))
+      value = value.and.BA_free_heap(dnlist_tag(2))
+      value = value.and.BA_free_heap(dnlist(2))
       if (.not. value)
      > call errquit('lcao_dnlist_init: freeing heap memory',0, MA_ERR)
 
@@ -100,7 +100,7 @@
       if (size.ge.maxsize) 
      > call errquit('lcao_dnlist_new: maxsize exceeded',0, INPUT_ERR)
 
-      value = MA_alloc_get(mt_dbl,(n2ft3d),'dn',
+      value = BA_alloc_get(mt_dbl,(n2ft3d),'dn',
      >                     mindx,indx)
       if (.not.value) 
      > call errquit('lcao_dnlist_new: out of heap memory',0, MA_ERR)

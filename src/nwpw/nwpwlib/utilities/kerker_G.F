@@ -48,11 +48,11 @@ c     real*8 tg(nfft3d)
          G(3)= G_indx(3)
       end if
 
-      if (.not.MA_alloc_get(mt_dbl,npack0,
+      if (.not.BA_alloc_get(mt_dbl,npack0,
      >                     'tg',tg_hndl,tg_indx))
      >   call errquit('kerker_G_init:out of heap memory',0,MA_ERR)
 
-      if (.not.MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1)))
+      if (.not.BA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1)))
      >   call errquit('kerker_G_init:out of stack memory',0,MA_ERR)
 
 
@@ -71,7 +71,7 @@ c     real*8 tg(nfft3d)
          call Pack_t_pack(0,dbl_mb(tmp1(1)))
          call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(tg_indx))
       end if
-      if (.not.MA_pop_stack(tmp1(2)))
+      if (.not.BA_pop_stack(tmp1(2)))
      >   call errquit('kerker_G_init:popping stack memory',0,MA_ERR)
 
       end if
@@ -90,7 +90,7 @@ c     real*8 tg(nfft3d)
       common / kerker_G_block / tg_indx,tg_hndl,isband,dokerker
 
       if (dokerker) then
-         if (.not.MA_free_heap(tg_hndl))
+         if (.not.BA_free_heap(tg_hndl))
      >   call errquit('error freeing heap',0, MA_ERR)
       end if
       return
@@ -132,7 +132,7 @@ c     real*8 tg(nfft3d)
       scal1 = 1.0d0/dble(nx*ny*nz)
 
 
-      if (.not.MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1)))
+      if (.not.BA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1)))
      >   call errquit('kerker_G: out of stack memory',0, MA_ERR)
       if (isband) then
          call C3dB_rc_SMul(1,scal1,V,dcpl_mb(tmp1(1)))
@@ -153,7 +153,7 @@ c     real*8 tg(nfft3d)
          call D3dB_r_Zero_Ends(1,dcpl_mb(tmp1(1)))
          call dcopy(n2ft3d,dcpl_mb(tmp1(1)),1,V,1)
       end if
-      if (.not.MA_pop_stack(tmp1(2)))
+      if (.not.BA_pop_stack(tmp1(2)))
      >   call errquit('kerker_G: popping stack memory',0,MA_ERR)
 
 

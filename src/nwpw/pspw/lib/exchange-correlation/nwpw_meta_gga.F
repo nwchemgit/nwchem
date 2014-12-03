@@ -30,9 +30,9 @@
 
       if (meta_on) then
          call D3dB_n2ft3d(1,n2ft3d)
-         ok =        MA_alloc_get(mt_dbl, 2*n2ft3d,
+         ok =        BA_alloc_get(mt_dbl, 2*n2ft3d,
      >                     'dfdtau',dfdtau(2),dfdtau(1))
-         ok = ok.and.MA_alloc_get(mt_dbl, 2*n2ft3d,
+         ok = ok.and.BA_alloc_get(mt_dbl, 2*n2ft3d,
      >                     'tau',tau(2),tau(1))
          if (.not.ok)
      >      call errquit('nwpw_meta_gga_init:out of heap',0,MA_ERR)
@@ -57,8 +57,8 @@
       logical ok
 
       if (meta_on) then
-         ok =        MA_free_heap(dfdtau(2))
-         ok = ok.and.MA_free_heap(tau(2))
+         ok =        BA_free_heap(dfdtau(2))
+         ok = ok.and.BA_free_heap(tau(2))
          if (.not.ok)
      >      call errquit('nwpw_meta_gga_end:freeing heap',0,MA_ERR)
       end if
@@ -126,7 +126,7 @@
       call Pack_npack(1,npack1)
 
 *     **** allocate stack memory ****
-      if (.not.MA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
+      if (.not.BA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
      >   call errquit('nwpw_meta_gga_Hpsik:out of stack',0,MA_ERR)
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
 
@@ -158,7 +158,7 @@
       end do
 
 *     **** deallocate stack ****
-      if (.not.MA_pop_stack(dpsi(2)))
+      if (.not.BA_pop_stack(dpsi(2)))
      >   call errquit('nwpw_meta_gga_Hpsik:popping stack',0,MA_ERR)
 
 
@@ -215,7 +215,7 @@
       call Pack_npack(1,npack1)
 
 *     **** allocate stack memory ****
-      if (.not.MA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
+      if (.not.BA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
      >   call errquit('nwpw_meta_gga_Hpsik:out of stack',0,MA_ERR)
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
 
@@ -257,7 +257,7 @@
       end do
 
 *     **** deallocate stack ****
-      if (.not.MA_pop_stack(dpsi(2)))
+      if (.not.BA_pop_stack(dpsi(2)))
      >   call errquit('nwpw_meta_gga_Hpsik:popping stack',0,MA_ERR)
 
       end if
@@ -311,7 +311,7 @@
       call Pack_npack(1,npack1)
 
 *     **** allocate stack memory ****
-      if (.not.MA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
+      if (.not.BA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
      >   call errquit('nwpw_meta_gga_Hpsik:out of stack',0,MA_ERR)
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
 
@@ -354,7 +354,7 @@
       end do
 
 *     **** deallocate stack ****
-      if (.not.MA_pop_stack(dpsi(2)))
+      if (.not.BA_pop_stack(dpsi(2)))
      >   call errquit('nwpw_meta_gga_Hpsik:popping stack',0,MA_ERR)
 
       call Parallel_SumAll(pmeta)

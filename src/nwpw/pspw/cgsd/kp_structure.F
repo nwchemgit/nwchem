@@ -62,7 +62,7 @@
 
 *     **** allocate eigs ****
       isize = neall(1)+neall(2)
-      if (.not.MA_push_get(mt_dbl,isize,'eigs',eigs(2),eigs(1)))
+      if (.not.BA_push_get(mt_dbl,isize,'eigs',eigs(2),eigs(1)))
      >  call errquit(
      > 'kp_structure:out of stack memory',0,MA_ERR)
       if (.not.Dneall_mne_allocate_block(0,1,neall,hml))
@@ -165,7 +165,7 @@
       if (.not.Dneall_m_free(hml))
      >  call errquit(
      > 'kp_structure:popping stack memory',1,MA_ERR)
-      if (.not.MA_pop_stack(eigs(2))) 
+      if (.not.BA_pop_stack(eigs(2))) 
      >  call errquit(
      > 'kp_structure:popping stack memory',0,MA_ERR)
 

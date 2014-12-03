@@ -51,11 +51,11 @@
 
 *     **** allocate space from stack ****
       call D3dB_n2ft3d(1,n2ft3d)
-      value = MA_push_get(mt_dbl,(n2ft3d),'Tc',Tc(2),Tc(1))
+      value = BA_push_get(mt_dbl,(n2ft3d),'Tc',Tc(2),Tc(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'Ts',Ts(2),Ts(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'Ts',Ts(2),Ts(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*n2ft3d),'rgrid',rgrid(2),rgrid(1))
+     >        BA_push_get(mt_dbl,(3*n2ft3d),'rgrid',rgrid(2),rgrid(1))
       psic = rgrid(1)
       psis = rgrid(1) + n2ft3d
       value = value.and.Dneall_m_push_get(ms,Wc)
@@ -118,9 +118,9 @@ c      end do
 *     **** pop memory ***
       value =           Dneall_m_pop_stack(Ws)
       value = value.and.Dneall_m_pop_stack(Wc)
-      value = value.and.MA_pop_stack(rgrid(2))
-      value = value.and.MA_pop_stack(Ts(2))
-      value = value.and.MA_pop_stack(Tc(2))  
+      value = value.and.BA_pop_stack(rgrid(2))
+      value = value.and.BA_pop_stack(Ts(2))
+      value = value.and.BA_pop_stack(Tc(2))  
       if (.not. value) 
      >  call errquit('silvestrelli_overlap:popping stack memory',1,0)
 

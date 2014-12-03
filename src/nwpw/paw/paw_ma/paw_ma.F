@@ -41,7 +41,7 @@
 
       integer v(4)
  
-      my_dealloc = MA_free_heap(v(2))
+      my_dealloc = BA_free_heap(v(2))
  
  
       end 

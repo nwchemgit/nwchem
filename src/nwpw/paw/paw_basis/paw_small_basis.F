@@ -31,9 +31,9 @@ c      !*** external functions ***
       nt = ion_nkatm()
 
 *     **** allocating memory from stack ****
-      ok = MA_push_get(mt_int,nt,"nb_tmp_array",l_nb,i_nb)
+      ok = BA_push_get(mt_int,nt,"nb_tmp_array",l_nb,i_nb)
       ok = ok.and.
-     >     MA_push_get(mt_int,nt,"ng_tmp_array",l_ng,i_ng)
+     >     BA_push_get(mt_int,nt,"ng_tmp_array",l_ng,i_ng)
       if (.not.ok) 
      > call errquit('init_paw_small_basis:out of stack memory',0,MA_ERR)
 
@@ -44,8 +44,8 @@ c      !*** external functions ***
 
 
 *     **** deallocating memory from stack ****
-      ok =        MA_pop_stack(l_ng)
-      ok = ok.and.MA_pop_stack(l_nb)
+      ok =        BA_pop_stack(l_ng)
+      ok = ok.and.BA_pop_stack(l_nb)
       if (.not.ok) 
      > call errquit('init_paw_small_basis:error popping stack',1,MA_ERR)
 

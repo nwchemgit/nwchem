@@ -54,15 +54,15 @@ c
       n2(2) = ne(1)+ne(2)
 
 
-      value = MA_push_get(mt_dcpl, npack1,'cw',cw(2),cw(1))
+      value = BA_push_get(mt_dcpl, npack1,'cw',cw(2),cw(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl, npack1,'exr',exr(2),exr(1))
+     >        BA_push_get(mt_dcpl, npack1,'exr',exr(2),exr(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >        BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** define Gx,Gy and Gz in packed space ****
@@ -301,11 +301,11 @@ c        call Pack_c_pack(1,dcpl_mb(exr(1)))
         END DO
       END DO
 
-      value = MA_pop_stack(Gz(2))
-      value = MA_pop_stack(Gy(2))
-      value = MA_pop_stack(Gx(2))
-      value = MA_pop_stack(exr(2))
-      value = MA_pop_stack(cw(2))
+      value = BA_pop_stack(Gz(2))
+      value = BA_pop_stack(Gy(2))
+      value = BA_pop_stack(Gx(2))
+      value = BA_pop_stack(exr(2))
+      value = BA_pop_stack(cw(2))
 
       return 
       end

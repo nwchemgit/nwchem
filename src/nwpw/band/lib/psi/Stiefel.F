@@ -537,7 +537,7 @@ c      call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrill,n,A,V,U)
 c
 c
 c*     **** normalize U*sigma, and sqrt(S^2) ****
-c      value =  MA_push_get(mt_dbl,(neall),'tmp2',tmp2(2),tmp2(1))
+c      value =  BA_push_get(mt_dbl,(neall),'tmp2',tmp2(2),tmp2(1))
 c      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 c
 c      do nb=1,nbrill
@@ -563,7 +563,7 @@ c           S(i,nb) = dsqrt(S(i,nb))
 c         end do
 c
 c      end do
-c      value = MA_pop_stack(tmp2(2))
+c      value = BA_pop_stack(tmp2(2))
 c      if (.not. value) call errquit('error popping stack memory',0,
 c     &       MA_ERR)
 c       

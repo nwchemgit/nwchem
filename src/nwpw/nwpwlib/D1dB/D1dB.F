@@ -76,13 +76,13 @@ c      call Parallel2d_np_j(np_j)
 
 
 *     **** allocate q_map,p_map,k_map
-      value = MA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
+      value = BA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
      >                                       q_map(1,nb))
-      value = value.and.MA_alloc_get(mt_int,nz(nb),'p_map',p_map(2,nb),
+      value = value.and.BA_alloc_get(mt_int,nz(nb),'p_map',p_map(2,nb),
      >                                       p_map(1,nb))
-      value = value.and.MA_alloc_get(mt_int,nz(nb),'k_map',k_map(2,nb),
+      value = value.and.BA_alloc_get(mt_int,nz(nb),'k_map',k_map(2,nb),
      >                                       k_map(1,nb))
-      value = value.and.MA_alloc_get(mt_int,np_j,'nqarray',
+      value = value.and.BA_alloc_get(mt_int,np_j,'nqarray',
      >                               nqarray(2,nb),nqarray(1,nb))
       if (.not. value)
      > call errquit('Mapping_init:out of heap memory',0, MA_ERR)
@@ -160,10 +160,10 @@ c      call Parallel2d_np_j(np_j)
       logical value
 
       value =.true.
-      value = value.and.MA_free_heap(q_map(2,nb))
-      value = value.and.MA_free_heap(p_map(2,nb))
-      value = value.and.MA_free_heap(k_map(2,nb))
-      value = value.and.MA_free_heap(nqarray(2,nb))
+      value = value.and.BA_free_heap(q_map(2,nb))
+      value = value.and.BA_free_heap(p_map(2,nb))
+      value = value.and.BA_free_heap(k_map(2,nb))
+      value = value.and.BA_free_heap(nqarray(2,nb))
       
       if (.not. value)
      > call errquit('D1dB_end:freeing heap memory',0, MA_ERR)

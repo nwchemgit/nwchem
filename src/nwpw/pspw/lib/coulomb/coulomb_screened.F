@@ -60,14 +60,14 @@ c      parameter (EPSILON=1.0d0)
       pp2 = pp + 2.0d0
 
 *     **** allocate vc memory ****
-      value = MA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)
+      value = BA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'gk',gk(2),gk(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'gk',gk(2),gk(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
+     >        BA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
+     >        BA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(gk(1)),1)
       call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
@@ -338,9 +338,9 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
       call Pack_t_pack(0,dbl_mb(gk2(1)))
       call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(vc_indx))
 
-      value = MA_pop_stack(glr(2))
-      value = value.and.MA_pop_stack(gk2(2))
-      value = value.and.MA_pop_stack(gk(2))
+      value = BA_pop_stack(glr(2))
+      value = value.and.BA_pop_stack(gk2(2))
+      value = value.and.BA_pop_stack(gk(2))
       if (.not. value) 
      >  call errquit('coulomb_screened_init: poppingstack memory',0,
      &       MA_ERR)
@@ -368,7 +368,7 @@ c      call coulomb_screened_init_print(rcut,pp)
       common / vc_screened_block / vc_indx,vc_hndl
       logical value
 
-      value = MA_free_heap(vc_hndl)
+      value = BA_free_heap(vc_hndl)
       return
       end
 
@@ -420,7 +420,7 @@ c      call coulomb_screened_init_print(rcut,pp)
       call nwpw_timing_start(7)
 
       call Pack_npack(0,npack0)
-      value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       
       call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
@@ -428,7 +428,7 @@ c      call coulomb_screened_init_print(rcut,pp)
        
       ec = 0.5d0*ec*lattice_omega()
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       
       call nwpw_timing_end(7)
       coulomb_screened_e = ec
@@ -458,7 +458,7 @@ c      call coulomb_screened_init_print(rcut,pp)
 
       call nwpw_timing_start(7)
       call Pack_npack(0,npack0)
-      if (.not.MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1)))
+      if (.not.BA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1)))
      > call errquit('out of stack',0, MA_ERR)
 
       call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
@@ -466,7 +466,7 @@ c      call coulomb_screened_init_print(rcut,pp)
 
       ec = 0.5d0*ec*lattice_omega()
 
-      if (.not.MA_pop_stack(tmp1(2)))
+      if (.not.BA_pop_stack(tmp1(2)))
      >  call errquit('popping stack memory',0, MA_ERR)
       call nwpw_timing_end(7)
 
@@ -628,7 +628,7 @@ c          r = (i-1)*drho
       call Pack_npack(0,npack0)
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      >  call errquit('coulomb_screened_init_print:push stack',0, MA_ERR)
 
@@ -646,7 +646,7 @@ c          r = (i-1)*drho
 
       call sub_coulomb_screened_init_print(dcpl_mb(tmp1(1)),rcut,pp)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      >  call errquit('coulomb_screened_init_print:pop stack',1, MA_ERR)
 
@@ -804,10 +804,10 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       pp2 = pp + 2.0d0
 
 *     **** allocate vc_screened_euv_block memory ****
-      value = MA_alloc_get(mt_dbl,9*npack0,'dvscr_loc',
+      value = BA_alloc_get(mt_dbl,9*npack0,'dvscr_loc',
      >                     dvscr_loc(2),dvscr_loc(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,npack0,'vloc',
+     >        BA_alloc_get(mt_dbl,npack0,'vloc',
      >                     vloc(2),vloc(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
       j = 0
@@ -818,15 +818,15 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       end do
       end do
 
-      value = MA_push_get(mt_dcpl,nfft3d,'gk',gk(2),gk(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'gk',gk(2),gk(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'dgk',dgk(2),dgk(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'dgk',dgk(2),dgk(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
+     >        BA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'gr',gr(2),gr(1))
+     >        BA_push_get(mt_dbl,n2ft3d,'gr',gr(2),gr(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'dgr',dgr(2),dgr(1))
+     >        BA_push_get(mt_dbl,n2ft3d,'dgr',dgr(2),dgr(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(2*nfft3d,0.0d0,dcpl_mb(gk(1)),1)
       call dcopy(2*nfft3d,0.0d0,dcpl_mb(dgk(1)),1)
@@ -1237,11 +1237,11 @@ c     >                 dbl_mb(dvscr(u,s)))
 
 
 *     *** free up stack memory ***
-      value =           MA_pop_stack(dgr(2))
-      value =           MA_pop_stack(gr(2))
-      value = value.and.MA_pop_stack(gk2(2))
-      value = value.and.MA_pop_stack(dgk(2))
-      value = value.and.MA_pop_stack(gk(2))
+      value =           BA_pop_stack(dgr(2))
+      value =           BA_pop_stack(gr(2))
+      value = value.and.BA_pop_stack(gk2(2))
+      value = value.and.BA_pop_stack(dgk(2))
+      value = value.and.BA_pop_stack(gk(2))
       if (.not. value) 
      >  call errquit('coulomb_screened_euv_init: popping stack',0,
      &       MA_ERR)
@@ -1267,8 +1267,8 @@ c     >                 dbl_mb(dvscr(u,s)))
 
       logical value
 
-      value = MA_free_heap(dvscr_loc(2))
-      value = value.and.MA_free_heap(vloc(2))
+      value = BA_free_heap(dvscr_loc(2))
+      value = value.and.BA_free_heap(vloc(2))
       if (.not. value) 
      >  call errquit('coulomb_screened_euv_end: freeing heap',0,0)
       return
@@ -1312,7 +1312,7 @@ c     >                 dbl_mb(dvscr(u,s)))
 
 
       call Pack_npack(0,npack0)
-      value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      > call errquit('coulomb_screened_euv:out of stack memory',0,MA_ERR)
       j = 0
@@ -1362,7 +1362,7 @@ c     >                 dbl_mb(dvscr(u,s)))
       end do
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) 
      > call errquit('coulomb_screened_euv:popping stack',0,MA_ERR)
 

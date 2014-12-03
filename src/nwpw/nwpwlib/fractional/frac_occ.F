@@ -35,14 +35,14 @@ c
         fractional = .true.
 
 *       **** allocate from heap memory ****
-        if (.not.MA_alloc_get(mt_dbl,(ne(1)+ne(2)),
+        if (.not.BA_alloc_get(mt_dbl,(ne(1)+ne(2)),
      >                        'fweight',fweight(2),fweight(1)))
      >     call errquit(
      >          'frac_occ_init: heap failed 1', 0,MA_ERR)
 
 *       **** allocate from stack memory ****
-        if((.not.MA_push_get(mt_dbl,(num_states),'occ',occ(2),occ(1)))
-     > .or.(.not. MA_push_get(mt_int,(num_states),'s',s(2),s(1))))
+        if((.not.BA_push_get(mt_dbl,(num_states),'occ',occ(2),occ(1)))
+     > .or.(.not. BA_push_get(mt_int,(num_states),'s',s(2),s(1))))
      >     call errquit(
      >          'frac_occ_init: stack failed 1', 0,MA_ERR)
 
@@ -71,7 +71,7 @@ c
 
 
 *       **** pop stack memory ****
-        if ((.not.MA_pop_stack(s(2))).or.(.not.MA_pop_stack(occ(2))))
+        if ((.not.BA_pop_stack(s(2))).or.(.not.BA_pop_stack(occ(2))))
      >  call errquit(
      >       'frac_occ_init: stack failed', 0, MA_ERR)
 
@@ -93,7 +93,7 @@ c
 #include "frac_occ.fh"
 
       if (fractional) then
-      if (.not.MA_free_heap(fweight(2)))
+      if (.not.BA_free_heap(fweight(2)))
      >  call errquit('frac_occ_end: heap failed',0,MA_ERR)
       end if
       return

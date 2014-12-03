@@ -81,7 +81,7 @@
       value = geom_ncent(geom,nion)
 
 *     ***** allocate ion data structure *****
-      value = MA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
+      value = BA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
 
       do i=1,nion
          value = geom_cent_get(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
@@ -97,7 +97,7 @@
       value = geom_rtdb_store(rtdb,geom,'geometry')
       value = geom_destroy(geom)
 
-      value = MA_free_heap(r1(2))
+      value = BA_free_heap(r1(2))
       return
       end
 

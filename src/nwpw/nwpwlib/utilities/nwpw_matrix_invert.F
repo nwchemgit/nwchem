@@ -9,17 +9,17 @@
 
       integer B(2),ipiv(2)
 
-      if (.not.MA_push_get(mt_dbl,LDA*N,'B',B(2),B(1)))
+      if (.not.BA_push_get(mt_dbl,LDA*N,'B',B(2),B(1)))
      > call errquit('nwpw_matrix_invert:out of stack',0,MA_ERR)
-      if (.not.MA_push_get(mt_int,N,'ipiv',ipiv(2),ipiv(1)))
+      if (.not.BA_push_get(mt_int,N,'ipiv',ipiv(2),ipiv(1)))
      > call errquit('nwpw_matrix_invert:out of stack',0,MA_ERR)
 
       call nwpw_matrix_invert_sub(N,A,LDA,dbl_mb(B(1)),LDA,
      >                            int_mb(ipiv(1)))
 
-      if (.not.MA_pop_stack(ipiv(2)))
+      if (.not.BA_pop_stack(ipiv(2)))
      > call errquit('nwpw_matrix_invert:pop stack',0,MA_ERR)
-      if (.not.MA_pop_stack(B(2)))
+      if (.not.BA_pop_stack(B(2)))
      > call errquit('nwpw_matrix_invert:pop stack',0,MA_ERR)
 
       return

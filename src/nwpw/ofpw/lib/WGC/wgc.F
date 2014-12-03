@@ -66,10 +66,10 @@
      >                       *rho0**(wgc_tune1+wgc_tune2-2.0d0))
 
 *     **** allocate vc memory ****
-      value = MA_alloc_get(mt_dbl,npack0,'wgc',wgc_hndl,wgc_indx)
+      value = BA_alloc_get(mt_dbl,npack0,'wgc',wgc_hndl,wgc_indx)
       if (.not.value) call errquit('wgc_init:out of heap',0,MA_ERR)
 
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('wgc_init:out of stack',1,MA_ERR)
 
 
@@ -109,7 +109,7 @@
       call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(wgc_indx))
       call Pack_tt_dot(0,dbl_mb(wgc_indx),dbl_mb(wgc_indx),aa1)
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('wgc_init:popping stack',3,MA_ERR)
 
       call nwpw_timing_end(7)
@@ -130,7 +130,7 @@
 #include "wgc.fh"
 
 
-      if (.not.MA_free_heap(wgc_hndl))
+      if (.not.BA_free_heap(wgc_hndl))
      >   call errquit('wgc_end:freeing heap',0,MA_ERR)
 
       return
@@ -219,8 +219,8 @@
       call D3dB_nfft3d(1,nfft3d)
       call D3dB_n2ft3d(1,n2ft3d)
 
-      value =      MA_push_get(mt_dbl,2*n2ft3d,'rho1',rho1(2),rho1(1))
-     >        .and.MA_push_get(mt_dbl,2*n2ft3d,'tmp1',tmp1(2),tmp1(1))
+      value =      BA_push_get(mt_dbl,2*n2ft3d,'rho1',rho1(2),rho1(1))
+     >        .and.BA_push_get(mt_dbl,2*n2ft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('wgc_v:out of stack',0,MA_ERR)
 
       !**** alpha==beta ****
@@ -295,8 +295,8 @@
       end if
       call D3dB_r_Zero_Ends(1,v_out)
 
-      value =      MA_pop_stack(tmp1(2))
-     >        .and.MA_pop_stack(rho1(2))
+      value =      BA_pop_stack(tmp1(2))
+     >        .and.BA_pop_stack(rho1(2))
       if (.not.value) call errquit('wgc_v:popping stack',1,MA_ERR)
 
       call nwpw_timing_end(7)
@@ -336,9 +336,9 @@
       call D3dB_n2ft3d(1,n2ft3d)
       call Pack_npack(0,npack0)
 
-      value =      MA_push_get(mt_dcpl,nfft3d,'rho1',rho1(2),rho1(1))
-     >        .and.MA_push_get(mt_dcpl,nfft3d,'rho2',rho2(2),rho2(1))
-     >        .and.MA_push_get(mt_dbl, npack0,'tmp1',tmp1(2),tmp1(1))
+      value =      BA_push_get(mt_dcpl,nfft3d,'rho1',rho1(2),rho1(1))
+     >        .and.BA_push_get(mt_dcpl,nfft3d,'rho2',rho2(2),rho2(1))
+     >        .and.BA_push_get(mt_dbl, npack0,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) call errquit('wgc_e:out of stack',0,MA_ERR)
 
       !**** the rho^alpha(G) is not being scaled by 1/(N1*N2*N3) ****
@@ -374,9 +374,9 @@
       ec = ec*lattice_omega()*wgc_scal1
        
 
-      value =      MA_pop_stack(tmp1(2))
-     >        .and.MA_pop_stack(rho2(2))
-     >        .and.MA_pop_stack(rho1(2))
+      value =      BA_pop_stack(tmp1(2))
+     >        .and.BA_pop_stack(rho2(2))
+     >        .and.BA_pop_stack(rho1(2))
       if (.not.value) call errquit('wgc_e:popping stack',1,MA_ERR)
 
       call nwpw_timing_end(7)

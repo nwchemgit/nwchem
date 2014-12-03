@@ -131,13 +131,13 @@ c      call Parallel_init()
       if (locp.lt.0)    locp = lmax
 
 *     **** allocate rho, vp, and wp ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'rho',rho_hndl,rho_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'vp',vp_hndl, vp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+      value = value.and.BA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,2*nrho,
+      value = value.and.BA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
       if (.not.value)
      > call errquit("kbpp_band: out of stack memory",0,MA_ERR)
@@ -168,11 +168,11 @@ c      call Parallel_init()
 
 
 *    **** more temporary space ****
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'f',f_hndl,f_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'cs',cs_hndl,cs_indx)
-      value = MA_alloc_get(mt_dbl,nrho,
+      value = BA_alloc_get(mt_dbl,nrho,
      >                        'sn',sn_hndl,sn_indx)
       if (.not.value)
      > call errquit("kbpp_band: out of stack memory",0,MA_ERR)
@@ -181,21 +181,21 @@ c      call Parallel_init()
       lmmax = (lmax+1)**2 - (2*locp+1)
       nprj  = lmmax
       nsize = (ngrid(1))*ngrid(2)*ngrid(3)
-      value = MA_alloc_get(mt_dbl,nsize,
+      value = BA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(lmmax),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(lmmax),
      >                        'vnl',vnl_hndl, vnl_indx)
-      value = value.and.MA_alloc_get(mt_dbl,(lmax+1),
+      value = value.and.BA_alloc_get(mt_dbl,(lmax+1),
      >                        'vnlnrm', vnlnrm_hndl, vnlnrm_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
-      value = value.and.MA_alloc_get(mt_dbl,4*nsize,
+      value = value.and.BA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj,
+      value = value.and.BA_alloc_get(mt_int,nprj,
      >                        'n_prj', n_prj_hndl, n_prj_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj,
+      value = value.and.BA_alloc_get(mt_int,nprj,
      >                        'l_prj', l_prj_hndl, l_prj_indx)
-      value = value.and.MA_alloc_get(mt_int,nprj,
+      value = value.and.BA_alloc_get(mt_int,nprj,
      >                        'm_prj', m_prj_hndl, m_prj_indx)
       if (.not.value)
      > call errquit("kbpp_band: out of stack memory",0,MA_ERR)
@@ -214,15 +214,15 @@ c      call Parallel_init()
         !**** allocate memory for rays ****
         nray = kbpp_band_calc_nray(nfft1,nfft2,nfft3,dbl_mb(G_indx))
 
-        value =           MA_alloc_get(mt_dbl,nray,
+        value =           BA_alloc_get(mt_dbl,nray,
      >                  'G_ray',G_ray_hndl,G_ray_indx)
-        value = value.and.MA_alloc_get(mt_dbl,2*nray,
+        value = value.and.BA_alloc_get(mt_dbl,2*nray,
      >                  'vl_ray',vl_ray_hndl,vl_ray_indx)
-        value = value.and.MA_alloc_get(mt_dbl,2*nray*(lmax+1),
+        value = value.and.BA_alloc_get(mt_dbl,2*nray*(lmax+1),
      >                  'vnl_ray',vnl_ray_hndl,vnl_ray_indx)
-        value = value.and.MA_alloc_get(mt_dbl,2*nray*2,
+        value = value.and.BA_alloc_get(mt_dbl,2*nray*2,
      >              'rho_sc_k_ray',rho_sc_k_ray_hndl,rho_sc_k_ray_indx)
-        value = value.and.MA_alloc_get(mt_dbl,nray,
+        value = value.and.BA_alloc_get(mt_dbl,nray,
      >                  'tmp_ray',tmp_ray_hndl,tmp_ray_indx)
         if (.not.value)
      >   call errquit('kbpp_band:out of heap memory',0,MA_ERR)
@@ -430,32 +430,32 @@ c      call Parallel_init()
      
 *     **** free ray heap space ****
       if (kray) then
-        value = MA_free_heap(tmp_ray_hndl)
-        value = value.and.MA_free_heap(rho_sc_k_ray_hndl)
-        value = value.and.MA_free_heap(vnl_ray_hndl)
-        value = value.and.MA_free_heap(vl_ray_hndl)
-        value = value.and.MA_free_heap(G_ray_hndl)
+        value = BA_free_heap(tmp_ray_hndl)
+        value = value.and.BA_free_heap(rho_sc_k_ray_hndl)
+        value = value.and.BA_free_heap(vnl_ray_hndl)
+        value = value.and.BA_free_heap(vl_ray_hndl)
+        value = value.and.BA_free_heap(G_ray_hndl)
         if (.not.value)
      >   call errquit('kbpp_band:Error freeing memory',0,MA_ERR)
       end if
 
 *     **** free heap space ****
-      value = MA_free_heap(rho_hndl)
-      value = value.and.MA_free_heap(vp_hndl)
-      value = value.and.MA_free_heap(wp_hndl)
-      value = value.and.MA_free_heap(sc_r_hndl)
-      value = value.and.MA_free_heap(sc_k_hndl)
-      value = value.and.MA_free_heap(f_hndl)
-      value = value.and.MA_free_heap(cs_hndl)
-      value = value.and.MA_free_heap(sn_hndl)
+      value = BA_free_heap(rho_hndl)
+      value = value.and.BA_free_heap(vp_hndl)
+      value = value.and.BA_free_heap(wp_hndl)
+      value = value.and.BA_free_heap(sc_r_hndl)
+      value = value.and.BA_free_heap(sc_k_hndl)
+      value = value.and.BA_free_heap(f_hndl)
+      value = value.and.BA_free_heap(cs_hndl)
+      value = value.and.BA_free_heap(sn_hndl)
 
-      value = value.and.MA_free_heap(vl_hndl)
-      value = value.and.MA_free_heap(vnl_hndl)
-      value = value.and.MA_free_heap(vnlnrm_hndl)
-      value = value.and.MA_free_heap(G_hndl)
-      value = value.and.MA_free_heap(n_prj_hndl)
-      value = value.and.MA_free_heap(l_prj_hndl)
-      value = value.and.MA_free_heap(m_prj_hndl)
+      value = value.and.BA_free_heap(vl_hndl)
+      value = value.and.BA_free_heap(vnl_hndl)
+      value = value.and.BA_free_heap(vnlnrm_hndl)
+      value = value.and.BA_free_heap(G_hndl)
+      value = value.and.BA_free_heap(n_prj_hndl)
+      value = value.and.BA_free_heap(l_prj_hndl)
+      value = value.and.BA_free_heap(m_prj_hndl)
       if (.not.value)
      > call errquit("kbpp_band: error freeing memory",0,MA_ERR)
 

@@ -52,9 +52,9 @@
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
       natmx = ion_nion()
-      value = MA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
+      value = BA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
+     >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       call nwpw_timing_end(12)
@@ -133,8 +133,8 @@
 
 *     **** dealocate MA local variables ****
       call nwpw_timing_start(12)
-      value = MA_pop_stack(ftest(2))
-      value = MA_pop_stack(fion(2))
+      value = BA_pop_stack(ftest(2))
+      value = BA_pop_stack(fion(2))
 
       call nwpw_timing_end(12)
       return

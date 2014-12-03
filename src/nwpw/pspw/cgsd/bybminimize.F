@@ -144,16 +144,16 @@ c
       call D3dB_n2ft3d_map(1,n2ft3d_map)
 
 *     **** allocate rho_in and rho_out ****
-      value = MA_push_get(mt_dbl,2*n2ft3d,
+      value = BA_push_get(mt_dbl,2*n2ft3d,
      >                     'vall_in',vall_in(2),vall_in(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,2*n2ft3d,
+     >        BA_push_get(mt_dbl,2*n2ft3d,
      >                     'vall_out',vall_out(2),vall_out(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,2*n2ft3d,
+     >        BA_push_get(mt_dbl,2*n2ft3d,
      >                   'vall_junk',vall_junk(2),vall_junk(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,2*n2ft3d,
+     >        BA_push_get(mt_dbl,2*n2ft3d,
      >                     'rho_in',rho_in(2),rho_in(1))
       if (.not. value) 
      >   call errquit('bybminimize:out of stack memory',0,0)
@@ -348,10 +348,10 @@ c      stalled = .false.
 *     **** free memory ****
       call nwpw_scf_mixing_end()
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_end()
-      value =           MA_pop_stack(rho_in(2))
-      value = value.and.MA_pop_stack(vall_junk(2))
-      value = value.and.MA_pop_stack(vall_out(2))
-      value = value.and.MA_pop_stack(vall_in(2))
+      value =           BA_pop_stack(rho_in(2))
+      value = value.and.BA_pop_stack(vall_junk(2))
+      value = value.and.BA_pop_stack(vall_out(2))
+      value = value.and.BA_pop_stack(vall_in(2))
       if (.not. value) 
      >  call errquit('bybminimize: popping stack',1,0)
 

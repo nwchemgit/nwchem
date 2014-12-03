@@ -92,12 +92,12 @@
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       call nwpw_timing_start(12)
-      value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if ((dosic).or.(dohfx)) then
          value = value.and.
-     >           MA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,
+     >           BA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,
      >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
          call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(Hpsi_r(1)),1)
       end if
@@ -285,9 +285,9 @@ c     >                         dcpl_mb(vpsi(1)))
 
       value = .true.
       if ((dosic).or.(dohfx))
-     >  value = value.and.MA_pop_stack(Hpsi_r(2))
-      value = value.and.MA_pop_stack(vpsi(2))
-      value = value.and.MA_pop_stack(vall(2))
+     >  value = value.and.BA_pop_stack(Hpsi_r(2))
+      value = value.and.BA_pop_stack(vpsi(2))
+      value = value.and.BA_pop_stack(vall(2))
       if (.not. value) call errquit('psi_H:popping stack memory',1,0)
 
       call nwpw_timing_end(12)
@@ -367,10 +367,10 @@ c     >                         dcpl_mb(vpsi(1)))
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       call nwpw_timing_start(12)
-      value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (dohfx) then
          value = value.and.
-     >           MA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
+     >           BA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
          call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
       end if
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -456,8 +456,8 @@ c     >                      dcpl_mb(vpsi(1)))
       call nwpw_timing_start(12)
       value = .true.
       if (dohfx)
-     >  value = value.and.MA_pop_stack(Horb_r(2))
-      value = MA_pop_stack(vpsi(2))
+     >  value = value.and.BA_pop_stack(Horb_r(2))
+      value = BA_pop_stack(vpsi(2))
       call nwpw_timing_end(12)
 
       return
@@ -538,10 +538,10 @@ c     >                      dcpl_mb(vpsi(1)))
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       call nwpw_timing_start(12)
-      value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (dohfx) then
          value = value.and.
-     >           MA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
+     >           BA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
          call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
       end if
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -634,8 +634,8 @@ c     >                      dcpl_mb(vpsi(1)))
       call nwpw_timing_start(12)
       value = .true.
       if (dohfx)
-     >  value = value.and.MA_pop_stack(Horb_r(2))
-      value = MA_pop_stack(vpsi(2))
+     >  value = value.and.BA_pop_stack(Horb_r(2))
+      value = BA_pop_stack(vpsi(2))
       call nwpw_timing_end(12)
 
       return
@@ -713,9 +713,9 @@ c     >                      dcpl_mb(vpsi(1)))
       call D3dB_nz(1,nz)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
-      value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vall(1)),1)
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
       if (.not. value) call errquit('psi_H1v4:out of stack memory',0,
@@ -806,8 +806,8 @@ c     >                      dcpl_mb(vpsi(1)))
 
 
       value = .true.
-      value = value.and.MA_pop_stack(vpsi(2))
-      value = value.and.MA_pop_stack(vall(2))
+      value = value.and.BA_pop_stack(vpsi(2))
+      value = value.and.BA_pop_stack(vall(2))
       if (.not. value) call errquit('psi_H1v4:popping stack memory',1,0)
       return
       end

@@ -52,8 +52,8 @@ c
      >                   int_mb(indx1(1)),n1,
      >                   int_mb(indx2(1)),n2)
 
-         value =           MA_free_heap(indx1(2))
-         value = value.and.MA_free_heap(indx2(2))
+         value =           BA_free_heap(indx1(2))
+         value = value.and.BA_free_heap(indx2(2))
          if (.not.value) 
      >   call errquit('nwpw_rdf:error freeing heap',0,MA_ERR)
   

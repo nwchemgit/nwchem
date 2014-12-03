@@ -100,46 +100,46 @@ c      external pspw_charge_Energy_ion_qmmm
 
 *     **** allocate MA local variables ****
       call nwpw_timing_start(12)
-      value = MA_push_get(mt_dbl,(8*nemax*nemax),
+      value = BA_push_get(mt_dbl,(8*nemax*nemax),
      >                     'tmp_L',tmp_L(2),tmp_L(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
 
       if (control_version().eq.3) then
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
       end if
 
       if (control_version().eq.4) then
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
 
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
       end if
 
       if ((control_version().eq.4).or.(field_exist)) then
        value = value.and.
-     >    MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
+     >    BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
       end if
 
       value = value.and.
-     >  MA_push_get(mt_dcpl,(n2ft3d),'v_field',v_field(2),v_field(1))
+     >  BA_push_get(mt_dcpl,(n2ft3d),'v_field',v_field(2),v_field(1))
 
       value = value.and.
-     >         MA_push_get(mt_dcpl,(npack0),'vl',  vl(2),  vl(1))
+     >         BA_push_get(mt_dcpl,(npack0),'vl',  vl(2),  vl(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2), rho(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'rho',rho(2), rho(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
+     >        BA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
       if (.not.value) 
      > call errquit('inner_loop_qmmm_step:pushing stack',0, MA_ERR)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
@@ -654,24 +654,24 @@ c      e_ionmm = pspw_charge_Energy_ion_qmmm(rcharge,qcharge,ncharge)
  333  continue
       call nwpw_timing_start(12)
 
-      value =           MA_pop_stack(dnall(2))
-      value = value.and.MA_pop_stack(xce(2))
-      value = value.and.MA_pop_stack(xcp(2))
-      value = value.and.MA_pop_stack(dng(2))
-      value = value.and.MA_pop_stack(rho(2))
-      value = value.and.MA_pop_stack(vl(2))
-      value = value.and.MA_pop_stack(v_field(2))
+      value =           BA_pop_stack(dnall(2))
+      value = value.and.BA_pop_stack(xce(2))
+      value = value.and.BA_pop_stack(xcp(2))
+      value = value.and.BA_pop_stack(dng(2))
+      value = value.and.BA_pop_stack(rho(2))
+      value = value.and.BA_pop_stack(vl(2))
+      value = value.and.BA_pop_stack(v_field(2))
 
       if ((control_version().eq.4).or.(field_exist)) 
-     >  value = value.and.MA_pop_stack(r_grid(2))
+     >  value = value.and.BA_pop_stack(r_grid(2))
 
       if (control_version().eq.4) 
-     >  value = value.and.MA_pop_stack(vlr_l(2))
+     >  value = value.and.BA_pop_stack(vlr_l(2))
 
-      value = value.and.MA_pop_stack(vc(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_pop_stack(tmp_L(2))
+      value = value.and.BA_pop_stack(vc(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
+      value = value.and.BA_pop_stack(tmp_L(2))
       if (.not.value) 
      > call errquit('inner_loop_md:popping stack',1, MA_ERR)
 

@@ -37,7 +37,7 @@
       scal2 = 1.0d0/lattice_omega()
       dv    = scal1*lattice_omega()
 
-      value = MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
      >  call errquit('lcao_init_dn:out of stack memory',0, MA_ERR)
 
@@ -82,7 +82,7 @@ c        call D3dB_r_SMul(1,sum,dn(1,ms),dn(1,ms))
         call D3dB_r_SMul1(1,sum,dn(1,ms))
       end do
 
-      value = MA_pop_stack(tmp(2))
+      value = BA_pop_stack(tmp(2))
       if (.not. value) 
      >  call errquit('lcao_init_dn:popping stack memory',0, MA_ERR)
       return

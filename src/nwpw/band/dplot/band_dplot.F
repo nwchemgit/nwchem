@@ -185,7 +185,7 @@
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
 
 *     **** allocate other variables *****
-      if (.not.MA_alloc_get(mt_dbl,(2*nfft3d),'dn',dn(2),dn(1)))
+      if (.not.BA_alloc_get(mt_dbl,(2*nfft3d),'dn',dn(2),dn(1)))
      >   call errquit('band_dplot:out of heap memory',1,MA_ERR)
 
 
@@ -309,10 +309,10 @@ c     >                .false.,tag)
 
       call cpsi_data_dealloc(psir_tag)
       call cpsi_data_dealloc(psi2_tag)
-      value = MA_free_heap(dn(2))
-c      value = MA_free_heap(psir(2))
-c      value = value.and.MA_free_heap(dn(2))
-c      value = value.and.MA_free_heap(psi2(2))
+      value = BA_free_heap(dn(2))
+c      value = BA_free_heap(psir(2))
+c      value = value.and.BA_free_heap(dn(2))
+c      value = value.and.BA_free_heap(psi2(2))
       call cpsi_data_end()
       call C3dB_pfft_end()
       call C3dB_end(1)
@@ -431,8 +431,8 @@ c      value = value.and.MA_free_heap(psi2(2))
 
       call Parallel_taskid(taskid)
       call Parallel3d_taskid_k(taskid_k)
-      value =           MA_push_get(mt_dbl,nfft3d,'rho',rho(2),rho(1))
-      value = value.and.MA_push_get(mt_dcpl,nfft3d,'orb',orb(2),orb(1))
+      value =           BA_push_get(mt_dbl,nfft3d,'rho',rho(2),rho(1))
+      value = value.and.BA_push_get(mt_dcpl,nfft3d,'orb',orb(2),orb(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       n1(1) = 1
@@ -719,8 +719,8 @@ c      value = value.and.MA_free_heap(psi2(2))
       end do
 
 *     **** dealocate MA local variables ****
-      value =           MA_pop_stack(orb(2))
-      value = value.and.MA_pop_stack(rho(2))
+      value =           BA_pop_stack(orb(2))
+      value = value.and.BA_pop_stack(rho(2))
       if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
       return
@@ -758,9 +758,9 @@ c      value = value.and.MA_free_heap(psi2(2))
 
       call Cram_max_npack(npack1)
       nion  = ion_nion()
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,3*nion,'rion', rion(2), rion(1))
+     >        BA_push_get(mt_dbl,3*nion,'rion', rion(2), rion(1))
       if (.not. value) call errquit('cpsi_translate:push stack',0,0)
       call dscal(3*nion,0.0d0,dbl_mb(rion(1)),1)
 
@@ -787,8 +787,8 @@ c      value = value.and.MA_free_heap(psi2(2))
         end do
       end do
 
-      value =           MA_pop_stack(rion(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(rion(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not. value) call errquit('cpsi_translate:pop stack',1,0)
       return
       end
@@ -1061,9 +1061,9 @@ c        if (.not. value) call errquit('reading geometry',0)
 
 *     **** allocate space ****
       call C3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** transpose grid ****
@@ -1074,8 +1074,8 @@ c        if (.not. value) call errquit('reading geometry',0)
       call C3dB_r_FormatWrite_reverse(1,unit_id,rho,dcpl_mb(tmp1(1)))
 
 *     **** deallocate space ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('popping stack memory',0, MA_ERR)
 
 *     **** close geom ****
@@ -1379,11 +1379,11 @@ c        if (.not. value) call errquit('reading geometry',0)
 
 *     **** allocate space ****
       call C3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nx*ny*nz),'tmp3',tmp3(2),tmp3(1))
+     >        BA_push_get(mt_dbl,(nx*ny*nz),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -1434,9 +1434,9 @@ c        if (.not. value) call errquit('reading geometry',0)
       end if
 
 *     **** deallocate space ****
-      value = MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp3(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('popping stack memory',0, MA_ERR)
 
    
@@ -1747,11 +1747,11 @@ c        if (.not. value) call errquit('reading geometry',0)
 
 *     **** allocate space ****
       call C3dB_nfft3d(1,nfft3d)
-      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nx*ny*nz),'tmp3',tmp3(2),tmp3(1))
+     >        BA_push_get(mt_dbl,(nx*ny*nz),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -1811,9 +1811,9 @@ c      call C3dB_c_SMul(1,scal1,orb,dcpl_mb(tmp2(1)))
       end if
 
 *     **** deallocate space ****
-      value = MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp3(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('popping stack memory',0, MA_ERR)
 
    

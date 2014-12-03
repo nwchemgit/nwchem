@@ -34,13 +34,13 @@
       call Pack_npack(1,npack1)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
-      value = MA_push_get(mt_dcpl,nfft3d,'vall',vl(2),vl(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vall',vl(2),vl(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,n2ft3d,'vlr_l',vlr_l(2),vlr_l(1))
+     >        BA_push_get(mt_dbl,n2ft3d,'vlr_l',vlr_l(2),vlr_l(1))
       vpsi = vlr_l(1)
       if (control_version().eq.4)
      >  value = value.and.
-     >        MA_push_get(mt_dbl,(3*n2ft3d),'rgrid',rgrid(2),rgrid(1))
+     >        BA_push_get(mt_dbl,(3*n2ft3d),'rgrid',rgrid(2),rgrid(1))
       if (.not. value) 
      > call errquit('lcao_generate_vlmatrix: out of stack memory',0,
      &       MA_ERR)
@@ -59,7 +59,7 @@
         call lattice_r_grid(dbl_mb(rgrid(1)))
         call v_lr_local(dbl_mb(rgrid(1)),
      >                  dbl_mb(vlr_l(1)))
-        value = MA_pop_stack(rgrid(2))
+        value = BA_pop_stack(rgrid(2))
       end if
 
 *     **********************************************************
@@ -123,8 +123,8 @@ c     >                      dbl_mb(vpsi))
          end do
       end do
 
-      value = MA_pop_stack(vlr_l(2))
-      value = MA_pop_stack(vl(2))
+      value = BA_pop_stack(vlr_l(2))
+      value = BA_pop_stack(vl(2))
      
       return
       end

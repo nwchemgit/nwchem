@@ -289,30 +289,30 @@
       call control_mc_ngroups(mc_napply,mc_ngroups,mc_group_size)
       if (mc_ngroups.lt.1) then
       
-         value = MA_alloc_get(mt_int,1,
+         value = BA_alloc_get(mt_int,1,
      >                    'mc_group_start',
      >                     mc_group_start(2),
      >                     mc_group_start(1))
-         value = value.and.MA_alloc_get(mt_int,1,
+         value = value.and.BA_alloc_get(mt_int,1,
      >                    'mc_group_end',
      >                     mc_group_end(2),
      >                     mc_group_end(1))
-         value = value.and.MA_alloc_get(mt_int,1,
+         value = value.and.BA_alloc_get(mt_int,1,
      >                    'mc_group',
      >                     mc_group(2),
      >                     mc_group(1))
          if (.not.value) 
      >     call errquit('cgmontecarlov1:out of heap memory',0,MA_ERR)
       else
-         value = MA_alloc_get(mt_int,mc_ngroups,
+         value = BA_alloc_get(mt_int,mc_ngroups,
      >                    'mc_group_start',
      >                     mc_group_start(2),
      >                     mc_group_start(1))
-         value = value.and.MA_alloc_get(mt_int,mc_ngroups,
+         value = value.and.BA_alloc_get(mt_int,mc_ngroups,
      >                    'mc_group_end',
      >                     mc_group_end(2),
      >                     mc_group_end(1))
-         value = value.and.MA_alloc_get(mt_int,mc_group_size,
+         value = value.and.BA_alloc_get(mt_int,mc_group_size,
      >                    'mc_group',
      >                     mc_group(2),
      >                     mc_group(1))
@@ -703,7 +703,7 @@ c         write(luout,1394)
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
 
-      value = MA_push_get(mt_dbl,(3*nion),
+      value = BA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -1051,7 +1051,7 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
      >        rtdb_put(rtdb,'pspw:lstress',mt_dbl,
      >                 6,lstress)
       end if
-      value = value.and.MA_pop_stack(fion(2))
+      value = value.and.BA_pop_stack(fion(2))
       if (.not. value) 
      > call errquit('cgmontecarlov1: error writing rtdb',0,
      >       RTDB_ERR)
@@ -1072,9 +1072,9 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
 
 
 *     **** deallocate heap memory ****
-      value =           MA_free_heap(mc_group_start(2))
-      value = value.and.MA_free_heap(mc_group_end(2))
-      value = value.and.MA_free_heap(mc_group(2))
+      value =           BA_free_heap(mc_group_start(2))
+      value = value.and.BA_free_heap(mc_group_end(2))
+      value = value.and.BA_free_heap(mc_group(2))
       if (.not. value) 
      >  call errquit('cgmontecarlov1:freeing heap',3,MA_ERR)
 

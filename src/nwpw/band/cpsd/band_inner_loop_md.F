@@ -121,33 +121,33 @@
 *     **** allocate MA local variables ****
       value = Pneb_w_push_get_block(0,1,8,tmp_L)
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'rho',rho(2),rho(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'rho',rho(2),rho(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
+     >        BA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nfft3d),'xcp',xcp(2), xcp(1))
+     >        BA_push_get(mt_dbl,(2*nfft3d),'xcp',xcp(2), xcp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nfft3d),'xce',xce(2), xce(1))
+     >        BA_push_get(mt_dbl,(2*nfft3d),'xce',xce(2), xce(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(2*nfft3d),'dnall',dnall(2),dnall(1))
+     >        BA_push_get(mt_dbl,(2*nfft3d),'dnall',dnall(2),dnall(1))
       natmx = ion_nion()
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
+     >        BA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
+     >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nemaxq),'sumi',sumi(2),sumi(1))
+     >        BA_push_get(mt_dbl,(nemaxq),'sumi',sumi(2),sumi(1))
       if (gga.gt.0) then
          call D3dB_n2ft3d(1,n2ft3d)
-         value = MA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
+         value = BA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,(2*n2ft3d),'txcp',txcp(2),txcp(1))
+     >           BA_push_get(mt_dbl,(2*n2ft3d),'txcp',txcp(2),txcp(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,(2*n2ft3d),'txce',txce(2),txce(1))
+     >           BA_push_get(mt_dbl,(2*n2ft3d),'txce',txce(2),txce(1))
       end if
       if (.not. value) 
      > call errquit('band_inner_loop:out of stack memory',0, MA_ERR)
@@ -713,20 +713,20 @@ c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
       call nwpw_timing_start(12)
       value = .true.
       if (gga.gt.0) then
-         value = value.and.MA_pop_stack(txce(2))
-         value = value.and.MA_pop_stack(txcp(2))
-         value = value.and.MA_pop_stack(trho(2))
+         value = value.and.BA_pop_stack(txce(2))
+         value = value.and.BA_pop_stack(txcp(2))
+         value = value.and.BA_pop_stack(trho(2))
       end if
-      value = value.and.MA_pop_stack(sumi(2))
-      value = value.and.MA_pop_stack(ftest(2))
-      value = value.and.MA_pop_stack(fion(2))
-      value = value.and.MA_pop_stack(dnall(2))
-      value = value.and.MA_pop_stack(xce(2))
-      value = value.and.MA_pop_stack(xcp(2))
-      value = value.and.MA_pop_stack(dng(2))
-      value = value.and.MA_pop_stack(rho(2))
-      value = value.and.MA_pop_stack(vl(2))
-      value = value.and.MA_pop_stack(vc(2))
+      value = value.and.BA_pop_stack(sumi(2))
+      value = value.and.BA_pop_stack(ftest(2))
+      value = value.and.BA_pop_stack(fion(2))
+      value = value.and.BA_pop_stack(dnall(2))
+      value = value.and.BA_pop_stack(xce(2))
+      value = value.and.BA_pop_stack(xcp(2))
+      value = value.and.BA_pop_stack(dng(2))
+      value = value.and.BA_pop_stack(rho(2))
+      value = value.and.BA_pop_stack(vl(2))
+      value = value.and.BA_pop_stack(vc(2))
       value = value.and.Pneb_w_pop_stack(tmp_L)
       if (.not. value) 
      > call errquit('band_inner_loop:popping stack',0,MA_ERR)

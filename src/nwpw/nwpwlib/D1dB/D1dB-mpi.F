@@ -221,7 +221,7 @@ c     implicit none
       if (np.gt.1) then
 
 *     ***** allocate temporary space ****
-      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+      value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 #ifdef MPI4
@@ -237,7 +237,7 @@ c     implicit none
 #endif
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
-      value = MA_pop_stack(sumall(2))
+      value = BA_pop_stack(sumall(2))
 
       end if
       call nwpw_timing_end(2)
@@ -280,12 +280,12 @@ c     implicit none
       if (np.gt.1) then
 
 *       ***** allocate temporary space ****
-        value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
+        value = BA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
 #ifdef MPI4
-        if (.not.MA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
+        if (.not.BA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
      >     call errquit('out of stack memory',0, MA_ERR)
         stupid_msglen = n
         call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
@@ -294,7 +294,7 @@ c     implicit none
      >                stupid_integer,
      >                stupid_sum,stupid_comm_j,stupid_ierr)
       call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
-      if (.not.MA_pop_stack(sumall1(2)))
+      if (.not.BA_pop_stack(sumall1(2)))
      > call errquit('error popping stack',0, MA_ERR)
 #else
         msglen = n
@@ -304,7 +304,7 @@ c     implicit none
         call icopy(n,int_mb(sumall(1)),1,sum,1)
 #endif
 
-        value = MA_pop_stack(sumall(2))
+        value = BA_pop_stack(sumall(2))
         if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
       end if

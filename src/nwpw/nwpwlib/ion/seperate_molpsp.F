@@ -56,13 +56,13 @@
       nionall = nion1
       bqbq    = geom_include_bqbq(geom1)
 
-      value = MA_push_get(mt_dbl, (3*nion1), 'rt',rt(2),rt(1))
+      value = BA_push_get(mt_dbl, (3*nion1), 'rt',rt(2),rt(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (nion1),   'qt',qt(2),qt(1))
+     >        BA_push_get(mt_dbl, (nion1),   'qt',qt(2),qt(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (nion1),   'mt',mt(2),mt(1))
+     >        BA_push_get(mt_dbl, (nion1),   'mt',mt(2),mt(1))
       value = value.and.
-     >        MA_push_get(mt_byte,(16*nion1),'tt',tt(2),tt(1))
+     >        BA_push_get(mt_byte,(16*nion1),'tt',tt(2),tt(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       nion2 = 0
@@ -114,10 +114,10 @@
       value = value.and.geom_destroy(geom1)
       if (.not. value) 
      >   call errquit('geometry->chargepspwgeometry write',0, GEOM_ERR)
-      value = MA_pop_stack(tt(2))
-      value = value.and.MA_pop_stack(mt(2))
-      value = value.and.MA_pop_stack(qt(2))
-      value = value.and.MA_pop_stack(rt(2))
+      value = BA_pop_stack(tt(2))
+      value = value.and.BA_pop_stack(mt(2))
+      value = value.and.BA_pop_stack(qt(2))
+      value = value.and.BA_pop_stack(rt(2))
       if (.not. value) call errquit('popping stack',0, MA_ERR)
 
       return
@@ -189,7 +189,7 @@
      >   call errquit('chargepspwgeometry->geometry write 1',0,
      &       GEOM_ERR)
 
-        value = MA_push_get(mt_dbl,(3*nion1),'rt',rt(2),rt(1))
+        value = BA_push_get(mt_dbl,(3*nion1),'rt',rt(2),rt(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
         do i=1,nion2
@@ -214,7 +214,7 @@
      >     value = value.and.geom_destroy(geom3)
         value = value.and.geom_destroy(geom2)
         value = value.and.geom_destroy(geom1)
-        value = value.and.MA_pop_stack(rt(2))
+        value = value.and.BA_pop_stack(rt(2))
         if (.not. value)
      >   call errquit('chargepspwgeometry->geometry write 2',0,
      &       GEOM_ERR)

@@ -472,7 +472,7 @@ c         call ion_Print_neighborlist()
       if (pspw_charge_found().and.
      >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
 
-      value = MA_push_get(mt_dbl,(3*nion),
+      value = BA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
      
@@ -506,7 +506,7 @@ c         call ion_Print_neighborlist()
         value = value.and.
      >        rtdb_put(rtdb,'ofpw:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
-        value = value.and.MA_pop_stack(fion(2))
+        value = value.and.BA_pop_stack(fion(2))
       end if
       if (flag.eq.3) then
         value = value.and.

@@ -45,36 +45,36 @@
       n2ft3d = 2*nfft3d
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'Hpsi_k',Hpsi_k(2),Hpsi_k(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(ne(1)+ne(2)),
+     >        BA_alloc_get(mt_dbl,n2ft3d*(ne(1)+ne(2)),
      >                     'psi_r',psi_r(2),psi_r(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
+     >        BA_alloc_get(mt_dcpl,npack0,
      >                     'vl2',vl(2),vl(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*n2ft3d,
+     >        BA_alloc_get(mt_dbl,2*n2ft3d,
      >                     'vall',vall(2),vall(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack0,
+     >        BA_alloc_get(mt_dcpl,npack0,
      >                     'vc',vc(2),vc(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d,
+     >        BA_alloc_get(mt_dcpl,nfft3d,
      >                     'vcomp',vcomp(2),vcomp(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d,
+     >        BA_alloc_get(mt_dcpl,nfft3d,
      >                     'vh',vh(2),vh(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*n2ft3d,
+     >        BA_alloc_get(mt_dbl,2*n2ft3d,
      >                     'dn_cmp_smooth',
      >                     dn_cmp_smooth(2),
      >                     dn_cmp_smooth(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*n2ft3d,
+     >        BA_alloc_get(mt_dbl,2*n2ft3d,
      >                     'xcp',xcp(2),xcp(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*n2ft3d,
+     >        BA_alloc_get(mt_dbl,2*n2ft3d,
      >                     'xce',xce(2),xce(1))
       if (.not. value) 
      >  call errquit('paw_electron_init: out of heap memory',0, MA_ERR)
@@ -101,25 +101,25 @@
       logical value
 
 *     **** free heap  memory ****
-      value = MA_free_heap(Hpsi_k(2))
+      value = BA_free_heap(Hpsi_k(2))
       value = value.and.
-     >        MA_free_heap(psi_r(2))
+     >        BA_free_heap(psi_r(2))
       value = value.and.
-     >        MA_free_heap(vl(2))
+     >        BA_free_heap(vl(2))
       value = value.and.
-     >        MA_free_heap(vall(2))
+     >        BA_free_heap(vall(2))
       value = value.and.
-     >        MA_free_heap(vc(2))
+     >        BA_free_heap(vc(2))
       value = value.and.
-     >        MA_free_heap(vcomp(2))
+     >        BA_free_heap(vcomp(2))
       value = value.and.
-     >        MA_free_heap(vh(2))
+     >        BA_free_heap(vh(2))
       value = value.and.
-     >        MA_free_heap(dn_cmp_smooth(2))
+     >        BA_free_heap(dn_cmp_smooth(2))
       value = value.and.
-     >        MA_free_heap(xcp(2))
+     >        BA_free_heap(xcp(2))
       value = value.and.
-     >        MA_free_heap(xce(2))
+     >        BA_free_heap(xce(2))
       if (.not. value) 
      >  call errquit('paw_electron_init: error freeing heap memory',0,
      &       MA_ERR)
@@ -412,9 +412,9 @@ c      write(*,*) "total_energy:",total_energy
       external lattice_omega
 
      
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit(
      >'paw_electron_ehartree: out of stack memory',0,MA_ERR)
  
@@ -448,8 +448,8 @@ c     >                  dcpl_mb(vcomp(1)),
 c     >                  ehartr)
       !ehartr = 0.5d0*ehartr
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2)) 
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2)) 
       if (.not. value) call errquit(
      >'paw_electron_ehartree: error popping stack memory',0,
      > MA_ERR)
@@ -807,7 +807,7 @@ c     >                  ehartr)
       n1(1) = 1
       n1(2) = ne(1)+1
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'mhml',mhml(2),mhml(1))
+      value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),'mhml',mhml(2),mhml(1))
       if (.not. value)
      >call errquit('paw_electron_get_Tgradient: push stack',0, MA_ERR)
 
@@ -852,7 +852,7 @@ c     >                  ehartr)
      >                    THpsi_k)
 
 
-      value = MA_pop_stack(mhml(2))
+      value = BA_pop_stack(mhml(2))
       if (.not. value)
      >call errquit('paw_electron_get_Tradient: popping stack',0,MA_ERR)
 
@@ -1175,7 +1175,7 @@ c      end if
 c
 c      n2ft3d = 2*nfft3d
 c
-c      value = MA_push_get(mt_dbl,(n2ft3d),'tmp_r',tmp_r(2),tmp_r(1))
+c      value = BA_push_get(mt_dbl,(n2ft3d),'tmp_r',tmp_r(2),tmp_r(1))
 c      if (.not. value)
 c     >   call errquit('paw_electron_get_gradient_virtual: push stack',0,
 c     &       MA_ERR)
@@ -1201,7 +1201,7 @@ c     >             Horb)
 c
 c      call Pack_c_SMul(1,(-1.0d0),Horb,Horb)
 c
-c      value = MA_pop_stack(tmp_r(2))
+c      value = BA_pop_stack(tmp_r(2))
 c      if (.not. value) call errquit(
 c     >     'paw_electron_get_gradient_virtual: poping stack',1, MA_ERR)
 c
@@ -1372,7 +1372,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     **********************
 *     **** generate dng ****
 *     **********************
-      value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+      value = BA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
      >     'paw_electron_gen_dng: out of stack memory',0, MA_ERR)
 
@@ -1384,7 +1384,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
       call Pack_c_Copy(0,dbl_mb(tmp1(1)),dng)
 
 
-      value = MA_pop_stack(tmp1(2)) 
+      value = BA_pop_stack(tmp1(2)) 
       if (.not. value) call errquit(
      >     'paw_electron_gen_dng: poping stack',1, MA_ERR)
 
@@ -1560,9 +1560,9 @@ c      end do
 
      
       n2ft3d = 2*nfft3d
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit(
      >'paw_electron_gen_scf_potentials: out of stack memory',0,MA_ERR)
  
@@ -1684,8 +1684,8 @@ c      call paw_density_solve()
      >                    dbl_mb(xce(1)))
       end if
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2)) 
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2)) 
       if (.not. value) call errquit(
      >'paw_electron_gen_scf_potentials: error popping stack memory',0,
      > MA_ERR)
@@ -1721,9 +1721,9 @@ c      call paw_density_solve()
       integer  control_version
       external control_version
 
-      value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
+      value = BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
-     >        MA_push_get(mt_dbl,(3),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dbl,(3),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call 
      >   errquit('paw_electron_gen_vl_potential: out of stack memory',0,
      &       MA_ERR)
@@ -1734,9 +1734,9 @@ c      call paw_density_solve()
      >              dcpl_mb(tmp1(1)),
      >              dbl_mb(tmp2(1)))
 
-      value = MA_pop_stack(tmp2(2))
+      value = BA_pop_stack(tmp2(2))
       value = value.and.
-     >        MA_pop_stack(tmp1(2))
+     >        BA_pop_stack(tmp1(2))
       if (.not. value) call errquit(
      >  'paw_electron_gen_vl_potential: error popping stack memory',0,
      &       MA_ERR)
@@ -1779,9 +1779,9 @@ c      call paw_density_solve()
       call Parallel_np(np)
 
       n2ft3d = 2*nfft3d
-      value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+      value = BA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit(
      >'paw_electron_psi_vl_ave: out of stack memory',0, MA_ERR)
 
@@ -1823,9 +1823,9 @@ c      call paw_density_solve()
       if (ispin.eq.1) elocal = 2.0d0*elocal
 
  
-      value = MA_pop_stack(tmp2(2))
+      value = BA_pop_stack(tmp2(2))
       value = value.and.
-     >        MA_pop_stack(tmp1(2))
+     >        BA_pop_stack(tmp1(2))
       if (.not. value) call errquit(
      >'paw_electron_psi_vl_ave: error popping stack memory',0,MA_ERR)
 
@@ -1859,7 +1859,7 @@ c      call paw_density_solve()
      >                        fion)
       call paw_force_solve(psi1,fion)
 
-      value = MA_push_get(mt_dbl,(8*nemax*nemax),
+      value = BA_push_get(mt_dbl,(8*nemax*nemax),
      >                     'tmp',tmp(2),tmp(1))
       if (.not. value) 
      > call errquit('paw_electron_force:out of stack memory',0,0)
@@ -1868,7 +1868,7 @@ c      call paw_density_solve()
       call paw_electron_gen_hml(psi1,dbl_mb(tmp(1)))
       call paw_force_constraint(dbl_mb(tmp(1)),fion)
 
-      value = MA_pop_stack(tmp(2))
+      value = BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('paw_electron_force:popping stack memory',0,0)
 

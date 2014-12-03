@@ -285,16 +285,16 @@ cccc#include "frac_occ.fh"
       call Dneall_neq(neq)
       nemaxq = neq(1)+neq(2)
       
-      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       if (fractional) then
          value = value.and.
-     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ1',occ1(2),occ1(1))
+     >        BA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ1',occ1(2),occ1(1))
          value = value.and.
-     >        MA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ2',occ2(2),occ2(1))
+     >        BA_alloc_get(mt_dbl,(ne(1)+ne(2)),'occ2',occ2(2),occ2(1))
       end if
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -400,18 +400,18 @@ c         end if
       end if
 
 *     **** allocate other variables *****
-      value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
+      value = BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
       value = value.and.Dneall_m_allocate(0,hml)
       value = value.and.Dneall_m_allocate(0,lmd)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(4*nfft3d),
+     >        BA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(neq(1)+neq(2)),
+     >        BA_alloc_get(mt_dcpl,nfft3d*(neq(1)+neq(2)),
      >                     'psir',psir(2),psir(1))
 
       if (.not. value) 
@@ -658,7 +658,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
       end do
 
       if (psp_pawexist()) then
-         if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
+         if (.not.BA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
      >   call errquit(
      >        'cgsdv5: out of stack memory',0,MA_ERR)
 
@@ -672,7 +672,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
            en2(ms) = sumall*lattice_omega()
      >              /dble(ngrid(1)*ngrid(2)*ngrid(3))
          end do
-         if (.not.MA_pop_stack(tmp1(2)))
+         if (.not.BA_pop_stack(tmp1(2)))
      >   call errquit(
      >        'cgsdv5: popping stack memory',0,MA_ERR)
       else
@@ -991,17 +991,17 @@ c            write(luout,1706) E(18)
 
 c      call frac_occ_end()
 
-      value = MA_free_heap(psir(2))
-      value = MA_free_heap(Hpsi(2))
-      value = MA_free_heap(dn(2))
-      value = MA_free_heap(eig(2))
+      value = BA_free_heap(psir(2))
+      value = BA_free_heap(Hpsi(2))
+      value = BA_free_heap(dn(2))
+      value = BA_free_heap(eig(2))
       value = Dneall_m_free(hml)
       value = Dneall_m_free(lmd)
-      value = MA_free_heap(psi1(2))
-      value = MA_free_heap(psi2(2))
+      value = BA_free_heap(psi1(2))
+      value = BA_free_heap(psi2(2))
       if (fractional) then
-         value = MA_free_heap(occ1(2))
-         value = MA_free_heap(occ2(2))
+         value = BA_free_heap(occ1(2))
+         value = BA_free_heap(occ2(2))
       end if
       call D3dB_pfft_end()
       call D3dB_end(1)

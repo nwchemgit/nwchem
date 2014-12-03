@@ -67,7 +67,7 @@ c
       sizel  = (paw_gaunt_lmax+1)
       sizel2 = sizel**2
 
-      value = MA_alloc_get(mt_dbl,sizel*sizel2*sizel2,
+      value = BA_alloc_get(mt_dbl,sizel*sizel2*sizel2,
      >                    'paw_gaunt_coeff',
      >                     paw_gaunt_coeff(2),
      >                     paw_gaunt_coeff(1))
@@ -122,7 +122,7 @@ c
 
       call nwpw_timing_start(15)
 
-      value = MA_free_heap(paw_gaunt_coeff(2)) 
+      value = BA_free_heap(paw_gaunt_coeff(2)) 
       if (.not. value) 
      > call errquit('paw_gaunt_end:error freeing heap memory',0,MA_ERR)
 
@@ -304,7 +304,7 @@ C      sizel  = (paw_gaunt2_lmax+1)
 C      sizel2 = sizel**2
 C
 C*     **** such a large array is probably not needed ****
-C      value = MA_alloc_get(mt_dbl,sizel*sizel2*sizel2,
+C      value = BA_alloc_get(mt_dbl,sizel*sizel2*sizel2,
 C     >                    'paw_gaunt2_coeff',
 C     >                     paw_gaunt2_coeff(2),
 C     >                     paw_gaunt2_coeff(1))
@@ -359,7 +359,7 @@ C      logical value
 C
 C      call nwpw_timing_start(15)
 C
-C      value = MA_free_heap(paw_gaunt2_coeff(2)) 
+C      value = BA_free_heap(paw_gaunt2_coeff(2)) 
 C      if (.not. value) 
 C     > call errquit('paw_gaunt_end:error freeing heap memory',0,MA_ERR)
 C
@@ -534,7 +534,7 @@ C      sizel  = (paw_gaunt3_lmax+1)
 C      sizel2 = sizel**2
 C
 C*     **** such a large array is probably not needed ****
-C      value = MA_alloc_get(mt_dbl,sizel*sizel2*sizel2,
+C      value = BA_alloc_get(mt_dbl,sizel*sizel2*sizel2,
 C     >                    'paw_gaunt3_coeff',
 C     >                     paw_gaunt3_coeff(2),
 C     >                     paw_gaunt3_coeff(1))
@@ -589,7 +589,7 @@ C      logical value
 C
 C      call nwpw_timing_start(15)
 C
-C      value = MA_free_heap(paw_gaunt3_coeff(2)) 
+C      value = BA_free_heap(paw_gaunt3_coeff(2)) 
 C      if (.not. value) 
 C     > call errquit('paw_gaunt_end:error freeing heap memory',0,MA_ERR)
 C

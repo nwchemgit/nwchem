@@ -91,7 +91,7 @@ c
       neall = psi_neq(1)+psi_neq(2)
 
 *     **** allocate G1 ****
-      value = MA_alloc_get(mt_dcpl,npack1*neall,
+      value = BA_alloc_get(mt_dcpl,npack1*neall,
      >                     'G1',G1(2),G1(1))
       if (.not. value) call errquit('nominimize:out of heap memory',0,
      &       MA_ERR)
@@ -217,7 +217,7 @@ c      call psi_1toelectron()
 
 
 
-      value = MA_free_heap(G1(2))
+      value = BA_free_heap(G1(2))
       if (.not. value) 
      >  call errquit('nominimize:error freeing heap memory',0, MA_ERR)
 

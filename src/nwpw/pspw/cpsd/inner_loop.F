@@ -144,49 +144,49 @@ c     real*8     fion(3,natmx)
 *     **** allocate MA local variables ****
       value = Dneall_m_push_get_block(1,8,tmp_L)
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
 
       if (control_version().eq.3) then
        value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vc',  vc(2),  vc(1))
       end if
 
       if (control_version().eq.4) then
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
        value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'vlr_l',vlr_l(2),vlr_l(1))
       end if
 
       if ((field_exist).or.(control_version().eq.4)) then
        value = value.and.
-     >    MA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
+     >    BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',r_grid(2),r_grid(1))
       end if
 
        value = value.and.
-     >  MA_push_get(mt_dbl,(n2ft3d),'v_field',v_field(2),v_field(1))
+     >  BA_push_get(mt_dbl,(n2ft3d),'v_field',v_field(2),v_field(1))
 
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
+     >        BA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
       natmx = ion_nion()
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
+     >        BA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
+     >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
+     >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
@@ -701,26 +701,26 @@ c     end do
 
 *     **** dealocate MA local variables ****
       call nwpw_timing_start(12)
-      value = MA_pop_stack(sumi(2))
-      value = MA_pop_stack(ftest(2))
-      value = MA_pop_stack(fion(2))
-      value = MA_pop_stack(dnall(2))
-      value = MA_pop_stack(xce(2))
-      value = MA_pop_stack(xcp(2))
-      value = MA_pop_stack(dng(2))
-      value = MA_pop_stack(rho(2))
-      value = MA_pop_stack(vl(2))
-      value = MA_pop_stack(v_field(2))
+      value = BA_pop_stack(sumi(2))
+      value = BA_pop_stack(ftest(2))
+      value = BA_pop_stack(fion(2))
+      value = BA_pop_stack(dnall(2))
+      value = BA_pop_stack(xce(2))
+      value = BA_pop_stack(xcp(2))
+      value = BA_pop_stack(dng(2))
+      value = BA_pop_stack(rho(2))
+      value = BA_pop_stack(vl(2))
+      value = BA_pop_stack(v_field(2))
 
       if ((control_version().eq.4).or.(field_exist))
-     >   value = MA_pop_stack(r_grid(2))
+     >   value = BA_pop_stack(r_grid(2))
 
       if (control_version().eq.4) 
-     >   value = MA_pop_stack(vlr_l(2))
+     >   value = BA_pop_stack(vlr_l(2))
 
-      value = MA_pop_stack(vc(2))
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(vc(2))
+      value = BA_pop_stack(tmp2(2))
+      value = BA_pop_stack(tmp1(2))
       value = Dneall_m_pop_stack(tmp_L)
 
       call nwpw_timing_end(12)

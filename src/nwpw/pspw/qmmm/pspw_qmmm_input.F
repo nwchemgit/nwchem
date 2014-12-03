@@ -518,7 +518,7 @@ c
 
 
       value = value.and.
-     >         MA_push_get(mt_dbl,(2*basis_length),'tmp',tmp(2),tmp(1))
+     >         BA_push_get(mt_dbl,(2*basis_length),'tmp',tmp(2),tmp(1))
 
       rtdb_name = 'pspw_SR_basis:'//element(1:element_length)
       if (basis_length.gt.1) then
@@ -531,7 +531,7 @@ c
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,
      >                 mt_dbl,(2*basis_length),dbl_mb(tmp(1)))
-      value = value.and.MA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value)
      >  call errquit(
      > 'pspw_qmmm_input:failed reading SR_Basis:',0, MA_ERR)
@@ -601,7 +601,7 @@ c
 c
 c index_start
 c
- 603  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
+ 603  value = BA_push_get(mt_int,nw_max_atom,'indx_start',
      >                    index_start(2),index_start(1))
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed allocating index_start',0,MA_ERR)
@@ -621,7 +621,7 @@ c      end do
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed writing index_start',0,RTDB_ERR)
 
-      value = MA_pop_stack(index_start(2))
+      value = BA_pop_stack(index_start(2))
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed deallocating index_start',0,MA_ERR)
 
@@ -1114,7 +1114,7 @@ c
 c
 c index1
 c
- 622   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
+ 622   if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start1',
      >                    index_start1(2),index_start1(1)))
      >    call errquit(
      > 'pspw_qmmm_input:failed allocating index_start1',0,MA_ERR)
@@ -1132,7 +1132,7 @@ c
      >                                      //c_index_name(nkc)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n1,
      >                              int_mb(index_start1(1)))
-      value = value.and.MA_pop_stack(index_start1(2))
+      value = value.and.BA_pop_stack(index_start1(2))
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed deallocating index_start1',0,MA_ERR)
 
@@ -1140,7 +1140,7 @@ c
 c
 c index2 
 c
- 623   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
+ 623   if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start2',
      >                    index_start2(2),index_start2(1)))
      >    call errquit(
      > 'pspw_qmmm_input:failed allocating index_start2',0,MA_ERR)
@@ -1158,7 +1158,7 @@ c
      >                                      //c_index_name(nkc)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n2,
      >                              int_mb(index_start2(1)))
-      value = value.and.MA_pop_stack(index_start2(2))
+      value = value.and.BA_pop_stack(index_start2(2))
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed deallocating index_start2',0,MA_ERR)
 
@@ -1258,7 +1258,7 @@ c
 c
 c index_start
 c
- 703  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
+ 703  value = BA_push_get(mt_int,nw_max_atom,'indx_start',
      >                    index_start(2),index_start(1))
       if (.not. value) call errquit(
      > 'pspw_2qmmm_input:failed allocating index_start',0,MA_ERR)
@@ -1276,7 +1276,7 @@ c
       if (.not. value) call errquit(
      > 'pspw_2qmmm_input:failed writing index_start',0,RTDB_ERR)
 
-      value = MA_pop_stack(index_start(2))
+      value = BA_pop_stack(index_start(2))
       if (.not. value) call errquit(
      > 'pspw_2qmmm_input:failed deallocating index_start',0,MA_ERR)
 
@@ -1755,7 +1755,7 @@ c
 c
 c index1
 c
- 722   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
+ 722   if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start1',
      >                    index_start1(2),index_start1(1)))
      >    call errquit(
      > 'pspw_2qmmm_input:failed allocating index_start1',0,MA_ERR)
@@ -1774,7 +1774,7 @@ c
      >                                         //c_index_name(nkc)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n1,
      >                              int_mb(index_start1(1)))
-      value = value.and.MA_pop_stack(index_start1(2))
+      value = value.and.BA_pop_stack(index_start1(2))
       if (.not. value) call errquit(
      > 'pspw_2qmmm_input:failed deallocating index_start1',0,MA_ERR)
 
@@ -1782,7 +1782,7 @@ c
 c
 c index2 
 c
- 723   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
+ 723   if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start2',
      >                    index_start2(2),index_start2(1)))
      >    call errquit(
      > 'pspw_2qmmm_input:failed allocating index_start2',0,MA_ERR)
@@ -1800,7 +1800,7 @@ c
      >                                      //c_index_name(nkc)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n2,
      >                              int_mb(index_start2(1)))
-      value = value.and.MA_pop_stack(index_start2(2))
+      value = value.and.BA_pop_stack(index_start2(2))
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed deallocating index_start2',0,MA_ERR)
 
@@ -1921,7 +1921,7 @@ c
 c
 c  mm_tags
 c
- 900  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
+ 900  value = BA_push_get(mt_int,nw_max_atom,'indx_start',
      >                    index_start(2),index_start(1))
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed allocating mm_tags',0,MA_ERR)
@@ -1976,7 +1976,7 @@ c     *** add ^ to tags ****
 
 
 
-      value = MA_pop_stack(index_start(2))
+      value = BA_pop_stack(index_start(2))
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed deallocating mm_tags',0,MA_ERR)
 

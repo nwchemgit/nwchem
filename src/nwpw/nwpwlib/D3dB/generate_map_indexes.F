@@ -28,13 +28,13 @@
       integer indx_proc(2),indx_q(2),tmp_p(2)
 
       !**** allocate temporary space ****
-      value =           MA_push_get(mt_int,(ny*nz),'indx_proc',
+      value =           BA_push_get(mt_int,(ny*nz),'indx_proc',
      >                    indx_proc(2),
      >                    indx_proc(1))
-      value = value.and.MA_push_get(mt_int,(ny*nz),'indx_q',
+      value = value.and.BA_push_get(mt_int,(ny*nz),'indx_q',
      >                    indx_q(2),
      >                    indx_q(1))
-      value = value.and.MA_push_get(mt_int,(ny*nz),'tmp_p',
+      value = value.and.BA_push_get(mt_int,(ny*nz),'tmp_p',
      >                    tmp_p(2),
      >                    tmp_p(1))
       if (.not. value) call errquit('out of stack memory',0,MA_ERR)
@@ -77,9 +77,9 @@
       end do
 
       !**** deallocate temporary space  ****
-      value =           MA_pop_stack(tmp_p(2))
-      value = value.and.MA_pop_stack(indx_q(2))
-      value = value.and.MA_pop_stack(indx_proc(2))
+      value =           BA_pop_stack(tmp_p(2))
+      value = value.and.BA_pop_stack(indx_q(2))
+      value = value.and.BA_pop_stack(indx_proc(2))
       if (.not. value) call errquit('error popping stack',0,MA_ERR)
 
       return
@@ -172,10 +172,10 @@
       integer indx_proc(2),indx_q(2)
 
       !**** allocate temporary space ****
-      value =           MA_push_get(mt_int,(ny*nz),'indx_proc',
+      value =           BA_push_get(mt_int,(ny*nz),'indx_proc',
      >                    indx_proc(2),
      >                    indx_proc(1))
-      value = value.and.MA_push_get(mt_int,(ny*nz),'indx_q',
+      value = value.and.BA_push_get(mt_int,(ny*nz),'indx_q',
      >                    indx_q(2),
      >                    indx_q(1))
       if (.not. value) call errquit('out of stack memory',0,MA_ERR)
@@ -208,8 +208,8 @@
       end do
 
       !**** deallocate temporary space  ****
-      value =           MA_pop_stack(indx_q(2))
-      value = value.and.MA_pop_stack(indx_proc(2))
+      value =           BA_pop_stack(indx_q(2))
+      value = value.and.BA_pop_stack(indx_proc(2))
       if (.not. value) call errquit('error popping stack',0,MA_ERR)
 
       return

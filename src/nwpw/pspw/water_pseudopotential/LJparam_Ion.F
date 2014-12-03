@@ -35,12 +35,12 @@
 
       if (ljcount.gt.0) then
 
-        value = MA_alloc_get(mt_int,(ljcount),'ion_number',
+        value = BA_alloc_get(mt_int,(ljcount),'ion_number',
      >                       ion_number(2),ion_number(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,(ljcount),'ei',ei(2),ei(1))
+     >          BA_alloc_get(mt_dbl,(ljcount),'ei',ei(2),ei(1))
         value = value.and.
-     >          MA_alloc_get(mt_dbl,(ljcount),'si',si(2),si(1))
+     >          BA_alloc_get(mt_dbl,(ljcount),'si',si(2),si(1))
         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
         value = rtdb_get(rtdb,'water_pseudopotential:lj_ion_number',
@@ -101,10 +101,10 @@
       logical value
 
       if (ljcount.gt.0) then
-         value = MA_free_heap(ion_number(2))
-         value = value.and.MA_free_heap(ei(2))
-         value = value.and.MA_free_heap(si(2))
-         if (.not.value) call errquit('error MA_free_heap',0, MA_ERR)
+         value = BA_free_heap(ion_number(2))
+         value = value.and.BA_free_heap(ei(2))
+         value = value.and.BA_free_heap(si(2))
+         if (.not.value) call errquit('error BA_free_heap',0, MA_ERR)
       end if
 
       return

@@ -68,9 +68,9 @@ c
       if (.not. inp_i(state)) state = 1
      
       num_states = num_states + 1
-      if  ((.not. MA_alloc_get(mt_dbl,(num_states), 
+      if  ((.not. BA_alloc_get(mt_dbl,(num_states), 
      >        'occ_new',occ_new(2),occ_new(1)))
-     > .or.(.not. MA_alloc_get(mt_int,(num_states), 
+     > .or.(.not. BA_alloc_get(mt_int,(num_states), 
      >        's_new',s_new(2),s_new(1))))
      >     call errquit(
      >          'frac_occ_input: heap failed 1', 0,
@@ -82,7 +82,7 @@ c
          int_mb(s_new(1)   + (k-1)) = int_mb(s(1)   + (k-1))
 
         end do
-        if ((.not.MA_free_heap(s(2))).or.(.not.MA_free_heap(occ(2))))
+        if ((.not.BA_free_heap(s(2))).or.(.not.BA_free_heap(occ(2))))
      >     call errquit(
      >          'frac_occ_input: heap failed 2', 0, MA_ERR)
 
@@ -136,7 +136,7 @@ c
      >  'frac_occ_input: rtdb_put(states) failed', 0,
      >       RTDB_ERR)
 
-      if ((.not.MA_free_heap(s(2))).or.(.not.MA_free_heap(occ(2))))
+      if ((.not.BA_free_heap(s(2))).or.(.not.BA_free_heap(occ(2))))
      >  call errquit(
      >       'frac_occ_input: heap failed 3', 0, MA_ERR)
 

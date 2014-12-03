@@ -191,51 +191,51 @@ c      allow_translation = control_allow_translation()
 
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
-      value = MA_push_get(mt_dbl,(8*nemax*nemax),
+      value = BA_push_get(mt_dbl,(8*nemax*nemax),
      >                     'tmp_L',tmp_L(2),tmp_L(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
 
       if (control_version().eq.3) then
        value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vcomp',vcomp(2),vcomp(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vcomp',vcomp(2),vcomp(1))
        value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vh',vh(2),vh(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vh',vh(2),vh(1))
        value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vc',vc(2),vc(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vc',vc(2),vc(1))
       end if
 
       if (control_version().eq.4) then
        value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'vcomp',vcomp(2),vcomp(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'vcomp',vcomp(2),vcomp(1))
        value = value.and.
-     >        MA_push_get(mt_dcpl,(nfft3d),'vh',vh(2),vh(1))
+     >        BA_push_get(mt_dcpl,(nfft3d),'vh',vh(2),vh(1))
        value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vc',vc(2),vc(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vc',vc(2),vc(1))
       end if
 
 
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
+     >        BA_push_get(mt_dcpl,(npack0),'vloc', vl(2), vl(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
+     >        BA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
+     >        BA_push_get(mt_dcpl,(npack0),'dng',dng(2), dng(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'xcp',xcp(2), xcp(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'xce',xce(2), xce(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
+     >        BA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
       natmx = ion_nion()
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
+     >        BA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
+     >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
+     >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
 
       if (.not. value) 
      > call errquit('paw_inner_loop_md:out of stack memory',0,0)
@@ -840,24 +840,24 @@ c            call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
 *     **** dealocate MA local variables ****
  333  continue
       call nwpw_timing_start(12)
-      value = MA_pop_stack(sumi(2))
-      value = MA_pop_stack(ftest(2))
-      value = MA_pop_stack(fion(2))
-      value = MA_pop_stack(dnall(2))
-      value = MA_pop_stack(xce(2))
-      value = MA_pop_stack(xcp(2))
-      value = MA_pop_stack(dng(2))
-      value = MA_pop_stack(rho(2))
-      value = MA_pop_stack(vl(2))
+      value = BA_pop_stack(sumi(2))
+      value = BA_pop_stack(ftest(2))
+      value = BA_pop_stack(fion(2))
+      value = BA_pop_stack(dnall(2))
+      value = BA_pop_stack(xce(2))
+      value = BA_pop_stack(xcp(2))
+      value = BA_pop_stack(dng(2))
+      value = BA_pop_stack(rho(2))
+      value = BA_pop_stack(vl(2))
 
 
 
-      value = MA_pop_stack(vc(2))
-      value = MA_pop_stack(vh(2))
-      value = MA_pop_stack(vcomp(2))
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp1(2))
-      value = MA_pop_stack(tmp_L(2))
+      value = BA_pop_stack(vc(2))
+      value = BA_pop_stack(vh(2))
+      value = BA_pop_stack(vcomp(2))
+      value = BA_pop_stack(tmp2(2))
+      value = BA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp_L(2))
 
       call nwpw_timing_end(12)
 

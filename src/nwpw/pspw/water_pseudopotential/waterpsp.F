@@ -69,13 +69,13 @@
          end if
 
 *     ***** allocate waterpsp data structure *****
-      value = MA_alloc_get(mt_dbl,(3*nion),
+      value = BA_alloc_get(mt_dbl,(3*nion),
      .                     'rwater2',rwater2(2),rwater2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nion),
+     >        BA_alloc_get(mt_dbl,(3*nion),
      >                     'rwater1',rwater1(2),rwater1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nion),
+     >        BA_alloc_get(mt_dbl,(3*nion),
      >                     'rwater0',rwater0(2),rwater0(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -181,9 +181,9 @@
       logical value
 
       if (nwater.gt.0) then
-        value = MA_free_heap(rwater2(2))
-        value = MA_free_heap(rwater1(2))
-        value = MA_free_heap(rwater0(2))
+        value = BA_free_heap(rwater2(2))
+        value = BA_free_heap(rwater1(2))
+        value = BA_free_heap(rwater0(2))
         call LJparam_end()
         call BLCJ_SR_end()
       end if
@@ -848,7 +848,7 @@
 
 
 *     **** allocate fwater force ***
-      value = MA_push_get(mt_dbl,(9*nwater),
+      value = BA_push_get(mt_dbl,(9*nwater),
      >                     'fwater',fwater(2),fwater(1))
       if (.not.value)
      > call errquit('Waterpsp_SD_Update:error push stack',0, MA_ERR)
@@ -891,7 +891,7 @@
 
 
 *     **** deallocate fwater force ***
-      value = MA_pop_stack(fwater(2))
+      value = BA_pop_stack(fwater(2))
       if (.not.value)
      > call errquit('Waterpsp_SD_Update:error pop stack',0, MA_ERR)
       return

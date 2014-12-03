@@ -32,24 +32,24 @@
       call D3dB_nz(1,nz)
       nxh = nx/2
     
-      value = MA_alloc_get(mt_dcpl,(nx*nion),'ex1',ex1(2),ex1(1))
+      value = BA_alloc_get(mt_dcpl,(nx*nion),'ex1',ex1(2),ex1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ny*nion),'ex2',ex2(2),ex2(1))
+     >        BA_alloc_get(mt_dcpl,(ny*nion),'ex2',ex2(2),ex2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nz*nion),'ex3',ex3(2),ex3(1))
+     >        BA_alloc_get(mt_dcpl,(nz*nion),'ex3',ex3(2),ex3(1))
       if (.not. value) 
      >  call errquit('strfac_init:out of heap memory',0, MA_ERR)
 
 *     **** allocate indx blocks ****
       do nb=0,1
         call D3dB_nfft3d(1,nfft3d)
-        value = MA_alloc_get(mt_int,nfft3d,'i_indx0',
+        value = BA_alloc_get(mt_int,nfft3d,'i_indx0',
      >                     i_indx(2,nb),i_indx(1,nb))
         value = value.and.
-     >          MA_alloc_get(mt_int,nfft3d,'j_indx0',
+     >          BA_alloc_get(mt_int,nfft3d,'j_indx0',
      >                     j_indx(2,nb),j_indx(1,nb))
         value = value.and.
-     >          MA_alloc_get(mt_int,nfft3d,'k_indx0',
+     >          BA_alloc_get(mt_int,nfft3d,'k_indx0',
      >                     k_indx(2,nb),k_indx(1,nb))
         if (.not. value) 
      >  call errquit('strfac_init:out of heap memory',nb+1, MA_ERR)
@@ -96,16 +96,16 @@ C     ***********************************
       logical value
       integer nb
 
-      value = MA_free_heap(ex1(2))
-      value = value.and.MA_free_heap(ex2(2))
-      value = value.and.MA_free_heap(ex3(2))
+      value = BA_free_heap(ex1(2))
+      value = value.and.BA_free_heap(ex2(2))
+      value = value.and.BA_free_heap(ex3(2))
       if (.not. value) 
      >  call errquit('strfac_end:error freeing heap memory',0, MA_ERR)
 
       do nb=0,1
-         value = MA_free_heap(i_indx(2,nb))
-         value = value.and.MA_free_heap(j_indx(2,nb))
-         value = value.and.MA_free_heap(k_indx(2,nb))
+         value = BA_free_heap(i_indx(2,nb))
+         value = value.and.BA_free_heap(j_indx(2,nb))
+         value = value.and.BA_free_heap(k_indx(2,nb))
          if (.not. value) 
      >   call errquit('strfac_end:error freeing heap memory',nb, MA_ERR)
       end do
@@ -596,11 +596,11 @@ C ... End STRFAC ....
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
     
-      value = MA_alloc_get(mt_dcpl,(nx*qnion),'qex1',qex1(2),qex1(1))
+      value = BA_alloc_get(mt_dcpl,(nx*qnion),'qex1',qex1(2),qex1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(ny*qnion),'qex2',qex2(2),qex2(1))
+     >        BA_alloc_get(mt_dcpl,(ny*qnion),'qex2',qex2(2),qex2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nz*qnion),'qex3',qex3(2),qex3(1))
+     >        BA_alloc_get(mt_dcpl,(nz*qnion),'qex3',qex3(2),qex3(1))
       if (.not. value) 
      >  call errquit('qstrfac_init:out of heap memory',0, MA_ERR)
 
@@ -623,9 +623,9 @@ C     ***********************************
 
       logical value
 
-      value =           MA_free_heap(qex1(2))
-      value = value.and.MA_free_heap(qex2(2))
-      value = value.and.MA_free_heap(qex3(2))
+      value =           BA_free_heap(qex1(2))
+      value = value.and.BA_free_heap(qex2(2))
+      value = value.and.BA_free_heap(qex3(2))
       if (.not. value) 
      >  call errquit('qstrfac_end:error freeing heap memory',0,MA_ERR)
 

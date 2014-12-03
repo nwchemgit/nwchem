@@ -50,7 +50,7 @@
       NMAX = ne(1)+ne(2)
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        value = MA_push_get(mt_int,8*NMAX,
+        value = BA_push_get(mt_int,8*NMAX,
      >                    'filling',filling(2),filling(1))
         if (.not. value) 
      >    call errquit('wvfnc_new:out of stack memory',0,MA_ERR)
@@ -68,7 +68,7 @@
         write(luout,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
         write(luout,*) "-   spin, nalpha, nbeta:",ispin,ne
-        value = MA_pop_stack(filling(2))
+        value = BA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
       call ga_sync()
@@ -139,7 +139,7 @@
 
 
 *     ***** allocate wavefunction memory ****
-      value = MA_push_get(mt_dcpl,nfft3d,
+      value = BA_push_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull_hndl,cfull_indx)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -309,7 +309,7 @@ c     **** add occupation ****
  9111 IERR=11
       GO TO 9999
  
- 9999 value = MA_pop_stack(cfull_hndl)
+ 9999 value = BA_pop_stack(cfull_hndl)
       if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       
       return 

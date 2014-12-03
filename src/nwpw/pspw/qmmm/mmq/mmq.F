@@ -28,7 +28,7 @@
       external    ion_atom
 
       nzv = ion_nkatm()
-      if (.not.MA_alloc_get(mt_dbl,(nzv),'zv',zv(2),zv(1)))
+      if (.not.BA_alloc_get(mt_dbl,(nzv),'zv',zv(2),zv(1)))
      >   call errquit('mmq_init:out of heap memory',0, MA_ERR)
 
       do ia = 1,nzv
@@ -55,7 +55,7 @@
 #include "bafdecls.fh"
 #include "mmq.fh"
 
-      if (.not.MA_free_heap(zv(2)))
+      if (.not.BA_free_heap(zv(2)))
      >  call errquit('mmq_end:error freeing heap memory',0,MA_ERR)
       return
       end

@@ -34,14 +34,14 @@ c     real*8 G(nfft3d,3)
       G(2)= c_G_indx(2)
       G(3)= c_G_indx(3)
 
-      value = MA_alloc_get(mt_dbl,npack1*nbrillq,
+      value = BA_alloc_get(mt_dbl,npack1*nbrillq,
      >                     'tg',tg_hndl,tg_indx)
       if (.not. value) 
      > call errquit('cke_init:out of heap memory',0,MA_ERR)
 
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,nfft3d,'tmp1',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dbl,nfft3d,'tmp1',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('cke_init:out of stack memory',0,MA_ERR)
 
@@ -66,7 +66,7 @@ c     real*8 G(nfft3d,3)
 *     **** Funny decay added to stabalize unitcell optimization and pressures ****
       filter = control_smooth_cutoff()
       if (filter) then
-         value = MA_alloc_get(mt_dbl,npack1*nbrillq,'df',df(2),df(1))
+         value = BA_alloc_get(mt_dbl,npack1*nbrillq,'df',df(2),df(1))
          if (.not. value)
      >      call errquit('c_ke_init:out of heap memory',3,MA_ERR)
 
@@ -103,8 +103,8 @@ c     real*8 G(nfft3d,3)
          end do
       end if
       
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value)
      > call errquit('cke_init:popping stack memory',0,MA_ERR)
       return
@@ -118,8 +118,8 @@ c     real*8 G(nfft3d,3)
 
       logical value
 
-      value = MA_free_heap(tg_hndl)
-      if (filter) value = value.and.MA_free_heap(df(2))
+      value = BA_free_heap(tg_hndl)
+      if (filter) value = value.and.BA_free_heap(df(2))
       if (.not. value)
      >   call errquit('cke_end:error freeing heap',0, MA_ERR)
       return
@@ -236,7 +236,7 @@ c     real*8 G(nfft3d,3)
      
       call Parallel_np(np)
       call Cram_max_npack(npack1)
-      if (.not. MA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1)))
+      if (.not. BA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1)))
      > call errquit('cke_ave:out of stack memory',0,MA_ERR)
 
       nbrillq = Pneb_nbrillq()
@@ -289,7 +289,7 @@ c     real*8 G(nfft3d,3)
       if (ispin.eq.1) ave = 2.0d0*ave
       ave = -ave
 
-      if (.not.MA_pop_stack(tmp1(2)))
+      if (.not.BA_pop_stack(tmp1(2)))
      > call errquit('cke_ave: error popping stack',0,MA_ERR)
       return 
       end 
@@ -354,24 +354,24 @@ c     real*8 G(nfft3d,3)
       nbrillq = Pneb_nbrillq()
       nshift1  = 2*npack1
       
-      value = MA_push_get(mt_dbl,nfft3d,
+      value = BA_push_get(mt_dbl,nfft3d,
      >                     'G1',G(2,1),G(1,1))
       if (.not. value) 
      > call errquit('cke_euv:out of stack memory',0,MA_ERR)
-      value = MA_push_get(mt_dbl,nfft3d,
+      value = BA_push_get(mt_dbl,nfft3d,
      >                     'G2',G(2,2),G(1,2))
       if (.not. value) 
      > call errquit('cke_euv:out of stack memory',0,MA_ERR)
-      value = MA_push_get(mt_dbl,nfft3d,
+      value = BA_push_get(mt_dbl,nfft3d,
      >                     'G3',G(2,3),G(1,3))
       if (.not. value) 
      > call errquit('cke_euv:out of stack  memory',0,MA_ERR)
 
-      value = MA_push_get(mt_dbl,npack1,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,npack1,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      > call errquit('cke_euv:out of stack memory',0,MA_ERR)
 
-      value = MA_push_get(mt_dcpl,npack1,'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dcpl,npack1,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('cke_euv:out of stack memory',0,MA_ERR)
 
@@ -476,11 +476,11 @@ c     real*8 G(nfft3d,3)
       end do
       end do
 
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_pop_stack(G(2,3)) 
-      value = value.and.MA_pop_stack(G(2,2)) 
-      value = value.and.MA_pop_stack(G(2,1))
+      value = BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
+      value = value.and.BA_pop_stack(G(2,3)) 
+      value = value.and.BA_pop_stack(G(2,2)) 
+      value = value.and.BA_pop_stack(G(2,1))
       if (.not. value) call errquit('error poping stack memory',0,
      &       MA_ERR)
       return

@@ -247,10 +247,10 @@
 c*     ***** allocate psi2,and psi1 wavefunctions ****
        call psi_get_ne(ispin,ne)
        
-       value = MA_alloc_get(mt_dcpl,npack1*(ispin),
+       value = BA_alloc_get(mt_dcpl,npack1*(ispin),
      >                     'psi2',psi2(2),psi2(1))
        value = value.and.
-     >         MA_alloc_get(mt_dcpl,npack1*(ispin),
+     >         BA_alloc_get(mt_dcpl,npack1*(ispin),
      >                     'psi1',psi1(2),psi1(1))
        if (.not. value) call errquit('ofpw:out of heap memory',0,MA_ERR)
 
@@ -349,14 +349,14 @@ c*     *****  read psi2 wavefunctions ****
      
 
 *     **** allocate other variables *****
-      value = MA_alloc_get(mt_dbl,(4*nfft3d),
+      value = BA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*ispin,
+     >        BA_alloc_get(mt_dcpl,npack1*ispin,
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*ispin,
+     >        BA_alloc_get(mt_dbl,n2ft3d*ispin,
      >                     'psir',psir(2),psir(1))
 
       if (.not. value) 
@@ -730,11 +730,11 @@ c      end if
       call pspw_qmmm_end()
       !call frac_occ_end()
 
-       value =           MA_free_heap(psir(2))
-       value = value.and.MA_free_heap(Hpsi(2))
-       value = value.and.MA_free_heap(dn(2))
-       value = value.and.MA_free_heap(psi1(2))
-       value = value.and.MA_free_heap(psi2(2))
+       value =           BA_free_heap(psir(2))
+       value = value.and.BA_free_heap(Hpsi(2))
+       value = value.and.BA_free_heap(dn(2))
+       value = value.and.BA_free_heap(psi1(2))
+       value = value.and.BA_free_heap(psi2(2))
 
       call D3dB_pfft_end()
       call D3dB_end(1)

@@ -139,14 +139,14 @@ c           !-- set sign coeff as (-1)**m --
       !*** local variables ***
       logical value
       
-      value =           MA_free_heap(coeff(2))
-      value = value.and.MA_free_heap(toeff(2))
-      value = value.and.MA_free_heap(indx2(2))
-      value = value.and.MA_free_heap(sgn(2))
-      value = value.and.MA_free_heap(paw_ovlp_w(2))
-      value = value.and.MA_free_heap(paw_ovlp_w_spin(2,1))
+      value =           BA_free_heap(coeff(2))
+      value = value.and.BA_free_heap(toeff(2))
+      value = value.and.BA_free_heap(indx2(2))
+      value = value.and.BA_free_heap(sgn(2))
+      value = value.and.BA_free_heap(paw_ovlp_w(2))
+      value = value.and.BA_free_heap(paw_ovlp_w_spin(2,1))
       if (ispin.eq.2)
-     > value = value.and.MA_free_heap(paw_ovlp_w_spin(2,2))
+     > value = value.and.BA_free_heap(paw_ovlp_w_spin(2,2))
       value = value.and.my_dealloc(i_paw_ovlp_w)
 
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0,0)
@@ -185,8 +185,8 @@ c           !-- set sign coeff as (-1)**m --
 
       !*** allocate temporary space ***
       call Pack_npack(1,npack1)
-      value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
-      value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
+      value =           BA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      value = value.and.BA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
       if (.not.value) call errquit('paw_ovlp_coeff_set: push stack',0,0)
 
 
@@ -234,8 +234,8 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
 
 
 
-      value =           MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('paw_ovlp_coeff_set: pop stack',0,1)
       
       call nwpw_timing_end(6)
@@ -368,7 +368,7 @@ c      occup = 1.0d0
       logical ok
       integer ct(2)
       !*** allocate space from stack ****
-      ok = MA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
+      ok = BA_push_get(mt_dcpl,ne*total_nbasis,'ct',ct(2),ct(1))
       if (.not.ok)
      > call errquit('paw_ovlp_calc_coeffn: out of stack memory',0,0)
 
@@ -378,7 +378,7 @@ c      occup = 1.0d0
 
 
       !*** deallocate temporary space ***
-      ok = MA_pop_stack(ct(2))
+      ok = BA_pop_stack(ct(2))
       if (.not.ok)
      > call errquit(
      >  'paw_ovlp_calc_coeff: error freeing stack memory',1,0)
@@ -418,8 +418,8 @@ c      occup = 1.0d0
       call nwpw_timing_start(6)
       !*** allocate temporary space ***
       call Pack_npack(1,npack1)
-      value =           MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
-      value = value.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
+      value =           BA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      value = value.and.BA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
       if (.not.value) 
      > call errquit('paw_ovlp_coeff_set: out of stack memory',0,0)
 
@@ -452,8 +452,8 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 
       !*** deallocate temporary space ***
-      value =           MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value)  call errquit(
      > 'paw_ovlp_coeff_set: error freeing stack memory',0,1)
 
@@ -546,12 +546,12 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
       !*** allocate temporary space ***
       call Pack_npack(1,npack1)
-      ok =        MA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
-      ok = ok.and.MA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
+      ok =        BA_push_get(mt_dcpl,npack1,'exi',exi(2),exi(1))
+      ok = ok.and.BA_push_get(mt_dcpl,npack1,'tmp',tmp(2),tmp(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
+     >     BA_push_get(mt_dcpl,ne*total_nbasis,'c1',c1(2),c1(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,ne*total_nbasis,'pv',pv(2),pv(1))
+     >     BA_push_get(mt_dcpl,ne*total_nbasis,'pv',pv(2),pv(1))
       if (.not.ok)
      > call errquit('paw_ovlp_S: out of stack memory',0,0)
 
@@ -591,10 +591,10 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       end do
 
       !*** deallocate temporary space ***
-      ok =        MA_pop_stack(pv(2))
-      ok = ok.and.MA_pop_stack(c1(2))
-      ok = ok.and.MA_pop_stack(tmp(2))
-      ok = ok.and.MA_pop_stack(exi(2))
+      ok =        BA_pop_stack(pv(2))
+      ok = ok.and.BA_pop_stack(c1(2))
+      ok = ok.and.BA_pop_stack(tmp(2))
+      ok = ok.and.BA_pop_stack(exi(2))
       if (.not.ok) 
      > call errquit('paw_ovlp_S: error freeing stack memory',0,1)
 

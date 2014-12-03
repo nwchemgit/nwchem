@@ -105,10 +105,10 @@ c
 
 
 *     **** allocate H0 and G1 ****
-      value = MA_alloc_get(mt_dcpl,npack1*neall,
+      value = BA_alloc_get(mt_dcpl,npack1*neall,
      >                     'H0',H0(2),H0(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*neall,
+     >        BA_alloc_get(mt_dcpl,npack1*neall,
      >                     'G1',G1(2),G1(1))
       if (.not. value) call errquit('cgminimize2:out of heap memory',0,
      &       MA_ERR)
@@ -321,8 +321,8 @@ c      call psi_check()
          E(1)  = E(1) + E(33)
       end if
 
-      value = MA_free_heap(G1(2))
-      value = value.and.MA_free_heap(H0(2))
+      value = BA_free_heap(G1(2))
+      value = value.and.BA_free_heap(H0(2))
       if (.not. value) 
      >  call errquit('cgminimize2:error freeing heap memory',2, MA_ERR)
 

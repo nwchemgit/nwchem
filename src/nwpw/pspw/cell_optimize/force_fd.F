@@ -42,40 +42,40 @@
       value     = value.and.geom_rtdb_load(rtdb,geom,'geometry')
       value     = value.and.geom_ncent(geom,nion)
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'r2',r2(2),r2(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'r2',r2(2),r2(1))
 
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'fvl',fvl(2),fvl(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'fvl',fvl(2),fvl(1))
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'fvnl',fvnl(2),fvnl(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'fvnl',fvnl(2),fvnl(1))
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'few',few(2),few(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'few',few(2),few(1))
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'fxc',fxc(2),fxc(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'fxc',fxc(2),fxc(1))
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'fJ',fLJ(2),fLJ(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'fJ',fLJ(2),fLJ(1))
       value     = value.and.
-     >            MA_alloc_get(mt_dbl,(3*nion),'fQ',fQ(2),fQ(1))
+     >            BA_alloc_get(mt_dbl,(3*nion),'fQ',fQ(2),fQ(1))
       value     = value.and.
-     >     MA_alloc_get(mt_dbl,(3*nion),'fspring',fspring(2),fspring(1))
+     >     BA_alloc_get(mt_dbl,(3*nion),'fspring',fspring(2),fspring(1))
       value     = value.and.
-     >     MA_alloc_get(mt_dbl,(3*nion),'fdftu',fdftu(2),fdftu(1))
+     >     BA_alloc_get(mt_dbl,(3*nion),'fdftu',fdftu(2),fdftu(1))
       value     = value.and.
-     >     MA_alloc_get(mt_dbl,(3*nion),'fdisp',fdisp(2),fdisp(1))
+     >     BA_alloc_get(mt_dbl,(3*nion),'fdisp',fdisp(2),fdisp(1))
       value     = value.and.
-     >     MA_alloc_get(mt_dbl,(3*nion),'fhatom',fhatom(2),fhatom(1))
+     >     BA_alloc_get(mt_dbl,(3*nion),'fhatom',fhatom(2),fhatom(1))
       value     = value.and.
-     >     MA_alloc_get(mt_dbl,(3*nion),'fcmp',fcmp(2),fcmp(1))
+     >     BA_alloc_get(mt_dbl,(3*nion),'fcmp',fcmp(2),fcmp(1))
       value     = value.and.
-     >     MA_alloc_get(mt_dbl,(3*nion),'fcmppw',fcmppw(2),fcmppw(1))
+     >     BA_alloc_get(mt_dbl,(3*nion),'fcmppw',fcmppw(2),fcmppw(1))
       value     = value.and.
-     >     MA_alloc_get(mt_dbl,(3*nion),'fxcatom',fxcatom(2),fxcatom(1))
+     >     BA_alloc_get(mt_dbl,(3*nion),'fxcatom',fxcatom(2),fxcatom(1))
       value     = value.and.
-     >  MA_alloc_get(mt_dbl,(3*nion),'fpxcatom',fpxcatom(2),fpxcatom(1))
+     >  BA_alloc_get(mt_dbl,(3*nion),'fpxcatom',fpxcatom(2),fpxcatom(1))
       value     = value.and.
-     >     MA_alloc_get(mt_dbl,(3*nion),'fall',fall(2),fall(1))
+     >     BA_alloc_get(mt_dbl,(3*nion),'fall',fall(2),fall(1))
 
       if(.not.value) call errquit
      E   (' stressfd: geom malloc failure ',0,0)
@@ -314,22 +314,22 @@
       !value = value.and.geom_rtdb_delete(rtdb,'geometry')
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
       value = value.and.geom_destroy(geom)
-      value = value.and.MA_free_heap(r1(2))
-      value = value.and.MA_free_heap(r2(2))
-      value = value.and.MA_free_heap(few(2))
-      value = value.and.MA_free_heap(fvl(2))
-      value = value.and.MA_free_heap(fvnl(2))
-      value = value.and.MA_free_heap(fxc(2))
-      value = value.and.MA_free_heap(fLJ(2))
-      value = value.and.MA_free_heap(fQ(2))
-      value = value.and.MA_free_heap(fspring(2))
-      value = value.and.MA_free_heap(fdftu(2))
-      value = value.and.MA_free_heap(fdisp(2))
-      value = value.and.MA_free_heap(fhatom(2))
-      value = value.and.MA_free_heap(fcmp(2))
-      value = value.and.MA_free_heap(fcmppw(2))
-      value = value.and.MA_free_heap(fxcatom(2))
-      value = value.and.MA_free_heap(fpxcatom(2))
+      value = value.and.BA_free_heap(r1(2))
+      value = value.and.BA_free_heap(r2(2))
+      value = value.and.BA_free_heap(few(2))
+      value = value.and.BA_free_heap(fvl(2))
+      value = value.and.BA_free_heap(fvnl(2))
+      value = value.and.BA_free_heap(fxc(2))
+      value = value.and.BA_free_heap(fLJ(2))
+      value = value.and.BA_free_heap(fQ(2))
+      value = value.and.BA_free_heap(fspring(2))
+      value = value.and.BA_free_heap(fdftu(2))
+      value = value.and.BA_free_heap(fdisp(2))
+      value = value.and.BA_free_heap(fhatom(2))
+      value = value.and.BA_free_heap(fcmp(2))
+      value = value.and.BA_free_heap(fcmppw(2))
+      value = value.and.BA_free_heap(fxcatom(2))
+      value = value.and.BA_free_heap(fpxcatom(2))
  
       force_fd = value
       return 

@@ -66,10 +66,10 @@ c
       if (ntriples.gt.0) then
 
 *        **** allocate Three parameters ****
-         value = MA_alloc_get(mt_int,nkatm*nkatm*nkatm,
+         value = BA_alloc_get(mt_int,nkatm*nkatm*nkatm,
      >                 'ntriple_all',ntriple_all(2),ntriple_all(1))
          value = value.and.
-     >        MA_alloc_get(mt_int,nkatm*nkatm*nkatm,
+     >        BA_alloc_get(mt_int,nkatm*nkatm*nkatm,
      >                 'triple_start',triple_start(2),triple_start(1))
          if (.not. value) 
      >   call errquit('pspw_Three_init:out of heap memory',1,MA_ERR)
@@ -77,10 +77,10 @@ c
          call icopy(nkatm*nkatm*nkatm,0,0,int_mb(triple_start(1)),1)
 
          value = value.and.
-     >        MA_alloc_get(mt_int,ntriples,
+     >        BA_alloc_get(mt_int,ntriples,
      >                 'type_all',type_all(2),type_all(1))
          value = value.and.
-     >        MA_alloc_get(mt_dbl,4*ntriples,
+     >        BA_alloc_get(mt_dbl,4*ntriples,
      >                 'param_all',param_all(2),param_all(1))
          if (.not. value) 
      >   call errquit('pspw_Three_init:out of heap memory',2,MA_ERR)
@@ -181,12 +181,12 @@ c
       logical value
 
       if (ntriples.gt.0) then
-         value =           MA_free_heap(ntriple_all(2))
-         value = value.and.MA_free_heap(triple_start(2))
-         value = value.and.MA_free_heap(type_all(2))
-         value = value.and.MA_free_heap(param_all(2))
+         value =           BA_free_heap(ntriple_all(2))
+         value = value.and.BA_free_heap(triple_start(2))
+         value = value.and.BA_free_heap(type_all(2))
+         value = value.and.BA_free_heap(param_all(2))
          if (.not.value) 
-     >      call errquit('pspw_Three_end: error MA_free_heap',
+     >      call errquit('pspw_Three_end: error BA_free_heap',
      >                   0,MA_ERR)
       end if
       return

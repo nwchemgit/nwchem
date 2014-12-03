@@ -54,10 +54,10 @@
       call Parallel3d_taskid_k(taskid)
 
 *     **** allocate q_map,p_map,k_map
-      value=MA_alloc_get(mt_int,nz,'q_map',q_map(2),q_map(1))
-      value=value.and.MA_alloc_get(mt_int,nz,'p_map',p_map(2),p_map(1))
-      value=value.and.MA_alloc_get(mt_int,nz,'k_map',k_map(2),k_map(1))
-      value=value.and.MA_alloc_get(mt_int,np_k,'nqarray',
+      value=BA_alloc_get(mt_int,nz,'q_map',q_map(2),q_map(1))
+      value=value.and.BA_alloc_get(mt_int,nz,'p_map',p_map(2),p_map(1))
+      value=value.and.BA_alloc_get(mt_int,nz,'k_map',k_map(2),k_map(1))
+      value=value.and.BA_alloc_get(mt_int,np_k,'nqarray',
      >                               nqarray(2),nqarray(1))
       if (.not. value)
      > call errquit('k_Mapping_init:out of heap memory',0, MA_ERR)
@@ -134,10 +134,10 @@
       logical value
 
       value =.true.
-      value = value.and.MA_free_heap(q_map(2))
-      value = value.and.MA_free_heap(p_map(2))
-      value = value.and.MA_free_heap(k_map(2))
-      value = value.and.MA_free_heap(nqarray(2))
+      value = value.and.BA_free_heap(q_map(2))
+      value = value.and.BA_free_heap(p_map(2))
+      value = value.and.BA_free_heap(k_map(2))
+      value = value.and.BA_free_heap(nqarray(2))
       
       if (.not. value)
      > call errquit('K1dB_end:freeing heap memory',0, MA_ERR)

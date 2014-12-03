@@ -18,19 +18,19 @@
 
       call FMM_end()
 
-      value = MA_free_heap(r2(2))
-      value = value.and.MA_free_heap(r1(2))
-      value = value.and.MA_free_heap(r0(2))
-      value = value.and.MA_free_heap(v2(2))
-      value = value.and.MA_free_heap(katm(2))
-      value = value.and.MA_free_heap(natm(2))
-      value = value.and.MA_free_heap(atom(2))
-      value = value.and.MA_free_heap(katm_qm(2))
-      value = value.and.MA_free_heap(natm_qm(2))
-      value = value.and.MA_free_heap(atom_qm(2))
+      value = BA_free_heap(r2(2))
+      value = value.and.BA_free_heap(r1(2))
+      value = value.and.BA_free_heap(r0(2))
+      value = value.and.BA_free_heap(v2(2))
+      value = value.and.BA_free_heap(katm(2))
+      value = value.and.BA_free_heap(natm(2))
+      value = value.and.BA_free_heap(atom(2))
+      value = value.and.BA_free_heap(katm_qm(2))
+      value = value.and.BA_free_heap(natm_qm(2))
+      value = value.and.BA_free_heap(atom_qm(2))
 
-      value = value.and.MA_free_heap(dti(2))
-      value = value.and.MA_free_heap(amass(2))
+      value = value.and.BA_free_heap(dti(2))
+      value = value.and.BA_free_heap(amass(2))
       if (.not. value) call errquit('ion_end:free heap ',0, MA_ERR)
 
       return
@@ -258,19 +258,19 @@
       kg_total = 0.0d0
 
 *     ***** allocate ion data structure *****
-      value = MA_alloc_get(mt_dbl,(3*nion),'r2',r2(2),r2(1))
+      value = BA_alloc_get(mt_dbl,(3*nion),'r2',r2(2),r2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
+     >        BA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nion),'r0',r0(2),r0(1))
+     >        BA_alloc_get(mt_dbl,(3*nion),'r0',r0(2),r0(1))
       v1(1) = r0(1)
       v1(2) = r0(2)
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nion),'v2',v2(2),v2(1))
+     >        BA_alloc_get(mt_dbl,(3*nion),'v2',v2(2),v2(1))
       value = value.and.
-     >       MA_alloc_get(mt_dbl,(nion),'dti',dti(2),dti(1))
+     >       BA_alloc_get(mt_dbl,(nion),'dti',dti(2),dti(1))
       value = value.and.
-     >       MA_alloc_get(mt_dbl,(nion),'amass',amass(2),amass(1))
+     >       BA_alloc_get(mt_dbl,(nion),'amass',amass(2),amass(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(r2(1)),1)
@@ -2908,11 +2908,11 @@ c 1250 FORMAT(A2,6X,I4,3x,3F14.6)
       call dscal(nion*3, angstrom_to_au, dbl_mb(r1(1)), 1)
 c
 
-      value = MA_push_get(mt_dbl, (3*nion), 'rt',rt(2),rt(1))
+      value = BA_push_get(mt_dbl, (3*nion), 'rt',rt(2),rt(1))
       value = value.and.
-     >        MA_push_get(mt_dbl, (nion),   'qt',qt(2),qt(1))
+     >        BA_push_get(mt_dbl, (nion),   'qt',qt(2),qt(1))
       value = value.and.
-     >        MA_push_get(mt_byte,(16*nion),'tt',tt(2),tt(1))
+     >        BA_push_get(mt_byte,(16*nion),'tt',tt(2),tt(1))
       value = value.and.
      >        geom_cart_get(geom1a,nion,byte_mb(tt(1)),
      >                                dbl_mb(rt(1)),
@@ -2932,9 +2932,9 @@ c
       call ion_ecce_tmp(nion, byte_mb(tt(1)))
       call ecce_print1_char('group name', "C1", 1)
 
-      value = MA_pop_stack(tt(2))
-      value = value.and.MA_pop_stack(qt(2))
-      value = value.and.MA_pop_stack(rt(2))
+      value = BA_pop_stack(tt(2))
+      value = value.and.BA_pop_stack(qt(2))
+      value = value.and.BA_pop_stack(rt(2))
       if (.not. value) call errquit('popping stack',0,0)
 
       call nwpw_timing_end(50) 
@@ -3098,7 +3098,7 @@ c
       if (.not.geom_ncent(geom,nion1))
      >   call errquit('ion_load_extra_geom: geom_ncent?',1,GEOM_ERR)
 
-      if (.not.MA_alloc_get(mt_dbl,(3*nion1),'rion_extra',
+      if (.not.BA_alloc_get(mt_dbl,(3*nion1),'rion_extra',
      >                      rion_extra(2,nion_extra+1),
      >                      rion_extra(1,nion_extra+1)))
      >   call errquit('ion_load_extra_geom:out of memory',1,MA_ERR)
@@ -3139,7 +3139,7 @@ c
 
       value = .true.
       do i=1,nion_extra
-         value = value.and.MA_free_heap(rion_extra(2,i))
+         value = value.and.BA_free_heap(rion_extra(2,i))
       end do
       if (.not.value)
      >   call errquit('ion_delete_extra_geom: freeing heap',0,MA_ERR)
@@ -3278,7 +3278,7 @@ c
       character*80 control_options_disp
       external     control_options_disp
 
-      if (.not.MA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
      >   call errquit("ion_disp_energy:",0,MA_ERR)
 
       do ii=1,nion
@@ -3303,7 +3303,7 @@ c
       call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
      >                     dbl_mb(r1(1)),lat,edisp,g,g_lat)
 
-      if (.not.MA_pop_stack(iz(2)))
+      if (.not.BA_pop_stack(iz(2)))
      >   call errquit("ion_disp_energy:",1,MA_ERR)
 
       ion_disp_energy = edisp
@@ -3338,10 +3338,10 @@ c
       character*80 control_options_disp
       external     control_options_disp
 
-      if (.not.MA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
      >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
 
-      if (.not.MA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
+      if (.not.BA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
      >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
 
       do ii=1,nion
@@ -3370,9 +3370,9 @@ c
 
       call daxpy(3*nion,-1.0d0,dbl_mb(gtmp(1)),1,fion,1)
 
-      if (.not.MA_pop_stack(gtmp(2)))
+      if (.not.BA_pop_stack(gtmp(2)))
      >   call errquit("ion_disp_energy: popstak gtmp",1,MA_ERR)
-      if (.not.MA_pop_stack(iz(2)))
+      if (.not.BA_pop_stack(iz(2)))
      >   call errquit("ion_disp_energy: popstack iz",1,MA_ERR)
 
 
@@ -3406,10 +3406,10 @@ c
       character*80 control_options_disp
       external     control_options_disp
 
-      if (.not.MA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
      >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
 
-      if (.not.MA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
+      if (.not.BA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
      >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
 
       do ii=1,nion
@@ -3440,9 +3440,9 @@ c
       !call dscal(9,-1.0d0,stress,1)
 
 
-      if (.not.MA_pop_stack(gtmp(2)))
+      if (.not.BA_pop_stack(gtmp(2)))
      >   call errquit("ion_disp_stress: popstak gtmp",1,MA_ERR)
-      if (.not.MA_pop_stack(iz(2)))
+      if (.not.BA_pop_stack(iz(2)))
      >   call errquit("ion_disp_stress: popstack iz",1,MA_ERR)
 
       return
@@ -3521,7 +3521,7 @@ c autoang=0.52917726d0
 
       call Parallel_taskid(taskid)
 
-      if (.not.MA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
+      if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
      >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
 
       do ii=1,nion
@@ -3580,7 +3580,7 @@ c autoang=0.52917726d0
          end do 
       end if
 
-      if (.not.MA_pop_stack(iz(2)))
+      if (.not.BA_pop_stack(iz(2)))
      >   call errquit("ion_disp_stress: popstack iz",1,MA_ERR)
 
       if (tooshort.and.(taskid.eq.MASTER)) then

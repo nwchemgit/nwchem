@@ -20,7 +20,7 @@
 *     **** allocate masker memory ****
       call C3dB_nfft3d(1,nfft3d)
 
-      value = MA_alloc_get(mt_log,nfft3d,
+      value = BA_alloc_get(mt_log,nfft3d,
      >                     'masker',masker(2),masker(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -41,7 +41,7 @@
 
       logical value
 
-      value = MA_free_heap(masker(2))
+      value = BA_free_heap(masker(2))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       return

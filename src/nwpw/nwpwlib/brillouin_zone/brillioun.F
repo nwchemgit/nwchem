@@ -35,13 +35,13 @@
       call K1dB_nq(nbrillq)
 
 *     **** allocate from MA heap ****
-      value =MA_alloc_get(mt_dbl,(nbrillq),'weight',weight(2),weight(1))
+      value =BA_alloc_get(mt_dbl,(nbrillq),'weight',weight(2),weight(1))
       value =value.and.
-     >       MA_alloc_get(mt_dbl,(3*nbrillq),'ks',ks(2),ks(1))
+     >       BA_alloc_get(mt_dbl,(3*nbrillq),'ks',ks(2),ks(1))
       value =value.and.
-     >       MA_alloc_get(mt_dbl,(3*nbrillq),'kv',kv(2),kv(1))
+     >       BA_alloc_get(mt_dbl,(3*nbrillq),'kv',kv(2),kv(1))
       value =value.and.
-     >       MA_alloc_get(mt_dbl,(3*nbrillioun),'kv_all',
+     >       BA_alloc_get(mt_dbl,(3*nbrillioun),'kv_all',
      >                    kv_all(2),kv_all(1))
       if (.not. value)
      > call errquit('brillioun_init:out of heap memory',0, MA_ERR)
@@ -121,14 +121,14 @@
       call K1dB_nq(nbrillq)
 
 *     **** allocate from MA heap ****
-      value = MA_alloc_get(mt_dbl,(nbrillq),
+      value = BA_alloc_get(mt_dbl,(nbrillq),
      >                     'weight',weight(2),weight(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nbrillq),'ks',ks(2),ks(1))
+     >        BA_alloc_get(mt_dbl,(3*nbrillq),'ks',ks(2),ks(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nbrillq),'kv',kv(2),kv(1))
+     >        BA_alloc_get(mt_dbl,(3*nbrillq),'kv',kv(2),kv(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(3*nbrillioun),
+     >        BA_alloc_get(mt_dbl,(3*nbrillioun),
      >                     'kv_all',kv_all(2),kv_all(1))
       if (.not. value)
      > call errquit('brillioun_structure_init:out of heap memory',
@@ -176,10 +176,10 @@
 
       call K1dB_end()
 
-      value =           MA_free_heap(weight(2))
-      value = value.and.MA_free_heap(ks(2))
-      value = value.and.MA_free_heap(kv(2))
-      value = value.and.MA_free_heap(kv_all(2))
+      value =           BA_free_heap(weight(2))
+      value = value.and.BA_free_heap(ks(2))
+      value = value.and.BA_free_heap(kv(2))
+      value = value.and.BA_free_heap(kv_all(2))
       if (.not. value)
      > call errquit('brillioun_end:freeing heap memory',0, MA_ERR)
 

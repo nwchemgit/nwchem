@@ -43,20 +43,20 @@ c     logocal semicore(0:nkatmx)
       call Pack_npack(0,npack0)
       npsp = ion_nkatm()
 
-      value = MA_alloc_get(mt_dbl,(npsp*npack0*5),
+      value = BA_alloc_get(mt_dbl,(npsp*npack0*5),
      >                    'ncore',ncore(2),ncore(1))
       value = value.and.
-     >         MA_alloc_get(mt_dbl,(npsp),
+     >         BA_alloc_get(mt_dbl,(npsp),
      >                    'rcore',rcore(2),rcore(1))
       value = value.and.
-     >        MA_alloc_get(mt_log,(npsp+1),
+     >        BA_alloc_get(mt_log,(npsp+1),
      >                    'semicore',semicore(2),semicore(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(npsp),
+     >        BA_alloc_get(mt_dbl,(npsp),
      >                    'ncore_sum',ncore_sum(2),ncore_sum(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(n2ft3d),
+     >        BA_alloc_get(mt_dbl,(n2ft3d),
      >                    'dncore',dncore(2),dncore(1))
 
       call dcopy(npsp*npack0*5, 0.0d0,0,dbl_mb(ncore(1)), 1)
@@ -95,11 +95,11 @@ c     logocal semicore(0:nkatmx)
 
       logical value
 
-      value = MA_free_heap(ncore(2))
-      value = MA_free_heap(rcore(2))
-      value = MA_free_heap(semicore(2))
-      value = MA_free_heap(ncore_sum(2))
-      value = MA_free_heap(dncore(2))
+      value = BA_free_heap(ncore(2))
+      value = BA_free_heap(rcore(2))
+      value = BA_free_heap(semicore(2))
+      value = BA_free_heap(ncore_sum(2))
+      value = BA_free_heap(dncore(2))
 
       return
       end
@@ -217,9 +217,9 @@ c     logocal semicore(0:nkatmx)
       call D3dB_nfft3d(1,nfft3d)
       call D3dB_n2ft3d(1,n2ft3d)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
      >  call errquit('semicore_density_update: push stack',0, MA_ERR)
 
@@ -261,8 +261,8 @@ c      call D3dB_r_SMul(1,scal2*scal2,dbl_mb(dncore(1)),
 c     >                               dbl_mb(dncore(1)))
       call D3dB_r_SMul1(1,scal2*scal2,dbl_mb(dncore(1)))
 
-      value =           MA_pop_stack(tmp(2))
-      value = value.and.MA_pop_stack(exi(2))
+      value =           BA_pop_stack(tmp(2))
+      value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      >  call errquit('semicore_density_update: pop stack',1, MA_ERR)
       return
@@ -316,7 +316,7 @@ c     logical semicore(0:nkatmx)
       call Pack_npack(0,npack0)
       call D3dB_nfft3d(1,nfft3d)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
      >  call errquit('semicore_check:out of stack memory',0, MA_ERR)
 
@@ -351,7 +351,7 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
       end do
 
-      value = MA_pop_stack(tmp(2))
+      value = BA_pop_stack(tmp(2))
       if (.not.value) call errquit('semicore_check: pop stack',1,
      &       MA_ERR)
       return
@@ -416,7 +416,7 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 
       call D3dB_n2ft3d(1,n2ft3d)
-      value = MA_push_get(mt_dbl,n2ft3d,'Aus',Aus(2),Aus(1))
+      value = BA_push_get(mt_dbl,n2ft3d,'Aus',Aus(2),Aus(1))
       if (.not. value) 
      >  call errquit('semicore_euv:out of stack memory',0, MA_ERR)
 
@@ -456,7 +456,7 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       end do
       end do
 
-      value = MA_pop_stack(Aus(2))
+      value = BA_pop_stack(Aus(2))
       if (.not.value) call errquit('semicore_euv: pop stack',1, MA_ERR)
       return
       end
@@ -506,13 +506,13 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
   
 *     **** allocate memory off of MA stack ****
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,npack0,'tmp3',tmp3(2),tmp3(1))
+     >        BA_push_get(mt_dbl,npack0,'tmp3',tmp3(2),tmp3(1))
       if (.not. value) 
      >   call errquit('semicore_gen_Aus:out of stack memory',0, MA_ERR)
 
@@ -591,10 +591,10 @@ c      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
 
 
 *     **** pop stack memory ****
-      value =           MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value =           BA_pop_stack(tmp3(2))
+      value = value.and.BA_pop_stack(exi(2))
+      value = value.and.BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value) 
      >   call errquit('semicore_gen_Aus:popping stack memory',2, MA_ERR)
 
@@ -633,7 +633,7 @@ c      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
       external semicore_pxc_rho,lattice_unitg
 
       call D3dB_n2ft3d(1,n2ft3d)
-      if (.not. MA_push_get(mt_dbl,n2ft3d,'Aus',Aus(2),Aus(1)))
+      if (.not. BA_push_get(mt_dbl,n2ft3d,'Aus',Aus(2),Aus(1)))
      >  call errquit('semicore_euv:out of stack memory',0, MA_ERR)
 
 *     *** define hm ****
@@ -668,7 +668,7 @@ c      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
         end do
       end do
       end do
-      if (.not.MA_pop_stack(Aus(2)))
+      if (.not.BA_pop_stack(Aus(2)))
      >  call errquit('semicore_euv_vxc:pop stack',1,MA_ERR)
       return
       end

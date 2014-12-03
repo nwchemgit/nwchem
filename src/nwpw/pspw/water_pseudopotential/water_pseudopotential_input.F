@@ -55,23 +55,23 @@ c
 
        
 *     **** allocate MA local variables ****
-      value = MA_push_get(mt_int,(maxion),
+      value = BA_push_get(mt_int,(maxion),
      >                     'tmp_ionnum',tmp_ionnum(2),tmp_ionnum(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(maxion),
+     >        BA_push_get(mt_dbl,(maxion),
      >                     'tmp_ei',tmp_ei(2),tmp_ei(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(maxion),
+     >        BA_push_get(mt_dbl,(maxion),
      >                     'tmp_si',tmp_si(2),tmp_si(1))
 
       value = value.and.
-     >        MA_push_get(mt_int,(100),
+     >        BA_push_get(mt_int,(100),
      >                     'tmp_iatom',tmp_iatom(2),tmp_iatom(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(100),
+     >        BA_push_get(mt_dbl,(100),
      >                     'tmp_c',tmp_c(2),tmp_c(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,(100),
+     >        BA_push_get(mt_dbl,(100),
      >                     'tmp_g',tmp_g(2),tmp_g(1))
       if (.not.value)
      > call errquit('water_pseudopotential_input:error push stack',0,
@@ -288,12 +288,12 @@ c
      >  call errquit(
      > 'water_pseudopotential_input:error writing to rtdb',0, RTDB_ERR)
 
-      value = MA_pop_stack(tmp_g(2))
-      value = value.and.MA_pop_stack(tmp_c(2))
-      value = value.and.MA_pop_stack(tmp_iatom(2))
-      value = value.and.MA_pop_stack(tmp_si(2))
-      value = value.and.MA_pop_stack(tmp_ei(2))
-      value = value.and.MA_pop_stack(tmp_ionnum(2))
+      value = BA_pop_stack(tmp_g(2))
+      value = value.and.BA_pop_stack(tmp_c(2))
+      value = value.and.BA_pop_stack(tmp_iatom(2))
+      value = value.and.BA_pop_stack(tmp_si(2))
+      value = value.and.BA_pop_stack(tmp_ei(2))
+      value = value.and.BA_pop_stack(tmp_ionnum(2))
       if (.not.value)
      > call errquit('water_pseudopotential_input:error pop stack',0,
      &       MA_ERR)

@@ -57,9 +57,9 @@ c     complex*16 tmp(*)
          com_p = 0
       end if
 
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
       if (.not. value) 
      > call errquit('psi_write_filename:out of stack',0,MA_ERR)
 
@@ -123,8 +123,8 @@ c     complex*16 tmp(*)
         call closefile(6)
       end if
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(tmp2(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('psi_write_filename:error popping stack',0,MA_ERR)
 

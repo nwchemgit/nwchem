@@ -39,16 +39,16 @@
 c      nemax = psi_ne(1)+psi_ne(2)
 c      nelc1 = psi_ne(1)
 
-      value = MA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
      >                     'U',U(2),U(1))
 
       value = value.and.Dneall_m_allocate(0,Vt)
 c      value = value.and.
-c     >        MA_alloc_get(mt_dbl,2*nelc1*nelc1,
+c     >        BA_alloc_get(mt_dbl,2*nelc1*nelc1,
 c     >                     'Vt',Vt(2),Vt(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(psi_ne(1)+psi_ne(2)),
+     >        BA_alloc_get(mt_dbl,(psi_ne(1)+psi_ne(2)),
      >                     'S',S(2),S(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -81,10 +81,10 @@ c     >                     'Vt',Vt(2),Vt(1))
       logical  Dneall_m_free
       external Dneall_m_free
 
-      value =           MA_free_heap(S(2))
+      value =           BA_free_heap(S(2))
       value = value.and.Dneall_m_free(Vt)
-c      value = value.and.MA_free_heap(Vt(2))
-      value = value.and.MA_free_heap(U(2))
+c      value = value.and.BA_free_heap(Vt(2))
+      value = value.and.BA_free_heap(U(2))
       if (.not. value) call errquit('error freeing of heap memory',0,
      &       MA_ERR)
 
@@ -270,8 +270,8 @@ c      real*8     sum1,sum2,sum3
       value =           Dneall_m_push_get(0,tmp1)
       value = value.and.Dneall_m_push_get(0,tmp2)
       value = value.and.Dneall_m_push_get(0,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not.value) call errquit('geodesic_get:out of stack',0,MA_ERR)
 
 
@@ -332,8 +332,8 @@ c      real*8     sum1,sum2,sum3
 
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value = BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Dneall_m_pop_stack(tmp3)
       value = value.and.Dneall_m_pop_stack(tmp2)
       value = value.and.Dneall_m_pop_stack(tmp1)
@@ -428,8 +428,8 @@ c      real*8     sum1,sum2,sum3
       value =           Dneall_m_push_get(0,tmp1)
       value = value.and.Dneall_m_push_get(0,tmp2)
       value = value.and.Dneall_m_push_get(0,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not.value) 
      >   call errquit('geodesic_transport: out of stack',0,MA_ERR)
 
@@ -454,8 +454,8 @@ c      real*8     sum1,sum2,sum3
      >                          Ynew,1.0d0)
 
 *     **** deallocate tmp space ****     
-      value =           MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Dneall_m_pop_stack(tmp3)
       value = value.and.Dneall_m_pop_stack(tmp2)
       value = value.and.Dneall_m_pop_stack(tmp1)
@@ -548,8 +548,8 @@ c      real*8     sum1,sum2,sum3
       value =           Dneall_m_push_get(0,tmp1)
       value = value.and.Dneall_m_push_get(0,tmp2)
       value = value.and.Dneall_m_push_get(0,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value) 
      >   call errquit('geodesic_Gtransport:out of stack',0,MA_ERR)
 
@@ -577,8 +577,8 @@ c      real*8     sum1,sum2,sum3
      >                          tG,1.0d0)
 
 *     **** deallocate tmp space ****     
-      value =           MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Dneall_m_pop_stack(tmp3)
       value = value.and.Dneall_m_pop_stack(tmp2)
       value = value.and.Dneall_m_pop_stack(tmp1)

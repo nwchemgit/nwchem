@@ -187,8 +187,8 @@
       value =           Pneb_w_push_get(0,1,tmp1)
       value = value.and.Pneb_w_push_get(0,1,tmp2)
       value = value.and.Pneb_w_push_get(0,1,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value) 
      > call errquit('c_geodesic_get: out of stack memory',0,MA_ERR)
 
@@ -232,8 +232,8 @@
       end do
 
 *     **** deallocate tmp space ****     
-      value =           MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Pneb_w_pop_stack(tmp3)
       value = value.and.Pneb_w_pop_stack(tmp2)
       value = value.and.Pneb_w_pop_stack(tmp1)
@@ -289,8 +289,8 @@
       value =           Pneb_w_push_get(0,1,tmp1)
       value = value.and.Pneb_w_push_get(0,1,tmp2)
       value = value.and.Pneb_w_push_get(0,1,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value) 
      > call errquit('c_geodesic_transport:out of stack memory',0,MA_ERR)
 
@@ -330,8 +330,8 @@
      >                   dbl_mb(ynewshift))
       end do
 *     **** deallocate tmp space ****     
-      value =           MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Pneb_w_pop_stack(tmp3)
       value = value.and.Pneb_w_pop_stack(tmp2)
       value = value.and.Pneb_w_pop_stack(tmp1)
@@ -389,8 +389,8 @@
       value =           Pneb_w_push_get(0,1,tmp1)
       value = value.and.Pneb_w_push_get(0,1,tmp2)
       value = value.and.Pneb_w_push_get(0,1,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value)
      > call errquit('c_geodesic_transport:out of stack memory',0,MA_ERR)
 
@@ -434,8 +434,8 @@
       end do
 
 *     **** deallocate tmp space ****
-      value =           MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Pneb_w_pop_stack(tmp3)
       value = value.and.Pneb_w_pop_stack(tmp2)
       value = value.and.Pneb_w_pop_stack(tmp1)
@@ -496,8 +496,8 @@ c      integer    yoldshift,ynewshift,ushift,sshift,vtshift
       value =           Pneb_w_push_get(0,1,tmp1)
       value = value.and.Pneb_w_push_get(0,1,tmp2)
       value = value.and.Pneb_w_push_get(0,1,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value) 
      > call errquit('c_geodesic_transport:out of stack memory',0,MA_ERR)
 
@@ -537,8 +537,8 @@ c         ynewshift = cpsi_data_get_chnk(Ynew_tag,nb)
      >                   Ynew(1+(nb-1)*nbshift))
       end do
 *     **** deallocate tmp space ****     
-      value =           MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Pneb_w_pop_stack(tmp3)
       value = value.and.Pneb_w_pop_stack(tmp2)
       value = value.and.Pneb_w_pop_stack(tmp1)
@@ -602,8 +602,8 @@ c      integer  yoldshift,tGshift,ushift,sshift,vtshift
       value =           Pneb_w_push_get(0,1,tmp1)
       value = value.and.Pneb_w_push_get(0,1,tmp2)
       value = value.and.Pneb_w_push_get(0,1,tmp3)
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
-      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value)
      > call errquit('c_geodesic_transport:out of stack memory',0,MA_ERR)
 
@@ -647,8 +647,8 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
       end do
 
 *     **** deallocate tmp space ****
-      value =           MA_pop_stack(tmpS(2))
-      value = value.and.MA_pop_stack(tmpC(2))
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
       value = value.and.Pneb_w_pop_stack(tmp3)
       value = value.and.Pneb_w_pop_stack(tmp2)
       value = value.and.Pneb_w_pop_stack(tmp1)

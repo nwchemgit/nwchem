@@ -98,19 +98,19 @@
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
 
-      ok = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      ok = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
+     >     BA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       if (.not. ok) call errquit('paw_vloc:out of stack memory',0,0)
       if (move) then
         ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+     >       BA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
         ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
         ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
         ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         if (.not. ok) call errquit('paw_vloc:out of stack memory',0,1)
         G(1)  = G_indx(1)
         G(2)  = G_indx(2)
@@ -158,13 +158,13 @@ c        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
       
       ok = .true.
       if (move) then
-      ok = ok.and.MA_pop_stack(Gz(2))
-      ok = ok.and.MA_pop_stack(Gy(2))
-      ok = ok.and.MA_pop_stack(Gx(2))
-      ok = ok.and.MA_pop_stack(xtmp(2))
+      ok = ok.and.BA_pop_stack(Gz(2))
+      ok = ok.and.BA_pop_stack(Gy(2))
+      ok = ok.and.BA_pop_stack(Gx(2))
+      ok = ok.and.BA_pop_stack(xtmp(2))
       end if
-      ok = ok.and.MA_pop_stack(vtmp(2))
-      ok = ok.and.MA_pop_stack(exi(2))
+      ok = ok.and.BA_pop_stack(vtmp(2))
+      ok = ok.and.BA_pop_stack(exi(2))
       if (.not. ok) 
      > call errquit('paw_vloc:error popping stack ',0,2)
 
@@ -207,19 +207,19 @@ c        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
 
-      ok = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      ok = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       ok = ok.and.
-     >     MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
+     >     BA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       if (.not. ok) call errquit('paw_vloc:out of stack memory',0,0)
 
         ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
+     >       BA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
         ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
         ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
         ok = ok.and.
-     >       MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
+     >       BA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         if (.not. ok) call errquit('paw_vloc:out of stack memory',0,1)
         G(1)  = G_indx(1)
         G(2)  = G_indx(2)
@@ -259,12 +259,12 @@ c        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
       end do
       
       ok = .true.
-      ok = ok.and.MA_pop_stack(Gz(2))
-      ok = ok.and.MA_pop_stack(Gy(2))
-      ok = ok.and.MA_pop_stack(Gx(2))
-      ok = ok.and.MA_pop_stack(xtmp(2))
-      ok = ok.and.MA_pop_stack(vtmp(2))
-      ok = ok.and.MA_pop_stack(exi(2))
+      ok = ok.and.BA_pop_stack(Gz(2))
+      ok = ok.and.BA_pop_stack(Gy(2))
+      ok = ok.and.BA_pop_stack(Gx(2))
+      ok = ok.and.BA_pop_stack(xtmp(2))
+      ok = ok.and.BA_pop_stack(vtmp(2))
+      ok = ok.and.BA_pop_stack(exi(2))
       if (.not. ok) 
      > call errquit('paw_vloc:error popping stack ',0,2)
 

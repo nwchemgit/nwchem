@@ -105,10 +105,10 @@ c
       if (npairs.gt.0) then
 
 *        **** allocate Pair parameters ****
-         value = MA_alloc_get(mt_int,nkatm*nkatm,
+         value = BA_alloc_get(mt_int,nkatm*nkatm,
      >                 'npair_all',npair_all(2),npair_all(1))
          value = value.and.
-     >        MA_alloc_get(mt_int,nkatm*nkatm,
+     >        BA_alloc_get(mt_int,nkatm*nkatm,
      >                 'pair_start',pair_start(2),pair_start(1))
          if (.not. value) 
      >   call errquit('pspw_Pair_init:out of heap memory',1, MA_ERR)
@@ -116,10 +116,10 @@ c
          call icopy(nkatm*nkatm,0,0,int_mb(pair_start(1)),1)
 
          value = value.and.
-     >        MA_alloc_get(mt_int,npairs,
+     >        BA_alloc_get(mt_int,npairs,
      >                 'type_all',type_all(2),type_all(1))
          value = value.and.
-     >        MA_alloc_get(mt_dbl,6*npairs,
+     >        BA_alloc_get(mt_dbl,6*npairs,
      >                 'param_all',param_all(2),param_all(1))
          if (.not. value) 
      >   call errquit('pspw_Pair_init:out of heap memory',2, MA_ERR)
@@ -320,12 +320,12 @@ c
       logical value
 
       if (npairs.gt.0) then
-         value =           MA_free_heap(npair_all(2))
-         value = value.and.MA_free_heap(pair_start(2))
-         value = value.and.MA_free_heap(type_all(2))
-         value = value.and.MA_free_heap(param_all(2))
+         value =           BA_free_heap(npair_all(2))
+         value = value.and.BA_free_heap(pair_start(2))
+         value = value.and.BA_free_heap(type_all(2))
+         value = value.and.BA_free_heap(param_all(2))
          if (.not.value) 
-     >      call errquit('pspw_Pair_end: error MA_free_heap',
+     >      call errquit('pspw_Pair_end: error BA_free_heap',
      >                   0,MA_ERR)
       end if
       return

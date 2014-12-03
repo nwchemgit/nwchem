@@ -120,7 +120,7 @@
 *     **** define rgrid ****
       log_amesh = dlog(rmax/r1)/dble(n1dgrid-1)
       amesh     = dexp(log_amesh)
-      value = MA_alloc_get(mt_dbl,n1dgrid,'rgrid',rgrid(2),rgrid(1))
+      value = BA_alloc_get(mt_dbl,n1dgrid,'rgrid',rgrid(2),rgrid(1))
       if (.not.value)  call errquit('pawppv1:out of heap',0,MA_ERR)
       dbl_mb(rgrid(1)) = r1
       do i=1,n1dgrid-1
@@ -128,31 +128,31 @@
       end do
 
 *     **** allocate rest of grid data ****
-      value =           MA_alloc_get(mt_int,nbasis,'nae',nae(2),nae(1))
-      value = value.and.MA_alloc_get(mt_int,nbasis,'nps',nps(2),nps(1))
-      value = value.and.MA_alloc_get(mt_int,nbasis,'lps',lps(2),lps(1))
-      value = value.and.MA_alloc_get(mt_dbl,nbasis,'eig',eig(2),eig(1))
-      value = value.and.MA_alloc_get(mt_dbl,nbasis*n1dgrid,'phi_ae',
+      value =           BA_alloc_get(mt_int,nbasis,'nae',nae(2),nae(1))
+      value = value.and.BA_alloc_get(mt_int,nbasis,'nps',nps(2),nps(1))
+      value = value.and.BA_alloc_get(mt_int,nbasis,'lps',lps(2),lps(1))
+      value = value.and.BA_alloc_get(mt_dbl,nbasis,'eig',eig(2),eig(1))
+      value = value.and.BA_alloc_get(mt_dbl,nbasis*n1dgrid,'phi_ae',
      >                              phi_ae(2),phi_ae(1))
-      value = value.and.MA_alloc_get(mt_dbl,nbasis*n1dgrid,'dphi_ae',
+      value = value.and.BA_alloc_get(mt_dbl,nbasis*n1dgrid,'dphi_ae',
      >                              dphi_ae(2),dphi_ae(1))
-      value = value.and.MA_alloc_get(mt_dbl,nbasis*n1dgrid,'phi_ps',
+      value = value.and.BA_alloc_get(mt_dbl,nbasis*n1dgrid,'phi_ps',
      >                              phi_ps(2),phi_ps(1))
-      value = value.and.MA_alloc_get(mt_dbl,nbasis*n1dgrid,'dphi_ps',
+      value = value.and.BA_alloc_get(mt_dbl,nbasis*n1dgrid,'dphi_ps',
      >                              dphi_ps(2),dphi_ps(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'core_ae',
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'core_ae',
      >                              core_ae(2),core_ae(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'core_ps',
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'core_ps',
      >                              core_ps(2),core_ps(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'core_ae_prime',
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'core_ae_prime',
      >                              core_ae_prime(2),core_ae_prime(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'core_ps_prime',
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'core_ps_prime',
      >                              core_ps_prime(2),core_ps_prime(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'v_ps',
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'v_ps',
      >                              v_ps(2),v_ps(1))
-      value = value.and.MA_alloc_get(mt_dbl,nbasis*n1dgrid,'prj_ps',
+      value = value.and.BA_alloc_get(mt_dbl,nbasis*n1dgrid,'prj_ps',
      >                              prj_ps(2),prj_ps(1))
-      value = value.and.MA_alloc_get(mt_dbl,nbasis*n1dgrid,'prj_ps0',
+      value = value.and.BA_alloc_get(mt_dbl,nbasis*n1dgrid,'prj_ps0',
      >                              prj_ps0(2),prj_ps0(1))
       if (.not.value)  call errquit('pawppv1:out of heap',1,MA_ERR)
 
@@ -227,7 +227,7 @@
       end do
       
 *     **** define nmax ****
-      if(.not. MA_push_get(mt_int,lmax+1,'nmaxl',nmaxl(2),nmaxl(1)))
+      if(.not. BA_push_get(mt_int,lmax+1,'nmaxl',nmaxl(2),nmaxl(1)))
      > call errquit('pawppv1:out of stack',2,MA_ERR)
       call icopy(lmax+1,0,0,int_mb(nmaxl(1)),1)
       do ii=1,nbasis
@@ -238,52 +238,52 @@
       do l=0,lmax
          if (int_mb(nmaxl(1)+l).gt.nmax) nmax = int_mb(nmaxl(1)+l)
       end do
-      if(.not.MA_pop_stack(nmaxl(2)))
+      if(.not.BA_pop_stack(nmaxl(2)))
      > call errquit('pawppv1:error popping stack',0,MA_ERR)
 
 
 *     **** allocate Gijl,Sijl,Tijl,vcore,Vpseuo ****
       l = nmax*nmax*(lmax+1)
-      value=          MA_alloc_get(mt_dbl,5*l,'Gijl',Gijl(2),Gijl(1))
-      !value=value.and.MA_alloc_get(mt_dbl,l,'Tijl',Tijl(2),Tijl(1))
+      value=          BA_alloc_get(mt_dbl,5*l,'Gijl',Gijl(2),Gijl(1))
+      !value=value.and.BA_alloc_get(mt_dbl,l,'Tijl',Tijl(2),Tijl(1))
       l = nbasis*nbasis*nbasis*nbasis*(2*lmax+1)
       value=value.and.
-     >      MA_alloc_get(mt_dbl,l,'hartree_matrix',
+     >      BA_alloc_get(mt_dbl,l,'hartree_matrix',
      >                   hartree_matrix(2),hartree_matrix(1))
       l = nbasis*nbasis*(2*lmax+1)
       value=value.and.
-     >      MA_alloc_get(mt_dbl,l,'comp_charge_matrix',
+     >      BA_alloc_get(mt_dbl,l,'comp_charge_matrix',
      >                   comp_charge_matrix(2),comp_charge_matrix(1))
       l = nbasis*nbasis*(2*lmax+1)
       value=value.and.
-     >      MA_alloc_get(mt_dbl,l,'comp_pot_matrix',
+     >      BA_alloc_get(mt_dbl,l,'comp_pot_matrix',
      >                   comp_pot_matrix(2),comp_pot_matrix(1))
 
 *     **** allocate nprj,lprj,mprj,bprj ****
-      value=value.and.MA_alloc_get(mt_int,nproj,'nprj',nprj(2),nprj(1))
-      value=value.and.MA_alloc_get(mt_int,nproj,'lprj',lprj(2),lprj(1))
-      value=value.and.MA_alloc_get(mt_int,nproj,'mprj',mprj(2),mprj(1))
-      value=value.and.MA_alloc_get(mt_int,nproj,'bprj',bprj(2),bprj(1))
+      value=value.and.BA_alloc_get(mt_int,nproj,'nprj',nprj(2),nprj(1))
+      value=value.and.BA_alloc_get(mt_int,nproj,'lprj',lprj(2),lprj(1))
+      value=value.and.BA_alloc_get(mt_int,nproj,'mprj',mprj(2),mprj(1))
+      value=value.and.BA_alloc_get(mt_int,nproj,'bprj',bprj(2),bprj(1))
       if (.not.value)  call errquit('pawppv1:out of heap',2,MA_ERR)
 
 
 *    **** more temporary space ****
-      value =           MA_alloc_get(mt_dbl,n1dgrid,'f1',f1(2),f1(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'f2',f2(2),f2(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'f3',f3(2),f3(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'f4',f4(2),f4(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'cs',cs(2),cs(1))
-      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'sn',sn(2),sn(1))
+      value =           BA_alloc_get(mt_dbl,n1dgrid,'f1',f1(2),f1(1))
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'f2',f2(2),f2(1))
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'f3',f3(2),f3(1))
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'f4',f4(2),f4(1))
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'cs',cs(2),cs(1))
+      value = value.and.BA_alloc_get(mt_dbl,n1dgrid,'sn',sn(2),sn(1))
       if (.not.value)call errquit('pawppv1:out of heap',0,MA_ERR)
 
 *     **** allocate vl,vnl,vnlnrm G ****
       nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
-      value = MA_alloc_get(mt_dbl,nsize,'vl',vl(2),vl(1))
-      value = value.and.MA_alloc_get(mt_dbl,nsize,
+      value = BA_alloc_get(mt_dbl,nsize,'vl',vl(2),vl(1))
+      value = value.and.BA_alloc_get(mt_dbl,nsize,
      >                               'vlpaw',vlpaw(2),vlpaw(1))
-      value = value.and.MA_alloc_get(mt_dbl,nsize*(nproj),
+      value = value.and.BA_alloc_get(mt_dbl,nsize*(nproj),
      >                        'vnl',vnl(2), vnl(1))
-      value = value.and.MA_alloc_get(mt_dbl,3*nsize,'G',G_hndl,G_indx)
+      value = value.and.BA_alloc_get(mt_dbl,3*nsize,'G',G_hndl,G_indx)
       if (.not.value)call errquit('pawppv1:out of heap',0,MA_ERR)
 
 *     **** preparation of constants ****
@@ -296,15 +296,15 @@
       !**** allocate memory for rays ****
       nray = kbpp_calc_nray(nfft1,nfft2,nfft3,unita)
 
-      value =           MA_alloc_get(mt_dbl,nray,
+      value =           BA_alloc_get(mt_dbl,nray,
      >                  'G_ray',G_ray_hndl,G_ray_indx)
-      value = value.and.MA_alloc_get(mt_dbl,2*nray,
+      value = value.and.BA_alloc_get(mt_dbl,2*nray,
      >                  'vl_ray',vl_ray_hndl,vl_ray_indx)
-      value = value.and.MA_alloc_get(mt_dbl,2*nray,
+      value = value.and.BA_alloc_get(mt_dbl,2*nray,
      >                  'vlpaw_ray',vlpaw_ray_hndl,vlpaw_ray_indx)
-      value = value.and.MA_alloc_get(mt_dbl,2*nray*(nbasis),
+      value = value.and.BA_alloc_get(mt_dbl,2*nray*(nbasis),
      >                  'vnl_ray',vnl_ray_hndl,vnl_ray_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nray,
+      value = value.and.BA_alloc_get(mt_dbl,nray,
      >                  'tmp_ray',tmp_ray_hndl,tmp_ray_indx)
       if (.not.value)
      >   call errquit('pawppv1:out of heap memory',0,MA_ERR)
@@ -353,11 +353,11 @@
      >                                dbl_mb(tmp_ray_indx),
      >                                filter,
      >                      ierr)
-        value = MA_free_heap(tmp_ray_hndl)
-        value = value.and.MA_free_heap(vl_ray_hndl)
-        value = value.and.MA_free_heap(vlpaw_ray_hndl)
-        value = value.and.MA_free_heap(vnl_ray_hndl)
-        value = value.and.MA_free_heap(G_ray_hndl)
+        value = BA_free_heap(tmp_ray_hndl)
+        value = value.and.BA_free_heap(vl_ray_hndl)
+        value = value.and.BA_free_heap(vlpaw_ray_hndl)
+        value = value.and.BA_free_heap(vnl_ray_hndl)
+        value = value.and.BA_free_heap(G_ray_hndl)
         if (.not.value)
      >   call errquit('pawppv1:Error freeing memory',0,MA_ERR)
 
@@ -493,45 +493,45 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
 
 
       value = .true.
-      value = value.and.MA_free_heap(G_hndl)
-      value = value.and.MA_free_heap(vnl(2))
-      value = value.and.MA_free_heap(vlpaw(2))
-      value = value.and.MA_free_heap(vl(2))
-      value = value.and.MA_free_heap(sn(2))
-      value = value.and.MA_free_heap(cs(2))
-      value = value.and.MA_free_heap(f1(2))
-      value = value.and.MA_free_heap(f2(2))
-      value = value.and.MA_free_heap(f3(2))
-      value = value.and.MA_free_heap(f4(2))
+      value = value.and.BA_free_heap(G_hndl)
+      value = value.and.BA_free_heap(vnl(2))
+      value = value.and.BA_free_heap(vlpaw(2))
+      value = value.and.BA_free_heap(vl(2))
+      value = value.and.BA_free_heap(sn(2))
+      value = value.and.BA_free_heap(cs(2))
+      value = value.and.BA_free_heap(f1(2))
+      value = value.and.BA_free_heap(f2(2))
+      value = value.and.BA_free_heap(f3(2))
+      value = value.and.BA_free_heap(f4(2))
 
-      value = value.and.MA_free_heap(Gijl(2))
-      value = value.and.MA_free_heap(hartree_matrix(2))
-      value = value.and.MA_free_heap(comp_charge_matrix(2))
-      value = value.and.MA_free_heap(comp_pot_matrix(2))
+      value = value.and.BA_free_heap(Gijl(2))
+      value = value.and.BA_free_heap(hartree_matrix(2))
+      value = value.and.BA_free_heap(comp_charge_matrix(2))
+      value = value.and.BA_free_heap(comp_pot_matrix(2))
 
-      value = value.and.MA_free_heap(bprj(2))
-      value = value.and.MA_free_heap(mprj(2))
-      value = value.and.MA_free_heap(lprj(2))
-      value = value.and.MA_free_heap(nprj(2))
+      value = value.and.BA_free_heap(bprj(2))
+      value = value.and.BA_free_heap(mprj(2))
+      value = value.and.BA_free_heap(lprj(2))
+      value = value.and.BA_free_heap(nprj(2))
 
-      value = value.and.MA_free_heap(prj_ps0(2))
-      value = value.and.MA_free_heap(prj_ps(2))
-      value = value.and.MA_free_heap(v_ps(2))
-      value = value.and.MA_free_heap(core_ps_prime(2))
-      value = value.and.MA_free_heap(core_ae_prime(2))
-      value = value.and.MA_free_heap(core_ps(2))
-      value = value.and.MA_free_heap(core_ae(2))
-      value = value.and.MA_free_heap(dphi_ps(2))
-      value = value.and.MA_free_heap(phi_ps(2))
-      value = value.and.MA_free_heap(dphi_ae(2))
-      value = value.and.MA_free_heap(phi_ae(2))
+      value = value.and.BA_free_heap(prj_ps0(2))
+      value = value.and.BA_free_heap(prj_ps(2))
+      value = value.and.BA_free_heap(v_ps(2))
+      value = value.and.BA_free_heap(core_ps_prime(2))
+      value = value.and.BA_free_heap(core_ae_prime(2))
+      value = value.and.BA_free_heap(core_ps(2))
+      value = value.and.BA_free_heap(core_ae(2))
+      value = value.and.BA_free_heap(dphi_ps(2))
+      value = value.and.BA_free_heap(phi_ps(2))
+      value = value.and.BA_free_heap(dphi_ae(2))
+      value = value.and.BA_free_heap(phi_ae(2))
 
-      value = value.and.MA_free_heap(eig(2))
-      value = value.and.MA_free_heap(lps(2))
-      value = value.and.MA_free_heap(nps(2))
-      value = value.and.MA_free_heap(nae(2))
+      value = value.and.BA_free_heap(eig(2))
+      value = value.and.BA_free_heap(lps(2))
+      value = value.and.BA_free_heap(nps(2))
+      value = value.and.BA_free_heap(nae(2))
 
-      value = value.and.MA_free_heap(rgrid(2))
+      value = value.and.BA_free_heap(rgrid(2))
       if (.not.value)  call errquit('pawppv1:freeing heap',5,MA_ERR)
 
       pawppv1 = value

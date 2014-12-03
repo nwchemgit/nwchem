@@ -39,7 +39,7 @@
 #endif
 #endif
 #endif
-      if (.not.MA_free_heap(procNd(2)))
+      if (.not.BA_free_heap(procNd(2)))
      >  call errquit('Parralel_finalalize',1,MA_ERR)
 
       return

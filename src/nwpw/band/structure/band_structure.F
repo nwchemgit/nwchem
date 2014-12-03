@@ -426,7 +426,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
       if (taskid.eq.MASTER) call current_second(cpu2)
 
 *     **** allocate vall ****
-      value = MA_alloc_get(mt_dcpl,2*nfft3d,'vall',vall(2),vall(1))
+      value = BA_alloc_get(mt_dcpl,2*nfft3d,'vall',vall(2),vall(1))
       if (.not. value)
      >  call errquit('band_structure:out of heap memory',0, MA_ERR)
 
@@ -506,11 +506,11 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
         call control_dos_grid_structure(dosgrid)
         isize = dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))
-        value =           MA_alloc_get(mt_dbl,isize,
+        value =           BA_alloc_get(mt_dbl,isize,
      >                       'weight_dos',weight_dos(2),weight_dos(1))
-        value = value.and.MA_alloc_get(mt_dbl,isize,
+        value = value.and.BA_alloc_get(mt_dbl,isize,
      >                       'eigs_dos',eigs_dos(2),eigs_dos(1))
-        value = value.and.MA_alloc_get(mt_dbl,ispin*nfft3d,
+        value = value.and.BA_alloc_get(mt_dbl,ispin*nfft3d,
      >                       'rho',rho(2),rho(1))
         if (.not. value)
      >   call errquit('band_structure:out of heap memory',0, MA_ERR)
@@ -639,10 +639,10 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
 *     **** allocate eigs_dos if first iteration and band structure calculation ****
       if ((flag.eq.1).and.(k.eq.1)) then
         isize = dosgrid(1)*dosgrid(2)*dosgrid(3)*(cpsi_ne(1)+cpsi_ne(2))
-        value = MA_alloc_get(mt_dbl,isize,
+        value = BA_alloc_get(mt_dbl,isize,
      >                       'eigs_dos',eigs_dos(2),eigs_dos(1))
         if (mulliken) then
-           value = value.and.MA_alloc_get(mt_dbl,isize*4,
+           value = value.and.BA_alloc_get(mt_dbl,isize*4,
      >                      'pweight_dos',pweight_dos(2),pweight_dos(1))
         end if
         if (.not. value)
@@ -784,7 +784,7 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
             end do
          end if
          
-         if (.not.MA_push_get(mt_dbl,cpsi_ne(1),'tmp',tmp(2),tmp(1)))
+         if (.not.BA_push_get(mt_dbl,cpsi_ne(1),'tmp',tmp(2),tmp(1)))
      >      call errquit('band_structure:push stack',99,MA_ERR)
 
          do i=1,cpsi_ne(1)
@@ -802,7 +802,7 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
      >      write(59,'(1000E14.6)') pathlength,
      >          (dbl_mb(tmp(1)+i-1),i=1,cpsi_ne(2))
          end if         
-         if (.not.MA_pop_stack(tmp(2)))
+         if (.not.BA_pop_stack(tmp(2)))
      >      call errquit('band_structure:pop stack',99,MA_ERR)
 
       end do !*** nb ***
@@ -1033,20 +1033,20 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
 
 *     **** deallocate heap memory ****
 
-      value = MA_free_heap(vall(2)) 
+      value = BA_free_heap(vall(2)) 
 
       !*** deallocate eigs_dos and pweight_dos ****
       if (flag.eq.1)  then 
-         value = value.and.MA_free_heap(eigs_dos(2)) 
+         value = value.and.BA_free_heap(eigs_dos(2)) 
          if (mulliken) then
-            value = value.and.MA_free_heap(pweight_dos(2)) 
+            value = value.and.BA_free_heap(pweight_dos(2)) 
          end if
       end if
 
       if (flag.eq.2) then
-        value = value.and.MA_free_heap(weight_dos(2)) 
-        value = value.and.MA_free_heap(eigs_dos(2)) 
-        value = value.and.MA_free_heap(rho(2)) 
+        value = value.and.BA_free_heap(weight_dos(2)) 
+        value = value.and.BA_free_heap(eigs_dos(2)) 
+        value = value.and.BA_free_heap(rho(2)) 
       end if
       
       call ion_write(rtdb)

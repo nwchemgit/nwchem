@@ -63,19 +63,19 @@ c     *** parameters ***
 
       MAXBIN = INT(0.5d0*(volume**(0.33333333d0))/DELR)
 
-      value = MA_push_get(mt_int,MAXBIN,'hst89',hst(2),hst(1))
+      value = BA_push_get(mt_int,MAXBIN,'hst89',hst(2),hst(1))
       value = value.and.
-     >        MA_push_get(mt_int,natoms,'indxA',indxA(2),indxA(1))
+     >        BA_push_get(mt_int,natoms,'indxA',indxA(2),indxA(1))
       value = value.and.
-     >        MA_push_get(mt_int,natoms,'indxB',indxB(2),indxB(1))
+     >        BA_push_get(mt_int,natoms,'indxB',indxB(2),indxB(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,natoms,'rx',rx(2),rx(1))
+     >        BA_push_get(mt_dbl,natoms,'rx',rx(2),rx(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,natoms,'ry',ry(2),ry(1))
+     >        BA_push_get(mt_dbl,natoms,'ry',ry(2),ry(1))
       value = value.and.
-     >        MA_push_get(mt_dbl,natoms,'rz',rz(2),rz(1))
+     >        BA_push_get(mt_dbl,natoms,'rz',rz(2),rz(1))
       value = value.and.
-     >        MA_push_get(mt_byte,2*natoms,'symb',symb(2),symb(1))
+     >        BA_push_get(mt_byte,2*natoms,'symb',symb(2),symb(1))
       if (.not. value) 
      >   call errquit('pair_distab: out of stack memory',0,MA_ERR)
       
@@ -291,13 +291,13 @@ c     *** parameters ***
  1200 FORMAT(5E14.5)
  1201 FORMAT(3E14.5)
 
-      value =           MA_pop_stack(symb(2))
-      value = value.and.MA_pop_stack(rz(2))
-      value = value.and.MA_pop_stack(ry(2))
-      value = value.and.MA_pop_stack(rx(2))
-      value = value.and.MA_pop_stack(indxB(2))
-      value = value.and.MA_pop_stack(indxA(2))
-      value = value.and.MA_pop_stack(hst(2))
+      value =           BA_pop_stack(symb(2))
+      value = value.and.BA_pop_stack(rz(2))
+      value = value.and.BA_pop_stack(ry(2))
+      value = value.and.BA_pop_stack(rx(2))
+      value = value.and.BA_pop_stack(indxB(2))
+      value = value.and.BA_pop_stack(indxA(2))
+      value = value.and.BA_pop_stack(hst(2))
       if (.not. value) 
      >  call errquit('pair_distab:cannot release stack memory',0,
      &       MA_ERR)

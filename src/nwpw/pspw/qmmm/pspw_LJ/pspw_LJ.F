@@ -45,17 +45,17 @@ c
 
 *     **** allocate LJ parameters ****
       value = rtdb_parallel(.true.)
-      value = MA_alloc_get(mt_dbl,nkatm,
+      value = BA_alloc_get(mt_dbl,nkatm,
      >                 'sigma_atom',sigma_atom(2),sigma_atom(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nkatm,
+     >        BA_alloc_get(mt_dbl,nkatm,
      >                 'epsilon_atom',epsilon_atom(2),epsilon_atom(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nkatm*nkatm,
+     >        BA_alloc_get(mt_dbl,nkatm*nkatm,
      >                 'sigma_all',sigma_all(2),sigma_all(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nkatm*nkatm,
+     >        BA_alloc_get(mt_dbl,nkatm*nkatm,
      >                 'epsilon_all',epsilon_all(2),epsilon_all(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -179,11 +179,11 @@ c
 
       logical value
 
-      value =           MA_free_heap(sigma_atom(2))
-      value = value.and.MA_free_heap(epsilon_atom(2))
-      value = value.and.MA_free_heap(sigma_all(2))
-      value = value.and.MA_free_heap(epsilon_all(2))
-      if (.not.value) call errquit('pspw_LJ_end: error MA_free_heap',
+      value =           BA_free_heap(sigma_atom(2))
+      value = value.and.BA_free_heap(epsilon_atom(2))
+      value = value.and.BA_free_heap(sigma_all(2))
+      value = value.and.BA_free_heap(epsilon_all(2))
+      if (.not.value) call errquit('pspw_LJ_end: error BA_free_heap',
      >                             0,MA_ERR)
       return
       end

@@ -28,7 +28,7 @@
          value = .true.
          do i=1,size_list
             value = value.and.
-     >               MA_alloc_get(mt_dbl,nsize,
+     >               BA_alloc_get(mt_dbl,nsize,
      >                'Grsm_list1',grsm_mem(2,i),grsm_mem(1,i))
          end do
         if (.not. value) call errquit('band_Grsm_list_start:get heap',0,
@@ -54,7 +54,7 @@
          value = .true.
          do i=1,size_list
             value = value.and.
-     >               MA_free_heap(grsm_mem(2,i))
+     >               BA_free_heap(grsm_mem(2,i))
          end do
         if (.not. value) call errquit('band_Grsm_list_end:free heap',0,
      &       MA_ERR)

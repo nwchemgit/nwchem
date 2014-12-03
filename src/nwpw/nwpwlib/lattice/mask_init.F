@@ -11,9 +11,9 @@
 
       logical value
 
-      value = MA_free_heap(masker(2,0))
+      value = BA_free_heap(masker(2,0))
       value = value.and.
-     >        MA_free_heap(masker(2,1))
+     >        BA_free_heap(masker(2,1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       return
@@ -49,10 +49,10 @@
 *     **** allocate masker memory ****
       call D3dB_nfft3d(1,nfft3d)
 
-      value = MA_alloc_get(mt_log,nfft3d,
+      value = BA_alloc_get(mt_log,nfft3d,
      >                     'masker',masker(2,0),masker(1,0))
       value = value.and.
-     >        MA_alloc_get(mt_log,nfft3d,
+     >        BA_alloc_get(mt_log,nfft3d,
      >                     'masker',masker(2,1),masker(1,1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 

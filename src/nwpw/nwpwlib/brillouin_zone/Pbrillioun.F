@@ -26,12 +26,12 @@
       if (printbrill) then
 
 *     **** allocate from MA heap ****
-      value =MA_alloc_get(mt_dbl,(nbrillioun),'pweight',
+      value =BA_alloc_get(mt_dbl,(nbrillioun),'pweight',
      >                    pweight(2),pweight(1))
       value =value.and.
-     >       MA_alloc_get(mt_dbl,(3*nbrillioun),'pks',pks(2),pks(1))
+     >       BA_alloc_get(mt_dbl,(3*nbrillioun),'pks',pks(2),pks(1))
       value =value.and.
-     >       MA_alloc_get(mt_dbl,(3*nbrillioun),'pkv',pkv(2),pkv(1))
+     >       BA_alloc_get(mt_dbl,(3*nbrillioun),'pkv',pkv(2),pkv(1))
       if (.not. value)
      > call errquit('Pbrillioun_init:out of heap memory',0, MA_ERR)
 
@@ -93,9 +93,9 @@
 
 
       if (printbrill) then
-      value =           MA_free_heap(pweight(2))
-      value = value.and.MA_free_heap(pks(2))
-      value = value.and.MA_free_heap(pkv(2))
+      value =           BA_free_heap(pweight(2))
+      value = value.and.BA_free_heap(pks(2))
+      value = value.and.BA_free_heap(pkv(2))
       if (.not. value)
      > call errquit('brillioun_end:freeing heap memory',0, MA_ERR)
       end if

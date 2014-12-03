@@ -68,18 +68,18 @@ c     **** external functions ****
       end if
       
 *     ***paw_xc energies ***
-      ok = MA_alloc_get(mt_dbl,nion,"paw_xc_e",paw_xc_e(2),paw_xc_e(1))
+      ok = BA_alloc_get(mt_dbl,nion,"paw_xc_e",paw_xc_e(2),paw_xc_e(1))
 
       
 *     *** xc matrix arrays - nbasis_max**2 * (mult_l_max+1)**2 ***
       mtr_size = 2*(nbasis_max**2)*((mult_l_max+1)**2)
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,mtr_size,"paw_xc_matr",
+     >     BA_alloc_get(mt_dbl,mtr_size,"paw_xc_matr",
      >                  paw_xc_matr(2),paw_xc_matr(1))
 
       if (gga.ge.10) then
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,3*mtr_size,"paw_xc_dmatr_u",
+     >     BA_alloc_get(mt_dbl,3*mtr_size,"paw_xc_dmatr_u",
      >                  paw_xc_dmatr(2),paw_xc_dmatr(1))
       end if
       if (.not.ok)
@@ -88,7 +88,7 @@ c     **** external functions ****
  
 
       mtr_size        = 2*nprj_max*nprj_max
-      ok = MA_alloc_get(mt_dbl,mtr_size,"paw_xc_pot",
+      ok = BA_alloc_get(mt_dbl,mtr_size,"paw_xc_pot",
      >                  paw_xc_pot(2),paw_xc_pot(1)) 
       if (.not.ok)
      > call errquit("init_paw_vxc: error allocating paw_xc_pot",
@@ -106,23 +106,23 @@ c     **** external functions ****
       end if
       
 
-      ok = MA_alloc_get(mt_dbl,paw_xc_nphi,"paw_xc_angle_phi",
+      ok = BA_alloc_get(mt_dbl,paw_xc_nphi,"paw_xc_angle_phi",
      >                  paw_xc_angle_phi(2),paw_xc_angle_phi(1))
 
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,paw_xc_ntheta,"paw_xc_cos_theta",
+     >     BA_alloc_get(mt_dbl,paw_xc_ntheta,"paw_xc_cos_theta",
      >                  paw_xc_cos_theta(2),paw_xc_cos_theta(1))
 
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,paw_xc_nphi,"paw_xc_w_phi",
+     >     BA_alloc_get(mt_dbl,paw_xc_nphi,"paw_xc_w_phi",
      >                  paw_xc_w_phi(2),paw_xc_w_phi(1))
 
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,paw_xc_ntheta,"paw_xc_w_theta",
+     >     BA_alloc_get(mt_dbl,paw_xc_ntheta,"paw_xc_w_theta",
      >                  paw_xc_w_theta(2),paw_xc_w_theta(1))
 
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,
+     >     BA_alloc_get(mt_dbl,
      >              paw_xc_ntheta*paw_xc_nphi*(mult_l_max+1)**2,
      >              "paw_xc_tlm",
      >              paw_xc_tlm(2),paw_xc_tlm(1))
@@ -133,14 +133,14 @@ c     **** external functions ****
 
 c     **** derivatives wrt to theta ****
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,
+     >     BA_alloc_get(mt_dbl,
      >              paw_xc_ntheta*paw_xc_nphi*(mult_l_max+1)**2,
      >              "paw_xc_dtlm_theta",
      >              paw_xc_dtlm_theta(2),paw_xc_dtlm_theta(1))
 
 c     **** derivatives wrt to phi ****
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,
+     >     BA_alloc_get(mt_dbl,
      >              paw_xc_ntheta*paw_xc_nphi*(mult_l_max+1)**2,
      >              "paw_xc_dtlm_phi",
      >              paw_xc_dtlm_phi(2),paw_xc_dtlm_phi(1))
@@ -234,46 +234,46 @@ c       **** define derivative wrt to phi ****
 *     *** temp arrays ***
       nsize = 2*n1dgrid_max
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"rho_ae",rho_ae(2),rho_ae(1))
+     >     BA_alloc_get(mt_dbl,nsize,"rho_ae",rho_ae(2),rho_ae(1))
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"rho_ps",rho_ps(2),rho_ps(1))
+     >     BA_alloc_get(mt_dbl,nsize,"rho_ps",rho_ps(2),rho_ps(1))
       
 *     **** allocate gradient's and agr's ****
       if (gga.ge.10) then
        nsize = 2*3*n1dgrid_max
        ok = ok.and.
-     >      MA_alloc_get(mt_dbl,nsize,
+     >      BA_alloc_get(mt_dbl,nsize,
      >              "paw_tmp_drho_ae",
      >              rho_ae_prime(2),rho_ae_prime(1))
        ok = ok.and.
-     >      MA_alloc_get(mt_dbl,nsize,
+     >      BA_alloc_get(mt_dbl,nsize,
      >                   "paw_tmp_drho_ps",
      >                   rho_ps_prime(2),rho_ps_prime(1))
        nsize = (2*2-1)*n1dgrid_max
        ok = ok.and.
-     >      MA_alloc_get(mt_dbl,nsize,"agr_ae",agr_ae(2),agr_ae(1))
+     >      BA_alloc_get(mt_dbl,nsize,"agr_ae",agr_ae(2),agr_ae(1))
        ok = ok.and.
-     >      MA_alloc_get(mt_dbl,nsize,"agr_ps",agr_ps(2),agr_ps(1))
+     >      BA_alloc_get(mt_dbl,nsize,"agr_ps",agr_ps(2),agr_ps(1))
        ok = ok.and.
-     >      MA_alloc_get(mt_dbl,nsize,"fdn_ae",fdn_ae(2),fdn_ae(1))
+     >      BA_alloc_get(mt_dbl,nsize,"fdn_ae",fdn_ae(2),fdn_ae(1))
        ok = ok.and.
-     >      MA_alloc_get(mt_dbl,nsize,"fdn_ps",fdn_ps(2),fdn_ps(1))
+     >      BA_alloc_get(mt_dbl,nsize,"fdn_ps",fdn_ps(2),fdn_ps(1))
       end if
 
       nsize = 2*n1dgrid_max
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"vxc_ae",vxc_ae(2),vxc_ae(1))
+     >     BA_alloc_get(mt_dbl,nsize,"vxc_ae",vxc_ae(2),vxc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"vxc_ps",vxc_ps(2),vxc_ps(1))
+     >     BA_alloc_get(mt_dbl,nsize,"vxc_ps",vxc_ps(2),vxc_ps(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"exc_ae",exc_ae(2),exc_ae(1))
+     >     BA_alloc_get(mt_dbl,nsize,"exc_ae",exc_ae(2),exc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"exc_ps",exc_ps(2),exc_ps(1))
+     >     BA_alloc_get(mt_dbl,nsize,"exc_ps",exc_ps(2),exc_ps(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"xc_temp",
+     >     BA_alloc_get(mt_dbl,nsize,"xc_temp",
      >                   xc_temp(2),xc_temp(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"xc_temp2",
+     >     BA_alloc_get(mt_dbl,nsize,"xc_temp2",
      >                  xc_temp2(2),xc_temp2(1))
 
 
@@ -281,40 +281,40 @@ c       **** define derivative wrt to phi ****
       nsize = 2*n1dgrid_max*(mult_l_max+1)**2
 
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"paw_vxc_ae",
+     >     BA_alloc_get(mt_dbl,nsize,"paw_vxc_ae",
      >                  paw_vxc_ae(2),paw_vxc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"paw_vxc_ps",
+     >     BA_alloc_get(mt_dbl,nsize,"paw_vxc_ps",
      >                  paw_vxc_ps(2),paw_vxc_ps(1))
 
 *     *** allocate dvxclm multipole expansion  arrays ****
       if (gga.ge.10) then
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,3*nsize,
+     >     BA_alloc_get(mt_dbl,3*nsize,
      >                  "paw_dvxc_u_ae",
      >                  paw_dvxc_ae(2),paw_dvxc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,3*nsize,
+     >     BA_alloc_get(mt_dbl,3*nsize,
      >                  "paw_dvxc_u_ps",
      >                  paw_dvxc_ps(2),paw_dvxc_ps(1))
       end if
 
 *     *** allocate rholm multipole expansion  arrays ****
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"paw_rho2_ae",
+     >     BA_alloc_get(mt_dbl,nsize,"paw_rho2_ae",
      >                  paw_rho2_ae(2),paw_rho2_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"paw_rho2_ps",
+     >     BA_alloc_get(mt_dbl,nsize,"paw_rho2_ps",
      >                  paw_rho2_ps(2),paw_rho2_ps(1))
 
 *     *** allocate rholm_prime multipole expansion arrays - need for GGA's****
       if (gga.ge.10) then
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,
+     >     BA_alloc_get(mt_dbl,nsize,
      >                  "paw_rho2_ae_prime",
      >                   paw_rho2_ae_prime(2),paw_rho2_ae_prime(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,
+     >     BA_alloc_get(mt_dbl,nsize,
      >                  "paw_rho2_ps_prime",
      >                  paw_rho2_ps_prime(2),paw_rho2_ps_prime(1))
       end if
@@ -330,10 +330,10 @@ c      end if
 
 
 *      ***** set up index arrays for nwpw_xc_density_solve2 *****
-      ok = MA_alloc_get(mt_int,nkatm,"nindx_rholm",
+      ok = BA_alloc_get(mt_int,nkatm,"nindx_rholm",
      >                  nindx_rholm(2),nindx_rholm(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nkatm,"shift_rholm",
+     >     BA_alloc_get(mt_int,nkatm,"shift_rholm",
      >                  shift_rholm(2),shift_rholm(1))
       if (.not.ok)
      > call errquit("nwpw_xc_init: error allocating work arrays",2,0)
@@ -363,25 +363,25 @@ c      end if
         int_mb(nindx_rholm(1)+ia-1) = nsize-int_mb(shift_rholm(1)+ia-1)
       end do
 
-      ok = MA_alloc_get(mt_int,nsize,"bi_rholm",bi_rholm(2),bi_rholm(1))
+      ok = BA_alloc_get(mt_int,nsize,"bi_rholm",bi_rholm(2),bi_rholm(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"bj_rholm",bj_rholm(2),bj_rholm(1))
+     >     BA_alloc_get(mt_int,nsize,"bj_rholm",bj_rholm(2),bj_rholm(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"lm_rholm",lm_rholm(2),lm_rholm(1))
+     >     BA_alloc_get(mt_int,nsize,"lm_rholm",lm_rholm(2),lm_rholm(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"iprj_rholm",
+     >     BA_alloc_get(mt_int,nsize,"iprj_rholm",
      >                 iprj_rholm(2),iprj_rholm(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"jprj_rholm",
+     >     BA_alloc_get(mt_int,nsize,"jprj_rholm",
      >                 jprj_rholm(2),jprj_rholm(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"coeff_rholm",
+     >     BA_alloc_get(mt_dbl,nsize,"coeff_rholm",
      >                 coeff_rholm(2),coeff_rholm(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"coeff_rholm2",
+     >     BA_alloc_get(mt_dbl,nsize,"coeff_rholm2",
      >                 coeff_rholm2(2),coeff_rholm2(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"coeff_rholm3",
+     >     BA_alloc_get(mt_dbl,nsize,"coeff_rholm3",
      >                 coeff_rholm3(2),coeff_rholm3(1))
       if (.not.ok)
      > call errquit("nwpw_xc_init: error allocating work arrays",3,0)
@@ -785,55 +785,55 @@ c
       
       call nwpw_timing_start(4)
       ok = .true.
-      ok = ok.and.MA_free_heap(coeff_rholm(2))
-      ok = ok.and.MA_free_heap(coeff_rholm2(2))
-      ok = ok.and.MA_free_heap(coeff_rholm3(2))
-      ok = ok.and.MA_free_heap(jprj_rholm(2))
-      ok = ok.and.MA_free_heap(iprj_rholm(2))
-      ok = ok.and.MA_free_heap(lm_rholm(2))
-      ok = ok.and.MA_free_heap(bj_rholm(2))
-      ok = ok.and.MA_free_heap(bi_rholm(2))
-      ok = ok.and.MA_free_heap(shift_rholm(2))
-      ok = ok.and.MA_free_heap(nindx_rholm(2))
+      ok = ok.and.BA_free_heap(coeff_rholm(2))
+      ok = ok.and.BA_free_heap(coeff_rholm2(2))
+      ok = ok.and.BA_free_heap(coeff_rholm3(2))
+      ok = ok.and.BA_free_heap(jprj_rholm(2))
+      ok = ok.and.BA_free_heap(iprj_rholm(2))
+      ok = ok.and.BA_free_heap(lm_rholm(2))
+      ok = ok.and.BA_free_heap(bj_rholm(2))
+      ok = ok.and.BA_free_heap(bi_rholm(2))
+      ok = ok.and.BA_free_heap(shift_rholm(2))
+      ok = ok.and.BA_free_heap(nindx_rholm(2))
 
 
-      ok = ok.and.MA_free_heap(exc_ps(2))
-      ok = ok.and.MA_free_heap(exc_ae(2))
-      ok = ok.and.MA_free_heap(vxc_ps(2))
-      ok = ok.and.MA_free_heap(vxc_ae(2))
-      ok = ok.and.MA_free_heap(rho_ps(2))
-      ok = ok.and.MA_free_heap(rho_ae(2))
-      ok = ok.and.MA_free_heap(xc_temp(2))
-      ok = ok.and.MA_free_heap(xc_temp2(2))
+      ok = ok.and.BA_free_heap(exc_ps(2))
+      ok = ok.and.BA_free_heap(exc_ae(2))
+      ok = ok.and.BA_free_heap(vxc_ps(2))
+      ok = ok.and.BA_free_heap(vxc_ae(2))
+      ok = ok.and.BA_free_heap(rho_ps(2))
+      ok = ok.and.BA_free_heap(rho_ae(2))
+      ok = ok.and.BA_free_heap(xc_temp(2))
+      ok = ok.and.BA_free_heap(xc_temp2(2))
 
-      ok = ok.and.MA_free_heap(paw_xc_e(2))
-      ok = ok.and.MA_free_heap(paw_xc_tlm(2)) 
-      ok = ok.and.MA_free_heap(paw_xc_w_theta(2) )
-      ok = ok.and.MA_free_heap(paw_xc_w_phi(2))
-      ok = ok.and.MA_free_heap(paw_xc_cos_theta(2)) 
-      ok = ok.and.MA_free_heap(paw_xc_angle_phi(2))
+      ok = ok.and.BA_free_heap(paw_xc_e(2))
+      ok = ok.and.BA_free_heap(paw_xc_tlm(2)) 
+      ok = ok.and.BA_free_heap(paw_xc_w_theta(2) )
+      ok = ok.and.BA_free_heap(paw_xc_w_phi(2))
+      ok = ok.and.BA_free_heap(paw_xc_cos_theta(2)) 
+      ok = ok.and.BA_free_heap(paw_xc_angle_phi(2))
 
-      ok = ok.and.MA_free_heap(paw_xc_pot(2))
-      ok = ok.and.MA_free_heap(paw_xc_matr(2))
-      ok = ok.and.MA_free_heap(paw_vxc_ae(2))
-      ok = ok.and.MA_free_heap(paw_vxc_ps(2))
-      ok = ok.and.MA_free_heap(paw_rho2_ae(2))
-      ok = ok.and.MA_free_heap(paw_rho2_ps(2))
+      ok = ok.and.BA_free_heap(paw_xc_pot(2))
+      ok = ok.and.BA_free_heap(paw_xc_matr(2))
+      ok = ok.and.BA_free_heap(paw_vxc_ae(2))
+      ok = ok.and.BA_free_heap(paw_vxc_ps(2))
+      ok = ok.and.BA_free_heap(paw_rho2_ae(2))
+      ok = ok.and.BA_free_heap(paw_rho2_ps(2))
 
       if (gga.ge.10) then
-         ok = ok.and.MA_free_heap(paw_rho2_ae_prime(2))
-         ok = ok.and.MA_free_heap(paw_rho2_ps_prime(2))
-         ok = ok.and.MA_free_heap(rho_ps_prime(2))
-         ok = ok.and.MA_free_heap(rho_ae_prime(2))
-         ok = ok.and.MA_free_heap(agr_ae(2))
-         ok = ok.and.MA_free_heap(agr_ps(2))
-         ok = ok.and.MA_free_heap(fdn_ae(2))
-         ok = ok.and.MA_free_heap(fdn_ps(2))
-         ok = ok.and.MA_free_heap(paw_xc_dtlm_phi(2))
-         ok = ok.and.MA_free_heap(paw_xc_dtlm_theta(2))
-         ok = ok.and.MA_free_heap(paw_dvxc_ae(2))
-         ok = ok.and.MA_free_heap(paw_dvxc_ps(2))
-         ok = ok.and.MA_free_heap(paw_xc_dmatr(2))
+         ok = ok.and.BA_free_heap(paw_rho2_ae_prime(2))
+         ok = ok.and.BA_free_heap(paw_rho2_ps_prime(2))
+         ok = ok.and.BA_free_heap(rho_ps_prime(2))
+         ok = ok.and.BA_free_heap(rho_ae_prime(2))
+         ok = ok.and.BA_free_heap(agr_ae(2))
+         ok = ok.and.BA_free_heap(agr_ps(2))
+         ok = ok.and.BA_free_heap(fdn_ae(2))
+         ok = ok.and.BA_free_heap(fdn_ps(2))
+         ok = ok.and.BA_free_heap(paw_xc_dtlm_phi(2))
+         ok = ok.and.BA_free_heap(paw_xc_dtlm_theta(2))
+         ok = ok.and.BA_free_heap(paw_dvxc_ae(2))
+         ok = ok.and.BA_free_heap(paw_dvxc_ps(2))
+         ok = ok.and.BA_free_heap(paw_xc_dmatr(2))
       end if
 
 

@@ -33,10 +33,10 @@ c      nemax = psi_neq(1)+psi_neq(2)
 c      ne(1) = psi_neq(1)
 c      ne(2) = psi_neq(2)
 
-      value = MA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
+      value = BA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
      >                     'Hold',Hold(2),Hold(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
+     >        BA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
      >                     'Q',Q(2),Q(1))
       value = value.and.Dneall_m_allocate(0,R)
       value = value.and.Dneall_m_allocate(0,A)
@@ -44,7 +44,7 @@ c      ne(2) = psi_neq(2)
       value = value.and.Dneall_4m_allocate(0,W)
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*(psi_ne(1)+psi_ne(2)),
+     >        BA_alloc_get(mt_dbl,2*(psi_ne(1)+psi_ne(2)),
      >                     'S',S(2),S(1))
       if (.not. value) call errquit('geodesic2_init:allocating heap',0,
      &       MA_ERR)
@@ -74,13 +74,13 @@ c      ne(2) = psi_neq(2)
       logical  Dneall_m_free
       external Dneall_m_free
 
-      value =           MA_free_heap(S(2))   
+      value =           BA_free_heap(S(2))   
       value = value.and.Dneall_m_free(W)
       value = value.and.Dneall_m_free(V)
       value = value.and.Dneall_m_free(A)
       value = value.and.Dneall_m_free(R)
-      value = value.and.MA_free_heap(Q(2))
-      value = value.and.MA_free_heap(Hold(2))
+      value = value.and.BA_free_heap(Q(2))
+      value = value.and.BA_free_heap(Hold(2))
       if (.not. value) 
      >  call errquit('geodesic2_finalize:freeing heap memory',0,
      &       MA_ERR)

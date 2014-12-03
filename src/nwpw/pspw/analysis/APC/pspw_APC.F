@@ -69,19 +69,19 @@ c
 
 
 *     **** Allocate memory needed for pspw_APC ****
-      value = MA_alloc_get(mt_dbl,ngs*ngs,'AAPC',A(2),A(1))
+      value = BA_alloc_get(mt_dbl,ngs*ngs,'AAPC',A(2),A(1))
       value = value.and.
-     >          MA_alloc_get(mt_dbl,ngs*ngs,'AmAPC',Am(2),Am(1))
+     >          BA_alloc_get(mt_dbl,ngs*ngs,'AmAPC',Am(2),Am(1))
       value = value.and.
-     >          MA_alloc_get(mt_dbl,ngs,'bAPC',b(2),b(1))
+     >          BA_alloc_get(mt_dbl,ngs,'bAPC',b(2),b(1))
       value = value.and.
-     >          MA_alloc_get(mt_dbl,ngs,'qAPC',q(2),q(1))
+     >          BA_alloc_get(mt_dbl,ngs,'qAPC',q(2),q(1))
       value = value.and.
-     >          MA_alloc_get(mt_dbl,nga,'gammaAPC',gamma(2),gamma(1))
+     >          BA_alloc_get(mt_dbl,nga,'gammaAPC',gamma(2),gamma(1))
       value = value.and.
-     >          MA_alloc_get(mt_dbl,npack0,'wAPC',w(2),w(1))
+     >          BA_alloc_get(mt_dbl,npack0,'wAPC',w(2),w(1))
       value = value.and.
-     >          MA_alloc_get(mt_dbl,npack0*nga,'gausAPC',
+     >          BA_alloc_get(mt_dbl,npack0*nga,'gausAPC',
      >                       gaus(2),gaus(1))
 
 *     **** EXIT IF OUT OF MEMORY ****
@@ -125,7 +125,7 @@ c    >     + j*(nxh+1)
 c    >     + i+1
       call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       do i = 1,nfft3d
@@ -140,7 +140,7 @@ c    >     + i+1
       end do
       call Pack_t_pack(0,dbl_mb(tmp1(1)))
       call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(w(1)))
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
 
@@ -148,7 +148,7 @@ c    >     + i+1
 *     **** define Gaussians in G-space ****
 *     *************************************
 
-      value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      value = BA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -167,7 +167,7 @@ c    >     + i+1
      >                      dbl_mb(gaus(1)+(n-1)*npack0))
       end do
 
-      value = MA_pop_stack(tmp1(2))
+      value = BA_pop_stack(tmp1(2))
       if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
 *     **** DEBUG - write out information *****
@@ -201,13 +201,13 @@ c    >     + i+1
 
       
       if (nga.gt.0) then
-        value = MA_free_heap(A(2))
-        value = value.and.MA_free_heap(Am(2))
-        value = value.and.MA_free_heap(b(2))
-        value = value.and.MA_free_heap(q(2))
-        value = value.and.MA_free_heap(gamma(2))
-        value = value.and.MA_free_heap(w(2))
-        value = value.and.MA_free_heap(gaus(2))
+        value = BA_free_heap(A(2))
+        value = value.and.BA_free_heap(Am(2))
+        value = value.and.BA_free_heap(b(2))
+        value = value.and.BA_free_heap(q(2))
+        value = value.and.BA_free_heap(gamma(2))
+        value = value.and.BA_free_heap(w(2))
+        value = value.and.BA_free_heap(gaus(2))
          if (.not. value) call errquit('error freeing heap',0, MA_ERR)
         nga = 0
         ngs = 0
@@ -258,14 +258,14 @@ c    >     + i+1
          call Pack_npack(0,npack0)
 
 *         **** get memory from stack ****
-         value = MA_push_get(mt_dcpl,nfft3d,'ttexi',exi(2),exi(1))
+         value = BA_push_get(mt_dcpl,nfft3d,'ttexi',exi(2),exi(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,nfft3d,'ttexj',exj(2),exj(1))
+     >           BA_push_get(mt_dcpl,nfft3d,'ttexj',exj(2),exj(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,npack0,'ghaus_i1',
+     >           BA_push_get(mt_dcpl,npack0,'ghaus_i1',
      >                       gaus_i(2),gaus_i(1))
          value = value.and.
-     >           MA_push_get(mt_dcpl,npack0,'ghaus_j2',
+     >           BA_push_get(mt_dcpl,npack0,'ghaus_j2',
      >                                       gaus_j(2),gaus_j(1))
          if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -352,10 +352,10 @@ c     >                               dcpl_mb(gaus_i(1)))
              end do
            end do
          end do
-         value = MA_pop_stack(gaus_j(2))
-         value = value.and.MA_pop_stack(gaus_i(2))
-         value = value.and.MA_pop_stack(exj(2))
-         value = value.and.MA_pop_stack(exi(2))
+         value = BA_pop_stack(gaus_j(2))
+         value = value.and.BA_pop_stack(gaus_i(2))
+         value = value.and.BA_pop_stack(exj(2))
+         value = value.and.BA_pop_stack(exi(2))
          if (.not. value) call errquit('popping of stack memory',0,
      &       MA_ERR)
 
@@ -364,9 +364,9 @@ c     >                               dcpl_mb(gaus_i(1)))
          call dcopy(ngs,0.0d0,0,dbl_mb(q(1)),1)
          if (taskid.eq.MASTER) then
 
-           value = MA_push_get(mt_int,ngs,'ipivAPC',ipiv(2),ipiv(1))
+           value = BA_push_get(mt_int,ngs,'ipivAPC',ipiv(2),ipiv(1))
            value = value.and.
-     >             MA_push_get(mt_dbl,ngs*ngs,'AAAAPC',AAA(2),AAA(1))
+     >             BA_push_get(mt_dbl,ngs*ngs,'AAAAPC',AAA(2),AAA(1))
            if (.not. value) call errquit('out of stack memory',0,
      &       MA_ERR)
 
@@ -383,8 +383,8 @@ c     >                               dcpl_mb(gaus_i(1)))
      >                        dbl_mb(Am(1)),ngs,
      >                        j)
 
-            value = MA_pop_stack(AAA(2))
-            value = value.and.MA_pop_stack(ipiv(2))
+            value = BA_pop_stack(AAA(2))
+            value = value.and.BA_pop_stack(ipiv(2))
             if (.not. value) call errquit('popping stack memory',0,
      &       MA_ERR)
 
@@ -452,9 +452,9 @@ c     >                               dcpl_mb(gaus_i(1)))
       n2ft3d = 2*nfft3d
 
 *     **** get memory from stack ****
-      value = MA_push_get(mt_dcpl,npack0,'dngakjs',dng(2),dng(1))
+      value = BA_push_get(mt_dcpl,npack0,'dngakjs',dng(2),dng(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'tmpxkjz',tmp(2),tmp(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'tmpxkjz',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0,
      &       MA_ERR)
 
@@ -465,7 +465,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call D3dB_rc_fft3f(1,dcpl_mb(tmp(1)))
       call Pack_c_pack(0,dcpl_mb(tmp(1)))
       call Pack_c_Copy(0,dcpl_mb(tmp(1)),dcpl_mb(dng(1)))
-      value = MA_pop_stack(tmp(2))
+      value = BA_pop_stack(tmp(2))
       if (.not. value) call errquit('popping of stack memory',0,
      &       MA_ERR)
 
@@ -473,7 +473,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng(1)))
 
 
-      value = value.and.MA_pop_stack(dng(2))
+      value = value.and.BA_pop_stack(dng(2))
       if (.not. value) call errquit('popping of stack memory',0,
      &       MA_ERR)
 

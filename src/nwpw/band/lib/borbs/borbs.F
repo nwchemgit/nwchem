@@ -29,30 +29,30 @@
 
 *     **** allocate borb datastructure  and borb tag lists****
       call borb_projector_init(2*nkatmx)
-      value = MA_alloc_get(mt_int,(nkatmx),'borbs',borbs(2),borbs(1))
+      value = BA_alloc_get(mt_int,(nkatmx),'borbs',borbs(2),borbs(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_int,(nkatmx),'lmmax',lmmax(2),lmmax(1))
+     >        BA_alloc_get(mt_int,(nkatmx),'lmmax',lmmax(2),lmmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nkatmx),'lmax',lmax(2),lmax(1))
+     >        BA_alloc_get(mt_int,(nkatmx),'lmax',lmax(2),lmax(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nkatmx),'locp',locp(2),locp(1))
+     >        BA_alloc_get(mt_int,(nkatmx),'locp',locp(2),locp(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(nkatmx),'rcut',rcut(2),rcut(1))
+     >        BA_alloc_get(mt_dbl,(nkatmx),'rcut',rcut(2),rcut(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,(nkatmx),'lmbda',lmbda(2),lmbda(1))
+     >        BA_alloc_get(mt_dbl,(nkatmx),'lmbda',lmbda(2),lmbda(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >        BA_alloc_get(mt_int,(nion*norbs_max),
      >                    'lmborb',lmborb(2),lmborb(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >        BA_alloc_get(mt_int,(nion*norbs_max),
      >                    'iaborb',iaborb(2),iaborb(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >        BA_alloc_get(mt_int,(nion*norbs_max),
      >                    'iiborb',iiborb(2),iiborb(1))
       value = value.and.
-     >        MA_alloc_get(mt_int,(nion*norbs_max),
+     >        BA_alloc_get(mt_int,(nion*norbs_max),
      >                    'basisborb',basisborb(2),basisborb(1))
 
       borbs_init = value
@@ -78,16 +78,16 @@
 *     **** deallocate projector data ****
       call borb_projector_end()
 
-      value = MA_free_heap(borbs(2))
-      value = value.and.MA_free_heap(lmmax(2))
-      value = value.and.MA_free_heap(lmax(2))
-      value = value.and.MA_free_heap(locp(2))
-      value = value.and.MA_free_heap(rcut(2))
-      value = value.and.MA_free_heap(lmbda(2))
-      value = value.and.MA_free_heap(lmborb(2))
-      value = value.and.MA_free_heap(iaborb(2))
-      value = value.and.MA_free_heap(iiborb(2))
-      value = value.and.MA_free_heap(basisborb(2))
+      value = BA_free_heap(borbs(2))
+      value = value.and.BA_free_heap(lmmax(2))
+      value = value.and.BA_free_heap(lmax(2))
+      value = value.and.BA_free_heap(locp(2))
+      value = value.and.BA_free_heap(rcut(2))
+      value = value.and.BA_free_heap(lmbda(2))
+      value = value.and.BA_free_heap(lmborb(2))
+      value = value.and.BA_free_heap(iaborb(2))
+      value = value.and.BA_free_heap(iiborb(2))
+      value = value.and.BA_free_heap(basisborb(2))
       if (.not. value) call errquit('borbs_end:freeing heap memory',0,
      &       MA_ERR)
 
@@ -340,7 +340,7 @@
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(nbq,npack1)
 
-      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       if (.not. value) call errquit('borbs_borb:out of heap memory',0,
      &       MA_ERR)
 
@@ -371,7 +371,7 @@
       end if
 
 
-      value = MA_pop_stack(exi(2))
+      value = BA_pop_stack(exi(2))
       if (.not. value) call errquit('borbs_borb:freeing heap memory',0,
      &       MA_ERR)
 
@@ -577,10 +577,10 @@
       call Cram_max_npack(npack1)
       call Parallel_taskid(taskid)
 
-      value = MA_push_get(mt_dbl,(4*nfft3d),'tmp',tmp(2),tmp(1))
+      value = BA_push_get(mt_dbl,(4*nfft3d),'tmp',tmp(2),tmp(1))
       if (.not. value) go to 9000
 
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = BA_push_get(mt_dbl,(2*nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) go to 9000
 
 *     **** read pseudopotentials ****
@@ -671,8 +671,8 @@
       ibasis = icount
       call borbs_normalize()
 
- 9000 value2 = MA_pop_stack(tmp2(2))
-      value2 = MA_pop_stack(tmp(2))
+ 9000 value2 = BA_pop_stack(tmp2(2))
+      value2 = BA_pop_stack(tmp(2))
       
 
       borbs_readall = value

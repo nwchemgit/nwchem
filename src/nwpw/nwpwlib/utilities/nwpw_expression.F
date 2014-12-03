@@ -152,14 +152,14 @@
 
 
 *        ***** allocate and read pmeta,ameta,bmeta,parammeta, and ymeta ****
-         value = MA_alloc_get(mt_int,nemach,'emachine:nc',nc(2),nc(1))
+         value = BA_alloc_get(mt_int,nemach,'emachine:nc',nc(2),nc(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,nemach,'emachine:nf',nf(2),nf(1))
+     >           BA_alloc_get(mt_int,nemach,'emachine:nf',nf(2),nf(1))
          value = value.and.
-     >           MA_alloc_get(mt_int,5*200*nemach,'emachine:code',
+     >           BA_alloc_get(mt_int,5*200*nemach,'emachine:code',
      >                        code(2),code(1))
          value = value.and.
-     >           MA_alloc_get(mt_dbl,50*nemach,'emachine:fconst',
+     >           BA_alloc_get(mt_dbl,50*nemach,'emachine:fconst',
      >                        fconst(2),fconst(1))
          if (.not.value)
      >      call errquit(
@@ -224,10 +224,10 @@
       value = rtdb_delete(rtdb,rtdb_name)
 
       if (started) then
-         value =           MA_free_heap(nc(2))
-         value = value.and.MA_free_heap(nf(2))
-         value = value.and.MA_free_heap(code(2))
-         value = value.and.MA_free_heap(fconst(2))
+         value =           BA_free_heap(nc(2))
+         value = value.and.BA_free_heap(nf(2))
+         value = value.and.BA_free_heap(code(2))
+         value = value.and.BA_free_heap(fconst(2))
          if (.not.value)
      >   call errquit(
      >   'nwpw_expression_end:error calling rtdb_delete',0,RTDB_ERR)

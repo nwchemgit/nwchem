@@ -45,18 +45,18 @@
       zero = dcmplx(0.0d0,0.0d0)
 
 *     **** allocate space from stack ****
-      value = MA_push_get(mt_dcpl,(n*n),'At',
+      value = BA_push_get(mt_dcpl,(n*n),'At',
      >                    At(2),At(1))
-      value = MA_push_get(mt_dcpl,(n*n),'Att',
+      value = BA_push_get(mt_dcpl,(n*n),'Att',
      >                    Att(2),Att(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(n*n),'expplusA',
+     >        BA_push_get(mt_dcpl,(n*n),'expplusA',
      >                    expplusA(2),expplusA(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(n*n),'expminusA',
+     >        BA_push_get(mt_dcpl,(n*n),'expminusA',
      >                    expminusA(2),expminusA(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,(n*n),'expminusAtotal',
+     >        BA_push_get(mt_dcpl,(n*n),'expminusAtotal',
      >                    expminusAtotal(2),expminusAtotal(1))
       if (.not. value) 
      >  call errquit('silvestrelli_minimize:out of stack memory',0,0)
@@ -217,11 +217,11 @@
       call zcopy(n*n,dcpl_mb(expminusAtotal(1)),1,A,1)
 
 *     **** pop memory ***
-      value =           MA_pop_stack(expminusAtotal(2))
-      value = value.and.MA_pop_stack(expminusA(2))
-      value = value.and.MA_pop_stack(expplusA(2))
-      value = value.and.MA_pop_stack(Att(2))
-      value = value.and.MA_pop_stack(At(2))  
+      value =           BA_pop_stack(expminusAtotal(2))
+      value = value.and.BA_pop_stack(expminusA(2))
+      value = value.and.BA_pop_stack(expplusA(2))
+      value = value.and.BA_pop_stack(Att(2))
+      value = value.and.BA_pop_stack(At(2))  
       if (.not. value) 
      >  call errquit('silvestrelli_minimize:popping stack memory',1,0)
 

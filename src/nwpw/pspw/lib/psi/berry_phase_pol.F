@@ -31,8 +31,8 @@ ccccccccccccccccccccccccccccccccccccccccccc
       call psi_get_ne(ispin,ne)
       n2fft=nfft3d*2
       nesq=ne(1)*ne(1)*2
-      val=MA_push_get(mt_int,ne(1),'pivs',pivs(2),pivs(1))
-      val=val.and.MA_push_get(mt_dcpl,nesq,'smat',smat(2),smat(1))
+      val=BA_push_get(mt_int,ne(1),'pivs',pivs(2),pivs(1))
+      val=val.and.BA_push_get(mt_dcpl,nesq,'smat',smat(2),smat(1))
       if (.not.val) then
         call errquit("berry_phase_pol: stack depleted",0,0)
       end if
@@ -119,8 +119,8 @@ c      if (nodeid.eq.MASTER) then
       write(6,1010)tmp
       call flush(6)
 c      end if
-      val=MA_pop_stack(smat(2))
-      val=val.and.MA_pop_stack(pivs(2))
+      val=BA_pop_stack(smat(2))
+      val=val.and.BA_pop_stack(pivs(2))
       if (.not.val) then
         call errquit("berry_phase_pol: pop stack failed!",0,0)
       end if

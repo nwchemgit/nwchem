@@ -44,7 +44,7 @@
 c      real*8   dsum
 c      external dsum
 
-      value = MA_push_get(mt_dbl,nrange,
+      value = BA_push_get(mt_dbl,nrange,
      >                    'integrand',integrand(2),integrand(1))
       if (.not.value) call errquit('def_integr: push stack',0, MA_ERR)
 
@@ -68,7 +68,7 @@ c      external dsum
      >        *(dbl_mb(integrand(1))
      >         +dbl_mb(integrand(1)+nrange-1))
 
-      value = MA_pop_stack(integrand(2))
+      value = BA_pop_stack(integrand(2))
       if (.not.value) call errquit('def_integr: pop stack',1, MA_ERR)
 
       log_integrate_def = sum_f
@@ -116,7 +116,7 @@ c      external dsum
 c      real*8   dsum
 c      external dsum
 
-      value = MA_push_get(mt_dbl,nrange,
+      value = BA_push_get(mt_dbl,nrange,
      >                    'integrand',integrand(2),integrand(1))
       if (.not.value) call errquit('def_integr: push stack',0, MA_ERR)
 
@@ -140,7 +140,7 @@ c      external dsum
      >        *(dbl_mb(integrand(1))
      >         +dbl_mb(integrand(1)+nrange-1))
 
-      value = MA_pop_stack(integrand(2))
+      value = BA_pop_stack(integrand(2))
       if (.not.value) call errquit('def_integr: pop stack',1, MA_ERR)
 
       log_integrate_def0 = sum_f
@@ -173,7 +173,7 @@ c      external dsum
       integer k
       integer integrand(2)
 
-      if (.not.MA_push_get(mt_dbl,nrange,
+      if (.not.BA_push_get(mt_dbl,nrange,
      >                    'integrand',integrand(2),integrand(1)))
      >   call errquit('indef_integr: push stack',0, MA_ERR)
 
@@ -197,7 +197,7 @@ c      external dsum
 
       end if
 
-      if (.not.MA_pop_stack(integrand(2)))
+      if (.not.BA_pop_stack(integrand(2)))
      >   call errquit('log_integrate_indef: pop stack',0,MA_ERR)
       return
       end 
@@ -237,9 +237,9 @@ c     **** local variables ***
       external log_integrate_def
 
       fourpi = 16.0d0*datan(1.0d0)
-      ok =        MA_push_get(mt_dbl,nrange,'q1_l',q1_l(2),q1_l(1))
-      ok = ok.and.MA_push_get(mt_dbl,nrange,'q2_l',q2_l(2),q2_l(1))
-      ok = ok.and.MA_push_get(mt_dbl,nrange,'f_tmp',f_tmp(2),f_tmp(1))
+      ok =        BA_push_get(mt_dbl,nrange,'q1_l',q1_l(2),q1_l(1))
+      ok = ok.and.BA_push_get(mt_dbl,nrange,'q2_l',q2_l(2),q2_l(1))
+      ok = ok.and.BA_push_get(mt_dbl,nrange,'f_tmp',f_tmp(2),f_tmp(1))
       if (.not.ok) 
      >   call errquit('log_multipole_energy:push stack',0,MA_ERR)
 
@@ -260,9 +260,9 @@ c     **** local variables ***
      >                      log_amesh,nrange)
       w = w*fourpi/dble(2.0d0*l + 1.0d0)
 
-      ok = MA_pop_stack(f_tmp(2))
-      ok = ok.and.MA_pop_stack(q2_l(2))
-      ok = ok.and.MA_pop_stack(q1_l(2))
+      ok = BA_pop_stack(f_tmp(2))
+      ok = ok.and.BA_pop_stack(q2_l(2))
+      ok = ok.and.BA_pop_stack(q1_l(2))
       if (.not.ok) 
      >   call errquit('log_multipole_energy: push stack',0,MA_ERR)
 
@@ -297,8 +297,8 @@ c     **** local variables ***
 
       fourpi = 16.0d0*datan(1.0d0)
 
-      value =           MA_push_get(mt_dbl,ngrid,'tmp',tmp(2),tmp(1))
-      value = value.and.MA_push_get(mt_dbl,ngrid,'vh',vh(2),vh(1))
+      value =           BA_push_get(mt_dbl,ngrid,'tmp',tmp(2),tmp(1))
+      value = value.and.BA_push_get(mt_dbl,ngrid,'vh',vh(2),vh(1))
       if (.not.value)
      >   call errquit('log_coulomb_energy:push stack',0,MA_ERR)
 
@@ -333,8 +333,8 @@ c     **** local variables ***
       end do
       E  = log_r2integrate_eric(ngrid,log_amesh,rgrid,dbl_mb(tmp(1)))
 
-      value =           MA_pop_stack(vh(2))
-      value = value.and.MA_pop_stack(tmp(2))
+      value =           BA_pop_stack(vh(2))
+      value = value.and.BA_pop_stack(tmp(2))
       if (.not.value)
      >   call errquit('log_coulomb_energy:pop stack',1,MA_ERR)
 
@@ -365,7 +365,7 @@ c     **** local variables ***
       external log_r2integrate_eric
 
       fourpi = 16.0d0*datan(1.0d0)
-      if (.not.MA_push_get(mt_dbl,ngrid,'tmp',tmp(2),tmp(1)))
+      if (.not.BA_push_get(mt_dbl,ngrid,'tmp',tmp(2),tmp(1)))
      >   call errquit('log_coulomb0_energy:push stack',0,MA_ERR)
 
       do i=1,ngrid
@@ -374,7 +374,7 @@ c     **** local variables ***
       E  = log_r2integrate_eric(ngrid,log_amesh,rgrid,dbl_mb(tmp(1)))
       E  = -E*zion
 
-      if (.not.MA_pop_stack(tmp(2)))
+      if (.not.BA_pop_stack(tmp(2)))
      >   call errquit('log_coulomb0_energy:pop stack',1,MA_ERR)
 
       log_coulomb0_energy = E

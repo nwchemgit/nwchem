@@ -43,10 +43,10 @@ c     **** external functions ****
       ok = .true.
 
 *      ***** set up index arrays for nwpw_hartree_solve2 *****
-      ok = MA_alloc_get(mt_int,nkatm,"nindx_hartree",
+      ok = BA_alloc_get(mt_int,nkatm,"nindx_hartree",
      >                  nindx_hartree(2),nindx_hartree(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nkatm,"shift_hartree",
+     >     BA_alloc_get(mt_int,nkatm,"shift_hartree",
      >                  shift_hartree(2),shift_hartree(1))
       if (.not.ok)
      >call errquit("nwpw_hartree_init:error allocating work arrays",0,0)
@@ -98,19 +98,19 @@ c     **** external functions ****
      >                                - int_mb(shift_hartree(1)+ia-1)
       end do
 
-      ok = MA_alloc_get(mt_int,nsize,"iprj_hartree",
+      ok = BA_alloc_get(mt_int,nsize,"iprj_hartree",
      >                 iprj_hartree(2),iprj_hartree(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"jprj_hartree",
+     >     BA_alloc_get(mt_int,nsize,"jprj_hartree",
      >                 jprj_hartree(2),jprj_hartree(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"iprj1_hartree",
+     >     BA_alloc_get(mt_int,nsize,"iprj1_hartree",
      >                 iprj1_hartree(2),iprj1_hartree(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"jprj1_hartree",
+     >     BA_alloc_get(mt_int,nsize,"jprj1_hartree",
      >                 jprj1_hartree(2),jprj1_hartree(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"coeff_hartree",
+     >     BA_alloc_get(mt_dbl,nsize,"coeff_hartree",
      >                 coeff_hartree(2),coeff_hartree(1))
       if (.not.ok)
      >call errquit("nwpw_hartree_init:error allocating work arrays",0,0)
@@ -223,13 +223,13 @@ c     **** external functions ****
       
       call nwpw_timing_start(4)
       ok = .true.
-      ok = ok.and.MA_free_heap(coeff_hartree(2))
-      ok = ok.and.MA_free_heap(jprj_hartree(2))
-      ok = ok.and.MA_free_heap(iprj_hartree(2))
-      ok = ok.and.MA_free_heap(jprj1_hartree(2))
-      ok = ok.and.MA_free_heap(iprj1_hartree(2))
-      ok = ok.and.MA_free_heap(shift_hartree(2))
-      ok = ok.and.MA_free_heap(nindx_hartree(2))
+      ok = ok.and.BA_free_heap(coeff_hartree(2))
+      ok = ok.and.BA_free_heap(jprj_hartree(2))
+      ok = ok.and.BA_free_heap(iprj_hartree(2))
+      ok = ok.and.BA_free_heap(jprj1_hartree(2))
+      ok = ok.and.BA_free_heap(iprj1_hartree(2))
+      ok = ok.and.BA_free_heap(shift_hartree(2))
+      ok = ok.and.BA_free_heap(nindx_hartree(2))
 
       if (.not.ok)
      > call errquit("nwpw_hartree_end: error freeing heap",0,MA_ERR)

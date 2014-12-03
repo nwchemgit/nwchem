@@ -67,9 +67,9 @@ c     complex*16 vpsi(nfft3d)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       call nwpw_timing_start(12)
-      value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('out of stack memory',0,0)
       call nwpw_timing_end(12)
       
@@ -137,8 +137,8 @@ c     >                       dcpl_mb(vpsi(1)))
       end do
 
       call nwpw_timing_start(12)
-      value = MA_pop_stack(vpsi(2))
-      value = MA_pop_stack(vall(2))
+      value = BA_pop_stack(vpsi(2))
+      value = BA_pop_stack(vall(2))
       call nwpw_timing_end(12)
       return
       end
@@ -214,9 +214,9 @@ c     >                       dcpl_mb(vpsi(1)))
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
       call nwpw_timing_start(12)
-      value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
+      value = BA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+     >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('out of stack memory',0,0)
       call nwpw_timing_end(12)
 
@@ -286,8 +286,8 @@ c     >                       dcpl_mb(vpsi(1)))
       end do
 
       call nwpw_timing_start(12)
-      value = MA_pop_stack(vpsi(2))
-      value = MA_pop_stack(vall(2))
+      value = BA_pop_stack(vpsi(2))
+      value = BA_pop_stack(vall(2))
       call nwpw_timing_end(12)
       return
       end
