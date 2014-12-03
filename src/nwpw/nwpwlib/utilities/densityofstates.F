@@ -21,7 +21,7 @@ c
       real*8 emin,emax
       integer ne_in(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "msgtypesf.h"
 #include "rtdb.fh"
 #include "errquit.fh"
@@ -108,7 +108,7 @@ c
       real*8 emin,emax
       real*8 dstates(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "msgtypesf.h"
 #include "rtdb.fh"
 #include "errquit.fh"

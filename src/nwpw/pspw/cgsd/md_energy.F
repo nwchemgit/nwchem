@@ -12,7 +12,7 @@ c
 
 #include "stdio.fh"
 #include "util.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer MASTER

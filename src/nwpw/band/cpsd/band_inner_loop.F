@@ -25,7 +25,7 @@
 *     **** very big workspace variables ****
       integer psir_tag,Hpsi_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

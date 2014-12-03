@@ -15,7 +15,7 @@ c
 c
 #include "errquit.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "nwc_const.fh"
 c

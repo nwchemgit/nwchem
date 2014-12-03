@@ -14,7 +14,7 @@
       integer nidb(0:maxsize0-1)
       integer nidb_out(0:maxsize0-1)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "balance_common.fh"
 
@@ -128,7 +128,7 @@
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "balance_common.fh"
 
 
@@ -189,7 +189,7 @@
       integer packet_size(*)
       integer indx_start(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     ***** local variables ****
@@ -364,7 +364,7 @@ c        ave = ave + nwave2(i)
       integer nb
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "balance_common.fh"
@@ -429,7 +429,7 @@ c            recieve data....
       integer nb
       real*8 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "balance_common.fh"
@@ -496,7 +496,7 @@ c            recieve data....
       integer nb
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "balance_common.fh"
@@ -563,7 +563,7 @@ c            send data....
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "balance_common.fh"
 
 *     **** local variables ****

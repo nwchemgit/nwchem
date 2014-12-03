@@ -17,7 +17,7 @@
       integer q_map(*)
       integer nq
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -161,7 +161,7 @@
       integer q_map(*)
       integer nq
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -230,7 +230,7 @@
       integer q_map(*)
       integer nq
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 

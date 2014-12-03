@@ -11,7 +11,7 @@
       integer function c_electron_iptr_psir()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
       integer iptr
@@ -32,7 +32,7 @@
       subroutine c_electron_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 #include "errquit.fh"
 
@@ -103,7 +103,7 @@ c     >                     'psi_r',psi_r(2),psi_r(1))
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 
@@ -220,7 +220,7 @@ c      complex*16 psi_k(*)
       integer nb,i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -251,7 +251,7 @@ c      complex*16 psi_k(*)
       integer    nb,ms
       complex*16 orb(*),Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 #include "errquit.fh"
 
@@ -301,7 +301,7 @@ c      end if
       integer    psi1_tag,psi2_tag
       real*8     dte
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -363,7 +363,7 @@ cccccccccccccccccc
       complex*16 dng(*)
       real*8     dnall(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 
@@ -484,7 +484,7 @@ cccccccccccccccccc
       implicit none
       integer psi_k_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -573,7 +573,7 @@ cccccccccccccccccc
       implicit none
       real*8 dnall(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 
@@ -619,7 +619,7 @@ cccccccccccccccccc
       implicit none
       real*8 dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -666,7 +666,7 @@ cccccccccccccccccc
       implicit none
       real*8 rho(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -712,7 +712,7 @@ cccccccccccccccccc
       implicit none
       real*8 ehfx0,phfx0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
       logical  band_HFX_relaxed
@@ -742,7 +742,7 @@ cccccccccccccccccc
       implicit none
       integer  Hpsi_k_new_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
       call cpsi_data_copyall(Hpsi_k_tag,Hpsi_k_new_tag)
@@ -794,7 +794,7 @@ cccccccccccccccccc
       integer    hml_tag
       integer    THpsi_k_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -860,7 +860,7 @@ c     >                     THpsi_k)
       integer psi_k_tag
       integer hml_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -901,7 +901,7 @@ c     >                     THpsi_k)
       implicit none
       integer  psi_k_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 
@@ -946,7 +946,7 @@ c     >                     THpsi_k)
       implicit none
       integer psi_k_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -985,7 +985,7 @@ c     >                     THpsi_k)
       integer nb,n
       integer psi_k_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 
@@ -1048,7 +1048,7 @@ c     >                 dbl_mb(hpsi_shift))
       implicit none
       integer psi_k_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 c     **** local variables ****
@@ -1144,7 +1144,7 @@ c      done = .false.
       integer    nb,n
       integer    psi_k_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -1185,7 +1185,7 @@ c      done = .false.
 
       subroutine c_electron_gen_densities(dn,dng,dnall)
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_electron_common.fh"
 
@@ -1319,7 +1319,7 @@ c         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 
       subroutine c_electron_gen_dng_dnall(dn,dng,dnall)
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 #include "errquit.fh"
 
@@ -1402,7 +1402,7 @@ c         call C3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
       implicit none
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****
@@ -1457,7 +1457,7 @@ c      end do
       implicit none
       complex*16 vall_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
       call dcopy(4*nfft3d,dcpl_mb(vall(1)),1,vall_out,1)
@@ -1475,7 +1475,7 @@ c      end do
       implicit none
       complex*16 vall_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
       call dcopy(4*nfft3d,vall_in,1,dcpl_mb(vall(1)),1)
@@ -1494,7 +1494,7 @@ c      end do
 
       subroutine c_electron_gen_scf_potentials(dn,dng,dnall)
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 #include "errquit.fh"
 
@@ -1584,7 +1584,7 @@ c      end do
       subroutine c_electron_gen_vl_potential()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_electron_common.fh"
 
@@ -1627,7 +1627,7 @@ c      end do
       implicit none
       integer psi1_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_electron_common.fh"
 
@@ -1743,7 +1743,7 @@ c      end do
       implicit none
       integer psi1_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 #include "errquit.fh"
 
@@ -1831,7 +1831,7 @@ c      end do
       implicit none
       integer psi1_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 #include "errquit.fh"
 
@@ -1920,7 +1920,7 @@ c      end do
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
      
@@ -1942,7 +1942,7 @@ c      end do
       real*8  weight(*)
       real*8  rho(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_electron_common.fh"
 
 *     **** local variables ****

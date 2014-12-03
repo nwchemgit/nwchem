@@ -6,7 +6,7 @@ c
 #include "errquit.fh"
       integer rtdb
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 c
       logical value
@@ -342,7 +342,7 @@ c#include "errquit.fh"
 c      integer rtdb
 c
 c#include "inp.fh"
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "rtdb.fh"
 cc
 c

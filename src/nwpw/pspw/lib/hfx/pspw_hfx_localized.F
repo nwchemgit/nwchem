@@ -10,7 +10,7 @@
       real*8 psi_r(*)
       real*8 Hpsi_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 

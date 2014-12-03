@@ -24,7 +24,7 @@ c
       real*8  dn(*)
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 

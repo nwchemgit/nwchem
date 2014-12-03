@@ -27,7 +27,7 @@
       real*8     dn(*)
       real*8     elf(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       logical value
@@ -148,7 +148,7 @@ c      call D3dB_r_SMul(1,(-0.25d0),elf,elf)
       integer n2ft3d
       real*8 df(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       logical value
@@ -249,7 +249,7 @@ c      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
       integer n2ft3d
       real*8 df(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       logical value

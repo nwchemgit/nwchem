@@ -13,7 +13,7 @@
       integer max_m0,nsize0
       real*8 rho_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
@@ -39,7 +39,7 @@
       implicit none
       real*8 rho_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
@@ -75,7 +75,7 @@
       real*8 diis_error
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
@@ -243,7 +243,7 @@ c    >           "   info=",info,"   rcond=",rcond
       subroutine nwpw_diis_shift()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
@@ -270,7 +270,7 @@ c    >           "   info=",info,"   rcond=",rcond
       implicit none
       integer k
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
@@ -309,7 +309,7 @@ c    >           "   info=",info,"   rcond=",rcond
       implicit none
       integer k,l
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
@@ -349,7 +349,7 @@ c    >           "   info=",info,"   rcond=",rcond
       subroutine nwpw_diis_gram_schmidt()
       implicit none
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****

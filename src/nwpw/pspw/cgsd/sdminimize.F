@@ -6,7 +6,7 @@ c
       implicit none
       integer flag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
 
@@ -52,7 +52,7 @@ c
       implicit none
       integer flag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
 

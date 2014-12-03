@@ -11,7 +11,7 @@
       subroutine psi_new()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 
@@ -171,7 +171,7 @@
       subroutine epsi_new()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *    *** local variables ***

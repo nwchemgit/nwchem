@@ -6,7 +6,7 @@ c
       implicit none 
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** G_block common block ****
       integer G(3),g_hndl
@@ -21,7 +21,7 @@ c
       subroutine c_G_init()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer taskid,p
@@ -107,7 +107,7 @@ c    >                  + j*nx + i+1
 
       subroutine c_G_end()
       implicit none 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** G_block common block ****
       integer G(3),g_hndl

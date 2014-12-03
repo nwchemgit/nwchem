@@ -4,7 +4,7 @@
       integer rtdb
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 ccc#include "frac_occ.fh"
 #include "errquit.fh"

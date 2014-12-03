@@ -7,7 +7,7 @@ c
       logical  paw_minimizer,paw_stress
       external paw_minimizer,paw_stress
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     *** local variables ****

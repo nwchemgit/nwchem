@@ -17,7 +17,7 @@ c $Id$
       integer hartree_tag
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_hartree.fh"
 
@@ -181,7 +181,7 @@ c     **** external functions ****
       real*8  sw1(ne(1)+ne(2),nprj)
       real*8  sw2(ne(1)+ne(2),nprj)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_hartree.fh"
 
@@ -215,7 +215,7 @@ c     **** external functions ****
       subroutine nwpw_xc_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_hartree.fh"
 

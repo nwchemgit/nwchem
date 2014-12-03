@@ -8,7 +8,7 @@ C> @{
 #include "errquit.fh"
 #include "inp.fh"
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 c
       integer rtdb

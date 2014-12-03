@@ -14,7 +14,7 @@
       double complex psi2(*)
       integer occupation
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "util.fh"
 #include "errquit.fh"
 

@@ -11,7 +11,7 @@
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       logical value
@@ -45,7 +45,7 @@
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "ion.fh"
@@ -150,7 +150,7 @@
       subroutine ion_destroy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 
@@ -183,7 +183,7 @@
       implicit none 
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
@@ -614,7 +614,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ion.fh"
 
@@ -653,7 +653,7 @@ c         eki1=0.5d0*eki1
       integer i
 
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ion.fh"
 
@@ -765,7 +765,7 @@ c         eki1=0.5d0*eki1
       integer i
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 
@@ -957,7 +957,7 @@ c         eki1=0.5d0*eki1
       double precision eki1_out
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1337,7 +1337,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1356,7 +1356,7 @@ c         eki1=0.5d0*eki1
       integer function ion_katm_ptr()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       ion_katm_ptr = katm(1)
@@ -1374,7 +1374,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       ion_katm_qm = int_mb(katm_qm(1)+i-1)
@@ -1390,7 +1390,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1409,7 +1409,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       ion_natm_qm = int_mb(natm_qm(1)+i-1)
@@ -1426,7 +1426,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1446,7 +1446,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       character*4 aname
@@ -1496,7 +1496,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1518,7 +1518,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i,j
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1538,7 +1538,7 @@ c         eki1=0.5d0*eki1
       integer function ion_rion_ptr()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       ion_rion_ptr = r1(1)
@@ -1556,7 +1556,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i,j
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1577,7 +1577,7 @@ c         eki1=0.5d0*eki1
       implicit none
       integer i,j
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1598,7 +1598,7 @@ c         eki1=0.5d0*eki1
       implicit none
       real*8 trans(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       integer ii
@@ -1649,7 +1649,7 @@ c      end do
       implicit none
       double precision fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1713,7 +1713,7 @@ c      end do
       double precision fion(3,*)
       double precision alpha
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -1865,7 +1865,7 @@ c      end do
       integer mc_group(*)
 
 #include "util.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
 *     **** local variables ****
@@ -2024,7 +2024,7 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
       subroutine ion_MC_reject_step()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
@@ -2174,7 +2174,7 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
       double precision fion1(3,*)
 
 #include "ion.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       double precision dt
@@ -2224,7 +2224,7 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
       double precision fion(3,*)
       double precision alpha
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -2331,7 +2331,7 @@ c      end do
       double precision ssr
       double precision fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -2476,7 +2476,7 @@ c      end do
       subroutine ion_shift()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
@@ -2492,7 +2492,7 @@ c      end do
       subroutine ion_shift21()
       implicit none
               
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
               
       call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
@@ -2509,7 +2509,7 @@ c      end do
       subroutine ion_vshift()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
       call dcopy((3*nion),dbl_mb(v2(1)),1,dbl_mb(v1(1)),1)
@@ -2529,7 +2529,7 @@ c      end do
       implicit none
       real*8 rion(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -2883,7 +2883,7 @@ c 1250 FORMAT(A2,6X,I4,3x,3F14.6)
 
       subroutine ion_ecce()
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "geom.fh"
 #include "ion.fh"
 
@@ -3005,7 +3005,7 @@ c
       implicit none
       real*8 xx,yy,zz
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
 *     **** local variables ****
@@ -3062,7 +3062,7 @@ c
       integer rtdb
       character*(*) name1
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
@@ -3127,7 +3127,7 @@ c
       subroutine ion_delete_extra_geom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** ion_extra common block ****
@@ -3155,7 +3155,7 @@ c
       implicit none
       integer e,i,j
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** ion_extra common block ****
@@ -3175,7 +3175,7 @@ c
       implicit none
       integer e1,e2
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
 *     **** ion_extra common block ****
@@ -3209,7 +3209,7 @@ c
       real*8  t
       integer e1,e2
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 
 *     **** ion_extra common block ****
@@ -3260,7 +3260,7 @@ c
       implicit none
 
 ***** ion common block ****
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 #include "errquit.fh"
 
@@ -3321,7 +3321,7 @@ c
 
 
 ***** ion common block ****
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 #include "errquit.fh"
 
@@ -3390,7 +3390,7 @@ c
       real*8 stress(3,3)
 
 ***** ion common block ****
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 #include "errquit.fh"
 
@@ -3460,7 +3460,7 @@ c
       implicit none
 
 ***** ion common block ****
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ion.fh"
 #include "stdio.fh"
 #include "errquit.fh"

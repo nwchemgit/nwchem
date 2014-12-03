@@ -11,7 +11,7 @@
       implicit none
       integer npsi0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 #include "errquit.fh"
 
@@ -58,7 +58,7 @@
       subroutine psi_data_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 #include "errquit.fh"
 
@@ -99,7 +99,7 @@
       implicit none
       integer neall,nsize
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 #include "errquit.fh"
 
@@ -137,7 +137,7 @@
       implicit none
       integer tagin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 #include "errquit.fh"
 
@@ -178,7 +178,7 @@
       implicit none
       integer neall,nsize
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 #include "errquit.fh"
 
@@ -216,7 +216,7 @@
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 #include "errquit.fh"
 
@@ -246,7 +246,7 @@
       integer tag,n
       real*8 psi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 #include "errquit.fh"
 
@@ -272,7 +272,7 @@
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 
       psi_data_nsize = int_mb(nsize_psi(1)+tag)
@@ -288,7 +288,7 @@
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 
       int_mb(update_psi(1)+tag) = 1
@@ -303,7 +303,7 @@
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 
       int_mb(update_psi(1)+tag) = 0
@@ -320,7 +320,7 @@
       implicit none
       integer tag,nexttag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 
       int_mb(next_psi(1)+tag) = nexttag
@@ -338,7 +338,7 @@
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 
       psi_data_get_next = int_mb(next_psi(1)+tag)
@@ -357,7 +357,7 @@
       implicit none
       integer tag,n
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 
 *     ***** local variables ****
@@ -381,7 +381,7 @@
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 
 *     ***** local variables ****
@@ -402,7 +402,7 @@
       implicit none
       integer tag1,tag2
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi_data.fh"
 
 *     ***** local variables ****

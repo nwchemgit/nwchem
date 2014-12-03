@@ -15,7 +15,7 @@
       integer occupation
       double precision occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -168,7 +168,7 @@ c     complex*16 tmp(*)
       integer ispin,ne(2)
       double complex psi2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -321,7 +321,7 @@ c      end do
       double complex psi2(*)
       integer occupation
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
 #include "errquit.fh"

@@ -24,7 +24,7 @@ ccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccc
       real*8 function ewald_zv(i)
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ewald.fh"
       integer i,ix
       ix=zv(1)+i-1
@@ -189,7 +189,7 @@ cccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccc
       subroutine ewald_init()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 *     **** arguments **********
@@ -654,7 +654,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine ewald_end()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
       logical value
@@ -703,7 +703,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function ewald_e()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -813,7 +813,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -992,7 +992,7 @@ c         end do
       implicit none
       real*8  stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -1290,7 +1290,7 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       real*8 function ewald_e_qm()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -1398,7 +1398,7 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       implicit none
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -1559,7 +1559,7 @@ c         end do
       implicit none
       real*8  stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -1854,7 +1854,7 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       real*8 function ewald_e_mm()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -1965,7 +1965,7 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       implicit none
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -2120,7 +2120,7 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       implicit none
       real*8  stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -2421,7 +2421,7 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       implicit none
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -2557,7 +2557,7 @@ c         end do
       implicit none
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -2691,7 +2691,7 @@ c         end do
       implicit none
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 
@@ -2820,7 +2820,7 @@ c         end do
       implicit none
       real*8  efg_ion(3,3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald.fh"
 

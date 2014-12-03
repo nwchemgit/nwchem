@@ -14,7 +14,7 @@
       implicit none
       
 #include "paw_basis.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
   
 *     !*** local variables ***

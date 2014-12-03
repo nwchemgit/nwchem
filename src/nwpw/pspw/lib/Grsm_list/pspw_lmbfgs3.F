@@ -40,7 +40,7 @@
       complex*16 s(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_lmbfgs_common.fh"
 
 *     **** local variables ****

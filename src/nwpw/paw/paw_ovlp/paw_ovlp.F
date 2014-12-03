@@ -15,7 +15,7 @@
       integer ispin0
       integer ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj.fh"
 #include "paw_ovlp_data.fh" 
 #include "paw_geom.fh" 
@@ -132,7 +132,7 @@ c           !-- set sign coeff as (-1)**m --
       subroutine paw_ovlp_end()
       implicit none      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh" 
 #include "paw_ovlp_data.fh"
 
@@ -166,7 +166,7 @@ c           !-- set sign coeff as (-1)**m --
       implicit none
       complex*16 psi(*)
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ovlp_data.fh"
 #include "paw_proj.fh"
 #include "paw_geom.fh"
@@ -255,7 +255,7 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_ovlp_data.fh"
 #include "paw_proj.fh"
@@ -361,7 +361,7 @@ c      occup = 1.0d0
       complex*16 psi(*)
       complex*16 c1(ne,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ovlp_data.fh"
 
       !**** local variables ****
@@ -401,7 +401,7 @@ c      occup = 1.0d0
       complex*16 psi(*)
       complex*16 ct(ne,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ovlp_data.fh"
 #include "paw_proj.fh"
 #include "paw_geom.fh"
@@ -477,7 +477,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       complex*16 ct(ne,*),c1(ne,*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh"
 #include "paw_proj.fh"
 #include "paw_ovlp_data.fh"
@@ -530,7 +530,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       complex*16 psi(*)
       complex*16 Spsi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ovlp_data.fh"
 #include "paw_proj.fh"
 #include "paw_geom.fh"
@@ -829,7 +829,7 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       implicit none
       integer nu
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_ovlp_data.fh"
 #include "paw_proj.fh"

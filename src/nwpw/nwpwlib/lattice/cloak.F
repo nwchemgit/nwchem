@@ -10,7 +10,7 @@
       subroutine cloak_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cloak_common.fh"
 
@@ -36,7 +36,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cloak_common.fh"
 
       logical value
@@ -56,7 +56,7 @@
       implicit none
       real*8 kvector(3),ecut
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cloak_common.fh"
 
 *     **** local variables ****
@@ -144,7 +144,7 @@ c    >                     + i+1
       implicit none
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cloak_common.fh"
 
 *     **** local variables ****
@@ -170,7 +170,7 @@ c    >                     + i+1
       implicit none
       real*8    A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cloak_common.fh"
 
 *     **** local variables ****
@@ -222,7 +222,7 @@ c    >                     + i+1
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cloak_common.fh"
 
       cloak_masker = log_mb(masker(1)+i-1) 

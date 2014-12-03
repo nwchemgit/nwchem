@@ -13,7 +13,7 @@
       logical function aorbs_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"
@@ -72,7 +72,7 @@
       subroutine aorbs_end()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "aorbs.fh"
 
@@ -106,7 +106,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"
@@ -141,7 +141,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"
@@ -160,7 +160,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "aorbs.fh"
 
       aorbs_rcut = dbl_mb(rcut(1)+ia-1)
@@ -176,7 +176,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "aorbs.fh"
 
       aorbs_lmbda = dbl_mb(lmbda(1)+ia-1)
@@ -195,7 +195,7 @@
       integer  ia
       integer n          ! basis number
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"
@@ -241,7 +241,7 @@
       integer  ia
       integer n          ! basis number
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"
@@ -287,7 +287,7 @@
       implicit none
       integer n
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "aorbs.fh"
 
       aorbs_katm = int_mb(iaaorb(1)+n-1)
@@ -304,7 +304,7 @@
       implicit none
       integer n
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "aorbs.fh"
 
       aorbs_ii = int_mb(iiaorb(1)+n-1)
@@ -323,7 +323,7 @@
       implicit none
       integer ii,lm
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "aorbs.fh"
 
       aorbs_get_basis_number=int_mb(basisaorb(1)+lm-1+(ii-1)*norbs_max)
@@ -341,7 +341,7 @@
       subroutine aorbs_normalize()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"
@@ -390,7 +390,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
       implicit none
       integer n          ! basis number
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"
@@ -423,7 +423,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
       integer n          ! basis number
       complex*16 aorb(*) ! return orbital
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"
@@ -614,7 +614,7 @@ c       close(11)
       logical function aorbs_readall()
       implicit none
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** AORBS common block ****
 #include "aorbs.fh"

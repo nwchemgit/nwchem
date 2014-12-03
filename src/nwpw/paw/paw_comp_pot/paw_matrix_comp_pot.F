@@ -13,7 +13,7 @@
       subroutine  init_paw_comp_pot_matrix()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_basis.fh"
 #include "paw_matrix_comp_pot.fh"
 #include "paw_utils.fh"
@@ -83,7 +83,7 @@
       subroutine  end_paw_comp_pot_matrix()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_basis.fh"
 #include "paw_matrix_comp_pot.fh"
 #include "paw_utils.fh"
@@ -139,7 +139,7 @@
       double precision phi_ps(ngrid,nbasis)
       double precision matrix(nbasis,nbasis,mult_l+1)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "integrate.fh"
 #include "paw_utils.fh"
 #include "paw_ma.fh"

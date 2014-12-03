@@ -70,7 +70,7 @@
 
       integer ierr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer np,taskid,MASTER

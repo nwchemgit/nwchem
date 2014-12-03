@@ -11,7 +11,7 @@
       implicit none
       integer map_in
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "brillioun_common.fh"
 
@@ -104,7 +104,7 @@
       implicit none
       integer nbstart,nbk
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "brillioun_common.fh"
 
@@ -167,7 +167,7 @@
       subroutine brillioun_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "brillioun_common.fh"
 
@@ -195,7 +195,7 @@
       implicit none
 !      integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       brillioun_nbrillioun = nbrillioun
@@ -211,7 +211,7 @@
       implicit none
 !      integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       brillioun_nbrillq = nbrillq
@@ -227,7 +227,7 @@
       implicit none
       integer nbq
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       brillioun_weight = dbl_mb(weight(1)+nbq-1)
@@ -243,7 +243,7 @@
       implicit none
       integer i,nbq
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       brillioun_ks = dbl_mb(ks(1)+3*(nbq-1)+i-1)
@@ -259,7 +259,7 @@
       implicit none
       integer i,nbq
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       brillioun_k = dbl_mb(kv(1)+3*(nbq-1)+i-1)
@@ -277,7 +277,7 @@
       implicit none
       integer i,nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       brillioun_all_k = dbl_mb(kv_all(1)+3*(nb-1)+i-1)
@@ -295,7 +295,7 @@
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       integer nbq,taskid_k,p
@@ -321,7 +321,7 @@
       implicit none
       integer i,nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       integer nbq,taskid_k,p
@@ -347,7 +347,7 @@
       implicit none
       integer i,nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       integer nbq,taskid_k,p
@@ -373,7 +373,7 @@
       implicit none
       integer i,nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       brillioun_print = printbrill

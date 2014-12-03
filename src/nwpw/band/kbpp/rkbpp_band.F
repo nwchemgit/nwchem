@@ -28,7 +28,7 @@
       real*8  kvectors(3,nbrillioun)
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "util.fh"
@@ -656,7 +656,7 @@ cccccccccc g=0
       real*8 cbet_prj(nprj)
       real*8 drho,gvec(ngx,ngy,ngz,3),kvec(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 c     **** local variables ****
       complex*16 zzero

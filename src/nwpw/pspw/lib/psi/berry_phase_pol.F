@@ -9,7 +9,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine berry_phase_pol(psi,psir)
       implicit none
       integer psi(2),psir(2)
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
       integer i,npack1,nfft3d,n2fft,nesq,idir,ms,ispin,ne(2)

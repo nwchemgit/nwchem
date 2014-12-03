@@ -83,7 +83,7 @@
       integer nb
       integer nx,ny,nz
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** nwpw_mapping_block ****
 #include "nwpw_mapping.fh"
@@ -168,7 +168,7 @@
 #include "errquit.fh"
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** nwpw_mapping_block ****
 #include "nwpw_mapping.fh"
@@ -224,7 +224,7 @@
       integer q,p
       integer i,j,k
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
       
 ***** nwpw_mapping_block ****
 #include "nwpw_mapping.fh"
@@ -263,7 +263,7 @@
       integer nb
       integer i,j,k,q,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** nwpw_mapping_block ****
 #include "nwpw_mapping.fh"
@@ -296,7 +296,7 @@
       integer nb
       integer nfft3d
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** nwpw_mapping_block ****
 #include "nwpw_mapping.fh"

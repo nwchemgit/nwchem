@@ -18,7 +18,7 @@ c $Id$
       real*8 Sab
 
 #include "util.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 ccc#include "frac_occ.fh"

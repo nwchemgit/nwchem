@@ -7,7 +7,7 @@
       implicit none 
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb.f ****
 c     real*8 vc(nfft3d)
@@ -88,7 +88,7 @@ c    >     + i+1
 
       subroutine coulomb_end()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb.f ****
       integer vc_indx,vc_hndl
@@ -105,7 +105,7 @@ c    >     + i+1
       complex*16 dng(*)
       complex*16 vc_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
 *     **** common block used for coulomb.f ****
@@ -125,7 +125,7 @@ c    >     + i+1
 #include "errquit.fh"
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb.f ****
 *     real*8 vc(nfft3d)
@@ -176,7 +176,7 @@ c     real*8  tmp1(*)
       complex*16 dng(*)
       real*8 euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb.f ****
       integer vc_indx,vc_hndl
@@ -301,7 +301,7 @@ c     >                                   dbl_mb(tmp2(1)))
       complex*16 dng(*)
       real*8 efg_smoothr(3,3,*),efg_smoothi(3,3,*) ! real and complex parts
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****

@@ -28,7 +28,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -1158,7 +1158,7 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
       subroutine pspw_qmmm_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1336,7 +1336,7 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
       real*8 function pspw_qmmm_LJ_E()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1385,7 +1385,7 @@ c     >                              dbl_mb(ion_rion_ptr()))
       real*8 function pspw_qmmm_Q_E()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1450,7 +1450,7 @@ c     >                 (e1-e2+e3+e4),(e3+e4+e1)
       real*8 function pspw_qmmm_mmq_Q_E()
       implicit none  
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
          
@@ -1495,7 +1495,7 @@ c     **** external functions ***
       real*8 function pspw_qmmm_spring_E()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1629,7 +1629,7 @@ c     **** non-fragments ****
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1748,7 +1748,7 @@ c     *** non-fragments ***
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1795,7 +1795,7 @@ c     >                      dbl_mb(ion_rion_ptr()),fion)
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1869,7 +1869,7 @@ c     **** external functions ***
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1912,7 +1912,7 @@ c     **** external functions ***
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -1962,7 +1962,7 @@ c     **** external functions ***
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -2020,7 +2020,7 @@ c     **** external functions ***
       integer size_frag,kfrag_s
       real*8 rion(3,*),rcm(3),mtotal
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer k,kk,ptr
@@ -2062,7 +2062,7 @@ c     **** external functions ***
       implicit none
       real*8 r1(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -2097,7 +2097,7 @@ c     **** external functions ***
       implicit none
       real*8 r1(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -2134,7 +2134,7 @@ c        end if
       implicit none
       real*8 r1(3,*),r2(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -2172,7 +2172,7 @@ c        end if
       implicit none
       real*8 r1(3,*),r2(3,*),r3(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -2207,7 +2207,7 @@ c        end if
       implicit none
       real*8 r2(3,*),r1(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
@@ -2294,7 +2294,7 @@ c     **** non-frags ****
       subroutine pspw_qmmm_ion_add_constraint()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 

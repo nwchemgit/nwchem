@@ -11,7 +11,7 @@
       implicit none
       integer npsi0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 #include "errquit.fh"
 
@@ -67,7 +67,7 @@
       subroutine cpsi_data_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 #include "errquit.fh"
 
@@ -110,7 +110,7 @@
       implicit none
       integer nbrill,neall,nsize
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 #include "errquit.fh"
 
@@ -152,7 +152,7 @@
       implicit none
       integer tagin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 #include "errquit.fh"
 
@@ -193,7 +193,7 @@
       implicit none
       integer nbrill,neall,nsize
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 #include "errquit.fh"
 
@@ -233,7 +233,7 @@
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 #include "errquit.fh"
 
@@ -263,7 +263,7 @@
       integer tag,nb,n
       real*8 psi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 #include "errquit.fh"
 
@@ -297,7 +297,7 @@ c      end if
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
       cpsi_data_nsize = int_mb(nsize_psi(1)+tag)
@@ -313,7 +313,7 @@ c      end if
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
       int_mb(update_psi(1)+tag) = 1
@@ -328,7 +328,7 @@ c      end if
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
       int_mb(update_psi(1)+tag) = 0
@@ -345,7 +345,7 @@ c      end if
       implicit none
       integer tag,nexttag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
       int_mb(next_psi(1)+tag) = nexttag
@@ -363,7 +363,7 @@ c      end if
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
       cpsi_data_get_next = int_mb(next_psi(1)+tag)
@@ -382,7 +382,7 @@ c      end if
       implicit none
       integer tag,nb,n
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
 *     ***** local variables ****
@@ -407,7 +407,7 @@ c      end if
       implicit none
       integer tag,nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
 *     ***** local variables ****
@@ -432,7 +432,7 @@ c      end if
       implicit none
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
       cpsi_data_get_allptr = int_mb(indx_psi(1) +tag)
@@ -449,7 +449,7 @@ c      end if
       implicit none
       integer tag,nb1,nb2
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
       
 *     ***** local variables ****
@@ -475,7 +475,7 @@ c      end if
       implicit none
       integer tag1,tag2
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
 *     ***** local variables ****
@@ -509,7 +509,7 @@ c      end if
       implicit none
       integer tag1
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
 *     ***** local variables ****
@@ -539,7 +539,7 @@ c      end if
       real*8 alpha
       integer tag1
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_data.fh"
 
 *     ***** local variables ****

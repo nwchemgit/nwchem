@@ -1679,7 +1679,7 @@ c     implicit none
       complex*16  A(ldq,*)
       complex*16  B(ldq,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 

@@ -14,7 +14,7 @@ c
       implicit none
   
 #include "paw_basis.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_overlap_matrix.fh"
 #include "paw_ma.fh"
 
@@ -91,7 +91,7 @@ c
       implicit none
   
 #include "paw_basis.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_overlap_matrix.fh"
 #include "paw_ma.fh"
 
@@ -144,7 +144,7 @@ c
       double precision matrix(nbasis,nbasis)
 
 #include "integrate.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       !*** local variables ***
       logical  ok
@@ -216,7 +216,7 @@ c     >                        log_amesh,ic)
       complex*16 psi1(*),psi2(*)
       real*8     Sij(n,n)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
@@ -308,7 +308,7 @@ c     >                        log_amesh,ic)
       complex*16 psi1(*),psi2(*)
       real*8     Sij(n,n)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
@@ -404,7 +404,7 @@ c     >                        log_amesh,ic)
       complex*16 c1(ne,total_nbasis)
       complex*16 pv(ne,total_nbasis) !* RESULT *
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
 #include "paw_geom.fh"
@@ -470,7 +470,7 @@ c     >                        log_amesh,ic)
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_overlap_matrix.fh"
 
       paw_overlap_matrix_ptr 

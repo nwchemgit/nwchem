@@ -25,7 +25,7 @@
       real*8 phi_r(*)
       real*8 G
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       !*** Local variables ***
       logical value

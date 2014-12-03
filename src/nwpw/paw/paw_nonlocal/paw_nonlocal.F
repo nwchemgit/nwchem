@@ -69,7 +69,7 @@
       integer ispin0
       integer ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj.fh"
 #include "paw_nonlocal_data.fh" 
 #include "paw_matrix_kin_data.fh"
@@ -182,7 +182,7 @@
       subroutine paw_nonlocal_end()
       implicit none      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh" 
 #include "paw_nonlocal_data.fh"
 
@@ -212,7 +212,7 @@
       subroutine paw_nonlocal_gen_nl_coeff()
       implicit none      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_nonlocal_data.fh"
 #include "paw_proj.fh"
 #include "paw_basis.fh" 
@@ -341,7 +341,7 @@
       logical    move
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_nonlocal_data.fh"
 #include "paw_proj.fh"
 #include "paw_basis.fh" 
@@ -413,7 +413,7 @@
 !#include "paw_basis.fh"
 !#include "paw_proj.fh"
 !#include "paw_nonlocal_data.fh"
-!#include "mafdecls.fh"
+!#include "bafdecls.fh"
 !
 !      double precision gen_gaunt_coeff
 !      external gen_gaunt_coeff

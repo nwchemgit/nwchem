@@ -4,7 +4,7 @@
       subroutine cke_init()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cke_common.fh"
 #include "errquit.fh"
 
@@ -112,7 +112,7 @@ c     real*8 G(nfft3d,3)
 
       subroutine cke_end()
       implicit none 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cke_common.fh"
 #include "errquit.fh"
 
@@ -136,7 +136,7 @@ c     real*8 G(nfft3d,3)
       integer    psi1_tag
       integer    psi2_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cke_common.fh"
 
 *     **** local variables ****
@@ -178,7 +178,7 @@ c     real*8 G(nfft3d,3)
       complex*16 orb1(*)
       complex*16 orb2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cke_common.fh"
 
 *     **** local variables ****
@@ -216,7 +216,7 @@ c     real*8 G(nfft3d,3)
       integer psi1_tag
       real*8     ave
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cke_common.fh"
 #include "errquit.fh"
 
@@ -307,7 +307,7 @@ c     real*8 G(nfft3d,3)
       real*8 euv(3,3)
 
 #include "cke_common.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

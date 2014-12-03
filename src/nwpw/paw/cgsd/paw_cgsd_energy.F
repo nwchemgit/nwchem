@@ -12,7 +12,7 @@ c     $Id$
 
 #include "stdio.fh"
 #include "util.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "frac_occ.fh"
 c#include "global.fh"
 c#include "rtdb.fh"

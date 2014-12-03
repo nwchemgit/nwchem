@@ -5,7 +5,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_Grsm_list_common.fh"
 
 *     **** local variables ****
@@ -42,7 +42,7 @@
       subroutine pspw_Grsm_list_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_Grsm_list_common.fh"
 
@@ -101,7 +101,7 @@
       integer m
       integer ptr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_Grsm_list_common.fh"
 
       ptr = grsm_mem(1,indx(m))
@@ -119,7 +119,7 @@
       integer m
       real*8 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_Grsm_list_common.fh"
 
       if (ondisk) then
@@ -141,7 +141,7 @@
       integer m
       real*8 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_Grsm_list_common.fh"
 
       if (ondisk) then

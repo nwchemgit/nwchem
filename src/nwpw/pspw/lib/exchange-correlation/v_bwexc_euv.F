@@ -23,7 +23,7 @@
       real*8  stress(3,3)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwxc.fh"
 
 

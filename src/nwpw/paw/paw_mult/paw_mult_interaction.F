@@ -316,7 +316,7 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
       implicit none
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_mult_data.fh"
 #include "paw_geom.fh"
 #include "paw_basis.fh"

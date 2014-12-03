@@ -20,7 +20,7 @@
       integer unit
       integer matrix
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 
 *     **** local variables ****

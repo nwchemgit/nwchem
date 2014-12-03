@@ -11,7 +11,7 @@ c     $Id$
 #include "errquit.fh"
 #include "stdio.fh"
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 
@@ -211,7 +211,7 @@ c        **** paw energies ****
          write(luout,1686) E(41),E(41)/neall
          write(luout,1687) E(42),E(42)/neall
          write(luout,1688) E(43),E(43)/neall
-         write(luout,1689) E(44),E(44)/ion_nion()
+         write(luout,1689) E(44),E(44)/neall
          write(luout,1690) E(45),E(45)/ion_nion()
          end if
 
@@ -374,6 +374,15 @@ c            end do
       if (.not. value) call errquit(
      >   'cgsd_noit_energy: numerical force - error writing rtdb',0,
      >       RTDB_ERR)
+
+*     **** debug paw - energies written to rtdb for numerical forces ****
+      value = value.and.
+     >        rtdb_put(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E(40))
+      value = value.and.rtdb_put(rtdb,'pspw:E_cmp_cmp',  mt_dbl,1,E(41))
+      value = value.and.rtdb_put(rtdb,'pspw:E_cmp_pw',   mt_dbl,1,E(42))
+      value = value.and.rtdb_put(rtdb,'pspw:E_exc_atom', mt_dbl,1,E(43))
+      value = value.and.rtdb_put(rtdb,'pspw:E_pxc_atom', mt_dbl,1,E(44))
+      value = value.and.rtdb_put(rtdb,'pspw:E_all',       mt_dbl,1,E(1))
 
 
       cgsd_noit_energy = E(1)

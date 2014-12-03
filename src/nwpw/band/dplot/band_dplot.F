@@ -7,7 +7,7 @@
       integer rtdb
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 
@@ -394,7 +394,7 @@ c      value = value.and.MA_free_heap(psi2(2))
       logical add_tag
       character*8 tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
 
@@ -742,7 +742,7 @@ c      value = value.and.MA_free_heap(psi2(2))
       real*8 trans(3)
       integer nemaxq,nbrillq,psi_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -805,7 +805,7 @@ c      value = value.and.MA_free_heap(psi2(2))
       real*8  dn(nfft3d,*)
       integer psir_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -938,7 +938,7 @@ c      value = value.and.MA_free_heap(psi2(2))
       real*8 rho(*)
      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -1104,7 +1104,7 @@ c     if (.not. value) call errquit('closing geometry',0)
       real*8 rho(*)
      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
@@ -1471,7 +1471,7 @@ c     if (.not. value) call errquit('closing geometry',0)
       logical      isreal
      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"

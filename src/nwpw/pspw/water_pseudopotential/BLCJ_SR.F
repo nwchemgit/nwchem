@@ -12,7 +12,7 @@
 #include "errquit.fh"
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** BLCJ_SR common block ****
@@ -101,7 +101,7 @@
 
       subroutine BLCJ_SR_end()
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** BLCJ_SR common block ****
       integer Nbasis
@@ -144,7 +144,7 @@
       real*8 rgrid(3,n2ft3d)
       real*8 Vwpsp(n2ft3d)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** BLCJ_SR common block ****
       integer Nbasis
@@ -201,7 +201,7 @@
       real*8 dv
       real*8 fo(3),f1(3),f2(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** BLCJ_SR common block ****
       integer Nbasis

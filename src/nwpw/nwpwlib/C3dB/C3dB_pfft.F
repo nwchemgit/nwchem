@@ -24,7 +24,7 @@
       subroutine C3dB_pfft_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 #include "C3dB_pfft.fh"
@@ -422,7 +422,7 @@
       subroutine C3dB_pfft_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 #include "C3dB_pfft.fh"
@@ -552,7 +552,7 @@
       integer nb,nbb
       complex*16  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -822,7 +822,7 @@
       integer nb,nbb
       complex*16  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -1069,7 +1069,7 @@
       integer fb
       logical zero_arow3(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -1234,7 +1234,7 @@
       logical zero_arow2(*)
       logical zero_arow3(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -1809,7 +1809,7 @@
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -1906,7 +1906,7 @@
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2042,7 +2042,7 @@
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2172,7 +2172,7 @@
       complex*16 tmp2(*)
       integer    request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2253,7 +2253,7 @@
       integer     request(*),reqcnt
       
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 #include "C3dB_pfft.fh"
@@ -2380,7 +2380,7 @@
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 #include "C3dB_pfft.fh"
@@ -2510,7 +2510,7 @@
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 #include "C3dB_pfft.fh"
@@ -2614,7 +2614,7 @@
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
       if (step.eq.1) then
@@ -2648,7 +2648,7 @@
       integer qmax_in
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2730,7 +2730,7 @@ c     **** allocate bqueue ****
       implicit none
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2790,7 +2790,7 @@ c     **** allocate bqueue ****
       logical function C3dB_cr_pfft3_queue_filled()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2821,7 +2821,7 @@ c     **** allocate bqueue ****
       logical function C3dB_rc_pfft3_queue_filled()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2854,7 +2854,7 @@ c     **** allocate bqueue ****
       complex*16 A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2928,7 +2928,7 @@ c     **** allocate bqueue ****
       complex*16 A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2996,7 +2996,7 @@ c     **** allocate bqueue ****
       complex*16 A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -3069,7 +3069,7 @@ c     **** allocate bqueue ****
       complex*16 A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"

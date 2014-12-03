@@ -36,7 +36,7 @@
       double precision phi_ps(ngrid,nbasis)
       double precision matrix(nbasis,nbasis,nbasis,nbasis,mult_l+1)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "integrate.fh"
 #include "paw_utils.fh"   
 #include "paw_ma.fh"   
@@ -142,7 +142,7 @@
       subroutine  init_paw_hartree_matrix()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_basis.fh"
 #include "paw_matrix_hartree_data.fh"
 #include "paw_utils.fh"
@@ -211,7 +211,7 @@
       subroutine  end_paw_hartree_matrix()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_basis.fh"
 #include "paw_matrix_hartree_data.fh"
 #include "paw_utils.fh"

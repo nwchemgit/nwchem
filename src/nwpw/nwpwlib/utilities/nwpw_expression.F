@@ -17,7 +17,7 @@
       integer rtdb
       character*(*) eqnstring
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "util.fh"
@@ -120,7 +120,7 @@
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "util.fh"
@@ -208,7 +208,7 @@
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -279,7 +279,7 @@
       integer nion
       real*8 rion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "util.fh"
@@ -324,7 +324,7 @@
       real*8 rion(3,*)
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "util.fh"

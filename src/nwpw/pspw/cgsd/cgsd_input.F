@@ -5,7 +5,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 c
@@ -335,7 +335,7 @@ c
 #include "errquit.fh"
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 c

@@ -64,7 +64,7 @@
       integer rtdb
       real*8 unita(3,3),unita2(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 

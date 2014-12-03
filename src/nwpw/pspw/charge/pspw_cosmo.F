@@ -24,7 +24,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_cosmo.fh"
 #include "errquit.fh"
 
@@ -68,7 +68,7 @@ c
       subroutine pspw_cosmo_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_cosmo.fh"
 #include "errquit.fh"
 
@@ -124,7 +124,7 @@ c
       implicit none
       integer ii
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_cosmo.fh"
 #include "errquit.fh"
 
@@ -143,7 +143,7 @@ c
       integer n2ft3d
       real*8 r_grid(3,n2ft3d),vc(n2ft3d),vcosmo(n2ft3d)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -271,7 +271,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       integer n2ft3d
       real*8  r_grid(3,n2ft3d),fcut(n2ft3d)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

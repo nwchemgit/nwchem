@@ -33,7 +33,7 @@
       logical calc_pressure
       real*8  pressure,p1,p2,stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

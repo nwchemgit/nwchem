@@ -15,7 +15,7 @@
       complex*16 psi(*)
       complex*16 phi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 
 *     **** local variables ****

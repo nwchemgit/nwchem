@@ -22,7 +22,7 @@
 #include "errquit.fh"
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 
@@ -118,7 +118,7 @@
 
 ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "geom.fh"
 
 *     **** local variables ****
@@ -176,7 +176,7 @@
 
 ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       logical value
 
@@ -254,7 +254,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     ***** local variables ****
       integer taskid,MASTER
@@ -295,7 +295,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     ***** local variables ****
       integer taskid,MASTER
@@ -337,7 +337,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     ***** local variables ****
       integer taskid,MASTER
@@ -374,7 +374,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer index
       index = 9*(ii-1) + 3*(j-1) + (i-1)
@@ -393,7 +393,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer index
       index = 9*(ii-1) + 3*(j-1) + (i-1)
@@ -412,7 +412,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       call dcopy((9*nwater),dbl_mb(rwater1(1)),1,dbl_mb(rwater0(1)),1)
       call dcopy((9*nwater),dbl_mb(rwater2(1)),1,dbl_mb(rwater1(1)),1)
@@ -434,7 +434,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer ii,i1,i2,i3
@@ -475,7 +475,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer ii,jj
@@ -538,7 +538,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer ii,j,i1,i2,i3
@@ -602,7 +602,7 @@
      
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer ii,j,i1,i2,i3
@@ -672,7 +672,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer j,ii,i1,i2,i3
@@ -840,7 +840,7 @@
 
 *     ***** water common block ****
 #include "waterpsp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       logical value

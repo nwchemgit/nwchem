@@ -10,7 +10,7 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
       integer rtdb
 
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 

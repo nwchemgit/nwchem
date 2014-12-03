@@ -24,7 +24,7 @@
 #include "errquit.fh"
       integer maxsize0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_dnlist.fh"
 
 *     **** local variables ****
@@ -56,7 +56,7 @@
       implicit none
 #include "errquit.fh"
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_dnlist.fh"
 
 
@@ -90,7 +90,7 @@
       integer n2ft3d
       integer index
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_dnlist.fh"
 
 *     **** local variables ****
@@ -126,7 +126,7 @@
       integer count
       integer index
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_dnlist.fh"
 
       if ((count.gt.size).or.(count.lt.1)) 
@@ -173,7 +173,7 @@
       subroutine lcao_dnlist_shift()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_dnlist.fh"
 
 *     **** local variables ****

@@ -1769,7 +1769,7 @@ c     implicit none
       real*8  A(ldq,*)
       real*8  B(ldq,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 

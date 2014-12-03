@@ -14,7 +14,7 @@ c
       integer ispin_in
       integer ne_in(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "msgtypesf.h"
 #include "rtdb.fh"
 #include "errquit.fh"
@@ -122,7 +122,7 @@ c
       subroutine Orb_End()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "msgtypesf.h"
 
 *     **** orb common block ****
@@ -164,7 +164,7 @@ c
       implicit none
       complex*16 psi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "msgtypesf.h"
 
 *     **** orb common block ****

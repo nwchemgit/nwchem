@@ -13,7 +13,7 @@ c
       real*8 rcut,lmbda
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     ***** local variables *****

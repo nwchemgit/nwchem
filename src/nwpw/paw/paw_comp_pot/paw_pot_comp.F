@@ -13,7 +13,7 @@ c
       subroutine  init_paw_pot_comp()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
 #include "paw_pot_comp_data.fh"
@@ -60,7 +60,7 @@ c     !*** calculate the size and indexing ***
       implicit none
 
 #include "paw_basis.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_pot_comp_data.fh"
 #include "paw_ma.fh"
 
@@ -87,7 +87,7 @@ c     !*** calculate the size and indexing ***
       
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_ma.fh"
 #include "paw_matrix_comp_pot.fh"
@@ -206,7 +206,7 @@ c      end do
 !      
 !      implicit none
 !
-!#include "mafdecls.fh"
+!#include "bafdecls.fh"
 !#include "paw_geom.fh"
 !#include "paw_ma.fh"
 !#include "paw_matrix_comp_pot.fh"

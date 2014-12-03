@@ -31,7 +31,7 @@
       real*8     psi_r2(*)
       complex*16 W(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       logical value

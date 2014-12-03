@@ -13,7 +13,7 @@ c     $Id$
 
 
 c#include "global.fh"
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "rtdb.fh"
 
       logical newpsi

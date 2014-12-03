@@ -6,7 +6,7 @@
       logical function wvfnc_init(rtdb)
       implicit none
       integer rtdb
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 

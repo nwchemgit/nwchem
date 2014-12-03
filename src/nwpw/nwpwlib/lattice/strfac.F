@@ -11,7 +11,7 @@
       subroutine strfac_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "strfac_common.fh"
 
@@ -90,7 +90,7 @@ C     ***********************************
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
 
       logical value
@@ -131,7 +131,7 @@ C
       subroutine phafac()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
 
 *     *** local variables
@@ -244,7 +244,7 @@ C     *                                 *
 C     ***********************************
       subroutine phafac2()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
 *     *** local variables
       integer    i,k
@@ -340,7 +340,7 @@ C
       implicit none
       real*8 ion_rion(3,*)
 
-#include        "mafdecls.fh"
+#include        "bafdecls.fh"
 #include "strfac_common.fh"
 
 *     *** local variables
@@ -450,7 +450,7 @@ C
       integer    II
       complex*16 exi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
    
 *     **** local variables ****
@@ -515,7 +515,7 @@ C
       integer    II
       complex*16 exi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
    
 *     **** local variables ****
@@ -582,7 +582,7 @@ C ... End STRFAC ....
       implicit none
       integer nion
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
 #include "errquit.fh"
 
@@ -617,7 +617,7 @@ C     ***********************************
       subroutine qstrfac_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
 #include "errquit.fh"
 
@@ -651,7 +651,7 @@ C
       implicit none
       real*8 ion_rion(3,*)
 
-#include        "mafdecls.fh"
+#include        "bafdecls.fh"
 #include "strfac_common.fh"
 
 *     *** local variables
@@ -749,7 +749,7 @@ C
       integer    II
       complex*16 exi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
    
 *     **** local variables ****
@@ -809,7 +809,7 @@ C
       integer    II
       complex*16 exi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "strfac_common.fh"
    
 *     **** local variables ****

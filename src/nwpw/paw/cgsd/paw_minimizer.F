@@ -19,7 +19,7 @@
       integer flag
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"

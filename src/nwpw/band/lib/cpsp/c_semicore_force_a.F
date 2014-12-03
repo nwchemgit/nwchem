@@ -15,7 +15,7 @@
 
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore common block ****
 c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)

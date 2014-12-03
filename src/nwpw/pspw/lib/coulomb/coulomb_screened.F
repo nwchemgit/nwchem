@@ -12,7 +12,7 @@
       integer flag
       real*8 rcut,pp
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
@@ -361,7 +361,7 @@ c      call coulomb_screened_init_print(rcut,pp)
 
       subroutine coulomb_screened_end()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb.f ****
       integer vc_indx,vc_hndl
@@ -378,7 +378,7 @@ c      call coulomb_screened_init_print(rcut,pp)
       complex*16 dng(*)
       complex*16 vc_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
 *     **** common block used for coulomb.f ****
@@ -399,7 +399,7 @@ c      call coulomb_screened_init_print(rcut,pp)
       implicit none
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
@@ -440,7 +440,7 @@ c      call coulomb_screened_init_print(rcut,pp)
       implicit none
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
@@ -613,7 +613,7 @@ c          r = (i-1)*drho
 #include "errquit.fh"
       real*8 rcut,pp
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb.f ****
       integer vc_indx,vc_hndl
@@ -763,7 +763,7 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       integer flag
       real*8 rcut,pp
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb_screened_euv ****
@@ -1259,7 +1259,7 @@ c     >                 dbl_mb(dvscr(u,s)))
 
       subroutine coulomb_screened_euv_end()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb_screened_euv ****
       integer dvscr_loc(2),vloc(2)
@@ -1287,7 +1287,7 @@ c     >                 dbl_mb(dvscr(u,s)))
       complex*16 dng(*)
       real*8 euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb_screened_euv ****

@@ -80,7 +80,7 @@
       subroutine paw_proj_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj_data.fh" 
 #include "paw_geom.fh" 
  
@@ -214,7 +214,7 @@ c      end do
       implicit none
       integer ia
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj_data.fh"
 
       paw_proj_i_prj_atom = prj(1) + int_mb(prj_indx(1)+ia-1)
@@ -235,7 +235,7 @@ c      end do
       implicit none
       integer ia
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj_data.fh"
 
       paw_proj_nbasis = int_mb(prj_nbasis(1)+ia-1)
@@ -256,7 +256,7 @@ c      integer function paw_proj_total_nbasis()
 c      implicit none
 c      integer ia
       
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "paw_proj_data.fh"
 c
 c      paw_proj_total_nbasis = prj_ntot
@@ -280,7 +280,7 @@ c      end
       implicit none
       integer n,ia
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj_data.fh"
 
       paw_proj_l = int_mb(int_mb(i_prj_l(1)+2*(ia-1))+n-1)
@@ -301,7 +301,7 @@ c      end
       implicit none
       integer n,ia
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj_data.fh"
 
 
@@ -490,7 +490,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       integer    npack0
       real*8     vloc(npack0)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 
@@ -632,7 +632,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       implicit none
       integer ia    
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "bessel_transform.fh"
 #include "paw_params.fh"
 #include "paw_basis.fh"
@@ -949,7 +949,7 @@ c      end do
       subroutine paw_proj_end()
       implicit none
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj_data.fh"
 
       !*** local variables ***

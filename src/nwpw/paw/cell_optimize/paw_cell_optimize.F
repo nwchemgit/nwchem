@@ -2,7 +2,7 @@
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "msgtypesf.h"
 #include "rtdb.fh"

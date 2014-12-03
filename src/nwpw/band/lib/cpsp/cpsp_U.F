@@ -11,7 +11,7 @@
       subroutine cpsp_U_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsp_common.fh"
 
@@ -126,7 +126,7 @@
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
 *     **** version4 common block ****
@@ -191,7 +191,7 @@
       real*8 occ(*)
       logical ld_update
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -476,7 +476,7 @@
       real*8 occ(*)
       logical ld_update
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 

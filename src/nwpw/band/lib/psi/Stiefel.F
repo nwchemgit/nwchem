@@ -481,7 +481,7 @@ c      integer neall,nbrill,n
 c      real*8     S(neall,nbrill)
 c      complex*16 V(n,n,2,nbrill)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c
 c*     **** local variables ****
 c      logical value
@@ -512,7 +512,7 @@ c      complex*16 U(nfft3d,neall,nbrill)
 c      real*8     S(neall,nbrill)
 c      complex*16 V(n,n,2,nbrill)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c
 c*     **** local variables ****
 c      logical value,Pneb_is_init

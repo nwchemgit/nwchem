@@ -29,7 +29,7 @@
       complex*16 Hpsi(npack1,ispin)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 

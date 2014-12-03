@@ -11,7 +11,7 @@
       logical function borbs_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
 *     **** local variables ****
@@ -68,7 +68,7 @@
       subroutine borbs_end()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "borbs.fh"
 
@@ -105,7 +105,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
       borbs_norbs = int_mb(lmmax(1)+ia-1)
@@ -137,7 +137,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
       borbs_lmax = int_mb(lmax(1)+ia-1)-1
@@ -154,7 +154,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
       borbs_rcut = dbl_mb(rcut(1)+ia-1)
@@ -170,7 +170,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
       borbs_lmbda = dbl_mb(lmbda(1)+ia-1)
@@ -189,7 +189,7 @@
       integer  ia
       integer n          ! basis number
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
 *     *** local variables ***
@@ -232,7 +232,7 @@
       implicit none
       integer ii,lm
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
       borbs_get_basis_number=int_mb(basisborb(1)+lm-1+(ii-1)*norbs_max)
@@ -250,7 +250,7 @@
       subroutine borbs_normalize()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
 *     **** local variables ****
@@ -289,7 +289,7 @@
       implicit none
       integer n          ! basis number
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
 *     **** local variables ****
@@ -320,7 +320,7 @@
       integer n          ! basis number
       complex*16 borb(*) ! return orbital
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "borbs.fh"
 
@@ -406,7 +406,7 @@
       real*8     tmp2(*)
       integer ierr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 
@@ -542,7 +542,7 @@
       logical function borbs_readall()
       implicit none
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borbs.fh"
 
 *     **** local variables ****

@@ -14,7 +14,7 @@
       subroutine paw_vloc_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh"
 #include "paw_basis.fh"
 #include "paw_geom.fh"
@@ -48,7 +48,7 @@
       subroutine paw_vloc_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh"
 #include "paw_vloc_data.fh"
 
@@ -78,7 +78,7 @@
       complex*16 dng(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh"
 #include "paw_vloc_data.fh"
 
@@ -187,7 +187,7 @@ c        call Pack_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
       complex*16 dng(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh"
 #include "paw_vloc_data.fh"
 

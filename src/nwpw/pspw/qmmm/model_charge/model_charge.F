@@ -25,7 +25,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "model_charge.fh"
 
@@ -123,7 +123,7 @@ c
       real*8 dv
       real*8 fmm(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "switching_charge.fh"
 
 *     ***** local variables ****

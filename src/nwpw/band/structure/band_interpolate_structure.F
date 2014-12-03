@@ -3,7 +3,7 @@
       integer rtdb
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -309,7 +309,7 @@ c            end do
       real*8  ktet(3,*)
       real*8  eigs(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer  taskid,MASTER

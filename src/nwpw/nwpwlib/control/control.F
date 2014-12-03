@@ -13,7 +13,7 @@
       integer rtdb
 
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "control.fh"
 #include "nwxc.fh"
@@ -1226,7 +1226,7 @@ cccc set to some reasonable default !
       integer mapping
       integer ngrid(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -1360,7 +1360,7 @@ c      end if
       
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
@@ -1457,7 +1457,7 @@ c      end if
       real*8 delta
       real*8 unita(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
@@ -2156,7 +2156,7 @@ c         mtensor(3,3) = z
       implicit none
       real*8 unita_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "control.fh"
@@ -2216,7 +2216,7 @@ c         mtensor(3,3) = z
       implicit none
       real*8 unita_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "control.fh"
@@ -2925,7 +2925,7 @@ c      end
       logical function control_Mulliken()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "control.fh"
@@ -2972,7 +2972,7 @@ c      end
       logical function control_allow_translation()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -3018,7 +3018,7 @@ c      end
       logical function control_qmmm()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 
@@ -3043,7 +3043,7 @@ c      end
       logical function control_MP2()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 
@@ -3069,7 +3069,7 @@ c      end
       integer function control_num_kvectors()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -3105,7 +3105,7 @@ c      end
       integer i
       real*8 ks(4)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -3191,7 +3191,7 @@ c      end
       implicit none
       integer grid(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -3228,7 +3228,7 @@ c      end
       implicit none
       real*8 ks(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -3294,7 +3294,7 @@ c      end
       real*8 function control_TotalCharge()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3322,7 +3322,7 @@ c      end
       integer function control_frac_occ_extra_orbitals()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3385,7 +3385,7 @@ c      end
       integer function control_lmbfgs_size()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3411,7 +3411,7 @@ c      end
       logical function control_precondition()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3438,7 +3438,7 @@ c      end
       logical function control_lmbfgs_ondisk()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3468,7 +3468,7 @@ c      end
       integer     lmax,locp
       real*8      rlocal
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3513,7 +3513,7 @@ c      end
       character*4 atom
       real*8 rcut,lmbda
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
       
 *     **** control_rtdb common block ****
@@ -3554,7 +3554,7 @@ c      end
       real*8 function control_Ep()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3583,7 +3583,7 @@ c      end
       real*8 function control_Sp()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3716,7 +3716,7 @@ c      end
       implicit none
       integer ii
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3804,7 +3804,7 @@ c      end
       logical function control_ortho()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3909,7 +3909,7 @@ c      end
       logical function control_oep()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3936,7 +3936,7 @@ c      end
       logical function control_new_vpsi()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3962,7 +3962,7 @@ c      end
       logical function control_COM_shift()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -3989,7 +3989,7 @@ c      end
       logical function control_DOS()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4015,7 +4015,7 @@ c      end
       logical function control_psi_tmp()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4040,7 +4040,7 @@ c      end
       logical function control_mulliken_kawai()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4067,7 +4067,7 @@ c      end
       logical function control_zero_forces()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4095,7 +4095,7 @@ c      end
       implicit none
       integer grid(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4122,7 +4122,7 @@ c      end
       subroutine control_reset_band_structure()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "control.fh"
 
@@ -4160,7 +4160,7 @@ c      end
       integer function control_num_kvectors_structure()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -4200,7 +4200,7 @@ c      end
       integer i
       real*8 ks(4)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -4363,7 +4363,7 @@ c      end
       integer function control_optimize_cell_strategy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4393,7 +4393,7 @@ c      end
       implicit none
       integer u,v
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4430,7 +4430,7 @@ c      end
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4465,7 +4465,7 @@ c      end
       integer function control_lmax_multipole()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4492,7 +4492,7 @@ c      end
       integer function control_pfft3_qsize()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4518,7 +4518,7 @@ c      end
       integer function control_nprj_mult()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4672,7 +4672,7 @@ c      end
       logical function control_pressure()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4698,7 +4698,7 @@ c      end
       logical function control_init_velocities()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4726,7 +4726,7 @@ c      end
       logical function control_kbpp_ray()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4754,7 +4754,7 @@ c      end
       logical function control_kbpp_filter()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4781,7 +4781,7 @@ c      end
       logical function control_brillioun_ondisk()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4808,7 +4808,7 @@ c      end
       logical function control_mparallelized()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4834,7 +4834,7 @@ c      end
       integer function control_mreplicate_size()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4860,7 +4860,7 @@ c      end
       logical function control_bo_cpmd()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4885,7 +4885,7 @@ c      end
       logical function control_hfxon_virtual()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4913,7 +4913,7 @@ c      end
       real*8 function control_init_velocities_temperature()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4940,7 +4940,7 @@ c      end
       real*8 function control_wannier_timestep()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -4966,7 +4966,7 @@ c      end
       integer function control_wannier_maxiter()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5027,7 +5027,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer rtdb
       real*8 ecut,wcut
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
@@ -5135,7 +5135,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical function control_pspspin()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5169,7 +5169,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer upl(*),downl(*),upm(*),downm(*)
       logical upions(*),downions(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -5301,7 +5301,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical function control_psputerm()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5326,7 +5326,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer function control_pspnuterms()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5355,7 +5355,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 uscale(nuterms),jscale(nuterms)
       logical ions(nion,nuterms)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -5435,7 +5435,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical function control_use_grid_cmp()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5462,7 +5462,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5496,7 +5496,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function control_mc_step_size()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5523,7 +5523,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function control_mc_volume_step()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5550,7 +5550,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function control_mc_aratio()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5575,7 +5575,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function control_mc_Temperature()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5600,7 +5600,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function control_mc_pressure()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
@@ -5632,7 +5632,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function control_mc_ddx()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5657,7 +5657,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function control_mc_ddv()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5683,7 +5683,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer function control_mc_seed()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5708,7 +5708,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer function control_mc_algorithm()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5736,7 +5736,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       real*8 mc_atom_direction(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5764,7 +5764,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       integer mc_napply,mc_ngroups,mc_group_size
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****
@@ -5802,7 +5802,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer mc_group_end(*)
       integer mc_group(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** control_rtdb common block ****

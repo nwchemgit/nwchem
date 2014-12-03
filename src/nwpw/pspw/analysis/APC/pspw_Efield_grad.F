@@ -22,7 +22,7 @@ c
       complex*16 psi(*)
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"

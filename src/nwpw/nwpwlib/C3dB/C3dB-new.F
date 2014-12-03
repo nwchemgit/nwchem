@@ -64,7 +64,7 @@
       implicit none
       integer nb
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -248,7 +248,7 @@ c      end if
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -342,7 +342,7 @@ c      end if
       integer nb
       integer q,k
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
       
       k = int_mb(k_map(1,nb)+q-1)
@@ -361,7 +361,7 @@ c      end if
       integer nb
       integer k,q,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
       
       q = int_mb(q_map(1,nb)+k-1)
@@ -382,7 +382,7 @@ c      end if
       integer i,j,k
       integer indx,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
       integer q
@@ -421,7 +421,7 @@ c      end if
       integer i,j,k
       integer indx,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
       integer q
@@ -459,7 +459,7 @@ c      end if
       integer i,j,k
       integer indx,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 
@@ -500,7 +500,7 @@ c      end if
       integer i,j,k
       integer s,r,q,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 
@@ -897,7 +897,7 @@ c     p = p_map(k)
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -949,7 +949,7 @@ c     p = p_map(k)
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -1005,7 +1005,7 @@ c     p = p_map(k)
       integer nb
       complex*16  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 #include "errquit.fh"
 
@@ -1252,7 +1252,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nb
       complex*16  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 #include "errquit.fh"
 
@@ -1762,7 +1762,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 

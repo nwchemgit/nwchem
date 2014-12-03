@@ -11,7 +11,7 @@
       subroutine electron_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "electron_common.fh"
 
@@ -109,7 +109,7 @@ c      paw_exist = psp_pawexist()
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -230,7 +230,7 @@ c      paw_exist = psp_pawexist()
       complex*16 psi1(*),psi2(*)
       real*8     dte
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -258,7 +258,7 @@ c    >                           dte)
       real*8     hml(*)
       real*8     dte
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
       !**** psi2 = 2*psi1 - psi0 + dte*Hpsi ****
@@ -324,7 +324,7 @@ c      end
       logical fractional
       real*8  occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -496,7 +496,7 @@ c      end
       implicit none
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 *     **** local variables ****
@@ -539,7 +539,7 @@ c      end
       logical fractional
       real*8 occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -612,7 +612,7 @@ c      end
       implicit none
       real*8     dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -651,7 +651,7 @@ c      end
       implicit none
       real*8 dnall(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -701,7 +701,7 @@ c      end
       implicit none
       real*8 dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -749,7 +749,7 @@ c      end
       implicit none
       real*8 rho(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -812,7 +812,7 @@ c      end
       real*8 ehsic0,phsic0
       real*8 exsic0,pxsic0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
       logical  pspw_SIC_relaxed
@@ -846,7 +846,7 @@ c      end
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -864,7 +864,7 @@ c      end
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -884,7 +884,7 @@ c      end
       implicit none
       real*8 ehfx0,phfx0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
       logical  pspw_HFX_relaxed
@@ -913,7 +913,7 @@ c      end
       implicit none
       real*8 edftu0,pdftu0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -933,7 +933,7 @@ c      end
       implicit none
       real*8 emeta0,pmeta0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -954,7 +954,7 @@ c      end
       implicit none
       complex*16 Hpsi_k_new(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1024,7 +1024,7 @@ c      end
       real*8     hml(*)
       complex*16 THpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1056,7 +1056,7 @@ c      end
       real*8     hml(*)
       complex*16 THpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 *     ***** local variables ****
@@ -1094,7 +1094,7 @@ c      end do
       implicit none
       complex*16 THpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1116,7 +1116,7 @@ c      end do
       integer i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
       call Pack_c_Copy(1,dcpl_mb(Hpsi_k(1)+(i-1)*npack1),Horb) 
@@ -1138,7 +1138,7 @@ c      end do
       complex*16 psi_k(*)
       complex*16 THpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1213,7 +1213,7 @@ c      end do
       complex*16 psi_k(*)
       real*8     hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1259,7 +1259,7 @@ c      end do
       complex*16 psi_k(*)
       real*8     hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1298,7 +1298,7 @@ c      end do
       complex*16 psi_k(*)
       real*8     hmlt(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1345,7 +1345,7 @@ c      end do
       complex*16 THpsi_k(*)
       real*8     hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1391,7 +1391,7 @@ c      end do
       implicit none
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 cccc#include "frac_occ.fh"
 
@@ -1454,7 +1454,7 @@ cccc#include "frac_occ.fh"
       integer n
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -1515,7 +1515,7 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
       complex*16 orb(*)
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 #include "errquit.fh"
 
@@ -1582,7 +1582,7 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
       implicit none
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 *     **** local variables ****
@@ -1619,7 +1619,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       integer    n
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 *     **** local variables ****
@@ -1651,7 +1651,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       logical fractional
       real*8 occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 cccc#include "frac_occ.fh"
 
@@ -1733,7 +1733,7 @@ cccc#include "frac_occ.fh"
       logical fractional
       real*8     occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 cccccccccc#include "frac_occ.fh"
 
@@ -1815,7 +1815,7 @@ cccccccccc#include "frac_occ.fh"
       complex*16 dng(*)
       real*8     dnall(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
      
@@ -1887,7 +1887,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
       implicit none
    
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
      
 *     **** local variables ****
@@ -1987,7 +1987,7 @@ c      end do
 #include "errquit.fh"
       real*8 dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
       logical value
@@ -2034,7 +2034,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       implicit none
       real*8 vall_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
       call dcopy(4*nfft3d,dbl_mb(vall(1)),1,vall_out,1)
@@ -2052,7 +2052,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       implicit none
       real*8 vall_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
       call dcopy(4*nfft3d,vall_in,1,dbl_mb(vall(1)),1)
@@ -2072,7 +2072,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       complex*16 dng(*)
       real*8     dnall(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "electron_common.fh"
 
@@ -2136,7 +2136,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -2228,7 +2228,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       complex*16 psi1(*)
       real*8     dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 #include "errquit.fh"
 
@@ -2385,7 +2385,7 @@ c      end if
       logical fractional
       real*8 occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 #include "errquit.fh"
 
@@ -2465,7 +2465,7 @@ c      electron_psi_vnl_ave = enlocal
       complex*16 psi1(*)
       real*8     dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
 
@@ -2518,7 +2518,7 @@ c      electron_psi_vnl_ave = enlocal
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "electron_common.fh"
 
      
@@ -2538,7 +2538,7 @@ c*     ***********************************
 c
 c      real*8 function electron_dn_cmp_coulomb()
 c      implicit none
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c#include "electron_common.fh"
 c

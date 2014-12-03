@@ -14,7 +14,7 @@
       complex*16 psi(*)
       complex*16 psitmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -147,7 +147,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 #include "errquit.fh"
       real*8 coef(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -387,7 +387,7 @@ c      write(*,*) "diff:",dsqrt(gx)
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
@@ -460,7 +460,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       integer function psi_history()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
@@ -491,7 +491,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       integer function psi_history_size()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
@@ -521,7 +521,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       integer function psi_history_pointer_start()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
@@ -554,7 +554,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       implicit none 
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
@@ -589,7 +589,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       implicit none 
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
@@ -650,7 +650,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       implicit none 
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -720,7 +720,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       character*(*) filename
       real*8 rion(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
 *    *** local variables ***

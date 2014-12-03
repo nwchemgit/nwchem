@@ -17,7 +17,7 @@ c
       integer    current_iteration
       integer    minimizer
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

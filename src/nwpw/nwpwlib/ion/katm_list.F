@@ -12,7 +12,7 @@
       external    aname_function
       integer nkatm,katm(2),natm(2),atom(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       logical value

@@ -11,7 +11,7 @@ c
       implicit none
       logical iscomplex
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_gaunt_data.fh"
 
@@ -80,7 +80,7 @@ c
       subroutine nwpw_gaunt_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_gaunt_data.fh"
 
@@ -104,7 +104,7 @@ c
       integer  l1,l2,l3
       integer  m1,m2,m3
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_gaunt_data.fh"
 

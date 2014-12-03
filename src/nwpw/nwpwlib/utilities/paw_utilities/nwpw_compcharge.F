@@ -22,7 +22,7 @@
       integer comp_charge_matrix(*)
       integer hartree_matrix(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -564,7 +564,7 @@
       subroutine nwpw_compcharge_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -622,7 +622,7 @@
       integer npack0
       real*8  Gx(*),Gy(*),Gz(*),vk(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -863,7 +863,7 @@
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
@@ -888,7 +888,7 @@
       implicit none
       integer ms,ii,l,m
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
@@ -926,7 +926,7 @@
       integer ispin,nprj
       real*8  wmatrix(nprj,nprj,ispin)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -973,7 +973,7 @@
       integer ispin,ii,l,m
       real*8 deqlm
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1002,7 +1002,7 @@
       subroutine nwpw_compcharge_reduce_dE_Qlm()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1020,7 +1020,7 @@
       subroutine nwpw_compcharge_zero_dE_Qlm()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1042,7 +1042,7 @@
       complex*16 vcmp(*)
       complex*16 vcmp_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1184,7 +1184,7 @@
       real*8  sw1(ne(1)+ne(2),nprj)
       real*8  sw2(ne(1)+ne(2),nprj)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1245,7 +1245,7 @@
       real*8  sw1y(ne(1)+ne(2),nprj)
       real*8  sw1z(ne(1)+ne(2),nprj)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1392,7 +1392,7 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
       real*8     zv(*)
       complex*16 v_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1467,7 +1467,7 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
       real*8 rgrid(3,*)
       real*8 vlr_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1574,7 +1574,7 @@ c                  yerf = util_erf(xerf)
       integer ms
       complex*16 dng_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1685,7 +1685,7 @@ c                  yerf = util_erf(xerf)
       integer ispin
       complex*16 dng_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1803,7 +1803,7 @@ c                  yerf = util_erf(xerf)
       complex*16 dng_cmp(*)
       complex*16 dng_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -1927,7 +1927,7 @@ c                  yerf = util_erf(xerf)
       integer    ispin
       complex*16 dng_cmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2049,7 +2049,7 @@ c                  yerf = util_erf(xerf)
       complex*16 dng_cmp(*)
       complex*16 dng_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2190,7 +2190,7 @@ c                  yerf = util_erf(xerf)
       real*8     zv(*)
       complex*16 dng_cmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2322,7 +2322,7 @@ c                  yerf = util_erf(xerf)
       real*8     zv(*)
       complex*16 dng_cmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2428,7 +2428,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       real*8     zv(*)
       complex*16 cmp_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2515,7 +2515,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       integer ii,l,m
       complex*16 glm_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2592,7 +2592,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       complex*16 glm_out(*)
       complex*16 glm_smooth_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2674,7 +2674,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       subroutine nwpw_gintegrals_set_gcount()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2756,7 +2756,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       subroutine nwpw_gintegrals_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2794,7 +2794,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       subroutine nwpw_gintegrals_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -2825,7 +2825,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       implicit none
       logical move
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3120,7 +3120,7 @@ c     >                                         l2,m2,s1,Rab)
       real*8 zv(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3190,7 +3190,7 @@ c     >                                         l2,m2,s1,Rab)
       implicit none
       integer ispin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3270,7 +3270,7 @@ cc         end if
       integer ispin
       real*8 fion(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3373,7 +3373,7 @@ cc         end if
       complex*16 vcmp(*)
       complex*16 vcmp_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3557,7 +3557,7 @@ cc         end if
       integer ispin
       complex*16 vcmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3680,7 +3680,7 @@ cc         end if
       implicit none
       integer ispin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3700,7 +3700,7 @@ cc         end if
       implicit none
       integer ispin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3750,7 +3750,7 @@ cc         end if
       implicit none
       integer ispin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3799,7 +3799,7 @@ cc     >                            dbl_mb(dE_Qlm(1)))
       integer ispin
       real*8 zv(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3860,7 +3860,7 @@ cc     >                            dbl_mb(dE_Qlm(1)))
       integer ispin
       real*8 zv(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -3927,7 +3927,7 @@ cc     >                            dbl_mb(dE_Qlm(1)))
       real*8  sw2(ne(1)+ne(2),nprj)
       real*8  eh_atom
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -4019,7 +4019,7 @@ c     *********************************************
       integer ispin,nprj
       real*8  wmatrix(nprj,nprj,ispin)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -4103,7 +4103,7 @@ c     *********************************************
       integer indx
       integer iii,l,m
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 

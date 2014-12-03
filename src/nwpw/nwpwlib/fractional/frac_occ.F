@@ -13,7 +13,7 @@ c
       integer ispin
       integer ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "frac_occ.fh"
@@ -88,7 +88,7 @@ c
       subroutine frac_occ_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "frac_occ.fh"
 

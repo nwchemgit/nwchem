@@ -6,7 +6,7 @@
       integer rtdb
       logical value
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -21,6 +21,7 @@
       integer r1(2),geom,nion
       integer r2(2),few(2),fvl(2),fvnl(2),fxc(2),fLJ(2),fQ(2),fspring(2)
       integer fdftu(2),fdisp(2)
+      integer fhatom(2),fcmp(2),fcmppw(2),fxcatom(2),fpxcatom(2),fall(2)
 
 
       double precision alpha,E
@@ -63,6 +64,19 @@
      >     MA_alloc_get(mt_dbl,(3*nion),'fdftu',fdftu(2),fdftu(1))
       value     = value.and.
      >     MA_alloc_get(mt_dbl,(3*nion),'fdisp',fdisp(2),fdisp(1))
+      value     = value.and.
+     >     MA_alloc_get(mt_dbl,(3*nion),'fhatom',fhatom(2),fhatom(1))
+      value     = value.and.
+     >     MA_alloc_get(mt_dbl,(3*nion),'fcmp',fcmp(2),fcmp(1))
+      value     = value.and.
+     >     MA_alloc_get(mt_dbl,(3*nion),'fcmppw',fcmppw(2),fcmppw(1))
+      value     = value.and.
+     >     MA_alloc_get(mt_dbl,(3*nion),'fxcatom',fxcatom(2),fxcatom(1))
+      value     = value.and.
+     >  MA_alloc_get(mt_dbl,(3*nion),'fpxcatom',fpxcatom(2),fpxcatom(1))
+      value     = value.and.
+     >     MA_alloc_get(mt_dbl,(3*nion),'fall',fall(2),fall(1))
+
       if(.not.value) call errquit
      E   (' stressfd: geom malloc failure ',0,0)
 
@@ -83,6 +97,12 @@
       call dcopy(3*nion,0.0d0,0,dbl_mb(fspring(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fdftu(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fdisp(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fhatom(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fcmp(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fcmppw(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fxcatom(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fpxcatom(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fall(1)),1)
 
 
       do i=1,(3*nion)
@@ -146,6 +166,30 @@
      >        rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
       dbl_mb(fdisp(1)+i-1) = E
 
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E)
+      dbl_mb(fhatom(1)+i-1) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_cmp_cmp',mt_dbl,1,E)
+      dbl_mb(fcmp(1)+i-1) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_cmp_pw',mt_dbl,1,E)
+      dbl_mb(fcmppw(1)+i-1) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_exc_atom',mt_dbl,1,E)
+      dbl_mb(fxcatom(1)+i-1) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_pxc_atom',mt_dbl,1,E)
+      dbl_mb(fpxcatom(1)+i-1) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_all',mt_dbl,1,E)
+      dbl_mb(fall(1)+i-1) = E
+
 *     *****************************
 *     **** - finite difference ****
 *     *****************************
@@ -196,6 +240,24 @@
       value = value.and.rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
       dbl_mb(fdisp(1)+i-1) = dbl_mb(fdisp(1)+i-1) - E
 
+      value = value.and.rtdb_get(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E)
+      dbl_mb(fhatom(1)+i-1) = dbl_mb(fhatom(1)+i-1) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_cmp_cmp',mt_dbl,1,E)
+      dbl_mb(fcmp(1)+i-1) = dbl_mb(fcmp(1)+i-1) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_cmp_pw',mt_dbl,1,E)
+      dbl_mb(fcmppw(1)+i-1) = dbl_mb(fcmppw(1)+i-1) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_exc_atom',mt_dbl,1,E)
+      dbl_mb(fxcatom(1)+i-1) = dbl_mb(fxcatom(1)+i-1) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_pxc_atom',mt_dbl,1,E)
+      dbl_mb(fpxcatom(1)+i-1) = dbl_mb(fpxcatom(1)+i-1) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_all',mt_dbl,1,E)
+      dbl_mb(fall(1)+i-1) = dbl_mb(fall(1)+i-1) - E
+
       end do
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(few(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fvl(1)),1)
@@ -206,6 +268,12 @@
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fspring(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fdftu(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fdisp(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fhatom(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fcmp(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fcmppw(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fxcatom(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fpxcatom(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fall(1)),1)
 
       call write_force(nion,dbl_mb(few(1)),"ewald FD")
       call write_force(nion,dbl_mb(fvl(1)),"local FD")
@@ -216,6 +284,12 @@
       call write_force(nion,dbl_mb(fspring(1)), "spring FD")
       call write_force(nion,dbl_mb(fdftu(1)), "DFTU FD")
       call write_force(nion,dbl_mb(fdisp(1)), "Dispersion FD")
+      call write_force(nion,dbl_mb(fhatom(1)), "Hartree Atom FD")
+      call write_force(nion,dbl_mb(fcmp(1)), "cmp-cmp FD")
+      call write_force(nion,dbl_mb(fcmppw(1)), "cmp-pw FD")
+      call write_force(nion,dbl_mb(fxcatom(1)), "exc_atom FD")
+      call write_force(nion,dbl_mb(fpxcatom(1)), "pxc_atom FD")
+      call write_force(nion,dbl_mb(fall(1)), "E all FD")
 
       call daxpy(3*nion,1.0d0,dbl_mb(fvl(1)),1,dbl_mb(few(1)),1)
       call daxpy(3*nion,1.0d0,dbl_mb(fvnl(1)),1,dbl_mb(few(1)),1)
@@ -225,6 +299,12 @@
       call daxpy(3*nion,1.0d0,dbl_mb(fspring(1)),1,dbl_mb(few(1)),1)
       call daxpy(3*nion,1.0d0,dbl_mb(fdftu(1)),1,dbl_mb(few(1)),1)
       call daxpy(3*nion,1.0d0,dbl_mb(fdisp(1)),1,dbl_mb(few(1)),1)
+
+      call daxpy(3*nion,-1.0d0,dbl_mb(fhatom(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,-1.0d0,dbl_mb(fcmp(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,-1.0d0,dbl_mb(fcmppw(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fxcatom(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,-1.0d0,dbl_mb(fpxcatom(1)),1,dbl_mb(few(1)),1)
       call write_force(nion,dbl_mb(few(1)),"total FD")
 
 
@@ -245,6 +325,11 @@
       value = value.and.MA_free_heap(fspring(2))
       value = value.and.MA_free_heap(fdftu(2))
       value = value.and.MA_free_heap(fdisp(2))
+      value = value.and.MA_free_heap(fhatom(2))
+      value = value.and.MA_free_heap(fcmp(2))
+      value = value.and.MA_free_heap(fcmppw(2))
+      value = value.and.MA_free_heap(fxcatom(2))
+      value = value.and.MA_free_heap(fpxcatom(2))
  
       force_fd = value
       return 

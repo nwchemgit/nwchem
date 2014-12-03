@@ -11,7 +11,7 @@
       subroutine paw_electron_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 #include "errquit.fh"
 
@@ -92,7 +92,7 @@
       subroutine paw_electron_finalize()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "paw_electron.fh"
 
@@ -155,7 +155,7 @@
       real*8     dn(*)
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       logical value
 
@@ -217,7 +217,7 @@ c      call paw_electron_gen_Hpsi_k_orb(i,psi_k)
       complex*16 psi1(*),psi2(*)
       real*8     dte
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -244,7 +244,7 @@ c      call paw_electron_gen_Hpsi_k_orb(i,psi_k)
       real*8     dn(*)
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_energy_kin_atom.fh"
 #include "paw_energy_vloc_atom.fh"
 #include "paw_energy_ion_atom.fh"
@@ -352,7 +352,7 @@ c      write(*,*) "total_energy:",total_energy
       implicit none
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -397,7 +397,7 @@ c      write(*,*) "total_energy:",total_energy
       implicit none
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 #include "errquit.fh"
 
@@ -471,7 +471,7 @@ c     >                  ehartr)
       implicit none
       real*8 dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -521,7 +521,7 @@ c     >                  ehartr)
       implicit none
       real*8 dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -569,7 +569,7 @@ c     >                  ehartr)
       implicit none
       real*8 rho(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -618,7 +618,7 @@ c     >                  ehartr)
       implicit none
       complex*16 Hpsi_k_new(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -674,7 +674,7 @@ c     >                  ehartr)
       real*8     hml(*)
       complex*16 THpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -718,7 +718,7 @@ c     >                  ehartr)
       real*8     hml(*)
       complex*16 THpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 *     ***** local variables ****
@@ -751,7 +751,7 @@ c     >                  ehartr)
       implicit none
       complex*16 THpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -773,7 +773,7 @@ c     >                  ehartr)
       integer i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
       call Pack_c_Copy(1,dcpl_mb(Hpsi_k(1)+(i-1)*npack1),Horb) 
@@ -795,7 +795,7 @@ c     >                  ehartr)
       complex*16 psi_k(*)
       complex*16 THpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -871,7 +871,7 @@ c     >                  ehartr)
       complex*16 psi_k(*)
       real*8     hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 *     **** local variables ****
@@ -901,7 +901,7 @@ c     >                  ehartr)
       complex*16 psi_k(*)
       real*8     hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 *     **** local variables ****
@@ -934,7 +934,7 @@ c     >                  ehartr)
       complex*16 psi_k(*)
       real*8     hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -971,7 +971,7 @@ c     >                  ehartr)
       complex*16 psi_k(*)
       real*8     hmlt(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -1012,7 +1012,7 @@ c     >                  ehartr)
       complex*16 THpsi_k(*)
       real*8     hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -1054,7 +1054,7 @@ c     >                  ehartr)
       implicit none
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -1102,7 +1102,7 @@ c      implicit none
 c      integer n
 c      complex*16 psi_k(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "paw_electron.fh"
 c
 c
@@ -1152,7 +1152,7 @@ c      integer    ms
 c      complex*16 orb(*)
 c      complex*16 Horb(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "paw_electron.fh"
 c
 c
@@ -1221,7 +1221,7 @@ c      end
       implicit none
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 *     **** local variables ****
@@ -1254,7 +1254,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       integer    n
       complex*16 psi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 *     **** local variables ****
@@ -1285,7 +1285,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       real*8     dn(*)
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
      
@@ -1346,7 +1346,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       real*8     dn(*)
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 #include "errquit.fh"
 
@@ -1403,7 +1403,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
       implicit none
    
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
      
 *     **** local variables ****
@@ -1505,7 +1505,7 @@ c      end do
       implicit none
       real*8 vall_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
       call dcopy(4*nfft3d,dbl_mb(vall(1)),1,vall_out,1)
@@ -1523,7 +1523,7 @@ c      end do
       implicit none
       real*8 vall_in
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
       call dcopy(4*nfft3d,vall_in,1,dbl_mb(vall(1)),1)
@@ -1542,7 +1542,7 @@ c      end do
       real*8     dn(*)
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 #include "nwxc.fh"
 #include "errquit.fh"
@@ -1707,7 +1707,7 @@ c      call paw_density_solve()
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
 
@@ -1757,7 +1757,7 @@ c      call paw_density_solve()
       complex*16 psi1(*)
       real*8     dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 #include "errquit.fh"
 
@@ -1845,7 +1845,7 @@ c      call paw_density_solve()
       complex*16 dng1(*)
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_electron.fh"
 
       !**** local variables ****

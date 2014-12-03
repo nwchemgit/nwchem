@@ -47,7 +47,7 @@
       logical    move
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

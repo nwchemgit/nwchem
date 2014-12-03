@@ -18,7 +18,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "util.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
       integer       flag

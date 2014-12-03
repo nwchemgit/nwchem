@@ -17,7 +17,7 @@
       subroutine nwpw_meta_gga_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_meta_gga.fh"
 #include "nwxc.fh"
@@ -50,7 +50,7 @@
       subroutine nwpw_meta_gga_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_meta_gga.fh"
 
@@ -97,7 +97,7 @@
       complex*16 psi(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_meta_gga.fh"
 
@@ -182,7 +182,7 @@
       complex*16 psi(*)
       complex*16 Hpsi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_meta_gga.fh"
 
@@ -275,7 +275,7 @@
       integer ispin,neq(2)
       complex*16 psi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_meta_gga.fh"
 

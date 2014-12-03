@@ -16,7 +16,7 @@
       integer      ispin,ne(2),nbrillioun
       logical      spin_orbit
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
  
 *     **** local variables ****
       integer MASTER,taskid

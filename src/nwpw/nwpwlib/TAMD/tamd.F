@@ -9,7 +9,7 @@ c     **********************************************
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -606,7 +606,7 @@ c     **********************************************
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "tamd.fh"
@@ -713,7 +713,7 @@ c     **********************************************
       integer ispin,ne(2)
       real*8  psi1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer i,j,ntype,n1,n2,nion
@@ -984,7 +984,7 @@ c     **********************************************
       logical move
       real*8 fmeta(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer i,j,ntype,n1,n2,nion
@@ -1419,7 +1419,7 @@ c     **** bond_difference2 ****
       real*8 psi1(*)
       real*8 E(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tamd.fh"
 
@@ -1465,7 +1465,7 @@ c     **** bond_difference2 ****
       logical move
       real*8 fmeta(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tamd.fh"
 
@@ -1576,7 +1576,7 @@ c              **** update ztamd and vztamd ****
       integer ispin,ne(2)
       real*8 psi1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tamd.fh"
 
@@ -1626,7 +1626,7 @@ c              **** update ztamd and vztamd ****
       real*8 psi1(*)
       real*8 e,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tamd.fh"
 
@@ -1686,7 +1686,7 @@ c     **********************************************
       implicit none
       integer icount
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tamd.fh"
 
@@ -1831,7 +1831,7 @@ c               close(53)
       implicit none
       real*8 bheight,bsigma
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tamd.fh"
 
@@ -1889,7 +1889,7 @@ c               close(53)
       implicit none
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "tamd.fh"
 
@@ -2051,7 +2051,7 @@ c               close(53)
       integer rtdb
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "tamd.fh"
@@ -2236,7 +2236,7 @@ c               close(53)
       implicit none
       real*8 sn2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tamd.fh"
 

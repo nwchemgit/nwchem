@@ -20,7 +20,7 @@
       real*8 rcut,lmbda
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
 

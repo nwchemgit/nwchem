@@ -12,7 +12,7 @@
       subroutine  init_paw_comp_charge_matrix()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_basis.fh"
 #include "paw_comp_charge_matrix.fh"
 #include "paw_utils.fh"
@@ -84,7 +84,7 @@
       subroutine  end_paw_comp_charge_matrix()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_basis.fh"
 #include "paw_comp_charge_matrix.fh"
 #include "paw_utils.fh"
@@ -137,7 +137,7 @@
       double precision phi_ps(ngrid,nbasis)
       double precision matrix(nbasis,nbasis,mult_l+1)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "integrate.fh"
 
       !*** local variables ***

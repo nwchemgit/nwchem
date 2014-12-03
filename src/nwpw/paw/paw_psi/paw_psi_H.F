@@ -39,7 +39,7 @@
       logical    move
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer ms,n,n1(2),n2(2)
@@ -187,7 +187,7 @@ c     >                       dcpl_mb(vpsi(1)))
       logical    move
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
 *     **** local variables ****

@@ -26,7 +26,7 @@
       integer ispin0
       integer nbasis0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_mlist.fh"
 
 *     **** local variables ****
@@ -57,7 +57,7 @@
       implicit none
 #include "errquit.fh"
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "lcao_mlist.fh"
 
@@ -96,7 +96,7 @@
 #include "errquit.fh"
       integer index(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "lcao_mlist.fh"
 
@@ -138,7 +138,7 @@
       integer count
       integer index(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_mlist.fh"
 
       if ((count.gt.size).or.(count.lt.1)) 
@@ -187,7 +187,7 @@
       subroutine lcao_mlist_shift()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_mlist.fh"
 
 *     **** local variables ****

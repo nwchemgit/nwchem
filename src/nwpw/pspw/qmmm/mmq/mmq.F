@@ -11,7 +11,7 @@
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "mmq.fh"
@@ -52,7 +52,7 @@
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mmq.fh"
 
       if (.not.MA_free_heap(zv(2)))
@@ -69,7 +69,7 @@
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mmq.fh"
 
       mmq_zv = dbl_mb(zv(1)+ia-1)

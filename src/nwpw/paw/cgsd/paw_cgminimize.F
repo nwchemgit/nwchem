@@ -19,7 +19,7 @@ c
       integer    it_in
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "paw_energy_kin_atom.fh"
 #include "paw_energy_vloc_atom.fh"

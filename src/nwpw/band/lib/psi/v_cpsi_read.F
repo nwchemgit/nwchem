@@ -14,7 +14,7 @@
       integer ispin0,ne0(2),nbrillioun0
       integer psi0_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"

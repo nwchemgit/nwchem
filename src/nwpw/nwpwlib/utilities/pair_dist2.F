@@ -14,7 +14,7 @@ c
       integer       indx2(*),natoms2
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 
 c     *** parameters ***

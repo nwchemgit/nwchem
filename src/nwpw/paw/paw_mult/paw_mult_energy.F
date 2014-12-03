@@ -43,7 +43,7 @@
       implicit none
       real*8 paw_mult_energy_atom_comp !*RESULT*
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"
@@ -95,7 +95,7 @@
       implicit none
       real*8 paw_mult_energy_atom_self !*RESULT*
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"
@@ -148,7 +148,7 @@
       implicit none
       real*8 paw_mult_energy_atom_mult !*RESULT*
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"

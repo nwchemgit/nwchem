@@ -4,7 +4,7 @@
       integer N,LDA
       real*8 A(LDA,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer B(2),ipiv(2)

@@ -14,7 +14,7 @@
       function paw_energy_vloc_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_ma.fh"
 #include "paw_matrix_vloc_data.fh"

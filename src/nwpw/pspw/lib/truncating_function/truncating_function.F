@@ -25,7 +25,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "truncating_function.fh"
 #include "errquit.fh"
@@ -133,7 +133,7 @@ c      integer rho(2),f(2)
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "truncating_function.fh"
 
       if (.not. MA_free_heap(Trnc(2))) 
@@ -152,7 +152,7 @@ c      integer rho(2),f(2)
       real*8 rgrid(3,*)
       real*8 T(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "truncating_function.fh"
 
 *     ***** local variables ****
@@ -198,7 +198,7 @@ c      integer rho(2),f(2)
       real*8 rgrid(3,*)
       real*8 T(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "truncating_function.fh"
 #include "errquit.fh"
 
@@ -245,7 +245,7 @@ c     >  call errquit('Truncating_Function_index:pop stack',1,MA_ERR)
       real*8 rgrid(3,*)
       real*8 T(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "truncating_function.fh"
 
 *     **** local variables ****

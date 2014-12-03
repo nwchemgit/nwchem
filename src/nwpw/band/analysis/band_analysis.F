@@ -11,7 +11,7 @@ c
       integer psi_tag
       integer eig_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -872,7 +872,7 @@ c              END DO
       real*8 pweight(ne(1)+ne(2),nbrillq,*)
       integer lmax
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 

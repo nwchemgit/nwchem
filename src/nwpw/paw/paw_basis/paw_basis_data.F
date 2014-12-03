@@ -16,7 +16,7 @@
       integer ng(nt)
 
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 #include "paw_ma.fh"
 
 
@@ -303,7 +303,7 @@ c     *** local variables ***
         integer it
      
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
   
         paw_basis_nbasis = int_mb(nbasis(1) +  it-1)
         return
@@ -340,7 +340,7 @@ c     *** local variables ***
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_ngrid = int_mb(ngrid(1) +  it-1)
       return
@@ -377,7 +377,7 @@ c     *** local variables ***
       implicit none
       integer it
     
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 #include "paw_basis_data.fh"
 
 
@@ -434,7 +434,7 @@ c     *** local variables ***
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_i_cut = int_mb(i_cut(1) +  it-1)
       return
@@ -491,7 +491,7 @@ c     *** local variables ***
       integer it
 
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_i_start = int_mb(i_start(1) +  it-1)
       return
@@ -530,7 +530,7 @@ c     *** local variables ***
       integer it
 
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_i_end = int_mb(i_end(1) +  it-1)
       return
@@ -569,7 +569,7 @@ c     *** local variables ***
       integer it
 
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_npoints = int_mb(npoints(1) +  it-1)
       return
@@ -608,7 +608,7 @@ c     *** local variables ***
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_log_amesh = dbl_mb(log_amesh(1)+it-1)
       return
@@ -648,7 +648,7 @@ c     *** local variables ***
 #include "paw_basis_data.fh"
 #include "integrate.fh"
 #include "paw_basis.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
       
       !*** local variables ***
       real*8 core,fourpi
@@ -701,7 +701,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
 
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_core_charge = dbl_mb(core_charge(1) +  it-1)
       return
@@ -740,7 +740,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_ion_charge = dbl_mb(ion_charge(1) +  it-1)
       return
@@ -760,7 +760,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer ia
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
 
       !*** external functions ***
@@ -786,7 +786,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer ia
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_sigma
@@ -844,7 +844,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer l
     
 #include "paw_geom.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_orb_l,paw_basis_nbasis
@@ -873,7 +873,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer ii,ia
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_pr_n
@@ -896,7 +896,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer ii,ia
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_pr_n_ps
@@ -919,7 +919,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer ii,ia
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_orb_l
@@ -943,7 +943,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer ii,ia
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       !*** external functions ***
       integer  paw_basis_i_eig
@@ -987,7 +987,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_core_kin_energy = dbl_mb(core_kin_energy(1) +  it-1)
       return
@@ -1006,7 +1006,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_pr_n = pr_n(1) + int_mb(i_nb(1) + it-1)
       return
@@ -1025,7 +1025,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_pr_n_ps = pr_n_ps(1) + int_mb(i_nb(1) + it-1)
       return
@@ -1044,7 +1044,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_orb_l = orb_l(1) + int_mb(i_nb(1) + it-1)
       return
@@ -1063,7 +1063,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_eig = eig(1) + int_mb(i_nb(1) + it-1)
       return
@@ -1082,7 +1082,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_core_density = core_density(1) +
      +     int_mb(i_ng(1) + it-1)
@@ -1102,7 +1102,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_ps_core_density = ps_core_density(1) 
      >                      + int_mb(i_ng(1) + it-1)
@@ -1124,7 +1124,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
 
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_i_core_density_prime = core_density_prime(1)
      >                               + int_mb(i_ng(1)+it-1)
@@ -1144,7 +1144,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
 
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       paw_basis_i_ps_core_density_prime = ps_core_density_prime(1)
      >                                  + int_mb(i_ng(1)+ it-1)
@@ -1165,7 +1165,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_v_ps = v_ps(1) + int_mb(i_ng(1) + it-1)
       return
@@ -1184,7 +1184,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_rgrid = rgrid(1) + int_mb(i_ng(1) + it-1)
       return
@@ -1203,7 +1203,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_phi_ae = phi_ae(1) + int_mb(i_ngb(1) + it-1)
       return
@@ -1223,7 +1223,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
     
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_phi_ps = phi_ps(1) + int_mb(i_ngb(1) + it-1)
       return
@@ -1243,7 +1243,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
    
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_phi_ae_prime = phi_ae_prime(1) + 
      +     int_mb(i_ngb(1) + it-1)
@@ -1263,7 +1263,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
 
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 
       paw_basis_i_phi_ps_prime = phi_ps_prime(1) + 
      +     int_mb(i_ngb(1) + it-1)
@@ -1283,7 +1283,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       integer it
  
 #include "paw_basis_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
       
       paw_basis_i_prj_ps = prj_ps(1) + int_mb(i_ngb(1) + it-1)
       return
@@ -1301,7 +1301,7 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       implicit none
       integer it
     
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 #include "paw_basis_data.fh"
 
       paw_basis_i_prj_ps0 = prj_ps0(1) + int_mb(i_ngb(1) + it-1)

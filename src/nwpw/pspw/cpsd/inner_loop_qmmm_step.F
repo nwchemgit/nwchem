@@ -33,7 +33,7 @@
       real*8  fcharge(3,*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 ccc#include "frac_occ.fh"
 

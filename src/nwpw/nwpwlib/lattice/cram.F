@@ -12,7 +12,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 
@@ -159,7 +159,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -197,7 +197,7 @@
       integer    nb
       complex*16 A(*)
 
-#include "mafdecls.fh"  
+#include "bafdecls.fh"  
 #include "errquit.fh"
 #include "cram_common.fh"
 
@@ -250,7 +250,7 @@
       integer    request(*),reqcnt
       integer    msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cram_common.fh"
 
@@ -296,7 +296,7 @@
       complex*16 tmp1(*)
       integer    request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cram_common.fh"
 
@@ -326,7 +326,7 @@
       integer nb
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 #include "errquit.fh"
 
@@ -375,7 +375,7 @@
       integer nb
       integer A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       
@@ -423,7 +423,7 @@
       integer    nb
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 
@@ -474,7 +474,7 @@
       integer    request(*),reqcnt
       integer    msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cram_common.fh"
 
@@ -506,7 +506,7 @@
       complex*16 tmp2(*)
       integer    request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cram_common.fh"
 
@@ -552,7 +552,7 @@
       integer nb
       integer npack
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 
@@ -571,7 +571,7 @@
       implicit none
       integer npack
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       npack = npack_max
@@ -588,7 +588,7 @@
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       Cram_nwave =  int_mb(nidb2_list(1)+nb)
@@ -604,7 +604,7 @@
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       integer nbq,taskid_k,p
@@ -634,7 +634,7 @@
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       Cram_nwave_all = int_mb(nwaveall_list(1)+nb)
@@ -650,7 +650,7 @@
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       integer nbq,taskid_k,p
@@ -711,7 +711,7 @@
       complex*16 B(*)
       complex*16 sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -757,7 +757,7 @@
       complex*16 B(*)
       complex*16 sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -807,7 +807,7 @@
       complex*16 B(*)
       complex*16 sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -849,7 +849,7 @@
       complex*16 B(*)
       complex*16 sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -891,7 +891,7 @@
       complex*16 B(*)
       complex*16 sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 
@@ -922,7 +922,7 @@
       complex*16 B(*)
       complex*16 sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -958,7 +958,7 @@
       complex*16 B(*)
       complex*16 tsum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1022,7 +1022,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 B(*)
       real*8     sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 
@@ -1064,7 +1064,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       complex*16 B(*)
       real*8     sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1103,7 +1103,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       real*8     alpha,beta
       real*8     hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1142,7 +1142,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       complex*16 alpha,beta
       complex*16 hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1179,7 +1179,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       complex*16 alpha,beta
       complex*16 hml(n,n)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1234,7 +1234,7 @@ c      end do
       complex*16 alpha,beta
       complex*16 hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1273,7 +1273,7 @@ c      end do
       real*8  B(*)
       real*8  sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** external functions ****
@@ -1305,7 +1305,7 @@ c      end do
       real*8  B(*)
       real*8  sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1340,7 +1340,7 @@ c      end do
       real*8  A(*)
       real*8  sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1375,7 +1375,7 @@ c      end do
       complex*16 A(*)
       complex*16 B(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       call dcopy(2*(int_mb(nidb2_list(1)+nb)),A,1,B,1)
@@ -1395,7 +1395,7 @@ c      end do
       real*8 A(*)
       real*8 B(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       call dcopy((int_mb(nidb2_list(1)+nb)),A,1,B,1)
@@ -1414,7 +1414,7 @@ c      end do
       integer    nb
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       call dcopy(2*(int_mb(nidb2_list(1)+nb)),0.0d0,0,A,1)
@@ -1437,7 +1437,7 @@ c      end do
       complex*16 B(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1463,7 +1463,7 @@ c      end do
       complex*16 A(*)
       complex*16 B(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1490,7 +1490,7 @@ c      end do
       real*8 B(*)
       real*8 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1517,7 +1517,7 @@ c      end do
       real*8 A(*)
       real*8 B(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1544,7 +1544,7 @@ c      end do
       complex*16 B(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1570,7 +1570,7 @@ c      end do
       real*8 B(*)
       real*8 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1595,7 +1595,7 @@ c      end do
       real*8   A(*)
       real*8   C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1620,7 +1620,7 @@ c      end do
       integer  nb
       real*8   A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1646,7 +1646,7 @@ c      end do
       complex*16 A(*)
       real*8     C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 
@@ -1675,7 +1675,7 @@ c      end do
       complex*16 A(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1702,7 +1702,7 @@ c      end do
       real*8     alpha
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1730,7 +1730,7 @@ c      end do
       complex*16 A(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1758,7 +1758,7 @@ c      end do
       real*8 A(*)
       real*8 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1786,7 +1786,7 @@ c      end do
       real*8 alpha
       real*8 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1814,7 +1814,7 @@ c      end do
       complex*16 A(*)
       complex*16 B(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
       call daxpy(2*(int_mb(nidb2_list(1)+nb)),alpha,A,1,B,1)
@@ -1837,7 +1837,7 @@ c      end do
       real*8 A(*)
       real*8 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1865,7 +1865,7 @@ c      end do
       complex*16 A(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1892,7 +1892,7 @@ c      end do
       complex*16 B(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1918,7 +1918,7 @@ c      end do
       real*8     A(*)
       complex*16 B(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1944,7 +1944,7 @@ c      end do
       complex*16 B(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1971,7 +1971,7 @@ c      end do
       complex*16 B(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -1999,7 +1999,7 @@ c      end do
       complex*16 B(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -2025,7 +2025,7 @@ c      end do
       complex*16 A(*)
       complex*16 B(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -2051,7 +2051,7 @@ c      end do
       complex*16 B(*)
       real*8     C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -2078,7 +2078,7 @@ c      end do
       complex*16 B(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -2107,7 +2107,7 @@ c      end do
       complex*16 B(*)
       complex*16 C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -2135,7 +2135,7 @@ c      end do
       real*8     B(*)
       real*8     C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -2160,7 +2160,7 @@ c      end do
       real*8     A(*)
       real*8     B(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -2192,7 +2192,7 @@ c      end do
       complex*16 B(*)
       real*8     C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****
@@ -2222,7 +2222,7 @@ c      end do
       complex*16 B(*)
       real*8     C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cram_common.fh"
 
 *     **** local variables ****

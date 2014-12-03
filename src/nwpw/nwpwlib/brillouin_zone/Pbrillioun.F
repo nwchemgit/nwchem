@@ -10,7 +10,7 @@
       subroutine Pbrillioun_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "brillioun_common.fh"
 
@@ -84,7 +84,7 @@
       subroutine Pbrillioun_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "brillioun_common.fh"
 
@@ -112,7 +112,7 @@
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       if (printbrill) then
@@ -132,7 +132,7 @@
       implicit none
       integer i,nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       if (printbrill) then
@@ -152,7 +152,7 @@
       implicit none
       integer i,nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       if (printbrill) then
@@ -174,7 +174,7 @@
       implicit none
       integer i,nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "brillioun_common.fh"
 
       Pbrillioun_print = printbrill

@@ -14,7 +14,7 @@
       integer ispin,ne(2),nbrillioun
       integer psi2_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -167,7 +167,7 @@ c     complex*16 tmp(*)
       integer ispin,ne(2),nbrillioun
       integer psi2_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -284,7 +284,7 @@ c     complex*16 tmp(*)
       integer ispin,ne(2),nbrillioun
       integer psi2_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *    *** local variables ***
@@ -419,7 +419,7 @@ c     complex*16 tmp(*)
       integer ispin,ne(2),nbrillioun
       integer psi2_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 #include "util.fh"

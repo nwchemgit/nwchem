@@ -18,7 +18,7 @@
       complex*16 X(n,n),Y(n,n),Z(n,n)
       complex*16 A(n,n)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer MASTER,taskid

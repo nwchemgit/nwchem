@@ -14,7 +14,7 @@
      >                  ngrid,unita,locp,lmax,rlocal)
       implicit none
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "util.fh"

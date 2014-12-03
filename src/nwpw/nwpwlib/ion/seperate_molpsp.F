@@ -12,7 +12,7 @@
 #include "errquit.fh"
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 
@@ -152,7 +152,7 @@
 #include "errquit.fh"
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 

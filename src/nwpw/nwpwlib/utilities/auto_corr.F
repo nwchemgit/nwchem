@@ -20,7 +20,7 @@ c
       implicit none
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -310,7 +310,7 @@ c
       integer rtdb
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 

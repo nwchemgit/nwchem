@@ -108,7 +108,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -141,7 +141,7 @@ c     implicit none
       integer n
       integer  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "tcgmsg.fh"
@@ -175,7 +175,7 @@ c     implicit none
       integer psend,nsize
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -243,7 +243,7 @@ c     implicit none
       integer request(*)
       integer reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       call errquit(' D1dB_WaitAll:not implemented!',0,0)

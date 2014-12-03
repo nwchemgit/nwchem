@@ -13,7 +13,7 @@
       integer max_m0,nsize0
       real*8 rho_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
@@ -51,7 +51,7 @@
       real*8 rho_out(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****
@@ -162,7 +162,7 @@
       subroutine nwpw_kain_shift()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_diis_common.fh"
 
 *     **** local variables ****

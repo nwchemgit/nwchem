@@ -18,7 +18,7 @@ c
     
 #include "paw_params.fh"
 #include "integrate.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       !*** local variables ***
       logical ok

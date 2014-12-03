@@ -14,7 +14,7 @@
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 

@@ -14,7 +14,7 @@ c
       integer n2ft3d
       real*8 dn(n2ft3d,ispin)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -66,7 +66,7 @@ c
       real*8 dn(n2ft3d,ispin)
       integer indx(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
 *     **** Lubin Parameters ****

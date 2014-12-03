@@ -14,7 +14,7 @@
       real*8 eke0
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "nose-hoover.fh"
@@ -205,7 +205,7 @@ c        Er0 = 0.5d0*(1)*kb*Tr
       subroutine Nose_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "nose-hoover.fh"
@@ -292,7 +292,7 @@ c        Er0 = 0.5d0*(1)*kb*Tr
       implicit none
       real*8 Te_new,Tr_new
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
 *     **** boltzman constant ****
@@ -363,7 +363,7 @@ c      Ee0 = 4.0*kb*Te_new*fmass*dble(ion_nion())/am * eke0_init
       implicit none
       real*8 eke,eki
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
 *     **** local variables ****
@@ -434,7 +434,7 @@ c      Xr2 = (0.5d0*dt*dt/Qr)*FXr
       implicit none
       real*8 eke,eki
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
 *     **** local variables ****
@@ -527,7 +527,7 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       real*8 function Nose_dXe()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       Nose_dXe = dbl_mb(Xem(1))
@@ -546,7 +546,7 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       real*8 function Nose_dXr()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       Nose_dXr = dbl_mb(Xrm(1))
@@ -562,7 +562,7 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       real*8 function Nose_sse()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
 
@@ -592,7 +592,7 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       real*8 function Nose_ssr()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
 *     ***** local variables ****
@@ -620,7 +620,7 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       subroutine Nose_shift()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       call dcopy(Mchain,dbl_mb(Xe0(1)),1,dbl_mb(Xem(1)),1)
@@ -642,7 +642,7 @@ c      Xr2 = 2.0d0*Xr1 - Xr0 + (dt*dt/Qr)*FXr
       real*8 function Nose_e_energy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
 *     **** local variables ****
@@ -679,7 +679,7 @@ c        dXe  = (dbl_mb(Xe2(1)+m-1)-dbl_mb(Xe0(1)+m-1))/(2.0d0*dt)
       real*8 function Nose_r_energy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
 *     **** local variables ****
@@ -717,7 +717,7 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       Nose_Qe = dbl_mb(Qe(1)+i-1)
@@ -735,7 +735,7 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       Nose_Pe = dbl_mb(Pe(1)+i-1)
@@ -753,7 +753,7 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       Nose_Qr = dbl_mb(Qr(1)+i-1)
@@ -770,7 +770,7 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       Nose_Pr = dbl_mb(Pr(1)+i-1)
@@ -788,7 +788,7 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       Nose_Ee0 = dbl_mb(Ee0(1)+i-1)
@@ -805,7 +805,7 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nose-hoover.fh"
 
       Nose_Er0 = dbl_mb(Er0(1)+i-1)

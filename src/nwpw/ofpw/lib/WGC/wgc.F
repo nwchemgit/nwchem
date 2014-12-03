@@ -12,7 +12,7 @@
       real*8 rho0
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "wgc.fh"
 
 
@@ -125,7 +125,7 @@
       subroutine wgc_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "wgc.fh"
 
@@ -206,7 +206,7 @@
       real*8  dn(*)
       real*8  v_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "wgc.fh"
 
@@ -315,7 +315,7 @@
       integer ispin
       real*8  dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "wgc.fh"
 

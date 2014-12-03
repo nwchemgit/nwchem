@@ -120,7 +120,7 @@
       real*8 rho(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -167,7 +167,7 @@
       integer psi_number
       real*8 rho(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -199,7 +199,7 @@
       implicit none
       integer psi_number
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -248,7 +248,7 @@ c      call c_electron_gen_psi_r(psi_ptr)
       logical precondition
       real*8 maxerror
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -322,7 +322,7 @@ c     >                      dbl_mb(psi1_shift))
       real*8 maxerror
       real*8 maxpsi_error
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -418,7 +418,7 @@ c     >              dbl_mb(psi1_shift))
       integer nb,i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -491,7 +491,7 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
       integer nb,i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -569,7 +569,7 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
       integer nb,i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -608,7 +608,7 @@ c      psi_ptr=psi1(1)+(nb-1)*(ne(1)+ne(2))*npack1
       integer nb,i
       real*8 error_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -787,7 +787,7 @@ c         call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       real*8     sigma
       complex*16 tau_t(*) !parallel transported search direction
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "errquit.fh"
 
@@ -908,7 +908,7 @@ c     >                  tau_t)
       real*8 error_out,psi_error
       real*8 e0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -1078,7 +1078,7 @@ c     >           theta
       real*8     psi_error
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "errquit.fh"
 
@@ -1170,7 +1170,7 @@ c     >           theta
       subroutine cpsi_sort_minimize()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -1248,7 +1248,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical precondition
       real*8 maxerror
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -1337,7 +1337,7 @@ c     >              dbl_mb(psi1_shift+(i-1)*nshift + shifts))
       real*8 maxerror
       real*8 maxpsi_error
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -1446,7 +1446,7 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
       integer nb,i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -1518,7 +1518,7 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
       integer nb,i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -1597,7 +1597,7 @@ c           write(*,*)"THIS IS I IN KS_MINIM",i," ",e0
       integer nb,i
       real*8 error_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -1797,7 +1797,7 @@ c     >           theta
       real*8     sigma
       complex*16 tau_t(*) !parallel transported search direction
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "errquit.fh"
 
@@ -1934,7 +1934,7 @@ c     >                  tau_t(npack1+1))
       real*8 error_out,psi_error
       real*8 e0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2123,7 +2123,7 @@ c     >           theta
       real*8     psi_error
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "errquit.fh"
 
@@ -2230,7 +2230,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       subroutine cpsi_sort_minimize2com()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2306,7 +2306,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       subroutine cpsi_minimize_virtual()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
       
       !*** local variables ***
@@ -2363,7 +2363,7 @@ c      implicit none
 c      integer nb,i
 c      complex*16 Horb(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c#include "cpsi_common.fh"
 c
@@ -2433,7 +2433,7 @@ c      end
       integer nb,i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2509,7 +2509,7 @@ c     >               dcpl_mb(x(1)))
       integer nb,i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2590,7 +2590,7 @@ c     >            dcpl_mb(x(1)))
       integer nb,i
       real*8 error_out,eo
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2721,7 +2721,7 @@ c     >            dcpl_mb(x(1)))
       integer nb,ii
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2766,7 +2766,7 @@ c     >            dcpl_mb(x(1)))
       real*8  e0,de0
       complex*16 t(*) !search direction
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2848,7 +2848,7 @@ c     >            dcpl_mb(x(1)))
       subroutine cpsi_sort_virtual()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 

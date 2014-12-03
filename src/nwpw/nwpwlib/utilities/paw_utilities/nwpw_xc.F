@@ -15,7 +15,7 @@ c $Id$
       integer l_prj(nprj_max0,*),m_prj(nprj_max0,*),b_prj(nprj_max0,*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_xc.fh"
 
@@ -462,7 +462,7 @@ c      end if
       real*8  sw1(ne(1)+ne(2),nprj)
       real*8  sw2(ne(1)+ne(2),nprj)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_xc.fh"
 
@@ -776,7 +776,7 @@ c
       subroutine nwpw_xc_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_xc.fh"
 
@@ -854,7 +854,7 @@ c
       real*8 function nwpw_xc_energy_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_xc.fh"
 

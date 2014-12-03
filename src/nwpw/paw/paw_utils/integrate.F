@@ -28,7 +28,7 @@
       integer nrange
       complex*16 c_def_integr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -101,7 +101,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
       real*8 log_amesh
       integer i,nrange
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       !*** local variables ***
@@ -175,7 +175,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
       integer nrange
       real*8  sum_f(*)
  
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       !*** local variables ***
@@ -242,7 +242,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
       real*8 log_amesh
       integer nrange,istart
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -319,7 +319,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
       real*8 log_amesh
       integer nrange,istart
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       !*** local variables ***

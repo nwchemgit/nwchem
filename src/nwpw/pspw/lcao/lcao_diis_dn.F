@@ -23,7 +23,7 @@
       implicit none
       integer maxsize0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_diis_dn.fh"
 
 
@@ -43,7 +43,7 @@
       subroutine lcao_diis_dn_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_diis_dn.fh"
 
 
@@ -71,7 +71,7 @@
       real*8  rho_out(n2ft3d,ispin)
       logical failed
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "lcao_diis_dn.fh"
 

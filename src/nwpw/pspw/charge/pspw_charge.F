@@ -25,7 +25,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "pspw_charge.fh"
@@ -215,7 +215,7 @@ c     >                              dbl_mb(vc2_charge(1)))
       subroutine pspw_charge_destroy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "pspw_charge.fh"
@@ -244,7 +244,7 @@ c     >                              dbl_mb(vc2_charge(1)))
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
@@ -332,7 +332,7 @@ c     >                              dbl_mb(vc2_charge(1)))
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 
@@ -381,7 +381,7 @@ c
       subroutine pspw_charge_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 #include "errquit.fh"
 
@@ -430,7 +430,7 @@ c
       implicit none
       integer unit
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 *     ***** local variables ****
@@ -498,7 +498,7 @@ c
       implicit none
       integer unit
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 *     ***** local variables ****
@@ -534,7 +534,7 @@ c
       implicit none
       integer i,ii
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
       pspw_charge_rion = dbl_mb(r1(1)+3*(ii-1)+i-1)
@@ -555,7 +555,7 @@ c
       real*8 rgrid(3,*)
       real*8 Vqm(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 #include "errquit.fh"
 
@@ -709,7 +709,7 @@ c     >                                              dcpl_mb(tmp(1)))
       real*8 dv
       real*8 fcharge(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 *     ***** local variables ****
@@ -895,7 +895,7 @@ c     >                                              dcpl_mb(tmp(1)))
       real*8 function pspw_charge_Energy_ion()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 *     **** local variables ****
@@ -956,7 +956,7 @@ c     >                                              dcpl_mb(tmp(1)))
       real*8 fion(3,*)
       real*8 fcharge(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 *     **** local variables ****
@@ -1012,7 +1012,7 @@ c     >                                              dcpl_mb(tmp(1)))
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 *     **** local variables ****
@@ -1062,7 +1062,7 @@ c     >                                              dcpl_mb(tmp(1)))
       real*8 function pspw_charge_Energy_charge()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 *     **** local variables ****
@@ -1118,7 +1118,7 @@ c     >                                              dcpl_mb(tmp(1)))
       implicit none
       real*8 fcharge(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_charge.fh"
 
 *     **** local variables ****

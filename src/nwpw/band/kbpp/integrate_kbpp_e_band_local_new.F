@@ -50,7 +50,7 @@
 
       integer ierr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     *** local variables ****
       integer np,taskid,MASTER

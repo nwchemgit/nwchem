@@ -13,7 +13,7 @@
       integer nbrill0,ispin0
       integer ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "band_hfx.fh"
@@ -147,7 +147,7 @@ c     **** define extra psi and Hpsi  ****
       subroutine band_end_HFX()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "band_hfx.fh"
 #include "errquit.fh"
 
@@ -220,7 +220,7 @@ c        end do
       implicit none
       integer unit
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "band_hfx.fh"
 
 *     **** local variables ****
@@ -278,7 +278,7 @@ c        end do
       integer    psi_r_tag
       integer    Hpsi_r_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "band_hfx.fh"
 #include "errquit.fh"
 
@@ -539,7 +539,7 @@ c        **** reduceall algorithm ****
       real*8 ehfx_out
       real*8 phfx_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "band_hfx.fh"
 #include "errquit.fh"
 
@@ -570,7 +570,7 @@ c     **** nothing to do ****
       integer nb1,ms1,psi_r_tag
       complex*16 orb_r(*),Horb_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "band_hfx.fh"
 #include "errquit.fh"
 
@@ -628,7 +628,7 @@ c     **** nothing to do ****
       logical function band_HFX_relaxed()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "band_hfx.fh"
 
       band_hfx_relaxed = relaxed
@@ -653,7 +653,7 @@ c***************** sub/replicated routines *****************************
       implicit none
 
 #include "band_hfx.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       real*8     weight
@@ -840,7 +840,7 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
       implicit none
 
 #include "band_hfx.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       real*8     weight1,weight2
@@ -1009,7 +1009,7 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
       implicit none
 
 #include "band_hfx.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       real*8     weight1,weight2
@@ -1166,7 +1166,7 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
       real*8 ehfx_out
       real*8 phfx_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "band_hfx.fh"
 #include "errquit.fh"
 
@@ -1284,7 +1284,7 @@ c        call D1dB_SumAll(phfx)
       implicit none
 
 #include "band_hfx.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer ms

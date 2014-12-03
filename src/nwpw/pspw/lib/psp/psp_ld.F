@@ -18,7 +18,7 @@
       integer    ispin,ne(2)
       complex*16 psi1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -154,7 +154,7 @@
       logical    move
       real*8     fion(3,*)   !*** dld/dRii    ***
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -427,7 +427,7 @@
       complex*16 psi1(*)
       real*8     ld_density(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 

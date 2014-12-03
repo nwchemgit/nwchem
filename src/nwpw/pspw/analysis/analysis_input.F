@@ -8,7 +8,7 @@ c
 c
 #include "errquit.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 c
       integer ind               ! Index of matched directive

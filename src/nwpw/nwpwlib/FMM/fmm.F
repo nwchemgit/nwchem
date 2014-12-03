@@ -501,7 +501,7 @@ c      end
       complex*16 Nlm(*)
       real*8 x,y,z
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -692,7 +692,7 @@ c      end
       complex*16 Nlm(*)
       real*8 x,y,z
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 

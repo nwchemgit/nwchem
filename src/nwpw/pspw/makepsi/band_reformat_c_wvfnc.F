@@ -4,7 +4,7 @@
       logical function  band_reformat_c_wvfnc()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
  
@@ -152,7 +152,7 @@ c     *** copy junk.wvfncr to wavefunction_filename ****
       logical function  band_reformat_c_ewvfnc()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
  

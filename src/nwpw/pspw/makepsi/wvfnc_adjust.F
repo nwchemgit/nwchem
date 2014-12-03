@@ -13,7 +13,7 @@
       character*50 wavefunction_filename
       integer      ispin,nein(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
  
 *     **** local variables ****
@@ -99,7 +99,7 @@
       logical      fractional
       integer      frac_orb(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
  
       logical value

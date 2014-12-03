@@ -10,7 +10,7 @@ c
       complex*16 psi(*)
       real*8    eig(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "rtdb.fh"

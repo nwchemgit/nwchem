@@ -17,7 +17,7 @@
       integer flag
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "stdio.fh"

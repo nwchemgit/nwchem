@@ -23,7 +23,7 @@
       logical      spin_orbit
       integer      ispin,nein(2),nbrillioun
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
  
 *     **** local variables ****
@@ -117,7 +117,7 @@
       logical      fractional
       integer      frac_orb(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
  
       logical value

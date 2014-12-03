@@ -4,7 +4,7 @@ c     $Id$
       implicit none
       integer flag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
 
@@ -54,7 +54,7 @@ c     $Id$
       implicit none
       integer flag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
 

@@ -6,7 +6,7 @@
       implicit none
       integer rtdb
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
       logical value

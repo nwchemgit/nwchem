@@ -3,7 +3,7 @@
       integer rtdb
 
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "util.fh"

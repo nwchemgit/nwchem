@@ -14,7 +14,7 @@
       real*8     rho_error
       logical    reset_diis
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 
 *     **** local variables ****

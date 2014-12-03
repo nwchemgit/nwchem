@@ -180,7 +180,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 orb1(*)
       complex*16 orb2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsp_common.fh"
 
@@ -374,7 +374,7 @@ c      complex*16 psi1(*),psi2(*)
       logical move
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -636,7 +636,7 @@ c                    end do
       complex*16 orb1(*)
       complex*16 orb2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsp_common.fh"
 
@@ -818,7 +818,7 @@ c    pjn --- use at your own peril
       real*8     bz_vol,Gij(*)
 
 #include "cpsp_common.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       complex*16 one,mone,ione
@@ -944,7 +944,7 @@ ccccccccccc
       complex*16 orb1(*)
       complex*16 orb2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsp_common.fh"
 
@@ -1059,7 +1059,7 @@ ccccccccccccccccc
       real*8 xtmp(*),sum1(*),fx,fy,fz,xx
       real*8 weight,scal,Gij(*),Gx(*),Gy(*),Gz(*)
 #include "cpsp_common.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 ccccccccccc locals
       integer shiftxu,shiftxd,vshiftu,vshiftd,zshft
       integer l_prj,l,n,pshftu,pshftd,sshft,shifts

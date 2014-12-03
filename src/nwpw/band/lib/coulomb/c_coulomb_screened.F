@@ -12,7 +12,7 @@
       integer flag0
       real*8 rcut0,pp0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block ****
@@ -50,7 +50,7 @@
       subroutine c_coulomb_screened_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block ****
@@ -76,7 +76,7 @@
       implicit none 
       real*8 kv1(*),kv2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
@@ -329,7 +329,7 @@ c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       complex*16 dng(*)
       complex*16 vc_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block ****
@@ -353,7 +353,7 @@ c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       implicit none
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block ****
@@ -401,7 +401,7 @@ c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       implicit none
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block ****
@@ -451,7 +451,7 @@ c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       integer flag
       real*8 rcut,pp
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb_screened_euv ****
@@ -903,7 +903,7 @@ c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
       subroutine c_coulomb_screened_euv_end()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb_screened_euv ****
       integer dvscr_loc(2),vloc(2)
@@ -930,7 +930,7 @@ c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       complex*16 dng(*)
       real*8 euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb_screened_euv ****

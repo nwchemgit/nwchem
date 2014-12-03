@@ -39,7 +39,7 @@ c      call Grsm_gg_dScale(npack1,neall,(-1.0d0),g,g)
       complex*16 s(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_lmbfgs_common.fh"
 
 *     **** local variables ****

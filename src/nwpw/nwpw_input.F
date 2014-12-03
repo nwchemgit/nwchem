@@ -7,7 +7,7 @@ c
 
 c 
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "nwxc.fh"
@@ -1753,7 +1753,6 @@ c
      > call errquit('nwpw_input: writing dipole',8100,RTDB_ERR)
 
       goto 10
-
 
 
 ************************************************************************

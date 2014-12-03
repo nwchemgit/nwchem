@@ -16,7 +16,7 @@
 
       
 #include "paw_basis.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
   
 *     !*** local variables ***
       integer it, ir, nt
@@ -191,7 +191,7 @@ c     >             paw_basis_npoints(it)
 
 #include "errquit.fh"
 #include "stdio.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 
@@ -288,7 +288,7 @@ c     >             paw_basis_npoints(it)
       character*(*)    aname
 
 #include "stdio.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 

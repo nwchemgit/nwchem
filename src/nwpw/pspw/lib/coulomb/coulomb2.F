@@ -13,7 +13,7 @@
       subroutine coulomb2_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     *** cutoff constant ***
@@ -297,7 +297,7 @@ c                 temp = yerf/temp
       subroutine coulomb2_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
@@ -337,7 +337,7 @@ c                 temp = yerf/temp
 #include "errquit.fh"
       real*8 dn(*),vh(*)
             
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for coulomb.f ****
       integer gk(2)

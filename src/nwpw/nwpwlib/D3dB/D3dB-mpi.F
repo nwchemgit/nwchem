@@ -28,7 +28,7 @@
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -207,7 +207,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*)
       complex*16  tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -389,7 +389,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 #include "mpif.h"
@@ -570,7 +570,7 @@ c     integer i2_start(NFFT3+1)
       real*8  A(*)
       real*8  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -832,7 +832,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef MPI4
@@ -895,7 +895,7 @@ c     implicit none
       integer n
       integer  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef MPI4
@@ -983,7 +983,7 @@ c     implicit none
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -1151,7 +1151,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -1316,7 +1316,7 @@ c     **** external functions ****
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -1482,7 +1482,7 @@ c     **** external functions ****
       integer    request(*),reqcnt
       integer msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mpif.h"
 #include "balance_common.fh"
 
@@ -1606,7 +1606,7 @@ c            recieve data....
       integer    request(*),reqcnt
       integer    msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mpif.h"
 #include "balance_common.fh"
 
@@ -1743,7 +1743,7 @@ c            send data....
       integer request(*),reqcnt
       integer msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -1889,7 +1889,7 @@ c         msgtype   = 1
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 
@@ -1946,7 +1946,7 @@ c         msgtype   = 1
       integer request(*),reqcnt
       integer msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -2093,7 +2093,7 @@ c         msgtype   = 1
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 *     **** indexing variables ****
@@ -2150,7 +2150,7 @@ c         msgtype   = 1
       integer     request(*),reqcnt
       integer     msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -2304,7 +2304,7 @@ c         msgtype   = 1
       complex*16  tmp2(*)
       integer request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -2364,7 +2364,7 @@ c         msgtype   = 1
       integer     request(*),reqcnt
       integer     msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -2521,7 +2521,7 @@ c         msgtype   = 1
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 *     **** indexing variables ****
@@ -2568,7 +2568,7 @@ c         msgtype   = 1
       complex*16 tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -2822,7 +2822,7 @@ c     >                  source,rcv_proc,1)
       complex*16 tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -3060,7 +3060,7 @@ c     >                  source,rcv_proc,1)
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -3309,7 +3309,7 @@ c     >                  source,rcv_proc,1)
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -3544,7 +3544,7 @@ c     >                  source,rcv_proc,1)
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -3795,7 +3795,7 @@ c     >                  source,rcv_proc,1)
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -4038,7 +4038,7 @@ c     >                  source,rcv_proc,1)
       complex*16 tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -4348,7 +4348,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       complex*16 tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -4646,7 +4646,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       real*8     tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -4863,7 +4863,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -5169,7 +5169,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       real*8     A(*)
       real*8     tmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -5397,7 +5397,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       real*8     A(*)
       real*8     tmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"
@@ -5653,7 +5653,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       real*8     A(*)
       real*8     tmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "D3dB.fh"

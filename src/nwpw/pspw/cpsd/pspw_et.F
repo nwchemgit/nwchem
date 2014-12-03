@@ -12,7 +12,7 @@
       integer rtdb
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
@@ -1471,7 +1471,7 @@ c           end do
       real*8     psi2_r(n2ft3d,*)
       real*8     H1
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -1602,7 +1602,7 @@ c           end do
       complex*16 y(*)
       complex*16 yexcited(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

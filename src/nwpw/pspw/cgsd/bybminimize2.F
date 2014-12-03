@@ -22,7 +22,7 @@ c
 
 
 #include "stdio.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "util.fh"
 
 *     **** local variables ****

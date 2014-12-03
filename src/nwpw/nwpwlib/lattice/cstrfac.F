@@ -12,7 +12,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cstrfac_common.fh"
 
       integer nion,nx,ny,nz,nbrillq
@@ -115,7 +115,7 @@ C     ***********************************
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cstrfac_common.fh"
 
 *     **** local variables ****
@@ -171,7 +171,7 @@ C
       subroutine cphafac()
       implicit none
 
-#include	"mafdecls.fh"
+#include	"bafdecls.fh"
 #include "cstrfac_common.fh"
 
 *     *** local variables
@@ -279,7 +279,7 @@ C
       implicit none
       real*8 ion_rion(3,*)
 
-#include	"mafdecls.fh"
+#include	"bafdecls.fh"
 #include "cstrfac_common.fh"
 
 *     *** local variables
@@ -379,7 +379,7 @@ C
       integer    II
       complex*16 exi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cstrfac_common.fh"
    
 *     **** local variables ****
@@ -446,7 +446,7 @@ C
       integer    II
       complex*16 exi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cstrfac_common.fh"
    
 *     **** local variables ****
@@ -500,7 +500,7 @@ C
       integer    II,nb
       complex*16 ck
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cstrfac_common.fh"
 
       integer  nion
@@ -520,7 +520,7 @@ C
       subroutine cphafac_k()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cstrfac_common.fh"
 
 *     *** local variables
@@ -551,7 +551,7 @@ C
       subroutine cstrfac_k_print()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cstrfac_common.fh"
 
 *     *** local variables

@@ -5,7 +5,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** dplot_iteration_block ****
@@ -41,7 +41,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** dplot_iteration_block ****
       logical exist
@@ -66,7 +66,7 @@
       implicit none
       integer it
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** dplot_iteration_block ****
       logical exist
@@ -102,7 +102,7 @@
       real*8     dn(*)
       real*8     psi_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****

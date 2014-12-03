@@ -8,7 +8,7 @@ c
 #include "errquit.fh"
       integer rtdb
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 c
       logical value
@@ -603,7 +603,7 @@ c
 #include "errquit.fh"
       integer rtdb
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     ***** local variables *****

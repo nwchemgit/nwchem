@@ -10,7 +10,7 @@ c     $Id$
       real*8 function paw_cgsd_noit_energy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "util.fh"

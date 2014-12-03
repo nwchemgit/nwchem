@@ -1,5 +1,3 @@
-#ifndef _BAFDECLS_FH_
-#define _BAFDECLS_FH_
 
 #include "mafdecls.fh"
 
@@ -15,4 +13,3 @@
       logical  BA_pop_stack
       external BA_pop_stack
 
-#endif

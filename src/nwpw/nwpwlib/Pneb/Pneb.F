@@ -470,7 +470,7 @@ c     ****************************************
       integer mb,nb
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer size
@@ -496,7 +496,7 @@ c     ****************************************
       integer mb,nb
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer size
@@ -523,7 +523,7 @@ c     ****************************************
       integer mb,nb,nblocks,nein(2)
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer size
@@ -549,7 +549,7 @@ c     ****************************************
       integer mb,nb,nblocks
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer size
@@ -578,7 +578,7 @@ c     ****************************************
       integer mb,nb,nblocks
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer size
@@ -605,7 +605,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Pneb_m_free = MA_free_heap(hml(2))
       return
@@ -620,7 +620,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Pneb_w_free = MA_free_heap(hml(2))
       return
@@ -639,7 +639,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Pneb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables
       integer size
@@ -664,7 +664,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Pneb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables
       integer size
@@ -691,7 +691,7 @@ c     ****************************************
       integer mb,nb,nblock
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Pneb.fh"
 
 *     **** local variables
@@ -717,7 +717,7 @@ c     ****************************************
       integer mb,nb,nblock
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Pneb.fh"
 
 *     **** local variables
@@ -744,7 +744,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Pneb_m_pop_stack = MA_pop_stack(hml(2))
       return
@@ -760,7 +760,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Pneb_w_pop_stack = MA_pop_stack(hml(2))
       return
@@ -1064,7 +1064,7 @@ c     ****************************************
       complex*16 alpha,beta
 
       logical value
-#include "mafdecls.fh"   
+#include "bafdecls.fh"   
 #include "Pneb.fh"
 
 *     **** local variables ****
@@ -1399,7 +1399,7 @@ c     ccccccccccccccccccccccccccccccccccc
       real*8     S(*)
       complex*16 V(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Pneb.fh"
 
@@ -1483,7 +1483,7 @@ c     ccccccccccccccccccccccccccccccccccc
       real*8     S(*)
       complex*16 V(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Pneb.fh"
 
@@ -1567,7 +1567,7 @@ c     ccccccccccccccccccccccccccccccccccccccccccc
       real*8     S(*)  
       complex*16 Y(*),U(*),V(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Pneb.fh"
 
@@ -1683,7 +1683,7 @@ c     ccccccccccccccccccccccccccccccccccccccccc
       integer mb,nbb,npack1
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Pneb.fh"
 
@@ -1796,7 +1796,7 @@ c     ccccccccccccccccccccccccccccccccccccccccccc
       integer mb,nbb,npack1
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
 #include "Pneb.fh"
@@ -1929,7 +1929,7 @@ c     ccccccccccccccccccccccccccccccccccccccccccc
       integer mb,nbb,npack1
       integer A_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
 #include "Pneb.fh"
@@ -2175,7 +2175,7 @@ c     ccccccccccccccccccccccccccccccccccccccccccccccc
       integer mb,nbb,npack1,ix1
       integer A_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Pneb.fh"
 
@@ -2305,7 +2305,7 @@ c     ****************************************
       real*8 sum
       integer npack1
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Pneb.fh"
 
@@ -2380,7 +2380,7 @@ c     ****************************************
       integer Y1_tag,Y2_tag
       real*8 sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Pneb.fh"
 
@@ -3155,7 +3155,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       integer mbb,nbb,sxi(2)
 #include "Pneb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
       integer ss,Pneb_s_size
       external Pneb_s_size  
       ss=Pneb_s_size(mbb,nbb)
@@ -3169,7 +3169,7 @@ cccccccccccccccccccccc
       implicit none
       integer sx(2)
 #include "Pneb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
       Pneb_s_pop_stack=MA_pop_stack(sx(2))
       return
       end
@@ -3442,7 +3442,7 @@ cccccccccccccccc
       implicit none
       integer Y_tag,svec_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "Pneb.fh"
 

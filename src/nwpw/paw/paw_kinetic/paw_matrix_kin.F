@@ -14,7 +14,7 @@ c
       implicit none
 
 #include "paw_basis.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_matrix_kin_data.fh"
 #include "paw_ma.fh"
 
@@ -76,7 +76,7 @@ c
       implicit none
 
 #include "paw_basis.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_matrix_kin_data.fh"
 #include "paw_ma.fh"
 
@@ -127,7 +127,7 @@ c
       double precision     matrix(nbasis,nbasis)
 
 #include "integrate.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh"
 
 
@@ -198,7 +198,7 @@ c     >                       log_amesh,ic)
       implicit none
       integer it
   
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_matrix_kin_data.fh"
 
       !*** local variables ***

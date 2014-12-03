@@ -22,7 +22,7 @@
       logical    move
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -227,7 +227,7 @@ c     >                       dcpl_mb(vpsi(1)))
       complex*16 orb_r(*)
       complex*16 Horb_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -369,7 +369,7 @@ c     >                       dcpl_mb(vpsi(1)))
       complex*16 orb_r(*)
       complex*16 Horb_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -475,7 +475,7 @@ c     >                       dcpl_mb(vpsi(1)))
       integer    Hpsi_k_tag
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer ms,n,n1(2),n2(2)

@@ -20,7 +20,7 @@
       complex*16 X1(N,N),X2(N,N),X3(N,N),X4(N,N),X5(N,N),X6(N,N)
       complex*16 A(n,n)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer MASTER,taskid

@@ -116,7 +116,7 @@
 #include "paw_xc_data.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
-#include "mafdecls.fh"      
+#include "bafdecls.fh"      
 #include "paw_ma.fh"
 #include "paw_geom.fh"
 #include "paw_spher_func.fh"
@@ -442,7 +442,7 @@ c        ic = paw_basis_i_cut(ia)
 #include "paw_xc_work_data.fh"
 #include "paw_xc_data.fh"
 #include "integrate.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 c      double precision gen_gaunt_coeff,gen_gaunt2_coeff,gen_gaunt3_coeff
 c      external         gen_gaunt_coeff,gen_gaunt2_coeff,gen_gaunt3_coeff
@@ -954,7 +954,7 @@ c      ok = ok .and. my_dealloc(i_paw_vxc)
       double precision paw_energy_xc_atom
 
 #include "paw_xc_data.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer in
 

@@ -25,7 +25,7 @@
       integer ispin0
       integer nbasis0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_diis.fh"
 
 
@@ -47,7 +47,7 @@
       subroutine lcao_diis_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "lcao_diis.fh"
 
 
@@ -74,7 +74,7 @@
       integer vhxc_out(*)
       logical failed
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "lcao_diis.fh"
 

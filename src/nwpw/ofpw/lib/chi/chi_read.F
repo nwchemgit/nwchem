@@ -13,7 +13,7 @@
       integer ispin,ne(2)
       double complex chi2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 

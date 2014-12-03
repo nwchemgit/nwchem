@@ -18,7 +18,7 @@ c
       real*8     deltae,deltac
       integer    current_iteration
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

@@ -11,7 +11,7 @@
       subroutine cpsi_new()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 
@@ -170,7 +170,7 @@ c    >                        ne)
       implicit none 
       integer ispin,ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
 *    *** local variables ***
@@ -233,7 +233,7 @@ c    >                        ne)
       subroutine ecpsi_new()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *    *** local variables ***

@@ -105,7 +105,7 @@
       real*8     psi_r(2*nfft3d,nemax)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_energy_kin_atom.fh"
 #include "paw_energy_vloc_atom.fh"
 #include "paw_energy_ion_atom.fh"

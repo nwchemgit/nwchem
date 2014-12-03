@@ -17,7 +17,7 @@
       real*8  sw2(ne(1)+ne(2),nprj)
       real*8  eh_atom
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
@@ -39,7 +39,7 @@
       real*8  sw1(ne(1)+ne(2),nprj)
       real*8  dmatrix(nprj,nprj)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 

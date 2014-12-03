@@ -56,7 +56,7 @@ C
 C      integer ispin,lmax
 C#include "paw_density_data.fh"
 C#include "paw_basis.fh"
-C#include "mafdecls.fh"      
+C#include "bafdecls.fh"      
 C#include "paw_ma.fh"
 C#include "paw_geom.fh"
 C
@@ -132,7 +132,7 @@ C
 C      subroutine paw_density_solve()
 C      implicit none
 C
-C#include "mafdecls.fh"
+C#include "bafdecls.fh"
 C#include "paw_density_data.fh"
 C#include "paw_geom.fh"
 C#include "paw_basis.fh"
@@ -263,7 +263,7 @@ C      subroutine paw_density_end()
 C      implicit none
 C
 C#include "paw_density_data.fh"
-C#include "mafdecls.fh"      
+C#include "bafdecls.fh"      
 C#include "paw_ma.fh"
 C
 C      logical ok
@@ -300,7 +300,7 @@ C
 C      subroutine paw_density_prime_solve()
 C      implicit none
 C
-C#include "mafdecls.fh"
+C#include "bafdecls.fh"
 C#include "paw_density_data.fh"
 C#include "paw_geom.fh"
 C#include "paw_basis.fh"
@@ -486,7 +486,7 @@ c   overlap coefficients.
       double complex paw_rho_ae(ic,lmax2,ispin0)
       double complex paw_rho_ps(ic,lmax2,ispin0)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
@@ -643,7 +643,7 @@ c   overlap coefficients.
       double complex paw_rho_ae_prime(ic,lmax2,ispin0)
       double complex paw_rho_ps_prime(ic,lmax2,ispin0)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"

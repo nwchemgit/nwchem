@@ -6,7 +6,7 @@
       implicit none
       integer nbrill
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
  
@@ -157,7 +157,7 @@ c     *** copy .junk wvfncr to wavefunction_filename ****
       implicit none
       integer nbrill
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
  
@@ -304,7 +304,7 @@ c     *** copy .junk wvfncr to wavefunction_filename ****
       implicit none
       integer nbrill
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
 

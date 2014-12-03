@@ -14,7 +14,7 @@
       double complex psi2(*)
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
 *    *** local variables ***

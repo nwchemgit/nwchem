@@ -42,7 +42,7 @@
       subroutine k_Mapping1d_init()
       implicit none
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "K1dB.fh"
 
@@ -126,7 +126,7 @@
       subroutine K1dB_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "K1dB.fh"
 
@@ -155,7 +155,7 @@
       implicit none
       integer q,k
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "K1dB.fh"
 
       k = int_mb(k_map(1)+q-1)
@@ -172,7 +172,7 @@
       implicit none
       integer k,q,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "K1dB.fh"
 
       q = int_mb(q_map(1)+k-1)

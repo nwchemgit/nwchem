@@ -5,7 +5,7 @@
       subroutine kerker_G_init()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -81,7 +81,7 @@ c     real*8 tg(nfft3d)
       subroutine kerker_G_end()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for kerker_G.F ****
@@ -101,7 +101,7 @@ c     real*8 tg(nfft3d)
       implicit none
       real*8     V(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for kerker_G.F ****

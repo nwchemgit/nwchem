@@ -18,7 +18,7 @@ c
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** Mode Potential common block *****
 #include "model_potential.fh"
@@ -197,7 +197,7 @@ c
 
       subroutine Model_Potential_end()
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** Mode Potential common block *****
 #include "model_potential.fh"
@@ -234,7 +234,7 @@ c
       real*8 rgrid(3,n2ft3d)
       real*8 Vqm(n2ft3d)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** Mode Potential common block *****
 #include "model_potential.fh"
@@ -325,7 +325,7 @@ c
 
       real*8 f_mm(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 ***** Mode Potential common block *****
 #include "model_potential.fh"

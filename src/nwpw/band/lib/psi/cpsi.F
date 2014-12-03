@@ -10,7 +10,7 @@
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       integer iptr
@@ -35,7 +35,7 @@
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       integer iptr
@@ -57,7 +57,7 @@
       subroutine cpsi_1to2()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       !call BGrsm_ff_Copy(dcpl_mb(psi1(1)),dcpl_mb(psi2(1)))
@@ -71,7 +71,7 @@
 *     ***************************
       subroutine cpsi_2to1()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       !call BGrsm_ff_Copy(dcpl_mb(psi2(1)),dcpl_mb(psi1(1)))
@@ -86,7 +86,7 @@
 *     ***************************
       subroutine cpsi_swap12()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
       integer itag
       itag = psi1_tag
@@ -105,7 +105,7 @@
       subroutine cpsi_check()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi1_tag)
@@ -122,7 +122,7 @@
       implicit none
       integer indx
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call Pneb_orthoCheck_tag(indx,0,0,npack1,psi1_tag)
@@ -139,7 +139,7 @@
       subroutine c_rho_2to1()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -163,7 +163,7 @@
       subroutine c_rho_1to2()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -184,7 +184,7 @@
 *     ***************************
       subroutine c_rho_swap12()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
       integer itag
@@ -207,7 +207,7 @@
       subroutine c_dng_2to1()
       implicit none
  
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call zcopy(npack0,
@@ -224,7 +224,7 @@
 *     ***************************
       subroutine c_dng_swap12()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
       integer itag
       itag    = dng1(1)
@@ -242,7 +242,7 @@
       subroutine cpsi_1toelectron()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -262,7 +262,7 @@
       real*8 function cpsi_1energy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -290,7 +290,7 @@
       real*8 function cpsi_2energy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -320,7 +320,7 @@
       real*8 function cpsi_1eorbit()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** external functions ****
@@ -341,7 +341,7 @@
       real*8 function cpsi_1ke()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ***
@@ -362,7 +362,7 @@
       real*8 function cpsi_1vl()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** external functions ****
@@ -382,7 +382,7 @@
       real*8 function cpsi_1vnl()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** external functions ****
@@ -402,7 +402,7 @@
       real*8 function cpsi_1vnlso()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** external functions ****
@@ -422,7 +422,7 @@
       real*8 function c_rho_1exc()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -442,7 +442,7 @@
       real*8 function c_rho_1pxc()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** external functions ****
@@ -462,7 +462,7 @@
       real*8 function c_dng_1ehartree()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** external functions ****
@@ -483,7 +483,7 @@
       subroutine cpsi_2toelectron()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -506,7 +506,7 @@
       integer    THpsi_tag
       real*8     E0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
@@ -560,7 +560,7 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
       integer    THpsi_tag
       real*8     E0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 #include "errquit.fh"
@@ -624,7 +624,7 @@ c     &       MA_ERR)
       real*8 t
       integer H0_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call c_geodesic_transport(t,psi1_tag,H0_tag)
@@ -643,7 +643,7 @@ c     &       MA_ERR)
       real*8 t
       integer G0_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call c_geodesic_Gtransport(t,psi1_tag,G0_tag)
@@ -662,7 +662,7 @@ c     &       MA_ERR)
       real*8 t
       complex*16 H0(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call c_geodesic_transport_junk(t,psi1_tag,H0)
@@ -682,7 +682,7 @@ c     &       MA_ERR)
       real*8 t
       complex*16 G0(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call c_geodesic_Gtransport_junk(t,psi1_tag,G0)
@@ -700,7 +700,7 @@ c     &       MA_ERR)
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -739,7 +739,7 @@ c     &       MA_ERR)
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** external functions ****
@@ -760,7 +760,7 @@ c     &       MA_ERR)
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call c_geodesic_get(t,psi1_tag,psi2_tag)
@@ -776,7 +776,7 @@ c     &       MA_ERR)
       implicit none
       real*8 dte
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
@@ -843,7 +843,7 @@ c     &       MA_ERR)
       implicit none
       real*8 dte
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
@@ -908,7 +908,7 @@ c     &       MA_ERR)
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call cpsp_f_vlocal(dcpl_mb(dng1(1)),fion)
@@ -926,7 +926,7 @@ c     &       MA_ERR)
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call cke_euv(ispin,neq,psi1_tag,stress)
@@ -942,7 +942,7 @@ c     &       MA_ERR)
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call c_coulomb_euv(dcpl_mb(dng1(1)),stress)
@@ -959,7 +959,7 @@ c     &       MA_ERR)
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 #include "errquit.fh"
@@ -1038,7 +1038,7 @@ c     &       MA_ERR)
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** not finished ****
@@ -1059,7 +1059,7 @@ c     &       MA_ERR)
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call cpsp_v_local_euv(dcpl_mb(dng1(1)),stress)
@@ -1076,7 +1076,7 @@ c     &       MA_ERR)
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 
@@ -1120,7 +1120,7 @@ c     &       MA_ERR)
       subroutine cpsi_1gen_hml()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       call c_electron_gen_hml(psi1_tag,hml_tag)
@@ -1138,7 +1138,7 @@ c     &       MA_ERR)
       integer nb,ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -1170,7 +1170,7 @@ c     &       MA_ERR)
       integer nb,ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -1201,7 +1201,7 @@ c     &       MA_ERR)
       integer nb,ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -1238,7 +1238,7 @@ c     &       MA_ERR)
       implicit none
       logical initial
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -1452,7 +1452,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       subroutine cpsi_1gen_svector()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     ***** local variables ****
@@ -1495,7 +1495,7 @@ c         end do
       integer nb
       integer i,xyz
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -1530,7 +1530,7 @@ c         end do
       integer nb,ms
       integer i,j
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -1557,7 +1557,7 @@ c         end do
       implicit none
       real*8 en(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 
@@ -1607,7 +1607,7 @@ c         end do
       subroutine cpsi_1rotate2()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     ***** local variables *****
@@ -1648,7 +1648,7 @@ c         end do
       subroutine cpsi_diagonalize_hml()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     ***** local variables ****
@@ -1681,7 +1681,7 @@ c         end do
       real*8 function cpsi_error()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -1730,7 +1730,7 @@ c         end do
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     ***** local variables ****
@@ -1784,7 +1784,7 @@ c         end do
       integer function cpsi_nbrill()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       cpsi_nbrill = nbrillioun
@@ -1801,7 +1801,7 @@ c         end do
       integer function cpsi_nbrillq()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       cpsi_nbrillq = nbrillq
@@ -1818,7 +1818,7 @@ c         end do
       integer function cpsi_ispin()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       cpsi_ispin = ispin
@@ -1833,7 +1833,7 @@ c         end do
       integer function cpsi_ispinq()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       cpsi_ispinq = ispinq
@@ -1850,7 +1850,7 @@ c         end do
       implicit none
       integer ms
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       cpsi_ne = ne(ms)
@@ -1867,7 +1867,7 @@ c         end do
       implicit none
       integer ms
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       cpsi_neq = neq(ms)
@@ -1884,7 +1884,7 @@ c         end do
       implicit none
       integer ms
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
       cpsi_ne_excited = ne_excited(ms)
@@ -1904,7 +1904,7 @@ c         end do
       implicit none 
       logical ortho
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
@@ -2104,7 +2104,7 @@ c     *****  read initial wavefunctions into psi1  ****
       implicit none 
       logical wpsi
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -2163,7 +2163,7 @@ c      value = value.and.MA_free_heap(psi1(2))
       implicit none 
       logical wpsi
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -2209,7 +2209,7 @@ c      value = value.and.MA_free_heap(psi1(2))
       implicit none
       integer k
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -2241,7 +2241,7 @@ c      value = value.and.MA_free_heap(psi1(2))
       implicit none
       integer k
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -2272,7 +2272,7 @@ c      subroutine cpsi_spins_output(nbb,outfile)
 c      implicit none
 c      integer outfile,nbb
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c#include "cpsi_common.fh"
 c
@@ -2318,7 +2318,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer outfile,nb,k
       real*8 w(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2355,7 +2355,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine cpsi_output22(outfile,nb)
       implicit none
       integer outfile,nb
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
       integer i,ii,iend
@@ -2394,7 +2394,7 @@ c    ** external **
       integer nb,ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -2437,7 +2437,7 @@ c    ** external **
       integer nb,ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -2482,7 +2482,7 @@ c    ** external **
       integer nb,ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer indx,eig_shift,nbq,taskid_k,p
@@ -2522,7 +2522,7 @@ c    ** external **
       integer nb,ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -2571,7 +2571,7 @@ c    ** external **
       integer nb,ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer indx,occ_shift,nbq,taskid_k,p
@@ -2615,7 +2615,7 @@ c    ** external **
       integer nb
       integer i,xyz
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -2657,7 +2657,7 @@ c    ** external **
       integer nb
       integer i,xyz
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer indx,svec_shift,nbq,taskid_k,p
@@ -2697,7 +2697,7 @@ c    ** external **
       implicit none 
       logical ortho
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
@@ -2823,7 +2823,7 @@ c     *****  read initial wavefunctions into psi1  ****
       implicit none 
       logical wpsi
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -2867,7 +2867,7 @@ c     *****  read initial wavefunctions into psi1  ****
       integer    nb
       complex*16 H(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2992,7 +2992,7 @@ c     *****  read initial wavefunctions into psi1  ****
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -3022,7 +3022,7 @@ c     *****  read initial wavefunctions into psi1  ****
       real*8  pweight(*)
       integer lmax
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -3088,7 +3088,7 @@ c     *****  read initial wavefunctions into psi1  ****
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -3111,7 +3111,7 @@ c     *****  read initial wavefunctions into psi1  ****
       integer rtdb
 
 #include "rtdb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -3235,7 +3235,7 @@ c     *****  read initial wavefunctions into psi1  ****
       integer rtdb
 
 #include "rtdb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 

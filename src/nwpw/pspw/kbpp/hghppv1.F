@@ -13,7 +13,7 @@
      >                  ngrid,unita,rlocal)
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "errquit.fh"

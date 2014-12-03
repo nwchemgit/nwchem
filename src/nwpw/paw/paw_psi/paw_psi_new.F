@@ -11,7 +11,7 @@
       subroutine paw_psi_new()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 

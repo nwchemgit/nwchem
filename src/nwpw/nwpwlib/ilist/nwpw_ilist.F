@@ -46,7 +46,7 @@
       integer tag
       integer ivalue
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 
 *     **** local variables ****
@@ -95,7 +95,7 @@
       integer tag
       integer ivalue
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer cur
@@ -134,7 +134,7 @@
       integer mem(2)
       integer tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer cur,prev,del_node(2),next(2)

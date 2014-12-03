@@ -24,7 +24,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "switching_charge.fh"
@@ -82,7 +82,7 @@ c
 
 #include "errquit.fh"
 #include "stdio.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "switching_charge.fh"
 
 *     **** local variables ****
@@ -152,7 +152,7 @@ c      call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
       real*8 dv
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "switching_charge.fh"
 
 *     ***** local variables *****
@@ -212,7 +212,7 @@ c      call Pack_c_SMul(0,scal1,dbl_mb(Amm(1)),dbl_mb(Amm(1)))
       real*8 dv
       real*8 fmm(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "switching_charge.fh"
 
 *     ***** local variables ****

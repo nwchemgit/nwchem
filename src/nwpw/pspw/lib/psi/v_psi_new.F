@@ -12,7 +12,7 @@
       implicit none 
       integer ispin,ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *    *** local variables ***
       integer version
@@ -64,7 +64,7 @@
       subroutine v_psi_delete()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     *** local variables ***
       integer taskid,MASTER

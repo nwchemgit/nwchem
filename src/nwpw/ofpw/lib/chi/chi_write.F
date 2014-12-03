@@ -13,7 +13,7 @@
       integer ispin,ne(2)
       double complex psi2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 

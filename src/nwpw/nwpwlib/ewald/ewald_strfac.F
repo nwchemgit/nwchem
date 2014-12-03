@@ -3,7 +3,7 @@
 *
       subroutine ewald_strfact_init()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald_strfac.fh"
 cccccccc arguments
@@ -45,7 +45,7 @@ cccccccc exec
 cccccccccccccccccccccccc
       subroutine ewald_strfact_end()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "ewald_strfac.fh"
       logical value
@@ -86,7 +86,7 @@ ccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccc
       subroutine ewald_phafac()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ewald_strfac.fh"
 cccccccc locals
       integer i,k
@@ -163,7 +163,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       integer ii
       complex*16 exi(*)
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "ewald_strfac.fh"
 ccccccc locals
 

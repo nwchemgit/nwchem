@@ -29,7 +29,7 @@
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -215,7 +215,7 @@ c     integer i2_start(NFFT3+1)
       real*8 A(*)
       real*8 tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -406,7 +406,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 #include "mpif.h"
@@ -590,7 +590,7 @@ c     integer i2_start(NFFT3+1)
       real*8  A(*)
       real*8  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -853,7 +853,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef MPI4
@@ -915,7 +915,7 @@ c     implicit none
       integer n
       integer  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef MPI4
@@ -1004,7 +1004,7 @@ c     implicit none
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -1173,7 +1173,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -1341,7 +1341,7 @@ c     **** external functions ****
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -1510,7 +1510,7 @@ c     **** external functions ****
       integer    request(*),reqcnt
       integer msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mpif.h"
 #include "balance_common.fh"
 
@@ -1638,7 +1638,7 @@ c            recieve data....
       integer    request(*),reqcnt
       integer    msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mpif.h"
 #include "balance_common.fh"
 
@@ -1778,7 +1778,7 @@ c            send data....
       integer request(*),reqcnt
       integer msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -1927,7 +1927,7 @@ c         msgtype   = 1
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 *     **** indexing variables ****
@@ -1986,7 +1986,7 @@ c         msgtype   = 1
       integer request(*),reqcnt
       integer msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -2134,7 +2134,7 @@ c         msgtype   = 1
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 *     **** indexing variables **** integer iq_to_i1(2,0:1)
@@ -2190,7 +2190,7 @@ c         msgtype   = 1
       integer     request(*),reqcnt
       integer     msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -2347,7 +2347,7 @@ c         msgtype   = 1
       complex*16  tmp2(*)
       integer request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 *     **** indexing variables ****
@@ -2396,7 +2396,7 @@ c         msgtype   = 1
       complex*16 tmp(*)
       integer jcol,kcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -2658,7 +2658,7 @@ c      call ga_sync()
       real*8  tmp(*)
       integer jcol,kcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -2924,7 +2924,7 @@ c      call ga_sync()
       complex*16 tmp(*)
       integer jcol,kcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"
@@ -3224,7 +3224,7 @@ c      call ga_sync()
       real*8     tmp(*)
       integer jcol,kcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "C3dB.fh"

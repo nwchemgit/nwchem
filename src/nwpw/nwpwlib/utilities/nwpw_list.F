@@ -6,7 +6,7 @@
       integer nb
       integer size_list0,nsize0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_list_common.fh"
 
 *     **** local variables ****
@@ -33,7 +33,7 @@
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_list_common.fh"
 
 *     **** local variables ****
@@ -67,7 +67,7 @@
       integer m
       integer ptr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_list_common.fh"
 
       ptr = grsm_mem(1,indx(m,nb),nb)
@@ -86,7 +86,7 @@
       integer m
       real*8 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_list_common.fh"
 
       call dcopy(nsize(nb),dbl_mb(grsm_mem(1,indx(m,nb),nb)),1,A,1)
@@ -106,7 +106,7 @@
       integer m
       real*8 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_list_common.fh"
 
       call dcopy(nsize(nb),A,1,dbl_mb(grsm_mem(1,indx(m,nb),nb)),1)

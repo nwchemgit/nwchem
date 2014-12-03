@@ -15,7 +15,7 @@ c
 #include "errquit.fh"
 #include "stdio.fh"
 #include "util.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer MASTER
       parameter (MASTER=0)

@@ -13,7 +13,7 @@
       integer ispin,ne(2),nbrillioun
       integer psi2_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -297,7 +297,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       integer ispin,ne(2),nbrillioun
       integer psi2_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -510,7 +510,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       integer ispin,ne(2),nbrillioun
       integer psi2_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"

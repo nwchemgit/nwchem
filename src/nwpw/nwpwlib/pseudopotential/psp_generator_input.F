@@ -11,7 +11,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 c
 
@@ -560,7 +560,7 @@ c      call flush(6)
 #include "inp.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -806,7 +806,7 @@ c        *** revPBE ***
 #include "inp.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "stdio.fh"

@@ -7,7 +7,7 @@
       integer rtdb
 
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 c
 c

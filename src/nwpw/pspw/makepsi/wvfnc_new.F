@@ -15,7 +15,7 @@
       real*8       unita(3,3)
       integer      ispin,nein(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
  
@@ -98,7 +98,7 @@
       logical      fractional
       integer      frac_orb(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
  
       logical value

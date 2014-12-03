@@ -15,7 +15,7 @@
       real*8 dn(n2ft3d,ispin)
       real*8 dipole(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -346,7 +346,7 @@
       real*8 dn(n2ft3d,ispin)
       real*8 dipole(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
 

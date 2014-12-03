@@ -15,7 +15,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "geodesic2.fh"
 
 *     **** local variables ****
@@ -65,7 +65,7 @@ c      ne(2) = psi_neq(2)
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "geodesic2.fh"
 
 *     **** local variables ****
@@ -109,7 +109,7 @@ c      ne(2) = psi_neq(2)
       complex*16 H(*)
       real*8     max_sigma,dE
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "geodesic2.fh"
 
@@ -260,7 +260,7 @@ c      ne(2) = psi_neq(2)
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "geodesic2.fh"
 
@@ -331,7 +331,7 @@ c      ne(2) = psi_neq(2)
       complex*16 Yold(*)
       complex*16 Hnew(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "geodesic2.fh"
 
 
@@ -441,7 +441,7 @@ c      ne(2) = psi_neq(2)
       real*8 t
       real*8 M(*),N(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "geodesic2.fh"
 

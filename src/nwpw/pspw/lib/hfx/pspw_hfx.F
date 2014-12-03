@@ -13,7 +13,7 @@
       integer ispin0
       integer ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "pspw_hfx.fh"
@@ -198,7 +198,7 @@ c     **** define extra psi and Hpsi  ****
       subroutine pspw_end_HFX()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -283,7 +283,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
       implicit none
       integer unit
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 
 *     **** local variables ****
@@ -353,7 +353,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
       real*8     psi_r(*)
       real*8     Hpsi_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -503,7 +503,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
       real*8 ehfx_out
       real*8 phfx_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -559,7 +559,7 @@ c     **** nothing to do ****
       real*8     orb_r(*)
       real*8     Horb_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -683,7 +683,7 @@ c     >                      dbl_mb(vij(1)))
       logical function pspw_HFX_relaxed()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 
       pspw_hfx_relaxed = relaxed
@@ -706,7 +706,7 @@ c     >                      dbl_mb(vij(1)))
       real*8  psi_r(*)
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -754,7 +754,7 @@ c***************** sub/replicated routines *****************************
       real*8     psi_r(*)
       real*8     Hpsi_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -1044,7 +1044,7 @@ c     >                           Hpsi_r(index2))
       real*8 ehfx_out
       real*8 phfx_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -1167,7 +1167,7 @@ c     >                                   dbl_mb(dn(1)))
       real*8  psi_r(*)
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -1291,7 +1291,7 @@ c     >                                   dbl_mb(dn(1)))
       real*8     orb_r(*)
       real*8     Horb_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -1435,7 +1435,7 @@ c        call D1dB_SumAll(ph)
       real*8  Hpsi_r(n2ft3d,*)
       real*8  ehfx
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer taskid_j
@@ -1710,7 +1710,7 @@ c        call D1dB_SumAll(ph)
       real*8     orb_r(*)
       real*8     Horb_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -1755,7 +1755,7 @@ c        call D1dB_SumAll(ph)
       real*8 ehfx_out
       real*8 phfx_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
@@ -1816,7 +1816,7 @@ c     **** nothing to do ****
       real*8 ehfx_out
       real*8 phfx_out
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 

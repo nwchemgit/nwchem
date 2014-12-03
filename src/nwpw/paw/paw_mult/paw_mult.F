@@ -107,7 +107,7 @@
       subroutine paw_mult_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_mult_data.fh"
 #include "paw_geom.fh"
 #include "paw_ma.fh"
@@ -412,7 +412,7 @@
       complex*16 dn_cmp(*)
       complex*16 dn_cmp_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_geom.fh"
@@ -527,7 +527,7 @@ c     >                    dn_cmp)
       complex*16 vcmp(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_geom.fh"
@@ -674,7 +674,7 @@ c     >                    dcpl_mb(QYlm(1)))
       complex*16 vh(*)
       complex*16 vcmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_comp_charge_matrix.fh"
@@ -944,7 +944,7 @@ c     >                    dcpl_mb(QYlm(1)))
 !      subroutine paw_pot_mult_print()
 !      implicit none
 !
-!#include "mafdecls.fh"
+!#include "bafdecls.fh"
 !#include "paw_mult_data.fh"
 !#include "paw_comp_charge_data.fh"
 !#include "paw_comp_charge_matrix.fh"
@@ -1061,7 +1061,7 @@ c     >                    dcpl_mb(QYlm(1)))
       implicit none
       real*8 vzero
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_geom.fh"
@@ -1142,7 +1142,7 @@ c     >                    dcpl_mb(QYlm(1)))
       subroutine find_comp_coeff()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_gaunt.fh"
 #include "paw_geom.fh"
 #include "paw_ovlp_data.fh"
@@ -1243,7 +1243,7 @@ c     >                    dcpl_mb(QYlm(1)))
       integer    ms
       complex*16 dn_cmp_smooth(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_mult_data.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_geom.fh"

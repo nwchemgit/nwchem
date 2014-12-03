@@ -21,7 +21,7 @@
       real*8  rlocal
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
 

@@ -15,7 +15,7 @@
       real*8       unita(3,3)
       integer      ispin,ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
  
 *     **** local variables ****
       integer MASTER,taskid

@@ -14,7 +14,7 @@
       real*8  fcharge(3,*)
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
       
 

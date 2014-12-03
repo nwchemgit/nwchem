@@ -43,7 +43,7 @@ c      call BGrsm_ff_dScale(-1.0d0,g,g)
       complex*16 g(*)
       complex*16 s(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "band_lmbfgs_common.fh"
 
 *     **** local variables ****

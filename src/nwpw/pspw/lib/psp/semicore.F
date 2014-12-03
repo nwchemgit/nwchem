@@ -13,7 +13,7 @@
       subroutine semicore_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore common block ****
 c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
@@ -76,7 +76,7 @@ c     logocal semicore(0:nkatmx)
       subroutine semicore_end()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore common block ****
 c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
@@ -115,7 +115,7 @@ c     logocal semicore(0:nkatmx)
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore common block ****
 c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
@@ -139,7 +139,7 @@ c     logocal semicore(0:nkatmx)
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore common block ****
 c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
@@ -163,7 +163,7 @@ c     logocal semicore(0:nkatmx)
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore2 common block ****
       integer ncore_sum(2)
@@ -186,7 +186,7 @@ c     logocal semicore(0:nkatmx)
 #include "errquit.fh"
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore common block ****
 c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
@@ -279,7 +279,7 @@ c     >                               dbl_mb(dncore(1)))
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore common block ****
 c     real*8  ncore(nfft3d,nkatmx),rcore(nkatmx)
@@ -370,7 +370,7 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       real*8 dns(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** semicore3 common block ****
       integer dncore(2)
@@ -396,7 +396,7 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** semicore3 common block ****
@@ -474,7 +474,7 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer u,s
       real*8 Aus(*)
 
-#include "mafdecls.fh" 
+#include "bafdecls.fh" 
 
 *     **** semicore common block ****
       integer ncore(2),rcore(2)
@@ -614,7 +614,7 @@ c      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
       real*8 xcp(*)
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** semicore3 common block ****

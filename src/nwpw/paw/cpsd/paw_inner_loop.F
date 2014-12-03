@@ -143,7 +143,7 @@
       complex*16 Hpsi(npack1,nemax)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_energy_kin_atom.fh"
 #include "paw_energy_vloc_atom.fh"
 #include "paw_energy_ion_atom.fh"

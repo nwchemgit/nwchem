@@ -28,7 +28,7 @@
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 #include "D3dB.fh"
 
@@ -163,7 +163,7 @@ c      integer     nb,ne
 c      complex*16  A(*)
 c      complex*16  tmp1(*),tmp2(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c
 c#include "D3dB.fh"
 c
@@ -304,7 +304,7 @@ c
       complex*16  tmp1(*)
       complex*16  tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 #include "D3dB.fh"
 
@@ -433,7 +433,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 #include "D3dB.fh"
 
@@ -576,7 +576,7 @@ c     integer i2_start(NFFT3+1)
       real*8  A(*)
       real*8  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 
@@ -736,7 +736,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "errquit.fh"
@@ -806,7 +806,7 @@ c     implicit none
       integer n
       integer  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -860,7 +860,7 @@ c     implicit none
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 *     **** indexing variables ****
@@ -988,7 +988,7 @@ c     implicit none
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 *     **** indexing variables ****
@@ -1109,7 +1109,7 @@ c     implicit none
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 
@@ -1228,7 +1228,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -1352,7 +1352,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*),tmp2(*)
       integer request(*),reqcnt,msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -1472,7 +1472,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -1526,7 +1526,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*),tmp2(*)
       integer request(*),reqcnt,msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -1650,7 +1650,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -1707,7 +1707,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*),tmp2(*)
       integer     request(*),reqcnt,msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -1835,7 +1835,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp2(*)
       integer request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -1896,7 +1896,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -2016,7 +2016,7 @@ c     integer i2_start(NFFT3+1)
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -2189,7 +2189,7 @@ c      end
       complex*16 tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -2374,7 +2374,7 @@ c         jend   = jcol
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 #include "tcgmsg.fh"
@@ -2547,7 +2547,7 @@ c         jend   = jcol
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -2743,7 +2743,7 @@ c         jend   = jcol
       integer    jcol
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -2946,7 +2946,7 @@ c         jend   = jcol
       real*8     tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 
@@ -3113,7 +3113,7 @@ c         jend   = jcol
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 #include "tcgmsg.fh"
@@ -3314,7 +3314,7 @@ c         jend   = jcol
       complex*16 tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -3479,7 +3479,7 @@ c         jend   = jcol
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 #include "tcgmsg.fh"
@@ -3637,7 +3637,7 @@ c         jend   = jcol
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -3816,7 +3816,7 @@ c         jend   = jcol
       integer    jcol
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -4004,7 +4004,7 @@ c         jend   = jcol
       real*8     tmp(*)
       integer    jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 #include "tcgmsg.fh"
@@ -4157,7 +4157,7 @@ c         jend   = jcol
       real*8  tmp(*)
       integer jcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 #include "tcgmsg.fh"
@@ -4350,7 +4350,7 @@ c         jend   = jcol
       real*8     A(*)
       real*8     tmp(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 

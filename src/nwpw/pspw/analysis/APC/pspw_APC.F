@@ -24,7 +24,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "pspw_APC.fh"
@@ -194,7 +194,7 @@ c    >     + i+1
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_APC.fh"
 
       logical value
@@ -228,7 +228,7 @@ c    >     + i+1
       integer ispin,ne(2)
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_APC.fh"
 
@@ -429,7 +429,7 @@ c     >                               dcpl_mb(gaus_i(1)))
       integer ispin,ne(2)
       real*8 dn(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_APC.fh"
 
@@ -491,7 +491,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       implicit none
       integer ii,n
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_APC.fh"
 
 *     **** local variables ****
@@ -520,7 +520,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       implicit none
       integer unit
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_APC.fh"
 
 *     **** local variables ****

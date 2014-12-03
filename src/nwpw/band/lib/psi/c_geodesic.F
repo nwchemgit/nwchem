@@ -14,7 +14,7 @@
       subroutine c_geodesic_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 
@@ -49,7 +49,7 @@
       subroutine c_geodesic_finalize()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 
@@ -76,7 +76,7 @@
       integer A_tag
       real*8  max_sigma,dE
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 
@@ -158,7 +158,7 @@
       integer    Yold_tag
       integer    Ynew_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 
@@ -260,7 +260,7 @@
       integer  Yold_tag
       integer  Ynew_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 
@@ -359,7 +359,7 @@
       integer  Yold_tag
       integer  tG_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 
@@ -464,7 +464,7 @@
       integer Yold_tag
       complex*16  Ynew(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 
@@ -569,7 +569,7 @@ c         ynewshift = cpsi_data_get_chnk(Ynew_tag,nb)
       complex*16 tG(*)
 c      integer  tG_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 

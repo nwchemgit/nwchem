@@ -15,7 +15,7 @@
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -68,7 +68,7 @@ c     >                     'Vt',Vt(2),Vt(1))
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -121,7 +121,7 @@ c      value = value.and.MA_free_heap(Vt(2))
       complex*16 A(*)
       real*8     max_sigma,dE
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** geodesic common block ***
@@ -223,7 +223,7 @@ c      value = value.and.MA_free_heap(Vt(2))
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** geodesic common block ***
@@ -395,7 +395,7 @@ c      real*8     sum1,sum2,sum3
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** geodesic common block ***
@@ -514,7 +514,7 @@ c      real*8     sum1,sum2,sum3
       complex*16 Yold(*)
       complex*16 tG(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** geodesic common block ***

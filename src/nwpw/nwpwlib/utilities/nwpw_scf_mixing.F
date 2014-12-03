@@ -16,7 +16,7 @@
       integer max_m0,ispin0,nsize0
       real*8 rho_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_scf_mixing.fh"
 
 
@@ -61,7 +61,7 @@
       subroutine nwpw_scf_mixing_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_scf_mixing.fh"
 
       call nwpw_list_end(1)
@@ -80,7 +80,7 @@
       implicit none
       real*8 rho_in(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_scf_mixing.fh"
 
       m = 1
@@ -103,7 +103,7 @@
       real*8 scf_error
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "nwpw_scf_mixing.fh"
 
 *     **** local variables ****

@@ -10,7 +10,7 @@ c $Id$
       implicit none
       integer npsp0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borb_projector.fh"
 #include "errquit.fh"
 
@@ -53,7 +53,7 @@ c $Id$
       implicit none
       integer nbrill,nprj,nsize
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borb_projector.fh"
 #include "errquit.fh"
 
@@ -90,7 +90,7 @@ c $Id$
       subroutine borb_projector_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borb_projector.fh"
 #include "errquit.fh"
 
@@ -125,7 +125,7 @@ c $Id$
       integer tag,nb,n
       real*8 proj(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borb_projector.fh"
 #include "errquit.fh"
 
@@ -160,7 +160,7 @@ c      end if
       implicit none
       integer tag,nb,n
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "borb_projector.fh"
 #include "errquit.fh"
 

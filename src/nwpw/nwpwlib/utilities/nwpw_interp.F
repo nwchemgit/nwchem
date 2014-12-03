@@ -11,7 +11,7 @@
       implicit none
       integer ndim0,norder0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** nwpw_interp_common block ****
@@ -59,7 +59,7 @@
       subroutine nwpw_interp_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** nwpw_interp_common block ****
@@ -89,7 +89,7 @@
       integer i
       real*8 x
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** nwpw_interp_common block ****
@@ -122,7 +122,7 @@
       integer i
       real*8 x
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** nwpw_interp_common block ****
@@ -159,7 +159,7 @@
       integer ndim,N(*),p(*)
       real*8  a(*),b(*),mesh(*),x(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** nwpw_interp_common block ****
@@ -268,7 +268,7 @@
       integer ndim,N(*),p(*)
       real*8  a(*),b(*),mesh(*),x(*),df(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** nwpw_interp_common block ****

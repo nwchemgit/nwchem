@@ -14,7 +14,7 @@
       subroutine cpsp_stress_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -54,7 +54,7 @@
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
 
@@ -81,7 +81,7 @@
       complex*16 dng(*)
       real*8     euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -239,7 +239,7 @@ c     >                     dbl_mb(tmp2(1)))
       integer psi1_tag
       real*8 euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -667,7 +667,7 @@ c       close(11)
       subroutine cpsp_stress_readall()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"      
 #include "cpsp_common.fh"
 #include "c_semicore_common.fh"

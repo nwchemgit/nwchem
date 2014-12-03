@@ -15,7 +15,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -63,7 +63,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -114,7 +114,7 @@
       complex*16 A(*)
       real*8     max_sigma,dE
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -246,7 +246,7 @@ c      integer ierr
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -384,7 +384,7 @@ c         end if
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -508,7 +508,7 @@ c         end if
       complex*16 Yold(*)
       complex*16 tG(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -630,7 +630,7 @@ c         end if
       real*8     S(ne)
       real*8     V(ne,ne)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       logical value

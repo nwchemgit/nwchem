@@ -8,7 +8,7 @@
       implicit none
       character*4  atom
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     ***** local variables *****

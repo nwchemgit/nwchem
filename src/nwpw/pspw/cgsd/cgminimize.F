@@ -18,7 +18,7 @@ c
       integer    current_iteration
       integer    it_in
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

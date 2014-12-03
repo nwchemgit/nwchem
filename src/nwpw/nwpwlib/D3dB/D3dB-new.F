@@ -69,7 +69,7 @@ ccccccccccc  #define TCGMSG
       implicit none
       integer nb
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -300,7 +300,7 @@ c      end if
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -401,7 +401,7 @@ c     integer i2_start(NFFT3+1)
       integer nb
       integer q,k
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
       
@@ -423,7 +423,7 @@ c     k = k_map(q)
       integer nb
       integer k,q,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
       
@@ -449,7 +449,7 @@ c     p = p_map(k)
       integer i,j,k
       integer indx,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
       integer q
@@ -486,7 +486,7 @@ c     p = p_map(k)
       integer i,j,k
       integer indx,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
       integer q
@@ -524,7 +524,7 @@ c     p = p_map(k)
       integer i,j,k
       integer indx,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D3dB.fh"
 
 
@@ -1010,7 +1010,7 @@ c      end
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -1203,7 +1203,7 @@ c       iestimate = FFTW_EXHAUSTIVE
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -1243,7 +1243,7 @@ c      subroutine D3dB_n_fft_init(nb,ne)
 c      implicit none
 c      integer nb,ne
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c
 c      integer tmp2(2,NBLOCKS),tmp3(2,NBLOCKS)
@@ -1274,7 +1274,7 @@ c      subroutine D3dB_n_fft_end(nb)
 c      implicit none
 c      integer nb
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c
 c      integer tmp2(2,NBLOCKS),tmp3(2,NBLOCKS)
@@ -1325,7 +1325,7 @@ c      end
       complex*16  A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -1768,7 +1768,7 @@ c      implicit none
 c      integer nb,ne
 c      complex*16  A(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c
 c#include "D3dB.fh"
@@ -1971,7 +1971,7 @@ c      end
       integer nb
       complex*16  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -2424,7 +2424,7 @@ c      implicit none
 c      integer nb,ne
 c      complex*16  A(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c
 c#include "D3dB.fh"
@@ -2936,7 +2936,7 @@ c      end
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -4644,7 +4644,7 @@ cc     implicit none
 c      integer n
 c      real*8  sum(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c
 c#include "tcgmsg.fh"
 c#include "msgtypesf.h"
@@ -4705,7 +4705,7 @@ cc     implicit none
 c      integer n
 c      integer  sum(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c
 c
@@ -5015,7 +5015,7 @@ cpgi$r opt=1
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -5186,7 +5186,7 @@ c     i2_start(np+1) = index2
 #include "errquit.fh"
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 c     integer iq_to_i1((NFFT1/2+1)*NFFT2*NSLABS)
 c     integer iq_to_i2((NFFT1/2+1)*NFFT2*NSLABS)

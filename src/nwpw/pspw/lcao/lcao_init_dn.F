@@ -9,7 +9,7 @@
       real*8 dn(n2ft3d,2)
       complex*16 phi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 
 *     **** local variables ****

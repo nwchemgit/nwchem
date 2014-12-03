@@ -7,7 +7,7 @@ c     $Id$
 
 #include "global.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 
@@ -149,7 +149,7 @@ c     $Id$
 
 #include "global.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 

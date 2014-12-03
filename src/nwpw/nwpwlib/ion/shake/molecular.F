@@ -11,7 +11,7 @@
       implicit none 
       integer   rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     ***** local variables ****
@@ -300,7 +300,7 @@
       implicit none
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
       
 

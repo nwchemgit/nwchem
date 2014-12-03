@@ -95,7 +95,7 @@
       implicit none
       integer A_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -188,7 +188,7 @@
       integer    B_tag
       integer    C_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -262,7 +262,7 @@
       integer    B_tag
       integer    C_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****
@@ -433,7 +433,7 @@
       real*8 scale
       integer    A_tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsi_common.fh"
 
 *     **** local variables ****

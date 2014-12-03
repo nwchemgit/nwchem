@@ -11,7 +11,7 @@ c
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 c
       integer rtdb
@@ -161,7 +161,7 @@ c
       integer nx,ny,nz
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
       !**** local variables ****
@@ -330,7 +330,7 @@ c
       integer nx,ny,nz
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
       !**** local variables ****
@@ -412,7 +412,7 @@ c
 
 #include "errquit.fh"
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     *** local variables ***
@@ -535,7 +535,7 @@ c Triclinic
       integer pcount,plist(*)
 
 #include "inp.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     *** local variables ***

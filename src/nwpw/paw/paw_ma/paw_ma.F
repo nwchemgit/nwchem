@@ -13,7 +13,7 @@
       logical function my_alloc (v_type, v_size, v_name, v)
  
  
-#include "mafdecls.fh"
+#include "bafdecls.fh"
  
       character v_name*(*)
       integer v_type, v_size
@@ -37,7 +37,7 @@
 !  **************************************************
       logical function my_dealloc (v)
  
-#include "mafdecls.fh" 
+#include "bafdecls.fh" 
 
       integer v(4)
  

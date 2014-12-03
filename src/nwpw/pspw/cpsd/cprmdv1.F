@@ -21,7 +21,7 @@ CDEC$ OPTIMIZE:0
       integer rtdb
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"

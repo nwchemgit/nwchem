@@ -14,7 +14,7 @@
       subroutine paw_comp_charge_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_geom.fh"
 #include "paw_ma.fh"
@@ -90,7 +90,7 @@
       subroutine paw_comp_charge_update()
         implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_proj.fh"
 #include "paw_basis.fh"
@@ -227,7 +227,7 @@ c        end do
       subroutine paw_comp_charge_spin_update()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_comp_charge_data.fh"
 #include "paw_proj.fh"
 #include "paw_basis.fh"

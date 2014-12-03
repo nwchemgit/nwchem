@@ -84,7 +84,7 @@
       complex*16 psi_out(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_rmmdiis.fh"
 
 *     **** local variables ****

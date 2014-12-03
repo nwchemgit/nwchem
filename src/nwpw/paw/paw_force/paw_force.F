@@ -16,7 +16,7 @@ cedo      subroutine paw_force_init(ispin0,ne)
 cedo      integer ispin0
 cedo      integer ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_proj.fh"
 #include "paw_force_data.fh" 
 #include "paw_geom.fh" 
@@ -89,7 +89,7 @@ cedo      integer ne(2)
       complex*16 psi(*)
       real*8     fion(3,*)
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_force_data.fh"
 #include "paw_proj.fh"
 #include "paw_ovlp.fh"
@@ -390,7 +390,7 @@ c           !*** this loop is not computed when ispin=1 ***
       implicit none
       integer nu
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_force_data.fh"
 #include "paw_proj.fh"
@@ -453,7 +453,7 @@ c           !*** this loop is not computed when ispin=1 ***
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_force_data.fh"
 #include "paw_geom.fh"
 #include "paw_proj.fh"
@@ -556,7 +556,7 @@ c        fion(3,in) = fion(3,in) - dble(tmp_fz)
       real*8 lmbda(*)
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_force_data.fh"
 #include "paw_proj.fh"
 #include "paw_ovlp.fh"
@@ -731,7 +731,7 @@ c            fion(3,ii) = fion(3,ii) + occup*wz_tmp*dbl_mb(overlap_ptr)
       
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_force_data.fh"
 #include "paw_mult_data.fh"
 #include "paw_geom.fh"
@@ -922,7 +922,7 @@ c     >                          dble(comp_charge_coeff*f_tmp(k))
       subroutine paw_force_end()
       implicit none      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_ma.fh" 
 #include "paw_force_data.fh"
 

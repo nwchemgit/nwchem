@@ -12,7 +12,7 @@ c
       integer rtdb
 
 #include "rtdb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
 
@@ -125,7 +125,7 @@ c
       integer rtdb
 
 #include "rtdb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
 
@@ -229,7 +229,7 @@ c
       character*(*) xyzfilename
       character*(*) motionfilename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
 

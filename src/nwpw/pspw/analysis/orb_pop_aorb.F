@@ -20,7 +20,7 @@ c
       real*8  a(36,nemax,*)
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 

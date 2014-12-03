@@ -12,7 +12,7 @@
       subroutine cpsp_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -128,7 +128,7 @@
       subroutine cpsp_proj_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsp_common.fh"
 
@@ -159,7 +159,7 @@
       subroutine cpsp_end()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsp_common.fh"
 
@@ -212,7 +212,7 @@
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
 
@@ -230,7 +230,7 @@
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
       cpsp_amass = dbl_mb(amass(1)+ia-1)
@@ -247,7 +247,7 @@
       implicit none
       integer i,ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
       cpsp_rc = dbl_mb(rc(1) + i + (lmax_max+1)*(ia-1))
@@ -298,7 +298,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
 
@@ -315,7 +315,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
       cpsp_nprj  = int_mb(nprj(1)+ia-1)
@@ -330,7 +330,7 @@
       integer function cpsp_nprj_max()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
       integer ia,nprjmax,nprjtmp
@@ -354,7 +354,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
       cpsp_psp_type  = int_mb(psp_type(1)+ia-1)
@@ -371,7 +371,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
 
@@ -388,7 +388,7 @@
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 
 
@@ -424,7 +424,7 @@
       complex*16 dng(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -531,7 +531,7 @@ c        call Cram_cc_Sum(0,vl_out,dcpl_mb(vtmp(1)),vl_out)
       complex*16 dng(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -629,7 +629,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       logical move
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -1039,7 +1039,7 @@ cccccccccccccccccccc
       complex*16 orb1(*)
       complex*16 orb2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsp_common.fh"
 
@@ -1212,7 +1212,7 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
       integer    psi1_tag
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "errquit.fh"
 
@@ -1525,7 +1525,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8     tmp2(*)
       integer ierr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 
@@ -1793,7 +1793,7 @@ cccccccccccccccccccc
       subroutine cpsp_readall()
       implicit none
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "cpsp_common.fh"
 #include "c_semicore_common.fh"
 #include "stdio.fh"

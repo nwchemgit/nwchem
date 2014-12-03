@@ -13,7 +13,7 @@
       integer rtdb
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "stdio.fh"

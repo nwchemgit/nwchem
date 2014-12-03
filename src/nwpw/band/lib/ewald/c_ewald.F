@@ -61,7 +61,7 @@
       subroutine c_ewald_end()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block for ewald.f ****
       integer    ncut
@@ -81,7 +81,7 @@
       subroutine c_ewald_init()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 
@@ -255,7 +255,7 @@ c    >     + i+1
       real*8 function c_ewald_e()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for ewald.f ****
@@ -373,7 +373,7 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
       implicit none
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for ewald.f ****
@@ -560,7 +560,7 @@ c          erfc = 1.0d0/erfc**4
       implicit none
       real*8  stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer N

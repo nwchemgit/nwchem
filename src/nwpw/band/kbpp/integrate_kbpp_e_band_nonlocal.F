@@ -31,7 +31,7 @@
 
       integer ierr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer np,taskid,MASTER
       parameter (MASTER=0)

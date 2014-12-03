@@ -6,7 +6,7 @@ c
 #include "errquit.fh"
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 c

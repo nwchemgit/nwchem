@@ -7,7 +7,7 @@
       subroutine c_semicore_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
 *     *** local variables ****
@@ -51,7 +51,7 @@
       subroutine c_semicore_end()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
 
@@ -77,7 +77,7 @@
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
 
@@ -95,7 +95,7 @@
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
       cpsp_rcore = dbl_mb(rcore(1)+ia-1)
@@ -112,7 +112,7 @@
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
       cpsp_ncore = dbl_mb(ncore_sum(1)+ia-1)
@@ -131,7 +131,7 @@
 #include "errquit.fh"
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
 *     *** local variables ***
@@ -210,7 +210,7 @@ c    >                               dbl_mb(dncore(1)))
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
 *     *** local variables ***
@@ -289,7 +289,7 @@ c           call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       real*8 dns(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
 *     **** local variables ****
@@ -314,7 +314,7 @@ c           call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       real*8 stress(3,3)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_semicore_common.fh"
 
@@ -387,7 +387,7 @@ c           call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer u,s
       real*8 Aus(*)
 
-#include "mafdecls.fh" 
+#include "bafdecls.fh" 
 #include "errquit.fh"
 #include "c_semicore_common.fh"
 

@@ -24,7 +24,7 @@
       subroutine D3dB_pfft_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 #include "D3dB_pfft.fh"
@@ -343,7 +343,7 @@
       subroutine D3dB_pfft_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 #include "D3dB_pfft.fh"
@@ -474,7 +474,7 @@
       integer nb,nbb
       complex*16  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -851,7 +851,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nb,nbb
       complex*16  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -1199,7 +1199,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nbb
       logical zero_arow3(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -1364,7 +1364,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       logical zero_arow2(*)
       logical zero_arow3(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 
@@ -1953,7 +1953,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nb,nbb,m
       complex*16  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -2319,7 +2319,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -2447,7 +2447,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -2652,7 +2652,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -2842,7 +2842,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -2924,7 +2924,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer     request(*),reqcnt
       
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 #include "D3dB_pfft.fh"
@@ -3112,7 +3112,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 #include "D3dB_pfft.fh"
@@ -3308,7 +3308,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D3dB.fh"
 #include "D3dB_pfft.fh"
@@ -3461,7 +3461,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer    request(*),reqcnt
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer tmp1z(2),tmp2z(2)
       common / pfft_queuez_common / tmp1z,tmp2z
@@ -3506,7 +3506,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer qmax_in
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -3601,7 +3601,7 @@ c     **** allocate bqueue ****
       implicit none
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -3661,7 +3661,7 @@ c     **** allocate bqueue ****
       logical function D3dB_cr_pfft3_queue_filled()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -3690,7 +3690,7 @@ c     **** allocate bqueue ****
       logical function D3dB_rc_pfft3_queue_filled()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -3723,7 +3723,7 @@ c     **** allocate bqueue ****
       complex*16 A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -3795,7 +3795,7 @@ c      call nwpw_timing_end(1)
       complex*16 A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -3877,7 +3877,7 @@ c      call nwpw_timing_end(1)
       complex*16 A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"
@@ -3949,7 +3949,7 @@ c      call nwpw_timing_end(1)
       complex*16 A(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "D3dB.fh"

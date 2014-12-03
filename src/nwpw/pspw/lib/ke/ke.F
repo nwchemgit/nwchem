@@ -10,7 +10,7 @@
       subroutine ke_init()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** parameters - filter ****
@@ -121,7 +121,7 @@ c     real*8 tg(nfft3d)
       subroutine ke_end()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for ke.F ****
@@ -154,7 +154,7 @@ c     real*8 tg(nfft3d)
       complex*16 psi1(*)
       complex*16 psi2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** common block used for ke.F ****
 c     real*8 tg(nfft3d)
@@ -186,7 +186,7 @@ c     real*8 tg(nfft3d)
       complex*16 psi1(*)
       complex*16 psi2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 cccccccc#include "frac_occ.fh"
 
 *     **** common block used for ke.F ****
@@ -222,7 +222,7 @@ c     real*8 tg(nfft3d)
       logical fractional
       real*8  occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 cccccccc#include "frac_occ.fh"
 
@@ -297,7 +297,7 @@ c     complex*16 tmp1(nfft3d)
       complex*16 psi(*)
       real*8 euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       logical filter
@@ -439,7 +439,7 @@ c     real*8 G(nfft3d,3)
       complex*16   psi(npack,neall)
       complex*16 gradk(npack,neall)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for ke.F ****
@@ -560,7 +560,7 @@ c      if (.not. value) call errquit('error popping stack memory',0)
       complex*16 residual(npack,neall)
       complex*16 Kresidual(npack,neall)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for ke.F ****

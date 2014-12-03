@@ -11,7 +11,7 @@
       subroutine psp_U_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -126,7 +126,7 @@
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
 *     **** version4 common block ****
@@ -191,7 +191,7 @@
       real*8 occ(*)
       logical ld_update
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -473,7 +473,7 @@
       real*8 occ(*)
       logical ld_update
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 

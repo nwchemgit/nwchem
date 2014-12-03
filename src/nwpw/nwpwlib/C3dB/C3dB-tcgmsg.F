@@ -26,7 +26,7 @@
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 
@@ -152,7 +152,7 @@ c     integer i2_start(NFFT3+1)
       real*8      A(*)
       real*8      tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 
@@ -281,7 +281,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 #include "C3dB.fh"
 
@@ -424,7 +424,7 @@ c     integer i2_start(NFFT3+1)
       real*8  A(*)
       real*8  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 #include "C3dB.fh"
 
@@ -568,7 +568,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 *     **** indexing variables ****
@@ -691,7 +691,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 
 *     **** indexing variables ****
@@ -817,7 +817,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*),tmp2(*)
       integer request(*),reqcnt,msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -935,7 +935,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -989,7 +989,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*),tmp2(*)
       integer request(*),reqcnt,msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -1112,7 +1112,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp2(*)
       integer     request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -1168,7 +1168,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp1(*),tmp2(*)
       integer     request(*),reqcnt,msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -1296,7 +1296,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  tmp2(*)
       integer request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -1356,7 +1356,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  A(*)
       complex*16  tmp1(*),tmp2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -1475,7 +1475,7 @@ c     integer i2_start(NFFT3+1)
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -1763,7 +1763,7 @@ c     implicit none
       integer n
       real*8  sum1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -1805,7 +1805,7 @@ c     implicit none
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -1844,7 +1844,7 @@ c     implicit none
       complex*16 tmp(*)
       integer jcol,kcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "C3dB.fh"
@@ -2024,7 +2024,7 @@ c      call ga_sync()
       real*8  tmp(*)
       integer jcol,kcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -2212,7 +2212,7 @@ c      call ga_sync()
       complex*16 tmp(*)
       integer jcol,kcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "C3dB.fh"
 
@@ -2387,7 +2387,7 @@ c      call ga_sync()
       real*8     tmp(*)
       integer jcol,kcol
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "C3dB.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"

@@ -21,7 +21,7 @@
       implicit none
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "tcgmsg.fh"
@@ -72,7 +72,7 @@ c      integer mpierr
       integer ncolumns
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "global.fh"
 
@@ -126,7 +126,7 @@ c      integer mpierr
       implicit none
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "global.fh"
 
@@ -157,7 +157,7 @@ c      integer mpierr
       integer ncolumns,nzones
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "global.fh"
 
@@ -228,7 +228,7 @@ c      integer mpierr
       implicit none
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "global.fh"
 
@@ -350,7 +350,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "errquit.fh"
@@ -378,7 +378,7 @@ c     implicit none
       integer n
       integer  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -407,7 +407,7 @@ c     implicit none
       integer psend
       real*8  sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -436,7 +436,7 @@ c     implicit none
       integer psend,nsize
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -461,7 +461,7 @@ c     implicit none
       integer psend
       integer isum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -491,7 +491,7 @@ c     implicit none
       integer psend,nsize
       integer  isum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -613,7 +613,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "errquit.fh"
@@ -650,7 +650,7 @@ c     implicit none
       integer n
       integer  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -688,7 +688,7 @@ c     implicit none
       integer psend
       real*8  sum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -726,7 +726,7 @@ c     implicit none
       integer psend,nsize
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -761,7 +761,7 @@ c     implicit none
       integer psend
       integer isum
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -801,7 +801,7 @@ c     implicit none
       integer psend,nsize
       integer  isum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -840,7 +840,7 @@ c     implicit none
       integer nsize2
       integer request(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "errquit.fh"
@@ -979,7 +979,7 @@ c     implicit none
       integer nsize2
       integer request(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "errquit.fh"

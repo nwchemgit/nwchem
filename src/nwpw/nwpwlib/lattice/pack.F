@@ -11,7 +11,7 @@
       subroutine Pack_Init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mask_common.fh"
 #include "errquit.fh"
 
@@ -231,7 +231,7 @@ c     **** common block for G_pack ****
       subroutine Pack_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -271,7 +271,7 @@ c     **** common block for G_pack ****
       integer    nb
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -330,7 +330,7 @@ c      end do
       integer    nb,m
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -401,7 +401,7 @@ c      end do
       integer nb
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -455,7 +455,7 @@ c      end do
       integer    nb
       integer    A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -513,7 +513,7 @@ c      end do
       integer    nb
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -2560,7 +2560,7 @@ c      end do
       integer    request(*),reqcnt
       integer    msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -2614,7 +2614,7 @@ c      end do
       complex*16 tmp1(*)
       integer    request(*),reqcnt
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -2662,7 +2662,7 @@ c      end do
       integer    request(*),reqcnt
       integer    msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****
@@ -2706,7 +2706,7 @@ c      end do
       integer    request(*),reqcnt
       integer    msgtype
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block for pack ****

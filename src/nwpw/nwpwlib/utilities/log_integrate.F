@@ -31,7 +31,7 @@
       real*8 log_amesh
       integer i,nrange
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       !*** local variables ***
@@ -103,7 +103,7 @@ c      external dsum
       real*8 log_amesh
       integer i,nrange
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       !*** local variables ***
@@ -166,7 +166,7 @@ c      external dsum
       integer nrange
       real*8  sum_f(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       !*** local variables ***
@@ -221,7 +221,7 @@ c      external dsum
       real*8  q2(*)
       real*8  log_amesh
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 c     **** local variables ***
@@ -282,7 +282,7 @@ c     **** local variables ***
       integer ngrid
       real*8  rho(*),rgrid(*),log_amesh,charge
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -353,7 +353,7 @@ c     **** local variables ***
       integer ngrid
       real*8  rho(*),rgrid(*),log_amesh,charge,zion
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

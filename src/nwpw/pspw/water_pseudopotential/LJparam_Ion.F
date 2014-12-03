@@ -8,7 +8,7 @@
 #include "errquit.fh"
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 
@@ -89,7 +89,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** LJparam common block ****
       integer ljcount
@@ -122,7 +122,7 @@
       integer i
       real*8  e,s
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** LJparam common block ****
       integer ljcount

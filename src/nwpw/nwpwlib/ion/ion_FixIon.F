@@ -8,7 +8,7 @@
 #include "errquit.fh"
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 
@@ -295,7 +295,7 @@
       implicit none
       real*8 force(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** FixIon common block ****
       integer count
@@ -359,7 +359,7 @@
       real*8 r1(3,*)
       real*8 r2(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** FixIon common block ****
       integer count
@@ -394,7 +394,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** FixIon common block ****
       integer count
@@ -456,7 +456,7 @@
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** FixIon common block ****
       integer count
@@ -488,7 +488,7 @@
       implicit none
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** FixIonz common block ****
       integer countz
@@ -520,7 +520,7 @@
       implicit none
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** FixIonz common block ****
@@ -670,7 +670,7 @@
       implicit none
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** FixIon common block ****

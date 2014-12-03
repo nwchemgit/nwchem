@@ -18,7 +18,7 @@
       integer map_in
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "Dne.fh"
@@ -307,7 +307,7 @@
       subroutine Dne_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -448,7 +448,7 @@
       implicit none
       integer ms,jj
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
       Dneall_na = int_mb(na(1,ms)+jj)
@@ -520,7 +520,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
      
@@ -556,7 +556,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
      
@@ -593,7 +593,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -630,7 +630,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -663,7 +663,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Dneall_m_free = MA_free_heap(hml(2))
       return
@@ -680,7 +680,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Dneall_w_free = MA_free_heap(hml(2))
       return
@@ -698,7 +698,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -733,7 +733,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -766,7 +766,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Dneall_m_pop_stack = MA_pop_stack(hml(2))
       return
@@ -783,7 +783,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Dneall_w_pop_stack = MA_pop_stack(hml(2))
       return
@@ -822,7 +822,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -846,7 +846,7 @@ c     ****************************************
       implicit none
       integer hml(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       Dneall_sm_pop_stack = MA_pop_stack(hml(2))
       return
@@ -874,7 +874,7 @@ c     ****************************************
       complex*16 Aout(*)
       real*8     beta
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -1014,7 +1014,7 @@ c     ****************************************
       complex*16 Aout(*)
       real*8     beta
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -1126,7 +1126,7 @@ c     ****************************************
       integer    npack1
       real*8     hml(*)
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -1273,7 +1273,7 @@ c     ****************************************
       integer    npack1
       real*8     hml(*)
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -1421,7 +1421,7 @@ c     ****************************************
       integer    npack1
       real*8     hml(*)
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -1547,7 +1547,7 @@ c     ****************************************
       real*8     hml(*),eig(*)
       logical    assending
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -1727,7 +1727,7 @@ c     ****************************************
       real*8 A(*),U(*)
       real*8 S(*),V(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -1799,7 +1799,7 @@ c     ****************************************
       integer    npack1      
       real*8     S(*),V(*)
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -1883,7 +1883,7 @@ c     ****************************************
       integer    npack1
       real*8     Sigma(*),V(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -1924,7 +1924,7 @@ c     ****************************************
       complex*16 U(*),SU(*)
       integer    npack1
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -1992,7 +1992,7 @@ c     ****************************************
       complex*16 U(*)
       integer    npack1      
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -2123,7 +2123,7 @@ c     ****************************************
       real*8  Min(*),Mout(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -2202,7 +2202,7 @@ c     ****************************************
       real*8 A(*),B(*)
       real*8 SA(*),SB(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -2299,7 +2299,7 @@ c     ****************************************
       real*8 A(*),B(*)
       real*8 SA(*),SB(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -2398,7 +2398,7 @@ c     ****************************************
       real*8 A(*),B(*)
       real*8 SA(*),SB(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -2490,7 +2490,7 @@ c     ****************************************
       integer mb
       real*8 A(*),B(*),C(*)
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -2579,7 +2579,7 @@ c     ****************************************
       integer mb
       real*8 A(*),B(*),C(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -2671,7 +2671,7 @@ c     ****************************************
       real*8 A(*),B(*),C(*)
       real*8 alpha,beta
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -2863,7 +2863,7 @@ c     ****************************************
       integer mb
       real*8  M(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3078,7 +3078,7 @@ c     ****************************************
       real*8 s22(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3151,7 +3151,7 @@ c     ****************************************
       real*8 dte
       real*8 s21(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3224,7 +3224,7 @@ c     ****************************************
       real*8 dte
       real*8 s11(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3294,7 +3294,7 @@ c     ****************************************
       integer mb
       real*8 s12(*),s21(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3362,7 +3362,7 @@ c     ****************************************
       integer mb
       real*8 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3544,7 +3544,7 @@ c     ****************************************
       integer mb,ms,i,j
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3585,7 +3585,7 @@ c     ****************************************
       integer mb,ms,i,j
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3619,7 +3619,7 @@ c     ****************************************
       integer mb,ms,i,j
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3655,7 +3655,7 @@ c     ****************************************
       integer i,j
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3693,7 +3693,7 @@ c     ****************************************
       real*8 sw2(*)
       real*8 S(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 #include "errquit.fh"
 
@@ -3844,7 +3844,7 @@ c     ****************************************
       real*8 A(*)
       real*8 SA(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -3925,7 +3925,7 @@ c     ****************************************
       real*8 A(*)
       real*8 SA(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -4005,7 +4005,7 @@ c     ****************************************
       real*8 A(*)
       real*8 D(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -4087,7 +4087,7 @@ c     ****************************************
       real*8 A(*)
       real*8 fw(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -4169,7 +4169,7 @@ c     ****************************************
       real*8 A(*)
       real*8 alpha
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 
@@ -4235,7 +4235,7 @@ c     ****************************************
       real*8 A(*)
       real*8 alpha(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 
@@ -4309,7 +4309,7 @@ c     ****************************************
       complex*16 A(*)
       complex*16 alpha
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 
@@ -4380,7 +4380,7 @@ c     ****************************************
       complex*16 U(*),SU(*)
       integer    npack1      
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -4535,7 +4535,7 @@ c     ****************************************
       integer    npack1      
       real*8     R(*)
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -4812,7 +4812,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
      
@@ -4846,7 +4846,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
      
@@ -4879,7 +4879,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -4912,7 +4912,7 @@ c     ****************************************
       integer hml(2)
 
 #include "Dne.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -4945,7 +4945,7 @@ c     ****************************************
       integer mb
       real*8 A(*),R(*),T(*)
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -5023,7 +5023,7 @@ c     ****************************************
       integer mb
       real*8 R(*),M(*),N(*)
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -5094,7 +5094,7 @@ c     ****************************************
       integer    mb
       real*8     K(*),V(*),W(*),Sigma(*)
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -5146,7 +5146,7 @@ c     ****************************************
       real*8  Min(*),Mout(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -5208,7 +5208,7 @@ c     ****************************************
       real*8 t
       real*8 V(*),W(*),Sigma(*),R(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -5324,7 +5324,7 @@ c     ****************************************
       integer mb
       real*8 A(*),B(*),C(*)
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -5415,7 +5415,7 @@ c     ****************************************
       real*8 A(*),B(*),C(*)
       real*8 alpha,beta
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -5508,7 +5508,7 @@ c     ****************************************
       real*8 A(*),B(*),C(*)
       real*8 alpha,beta
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -5602,7 +5602,7 @@ c     ****************************************
       integer mb
       real*8  M(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -5806,7 +5806,7 @@ c     ****************************************
       integer mb,ms,i,j
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -5852,7 +5852,7 @@ c     ****************************************
       real*8 A(*)
       real*8 alpha
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 
@@ -5920,7 +5920,7 @@ c     ****************************************
       real*8 A(*),B(*),C(*)
       real*8 alpha,beta
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -6050,7 +6050,7 @@ c   warning - ms==0 not allowed
       integer    ms,npack1
       real*8     hml3(*)
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -6189,7 +6189,7 @@ c
       complex*16 Q(*)
       integer    npack1      
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -6321,7 +6321,7 @@ c     ****************************************
       real*8     hml(*),eig(*)
       logical    assending
 
-#include "mafdecls.fh"           
+#include "bafdecls.fh"           
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -6559,7 +6559,7 @@ c     ****************************************
       integer mb,ms,i,j,nein(2)
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -6652,7 +6652,7 @@ c     ****************************************
       integer mb,ms,i,j,nein(2)
       real*8  A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Dne.fh"
 
@@ -6750,7 +6750,7 @@ c     ****************************************
 
 #include "Dne.fh"
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -6836,7 +6836,7 @@ c     ****************************************
 
 #include "Dne.fh"
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer size
 
@@ -6920,7 +6920,7 @@ c     ****************************************
       integer    n2ft3d
       real*8     hml(*)
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -7033,7 +7033,7 @@ c     ****************************************
       complex*16 A(*),B(*),C(*)
       complex*16 alpha,beta
            
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -7183,7 +7183,7 @@ c     ****************************************
       integer mb
       complex*16  M(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -7257,7 +7257,7 @@ c     ****************************************
       integer mb
       complex*16  M(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****

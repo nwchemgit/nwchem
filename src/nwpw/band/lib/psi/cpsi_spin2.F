@@ -17,7 +17,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 Sab
 
 #include "util.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       integer taskid,MASTER

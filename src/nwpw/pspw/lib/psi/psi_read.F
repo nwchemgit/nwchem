@@ -15,7 +15,7 @@
       integer occupation
       real*8 occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "errquit.fh"
@@ -219,7 +219,7 @@ c     **** send header to all nodes ****
       double complex psi2(*)
       integer occupation
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -395,7 +395,7 @@ c         end if
       double complex psi2(*)
       integer occupation
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "errquit.fh"

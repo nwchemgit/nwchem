@@ -4,7 +4,7 @@
       subroutine band_dplot_iteration_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -42,7 +42,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** dplot_iteration_block ****
       logical exist
@@ -68,7 +68,7 @@
       implicit none
       integer it
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** dplot_iteration_block ****
       logical exist
@@ -106,7 +106,7 @@
       real*8     dn(*)
       complex*16 psi_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****

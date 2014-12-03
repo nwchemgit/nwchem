@@ -17,7 +17,7 @@
       real*8     E(*)
       real*8     deltae,deltar
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

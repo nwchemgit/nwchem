@@ -12,7 +12,7 @@
       integer rtdb
       integer ne(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "pspw_sic.fh"
@@ -175,7 +175,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_sic.fh"
 
 *     **** local variables ****
@@ -268,7 +268,7 @@ c              end do
       implicit none
       integer unit
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_sic.fh"
 
 *     **** local variables ****
@@ -329,7 +329,7 @@ c              end do
       real*8     psi_r(*)
       real*8     Hpsi_r(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_sic.fh"
 #include "errquit.fh"
 
@@ -506,7 +506,7 @@ c     >                        dbl_mb(xcp(1)))
       real*8 ehsic,phsic
       real*8 exsic,pxsic
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_sic.fh"
 
 *     **** local variables ****
@@ -664,7 +664,7 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
       logical function pspw_SIC_relaxed()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_sic.fh"
 
       pspw_SIC_relaxed = relaxed
@@ -685,7 +685,7 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
       real*8     psi_r(*)
       real*8     v_oep(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_sic.fh"
 #include "errquit.fh"
 
@@ -990,7 +990,7 @@ c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
       real*8  psi_r(*)
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_sic.fh"
 #include "errquit.fh"
 

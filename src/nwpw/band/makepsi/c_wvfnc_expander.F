@@ -10,7 +10,7 @@
 
       logical function c_wvfnc_expander(rtdb)
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
       integer rtdb
       logical value

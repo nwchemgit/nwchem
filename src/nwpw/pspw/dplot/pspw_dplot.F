@@ -14,7 +14,7 @@
       integer rtdb
 
 #include "global.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 
@@ -452,7 +452,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       logical add_tag
       character*8 tag
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 
 *     **** local variables ****
@@ -816,7 +816,7 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
       real*8 rho(*)
      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 
@@ -1239,7 +1239,7 @@ c     if (.not. value) call errquit('closing geometry',0)
       real*8     rcut
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     *** local variables ***
       logical value
@@ -1311,7 +1311,7 @@ c         call Pack_cc_Sum(0,dng,dcpl_mb(exi(1)),dng)
       real*8  rcut
       real*8 vh(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     *** local variables ***
       logical value
@@ -1381,7 +1381,7 @@ c         call Pack_cc_Sum(0,dng,dcpl_mb(exi(1)),dng)
       integer npack1,nemax
       complex*16 psi(npack1,nemax)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       logical value
@@ -1449,7 +1449,7 @@ c        call Pack_cc_Mul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
       real*8 rho(*)
      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
@@ -1826,7 +1826,7 @@ c     if (.not. value) call errquit('closing geometry',0)
       real*8 rho(*)
      
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "errquit.fh"

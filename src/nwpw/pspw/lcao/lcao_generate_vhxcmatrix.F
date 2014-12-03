@@ -13,7 +13,7 @@
       complex*16 phi2(*)
       real*8     ehartr,exc,pxc
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "nwxc.fh"
 

@@ -15,7 +15,7 @@
 
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_semicore_common.fh"
 
 *     **** local variables ****

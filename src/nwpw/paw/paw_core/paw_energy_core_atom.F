@@ -14,7 +14,7 @@
       function paw_energy_core_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_ma.fh"
 #include "paw_matrix_core_data.fh"
@@ -67,7 +67,7 @@
       function paw_energy_core_ion_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_ma.fh"
 #include "paw_matrix_core_data.fh"
@@ -144,7 +144,7 @@ c     >                       log_amesh,ic)
       function paw_energy_core_self_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_ma.fh"
 #include "paw_matrix_core_data.fh"

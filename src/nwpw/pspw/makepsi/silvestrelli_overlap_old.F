@@ -29,7 +29,7 @@
       real*8     psi_r(*)
       complex*16 W(n,n)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** local variables ****
       logical value

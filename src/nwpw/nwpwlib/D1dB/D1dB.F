@@ -61,7 +61,7 @@
       implicit none
       integer nb
      
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D1dB.fh"
 
@@ -152,7 +152,7 @@ c      call Parallel2d_np_j(np_j)
       implicit none
       integer nb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "D1dB.fh"
 
@@ -182,7 +182,7 @@ c      call Parallel2d_np_j(np_j)
       integer nb
       integer q,k
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D1dB.fh"
 
       k = int_mb(k_map(1,nb)+q-1)
@@ -200,7 +200,7 @@ c      call Parallel2d_np_j(np_j)
       integer nb
       integer k,q,p
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "D1dB.fh"
 
       q = int_mb(q_map(1,nb)+k-1)

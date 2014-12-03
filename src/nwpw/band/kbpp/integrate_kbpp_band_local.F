@@ -52,7 +52,7 @@
       double precision dsum,simp
       external         dsum,simp
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
       logical value
 
       call Parallel_np(np)

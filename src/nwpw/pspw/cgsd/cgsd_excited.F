@@ -12,7 +12,7 @@ c     $Id$
 #include "stdio.fh"
 
 c#include "global.fh"
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 #include "rtdb.fh"
 
       logical newpsi

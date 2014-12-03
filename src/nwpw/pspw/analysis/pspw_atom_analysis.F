@@ -11,7 +11,7 @@
       integer n2ft3d
       real*8 dn(n2ft3d,ispin)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 
@@ -63,7 +63,7 @@
       integer indx
       real*8 rcpp(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 

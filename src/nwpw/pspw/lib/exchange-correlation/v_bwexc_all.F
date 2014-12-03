@@ -17,7 +17,7 @@
       real*8  xcp(n2ft3d,2),xce(n2ft3d)
       
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwxc.fh"
 
@@ -79,7 +79,7 @@
       real*8  tmp1(n2ft3d)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwxc.fh"
 

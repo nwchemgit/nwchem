@@ -44,7 +44,7 @@ c
       subroutine paw_gaunt_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "paw_gaunt_data.fh"
@@ -113,7 +113,7 @@ c
       subroutine paw_gaunt_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "paw_gaunt_data.fh"
@@ -140,7 +140,7 @@ c
       integer  l1,l2,l3
       integer  m1,m2,m3
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "paw_gaunt_data.fh"
@@ -280,7 +280,7 @@ C
 C      subroutine paw_gaunt2_init()
 C      implicit none
 C
-C#include "mafdecls.fh"
+C#include "bafdecls.fh"
 C#include "errquit.fh"
 C
 C#include "paw_gaunt_data.fh"
@@ -350,7 +350,7 @@ C*     ***********************************
 C      subroutine paw_gaunt2_end()
 C      implicit none
 C
-C#include "mafdecls.fh"
+C#include "bafdecls.fh"
 C#include "errquit.fh"
 C
 C#include "paw_gaunt_data.fh"
@@ -377,7 +377,7 @@ C      implicit none
 C      integer  l1,l2,l3
 C      integer  m1,m2,m3
 C
-C#include "mafdecls.fh"
+C#include "bafdecls.fh"
 C#include "errquit.fh"
 C
 C#include "paw_gaunt_data.fh"
@@ -510,7 +510,7 @@ C
 C      subroutine paw_gaunt3_init()
 C      implicit none
 C
-C#include "mafdecls.fh"
+C#include "bafdecls.fh"
 C#include "errquit.fh"
 C
 C#include "paw_gaunt_data.fh"
@@ -580,7 +580,7 @@ C*     ***********************************
 C      subroutine paw_gaunt3_end()
 C      implicit none
 C
-C#include "mafdecls.fh"
+C#include "bafdecls.fh"
 C#include "errquit.fh"
 C
 C#include "paw_gaunt_data.fh"
@@ -607,7 +607,7 @@ C      implicit none
 C      integer  l1,l2,l3
 C      integer  m1,m2,m3
 C
-C#include "mafdecls.fh"
+C#include "bafdecls.fh"
 C#include "errquit.fh"
 C
 C#include "paw_gaunt_data.fh"
@@ -748,7 +748,7 @@ c     work arrays for integration
       integer lmax
 
 #include "paw_ma.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
@@ -919,7 +919,7 @@ c     work arrays for integration
       double complex matr(*)
       double complex v(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer gnt_gntxc(4)
@@ -985,7 +985,7 @@ c     **** local varialbles ****
       integer lmax
 
 #include "paw_ma.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
@@ -1154,7 +1154,7 @@ c     **** local varialbles ****
       double complex matr(*)
       double complex v(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer gnt_gntxc(4)
@@ -1223,7 +1223,7 @@ c     **** local varialbles ****
       integer lmax
 
 #include "paw_ma.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "paw_geom.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
@@ -1392,7 +1392,7 @@ c     **** local varialbles ****
       double complex matr(*)
       double complex v(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer gnt_gntxc(4)

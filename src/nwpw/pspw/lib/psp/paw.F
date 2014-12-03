@@ -10,7 +10,7 @@
       subroutine psp_paw_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -66,7 +66,7 @@
       subroutine psp_paw_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -96,7 +96,7 @@
       real*8     vlr_paw(*)
       real*8     vlr_notpaw(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -276,7 +276,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       complex*16 vl_paw(*)
       complex*16 vl_notpaw(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -383,7 +383,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       real*8  rho(*)
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -564,7 +564,7 @@ c         fion(3,j) = fion(3,j) - fz*dv
       real*8     r_grid(3,*)
       real*8     vlr_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -688,7 +688,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       complex*16 dng(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -812,7 +812,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       complex*16 dng(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -942,7 +942,7 @@ c           end do
       complex*16 psi1(*)
       complex*16 psi2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -1092,7 +1092,7 @@ c           end do
       complex*16 psi1(*)
       real*8     S(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1257,7 +1257,7 @@ c        end do
       complex*16 psi2(*)
       real*8     S(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1431,7 +1431,7 @@ c      integer    n
 c      complex*16 psi1(*)
 c      real*8     S(*)
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "errquit.fh"
 c#include "psp.fh"
 c
@@ -1574,7 +1574,7 @@ c
       real*8 function psp_kinetic_core()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
 *     *** local variables ***
@@ -1609,7 +1609,7 @@ c
       real*8 function psp_ion_core()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
 *     *** local variables ***
@@ -1647,7 +1647,7 @@ c
       integer    ispin,ne(2)
       complex*16 psi1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1792,7 +1792,7 @@ c
       integer    ispin,ne(2)
       complex*16 psi1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1941,7 +1941,7 @@ c
       integer    ispin,ne(2)
       complex*16 psi1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -2146,7 +2146,7 @@ c
       implicit none
       integer ispin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -2378,7 +2378,7 @@ c            eh = eh + (e1+e2)*dv
       implicit none
       integer ispin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -2563,7 +2563,7 @@ c     >                         dcpl_mb(vl1(1)),eh)
       complex*16 psi1(*)
       real*8 exc,pxc
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -2802,7 +2802,7 @@ c     >                          l_prj(i),m_prj(i))
       integer    ispin,ne(2)
       complex*16 psi1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -2934,7 +2934,7 @@ c     >                          l_prj(i),m_prj(i))
       implicit none
       integer ispin
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -3118,7 +3118,7 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
       complex*16 dng(*)
       real*8     rho(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -3225,7 +3225,7 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
       integer    ispin,neq(2)
       complex*16 psi1(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -3392,7 +3392,7 @@ c     >                                   dbl_mb(wtmp(1)))
       complex*16 psi1(*)
       real*8 efg(3,3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 

@@ -10,7 +10,7 @@ c     **********************************************
       integer rtdb
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -431,7 +431,7 @@ c     **********************************************
       real*8 kf(*)
       real*8 chi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 
@@ -583,7 +583,7 @@ c      integer nion
 c      character*2 symbols(*)
 c      real*8 rion(3,*)
 c      character*(*) json
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "rtdb.fh"
 c#include "errquit.fh"
 c#include "stdio.fh"

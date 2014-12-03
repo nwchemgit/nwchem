@@ -6,7 +6,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mask_common.fh"
 
       logical value
@@ -25,7 +25,7 @@
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mask_common.fh"
 
 
@@ -132,7 +132,7 @@ c    >                        + i+1
       integer    nb
       complex*16 A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mask_common.fh"
 
 *     **** local variables ****
@@ -159,7 +159,7 @@ c    >                        + i+1
       integer   nb
       real*8    A(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "mask_common.fh"
 
 *     **** local variables ****

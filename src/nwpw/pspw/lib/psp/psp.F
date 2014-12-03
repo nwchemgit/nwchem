@@ -11,7 +11,7 @@
       subroutine psp_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -287,7 +287,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       subroutine psp_proj_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -335,7 +335,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       complex*16 vcin(*)
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       logical  periodic
@@ -359,7 +359,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       complex*16 vcmpout(*)
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       logical  periodic
@@ -383,7 +383,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       complex*16 vall(*)
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       logical  periodic
@@ -413,7 +413,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
 *     **** version4 common block ****
@@ -558,7 +558,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       subroutine psp_prj_indx_init()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -661,7 +661,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer nn
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -701,7 +701,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       subroutine psp_prj_indx_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -737,7 +737,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     **** version4 common block ****
       integer rlocal(2)
@@ -756,7 +756,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_r1 = dbl_mb(r1(1)+ia-1)
@@ -772,7 +772,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_rmax = dbl_mb(rmax(1)+ia-1)
@@ -788,7 +788,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_sigma = dbl_mb(sigma(1)+ia-1)
@@ -804,7 +804,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       integer  indx
@@ -825,7 +825,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_zv = dbl_mb(zv(1)+ia-1)
@@ -842,7 +842,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_zion = dbl_mb(zion(1)+ia-1)
@@ -872,7 +872,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_amass = dbl_mb(amass(1)+ia-1)
@@ -888,7 +888,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       implicit none
       integer i,ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
 c     psp_rc = rc(i,ia)
@@ -936,7 +936,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_lmmax = int_mb(lmmax(1)+ia-1)
@@ -952,7 +952,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_nprj  = int_mb(nprj(1)+ia-1)
@@ -967,7 +967,7 @@ c     psp_rc = rc(i,ia)
       integer function psp_nprj_max()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
 *     **** local variables ****
@@ -995,7 +995,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_psp_type  = int_mb(psp_type(1)+ia-1)
@@ -1012,7 +1012,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_lmax = int_mb(lmax(1)+ia-1)
@@ -1028,7 +1028,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_nmax = int_mb(nmax(1)+ia-1)
@@ -1044,7 +1044,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_locp = int_mb(locp(1)+ia-1)
@@ -1060,7 +1060,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_n1dgrid = int_mb(n1dgrid(1)+ia-1)
@@ -1076,7 +1076,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_n1dbasis = int_mb(n1dbasis(1)+ia-1)
@@ -1092,7 +1092,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_icut = int_mb(icut(1)+ia-1)
@@ -1108,7 +1108,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  i,ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_nae =int_mb(nae(1)+(ia-1)*(nmax_max*lmmax_max)+i-1)
@@ -1124,7 +1124,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  i,ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_nps =int_mb(nps(1)+(ia-1)*(nmax_max*lmmax_max)+i-1)
@@ -1140,7 +1140,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  i,ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       psp_lps =int_mb(lps(1)+(ia-1)*(nmax_max*lmmax_max)+i-1)
@@ -1156,7 +1156,7 @@ c     psp_rc = rc(i,ia)
       implicit none
       integer  i,ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
       integer  indx
@@ -1201,7 +1201,7 @@ c     psp_rc = rc(i,ia)
       real*8  rho(*)
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1409,7 +1409,7 @@ c         fion(3,j) = fion(3,j) - fz*dv
       real*8     r_grid(3,*)
       real*8     vlr_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1559,7 +1559,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
       complex*16 dng(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1693,7 +1693,7 @@ c                end do
       implicit none
       complex*16 vcmp_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1787,7 +1787,7 @@ c                end do
       complex*16 dng(*)
       real*8     fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
@@ -1919,7 +1919,7 @@ c           end do
       logical fractional
       real*8 occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -2205,7 +2205,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       logical fractional
       real*8 occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -2757,7 +2757,7 @@ c                 end do
       logical fractional
       real*8 occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -2824,7 +2824,7 @@ c                 end do
       real*8 occ(*)
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 cccccccccccc#include "frac_occ.fh"
 
@@ -3098,7 +3098,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       logical fractional
       real*8 occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -3411,7 +3411,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       real*8     tmp2(*)
       integer ierr
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "util.fh"
 
 *    *** local variables ***
@@ -3798,7 +3798,7 @@ c       close(11)
       subroutine psp_readall()
       implicit none
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "errquit.fh"
@@ -4068,7 +4068,7 @@ c     logocal semicore(0:nkatmx)
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -4173,7 +4173,7 @@ c     logocal semicore(0:nkatmx)
       implicit none
       integer ia
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
 #include "stdio.fh"

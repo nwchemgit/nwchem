@@ -12,7 +12,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -1087,7 +1087,7 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
       subroutine pspw_2qmmm_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_2qmmm.fh"
 
@@ -1223,7 +1223,7 @@ c     >                  "re=", dbl_mb(shake_ptr+2)
       real*8 function pspw_2qmmm_spring_E()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_2qmmm.fh"
 
@@ -1350,7 +1350,7 @@ c     **** external functions ***
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_2qmmm.fh"
 
@@ -1467,7 +1467,7 @@ c     **** external functions ***
       implicit none
       real*8 r2(3,*),r1(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_2qmmm.fh"
 
@@ -1515,7 +1515,7 @@ c     **** external functions ***
       subroutine pspw_2qmmm_ion_add_constraint()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "pspw_2qmmm.fh"
 

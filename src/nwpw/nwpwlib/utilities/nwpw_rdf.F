@@ -12,7 +12,7 @@ c
       integer rtdb
 
 #include "rtdb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

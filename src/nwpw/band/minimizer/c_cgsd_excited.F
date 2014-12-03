@@ -10,7 +10,7 @@ c     $Id$
       implicit none
 
 c#include "global.fh"
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 

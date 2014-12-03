@@ -11,7 +11,7 @@ c
 #include "errquit.fh"
       character*(*) filename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 
 c     *** parameters ***

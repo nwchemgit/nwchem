@@ -5,7 +5,7 @@ c
       logical function psp_stress_formatter(rtdb)
       implicit none
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
 c

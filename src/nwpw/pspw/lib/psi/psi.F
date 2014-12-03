@@ -264,7 +264,7 @@
       subroutine psi_minimize_f_orb()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       !*** local variables ***
@@ -320,7 +320,7 @@ c     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       logical value
@@ -384,7 +384,7 @@ c     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
       real*8 error_out
       real*8 e0
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -521,7 +521,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       real*8  e0,de0
       complex*16 t(*) !search direction
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     **** local variables ****
@@ -608,7 +608,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       integer ii
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -640,7 +640,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       integer ii
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       integer ms,jj,kk,shift,shifte
@@ -694,7 +694,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       integer ii
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       integer ms,jj,kk,shift,shifte
@@ -744,7 +744,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       subroutine psi_minimize_virtual()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       !*** local variables ***
@@ -797,7 +797,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       logical value
@@ -860,7 +860,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       real*8 error_out
       real*8 e0
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
 #include "util.fh"
@@ -1033,7 +1033,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       real*8  e0,de0
       complex*16 t(*) !search direction
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     **** local variables ****
@@ -1124,7 +1124,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       integer ii
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -1156,7 +1156,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       integer ii
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -1247,7 +1247,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       integer ii
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -1344,7 +1344,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       logical precondition
       real*8 maxerror
         
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
     
 *     **** local variables ****
@@ -1427,7 +1427,7 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       integer i
       real*8 error_out
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -1598,7 +1598,7 @@ c     >           theta
       integer i
       real*8 error_out
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -1750,7 +1750,7 @@ c     >            lambda
       real*8  e0,de0
       complex*16 t(*) !search direction
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     **** local variables ****
@@ -1868,7 +1868,7 @@ c     write(*,*)
       real*8     sigma
       complex*16 tau_t(*) !parallel transported search direction
       
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     **** local variables ****
@@ -1969,7 +1969,7 @@ c     >                  tau_t)
       integer i
       complex*16 orb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     **** local variables ****
@@ -2005,7 +2005,7 @@ c     >                  tau_t)
       integer i
       complex*16 orb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     **** local variables ****
@@ -2041,7 +2041,7 @@ c     >                  tau_t)
       integer i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -2076,7 +2076,7 @@ c     >                  tau_t)
       integer i
       complex*16 Horb(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -2175,7 +2175,7 @@ c     >                  tau_t)
       real*8 rho(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     ***** rhoall common block ****
@@ -2227,7 +2227,7 @@ c     >                  tau_t)
       real*8 rho(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     ***** rhoall common block ****
@@ -2265,7 +2265,7 @@ c     >                  tau_t)
       integer psi_number
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
 *     ***** rhoall common block ****
@@ -2314,7 +2314,7 @@ c     >                  tau_t)
       subroutine psi_1to2()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
       call zcopy(npack1*(neq(1)+neq(2)),
@@ -2333,7 +2333,7 @@ c     >                  tau_t)
       subroutine psi_2to1()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
  
@@ -2354,7 +2354,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine epsi_2to1()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call zcopy(npack1*(ne_excited(1)+ne_excited(2)),
@@ -2372,7 +2372,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine epsi_1to2()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call zcopy(npack1*(ne_excited(1)+ne_excited(2)),
@@ -2392,7 +2392,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
       complex*16 rpsi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
       call zcopy(npack1*(neq(1)+neq(2)),
@@ -2412,7 +2412,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       implicit none
       complex*16 rpsi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
    
       call zcopy(npack1*(neq(1)+neq(2)),
@@ -2430,7 +2430,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine psi_check()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
  
 
@@ -2448,7 +2448,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine rho_2to1()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -2475,7 +2475,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine rho_1to2()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -2502,7 +2502,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine dng_2to1()
       implicit none
  
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
  
       call zcopy(npack0,
@@ -2521,7 +2521,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine psi_1add_oep_to_vall()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
  
@@ -2539,7 +2539,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine psi_1toelectron()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -2564,7 +2564,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       subroutine psi_1genrho()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -2589,7 +2589,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1energy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -2623,7 +2623,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1_noupdate_energy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -2655,7 +2655,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_2energy()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -2691,7 +2691,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1eorbit()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** external functions ****
@@ -2713,7 +2713,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1ke()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ***
@@ -2738,7 +2738,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1ke_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ***
@@ -2762,7 +2762,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1valence_core_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ***
@@ -2788,7 +2788,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1vloc_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ***
@@ -2814,7 +2814,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1ncmp_vloc()
       implicit none
          
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
          
 *     **** local variables ***    
@@ -2840,7 +2840,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1hartree_atom()     
       implicit none
          
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
          
 *     **** local variables ***
@@ -2883,7 +2883,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8 function psi_1hartree_cmp_pw()
       implicit none
          
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
          
 *     **** external functions ****
@@ -2904,7 +2904,7 @@ c*     ***********************************
 c      real*8 function dng_1vlpaw_pw()
 c      implicit none
 c
-c#include "mafdecls.fh"
+c#include "bafdecls.fh"
 c#include "psi.fh"
 c
 c*     **** external functions ****
@@ -2927,7 +2927,7 @@ c      end
       implicit none
       real*8 exc,pxc
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call psp_xc_atom(ispin,neq,dcpl_mb(psi1(1)),exc,pxc)
@@ -2945,7 +2945,7 @@ c      end
       subroutine psi_1qlm_atom()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call  psp_qlm_atom(ispin,neq,dcpl_mb(psi1(1)))
@@ -2963,7 +2963,7 @@ c      end
       real*8 function psi_1vl()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -2987,7 +2987,7 @@ c      end
       real*8 function psi_1vnl()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -3009,7 +3009,7 @@ c      end
       real*8 function psi_1v_field()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -3034,7 +3034,7 @@ c      end
       implicit none
       real*8 Fcharge(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
 
@@ -3097,7 +3097,7 @@ c      end
       real*8 function rho_1exc()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3121,7 +3121,7 @@ c      end
       real*8 function rho_1pxc()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** external functions ****
@@ -3141,7 +3141,7 @@ c      end
       real*8 function psi_1meta_gga_pxc()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** external functions ****
@@ -3162,7 +3162,7 @@ c      end
       real*8 function dng_1ehartree()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** external functions ****
@@ -3195,7 +3195,7 @@ c      end
       subroutine psi_2toelectron()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3229,7 +3229,7 @@ c      end
       complex*16 H(*)
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -3294,7 +3294,7 @@ c      end
       implicit none
       complex*16 H(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
 
@@ -3358,7 +3358,7 @@ c      end
       complex*16 THpsi(*)
       real*8 Eout
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -3422,7 +3422,7 @@ c      end
       complex*16 THpsi(*)
       real*8 Eout
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -3496,7 +3496,7 @@ c      end
       complex*16 THpsi(*)
       real*8 Eout
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -3573,7 +3573,7 @@ c      end
       complex*16 THpsi(*)
       real*8 Eout
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3618,7 +3618,7 @@ c      end
       implicit none
       complex*16 THpsi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
 
@@ -3662,7 +3662,7 @@ c      end
       real*8     Eout
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3723,7 +3723,7 @@ c      end
       complex*16 THpsi(*)
       real*8     Eout
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3766,7 +3766,7 @@ c      end
       implicit none
       complex*16 THpsi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
 
@@ -3813,7 +3813,7 @@ c      end
       real*8 Eout
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3878,7 +3878,7 @@ c      end
       real*8     Eout
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3939,7 +3939,7 @@ c      end
       complex*16 THpsi(*)
       real*8     Eout
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -3983,7 +3983,7 @@ c      end
       complex*16 THpsi(*)
       real*8     Eout
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -4024,7 +4024,7 @@ c      end
       implicit none
       complex*16 Hpsi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -4049,7 +4049,7 @@ c      end
       real*8 t
       complex*16 H0(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -4069,7 +4069,7 @@ c      end
       real*8 t
       complex*16 G0(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call geodesic_Gtransport(t,dcpl_mb(psi1(1)),G0)
@@ -4088,7 +4088,7 @@ c      end
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -4129,7 +4129,7 @@ c      end
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** external functions ****
@@ -4154,7 +4154,7 @@ c      end
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call geodesic_get(t,dcpl_mb(psi1(1)),
@@ -4175,7 +4175,7 @@ c      end
       real*8 max_sigma
       real*8 dE0
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call geodesic2_start(dcpl_mb(psi1(1)),H0,max_sigma,dE0)
@@ -4193,7 +4193,7 @@ c      end
       real*8 t
       complex*16 Hnew(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call geodesic2_transport(t,dcpl_mb(psi1(1)),Hnew)
@@ -4212,7 +4212,7 @@ c      end
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -4258,7 +4258,7 @@ c      end
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** external functions ****
@@ -4283,7 +4283,7 @@ c      end
       implicit none
       real*8 t
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       integer taskid,MASTER
@@ -4308,7 +4308,7 @@ c     real*8 sum1,sum2
       implicit none
       real*8 dte
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
 
@@ -4395,7 +4395,7 @@ c     >                 dbl_mb(tmp_L(1)),ierr)
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -4464,7 +4464,7 @@ c    >                            dcpl_mb(dng1(1)))
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -4518,7 +4518,7 @@ c    >                            dcpl_mb(dng1(1)))
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -4540,7 +4540,7 @@ c    >                            dcpl_mb(dng1(1)))
       implicit none
       real*8 fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -4572,7 +4572,7 @@ c     **** external functions ****
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call ke_euv(ispin,neq,dcpl_mb(psi1(1)),stress)
@@ -4588,7 +4588,7 @@ c     **** external functions ****
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call coulomb_euv(dcpl_mb(dng1(1)),stress)
@@ -4604,7 +4604,7 @@ c     **** external functions ****
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -4689,7 +4689,7 @@ c     **** external functions ****
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** not finished ****
@@ -4712,7 +4712,7 @@ c     **** external functions ****
       real*8 stress(3,3)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call v_local_euv(dcpl_mb(dng1(1)),stress)
@@ -4729,7 +4729,7 @@ c     **** external functions ****
       implicit none
       real*8 stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -4776,7 +4776,7 @@ c     **** external functions ****
       implicit none
       integer iunit
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
@@ -4793,7 +4793,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       complex*16 S0(*)
       complex*16 S0hml(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       integer ms,n,shift1,shift2
@@ -4825,7 +4825,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       subroutine psi_1gen_hml()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -4845,7 +4845,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       subroutine psi_1gen_hml_g()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -4863,7 +4863,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       subroutine psi_2gen_hml()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -4882,7 +4882,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       integer ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       real*8 sum
@@ -4903,7 +4903,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       integer ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       if (occupation_on) then
@@ -4922,7 +4922,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       subroutine psi_1reverse_occupation()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       integer ms,i,indx1,indx2
@@ -4950,7 +4950,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       implicit none
       logical initial
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -5161,7 +5161,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       integer ms
       integer i
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       psi_virtual=dbl_mb(eig_excited(1)+(i-1)+(ms-1)*ne_excited(1))
@@ -5179,7 +5179,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       integer ms
       integer i,j
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       psi_hml = dbl_mb(hml(1)-1 + i 
@@ -5200,7 +5200,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       integer ms
       integer i,j
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       psi_iptr_hml = (hml(1)-1 + i
@@ -5220,7 +5220,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       implicit none
       real*8 en(2)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -5257,7 +5257,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       implicit none
       real*8 Sab
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call Calculate_psi_spin2(ispin,ne,npack1,dcpl_mb(psi1(1)),
@@ -5273,7 +5273,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       subroutine psi_1rotate2()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 c*     ***** local variables *****
@@ -5324,7 +5324,7 @@ c      end do
       subroutine psi_2rotate1()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 c*     ***** local variables *****
@@ -5361,7 +5361,7 @@ c      end do
       subroutine psi_diagonalize_hml()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -5422,7 +5422,7 @@ c     &       MA_ERR)
       subroutine psi_diagonalize_hml_assending()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -5477,7 +5477,7 @@ c     >     MA_ERR)
       implicit none
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** local variables ****
@@ -5524,7 +5524,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** local variables ****
@@ -5680,7 +5680,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
       logical virtual
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -5730,7 +5730,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       subroutine psi_ab_kill_irrep_names()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       integer irreps(2)
@@ -5762,7 +5762,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
       integer n
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
       integer irreps(2)
       common / ab_irrep / irreps
@@ -5795,7 +5795,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
       real*8 dipole(3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call Calculate_Dipole(ispin,ne,2*nfft3d,dbl_mb(rho1(1)),dipole)
@@ -5811,7 +5811,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       integer function psi_ispin()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       psi_ispin = ispin
@@ -5828,7 +5828,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
       integer ms
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       psi_ne = ne(ms)
@@ -5844,7 +5844,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
       integer ms
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       psi_neq = neq(ms)
@@ -5861,7 +5861,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       subroutine psi_cpmd_start()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -5883,7 +5883,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       subroutine psi_cpmd_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -5902,7 +5902,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       implicit none
       real*8 dte
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -5967,7 +5967,7 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
       implicit none 
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -6224,7 +6224,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       subroutine psi_tmp_write()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** write psi1 wavefunctions ****
@@ -6247,7 +6247,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       logical wpsi
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 *     ***** rhoall common block ****
@@ -6304,7 +6304,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       implicit none
       integer ms
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       psi_ne_excited = ne_excited(ms)
@@ -6321,7 +6321,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       implicit none 
 #include "errquit.fh"
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "psi.fh"
 
@@ -6484,7 +6484,7 @@ c      end if
       implicit none 
       logical writepsi
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -6516,7 +6516,7 @@ c      end if
       implicit none 
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
 
@@ -6553,7 +6553,7 @@ c      end if
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 
       call pspw_analysis(1,rtdb,ispin,ne_excited,
@@ -6576,7 +6576,7 @@ c      end if
       integer rtdb
 
 #include "rtdb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
 
@@ -6657,7 +6657,7 @@ c      end if
       integer rtdb
 
 #include "rtdb.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
 
@@ -6734,7 +6734,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine psi_polariz()
       implicit none
 #include "psi.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
       integer psirx(2),asize
@@ -6758,7 +6758,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       real*8 vnm(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -6880,7 +6880,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       real*8 pressure,p1,p2,stress(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 
@@ -6919,7 +6919,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer rtdb
 
 #include "stdio.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
 

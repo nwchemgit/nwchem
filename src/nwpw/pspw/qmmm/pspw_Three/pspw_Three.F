@@ -11,7 +11,7 @@ c
       implicit none
       integer rtdb
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "pspw_Three.fh"
 #include "stdio.fh"
@@ -174,7 +174,7 @@ c
       subroutine pspw_Three_end()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_Three.fh"
 #include "errquit.fh"
 
@@ -266,7 +266,7 @@ c     *************************************
       real*8  rcell(nshl3d,3)
       real*8  rion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_Three.fh"
 
 *     **** local variables ****
@@ -703,7 +703,7 @@ c     *************************************
       real*8  rion(3,*)
       real*8  fion(3,*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "pspw_Pair.fh"
 
 *     **** local variables ****

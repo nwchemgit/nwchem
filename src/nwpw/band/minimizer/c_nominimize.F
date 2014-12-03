@@ -6,7 +6,7 @@ c
       implicit none
       real*8     E(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

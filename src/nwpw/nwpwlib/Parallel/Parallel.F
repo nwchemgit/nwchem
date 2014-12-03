@@ -22,7 +22,7 @@
       implicit none
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef USE_SUBGROUPS
@@ -154,7 +154,7 @@
       integer i
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       Parallel2d_convert_taskid_i = int_mb(procNd(1)
@@ -174,7 +174,7 @@
       integer j
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       Parallel2d_convert_taskid_j = int_mb(procNd(1)
@@ -197,7 +197,7 @@
       integer i,j
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       Parallel2d_convert_taskid_ij = int_mb(procNd(1)+i+j*np_i 
@@ -341,7 +341,7 @@
       integer i
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       Parallel3d_convert_taskid_i = int_mb(procNd(1)
@@ -361,7 +361,7 @@
       integer j
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       Parallel3d_convert_taskid_j = int_mb(procNd(1)
@@ -381,7 +381,7 @@
       integer k
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       Parallel3d_convert_taskid_k = int_mb(procNd(1)
@@ -403,7 +403,7 @@
       integer i,j,k
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       Parallel3d_convert_taskid_ijk = int_mb(procNd(1)

@@ -52,7 +52,7 @@
       logical fractional
       real*8  occ(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -333,7 +333,7 @@ c     >                         dcpl_mb(vpsi(1)))
       real*8     orb_r(*)
       complex*16 Horb_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -503,7 +503,7 @@ c     >                      dcpl_mb(vpsi(1)))
       real*8     orb_r(*)
       complex*16 Horb_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -683,7 +683,7 @@ c     >                      dcpl_mb(vpsi(1)))
       logical    field_exist
       complex*16 Hpsi_k(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****

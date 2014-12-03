@@ -33,7 +33,7 @@
       logical fractional
       real*8 occ0(*),occ1(*),occ2(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 ccccccc#include "frac_occ.fh"
 

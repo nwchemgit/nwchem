@@ -12,7 +12,7 @@ c
       character*(*) motionfilename
       character*(*) xyzfilename
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
 

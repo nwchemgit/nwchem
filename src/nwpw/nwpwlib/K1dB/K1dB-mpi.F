@@ -179,7 +179,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "K1dB.fh"
 
@@ -236,7 +236,7 @@ c     implicit none
       integer  sum(*)
 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "K1dB.fh"
 

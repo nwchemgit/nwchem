@@ -4,7 +4,7 @@
       subroutine c_coulomb_init()
       implicit none 
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_coulomb_common.fh"
 
 *     **** local variables ****
@@ -81,7 +81,7 @@ c    >     + i+1
 
       subroutine c_coulomb_end()
       implicit none
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_coulomb_common.fh"
 
       logical value
@@ -96,7 +96,7 @@ c    >     + i+1
       complex*16 dng(*)
       complex*16 vc_out(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_coulomb_common.fh"
 
       call nwpw_timing_start(7)
@@ -114,7 +114,7 @@ c    >     + i+1
       implicit none
       complex*16 dng(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "c_coulomb_common.fh"
 
 *     **** local variables ****
@@ -158,7 +158,7 @@ c     real*8  tmp1(*)
       complex*16 dng(*)
       real*8 euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "c_coulomb_common.fh"
 

@@ -29,7 +29,7 @@
       integer np,taskid,MASTER
       parameter (MASTER=0)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 
 *     *** local variables ****
       integer lcount,task_count,nfft3d

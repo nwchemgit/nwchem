@@ -21,7 +21,7 @@
       implicit none
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #include "tcgmsg.fh"
@@ -150,7 +150,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       integer ncolumns
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef MPI4
@@ -256,7 +256,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       implicit none
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef MPI4
@@ -306,7 +306,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       integer ncolumns,nzones
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef MPI4
@@ -448,7 +448,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       implicit none
 
 #include "Parallel.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
 #ifdef MPI4
@@ -663,7 +663,7 @@ c     implicit none
       integer n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Parallel.fh"
 
@@ -721,7 +721,7 @@ c     implicit none
       integer n
       integer  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Parallel.fh"
 
@@ -919,7 +919,7 @@ c     implicit none
       integer psend,nsize
       integer isum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Parallel.fh"
 
@@ -1001,7 +1001,7 @@ c     implicit none
       implicit none
       integer nreq,req(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "mpif.h"
 #include "Parallel.fh"
@@ -1266,7 +1266,7 @@ c     implicit none
       integer ic,n
       real*8  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Parallel.fh"
 
@@ -1331,7 +1331,7 @@ c     implicit none
       integer ic,n
       integer  sum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Parallel.fh"
 
@@ -1550,7 +1550,7 @@ c     implicit none
       integer ic,psend,nsize
       integer isum(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Parallel.fh"
 
@@ -1617,7 +1617,7 @@ c     implicit none
       integer nsize2
       integer request(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Parallel.fh"
 
@@ -1746,7 +1746,7 @@ c     implicit none
       integer nsize2
       integer request(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 #include "Parallel.fh"
 
@@ -1939,7 +1939,7 @@ c     implicit none
 #endif
 
 #ifdef MPI4
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       logical value
@@ -2018,7 +2018,7 @@ c     implicit none
 #include "stupid_mpi4.fh"
 #endif
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       logical value
@@ -2065,7 +2065,7 @@ c     implicit none
 #include "stupid_mpi4.fh"
 #endif
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       logical value
@@ -2123,7 +2123,7 @@ c     implicit none
 #include "stupid_mpi4.fh"
 #endif
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "errquit.fh"
 
       logical value

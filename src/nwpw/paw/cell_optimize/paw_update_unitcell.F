@@ -5,7 +5,7 @@
       implicit none
       integer rtdb
  
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 

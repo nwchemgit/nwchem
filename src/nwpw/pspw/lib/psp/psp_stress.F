@@ -14,7 +14,7 @@
       subroutine psp_stress_init()      
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -56,7 +56,7 @@
       implicit none
 
 #include "errquit.fh"
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 
 
@@ -83,7 +83,7 @@
       complex*16 dng(*)
       real*8     euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -242,7 +242,7 @@ c     >                     dbl_mb(tmp2(1)))
       complex*16 psi1(*)
       real*8 euv(3,3)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "psp.fh"
 #include "errquit.fh"
 
@@ -622,7 +622,7 @@ c       close(11)
       subroutine psp_stress_readall()
       implicit none
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "errquit.fh"      

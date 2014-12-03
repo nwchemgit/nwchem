@@ -22,7 +22,7 @@
       integer      psimatrix(*)
       complex*16    phi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "util.fh"
 #include "errquit.fh"
@@ -134,7 +134,7 @@
       integer      psimatrix(*)
       complex*16    phi(*)
 
-#include "mafdecls.fh"
+#include "bafdecls.fh"
 #include "global.fh"
 #include "util.fh"
 #include "errquit.fh"
