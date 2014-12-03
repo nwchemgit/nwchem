@@ -13,3 +13,8 @@
       logical  BA_pop_stack
       external BA_pop_stack
 
+      logical  BA_get_index
+      external BA_get_index
+
+      logical  BA_set_auto_verify
+      external BA_set_auto_verify
