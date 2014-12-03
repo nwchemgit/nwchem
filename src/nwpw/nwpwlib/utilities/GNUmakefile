@@ -42,7 +42,7 @@
 		nwpw_talker.o \
 		nwpw_expression.o \
 		nwpw_emachine.o \
-		BA_memory.o
+		BA_memory.o btdb.o
 
 	  OBJ = 
 
@@ -52,7 +52,7 @@
 
   LIB_DEFINES = 
 
-   HEADERS = bafdecls.fh
+   HEADERS = bafdecls.fh btdb.fh
 
 
 

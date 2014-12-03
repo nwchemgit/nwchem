@@ -1,0 +1,8 @@
+
+#include "rtdb.fh"
+
+      logical  btdb_get
+      external btdb_get
+
+      logical  btdb_put
+      external btdb_put
