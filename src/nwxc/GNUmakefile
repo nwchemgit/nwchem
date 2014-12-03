@@ -5,7 +5,8 @@
     OBJ_OPTIMIZE = nwxc.o nwxcm_eval.o nwxc_eval_print.o \
                    nwxc_vdw_main.o nwxc_vdw_e.o nwxc_vdw_der.o nwxc_vdw_hess.o \
                    nwxc_vdw_util.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o \
-                   nwxc_fnc_print.o nwxcm_heaviside.o
+                   nwxcm_heaviside.o
+                   #nwxc_fnc_print.o nwxcm_heaviside.o
 #   OBJ_OPTIMIZE = nwad.o nwxc_eval.o nwxc_x_att.o nwxc_x_b88.o nwxc_x_bnl.o \
 #                  nwxc_x_camb88.o nwxc_x_camlsd.o nwxc_x_campbe.o nwxc_x_camrpbe.o nwxc_x_cams12.o \
 #                  nwxc_x_dirac.o nwxc_x_gill.o nwxc_x_hse08.o nwxc_x_ft97.o nwxc_x_m05.o nwxc_x_m06.o \
