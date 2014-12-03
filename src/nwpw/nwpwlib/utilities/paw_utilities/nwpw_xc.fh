@@ -98,38 +98,15 @@ c $Id$
       integer nindx_rholm(2)
       integer shift_rholm(2)
       integer coeff_rholm(2)
+      integer coeff_rholm2(2)
+      integer coeff_rholm3(2)
       integer bi_rholm(2)
       integer bj_rholm(2)
       integer iprj_rholm(2)
       integer jprj_rholm(2)
       integer lm_rholm(2)
       common /nwpw_xc_rholm_data/ nindx_rholm,shift_rholm,
-     >                            coeff_rholm,
+     >                            coeff_rholm,coeff_rholm2,coeff_rholm3,
      >                            bi_rholm,bj_rholm,
      >                            iprj_rholm,jprj_rholm,lm_rholm
 
-      integer nindx_2rholm(2)
-      integer shift_2rholm(2)
-      integer coeff_2rholm(2)
-      integer bi_2rholm(2)
-      integer bj_2rholm(2)
-      integer iprj_2rholm(2)
-      integer jprj_2rholm(2)
-      integer lm_2rholm(2)
-      common /nwpw_xc_2rholm_data/ nindx_2rholm,shift_2rholm,
-     >                             coeff_2rholm,
-     >                             bi_2rholm,bj_2rholm,
-     >                             iprj_2rholm,jprj_2rholm,lm_2rholm
-
-      integer nindx_3rholm(2)
-      integer shift_3rholm(2)
-      integer coeff_3rholm(2)
-      integer bi_3rholm(2)
-      integer bj_3rholm(2)
-      integer iprj_3rholm(2)
-      integer jprj_3rholm(2)
-      integer lm_3rholm(2)
-      common /nwpw_xc_3rholm_data/ nindx_3rholm,shift_3rholm,
-     >                             coeff_3rholm,
-     >                             bi_3rholm,bj_3rholm,
-     >                             iprj_3rholm,jprj_3rholm,lm_3rholm

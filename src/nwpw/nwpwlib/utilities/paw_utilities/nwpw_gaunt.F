@@ -1887,6 +1887,7 @@ c      double precision theta_lm !*RESULT*
       integer i,mod_m
       double precision p_mm,p_mp1m,tmp,fact,coeff
  
+      tmp = 0.0d0
       mod_m = abs(m)
       if (abs(x).gt.1) write(*,*)'parameter ot of range in legendre_lm'
  
@@ -2017,6 +2018,7 @@ c      end if
       DOUBLE PRECISION FACT
       DOUBLE PRECISION COEFF
  
+      TMP=0.0d0
       MOD_M = ABS(M)
       IF (ABS(X) .GT. 1) CALL errquit(
      1   'parameter ot of range in legendre_lm',0,0)

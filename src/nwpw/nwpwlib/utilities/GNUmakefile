@@ -41,7 +41,8 @@
 		nwpw_kbpp_ray.o \
 		nwpw_talker.o \
 		nwpw_expression.o \
-		nwpw_emachine.o
+		nwpw_emachine.o \
+		BA_memory.o
 
 	  OBJ = 
 
