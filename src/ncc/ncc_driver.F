@@ -46,7 +46,7 @@ c      double precision thresh                                  c
 c      character*20 method                                      c
 c                                                               c
 c      I am using common variables to pass from this routine    c
-c      into the NCC module so that I don't have to use the      c
+c      into the NCC module so that I do not have to use the     c
 c      RTDB since that would involve disk access.               c
 c                                                               c
 c===============================================================c
