@@ -543,7 +543,7 @@ c      g_objv, Djka(1+(k-klo)*nvir), nbh_objv4(k)
 c      g_objv, Djia, nbh_objv5
 c
 c       just do waits since it is unlikely that these get calls
-c       won't finish during the time that ccsd_do... is running
+c       will not finish during the time that ccsd_do... is running
 c
                         call ga_nbwait(nbh_objv1)
                         !do k = klo, khi
