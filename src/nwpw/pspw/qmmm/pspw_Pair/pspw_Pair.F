@@ -49,10 +49,10 @@ c
       value = rtdb_parallel(.true.)
 
 *     **** allocate and read in LJ atom parameters ***
-      value = MA_Push_get(mt_dbl,nkatm,
+      value = BA_push_get(mt_dbl,nkatm,
      >                 'sigma_atom',sigma_atom(2),sigma_atom(1))
       value = value.and.
-     >        MA_Push_get(mt_dbl,nkatm,
+     >        BA_push_get(mt_dbl,nkatm,
      >                 'epsilon_atom',epsilon_atom(2),epsilon_atom(1))
       if (.not. value) 
      >   call errquit('pspw_Pair_init:out of stack memory',0,MA_ERR)
@@ -297,8 +297,8 @@ c
       end if !*** npairs.gt.0 ****
 
 *     **** deallocate memory for LJ atom data ****
-      value =           MA_Pop_stack(epsilon_atom(2))
-      value = value.and.MA_Pop_stack(sigma_atom(2))
+      value =           BA_pop_stack(epsilon_atom(2))
+      value = value.and.BA_pop_stack(sigma_atom(2))
       if (.not. value) 
      >   call errquit('pspw_Pair_init:popping stack',3,MA_ERR)
 

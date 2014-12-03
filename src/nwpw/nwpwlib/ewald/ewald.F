@@ -1158,7 +1158,7 @@ c      end do
 
          value =           BA_pop_stack(tmp2(2))
          value = value.and.BA_pop_stack(tmp1(2))
-         value = value.and.MA_Pop_stack(H(2))
+         value = value.and.BA_pop_stack(H(2))
          if (.not.value) 
      >    call errquit(
      >         'ewald_stress:error popping stack memory',0,MA_ERR)
@@ -1725,7 +1725,7 @@ c      end do
 
          value =           BA_pop_stack(tmp2(2))
          value = value.and.BA_pop_stack(tmp1(2))
-         value = value.and.MA_Pop_stack(H(2))
+         value = value.and.BA_pop_stack(H(2))
          if (.not.value) 
      >    call errquit(
      >         'ewald_stress:error popping stack memory',0,MA_ERR)
@@ -2289,7 +2289,7 @@ c      end do
 
          value =           BA_pop_stack(tmp2(2))
          value = value.and.BA_pop_stack(tmp1(2))
-         value = value.and.MA_Pop_stack(H(2))
+         value = value.and.BA_pop_stack(H(2))
          if (.not.value) 
      >    call errquit(
      >         'ewald_stress:error popping stack memory',0,MA_ERR)

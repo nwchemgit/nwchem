@@ -383,7 +383,7 @@
 
 
 *     **** allocate paw data structure and read in paw basis into it ****
-c      value = MA_set_auto_verify(.true.)
+c      value = BA_set_auto_verify(.true.)
       call init_paw_basis()
 
 *     *** initialize paw matrices ***      

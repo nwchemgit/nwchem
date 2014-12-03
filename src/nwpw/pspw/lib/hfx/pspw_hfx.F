@@ -57,7 +57,7 @@
       else if (rtdb_ma_get(rtdb, 'pspw:HFX_up_orbitals', ma_type,
      >                norbs(1), orbital_list(2,1))) then
 
-            if (.not.MA_get_index(orbital_list(2,1),orbital_list(1,1))) 
+            if (.not.BA_get_index(orbital_list(2,1),orbital_list(1,1))) 
      >        call errquit(
      >       'pspw_init_HFX: ma_get_index failed for actlist',911,
      >        MA_ERR)
@@ -65,7 +65,7 @@
          if (rtdb_ma_get(rtdb, 'pspw:HFX_down_orbitals', ma_type,
      >                norbs(2), orbital_list(2,2))) then
 
-           if (.not.MA_get_index(orbital_list(2,2),orbital_list(1,2))) 
+           if (.not.BA_get_index(orbital_list(2,2),orbital_list(1,2))) 
      >        call errquit(
      >       'pspw_init_HFX: ma_get_index failed for actlist',911,
      >         MA_ERR)

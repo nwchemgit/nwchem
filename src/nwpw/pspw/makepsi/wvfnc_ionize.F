@@ -57,7 +57,7 @@
       if (rtdb_ma_get(rtdb, 'ionize:up_orbitals', ma_type,
      >                norbs_up, up_orbital_list(2))) then
 
-         if (.not.MA_get_index(up_orbital_list(2),up_orbital_list(1)))
+         if (.not.BA_get_index(up_orbital_list(2),up_orbital_list(1)))
      >      call errquit(
      >       'wvfnc_ionize: ma_get_index failed for actlist',911,
      &       MA_ERR)
@@ -65,7 +65,7 @@
       if (rtdb_ma_get(rtdb, 'ionize:dn_orbitals', ma_type,
      >                norbs_dn, dn_orbital_list(2))) then
 
-         if (.not.MA_get_index(dn_orbital_list(2),dn_orbital_list(1)))
+         if (.not.BA_get_index(dn_orbital_list(2),dn_orbital_list(1)))
      >      call errquit(
      >       'wvfnc_ionize: ma_get_index failed for actlist',911,
      &       MA_ERR)

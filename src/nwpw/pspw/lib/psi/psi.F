@@ -6740,12 +6740,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer psirx(2),asize
       logical val
       asize=(ne(1)+ne(2))*nfft3d*2
-      val=MA_PUSH_GET(mt_dbl,asize,"psir",psirx(2),psirx(1))
+      val=BA_push_get(mt_dbl,asize,"psir",psirx(2),psirx(1))
       if (.not.val) then
         call errquit("psi_polariz stack empty",0,0)
       end if
       call berry_phase_pol(psi2,psirx)
-      val=MA_POP_STACK(psirx(2))
+      val=BA_pop_stack(psirx(2))
       if (.not.val) then
         call errquit("psi_polariz failed pop stack",0,0)
       end if

@@ -760,7 +760,7 @@ c     ss = -1.0d0/lattice_omega()
       value = value.and.BA_pop_stack(tmp2(2))
       value = value.and.BA_pop_stack(tmp1(2))
       value = value.and.BA_pop_stack(F(2))
-      value = value.and.MA_Pop_stack(H(2))
+      value = value.and.BA_pop_stack(H(2))
       if (.not. value) 
      > call errquit('c_ewald_stress:error popping stack',0,MA_ERR)
 

@@ -74,7 +74,7 @@
       else if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
      >        nactive_atoms, h_actlist)) then
 
-         if (.not.MA_get_index(h_actlist,l_actlist)) 
+         if (.not.BA_get_index(h_actlist,l_actlist)) 
      >      call errquit(
      >       'ion_init_FixIon: ma_get_index failed for actlist',911,
      &       MA_ERR)
@@ -128,7 +128,7 @@
       else if (rtdb_ma_get(rtdb, 'nwpw:actlist', ma_type,
      >        nactive_atoms, h_actlist)) then
 
-         if (.not.MA_get_index(h_actlist,l_actlist))
+         if (.not.BA_get_index(h_actlist,l_actlist))
      >      call errquit(
      >       'ion_init_FixIon: ma_get_index failed for actlist',911,
      &       MA_ERR)
@@ -198,7 +198,7 @@
       if (rtdb_ma_get(rtdb, 'nwpw:zfreezelist', ma_type,
      >        nconstraints, h_actlist)) then
 
-         if (.not.MA_get_index(h_actlist,l_actlist))
+         if (.not.BA_get_index(h_actlist,l_actlist))
      >      call errquit(
      >       'ion_init_FixIon: ma_get_index failed for actlist',911,
      >       MA_ERR)
@@ -235,7 +235,7 @@
       if (rtdb_ma_get(rtdb, 'geometry:inversionlist', ma_type,
      >        nconstraints, h_actlist)) then
 
-         if (.not.MA_get_index(h_actlist,l_actlist))
+         if (.not.BA_get_index(h_actlist,l_actlist))
      >      call errquit(
      >       'ion_init_FixIon: ma_get_index failed for actlist',911,
      &       MA_ERR)

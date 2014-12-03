@@ -5220,7 +5220,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             rtdb_name = 'nwpw:pspspin_upions:'//c_index_name(ip)
             if (rtdb_ma_get(rtdb,rtdb_name, ma_type,
      >                nactive_atoms, h_actlist)) then
-               if (.not.MA_get_index(h_actlist,l_actlist))
+               if (.not.BA_get_index(h_actlist,l_actlist))
      >            call errquit(
      >             'control_set_pspspin: ma_get_index failed',0,
      >             MA_ERR)
@@ -5261,7 +5261,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             rtdb_name = 'nwpw:pspspin_downions:'//c_index_name(ip)
             if (rtdb_ma_get(rtdb,rtdb_name,ma_type,
      >                      nactive_atoms,h_actlist)) then
-               if (.not.MA_get_index(h_actlist,l_actlist))
+               if (.not.BA_get_index(h_actlist,l_actlist))
      >            call errquit(
      >             'control_set_pspspin: ma_get_index failed',1,
      >             MA_ERR)
@@ -5399,7 +5399,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
           rtdb_name = 'nwpw:uterm_ions:'//c_index_name(nu)
          if (rtdb_ma_get(rtdb, rtdb_name,ma_type,
      >                   nactive_atoms, h_actlist)) then
-            if (.not.MA_get_index(h_actlist,l_actlist))
+            if (.not.BA_get_index(h_actlist,l_actlist))
      >         call errquit(
      >          'control_set_psputerm: ma_get_index failed',0,
      >          MA_ERR)

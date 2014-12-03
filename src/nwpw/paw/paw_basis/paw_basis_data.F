@@ -35,7 +35,7 @@
         tot_ngrid      = tot_ngrid     + ng(it)
       end do
 
-c      ok = MA_set_auto_verify(.TRUE.)
+c      ok = BA_set_auto_verify(.TRUE.)
 
       ok = .TRUE.
 

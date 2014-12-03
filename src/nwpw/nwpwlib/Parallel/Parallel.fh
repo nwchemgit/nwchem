@@ -18,3 +18,8 @@
      >                      comm_i,  comm_j,  comm_k,
      >                      group_i, group_j, group_k
 
+#ifdef USE_OPENMP
+      integer threadid,nthreads
+      common / parallel_omp / threadid,nthreads
+!$OMP THREADPRIVATE(/ parallel_omp /)
+#endif

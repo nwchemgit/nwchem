@@ -24,7 +24,7 @@ ccccc external ccccccccccccccccccccccccccc
       external ion_katm,ion_nion
       external ion_rion,psp_zv,lattice_unitg,lattice_omega
 cccccccccccccccccccccccccccccccccccccccccc
-c      VAL=MA_SET_AUTO_VERIFY(.TRUE.)
+c      VAL=BA_set_auto_verify(.TRUE.)
 ccccccccccccccccccccccccccccccccccccccccccc
       call Pack_npack(1,npack1)
       call D3db_nfft3d(1,nfft3d)

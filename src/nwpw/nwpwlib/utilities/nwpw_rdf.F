@@ -42,8 +42,8 @@ c
      >  rtdb_ma_get(rtdb,'nwpw:rdf_index2_atoms',ma2,n2,indx2(2))
      >   ) then
          
-        value =           MA_get_index(indx1(2),indx1(1))
-        value = value.and.MA_get_index(indx2(2),indx2(1))
+        value =           BA_get_index(indx1(2),indx1(1))
+        value = value.and.BA_get_index(indx2(2),indx2(1))
         if (.not.value) 
      >  call errquit('nwpw_rdf:error allocatin heap',0,MA_ERR)
 

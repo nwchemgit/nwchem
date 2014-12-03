@@ -601,7 +601,7 @@ c              END DO
       if (rtdb_ma_get(rtdb, 'nwpw:dos:actlist', ma_type,
      >        nactive_atoms, h_actlist)) then
 
-         if (.not.MA_get_index(h_actlist,l_actlist))
+         if (.not.BA_get_index(h_actlist,l_actlist))
      >      call errquit(
      >       'analysis: ma_get_index failed for actlist',911,
      &       MA_ERR)
@@ -1057,7 +1057,7 @@ c              END DO
       if (rtdb_ma_get(rtdb, 'nwpw:dos:actlist', ma_type,
      >        nactive_atoms, h_actlist)) then
 
-         if (.not.MA_get_index(h_actlist,l_actlist))
+         if (.not.BA_get_index(h_actlist,l_actlist))
      >      call errquit(
      >       'analysis: ma_get_index failed for actlist',911,
      &       MA_ERR)

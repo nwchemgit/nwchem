@@ -67,9 +67,9 @@
       external ddot
 
 
-      value = MA_Push_get(mt_dbl,nsize,'dx_ptr',dx_mptr,dx_ptr)
+      value = BA_push_get(mt_dbl,nsize,'dx_ptr',dx_mptr,dx_ptr)
       value = value.and.
-     >        MA_Push_get(mt_dbl,nsize,'df_ptr',df_mptr,df_ptr)
+     >        BA_push_get(mt_dbl,nsize,'df_ptr',df_mptr,df_ptr)
       if (.not. value) call errquit('nwpw_kain:push stack',0,0)
 
 
@@ -147,8 +147,8 @@
       end if
       call nwpw_list_store(1,2*m,rho_in)
      
-      value =           MA_Pop_stack(df_mptr)
-      value = value.and.MA_Pop_stack(dx_mptr)
+      value =           BA_pop_stack(df_mptr)
+      value = value.and.BA_pop_stack(dx_mptr)
       if (.not. value) call errquit('nwpw_kain:pop stack',0,0)
       return 
       end

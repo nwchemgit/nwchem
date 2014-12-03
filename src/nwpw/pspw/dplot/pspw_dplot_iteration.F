@@ -27,7 +27,7 @@
      >        iteration_count, iteration(2))) then
         exist = .true.
 
-         if (.not.MA_get_index(iteration(2),iteration(1)))
+         if (.not.BA_get_index(iteration(2),iteration(1)))
      >      call errquit(
      >       'pspw_dplot_iteration_init: ma_get_index failed',0, MA_ERR)
       else

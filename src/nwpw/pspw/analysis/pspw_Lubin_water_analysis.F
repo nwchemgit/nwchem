@@ -33,7 +33,7 @@ c
      >     'pspw_Lubin_Water_analysis: atoms not multiple of 3',911,
      &       INPUT_ERR)
 
-         if (.not.MA_get_index(h_actlist,l_actlist))
+         if (.not.BA_get_index(h_actlist,l_actlist))
      >   call errquit(
      >     'pspw_Lubin_Water_analysis: ma_get_index failed',911, MA_ERR)
 

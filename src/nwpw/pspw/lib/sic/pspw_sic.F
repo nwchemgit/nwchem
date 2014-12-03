@@ -58,7 +58,7 @@
       else if (rtdb_ma_get(rtdb, 'pspw:SIC_orbitals', ma_type,
      >                norbs_all, orbital_list_all(2))) then
 
-         if (.not.MA_get_index(orbital_list_all(2),orbital_list_all(1)))
+         if (.not.BA_get_index(orbital_list_all(2),orbital_list_all(1)))
      >      call errquit(
      >      'pspw_init_SIC: ma_get_index failed for actlist',911,MA_ERR)
 
