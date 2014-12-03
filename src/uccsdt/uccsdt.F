@@ -377,7 +377,7 @@ c
      $     call errquit('mp2_energy: ga_create failed',0, GA_ERR)
 
 c
-c     Let the user know what's going on
+c     Let the user know what is going on
 c
       call sym_group_name(geom, group)
       if (ga_nodeid().eq.0 .and. 
@@ -759,7 +759,7 @@ c
                               call dfill (lenwbuf, 0.0d0, 
      $                                    dbl_mb(k_wbuf),1)
 c     
-c     Now that we are testing on sym(ijkabc) above we don't
+c     Now that we are testing on sym(ijkabc) above we do not
 c     need to test on esym.eq.test_sym below
 c
                               spine = spin
@@ -1677,7 +1677,7 @@ c     .  arrays by sub-block indices
 c     3. Allocation of the global arrays themselves
 c
 c     if (odryrun) then
-c     .  don't allocate memory but return the maximum amount
+c     .  do not allocate memory but return the maximum amount
 c     .  of MA and GA allocated in this call tree (in doubles)
 c     endif
 c
@@ -2293,7 +2293,7 @@ c     hot spts.  Also, eventually the lists must store double precision
 c     pointers to use the long GA interface for > 16 GB arrays.
 c
 c     If (odryrun) then
-c     .   don't actually make the pointer array ... just compute
+c     .   do not actually make the pointer array ... just compute
 c     .   the size of the GA
 c     endif
 c
@@ -2356,7 +2356,7 @@ c     THESE POINTER LISTS GET TOO BIG ... NEED TO REDUCE TO JUST
 C     LAST 3 BLOCK DIMENSIONS AND USE LOGIC TO FIGURE OUT FIRST.
 c
 c     If (odryrun) then
-c     .   don't actually make the pointer array ... just compute
+c     .   do not actually make the pointer array ... just compute
 c     .   the size of the GA
 c     endif
 c
