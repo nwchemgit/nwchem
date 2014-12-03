@@ -52,6 +52,9 @@
 
   LIB_DEFINES = 
 
+   HEADERS = bafdecls.fh
+
+
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h

@@ -1,0 +1,18 @@
+#ifndef _BAFDECLS_FH_
+#define _BAFDECLS_FH_
+
+#include "mafdecls.fh"
+
+      logical  BA_alloc_get
+      external BA_alloc_get
+
+      logical  BA_free_heap
+      external BA_free_heap
+
+      logical  BA_push_get
+      external BA_push_get
+
+      logical  BA_pop_stack
+      external BA_pop_stack
+
+#endif
