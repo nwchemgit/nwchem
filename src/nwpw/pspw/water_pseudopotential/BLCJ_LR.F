@@ -13,7 +13,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 * *** parameters ****
 #include "waterpsp_param.fh"
@@ -24,28 +24,28 @@
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      value = rtdb_get(rtdb,'water_pseudopotential:DELTA',
+      value = btdb_get(rtdb,'water_pseudopotential:DELTA',
      >                 mt_dbl,1,DELTA)
       value = value.and.
-     >        rtdb_get(rtdb,'water_pseudopotential:Rcoul',
+     >        btdb_get(rtdb,'water_pseudopotential:Rcoul',
      >                 mt_dbl,1,Rcoul)
       value = value.and.
-     >        rtdb_get(rtdb,'water_pseudopotential:q1',
+     >        btdb_get(rtdb,'water_pseudopotential:q1',
      >                 mt_dbl,1,q1)
       value = value.and.
-     >        rtdb_get(rtdb,'water_pseudopotential:q2',
+     >        btdb_get(rtdb,'water_pseudopotential:q2',
      >                 mt_dbl,1,q2)
       value = value.and.
-     >        rtdb_get(rtdb,'water_pseudopotential:q3',
+     >        btdb_get(rtdb,'water_pseudopotential:q3',
      >                 mt_dbl,1,q3)
       value = value.and.
-     >        rtdb_get(rtdb,'water_pseudopotential:Rp',
+     >        btdb_get(rtdb,'water_pseudopotential:Rp',
      >                 mt_dbl,1,Rp)
       value = value.and.
-     >        rtdb_get(rtdb,'water_pseudopotential:Rpe',
+     >        btdb_get(rtdb,'water_pseudopotential:Rpe',
      >                 mt_dbl,1,Rpe)
       value = value.and.
-     >        rtdb_get(rtdb,'water_pseudopotential:alpha',
+     >        btdb_get(rtdb,'water_pseudopotential:alpha',
      >                 mt_dbl,1,alpha)
         if (.not.value)
      >    call errquit('init_BLCJ_LR:rtdb error',0, RTDB_ERR)

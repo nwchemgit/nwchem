@@ -1905,7 +1905,7 @@ c         end do
       logical ortho
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
@@ -2025,7 +2025,7 @@ c     >                    'svec',svec(2),svec(1))
 
 c     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
      >                  mt_log,1,psi_nogrid))
      >   psi_nogrid = .true.
 
@@ -2047,19 +2047,19 @@ c     *****  read initial wavefunctions into psi1  ****
           filename =  control_input_psi()
 
           ind = index(filename,' ') - 1
-          if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'c_wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'c_wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
+          if (.not. btdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+     >     'c_wvfnc_expander_input: btdb_put failed', 0, RTDB_ERR)
 
           write(*,*)
           write(*,*) "Grid is being converted:"
@@ -2698,7 +2698,7 @@ c    ** external **
       logical ortho
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
 
@@ -2747,7 +2747,7 @@ c    ** external **
 
 c     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
      >                  mt_log,1,psi_nogrid))
      >   psi_nogrid = .true.
 
@@ -2771,19 +2771,19 @@ c     *****  read initial wavefunctions into psi1  ****
           filename =  control_input_epsi()
 
           ind = index(filename,' ') - 1
-          if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'c_wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'c_wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
+          if (.not. btdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+     >     'c_wvfnc_expander_input: btdb_put failed', 0, RTDB_ERR)
 
           write(*,*)
           write(*,*) "Grid is being converted:"
@@ -3110,7 +3110,7 @@ c     *****  read initial wavefunctions into psi1  ****
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
@@ -3136,11 +3136,11 @@ c     *****  read initial wavefunctions into psi1  ****
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
 
 
-      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+      if (.not.btdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
         alpha = 0.05d0/27.2116d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+      if (.not.btdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
         npoints = 500
       end if
       value = BA_push_get(mt_dbl,(2*npoints),
@@ -3149,7 +3149,7 @@ c     *****  read initial wavefunctions into psi1  ****
      >  call errquit('cpsi_dos:out of stack memory',0,MA_ERR)
 
 
-      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+      if (.not.btdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
          emin = 99999.0d0
          do nbq=1,nbrillq
             eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
@@ -3162,7 +3162,7 @@ c     *****  read initial wavefunctions into psi1  ****
          emin = emin - 0.1d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+      if (.not.btdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
          emax = -99999.0d0
          do nbq=1,nbrillq
             eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
@@ -3234,7 +3234,7 @@ c     *****  read initial wavefunctions into psi1  ****
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
@@ -3260,11 +3260,11 @@ c     *****  read initial wavefunctions into psi1  ****
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
 
 
-      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+      if (.not.btdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
         alpha = 0.05d0/27.2116d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+      if (.not.btdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
         npoints = 500
       end if
       value = BA_push_get(mt_dbl,(2*npoints),
@@ -3273,7 +3273,7 @@ c     *****  read initial wavefunctions into psi1  ****
      >  call errquit('ecpsi_dos:out of stack memory',0,MA_ERR)
 
 
-      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+      if (.not.btdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
          emin = 99999.0d0
          do nbq=1,nbrillq
             eig_shift = cpsi_data_get_chnk(eig_excited_tag,nbq)
@@ -3286,7 +3286,7 @@ c     *****  read initial wavefunctions into psi1  ****
          emin = emin - 0.1d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+      if (.not.btdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
          emax = -99999.0d0
          do nbq=1,nbrillq
             eig_shift = cpsi_data_get_chnk(eig_excited_tag,nbq)

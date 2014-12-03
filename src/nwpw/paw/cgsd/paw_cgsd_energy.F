@@ -15,7 +15,7 @@ c     $Id$
 #include "bafdecls.fh"
 #include "frac_occ.fh"
 c#include "global.fh"
-c#include "rtdb.fh"
+c#include "btdb.fh"
 #include "errquit.fh"
 
       logical newpsi

@@ -10,7 +10,7 @@ c     **********************************************
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 #include "metadynamics.fh"
@@ -40,57 +40,57 @@ c     **********************************************
       call Parallel_taskid(taskid)
       metaprintcount = 0
       rtdb_name = 'metadynamics_print'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetaprintcount)) 
+      if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,maxmetaprintcount)) 
      >   maxmetaprintcount=100
 
       rtdb_name = 'metadynamics_nmeta'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nmeta)) nmeta = 0
+      if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nmeta)) nmeta = 0
 
       metafound = (nmeta.gt.0)
 
       if (metafound) then
 
          rtdb_name = 'metadynamics_update'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetacount)) 
+         if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,maxmetacount)) 
      >      maxmetacount = 1
 
          rtdb_name = 'metadynamics_metacount'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metacount)) 
+         if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,metacount)) 
      >      metacount = 0
 
          rtdb_name = 'metadynamics_print_shift'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metarayshift)) 
+         if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,metarayshift)) 
      >      metarayshift = maxmetaprintcount
 
          rtdb_name = 'metadynamics_metaraycount'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metaraycount)) 
+         if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,metaraycount)) 
      >      metaraycount = 0
 
          rtdb_name = 'metadynamics_tempered'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,dTtempered)) 
+         if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,1,dTtempered)) 
      >      dTtempered = -1.0d0
 
          rtdb_name = 'metadynamics_boundary'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,boundary)) then
+         if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,2,boundary)) then
             boundary(1) = 0.0d0
             boundary(2) = 0.0d0
          end if
 
          rtdb_name = 'metadynamics_sn2-surface'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,12,sn2)) then
+         if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,12,sn2)) then
             call dcopy(12,0.0d0,0,sn2,1)
          end if
 
          value = .true.
          if (nmeta.gt.0) then
             rtdb_name = 'metadynamics_nindxmeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nindxmeta)) 
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nindxmeta)) 
      >         nindxmeta = 0
             rtdb_name = 'metadynamics_nparammeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nparammeta)) 
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nparammeta)) 
      >         nparammeta = 0
             rtdb_name = 'metadynamics_nxmeta_all'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nxmeta_all)) 
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nxmeta_all)) 
      >         nxmeta_all = 0
 
 *           **** allocate and read nxmeta,sindxmeta,sparameta,and indxmeta ****
@@ -108,28 +108,28 @@ c     **********************************************
      >                           indxmeta(2),indxmeta(1))
 
             rtdb_name = 'metadynamics_nxmeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,nmeta,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,nmeta,
      >                        int_mb(nxmeta(1)))) then
                do d=1,nmeta
                   int_mb(nxmeta(1)+d-1) = 0
                end do
             end if
             rtdb_name = 'metadynamics_sindxmeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,nmeta,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,nmeta,
      >                        int_mb(sindxmeta(1)))) then
                do d=1,nmeta
                   int_mb(sindxmeta(1)+d-1) = 0
                end do
             end if
             rtdb_name = 'metadynamics_sparammeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,nmeta,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,nmeta,
      >                        int_mb(sparammeta(1)))) then
                do d=1,nmeta
                   int_mb(sindxmeta(1)+d-1) = 0
                end do
             end if
             rtdb_name = 'metadynamics_indxmeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,nindxmeta,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,nindxmeta,
      >                        int_mb(indxmeta(1)))) then
                do d=1,nindxmeta
                   int_mb(indxmeta(1)+d-1) = 0
@@ -153,28 +153,28 @@ c     **********************************************
      >                           'ymeta',ymeta(2),ymeta(1))
 
             rtdb_name = 'metadynamics_pmeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,nmeta,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,nmeta,
      >                        int_mb(pmeta(1)))) then
                do d=1,nmeta
                   int_mb(pmeta(1)+d-1) = 0
                end do
             end if
             rtdb_name = 'metadynamics_ameta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nmeta,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,nmeta,
      >                        dbl_mb(ameta(1)))) then
                do d=1,nmeta
                   dbl_mb(ameta(1)+d-1) = 0.0d0
                end do
             end if
             rtdb_name = 'metadynamics_bmeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nmeta,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,nmeta,
      >                        dbl_mb(bmeta(1)))) then
                do d=1,nmeta
                   dbl_mb(bmeta(1)+d-1) = 0.0d0
                end do
             end if
             rtdb_name = 'metadynamics_parammeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nparammeta,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,nparammeta,
      >                        dbl_mb(parammeta(1)))) then
                do d=1,nparammeta
                   dbl_mb(parammeta(1)+d-1) = 0.0d0
@@ -222,7 +222,7 @@ c     **********************************************
 *        **** load old spline fits ****
          call dcopy(nxmeta_all,0.0d0,0,dbl_mb(ymeta(1)),1)
          rtdb_name = 'metadynamics_ymeta'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nxmeta_all,
+         if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,nxmeta_all,
      >                       dbl_mb(ymeta(1)))) then
             call dcopy(nxmeta_all,0.0d0,0,dbl_mb(ymeta(1)),1)
             if (boundary(1).gt.0.0d0) then
@@ -271,7 +271,7 @@ c     **********************************************
          rtdb_name = 'metadynamics_gaussian_filename'
          gauss_filename = 
      >   '                                                           '
-         if(.not.rtdb_cget(rtdb,rtdb_name,1,gauss_filename))
+         if(.not.btdb_cget(rtdb,rtdb_name,1,gauss_filename))
      >      call util_file_prefix('meta_gaussians',gauss_filename)
          call meta_gauss_write_init(gauss_filename)
 
@@ -526,7 +526,7 @@ c     **********************************************
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "metadynamics.fh"
 
@@ -558,9 +558,9 @@ c     **********************************************
 
          value=.true.
          rtdb_name='metadynamics_metacount'
-         value= value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metacount)
+         value= value.and.btdb_put(rtdb,rtdb_name,mt_int,1,metacount)
          rtdb_name='metadynamics_metaraycount'
-         value= value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metaraycount)
+         value= value.and.btdb_put(rtdb,rtdb_name,mt_int,1,metaraycount)
 
          if (nmeta.gt.0) then
 
@@ -580,7 +580,7 @@ c     **********************************************
 
 *           **** write out current spline fits ****
             rtdb_name = 'metadynamics_ymeta'
-            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+            value = value.and.btdb_put(rtdb,rtdb_name,mt_dbl,
      >                        nxmeta_all,dbl_mb(ymeta(1)))
 
             value = value.and.BA_free_heap(pmeta(2))

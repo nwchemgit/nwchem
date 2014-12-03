@@ -16,7 +16,7 @@
       real*8 occ(*)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -146,7 +146,7 @@ c     **** send header to all nodes ****
       end if
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nolattice',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nolattice',
      >                  mt_log,1,psi_nolattice))
      >   psi_nolattice = .true.
   
@@ -220,7 +220,7 @@ c     **** send header to all nodes ****
       integer occupation
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 
@@ -327,7 +327,7 @@ c     **** send header to all nodes ****
       end if
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nolattice',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nolattice',
      >                  mt_log,1,psi_nolattice))
      >   psi_nolattice = .true.
   
@@ -396,7 +396,7 @@ c         end if
       integer occupation
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -509,7 +509,7 @@ c     **** send header to all nodes ****
       end if
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nolattice',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nolattice',
      >                  mt_log,1,psi_nolattice))
      >   psi_nolattice = .true.
   

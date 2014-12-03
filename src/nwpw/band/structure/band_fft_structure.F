@@ -4,7 +4,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "errquit.fh"

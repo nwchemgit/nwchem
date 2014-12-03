@@ -7,7 +7,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     *** local variables ****
       logical includestress,value
@@ -17,7 +17,7 @@ c
       external band_minimizer,band_stress
 
 
-      if (.not.rtdb_get(rtdb,'includestress',mt_log,1,includestress))
+      if (.not.btdb_get(rtdb,'includestress',mt_log,1,includestress))
      >   includestress = .false.
 
 *     **** only calculate atom gradients ****

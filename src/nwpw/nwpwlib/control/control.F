@@ -14,7 +14,7 @@
 
 #include "inp.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "control.fh"
 #include "nwxc.fh"
 
@@ -62,12 +62,12 @@
 
 
 *     **** get parallel mappings ****
-      if (.not.rtdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
+      if (.not.btdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
          mapping = 2
       end if
 
 *     **** set mapping1d ****
-      if (.not.rtdb_get(rtdb,'nwpw:mapping1d',mt_int,1,mapping1d)) then
+      if (.not.btdb_get(rtdb,'nwpw:mapping1d',mt_int,1,mapping1d)) then
          mapping1d = 1
       end if
 
@@ -81,7 +81,7 @@
       np_dimensions(3) = 1
       np_default = .true.
 #else
-      if(.not.rtdb_get(rtdb,'nwpw:np_dimensions',
+      if(.not.btdb_get(rtdb,'nwpw:np_dimensions',
      >                 mt_int,3,np_dimensions)) then
          np_dimensions(1) = np
          np_dimensions(2) = 1
@@ -125,36 +125,36 @@
 #endif
 
 *     **** get balance mapping ****
-      if (.not.rtdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
+      if (.not.btdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
          balance = .true.
       end if
 
 *     **** get parallel io ****
-      if (.not.rtdb_get(rtdb,'nwpw:parallel_io',mt_log,1,pio)) then
+      if (.not.btdb_get(rtdb,'nwpw:parallel_io',mt_log,1,pio)) then
          pio = .false.
       else
          pio = pio.and.(np_dimensions(2).gt.1)
       end if
 
 *     **** get fast_erf ****
-      if (.not.rtdb_get(rtdb,'nwpw:fast_erf',mt_log,1,fast_erf)) then
+      if (.not.btdb_get(rtdb,'nwpw:fast_erf',mt_log,1,fast_erf)) then
          fast_erf = .false.
       end if
 
 *     **** get fmm ****
-      if (.not.rtdb_get(rtdb,'nwpw:fmm',mt_log,1,fmm)) then
+      if (.not.btdb_get(rtdb,'nwpw:fmm',mt_log,1,fmm)) then
          fmm = .false.
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:fmm_lmax',mt_int,1,fmm_lmax)) then
+      if (.not.btdb_get(rtdb,'nwpw:fmm_lmax',mt_int,1,fmm_lmax)) then
          fmm_lmax = 10
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:fmm_lr',mt_int,1,fmm_lr)) then
+      if (.not.btdb_get(rtdb,'nwpw:fmm_lr',mt_int,1,fmm_lr)) then
          fmm_lr = 1
       end if
 
 *     **** get smooth_cuoff ****
       smooth_cutoff = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:smooth_cutoff',
+      if (.not.btdb_get(rtdb,'nwpw:smooth_cutoff',
      >                  mt_dbl,2,smooth_cutoff_values)) then
          smooth_cutoff           = .false.
          smooth_cutoff_values(1) = 2.0d0
@@ -166,29 +166,29 @@
 *     **** cpsd and band_sd: stuff ****
 *     *********************************
       if ((code.eq.1).or.(code.eq.13)) then
-      if (.not.rtdb_cget(rtdb,'cpsd:cell_name',1,cell_name)) then
+      if (.not.btdb_cget(rtdb,'cpsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
 
-      if (.not.rtdb_cget(rtdb,'cpsd:input_wavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cpsd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename)) then
-         if (.not.rtdb_cget(rtdb,'pspw:input vectors',
+         if (.not.btdb_cget(rtdb,'pspw:input vectors',
      >                      1,input_wavefunction_filename)) then
             call util_file_prefix('movecs',
      >                            input_wavefunction_filename)
          end if
       end if
 
-      if (.not.rtdb_cget(rtdb,'cpsd:output_wavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cpsd:output_wavefunction_filename',
      >                  1,output_wavefunction_filename)) then
-         if (.not.rtdb_cget(rtdb,'pspw:output vectors',
+         if (.not.btdb_cget(rtdb,'pspw:output vectors',
      >                      1,output_wavefunction_filename)) then
             call util_file_prefix('movecs',
      >                            output_wavefunction_filename)
          end if
       end if
 
-      if (.not.rtdb_cget(rtdb,'cpsd:exchange_correlation',
+      if (.not.btdb_cget(rtdb,'cpsd:exchange_correlation',
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
 
@@ -200,22 +200,22 @@ c       call nwxc_print()
 #include "control_gga.fh"
 
 
-      if(.not.rtdb_get(rtdb,'cpsd:geometry_optimize',mt_log,1,move))
+      if(.not.btdb_get(rtdb,'cpsd:geometry_optimize',mt_log,1,move))
      >    move = .false.
-      if(.not.rtdb_get(rtdb,'cpsd:fractional_coordinates',
+      if(.not.btdb_get(rtdb,'cpsd:fractional_coordinates',
      >          mt_log,1,frac_coord))
      >     frac_coord = .false.
-      if(.not.rtdb_get(rtdb,'cpsd:npsp',mt_int,1,npsp))
+      if(.not.btdb_get(rtdb,'cpsd:npsp',mt_int,1,npsp))
      >    npsp=0
-      if(.not.rtdb_get(rtdb,'cpsd:fake_mass',mt_dbl,1,fake_mass))
+      if(.not.btdb_get(rtdb,'cpsd:fake_mass',mt_dbl,1,fake_mass))
      >     fake_mass = 400000.0d0
-      if(.not.rtdb_get(rtdb,'cpsd:time_step',mt_dbl,1,time_step))
+      if(.not.btdb_get(rtdb,'cpsd:time_step',mt_dbl,1,time_step))
      >     time_step = 5.8d0
-      if(.not.rtdb_get(rtdb,'cpsd:loop',mt_int,2,loop)) then
+      if(.not.btdb_get(rtdb,'cpsd:loop',mt_int,2,loop)) then
        loop(1)=10 
        loop(2)=100
       end if
-      if(.not. rtdb_get(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances))
+      if(.not. btdb_get(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances))
      >then
          tolerances(1) = 1.0d-9
          tolerances(2) = 1.0d-9
@@ -224,23 +224,23 @@ c       call nwxc_print()
       scaling(1) = 0.0d0
       scaling(2) = 0.0d0
 
-      if(.not.rtdb_get(rtdb,'cpsd:ecut',mt_dbl,1,ecut))
+      if(.not.btdb_get(rtdb,'cpsd:ecut',mt_dbl,1,ecut))
      >    ecut=9000.0d0
-      if(.not.rtdb_get(rtdb,'cpsd:wcut',mt_dbl,1,wcut))
+      if(.not.btdb_get(rtdb,'cpsd:wcut',mt_dbl,1,wcut))
      >  wcut=ecut
-      if(.not.rtdb_get(rtdb,'cpsd:rcut',mt_dbl,1,rcut))
+      if(.not.btdb_get(rtdb,'cpsd:rcut',mt_dbl,1,rcut))
      >    rcut = 0.0d0
-      if(.not.rtdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut))
+      if(.not.btdb_get(rtdb,'cpsd:ncut',mt_int,1,ncut))
      >    ncut = 1
-      if(.not.rtdb_get(rtdb,'cpsd:mult',mt_int,1,multiplicity))
+      if(.not.btdb_get(rtdb,'cpsd:mult',mt_int,1,multiplicity))
      >    multiplicity = 1
-      if(.not.rtdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin))
+      if(.not.btdb_get(rtdb,'cpsd:ispin',mt_int,1,ispin))
      >    ispin=1
 
-      if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
+      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
 
-      if (.not.rtdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
+      if (.not.btdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
      > spin_orbit=.false.
       if (spin_orbit) ispin=2
 
@@ -249,51 +249,51 @@ c       call nwxc_print()
 *     **** cpmd and band_cpmd code: stuff ****
 *     ****************************************
       else if ((code.eq.2) .or. (code.eq.14)) then
-      if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
+      if (.not.btdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
 
-      if(.not.rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
+      if(.not.btdb_cget(rtdb,'cpmd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename)) then
-         if(.not.rtdb_cget(rtdb,'pspw:input vectors',
+         if(.not.btdb_cget(rtdb,'pspw:input vectors',
      >                     1,input_wavefunction_filename)) then
             call util_file_prefix('movecs',
      >                            input_wavefunction_filename)
          end if
       end if
 
-      if(.not.rtdb_cget(rtdb,'cpmd:output_wavefunction_filename',
+      if(.not.btdb_cget(rtdb,'cpmd:output_wavefunction_filename',
      >                  1,output_wavefunction_filename)) then
-         if(.not.rtdb_cget(rtdb,'pspw:output vectors',
+         if(.not.btdb_cget(rtdb,'pspw:output vectors',
      >                     1,output_wavefunction_filename)) then
             call util_file_prefix('movecs',
      >                            output_wavefunction_filename)
          end if
       end if
 
-      if(.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
+      if(.not.btdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
      >                  1,input_v_wavefunction_filename)) then
-         if(.not.rtdb_cget(rtdb,'pspw:input vvectors',
+         if(.not.btdb_cget(rtdb,'pspw:input vvectors',
      >                     1,input_v_wavefunction_filename)) then
             call util_file_prefix('vmovecs',
      >                            input_v_wavefunction_filename)
          end if
       end if
 
-      if(.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
+      if(.not.btdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
      >                  1,output_v_wavefunction_filename)) then
-         if(.not.rtdb_cget(rtdb,'pspw:output vvectors',
+         if(.not.btdb_cget(rtdb,'pspw:output vvectors',
      >                     1,output_v_wavefunction_filename)) then
             call util_file_prefix('vmovecs',
      >                            output_v_wavefunction_filename)
          end if
       end if
 
-      if(.not.rtdb_cget(rtdb,'cpmd:xyz_filename',
+      if(.not.btdb_cget(rtdb,'cpmd:xyz_filename',
      >                  1,xyz_filename))
      >  call util_file_prefix('xyz',xyz_filename)
 !      ind = index(exchange_correlation,' ') - 1
-      if(.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
+      if(.not.btdb_cget(rtdb,'cpmd:exchange_correlation',
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
@@ -305,70 +305,70 @@ c       call nwxc_print()
 #include "control_gga.fh"
 
 
-      if(.not. rtdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
+      if(.not. btdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
      >    move = .true.
-      if(.not. rtdb_get(rtdb,'cpmd:fractional_coordinates',
+      if(.not. btdb_get(rtdb,'cpmd:fractional_coordinates',
      >                 mt_log,1,frac_coord))
      >   frac_coord = .false.
-      if(.not. rtdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp))
+      if(.not. btdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp))
      >    npsp = 0
-      if(.not. rtdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass))
+      if(.not. btdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass))
      >    fake_mass = 800.0d0
-      if(.not. rtdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step))
+      if(.not. btdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step))
      >    time_step = 5.0d0
-      if(.not. rtdb_get(rtdb,'cpmd:loop',mt_int,2,loop)) then
+      if(.not. btdb_get(rtdb,'cpmd:loop',mt_int,2,loop)) then
          loop(1) = 10
          loop(2) = 100
       end if
-      if(.not. rtdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling)) then
+      if(.not. btdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling)) then
         scaling(1) = 1.0d0
         scaling(2) = 1.0d0
       end if
       tolerances(1) = 0.0d0
       tolerances(2) = 0.0d0
       tolerances(3) = 0.0d0
-      if(.not. rtdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut))
+      if(.not. btdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut))
      >    ecut=9000.0d0
-      if(.not. rtdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut))
+      if(.not. btdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut))
      >    wcut = ecut
-      if(.not. rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut))
+      if(.not. btdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut))
      >    rcut = 0.0d0
-      if(.not. rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut))
+      if(.not. btdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut))
      >    ncut = 1
       SA = .true.
-      if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
+      if (.not.btdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
         SA = .false.
         sa_decay(1) = 1.0d0
         sa_decay(2) = 1.0d0
       end if
 
-      if (.not.rtdb_get(rtdb,'nwpw:dipole_motion',mt_log,
+      if (.not.btdb_get(rtdb,'nwpw:dipole_motion',mt_log,
      >                  1,dipole_motion))
      >  dipole_motion = .false.
 
-      if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
+      if (.not.btdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
      >  fei = .false.
 
-      if (.not.rtdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
+      if (.not.btdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
      >  fei_quench = .false.
 
-      if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
+      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
 
 
 *     **** get thermostat information ****
-      if (.not.rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
+      if (.not.btdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
      >   nose = .false.
-      if (.not.rtdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe))
+      if (.not.btdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe))
      >   Pe = 1000.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te))
+      if (.not.btdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te))
      >   Te = 298.15d0
-      if (.not.rtdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr))
+      if (.not.btdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr))
      >   Pr = 1000.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
+      if (.not.btdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
      >   Tr = 298.15d0
 
-      if (.not.rtdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
+      if (.not.btdb_get(rtdb,'nwpw:spin_orbit',mt_log,1,spin_orbit))
      > spin_orbit=.false.
       if (spin_orbit) ispin=2
 
@@ -378,18 +378,18 @@ c       call nwxc_print()
 *     ************************************
       else if ((code.eq.3).or.(code.eq.8).or.
      >         (code.eq.11).or.(code.eq.12)) then
-      if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
+      if (.not.btdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
 c
 c     **** Figure input/output MO vectors ****
 c
-      if (.not. rtdb_cget(rtdb, 'pspw:input vectors', 
+      if (.not. btdb_cget(rtdb, 'pspw:input vectors', 
      >                    1,input_wavefunction_filename)) then
          input_wavefunction_filename = 'atomic'
       end if
 
-      if (.not. rtdb_cget(rtdb, 'pspw:output vectors', 
+      if (.not. btdb_cget(rtdb, 'pspw:output vectors', 
      >                    1,output_wavefunction_filename)) then
          output_wavefunction_filename = ' '
 
@@ -406,28 +406,28 @@ c
          end if
       end if
 
-      if (.not.rtdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
      >                  1,input_ewavefunction_filename))
      >  call util_file_prefix('emovecs',input_ewavefunction_filename)
 
-      if (.not.rtdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
      >                  1,output_ewavefunction_filename))
      >  call util_file_prefix('emovecs',output_ewavefunction_filename)
 
       if (code.eq.11) then
      
-         if(.not.rtdb_cget(rtdb,'pspw:input vvectors',
+         if(.not.btdb_cget(rtdb,'pspw:input vvectors',
      >                     1,input_v_wavefunction_filename)) then
-            if(.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
+            if(.not.btdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
      >                        1,input_v_wavefunction_filename)) then
                call util_file_prefix('vmovecs',
      >                               input_v_wavefunction_filename)
             end if
          end if
 
-         if(.not.rtdb_cget(rtdb,'pspw:output vvectors',
+         if(.not.btdb_cget(rtdb,'pspw:output vvectors',
      >                     1,output_v_wavefunction_filename)) then
-           if(.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
+           if(.not.btdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
      >                        1,output_v_wavefunction_filename)) then
 
                call util_file_prefix('vmovecs',
@@ -437,7 +437,7 @@ c
       end if
 
 
-      if (.not.rtdb_cget(rtdb,'cgsd:exchange_correlation',
+      if (.not.btdb_cget(rtdb,'cgsd:exchange_correlation',
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
@@ -449,117 +449,117 @@ c       call nwxc_print()
 #include "control_gga.fh"
 
 *     ***** motion filenames ****
-      if(.not.rtdb_cget(rtdb,'nwpw:xyz_filename',
+      if(.not.btdb_cget(rtdb,'nwpw:xyz_filename',
      >                  1,xyz_filename))
      >  call util_file_prefix('xyz',xyz_filename)
 
 
 *     **** set Kohn-Sham scf parameters ***
-      if (.not. rtdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
+      if (.not. btdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
      >   ks_alpha = 0.25d0
-      if (.not.rtdb_get(rtdb,'nwpw:scf_algorithm',
+      if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
 
-      if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
+      if (.not.btdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
      >   ks_algorithm = 0
-      if (.not.rtdb_get(rtdb,'nwpw:kerker_g0',
+      if (.not.btdb_get(rtdb,'nwpw:kerker_g0',
      >                  mt_dbl,1,kerker_g0))
      >   kerker_g0 = 0.0d0
 
 *     **** set maxit_orb maxit_orbs ***
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >      'nwpw:ks_maxit_orb',mt_int,1,maxit_orb))
      >  maxit_orb = 5
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >      'nwpw:ks_maxit_orbs',mt_int,1,maxit_orbs))
      >  maxit_orbs = 1
 
 
-      if (.not.rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
+      if (.not.btdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
      >   npsp = 0
-      if (.not.rtdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass))
+      if (.not.btdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass))
      >  fake_mass = 400000.0d0
-      if (.not.rtdb_get(rtdb,'cgsd:time_step',mt_dbl,1,time_step))
+      if (.not.btdb_get(rtdb,'cgsd:time_step',mt_dbl,1,time_step))
      >  time_step = 5.8d0
-      if (.not.rtdb_get(rtdb,'cgsd:loop',mt_int,2,loop)) then
+      if (.not.btdb_get(rtdb,'cgsd:loop',mt_int,2,loop)) then
         loop(1) = 10
         loop(2) = 100
       end if
-      if (.not.rtdb_get(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances))then
+      if (.not.btdb_get(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances))then
          tolerances(1) = 1.0d-7
          tolerances(2) = 1.0d-7
          tolerances(3) = 1.0d-4
       end if
 
-      if(.not. rtdb_get(rtdb,'nwpw:scaling',mt_dbl,2,scaling)) then
+      if(.not. btdb_get(rtdb,'nwpw:scaling',mt_dbl,2,scaling)) then
         scaling(1) = 1.0d0
         scaling(2) = 1.0d0
       end if
 
-      if (.not.rtdb_get(rtdb,'cgsd:fractional_coordinates',
+      if (.not.btdb_get(rtdb,'cgsd:fractional_coordinates',
      >                 mt_log,1,frac_coord))
      >    frac_coord = .false.
   
-      if (.not.rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut))
+      if (.not.btdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut))
      >   ecut=9000.0d0
-      if (.not.rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut))
+      if (.not.btdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut))
      >   wcut = ecut
-      if (.not.rtdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut))
+      if (.not.btdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut))
      >   rcut = 0.0d0
-      if (.not.rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut))
+      if (.not.btdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut))
      >   ncut = 1
-      if (.not.rtdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity))
+      if (.not.btdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity))
      >   multiplicity = 1
-      if (.not.rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin))
+      if (.not.btdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin))
      >   ispin = 1
 
 
 *     **** BO parameterss ***
-      if (.not.rtdb_get(rtdb,'nwpw:bo_steps',mt_int,2,bo_steps)) then
+      if (.not.btdb_get(rtdb,'nwpw:bo_steps',mt_int,2,bo_steps)) then
          bo_steps(1) = 10
          bo_steps(2) = 100
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:bo_time_step',mt_dbl,1,bo_time_step))
+      if (.not.btdb_get(rtdb,'nwpw:bo_time_step',mt_dbl,1,bo_time_step))
      >   bo_time_step = time_step
-      if (.not.rtdb_get(rtdb,'nwpw:bo_algorithm',mt_int,1,bo_algorithm))
+      if (.not.btdb_get(rtdb,'nwpw:bo_algorithm',mt_int,1,bo_algorithm))
      >   bo_algorithm = 0
-      if (.not.rtdb_get(rtdb,'nwpw:bo_fake_mass',mt_dbl,1,bo_fake_mass))
+      if (.not.btdb_get(rtdb,'nwpw:bo_fake_mass',mt_dbl,1,bo_fake_mass))
      >   bo_fake_mass = 500.0d0
 
-      if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
+      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
 
       SA = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:sa_decay',mt_dbl,2,sa_decay)) then
+      if (.not.btdb_get(rtdb,'nwpw:sa_decay',mt_dbl,2,sa_decay)) then
         SA = .false.
         sa_decay(1) = 1.0d0
         sa_decay(2) = 1.0d0
       end if
 
-      if (.not.rtdb_get(rtdb,'nwpw:dipole_motion',mt_log,
+      if (.not.btdb_get(rtdb,'nwpw:dipole_motion',mt_log,
      >                  1,dipole_motion))
      >  dipole_motion = .false.
 
-      if (.not.rtdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
+      if (.not.btdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
      >  fei = .false.
 
-      if (.not.rtdb_get(rtdb,'nwpw:fei_quench',mt_log,1,fei_quench))
+      if (.not.btdb_get(rtdb,'nwpw:fei_quench',mt_log,1,fei_quench))
      >  fei_quench = .false.
 
 
 
 *     **** get thermostat information ****
-      if (.not.rtdb_get(rtdb,'nwpw:nose',mt_log,1,nose))
+      if (.not.btdb_get(rtdb,'nwpw:nose',mt_log,1,nose))
      >   nose = .false.
-      if (.not.rtdb_get(rtdb,'nwpw:Pe',mt_dbl,1,Pe))
+      if (.not.btdb_get(rtdb,'nwpw:Pe',mt_dbl,1,Pe))
      >   Pe = 1000.0d0
-      if (.not.rtdb_get(rtdb,'nwpw:Te',mt_dbl,1,Te))
+      if (.not.btdb_get(rtdb,'nwpw:Te',mt_dbl,1,Te))
      >   Te = 298.15d0
-      if (.not.rtdb_get(rtdb,'nwpw:Pr',mt_dbl,1,Pr))
+      if (.not.btdb_get(rtdb,'nwpw:Pr',mt_dbl,1,Pr))
      >   Pr = 1000.0d0
-      if (.not.rtdb_get(rtdb,'nwpw:Tr',mt_dbl,1,Tr))
+      if (.not.btdb_get(rtdb,'nwpw:Tr',mt_dbl,1,Tr))
      >   Tr = 298.15d0
 
 
@@ -568,7 +568,7 @@ c       call nwxc_print()
 *     ***************************
       else if (code.eq.4) then
          value = .true.
-         if (.not.rtdb_cget(rtdb,'pspw_dplot:wavefunction_filename',
+         if (.not.btdb_cget(rtdb,'pspw_dplot:wavefunction_filename',
      >                  1,input_wavefunction_filename))
      >     call util_file_prefix('movecs',input_wavefunction_filename)
          call psi_get_header(i,ngrid,unita,ispin0,ne)
@@ -587,8 +587,8 @@ c       call nwxc_print()
          tolerances(1) = 1.0d-9
          tolerances(2) = 1.0d-9
          tolerances(3) = 1.0d-4
-         if(.not.rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
-         if(.not.rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut)) wcut=ecut
+         if(.not.btdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
+         if(.not.btdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut)) wcut=ecut
          rcut = 0.0d0
          ncut = 1
          npsp = 0
@@ -601,18 +601,18 @@ c         return
 *     *********************
       else if (code.eq.5) then
      
-      if (.not.rtdb_cget(rtdb,'band:cell_name',1,cell_name)) then
+      if (.not.btdb_cget(rtdb,'band:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
 
 c     **** Figure input/output MO vectors ****
 c
-      if (.not.rtdb_cget(rtdb,'pspw:input vectors', 
+      if (.not.btdb_cget(rtdb,'pspw:input vectors', 
      >                    1,input_wavefunction_filename)) then
          input_wavefunction_filename = 'atomic'
       end if
 
-      if (.not.rtdb_cget(rtdb, 'pspw:output vectors', 
+      if (.not.btdb_cget(rtdb, 'pspw:output vectors', 
      >                    1,output_wavefunction_filename)) then
          output_wavefunction_filename = ' '
 
@@ -630,16 +630,16 @@ c
          input_wavefunction_filename = output_wavefunction_filename
       end if
 
-      if (.not.rtdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
      >                  1,input_ewavefunction_filename))
      >  call util_file_prefix('emovecs',input_ewavefunction_filename)
 
-      if (.not.rtdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
      >                  1,output_ewavefunction_filename))
      >  call util_file_prefix('emovecs',output_ewavefunction_filename)
 
 
-      if (.not.rtdb_cget(rtdb,'band:exchange_correlation',
+      if (.not.btdb_cget(rtdb,'band:exchange_correlation',
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
@@ -651,17 +651,17 @@ c       call nwxc_print()
 #include "control_gga.fh"
 
 
-      if(.not.rtdb_get(rtdb,'band:geometry_optimize',mt_log,1,move))
+      if(.not.btdb_get(rtdb,'band:geometry_optimize',mt_log,1,move))
      >    move = .false.
-      if (.not.rtdb_get(rtdb,'band:fake_mass',mt_dbl,1,fake_mass))
+      if (.not.btdb_get(rtdb,'band:fake_mass',mt_dbl,1,fake_mass))
      >  fake_mass = 400000.0d0
-      if (.not.rtdb_get(rtdb,'band:time_step',mt_dbl,1,time_step))
+      if (.not.btdb_get(rtdb,'band:time_step',mt_dbl,1,time_step))
      >   time_step = 5.8d0
-      if (.not.rtdb_get(rtdb,'band:loop',mt_int,2,loop)) then
+      if (.not.btdb_get(rtdb,'band:loop',mt_int,2,loop)) then
          loop(1) = 10
          loop(2) = 100
       end if
-      if(.not.rtdb_get(rtdb,'band:tolerances',mt_dbl,3,tolerances)) then
+      if(.not.btdb_get(rtdb,'band:tolerances',mt_dbl,3,tolerances)) then
          tolerances(1) = 1.0d-7
          tolerances(2) = 1.0d-7
          tolerances(3) = 1.0d-4
@@ -669,44 +669,44 @@ c       call nwxc_print()
       scaling(1) = 0.0d0
       scaling(2) = 0.0d0
 
-      if (.not.rtdb_get(rtdb,'band:ecut',mt_dbl,1,ecut))
+      if (.not.btdb_get(rtdb,'band:ecut',mt_dbl,1,ecut))
      >  ecut = 9000.0d0
-      if (.not.rtdb_get(rtdb,'band:wcut',mt_dbl,1,wcut))
+      if (.not.btdb_get(rtdb,'band:wcut',mt_dbl,1,wcut))
      >  wcut = ecut
-      if (.not.rtdb_get(rtdb,'band:rcut',mt_dbl,1,rcut))
+      if (.not.btdb_get(rtdb,'band:rcut',mt_dbl,1,rcut))
      >  rcut = 0.0d0
-      if (.not.rtdb_get(rtdb,'band:ncut',mt_int,1,ncut))
+      if (.not.btdb_get(rtdb,'band:ncut',mt_int,1,ncut))
      >  ncut = 1
-      if (.not.rtdb_get(rtdb,'band:mult',mt_int,1,multiplicity))
+      if (.not.btdb_get(rtdb,'band:mult',mt_int,1,multiplicity))
      >   multiplicity = 1
-      if (.not.rtdb_get(rtdb,'band:ispin',mt_int,1,ispin))
+      if (.not.btdb_get(rtdb,'band:ispin',mt_int,1,ispin))
      >   ispin = 1
 
-      if (.not.rtdb_get(rtdb,'band:spin_orbit',mt_log,1,spin_orbit))
+      if (.not.btdb_get(rtdb,'band:spin_orbit',mt_log,1,spin_orbit))
      > spin_orbit=.false.
       if (spin_orbit) ispin=2
       
 
 
 *     **** set Kohn-Sham scf parameters ***
-      if (.not. rtdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
+      if (.not. btdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
      >   ks_alpha = 0.25d0
-      if (.not.rtdb_get(rtdb,'nwpw:scf_algorithm',
+      if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
-      if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
+      if (.not.btdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
      >   ks_algorithm = 0
-      if (.not.rtdb_get(rtdb,'nwpw:kerker_g0',
+      if (.not.btdb_get(rtdb,'nwpw:kerker_g0',
      >                  mt_dbl,1,kerker_g0))
      >   kerker_g0 = 0.0d0
 
 
 *     **** set maxit_orb maxit_orbs ***
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >      'nwpw:ks_maxit_orb',mt_int,1,maxit_orb))
      >  maxit_orb = 5
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >      'nwpw:ks_maxit_orbs',mt_int,1,maxit_orbs))
      >  maxit_orbs = 1
 
@@ -716,19 +716,19 @@ c       call nwxc_print()
 *     ***********************
       else if (code.eq.6) then
 
-      if (.not.rtdb_get(rtdb,'cgsd:geometry_optimize',mt_log,1,move))
+      if (.not.btdb_get(rtdb,'cgsd:geometry_optimize',mt_log,1,move))
      >   move = .false.
 
-      if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
+      if (.not.btdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
-      if (.not.rtdb_cget(rtdb,'cgsd:input_wavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cgsd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename))
      >  call util_file_prefix('movecs',input_wavefunction_filename)
-      if (.not.rtdb_cget(rtdb,'cgsd:output_wavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cgsd:output_wavefunction_filename',
      >                  1,output_wavefunction_filename))
      > call util_file_prefix('movecs',output_wavefunction_filename)
-      if (.not.rtdb_cget(rtdb,'cgsd:exchange_correlation',
+      if (.not.btdb_cget(rtdb,'cgsd:exchange_correlation',
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
@@ -753,34 +753,34 @@ c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
 
-      if (.not.rtdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
+      if (.not.btdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
      >   npsp = 0
-      if (.not.rtdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass))
+      if (.not.btdb_get(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass))
      >   fake_mass = 400000.0d0
-      if (.not.rtdb_get(rtdb,'cgsd:time_step',mt_dbl,1,time_step))
+      if (.not.btdb_get(rtdb,'cgsd:time_step',mt_dbl,1,time_step))
      >   time_step = 5.8d0
-      if (.not.rtdb_get(rtdb,'cgsd:loop',mt_int,2,loop)) then
+      if (.not.btdb_get(rtdb,'cgsd:loop',mt_int,2,loop)) then
          loop(1) = 10
          loop(2) = 100
       end if
-      if(.not.rtdb_get(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)) then
+      if(.not.btdb_get(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)) then
          tolerances(1) = 1.0d-7
          tolerances(2) = 1.0d-7
          tolerances(3) = 1.0d-4
       end if
       scaling(1) = 0.0d0
       scaling(2) = 0.0d0
-      if (.not.rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut))
+      if (.not.btdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut))
      >  ecut = 9000.0d0
-      if (.not.rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut))
+      if (.not.btdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut))
      >  wcut = ecut
-      if (.not.rtdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut))
+      if (.not.btdb_get(rtdb,'cgsd:rcut',mt_dbl,1,rcut))
      >  rcut = 0.0d0
-      if (.not.rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut))
+      if (.not.btdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut))
      >  ncut = 1
-      if (.not.rtdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity))
+      if (.not.btdb_get(rtdb,'cgsd:mult',mt_int,1,multiplicity))
      >  multiplicity = 1
-      if (.not.rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin))
+      if (.not.btdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin))
      >  ispin = 1
 
 
@@ -789,31 +789,31 @@ c       call nwxc_print()
 *     *************************
       else if (code.eq.7) then
 
-      if (.not.rtdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
+      if (.not.btdb_cget(rtdb,'cpmd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
 
-      if (.not.rtdb_cget(rtdb,'cpmd:input_wavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cpmd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename))
      >  call util_file_prefix('movecs',input_wavefunction_filename)
-      if (.not.rtdb_cget(rtdb,'cpmd:output_wavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cpmd:output_wavefunction_filename',
      >                  1,output_wavefunction_filename))
      >  call util_file_prefix('movecs',output_wavefunction_filename)
-      if (.not.rtdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cpmd:input_v_wavefunction_filename',
      >                  1,input_v_wavefunction_filename))
      >  call util_file_prefix('vmovecs',input_v_wavefunction_filename)
-      if (.not.rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
+      if (.not.btdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
      >                  1,output_v_wavefunction_filename))
      >  call util_file_prefix('vmovecs',output_v_wavefunction_filename)
 
 
 *     ***** motion filenames ****
-      if(.not.rtdb_cget(rtdb,'cpmd:xyz_filename',
+      if(.not.btdb_cget(rtdb,'cpmd:xyz_filename',
      >                  1,xyz_filename))
      >  call util_file_prefix('xyz',xyz_filename)
 
 
-      if (.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
+      if (.not.btdb_cget(rtdb,'cpmd:exchange_correlation',
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
@@ -839,67 +839,67 @@ c       call nwxc_print()
       endif
 
 
-      if (.not.rtdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
+      if (.not.btdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
      >   move = .false.
-      if (.not.rtdb_get(rtdb,'cpmd:fractional_coordinates',
+      if (.not.btdb_get(rtdb,'cpmd:fractional_coordinates',
      >                 mt_log,1,frac_coord))
      >   frac_coord = .false.
-      if (.not.rtdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp))
+      if (.not.btdb_get(rtdb,'cpmd:npsp',mt_int,1,npsp))
      >  npsp = 0
-      if (.not.rtdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass))
+      if (.not.btdb_get(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass))
      >  fake_mass = 800.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step))
+      if (.not.btdb_get(rtdb,'cpmd:time_step',mt_dbl,1,time_step))
      >  time_step = 5.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:loop',mt_int,2,loop)) then
+      if (.not.btdb_get(rtdb,'cpmd:loop',mt_int,2,loop)) then
          loop(1) = 10
          loop(2) = 100
       end if
-      if (.not.rtdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling)) then
+      if (.not.btdb_get(rtdb,'cpmd:scaling',mt_dbl,2,scaling)) then
          scaling(1) = 1.0d0
          scaling(2) = 1.0d0
       end if
       tolerances(1) = 0.0d0
       tolerances(2) = 0.0d0
       tolerances(3) = 0.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut))
+      if (.not.btdb_get(rtdb,'cpmd:ecut',mt_dbl,1,ecut))
      >  ecut = 9000.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut))
+      if (.not.btdb_get(rtdb,'cpmd:wcut',mt_dbl,1,wcut))
      >  wcut = ecut
-      if (.not.rtdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut))
+      if (.not.btdb_get(rtdb,'cpmd:rcut',mt_dbl,1,rcut))
      >  rcut = 0.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut))
+      if (.not.btdb_get(rtdb,'cpmd:ncut',mt_int,1,ncut))
      >   ncut = 1
 
       SA = .true.
-      if (.not.rtdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
+      if (.not.btdb_get(rtdb,'cpmd:sa_decay',mt_dbl,2,sa_decay)) then
         SA = .false.
         sa_decay(1) = 1.0d0
         sa_decay(2) = 1.0d0
       end if
 
-      if (.not.rtdb_get(rtdb,'nwpw:dipole_motion',mt_log,
+      if (.not.btdb_get(rtdb,'nwpw:dipole_motion',mt_log,
      >                  1,dipole_motion))
      >  dipole_motion = .false.
 
-      if (.not.rtdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
+      if (.not.btdb_get(rtdb,'cpmd:fei',mt_log,1,fei))
      >  fei = .false.
 
-      if (.not.rtdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
+      if (.not.btdb_get(rtdb,'cpmd:fei_quench',mt_log,1,fei_quench))
      >  fei_quench = .false.
 
-      if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
+      if (.not.btdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
      >  rotation = .true.
 
 *     **** get thermostat information ****
-      if (.not.rtdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
+      if (.not.btdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
      >   nose = .false.
-      if (.not.rtdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe))
+      if (.not.btdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe))
      >   Pe = 1000.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te))
+      if (.not.btdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te))
      >   Te = 298.15d0
-      if (.not.rtdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr))
+      if (.not.btdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr))
      >   Pr = 1000.0d0
-      if (.not.rtdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
+      if (.not.btdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
      >   Tr = 298.15d0
 
 
@@ -910,17 +910,17 @@ c       call nwxc_print()
 
 c     **** Figure input/output MO vectors ****
 
-      if (.not.rtdb_cget(rtdb,'wannier:input vectors',
+      if (.not.btdb_cget(rtdb,'wannier:input vectors',
      >                  1,input_wavefunction_filename)) then
-         if (.not.rtdb_cget(rtdb, 'pspw:input vectors',
+         if (.not.btdb_cget(rtdb, 'pspw:input vectors',
      >                      1,input_wavefunction_filename)) then
             input_wavefunction_filename = 'atomic'
          end if
       end if
 
-      if (.not.rtdb_cget(rtdb,'wannier:output vectors',
+      if (.not.btdb_cget(rtdb,'wannier:output vectors',
      >                  1,output_wavefunction_filename)) then
-         if (.not.rtdb_cget(rtdb,'pspw:output vectors',
+         if (.not.btdb_cget(rtdb,'pspw:output vectors',
      >                      1,output_wavefunction_filename)) then
             output_wavefunction_filename = ' '
          end if
@@ -954,8 +954,8 @@ c     **** Figure input/output MO vectors ****
          tolerances(1) = 1.0d-9
          tolerances(2) = 1.0d-9
          tolerances(3) = 1.0d-4
-         if(.not.rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
-         if(.not.rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut)) wcut=ecut
+         if(.not.btdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
+         if(.not.btdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut)) wcut=ecut
          rcut = 0.0d0
          ncut = 0
          npsp = 0
@@ -968,7 +968,7 @@ c         return
 *     ***************************
       else if (code.eq.10) then
          value = .true.
-         if (.not.rtdb_cget(rtdb,'band_dplot:wavefunction_filename',
+         if (.not.btdb_cget(rtdb,'band_dplot:wavefunction_filename',
      >                  1,input_wavefunction_filename))
      >     call util_file_prefix('movecs',input_wavefunction_filename)
          call cpsi_get_header(i,ngrid,unita,ispin0,ne,nbrill)
@@ -986,8 +986,8 @@ c         return
          tolerances(1) = 1.0d-9
          tolerances(2) = 1.0d-9
          tolerances(3) = 1.0d-4
-         if(.not.rtdb_get(rtdb,'band:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
-         if(.not.rtdb_get(rtdb,'band:wcut',mt_dbl,1,wcut)) wcut=ecut
+         if(.not.btdb_get(rtdb,'band:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
+         if(.not.btdb_get(rtdb,'band:wcut',mt_dbl,1,wcut)) wcut=ecut
          rcut = 0.0d0
          ncut = 0
          npsp = 0
@@ -1017,7 +1017,7 @@ c         return
 *     *****************************
 *     ***** symmetry variables ****
 *     *****************************
-      if (.not.rtdb_get(rtdb,'nwpw:symmetry',mt_int,1,symm_number))
+      if (.not.btdb_get(rtdb,'nwpw:symmetry',mt_int,1,symm_number))
      >   symm_number = 0
 
 *     **********************
@@ -1031,31 +1031,31 @@ c         return
 
            
 *     **** define unita and boundary ****
-      if (.not.rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)) then
+      if (.not.btdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)) then
         call dcopy(9,0.0d0,0,unita,1)
       end if
 
-      if (.not.rtdb_cget(rtdb,rtdb_boundry,1,boundry)) then
+      if (.not.btdb_cget(rtdb,rtdb_boundry,1,boundry)) then
          boundry = 'periodic'
       end if
       call check_unita_for_default(rtdb,unita,rtdb_unita,cell_name)
 
 
 *     **** define unita_frozen ****
-      if (.not.rtdb_get(rtdb,'nwpw:frozen_lattice',mt_log,1,frozen)) 
+      if (.not.btdb_get(rtdb,'nwpw:frozen_lattice',mt_log,1,frozen)) 
      >   frozen = .true.
 
       if (frozen) then
-         if (.not.rtdb_get(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)) then
+         if (.not.btdb_get(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)) then
             call dcopy(9,unita,1,unita_frozen,1)
             value2 = rtdb_parallel(.false.)
             if (taskid.eq.MASTER) then
                value = value.and.
-     >                 rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
+     >                 btdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
             end if
             value2 = rtdb_parallel(.true.)
          else
-            if (.not.rtdb_get(rtdb,'nwpw:frozen_lattice:thresh',
+            if (.not.btdb_get(rtdb,'nwpw:frozen_lattice:thresh',
      >                        mt_dbl,1,thresh)) thresh = 0.05d0
             error = 0.0d0
             do l=1,3
@@ -1069,7 +1069,7 @@ c         return
                value2 = rtdb_parallel(.false.)
                if (taskid.eq.MASTER) then
                   value = value.and.
-     >                 rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
+     >                 btdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
                end if
                value2 = rtdb_parallel(.true.)
             end if
@@ -1080,7 +1080,7 @@ c         return
 
 
 *     **** define ngrid based on unita and ecut ****
-      if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
+      if (.not.btdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
          if ((ecut.gt.5000.0d0).and.(wcut.gt.5000.0d0)) then
             call control_ecut_wcut_default(rtdb,ecut,wcut)
          else if ((ecut.gt.5000.0d0).and.(wcut.lt.5000.0d0)) then
@@ -1098,22 +1098,22 @@ c         return
 
 *     **** set fractional (smearing) parameters ****
       if (.not.
-     > rtdb_get(rtdb,'nwpw:fractional_orbitals',mt_int,2,frac_ne)) then
+     > btdb_get(rtdb,'nwpw:fractional_orbitals',mt_int,2,frac_ne)) then
          frac_ne(1) = 0
          frac_ne(2) = 0
       end if
       fractional = (frac_ne(1).gt.0).or.(frac_ne(2).gt.0)
-      if (.not.rtdb_get(rtdb,'nwpw:fractional_temperature',
+      if (.not.btdb_get(rtdb,'nwpw:fractional_temperature',
      >                  mt_dbl,1,frac_temperature)) then
          frac_temperature = 0.0d0
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:fractional_smeartype',
+      if (.not.btdb_get(rtdb,'nwpw:fractional_smeartype',
      >                  mt_int,1,frac_smeartype)) then
          frac_smeartype = 0
       end if
 
 *     **** set attenuation parameter ****
-      if (.not.rtdb_get(rtdb,'nwpw:attenuation',mt_dbl,1,attenuation))
+      if (.not.btdb_get(rtdb,'nwpw:attenuation',mt_dbl,1,attenuation))
      >  attenuation = 0.5d0
 
 *     **** set out of time variables ****
@@ -1123,7 +1123,7 @@ c         return
 
 *     **** set gram_schmidt ***
       gram_schmidt = .false.
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >      'nwpw:gram-schmidt',mt_log,1,gram_schmidt))
      >  gram_schmidt = .false.
 
@@ -1136,7 +1136,7 @@ c         return
 
 *     ****  ewald ngrid ************
 cccc set to some reasonable default !
-      if (.not.rtdb_get(rtdb,'nwpw:ewald_ngrid',mt_int,3,ewald_grid)) 
+      if (.not.btdb_get(rtdb,'nwpw:ewald_ngrid',mt_int,3,ewald_grid)) 
      > then 
         ewald_grid(1)=ngrid(1)
         ewald_grid(2)=ngrid(2)
@@ -1181,7 +1181,7 @@ cccc set to some reasonable default !
       end if
 
 *     **** minimizer ****
-      if (.not.rtdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
+      if (.not.btdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
          minimizer = 1   ! make the default Grassmann cg
       end if
 
@@ -1227,7 +1227,7 @@ cccc set to some reasonable default !
       integer ngrid(3)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -1274,7 +1274,7 @@ c        ngrid(3) = control_set_ngrid(2.0d0*zh,.false.)
 
 
 c*     *** write unita to rtdb  - should happen only once during a simulation ***
-c      if (.not.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
+c      if (.not.btdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
 c        call errquit('cannot write ngrid to rtdb',0,0)
 c      end if
 
@@ -1361,7 +1361,7 @@ c      end if
 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -1403,13 +1403,13 @@ c      end if
          if (value) then
            l = index(cell_name,' ') - 1
            rtdb_name = cell_name(1:l)//':box_delta'
-           if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,box_delta))
+           if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,1,box_delta))
      >       box_delta = 5.0d0
            rtdb_name = cell_name(1:l)//':box_type'
-           if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,box_type)) 
+           if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,box_type)) 
      >       box_type = 0
            rtdb_name = cell_name(1:l)//':box_orient'
-           if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
+           if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,
      >                       box_orient)) 
      >       box_orient = .false.
            call control_find_box(geom,box_type,box_orient,box_delta,
@@ -1419,7 +1419,7 @@ c      end if
            call Parallel_taskid(taskid)
            value = rtdb_parallel(.false.)
            if (taskid.eq.MASTER) then
-           if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita)) then
+           if (.not.btdb_put(rtdb,rtdb_unita,mt_dbl,9,unita)) then
              call errquit('cannot write unita to rtdb',0,0)
            end if
            end if
@@ -1458,7 +1458,7 @@ c      end if
       real*8 unita(3,3)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -2157,7 +2157,7 @@ c         mtensor(3,3) = z
       real*8 unita_in(*)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "control.fh"
 
@@ -2182,7 +2182,7 @@ c         mtensor(3,3) = z
       call Parallel_taskid(taskid)
       value=rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
-         if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
+         if (.not.btdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
      >   call errquit('control_set_unita:writing unita',0,RTDB_ERR)
       end if
       value=rtdb_parallel(.true.)
@@ -2217,7 +2217,7 @@ c         mtensor(3,3) = z
       real*8 unita_in(*)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "control.fh"
 
@@ -2241,7 +2241,7 @@ c         mtensor(3,3) = z
       call Parallel_taskid(taskid)
       value=rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
-         if (.not.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
+         if (.not.btdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
      >   call errquit('control_set_unita:writing unita',0,RTDB_ERR)
       end if
       value=rtdb_parallel(.true.)
@@ -2926,7 +2926,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "control.fh"
 
@@ -2939,22 +2939,22 @@ c      end
 
       value = .false.
       if (code.eq.1) then
-        if (.not.rtdb_get(rtdb,'cpsd:mulliken',mt_log,1,value))
+        if (.not.btdb_get(rtdb,'cpsd:mulliken',mt_log,1,value))
      >      value = .false.
       end if
       if ((code.eq.2).or.(code.eq.7)) then
-        if (.not.rtdb_get(rtdb,'cpmd:mulliken',mt_log,1,value))
+        if (.not.btdb_get(rtdb,'cpmd:mulliken',mt_log,1,value))
      >     value = .false.
       end if
 
 
       if ((code.eq.3).or.(code.eq.11)) then
-        if (.not.rtdb_get(rtdb,'cgsd:mulliken',mt_log,1,value))
+        if (.not.btdb_get(rtdb,'cgsd:mulliken',mt_log,1,value))
      >     value = .false.
       end if
 
       if ((code.eq.5).or.(code.eq.11)) then
-        if (.not.rtdb_get(rtdb,'band:mulliken',mt_log,1,value))
+        if (.not.btdb_get(rtdb,'band:mulliken',mt_log,1,value))
      >     value = .false.
       end if
 
@@ -2973,7 +2973,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "inp.fh"
 #include "util.fh"
 
@@ -2987,12 +2987,12 @@ c      end
       integer rtdb
       common / control_rtdb1 / rtdb
 
-      if (.not.rtdb_get(rtdb,'cgsd:allow_translation',
+      if (.not.btdb_get(rtdb,'cgsd:allow_translation',
      >                  mt_log,1,value))
      >  value = .true.
 
 *      *** read the current operation ****
-      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+      if (.not. btdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = ' '
 
 *     *** allow translation of operation == freq||hessian ***
@@ -3019,7 +3019,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 
       logical task_qmmm
@@ -3028,7 +3028,7 @@ c      end
       integer rtdb
       common / control_rtdb1 / rtdb
 
-      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
+      if( .not. btdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      >  task_qmmm = .false.
 
       control_qmmm = task_qmmm
@@ -3044,7 +3044,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 
       logical mp2
@@ -3053,7 +3053,7 @@ c      end
       integer rtdb
       common / control_rtdb1 / rtdb
 
-      if( .not. rtdb_get(rtdb,'nwpw:MP2',mt_log,1,mp2))
+      if( .not. btdb_get(rtdb,'nwpw:MP2',mt_log,1,mp2))
      >  mp2 = .false.
 
       control_MP2 = mp2
@@ -3070,7 +3070,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** control_rtdb common block ****
@@ -3083,12 +3083,12 @@ c      end
       character*50 rtdb_name
       integer num_kvectors,l
 
-      if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
+      if (.not.btdb_cget(rtdb,'band:zone_name',1,zone_name))
      >   zone_name = 'zone_default'
 
       l = index(zone_name,' ') -1
       rtdb_name = zone_name(1:l)//':number_kvectors'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors))
+      if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors))
      >   num_kvectors = 1
 
       control_num_kvectors = num_kvectors
@@ -3106,7 +3106,7 @@ c      end
       real*8 ks(4)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** control_rtdb common block ****
@@ -3128,13 +3128,13 @@ c      end
       if (.not.BA_push_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
      >  call errquit('control_ksvector: out of stack', 0,MA_ERR)
 
-      if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
+      if (.not.btdb_cget(rtdb,'band:zone_name',1,zone_name))
      >   zone_name = 'zone_default'
 
 
       l = index(zone_name,' ') -1
       rtdb_name = zone_name(1:l)//':kvectors'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,
+      if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,
      >                  (4*num_kvectors),dbl_mb(kvs(1)))) then
          call dcopy(4*num_kvectors,0.0d0,0,dbl_mb(kvs(1)),1)
       end if
@@ -3192,7 +3192,7 @@ c      end
       integer grid(3)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** control_rtdb common block ****
@@ -3204,12 +3204,12 @@ c      end
       character*50 rtdb_name
       integer l
 
-      if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
+      if (.not.btdb_cget(rtdb,'band:zone_name',1,zone_name))
      >   zone_name = 'zone_default'
 
       l = index(zone_name,' ') -1
       rtdb_name = zone_name(1:l)//':monkhorst-pack'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,3,grid)) then
+      if (.not.btdb_get(rtdb,rtdb_name,mt_int,3,grid)) then
          grid(1) = 0
          grid(2) = 0
          grid(3) = 0
@@ -3229,7 +3229,7 @@ c      end
       real*8 ks(*)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** control_rtdb common block ****
@@ -3252,12 +3252,12 @@ c      end
       if (.not.BA_push_get(mt_dbl,(4*num_kvectors),'kvs',kvs(2),kvs(1)))
      >  call errquit('control_ksvector: out of stack', 0,MA_ERR)
 
-      if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
+      if (.not.btdb_cget(rtdb,'band:zone_name',1,zone_name))
      >   zone_name = 'zone_default'
 
       i = index(zone_name,' ') -1
       rtdb_name = zone_name(1:i)//':kvectors'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,
+      if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,
      >                  (4*num_kvectors),dbl_mb(kvs(1)))) then
          call dcopy(4*num_kvectors,0.0d0,0,dbl_mb(kvs(1)),1)
       end if
@@ -3295,7 +3295,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3304,7 +3304,7 @@ c      end
       double precision charge
 
       charge = 0.0d0 
-      if (.not.rtdb_get(rtdb,'charge',mt_dbl,1,charge)) then
+      if (.not.btdb_get(rtdb,'charge',mt_dbl,1,charge)) then
          charge = 0.0d0 
       end if
 
@@ -3323,7 +3323,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3333,7 +3333,7 @@ c      end
 
       norbs = 0
       if (.not.
-     > rtdb_get(rtdb,'nwpw:frac_occ:extra_orbitals',
+     > btdb_get(rtdb,'nwpw:frac_occ:extra_orbitals',
      >           mt_int,1,norbs)) then
          norbs = 0
       end if
@@ -3386,7 +3386,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3394,7 +3394,7 @@ c      end
 
       integer lmbfgs_size
 
-      if (.not.rtdb_get(rtdb,'nwpw:lmbfgs_size',mt_int,1,lmbfgs_size)) 
+      if (.not.btdb_get(rtdb,'nwpw:lmbfgs_size',mt_int,1,lmbfgs_size)) 
      >  then
          lmbfgs_size = 1
       end if
@@ -3412,7 +3412,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3420,7 +3420,7 @@ c      end
 
       logical precondition
 
-      if (.not.rtdb_get(rtdb,'nwpw:precondition',
+      if (.not.btdb_get(rtdb,'nwpw:precondition',
      >                  mt_log,1,precondition)) 
      >  then
          precondition = .false.
@@ -3439,7 +3439,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3447,7 +3447,7 @@ c      end
 
       logical ondisk
 
-      if (.not.rtdb_get(rtdb,'nwpw:lmbfgs_ondisk',
+      if (.not.btdb_get(rtdb,'nwpw:lmbfgs_ondisk',
      >                  mt_log,1,ondisk)) 
      >  then
          ondisk = .false.
@@ -3469,7 +3469,7 @@ c      end
       real*8      rlocal
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3485,19 +3485,19 @@ c      end
       rtdb_name = '                   '
       rtdb_name       = element(1:l)//':lmax'
       k = index(rtdb_name,' ') - 1
-      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_int,1,lmax)) 
+      if (.not.btdb_get(rtdb,rtdb_name(1:k),mt_int,1,lmax)) 
      >  lmax = -1
 
       rtdb_name = '                   '
       rtdb_name       = element(1:l)//':locp'
       k = index(rtdb_name,' ') - 1
-      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_int,1,locp)) 
+      if (.not.btdb_get(rtdb,rtdb_name(1:k),mt_int,1,locp)) 
      >  locp = -1
 
       rtdb_name = '                   '
       rtdb_name       = element(1:l)//':rlocal'
       k = index(rtdb_name,' ') - 1
-      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,rlocal)) 
+      if (.not.btdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,rlocal)) 
      >  rlocal = 1.0d0
       
       return
@@ -3514,7 +3514,7 @@ c      end
       real*8 rcut,lmbda
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
       
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3531,13 +3531,13 @@ c      end
       rtdb_name = '                   '
       rtdb_name       = element(1:l)//':mulliken:rcut'
       k = index(rtdb_name,' ') - 1
-      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,rcut))
+      if (.not.btdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,rcut))
      >  rcut = 1.0d0
 
       rtdb_name = '                   '
       rtdb_name       = element(1:l)//':mulliken:lmbda'
       k = index(rtdb_name,' ') - 1
-      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,lmbda))
+      if (.not.btdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,lmbda))
      >  lmbda = 0.0d0
            
       return
@@ -3555,7 +3555,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3563,7 +3563,7 @@ c      end
 
       real*8 Ep
 
-      if (.not.rtdb_get(rtdb,'nwpw:Eprecondition',
+      if (.not.btdb_get(rtdb,'nwpw:Eprecondition',
      >                  mt_dbl,1,Ep)) 
      >  then
          Ep = 20.0d0
@@ -3584,7 +3584,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3592,7 +3592,7 @@ c      end
 
       real*8 Sp
       
-      if (.not.rtdb_get(rtdb,'nwpw:Sprecondition',
+      if (.not.btdb_get(rtdb,'nwpw:Sprecondition',
      >                  mt_dbl,1,Sp))
      >  then
          Sp = 200.0d0
@@ -3717,7 +3717,7 @@ c      end
       integer ii
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3725,7 +3725,7 @@ c      end
 
       integer ne(2)
 
-      if (.not.rtdb_get(rtdb,'nwpw:excited_ne',mt_int,2,ne)) then
+      if (.not.btdb_get(rtdb,'nwpw:excited_ne',mt_int,2,ne)) then
          ne(1) = 0
          ne(2) = 0
       end if
@@ -3805,7 +3805,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3814,7 +3814,7 @@ c      end
       logical ortho
 
       if (.not.
-     >    rtdb_get(rtdb,'nwpw:ortho_initialize',mt_log,1,ortho)) then
+     >    btdb_get(rtdb,'nwpw:ortho_initialize',mt_log,1,ortho)) then
          ortho = .true.
       end if
 
@@ -3910,7 +3910,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3918,7 +3918,7 @@ c      end
 
       logical oep
 
-      if (.not.rtdb_get(rtdb,'nwpw:oep',mt_log,1,oep)) then
+      if (.not.btdb_get(rtdb,'nwpw:oep',mt_log,1,oep)) then
          oep = .false.
       end if
 
@@ -3937,7 +3937,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3945,7 +3945,7 @@ c      end
 
       logical new_vpsi
 
-      if (.not.rtdb_get(rtdb,'nwpw:new_vmovecs',mt_log,1,new_vpsi)) then
+      if (.not.btdb_get(rtdb,'nwpw:new_vmovecs',mt_log,1,new_vpsi)) then
          new_vpsi = .false.
       end if
 
@@ -3963,7 +3963,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -3971,7 +3971,7 @@ c      end
 
       logical com_shift
 
-      if (.not.rtdb_get(rtdb,'nwpw:com_shift',mt_log,1,com_shift)) then
+      if (.not.btdb_get(rtdb,'nwpw:com_shift',mt_log,1,com_shift)) then
          com_shift = .true.
       end if
 
@@ -3990,7 +3990,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4000,7 +4000,7 @@ c      end
       real*8  alpha
 
       dos = .false.
-      if (rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) dos = .true.
+      if (btdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) dos = .true.
 
       control_DOS = dos
       return
@@ -4016,7 +4016,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4025,7 +4025,7 @@ c      end
       logical psitmp
 
       psitmp = .false.
-      if (.not.rtdb_get(rtdb,'nwpw:psi_tmp',mt_log,1,psitmp))
+      if (.not.btdb_get(rtdb,'nwpw:psi_tmp',mt_log,1,psitmp))
      >   psitmp = .false.
 
       control_psi_tmp = psitmp
@@ -4041,7 +4041,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4050,7 +4050,7 @@ c      end
       logical value
 
       value = .false.
-      if (.not.rtdb_get(rtdb,'nwpw:mulliken_kawai',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mulliken_kawai',mt_log,1,value))
      >   value = .false.
 
       control_mulliken_kawai = value
@@ -4068,7 +4068,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4077,7 +4077,7 @@ c      end
       logical value
 
       value = .false.
-      if (.not.rtdb_get(rtdb,'nwpw:zero_forces',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:zero_forces',mt_log,1,value))
      >   value = .false.
 
       control_zero_forces = value
@@ -4096,13 +4096,13 @@ c      end
       integer grid(3)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
       common / control_rtdb1 / rtdb
 
-      if (.not.rtdb_get(rtdb,'band:dos-grid',mt_int,3,grid)) then
+      if (.not.btdb_get(rtdb,'band:dos-grid',mt_int,3,grid)) then
         grid(1) = 1
         grid(2) = 1
         grid(3) = 1
@@ -4123,18 +4123,18 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "control.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
       common / control_rtdb1 / rtdb
 
-      if (.not. rtdb_cget(rtdb, 'pspw:input bvectors',
+      if (.not. btdb_cget(rtdb, 'pspw:input bvectors',
      >                    1,input_wavefunction_filename))
      >  input_wavefunction_filename = 'atomic'
 
-      if (.not. rtdb_cget(rtdb, 'pspw:output bvectors',
+      if (.not. btdb_cget(rtdb, 'pspw:output bvectors',
      >                    1,output_wavefunction_filename))
      >     output_wavefunction_filename = ' '
       if (output_wavefunction_filename.eq.' ')then
@@ -4161,7 +4161,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** control_rtdb common block ****
@@ -4174,12 +4174,12 @@ c      end
       character*50 rtdb_name
       integer num_kvectors,l
 
-      value = rtdb_cget(rtdb,'band_structure:zone_name',1,zone_name)
+      value = btdb_cget(rtdb,'band_structure:zone_name',1,zone_name)
 
       l = index(zone_name,' ') -1
       rtdb_name = zone_name(1:l)//':number_kvectors'
       value = value.and.
-     >        rtdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors)
+     >        btdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors)
 
       if (.not. value)
      >  call errquit('control_num_kvectors_structure: failed', 
@@ -4201,7 +4201,7 @@ c      end
       real*8 ks(4)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** control_rtdb common block ****
@@ -4227,7 +4227,7 @@ c      end
      &       MA_ERR)
 
       value = value.and.
-     >        rtdb_cget(rtdb,'band_structure:zone_name',1,zone_name)
+     >        btdb_cget(rtdb,'band_structure:zone_name',1,zone_name)
       if (.not. value)
      >  call errquit('control_ksvector: failed to get zone name', 0,
      &       RTDB_ERR)
@@ -4235,7 +4235,7 @@ c      end
       l = index(zone_name,' ') -1
       rtdb_name = zone_name(1:l)//':kvectors'
       value = value.and.
-     >        rtdb_get(rtdb,rtdb_name,mt_dbl,
+     >        btdb_get(rtdb,rtdb_name,mt_dbl,
      >                   (4*num_kvectors),
      >                    dbl_mb(kvs(1)))
 
@@ -4364,7 +4364,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4372,7 +4372,7 @@ c      end
 
       integer optimize_strategy
 
-      if (.not.rtdb_get(rtdb,'cell_optimize:optimize_strategy',
+      if (.not.btdb_get(rtdb,'cell_optimize:optimize_strategy',
      >                 mt_int,1,optimize_strategy))
      >  optimize_strategy = 0
 
@@ -4394,7 +4394,7 @@ c      end
       integer u,v
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4402,7 +4402,7 @@ c      end
 
       integer optimize_lattice_vectors(3,3)
 
-      if (.not.rtdb_get(rtdb,'cell_optimize:optimize_lattice_vectors',
+      if (.not.btdb_get(rtdb,'cell_optimize:optimize_lattice_vectors',
      >                 mt_int,9,optimize_lattice_vectors)) then
 
         optimize_lattice_vectors(1,1) =1
@@ -4431,7 +4431,7 @@ c      end
       integer i
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4439,7 +4439,7 @@ c      end
 
       integer optimize_lattice(6)
 
-      if (.not.rtdb_get(rtdb,'cell_optimize:optimize_lattice',
+      if (.not.btdb_get(rtdb,'cell_optimize:optimize_lattice',
      >                 mt_int,6,optimize_lattice)) then
 
         optimize_lattice(1) =1
@@ -4466,7 +4466,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4474,7 +4474,7 @@ c      end
 
       integer lmax
 
-      if (.not.rtdb_get(rtdb,'nwpw:lmax_multipole',mt_int,1,lmax))
+      if (.not.btdb_get(rtdb,'nwpw:lmax_multipole',mt_int,1,lmax))
      >  lmax = -1
 
       control_lmax_multipole = lmax
@@ -4493,7 +4493,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4501,7 +4501,7 @@ c      end
 
       integer qmax
 
-      if (.not.rtdb_get(rtdb,'nwpw:pfft3_qsize',mt_int,1,qmax))
+      if (.not.btdb_get(rtdb,'nwpw:pfft3_qsize',mt_int,1,qmax))
      >  qmax = 4
 
       control_pfft3_qsize = qmax
@@ -4519,7 +4519,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4527,7 +4527,7 @@ c      end
 
       integer qmax
 
-      if (.not.rtdb_get(rtdb,'nwpw:nprj_mult',mt_int,1,qmax))
+      if (.not.btdb_get(rtdb,'nwpw:nprj_mult',mt_int,1,qmax))
      >  qmax = 1
 
       control_nprj_mult = qmax
@@ -4673,7 +4673,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4682,7 +4682,7 @@ c      end
       logical value
 
       value = .false.
-      if (.not.rtdb_get(rtdb,'cpmd:pressure',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'cpmd:pressure',mt_log,1,value))
      >   value = .false.
 
       control_pressure = value
@@ -4699,7 +4699,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4709,7 +4709,7 @@ c      end
       real*8  temp
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'cpmd:init_velocities_temperature',
+      if (.not.btdb_get(rtdb,'cpmd:init_velocities_temperature',
      >     mt_dbl,1,temp))
      >   value = .false.
 
@@ -4727,7 +4727,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4736,7 +4736,7 @@ c      end
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:kbpp_ray',
+      if (.not.btdb_get(rtdb,'nwpw:kbpp_ray',
      >     mt_log,1,value))
      >   value = .false.
 
@@ -4755,7 +4755,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4764,7 +4764,7 @@ c      end
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:kbpp_filter',
+      if (.not.btdb_get(rtdb,'nwpw:kbpp_filter',
      >     mt_log,1,value))
      >   value = .false.
 
@@ -4782,7 +4782,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4791,7 +4791,7 @@ c      end
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:brillioun_ondisk',
+      if (.not.btdb_get(rtdb,'nwpw:brillioun_ondisk',
      >     mt_log,1,value))
      >   value = .false.
 
@@ -4809,7 +4809,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4818,7 +4818,7 @@ c      end
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:mparallelized',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mparallelized',mt_log,1,value))
      >   value = .false.
 
       control_mparallelized = value
@@ -4835,7 +4835,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4844,7 +4844,7 @@ c      end
       integer value
 
       value = 16
-      if (.not.rtdb_get(rtdb,'nwpw:mreplicate_size',mt_int,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mreplicate_size',mt_int,1,value))
      >   value = 16
 
       control_mreplicate_size = value
@@ -4861,7 +4861,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4870,7 +4870,7 @@ c      end
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:bo_cpmd',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:bo_cpmd',mt_log,1,value))
      >   value = .false.
 
       control_bo_cpmd = value
@@ -4886,7 +4886,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4895,7 +4895,7 @@ c      end
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:hfxon_virtual',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:hfxon_virtual',mt_log,1,value))
      >   value = .true.
 
       control_hfxon_virtual = value
@@ -4914,7 +4914,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4922,7 +4922,7 @@ c      end
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'cpmd:init_velocities_temperature',
+      if (.not.btdb_get(rtdb,'cpmd:init_velocities_temperature',
      >                  mt_dbl,1,value))
      >   value = 300.0d0
 
@@ -4941,7 +4941,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4949,7 +4949,7 @@ c      end
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'wannier:time_step',mt_dbl,1,value))
+      if (.not.btdb_get(rtdb,'wannier:time_step',mt_dbl,1,value))
      >   value = 2.7e-2
 
       control_wannier_timestep = value
@@ -4967,7 +4967,7 @@ c      end
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -4975,7 +4975,7 @@ c      end
 
       integer value
 
-      if (.not.rtdb_get(rtdb,'wannier:maxiter',mt_int,1,value))
+      if (.not.btdb_get(rtdb,'wannier:maxiter',mt_int,1,value))
      >   value = 500
 
       control_wannier_maxiter = value
@@ -5028,7 +5028,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 ecut,wcut
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -5053,7 +5053,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external    parsepointcharge
 
       !*** parse psp information on rtdb ***
-      if (.not.rtdb_get(rtdb,'nwpw:psp:cutoff',mt_dbl,1,wcut_max)) then 
+      if (.not.btdb_get(rtdb,'nwpw:psp:cutoff',mt_dbl,1,wcut_max)) then 
          call Parallel_taskid(taskid)
          wcut_max = -1.0d0
          value = geom_create(geom,'geometry')
@@ -5073,7 +5073,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               if (l.le.0) l = 4
               rtdbname = aname(1:l)//':cutoff'
               l = l+7
-              if (.not.rtdb_get(rtdb,rtdbname(1:l),mt_dbl,1,wcut_atom)) 
+              if (.not.btdb_get(rtdb,rtdbname(1:l),mt_dbl,1,wcut_atom)) 
      >         then
 
                  !*** define wcut_atom from psplibrary ***
@@ -5089,7 +5089,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                  sdir_name(1:h)//'/junk.inp')
                    wcut_atom=nwpw_libgcutoff(aname)
 
-                   if(.not.rtdb_put(rtdb,rtdbname(1:l),
+                   if(.not.btdb_put(rtdb,rtdbname(1:l),
      >                              mt_dbl,1,wcut_atom))
      >             call errquit(
      >           'control_ecut_wcut_default:cannot write wcut_atom',0,0)
@@ -5105,7 +5105,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                  wcut_max = wcut_atom
                  value = rtdb_parallel(.false.)
                  if (taskid.eq.MASTER) then
-                 if (.not.rtdb_put(rtdb,'nwpw:psp:cutoff',
+                 if (.not.btdb_put(rtdb,'nwpw:psp:cutoff',
      >                             mt_dbl,1,wcut_max)) 
      >           call errquit(
      >          'control_ecut_wcut_default:cannot write wcut_max',0,0)
@@ -5136,7 +5136,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5145,7 +5145,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:pspspin',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:pspspin',mt_log,1,value))
      >   value = .false.
 
       control_pspspin = value
@@ -5170,7 +5170,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical upions(*),downions(*)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** control_rtdb common block ****
@@ -5190,24 +5190,24 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external    c_index_name
 
       call Parallel_taskid(taskid)
-      if (.not.rtdb_get(rtdb,'nwpw:pspspin_count',mt_int,1,pcount))
+      if (.not.btdb_get(rtdb,'nwpw:pspspin_count',mt_int,1,pcount))
      >   pcount = 0
 
       if (taskid.eq.MASTER) write(*,2300) 
       do ip=1,pcount
 
          rtdb_name = 'nwpw:pspspin_iamup:'//c_index_name(ip)
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,iamup)) iamup=.true.
+         if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,iamup)) iamup=.true.
 
          if (iamup) then
             rtdb_name = 'nwpw:pspspin_upscale:'//c_index_name(ip)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,tscale)) 
+            if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,1,tscale)) 
      >         tscale = 1.0d0
             rtdb_name = 'nwpw:pspspin_upl:'//c_index_name(ip)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,tl))
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,tl))
      >         tl = -1
             rtdb_name = 'nwpw:pspspin_upm:'//c_index_name(ip)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,tm))
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,tm))
      >         tm = 99999
             if (taskid.eq.MASTER) then
                if (tm.lt.999) then
@@ -5242,13 +5242,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          else
             rtdb_name = 'nwpw:pspspin_downscale:'//c_index_name(ip)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,tscale))
+            if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,1,tscale))
      >         tscale = 1.0d0
             rtdb_name = 'nwpw:pspspin_downl:'//c_index_name(ip)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,tl))
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,tl))
      >         tl = -1
             rtdb_name = 'nwpw:pspspin_downm:'//c_index_name(ip)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,tm))
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,tm))
      >         tm = 99999
             if (taskid.eq.MASTER) then
                if (tm.lt.999) then
@@ -5302,7 +5302,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5311,7 +5311,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:uterm',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:uterm',mt_log,1,value))
      >   value = .false.
 
       control_psputerm = value
@@ -5327,7 +5327,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5336,7 +5336,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer nuterms
 
       nuterms = 0
-      if (.not.rtdb_get(rtdb,'nwpw:nuterms',mt_int,1,nuterms))
+      if (.not.btdb_get(rtdb,'nwpw:nuterms',mt_int,1,nuterms))
      >   nuterms = 0
 
       control_pspnuterms = nuterms
@@ -5356,7 +5356,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical ions(nion,nuterms)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** control_rtdb common block ****
@@ -5379,15 +5379,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do nu=1,nuterms
 
           rtdb_name = 'nwpw:uterm_scale:'//c_index_name(nu)
-          if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,uscale(nu)))
+          if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,1,uscale(nu)))
      >      uscale(nu) = 0.0d0
 
           rtdb_name = 'nwpw:jterm_scale:'//c_index_name(nu)
-          if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,jscale(nu)))
+          if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,1,jscale(nu)))
      >      jscale(nu) = 0.0d0
 
           rtdb_name = 'nwpw:uterm_l:'//c_index_name(nu)
-          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,l(nu)))
+          if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,l(nu)))
      >       l(nu) = -1
 
          do i=1,nion
@@ -5436,7 +5436,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5445,7 +5445,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       logical value
 
       value = .true.
-      if (.not.rtdb_get(rtdb,'nwpw:use_grid_cmp',mt_log,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:use_grid_cmp',mt_log,1,value))
      >   value = .false.
 
       control_use_grid_cmp = value
@@ -5463,7 +5463,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer i
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5472,13 +5472,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 value
 
       if (i.eq.1) then
-         if (.not.rtdb_get(rtdb,'nwpw:wgc_alpha',mt_dbl,1,value))
+         if (.not.btdb_get(rtdb,'nwpw:wgc_alpha',mt_dbl,1,value))
      >      value = 5.0d0/6.0d0
       else if (i.eq.2) then
-         if (.not.rtdb_get(rtdb,'nwpw:wgc_beta',mt_dbl,1,value))
+         if (.not.btdb_get(rtdb,'nwpw:wgc_beta',mt_dbl,1,value))
      >      value = 5.0d0/6.0d0
       else 
-         if (.not.rtdb_get(rtdb,'nwpw:wgc_lambda',mt_dbl,1,value))
+         if (.not.btdb_get(rtdb,'nwpw:wgc_lambda',mt_dbl,1,value))
      >      value = 1.0d0
       end if
 
@@ -5497,7 +5497,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5505,7 +5505,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_step_size',mt_dbl,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mc_step_size',mt_dbl,1,value))
      >  value = 0.50d0
 
       control_mc_step_size = value
@@ -5524,7 +5524,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5532,7 +5532,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_volume_step',mt_dbl,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mc_volume_step',mt_dbl,1,value))
      >  value = 0.10d0
 
       control_mc_volume_step = value
@@ -5551,7 +5551,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5559,7 +5559,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_aratio',mt_dbl,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mc_aratio',mt_dbl,1,value))
      >  value = 0.234d0
 
       control_mc_aratio = value
@@ -5576,7 +5576,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5584,7 +5584,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_temperature',mt_dbl,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mc_temperature',mt_dbl,1,value))
      >  value = 298.15d0
 
       control_mc_Temperature = value
@@ -5601,7 +5601,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       real*8 autoMbar,autoGPa,autoatm
@@ -5616,7 +5616,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_pressure',mt_dbl,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mc_pressure',mt_dbl,1,value))
      >  value = 1.0d0/autoatm
 
       control_mc_pressure = value
@@ -5633,7 +5633,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5641,7 +5641,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_ddx',mt_dbl,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mc_ddx',mt_dbl,1,value))
      >  value = 0.0d0
 
       control_mc_ddx = value
@@ -5658,7 +5658,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5666,7 +5666,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       real*8 value
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_ddv',mt_dbl,1,value))
+      if (.not.btdb_get(rtdb,'nwpw:mc_ddv',mt_dbl,1,value))
      >  value = 0.0d0
 
       control_mc_ddv = value
@@ -5684,7 +5684,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5692,7 +5692,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       integer ivalue
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_seed',mt_int,1,ivalue))
+      if (.not.btdb_get(rtdb,'nwpw:mc_seed',mt_int,1,ivalue))
      >  ivalue =  9484943
 
       control_mc_seed = ivalue
@@ -5709,7 +5709,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5717,7 +5717,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       integer ivalue
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_algorithm',mt_int,1,ivalue))
+      if (.not.btdb_get(rtdb,'nwpw:mc_algorithm',mt_int,1,ivalue))
      >  ivalue =  1
 
       control_mc_algorithm = ivalue
@@ -5737,13 +5737,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 mc_atom_direction(3)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
       common / control_rtdb1 / rtdb
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_atom_direction',
+      if (.not.btdb_get(rtdb,'nwpw:mc_atom_direction',
      >                  mt_dbl,3,mc_atom_direction)) then
          mc_atom_direction(1) = 1.0d0
          mc_atom_direction(2) = 1.0d0
@@ -5765,21 +5765,21 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer mc_napply,mc_ngroups,mc_group_size
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
       common / control_rtdb1 / rtdb
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_napply',
+      if (.not.btdb_get(rtdb,'nwpw:mc_napply',
      >                  mt_int,1,mc_napply)) then
          mc_napply = 1
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:mc_ngroups',
+      if (.not.btdb_get(rtdb,'nwpw:mc_ngroups',
      >                  mt_int,1,mc_ngroups)) then
          mc_ngroups = 0
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:mc_group_size',
+      if (.not.btdb_get(rtdb,'nwpw:mc_group_size',
      >                  mt_int,1,mc_group_size)) then
          mc_group_size = 0
       end if
@@ -5803,7 +5803,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer mc_group(*)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** control_rtdb common block ****
       integer rtdb
@@ -5811,18 +5811,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       integer ng,ngs
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_ngroups',mt_int,1,ng)) ng=1
-      if (.not.rtdb_get(rtdb,'nwpw:mc_group_size',mt_int,1,ngs)) ngs=1
+      if (.not.btdb_get(rtdb,'nwpw:mc_ngroups',mt_int,1,ng)) ng=1
+      if (.not.btdb_get(rtdb,'nwpw:mc_group_size',mt_int,1,ngs)) ngs=1
 
-      if (.not.rtdb_get(rtdb,'nwpw:mc_group_start',
+      if (.not.btdb_get(rtdb,'nwpw:mc_group_start',
      >                  mt_int,ng,mc_group_start)) then
          call icopy(ng,0,1,mc_group_start,1)
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:mc_group_end',
+      if (.not.btdb_get(rtdb,'nwpw:mc_group_end',
      >                  mt_int,ng,mc_group_end)) then
          call icopy(ng,0,1,mc_group_end,1)
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:mc_group',
+      if (.not.btdb_get(rtdb,'nwpw:mc_group',
      >                  mt_int,ngs,mc_group)) then
          call icopy(ngs,0,1,mc_group,1)
       end if

@@ -14,7 +14,7 @@
       integer ne(2)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "pspw_hfx.fh"
 
@@ -36,7 +36,7 @@
       hfx_on = .false.
       call D3dB_n2ft3d(1,n2ft3d)
 
-      if (.not.rtdb_get(rtdb,'pspw:HFX',mt_log,1,hfx_on))
+      if (.not.btdb_get(rtdb,'pspw:HFX',mt_log,1,hfx_on))
      >   hfx_on = .false.
 
 
@@ -78,27 +78,27 @@
 
       if (hfx_on) then
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_screening_radius',
      >                      mt_dbl,1,rcut)) 
      >       rcut = 8.0d0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_screening_power',
      >                      mt_dbl,1,pp)) 
      >       pp = 8.0d0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_screening_type',
      >                      mt_int,1,flag)) 
      >       flag = 0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_relax',
      >                      mt_log,1,relaxed)) 
      >       relaxed = .true.
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_solver_type',
      >                      mt_int,1,solver_type)) then
 
@@ -106,17 +106,17 @@
             if (control_version().eq.4) solver_type = 2
          end if
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_parameter',
      >                       mt_dbl,1,HFX_parameter))
      >       HFX_parameter = 1.0d0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_print_orbital_contribution',
      >                       mt_log,1,orb_contribution))
      >       orb_contribution = .false.
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_localize',
      >                      mt_log,1,localize_on)) 
      >       localize_on = .false.
@@ -158,7 +158,7 @@ c     **** define extra psi and Hpsi  ****
       replicated = (npj.gt.1)
       if (hfx_on.and.replicated) then
 
-         if (.not.rtdb_get(rtdb,'pspw:HFX_butter',mt_log,1,butterfly))
+         if (.not.btdb_get(rtdb,'pspw:HFX_butter',mt_log,1,butterfly))
      >      butterfly = .false.
 
         call Dneall_neq(neq)

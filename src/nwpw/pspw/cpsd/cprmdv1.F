@@ -22,7 +22,7 @@ CDEC$ OPTIMIZE:0
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
       
@@ -657,7 +657,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 
 
 *     **** open EMOTION file ****
-      if (.not.rtdb_cget(rtdb,'cpmd:emotion_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'cpmd:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
@@ -709,7 +709,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 
 *     **** open EIGMOTION file ****
       if (mulliken) then
-        if (.not.rtdb_cget(rtdb,'cpmd:eigmotion_filename',1,filename))
+        if (.not.btdb_cget(rtdb,'cpmd:eigmotion_filename',1,filename))
      >    call util_file_prefix('eigmotion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
@@ -720,7 +720,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 
 *     **** open HMOTION file ****
       if (mulliken) then
-       if (.not.rtdb_cget(rtdb,'cpmd:hmotion_filename',1,filename))
+       if (.not.btdb_cget(rtdb,'cpmd:hmotion_filename',1,filename))
      >  call util_file_prefix('hmotion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,

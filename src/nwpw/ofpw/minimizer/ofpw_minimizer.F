@@ -16,7 +16,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "errquit.fh"
@@ -497,23 +497,23 @@ c         call ion_Print_neighborlist()
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
       if (flag.gt.-1) then
-      value = rtdb_put(rtdb,'ofpw:energy',mt_dbl,1,EV)
+      value = btdb_put(rtdb,'ofpw:energy',mt_dbl,1,EV)
       value = value.and.
-     >        rtdb_put(rtdb,'ofpw:dipole',mt_dbl,
+     >        btdb_put(rtdb,'ofpw:dipole',mt_dbl,
      >                 3,dipole)
       end if
       if (flag.gt.0) then
         value = value.and.
-     >        rtdb_put(rtdb,'ofpw:gradient',mt_dbl,
+     >        btdb_put(rtdb,'ofpw:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
         value = value.and.BA_pop_stack(fion(2))
       end if
       if (flag.eq.3) then
         value = value.and.
-     >        rtdb_put(rtdb,'ofpw:stress',mt_dbl,
+     >        btdb_put(rtdb,'ofpw:stress',mt_dbl,
      >                 9,stress)
         value = value.and.
-     >        rtdb_put(rtdb,'ofpw:lstress',mt_dbl,
+     >        btdb_put(rtdb,'ofpw:lstress',mt_dbl,
      >                 6,lstress)
       end if
       if (.not. value) call errquit('ofpw: error writing rtdb',0,

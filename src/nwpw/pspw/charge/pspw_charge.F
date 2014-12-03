@@ -26,7 +26,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "pspw_charge.fh"
 #include "errquit.fh"
@@ -99,35 +99,35 @@ c
       if (nion.gt.0) then
 
 *       **** set charge_type ****
-        if (.not.rtdb_get(rtdb,
+        if (.not.btdb_get(rtdb,
      >         'nwpw:charge_type',mt_int,1,charge_type)) then
           charge_type = 1
           if (control_qmmm()) charge_type = 3 ! set charge type 3 for qmmm
         end if
  
         if (charge_type.eq.2) then
-           if (.not.rtdb_get(rtdb,
+           if (.not.btdb_get(rtdb,
      >         'nwpw:charge_dielectric_d',mt_dbl,1,s_d))
      >       s_d = 0.5d0/0.529177d0
 
-           if (.not.rtdb_get(rtdb,
+           if (.not.btdb_get(rtdb,
      >         'nwpw:charge_dielectric_rho',mt_dbl,1,s_rho))
      >       s_rho = 2.5d0/0.529177d0
 
-           if (.not.rtdb_get(rtdb,
+           if (.not.btdb_get(rtdb,
      >         'nwpw:charge_rcut',mt_dbl,1,s_sigma))
      >       s_sigma = 0.8d0/0.529177d0
 
         end if
         if (charge_type.eq.3) then
-           if (.not.rtdb_get(rtdb,'nwpw:charge_rcut',mt_dbl,1,s_sigma))
+           if (.not.btdb_get(rtdb,'nwpw:charge_rcut',mt_dbl,1,s_sigma))
      >       s_sigma = (0.37d0/0.3d0)/0.529177d0  ! should give covalent radii for spc water
-           if (.not.rtdb_get(rtdb,'nwpw:charge_ncut',mt_int,1,n_sigma))
+           if (.not.btdb_get(rtdb,'nwpw:charge_ncut',mt_int,1,n_sigma))
      >       n_sigma = 4
         end if
 
         if (charge_type.eq.4) then
-           if (.not.rtdb_get(rtdb,
+           if (.not.btdb_get(rtdb,
      >         'nwpw:charge_rcut',mt_dbl,1,s_sigma))
      >       s_sigma = 0.8d0
            epsilon = 1.0d0/s_sigma
@@ -216,7 +216,7 @@ c     >                              dbl_mb(vc2_charge(1)))
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "pspw_charge.fh"
 #include "errquit.fh"
@@ -245,7 +245,7 @@ c     >                              dbl_mb(vc2_charge(1)))
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 #include "pspw_charge.fh"

@@ -9,7 +9,7 @@ c
 
 #include "inp.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
       integer ind               ! Index of matched directive
@@ -62,13 +62,13 @@ c
   20  ind = index(atom,' ') - 1
       rtdb_name = atom(1:ind)//':pspw_library'
       ind = index(library_name,' ') - 1
-      if (.not. rtdb_cput(rtdb,rtdb_name,
+      if (.not. btdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
 
       rtdb_name = atom(1:ind)//':pspw_library_type'
-      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,0))
+      if (.not. btdb_put(rtdb,rtdb_name,mt_int,1,0))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10
@@ -79,7 +79,7 @@ c
   30  ind = index(atom,' ') - 1
       rtdb_name = atom(1:ind)//':paw_library'
       ind = index(library_name,' ') - 1
-      if (.not. rtdb_cput(rtdb,rtdb_name,
+      if (.not. btdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
@@ -91,7 +91,7 @@ c
   40  ind = index(atom,' ') - 1
       rtdb_name = atom(1:ind)//':pspw_library'
       ind = index(library_name,' ') - 1
-      if (.not. rtdb_cput(rtdb,rtdb_name,
+      if (.not. btdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
@@ -99,7 +99,7 @@ c
       idum = 2
       ind = index(atom,' ') - 1
       rtdb_name = atom(1:ind)//':pspw_library_type'
-      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,idum))
+      if (.not. btdb_put(rtdb,rtdb_name,mt_int,1,idum))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10
@@ -110,7 +110,7 @@ c
   50  ind = index(atom,' ') - 1
       rtdb_name = atom(1:ind)//':pspw_library'
       ind = index(library_name,' ') - 1
-      if (.not. rtdb_cput(rtdb,rtdb_name,
+      if (.not. btdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
@@ -118,7 +118,7 @@ c
       idum = 3
       ind = index(atom,' ') - 1
       rtdb_name = atom(1:ind)//':pspw_library_type'
-      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,idum))
+      if (.not. btdb_put(rtdb,rtdb_name,mt_int,1,idum))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10

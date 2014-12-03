@@ -15,7 +15,7 @@
 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "nose-hoover.fh"
 
@@ -59,14 +59,14 @@
       Pr_tmp = control_Nose_Pr()
 
       rtdb   = control_rtdb()
-      if (.not.rtdb_get(rtdb,'cpmd:nose_restart',mt_log,1,nosers)) 
+      if (.not.btdb_get(rtdb,'cpmd:nose_restart',mt_log,1,nosers)) 
      >   nosers = .true.
 
-      if (.not.rtdb_get(rtdb,'cpmd:Mchain',mt_int,1,Mchain)) Mchain = 1
-      if (.not.rtdb_get(rtdb,'cpmd:Nchain',mt_int,1,Nchain)) Nchain = 1
-      if (.not.rtdb_get(rtdb,'cpmd:Ne_chain',mt_dbl,1,Ne_chain)) 
+      if (.not.btdb_get(rtdb,'cpmd:Mchain',mt_int,1,Mchain)) Mchain = 1
+      if (.not.btdb_get(rtdb,'cpmd:Nchain',mt_int,1,Nchain)) Nchain = 1
+      if (.not.btdb_get(rtdb,'cpmd:Ne_chain',mt_dbl,1,Ne_chain)) 
      >   Ne_chain = 3.0d0*nemax
-      if ( (.not.rtdb_get(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init))
+      if ( (.not.btdb_get(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init))
      >      .or.(.not.nosers))
      >   eke0_init = eke0
 
@@ -94,13 +94,13 @@
 c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
 c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
 c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xe1',mt_dbl,Mchain,dbl_mb(Xe1(1)))) 
+      if ((.not.btdb_get(rtdb,'cpmd:Xe1',mt_dbl,Mchain,dbl_mb(Xe1(1)))) 
      >      .or.(.not.nosers))
      >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xe0',mt_dbl,Mchain,dbl_mb(Xe0(1)))) 
+      if ((.not.btdb_get(rtdb,'cpmd:Xe0',mt_dbl,Mchain,dbl_mb(Xe0(1)))) 
      >      .or.(.not.nosers))
      >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xem',mt_dbl,Mchain,dbl_mb(Xem(1)))) 
+      if ((.not.btdb_get(rtdb,'cpmd:Xem',mt_dbl,Mchain,dbl_mb(Xem(1)))) 
      >      .or.(.not.nosers))
      >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
 
@@ -111,13 +111,13 @@ c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
 c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
 c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
 c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))) 
+      if ((.not.btdb_get(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))) 
      >      .or.(.not.nosers))
      >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))) 
+      if ((.not.btdb_get(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))) 
      >      .or.(.not.nosers))
      >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
-      if ((.not.rtdb_get(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))) 
+      if ((.not.btdb_get(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))) 
      >      .or.(.not.nosers))
      >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
 
@@ -171,8 +171,8 @@ c        Er0 = 0.5d0*(1)*kb*Tr
 
 *     **** Set Qe and Qr - read from rtdb otherwise set using periods ****
       pi = 4.0d0*datan(1.0d0)
-      value = rtdb_get(rtdb,'cpmd:Qe',mt_dbl,Mchain,dbl_mb(Qe(1)))
-     >   .and.rtdb_get(rtdb,'cpmd:Qr',mt_dbl,Nchain,dbl_mb(Qr(1)))
+      value = btdb_get(rtdb,'cpmd:Qe',mt_dbl,Mchain,dbl_mb(Qe(1)))
+     >   .and.btdb_get(rtdb,'cpmd:Qr',mt_dbl,Nchain,dbl_mb(Qr(1)))
       
       if ((.not.value).or.(.not.nosers)) then
         do m=1,Mchain
@@ -206,7 +206,7 @@ c        Er0 = 0.5d0*(1)*kb*Tr
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "nose-hoover.fh"
 
@@ -240,18 +240,18 @@ c        Er0 = 0.5d0*(1)*kb*Tr
       rtdb  = control_rtdb()
       value2 = rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
-      value = rtdb_put(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init)
-     >   .and.rtdb_put(rtdb,'cpmd:Mchain',mt_int,1,Mchain) 
-     >   .and.rtdb_put(rtdb,'cpmd:Nchain',mt_int,1,Nchain) 
-     >   .and.rtdb_put(rtdb,'cpmd:Ne_chain',mt_dbl,1,Ne_chain) 
-     >   .and.rtdb_put(rtdb,'cpmd:Qe', mt_dbl,Mchain,dbl_mb(Qe(1)))
-     >   .and.rtdb_put(rtdb,'cpmd:Xe1',mt_dbl,Mchain,dbl_mb(Xe1(1)))
-     >   .and.rtdb_put(rtdb,'cpmd:Xe0',mt_dbl,Mchain,dbl_mb(Xe0(1)))
-     >   .and.rtdb_put(rtdb,'cpmd:Xem',mt_dbl,Mchain,dbl_mb(Xem(1)))
-     >   .and.rtdb_put(rtdb,'cpmd:Qr', mt_dbl,Nchain,dbl_mb(Qr(1)))
-     >   .and.rtdb_put(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))
-     >   .and.rtdb_put(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))
-     >   .and.rtdb_put(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))
+      value = btdb_put(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init)
+     >   .and.btdb_put(rtdb,'cpmd:Mchain',mt_int,1,Mchain) 
+     >   .and.btdb_put(rtdb,'cpmd:Nchain',mt_int,1,Nchain) 
+     >   .and.btdb_put(rtdb,'cpmd:Ne_chain',mt_dbl,1,Ne_chain) 
+     >   .and.btdb_put(rtdb,'cpmd:Qe', mt_dbl,Mchain,dbl_mb(Qe(1)))
+     >   .and.btdb_put(rtdb,'cpmd:Xe1',mt_dbl,Mchain,dbl_mb(Xe1(1)))
+     >   .and.btdb_put(rtdb,'cpmd:Xe0',mt_dbl,Mchain,dbl_mb(Xe0(1)))
+     >   .and.btdb_put(rtdb,'cpmd:Xem',mt_dbl,Mchain,dbl_mb(Xem(1)))
+     >   .and.btdb_put(rtdb,'cpmd:Qr', mt_dbl,Nchain,dbl_mb(Qr(1)))
+     >   .and.btdb_put(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))
+     >   .and.btdb_put(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))
+     >   .and.btdb_put(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))
       end if
       value2 = rtdb_parallel(.true.)
       if (.not.value)

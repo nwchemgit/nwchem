@@ -5,7 +5,7 @@ c     $Id$
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       logical numerical
@@ -15,7 +15,7 @@ c     $Id$
       external band_minimizer,band_stress_numerical
 
       if (.not.
-     >  rtdb_get(rtdb,'nwpw:stress_numerical',mt_log,1,numerical))
+     >  btdb_get(rtdb,'nwpw:stress_numerical',mt_log,1,numerical))
      >  numerical = .false.
 
       if (numerical) then

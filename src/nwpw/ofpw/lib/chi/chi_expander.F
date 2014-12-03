@@ -13,7 +13,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
       logical value
       integer version
@@ -41,12 +41,12 @@
       version = 9
 
 *     **** get wavefunction information ****
-      value = rtdb_cget(rtdb,'xpndr:old_wavefunction_filename',
+      value = btdb_cget(rtdb,'xpndr:old_wavefunction_filename',
      >                  1,old_wavefunction_filename)
-      value = rtdb_cget(rtdb,'xpndr:new_wavefunction_filename',
+      value = btdb_cget(rtdb,'xpndr:new_wavefunction_filename',
      >                  1,new_wavefunction_filename)
 
-      value = rtdb_get(rtdb,'xpndr:ngrid',mt_int,3,dngrid)
+      value = btdb_get(rtdb,'xpndr:ngrid',mt_int,3,dngrid)
 
  
       call util_file_name_noprefix(old_wavefunction_filename,

@@ -15,7 +15,7 @@ c
       real*8 dn(n2ft3d,ispin)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     ***** local variables ****

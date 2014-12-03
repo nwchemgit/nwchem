@@ -2720,7 +2720,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "paw_psi.fh"
 
 *     **** local variables ****
@@ -2783,7 +2783,7 @@ c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
 *     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
      >                  mt_log,1,psi_nogrid))
      >   psi_nogrid = .true.
 
@@ -2807,19 +2807,19 @@ c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
           filename =  control_input_psi()
 
           ind = index(filename,' ') - 1
-          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+          if (.not. btdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_put failed', 0, RTDB_ERR)
 
           write(*,*)
           write(*,*) "Grid is being converted:"
@@ -2969,7 +2969,7 @@ c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
 #include "errquit.fh"
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "paw_psi.fh"
 
 *     **** local variables ****
@@ -3013,7 +3013,7 @@ c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
 
 *     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
      >                  mt_log,1,psi_nogrid))
      >   psi_nogrid = .true.
 
@@ -3037,19 +3037,19 @@ c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
 
 
           ind = index(filename,' ') - 1
-          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+          if (.not. btdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_put failed', 0, RTDB_ERR)
 
           write(*,*)
           write(*,*) "Grid is being converted:"

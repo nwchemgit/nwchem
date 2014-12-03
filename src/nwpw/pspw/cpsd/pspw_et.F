@@ -14,7 +14,7 @@
 #include "global.fh"
 #include "bafdecls.fh"
 #include "stdio.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
       
 *     **** parallel variables ****
@@ -222,9 +222,9 @@
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
-      if (.not.rtdb_cget(rtdb,'pspw:et:ion_a',1,ion_1))
+      if (.not.btdb_cget(rtdb,'pspw:et:ion_a',1,ion_1))
      >   ion_1 = 'geometry'
-      if (.not.rtdb_cget(rtdb,'pspw:et:ion_b',1,ion_2))
+      if (.not.btdb_cget(rtdb,'pspw:et:ion_b',1,ion_2))
      >   ion_2 = 'geometry'
       call ion_load_extra_geom(.true., rtdb,ion_1)
       call ion_load_extra_geom(.false.,rtdb,ion_2)
@@ -247,9 +247,9 @@
          call ewald_phafac()
       end if
 
-      if (.not.rtdb_cget(rtdb,'pspw:et:movecs_a',1,filename1))
+      if (.not.btdb_cget(rtdb,'pspw:et:movecs_a',1,filename1))
      >   call util_file_prefix('movecs',filename1)
-      if (.not.rtdb_cget(rtdb,'pspw:et:movecs_b',1,filename2))
+      if (.not.btdb_cget(rtdb,'pspw:et:movecs_b',1,filename2))
      >   call util_file_prefix('movecs',filename2)
 
 
@@ -323,9 +323,9 @@
      >   call errquit('pspw_et:out of heap memory',0,MA_ERR)
 
 *     **** initialize SIC and HFX  ****
-      if (.not.rtdb_put(rtdb,'pspw:HFX_relax',mt_log,1,.false.))
+      if (.not.btdb_put(rtdb,'pspw:HFX_relax',mt_log,1,.false.))
      >   call errquit('setting pspw:HFX_relax',0,RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.))
+      if (.not.btdb_put(rtdb,'pspw:HFX',mt_log,1,.true.))
      >   call errquit('setting pspw:HFX',0,RTDB_ERR)
       call pspw_init_HFX(rtdb,ispin,ne)
 

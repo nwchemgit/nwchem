@@ -6,7 +6,7 @@ c
 #include "errquit.fh"
 #include "inp.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
       character*255 filename
       integer lorb0
@@ -62,14 +62,14 @@ c
  1310 FORMAT(A2,' : ',4E13.5)
 
       id = 'analysis:lorb'//atom
-      if (.not. rtdb_put(rtdb,id,mt_int,1,lorb))
+      if (.not. btdb_put(rtdb,id,mt_int,1,lorb))
      >        call errquit(
-     >        'analysis_input: rtdb_put failed', 0, RTDB_ERR)
+     >        'analysis_input: btdb_put failed', 0, RTDB_ERR)
 
       id = 'analysis:expansion'//atom
-      if (.not. rtdb_put(rtdb,id,mt_dbl,(lorb+1),b0))
+      if (.not. btdb_put(rtdb,id,mt_dbl,(lorb+1),b0))
      >        call errquit(
-     >        'analysis_input: rtdb_put failed', 0, RTDB_ERR)
+     >        'analysis_input: btdb_put failed', 0, RTDB_ERR)
 
       return
       end

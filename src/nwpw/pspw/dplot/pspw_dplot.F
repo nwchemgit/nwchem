@@ -15,7 +15,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 
       logical value,fractional
@@ -84,12 +84,12 @@
 
 *     **** get position_tolerance ****
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:position_tolerance',
+     >      btdb_get(rtdb,'pspw_dplot:position_tolerance',
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
 
 *     **** get ncell ****
-      if (.not.rtdb_get(rtdb,'pspw_dplot:ncell',mt_int,3,ncell)) then
+      if (.not.btdb_get(rtdb,'pspw_dplot:ncell',mt_int,3,ncell)) then
         ncell(1) = 0
         ncell(2) = 0
         ncell(3) = 0
@@ -97,7 +97,7 @@
 
 *     **** get origin ****
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:origin',
+     >      btdb_get(rtdb,'pspw_dplot:origin',
      >               mt_dbl,3,origin)) then
         origin(1) = 0.0d0 
         origin(2) = 0.0d0 
@@ -262,7 +262,7 @@
      >                dcpl_mb(psir(1)),
      >                .false.,tag)
 
-      value = value.and.rtdb_get(rtdb,'pspw_dplot:count',
+      value = value.and.btdb_get(rtdb,'pspw_dplot:count',
      >                            mt_int,1,count)
 
 
@@ -453,7 +453,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       character*8 tag
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       logical value,grid3d,grid1d
@@ -483,11 +483,11 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
       
       grid3d = .false.
-      if (rtdb_get(rtdb,'pspw_dplot:3d_grid:nx',mt_int,1,i))
+      if (btdb_get(rtdb,'pspw_dplot:3d_grid:nx',mt_int,1,i))
      >  grid3d = .true.
 
       grid1d = .false.
-      if (rtdb_get(rtdb,'pspw_dplot:1d_grid:nx',mt_int,1,i))
+      if (btdb_get(rtdb,'pspw_dplot:1d_grid:nx',mt_int,1,i))
      >  grid1d = .true.
 
       call Parallel_taskid(taskid)
@@ -508,13 +508,13 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
 *     **** setup atom_truncate ****
       n_truncate = 0
-      if (rtdb_get(rtdb,'pspw_dplot:atom_truncate_size',
+      if (btdb_get(rtdb,'pspw_dplot:atom_truncate_size',
      >             mt_int,1,n_truncate)) then
          if (n_truncate.gt.0) then
          if (BA_push_get(mt_dbl,n2ft3d,'trunc',trunc(2),trunc(1))) then
            if (BA_push_get(mt_int,n_truncate,'idx_truncate',
      >                     idx_truncate(2),idx_truncate(1))) then
-               if (.not.rtdb_get(rtdb,'pspw_dplot:atom_truncate',
+               if (.not.btdb_get(rtdb,'pspw_dplot:atom_truncate',
      >                  mt_int,n_truncate,int_mb(idx_truncate(1)))) then
                   n_truncate = 0
                else
@@ -542,7 +542,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 *     **** loop over orbital and density list ****
 *     ********************************************
 
-      value = value.and.rtdb_get(rtdb,'pspw_dplot:count',
+      value = value.and.btdb_get(rtdb,'pspw_dplot:count',
      >                            mt_int,1,count)
       do i=1,count
 
@@ -554,7 +554,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
         name1_len = index(name1,' ') - 1
         name2_len = index(name2,' ') - 1
 
-        value = rtdb_cget(rtdb,name1(1:name1_len),1,filename)
+        value = btdb_cget(rtdb,name1(1:name1_len),1,filename)
         ind = index(filename,' ') - 1
         if (add_tag) then
           ind2 = index(tag,' ') - 1
@@ -562,20 +562,20 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
           ind = index(filename,' ') - 1
         end if
 
-        if(.not.rtdb_get(rtdb,name2(1:name2_len),mt_int,1,number)) then
+        if(.not.btdb_get(rtdb,name2(1:name2_len),mt_int,1,number)) then
            number = 99999999
            name1 = 'pspw_dplot:number1'//CHAR(i-1+ia)
            name2 = 'pspw_dplot:number2'//CHAR(i-1+ia)
            name1_len = index(name1,' ') - 1
            name2_len = index(name2,' ') - 1
-           value=value.and.rtdb_get(rtdb,name1(1:name1_len),mt_int,1,
+           value=value.and.btdb_get(rtdb,name1(1:name1_len),mt_int,1,
      >                              number1)
-           value=value.and.rtdb_get(rtdb,name2(1:name2_len),mt_int,1,
+           value=value.and.btdb_get(rtdb,name2(1:name2_len),mt_int,1,
      >                              number2)
         end if
         if (.not.value)
      >     call errquit(
-     >     'pspw_dplot: rtdb_get failed for orbital', 0, RTDB_ERR)
+     >     'pspw_dplot: btdb_get failed for orbital', 0, RTDB_ERR)
 
 *       **** outputing density ****
         if (number.lt.0) then
@@ -817,7 +817,7 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
      
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
 *     **** local variables ****
@@ -888,12 +888,12 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** get position_tolerance and nion2 = nion+special_positions ****
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:position_tolerance',
+     >      btdb_get(rtdb,'pspw_dplot:position_tolerance',
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
 
 *     **** get ncell ****
-      if (.not.rtdb_get(rtdb,'pspw_dplot:ncell',mt_int,3,ncell)) then
+      if (.not.btdb_get(rtdb,'pspw_dplot:ncell',mt_int,3,ncell)) then
         ncell(1) = 0
         ncell(2) = 0
         ncell(3) = 0
@@ -1450,7 +1450,7 @@ c        call Pack_cc_Mul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
      
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -1521,7 +1521,7 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** read the origin ***
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:o',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:o',
      >               mt_dbl,3,r0)) then
         r0(1) = 0.0
         r0(2) = 0.0
@@ -1530,21 +1530,21 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** read the x-axis,y-axis,z-axis ****
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:x',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:x',
      >               mt_dbl,3,xaxis)) then
         xaxis(1) = 1.0
         xaxis(2) = 0.0
         xaxis(3) = 0.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:y',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:y',
      >               mt_dbl,3,yaxis)) then
         yaxis(1) = 0.0
         yaxis(2) = 1.0
         yaxis(3) = 0.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:z',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:z',
      >               mt_dbl,3,zaxis)) then
         zaxis(1) = 0.0
         zaxis(2) = 0.0
@@ -1591,15 +1591,15 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** read nx,ny,and nz ****
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:nx',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:nx',
      >               mt_int,1,nx))
      >  nx = 32
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:ny',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:ny',
      >               mt_int,1,ny))
      >  ny = 32
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:nz',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:nz',
      >               mt_int,1,nz))
      >  nz = 32
        nxh = nx/2
@@ -1608,19 +1608,19 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** read sizex,sizey,sizez ****
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:sizex',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:sizex',
      >               mt_dbl,2,sizex)) then
         sizex(1) = 0.0
         sizex(2) = 10.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:sizey',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:sizey',
      >               mt_dbl,2,sizey)) then
         sizey(1) = 0.0
         sizey(2) = 10.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:3d_grid:sizez',
+     >      btdb_get(rtdb,'pspw_dplot:3d_grid:sizez',
      >               mt_dbl,2,sizez)) then
         sizez(1) = 0.0
         sizez(2) = 10.0
@@ -1679,7 +1679,7 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** get position_tolerance and nion2 = nion+special_positions ****
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:position_tolerance',
+     >      btdb_get(rtdb,'pspw_dplot:position_tolerance',
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
 
@@ -1827,7 +1827,7 @@ c     if (.not. value) call errquit('closing geometry',0)
      
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -1898,7 +1898,7 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** read the origin ***
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:1d_grid:o',
+     >      btdb_get(rtdb,'pspw_dplot:1d_grid:o',
      >               mt_dbl,3,r0)) then
         r0(1) = 0.0
         r0(2) = 0.0
@@ -1907,7 +1907,7 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** read the x point ****
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:1d_grid:x',
+     >      btdb_get(rtdb,'pspw_dplot:1d_grid:x',
      >               mt_dbl,3,xaxis)) then
         xaxis(1) = 1.0
         xaxis(2) = 0.0
@@ -1916,7 +1916,7 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** read nx ***
       if (.not.
-     >      rtdb_get(rtdb,'pspw_dplot:1d_grid:nx',
+     >      btdb_get(rtdb,'pspw_dplot:1d_grid:nx',
      >               mt_int,1,nx))
      >  nx = 32
        nxh = nx/2

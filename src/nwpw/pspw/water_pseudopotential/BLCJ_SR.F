@@ -13,7 +13,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** BLCJ_SR common block ****
       integer Nbasis
@@ -32,7 +32,7 @@
 
       call Parallel_taskid(taskid)
 
-      value = rtdb_get(rtdb,'water_pseudopotential:num_basis',
+      value = btdb_get(rtdb,'water_pseudopotential:num_basis',
      >                 mt_int,1,Nbasis)
 
       if (Nbasis.gt.0) then
@@ -48,13 +48,13 @@
         if (.not. value) 
      >   call errquit('init_BLCJ_SR:out of heap memory',0, MA_ERR)
 
-         value = rtdb_get(rtdb,'water_pseudopotential:sr_ion_number',
+         value = btdb_get(rtdb,'water_pseudopotential:sr_ion_number',
      >                   mt_int,Nbasis,int_mb(iatom(1)))
          value = value.and.
-     >          rtdb_get(rtdb,'water_pseudopotential:sr_c',
+     >          btdb_get(rtdb,'water_pseudopotential:sr_c',
      >                   mt_dbl,Nbasis,dbl_mb(c(1)))
          value = value.and.
-     >          rtdb_get(rtdb,'water_pseudopotential:sr_g',
+     >          btdb_get(rtdb,'water_pseudopotential:sr_g',
      >                   mt_dbl,Nbasis,dbl_mb(g(1)))
          if (.not.value)
      >    call errquit('init_BLCJ_SR:rtdb error',0, RTDB_ERR)

@@ -13,7 +13,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
       logical mmexist
@@ -160,7 +160,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
       logical mmexist

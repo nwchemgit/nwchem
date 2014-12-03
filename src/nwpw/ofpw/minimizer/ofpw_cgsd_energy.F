@@ -253,12 +253,12 @@ c
 
 c*     **** debug - energies written to rtdb for numerical stress ****
 c      rtdb = control_rtdb()
-c      value =           rtdb_put(rtdb,'pspw:E_ke',      mt_dbl,1,E(6))
-c      value = value.and.rtdb_put(rtdb,'pspw:E_hartree', mt_dbl,1,E(3))
-c      value = value.and.rtdb_put(rtdb,'pspw:E_xc',      mt_dbl,1,E(4))
-c      value = value.and.rtdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
-c      value = value.and.rtdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
-c      value = value.and.rtdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
+c      value =           btdb_put(rtdb,'pspw:E_ke',      mt_dbl,1,E(6))
+c      value = value.and.btdb_put(rtdb,'pspw:E_hartree', mt_dbl,1,E(3))
+c      value = value.and.btdb_put(rtdb,'pspw:E_xc',      mt_dbl,1,E(4))
+c      value = value.and.btdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
+c      value = value.and.btdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
+c      value = value.and.btdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
 c      if (.not. value) call errquit(
 c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
 

@@ -11,7 +11,7 @@ c
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "bafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -28,7 +28,7 @@ c
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER)
 
-      if (.not.rtdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,doit))
+      if (.not.btdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,doit))
      >   doit = .false.
 
       if (oprint) then
@@ -57,13 +57,13 @@ c
 
       if (doit) then
 
-      if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
      >    call util_file_prefix('ion_motion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                             full_filename)
 
-      if (.not.rtdb_cget(rtdb,'cpmd:unfolded_xyz_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'cpmd:unfolded_xyz_filename',1,filename))
      >    call util_file_prefix('unfolded.xyz',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
@@ -78,7 +78,7 @@ c
      
 
 *     **** perform shake force averaging if Fei set *****
-      if (.not.rtdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
+      if (.not.btdb_get(rtdb,'nwpw:fei',mt_log,1,fei))
      >   fei = .false.
 
       if (fei) then
@@ -87,17 +87,17 @@ c
       end if
 
 *     **** MD XS analysis ****
-      if (.not.rtdb_get(rtdb,'nwpw:md_xs',mt_log,1,mdxs)) mdxs=.false.
+      if (.not.btdb_get(rtdb,'nwpw:md_xs',mt_log,1,mdxs)) mdxs=.false.
       if (mdxs) call md_xs_analysis(rtdb,full_filename)
 
 
 *     **** perform dipole correlation and power spectrum if dipole_motion set *****
-      if (.not.rtdb_get(rtdb,'nwpw:dipole_motion',mt_log,
+      if (.not.btdb_get(rtdb,'nwpw:dipole_motion',mt_log,
      >                  1,dipole_motion))
      >   dipole_motion = .false.
 
       if (dipole_motion) then
-       if(.not.rtdb_cget(rtdb,'nwpw:dipole_motion_filename',1,filename))
+       if(.not.btdb_cget(rtdb,'nwpw:dipole_motion_filename',1,filename))
      >   call util_file_prefix('dipole_motion',filename)
        call util_file_name_noprefix(filename,.false.,
      >                              .false.,
@@ -124,7 +124,7 @@ c
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "bafdecls.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -144,17 +144,17 @@ c
       value = .true.
 
 *     **** save nwpw:cpmd_properties and change it .true. ****
-      if (.not.rtdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy))
+      if (.not.btdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy))
      >   dummy = .false.
       value = value.and.
-     >        rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,.true.)
+     >        btdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,.true.)
 
 *     **** if nwpw_aimd_properties_xyz exist, then                         ****
 *     **** convert xyz filename to MOTION filename (prefix.ion_motion_tmp) ****
       hasxyz = .false.
-      if (rtdb_cget(rtdb,'nwpw:aimd_properties_xyz',1,filenamexyz)) then
+      if (btdb_cget(rtdb,'nwpw:aimd_properties_xyz',1,filenamexyz)) then
          hasxyz = .true.
-         if (.not.rtdb_get(rtdb,'cell_default:unita',
+         if (.not.btdb_get(rtdb,'cell_default:unita',
      >                     mt_dbl,9,unita)) then
             unita(1,1) = 1.0d0 !*** unita=Identity will be interpreted by md_xs_analysis as no unit cell
             unita(2,1) = 0.0d0
@@ -179,11 +179,11 @@ c
          
 *        **** save nwpw:ion_motion_filename and change it to '.ion_motion_tmp' ****
          hasbak = .true.
-         if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',
+         if (.not.btdb_cget(rtdb,'cpmd:ion_motion_filename',
      >                      1,filenamebak))
      >      hasbak = .false.
          value = value.and.
-     >           rtdb_cput(rtdb,'cpmd:ion_motion_filename',1,filename)
+     >           btdb_cput(rtdb,'cpmd:ion_motion_filename',1,filename)
 
       end if
 
@@ -201,7 +201,7 @@ c
       if (hasxyz) then
          if (hasbak) then
             value = value.and.
-     >              rtdb_cput(rtdb,'cpmd:ion_motion_filename',
+     >              btdb_cput(rtdb,'cpmd:ion_motion_filename',
      >                         1,filenamebak)
 
          else
@@ -212,7 +212,7 @@ c
 
 *     **** reset nwpw:cpmd_properties to its saved value ****
       value = value.and.
-     >        rtdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy)
+     >        btdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy)
 
       return
       end 

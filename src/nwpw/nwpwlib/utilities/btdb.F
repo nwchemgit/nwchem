@@ -15,7 +15,7 @@
       integer array(*)
 
 !$OMP SINGLE
-      btdb_get = rtdb_get(rtdb,namee,nelem,array)
+      btdb_get = rtdb_get(rtdb,namee,datatype,nelem,array)
 !$OMP END SINGLE
       return
       end
@@ -37,7 +37,7 @@
       integer array(*)
 
 !$OMP SINGLE
-      btdb_put = rtdb_put(rtdb,namee,nelem,array)
+      btdb_put = rtdb_put(rtdb,namee,datatype,nelem,array)
 !$OMP END SINGLE
       return
       end

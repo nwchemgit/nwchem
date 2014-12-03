@@ -13,7 +13,7 @@
       integer ne(2)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "pspw_sic.fh"
 
@@ -31,7 +31,7 @@
       e_sic = 0.0d0
       p_sic = 0.0d0
       sic_on = .false.
-      if (.not.rtdb_get(rtdb,'pspw:SIC_all',mt_log,1,sicall)) 
+      if (.not.btdb_get(rtdb,'pspw:SIC_all',mt_log,1,sicall)) 
      >   sicall=.false.
 
       call Dneall_neq(neq)
@@ -87,42 +87,42 @@
 
       if (sic_on) then
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:SIC_screening_radius',
      >                      mt_dbl,1,rcut)) 
      >       rcut = 8.0d0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:SIC_screening_power',
      >                      mt_dbl,1,pp)) 
      >       pp = 8.0d0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:SIC_screening_type',
      >                      mt_int,1,flag)) 
      >       flag = 0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:SIC_relax',
      >                      mt_log,1,relaxed)) 
      >       relaxed = .true.
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:SIC_solver_type',
      >                      mt_int,1,solver_type))  then
            if (control_version().eq.3) solver_type = 1
            if (control_version().eq.4) solver_type = 2
          end if
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:SIC_xc_parameter',
      >                       mt_dbl,1,xc_parameter))
      >       xc_parameter = 1.0d0
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:SIC_h_parameter',
      >                       mt_dbl,1,h_parameter))
      >       h_parameter = 1.0d0
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'pspw:SIC_print_orbital_contribution',
      >                       mt_log,1,orb_contribution))
      >       orb_contribution = .false.

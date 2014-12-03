@@ -11,7 +11,7 @@ c     **********************************************
       character*(*) filename
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 
@@ -55,35 +55,35 @@ c     **********************************************
       call feff_codeversion(codeversion)
 
 *     **** get feff options from rtdb ****
-      if (.not.rtdb_cget(rtdb,'md_xs:spectroscopy',1,spectroscopy)) 
+      if (.not.btdb_cget(rtdb,'md_xs:spectroscopy',1,spectroscopy)) 
      >   spectroscopy = 'exafs'
-      if (.not.rtdb_cget(rtdb,'md_xs:absorber',1,absorber))
+      if (.not.btdb_cget(rtdb,'md_xs:absorber',1,absorber))
      >   absorber = ''
-      if (.not.rtdb_cget(rtdb,'md_xs:edge',1,edge))
+      if (.not.btdb_cget(rtdb,'md_xs:edge',1,edge))
      >   edge = 'k'
-      if (.not.rtdb_get(rtdb,'md_xs:center',mt_int,1,center))
+      if (.not.btdb_get(rtdb,'md_xs:center',mt_int,1,center))
      >   center = 1
-      if (.not.rtdb_get(rtdb,'md_xs:rmax',mt_dbl,1,rmax))
+      if (.not.btdb_get(rtdb,'md_xs:rmax',mt_dbl,1,rmax))
      >   rmax = 10.0d0
-      if (.not.rtdb_get(rtdb,'md_xs:rcut',mt_dbl,1,rcut))
+      if (.not.btdb_get(rtdb,'md_xs:rcut',mt_dbl,1,rcut))
      >   rcut = 5.0d0
       if (rcut.lt.1.0d-3) rcut = 0.0d0
       rcut = rcut/0.529177d0
       call util_file_name_noprefix('md_xs',.true.,.true.,header)
 
-      if (.not.rtdb_get(rtdb,'md_xs:stride',mt_int,1,stride))
+      if (.not.btdb_get(rtdb,'md_xs:stride',mt_int,1,stride))
      >   stride = 1
 
-      if (.not.rtdb_get(rtdb,'md_xs:Fourier',mt_dbl,3,ft)) then
+      if (.not.btdb_get(rtdb,'md_xs:Fourier',mt_dbl,3,ft)) then
          ft(1) = 2.3d0
          ft(2) = 17.0d0
          ft(3) = 1.0d0
       end if
-      if (.not.rtdb_get(rtdb,'md_xs:Fourier_iw',mt_int,1,iw))
+      if (.not.btdb_get(rtdb,'md_xs:Fourier_iw',mt_int,1,iw))
      >   iw = 2
 
 *     **** define the chi data filename ****
-      if (.not.rtdb_cget(rtdb,'md_xs:chi_filename',1,chi_filename))
+      if (.not.btdb_cget(rtdb,'md_xs:chi_filename',1,chi_filename))
      >    call util_file_prefix('chi',chi_filename)
       call util_file_name_noprefix(chi_filename,.false.,
      >                             .false.,
@@ -223,7 +223,7 @@ c     **** deallocate stack ****
 *     *********************************
 
 *     **** define the chi data filename ****
-      if (.not.rtdb_cget(rtdb,'md_xs:chi_filename',1,chi_filename))
+      if (.not.btdb_cget(rtdb,'md_xs:chi_filename',1,chi_filename))
      >    call util_file_prefix('chi',chi_filename)
       call util_file_name_noprefix(chi_filename,.false.,
      >                             .false.,
@@ -281,7 +281,7 @@ c     **** allocate stack - fft  ****
      >                    nkf,dbl_mb(kf(1)),dbl_mb(chif(1)),
      >                    nr, dbl_mb(r(1)),dcpl_mb(chi_r(1)),
      >                    dcpl_mb(tmpfft(1)))
-      if (.not.rtdb_cget(rtdb,'md_xs:chi_r_filename',1,chi_filename))
+      if (.not.btdb_cget(rtdb,'md_xs:chi_r_filename',1,chi_filename))
      >    call util_file_prefix('chi_r',chi_filename)
       call util_file_name_noprefix(chi_filename,.false.,
      >                             .false.,
@@ -584,7 +584,7 @@ c      character*2 symbols(*)
 c      real*8 rion(3,*)
 c      character*(*) json
 c#include "bafdecls.fh"
-c#include "rtdb.fh"
+c#include "btdb.fh"
 c#include "errquit.fh"
 c#include "stdio.fh"
 c
@@ -596,32 +596,32 @@ c*     **** open json ****
 c      json = "{"
 c
 c*     **** "spectroscopy": ****
-c      if (rtdb_cget(rtdb,'md_xs:spectroscopy',1,tstr1)) then
+c      if (btdb_cget(rtdb,'md_xs:spectroscopy',1,tstr1)) then
 c         json = trim(json)//"""spectroscopy"":"
 c         json = trim(json)//" "//""""//trim(tstr1)//""","
 c      end if
 c
 c*     **** "absorber": ****
-c      if (rtdb_cget(rtdb,'md_xs:absorber',1,tstr1)) then
+c      if (btdb_cget(rtdb,'md_xs:absorber',1,tstr1)) then
 c         json = trim(json)//" ""absorber"": ["
 c         json = trim(json)//""""//trim(tstr1)//"""],"
 c      end if
 c
 c*     **** "edge": ****
-c      if (rtdb_cget(rtdb,'md_xs:edge',1,tstr1)) then
+c      if (btdb_cget(rtdb,'md_xs:edge',1,tstr1)) then
 c         json = trim(json)//" ""edge"":"
 c         json = trim(json)//" "//""""//trim(tstr1)//""","
 c      end if
 c
 c*     **** "center": ****
-c      if (rtdb_get(rtdb,'md_xs:center',mt_int,1,center)) then
+c      if (btdb_get(rtdb,'md_xs:center',mt_int,1,center)) then
 c         write(tstr1,'(I6)') center
 c         json = trim(json)//" ""center"": ["
 c         json = trim(json)//trim(adjustl(tstr1))//"],"
 c      end if
 c
 c*     **** "rmax": ****
-c      if (rtdb_get(rtdb,'md_xs:rmax',mt_dbl,1,rmax)) then
+c      if (btdb_get(rtdb,'md_xs:rmax',mt_dbl,1,rmax)) then
 c         write(tstr1,'(F20.6)') rmax
 c         json = trim(json)//" ""rmax"":"
 c         json = trim(json)//" "//trim(adjustl(tstr1))//","

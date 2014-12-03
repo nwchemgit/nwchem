@@ -11,7 +11,7 @@ c
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "bafdecls.fh"
 #include "errquit.fh"
 
@@ -25,13 +25,13 @@ c
       value = .true.
 
 *     **** set mfilename and gfilename ****
-      if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
      >  call util_file_prefix('ion_motion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                             mfilename)
 
-      if (.not.rtdb_cget(rtdb,'nwpw:gr_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'nwpw:gr_filename',1,filename))
      >  call util_file_prefix('rdf',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,

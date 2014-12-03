@@ -9,7 +9,7 @@ C> @{
 #include "inp.fh"
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 c
       integer rtdb
       logical value,dummy
@@ -34,7 +34,7 @@ c
 c
       value = .false.
       task_paw = .false. 
- 10   value = rtdb_cget(rtdb,'task:operation',1,test)
+ 10   value = btdb_cget(rtdb,'task:operation',1,test)
 
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit('task paw: unknown directive', 0, INPUT_ERR)

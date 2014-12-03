@@ -15,7 +15,7 @@
       integer psi0_tag
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 #include "util.fh"

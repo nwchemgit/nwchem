@@ -12,7 +12,7 @@ c     $Id$
 #include "stdio.fh"
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "errquit.fh"
 
@@ -196,13 +196,13 @@ c     call psi_2to1()
 
 *     **** debug - energies written to rtdb for numerical stress ****
       rtdb = control_rtdb()
-      value =           rtdb_put(rtdb,'band:E_ke',      mt_dbl,1,E(6))
-      value = value.and.rtdb_put(rtdb,'band:E_hartree', mt_dbl,1,E(3))
-      value = value.and.rtdb_put(rtdb,'band:E_xc',      mt_dbl,1,E(4))
-      value = value.and.rtdb_put(rtdb,'band:E_ewald',   mt_dbl,1,E(5))
-      value = value.and.rtdb_put(rtdb,'band:E_local',   mt_dbl,1,E(7))
-      value = value.and.rtdb_put(rtdb,'band:E_nonlocal',mt_dbl,1,E(8))
-      value = value.and.rtdb_put(rtdb,'band:E_disp',    mt_dbl,1,E(33))
+      value =           btdb_put(rtdb,'band:E_ke',      mt_dbl,1,E(6))
+      value = value.and.btdb_put(rtdb,'band:E_hartree', mt_dbl,1,E(3))
+      value = value.and.btdb_put(rtdb,'band:E_xc',      mt_dbl,1,E(4))
+      value = value.and.btdb_put(rtdb,'band:E_ewald',   mt_dbl,1,E(5))
+      value = value.and.btdb_put(rtdb,'band:E_local',   mt_dbl,1,E(7))
+      value = value.and.btdb_put(rtdb,'band:E_nonlocal',mt_dbl,1,E(8))
+      value = value.and.btdb_put(rtdb,'band:E_disp',    mt_dbl,1,E(33))
       if (.not. value) call errquit(
      >   'c_cgsd_noit_energy: numerical stress - error writing rtdb',0,
      &       RTDB_ERR)

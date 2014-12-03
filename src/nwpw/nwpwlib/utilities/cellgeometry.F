@@ -65,7 +65,7 @@
       real*8 unita(3,3),unita2(3,3)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
       logical value

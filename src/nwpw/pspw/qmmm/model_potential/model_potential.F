@@ -16,7 +16,7 @@ c
       integer rtdb
 
 #include "errquit.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "bafdecls.fh"
 
@@ -66,7 +66,7 @@ c
 
         element_length = index(element,' ') - 1
         rtdb_name = 'pspw_lr_cutoff:'//element(1:element_length)
-        if (.not.rtdb_get(rtdb,rtdb_name,
+        if (.not.btdb_get(rtdb,rtdb_name,
      >                   mt_dbl,1,
      >                   dbl_mb(lr_cutoff(1)+ia-1))) then
            dbl_mb(lr_cutoff(1)+ia-1) = 1.0d0
@@ -101,7 +101,7 @@ c
 
         element_length = index(element,' ') - 1
         rtdb_name = 'pspw_SR_basis_length:'//element(1:element_length)
-        if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,basis_length)) then
+        if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,basis_length)) then
           basis_length = 0
         end if
         Nbasis = Nbasis + basis_length
@@ -131,7 +131,7 @@ c
 
           element_length = index(element,' ') - 1
           rtdb_name = 'pspw_SR_basis_length:'//element(1:element_length)
-          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,basis_length)) then
+          if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,basis_length)) then
             basis_length = 0
           end if
 
@@ -143,7 +143,7 @@ c
      >        'Model_Potential_init:failed pushing stack:',0, MA_ERR)
 
             rtdb_name = 'pspw_SR_basis:'//element(1:element_length)
-            value = rtdb_get(rtdb,rtdb_name,
+            value = btdb_get(rtdb,rtdb_name,
      >                 mt_dbl,(2*basis_length),dbl_mb(tmp(1)))
 
 

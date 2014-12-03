@@ -12,7 +12,7 @@
       implicit none 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 
 

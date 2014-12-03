@@ -14,7 +14,7 @@ c
       integer ne(2)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "frac_occ.fh"
 
@@ -28,7 +28,7 @@ c
       fractional = .false.
 
       rtdb_name = 'nwpw:frac_occ:number_states'
-      if (.not. rtdb_get(rtdb,rtdb_name,mt_int,1,num_states))
+      if (.not. btdb_get(rtdb,rtdb_name,mt_int,1,num_states))
      >  num_states = 0
 
       if (num_states.gt.0) then
@@ -49,17 +49,17 @@ c
 
 *       **** get info from rtdb ****
         rtdb_name = 'nwpw:frac_occ:occupations'
-        if (.not. rtdb_get(rtdb,rtdb_name,mt_dbl,
+        if (.not. btdb_get(rtdb,rtdb_name,mt_dbl,
      >                   (num_states),
      >                    dbl_mb(occ(1))))
      >    call errquit(
-     >    'frac_occ_init: rtdb_get(occupation) failed', 0,RTDB_ERR)
+     >    'frac_occ_init: btdb_get(occupation) failed', 0,RTDB_ERR)
         rtdb_name = 'nwpw:frac_occ:states'
-        if (.not. rtdb_get(rtdb,rtdb_name,mt_int,
+        if (.not. btdb_get(rtdb,rtdb_name,mt_int,
      >                   (num_states),
      >                    int_mb(s(1))))
      >    call errquit(
-     >    'frac_occ_init: rtdb_get(states) failed', 0,RTDB_ERR)
+     >    'frac_occ_init: btdb_get(states) failed', 0,RTDB_ERR)
 
 
 *       **** set the fractional weights ****

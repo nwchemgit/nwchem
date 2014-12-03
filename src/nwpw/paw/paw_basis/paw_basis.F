@@ -407,7 +407,7 @@ c     >             paw_basis_npoints(it)
       subroutine paw_basis_exist_check()
       implicit none
 
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer MASTER,taskid

@@ -134,7 +134,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
 #include "stdio.fh"
@@ -763,7 +763,7 @@ c      call pspw_qmmm_init(rtdb)
 
 
 *     **** open EMOTION file ****
-      if (.not.rtdb_cget(rtdb,'cpmd:emotion_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'cpmd:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
@@ -794,7 +794,7 @@ c      call pspw_qmmm_init(rtdb)
 
 *     **** open EIGMOTION file ****
       if (mulliken) then
-      value = rtdb_cget(rtdb,'cpmd:eigmotion_filename',1,filename)
+      value = btdb_cget(rtdb,'cpmd:eigmotion_filename',1,filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)
@@ -804,7 +804,7 @@ c      call pspw_qmmm_init(rtdb)
 
 *     **** open HMOTION file ****
       if (mulliken) then
-      value = rtdb_cget(rtdb,'cpmd:hmotion_filename',1,filename)
+      value = btdb_cget(rtdb,'cpmd:hmotion_filename',1,filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)

@@ -8,7 +8,7 @@ c     $Id$
 #include "global.fh"
 #include "inp.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
 
@@ -40,7 +40,7 @@ c     $Id$
       l = index(cell_name,' ') - 1
       rtdb_unita = cell_name(1:l)//':unita'
            
-      value = rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
+      value = btdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
 
 
 *     ********************************
@@ -150,7 +150,7 @@ c     $Id$
 #include "global.fh"
 #include "inp.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
 
@@ -182,7 +182,7 @@ c     $Id$
       l = index(cell_name,' ') - 1
       rtdb_unita = cell_name(1:l)//':unita'
            
-      value = rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
+      value = btdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
       
 
 *     ********************************

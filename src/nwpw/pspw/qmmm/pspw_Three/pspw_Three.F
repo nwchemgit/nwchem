@@ -12,7 +12,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "pspw_Three.fh"
 #include "stdio.fh"
 #include "errquit.fh"
@@ -53,7 +53,7 @@ c
 *          **** check for standard triple potentials ****
            rtdbname='pspw_Three_ion_ion_ion_ntriple:'
      >              //ion_atom(i)//ion_atom(j)//ion_atom(k)
-            if (rtdb_get(rtdb,rtdbname,mt_int,1,ntriple)) then
+            if (btdb_get(rtdb,rtdbname,mt_int,1,ntriple)) then
                 ntriples = ntriples + ntriple
                 if ((i.le.nkatm_qm).and.
      >              (j.le.nkatm_qm).and.
@@ -94,7 +94,7 @@ c
 *              **** read and add standard pair potentials ****
                rtdbname='pspw_Pair_ion_ion_ion_ntriple:'
      >                  //ion_atom(i)//ion_atom(j)//ion_atom(k)
-               if (.not.rtdb_get(rtdb,rtdbname,mt_int,1,ntriple))
+               if (.not.btdb_get(rtdb,rtdbname,mt_int,1,ntriple))
      >            ntriple = 0
 
                shift = (k-1)*nkatm2+(j-1)*nkatm+(i-1)
@@ -105,14 +105,14 @@ c
      >                     //c_index_name(l)
      >                     //ion_atom(i)//ion_atom(j)//ion_atom(k)
                   value = value.and.
-     >                    rtdb_get(rtdb,rtdbname,mt_int,1,
+     >                    btdb_get(rtdb,rtdbname,mt_int,1,
      >                             int_mb(type_all(1)+nn))
 
                   rtdbname = 'pspw_Three_ion_ion_ion_param:'
      >                     //c_index_name(l)
      >                     //ion_atom(i)//ion_atom(j)//ion_atom(k)
                   value = value.and.
-     >                    rtdb_get(rtdb,rtdbname,mt_dbl,4,
+     >                    btdb_get(rtdb,rtdbname,mt_dbl,4,
      >                             dbl_mb(param_all(1)+4*nn))
                   nn = nn + 1
                end do

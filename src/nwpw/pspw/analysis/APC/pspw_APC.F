@@ -25,7 +25,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "pspw_APC.fh"
 
@@ -48,11 +48,11 @@ c
       external ion_nion_qm, G_indx
       external lattice_omega
 
-      if (.not.rtdb_get(rtdb,'nwpw:APC',mt_log,1,doapc))
+      if (.not.btdb_get(rtdb,'nwpw:APC',mt_log,1,doapc))
      >  doapc = control_Mulliken()
 
 *     **** read in nga from rtdb ***
-      value = rtdb_get(rtdb,'pspw_APC:nga',mt_int,1,nga)
+      value = btdb_get(rtdb,'pspw_APC:nga',mt_int,1,nga)
 
 *     **** return and set nga to zero if nothing in rtdb and not mulliken****
       if ((.not.value).or.(nga.le.0)) then
@@ -89,8 +89,8 @@ c
      >   call errquit('pspw_init_APC:out of heap memory',0, MA_ERR)
 
 *     **** read in Gc and gamma from rtdb ***
-      if (.not.rtdb_get(rtdb,'pspw_APC:Gc',mt_dbl,1,Gc)) Gc = 2.5d0
-      if (.not.rtdb_get(rtdb,'pspw_APC:gamma',mt_dbl,nga,
+      if (.not.btdb_get(rtdb,'pspw_APC:Gc',mt_dbl,1,Gc)) Gc = 2.5d0
+      if (.not.btdb_get(rtdb,'pspw_APC:gamma',mt_dbl,nga,
      >   dbl_mb(gamma(1)))) then
          if (nga.eq.3) then
             dbl_mb(gamma(1))   = 0.6d0

@@ -7,7 +7,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
       logical value
       integer version,occupation
@@ -37,27 +37,27 @@
       version = 3
 
 *     **** get wavefunction information ****
-      value = rtdb_cget(rtdb,'v_wvfnc:v_wavefunction_filename',
+      value = btdb_cget(rtdb,'v_wvfnc:v_wavefunction_filename',
      >                  1,v_wavefunction_filename)
 
-      value = rtdb_get(rtdb,'v_wvfnc:nup',  mt_int,1,ne(1))
-      value = rtdb_get(rtdb,'v_wvfnc:ndown',mt_int,1,ne(2))
+      value = btdb_get(rtdb,'v_wvfnc:nup',  mt_int,1,ne(1))
+      value = btdb_get(rtdb,'v_wvfnc:ndown',mt_int,1,ne(2))
 
-      value = rtdb_get(rtdb,'v_wvfnc:restricted', mt_log,1,restricted)
+      value = btdb_get(rtdb,'v_wvfnc:restricted', mt_log,1,restricted)
       ispin=2
       if (restricted) ispin=1
 
 
 *     **** get cell information ****
-      value = rtdb_cget(rtdb,'v_wvfnc:cell_name',
+      value = btdb_cget(rtdb,'v_wvfnc:cell_name',
      >                  1,cell_name)
 
       l = index(cell_name,' ') - 1
       rtdb_unita = cell_name(1:l)//':unita'
       rtdb_ngrid = cell_name(1:l)//':ngrid'
 
-      value = rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
-      value = rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)
+      value = btdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
+      value = btdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)
      
 
 

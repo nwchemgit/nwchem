@@ -8,7 +8,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 
       logical value,spin_orbit,fractional
@@ -90,14 +90,14 @@
 
 *     **** get position_tolerance ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:position_tolerance',
+     >      btdb_get(rtdb,'band_dplot:position_tolerance',
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
 
 
 *     **** get origin ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:origin',
+     >      btdb_get(rtdb,'band_dplot:origin',
      >               mt_dbl,3,origin)) then
         origin(1) = 0.0d0 
         origin(2) = 0.0d0 
@@ -290,7 +290,7 @@ c     >                .false.,tag)
      >                .false.,tag)
 
 
-      value = value.and.rtdb_get(rtdb,'band_dplot:count',
+      value = value.and.btdb_get(rtdb,'band_dplot:count',
      >                            mt_int,1,count)
 
 
@@ -396,7 +396,7 @@ c      value = value.and.BA_free_heap(psi2(2))
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       logical value,grid3d
@@ -426,7 +426,7 @@ c      value = value.and.BA_free_heap(psi2(2))
 
       
       grid3d = .false.
-      if (rtdb_get(rtdb,'band_dplot:3d_grid:nx',mt_int,1,i))
+      if (btdb_get(rtdb,'band_dplot:3d_grid:nx',mt_int,1,i))
      >  grid3d = .true.
 
       call Parallel_taskid(taskid)
@@ -452,7 +452,7 @@ c      value = value.and.BA_free_heap(psi2(2))
 *     **** loop over orbital and density list ****
 *     ********************************************
 
-      value = value.and.rtdb_get(rtdb,'band_dplot:count',
+      value = value.and.btdb_get(rtdb,'band_dplot:count',
      >                            mt_int,1,count)
       do i=1,count
 
@@ -464,7 +464,7 @@ c      value = value.and.BA_free_heap(psi2(2))
         name1_len = index(name1,' ') - 1
         name2_len = index(name2,' ') - 1
 
-        value = rtdb_cget(rtdb,name1(1:name1_len),1,filename)
+        value = btdb_cget(rtdb,name1(1:name1_len),1,filename)
         ind = index(filename,' ') - 1
         if (add_tag) then
           ind2 = index(tag,' ') - 1
@@ -473,11 +473,11 @@ c      value = value.and.BA_free_heap(psi2(2))
         end if
 
 
-        value = value.and.rtdb_get(rtdb,name2(1:name2_len),
+        value = value.and.btdb_get(rtdb,name2(1:name2_len),
      >                           mt_int,1,number)
         if (.not.value)
      >     call errquit(
-     >     'band_dplot: rtdb_get failed for orbital', 0, RTDB_ERR)
+     >     'band_dplot: btdb_get failed for orbital', 0, RTDB_ERR)
 
 
 *       **** outputing density ****
@@ -591,12 +591,12 @@ c      value = value.and.BA_free_heap(psi2(2))
         else
            name3 = 'band_dplot:nb'//CHAR(i-1+ia)
            name3_len = index(name3,' ') - 1
-           if (.not.rtdb_get(rtdb,name3(1:name3_len),mt_int,1,nb)) then
+           if (.not.btdb_get(rtdb,name3(1:name3_len),mt_int,1,nb)) then
              nb = 1
            end if
            name3 = 'band_dplot:onumber'//CHAR(i-1+ia)
            name3_len = index(name3,' ') - 1
-           if (.not.rtdb_get(rtdb,name3(1:name3_len),
+           if (.not.btdb_get(rtdb,name3(1:name3_len),
      >                       mt_int,1,onumber)) then
              onumber = 1
            end if
@@ -940,7 +940,7 @@ c      value = value.and.BA_free_heap(psi2(2))
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
 *     **** local variables ****
@@ -1010,7 +1010,7 @@ c     if (.not. value) call errquit('opening geometry',0)
 
 *     **** get position_tolerance and nion2 = nion+special_positions ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:position_tolerance',
+     >      btdb_get(rtdb,'band_dplot:position_tolerance',
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
 
@@ -1105,7 +1105,7 @@ c     if (.not. value) call errquit('closing geometry',0)
      
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -1172,7 +1172,7 @@ c     character*16 t
 
 *     **** read the origin ***
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:o',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:o',
      >               mt_dbl,3,r0)) then
         r0(1) = 0.0
         r0(2) = 0.0
@@ -1181,21 +1181,21 @@ c     character*16 t
 
 *     **** read the x-axis,y-axis,z-axis ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:x',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:x',
      >               mt_dbl,3,xaxis)) then
         xaxis(1) = 1.0
         xaxis(2) = 0.0
         xaxis(3) = 0.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:y',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:y',
      >               mt_dbl,3,yaxis)) then
         yaxis(1) = 0.0
         yaxis(2) = 1.0
         yaxis(3) = 0.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:z',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:z',
      >               mt_dbl,3,zaxis)) then
         zaxis(1) = 0.0
         zaxis(2) = 0.0
@@ -1242,15 +1242,15 @@ c     character*16 t
 
 *     **** read nx,ny,and nz ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:nx',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:nx',
      >               mt_int,1,nx))
      >  nx = 32
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:ny',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:ny',
      >               mt_int,1,ny))
      >  ny = 32
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:nz',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:nz',
      >               mt_int,1,nz))
      >  nz = 32
        nxh = nx/2
@@ -1259,19 +1259,19 @@ c     character*16 t
 
 *     **** read sizex,sizey,sizez ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizex',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:sizex',
      >               mt_dbl,2,sizex)) then
         sizex(1) = 0.0
         sizex(2) = 10.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizey',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:sizey',
      >               mt_dbl,2,sizey)) then
         sizey(1) = 0.0
         sizey(2) = 10.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizez',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:sizez',
      >               mt_dbl,2,sizez)) then
         sizez(1) = 0.0
         sizez(2) = 10.0
@@ -1330,7 +1330,7 @@ c     character*16 t
 
 *     **** get position_tolerance and nion2 = nion+special_positions ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:position_tolerance',
+     >      btdb_get(rtdb,'band_dplot:position_tolerance',
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
 
@@ -1472,7 +1472,7 @@ c     if (.not. value) call errquit('closing geometry',0)
      
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -1540,7 +1540,7 @@ c     character*16 t
 
 *     **** read the origin ***
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:o',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:o',
      >               mt_dbl,3,r0)) then
         r0(1) = 0.0
         r0(2) = 0.0
@@ -1549,21 +1549,21 @@ c     character*16 t
 
 *     **** read the x-axis,y-axis,z-axis ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:x',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:x',
      >               mt_dbl,3,xaxis)) then
         xaxis(1) = 1.0
         xaxis(2) = 0.0
         xaxis(3) = 0.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:y',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:y',
      >               mt_dbl,3,yaxis)) then
         yaxis(1) = 0.0
         yaxis(2) = 1.0
         yaxis(3) = 0.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:z',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:z',
      >               mt_dbl,3,zaxis)) then
         zaxis(1) = 0.0
         zaxis(2) = 0.0
@@ -1610,15 +1610,15 @@ c     character*16 t
 
 *     **** read nx,ny,and nz ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:nx',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:nx',
      >               mt_int,1,nx))
      >  nx = 32
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:ny',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:ny',
      >               mt_int,1,ny))
      >  ny = 32
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:nz',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:nz',
      >               mt_int,1,nz))
      >  nz = 32
        nxh = nx/2
@@ -1627,19 +1627,19 @@ c     character*16 t
 
 *     **** read sizex,sizey,sizez ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizex',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:sizex',
      >               mt_dbl,2,sizex)) then
         sizex(1) = 0.0
         sizex(2) = 10.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizey',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:sizey',
      >               mt_dbl,2,sizey)) then
         sizey(1) = 0.0
         sizey(2) = 10.0
       end if
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizez',
+     >      btdb_get(rtdb,'band_dplot:3d_grid:sizez',
      >               mt_dbl,2,sizez)) then
         sizez(1) = 0.0
         sizez(2) = 10.0
@@ -1698,7 +1698,7 @@ c     character*16 t
 
 *     **** get position_tolerance and nion2 = nion+special_positions ****
       if (.not.
-     >      rtdb_get(rtdb,'band_dplot:position_tolerance',
+     >      btdb_get(rtdb,'band_dplot:position_tolerance',
      >               mt_dbl,1,position_tolerance))
      >      position_tolerance = 0.0d0
 

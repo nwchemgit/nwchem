@@ -13,7 +13,7 @@ c
 #include "bafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 
@@ -130,7 +130,7 @@ c
 *      ****************************************
        do k=1,npsp
           id = 'analysis:lorb'//ion_atom_qm(k)
-          if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) then
+          if (.not. btdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) then
             DD = '                          '
             DD = ion_atom_qm(k)
             ind = index(DD,' ') - 1
@@ -146,13 +146,13 @@ c
             value = rtdb_parallel(.true.)
             call ga_sync()
 
-            if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) 
+            if (.not. btdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) 
      >        call errquit(
-     >        'analysis: rtdb_get lorb failed', 0, RTDB_ERR)
+     >        'analysis: btdb_get lorb failed', 0, RTDB_ERR)
           end if
 
           id = 'analysis:expansion'//ion_atom_qm(k)
-          if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
+          if (.not. btdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
      >                                  dbl_mb(b0(1)+(k-1)*6))) then
             DD = '                          '
             DD = ion_atom_qm(k)
@@ -160,10 +160,10 @@ c
             test = DD(1:ind)//'.psp1'
             call analysis_expansion_coef(test,-1,rtdb)
 
-            if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
+            if (.not. btdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
      >                                       dbl_mb(b0(1)+(k-1)*6))) 
      >       call errquit(
-     >       'analysis: rtdb_get failed', 0, RTDB_ERR)
+     >       'analysis: btdb_get failed', 0, RTDB_ERR)
           end if
        end do
 
@@ -479,15 +479,15 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
 
 
-      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+      if (.not.btdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
         alpha = 0.05d0/27.2116d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+      if (.not.btdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
         npoints = 500
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+      if (.not.btdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
          emin = 99999.0d0
          do ii=1,ne(1)+ne(2)
            if (eig(ii).lt.emin) emin = eig(ii)
@@ -495,7 +495,7 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
          emin = emin - 0.1d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+      if (.not.btdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
          emax = -99999.0d0
          do ii=1,ne(1)+ne(2)
            if (eig(ii).gt.emax) emax = eig(ii)

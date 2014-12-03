@@ -17,7 +17,7 @@
 #include "global.fh"
 #include "errquit.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -670,7 +670,7 @@ c         end if
       E25 = 0.0d0
       E26 = 0.0d0
       icount_shift = 0
-      if (.not.rtdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
@@ -717,7 +717,7 @@ c         end if
 
 *     **** open EIGMOTION file ****
       if (mulliken) then
-        if (.not.rtdb_cget(rtdb,'nwpw:eigmotion_filename',1,filename))
+        if (.not.btdb_cget(rtdb,'nwpw:eigmotion_filename',1,filename))
      >    call util_file_prefix('eigmotion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
@@ -1058,22 +1058,22 @@ c      call control_up_print()
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
       if (flag.gt.-1) then
-      value = rtdb_put(rtdb,'pspw:energy',mt_dbl,1,EV)
+      value = btdb_put(rtdb,'pspw:energy',mt_dbl,1,EV)
       value = value.and.
-     >        rtdb_put(rtdb,'pspw:dipole',mt_dbl,
+     >        btdb_put(rtdb,'pspw:dipole',mt_dbl,
      >                 3,dipole)
       end if
       if (flag.gt.0) then
         value = value.and.
-     >        rtdb_put(rtdb,'pspw:gradient',mt_dbl,
+     >        btdb_put(rtdb,'pspw:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
       end if
       if (flag.eq.3) then
         value = value.and.
-     >        rtdb_put(rtdb,'pspw:stress',mt_dbl,
+     >        btdb_put(rtdb,'pspw:stress',mt_dbl,
      >                 9,stress)
         value = value.and.
-     >        rtdb_put(rtdb,'pspw:lstress',mt_dbl,
+     >        btdb_put(rtdb,'pspw:lstress',mt_dbl,
      >                 6,lstress)
       end if
       value = value.and.BA_pop_stack(fion1(2))

@@ -13,7 +13,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
       logical value
@@ -47,9 +47,9 @@
       version = 3
 
 *     **** get wavefunction information ****
-      value = rtdb_cget(rtdb,'ionize:old_wavefunction_filename',
+      value = btdb_cget(rtdb,'ionize:old_wavefunction_filename',
      >                  1,old_wavefunction_filename)
-      value = rtdb_cget(rtdb,'ionize:new_wavefunction_filename',
+      value = btdb_cget(rtdb,'ionize:new_wavefunction_filename',
      >                  1,new_wavefunction_filename)
 
       norbs_up = 0

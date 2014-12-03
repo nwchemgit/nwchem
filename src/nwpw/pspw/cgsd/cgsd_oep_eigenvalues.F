@@ -14,7 +14,7 @@ c     $Id$
 
 c#include "global.fh"
 c#include "bafdecls.fh"
-c#include "rtdb.fh"
+c#include "btdb.fh"
 
       logical newpsi
       integer MASTER

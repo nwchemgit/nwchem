@@ -13,7 +13,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -34,7 +34,7 @@
       external geom_amatrix_set,wvfnc_expand_cell
 
 
-      value = rtdb_get(rtdb,'nwpw:cell_expand',mt_int,3,cell_expand)
+      value = btdb_get(rtdb,'nwpw:cell_expand',mt_int,3,cell_expand)
       if (.not.value) then
          value = .true.
          goto 201
@@ -42,12 +42,12 @@
 
 *     **** generate new unit cell ****
       setamatrix = .false.
-      if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
+      if (.not.btdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
       l = index(cell_name,' ') - 1
       rtdb_unita = cell_name(1:l)//':unita'
-      if (rtdb_get(rtdb,rtdb_unita,mt_dbl,9,amatrix)) then
+      if (btdb_get(rtdb,rtdb_unita,mt_dbl,9,amatrix)) then
         amatrix2(1,1) = amatrix(1,1)*cell_expand(1)
         amatrix2(2,1) = amatrix(2,1)*cell_expand(1)
         amatrix2(3,1) = amatrix(3,1)*cell_expand(1)
@@ -57,7 +57,7 @@
         amatrix2(1,3) = amatrix(1,3)*cell_expand(3)
         amatrix2(2,3) = amatrix(2,3)*cell_expand(3)
         amatrix2(3,3) = amatrix(3,3)*cell_expand(3)
-        value = value.and.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,amatrix2)
+        value = value.and.btdb_put(rtdb,rtdb_unita,mt_dbl,9,amatrix2)
 
       else
         call dcopy(9,0.0d0,0,amatrix,1)
@@ -99,7 +99,7 @@
 
 
         if (default) then
-          value = value.and.rtdb_put(rtdb,rtdb_unita,mt_dbl,9,amatrix2)
+          value = value.and.btdb_put(rtdb,rtdb_unita,mt_dbl,9,amatrix2)
         else
           value = value.and.geom_amatrix_set(geom,amatrix2)
           value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
@@ -113,7 +113,7 @@ c*     **** generate new grid ***
 c      l = index(cell_name,' ') - 1
 c      rtdb_ngrid = cell_name(1:l)//':ngrid'
 c
-c      if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
+c      if (.not.btdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
 c        ngrid(1) = 32
 c        ngrid(2) = 32
 c        ngrid(3) = 32
@@ -121,7 +121,7 @@ c      end if
 c      ngrid(1) = ngrid(1)*cell_expand(1)
 c      ngrid(2) = ngrid(2)*cell_expand(2)
 c      ngrid(3) = ngrid(3)*cell_expand(3)
-ccc      value = value.and.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
+ccc      value = value.and.btdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
 
 
 
@@ -207,19 +207,19 @@ ccc      value = value.and.rtdb_put(rtdb,rtdb_ngrid,mt_int,3,ngrid)
 
 
 *     **** generate new wavefunctions ****
-      if (.not.rtdb_cget(rtdb,'pspw:input vectors',1,filename)) then
+      if (.not.btdb_cget(rtdb,'pspw:input vectors',1,filename)) then
          call util_file_name('movecs', .false.,.false.,filename)
       endif
       ind = index(filename,' ') - 1
-      if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+      if (.not. btdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-      if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+      if (.not. btdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
       value = value.and.wvfnc_expand_cell(rtdb)
 
 

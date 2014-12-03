@@ -7,7 +7,7 @@
       logical value
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "geom.fh"
@@ -89,14 +89,14 @@
       call load_cellgeometry(geom,dbl_mb(r1(1)),unita)
 
       if (.not.
-     >    rtdb_get(rtdb,'nwpw:lstress_numerical',
+     >    btdb_get(rtdb,'nwpw:lstress_numerical',
      >             mt_log,1,lstress_numerical))
      >  lstress_numerical = .false.
 
 
 *     **** get finite difference step and initialize ****
       if (.not.
-     >    rtdb_get(rtdb,'pspw:stress_alpha',mt_dbl,1,alpha))
+     >    btdb_get(rtdb,'pspw:stress_alpha',mt_dbl,1,alpha))
      >  alpha = 0.00100d0
 
       if (.not.lstress_numerical) then
@@ -141,59 +141,59 @@
 
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
       ke_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
       xc_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
       hartree_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
       ewald_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
       local_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
       ehsic_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
       excsic_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
       hfx_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
       LJ_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
       Q_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
       spring_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
       dftu_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
       disp_stress(i,j) = E
 
 *     *****************************
@@ -217,46 +217,46 @@
       value = value.and.pspw_noit_energy(rtdb)
 
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
       ke_stress(i,j) = ke_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
       xc_stress(i,j) = xc_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
       hartree_stress(i,j) = hartree_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
       ewald_stress(i,j) = ewald_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
       local_stress(i,j) = local_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = nonlocal_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
       ehsic_stress(i,j) = ehsic_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
       excsic_stress(i,j) = excsic_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
       hfx_stress(i,j) = hfx_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
       LJ_stress(i,j) = LJ_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
       Q_stress(i,j) = Q_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
       spring_stress(i,j) = spring_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
       dftu_stress(i,j) = dftu_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
       disp_stress(i,j) = disp_stress(i,j) - E
 
       end do
@@ -310,7 +310,7 @@
 *     **************************************
 *     **** output stress for use driver ****
 *     **************************************
-      value = value.and.rtdb_put(rtdb,'pspw:stress',mt_dbl,9,stress)
+      value = value.and.btdb_put(rtdb,'pspw:stress',mt_dbl,9,stress)
       
       else
          call cell_unita_abc_abg(unita,lattice)
@@ -338,46 +338,46 @@
             value = value.and.pspw_noit_energy(rtdb)
 
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
             ke_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
             xc_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
             hartree_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
             ewald_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
             local_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
             nonlocal_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
             ehsic_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
             excsic_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
             hfx_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
             LJ_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
             Q_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
             spring_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
             dftu_lstress(i) = E
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
             disp_lstress(i) = E
 
 *           *****************************
@@ -401,47 +401,47 @@
             value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
             value = value.and.pspw_noit_energy(rtdb)
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
             ke_lstress(i) = ke_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
             xc_lstress(i) = xc_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
             hartree_lstress(i) = hartree_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
             ewald_lstress(i) = ewald_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
             local_lstress(i) = local_lstress(i) - E
 
             value = value.and.
-     >              rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+     >              btdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
             nonlocal_lstress(i) = nonlocal_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
             ehsic_lstress(i) = ehsic_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
             excsic_lstress(i) = excsic_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
             hfx_lstress(i) = hfx_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
             LJ_lstress(i) = LJ_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
             Q_lstress(i) = Q_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
             spring_lstress(i) = spring_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
             dftu_lstress(i) = dftu_lstress(i) - E
 
-            value = value.and.rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+            value = value.and.btdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
             disp_lstress(i) = disp_lstress(i) - E
          end do
 
@@ -495,7 +495,7 @@
 *        **** output lstress for use driver ****
 *        **************************************
          value = value.and.
-     >           rtdb_put(rtdb,'pspw:lstress',mt_dbl,6,lstress)
+     >           btdb_put(rtdb,'pspw:lstress',mt_dbl,6,lstress)
       end if
 
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita)

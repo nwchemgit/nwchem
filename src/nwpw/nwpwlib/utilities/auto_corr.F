@@ -311,7 +311,7 @@ c
       character*(*) filename
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 
@@ -340,7 +340,7 @@ c
 *     *** synchronization ***
       call ga_sync()
 
-      if (.not.rtdb_cget(rtdb,
+      if (.not.btdb_cget(rtdb,
      >                   'nwpw:dipole_motion_correlation_filename',
      >                   1,tfilename))
      >   call util_file_prefix('dipole_correlation',tfilename)
@@ -348,7 +348,7 @@ c
       call util_file_name_noprefix(tfilename,.false.,.false.,
      >                             full_filename1)
 
-      if (.not.rtdb_cget(rtdb,
+      if (.not.btdb_cget(rtdb,
      >                   'nwpw:dipole_motion_powerspectrum_filename',
      >                   1,tfilename))
      >   call util_file_prefix('dipole_powerspectrum',tfilename)

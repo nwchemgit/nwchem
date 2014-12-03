@@ -6,7 +6,7 @@
       integer rtdb
  
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
 *     **** local variables ****
@@ -31,7 +31,7 @@
       call load_cellgeometry(geom,dbl_mb(r1(1)),unita)
 
 *     **** read in stress ****
-      value = value.and.rtdb_get(rtdb,'paw:stress',mt_dbl,9,stress)
+      value = value.and.btdb_get(rtdb,'paw:stress',mt_dbl,9,stress)
 
 
       write(*,*) " -------------------- "

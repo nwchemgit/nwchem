@@ -13,7 +13,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "stdio.fh"

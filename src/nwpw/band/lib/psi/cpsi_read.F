@@ -14,7 +14,7 @@
       integer psi2_tag
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -127,7 +127,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       end if
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nolattice',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nolattice',
      >                  mt_log,1,psi_nolattice))
      >   psi_nolattice = .true.
 
@@ -157,7 +157,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       end if
       end if
 
-      if (.not.rtdb_get(rtdb,'nwpw:psi_brillioun_check',
+      if (.not.btdb_get(rtdb,'nwpw:psi_brillioun_check',
      >                  mt_log,1,brillioun_check))
      >   brillioun_check = .false.
 
@@ -298,7 +298,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       integer psi2_tag
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *    *** local variables ***
@@ -389,7 +389,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       end if
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nolattice',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nolattice',
      >                  mt_log,1,psi_nolattice))
      >   psi_nolattice = .true.
 
@@ -417,7 +417,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       end if
       end if
 
-      if (.not.rtdb_get(rtdb,'nwpw:psi_brillioun_check',
+      if (.not.btdb_get(rtdb,'nwpw:psi_brillioun_check',
      >                  mt_log,1,brillioun_check))
      >   brillioun_check = .false.
 
@@ -511,7 +511,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       integer psi2_tag
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -623,7 +623,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       end if
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nolattice',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nolattice',
      >                  mt_log,1,psi_nolattice))
      >   psi_nolattice = .true.
 
@@ -653,7 +653,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       end if
       end if
 
-      if (.not.rtdb_get(rtdb,'nwpw:psi_brillioun_check',
+      if (.not.btdb_get(rtdb,'nwpw:psi_brillioun_check',
      >                  mt_log,1,brillioun_check))
      >   brillioun_check = .false.
 

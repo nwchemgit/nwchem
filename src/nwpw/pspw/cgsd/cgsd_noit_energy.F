@@ -12,7 +12,7 @@ c     $Id$
 #include "stdio.fh"
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 
       integer MASTER,taskid
@@ -352,37 +352,37 @@ c            end do
 
 *     **** debug - energies written to rtdb for numerical stress ****
       rtdb = control_rtdb()
-      value =           rtdb_put(rtdb,'pspw:E_ke',      mt_dbl,1,E(6))
-      value = value.and.rtdb_put(rtdb,'pspw:E_hartree', mt_dbl,1,E(3))
-      value = value.and.rtdb_put(rtdb,'pspw:E_xc',      mt_dbl,1,E(4))
-      value = value.and.rtdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
-      value = value.and.rtdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
-      value = value.and.rtdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
-      value = value.and.rtdb_put(rtdb,'pspw:E_hsic',    mt_dbl,1,E(22))
-      value = value.and.rtdb_put(rtdb,'pspw:E_xcsic',   mt_dbl,1,E(23))
-      value = value.and.rtdb_put(rtdb,'pspw:E_hfx',     mt_dbl,1,E(26))
-      value = value.and.rtdb_put(rtdb,'pspw:E_dftu',    mt_dbl,1,E(29))
-      value = value.and.rtdb_put(rtdb,'pspw:E_disp',    mt_dbl,1,E(33))
+      value =           btdb_put(rtdb,'pspw:E_ke',      mt_dbl,1,E(6))
+      value = value.and.btdb_put(rtdb,'pspw:E_hartree', mt_dbl,1,E(3))
+      value = value.and.btdb_put(rtdb,'pspw:E_xc',      mt_dbl,1,E(4))
+      value = value.and.btdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
+      value = value.and.btdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
+      value = value.and.btdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
+      value = value.and.btdb_put(rtdb,'pspw:E_hsic',    mt_dbl,1,E(22))
+      value = value.and.btdb_put(rtdb,'pspw:E_xcsic',   mt_dbl,1,E(23))
+      value = value.and.btdb_put(rtdb,'pspw:E_hfx',     mt_dbl,1,E(26))
+      value = value.and.btdb_put(rtdb,'pspw:E_dftu',    mt_dbl,1,E(29))
+      value = value.and.btdb_put(rtdb,'pspw:E_disp',    mt_dbl,1,E(33))
       if (.not. value) call errquit(
      >   'cgsd_noit_energy: numerical stress - error writing rtdb',0,
      >       RTDB_ERR)
 
 *     **** debug - energies written to rtdb for numerical forces ****
-      value = value.and.rtdb_put(rtdb,'pspw:E_LJ',   mt_dbl,1,E(11))
-      value = value.and.rtdb_put(rtdb,'pspw:E_Q',    mt_dbl,1,E(12))
-      value = value.and.rtdb_put(rtdb,'pspw:E_spring', mt_dbl,1,E(13))
+      value = value.and.btdb_put(rtdb,'pspw:E_LJ',   mt_dbl,1,E(11))
+      value = value.and.btdb_put(rtdb,'pspw:E_Q',    mt_dbl,1,E(12))
+      value = value.and.btdb_put(rtdb,'pspw:E_spring', mt_dbl,1,E(13))
       if (.not. value) call errquit(
      >   'cgsd_noit_energy: numerical force - error writing rtdb',0,
      >       RTDB_ERR)
 
 *     **** debug paw - energies written to rtdb for numerical forces ****
       value = value.and.
-     >        rtdb_put(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E(40))
-      value = value.and.rtdb_put(rtdb,'pspw:E_cmp_cmp',  mt_dbl,1,E(41))
-      value = value.and.rtdb_put(rtdb,'pspw:E_cmp_pw',   mt_dbl,1,E(42))
-      value = value.and.rtdb_put(rtdb,'pspw:E_exc_atom', mt_dbl,1,E(43))
-      value = value.and.rtdb_put(rtdb,'pspw:E_pxc_atom', mt_dbl,1,E(44))
-      value = value.and.rtdb_put(rtdb,'pspw:E_all',       mt_dbl,1,E(1))
+     >        btdb_put(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E(40))
+      value = value.and.btdb_put(rtdb,'pspw:E_cmp_cmp',  mt_dbl,1,E(41))
+      value = value.and.btdb_put(rtdb,'pspw:E_cmp_pw',   mt_dbl,1,E(42))
+      value = value.and.btdb_put(rtdb,'pspw:E_exc_atom', mt_dbl,1,E(43))
+      value = value.and.btdb_put(rtdb,'pspw:E_pxc_atom', mt_dbl,1,E(44))
+      value = value.and.btdb_put(rtdb,'pspw:E_all',       mt_dbl,1,E(1))
 
 
       cgsd_noit_energy = E(1)

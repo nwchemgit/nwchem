@@ -11,7 +11,7 @@
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 
       integer taskid,MASTER
       parameter (MASTER=0)
@@ -20,7 +20,7 @@
       character*50 filename
       character*255 full_filename
 
-      if (rtdb_cget(rtdb,'pspw:cif_filename',1,filename)) then
+      if (btdb_cget(rtdb,'pspw:cif_filename',1,filename)) then
          flen  = index(filename,' ') - 1
          filename = filename(1:flen)//'.cif'
      

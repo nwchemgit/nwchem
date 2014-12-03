@@ -14,7 +14,7 @@
       integer ne(2)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "band_hfx.fh"
 
@@ -38,7 +38,7 @@
       hfx_on = .false.
       call C3dB_nfft3d(1,nfft3d)
 
-      if (.not.rtdb_get(rtdb,'band:HFX',mt_log,1,hfx_on))
+      if (.not.btdb_get(rtdb,'band:HFX',mt_log,1,hfx_on))
      >   hfx_on = .false.
 
 
@@ -48,39 +48,39 @@
          norbs(2) = ne(2)
          neall = ne(1)+ne(2)
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'band:HFX_screening_radius',
      >                      mt_dbl,1,rcut)) 
      >       rcut = 8.0d0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'band:HFX_screening_power',
      >                      mt_dbl,1,pp)) 
      >       pp = 8.0d0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'band:HFX_screening_type',
      >                      mt_int,1,flag)) 
      >       flag = 0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'band:HFX_relax',
      >                      mt_log,1,relaxed)) 
      >       relaxed = .true.
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'band:HFX_solver_type',
      >                      mt_int,1,solver_type)) then
 
             solver_type = 1
          end if
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'band:HFX_parameter',
      >                       mt_dbl,1,HFX_parameter))
      >       HFX_parameter = 1.0d0
 
-         if (.not. rtdb_get(rtdb,
+         if (.not. btdb_get(rtdb,
      >                      'band:HFX_print_orbital_contribution',
      >                       mt_log,1,orb_contribution))
      >       orb_contribution = .false.

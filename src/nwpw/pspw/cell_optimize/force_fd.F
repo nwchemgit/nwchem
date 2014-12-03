@@ -7,7 +7,7 @@
       logical value
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "geom.fh"
@@ -86,7 +86,7 @@
 
 *     **** get finite difference step and initialize ****
       if (.not.
-     >    rtdb_get(rtdb,'pspw:force_alpha',mt_dbl,1,alpha))
+     >    btdb_get(rtdb,'pspw:force_alpha',mt_dbl,1,alpha))
      >  alpha = 0.00100d0
       call dcopy(3*nion,0.0d0,0,dbl_mb(fvl(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fvnl(1)),1)
@@ -131,63 +131,63 @@
 
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
       dbl_mb(few(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
       dbl_mb(fvl(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
       dbl_mb(fvnl(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
       dbl_mb(fxc(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
       dbl_mb(fLJ(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
       dbl_mb(fQ(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
       dbl_mb(fspring(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
       dbl_mb(fdftu(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
       dbl_mb(fdisp(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E)
       dbl_mb(fhatom(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_cmp_cmp',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_cmp_cmp',mt_dbl,1,E)
       dbl_mb(fcmp(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_cmp_pw',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_cmp_pw',mt_dbl,1,E)
       dbl_mb(fcmppw(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_exc_atom',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_exc_atom',mt_dbl,1,E)
       dbl_mb(fxcatom(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_pxc_atom',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_pxc_atom',mt_dbl,1,E)
       dbl_mb(fpxcatom(1)+i-1) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'pspw:E_all',mt_dbl,1,E)
+     >        btdb_get(rtdb,'pspw:E_all',mt_dbl,1,E)
       dbl_mb(fall(1)+i-1) = E
 
 *     *****************************
@@ -213,49 +213,49 @@
       value = pspw_noit_energy(rtdb)
 
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
       dbl_mb(few(1)+i-1) = dbl_mb(few(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
       dbl_mb(fvl(1)+i-1) = dbl_mb(fvl(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
       dbl_mb(fvnl(1)+i-1) = dbl_mb(fvnl(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
       dbl_mb(fxc(1)+i-1) = dbl_mb(fxc(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
       dbl_mb(fLJ(1)+i-1) = dbl_mb(fLJ(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
       dbl_mb(fQ(1)+i-1) = dbl_mb(fQ(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
       dbl_mb(fspring(1)+i-1) = dbl_mb(fspring(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_dftu',mt_dbl,1,E)
       dbl_mb(fdftu(1)+i-1) = dbl_mb(fdftu(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
       dbl_mb(fdisp(1)+i-1) = dbl_mb(fdisp(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E)
       dbl_mb(fhatom(1)+i-1) = dbl_mb(fhatom(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_cmp_cmp',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_cmp_cmp',mt_dbl,1,E)
       dbl_mb(fcmp(1)+i-1) = dbl_mb(fcmp(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_cmp_pw',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_cmp_pw',mt_dbl,1,E)
       dbl_mb(fcmppw(1)+i-1) = dbl_mb(fcmppw(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_exc_atom',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_exc_atom',mt_dbl,1,E)
       dbl_mb(fxcatom(1)+i-1) = dbl_mb(fxcatom(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_pxc_atom',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_pxc_atom',mt_dbl,1,E)
       dbl_mb(fpxcatom(1)+i-1) = dbl_mb(fpxcatom(1)+i-1) - E
 
-      value = value.and.rtdb_get(rtdb,'pspw:E_all',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'pspw:E_all',mt_dbl,1,E)
       dbl_mb(fall(1)+i-1) = dbl_mb(fall(1)+i-1) - E
 
       end do

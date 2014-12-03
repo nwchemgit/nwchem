@@ -7,7 +7,7 @@
       integer rtdb
 #include "errquit.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
       logical value
       integer version
@@ -33,10 +33,10 @@
       version = 3
 
 *     **** get wavefunction information ****
-      value = rtdb_cget(rtdb,'cgsd:output_wavefunction_filename',
+      value = btdb_cget(rtdb,'cgsd:output_wavefunction_filename',
      >                  1,old_wavefunction_filename)
       value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:input_wavefunction_filename',
+     >        btdb_cget(rtdb,'cgsd:input_wavefunction_filename',
      >                  1,new_wavefunction_filename)
 
       if (.not. value)
@@ -45,11 +45,11 @@
 
 *     **** cell: stuff ****
       value = value.and.
-     >        rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
+     >        btdb_cget(rtdb,'cgsd:cell_name',1,cell_name)
       l = index(cell_name,' ') - 1
       rtdb_unita = cell_name(1:l)//':unita'
       value = value.and.
-     >        rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita2)
+     >        btdb_get(rtdb,rtdb_unita,mt_dbl,9,unita2)
 
       if (.not. value)
      >   call errquit('wvfnc_reformat: error reading cell ',0, RTDB_ERR)

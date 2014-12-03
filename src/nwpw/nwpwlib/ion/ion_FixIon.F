@@ -9,7 +9,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 
 *     **** FixIon common block ****
@@ -852,7 +852,7 @@
       implicit none 
       integer   rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 
@@ -877,7 +877,7 @@
 
 
 
-         if (.not.rtdb_cget(rtdb,'cpmd:fei_filename',1,filename))
+         if (.not.btdb_cget(rtdb,'cpmd:fei_filename',1,filename))
      >     call util_file_prefix('fei',filename)
 
          call util_file_name_noprefix(filename,.false.,

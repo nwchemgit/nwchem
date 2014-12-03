@@ -9,7 +9,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 
 *     **** LJparam common block ****
@@ -28,7 +28,7 @@
 
       value = rtdb_parallel(.true.)
       value = value.and.
-     >        rtdb_get(rtdb,'water_pseudopotential:lj_count',
+     >        btdb_get(rtdb,'water_pseudopotential:lj_count',
      >                 mt_int,1,ljcount)
       if (.not. value) call errquit('error reading rtdb',0, RTDB_ERR)
 
@@ -43,19 +43,19 @@
      >          BA_alloc_get(mt_dbl,(ljcount),'si',si(2),si(1))
         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-        value = rtdb_get(rtdb,'water_pseudopotential:lj_ion_number',
+        value = btdb_get(rtdb,'water_pseudopotential:lj_ion_number',
      >                   mt_int,ljcount,int_mb(ion_number(1)))
         value = value.and.
-     >          rtdb_get(rtdb,'water_pseudopotential:lj_ei',
+     >          btdb_get(rtdb,'water_pseudopotential:lj_ei',
      >                   mt_dbl,ljcount,dbl_mb(ei(1)))
         value = value.and.
-     >          rtdb_get(rtdb,'water_pseudopotential:lj_si',
+     >          btdb_get(rtdb,'water_pseudopotential:lj_si',
      >                   mt_dbl,ljcount,dbl_mb(si(1)))
         value = value.and.
-     >          rtdb_get(rtdb,'water_pseudopotential:lj_ew',
+     >          btdb_get(rtdb,'water_pseudopotential:lj_ew',
      >                   mt_dbl,1,ew)
         value = value.and.
-     >          rtdb_get(rtdb,'water_pseudopotential:lj_sw',
+     >          btdb_get(rtdb,'water_pseudopotential:lj_sw',
      >                   mt_dbl,1,sw)
         if (.not. value) call errquit('error reading rtdb',0, RTDB_ERR)
       

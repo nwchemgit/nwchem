@@ -12,7 +12,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "pspw_LJ.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -65,7 +65,7 @@ c
       do i=1,nkatm
          rtdbname = 'pspw_LJ_param_ion:'//ion_atom(i)
          j = index(rtdbname,' ')-1
-         value = rtdb_get(rtdb,rtdbname(1:j),mt_dbl,2,sigma_epsilon)
+         value = btdb_get(rtdb,rtdbname(1:j),mt_dbl,2,sigma_epsilon)
          if (.not. value) call dcopy(2,0.0d0,0,sigma_epsilon,1)
 
         dbl_mb(sigma_atom(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
@@ -82,7 +82,7 @@ c
             si = dbl_mb(sigma_atom(1)  +i-1) 
 
             rtdbname='pspw_LJ_param_ion_ion:'//ion_atom(i)//ion_atom(j)
-            value = rtdb_get(rtdb,rtdbname,mt_dbl,2,sigma_epsilon)
+            value = btdb_get(rtdb,rtdbname,mt_dbl,2,sigma_epsilon)
             if (.not. value) then
                dbl_mb(sigma_all(1)  +(j-1)*nkatm+(i-1)) = 0.5d0*(si+sj)
                dbl_mb(epsilon_all(1)+(j-1)*nkatm+(i-1)) = dsqrt(ei*ej)
@@ -96,7 +96,7 @@ c
       end do
 
 *     **** check for LJ include_qm option ****
-      if (.not.rtdb_get(rtdb,'pspw_LJ_include_qm',mt_log,1,include_qm))
+      if (.not.btdb_get(rtdb,'pspw_LJ_include_qm',mt_log,1,include_qm))
      >   include_qm = .false.
       
       

@@ -26,7 +26,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "model_charge.fh"
 
 *       **** local variables ****

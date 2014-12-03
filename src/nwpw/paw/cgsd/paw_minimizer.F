@@ -20,7 +20,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
 #include "inp.fh"
@@ -494,20 +494,20 @@ c     end if
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
       if (flag.gt.-1) then
-      value = rtdb_put(rtdb,'paw:energy',mt_dbl,1,EV)
+      value = btdb_put(rtdb,'paw:energy',mt_dbl,1,EV)
       value = value.and.
-     >        rtdb_put(rtdb,'paw:dipole',mt_dbl,
+     >        btdb_put(rtdb,'paw:dipole',mt_dbl,
      >                 3,dipole)
       end if
       if (flag.gt.0) then
         value = value.and.
-     >        rtdb_put(rtdb,'paw:gradient',mt_dbl,
+     >        btdb_put(rtdb,'paw:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
         value = value.and.BA_pop_stack(fion(2))
       end if
       if (flag.eq.3) then
         value = value.and.
-     >        rtdb_put(rtdb,'paw:stress',mt_dbl,
+     >        btdb_put(rtdb,'paw:stress',mt_dbl,
      >                 9,stress)
       end if
       if (.not. value) call errquit('cgsdv5: error writing rtdb',0,

@@ -8,7 +8,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 ccc#include "frac_occ.fh"
 #include "errquit.fh"
       
@@ -564,7 +564,7 @@ c         end if
 
 
 *     **** open EMOTION file ****
-      value = rtdb_cget(rtdb,'cpmd:emotion_filename',1,filename)
+      value = btdb_cget(rtdb,'cpmd:emotion_filename',1,filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)
@@ -595,7 +595,7 @@ c         end if
 
 *     **** open EIGMOTION file ****
       if (mulliken) then
-      value = rtdb_cget(rtdb,'cpmd:eigmotion_filename',1,filename)
+      value = btdb_cget(rtdb,'cpmd:eigmotion_filename',1,filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)
@@ -605,7 +605,7 @@ c         end if
 
 *     **** open HMOTION file ****
       if (mulliken) then
-      value = rtdb_cget(rtdb,'cpmd:hmotion_filename',1,filename)
+      value = btdb_cget(rtdb,'cpmd:hmotion_filename',1,filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)

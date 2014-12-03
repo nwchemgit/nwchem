@@ -9,7 +9,7 @@ c     $Id$
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "util.fh"
 
@@ -24,7 +24,7 @@ c     $Id$
       logical  control_print
       external control_print
 
-      if (rtdb_cget(rtdb,'nwpw:cif_filename',1,filename)) then
+      if (btdb_cget(rtdb,'nwpw:cif_filename',1,filename)) then
          flen  = index(filename,' ') - 1
          filename = filename(1:flen)//'.cif'
      
@@ -32,7 +32,7 @@ c     $Id$
      >                                .false.,
      >                                full_filename)
 
-         if (.not.rtdb_get(rtdb,'nwpw:cif_shift_cell',
+         if (.not.btdb_get(rtdb,'nwpw:cif_shift_cell',
      >                     mt_log,1,shift_cell)) 
      >      shift_cell = .false.
 

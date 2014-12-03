@@ -19,7 +19,7 @@
 #include "global.fh"
 #include "bafdecls.fh"
 #include "inp.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "errquit.fh"      
@@ -567,22 +567,22 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 *     **** by task_energy and task_gradient                    ****
 *     *************************************************************
       if (flag.gt.-1) then
-      value = rtdb_put(rtdb,'band:energy',mt_dbl,1,EV)
+      value = btdb_put(rtdb,'band:energy',mt_dbl,1,EV)
       value = value.and.
-     >        rtdb_put(rtdb,'band:dipole',mt_dbl,
+     >        btdb_put(rtdb,'band:dipole',mt_dbl,
      >                 3,dipole)
       end if
       if (flag.gt.0) then
-        value = value.and.rtdb_put(rtdb,'band:gradient',mt_dbl,
+        value = value.and.btdb_put(rtdb,'band:gradient',mt_dbl,
      >                             3*nion,dbl_mb(fion(1)))
         value = value.and.BA_pop_stack(fion(2))
       end if
       if (flag.eq.3) then
         value = value.and.
-     >        rtdb_put(rtdb,'band:stress',mt_dbl,
+     >        btdb_put(rtdb,'band:stress',mt_dbl,
      >                 9,stress)
         value = value.and.
-     >        rtdb_put(rtdb,'band:lstress',mt_dbl,
+     >        btdb_put(rtdb,'band:lstress',mt_dbl,
      >                 6,lstress)
       end if
       if (.not. value) 

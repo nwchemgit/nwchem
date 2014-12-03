@@ -8,12 +8,12 @@ c
       external paw_minimizer,paw_stress
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     *** local variables ****
       logical includestress,value
 
-      if (.not.rtdb_get(rtdb,'includestress',mt_log,1,includestress))
+      if (.not.btdb_get(rtdb,'includestress',mt_log,1,includestress))
      >   includestress = .false.
 
 *     **** only calculate atom gradients ****

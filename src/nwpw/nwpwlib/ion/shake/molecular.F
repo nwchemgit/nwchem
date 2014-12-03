@@ -12,7 +12,7 @@
       integer   rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     ***** local variables ****
       integer taskid,MASTER
@@ -39,7 +39,7 @@
       call Parallel_taskid(taskid)
 
       !**** SHAKE data file exists ****
-      value = rtdb_cget(rtdb,'nwpw:molecular_filename',1,filename)
+      value = btdb_cget(rtdb,'nwpw:molecular_filename',1,filename)
       if (value) then
 
          call util_file_name_noprefix(filename,.false.,
@@ -55,7 +55,7 @@
 
       !**** input via rtdb ****
       else
-        value = rtdb_cget(rtdb,'nwpw:shake_constraint',1,string)
+        value = btdb_cget(rtdb,'nwpw:shake_constraint',1,string)
         if (value) then
           full_filename = 'SHAKE'
           call util_file_name_resolve(full_filename, .false.)
@@ -82,9 +82,9 @@
       end if
 
       if (value) then
-         gabprint = rtdb_cget(rtdb,'nwpw:gab_filename',1,filename)
+         gabprint = btdb_cget(rtdb,'nwpw:gab_filename',1,filename)
          if (gabprint) then
-            if (.not.rtdb_get(rtdb,'nwpw:gab_mod',mt_int,1,gabmod)) 
+            if (.not.btdb_get(rtdb,'nwpw:gab_mod',mt_int,1,gabmod)) 
      >         gabmod = 10
             gabiter  = 0
             call util_file_name_noprefix(filename,

@@ -19,7 +19,7 @@
 
 #include "bafdecls.fh"
 #include "inp.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "errquit.fh"
 #include "stdio.fh"
@@ -60,26 +60,26 @@
 
 *     ***** read number of emachines on rtdb ****
       rtdb_name = 'nwpw:emachine:nemach'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nemach)) nemach = 0
+      if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nemach)) nemach = 0
 
 *     ***** write emachine data to rtdb *****
       nemach = nemach + 1
-      value = rtdb_put(rtdb,rtdb_name,mt_int,1,nemach)
+      value = btdb_put(rtdb,rtdb_name,mt_int,1,nemach)
 
       rtdb_name = 'nwpw:emachine:eqnstring'//c_index_name(nemach)
-      value = value.and.rtdb_cput(rtdb,rtdb_name,1,eqnstring)
+      value = value.and.btdb_cput(rtdb,rtdb_name,1,eqnstring)
 
       rtdb_name = 'nwpw:emachine:nc'//c_index_name(nemach)
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nc)
+      value = value.and.btdb_put(rtdb,rtdb_name,mt_int,1,nc)
 
       rtdb_name = 'nwpw:emachine:nf'//c_index_name(nemach)
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nf)
+      value = value.and.btdb_put(rtdb,rtdb_name,mt_int,1,nf)
 
       rtdb_name = 'nwpw:emachine:code'//c_index_name(nemach)
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,5*nc,code)
+      value = value.and.btdb_put(rtdb,rtdb_name,mt_int,5*nc,code)
 
       rtdb_name = 'nwpw:emachine:fconst'//c_index_name(nemach)
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,nf,fconst)
+      value = value.and.btdb_put(rtdb,rtdb_name,mt_dbl,nf,fconst)
       if (.not.value)
      >   call errquit(
      >   'nwpw_expression_compile:error writing emachine',0,RTDB_ERR)
@@ -97,7 +97,7 @@
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
       logical value
@@ -122,7 +122,7 @@
 
 #include "bafdecls.fh"
 #include "inp.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "errquit.fh"
 
@@ -140,12 +140,12 @@
       external    c_index_name
  
       rtdb_name = 'nwpw:emachine:started'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,started))
+      if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,started))
      >   started=.false.
 
 *     ***** read number of emachines on rtdb ****
       rtdb_name = 'nwpw:emachine:nemach'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nemach)) nemach = 0
+      if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nemach)) nemach = 0
 
       if ((.not.started).and.(nemach.gt.0)) then
          started = .true.
@@ -168,27 +168,27 @@
          do i=1,nemach
             rtdb_name = 'nwpw:emachine:nc'//c_index_name(i)
             value = value.and.
-     >              rtdb_get(rtdb,rtdb_name,mt_int,1,int_mb(nc(1)+i-1))
+     >              btdb_get(rtdb,rtdb_name,mt_int,1,int_mb(nc(1)+i-1))
 
             rtdb_name = 'nwpw:emachine:nf'//c_index_name(i)
             value = value.and.
-     >              rtdb_get(rtdb,rtdb_name,mt_int,1,int_mb(nf(1)+i-1))
+     >              btdb_get(rtdb,rtdb_name,mt_int,1,int_mb(nf(1)+i-1))
 
             rtdb_name = 'nwpw:emachine:code'//c_index_name(i)
             value = value.and.
-     >              rtdb_get(rtdb,rtdb_name,mt_int,
+     >              btdb_get(rtdb,rtdb_name,mt_int,
      >                       5*int_mb(nc(1)+i-1),
      >                       int_mb(code(1)+(i-1)*5*200))
 
             rtdb_name = 'nwpw:emachine:fconst'//c_index_name(i)
             value = value.and.
-     >              rtdb_get(rtdb,rtdb_name,mt_dbl,int_mb(nf(1)+i-1),
+     >              btdb_get(rtdb,rtdb_name,mt_dbl,int_mb(nf(1)+i-1),
      >                       dbl_mb(fconst(1)+(i-1)*50))
          end do
 
 *        **** write started ***
          rtdb_name = 'nwpw:emachine:started'
-         value = value.and.rtdb_put(rtdb,rtdb_name,mt_log,1,started)
+         value = value.and.btdb_put(rtdb,rtdb_name,mt_log,1,started)
          if (.not.value)
      >      call errquit(
      >      'nwpw_expression_start:starting emachine',0,RTDB_ERR)
@@ -209,7 +209,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
       logical started
@@ -251,18 +251,18 @@
       integer i
       character*(*) eqnstring
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** external functions ****
       character*7 c_index_name
       external    c_index_name
 
-      if (.not.rtdb_cget(rtdb,
+      if (.not.btdb_cget(rtdb,
      >                   'nwpw:emachine:eqnstring'//c_index_name(i),
      >                    1,eqnstring))
      >   call errquit(
-     >   'nwpw_expression_eqnstring:error calling rtdb_cget',0,RTDB_ERR)
+     >   'nwpw_expression_eqnstring:error calling btdb_cget',0,RTDB_ERR)
 
       return
       end
@@ -281,7 +281,7 @@
 
 #include "bafdecls.fh"
 #include "inp.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "errquit.fh"
 
@@ -326,7 +326,7 @@
 
 #include "bafdecls.fh"
 #include "inp.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "errquit.fh"
 

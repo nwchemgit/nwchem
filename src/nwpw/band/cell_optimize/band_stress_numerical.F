@@ -10,7 +10,7 @@
 #include "bafdecls.fh"
 #include "global.fh"
 #include "msgtypesf.h"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
 *     **** local variables ***

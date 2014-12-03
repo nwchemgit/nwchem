@@ -12,7 +12,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "pspw_Pair.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -60,7 +60,7 @@ c
       do i=1,nkatm
          rtdbname = 'pspw_LJ_param_ion:'//ion_atom(i)
          k = index(rtdbname,' ')-1
-         if (.not.rtdb_get(rtdb,rtdbname(1:k),mt_dbl,2,sigma_epsilon))
+         if (.not.btdb_get(rtdb,rtdbname(1:k),mt_dbl,2,sigma_epsilon))
      >      call dcopy(2,0.0d0,0,sigma_epsilon,1)
 
         dbl_mb(sigma_atom(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
@@ -68,7 +68,7 @@ c
       end do
 
 *     **** check for LJ include_qm option ****
-      if (.not.rtdb_get(rtdb,'pspw_LJ_include_qm',
+      if (.not.btdb_get(rtdb,'pspw_LJ_include_qm',
      >                  mt_log,1,include_lj_qm))
      >   include_lj_qm = .false.
 
@@ -94,7 +94,7 @@ c
 
 *          **** check for standard pair potentials ****
            rtdbname='pspw_Pair_ion_ion_npair:'//ion_atom(i)//ion_atom(j)
-            if (rtdb_get(rtdb,rtdbname,mt_int,1,npair)) then
+            if (btdb_get(rtdb,rtdbname,mt_int,1,npair)) then
                 npairs = npairs + npair
                 if ((i.le.nkatm_qm).and.(j.le.nkatm_qm)) 
      >             include_qm = .true.
@@ -132,7 +132,7 @@ c
 *              **** read and add standard pair potentials ****
                rtdbname='pspw_Pair_ion_ion_npair:'
      >                  //ion_atom(i)//ion_atom(j)
-               if (.not.rtdb_get(rtdb,rtdbname,mt_int,1,npair))
+               if (.not.btdb_get(rtdb,rtdbname,mt_int,1,npair))
      >            npair = 0
 
                int_mb(npair_all(1)+(j-1)*nkatm+(i-1))  = npair
@@ -142,14 +142,14 @@ c
      >                     //c_index_name(k)
      >                     //ion_atom(i)//ion_atom(j)
                   value = value.and.
-     >                    rtdb_get(rtdb,rtdbname,mt_int,1,
+     >                    btdb_get(rtdb,rtdbname,mt_int,1,
      >                             int_mb(type_all(1)+nn))
 
                   rtdbname = 'pspw_Pair_ion_ion_param:'
      >                     //c_index_name(k)
      >                     //ion_atom(i)//ion_atom(j)
                   value = value.and.
-     >                    rtdb_get(rtdb,rtdbname,mt_dbl,6,
+     >                    btdb_get(rtdb,rtdbname,mt_dbl,6,
      >                             dbl_mb(param_all(1)+6*nn))
                   nn = nn + 1
                end do

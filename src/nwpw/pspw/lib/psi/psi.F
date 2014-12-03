@@ -5968,7 +5968,7 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "errquit.fh"
@@ -6083,7 +6083,7 @@ c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
 *     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
      >                  mt_log,1,psi_nogrid))
      >   psi_nogrid = .true.
 
@@ -6108,19 +6108,19 @@ c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
           filename =  control_input_psi()
 
           ind = index(filename,' ') - 1
-          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+          if (.not. btdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_put failed', 0, RTDB_ERR)
 
           if (control_print(print_medium)) then
             write(luout,*)
@@ -6322,7 +6322,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
 #include "errquit.fh"
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "psi.fh"
 
 *     **** local variables ****
@@ -6367,7 +6367,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
 
 *     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
      >                  mt_log,1,psi_nogrid))
      >   psi_nogrid = .true.
 
@@ -6391,19 +6391,19 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
 
 
           ind = index(filename,' ') - 1
-          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
 
-          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+          if (.not. btdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+     >     'wvfnc_expander_input: btdb_put failed', 0, RTDB_ERR)
 
           write(*,*)
           write(*,*) "Grid is being converted:"
@@ -6575,7 +6575,7 @@ c      end if
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
@@ -6595,15 +6595,15 @@ c      end if
       call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
 
 
-      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+      if (.not.btdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
         alpha = 0.05d0/27.2116d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+      if (.not.btdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
         npoints = 500
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+      if (.not.btdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
          emin = 99999.0d0
          do ii=1,ne(1)+ne(2)
            if (dbl_mb(eig(1)+ii-1).lt.emin) emin = dbl_mb(eig(1)+ii-1)
@@ -6611,7 +6611,7 @@ c      end if
          emin = emin - 0.1d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+      if (.not.btdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
          emax = -99999.0d0
          do ii=1,ne(1)+ne(2)
            if (dbl_mb(eig(1)+ii-1).gt.emax) emax = dbl_mb(eig(1)+ii-1)
@@ -6656,7 +6656,7 @@ c      end if
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "bafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
@@ -6675,15 +6675,15 @@ c      end if
       call dcopy((ne_excited(1)+ne_excited(2)),
      >          1.0d0,0,dbl_mb(weight(1)),1)
 
-      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+      if (.not.btdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
         alpha = 0.05d0/27.2116d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+      if (.not.btdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
         npoints = 500
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+      if (.not.btdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
          emin = 99999.0d0
          do ii=1,ne_excited(1)+ne_excited(2)
            if (dbl_mb(eig_excited(1)+ii-1).lt.emin) 
@@ -6692,7 +6692,7 @@ c      end if
          emin = emin - 0.1d0
       end if
 
-      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+      if (.not.btdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
          emax = -99999.0d0
          do ii=1,ne_excited(1)+ne_excited(2)
            if (dbl_mb(eig_excited(1)+ii-1).gt.emax) 

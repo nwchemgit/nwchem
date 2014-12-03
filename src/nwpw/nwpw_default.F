@@ -7,7 +7,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 c
 *     ***** local variables *****
@@ -32,7 +32,7 @@ c
 
        
 *     **** don't set defaults if they already exist ****
-      value = rtdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut)
+      value = btdb_get(rtdb,'cgsd:ncut',mt_int,1,ncut)
       if (value) return
 
 
@@ -84,8 +84,8 @@ c ---- commented out default handled in control read ----
 c     if (cell_name.eq.' ') 
 c    >  call errquit('nwpw_default: nead a cell_name', 0, INPUT_ERR)
 c     ind = index(cell_name,' ') - 1
-c     value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
-c     value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
+c     value = btdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
+c     value = btdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
 
       if (input_wavefunction_filename.eq.' ') 
      >  call errquit(
@@ -98,22 +98,22 @@ c     value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
 
 
       ind = index(zone_name,' ') - 1
-      value = rtdb_cput(rtdb,'band:zone_name',1,zone_name(1:ind))
+      value = btdb_cput(rtdb,'band:zone_name',1,zone_name(1:ind))
       ind = index(structure_name,' ') - 1
-      value = rtdb_cput(rtdb,'band_structure:zone_name',1,
+      value = btdb_cput(rtdb,'band_structure:zone_name',1,
      >                  structure_name(1:ind))
 
       ind = index(input_wavefunction_filename,' ') - 1
       value = value.and.
-     >        rtdb_cput(rtdb,'cgsd:input_wavefunction_filename',
+     >        btdb_cput(rtdb,'cgsd:input_wavefunction_filename',
      >                    1,input_wavefunction_filename(1:ind))
       value = value.and.
-     >        rtdb_cput(rtdb,'band:input_wavefunction_filename',
+     >        btdb_cput(rtdb,'band:input_wavefunction_filename',
      >                    1,input_wavefunction_filename(1:ind))
 
       ind = index(input_ewavefunction_filename,' ') - 1
       value = value.and.
-     >        rtdb_cput(rtdb,'cgsd:input_ewavefunction_filename',
+     >        btdb_cput(rtdb,'cgsd:input_ewavefunction_filename',
      >                    1,input_ewavefunction_filename(1:ind))
 
 *     *********************************
@@ -121,96 +121,96 @@ c     value = rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
 *     *********************************
       ind = index(input_wavefunction_filename,' ') - 1
       value = value.and.
-     >        rtdb_cput(rtdb,'pspw:input vectors',
+     >        btdb_cput(rtdb,'pspw:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
       value = value.and.
-     >        rtdb_cput(rtdb,'band:input vectors',
+     >        btdb_cput(rtdb,'band:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
 
       ind = index(output_wavefunction_filename,' ') - 1
       value = value.and.
-     >        rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
+     >        btdb_cput(rtdb,'cgsd:output_wavefunction_filename',
      >                    1,output_wavefunction_filename(1:ind))
       value = value.and.
-     >        rtdb_cput(rtdb,'band:output_wavefunction_filename',
+     >        btdb_cput(rtdb,'band:output_wavefunction_filename',
      >                    1,output_wavefunction_filename(1:ind))
       value = value.and.
-     >        rtdb_cput(rtdb,'pspw:output vectors',
+     >        btdb_cput(rtdb,'pspw:output vectors',
      >                    1,output_wavefunction_filename(1:ind))
       value = value.and.
-     >        rtdb_cput(rtdb,'band:output vectors',
+     >        btdb_cput(rtdb,'band:output vectors',
      >                    1,output_wavefunction_filename(1:ind))
 
       ind = index(output_ewavefunction_filename,' ') - 1
       value = value.and.
-     >        rtdb_cput(rtdb,'cgsd:output_ewavefunction_filename',
+     >        btdb_cput(rtdb,'cgsd:output_ewavefunction_filename',
      >                    1,output_ewavefunction_filename(1:ind))
 
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:fractional_coordinates',mt_log,1,
+     >        btdb_put(rtdb,'cgsd:fractional_coordinates',mt_log,1,
      >                       frac_coord)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:mulliken',mt_log,1,
+     >        btdb_put(rtdb,'cgsd:mulliken',mt_log,1,
      >                       mulliken)
       value = value.and.
-     >        rtdb_put(rtdb,'band:mulliken',mt_log,1,
+     >        btdb_put(rtdb,'band:mulliken',mt_log,1,
      >                       mulliken)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:allow_translation',mt_log,1,
+     >        btdb_put(rtdb,'cgsd:allow_translation',mt_log,1,
      >                       allow_translation)
       value = value.and.
-     >        rtdb_put(rtdb,'band:allow_translation',mt_log,1,
+     >        btdb_put(rtdb,'band:allow_translation',mt_log,1,
      >                       allow_translation)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:npsp',     mt_int,1,npsp)
+     >        btdb_put(rtdb,'cgsd:npsp',     mt_int,1,npsp)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
+     >        btdb_put(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
       value = value.and.
-     >        rtdb_put(rtdb,'band:fake_mass',mt_dbl,1,fake_mass)
+     >        btdb_put(rtdb,'band:fake_mass',mt_dbl,1,fake_mass)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
+     >        btdb_put(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
       value = value.and.
-     >        rtdb_put(rtdb,'band:time_step',mt_dbl,1,time_step)
+     >        btdb_put(rtdb,'band:time_step',mt_dbl,1,time_step)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:loop',mt_int,2,loop)
+     >        btdb_put(rtdb,'cgsd:loop',mt_int,2,loop)
       value = value.and.
-     >        rtdb_put(rtdb,'band:loop',mt_int,2,loop)
+     >        btdb_put(rtdb,'band:loop',mt_int,2,loop)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)
+     >        btdb_put(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)
       value = value.and.
-     >        rtdb_put(rtdb,'band:tolerances',mt_dbl,3,tolerances)
+     >        btdb_put(rtdb,'band:tolerances',mt_dbl,3,tolerances)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
+     >        btdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
       value = value.and.
-     >        rtdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
+     >        btdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
+     >        btdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
       value = value.and.
-     >        rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
+     >        btdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
+     >        btdb_put(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
       value = value.and.
-     >        rtdb_put(rtdb,'band:rcut',mt_dbl,1,rcut)
+     >        btdb_put(rtdb,'band:rcut',mt_dbl,1,rcut)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:ncut',mt_int,1,ncut)
+     >        btdb_put(rtdb,'cgsd:ncut',mt_int,1,ncut)
       value = value.and.
-     >        rtdb_put(rtdb,'band:ncut',mt_int,1,ncut)
+     >        btdb_put(rtdb,'band:ncut',mt_int,1,ncut)
       ind = index(exchange_correlation,' ') - 1
       value = value.and.
-     >        rtdb_cput(rtdb,'cgsd:exchange_correlation',
+     >        btdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
       value = value.and.
-     >        rtdb_cput(rtdb,'band:exchange_correlation',
+     >        btdb_cput(rtdb,'band:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
 
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:mult',mt_int,1,multiplicity)
+     >        btdb_put(rtdb,'cgsd:mult',mt_int,1,multiplicity)
       value = value.and.
-     >        rtdb_put(rtdb,'band:mult',mt_int,1,multiplicity)
+     >        btdb_put(rtdb,'band:mult',mt_int,1,multiplicity)
       value = value.and.
-     >        rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
+     >        btdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
       value = value.and.
-     >        rtdb_put(rtdb,'band:ispin',mt_int,1,ispin)
+     >        btdb_put(rtdb,'band:ispin',mt_int,1,ispin)
 
 
 *     **** unit cell stuff ****
@@ -219,19 +219,19 @@ c     ind = index(cell_name,' ') -1
 c     rtdb_name = cell_name(1:ind)//':boundry'
 c     ind = index(boundry,' ') - 1
 c     value = value.and.
-c    >        rtdb_cput(rtdb,rtdb_name,1,boundry(1:ind))
+c    >        btdb_cput(rtdb,rtdb_name,1,boundry(1:ind))
 
 c---commented out - defaults handled in control_read ---
 c     ind = index(cell_name,' ') -1
 c     rtdb_name = cell_name(1:ind)//':unita'
 c     value = value.and.
-c    >        rtdb_put(rtdb,rtdb_name,mt_dbl,9,unita)
+c    >        btdb_put(rtdb,rtdb_name,mt_dbl,9,unita)
 
 c---commented out - defaults handled in control_read ---
 c     ind = index(cell_name,' ') -1
 c     rtdb_name = cell_name(1:ind)//':ngrid'
 c     value = value.and.
-c    >        rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid)
+c    >        btdb_put(rtdb,rtdb_name,mt_int,3,ngrid)
 
 
 *     **** unit brillouin_zone stuff ***

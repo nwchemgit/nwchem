@@ -14,7 +14,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "inp.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -703,7 +703,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 
 *     **** open EMOTION file ****
-      if (.not.rtdb_cget(rtdb,'cpmd:emotion_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'cpmd:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
@@ -735,7 +735,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 *     **** open EIGMOTION file ****
 c      if (mulliken) then
-c        if (.not.rtdb_cget(rtdb,'cpmd:eigmotion_filename',1,filename))
+c        if (.not.btdb_cget(rtdb,'cpmd:eigmotion_filename',1,filename))
 c     >    call util_file_prefix('eigmotion',filename)
 c      call util_file_name_noprefix(filename,.false.,
 c     >                             .false.,
@@ -746,7 +746,7 @@ c      end if
 
 c*     **** open HMOTION file ****
 c      if (mulliken) then
-c       if (.not.rtdb_cget(rtdb,'cpmd:hmotion_filename',1,filename))
+c       if (.not.btdb_cget(rtdb,'cpmd:hmotion_filename',1,filename))
 c     >  call util_file_prefix('hmotion',filename)
 c      call util_file_name_noprefix(filename,.false.,
 c     >                             .false.,

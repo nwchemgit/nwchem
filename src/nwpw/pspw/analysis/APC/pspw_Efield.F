@@ -25,7 +25,7 @@ c
       complex*16 dng(*)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 
@@ -50,7 +50,7 @@ c
       external control_version
       external lattice_omega,psp_zv,ion_rion
 
-      if (.not.rtdb_get(rtdb,'nwpw:efield',mt_log,1,doefield)) 
+      if (.not.btdb_get(rtdb,'nwpw:efield',mt_log,1,doefield)) 
      >  doefield=.true.
 
       if (doefield) then

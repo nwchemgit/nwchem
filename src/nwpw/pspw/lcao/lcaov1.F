@@ -9,7 +9,7 @@
 #include "global.fh"
 #include "bafdecls.fh"
 #include "stdio.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
       
@@ -219,7 +219,7 @@
       end if
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >         'nwpw:lcao_iterations',mt_int,1,lcao_iterations))
      >   lcao_iterations = 10
 

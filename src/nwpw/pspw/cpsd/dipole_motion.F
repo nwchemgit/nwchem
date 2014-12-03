@@ -11,7 +11,7 @@
       implicit none
       integer rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer taskid,MASTER
@@ -33,7 +33,7 @@
 
       if (control_dipole_motion()) then
 
-        if (.not.rtdb_cget(rtdb,'nwpw:dipole_motion_filename',
+        if (.not.btdb_cget(rtdb,'nwpw:dipole_motion_filename',
      >                      1,filename))
      >     call util_file_prefix('dipole_motion',filename)
 

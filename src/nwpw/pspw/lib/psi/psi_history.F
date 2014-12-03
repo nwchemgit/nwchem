@@ -388,7 +388,7 @@ c      write(*,*) "diff:",dsqrt(gx)
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer MASTER
@@ -461,7 +461,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       implicit none 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer rtdb,history
@@ -472,7 +472,7 @@ c      write(*,*) "diff:",dsqrt(gx)
      
       rtdb = control_rtdb()
 
-      if (.not.rtdb_get(rtdb,'nwpw:psi_history',mt_int,1,history)) then
+      if (.not.btdb_get(rtdb,'nwpw:psi_history',mt_int,1,history)) then
          history = 0
       end if
       if (history.gt.0) history = history + 1
@@ -492,7 +492,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       implicit none 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer rtdb,size
@@ -503,7 +503,7 @@ c      write(*,*) "diff:",dsqrt(gx)
      
       rtdb = control_rtdb()
 
-      if (.not.rtdb_get(rtdb,'nwpw:psi_history_size',mt_int,1,size)) 
+      if (.not.btdb_get(rtdb,'nwpw:psi_history_size',mt_int,1,size)) 
      >   then
          size = 0
       end if
@@ -522,7 +522,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       implicit none 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer rtdb,start
@@ -533,7 +533,7 @@ c      write(*,*) "diff:",dsqrt(gx)
      
       rtdb = control_rtdb()
 
-      if (.not.rtdb_get(rtdb,'nwpw:psi_history_pointer_start',
+      if (.not.btdb_get(rtdb,'nwpw:psi_history_pointer_start',
      >    mt_int,1,start)) then
          start = 1
       end if
@@ -555,7 +555,7 @@ c      write(*,*) "diff:",dsqrt(gx)
 #include "errquit.fh"
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer rtdb,start,size
@@ -572,7 +572,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       start = start + 1
       if (start.gt.size) start = 1
 
-      if (.not.rtdb_put(rtdb,'nwpw:psi_history_pointer_start',
+      if (.not.btdb_put(rtdb,'nwpw:psi_history_pointer_start',
      >    mt_int,1,start)) then
         call errquit('psi_history_shift',0, RTDB_ERR)
       end if
@@ -590,7 +590,7 @@ c      write(*,*) "diff:",dsqrt(gx)
 #include "errquit.fh"
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer rtdb,size
@@ -603,7 +603,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       size  = size + 1
 
       rtdb = control_rtdb()
-      if (.not.rtdb_put(rtdb,'nwpw:psi_history_size',
+      if (.not.btdb_put(rtdb,'nwpw:psi_history_size',
      >    mt_int,1,size)) then
         call errquit('psi_history_adder',0, RTDB_ERR)
       end if

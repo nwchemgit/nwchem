@@ -7,7 +7,7 @@
       logical value
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "geom.fh"
@@ -55,7 +55,7 @@
 
 *     **** get finite difference step and initialize ****
       if (.not.
-     >    rtdb_get(rtdb,'pspw:stress_alpha',mt_dbl,1,alpha))
+     >    btdb_get(rtdb,'pspw:stress_alpha',mt_dbl,1,alpha))
      >  alpha = 0.00100d0
       call dscal(9,0.0d0,ke_stress,      1)
       call dscal(9,0.0d0,xc_stress,      1)
@@ -94,31 +94,31 @@
 
 
       value = value.and.
-     >        rtdb_get(rtdb,'band:E_ke',mt_dbl,1,E)
+     >        btdb_get(rtdb,'band:E_ke',mt_dbl,1,E)
       ke_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'band:E_xc',mt_dbl,1,E)
+     >        btdb_get(rtdb,'band:E_xc',mt_dbl,1,E)
       xc_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'band:E_hartree',mt_dbl,1,E)
+     >        btdb_get(rtdb,'band:E_hartree',mt_dbl,1,E)
       hartree_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'band:E_ewald',mt_dbl,1,E)
+     >        btdb_get(rtdb,'band:E_ewald',mt_dbl,1,E)
       ewald_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'band:E_local',mt_dbl,1,E)
+     >        btdb_get(rtdb,'band:E_local',mt_dbl,1,E)
       local_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'band:E_nonlocal',mt_dbl,1,E)
+     >        btdb_get(rtdb,'band:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = E
 
       value = value.and.
-     >        rtdb_get(rtdb,'band:E_disp',mt_dbl,1,E)
+     >        btdb_get(rtdb,'band:E_disp',mt_dbl,1,E)
       disp_stress(i,j) = E
 
 *     *****************************
@@ -145,25 +145,25 @@
       value = band_noit_energy(rtdb)
 
 
-      value = value.and.rtdb_get(rtdb,'band:E_ke',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'band:E_ke',mt_dbl,1,E)
       ke_stress(i,j) = ke_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'band:E_xc',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'band:E_xc',mt_dbl,1,E)
       xc_stress(i,j) = xc_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'band:E_hartree',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'band:E_hartree',mt_dbl,1,E)
       hartree_stress(i,j) = hartree_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'band:E_ewald',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'band:E_ewald',mt_dbl,1,E)
       ewald_stress(i,j) = ewald_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'band:E_local',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'band:E_local',mt_dbl,1,E)
       local_stress(i,j) = local_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'band:E_nonlocal',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'band:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = nonlocal_stress(i,j) - E
 
-      value = value.and.rtdb_get(rtdb,'band:E_disp',mt_dbl,1,E)
+      value = value.and.btdb_get(rtdb,'band:E_disp',mt_dbl,1,E)
       disp_stress(i,j) = disp_stress(i,j) - E
 
       end do
@@ -197,7 +197,7 @@
 *     **************************************
 *     **** output stress for use driver ****
 *     **************************************
-      value = value.and.rtdb_put(rtdb,'band:stress',mt_dbl,9,stress)
+      value = value.and.btdb_put(rtdb,'band:stress',mt_dbl,9,stress)
 
 
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita)

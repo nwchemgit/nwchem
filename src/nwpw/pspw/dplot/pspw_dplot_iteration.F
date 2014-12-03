@@ -6,7 +6,7 @@
 #include "errquit.fh"
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** dplot_iteration_block ****
       logical exist
@@ -103,7 +103,7 @@
       real*8     psi_r(*)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     **** local variables ****
       integer nfft3d,npack1,nemax,rtdb

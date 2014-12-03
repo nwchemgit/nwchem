@@ -9,7 +9,7 @@ C> @{
 #include "inp.fh"
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 c
       integer rtdb
       logical value,dummy,md_only
@@ -65,7 +65,7 @@ c
 c
       value = .false.
       task_pspw = .false. 
- 10   value = rtdb_cget(rtdb,'task:operation',1,test)
+ 10   value = btdb_cget(rtdb,'task:operation',1,test)
 
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit('task pspw: unknown directive', 0, INPUT_ERR)
@@ -146,7 +146,7 @@ c
       value = .true.
       value = rtdb_parallel(.true.)
 
-      if (.not.rtdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
+      if (.not.btdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
      >   md_only = .false.
 
       if (md_only) then
@@ -263,7 +263,7 @@ c
  1400 if (ga_nodeid().eq.MASTER) then
         write(*,*)  ">>>> PSPW Parallel Module - Wannier <<<<"
       end if
-      if (.not.rtdb_get(rtdb,'nwpw:wannier_old',mt_log,1,dummy))
+      if (.not.btdb_get(rtdb,'nwpw:wannier_old',mt_log,1,dummy))
      >  dummy = .false.
       value = .true.
       value = rtdb_parallel(.true.)
@@ -327,7 +327,7 @@ c
 
       value = .true.
       value = rtdb_parallel(.true.)
-      if (.not.rtdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
+      if (.not.btdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
      >   md_only = .false.
 
       if (md_only) then
@@ -383,7 +383,7 @@ c
 
       value = .true.
       value = rtdb_parallel(.true.)
-      if (.not.rtdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
+      if (.not.btdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
      >   md_only = .false.
 
       if (md_only) then

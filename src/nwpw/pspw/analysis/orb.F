@@ -16,7 +16,7 @@ c
 
 #include "bafdecls.fh"
 #include "msgtypesf.h"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 
@@ -66,15 +66,15 @@ c
 *     ****************************************
       do k=1,npsp
           id = 'analysis:lorb'//ion_atom_qm(k)
-          if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1)))
+          if (.not. btdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1)))
      >        call errquit(
-     >        'analysis: rtdb_get lorb failed', 0, RTDB_ERR)
+     >        'analysis: btdb_get lorb failed', 0, RTDB_ERR)
 
           id = 'analysis:expansion'//ion_atom_qm(k)
-          if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
+          if (.not. btdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
      >                                       dbl_mb(b0(1)+(k-1)*6)))
      >        call errquit(
-     >        'analysis_input: rtdb_put failed', 0, RTDB_ERR)
+     >        'analysis_input: btdb_put failed', 0, RTDB_ERR)
       end do
 
 
@@ -87,7 +87,7 @@ c
 
 
 
-      if (.not.rtdb_cget(rtdb,'cpmd:omotion_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'cpmd:omotion_filename',1,filename))
      > call util_file_prefix('omotion',filename)
 
       call util_file_name_noprefix(filename,.false.,.false.,

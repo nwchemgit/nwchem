@@ -7,7 +7,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -19,21 +19,21 @@
 
 
       if (.not.
-     >  rtdb_get(rtdb,'nwpw:stress_numerical',mt_log,1,numerical))
+     >  btdb_get(rtdb,'nwpw:stress_numerical',mt_log,1,numerical))
      >  numerical = .false.
 
       if (numerical) then
         hasfrozen = .false.
-        if (rtdb_get(rtdb,'nwpw:frozen_lattice',mt_log,1,frozen))
+        if (btdb_get(rtdb,'nwpw:frozen_lattice',mt_log,1,frozen))
      >     hasfrozen = .true.
 
-        if (.not.rtdb_put(rtdb,'nwpw:frozen_lattice',mt_log,1,.true.))
+        if (.not.btdb_put(rtdb,'nwpw:frozen_lattice',mt_log,1,.true.))
      >     call errquit('pspw_stress:error frozen lattice',0,RTDB_ERR)
 
         pspw_stress = pspw_stress_numerical(rtdb)
 
         if (hasfrozen) then
-           if(.not.rtdb_put(rtdb,'nwpw:frozen_lattice',mt_log,1,frozen))
+           if(.not.btdb_put(rtdb,'nwpw:frozen_lattice',mt_log,1,frozen))
      >        call errquit('pspw_stress:error frozen lattice',
      >                     1,RTDB_ERR)
         else

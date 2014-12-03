@@ -26,7 +26,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "truncating_function.fh"
 #include "errquit.fh"
 
@@ -80,11 +80,11 @@ c      integer rho(2),f(2)
 
       call Parallel_taskid(taskid)
 
-      if (.not.rtdb_get(rtdb,'nwpw:truncating_rcut_scaling',
+      if (.not.btdb_get(rtdb,'nwpw:truncating_rcut_scaling',
      >                  mt_dbl,1,rcut))
      >   rcut = 1.2d0
 
-      if (.not.rtdb_get(rtdb,'nwpw:truncating_power',mt_dbl,1,pp))
+      if (.not.btdb_get(rtdb,'nwpw:truncating_power',mt_dbl,1,pp))
      >   pp = 6.0d0
 
       if (taskid.eq.MASTER) then

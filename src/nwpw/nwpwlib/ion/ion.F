@@ -46,7 +46,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "ion.fh"
 
@@ -93,9 +93,9 @@
      >    (control_code().eq.11).or.
      >    (control_code().eq.14)) then
          value = geom_vel_set(geom,dbl_mb(r0(1)))
-         value = rtdb_put(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total)
-         value = rtdb_put(rtdb,"nwpw:kg_total",mt_dbl,1,kg_total)
-         value = rtdb_put(rtdb,"nwpw:ke_count",mt_int,1,ke_count)
+         value = btdb_put(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total)
+         value = btdb_put(rtdb,"nwpw:kg_total",mt_dbl,1,kg_total)
+         value = btdb_put(rtdb,"nwpw:ke_count",mt_int,1,ke_count)
 
       end if
 
@@ -151,7 +151,7 @@
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 
       integer geom
@@ -184,7 +184,7 @@
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 
@@ -326,11 +326,11 @@ c     call ion_shift()
          value = geom_vel_get(geom,dbl_mb(r0(1)))
          call dcopy((3*nion),dbl_mb(r0(1)),1,dbl_mb(v2(1)),1)
       
-         if (.not.rtdb_get(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total))
+         if (.not.btdb_get(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total))
      >      ke_total = 0.0d0
-         if (.not.rtdb_get(rtdb,"nwpw:kg_total",mt_dbl,1,kg_total))
+         if (.not.btdb_get(rtdb,"nwpw:kg_total",mt_dbl,1,kg_total))
      >      kg_total = 0.0d0
-         if (.not.rtdb_get(rtdb,"nwpw:ke_count",mt_int,1,ke_count))
+         if (.not.btdb_get(rtdb,"nwpw:ke_count",mt_int,1,ke_count))
      >      ke_count = 0
 
 c*        ***** scale initial velocities and       ****
@@ -766,7 +766,7 @@ c         eki1=0.5d0*eki1
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 
 *     **** local variables ****
@@ -791,7 +791,7 @@ c         eki1=0.5d0*eki1
       name = element(1:l)//':valence_charge'
       l = index(name,' ') - 1
 
-      if (.not.rtdb_get(rtdb,name(1:l),mt_dbl,1,q))
+      if (.not.btdb_get(rtdb,name(1:l),mt_dbl,1,q))
      >   q = ion_q(i)
 
       ion_zv = q
@@ -3063,7 +3063,7 @@ c
       character*(*) name1
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "geom.fh"
 #include "errquit.fh"
 

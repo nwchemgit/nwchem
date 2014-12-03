@@ -5,7 +5,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 ccc#include "frac_occ.fh"
 #include "errquit.fh"
       

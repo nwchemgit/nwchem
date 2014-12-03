@@ -14,7 +14,7 @@ c
       implicit none
 
 #include "inp.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
 #include "util.fh"
@@ -168,7 +168,7 @@ c
         l = index(element,' ')  -1
         if (l.lt.1) l = 2
         rtdb_name = element(1:l)//':paw_library'
-        if (.not.rtdb_cget(rtdb,rtdb_name,1,library_name))
+        if (.not.btdb_cget(rtdb,rtdb_name,1,library_name))
      >    library_name = 'paw_default'
 
         ind = index(library_name,' ')  -1
@@ -195,11 +195,11 @@ c     >   //'_basis'
         l = index(element,' ')  -1
         if (l.lt.1) l = 2
         rtdb_name = element(1:l)//':pspw_library'
-        if (.not.rtdb_cget(rtdb,rtdb_name,1,library_name))
+        if (.not.btdb_cget(rtdb,rtdb_name,1,library_name))
      >    library_name = 'pspw_default'
 
         rtdb_name = element(1:l)//':pspw_library_type'
-        if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,library_type))
+        if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,library_type))
      >    library_type = 0
 
 

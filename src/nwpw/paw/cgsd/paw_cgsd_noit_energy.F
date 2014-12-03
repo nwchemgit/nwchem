@@ -11,7 +11,7 @@ c     $Id$
       implicit none
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -86,15 +86,15 @@ c         write(luout,1321) r_charge,' (real space)'
 
 *     **** debug - energies written to rtdb for numerical stress ****
       rtdb = control_rtdb()
-      value =           rtdb_put(rtdb,'paw:E_ke',      mt_dbl,1,
+      value =           btdb_put(rtdb,'paw:E_ke',      mt_dbl,1,
      >                           E(2)+E(3))
-      value = value.and.rtdb_put(rtdb,'paw:E_hartree', mt_dbl,1,
+      value = value.and.btdb_put(rtdb,'paw:E_hartree', mt_dbl,1,
      >                           E(4)+E(5))
-      value = value.and.rtdb_put(rtdb,'paw:E_mult',    mt_dbl,1,
+      value = value.and.btdb_put(rtdb,'paw:E_mult',    mt_dbl,1,
      >                           E(6))
-      value = value.and.rtdb_put(rtdb,'paw:E_xc',      mt_dbl,1,
+      value = value.and.btdb_put(rtdb,'paw:E_xc',      mt_dbl,1,
      >                           E(7)+E(8))
-      value = value.and.rtdb_put(rtdb,'paw:E_local',   mt_dbl,1,
+      value = value.and.btdb_put(rtdb,'paw:E_local',   mt_dbl,1,
      >                           E(9)+E(10))
       if (.not. value) call errquit(
      >   'paw_cgsd_noit_energy: numerical stress - error writing rtdb',

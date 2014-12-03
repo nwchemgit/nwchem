@@ -12,7 +12,7 @@
       implicit none 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 
 
@@ -119,18 +119,18 @@
       end if
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >         'nwpw:lcao_iterations',mt_int,1,lcao_iterations))
      >   lcao_iterations = 10
 
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >         'nwpw:lcao_print',mt_log,1,lcao_print))
      >   lcao_print = .false.
       lcao_print = lcao_print.or.control_print(print_high)
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >         'nwpw:lcao_skip',mt_log,1,lcao_skip))
      >   lcao_skip = .true.
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
      >   adjust_skip = .false.
     
@@ -172,7 +172,7 @@
       implicit none 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *    *** local variables ***
       logical success,adjust_skip
@@ -216,7 +216,7 @@
       if (ispin.eq.2) ne(2) = control_excited_ne(2)
 
       rtdb = control_rtdb()
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
      >   adjust_skip = .false.
       if (epsi_filefind().and.(.not.adjust_skip)) then

@@ -194,7 +194,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "paw_basis.fh"
 #include "paw_proj.fh"
 #include "errquit.fh"
@@ -486,7 +486,7 @@ c      call paw_vloc_init()
 
 *     *****  read initial wavefunctions into psi1  ****
       
-      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
      >                  mt_log,1,psi_nogrid))
      >   psi_nogrid = .true.
 
@@ -511,19 +511,19 @@ c      call paw_vloc_init()
           filename =  control_input_psi()
 
           ind = index(filename,' ') - 1
-          if (.not. rtdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed', 0,0)
+     >     'wvfnc_expander_input: btdb_cput failed', 0,0)
 
-          if (.not. rtdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+          if (.not. btdb_cput(rtdb,'xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_cput failed',0, 0)
+     >     'wvfnc_expander_input: btdb_cput failed',0, 0)
 
-          if (.not. rtdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+          if (.not. btdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'wvfnc_expander_input: rtdb_put failed',0, 0)
+     >     'wvfnc_expander_input: btdb_put failed',0, 0)
 
           write(*,*)
           write(*,*) "Grid is being converted:"

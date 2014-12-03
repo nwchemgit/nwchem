@@ -6,7 +6,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *     *** local variables ****
       logical includestress,value,numerical
@@ -15,13 +15,13 @@ c
       logical  cgsdv5,pspw_stress,pspw_force_numerical
       external cgsdv5,pspw_stress,pspw_force_numerical
 
-      if (.not.rtdb_get(rtdb,'includestress',mt_log,1,includestress)) 
+      if (.not.btdb_get(rtdb,'includestress',mt_log,1,includestress)) 
      >   includestress = .false.
 
 *     **** only calculate atom gradients ****
       if (.not.includestress) then
           if (.not.
-     >      rtdb_get(rtdb,'nwpw:force_numerical',mt_log,1,numerical))
+     >      btdb_get(rtdb,'nwpw:force_numerical',mt_log,1,numerical))
      >      numerical = .false.
          if (numerical) then
             value = pspw_force_numerical(rtdb)

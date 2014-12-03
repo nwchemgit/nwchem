@@ -29,7 +29,7 @@
       implicit none 
       integer   rtdb
 
-#include "rtdb.fh"
+#include "btdb.fh"
 
 
       integer   MASTER
@@ -51,7 +51,7 @@
 
       call Parallel_taskid(taskid)
 
-      if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
+      if (.not.btdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
      > call util_file_prefix('ion_motion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,

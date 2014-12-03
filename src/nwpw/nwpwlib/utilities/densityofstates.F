@@ -23,7 +23,7 @@ c
 
 #include "bafdecls.fh"
 #include "msgtypesf.h"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
       
 *     **** local variables ***
@@ -41,7 +41,7 @@ c
       call Parallel_taskid(taskid)
       rtdb = control_rtdb()
 
-      if (.not.rtdb_cget(rtdb,'nwpw:dos:filename',1,prefilename)) then
+      if (.not.btdb_cget(rtdb,'nwpw:dos:filename',1,prefilename)) then
          call util_file_name(filename,.true.,.false.,full_filename)
       else
         l = index(prefilename,' ') - 1
@@ -110,7 +110,7 @@ c
 
 #include "bafdecls.fh"
 #include "msgtypesf.h"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
       
 *     **** local variables ***
@@ -128,7 +128,7 @@ c
       call Parallel_taskid(taskid)
       rtdb = control_rtdb()
 
-      if (.not.rtdb_cget(rtdb,'nwpw:dos:filename',1,prefilename)) then
+      if (.not.btdb_cget(rtdb,'nwpw:dos:filename',1,prefilename)) then
          call util_file_name(filename,.true.,.false.,full_filename)
       else
         l = index(prefilename,' ') - 1

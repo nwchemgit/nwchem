@@ -11,7 +11,7 @@ c     $Id$
 
 c#include "global.fh"
 c#include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 
       logical newpsi

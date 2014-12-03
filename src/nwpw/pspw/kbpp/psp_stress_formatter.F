@@ -7,7 +7,7 @@ c
 #include "errquit.fh"
 #include "bafdecls.fh"
 #include "global.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 c
       integer rtdb
       logical      value
@@ -38,7 +38,7 @@ c
       taskid = ga_nodeid()
       value  = .true.
 *     **** read kbpp_number ***
-      if(.not. rtdb_get(rtdb,'kbpp_number',mt_int,1,kbpp_number))
+      if(.not. btdb_get(rtdb,'kbpp_number',mt_int,1,kbpp_number))
      >    call errquit(
      >       'psp_stress_formatter: kbpp_number not read', 0, RTDB_ERR)
 
@@ -61,39 +61,39 @@ c
      
 
       rtdb_name = kbpp_name(1:kbpp_len)//':locp'
-      value = rtdb_get(rtdb,rtdb_name,
+      value = btdb_get(rtdb,rtdb_name,
      >                  mt_int,1,locp)
 
       if(.not. value) call errquit('psp_stress_formatter: error',1,
      &       RTDB_ERR)
       
       rtdb_name = kbpp_name(1:kbpp_len)//':lmax'
-      value = value.and.rtdb_get(rtdb,rtdb_name,
+      value = value.and.btdb_get(rtdb,rtdb_name,
      >                  mt_int,1,lmax)
 
       if(.not. value) call errquit('psp_stress_formatter: error',2,
      &       RTDB_ERR)
       
       rtdb_name = kbpp_name(1:kbpp_len)//':rlocal'
-      value = value.and.rtdb_get(rtdb,rtdb_name,
+      value = value.and.btdb_get(rtdb,rtdb_name,
      >                  mt_dbl,1,rlocal)
 
       if(.not. value) call errquit('psp_stress_formatter: error',3,
      &       RTDB_ERR)
       rtdb_name = kbpp_name(1:kbpp_len)//':cell_name'
-      value = value.and.rtdb_cget(rtdb,rtdb_name,
+      value = value.and.btdb_cget(rtdb,rtdb_name,
      >                  1,cell_name)
 
       if(.not. value) call errquit('psp_stress_formatter: error',4,
      &       RTDB_ERR)
       rtdb_name = kbpp_name(1:kbpp_len)//':psp_filename'
-      value = value.and.rtdb_cget(rtdb,rtdb_name,
+      value = value.and.btdb_cget(rtdb,rtdb_name,
      >                  1,psp_filename)
 
       if(.not. value) call errquit('psp_stress_formatter: error',5,
      &       RTDB_ERR)
       rtdb_name = kbpp_name(1:kbpp_len)//':formatted_stress_filename'
-      value = value.and.rtdb_cget(rtdb,rtdb_name,
+      value = value.and.btdb_cget(rtdb,rtdb_name,
      >                  1,formatted_stress_filename)
 
       if(.not. value) call errquit('psp_stress_formatter: error',6,
@@ -104,9 +104,9 @@ c
       rtdb_ngrid   = cell_name(1:l)//':ngrid'
       rtdb_boundry = cell_name(1:l)//':boundry'
 
-      value = value.and.rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
-      value = value.and.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)
-      value = value.and.rtdb_cget(rtdb,rtdb_boundry,1,boundry)
+      value = value.and.btdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
+      value = value.and.btdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)
+      value = value.and.btdb_cget(rtdb,rtdb_boundry,1,boundry)
       if(.not. value) call errquit('psp_stress_formatter: error',7,
      &       RTDB_ERR)
 

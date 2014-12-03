@@ -29,7 +29,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -66,7 +66,7 @@ c
       external    lattice_unita,ion_TotalCharge,ion_TotalCharge_qm
 
       rtdb_name = 'pspw_qmmm_auxon'
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,value)) value = .false.
+      if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,value)) value = .false.
 
       qmmm_found     = (ion_nion_mm().gt.0).or. value 
       auxiliary_only = (ion_nion_mm().le.0).and.value
@@ -100,16 +100,16 @@ c
          rtdb_name = 'pspw_qmmm_lmbda'
          lmbda_flag = .false.
          qmmm_lmbda=1.0d0
-         if (rtdb_get(rtdb,rtdb_name,mt_dbl,1,qmmm_lmbda)) 
+         if (btdb_get(rtdb,rtdb_name,mt_dbl,1,qmmm_lmbda)) 
      >      lmbda_flag=.true.
 
 *        **** reading number of frags ****
          rtdb_name = 'pspw_qmmm_nfrag'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
+         if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
 
 *        **** reading number of kinds of frags ****
          rtdb_name = 'pspw_qmmm_nkfrag'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nkfrag)) nkfrag = 0
+         if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nkfrag)) nkfrag = 0
 
          if (nfrag.eq.0) go to 999
 
@@ -270,13 +270,13 @@ c
          do ia=1,nkfrag
 
             rtdb_name = 'pspw_qmmm_frag_size:'//c_index_name(ia)
-            value = rtdb_get(rtdb,rtdb_name,mt_int,1,frag_size)
+            value = btdb_get(rtdb,rtdb_name,mt_int,1,frag_size)
             if (.not. value)
      >        call errquit(
      >       'pspw_qmmm_init:failed reading frag_size',0,RTDB_ERR)
 
             rtdb_name = 'pspw_qmmm_frag_nindex_start:'//c_index_name(ia)
-            value = rtdb_get(rtdb,rtdb_name,mt_int,1,ni)
+            value = btdb_get(rtdb,rtdb_name,mt_int,1,ni)
             if (.not. value)
      >        call errquit(
      >       'pspw_qmmm_init:failed reading nindx_start',0,RTDB_ERR)
@@ -287,7 +287,7 @@ c
             end do
 
             rtdb_name = 'pspw_qmmm_frag_index_start:'//c_index_name(ia)
-            value = rtdb_get(rtdb,rtdb_name,mt_int,
+            value = btdb_get(rtdb,rtdb_name,mt_int,
      >                       ni,int_mb(indx_frag_start(1)+ii))
             if (.not. value)
      >        call errquit(
@@ -296,24 +296,24 @@ c
 
             rtdb_name = 'pspw_qmmm_frag_self_interaction:'
      >                  //c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,
      >                       log_mb(self_interaction(1)+ia-1)))
      >          log_mb(self_interaction(1)+ia-1) = .false.
 
             rtdb_name = 'pspw_qmmm_frag_incell:'
      >                  //c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,
      >                       log_mb(incell_frag(1)+ia-1)))
      >          log_mb(incell_frag(1)+ia-1) = .true.
 
             rtdb_name = 'pspw_qmmm_frag_switch_Rin:'//c_index_name(ia)
-            value = rtdb_get(rtdb,rtdb_name,mt_dbl,1,
+            value = btdb_get(rtdb,rtdb_name,mt_dbl,1,
      >                       dbl_mb(switch_Rin(1)+ia-1))
             if (.not.value) 
      >         dbl_mb(switch_Rin(1)+ia-1) =(2.0160d0/0.529177d0)
 
             rtdb_name = 'pspw_qmmm_frag_switch_Rout:'//c_index_name(ia)
-            value = rtdb_get(rtdb,rtdb_name,mt_dbl,1,
+            value = btdb_get(rtdb,rtdb_name,mt_dbl,1,
      >                       dbl_mb(switch_Rout(1)+ia-1))
             if (.not.value) 
      >         dbl_mb(switch_Rout(1)+ia-1) =(3.1287d0/0.529177d0)
@@ -322,7 +322,7 @@ c
 *           **** shake stuff  - get nshake  ****
             int_mb(nab_shake_start(1)+ia-1) = nabsize + 1
             rtdb_name = 'pspw_qmmm_frag_nshk:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(nshake(1)+ia-1))) 
      >         int_mb(nshake(1)+ia-1) = 0
             nabsize = nabsize + int_mb(nshake(1)+ia-1)
@@ -335,20 +335,20 @@ c
             do ja=1,int_mb(nshake(1)+ia-1)
                rtdb_name = 'pspw_qmmm_frag_na:'
      >                     //c_index_name(ia)//c_index_name(ja)
-               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,natmp))
+               if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,natmp))
      >            natmp = 0
                nindxsize = nindxsize + natmp
 
                rtdb_name = 'pspw_qmmm_frag_nb:'
      >                     //c_index_name(ia)//c_index_name(ja)
-               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nbtmp))
+               if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nbtmp))
      >            nbtmp = 0
                ndsqsize = ndsqsize + nbtmp
             end do
 
 *           **** bond stuff  - get nbond  ****
             rtdb_name = 'pspw_qmmm_frag_nbond:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(nbond(1)+ia-1))) 
      >         int_mb(nbond(1)+ia-1) = 0
 
@@ -361,7 +361,7 @@ c
 
 *           **** angle stuff  - get nangle  ****
             rtdb_name = 'pspw_qmmm_frag_nangle:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(nangle(1)+ia-1)))
      >         int_mb(nangle(1)+ia-1) = 0
 
@@ -373,7 +373,7 @@ c
 
 *           **** cbond stuff  - get ncbond  ****
             rtdb_name = 'pspw_qmmm_frag_ncbond:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(ncbond(1)+ia-1))) 
      >         int_mb(ncbond(1)+ia-1) = 0
 
@@ -385,7 +385,7 @@ c
 
 *           **** mbond stuff  - get nmbond  ****
             rtdb_name = 'pspw_qmmm_frag_nmbond:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(nmbond(1)+ia-1))) 
      >         int_mb(nmbond(1)+ia-1) = 0
 
@@ -399,7 +399,7 @@ c
 *           **** dihedral_spring stuff  - get ndihedral_spring  ****
             rtdb_name = 
      >        'pspw_qmmm_frag_ndihedral_spring:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(ndihedral_spring(1)+ia-1)))
      >         int_mb(ndihedral_spring(1)+ia-1) = 0
 
@@ -413,7 +413,7 @@ c
 *           **** dihedral stuff  - get ndihedral  ****
             rtdb_name =  
      >        'pspw_qmmm_frag_ndihedral:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(ndihedral(1)+ia-1)))
      >         int_mb(ndihedral(1)+ia-1) = 0
 
@@ -427,7 +427,7 @@ c
 *           **** coordination number stuff  - get ncoord  ****
             rtdb_name =
      >        'pspw_qmmm_frag_ncoord:'//c_index_name(ia)
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+            if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(ncoord(1)+ia-1)))
      >         int_mb(ncoord(1)+ia-1) = 0
 
@@ -439,10 +439,10 @@ c
             do i=1,int_mb(ncoord(1)+ia-1)
                rtdb_name = 'pspw_qmmm_frag_coord_indxsize1:'
      >                     //c_index_name(ia)//c_index_name(i)
-               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1 =0
+               if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1 =0
                rtdb_name = 'pspw_qmmm_frag_coord_indxsize2:'
      >                     //c_index_name(ia)//c_index_name(i)
-               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2 =0
+               if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2 =0
                ncnindxsize0 = ncnindxsize0 + 1
                ncnindxsize1 = ncnindxsize1 + n1
                ncnindxsize2 = ncnindxsize2 + n2
@@ -474,26 +474,26 @@ c
                do ja=1,int_mb(nshake(1)+ia-1)
                   rtdb_name = 'pspw_qmmm_frag_na:'
      >                        //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,natmp))
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,natmp))
      >               natmp = 0
                   int_mb(na(1)+nabsize) = natmp
                   rtdb_name = 'pspw_qmmm_frag_nb:'
      >                        //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nbtmp))
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,nbtmp))
      >               nbtmp = 0
                   int_mb(nb(1)+nabsize) = nbtmp
                   nabsize = nabsize + 1
 
                   rtdb_name = 'pspw_qmmm_frag_indx_shake:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,natmp,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,natmp,
      >                int_mb(indx_shake(1)+nindxsize)))
      >               int_mb(indx_shake(1)+nindxsize) = 0
                   nindxsize = nindxsize + natmp
 
                   rtdb_name = 'pspw_qmmm_frag_dsq_shake:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nbtmp,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,nbtmp,
      >                dbl_mb(dsq_shake(1)+ndsqsize)))
      >               dbl_mb(dsq_shake(1)+ndsqsize) = 0.0d0
                   ndsqsize = ndsqsize + nbtmp
@@ -521,14 +521,14 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_indx_bond:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,2,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,2,
      >                int_mb(indx_bond(1)+nbindxsize)))
      >               int_mb(indx_bond(1)+nbindxsize) = 0
                   nbindxsize = nbindxsize + 2
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_bond:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,2,
      >                dbl_mb(Kr0_bond(1)+nKr0size)))
      >               dbl_mb(Kr0_bond(1)+nKr0size) = 0.0d0
                   nKr0size = nKr0size + 2
@@ -558,14 +558,14 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_indx_angle:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,3,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,3,
      >                int_mb(indx_angle(1)+naindxsize)))
      >               int_mb(indx_angle(1)+naindxsize) = 0
                   naindxsize = naindxsize + 3
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_angle:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,2,
      >                dbl_mb(Kr0_angle(1)+nQr0size)))
      >               dbl_mb(Kr0_angle(1)+nQr0size) = 0.0d0
                   nQr0size = nQr0size + 2
@@ -593,14 +593,14 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_indx_cbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,4,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,4,
      >                int_mb(indx_cbond(1)+ncbindxsize)))
      >               int_mb(indx_cbond(1)+ncbindxsize) = 0
                   ncbindxsize = ncbindxsize + 4
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_cbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,3,
      >                dbl_mb(Kr0_cbond(1)+ncKr0size)))
      >               dbl_mb(Kr0_cbond(1)+ncKr0size) = 0.0d0
                   ncKr0size = ncKr0size + 3
@@ -628,14 +628,14 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_indx_mbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,3,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,3,
      >                int_mb(indx_mbond(1)+nmbindxsize)))
      >               int_mb(indx_mbond(1)+nmbindxsize) = 0
                   nmbindxsize = nmbindxsize + 3
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_mbond:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,6,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,6,
      >                dbl_mb(Kr0_mbond(1)+nmKr0size)))
      >               dbl_mb(Kr0_mbond(1)+nmKr0size) = 0.0d0
                   nmKr0size = nmKr0size + 6
@@ -668,14 +668,14 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_indx_dihedral_spring:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,4,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,4,
      >               int_mb(indx_dihedral_spring(1)+ndindxsize)))
      >               int_mb(indx_dihedral_spring(1)+ndindxsize) = 0
                   ndindxsize = ndindxsize + 4
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_dihedral_spring:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,2,
      >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size))) 
      >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size) = 0.0d0
                   ndKr0size = ndKr0size + 2
@@ -707,14 +707,14 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_indx_dihedral:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,4,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,4,
      >               int_mb(indx_dihedral(1)+nddindxsize)))
      >               int_mb(indx_dihedral(1)+nddindxsize) = 0
                   nddindxsize = nddindxsize + 4
 
                   rtdb_name = 'pspw_qmmm_frag_Kr0_dihedral:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,3,
      >               dbl_mb(Kr0_dihedral(1)+nddKr0size)))      
      >               dbl_mb(Kr0_dihedral(1)+nddKr0size) = 0.0d0
                   nddKr0size = nddKr0size + 3
@@ -762,23 +762,23 @@ c
                do ja=1,int_mb(ncoord(1)+ia-1)
                   rtdb_name = 'pspw_qmmm_frag_coord_indxsize1:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1=0
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1=0
                   rtdb_name = 'pspw_qmmm_frag_coord_indxsize2:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2=0
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2=0
                   int_mb(nsize1_coord(1)+ncnindxsize0) = n1
                   int_mb(nsize2_coord(1)+ncnindxsize0) = n2
                   ncnindxsize0 = ncnindxsize0 + 1
 
                   rtdb_name = 'pspw_qmmm_frag_coord_indx1:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,n1,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,n1,
      >               int_mb(indx1_coord(1)+ncnindxsize1)))
      >               int_mb(indx1_coord(1)+ncnindxsize1) = 0
 
                   rtdb_name = 'pspw_qmmm_frag_coord_indx2:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,n2,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_int,n2,
      >               int_mb(indx2_coord(1)+ncnindxsize2)))
      >               int_mb(indx2_coord(1)+ncnindxsize2) = 0
                   ncnindxsize1 = ncnindxsize1 + n1
@@ -786,7 +786,7 @@ c
 
                   rtdb_name = 'pspw_qmmm_frag_coord_Kr0:'
      >                       //c_index_name(ia)//c_index_name(ja)
-                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,6,
+                  if (.not.btdb_get(rtdb,rtdb_name,mt_dbl,6,
      >               dbl_mb(Kr0_coord(1)+ncnKr0size)))
      >               dbl_mb(Kr0_coord(1)+ncnKr0size) = 0.0d0
                   ncnKr0size = ncnKr0size + 6
@@ -804,7 +804,7 @@ c
 *       ***** make sure mm fragments are in cell ****
         if (periodic) then
            rtdb_name = 'nwpw:qmmm_fragcell'
-           if (.not.rtdb_get(rtdb,rtdb_name,mt_log,1,value)) 
+           if (.not.btdb_get(rtdb,rtdb_name,mt_log,1,value)) 
      >        value = .true.
            if (value) then
               call Parallel_taskid(taskid)

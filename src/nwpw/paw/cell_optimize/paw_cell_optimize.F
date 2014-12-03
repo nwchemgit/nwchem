@@ -5,7 +5,7 @@
 #include "bafdecls.fh"
 #include "global.fh"
 #include "msgtypesf.h"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     **** local variables ***
@@ -27,22 +27,22 @@
       taskid = ga_nodeid()
 
 *     **** read in initial data ***
-      value = rtdb_cget(rtdb,'cell_optimize:cell_name',1,cell_name)
+      value = btdb_cget(rtdb,'cell_optimize:cell_name',1,cell_name)
 
       value = value.and.
-     >        rtdb_get(rtdb,'cell_optimize:optimize_strategy',
+     >        btdb_get(rtdb,'cell_optimize:optimize_strategy',
      >                 mt_int,1,optimize_strategy)
 
       value = value.and.
-     >        rtdb_get(rtdb,'cell_optimize:cycles',
+     >        btdb_get(rtdb,'cell_optimize:cycles',
      >                 mt_int,1,cycles)
 
       value = value.and.
-     >        rtdb_get(rtdb,'cell_optimize:optimize_lattice',
+     >        btdb_get(rtdb,'cell_optimize:optimize_lattice',
      >                 mt_int,6,optimize_lattice)
 
       value = value.and.
-     >        rtdb_get(rtdb,'cell_optimize:lattice_tolerances',
+     >        btdb_get(rtdb,'cell_optimize:lattice_tolerances',
      >                 mt_dbl,6,lattice_tolerances)
 
 

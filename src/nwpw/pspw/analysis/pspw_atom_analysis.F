@@ -12,7 +12,7 @@
       real*8 dn(n2ft3d,ispin)
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 *     ***** local variables ****
@@ -30,7 +30,7 @@
      >   call errquit(
      >     'pspw_Lubin_Water_analysis: ma_get_index failed',911, MA_ERR)
 
-         if (.not.rtdb_get(rtdb,'pspw:atom_analysis_rcut_pp', 
+         if (.not.btdb_get(rtdb,'pspw:atom_analysis_rcut_pp', 
      >                    mt_dbl,2,rcpp)) then
            rcpp(1) = 8.0d0
            rcpp(2) = 8.0d0

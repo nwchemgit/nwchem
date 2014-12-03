@@ -6,3 +6,9 @@
 
       logical  btdb_put
       external btdb_put
+
+      logical  btdb_cget
+      external btdb_cget
+
+      logical  btdb_cput
+      external btdb_cput

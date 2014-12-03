@@ -12,7 +12,7 @@
       implicit none 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 
 *    *** local variables ***
@@ -123,13 +123,13 @@ c     external lcao_wvfnc
 
 
 c      rtdb = control_rtdb()
-c      if (.not.rtdb_get(rtdb,
+c      if (.not.btdb_get(rtdb,
 c     >         'nwpw:lcao_iterations',mt_int,1,lcao_iterations))
 c     >   lcao_iterations = 10
-c      if (.not.rtdb_get(rtdb,
+c      if (.not.btdb_get(rtdb,
 c     >         'nwpw:lcao_print',mt_log,1,lcao_print))
 c     >   lcao_print = .false.
-c      if (.not.rtdb_get(rtdb,
+c      if (.not.btdb_get(rtdb,
 c     >         'nwpw:lcao_skip',mt_log,1,lcao_skip))
 c     >   lcao_skip = .false.
     
@@ -234,7 +234,7 @@ c    >                        ne)
       implicit none 
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 
 *    *** local variables ***
       logical success,soc

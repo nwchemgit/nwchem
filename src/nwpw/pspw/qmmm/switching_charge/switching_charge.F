@@ -25,7 +25,7 @@ c
       integer rtdb
 
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "switching_charge.fh"
 
@@ -36,7 +36,7 @@ c
 
       call Parallel_taskid(taskid)
 
-      if (.not.rtdb_get(rtdb,
+      if (.not.btdb_get(rtdb,
      >      'nwpw:charge_rcut',mt_dbl,1,s_sigma))
      >    s_sigma = 0.8d0/0.529177d0
 

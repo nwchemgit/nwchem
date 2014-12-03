@@ -19,7 +19,7 @@
 
 #include "global.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "util.fh"
 #include "errquit.fh"
@@ -516,14 +516,14 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
      >   call errquit('band_structure:out of heap memory',0, MA_ERR)
 
        !**** get eigs_dos from rtdb ****
-        if (.not.rtdb_get(rtdb,'dos:eigs_dos',mt_dbl,
+        if (.not.btdb_get(rtdb,'dos:eigs_dos',mt_dbl,
      >                    isize,dbl_mb(eigs_dos(1)))) then
          call errquit('band_structure:cannot read eigs_dos from rtdb',
      >                0,RTDB_ERR)
         end if
 
        !**** get dos:ein from rtdb ****
-        if (.not.rtdb_get(rtdb,'dos:ein',mt_dbl,1,ein)) then
+        if (.not.btdb_get(rtdb,'dos:ein',mt_dbl,1,ein)) then
          call errquit('band_structure:cannot read dos:ein from rtdb',
      >                0,RTDB_ERR)
         end if
@@ -864,11 +864,11 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
       if ((flag.eq.1).and.(taskid.eq.MASTER)) then
 
 
-        if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+        if (.not.btdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
           npoints = 500
         end if
   
-        if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+        if (.not.btdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
            emin = 99999.0d0
            do ii=1,(ne(1)+ne(2))*dosgrid(1)*dosgrid(2)*dosgrid(3)
              if (dbl_mb(eigs_dos(1)+ii-1).lt.emin) 
@@ -877,7 +877,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
            emin = emin - 0.1d0
         end if
   
-        if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+        if (.not.btdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
            emax = -99999.0d0
            do ii=1,(ne(1)+ne(2))*dosgrid(1)*dosgrid(2)*dosgrid(3)
              if (dbl_mb(eigs_dos(1)+ii-1).gt.emax) 
@@ -971,7 +971,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
 
 
         !**** put eigs_dos on rtdb for use by task band dos_dplot ***
-        if (.not.rtdb_put(rtdb,'dos:eigs_dos',mt_dbl,
+        if (.not.btdb_put(rtdb,'dos:eigs_dos',mt_dbl,
      >                    isize,dbl_mb(eigs_dos(1)))) then
          call errquit('band_structure:cannot write eigs_dos to rtdb',
      >                0,RTDB_ERR)
@@ -987,10 +987,10 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
 
 
         grid3d = .false.
-        if (rtdb_get(rtdb,'band_dplot:3d_grid:nx',mt_int,1,i))
+        if (btdb_get(rtdb,'band_dplot:3d_grid:nx',mt_int,1,i))
      >    grid3d = .true.
 
-        if (.not.rtdb_cget(rtdb,'dos:dplot_up',1,filename)) then
+        if (.not.btdb_cget(rtdb,'dos:dplot_up',1,filename)) then
            filename     = 'dos_up.cube '
         end if
         indx = index(filename,' ') - 1
@@ -1006,7 +1006,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
         endif
 
         if (ispin.eq.2) then
-          if (.not.rtdb_cget(rtdb,'dos:dplot_dn',1,filename)) then
+          if (.not.btdb_cget(rtdb,'dos:dplot_dn',1,filename)) then
              filename     = 'dos_dn.cube '
           end if
           indx = index(filename,' ') - 1
