@@ -1555,7 +1555,7 @@ c      end do
       call dfftw_execute_dft(plans(11,nb),A,A)
 
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_fftbz_sub2(nq3(nb),nz(nb),dcpl_mb(tmpz(1,nb)),A)
 #else
       indx = 1
@@ -1586,7 +1586,7 @@ c      end do
       call dfftw_execute_dft(plans(12,nb),A,A)
 
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_fftby_sub2(nq2(nb),ny(nb),dcpl_mb(tmpy(1,nb)),A)
 #else
       indx = 1
@@ -1617,7 +1617,7 @@ c      end do
       call dfftw_execute_dft_c2r(plans(13,nb),A,A)
 
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
       call D3dB_fftbx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
@@ -2204,7 +2204,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
       call dfftw_execute_dft_r2c(plans(14,nb),A,A)
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_fftfx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
 #else
@@ -2237,7 +2237,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft(plans(15,nb),A,A)
 
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_fftfy_sub2(nq2(nb),ny(nb),dcpl_mb(tmpy(1,nb)),A)
 #else
       indx = 1
@@ -2267,7 +2267,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
       call dfftw_execute_dft(plans(16,nb),A,A)
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_fftfz_sub2(nq3(nb),nz(nb),dcpl_mb(tmpz(1,nb)),A)
 #else
       indx = 1
@@ -3639,7 +3639,7 @@ c      call Parallel2d_np_i(np)
       real*8 C(n2ft3d_map(nb))
       integer i,n
 
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       n = n2ft3d_map(nb)
 !$omp parallel shared(A,B,C,n) private(i)
 !$omp do schedule(static)
@@ -3820,7 +3820,7 @@ c      call Parallel2d_np_i(np)
       integer i,n
 
 
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       n = n2ft3d_map(nb)
 !$omp parallel shared(A,B,C,n) private(i)
 !$omp do
@@ -3858,7 +3858,7 @@ c      call Parallel2d_np_i(np)
 
       integer i,n
 
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       n = n2ft3d_map(nb)
 !$omp parallel shared(A,B,n) private(i) 
 !$omp do
@@ -5220,7 +5220,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  a(*),b(*)
       integer i
 
-#ifdef USE_OPENMP100
+#ifdef NUSE_OPENMP100
 !$omp parallel default(private) shared(a,b,index,n)
 !$omp do
 #ifndef CRAY

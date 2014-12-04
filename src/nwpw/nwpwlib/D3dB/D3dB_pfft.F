@@ -712,7 +712,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(nb)
       end do
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftbz_sub2(nq3(nb),nz(nb),
      >                     log_mb(zero_row3(1,nbb)),
      >                     dcpl_mb(tmpz(1,nb)),A)
@@ -754,7 +754,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + ny(nb)
       end do
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftby_sub2(nq2(nb),ny(nb),
      >                     log_mb(zero_row2(1,nbb)),
      >                     dcpl_mb(tmpy(1,nb)),A)
@@ -790,7 +790,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
          call dfftw_execute_dft_c2r(plans(13,nb),A,A)
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
       call D3dB_pfftbx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
@@ -1076,7 +1076,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
           call dfftw_execute_dft_r2c(plans(14,nb),A,A)
 
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftfx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
       call cshift_fftf(nx(1),nq1(1),1,1,A)
 #else
@@ -1116,7 +1116,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + ny(nb)
       end do
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftfy_sub2(nq2(nb),ny(nb),
      >                     log_mb(zero_row2(1,nbb)),
      >                     dcpl_mb(tmpy(1,nb)),A)
@@ -1158,7 +1158,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(nb)
       end do
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftfz_sub2(nq3(nb),nz(nb),
      >                     log_mb(zero_row3(1,nbb)),
      >                     dcpl_mb(tmpz(1,nb)),A)
@@ -2350,7 +2350,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #else
 
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftfx_sub(ny(1)*nq(1),nx(1),nxh,dcpl_mb(tmpx(1,1)),A)
       call cshift_fftf(nx(1),ny(1),nq(1),1,A)
 
@@ -2385,7 +2385,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft_r2c(plans(14,1),A,A)
 
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftfx_sub(nq1(1),nx(1),nxh,dcpl_mb(tmpx(1,1)),A)
       call cshift_fftf(nx(1),nq1(1),1,1,A)
 
@@ -2584,7 +2584,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + ny(1)
       end do
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftfy_sub2(nq2(1),ny(1),
      >                     log_mb(zero_row2(1,nbb)),
      >                     dcpl_mb(tmpy(1,1)),tmp1)
@@ -2779,7 +2779,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(1)
       end do
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftfz_sub2(nq3(1),nz(1),
      >                     log_mb(zero_row3(1,nbb)),
      >                     dcpl_mb(tmpz(1,1)),tmp2)
@@ -3050,7 +3050,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(1)
       end do
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftbz_sub2(nq3(1),nz(1),
      >                     log_mb(zero_row3(1,nbb)),
      >                     dcpl_mb(tmpz(1,1)),tmp1)
@@ -3244,7 +3244,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + ny(1)
       end do
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call D3dB_pfftby_sub2(nq2(1),ny(1),
      >                     log_mb(zero_row2(1,nbb)),
      >                     dcpl_mb(tmpy(1,1)),tmp2)
@@ -3350,7 +3350,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft_c2r(plans(3,1),tmp2,tmp2)
 
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call cshift1_fftb(nx(1),ny(1),nq(1),1,tmp2)
       call D3dB_pfftbx_sub(nq(1)*ny(1),nx(1),nxh,
      >                     dcpl_mb(tmpx(1,1)),tmp2)
@@ -3402,7 +3402,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft_c2r(plans(13,1),tmp1,tmp1)
 
 #else
-#ifdef USE_OPENMP
+#ifdef NUSE_OPENMP
       call cshift1_fftb(nx(1),nq1(1),1,1,tmp1)
       call D3dB_pfftbx_sub(nq1(1),nx(1),nxh,dcpl_mb(tmpx(1,1)),tmp1)
       call zeroend_fftb(nx(1),nq1(1),1,1,tmp1)
