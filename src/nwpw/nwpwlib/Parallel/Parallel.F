@@ -25,6 +25,7 @@
 #include "bafdecls.fh"
 #include "errquit.fh"
 
+
 #ifdef USE_SUBGROUPS
 #ifdef GA_DEV
 #ifdef MPI

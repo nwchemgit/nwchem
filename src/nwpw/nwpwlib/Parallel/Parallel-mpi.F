@@ -62,6 +62,7 @@ ccc#include "ga_mpi.fh"
       external util_sgroup_set_ioname,util_sgroup_mygroup
       external util_sgroup_depth
 
+
 c*     **** MPI initiializer *****
 cc     call MPI_INIT(mpierr)
 c      call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,mpierr)
@@ -131,7 +132,51 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       comm_j   = -99 
       comm_k   = -99 
 
+  
+
       return 
+      end
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_thread_init       *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_thread_init()
+      implicit none
+#include "Parallel.fh"
+
+#ifdef USE_OPENMP
+      integer  omp_get_thread_num,omp_get_num_threads
+      external omp_get_thread_num,omp_get_num_threads
+#endif
+
+#ifdef USE_OPENMP
+      threadid = omp_get_thread_num()
+      nthreads = omp_get_num_threads()
+#else
+      threadid = 0
+      nthreads = 1
+#endif
+
+      write(*,*) "---threadid=",threadid
+      return
+      end
+
+      integer function Parallel_threadid()
+      implicit none
+#include "Parallel.fh"
+
+      Parallel_threadid = threadid
+      return
+      end
+
+      integer function Parallel_nthreads()
+      implicit none
+#include "Parallel.fh"
+
+      Parallel_nthreads = nthreads
+      return
       end
 
 
