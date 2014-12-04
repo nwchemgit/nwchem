@@ -42,6 +42,19 @@ endif
 LDFLAGS = -L../../src/tools/install/lib -lga -larmci	# Needs MA library
 ifeq ($(USE_MPI),y)
   LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
+  ifndef MPI_INCLUDE
+        MPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+  endif
+  ifndef MPI_LIB
+        MPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+  endif
+  ifndef LIBMPI
+        LIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+  endif
+  ifdef MPI_LIB
+      CORE_LIBS += $(patsubst -L-L%,-L%,-L$(MPI_LIB))
+   endif
+
   ifneq ($(MPI_LIB),)
     LDFLAGS += $(patsubst -L-L%,-L%,-L${MPI_LIB})
   endif
