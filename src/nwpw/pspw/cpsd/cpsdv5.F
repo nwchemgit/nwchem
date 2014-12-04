@@ -22,11 +22,13 @@
 #include "global.fh"
 #include "bafdecls.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "btdb.fh"
 #include "errquit.fh"
 cccc#include "frac_occ.fh"
       
 *     **** parallel variables ****
+      logical  omaster
       integer  taskid,np,np_i,np_j
       integer  MASTER
       parameter(MASTER=0)
@@ -77,6 +79,7 @@ cccc#include "frac_occ.fh"
       integer ierr
 
 *     **** local variables ****
+      logical oprint,lprint,hprint
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
@@ -170,6 +173,10 @@ cccc#include "frac_occ.fh"
       external psp_U_psputerm,meta_found,ion_disp_on
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
+      logical  control_print
+      external control_print
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
 
 
@@ -188,12 +195,17 @@ cccc#include "frac_occ.fh"
       call Parallel_Init()
       call Parallel_np(np)
       call Parallel_taskid(taskid)
-      
 
-      if (taskid.eq.MASTER) call current_second(cpu1)
+#ifdef USE_OPENMP
+!$OMP PARALLEL num_threads(1)
+#endif
+      call Parallel_thread_init()
+      omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
+
+      if (omaster) call current_second(cpu1)
 
 *     ***** print out header ****
-      if (taskid.eq.MASTER) then
+      if (omaster) then
          write(luout,1000)
          write(luout,1010)
          write(luout,1020)
@@ -213,7 +225,16 @@ cccc#include "frac_occ.fh"
          write(luout,1110)
       end if
       
+      write(*,*) "into control_read: threadid",Parallel_threadid()
+!$OMP single
+      write(*,*) "into control_read single:threadid",Parallel_threadid()
       value = control_read(1,rtdb)
+      write(*,*) "out  control_read single:threadid",Parallel_threadid()
+!$OMP end single
+!$OMP barrier
+
+      write(*,*) "out  control_read: threadid",Parallel_threadid()
+
       call Parallel2d_Init(control_np_orbital())
       call Parallel2d_np_i(np_i)
       call Parallel2d_np_j(np_j)
@@ -224,11 +245,17 @@ cccc#include "frac_occ.fh"
       nwave = 0
       mapping = control_mapping()
 
+      oprint = omaster.and.control_print(print_medium)
+      lprint = omaster.and.control_print(print_low)
+      hprint = omaster.and.control_print(print_high)
+
 *     **** initialize psi_data ****
       call psi_data_init(100)
 
 *     **** initialize D3dB data structure ****
+      write(*,*) "Into D3dB_Init, threadid=",Parallel_threadid()
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
+      write(*,*) "out  D3dB_Init, threadid=",Parallel_threadid()
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
@@ -320,7 +347,7 @@ cccc#include "frac_occ.fh"
         call ga_sync()
         value = rtdb_parallel(.false.)
         call ga_sync()
-        if (taskid.eq.MASTER) then
+        if (oprint) then
 
           filename =  control_input_psi()
 
@@ -383,7 +410,7 @@ cccc#include "frac_occ.fh"
 
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then
-         if (taskid.eq.MASTER)
+         if (oprint)
      >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
          if (psp_pawexist()) then
             call Dneall_f_Sortho(0,dcpl_mb(psi2(1)),
@@ -452,7 +479,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
 ******************   summary of input data  **********************
 *                |**************************|
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          write(luout,1111) np
          write(luout,1117) np_i,np_j
          if (mapping.eq.1) write(luout,1112)
@@ -468,6 +495,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
          else
            write(luout,1122)
          end if
+         write(luout,1123) Parallel_nthreads()
 
 
          write(luout,1115)
@@ -592,8 +620,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 ******************     start iterations      **********************
 *                |***************************|
 
-      if (taskid.eq.MASTER) call current_second(cpu2)
-      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(2)
+      if (oprint) call current_second(cpu2)
+      if (oprint) CALL nwpw_MESSAGE(2)
       it_in  = control_it_in()
       it_out = control_it_out()
       icount = 0
@@ -606,12 +634,12 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)),
      >             fractional,dbl_mb(occ1(1)),dbl_mb(occ2(1)))
-         if (taskid.eq.MASTER) then 
+         if (oprint) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac,deltar
            call util_flush(luout)
          end if
          if ((deltae.gt.0.0d0).and.(icount.gt.1)) then
-            if (taskid.eq.MASTER) 
+            if (oprint) 
      >       write(luout,*) 
      >       ' *** Energy going up.  iteration terminated.'
             go to 2
@@ -620,21 +648,21 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          if ((deltae.lt.control_tole()).and.
      >       (deltac.lt.control_tolc()).and.
      >       (deltar.lt.control_tolr())) then
-            if (taskid.eq.MASTER) 
+            if (oprint) 
      >       write(luout,*) 
      >       ' *** tolerance ok.     iteration terminated.'
             go to 2
          end if
       if (icount.lt.it_out) go to 1
-      if (taskid.eq.MASTER) 
+      if (oprint) 
      > write(luout,*) 
      > '*** arived at the Maximum iiteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
    2  continue
-      if (taskid.eq.MASTER) CALL nwpw_MESSAGE(3)
-      if (taskid.eq.MASTER) call current_second(cpu3)
+      if (oprint) CALL nwpw_MESSAGE(3)
+      if (oprint) call current_second(cpu3)
 
 
 
@@ -643,7 +671,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 *         |****************************************|
 
 *     **** produce CHECK FILE ****
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          call util_file_name('CHECK',.true.,
      >                               .false.,
      >                        full_filename)
@@ -681,7 +709,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
       end if
       en(1) = en1(1)+en2(1)
       en(2) = en1(2)+en2(2)
-      if (taskid.eq.MASTER) then
+      if (omaster) then
          write(17,1320) (en(ms),ms=1,ispin)
          if (psp_pawexist()) then
             write(17,1322) (en1(ms),ms=1,ispin)
@@ -692,14 +720,14 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 
 
 *     **** comparison between hamiltonian an lambda matrix ****
-      if (taskid.eq.MASTER) write(17,1330)
+      if (omaster) write(17,1330)
       do ms=1,ispin
          do j=1,ne(ms)
          do i=1,ne(ms)
             w      = Dneall_m_value(0,ms,i,j,dbl_mb(hml(1)))
             virial = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
 
-            if (taskid.eq.MASTER)
+            if (omaster)
      >      write(17,1340) ms,i,j,w,virial,w-virial
          end do
          end do
@@ -707,7 +735,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 
 
 *     **** check orthonormality ****
-      if (taskid.eq.MASTER) then
+      if (omaster) then
          write(17,1350)
       end if
       call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
@@ -717,13 +745,13 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          do j=1,ne(ms)
          do i=j,ne(ms)
             w  = Dneall_m_value(0,ms,i,j,dbl_mb(lmd(1)))
-            if (taskid.eq.MASTER) write(17,1360) ms,i,j,w
+            if (omaster) write(17,1360) ms,i,j,w
          end do
          end do
       end do
 
 *     **** close check file ****
-      if (taskid.eq.MASTER) then
+      if (omaster) then
          close(17)
       end if
 
@@ -766,7 +794,7 @@ c         end do
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          write(luout,1300)
          write(luout,1410)
          write(luout,1420)
@@ -1012,7 +1040,7 @@ c      call frac_occ_end()
 *                |***************************|
 ****************** report consumed cputime   **********************
 *                |***************************|
-      if (taskid.eq.MASTER) then
+      if (oprint) then
          CALL current_second(cpu4)
 
          T1=CPU2-CPU1
@@ -1035,6 +1063,9 @@ c      call frac_occ_end()
 
 
       call Parallel2d_Finalize()
+#ifdef USE_OPENMP 
+!$OMP END PARALLEL
+#endif
       call Parallel_Finalize()
       cpsdv5 = value
       return
@@ -1064,6 +1095,7 @@ c      call frac_occ_end()
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT( ' parallel io              :       off')
+ 1123 FORMAT( ' number of threads        :',I10)
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
@@ -1201,7 +1233,7 @@ c      call frac_occ_end()
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
- 9000 if (taskid.eq.MASTER) write(luout,9010) ierr
+ 9000 if (omaster) write(luout,9010) ierr
       call Parallel2d_Finalize()
       call Parallel_Finalize()
 
