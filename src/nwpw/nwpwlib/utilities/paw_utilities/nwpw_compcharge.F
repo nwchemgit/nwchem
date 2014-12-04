@@ -3265,7 +3265,7 @@ cc         end if
 *     *                                               *
 *     *************************************************
 *
-      subroutinen nwpw_compcharge_F_multipole(ispin,fion)
+      subroutine nwpw_compcharge_F_multipole(ispin,fion)
       implicit none
       integer ispin
       real*8 fion(*)
