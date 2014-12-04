@@ -9,11 +9,15 @@ c     parameter (lpar1=22,lpar2=1771,lpar3=1540,lpar4=7,lpar5=21)
 c up to ii,ii :
 c     parameter (lpar1=26,lpar2=2925,lpar3=2600,lpar4=8,lpar5=25)
 cxx
+
       integer lpar1,lpar2,lpar3,lpar4,lpar5
       integer ndege,len,lensm
       integer nfu,icoor,icool,ifrst,ilast,nia,nmxyz,npxyz
       double precision hnia
-      parameter (lpar1=30,lpar2=4495,lpar3=4060,lpar4=9,lpar5=29)
+cold      parameter (lpar1=30,lpar2=4495,lpar3=4060,lpar4=9,lpar5=29)
+      parameter (lpar1=34,lpar2=6545,lpar3=5984,lpar4=10,lpar5=33)
+c     parameter (lpar1=38,lpar2=9139,lpar3=8436,lpar4=11,lpar5=37)
+c     parameter (lpar1=42,lpar2=12341,lpar3=11480,lpar4=12,lpar5=41)
       common /logicd/ hnia(3,lpar2)
       common /logic1/ ndege(lpar4)
       common /logic2/ len(lpar4)
