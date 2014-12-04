@@ -1,0 +1,33 @@
+echo
+
+title "N atom UHF and ROHF"
+
+start n_atom
+
+geometry 
+N  0. 0. 0.
+symmetry oh
+end
+
+basis "ao basis" spherical
+  N library aug-cc-pV6Z
+end
+ 
+dft
+ xc hfexch
+ direct
+ mult 4
+ vectors input atomic output dft.mos
+end
+ 
+set quickguess t
+task dft
+
+scf
+ quartet
+ rohf
+ direct
+ vectors input dft.mos output rohf.mos
+end
+
+task scf
