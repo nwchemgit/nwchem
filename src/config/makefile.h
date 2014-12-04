@@ -1329,6 +1329,12 @@ endif
           FOPTIONS += -Warray-bounds
         endif # GNU_GE_4_8
         endif # GNUMAJOR
+
+        ifdef USE_OPENMP
+           FOPTIONS  += -fopenmp
+           LDOPTIONS += -fopenmp
+           DEFINES += -DUSE_OPENMP
+        endif
        endif # gfortran
     ifdef  USE_GPROF
       FOPTIONS += -pg
