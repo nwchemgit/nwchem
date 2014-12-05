@@ -140,7 +140,8 @@ c     call dcopy(nytrials**2,dbl_mb(k_hbar),1,dbl_mb(k_gbar),1)
 c
 c     Diagonalize the non-Hermitian matrix
 c
-      call tce_dgeev('n','v',nytrials,dbl_mb(k_hbar),nytrials,
+cjeff      call tce_dgeev('n','v',nytrials,dbl_mb(k_hbar),nytrials,
+      call dgeev('n','v',nytrials,dbl_mb(k_hbar),nytrials,
      1  omega,dbl_mb(k_ei),dbl_mb(k_vl),1,dbl_mb(k_vr),nytrials,
      2  dbl_mb(k_wk),4*nytrials,info)
       if (info.ne.0) call errquit('tce_eom_ydiagon: dgeev failed',info,
