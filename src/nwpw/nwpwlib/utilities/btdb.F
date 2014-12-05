@@ -14,9 +14,12 @@
       character*(*) namee
       integer array(*)
 
-!$OMP SINGLE
-      btdb_get = rtdb_get(rtdb,namee,datatype,nelem,array)
-!$OMP END SINGLE
+      logical ok
+
+!$OMP CRITICAL
+      ok = rtdb_get(rtdb,namee,datatype,nelem,tarray)
+!$OMP END CRITICAL
+      btdb_get = ok
       return
       end
 
@@ -35,10 +38,12 @@
       integer rtdb,datatype,nelem
       character*(*) namee
       integer array(*)
+      logical ok
 
-!$OMP SINGLE
-      btdb_put = rtdb_put(rtdb,namee,datatype,nelem,array)
-!$OMP END SINGLE
+!$OMP CRITICAL
+      ok = rtdb_put(rtdb,namee,datatype,nelem,array)
+!$OMP END CRITICAL
+      btdb_put = ok
       return
       end
 
@@ -57,10 +62,12 @@
       integer rtdb,datatype,nelem
       character*(*) namee
       character*(*) array
+      logical ok
 
-!$OMP SINGLE
-      btdb_cget = rtdb_cget(rtdb,namee,nelem,array)
-!$OMP END SINGLE
+!$OMP CRITICAL
+      ok = rtdb_cget(rtdb,namee,nelem,array)
+!$OMP END CRITICAL
+      btdb_cget = ok
       return
       end
 
@@ -79,10 +86,12 @@
       integer rtdb,datatype,nelem
       character*(*) namee
       character*(*) array
+      logical ok
 
-!$OMP SINGLE
-      btdb_cput = rtdb_cput(rtdb,namee,nelem,array)
-!$OMP END SINGLE
+!$OMP CRITICAL
+      ok = rtdb_cput(rtdb,namee,nelem,array)
+!$OMP END CRITICAL
+      btdb_cput = ok
       return
       end
 
