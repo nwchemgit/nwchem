@@ -13,10 +13,16 @@
       integer datatype,nelem
       character*(*) name
       MAPOINTER memhandle,indx
+      MAPOINTER omp_memhandle,omp_indx
+      Logical omp_ok
+      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
 
 !$OMP SINGLE
-      BA_alloc_get = MA_alloc_get(datatype,nelem,name,memhandle,indx)
+      omp_ok = MA_alloc_get(datatype,nelem,name,omp_memhandle,omp_indx)
 !$OMP END SINGLE
+      memhandle = omp_memhandle
+      BA_alloc_get = omp_ok
+      indx = omp_indx
       return
       end
 
@@ -32,10 +38,14 @@
       implicit none
 #include "mafdecls.fh"
       MAPOINTER memhandle
+      MAPOINTER omp_memhandle,omp_indx
+      Logical omp_ok
+      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
 
 !$OMP SINGLE
-      BA_free_heap = MA_free_heap(memhandle)
+      omp_ok = MA_free_heap(memhandle)
 !$OMP END SINGLE
+      BA_free_heap = omp_ok
       return
       end
 
@@ -54,9 +64,15 @@
       character*(*) name
       MAPOINTER memhandle,indx
 
+      MAPOINTER omp_memhandle,omp_indx
+      Logical omp_ok
+      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
 !$OMP SINGLE
-      BA_push_get = MA_push_get(datatype,nelem,name,memhandle,indx)
+      omp_ok = MA_push_get(datatype,nelem,name,omp_memhandle,omp_indx)
 !$OMP END SINGLE
+      memhandle = omp_memhandle
+      indx = omp_indx
+      BA_push_get = omp_ok
       return
       end
 
@@ -73,9 +89,13 @@
 #include "mafdecls.fh"
       MAPOINTER memhandle
 
+      MAPOINTER omp_memhandle,omp_indx
+      Logical omp_ok
+      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
 !$OMP SINGLE
-      BA_pop_stack = MA_pop_stack(memhandle)
+      omp_ok = MA_pop_stack(memhandle)
 !$OMP END SINGLE
+      BA_pop_stack = omp_ok
       return
       end
 
@@ -92,9 +112,15 @@
 #include "mafdecls.fh"
       MAPOINTER memhandle,indx
 
+      MAPOINTER omp_memhandle,omp_indx
+      Logical omp_ok
+      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
 !$OMP SINGLE
-      BA_get_index = MA_get_index(memhandle,indx)
+      omp_ok = MA_get_index(omp_memhandle,omp_indx)
 !$OMP END SINGLE
+      memhandle = omp_memhandle
+      indx = omp_indx
+      BA_get_index = omp_ok
       return
       end
 
@@ -112,9 +138,13 @@
 #include "mafdecls.fh"
       logical ok
 
+      MAPOINTER omp_memhandle,omp_indx
+      Logical omp_ok
+      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
 !$OMP SINGLE
-      BA_set_auto_verify = MA_set_auto_verify(ok)
+      omp_ok = MA_set_auto_verify(ok)
 !$OMP END SINGLE
+      BA_set_auto_verify = omp_ok
       return
       end
 

@@ -17,7 +17,7 @@
       logical ok
 
 !$OMP CRITICAL
-      ok = rtdb_get(rtdb,namee,datatype,nelem,tarray)
+      ok = rtdb_get(rtdb,namee,datatype,nelem,array)
 !$OMP END CRITICAL
       btdb_get = ok
       return
