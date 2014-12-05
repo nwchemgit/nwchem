@@ -1,0 +1,14 @@
+
+#include "geom.fh"
+
+      logical beom_create
+      external beom_create
+
+      logical beom_rtdb_load
+      external beom_rtdb_load
+
+      logical beom_destroy
+      external beom_destroy
+
+      logical beom_cent_set
+      external beom_cent_set
