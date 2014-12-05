@@ -422,8 +422,23 @@ c
       integer iv1           !< the variable label
       integer nvar          !< the number of variables
       double precision val  !< the functional (derivative) value
-      double precision scale !< the closed shell GGA scaling factor
       integer iq, ip
+c
+c     Scaling factors to convert
+c     - df/drho,
+c     - df/dgamma and
+c     - df/dtau
+c     to the quantities NWChem expects, i.e. 
+c     - df/drhoa
+c     - df/dgammaaa+1/2*df/dgammaab
+c     - df/dta
+c
+      double precision sfac_ra  !< the closed shell RA scaling factor
+      double precision sfac_gaa !< the closed shell GAA scaling factor
+      double precision sfac_ta  !< the closed shell TA scaling factor
+      parameter(sfac_ra  = 1.0d0)
+      parameter(sfac_gaa = 2.0d0)
+      parameter(sfac_ta  = 1.0d0)
 c
       if (ipol.eq.1) then
         do iq = 1, nq
@@ -475,36 +490,63 @@ c
 c     Now unpack the results
 c
       if (ipol.eq.1) then
-        scale = 2.0d0
-      else
-        scale = 1.0d0
-      endif
-      do iq = 1, nq
-        f(iq) = get_val(nwad_f(iq))
-        nvar = get_nvar(nwad_f(iq))
-        do ix1 = 1, nvar
-          call get_d1(nwad_f(iq),ix1,val,iv1)
-          select case (iv1)
-            case (1)
-              dfdr(iq,D1_RA) = val
-            case (2)
-              dfdr(iq,D1_RB) = val
-            case (3)
-              dfdg(iq,D1_GAA) = scale*val
-            case (4)
-              dfdg(iq,D1_GAB) = scale*val
-            case (5)
-              dfdg(iq,D1_GBB) = scale*val
-            case (6)
-              dfdt(iq,D1_TA) = val
-            case (7)
-              dfdt(iq,D1_TB) = val
-            case default
-              call print(6,nwad_f(iq))
-              call errquit("nwxc_df_driver: illegal variable",iv1,UERR)
-          end select
+c
+c       Closed shell -> use scale factors
+c
+        do iq = 1, nq
+          f(iq) = get_val(nwad_f(iq))
+          nvar = get_nvar(nwad_f(iq))
+          do ix1 = 1, nvar
+            call get_d1(nwad_f(iq),ix1,val,iv1)
+            select case (iv1)
+              case (1)
+                dfdr(iq,D1_RA)  = val*sfac_ra
+              case (3)
+                dfdg(iq,D1_GAA) = val*sfac_gaa
+                dfdg(iq,D1_GAB) = 0.0d0
+              case (6)
+                dfdt(iq,D1_TA)  = val*sfac_ta
+              case default
+                call print(6,nwad_f(iq))
+                call errquit("nwxc_df_driver: illegal variable",
+     +                       iv1,UERR)
+            end select
+          enddo
         enddo
-      enddo
+c
+      else
+c
+c       Unrestricted open shell -> plain unpacking
+c
+        do iq = 1, nq
+          f(iq) = get_val(nwad_f(iq))
+          nvar = get_nvar(nwad_f(iq))
+          do ix1 = 1, nvar
+            call get_d1(nwad_f(iq),ix1,val,iv1)
+            select case (iv1)
+              case (1)
+                dfdr(iq,D1_RA) = val
+              case (2)
+                dfdr(iq,D1_RB) = val
+              case (3)
+                dfdg(iq,D1_GAA) = val
+              case (4)
+                dfdg(iq,D1_GAB) = val
+              case (5)
+                dfdg(iq,D1_GBB) = val
+              case (6)
+                dfdt(iq,D1_TA) = val
+              case (7)
+                dfdt(iq,D1_TB) = val
+              case default
+                call print(6,nwad_f(iq))
+                call errquit("nwxc_df_driver: illegal variable",
+     +                       iv1,UERR)
+            end select
+          enddo
+        enddo
+c
+      endif
 c
       end
 C>
@@ -1988,6 +2030,50 @@ c
 c
       double precision val
 c
+c     Scaling factors to convert
+c     - df/drho,
+c     - df/dgamma and
+c     - df/dtau
+c     to the quantities NWChem expects, i.e. 
+c     - df/drhoa
+c     - df/dgammaaa+1/2*df/dgammaab
+c     - df/dta
+c
+c     For the second derivatives
+c     - d2f/drho2
+c     - d2f/drhodgamma
+c     - d2f/dgamma2
+c     - d2f/drhodtau
+c     - d2f/dgammadtau
+c     - d2f/dtau2
+c     to the quantities NWChems expects, i.e.
+c     - d2f/drhoa2+d2f/drhoadrhob
+c     - d2f/drhoadgammaaa+d2f/drhoadgammaab+d2f/drhoadgammabb
+c     - d2f/dgammaaa2+d2f/dgammaaadgammaab+d2f/dgammaaadgammabb
+c       +d2f/dgammaab2
+c     - d2f/drhoadtaua+d2f/drhoadtaub
+c     - d2f/dgammaaadtaua+d2f/dgammaabdtaua+d2f/dgammabbdtaua
+c     - d2f/dtaua2+d2f/dtauadtaub
+c
+      double precision sfac_ra  !< the closed shell RA scaling factor
+      double precision sfac_gaa !< the closed shell GAA scaling factor
+      double precision sfac_ta  !< the closed shell TA scaling factor
+      parameter(sfac_ra  = 1.0d0)
+      parameter(sfac_gaa = 2.0d0)
+      parameter(sfac_ta  = 1.0d0)
+      double precision sfac_rara   !< a closed shell scaling factor
+      double precision sfac_ragaa  !< a closed shell scaling factor
+      double precision sfac_gaagaa !< a closed shell scaling factor
+      double precision sfac_rata   !< a closed shell scaling factor
+      double precision sfac_gaata  !< a closed shell scaling factor
+      double precision sfac_tata   !< a closed shell scaling factor
+      parameter(sfac_rara   = 2.0d0)
+      parameter(sfac_ragaa  = 4.0d0)
+      parameter(sfac_gaagaa = 8.0d0)
+      parameter(sfac_rata   = 2.0d0)
+      parameter(sfac_gaata  = 4.0d0)
+      parameter(sfac_tata   = 2.0d0)
+c
       if (ipol.eq.1) then
         do iq = 1, nq
           nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
@@ -2037,117 +2123,186 @@ c
 c
 c     Now unpack the results
 c
-      do iq = 1, nq
-        f(iq) = get_val(nwad_f(iq))
-        nvar = get_nvar(nwad_f(iq))
-        do ix1 = 1, nvar
-          call get_d1(nwad_f(iq),ix1,val,iv1)
-          select case (iv1)
-            case (1)
-              dfdr(iq,D1_RA) = val
-            case (2)
-              dfdr(iq,D1_RB) = val
-            case (3)
-              dfdg(iq,D1_GAA) = val
-            case (4)
-              dfdg(iq,D1_GAB) = val
-            case (5)
-              dfdg(iq,D1_GBB) = val
-            case (6)
-              dfdt(iq,D1_TA) = val
-            case (7)
-              dfdt(iq,D1_TB) = val
-            case default
-              call errquit("nwxc_df2_driver: get_d1: illegal variable",
-     +                     iv1,UERR)
-          end select
-          do ix2 = 1, ix1
-            call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
+      if (ipol.eq.1) then
+c
+c       Closed shell case -> use splitting factors
+c
+        do iq = 1, nq
+          f(iq) = get_val(nwad_f(iq))
+          nvar = get_nvar(nwad_f(iq))
+          do ix1 = 1, nvar
+            call get_d1(nwad_f(iq),ix1,val,iv1)
             select case (iv1)
               case (1)
-                select case (iv2)
-                  case (1)
-                    dfdr2(iq,D2_RA_RA) = val
-                end select
-              case (2)
-                select case (iv2)
-                  case (1)
-                    dfdr2(iq,D2_RA_RB) = val
-                  case (2)
-                    dfdr2(iq,D2_RB_RB) = val
-                end select
+                dfdr(iq,D1_RA)  = val*sfac_ra
               case (3)
-                select case (iv2)
-                  case (1)
-                    dfdg2(iq,D2_RA_GAA) = val
-                  case (2)
-                    dfdg2(iq,D2_RB_GAA) = val
-                  case (3)
-                    dfdg2(iq,D2_GAA_GAA) = val
-                end select
-              case (4)
-                select case (iv2)
-                  case (1)
-                    dfdg2(iq,D2_RA_GAB) = val
-                  case (2)
-                    dfdg2(iq,D2_RB_GAB) = val
-                  case (3)
-                    dfdg2(iq,D2_GAA_GAB) = val
-                  case (4)
-                    dfdg2(iq,D2_GAB_GAB) = val
-                end select
-              case (5)
-                select case (iv2)
-                  case (1)
-                    dfdg2(iq,D2_RA_GBB) = val
-                  case (2)
-                    dfdg2(iq,D2_RB_GBB) = val
-                  case (3)
-                    dfdg2(iq,D2_GAA_GBB) = val
-                  case (4)
-                    dfdg2(iq,D2_GAB_GBB) = val
-                  case (5)
-                    dfdg2(iq,D2_GBB_GBB) = val
-                end select
+                dfdg(iq,D1_GAA) = val*sfac_gaa
+                dfdg(iq,D1_GAB) = 0.0d0
               case (6)
-                select case (iv2)
-                  case (1)
-                    dfdt2(iq,D2_RA_TA) = val
-                  case (2)
-                    dfdt2(iq,D2_RB_TA) = val
-                  case (3)
-                    dfdt2(iq,D2_GAA_TA) = val
-                  case (4)
-                    dfdt2(iq,D2_GAB_TA) = val
-                  case (5)
-                    dfdt2(iq,D2_GBB_TA) = val
-                  case (6)
-                    dfdt2(iq,D2_TA_TA) = val
-                end select
-              case (7)
-                select case (iv2)
-                  case (1)
-                    dfdt2(iq,D2_RA_TB) = val
-                  case (2)
-                    dfdt2(iq,D2_RB_TB) = val
-                  case (3)
-                    dfdt2(iq,D2_GAA_TB) = val
-                  case (4)
-                    dfdt2(iq,D2_GAB_TB) = val
-                  case (5)
-                    dfdt2(iq,D2_GBB_TB) = val
-                  case (6)
-                    dfdt2(iq,D2_TA_TB) = val
-                  case (7)
-                    dfdt2(iq,D2_TB_TB) = val
-                end select
+                dfdt(iq,D1_TA)  = val*sfac_ta
               case default
-                call errquit("nwxc_df2_driver: get_d2: "//
-     &                       "illegal variable",iv1,UERR)
+                call errquit("nwxc_df2_driver: get_d1: "
+     +                     //"illegal variable",iv1,UERR)
             end select
+            do ix2 = 1, ix1
+              call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
+              select case (iv1)
+                case (1)
+                  select case (iv2)
+                    case (1)
+                      dfdr2(iq,D2_RA_RA) = val*sfac_rara
+                      dfdr2(iq,D2_RA_RB) = 0.0d0
+                  end select
+                case (3)
+                  select case (iv2)
+                    case (1)
+                      dfdg2(iq,D2_RA_GAA)  = val*sfac_ragaa
+                      dfdg2(iq,D2_RA_GAB)  = 0.0d0
+                      dfdg2(iq,D2_RA_GBB)  = 0.0d0
+                    case (3)
+                      dfdg2(iq,D2_GAA_GAA) = val*sfac_gaagaa
+                      dfdg2(iq,D2_GAA_GAB) = 0.0d0
+                      dfdg2(iq,D2_GAA_GBB) = 0.0d0
+                      dfdg2(iq,D2_GAB_GAB) = 0.0d0
+                  end select
+                case (6)
+                  select case (iv2)
+                    case (1)
+                      dfdt2(iq,D2_RA_TA)  = val*sfac_rata
+                      dfdt2(iq,D2_RA_TB)  = 0.0d0
+                    case (3)
+                      dfdt2(iq,D2_GAA_TA) = val*sfac_gaata
+                      dfdt2(iq,D2_GAB_TA) = 0.0d0
+                      dfdt2(iq,D2_GBB_TA) = 0.0d0
+                    case (6)
+                      dfdt2(iq,D2_TA_TA)  = val*sfac_tata
+                      dfdt2(iq,D2_TA_TB)  = 0.0d0
+                  end select
+                case default
+                  call errquit("nwxc_df2_driver: get_d2: "//
+     &                         "illegal variable",iv1,UERR)
+              end select
+            enddo
           enddo
         enddo
-      enddo
+c
+      else
+c
+c       Unrestricted open shell case -> plain unpacking
+c
+        do iq = 1, nq
+          f(iq) = get_val(nwad_f(iq))
+          nvar = get_nvar(nwad_f(iq))
+          do ix1 = 1, nvar
+            call get_d1(nwad_f(iq),ix1,val,iv1)
+            select case (iv1)
+              case (1)
+                dfdr(iq,D1_RA) = val
+              case (2)
+                dfdr(iq,D1_RB) = val
+              case (3)
+                dfdg(iq,D1_GAA) = val
+              case (4)
+                dfdg(iq,D1_GAB) = val
+              case (5)
+                dfdg(iq,D1_GBB) = val
+              case (6)
+                dfdt(iq,D1_TA) = val
+              case (7)
+                dfdt(iq,D1_TB) = val
+              case default
+                call errquit("nwxc_df2_driver: get_d1: "
+     +                     //"illegal variable",iv1,UERR)
+            end select
+            do ix2 = 1, ix1
+              call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
+              select case (iv1)
+                case (1)
+                  select case (iv2)
+                    case (1)
+                      dfdr2(iq,D2_RA_RA) = val
+                  end select
+                case (2)
+                  select case (iv2)
+                    case (1)
+                      dfdr2(iq,D2_RA_RB) = val
+                    case (2)
+                      dfdr2(iq,D2_RB_RB) = val
+                  end select
+                case (3)
+                  select case (iv2)
+                    case (1)
+                      dfdg2(iq,D2_RA_GAA) = val
+                    case (2)
+                      dfdg2(iq,D2_RB_GAA) = val
+                    case (3)
+                      dfdg2(iq,D2_GAA_GAA) = val
+                  end select
+                case (4)
+                  select case (iv2)
+                    case (1)
+                      dfdg2(iq,D2_RA_GAB) = val
+                    case (2)
+                      dfdg2(iq,D2_RB_GAB) = val
+                    case (3)
+                      dfdg2(iq,D2_GAA_GAB) = val
+                    case (4)
+                      dfdg2(iq,D2_GAB_GAB) = val
+                  end select
+                case (5)
+                  select case (iv2)
+                    case (1)
+                      dfdg2(iq,D2_RA_GBB) = val
+                    case (2)
+                      dfdg2(iq,D2_RB_GBB) = val
+                    case (3)
+                      dfdg2(iq,D2_GAA_GBB) = val
+                    case (4)
+                      dfdg2(iq,D2_GAB_GBB) = val
+                    case (5)
+                      dfdg2(iq,D2_GBB_GBB) = val
+                  end select
+                case (6)
+                  select case (iv2)
+                    case (1)
+                      dfdt2(iq,D2_RA_TA) = val
+                    case (2)
+                      dfdt2(iq,D2_RB_TA) = val
+                    case (3)
+                      dfdt2(iq,D2_GAA_TA) = val
+                    case (4)
+                      dfdt2(iq,D2_GAB_TA) = val
+                    case (5)
+                      dfdt2(iq,D2_GBB_TA) = val
+                    case (6)
+                      dfdt2(iq,D2_TA_TA) = val
+                  end select
+                case (7)
+                  select case (iv2)
+                    case (1)
+                      dfdt2(iq,D2_RA_TB) = val
+                    case (2)
+                      dfdt2(iq,D2_RB_TB) = val
+                    case (3)
+                      dfdt2(iq,D2_GAA_TB) = val
+                    case (4)
+                      dfdt2(iq,D2_GAB_TB) = val
+                    case (5)
+                      dfdt2(iq,D2_GBB_TB) = val
+                    case (6)
+                      dfdt2(iq,D2_TA_TB) = val
+                    case (7)
+                      dfdt2(iq,D2_TB_TB) = val
+                  end select
+                case default
+                  call errquit("nwxc_df2_driver: get_d2: "//
+     &                         "illegal variable",iv1,UERR)
+              end select
+            enddo
+          enddo
+        enddo
+c
+      endif
 c
       end
 C>
@@ -3624,6 +3779,50 @@ c     integer ip3, ir3, it3, ip2r, ip2t, ipr2, ir2t, ipt2, irt2, iprt
 c
       double precision val
 c
+c     Scaling factors to convert
+c     - df/drho,
+c     - df/dgamma and
+c     - df/dtau
+c     to the quantities NWChem expects, i.e. 
+c     - df/drhoa
+c     - df/dgammaaa+1/2*df/dgammaab
+c     - df/dta
+c
+c     For the second derivatives
+c     - d2f/drho2
+c     - d2f/drhodgamma
+c     - d2f/dgamma2
+c     - d2f/drhodtau
+c     - d2f/dgammadtau
+c     - d2f/dtau2
+c     to the quantities NWChems expects, i.e.
+c     - d2f/drhoa2+d2f/drhoadrhob
+c     - d2f/drhoadgammaaa+d2f/drhoadgammaab+d2f/drhoadgammabb
+c     - d2f/dgammaaa2+d2f/dgammaaadgammaab+d2f/dgammaaadgammabb
+c       +d2f/dgammaab2
+c     - d2f/drhoadtaua+d2f/drhoadtaub
+c     - d2f/dgammaaadtaua+d2f/dgammaabdtaua+d2f/dgammabbdtaua
+c     - d2f/dtaua2+d2f/dtauadtaub
+c
+      double precision sfac_ra  !< the closed shell RA scaling factor
+      double precision sfac_gaa !< the closed shell GAA scaling factor
+      double precision sfac_ta  !< the closed shell TA scaling factor
+      parameter(sfac_ra  = 1.0d0)
+      parameter(sfac_gaa = 2.0d0)
+      parameter(sfac_ta  = 1.0d0)
+      double precision sfac_rara   !< a closed shell scaling factor
+      double precision sfac_ragaa  !< a closed shell scaling factor
+      double precision sfac_gaagaa !< a closed shell scaling factor
+      double precision sfac_rata   !< a closed shell scaling factor
+      double precision sfac_gaata  !< a closed shell scaling factor
+      double precision sfac_tata   !< a closed shell scaling factor
+      parameter(sfac_rara   = 2.0d0)
+      parameter(sfac_ragaa  = 4.0d0)
+      parameter(sfac_gaagaa = 8.0d0)
+      parameter(sfac_rata   = 2.0d0)
+      parameter(sfac_gaata  = 4.0d0)
+      parameter(sfac_tata   = 2.0d0)
+c
       if (ipol.eq.1) then
         do iq = 1, nq
           nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
@@ -3673,392 +3872,546 @@ c
 c
 c     Now unpack the results
 c
-      do iq = 1, nq
-        f(iq) = get_val(nwad_f(iq))
-        nvar = get_nvar(nwad_f(iq))
-        do ix1 = 1, nvar
-          call get_d1(nwad_f(iq),ix1,val,iv1)
-          select case (iv1)
-            case (1)
-              dfdr(iq,D1_RA) = val
-            case (2)
-              dfdr(iq,D1_RB) = val
-            case (3)
-              dfdg(iq,D1_GAA) = val
-            case (4)
-              dfdg(iq,D1_GAB) = val
-            case (5)
-              dfdg(iq,D1_GBB) = val
-            case (6)
-              dfdt(iq,D1_TA) = val
-            case (7)
-              dfdt(iq,D1_TB) = val
-            case default
-              call errquit("nwxc_df3_driver: illegal variable",iv1,UERR)
-          end select
-          do ix2 = 1, ix1
-            call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
+      if (ipol.eq.1) then
+c
+c       Closed shell case -> use splitting factors
+c
+        do iq = 1, nq
+          f(iq) = get_val(nwad_f(iq))
+          nvar = get_nvar(nwad_f(iq))
+          do ix1 = 1, nvar
+            call get_d1(nwad_f(iq),ix1,val,iv1)
             select case (iv1)
               case (1)
-                select case (iv2)
-                  case (1)
-                    dfdr2(iq,D2_RA_RA) = val
-                end select
-              case (2)
-                select case (iv2)
-                  case (1)
-                    dfdr2(iq,D2_RA_RB) = val
-                  case (2)
-                    dfdr2(iq,D2_RB_RB) = val
-                end select
+                dfdr(iq,D1_RA) = val*sfac_ra
               case (3)
-                select case (iv2)
-                  case (1)
-                    dfdg2(iq,D2_RA_GAA) = val
-                  case (2)
-                    dfdg2(iq,D2_RB_GAA) = val
-                  case (3)
-                    dfdg2(iq,D2_GAA_GAA) = val
-                end select
-              case (4)
-                select case (iv2)
-                  case (1)
-                    dfdg2(iq,D2_RA_GAB) = val
-                  case (2)
-                    dfdg2(iq,D2_RB_GAB) = val
-                  case (3)
-                    dfdg2(iq,D2_GAA_GAB) = val
-                  case (4)
-                    dfdg2(iq,D2_GAB_GAB) = val
-                end select
-              case (5)
-                select case (iv2)
-                  case (1)
-                    dfdg2(iq,D2_RA_GBB) = val
-                  case (2)
-                    dfdg2(iq,D2_RB_GBB) = val
-                  case (3)
-                    dfdg2(iq,D2_GAA_GBB) = val
-                  case (4)
-                    dfdg2(iq,D2_GAB_GBB) = val
-                  case (5)
-                    dfdg2(iq,D2_GBB_GBB) = val
-                end select
+                dfdg(iq,D1_GAA) = val*sfac_gaa
+                dfdg(iq,D1_GAB) = 0.0d0
               case (6)
-                select case (iv2)
-                  case (1)
-                    dfdt2(iq,D2_RA_TA) = val
-                  case (2)
-                    dfdt2(iq,D2_RB_TA) = val
-                  case (3)
-                    dfdt2(iq,D2_GAA_TA) = val
-                  case (4)
-                    dfdt2(iq,D2_GAB_TA) = val
-                  case (5)
-                    dfdt2(iq,D2_GBB_TA) = val
-                  case (6)
-                    dfdt2(iq,D2_TA_TA) = val
-                end select
-              case (7)
-                select case (iv2)
-                  case (1)
-                    dfdt2(iq,D2_RA_TB) = val
-                  case (2)
-                    dfdt2(iq,D2_RB_TB) = val
-                  case (3)
-                    dfdt2(iq,D2_GAA_TB) = val
-                  case (4)
-                    dfdt2(iq,D2_GAB_TB) = val
-                  case (5)
-                    dfdt2(iq,D2_GBB_TB) = val
-                  case (6)
-                    dfdt2(iq,D2_TA_TB) = val
-                  case (7)
-                    dfdt2(iq,D2_TB_TB) = val
-                end select
+                dfdt(iq,D1_TA) = val*sfac_ta
+              case default
+                call errquit("nwxc_df3_driver: illegal variable",
+     +                       iv1,UERR)
             end select
-            do ix3 = 1, ix2
-              call get_d3(nwad_f(iq),ix1,ix2,ix3,val,iv1,iv2,iv3)
+            do ix2 = 1, ix1
+              call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
               select case (iv1)
                 case (1)
                   select case (iv2)
                     case (1)
-                      select case (iv3)
-                        case (1)
-                          dfdr3(iq,D3_RA_RA_RA) = val
-                      end select
-                  end select
-                case (2)
-                  select case (iv2)
-                    case (1)
-                      select case (iv3)
-                        case (1)
-                          dfdr3(iq,D3_RA_RA_RB) = val
-                      end select
-                    case (2)
-                      select case (iv3)
-                        case (1)
-                          dfdr3(iq,D3_RA_RB_RB) = val
-                        case (2)
-                          dfdr3(iq,D3_RB_RB_RB) = val
-                      end select
+                      dfdr2(iq,D2_RA_RA) = val*sfac_rara
+                      dfdr2(iq,D2_RA_RB) = 0.0d0
                   end select
                 case (3)
                   select case (iv2)
                     case (1)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_RA_GAA) = val
-                      end select
-                    case (2)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_RB_GAA) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_RB_GAA) = val
-                      end select
+                      dfdg2(iq,D2_RA_GAA) = val*sfac_ragaa
+                      dfdg2(iq,D2_RA_GAB) = 0.0d0
+                      dfdg2(iq,D2_RA_GBB) = 0.0d0
                     case (3)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_GAA_GAA) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_GAA_GAA) = val
-                        case (3)
-                          dfdg3(iq,D3_GAA_GAA_GAA) = val
-                      end select
-                  end select
-                case (4)
-                  select case (iv2)
-                    case (1)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_RA_GAB) = val
-                      end select
-                    case (2)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_RB_GAB) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_RB_GAB) = val
-                      end select
-                    case (3)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_GAA_GAB) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_GAA_GAB) = val
-                        case (3)
-                          dfdg3(iq,D3_GAA_GAA_GAB) = val
-                      end select
-                    case (4)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_GAB_GAB) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_GAB_GAB) = val
-                        case (3)
-                          dfdg3(iq,D3_GAA_GAB_GAB) = val
-                        case (4)
-                          dfdg3(iq,D3_GAB_GAB_GAB) = val
-                      end select
-                  end select
-                case (5)
-                  select case (iv2)
-                    case (1)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_RA_GBB) = val
-                      end select
-                    case (2)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_RB_GBB) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_RB_GBB) = val
-                      end select
-                    case (3)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_GAA_GBB) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_GAA_GBB) = val
-                        case (3)
-                          dfdg3(iq,D3_GAA_GAA_GBB) = val
-                      end select
-                    case (4)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_GAB_GBB) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_GAB_GBB) = val
-                        case (3)
-                          dfdg3(iq,D3_GAA_GAB_GBB) = val
-                        case (4)
-                          dfdg3(iq,D3_GAB_GAB_GBB) = val
-                      end select
-                    case (5)
-                      select case (iv3)
-                        case (1)
-                          dfdg3(iq,D3_RA_GBB_GBB) = val
-                        case (2)
-                          dfdg3(iq,D3_RB_GBB_GBB) = val
-                        case (3)
-                          dfdg3(iq,D3_GAA_GBB_GBB) = val
-                        case (4)
-                          dfdg3(iq,D3_GAB_GBB_GBB) = val
-                        case (5)
-                          dfdg3(iq,D3_GBB_GBB_GBB) = val
-                      end select
+                      dfdg2(iq,D2_GAA_GAA) = val*sfac_gaagaa
+                      dfdg2(iq,D2_GAA_GAB) = 0.0d0
+                      dfdg2(iq,D2_GAA_GBB) = 0.0d0
+                      dfdg2(iq,D2_GAB_GAB) = 0.0d0
                   end select
                 case (6)
                   select case (iv2)
                     case (1)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_RA_TA) = val
-                      end select
-                    case (2)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_RB_TA) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_RB_TA) = val
-                      end select
+                      dfdt2(iq,D2_RA_TA)  = val*sfac_rata
+                      dfdt2(iq,D2_RA_TB)  = 0.0d0
                     case (3)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_GAA_TA) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_GAA_TA) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_GAA_TA) = val
-                      end select
-                    case (4)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_GAB_TA) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_GAB_TA) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_GAB_TA) = val
-                        case (4)
-                          dfdt3(iq,D3_GAB_GAB_TA) = val
-                      end select
-                    case (5)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_GBB_TA) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_GBB_TA) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_GBB_TA) = val
-                        case (4)
-                          dfdt3(iq,D3_GAB_GBB_TA) = val
-                        case (5)
-                          dfdt3(iq,D3_GBB_GBB_TA) = val
-                      end select
+                      dfdt2(iq,D2_GAA_TA) = val*sfac_gaata
+                      dfdt2(iq,D2_GAB_TA) = 0.0d0
+                      dfdt2(iq,D2_GBB_TA) = 0.0d0
                     case (6)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_TA_TA) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_TA_TA) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_TA_TA) = val
-                        case (4)
-                          dfdt3(iq,D3_GAB_TA_TA) = val
-                        case (5)
-                          dfdt3(iq,D3_GBB_TA_TA) = val
-                        case (6)
-                          dfdt3(iq,D3_TA_TA_TA) = val
-                      end select
+                      dfdt2(iq,D2_TA_TA)  = val*sfac_tata
+                      dfdt2(iq,D2_TA_TB)  = 0.0d0
+                  end select
+              end select
+              do ix3 = 1, ix2
+                call get_d3(nwad_f(iq),ix1,ix2,ix3,val,iv1,iv2,iv3)
+                call errquit("df3_driver: 3rd scale factors not done "
+     +                     //"yet",0,CAPMIS_ERR)
+                select case (iv1)
+                  case (1)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdr3(iq,D3_RA_RA_RA) = val
+                            dfdr3(iq,D3_RA_RA_RB) = 0.0d0
+                        end select
+                    end select
+                  case (3)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_RA_GAA) = val
+                            dfdg3(iq,D3_RA_RA_GAB) = 0.0d0
+                            dfdg3(iq,D3_RA_RA_GBB) = 0.0d0
+                            dfdg3(iq,D3_RA_RB_GAA) = 0.0d0
+                            dfdg3(iq,D3_RA_RB_GAB) = 0.0d0
+                        end select
+                      case (3)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_GAA_GAA) = val
+                            dfdg3(iq,D3_RA_GAA_GAB) = 0.0d0
+                            dfdg3(iq,D3_RA_GAA_GBB) = 0.0d0
+                            dfdg3(iq,D3_RA_GAB_GAB) = 0.0d0
+                            dfdg3(iq,D3_RA_GAB_GBB) = 0.0d0
+                            dfdg3(iq,D3_RA_GBB_GBB) = 0.0d0
+                          case (3)
+                            dfdg3(iq,D3_GAA_GAA_GAA) = val
+                            dfdg3(iq,D3_GAA_GAA_GAB) = 0.0d0
+                            dfdg3(iq,D3_GAA_GAA_GBB) = 0.0d0
+                            dfdg3(iq,D3_GAA_GAB_GAB) = 0.0d0
+                            dfdg3(iq,D3_GAA_GAB_GBB) = 0.0d0
+                            dfdg3(iq,D3_GAB_GAB_GAB) = 0.0d0
+                        end select
+                    end select
+                  case (6)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_RA_TA) = val
+                            dfdt3(iq,D3_RA_RA_TB) = 0.0d0
+                            dfdt3(iq,D3_RA_RB_TA) = 0.0d0
+                        end select
+                      case (3)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_GAA_TA) = val
+                            dfdt3(iq,D3_RA_GAA_TB) = 0.0d0
+                            dfdt3(iq,D3_RA_GAB_TA) = 0.0d0
+                            dfdt3(iq,D3_RA_GAB_TB) = 0.0d0
+                            dfdt3(iq,D3_RA_GBB_TA) = 0.0d0
+                            dfdt3(iq,D3_RA_GBB_TB) = 0.0d0
+                          case (3)
+                            dfdt3(iq,D3_GAA_GAA_TA) = val
+                            dfdt3(iq,D3_GAA_GAB_TA) = 0.0d0
+                            dfdt3(iq,D3_GAA_GBB_TA) = 0.0d0
+                            dfdt3(iq,D3_GAB_GAB_TA) = 0.0d0
+                        end select
+                      case (6)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_TA_TA) = val
+                            dfdt3(iq,D3_RA_TA_TB) = 0.0d0
+                            dfdt3(iq,D3_RA_TB_TB) = 0.0d0
+                          case (3)
+                            dfdt3(iq,D3_GAA_TA_TA) = val
+                            dfdt3(iq,D3_GAA_TA_TB) = 0.0d0
+                            dfdt3(iq,D3_GAB_TA_TA) = 0.0d0
+                            dfdt3(iq,D3_GAB_TA_TB) = 0.0d0
+                            dfdt3(iq,D3_GBB_TA_TA) = 0.0d0
+                            dfdt3(iq,D3_GBB_TA_TB) = 0.0d0
+                          case (6)
+                            dfdt3(iq,D3_TA_TA_TA) = val
+                            dfdt3(iq,D3_TA_TA_TB) = 0.0d0
+                        end select
+                    end select
+                end select
+              enddo
+            enddo
+          enddo
+        enddo
+c
+      else
+c
+c       Unrestricted open shell case -> plain unpacking
+c
+        do iq = 1, nq
+          f(iq) = get_val(nwad_f(iq))
+          nvar = get_nvar(nwad_f(iq))
+          do ix1 = 1, nvar
+            call get_d1(nwad_f(iq),ix1,val,iv1)
+            select case (iv1)
+              case (1)
+                dfdr(iq,D1_RA) = val
+              case (2)
+                dfdr(iq,D1_RB) = val
+              case (3)
+                dfdg(iq,D1_GAA) = val
+              case (4)
+                dfdg(iq,D1_GAB) = val
+              case (5)
+                dfdg(iq,D1_GBB) = val
+              case (6)
+                dfdt(iq,D1_TA) = val
+              case (7)
+                dfdt(iq,D1_TB) = val
+              case default
+                call errquit("nwxc_df3_driver: illegal variable",
+     +                       iv1,UERR)
+            end select
+            do ix2 = 1, ix1
+              call get_d2(nwad_f(iq),ix1,ix2,val,iv1,iv2)
+              select case (iv1)
+                case (1)
+                  select case (iv2)
+                    case (1)
+                      dfdr2(iq,D2_RA_RA) = val
+                  end select
+                case (2)
+                  select case (iv2)
+                    case (1)
+                      dfdr2(iq,D2_RA_RB) = val
+                    case (2)
+                      dfdr2(iq,D2_RB_RB) = val
+                  end select
+                case (3)
+                  select case (iv2)
+                    case (1)
+                      dfdg2(iq,D2_RA_GAA) = val
+                    case (2)
+                      dfdg2(iq,D2_RB_GAA) = val
+                    case (3)
+                      dfdg2(iq,D2_GAA_GAA) = val
+                  end select
+                case (4)
+                  select case (iv2)
+                    case (1)
+                      dfdg2(iq,D2_RA_GAB) = val
+                    case (2)
+                      dfdg2(iq,D2_RB_GAB) = val
+                    case (3)
+                      dfdg2(iq,D2_GAA_GAB) = val
+                    case (4)
+                      dfdg2(iq,D2_GAB_GAB) = val
+                  end select
+                case (5)
+                  select case (iv2)
+                    case (1)
+                      dfdg2(iq,D2_RA_GBB) = val
+                    case (2)
+                      dfdg2(iq,D2_RB_GBB) = val
+                    case (3)
+                      dfdg2(iq,D2_GAA_GBB) = val
+                    case (4)
+                      dfdg2(iq,D2_GAB_GBB) = val
+                    case (5)
+                      dfdg2(iq,D2_GBB_GBB) = val
+                  end select
+                case (6)
+                  select case (iv2)
+                    case (1)
+                      dfdt2(iq,D2_RA_TA) = val
+                    case (2)
+                      dfdt2(iq,D2_RB_TA) = val
+                    case (3)
+                      dfdt2(iq,D2_GAA_TA) = val
+                    case (4)
+                      dfdt2(iq,D2_GAB_TA) = val
+                    case (5)
+                      dfdt2(iq,D2_GBB_TA) = val
+                    case (6)
+                      dfdt2(iq,D2_TA_TA) = val
                   end select
                 case (7)
                   select case (iv2)
                     case (1)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_RA_TB) = val
-                      end select
+                      dfdt2(iq,D2_RA_TB) = val
                     case (2)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_RB_TB) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_RB_TB) = val
-                      end select
+                      dfdt2(iq,D2_RB_TB) = val
                     case (3)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_GAA_TB) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_GAA_TB) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_GAA_TB) = val
-                      end select
+                      dfdt2(iq,D2_GAA_TB) = val
                     case (4)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_GAB_TB) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_GAB_TB) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_GAB_TB) = val
-                        case (4)
-                          dfdt3(iq,D3_GAB_GAB_TB) = val
-                      end select
+                      dfdt2(iq,D2_GAB_TB) = val
                     case (5)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_GBB_TB) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_GBB_TB) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_GBB_TB) = val
-                        case (4)
-                          dfdt3(iq,D3_GAB_GBB_TB) = val
-                        case (5)
-                          dfdt3(iq,D3_GBB_GBB_TB) = val
-                      end select
+                      dfdt2(iq,D2_GBB_TB) = val
                     case (6)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_TA_TB) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_TA_TB) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_TA_TB) = val
-                        case (4)
-                          dfdt3(iq,D3_GAB_TA_TB) = val
-                        case (5)
-                          dfdt3(iq,D3_GBB_TA_TB) = val
-                        case (6)
-                          dfdt3(iq,D3_TA_TA_TB) = val
-                      end select
+                      dfdt2(iq,D2_TA_TB) = val
                     case (7)
-                      select case (iv3)
-                        case (1)
-                          dfdt3(iq,D3_RA_TB_TB) = val
-                        case (2)
-                          dfdt3(iq,D3_RB_TB_TB) = val
-                        case (3)
-                          dfdt3(iq,D3_GAA_TB_TB) = val
-                        case (4)
-                          dfdt3(iq,D3_GAB_TB_TB) = val
-                        case (5)
-                          dfdt3(iq,D3_GBB_TB_TB) = val
-                        case (6)
-                          dfdt3(iq,D3_TA_TB_TB) = val
-                        case (7)
-                          dfdt3(iq,D3_TB_TB_TB) = val
-                      end select
+                      dfdt2(iq,D2_TB_TB) = val
                   end select
               end select
+              do ix3 = 1, ix2
+                call get_d3(nwad_f(iq),ix1,ix2,ix3,val,iv1,iv2,iv3)
+                select case (iv1)
+                  case (1)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdr3(iq,D3_RA_RA_RA) = val
+                        end select
+                    end select
+                  case (2)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdr3(iq,D3_RA_RA_RB) = val
+                        end select
+                      case (2)
+                        select case (iv3)
+                          case (1)
+                            dfdr3(iq,D3_RA_RB_RB) = val
+                          case (2)
+                            dfdr3(iq,D3_RB_RB_RB) = val
+                        end select
+                    end select
+                  case (3)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_RA_GAA) = val
+                        end select
+                      case (2)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_RB_GAA) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_RB_GAA) = val
+                        end select
+                      case (3)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_GAA_GAA) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_GAA_GAA) = val
+                          case (3)
+                            dfdg3(iq,D3_GAA_GAA_GAA) = val
+                        end select
+                    end select
+                  case (4)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_RA_GAB) = val
+                        end select
+                      case (2)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_RB_GAB) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_RB_GAB) = val
+                        end select
+                      case (3)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_GAA_GAB) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_GAA_GAB) = val
+                          case (3)
+                            dfdg3(iq,D3_GAA_GAA_GAB) = val
+                        end select
+                      case (4)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_GAB_GAB) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_GAB_GAB) = val
+                          case (3)
+                            dfdg3(iq,D3_GAA_GAB_GAB) = val
+                          case (4)
+                            dfdg3(iq,D3_GAB_GAB_GAB) = val
+                        end select
+                    end select
+                  case (5)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_RA_GBB) = val
+                        end select
+                      case (2)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_RB_GBB) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_RB_GBB) = val
+                        end select
+                      case (3)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_GAA_GBB) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_GAA_GBB) = val
+                          case (3)
+                            dfdg3(iq,D3_GAA_GAA_GBB) = val
+                        end select
+                      case (4)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_GAB_GBB) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_GAB_GBB) = val
+                          case (3)
+                            dfdg3(iq,D3_GAA_GAB_GBB) = val
+                          case (4)
+                            dfdg3(iq,D3_GAB_GAB_GBB) = val
+                        end select
+                      case (5)
+                        select case (iv3)
+                          case (1)
+                            dfdg3(iq,D3_RA_GBB_GBB) = val
+                          case (2)
+                            dfdg3(iq,D3_RB_GBB_GBB) = val
+                          case (3)
+                            dfdg3(iq,D3_GAA_GBB_GBB) = val
+                          case (4)
+                            dfdg3(iq,D3_GAB_GBB_GBB) = val
+                          case (5)
+                            dfdg3(iq,D3_GBB_GBB_GBB) = val
+                        end select
+                    end select
+                  case (6)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_RA_TA) = val
+                        end select
+                      case (2)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_RB_TA) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_RB_TA) = val
+                        end select
+                      case (3)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_GAA_TA) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_GAA_TA) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_GAA_TA) = val
+                        end select
+                      case (4)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_GAB_TA) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_GAB_TA) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_GAB_TA) = val
+                          case (4)
+                            dfdt3(iq,D3_GAB_GAB_TA) = val
+                        end select
+                      case (5)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_GBB_TA) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_GBB_TA) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_GBB_TA) = val
+                          case (4)
+                            dfdt3(iq,D3_GAB_GBB_TA) = val
+                          case (5)
+                            dfdt3(iq,D3_GBB_GBB_TA) = val
+                        end select
+                      case (6)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_TA_TA) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_TA_TA) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_TA_TA) = val
+                          case (4)
+                            dfdt3(iq,D3_GAB_TA_TA) = val
+                          case (5)
+                            dfdt3(iq,D3_GBB_TA_TA) = val
+                          case (6)
+                            dfdt3(iq,D3_TA_TA_TA) = val
+                        end select
+                    end select
+                  case (7)
+                    select case (iv2)
+                      case (1)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_RA_TB) = val
+                        end select
+                      case (2)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_RB_TB) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_RB_TB) = val
+                        end select
+                      case (3)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_GAA_TB) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_GAA_TB) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_GAA_TB) = val
+                        end select
+                      case (4)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_GAB_TB) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_GAB_TB) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_GAB_TB) = val
+                          case (4)
+                            dfdt3(iq,D3_GAB_GAB_TB) = val
+                        end select
+                      case (5)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_GBB_TB) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_GBB_TB) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_GBB_TB) = val
+                          case (4)
+                            dfdt3(iq,D3_GAB_GBB_TB) = val
+                          case (5)
+                            dfdt3(iq,D3_GBB_GBB_TB) = val
+                        end select
+                      case (6)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_TA_TB) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_TA_TB) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_TA_TB) = val
+                          case (4)
+                            dfdt3(iq,D3_GAB_TA_TB) = val
+                          case (5)
+                            dfdt3(iq,D3_GBB_TA_TB) = val
+                          case (6)
+                            dfdt3(iq,D3_TA_TA_TB) = val
+                        end select
+                      case (7)
+                        select case (iv3)
+                          case (1)
+                            dfdt3(iq,D3_RA_TB_TB) = val
+                          case (2)
+                            dfdt3(iq,D3_RB_TB_TB) = val
+                          case (3)
+                            dfdt3(iq,D3_GAA_TB_TB) = val
+                          case (4)
+                            dfdt3(iq,D3_GAB_TB_TB) = val
+                          case (5)
+                            dfdt3(iq,D3_GBB_TB_TB) = val
+                          case (6)
+                            dfdt3(iq,D3_TA_TB_TB) = val
+                          case (7)
+                            dfdt3(iq,D3_TB_TB_TB) = val
+                        end select
+                    end select
+                end select
+              enddo
             enddo
           enddo
         enddo
-      enddo
-C      
+C
+      endif
+C
       end
 C>
 C> \brief Evaluate the exchange-correlation energy and its 1st, 2nd
@@ -4217,64 +4570,57 @@ C
           case (NWXCP_X_B88)
             call nwxc_x_b88_d3(nwxc_rho_tol,ipol,nq,nwxc_wghts(it),
      +                         rho,gamma,f)
-c          case (NWXCP_X_B97)
-c            param(1) = 2.0d0
-c            param(2) = 0.80940d+00
-c            param(3) = 0.50730d+00
-c            param(4) = 0.74810d+00
-c            call nwxc_x_b97_d2(param,nwxc_rho_tol,ipol,nq,
-c    +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdr2,
-c    +                          dfdg,dfdg2)
-c          case (NWXCP_X_B97_1)
-c            param(1) = 2.0d0
-c            param(2) = 0.789518d+00
-c            param(3) = 0.573805d+00
-c            param(4) = 0.660975d+00
-c            call nwxc_x_b97_d2(param,nwxc_rho_tol,ipol,nq,
-c    +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdr2,
-c    +                          dfdg,dfdg2)
-c          case (NWXCP_X_B97_2)
-c            param(1) = 2.0d0
-c            param(2) = 0.827642D+00
-c            param(3) = 0.478400D-01
-c            param(4) = 0.176125D+01
-c            call nwxc_x_b97_d2(param,nwxc_rho_tol,ipol,nq,
-c    +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdr2,
-c    +                          dfdg,dfdg2)
-c          case (NWXCP_X_B97_3)
-c            param(1) = 4.0d0
-c            param(2) = 7.334648D-01
-c            param(3) = 2.925270D-01
-c            param(4) = 3.338789D+00
-c            param(5) =-1.051158D+01
-c            param(6) = 1.060907D+01
-c            call nwxc_x_b97_d2(param,nwxc_rho_tol,ipol,nq,
-c    +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdr2,
-c    +                          dfdg,dfdg2)
-c          case (NWXCP_X_B97_D)
-c            param(1) = 2.0d0
-c            param(2) = 1.086620d+0
-c            param(3) =-0.521270d+00
-c            param(4) = 3.254290d+00
-c            call nwxc_x_b97_d2(param,nwxc_rho_tol,ipol,nq,
-c    +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdr2,
-c    +                          dfdg,dfdg2)
-c          case (NWXCP_X_B97_G)
-c            param(1) = 2.0d0
-c            param(2) = 1.1068d0
-c            param(3) =-0.8765d0
-c            param(4) = 4.2639d0
-c            call nwxc_x_b97_d2(param,nwxc_rho_tol,ipol,nq,
-c    +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdr2,
-c    +                          dfdg,dfdg2)
-c          case (NWXCP_X_B98)
-c            param(1) = 2.0d0
-c            param(2) = 0.790194d00
-c            param(3) = 0.400271d00
-c            param(4) = 0.832857d00
-c            call nwxc_x_b97_d2(param,nwxc_rho_tol,ipol,nq,
-c    +                          nwxc_wghts(it),rho,gamma,f,dfdr,dfdr2,
-c    +                          dfdg,dfdg2)
+          case (NWXCP_X_B97)
+            param(1) = 2.0d0
+            param(2) = 0.80940d+00
+            param(3) = 0.50730d+00
+            param(4) = 0.74810d+00
+            call nwxc_x_b97_d3(param,nwxc_rho_tol,ipol,nq,
+     +                         nwxc_wghts(it),rho,gamma,f)
+          case (NWXCP_X_B97_1)
+            param(1) = 2.0d0
+            param(2) = 0.789518d+00
+            param(3) = 0.573805d+00
+            param(4) = 0.660975d+00
+            call nwxc_x_b97_d3(param,nwxc_rho_tol,ipol,nq,
+     +                         nwxc_wghts(it),rho,gamma,f)
+          case (NWXCP_X_B97_2)
+            param(1) = 2.0d0
+            param(2) = 0.827642D+00
+            param(3) = 0.478400D-01
+            param(4) = 0.176125D+01
+            call nwxc_x_b97_d3(param,nwxc_rho_tol,ipol,nq,
+     +                         nwxc_wghts(it),rho,gamma,f)
+          case (NWXCP_X_B97_3)
+            param(1) = 4.0d0
+            param(2) = 7.334648D-01
+            param(3) = 2.925270D-01
+            param(4) = 3.338789D+00
+            param(5) =-1.051158D+01
+            param(6) = 1.060907D+01
+            call nwxc_x_b97_d3(param,nwxc_rho_tol,ipol,nq,
+     +                         nwxc_wghts(it),rho,gamma,f)
+          case (NWXCP_X_B97_D)
+            param(1) = 2.0d0
+            param(2) = 1.086620d+0
+            param(3) =-0.521270d+00
+            param(4) = 3.254290d+00
+            call nwxc_x_b97_d3(param,nwxc_rho_tol,ipol,nq,
+     +                         nwxc_wghts(it),rho,gamma,f)
+          case (NWXCP_X_B97_G)
+            param(1) = 2.0d0
+            param(2) = 1.1068d0
+            param(3) =-0.8765d0
+            param(4) = 4.2639d0
+            call nwxc_x_b97_d3(param,nwxc_rho_tol,ipol,nq,
+     +                         nwxc_wghts(it),rho,gamma,f)
+          case (NWXCP_X_B98)
+            param(1) = 2.0d0
+            param(2) = 0.790194d00
+            param(3) = 0.400271d00
+            param(4) = 0.832857d00
+            call nwxc_x_b97_d3(param,nwxc_rho_tol,ipol,nq,
+     +                         nwxc_wghts(it),rho,gamma,f)
           case (NWXCP_X_BNL)
             param(1) = nwxc_cam_gamma
             call nwxc_x_bnl_d3(param,nwxc_rho_tol,ipol,nq,
