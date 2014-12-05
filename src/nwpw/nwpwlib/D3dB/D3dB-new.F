@@ -87,6 +87,7 @@ ccccccccccc  #define TCGMSG
 *     **************************
       if (mapping.eq.1) then
 
+      write(*,*) "BEFORE alloc_gets 01"
 *     **** allocate q_map,p_map,k_map
       value = BA_alloc_get(mt_int,nz(nb),'q_map',q_map(2,nb),
      >                                       q_map(1,nb))
@@ -98,6 +99,7 @@ ccccccccccc  #define TCGMSG
      > call errquit('Mapping_init:out of heap memory',0, MA_ERR)
 
 
+      write(*,*) "AFTER alloc_gets 01"
 
 *     ****** cyclic ******
        p = 0
@@ -183,6 +185,7 @@ c           k_map(q_map(k)) = k
       else
 
 
+      write(*,*) "BEFORE alloc_gets 02"
 *     **** allocate q_map1,p_map1,q_map2,p_map2,q_map3,p_map3 ****
       value =           BA_alloc_get(mt_int,ny(nb)*nz(nb),
      >                              'q_map1',
@@ -214,6 +217,7 @@ c           k_map(q_map(k)) = k
      > call errquit('Mapping_init:out of heap memory',1, MA_ERR)
 
 
+      write(*,*) "AFTER alloc_gets 02"
       !**** double grid map1 defined wrt to single grid         ****
       !**** makes expand and contract routines trivial parallel ****
 
@@ -232,29 +236,35 @@ c           k_map(q_map(k)) = k
          call hcurve_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
       end if
 
+      write(*,*) "AFTER hilber and hcurve"
 
       !**** double grid map1 defined wrt to single grid         ****
       !**** makes expand and contract routines trivial parallel ****
       if (nb.eq.1) then
+        write(*,*) "before generate map index 1"
       call generate_map_indexes(taskid,np,
      >                          ny(nb),nz(nb),
      >                          int_mb(p_map1(1,nb)),
      >                          int_mb(q_map1(1,nb)),nq1(nb))
+        write(*,*) "AFTER generate map index 1"
       else
         nq1(2) = 4*nq1(1)
         call expand_hilbert2d(np,ny(1),nz(1),
      >                        int_mb(p_map1(1,1)),int_mb(q_map1(1,1)),
      >                        int_mb(p_map1(1,2)),int_mb(q_map1(1,2)))
+        write(*,*) "AFTER expand hilbert"
       end if
       call generate_map_indexes(taskid,np,
      >                          nz(nb),nx(nb)/2+1,
      >                          int_mb(p_map2(1,nb)),
      >                          int_mb(q_map2(1,nb)),nq2(nb))
+        write(*,*) "AFTER generate map index 2 "
       call generate_map_indexes(taskid,np,
      >                          nx(nb)/2+1,ny(nb),
      >                          int_mb(p_map3(1,nb)),
      >                          int_mb(q_map3(1,nb)),nq3(nb))
 
+        write(*,*) "AFTER generate map index 3"
 c      if (taskid.eq.0) then
 c      write(*,*) taskid,"nq2=",nq2(nb), ny(nb)*nq2(nb)
 c      write(*,*) taskid,"nq1=",nq1(nb),(nx(nb)/2+1)*nq1(nb)
@@ -736,7 +746,7 @@ c     p = p_map(k)
       call Parallel2d_np_i(np)
       call Parallel_taskid(taskid)
 
-
+      write(*,*) "in 00"
       !**** Make sure ngrid is consistent with mapping ***
       if (map_in.eq.1) then
         if ((np.gt.nz_in).or.(ny_in.ne.nz_in)) then
@@ -811,8 +821,11 @@ c     p = p_map(k)
         end if
       end if
 
+      write(*,*) "in 01"
 
 *     ***** initialize D3dB common block *****
+
+!$OMP SINGLE
       nx(nb)     = nx_in
       ny(nb)     = ny_in
       nz(nb)     = nz_in
@@ -822,20 +835,28 @@ c     p = p_map(k)
          mapping   = 2
          mapping2d = 2
       end if
+!$OMP END SINGLE
          
+      write(*,*) "in 02"
 
 *     **** do other initializations ****
       call Mapping_Init(nb)
+      write(*,*) "out Mapping_Init"
       if (mapping.eq.1) call D3dB_c_transpose_jk_init(nb)
+      write(*,*) "out Transpose 1"
       if (mapping.eq.2) call D3dB_c_transpose_ijk_init(nb)
+      write(*,*) "out Transpose 2"
 
 #ifndef MPI
       call D3dB_channel_init(nb)
 #endif
+      write(*,*) "out channel_init"
 
       call D3dB_c_timereverse_init(nb)
+      write(*,*) "out time_reverse"
       call D3dB_fft_init(nb)
       
+      write(*,*) "out fft_init"
       return
       end
 
@@ -2963,20 +2984,26 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** allocate trans_blk common block ****
+      write(*,*) "BEFORE alloc_gets 1"
       value = BA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
+      write(*,*) "AFTER alloc_gets 1"
       value=value.and.BA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
      >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
 
+      write(*,*) "AFTER alloc_gets 2"
       value = value.and.BA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i1_start',i1_start(2,nb),i1_start(1,nb))
+      write(*,*) "AFTER alloc_gets 3"
       value = value.and.BA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
       if (.not. value) 
      > call errquit('D3dB_transpose_jk_init:out of heap',0,MA_ERR)
 
+      write(*,*) "AFTER alloc_gets 4"
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
+      write(*,*) "AFTER parallel"
 
       index1 = 1 
       index2 = 1
@@ -3024,6 +3051,7 @@ c     i2_start(np+1) = index2
       int_mb(i1_start(1,nb)+np) = index1
       int_mb(i2_start(1,nb)+np) = index2
 
+      write(*,*) "AFTER pack"
 
       return
       end

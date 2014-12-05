@@ -3768,7 +3768,7 @@ c     >                  source,rcv_proc,1)
 *     **** deallocate temporary space  ****
       value =           BA_pop_stack(tmp2(2))
       value = value.and.BA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+      if (.not. value) call errquit('error popping stack 1',0, MA_ERR)
 
       end if
 
@@ -4008,7 +4008,7 @@ c     >                  source,rcv_proc,1)
 *     **** deallocate temporary space  ****
       value =           BA_pop_stack(tmp2(2))
       value = value.and.BA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+      if (.not. value) call errquit('error popping stack 1',0, MA_ERR)
 
       end if
 
@@ -4209,7 +4209,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 *       **** deallocate temporary space  ****
         value = BA_pop_stack(tmp2(2))
         value = value.and.BA_pop_stack(tmp1(2))
-        if (.not. value) call errquit('error popping stack',0, MA_ERR)
+        if (.not. value) call errquit('error popping stack 3',0, MA_ERR)
 
       end if
 
@@ -4513,7 +4513,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 *       **** deallocate temporary space  ****
         value = BA_pop_stack(tmp2(2))
         value = value.and.BA_pop_stack(tmp1(2))
-        if (.not. value) call errquit('error popping stack',0, MA_ERR)
+        if (.not. value) call errquit('error popping stack 4',0, MA_ERR)
 
       end if
 
@@ -5029,7 +5029,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 *       **** deallocate temporary space  ****
         value = BA_pop_stack(tmp2(2))
         value = value.and.BA_pop_stack(tmp1(2))
-        if (.not. value) call errquit('error popping stack',0, MA_ERR)
+        if (.not. value) call errquit('error popping stack 5',0, MA_ERR)
 
       end if
 

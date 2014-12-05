@@ -50,7 +50,10 @@
       logical  control_allow_translation
       external control_allow_translation
 
+
       value = .true.
+
+      write(*,*) "in 1"
       call Parallel_taskid(taskid)
       call nwpw_timing_start(50)
       value2 = rtdb_parallel(.true.)
@@ -60,12 +63,16 @@
       call util_print_get_level(print_level)
       !write(*,*) "Print level is ",print_level
 
+      write(*,*) "in 2"
 
+      DO 10, i = 1,100
 *     **** get parallel mappings ****
       if (.not.btdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
          mapping = 2
       end if
+10    continue
 
+      write(*,*) "in 3"
 *     **** set mapping1d ****
       if (.not.btdb_get(rtdb,'nwpw:mapping1d',mt_int,1,mapping1d)) then
          mapping1d = 1
@@ -74,6 +81,7 @@
 *     **** set np_dimensions ****
       call Parallel_np(np)
 
+      write(*,*) "in 3.5"
 **** if NOMPI then no processor groups or communicators ****
 #ifdef NOMPI
       np_dimensions(1) = np
@@ -83,6 +91,7 @@
 #else
       if(.not.btdb_get(rtdb,'nwpw:np_dimensions',
      >                 mt_int,3,np_dimensions)) then
+
          np_dimensions(1) = np
          np_dimensions(2) = 1
          np_dimensions(3) = 1
@@ -123,6 +132,7 @@
 
       endif
 #endif
+      write(*,*) "in 4"
 
 *     **** get balance mapping ****
       if (.not.btdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
@@ -141,6 +151,7 @@
          fast_erf = .false.
       end if
 
+      write(*,*) "jello 0"
 *     **** get fmm ****
       if (.not.btdb_get(rtdb,'nwpw:fmm',mt_log,1,fmm)) then
          fmm = .false.
@@ -152,16 +163,21 @@
          fmm_lr = 1
       end if
 
+      write(*,*) "jello 0.5"
 *     **** get smooth_cuoff ****
       smooth_cutoff = .true.
       if (.not.btdb_get(rtdb,'nwpw:smooth_cutoff',
      >                  mt_dbl,2,smooth_cutoff_values)) then
+        write(*,*) "jello 0.75 "
+        call util_flush(6)
          smooth_cutoff           = .false.
          smooth_cutoff_values(1) = 2.0d0
          smooth_cutoff_values(2) = 4.0d0
       end if
 
 
+      write(*,*) "jello 1 ",code
+      call util_flush(6)
 *     *********************************
 *     **** cpsd and band_sd: stuff ****
 *     *********************************
@@ -169,6 +185,7 @@
       if (.not.btdb_cget(rtdb,'cpsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
+      write(*,*) "jello 2, cell_name=",cell_name
 
       if (.not.btdb_cget(rtdb,'cpsd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename)) then
@@ -178,6 +195,7 @@
      >                            input_wavefunction_filename)
          end if
       end if
+      write(*,*) "jello 3=",input_wavefunction_filename
 
       if (.not.btdb_cget(rtdb,'cpsd:output_wavefunction_filename',
      >                  1,output_wavefunction_filename)) then
@@ -188,17 +206,22 @@
          end if
       end if
 
+
       if (.not.btdb_cget(rtdb,'cpsd:exchange_correlation',
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
 
+      write(*,*) "in 5"
+      write(*,*) "in nwxc_rtdb_load"
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
+      write(*,*) "out nwxc_rtdb_load"
 
 #include "control_gga.fh"
 
+      write(*,*) "in 6"
 
       if(.not.btdb_get(rtdb,'cpsd:geometry_optimize',mt_log,1,move))
      >    move = .false.
@@ -297,10 +320,12 @@ c       call nwxc_print()
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
+      write(*,*) "in 2 nwxc_rtdb_load"
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
+      write(*,*) "out 2 nwxc_rtdb_load"
 
 #include "control_gga.fh"
 
@@ -1038,7 +1063,9 @@ c         return
       if (.not.btdb_cget(rtdb,rtdb_boundry,1,boundry)) then
          boundry = 'periodic'
       end if
+      write(*,*) "in checkunita"
       call check_unita_for_default(rtdb,unita,rtdb_unita,cell_name)
+      write(*,*) "out checkunita"
 
 
 *     **** define unita_frozen ****
@@ -1362,7 +1389,7 @@ c      end if
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -1384,8 +1411,8 @@ c      end if
      >        (unita(3,3) .eq. 0.0d0)
 
       if (value) then
-         value = geom_create(geom,'geometry')
-         value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
+         value = beom_create(geom,'geometry')
+         value = value.and.beom_rtdb_load(rtdb,geom,'geometry')
          value = value.and.geom_amatrix_get(geom,unita)
          value = value.and.geom_systype_get(geom,isystype)
          if (.not. value) call errquit('cannot load geometry',0,
@@ -1435,7 +1462,7 @@ c      end if
            !unita(2,3) =  0.0d0
            !unita(3,3) = 20.0d0
          end if
-         value = geom_destroy(geom)
+         value = beom_destroy(geom)
          if (.not. value) call errquit('cannot destroy geom',0,
      &       GEOM_ERR)
 
@@ -1459,7 +1486,7 @@ c      end if
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
 *     *** local variables ***
@@ -5029,7 +5056,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -5056,8 +5083,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (.not.btdb_get(rtdb,'nwpw:psp:cutoff',mt_dbl,1,wcut_max)) then 
          call Parallel_taskid(taskid)
          wcut_max = -1.0d0
-         value = geom_create(geom,'geometry')
-         value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
+         value = beom_create(geom,'geometry')
+         value = value.and.beom_rtdb_load(rtdb,geom,'geometry')
          value = value.and.geom_ncent(geom,nion)
          if (.not. value) 
      >   call errquit('control_ecut_wcut_default:cannot load geometry',
@@ -5114,7 +5141,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               end if
            end if
          end do
-         if (.not. geom_destroy(geom))
+         if (.not. beom_destroy(geom))
      >   call errquit('control_ecut_wcut_default:cannot destroy geom',
      >                0,GEOM_ERR)
       end if

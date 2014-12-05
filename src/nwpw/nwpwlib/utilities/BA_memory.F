@@ -67,9 +67,13 @@
       MAPOINTER omp_memhandle,omp_indx
       Logical omp_ok
       common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
+      write(*,*) "before push_get nelem=",nelem," name=",name,
+     >" datatype=",datatype 
+!$OMP BARRIER
 !$OMP SINGLE
       omp_ok = MA_push_get(datatype,nelem,name,omp_memhandle,omp_indx)
 !$OMP END SINGLE
+      write(*,*) "after push_get" 
       memhandle = omp_memhandle
       indx = omp_indx
       BA_push_get = omp_ok

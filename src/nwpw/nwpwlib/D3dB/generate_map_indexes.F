@@ -28,19 +28,23 @@
       integer indx_proc(2),indx_q(2),tmp_p(2)
 
       !**** allocate temporary space ****
+      write(*,*) "before pushget 1"
       value =           BA_push_get(mt_int,(ny*nz),'indx_proc',
      >                    indx_proc(2),
      >                    indx_proc(1))
+      write(*,*) "before pushget 2"
       value = value.and.BA_push_get(mt_int,(ny*nz),'indx_q',
      >                    indx_q(2),
      >                    indx_q(1))
+      write(*,*) "before pushget 3"
       value = value.and.BA_push_get(mt_int,(ny*nz),'tmp_p',
      >                    tmp_p(2),
      >                    tmp_p(1))
       if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
-
+      write(*,*) "before icopy"
       call icopy(ny*nz,p_map,1,int_mb(tmp_p(1)),1)
+      write(*,*) "after icopy"
 
       nq1   = (ny*nz)/np
       rmdr1 = mod(ny*nz,np)
@@ -80,7 +84,7 @@
       value =           BA_pop_stack(tmp_p(2))
       value = value.and.BA_pop_stack(indx_q(2))
       value = value.and.BA_pop_stack(indx_proc(2))
-      if (.not. value) call errquit('error popping stack',0,MA_ERR)
+      if (.not. value) call errquit('error popping stack MAPX',0,MA_ERR)
 
       return
       end

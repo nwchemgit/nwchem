@@ -197,7 +197,8 @@ cccc#include "frac_occ.fh"
       call Parallel_taskid(taskid)
 
 #ifdef USE_OPENMP
-!$OMP PARALLEL num_threads(1)
+!$OMP PARALLEL 
+c      num_threads(1)
 #endif
       call Parallel_thread_init()
       omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
@@ -226,13 +227,7 @@ cccc#include "frac_occ.fh"
       end if
       
       write(*,*) "into control_read: threadid",Parallel_threadid()
-!$OMP single
-      write(*,*) "into control_read single:threadid",Parallel_threadid()
       value = control_read(1,rtdb)
-      write(*,*) "out  control_read single:threadid",Parallel_threadid()
-!$OMP end single
-!$OMP barrier
-
       write(*,*) "out  control_read: threadid",Parallel_threadid()
 
       call Parallel2d_Init(control_np_orbital())
