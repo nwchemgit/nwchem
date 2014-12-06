@@ -1,0 +1,35 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxcP_c_b97_p(rho_a,rho_b,ScalGGAC,tol_rho,FC,sol)
+          use nwadp1
+#else
+        Subroutine nwxcP_c_b97(rho_a,rho_b,ScalGGAC,tol_rho,FC,sol)
+          use nwad1
+#endif
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxcP_c_b97_d2(rho_a,rho_b,ScalGGAC,tol_rho,FC,sol)
+          use nwad2
+#else
+        Subroutine nwxcP_c_b97_d3(rho_a,rho_b,ScalGGAC,tol_rho,FC,sol)
+          use nwad3
+#endif
+          implicit none
+          type(nwad_dble)::rho_a(2)
+          type(nwad_dble)::rho_b(2)
+          double precision ScalGGAC
+          type(nwad_dble)::FC(0:0)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+          type(nwad_dble)::sol(11)
+#else
+          double precision sol(11)
+#endif
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          double precision sol(11)
+#else
+          double precision sol(11)
+#endif
+        end subroutine
+      end interface
+c $Id: intf_nwxc_c_pw91lda.fh 26391 2014-11-16 07:19:39Z d3y133 $
