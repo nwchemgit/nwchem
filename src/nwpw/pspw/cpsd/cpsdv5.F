@@ -200,6 +200,7 @@ cccc#include "frac_occ.fh"
 !$OMP PARALLEL 
 c      num_threads(1)
 #endif
+
       call Parallel_thread_init()
       omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
 
@@ -226,9 +227,9 @@ c      num_threads(1)
          write(luout,1110)
       end if
       
-      write(*,*) "into control_read: threadid",Parallel_threadid()
+c      write(*,*) "into control_read: threadid",Parallel_threadid()
       value = control_read(1,rtdb)
-      write(*,*) "out  control_read: threadid",Parallel_threadid()
+c      write(*,*) "out  control_read: threadid",Parallel_threadid()
 
       call Parallel2d_Init(control_np_orbital())
       call Parallel2d_np_i(np_i)
@@ -248,9 +249,9 @@ c      num_threads(1)
       call psi_data_init(100)
 
 *     **** initialize D3dB data structure ****
-      write(*,*) "Into D3dB_Init, threadid=",Parallel_threadid()
+c      write(*,*) "Into D3dB_Init, threadid=",Parallel_threadid()
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
-      write(*,*) "out  D3dB_Init, threadid=",Parallel_threadid()
+c      write(*,*) "out  D3dB_Init, threadid=",Parallel_threadid()
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
