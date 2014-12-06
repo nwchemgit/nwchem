@@ -64,7 +64,6 @@
       call util_print_get_level(print_level)
       !write(*,*) "Print level is ",print_level
 
-      write(*,*) "in 2"
 
       DO 10, i = 1,100
 *     **** get parallel mappings ****
@@ -1059,9 +1058,7 @@ c         return
       if (.not.btdb_cget(rtdb,rtdb_boundry,1,boundry)) then
          boundry = 'periodic'
       end if
-      write(*,*) "in checkunita,tid=",Parallel_threadid()
       call check_unita_for_default(rtdb,unita,rtdb_unita,cell_name)
-      write(*,*) "out checkunita,tid=",Parallel_threadid()
 
 
 *     **** define unita_frozen ****
