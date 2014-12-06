@@ -401,6 +401,11 @@
 #endif
 #include "nwad.fh"
       implicit none
+#include "intf_nwxcP_c_pwlda.fh"
+#include "intf_nwxcP_xc_gab3tar.fh"
+#include "intf_nwxcP_xc_gss3tar.fh"
+#include "intf_nwxcP_xc_gab5tar.fh"
+#include "intf_nwxcP_xc_gss5tar.fh"
       type(nwad_dble):: rho_a(2), rho_b(2), FC(0:0)
       double precision ScalGGAC, tol_rho
 #ifdef NWAD_PRINT
