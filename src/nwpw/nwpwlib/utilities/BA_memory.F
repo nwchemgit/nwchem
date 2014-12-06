@@ -13,16 +13,21 @@
       integer datatype,nelem
       character*(*) name
       MAPOINTER memhandle,indx
+
       MAPOINTER omp_memhandle,omp_indx
-      Logical omp_ok
-      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
+      logical   omp_ok
+      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
 
 !$OMP SINGLE
+c      omp_ok = MA_set_error_print(.true.)
+c      omp_ok = MA_set_auto_verify(.true.)
+c      omp_ok = MA_set_hard_fail(.true.)
       omp_ok = MA_alloc_get(datatype,nelem,name,omp_memhandle,omp_indx)
+c      omp_ok = MA_verify_allocator_stuff()
 !$OMP END SINGLE
-      memhandle = omp_memhandle
+      memhandle    = omp_memhandle
+      indx         = omp_indx
       BA_alloc_get = omp_ok
-      indx = omp_indx
       return
       end
 
@@ -38,12 +43,16 @@
       implicit none
 #include "mafdecls.fh"
       MAPOINTER memhandle
+
       MAPOINTER omp_memhandle,omp_indx
-      Logical omp_ok
-      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
+      logical   omp_ok
+      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
 
 !$OMP SINGLE
+c      omp_ok = MA_set_auto_verify(.true.)
+c      omp_ok = MA_set_hard_fail(.true.)
       omp_ok = MA_free_heap(memhandle)
+c      omp_ok = MA_verify_allocator_stuff()
 !$OMP END SINGLE
       BA_free_heap = omp_ok
       return
@@ -57,25 +66,25 @@
 
 *   This is a wrapper around MA_push_get to make it thread save.
 
-      logical function BA_push_get(datatype,nelem,name,memhandle,indx)
+      logical function BA_push_get(datatype,nelem,namee,memhandle,indx)
       implicit none
 #include "mafdecls.fh"
       integer datatype,nelem
-      character*(*) name
+      character*(*) namee
       MAPOINTER memhandle,indx
 
       MAPOINTER omp_memhandle,omp_indx
-      Logical omp_ok
-      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
-      write(*,*) "before push_get nelem=",nelem," name=",name,
-     >" datatype=",datatype 
+      logical   omp_ok
+      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
 !$OMP BARRIER
 !$OMP SINGLE
-      omp_ok = MA_push_get(datatype,nelem,name,omp_memhandle,omp_indx)
+c      omp_ok = MA_set_auto_verify(.true.)
+c      omp_ok = MA_set_hard_fail(.true.)
+      omp_ok = MA_push_get(datatype,nelem,namee,omp_memhandle,omp_indx)
+c      omp_ok = MA_verify_allocator_stuff()
 !$OMP END SINGLE
-      write(*,*) "after push_get" 
-      memhandle = omp_memhandle
-      indx = omp_indx
+      memhandle   = omp_memhandle
+      indx        = omp_indx
       BA_push_get = omp_ok
       return
       end
@@ -94,10 +103,13 @@
       MAPOINTER memhandle
 
       MAPOINTER omp_memhandle,omp_indx
-      Logical omp_ok
-      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
+      logical   omp_ok
+      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
 !$OMP SINGLE
+c      omp_ok = MA_set_auto_verify(.true.)
+c      omp_ok = MA_set_hard_fail(.true.)
       omp_ok = MA_pop_stack(memhandle)
+c      omp_ok = MA_verify_allocator_stuff()
 !$OMP END SINGLE
       BA_pop_stack = omp_ok
       return
@@ -117,13 +129,15 @@
       MAPOINTER memhandle,indx
 
       MAPOINTER omp_memhandle,omp_indx
-      Logical omp_ok
-      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
+      logical   omp_ok
+      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+
 !$OMP SINGLE
-      omp_ok = MA_get_index(omp_memhandle,omp_indx)
+c      omp_ok = MA_set_auto_verify(.true.)
+      omp_ok = MA_get_index(memhandle,omp_indx)
+c      omp_ok = MA_verify_allocator_stuff()
 !$OMP END SINGLE
-      memhandle = omp_memhandle
-      indx = omp_indx
+      indx         = omp_indx
       BA_get_index = omp_ok
       return
       end
@@ -143,8 +157,8 @@
       logical ok
 
       MAPOINTER omp_memhandle,omp_indx
-      Logical omp_ok
-      common / omp_memhandle_cb / omp_memhandle, omp_indx, omp_ok
+      logical   omp_ok
+      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
 !$OMP SINGLE
       omp_ok = MA_set_auto_verify(ok)
 !$OMP END SINGLE
