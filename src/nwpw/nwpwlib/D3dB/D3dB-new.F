@@ -855,24 +855,17 @@ c     p = p_map(k)
       write(*,*) "in 02"
 
 *     **** do other initializations ****
-      write(*,*) "into Mapping"
       call Mapping_Init(nb)
-      write(*,*) "out Mapping_Init"
       if (mapping.eq.1) call D3dB_c_transpose_jk_init(nb)
-      write(*,*) "out Transpose 1"
       if (mapping.eq.2) call D3dB_c_transpose_ijk_init(nb)
-      write(*,*) "out Transpose 2"
 
 #ifndef MPI
       call D3dB_channel_init(nb)
 #endif
-      write(*,*) "out channel_init"
 
       call D3dB_c_timereverse_init(nb)
-      write(*,*) "out time_reverse"
       call D3dB_fft_init(nb)
       
-      write(*,*) "out fft_init"
       return
       end
 
