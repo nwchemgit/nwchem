@@ -12,7 +12,7 @@ c
 #include "errquit.fh"
 #include "inp.fh"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 c
 
       integer rtdb
@@ -561,7 +561,7 @@ c      call flush(6)
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "stdio.fh"
 
@@ -807,7 +807,7 @@ c        *** revPBE ***
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "bafdecls.fh"
-#include "rtdb.fh"
+#include "btdb.fh"
 #include "util.fh"
 #include "stdio.fh"
 
