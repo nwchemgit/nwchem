@@ -1,3 +1,4 @@
+#define OMP_COLLAPSE_LEVEL 3
 c
 c These have been separated out from ccsd_t_singles_l.F and ccsd_t_doubles_l.F
 c
