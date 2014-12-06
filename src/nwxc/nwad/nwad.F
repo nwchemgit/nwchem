@@ -2141,9 +2141,15 @@ c
      +          + 2 * x%d1(ix) * y%d1(ix2) * y%d1(ix3) / (y%d0 ** 3)
      +          + 2 * x%d1(ix2) * y%d1(ix) * y%d1(ix3) / (y%d0 ** 3)
      +          + 2 * x%d1(ix3) * y%d1(ix) * y%d1(ix2) / (y%d0 ** 3)
-     +          -     x%d1(ix) * y%d2(ix2*(ix2-1)/2+iy3) / (y%d0 ** 2)
-     +          -     x%d1(ix2) * y%d2(ix*(ix-1)/2+iy3) / (y%d0 ** 2)
-     +          -     x%d1(ix3) * y%d2(ix*(ix-1)/2+iy2) / (y%d0 ** 2)
+     +          -     x%d1(ix) * y%d2(ix2*(ix2-1)/2+ix3) / (y%d0 ** 2)
+     +          -     x%d1(ix2) * y%d2(ix*(ix-1)/2+ix3) / (y%d0 ** 2)
+     +          -     x%d1(ix3) * y%d2(ix*(ix-1)/2+ix2) / (y%d0 ** 2)
+     +          - 6 * x%d0*y%d1(ix)*y%d1(ix2)*y%d1(ix3) / (y%d0 ** 4)
+     +          + 2 * x%d0*y%d1(ix)*y%d2(ix2*(ix2-1)/2+ix3)/ (y%d0 ** 3)
+     +          + 2 * x%d0*y%d1(ix2)*y%d2(ix*(ix-1)/2+ix3)/ (y%d0 ** 3)
+     +          + 2 * x%d0*y%d1(ix3)*y%d2(ix*(ix-1)/2+ix2)/ (y%d0 ** 3)
+     +          -     x%d0*y%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
+     +              / (y%d0 ** 2)
               enddo
             enddo
           enddo
