@@ -72,7 +72,7 @@
 
 *     **** read in initial data ***
       value = .true.
-      value2 = rtdb_parallel(.true.)
+      value2 = btdb_parallel(.true.)
 
 
       call ga_sync()
@@ -89,9 +89,9 @@
 
 
 *         **** reformat/adjust unit cell ****
-          value2 = rtdb_parallel(.false.)
+          value2 = btdb_parallel(.false.)
           if (taskid.eq.MASTER) value = band_update_unitcell(rtdb)
-          value2 = rtdb_parallel(.true.)
+          value2 = btdb_parallel(.true.)
           if(.not.value) call errquit(
      >       'cell_optimize: error reformatting unit cell',0,
      &       CALC_ERR)

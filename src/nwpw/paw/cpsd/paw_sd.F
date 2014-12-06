@@ -504,7 +504,7 @@ c      call paw_vloc_init()
         call Parallel_taskid(taskid)
 
         call ga_sync()
-        value = rtdb_parallel(.false.)
+        value = btdb_parallel(.false.)
         call ga_sync()
         if (taskid.eq.MASTER) then
 
@@ -535,7 +535,7 @@ c      call paw_vloc_init()
 
         end if
         call ga_sync()
-        value = rtdb_parallel(.true.)
+        value = btdb_parallel(.true.)
 
       end if
 

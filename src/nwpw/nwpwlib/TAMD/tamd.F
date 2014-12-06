@@ -301,7 +301,7 @@ c     **********************************************
 
 *     **** write out header info ****
       call Parallel_taskid(taskid)
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          write(luout,*) 
          write(luout,*)  "TAMD parameters:"
@@ -591,7 +591,7 @@ c     >           'periodic=',int_mb(pmeta(1)+d-1)
  1002 FORMAT(3x,"- Coorination Number (Index2) :",10I5)
 
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       
       end if
       return
@@ -2071,7 +2071,7 @@ c               close(53)
 
       call Parallel_taskid(taskid)
 
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if ((taskid.eq.MASTER).and.(zfixed)) then
 
          call util_file_name_noprefix(filename,.false.,
@@ -2180,7 +2180,7 @@ c               close(53)
      >                    (fsum(i)/dble(count),i=1,ndim)
          write(luout,*)
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
 
   111 format(99e14.6)

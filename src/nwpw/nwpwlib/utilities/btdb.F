@@ -105,3 +105,31 @@
       btdb_cput = omp_ok
       return
       end
+
+*     ******************************************
+*     *                                        *
+*     *             btdb_parallel              *
+*     *                                        *
+*     ******************************************
+
+*   This is a wrapper around MA_alloc_get to make it thread save.
+* Only one thread writes to the rtdb.
+
+      logical function btdb_parallel(ok)
+      implicit none
+      logical ok
+
+#include "rtdb.fh"
+
+      logical omp_ok
+      common / omp_memhandle_cb1 / omp_ok
+
+!$OMP SINGLE
+      omp_ok = rtdb_parallel(ok)
+!$OMP END SINGLE
+      btdb_parallel = omp_ok
+      return
+      end
+
+
+

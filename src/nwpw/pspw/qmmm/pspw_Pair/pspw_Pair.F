@@ -46,7 +46,7 @@ c
       nkatm    = ion_nkatm()
       nkatm_qm = ion_nkatm_qm()
 
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
 *     **** allocate and read in LJ atom parameters ***
       value = BA_push_get(mt_dbl,nkatm,

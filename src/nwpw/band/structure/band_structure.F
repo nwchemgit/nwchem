@@ -860,7 +860,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
 ******************       DOS plotting        **********************
 *                |***************************|
 
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if ((flag.eq.1).and.(taskid.eq.MASTER)) then
 
 
@@ -977,7 +977,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
      >                0,RTDB_ERR)
         end if
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
 
 *                |***************************|

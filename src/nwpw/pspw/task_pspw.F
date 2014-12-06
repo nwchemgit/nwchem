@@ -82,7 +82,7 @@ c
 c  psp_generator
 c     
  100  value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then 
         write(*,*)  ">>>> PSPW Serial Module - psp_generator <<<<"
 c       value = psp_generator(rtdb)
@@ -99,7 +99,7 @@ c
       if (ga_nodeid().eq.MASTER) then 
         write(*,*)  ">>>> PSPW parallel Module - psp_formatter <<<<"  
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       call Parallel_Init()        !** Parallel calls need since psp_formatter is also called directly from codes
       value = psp_formatter(rtdb)
       call Parallel_Finalize()    !** Parallel calls need since psp_formatter is also called directly from codes
@@ -111,7 +111,7 @@ c
 c  wavefunction_initializer
 c 
  300  value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then 
          write(*,*) 
      >      ">>>> PSPW Serial Module - wavefunction_initializer <<<<"
@@ -125,7 +125,7 @@ c
 c  wavefunction_converter
 c
  400  value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then
         write(*,*)  
      >     ">>>> PSPW Serial Module - wavefunction_converter <<<<"
@@ -144,7 +144,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
       if (.not.btdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
      >   md_only = .false.
@@ -177,7 +177,7 @@ c
         write(*,*)  ">>>> PSPW Parallel Module - Car-Parrinello <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = cpmdv5(rtdb)
       call ga_sync()
       goto 9999
@@ -186,7 +186,7 @@ c
 c  v_wavefunction_initializer
 c 
  800  value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then 
          write(*,*) 
      >      ">>>> PSPW Serial Module - v_wavefunction_initializer <<<<"
@@ -199,7 +199,7 @@ c
 c  wavefunction_expander
 c
  900  value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then
         write(*,*)  
      >     ">>>> PSPW Serial Module - wavefunction_expander <<<<"
@@ -216,7 +216,7 @@ c
         write(*,*)  ">>>> PSPW Parallel Module - cell_optimize <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = cell_optimize(rtdb)
       call ga_sync()
       goto 9999
@@ -228,7 +228,7 @@ c
         write(*,*)  ">>>> PSPW Parallel Module - pspw_dplot <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = pspw_dplot(rtdb)
       call ga_sync()
       goto 9999
@@ -240,7 +240,7 @@ c
         write(*,*)  ">>>> PSPW Parallel Module - stress <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = pspw_stress(rtdb)
       call ga_sync()
       goto 9999
@@ -252,7 +252,7 @@ c
         write(*,*)  ">>>> PSPW Parallel Module - noit_energy <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = pspw_noit_energy(rtdb)
       call ga_sync()
       goto 9999
@@ -266,7 +266,7 @@ c
       if (.not.btdb_get(rtdb,'nwpw:wannier_old',mt_log,1,dummy))
      >  dummy = .false.
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       if (dummy) then
          value = pspw_wannier_old(rtdb)
       else
@@ -279,7 +279,7 @@ c
 c  expand_cell
 c
  1500 value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then
         write(*,*)
      >     ">>>> PSPW Serial Module - expand_cell <<<<"
@@ -293,7 +293,7 @@ c
 c  ionize
 c
  1600 value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then
         write(*,*)
      >     ">>>> PSPW Serial Module - ionize <<<<"
@@ -308,7 +308,7 @@ c
 c  convert_restricted
 c
  1700 value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then
         write(*,*)
      >     ">>>> PSPW Serial Module - convert_restricted <<<<"
@@ -326,7 +326,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       if (.not.btdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
      >   md_only = .false.
 
@@ -343,7 +343,7 @@ c
 c  rdf
 c
  1900 value = .true.
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (ga_nodeid().eq.MASTER) then
         write(*,*)
      >     ">>>> PSPW Serial Module - rdf <<<<"
@@ -369,7 +369,7 @@ c
         write(*,*)  ">>>> PSPW Parallel Module - ET <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = pspw_et(rtdb)
       call ga_sync()
       goto 9999
@@ -382,7 +382,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       if (.not.btdb_get(rtdb,'nwpw:md_only',mt_log,1,md_only))
      >   md_only = .false.
 
@@ -405,7 +405,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = cgoptimize1(rtdb,0)
 
       call ga_sync()
@@ -419,7 +419,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
       value = task_aimd_properties(rtdb)
 
@@ -431,7 +431,7 @@ c
 
 
  9999 continue
-      dummy = rtdb_parallel(.true.)
+      dummy = btdb_parallel(.true.)
       task_pspw = value
 
       return

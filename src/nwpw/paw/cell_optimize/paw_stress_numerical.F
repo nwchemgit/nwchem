@@ -49,7 +49,7 @@
 
 *     **** calculate stress tensor ***
       value = .true.
-      value = value.and.rtdb_parallel(.true.)
+      value = value.and.btdb_parallel(.true.)
       value = value.and.paw_stress_fd(rtdb)
       if(.not. value) 
      >   call errquit('paw_stress_numerical did not converge: error',0,

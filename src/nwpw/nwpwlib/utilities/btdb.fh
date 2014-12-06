@@ -12,3 +12,6 @@
 
       logical  btdb_cput
       external btdb_cput
+
+      logical  btdb_parallel
+      external btdb_parallel

@@ -594,7 +594,7 @@ c
       call Parallel_taskid(taskid)
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
 
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
 
       call util_directory_name(sdir_name,.true.,0)
@@ -781,7 +781,7 @@ c        *** revPBE ***
 
 
       end if !** taskid.eq.MASTER **
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
       call ga_sync()
 
@@ -837,7 +837,7 @@ c
       call Parallel_taskid(taskid)
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
 
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
 
       call util_directory_name(sdir_name,.true.,0)
@@ -997,7 +997,7 @@ c           write(99,*) '<correlation> off   <end>'
 
 
       end if !** taskid.eq.MASTER **
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
       call ga_sync()
 

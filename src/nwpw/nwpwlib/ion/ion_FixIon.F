@@ -872,7 +872,7 @@
 
 
       call ion_init_FixIon(rtdb)
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
 
 
@@ -902,7 +902,7 @@
 
       end if
       call ga_sync()
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       call ion_end_FixIon()
    
 

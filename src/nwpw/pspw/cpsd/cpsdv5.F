@@ -341,7 +341,7 @@ c      write(*,*) "out  D3dB_Init, threadid=",Parallel_threadid()
         call Parallel_taskid(taskid)
 
         call ga_sync()
-        value = rtdb_parallel(.false.)
+        value = btdb_parallel(.false.)
         call ga_sync()
         if (oprint) then
 
@@ -374,7 +374,7 @@ c      write(*,*) "out  D3dB_Init, threadid=",Parallel_threadid()
 
         end if
         call ga_sync()
-        value = rtdb_parallel(.true.)
+        value = btdb_parallel(.true.)
 
       end if
 

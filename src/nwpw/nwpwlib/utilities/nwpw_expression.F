@@ -243,7 +243,7 @@
 *     **********************************************************
 *
 *     returns eqnstring. 
-*     Warning - If called from serial than rtdb_parallel must me turned off
+*     Warning - If called from serial than btdb_parallel must me turned off
 *
       subroutine nwpw_expression_eqnstring(rtdb,i,eqnstring)
       implicit none

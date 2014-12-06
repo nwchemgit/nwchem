@@ -70,11 +70,11 @@ c#include "bafdecls.fh"
          vers = epsi_get_version()
          if ((vers.eq.3).or.(vers.eq.4)) then
            newpsi = .true.
-           value = rtdb_parallel(.false.)
+           value = btdb_parallel(.false.)
            if (taskid.eq.MASTER) then
              value= pspw_reformat_c_ewvfnc(1)
            end if 
-           value = rtdb_parallel(.true.)
+           value = btdb_parallel(.true.)
          end if
       end if
 

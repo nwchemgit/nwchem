@@ -44,7 +44,7 @@ c
       nkatm_qm = ion_nkatm_qm()
 
 *     **** allocate LJ parameters ****
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = BA_alloc_get(mt_dbl,nkatm,
      >                 'sigma_atom',sigma_atom(2),sigma_atom(1))
       value = value.and.

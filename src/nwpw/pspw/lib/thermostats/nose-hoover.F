@@ -238,7 +238,7 @@ c        Er0 = 0.5d0*(1)*kb*Tr
 *     **** save restart information to rtdb ****
       call Parallel_taskid(taskid)
       rtdb  = control_rtdb()
-      value2 = rtdb_parallel(.false.)
+      value2 = btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
       value = btdb_put(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init)
      >   .and.btdb_put(rtdb,'cpmd:Mchain',mt_int,1,Mchain) 
@@ -253,7 +253,7 @@ c        Er0 = 0.5d0*(1)*kb*Tr
      >   .and.btdb_put(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))
      >   .and.btdb_put(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))
       end if
-      value2 = rtdb_parallel(.true.)
+      value2 = btdb_parallel(.true.)
       if (.not.value)
      >  call errquit(
      >       'Nose_End: error writing to rtdb', 0, RTDB_ERR)

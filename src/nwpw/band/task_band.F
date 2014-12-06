@@ -60,7 +60,7 @@ c
       if (ga_nodeid().eq.MASTER) then 
         write(*,*)  ">>>> BAND parallel Module - band_structure <<<<"  
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = band_structure(rtdb,0)
       call ga_sync()
       goto 9999
@@ -73,7 +73,7 @@ c
       if (ga_nodeid().eq.MASTER) then
         write(*,*)  ">>>> BAND parallel Module - dos <<<<"
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = band_structure(rtdb,1)
       call ga_sync()
       goto 9999
@@ -85,7 +85,7 @@ c
         write(*,*)  ">>>> BAND Parallel Module - noit_energy <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = band_noit_energy(rtdb)
       call ga_sync()
       goto 9999
@@ -97,7 +97,7 @@ c
         write(*,*)  ">>>> BAND Parallel Module - stress <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = band_stress(rtdb)
       call ga_sync()
       goto 9999
@@ -108,7 +108,7 @@ c
         write(*,*)  ">>>> BAND Parallel Module - cell_optimize <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = band_cell_optimize(rtdb)
       call ga_sync()
       goto 9999
@@ -120,7 +120,7 @@ c
         write(*,*)  ">>>> BAND Parallel Module - band_dplot <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = band_dplot(rtdb)
       call ga_sync()
       goto 9999
@@ -133,7 +133,7 @@ c
       if (ga_nodeid().eq.MASTER) then
         write(*,*)  ">>>> BAND parallel Module - dos_dplot <<<<"
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = band_structure(rtdb,2)
       call ga_sync()
       goto 9999
@@ -146,7 +146,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
       value = band_sd(rtdb)
 
@@ -162,7 +162,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
       value = band_cpmd(rtdb)
 
@@ -173,7 +173,7 @@ c
 
 
  9999 continue
-      dummy = rtdb_parallel(.true.)
+      dummy = btdb_parallel(.true.)
       task_band = value
 
       return

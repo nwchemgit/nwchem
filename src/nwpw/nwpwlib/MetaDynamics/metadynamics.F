@@ -281,7 +281,7 @@ c     **********************************************
 
 *     **** write out header info ****
       call Parallel_taskid(taskid)
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          write(luout,*) 
          write(luout,*)  "MetaDynamics parameters:"
@@ -510,7 +510,7 @@ c     **********************************************
  1004 FORMAT(2x,"- Bath Indexes            (Index2) :",10I5)
 
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       
       end if
       return

@@ -53,7 +53,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = paw_sd(rtdb)
       call ga_sync()
       goto 9999
@@ -65,7 +65,7 @@ c
         write(*,*)  ">>>> PAW Parallel Module - Car-Parrinello <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = paw_cpmd(rtdb)
       call ga_sync()
       goto 9999
@@ -77,7 +77,7 @@ c
         write(*,*)  ">>>> PAW Parallel Module - noit_energy <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = paw_noit_energy(rtdb)
       call ga_sync()
       goto 9999
@@ -89,7 +89,7 @@ c
         write(*,*)  ">>>> PAW Parallel Module - stress <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = paw_stress(rtdb)
       call ga_sync()
       goto 9999
@@ -98,7 +98,7 @@ c
 
 
  9999 continue
-      dummy = rtdb_parallel(.true.)
+      dummy = btdb_parallel(.true.)
       task_paw = value
       
 

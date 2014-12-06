@@ -47,7 +47,7 @@ c
 
 
       call Parallel_taskid(taskid)
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
 
 *     ***************************

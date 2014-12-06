@@ -26,7 +26,7 @@
       parameter(MASTER=0)
       integer i,j
 
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = value.and.
      >        btdb_get(rtdb,'water_pseudopotential:lj_count',
      >                 mt_int,1,ljcount)

@@ -72,11 +72,11 @@ c#include "bafdecls.fh"
 *        **** convert from band format to pspw format ****
          if (epsi_get_version().eq.5) then
            newpsi = .true.
-           value = rtdb_parallel(.false.)
+           value = btdb_parallel(.false.)
            if (taskid.eq.MASTER) then
              value= band_reformat_c_ewvfnc(1)
            end if
-           value = rtdb_parallel(.true.)
+           value = btdb_parallel(.true.)
          end if
 
       end if

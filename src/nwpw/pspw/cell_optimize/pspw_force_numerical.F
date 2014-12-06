@@ -47,7 +47,7 @@
 
 *     **** calculate forces ***
       value = .true.
-      value = value.and.rtdb_parallel(.true.)
+      value = value.and.btdb_parallel(.true.)
       value = value.and.force_fd(rtdb)
       if(.not. value) 
      >   call errquit('pspw_force_numerical did not converge: error',0,

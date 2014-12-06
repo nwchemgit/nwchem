@@ -49,14 +49,15 @@
       external control_num_kvectors
       logical  control_allow_translation
       external control_allow_translation
+      integer  Parallel_threadid
+      external Parallel_threadid
 
 
       value = .true.
 
-      write(*,*) "in 1"
       call Parallel_taskid(taskid)
       call nwpw_timing_start(50)
-      value2 = rtdb_parallel(.true.)
+      value2 = btdb_parallel(.true.)
       code = code_in
       trtdb = rtdb
 
@@ -72,7 +73,6 @@
       end if
 10    continue
 
-      write(*,*) "in 3"
 *     **** set mapping1d ****
       if (.not.btdb_get(rtdb,'nwpw:mapping1d',mt_int,1,mapping1d)) then
          mapping1d = 1
@@ -81,7 +81,6 @@
 *     **** set np_dimensions ****
       call Parallel_np(np)
 
-      write(*,*) "in 3.5"
 **** if NOMPI then no processor groups or communicators ****
 #ifdef NOMPI
       np_dimensions(1) = np
@@ -132,7 +131,6 @@
 
       endif
 #endif
-      write(*,*) "in 4"
 
 *     **** get balance mapping ****
       if (.not.btdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
@@ -151,7 +149,6 @@
          fast_erf = .false.
       end if
 
-      write(*,*) "jello 0"
 *     **** get fmm ****
       if (.not.btdb_get(rtdb,'nwpw:fmm',mt_log,1,fmm)) then
          fmm = .false.
@@ -163,12 +160,10 @@
          fmm_lr = 1
       end if
 
-      write(*,*) "jello 0.5"
 *     **** get smooth_cuoff ****
       smooth_cutoff = .true.
       if (.not.btdb_get(rtdb,'nwpw:smooth_cutoff',
      >                  mt_dbl,2,smooth_cutoff_values)) then
-        write(*,*) "jello 0.75 "
         call util_flush(6)
          smooth_cutoff           = .false.
          smooth_cutoff_values(1) = 2.0d0
@@ -176,8 +171,6 @@
       end if
 
 
-      write(*,*) "jello 1 ",code
-      call util_flush(6)
 *     *********************************
 *     **** cpsd and band_sd: stuff ****
 *     *********************************
@@ -185,7 +178,6 @@
       if (.not.btdb_cget(rtdb,'cpsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
-      write(*,*) "jello 2, cell_name=",cell_name
 
       if (.not.btdb_cget(rtdb,'cpsd:input_wavefunction_filename',
      >                  1,input_wavefunction_filename)) then
@@ -195,7 +187,6 @@
      >                            input_wavefunction_filename)
          end if
       end if
-      write(*,*) "jello 3=",input_wavefunction_filename
 
       if (.not.btdb_cget(rtdb,'cpsd:output_wavefunction_filename',
      >                  1,output_wavefunction_filename)) then
@@ -211,17 +202,14 @@
      >                  1,exchange_correlation))
      >   exchange_correlation = 'vosko'
 
-      write(*,*) "in 5"
-      write(*,*) "in nwxc_rtdb_load"
+!$OMP single
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
-      write(*,*) "out nwxc_rtdb_load"
+!$OMP end single
 
 #include "control_gga.fh"
-
-      write(*,*) "in 6"
 
       if(.not.btdb_get(rtdb,'cpsd:geometry_optimize',mt_log,1,move))
      >    move = .false.
@@ -320,12 +308,12 @@ c       call nwxc_print()
      >                  1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-      write(*,*) "in 2 nwxc_rtdb_load"
+!$OMP single
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
-      write(*,*) "out 2 nwxc_rtdb_load"
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -466,10 +454,12 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
+!$OMP single
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -668,10 +658,12 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
+!$OMP single
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
+!$OMP end single
 
 #include "control_gga.fh"
 
@@ -773,10 +765,12 @@ c       call nwxc_print()
          gga = 0
       end if
 
+!$OMP single
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
+!$OMP end single
 
       if (.not.btdb_get(rtdb,'cgsd:npsp',mt_int,1,npsp))
      >   npsp = 0
@@ -858,10 +852,12 @@ c       call nwxc_print()
          gga = 0
       end if
 
+!$OMP single
       if (nwxc_rtdb_load(rtdb,"dft")) then
 c       call nwxc_print()
         has_disp = nwxc_has_disp()
       endif
+!$OMP end single
 
 
       if (.not.btdb_get(rtdb,'cpmd:geometry_optimize',mt_log,1,move))
@@ -1063,9 +1059,9 @@ c         return
       if (.not.btdb_cget(rtdb,rtdb_boundry,1,boundry)) then
          boundry = 'periodic'
       end if
-      write(*,*) "in checkunita"
+      write(*,*) "in checkunita,tid=",Parallel_threadid()
       call check_unita_for_default(rtdb,unita,rtdb_unita,cell_name)
-      write(*,*) "out checkunita"
+      write(*,*) "out checkunita,tid=",Parallel_threadid()
 
 
 *     **** define unita_frozen ****
@@ -1075,12 +1071,12 @@ c         return
       if (frozen) then
          if (.not.btdb_get(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)) then
             call dcopy(9,unita,1,unita_frozen,1)
-            value2 = rtdb_parallel(.false.)
+            value2 = btdb_parallel(.false.)
             if (taskid.eq.MASTER) then
                value = value.and.
      >                 btdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
             end if
-            value2 = rtdb_parallel(.true.)
+            value2 = btdb_parallel(.true.)
          else
             if (.not.btdb_get(rtdb,'nwpw:frozen_lattice:thresh',
      >                        mt_dbl,1,thresh)) thresh = 0.05d0
@@ -1093,12 +1089,12 @@ c         return
             error = dsqrt(error)
             if (error.gt.thresh) then
                call dcopy(9,unita,1,unita_frozen,1)
-               value2 = rtdb_parallel(.false.)
+               value2 = btdb_parallel(.false.)
                if (taskid.eq.MASTER) then
                   value = value.and.
      >                 btdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
                end if
-               value2 = rtdb_parallel(.true.)
+               value2 = btdb_parallel(.true.)
             end if
          end if
       else
@@ -1444,13 +1440,13 @@ c      end if
 
 *          *** write unita to rtdb  - should happen only once during a simulation ***
            call Parallel_taskid(taskid)
-           value = rtdb_parallel(.false.)
+           value = btdb_parallel(.false.)
            if (taskid.eq.MASTER) then
            if (.not.btdb_put(rtdb,rtdb_unita,mt_dbl,9,unita)) then
              call errquit('cannot write unita to rtdb',0,0)
            end if
            end if
-           value = rtdb_parallel(.true.)
+           value = btdb_parallel(.true.)
 
            !unita(1,1) = 20.0d0
            !unita(2,1) =  0.0d0
@@ -2207,12 +2203,12 @@ c         mtensor(3,3) = z
       rtdb_unita = cell_name(1:l)//':unita'
 
       call Parallel_taskid(taskid)
-      value=rtdb_parallel(.false.)
+      value=btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          if (.not.btdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
      >   call errquit('control_set_unita:writing unita',0,RTDB_ERR)
       end if
-      value=rtdb_parallel(.true.)
+      value=btdb_parallel(.true.)
       return
       end
 
@@ -2266,12 +2262,12 @@ c         mtensor(3,3) = z
       rtdb_unita = cell_name(1:l)//':unita_frozen'
 
       call Parallel_taskid(taskid)
-      value=rtdb_parallel(.false.)
+      value=btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          if (.not.btdb_put(rtdb,rtdb_unita,mt_dbl,9,unita))
      >   call errquit('control_set_unita:writing unita',0,RTDB_ERR)
       end if
-      value=rtdb_parallel(.true.)
+      value=btdb_parallel(.true.)
       return
       end
 
@@ -5104,7 +5100,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >         then
 
                  !*** define wcut_atom from psplibrary ***
-                 value = rtdb_parallel(.false.)
+                 value = btdb_parallel(.false.)
                  if (taskid.eq.MASTER) then
                     call util_directory_name(sdir_name,.true.,0)
                     h = index(sdir_name,' ') - 1
@@ -5122,7 +5118,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >           'control_ecut_wcut_default:cannot write wcut_atom',0,0)
 
                  end if
-                 value = rtdb_parallel(.true.)
+                 value = btdb_parallel(.true.)
                  call Parallel_Brdcst_value(MASTER,wcut_atom)
 
               end if
@@ -5130,14 +5126,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               !*** reset wcut_max ***
               if (wcut_atom.gt.wcut_max) then
                  wcut_max = wcut_atom
-                 value = rtdb_parallel(.false.)
+                 value = btdb_parallel(.false.)
                  if (taskid.eq.MASTER) then
                  if (.not.btdb_put(rtdb,'nwpw:psp:cutoff',
      >                             mt_dbl,1,wcut_max)) 
      >           call errquit(
      >          'control_ecut_wcut_default:cannot write wcut_max',0,0)
                  end if
-                 value = rtdb_parallel(.true.)
+                 value = btdb_parallel(.true.)
               end if
            end if
          end do

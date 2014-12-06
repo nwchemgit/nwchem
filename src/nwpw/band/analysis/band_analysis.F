@@ -140,13 +140,13 @@ c
             test = DD(1:ind)//'.psp1'
 
             !write(*,*) "test:",test,ind
-            value = rtdb_parallel(.false.)
+            value = btdb_parallel(.false.)
             if (taskid.eq.MASTER) then
             ind = index(test,' ') - 1
             !write(*,*) "test:",test,ind
             call analysis_expansion_coef(test,-1,rtdb)
             end if
-            value = rtdb_parallel(.true.)
+            value = btdb_parallel(.true.)
             call ga_sync()
 
             if (.not. btdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1)))
@@ -235,7 +235,7 @@ c     **** ouput xyz format ****
       call ion_Print_XYZ(luout)
 
 
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          write(luout,1307)
          do k=1,npsp
@@ -250,7 +250,7 @@ c     **** ouput xyz format ****
  1307    FORMAT(//'== Atomic Orbital Expansion =='/)
  1308    FORMAT(A5,A10,4x,"rcut=",F8.3,2x,"lmbda=",F8.3)
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
  
 
  
@@ -549,7 +549,7 @@ c              END DO
 *     ***********************************************
       if (control_DOS()) then
 
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
       if (.not. value)
      >  call errquit('analysis:out of stack memory',0, MA_ERR)
@@ -992,13 +992,13 @@ c              END DO
             test = DD(1:ind)//'.psp1'
 
             !write(*,*) "test:",test,ind
-            value = rtdb_parallel(.false.)
+            value = btdb_parallel(.false.)
             if (taskid.eq.MASTER) then
             ind = index(test,' ') - 1
             !write(*,*) "test:",test,ind
             call analysis_expansion_coef(test,-1,rtdb)
             end if
-            value = rtdb_parallel(.true.)
+            value = btdb_parallel(.true.)
             call ga_sync()
 
             if (.not. btdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1)))

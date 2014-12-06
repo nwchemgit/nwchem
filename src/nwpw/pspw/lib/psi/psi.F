@@ -6101,7 +6101,7 @@ c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
         call Parallel_taskid(taskid)
 
         call ga_sync()
-        value = rtdb_parallel(.false.)
+        value = btdb_parallel(.false.)
         call ga_sync()
         if (taskid.eq.MASTER) then
        
@@ -6136,7 +6136,7 @@ c     >        BA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
         end if
         call ga_sync()
-        value = rtdb_parallel(.true.)
+        value = btdb_parallel(.true.)
         value = .true.
 
       end if
@@ -6386,7 +6386,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
         hnfft(2) = control_ngrid(2)
         hnfft(3) = control_ngrid(3)
         call Parallel_taskid(taskid)
-        value = rtdb_parallel(.false.)
+        value = btdb_parallel(.false.)
         if (taskid.eq.MASTER) then
 
 
@@ -6416,7 +6416,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
           value = wvfnc_expander(rtdb)
 
         end if
-        value = rtdb_parallel(.true.)
+        value = btdb_parallel(.true.)
 
       end if
 

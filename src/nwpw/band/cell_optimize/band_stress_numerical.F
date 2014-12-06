@@ -49,7 +49,7 @@
 
 *     **** calculate stress tensor ***
       value = .true.
-      value = value.and.rtdb_parallel(.true.)
+      value = value.and.btdb_parallel(.true.)
       value = value.and.band_stress_fd(rtdb)
       if(.not.value) call errquit(
      >   'band_stress_numerical failed: error',0,CALC_ERR)

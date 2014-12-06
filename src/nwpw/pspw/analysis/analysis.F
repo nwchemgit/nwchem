@@ -137,13 +137,13 @@ c
             test = DD(1:ind)//'.psp1'
 
             !write(*,*) "test:",test,ind
-            value = rtdb_parallel(.false.)
+            value = btdb_parallel(.false.)
             if (taskid.eq.MASTER) then
             ind = index(test,' ') - 1
             !write(*,*) "test:",test,ind
             call analysis_expansion_coef(test,-1,rtdb)
             end if
-            value = rtdb_parallel(.true.)
+            value = btdb_parallel(.true.)
             call ga_sync()
 
             if (.not. btdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) 
@@ -222,7 +222,7 @@ c     **** ouput xyz format ****
       call ion_Print_XYZ(luout)
 
 
-      value = rtdb_parallel(.false.)
+      value = btdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          if (mulliken_kawai) then
             WRITE(luout,1300)
@@ -251,7 +251,7 @@ c     **** ouput xyz format ****
  1308    FORMAT(A5,A10,4x,"rcut=",F8.3,2x,"lmbda=",F8.3)
          end if
       end if
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
  
 
  

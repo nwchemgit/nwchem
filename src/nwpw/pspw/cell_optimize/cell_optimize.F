@@ -74,7 +74,7 @@
 
 *     **** read in initial data ***
       value = .true.
-      value2 = rtdb_parallel(.true.)
+      value2 = btdb_parallel(.true.)
 
 
       call ga_sync()
@@ -91,9 +91,9 @@
 
 
 *         **** reformat/adjust unit cell ****
-          value2 = rtdb_parallel(.false.)
+          value2 = btdb_parallel(.false.)
           if (taskid.eq.MASTER) value = update_unitcell(rtdb)
-          value2 = rtdb_parallel(.true.)
+          value2 = btdb_parallel(.true.)
           if(.not.value) call errquit(
      >       'cell_optimize: error reformatting unit cell',0,
      &       CALC_ERR)
@@ -101,9 +101,9 @@
 
 
 c*         **** reformat wavefunctions ****
-c          value2 = rtdb_parallel(.false.)
+c          value2 = btdb_parallel(.false.)
 c          if (taskid.eq.MASTER) value = wvfnc_reformat(rtdb)
-c          value2 = rtdb_parallel(.true.)
+c          value2 = btdb_parallel(.true.)
 c          if(.not. value)  call errquit(
 c     >       'cell_optimize: error reformatting wavefunctions',0,
 c     &       CALC_ERR)

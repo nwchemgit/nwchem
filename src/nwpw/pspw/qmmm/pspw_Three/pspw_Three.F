@@ -41,7 +41,7 @@ c
       nkatm_qm = ion_nkatm_qm()
       nkatm2 = nkatm*nkatm
 
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
 
 *     **** determine the ntriples ****
       include_qm = .false.

@@ -52,7 +52,7 @@ c
       end if
 
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       value = ofpwsd(rtdb)
       call ga_sync()
       goto 9999
@@ -65,7 +65,7 @@ c
         write(*,*)  ">>>> OFPW Parallel Module - Car-Parrinello <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       !value = ofcpmd(rtdb)
       call ga_sync()
       goto 9999
@@ -78,7 +78,7 @@ c
         write(*,*)  ">>>> OFPW Parallel Module - stress <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       !value = ofpw_stress(rtdb)
       call ga_sync()
       goto 9999
@@ -90,7 +90,7 @@ c
         write(*,*)  ">>>> OFPW Parallel Module - noit_energy <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       !value = ofpw_noit_energy(rtdb)
       call ga_sync()
       goto 9999
@@ -102,14 +102,14 @@ c
         write(*,*)  ">>>> OFPW Parallel Module - Born-Oppenheimer <<<<"
       end if
       value = .true.
-      value = rtdb_parallel(.true.)
+      value = btdb_parallel(.true.)
       !value = ofcgmd(rtdb,0)
       call ga_sync()
       goto 9999
 
 
  9999 continue
-      dummy = rtdb_parallel(.true.)
+      dummy = btdb_parallel(.true.)
       task_ofpw = value
 
       return

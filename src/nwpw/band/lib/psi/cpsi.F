@@ -2041,7 +2041,7 @@ c     *****  read initial wavefunctions into psi1  ****
         hnfft(2) = control_ngrid(2)
         hnfft(3) = control_ngrid(3)
         call Parallel_taskid(taskid)
-        value = rtdb_parallel(.false.)
+        value = btdb_parallel(.false.)
         if (taskid.eq.MASTER) then
 
           filename =  control_input_psi()
@@ -2072,7 +2072,7 @@ c     *****  read initial wavefunctions into psi1  ****
           value = c_wvfnc_expander(rtdb)
 
         end if
-        value = rtdb_parallel(.true.)
+        value = btdb_parallel(.true.)
 
         end if
 
@@ -2765,7 +2765,7 @@ c     *****  read initial wavefunctions into psi1  ****
         hnfft(2) = control_ngrid(2)
         hnfft(3) = control_ngrid(3)
         call Parallel_taskid(taskid)
-        value = rtdb_parallel(.false.)
+        value = btdb_parallel(.false.)
         if (taskid.eq.MASTER) then
 
           filename =  control_input_epsi()
@@ -2796,7 +2796,7 @@ c     *****  read initial wavefunctions into psi1  ****
           value = c_wvfnc_expander(rtdb)
 
         end if
-        value = rtdb_parallel(.true.)
+        value = btdb_parallel(.true.)
 
         end if
 

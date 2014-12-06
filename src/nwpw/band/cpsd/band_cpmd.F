@@ -358,11 +358,11 @@ c     **** allocate other variables ****
 *     **** convert from pspw format to band format ****
       vers = psi_get_version()
       if ((vers.eq.3).or.(vers.eq.4)) then
-        value = rtdb_parallel(.false.)
+        value = btdb_parallel(.false.)
         if (taskid.eq.MASTER) then
           value= pspw_reformat_c_wvfnc(1)
         end if
-        value = rtdb_parallel(.true.)
+        value = btdb_parallel(.true.)
       end if
 
 *     *****  read psi2 wavefunctions ****
@@ -381,11 +381,11 @@ c     **** allocate other variables ****
 *     **** convert from pspw format to band format ****
       vers = v_psi_get_version()
       if ((vers.eq.3).or.(vers.eq.4)) then
-        value = rtdb_parallel(.false.)
+        value = btdb_parallel(.false.)
         if (taskid.eq.MASTER) then
           value= pspw_reformat_c_v_wvfnc(1)
         end if
-        value = rtdb_parallel(.true.)
+        value = btdb_parallel(.true.)
       end if
 
 
