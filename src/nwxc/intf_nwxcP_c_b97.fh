@@ -18,6 +18,7 @@
           type(nwad_dble)::rho_a(2)
           type(nwad_dble)::rho_b(2)
           double precision ScalGGAC
+          double precision tol_rho
           type(nwad_dble)::FC(0:0)
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)

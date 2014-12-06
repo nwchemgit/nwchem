@@ -1,0 +1,23 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxcp_c_pwlda_p(ra, rb, FCLDA)
+          use nwadp1
+#else
+        Subroutine nwxcp_c_pwlda(ra, rb, FCLDA)
+          use nwad1
+#endif
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxcp_c_pwlda_d2(ra, rb, FCLDA)
+          use nwad2
+#else
+        Subroutine nwxcp_c_pwlda_d3(ra, rb, FCLDA)
+          use nwad3
+#endif
+          implicit none
+          type(nwad_dble)::ra
+          type(nwad_dble)::rb
+          type(nwad_dble)::FCLDA(0:_FXC_E)
+        end subroutine
+      end interface
+c $Id: intf_nwxc_c_pw91lda.fh 26391 2014-11-16 07:19:39Z d3y133 $

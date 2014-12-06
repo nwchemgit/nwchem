@@ -1,0 +1,35 @@
+      interface
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+        Subroutine nwxcP_xc_gss5tar_p(r,g,alpha,a,f)
+          use nwadp1
+#else
+        Subroutine nwxcP_xc_gss5tar(r,g,alpha,a,f)
+          use nwad1
+#endif
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+        Subroutine nwxcP_xc_gss5tar_d2(r,g,alpha,a,f)
+          use nwad2
+#else
+        Subroutine nwxcP_xc_gss5tar_d3(r,g,alpha,a,f)
+          use nwad3
+#endif
+          implicit none
+          type(nwad_dble)::r
+          type(nwad_dble)::g
+          double precision alpha
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+          type(nwad_dble)::a(5)
+#else
+          double precision a(5)
+#endif
+#elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          double precision a(5)
+#else
+          double precision a(5)
+#endif
+          type(nwad_dble)::f
+        end subroutine
+      end interface
+c $Id: intf_nwxc_c_pw91lda.fh 26391 2014-11-16 07:19:39Z d3y133 $
