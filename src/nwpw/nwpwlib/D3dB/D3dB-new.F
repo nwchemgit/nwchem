@@ -764,7 +764,6 @@ c     p = p_map(k)
       call Parallel2d_np_i(np)
       call Parallel_taskid(taskid)
 
-      write(*,*) "in 00"
       !**** Make sure ngrid is consistent with mapping ***
       if (map_in.eq.1) then
         if ((np.gt.nz_in).or.(ny_in.ne.nz_in)) then
@@ -839,7 +838,6 @@ c     p = p_map(k)
         end if
       end if
 
-      write(*,*) "in 01"
 
 *     ***** initialize D3dB common block *****
       nx(nb)     = nx_in
@@ -852,7 +850,6 @@ c     p = p_map(k)
          mapping2d = 2
       end if
          
-      write(*,*) "in 02"
 
 *     **** do other initializations ****
       call Mapping_Init(nb)
