@@ -2007,7 +2007,7 @@ c
             iy = 1
             do while (iyto(iy).le.ixto(ix).and.iy.le.y%nvar)
               ix2 = 1
-              do while (ixto(ix2).le.iyto(iy).and.ix2.le.x%nvar)
+              do while (ixto(ix2).le.iyto(iy).and.ix2.le.ix)
                 s%d3((ixto(ix)+1)*ixto(ix)*(ixto(ix)-1)/6+
      +               iyto(iy)*(iyto(iy)-1)/2+ixto(ix2))
      +          = s%d3((ixto(ix)+1)*ixto(ix)*(ixto(ix)-1)/6+
@@ -2052,7 +2052,7 @@ c
             ix = 1
             do while (ixto(ix).le.iyto(iy).and.ix.le.x%nvar)
               iy2 = 1
-              do while (iyto(iy2).le.ixto(ix).and.iy2.le.y%nvar)
+              do while (iyto(iy2).le.ixto(ix).and.iy2.le.iy)
                 s%d3((iyto(iy)+1)*iyto(iy)*(iyto(iy)-1)/6+
      +               ixto(ix)*(ixto(ix)-1)/2+iyto(iy2))
      +          = s%d3((iyto(iy)+1)*iyto(iy)*(iyto(iy)-1)/6+
@@ -2090,7 +2090,11 @@ c
      +                 iyto(iy2)*(iyto(iy2)-1)/2+iyto(iy3))
      +          - 6 * x%d0 * y%d1(iy) * y%d1(iy2) * y%d1(iy3) 
      +            / (y%d0 ** 4)
-     +          + 6 * x%d0 * y%d1(iy) * y%d2(iy2*(iy2-1)/2+iy3)
+     +          + 2 * x%d0 * y%d1(iy) * y%d2(iy2*(iy2-1)/2+iy3)
+     +            / (y%d0 ** 3)
+     +          + 2 * x%d0 * y%d1(iy2) * y%d2(iy*(iy-1)/2+iy3)
+     +            / (y%d0 ** 3)
+     +          + 2 * x%d0 * y%d1(iy3) * y%d2(iy*(iy-1)/2+iy2)
      +            / (y%d0 ** 3)
      +          - x%d0 * y%d3((iy+1)*iy*(iy-1)/6+iy2*(iy2-1)/2+iy3) 
      +            / (y%d0 ** 2)
