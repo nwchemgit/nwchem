@@ -7,27 +7,27 @@
 
 *   This is a wrapper around MA_alloc_get to make it thread save.
 
-      logical function BA_alloc_get(datatype,nelem,name,memhandle,indx)
+      logical function BA_alloc_get(datatype,nelem,namee,memhandle,indx)
       implicit none
 #include "mafdecls.fh"
       integer datatype,nelem
-      character*(*) name
+      character*(*) namee
       MAPOINTER memhandle,indx
 
-      MAPOINTER omp_memhandle,omp_indx
-      logical   omp_ok
-      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      !MAPOINTER omp_memhandle,omp_indx
+      !logical   omp_ok
+      !common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      integer tid,Parallel_threadid
+      external Parallel_threadid
+      logical ok
+      tid = Parallel_threadid()
 
-!$OMP SINGLE
-c      omp_ok = MA_set_error_print(.true.)
-c      omp_ok = MA_set_auto_verify(.true.)
-c      omp_ok = MA_set_hard_fail(.true.)
-      omp_ok = MA_alloc_get(datatype,nelem,name,omp_memhandle,omp_indx)
-c      omp_ok = MA_verify_allocator_stuff()
-!$OMP END SINGLE
-      memhandle    = omp_memhandle
-      indx         = omp_indx
-      BA_alloc_get = omp_ok
+!$OMP SINGLE 
+      ok = MA_alloc_get(datatype,nelem,namee,memhandle,indx)
+      !write(*,*) tid," BA_alloc_get memhandle=",memhandle
+!$OMP END SINGLE copyprivate(memhandle,indx,ok)
+
+      BA_alloc_get = ok
       return
       end
 
@@ -44,17 +44,16 @@ c      omp_ok = MA_verify_allocator_stuff()
 #include "mafdecls.fh"
       MAPOINTER memhandle
 
-      MAPOINTER omp_memhandle,omp_indx
-      logical   omp_ok
-      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      !MAPOINTER omp_memhandle,omp_indx
+      !logical   omp_ok
+      !common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      logical ok
 
 !$OMP SINGLE
-c      omp_ok = MA_set_auto_verify(.true.)
-c      omp_ok = MA_set_hard_fail(.true.)
-      omp_ok = MA_free_heap(memhandle)
-c      omp_ok = MA_verify_allocator_stuff()
-!$OMP END SINGLE
-      BA_free_heap = omp_ok
+      ok = MA_free_heap(memhandle)
+!$OMP END SINGLE copyprivate(ok)
+
+      BA_free_heap = ok
       return
       end
 
@@ -73,19 +72,15 @@ c      omp_ok = MA_verify_allocator_stuff()
       character*(*) namee
       MAPOINTER memhandle,indx
 
-      MAPOINTER omp_memhandle,omp_indx
-      logical   omp_ok
-      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
-!$OMP BARRIER
+      !MAPOINTER omp_memhandle,omp_indx
+      !logical   omp_ok
+      !common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      logical ok
+
 !$OMP SINGLE
-c      omp_ok = MA_set_auto_verify(.true.)
-c      omp_ok = MA_set_hard_fail(.true.)
-      omp_ok = MA_push_get(datatype,nelem,namee,omp_memhandle,omp_indx)
-c      omp_ok = MA_verify_allocator_stuff()
-!$OMP END SINGLE
-      memhandle   = omp_memhandle
-      indx        = omp_indx
-      BA_push_get = omp_ok
+      ok = MA_push_get(datatype,nelem,namee,memhandle,indx)
+!$OMP END SINGLE copyprivate(memhandle,indx,ok)
+      BA_push_get = ok
       return
       end
 
@@ -102,16 +97,16 @@ c      omp_ok = MA_verify_allocator_stuff()
 #include "mafdecls.fh"
       MAPOINTER memhandle
 
-      MAPOINTER omp_memhandle,omp_indx
-      logical   omp_ok
-      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      !MAPOINTER omp_memhandle,omp_indx
+      !logical   omp_ok
+      !common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+
+      logical ok
 !$OMP SINGLE
-c      omp_ok = MA_set_auto_verify(.true.)
-c      omp_ok = MA_set_hard_fail(.true.)
-      omp_ok = MA_pop_stack(memhandle)
-c      omp_ok = MA_verify_allocator_stuff()
-!$OMP END SINGLE
-      BA_pop_stack = omp_ok
+      ok = MA_pop_stack(memhandle)
+!$OMP END SINGLE copyprivate(ok)
+
+      BA_pop_stack = ok
       return
       end
 
@@ -128,17 +123,16 @@ c      omp_ok = MA_verify_allocator_stuff()
 #include "mafdecls.fh"
       MAPOINTER memhandle,indx
 
-      MAPOINTER omp_memhandle,omp_indx
-      logical   omp_ok
-      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      !MAPOINTER omp_memhandle,omp_indx
+      !logical   omp_ok
+      !common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      logical ok
 
 !$OMP SINGLE
-c      omp_ok = MA_set_auto_verify(.true.)
-      omp_ok = MA_get_index(memhandle,omp_indx)
-c      omp_ok = MA_verify_allocator_stuff()
-!$OMP END SINGLE
-      indx         = omp_indx
-      BA_get_index = omp_ok
+      ok = MA_get_index(memhandle,indx)
+!$OMP END SINGLE copyprivate(ok,indx)
+
+      BA_get_index = ok
       return
       end
 
@@ -156,13 +150,16 @@ c      omp_ok = MA_verify_allocator_stuff()
 #include "mafdecls.fh"
       logical ok
 
-      MAPOINTER omp_memhandle,omp_indx
-      logical   omp_ok
-      common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      !MAPOINTER omp_memhandle,omp_indx
+      !logical   omp_ok
+      !common / omp_memhandle_cb / omp_memhandle,omp_indx,omp_ok
+      logical ok2
+
 !$OMP SINGLE
-      omp_ok = MA_set_auto_verify(ok)
-!$OMP END SINGLE
-      BA_set_auto_verify = omp_ok
+      ok2 = MA_set_auto_verify(ok)
+!$OMP END SINGLE copyprivate(ok2)
+
+      BA_set_auto_verify = ok2
       return
       end
 
