@@ -51,6 +51,7 @@ c     $Id$
 c
 #include "nwad.fh"
       implicit none
+#include "intf_nwxcP_c_b97.fh"
 c
 #include "nwxc_param.fh"
 c
@@ -170,6 +171,7 @@ c
 #endif
 #include "nwad.fh"
       implicit none
+#include "intf_nwxc_c_pw91lda.fh"
 #include "nwxc_param.fh"
 c
       type(nwad_dble)::ra
