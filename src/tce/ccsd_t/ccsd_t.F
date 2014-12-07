@@ -151,6 +151,15 @@ c -----------
             call ccsd_t_doubles_l(dbl_mb(k_doubles),
      1        d_t2,d_v2,k_t2_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+ #ifdef USE_OMP_TRIPLES_DOT_PRODUCT
+            call ccsd_t_dot(dbl_mb(k_singles),dbl_mb(k_doubles),
+     &                      t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
+     &                      offset_h1,offset_h2,offset_h3,
+     &                      offset_p4,offset_p5,offset_p6,
+     &                      range_h1,range_h2,range_h3,
+     &                      range_p4,range_p5,range_p6,
+     &                      energy1,energy2)
+ #else
             if (restricted) then
               factor = 2.0d0
             else
@@ -195,6 +204,7 @@ c
               enddo
              enddo
             enddo
+#endif
 c
             next = nxtask(nprocs,1)
             endif
@@ -231,8 +241,84 @@ c ---------------------------
       return
       end
 
-
-
+      subroutine ccsd_t_dot(a_singles, a_doubles,
+     &                      h1b,h2b,h3b,p4b,p5b,p6b,
+     &                      o_h1,o_h2,o_h3,
+     &                      o_p4,o_p5,o_p6,
+     &                      r_h1,r_h2,r_h3,
+     &                      r_p4,r_p5,r_p6,
+     &                      energy1,energy2)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "errquit.fh"
+#include "tce.fh"
+c#include "tce_main.fh"
+      integer h1b, h2b, h3b, p4b, p5b, p6b
+      integer o_h1,o_h2,o_h3
+      integer o_p4,o_p5,o_p6
+      integer r_h1,r_h2,r_h3
+      integer r_p4,r_p5,r_p6
+      double precision a_singles(r_h3,r_h2,r_h1,r_p6,r_p5,r_p4)
+      double precision a_doubles(r_h3,r_h2,r_h1,r_p6,r_p5,r_p4)
+      double precision energy1,energy2
+c 
+      integer h1, h2, h3, p4, p5, p6
+      double precision factor,denom,sing,doub
+      double precision d_p4,d_p5,d_p6
+      double precision d_h1,d_h2,d_h3
+c
+c factor = [ 1/36, 1/18, 1/12, 1/6, 1/4, 1/3, 1/2, 1, 2]
+c
+      if (restricted) then
+        factor = 2.0d0
+      else
+        factor = 1.0d0
+      endif
+      if ((p4b.eq.p5b).and.(p5b.eq.p6b)) then
+        factor = factor / 6.0d0
+      else if ((p4b.eq.p5b).or.(p5b.eq.p6b)) then
+        factor = factor / 2.0d0
+      endif
+      if ((h1b.eq.h2b).and.(h2b.eq.h3b)) then
+        factor = factor / 6.0d0
+      else if ((h1b.eq.h2b).or.(h2b.eq.h3b)) then
+        factor = factor / 2.0d0
+      endif
+!$omp  parallel do collapse(3)
+!$omp& schedule(static)
+!$omp& default(shared)
+!$omp& private(p4,p5,p6,h1,h2,h3,sing,doub,denom)
+!$omp& private(d_p4,d_p5,d_p6,d_h1,d_h2,d_h3)
+!$omp& reduction(+:energy1) reduction(+:energy2)
+      do p4 = 1, r_p4
+       do p5 = 1, r_p5
+        do p6 = 1, r_p6
+         d_p4 = dbl_mb(o_p4+p4)
+         d_p5 = dbl_mb(o_p5+p5)
+         d_p6 = dbl_mb(o_p6+p6)
+         do h1 = 1, r_h1
+          d_h1 = dbl_mb(o_h1+h1)
+          do h2 = 1, r_h2
+           d_h2 = dbl_mb(o_h2+h2)
+!dir$ simd
+           do h3 = 1, r_h3
+            d_h3 = dbl_mb(o_h3+h3)
+            sing = a_singles(h3,h2,h1,p6,p5,p4)
+            doub = a_doubles(h3,h2,h1,p6,p5,p4)
+            denom = doub * factor / ( (d_h1+d_h2+d_h3)
+     1                              - (d_p4+d_p5+d_p6) )
+            energy1 = energy1 + denom*doub
+            energy2 = energy2 + denom*(doub+sing)
+           enddo
+          enddo
+         enddo
+        enddo
+       enddo
+      enddo
+      return
+      end
 
 #ifndef SSE2_VERSION
 c --------------------------------------------------------------
