@@ -21,7 +21,7 @@ c
       data first_call /.true./
 c
 #ifdef NO_MPIF
-      util_cpusec = TCGTIME()
+      util_wallsec = TCGTIME()
 #else
       util_wallsec = MPI_Wtime()
 #endif
