@@ -7,7 +7,7 @@ OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o lambda_ccsd_t.o lambda
                ccsd2_t.o ccsd2_t_left.o ccsd2_q.o ccsd2_q_left.o ccsd2_q_right.o \
                ccsdt2_q.o ccsdt2_q_left.o ccsdt2_q_right.o \
                cr_ccsd_t_D.o cr_ccsd_t_E.o cr_ccsd_t_N.o lr_ccsd_tq.o \
-               cr_qcisd_t.o m2_dot_m1t1.o ccsd_t_restart.o ccsd_t_sse2.o \
+               cr_qcisd_t.o m2_dot_m1t1.o ccsd_t_restart.o  \
                ccsd_t_6dts.o ccsd_t_singles_l_6dts.o ccsd_t_doubles_l_6dts.o \
                offl_ccsd_t_doubles_l.o ccsd_t_kernels_omp.o \
                tce_hashnsort.o ccsd_t_pstat.o
@@ -36,7 +36,6 @@ LIB_DEFINES += -DDEBUG_PRINT
 ifdef OPENMP_OFFLOAD
 LIB_DEFINES += -DOPENMP_OFFLOAD
 endif
-#LIB_DEFINES += -DSSE2_VERSION
 #
 # Possible #defines
 #
