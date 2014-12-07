@@ -90,6 +90,7 @@ ifeq ($(TARGET),HPUX64)
 endif
 ifeq ($(TARGET),MACX)
 #  LIB_DEFINES += -DBYTE_SHORT_PACKING  
+  LIB_DEFINES += -DNO_MPIF
   EXTRA_OBJ += macx_trapfpe.o
 endif
 
