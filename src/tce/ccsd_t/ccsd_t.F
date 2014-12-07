@@ -129,16 +129,6 @@ c
 c
             size = range_p4 * range_p5 * range_p6
      3           * range_h1 * range_h2 * range_h3
-c            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
-c     1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
-c            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
-c     1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
-ccx            do i = 1, size
-ccx              dbl_mb(k_singles+i-1) = 0.0d0
-ccx            enddo
-ccx            do i = 1, size
-ccx              dbl_mb(k_doubles+i-1) = 0.0d0
-ccx            enddo
 c zeroing ---
 c        call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
 c        call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
