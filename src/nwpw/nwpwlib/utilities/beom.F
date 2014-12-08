@@ -370,7 +370,7 @@
       logical ok
 
 !$OMP SINGLE
-      ok = geom_mass_get(geom,mass)
+      ok = geom_mass_get(geom,icent,mass)
 !$OMP END SINGLE copyprivate(mass,ok)
 
       beom_mass_get = ok
