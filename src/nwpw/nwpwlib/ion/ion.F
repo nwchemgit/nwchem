@@ -47,7 +47,7 @@
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "ion.fh"
 
       integer geom
@@ -83,8 +83,8 @@
       if (control_frac_coord()) call fcoord_to_frac(nion,dbl_mb(r1(1)))
 
       do i=1,nion
-         value = geom_cent_get(geom,i,t,rxyz,q)
-         value = geom_cent_set(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
+         value = beom_cent_get(geom,i,t,rxyz,q)
+         value = beom_cent_set(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
       end do
 
 *     **** if md code then write velocities ****
@@ -92,7 +92,7 @@
      >    (control_code().eq.7).or.
      >    (control_code().eq.11).or.
      >    (control_code().eq.14)) then
-         value = geom_vel_set(geom,dbl_mb(r0(1)))
+         value = beom_vel_set(geom,dbl_mb(r0(1)))
          value = btdb_put(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total)
          value = btdb_put(rtdb,"nwpw:kg_total",mt_dbl,1,kg_total)
          value = btdb_put(rtdb,"nwpw:ke_count",mt_int,1,ke_count)
@@ -102,7 +102,7 @@
 *     *****************************************************
 *     **** update rtdb if md or steepest descent code  ****
 *     *****************************************************
-        value = geom_rtdb_delete(rtdb,'pspwgeometry')
+        value = beom_rtdb_delete(rtdb,'pspwgeometry')
       if ((control_code().eq.1).or.
      >    (control_code().eq.2).or.
      >    (control_code().eq.6).or.
@@ -110,9 +110,9 @@
      >    (control_code().eq.11).or.
      >    (control_code().eq.13).or.
      >    (control_code().eq.14)) then
-        value = geom_rtdb_store(rtdb,geom,'pspwgeometry')
+        value = beom_rtdb_store(rtdb,geom,'pspwgeometry')
       end if
-      value = geom_destroy(geom)
+      value = beom_destroy(geom)
 
       if (control_frac_coord()) call fcoord_to_real(nion,dbl_mb(r1(1)))
 
@@ -134,9 +134,9 @@
         call combine_pointcharge(rtdb)
 
       else
-        value = geom_rtdb_delete(rtdb,'chargepspwgeometry')
-        value = geom_rtdb_delete(rtdb,'pspwgeometry')
-        value = geom_rtdb_delete(rtdb,'qmmmgeometry')
+        value = beom_rtdb_delete(rtdb,'chargepspwgeometry')
+        value = beom_rtdb_delete(rtdb,'pspwgeometry')
+        value = beom_rtdb_delete(rtdb,'qmmmgeometry')
       end if
       call nwpw_timing_end(50)
       return
@@ -152,13 +152,13 @@
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 
       integer geom
       common / ION2/ geom
       logical value
 
-      value = geom_destroy(geom)
+      value = beom_destroy(geom)
 
       return
       end
@@ -185,7 +185,7 @@
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
 
@@ -246,11 +246,11 @@
 *     **************************
 *     **** read in ion data ****
 *     **************************
-      value = geom_create(geom,'pspwgeometry')
-      value = geom_rtdb_load(rtdb,geom,'pspwgeometry')
+      value = beom_create(geom,'pspwgeometry')
+      value = beom_rtdb_load(rtdb,geom,'pspwgeometry')
 
 *     **** get the number ions ****
-      value = geom_ncent(geom,nion)
+      value = beom_ncent(geom,nion)
 
 *     *** set ke_count, ke_total, and kg_total to zero ***
       ke_count = 0
@@ -280,7 +280,7 @@
       nion_qm = 0
       nion_mm = 0
       do i=1,nion
-         value = geom_cent_get(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
+         value = beom_cent_get(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
          if (.not. value) call errquit('error reading ions',0, GEOM_ERR)
          if (parseqmmm(t)) then
             nion_mm = nion_mm + 1
@@ -314,7 +314,7 @@
          dbl_mb(amass(1)+i-1) = ion_amass_geom(i)
       end do
 
-c     value = geom_destroy(geom)
+c     value = beom_destroy(geom)
 c     call ion_shift()
 
 *     **** get velocities if md code ****
@@ -323,7 +323,7 @@ c     call ion_shift()
      >    (control_code().eq.11).or.
      >    (control_code().eq.14)) then
 *         **** get velocities ****
-         value = geom_vel_get(geom,dbl_mb(r0(1)))
+         value = beom_vel_get(geom,dbl_mb(r0(1)))
          call dcopy((3*nion),dbl_mb(r0(1)),1,dbl_mb(v2(1)),1)
       
          if (.not.btdb_get(rtdb,"nwpw:ke_total",mt_dbl,1,ke_total))
@@ -405,7 +405,7 @@ c         eki1=0.5d0*eki1
       integer i
 
 #include "stdio.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
       integer geom
@@ -418,7 +418,7 @@ c         eki1=0.5d0*eki1
       logical  parseqmmm
       external parseqmmm
 
-      if (.not. geom_cent_tag(geom,i,t))
+      if (.not. beom_cent_tag(geom,i,t))
      >        call errquit(' ion_aismm  failed ',i, GEOM_ERR)
 
       ion_aismm = parseqmmm(t)
@@ -439,7 +439,7 @@ c         eki1=0.5d0*eki1
       integer i
 
 #include "stdio.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
       integer geom
@@ -456,10 +456,10 @@ c         eki1=0.5d0*eki1
       logical  parseqmmm
       external parseqmmm
 
-      if (.not. geom_cent_tag(geom,i,t))
+      if (.not. beom_cent_tag(geom,i,t))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
-      if (.not. geom_tag_to_element(t,symbol,name,q))
+      if (.not. beom_tag_to_element(t,symbol,name,q))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
       symbol_out = '    '
@@ -495,7 +495,7 @@ c         eki1=0.5d0*eki1
       integer geom,i
 
 #include "stdio.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
 
@@ -510,10 +510,10 @@ c         eki1=0.5d0*eki1
       logical  parseqmmm
       external parseqmmm
 
-      if (.not. geom_cent_tag(geom,i,t))
+      if (.not. beom_cent_tag(geom,i,t))
      >        call errquit(' ion_aname_geom  failed ',i, GEOM_ERR)
 
-      if (.not. geom_tag_to_element(t,symbol,name,q))
+      if (.not. beom_tag_to_element(t,symbol,name,q))
      >        call errquit(' ion_aname_geom  failed ',i, GEOM_ERR)
 
       symbol_out = '    '
@@ -552,7 +552,7 @@ c         eki1=0.5d0*eki1
       integer i
 
 #include "stdio.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
       integer geom
@@ -564,10 +564,10 @@ c         eki1=0.5d0*eki1
       real*8 q
 
 
-      if (.not. geom_cent_tag(geom,i,t))
+      if (.not. beom_cent_tag(geom,i,t))
      >        call errquit('ion_aname_nocarat failed ',i,GEOM_ERR)
 
-      if (.not. geom_tag_to_element(t,symbol,name,q))
+      if (.not. beom_tag_to_element(t,symbol,name,q))
      >        call errquit('ion_aname_nocarat failed ',i,GEOM_ERR)
 
 
@@ -587,7 +587,7 @@ c         eki1=0.5d0*eki1
       integer i
 
 #include "stdio.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
 
@@ -597,8 +597,8 @@ c         eki1=0.5d0*eki1
 *     **** local variables ****
       real*8 mass
 
-      if(.not.geom_mass_get(geom,i,mass))
-     >  call errquit(' geom_mass_get  failed ',i, GEOM_ERR)
+      if(.not.beom_mass_get(geom,i,mass))
+     >  call errquit(' beom_mass_get  failed ',i, GEOM_ERR)
 
       ion_amass_geom = mass*1822.89d0
       return
@@ -731,7 +731,7 @@ c         eki1=0.5d0*eki1
       integer i
 
 #include "stdio.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
 
@@ -742,8 +742,8 @@ c         eki1=0.5d0*eki1
       real*8       rxyz(3), q
       character*16 t
 
-      if (.not.geom_cent_get(geom,i,t,rxyz,q))
-     >  call errquit('ion_q:geom_cent_get failed ',i, GEOM_ERR)
+      if (.not.beom_cent_get(geom,i,t,rxyz,q))
+     >  call errquit('ion_q:beom_cent_get failed ',i, GEOM_ERR)
 
       ion_q = q
       return
@@ -2005,7 +2005,7 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
 
 *     **** remove rotation? ***
       if (.not.control_rotation()) 
-     > call ion_remove_rotation(h,nion,
+     > call ion_remove_rotation(alpha,nion,
      >                          dbl_mb(r2(1)),
      >                          dbl_mb(r2(1)),
      >                          dbl_mb(r1(1)))
@@ -2884,7 +2884,7 @@ c 1250 FORMAT(A2,6X,I4,3x,3F14.6)
       subroutine ion_ecce()
 
 #include "bafdecls.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "ion.fh"
 
       integer geom1a
@@ -2914,7 +2914,7 @@ c
       value = value.and.
      >        BA_push_get(mt_byte,(16*nion),'tt',tt(2),tt(1))
       value = value.and.
-     >        geom_cart_get(geom1a,nion,byte_mb(tt(1)),
+     >        beom_cart_get(geom1a,nion,byte_mb(tt(1)),
      >                                dbl_mb(rt(1)),
      >                                dbl_mb(qt(1)))
       if (.not. value) call errquit('error ion_ecce',0,0)
@@ -3064,7 +3064,7 @@ c
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
@@ -3083,20 +3083,20 @@ c
       if (first) nion_extra = 0
 
 *     **** load name1 geometry ****
-      if (.not.geom_create(geom,name1))
-     >   call errquit('ion_load_extra_geom: geom_create?',1,GEOM_ERR)
+      if (.not.beom_create(geom,name1))
+     >   call errquit('ion_load_extra_geom: beom_create?',1,GEOM_ERR)
 
-      if (.not.geom_rtdb_load(rtdb,geom,name1)) then
+      if (.not.beom_rtdb_load(rtdb,geom,name1)) then
          if (oprint)
      >      write(*,*) "ion_load_extra_geom: Cannot load geometry:",
      >                 name1
-         if (.not.geom_destroy(geom))
-     >      call errquit('ion_load_extra_geom:geom_destroy?',1,GEOM_ERR)
+         if (.not.beom_destroy(geom))
+     >      call errquit('ion_load_extra_geom:beom_destroy?',1,GEOM_ERR)
          return
       end if
 
-      if (.not.geom_ncent(geom,nion1))
-     >   call errquit('ion_load_extra_geom: geom_ncent?',1,GEOM_ERR)
+      if (.not.beom_ncent(geom,nion1))
+     >   call errquit('ion_load_extra_geom: beom_ncent?',1,GEOM_ERR)
 
       if (.not.BA_alloc_get(mt_dbl,(3*nion1),'rion_extra',
      >                      rion_extra(2,nion_extra+1),
@@ -3105,12 +3105,12 @@ c
 
       call dcopy(3*nion1,0.0d0,0,dbl_mb(rion_extra(1,nion_extra+1)),1)
 
-      if (.not. geom_cart_coords_get(geom,
+      if (.not. beom_cart_coords_get(geom,
      >                          dbl_mb(rion_extra(1,nion_extra+1))))
      >   call errquit('ion_load_extra_geom: geom cart?',1,GEOM_ERR)
 
-      if (.not.geom_destroy(geom))
-     >   call errquit('ion_load_extra_geom: geom_destroy?',1,GEOM_ERR)
+      if (.not.beom_destroy(geom))
+     >   call errquit('ion_load_extra_geom: beom_destroy?',1,GEOM_ERR)
 
       nion_extra = nion_extra + 1
       return

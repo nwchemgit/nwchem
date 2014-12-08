@@ -14,7 +14,7 @@
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 
       logical mmexist
       common / ion_charge / mmexist
@@ -37,11 +37,11 @@
 
 *     **** generate pspwgeometry from chargepspwgeometry ****
 *     **** generate chargegeometry from chargepspwgeometry ****
-      value = geom_create(geom1,'chargepspwgeometry')
-      value = value.and.geom_create(geom2,'pspwgeometry')
-      value = value.and.geom_create(geom3,'chargegeometry')
-      value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
-      value = value.and.geom_ncent(geom1,nion1)
+      value = beom_create(geom1,'chargepspwgeometry')
+      value = value.and.beom_create(geom2,'pspwgeometry')
+      value = value.and.beom_create(geom3,'chargegeometry')
+      value = value.and.beom_rtdb_load(rtdb,geom1,'geometry')
+      value = value.and.beom_ncent(geom1,nion1)
       if (.not. value) call errquit('opening geometry',0,
      &       GEOM_ERR)
 
@@ -57,7 +57,7 @@
       nion2 = 0
       nion3 = 0
       do i=1,nion1
-         value = geom_cent_get(geom1,i,t,rxyz,q)
+         value = beom_cent_get(geom1,i,t,rxyz,q)
          if (.not.parsepointcharge(t)) then
             nion2 = nion2 + 1
          else
@@ -65,42 +65,42 @@
          end if
       end do
       value = value.and.
-     >        geom_cart_get(geom1,nion1,byte_mb(tt(1)),
+     >        beom_cart_get(geom1,nion1,byte_mb(tt(1)),
      >                                  dbl_mb(rt(1)),
      >                                  dbl_mb(qt(1)))
       value = value.and.
-     >        geom_cart_set(geom2,nion2,byte_mb(tt(1)),
+     >        beom_cart_set(geom2,nion2,byte_mb(tt(1)),
      >                                  dbl_mb(rt(1)),
      >                                  dbl_mb(qt(1)))
-      value = value.and.geom_masses_get(geom1,nion1,dbl_mb(mt(1)))
-      value = value.and.geom_masses_set(geom2,nion2,dbl_mb(mt(1)))
+      value = value.and.beom_masses_get(geom1,nion1,dbl_mb(mt(1)))
+      value = value.and.beom_masses_set(geom2,nion2,dbl_mb(mt(1)))
 
       if (nion3.gt.0) then
         value = value.and.
-     >          geom_cart_set(geom3,nion3,byte_mb(tt(1)+16*nion2),
+     >          beom_cart_set(geom3,nion3,byte_mb(tt(1)+16*nion2),
      >                                   dbl_mb(rt(1) + 3*nion2),
      >                                   dbl_mb(qt(1) +   nion2))
-        value = value.and.geom_masses_set(geom3,nion3,
+        value = value.and.beom_masses_set(geom3,nion3,
      >                                   dbl_mb(mt(1) +   nion2))
       end if
 
 
       call dcopy(nion1,0.0d0,0,dbl_mb(rt(1)),1)
-      value = value.and.geom_vel_get(geom1,dbl_mb(rt(1)))
-      value = value.and.geom_vel_set(geom2,dbl_mb(rt(1)))
+      value = value.and.beom_vel_get(geom1,dbl_mb(rt(1)))
+      value = value.and.beom_vel_set(geom2,dbl_mb(rt(1)))
       if (nion3.gt.0)
-     > value = value.and.geom_vel_set(geom3,dbl_mb(rt(1)+3*nion2))
+     > value = value.and.beom_vel_set(geom3,dbl_mb(rt(1)+3*nion2))
 
-      value = value.and.geom_rtdb_store(rtdb,geom2,'pspwgeometry')
+      value = value.and.beom_rtdb_store(rtdb,geom2,'pspwgeometry')
       if(nion3.gt.0) then
-         value = value.and.geom_rtdb_store(rtdb,geom3,'chargegeometry')
+         value = value.and.beom_rtdb_store(rtdb,geom3,'chargegeometry')
          mmexist = .true.
       else
          mmexist = .false.
       end if
-      value = value.and.geom_destroy(geom3)
-      value = value.and.geom_destroy(geom2)
-      value = value.and.geom_destroy(geom1)
+      value = value.and.beom_destroy(geom3)
+      value = value.and.beom_destroy(geom2)
+      value = value.and.beom_destroy(geom1)
       if (.not. value) 
      >    call errquit('chargepspwgeometry->pspwgeometry write',0,
      &       GEOM_ERR)
@@ -161,7 +161,7 @@
 
 #include "bafdecls.fh"
 #include "btdb.fh"
-#include "geom.fh"
+#include "beom.fh"
 
       logical mmexist
       common / ion_charge / mmexist
@@ -176,18 +176,18 @@
 *       **********************************************************
 *       **** put together ions and molecular pseudopotentials ****
 *       **********************************************************
-        value = geom_create(geom1,'chargepspwgeometry')
-        value = value.and.geom_create(geom2,'pspwgeometry')
+        value = beom_create(geom1,'chargepspwgeometry')
+        value = value.and.beom_create(geom2,'pspwgeometry')
         if (mmexist)
-     >    value = value.and.geom_create(geom3,'chargegeometry')
+     >    value = value.and.beom_create(geom3,'chargegeometry')
         value = value.and.
-     >          geom_rtdb_load(rtdb,geom1,'geometry')
-        value = value.and.geom_ncent(geom1,nion1)
-        value = value.and.geom_rtdb_load(rtdb,geom2,'pspwgeometry')
-        value = value.and.geom_ncent(geom2,nion2)
+     >          beom_rtdb_load(rtdb,geom1,'geometry')
+        value = value.and.beom_ncent(geom1,nion1)
+        value = value.and.beom_rtdb_load(rtdb,geom2,'pspwgeometry')
+        value = value.and.beom_ncent(geom2,nion2)
         if (mmexist) then
-           value = value.and.geom_rtdb_load(rtdb,geom3,'chargegeometry')
-           value = value.and.geom_ncent(geom3,nion3)
+           value = value.and.beom_rtdb_load(rtdb,geom3,'chargegeometry')
+           value = value.and.beom_ncent(geom3,nion3)
         else
            nion3 = 0
         end if
@@ -198,28 +198,28 @@
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
         do i=1,nion2
-           value = value.and.geom_cent_get(geom2,i,t,rxyz,q)
-           value = value.and.geom_cent_set(geom1,i,t,rxyz,q)
+           value = value.and.beom_cent_get(geom2,i,t,rxyz,q)
+           value = value.and.beom_cent_set(geom1,i,t,rxyz,q)
         end do
         do i=1,nion3
-           value = value.and.geom_cent_get(geom3,i,t,rxyz,q)
-           value = value.and.geom_cent_set(geom1,(i+nion2),t,rxyz,q)
+           value = value.and.beom_cent_get(geom3,i,t,rxyz,q)
+           value = value.and.beom_cent_set(geom1,(i+nion2),t,rxyz,q)
         end do
-        value = value.and.geom_vel_get(geom2,dbl_mb(rt(1)))
+        value = value.and.beom_vel_get(geom2,dbl_mb(rt(1)))
         if (nion3.gt.0)
-     >     value = value.and.geom_vel_get(geom3,dbl_mb(rt(1+3*nion2)))
-        value = value.and.geom_vel_set(geom1, dbl_mb(rt(1)))
+     >     value = value.and.beom_vel_get(geom3,dbl_mb(rt(1+3*nion2)))
+        value = value.and.beom_vel_set(geom1, dbl_mb(rt(1)))
 
-        value = value.and.geom_rtdb_delete(rtdb,'geometry')
-        value = value.and.geom_rtdb_delete(rtdb,'pspwgeometry')
+        value = value.and.beom_rtdb_delete(rtdb,'geometry')
+        value = value.and.beom_rtdb_delete(rtdb,'pspwgeometry')
         if (nion3.gt.0)
-     >     value = value.and.geom_rtdb_delete(rtdb,'chargegeometry')
+     >     value = value.and.beom_rtdb_delete(rtdb,'chargegeometry')
         value = value.and.
-     >          geom_rtdb_store(rtdb,geom1,'geometry')
+     >          beom_rtdb_store(rtdb,geom1,'geometry')
         if (mmexist)
-     >     value = value.and.geom_destroy(geom3)
-        value = value.and.geom_destroy(geom2)
-        value = value.and.geom_destroy(geom1)
+     >     value = value.and.beom_destroy(geom3)
+        value = value.and.beom_destroy(geom2)
+        value = value.and.beom_destroy(geom1)
         value = value.and.BA_pop_stack(rt(2))
         if (.not. value)
      >   call errquit('pspwgeometry->geometry write 2',0,
