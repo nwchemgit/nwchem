@@ -301,6 +301,30 @@
       return
       end
 
+
+*     ******************************************
+*     *                                        *
+*     *             beom_cart_coords_get       *
+*     *                                        *
+*     ******************************************
+
+*   This is a wrapper around geom_cent_get to make it thread safe.
+
+      logical function beom_cart_coords_get(geom,c)
+      implicit none
+      integer geom
+      double precision c(3,*)
+
+#include "geom.fh"
+
+      beom_cart_coords_get = geom_cart_coords_get(geom,c)
+      return
+      end
+
+
+
+
+
 *     ******************************************
 *     *                                        *
 *     *             beom_masses_get            *
