@@ -7,8 +7,54 @@
       logical beom_rtdb_load
       external beom_rtdb_load
 
+      logical beom_rtdb_store
+      external beom_rtdb_store
+
+      logical beom_rtdb_destroy
+      external beom_rtdb_destroy
+
+      logical beom_rtdb_delete
+      external beom_rtdb_delete
+
       logical beom_destroy
       external beom_destroy
 
       logical beom_cent_set
       external beom_cent_set
+
+      logical beom_cent_get
+      external beom_cent_get
+
+      logical beom_cent_tag
+      external beom_cent_tag
+
+      logical beom_cart_coords_get
+      external beom_cart_coords_get
+
+      logical beom_cart_get
+      external beom_cart_get
+
+      logical beom_cart_set
+      external beom_cart_set
+
+      logical beom_vel_get
+      external beom_vel_get
+
+      logical beom_vel_set
+      external beom_vel_set
+
+      logical beom_mass_get
+      external beom_mass_get
+
+      logical beom_masses_get
+      external beom_masses_get
+
+      logical beom_masses_set
+      external beom_masses_set
+
+      logical beom_tag_to_element
+      external beom_tag_to_element
+
+      logical beom_ncent
+      external beom_ncent
+

@@ -43,13 +43,14 @@
 
 #include "rtdb.fh"
 
-      logical omp_ok
-      common / omp_memhandle_cb1 / omp_ok
+      !logical omp_ok
+      !common / omp_memhandle_cb1 / omp_ok
+      logical ok
 
 !$OMP SINGLE
-      omp_ok = rtdb_put(rtdb,namee,datatype,nelem,array)
-!$OMP END SINGLE
-      btdb_put = omp_ok
+      ok = rtdb_put(rtdb,namee,datatype,nelem,array)
+!$OMP END SINGLE copyprivate(ok)
+      btdb_put = ok
       return
       end
 
@@ -96,13 +97,14 @@
 
 #include "rtdb.fh"
 
-      logical omp_ok
-      common / omp_memhandle_cb1 / omp_ok
+      !logical omp_ok
+      !common / omp_memhandle_cb1 / omp_ok
+      logical ok
 
 !$OMP SINGLE
-      omp_ok = rtdb_cput(rtdb,namee,nelem,array)
-!$OMP END SINGLE
-      btdb_cput = omp_ok
+      ok = rtdb_cput(rtdb,namee,nelem,array)
+!$OMP END SINGLE copyprivate(ok)
+      btdb_cput = ok
       return
       end
 
@@ -121,13 +123,14 @@
 
 #include "rtdb.fh"
 
-      logical omp_ok
-      common / omp_memhandle_cb1 / omp_ok
+      !logical omp_ok
+      !common / omp_memhandle_cb1 / omp_ok
+      logical ok2
 
 !$OMP SINGLE
-      omp_ok = rtdb_parallel(ok)
-!$OMP END SINGLE
-      btdb_parallel = omp_ok
+      ok2 = rtdb_parallel(ok)
+!$OMP END SINGLE copyprivate(ok2)
+      btdb_parallel = ok2
       return
       end
 
