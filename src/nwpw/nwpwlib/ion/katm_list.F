@@ -16,30 +16,36 @@
 #include "errquit.fh"
 
       logical value
-      integer i,ka
+      integer i,ka,nkatm_tmp
       integer atom_list(2)
       character*4 aname
       character*20 rtdb_name
 
       integer     pspw_compare_atom
       external    pspw_compare_atom
+      integer tid,Parallel_threadid
+      external    Parallel_threadid
 
+      tid = Parallel_threadid()
+      write(*,*) tid," in set_katm_list, nion=",nion
 
 *     **** define nkatm, and atom ****
       value = BA_push_get(mt_byte,4*nion,
      >                    'atom_list',atom_list(2),atom_list(1))
       if (.not. value) call errquit('out of stack memory',0,
      &       MA_ERR)
-      nkatm = 0
+      nkatm_tmp = 0
       do i=1,nion
          aname = aname_function(i)
          if (
-     >    pspw_compare_atom(aname,nkatm,byte_mb(atom_list(1))).eq.0)
+     >    pspw_compare_atom(aname,nkatm_tmp,byte_mb(atom_list(1))).eq.0)
      >   then
-           nkatm = nkatm + 1
-           call pspw_insert_atom(aname,nkatm,byte_mb(atom_list(1)))
+           nkatm_tmp = nkatm_tmp + 1
+           call pspw_insert_atom(aname,nkatm_tmp,byte_mb(atom_list(1)))
          end if
       end do
+      nkatm = nkatm_tmp
+
       rtdb_name = 'atom'//CHAR(tag+ICHAR('a'))
       value = BA_alloc_get(mt_byte,(4*nkatm),rtdb_name,atom(2),atom(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
@@ -57,15 +63,21 @@
      >        BA_alloc_get(mt_int,(nkatm),rtdb_name,natm(2),natm(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
+!$OMP SINGLE
       do i=1,nkatm
          int_mb(natm(1)+i-1) = 0
       end do
+!$OMP END SINGLE
+!$OMP BARRIER
       do i=1,nion
          aname = aname_function(i)
          ka=pspw_compare_atom(aname,nkatm,byte_mb(atom(1)))
          int_mb(katm(1)+i-1) = ka
+!$OMP SINGLE
          int_mb(natm(1)+ka-1) = int_mb(natm(1)+ka-1)+1
+!$OMP END SINGLE
       end do
+!$OMP BARRIER
 
       return
       end

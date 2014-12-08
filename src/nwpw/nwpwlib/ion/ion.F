@@ -202,7 +202,7 @@
      >               ke_total,kg_total,ke_count
 
 *     *** local variables ***
-      integer     i
+      integer     i,nion_mm_tmp,nion_qm_tmp
       double precision q,dt  !,vgx,vgy,vgz
       character*16     t
       logical value
@@ -224,6 +224,10 @@
       external         parseqmmm,control_has_disp
       external         control_version
       external         control_ion_time_step,ion_amass_geom
+      integer tid,Parallel_threadid
+      external    Parallel_threadid
+
+      tid = Parallel_threadid()
 
       call nwpw_timing_start(50)
       call Parallel_taskid(taskid)
@@ -238,7 +242,9 @@
 *     *****************************************
 *     **** seperate ions and charges       ****
 *     *****************************************
+      write(*,*) "into separate***"
       call seperate_pointcharge(rtdb)
+      write(*,*) "out  separate***"
 
 *     **** intialize the number of constraints ***
       nconstraints = 0
@@ -246,11 +252,13 @@
 *     **************************
 *     **** read in ion data ****
 *     **************************
+      write(*,*) tid," reading pspw"
       value = beom_create(geom,'pspwgeometry')
       value = beom_rtdb_load(rtdb,geom,'pspwgeometry')
 
 *     **** get the number ions ****
       value = beom_ncent(geom,nion)
+      write(*,*) tid," nion=",nion
 
 *     *** set ke_count, ke_total, and kg_total to zero ***
       ke_count = 0
@@ -273,26 +281,34 @@
      >       BA_alloc_get(mt_dbl,(nion),'amass',amass(2),amass(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
+!$OMP SINGLE
       call dcopy(3*nion,0.0d0,0,dbl_mb(r2(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r1(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(v2(1)),1)
-      nion_qm = 0
-      nion_mm = 0
+!$OMP END SINGLE
+!$OMP BARRIER
+      nion_qm_tmp = 0
+      nion_mm_tmp = 0
       do i=1,nion
          value = beom_cent_get(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
          if (.not. value) call errquit('error reading ions',0, GEOM_ERR)
          if (parseqmmm(t)) then
-            nion_mm = nion_mm + 1
+            nion_mm_tmp = nion_mm_tmp + 1
          else
-            nion_qm = nion_qm + 1
+            nion_qm_tmp = nion_qm_tmp + 1
          end if
       end do
+      nion_mm = nion_mm_tmp
+      nion_qm = nion_qm_tmp
 
 *     **** define atom list: nkatm,katm,natm,atom ****
+      write(*,*) tid," into atomlist all"
       call set_katm_list(1,nion,ion_aname,nkatm,katm,natm,atom)
+      write(*,*) tid," into atomlist qm,nion_qm=",nion_qm
       call set_katm_list(1,nion_qm,ion_aname,
      >                   nkatm_qm,katm_qm,natm_qm,atom_qm)
+      write(*,*) tid," out  atomlist"
 
       if (control_frac_coord()) then
          if (taskid.eq.MASTER) then
@@ -3518,8 +3534,11 @@ c autoang=0.52917726d0
       external ion_atn,ion_katm,control_version
       real*8   lattice_unita,ion_rion
       external lattice_unita,ion_rion
+      integer tid,Parallel_threadid
+      external    Parallel_threadid
 
       call Parallel_taskid(taskid)
+      tid = Parallel_threadid()
 
       if (.not.BA_push_get(mt_int,nion,'iz',iz(2),iz(1)))
      >   call errquit("ion_disp_energy: pushstack iz",0,MA_ERR)
@@ -3530,6 +3549,8 @@ c autoang=0.52917726d0
 
       tooshort = .false.
 
+!$OMP BARRIER
+!$OMP SINGLE
       if (control_version().eq.4) then
          do ii=1,   nion-1
          do jj=ii+1,nion
@@ -3573,17 +3594,20 @@ c autoang=0.52917726d0
                 r=dsqrt(dx*dx+dy*dy+dz*dz)
                 thr=0.6d0*(rcov(iiz)+rcov(jjz))
                 if (r.lt.thr) tooshort = .true.
+
+                write(*,*) tid, " r=",r,thr,tooshort
             end do
             end do
             end do
          end do 
          end do 
       end if
+!$OMP END SINGLE copyprivate(tooshort)
 
       if (.not.BA_pop_stack(iz(2)))
      >   call errquit("ion_disp_stress: popstack iz",1,MA_ERR)
 
-      if (tooshort.and.(taskid.eq.MASTER)) then
+      if (tooshort.and.(taskid.eq.MASTER).and.(tid.eq.MASTER)) then
           write(luout,*)
           write(luout,*)
      >    '======================================================'
