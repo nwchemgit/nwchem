@@ -1,4 +1,5 @@
-      logical function tce_ccsd_driver(title,ref,corr,thresh,maxiter,
+      logical function tce_ccsd_driver(rtdb,
+     &        title,ref,corr,thresh,maxiter,
      &        d_t1,k_t1_offset,size_t1,d_t2,k_t2_offset,size_t2,
      &        d_f1,k_f1_offset,d_v2,k_v2_offset)
 c
@@ -18,6 +19,7 @@ c
 #include "geom.fh"
 #include "sym.fh"
 #include "util.fh"
+#include "rtdb.fh"
 #include "msgids.fh"
 #include "stdio.fh"
 #include "sf.fh"
@@ -29,6 +31,7 @@ c#include "tce_prop.fh"
 c#include "tce_ints.fh"
 c#include "tce_amps.fh"
 c#include "tce_diis.fh"
+      integer rtdb             ! Run-time database
 c
 c     CI, CC, & MBPT
 c
@@ -94,9 +97,9 @@ c -------------
         call reconcilefile(d_r1,size_t1)
         call tce_filename('r2',filename)
         call createfile(filename,d_r2,size_t2)
-        call ccsd_t2(d_f1,d_r2,d_t1,d_t2,d_v2,
+        call ccsd_t2(rtdb,d_f1,d_r2,d_t1,d_t2,d_v2,
      1               k_f1_offset,k_t2_offset,
-     2            k_t1_offset,k_t2_offset,k_v2_offset,size_t2)
+     2               k_t1_offset,k_t2_offset,k_v2_offset)
         call reconcilefile(d_r2,size_t2)
         call tce_residual_t1(d_r1,k_t1_offset,r1)
         call tce_residual_t2(d_r2,k_t2_offset,r2)

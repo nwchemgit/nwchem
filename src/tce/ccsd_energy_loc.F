@@ -1,18 +1,20 @@
       subroutine ccsd_energy_loc(d_e,d_f1,d_v2,d_t1,d_t2,
      1           k_e_offset,k_f1_offset,k_v2_offset,
      2           k_t1_offset,k_t2_offset,
-     3           size_t1,size_t2,ref,corr)
+     3           size_t1,size_t2,ref,corr,rtdb)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 #include "errquit.fh"
 #include "stdio.fh"
+#include "rtdb.fh"
 #include "tce.fh"
 #include "tce_main.fh"
 #include "tce_diis.fh"
 #include "tce_restart.fh"
 c
+      integer rtdb ! runtime database
       integer d_f1,d_e,d_t1,d_t2,d_v2,d_r1,d_r2
       integer k_f1_offset,k_e_offset,k_t1_offset
       integer k_t2_offset,k_v2_offset
@@ -100,11 +102,8 @@ cxxxxxxxxxxxxxxxxxxxxx
      2               k_t1_offset,k_t2_offset,k_v2_offset,
      3               size_t1,size_t2,d_c2,iter)
            call deletefile(d_c2)
-ccx           call ccsd_t2(d_f1,d_r2,k_t1_local,d_t2,d_v2,
-ccx     1                  k_f1_offset,k_t2_offset,
-ccx     2               k_t1_offset,k_t2_offset,k_v2_offset,size_t2)
            else
-           call ccsd_t2(d_f1,d_r2,k_t1_local,d_t2,d_v2,
+           call ccsd_t2(rtdb,d_f1,d_r2,k_t1_local,d_t2,d_v2,
      1                  k_f1_offset,k_t2_offset,
      2                  k_t1_offset,k_t2_offset,k_v2_offset)
           end if
