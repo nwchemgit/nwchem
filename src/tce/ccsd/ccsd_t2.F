@@ -6825,12 +6825,9 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       INTEGER p3b_2,p4b_2,p5b_2,p6b_2
       INTEGER dima,dimb,dimc,dim_common,dima_sort,dimb_sort
       INTEGER k_a,l_a,k_b,l_b,k_c,l_c,k_bs,l_bs,k_as,l_as
-!      INTEGER nsuperp(2),isuperp
       double precision alpha
       INTEGER NXTASK
       EXTERNAL NXTASK
-!      DOUBLE PRECISION FACTORIAL
-!      EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
@@ -6909,20 +6906,11 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &                  2,1,4,3,1.0d0)
                    IF (.not.MA_POP_STACK(l_b)) 
      &               CALL ERRQUIT('ccsd_t2_8',6,MA_ERR)
-!                   nsuperp(1) = 1
-!                   nsuperp(2) = 1
-!                   isuperp = 1
-!                   IF (p5b .eq. p6b) THEN
-!                    nsuperp(isuperp) = nsuperp(isuperp) + 1
-!                   ELSE
-!                    isuperp = isuperp + 1
-!                   END IF
                    if (p5b .eq. p6b) then
                     alpha = 1.0d0
                    else
                     alpha = 2.0d0
                    end if
-!                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,2.0d0/FACTORIAL(nsuperp(1))/FACTORIAL(nsuperp(2)),dbl_mb(k_as),dim_common,dbl_mb(k_bs),dim_common,1.0d0,dbl_mb(k_cs),dima_sort)
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
      &                  alpha,dbl_mb(k_as),dim_common,dbl_mb(k_bs),
      &                  dim_common,1.0d0,dbl_mb(k_cs),dima_sort)
@@ -8101,7 +8089,6 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * v ( p
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8134,12 +8121,10 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p4b = p3b,noab+nvab
@@ -8239,12 +8224,10 @@ cc      next = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -8278,7 +8261,6 @@ C     i0 ( p3 p4 h1 h2 )_vtt + = -1/2 * P( 2 ) * Sum ( h5 ) * t ( p3 h5 )_t * i1
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8311,12 +8293,10 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p4b = noab+1,noab+nvab
@@ -8406,12 +8386,10 @@ c
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -8504,7 +8482,6 @@ C     i1 ( h5 p3 h1 h2 )_vt + = -2 * P( 2 ) * Sum ( p6 ) * t ( p6 h1 )_t * v ( h
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8537,12 +8514,10 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO h5b = 1,noab
@@ -8642,12 +8617,10 @@ cc      next = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -8679,7 +8652,6 @@ C     i0 ( p3 p4 h1 h2 )_tt + = 1/2 * P( 4 ) * t ( p3 h1 )_t * t ( p4 h2 )_t
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8709,12 +8681,10 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p4b = noab+1,noab+nvab
@@ -8817,12 +8787,10 @@ cc      next = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -8852,7 +8820,6 @@ C     i0 ( p3 p4 h1 h2 )_tt + = -1/2 * P( 4 ) * t ( p3 h1 )_t * t ( p4 h2 )_t
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8882,12 +8849,10 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p4b = noab+1,noab+nvab
@@ -8991,12 +8956,10 @@ cc      next = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -9007,7 +8970,7 @@ cc      next = NXTVAL(-nprocs)
 
 
 
-#ifdef NEVER_CALLED
+#if 0
       SUBROUTINE ccsd_t2_3(d_a,k_a_offset,d_b,k_b_offset,d_c,k_c_offset)
 C     $Id$
 C     This is a Fortran77 program generated by Tensor Contraction Engine v.1.0
