@@ -90,6 +90,7 @@ c ---------------------------------------
       logical nodezero         ! True if node 0
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
+      integer ccsd_t2_8_alg
       nodezero=(ga_nodeid().eq.0)
       CALL ccsd_t2_1(d_v2,k_v2_offset,d_i0,k_i0_offset)
       CALL OFFSET_ccsd_t2_2_1(l_i1_offset,k_i1_offset,size_i1)
@@ -269,13 +270,28 @@ c -----------------------
       CALL c2f_t2_t12(d_t1,k_t1_offset,d_t2,k_t2_offset)
       cpu = - util_cpusec()
       wall = - util_wallsec()
-#ifdef NEW_COMM_STRUCT
-      CALL ccsd_t2_8_spiral(d_t2,k_t2_offset,d_v2,k_v2_offset,
+c
+c
+c
+      if (.not.rtdb_get(rtdb,'tce:ccsd_t2_8_alg',mt_int,1,
+     1                  ccsd_t2_8_alg)) then
+        ccsd_t2_8_alg = 1
+      endif
+      if (ccsd_t2_8_alg.eq.1) then
+        CALL ccsd_t2_8(d_t2,k_t2_offset,d_v2,k_v2_offset,
+     1                 d_i0,k_i0_offset)
+      else if (ccsd_t2_8_alg.eq.2) then
+        CALL ccsd_t2_8_test(d_t2,k_t2_offset,d_v2,k_v2_offset,
      1                      d_i0,k_i0_offset)
-#else
-      CALL ccsd_t2_8(d_t2,k_t2_offset,d_v2,k_v2_offset,
-     1               d_i0,k_i0_offset)
-#endif
+      else if (ccsd_t2_8_alg.eq.3) then
+        CALL ccsd_t2_8_spiral(d_t2,k_t2_offset,d_v2,k_v2_offset,
+     1                        d_i0,k_i0_offset)
+      else
+        CALL errquit('ccsd_t2_8_alg',ccsd_t2_8_alg,INPUT_ERR)
+      endif
+c
+c
+c
       cpu = cpu + util_cpusec()
       wall = wall + util_wallsec()
       cpusecs(37) = cpu
