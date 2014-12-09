@@ -47,7 +47,6 @@ c
       logical left                            ! Dipole moments & dipole transition moments
       logical ampnorms                        ! Calculate and print amplitude norms
       logical diagnt1                         ! Calculate the T1 diagnostic
-      logical fast_ccsd_t                     ! Use vectorized CCSD(T) code which does not produce CCSD[T]
       integer multipole                       ! Multipole moments
       integer maxiter                         ! Maximum number of Davidson iterations
       integer l_evl(2),k_evl(2)               ! MA handles for eigenvalues (AB)
@@ -171,5 +170,5 @@ c     Logicals
 c
       common /tcemainlogical/
      1  oskel,oadapt,left,fileisga,ampnorms,diagnt1,
-     2  symmetry,activecalc,fast_ccsd_t
+     2  symmetry,activecalc
 

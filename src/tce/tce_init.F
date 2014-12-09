@@ -749,15 +749,6 @@ c
      1    call errquit('tce_init: failed to write symmetry',0,RTDB_ERR)
       endif
 c
-c     vectorized CCSD(T)
-c
-      if (.not.rtdb_get(rtdb,'tce:fast_ccsd_t',mt_log,1,
-     1  fast_ccsd_t)) then
-        fast_ccsd_t = .false.
-        if (.not.rtdb_put(rtdb,'tce:fast_ccsd_t',mt_log,1,fast_ccsd_t))
-     1    call errquit('tce_init: failed for fast_ccsd_t',0,RTDB_ERR)
-      endif
-c
 c     Temporary restart input
 c
       if (.not.rtdb_get(rtdb,'tce:restart_ccsd_t',mt_int,1,
