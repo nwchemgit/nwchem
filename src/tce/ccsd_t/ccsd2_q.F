@@ -46,7 +46,7 @@ C
       external nxtask
 c
 c     Caution! k_right & k_left are not even allocated yet
-c     but they won't be used.
+c     but they will not be used.
 c
       call ccsd2_q_right(dbl_mb(k_right),d_i1_1,d_i1_2,
      1  d_t1,d_t2,d_v2,k_i1_offset_1,k_i1_offset_2,
