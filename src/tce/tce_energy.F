@@ -3351,12 +3351,6 @@ c
           cpu = - util_cpusec()
           wall = - util_wallsec()
           if (restart_ccsd_t.eq.0) then
-            if (fast_ccsd_t) then
-              if (nodezero) write(LuOut,*) 'Using tuned CCSD(T) code'
-              call ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                           d_v2,k_v2_offset,pt3_2,size_t1)
-            else
-
 #ifdef TCE_CUDA
               if(.not.rtdb_get(rtdb,'tce:cuda',mt_int,1,icuda)) then
                if (nodezero) write(LuOut,*) 'Using plain CCSD(T) code'
@@ -3382,8 +3376,6 @@ ckbn           call errquit('tce_energy: reading cuda',icuda,CALC_ERR)
      1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,xmem)
               end if
 #endif
-
-            endif
           elseif (restart_ccsd_t.gt.0) then
             pt3_1 = 0.0d0
             call ccsd_t_restart(rtdb,d_t1,k_t1_offset,
