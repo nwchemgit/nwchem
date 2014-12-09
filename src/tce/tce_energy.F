@@ -3386,7 +3386,7 @@ ckbn           call errquit('tce_energy: reading cuda',icuda,CALC_ERR)
           wall = wall + util_wallsec()
           if (nodezero) then
             write(LuOut,*)
-            if ((restart_ccsd_t.eq.0).and.(.not.fast_ccsd_t)) then
+            if (restart_ccsd_t.eq.0) then
               write(LuOut,9075) "CCSD[T]",pt3_1
               write(LuOut,9070) "CCSD[T]",corr+pt3_1
               write(LuOut,9080) "CCSD[T]",ref+corr+pt3_1
