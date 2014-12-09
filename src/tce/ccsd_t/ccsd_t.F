@@ -149,7 +149,7 @@ c -----------
      &                      range_h1,range_h2,range_h3,
      &                      range_p4,range_p5,range_p6,
      &                      energy1,energy2)
- #else
+#else
             if (restricted) then
               factor = 2.0d0
             else
