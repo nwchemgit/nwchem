@@ -278,10 +278,6 @@ c -----------------------
       cpusecs(37) = cpu
       cpusecs(38) = wall
       CALL c2d_t2_t12(d_t1,k_t1_offset,d_t2,k_t2_offset)
-c --- PETA ----------
-c 9020 format('DIAG-D',i3,1x,'Cpu & wall time / sec',2f15.4)
-c 9021 format('   DIAG-D',i3,1x,i3,2x,'Cpu & wall time / sec',2f15.4)
-c -------------------
       RETURN
       END
 
@@ -5963,11 +5959,9 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 4 ) * Sum ( h6 p5 ) * t ( p3 p5 h1 h6 )_
      & ERRQUIT('ccsd_t2_7',4,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dimb,'b',l_b,k_b)) CALL ERRQUIT('
      &ccsd_t2_7',5,MA_ERR)
-c *** peta *****
       CALL GET_HASH_BLOCK(d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset),
      &(h6b_2 -1 + noab * (p5b_2 - noab -1 +nvab * (h2b_2 - 1 + noab *
      &( p4b_2 - noab -1 )))))
-c **************
       CALL TCE_SORT_4(dbl_mb(k_b),dbl_mb(k_bs),int_mb(k_range+p4b-1)
      &,int_mb(k_range+h6b-1),int_mb(k_range+h2b-1),int_mb(k_range+p5b-1)
      &,3,1,2,4,1.0d0)
@@ -6061,12 +6055,10 @@ C     i1 ( h6 p3 h1 p5 )_v + = 1 * v ( h6 p3 h1 p5 )_v
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
-c *** peta ***
       DO p3b = noab+1,noab+nvab
        DO h1b = 1,noab
         DO p5b = noab+1,noab+nvab
          DO h6b = 1,noab
-c ************
            IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)
      1          +int_mb(k_spin+h6b-1)+int_mb(k_spin+h1b-1)
      2          +int_mb(k_spin+p5b-1).ne.8)) THEN
@@ -6105,12 +6097,10 @@ c ************
                END IF
                IF (.not.MA_POP_STACK(l_a)) 
      1              CALL ERRQUIT('ccsd_t2_7_1',2,MA_ERR)
-c *** peta *****
                CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_as),dimc,
      1              int_mb(k_c_offset),(h6b -1 + noab * 
      2              (p5b - noab -1 +nvab * (h1b - 1 + noab * 
      3              ( p3b - noab -1 )))))
-c **************
                IF (.not.MA_POP_STACK(l_as)) 
      1              CALL ERRQUIT('ccsd_t2_7_1',5,MA_ERR)
               END IF
@@ -6154,12 +6144,10 @@ C     i1 ( h6 p3 h1 p5 )_v
       INTEGER h1b
       INTEGER p5b
       length = 0
-c *** peta ****
       DO p3b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO p5b = noab+1,noab+nvab
       DO h6b = 1,noab
-c *************
       IF (int_mb(k_spin+h6b-1)+int_mb(k_spin+p3b-1) .eq. int_mb(k_spin+h
      &1b-1)+int_mb(k_spin+p5b-1)) THEN
       IF (ieor(int_mb(k_sym+h6b-1),ieor(int_mb(k_sym+p3b-1),ieor(int_mb(
@@ -6179,12 +6167,10 @@ c *************
       int_mb(k_a_offset) = length
       addr = 0
       size = 0
-c *** peta ***
       DO p3b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO p5b = noab+1,noab+nvab
       DO h6b = 1,noab
-c ************
       IF (int_mb(k_spin+h6b-1)+int_mb(k_spin+p3b-1) .eq. int_mb(k_spin+h
      &1b-1)+int_mb(k_spin+p5b-1)) THEN
       IF (ieor(int_mb(k_sym+h6b-1),ieor(int_mb(k_sym+p3b-1),ieor(int_mb(
@@ -6192,10 +6178,8 @@ c ************
       IF ((.not.restricted).or.(int_mb(k_spin+h6b-1)+int_mb(k_spin+p3b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p5b-1).ne.8)) THEN
       addr = addr + 1
-c *** peta ***
       int_mb(k_a_offset+addr) = h6b -1 + noab * (p5b - noab -1 +nvab * (
      &h1b - 1 + noab * ( p3b - noab -1 )))
-c ************ 
       int_mb(k_a_offset+length+addr) = size
       size = size + int_mb(k_range+p3b-1) * int_mb(k_range+h6b-1) * int_
      &mb(k_range+h1b-1) * int_mb(k_range+p5b-1)
@@ -6263,12 +6247,10 @@ C     i1 ( h6 p3 h1 p5 )_vt + = -1 * Sum ( p7 ) * t ( p7 h1 )_t * v ( h6 p3 p5 p
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
-c *** peta ***
       DO p3b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO p5b = noab+1,noab+nvab
       DO h6b = 1,noab
-c ************
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h6b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p5b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h6b-1) .eq. int_mb(k_spin+h
@@ -6356,11 +6338,9 @@ c ************
       CALL TCE_SORT_4(dbl_mb(k_cs),dbl_mb(k_c),int_mb(k_range+p5b-1)
      &,int_mb(k_range+h6b-1),int_mb(k_range+p3b-1),int_mb(k_range+h1b-1)
      &,3,2,4,1,-1.0d0)
-c *** peta ***
       CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),dimc,int_mb(k_c_offset),
      &(h6b -1 + noab * (p5b - noab -1 +nvab * (h1b - 1 + noab *
      &( p3b - noab -1 )))))
-c ************
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_7_2',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_7_2',11,MA_
      &ERR)
@@ -6436,12 +6416,10 @@ C     i1 ( h6 p3 h1 p5 )_vt + = -1/2 * Sum ( h8 p7 ) * t ( p3 p7 h1 h8 )_t * v (
       nprocs = GA_NNODES()
       count = 0
       next = NXTASK(nprocs, 1)
-c *** peta ***
       DO p3b = noab+1,noab+nvab
       DO h1b = 1,noab
       DO p5b = noab+1,noab+nvab
       DO h6b = 1,noab
-c ************
       IF ((.not.restricted).or.(int_mb(k_spin+p3b-1)+int_mb(k_spin+h6b-1
      &)+int_mb(k_spin+h1b-1)+int_mb(k_spin+p5b-1).ne.8)) THEN
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+h6b-1) .eq. int_mb(k_spin+h
@@ -6588,11 +6566,9 @@ c ************
       CALL TCE_SORT_4(dbl_mb(k_cs),dbl_mb(k_c),int_mb(k_range+p5b-1)
      &,int_mb(k_range+h6b-1),int_mb(k_range+h1b-1),int_mb(k_range+p3b-1)
      &,4,2,3,1,-1.0d0/2.0d0)
-c *** peta ***
       CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),dimc,int_mb(k_c_offset),
      &(h6b -1 + noab * (p5b - noab -1 +nvab * (h1b - 1 + noab *
      &( p3b - noab -1 )))))
-c ************
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_7_3',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_7_3',11,MA_
      &ERR)
@@ -6625,9 +6601,6 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
 #include "sym.fh"
 #include "errquit.fh"
 #include "tce.fh"
-c *** peta ***
-c#include "util.fh"
-c*************
       INTEGER d_a
       INTEGER k_a_offset
       INTEGER d_b
@@ -6673,11 +6646,6 @@ c*************
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-c *** peta ****
-c      logical nodezero         ! True if node 0
-c      double precision cpu     ! CPU sec counter
-c      double precision wall    ! WALL sec counter
-c *************
       EXTERNAL NXTASK
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
@@ -6731,24 +6699,9 @@ c             wall = - util_wallsec()
       CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h2b_1
      & - 1 + noab * (h1b_1 - 1 + noab * (p6b_1 - noab - 1 + nvab * (p5b_
      &1 - noab - 1)))))
-c             cpu = cpu + util_cpusec()
-c             wall = wall + util_wallsec()
-c             write(6,*)'      '
-c             write(6,9020)ga_nodeid(),cpu, wall,h2b,h1b,p6b,p5b,dima
-c             write(6,*)'      ' 
-c             call util_flush(6)
-c 
-c             cpu = - util_cpusec()
-c             wall = - util_wallsec()
       CALL TCE_SORT_4(dbl_mb(k_a),dbl_mb(k_as),int_mb(k_range+p5b-1)
      &,int_mb(k_range+p6b-1),int_mb(k_range+h1b-1),int_mb(k_range+h2b-1)
      &,4,3,2,1,1.0d0)
-c             cpu = cpu + util_cpusec()
-c             wall = wall + util_wallsec()
-c             write(6,*)'      '
-c             write(6,9023)ga_nodeid(),cpu, wall
-c             write(6,*)'      '
-c             call util_flush(6)
       IF (.not.MA_POP_STACK(l_a)) CALL ERRQUIT('ccsd_t2_8',3,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dimb,'bs',l_bs,k_bs)) CALL
      & ERRQUIT('ccsd_t2_8',4,MA_ERR)
@@ -6844,12 +6797,6 @@ c             call util_flush(6)
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
- 9020 format('  T2 GA',i4,1x,'Cpu  wall ',2(f17.12,1x),1x,4i4,2x,i10)
- 9021 format('  V2 GA',i4,1x,'Cpu  wall ',2(f17.12,1x),1x,4i4,2x,i10)
- 9022 format('  TRANS',i4,1x,'Cpu  wall ',2(f17.12,1x))  
- 9023 format('  SORT ',i4,1x,'Cpu  wall ',2(f17.12,1x))
- 9024 format('  DGEMM',i4,1x,'Cpu  wall ',2(f17.12,1x))
- 9025 format(' ADD_BL',i4,1x,'Cpu  wall ',2(f17.12,1x))
       RETURN
       END
 
@@ -7016,12 +6963,6 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       END DO
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
- 9020 format('  T2 GA',i4,1x,'Cpu  wall ',2(f17.12,1x),1x,4i4,2x,i10)
- 9021 format('  V2 GA',i4,1x,'Cpu  wall ',2(f17.12,1x),1x,4i4,2x,i10)
- 9022 format('  TRANS',i4,1x,'Cpu  wall ',2(f17.12,1x))  
- 9023 format('  SORT ',i4,1x,'Cpu  wall ',2(f17.12,1x))
- 9024 format('  DGEMM',i4,1x,'Cpu  wall ',2(f17.12,1x))
- 9025 format(' ADD_BL',i4,1x,'Cpu  wall ',2(f17.12,1x))
       RETURN
       END
 
@@ -7244,14 +7185,6 @@ c
 c
       next = NXTASK(-nprocs, 1)
       call ga_sync()
-c
-c 9020 format('  T2 GA',i4,1x,'Cpu  wall ',2(f17.12,1x),1x,4i4,2x,i10)
-c 9021 format('  V2 GA',i4,1x,'Cpu  wall ',2(f17.12,1x),1x,4i4,2x,i10)
-c 9022 format('  TRANS',i4,1x,'Cpu  wall ',2(f17.12,1x))  
-c 9023 format('  SORT ',i4,1x,'Cpu  wall ',2(f17.12,1x))
-c 9024 format('  DGEMM',i4,1x,'Cpu  wall ',2(f17.12,1x))
-c 9025 format(' ADD_BL',i4,1x,'Cpu  wall ',2(f17.12,1x))
-c
       RETURN
       END
 
