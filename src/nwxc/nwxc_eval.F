@@ -3804,6 +3804,23 @@ c     - d2f/drhoadtaua+d2f/drhoadtaub
 c     - d2f/dgammaaadtaua+d2f/dgammaabdtaua+d2f/dgammabbdtaua
 c     - d2f/dtaua2+d2f/dtauadtaub
 c
+c     For the third derivatives
+c     - d3f/drho3
+c     - d3f/drho2dgamma
+c     - d3f/drhodgamma2
+c     - d3f/dgamma3
+c     to the quantities NWChems expects, i.e.
+c     - d3f/drhoa3+3*d3f/drhoa2drhob
+c     - d3f/drhoa2dgammaaa+d3f/drhoa2dgammaab+d3f/drhoa2dgammabb
+c       +d3f/drhoadrhobdgammaaa+d3f/drhoadrhobdgammaab
+c       +d3f/drhoadrhobdgammabb
+c     - d3f/drhoadgammaaa2+2*d3f/drhoadgammaaadgammaab
+c       +2*d3f/drhoadgammaaadgammabb+d3f/drhoadgammaab2
+c       +2*d3f/drhoadgammaabdgammabb+d3f/drhoadgammabb2
+c     - d3f/dgammaaa3+3/2*d3f/dgammaaa2dgammaab
+c       +3/2*d3f/dgammaaa2dgammabb+3/2*d3f/dgammaaadgammaab2
+c       +3*d3f/dgammaaadgammaabdgammabb+3/2*d3f/dgammaaadgammabb2
+c
       double precision sfac_ra  !< the closed shell RA scaling factor
       double precision sfac_gaa !< the closed shell GAA scaling factor
       double precision sfac_ta  !< the closed shell TA scaling factor
@@ -3822,6 +3839,14 @@ c
       parameter(sfac_rata   = 2.0d0)
       parameter(sfac_gaata  = 4.0d0)
       parameter(sfac_tata   = 2.0d0)
+      double precision sfac_rarara    !< a closed shell scaling factor
+      double precision sfac_raragaa   !< a closed shell scaling factor
+      double precision sfac_ragaagaa  !< a closed shell scaling factor
+      double precision sfac_gaagaagaa !< a closed shell scaling factor
+      parameter(sfac_rarara    =  4.0d0)
+      parameter(sfac_raragaa   =  8.0d0)
+      parameter(sfac_ragaagaa  = 16.0d0)
+      parameter(sfac_gaagaagaa = 32.0d0)
 c
       if (ipol.eq.1) then
         do iq = 1, nq
@@ -3930,15 +3955,13 @@ c
               end select
               do ix3 = 1, ix2
                 call get_d3(nwad_f(iq),ix1,ix2,ix3,val,iv1,iv2,iv3)
-                call errquit("df3_driver: 3rd scale factors not done "
-     +                     //"yet",0,CAPMIS_ERR)
                 select case (iv1)
                   case (1)
                     select case (iv2)
                       case (1)
                         select case (iv3)
                           case (1)
-                            dfdr3(iq,D3_RA_RA_RA) = val
+                            dfdr3(iq,D3_RA_RA_RA) = val*sfac_rarara
                             dfdr3(iq,D3_RA_RA_RB) = 0.0d0
                         end select
                     end select
@@ -3947,7 +3970,7 @@ c
                       case (1)
                         select case (iv3)
                           case (1)
-                            dfdg3(iq,D3_RA_RA_GAA) = val
+                            dfdg3(iq,D3_RA_RA_GAA) = val*sfac_raragaa
                             dfdg3(iq,D3_RA_RA_GAB) = 0.0d0
                             dfdg3(iq,D3_RA_RA_GBB) = 0.0d0
                             dfdg3(iq,D3_RA_RB_GAA) = 0.0d0
@@ -3956,14 +3979,15 @@ c
                       case (3)
                         select case (iv3)
                           case (1)
-                            dfdg3(iq,D3_RA_GAA_GAA) = val
+                            dfdg3(iq,D3_RA_GAA_GAA) = val*sfac_ragaagaa
                             dfdg3(iq,D3_RA_GAA_GAB) = 0.0d0
                             dfdg3(iq,D3_RA_GAA_GBB) = 0.0d0
                             dfdg3(iq,D3_RA_GAB_GAB) = 0.0d0
                             dfdg3(iq,D3_RA_GAB_GBB) = 0.0d0
                             dfdg3(iq,D3_RA_GBB_GBB) = 0.0d0
                           case (3)
-                            dfdg3(iq,D3_GAA_GAA_GAA) = val
+                            dfdg3(iq,D3_GAA_GAA_GAA)
+     +                           = val*sfac_gaagaagaa
                             dfdg3(iq,D3_GAA_GAA_GAB) = 0.0d0
                             dfdg3(iq,D3_GAA_GAA_GBB) = 0.0d0
                             dfdg3(iq,D3_GAA_GAB_GAB) = 0.0d0
@@ -3972,6 +3996,10 @@ c
                         end select
                     end select
                   case (6)
+c                   These scale factors need more work as it requires
+c                   meta-GGAs that have non-zero high order derivatives.
+                    call errquit("df3_driver: 3rd scale factors not "
+     +                     //"done yet",0,CAPMIS_ERR)
                     select case (iv2)
                       case (1)
                         select case (iv3)
