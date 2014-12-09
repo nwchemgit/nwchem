@@ -6674,16 +6674,8 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
      &1b-1)+int_mb(k_spin+h2b-1)) THEN
       IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),ieor(int_mb(
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. irrep_t) THEN
-c             cpu = - util_cpusec()
-c             wall = - util_wallsec()
       CALL TCE_RESTRICTED_4(p5b,p6b,h1b,h2b,p5b_1,p6b_1,h1b_1,h2b_1)
       CALL TCE_RESTRICTED_4(p3b,p4b,p5b,p6b,p3b_2,p4b_2,p5b_2,p6b_2)
-c             cpu = cpu + util_cpusec()
-c             wall = wall + util_wallsec()
-c             write(6,*)'      '
-c             write(6,9022)ga_nodeid(),cpu, wall
-c             write(6,*)'      '
-c             call util_flush(6)
       dim_common = int_mb(k_range+p5b-1) * int_mb(k_range+p6b-1)
       dima_sort = int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
       dima = dim_common * dima_sort
@@ -6694,8 +6686,6 @@ c             call util_flush(6)
      & ERRQUIT('ccsd_t2_8',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'a',l_a,k_a)) CALL ERRQUIT('
      &ccsd_t2_8',2,MA_ERR)
-c             cpu = - util_cpusec()
-c             wall = - util_wallsec()
       CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h2b_1
      & - 1 + noab * (h1b_1 - 1 + noab * (p6b_1 - noab - 1 + nvab * (p5b_
      &1 - noab - 1)))))
@@ -6712,31 +6702,14 @@ c             wall = - util_wallsec()
      & - 1 + (noab+nvab) * (p5b_2 - 1 + (noab+nvab) * (p4b_2 - 1 + (noab
      &+nvab) * (p3b_2 - 1)))))
       else
-c             cpu = - util_cpusec()
-c             wall = - util_wallsec()
       CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_b),dimb,int_mb(k_b_offset),
      &(p6b_2
      & - 1 + (noab+nvab) * (p5b_2 - 1 + (noab+nvab) * (p4b_2 - 1 + (noab
      &+nvab) * (p3b_2 - 1)))),p6b_2,p5b_2,p4b_2,p3b_2)
-c             cpu = cpu + util_cpusec()
-c             wall = wall + util_wallsec()
-c             write(6,*)'      '
-c             write(6,9021)ga_nodeid(),cpu, wall,p6b_2,p5b_2,p4b_2,p3b_2,
-c     6                    dimb
-c             write(6,*)'      '
-c             call util_flush(6)
       end if
-c             cpu = - util_cpusec()
-c             wall = - util_wallsec()
       CALL TCE_SORT_4(dbl_mb(k_b),dbl_mb(k_bs),int_mb(k_range+p3b-1)
      &,int_mb(k_range+p4b-1),int_mb(k_range+p5b-1),int_mb(k_range+p6b-1)
      &,2,1,4,3,1.0d0)
-c             cpu = cpu + util_cpusec()
-c             wall = wall + util_wallsec()
-c             write(6,*)'      '
-c             write(6,9023)ga_nodeid(),cpu, wall
-c             write(6,*)'      '
-c             call util_flush(6)
       IF (.not.MA_POP_STACK(l_b)) CALL ERRQUIT('ccsd_t2_8',6,MA_ERR)
       nsuperp(1) = 1
       nsuperp(2) = 1
@@ -6746,17 +6719,9 @@ c             call util_flush(6)
       ELSE
       isuperp = isuperp + 1
       END IF
-c             cpu = - util_cpusec()
-c             wall = - util_wallsec()
       CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,2.0d0/FACTORIAL(
      &nsuperp(1))/FACTORIAL(nsuperp(2)),dbl_mb(k_as),dim_common,dbl_
      &mb(k_bs),dim_common,1.0d0,dbl_mb(k_cs),dima_sort)
-c             cpu = cpu + util_cpusec()
-c             wall = wall + util_wallsec()
-c             write(6,*)'      '
-c             write(6,9024)ga_nodeid(),cpu, wall
-c             write(6,*)'      '
-c             call util_flush(6)
       IF (.not.MA_POP_STACK(l_bs)) CALL ERRQUIT('ccsd_t2_8',7,MA_ERR
      &)
       IF (.not.MA_POP_STACK(l_as)) CALL ERRQUIT('ccsd_t2_8',8,MA_ERR
@@ -6771,17 +6736,9 @@ c             call util_flush(6)
       CALL TCE_SORT_4(dbl_mb(k_cs),dbl_mb(k_c),int_mb(k_range+p4b-1)
      &,int_mb(k_range+p3b-1),int_mb(k_range+h2b-1),int_mb(k_range+h1b-1)
      &,2,1,4,3,1.0d0/2.0d0)
-c             cpu = - util_cpusec()
-c             wall = - util_wallsec()
       CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),dimc,int_mb(k_c_offset),(h2b -
      & 1 + noab * (h1b - 1 + noab * (p4b - noab - 1 + nvab * (p3b - noab
      & - 1)))))
-c             cpu = cpu + util_cpusec()
-c             wall = wall + util_wallsec()
-c             write(6,*)'      '
-c             write(6,9025)ga_nodeid(),cpu, wall
-c             write(6,*)'      '
-c             call util_flush(6)
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccsd_t2_8',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_cs)) CALL ERRQUIT('ccsd_t2_8',11,MA_ER
      &R)
