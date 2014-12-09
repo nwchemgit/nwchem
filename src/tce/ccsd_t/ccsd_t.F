@@ -141,7 +141,7 @@ c -----------
             call ccsd_t_doubles_l(dbl_mb(k_doubles),
      1        d_t2,d_v2,k_t2_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
- #ifdef USE_OMP_TRIPLES_DOT_PRODUCT
+#ifdef USE_OMP_TRIPLES_DOT_PRODUCT
             call ccsd_t_dot(dbl_mb(k_singles),dbl_mb(k_doubles),
      &                      t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
      &                      offset_h1,offset_h2,offset_h3,
