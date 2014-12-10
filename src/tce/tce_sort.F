@@ -3,13 +3,6 @@ c
 c $Id$
 c
       implicit none
-c#include "global.fh"
-c#include "mafdecls.fh"
-c#include "sym.fh"
-c#include "util.fh"
-c#include "stdio.fh"
-c#include "errquit.fh"
-c#include "tce.fh"
       double precision sorted
       double precision unsorted
       double precision factor
@@ -25,12 +18,7 @@ c
 c $Id$
 c
       implicit none
-c#include "global.fh"
-c#include "mafdecls.fh"
-c#include "sym.fh"
 #include "util.fh"
-c#include "stdio.fh"
-c#include "errquit.fh"
 #include "tce_main.fh"
       integer a,b
       integer i,j
@@ -65,12 +53,7 @@ c
 c $Id$
 c
       implicit none
-c#include "global.fh"
-c#include "mafdecls.fh"
-c#include "sym.fh"
 #include "util.fh"
-c#include "stdio.fh"
-c#include "errquit.fh"
 #include "tce_main.fh"
       integer a,b,c,d
       integer i,j,k,l
@@ -146,12 +129,7 @@ c
 c $Id$
 c
       implicit none
-c#include "global.fh"
-c#include "mafdecls.fh"
-c#include "sym.fh"
 #include "util.fh"
-c#include "stdio.fh"
-c#include "errquit.fh"
 #include "tce_main.fh"
       integer a,b,c,d,e,f
       integer i,j,k,l,m,n
