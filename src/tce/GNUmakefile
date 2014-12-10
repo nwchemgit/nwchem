@@ -99,16 +99,26 @@ OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5
 
 # OLD DEFAULT
 #OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
-# OLD NON-DEFAULT
-#OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
-# NEW
+
+# OLD NON-DEFAULT (missing some cases that can be added per-file as below)
+#OBJ_OPTIMIZE += tce_sortacc_saday.o tce_sort_saday.o
+
+# These are pointless utility routines that exist only because of code generator.
 OBJ_OPTIMIZE += tce_sort0.o tce_sortacc0.o
-OBJ_OPTIMIZE += tce_sort2.o tce_sortacc2.o
-#OBJ_OPTIMIZE += tce_sort4.o tce_sortacc4.o
+
+# NEW sorts - faster, simpler, amenable to OpenMP
+OBJ_OPTIMIZE += new_sort2.o 
 OBJ_OPTIMIZE += new_sort4.o 
-#OBJ_OPTIMIZE += tce_sort6.o tce_sortacc6.o
 OBJ_OPTIMIZE += new_sort6.o 
+# OLD sorts
+#OBJ_OPTIMIZE += tce_sort2.o tce_sortacc2.o
+#OBJ_OPTIMIZE += tce_sort4.o tce_sortacc4.o
+#OBJ_OPTIMIZE += tce_sort6.o tce_sortacc6.o
+
+# These have not been optimized yet because quadruples do not get used much.
 OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o
+
+# This is used in the EOM code.
 OBJ_OPTIMIZE += tce_sort1.o
 
 ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LAPI64 IBM64))
