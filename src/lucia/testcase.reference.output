@@ -1,3 +1,4 @@
+ argument  1 = testcase.nw
                                          
                                          
 
@@ -37,14 +38,14 @@
 
     hostname        = fryslan
     program         = ../../bin/LINUX64/nwchem
-    date            = Fri Jan 31 16:57:07 2014
+    date            = Wed Dec 10 10:44:46 2014
 
-    compiled        = Fri_Jan_31_16:56:48_2014
+    compiled        = Wed_Dec_10_10:43:37_2014
     source          = /home/users/wadejong/nwchem
     nwchem branch   = Development
     nwchem revision = 25154
-    ga revision     = 10466
-    input           = nwchem.nw
+    ga revision     = 10481
+    input           = testcase.nw
     prefix          = c2h4.
     data base       = ./c2h4.db
     status          = startup
@@ -350,7 +351,7 @@
 
  Integral file          = ./c2h4.aoints.0
  Record size in doubles =    65536    No. of integs per rec  =    43688
- Max. records in memory =        5    Max. records in file   =  1689367
+ Max. records in memory =        5    Max. records in file   =  1655763
  No. of bits per label  =        8    No. of bits per value  =       64
 
 
@@ -1032,7 +1033,7 @@
          Initial energy evaluations skipped after first calc
          (Only active in connection with TERACI )
          Allowed Dimension of CI subspace 20
-         Convergence threshold for energy 0.10000E-05
+         Convergence threshold for energy 0.10000E-07
          No multispace method in use 
 
 
@@ -1074,16 +1075,6 @@
   Number of double excitations obtained                354976
   Number of double excitations obtained                707648
   NSBCLS ==                     1
-  The generated occupation sub classes 
-  =====================================
-
-  Occupation sub class    Occupation   Gaspace 
-  =============================================
-          1                 12            1
-  Minimum number of open orbitals per oc sub class 
-  ================================================= 
-
-<  1>        0
 
 
   Dimension of CI-expansions per symmetry 
@@ -1099,7 +1090,7 @@
  Largest type-type block (all symmetries)(as real)    0.1079520000000E+06
 
   Largest number of blocks in CI expansion                    8
-  ECORE_INA =   -36.795230742452063     
+  one-electron term to Ecore   -92.637123809125484     
   Core energy: updated and read in   -36.795230742452063        46.854123441322670     
   MO-AO transformation matrix of starting orbitals
   MO - AO transformation matrix 
@@ -1246,141 +1237,168 @@
   Output from outer iteration                    1
   ----------------------------------
 
-  NDET_MAX, NDET =                 54438                54438
+  Output from FNDMND
+  ===================
+
+  LBLK =                 54438
+  Lowest elements and their original place 
+  Number of elements obtained                     4
+0  1    -0.7676222660100053E+02  -0.7612243629557724E+02  -0.7606203295759839E+02  -0.7594927002415585E+02
+ 
+
+<  1>    11755   11775   11756   45748
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
  >>> CI-OPT Iter Root E g-norm g-red  9  1-0.767779E+02 0.611E-06 0.238E+06
-  Energy from density   -76.777936013523586     
-  Energy and residual from CI :  -76.777936013521099       6.10927060909242919E-007
-  Energy from density matrices   -76.777936013523586     
-  Norm of updated kappa step =  0.71392413349153228     
+  Energy from density   -76.777936013523572     
+  Energy and residual from CI :  -76.777936013521057       6.10927060987134375E-007
+  Energy from density matrices   -76.777936013523572     
+  Norm of updated kappa step =  0.71392413349155892     
   Energy for rotated orbitals  -76.797422150744950     
 
   ----------------------------------
   Output from outer iteration                    2
   ----------------------------------
 
-  NDET_MAX, NDET =                 54438                54438
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
  >>> CI-OPT Iter Root E g-norm g-red 10  1-0.768104E+02 0.457E-06 0.322E+06
-  Energy from density   -76.810358269218369     
-  Energy and residual from CI :  -76.810358269215342       4.57333835594049797E-007
-  Energy from density matrices   -76.810358269218369     
-  Norm of updated kappa step =  0.73466628795561517     
-  Energy for rotated orbitals  -76.834256684406910     
+  Energy from density   -76.810358269218284     
+  Energy and residual from CI :  -76.810358269215087       4.57333794951818948E-007
+  Energy from density matrices   -76.810358269218284     
+  Norm of updated kappa step =  0.73466628795563860     
+  Energy for rotated orbitals  -76.834256684406768     
 
   ----------------------------------
   Output from outer iteration                    3
   ----------------------------------
 
-  NDET_MAX, NDET =                 54438                54438
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
  >>> CI-OPT Iter Root E g-norm g-red 10  1-0.768380E+02 0.426E-06 0.235E+06
-  Energy from density   -76.837987182396247     
-  Energy and residual from CI :  -76.837987182395494       4.25557791474141979E-007
-  Energy from density matrices   -76.837987182396247     
-  Norm of updated kappa step =   1.0276061893016255     
-  Energy for rotated orbitals  -76.850862749655988     
+  Energy from density   -76.837987182396063     
+  Energy and residual from CI :  -76.837987182395324       4.25557787968591148E-007
+  Energy from density matrices   -76.837987182396063     
+  Norm of updated kappa step =   1.0276061893029602     
+  Energy for rotated orbitals  -76.850862749655846     
 
   ----------------------------------
   Output from outer iteration                    4
   ----------------------------------
 
-  NDET_MAX, NDET =                 54438                54438
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
  >>> CI-OPT Iter Root E g-norm g-red  9  1-0.768520E+02 0.760E-06 0.690E+05
-  Energy from density   -76.852047376559995     
-  Energy and residual from CI :  -76.852047376559014       7.60332035842967828E-007
-  Energy from density matrices   -76.852047376559995     
-  Norm of updated kappa step =  7.02335396484910085E-002
-  Energy for rotated orbitals  -76.852192738302989     
+  Energy from density   -76.852047376559966     
+  Energy and residual from CI :  -76.852047376558744       7.60331949631340569E-007
+  Energy from density matrices   -76.852047376559966     
+  Norm of updated kappa step =  7.02335396487194508E-002
+  Energy for rotated orbitals  -76.852192738302975     
 
   ----------------------------------
   Output from outer iteration                    5
   ----------------------------------
 
-  NDET_MAX, NDET =                 54438                54438
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
  >>> CI-OPT Iter Root E g-norm g-red  8  1-0.768522E+02 0.606E-06 0.156E+05
   Energy from density   -76.852227406028675     
-  Energy and residual from CI :  -76.852227406028135       6.06263883336927453E-007
+  Energy and residual from CI :  -76.852227406028277       6.06263867115305883E-007
   Energy from density matrices   -76.852227406028675     
-  Norm of updated kappa step =  2.26035604775769623E-002
-  Energy for rotated orbitals  -76.852239020635437     
+  Norm of updated kappa step =  2.26035604788432549E-002
+  Energy for rotated orbitals  -76.852239020635466     
 
   ----------------------------------
   Output from outer iteration                    6
   ----------------------------------
 
-  NDET_MAX, NDET =                 54438                54438
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
  >>> CI-OPT Iter Root E g-norm g-red  7  1-0.768522E+02 0.892E-06 0.367E+04
-  Energy from density   -76.852243033669779     
-  Energy and residual from CI :  -76.852243033667150       8.92398332434180944E-007
-  Energy from density matrices   -76.852243033669779     
-  Norm of updated kappa step =  8.47925109884928134E-003
-  Energy for rotated orbitals  -76.852244500362218     
+  Energy from density   -76.852243033669708     
+  Energy and residual from CI :  -76.852243033667378       8.92398237971359366E-007
+  Energy from density matrices   -76.852243033669708     
+  Norm of updated kappa step =  8.47925109734681999E-003
+  Energy for rotated orbitals  -76.852244500362247     
 
   ----------------------------------
   Output from outer iteration                    7
   ----------------------------------
 
-  NDET_MAX, NDET =                 54438                54438
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
  >>> CI-OPT Iter Root E g-norm g-red  7  1-0.768522E+02 0.308E-06 0.398E+04
-  Energy from density   -76.852245043120121     
-  Energy and residual from CI :  -76.852245043118103       3.08155464554135239E-007
-  Energy from density matrices   -76.852245043120121     
-  Norm of updated kappa step =  3.23874347544162453E-003
-  Energy for rotated orbitals  -76.852245248372867     
+  Energy from density   -76.852245043120135     
+  Energy and residual from CI :  -76.852245043118089       3.08155460565638514E-007
+  Energy from density matrices   -76.852245043120135     
+  Norm of updated kappa step =  3.23874347604921359E-003
+  Energy for rotated orbitals  -76.852245248372824     
 
   ----------------------------------
   Output from outer iteration                    8
   ----------------------------------
 
-  NDET_MAX, NDET =                 54438                54438
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
  >>> CI-OPT Iter Root E g-norm g-red  6  1-0.768522E+02 0.519E-06 0.907E+03
   Energy from density   -76.852245327037167     
-  Energy and residual from CI :  -76.852245327036272       5.18655442394798189E-007
-  MCSCF calculation has converged
-  Convergence of MCSCF was obtained in                     7  iterations
-  Total number of inner iterations    7
-  Final MO-AO transformation stored in MOAOIN, MOAO_ACT, MOAOUT
-  NDET_MAX, NDET =                 54438                54438
+  Energy and residual from CI :  -76.852245327036314       5.18655027729686194E-007
+  Energy from density matrices   -76.852245327037167     
+  Norm of updated kappa step =  1.27254635317291891E-003
+  Energy for rotated orbitals  -76.852245357978020     
+
+  ----------------------------------
+  Output from outer iteration                    9
+  ----------------------------------
+
   MINDV4 in action 
   Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  1  1-0.768522E+02 0.519E-06 0.100E+01
+ >>> CI-OPT Iter Root E g-norm g-red  5  1-0.768522E+02 0.982E-06 0.193E+03
+  Energy from density   -76.852245370706441     
+  Energy and residual from CI :  -76.852245370703812       9.81928585665433644E-007
+  Energy from density matrices   -76.852245370706441     
+  Norm of updated kappa step =  5.82795279392641394E-004
+  Energy for rotated orbitals  -76.852245376427305     
+
+  ----------------------------------
+  Output from outer iteration                   10
+  ----------------------------------
+
+  MINDV4 in action 
+  Convergence threshold for residual =   9.99999999999999955E-007
+ >>> CI-OPT Iter Root E g-norm g-red  5  1-0.768522E+02 0.472E-06 0.194E+03
+  Energy from density   -76.852245379403755     
+  Energy and residual from CI :  -76.852245379401438       4.72436268318609407E-007
+  MCSCF calculation has converged
+  Convergence of MCSCF was obtained in                     9  iterations
+  Total number of inner iterations    9
+  Final MO-AO transformation stored in MOAOIN, MOAO_ACT, MOAOUT
+  MINDV4 in action 
+  Convergence threshold for residual =   9.99999999999999955E-007
+ >>> CI-OPT Iter Root E g-norm g-red  1  1-0.768522E+02 0.472E-06 0.100E+01
 
   Natural occupation numbers for general symmetry 
   =================================================
 
  Symmetry =     1
   ===================
-0  1     0.1993650610E+01   0.1990473530E+01   0.7089825098E-02
+0  1     0.1993652825673591E+01   0.1990471862669064E+01   0.7089239709129691E-02
  Symmetry =     2
   ===================
-0  1     0.1992690850E+01   0.6784325653E-02
+0  1     0.1992694922869108E+01   0.6782084993392952E-02
  Symmetry =     3
   ===================
-0  1     0.1964461782E+01
+0  1     0.1964458485363101E+01
  Symmetry =     5
   ===================
-0  1     0.1992409539E+01   0.9375227802E-02   0.6788077844E-02
+0  1     0.1992410986596412E+01   0.9374341384610057E-02   0.6787260495589515E-02
  Symmetry =     6
   ===================
-0  1     0.1991336939E+01   0.8109326024E-02
+0  1     0.1991336864668055E+01   0.8107767552069035E-02
  Symmetry =     7
   ===================
-0  1     0.3682996835E-01
-  Energy from density   -76.852245327037167     
+0  1     0.3683335802605548E-01
+  Energy from density   -76.852245379403755     
   Final MOs in AO basis (not natural or canonical)
   MO - AO transformation matrix 
   ------------------------------
@@ -1389,23 +1407,23 @@
 
                    1      2      3      4      5      6      7      8      9     10
                 0.993 -0.112  0.031  0.154  0.107 -0.513 -0.345  0.284 -0.408 -1.356
-                0.000  0.782 -0.155  1.521  0.799 -2.040 -1.338  0.971 -1.182 -3.913
-               -0.004 -0.457 -0.100 -1.416  1.367  6.178  5.398 -0.689  2.762  5.695
-               -0.017 -0.151  1.026  0.976 -0.549  0.277  0.228 -0.046 -0.158  2.514
-                0.003 -0.012 -0.408 -0.789  2.443  1.162  1.280  1.303  0.548 -0.663
-                0.009  0.016 -0.003  0.182  0.053 -0.040  0.115 -0.863 -0.162  3.300
+                0.000  0.782 -0.155  1.521  0.801 -2.041 -1.338  0.970 -1.182 -3.913
+               -0.004 -0.457 -0.100 -1.415  1.366  6.179  5.398 -0.688  2.762  5.695
+               -0.017 -0.151  1.026  0.977 -0.548  0.276  0.228 -0.047 -0.158  2.514
+                0.003 -0.012 -0.408 -0.790  2.442  1.163  1.280  1.303  0.548 -0.663
+                0.009  0.016 -0.003  0.181  0.054 -0.040  0.115 -0.864 -0.162  3.300
                -0.003 -0.006  0.010 -0.078 -0.018 -0.306  0.517  0.059  1.034 -0.907
-                0.002  0.645  0.553 -0.761 -0.521 -1.371 -0.418 -0.550 -2.347 -1.041
-                0.002 -0.234 -0.148  0.356 -0.944 -1.923 -2.836  0.607  0.771 -0.742
-                0.001 -0.019 -0.016 -0.204 -0.097 -0.050  0.286 -0.066 -0.983  1.720
-               -0.007 -0.025 -0.017 -0.487 -0.167 -0.043 -0.225 -0.632  0.263 -2.348
+                0.002  0.645  0.553 -0.762 -0.522 -1.370 -0.418 -0.549 -2.347 -1.041
+                0.002 -0.234 -0.148  0.357 -0.943 -1.924 -2.836  0.607  0.771 -0.742
+                0.001 -0.019 -0.016 -0.203 -0.097 -0.050  0.286 -0.066 -0.983  1.720
+               -0.007 -0.025 -0.017 -0.487 -0.168 -0.043 -0.225 -0.631  0.263 -2.348
                   11
                 3.630
                12.073
                -7.014
                 3.651
                -1.538
-               -0.114
+               -0.115
                 0.731
                -8.633
                 4.569
@@ -1415,12 +1433,12 @@
   MO's with symmetry                     2
 
                    1      2      3      4      5      6      7
-                0.810 -1.611 -0.049  0.117  0.097  0.561 -4.280
-               -0.353  1.348  2.625 -1.995 -0.802  0.324  1.217
-               -0.026  0.409 -0.097  0.611  0.729  0.719  1.232
-                0.767  1.184 -1.836 -0.171  0.576  0.289  8.158
+                0.810 -1.611 -0.048  0.118  0.097  0.561 -4.279
+               -0.353  1.348  2.624 -1.996 -0.803  0.323  1.217
+               -0.026  0.410 -0.097  0.611  0.729  0.719  1.232
+                0.767  1.183 -1.837 -0.172  0.576  0.288  8.157
                -0.178 -0.854 -3.762  4.946 -0.657 -1.481 -3.416
-               -0.047  0.435 -0.218 -0.007  1.401 -0.578 -1.605
+               -0.047  0.435 -0.219 -0.008  1.401 -0.578 -1.605
                -0.037  0.228 -0.151 -0.216  0.214  1.513 -1.107
 
   MO's with symmetry                     3
@@ -1441,14 +1459,14 @@
 
                    1      2      3      4      5      6      7      8      9     10
                 0.999  0.116 -0.036  0.418 -0.505  0.078  0.088 -0.241 -0.151 -0.944
-               -0.003 -0.456  0.729  2.476 -1.908  0.186  0.167 -0.653  0.089 -3.247
-               -0.021  0.657 -1.755 -1.188  6.339 18.914  0.823  4.809  6.053  5.703
-                0.000 -0.492  1.379 -2.190  0.241 -0.748 -0.062  0.322 -1.814  3.424
-                0.002  0.158 -0.749  1.083  3.724-10.844  0.839 -0.384 -0.201 -2.943
+               -0.003 -0.456  0.728  2.476 -1.908  0.186  0.167 -0.653  0.089 -3.247
+               -0.021  0.657 -1.754 -1.188  6.339 18.914  0.823  4.809  6.052  5.703
+                0.000 -0.492  1.380 -2.190  0.241 -0.748 -0.062  0.322 -1.814  3.424
+                0.002  0.158 -0.750  1.083  3.724-10.844  0.839 -0.383 -0.201 -2.943
                -0.002 -0.014 -0.071 -0.298  0.252  0.713  0.047  1.528  0.030 -4.070
                 0.002  0.013 -0.011  0.045 -0.175 -0.002  0.631  0.106  1.593  2.441
                 0.004 -0.952 -0.637 -0.115 -1.722 -0.742  0.644 -1.393 -2.006 -4.532
-                0.003  0.306  0.432 -0.074 -4.768  3.949 -2.442  0.382  0.335  2.595
+                0.003  0.306  0.433 -0.074 -4.768  3.949 -2.442  0.382  0.335  2.595
                -0.003  0.017 -0.334 -0.194  0.139 -0.075  0.308  0.472 -1.258 -1.447
                -0.002  0.051 -0.345  0.085 -0.409  0.217  0.035 -1.907  0.533  2.937
                   11
@@ -1467,18 +1485,18 @@
   MO's with symmetry                     6
 
                    1      2      3      4      5      6      7
-                0.801 -1.677 -0.224 -0.063  0.243  3.278 -2.442
+                0.800 -1.677 -0.224 -0.063  0.243  3.278 -2.442
                -0.521  1.911  9.448  2.251  3.385 -2.047  0.195
-                0.006 -0.154  0.399  0.292 -0.040  3.308  5.604
+                0.006 -0.153  0.399  0.292 -0.040  3.308  5.604
                 1.196  0.540 -0.810 -1.421 -0.634  1.471 13.965
                 0.009 -0.396-11.937  0.758 -1.865 -0.676 -7.206
-               -0.058  0.430 -0.418 -0.159 -1.632  0.707 -1.882
-               -0.016  0.098  0.094 -0.786  0.531  1.829 -0.062
+               -0.058  0.430 -0.418 -0.159 -1.633  0.707 -1.882
+               -0.016  0.099  0.094 -0.786  0.531  1.829 -0.062
 
   MO's with symmetry                     7
 
                    1      2      3      4
-                1.607 -0.712  1.735  0.601
+                1.607 -0.712  1.736  0.601
                -0.564  2.722 -0.056 -0.306
                 0.020 -0.223 -1.405  2.555
                 0.011 -0.151 -0.503 -2.091
@@ -1492,44 +1510,46 @@
   Part of CMO2 that is spanned by CMO1
  Symmetry =     1
   ===================
-0  1     0.9999999868E+00   0.9999886742E+00   0.9999759302E+00   0.2939184729E+00
+0  1     0.9999999868570483E+00   0.9999886947636474E+00   0.9999759632744055E+00   0.2935825203250459E+00
  
  Symmetry =     2
   ===================
-0  1     0.9999706765E+00   0.3243198901E+00
+0  1     0.9999707353304870E+00   0.3241331294253792E+00
  Symmetry =     3
   ===================
-0  1     0.9994937894E+00
+0  1     0.9994940254740132E+00
  Symmetry =     5
   ===================
-0  1     0.9999999640E+00   0.9999773717E+00   0.2826364886E+00   0.1024331599E+00
+0  1     0.9999999639739783E+00   0.9999773760677547E+00   0.2826430261694582E+00   0.1024284925119517E+00
  
  Symmetry =     6
   ===================
-0  1     0.9999440098E+00   0.2546854081E+00
+0  1     0.9999441254944241E+00   0.2546790509972184E+00
  Symmetry =     7
   ===================
-0  1     0.6673492989E+00
+0  1     0.6673910613587100E+00
+
   Projecting final (MO2) on initial (MO1) active orbitals
   Part of CMO2 that is spanned by CMO1
  Symmetry =     1
   ===================
-0  1     0.9999879759E+00   0.9996126246E+00   0.2939184321E+00
+0  1     0.9999880167570948E+00   0.9996132762359521E+00   0.2935824797057023E+00
  Symmetry =     2
   ===================
-0  1     0.9999706765E+00   0.3243198901E+00
+0  1     0.9999707353304862E+00   0.3241331294253792E+00
  Symmetry =     3
   ===================
-0  1     0.9994937894E+00
+0  1     0.9994940254740137E+00
  Symmetry =     5
   ===================
-0  1     0.9999346057E+00   0.2826364803E+00   0.1024331234E+00
+0  1     0.9999341189499635E+00   0.2826430177935662E+00   0.1024284559616207E+00
  Symmetry =     6
   ===================
-0  1     0.9999440098E+00   0.2546854081E+00
+0  1     0.9999441254944241E+00   0.2546790509972184E+00
  Symmetry =     7
   ===================
-0  1     0.6673492989E+00
+0  1     0.6673910613587100E+00
+
 
   Summary of MCSCF convergence: 
   ==============================
@@ -1542,10 +1562,12 @@
    5    .493E-02    .226E-01   .606E-06    -76.852227406028
    6    .138E-02    .848E-02   .892E-06    -76.852243033667
    7    .399E-03    .324E-02   .308E-06    -76.852245043118
+   8    .121E-03    .127E-02   .519E-06    -76.852245327036
+   9    .381E-04    .583E-03   .982E-06    -76.852245370704
 
 
- Final energy =     -76.852245327035
- Final norm of orbital gradient =       0.000120548793
+ Final energy =     -76.852245379403
+ Final norm of orbital gradient =       0.000014178350
   Final, final, final orbitals: 
   MO - AO transformation matrix 
   ------------------------------
@@ -1554,23 +1576,23 @@
 
                    1      2      3      4      5      6      7      8      9     10
                 0.993 -0.112  0.031  0.154  0.107 -0.513 -0.345  0.284 -0.408 -1.356
-                0.000  0.782 -0.155  1.521  0.799 -2.040 -1.338  0.971 -1.182 -3.913
-               -0.004 -0.457 -0.100 -1.416  1.367  6.178  5.398 -0.689  2.762  5.695
-               -0.017 -0.151  1.026  0.976 -0.549  0.277  0.228 -0.046 -0.158  2.514
-                0.003 -0.012 -0.408 -0.789  2.443  1.162  1.280  1.303  0.548 -0.663
-                0.009  0.016 -0.003  0.182  0.053 -0.040  0.115 -0.863 -0.162  3.300
+                0.000  0.782 -0.155  1.521  0.801 -2.041 -1.338  0.970 -1.182 -3.913
+               -0.004 -0.457 -0.100 -1.415  1.366  6.179  5.398 -0.688  2.762  5.695
+               -0.017 -0.151  1.026  0.977 -0.548  0.276  0.228 -0.047 -0.158  2.514
+                0.003 -0.012 -0.408 -0.790  2.442  1.163  1.280  1.303  0.548 -0.663
+                0.009  0.016 -0.003  0.181  0.054 -0.040  0.115 -0.864 -0.162  3.300
                -0.003 -0.006  0.010 -0.078 -0.018 -0.306  0.517  0.059  1.034 -0.907
-                0.002  0.645  0.553 -0.761 -0.521 -1.371 -0.418 -0.550 -2.347 -1.041
-                0.002 -0.234 -0.148  0.356 -0.944 -1.923 -2.836  0.607  0.771 -0.742
-                0.001 -0.019 -0.016 -0.204 -0.097 -0.050  0.286 -0.066 -0.983  1.720
-               -0.007 -0.025 -0.017 -0.487 -0.167 -0.043 -0.225 -0.632  0.263 -2.348
+                0.002  0.645  0.553 -0.762 -0.522 -1.370 -0.418 -0.549 -2.347 -1.041
+                0.002 -0.234 -0.148  0.357 -0.943 -1.924 -2.836  0.607  0.771 -0.742
+                0.001 -0.019 -0.016 -0.203 -0.097 -0.050  0.286 -0.066 -0.983  1.720
+               -0.007 -0.025 -0.017 -0.487 -0.168 -0.043 -0.225 -0.631  0.263 -2.348
                   11
                 3.630
                12.073
                -7.014
                 3.651
                -1.538
-               -0.114
+               -0.115
                 0.731
                -8.633
                 4.569
@@ -1580,12 +1602,12 @@
   MO's with symmetry                     2
 
                    1      2      3      4      5      6      7
-                0.810 -1.611 -0.049  0.117  0.097  0.561 -4.280
-               -0.353  1.348  2.625 -1.995 -0.802  0.324  1.217
-               -0.026  0.409 -0.097  0.611  0.729  0.719  1.232
-                0.767  1.184 -1.836 -0.171  0.576  0.289  8.158
+                0.810 -1.611 -0.048  0.118  0.097  0.561 -4.279
+               -0.353  1.348  2.624 -1.996 -0.803  0.323  1.217
+               -0.026  0.410 -0.097  0.611  0.729  0.719  1.232
+                0.767  1.183 -1.837 -0.172  0.576  0.288  8.157
                -0.178 -0.854 -3.762  4.946 -0.657 -1.481 -3.416
-               -0.047  0.435 -0.218 -0.007  1.401 -0.578 -1.605
+               -0.047  0.435 -0.219 -0.008  1.401 -0.578 -1.605
                -0.037  0.228 -0.151 -0.216  0.214  1.513 -1.107
 
   MO's with symmetry                     3
@@ -1606,14 +1628,14 @@
 
                    1      2      3      4      5      6      7      8      9     10
                 0.999  0.116 -0.036  0.418 -0.505  0.078  0.088 -0.241 -0.151 -0.944
-               -0.003 -0.456  0.729  2.476 -1.908  0.186  0.167 -0.653  0.089 -3.247
-               -0.021  0.657 -1.755 -1.188  6.339 18.914  0.823  4.809  6.053  5.703
-                0.000 -0.492  1.379 -2.190  0.241 -0.748 -0.062  0.322 -1.814  3.424
-                0.002  0.158 -0.749  1.083  3.724-10.844  0.839 -0.384 -0.201 -2.943
+               -0.003 -0.456  0.728  2.476 -1.908  0.186  0.167 -0.653  0.089 -3.247
+               -0.021  0.657 -1.754 -1.188  6.339 18.914  0.823  4.809  6.052  5.703
+                0.000 -0.492  1.380 -2.190  0.241 -0.748 -0.062  0.322 -1.814  3.424
+                0.002  0.158 -0.750  1.083  3.724-10.844  0.839 -0.383 -0.201 -2.943
                -0.002 -0.014 -0.071 -0.298  0.252  0.713  0.047  1.528  0.030 -4.070
                 0.002  0.013 -0.011  0.045 -0.175 -0.002  0.631  0.106  1.593  2.441
                 0.004 -0.952 -0.637 -0.115 -1.722 -0.742  0.644 -1.393 -2.006 -4.532
-                0.003  0.306  0.432 -0.074 -4.768  3.949 -2.442  0.382  0.335  2.595
+                0.003  0.306  0.433 -0.074 -4.768  3.949 -2.442  0.382  0.335  2.595
                -0.003  0.017 -0.334 -0.194  0.139 -0.075  0.308  0.472 -1.258 -1.447
                -0.002  0.051 -0.345  0.085 -0.409  0.217  0.035 -1.907  0.533  2.937
                   11
@@ -1632,18 +1654,18 @@
   MO's with symmetry                     6
 
                    1      2      3      4      5      6      7
-                0.801 -1.677 -0.224 -0.063  0.243  3.278 -2.442
+                0.800 -1.677 -0.224 -0.063  0.243  3.278 -2.442
                -0.521  1.911  9.448  2.251  3.385 -2.047  0.195
-                0.006 -0.154  0.399  0.292 -0.040  3.308  5.604
+                0.006 -0.153  0.399  0.292 -0.040  3.308  5.604
                 1.196  0.540 -0.810 -1.421 -0.634  1.471 13.965
                 0.009 -0.396-11.937  0.758 -1.865 -0.676 -7.206
-               -0.058  0.430 -0.418 -0.159 -1.632  0.707 -1.882
-               -0.016  0.098  0.094 -0.786  0.531  1.829 -0.062
+               -0.058  0.430 -0.418 -0.159 -1.633  0.707 -1.882
+               -0.016  0.099  0.094 -0.786  0.531  1.829 -0.062
 
   MO's with symmetry                     7
 
                    1      2      3      4
-                1.607 -0.712  1.735  0.601
+                1.607 -0.712  1.736  0.601
                -0.564  2.722 -0.056 -0.306
                 0.020 -0.223 -1.405  2.555
                 0.011 -0.151 -0.503 -2.091
@@ -1664,80 +1686,80 @@
 
   Space   Form of calc.      E(final)       Error norm Converged?
  ---------------------------------------------------------------
-    1        MCSCF     -76.852245327035     0.12107E-03    + 
+    1        MCSCF     -76.852245379403     0.14651E-04    + 
 
   Information about COPVEC calls: 
   ===============================
 
- Number of calls = .354E+06
- Number of R*8 words copied = .551E+08
+ Number of calls = .418E+06
+ Number of R*8 words copied = .699E+08
 
   Information about MATML7 calls: 
   ================================
 
- Number of calls=    46047816.000000000     
- Number of flops executed = .177E+11
- Average row length of C = .214E+02
+ Number of calls=    53520084.000000000     
+ Number of flops executed = .206E+11
+ Average row length of C = .212E+02
  Average column  length of C = .256E+01
- Average number of operations per element of  C = .831E+01
- Average number of operations per per call = .383E+03
- Number of seconds spent in MATML7 = .111E+02
- Average MFLOPS = .158E+04
+ Average number of operations per element of  C = .840E+01
+ Average number of operations per per call = .384E+03
+ Number of seconds spent in MATML7 = .128E+02
+ Average MFLOPS = .161E+04
   ========
    MATCG: 
   ========
 
- Number of calls =               2825730
- Number of operations = .440E+09
+ Number of calls =               3340690
+ Number of operations = .519E+09
 
   ========
    MATCAS: 
   ========
 
- Number of calls =               1590570
- Number of operations = .237E+09
+ Number of calls =               1831050
+ Number of operations = .273E+09
 
   ============
    ADD_SKAIIB: 
   ============
 
- Number of calls =                209496
- Number of operations = .257E+09
+ Number of calls =                736930
+ Number of operations = .904E+09
 
   ============
    GET_CKAJJB: 
   ============
 
- Number of calls =                249756
- Number of operations = .520E+09
+ Number of calls =                732558
+ Number of operations = .153E+10
 
   ==========
    COPVEC: 
   ==========
 
- Number of calls =                354438
- Number of operations = .551E+08
+ Number of calls =                417744
+ Number of operations = .699E+08
 
   ==========
    SETVEC: 
   ==========
 
- Number of calls =               1289789
- Number of operations = .880E+09
+ Number of calls =               1902170
+ Number of operations = .207E+10
 
   ==========
    SCALVE: 
   ==========
 
- Number of calls =                  3644
- Number of operations = .124E+08
+ Number of calls =                  4362
+ Number of operations = .149E+08
 
   ========
    TRPMT: 
   ========
 
- Number of calls =                  5637
- Number of operations = .450E+08
+ Number of calls =                  6763
+ Number of operations = .543E+08
 
   ======================= 
   I/O traffic (R*8) words 
@@ -1758,57 +1780,79 @@
 ----------------------------------------------
 
      ROUTINE     CALLS      CPU     I/O
-      REST          1      1.70    0.00
+      REST          1      0.01    0.00
       STRTY         1      0.00    0.00
       GNOCCL        1      0.00    0.00
-      STRIN         1      0.01    0.00
+      STRIN         1      0.00    0.00
       STIN2         1      0.00    0.00
       SPGPA         1      0.00    0.00
       LCISP         1      0.00    0.00
       NGASD         8      0.00    0.00
-      TRAIN        22      0.74    0.00
-      GETIN    356067      5.15    0.00
-      MCSCF         1      0.02    0.00
-      ORBTR        29      0.00    0.00
-      CIDIA         9      0.15    0.00
-      GETST      2786      0.00    0.00
-      CIEIG         9      0.17    0.00
-      MV7          67      0.00    0.00
-      RASSG        67      0.02    0.00
-      SBLOC       536      0.65    0.00
-      RS2B       4232      7.00    0.00
-      RS1         529      0.14    0.00
-      RS2A        529      0.00    0.00
-      BB2A4       529      2.42    0.00
-      DENSI         9      0.00    0.00
-      GASDN         9      0.09    0.00
-      GSDNB       576      0.68    0.00
-      ADADS    219618      0.18    0.00
-      MATCG    219618      0.19    0.00
-      GSD2B       576      1.36    0.00
-      ORBHE         7      0.02    0.00
-      EIS_D         7      0.01    0.00
+      MO1           1      0.01    0.00
+      MO1GA         1      0.00    0.00
+      MO2           1      1.26    0.00
+      MO2GA         1      0.03    0.00
+      TRAIN        26      0.14    0.00
+      GETIN    132127      0.12    0.00
+      gin2a    132127      0.09    0.00
+      MCSCF         1      0.01    0.00
+      ORBTR        35      0.01    0.00
+      gasci        11      0.00    0.00
+      CIDIA        11      0.04    0.00
+      GETST      3330      0.00    0.00
+      CIEIG        11      0.00    0.00
+      MINDV        11      0.18    0.00
+      MV7          77      0.01    0.00
+      RASSG        77      0.00    0.00
+      SBLOK       616      0.04    0.00
+      SBLOS       616      0.05    0.00
+      GSTBL      5720      0.02    0.00
+      SDCMR      5664      0.00    0.00
+      tr3g2      5664      0.29    0.00
+      RSSBE      4872      0.00    0.00
+      RS2B2      4872      1.34    0.00
+      SKICK    341666      6.51    0.00
+      SKAII    736930      0.54    0.00
+      gdgop       616      0.01    0.00
+      RS1         609      0.10    0.00
+      ADAST    124700      0.21    0.00
+      RS2A        609      0.00    0.00
+      BB2A4       609      2.51    0.00
+      H0M1T        66      0.02    0.00
+      DENSI        11      0.01    0.00
+      GASDN        11      0.00    0.00
+      GSDN2       704      0.03    0.00
+      GSBD1       176      0.07    0.00
+      GSBDA       176      0.80    0.00
+      ADADS    268422      0.20    0.00
+      MATCG    268422      0.22    0.00
+      GSD2N       704      1.23    0.00
+      enden        34      0.01    0.00
+      fmats        10      0.02    0.00
+      ORBHE         9      0.00    0.00
+      EIS_D         9      0.01    0.00
+      e1frf        10      0.00    0.00
 
- Total time in above routines: .207E+02
+ Total time in above routines: .162E+02
 MA usage statistics:
 
 	allocation statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	       158	       111
+	maximum number of blocks	       160	       117
 	current total bytes		         0	         0
 	maximum total bytes		   2648232	  22510104
 	maximum total K-bytes		      2649	     22511
 	maximum total M-bytes		         3	        23
 
 	calls per routine:
-		       180  MA_alloc_get
-		       183  MA_allocate_heap
-		      1537  MA_chop_stack
-		       183  MA_free_heap
+		       182  MA_alloc_get
+		       185  MA_allocate_heap
+		      1666  MA_chop_stack
+		       185  MA_free_heap
 		         0  MA_free_heap_piece
-		     44608  MA_get_index
+		     21388  MA_get_index
 		         5  MA_get_mbase
 		         0  MA_get_next_memhandle
 		         0  MA_get_numalign
@@ -1823,21 +1867,21 @@ MA usage statistics:
 		         3  MA_inquire_stack
 		         0  MA_inquire_stack_check_heap
 		         0  MA_inquire_stack_no_partition
-		     30154  MA_pop_stack
+		      4956  MA_pop_stack
 		         1  MA_print_stats
-		     44425  MA_push_get
-		     44444  MA_push_stack
+		     21203  MA_push_get
+		     21222  MA_push_stack
 		         3  MA_set_auto_verify
 		         1  MA_set_error_print
 		         3  MA_set_hard_fail
 		         0  MA_set_numalign
-		      6182  MA_sizeof
+		     17878  MA_sizeof
 		        19  MA_sizeof_overhead
 		         0  MA_summarize_allocated_blocks
 		         0  MA_trace
-		    158548  MA_verify_allocator_stuff
+		    103639  MA_verify_allocator_stuff
 
- Task  times  cpu:       21.0s     wall:       47.7s
+ Task  times  cpu:       16.9s     wall:       35.7s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -1848,11 +1892,11 @@ MA usage statistics:
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  541      541     1.74e+07 2.66e+06 7.02e+05    0        0     1374     
+calls:  559      559     7.99e+05 2.13e+04 7.01e+05    0        0     3.69e+04 
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             4.98e+08 7.20e+08 1.66e+07 0.00e+00 0.00e+00 1.10e+04
+bytes total:             4.09e+08 7.67e+08 1.66e+07 0.00e+00 0.00e+00 2.95e+05
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 23436360 bytes
+Max memory consumed for GA by this process: 21934088 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1861,7 +1905,7 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	       158	       111
+	maximum number of blocks	       160	       117
 	current total bytes		         0	         0
 	maximum total bytes		   2648232	  22510104
 	maximum total K-bytes		      2649	     22511
@@ -1907,4 +1951,4 @@ MA usage statistics:
       G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
                                      Z. Zhang.
 
- Total times  cpu:       21.3s     wall:       48.0s
+ Total times  cpu:       17.2s     wall:       36.0s

@@ -5521,7 +5521,7 @@ CNW   DIMENSION DIAG(*)
       integer nxtask, next, itask, icount, nproc
       external nxtask
 * 
-      NTEST = 0000
+      NTEST = 0100
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0

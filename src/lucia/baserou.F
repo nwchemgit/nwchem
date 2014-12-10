@@ -4329,7 +4329,7 @@ C
        EXTERNAL MV7
 *
        TEST = 1.0D-6
-       IPRT= 601
+       IPRT= 001
        IF(IPRT.GE.1.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' MINDV4 in action '
          WRITE(6,*) ' Convergence threshold for residual = ', TEST

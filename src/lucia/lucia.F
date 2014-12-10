@@ -2357,6 +2357,7 @@ CNW       CALL SWAPVE(WORK(KINT1),WORK(KINT1O),NINT1)
        END IF ! determinant diagonal should be calculated
 *
        IF(NOCSF.EQ.0.AND.IH0_CSF.EQ.1) THEN
+         print*,'do average'
 *. Average of determinant diagonal in each conf
 C?       WRITE(6,*) ' IH0_CSF = ', IH0_CSF
          CALL CSDIAG(KPVEC2,KPDIA_SD,
@@ -2377,6 +2378,7 @@ C    &         LBLOCK,LUDIA_DET,LUDIA_CSF)
        END IF
 *
        IF(NOCSF.EQ.0.AND.IH0_CSF.GE.2) THEN
+         print*,'do exact'
 *. Use exact diagonal or blocks
 C?       WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
 C?       WRITE(6,*) ' KPDIA_SD = ', KPDIA_SD
@@ -2423,7 +2425,8 @@ cnw      CALL SWAPVE(WORK(KFI),WORK(KINT1O),NINT1)
 *
        IF(IPRNT.GE.100) THEN
         WRITE(6,*) ' Constructed diagonal '
-        CALL WRTMAT(KPDIA_SD,1,NVAR,1,NVAR)
+cns     CALL WRTMAT(KPDIA_SD,1,NVAR,1,NVAR)
+        call ga_print(kpdia_sd)
        END IF
 *
       ELSE
@@ -4839,7 +4842,7 @@ C?    WRITE(6,*) ' ICISTR,LBLK = ', ICISTR,LBLK
 C?    WRITE(6,*) ' IPRT = ', IPRT
 C?    WRITE(6,*) ' ILAST in CIEIG5 ', ILAST 
       NTEST=0000
-      IPRT= 5
+      IPRT= 1
 *
 *               ====================================
 ** 1:               INITIAL VARIATIONAL SUBSPACE

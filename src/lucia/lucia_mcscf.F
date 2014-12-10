@@ -226,7 +226,7 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
       STEP_MAX = 0.75D0
 C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
       TOLER = 1.1D0
-      NTEST = 10
+      NTEST = 1
       IPRNT= MAX(NTEST,IPRMCSCF)
 *
       I_DO_NEWTON = 0
