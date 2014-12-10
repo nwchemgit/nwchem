@@ -156,7 +156,8 @@ C     i0 ( )_vt + = 1/4 * Sum ( h3 h4 p1 p2 ) * t ( p1 p2 h3 h4 )_t * v ( h3 h4 
       END DO
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'noname',l_c,k_c)) CALL ERRQUIT('
      &ccd_e_1',9,MA_ERR)
-      CALL TCE_SORT_0(dbl_mb(k_c_sort),dbl_mb(k_c),1.0d0/4.0d0)
+c      CALL TCE_SORT_0(dbl_mb(k_c_sort),dbl_mb(k_c),1.0d0/4.0d0)
+      dbl_mb(k_c) = 0.25 * dbl_mb(k_c_sort)
       CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_c),dimc,int_mb(k_c_offset),0)
       IF (.not.MA_POP_STACK(l_c)) CALL ERRQUIT('ccd_e_1',10,MA_ERR)
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('ccd_e_1',11,MA_ERR)
