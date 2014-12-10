@@ -6856,10 +6856,12 @@ c the temporary must be the larger of B and A/C
      &          ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
      &                 .eq. ieor(irrep_v,irrep_t)) THEN
              IF (next.eq.count) THEN
+              dima_sort = int_mb(k_range+h1b-1) 
+     &                  * int_mb(k_range+h2b-1)
+              dimb_sort = int_mb(k_range+p3b-1) 
+     &                  * int_mb(k_range+p4b-1)
               dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) 
      &             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
-!!              IF (.not.MA_PUSH_GET(mt_dbl,dimc,'cs',l_cs,k_cs)) 
-!!     &          CALL ERRQUIT('ccsd_t2_8',0,MA_ERR)
               CALL DFILL(dimc,0.0d0,dbl_mb(k_c),1)
               DO p5b = noab+1,noab+nvab
                DO p6b = p5b,noab+nvab
@@ -6874,20 +6876,9 @@ c the temporary must be the larger of B and A/C
      &                                  p3b_2,p4b_2,p5b_2,p6b_2)
                   dim_common = int_mb(k_range+p5b-1) 
      &                       * int_mb(k_range+p6b-1)
-                  dima_sort = int_mb(k_range+h1b-1) 
-     &                      * int_mb(k_range+h2b-1)
-                  dimb_sort = int_mb(k_range+p3b-1) 
-     &                      * int_mb(k_range+p4b-1)
                   dima = dim_common * dima_sort
                   dimb = dim_common * dimb_sort
                   IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
-!
-!
-!
-!!                   IF (.not.MA_PUSH_GET(mt_dbl,dima,'as',l_as,k_as)) 
-!!     &               CALL ERRQUIT('ccsd_t2_8',1,MA_ERR)
-!!                   IF (.not.MA_PUSH_GET(mt_dbl,dima,'a',l_a,k_a)) 
-!!     &               CALL ERRQUIT('ccsd_t2_8',2,MA_ERR)
                    CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
@@ -6895,12 +6886,6 @@ c the temporary must be the larger of B and A/C
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
      &                  int_mb(k_range+h1b-1),int_mb(k_range+h2b-1),
      &                  4,3,2,1,1.0d0)
-!!                   IF (.not.MA_POP_STACK(l_a)) 
-!!     &               CALL ERRQUIT('ccsd_t2_8',3,MA_ERR)
-!!                   IF (.not.MA_PUSH_GET(mt_dbl,dimb,'bs',l_bs,k_bs))
-!!     &               CALL ERRQUIT('ccsd_t2_8',4,MA_ERR)
-!!                   IF (.not.MA_PUSH_GET(mt_dbl,dimb,'b',l_b,k_b))
-!!     &               CALL ERRQUIT('ccsd_t2_8',5,MA_ERR)
                    if(.not.intorb) then
                     CALL GET_HASH_BLOCK(d_b,dbl_mb(k_t),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
@@ -6916,8 +6901,6 @@ c the temporary must be the larger of B and A/C
      &                  int_mb(k_range+p3b-1),int_mb(k_range+p4b-1),
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
      &                  2,1,4,3,1.0d0)
-!!                   IF (.not.MA_POP_STACK(l_b)) 
-!!     &               CALL ERRQUIT('ccsd_t2_8',6,MA_ERR)
                    if (p5b .eq. p6b) then
                     alpha = 1.0d0
                    else
@@ -6926,20 +6909,11 @@ c the temporary must be the larger of B and A/C
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
      &                  alpha,dbl_mb(k_a),dim_common,dbl_mb(k_b),
      &                  dim_common,1.0d0,dbl_mb(k_c),dima_sort)
-!!                   IF (.not.MA_POP_STACK(l_bs)) 
-!!     &               CALL ERRQUIT('ccsd_t2_8',7,MA_ERR)
-!!                   IF (.not.MA_POP_STACK(l_as)) 
-!!     &               CALL ERRQUIT('ccsd_t2_8',8,MA_ERR)
-!
-!
-!
                   END IF
                  END IF
                 END IF
                END DO
               END DO
-!!              IF (.not.MA_PUSH_GET(mt_dbl,dimc,'c',l_c,k_c)) 
-!!     &          CALL ERRQUIT('ccsd_t2_8',9,MA_ERR)
               CALL TCE_SORT_4(dbl_mb(k_c),dbl_mb(k_t),
      &             int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
      &             int_mb(k_range+h2b-1),int_mb(k_range+h1b-1),
@@ -6947,10 +6921,6 @@ c the temporary must be the larger of B and A/C
               CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_t),dimc,
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
-!!              IF (.not.MA_POP_STACK(l_c)) 
-!!     &          CALL ERRQUIT('ccsd_t2_8',10,MA_ERR)
-!!              IF (.not.MA_POP_STACK(l_cs)) 
-!!     &          CALL ERRQUIT('ccsd_t2_8',11,MA_ERR)
               next = NXTASK(nprocs, 1)
              END IF
              count = count + 1
