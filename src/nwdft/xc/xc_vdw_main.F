@@ -680,7 +680,8 @@ c
       if (.not.rtdb_get(rtdb,'stpr_gen:delta',MT_DBL,1,delta))
      &      delta = delta_default 
 c
-        call xc_vdw_hess(delta,s6,s8,sr6,sr8,n,dbl_mb(i_xyz),int_mb(iz))
+        call xc_vdw_hess(delta,s6,s8,sr6,sr8,a1,a2,n,
+     &       dbl_mb(i_xyz),int_mb(iz))
 c
         if(oprint.and.ga_nodeid().eq.0)  then
             write(luout,*) ' s6 = ',s6
@@ -696,7 +697,7 @@ c
       return
       end
 c
-      subroutine xc_vdw_hess(delta,s6,s8,sr6,sr8,n,x,z)
+      subroutine xc_vdw_hess(delta,s6,s8,sr6,sr8,a1,a2,n,x,z)
       implicit none
 c This function makes vdw empirical correction to the hessian
 c must be called before thermochemical data and vibrational
@@ -707,7 +708,7 @@ c analysis are generated.
 #include "stdio.fh"
 #include "errquit.fh"
 #include "global.fh"
-      double precision s6,s8,sr6,sr8
+      double precision s6,s8,sr6,sr8,a1,a2
       integer n                
       double precision x(3,n)
       integer z(n)
@@ -782,10 +783,10 @@ c
            enddo
 c right displacement
             x(i,A) = x(i,A) + delta
-            call xc_vdw_der(s6,s8,sr6,sr8,n,x,z,r_force)
+            call xc_vdw_der(s6,s8,sr6,sr8,a1,a2,n,x,z,r_force)
 c left displacement
             x(i,A) = x(i,A) - 2.0d0*delta
-            call xc_vdw_der(s6,s8,sr6,sr8,n,x,z,l_force)
+            call xc_vdw_der(s6,s8,sr6,sr8,a1,a2,n,x,z,l_force)
 c back to original position
             x(i,A) = x(i,A) + delta
 c
