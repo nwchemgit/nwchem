@@ -106,7 +106,8 @@ OBJ_OPTIMIZE += tce_sort0.o tce_sortacc0.o
 OBJ_OPTIMIZE += tce_sort2.o tce_sortacc2.o
 #OBJ_OPTIMIZE += tce_sort4.o tce_sortacc4.o
 OBJ_OPTIMIZE += new_sort4.o 
-OBJ_OPTIMIZE += tce_sort6.o tce_sortacc6.o
+#OBJ_OPTIMIZE += tce_sort6.o tce_sortacc6.o
+OBJ_OPTIMIZE += new_sort6.o 
 OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o
 OBJ_OPTIMIZE += tce_sort1.o
 
