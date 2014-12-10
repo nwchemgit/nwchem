@@ -193,9 +193,7 @@ ifeq ($(ARMCI_NETWORK),DMAPP)
 	@echo "   cd $$NWCHEM_TOP/src/tools"
 	@echo "   wget https://github.com/ryanolson/ga/archive/cray.zip -O cray.zip"
 	@echo "   unzip cray.zip"
-	@echo "   export GA_DIR=ga-cray  (sh/bash)"
-	@echo "   setenv GA_DIR ga-cray (csh/tcsh)"
-	@echo "   make FC=ftn"
+	@echo "   make FC=ftn GA_DIR=ga-cray"
 	@echo "  " 
 	@echo
 	@exit 1
