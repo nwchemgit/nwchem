@@ -15,6 +15,9 @@
       include 'cintfo.inc'
       include 'multd2h.inc'
       INCLUDE 'crun.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       
 *
       dimension ijklof(nsmob,nsmob,nsmob)
@@ -181,7 +184,7 @@ c?    print *,' ijpairs,klpairs',ijpairs,klpairs
      & write(6,*) ' ijkl ', ijkl
 *
       i2addr = ibloff-1+ijkl
-      if( ntest .ge. 100 ) then
+      if ( ntest .ge. 100 ) then
       write(6,*) 'i j k l ', i,j,k,l
       write(6,*) ' ibloff ijkl ',ibloff,ijkl
         write(6,*) ' i2addr  = ', i2addr

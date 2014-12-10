@@ -4061,13 +4061,16 @@ cnw  &               FI_BE(IJ) + FACTOR_E_BE*GTIJKL(IP,KP,KP,JP)
                     END IF
                   END DO
                 END DO
+                if (ga_nodeid().eq.0) then
                 call ga_acc(fi_al,ij,ij,1,1,al_val,1,1.0d0)
                 call ga_acc(fi_be,ij,ij,1,1,be_val,1,1.0d0)
+                endif
               END DO
             END DO
           END IF
         END DO
       END IF
+      call ga_sync()
 *
       IF(NTEST.NE.0.AND.IDOH2.NE.0) THEN
        WRITE(6,*) ' FI_alpha in Symmetry blocked form '

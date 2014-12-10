@@ -226,7 +226,7 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
       STEP_MAX = 0.75D0
 C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
       TOLER = 1.1D0
-      NTEST = 0
+      NTEST = 10
       IPRNT= MAX(NTEST,IPRMCSCF)
 *
       I_DO_NEWTON = 0
@@ -454,7 +454,7 @@ C       DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,INTSM_IN)
         CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
 CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
         call ga_copy(KFI,KINT1)
-        IF(NTEST.GE.10000) THEN
+        IF(NTEST.GE.100) THEN
           WRITE(6,*) ' MCSCF: ECORE_ORIG, ECORE_HEX, ECORE(2) ',
      &                 ECORE_ORIG, ECORE_HEX, ECORE
         END IF

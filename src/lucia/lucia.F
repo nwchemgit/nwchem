@@ -5641,7 +5641,7 @@ CNW   CALL REWINE(LU,-1)
 *.LOOP OVER BLOCKS
 *
 C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
-      NTESTL = 00000
+      NTESTL = 00100
       NTEST = MAX(NTESTG,NTESTL)
 *
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
@@ -9829,7 +9829,7 @@ c      INCLUDE 'mxpdim.inc'
       integer blen
       double precision occ(mxporb),evals(mxporb)
       double precision ctmp(mxporb)
-      integer imysym(16)
+      integer imysym(16),smij,smkl
       CALL MEMCHK
 *. Integrals will be saved in KINT_2EMO, so
       KINT2 = KINT_2EMO
@@ -9939,7 +9939,7 @@ c.. 1e ints
          nij = ni*(ni+1)/2
          do ij = 1,nij
           ind1e = ind1e + 1
-          i = int(sqrt(2.0*ij)+0.5)
+          i = int(dsqrt(2.0d0*dble(ij))+0.5d0)
           j = ij - i*(i-1)/2
 c.. add offset
           i = i + ioff_nw(ism_lu) -1
@@ -10007,16 +10007,17 @@ c.. 2e ints
                      do ijkl =1, nijkl
                         ind2e = ind2e + 1
                         if(smij.eq.smkl)then
-                           kl = nkl+1-int(sqrt(2.0*(nijkl-ijkl+1))+0.5)
+                           kl = nkl+1-int(dsqrt(2.0d0*
+     &                          dble(nijkl-ijkl+1))+0.5d0)
                            ij = ijkl + kl*(kl-1)/2 -nij*(kl-1)       
                         else
-                           kl = int((ijkl-0.5)/nij)+1
+                           kl = int((dble(ijkl)-0.5d0)/dble(nij))+1
                            ij = ijkl-(kl-1)*nij 
                         end if
                         if(ism_lu.eq.jsm_lu)then
-                           k = int(sqrt(2.0*kl)+0.5) 
+                           k = int(dsqrt(2.0d0*dble(kl))+0.5d0) 
                            l = kl - k*(k-1)/2 
-                           i = int(sqrt(2.0*ij)+0.5) 
+                           i = int(dsqrt(2.0d0*dble(ij))+0.5d0) 
                            j = ij - i*(i-1)/2 
                         else
 c.. tra_rou = 1
@@ -10025,9 +10026,9 @@ c                          l = kl - (k-1)*nl
 c                          i = int((ij-0.5)/nj)+1
 c                          j = ij - (i-1)*nj 
 c.. tra_rou = 2
-                           l = int((kl-0.5)/nk)+1
+                           l = int((dble(kl)-0.5d0)/dble(nk))+1
                            k = kl - (l-1)*nk 
-                           j = int((ij-0.5)/ni)+1
+                           j = int((dble(ij)-0.5d0)/dble(ni))+1
                            i = ij - (j-1)*ni 
                         end if      
 c.. add on the offset for each irep
