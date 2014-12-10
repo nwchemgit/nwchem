@@ -97,14 +97,17 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
 
 OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
 
-ifdef SPAGHETTYSORT
-      OBJ_OPTIMIZE += tce_sort0.o tce_sort2_saday.o tce_sort4_jeff.o tce_sort6.o tce_sort8.o \
-                      tce_sortacc_saday.o tce_sortacc8.o 
-      LIB_DEFINES += -DSPAGHETTY
-else
-      OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
-      #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
-endif
+# OLD DEFAULT
+#OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
+# OLD NON-DEFAULT
+#OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
+# NEW
+OBJ_OPTIMIZE += tce_sort0.o tce_sortacc0.o
+OBJ_OPTIMIZE += tce_sort2.o tce_sortacc2.o
+OBJ_OPTIMIZE += tce_sort4.o tce_sortacc4.o
+OBJ_OPTIMIZE += tce_sort6.o tce_sortacc6.o
+OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o
+OBJ_OPTIMIZE += tce_sort1.o
 
 ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LAPI64 IBM64))
       #OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
