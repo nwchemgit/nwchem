@@ -2,7 +2,7 @@ c
 c written by Jeff Hammond, Intel Labs, April 2014
 c see https://github.com/jeffhammond/nwchem-tce-triples-kernels/blob/master/src/new_sort6.f for history
 c
-      subroutine new_sort_6(u,s,a,b,c,d,e,f,i,j,k,l,m,n,factor)
+      subroutine tce_sort_6(u,s,a,b,c,d,e,f,i,j,k,l,m,n,factor)
       implicit none
       integer a,b,c,d,e,f
       integer i,j,k,l,m,n
@@ -178,7 +178,7 @@ c
       return
       end
 
-      subroutine new_sortacc_6(u,s,a,b,c,d,e,f,i,j,k,l,m,n,factor)
+      subroutine tce_sortacc_6(u,s,a,b,c,d,e,f,i,j,k,l,m,n,factor)
       implicit none
       integer a,b,c,d,e,f
       integer i,j,k,l,m,n
