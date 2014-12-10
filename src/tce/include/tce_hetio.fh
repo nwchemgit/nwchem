@@ -18,9 +18,9 @@
 !      integer io_x1,io_x2,io_x3,io_x4
 !      integer io_y1,io_y2,io_y3,io_y4
       integer IOFORT, IOEAF, IOGA, IOSF
-      integer IOREP, IODRA, IOGAEAF, IOCHOP, IOHYBRID
+      integer IOREP, IODRA, IOGAEAF, IOHYBRID
       parameter (IOFORT=0, IOEAF=1, IOGA=2, IOSF=3)
-      parameter (IOREP=4, IODRA=5, IOGAEAF=6, IOCHOP=32)
+      parameter (IOREP=4, IODRA=5, IOGAEAF=6)
       parameter (IOHYBRID=101)
 
       common /tcehetiointeger/

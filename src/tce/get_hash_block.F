@@ -78,10 +78,6 @@ c          call tce_hash_ind(iauxo,key,indexc)
           qy3=g3b
           call get_block_ind_i(d_file,array,size,key,indexc,
      &                         qy2,qy1,qy4,qy3)
-        else if ((d_file.eq.d_v2orb).and.(io_v2.eq.IOCHOP)) then
-c          This case is for the case where the two-electron integrals
-c          are chopped up into many files to get around the 32-bit
-c          integer problem on BlueGene/P
         else if ((d_file.eq.d_v2orb).and.(io_v2.eq.IOHYBRID)) then
 c          print*,'d_file  = ',d_file
 c          print*,'d_v2orb = ',d_v2orb
