@@ -1,4 +1,5 @@
 echo
+start dft_s12gh_dat
 
 title "(CAM-)S12g/(CAM-)S12h gradients/frequencies"
 
