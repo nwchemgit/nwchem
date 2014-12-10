@@ -1974,6 +1974,7 @@ endif
          ifdef USE_OPENMP
            FOPTIONS += -qopenmp
            FOPTIONS += -qopt-report-phase=openmp
+           COPTIONS += -qopenmp
            DEFINES+= -DUSE_OPENMP 
          endif		   
 	   else
@@ -1992,6 +1993,7 @@ endif
           FC = ifort
           _FC = ifort
           CC = icc
+          _CC = icc
           AR = xiar
           EXTRA_LIBS += -loffload
           DEFINES+= -DUSE_OFFLOAD
@@ -2095,7 +2097,7 @@ $(error )
 	 ICCV15ORNEWER=$(shell icc -V  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
          COPTIONS   +=   -xHOST -ftz
          ifeq ($(ICCV15ORNEWER), Y)
-   	    COPTIONS   += -vec-report=1
+   	    COPTIONS   += -qopt-report-phase=vec  -qopt-report-file=stderr
             ifdef USE_OPENMP
               COPTIONS += -qopenmp
    	      COPTIONS   +=  -qopt-report-phase:openmp
@@ -2227,7 +2229,7 @@ endif
      ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
    EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python-config --libs) -lz
-  LDOPTIONS = -Wl,--export-dynamic 
+  LDOPTIONS += -Wl,--export-dynamic 
      endif
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
         DEFINES  += -DCATAMOUNT
