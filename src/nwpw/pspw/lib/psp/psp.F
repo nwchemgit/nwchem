@@ -2694,7 +2694,8 @@ c                 end do
       if (move) then
 
 *        *** add multipole force here ***
-         call nwpw_compcharge_F_multipole_all(ispin,dbl_mb(zv(1)),fion)
+         if (pawexist)
+     >    call nwpw_compcharge_F_multipole_all(ispin,dbl_mb(zv(1)),fion)
 
          value = value.and.BA_pop_stack(sum(2))
          value = value.and.BA_pop_stack(xtmp(2))
@@ -3334,7 +3335,8 @@ c     **** define Gx,Gy and Gz in packed space ****
       end do !** iip **
 
 *     *** add multipole force here ***
-      call nwpw_compcharge_F_multipole_all(ispin,dbl_mb(zv(1)),fion)
+      if (pawexist)
+     >   call nwpw_compcharge_F_multipole_all(ispin,dbl_mb(zv(1)),fion)
 
       value =           BA_pop_stack(sum(2))
       value = value.and.BA_pop_stack(xtmp(2))
