@@ -2,7 +2,7 @@
 
          LIBRARY = libnwxc.a
 
-    OBJ_OPTIMIZE = nwxc.o nwxcm_eval.o nwxc_eval_print.o \
+    OBJ_OPTIMIZE = nwxc.o nwxcm_eval.o \
                    nwxc_vdw_main.o nwxc_vdw_e.o nwxc_vdw_der.o nwxc_vdw_hess.o \
                    nwxc_vdw_util.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o \
                    nwxcm_heaviside.o
@@ -69,9 +69,9 @@ include ../config/makelib.h
 # 
 .PRECIOUS: nwxc_fnc_print
 
-nwxc_fnc_print: nwxc_fnc_print.F stubs.F ../../lib/$(NWCHEM_TARGET)/$(LIBRARY)
+nwxc_fnc_print: nwxc_fnc_print.F nwxc_eval_print.F stubs.F ../../lib/$(NWCHEM_TARGET)/$(LIBRARY)
 	@(env | sort)
-	$(FC) $(FFLAGS) $(INCLUDES) -o nwxc_fnc_print nwxc_fnc_print.F stubs.F $(LDFLAGS) -lnwctask -lnwxc -lcons -lnwcutil -lga -larmci -lperfm -lcons -lnwcutil -llapack -lblas $(MPI_LIB) $(LIBMPI) 
+	$(FC) $(FFLAGS) $(INCLUDES) -o nwxc_fnc_print nwxc_fnc_print.F nwxc_eval_print.F stubs.F $(LDFLAGS) -lnwctask -lnwxc -lcons -lnwcutil -lga -larmci -lperfm -lcons -lnwcutil -llapack -lblas $(MPI_LIB) $(LIBMPI) 
 #	$(LINK.f) -o nwxc_fnc_print nwxc_fnc_print.o -lnwctask -lnwxc -lcons -lnwcutil -lga -larmci -lperfm -lcons -lnwcutil -llapack -lblas $(MPI_LIB) $(LIBMPI) 
 
 #nwad.fh: nwad0.mod nwad1.mod nwad2.mod nwad3.mod
