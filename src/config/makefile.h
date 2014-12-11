@@ -2148,6 +2148,8 @@ $(error )
         FOPTIMIZE  += -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
+        FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
+
         FDEBUG += -g -O 
         ifdef USE_F2C
 #possible segv with use of zdotc (e.g. with GOTO BLAS)
