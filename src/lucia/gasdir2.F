@@ -5817,10 +5817,21 @@ C?   &          NSSOA(IASM,IATP)* NSSOB(IBSM,IBTP))
       END IF
       END DO
 *
-      IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
-        WRITE(6,*) ' output blocks from SBLOCKS '
+      IF(NTEST.GE.000) THEN
+        if (ga_nodeid().eq.0) then
+        WRITE(6,*) ' output blocks from SBLOCKS ',0
         CALL WRTTTS(SB,ISBLOCK,NSBLOCK,
      &              NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,1)
+        endif
+        call util_flush(6)
+        call ga_sync()
+        if (ga_nodeid().eq.1) then
+        WRITE(6,*) ' output blocks from SBLOCKS ',1
+        CALL WRTTTS(SB,ISBLOCK,NSBLOCK,
+     &              NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,1)
+        endif
+        call util_flush(6)
+        call ga_sync()
       END IF
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving SBLOCKS'
 *

@@ -3681,10 +3681,10 @@ C            TRA2_G_SIMPLE(KLCI,KLCJ,KLCK,KLCL,IP2INTOUT,X2INTOUT)
           WRITE(6,*) ' ==================================== '
           WRITE(6,*)
 C              PRINT_2EIARR(XINT,I12S,I34S,I1234S,INTSM,NI,NJ,NK,NL,IPNT)
-CNW       CALL PRINT_2EIARR(KINT2_A(IIE2ARR), I12S_A, I34S_A, 
-CNW  &         I1234S_A, INTSM_A,
-CNW  &         NTOOBS_IA,NTOOBS_JA,NTOOBS_KA,NTOOBS_LA,
-CNW  &         dbl_mb(KPINT2_A(IIE2ARR)) )
+          CALL PRINT_2EIARR(dbl_mb(KINT2_A(IIE2ARR)), I12S_A, I34S_A, 
+     &         I1234S_A, INTSM_A,
+     &         NTOOBS_IA,NTOOBS_JA,NTOOBS_KA,NTOOBS_LA,
+     &         int_mb(KPINT2_A(IIE2ARR)) )
         END IF
 *
       END DO

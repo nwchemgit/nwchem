@@ -4676,7 +4676,11 @@ CNW     CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
      &     call errquit('dra error',itask,911)
         if (dra_wait(itask).ne.0) call errquit('dra read err',
      &      itask,911)
+        print*,'vec1 combination'
+        call ga_print(VEC1)
         CALL MV7(VEC1,VEC2,0,0,0,0)
+        print*,'vec2 combination'
+        call ga_print(VEC2)
 CNW     CALL TODSC(VEC2,NVAR,-1  ,LU2)
         if (dra_write_section(.false.,VEC2,1,NVAR,1,1,
      &     LU2,1,NVAR,NVEC+IVEC,NVEC+IVEC,itask).ne.0)

@@ -5644,7 +5644,7 @@ CNW   CALL REWINE(LU,-1)
 *.LOOP OVER BLOCKS
 *
 C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
-      NTESTL = 00100
+      NTESTL = 00000
       NTEST = MAX(NTESTG,NTESTL)
 *
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
@@ -5721,7 +5721,7 @@ C            call iwrtma(ISCR(1),1,LSUB+MSUB,1,LSUP+MSUP)
              CALL ICOPVE(ISCR(1+2*NSUBMX),ISCR(1),LSUB)
              CALL COPVEC(SUBVAL,SCR,LSUB)
              IBASE = IBASE + LBL
-             IF(NTEST .GE. 1000 ) THEN
+             IF(NTEST .GE. 1000 .and. ga_nodeid().eq.0) THEN
                WRITE(6,*) ' Lowest elements and their original place '
                WRITE(6,*) ' Number of elements obtained ', LSUB
                CALL WRTMAT(SUBVAL,1,LSUB,1,LSUB)
@@ -5735,7 +5735,7 @@ C            call iwrtma(ISCR(1),1,LSUB+MSUB,1,LSUP+MSUP)
 *
       NSUB = LSUB
       CALL ICOPVE(ISCR,ISCAT,NSUB)
-      IF(NTEST .GE. 100) THEN
+      IF(NTEST .GE. 100 .and. ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Lowest elements and their original place '
         WRITE(6,*) ' Number of elements obtained ', NSUB
        CALL WRTMAT(SUBVAL,1,NSUB,1,NSUB)
