@@ -2692,9 +2692,14 @@ c                 end do
 
       value = .true.
       if (move) then
-      value = value.and.BA_pop_stack(sum(2))
-      value = value.and.BA_pop_stack(xtmp(2))
+
+*        *** add multipole force here ***
+         call nwpw_compcharge_F_multipole_all(ispin,dbl_mb(zv(1)),fion)
+
+         value = value.and.BA_pop_stack(sum(2))
+         value = value.and.BA_pop_stack(xtmp(2))
       end if
+
       value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('v_nonlocal: popping stack',3,
      &       MA_ERR)
@@ -3327,6 +3332,9 @@ c     **** define Gx,Gy and Gz in packed space ****
          end do !** ip **
 
       end do !** iip **
+
+*     *** add multipole force here ***
+      call nwpw_compcharge_F_multipole_all(ispin,dbl_mb(zv(1)),fion)
 
       value =           BA_pop_stack(sum(2))
       value = value.and.BA_pop_stack(xtmp(2))
