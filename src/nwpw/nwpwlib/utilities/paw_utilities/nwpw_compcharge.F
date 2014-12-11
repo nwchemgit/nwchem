@@ -3259,6 +3259,121 @@ cc         end if
       return
       end
 
+
+*     *************************************************
+*     *                                               *
+*     *           nwpw_compcharge_F_multipole_all     *
+*     *                                               *
+*     *************************************************
+*
+*  This routine computes the multiple only contribution to the force.
+*  Note that the components of the force due to the variation wrt ncmp
+*  are included in the standard non-local psp forces.
+*
+      subroutine nwpw_compcharge_F_multipole_all(ispin,zv,fion)
+      implicit none
+      integer ispin
+      real*8 zv(*)
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer k,indx1up,indx1dn,indx2up,indx2dn
+      integer iii1,iii2,ii1,ii2
+      integer iii,l1,m1,iia,ia
+      integer jjj,l2,m2,jja,ja
+      integer fmult(2)
+      real*8 q1,q1x,q1y,q1z,q2,q2x,q2y,q2z
+      real*8 q11,q22,fourpi
+      real*8 tmp,tmpx,tmpy,tmpz,R,R12(3)
+
+*     **** external functions ****
+      real*8   ion_rion
+      external ion_rion
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      if (.not.BA_push_get(mt_dbl,3*nion_paw,"fmult",fmult(2),fmult(1)))
+     >   call errquit("nwpw_compcharge_F_multipole:stack",1,MA_ERR)
+      call dcopy(3*nion_paw,0.0d0,0,dbl_mb(fmult(1)))
+
+      do k=1,ngauss
+         indx1up = int_mb(lm1_gauss(1)+k-1)
+         indx1dn = indx1up + (ispin-1)*lm_size_max
+         indx2up = int_mb(lm2_gauss(1)+k-1)
+         indx2dn = indx2up + (ispin-1)*lm_size_max
+
+         call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
+         call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
+
+         if (l1.eq.0) then
+            iia = int_mb(katm_paw(1)+iii-1)
+            ia  = int_mb(katm_pawtoion(1)+iia-1)
+            q11 = -1.0d0*zv(ia)/dsqrt(fourpi)
+         else
+            q11 = 0.0d0
+         end if
+         if (l2.eq.0) then
+            jja = int_mb(katm_paw(1)+jjj-1)
+            ja  = int_mb(katm_pawtoion(1)+jja-1)
+            q22 = -1.0d0*zv(ja)/dsqrt(fourpi)
+         else
+            q22 = 0.0d0
+         end if
+
+         q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+         q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+
+         iii1 = int_mb(iii1_gauss(1)+k-1)
+         iii2 = int_mb(iii2_gauss(1)+k-1)
+         ii1 = int_mb(ion_pawtoion(1)+iii1-1)
+         ii2 = int_mb(ion_pawtoion(1)+iii2-1)
+         R12(1) = ion_rion(1,ii1) - ion_rion(1,ii2)
+         R12(2) = ion_rion(2,ii1) - ion_rion(2,ii2)
+         R12(3) = ion_rion(3,ii1) - ion_rion(3,ii2)
+         R = dsqrt(R12(1)*R12(1)+R12(2)*R12(2)+R12(3)*R12(3))
+         R12(1) = R12(1)/R
+         R12(2) = R12(2)/R
+         R12(3) = R12(3)/R
+        
+         tmpx =(q1*q2+q11*q2+q1*q22)*dbl_mb(f_gauss(1)+3*(k-1))  *R12(1)
+         tmpy =(q1*q2+q11*q2+q1*q22)*dbl_mb(f_gauss(1)+3*(k-1)+1)*R12(2)
+         tmpz =(q1*q2+q11*q2+q1*q22)*dbl_mb(f_gauss(1)+3*(k-1)+2)*R12(3)
+
+         dbl_mb(fmult(1)+3*(iii1-1))   = dbl_mb(fmult(1)+3*(iii1-1))
+     >                                 - tmpx 
+         dbl_mb(fmult(1)+3*(iii1-1)+1) = dbl_mb(fmult(1)+3*(iii1-1)+1)
+     >                                 - tmpy 
+         dbl_mb(fmult(1)+3*(iii1-1)+2) = dbl_mb(fmult(1)+3*(iii1-1)+2) 
+     >                                 - tmpz 
+
+         dbl_mb(fmult(1)+3*(iii2-1))   = dbl_mb(fmult(1)+3*(iii2-1))
+     >                                 + tmpx
+         dbl_mb(fmult(1)+3*(iii2-1)+1) = dbl_mb(fmult(1)+3*(iii2-1)+1)
+     >                                 + tmpy
+         dbl_mb(fmult(1)+3*(iii2-1)+2) = dbl_mb(fmult(1)+3*(iii2-1)+2) 
+     >                                 + tmpz 
+      end do
+      call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(fmult(1)))
+
+      do iii1=1,nion_paw
+         ii1 = int_mb(ion_pawtoion(1)+iii1-1)
+         fion(1,ii1) = fion(1,ii1) + dbl_mb(fmult(1)+3*(iii1-1))
+         fion(2,ii1) = fion(2,ii1) + dbl_mb(fmult(1)+3*(iii1-1)+1)
+         fion(3,ii1) = fion(3,ii1) + dbl_mb(fmult(1)+3*(iii1-1)+2)
+      end do
+
+      if (.not.BA_pop_stack(fmult(2)))
+     >  call errquit("nwpw_compcharge_F_multipole_all:stack",2,MA_ERR)
+
+      return
+      end
+
+
+
 *     *************************************************
 *     *                                               *
 *     *           nwpw_compcharge_F_multipole         *
