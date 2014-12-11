@@ -2148,7 +2148,9 @@ $(error )
         FOPTIMIZE  += -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
-        FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
+        ifeq ($(GNU_GE_4_8),true)
+          FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
+        endif
 
         FDEBUG += -g -O 
         ifdef USE_F2C
