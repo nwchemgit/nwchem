@@ -202,8 +202,32 @@ include ../../config/makelib.h
 %.o: f77/%.F
 	$(FC) $(FFLAGS) -I./f77 -c $< 
 
-f77/%.F: max/%.max
-	$(AUTOXC) -o $@ $<
+# 
+# To run MAXIMA uncomment these lines
+# -----------------------------------
+#
+# Note that generating all the functional source code took 62 hours on 2 cores
+# hence do this only when you have to! For example when you want to add a
+# new functional run 
+#
+#	touch f77/*.F
+#
+# to update the timestamps on the pre-existing routines to avoid regenerating
+# those. That way only the subroutine for your new functional will be generated.
+#
+# In addition note that if you need to generate the Maxima expression itself
+# as well you will need the nwxc_fnc_print executable. To generate that run
+#
+#	cd ..
+#	make nwxc_fnc_print
+#
+# There is no dependency for generating this executable as that would trigger
+# regenerating all the *.max and *.F files. In addition this process is only
+# occassionally needed so the inconvience of having to do this manually should
+# be insignificant (famous last words...).
+#
+#f77/%.F: max/%.max
+#	$(AUTOXC) -o $@ $<
 
 max/%.max: input/%.nw
 	$(FNCPRINT) $<
