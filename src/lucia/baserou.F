@@ -4329,7 +4329,7 @@ C
        EXTERNAL MV7
 *
        TEST = 1.0D-6
-       IPRT= 011
+       IPRT= 001
        IF(IPRT.GE.1.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' MINDV4 in action '
          WRITE(6,*) ' Convergence threshold for residual = ', TEST
@@ -4373,13 +4373,9 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
          if(dra_wait(itask).ne.0) call errquit('dra read err',itask,911)
 *
-         WRITE(6,*) ' Testing: initial vector'
-         call ga_print(VEC1)
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
          CALL MV7(VEC1,VEC2,0,0,0,0)
-         WRITE(6,*) ' Testing: sigma vector'
-         call ga_print(VEC2)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
@@ -4449,8 +4445,6 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
            call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    60    CONTINUE
-         write(6,*) '1.1'
-         call ga_print(vec1)
          EIGAPR = EIG(ITER-1,IROOT)
 CNW      CALL REWINO( LU1)
          DO 50 IVEC = 1, NVEC
@@ -4463,11 +4457,11 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
            call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    50    CONTINUE
-c          IF ( IPRT  .GE.600 ) THEN
+           IF ( IPRT  .GE.600 ) THEN
              WRITE(6,*) '  ( HX - EX ) '
              call ga_print(VEC1)
 CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-c          END IF
+           END IF
 *  STRANGE PLACE TO TEST CONVERGENCE , BUT ....
 CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
          RNORM = SQRT( ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
@@ -4493,14 +4487,13 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
            CALL H0M1TV(VEC2,VEC1,VEC1,NVAR,NPRDIM,IPNTR,
      &                 H0,-EIGAPR,H0SCR,XDUMMY,NP1,NP2,NQ,
      &                 IPRT)
-c          IF ( IPRT  .GE. 600) THEN
+           IF ( IPRT  .GE. 600) THEN
              WRITE(6,*) '  (D-E)-1 *( HX - EX ) '
              call ga_print(VEC1)
 CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-c          END IF
+           END IF
 *
            IF(IOLSTM .NE. 0 ) THEN
-           print*,'do olsen correction'
 * add Olsen correction if neccessary
 CNW           CALL REWINO(LU3)
 CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
@@ -4649,12 +4642,12 @@ CNW          CALL TODSC(VEC1,NVAR,-1  ,LU1)
      &          call errquit('dra error',itask,911)
              if (dra_wait(itask).ne.0) call errquit('dra read err',
      &           itask,911)
-c            IF ( IPRT  .GE.600 ) THEN
+             IF ( IPRT  .GE.600 ) THEN
                WRITE(6,*) 'ORTHONORMALIZED (D-E)-1 *( HX - EX ) '
 CNW            CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
                call ga_print(VEC1)
              END IF
-c          END IF
+           END IF
 *
          END IF
   100 CONTINUE
@@ -4681,11 +4674,7 @@ CNW     CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
      &     call errquit('dra error',itask,911)
         if (dra_wait(itask).ne.0) call errquit('dra read err',
      &      itask,911)
-        print*,'vec1 combination'
-        call ga_print(VEC1)
         CALL MV7(VEC1,VEC2,0,0,0,0)
-        print*,'vec2 combination'
-        call ga_print(VEC2)
 CNW     CALL TODSC(VEC2,NVAR,-1  ,LU2)
         if (dra_write_section(.false.,VEC2,1,NVAR,1,1,
      &     LU2,1,NVAR,NVEC+IVEC,NVEC+IVEC,itask).ne.0)
