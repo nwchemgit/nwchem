@@ -19701,6 +19701,7 @@ C       END IF
       ELSE IF(PSSIGN.NE.0.0D0.AND.PLSIGN.NE.0.0D0) THEN
         IDC = 4
       END IF
+      print*,'pssign plsign idc',pssign,plsign,idc
 C?    WRITE(6,* ) ' TEST readin IDC = ', IDC
 *     
 * 29: print flag for string information

@@ -1445,6 +1445,8 @@ CNW       END DO
        if (ga_nodeid().eq.0) 
      &  call ga_get(APAK,ICOFF,ICOFF+MATDIM-1,1,1,
      &             AUTPAK(1,1),1)
+       if (ga_nnodes().gt.1) 
+     &  call ga_brdcst(2367,AUTPAK(1,1),mybyte,0)
 *
 * Next row and it's complement from the end packed in front
 *
@@ -1481,7 +1483,7 @@ CNW       END DO
         if (ga_nodeid().eq.0)
      &    call ga_get(APAK,IJOFF,IJOFF+MATDIM-J,1,1,
      &                AUTPAK(J,J),1)
-        mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*(J-1)
+        mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*MDIM 
         if (ga_nnodes().gt.1) 
      &     call ga_brdcst(2367+J,AUTPAK(J,J),mybyte,0)
        endif

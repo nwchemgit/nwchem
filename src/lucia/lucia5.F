@@ -3388,7 +3388,7 @@ C     WRITE(6,*) ' MEMCHECK passed '
 *
       DIMENSION IACAR(2),ITPAR(2)
       CALL LUCIAQENTER('RS2A') 
-      NTESTL = 000
+      NTESTL = 0000
       NTEST = MAX(NTESTG,NTESTL)
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' ================'
@@ -3415,8 +3415,6 @@ C     WRITE(6,*) ' MEMCHECK passed '
 *. Connecting double excitations
       CALL DXTYP2_GAS(NDXTYP,ITP,JTP,KTP,LTP,NGAS,ISOC,ICOC,IPHGAS)
       nproc = ga_nnodes()
-      nproc = 1
-      if (ga_nodeid().gt.0) goto 2001
       DO 2000 IDXTYP = 1, NDXTYP
         ITYP = ITP(IDXTYP)
         JTYP = JTP(IDXTYP)
@@ -3645,7 +3643,6 @@ C         ISCR( I4_REO(IJKL) ) = I4_TP(IJKL)
                 IF(NTEST.GE.2000)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
                 DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
-c               DO 1801 IIPART = 1, NPART
                   IBOT = 1+(IIPART-1)*MAXI
                   ITOP = MIN(IBOT+MAXI-1,NROW)
                   NIBTC = ITOP-IBOT+1
@@ -3995,7 +3992,6 @@ C               JSM = ISCR(I4_REO(4))
                 IF(NTEST.GE.2000)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
                 DO 2801 IIPART = ga_nodeid()+1, NPART,nproc
-c               DO 2801 IIPART = 1, NPART
                   IBOT = 1+(IIPART-1)*MAXI
                   ITOP = MIN(IBOT+MAXI-1,NROW)
                   NIBTC = ITOP-IBOT+1
@@ -13038,11 +13034,11 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
 *
       CALL LUCIAQENTER('RS2B2')
 *
-      NTESTL = 000
+      NTESTL = 0000
       NTEST = MAX(NTESTG,NTESTL)
 *
         WRITE(6,*) ' RSBB2BN2 speaking '
-      IF(NTEST.GE.500.and. ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.1500.and. ga_nodeid().eq.1) THEN
 *
         WRITE(6,*) ' ================ '
         WRITE(6,*) ' RSBB2BN2 speaking '
@@ -13077,7 +13073,7 @@ C     CALL GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
       IJSM = STSTSX(IASM,JASM)
       KLSM = STSTSX(IBSM,JBSM)
       IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
-      IF(NTEST.GE.600.and.ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.600.and.ga_nodeid().eq.1) THEN
         write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
         write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
       END IF
@@ -13109,8 +13105,6 @@ C     CALL GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
 *
       IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
       nproc = ga_nnodes()
-      nproc = 1
-      if (ga_nodeid().gt.0) goto 9999
       DO 2001 IJTYP = 1, NIJTYP
 *
         IJFIRST = 1
@@ -13668,6 +13662,7 @@ C!    CALL LUCIAQENTER('ADAST ')
       ZERO =0.0D0
       IZERO = 0    
       CALL ISETVC(I1,IZERO,NORBTS*NKSTR)
+      CALL SETVEC(XI1S,ZERO,NORBTS*NKSTR)
 *
 * Loop over symmetry distribtions of K strings
 *

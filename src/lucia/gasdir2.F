@@ -5104,7 +5104,7 @@ C    &     WORK(KLREOIA),WORK(KLREOIB),WORK(KLREOJA),WORK(KLREOJB),
 C    &     IUSE_HW,WORK(KINSCR2))
 C     END IF
 *
-      IF(NTEST.GE.100) 
+      IF(NTEST.GE.000) 
      &WRITE(6,*) ' In SBLOCK after SBLOCKS, IDC =  ', IDC
     
       IF(IDC.EQ.2) THEN    
@@ -5423,6 +5423,7 @@ C?     CALL MEMCHK2('CHECAE')
            WRITE(6,*) ' JJCBLOCK, JBLOCK  NJBLOCK = ',
      &                  JJCBLOCK, JBLOCK, NJBLOCK
            WRITE(6,*) ' I1CBLOCK(1) = ',  I1CBLOCK(1)
+           write(6,*) 'sclfac',sclfac(jblock)
           END IF
        CALL MEMCHK2('CHECKA')
 *. Offset for this block in complete vector
@@ -5817,21 +5818,10 @@ C?   &          NSSOA(IASM,IATP)* NSSOB(IBSM,IBTP))
       END IF
       END DO
 *
-      IF(NTEST.GE.000) THEN
-        if (ga_nodeid().eq.0) then
-        WRITE(6,*) ' output blocks from SBLOCKS ',0
+      IF(NTEST.GE.500.and.ga_nodeid().eq.0) THEN
+        WRITE(6,*) ' output blocks from SBLOCKS '
         CALL WRTTTS(SB,ISBLOCK,NSBLOCK,
      &              NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,1)
-        endif
-        call util_flush(6)
-        call ga_sync()
-        if (ga_nodeid().eq.1) then
-        WRITE(6,*) ' output blocks from SBLOCKS ',1
-        CALL WRTTTS(SB,ISBLOCK,NSBLOCK,
-     &              NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,1)
-        endif
-        call util_flush(6)
-        call ga_sync()
       END IF
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving SBLOCKS'
 *
@@ -7636,7 +7626,7 @@ COLD    WRITE(6,*) ' RSSBCBN : ', NNSEL2E, ISEL2E(1)
              WRITE(6,*) ' SB before RSBB1E'
              call wrtmat(sb,nia,nib,nia,nib)
            END IF
-          IF(NTEST.GE.000.and.ga_nodeid().eq.0)
+          IF(NTEST.GE.200.and.ga_nodeid().eq.0)
      &    WRITE(6,*) ' I am going to call RSBB1E'
           CALL RSBB1E(IBSM,IBTP,IOCTPB,JBSM,JBTP,IOCTPB,
      &         IJBGRP,NIA,
@@ -7654,14 +7644,14 @@ C?    CALL MEMCHK
              WRITE(6,*) ' SB after RSBB1E, first element '
              call wrtmat(sb,1,1    ,nia,nib)
            END IF
-           IF(NTEST.GE.000.and.ga_nodeid().eq.0) THEN
+           IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
              WRITE(6,*) ' SB after RSBB1E'
              call wrtmat(sb,nia,nib,nia,nib)
            END IF
         END IF
         IF(IDOH2.NE.0.AND.NBEL.GE.2) THEN
 *. Two electron part
-          IF(NTEST.GE.000.and.ga_nodeid().eq.0)
+          IF(NTEST.GE.100.and.ga_nodeid().eq.0)
      &    WRITE(6,*) ' I am going to call RSBB2A'
           CALL RSBB2A(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NIB,
      &                NGAS,IBOC,JBOC,                
@@ -7678,7 +7668,7 @@ C?    CALL MEMCHK
              WRITE(6,*) ' SB after RSBB2A, first element '
              call wrtmat(sb,1,1    ,nia,nib)
            END IF
-           IF(NTEST.GE.000.and.ga_nodeid().eq.0) THEN
+           IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
              WRITE(6,*) ' SB after RSBB2a'
              call wrtmat(sb,nia,nib,nia,nib)
            END IF
@@ -7751,7 +7741,7 @@ C?    CALL MEMCHK
              WRITE(6,*) ' SB after RSBB2B, first element '
              call wrtmat(sb,1,1    ,nia,nib)
            END IF
-           IF(NTEST.GE.000.and.ga_nodeid().eq.0) THEN
+           IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
              WRITE(6,*) ' SB after RSBB2b'
              call wrtmat(sb,nia,nib,nia,nib)
            END IF
@@ -7792,7 +7782,7 @@ C?    CALL MEMCHK
              WRITE(6,*) ' SB transposed after RSBB1, first element '
              call wrtmat(sb,1,1    ,nia,nib)
            END IF
-           IF(NTEST.GE.000) THEN
+           IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
              WRITE(6,*) ' SB transposed  after RSBB1E'
              call wrtmat(SB,nib,nia,nib,nia)
            END IF
@@ -7825,7 +7815,7 @@ C?    CALL MEMCHK
              WRITE(6,*) ' SB transposed after RSBB2A, first element '
              call wrtmat(sb,1,1    ,nia,nib)
            END IF
-        IF(NTEST.GE.000) THEN
+        IF(NTEST.GE.200) THEN
           WRITE(6,*) ' SB after RSBB2A'
           call wrtmat(sb,nia,nib,nia,nib)
         END IF
@@ -7882,7 +7872,7 @@ C    &                   IDOH2,IMZERO,IDIAG)
      &               IMZERO,IDIAG)
       END IF
 *
-      IF(NTEST.GE.000) THEN
+      IF(NTEST.GE.200) THEN
         WRITE(6,*) ' =========================='
         WRITE(6,*) ' RSSBCB : Final S block '
         WRITE(6,*) ' =========================='
