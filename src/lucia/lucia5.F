@@ -9969,7 +9969,7 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
       END IF! ICISTR switch
       call ga_sync()
       call ga_dgop(1,RHO1,NDACTORB ** 2,'+')
-      if (I12.EQ.2) call ga_dgop(1,RHO2,
+      if (I12.EQ.2) call ga_dgop(2,RHO2,
      &   (NDACTORB**2)*(NDACTORB**2+1)/2,'+')
 
       IF(NTEST.GE.100) WRITE(6,*) ' Returned from GASDN2' 
@@ -10021,12 +10021,12 @@ C         NATORB3_GS(RHO1,XNAT,RHO1SM,OCCNUM,SCR,IREO_GS_TO_TS,IPRDEN)
          END IF !old_or_new switch
        END IF ! natural orbitals requested
 *
-      IF(IPRDEN.GE.10) THEN
+      IF(IPRDEN.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' One-electron density matrix '
         WRITE(6,*) ' ============================'
         CALL WRTMAT(RHO1,NDACTORB,NDACTORB,NDACTORB,NDACTORB) 
       END IF
-      IF(IPRDEN.GE.100.AND.I12.EQ.2) THEN
+      IF(IPRDEN.GE.100.AND.I12.EQ.2.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Two-electron density '
           CALL PRSYM(RHO2,NDACTORB**2)
       END IF
@@ -10959,7 +10959,9 @@ c                npart = min(nrow,nproc)
 c             endif
               IF(NTEST.GE.2000)
      &        write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
+              if (ga_nodeid()+1.gt.npart) goto 1930
               DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
+
                 IBOT = 1+(IIPART-1)*MAXI
                 ITOP = MIN(IBOT+MAXI-1,NROW)
                 NIBTC = ITOP-IBOT+1
@@ -11114,7 +11116,7 @@ CT                CALL LUCIAQEXIT ('MATCG')
 C?            IF(IOFF.EQ.3.AND.JOFF.EQ.3.AND.KOFF.EQ.4.AND.LOFF.EQ.4)
 C?   &            NTEST = 5000
                   LDUMMY = NKBTC*NIBTC
-                  IF(NTEST.GE.2000) THEN
+                  IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
                     WRITE(6,*) ' CSCR matrix '
                     CALL WRTMAT(CSCR,LDUMMY,NJL,LDUMMY,NJL)
                     WRITE(6,*) ' SSCR matrix '
@@ -11134,8 +11136,8 @@ C    &                  NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP )
      &                        LDUMMY,NIK,LDUMMY,NJL,
      &                        FACTOR,ONEM,1)
                   IFIRST = 0
-                  IF(NTEST.GE.2000) THEN
-                    WRITE(6,*) ' Updated X matrix'
+                  IF(NTEST.GE.1000.and.ga_nodeid().eq.1) THEN
+                    WRITE(6,*) ' Updated X matrix',IIPART
                     CALL WRTMAT(X,NIK,NJL,NIK,NJL)
                   END IF
 
