@@ -5104,7 +5104,7 @@ C    &     WORK(KLREOIA),WORK(KLREOIB),WORK(KLREOJA),WORK(KLREOJB),
 C    &     IUSE_HW,WORK(KINSCR2))
 C     END IF
 *
-      IF(NTEST.GE.000) 
+      IF(NTEST.GE.200) 
      &WRITE(6,*) ' In SBLOCK after SBLOCKS, IDC =  ', IDC
     
       IF(IDC.EQ.2) THEN    
