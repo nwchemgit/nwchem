@@ -27,7 +27,7 @@
 
 #            OBJ = nwxc_block.o nwxc_add.o nwxc_query.o nwxc_nwchem.o \
 #                  nwxc_vdw_init.o nwxc_vdw3d.o
-             OBJ = nwxc_vdw_init.o nwxc_vdw3d.o stubs.o
+             OBJ = nwxc_vdw_init.o nwxc_vdw3d.o
 
          HEADERS = nwxc.fh nwxc_param.fh
 
