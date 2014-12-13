@@ -341,7 +341,7 @@ c
       external offload_master
       integer mic_device
 c
-#ifdef OFFLOAD
+#ifdef USE_OFFLOAD
       if(offload_master()) then
         mic_device=util_micdev()
 cc Free memory on MIC 
@@ -363,7 +363,7 @@ c
       external offload_master
       integer mic_device
 c
-#ifdef OFFLOAD
+#ifdef USE_OFFLOAD
       if(offload_master()) then
         mic_device=util_micdev()
 !DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
@@ -385,7 +385,7 @@ c
       integer mic_device
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_zero
 c
-#ifdef OFFLOAD
+#ifdef USE_OFFLOAD
       if(offload_master()) then
         mic_device=util_micdev()
 !DIR$ OFFLOAD TARGET(mic:mic_device) 
