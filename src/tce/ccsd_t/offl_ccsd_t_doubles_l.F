@@ -113,25 +113,6 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_6
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_7
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_8
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_zero
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_1
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_2
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_3
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_4
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_5
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_6
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_7
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_8
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_9
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_1
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_2
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_3
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_4
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_5
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_6
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_7
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_8
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
       mic_device=util_micdev()
 #endif
 #endif
@@ -151,51 +132,10 @@ cfrom l_triplesx
          call pstat_on(ps_sxoff)
          t0=omp_get_wtime()
       endif
-      if(triplesx_free) then
-cc Free memory on MIC and return (cleanup code)
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     O     NOCOPY(triplesx:length(triplesx_mxlgth) 
-     &   FREE)
-         if (otceps) then
-            call pstat_off(ps_sxoff)
-            deltat_off=(omp_get_wtime()-t0)*1.D6
-            call updist(fdist_sxoff, deltat_off)
-         endif
-         if(otceps) t0=omp_get_wtime()
-cc Free memory on MIC 
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     N     NOCOPY(t2sub:length(l_t2sub) 
-     &   FREE)
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     N     NOCOPY(v2sub:length(l_v2sub) 
-     &   FREE)
-         if(otceps) then
-            deltat_off=(omp_get_wtime()-t0)*1.D6
-      if((deltat_off).gt.1d6) call
-     E     errquit(' busted 1',0,0)
-            call updist(fdist_vtoff, deltat_off)
-         endif
-         triplesx_free=.false.
-c     return
-         return
-      endif
 c
 c     alloc triplesx, v2sub & t2sub only once
 c     when triplesx_alloced eq .false.
 c
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     I    if (.not.triplesx_alloced)
-     N     NOCOPY(triplesx:length(triplesx_mxlgth) 
-     &     ALLOC) 
-!DIR$ OFFLOAD TARGET(mic:mic_device) 
-     N     IN(triplesx:length(0) 
-     &     REUSE) 
-     I   IN(l_triplesx)
-c offload bug
-c     N     NOCOPY(triplesx:length(triplesx_mxlgth) 
-c     &     REUSE) 
-c     I   IN(l_triplesx)
-      call offl_zero(triplesx,l_triplesx)
       if (otceps) then
          call pstat_off(ps_sxoff)
          deltat_off=(omp_get_wtime()-t0)*1.D6
@@ -206,14 +146,15 @@ cc Allocate memory on MIC,but no xfer data
             call pstat_on(ps_vtoff)
             t0=omp_get_wtime()
          endif
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device)  
-     I    if (.not.triplesx_alloced)
-     I        nocopy(t2sub:length(l_t2sub) 
-     & ALLOC)
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     I    if (.not.triplesx_alloced)
-     I        nocopy(v2sub:length(l_v2sub) 
-     & ALLOC)
+      if (.not.t2sub_alloced) then
+         call offl_alloc(t2sub,l_t2sub) 
+         t2sub_alloced=.true.
+      endif
+
+      if (.not.v2sub_alloced) then
+         call offl_alloc(v2sub,l_v2sub) 
+         v2sub_alloced=.true.
+      endif
          if(otceps) then
             call pstat_off(ps_vtoff)
             deltat_off=(omp_get_wtime() - t0)*1.D6
@@ -221,13 +162,8 @@ cc Allocate memory on MIC,but no xfer data
      E     errquit(' busted 2',0,0)
             call updist(fdist_vtoff, deltat_off)
          endif
-        triplesx_alloced=.true.
 #endif
 #else
-            if(triplesx_free) then
-               triplesx_free=.false.
-               return
-            endif
 #endif
       
         a3(1,1)=t_p4b
@@ -1006,21 +942,15 @@ c
 c
       END IF
       END DO ! ia6 loop
-#ifdef OFFLOAD_CODE
+#ifdef OFFLOAD_CODE_OLD
 #ifndef OPENMP_OFFLOAD
       if (otceps) then
          call pstat_on(ps_sxoff)
          t0=omp_get_wtime()
       endif
-      if(triplesx_free) then
-         call errquit(' what am i doing here ?',0,0)
-      else
 !DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
      O   OUT(triplesx:length(l_triplesx) 
      &   REUSE)
-c     O   OUT(triplesx:length(triplesx_mxlgth) 
-c     &   REUSE)
-      endif
       if (otceps) then
          call pstat_off(ps_sxoff)
          deltat_off=(omp_get_wtime()-t0)*1.D6
@@ -1866,25 +1796,19 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_zero
       double precision in(*)
       integer size
       integer ii
-      integer*4 size4
 c
-      size4=size
-#if 1
+cdbg      write(6,*) ' zero size',size
+cdbg      write(6,*) ' element 1 ',in(1)
+cdbg      write(6,*) ' element 2 ',in(2)
+cdbg      write(6,*) ' element last ',in(size)
 #ifdef USE_OPENMP
 !$omp parallel do  
-ccc!$omp parallel do simd 
 #endif
-      do ii=1,size4
+      do ii=1,size
          in(ii)=0d0
       enddo
 #ifdef USE_OPENMP
 !$omp end parallel do
-ccc!$omp end parallel do simd
-#endif
-#else
-      size4=size
-!DIR$ OFFLOAD TARGET(mic:mic_device) 
-      call dcopy(size4,0d0,0,in,1)
 #endif
       return
       end

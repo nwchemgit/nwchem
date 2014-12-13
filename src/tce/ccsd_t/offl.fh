@@ -8,8 +8,12 @@ c k_b_sort v2sub
 #define FREE  alloc_if(.false.) free_if(.true.)
 #define REUSE alloc_if(.false.) free_if(.false.)
       logical triplesx_alloced
-      logical triplesx_free
+      logical triplesx1_alloced
+      logical t1sub_alloced
+      logical t2sub_alloced
+      logical v2sub_alloced
       integer	triplesx_mxlgth
       common /offl_ccsdt/triplesx_alloced,
-     T     triplesx_free,
-     T     triplesx_mxlgth
+     1 t1sub_alloced, 
+     1 t2sub_alloced, 
+     1 v2sub_alloced

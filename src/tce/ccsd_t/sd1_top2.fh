@@ -1,0 +1,18 @@
+C$Id$
+      integer deltat
+      double precision t0
+#ifdef USE_OPENMP
+#ifndef OPENMP_OFFLOAD
+cdir$ ATTRIBUTES OFFLOAD : mic :: omp_get_wtime
+#endif
+      double precision omp_get_wtime
+      external omp_get_wtime
+      t0=omp_get_wtime()
+cdir$ assume_aligned triplesx:64
+cdir$ assume_aligned t1sub:64
+cdir$ assume_aligned v2sub:64
+!$omp parallel do private(p4,p5,p6,h1,h3h2) collapse(OMPCOLLAPSE)
+#else
+#include "util.fh"
+      t0=util_wallsec()
+#endif

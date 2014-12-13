@@ -1,4 +1,3 @@
-#define OMPCOLLAPSE 3
       SUBROUTINE ccsd_t_doubles_l(a_i0,
      &d_t2,d_v2,k_t2_offset,k_v2_offset,t
      &_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,toggle)
@@ -34,13 +33,11 @@ C     i0 ( p4 p5 p6 h1 h2 h3 )_vt + = -1 * P( 9 ) * Sum ( p7 ) * t ( p4 p7 h1 h2
       integer k_scratch
       DOUBLE PRECISION a_i0(*)
       
-      DOUBLE PRECISION krnl_start
       logical offload_master
       external offload_master
       integer range_p4,range_h1,ii
       integer t2size,v2size
       
-      krnl_start = util_wallsec()
       
 c *** debug ***
 c      write(6,*)'I am in ccsd_t_doubles',ga_nodeid()
@@ -72,6 +69,12 @@ c *************
      T        dbl_mb(k_v2sub),dbl_mb(k_t2sub),
      S        dbl_mb(k_scratch))
          endif
+#ifdef USE_OFFLOAD
+      call offl_free(dbl_mb(k_t2sub),t2size)
+      t2sub_alloced=.false.
+      call offl_free(dbl_mb(k_v2sub),v2size)
+      v2sub_alloced=.false.
+#endif
       endif
       IF (.not.MA_chop_stack(l_t2sub)) CALL
      & ERRQUIT('ccsd_t_doubles_1',103,MA_ERR)
