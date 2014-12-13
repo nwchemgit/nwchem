@@ -341,17 +341,15 @@ c
       external offload_master
       integer mic_device
 c
+#ifdef OFFLOAD
       if(offload_master()) then
-      mic_device=util_micdev()
-cdbg      write(6,*) ' trying free  '
+        mic_device=util_micdev()
 cc Free memory on MIC 
 !DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
      O     NOCOPY(ttt:length(l_ttt) 
      &   FREE)
-cdbg      write(6,*) ' free ok '
-      else
-cdbg         write(6,*) ' free: not offl_mas'
       endif
+#endif
       return
       end
       subroutine offl_alloc(ttt,l_ttt)
@@ -365,12 +363,14 @@ c
       external offload_master
       integer mic_device
 c
+#ifdef OFFLOAD
       if(offload_master()) then
-      mic_device=util_micdev()
+        mic_device=util_micdev()
 !DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
      N  NOCOPY(ttt:length(l_ttt) 
      &  ALLOC) 
       endif
+#endif
       return
       end
       subroutine offl_zerofill(ttt,l_ttt)
@@ -385,12 +385,14 @@ c
       integer mic_device
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_zero
 c
+#ifdef OFFLOAD
       if(offload_master()) then
-      mic_device=util_micdev()
+        mic_device=util_micdev()
 !DIR$ OFFLOAD TARGET(mic:mic_device) 
      N  IN(ttt:length(0) REUSE) 
      I  IN(l_ttt)
       call offl_zero(ttt,l_ttt)
       endif
+#endif
       return
       end
