@@ -1,3 +1,4 @@
+C$Id$
 #ifdef OFFLOAD_CODE
       subroutine offl_ccsd_t_dot(
 #else
