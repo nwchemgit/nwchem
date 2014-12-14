@@ -13,6 +13,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: omp_get_wtime
       double precision omp_get_wtime
       external omp_get_wtime
       t0=omp_get_wtime()
+cdir$ assume_aligned triplesx:64
+cdir$ assume_aligned t2sub:64
+cdir$ assume_aligned v2sub:64
 !$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(OMPCOLLAPSE)
 #else
 #include "util.fh"      

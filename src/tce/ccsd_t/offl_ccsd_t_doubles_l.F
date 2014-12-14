@@ -983,13 +983,12 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_1
       double precision triplesx(h3d*h2d,h1d,p6d,p5d,p4d)
       double precision t2sub(h7d,p4d,p5d,h1d)
       double precision v2sub(h3d*h2d,p6d,h7d)
+      logical loop8
 #include "sd_top.fh"
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h2h3=1,h3d*h2d
@@ -1031,10 +1030,7 @@ cold      double precision t2sub(h7d,p4d,p5d,h1d)
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
-!DEC$ unroll_and_jam (1)
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
@@ -1079,9 +1075,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_3
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h7=1,h7d
-!DEC$ LOOP COUNT MAX=900, MIN=30
       do h3h2=1,h3d*h2d
 !DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
@@ -1123,9 +1117,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_4
       do p6=1,p6d
       do p4=1,p4d
       do p5=1,p5d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h2h3=1,h2d*h3d
@@ -1166,9 +1158,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_5
       do p6=1,p6d
       do p4=1,p4d
       do p5=1,p5d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=100, MIN=30
 !DEC$ unroll_and_jam (4)
@@ -1214,7 +1204,6 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_6
       do p6=1,p6d
       do p4=1,p4d
       do p5=1,p5d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h2h3=1,h2d*h3d
@@ -1258,9 +1247,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_7
       do p4=1,p4d
       do p6=1,p6d
       do p5=1,p5d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h2h3=1,h2d*h3d
@@ -1301,9 +1288,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_8
       do p4=1,p4d
       do p6=1,p6d
       do p5=1,p5d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=100, MIN=30
 !DEC$ unroll_and_jam (4)
@@ -1349,7 +1334,6 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_9
       do p4=1,p4d
       do p6=1,p6d
       do p5=1,p5d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h3h2=1,h3d*h2d
@@ -1392,9 +1376,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_1
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
 !DEC$ LOOP COUNT MAX=100, MIN=30
 !DEC$ unroll_and_jam (4)
@@ -1440,9 +1422,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_2
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do p7=1,p7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h2h1=1,h2d*h1d
@@ -1483,7 +1463,6 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_3
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
 !DEC$ LOOP COUNT MAX=100, MIN=30
 !DEC$ unroll_and_jam (4)
@@ -1530,7 +1509,6 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_4
       do p5=1,p5d
       do p4=1,p4d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h3=1,h3d
 !DEC$ LOOP COUNT MAX=100, MIN=30
 !DEC$ unroll_and_jam (1)
@@ -1579,9 +1557,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_5
       do p5=1,p5d
       do p4=1,p4d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do p7=1,p7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h2h1=1,h2d*h1d
@@ -1623,9 +1599,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_6
       do p5=1,p5d
       do p4=1,p4d
       do p6=1,p6d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h3=1,h3d
 !DEC$ LOOP COUNT MAX=100, MIN=30
       do h2=1,h2d
@@ -1669,9 +1643,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_7
       do p5=1,p5d
       do p6=1,p6d
       do p4=1,p4d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h2=1,h2d
 !DEC$ LOOP COUNT MAX=100, MIN=30
       do h3=1,h3d
@@ -1716,9 +1688,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_8
       do p5=1,p5d
       do p6=1,p6d
       do p4=1,p4d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do p7=1,p7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h2h1=1,h2d*h1d
@@ -1759,9 +1729,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
       do p5=1,p5d
       do p6=1,p6d
       do p4=1,p4d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
       do h3=1,h3d
 !DEC$ LOOP COUNT MAX=100, MIN=30
       do h2=1,h2d
