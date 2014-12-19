@@ -612,56 +612,6 @@ C
       do iq = 1, nq
         f(iq) = 0.0d0
       enddo
-c     do ip = 1, nd1r(ipol)
-c       do iq = 1, nq
-c         dfdr(iq,ip) = 0.0d0
-c       enddo
-c     enddo
-c     if (nwxc_is_gga().or.nwxc_is_mgga()) then
-c       do ip = 1, nd1g(ipol)
-c         do iq = 1, nq
-c           dfdg(iq,ip) = 0.0d0
-c         enddo
-c       enddo
-c     endif
-c     if (nwxc_is_mgga()) then
-c       do ip = 1, nd1t(ipol)
-c         do iq = 1, nq
-c           dfdt(iq,ip) = 0.0d0
-c         enddo
-c       enddo
-c     endif
-cDEBUG
-c     if (ipol.eq.2.and.nq.eq.3) then
-c       write(*,*)"point 1"
-c       call print(6,rho(1,1))
-c       call print(6,rho(1,2))
-c       call print(6,gamma(1,1))
-c       call print(6,gamma(1,2))
-c       call print(6,gamma(1,3))
-c       call print(6,tau(1,1))
-c       call print(6,tau(1,2))
-c       write(*,*)
-c       write(*,*)"point 2"
-c       call print(6,rho(2,1))
-c       call print(6,rho(2,2))
-c       call print(6,gamma(2,1))
-c       call print(6,gamma(2,2))
-c       call print(6,gamma(2,3))
-c       call print(6,tau(2,1))
-c       call print(6,tau(2,2))
-c       write(*,*)
-c       write(*,*)"point 3"
-c       call print(6,rho(3,1))
-c       call print(6,rho(3,2))
-c       call print(6,gamma(3,1))
-c       call print(6,gamma(3,2))
-c       call print(6,gamma(3,3))
-c       call print(6,tau(3,1))
-c       call print(6,tau(3,2))
-c       write(*,*)
-c     endif
-cDEBUG
 C
       do it = 1, nwxc_num_f
         select case (nwxc_ids(it))
@@ -2379,40 +2329,6 @@ C
       do iq = 1, nq
         f(iq) = 0.0d0
       enddo
-c      do ip = 1, nd1r(ipol)
-c        do iq = 1, nq
-c          dfdr(iq,ip) = 0.0d0
-c        enddo
-c      enddo
-c      do ip = 1, nd2r(ipol)
-c        do iq = 1, nq
-c          dfdr2(iq,ip) = 0.0d0
-c        enddo
-c      enddo
-c      if (nwxc_is_gga().or.nwxc_is_mgga()) then
-c        do ip = 1, nd1g(ipol)
-c          do iq = 1, nq
-c            dfdg(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c        do ip = 1, nd2g(ipol)
-c          do iq = 1, nq
-c            dfdg2(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c      endif
-c      if (nwxc_is_mgga()) then
-c        do ip = 1, nd1t(ipol)
-c          do iq = 1, nq
-c            dfdt(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c        do ip = 1, nd2t(ipol)
-c          do iq = 1, nq
-c            dfdt2(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c      endif
 C
       do it = 1, nwxc_num_f
         select case (nwxc_ids(it))
@@ -3809,6 +3725,9 @@ c     - d3f/drho3
 c     - d3f/drho2dgamma
 c     - d3f/drhodgamma2
 c     - d3f/dgamma3
+c     - d3f/drho2dtau
+c     - d3f/drhodtau2
+c     - d3f/dtau3
 c     to the quantities NWChems expects, i.e.
 c     - d3f/drhoa3+3*d3f/drhoa2drhob
 c     - d3f/drhoa2dgammaaa+d3f/drhoa2dgammaab+d3f/drhoa2dgammabb
@@ -3820,6 +3739,9 @@ c       +2*d3f/drhoadgammaabdgammabb+d3f/drhoadgammabb2
 c     - d3f/dgammaaa3+3/2*d3f/dgammaaa2dgammaab
 c       +3/2*d3f/dgammaaa2dgammabb+3/2*d3f/dgammaaadgammaab2
 c       +3*d3f/dgammaaadgammaabdgammabb+3/2*d3f/dgammaaadgammabb2
+c     - d3f/drhoa2dtaua+d3f/drhoa2dtaub+2*d3f/drhoadrhobdtaua
+c     - d3f/drhoadtaua2+d3f/drhoadtaub2+2*d3f/drhoadtauadtaub
+c     - d3f/dtaua3+3*d3f/dtaua2dtaub
 c
       double precision sfac_ra  !< the closed shell RA scaling factor
       double precision sfac_gaa !< the closed shell GAA scaling factor
@@ -3847,6 +3769,22 @@ c
       parameter(sfac_raragaa   =  8.0d0)
       parameter(sfac_ragaagaa  = 16.0d0)
       parameter(sfac_gaagaagaa = 32.0d0)
+      double precision sfac_rarata    !< a closed shell scaling factor
+      double precision sfac_ratata    !< a closed shell scaling factor
+      double precision sfac_tatata    !< a closed shell scaling factor
+      parameter(sfac_rarata    =  4.0d0)
+      parameter(sfac_ratata    =  4.0d0)
+      parameter(sfac_tatata    =  4.0d0)
+c
+c     The following constants are tentative (M06 in particular seems to
+c     cause problems)
+c
+      double precision sfac_ragaata    !< a closed shell scaling factor
+      double precision sfac_gaagaata   !< a closed shell scaling factor
+      double precision sfac_gaatata    !< a closed shell scaling factor
+      parameter(sfac_ragaata    =  8.0d0)
+      parameter(sfac_gaagaata   = 16.0d0)
+      parameter(sfac_gaatata    =  8.0d0)
 c
       if (ipol.eq.1) then
         do iq = 1, nq
@@ -3998,27 +3936,27 @@ c
                   case (6)
 c                   These scale factors need more work as it requires
 c                   meta-GGAs that have non-zero high order derivatives.
-                    call errquit("df3_driver: 3rd scale factors not "
-     +                     //"done yet",0,CAPMIS_ERR)
+c                   call errquit("df3_driver: 3rd scale factors not "
+c    +                     //"done yet",0,CAPMIS_ERR)
                     select case (iv2)
                       case (1)
                         select case (iv3)
                           case (1)
-                            dfdt3(iq,D3_RA_RA_TA) = val
+                            dfdt3(iq,D3_RA_RA_TA) = val*sfac_rarata
                             dfdt3(iq,D3_RA_RA_TB) = 0.0d0
                             dfdt3(iq,D3_RA_RB_TA) = 0.0d0
                         end select
                       case (3)
                         select case (iv3)
                           case (1)
-                            dfdt3(iq,D3_RA_GAA_TA) = val
+                            dfdt3(iq,D3_RA_GAA_TA) = val*sfac_ragaata
                             dfdt3(iq,D3_RA_GAA_TB) = 0.0d0
                             dfdt3(iq,D3_RA_GAB_TA) = 0.0d0
                             dfdt3(iq,D3_RA_GAB_TB) = 0.0d0
                             dfdt3(iq,D3_RA_GBB_TA) = 0.0d0
                             dfdt3(iq,D3_RA_GBB_TB) = 0.0d0
                           case (3)
-                            dfdt3(iq,D3_GAA_GAA_TA) = val
+                            dfdt3(iq,D3_GAA_GAA_TA) = val*sfac_gaagaata
                             dfdt3(iq,D3_GAA_GAB_TA) = 0.0d0
                             dfdt3(iq,D3_GAA_GBB_TA) = 0.0d0
                             dfdt3(iq,D3_GAB_GAB_TA) = 0.0d0
@@ -4026,18 +3964,18 @@ c                   meta-GGAs that have non-zero high order derivatives.
                       case (6)
                         select case (iv3)
                           case (1)
-                            dfdt3(iq,D3_RA_TA_TA) = val
+                            dfdt3(iq,D3_RA_TA_TA) = val*sfac_ratata
                             dfdt3(iq,D3_RA_TA_TB) = 0.0d0
                             dfdt3(iq,D3_RA_TB_TB) = 0.0d0
                           case (3)
-                            dfdt3(iq,D3_GAA_TA_TA) = val
+                            dfdt3(iq,D3_GAA_TA_TA) = val*sfac_gaatata
                             dfdt3(iq,D3_GAA_TA_TB) = 0.0d0
                             dfdt3(iq,D3_GAB_TA_TA) = 0.0d0
                             dfdt3(iq,D3_GAB_TA_TB) = 0.0d0
                             dfdt3(iq,D3_GBB_TA_TA) = 0.0d0
                             dfdt3(iq,D3_GBB_TA_TB) = 0.0d0
                           case (6)
-                            dfdt3(iq,D3_TA_TA_TA) = val
+                            dfdt3(iq,D3_TA_TA_TA) = val*sfac_tatata
                             dfdt3(iq,D3_TA_TA_TB) = 0.0d0
                         end select
                     end select
@@ -4537,55 +4475,6 @@ C
       do iq = 1, nq
         f(iq) = 0.0d0
       enddo
-c      do ip = 1, nd1r(ipol)
-c        do iq = 1, nq
-c          dfdr(iq,ip) = 0.0d0
-c        enddo
-c      enddo
-c      do ip = 1, nd2r(ipol)
-c        do iq = 1, nq
-c          dfdr2(iq,ip) = 0.0d0
-c        enddo
-c      enddo
-c      do ip = 1, nd3r(ipol)
-c        do iq = 1, nq
-c          dfdr3(iq,ip) = 0.0d0
-c        enddo
-c      enddo
-c      if (nwxc_is_gga().or.nwxc_is_mgga()) then
-c        do ip = 1, nd1g(ipol)
-c          do iq = 1, nq
-c            dfdg(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c        do ip = 1, nd2g(ipol)
-c          do iq = 1, nq
-c            dfdg2(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c        do ip = 1, nd3g(ipol)
-c          do iq = 1, nq
-c            dfdg3(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c      endif
-c      if (nwxc_is_mgga()) then
-c        do ip = 1, nd1t(ipol)
-c          do iq = 1, nq
-c            dfdt(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c        do ip = 1, nd2t(ipol)
-c          do iq = 1, nq
-c            dfdt2(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c        do ip = 1, nd3t(ipol)
-c          do iq = 1, nq
-c            dfdt3(iq,ip) = 0.0d0
-c          enddo
-c        enddo
-c      endif
 C
       do it = 1, nwxc_num_f
         select case (nwxc_ids(it))
