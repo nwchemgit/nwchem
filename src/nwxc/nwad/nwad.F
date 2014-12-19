@@ -4339,7 +4339,7 @@ C>
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,0)
+        s%ivar = ibset(0,0)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4374,7 +4374,7 @@ c       s%var_name = "rhoa"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,1)
+        s%ivar = ibset(0,1)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4409,7 +4409,7 @@ c       s%var_name = "rhob"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,0)
+        s%ivar = ibset(0,0)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4444,7 +4444,7 @@ c       s%var_name = "rho"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,2)
+        s%ivar = ibset(0,2)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4479,7 +4479,7 @@ c       s%var_name = "sigmaaa"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,3)
+        s%ivar = ibset(0,3)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4514,7 +4514,7 @@ c       s%var_name = "sigmaab"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,4)
+        s%ivar = ibset(0,4)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4549,7 +4549,7 @@ c       s%var_name = "sigmabb"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,2)
+        s%ivar = ibset(0,2)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4584,7 +4584,7 @@ c       s%var_name = "sigma"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,5)
+        s%ivar = ibset(0,5)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4619,7 +4619,7 @@ c       s%var_name = "taua"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,6)
+        s%ivar = ibset(0,6)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4654,7 +4654,7 @@ c       s%var_name = "taub"
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
         s%nvar = 1
-        s%ivar = ibset(0_4,5)
+        s%ivar = ibset(0,5)
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
