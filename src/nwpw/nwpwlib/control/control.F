@@ -225,7 +225,7 @@ c       call nwxc_print()
        loop(1)=10 
        loop(2)=100
       end if
-      if(.not. btdb_get(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances))
+      if(.not.btdb_get(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances))
      >then
          tolerances(1) = 1.0d-9
          tolerances(2) = 1.0d-9
