@@ -192,7 +192,6 @@ c           k_map(q_map(k)) = k
      >                               q_map1(2,nb),
      >                               q_map1(1,nb))
 
-      write(*,*) tid,"  QMAP1 MEM=",q_map1(1,nb),q_map1(2,nb)
 
       value = value.and.BA_alloc_get(mt_int,ny(nb)*nz(nb),
      >                              'p_map1',
