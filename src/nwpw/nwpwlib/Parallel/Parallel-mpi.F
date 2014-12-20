@@ -159,7 +159,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       nthreads = 1
 #endif
 
-      write(*,*) "---threadid=",threadid
+      !write(*,*) "---threadid=",threadid
       return
       end
 
