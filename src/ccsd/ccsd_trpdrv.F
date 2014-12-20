@@ -254,7 +254,7 @@ c
                end if
             end do
             if(ga_nodeid().eq.0) then
-               write(6,4321) ' ccsdt: done ',
+               write(6,4321) ' ccsd(t): done ',
      A              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
      O              ' out of ',(nocc/kchunk)*nvir,
      O              ' progress: ',
