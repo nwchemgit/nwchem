@@ -13,7 +13,7 @@ c
       Character*(*) CC_Theory
       Integer RTDB, geom
       logical oconverged, occd, use_trpdrv_nb
-      logical use_trpdrv_bgp, use_trpdrv_bgp2
+      logical use_trpdrv_omp, use_trpdrv_bgp2
 c
 #include "ccsd_len.fh"
 #include "tcgmsg.fh"
@@ -579,7 +579,7 @@ c
 c
 C     Do we continue to the triples or not?
 C     Note: task_energy expects ccsd:energy as a marker of successful
-C     completion.  Therefore, we don't want to write it unless we
+C     completion.  Therefore, we do not want to write it unless we
 C     are certain we have completed the expected task.
 C
       If ( .NOT. ( Inp_Compare(.FALSE., 'ccsd(t)', CC_Theory)
@@ -587,7 +587,7 @@ C
          call ecce_print1('total energy', mt_dbl, refener+eccsd, 1)
          If ( .NOT. RTDB_Put( RTDB, 'ccsd:energy', MT_Dbl, 1,
      $      RefEner+eccsd) ) 
-     $      Call ErrQuit('CCSD: Can''t write to RTDB', 3,0)
+     $      Call ErrQuit('CCSD: Cannot write to RTDB', 3,0)
          Goto 999
       EndIf
 c
@@ -598,9 +598,9 @@ c
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_nb', mt_log, 1,
      1                   use_trpdrv_nb))
      2    use_trpdrv_nb=.false.
-      if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_bgp', mt_log, 1,
-     1                   use_trpdrv_bgp))
-     2    use_trpdrv_bgp=.false.
+      if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_omp', mt_log, 1,
+     1                   use_trpdrv_omp))
+     2    use_trpdrv_omp=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_bgp2', mt_log, 1,
      1                   use_trpdrv_bgp2))
      2    use_trpdrv_bgp2=.false.
@@ -815,7 +815,7 @@ c
      $     l_trp_Djia,k_trp_Djia))
      $     call errquit('aoccsd2: triples: k_trp_Djia ', nvir, MA_ERR)
 c
-         if (use_trpdrv_bgp) then
+         if (use_trpdrv_omp) then
            if (.not. ma_push_get(MT_DBL,lnvv,'einv',l_einv,k_einv))
      $          call errquit('aoccsd2:triples einv',lnvv, MA_ERR)
          endif
@@ -843,14 +843,14 @@ c
      $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
      $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
 c
-         elseif (use_trpdrv_bgp) then
+         elseif (use_trpdrv_omp) then
 c
          if (iam.eq.0.and.oprint) then
             write(luout,1848) nvpass
             call util_flush(luout)
          endif
- 1848    format(' commencing triples evaluation - Blue Gene v1',i8)
-         call ccsd_trpdrv_bgp(dbl_mb(k_t1),dbl_mb(k_f1n),
+ 1848    format(' commencing triples evaluation - OpenMP version',i8)
+         call ccsd_trpdrv_omp(dbl_mb(k_t1),dbl_mb(k_f1n),
      $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
      $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
      $        dbl_mb(k_f4t),eorb,dbl_mb(k_einv),eccsdt,g_objo,g_objv,

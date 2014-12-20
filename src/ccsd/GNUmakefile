@@ -20,9 +20,11 @@ include ../config/makefile.h
         ccsd_t2pm.o \
         ccsd_pampt2.o \
         ccsd_pampt3.o \
+		ccsd_tengy.o \
+		ccsd_tengy_omp.o \
         ccsd_trpdrv.o \
         ccsd_trpdrv_nb.o \
-        ccsd_trpdrv_bgp.o \
+        ccsd_trpdrv_omp.o \
         moints_trp.o \
         ccsd.o \
         ccsd_aux.o \
@@ -66,10 +68,11 @@ endif
      ccsd_pampt3.F \
      ccsd_pdiis.F \
      ccsd_sortmo.F \
-     ccsd_trpdrv.F \
      ccsd_tengy.F \
+     ccsd_tengy_omp.F \
+     ccsd_trpdrv.F \
      ccsd_trpdrv_nb.F \
-     ccsd_trpdrv_bgp.F \
+     ccsd_trpdrv_omp.F \
      moints_trp.F \
      ccsd_zvecs.F \
      ccsd_z2pm.F \

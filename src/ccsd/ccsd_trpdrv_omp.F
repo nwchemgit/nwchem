@@ -1,4 +1,4 @@
-      subroutine ccsd_trpdrv_bgp(t1,
+      subroutine ccsd_trpdrv_omp(t1,
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,einv,
      &     eccsdt,g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,emp4,emp5,
@@ -223,7 +223,7 @@ c
                         einv_time = einv_time + (tt1-tt0)
                         tt0 = ga_wtime()
 #endif
-                        call ccsd_tengy_bgp(f1n,f1t,f2n,f2t,
+                        call ccsd_tengy_omp(f1n,f1t,f2n,f2t,
      1                                      f3n,f3t,f4n,f4t,
      2                                      Dja(1+(i-1)*nvir),
      3                                      Djia,
@@ -238,7 +238,7 @@ c
 #ifdef DEBUG_PRINT
                            tt0 = ga_wtime()
 #endif
-                           call ccsd_tengy_bgp(f1t,f1n,f2t,f2n,
+                           call ccsd_tengy_omp(f1t,f1n,f2t,f2n,
      1                                         f3t,f3n,f4t,f4n,
      2                                         Dja(1+(k-1)*nvir),
      3                                         Djka(1+(k-klo)*nvir),
@@ -273,7 +273,7 @@ c
       end
 
 #ifdef NO_VITALI_TENGY
-      subroutine ccsd_tengy_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1                          dintc,dintx,t1v,einv,
      2                          emp4,emp5,nvir)
       implicit none
@@ -329,7 +329,7 @@ c
 !
 !    modified from the original (use of einv)
 !
-      subroutine ccsd_tengy_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1                          dintc,dintx,t1v,einv,
      2                          emp4,emp5,nvir)
       implicit none
@@ -394,7 +394,7 @@ c
 
 
 #ifdef DEAD_CODE
-      subroutine ccsd_tengy4_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+      subroutine ccsd_tengy4_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1                           einv,emp4,nvir)
       implicit none
       integer nvir,b,c
@@ -423,7 +423,7 @@ c
       return
       end
 
-      subroutine ccsd_tengy5_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+      subroutine ccsd_tengy5_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1                           dintc,dintx,t1v,einv,emp5,nvir)
       implicit none
       integer nvir,b,c
@@ -458,7 +458,7 @@ c
 
 
 
-      subroutine ccsd_tengy4ab_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+      subroutine ccsd_tengy4ab_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1                             einv,emp4a,emp4b,nvir)
       implicit none
       integer nvir,b,c
@@ -503,7 +503,7 @@ c
 
 
 
-      subroutine ccsd_tengy5ab_bgp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+      subroutine ccsd_tengy5ab_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1                             dintcA,dintxA,t1vA,
      2                             dintcB,dintxB,t1vB,
      3                             einv,emp5a,emp5b,nvir)
