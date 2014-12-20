@@ -1160,6 +1160,43 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       return
       end 
 
+      subroutine Pack_conjg_tcc_idot(nb,A,B,C,summer)
+      implicit none
+      integer    nb
+      real*8     A(*)
+      complex*16 B(*)
+      complex*16 C(*)
+      real*8     summer
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer k
+
+c*     **** external functions ****
+c      real*8   ddot
+c      external ddot
+
+      call nwpw_timing_start(2)
+c      call Parallel2d_np_i(np)
+
+      summer = 0.0d0
+      do k=1,nida(nb)
+         summer = summer - dimag(A(k)*dconjg(B(k))*C(k))
+      end do
+      do k=nida(nb)+1,nida(nb)+nidb(nb)
+         summer = summer - 2.0d0*dimag(A(k)*dconjg(B(k))*C(k))
+      end do
+
+c     if (np.gt.1) call D3dB_SumAll(sum)
+
+      call nwpw_timing_end(2)
+
+      return
+      end
 
 
 
@@ -2276,6 +2313,63 @@ c      end do
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *       Pack_cct_iconjgMulAdd     *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_cct_iconjgMulAdd(nb,A,B,C)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     C(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        C(i) = C(i) + dimag(dconjg(A(i))*B(i))
+      end do
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *       Pack_cct_iaconjgMulAdd     *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_cct_iaconjgMulAdd(nb,alpha,A,B,C)
+      implicit none
+      integer    nb
+      real*8     alpha
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     C(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        C(i) = C(i) - alpha*dimag(dconjg(A(i))*dconjg(B(i)))
+      end do
+
+      return
+      end
+
+
 
 
       subroutine Pack_cct_iconjgMulb(nb,A,B,C)
