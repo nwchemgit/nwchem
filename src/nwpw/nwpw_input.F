@@ -528,7 +528,7 @@ c
       tolerances(1) = fe
       if (.not. inp_f(fe)) fe=tolerances(1)
       tolerances(2) = fe
-      if (.not. inp_f(fe)) fe=0.0d0
+      if (.not. inp_f(fe)) fe=1.0e-4
       tolerances(3) = fe
  2501 value = rtdb_put(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)
      >   .and.rtdb_put(rtdb,'band:tolerances',mt_dbl,3,tolerances)
