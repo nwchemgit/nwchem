@@ -68,10 +68,7 @@ endif
      ccsd_pampt3.F \
      ccsd_pdiis.F \
      ccsd_sortmo.F \
-     ccsd_tengy.F \
-     ccsd_tengy_omp.F \
      ccsd_trpdrv.F \
-     ccsd_trpdrv_nb.F \
      ccsd_trpdrv_omp.F \
      moints_trp.F \
      ccsd_zvecs.F \
