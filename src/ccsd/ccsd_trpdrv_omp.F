@@ -253,9 +253,23 @@ c
                         end if ! (i.ne.k)
                      end do
                   end do
+c                  if (iprt.gt.50)then
+c                     write(6,1234)iam,a,j,emp4,emp5
+c 1234                format(' iam aijk',3i5,2e15.5)
+c                  end if
                   next=nxtask(nodes, 1)
                end if
             end do
+            if(ga_nodeid().eq.0) then
+               write(6,4321) ' ccsd(t): done ',
+     A              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
+     O              ' out of ',(nocc/kchunk)*nvir,
+     O              ' progress: ',
+     O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100d0)/
+     D              ((nocc/kchunk)*nvir),
+     P              '%'
+ 4321          format(a,i8,a,i8,a,f6.1,a1)
+            endif
          end do
       end do
 #ifdef DEBUG_PRINT
