@@ -360,6 +360,121 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       return 
       end
 
+*     ***********************************
+*     *                                 *
+*     *      f_local_seperate_paw       *
+*     *                                 *
+*     ***********************************
+
+      subroutine f_local_seperate_paw(dng_paw,dng_notpaw,fion)
+      implicit none
+      complex*16 dng_paw(*)
+      complex*16 dng_notpaw(*)
+      real*8     fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+
+*     *** local variables ***
+      integer taskid_j,np_j
+      integer npack0,nion
+      integer i,ii,ia
+      integer exi(2),ftmp(2),vtmp(2),xtmp(2),G(3)
+      logical value,periodic,inside
+      real*8  rxyz(3),fxyz(3)
+
+*     **** external functions ****
+      integer  Pack_G_indx,ion_nion,ion_katm,control_version
+      real*8   ion_rion
+      external Pack_G_indx,ion_nion,ion_katm,control_version
+      external ion_rion
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call Pack_npack(0,npack0)
+      nion     = ion_nion()
+      periodic = (control_version().eq.3)
+
+      value = BA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,npack0,'xtmp',xtmp(2),xtmp(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1))
+      if (.not.value)
+     > call errquit('f_local_seperate_paw:out of stack',0,MA_ERR)
+
+      G(1) = Pack_G_indx(0,1)
+      G(2) = Pack_G_indx(0,2)
+      G(3) = Pack_G_indx(0,3)
+
+
+      do ii=1,nion
+
+          if (mod(ii-1,np_j).eq.taskid_j) then
+
+             if (.not.periodic) then
+                rxyz(1) = ion_rion(1,ii)
+                rxyz(2) = ion_rion(2,ii)
+                rxyz(3) = ion_rion(3,ii)
+                call lattice_r1_to_frac(1,rxyz,fxyz)
+                inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >                   (dabs(fxyz(2)).le.0.4d0).and.
+     >                   (dabs(fxyz(3)).le.0.4d0))
+             else
+                inside = .true.
+             end if
+
+             if (inside) then
+                ia=ion_katm(ii)
+*               **** structure factor and local pseudopotential ****
+                call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+*               **** add to local psp ****
+                if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+                   call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(vtmp(1)))
+                   call Pack_cct_iconjgMulb(0,dng_paw,
+     >                                 dcpl_mb(vtmp(1)),
+     >                                 dbl_mb(xtmp(1)))
+                else
+                   call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(vtmp(1)))
+                   call Pack_cct_iconjgMulb(0,dng_notpaw,
+     >                                 dcpl_mb(vtmp(1)),
+     >                                 dbl_mb(xtmp(1)))
+                end if
+                call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),
+     >                              dbl_mb(ftmp(1)+3*(ii-1)))
+                call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),
+     >                              dbl_mb(ftmp(1)+3*(ii-1)+1))
+                call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),
+     >                              dbl_mb(ftmp(1)+3*(ii-1)+2))
+             end if
+
+          end if
+
+      end do
+      call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
+      call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+
+
+      value =           BA_pop_stack(ftmp(2))
+      value = value.and.BA_pop_stack(xtmp(2))
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
+      if (.not.value)
+     >  call errquit('f_local_seperate_paw:popping stack',0,MA_ERR)
+
+      call nwpw_timing_end(5)
+      return
+      end
 
 
 
@@ -2220,7 +2335,9 @@ c
             call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
      >                         dcpl_mb(vl1(1)),e2)
 
-            eh = eh + (e1+e2)
+            !eh = eh + (e1+e2)
+            eh = (e1+e2)
+
          end if
          ok =        BA_pop_stack(vl_notpaw(2))
          ok = ok.and.BA_pop_stack(vl1(2))
@@ -2374,16 +2491,18 @@ c            eh = eh + (e1+e2)*dv
 *     *                                               *
 *     *************************************************
 
-      subroutine psp_dE_ncmp_vloc_Qlm(ispin)
+      subroutine psp_dE_ncmp_vloc_Qlm(ispin,move,fion)
       implicit none
       integer ispin
+      logical move
+      real*8 fion(3,*)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "psp.fh"
 
 *     **** local variables ****
-      logical ok,periodic,move
+      logical ok,periodic
       integer npack0,dng_cmp(2),dng_cmp_smooth(2),vl1(2),vl_notpaw(2)
       integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2),vl2(2),r_grid(2)
       integer nx,ny,nz
@@ -2421,15 +2540,15 @@ c            eh = eh + (e1+e2)*dv
 *        **** Using pw grid only ***
          if (use_grid_cmp) then
 c            call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
-            move = .false.
             call v_local(dcpl_mb(vl1(1)),
-     >               move,
+     >               .false.,
      >               dum1,dum2)
 c            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
 c     >                         dcpl_mb(vl1(1)),eh)
 
             call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_pw(ispin,
-     >                                               dcpl_mb(vl1(1)))
+     >                                               dcpl_mb(vl1(1)),
+     >                                               move,fion)
 
 *        **** Using gaussian two-electron integrals and pw grid ***
          else
@@ -2445,7 +2564,8 @@ c     >                         dcpl_mb(vl1(1)),eh)
 
           call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm(ispin,dbl_mb(zv(1)),
      >                                            dcpl_mb(vl_notpaw(1)),
-     >                                            dcpl_mb(vl1(1)))
+     >                                            dcpl_mb(vl1(1)),
+     >                                            move,fion)
 
          end if
          ok =        BA_pop_stack(vl_notpaw(2))
@@ -2483,9 +2603,8 @@ c     >                         dcpl_mb(vl1(1)),eh)
 
 *        **** Using pw grid only ***
          if (use_grid_cmp) then
-            move = .false.
             call v_local(dbl_mb(vl1(1)),
-     >               move,
+     >               .false.,
      >               dum1,dum2)
             call v_lr_local(dbl_mb(r_grid(1)),
      >                      dbl_mb(rho_cmp(1)))
@@ -2495,7 +2614,8 @@ c     >                         dcpl_mb(vl1(1)),eh)
             call Pack_cc_Sum2(0,dbl_mb(rho_cmp(1)),dbl_mb(vl1(1)))
 
             call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_pw(ispin,
-     >                                               dbl_mb(vl1(1)))
+     >                                               dbl_mb(vl1(1)),
+     >                                               move,fion)
 
 *        **** Using gaussian two-electron integrals and pw grid ***
          else
@@ -2529,7 +2649,8 @@ c     >                         dcpl_mb(vl1(1)),eh)
 
           call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm(ispin,dbl_mb(zv(1)),
      >                                            dbl_mb(vl_notpaw(1)),
-     >                                            dbl_mb(vl1(1)))
+     >                                            dbl_mb(vl1(1)),
+     >                                            move,fion)
          end if
          ok =        BA_pop_stack(r_grid(2))
          ok = ok.and.BA_pop_stack(vl2(2))
@@ -3582,3 +3703,203 @@ c     >                                   dbl_mb(wtmp(1)))
 
 
 
+*     *************************************************
+*     *                                               *
+*     *              psp_dE_ncmp_vloc_Qlm_test        *
+*     *                                               *
+*     *************************************************
+
+      subroutine psp_dE_ncmp_vloc_Qlm_test(ispin,move,fion)
+      implicit none
+      integer ispin
+      logical move
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     **** local variables ****
+      logical ok,periodic
+      integer npack0,dng_cmp(2),dng_cmp_smooth(2),vl1(2),vl_notpaw(2)
+      integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2),vl2(2),r_grid(2)
+      integer nx,ny,nz
+      real*8 eh,e1,e2,eh0,eh1,eh2,scal1,dv
+      real*8 dum1(3),dum2(3)
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+      real*8   nwpw_compcharge_E_multipole_zv_ee,lattice_omega
+      external nwpw_compcharge_E_multipole_zv_ee,lattice_omega
+
+
+      eh = 0.0d0
+      if (pawexist) then
+
+      periodic = (control_version().eq.3)
+
+*     *************************************
+*     **** Periodic Boundary Condtions ****
+*     *************************************
+      if (periodic) then
+         call Pack_npack(0,npack0)
+         ok =        BA_push_get(mt_dcpl,npack0,'dng_cmp',
+     >                           dng_cmp(2),dng_cmp(1))
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
+     >                           dng_cmp_smooth(2),dng_cmp_smooth(1))
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'vl1',
+     >                           vl1(2),vl1(1))
+         ok = ok.and.BA_push_get(mt_dcpl,npack0,'vl_notpaw',
+     >                           vl_notpaw(2),vl_notpaw(1))
+         if (.not.ok)
+     >      call errquit('psp_ncmp_vloc:out of stack',0,MA_ERR)
+
+*        **** Using pw grid only ***
+         if (use_grid_cmp) then
+c            call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
+            call v_local(dcpl_mb(vl1(1)),
+     >               .false.,
+     >               dum1,dum2)
+c            call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
+c     >                         dcpl_mb(vl1(1)),eh)
+
+            call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_pw(ispin,
+     >                                               dcpl_mb(vl1(1)),
+     >                                               move,fion)
+
+*        **** Using gaussian two-electron integrals and pw grid ***
+         else
+
+            call v_local_seperate_paw(dcpl_mb(vl1(1)),
+     >                                dcpl_mb(vl_notpaw(1)))
+            call nwpw_compcharge_gen_v_cmp_smooth(dbl_mb(zv(1)),
+     >                                            dcpl_mb(dng_cmp(1)))
+
+            call Pack_cc_Sub2(0,dcpl_mb(dng_cmp(1)),
+     >                          dcpl_mb(vl1(1)))
+            call Pack_cc_Sum2(0,dcpl_mb(dng_cmp(1)),
+     >                          dcpl_mb(vl_notpaw(1)))
+
+          call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_test(
+     >                                            ispin,dbl_mb(zv(1)),
+     >                                            dcpl_mb(vl_notpaw(1)),
+     >                                            dcpl_mb(vl1(1)),
+     >                                            move,fion)
+
+            call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dcpl_mb(dng_cmp(1)),
+     >                                       dcpl_mb(dng_cmp_smooth(1)))
+
+            call f_local_seperate_paw(dcpl_mb(dng_cmp_smooth(1)),
+     >                                dcpl_mb(dng_cmp(1)),
+     >                                fion)
+
+            call Pack_cc_Sub2(0,dcpl_mb(dng_cmp_smooth(1)),
+     >                          dcpl_mb(dng_cmp(1)))
+            call nwpw_compcharge_gen_f_cmp_smooth(dbl_mb(zv(1)),
+     >                                            dcpl_mb(dng_cmp(1)),
+     >                                            fion)
+
+         end if
+         ok =        BA_pop_stack(vl_notpaw(2))
+         ok = ok.and.BA_pop_stack(vl1(2))
+         ok = ok.and.BA_pop_stack(dng_cmp_smooth(2))
+         ok = ok.and.BA_pop_stack(dng_cmp(2))
+         if (.not.ok)
+     >      call errquit('psp_vloc_residual:pop stack',1,MA_ERR)
+
+*     **************************************
+*     **** APeriodic Boundary Condtions ****
+*     **************************************
+      else
+         call D3dB_n2ft3d(1,n2ft3d)
+         ok =         BA_push_get(mt_dbl,n2ft3d,'rho_cmp',
+     >                            rho_cmp(2),rho_cmp(1))
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'rho_cmp_smooth',
+     >                           rho_cmp_smooth(2),rho_cmp_smooth(1))
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl1',
+     >                           vl1(2),vl1(1))
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl_notpaw',
+     >                           vl_notpaw(2),vl_notpaw(1))
+         ok = ok.and.BA_push_get(mt_dbl,n2ft3d,'vl2',
+     >                           vl2(2),vl2(1))
+         ok = ok.and.BA_push_get(mt_dbl,3*n2ft3d,'rgrid_cmp',
+     >                           r_grid(2),r_grid(1))
+         if (.not.ok)
+     >      call errquit('psp_ncmp_vloc:out of stack',2,MA_ERR)
+         call lattice_r_grid(dbl_mb(r_grid(1)))
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         scal1 = 1.0d0/(nx*ny*nz)
+         dv = scal1*lattice_omega()
+
+*        **** Using pw grid only ***
+         if (use_grid_cmp) then
+            call v_local(dbl_mb(vl1(1)),
+     >               .false.,
+     >               dum1,dum2)
+            call v_lr_local(dbl_mb(r_grid(1)),
+     >                      dbl_mb(rho_cmp(1)))
+            call D3dB_rc_fft3f(1,dbl_mb(rho_cmp(1)))
+            call Pack_c_pack(0,dbl_mb(rho_cmp(1)))
+            call Pack_c_SMul1(0,dv,dbl_mb(rho_cmp(1)))
+            call Pack_cc_Sum2(0,dbl_mb(rho_cmp(1)),dbl_mb(vl1(1)))
+
+            call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_pw(ispin,
+     >                                               dbl_mb(vl1(1)),
+     >                                               move,fion)
+
+*        **** Using gaussian two-electron integrals and pw grid ***
+         else
+
+*           **** long-range terms ****
+            call v_lr_local_seperate_paw(dbl_mb(r_grid(1)),
+     >                                   dbl_mb(vl1(1)),
+     >                                   dbl_mb(vl_notpaw(1)))
+            call nwpw_compcharge_gen_vlr_cmp_smooth(dbl_mb(zv(1)),
+     >                                           dbl_mb(r_grid(1)),
+     >                                           dbl_mb(rho_cmp(1)))
+            call D3dB_rr_Sum2(1,dbl_mb(rho_cmp(1)),dbl_mb(vl_notpaw(1)))
+            call D3dB_rc_fft3f(1,dbl_mb(vl_notpaw(1)))
+            call Pack_c_pack(0,dbl_mb(vl_notpaw(1)))
+            call Pack_c_SMul1(0,dv,dbl_mb(vl_notpaw(1)))
+
+            call D3dB_rr_Sub2(1,dbl_mb(rho_cmp(1)),dbl_mb(vl1(1)))
+            call D3dB_rc_fft3f(1,dbl_mb(vl1(1)))
+            call Pack_c_pack(0,dbl_mb(vl1(1)))
+            call Pack_c_SMul1(0,dv,dbl_mb(vl1(1)))
+
+*           **** short-range terms ****
+            call v_local_seperate_paw(dbl_mb(rho_cmp_smooth(1)),
+     >                                dbl_mb(rho_cmp(1)))
+            call Pack_cc_Sum2(0,
+     >                        dbl_mb(rho_cmp(1)),
+     >                        dbl_mb(vl_notpaw(1)))
+            call Pack_cc_Sum2(0,
+     >                        dbl_mb(rho_cmp_smooth(1)),
+     >                        dbl_mb(vl1(1)))
+
+          call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_test(
+     >                                            ispin,dbl_mb(zv(1)),
+     >                                            dbl_mb(vl_notpaw(1)),
+     >                                            dbl_mb(vl1(1)),
+     >                                            move,fion)
+         end if
+         ok =        BA_pop_stack(r_grid(2))
+         ok = ok.and.BA_pop_stack(vl2(2))
+         ok = ok.and.BA_pop_stack(vl_notpaw(2))
+         ok = ok.and.BA_pop_stack(vl1(2))
+         ok = ok.and.BA_pop_stack(rho_cmp_smooth(2))
+         ok = ok.and.BA_pop_stack(rho_cmp(2))
+         if (.not.ok)
+     >      call errquit('psp_vloc_ncmp_vloc:pop stack',3,MA_ERR)
+
+      end if
+
+
+      end if
+
+      return
+      end
