@@ -1272,8 +1272,10 @@ endif
 
 endif
 ifeq ($(TARGET),MACX64)
-  FC = gfortran
-  _FC = gfortran
+    ifndef FC
+      FC = gfortran
+    endif
+    _FC=$(FC)
 #
 # MacOSX 64bit
 #
