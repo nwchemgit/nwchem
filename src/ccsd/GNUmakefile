@@ -67,6 +67,7 @@ endif
      ccsd_pdiis.F \
      ccsd_sortmo.F \
      ccsd_trpdrv.F \
+     ccsd_tengy.F \
      ccsd_trpdrv_nb.F \
      ccsd_trpdrv_bgp.F \
      moints_trp.F \
