@@ -205,12 +205,16 @@ c
 c
 c  tolerances
 c 
- 900  if (.not. inp_f(fe)) goto 901
-      tolerances(1) = fe
-      if (.not. inp_f(fe)) goto 901
-      tolerances(2) = fe
-      if (.not. inp_f(fe)) goto 901
-      tolerances(3) = 1.0d-4
+ 900  tolerances(1) = 1.0e-9
+      tolerances(2) = 1.0e-9
+      tolerances(3) = 1.0e-4
+      if (inp_f(fe)) then
+         tolerances(1) = fe
+         if (inp_f(fe)) then
+            tolerances(2) = fe
+            if (inp_f(fe)) tolerances(3) = fe
+         end if
+      end if
  901  value = rtdb_put(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances)
       if (.not.value)
      > call errquit('cpsd_input: writing tolerances', 0, RTDB_ERR)

@@ -177,6 +177,7 @@ cccc#include "frac_occ.fh"
       external control_print
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
+      integer tid
 
 
 
@@ -202,6 +203,7 @@ c      num_threads(1)
 #endif
 
       call Parallel_thread_init()
+      tid = Parallel_threadid()
       omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
 
       if (omaster) call current_second(cpu1)
@@ -227,9 +229,7 @@ c      num_threads(1)
          write(luout,1110)
       end if
       
-c      write(*,*) "into control_read: threadid",Parallel_threadid()
       value = control_read(1,rtdb)
-c      write(*,*) "out  control_read: threadid",Parallel_threadid()
 
       call Parallel2d_Init(control_np_orbital())
       call Parallel2d_np_i(np_i)
@@ -249,9 +249,7 @@ c      write(*,*) "out  control_read: threadid",Parallel_threadid()
       call psi_data_init(100)
 
 *     **** initialize D3dB data structure ****
-c      write(*,*) "Into D3dB_Init, threadid=",Parallel_threadid()
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
-c      write(*,*) "out  D3dB_Init, threadid=",Parallel_threadid()
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
 
@@ -268,7 +266,7 @@ c      write(*,*) "out  D3dB_Init, threadid=",Parallel_threadid()
       call Pack_npack(1,npack1)      
 
       call D3dB_pfft_init()
-      call ga_sync()
+      !call ga_sync()
 
 
  
@@ -442,9 +440,11 @@ c         end if
 
 
 *     **** initialize two-electron Gaussian integrals ****
+*     **** initialize paw ncmp*Vloc ****
       if (psp_pawexist()) then
          call nwpw_gintegrals_init()
          call nwpw_gintegrals_set(control_move())
+         call psp_dE_ncmp_vloc_Qlm(ispin,.false.,hunita)
       end if
 
 *     **** initialize SIC and HFX  ****
@@ -469,6 +469,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
+
 
 
 *                |**************************|

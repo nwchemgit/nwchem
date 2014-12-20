@@ -308,12 +308,15 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         
         call nwpw_timing_end(11)
 
-*       **************************
-*       **** update ncmp*Vloc ****
-*       **************************
-        if (psp_pawexist().and.(move .or. (it.eq.1)))
-     >     call psp_dE_ncmp_vloc_Qlm(ispin)
-
+c
+c NOT NEEDED- moved to nonlocal psp
+c
+c*       **************************
+c*       **** update ncmp*Vloc ****
+c*       **************************
+c        if (psp_pawexist().and.(it.eq.1))
+c     >     call psp_dE_ncmp_vloc_Qlm(ispin,.false.,dbl_mb(fion(1)))
+c
 
 *       *****************************************
 *       **** generate local pseudopotential  ****
