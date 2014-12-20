@@ -27,7 +27,6 @@
       external    Parallel_threadid
 
       tid = Parallel_threadid()
-      write(*,*) tid," in set_katm_list, nion=",nion
 
 *     **** define nkatm, and atom ****
       value = BA_push_get(mt_byte,4*nion,

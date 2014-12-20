@@ -242,9 +242,7 @@
 *     *****************************************
 *     **** seperate ions and charges       ****
 *     *****************************************
-      write(*,*) "into separate***"
       call seperate_pointcharge(rtdb)
-      write(*,*) "out  separate***"
 
 *     **** intialize the number of constraints ***
       nconstraints = 0
@@ -252,13 +250,11 @@
 *     **************************
 *     **** read in ion data ****
 *     **************************
-      write(*,*) tid," reading pspw"
       value = beom_create(geom,'pspwgeometry')
       value = beom_rtdb_load(rtdb,geom,'pspwgeometry')
 
 *     **** get the number ions ****
       value = beom_ncent(geom,nion)
-      write(*,*) tid," nion=",nion
 
 *     *** set ke_count, ke_total, and kg_total to zero ***
       ke_count = 0
@@ -303,12 +299,9 @@
       nion_qm = nion_qm_tmp
 
 *     **** define atom list: nkatm,katm,natm,atom ****
-      write(*,*) tid," into atomlist all"
       call set_katm_list(1,nion,ion_aname,nkatm,katm,natm,atom)
-      write(*,*) tid," into atomlist qm,nion_qm=",nion_qm
       call set_katm_list(1,nion_qm,ion_aname,
      >                   nkatm_qm,katm_qm,natm_qm,atom_qm)
-      write(*,*) tid," out  atomlist"
 
       if (control_frac_coord()) then
          if (taskid.eq.MASTER) then
@@ -3595,7 +3588,6 @@ c autoang=0.52917726d0
                 thr=0.6d0*(rcov(iiz)+rcov(jjz))
                 if (r.lt.thr) tooshort = .true.
 
-                write(*,*) tid, " r=",r,thr,tooshort
             end do
             end do
             end do
