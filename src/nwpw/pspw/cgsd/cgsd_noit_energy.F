@@ -73,7 +73,8 @@ c     $Id$
       if (control_version().eq.3) call ewald_phafac()
       call electron_gen_vl_potential()
       if (psp_semicore(0)) call semicore_density_update()
-      if (psp_pawexist())  call psp_dE_ncmp_vloc_Qlm(psi_ispin())
+      if (psp_pawexist())
+     >   call psp_dE_ncmp_vloc_Qlm(psi_ispin(),.false.,en)
 
 
 
@@ -376,6 +377,7 @@ c            end do
      >       RTDB_ERR)
 
 *     **** debug paw - energies written to rtdb for numerical forces ****
+      value = value.and.btdb_put(rtdb,'pspw:E_ncmp_vloc',mt_dbl,1,E(38))
       value = value.and.
      >        btdb_put(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E(40))
       value = value.and.btdb_put(rtdb,'pspw:E_cmp_cmp',  mt_dbl,1,E(41))
