@@ -61,6 +61,11 @@ c
 c
 c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 c
+      if (occsdps) then
+         call pstat_on(ps_trpdrv)
+      else
+         call qenter('trpdrv',0)
+      endif
       inode=-1
       next=nxtask(nodes, 1)
 #ifdef DEBUG_PRINT
@@ -139,6 +144,11 @@ c
 #endif
                         jump1 = 1+(k-klo)*lnvv
                         jump2 = 1+(k-klo)*lnov
+                        if (occsdps) then
+                           call pstat_on(ps_doxxx)
+                        else
+                           call qenter('doxxx',0)
+                        endif
 !$omp parallel sections
 !$omp& firstprivate(nocc,nvir,jump1,jump2)
 !$omp section
@@ -198,6 +208,11 @@ c
      1                       Xka(jump2),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
 !$omp end parallel sections
+                        if (occsdps) then
+                           call pstat_off(ps_doxxx)
+                        else
+                           call qexit('doxxx',0)
+                        endif
 
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
@@ -286,5 +301,10 @@ c                  end if
 #endif
       next=nxtask(-nodes, 1)
       call ga_sync()
+      if (occsdps) then
+         call pstat_off(ps_trpdrv)
+      else
+         call qexit('trpdrv',0)
+      endif
 c
       end

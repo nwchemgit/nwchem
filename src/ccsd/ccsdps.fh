@@ -6,7 +6,7 @@ c
      ,	ps_itm,ps_pampt,ps_idx1,ps_idx2,ps_idx34,ps_t2eri,
      ,  ps_trpdrv,ps_doooo,ps_dovvv,ps_z2pm,ps_hz2pm,ps_zvecs,
      ,     ps_pdiis,ps_ht2pm,ps_t2pm,ps_sxy,ps_itrdrv,ps_tengy,
-     ,  ps_idx12,ps_idx11,ps_t2eriw,ps_t2erin,ps_t2erih
+     ,  ps_idx12,ps_idx11,ps_t2eriw,ps_t2erin,ps_t2erih,ps_doxxx
 
 
       logical occsdps            ! True if gathering stats
@@ -15,5 +15,5 @@ c
      $     ps_itm,ps_pampt,ps_idx1,ps_idx2,ps_idx34,ps_t2eri,
      $     ps_trpdrv,ps_doooo,ps_dovvv,ps_z2pm,ps_hz2pm,ps_zvecs,
      $     ps_pdiis,ps_ht2pm,ps_t2pm,ps_sxy,ps_itrdrv,ps_tengy,
-     $     ps_idx12,ps_idx11,ps_t2eriw,ps_t2erin,ps_t2erih
+     $     ps_idx12,ps_idx11,ps_t2eriw,ps_t2erin,ps_t2erih,ps_doxxx
 
