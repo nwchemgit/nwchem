@@ -14,12 +14,10 @@ c $Id$
       external ibm_cputime
       util_cpusec = ibm_cputime()
 #elif defined(KSR)
-*--KSR-start
       real ksr_cputime
       external ksr_cputime
       util_cpusec = ksr_cputime()
-*--KSR-end
-#elif defined(SUN) || defined(__PARAGON__) || defined(DECOSF) || defined(SOLARIS) || defined(FUJITSU_VPP)|| defined(LINUXALPHA) || defined(MACX) 
+#elif defined(SUN) || defined(__PARAGON__) || defined(DECOSF) || defined(SOLARIS) || defined(FUJITSU_VPP)|| defined(LINUXALPHA)
       real*4 tarray(2)
       real*4 etime
 #ifndef GCC4
