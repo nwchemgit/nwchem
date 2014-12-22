@@ -156,7 +156,7 @@ c
       write(*,6003) iprt,convi,maxit, mxvec
  6003 format(//,2x,' ***** ccsd parameters *****',
      &        /,2x,' iprt   = ',i5,
-     &        /,2x,' convi  = ',e9.3,
+     &        /,2x,' convi  = ',e10.3,
      &        /,2x,' maxit  = ',i5,
      $        /,2x,' mxvec  = ',i5)
       endif
