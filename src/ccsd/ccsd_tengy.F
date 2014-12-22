@@ -3,15 +3,16 @@
      $                      emp4,emp5,ncor,nocc,nvir)
       implicit none
 #include "ccsdps.fh"
-      integer ncor,nocc,nvir
+      integer nvir,ncor,nocc
       integer b,c
-      double precision eaijk,emp4,emp5,denom
+      double precision emp4,emp5,denom,eaijk
       double precision one,two,three,four
       double precision f1n(nvir,nvir),f1t(nvir,nvir)
       double precision f2n(nvir,nvir),f2t(nvir,nvir)
       double precision f3n(nvir,nvir),f3t(nvir,nvir)
       double precision f4n(nvir,nvir),f4t(nvir,nvir)
-      double precision dintc(nvir),dintx(nvir),t1v(nvir),eorb(*)
+      double precision dintc(nvir),dintx(nvir),t1v(nvir)
+      double precision eorb(*)
       data one/1.0d00/,two/2.0d00/,three/3.0d00/,four/4.0d00/
 c
       if (occsdps) then

@@ -3,7 +3,9 @@
      1                          dintc,dintx,t1v,einv,
      2                          emp4,emp5,nvir)
       implicit none
-      integer nvir,b,c
+#include "ccsdps.fh"
+      integer nvir
+      integer b,c
       double precision emp4,emp5,denom
       double precision two,three,four
       double precision f1n(nvir,nvir),f1t(nvir,nvir)
@@ -13,6 +15,12 @@
       double precision dintc(nvir),dintx(nvir),t1v(nvir)
       double precision einv(nvir,nvir)
       data two/2.0d00/,three/3.0d00/,four/4.0d00/
+c
+      if (occsdps) then
+         call pstat_on(ps_tengy)
+      else
+         call qenter('tengy',0)
+      endif
 c
 !$omp parallel do collapse(2)
 !$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,dintx,dintc,t1v,einv)
@@ -47,8 +55,14 @@ c
       enddo
 !$omp end parallel do
 c
+      if (occsdps) then
+         call pstat_off(ps_tengy)
+      else
+         call qexit('tengy',0)
+      endif
       return
       end
+
 #else /* BGP */
 !
 !    Argonne Leadership Computing Facility
