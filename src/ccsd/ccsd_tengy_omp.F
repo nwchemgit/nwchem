@@ -23,6 +23,7 @@ c
 c
 !$omp parallel do collapse(2)
 !$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,dintx,dintc,t1v,einv)
+!$omp& private(denom)
 !$omp& reduction(+:emp5,emp4) schedule(static)
       do b=1,nvir
         do c=1,nvir
