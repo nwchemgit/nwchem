@@ -44,7 +44,11 @@ c
       integer nxtask
       external nxtask
 #ifdef _OPENMP
-      integer omp_get_max_threads
+      integer  omp_get_thread_num
+      external omp_get_thread_num
+      integer  omp_get_num_threads
+      external omp_get_num_threads
+      integer  omp_get_max_threads
       external omp_get_max_threads
 #endif
 c
@@ -133,11 +137,10 @@ c
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
-!$omp sections
-!$omp& private(jump1,jump2)
-!$omp& firstprivate(nocc,nvir)
                         jump1 = 1+(k-klo)*lnvv
                         jump2 = 1+(k-klo)*lnov
+!$omp parallel sections
+!$omp& firstprivate(nocc,nvir,jump1,jump2)
 !$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jia,nvir,Tkj(jump1),nvir,0.0d0,
@@ -194,7 +197,7 @@ c
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(jump2),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
-!$omp end sections
+!$omp end parallel sections
 
 #ifdef DEBUG_PRINT
                         tt1 = ga_wtime()
