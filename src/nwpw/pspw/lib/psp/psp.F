@@ -5216,7 +5216,6 @@ c     >                             dcpl_mb(vcmp_smooth(1)))
 
             end if
 
-
 c            call dcopy(2*npack0,dcpl_mb(vc_tmp(1)),1,
 c     >                          dcpl_mb(vcmp_smooth(1)),1)
 c            call dcopy(2*npack0,0.0d0,0,dcpl_mb(vcmp(1)),1)
@@ -5242,7 +5241,7 @@ c            call nwpw_compcharge_add_dEmult_Qlm(ispin)
          call nwpw_compcharge_zero_dE_Qlm()
          call psp_dE_ncmp_vloc_Qlm_test(ispin,.true.,fion)
          call nwpw_compcharge_add_dElocal_Qlm(ispin)
-        call write_force(nion,fion,"f_vnonlocal_check a")
+         call write_force(nion,fion,"f_vnonlocal_check a")
 
          do ip=1,nion_prj_indx
             ii          = int_mb(ii_prj_indx(1)+ip-1)
@@ -5379,8 +5378,8 @@ c            call nwpw_compcharge_add_dEmult_Qlm(ispin)
       call write_force(nion,fion,"f_vnonlocal_check b")
 
 *     *** add multipole force here ***
-c      if (pawexist)
-c     >  call nwpw_compcharge_F_multipole_all(ispin,dbl_mb(zv(1)),fion)
+      if (pawexist)
+     >  call nwpw_compcharge_F_multipole_test(ispin,dbl_mb(zv(1)),fion)
 
       value =           BA_pop_stack(sum(2))
       value = value.and.BA_pop_stack(xtmp(2))
