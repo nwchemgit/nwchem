@@ -35,7 +35,6 @@ c
       double precision dgemm_time
       double precision einv_time
 #endif
-c      integer jump,jump1,jump2
       integer g_objo,g_objv,g_coul,g_exch
       integer inode,next,nodes,iam
       integer oseg_lo,oseg_hi
@@ -147,8 +146,6 @@ c
                         else
                            call qenter('doxxx',0)
                         endif
-c                        jump1 = 1+(k-klo)*lnvv
-c                        jump2 = 1+(k-klo)*lnov
 !$omp parallel sections
 !$omp& firstprivate(nocc,nvir,lnov,lnvv,k,klo)
 !$omp section
@@ -222,7 +219,6 @@ c                        jump2 = 1+(k-klo)*lnov
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
-c                        jump = ncor+nocc
 !$omp parallel do
 !$omp& schedule(static)
 !$omp& shared(einv,eorb)
