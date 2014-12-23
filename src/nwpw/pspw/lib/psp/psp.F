@@ -2599,7 +2599,6 @@ c
 
 *        **** update ncmp*Vloc ****
          if (move) call psp_dE_ncmp_vloc_Qlm(ispin,move,fion)
-
          call nwpw_compcharge_add_dElocal_Qlm(ispin)
 
          do ip=1,nion_prj_indx
@@ -3759,7 +3758,6 @@ c
 
             end if
 
-
             call nwpw_compcharge_gen_dE_Qlm(ispin,
      >                                   dcpl_mb(vcmp_smooth(1)),
      >                                   dcpl_mb(vcmp(1)),.true.,fion)
@@ -3924,7 +3922,7 @@ c
 
       call nwpw_timing_end(6)
 
-      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
+      !call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
       return 
       end
 

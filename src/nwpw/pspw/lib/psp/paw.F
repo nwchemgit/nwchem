@@ -2320,24 +2320,19 @@ c
      >                                dcpl_mb(vl_notpaw(1)))
             call nwpw_compcharge_gen_v_cmp_smooth(dbl_mb(zv(1)),
      >                                            dcpl_mb(dng_cmp(1)))
-
             call Pack_cc_Sub2(0,dcpl_mb(dng_cmp(1)),
      >                          dcpl_mb(vl1(1)))
             call Pack_cc_Sum2(0,dcpl_mb(dng_cmp(1)),
      >                          dcpl_mb(vl_notpaw(1)))
-
             call nwpw_compcharge_gen_dn_cmp2(ispin,
      >                                       dcpl_mb(dng_cmp(1)),
      >                                       dcpl_mb(dng_cmp_smooth(1)))
-
             call Pack_cc_dot(0,dcpl_mb(dng_cmp(1)),
      >                         dcpl_mb(vl_notpaw(1)),e1)
 
             call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
      >                         dcpl_mb(vl1(1)),e2)
-
             eh = eh + (e1+e2)
-
          end if
          ok =        BA_pop_stack(vl_notpaw(2))
          ok = ok.and.BA_pop_stack(vl1(2))
