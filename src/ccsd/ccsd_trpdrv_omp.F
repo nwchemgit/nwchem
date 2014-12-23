@@ -35,7 +35,7 @@ c
       double precision dgemm_time
       double precision einv_time
 #endif
-      integer jump,jump1,jump2
+c      integer jump,jump1,jump2
       integer g_objo,g_objv,g_coul,g_exch
       integer inode,next,nodes,iam
       integer oseg_lo,oseg_hi
@@ -142,70 +142,70 @@ c
 #ifdef DEBUG_PRINT
                         tt0 = ga_wtime()
 #endif
-                        jump1 = 1+(k-klo)*lnvv
-                        jump2 = 1+(k-klo)*lnov
                         if (occsdps) then
                            call pstat_on(ps_doxxx)
                         else
                            call qenter('doxxx',0)
                         endif
+c                        jump1 = 1+(k-klo)*lnvv
+c                        jump2 = 1+(k-klo)*lnov
 !$omp parallel sections
-!$omp& firstprivate(nocc,nvir,jump1,jump2)
+!$omp& firstprivate(nocc,nvir,lnov,lnvv,k,klo)
 !$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
-     1                       Jia,nvir,Tkj(jump1),nvir,0.0d0,
+     1                       Jia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f1n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Tia,nvir,Kkj(jump2),nocc,1.0d0,
+     1                       Tia,nvir,Kkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f1n,nvir)
 !$omp section
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Jia,nvir,Tkj(jump1),nvir,0.0d0,
+     1                       Jia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f3n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Tia,nvir,Jkj(jump2),nocc,1.0d0,
+     1                       Tia,nvir,Jkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f3n,nvir)
 !$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
-     1                       Kia,nvir,Tkj(jump1),nvir,0.0d0,
+     1                       Kia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f2n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Xia,nvir,Kkj(jump2),nocc,1.0d0,
+     1                       Xia,nvir,Kkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f2n,nvir)
 !$omp section
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Kia,nvir,Tkj(jump1),nvir,0.0d0,
+     1                       Kia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f4n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Xia,nvir,Jkj(jump2),nocc,1.0d0,
+     1                       Xia,nvir,Jkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f4n,nvir)
 !$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
-     1                       Jka(jump1),nvir,Tij,nvir,0.0d0,
+     1                       Jka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f1t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Tka(jump2),nvir,Kij,nocc,1.0d0,
+     1                       Tka(1+(k-klo)*lnov),nvir,Kij,nocc,1.0d0,
      2                       f1t,nvir)
 !$omp section
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Jka(jump1),nvir,Tij,nvir,0.0d0,
+     1                       Jka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f3t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Tka(jump2),nvir,Jij,nocc,1.0d0,
+     1                       Tka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
      2                       f3t,nvir)
 !$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
-     1                       Kka(jump1),nvir,Tij,nvir,0.0d0,
+     1                       Kka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f2t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Xka(jump2),nvir,Kij,nocc,1.0d0,
+     1                       Xka(1+(k-klo)*lnov),nvir,Kij,nocc,1.0d0,
      2                       f2t,nvir)
 !$omp section
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Kka(jump1),nvir,Tij,nvir,0.0d0,
+     1                       Kka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f4t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Xka(jump2),nvir,Jij,nocc,1.0d0,
+     1                       Xka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
 !$omp end parallel sections
                         if (occsdps) then
@@ -222,16 +222,16 @@ c
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
-                        jump = ncor+nocc
+c                        jump = ncor+nocc
 !$omp parallel do
 !$omp& schedule(static)
 !$omp& shared(einv,eorb)
 !$omp& private(b,c)
-!$omp& firstprivate(eaijk,jump)
+!$omp& firstprivate(eaijk)
                         do b=1,nvir
                           do c=1,nvir
-                            einv(c,b)=-1.0d0/( eorb(jump+b)
-     &                                        +eorb(jump+c)+eaijk )
+                            einv(c,b)=-1.0d0/( eorb(ncor+nocc+b)
+     &                                        +eorb(ncor+nocc+c)+eaijk )
                           enddo
                         enddo
 !$omp end parallel do
