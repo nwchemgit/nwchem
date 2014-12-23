@@ -1586,6 +1586,8 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_f_cmp_smooth:stack",0,MA_ERR)
 
+      call dcopy(3*nion_paw,0.0d0,0,dbl_mb(ftmp(1)),1)
+
       if (isgamma) then
       call Parallel2d_np_j(np_j)
       call Parallel2d_taskid_j(taskid_j)
@@ -1606,7 +1608,7 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
          call Pack_cct_iconjgMulb(0,
      >                            dng,
      >                            dcpl_mb(tmp(1)),
-     >                            dcpl_mb(xtmp(1)))
+     >                            dbl_mb(xtmp(1)))
          call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fx)
          call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fy)
          call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fz)
@@ -3563,8 +3565,8 @@ c            R12(1) = R12(1)/R
 c            R12(2) = R12(2)/R
 c            R12(3) = R12(3)/R
 
-            !tmp  = (q1*q2 + q11*q2 + q1*q22)
-            tmp  = (q11*q2 + q1*q22)
+            tmp  = (q1*q2 + q11*q2 + q1*q22)
+            !tmp  = (q11*q2 + q1*q22)
 
             call daxpy(3,-tmp,dbl_mb(f_gauss(1)+3*(k-1)), 1,
      >                        dbl_mb(fmult(1)+3*(iii1-1)),1)
@@ -4576,11 +4578,9 @@ c     *********************************************
 
 
 
-
-
-
-
-
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c debug cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 
@@ -4683,45 +4683,14 @@ c     *********************************************
                   indx2  = (iii-1)*2*lm_size_max
      >                   + (ispin-1)*lm_size_max+lm
                   qq = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gx),
-     >                           dcpl_mb(glm_cmp(1)),
-     >                           vcmp,
-     >                           e1x)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gy),
-     >                           dcpl_mb(glm_cmp(1)),
-     >                           vcmp,
-     >                           e1y)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gz),
-     >                           dcpl_mb(glm_cmp(1)),
-     >                           vcmp,
-     >                           e1z)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gx),
-     >                           dcpl_mb(glm_cmp_smooth(1)),
-     >                           vcmp_smooth,
-     >                           e2x)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gy),
-     >                           dcpl_mb(glm_cmp_smooth(1)),
-     >                           vcmp_smooth,
-     >                           e2y)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gz),
-     >                           dcpl_mb(glm_cmp_smooth(1)),
-     >                           vcmp_smooth,
-     >                           e2z)
-            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1)) 
-     >                                  - qq*(e1x+e2x)
-            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)
-     >                                  - qq*(e1y+e2y)
-            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)
-     >                                  - qq*(e1z+e2z)
-
-c                  call Pack_cct_iaconjgMulAdd(0,qq,
-c     >                                       dcpl_mb(glm_cmp(1)),
-c     >                                       vcmp,
-c     >                                       dbl_mb(gvtmp(1)))
-c                  call Pack_cct_iaconjgMulAdd(0,qq,
-c     >                                       dcpl_mb(glm_cmp_smooth(1)),
-c     >                                       vcmp_smooth,
-c     >                                       dbl_mb(gvtmp(1)))
+                  call Pack_cct_iaconjgMulAdd(0,qq,
+     >                                       dcpl_mb(glm_cmp(1)),
+     >                                       vcmp,
+     >                                       dbl_mb(gvtmp(1)))
+                  call Pack_cct_iaconjgMulAdd(0,qq,
+     >                                       dcpl_mb(glm_cmp_smooth(1)),
+     >                                       vcmp_smooth,
+     >                                       dbl_mb(gvtmp(1)))
                end if
 
             end if
@@ -4729,14 +4698,14 @@ c     >                                       dbl_mb(gvtmp(1)))
             pcount = pcount + 1
          end do
          end do
-c         if (move) then
-c            call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),e1x)
-c            call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),e1y)
-c            call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),e1z)
-c            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  +e1x
-c            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)+e1y
-c            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)+e1z
-c         end if
+         if (move) then
+            call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),e1x)
+            call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),e1y)
+            call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),e1z)
+            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  +e1x
+            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)+e1y
+            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)+e1z
+         end if
       end do !** iii **
 
 
@@ -4831,17 +4800,14 @@ c         end if
             q22 = 0.0d0
          end if
 
-         !q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
-         !q2 = q22
-         !E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
       
          do ms=1,ispin
             indx1 = indx1up + (ms-1)*lm_size_max
             indx2 = indx2up + (ms-1)*lm_size_max
-c            dbl_mb(dElocal_Qlm(1)+indx1) = dbl_mb(dElocal_Qlm(1)+indx1)
-c     >                                   + q22*dbl_mb(e_gauss(1)+k-1)
-c            dbl_mb(dElocal_Qlm(1)+indx2) = dbl_mb(dElocal_Qlm(1)+indx2)
-c     >                                   + q11*dbl_mb(e_gauss(1)+k-1)
+            dbl_mb(dElocal_Qlm(1)+indx1) = dbl_mb(dElocal_Qlm(1)+indx1)
+     >                                   + q22*dbl_mb(e_gauss(1)+k-1)
+            dbl_mb(dElocal_Qlm(1)+indx2) = dbl_mb(dElocal_Qlm(1)+indx2)
+     >                                   + q11*dbl_mb(e_gauss(1)+k-1)
          end do
       end do
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
@@ -4850,4 +4816,100 @@ c     >                                   + q11*dbl_mb(e_gauss(1)+k-1)
       call nwpw_timing_end(38)
       return
       end
+
+*     *************************************************
+*     *                                               *
+*     *           nwpw_compcharge_F_multipole_test    *
+*     *                                               *
+*     *************************************************
+*
+*  This routine computes the multiple only contribution to the force.
+*  Note that the components of the force due to the variation wrt ncmp
+*  are included in the standard non-local psp forces.
+*
+      subroutine nwpw_compcharge_F_multipole_test(ispin,zv,fion)
+      implicit none
+      integer ispin
+      real*8 zv(*)
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer k,indx1up,indx1dn,indx2up,indx2dn
+      integer iii1,iii2,ii1,ii2
+      integer iii,l1,m1,iia,ia
+      integer jjj,l2,m2,jja,ja
+      integer fmult(2)
+      real*8 q1,q1x,q1y,q1z,q2,q2x,q2y,q2z
+      real*8 q11,q22,fourpi
+      real*8 tmp,tmpx,tmpy,tmpz,R,R12(3)
+
+*     **** external functions ****
+      real*8   ion_rion
+      external ion_rion
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      if (.not.BA_push_get(mt_dbl,3*nion_paw,"fmult",fmult(2),fmult(1)))
+     >   call errquit("nwpw_compcharge_F_multipole:stack",1,MA_ERR)
+      call dcopy(3*nion_paw,0.0d0,0,dbl_mb(fmult(1)),1)
+
+      do k=1,ngauss
+         iii1 = int_mb(iii1_gauss(1)+k-1)
+         iii2 = int_mb(iii2_gauss(1)+k-1)
+         if (iii1.ne.iii2) then
+            indx1up = int_mb(lm1_gauss(1)+k-1)
+            indx1dn = indx1up + (ispin-1)*lm_size_max
+            indx2up = int_mb(lm2_gauss(1)+k-1)
+            indx2dn = indx2up + (ispin-1)*lm_size_max
+
+            call nwpw_compcharge_indxiiilm(indx1up,iii,l1,m1)
+            call nwpw_compcharge_indxiiilm(indx2up,jjj,l2,m2)
+
+            if (l1.eq.0) then
+               iia = int_mb(katm_paw(1)+iii-1)
+               ia  = int_mb(katm_pawtoion(1)+iia-1)
+               q11 = -1.0d0*zv(ia)/dsqrt(fourpi)
+            else
+               q11 = 0.0d0
+            end if
+            if (l2.eq.0) then
+               jja = int_mb(katm_paw(1)+jjj-1)
+               ja  = int_mb(katm_pawtoion(1)+jja-1)
+               q22 = -1.0d0*zv(ja)/dsqrt(fourpi)
+            else
+               q22 = 0.0d0
+            end if
+
+            q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
+            q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
+
+            !tmp  = (q1*q2 + q11*q2 + q1*q22)
+            tmp  = (q11*q2 + q1*q22)
+
+            call daxpy(3,-tmp,dbl_mb(f_gauss(1)+3*(k-1)), 1,
+     >                        dbl_mb(fmult(1)+3*(iii1-1)),1)
+            call daxpy(3, tmp,dbl_mb(f_gauss(1)+3*(k-1)), 1,
+     >                        dbl_mb(fmult(1)+3*(iii2-1)),1)
+
+         end if
+      end do
+      call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(fmult(1)))
+
+      do iii1=1,nion_paw
+         ii1 = int_mb(ion_pawtoion(1)+iii1-1)
+         fion(1,ii1) = fion(1,ii1) + dbl_mb(fmult(1)+3*(iii1-1))
+         fion(2,ii1) = fion(2,ii1) + dbl_mb(fmult(1)+3*(iii1-1)+1)
+         fion(3,ii1) = fion(3,ii1) + dbl_mb(fmult(1)+3*(iii1-1)+2)
+      end do
+
+      if (.not.BA_pop_stack(fmult(2)))
+     >  call errquit("nwpw_compcharge_F_multipole_test:stack",2,MA_ERR)
+
+      return
+      end
+
 
