@@ -28,13 +28,6 @@ c
       double precision emp4,emp5,denom
       double precision emp4a,emp5a,emp4b,emp5b
       double precision eaijk,eorbaux,eccsdt
-#ifdef DEBUG_PRINT
-      double precision tt0,tt1
-      double precision ga_time(2)
-      double precision tengy_time(2)
-      double precision dgemm_time
-      double precision einv_time
-#endif
       integer g_objo,g_objv,g_coul,g_exch
       integer inode,next,nodes,iam
       integer oseg_lo,oseg_hi
@@ -49,14 +42,12 @@ c
       external omp_get_num_threads
       integer  omp_get_max_threads
       external omp_get_max_threads
+      if (iam.eq.0) write(6,99) omp_get_max_threads()
+   99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
 #endif
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
-#ifdef _OPENMP
-      if (iam.eq.0) write(6,99) omp_get_max_threads()
-   99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
-#endif
 c
 c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 c
@@ -67,14 +58,6 @@ c
       endif
       inode=-1
       next=nxtask(nodes, 1)
-#ifdef DEBUG_PRINT
-      ga_time(1) = 0.0d0
-      ga_time(2) = 0.0d0
-      tengy_time(1) = 0.0d0
-      tengy_time(2) = 0.0d0
-      dgemm_time = 0.0d0
-      einv_time = 0.0d0
-#endif
       do klo = 1, nocc, kchunk
          akold=0
          khi = min(nocc, klo+kchunk-1)
@@ -83,9 +66,6 @@ c
             do j=1,nocc
                inode=inode+1
                if (inode.eq.next)then
-#ifdef DEBUG_PRINT
-                  tt0 = ga_wtime()
-#endif
                   call ga_get(g_objv,1+(j-1)*lnov,j*lnov,av,av,Dja,lnov)
                   call ga_get(g_objo,(klo-1)*lnvv+1,khi*lnvv,j,j,Tkj,
      &                 (khi-klo+1)*lnvv)
@@ -109,14 +89,9 @@ c
      &                    j*nvir+(k-1)*lnov,av,av,
      &                    Djka(1+(k-klo)*nvir),nvir)
                   enddo
-#ifdef DEBUG_PRINT
-                  tt1 = ga_wtime()
-                  ga_time(1) = ga_time(1) + (tt1-tt0)
-#endif
+
                   do i=1,nocc
-#ifdef DEBUG_PRINT
-                     tt0 = ga_wtime()
-#endif
+
                      call ga_get(g_objo,(i-1)*lnvv+1,i*lnvv,j,j,Tij,
      &                    lnvv)
                      call ga_get(g_objo,lnovv+(i-1)*lnov+1,
@@ -133,19 +108,17 @@ c
      &                    lnoov+i*lnov,av,av,Tia,lnov)
                      call ga_get(g_objv,1+2*lnoov+(i-1)*lnov,
      &                    2*lnoov+i*lnov,av,av,Xia,lnov)
-#ifdef DEBUG_PRINT
-                     tt1 = ga_wtime()
-                     ga_time(2) = ga_time(2) + (tt1-tt0)
-#endif
+
                      do k=klo,min(khi,i)
-#ifdef DEBUG_PRINT
-                        tt0 = ga_wtime()
-#endif
+
+!$omp single
                         if (occsdps) then
                            call pstat_on(ps_doxxx)
                         else
                            call qenter('doxxx',0)
                         endif
+!$omp end single 
+
 !$omp parallel sections
 !$omp& firstprivate(nocc,nvir,lnov,lnvv,k,klo)
 !$omp section
@@ -205,17 +178,15 @@ c
      1                       Xka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
 !$omp end parallel sections
+
+!$omp single 
                         if (occsdps) then
                            call pstat_off(ps_doxxx)
                         else
                            call qexit('doxxx',0)
                         endif
+!$omp end single 
 
-#ifdef DEBUG_PRINT
-                        tt1 = ga_wtime()
-                        dgemm_time = dgemm_time + (tt1-tt0)
-                        tt0 = ga_wtime()
-#endif
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
@@ -232,11 +203,6 @@ c
                         enddo
 !$omp end parallel do
 
-#ifdef DEBUG_PRINT
-                        tt1 = ga_wtime()
-                        einv_time = einv_time + (tt1-tt0)
-                        tt0 = ga_wtime()
-#endif
                         call ccsd_tengy_omp(f1n,f1t,f2n,f2t,
      1                                      f3n,f3t,f4n,f4t,
      2                                      Dja(1+(i-1)*nvir),
@@ -244,14 +210,7 @@ c
      4                                      t1((k-1)*nvir+1),
      5                                      einv,emp4,emp5,
      6                                      nvir)
-#ifdef DEBUG_PRINT
-                        tt1 = ga_wtime()
-                        tengy_time(1) = tengy_time(1) + (tt1-tt0)
-#endif
                         if (i.ne.k) then
-#ifdef DEBUG_PRINT
-                           tt0 = ga_wtime()
-#endif
                            call ccsd_tengy_omp(f1t,f1n,f2t,f2n,
      1                                         f3t,f3n,f4t,f4n,
      2                                         Dja(1+(k-1)*nvir),
@@ -259,14 +218,10 @@ c
      4                                         t1((i-1)*nvir+1),
      5                                         einv,emp4,emp5,
      6                                         nvir)
-#ifdef DEBUG_PRINT
-                           tt1 = ga_wtime()
-                           tengy_time(2) = tengy_time(2) + (tt1-tt0)
-#endif
-
                         end if ! (i.ne.k)
-                     end do
-                  end do
+                     end do    ! k
+
+                  end do       ! i
 c                  if (iprt.gt.50)then
 c                     write(6,1234)iam,a,j,emp4,emp5
 c 1234                format(' iam aijk',3i5,2e15.5)
@@ -286,15 +241,7 @@ c                  end if
             endif
          end do
       end do
-#ifdef DEBUG_PRINT
       call ga_sync()
-      if (iam.eq.0) write(6,87)
-   87 format(2x,'node',6x,'ga_get',9x,'dgemm',10x,'einv'10x,'tengy')
-      call ga_sync()
-      write(6,88) iam,ga_time(1)+ga_time(2),dgemm_time,einv_time,
-     &                tengy_time(1)+tengy_time(2)
-   88 format(i7,4e15.5)
-#endif
       next=nxtask(-nodes, 1)
       call ga_sync()
       if (occsdps) then
