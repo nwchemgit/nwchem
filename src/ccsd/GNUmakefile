@@ -21,7 +21,6 @@ include ../config/makefile.h
         ccsd_pampt2.o \
         ccsd_pampt3.o \
 		ccsd_tengy.o \
-		ccsd_tengy_omp.o \
 		ccsd_tengy_bgp.o \
         ccsd_trpdrv.o \
         ccsd_trpdrv_nb.o \
