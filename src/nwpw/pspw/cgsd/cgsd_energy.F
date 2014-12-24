@@ -763,6 +763,8 @@ c*     **** debug ****
 *     **** remove ion forces using ion_FixIon ****
       call ion_FixIon(G1)
 
+      call write_force(nion,G1,"FION ALL")
+
       if (.not.allow_translation) then
         call center_F_mass(G1,fmx,fmy,fmz)
         do i=1,nion

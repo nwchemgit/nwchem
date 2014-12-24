@@ -384,6 +384,11 @@ c            end do
       value = value.and.btdb_put(rtdb,'pspw:E_cmp_pw',   mt_dbl,1,E(42))
       value = value.and.btdb_put(rtdb,'pspw:E_exc_atom', mt_dbl,1,E(43))
       value = value.and.btdb_put(rtdb,'pspw:E_pxc_atom', mt_dbl,1,E(44))
+      value = value.and.btdb_put(rtdb,'pspw:kin_loc',  mt_dbl,1,E(35))
+      value = value.and.btdb_put(rtdb,'pspw:kin_core', mt_dbl,1,E(36))
+      value = value.and.btdb_put(rtdb,'pspw:val_core', mt_dbl,1,E(37))
+      value = value.and.btdb_put(rtdb,'pspw:ion_core', mt_dbl,1,E(45))
+      value = value.and.btdb_put(rtdb,'pspw:vloc_atom',mt_dbl,1,E(39))
       value = value.and.btdb_put(rtdb,'pspw:E_all',       mt_dbl,1,E(1))
 
 
