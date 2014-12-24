@@ -1054,7 +1054,7 @@
       integer np,np_j,np_k,taskid,taskid_j,taskid_k,pcount
       integer iii,iia,ii,ia,lm,l,m,k,jjj,ja,jja,l2,m2,ms
       integer indx1up,indx2up,indx,indx1,indx2
-      integer glm_cmp(2),glm_cmp_smooth(2),ftmp(2),Gx,Gy,Gz
+      integer glm_cmp(2),glm_cmp_smooth(2),gvtmp(2),ftmp(2),Gx,Gy,Gz
       real*8  q22,e1,e2,fourpi
       real*8 e1x,e1y,e1z,e2x,e2y,e2z,qq
 
@@ -1072,9 +1072,12 @@
      >        BA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
      >                    glm_cmp_smooth(2),glm_cmp_smooth(1))
       if (move) then
-      value = value.and.
-     >        BA_push_get(mt_dbl,3*nion_paw,'ftmp',
-     >                    ftmp(2),ftmp(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,npack0,'gvtmp',
+     >                       gvtmp(2),gvtmp(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,3*nion_paw,'ftmp',
+     >                       ftmp(2),ftmp(1))
          call dcopy(3*nion_paw,0.0d0,0,dbl_mb(ftmp(1)),1)
       end if
       if (.not.value)
@@ -1096,6 +1099,7 @@
          ii  = int_mb(ion_pawtoion(1)+iii-1)
          iia = int_mb(katm_paw(1)+iii-1)
          ia  = int_mb(katm_pawtoion(1)+iia-1)
+         if (move) call dcopy(npack0,0.0d0,0,dbl_mb(gvtmp(1)),1)
 
          lm = 0
          do l=0,int_mb(mult_l(1)+iia-1)
@@ -1123,42 +1127,59 @@
                    indx2  = (iii-1)*2*lm_size_max
      >                    + (ispin-1)*lm_size_max+lm
                   qq = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gx),
-     >                           dcpl_mb(glm_cmp(1)),
-     >                           vcmp,
-     >                           e1x)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gy),
-     >                           dcpl_mb(glm_cmp(1)),
-     >                           vcmp,
-     >                           e1y)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gz),
-     >                           dcpl_mb(glm_cmp(1)),
-     >                           vcmp,
-     >                           e1z)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gx),
-     >                           dcpl_mb(glm_cmp_smooth(1)),
-     >                           vcmp_smooth,
-     >                           e2x)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gy),
-     >                           dcpl_mb(glm_cmp_smooth(1)),
-     >                           vcmp_smooth,
-     >                           e2y)
-                  call Pack_conjg_tcc_idot(0,dbl_mb(Gz),
-     >                           dcpl_mb(glm_cmp_smooth(1)),
-     >                           vcmp_smooth,
-     >                           e2z)
-                  dbl_mb(ftmp(1)+3*(iii-1)) 
-     >               = dbl_mb(ftmp(1)+3*(iii-1))   - (e1x+e2x)*qq
-                  dbl_mb(ftmp(1)+3*(iii-1)+1) 
-     >               = dbl_mb(ftmp(1)+3*(iii-1)+1) - (e1y+e2y)*qq
-                  dbl_mb(ftmp(1)+3*(iii-1)+2) 
-     >               = dbl_mb(ftmp(1)+3*(iii-1)+2) - (e1z+e2z)*qq
+                  call Pack_cct_iaconjgMulAdd(0,qq,
+     >                                       dcpl_mb(glm_cmp(1)),
+     >                                       vcmp,
+     >                                       dbl_mb(gvtmp(1)))
+                  call Pack_cct_iaconjgMulAdd(0,qq,
+     >                                       dcpl_mb(glm_cmp_smooth(1)),
+     >                                       vcmp_smooth,
+     >                                       dbl_mb(gvtmp(1)))
+
+c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gx),
+c     >                           dcpl_mb(glm_cmp(1)),
+c     >                           vcmp,
+c     >                           e1x)
+c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gy),
+c     >                           dcpl_mb(glm_cmp(1)),
+c     >                           vcmp,
+c     >                           e1y)
+c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gz),
+c     >                           dcpl_mb(glm_cmp(1)),
+c     >                           vcmp,
+c     >                           e1z)
+c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gx),
+c     >                           dcpl_mb(glm_cmp_smooth(1)),
+c     >                           vcmp_smooth,
+c     >                           e2x)
+c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gy),
+c     >                           dcpl_mb(glm_cmp_smooth(1)),
+c     >                           vcmp_smooth,
+c     >                           e2y)
+c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gz),
+c     >                           dcpl_mb(glm_cmp_smooth(1)),
+c     >                           vcmp_smooth,
+c     >                           e2z)
+c                  dbl_mb(ftmp(1)+3*(iii-1)) 
+c     >               = dbl_mb(ftmp(1)+3*(iii-1))   - (e1x+e2x)*qq
+c                  dbl_mb(ftmp(1)+3*(iii-1)+1) 
+c     >               = dbl_mb(ftmp(1)+3*(iii-1)+1) - (e1y+e2y)*qq
+c                  dbl_mb(ftmp(1)+3*(iii-1)+2) 
+c     >               = dbl_mb(ftmp(1)+3*(iii-1)+2) - (e1z+e2z)*qq
                end if
             end if
             lm     = lm + 1
             pcount = pcount + 1
          end do
          end do
+         if (move) then
+            call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),e1x)
+            call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),e1y)
+            call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),e1z)
+            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  +e1x
+            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)+e1y
+            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)+e1z
+         end if
       end do
 
 
@@ -1255,7 +1276,10 @@ c               end if
 
 *     **** popping stack memory ****
       value = .true.
-      if (move) value = BA_pop_stack(ftmp(2))
+      if (move) then
+         value = value.and.BA_pop_stack(ftmp(2))
+         value = value.and.BA_pop_stack(gvtmp(2))
+      end if
       value = value.and.BA_pop_stack(glm_cmp_smooth(2))
       value = value.and.BA_pop_stack(glm_cmp(2))
       if (.not.value)
@@ -4887,8 +4911,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
             q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
 
-            !tmp  = (q1*q2 + q11*q2 + q1*q22)
-            tmp  = (q11*q2 + q1*q22)
+            tmp  = (q1*q2 + q11*q2 + q1*q22)
+            !tmp  = (q11*q2 + q1*q22)
+            !tmp  = q1*q2
 
             call daxpy(3,-tmp,dbl_mb(f_gauss(1)+3*(k-1)), 1,
      >                        dbl_mb(fmult(1)+3*(iii1-1)),1)
