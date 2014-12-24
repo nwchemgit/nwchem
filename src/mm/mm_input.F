@@ -30,6 +30,8 @@ c
       integer handle
       double precision  scale 
       double precision  charge_scale
+      integer np
+      character*32 mtoken(10)
 c
       pname = "mm_input"
 
@@ -64,23 +66,11 @@ c     ------------------
 c     parse main bq line 
 c     ------------------
       namespace = mm_default
-      aunit = "ang"
       call inp_set_field(1)
-10    continue
       if (inp_a(field)) then 
-        if (inp_contains(.false.,'unit',field,ipos)) then
-          message = "reading units"
-          if (.not. inp_a(aunit)) goto 911  
-          goto 10
-        else
-          if(namespace.eq.mm_default) namespace = field
-          goto 10
-        end if 
+         namespace = field
       end if
 
-      call util_length_scale(aunit,scale)
-     
-      ncenter = 0
  20   if (inp_read()) then
        if(inp_a(field)) then
 
@@ -90,9 +80,15 @@ c     ------------------
             call mm_rtdb_delete(rtdb,namespace)
             goto 20
          else if (inp_compare(.false., 'load', field)) then
-            call  mm_input_load(aunit,max_nbq,ncenter,
-     &                       dbl_mb(i_qbq),
-     &                       dbl_mb(i_cbq))
+            np = inp_n_field()
+            if(np.ne.3) goto 911
+            do ip = 1,np-1
+              if(.not.inp_a(mtoken(ip))) goto 911
+            end do
+            if (inp_compare(.false., 'vdw', mtoken(2))) then
+                call  mm_input_vdw_load(aunit,max_nbq,ncenter,
+     &                           dbl_mb(i_qbq),
+     &                           dbl_mb(i_cbq))
             goto 20
          end if
 
