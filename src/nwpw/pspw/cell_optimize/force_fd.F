@@ -21,7 +21,8 @@
       integer r1(2),geom,nion
       integer r2(2),few(2),fvl(2),fvnl(2),fxc(2),fLJ(2),fQ(2),fspring(2)
       integer fdftu(2),fdisp(2)
-      integer fcmpvl(2)
+      integer fkloc(2),fkcore(2),fvalcore(2),fioncore(2),fcmpvl(2)
+      integer fvlocatom(2)
       integer fhatom(2),fcmp(2),fcmppw(2),fxcatom(2),fpxcatom(2),fall(2)
 
 
@@ -66,7 +67,18 @@
       value     = value.and.
      >     BA_alloc_get(mt_dbl,(3*nion),'fdisp',fdisp(2),fdisp(1))
       value     = value.and.
+     >     BA_alloc_get(mt_dbl,(3*nion),'fkloc',fkloc(2),fkloc(1))
+      value     = value.and.
+     >     BA_alloc_get(mt_dbl,(3*nion),'fkcore',fkcore(2),fkcore(1))
+      value     = value.and.
+     > BA_alloc_get(mt_dbl,(3*nion),'fvalcore',fvalcore(2),fvalcore(1))
+      value     = value.and.
+     > BA_alloc_get(mt_dbl,(3*nion),'fioncore',fioncore(2),fioncore(1))
+      value     = value.and.
      >     BA_alloc_get(mt_dbl,(3*nion),'fcmpvl',fcmpvl(2),fcmpvl(1))
+      value     = value.and.
+     >     BA_alloc_get(mt_dbl,(3*nion),
+     >                  'fvlocatom',fvlocatom(2),fvlocatom(1))
       value     = value.and.
      >     BA_alloc_get(mt_dbl,(3*nion),'fhatom',fhatom(2),fhatom(1))
       value     = value.and.
@@ -100,7 +112,12 @@
       call dcopy(3*nion,0.0d0,0,dbl_mb(fspring(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fdftu(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fdisp(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fkloc(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fkcore(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fvalcore(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fioncore(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fcmpvl(1)),1)
+      call dcopy(3*nion,0.0d0,0,dbl_mb(fvlocatom(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fhatom(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fcmp(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(fcmppw(1)),1)
@@ -171,8 +188,28 @@
       dbl_mb(fdisp(1)+i-1) = E
 
       value = value.and.
+     >        btdb_get(rtdb,'pspw:kin_loc',mt_dbl,1,E)
+      dbl_mb(fkloc(1)+i-1) = E
+
+      value = value.and.
+     >        btdb_get(rtdb,'pspw:kin_core',mt_dbl,1,E)
+      dbl_mb(fkcore(1)+i-1) = E
+
+      value = value.and.
+     >        btdb_get(rtdb,'pspw:val_core',mt_dbl,1,E)
+      dbl_mb(fvalcore(1)+i-1) = E
+
+      value = value.and.
+     >        btdb_get(rtdb,'pspw:ion_core',mt_dbl,1,E)
+      dbl_mb(fioncore(1)+i-1) = E
+
+      value = value.and.
      >        btdb_get(rtdb,'pspw:E_ncmp_vloc',mt_dbl,1,E)
       dbl_mb(fcmpvl(1)+i-1) = E
+
+      value = value.and.
+     >        btdb_get(rtdb,'pspw:vloc_atom',mt_dbl,1,E)
+      dbl_mb(fvlocatom(1)+i-1) = E
 
       value = value.and.
      >        btdb_get(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E)
@@ -248,8 +285,23 @@
       value = value.and.btdb_get(rtdb,'pspw:E_disp',mt_dbl,1,E)
       dbl_mb(fdisp(1)+i-1) = dbl_mb(fdisp(1)+i-1) - E
 
+      value = value.and.btdb_get(rtdb,'pspw:kin_loc',mt_dbl,1,E)
+      dbl_mb(fkloc(1)+i-1) = dbl_mb(fkloc(1)+i-1) - E
+
+      value = value.and.btdb_get(rtdb,'pspw:kin_core',mt_dbl,1,E)
+      dbl_mb(fkcore(1)+i-1) = dbl_mb(fkcore(1)+i-1) - E
+
+      value = value.and.btdb_get(rtdb,'pspw:val_core',mt_dbl,1,E)
+      dbl_mb(fvalcore(1)+i-1) = dbl_mb(fvalcore(1)+i-1) - E
+
+      value = value.and.btdb_get(rtdb,'pspw:ion_core',mt_dbl,1,E)
+      dbl_mb(fioncore(1)+i-1) = dbl_mb(fioncore(1)+i-1) - E
+
       value = value.and.btdb_get(rtdb,'pspw:E_ncmp_vloc',mt_dbl,1,E)
       dbl_mb(fcmpvl(1)+i-1) = dbl_mb(fcmpvl(1)+i-1) - E
+
+      value = value.and.btdb_get(rtdb,'pspw:vloc_atom',mt_dbl,1,E)
+      dbl_mb(fvlocatom(1)+i-1) = dbl_mb(fvlocatom(1)+i-1) - E
 
       value = value.and.btdb_get(rtdb,'pspw:E_hartree_atom',mt_dbl,1,E)
       dbl_mb(fhatom(1)+i-1) = dbl_mb(fhatom(1)+i-1) - E
@@ -279,8 +331,13 @@
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fspring(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fdftu(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fdisp(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fkloc(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fkcore(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fvalcore(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fioncore(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fcmpvl(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fhatom(1)),1)
+      call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fvlocatom(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fcmp(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fcmppw(1)),1)
       call dscal(3*nion,(-0.5d0/alpha),dbl_mb(fxcatom(1)),1)
@@ -296,7 +353,12 @@
       call write_force(nion,dbl_mb(fspring(1)), "spring FD")
       call write_force(nion,dbl_mb(fdftu(1)), "DFTU FD")
       call write_force(nion,dbl_mb(fdisp(1)), "Dispersion FD")
+      call write_force(nion,dbl_mb(fkloc(1)), "kinetic loc FD")
+      call write_force(nion,dbl_mb(fkcore(1)), "kinetic core FD")
+      call write_force(nion,dbl_mb(fvalcore(1)), "valence core FD")
+      call write_force(nion,dbl_mb(fioncore(1)), "ion core FD")
       call write_force(nion,dbl_mb(fcmpvl(1)), "ncmpVloc FD")
+      call write_force(nion,dbl_mb(fvlocatom(1)), "Vloc Atom FD")
       call write_force(nion,dbl_mb(fhatom(1)), "Hartree Atom FD")
       call write_force(nion,dbl_mb(fcmp(1)), "cmp-cmp FD")
       call write_force(nion,dbl_mb(fcmppw(1)), "cmp-pw FD")
@@ -304,22 +366,46 @@
       call write_force(nion,dbl_mb(fpxcatom(1)), "pxc_atom FD")
       call write_force(nion,dbl_mb(fall(1)), "E all FD")
 
-      call daxpy(3*nion,1.0d0,dbl_mb(fvl(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,1.0d0,dbl_mb(fvnl(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,1.0d0,dbl_mb(fxc(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,1.0d0,dbl_mb(fLJ(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,1.0d0,dbl_mb(fQ(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,1.0d0,dbl_mb(fspring(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,1.0d0,dbl_mb(fdftu(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,1.0d0,dbl_mb(fdisp(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fvl(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fvnl(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fxc(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fLJ(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fQ(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fspring(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fdftu(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fdisp(1)),1,dbl_mb(few(1)),1)
+c
+c      call daxpy(3*nion,-1.0d0,dbl_mb(fcmpvl(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,-1.0d0,dbl_mb(fhatom(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,-1.0d0,dbl_mb(fcmp(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,-1.0d0,dbl_mb(fcmppw(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fxcatom(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,-1.0d0,dbl_mb(fpxcatom(1)),1,dbl_mb(few(1)),1)
+c      call write_force(nion,dbl_mb(few(1)),"total FD")
 
-      call daxpy(3*nion,-1.0d0,dbl_mb(fcmpvl(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,-1.0d0,dbl_mb(fhatom(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,-1.0d0,dbl_mb(fcmp(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,-1.0d0,dbl_mb(fcmppw(1)),1,dbl_mb(few(1)),1)
+c      call dcopy(3*nion,dbl_mb(fcmpvl(1)),      1,dbl_mb(few(1)),1)
+c      call dcopy(3*nion,dbl_mb(fvlocatom(1)),   1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fhatom(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fcmp(1)),  1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fcmppw(1)),1,dbl_mb(few(1)),1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(fxcatom(1)),1,dbl_mb(few(1)),1)
+
+      !call dcopy(3*nion,0.0d0,0,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fvl(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fkloc(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fkcore(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fvalcore(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fioncore(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fvlocatom(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fhatom(1)),1,dbl_mb(few(1)),1)
       call daxpy(3*nion,1.0d0,dbl_mb(fxcatom(1)),1,dbl_mb(few(1)),1)
-      call daxpy(3*nion,-1.0d0,dbl_mb(fpxcatom(1)),1,dbl_mb(few(1)),1)
-      call write_force(nion,dbl_mb(few(1)),"total FD")
+      call daxpy(3*nion,1.0d0,dbl_mb(fcmp(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fcmppw(1)),1,dbl_mb(few(1)),1)
+      call daxpy(3*nion,1.0d0,dbl_mb(fcmpvl(1)),1,dbl_mb(few(1)),1)
+
+      call write_force(nion,dbl_mb(few(1)),
+     > "TEST FD:kloc+vloc_at+core+h_at+xc_at+cmp+cmp_pw+cmpvl+vl+ewald")
+
 
 
 
@@ -339,12 +425,18 @@
       value = value.and.BA_free_heap(fspring(2))
       value = value.and.BA_free_heap(fdftu(2))
       value = value.and.BA_free_heap(fdisp(2))
+      value = value.and.BA_free_heap(fkloc(2))
+      value = value.and.BA_free_heap(fkcore(2))
+      value = value.and.BA_free_heap(fvalcore(2))
+      value = value.and.BA_free_heap(fioncore(2))
       value = value.and.BA_free_heap(fcmpvl(2))
+      value = value.and.BA_free_heap(fvlocatom(2))
       value = value.and.BA_free_heap(fhatom(2))
       value = value.and.BA_free_heap(fcmp(2))
       value = value.and.BA_free_heap(fcmppw(2))
       value = value.and.BA_free_heap(fxcatom(2))
       value = value.and.BA_free_heap(fpxcatom(2))
+      value = value.and.BA_free_heap(fall(2))
  
       force_fd = value
       return 
