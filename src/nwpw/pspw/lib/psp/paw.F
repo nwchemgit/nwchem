@@ -2199,7 +2199,7 @@ c
      >                         dbl_mb(sw1(1)),
      >                         dbl_mb(sw2(1)))
 
-*       **** keatom = transpose(sw1)*sw2) ****
+*       **** vloc_atom = transpose(sw1)*sw2) ****
         do l=0,(nn*nproj-1)
          vloc_atom = vloc_atom+dbl_mb(sw1(1)+l)*dbl_mb(sw2(1)+l)
         end do
@@ -2210,8 +2210,7 @@ c
       value =           BA_pop_stack(sw2(2))
       value = value.and.BA_pop_stack(sw1(2))
       value = value.and.BA_pop_stack(exi(2))
-      if (.not.value) call errquit('psp_overlap_orb: popping stack',3,
-     &       MA_ERR)
+      if (.not.value) call errquit('psp_vloc_atom:pop stack',3,MA_ERR)
 
       if (ispin.eq.1) vloc_atom = vloc_atom+vloc_atom
       vloc_atom = vloc_atom*scal
