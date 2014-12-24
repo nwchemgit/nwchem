@@ -12,6 +12,7 @@
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "dra.fh"
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'crun.inc'
@@ -26,10 +27,10 @@
       INCLUDE 'clunit.inc'
       INCLUDE 'cecore.inc'
       INCLUDE 'cprnt.inc'
+      include 'cicisp.inc'
 *
       LOGICAL CONV_F, CONV_LOCAL
       EXTERNAL AKBKSIGMA, AKBKSIGMA2
-
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'AKBKCT')
@@ -47,19 +48,23 @@
 *
 * Test that CSFs are in use
       IF(NOCSF.EQ.1) THEN
-        WRITE(6,*) ' AKBK calculation with determinants is not enabled'
-        WRITE(6,*) ' Please remove NOCSF keyword '
-        STOP       ' AKBK calculation with determinants is not enabled'
+       WRITE(6,*) ' AKBK calculation with SD is under construction'
+cVOG        WRITE(6,*) ' AKBK calculation with determinants is not enabled'
+cVOG        WRITE(6,*) ' Please remove NOCSF keyword '
+cVOG        STOP       ' AKBK calculation with determinants is not enabled'
       END IF
       IF(ICNFBAT.EQ.1.OR.ICISTR.EQ.1) THEN
-        WRITE(6,*) ' AKBK calculation does not work with incore options'
-        WRITE(6,*) ' Please make sure ICNFBAT .ge. 2 and ICISTR .ge. 2 '
-        STOP       ' AKBK calculation does not work with incore options'
+       WRITE(6,*) ' AKBK calculation with GAs is under construction'
+cVOG        WRITE(6,*) ' AKBK calculation does not work with incore options'
+cVOG        WRITE(6,*) ' Please make sure ICNFBAT .ge. 2 and ICISTR .ge. 2 '
+cVOG        STOP       ' AKBK calculation does not work with incore options'
       END IF
 *
       WRITE(6,*) ' Allowed number of outer iterations ', MAXITM
       WRITE(6,*) ' Allowed number of inner iterations ', MAXIT 
 *
+cVOG  All is writen in GAs
+      IAKBK_MET = 1 
       IF(IAKBK_MET.EQ.1) THEN
         WRITE(6,*) ' Procedure with Q-vectors on DISC '
       ELSE
@@ -81,6 +86,7 @@
 *. Number of CSFs in P and Q
       NPCSF = NCSF_PER_SYM_GN(IREFSM,IPSPC)
       NQCSF = NCSF_PER_SYM_GN(IREFSM,IQSPC)
+cVOG  These should be initialiaxed from lucia.f?
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Initial energy = ', EREF
         WRITE(6,*) ' Number of CSFs in P-space = ', NPCSF
@@ -109,6 +115,7 @@
      &       NOCCLS_MAX,int_mb(KIOCCLS),NGAS,
      &       LCMBSPC(IQSPC),ICMBSPC(1,IQSPC),IGSOCCX,IQSPC)
       NSOCCLS = NOCCLS_Q
+      write(6,*) 'NCOCCLS, NSOCCLS', NCOCCLS, NSOCCLS 
 *. Well the Q-classes may contain terms that are not connected
 *. to the P-classes by double excitations. Eliminate these
 *
@@ -128,6 +135,53 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
         CALL ICOPVE(int_mb(KLRCONNECT),int_mb(KLOCCLS_P),NRCONNECT)
 *. Should also be copied to Sigma occ classes?
       END IF
+*
+      IF (NOCSF.EQ.1) THEN
+*
+* AKBK - NWChem version. No CSFs, just SDs
+*
+* Allocate P-space vector
+*
+       NSDP = INT(XISPSM(IREFSM,1))
+       WRITE(6,'(a,i12)') ' Dimension of P space  ', NSDP
+       IF ( .not. ga_create( mt_dbl, NSDP, 1, 'VECP', 0, 0, KVECP) )
+     $    CALL ERRQUIT('AKBK: ga_create VECP failed', NSDP, GA_ERR)
+       CALL ga_zero(KVECP)
+       IF (dra_read_section(.false., KVECP, 1, NSDP, 1, 1,
+     &                               LUC,   1, NSDP, 1, 1,ITASK).ne.0)
+     &    CALL ERRQUIT('dra error readin P vector',ITASK, 666)
+       IF (dra_wait(ITASK).ne.0) 
+     &    CALL ERRQUIT('dra read err',ITASK,666)
+       CALL ga_print(KVECP)
+*
+* Analyze P-space expansion (Not working)
+*
+       CALL GASANA(dbl_mb(KVECP),NBLOCK,NSDP,NSDP,LUC,ICISTR)
+*
+* Allocate PQ-space vector
+* VOG: I should fix SplitGAS cases. Now it is working as SplitCAS
+*
+       NSDPQ = INT(XISPSM(IREFSM,2))
+       IF ( .not. ga_create( mt_dbl, NSDPQ, 1, 'VECPQ', 0, 0, KVECPQ) )
+     $    CALL ERRQUIT('AKBK: ga_create VECP failed', NSDPQ, GA_ERR)
+       CALL ga_zero(KVECPQ)
+       CALL ga_copy_patch('N', KVECP,  1, NSDP, 1, 1,
+     &                         KVECPQ, 1, NSDP, 1, 1)
+*
+       IF (NTEST.GE.1000) THEN
+        WRITE(6,'(a)')     ' ================================= '
+        WRITE(6,'(a)')     '  Dimensions for AKBK Calculation  '
+        WRITE(6,'(a)')     ' ================================= '
+        WRITE(6,'(a,i12)') ' Number of CI Spaces   ', NCMBSPC
+        WRITE(6,'(a,i12)') ' Dimension of P space  ', NSDP
+        WRITE(6,'(a,i12)') ' Dimension of PQ space ', NSDPQ
+        WRITE(6,'(a)')     ' Print initial vectors:'
+        CALL ga_print(KVECP)
+        CALL ga_print(KVECPQ)
+        WRITE(6,'(a)')     ' ================================= '
+       END IF
+*
+      ELSE 
 *
 * Info on batches
 *
@@ -221,7 +275,7 @@ C             COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
 *  ================
 *
 *. Obtain diagonal over determinants
-        CALL REWINO(LUDIA)
+cVOG        CALL REWINO(LUDIA)
         I12 = 2
         SHIFT = ECORE
         IUSE_EXP = 1
@@ -254,6 +308,7 @@ C     &           ECORE,LUDIA,NOCCLS_SPC,IOCCLS_SPC,ISYM)
 C        GET_CSF_H_PRECOND(NEL,NCONF_FOR_OPEN,ICONF_OCC,H0,ECORE,
 C    &   IFORM)
       END IF! IH0_CSF switch
+      END IF !NOCSF - VOG
 *
       MINST = 1
 *. Since we are starting our with the solution from the previous space
@@ -1018,6 +1073,9 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *./ORBINP/: NACOB used
 *
       INCLUDE 'implicit.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc-static.inc'
       INCLUDE 'orbinp.inc'

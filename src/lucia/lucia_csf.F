@@ -2400,6 +2400,8 @@ C       IF(NPCMCNF(ITP)*NPCSCNF(ITP).EQ.0) GOTO 30
           WRITE(6,'(A)')
           WRITE(6,'(A,I3,A)')
      &    '  Type with ',IOPEN,' open orbitals '
+          WRITE(6,'(A,I10)')
+     &    '  Dimension ',ICDCBS
           WRITE(6,'(A)')
      &    '  ************************************'
           WRITE(6,*)
@@ -5928,6 +5930,7 @@ C    &             IPLACE,IPRNT)
 #include "mafdecls.fh"
 #include "global.fh"
 *
+      integer CSFVEC
       DIMENSION SCR(*)
       CALL LUCIAQENTER('CSDTV')
       NTESTL = 000
@@ -6050,7 +6053,7 @@ C. Multiply with  expansion matrix
           ICSF = NPCSCNF(ITYP)
           ICNF = NCNFTP(ITYP)
           IF(NTEST.GE.100) THEN
-            WRITE(6,*) 
+            WRITE(6,'(a,4i8)') 
      &      ' ITYP, IDET, ICSF, ICNF = ', ITYP,IDET,ICSF,ICNF
           END IF
 *

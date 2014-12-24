@@ -3033,7 +3033,7 @@ C?      WRITE(6,*) ' Home from CI_RESPONS'
       END DO
 *
       if (.not. ga_destroy(KCOMVEC2)) call 
-     &     errquit('GASCI: ga_destroy kcomvec1 failed', 0 , GA_ERR)
+     &     errquit('GASCI: ga_destroy kcomvec2 failed', 0 , GA_ERR)
       if (.not. ga_destroy(KCOMVEC1)) call 
      &     errquit('GASCI: ga_destroy kcomvec1 failed', 0 , GA_ERR)
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUM,'GASCI ')
@@ -11916,6 +11916,38 @@ CBERT           CALL SCLH2(XLAMBDA)
              ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = VNFINAL
              CONV_T(JSEQ,JCMBSPC) = CONV_F
              ISTOSPC = JCMBSPC
+*
+            ELSE IF(CARD(1:6).EQ.'AKBKCI') THEN
+* ================
+* AKBKCI calculation
+* ================
+*
+             write(6,'(15X,A)') '********************'
+             write(6,'(15X,A)') 'SplitGAS Initialized'
+             write(6,'(15X,A)') '********************'
+             CALL AKBKCI(JCMBSPC,IPRDIA,
+     &                   EREF,ERROR_NORM_FINAL,CONV_F)
+             E_FINAL_T(JSEQ,JCMBSPC) = EREF
+             ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) =
+     &       ERROR_NORM_FINAL
+             CONV_T(JSEQ,JCMBSPC) = CONV_F
+cVOG This has not been tested yet
+c          ELSE IF(CARD(1:6).EQ.'AKBKMC') THEN
+c*
+c* ======================
+c* AKBKMCSCF calculation
+c* ======================
+c*
+c             MAXMAC = ISEQCI(JSEQ,JCMBSPC)
+c             MAXMIC = ISEQCI2(JSEQ,JCMBSPC)
+c             CALL LUCIA_AKMCSCF(IREFSM,JCMBSPC,MAXMAC,MAXMIC,
+c     &                        EFINAL,CONV_F,VNFINAL)
+c             I_HAVE_DONE_GAS = 1
+c             E_FINAL_T(JSEQ,JCMBSPC) = EFINAL
+c             ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) = VNFINAL
+c             CONV_T(JSEQ,JCMBSPC) = CONV_F
+c             ISTOSPC = JCMBSPC
+*
           END IF
 *         ^ End of switch between types of calculations
         END DO
@@ -16534,10 +16566,14 @@ c        READ(LUIN,*) NCISPC
 cnw           IF(NGAS.NE.0) READ(LUIN,*) 
 cnw     &       (IGSOCCX(IGAS,1,ISPC),IGSOCCX(IGAS,2,ISPC),IGAS=1,NGAS)
            do igas = 1,ngas
-            ioff1 = ngas*2*(ncispc-1)
-            ioff2 = ngas*2*(ncispc-1)+ngas
-            igsoccx(igas,1,ispc)=itmp(ioff1+igas)
-            igsoccx(igas,2,ispc)=itmp(ioff2+igas)
+cVOG            ioff1 = ngas*2*(ncispc-1)
+cVOG            ioff2 = ngas*2*(ncispc-1)+ngas
+cVOG            igsoccx(igas,1,ispc)=itmp(ioff1+igas)
+cVOG            igsoccx(igas,2,ispc)=itmp(ioff2+igas)
+            ioff1 = (igas-1)*2 + (ispc-1)*2*ngas + 1
+            ioff2 = (igas-1)*2 + (ispc-1)*2*ngas + 2
+            igsoccx(igas,1,ispc)=itmp(ioff1)
+            igsoccx(igas,2,ispc)=itmp(ioff2)
            end do
           END DO
          endif
@@ -19297,6 +19333,7 @@ cnw       GOTO 999
 cglm    ^ end IF for skipping command in NWChem env.
 *
 cGLM   IF(CARD(2:7).EQ.'AKBKME') THEN
+cVOG   Obsolete. This is set to 1 (Q-vectors on DISC/GAs)
        IF(rtdb_get(rtdb,'lucia:IAKBK_MET',mt_int,1,iakbk_met)) then
 
 *. Readin method for performing AKBK calculations
@@ -19701,7 +19738,7 @@ C       END IF
       ELSE IF(PSSIGN.NE.0.0D0.AND.PLSIGN.NE.0.0D0) THEN
         IDC = 4
       END IF
-      print*,'pssign plsign idc',pssign,plsign,idc
+C?    print*,'pssign plsign idc',pssign,plsign,idc
 C?    WRITE(6,* ) ' TEST readin IDC = ', IDC
 *     
 * 29: print flag for string information
@@ -21972,7 +22009,6 @@ C?    WRITE(6,*) ' Check,  I_DO_NEWCCV = ',  I_DO_NEWCCV
       END IF
 
 *     
-
       WRITE(LUOUT,*)
       WRITE(LUOUT,*) ' ******************************************'
       WRITE(LUOUT,*) ' Specification of Sequence of calculations '
