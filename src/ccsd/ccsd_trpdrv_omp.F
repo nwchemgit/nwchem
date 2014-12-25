@@ -114,6 +114,12 @@ c
 
                      do k=klo,min(khi,i)
 
+!$omp parallel
+!$omp& shared(einv,eorb)
+!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,t1v,dintc,dintx)
+!$omp& private(b,c,eaijk,denom)
+!$omp& firstprivate(ncor,nocc,nvir,lnov,lnvv,i,j,k,klo)
+
 !$omp single
                         if (occsdps) then
                            call pstat_on(ps_doxxx)
@@ -122,8 +128,6 @@ c
                         endif
 !$omp end single 
 
-!$omp parallel
-!$omp& firstprivate(nocc,nvir,lnov,lnvv,k,klo)
 !$omp sections
 !$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
@@ -182,7 +186,6 @@ c
      1                       Xka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
 !$omp end sections
-!$omp end parallel
 
 !$omp single 
                         if (occsdps) then
@@ -192,10 +195,6 @@ c
                         endif
 !$omp end single 
 
-!$omp parallel
-!$omp& shared(einv,eorb)
-!$omp& private(b,c,eaijk)
-!$omp& firstprivate(ncor,nocc,i,j,k)
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
@@ -207,7 +206,6 @@ c
                           enddo
                         enddo
 !$omp end do
-!$omp end parallel
 !!!
 !!! tengy is inlined to enable more extensive threading...
 !!!
@@ -218,11 +216,13 @@ c
 !!!     4                                      t1((k-1)*nvir+1),
 !!!     5                                      einv,emp4,emp5,
 !!!     6                                      nvir)
+
 !$omp single 
       call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc,1)
       call dcopy(nvir,Djia,1,dintx,1)
       call dcopy(nvir,t1((k-1)*nvir+1),1,t1v,1)
 !$omp end single 
+
 !      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
 !     1                          dintc,dintx,t1v,einv,
 !     2                          emp4,emp5,nvir)
@@ -233,9 +233,6 @@ c
 !
 !      double precision dintc(nvir),dintx(nvir),t1v(nvir)
 !
-!$omp parallel
-!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,t1v,dintc,dintx)
-!$omp& private(denom)
 !$omp do collapse(2)
 !$omp& reduction(+:emp5,emp4) schedule(static)
       do b=1,nvir
@@ -261,7 +258,6 @@ c
         enddo
       enddo
 !$omp end do
-!$omp end parallel
                         if (i.ne.k) then
 !!!                           call ccsd_tengy_omp(f1t,f1n,f2t,f2n,
 !!!     1                                         f3t,f3n,f4t,f4n,
@@ -270,11 +266,13 @@ c
 !!!     4                                         t1((i-1)*nvir+1),
 !!!     5                                         einv,emp4,emp5,
 !!!     6                                         nvir)
+
 !$omp single 
       call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc,1)
       call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx,1)
       call dcopy(nvir,t1((i-1)*nvir+1),1,t1v,1)
 !$omp end single 
+
 !      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
 !     1                          dintc,dintx,t1v,einv,
 !     2                          emp4,emp5,nvir)
@@ -285,9 +283,6 @@ c
 !
 !      double precision dintc(nvir),dintx(nvir),t1v(nvir)
 !
-!$omp parallel
-!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,t1v,dintc,dintx)
-!$omp& private(denom)
 !$omp do collapse(2)
 !$omp& reduction(+:emp5,emp4) schedule(static)
       do b=1,nvir
@@ -313,8 +308,8 @@ c
         enddo
       enddo
 !$omp end do
-!$omp end parallel
                         end if ! (i.ne.k)
+!$omp end parallel
                      end do    ! k
 
                   end do       ! i
