@@ -222,8 +222,8 @@ c
 !     1                          dintc,dintx,t1v,einv,
 !     2                          emp4,emp5,nvir)
 !
-! dintx -> Djia                 DONE
 ! dintc -> Dja(1+(i-1)*nvir)
+! dintx -> Djia                 DONE
 ! t1v   -> t1((k-1)*nvir+1)
 !
 !      double precision dintc(nvir),dintx(nvir),t1v(nvir)
@@ -259,6 +259,7 @@ c
 !$omp end parallel
 #endif
                         if (i.ne.k) then
+#if 0
                            call ccsd_tengy_omp(f1t,f1n,f2t,f2n,
      1                                         f3t,f3n,f4t,f4n,
      2                                         Dja(1+(k-1)*nvir),
@@ -266,6 +267,50 @@ c
      4                                         t1((i-1)*nvir+1),
      5                                         einv,emp4,emp5,
      6                                         nvir)
+#else
+      call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc,1)
+      call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx,1)
+      call dcopy(nvir,t1((i-1)*nvir+1),1,t1v,1)
+!      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+!     1                          dintc,dintx,t1v,einv,
+!     2                          emp4,emp5,nvir)
+!
+! dintc -> Dja(1+(k-1)*nvir)
+! dintx -> Djka(1+(k-klo)*nvir)
+! t1v   -> t1((i-1)*nvir+1)
+!
+!      double precision dintc(nvir),dintx(nvir),t1v(nvir)
+!
+!$omp parallel
+!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,t1v,dintc,dintx)
+!$omp& private(denom)
+!$omp do collapse(2)
+!$omp& reduction(+:emp5,emp4) schedule(static)
+      do b=1,nvir
+        do c=1,nvir
+          denom=einv(c,b)
+          emp4=emp4+denom*
+     &         (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3t(b,c)+f4t(c,b))*
+     &         (f1n(b,c)-2*f2n(b,c)-2*f3n(b,c)+f4n(b,c))
+          emp4=emp4-denom*
+     &         (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3t(c,b))*
+     &         (2*f1n(b,c)-f2n(b,c)-f3n(b,c)+2*f4n(b,c))
+          emp4=emp4+3*denom*(
+     &         f1t(b,c)*(f1t(b,c)+f3t(c,b)+2*f4n(c,b))+
+     &         f2t(b,c)*f2n(c,b)+f3t(b,c)*f4n(b,c))
+          emp5=emp5+denom*t1v(b)*dintx(c)*
+     &        (     f1n(b,c)+f2t(b,c)+f4t(c,b)
+     &         -2*(f3n(b,c)+f4t(b,c)+f2t(c,b)+
+     &              f1t(b,c)+f2n(b,c)+f3t(c,b))
+     &         +4*(f3t(b,c)+f4n(b,c)+f1t(c,b)))
+          emp5=emp5+denom*t1v(b)*dintc(c)*
+     &        (     f1t(b,c)+f4t(b,c)+f1n(c,b)
+     &          -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
+        enddo
+      enddo
+!$omp end do
+!$omp end parallel
+#endif
                         end if ! (i.ne.k)
                      end do    ! k
 
