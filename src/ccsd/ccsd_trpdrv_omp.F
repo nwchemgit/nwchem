@@ -35,6 +35,8 @@ c
       integer klo, khi, kchunk
       integer nxtask
       external nxtask
+! should be temporary workaround
+      double precision dintc(nvir),dintx(nvir),t1v(nvir)
 #ifdef _OPENMP
       integer  omp_get_thread_num
       external omp_get_thread_num
@@ -42,7 +44,7 @@ c
       external omp_get_num_threads
       integer  omp_get_max_threads
       external omp_get_max_threads
-      if (iam.eq.0) write(6,99) omp_get_max_threads()
+      if (ga_nodeid().eq.0) write(6,99) omp_get_max_threads()
    99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
 #endif
 c
@@ -205,7 +207,7 @@ c
                         enddo
 !$omp end do
 !$omp end parallel
-
+#if 0
                         call ccsd_tengy_omp(f1n,f1t,f2n,f2t,
      1                                      f3n,f3t,f4n,f4t,
      2                                      Dja(1+(i-1)*nvir),
@@ -213,6 +215,49 @@ c
      4                                      t1((k-1)*nvir+1),
      5                                      einv,emp4,emp5,
      6                                      nvir)
+#else
+      call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc,1)
+      call dcopy(nvir,t1((k-1)*nvir+1),1,t1v,1)
+!      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
+!     1                          dintc,dintx,t1v,einv,
+!     2                          emp4,emp5,nvir)
+!
+! dintx -> Djia                 DONE
+! dintc -> Dja(1+(i-1)*nvir)
+! t1v   -> t1((k-1)*nvir+1)
+!
+!      double precision dintc(nvir),dintx(nvir),t1v(nvir)
+!
+!$omp parallel
+!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,t1v,dintc,Djia)
+!$omp& private(denom)
+!$omp do collapse(2)
+!$omp& reduction(+:emp5,emp4) schedule(static)
+      do b=1,nvir
+        do c=1,nvir
+          denom=einv(c,b)
+          emp4=emp4+denom*
+     &         (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*
+     &         (f1t(b,c)-2*f2t(b,c)-2*f3t(b,c)+f4t(b,c))
+          emp4=emp4-denom*
+     &         (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*
+     &         (2*f1t(b,c)-f2t(b,c)-f3t(b,c)+2*f4t(b,c))
+          emp4=emp4+3*denom*(
+     &         f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
+     &         f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
+          emp5=emp5+denom*t1v(b)*Djia(c)*
+     &        (     f1t(b,c)+f2n(b,c)+f4n(c,b)
+     &         -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
+     &              f1n(b,c)+f2t(b,c)+f3n(c,b))
+     &         +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
+          emp5=emp5+denom*t1v(b)*dintc(c)*
+     &        (     f1n(b,c)+f4n(b,c)+f1t(c,b)
+     &          -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
+        enddo
+      enddo
+!$omp end do
+!$omp end parallel
+#endif
                         if (i.ne.k) then
                            call ccsd_tengy_omp(f1t,f1n,f2t,f2n,
      1                                         f3t,f3n,f4t,f4n,
