@@ -24,10 +24,13 @@ c
       double precision Jia(*), Jka(*), Jij(*), Jkj(*)
       double precision Kia(*), Kka(*), Kij(*), Kkj(*)
       double precision Dja(*), Djka(*), Djia(*)
+! used to make inline threaded tengy correct - for now
+      double precision dintc(nvir),dintx(nvir),t1v(nvir)
 c
       double precision emp4,emp5,denom
       double precision emp4a,emp5a,emp4b,emp5b
-      double precision eaijk,eorbaux,eccsdt
+      double precision eaijk
+      double precision eccsdt ! unused
       integer g_objo,g_objv,g_coul,g_exch
       integer inode,next,nodes,iam
       integer oseg_lo,oseg_hi
@@ -35,8 +38,6 @@ c
       integer klo, khi, kchunk
       integer nxtask
       external nxtask
-! should be temporary workaround
-      double precision dintc(nvir),dintx(nvir),t1v(nvir)
 #ifdef _OPENMP
       integer  omp_get_thread_num
       external omp_get_thread_num
@@ -207,29 +208,33 @@ c
                         enddo
 !$omp end do
 !$omp end parallel
-#if 0
-                        call ccsd_tengy_omp(f1n,f1t,f2n,f2t,
-     1                                      f3n,f3t,f4n,f4t,
-     2                                      Dja(1+(i-1)*nvir),
-     3                                      Djia,
-     4                                      t1((k-1)*nvir+1),
-     5                                      einv,emp4,emp5,
-     6                                      nvir)
-#else
+!!!
+!!! tengy is inlined to enable more extensive threading...
+!!!
+!!!                        call ccsd_tengy_omp(f1n,f1t,f2n,f2t,
+!!!     1                                      f3n,f3t,f4n,f4t,
+!!!     2                                      Dja(1+(i-1)*nvir),
+!!!     3                                      Djia,
+!!!     4                                      t1((k-1)*nvir+1),
+!!!     5                                      einv,emp4,emp5,
+!!!     6                                      nvir)
+!$omp single 
       call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc,1)
+      call dcopy(nvir,Djia,1,dintx,1)
       call dcopy(nvir,t1((k-1)*nvir+1),1,t1v,1)
+!$omp end single 
 !      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
 !     1                          dintc,dintx,t1v,einv,
 !     2                          emp4,emp5,nvir)
 !
 ! dintc -> Dja(1+(i-1)*nvir)
-! dintx -> Djia                 DONE
+! dintx -> Djia
 ! t1v   -> t1((k-1)*nvir+1)
 !
 !      double precision dintc(nvir),dintx(nvir),t1v(nvir)
 !
 !$omp parallel
-!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,t1v,dintc,Djia)
+!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,t1v,dintc,dintx)
 !$omp& private(denom)
 !$omp do collapse(2)
 !$omp& reduction(+:emp5,emp4) schedule(static)
@@ -245,7 +250,7 @@ c
           emp4=emp4+3*denom*(
      &         f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
      &         f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
-          emp5=emp5+denom*t1v(b)*Djia(c)*
+          emp5=emp5+denom*t1v(b)*dintx(c)*
      &        (     f1t(b,c)+f2n(b,c)+f4n(c,b)
      &         -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
      &              f1n(b,c)+f2t(b,c)+f3n(c,b))
@@ -257,20 +262,19 @@ c
       enddo
 !$omp end do
 !$omp end parallel
-#endif
                         if (i.ne.k) then
-#if 0
-                           call ccsd_tengy_omp(f1t,f1n,f2t,f2n,
-     1                                         f3t,f3n,f4t,f4n,
-     2                                         Dja(1+(k-1)*nvir),
-     3                                         Djka(1+(k-klo)*nvir),
-     4                                         t1((i-1)*nvir+1),
-     5                                         einv,emp4,emp5,
-     6                                         nvir)
-#else
+!!!                           call ccsd_tengy_omp(f1t,f1n,f2t,f2n,
+!!!     1                                         f3t,f3n,f4t,f4n,
+!!!     2                                         Dja(1+(k-1)*nvir),
+!!!     3                                         Djka(1+(k-klo)*nvir),
+!!!     4                                         t1((i-1)*nvir+1),
+!!!     5                                         einv,emp4,emp5,
+!!!     6                                         nvir)
+!$omp single 
       call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc,1)
       call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx,1)
       call dcopy(nvir,t1((i-1)*nvir+1),1,t1v,1)
+!$omp end single 
 !      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
 !     1                          dintc,dintx,t1v,einv,
 !     2                          emp4,emp5,nvir)
@@ -310,7 +314,6 @@ c
       enddo
 !$omp end do
 !$omp end parallel
-#endif
                         end if ! (i.ne.k)
                      end do    ! k
 
