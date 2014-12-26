@@ -113,7 +113,24 @@ c
                      call ga_get(g_objv,1+2*lnoov+(i-1)*lnov,
      &                    2*lnoov+i*lnov,av,av,Xia,lnov)
 
+                     call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
+                     call dcopy(nvir,Djia,1,dintx1,1)
+                     call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
+
                      do k=klo,min(khi,i)
+
+                        call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
+                        call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
+                        call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
+                        emp4i = 0.0d0
+                        emp5i = 0.0d0
+                        emp4k = 0.0d0
+                        emp5k = 0.0d0
+                        if (occsdps) then
+                           call pstat_on(ps_doxxx)
+                        else
+                           call qenter('doxxx',0)
+                        endif
 
 !$omp parallel
 !$omp& shared(eorb)
@@ -122,27 +139,6 @@ c
 !$omp& shared(t1v2,dintc2,dintx2)
 !$omp& private(b,c,eaijk,denom)
 !$omp& firstprivate(ncor,nocc,nvir,lnov,lnvv,i,j,k,klo)
-
-!$omp single
-                        if (occsdps) then
-                           call pstat_on(ps_doxxx)
-                        else
-                           call qenter('doxxx',0)
-                        endif
-                        call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
-                        call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
-                        call dcopy(nvir,Djia,1,dintx1,1)
-                        call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
-                        call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
-                        call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
-                        emp4i = 0.0d0
-                        emp5i = 0.0d0
-                        emp4k = 0.0d0
-                        emp5k = 0.0d0
-!$omp flush
-!$omp end single 
-
-!$omp barrier
 
 !$omp sections
 !$omp section
@@ -203,7 +199,7 @@ c
      2                       f4t,nvir)
 !$omp end sections
 
-!$omp single 
+!$omp master
                         if (occsdps) then
                            call pstat_off(ps_doxxx)
                         else
@@ -214,15 +210,7 @@ c
                         else
                            call qenter('tengy',0)
                         endif
-!$omp end single 
-
-!$omp do collapse(2)
-!$omp& schedule(static)
-                        do b=1,nvir
-                          do c=1,nvir
-                          enddo
-                        enddo
-!$omp end do
+!$omp end master
 
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
@@ -231,70 +219,61 @@ c
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
 !$omp& reduction(+:emp5k,emp4k)
-      do b=1,nvir
-        do c=1,nvir
-          denom=-1.0d0/( eorb(ncor+nocc+b)
-     &                  +eorb(ncor+nocc+c)+eaijk )
-          emp4i=emp4i+denom*
-     &         (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*
-     &         (f1t(b,c)-2*f2t(b,c)-2*f3t(b,c)+f4t(b,c))
-          emp4i=emp4i-denom*
-     &         (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*
-     &         (2*f1t(b,c)-f2t(b,c)-f3t(b,c)+2*f4t(b,c))
-          emp4i=emp4i+3*denom*(
-     &         f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
-     &         f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
-          emp4k=emp4k+denom*
-     &         (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3t(b,c)+f4t(c,b))*
-     &         (f1n(b,c)-2*f2n(b,c)-2*f3n(b,c)+f4n(b,c))
-          emp4k=emp4k-denom*
-     &         (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3t(c,b))*
-     &         (2*f1n(b,c)-f2n(b,c)-f3n(b,c)+2*f4n(b,c))
-          emp4k=emp4k+3*denom*(
-     &         f1t(b,c)*(f1t(b,c)+f3t(c,b)+2*f4n(c,b))+
-     &         f2t(b,c)*f2n(c,b)+f3t(b,c)*f4n(b,c))
-          emp5i=emp5i+denom*t1v1(b)*dintx1(c)*
-     &        (    f1t(b,c)+f2n(b,c)+f4n(c,b)
-     &         -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
-     &             f1n(b,c)+f2t(b,c)+f3n(c,b))
-     &         +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
-          emp5i=emp5i+denom*t1v1(b)*dintc1(c)*
-     &        (     f1n(b,c)+f4n(b,c)+f1t(c,b)
-     &          -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
-          emp5k=emp5k+denom*t1v2(b)*dintx2(c)*
-     &        (    f1n(b,c)+f2t(b,c)+f4t(c,b)
-     &         -2*(f3n(b,c)+f4t(b,c)+f2t(c,b)+
-     &             f1t(b,c)+f2n(b,c)+f3t(c,b))
-     &         +4*(f3t(b,c)+f4n(b,c)+f1t(c,b)))
-          emp5k=emp5k+denom*t1v2(b)*dintc2(c)*
-     &        (     f1t(b,c)+f4t(b,c)+f1n(c,b)
-     &          -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
-        enddo
-      enddo
+               do b=1,nvir
+                 do c=1,nvir
+                   denom=-1.0d0/( eorb(ncor+nocc+b)
+     &                           +eorb(ncor+nocc+c)+eaijk )
+                   emp4i=emp4i+denom*
+     &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*
+     &                  (f1t(b,c)-2*f2t(b,c)-2*f3t(b,c)+f4t(b,c))
+                   emp4i=emp4i-denom*
+     &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*
+     &                  (2*f1t(b,c)-f2t(b,c)-f3t(b,c)+2*f4t(b,c))
+                   emp4i=emp4i+3*denom*(
+     &                  f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
+     &                  f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
+                   emp4k=emp4k+denom*
+     &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3t(b,c)+f4t(c,b))*
+     &                  (f1n(b,c)-2*f2n(b,c)-2*f3n(b,c)+f4n(b,c))
+                   emp4k=emp4k-denom*
+     &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3t(c,b))*
+     &                  (2*f1n(b,c)-f2n(b,c)-f3n(b,c)+2*f4n(b,c))
+                   emp4k=emp4k+3*denom*(
+     &                  f1t(b,c)*(f1t(b,c)+f3t(c,b)+2*f4n(c,b))+
+     &                  f2t(b,c)*f2n(c,b)+f3t(b,c)*f4n(b,c))
+                   emp5i=emp5i+denom*t1v1(b)*dintx1(c)*
+     &                 (    f1t(b,c)+f2n(b,c)+f4n(c,b)
+     &                  -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
+     &                      f1n(b,c)+f2t(b,c)+f3n(c,b))
+     &                  +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
+                   emp5i=emp5i+denom*t1v1(b)*dintc1(c)*
+     &                 (     f1n(b,c)+f4n(b,c)+f1t(c,b)
+     &                   -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
+                   emp5k=emp5k+denom*t1v2(b)*dintx2(c)*
+     &                 (    f1n(b,c)+f2t(b,c)+f4t(c,b)
+     &                  -2*(f3n(b,c)+f4t(b,c)+f2t(c,b)+
+     &                      f1t(b,c)+f2n(b,c)+f3t(c,b))
+     &                  +4*(f3t(b,c)+f4n(b,c)+f1t(c,b)))
+                   emp5k=emp5k+denom*t1v2(b)*dintc2(c)*
+     &                 (     f1t(b,c)+f4t(b,c)+f1n(c,b)
+     &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
+                 enddo
+               enddo
 !$omp end do
-
-! to ensure emp[45][ik] are visible
-!$omp flush
-!$omp barrier
-
-!$omp single 
-      emp4 = emp4 + emp4i
-      emp5 = emp5 + emp5i
-      if (i.ne.k) then
-          emp4 = emp4 + emp4k
-          emp5 = emp5 + emp5k
-      end if ! (i.ne.k)
-
-      if (occsdps) then
-         call pstat_off(ps_tengy)
-      else
-         call qexit('tengy',0)
-      endif
-!$omp end single 
-
 !$omp end parallel
-                     end do    ! k
+                         if (occsdps) then
+                            call pstat_off(ps_tengy)
+                         else
+                            call qexit('tengy',0)
+                         endif
 
+                         emp4 = emp4 + emp4i
+                         emp5 = emp5 + emp5i
+                         if (i.ne.k) then
+                             emp4 = emp4 + emp4k
+                             emp5 = emp5 + emp5k
+                         end if ! (i.ne.k)
+                     end do    ! k
                   end do       ! i
 c                  if (iprt.gt.50)then
 c                     write(6,1234)iam,a,j,emp4,emp5
