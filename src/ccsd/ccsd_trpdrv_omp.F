@@ -25,7 +25,8 @@ c
       double precision Kia(*), Kka(*), Kij(*), Kkj(*)
       double precision Dja(*), Djka(*), Djia(*)
 ! used to make inline threaded tengy correct - for now
-      double precision dintc(nvir),dintx(nvir),t1v(nvir)
+      double precision dintc1(nvir),dintx1(nvir),t1v1(nvir)
+      double precision dintc2(nvir),dintx2(nvir),t1v2(nvir)
 c
       double precision emp4,emp5,denom
       double precision emp4a,emp5a,emp4b,emp5b
@@ -116,7 +117,9 @@ c
 
 !$omp parallel
 !$omp& shared(einv,eorb)
-!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t,t1v,dintc,dintx)
+!$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t)
+!$omp& shared(t1v1,dintc1,dintx1)
+!$omp& shared(t1v2,dintc2,dintx2)
 !$omp& private(b,c,eaijk,denom)
 !$omp& firstprivate(ncor,nocc,nvir,lnov,lnvv,i,j,k,klo)
 
@@ -198,7 +201,8 @@ c
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
-!$omp do schedule(static)
+!$omp do collapse(2)
+!$omp& schedule(static)
                         do b=1,nvir
                           do c=1,nvir
                             einv(c,b)=-1.0d0/( eorb(ncor+nocc+b)
@@ -223,9 +227,12 @@ c
       else
          call qenter('tengy',0)
       endif
-      call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc,1)
-      call dcopy(nvir,Djia,1,dintx,1)
-      call dcopy(nvir,t1((k-1)*nvir+1),1,t1v,1)
+      call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
+      call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
+      call dcopy(nvir,Djia,1,dintx1,1)
+      call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
+      call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
+      call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
 !$omp end single 
 
 !      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
@@ -239,7 +246,8 @@ c
 !      double precision dintc(nvir),dintx(nvir),t1v(nvir)
 !
 !$omp do collapse(2)
-!$omp& reduction(+:emp5,emp4) schedule(static)
+!$omp& schedule(static)
+!$omp& reduction(+:emp5,emp4)
       do b=1,nvir
         do c=1,nvir
           denom=einv(c,b)
@@ -252,12 +260,12 @@ c
           emp4=emp4+3*denom*(
      &         f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
      &         f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
-          emp5=emp5+denom*t1v(b)*dintx(c)*
-     &        (     f1t(b,c)+f2n(b,c)+f4n(c,b)
+          emp5=emp5+denom*t1v1(b)*dintx1(c)*
+     &        (    f1t(b,c)+f2n(b,c)+f4n(c,b)
      &         -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
-     &              f1n(b,c)+f2t(b,c)+f3n(c,b))
+     &             f1n(b,c)+f2t(b,c)+f3n(c,b))
      &         +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
-          emp5=emp5+denom*t1v(b)*dintc(c)*
+          emp5=emp5+denom*t1v1(b)*dintc1(c)*
      &        (     f1n(b,c)+f4n(b,c)+f1t(c,b)
      &          -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
         enddo
@@ -272,12 +280,6 @@ c
 !!!     5                                         einv,emp4,emp5,
 !!!     6                                         nvir)
 
-!$omp single 
-      call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc,1)
-      call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx,1)
-      call dcopy(nvir,t1((i-1)*nvir+1),1,t1v,1)
-!$omp end single 
-
 !      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
 !     1                          dintc,dintx,t1v,einv,
 !     2                          emp4,emp5,nvir)
@@ -289,7 +291,8 @@ c
 !      double precision dintc(nvir),dintx(nvir),t1v(nvir)
 !
 !$omp do collapse(2)
-!$omp& reduction(+:emp5,emp4) schedule(static)
+!$omp& schedule(static)
+!$omp& reduction(+:emp5,emp4)
       do b=1,nvir
         do c=1,nvir
           denom=einv(c,b)
@@ -302,12 +305,12 @@ c
           emp4=emp4+3*denom*(
      &         f1t(b,c)*(f1t(b,c)+f3t(c,b)+2*f4n(c,b))+
      &         f2t(b,c)*f2n(c,b)+f3t(b,c)*f4n(b,c))
-          emp5=emp5+denom*t1v(b)*dintx(c)*
-     &        (     f1n(b,c)+f2t(b,c)+f4t(c,b)
+          emp5=emp5+denom*t1v2(b)*dintx2(c)*
+     &        (    f1n(b,c)+f2t(b,c)+f4t(c,b)
      &         -2*(f3n(b,c)+f4t(b,c)+f2t(c,b)+
-     &              f1t(b,c)+f2n(b,c)+f3t(c,b))
+     &             f1t(b,c)+f2n(b,c)+f3t(c,b))
      &         +4*(f3t(b,c)+f4n(b,c)+f1t(c,b)))
-          emp5=emp5+denom*t1v(b)*dintc(c)*
+          emp5=emp5+denom*t1v2(b)*dintc2(c)*
      &        (     f1t(b,c)+f4t(b,c)+f1n(c,b)
      &          -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
         enddo
