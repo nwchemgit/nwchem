@@ -218,6 +218,11 @@ c
 !!!     6                                      nvir)
 
 !$omp single 
+      if (occsdps) then
+         call pstat_on(ps_tengy)
+      else
+         call qenter('tengy',0)
+      endif
       call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc,1)
       call dcopy(nvir,Djia,1,dintx,1)
       call dcopy(nvir,t1((k-1)*nvir+1),1,t1v,1)
@@ -309,6 +314,14 @@ c
       enddo
 !$omp end do
                         end if ! (i.ne.k)
+!$omp single 
+      if (occsdps) then
+         call pstat_off(ps_tengy)
+      else
+         call qexit('tengy',0)
+      endif
+!$omp end single 
+
 !$omp end parallel
                      end do    ! k
 
