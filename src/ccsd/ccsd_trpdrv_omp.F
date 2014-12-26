@@ -137,19 +137,19 @@ c
      1                       Tia,nvir,Kkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f1n,nvir)
 !$omp section
-                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Jia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
-     2                       f3n,nvir)
-                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Tia,nvir,Jkj(1+(k-klo)*lnov),nocc,1.0d0,
-     2                       f3n,nvir)
-!$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Kia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f2n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Kkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f2n,nvir)
+!$omp section
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
+     1                       Jia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
+     2                       f3n,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Tia,nvir,Jkj(1+(k-klo)*lnov),nocc,1.0d0,
+     2                       f3n,nvir)
 !$omp section
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
@@ -165,19 +165,19 @@ c
      1                       Tka(1+(k-klo)*lnov),nvir,Kij,nocc,1.0d0,
      2                       f1t,nvir)
 !$omp section
-                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
-     1                       Jka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
-     2                       f3t,nvir)
-                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
-     1                       Tka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
-     2                       f3t,nvir)
-!$omp section
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Kka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f2t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(1+(k-klo)*lnov),nvir,Kij,nocc,1.0d0,
      2                       f2t,nvir)
+!$omp section
+                        call dgemm('n','n',nvir,nvir,nvir,1.0d0,
+     1                       Jka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
+     2                       f3t,nvir)
+                        call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
+     1                       Tka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
+     2                       f3t,nvir)
 !$omp section
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
