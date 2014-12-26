@@ -38,6 +38,43 @@ c
       integer klo, khi, kchunk
       integer nxtask
       external nxtask
+c
+c  Dependencies (global array, local array, handle): 
+c
+c  These are waited on first
+c
+c      g_objv, Dja,  nbh_objv1
+c      g_objv, Djka(1+(k-klo)*nvir), nbh_objv4(k)
+c      g_objv, Djia, nbh_objv5
+c
+c  These are waited on later
+c
+c      g_objv, Tka,  nbh_objv2
+c      g_objv, Xka,  nbh_objv3
+c      g_objv, Tia,  nbh_objv6
+c      g_objv, Xia,  nbh_objv7
+c      g_objo, Tkj,  nbh_objo1
+c      g_objo, Jkj,  nbh_objo2
+c      g_objo, Kkj,  nbh_objo3
+c      g_objo, Tij,  nbh_objo4
+c      g_objo, Jij,  nbh_objo5
+c      g_objo, Kij,  nbh_objo6
+c      g_exch, Kka,  nbh_exch1
+c      g_exch, Kia,  nbh_exch2
+c      g_coul, Jka,  nbh_coul1
+c      g_coul, Jia,  nbh_coul2
+c
+c  non-blocking handles
+c
+       integer nbh_objv1,nbh_objv2,nbh_objv3
+       integer nbh_objv5,nbh_objv6,nbh_objv7
+       integer nbh_objv4(nocc)
+c
+       integer nbh_objo1,nbh_objo2,nbh_objo3
+       integer nbh_objo4,nbh_objo5,nbh_objo6
+c
+       integer nbh_exch1,nbh_exch2,nbh_coul1,nbh_coul2
+c
 #ifdef _OPENMP
       integer  omp_get_thread_num
       external omp_get_thread_num
@@ -69,54 +106,64 @@ c
             do j=1,nocc
                inode=inode+1
                if (inode.eq.next)then
-                  call ga_get(g_objv,1+(j-1)*lnov,j*lnov,av,av,Dja,lnov)
-                  call ga_get(g_objo,(klo-1)*lnvv+1,khi*lnvv,j,j,Tkj,
-     &                 (khi-klo+1)*lnvv)
-                  call ga_get(g_objo,lnovv+(klo-1)*lnov+1,
-     &                 lnovv+khi*lnov,j,j,Jkj,(khi-klo+1)*lnov)
-                  call ga_get(g_objo,lnovv+lnoov+(klo-1)*lnov+1,
-     &                 lnovv+lnoov+khi*lnov,j,j,Kkj,(khi-klo+1)*lnov)
+                  call ga_nbget(g_objv,1+(j-1)*lnov,j*lnov,av,av,Dja,
+     &                          lnov,nbh_objv1)
+                  call ga_nbget(g_objo,(klo-1)*lnvv+1,khi*lnvv,j,j,Tkj,
+     &                          (khi-klo+1)*lnvv,nbh_objo1)
+                  call ga_nbget(g_objo,lnovv+(klo-1)*lnov+1,
+     &                          lnovv+khi*lnov,j,j,Jkj,
+     &                          (khi-klo+1)*lnov,nbh_objo2)
+                  call ga_nbget(g_objo,lnovv+lnoov+(klo-1)*lnov+1,
+     &                          lnovv+lnoov+khi*lnov,j,j,Kkj,
+     &                          (khi-klo+1)*lnov,nbh_objo3)
                   if (akold .ne. a) then
                      akold = a
-                     call ga_get(g_coul,1,lnvv,(a-oseg_lo)*nocc+klo,
-     &                    (a-oseg_lo)*nocc+khi,Jka,lnvv)
-                     call ga_get(g_exch,1,lnvv,(a-oseg_lo)*nocc+klo,
-     &                    (a-oseg_lo)*nocc+khi,Kka,lnvv)
-                     call ga_get(g_objv,1+lnoov+(klo-1)*lnov,
-     &                    lnoov+khi*lnov,av,av,Tka,(khi-klo+1)*lnov)
-                     call ga_get(g_objv,1+2*lnoov+(klo-1)*lnov,
-     &                    2*lnoov+khi*lnov,av,av,Xka,(khi-klo+1)*lnov)
+                     call ga_nbget(g_coul,1,lnvv,(a-oseg_lo)*nocc+klo,
+     &                    (a-oseg_lo)*nocc+khi,Jka,lnvv,nbh_coul1)
+                     call ga_nbget(g_exch,1,lnvv,(a-oseg_lo)*nocc+klo,
+     &                    (a-oseg_lo)*nocc+khi,Kka,lnvv,nbh_exch1)
+                     call ga_nbget(g_objv,1+lnoov+(klo-1)*lnov,
+     &                    lnoov+khi*lnov,av,av,Tka,(khi-klo+1)*lnov,
+     &                    nbh_objv2)
+                     call ga_nbget(g_objv,1+2*lnoov+(klo-1)*lnov,
+     &                    2*lnoov+khi*lnov,av,av,Xka,(khi-klo+1)*lnov,
+     &                    nbh_objv3)
                   endif
                   do k = klo, khi
-                     call ga_get(g_objv,1+(j-1)*nvir+(k-1)*lnov,
+                     call ga_nbget(g_objv,1+(j-1)*nvir+(k-1)*lnov,
      &                    j*nvir+(k-1)*lnov,av,av,
-     &                    Djka(1+(k-klo)*nvir),nvir)
+     &                    Djka(1+(k-klo)*nvir),nvir,nbh_objv4(k))
                   enddo
 
                   do i=1,nocc
 
-                     call ga_get(g_objo,(i-1)*lnvv+1,i*lnvv,j,j,Tij,
-     &                    lnvv)
-                     call ga_get(g_objo,lnovv+(i-1)*lnov+1,
-     &                    lnovv+i*lnov,j,j,Jij,lnov)
-                     call ga_get(g_objo,lnovv+lnoov+(i-1)*lnov+1,
-     &                    lnovv+lnoov+i*lnov,j,j,Kij,lnov)
-                     call ga_get(g_coul,1,lnvv,(a-oseg_lo)*nocc+i,
-     &                    (a-oseg_lo)*nocc+i,Jia,lnvv)
-                     call ga_get(g_exch,1,lnvv,(a-oseg_lo)*nocc+i,
-     &                    (a-oseg_lo)*nocc+i,Kia,lnvv)
-                     call ga_get(g_objv,1+(j-1)*nvir+(i-1)*lnov,
-     &                    j*nvir+(i-1)*lnov,av,av,Djia,nvir)
-                     call ga_get(g_objv,1+lnoov+(i-1)*lnov,
-     &                    lnoov+i*lnov,av,av,Tia,lnov)
-                     call ga_get(g_objv,1+2*lnoov+(i-1)*lnov,
-     &                    2*lnoov+i*lnov,av,av,Xia,lnov)
+                     call ga_nbget(g_objo,(i-1)*lnvv+1,i*lnvv,j,j,Tij,
+     &                    lnvv,nbh_objo4)
+                     call ga_nbget(g_objo,lnovv+(i-1)*lnov+1,
+     &                    lnovv+i*lnov,j,j,Jij,lnov,nbh_objo5)
+                     call ga_nbget(g_objo,lnovv+lnoov+(i-1)*lnov+1,
+     &                    lnovv+lnoov+i*lnov,j,j,Kij,lnov,nbh_objo6)
+                     call ga_nbget(g_coul,1,lnvv,(a-oseg_lo)*nocc+i,
+     &                    (a-oseg_lo)*nocc+i,Jia,lnvv,nbh_coul2)
+                     call ga_nbget(g_exch,1,lnvv,(a-oseg_lo)*nocc+i,
+     &                    (a-oseg_lo)*nocc+i,Kia,lnvv,nbh_exch2)
+                     call ga_nbget(g_objv,1+(j-1)*nvir+(i-1)*lnov,
+     &                    j*nvir+(i-1)*lnov,av,av,Djia,nvir,nbh_objv5)
+                     call ga_nbget(g_objv,1+lnoov+(i-1)*lnov,
+     &                    lnoov+i*lnov,av,av,Tia,lnov,nbh_objv6)
+                     call ga_nbget(g_objv,1+2*lnoov+(i-1)*lnov,
+     &                    2*lnoov+i*lnov,av,av,Xia,lnov,nbh_objv7)
+
+                     call ga_nbwait(nbh_objv1) ! Dja
+                     call ga_nbwait(nbh_objv5) ! Djia
 
                      call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
                      call dcopy(nvir,Djia,1,dintx1,1)
                      call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
 
                      do k=klo,min(khi,i)
+
+                        call ga_nbwait(nbh_objv4(k)) ! Djka
 
                         call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
                         call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
@@ -130,6 +177,24 @@ c
                         else
                            call qenter('doxxx',0)
                         endif
+!
+!  These are the input dependencies for the DGEMM calls below.  
+!  We wait on all of them here because GA is not even remotely thread-safe.
+!
+                        call ga_nbwait(nbh_objv2)
+                        call ga_nbwait(nbh_objv3)
+                        call ga_nbwait(nbh_objv6)
+                        call ga_nbwait(nbh_objv7)
+                        call ga_nbwait(nbh_objo1)
+                        call ga_nbwait(nbh_objo2)
+                        call ga_nbwait(nbh_objo3)
+                        call ga_nbwait(nbh_objo4)
+                        call ga_nbwait(nbh_objo5)
+                        call ga_nbwait(nbh_objo6)
+                        call ga_nbwait(nbh_exch1)
+                        call ga_nbwait(nbh_exch2)
+                        call ga_nbwait(nbh_coul1)
+                        call ga_nbwait(nbh_coul2)
 
 !$omp parallel
 !$omp& shared(eorb)
