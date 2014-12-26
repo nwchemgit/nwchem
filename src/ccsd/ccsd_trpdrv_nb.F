@@ -1,6 +1,6 @@
       subroutine ccsd_trpdrv_nb(t1,
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
-     &     eccsdt,g_objo,g_objv,g_coul,g_exch,
+     &     g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
      &     oseg_lo,oseg_hi,
      $     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
@@ -29,7 +29,7 @@ c
       integer g_objo,g_objv,ncor,nocc,nvir,iprt,g_coul,
      &     g_exch,oseg_lo,oseg_hi
 c     
-      double precision eaijk,eccsdt
+      double precision eaijk
       integer a,i,j,k,akold,av,inode,len,ad3,next
       integer nxtask
       external nxtask
