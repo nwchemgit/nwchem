@@ -1,6 +1,6 @@
       subroutine ccsd_trpdrv_omp(t1,
-     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,einv,
-     &     eccsdt,g_objo,g_objv,g_coul,g_exch,
+     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
+     &     g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,emp4,emp5,
      &     oseg_lo,oseg_hi,
      &     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
@@ -18,7 +18,7 @@ c
       double precision f2n(nvir,nvir),f2t(nvir,nvir)
       double precision f3n(nvir,nvir),f3t(nvir,nvir)
       double precision f4n(nvir,nvir),f4t(nvir,nvir)
-      double precision eorb(*),einv(nvir,nvir)
+      double precision eorb(*)
       double precision Tij(*), Tkj(*), Tia(*), Tka(*)
       double precision Xia(*), Xka(*)
       double precision Jia(*), Jka(*), Jij(*), Jkj(*)
@@ -31,7 +31,6 @@ c
       double precision emp4,emp5,denom
       double precision emp4i,emp5i,emp4k,emp5k
       double precision eaijk
-      double precision eccsdt ! unused
       integer g_objo,g_objv,g_coul,g_exch
       integer inode,next,nodes,iam
       integer oseg_lo,oseg_hi
