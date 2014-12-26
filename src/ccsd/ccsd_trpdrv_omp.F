@@ -106,8 +106,14 @@ c
             do j=1,nocc
                inode=inode+1
                if (inode.eq.next)then
+
                   call ga_nbget(g_objv,1+(j-1)*lnov,j*lnov,av,av,Dja,
      &                          lnov,nbh_objv1)
+                  do k = klo, khi
+                     call ga_nbget(g_objv,1+(j-1)*nvir+(k-1)*lnov,
+     &                    j*nvir+(k-1)*lnov,av,av,
+     &                    Djka(1+(k-klo)*nvir),nvir,nbh_objv4(k))
+                  enddo
                   call ga_nbget(g_objo,(klo-1)*lnvv+1,khi*lnvv,j,j,Tkj,
      &                          (khi-klo+1)*lnvv,nbh_objo1)
                   call ga_nbget(g_objo,lnovv+(klo-1)*lnov+1,
@@ -129,14 +135,11 @@ c
      &                    2*lnoov+khi*lnov,av,av,Xka,(khi-klo+1)*lnov,
      &                    nbh_objv3)
                   endif
-                  do k = klo, khi
-                     call ga_nbget(g_objv,1+(j-1)*nvir+(k-1)*lnov,
-     &                    j*nvir+(k-1)*lnov,av,av,
-     &                    Djka(1+(k-klo)*nvir),nvir,nbh_objv4(k))
-                  enddo
 
                   do i=1,nocc
 
+                     call ga_nbget(g_objv,1+(j-1)*nvir+(i-1)*lnov,
+     &                    j*nvir+(i-1)*lnov,av,av,Djia,nvir,nbh_objv5)
                      call ga_nbget(g_objo,(i-1)*lnvv+1,i*lnvv,j,j,Tij,
      &                    lnvv,nbh_objo4)
                      call ga_nbget(g_objo,lnovv+(i-1)*lnov+1,
@@ -147,27 +150,23 @@ c
      &                    (a-oseg_lo)*nocc+i,Jia,lnvv,nbh_coul2)
                      call ga_nbget(g_exch,1,lnvv,(a-oseg_lo)*nocc+i,
      &                    (a-oseg_lo)*nocc+i,Kia,lnvv,nbh_exch2)
-                     call ga_nbget(g_objv,1+(j-1)*nvir+(i-1)*lnov,
-     &                    j*nvir+(i-1)*lnov,av,av,Djia,nvir,nbh_objv5)
                      call ga_nbget(g_objv,1+lnoov+(i-1)*lnov,
      &                    lnoov+i*lnov,av,av,Tia,lnov,nbh_objv6)
                      call ga_nbget(g_objv,1+2*lnoov+(i-1)*lnov,
      &                    2*lnoov+i*lnov,av,av,Xia,lnov,nbh_objv7)
 
-                     call ga_nbwait(nbh_objv1) ! Dja
-                     call ga_nbwait(nbh_objv5) ! Djia
-
-                     call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
-                     call dcopy(nvir,Djia,1,dintx1,1)
                      call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
+                     call ga_nbwait(nbh_objv1) ! Dja
+                     call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
+                     call ga_nbwait(nbh_objv5) ! Djia
+                     call dcopy(nvir,Djia,1,dintx1,1)
 
                      do k=klo,min(khi,i)
 
-                        call ga_nbwait(nbh_objv4(k)) ! Djka
-
-                        call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
-                        call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
                         call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
+                        call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
+                        call ga_nbwait(nbh_objv4(k)) ! Djka
+                        call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
                         emp4i = 0.0d0
                         emp5i = 0.0d0
                         emp4k = 0.0d0
