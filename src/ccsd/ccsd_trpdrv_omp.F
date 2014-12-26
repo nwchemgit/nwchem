@@ -240,6 +240,7 @@ c
 !$omp end single 
 
 ! to ensure emp[45][ik] are visible
+!$omp flush
 !$omp barrier
 
 !      subroutine ccsd_tengy_omp(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
@@ -322,6 +323,10 @@ c
         enddo
       enddo
 !$omp end do
+
+! to ensure emp[45][ik] are visible
+!$omp flush
+!$omp barrier
 
 !$omp single 
       emp4 = emp4 + emp4i
