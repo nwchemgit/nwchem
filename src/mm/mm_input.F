@@ -30,453 +30,191 @@ c
       integer handle
       double precision  scale 
       double precision  charge_scale
-      integer np
-      character*32 mtoken(10)
+      integer ip,np
+      character*32 mtoken(10),tag
 c
       pname = "mm_input"
 
       call util_print_get_level(print_level)
       hprint = (ga_nodeid().eq.0).and.(print_high.le.print_level)
 c
-      max_nbq = 25000  ! default number
-      if (.not. rtdb_get(rtdb, 'bq:max_nbq', mt_int, 1, max_nbq))
-     $  max_nbq = 25000
-c
-      if (max_nbq .le. 0) 
-     $  call errquit('mm_input: max_nbq',max_nbq, MA_ERR)
-c
-      if ( .not. ma_push_get( MT_DBL, 3*max_nbq, 
-     &      'cbq scratch',
-     &      h_cbq, i_cbq) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      max_nbq, MA_ERR)
-c
-      call dfill(3*max_nbq,0.0d0,dbl_mb(i_cbq),1)
-c
-      if ( .not. ma_push_get( MT_DBL, max_nbq, 
-     &      'qbq scratch',
-     &      h_qbq, i_qbq) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      max_nbq, MA_ERR)
-c
-      call dfill(max_nbq,0.0d0,dbl_mb(i_qbq),1)
-
-
 c     ------------------
 c     parse main bq line 
+c     set namespace
 c     ------------------
       namespace = mm_default
       call inp_set_field(1)
       if (inp_a(field)) then 
          namespace = field
       end if
+      write(*,*) "namespace=",namespace
 
+c    ---------------------------
+c    begin input processing loop
+c    ---------------------------
  20   if (inp_read()) then
        if(inp_a(field)) then
-
          if (inp_compare(.false., 'end', field)) then
-           goto 30
-         else if (inp_compare(.false., 'clear', field)) then
-            call mm_rtdb_delete(rtdb,namespace)
-            goto 20
+            goto 30
+C         else if (inp_compare(.false., 'clear', field)) then
+C            call mm_rtdb_delete(rtdb,namespace)
+C            goto 20
          else if (inp_compare(.false., 'load', field)) then
             np = inp_n_field()
             if(np.ne.3) goto 911
             do ip = 1,np-1
               if(.not.inp_a(mtoken(ip))) goto 911
             end do
-            if (inp_compare(.false., 'vdw', mtoken(2))) then
-                call  mm_input_vdw_load(aunit,max_nbq,ncenter,
-     &                           dbl_mb(i_qbq),
-     &                           dbl_mb(i_cbq))
+            if (inp_compare(.false., 'vdw', mtoken(1))) then
+              tag="mm:load:vdw"
+              if (.not.rtdb_cput(rtdb,tag,1,mtoken(2))) 
+     >              call errquit(pname//'failed to store'//tag,0,
+     >               RTDB_ERR)
+                call  mm_data_load_vdw(rtdb)
+            else
+               message = "unknown keyword "
+               goto 911
+            end if
             goto 20
          end if
 
        end if
       end if
  30   continue
+c    -------------------------
+c    end input processing loop
+c    -------------------------
 
-      if(.not.mm_create(namespace,handle))   
-     &       call errquit('mm_create failed',0,0)
-
-      if(.not.mm_set(handle,ncenter,dbl_mb(i_qbq),dbl_mb(i_cbq)))
-     &       call errquit('mm_set failed',0,0)
-
-      call mm_print_info(handle)
-
-      if(.not.mm_rtdb_store(rtdb,handle))
-     &       call errquit('mm_store failed',0,0)
-
-      if(.not.mm_destroy(handle))
-     &       call errquit('mm_destroy failed',0,0)
-
-c
-c     activate default namespace if found
-c     -----------------------------------
-      if(ncenter.ne.0 .and. namespace.eq.mm_default) then
-      if(.not. rtdb_cput(rtdb,"bq" , 1,mm_default)) then
-         call errquit(pname//'failed to set default namespace',
-     >                0,RTDB_ERR)
-      end if
-      end if
-
-      if (.not. ma_pop_stack(h_qbq)) call errquit(
-     &      'failed to free scratch space '//pname,
-     &      max_nbq, MA_ERR)
-
-      if (.not. ma_pop_stack(h_cbq)) call errquit(
-     &      'failed to free scratch space '//pname,
-     &      max_nbq, MA_ERR)
- 
       return
-998   call errquit('no token found '//field,0,
-     >        RTDB_ERR)
 911   call errquit(message,0,-1)
       end
-C> @}
-
-      subroutine mm_input_load(aunit,nmax,n,q,c)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-#include "bq_params.fh"
-#include "mm.fh"
-c     
-      character*(*) aunit
-      integer nmax,n
-      double precision q(nmax),c(3,nmax)
-      character*255 message
-      character*255 field
-c      character*255 afile_coords 
-      character*255 afile_charges
-      character*255 afile
-      logical oscale
-      integer iloc(4)
-      double precision charge_scale
-      integer i,k,n0,ipos
-      integer dn
-      double precision scale
-
-      
-      iloc = [2,3,4,5]
-c      afile_coords  = " "
-      afile_charges = " "
-      afile = " "
-      oscale = .false.
-      charge_scale = 1.0
-10    continue
-      if (inp_a(field)) then
-        message = "processing field "//trim(field)
-c        if (inp_compare(.false., 'coords', field)) then
-c           if (.not.inp_a(afile)) goto 998
-c             goto 10
-        if (inp_contains(.false.,'unit',field,ipos)) then
-          message = "reading units"
-          if (.not. inp_a(aunit)) goto 998
-          goto 10
-        else if (inp_compare(.false., 'charges', field)) then
-           if (.not.inp_a(afile_charges)) goto 998
-             goto 10
-        else if (inp_compare(.false., 'format', field)) then
-           do k=1,4
-             if (.not.inp_i(iloc(k))) goto 998
-           end do
-           goto 10
-        else if (inp_compare(.false., 'scale', field)) then
-           if (.not.inp_f(charge_scale)) goto 998
-             oscale = .true.
-             goto 10
-        else
-          if(afile.eq. " " ) afile = field 
-        end if
-        goto 10
-      end if
-
-      n0=n
-      if(afile.eq." "
-     >   .and. 
-     >   afile_charges.ne." ") then
-         message = "no files to load ;("
-         goto 998
-      end if
-      if(afile_charges.ne." ") then
-        call bq_load_xyz(afile,nmax,n,iloc(1:3),c)
-        dn = n - n0
-        message = "check format, no coords were found in "//afile
-        if (dn.eq.0) goto 998
-        n = n0
-        call bq_load_q(afile_charges,nmax,n,iloc(4),q)
-        message = "error reading charges "//afile_charges
-        if (dn.ne.n-n0) goto 998
-      else 
-        call bq_load(afile,nmax,n,iloc,q,c)
-        message = "error reading coords and charges "//afile
-        if (n0.eq.n) goto 998
-      end if
-
-c     scale and convert as needed
-      call util_length_scale(aunit,scale)
-      call dscal(3*(n-n0), scale, c(:,n0+1:n), 1)
-      if(oscale) then
-        call dscal(n-n0, charge_scale, q(n0+1:n), 1)
-      end if
-
-c      do i=1,n
-c       write(*,*) c(1,i),c(2,i),c(3,i),q(i)
-c      end do
-c      write(*,*) "oscale ",oscale
-c      write(*,*) "scale ",charge_scale
-c      write(*,*) "afile ",afile
-c      write(*,*) "afile_coords ",afile_coords
-c      write(*,*) "afile_charges ",afile_charges
-
-      return
-
-998   call errquit("error "//message,0,
-     >        -1)
-
-      end
-
-      subroutine bq_load_xyz(filename,nmax,n,iloc,c)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-      character*(*) filename
-      integer       nmax,n
-      integer iloc(3)
-      double precision   c(3,nmax)
-
-c
-      integer fn,k
-      character*180 buffer,field
-      character*180 message
-      character*30 pname,atag
-      integer iloc_max
-c
-      logical util_io_unit
-      external util_io_unit
-      double precision f3(3)
-c
-      pname = "bq_load_xyz"
-c
-      call bq_open_file(filename,fn)
-c      
-      iloc_max = maxval(iloc)
-c      
-      call inp_init(fn,LuOut)
-10    continue
-      if (.not.inp_read()) goto 30
-      if(inp_n_field().lt.iloc_max) goto 10
-      message = "checking for bounds"
-      if(n.gt.nmax) goto 911
-      message = "reading coordinates"
-      do k=1,3
-        call inp_set_field(iloc(k)-1) 
-        if (.not.inp_f(f3(k))) goto 10
-      end do
-      n = n+1
-      c(:,n) = f3
-      goto 10
-30    continue
-      close(fn)
-      call inp_init(LuIn,LuOut)
-      return
-911   call errquit("error "//trim(message),0,
-     >        -1)
-      end
-
-      subroutine bq_load_q(filename,nmax,n,iloc,q)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-      character*(*) filename
-      integer       nmax,n
-      integer iloc
-      double precision   q(nmax)
-      double precision   c(3,nmax)
-
-c
-      integer fn,k
-      character*180 buffer,field
-      character*180 message
-      character*30 pname,atag
-      integer iloc_max
-      double precision f
-c
-      logical util_io_unit
-      external util_io_unit
-c
-      pname = "bq_load_q"
-c
-      call bq_open_file(filename,fn)
-c      
-      iloc_max = iloc
-c      
-      call inp_init(fn,LuOut)
-10    continue
-      if (.not.inp_read()) goto 30
-      if(inp_n_field().lt.iloc_max) goto 10
-      message = "checking for bounds"
-      if(n.gt.nmax) goto 911
-      message = "reading charges"
-      call inp_set_field(iloc-1) 
-      if (.not.inp_f(f)) goto 10
-      n=n+1
-      q(n) = f
-      goto 10
-30    continue
-      call inp_init(LuIn,LuOut)
-      close(fn)
-      return
-911   call errquit("error "//trim(message),0,
-     >        -1)
-      end
-
-      subroutine bq_open_file(filename,fn)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-      character*(*) filename
-      integer       fn
-c
-      character*180 buffer
-      character*180 message
-      character*30 pname,atag
-c
-      logical util_io_unit
-      external util_io_unit
-c
-      pname = "bq_open_file"
-c
-      if(.not.util_io_unit(80,90,fn))
-     +  call errquit(pname//"cannot get io unit",0,0)
-c     first try to open file in the run directory
-      buffer = filename
-      message = "loaded bq information from "//buffer
-      open(unit=fn,file=buffer,status='old',form="formatted",ERR=10)
-      goto 800
-10    continue
-c     now try perm directory
-      call util_file_name_resolve(buffer, .false.)
-      message = "loaded bq information from "//buffer
-      open(unit=fn,file=buffer,status='old',form="formatted",ERR=911)
-800   continue
-      write(luout,*) "Successfully "//trim(message)
-      write(luout,*)
-      return
-911   call errquit("error "//trim(message),0,
-     >        -1)
-      end
-
-      subroutine bq_load(filename,nmax,n,iloc,q,c)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-      character*(*) filename
-      integer       nmax,n
-      integer iloc(4)
-      double precision   q(nmax)
-      double precision   c(3,nmax)
-
-c
-      integer fn,k
-      character*180 buffer,field
-      character*180 message
-      character*30 pname,atag
-      integer iloc_max
-      double precision f4(4)
-c
-      logical util_io_unit
-      external util_io_unit
-c
-      pname = "bq_load"
-c
-      call bq_open_file(filename,fn)
-c      
-      iloc_max = maxval(iloc)
-c      
-      call inp_init(fn,LuOut)
-10    continue
-      if (.not.inp_read()) goto 30
-      if(inp_n_field().lt.iloc_max) goto 10
-      message = "checking for bounds"
-      if(n.gt.nmax) goto 911
-      message = "reading coordinates"
-c      call inp_outrec()
-      do k=1,3
-        call inp_set_field(iloc(k)-1) 
-        if (.not.inp_f(f4(k))) goto 10
-      end do
-      k = 4
-      call inp_set_field(iloc(k)-1) 
-      if (.not.inp_f(f4(k))) goto 10
-      n=n+1
-      c(:,n) = f4(1:3)
-      q(n) = f4(4)
-      goto 10
-30    continue
-      call inp_init(LuIn,LuOut)
-      close(fn)
-      return
-911   call errquit("error "//trim(message),0,
-     >        -1)
-      end
-
-      subroutine bq_fromrtdb(rtdb,rtdb_charge_tag,rtdb_coord_tag,
-     &                      ncenter,charge,coord)
-      implicit none
-      integer       rtdb
-      character*(*) rtdb_charge_tag
-      character*(*) rtdb_coord_tag
-      integer       ncenter
-      real*8        charge(*)
-      real*8        coord(*)
-
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-
-*     **** local variables ****
-      integer      ncenter_tmp,ncenter3_tmp,matype1,matype2
-      character*26 date
-      
-      ncenter = 0
-      if (rtdb_get_info(rtdb,rtdb_charge_tag,
-     &                  matype1,ncenter_tmp,date).and.
-     &   rtdb_get_info(rtdb,rtdb_coord_tag,
-     &            matype2,ncenter3_tmp,date)) then
-
-        if ((ncenter3_tmp .eq. (3*ncenter_tmp)) .and.
-     &      (matype1.eq.matype2)                .and.
-     &      (matype1.eq.mt_dbl))                then
-
-          !*** get charges ***
-          if (.not.rtdb_get(rtdb,rtdb_charge_tag,
-     &                      mt_dbl,ncenter_tmp,charge))
-     &      goto 35
-
-          !*** get coordinates ***
-          if (.not.rtdb_get(rtdb,rtdb_coord_tag,
-     &                      mt_dbl,ncenter3_tmp,coord))
-     &      goto 35
-
-            ncenter = ncenter + ncenter_tmp
-        end if
-      end if
-
-  35  continue
-      return
-      end
-
+C
+C      subroutine mm_input_load_vdw(filename)
+C      implicit none
+C#include "util.fh"
+C#include "errquit.fh"
+C#include "inp.fh"
+C#include "stdio.fh"
+C#include "mafdecls.fh"
+C      character*(*) filename
+C      integer       nmax,n
+Cc
+C      integer fn,k
+C      character*180 buffer,field
+C      character*180 message
+C      character*30 pname,atag
+Cc
+C      logical util_io_unit
+C      external util_io_unit
+C      integer h_i,i_i
+C      integer h_j,i_j
+C      integer h_a,i_a
+C      integer h_b,i_b
+C      integer max_vdw
+Cc
+C      pname = "mm_input_load_vdw"
+Cc
+C      max_vdw = 2500
+Cc
+C      if ( .not. ma_push_get( MT_INT, max_vdw, 
+C     &      'vdw scratch i',
+C     &      h_i, i_i) ) call errquit(
+C     &      'failed scratch space '//pname,
+C     &      max_vdw, MA_ERR)
+C
+C      if ( .not. ma_push_get( MT_INT, max_vdw, 
+C     &      'vdw scratch j',
+C     &      h_j, i_j) ) call errquit(
+C     &      'failed scratch space '//pname,
+C     &      max_vdw, MA_ERR)
+C
+C      if ( .not. ma_push_get( MT_DBL, max_vdw, 
+C     &      'vdw scratch A',
+C     &      h_a, i_a) ) call errquit(
+C     &      'failed scratch space '//pname,
+C     &      max_vdw, MA_ERR)
+C
+C      if ( .not. ma_push_get( MT_DBL, max_vdw, 
+C     &      'vdw scratch B',
+C     &      h_b, i_b) ) call errquit(
+C     &      'failed scratch space '//pname,
+C     &      max_vdw, MA_ERR)
+C
+Cc
+C      call mm_open_file(filename,fn)
+Cc      
+C      call inp_init(fn,LuOut)
+C      n = 0
+C10    continue
+C      if (.not.inp_read()) goto 30
+C      message = "checking for number of fields"
+C      if(inp_n_field().ne.4) goto 911
+C      message = "checking for bounds"
+C      if(n.gt.max_vdw) goto 911
+C      message = "reading vdw params"
+C      n = n+1
+C      write(*,*) "n=",n
+C      if (.not.inp_i(int_mb(i_i+n-1))) goto 911
+C      if (.not.inp_i(int_mb(i_j+n-1))) goto 911
+C      if (.not.inp_f(dbl_mb(i_a+n-1))) goto 911
+C      if (.not.inp_f(dbl_mb(i_b+n-1))) goto 911
+C      goto 10
+C30    continue
+C      close(fn)
+C      call inp_init(LuIn,LuOut)
+C      if (.not. ma_pop_stack(h_b)) call errquit(
+C     &      'failed to free scratch space '//pname,
+C     &      max_vdw, MA_ERR)
+C      if (.not. ma_pop_stack(h_a)) call errquit(
+C     &      'failed to free scratch space '//pname,
+C     &      max_vdw, MA_ERR)
+C      if (.not. ma_pop_stack(h_j)) call errquit(
+C     &      'failed to free scratch space '//pname,
+C     &      max_vdw, MA_ERR)
+C      if (.not. ma_pop_stack(h_i)) call errquit(
+C     &      'failed to free scratch space '//pname,
+C     &      max_vdw, MA_ERR)
+C      return
+C911   call errquit("error "//trim(message),0,
+C     >        -1)
+C      end
+C
+C      subroutine mm_open_file(filename,fn)
+C      implicit none
+C#include "util.fh"
+C#include "errquit.fh"
+C#include "inp.fh"
+C#include "stdio.fh"
+C      character*(*) filename
+C      integer       fn
+Cc
+C      character*180 buffer
+C      character*180 message
+C      character*30 pname,atag
+Cc
+C      logical util_io_unit
+C      external util_io_unit
+Cc
+C      pname = "mm_open_file"
+Cc
+C      if(.not.util_io_unit(80,90,fn))
+C     +  call errquit(pname//"cannot get io unit",0,0)
+Cc     first try to open file in the run directory
+C      buffer = filename
+C      message = "loading vdw information from "//buffer
+C      open(unit=fn,file=buffer,status='old',form="formatted",ERR=10)
+C      goto 800
+C10    continue
+Cc     now try perm directory
+C      call util_file_name_resolve(buffer, .false.)
+C      message = "loading vdw information from "//buffer
+C      open(unit=fn,file=buffer,status='old',form="formatted",ERR=911)
+C800   continue
+C      write(luout,*) "Successfully "//trim(message)
+C      write(luout,*)
+C      return
+C911   call errquit("error "//trim(message),0,
+C     >        -1)
+C      end
+C
+C

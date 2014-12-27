@@ -2,21 +2,16 @@
 * $Id: mm_data.fh 19697 2010-10-29 16:57:34Z d3y133 $
 *
 
-      integer max_bq
-      parameter(max_bq=10)
-     
-      logical mm_active(max_bq)
-      logical mm_mem(max_bq)
-      integer mm_ncent(max_bq) 
-      integer mm_charge(max_bq) 
-      integer mm_coord(max_bq) 
-      character mm_name(max_bq)*72
+      integer nvdw
+      integer h_ivdw,i_ivdw
+      integer h_jvdw,i_jvdw
+      integer h_avdw,i_avdw
+      integer h_bvdw,i_bvdw
 
       common /mm_data/ 
-     &                   mm_ncent,
-     &                   mm_active,
-     &                   mm_mem,
-     &                   mm_charge,
-     &                   mm_coord,
-     &                   mm_name
+     &                   nvdw,
+     &                   h_ivdw,i_ivdw,
+     &                   h_jvdw,i_jvdw,
+     &                   h_avdw,i_avdw,
+     &                   h_bvdw,i_bvdw
 
