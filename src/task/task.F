@@ -64,6 +64,7 @@ c
       logical task_dynamics, task_rfcf
       logical task_qmd
       logical orism
+      logical omm
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
       logical osmd, ofragment
 c     logical oembed
@@ -111,6 +112,11 @@ c
       external task_property
       external task_ccca
       external lucia
+c
+      external mm_end
+      logical mm_end
+      external mm_init
+      logical mm_init
 c
       logical bq_init,bq_end
       external bq_init,bq_end
@@ -167,7 +173,10 @@ C#endif
 c
       if (rtdb_get(rtdb, 'task:debug', mt_log, 1, odebug))
      $     call util_debug(rtdb)
-*
+C
+      if (.not.rtdb_get(rtdb,'task:mm',mt_log,1,omm))
+     &    omm = .false.
+C
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
      &    oqmmm = .false.
 c      
@@ -224,6 +233,13 @@ c
         end if
       endif
 c
+      if (omm) then
+        status = mm_init(rtdb)
+        if ((ga_nodeid().eq.0) .and. (.not. status)) then
+              call errquit("failed to initialize mm", 0, CALC_ERR)
+        end if
+      endif
+cc
 c      if (oembed) then
 c        status = embed_init(rtdb)
 c        if ((ga_nodeid().eq.0) .and. (.not. status)) then
@@ -492,6 +508,14 @@ c
               call errquit("failed to uninitialize bq", 0, CALC_ERR)
         end if
       end if
+
+      if(omm) then
+       status = mm_end(rtdb)
+       if ((ga_nodeid().eq.0) .and. (.not. status)) then
+           call errquit("failed to end mm", 0, CALC_ERR)
+        end if
+      end if
+
 
 
       task_wall = task_wall + util_wallsec()

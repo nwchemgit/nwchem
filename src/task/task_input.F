@@ -39,6 +39,7 @@ c          [ignore]
 c
       logical numerical, ignore, oqmmm, analytic
       logical orism
+      logical omm
       logical opes
 c      logical oembed
       logical ofragment
@@ -53,6 +54,7 @@ c
       numerical = .false.
       ignore    = .false.
       oqmmm     = .false.
+      omm       = .false.
       orism     = .false.
       opes      = .false.
       ofragment = .false.
@@ -128,6 +130,8 @@ c            operation = 'prepare'
             ignore = .true.
          else if (inp_compare(.false.,test,'rism')) then
             orism = .true.
+         else if (inp_compare(.false.,test,'mm')) then
+            omm = .true.
          else if (inp_compare(.false.,test,'qmmm')) then
             oqmmm = .true.
 c         else if (inp_compare(.false.,test,'embed')) then
@@ -263,7 +267,15 @@ c
      &       call errquit('task_input:task:pes rtdb is corrupt',911,
      &       RTDB_ERR)
       end if
-      if (orism) then
+      if (omm) then
+        if (.not.rtdb_put(rtdb, 'task:mm', mt_log, 1, .true.))
+     &       call errquit('task_input:task:mm rtdb is corrupt',911,
+     &       RTDB_ERR)
+        if (theory.eq.'md') call errquit
+     &      ('task_input:theory must be a QM method for mm',911,
+     &       RTDB_ERR)
+      endif
+       if (orism) then
         if (.not.rtdb_put(rtdb, 'task:rism', mt_log, 1, .true.))
      &       call errquit('task_input:task:QMMM rtdb is corrupt',911,
      &       RTDB_ERR)

@@ -33,6 +33,7 @@ c
 c
       logical status, ignore, numerical
       logical ocons
+      logical omm
       logical task_qmmm
       character*32 theory
       double precision cpu, wall, energy, dipole(3), 
@@ -74,6 +75,9 @@ c
 c
       if (.not. rtdb_get(rtdb, 'task:numerical', mt_log, 1, 
      $     numerical)) numerical = .false.
+c
+      if( .not. rtdb_get(rtdb,'task:mm',mt_log,1,omm))
+     &    omm = .false.
 c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
@@ -142,6 +146,8 @@ c      end if
       if(ocons)  call cons_add_egrad(rtdb,energy,nelem,gradient)
 c
       call bq_force(rtdb)
+c
+c      if(omm) call mm_add_egrad(rtdb,energy,nelem,gradient)
 c
       if (status) then
          call geom_print_rtdb_ecce(rtdb)
