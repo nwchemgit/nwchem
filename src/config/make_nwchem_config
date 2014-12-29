@@ -19,7 +19,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	nwxc rimp2 stepper driver optim scfaux cphf ccsd vib mcscf prepar \
         esp hessian selci dplot mp2_grad qhop \
         property solvation nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
-        drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq cons\
+        drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq mm cons\
         perfm dntmc smd nbo dangchang leps ccca lucia
 
 # These are the libraries for the high-level modules.  They should be
@@ -34,7 +34,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lnwxc -lsmd -lsmddb\
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -lnwpython -ldrdy -lvscf -lqmmm -lrism -lqmd -letrans\
-                    -lpspw -ltce  -lgeninterface -lbq  -lcons -lperfm -lnbo -ldntmc -lccca\
+                    -lpspw -ltce  -lgeninterface -lbq -lmm  -lcons -lperfm -lnbo -ldntmc -lccca\
                     -llucia
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
@@ -231,6 +231,7 @@ MOD_LIBS := $(patsubst optim,-loptim,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst driver,-ldriver,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cons,-lcons,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst bq,-lbq,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst mm,-lmm,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwpw,-lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst smd,-lsmd -lsmddb,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fft,-lpfft,$(MOD_LIBS) )
@@ -285,6 +286,7 @@ STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces qmd_driver qmd_input task_qmd qmd_main,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rism,task_rism rism_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmmm, qmmm_input task_qmmm_fep task_qmmm_abc qmmm_print_energy1 qmmm_forces qmmm_init qmmm_end task_qmmm_energy task_qmmm_gradient task_qmmm_optimize task_qmmm_dynamics task_qmmm_esp task_qmmm_pes task_qmmm_thermo qmmm_bq_forces,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst mm, mm_input mm_init mm_end ,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dplot,dplot dplot_input player,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property raman_input task_raman prop_input hnd_nwhnd_tran hnd_prp_vec_read hnd_diag hnd_elfcon_symm hnd_elfcon get_slctd_atoms xc_tabcd_giao_nmr_rhs int_giao_1ega giao_b1_movecs,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst solvation,cosmo_input cosmo_initialize cosmo_charges cosmo_charges_from_dmat cosmo_def_radii cosmo_tidy cosff cosdff,$(STUBROUTINES) )
