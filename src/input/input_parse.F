@@ -154,6 +154,8 @@ c
                call mcscf_input(rtdb)
 c           else if (inp_compare(.false.,test,'plnwv')) then
 c              call plnwv_input(rtdb)
+            else if (inp_compare(.false.,test,'mm')) then
+               call mm_input(rtdb)
             else if (inp_compare(.false.,test,'bq')) then
                call bq_input(rtdb)
             else if (inp_compare(.false.,test,'constraints')) then
