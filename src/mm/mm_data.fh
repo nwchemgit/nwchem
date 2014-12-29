@@ -3,15 +3,18 @@
 *
 
       integer nvdw
+      integer nr
       integer h_ivdw,i_ivdw
       integer h_jvdw,i_jvdw
       integer h_avdw,i_avdw
       integer h_bvdw,i_bvdw
+      integer h_r,i_r
 
       common /mm_data/ 
-     &                   nvdw,
+     &                   nvdw,nr,
      &                   h_ivdw,i_ivdw,
      &                   h_jvdw,i_jvdw,
      &                   h_avdw,i_avdw,
-     &                   h_bvdw,i_bvdw
+     &                   h_bvdw,i_bvdw,
+     &                   h_r,i_r
 

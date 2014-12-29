@@ -59,9 +59,15 @@ c    ---------------------------
 C         else if (inp_compare(.false., 'clear', field)) then
 C            call mm_rtdb_delete(rtdb,namespace)
 C            goto 20
+         else if (inp_compare(.false., 'coords', field)) then
+             call mm_input_coords(rtdb)
+             goto 20
+         else if (inp_compare(.false., 'vdw', field)) then
+             call mm_input_vdw(rtdb)
+             goto 20
          else if (inp_compare(.false., 'load', field)) then
             np = inp_n_field()
-            if(np.ne.3) goto 911
+            if(np.lt.3) goto 911
             do ip = 1,np-1
               if(.not.inp_a(mtoken(ip))) goto 911
             end do
@@ -70,7 +76,11 @@ C            goto 20
               if (.not.rtdb_cput(rtdb,tag,1,mtoken(2))) 
      >              call errquit(pname//'failed to store'//tag,0,
      >               RTDB_ERR)
-                call  mm_data_load_vdw(rtdb)
+            else if (inp_compare(.false., 'positions', mtoken(1))) then
+              tag="mm:load:positions"
+              if (.not.rtdb_cput(rtdb,tag,1,mtoken(2))) 
+     >              call errquit(pname//'failed to store'//tag,0,
+     >               RTDB_ERR)
             else
                message = "unknown keyword "
                goto 911
@@ -88,133 +98,211 @@ c    -------------------------
       return
 911   call errquit(message,0,-1)
       end
+
+      subroutine mm_input_coords(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+      integer rtdb
+c     
+      integer nmax,n
+      character*255 message
+      character*255 field
+      character*255 svalue
+c      character*255 afile_coords 
+      character*255 afile_charges
+      character*255 afile
+      logical oscale
+      integer iloc(4)
+      double precision charge_scale
+      integer i,k,n0,ipos
+      integer dn
+      double precision scale
+      character*30 pname
+      character*84 tag
+
+      pname = "mm_input_vdw" 
+      iloc = [2,3,4,5]
+c      afile_coords  = " "
+      afile_charges = " "
+      afile = " "
+      oscale = .false.
+      charge_scale = 1.0
+
+10    continue
+      if (inp_a(field)) then
+        message = "processing field "//trim(field)
+        if (inp_contains(.false.,'load',field,ipos)) then
+          message = "reading load"
+          if (.not. inp_a(svalue)) goto 911
+          tag="mm:coords:load"
+          if (.not.rtdb_cput(rtdb,tag,1,svalue)) 
+     >          call errquit(pname//'failed to store'//tag,0,
+     >           RTDB_ERR)
+           goto 10
+        else if (inp_compare(.false., 'format', field)) then
+           do k=1,4
+             if (.not.inp_i(iloc(k))) goto 911
+           end do
+           goto 10
+        else
+          message = "uknown field "//trim(field)
+          goto 911
+        end if
+        goto 10
+      end if
+      return
+
+911   call errquit("error "//message,0,
+     >        -1)
+
+      end
+
+      subroutine mm_input_vdw(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+      integer rtdb
+c     
+      integer nmax,n
+      character*255 message
+      character*255 field
+      character*255 svalue
+c      character*255 afile_coords 
+      character*255 afile_charges
+      character*255 afile
+      logical oscale
+      integer iloc(4)
+      double precision charge_scale
+      integer i,k,n0,ipos
+      integer dn
+      double precision scale
+      character*30 pname
+      character*84 tag
+
+      pname = "mm_input_vdw" 
+      iloc = [2,3,4,5]
+c      afile_coords  = " "
+      afile_charges = " "
+      afile = " "
+      oscale = .false.
+      charge_scale = 1.0
+
+10    continue
+      if (inp_a(field)) then
+        message = "processing field "//trim(field)
+c        if (inp_compare(.false., 'coords', field)) then
+c           if (.not.inp_a(afile)) goto 911
+c             goto 10
+        if (inp_contains(.false.,'load',field,ipos)) then
+          message = "reading load"
+          if (.not. inp_a(svalue)) goto 911
+          tag="mm:vdw:load"
+          if (.not.rtdb_cput(rtdb,tag,1,svalue)) 
+     >          call errquit(pname//'failed to store'//tag,0,
+     >           RTDB_ERR)
+           goto 10
+        else if (inp_compare(.false., 'charges', field)) then
+           if (.not.inp_a(afile_charges)) goto 911
+             goto 10
+        else if (inp_compare(.false., 'format', field)) then
+           do k=1,4
+             if (.not.inp_i(iloc(k))) goto 911
+           end do
+           goto 10
+        else if (inp_compare(.false., 'scale', field)) then
+           if (.not.inp_f(charge_scale)) goto 911
+             oscale = .true.
+             goto 10
+        else
+          if(afile.eq. " " ) afile = field 
+        end if
+        goto 10
+      end if
+      return
+
+911   call errquit("error "//message,0,
+     >        -1)
+
+      end
 C
-C      subroutine mm_input_load_vdw(filename)
+C      subroutine mm_input_vdw(rtdb)
 C      implicit none
-C#include "util.fh"
 C#include "errquit.fh"
 C#include "inp.fh"
-C#include "stdio.fh"
 C#include "mafdecls.fh"
-C      character*(*) filename
-C      integer       nmax,n
-Cc
-C      integer fn,k
-C      character*180 buffer,field
-C      character*180 message
-C      character*30 pname,atag
-Cc
-C      logical util_io_unit
-C      external util_io_unit
-C      integer h_i,i_i
-C      integer h_j,i_j
-C      integer h_a,i_a
-C      integer h_b,i_b
-C      integer max_vdw
-Cc
-C      pname = "mm_input_load_vdw"
-Cc
-C      max_vdw = 2500
-Cc
-C      if ( .not. ma_push_get( MT_INT, max_vdw, 
-C     &      'vdw scratch i',
-C     &      h_i, i_i) ) call errquit(
-C     &      'failed scratch space '//pname,
-C     &      max_vdw, MA_ERR)
-C
-C      if ( .not. ma_push_get( MT_INT, max_vdw, 
-C     &      'vdw scratch j',
-C     &      h_j, i_j) ) call errquit(
-C     &      'failed scratch space '//pname,
-C     &      max_vdw, MA_ERR)
-C
-C      if ( .not. ma_push_get( MT_DBL, max_vdw, 
-C     &      'vdw scratch A',
-C     &      h_a, i_a) ) call errquit(
-C     &      'failed scratch space '//pname,
-C     &      max_vdw, MA_ERR)
-C
-C      if ( .not. ma_push_get( MT_DBL, max_vdw, 
-C     &      'vdw scratch B',
-C     &      h_b, i_b) ) call errquit(
-C     &      'failed scratch space '//pname,
-C     &      max_vdw, MA_ERR)
-C
-Cc
-C      call mm_open_file(filename,fn)
-Cc      
-C      call inp_init(fn,LuOut)
-C      n = 0
-C10    continue
-C      if (.not.inp_read()) goto 30
-C      message = "checking for number of fields"
-C      if(inp_n_field().ne.4) goto 911
-C      message = "checking for bounds"
-C      if(n.gt.max_vdw) goto 911
-C      message = "reading vdw params"
-C      n = n+1
-C      write(*,*) "n=",n
-C      if (.not.inp_i(int_mb(i_i+n-1))) goto 911
-C      if (.not.inp_i(int_mb(i_j+n-1))) goto 911
-C      if (.not.inp_f(dbl_mb(i_a+n-1))) goto 911
-C      if (.not.inp_f(dbl_mb(i_b+n-1))) goto 911
-C      goto 10
-C30    continue
-C      close(fn)
-C      call inp_init(LuIn,LuOut)
-C      if (.not. ma_pop_stack(h_b)) call errquit(
-C     &      'failed to free scratch space '//pname,
-C     &      max_vdw, MA_ERR)
-C      if (.not. ma_pop_stack(h_a)) call errquit(
-C     &      'failed to free scratch space '//pname,
-C     &      max_vdw, MA_ERR)
-C      if (.not. ma_pop_stack(h_j)) call errquit(
-C     &      'failed to free scratch space '//pname,
-C     &      max_vdw, MA_ERR)
-C      if (.not. ma_pop_stack(h_i)) call errquit(
-C     &      'failed to free scratch space '//pname,
-C     &      max_vdw, MA_ERR)
-C      return
-C911   call errquit("error "//trim(message),0,
-C     >        -1)
-C      end
-C
-C      subroutine mm_open_file(filename,fn)
-C      implicit none
+C#include "rtdb.fh"
 C#include "util.fh"
-C#include "errquit.fh"
-C#include "inp.fh"
-C#include "stdio.fh"
-C      character*(*) filename
-C      integer       fn
-Cc
-C      character*180 buffer
-C      character*180 message
-C      character*30 pname,atag
-Cc
-C      logical util_io_unit
-C      external util_io_unit
-Cc
-C      pname = "mm_open_file"
-Cc
-C      if(.not.util_io_unit(80,90,fn))
-C     +  call errquit(pname//"cannot get io unit",0,0)
-Cc     first try to open file in the run directory
-C      buffer = filename
-C      message = "loading vdw information from "//buffer
-C      open(unit=fn,file=buffer,status='old',form="formatted",ERR=10)
-C      goto 800
-C10    continue
-Cc     now try perm directory
-C      call util_file_name_resolve(buffer, .false.)
-C      message = "loading vdw information from "//buffer
-C      open(unit=fn,file=buffer,status='old',form="formatted",ERR=911)
-C800   continue
-C      write(luout,*) "Successfully "//trim(message)
-C      write(luout,*)
-C      return
-C911   call errquit("error "//trim(message),0,
-C     >        -1)
-C      end
+C#include "global.fh"
+C      integer rtdb
+Cc     
+C      integer nmax,n
+C      character*255 message
+C      character*255 field
+C      character*255 svalue
+Cc      character*255 afile_coords 
+C      character*255 afile_charges
+C      character*255 afile
+C      logical oscale
+C      integer iloc(4)
+C      double precision charge_scale
+C      integer i,k,n0,ipos
+C      integer dn
+C      double precision scale
+C      character*30 pname
+C      character*84 tag
 C
+C      pname = "mm_input_vdw" 
+C      iloc = [2,3,4,5]
+Cc      afile_coords  = " "
+C      afile_charges = " "
+C      afile = " "
+C      oscale = .false.
+C      charge_scale = 1.0
+C
+C10    continue
+C      if (inp_a(field)) then
+C        message = "processing field "//trim(field)
+Cc        if (inp_compare(.false., 'coords', field)) then
+Cc           if (.not.inp_a(afile)) goto 911
+Cc             goto 10
+C        if (inp_contains(.false.,'load',field,ipos)) then
+C          message = "reading load"
+C          if (.not. inp_a(svalue)) goto 911
+C          tag="mm:load:vdw"
+C          if (.not.rtdb_cput(rtdb,tag,1,svalue)) 
+C     >          call errquit(pname//'failed to store'//tag,0,
+C     >           RTDB_ERR)
+C           goto 10
+C        else if (inp_compare(.false., 'charges', field)) then
+C           if (.not.inp_a(afile_charges)) goto 911
+C             goto 10
+C        else if (inp_compare(.false., 'format', field)) then
+C           do k=1,4
+C             if (.not.inp_i(iloc(k))) goto 911
+C           end do
+C           goto 10
+C        else if (inp_compare(.false., 'scale', field)) then
+C           if (.not.inp_f(charge_scale)) goto 911
+C             oscale = .true.
+C             goto 10
+C        else
+C          if(afile.eq. " " ) afile = field 
+C        end if
+C        goto 10
+C      end if
+C      return
+C
+C911   call errquit("error "//message,0,
+C     >        -1)
+C
+C      end
 C
