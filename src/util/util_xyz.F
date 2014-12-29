@@ -112,4 +112,114 @@ c     ----------
       return
 
       end
+
+      subroutine util_xyz_nlines(nl,fp)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      integer nl,fp
+c
+      character*180 message
+      character*180 tag
+      character*30 pname,atag
+c
+      pname = "util_xyz_nlines"
+
+      rewind(fp)
+      call inp_init(fp,LuOut)
+      nl = 0
+      do
+        if (.not.inp_read()) exit
+        nl=nl+1
+      end do
+      rewind(fp)
+      call inp_init(LuIn,LuOut)
+      return
+911   call errquit("error "//trim(message),0,
+     >        -1)
+      end
+ 
+      subroutine util_xyz_read(n,a,c,fp)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      integer n
+      character*(*) a(n)
+      double precision   c(3,n)
+      integer fp
+c
+      integer i,k
+      character*180 message
+      character*30 pname
+c
+      double precision f3(3)
+c
+      pname = "util_xyz_read"
+c
+      call inp_init(fp,LuOut)
+      i=0
+      do 
+        if (.not.inp_read()) exit
+        i=i+1
+        if(i.gt.n) goto 911
+        message = "reading coordinates"
+        if (.not.inp_a(i)) goto 911
+          do k=1,3
+            if (.not.inp_f(f3(k))) goto 911
+          end do
+        c(:,n) = f3
+      end do
+      message = "too few lines"
+      if (i.lt.n) goto 911
+      call inp_init(LuIn,LuOut)
+      return
+911   call errquit(trim(pname)//" error "//trim(message),0,
+     >        -1)
+      end
+
+      subroutine util_xyz_read_coords(nmax,n,iloc,c,fp)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      integer n,nmax
+      double precision   c(3,nmax)
+      integer iloc(3)
+      integer fp
+c
+      integer i,k
+      character*180 message
+      character*30 pname
+c
+      double precision f3(3)
+c
+      pname = "util_xyz_read"
+      iloc_max = maxval(iloc)
+c
+      call inp_init(fp,LuOut)
+      i=0
+      do 
+        if (.not.inp_read()) exit
+        if(inp_n_field().lt.iloc_max) cycle
+        i=i+1
+        if(i.gt.nmax) goto 911
+        message = "reading coordinates"
+        if (.not.inp_a(i)) goto 911
+          do k=1,3
+            call inp_set_field(iloc(k)-1)
+            if (.not.inp_f(f3(k))) goto 911
+          end do
+        c(:,n) = f3
+      end do
+      message = "too few lines"
+      if (i.lt.n) goto 911
+      call inp_init(LuIn,LuOut)
+      return
+911   call errquit(trim(pname)//" error "//trim(message),0,
+     >        -1)
+      end
+
+    
 c $Id$
