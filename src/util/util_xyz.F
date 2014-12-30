@@ -180,6 +180,9 @@ c
       end
 
       subroutine util_xyz_read_coords(nmax,n,iloc,c,fp)
+C      read coordinates from file
+C      no particular format
+C      location of x,y,z fiels specified in iloc
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -192,29 +195,28 @@ c
       integer i,k
       character*180 message
       character*30 pname
+      integer iloc_max
 c
       double precision f3(3)
 c
-      pname = "util_xyz_read"
+      pname = "util_xyz_read_coords"
       iloc_max = maxval(iloc)
 c
       call inp_init(fp,LuOut)
-      i=0
+      n=0
       do 
         if (.not.inp_read()) exit
         if(inp_n_field().lt.iloc_max) cycle
-        i=i+1
-        if(i.gt.nmax) goto 911
+        n=n+1
+        message = "exceeded storage?"
+        if(n.gt.nmax) goto 911
         message = "reading coordinates"
-        if (.not.inp_a(i)) goto 911
-          do k=1,3
-            call inp_set_field(iloc(k)-1)
-            if (.not.inp_f(f3(k))) goto 911
-          end do
+        do k=1,3
+          call inp_set_field(iloc(k)-1)
+          if (.not.inp_f(f3(k))) goto 911
+        end do
         c(:,n) = f3
       end do
-      message = "too few lines"
-      if (i.lt.n) goto 911
       call inp_init(LuIn,LuOut)
       return
 911   call errquit(trim(pname)//" error "//trim(message),0,
