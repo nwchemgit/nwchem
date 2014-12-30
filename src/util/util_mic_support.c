@@ -14,7 +14,7 @@
 #define DEFAULT_OFFLOAD_THREAD_MULTIPLIER 4
 #endif
 #ifndef RANKS_PER_DEVICE
-#define RANKS_PER_DEVICE 2
+#define RANKS_PER_DEVICE 4
 #endif
 #define BUFSZ 256
 #define MAXGETHOSTNAME 2048
@@ -44,21 +44,23 @@ int util_getenv_nwc_ranks_per_device_() {
 	}
 	return ret;
 }
-
-int offload_master_(){
-  int ppn,nnn,ranks_per_device=util_getenv_nwc_ranks_per_device_();
+int util_nwc_ranks_per_device_() {
+  int ranks_per_device=util_getenv_nwc_ranks_per_device_();
   if (ranks_per_device == 0) {
     return 0;
   } else if (ranks_per_device < 0){
     ranks_per_device = RANKS_PER_DEVICE;
   }
+  return ranks_per_device;
+}
+
+int offload_master_(){
+  int ppn,nnn,ranks_per_device=util_nwc_ranks_per_device_();
+  if (ranks_per_device == 0) return 0;
   ppn=util_cgetppn();
   nnn=0;
-  if(ranks_per_device*util_mic_get_num_devices_() > ppn){
-    nnn=1;
-  }  else{
-    if(GA_Nodeid()%(ppn/ranks_per_device/util_mic_get_num_devices_()) == 0) nnn = 1;
-  }
+  if(util_my_smp_index() < ranks_per_device*util_mic_get_num_devices_()) nnn = 1;
+
 
 #ifdef DEBUG2
   /* internal check valid only for Cascade */
@@ -166,7 +168,7 @@ int util_mic_get_device_() {
 	}
         count = util_cgetppn()/util_mic_get_num_devices_();
         if (count > 0) {
-          count=util_my_smp_index()/(util_cgetppn()/util_mic_get_num_devices_());
+          count=util_my_smp_index()/util_nwc_ranks_per_device_();
         }
 	return count;
 
@@ -183,7 +185,6 @@ void FATR util_mic_set_affinity_() {
 	int ranks_per_dev;
 	int rank_on_dev;
 	int nthreads;
-	int offload_stride;
 	int ppn;
 	int ranks_per_device=util_getenv_nwc_ranks_per_device_();
 
@@ -202,14 +203,7 @@ void FATR util_mic_set_affinity_() {
 		nprocs = ((int) sysconf(_SC_NPROCESSORS_ONLN) / 4) - 1;
 	}
 
-	if(ranks_per_device*util_mic_get_num_devices_() > ppn){
-	  offload_stride = 1;
-	}else{
-	offload_stride = ppn/ranks_per_device/util_mic_get_num_devices_();
-	}
-
-		rank_on_dev = (GA_Nodeid() / offload_stride) % ranks_per_device;
-	//        rank_on_dev = util_my_smp_index()/(util_mic_get_num_devices_()*ranks_per_device);
+	rank_on_dev = util_my_smp_index() % util_nwc_ranks_per_device_();
 	
 	nthreads = nprocs / ranks_per_device * DEFAULT_OFFLOAD_THREAD_MULTIPLIER;
 	
