@@ -66,6 +66,9 @@ c
       character*30 pname
       pname = "mm_end"
 c
+      if (nr .gt. 0) then
+        if (.not.ma_free_heap(h_r)) goto 911
+      end if
       if (nvdw .gt. 0) then
         if (.not.ma_free_heap(h_bvdw)) goto 911
         if (.not.ma_free_heap(h_avdw)) goto 911
@@ -73,7 +76,6 @@ c
         if (.not.ma_free_heap(h_ivdw)) goto 911
       end if
       mm_end = .true.
-      call util_flush(6)
       return
 911   mm_end = .false.
       return
@@ -115,6 +117,8 @@ c
       logical util_io_unit
       external util_io_unit
       integer max_vdw
+      integer iloc(3)
+      integer i
 c
       pname = "mm_input_load_coords"
 c
@@ -128,25 +132,17 @@ c     count numbers of lines
 c     ----------------------
       call util_xyz_nlines(nr,fn)
       write(*,*) "nr=",nr
-Cc
-C      if ( .not. ma_alloc_get( MT_INT, nvdw, 
-C     &      'vdw scratch i',
-C     &      h_ivdw, i_ivdw) ) call errquit(
-C     &      'failed scratch space '//pname,
-C     &      nvdw, MA_ERR)
-C
-C      if ( .not. ma_alloc_get( MT_INT, nvdw, 
-C     &      'vdw scratch j',
-C     &      h_jvdw, i_jvdw) ) call errquit(
-C     &      'failed scratch space '//pname,
-C     &      nvdw, MA_ERR)
-C
-C      if ( .not. ma_alloc_get( MT_DBL, nvdw, 
-C     &      'vdw scratch A',
-C     &      h_avdw, i_avdw) ) call errquit(
-C     &      'failed scratch space '//pname,
-C     &      nvdw, MA_ERR)
-C
+
+      if ( .not. ma_alloc_get( MT_DBL, 3*nr, 
+     &      'mm coords',
+     &      h_r, i_r) ) call errquit(
+     &      'failed memory allocation '//pname,
+     &      nr, MA_ERR)
+      iloc = (/ 1, 2, 3 /) 
+      call util_xyz_read_coords(nr,n,iloc,dbl_mb(i_r),fn)
+      do i=1,nr
+         write(54,*) dbl_mb(i_r+i-1)
+      enddo
 C      if ( .not. ma_alloc_get( MT_DBL, nvdw, 
 C     &      'vdw scratch B',
 C     &      h_bvdw, i_bvdw) ) call errquit(
@@ -311,4 +307,76 @@ c     now try perm directory
      >        -1)
       end
 
+      subroutine mm_add_egrad(rtdb,e,n,g)
+      implicit none
+#include "util.fh"
+#include "errquit.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      integer rtdb
+      double precision e
+      integer n
+      double precision g(3,n)
+     
 
+      end
+
+      subroutine mm_add_vdw(p1,p2,a,b,e,n,g)
+      implicit none
+#include "util.fh"
+#include "errquit.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      integer rtdb
+      double precision e
+      integer n
+      double precision g(3,n)
+     
+
+      end
+ 
+      subroutine mm_get_qm_coords(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+#include "cons.fh"
+      integer rtdb
+c
+      integer i_c,h_c
+      integer geom
+      integer nat
+      logical status
+c
+c     load geometry 
+c     -------------
+      if (.not. geom_create(geom, 'geometry'))
+     &     call errquit('cons_load_geom',0, GEOM_ERR)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &     call errquit('cons_load_geom',0, RTDB_ERR)
+c
+c     get cart coordinates
+c     --------------------
+      status=geom_ncent(geom,nat)
+      if(.not.status) 
+     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
+      if ( .not. ma_alloc_get( MT_DBL, nat*3, 'cons coord',
+     &      h_c, i_c) ) call errquit(
+     &      'cons_load_geom: unable to allocate cons coord',
+     &      nat*3, MA_ERR)
+      status=geom_cart_coords_get(geom, dbl_mb(i_c))
+      if(.not.status) 
+     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
+ 
+      status=geom_destroy(geom)
+      if(.not.status) 
+     & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
+      call cons_set_h_c(h_c)
+c      call cons_set_i_c(i_c)
+
+      return
+      end
+ 
+ 
