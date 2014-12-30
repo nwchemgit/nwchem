@@ -7,7 +7,7 @@
 #include <mpi.h>
 #include "ga.h"
 #include "typesf2c.h"
-#define SIZE_GROUP 256
+#define SIZE_GROUP 400
 static short int ppn_initialized=0;
 static int ppn=0;
 void FATR util_getppn_(Integer *ppn_out){
@@ -78,20 +78,22 @@ void FATR util_getppn_(Integer *ppn_out){
       /*	  free malloc'ed memory */
       free(recvbuf);
       /* check that everybody got the same ppn */
+      /* useless  and dangerous when subgroup size is not a multiple of ppn
+      result=0;
       err=MPI_Reduce(&ppn, &result, 1, MPI_INT, MPI_SUM,
 		     0, group_comm);
       if (err != MPI_SUCCESS) {
 	fprintf(stdout,"util_getppn: MPI_Reduce failed\n");
 	GA_Error("util_getppn error", 0L);
       }
-      
+      printf(" DEBUG: me %d  ppn %d  \n", me, ppn);
       if(me==0) {
 	modppn = result%ppn;
 	if (modppn){
 	  printf(" ERROR: result %d  ppn %d  mod %d\n", result, ppn,  modppn);
          GA_Error("number of processors is not a multiple of ppn", (long) ppn);
 	}}
-      
+      */
       /*flush group and comm*/
       err=MPI_Group_free(&group_handle);
       if (err != MPI_SUCCESS) {
