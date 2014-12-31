@@ -1121,6 +1121,49 @@ c     end do
       return
       end 
 
+*     ***********************************
+*     *                                 *
+*     *       Pack_conjg_tcc_indot      *       
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_conjg_tcc_indot(nb,ne,A,B,C,sm)
+      implicit none
+      integer    nb
+      integer    ne
+      real*8     A(*)
+      complex*16 B(*)
+      complex*16 C(*)
+      real*8     sm(*)
+
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer n,np,i,k,npack
+      real*8 sa,sb
+
+      npack = nida(nb)+nidb(nb)
+      do i=1,ne
+         sa = 0.0d0
+         do k=1,nida(nb)
+            sa = sa + dimag(A(k)*B(k+(i-1)*npack)*dconjg(C(k)))
+         end do
+
+         sb = 0.0d0
+         do k=nida(nb)+1,nida(nb)+nidb(nb)
+            sb = sb + 2.0d0*dimag(A(k)*B(k+(i-1)*npack)*dconjg(C(k)))
+         end do
+         sm(i) = sa + sb
+      end do
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
