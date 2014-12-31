@@ -4408,6 +4408,8 @@ c     >                 dbl_mb(tmp_L(1)),ierr)
       external control_version
       logical  psp_U_psputerm
       external psp_U_psputerm
+      logical  Dneall_m_push_get, Dneall_m_pop_stack
+      external Dneall_m_push_get, Dneall_m_pop_stack
 
 c     call electron_gen_psi_r(dcpl_mb(psi1(1)))
 c     call electron_gen_densities(dcpl_mb(psi1(1)),
@@ -4422,7 +4424,8 @@ c    >                            dcpl_mb(dng1(1)))
           value = value.and.
      >            BA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                        r_grid(2),r_grid(1))
-         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+         if (.not. value) 
+     >      call errquit('psi_1force:out of stack memory',0, MA_ERR)
           call dcopy(2*nfft3d,0.0d0,0,dbl_mb(tmp(1)),1)
 
           call D3dB_rr_Sum(1,dbl_mb(rho1(1)),
@@ -4435,8 +4438,9 @@ c    >                            dcpl_mb(dng1(1)))
 
           value = BA_pop_stack(r_grid(2))
           value = value.and.BA_pop_stack(tmp(2))
-         if (.not. value) call errquit('error popping stack memory',0,
-     &       MA_ERR)
+         if (.not.value)
+     >      call errquit('psi_1force:error popping stack memory',0,
+     &                   MA_ERR)
       end if
 
       call f_vnonlocal(ispin,
@@ -4444,6 +4448,24 @@ c    >                            dcpl_mb(dng1(1)))
      >                 dcpl_mb(psi1(1)),
      >                 fion,
      >                 occupation_on,dbl_mb(occ1(1)))
+
+      if (pawexist) then
+         value = Dneall_m_push_get(0,tmp)
+         if (.not.value)
+     >      call errquit('psi_1force:out of stack memory',0,MA_ERR)
+
+         call psi_1toelectron()
+         call electron_gen_hml(dcpl_mb(psi1(1)),dbl_mb(tmp(1)))
+
+         call psp_paw_overlap_fion(ispin,
+     >                             dbl_mb(tmp(1)),
+     >                             dcpl_mb(psi1(1)),
+     >                             fion)
+
+         value = Dneall_m_pop_stack(tmp)
+         if (.not.value)
+     >      call errquit('psi_1force:error popping stack',0,MA_ERR)
+      end if
 
       if (psp_U_psputerm()) then
          call f_psp_U_v_nonlocal(ispin,
