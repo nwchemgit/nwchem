@@ -1351,8 +1351,8 @@ c        end do
       value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      >   call errquit('psp_paw_extra_overlap1: popping stack',3,MA_ERR)
-      call nwpw_timing_end(6)
       end if
+      call nwpw_timing_end(6)
       return 
       end
 
@@ -1523,8 +1523,219 @@ c        end do
       value = value.and.BA_pop_stack(exi(2))
       if (.not.value) 
      > call errquit('psp_add_paw_extra_overlap2:popping stack',3,MA_ERR)
-      call nwpw_timing_end(6)
       end if
+      call nwpw_timing_end(6)
+      return 
+      end
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	    psp_paw_overlap_fion	*
+*     *					*
+*     ***********************************
+
+*    This routine adds the extra part of the paw overlap S operator to psi1
+*      S = S + Smatrix where Smatrix = <psi1|S-I|psi2>
+*
+      subroutine psp_paw_overlap_fion(ispin,lmbda,psi1,fion)
+      implicit none
+      integer    ispin
+      real*8     lmbda(*)
+      complex*16 psi1(*)
+      real*8     fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     *** local variables ***
+      integer npack1
+      integer ii,ia,iii,l,nn,ms,shifts,shiftsw
+      integer k,shift,l_prj,nproj,Gijl_indx,neq(2)
+      real*8  omega,scal,scalsqr,ff(3)
+      integer exi(2),sw1(2),sw2(2),sw1x(2),sw1y(2),sw1z(2)
+      integer S12x(2),S12y(2),S12z(2),Gx,Gy,Gz
+      logical value,sd_function
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      integer  ion_katm,Pack_G_indx
+      integer  psi_data_get_ptr
+      real*8   lattice_omega
+      external Dneall_m_push_get,Dneall_m_pop_stack
+      external ion_katm,Pack_G_indx
+      external psi_data_get_ptr
+      external lattice_omega
+
+
+      call nwpw_timing_start(6) 
+      if (pawexist) then
+
+      call Pack_npack(1,npack1)
+      call Dneall_neq(neq)
+      nn = neq(1) + neq(2)
+
+
+*     **** allocate local memory ****
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1x',sw1x(2),sw1x(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1y',sw1y(2),sw1y(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1z',sw1z(2),sw1z(1))
+      value = value.and.Dneall_m_push_get(0,S12x)
+      value = value.and.Dneall_m_push_get(0,S12y)
+      value = value.and.Dneall_m_push_get(0,S12z)
+      if (.not.value) 
+     > call errquit('psp_paw_overlap_fion:out of stack',0,MA_ERR)
+
+      Gx = Pack_G_indx(1,1)
+      Gy = Pack_G_indx(1,2)
+      Gz = Pack_G_indx(1,3)
+
+      omega = lattice_omega()
+      scal    = 1.0d0/(omega)
+      scalsqr = scal*scal
+
+      do iii=1,nion_paw
+
+        ii    = int_mb(ion_pawtoion(1)+iii-1)
+        ia    = ion_katm(ii)
+        nproj = int_mb(nprj(1)+ia-1)
+
+        if (nproj.gt.0) then
+
+*       **** structure factor and local pseudopotential ****
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+
+*       **** generate sw1's and projectors ****
+        do l=1,nproj
+
+           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
+           l_prj = int_mb(l_projector(1)+(l-1) 
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
+           k = and(l_prj,1)
+#endif
+           sd_function = (k.eq.0)
+
+
+*          **** phase factor does not matter therefore ****
+*          **** (-i)^l is the same as (i)^l in the     ****
+*          **** Rayleigh scattering formula            ****
+
+*          *** current function is s or d ****
+           if (sd_function) then
+              call Pack_tc_Mul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+*          *** current function is p or f ****
+           else
+              call Pack_tc_iMul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+           end if
+           call Pack_cc_indot(1,nn,
+     >                        psi1,
+     >                        dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                        dbl_mb(sw1(1)+(l-1)*nn))
+
+           call Pack_conjg_tcc_indot(1,nn,
+     >                        dbl_mb(Gx),
+     >                        psi1,
+     >                        dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                        dbl_mb(sw1x(1)+(l-1)*nn))
+           call Pack_conjg_tcc_indot(1,nn,
+     >                        dbl_mb(Gy),
+     >                        psi1,
+     >                        dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                        dbl_mb(sw1y(1)+(l-1)*nn))
+           call Pack_conjg_tcc_indot(1,nn,
+     >                        dbl_mb(Gz),
+     >                        psi1,
+     >                        dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                        dbl_mb(sw1z(1)+(l-1)*nn))
+
+        end do
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1x(1)))
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1y(1)))
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1z(1)))
+
+*       **** sw2 = Sijl*sw1 ******
+        Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),2)
+        call Multiply_Gijl_sw1(nn,
+     >                         nproj,
+     >                         int_mb(nmax(1)+ia-1),
+     >                         int_mb(lmax(1)+ia-1),
+     >                         int_mb(n_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(l_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(m_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         dbl_mb(Gijl_indx),
+     >                         dbl_mb(sw1(1)),
+     >                         dbl_mb(sw2(1)))
+
+        if (ispin.eq.1) call dscal(nn*nproj,2.0d0,dbl_mb(sw2(1)),1)
+
+*       **** Sx = Sx + sw1x*transpose(sw2) ****
+        call Dneall_m_zero(0,dbl_mb(S12x(1)))
+        call Dneall_m_add_sw1sw2(0,nproj,scal,
+     >                           dbl_mb(sw1x(1)),
+     >                           dbl_mb(sw2(1)),
+     >                           dbl_mb(S12x(1)))
+*       **** Sy = Sy + sw1y*transpose(sw2) ****
+        call Dneall_m_zero(0,dbl_mb(S12y(1)))
+        call Dneall_m_add_sw1sw2(0,nproj,scal,
+     >                           dbl_mb(sw1y(1)),
+     >                           dbl_mb(sw2(1)),
+     >                           dbl_mb(S12y(1)))
+*       **** Sz = Sz + sw1z*transpose(sw2) ****
+        call Dneall_m_zero(0,dbl_mb(S12z(1)))
+        call Dneall_m_add_sw1sw2(0,nproj,scal,
+     >                           dbl_mb(sw1z(1)),
+     >                           dbl_mb(sw2(1)),
+     >                           dbl_mb(S12z(1)))
+        call Dneall_mm_sum(0,lmbda,dbl_mb(S12x(1)),ff(1))
+        call Dneall_mm_sum(0,lmbda,dbl_mb(S12y(1)),ff(2))
+        call Dneall_mm_sum(0,lmbda,dbl_mb(S12z(1)),ff(3))
+
+        fion(1,ii) = fion(1,ii)  - 2.0d0*ff(1)
+        fion(2,ii) = fion(2,ii)  - 2.0d0*ff(2)
+        fion(3,ii) = fion(3,ii)  - 2.0d0*ff(3)
+
+        end if !** nproj>0 **
+
+      end do !** iii **
+
+      value =           Dneall_m_pop_stack(S12z)
+      value = value.and.Dneall_m_pop_stack(S12y)
+      value = value.and.Dneall_m_pop_stack(S12x)
+      value = value.and.BA_pop_stack(sw1z(2))
+      value = value.and.BA_pop_stack(sw1y(2))
+      value = value.and.BA_pop_stack(sw1x(2))
+      value = value.and.BA_pop_stack(sw2(2))
+      value = value.and.BA_pop_stack(sw1(2))
+      value = value.and.BA_pop_stack(exi(2))
+      if (.not.value) 
+     > call errquit('psp_paw_overlap_fion:popping stack',3,MA_ERR)
+     
+      end if
+      call nwpw_timing_end(6)
+
+
       return 
       end
 
