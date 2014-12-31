@@ -804,10 +804,12 @@ c     write(*,'('' E10   /kcal :'',f11.4)')-e10*autokcal
      .write(*,'('' % E6(ABC)   :'',f6.2)') -e6abc/disp/0.01        
       endif
       endif
-c this file for tmer2 read tool
-      open(unit=1,file='.EDISP')
-      write(1,*) disp        
-      close(1)
+
+c  NOT NEEDED? ...EJB
+cc this file for tmer2 read tool
+c      open(unit=1,file='.EDISP')
+c      write(1,*) disp        
+c      close(1)
 
 cccccccccccccccccccccccccc
 c analyse Edisp pair terms
