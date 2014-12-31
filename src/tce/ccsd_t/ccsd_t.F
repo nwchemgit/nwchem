@@ -138,14 +138,10 @@ c
             size = range_p4 * range_p5 * range_p6
      3           * range_h1 * range_h2 * range_h3
 c zeroing ---
-c        call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
-c        call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
         call dcopy(size, 0.0d0, 0, dbl_mb(k_singles), 1)
         call offl_zerofill(dbl_mb(k_singles),size)
-cdbg      write(6,*) ' singles zeroed'
         call dcopy(size, 0.0d0, 0, dbl_mb(k_doubles), 1)
       call offl_zerofill(dbl_mb(k_doubles),size)
-cdbg      write(6,*) ' doubles zeroed'
 c -----------
 #ifdef USE_OFFLOAD
 #define USE_OMP_TRIPLES_DOT_PRODUCT 1
@@ -272,7 +268,7 @@ c     wrapper to ccsd_t_dot because of offload ugliness
      &                      r_p4,r_p5,r_p6,
      &                      energy1,energy2)
       implicit none
-#ifdef OFFLOAD_CODEZ
+#ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
 !$omp declare target (offl_ccsd_t_dot)
 #else

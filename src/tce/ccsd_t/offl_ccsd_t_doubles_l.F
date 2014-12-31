@@ -95,6 +95,7 @@ c --------------
       integer util_micdev
       external util_micdev
       integer mic_device
+      integer signal1
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_1
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_2
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_3
@@ -113,6 +114,8 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_6
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_7
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_8
 cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_transpt2
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_transpt2_7124
       mic_device=util_micdev()
 #endif
 #endif
@@ -248,6 +251,7 @@ c
          end if
       enddo 
 c
+      async_on=.false.
       do ia6=1,9
       p4b=a3(ia6,1)
       p5b=a3(ia6,2)
@@ -319,20 +323,6 @@ cnot     *           k_range_h7b_1
      & map(tofrom:triplesx(1:l_triplesx)) map(to:t2sub(1:l_t2sub))
      & map(to:v2sub(1:l_v2sub))
 #else
-#if 0
-c     MIC:  xfer data 
-            if (otceps) t0=omp_get_wtime()
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device)  
-     I                 in(t2sub:length(l_t2sub) 
-     & REUSE)
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     I                 in(v2sub:length(l_v2sub)
-     & REUSE)
-            if(otceps) then
-               deltat_off=(omp_get_wtime() - t0)*1.D6
-               call updist(fdist_vtoff, deltat_off)
-            endif
-#endif
 #endif
 #endif
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
@@ -357,7 +347,12 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
          call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2(
+#else
       call ccsd_t_transpt2(
+#endif
      T        t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -380,7 +375,12 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
       call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2(
+#else
       call ccsd_t_transpt2(
+#endif
      T     t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -422,7 +422,12 @@ c     c     h1d,p5d,p4d,h7d)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
       call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2(
+#else
       call ccsd_t_transpt2(
+#endif
      T     t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -445,7 +450,12 @@ c     c     h1d,p5d,p4d,h7d)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
          call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2(
+#else
       call ccsd_t_transpt2(
+#endif
      T        t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -504,7 +514,12 @@ c     c     h1d,p5d,p4d,h7d)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
          call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2(
+#else
       call ccsd_t_transpt2(
+#endif
      T        t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
@@ -684,20 +699,6 @@ cnot     K           k_range_p6b_1*k_range_p5b_1
      & map(tofrom:triplesx(1:l_triplesx)) map(to:t2sub(1:l_t2sub))
      & map(to:v2sub(1:l_v2sub))
 #else
-#if 0
-            if(otceps) t0=omp_get_wtime()
-c     MIC:  xfer data 
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device)  
-     I                 in(t2sub:length(l_t2sub) 
-     & REUSE)
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     I                 in(v2sub:length(l_v2sub)
-     & REUSE)
-            if(otceps) then
-               deltat_off=(omp_get_wtime()-t0)*1.D6
-               call updist(fdist_vtoff, deltat_off)
-            endif
-#endif
 #endif
 #endif
 
@@ -706,7 +707,12 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
          call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2_7124(
+#else
       call ccsd_t_transpt2_7124(
+#endif
      T        t2sub,scratch,
      2     k_range_p4b_1,
      1     k_range_h1b_1,
@@ -730,7 +736,12 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &2b)) THEN
          call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2(
+#else
       call ccsd_t_transpt2(
+#endif
      T        t2sub,scratch,
      1     k_range_h2b_1,
      1     k_range_h1b_1,
@@ -772,7 +783,12 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
          call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2_7124(
+#else
       call ccsd_t_transpt2_7124(
+#endif
      T        t2sub,scratch,
      2     k_range_p4b_1,
      1     k_range_h1b_1,
@@ -797,7 +813,12 @@ c     MIC:  xfer data
      &2b)) THEN
 
          call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2(
+#else
       call ccsd_t_transpt2(
+#endif
      T        t2sub,scratch,
      1     k_range_h2b_1,
      1     k_range_h1b_1,
@@ -857,7 +878,12 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &2b)) THEN
          call tce_sdtime0(t0)
+#ifdef OFFLOAD_CODE
+#include "offl_l_1_transp.fh"
+      call offl_ccsd_t_transpt2(
+#else
       call ccsd_t_transpt2(
+#endif
      T        t2sub,scratch,
      1     k_range_h2b_1,
      1     k_range_h1b_1,
