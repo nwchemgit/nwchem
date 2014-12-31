@@ -2960,6 +2960,48 @@ c     ****************************************
       return
       end
 
+c     ****************************************
+c     *                                      *
+c     *           Dneall_mm_sum              *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_mm_sum(mb,M1,M2,ss)
+      implicit none
+      integer mb
+      real*8  M1(*)
+      real*8  M2(*)
+      real*8  ss
+
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer nn
+
+*     **** external functions ****
+      real*8   ddot
+      external ddot
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            nn = mcq(1)*ncq(1)+mcq(2)*ncq(2)
+         else
+            nn = mcq(mb)*ncq(mb)
+         end if
+         ss = ddot(nn,M1,1,M2,1)
+         call Parallel_SumAll(ss)
+      else
+         if (mb.eq.0) then
+            nn = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            nn = ne(mb)*ne(mb)
+         end if
+         ss = ddot(nn,M1,1,M2,1)
+      end if
+      return
+      end
+
+
 
 
 c     ****************************************
@@ -7169,6 +7211,42 @@ c     ****************************************
       call dcopy(nn,M1,1,M2,1)
       return
       end
+
+c     ****************************************
+c     *                                      *
+c     *           Dneall_m_zero              *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_m_zero(mb,M1)
+      implicit none
+      integer mb
+      real*8 M1(*)
+
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer nn
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            nn = mcq(1)*ncq(1)+mcq(2)*ncq(2)
+         else
+            nn = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then
+            nn = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            nn = ne(mb)*ne(mb)
+         end if
+      end if
+
+      call dcopy(nn,0.0d0,0,M1,1)
+      return
+      end
+
+
 
 
 
