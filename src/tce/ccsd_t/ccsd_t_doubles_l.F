@@ -71,6 +71,7 @@ c *************
          endif
 #ifdef USE_OFFLOAD
       call offl_free(dbl_mb(k_t2sub),t2size)
+      call offl_free(dbl_mb(k_scratch),t2size)
       t2sub_alloced=.false.
       call offl_free(dbl_mb(k_v2sub),v2size)
       v2sub_alloced=.false.
@@ -112,85 +113,5 @@ c
       integer in,alignval
       alignval=64/MA_sizeof(MT_DBL,1,MT_BYTE)
       if(mod(in,alignval).ne.0) in=(1+in/alignval)*alignval
-      return
-      end
-      subroutine ccsd_t_transpt2(t2sub,scratch,
-     c     h1d,p5d,p4d,h7d)
-      implicit none
-      integer h1d,p5d,p4d,h7d
-      double precision scratch(h7d,p4d,p5d,h1d)
-      double precision t2sub(h1d,p5d,p4d,h7d)
-c
-      integer h1,p5,p4,h7
-c     
-      integer pp5,hh1
-!DIR$ ASSUME_ALIGNED t2sub: 64
-!DIR$ ASSUME_ALIGNED scratch: 64
-c
-      call dcopy(h1d*p5d*p4d*h7d,t2sub,1,scratch,1)
-#define CHUNK 16
-!$omp parallel do private(h7,p4,pp5,hh1,p5,h1) collapse(2)
-      do h7=1,h7d
-         do p4=1,p4d
-            do pp5=1,p5d,CHUNK
-               do hh1=1,h1d,CHUNK
-                  do p5=pp5,min(pp5+CHUNK-1,p5d)
-!DEC$ LOOP COUNT AVG=CHUNK
-cc!deC$ SIMD
-                     do h1=hh1,min(hh1+CHUNK-1,h1d)
-                        t2sub(h1,p5,p4,h7)=scratch(h7,p4,p5,h1)
-                     enddo
-                  enddo
-               enddo
-            enddo
-         enddo
-      enddo
-      return
-      end
-      subroutine ccsd_t_detranspt2(t2sub,scratch,
-     c     h1d,p5d,p4d,h7d)
-      implicit none
-      integer h1d,p5d,p4d,h7d
-      double precision t2sub(h7d,p4d,p5d,h1d)
-      double precision scratch(h1d,p5d,p5d,h7d)
-c
-      integer h1,p5,p4,h7
-c     
-      integer pp5,hh1
-c
-      call dcopy(h1d*p5d*p4d*h7d,scratch,1,t2sub,1)
-      return
-      end
-      subroutine ccsd_t_transpt2_7124(t2sub,scratch,
-     c    p4d,h1d,h2d,p7d)
-      implicit none
-      integer p4d,h1d,h2d,p7d
-      double precision scratch(p7d,p4d,h1d,h2d)
-      double precision t2sub(p7d,h2d,h1d,p4d)
-c
-      integer p4,h1,h2,p7
-c     
-      integer hh2,pp7
-!DIR$ ASSUME_ALIGNED t2sub: 64
-!DIR$ ASSUME_ALIGNED scratch: 64
-c
-      call dcopy(p4d*h1d*h2d*p7d,t2sub,1,scratch,1)
-#define CHUNK 16
-!$omp parallel do private(p4,h1,hh2,pp7,h2,p7) collapse(2)
-      do p4=1,p4d
-         do h1=1,h1d
-            do hh2=1,h2d,CHUNK
-               do pp7=1,p7d,CHUNK
-                  do h2=hh2,min(hh2+CHUNK-1,h2d)
-!DEC$ LOOP COUNT AVG=CHUNK
-cc!deC$ SIMD
-                     do p7=pp7,min(pp7+CHUNK-1,p7d)
-                        t2sub(p7,h2,h1,p4)=scratch(p7,p4,h1,h2)
-                     enddo
-                  enddo
-               enddo
-            enddo
-         enddo
-      enddo
       return
       end

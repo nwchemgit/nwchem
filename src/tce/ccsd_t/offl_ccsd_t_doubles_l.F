@@ -148,6 +148,7 @@ cc Allocate memory on MIC,but no xfer data
          endif
       if (.not.t2sub_alloced) then
          call offl_alloc(t2sub,l_t2sub) 
+         call offl_alloc(scratch,l_t2sub) 
          t2sub_alloced=.true.
       endif
 
@@ -356,12 +357,13 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
          call tce_sdtime0(t0)
-      call ccsd_t_transpt2(t2sub,scratch,
+      call ccsd_t_transpt2(
+     T        t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_1.fh"
+#include "offl_l_1_scratch.fh"
          call offl_sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
@@ -369,12 +371,8 @@ c     MIC:  xfer data
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_h7b_1,
-     4        triplesx,t2sub,v2sub,
+     4        triplesx,scratch,v2sub,
      D        deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     1     k_range_h1b_1,
-     2     k_range_p5b_1,k_range_p4b_1,
-     3     k_range_h7b_1)
       call tce_sdtime(t0,deltat_mic,
      ,        fdist_sdkrnl12,fdist_sdcomp12)
       END IF
@@ -382,13 +380,14 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
       call tce_sdtime0(t0)
-      call ccsd_t_transpt2(t2sub,scratch,
+      call ccsd_t_transpt2(
+     T     t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1)
 c     c     h1d,p5d,p4d,h7d)
 #ifdef OFFLOAD_CODE
-#include "offl_l_1.fh"
+#include "offl_l_1_scratch.fh"
       call offl_sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
 #else
       call sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
@@ -396,12 +395,8 @@ c     c     h1d,p5d,p4d,h7d)
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1,
-     4     triplesx,t2sub,v2sub,
+     4     triplesx,scratch,v2sub,
      D     deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     1     k_range_h1b_1,
-     2     k_range_p5b_1,k_range_p4b_1,
-     3     k_range_h7b_1)
       call tce_sdtime(t0,deltat_mic,
      ,     fdist_sdkrnl13,fdist_sdcomp13)
        END IF
@@ -427,12 +422,13 @@ c     c     h1d,p5d,p4d,h7d)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
       call tce_sdtime0(t0)
-      call ccsd_t_transpt2(t2sub,scratch,
+      call ccsd_t_transpt2(
+     T     t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_1.fh"
+#include "offl_l_1_scratch.fh"
       call offl_sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
 #else
       call sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
@@ -440,12 +436,8 @@ c     c     h1d,p5d,p4d,h7d)
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1,
-     4     triplesx,t2sub,v2sub,
+     4     triplesx,scratch,v2sub,
      D     deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     1     k_range_h1b_1,
-     2     k_range_p5b_1,k_range_p4b_1,
-     3     k_range_h7b_1)
       call tce_sdtime(t0,deltat_mic,
      ,     fdist_sdkrnl15,fdist_sdcomp15)
       END IF
@@ -453,12 +445,13 @@ c     c     h1d,p5d,p4d,h7d)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
          call tce_sdtime0(t0)
-      call ccsd_t_transpt2(t2sub,scratch,
+      call ccsd_t_transpt2(
+     T        t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_1.fh"
+#include "offl_l_1_scratch.fh"
          call offl_sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
@@ -466,12 +459,8 @@ c     c     h1d,p5d,p4d,h7d)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_h7b_1,
-     4        triplesx,t2sub,v2sub,
+     4        triplesx,scratch,v2sub,
      D        deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     1     k_range_h1b_1,
-     2     k_range_p5b_1,k_range_p4b_1,
-     3     k_range_h7b_1)
          call tce_sdtime(t0,deltat_mic,
      ,        fdist_sdkrnl16,fdist_sdcomp16)
       END IF
@@ -515,12 +504,13 @@ c     c     h1d,p5d,p4d,h7d)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
          call tce_sdtime0(t0)
-      call ccsd_t_transpt2(t2sub,scratch,
+      call ccsd_t_transpt2(
+     T        t2sub,scratch,
      1     k_range_h1b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_1.fh"
+#include "offl_l_1_scratch.fh"
          call offl_sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
@@ -528,12 +518,8 @@ c     c     h1d,p5d,p4d,h7d)
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1,
-     4     triplesx,t2sub,v2sub,
+     4     triplesx,scratch,v2sub,
      D     deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     1     k_range_h1b_1,
-     2     k_range_p5b_1,k_range_p4b_1,
-     3     k_range_h7b_1)
          call tce_sdtime(t0,deltat_mic,
      ,        fdist_sdkrnl19,fdist_sdcomp19)
       END IF
@@ -720,13 +706,14 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
          call tce_sdtime0(t0)
-      call ccsd_t_transpt2_7124(t2sub,scratch,
+      call ccsd_t_transpt2_7124(
+     T        t2sub,scratch,
      2     k_range_p4b_1,
      1     k_range_h1b_1,
      1     k_range_h2b_1,
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_2.fh"
+#include "offl_l_2_scratch.fh"
          call offl_sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
@@ -734,13 +721,8 @@ c     MIC:  xfer data
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,
+     4        triplesx,scratch,v2sub,
      D        deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     2     k_range_p4b_1,
-     1     k_range_h1b_1,
-     1     k_range_h2b_1,
-     3     k_range_p7b_1)
          call tce_sdtime(t0,deltat_mic,
      ,        fdist_sdkrnl21,fdist_sdcomp21)
       END IF
@@ -748,13 +730,14 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &2b)) THEN
          call tce_sdtime0(t0)
-      call ccsd_t_transpt2(t2sub,scratch,
+      call ccsd_t_transpt2(
+     T        t2sub,scratch,
      1     k_range_h2b_1,
      1     k_range_h1b_1,
      2     k_range_p4b_1,
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_2.fh"
+#include "offl_l_2_scratch.fh"
          call offl_sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
@@ -762,13 +745,8 @@ c     MIC:  xfer data
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,
+     4        triplesx,scratch,v2sub,
      D        deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     1     k_range_h2b_1,
-     1     k_range_h1b_1,
-     2     k_range_p4b_1,
-     3     k_range_p7b_1)
          call tce_sdtime(t0,deltat_mic,
      ,        fdist_sdkrnl22,fdist_sdcomp22)
       END IF
@@ -794,13 +772,14 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
          call tce_sdtime0(t0)
-      call ccsd_t_transpt2_7124(t2sub,scratch,
+      call ccsd_t_transpt2_7124(
+     T        t2sub,scratch,
      2     k_range_p4b_1,
      1     k_range_h1b_1,
      1     k_range_h2b_1,
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_2.fh"
+#include "offl_l_2_scratch.fh"
          call offl_sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
@@ -808,13 +787,8 @@ c     MIC:  xfer data
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,
+     4        triplesx,scratch,v2sub,
      D        deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     2     k_range_p4b_1,
-     1     k_range_h1b_1,
-     1     k_range_h2b_1,
-     3     k_range_p7b_1)
          call tce_sdtime(t0,deltat_mic,
      ,        fdist_sdkrnl24,fdist_sdcomp24)
       END IF
@@ -823,13 +797,14 @@ c     MIC:  xfer data
      &2b)) THEN
 
          call tce_sdtime0(t0)
-      call ccsd_t_transpt2(t2sub,scratch,
+      call ccsd_t_transpt2(
+     T        t2sub,scratch,
      1     k_range_h2b_1,
      1     k_range_h1b_1,
      2     k_range_p4b_1,
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_2.fh"
+#include "offl_l_2_scratch.fh"
          call offl_sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
@@ -837,13 +812,8 @@ c     MIC:  xfer data
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,
+     4        triplesx,scratch,v2sub,
      D        deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     1     k_range_h2b_1,
-     1     k_range_h1b_1,
-     2     k_range_p4b_1,
-     3     k_range_p7b_1)
          call tce_sdtime(t0,deltat_mic,
      ,        fdist_sdkrnl25,fdist_sdcomp25)
       END IF
@@ -887,13 +857,14 @@ c     MIC:  xfer data
      & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &2b)) THEN
          call tce_sdtime0(t0)
-      call ccsd_t_transpt2(t2sub,scratch,
+      call ccsd_t_transpt2(
+     T        t2sub,scratch,
      1     k_range_h2b_1,
      1     k_range_h1b_1,
      2     k_range_p4b_1,
      3     k_range_p7b_1)
 #ifdef OFFLOAD_CODE
-#include "offl_l_2.fh"
+#include "offl_l_2_scratch.fh"
          call offl_sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
@@ -901,13 +872,8 @@ c     MIC:  xfer data
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,
+     4        triplesx,scratch,v2sub,
      D        deltat_mic)
-      call ccsd_t_detranspt2(t2sub,scratch,
-     1     k_range_h2b_1,
-     1     k_range_h1b_1,
-     2     k_range_p4b_1,
-     3     k_range_p7b_1)
          call tce_sdtime(t0,deltat_mic,
      ,        fdist_sdkrnl28,fdist_sdcomp28)
       END IF
@@ -990,7 +956,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_1
       do p6=1,p6d
       do h1=1,h1d
       do h7=1,h7d
-!DEC$ LOOP COUNT MAX=900, MIN=30
+!DEC$ LOOP COUNT MAX=600, MIN=30
       do h2h3=1,h3d*h2d
        triplesx(h2h3,h1,p6,p5,p4)=triplesx(h2h3,h1,p6,p5,p4)
      1   - t2sub(h7,p4,p5,h1)*v2sub(h2h3,p6,h7)
@@ -1032,9 +998,9 @@ cold      double precision t2sub(h7d,p4d,p5d,h1d)
       do p6=1,p6d
       do h2=1,h2d
       do h7=1,h7d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h3=1,h3d
        triplesx(h3,h1,h2,p6,p5,p4)=triplesx(h3,h1,h2,p6,p5,p4)
      1   + t2sub(h1,p5,p4,h7)*v2sub(h3,h2,p6,h7)
@@ -1076,8 +1042,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_3
       do p5=1,p5d
       do p6=1,p6d
       do h7=1,h7d
+!DEC$ LOOP COUNT MAX=600, MIN=30
       do h3h2=1,h3d*h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h1=1,h1d
        triplesx(h1,h3h2,p6,p5,p4)=triplesx(h1,h3h2,p6,p5,p4)
      1   - t2sub(h1,p5,p4,h7)*v2sub(h3h2,p6,h7)
@@ -1119,7 +1086,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_4
       do p5=1,p5d
       do h1=1,h1d
       do h7=1,h7d
-!DEC$ LOOP COUNT MAX=900, MIN=30
+!DEC$ LOOP COUNT MAX=600, MIN=30
       do h2h3=1,h2d*h3d
        triplesx(h2h3,h1,p5,p4,p6)=triplesx(h2h3,h1,p5,p4,p6)
      1   - t2sub(h7,p4,p5,h1)*v2sub(h2h3,p6,h7)
@@ -1160,10 +1127,10 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_5
       do p5=1,p5d
       do h2=1,h2d
       do h7=1,h7d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
 !DEC$ unroll_and_jam (4)
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h3=1,h3d
        triplesx(h3,h1,h2,p5,p4,p6)=triplesx(h3,h1,h2,p5,p4,p6)
      1   + t2sub(h1,p5,p4,h7)*v2sub(h3,h2,p6,h7)
@@ -1207,7 +1174,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_6
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h2h3=1,h2d*h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h1=1,h1d
        triplesx(h1,h2h3,p5,p4,p6)=triplesx(h1,h2h3,p5,p4,p6)
      1   - t2sub(h1,p5,p4,h7)*v2sub(h2h3,p6,h7)
@@ -1249,7 +1216,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_7
       do p5=1,p5d
       do h1=1,h1d
       do h7=1,h7d
-!DEC$ LOOP COUNT MAX=900, MIN=30
+!DEC$ LOOP COUNT MAX=600, MIN=30
       do h2h3=1,h2d*h3d
        triplesx(h2h3,h1,p5,p6,p4)=triplesx(h2h3,h1,p5,p6,p4)
      1   + t2sub(h7,p4,p5,h1)*v2sub(h2h3,p6,h7)
@@ -1290,10 +1257,10 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_8
       do p5=1,p5d
       do h1=1,h1d
       do h7=1,h7d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
 !DEC$ unroll_and_jam (4)
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h3=1,h3d
        triplesx(h3,h1,h2,p5,p6,p4)=triplesx(h3,h1,h2,p5,p6,p4)
      1   - t2sub(h7,p4,p5,h1)*v2sub(h3,h2,p6,h7)
@@ -1337,7 +1304,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d1_9
       do h7=1,h7d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h3h2=1,h3d*h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h1=1,h1d
        triplesx(h1,h3h2,p5,p6,p4)=triplesx(h1,h3h2,p5,p6,p4)
      1   + t2sub(h1,p5,p4,h7)*v2sub(h3h2,p6,h7)
@@ -1378,10 +1345,10 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_1
       do p6=1,p6d
       do h3=1,h3d
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
 !DEC$ unroll_and_jam (4)
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do p7=1,p7d
        triplesx(h3,h2,h1,p6,p5,p4)=triplesx(h3,h2,h1,p6,p5,p4)
      1   - t2sub(p7,h2,h1,p4)*v2sub(p7,h3,p6,p5)
@@ -1424,7 +1391,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_2
       do p6=1,p6d
       do h3=1,h3d
       do p7=1,p7d
-!DEC$ LOOP COUNT MAX=900, MIN=30
+!DEC$ LOOP COUNT MAX=600, MIN=30
       do h2h1=1,h2d*h1d
        triplesx(h2h1,h3,p6,p5,p4)=triplesx(h2h1,h3,p6,p5,p4)
      1   - t2sub(h2h1,p4,p7)*v2sub(p7,h3,p6,p5)
@@ -1464,12 +1431,12 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_3
       do p5=1,p5d
       do p6=1,p6d
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
 !DEC$ unroll_and_jam (4)
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=38
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do p7=1,p7d
        triplesx(h2,h3,h1,p6,p5,p4)=triplesx(h2,h3,h1,p6,p5,p4) +
      C        t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
@@ -1510,13 +1477,13 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_4
       do p4=1,p4d
       do p6=1,p6d
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
 !DEC$ unroll_and_jam (1)
       do h1=1,h1d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
 !DEC$ unroll_and_jam (1)
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do p7=1,p7d
        triplesx(h3,h2,h1,p6,p4,p5)=triplesx(h3,h2,h1,p6,p4,p5)
      1   + t2sub(p7,h2,h1,p4)*v2sub(p7,h3,p6,p5)
@@ -1559,7 +1526,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_5
       do p6=1,p6d
       do h3=1,h3d
       do p7=1,p7d
-!DEC$ LOOP COUNT MAX=900, MIN=30
+!DEC$ LOOP COUNT MAX=600, MIN=30
       do h2h1=1,h2d*h1d
        triplesx(h2h1,h3,p6,p4,p5)=triplesx(h2h1,h3,p6,p4,p5)
      1   + t2sub(h2h1,p4,p7)*v2sub(p7,h3,p6,p5)
@@ -1601,9 +1568,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_6
       do p6=1,p6d
       do h1=1,h1d
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do p7=1,p7d
        triplesx(h2,h3,h1,p6,p4,p5)=triplesx(h2,h3,h1,p6,p4,p5)
      1   - t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
@@ -1645,9 +1612,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_7
       do p4=1,p4d
       do h1=1,h1d
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do p7=1,p7d
        triplesx(h3,h2,h1,p4,p6,p5)=triplesx(h3,h2,h1,p4,p6,p5)
      1   - t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
@@ -1690,7 +1657,7 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_8
       do p4=1,p4d
       do h3=1,h3d
       do p7=1,p7d
-!DEC$ LOOP COUNT MAX=900, MIN=30
+!DEC$ LOOP COUNT MAX=600, MIN=30
       do h2h1=1,h2d*h1d
        triplesx(h2h1,h3,p4,p6,p5)=triplesx(h2h1,h3,p4,p6,p5)
      1   - t2sub(h2h1,p4,p7)*v2sub(p7,h3,p6,p5)
@@ -1731,9 +1698,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
       do p4=1,p4d
       do h1=1,h1d
       do h3=1,h3d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do h2=1,h2d
-!DEC$ LOOP COUNT MAX=100, MIN=30
+!DEC$ LOOP COUNT MAX=40, MIN=8
       do p7=1,p7d
        triplesx(h2,h3,h1,p4,p6,p5)=triplesx(h2,h3,h1,p4,p6,p5)
      1   + t2sub(p7,p4,h1,h2)*v2sub(p7,h3,p6,p5)
@@ -1745,6 +1712,94 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_sdtransp_t_d2_9
       enddo
       enddo
 #include "sd_bottom.fh"
+      return
+      end
+#ifdef OFFLOAD_CODE
+      subroutine offl_ccsd_t_transpt2(
+#else
+      subroutine ccsd_t_transpt2(
+#endif
+     C     t2sub,scratch,
+     c     h1d,p5d,p4d,h7d)
+      implicit none
+#ifdef OFFLOAD_CODE
+#ifdef OPENMP_OFFLOAD
+!$omp declare target (offl_ccsd_t_transpt2)
+#else
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_transpt2
+#endif
+#endif
+      integer h1d,p5d,p4d,h7d
+      double precision t2sub(h7d,p4d,p5d,h1d)
+      double precision scratch(h1d,p5d,p4d,h7d)
+c
+      integer h1,p5,p4,h7
+c     
+      integer pp5,hh1
+!DIR$ ASSUME_ALIGNED t2sub: 64
+!DIR$ ASSUME_ALIGNED scratch: 64
+c
+#define CHUNK 16
+!$omp parallel do private(h7,p4,pp5,hh1,p5,h1) collapse(2)
+      do h7=1,h7d
+         do p4=1,p4d
+            do pp5=1,p5d,CHUNK
+               do hh1=1,h1d,CHUNK
+                  do p5=pp5,min(pp5+CHUNK-1,p5d)
+!DEC$ LOOP COUNT AVG=CHUNK
+cc!deC$ SIMD
+                     do h1=hh1,min(hh1+CHUNK-1,h1d)
+                        scratch(h1,p5,p4,h7)=t2sub(h7,p4,p5,h1)
+                     enddo
+                  enddo
+               enddo
+            enddo
+         enddo
+      enddo
+      return
+      end
+#ifdef OFFLOAD_CODE
+      subroutine offl_ccsd_t_transpt2_7124(
+#else
+      subroutine ccsd_t_transpt2_7124(
+#endif
+     t     t2sub,scratch,
+     c    p4d,h1d,h2d,p7d)
+      implicit none
+#ifdef OFFLOAD_CODE
+#ifdef OPENMP_OFFLOAD
+!$omp declare target (offl_ccsd_t_transpt2_7124)
+#else
+cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_transpt2_7124
+#endif
+#endif
+      integer p4d,h1d,h2d,p7d
+      double precision t2sub(p7d,p4d,h1d,h2d)
+      double precision scratch(p7d,h2d,h1d,p4d)
+c
+      integer p4,h1,h2,p7
+c     
+      integer hh2,pp7
+!DIR$ ASSUME_ALIGNED t2sub: 64
+!DIR$ ASSUME_ALIGNED scratch: 64
+c
+#define CHUNK 16
+!$omp parallel do private(p4,h1,hh2,pp7,h2,p7) collapse(2)
+      do p4=1,p4d
+         do h1=1,h1d
+            do hh2=1,h2d,CHUNK
+               do pp7=1,p7d,CHUNK
+                  do h2=hh2,min(hh2+CHUNK-1,h2d)
+!DEC$ LOOP COUNT AVG=CHUNK
+cc!deC$ SIMD
+                     do p7=pp7,min(pp7+CHUNK-1,p7d)
+                        scratch(p7,h2,h1,p4)=t2sub(p7,p4,h1,h2)
+                     enddo
+                  enddo
+               enddo
+            enddo
+         enddo
+      enddo
       return
       end
 #ifndef OFFLOAD_CODE
