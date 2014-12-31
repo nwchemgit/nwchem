@@ -1852,6 +1852,7 @@ c      call paw_density_solve()
       logical value
       integer tmp(2),nemax
 
+
       nemax = ne(1)+ne(2)
       call paw_vloc_force(dng1,fion)
       call paw_mult_pw_force(dcpl_mb(vh(1)),
@@ -1866,6 +1867,7 @@ c      call paw_density_solve()
 
 
       call paw_electron_gen_hml(psi1,dbl_mb(tmp(1)))
+
       call paw_force_constraint(dbl_mb(tmp(1)),fion)
 
       value = BA_pop_stack(tmp(2))

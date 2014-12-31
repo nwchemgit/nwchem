@@ -591,6 +591,7 @@ c        fion(3,in) = fion(3,in) - dble(tmp_fz)
 
       call paw_ovlp_c_ptr(coeff)
 
+
 c     *** number of electrons ***
       ne_u  = paw_ne_up()
       ne_d  = paw_ne_down()
