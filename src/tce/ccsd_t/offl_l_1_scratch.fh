@@ -1,0 +1,15 @@
+C$Id$
+#ifndef OPENMP_OFFLOAD
+CDIR$ OFFLOAD TARGET(mic:mic_device)
+     N	      IN(triplesx:length(0) 
+     R     REUSE)  
+     I     IN( k_range_h3b_1,k_range_h2b_1,k_range_h1b_1)
+     I     IN( k_range_p6b_1,k_range_p5b_1,k_range_p4b_1,k_range_h7b_1)
+c     R     IN(t2sub:length(l_t2sub) 
+c     R     REUSE)
+     R     IN(scratch:length(l_t2sub),
+     R     REUSE)
+     R     IN(v2sub:length(l_v2sub),
+     R     REUSE)
+     T	   OUT(deltat_mic)
+#endif
