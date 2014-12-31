@@ -251,7 +251,6 @@ c
          end if
       enddo 
 c
-      async_on=.false.
       do ia6=1,9
       p4b=a3(ia6,1)
       p5b=a3(ia6,2)

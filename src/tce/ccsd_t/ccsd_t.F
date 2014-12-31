@@ -342,7 +342,7 @@ c
         mic_device=util_micdev()
 cc Free memory on MIC 
 !DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     O     NOCOPY(ttt:length(l_ttt) 
+     O     NOCOPY(ttt:length(0) 
      &   FREE)
       endif
 #endif
