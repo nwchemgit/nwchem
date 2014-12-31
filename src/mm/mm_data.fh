@@ -3,18 +3,21 @@
 *
 
       integer nvdw
-      integer nr
+      integer nqm
+      integer nmm
       integer h_ivdw,i_ivdw
       integer h_jvdw,i_jvdw
       integer h_avdw,i_avdw
       integer h_bvdw,i_bvdw
-      integer h_r,i_r
+      integer h_rmm,i_rmm
+      integer h_rqm,i_rqm
 
       common /mm_data/ 
-     &                   nvdw,nr,
+     &                   nvdw,nmm,nqm,
      &                   h_ivdw,i_ivdw,
      &                   h_jvdw,i_jvdw,
      &                   h_avdw,i_avdw,
      &                   h_bvdw,i_bvdw,
-     &                   h_r,i_r
+     &                   h_rqm,i_rqm,
+     &                   h_rmm,i_rmm
 

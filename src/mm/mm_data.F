@@ -4,7 +4,8 @@ c $Id: bq_data.F 23019 2012-10-30 00:59:12Z d3y133 $
 #include "mm_data.fh"
 c     
       data nvdw /0/
-      data nr /0/
+      data nmm /0/
+      data nqm /0/
 
       end
 
@@ -40,11 +41,12 @@ c
       else
           goto 911
       end if
-      if (nr .eq. 0) then
+      if (nmm .eq. 0) then
           call mm_data_load_coords(rtdb)
       else
           goto 911
       end if
+      call mm_load_qm_coords(rtdb)
       mm_init = .true.
       return
 911   mm_init = .false.
@@ -66,8 +68,8 @@ c
       character*30 pname
       pname = "mm_end"
 c
-      if (nr .gt. 0) then
-        if (.not.ma_free_heap(h_r)) goto 911
+      if (nmm .gt. 0) then
+        if (.not.ma_free_heap(h_rmm)) goto 911
       end if
       if (nvdw .gt. 0) then
         if (.not.ma_free_heap(h_bvdw)) goto 911
@@ -130,18 +132,18 @@ c
 c     ----------------------
 c     count numbers of lines
 c     ----------------------
-      call util_xyz_nlines(nr,fn)
-      write(*,*) "nr=",nr
+      call util_xyz_nlines(nmm,fn)
+      write(*,*) "nmm=",nmm
 
-      if ( .not. ma_alloc_get( MT_DBL, 3*nr, 
+      if ( .not. ma_alloc_get( MT_DBL, 3*nmm, 
      &      'mm coords',
-     &      h_r, i_r) ) call errquit(
+     &      h_rmm, i_rmm) ) call errquit(
      &      'failed memory allocation '//pname,
-     &      nr, MA_ERR)
+     &      nmm, MA_ERR)
       iloc = (/ 1, 2, 3 /) 
-      call util_xyz_read_coords(nr,n,iloc,dbl_mb(i_r),fn)
-      do i=1,nr
-         write(54,*) dbl_mb(i_r+i-1)
+      call util_xyz_read_coords(nmm,n,iloc,dbl_mb(i_rmm),fn)
+      do i=1,nmm
+         write(54,*) dbl_mb(i_rmm+i-1)
       enddo
 C      if ( .not. ma_alloc_get( MT_DBL, nvdw, 
 C     &      'vdw scratch B',
@@ -313,42 +315,98 @@ c     now try perm directory
 #include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
+#include "mm_data.fh"
+#include "mafdecls.fh"
+
       integer rtdb
       double precision e
       integer n
       double precision g(3,n)
+
+      call mm_add_vdw_egrad(nqm,dbl_mb(i_rqm),
+     &                      nmm,dbl_mb(i_rmm),
+     &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
+     &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
+     &                      n,e,g)
      
 
       end
 
-      subroutine mm_add_vdw(p1,p2,a,b,e,n,g)
+      subroutine mm_add_vdw_egrad(nqm,rqm,nmm,rmm,
+     &                            np,p1,p2,a,b,
+     &                            n,e,g)
       implicit none
 #include "util.fh"
 #include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
-      integer rtdb
-      double precision e
+      integer nqm
+      double precision rqm(3,nqm)
+      integer nmm
+      double precision rmm(3,nmm)
+      integer np
+      integer p1(np)
+      integer p2(np)
+      double precision a(np)
+      double precision b(np)
       integer n
+      double precision e0
       double precision g(3,n)
-     
+c
+      integer i1,i2
+      double precision e
+      double precision dx,dy,dz,df
+      double precision rr
+      double precision rinv
+      double precision r2inv
+      double precision r6,r12
+      double precision f6,f12
+      e=0.0
+      do n = 1, np
+        i1 = p1(n)
+        i2 = p2(n)+nqm
+        dx = rmm(1,i2) - rqm(1,i1)
+        dy = rmm(2,i2) - rqm(2,i1)
+        dz = rmm(3,i2) - rqm(3,i1)
+      
+        rr = dx*dx + dy*dy + dz*dz
+        rinv = sqrt(1.0d0/rr)
+        r2inv = rinv*rinv     
+        r6 = r2inv*r2inv*r2inv
+        r12 = r6*r6
+    
+        f12 = a(n)*r12
+        f6  = b(n)*r6
+        e = e + f12 - f6
+        
+        df = (12.0d0*f12 - 6.0d0*f6)*r2inv
+        g(1,i1) = g(1,i1) + df*dx
+        g(2,i1) = g(2,i1) + df*dy
+        g(3,i1) = g(3,i1) + df*dz
+    
+      end do
+      write(*,*) "vdw energy",e
+      e0 = e0 + e 
 
       end
  
-      subroutine mm_get_qm_coords(rtdb)
+      subroutine mm_load_qm_coords(rtdb)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "geom.fh"
-#include "cons.fh"
+#include "mm_data.fh"
+
       integer rtdb
 c
       integer i_c,h_c
       integer geom
       integer nat
       logical status
+      character*30 message
+      integer i
 c
 c     load geometry 
 c     -------------
@@ -362,21 +420,26 @@ c     --------------------
       status=geom_ncent(geom,nat)
       if(.not.status) 
      & call errquit('cons_init: geom_create?',70, GEOM_ERR)
-      if ( .not. ma_alloc_get( MT_DBL, nat*3, 'cons coord',
-     &      h_c, i_c) ) call errquit(
-     &      'cons_load_geom: unable to allocate cons coord',
-     &      nat*3, MA_ERR)
-      status=geom_cart_coords_get(geom, dbl_mb(i_c))
-      if(.not.status) 
-     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
- 
-      status=geom_destroy(geom)
-      if(.not.status) 
-     & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
-      call cons_set_h_c(h_c)
-c      call cons_set_i_c(i_c)
+      if (nat.ne.nqm) then
+        if(nqm.gt.0) then
+          if (.not.ma_free_heap(h_rqm)) goto 911
+        end if
+        if ( .not. ma_alloc_get( MT_DBL, nat*3, 'qm coord',
+     &        h_rqm, i_rqm) ) goto 911
 
+      end if
+      nqm = nat
+      if(.not.geom_cart_coords_get(geom, dbl_mb(i_rqm))) 
+     &    goto 911
+ 
+      if(.not.geom_destroy(geom)) 
+     &    goto 911
+
+      do i=1,3*nqm
+        write(99,*) dbl_mb(i_rqm+i-1)
+      end do
       return
+911   call errquit("error "//trim(message),0,-1)
       end
  
  
