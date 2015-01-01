@@ -1812,6 +1812,168 @@ c                  yerf = util_erf(xerf)
       return
       end 
 
+*     *************************************************
+*     *                                               *
+*     *     nwpw_compcharge_gen_f_lr_cmp_smooth       *
+*     *                                               *
+*     *************************************************
+*   Note - will currently only work with pspw, since aperiodic 
+*          boundary conditions are not implemented in BAND
+*
+      subroutine nwpw_compcharge_gen_f_lr_cmp_smooth(zv,
+     >                                               rgrid,
+     >                                               rho,fion)
+      implicit none
+      real*8 zv(*)
+      real*8 rgrid(3,*)
+      real*8 rho(*)
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** Error function parameters ****
+      real*8 xerf,yerf,fterf,verf
+      real*8 c1,c2,c3,c4,c5,c6
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
+
+*     **** local variables ****
+      integer np_j,taskid_j,n2ft3d,n2ft3d_map
+      integer i,ii,ia,iia,iii,np1,np2,np3
+      integer ftmp(2)
+      real*8  x,y,z,r,b,c,v,dv,q,sqrt_pi
+      real*8  rx,ry,rz,fx,fy,fz
+
+*     **** external functions ****
+      logical  control_fast_erf
+      external control_fast_erf
+      real*8   util_erf,ion_rion,lattice_omega
+      external util_erf,ion_rion,lattice_omega
+
+
+*     **** constants ****
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
+
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+      dv = lattice_omega()/dble(np1*np2*np3)
+
+      if (.not.BA_push_get(mt_dbl,3*nion_paw,'ftmp',ftmp(2),ftmp(1)))
+     > call errquit('nwpw_compcharge_gen_f_lr_cmp_smooth:stack',
+     >              0,MA_ERR)
+      call dcopy(3*nion_paw,0.0d0,0,dbl_mb(ftmp(1)),1)
+
+      b = 1.0d0/dsqrt(4.0d0*datan(1.0d0))   !*** 1/sqrt(pi)
+      c = 1.0d0/sigma_smooth
+
+      if (control_fast_erf()) then
+         do iii=1,nion_paw
+         if (mod(iii-1,np_j).eq.taskid_j) then
+            iia = int_mb(katm_paw(1)+iii-1)
+            ia  = int_mb(katm_pawtoion(1)+iia-1)
+            ii  = int_mb(ion_pawtoion(1)+iii-1)
+            q   = -zv(ia)
+            x = ion_rion(1,ii)
+            y = ion_rion(2,ii)
+            z = ion_rion(3,ii)
+            fx = 0.0d0
+            fy = 0.0d0
+            fz = 0.0d0
+            do i=1,n2ft3d_map
+               rx = x - rgrid(1,i)
+               ry = y - rgrid(2,i)
+               rz = z - rgrid(3,i)
+               r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+               if (r .gt. 1.0d-8) then
+                 yerf=r*c
+                 fterf = (1.0d0
+     >                 + yerf*(c1 + yerf*(c2
+     >                 + yerf*(c3 + yerf*(c4
+     >                 + yerf*(c5 + yerf*c6))))))**4
+                 verf = (1.0d0 - 1.0d0/fterf**4)
+c                 verf = util_erf(yerf)
+                 v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                    - verf)/r**3
+               else
+                 v = 0.0d0
+               end if
+               fx = fx + rho(i)*rx*v
+               fy = fy + rho(i)*ry*v
+               fz = fz + rho(i)*rz*v
+
+            end do
+            dbl_mb(ftmp(1)+3*(iii-1))   = -fx*dv
+            dbl_mb(ftmp(1)+3*(iii-1)+1) = -fy*dv
+            dbl_mb(ftmp(1)+3*(iii-1)+2) = -fz*dv
+         end if
+         end do
+      else
+         do iii=1,nion_paw
+         if (mod(iii-1,np_j).eq.taskid_j) then
+            iia = int_mb(katm_paw(1)+iii-1)
+            ia  = int_mb(katm_pawtoion(1)+iia-1)
+            ii  = int_mb(ion_pawtoion(1)+iii-1)
+            q   = -zv(ia)
+
+            x = ion_rion(1,ii)
+            y = ion_rion(2,ii)
+            z = ion_rion(3,ii)
+            fx = 0.0d0
+            fy = 0.0d0
+            fz = 0.0d0
+            do i=1,n2ft3d_map
+               rx = x - rgrid(1,i)
+               ry = y - rgrid(2,i)
+               rz = z - rgrid(3,i)
+               r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+               if (r .gt. 1.0d-8) then
+                 yerf=r*c
+                 verf = util_erf(yerf)
+                 v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                    - verf)/r**3
+               else
+                 v = 0.0d0
+               end if
+               fx = fx + rho(i)*rx*v
+               fy = fy + rho(i)*ry*v
+               fz = fz + rho(i)*rz*v
+            end do
+            dbl_mb(ftmp(1)+3*(iii-1))   = -fx*dv
+            dbl_mb(ftmp(1)+3*(iii-1)+1) = -fy*dv
+            dbl_mb(ftmp(1)+3*(iii-1)+2) = -fz*dv
+         end if
+         end do
+      end if
+      call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(ftmp(1)))
+      do iii=1,nion_paw
+         ii = int_mb(ion_pawtoion(1)+iii-1)
+         fion(1,ii) = fion(1,ii) + dbl_mb(ftmp(1)+3*(iii-1))
+         fion(2,ii) = fion(2,ii) + dbl_mb(ftmp(1)+3*(iii-1)+1)
+         fion(3,ii) = fion(3,ii) + dbl_mb(ftmp(1)+3*(iii-1)+2)
+      end do
+
+      if (.not.BA_pop_stack(ftmp(2)))
+     >call errquit('nwpw_compcharge_gen_f_lr_cmp_smooth:popping stack',
+     >             1,MA_ERR)
+
+      call nwpw_timing_end(5)
+      return
+      end 
+
+
 
 *     *************************************************
 *     *                                               *
@@ -3080,7 +3242,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
 *     ***** local variables ****
       real*8 tole
-      parameter (tole=1.0d-15)
+      parameter (tole=1.0d-25)
 
       integer taskid,np,pcount
       integer ii,jj,ia,ja,indx
