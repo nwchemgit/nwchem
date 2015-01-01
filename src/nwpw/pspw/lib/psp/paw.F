@@ -262,6 +262,219 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       end
 
 
+*     **********************************
+*     *                                *
+*     *     f_lr_local_seperate_paw    *
+*     *                                *
+*     **********************************
+*
+*     This routine calculates the gradient of the long-range part of the
+*     local pseudopotential (used by version 4)
+*
+*     Entry -
+*     Exit -
+*
+      subroutine f_lr_local_seperate_paw(r_grid,rho_paw,rho_notpaw,fion)
+      implicit none
+      real*8  r_grid(3,*)
+      real*8  rho_paw(*)
+      real*8  rho_notpaw(*)
+      real*8  fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     **** Error function parameters ****
+      real*8  yerf,verf
+
+c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
+      real*8 c1,c2,c3,c4,c5,c6,fterf
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
+
+*     **** local variables ****
+      logical ispawv
+      integer ftmp(2)
+      integer taskid_j,np_j
+      integer i,j,ia,np1,np2,np3,n2ft3d_map,nion,l,m,lm,n2ft3d
+      real*8 x,y,z,q,c,r,sqrt_pi,dv,v,rx,ry,rz,fx,fy,fz
+
+*     **** external functions ****
+      logical  control_fast_erf
+      integer  ion_nion,ion_katm
+      real*8   lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
+      external control_fast_erf
+      external ion_nion,ion_katm
+      external lattice_omega,ion_rion,psp_rlocal,psp_zv,util_erf
+      integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+      external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
+      call D3dB_n2ft3d(1,n2ft3d)
+      nion = ion_nion()
+
+*     **** constants ****
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+
+      call D3dB_nx(1,np1)
+      call D3dB_ny(1,np2)
+      call D3dB_nz(1,np3)
+      dv = lattice_omega()/dble(np1*np2*np3)
+
+*     ***** allocate temporary space ****
+      if (.not.BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
+     > call errquit('f_lr_local_seperate_paw:out of stack',0,MA_ERR)
+
+      call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
+      if (psp_fmm) then
+         call dcopy((psp_fmm_lmax+1)**2,0.0d0,0,
+     >              dbl_mb(psp_fmm_Mlm(1)),1)
+         lm = 0
+         do l=0,psp_fmm_lmax
+         do m=-l,l
+            do i=1,n2ft3d_map
+               dbl_mb(psp_fmm_Mlm(1)+lm) = dbl_mb(psp_fmm_Mlm(1)+lm) 
+     >            + dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)*rho_notpaw(i)
+            end do
+            lm = lm + 1
+         end do
+         end do
+         call D3dB_Vector_SumAll((psp_fmm_lmax+1)**2,
+     >                           dbl_mb(psp_fmm_Mlm(1)))
+         call FMM_fion_Mlm(psp_fmm_lmax,ion_nion(),
+     >                     int_mb(ion_katm_ptr()),
+     >                     dbl_mb(ion_rion_ptr()),
+     >                     dbl_mb(psp_zv_ptr()),
+     >                     psp_fmm_rmax2,
+     >                     dbl_mb(psp_fmm_Mlm(1)),
+     >                     dbl_mb(ftmp(1)))
+
+      end if
+
+      if (control_fast_erf()) then
+
+      do j=1,nion
+         if (mod(j-1,np_j).eq.taskid_j) then
+            ia=ion_katm(j)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
+            q = -psp_zv(ia)
+            c = 1.0d0/psp_rlocal(ia)
+            fx = 0.0d0
+            fy = 0.0d0
+            fz = 0.0d0
+            ispawv = (int_mb(psp_type(1)+ia-1).eq.4)
+            do i=1,n2ft3d_map
+               rx = x - r_grid(1,i)
+               ry = y - r_grid(2,i)
+               rz = z - r_grid(3,i)
+               r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+               if (r .gt. 1.0d-8) then
+                 yerf=r*c
+                 fterf = (1.0d0
+     >                 + yerf*(c1 + yerf*(c2
+     >                 + yerf*(c3 + yerf*(c4
+     >                 + yerf*(c5 + yerf*c6))))))**4
+                 verf = (1.0d0 - 1.0d0/fterf**4)
+c                 verf = util_erf(yerf)
+                 v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                    - verf)/r**3
+               else
+                 v = 0.0d0
+               end if
+
+               if (ispawv) then
+                  fx = fx + rho_paw(i)*rx*v
+                  fy = fy + rho_paw(i)*ry*v
+                  fz = fz + rho_paw(i)*rz*v
+               else
+                  fx = fx + rho_notpaw(i)*rx*v
+                  fy = fy + rho_notpaw(i)*ry*v
+                  fz = fz + rho_notpaw(i)*rz*v
+               end if
+            end do
+            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
+            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
+            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
+            end if
+         end if
+      end do
+
+      else
+
+      do j=1,nion
+       
+         if (mod(j-1,np_j).eq.taskid_j) then
+            ia= ion_katm(j)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
+            q = -psp_zv(ia)
+            c = 1.0d0/psp_rlocal(ia)
+            ispawv = (int_mb(psp_type(1)+ia-1).eq.4)
+            fx = 0.0d0
+            fy = 0.0d0
+            fz = 0.0d0
+            do i=1,n2ft3d_map
+               rx = x - r_grid(1,i)
+               ry = y - r_grid(2,i)
+               rz = z - r_grid(3,i)
+               r  = dsqrt( rx**2 + ry**2 + rz**2)
+
+               if (r .gt. 1.0d-8) then
+                 yerf=r*c
+c                fterf = (1.0d0
+c    >                 + yerf*(c1 + yerf*(c2
+c    >                 + yerf*(c3 + yerf*(c4
+c    >                 + yerf*(c5 + yerf*c6))))))**4
+c                verf = (1.0d0 - 1.0d0/fterf**4)
+                 verf = util_erf(yerf)
+                 v    = q*( (2.0d0/sqrt_pi)*(r*c)*exp(-(r*c)**2)
+     >                    - verf)/r**3
+               else
+                 v = 0.0d0
+               end if
+
+               if (ispawv) then
+                  fx = fx + rho_paw(i)*rx*v
+                  fy = fy + rho_paw(i)*ry*v
+                  fz = fz + rho_paw(i)*rz*v
+               else
+                  fx = fx + rho_notpaw(i)*rx*v
+                  fy = fy + rho_notpaw(i)*ry*v
+                  fz = fz + rho_notpaw(i)*rz*v
+               end if
+            end do
+            dbl_mb(ftmp(1)+3*(j-1))   = -fx*dv
+            dbl_mb(ftmp(1)+3*(j-1)+1) = -fy*dv
+            dbl_mb(ftmp(1)+3*(j-1)+2) = -fz*dv
+
+            end if
+         end if
+      end do
+
+      end if
+
+      call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
+      call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+
+      if (.not.BA_pop_stack(ftmp(2)))
+     > call errquit('f_lr_local_seperate_paw:popping stack',1,MA_ERR)
+
+      call nwpw_timing_end(5)
+
+      return
+      end
 
 
 
@@ -2866,10 +3079,36 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >                        dbl_mb(rho_cmp_smooth(1)),
      >                        dbl_mb(vl1(1)))
 
-          call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm(ispin,dbl_mb(zv(1)),
+            call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm(ispin,
+     >                                            dbl_mb(zv(1)),
      >                                            dbl_mb(vl_notpaw(1)),
      >                                            dbl_mb(vl1(1)),
      >                                            move,fion)
+            if (move) then
+               call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dbl_mb(rho_cmp(1)),
+     >                                       dbl_mb(rho_cmp_smooth(1)))
+               call f_local_seperate_paw(dbl_mb(rho_cmp_smooth(1)),
+     >                                   dbl_mb(rho_cmp(1)),
+     >                                   fion)
+
+               call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
+               call D3dB_cr_pfft3b(1,0,dbl_mb(rho_cmp(1)))
+
+               call Pack_c_unpack(0,dbl_mb(rho_cmp_smooth(1)))
+               call D3dB_cr_pfft3b(1,0,dbl_mb(rho_cmp_smooth(1)))
+
+               call f_lr_local_seperate_paw(dbl_mb(r_grid(1)),
+     >                                      dbl_mb(rho_cmp_smooth(1)),
+     >                                      dbl_mb(rho_cmp(1)),
+     >                                      fion)
+               call D3dB_rr_Sub2(1,dbl_mb(rho_cmp_smooth(1)),
+     >                             dbl_mb(rho_cmp(1)))
+               call nwpw_compcharge_gen_f_lr_cmp_smooth(dbl_mb(zv(1)),
+     >                                               dbl_mb(r_grid(1)),
+     >                                               dbl_mb(rho_cmp(1)),
+     >                                               fion)
+            end if
          end if
          ok =        BA_pop_stack(r_grid(2))
          ok = ok.and.BA_pop_stack(vl2(2))
@@ -4095,11 +4334,35 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >                        dbl_mb(rho_cmp_smooth(1)),
      >                        dbl_mb(vl1(1)))
 
-          call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_test(
+            call nwpw_compcharge_gen_dE_ncmp_vloc_Qlm_test(
      >                                            ispin,dbl_mb(zv(1)),
      >                                            dbl_mb(vl_notpaw(1)),
      >                                            dbl_mb(vl1(1)),
      >                                            move,fion)
+
+               call nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                       dbl_mb(rho_cmp(1)),
+     >                                       dbl_mb(rho_cmp_smooth(1)))
+               call f_local_seperate_paw(dbl_mb(rho_cmp_smooth(1)),
+     >                                   dbl_mb(rho_cmp(1)),
+     >                                   fion)
+
+               call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
+               call D3dB_cr_pfft3b(1,0,dbl_mb(rho_cmp(1)))
+
+               call Pack_c_unpack(0,dbl_mb(rho_cmp_smooth(1)))
+               call D3dB_cr_pfft3b(1,0,dbl_mb(rho_cmp_smooth(1)))
+
+               call f_lr_local_seperate_paw(dbl_mb(r_grid(1)),
+     >                                      dbl_mb(rho_cmp_smooth(1)),
+     >                                      dbl_mb(rho_cmp(1)),
+     >                                      fion)
+               call D3dB_rr_Sub2(1,dbl_mb(rho_cmp_smooth(1)),
+     >                             dbl_mb(rho_cmp(1)))
+               call nwpw_compcharge_gen_f_lr_cmp_smooth(dbl_mb(zv(1)),
+     >                                               dbl_mb(r_grid(1)),
+     >                                               dbl_mb(rho_cmp(1)),
+     >                                               fion)
          end if
          ok =        BA_pop_stack(r_grid(2))
          ok = ok.and.BA_pop_stack(vl2(2))
