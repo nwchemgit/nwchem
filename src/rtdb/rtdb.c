@@ -430,7 +430,7 @@ int rtdb_get_info(const int handle,
 
   \param handle  [Input] the RTDB handle
   \param name    [Input] the key for the data
-  \param ma_type [Input] the type of the data specified by one of the MA data types (see mafdecls.fh)
+  \param ma_type [Output] the type of the data specified by one of the MA data types (see mafdecls.fh)
   \param nelem   [Output] the number of elements of the specified type
   \param array   [Output] the actual data retrieved
 
