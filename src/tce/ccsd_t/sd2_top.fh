@@ -1,9 +1,4 @@
 C$Id$
-cc      integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
-cc      integer h3,h2,h1,p6,p5,p4,p7
-cc      double precision triplesx(h2d,h3d,h1d,p4d,p6d,p5d)
-cc      double precision t2sub(p7d,p4d,p5d,h1d)
-cc      double precision v2sub(h3d,h2d,p6d,p7d)
       integer deltat
       double precision t0
 #ifdef USE_OPENMP
@@ -16,7 +11,6 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: omp_get_wtime
 cdir$ assume_aligned triplesx:64
 cdir$ assume_aligned t2sub:64
 cdir$ assume_aligned v2sub:64
-!$omp parallel do private(p5,p6,p4,h1,h3,h2,p7) collapse(OMPCOLLAPSE)
 #else
 #include "util.fh"      
       t0=util_wallsec()
