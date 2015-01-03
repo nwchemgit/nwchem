@@ -123,9 +123,11 @@ c      character*255 afile_coords
       integer dn
       double precision scale
       character*30 pname
+      character*32 prefix
       character*84 tag
 
       pname = "mm_input_vdw" 
+      prefix = "mm:coords:load"
       iloc = [2,3,4,5]
 c      afile_coords  = " "
       afile_charges = " "
@@ -139,16 +141,22 @@ c      afile_coords  = " "
         if (inp_contains(.false.,'load',field,ipos)) then
           message = "reading load"
           if (.not. inp_a(svalue)) goto 911
-          tag="mm:coords:load"
-          if (.not.rtdb_cput(rtdb,tag,1,svalue)) 
-     >          call errquit(pname//'failed to store'//tag,0,
-     >           RTDB_ERR)
-           goto 10
+          tag=trim(prefix)//":name"
+          if (.not.rtdb_cput(rtdb,tag,1,svalue)) goto 911
+          goto 10
         else if (inp_compare(.false., 'format', field)) then
-           do k=1,4
+           do k=1,3
              if (.not.inp_i(iloc(k))) goto 911
            end do
+           tag=trim(prefix)//":format"
+           if(.not. rtdb_put(rtdb,tag,mt_int,3,iloc)) goto 911 
            goto 10
+        else if (inp_compare(.false., 'units', field)) then
+          message = "reading units "
+          if (.not. inp_a(svalue)) goto 911
+          tag=trim(prefix)//":units"
+          if (.not.rtdb_cput(rtdb,tag,1,svalue)) goto 911
+          goto 10
         else
           message = "uknown field "//trim(field)
           goto 911

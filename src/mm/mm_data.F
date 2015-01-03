@@ -121,13 +121,21 @@ c
       integer max_vdw
       integer iloc(3)
       integer i
+      character*32 prefix
+      character*32 aunit
+      double precision scale
 c
       pname = "mm_input_load_coords"
+      prefix = "mm:coords:load"
 c
-      tag="mm:coords:load"
+      tag=trim(prefix)//":name"
       if (.not. rtdb_cget(rtdb, tag, 1, filename))
      $     goto 911
 c
+      tag=trim(prefix)//":format"
+      if(.not. rtdb_get(rtdb,tag,mt_int,3,iloc))   
+     $   iloc = (/ 1, 2, 3 /) 
+
       call mm_open_file(filename,fn)
 c     ----------------------
 c     count numbers of lines
@@ -140,8 +148,12 @@ c     ----------------------
      &      h_rmm, i_rmm) ) call errquit(
      &      'failed memory allocation '//pname,
      &      nmm, MA_ERR)
-      iloc = (/ 1, 2, 3 /) 
       call util_xyz_read_coords(nmm,n,iloc,dbl_mb(i_rmm),fn)
+c      
+      tag=trim(prefix)//":units"
+      if (.not.rtdb_cget(rtdb, tag, 1,aunit)) aunit="ang"
+      call util_length_scale(aunit,scale)
+      call dscal(3*nmm, scale,dbl_mb(i_rmm),1)
       do i=1,nmm
          write(54,*) dbl_mb(i_rmm+i-1)
       enddo

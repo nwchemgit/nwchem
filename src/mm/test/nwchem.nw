@@ -42,3 +42,4 @@ coords load nwchem.bq
 end
 
 task dft mm gradient
+#task dft gradient
