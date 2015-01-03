@@ -94,7 +94,8 @@ c      call util_align64(size)
       call offl_alloc(dbl_mb(k_doubles),size)
       triplesx_alloced=.true.
 #endif      
-
+c     stagger start of loop
+      call util_mpinap(100)
       do t_p4b = noab+1,noab+nvab
        range_p4 = int_mb(k_range+t_p4b-1)
        offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1

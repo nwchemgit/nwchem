@@ -29,16 +29,28 @@ c
       integer irrep
       logical nodezero
       double precision r2_thresh
+      integer p1b_in,h3b_in,p2b_in
       character*4 irrep_p1,irrep_p2,irrep_h3,irrep_h4
       character*5 spinnames(2),spin_p1,spin_p2,spin_h3,spin_h4
       data spinnames/'alpha','beta '/
 c
       nodezero = (ga_nodeid().eq.0)
       if (nodezero) write(LuOut,9000) 'Doubles contributions'
+#if 0
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab
             do h4b = h3b,noab
+#else
+      do p1b_in = 1+ga_nodeid(),nvab+ga_nodeid()
+         p1b=mod(p1b_in,nvab)+1+noab
+        do p2b_in = 1+ga_nodeid(),noab+nvab-p1b+1+ga_nodeid()
+           p2b=mod(p2b_in,noab+nvab-p1b+1)+p1b+1
+c        do p2b = p1b,noab+nvab
+           do h3b_in = 1+ga_nodeid(),noab+ga_nodeid()
+              h3b=mod(h3b_in,noab)+1
+            do h4b = h3b,noab
+#endif
               if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) 
      1          .eq. int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)) then
               if ((.not.restricted).or.

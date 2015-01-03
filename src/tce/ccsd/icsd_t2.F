@@ -7932,6 +7932,7 @@ c -------------------------
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
+      integer p7b_in,h8b_in
 c old way      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
@@ -7958,8 +7959,15 @@ c ************
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'noname',l_c_sort,k_c_sort)) CALL
      & ERRQUIT('icsd_t2_7_3',0,MA_ERR)
       CALL DFILL(dimc,0.0d0,dbl_mb(k_c_sort),1)
+#if 0
       DO h8b = 1,noab
       DO p7b = noab+1,noab+nvab
+#else
+      DO h8b_in = ga_nodeid()+1,ga_nodeid()+noab
+         h8b=mod(h8b_in,noab)+1
+      DO p7b_in = ga_nodeid()+1,ga_nodeid()+nvab
+         p7b=mod(p7b_in,nvab)+1+noab
+#endif
       IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p7b-1) .eq. int_mb(k_spin+h
      &1b-1)+int_mb(k_spin+h8b-1)) THEN
       IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p7b-1),ieor(int_mb(
@@ -8198,6 +8206,7 @@ c -------------------------
       INTEGER isuperp
       INTEGER l_c
       INTEGER k_c
+      integer p5b_in
       DOUBLE PRECISION FACTORIAL
 c *** peta ****
 c      logical nodezero         ! True if node 0
@@ -8229,7 +8238,12 @@ c ----------------
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'noname',l_c_sort,k_c_sort)) CALL
      & ERRQUIT('icsd_t2_8',0,MA_ERR)
       CALL DFILL(dimc,0.0d0,dbl_mb(k_c_sort),1)
+#if 0
       DO p5b = noab+1,noab+nvab
+#else
+      DO p5b_in = 1+ga_nodeid(),nvab+ga_nodeid()
+         p5b=mod(p5b_in,nvab)+1+noab
+#endif
       DO p6b = p5b,noab+nvab
       IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq. int_mb(k_spin+h
      &1b-1)+int_mb(k_spin+h2b-1)) THEN

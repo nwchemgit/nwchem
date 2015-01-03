@@ -82,14 +82,15 @@ c --------------
       external tce_hashnsort
       logical tce_hashnsort_2
       external tce_hashnsort_2
-      integer n_h7b,max_k_h7b
-      integer n_p7b,max_k_p7b
+      integer n_h7b
+      integer n_p7b
       double precision t0
       integer deltat_mic,deltat_off
 #ifdef USE_OPENMP
       double precision omp_get_wtime
       external omp_get_wtime
 #endif
+      integer h7b_in,p7b_in
 #ifdef OFFLOAD_CODE           
 #ifndef OPENMP_OFFLOAD
       integer util_micdev
@@ -285,7 +286,6 @@ cfrom l_triplesx
 c     prep. work
 c     figure out  cycles to work on
       n_h7b=0
-      max_k_h7b=-1
       DO h7b = 1,noab
          if(tce_hashnsort(.true.,
      d        d_a, d_b,
@@ -295,14 +295,17 @@ c     figure out  cycles to work on
      O        t2sub,v2sub
      P        )) then
             n_h7b=n_h7b+1
-            max_k_h7b = max(max_k_h7b,int_mb(k_range+h7b-1))
          endif
       enddo
 
       if(n_h7b.gt.0) then
 
-
+#if 0
          do h7b=1,noab
+#else
+         do h7b_in=ga_nodeid()+1,ga_nodeid()+noab
+            h7b=mod(h7b_in,noab)+1
+#endif
             if(tce_hashnsort(.false.,
      d           d_a, d_b,
      I           k_a_offset,k_b_offset,
@@ -311,10 +314,6 @@ c     figure out  cycles to work on
      O           t2sub,v2sub)) then
             k_range_h7b_1 = int_mb(k_range+h7b-1)
         
-cnot            l_t2sub = k_range_h7b_1*k_range_p4b_1*k_range_p5b_1*
-cnot     *           k_range_h1b_1
-cnot            l_v2sub = k_range_h3b_1*k_range_h2b_1*k_range_p6b_1*
-cnot     *           k_range_h7b_1
 #ifdef OFFLOAD_CODE           
 #ifdef OPENMP_OFFLOAD
 !$omp target map(to:k_range_h3b_1,k_range_h2b_1,k_range_h1b_1)
@@ -611,7 +610,6 @@ cfrom l_triplesx
 c     prep. work
 c     figure out  cycles to work on
       n_p7b=0
-      max_k_p7b=-1
       DO p7b = noab+1,noab+nvab
          if(tce_hashnsort_2(.true.,
      d        d_a, d_b,
@@ -621,13 +619,17 @@ c     figure out  cycles to work on
      O        t2sub,v2sub
      P        )) then
             n_p7b=n_p7b+1
-            max_k_p7b = max(max_k_p7b,int_mb(k_range+p7b-1))
          endif
       enddo
 
       if(n_p7b.ne.0) then
 
+#if 0
       do p7b= noab+1,noab+nvab
+#else
+      do p7b_in= ga_nodeid()+1,nvab+ga_nodeid()
+         p7b=mod(p7b_in,nvab)+noab+1
+#endif
          if(tce_hashnsort_2(.false.,
      d        d_a, d_b,
      I        k_a_offset,k_b_offset,
@@ -636,10 +638,6 @@ c     figure out  cycles to work on
      O        t2sub,v2sub)) then
 
             k_range_p7b_1 = int_mb(k_range+p7b-1)
-cnot            l_t2sub = k_range_p7b_1*k_range_p4b_1*
-cnot     K           k_range_h1b_1*k_range_h2b_1
-cnot            l_v2sub = k_range_p7b_1*k_range_h3b_1*
-cnot     K           k_range_p6b_1*k_range_p5b_1
 #ifdef OFFLOAD_CODE           
 #ifdef OPENMP_OFFLOAD
 !$omp target map(to:k_range_h3b_1,k_range_h2b_1,k_range_h1b_1)
