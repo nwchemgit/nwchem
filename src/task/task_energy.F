@@ -35,6 +35,7 @@ c
       logical task_energy_doit, oniom_energy
       external task_energy_doit, oniom_energy
       logical orism
+      logical omm
       logical task_qmmm
       logical task_rism
       external task_rism
@@ -74,6 +75,10 @@ c     &    task_fragment = .false.
 c
       if( .not. rtdb_get(rtdb,'task:rism',mt_log,1,orism))
      &    orism = .false.
+c
+      if( .not. rtdb_get(rtdb,'task:mm',mt_log,1,omm))
+     &    omm = .false.
+c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 c
@@ -131,6 +136,7 @@ c      if(.not.rtdb_get(rtdb, 'cons:active', mt_log, 1, ocons)) then
 c        ocons=.false.
 c      end if
       if(ocons) call cons_add_energy(rtdb,energy)
+      if(omm) call mm_add_energy(rtdb,energy)
 
 c     write(*,*) "putting energy into rtdb",energy
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
