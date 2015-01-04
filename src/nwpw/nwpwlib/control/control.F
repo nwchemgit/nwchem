@@ -4495,7 +4495,7 @@ c      end
       integer lmax
 
       if (.not.btdb_get(rtdb,'nwpw:lmax_multipole',mt_int,1,lmax))
-     >  lmax = -1
+     >  lmax = 0
 
       control_lmax_multipole = lmax
       return
