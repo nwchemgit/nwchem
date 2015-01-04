@@ -1922,6 +1922,33 @@ c
       end do
 c
       end
+
+      function geom_cart_get1(geom, ncent, t, c)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c     
+      logical geom_cart_get1
+      integer geom                 !< [Input] the geometry handle
+      integer ncent                !< [Output] the number of centers
+      character*16 t(ncent)        !< [Output] the tags
+      double precision c(3, ncent) !< [Output] the coordinates
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i
+c
+      geom_cart_get1 = geom_check_handle(geom, 'geom_cart_get')
+      if (.not. geom_cart_get1) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+         t(i) = tags(i,geom)
+         c(1,i) = coords(1,i,geom)
+         c(2,i) = coords(2,i,geom)
+         c(3,i) = coords(3,i,geom)
+      end do
+c
+      end
 c
 c
 C> \brief Extract the tags, coordinates, charges and atomic numbers from
