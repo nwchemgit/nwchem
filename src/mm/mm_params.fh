@@ -6,7 +6,7 @@ c     -------------------
       double precision cnm2au,cau2ang,cau2nm,cau2kj,cnm2ang
       double precision ckcal2au,cau2kcal
       parameter(ckcal2au=0.00159362d00)
-      parameter(caukcal=627.503d00)
+      parameter(cau2kcal=627.503d00)
       parameter(cnm2au=1.88972598786d+01)
       parameter(cau2ang = 0.529177249d00)
       parameter(cau2nm=5.29177249d-02)

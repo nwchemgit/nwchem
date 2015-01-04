@@ -42,12 +42,12 @@ c     ------------------
 c     parse main bq line 
 c     set namespace
 c     ------------------
-      namespace = mm_default
-      call inp_set_field(1)
-      if (inp_a(field)) then 
-         namespace = field
-      end if
-      write(*,*) "namespace=",namespace
+c      namespace = mm_default
+C      call inp_set_field(1)
+C      if (inp_a(field)) then 
+C         namespace = field
+C      end if
+C      write(*,*) "namespace=",namespace
 
 c    ---------------------------
 c    begin input processing loop
@@ -56,9 +56,6 @@ c    ---------------------------
        if(inp_a(field)) then
          if (inp_compare(.false., 'end', field)) then
             goto 30
-C         else if (inp_compare(.false., 'clear', field)) then
-C            call mm_rtdb_delete(rtdb,namespace)
-C            goto 20
          else if (inp_compare(.false., 'coords', field)) then
              call mm_input_coords(rtdb)
              goto 20

@@ -11,6 +11,7 @@
       integer h_bvdw,i_bvdw
       integer h_rmm,i_rmm
       integer h_rqm,i_rqm
+      integer h_tqm,i_tqm
 
       common /mm_data/ 
      &                   nvdw,nmm,nqm,
@@ -19,5 +20,6 @@
      &                   h_avdw,i_avdw,
      &                   h_bvdw,i_bvdw,
      &                   h_rqm,i_rqm,
+     &                   h_tqm,i_tqm,
      &                   h_rmm,i_rmm
 
