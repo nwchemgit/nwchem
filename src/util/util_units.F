@@ -13,6 +13,10 @@ c
 
       test1 = unitin
       test2 = unitout
+      if (test1 .eq. test2) then
+        scale = 1.0
+        return
+      end if
       test = trim(test1)//"_"//trim(test2)
       write(*,*) "test=",test
       select case (test)
@@ -28,11 +32,13 @@ c
         scale = cpm2au
       case('pic_au')
         scale = cpm2au
+      case('ang_au')
+        scale = cang2au
       case('au_ang')
         scale = cau2ang
-      case('kcal_au')
+      case('kca_au')
         scale = ckcal2au
-      case('au_kcal')
+      case('au_kca')
         scale = cau2kcal
       case default
         call errquit("unknown units: "//test,0,-1)
