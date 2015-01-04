@@ -223,7 +223,7 @@ endif
               util_dra_test.o util_eaf_test.o util_sf_test.o \
               ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o util_mpinap.o \
 	      ga_lkain_2cpl3_ext.o  util_dgeev.o util_nwsort.o \
-	      util_mygabcast.o util_getppn.o \
+	      util_mygabcast.o util_getppn.o util_units.o \
               util_intrsc2008.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
