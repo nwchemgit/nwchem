@@ -41,6 +41,6 @@ vdw load nwchem.parms
 coords load nwchem.bq
 end
 
-task dft mm energy
+task dft mm gradient numerical
 #task dft mm gradient
 #task dft gradient

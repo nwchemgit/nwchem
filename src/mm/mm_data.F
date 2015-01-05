@@ -71,12 +71,19 @@ c
 c
       if (nmm .gt. 0) then
         if (.not.ma_free_heap(h_rmm)) goto 911
+        nmm = 0
       end if
       if (nvdw .gt. 0) then
         if (.not.ma_free_heap(h_bvdw)) goto 911
         if (.not.ma_free_heap(h_avdw)) goto 911
         if (.not.ma_free_heap(h_jvdw)) goto 911
         if (.not.ma_free_heap(h_ivdw)) goto 911
+        nvdw = 0
+      end if
+      if(nqm.gt.0) then
+          if (.not.ma_free_heap(h_tqm)) goto 911
+          if (.not.ma_free_heap(h_rqm)) goto 911
+          nqm = 0
       end if
       mm_end = .true.
       return
@@ -150,6 +157,7 @@ c     ----------------------
      &      'failed memory allocation '//pname,
      &      nmm, MA_ERR)
       call util_xyz_read_coords(nmm,n,iloc,dbl_mb(i_rmm),fn)
+      close(fn)
 c      
       tag=trim(prefix)//":units"
       if (.not.rtdb_cget(rtdb, tag, 1,aunit)) aunit="ang"
@@ -283,13 +291,13 @@ c
      +  call errquit(pname//"cannot get io unit",0,0)
 c     first try to open file in the run directory
       buffer = filename
-      message = "loading vdw information from "//buffer
+      message = "opening file "//buffer
       open(unit=fn,file=buffer,status='old',form="formatted",ERR=10)
       goto 800
 10    continue
 c     now try perm directory
       call util_file_name_resolve(buffer, .false.)
-      message = "loading vdw information from "//buffer
+      message = "opening file "//buffer
       open(unit=fn,file=buffer,status='old',form="formatted",ERR=911)
 800   continue
       write(luout,*) "Successfully "//trim(message)
@@ -316,6 +324,7 @@ c     now try perm directory
       character*30 message
       integer i,j
 
+      call mm_load_qm_coords(rtdb)
       call mm_add_vdw_energy(nqm,dbl_mb(i_rqm),
      &                      nmm,dbl_mb(i_rmm),
      &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
@@ -352,6 +361,7 @@ c     now try perm directory
       double precision crd(3),q
       integer i,j
 
+      call mm_load_qm_coords(rtdb)
       if ( .not. ma_push_get( MT_DBL, 3*nqm, 
      &      'vdw scratch B',
      &      h_g, i_g) ) call errquit(
@@ -373,7 +383,7 @@ C     &                      n,e,g)
       evdw = evdw*scale_energy
       e = e + evdw
       scale_force = scale_energy/scale_length
-      call dscal(3*nqm, scale_force,dbl_mb(i_g),1)
+C      call dscal(3*nqm, scale_force,dbl_mb(i_g),1)
       call daxpy(3*nqm,scale_force,dbl_mb(i_g),1,g,1)
 
       write(6,1000) "MM/VDW",
