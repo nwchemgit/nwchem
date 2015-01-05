@@ -26,7 +26,7 @@ C>
       external task_energy, num_grad
       character*128 ename, gname
       character*32 theory
-      logical ocons
+      logical ocons,omm
       logical cons_active
       external cons_active
 c
@@ -40,6 +40,8 @@ c
          endif
       endif
       
+      if( .not. rtdb_get(rtdb,'task:mm',mt_log,1,omm))
+     &    omm = .false.
       ocons = cons_active(rtdb)
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -76,7 +78,7 @@ c     Construct the names for the energy and gradient RTDB entries
 c
       write(ename,'(a,'':energy'')') theory(1:inp_strlen(theory))
       write(gname,'(a,'':gradient'')') theory(1:inp_strlen(theory))
-      if(ocons) then
+      if(ocons.or.omm) then
         ename ="task:energy"
       end if
 C
@@ -626,6 +628,9 @@ C>
      $     vectors, nvec, oprint)
       implicit none
 #include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
       integer rtdb    !< [Input] The RTDB handle
       integer geom    !< [Input] The geometry handle
       integer natoms  !< [Input] The number of atoms
@@ -659,6 +664,7 @@ cedo  integer info
       external ifirstmax, idamax
       double precision ddot
       external ddot
+      logical omm
 c
 c     Get list of active atoms.  If there are ANY frozen atoms then
 c     we cannot use or translational, or rotational invariance
@@ -685,7 +691,11 @@ c
       do i = 1, natoms3
          call sym_grad_symmetrize(geom, vectors(1,i))
       enddo
+
+      if( .not. rtdb_get(rtdb,'task:mm',mt_log,1,omm))
+     &    omm = .false.
 c
+      if(.not.omm) then
       if (nactive .eq. natoms) then
 c     
 c     Construct vectors corresponding to translations and rotations
@@ -768,6 +778,7 @@ c
             enddo
          enddo
       endif
+      end if
 c
 c     Get rid of the zero vectors and orthonormalize the rest
 c     by diagonalizing the metric

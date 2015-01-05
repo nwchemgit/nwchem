@@ -147,7 +147,8 @@ c      end if
 c
       call bq_force(rtdb)
 c
-      if(omm) call mm_add_egrad(rtdb,energy,nelem/3,gradient)
+      if(omm.and.(.not.numerical)) 
+     $    call mm_add_egrad(rtdb,energy,nelem/3,gradient)
 c
       if (status) then
          call geom_print_rtdb_ecce(rtdb)
