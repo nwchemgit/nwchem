@@ -334,6 +334,7 @@ c     now try perm directory
       call util_convert_units("kcal","au",scale_energy)
  
       evdw = evdw*scale_energy
+C      e=0
       e = e + evdw
       return
 911   call errquit("error "//trim(message),0,-1)
@@ -384,6 +385,7 @@ C     &                      n,e,g)
       e = e + evdw
       scale_force = scale_energy/scale_length
 C      call dscal(3*nqm, scale_force,dbl_mb(i_g),1)
+C      call dfill(3*nqm,0.0d0,g,1)
       call daxpy(3*nqm,scale_force,dbl_mb(i_g),1,g,1)
 
       write(6,1000) "MM/VDW",
@@ -391,7 +393,7 @@ C      call dscal(3*nqm, scale_force,dbl_mb(i_g),1)
       do i = 1, nqm
          write(6,2000) i, byte_mb(i_tqm+16*(i-1)),
      $        (dbl_mb(i_rqm+3*(i-1)+j),j=0,2),
-     $        (dbl_mb(i_g +3*(i-1)+j),j=0,2)
+     $        (scale_force*dbl_mb(i_g +3*(i-1)+j),j=0,2)
       enddo
       write(6,*)
 
@@ -401,7 +403,8 @@ C      call dscal(3*nqm, scale_force,dbl_mb(i_g),1)
       do i = 1, nqm
          write(6,2000) i, byte_mb(i_tqm+16*(i-1)),
      $        (dbl_mb(i_rqm+3*(i-1)+j),j=0,2),
-     $        (g(j,i),j=1,3)
+c     $        (g(j,i),j=1,3)
+     $        g(1,i),g(2,i),g(3,i)
       enddo
       write(6,*)
 
