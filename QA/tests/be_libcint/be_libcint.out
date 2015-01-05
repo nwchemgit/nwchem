@@ -1,0 +1,463 @@
+ argument  1 = be_libcint.nw
+All connections between all procs tested: SUCCESS
+ 
+
+
+============================== echo of input deck ==============================
+echo
+start be_libcint_dat
+
+geometry
+  be 0 0 0
+end
+
+basis
+ * library 6-31g*
+end
+
+scf
+  direct
+end
+task scf
+
+set int:cando_cint T
+scf
+  direct
+end
+task scf
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 6.5
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                              Copyright (c) 1994-2013
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+ 
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+ 
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = arcen
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Mon Jan  5 11:45:30 2015
+
+    compiled        = Mon_Jan_05_11:36:32_2015
+    source          = /home/d3y133/nwchem-dev/nwchem-newest
+    nwchem branch   = Development
+    nwchem revision = 26394
+    ga revision     = 10506
+    input           = be_libcint.nw
+    prefix          = be_libcint_dat.
+    data base       = ./be_libcint_dat.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107198 doubles =    100.0 Mbytes
+    stack    =   13107195 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428793 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 be                   4.0000     0.00000000     0.00000000     0.00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      be                 9.012180
+ 
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+ 
+ 
+            XYZ format geometry
+            -------------------
+     1
+ geometry
+ be                    0.00000000     0.00000000     0.00000000
+ 
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-31g*                   on all atoms 
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  be (Beryllium)
+  --------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.26458570E+03  0.001945
+  1 S  1.89936810E+02  0.014835
+  1 S  4.31590890E+01  0.072091
+  1 S  1.20986630E+01  0.237154
+  1 S  3.80632320E+00  0.469199
+  1 S  1.27289030E+00  0.356520
+ 
+  2 S  3.19646310E+00 -0.112649
+  2 S  7.47813300E-01 -0.229506
+  2 S  2.19966300E-01  1.186917
+ 
+  3 P  3.19646310E+00  0.055980
+  3 P  7.47813300E-01  0.261551
+  3 P  2.19966300E-01  0.793972
+ 
+  4 S  8.23099000E-02  1.000000
+ 
+  5 P  8.23099000E-02  1.000000
+ 
+  6 D  4.00000000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ be                          6-31g*                  6       15   3s2p1d
+
+
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    15
+  atoms           =     1
+  closed shells   =     2
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./be_libcint_dat.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ be                          6-31g*                  6       15   3s2p1d
+
+
+
+ Forming initial guess at       0.0s
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:         -14.56676403
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -14.566764
+ 1-e energy   =     -19.117157
+ 2-e energy   =       4.550393
+ HOMO         =      -0.301367
+ LUMO         =       0.082435
+ 
+
+ Starting SCF solution at       0.1s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent ROHF
+
+ Convergence threshold     :          1.000E-04
+ Maximum no. of iterations :           30
+ Final Fock-matrix accuracy:          1.000E-07
+ ----------------------------------------------
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1      -14.5669422194  7.37D-03  6.58D-03      0.1
+                 2      -14.5669443614  1.67D-06  1.63D-06      0.2
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -14.566944361417
+      One-electron energy =    -19.111901512955
+      Two-electron energy =      4.544957151538
+ Nuclear repulsion energy =      0.000000000000
+
+        Time for solution =      0.1s
+
+
+             Final eigenvalues
+             -----------------
+
+              1      
+    1   -4.7095
+    2   -0.3015
+    3    0.0822
+    4    0.0822
+    5    0.0822
+    6    0.4389
+    7    0.4644
+    8    0.4644
+    9    0.4644
+   10    1.0689
+   11    1.0689
+   12    1.0689
+ 
+                       ROHF Final Molecular Orbital Analysis
+                       -------------------------------------
+ 
+ Vector    2  Occ=2.000000D+00  E=-3.015381D-01
+              MO Center=  1.6D-16,  1.8D-16,  5.4D-16, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.764064  1 Be s                  2      0.252065  1 Be s          
+     1     -0.220957  1 Be s          
+ 
+ Vector    3  Occ=0.000000D+00  E= 8.224090D-02
+              MO Center= -9.8D-17, -2.6D-16, -7.3D-16, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.753340  1 Be pz                 8      0.254542  1 Be py         
+     5      0.248788  1 Be pz         
+ 
+ Vector    4  Occ=0.000000D+00  E= 8.224090D-02
+              MO Center= -2.1D-17, -4.9D-17,  2.1D-17, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.639241  1 Be py                 7      0.400437  1 Be px         
+     9     -0.275258  1 Be pz                 4      0.211107  1 Be py         
+ 
+ Vector    5  Occ=0.000000D+00  E= 8.224090D-02
+              MO Center= -3.2D-17, -8.6D-18, -2.5D-17, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.686996  1 Be px                 8     -0.413914  1 Be py         
+     3      0.226878  1 Be px         
+ 
+ Vector    6  Occ=0.000000D+00  E= 4.389411D-01
+              MO Center= -5.4D-18,  4.3D-16,  1.7D-15, r^2= 3.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      2.135894  1 Be s                  6     -1.906160  1 Be s          
+ 
+ Vector    7  Occ=0.000000D+00  E= 4.643612D-01
+              MO Center=  1.5D-16,  2.0D-16, -9.0D-17, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.233854  1 Be py                 8     -1.009895  1 Be py         
+     5     -0.466666  1 Be pz                 9      0.381961  1 Be pz         
+ 
+ Vector    8  Occ=0.000000D+00  E= 4.643612D-01
+              MO Center=  8.3D-16, -2.1D-16, -5.0D-16, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      1.191720  1 Be px                 7     -0.975408  1 Be px         
+     5     -0.532419  1 Be pz                 9      0.435778  1 Be pz         
+     4     -0.191351  1 Be py                 8      0.156619  1 Be py         
+ 
+ Vector    9  Occ=0.000000D+00  E= 4.643612D-01
+              MO Center= -8.1D-16, -5.9D-16, -1.5D-15, r^2= 3.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.113119  1 Be pz                 9     -0.911074  1 Be pz         
+     3      0.565665  1 Be px                 7     -0.462990  1 Be px         
+     4      0.425758  1 Be py                 8     -0.348477  1 Be py         
+ 
+ Vector   10  Occ=0.000000D+00  E= 1.068860D+00
+              MO Center=  2.3D-17, -5.3D-18,  4.4D-16, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.486187  1 Be dxz               11      0.636793  1 Be dxy        
+    14     -0.581261  1 Be dyz        
+ 
+ Vector   11  Occ=0.000000D+00  E= 1.068860D+00
+              MO Center= -3.2D-16,  2.7D-16, -2.3D-16, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.468900  1 Be dxy               14      0.865184  1 Be dyz        
+    12     -0.271128  1 Be dxz        
+ 
+ Vector   12  Occ=0.000000D+00  E= 1.068860D+00
+              MO Center=  2.2D-16,  1.3D-16,  6.3D-17, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      1.345222  1 Be dyz               12      0.840972  1 Be dxz        
+    11     -0.658089  1 Be dxy        
+ 
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+           0.000000000000           0.000000000000           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+ 
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 Be   4     4.00   2.00  0.46  0.00  1.47  0.00  0.06
+ 
+       Multipole analysis of the density wrt the origin
+       ------------------------------------------------
+ 
+     L   x y z        total         open         nuclear
+     -   - - -        -----         ----         -------
+     0   0 0 0      0.000000      0.000000      4.000000
+ 
+     1   1 0 0     -0.000000      0.000000      0.000000
+     1   0 1 0     -0.000000      0.000000      0.000000
+     1   0 0 1     -0.000000      0.000000      0.000000
+ 
+     2   2 0 0     -5.254088      0.000000      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000
+     2   0 2 0     -5.254088      0.000000      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000
+     2   0 0 2     -5.254088      0.000000      0.000000
+ 
+
+ Task  times  cpu:        0.2s     wall:        0.2s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                                 NWChem SCF Module
+                                 -----------------
+ 
+ 
+
+  ao basis        = "ao basis"
+  functions       =    15
+  atoms           =     1
+  closed shells   =     2
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = ./be_libcint_dat.movecs
+  output vectors  = ./be_libcint_dat.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ be                          6-31g*                  6       15   3s2p1d
+
+
+  int_init: cando_cint set to always be  T
+nwchem: src/g2e.c:110: CINTinit_int2e_EnvVars: Assertion `bas[8 * (i_sh) + (0)] >= 0' failed.
+forrtl: error (76): Abort trap signal
+Image              PC                Routine            Line        Source             
+libc.so.6          000000334262FFC5  Unknown               Unknown  Unknown
+libc.so.6          0000003342631A70  Unknown               Unknown  Unknown
+libc.so.6          0000003342629466  Unknown               Unknown  Unknown
+nwchem             00000000013C842D  Unknown               Unknown  Unknown
+nwchem             00000000013BB198  Unknown               Unknown  Unknown
+nwchem             00000000013BB807  Unknown               Unknown  Unknown
+nwchem             00000000011AC245  Unknown               Unknown  Unknown
+nwchem             00000000011B31DA  Unknown               Unknown  Unknown
+nwchem             0000000000C22E49  Unknown               Unknown  Unknown
+nwchem             0000000000C1DA0F  Unknown               Unknown  Unknown
+nwchem             000000000043DD12  Unknown               Unknown  Unknown
+nwchem             000000000043D421  Unknown               Unknown  Unknown
+nwchem             0000000000421B46  Unknown               Unknown  Unknown
+nwchem             000000000040C563  Unknown               Unknown  Unknown
+nwchem             000000000040BCFC  Unknown               Unknown  Unknown
+libc.so.6          000000334261D9F4  Unknown               Unknown  Unknown
+nwchem             000000000040BC09  Unknown               Unknown  Unknown
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   PID 20838 RUNNING AT arcen
+=   EXIT CODE: 6
+=   CLEANING UP REMAINING PROCESSES
+=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
+===================================================================================
+YOUR APPLICATION TERMINATED WITH THE EXIT STRING: Aborted (signal 6)
+This typically refers to a problem with your application.
+Please see the FAQ page for debugging suggestions

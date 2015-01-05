@@ -1,0 +1,21 @@
+echo
+start be_libcint_dat
+
+geometry
+  be 0 0 0
+end
+
+basis
+ * library 6-31g*
+end
+
+scf
+  direct
+end
+task scf
+
+set int:cando_cint T
+scf
+  direct
+end
+task scf
