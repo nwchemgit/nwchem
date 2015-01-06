@@ -376,7 +376,7 @@
      >            dbl_mb(core_ps(1)),
      >            dbl_mb(core_ps_prime(1)))
 
-c*     *** integrate core density ***
+*     *** integrate core density ***
 c      fourpi = 16.0d0*datan(1.0d0)
 c      zcore = fourpi*log_integrate_def(0,
 c     >                         dbl_mb(core_ae(1)),
@@ -402,6 +402,8 @@ c     >                                 log_amesh,n1dgrid)
       else
          core_ion_energy = 0.0d0
       end if
+c      write(*,*) "zv,zion,zcore=",zv,zion,zcore
+c      write(*,*) "core_ion_energy=",core_ion_energy,ecorez,ecorecore
 
 
 
