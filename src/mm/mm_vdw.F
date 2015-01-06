@@ -1,16 +1,13 @@
 c $Id: bq_data.F 23019 2012-10-30 00:59:12Z d3y133 $
-      block data initial_mm_data
+      block data initial_mm_vdw_data
       implicit none
-#include "mm_data.fh"
+#include "mm_vdw_data.fh"
 c     
-      data ntot /0/
       data nvdw /0/
-      data nmm /0/
-      data nqm /0/
 
       end
 
-      function  mm_init(rtdb)
+      subroutine mm_vdw_end()
       implicit none
 #include "util.fh"
 #include "errquit.fh"
@@ -18,71 +15,10 @@ c
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-#include "mm_data.fh"
-      logical mm_init
-      integer rtdb
-c
-      character*180 filename
-      integer       nmax,n
-c
-      integer fn,k
-      character*180 buffer,field
-      character*180 message
-      character*180 tag
-      character*30 pname,atag
-      double precision scale
-c
-      logical util_io_unit
-      external util_io_unit
-      integer max_vdw
-      integer nqm1,nmm1
-c
-      pname = "mm_init"
-c
-      call mm_coords_nqm(nqm,rtdb)
-      call mm_coords_nmm(nmm,rtdb)
-      ntot = nqm + nmm
-c     
-      message = "allocating mm coords"
-      write(*,*) "ntot=",ntot
-      if ( .not. ma_alloc_get(MT_DBL,3*ntot, 
-     $                        "mm coords",
-     $                         h_r,i_r)) goto 911
-       if(.not.ma_alloc_get(mt_byte,16*ntot,'mm tags',h_t,i_t))
-     +      goto 911
-      call mm_coords_mm_load(rtdb,nmm,byte_mb(i_t+16*nqm),
-     $                        dbl_mb(i_r+3*nqm))
-      call mm_coords_qm_load(rtdb,nqm,byte_mb(i_t),dbl_mb(i_r))
-      call mm_test(ntot,byte_mb(i_t),dbl_mb(i_r))
-      message="done"
-c
-      if (nvdw .eq. 0) then
-          call mm_data_load_vdw(rtdb)
-      else
-          goto 911
-      end if
-
-      mm_init = .true.
-      return
-911   mm_init = .false.
-      write(*,*) "message=",message
-      return
-      end
-
-      function  mm_end(rtdb)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "mm_data.fh"
-      logical mm_end
-      integer rtdb
+#include "mm_vdw_data.fh"
 c
       character*30 pname
-      pname = "mm_end"
+      pname = "mm_vdw_end"
 c
       if (nvdw .gt. 0) then
         if (.not.ma_free_heap(h_bvdw)) goto 911
@@ -91,20 +27,12 @@ c
         if (.not.ma_free_heap(h_ivdw)) goto 911
         nvdw = 0
       end if
-      if(ntot.gt.0) then
-          if (.not.ma_free_heap(h_t)) goto 911
-          if (.not.ma_free_heap(h_r)) goto 911
-          ntot = 0
-          nqm  = 0
-          nmm = 0
-      end if
-      mm_end = .true.
       return
-911   mm_end = .false.
+911   call errquit("error "//trim(pname),0,-1)
       return
       end
 
-      subroutine mm_test(n,t,c)
+      subroutine mm_vdw_allocate(n)
       implicit none
 #include "util.fh"
 #include "errquit.fh"
@@ -112,29 +40,7 @@ c
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-#include "mm_data.fh"
-
-      integer n
-      character*(16) t(n)
-      double precision c(3,n)
-      integer i
-
-      do i=1,n
-         write(76,*) t(i)
-C         write(76,*) t(i),c(1,i),c(2,i),c(3,i)
-      end do
-      
-      end
-
-      subroutine mm_data_load_vdw(rtdb)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "mm_data.fh"
+#include "mm_vdw_data.fh"
       integer rtdb
 c
       character*180 filename
@@ -150,30 +56,10 @@ c
       external util_io_unit
       integer max_vdw
 c
-      pname = "mm_input_load_vdw"
-c
-      tag="mm:vdw:load"
-      if (.not. rtdb_cget(rtdb, tag, 1, filename))
-     $     goto 911
-c
-      call mm_open_file(filename,fn)
-c     ------------------------- 
-c     count numbers of vdw pairs
-c     ------------------------- 
-C      call inp_init(fn,LuOut)
-C      n = 0
-C      do
-C        if (.not.inp_read()) exit
-C        n=n+1
-C      end do
-C      nvdw=n
-C      rewind(fn)
-      call util_xyz_nlines(nvdw,fn)
-      call inp_init(fn,LuOut)
-c
-      max_vdw = 2500
-      call util_xyz_nlines(max_vdw,fn)
-      write(*,*) "nvdw,max_vdw",nvdw,max_vdw
+      pname = "mm_vdw_allocate"
+
+      if(n.ne.nvdw) call mm_vdw_end()
+      nvdw = n
 c
       if ( .not. ma_alloc_get( MT_INT, nvdw, 
      &      'vdw scratch i',
@@ -198,7 +84,53 @@ c
      &      h_bvdw, i_bvdw) ) call errquit(
      &      'failed scratch space '//pname,
      &      nvdw, MA_ERR)
+      return
+911   call errquit("error "//trim(message),0,
+     >        -1)
+      end
 
+      subroutine mm_vdw_load(rtdb)
+      implicit none
+#include "util.fh"
+#include "errquit.fh"
+#include "inp.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "mm_vdw_data.fh"
+      integer rtdb
+c
+      character*180 filename
+      integer       nmax,n
+c
+      integer fn,k
+      character*180 buffer,field
+      character*180 message
+      character*180 tag
+      character*30 pname,atag
+c
+      logical util_io_unit
+      external util_io_unit
+      integer max_vdw
+c
+      pname = "mm_vdw_load"
+c
+      tag="mm:vdw:load"
+      if (.not. rtdb_cget(rtdb, tag, 1, filename))
+     $     goto 911
+c
+      call mm_open_file(filename,fn)
+c
+      call util_xyz_nlines(n,fn)
+      call mm_vdw_allocate(n)
+      call ifill(n,0.0d0,int_mb(i_ivdw),1)
+      call ifill(n,0.0d0,int_mb(i_jvdw),1)
+      call dfill(n,0.0d0,int_mb(i_avdw),1)
+      call dfill(n,0.0d0,int_mb(i_bvdw),1)
+      rewind(fn)
+c      
+c     loading parameters here
+c
       call inp_init(fn,LuOut)
       n = 0
 10    continue
@@ -222,84 +154,14 @@ c
      >        -1)
       end
 
-      subroutine mm_open_file(filename,fn)
+      subroutine mm_vdw_add_egrad(rtdb,e,n,g)
       implicit none
 #include "util.fh"
 #include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
-      character*(*) filename
-      integer       fn
-c
-      character*180 buffer
-      character*180 message
-      character*30 pname,atag
-c
-      logical util_io_unit
-      external util_io_unit
-c
-      pname = "mm_open_file"
-c
-      if(.not.util_io_unit(80,90,fn))
-     +  call errquit(pname//"cannot get io unit",0,0)
-c     first try to open file in the run directory
-      buffer = filename
-      message = "opening file "//buffer
-      open(unit=fn,file=buffer,status='old',form="formatted",ERR=10)
-      goto 800
-10    continue
-c     now try perm directory
-      call util_file_name_resolve(buffer, .false.)
-      message = "opening file "//buffer
-      open(unit=fn,file=buffer,status='old',form="formatted",ERR=911)
-800   continue
-      write(luout,*) "Successfully "//trim(message)
-      write(luout,*)
-      return
-911   call errquit("error "//trim(message),0,
-     >        -1)
-      end
-
-      subroutine mm_add_energy(rtdb,e)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-#include "mm_data.fh"
-#include "mafdecls.fh"
-
-      integer rtdb
-      double precision e
-      double precision scale_energy,scale_length
-      double precision scale_force
-      double precision evdw
-      character*30 message
-      integer i,j
-
-      call mm_coords_qm_load(rtdb,nqm,byte_mb(i_t),dbl_mb(i_r))
-      call mm_add_vdw_energy(nqm,dbl_mb(i_r),
-     &                      nmm,dbl_mb(i_r+3*nqm),
-     &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
-     &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
-     &                      evdw)
-
-      call util_convert_units("kcal","au",scale_energy)
- 
-      evdw = evdw*scale_energy
-C      e=0
-      e = e + evdw
-      return
-911   call errquit("error "//trim(message),0,-1)
-      end
-
-      subroutine mm_add_egrad(rtdb,e,n,g)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-#include "mm_data.fh"
+#include "mm_vdw_data.fh"
+#include "mm_coords_data.fh"
 #include "mafdecls.fh"
 
       integer rtdb
@@ -324,11 +186,10 @@ C      e=0
 
       call dfill(3*nqm,0.0d0,dbl_mb(i_g),1)
 
-      call mm_add_vdw_egrad(nqm,dbl_mb(i_r),
+      call mm_vdw_egrad(nqm,dbl_mb(i_r),
      &                      nmm,dbl_mb(i_r+3*nqm),
      &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
      &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
-C     &                      n,e,g)
      &                      n,evdw,dbl_mb(i_g))
 
       call util_convert_units("kcal","au",scale_energy)
@@ -376,7 +237,40 @@ c     $        (g(j,i),j=1,3)
 911   call errquit("error "//trim(message),0,-1)
       end
 
-      subroutine mm_add_vdw_egrad(nqm,rqm,
+      subroutine mm_vdw_add_energy(rtdb,e)
+      implicit none
+#include "util.fh"
+#include "errquit.fh"
+#include "inp.fh"
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "mm_vdw_data.fh"
+#include "mm_coords_data.fh"
+
+      integer rtdb
+      double precision e
+      double precision scale_energy,scale_length
+      double precision scale_force
+      double precision evdw
+      character*30 message
+      integer i,j
+
+      call mm_add_vdw_energy(nqm,dbl_mb(i_r),
+     &                      nmm,dbl_mb(i_r+3*nqm),
+     &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
+     &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
+     &                      evdw)
+
+      call util_convert_units("kcal","au",scale_energy)
+ 
+      evdw = evdw*scale_energy
+C      e=0
+      e = e + evdw
+      return
+911   call errquit("error "//trim(message),0,-1)
+      end
+
+      subroutine mm_vdw_egrad(nqm,rqm,
      &                            nmm,rmm,
      &                            np,p1,p2,
      &                            a,b,
@@ -447,7 +341,7 @@ C        write(*,*) "force =",g(:,i1),i1
 911   call errquit("error "//trim(message),0,-1)
       end
 
-      subroutine mm_add_vdw_energy(nqm,rqm,
+      subroutine mm_vdw_energy(nqm,rqm,
      &                            nmm,rmm,
      &                            np,p1,p2,
      &                            a,b,
