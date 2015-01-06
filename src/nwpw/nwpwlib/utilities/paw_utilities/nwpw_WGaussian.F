@@ -70,7 +70,7 @@ c
          mtmp = 0.0d0
          do m=-l,l
             mtmp = mtmp + nwpw_gaunt(.false.,l,m,la,ma,lb,mb)
-     <                   *Tesseral_lm(l,m,cos_theta,phi)
+     >                   *Tesseral_lm(l,m,cos_theta,phi)
          end do
          tmp = tmp + fac * mtmp * nwpw_GaussBessel(la+lb,l,alpha,R)
          fac = -fac

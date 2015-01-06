@@ -288,8 +288,8 @@ c     **** local variables ***
 *     **** local variables ****
       logical value
       integer i
-      integer tt,tmp(2),vh(2)
-      real*8  E,fourpi
+      integer tmp(2),vh(2)
+      real*8  E,fourpi,tt
 
 *     **** external functions ****
       real*8   log_corrector_iF,log_r2integrate_eric
@@ -315,7 +315,7 @@ c     **** local variables ***
       end do
 
       do i=1,ngrid
-         dbl_mb(tmp(1)+i-1) = fourpi*rho(i)*log_amesh*rgrid(i)*2
+         dbl_mb(tmp(1)+i-1)=fourpi*rho(i)*log_amesh*rgrid(i)**2
       end do
 
       tt = 0.0d0
@@ -338,7 +338,7 @@ c     **** local variables ***
       if (.not.value)
      >   call errquit('log_coulomb_energy:pop stack',1,MA_ERR)
 
-      log_coulomb_energy = E
+      log_coulomb_energy = E*0.5d0
       return
       end 
 

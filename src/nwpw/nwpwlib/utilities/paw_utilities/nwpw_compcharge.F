@@ -266,7 +266,7 @@
             call dcopy(npack0,scal,0,dbl_mb(gk(1)),1)
          end if
 
-*        **** define glm =  |k|**l * Tlm(k)/ (2*l+1)!! ****
+*        **** define glm = (-i)**l *  |k|**l * Tlm(k)/ (2*l+1)!! ****
          do m =-l,l
             call Tesseral3_vector_lm(l,m,npack0,
      >                               dbl_mb(G(1)),
@@ -275,7 +275,7 @@
      >                               dbl_mb(glm(1)+lm*npack0))
             do k=1,npack0
                dbl_mb(glm(1)+lm*npack0+k-1) 
-     >            = phase*dbl_mb(glm(1)+lm*npack0+k-1)*dbl_mb(gk(1)+k-1)
+     >          = phase*dbl_mb(glm(1)+lm*npack0+k-1)*dbl_mb(gk(1)+k-1)
             end do
 
             lm = lm + 1
@@ -1035,10 +1035,25 @@
 *     *                                               *
 *     *************************************************
 *
+*   This routine generates dE_Qlm for the non-multipole part of Ecmp_cmp and Ecmp_pw
 *
-      subroutine nwpw_compcharge_gen_dE_Qlm(ispin,vcmp,vcmp_smooth,
+*   dE_Qlm is defined as follows:
+*   dE/dQlm =  Sum(G) dcongj(glm(G,ii))*vcmp(G) + dconjg(glm_smooth(G,ii))*vcmp_smooth(G)
+*
+*   where Qlm = is a function if lm, and ii
+*
+*   The force wrt to glm and glm_smooth is computed as follows:
+*    fion(xyz,ii) = Sum(G) G(xyz)*Qlm(ii)*dimag(glm(G,ii)*dcongj(vcmp(G)))
+*                        + G(xyz)*Qlm(ii)*dimag(glm_smooth(G,ii)*dconjg(vcmp_smooth(G)))
+*
+*    if option%2==1 then include docmp
+*    if option>1    then include docmp_smooth
+*
+      subroutine nwpw_compcharge_gen_dE_Qlm(option,
+     >                                      ispin,vcmp,vcmp_smooth,
      >                                      move,fion)
       implicit none
+      integer option
       integer ispin
       complex*16 vcmp(*)
       complex*16 vcmp_smooth(*)
@@ -1050,7 +1065,7 @@
 #include "nwpw_compcharge.fh"
 
 *     *** local variables ****
-      logical value
+      logical value,docmp,docmp_smooth
       integer np,np_j,np_k,taskid,taskid_j,taskid_k,pcount
       integer iii,iia,ii,ia,lm,l,m,k,jjj,ja,jja,l2,m2,ms
       integer indx1up,indx2up,indx,indx1,indx2
@@ -1062,6 +1077,8 @@
       integer  Pack_G_indx,c_G_indx
       external Pack_G_indx,c_G_indx
 
+      docmp        = mod(option,2).eq.1
+      docmp_smooth = option.gt.1
       call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
      >           dbl_mb(dE_Qlm(1)),1)
 
@@ -1108,11 +1125,15 @@
                call nwpw_compcharge_gen_glm2(ii,l,m,
      >                              dcpl_mb(glm_cmp(1)),
      >                              dcpl_mb(glm_cmp_smooth(1)))
-               call Pack_cc_idot(0,
+               e1 = 0.0d0
+               e2 = 0.0d0
+               if (docmp)
+     >            call Pack_cc_idot(0,
      >                           dcpl_mb(glm_cmp(1)),
      >                           vcmp,
      >                           e1)
-               call Pack_cc_idot(0,
+               if (docmp_smooth)
+     >            call Pack_cc_idot(0,
      >                           dcpl_mb(glm_cmp_smooth(1)),
      >                           vcmp_smooth,
      >                           e2)
@@ -1127,45 +1148,16 @@
                    indx2  = (iii-1)*2*lm_size_max
      >                    + (ispin-1)*lm_size_max+lm
                   qq = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
-                  call Pack_cct_iaconjgMulAdd(0,qq,
+                  if (docmp)
+     >               call Pack_cct_iaconjgMulAdd(0,qq,
      >                                       dcpl_mb(glm_cmp(1)),
      >                                       vcmp,
      >                                       dbl_mb(gvtmp(1)))
-                  call Pack_cct_iaconjgMulAdd(0,qq,
+                  if (docmp_smooth)
+     >               call Pack_cct_iaconjgMulAdd(0,qq,
      >                                       dcpl_mb(glm_cmp_smooth(1)),
      >                                       vcmp_smooth,
      >                                       dbl_mb(gvtmp(1)))
-
-c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gx),
-c     >                           dcpl_mb(glm_cmp(1)),
-c     >                           vcmp,
-c     >                           e1x)
-c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gy),
-c     >                           dcpl_mb(glm_cmp(1)),
-c     >                           vcmp,
-c     >                           e1y)
-c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gz),
-c     >                           dcpl_mb(glm_cmp(1)),
-c     >                           vcmp,
-c     >                           e1z)
-c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gx),
-c     >                           dcpl_mb(glm_cmp_smooth(1)),
-c     >                           vcmp_smooth,
-c     >                           e2x)
-c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gy),
-c     >                           dcpl_mb(glm_cmp_smooth(1)),
-c     >                           vcmp_smooth,
-c     >                           e2y)
-c                  call Pack_conjg_tcc_idot(0,dbl_mb(Gz),
-c     >                           dcpl_mb(glm_cmp_smooth(1)),
-c     >                           vcmp_smooth,
-c     >                           e2z)
-c                  dbl_mb(ftmp(1)+3*(iii-1)) 
-c     >               = dbl_mb(ftmp(1)+3*(iii-1))   - (e1x+e2x)*qq
-c                  dbl_mb(ftmp(1)+3*(iii-1)+1) 
-c     >               = dbl_mb(ftmp(1)+3*(iii-1)+1) - (e1y+e2y)*qq
-c                  dbl_mb(ftmp(1)+3*(iii-1)+2) 
-c     >               = dbl_mb(ftmp(1)+3*(iii-1)+2) - (e1z+e2z)*qq
                end if
             end if
             lm     = lm + 1
@@ -1176,9 +1168,9 @@ c     >               = dbl_mb(ftmp(1)+3*(iii-1)+2) - (e1z+e2z)*qq
             call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),e1x)
             call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),e1y)
             call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),e1z)
-            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  +e1x
-            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)+e1y
-            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)+e1z
+            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  -e1x
+            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)-e1y
+            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)-e1z
          end if
       end do
 
@@ -1205,11 +1197,15 @@ c     >               = dbl_mb(ftmp(1)+3*(iii-1)+2) - (e1z+e2z)*qq
                call nwpw_compcharge_gen_glm2(ii,l,m,
      >                              dcpl_mb(glm_cmp(1)),
      >                              dcpl_mb(glm_cmp_smooth(1)))
-               call Cram_cc_idot(0,
+               e1 = 0.0d0
+               e2 = 0.0d0
+               if (docmp)
+     >            call Cram_cc_idot(0,
      >                           dcpl_mb(glm_cmp(1)),
      >                           vcmp,
      >                           e1)
-               call Cram_cc_idot(0,
+               if (docmp_smooth)
+     >            call Cram_cc_idot(0,
      >                           dcpl_mb(glm_cmp_smooth(1)),
      >                           vcmp_smooth,
      >                           e2)
@@ -1218,42 +1214,6 @@ c     >               = dbl_mb(ftmp(1)+3*(iii-1)+2) - (e1z+e2z)*qq
                   indx = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
                   dbl_mb(dE_Qlm(1)+indx) = (e1+e2)
                end do
-
-c               if (move) then
-c                  Cram_conjg_rcc_idot(0,
-c     >                           dbl_mb(Gx),
-c     >                           dcpl_mb(glm_cmp(1)),
-c     >                           vcmp,
-c     >                           e1x)
-c                  Cram_conjg_rcc_idot(0,
-c     >                           dbl_mb(Gy),
-c     >                           dcpl_mb(glm_cmp(1)),
-c     >                           vcmp,
-c     >                           e1y)
-c                  Cram_conjg_rcc_idot(0,
-c     >                           dbl_mb(Gz),
-c     >                           dcpl_mb(glm_cmp(1)),
-c     >                           vcmp,
-c     >                           e1z)
-c                  Cram_conjg_rcc_idot(0,dbl_mb(Gx),
-c     >                           dcpl_mb(glm_cmp_smooth(1)),
-c     >                           vcmp_smooth,
-c     >                           e2x)
-c                  Cram_conjg_rcc_idot(0,dbl_mb(Gy),
-c     >                           dcpl_mb(glm_cmp_smooth(1)),
-c     >                           vcmp_smooth,
-c     >                           e2y)
-c                  Cram_conjg_rcc_idot(0,dbl_mb(Gz),
-c     >                           dcpl_mb(glm_cmp_smooth(1)),
-c     >                           vcmp_smooth,
-c     >                           e2z)
-c                  dbl_mb(ftmp(1)+3*(iii-1)) 
-c     >               = dbl_mb(ftmp(1)+3*(iii-1))   + e1x+e2x
-c                  dbl_mb(ftmp(1)+3*(iii-1)+1) 
-c     >               = dbl_mb(ftmp(1)+3*(iii-1)+1) + e1y+e2y
-c                  dbl_mb(ftmp(1)+3*(iii-1)+2) 
-c     >               = dbl_mb(ftmp(1)+3*(iii-1)+2) + e1z+e2z
-c               end if
 
             end if
             lm     = lm + 1
@@ -1289,8 +1249,6 @@ c               end if
 
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dE_Qlm(1)))
-
-      
 
       return
       end
@@ -3318,9 +3276,9 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
                   if (mod(pcount,np).eq.taskid) then
                      e1 = 0.0d0
                      do l=2,nshl3d
-                        Rab(1) = -dbl_mb(rcell+l-1)
-                        Rab(2) = -dbl_mb(rcell+l-1+nshl3d)
-                        Rab(3) = -dbl_mb(rcell+l-1+2*nshl3d)
+                        Rab(1) = dbl_mb(rcell+l-1)
+                        Rab(2) = dbl_mb(rcell+l-1+nshl3d)
+                        Rab(3) = dbl_mb(rcell+l-1+2*nshl3d)
                         R = dsqrt(Rab(1)**2 + Rab(2)**2 + Rab(3)**2)
                         if (R.lt.(4*sigma_smooth)) then
                            W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s1,Rab)
@@ -3386,9 +3344,9 @@ c     >                                         l2,m2,s1,Rab)
                      de1(2) = 0.0d0
                      de1(3) = 0.0d0
                      do l=1,nshl3d
-                        Rab(1) = R12(1) - dbl_mb(rcell+l-1)
-                        Rab(2) = R12(2) - dbl_mb(rcell+l-1+nshl3d)
-                        Rab(3) = R12(3) - dbl_mb(rcell+l-1+2*nshl3d)
+                        Rab(1) = R12(1) + dbl_mb(rcell+l-1)
+                        Rab(2) = R12(2) + dbl_mb(rcell+l-1+nshl3d)
+                        Rab(3) = R12(3) + dbl_mb(rcell+l-1+2*nshl3d)
                         R = dsqrt(Rab(1)**2 + Rab(2)**2 + Rab(3)**2)
                         if (R.lt.(4*sigma_smooth)) then
                         if (move) then
@@ -3413,7 +3371,7 @@ c     >                                         l2,m2,s1,Rab)
                            W2 = nwpw_WGaussian(l1,m1,s1,
      >                                         l2,m2,sigma_smooth,Rab)
                            W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
-     >                                      l2,m2,s2,Rab)
+     >                                         l2,m2,s2,Rab)
                            W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
                            e1 = e1 + (W1 + W4 - W2 - W3)
@@ -4011,9 +3969,9 @@ c     >                                   +tmpz
             call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),e1x)
             call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),e1y)
             call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),e1z)
-            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  +e1x
-            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)+e1y
-            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)+e1z
+            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  -e1x
+            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)-e1y
+            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)-e1z
          end if
       end do !** iii **
 
@@ -4237,9 +4195,9 @@ c     >                                   +tmpz
             call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(glmvcmp(1)),e1x)
             call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(glmvcmp(1)),e1y)
             call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(glmvcmp(1)),e1z)
-            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  +e1x
-            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)+e1y
-            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)+e1z
+            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  -e1x
+            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)-e1y
+            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)-e1z
          end if
       end do
 
@@ -4888,9 +4846,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),e1x)
             call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),e1y)
             call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),e1z)
-            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  +e1x
-            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)+e1y
-            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)+e1z
+            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  -e1x
+            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)-e1y
+            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)-e1z
          end if
       end do !** iii **
 
@@ -4986,7 +4944,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             q22 = 0.0d0
          end if
 
-      
          do ms=1,ispin
             indx1 = indx1up + (ms-1)*lm_size_max
             indx2 = indx2up + (ms-1)*lm_size_max
@@ -5073,8 +5030,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             q1 = dbl_mb(Qlm(1)+indx1up) + dbl_mb(Qlm(1)+indx1dn)
             q2 = dbl_mb(Qlm(1)+indx2up) + dbl_mb(Qlm(1)+indx2dn)
 
-            tmp  = (q1*q2 + q11*q2 + q1*q22)
-            !tmp  = (q11*q2 + q1*q22)
+            !tmp  = (q1*q2 + q11*q2 + q1*q22)
+            tmp  = (q11*q2 + q1*q22)
             !tmp  = q1*q2
 
             call daxpy(3,-tmp,dbl_mb(f_gauss(1)+3*(k-1)), 1,

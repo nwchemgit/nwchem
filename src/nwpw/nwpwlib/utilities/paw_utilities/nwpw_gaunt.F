@@ -1565,8 +1565,8 @@ c         end if
       end if
       f1 = drtheta_lm(l,m,cos_theta)*tmp2
 
-      dTx = f1*cos_theta*cos(phi) - f2*sin(phi)
-      dTy = f1*cos_theta*sin(phi) + f2*cos(phi)
+      dTx = f1*cos_theta*dcos(phi) - f2*dsin(phi)
+      dTy = f1*cos_theta*dsin(phi) + f2*dcos(phi)
       dTz = -f1*dsqrt(1.0d0-cos_theta**2)
 
       return
@@ -1919,7 +1919,7 @@ c      double precision theta_lm !*RESULT*
             rlegendre_lm = p_mp1m
          else
             do i = mod_m + 2, l
-               tmp=(X*(2*i-1)*p_mp1m-(i+mod_m-1)*p_mm)/(i-mod_m)
+               tmp=(X*(2*i-1)*p_mp1m-(i+mod_m-1)*p_mm)/dble(i-mod_m)
                p_mm = p_mp1m
                p_mp1m = tmp
             end do
@@ -2051,7 +2051,7 @@ c      end if
             LEGENDRE_LM = P_MP1M
          ELSE
             DO I = MOD_M + 2, L
-               TMP=(X*(2*I-1)*P_MP1M-(I+MOD_M-1)*P_MM)/(I-MOD_M)
+               TMP=(X*(2*I-1)*P_MP1M-(I+MOD_M-1)*P_MM)/dble(I-MOD_M)
                P_MM = P_MP1M
                P_MP1M = TMP
             END DO
@@ -2063,7 +2063,7 @@ c!    *** negative m - this routine is only call with negative m from dtheta_lm 
       IF (M .LT. 0) THEN
          COEFF = 1.0D0
          DO I = 1, 2*MOD_M
-            COEFF = COEFF/(L - MOD_M + I)
+            COEFF = COEFF/dble(L - MOD_M + I)
          END DO
          COEFF = COEFF*(-1)**MOD_M
          LEGENDRE_LM = LEGENDRE_LM*COEFF

@@ -845,6 +845,23 @@ c
       return
       end 
 
+*      ******************************************
+*      *                                        *
+*      *          nwpw_xc_mult_l_max            *
+*      *                                        *
+*      ******************************************
+      integer function nwpw_xc_mult_l_max()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_xc.fh"
+
+      nwpw_xc_mult_l_max = mult_l_max
+      return
+      end
+
+
 
 *      ******************************************
 *      *                                        *
