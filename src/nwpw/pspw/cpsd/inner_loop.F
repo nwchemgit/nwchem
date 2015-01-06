@@ -607,7 +607,10 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          E(45) = psp_ion_core()            !*** ion core energy - independent of psi ***
 
 
-         E(1) = E(1) + E(36) + E(45) 
+c         E(1) = E(1) + E(36) + E(45) 
+c     >        + exc_atom - pxc_atom
+c     >        - ehartree_atom - ecmp_cmp - ecmp_pw
+         E(1) = E(1) 
      >        + exc_atom - pxc_atom
      >        - ehartree_atom - ecmp_cmp - ecmp_pw
       end if
