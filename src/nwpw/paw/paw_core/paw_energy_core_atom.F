@@ -192,7 +192,6 @@ c     >                       log_amesh,ic)
         ecore = ecore + find_multipole_energy(0,ic,dbl_mb(i_r),2,
      >                                  dbl_mb(i_f1),2,
      >                                  dbl_mb(i_f1),log_amesh)
-                  
 
       end do
  
