@@ -441,7 +441,7 @@ c      end
 
          total_energy = total_energy + exc_atom - pxc_atom
      >                - ehartree_atom - ecmp_cmp - ecmp_pw
-     >                + eke_core + eion_core
+c     >                + eke_core + eion_core
       end if
 
 *     **** SIC corrections ****
