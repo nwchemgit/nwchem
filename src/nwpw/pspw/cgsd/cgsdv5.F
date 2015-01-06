@@ -141,8 +141,10 @@
       external control_fractional_smeartype,control_excited_ne
       real*8   control_fractional_kT,control_fractional_temperature
       external control_fractional_kT,control_fractional_temperature
-      logical  psp_pawexist
-      external psp_pawexist
+      logical  psp_pawexist,psp_paw_use_grid_cmp
+      external psp_pawexist,psp_paw_use_grid_cmp
+      integer  psp_paw_mult_l_max
+      external psp_paw_mult_l_max
 
 #ifdef USE_OPENMP
       integer  omp_get_max_threads
@@ -467,13 +469,22 @@ c           call psp_check_print(ia)
      >      write(luout,1252) 
      >      control_smooth_cutoff_values(1)*lattice_wcut(),
      >      control_smooth_cutoff_values(2) 
-
+         if (psp_pawexist()) then
+            if (psp_paw_use_grid_cmp()) then
+               write(luout,1262) psp_paw_mult_l_max(),
+     >                           "grid"
+            else
+               write(luout,1262) psp_paw_mult_l_max(),
+     >                           "two-electron Gaussian"
+            end if
+         end if
          if (control_version().eq.3) then
          write(luout,1260) ewald_rcut(),ewald_ncut()
          write(luout,1261) ewald_mandelung(),
      >                     ewald_mandelung()
      >                    *(4.0d0*pi/3.0)**(1.0d0/3.0d0),rs
          end if
+
          write(luout,1270)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
@@ -786,13 +797,15 @@ c      call frac_occ_end()
      &       '( ',I8,' waves ',I8,' per task)')
  1252 FORMAT(5X,' smooth wavefnc cutoff:  A=',F7.3,' sigma = ',F7.3)
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   Madelung Wigner-Seitz=',f11.8,
+ 1261 FORMAT(5X,'                  Madelung Wigner-Seitz=',f11.8,
      >                              ' (alpha=',f11.8,' rs=',f11.8,')')
+ 1262 FORMAT(5X,' paw integration: xc lmax =',I3,
+     >          ' compensation charge = ',A)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
+ 1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')
  1292 FORMAT(5X, ' Kohn-Sham algorithm  = ',A)
@@ -820,6 +833,7 @@ c      call frac_occ_end()
  1410 FORMAT(10X,'=============  summary of results  =================')
  1420 FORMAT( ' final position of ions:')
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1431 FORMAT(/' total paw energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')

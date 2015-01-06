@@ -313,6 +313,7 @@ c      else if (.not.control_fractional()) then
          end if
          write(luout,1430) E(1),E(1)/ion_nion()
 
+
          if (pspw_qmmm_found()) then
             write(luout,1431)
             write(luout,1432)
@@ -326,6 +327,11 @@ c      else if (.not.control_fractional()) then
             write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
      >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
          end if
+
+         !*** write-out total paw energy - includes core energies ***
+         if (psp_pawexist()) 
+     >      write(luout,1434) (E(1)+E(36)+E(45)),
+     >                        (E(1)+E(36)+E(45))/ion_nion()
 
          write(luout,1440) E(2),E(2)/neall
          write(luout,1450) E(3),E(3)/neall
@@ -587,6 +593,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1431 FORMAT(/' QM Energies')
  1432 FORMAT( '------------')
  1433 FORMAT( ' total  QM energy    :',E19.10,' (',E15.5,'/ion)')
+ 1434 FORMAT(/' total paw energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
