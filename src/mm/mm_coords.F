@@ -18,11 +18,11 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "mm_data.fh"
-      logical mm_end
+      logical mm_coords_end
       integer rtdb
 c
       character*30 pname
-      pname = "mm_end"
+      pname = "mm_coords_end"
 c
       if(ntot.gt.0) then
           if (.not.ma_free_heap(h_t)) goto 911
@@ -31,9 +31,9 @@ c
           nqm  = 0
           nmm = 0
       end if
-      mm_end = .true.
+      mm_coords_end = .true.
       return
-911   mm_end = .false.
+911   mm_coords_end = .false.
       return
       end
       subroutine  mm_coords_allocate(nqm0,nmm0)
@@ -49,6 +49,7 @@ c
 c
       character*180 filename
       integer       nmax,n
+      integer ntot0, nqm0, nmm0
 c
       integer fn,k
       character*180 buffer,field
@@ -66,10 +67,10 @@ c
       ntot0 = nqm0 + nmm0
       if(ntot0.ne.ntot) then
         if ( .not. ma_alloc_get(MT_DBL,3*ntot, 
-       $                        "mm coords",
-       $                         h_r,i_r)) goto 911
+     $                          "mm coords",
+     $                           h_r,i_r)) goto 911
          if(.not.ma_alloc_get(mt_byte,16*ntot,'mm tags',h_t,i_t))
-       +      goto 911
+     +        goto 911
 
       end if
 c
