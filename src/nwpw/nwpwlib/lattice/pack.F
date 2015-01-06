@@ -2406,7 +2406,7 @@ c      end do
       integer i
 
       do i=1,(nida(nb)+nidb(nb))
-        C(i) = C(i) + alpha*dimag(dconjg(A(i))*dconjg(B(i)))
+        C(i) = C(i) + alpha*dimag(A(i)*dconjg(B(i)))
       end do
 
       return
