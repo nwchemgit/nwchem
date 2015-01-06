@@ -9,17 +9,23 @@
       integer h_jvdw,i_jvdw
       integer h_avdw,i_avdw
       integer h_bvdw,i_bvdw
-      integer h_rmm,i_rmm
-      integer h_rqm,i_rqm
-      integer h_tqm,i_tqm
+C      integer h_rmm,i_rmm
+C      integer h_rqm,i_rqm
+C      integer h_tqm,i_tqm
+      integer h_r,i_r
+      integer h_t,i_t
+      integer ntot
 
       common /mm_data/ 
+     &                   ntot,
      &                   nvdw,nmm,nqm,
      &                   h_ivdw,i_ivdw,
      &                   h_jvdw,i_jvdw,
      &                   h_avdw,i_avdw,
      &                   h_bvdw,i_bvdw,
-     &                   h_rqm,i_rqm,
-     &                   h_tqm,i_tqm,
-     &                   h_rmm,i_rmm
+     &                   h_r,i_r,
+     &                   h_t,i_t
+C     &                   h_rqm,i_rqm,
+C     &                   h_tqm,i_tqm,
+C     &                   h_rmm,i_rmm
 

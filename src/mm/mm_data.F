@@ -3,6 +3,7 @@ c $Id: bq_data.F 23019 2012-10-30 00:59:12Z d3y133 $
       implicit none
 #include "mm_data.fh"
 c     
+      data ntot /0/
       data nvdw /0/
       data nmm /0/
       data nqm /0/
@@ -34,23 +35,37 @@ c
       logical util_io_unit
       external util_io_unit
       integer max_vdw
+      integer nqm1,nmm1
 c
       pname = "mm_init"
+c
+      call mm_coords_nqm(nqm,rtdb)
+      call mm_coords_nmm(nmm,rtdb)
+      ntot = nqm + nmm
+c     
+      message = "allocating mm coords"
+      write(*,*) "ntot=",ntot
+      if ( .not. ma_alloc_get(MT_DBL,3*ntot, 
+     $                        "mm coords",
+     $                         h_r,i_r)) goto 911
+       if(.not.ma_alloc_get(mt_byte,16*ntot,'mm tags',h_t,i_t))
+     +      goto 911
+      call mm_coords_mm_load1(rtdb,nmm,byte_mb(i_t+16*nqm),
+     $                        dbl_mb(i_r+3*nqm))
+      call mm_coords_qm_load(rtdb,nqm,byte_mb(i_t),dbl_mb(i_r))
+      call mm_test(ntot,byte_mb(i_t),dbl_mb(i_r))
+      message="done"
 c
       if (nvdw .eq. 0) then
           call mm_data_load_vdw(rtdb)
       else
           goto 911
       end if
-      if (nmm .eq. 0) then
-          call mm_data_load_coords(rtdb)
-      else
-          goto 911
-      end if
-      call mm_load_qm_coords(rtdb)
+
       mm_init = .true.
       return
 911   mm_init = .false.
+      write(*,*) "message=",message
       return
       end
 
@@ -69,10 +84,6 @@ c
       character*30 pname
       pname = "mm_end"
 c
-      if (nmm .gt. 0) then
-        if (.not.ma_free_heap(h_rmm)) goto 911
-        nmm = 0
-      end if
       if (nvdw .gt. 0) then
         if (.not.ma_free_heap(h_bvdw)) goto 911
         if (.not.ma_free_heap(h_avdw)) goto 911
@@ -80,10 +91,12 @@ c
         if (.not.ma_free_heap(h_ivdw)) goto 911
         nvdw = 0
       end if
-      if(nqm.gt.0) then
-          if (.not.ma_free_heap(h_tqm)) goto 911
-          if (.not.ma_free_heap(h_rqm)) goto 911
-          nqm = 0
+      if(ntot.gt.0) then
+          if (.not.ma_free_heap(h_t)) goto 911
+          if (.not.ma_free_heap(h_r)) goto 911
+          ntot = 0
+          nqm  = 0
+          nmm = 0
       end if
       mm_end = .true.
       return
@@ -91,7 +104,7 @@ c
       return
       end
 
-      subroutine mm_test()
+      subroutine mm_test(n,t,c)
       implicit none
 #include "util.fh"
 #include "errquit.fh"
@@ -101,76 +114,16 @@ c
 #include "mafdecls.fh"
 #include "mm_data.fh"
 
-      write(*,*) "handles",nvdw,h_ivdw,h_jvdw,h_avdw,h_bvdw
-      end
-
-      subroutine mm_data_load_coords(rtdb)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "mm_data.fh"
-      integer rtdb
-c
-      character*180 filename
-      integer       nmax,n
-c
-      integer fn,k
-      character*180 buffer,field
-      character*180 message
-      character*180 tag
-      character*30 pname,atag
-c
-      logical util_io_unit
-      external util_io_unit
-      integer max_vdw
-      integer iloc(3)
+      integer n
+      character*(16) t(n)
+      double precision c(3,n)
       integer i
-      character*32 prefix
-      character*32 aunit
-      double precision scale
-c
-      pname = "mm_input_load_coords"
-      prefix = "mm:coords:load"
-c
-      tag=trim(prefix)//":name"
-      if (.not. rtdb_cget(rtdb, tag, 1, filename))
-     $     goto 911
-c
-      tag=trim(prefix)//":format"
-      if(.not. rtdb_get(rtdb,tag,mt_int,3,iloc))   
-     $   iloc = (/ 1, 2, 3 /) 
 
-      call mm_open_file(filename,fn)
-c     ----------------------
-c     count numbers of lines
-c     ----------------------
-      call util_xyz_nlines(nmm,fn)
-      write(*,*) "nmm=",nmm
-
-      if ( .not. ma_alloc_get( MT_DBL, 3*nmm, 
-     &      'mm coords',
-     &      h_rmm, i_rmm) ) call errquit(
-     &      'failed memory allocation '//pname,
-     &      nmm, MA_ERR)
-      call util_xyz_read_coords(nmm,n,iloc,dbl_mb(i_rmm),fn)
-      close(fn)
-c      
-      tag=trim(prefix)//":units"
-      if (.not.rtdb_cget(rtdb, tag, 1,aunit)) aunit="ang"
-      call util_convert_units(aunit,"angstrom",scale)   
-      if (scale.ne.1.0) then
-        call dscal(3*nmm, scale,dbl_mb(i_rmm),1)
-      end if
-      do i=1,nmm
-         write(54,*) dbl_mb(i_rmm+i-1)
-      enddo
-      return
-911   call errquit("error "//trim(message),0,
-     >        -1)
+      do i=1,n
+         write(76,*) t(i)
+C         write(76,*) t(i),c(1,i),c(2,i),c(3,i)
+      end do
+      
       end
 
       subroutine mm_data_load_vdw(rtdb)
@@ -207,14 +160,15 @@ c
 c     ------------------------- 
 c     count numbers of vdw pairs
 c     ------------------------- 
-      call inp_init(fn,LuOut)
-      n = 0
-      do
-        if (.not.inp_read()) exit
-        n=n+1
-      end do
-      nvdw=n
-      rewind(fn)
+C      call inp_init(fn,LuOut)
+C      n = 0
+C      do
+C        if (.not.inp_read()) exit
+C        n=n+1
+C      end do
+C      nvdw=n
+C      rewind(fn)
+      call util_xyz_nlines(nvdw,fn)
       call inp_init(fn,LuOut)
 c
       max_vdw = 2500
@@ -255,7 +209,6 @@ c
       if(n.gt.nvdw) goto 911
       message = "reading vdw params"
       n = n+1
-      write(*,*) "n=",n
       if (.not.inp_i(int_mb(i_ivdw+n-1))) goto 911
       if (.not.inp_i(int_mb(i_jvdw+n-1))) goto 911
       if (.not.inp_f(dbl_mb(i_avdw+n-1))) goto 911
@@ -324,9 +277,9 @@ c     now try perm directory
       character*30 message
       integer i,j
 
-      call mm_load_qm_coords(rtdb)
-      call mm_add_vdw_energy(nqm,dbl_mb(i_rqm),
-     &                      nmm,dbl_mb(i_rmm),
+      call mm_coords_qm_load(rtdb,nqm,byte_mb(i_t),dbl_mb(i_r))
+      call mm_add_vdw_energy(nqm,dbl_mb(i_r),
+     &                      nmm,dbl_mb(i_r+3*nqm),
      &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
      &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
      &                      evdw)
@@ -362,7 +315,7 @@ C      e=0
       double precision crd(3),q
       integer i,j
 
-      call mm_load_qm_coords(rtdb)
+      call mm_coords_qm_load(rtdb,nqm,byte_mb(i_t),dbl_mb(i_r))
       if ( .not. ma_push_get( MT_DBL, 3*nqm, 
      &      'vdw scratch B',
      &      h_g, i_g) ) call errquit(
@@ -371,8 +324,8 @@ C      e=0
 
       call dfill(3*nqm,0.0d0,dbl_mb(i_g),1)
 
-      call mm_add_vdw_egrad(nqm,dbl_mb(i_rqm),
-     &                      nmm,dbl_mb(i_rmm),
+      call mm_add_vdw_egrad(nqm,dbl_mb(i_r),
+     &                      nmm,dbl_mb(i_r+3*nqm),
      &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
      &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
 C     &                      n,e,g)
@@ -391,8 +344,8 @@ C      call dfill(3*nqm,0.0d0,g,1)
       write(6,1000) "MM/VDW",
      $     'x','y','z','x','y','z'
       do i = 1, nqm
-         write(6,2000) i, byte_mb(i_tqm+16*(i-1)),
-     $        (dbl_mb(i_rqm+3*(i-1)+j),j=0,2),
+         write(6,2000) i, byte_mb(i_t+16*(i-1)),
+     $        (dbl_mb(i_r+3*(i-1)+j),j=0,2),
      $        (scale_force*dbl_mb(i_g +3*(i-1)+j),j=0,2)
       enddo
       write(6,*)
@@ -401,8 +354,8 @@ C      call dfill(3*nqm,0.0d0,g,1)
       write(6,1000) "QM + MM/VDW",
      $     'x','y','z','x','y','z'
       do i = 1, nqm
-         write(6,2000) i, byte_mb(i_tqm+16*(i-1)),
-     $        (dbl_mb(i_rqm+3*(i-1)+j),j=0,2),
+         write(6,2000) i, byte_mb(i_t+16*(i-1)),
+     $        (dbl_mb(i_r+3*(i-1)+j),j=0,2),
 c     $        (g(j,i),j=1,3)
      $        g(1,i),g(2,i),g(3,i)
       enddo
@@ -485,8 +438,8 @@ c
         g(2,i1) = g(2,i1) + df*dy
         g(3,i1) = g(3,i1) + df*dz
    
-C        write(*,*) "qm coord=",rqm(:,i1),i1
-C        write(*,*) "mm coord=",rmm(:,i2),i2
+        write(*,*) "qm coord=",rqm(:,i1),i1
+        write(*,*) "mm coord=",rmm(:,i2),i2
 C        write(*,*) "force =",g(:,i1),i1
       end do
       write(*,*) "vdw energy",evdw
@@ -554,65 +507,4 @@ c
       return
 911   call errquit("error "//trim(message),0,-1)
       end
- 
-      subroutine mm_load_qm_coords(rtdb)
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "geom.fh"
-#include "mm_data.fh"
 
-      integer rtdb
-c
-      integer i_c,h_c
-      integer geom
-      integer nat
-      logical status
-      character*30 message
-      integer i
-      double precision scale
-      logical geom_cart_get1
-      external geom_cart_get1
-c
-c     load geometry 
-c     -------------
-      if (.not. geom_create(geom, 'geometry'))
-     &     call errquit('cons_load_geom',0, GEOM_ERR)
-      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &     call errquit('cons_load_geom',0, RTDB_ERR)
-c
-c     get cart coordinates
-c     --------------------
-      status=geom_ncent(geom,nat)
-      if(.not.status) 
-     & call errquit('cons_init: geom_create?',70, GEOM_ERR)
-      if (nat.ne.nqm) then
-        if(nqm.gt.0) then
-          if (.not.ma_free_heap(h_tqm)) goto 911
-          if (.not.ma_free_heap(h_rqm)) goto 911
-        end if
-        if ( .not. ma_alloc_get( MT_DBL, nat*3, 'qm coord',
-     &        h_rqm, i_rqm) ) goto 911
-        if(.not.ma_alloc_get(mt_byte,16*nat,'qm tags',h_tqm,i_tqm))
-     +       goto 911
-
-      end if
-      nqm = nat
-      if(.not.geom_cart_get1(geom, nqm,byte_mb(i_tqm),dbl_mb(i_rqm)))
-     &    goto 911
- 
-      if(.not.geom_destroy(geom)) 
-     &    goto 911
-
-      call util_convert_units("au","angstrom",scale)
-      call dscal(3*nqm, scale,dbl_mb(i_rqm),1)
-      do i=1,3*nqm
-        write(99,*) dbl_mb(i_rqm+i-1)
-      end do
-      return
-911   call errquit("error "//trim(message),0,-1)
-      end
- 
- 
