@@ -7,6 +7,7 @@
             MOTION.o \
             psp.o \
             psp_olddebug.o \
+	    psp_cmp_dE_Qlm.o \
 	    paw.o \
             psp_stress.o \
 	    semicore.o \

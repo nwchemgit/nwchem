@@ -1082,19 +1082,19 @@ c               write(*,*)
 
 *        **** sw2 = Gijl*sw1 ******
          Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
-c         call Multiply_Gijl_sw1(nn,
-c     >                          nproj,
-c     >                          int_mb(nmax(1)+ia-1),
-c     >                          int_mb(lmax(1)+ia-1),
-c     >                          int_mb(n_projector(1)
-c     >                                 + (ia-1)*(nmax_max*lmmax_max)),
-c     >                          int_mb(l_projector(1)
-c     >                                 + (ia-1)*(nmax_max*lmmax_max)),
-c     >                          int_mb(m_projector(1)
-c     >                                 + (ia-1)*(nmax_max*lmmax_max)),
-c     >                          dbl_mb(Gijl_indx),
-c     >                          dbl_mb(sw1a(1)+swstart*nn),
-c     >                          dbl_mb(sw2a(1)+swstart*nn))
+cebug         call Multiply_Gijl_sw1(nn,
+cebug     >                          nproj,
+cebug     >                          int_mb(nmax(1)+ia-1),
+cebug     >                          int_mb(lmax(1)+ia-1),
+cebug     >                          int_mb(n_projector(1)
+cebug     >                                 + (ia-1)*(nmax_max*lmmax_max)),
+cebug     >                          int_mb(l_projector(1)
+cebug     >                                 + (ia-1)*(nmax_max*lmmax_max)),
+cebug     >                          int_mb(m_projector(1)
+cebug     >                                 + (ia-1)*(nmax_max*lmmax_max)),
+cebug     >                          dbl_mb(Gijl_indx),
+cebug     >                          dbl_mb(sw1a(1)+swstart*nn),
+cebug     >                          dbl_mb(sw2a(1)+swstart*nn))
 
      
 *        **** paw operations #1 - generate it's compcharge, add atomic coulomb, and add atomic xc potential ****
@@ -1113,28 +1113,28 @@ c     >                          dbl_mb(sw2a(1)+swstart*nn))
             call nwpw_timing_end(39)
 
 *           **** atomic coulomb matrix - sw2 = sw2 + Vhatomijl*sw1  ****
-c            call nwpw_compcharge_coulomb_atom(ii,ia,ispin,ne,nproj,
-c     >                                   dbl_mb(wtmp(1)),
-c     >                                   dbl_mb(sw1a(1)+swstart*nn),
-c     >                                   dbl_mb(sw2a(1)+swstart*nn),
-c     >                                   eh_atom)
+cebug            call nwpw_compcharge_coulomb_atom(ii,ia,ispin,ne,nproj,
+cebug     >                                   dbl_mb(wtmp(1)),
+cebug     >                                   dbl_mb(sw1a(1)+swstart*nn),
+cebug     >                                   dbl_mb(sw2a(1)+swstart*nn),
+cebug     >                                   eh_atom)
 
 *           **** xc matrix - sw2 = sw2 + Vxcijl*sw1 ******
-c            call nwpw_xc_solve(ii,ia,
-c     >        int_mb(n1dgrid(1)+ia-1),
-c     >        int_mb(n1dbasis(1)+ia-1),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
-c     >        dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
-c     >        dbl_mb(log_amesh(1)+ia-1),
-c     >        ispin,ne,nproj,
-c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
+cebug            call nwpw_xc_solve(ii,ia,
+cebug     >        int_mb(n1dgrid(1)+ia-1),
+cebug     >        int_mb(n1dbasis(1)+ia-1),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
+cebug     >        dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
+cebug     >        dbl_mb(log_amesh(1)+ia-1),
+cebug     >        ispin,ne,nproj,
+cebug     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
 
         end if
       end do
@@ -1245,8 +1245,8 @@ c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
                !*** dng_cmp(G),dng_cmp_smooth(G) --> dng_cmp(r),dng_cmp_smooth(r) ***
                call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
                call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
-               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
-               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
+               call D3dB_cr_pfft3b(1,0,dcpl_mb(dng_cmp(1)))
+               call D3dB_cr_pfft3b(1,0,dcpl_mb(dng_cmp_smooth(1)))
 
                !*** generate vcmp and vcmp_smooth ***
                call coulomb2_v(dcpl_mb(dng_cmp(1)),
@@ -1260,16 +1260,16 @@ c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
                call D3dB_rr_Sub2(1,
      >                           dcpl_mb(vcmp_smooth(1)),
      >                           dcpl_mb(vcmp(1)))
-               call D3dB_rr_Sum2(1,
-     >                           dcpl_mb(vc_tmp(1)),
-     >                           dcpl_mb(vcmp_smooth(1)))
+cdebug               call D3dB_rr_Sum2(1,
+cdebug     >                           dcpl_mb(vc_tmp(1)),
+cdebug     >                           dcpl_mb(vcmp_smooth(1)))
 
                !*** vcmp(r),vcmp_smooth(r) --> vcmp(G),vcmp_smooth(G) ***
                !*** May want to change nwpw_compcharge_gen_dE_Qlm to remove these FFTs ***
                call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp(1)))
                call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp_smooth(1)))
-               call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
-               call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
+               call D3dB_rc_pfft3f(1,0,dcpl_mb(vcmp(1)))
+               call D3dB_rc_pfft3f(1,0,dcpl_mb(vcmp_smooth(1)))
                call Pack_c_pack(0,dcpl_mb(vcmp(1)))
                call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
 
@@ -1278,15 +1278,17 @@ c     >        dbl_mb(sw1a(1)+swstart*nn),dbl_mb(sw2a(1)+swstart*nn))
 c            call dcopy(2*npack0,dcpl_mb(vc_tmp(1)),1,
 c     >                          dcpl_mb(vcmp_smooth(1)),1)
 c            call dcopy(2*npack0,0.0d0,0,dcpl_mb(vcmp(1)),1)
-c            call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
+c            call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp_smooth(1)))
+c            call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
+c            call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
 
-c            call nwpw_compcharge_gen_dE_Qlm(ispin,
-c     >                                   dcpl_mb(vcmp_smooth(1)),
-c     >                                   dcpl_mb(vcmp(1)),.true.,fion)
-            call write_force(nion,fion,"f_vnonlocal_check a")
+cdebug            call nwpw_compcharge_gen_dE_Qlm(ispin,
+cdebug     >                                   dcpl_mb(vcmp_smooth(1)),
+cdebug     >                                   dcpl_mb(vcmp(1)),.true.,fion)
+cdebug            call write_force(nion,fion,"f_vnonlocal_check a")
          
-c            call nwpw_compcharge_gen_dEmult_Qlm(ispin)
-c            call nwpw_compcharge_add_dEmult_Qlm(ispin)
+cdebug            call nwpw_compcharge_gen_dEmult_Qlm(ispin)
+cdebug            call nwpw_compcharge_add_dEmult_Qlm(ispin)
 
             value =           BA_pop_stack(vcmp_smooth(2))
             value = value.and.BA_pop_stack(vcmp(2))
@@ -1297,10 +1299,10 @@ c            call nwpw_compcharge_add_dEmult_Qlm(ispin)
          end if
 
 *        **** update ncmp*Vloc ****
-         call nwpw_compcharge_zero_dE_Qlm()
-         call psp_dE_ncmp_vloc_Qlm_test(ispin,.true.,fion)
-         call nwpw_compcharge_add_dElocal_Qlm(ispin)
-         call write_force(nion,fion,"f_vnonlocal_check b")
+        call nwpw_compcharge_zero_dE_Qlm()
+        call psp_dE_ncmp_vloc_Qlm_test(ispin,.true.,fion)
+        call nwpw_compcharge_add_dElocal_Qlm(ispin)
+        call write_force(nion,fion,"f_vnonlocal_check b")
 
          do ip=1,nion_prj_indx
             ii          = int_mb(ii_prj_indx(1)+ip-1)
@@ -1437,14 +1439,14 @@ c            call nwpw_compcharge_add_dEmult_Qlm(ispin)
       call write_force(nion,fion,"f_vnonlocal_check c")
 
 *     *** add multipole force here ***
-c      if (pawexist)
-c     >  call nwpw_compcharge_F_multipole_test(ispin,dbl_mb(zv(1)),fion)
+      if (pawexist)
+     >  call nwpw_compcharge_F_multipole_test(ispin,dbl_mb(zv(1)),fion)
       call write_force(nion,fion,"f_vnonlocal_check d")
 
       value =           BA_pop_stack(sum(2))
       value = value.and.BA_pop_stack(xtmp(2))
       value = value.and.BA_pop_stack(exi(2))
-      if (.not.value) call errquit('f_vnonlocal: popping stack',3,
+      if (.not.value) call errquit('f_vnonlocal_check: popping stack',3,
      >       MA_ERR)
 
 

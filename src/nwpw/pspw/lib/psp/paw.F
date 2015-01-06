@@ -1255,6 +1255,35 @@ c           end do
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *        psp_paw_use_grid_cmp     *
+*     *                                 *
+*     ***********************************
+      logical function psp_paw_use_grid_cmp()
+      implicit none
+
+#include "psp.fh"
+
+      psp_paw_use_grid_cmp = use_grid_cmp
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         psp_paw_mult_l_max      *
+*     *                                 *
+*     ***********************************
+      integer function psp_paw_mult_l_max()
+      implicit none
+
+      integer  nwpw_xc_mult_l_max,mult_l
+      external nwpw_xc_mult_l_max
+
+      mult_l = nwpw_xc_mult_l_max()
+      psp_paw_mult_l_max = mult_l
+      return
+      end
 
 *     ***********************************
 *     *					*
@@ -2821,13 +2850,14 @@ c
             call nwpw_compcharge_gen_vlr_cmp_smooth(dbl_mb(zv(1)),
      >                                           dbl_mb(r_grid(1)),
      >                                           dbl_mb(rho_cmp(1)))
+
             call D3dB_rr_Sum2(1,dbl_mb(rho_cmp(1)),dbl_mb(vl_notpaw(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(vl_notpaw(1)))
+            call D3dB_rc_pfft3f(1,0,dbl_mb(vl_notpaw(1)))
             call Pack_c_pack(0,dbl_mb(vl_notpaw(1)))
             call Pack_c_SMul1(0,dv,dbl_mb(vl_notpaw(1)))
 
             call D3dB_rr_Sub2(1,dbl_mb(rho_cmp(1)),dbl_mb(vl1(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(vl1(1)))
+            call D3dB_rc_pfft3f(1,0,dbl_mb(vl1(1)))
             call Pack_c_pack(0,dbl_mb(vl1(1)))
             call Pack_c_SMul1(0,dv,dbl_mb(vl1(1)))
 
@@ -2849,40 +2879,6 @@ c
             call Pack_cc_dot(0,dbl_mb(rho_cmp_smooth(1)),
      >                         dbl_mb(vl1(1)),e2)
             eh = eh + (e1+e2)
-
-
-c            call nwpw_compcharge_gen_dn_cmp2(ispin,
-c     >                                       dbl_mb(rho_cmp(1)),
-c     >                                       dbl_mb(rho_cmp_smooth(1)))
-c
-c*           **** short-range terms ****
-c            call v_local_seperate_paw(dbl_mb(vl1(1)),
-c     >                                dbl_mb(vl_notpaw(1)))
-c            call Pack_cc_dot(0,dbl_mb(rho_cmp(1)),
-c     >                         dbl_mb(vl_notpaw(1)),e1)
-c            call Pack_cc_dot(0,dbl_mb(rho_cmp_smooth(1)),
-c     >                         dbl_mb(vl1(1)),e2)
-cc            eh = eh + (e1+e2)
-cc
-c*           **** long-range terms ****
-c            call Pack_c_unpack(0,dbl_mb(rho_cmp(1)))
-c            call D3dB_cr_fft3b(1,dbl_mb(rho_cmp(1)))
-c            call Pack_c_unpack(0,dbl_mb(rho_cmp_smooth(1)))
-c            call D3dB_cr_fft3b(1,dbl_mb(rho_cmp_smooth(1)))
-c            call v_lr_local_seperate_paw(dbl_mb(r_grid(1)),
-c     >                                   dbl_mb(vl1(1)),
-c     >                                   dbl_mb(vl_notpaw(1)))
-c            call nwpw_compcharge_gen_vlr_cmp_smooth(dbl_mb(zv(1)),
-c     >                                           dbl_mb(r_grid(1)),
-c     >                                           dbl_mb(vl2(1)))
-c            call D3dB_rr_Sum2(1,dbl_mb(vl2(1)),dbl_mb(vl_notpaw(1)))
-c            call D3dB_rr_Sub2(1,dbl_mb(vl2(1)),dbl_mb(vl1(1)))
-c
-c            call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
-c     >                         dbl_mb(vl_notpaw(1)),e1)
-c            call D3dB_rr_dot(1,dbl_mb(rho_cmp_smooth(1)),
-c     >                         dbl_mb(vl1(1)),e2)
-c            eh = eh + (e1+e2)*dv
 
          end if
          ok =        BA_pop_stack(r_grid(2))
@@ -3040,7 +3036,7 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >               dum1,dum2)
             call v_lr_local(dbl_mb(r_grid(1)),
      >                      dbl_mb(rho_cmp(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho_cmp(1)))
+            call D3dB_rc_pfft3f(1,0,dbl_mb(rho_cmp(1)))
             call Pack_c_pack(0,dbl_mb(rho_cmp(1)))
             call Pack_c_SMul1(0,dv,dbl_mb(rho_cmp(1)))
             call Pack_cc_Sum2(0,dbl_mb(rho_cmp(1)),dbl_mb(vl1(1)))
@@ -3060,12 +3056,12 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >                                           dbl_mb(r_grid(1)),
      >                                           dbl_mb(rho_cmp(1)))
             call D3dB_rr_Sum2(1,dbl_mb(rho_cmp(1)),dbl_mb(vl_notpaw(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(vl_notpaw(1)))
+            call D3dB_rc_pfft3f(1,0,dbl_mb(vl_notpaw(1)))
             call Pack_c_pack(0,dbl_mb(vl_notpaw(1)))
             call Pack_c_SMul1(0,dv,dbl_mb(vl_notpaw(1)))
 
             call D3dB_rr_Sub2(1,dbl_mb(rho_cmp(1)),dbl_mb(vl1(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(vl1(1)))
+            call D3dB_rc_pfft3f(1,0,dbl_mb(vl1(1)))
             call Pack_c_pack(0,dbl_mb(vl1(1)))
             call Pack_c_SMul1(0,dv,dbl_mb(vl1(1)))
 
@@ -4295,7 +4291,7 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >               dum1,dum2)
             call v_lr_local(dbl_mb(r_grid(1)),
      >                      dbl_mb(rho_cmp(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho_cmp(1)))
+            call D3dB_rc_pfft3f(1,0,dbl_mb(rho_cmp(1)))
             call Pack_c_pack(0,dbl_mb(rho_cmp(1)))
             call Pack_c_SMul1(0,dv,dbl_mb(rho_cmp(1)))
             call Pack_cc_Sum2(0,dbl_mb(rho_cmp(1)),dbl_mb(vl1(1)))
@@ -4314,13 +4310,14 @@ c     >                         dcpl_mb(vl1(1)),eh)
             call nwpw_compcharge_gen_vlr_cmp_smooth(dbl_mb(zv(1)),
      >                                           dbl_mb(r_grid(1)),
      >                                           dbl_mb(rho_cmp(1)))
+
             call D3dB_rr_Sum2(1,dbl_mb(rho_cmp(1)),dbl_mb(vl_notpaw(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(vl_notpaw(1)))
+            call D3dB_rc_pfft3f(1,0,dbl_mb(vl_notpaw(1)))
             call Pack_c_pack(0,dbl_mb(vl_notpaw(1)))
             call Pack_c_SMul1(0,dv,dbl_mb(vl_notpaw(1)))
 
             call D3dB_rr_Sub2(1,dbl_mb(rho_cmp(1)),dbl_mb(vl1(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(vl1(1)))
+            call D3dB_rc_pfft3f(1,0,dbl_mb(vl1(1)))
             call Pack_c_pack(0,dbl_mb(vl1(1)))
             call Pack_c_SMul1(0,dv,dbl_mb(vl1(1)))
 
@@ -4357,6 +4354,7 @@ c     >                         dcpl_mb(vl1(1)),eh)
      >                                      dbl_mb(rho_cmp_smooth(1)),
      >                                      dbl_mb(rho_cmp(1)),
      >                                      fion)
+
                call D3dB_rr_Sub2(1,dbl_mb(rho_cmp_smooth(1)),
      >                             dbl_mb(rho_cmp(1)))
                call nwpw_compcharge_gen_f_lr_cmp_smooth(dbl_mb(zv(1)),

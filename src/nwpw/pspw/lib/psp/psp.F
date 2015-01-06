@@ -2129,153 +2129,12 @@ c           end do
 
 *     **** paw operations #2 - generate vcmp,.... and Gaussian Multipole  ****
       if (pawexist) then
-
          call nwpw_timing_start(39)
-         call D3dB_nx(1,nx)
-         call D3dB_ny(1,ny)
-         call D3dB_nz(1,nz)
-         scal1 = 1.0d0/dble(nx*ny*nz)
-         dv = lattice_omega()*scal1
-
-
-         if (periodic) then
-            call Pack_npack(0,npack0)
-         else
-            call D3dB_n2ft3d(1,npack0)
-            npack0 = npack0/2
-         end if
 
          if (use_grid_cmp) then
-
-            value = BA_push_get(mt_dcpl,npack0,'dng_cmp',
-     >                          dng_cmp(2),dng_cmp(1))
-            value = value.and.
-     >              BA_push_get(mt_dcpl,npack0,'vcmp',
-     >                          vcmp(2),vcmp(1))
-            if (.not.value) 
-     >      call errquit('v_nonlocal:out of stack',4, MA_ERR)
-
-*           **** zero out dE/dQlm array ****
-            call nwpw_compcharge_zero_dE_Qlm()
-
-            call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
-
-            call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp_tmp(1)))
-            call Pack_cc_Sum(0,
-     >                       dcpl_mb(vc_tmp(1)),
-     >                       dcpl_mb(vcmp_tmp(1)),
-     >                       dcpl_mb(vcmp(1)))
-
-            pcount = 0
-            do ip=1,nion_prj_indx
-               ii          = int_mb(ii_prj_indx(1)+ip-1)
-               ia          = int_mb(ia_prj_indx(1)+ip-1)
-               if ((int_mb(psp_type(1)+ia-1).eq.4)) then
-                  mult_l = nwpw_compcharge_mult_l(ia)
-                  do l=0,mult_l
-                  do m=-l,l
-                     if (mod(pcount,np_j).eq.taskid_j) then
-                        call nwpw_compcharge_gen_glm(ii,l,m,
-     >                                      dcpl_mb(dng_cmp(1)))
-                        call Pack_cc_idot(0,dcpl_mb(dng_cmp(1)),
-     >                                      dcpl_mb(vcmp(1)),ff(1))
-                        call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
-     >                                                  ff(1)*omega)
-                     end if
-                     pcount = pcount + 1
-                  end do
-                  end do
-               end if
-            end do
-            value =           BA_pop_stack(vcmp(2))
-            value = value.and.BA_pop_stack(dng_cmp(2))
-            if (.not.value) 
-     >      call errquit('v_nonlocal:popping stack',4, MA_ERR)
-
+            call psp_cmp_dE_Qlm_pw(ispin,move,fion)
          else
-
-            value = BA_push_get(mt_dcpl,npack0,'dng_cmp',
-     >                          dng_cmp(2),dng_cmp(1))
-            value = value.and.
-     >              BA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
-     >                          dng_cmp_smooth(2),dng_cmp_smooth(1))
-            value = value.and.
-     >              BA_push_get(mt_dcpl,npack0,'vcmp',
-     >                          vcmp(2),vcmp(1))
-            value = value.and.
-     >              BA_push_get(mt_dcpl,npack0,'vcmp_smooth',
-     >                          vcmp_smooth(2),vcmp_smooth(1))
-            if (.not.value) 
-     >        call errquit('v_nonlocal:out of stack',4, MA_ERR)
-
-            call nwpw_compcharge_gen_dn_cmp2(ispin,
-     >                                       dcpl_mb(dng_cmp(1)),
-     >                                       dcpl_mb(dng_cmp_smooth(1)))
-
-            !*** compute hartree potential of ntilde + ncmp_tilde ***
-            !*** compute hartree potential ncmp   - ncmp_tilde ***
-            if (periodic) then
-               call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
-               call Pack_c_Copy(0,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
-               call coulomb_v(dcpl_mb(dng_cmp_smooth(1)),
-     >                        dcpl_mb(vcmp_smooth(1)))
-
-               call Pack_cc_Sub2(0,
-     >                           dcpl_mb(vcmp_smooth(1)),
-     >                           dcpl_mb(vcmp(1)))
-
-               call Pack_cc_Sum2(0,dcpl_mb(vc_tmp(1)),
-     >                             dcpl_mb(vcmp_smooth(1)))
-
-               call Pack_c_SMul1(0,omega,dcpl_mb(vcmp(1)))
-               call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
-            else
-               !*** dng_cmp(G),dng_cmp_smooth(G) --> dng_cmp(r),dng_cmp_smooth(r) ***
-               call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
-               call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
-               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
-               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
-
-               !*** generate vcmp and vcmp_smooth ***
-               call coulomb2_v(dcpl_mb(dng_cmp(1)),
-     >                         dcpl_mb(vcmp(1)))
-               call coulomb2_v(dcpl_mb(dng_cmp_smooth(1)),
-     >                         dcpl_mb(vcmp_smooth(1)))
-               call D3dB_r_Copy(1,dcpl_mb(vcmp(1)),dcpl_mb(vcmp_tmp(1)))
-
-               !*** vcmp        = vcmp-vcmp_smooth ***
-               !*** vcmp_smooth = vcmp_smooth + vc ***
-               call D3dB_rr_Sub2(1,
-     >                           dcpl_mb(vcmp_smooth(1)),
-     >                           dcpl_mb(vcmp(1)))
-               call D3dB_rr_Sum2(1,
-     >                           dcpl_mb(vc_tmp(1)),
-     >                           dcpl_mb(vcmp_smooth(1)))
-
-               !*** vcmp(r),vcmp_smooth(r) --> vcmp(G),vcmp_smooth(G) ***
-               !*** May want to change nwpw_compcharge_gen_dE_Qlm to remove these FFTs ***
-               call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp(1)))
-               call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp_smooth(1)))
-               call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
-               call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
-               call Pack_c_pack(0,dcpl_mb(vcmp(1)))
-               call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
-
-            end if
-
-            call nwpw_compcharge_gen_dE_Qlm(ispin,
-     >                                   dcpl_mb(vcmp_smooth(1)),
-     >                                   dcpl_mb(vcmp(1)),move,fion)
-         
-            call nwpw_compcharge_gen_dEmult_Qlm(ispin)
-            call nwpw_compcharge_add_dEmult_Qlm(ispin)
-
-            value =           BA_pop_stack(vcmp_smooth(2))
-            value = value.and.BA_pop_stack(vcmp(2))
-            value = value.and.BA_pop_stack(dng_cmp_smooth(2))
-            value = value.and.BA_pop_stack(dng_cmp(2))
-            if (.not.value) 
-     >        call errquit('v_nonlocal:popping stack',5,MA_ERR)
+            call psp_cmp_dE_Qlm(ispin,move,fion)
          end if
 
 *        **** update ncmp*Vloc ****
@@ -2291,7 +2150,6 @@ c           end do
      >                                   dbl_mb(sw1a(1)+swstart*nn),
      >                                   dbl_mb(sw2a(1)+swstart*nn))
          end do
-     
 
          call nwpw_timing_end(39)
       end if
@@ -2750,10 +2608,7 @@ c           end do
      >              BA_push_get(mt_dcpl,npack0,'vcmp',
      >                          vcmp(2),vcmp(1))
             if (.not.value) 
-     >      call errquit('v_nonlocal:out of stack',4, MA_ERR)
-
-*           **** zero out dE/dQlm array ****
-            call nwpw_compcharge_zero_dE_Qlm()
+     >      call errquit('f_vnonlocal:out of stack',4, MA_ERR)
 
             call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
 
@@ -2762,35 +2617,16 @@ c           end do
      >                       dcpl_mb(vc_tmp(1)),
      >                       dcpl_mb(vcmp_tmp(1)),
      >                       dcpl_mb(vcmp(1)))
+            call nwpw_compcharge_gen_dE_Qlm(1,ispin,
+     >                                   dcpl_mb(vcmp(1)),
+     >                                   dcpl_mb(vcmp(1)),.true.,fion)
 
-            pcount = 0
-            do ip=1,nion_prj_indx
-               ii          = int_mb(ii_prj_indx(1)+ip-1)
-               ia          = int_mb(ia_prj_indx(1)+ip-1)
-               if ((int_mb(psp_type(1)+ia-1).eq.4)) then
-                  mult_l = nwpw_compcharge_mult_l(ia)
-                  do l=0,mult_l
-                  do m=-l,l
-                     if (mod(pcount,np_j).eq.taskid_j) then
-                        call nwpw_compcharge_gen_glm(ii,l,m,
-     >                                      dcpl_mb(dng_cmp(1)))
-                        call Pack_cc_idot(0,dcpl_mb(dng_cmp(1)),
-     >                                      dcpl_mb(vcmp(1)),ff(1))
-                        call nwpw_compcharge_add_dE_Qlm(ispin,ii,l,m,
-     >                                                  ff(1)*omega)
-                     end if
-                     pcount = pcount + 1
-                  end do
-                  end do
-               end if
-            end do
             value =           BA_pop_stack(vcmp(2))
             value = value.and.BA_pop_stack(dng_cmp(2))
             if (.not.value) 
-     >      call errquit('v_nonlocal:popping stack',4, MA_ERR)
+     >      call errquit('f_vnonlocal:popping stack',4, MA_ERR)
 
          else
-
 
             value = BA_push_get(mt_dcpl,npack0,'dng_cmp',
      >                          dng_cmp(2),dng_cmp(1))
@@ -2828,8 +2664,8 @@ c           end do
                !*** dng_cmp(G),dng_cmp_smooth(G) --> dng_cmp(r),dng_cmp_smooth(r) ***
                call Pack_c_unpack(0,dcpl_mb(dng_cmp(1)))
                call Pack_c_unpack(0,dcpl_mb(dng_cmp_smooth(1)))
-               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp(1)))
-               call D3dB_cr_fft3b(1,dcpl_mb(dng_cmp_smooth(1)))
+               call D3dB_cr_pfft3b(1,0,dcpl_mb(dng_cmp(1)))
+               call D3dB_cr_pfft3b(1,0,dcpl_mb(dng_cmp_smooth(1)))
 
                !*** generate vcmp and vcmp_smooth ***
                call coulomb2_v(dcpl_mb(dng_cmp(1)),
@@ -2851,14 +2687,14 @@ c           end do
                !*** May want to change nwpw_compcharge_gen_dE_Qlm to remove these FFTs ***
                call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp(1)))
                call D3dB_r_SMul1(1,dv,dcpl_mb(vcmp_smooth(1)))
-               call D3dB_rc_fft3f(1,dcpl_mb(vcmp(1)))
-               call D3dB_rc_fft3f(1,dcpl_mb(vcmp_smooth(1)))
+               call D3dB_rc_pfft3f(1,0,dcpl_mb(vcmp(1)))
+               call D3dB_rc_pfft3f(1,0,dcpl_mb(vcmp_smooth(1)))
                call Pack_c_pack(0,dcpl_mb(vcmp(1)))
                call Pack_c_pack(0,dcpl_mb(vcmp_smooth(1)))
 
             end if
 
-            call nwpw_compcharge_gen_dE_Qlm(ispin,
+            call nwpw_compcharge_gen_dE_Qlm(3,ispin,
      >                                   dcpl_mb(vcmp_smooth(1)),
      >                                   dcpl_mb(vcmp(1)),.true.,fion)
          
@@ -2887,7 +2723,6 @@ c           end do
      >                                   dbl_mb(sw2a(1)+swstart*nn))
          end do
      
-
          call nwpw_timing_end(39)
       end if
 
