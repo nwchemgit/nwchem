@@ -65,6 +65,7 @@ c --------------
       INTEGER k_range_p4b_1
       double precision v2sub(*),t1sub(*),scratch(*)
       integer l_v2sub,l_t1sub,l_triplesx
+      integer ia6_in
 #ifdef OFFLOAD_CODE           
 #ifndef OPENMP_OFFLOAD
       integer util_micdev
@@ -198,7 +199,9 @@ c
          end if
         enddo 
 c
-      do ia6=1,9
+cold      do ia6=1,9
+      do ia6_in=1+ga_nodeid(),9+ga_nodeid()
+         ia6=mod(ia6_in,9)+1
       p4b=a3(ia6,1)
       p5b=a3(ia6,2)
       p6b=a3(ia6,3)
