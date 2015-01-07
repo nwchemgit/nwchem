@@ -27,44 +27,22 @@ c
       ignore = MA_set_hard_fail(.true.)
       ignore=MA_set_auto_verify(.true.)
       call mm_coords_init(rtdb)
-C      call mm_coords_init(rtdb)
+      call mm_vdw_init(rtdb)
 
-      stop
       mm_init = .true.
       return
 911   mm_init = .false.
       return
       end
 
-      function  mm_end(rtdb)
+      function  mm_end()
       implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "mm_data.fh"
       logical mm_end
-      integer rtdb
 c
       character*30 pname
       pname = "mm_end"
-c
-      if (nvdw .gt. 0) then
-        if (.not.ma_free_heap(h_bvdw)) goto 911
-        if (.not.ma_free_heap(h_avdw)) goto 911
-        if (.not.ma_free_heap(h_jvdw)) goto 911
-        if (.not.ma_free_heap(h_ivdw)) goto 911
-        nvdw = 0
-      end if
-      if(ntot.gt.0) then
-          if (.not.ma_free_heap(h_t)) goto 911
-          if (.not.ma_free_heap(h_r)) goto 911
-          ntot = 0
-          nqm  = 0
-          nmm = 0
-      end if
+      call mm_coords_end()
+      call mm_vdw_end()
       mm_end = .true.
       return
 911   mm_end = .false.
@@ -83,102 +61,6 @@ c
          write(6,*) t(i),c(1,i),c(2,i),c(3,i)
       end do
       
-      end
-
-      subroutine mm_data_load_vdw(rtdb)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "mm_data.fh"
-      integer rtdb
-c
-      character*180 filename
-      integer       nmax,n
-c
-      integer fn,k
-      character*180 buffer,field
-      character*180 message
-      character*180 tag
-      character*30 pname,atag
-c
-      logical util_io_unit
-      external util_io_unit
-      integer max_vdw
-c
-      pname = "mm_input_load_vdw"
-c
-      tag="mm:vdw:load"
-      if (.not. rtdb_cget(rtdb, tag, 1, filename))
-     $     goto 911
-c
-      call mm_open_file(filename,fn)
-c     ------------------------- 
-c     count numbers of vdw pairs
-c     ------------------------- 
-C      call inp_init(fn,LuOut)
-C      n = 0
-C      do
-C        if (.not.inp_read()) exit
-C        n=n+1
-C      end do
-C      nvdw=n
-C      rewind(fn)
-      call util_xyz_nlines(nvdw,fn)
-      call inp_init(fn,LuOut)
-c
-      max_vdw = 2500
-      call util_xyz_nlines(max_vdw,fn)
-      write(*,*) "nvdw,max_vdw",nvdw,max_vdw
-c
-      if ( .not. ma_alloc_get( MT_INT, nvdw, 
-     &      'vdw scratch i',
-     &      h_ivdw, i_ivdw) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      nvdw, MA_ERR)
-
-      if ( .not. ma_alloc_get( MT_INT, nvdw, 
-     &      'vdw scratch j',
-     &      h_jvdw, i_jvdw) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      nvdw, MA_ERR)
-
-      if ( .not. ma_alloc_get( MT_DBL, nvdw, 
-     &      'vdw scratch A',
-     &      h_avdw, i_avdw) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      nvdw, MA_ERR)
-
-      if ( .not. ma_alloc_get( MT_DBL, nvdw, 
-     &      'vdw scratch B',
-     &      h_bvdw, i_bvdw) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      nvdw, MA_ERR)
-
-      call inp_init(fn,LuOut)
-      n = 0
-10    continue
-      if (.not.inp_read()) goto 30
-      message = "checking for number of fields"
-      if(inp_n_field().ne.4) goto 911
-      message = "checking for bounds"
-      if(n.gt.nvdw) goto 911
-      message = "reading vdw params"
-      n = n+1
-      if (.not.inp_i(int_mb(i_ivdw+n-1))) goto 911
-      if (.not.inp_i(int_mb(i_jvdw+n-1))) goto 911
-      if (.not.inp_f(dbl_mb(i_avdw+n-1))) goto 911
-      if (.not.inp_f(dbl_mb(i_bvdw+n-1))) goto 911
-      goto 10
-30    continue
-      close(fn)
-      call inp_init(LuIn,LuOut)
-      return
-911   call errquit("error "//trim(message),0,
-     >        -1)
       end
 
       subroutine mm_open_file(filename,fn)

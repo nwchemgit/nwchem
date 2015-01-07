@@ -58,38 +58,47 @@ c
 c
       pname = "mm_vdw_allocate"
 
-      if(n.ne.nvdw) call mm_vdw_end()
-      nvdw = n
+      if(n.ne.nvdw) then 
+        call mm_vdw_end()
+        nvdw = n
+        write(*,*) "allocating vdw data"
 c
-      if ( .not. ma_alloc_get( MT_INT, nvdw, 
-     &      'vdw scratch i',
-     &      h_ivdw, i_ivdw) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      nvdw, MA_ERR)
+        if ( .not. ma_alloc_get( MT_INT, nvdw, 
+     &        'vdw scratch i',
+     &        h_ivdw, i_ivdw) ) call errquit(
+     &        'failed scratch space '//pname,
+     &        nvdw, MA_ERR)
 
-      if ( .not. ma_alloc_get( MT_INT, nvdw, 
-     &      'vdw scratch j',
-     &      h_jvdw, i_jvdw) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      nvdw, MA_ERR)
+        if ( .not. ma_alloc_get( MT_INT, nvdw, 
+     &        'vdw scratch j',
+     &        h_jvdw, i_jvdw) ) call errquit(
+     &        'failed scratch space '//pname,
+     &        nvdw, MA_ERR)
 
-      if ( .not. ma_alloc_get( MT_DBL, nvdw, 
-     &      'vdw scratch A',
-     &      h_avdw, i_avdw) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      nvdw, MA_ERR)
+        if ( .not. ma_alloc_get( MT_DBL, nvdw, 
+     &        'vdw scratch A',
+     &        h_avdw, i_avdw) ) call errquit(
+     &        'failed scratch space '//pname,
+     &        nvdw, MA_ERR)
 
-      if ( .not. ma_alloc_get( MT_DBL, nvdw, 
-     &      'vdw scratch B',
-     &      h_bvdw, i_bvdw) ) call errquit(
-     &      'failed scratch space '//pname,
-     &      nvdw, MA_ERR)
+        if ( .not. ma_alloc_get( MT_DBL, nvdw, 
+     &        'vdw scratch B',
+     &        h_bvdw, i_bvdw) ) call errquit(
+     &        'failed scratch space '//pname,
+     &        nvdw, MA_ERR)
+
+      end if
+      call ifill(n,0.0,int_mb(i_ivdw),1)
+      call ifill(n,0.0,int_mb(i_jvdw),1)
+      call dfill(n,0.0d0,dbl_mb(i_avdw),1)
+      call dfill(n,0.0d0,dbl_mb(i_bvdw),1)
+
       return
 911   call errquit("error "//trim(message),0,
      >        -1)
       end
 
-      subroutine mm_vdw_load(rtdb)
+      subroutine mm_vdw_init(rtdb)
       implicit none
 #include "util.fh"
 #include "errquit.fh"
@@ -123,10 +132,6 @@ c
 c
       call util_xyz_nlines(n,fn)
       call mm_vdw_allocate(n)
-      call ifill(n,0.0d0,int_mb(i_ivdw),1)
-      call ifill(n,0.0d0,int_mb(i_jvdw),1)
-      call dfill(n,0.0d0,int_mb(i_avdw),1)
-      call dfill(n,0.0d0,int_mb(i_bvdw),1)
       rewind(fn)
 c      
 c     loading parameters here
@@ -149,6 +154,7 @@ c
 30    continue
       close(fn)
       call inp_init(LuIn,LuOut)
+      call mm_vdw_test()
       return
 911   call errquit("error "//trim(message),0,
      >        -1)
@@ -396,9 +402,27 @@ c
         f6  = b(n)*r6
         evdw = evdw + f12 - f6
         
+        write(*,*) "qm=",rqm(:,i1)
+        write(*,*) "mm=",rmm(:,i1)
       end do
       write(*,*) "vdw energy",evdw
       return
 911   call errquit("error "//trim(message),0,-1)
       end
 
+      subroutine mm_vdw_test()
+      implicit none
+#include "mm_vdw_data.fh"
+#include "mafdecls.fh"
+
+      integer i,j
+
+      do i=1,nvdw
+         write(6,'(2(1X,I3),1X,2(1X,E12.6))') 
+     $        (int_mb(i_ivdw+i-1)),
+     $        (int_mb(i_jvdw+i-1)),
+     $        (dbl_mb(i_avdw+i-1)),
+     $        (dbl_mb(i_bvdw+i-1))
+      end do
+      
+      end
