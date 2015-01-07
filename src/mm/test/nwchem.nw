@@ -1,3 +1,4 @@
+memory total 8000 Mb
 start nwchem
 title "NWChem run using SANDER external interface."
 permanent_dir ./perm
