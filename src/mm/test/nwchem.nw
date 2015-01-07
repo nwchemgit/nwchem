@@ -43,6 +43,6 @@ coords load nwchem.bq
 end
 
 #set geometry:actlist 2 3 4 5 6 7
-task dft mm gradient numerical
+task dft mm gradient
 #task dft mm gradient
 #task dft gradient

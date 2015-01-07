@@ -192,12 +192,17 @@ c
 
       call dfill(3*nqm,0.0d0,dbl_mb(i_g),1)
 
-      call mm_vdw_egrad(nqm,dbl_mb(i_r),
-     &                      nmm,dbl_mb(i_r+3*nqm),
+      call mm_vdw_egrad(ntot,dbl_mb(i_r),
      &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
      &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
      &                      n,evdw,dbl_mb(i_g))
 
+C      call mm_vdw_egrad(nqm,dbl_mb(i_r),
+C     &                      nmm,dbl_mb(i_r+3*nqm),
+C     &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
+C     &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
+C     &                      n,evdw,dbl_mb(i_g))
+C
       call util_convert_units("kcal","au",scale_energy)
       call util_convert_units("ang","au",scale_length)
  
@@ -261,12 +266,10 @@ c     $        (g(j,i),j=1,3)
       character*30 message
       integer i,j
 
-      call mm_vdw_energy(nqm,dbl_mb(i_r),
-     &                      nmm,dbl_mb(i_r+3*nqm),
+      call mm_vdw_energy(ntot,dbl_mb(i_r),
      &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
      &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
      &                      evdw)
-
       call util_convert_units("kcal","au",scale_energy)
  
       evdw = evdw*scale_energy
@@ -276,8 +279,7 @@ C      e=0
 911   call errquit("error "//trim(message),0,-1)
       end
 
-      subroutine mm_vdw_egrad(nqm,rqm,
-     &                            nmm,rmm,
+      subroutine mm_vdw_egrad(nt,r,
      &                            np,p1,p2,
      &                            a,b,
      &                            ng,evdw,g)
@@ -286,10 +288,8 @@ C      e=0
 #include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
-      integer nqm
-      double precision rqm(3,nqm)
-      integer nmm
-      double precision rmm(3,nmm)
+      integer nt
+      double precision r(3,nt)
       integer np
       integer p1(np)
       integer p2(np)
@@ -313,15 +313,15 @@ c
       evdw = 0.0d0
       do n = 1, np
         i1 = p1(n)
-        i2 = p2(n)-nqm
+        i2 = p2(n)
         message = "checking bounds"
-        if(i1.gt.nqm .or. i2.gt.nmm) then
+        if(i1.gt.nt .or. i2.gt.nt) then
             write(*,*) i1,i2
             goto 911
         end if
-        dx = rmm(1,i2) - rqm(1,i1)
-        dy = rmm(2,i2) - rqm(2,i1)
-        dz = rmm(3,i2) - rqm(3,i1)
+        dx = r(1,i2) - r(1,i1)
+        dy = r(2,i2) - r(2,i1)
+        dz = r(3,i2) - r(3,i1)
       
         rr = dx*dx + dy*dy + dz*dz
         rinv = sqrt(1.0d0/rr)
@@ -338,8 +338,8 @@ c
         g(2,i1) = g(2,i1) + df*dy
         g(3,i1) = g(3,i1) + df*dz
    
-        write(*,*) "qm coord=",rqm(:,i1),i1
-        write(*,*) "mm coord=",rmm(:,i2),i2
+        write(*,*) "qm coord=",r(:,i1),i1
+        write(*,*) "mm coord=",r(:,i2),i2
 C        write(*,*) "force =",g(:,i1),i1
       end do
       write(*,*) "vdw energy",evdw
@@ -347,8 +347,7 @@ C        write(*,*) "force =",g(:,i1),i1
 911   call errquit("error "//trim(message),0,-1)
       end
 
-      subroutine mm_vdw_energy(nqm,rqm,
-     &                            nmm,rmm,
+      subroutine mm_vdw_energy(nt,r,
      &                            np,p1,p2,
      &                            a,b,
      &                            evdw)
@@ -357,10 +356,8 @@ C        write(*,*) "force =",g(:,i1),i1
 #include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
-      integer nqm
-      double precision rqm(3,nqm)
-      integer nmm
-      double precision rmm(3,nmm)
+      integer nt
+      double precision r(3,nt)
       integer np
       integer p1(np)
       integer p2(np)
@@ -378,19 +375,21 @@ c
       double precision r6,r12
       double precision f6,f12
       character*30 message
+      character*30 pname
 
+      pname = "mm_vdw_energy1"
       evdw = 0.0d0
       do n = 1, np
         i1 = p1(n)
-        i2 = p2(n)-nqm
+        i2 = p2(n)
         message = "checking bounds"
-        if(i1.gt.nqm .or. i2.gt.nmm) then
+        if(i1.gt.nt .or. i2.gt.nt) then
             write(*,*) i1,i2
             goto 911
         end if
-        dx = rmm(1,i2) - rqm(1,i1)
-        dy = rmm(2,i2) - rqm(2,i1)
-        dz = rmm(3,i2) - rqm(3,i1)
+        dx = r(1,i2) - r(1,i1)
+        dy = r(2,i2) - r(2,i1)
+        dz = r(3,i2) - r(3,i1)
       
         rr = dx*dx + dy*dy + dz*dz
         rinv = sqrt(1.0d0/rr)
@@ -402,12 +401,11 @@ c
         f6  = b(n)*r6
         evdw = evdw + f12 - f6
         
-        write(*,*) "qm=",rqm(:,i1)
-        write(*,*) "mm=",rmm(:,i1)
+        write(*,*) "r=",r(:,i1)
       end do
       write(*,*) "vdw energy",evdw
       return
-911   call errquit("error "//trim(message),0,-1)
+911   call errquit("error "//trim(pname)//trim(message),0,-1)
       end
 
       subroutine mm_vdw_test()
