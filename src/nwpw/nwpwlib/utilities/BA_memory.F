@@ -12,7 +12,7 @@
 #include "mafdecls.fh"
       integer datatype,nelem
       character*(*) namee
-      MAPOINTER memhandle,indx
+      integer   memhandle,indx
 
       !MAPOINTER omp_memhandle,omp_indx
       !logical   omp_ok
@@ -42,7 +42,7 @@
       logical function BA_free_heap(memhandle)
       implicit none
 #include "mafdecls.fh"
-      MAPOINTER memhandle
+      integer   memhandle
 
       !MAPOINTER omp_memhandle,omp_indx
       !logical   omp_ok
@@ -70,7 +70,7 @@
 #include "mafdecls.fh"
       integer datatype,nelem
       character*(*) namee
-      MAPOINTER memhandle,indx
+      integer memhandle,indx
 
       !MAPOINTER omp_memhandle,omp_indx
       !logical   omp_ok
@@ -95,7 +95,7 @@
       logical function BA_pop_stack(memhandle)
       implicit none
 #include "mafdecls.fh"
-      MAPOINTER memhandle
+      integer   memhandle
 
       !MAPOINTER omp_memhandle,omp_indx
       !logical   omp_ok
@@ -121,7 +121,7 @@
       logical function BA_get_index(memhandle,indx)
       implicit none
 #include "mafdecls.fh"
-      MAPOINTER memhandle,indx
+      integer   memhandle,indx
 
       !MAPOINTER omp_memhandle,omp_indx
       !logical   omp_ok
