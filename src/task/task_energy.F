@@ -137,7 +137,6 @@ c        ocons=.false.
 c      end if
       if(ocons) call cons_add_energy(rtdb,energy)
       if(omm) call mm_add_energy(rtdb,energy)
-      write(*,*) "energy after mm", energy
 
 c     write(*,*) "putting energy into rtdb",energy
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
