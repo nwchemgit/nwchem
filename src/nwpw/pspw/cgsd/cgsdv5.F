@@ -799,8 +799,8 @@ c      call frac_occ_end()
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                  Madelung Wigner-Seitz=',f11.8,
      >                              ' (alpha=',f11.8,' rs=',f11.8,')')
- 1262 FORMAT(5X,' paw integration: xc lmax =',I3,
-     >          ' compensation charge = ',A)
+ 1262 FORMAT(5X,' paw integration: xc lmax=',I3,
+     >          ' compensation charge= ',A)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
