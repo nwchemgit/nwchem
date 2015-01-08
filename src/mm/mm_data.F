@@ -10,7 +10,7 @@ c
 
       end
 
-      function  mm_init(rtdb)
+      function  mmi_init(rtdb)
       implicit none
 #include "util.fh"
 #include "errquit.fh"
@@ -19,7 +19,7 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "mm_data.fh"
-      logical mm_init
+      logical mmi_init
       integer rtdb
 c
       logical ignore
@@ -29,23 +29,23 @@ c
       call mm_coords_init(rtdb)
       call mm_vdw_init(rtdb)
 
-      mm_init = .true.
+      mmi_init = .true.
       return
-911   mm_init = .false.
+911   mmi_init = .false.
       return
       end
 
-      function  mm_end()
+      function  mmi_end()
       implicit none
-      logical mm_end
+      logical mmi_end
 c
       character*30 pname
       pname = "mm_end"
       call mm_coords_end()
       call mm_vdw_end()
-      mm_end = .true.
+      mmi_end = .true.
       return
-911   mm_end = .false.
+911   mmi_end = .false.
       return
       end
 
