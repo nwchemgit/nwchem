@@ -113,10 +113,10 @@ c
       external task_ccca
       external lucia
 c
-      external mm_end
-      logical mm_end
-      external mm_init
-      logical mm_init
+      external mmi_end
+      logical mmi_end
+      external mmi_init
+      logical mmi_init
 c
       logical bq_init,bq_end
       external bq_init,bq_end
@@ -234,7 +234,7 @@ c
       endif
 c
       if (omm) then
-        status = mm_init(rtdb)
+        status = mmi_init(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
               call errquit("failed to initialize mm", 0, CALC_ERR)
         end if
@@ -510,7 +510,7 @@ c
       end if
 
       if(omm) then
-       status = mm_end(rtdb)
+       status = mmi_end(rtdb)
        if ((ga_nodeid().eq.0) .and. (.not. status)) then
            call errquit("failed to end mm", 0, CALC_ERR)
         end if
