@@ -179,21 +179,25 @@ c
 !
 !  These are the input dependencies for the DGEMM calls below.  
 !  We wait on all of them here because GA is not even remotely thread-safe.
+!  All of these are independent of k, so we wait on them only 
+!  at the first trip of the loop.
 !
-                        call ga_nbwait(nbh_objv2)
-                        call ga_nbwait(nbh_objv3)
-                        call ga_nbwait(nbh_objv6)
-                        call ga_nbwait(nbh_objv7)
-                        call ga_nbwait(nbh_objo1)
-                        call ga_nbwait(nbh_objo2)
-                        call ga_nbwait(nbh_objo3)
-                        call ga_nbwait(nbh_objo4)
-                        call ga_nbwait(nbh_objo5)
-                        call ga_nbwait(nbh_objo6)
-                        call ga_nbwait(nbh_exch1)
-                        call ga_nbwait(nbh_exch2)
-                        call ga_nbwait(nbh_coul1)
-                        call ga_nbwait(nbh_coul2)
+                        if (k.eq.klo) then
+                            call ga_nbwait(nbh_objv2)
+                            call ga_nbwait(nbh_objv3)
+                            call ga_nbwait(nbh_objv6)
+                            call ga_nbwait(nbh_objv7)
+                            call ga_nbwait(nbh_objo1)
+                            call ga_nbwait(nbh_objo2)
+                            call ga_nbwait(nbh_objo3)
+                            call ga_nbwait(nbh_objo4)
+                            call ga_nbwait(nbh_objo5)
+                            call ga_nbwait(nbh_objo6)
+                            call ga_nbwait(nbh_exch1)
+                            call ga_nbwait(nbh_exch2)
+                            call ga_nbwait(nbh_coul1)
+                            call ga_nbwait(nbh_coul2)
+                        endif
 
 !$omp parallel
 !$omp& shared(eorb)
