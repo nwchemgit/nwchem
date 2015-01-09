@@ -669,12 +669,15 @@ c
           write(LuOut,*)'EOMCCSD initial starts read in)'
          end if
        end if
-c
+c restart files
        if (.not.rtdb_get(rtdb,'tce:tceiop',mt_int,1,recforio)) then
         rec_mem=1
        else
         rec_mem=recforio
        end if
+
+       if (.not.rtdb_get(rtdb,'tce:maxioprocs',mt_int,1,max_ioprocs_in)) 
+     4      max_ioprocs_in=4
 c
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:readint',mt_log,1,res_log)) then

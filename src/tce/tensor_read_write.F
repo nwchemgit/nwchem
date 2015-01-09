@@ -1,5 +1,4 @@
 #define USE_EAF 1
-#define MAX_IOPROCS 4
       subroutine write_tensor(filename,d_xx,size_xx,unitn)
       IMPLICIT NONE
 #include "global.fh"
@@ -37,7 +36,7 @@
        double precision offset
        integer max_ioprocs
        integer size_xx_perproc,ga_offset
-       max_ioprocs=min(MAX_IOPROCS,ga_nnodes())
+       max_ioprocs=min(max_ioprocs_in,ga_nnodes())
        nodezero=(ga_nodeid().lt.max_ioprocs)
 c
        rec_size=(rec_mem*1024)/8 
@@ -219,7 +218,7 @@ c
        integer ga_offset
        integer max_ioprocs,size_xx_perproc
        integer max_ioprocs_r,size_xx_perproc_r
-       max_ioprocs=min(MAX_IOPROCS,ga_nnodes())
+       max_ioprocs=min(max_ioprocs_in,ga_nnodes())
        nodezero=(ga_nodeid().lt.max_ioprocs)
 c
 c
