@@ -32,7 +32,6 @@ void FATR util_fadvise_noreuse_(const char *fort_fname,  int flen){
 
 
 void FATR util_fadvise(const char *buf, int mode){
-  //    char buf[1024];
     
     int fd = open(buf, O_RDWR);
     
@@ -50,7 +49,7 @@ void FATR util_fadvise(const char *buf, int mode){
     
     /*    (void) fdatasync(fd);*/
     
-    if(posix_fadvise( fd,  offset, length,POSIX_FADV_DONTNEED)!=0) perror("fadvise");
+    if(posix_fadvise( fd,  offset, length, mode)!=0) perror("fadvise");
     close(fd);
 }
 #else
