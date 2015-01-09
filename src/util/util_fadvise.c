@@ -1,4 +1,4 @@
-/* $Id: util_mygabcast.c 25519 2014-04-24 22:23:18Z d3y133 $ */
+/* $Id$ */
 /* routine drop i/o caches */
 #include "typesf2c.h"
 #if defined(LINUX) || defined(LINUX64)
