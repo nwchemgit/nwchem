@@ -1,5 +1,6 @@
 /* $Id: util_mygabcast.c 25519 2014-04-24 22:23:18Z d3y133 $ */
 /* routine drop i/o caches */
+#include "typesf2c.h"
 #if defined(LINUX) || defined(LINUX64)
 #define _XOPEN_SOURCE 600
 #include <sys/types.h>
@@ -8,7 +9,6 @@
 #include <fcntl.h>
 #include "ga.h"
 #include "macdecls.h"
-#include "typesf2c.h"
 
 Integer fortchar_to_string(const char *, Integer, char *, const Integer);
 void FATR util_fadvise(const char *, int);
