@@ -283,7 +283,7 @@
       call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(v2(1)),1)
 !$OMP END SINGLE
-!$OMP BARRIER
+!$cOMP BARRIER
       nion_qm_tmp = 0
       nion_mm_tmp = 0
       do i=1,nion
@@ -3542,7 +3542,7 @@ c autoang=0.52917726d0
 
       tooshort = .false.
 
-!$OMP BARRIER
+!$cOMP BARRIER
 !$OMP SINGLE
       if (control_version().eq.4) then
          do ii=1,   nion-1

@@ -798,7 +798,7 @@ c     implicit none
 
       call Parallel2d_np_i(np)
       if (np.gt.1) then
-
+!$OMP SINGLE
 #ifdef MPI4
          stupid_msglen = 1
          stupid_tsum = sum
@@ -812,6 +812,7 @@ c     implicit none
      >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
          sum = sumall
 #endif
+!$OMP END SINGLE copyprivate(sum)
       end if
 
       return

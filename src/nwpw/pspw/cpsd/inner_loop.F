@@ -128,6 +128,8 @@ c     real*8     fion(3,natmx)
       external psp_ncmp_vloc,psp_vloc_atom,psp_ion_core
       external psp_hartree_atom,psp_hartree_cmp_cmp,psp_hartree_cmp_pw
 
+      integer tid, Parallel_threadid
+      external Parallel_threadid
 
 
 
@@ -226,8 +228,24 @@ c     real*8     fion(3,natmx)
 *       ********************************
 *       **** generate phaze factors ****
 *       ********************************
+
+#ifdef USE_OPENMP
+!$OMP PARALLEL private(tid)
+c     num_threads(2)
+      call Parallel_thread_init()
+      tid = Parallel_threadid()
+#endif
+
+c       these two functions are now threadsafe/multithreaded
         call phafac()
         if (control_version().eq.3) call ewald_phafac()
+
+
+#ifdef USE_OPENMP 
+!$OMP END PARALLEL
+#endif
+
+
         call nwpw_timing_start(11)
 
 *       *******************;

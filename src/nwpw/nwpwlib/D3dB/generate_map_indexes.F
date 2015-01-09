@@ -28,15 +28,7 @@
       integer indx_proc(2),indx_q(2),tmp_p(2)
       integer tid, Parallel_threadid
       external Parallel_threadid
-
-c      tid = Parallel_threadid()
-c!$OMP critical
-c      write(*,*) "gen_map_indexes=",ny,nz,tid
-c      do i=1,ny*nz
-c        write(*,*) tid,i,p_map(i)
-c      end do
-c!$OMP end critical
-    
+   
 
       !**** allocate temporary space ****
       value =           BA_push_get(mt_int,(ny*nz),'indx_proc',
@@ -50,6 +42,7 @@ c!$OMP end critical
      >                    tmp_p(1))
       if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
+!$OMP SINGLE
       call icopy(ny*nz,p_map,1,int_mb(tmp_p(1)),1)
 
       nq1   = (ny*nz)/np
@@ -85,6 +78,7 @@ c!$OMP end critical
         q_map(j+(k-1)*ny) = q
       end do
       end do
+!$OMP END SINGLE
 
       !**** deallocate temporary space  ****
       value =           BA_pop_stack(tmp_p(2))
@@ -114,7 +108,7 @@ c!$OMP end critical
       !**** local variables ****
       integer j,k,p,nqp
 
-
+!$OMP SINGLE
       !*** set pmap_out ***
       do k=1,nz
       do j=1,ny
@@ -150,6 +144,7 @@ c!$OMP end critical
          end do
 
       end do
+!$OMP END SINGLE
 
       return
       end
@@ -191,6 +186,7 @@ c!$OMP end critical
       if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
 
+!$OMP SINGLE
       nq = 0
       p=0
       q=1
@@ -216,6 +212,7 @@ c!$OMP end critical
         q_map(j+(k-1)*ny) = q
       end do
       end do
+!$OMP END SINGLE
 
       !**** deallocate temporary space  ****
       value =           BA_pop_stack(indx_q(2))
@@ -250,6 +247,7 @@ c!$OMP end critical
       integer nq1,nq2,rmdr1
 
 
+!$OMP SINGLE
       nq = 0
       p=0
       q=1
@@ -298,6 +296,7 @@ c!$OMP end critical
         end do
 
       end do
+!$OMP END SINGLE
 
       return
       end

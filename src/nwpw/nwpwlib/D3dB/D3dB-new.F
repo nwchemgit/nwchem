@@ -81,9 +81,10 @@ ccccccccccc  #define TCGMSG
       integer  tid,Parallel_threadid
       external Parallel_threadid
       
-      tid = Parallel_threadid()
       call Parallel2d_np_i(np)
       call Parallel2d_taskid_i(taskid)
+
+
 
 *     **************************
 *     ****** Slab mapping ******
@@ -116,6 +117,7 @@ ccccccccccc  #define TCGMSG
             q = q + 1
          end if
        end do
+
 
 c      if (nb.eq.1) then
 c       p = 0
@@ -186,6 +188,9 @@ c           k_map(q_map(k)) = k
       else
 
 
+
+
+
 *     **** allocate q_map1,p_map1,q_map2,p_map2,q_map3,p_map3 ****
       value =           BA_alloc_get(mt_int,ny(nb)*nz(nb),
      >                              'q_map1',
@@ -222,6 +227,8 @@ c           k_map(q_map(k)) = k
       !**** double grid map1 defined wrt to single grid         ****
       !**** makes expand and contract routines trivial parallel ****
 
+!MATHIAS
+!$OMP SINGLE
       if (mapping2d.eq.1) then
          if (nb.eq.1) then
            call hilbert2d_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
@@ -236,6 +243,9 @@ c           k_map(q_map(k)) = k
          call hcurve_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
          call hcurve_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
       end if
+!$OMP END SINGLE
+
+
 
 c!$OMP critical
 c      write(*,*) "checking p_map1,q_map1 ",Parallel_threadid()
@@ -311,6 +321,7 @@ c      end if
       nfft3d_map(nb) = nz(nb)*nq3(nb)
       n2ft3d_map(nb) = (nx(nb)+2)*nq1(nb)
 
+
       
       end if
 
@@ -370,42 +381,42 @@ c     integer i2_start(NFFT3+1)
 
       !**** slab mapping ****
       if (mapping.eq.1) then
-      value = value.and.BA_free_heap(q_map(2,nb))
-      value = value.and.BA_free_heap(p_map(2,nb))
-      value = value.and.BA_free_heap(k_map(2,nb))
+      value = value.and.MA_free_heap(q_map(2,nb))
+      value = value.and.MA_free_heap(p_map(2,nb))
+      value = value.and.MA_free_heap(k_map(2,nb))
       end if
 
       !**** hilbert mappings ****
       if (mapping.eq.2) then
-      value = value.and.BA_free_heap(q_map1(2,nb))
-      value = value.and.BA_free_heap(p_map1(2,nb))
-      value = value.and.BA_free_heap(q_map2(2,nb))
-      value = value.and.BA_free_heap(p_map2(2,nb))
-      value = value.and.BA_free_heap(q_map3(2,nb))
-      value = value.and.BA_free_heap(p_map3(2,nb))
+      value = value.and.MA_free_heap(q_map1(2,nb))
+      value = value.and.MA_free_heap(p_map1(2,nb))
+      value = value.and.MA_free_heap(q_map2(2,nb))
+      value = value.and.MA_free_heap(p_map2(2,nb))
+      value = value.and.MA_free_heap(q_map3(2,nb))
+      value = value.and.MA_free_heap(p_map3(2,nb))
       end if
 
       !**** slab transpose mappings ****
       if (mapping.eq.1) then
-      value = value.and.BA_free_heap(i1_start(2,nb))
-      value = value.and.BA_free_heap(i2_start(2,nb))
-      value = value.and.BA_free_heap(iq_to_i1(2,nb))
-      value = value.and.BA_free_heap(iq_to_i2(2,nb))
+      value = value.and.MA_free_heap(i1_start(2,nb))
+      value = value.and.MA_free_heap(i2_start(2,nb))
+      value = value.and.MA_free_heap(iq_to_i1(2,nb))
+      value = value.and.MA_free_heap(iq_to_i2(2,nb))
       end if
 
       !**** hilbert transpose mappings ****
       if (mapping.eq.2) then
       do i=1,6
-      value = value.and.BA_free_heap(h_i1_start(2,i,nb))
-      value = value.and.BA_free_heap(h_i2_start(2,i,nb))
-      value = value.and.BA_free_heap(h_iq_to_i1(2,i,nb))
-      value = value.and.BA_free_heap(h_iq_to_i2(2,i,nb))
+      value = value.and.MA_free_heap(h_i1_start(2,i,nb))
+      value = value.and.MA_free_heap(h_i2_start(2,i,nb))
+      value = value.and.MA_free_heap(h_iq_to_i1(2,i,nb))
+      value = value.and.MA_free_heap(h_iq_to_i2(2,i,nb))
       end do
       end if
 
 #ifndef MPI
-      value = value.and.BA_free_heap(channel_proc(2,nb))
-      value = value.and.BA_free_heap(channel_type(2,nb))
+      value = value.and.MA_free_heap(channel_proc(2,nb))
+      value = value.and.MA_free_heap(channel_type(2,nb))
 #endif
 
       if (.not. value)
@@ -591,8 +602,10 @@ c     p = p_map(k)
       integer nfft3d_out
 
 #include "D3dB.fh"
-
+!MATHIAS
+!$OMP SINGLE
       nfft3d_out = nfft3d(nb)
+!$OMP END SINGLE copyprivate(nfft3d_out)
       return
       end
 
@@ -752,6 +765,8 @@ c     p = p_map(k)
       integer nb
       integer nx_in,ny_in,nz_in
       integer map_in
+      logical value, MA_verify_allocator_stuff
+      external MA_verify_allocator_stuff
 
 #include "D3dB.fh"
 
@@ -759,6 +774,12 @@ c     p = p_map(k)
       integer MASTER
       parameter (MASTER=0)
       integer taskid,np
+      integer  Parallel_threadid
+      external Parallel_threadid
+
+
+
+
 
       call Parallel2d_np_i(np)
       call Parallel_taskid(taskid)
@@ -848,10 +869,12 @@ c     p = p_map(k)
          mapping   = 2
          mapping2d = 2
       end if
-         
+ 
+      
 
 *     **** do other initializations ****
       call Mapping_Init(nb)
+
       if (mapping.eq.1) call D3dB_c_transpose_jk_init(nb)
       if (mapping.eq.2) call D3dB_c_transpose_ijk_init(nb)
 
@@ -1154,7 +1177,7 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                        iforward,FFTW_EXHAUSTIVE)
 
 
-         if (.not.BA_free_heap(Atest(2)))
+         if (.not.MA_free_heap(Atest(2)))
      >   call errquit('D3dB_fft_init:freeing heap',0,MA_ERR)
 
       else
@@ -1210,7 +1233,7 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                        dcpl_mb(Atest(1)),nz(nb),1,1,
      >                        iforward,FFTW_EXHAUSTIVE)
 
-         if (.not.BA_free_heap(Atest(2)))
+         if (.not.MA_free_heap(Atest(2)))
      >   call errquit('D3dB_fft_init:freeing heap',0,MA_ERR)
 
       end if
@@ -1248,9 +1271,9 @@ c       iestimate = FFTW_EXHAUSTIVE
 c      call dfftw_cleanup_threads()
 #endif
 
-      value =           BA_free_heap(tmpx(2,nb))
-      value = value.and.BA_free_heap(tmpy(2,nb))
-      value = value.and.BA_free_heap(tmpz(2,nb))
+      value =           MA_free_heap(tmpx(2,nb))
+      value = value.and.MA_free_heap(tmpy(2,nb))
+      value = value.and.MA_free_heap(tmpz(2,nb))
       if (.not.value)
      >   call errquit(
      >   'D3dB_fft_end:error deallocatingof heap memory',0, MA_ERR)
@@ -1308,8 +1331,8 @@ c      common    / D3dB_n_fft / tmp2,tmp3
 c
 c      logical value
 c
-c      value =           BA_free_heap(tmp2(2,nb))
-c      value = value.and.BA_free_heap(tmp3(2,nb))
+c      value =           MA_free_heap(tmp2(2,nb))
+c      value = value.and.MA_free_heap(tmp3(2,nb))
 c      if (.not.value)
 c     > call errquit(
 c     > 'D3dB_n_fft_end:error deallocatingof heap memory',0,MA_ERR)
@@ -2989,27 +3012,22 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** allocate trans_blk common block ****
-      write(*,*) "BEFORE alloc_gets 1"
       value = BA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
      >                     'iq_to_i1',iq_to_i1(2,nb),iq_to_i1(1,nb))
-      write(*,*) "AFTER alloc_gets 1"
       value=value.and.BA_alloc_get(mt_int,((nx(nb)/2+1)*ny(nb)*nq(nb)),
      >                     'iq_to_i2',iq_to_i2(2,nb),iq_to_i2(1,nb))
-
-      write(*,*) "AFTER alloc_gets 2"
       value = value.and.BA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i1_start',i1_start(2,nb),i1_start(1,nb))
-      write(*,*) "AFTER alloc_gets 3"
       value = value.and.BA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
       if (.not. value) 
      > call errquit('D3dB_transpose_jk_init:out of heap',0,MA_ERR)
 
-      write(*,*) "AFTER alloc_gets 4"
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
-      write(*,*) "AFTER parallel"
 
+!MATHIAS
+!$OMP SINGLE
       index1 = 1 
       index2 = 1
       do it=0,np-1
@@ -3055,8 +3073,8 @@ c     i1_start(np+1) = index1
 c     i2_start(np+1) = index2
       int_mb(i1_start(1,nb)+np) = index1
       int_mb(i2_start(1,nb)+np) = index2
+!$OMP END SINGLE
 
-      write(*,*) "AFTER pack"
 
       return
       end
@@ -5104,7 +5122,8 @@ c     integer i2_start(NFFT3+1)
 
 
   
-
+!MATHIAS
+!$OMP SINGLE
       index1 = 1 
       index2 = 1
       do it=0,np-1
@@ -5203,6 +5222,7 @@ c     i1_start(np+1) = index1
 c     i2_start(np+1) = index2
       int_mb(i1_start(1,nb)+np) = index1
       int_mb(i2_start(1,nb)+np) = index2
+!$OMP END SINGLE
 
       return
       end
@@ -5233,13 +5253,13 @@ c     integer i2_start(NFFT3+1)
 
       logical value
 
-      value = BA_free_heap(i1_start(2,nb))
+      value = MA_free_heap(i1_start(2,nb))
       value = value.and.
-     >        BA_free_heap(i2_start(2,nb))
+     >        MA_free_heap(i2_start(2,nb))
       value = value.and.
-     >        BA_free_heap(iq_to_i1(2,nb))
+     >        MA_free_heap(iq_to_i1(2,nb))
       value = value.and.
-     >        BA_free_heap(iq_to_i2(2,nb))
+     >        MA_free_heap(iq_to_i2(2,nb))
       if (.not.value) call errquit('error freeing heap',0, MA_ERR)
       return
       end

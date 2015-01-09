@@ -2954,6 +2954,9 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
       external lattice_omega
       logical  control_parallel_io
       external control_parallel_io
+      !MATHIAS
+      logical value
+      integer i
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
@@ -2973,6 +2976,7 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
 
 
 *     **** open fname binary file ****
+!$OMP SINGLE
       if (taskid_p.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
@@ -3003,6 +3007,7 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
          call iread(5,b_projector,nprj)
          end if
       end if
+!$OMP END SINGLE
 
 
 *     **** send header data to all processors ****
@@ -3020,6 +3025,8 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,iatom)
       atom(1:1) = char(iatom(1))
       atom(2:2) = char(iatom(2))
+
+
 
       msglen = 1
       call Parallela_Brdcst_values(com_p,MASTER,msglen,amass)
@@ -3047,7 +3054,6 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,l_projector)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,m_projector)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,b_projector)
-
 
 *     ***** read in Gijl's ****
       if (nprj.gt.0) then

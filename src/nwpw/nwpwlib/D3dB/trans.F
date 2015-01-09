@@ -37,6 +37,8 @@
       integer index1,index2,itmp
       integer i,j,k,it
 
+      integer tid,Parallel_threadid
+      external Parallel_threadid
 
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -69,6 +71,9 @@
       if (.not.value)
      > call errquit('D3dB_transpose_ijk_initt:out of heap',0,MA_ERR)
 
+
+!$OMP SINGLE
+      write(*,*) "Thread doing the job ",Parallel_threadid()
       index1 = 1 
       index2 = 1
       do it=0,np-1
@@ -87,17 +92,22 @@
 
             pto   = int_mb(p_map2(1,nb)+(k-1)+(i-1)*nz(nb))
             qto   = int_mb(q_map2(1,nb)+(k-1)+(i-1)*nz(nb))
-            
            
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = i + (qhere-1)*(nx(nb)/2+1)
+               if (itmp.ge.((nx(nb)/2+1)*nq1(nb))) then 
+c                 call abort()
+               end if
                int_mb(h_iq_to_i1(1,1,nb)+itmp-1) = index1
                index1 = index1 + 1
             end if
-             
 *           **** unpacking scheme ****
             if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
                itmp = j + (qto-1)*ny(nb)
+
+               if (itmp.ge.(ny(nb)*nq2(nb))) then 
+c                 call abort()
+               end if
                int_mb(h_iq_to_i2(1,1,nb)+itmp-1) = index2
                index2 = index2 + 1
             end if
@@ -109,9 +119,7 @@
       end do
       int_mb(h_i1_start(1,1,nb)+np) = index1
       int_mb(h_i2_start(1,1,nb)+np) = index2
-
-
-
+!$OMP END SINGLE
 
 
 *     *********************************************************
@@ -141,6 +149,7 @@
       if (.not.value)
      > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
+!$OMP SINGLE 
       index1 = 1
       index2 = 1
       do it=0,np-1
@@ -159,7 +168,6 @@
 
             pto   = int_mb(p_map3(1,nb)+(i-1)+(j-1)*(nx(nb)/2+1))
             qto   = int_mb(q_map3(1,nb)+(i-1)+(j-1)*(nx(nb)/2+1))
-
 
             if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
                itmp = j + (qhere-1)*ny(nb)
@@ -183,8 +191,7 @@
       int_mb(h_i2_start(1,2,nb)+np) = index2
 
 
-
-
+!$OMP END SINGLE 
 
 
 *     ********************************************************
@@ -214,6 +221,7 @@
       if (.not.value)
      > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
+!$OMP SINGLE 
       index1 = 1
       index2 = 1
       do it=0,np-1
@@ -255,8 +263,8 @@
       int_mb(h_i1_start(1,3,nb)+np) = index1
       int_mb(h_i2_start(1,3,nb)+np) = index2
 
-
-
+ 
+!$OMP END SINGLE 
 
 *     ********************************************************
 *     **** map2to1 mapping - done - tranpose operation #4 ****
@@ -285,6 +293,7 @@
       if (.not.value)
      > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
+!$OMP SINGLE 
       index1 = 1
       index2 = 1
       do it=0,np-1
@@ -327,7 +336,7 @@
       int_mb(h_i2_start(1,4,nb)+np) = index2
 
 
-
+!$OMP END SINGLE 
 
 
 *     **********************************************************
@@ -356,7 +365,8 @@
      >                      h_i2_start(1,5,nb))
       if (.not.value)
      > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
-
+ 
+!$OMP SINGLE 
       index1 = 1
       index2 = 1
       do it=0,np-1
@@ -399,8 +409,7 @@
       int_mb(h_i2_start(1,5,nb)+np) = index2
 
 
-
-
+!$OMP END SINGLE 
 
 
 *     *************************
@@ -430,6 +439,7 @@
       if (.not.value)
      > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
 
+!$OMP SINGLE 
       index1 = 1
       index2 = 1
       do it=0,np-1
@@ -471,6 +481,7 @@
       int_mb(h_i1_start(1,6,nb)+np) = index1
       int_mb(h_i2_start(1,6,nb)+np) = index2
 
+!$OMP END SINGLE 
 
       return
       end

@@ -102,15 +102,27 @@ ccccccccc externals
       external ewald_grid_nz
       external ewald_grid_ny,ewald_grid_nx
       external lattice_unitg,ion_rion
+
+ccccccccc openmp
+      integer Parallel_threadid, Parallel_numthread
+      external Parallel_threadid, Parallel_numthread
+
 ccccccc start of code       
       call nwpw_timing_start(8)
+
+      tid = Parallel_treadid()
+      nthr = Parallel_numthread()
+
+
+
       pi=4.0d0*datan(1.0d0)
       nion=ion_nion()
 
       nxh=nx/2
       nyh=ny/2
       nzh=nz/2
-      do i=1,nion
+c     Each thread processes independend ions (if USE_OPENMP is defined)
+      do i=tid,nion,nthr
         sw1=lattice_unitg(1,1)*ion_rion(1,i) 
      >     +lattice_unitg(2,1)*ion_rion(2,i) 
      >     +lattice_unitg(3,1)*ion_rion(3,i)+pi

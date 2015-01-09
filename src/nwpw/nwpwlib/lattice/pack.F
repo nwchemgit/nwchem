@@ -68,6 +68,7 @@
       nyh = ny/2
       nzh = nz/2
       
+!$OMP SINGLE
       do nb=0,1
          nida(nb) = 0
          nidb(nb) = 0
@@ -149,6 +150,7 @@
          
 
       end do
+!$OMP END SINGLE
 
 
       nwave_in(0) = nida(0) + nidb(0)
@@ -179,6 +181,7 @@ c     >                                      nidb(1),nidb2(1)
 
 
 *     **** allocate and define G_pack ****
+!$OMP SINGLE
       nsize = 3*((nida(0)+nidb2(0)) + (nida(1)+nidb2(1)))
       value = BA_push_get(mt_dbl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
@@ -198,6 +201,7 @@ c     >                                      nidb(1),nidb2(1)
             call Pack_t_Copy(nb,dbl_mb(tmp(1)),dbl_mb(G_pack(i,nb)))
          end do
       end do
+!$OMP END SINGLE
       value = BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('Pack_init:error popping stack',0,MA_ERR)

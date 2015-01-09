@@ -3550,7 +3550,10 @@ c     **** allocate aqueue ****
       value = value.and.
      >        BA_alloc_get(mt_int,size,'areqcnt',areqcnt(2),areqcnt(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+
+!$OMP SINGLE
       call dcopy(4*nfft3d(1)*aqmax,0.0d0,0,dcpl_mb(atmp(1)),1)
+!$OMP END SINGLE
 
 
 c     **** allocate bqueue ****
@@ -3570,7 +3573,9 @@ c     **** allocate bqueue ****
       value = value.and.
      >        BA_alloc_get(mt_int,size,'breqcnt',breqcnt(2),breqcnt(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+!$OMP SINGLE
       call dcopy(4*nfft3d(1)*bqmax,0.0d0,0,dcpl_mb(btmp(1)),1)
+!$OMP END SINGLE
 
 
 

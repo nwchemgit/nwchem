@@ -147,8 +147,15 @@ C
       external ion_nion
       external lattice_unitg,ion_rion
 
+      integer tid
+      integer nthr
+      integer Parallel_threadid, Parallel_numthread
+      external Parallel_threadid, Parallel_numthread
 
       call nwpw_timing_start(20)
+
+      tid = Parallel_treadid()
+      nthr = Parallel_numthread()
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -157,7 +164,8 @@ C
       call D3dB_nz(1,nz)
 
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
-      do i=1,ion_nion()
+c     Each thread processes independend ions (if USE_OPENMP is defined)
+      do i=tid,ion_nion(),nthr
 
         sw1= lattice_unitg(1,1)*ion_rion(1,i)
      >     + lattice_unitg(2,1)*ion_rion(2,i)

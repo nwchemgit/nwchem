@@ -175,11 +175,15 @@ cccc#include "frac_occ.fh"
       external ion_nconstraints,ion_ndof
       logical  control_print
       external control_print
+c#include "Parallel.fh"
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
       integer tid
 
-
+c      common / parallel_omp / threadid,nthreads
+c#ifdef USE_OPENMP
+c!$OMP THREADPRIVATE(/ parallel_omp /)
+c#endif
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -197,14 +201,32 @@ cccc#include "frac_occ.fh"
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
+      value = MA_set_hard_fail(.true.)
 #ifdef USE_OPENMP
-!$OMP PARALLEL 
-c      num_threads(1)
+!$cOMP PARALLEL private(tid)
+c     num_threads(2)
+c      call Parallel_thread_init()
+c      tid = Parallel_threadid()
+c      omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
+#else
+      omaster =  (taskid.eq.MASTER)
 #endif
 
       call Parallel_thread_init()
       tid = Parallel_threadid()
       omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
+
+
+!$OMP SINGLE
+      dummy = omp_get_level()
+      write(*,*) "dummy=",dummy
+!$OMP END SINGLE
+
+
+
+
+
+
 
       if (omaster) call current_second(cpu1)
 
@@ -248,38 +270,89 @@ c      num_threads(1)
 *     **** initialize psi_data ****
       call psi_data_init(100)
 
+
+
+
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
+!$OMP SINGLE
       n2ft3d = 2*nfft3d
+!$OMP END SINGLE
+
+
+
+
+
 
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4) 
      >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
 
 
+
 *     **** initialize lattice and packing data structure ****
+      if (omaster) write (*,*) "Starting Lattice_init"
       call lattice_init()
+
+      if (omaster) write (*,*) "Starting G_init"
       call G_init()
+
+      if (tid.eq.0) write (*,*) "Starting Mask_init"
       call mask_init()
+
+
+      if (tid.eq.0) write (*,*) "Starting Pack_init"
       call Pack_Init()
+      if (tid.eq.0) write (*,*) "Starting Pack_npack"
       call Pack_npack(1,npack1)      
 
+!MATHIAS
+!$OMP BARRIER
+      !$OMP CRITICAL
+      write(*,*) "Checking memory"," tid=",
+     > Parallel_threadid()
+      value = MA_verify_allocator_stuff()
+      !$OMP END CRITICAL
+!$OMP BARRIER
+
+#ifdef USE_OPENMP 
+!$cOMP END PARALLEL
+#endif
+
+      if (tid.eq.0) write (*,*) "Starting D3dB_pfft_init"
       call D3dB_pfft_init()
       !call ga_sync()
 
 
+
+
+
+
+
  
+!$OMP BARRIER
+      if (tid.eq.0) write (*,*) "Starting ion_init"
 *     **** read ions ****
       value = ion_init(rtdb)
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
 
+
+!$OMP BARRIER
+
+!$OMP BARRIER
+      if (tid.eq.0) write (*,*) "Starting psp_init"
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
       if (psp_semicore(0)) call semicore_check()
+
+
+
+
+
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()
@@ -624,6 +697,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
       icount = 0
    1  continue
          icount = icount + 1
+
          call inner_loop(ispin,neq,
      >             npack1,nfft3d,nemaxq,
      >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
@@ -631,6 +705,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)),
      >             fractional,dbl_mb(occ1(1)),dbl_mb(occ2(1)))
+
          if (oprint) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac,deltar
            call util_flush(luout)
@@ -1066,8 +1141,9 @@ c      call frac_occ_end()
 
 
       call Parallel2d_Finalize()
+
 #ifdef USE_OPENMP 
-!$OMP END PARALLEL
+!$cOMP END PARALLEL
 #endif
       call Parallel_Finalize()
       cpsdv5 = value

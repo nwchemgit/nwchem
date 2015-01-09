@@ -21,7 +21,7 @@
       external Parallel_threadid
       logical ok
       tid = Parallel_threadid()
-
+	
 !$OMP SINGLE 
       ok = MA_alloc_get(datatype,nelem,namee,memhandle,indx)
       !write(*,*) tid," BA_alloc_get memhandle=",memhandle

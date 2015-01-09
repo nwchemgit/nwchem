@@ -27,8 +27,11 @@
 
 
 *     **** initialize list ****
+!$OMP SINGLE
       mem(1) = NIL
       mem(2) = NIL
+!OMP END SINGLE copyprivate(mem)
+
       return
       end
 

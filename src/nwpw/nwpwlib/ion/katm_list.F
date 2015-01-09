@@ -62,21 +62,21 @@
      >        BA_alloc_get(mt_int,(nkatm),rtdb_name,natm(2),natm(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-!$OMP SINGLE
+!$OMP MASTER
       do i=1,nkatm
          int_mb(natm(1)+i-1) = 0
       end do
-!$OMP END SINGLE
-!$OMP BARRIER
+!$OMP END MASTER
+!$cOMP BARRIER
       do i=1,nion
          aname = aname_function(i)
          ka=pspw_compare_atom(aname,nkatm,byte_mb(atom(1)))
          int_mb(katm(1)+i-1) = ka
-!$OMP SINGLE
+!$OMP MASTER
          int_mb(natm(1)+ka-1) = int_mb(natm(1)+ka-1)+1
-!$OMP END SINGLE
+!$OMP END MASTER
       end do
-!$OMP BARRIER
+!$cOMP BARRIER
 
       return
       end

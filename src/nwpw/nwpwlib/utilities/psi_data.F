@@ -39,7 +39,9 @@
       value = value.and.BA_alloc_get(mt_int,npsi,'next_psi',
      >                               next_psi(2),next_psi(1))
 
+!$OMP SINGLE
       call icopy(npsi,0,0,int_mb(update_psi(1)),1)
+!$OMP END SINGLE
       do ltag=0,npsi-1
          int_mb(list_psi(1)+ltag) = ltag
       end do
