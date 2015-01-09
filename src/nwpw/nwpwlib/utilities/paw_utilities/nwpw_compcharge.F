@@ -3290,7 +3290,8 @@ c     >                                         l2,m2,s1,Rab)
      >                                         l2,m2,sigma_smooth,Rab)
                            !e1=e1+0.5d0*W1+0.5d0*W4-0.5d0*W2-0.5d0*W3
                            !e1=e1+0.5d0*W1+0.5d0*W4-W2
-                           e1=e1+(W1+W4-2.0d0*W2)
+                           !e1=e1+(W1+W4-2.0d0*W2)
+                           e1=e1+(0.5d0*W1+0.5d0*W4-W2)
                         end if
                      end do
 
