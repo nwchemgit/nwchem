@@ -3207,7 +3207,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       integer iii,jjj,iia,jja
       integer lm1,l1,m1,lm2,l2,m2
       integer l,nshl3d,rcell,rcell_hndl
-      real*8 R1(3),R12(3),s1,s2,Rab(3),R
+      real*8 R1(3),R12(3),s1,s2,Rab(3),Rba(3),R,ss
       real*8 W1,W2,W3,W4,dW1(3),dW2(3),dW3(3),dW4(3)
       real*8 e1,de1(3)
 
@@ -3290,8 +3290,9 @@ c     >                                         l2,m2,s1,Rab)
      >                                         l2,m2,sigma_smooth,Rab)
                            !e1=e1+0.5d0*W1+0.5d0*W4-0.5d0*W2-0.5d0*W3
                            !e1=e1+0.5d0*W1+0.5d0*W4-W2
-                           !e1=e1+(W1+W4-2.0d0*W2)
-                           e1=e1+(0.5d0*W1+0.5d0*W4-W2)
+
+                           e1=e1+(W1+W4-2.0d0*W2)
+                           !e1=e1+(W1+W4-W2-W3)
                         end if
                      end do
 
