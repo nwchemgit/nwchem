@@ -218,8 +218,8 @@ c      omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
 
 
 !$OMP SINGLE
-      dummy = omp_get_level()
-      write(*,*) "dummy=",dummy
+c      dummy = omp_get_level()
+c      write(*,*) "dummy=",dummy
 !$OMP END SINGLE
 
 
