@@ -104,13 +104,14 @@ ccccccccc externals
       external lattice_unitg,ion_rion
 
 ccccccccc openmp
+      integer tid,nthr
       integer Parallel_threadid, Parallel_numthread
       external Parallel_threadid, Parallel_numthread
 
 ccccccc start of code       
       call nwpw_timing_start(8)
 
-      tid = Parallel_treadid()
+      tid = Parallel_threadid()
       nthr = Parallel_numthread()
 
 
