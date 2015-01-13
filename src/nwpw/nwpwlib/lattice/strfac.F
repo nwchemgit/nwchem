@@ -149,13 +149,13 @@ C
 
       integer tid
       integer nthr
-      integer  Parallel_threadid, Parallel_numthread
-      external Parallel_threadid, Parallel_numthread
+      integer  Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
 
       call nwpw_timing_start(20)
 
       tid = Parallel_threadid()
-      nthr = Parallel_numthread()
+      nthr = Parallel_nthreads()
 
       pi = 4.0d0*datan(1.0d0)
 
