@@ -105,14 +105,14 @@ ccccccccc externals
 
 ccccccccc openmp
       integer tid,nthr
-      integer Parallel_threadid, Parallel_numthread
-      external Parallel_threadid, Parallel_numthread
+      integer Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
 
 ccccccc start of code       
       call nwpw_timing_start(8)
 
       tid = Parallel_threadid()
-      nthr = Parallel_numthread()
+      nthr = Parallel_nthreads()
 
 
 
