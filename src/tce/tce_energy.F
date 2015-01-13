@@ -509,6 +509,7 @@ c
       integer k_omegay         ! Excitation energy
       integer l_residual       ! Residual
       integer k_residual       ! Residual
+      integer max_ioprocs_in_org,max_ioprocs_in_new
       logical converged
       double precision pt3_1   ! [T] energy
       double precision pt3_2   ! (T)-[T] energy
@@ -1061,6 +1062,14 @@ c === jaguar ===
       unitn=77
       if(nodezero) write(6,*)'size_1e',size_1e
        call read_tensor(filename,d_f1,size_1e,unitn)
+c     re-split the int files?
+       if (rtdb_get(rtdb,'tce:maxioprocs_new',
+     M      mt_int,1,max_ioprocs_in_new))  then
+          max_ioprocs_in_org=max_ioprocs_in
+          max_ioprocs_in=max_ioprocs_in_new
+          call write_tensor(filename,d_f1,size_1e,unitn)
+          max_ioprocs_in=max_ioprocs_in_org
+       endif
        call ga_sync()
        go to 2002
       end if
@@ -1454,6 +1463,12 @@ c === jaguar ===
           call util_file_name('v2int',.false.,.true.,filename)
           unitn=78
           call read_tensor(filename,d_v2,size_2e,unitn)
+c     re-split the int files?
+          if (rtdb_get(rtdb,'tce:maxioprocs_new',
+     M         mt_int,1,max_ioprocs_in_new))  then
+             max_ioprocs_in=max_ioprocs_in_new
+             call write_tensor(filename,d_v2,size_2e,unitn)
+          endif
           call ga_sync()
           go to 3003
          end if
@@ -1513,6 +1528,12 @@ c === jaguar ===
           unitn=178
           call read_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
+c     re-split the int files?
+          if (rtdb_get(rtdb,'tce:maxioprocs_new',
+     M         mt_int,1,max_ioprocs_in_new))  then
+             max_ioprocs_in=max_ioprocs_in_new
+             call write_tensor(filename,d_v2,size_2e,unitn)
+          endif
           go to 3095
          end if
 c ==============

@@ -53,16 +53,18 @@ c     last io proc does the remainder
        if(num_task*chunk_t.lt.size_xx_perproc) num_task=num_task+1
 c --
        if(nodezero) then
-         write(6,'(I3,A,I9,A,I9,A,I4)') 
+         write(6,'(I3,A,I19,A,I19,A,I4)') 
      G ga_nodeid(),' ga offset ',ga_offset,
      C      ' size_xx_perproc ',size_xx_perproc,'mx ',max_ioprocs
-        write(LuOut,*)'WRITE TENSOR'
-        write(LuOut,10)filename
-        write(LuOut,9) unitn
-        write(LuOut,12)size_xx_perproc
-        write(LuOut,13)rec_mem
-        write(LuOut,11)rec_size
-        write(LuOut,14)num_task
+         if(ga_nodeid().eq.0) then
+            write(LuOut,*)'WRITE TENSOR'
+            write(LuOut,10)filename
+            write(LuOut,9) unitn
+            write(LuOut,12)size_xx_perproc
+            write(LuOut,13)rec_mem
+            write(LuOut,11)rec_size
+            write(LuOut,14)num_task
+         endif
         call util_flush(6)
        end if
     9  format(1x,' unit nr:  ',2x,i5)
@@ -124,10 +126,6 @@ c         write(unitn,rec=i,err=150) dbl_mb(k_aux)
           lgth=ma_sizeof(MT_DBL,1,MT_BYTE)*chunk_t
          if(i.eq.num_task) lgth=(size_xx_perproc-(i-1)*chunk_t)*
      *        ma_sizeof(MT_DBL,1,MT_BYTE)
-          if(i.eq.1.or.i.eq.num_task) then
-             write(6,'(I3," i off l",I9,F10.1,I9)') 
-     G            ga_nodeid(),i,offset,lgth
-          endif
           k = eaf_write(unitn, offset, dbl_mb(k_aux),lgth)
         if (k .ne. 0) then
            call eaf_errmsg(k,errmsg)
@@ -237,15 +235,18 @@ c     last io proc does the remainder
        if(num_task*chunk_t.lt.size_xx_perproc) num_task=num_task+1
 c --
       if(nodezero) then
-         write(6,'(I3,A,I9,A,I9)') ga_nodeid(),' ga offset ',ga_offset,
+         write(6,'(I3,A,I19,A,I19)') 
+     G        ga_nodeid(),' ga offset ',ga_offset,
      C      ' size_xx_perproc ',size_xx_perproc
-        write(6,*)'READ TENSOR'
-        write(6,10)filename
-        write(6,9) unitn
-        write(6,12)size_xx_perproc
-        write(6,13)rec_mem
-        write(6,11)rec_size
-        write(6,14)num_task
+         if(ga_nodeid().eq.0) then
+            write(6,*)'READ TENSOR'
+            write(6,10)filename
+            write(6,9) unitn
+            write(6,12)size_xx_perproc
+            write(6,13)rec_mem
+            write(6,11)rec_size
+            write(6,14)num_task
+         endif
         call util_flush(6)
        end if
     9  format(1x,' unit nr:  ',2x,i5)
@@ -276,7 +277,7 @@ c     read header
           offset=offset+ma_sizeof(MT_INT,1,MT_BYTE)
           if(max_ioprocs_r.ne.max_ioprocs) call errquit(
      R         'read_tensor: wrong no. ioprocs ',
-     D         ga_nodeid(),DISK_ERR)
+     D         max_ioprocs_r,DISK_ERR)
           k = eaf_read(unitn, offset, size_xx_perproc_r,
      M       ma_sizeof(MT_INT,1,MT_BYTE))
           if(size_xx_perproc_r.ne.size_xx_perproc) call errquit(
