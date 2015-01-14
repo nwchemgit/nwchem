@@ -4329,7 +4329,7 @@ C
        EXTERNAL MV7
 *
        TEST = 1.0D-6
-       IPRT= 001
+       IPRT= 100
        IF(IPRT.GE.1.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' MINDV4 in action '
          WRITE(6,*) ' Convergence threshold for residual = ', TEST
@@ -4358,6 +4358,7 @@ C
        CALL MEMMAN(KAPROJ,MAXVEC*(MAXVEC+1)/2,'ADDL  ',2,'KAPROJ')
 CNW    KAPROJ = 1
 CNW    KFREE = KAPROJ+ MAXVEC*(MAXVEC+1)/2
+       write(*,*) 'Am I here? 01', NINVEC
        CONVER = .FALSE.
        DO 1234 MACRO = 1,1
 *
@@ -4369,6 +4370,7 @@ CNW    CALL REWINO( LU2 )
        DO 10 IVEC = 1,NINVEC
 C?       WRITE(6,*) ' Before FRMDSC, NVAR = ', NVAR
 CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
+         write(*,*) 'Am I here? 01.1', IVEC, NVAR, VEC1
          if (dra_read_section(.false.,VEC1,1,NVAR,1,1,LU1,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
          if(dra_wait(itask).ne.0) call errquit('dra read err',itask,911)
@@ -4406,6 +4408,7 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
          EIG(1,IROOT) = dbl_mb(KAPROJ-1+IROOT*(IROOT+1)/2 )
    20  CONTINUE
 *
+       write(*,*) 'Am I here? 02'
        IF( IPRT  .GE. 3 .and. ga_nodeid().eq.0) THEN
          WRITE(6,'(A,I4)') ' Initial set of eigenvalues '
          WRITE(6,'(5F22.13)')
@@ -4435,6 +4438,7 @@ CNW      CALL SETVEC(VEC1,0.0D0,NVAR)
          call ga_zero(VEC1)
 *   
 CNW      CALL REWINO( LU2)
+         write(*,*) 'Am I here? 03', NVEC, NVAR
          DO 60 IVEC = 1, NVEC
 CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
            if (dra_read_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
@@ -4442,6 +4446,7 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
            if (dra_wait(itask).ne.0) call errquit('dra read err',
      &         itask,911)
            FACTOR = AVEC((IROOT-1)*NVEC+IVEC)
+           write(*,*) 'VOG', FACTOR, IVEC
            call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    60    CONTINUE
@@ -4497,6 +4502,7 @@ CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 * add Olsen correction if neccessary
 CNW           CALL REWINO(LU3)
 CNW           CALL TODSC(VEC1,NVAR,-1,LU3)
+       write(*,*) 'Am I here? 04'
               if (dra_write_section(.false.,VEC1,1,NVAR,1,1,LU3,1,NVAR,
      &            1,1,itask).ne.0) call errquit('dra error',itask,911)
               if (dra_wait(itask).ne.0) call errquit('dra read err',
@@ -4550,6 +4556,7 @@ CBERT: H0M1TV and subsequent DDOT can be combined as we don't need
 CVEC3(2) anymore after we're done
 
 * is X an eigen vector for (H0 - 1 ) - 1
+       write(*,*) 'Am I here? 05'
               call ga_add(GAMMA,VEC1,-1.0D0,VEC2,VEC2)
 CNW           CALL VECSUM(VEC2,VEC1,VEC2,GAMMA,-1.0D0,NVAR)
               VNORM = SQRT(MAX(0.0D0,ga_ddot_patch(VEC2,'N',1,NVAR,1,1,
@@ -4667,6 +4674,7 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1,LU1,IMZERO,IAMPACK)
 CNW      CALL FRMDSC(VEC1,NVAR,-1,LU2,IMZERO,IAMPACK)
 CNW  110  CONTINUE
 *
+       write(*,*) 'Am I here? 06'
       DO 150 IVEC = 1, IADD
 CNW     CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
         if (dra_read_section(.false.,VEC1,1,NVAR,1,1,
@@ -4753,6 +4761,7 @@ C       SEL_ROOT(SUBSPCVC,SUBSPCMT,ISEL_MET,NVEC,NROOT,LUC,VEC1)
 *
   901 CONTINUE
 *
+       write(*,*) 'Am I here? 07'
       IPULAY = 1
       IF(IPULAY.EQ.1 .AND. MAXVEC.EQ.3 .AND.NVEC.GE.2.
      &   .AND. .NOT.CONVER) THEN
@@ -4998,6 +5007,7 @@ CNW       CALL TODSC (VEC2,NVAR,-1  ,LU2)
   420   CONTINUE
 C
       END IF
+       write(*,*) 'Am I here? 08'
 C
 C     IF( ITER .LT. MAXIT .AND. .NOT. CONVER) GOTO 1000
       IF( ITER .LE. MAXIT .AND. .NOT. CONVER) GOTO 1000
@@ -5014,6 +5024,7 @@ CNW   CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 *
 *
 *
+       write(*,*) 'Am I here? 09'
       IF( .NOT. CONVER ) THEN
 *        CONVERGENCE WAS NOT OBTAINED
          IF(IPRT .GE. 2 .and. ga_nodeid().eq.0)

@@ -11925,6 +11925,7 @@ CBERT           CALL SCLH2(XLAMBDA)
              write(6,'(15X,A)') '********************'
              write(6,'(15X,A)') 'SplitGAS Initialized'
              write(6,'(15X,A)') '********************'
+             EREF = EFINAL
              CALL AKBKCI(JCMBSPC,IPRDIA,
      &                   EREF,ERROR_NORM_FINAL,CONV_F)
              E_FINAL_T(JSEQ,JCMBSPC) = EREF
@@ -13206,7 +13207,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 000
+      NTEST = 1000 !VOG
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
@@ -13299,7 +13300,7 @@ C?    WRITE(6,*) ' KSIOIO = ', KSIOIO
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
         NCOCCLS = NCOCCLS_ACT
         IF(NTEST.GE.1000) THEN
-          WRITE(6,*) ' KCLBT, KSLBT(b) == ', KCLBT, KSLBT
+          WRITE(6,*) ' KCLBT, KSLBT(b) == ',int_mb(KCLBT),int_mb(KSLBT)
           WRITE(6,*) ' WORK(KCLBT): '
           CALL IWRTMA(int_mb(KCLBT),1,1,1,1)
         END IF
@@ -15240,7 +15241,7 @@ C
       DIMENSION SB(*),CB(*)
 *. Input/output if ICISTR = 1
 CNW   DIMENSION SV(*),CV(*)
-      integer SV,CV
+      integer SV,CV !,CB,SB
       CHARACTER*6 ITASK
 *
       CALL LUCIAQENTER('RASSG')

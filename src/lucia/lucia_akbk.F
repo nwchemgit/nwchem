@@ -63,8 +63,8 @@ cVOG        STOP       ' AKBK calculation does not work with incore options'
       WRITE(6,*) ' Allowed number of outer iterations ', MAXITM
       WRITE(6,*) ' Allowed number of inner iterations ', MAXIT 
 *
-cVOG  All is writen in GAs
-      IAKBK_MET = 1 
+cVOG  All are written in GAs
+      IAKBK_MET = 2 
       IF(IAKBK_MET.EQ.1) THEN
         WRITE(6,*) ' Procedure with Q-vectors on DISC '
       ELSE
@@ -86,11 +86,11 @@ cVOG  All is writen in GAs
 *. Number of CSFs in P and Q
       NPCSF = NCSF_PER_SYM_GN(IREFSM,IPSPC)
       NQCSF = NCSF_PER_SYM_GN(IREFSM,IQSPC)
-cVOG  These should be initialiaxed from lucia.f?
+cVOG  This should be initialiaxed from lucia.f?
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Initial energy = ', EREF
-        WRITE(6,*) ' Number of CSFs in P-space = ', NPCSF
-        WRITE(6,*) ' Number of CSFs in PQ-space = ', NQCSF
+cVOG    WRITE(6,*) ' Number of CSFs in P-space = ', NPCSF
+cVOG    WRITE(6,*) ' Number of CSFs in PQ-space = ', NQCSF
       END IF
       EREF_INI = EREF
 *
@@ -136,56 +136,11 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
 *. Should also be copied to Sigma occ classes?
       END IF
 *
-      IF (NOCSF.EQ.1) THEN
-*
-* AKBK - NWChem version. No CSFs, just SDs
-*
-* Allocate P-space vector
-*
-       NSDP = INT(XISPSM(IREFSM,1))
-       WRITE(6,'(a,i12)') ' Dimension of P space  ', NSDP
-       IF ( .not. ga_create( mt_dbl, NSDP, 1, 'VECP', 0, 0, KVECP) )
-     $    CALL ERRQUIT('AKBK: ga_create VECP failed', NSDP, GA_ERR)
-       CALL ga_zero(KVECP)
-       IF (dra_read_section(.false., KVECP, 1, NSDP, 1, 1,
-     &                               LUC,   1, NSDP, 1, 1,ITASK).ne.0)
-     &    CALL ERRQUIT('dra error readin P vector',ITASK, 666)
-       IF (dra_wait(ITASK).ne.0) 
-     &    CALL ERRQUIT('dra read err',ITASK,666)
-       CALL ga_print(KVECP)
-*
-* Analyze P-space expansion (Not working)
-*
-       CALL GASANA(dbl_mb(KVECP),NBLOCK,NSDP,NSDP,LUC,ICISTR)
-*
-* Allocate PQ-space vector
-* VOG: I should fix SplitGAS cases. Now it is working as SplitCAS
-*
-       NSDPQ = INT(XISPSM(IREFSM,2))
-       IF ( .not. ga_create( mt_dbl, NSDPQ, 1, 'VECPQ', 0, 0, KVECPQ) )
-     $    CALL ERRQUIT('AKBK: ga_create VECP failed', NSDPQ, GA_ERR)
-       CALL ga_zero(KVECPQ)
-       CALL ga_copy_patch('N', KVECP,  1, NSDP, 1, 1,
-     &                         KVECPQ, 1, NSDP, 1, 1)
-*
-       IF (NTEST.GE.1000) THEN
-        WRITE(6,'(a)')     ' ================================= '
-        WRITE(6,'(a)')     '  Dimensions for AKBK Calculation  '
-        WRITE(6,'(a)')     ' ================================= '
-        WRITE(6,'(a,i12)') ' Number of CI Spaces   ', NCMBSPC
-        WRITE(6,'(a,i12)') ' Dimension of P space  ', NSDP
-        WRITE(6,'(a,i12)') ' Dimension of PQ space ', NSDPQ
-        WRITE(6,'(a)')     ' Print initial vectors:'
-        CALL ga_print(KVECP)
-        CALL ga_print(KVECPQ)
-        WRITE(6,'(a)')     ' ================================= '
-       END IF
-*
-      ELSE 
-*
 * Info on batches
 *
       LBLOCK  = NSD_FOR_OCCLS_MAX
+      IF (NOCSF.EQ.1) CALL IAIBCM(1,LBLOCK)
+      write(*,*) 'LBLOCK', LBLOCK
       ICOMP = 0
 * Start be letting P be C-space and Q be S-space
       NCOCCLS = NOCCLS_P
@@ -225,6 +180,69 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
      & ' Number of blocks and batches in P  ',NBLOCK_P, NBATCH_P
       WRITE(6,*)  
      & ' Number of blocks and batches in PQ ',NBLOCK_Q, NBATCH_Q
+*
+      IF (NOCSF.EQ.1) THEN
+*
+* AKBK - NWChem version. No CSFs, just SDs
+*
+* Allocate three vectors: KVEC1P, KVEC2P, KVEC3
+* Dimensions of KVEC1P, KVEC2P: P-space
+*
+       NSDP  = INT(XISPSM(IREFSM,1))
+       NSDPQ = INT(XISPSM(IREFSM,2))
+       NSDQ  = NSDPQ - NSDP
+       NVAR  = NSDP
+       IF ( .not. ga_create( mt_dbl, NSDP, 1, 'VEC1P', 0, 0, KVEC1P) )
+     $    CALL ERRQUIT('AKBK: ga_create VEC1P failed', NSDP, GA_ERR)
+       CALL ga_zero(KVEC1P)
+       IF (dra_read_section(.false., KVEC1P, 1, NSDP, 1, 1,
+     &                               LUC,    1, NSDP, 1, 1,ITASK).ne.0)
+     &    CALL ERRQUIT('dra error readin P vector',ITASK, 666)
+       IF (dra_wait(ITASK).ne.0) CALL ERRQUIT('dra read err',ITASK,666)
+       CALL ga_print(KVEC1P)
+       IF ( .not. ga_create( mt_dbl, NSDP, 1, 'VEC2P', 0, 0, KVEC2P) )
+     $    CALL ERRQUIT('AKBK: ga_create VEC2P failed', NSDP, GA_ERR)
+       CALL ga_zero(KVEC2P)
+*
+* Allocate KVEC3
+*
+       IF ( .not. ga_create( mt_dbl, NSDQ, 1, 'VEC3', 0, 0, KVEC3) )
+     $    CALL ERRQUIT('AKBK: ga_create VEC3 failed', NSDQ, GA_ERR)
+       CALL ga_zero(KVEC3)
+*
+* Analyze P-space expansion (Not working)
+*
+cVOG   CALL GASANA(dbl_mb(KVEC1P),NBLOCK,NSDP,NSDP,LUC,ICISTR)
+*
+* Allocate Q-space vector
+* VOG: I should fix SplitGAS cases. Now it is working as SplitCAS
+*
+!       IF ( .not. ga_create( mt_dbl, NSDQ, 1, 'VECQ', 0, 0, KVECQ) )
+!     $    CALL ERRQUIT('AKBK: ga_create VECP failed', NSDQ, GA_ERR)
+!       CALL ga_zero(KVECQ)
+!       CALL ga_copy_patch('N', KVEC1P, 1, NSDP, 1, 1,
+!     &                         KVECQ,  1, NSDP, 1, 1)
+*
+       IF (dra_wait(ITASK).ne.0) CALL ERRQUIT('dra wait err',ITASK,666)
+*
+       IF (NTEST.GE.1000) THEN
+        WRITE(6,'(a)')     ' ================================= '
+        WRITE(6,'(a)')     '  Dimensions for AKBK Calculation  '
+        WRITE(6,'(a)')     ' ================================= '
+        WRITE(6,'(a,i12)') ' Number of CI Spaces   ', NCMBSPC
+        WRITE(6,'(a,i12)') ' Dimension of P space  ', NSDP
+        WRITE(6,'(a,i12)') ' Dimension of Q space  ', NSDQ
+        WRITE(6,'(a,i12)') ' Dimension of PQ space ', NSDPQ
+        WRITE(6,'(a,i12)') ' Max CI Vector         ', MAXCIV
+        WRITE(6,'(a)')     ' Print initial vector:'
+        CALL ga_print(KVEC1P)
+        WRITE(6,'(a)')     ' ================================= '
+       END IF
+*
+      ELSE
+*
+* AKBK - Olsen's version with CSFs
+*
 *
 *. Allocate space: 
 *
@@ -308,7 +326,7 @@ C     &           ECORE,LUDIA,NOCCLS_SPC,IOCCLS_SPC,ISYM)
 C        GET_CSF_H_PRECOND(NEL,NCONF_FOR_OPEN,ICONF_OCC,H0,ECORE,
 C    &   IFORM)
       END IF! IH0_CSF switch
-      END IF !NOCSF - VOG
+      END IF! NOCSF - VOG
 *
       MINST = 1
 *. Since we are starting our with the solution from the previous space
@@ -359,9 +377,21 @@ C    &   IFORM)
 C?     WRITE(6,*) ' IPRCOND = ', IPRECOND  
 C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
 *. An additional file
-      CALL FILEMAN_MINI(LU8,'ASSIGN')
-      IF(IAKBK_MET.EQ.1) THEN
-       CALL CIEIG5(AKBKSIGMA,INICI,EROOT,WORK(KVEC1P),WORK(KVEC2P),
+       CALL FILEMAN_MINI(LU8,'ASSIGN')
+       IF(IAKBK_MET.EQ.1) THEN
+       write(*,*) 'SHIFT', SHIFT
+       write(*,*) 'NVAR', NVAR
+       write(*,*) 'MXP1,MXP2,MXQ', MXP1,MXP2,MXQ
+       write(*,*) 'dbl_mb(KVEC3)',dbl_mb(KVEC3)
+       write(*,*) 'int(KCLBT),int(KCLEBT),int_mb(KCLBLK),int(KCI1BT)',
+     &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT)
+       write(*,*) 'int_mb(KCIBT)', int_mb(KCIBT)
+       write(*,*) 'int(KSLBT),int(KSLEBT),int_mb(KSLBLK),int(KSI1BT)',
+     &     int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT)
+       write(*,*) 'int_mb(ISPC)', int_mb(ISPC)
+       write(*,*) 'KVEC1P', KVEC1P
+       write(*,*) 'KVEC2P', KVEC2P
+       CALL CIEIG5(AKBKSIGMA,INICI,EROOT,KVEC1P,KVEC2P,
      & MINST,LUDIA,LUC,LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LU8,
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRDIA,dbl_mb(KSBEVC),
      & NPRDET,WORK(KH0),int_mb(KSBIDT),
@@ -383,7 +413,7 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
      & IPRECOND,IIUSEH0P,MPORENP_E,RNRM,CONV_LOCAL,ISBSPPR_ACT,
      & ILAST)
       ELSE
-       CALL CIEIG5(AKBKSIGMA2,INICI,EROOT,WORK(KVEC1P),WORK(KVEC2P),
+       CALL CIEIG5(AKBKSIGMA2,INICI,EROOT,KVEC1P,KVEC2P,
      & MINST,LUDIA,LUC,LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LU8,
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRDIA,dbl_mb(KSBEVC),
      & NPRDET,WORK(KH0),int_mb(KSBIDT),
@@ -473,7 +503,7 @@ C?    END IF
 *. Output
       INTEGER IRCONNECT(*)
 *
-      NTEST = 100
+      NTEST = 000
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' Output from EXCIT_OCCLS_TO_OCCLS '
@@ -550,42 +580,72 @@ C?    END IF
       INCLUDE 'cands.inc'
       INCLUDE 'crun.inc'
 *
+      integer CB,HCB
+*
       LBLK = -1
 *
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
       CALL LUCIAQENTER('AKBKSI')
-      NTEST = 10
+      NTEST = 1000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Information from AKBKSIGMA'
         WRITE(6,*) ' =========================='
         WRITE(6,*)
       END IF 
       IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' LUC, LUHC = ', LUC, LUHC
+        WRITE(6,*) ' LUC, LUHC  = ', LUC, LUHC
+        WRITE(6,*) ' NSDP, NSDQ = ', NSDP,NSDQ
       END IF
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Input vector to AKBKSIGMA '
-        CALL WRTVCD(CB,LUC,1,LBLK)
+        CALL ga_print(CB)
+cVOG    CALL WRTVCD(CB,LUC,1,LBLK)
       END IF
 *
 *
 *. Scratch files for C and Sigma in determinant basis, HQP CP, (HQQ-E) HQP CP
 * 
-      CALL FILEMAN_MINI(LU_Q1,'ASSIGN')
-      CALL FILEMAN_MINI(LU_Q2,'ASSIGN')
-      CALL FILEMAN_MINI(LU_Q3,'ASSIGN')
+cVOG  CALL FILEMAN_MINI(LU_Q1,'ASSIGN')
+cVOG  CALL FILEMAN_MINI(LU_Q2,'ASSIGN')
+cVOG  CALL FILEMAN_MINI(LU_Q3,'ASSIGN')
+*
+* Allocate three scratch arrays: LU_Q1 : P-dim
+*                                LU_Q2 : Q-dim
+*                                LU_Q3 : Q-dim
+*
+       
+      IF ( .not. ga_create( mt_dbl, NSDP, 1, 'LU_Q1', 0, 0, KLU_Q1) )
+     $   CALL ERRQUIT('AKBK: ga_create LU_Q1 failed', NSDP, GA_ERR)
+      IF ( .not. ga_create( mt_dbl, NSDPQ, 1, 'LU_Q2', 0, 0, KLU_Q2) )
+     $   CALL ERRQUIT('AKBK: ga_create LU_Q2 failed', NSDPQ, GA_ERR)
+      IF ( .not. ga_create( mt_dbl, NSDPQ, 1, 'LU_Q3', 0, 0, KLU_Q3) )
+     $   CALL ERRQUIT('AKBK: ga_create LU_Q3 failed', NSDPQ, GA_ERR)
+*
+      CALL ga_zero(KLU_Q1)
+      CALL ga_zero(KLU_Q2)
+      CALL ga_zero(KLU_Q3)
+*
+!      IF (dra_wait(ITASK).ne.0) CALL ERRQUIT('dra wait err',ITASK,666)
+      IF(NTEST.GE.1000) THEN
+       CALL ga_print(KLU_Q1)
+       CALL ga_print(KLU_Q2)
+       CALL ga_print(KLU_Q3)
+      END IF
 *
 *. Calculate HQP CP in PQ space and save on LU_Q2
 *
       ICSPC = IPSPC
       ISSPC = IQSPC
-      CALL REWINO(LUC)
-      CALL REWINO(LU_Q2)
-      CALL MV7(CB,HCB,LUC,LU_Q2,XDUM,XDUM)
+cVOG  CALL REWINO(LUC)
+cVOG  CALL REWINO(LU_Q2)
+cVOG  CALL MV7(CB,HCB,LUC,LU_Q2,XDUM,XDUM)
+      CALL MV7(CB,KLU_Q2,0,0,0,0)
       IF(NTEST.GE.1000) WRITE(6,*) ' H(QP)P CP accomplished'
       IF(NTEST.GE.1000) THEN
-       CALL WRTVCD(CB,LU_Q2,1,LBLK)
+       call ga_print(CB)
+       CALL ga_print(KLU_Q2)
+cVOG   CALL WRTVCD(CB,LU_Q2,1,LBLK)
       END IF
 *
 *. Well really, we wanted HQP CP only in Q space, remove P space terms, to LU_Q1
@@ -599,12 +659,22 @@ C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Number of CSF of right sym per occls'
         CALL IWRTMA(int_mb(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
+        write(*,*) 'NOCCLS_P, int_mb(KLOCCLS_P)',
+     &              NOCCLS_P, int_mb(KLOCCLS_P)
+        write(*,*) 'NOCCLS_Q, int_mb(KLOCCLS_Q)',
+     &              NOCCLS_Q, int_mb(KLOCCLS_Q)
       END IF
 *
-      CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,int_mb(KLOCCLS_P),
-     &                LU_Q1,NOCCLS_Q,int_mb(KLOCCLS_Q),
-     &                int_mb(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
-*
+! Be careful, it's working as SplitCAS at the moment      
+      CALL ga_copy_patch('N', KLU_Q2, 1, NSDP, 1, 1,
+     &                        KLU_Q1, 1, NSDP, 1, 1)
+      write(*,*) 'Copy P space terms to LU_Q1'
+      CALL ga_print(KLU_Q1)
+      CALL ga_print(KLU_Q2)
+cVOG  CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,int_mb(KLOCCLS_P),
+cVOG &                LU_Q1,NOCCLS_Q,int_mb(KLOCCLS_Q),
+cVOG &                int_mb(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
+!*
 C     EXP_BLKVEC(LU_IN,NBLK_IN, IBLK_IN,
 C    &                      LU_OUT,NBLK_OUT,IBLK_OUT,
 C    &                      LBLK,ITASK,VEC,VEC_OUT,IREW,ICISTR,
@@ -613,7 +683,12 @@ C    &                      INCORE)
 *
 *. Calculate diagonal(HQQ) and save on LU_Q3
 *
-      CALL CSDIAGM(IREFSM,2,LU_Q3,CB,HCB)
+cVOG  CALL CSDIAGM(IREFSM,2,LU_Q3,CB,HCB)
+      CALL CSDIAGM(IREFSM,2,0,CB,KLU_Q3)
+      IF(NTEST.GE.1000) THEN
+       write(*,*) 'Diagonal HQQ is here'
+       call ga_print(KLU_Q3)
+      END IF
 *
 *. (HQQ - E)**-1 HQP CP on LU_Q2
 *
@@ -624,39 +699,46 @@ C    &                      INCORE)
       H0SCR = 3006.56
       IZERO = 0
       IF(NTEST.GE.1000) WRITE(6,*) ' Shift :', SHIFT 
-      CALL H0M1TD(LU_Q2,LU_Q3,LU_Q1,LBLK,IZERO,IPNTR,
-     &     H0,SHIFT,H0SCR,XH0IX,
-     &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
+cVOG   CALL H0M1TD(KLU_Q2,KLU_Q3,KLU_Q1,LBLK,IZERO,IPNTR,
+cVOG  &     H0,SHIFT,H0SCR,XH0IX,
+cVOG  &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
 *      H0M1TD(LUOUT,LUDIA,LUIN,LBLK,NPQDM,IPNTR,
+      call ga_add_constant(KLU_Q3,SHIFT) 
+      call ga_elem_divide(KLU_Q2,KLU_Q3,KLU_Q2)
        IF(NTEST.GE.1000) WRITE(6,*) ' Apres H0M1TD '
        CALL MEMCHK2('APH0M1')
        IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' (HQQ - E)**-1 HQP CP '
-        CALL WRTVCD(CB,LU_Q2,1,LBLK)
+cVOG    CALL WRTVCD(CB,LU_Q2,1,LBLK)
+        call ga_print(KLU_Q2)
        END IF
-       
 *
 *. Multiply (HQQ - E)**-1 HQP CP (LU_Q2) with HQP and save on LU_Q3
 *
       ISSPC = IPSPC
       ICSPC = IQSPC
       XDUM = 3006.56
-      CALL REWINO(LU_Q3)
-      CALL MV7(CB,HCB,LU_Q2,LU_Q3,XDUM,XDUM)
+cVOG  CALL REWINO(LU_Q3)
+cVOG  CALL MV7(CB,HCB,LU_Q2,LU_Q3,XDUM,XDUM)
+      CALL MV7(KLU_Q2,KLU_Q3,0,0,0,0)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' HPQ (HQQ - E)**-1 HQP CP  '
-        CALL WRTVCD(CB,LU_Q3,1,LBLK)
+cVOG    CALL WRTVCD(CB,LU_Q3,1,LBLK)
+        call ga_print(KLU_Q2)
+        call ga_print(KLU_Q3)
       END IF
 *
 * Obtain HPP CP and save on LU_Q1
 *
       ISSPC = IPSPC
       ICSPC = IPSPC
-      CALL REWINO(LU_Q1)
-      CALL MV7(CB,HCB,LUC,LU_Q1,XDUM,XDUM)
+cVOG  CALL REWINO(LU_Q1)
+cVOG  CALL MV7(CB,HCB,LUC,LU_Q1,XDUM,XDUM)
+      CALL MV7(CB,KLU_Q1,0,0,0,0)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' HPP CP: '
-        CALL WRTVCD(CB,LU_Q1,1,LBLK)
+cVOG    CALL WRTVCD(CB,LU_Q1,1,LBLK)
+        call ga_print(KLU_Q1)
       END IF
 *
 * And the grand finale: 
@@ -666,22 +748,47 @@ C    &                      INCORE)
       ONEM = -1.0D0
 C VECSMD(VEC1,VEC2,FAC1,FAC2, LU1,LU2,LU3,IREW,LBLK)
       LBLK = -1
-      CALL VECSMD(CB,HCB,ONE,ONEM,LU_Q1,LU_Q3,LUHC,1,LBLK)
+cVOG  CALL VECSMD(CB,HCB,ONE,ONEM,LU_Q1,LU_Q3,LUHC,1,LBLK)
+      CALL VECSMD(CB,HCB,ONE,ONEM,LU_Q1,LU_Q3,LUHC,0,LBLK)
+!VALE ga operation gia KVEC1P - KVEC3 - NOT CHECKED!
+!      call ga_add(ONE,KLU_Q1,ONEM,KLU_Q3,CB)
 *
       IF(NTEST.GE.1000) THEN
        WRITE(6,*) ' Sigma vector from AKBKSIGMA:'
-       CALL WRTVCD(CB,LUHC,1,LBLK)
+cVOG   CALL WRTVCD(CB,LUHC,1,LBLK)
+       call ga_print(CB)
       END IF
 *
-      CALL FILEMAN_MINI(LU_CDET,'FREE  ')
-      CALL FILEMAN_MINI(LU_SDET,'FREE  ')
-      CALL FILEMAN_MINI(LU_Q1,'FREE  ')
-      CALL FILEMAN_MINI(LU_Q2,'FREE  ')
-      CALL FILEMAN_MINI(LU_Q3,'FREE  ')
+cVOG  CALL FILEMAN_MINI(LU_CDET,'FREE  ')
+cVOG  CALL FILEMAN_MINI(LU_SDET,'FREE  ')
+cVOG  CALL FILEMAN_MINI(LU_Q1,'FREE  ')
+cVOG  CALL FILEMAN_MINI(LU_Q2,'FREE  ')
+cVOG  CALL FILEMAN_MINI(LU_Q3,'FREE  ')
 *
       IF(NTEST.GE.10) WRITE(6,*) ' Leaving AKBKSIGMA'
 C?    WRITE(6,*) ' Jeppe forced me to stop.... '
 C?    STOP ' Jeppe forced me to stop.... '
+      write(*,*) ' *** VOGs REGROUP ***'
+      call ga_summarize(.true.)
+      write(*,*) 'CB    ', CB
+      write(*,*) 'HCB   ', HCB
+      write(*,*) 'KVEC3 ', KVEC3
+      write(*,*) 'KVEC2P', KVEC2P
+      CALL ga_print(CB)
+      CALL ga_print(HCB)
+      CALL ga_print(KVEC3)
+      write(*,*) 'Fix 1.[(HPP - H(PQ) (H(QQ) - E )^(-1)H(QP)]CP'
+      write(*,*) '    2.HQP CP only in Q space, remove P terms'
+      write(*,*) '    3.DeBuG!!!'
+!      STOP ' VOGs REGROUP'
+*
+      if (.not. ga_destroy(KLU_Q1)) call
+     &     errquit('AKBK: ga_destroy KLU_Q1 failed', 0 , GA_ERR)
+      if (.not. ga_destroy(KLU_Q2)) call
+     &     errquit('AKBK: ga_destroy KLU_Q2 failed', 0 , GA_ERR)
+      if (.not. ga_destroy(KLU_Q3)) call
+     &     errquit('AKBK: ga_destroy KLU_Q3 failed', 0 , GA_ERR)
+*
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'AKBKSI')
       CALL LUCIAQEXIT('AKBKSI')
 *
@@ -716,7 +823,7 @@ C?    STOP ' Jeppe forced me to stop.... '
 *
       CALL LUCIAQENTER('CSDIAM')
 *
-      NTEST = 000
+      NTEST = 1000 !VOG 000
       IF(NTEST.GE.100) THEN 
         WRITE(6,*) ' Entering CSDIAGM '
         WRITE(6,*) ' ================='
@@ -727,6 +834,24 @@ C?    STOP ' Jeppe forced me to stop.... '
         WRITE(6,*) ' Illegal value of ICS in CSDIAGM = ', ICS
         STOP       ' Illegal value of ICS in CSDIAGM  '
       END IF
+*
+      IF (NOCSF.EQ.1) THEN
+*
+* AKBK - NWChem version.
+*
+       LUSC = -1
+       I12 = 2
+       SHIFT = ECORE
+       IUSE_EXP = 1
+       KXBLTP = KSBLTP
+       KXIBT  = KSIBT
+       NXBLOCK = NSBLK
+       CALL GASDIAT(VECSCR,LUSC,SHIFT,ICISTR,I12,
+     &              int_mb(KXBLTP),NXBLOCK,int_mb(KXIBT),IUSE_EXP)
+*
+      ELSE
+*
+* Original version
 *
       IF(IH0_CSF.EQ.1) THEN
 *
@@ -811,6 +936,7 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
      &        int_mb(KICONF_OCC(ISM)),VECUT,ECORE,
      &        LUDIA_A,NXIOCCLS_ACT,dbl_mb(KXIOCCLS_ACT),ISM)
       END IF! IH0_CSF switch
+      END IF! NOCSF - VOG
       CALL LUCIAQEXIT('CSDIAM')
 *
       RETURN
@@ -3515,7 +3641,8 @@ C?    WRITE(6,*) ' Final energy = ', EFINAL
       CHARACTER*6 ITASK
 *. Local scratch
       INTEGER ICONF_OCC(MXPORB)
-      DIMENSION CB(*), HCB(*)
+cVOG  DIMENSION CB(*), HCB(*)
+      integer CB, HCB
       LBLK = -1
       ITASK='SIGMA '
 *
@@ -3523,27 +3650,40 @@ C?    WRITE(6,*) ' Final energy = ', EFINAL
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
       CALL LUCIAQENTER('AKBKSI')
 *
-      NTEST = 10
+      NTEST = 1000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Information from AKBKSIGMA2'
         WRITE(6,*) ' ==========================='
         WRITE(6,*)
         WRITE(6,*) ' IPSPC, IQSPC = ', IPSPC, IQSPC
+        WRITE(6,*) ' NSDP , NSDQ  = ', NSDP , NSDQ
+        WRITE(6,*) ' ISIMSYM      = ', ISIMSYM
+        WRITE(6,*) ' IQINP        = ', IQINP
+        WRITE(6,*) ' NSBATCH      = ', NSBATCH
       END IF 
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' LUC, LUHC = ', LUC, LUHC
       END IF
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Input vector to AKBKSIGMA2 '
-        CALL WRTVCD(CB,LUC,1,LBLK)
+        write(*,*) 'WHY???-1', CB
+        CALL ga_print(CB)
+cVOG    CALL WRTVCD(CB,LUC,1,LBLK)
       END IF
 *
 * Allocate scratch files
 *
 *. For C and Sigma in det basis
-      CALL FILEMAN_MINI(LU_CDET,'ASSIGN')
-      CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
-
+cVOG  CALL FILEMAN_MINI(LU_CDET,'ASSIGN')
+cVOG  CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
+*
+      IF ( .not. ga_create( mt_dbl, NSDP, 1, 'LU_CDET', 0, 0, KLU_CDET))
+     $   CALL ERRQUIT('AKBK: ga_create LU_CDET failed', NSDP, GA_ERR)
+      IF ( .not. ga_create( mt_dbl, NSDQ, 1, 'LU_SDET', 0, 0, KLU_SDET))
+     $   CALL ERRQUIT('AKBK: ga_create LU_SDET failed', NSDQ, GA_ERR)
+      CALL ga_zero(KLU_CDET)
+      CALL ga_zero(KLU_SDET)
+      call ga_print(KLU_SDET)
 *
 *. Construct info about the block-structures in P and Q space
 *
@@ -3628,7 +3768,7 @@ C Block for storing complete or partial CI-vector
 *
 *. J(I,J) = (II!JJ), K(I,J) = (IJ!JI)
 *
-      CALL GTJK(WORK(KLJ),WORK(KLK),NTOOB,XDUM,IREOTS)
+      CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,XDUM,IREOTS)
 *
 * Scratch space for diagonal
 
@@ -3655,22 +3795,33 @@ C     KEIBT,NEBLK,NEOCCLS,KEIOCCLS_ACT,KELBT
 *
 * 1: Transfer C from CSF to SD/CM basis 
 *
-      IF(ICNFBAT.EQ.1) THEN
+cVOG  IF(ICNFBAT.EQ.1) THEN
 *. In core
-        CALL CSDTVCM(CB,WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),
-     &               1,0,ICSM,ICSPC,2)
-      ELSE
+cVOG  CALL CSDTVCM(CB,WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),
+cVOG &               1,0,ICSM,ICSPC,2)
+cVOG  ELSE
 *. Not in core- write determinant expansion on LU_CDET
-       CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
-     &      1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
-     &      int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
-      END IF
+cVOG  CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
+cVOG &      1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
+cVOG &      int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
+cVOG  END IF
 * 2: HPP CP (in and out in SD/CM), save on LU_SDET
       ICSPC = IPSPC
       ISSPC = IQSPC
+cVOG  CALL RASSG3(CB,HCB,NCBATCH,int_mb(KCLBT),int_mb(KCLEBT),
+cVOG &     int_mb(KCI1BT),int_mb(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
+cVOG &     ITASK)
+      write(*,*) 'WHY???-2', CB
       CALL RASSG3(CB,HCB,NCBATCH,int_mb(KCLBT),int_mb(KCLEBT),
-     &     int_mb(KCI1BT),int_mb(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
-     &     ITASK)
+     &     int_mb(KCI1BT),int_mb(KCIBT),-1,-1,KLU_CDET,
+     &     KLU_SDET,ECORE,ITASK)
+**** I AM AT THIS POINT. BUT!!!
+**** 1. Nothing is stored in KLU_SDET
+**** 2. After exiting RASSG3,  CB and HCB have zero values !!!
+!      write(*,*) 'WHY???', CB, HCB
+!      CALL ga_print(CB)
+!      CALL ga_print(HCB)
+      CALL ga_print(KLU_SDET)
 *
 * and next the Q-contributions
 *
@@ -3720,11 +3871,11 @@ C    &           ECORE,ITASK)
           NCM_OCCLS_AB =
      &    int_mb(KNCMAB_FOR_OCCLS+(IQ_OCCLS-1)*NSMST+IREFSM-1)
 *. HQP CP batch in CB
-          NTESTL = 0
-          CALL CSDTVCB(CB,HCB,2,dbl_mb(KDTOC),
-     &        WORK(KSDREO_I(IREFSM)),NCM_OCCLS,NCM_OCCLS_AB,
-     &        NCSF_OCCLS,NCN_FOR_OC_OP_ACT,
-     &        0,1,NTESTL)
+cVOG      NTESTL = 0
+cVOG      CALL CSDTVCB(CB,HCB,2,dbl_mb(KDTOC),
+cVOG &        WORK(KSDREO_I(IREFSM)),NCM_OCCLS,NCM_OCCLS_AB,
+cVOG &        NCSF_OCCLS,NCN_FOR_OC_OP_ACT,
+cVOG &        0,1,NTESTL)
 *
 * ===============================
 *. (HQQ - E)**-1 HQP for Q batch
@@ -3744,7 +3895,7 @@ C                ICOPVE2(IIN,IOFF,NDIM,IOUT)
             ICNFBAT_SAVE = ICNFBAT
             ICISTR = 1
             ICNFBAT = 1
-            CALL CSDIAGM(IREFSM,3,-1,HCB,dbl_mb(KVEC3))
+!            CALL CSDIAGM(IREFSM,3,-1,HCB,dbl_mb(KVEC3))
 C                CSDIAGM(ISM,ICS,LUDIA_A,VECUT,VECSCR)
             ICISTR =ICISTR_SAVE
             ICNFBAT = ICNFBAT_SAVE
@@ -3778,12 +3929,12 @@ COLD          NCONF = NCONF_FOR_OPEN(IOPEN+1)
      &         dbl_mb(KDTOC),2,WORK(KLISCR),WORK(KLRSCR),ECORE,
      &         IONLY_DIAG,ISYMG,WORK(KLJ),WORK(KLK))
 *. Extract diagonal elements 
-               CALL COPDIA(WORK(KLCSFHCSF),HCB(IB_H0),NCSF,0)
+!               CALL COPDIA(WORK(KLCSFHCSF),HCB(IB_H0),NCSF,0)
 C                   COPDIA(A,VEC,NDIM,IPACK)
                IF(NTEST.GE.10000) THEN
                  WRITE(6,*) 
      &           ' Added elements, IB_H0, NCSF = ', IB_H0, NCSF
-                  CALL WRTMAT(HCB(IB_H0),1,NSCF,1,NCSF)
+cVOG              CALL WRTMAT(HCB(IB_H0),1,NSCF,1,NCSF)
                END IF
                IB_H0 = IB_H0 + NCSF
                IB_OCC = IB_OCC + IORB
@@ -3793,25 +3944,25 @@ C                   COPDIA(A,VEC,NDIM,IPACK)
           END IF ! IH0_CSF switch
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' Diagonal elements: '
-            CALL WRTMAT(HCB,1,NCSF_OCCLS,1,NCSF_OCCLS)
+cVOG        CALL WRTMAT(HCB,1,NCSF_OCCLS,1,NCSF_OCCLS)
           END IF
 C (HQQ-E)**-1 HQP CP in CB
 C              DIAVC2(VECOUT,VECIN,DIAG,SHIFT,NDIM)
 C?        WRITE(6,*)  ' Shift = ', Shift
-          CALL DIAVC2(CB,CB,HCB,SHIFT,NCSF_OCCLS)
+!          CALL DIAVC2(CB,CB,HCB,SHIFT,NCSF_OCCLS)
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' (Hqq-E)**-1 HQP CP '
-            CALL WRTMAT_EP(CB,1,NCSF_OCCLS,1,NCSF_OCCLS)
+cVOG        CALL WRTMAT_EP(CB,1,NCSF_OCCLS,1,NCSF_OCCLS)
           END IF
 *
 * Transform (HQQ-E)**-1 HQP CP to SD basis and save in in KVEC4
 *
           CALL LUCIAQEXIT('AKBKH0')
-          NTESTL = 000
-          CALL CSDTVCB(CB,WORK(KVEC4),1,dbl_mb(KDTOC),
-     &        WORK(KSDREO_I(IREFSM)),NCM_OCCLS,NCM_OCCLS_AB,
-     &        NCSF_OCCLS,NCN_FOR_OC_OP_ACT,
-     &        0,1,NTESTL)
+cVOG      NTESTL = 000
+cVOG      CALL CSDTVCB(CB,WORK(KVEC4),1,dbl_mb(KDTOC),
+cVOG &        WORK(KSDREO_I(IREFSM)),NCM_OCCLS,NCM_OCCLS_AB,
+cVOG &        NCSF_OCCLS,NCN_FOR_OC_OP_ACT,
+cVOG &        0,1,NTESTL)
 * ===================================
 *. HPQ (HQQ - E)**-1 HQP for Q batch
 * ===================================
@@ -3841,7 +3992,8 @@ C              SWAP_CS_TTSSARRAYS
      &     WRITE(6,*) ' IP_BATCH, NP_BLK_BAT, NP_CM_BAT = ',
      &                  IP_BATCH, NP_BLK_BAT, NP_CM_BAT
            CALL SBLOCK(NP_BLK_BAT,int_mb(KSIBT),IP_B_BLK,CB,
-     &          HCB(IP_B_CM),
+     &          HCB,
+cVOG &          HCB(IP_B_CM),
      &          -1,0,0,1,IQBAT,IQBAT,WORK(KVEC4),ECORE,ITASK)
 C               SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
 C    &          LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END,CV,
@@ -3853,7 +4005,7 @@ C    &          ECORE,ITASK)
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) 
      &      ' Contribution to HPQ (HQQ - E)**-1 HQP for Q batch'
-           CALL WRTMAT_EP(HCB,1,NPSD,1,NPSD)
+cVOG       CALL WRTMAT_EP(HCB,1,NPSD,1,NPSD)
           END IF
 *
 *. And restore standard order
@@ -3864,51 +4016,57 @@ C    &          ECORE,ITASK)
 *. We have now another contribtion to HPP(eff) CP in CB, update sum
 *. 
 *. Update current sum
-          CALL REWINO(LU_SDET)
+cVOG      CALL REWINO(LU_SDET)
 C              FRMDSCN(VEC,NREC,LBLK,LU)
-          CALL FRMDSCN(CB,NPBLK,LBLK,LU_SDET)
+!          CALL FRMDSCN(CB,NPBLK,LBLK,LU_SDET)
           ONE = 1.0D0
           ONEM =  -1.0D0
-          CALL VECSUM(CB,CB,HCB,ONE,ONEM,NPSD)
-          CALL REWINO(LU_SDET)
-          CALL TODSCN2(CB,NPBLK,int_mb(KCLBLK),LBLK,LU_SDET,1) 
+!          CALL VECSUM(CB,CB,HCB,ONE,ONEM,NPSD)
+cVOG      CALL REWINO(LU_SDET)
+!          CALL TODSCN2(CB,NPBLK,int_mb(KCLBLK),LBLK,LU_SDET,1) 
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' Updated LU_SDET '
-            CALL WRTVCD_EP(CB,LU_SDET,1,LBLK)
+cVOG        CALL WRTVCD_EP(CB,LU_SDET,1,LBLK)
           END IF
         END IF ! Q-class differed from P-class
         IBSBLOCK_BAT = IBSBLOCK_BAT + NSBLOCK_BAT  
       END DO! Loop over occupation classes of Q
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.NOCSF.eq.0) THEN
         WRITE(6,*) ' Final HPP(eff) CP in SD basis '
-        CALL WRTMAT_EP(CB,1,NPSD,1,NPSD)
+cVOG    CALL WRTMAT_EP(CB,1,NPSD,1,NPSD)
       END IF
 *
 *. We have HPP(eff) CP in SD-basis in LU_SDET, transform to CSF basis
 *. and save in 
 *
-      IF(ICNFBAT.EQ.1) THEN
+!      IF(ICNFBAT.EQ.1) THEN
 *. In core
-        CALL CSDTVCM(CB,WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),
-     &               2,0,ICSM,ICSPC,2)
-      ELSE
+!        CALL CSDTVCM(CB,WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),
+!     &               2,0,ICSM,ICSPC,2)
+!      ELSE
 *. Not in core- write determinant expansion on LU_CDET
-       CALL CSDTVCMN(HCB,CB,dbl_mb(KVEC3),
-     &      2,0,ICSM,ICSPC,2,2,LU_SDET,LUHC,NCOCCLS_ACT,
-     &      int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
-      END IF
+!       CALL CSDTVCMN(HCB,CB,dbl_mb(KVEC3),
+!     &      2,0,ICSM,ICSPC,2,2,LU_SDET,LUHC,NCOCCLS_ACT,
+!     &      int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
+!      END IF
       IF(NTEST.GE.1000) WRITE(6,*) ' Home from CSDTVCMN '
 *
       IF(NTEST.GE.1000) THEN
        WRITE(6,*) '  Final HPP(eff) CP in CSF basis '
        WRITE(6,*) ' ================================'
-       CALL WRTVCD(HCB, LUHC,1,LBLK)
+       CALL ga_print(HCB)
+cVOG   CALL WRTVCD(HCB, LUHC,1,LBLK)
 C           WRTVCD(SEGMNT,LU,IREW,LBLK)
       END IF
 *
-      CALL FILEMAN_MINI(LU_CDET,'FREE  ')
-      CALL FILEMAN_MINI(LU_SDET,'FREE  ')
+cVOG  CALL FILEMAN_MINI(LU_CDET,'FREE  ')
+cVOG  CALL FILEMAN_MINI(LU_SDET,'FREE  ')
+*
+      if (.not. ga_destroy(KLU_CDET)) call
+     &     errquit('AKBK: ga_destroy KLU_CDET failed', 0 , GA_ERR)
+      if (.not. ga_destroy(KLU_SDET)) call
+     &     errquit('AKBK: ga_destroy KLU_SDET failed', 0 , GA_ERR)
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'AKBKSI')
       CALL LUCIAQEXIT('AKBKSI')

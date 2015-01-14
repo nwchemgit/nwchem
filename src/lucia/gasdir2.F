@@ -5338,8 +5338,10 @@ CNW       CALL WRTMAT(CV,1,1,1,1)
         CALL FIND_ACTIVE_BLOCKS(LUC,-1,SCLFAC(ICBLK_INI),CB)
       ELSE
 *. Active blocks in vectors CV 
+cVOG Old bug fixed
         CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,SCLFAC(ICBLK_INI),
-     &       NCBLOCK_T,ICBLOCK)
+     &       NCBLOCK_T,ICBLOCK(1,ICBLK_INI))
+cVOG &       NCBLOCK_T,ICBLOCK)
       END IF
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Array giving active blocks '

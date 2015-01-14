@@ -6832,7 +6832,7 @@ C?          WRITE(6,*) ' IGAS, NEL, NORB = ', IGAS, NEL, NORB
 *. Length: INTEGER: (NDET_C + NDET_S)*N_EL_CONF + NDET_C + 6*NORB *. (NELEC .le. 2*NORB)
 *          REAL   : 2 NDETL x NDETR matrix (could be reduced)
 *
-      NTEST = 000
+      NTEST = 1000 !VOG 000
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' Output from GET_CSF_H_PRECOND'
@@ -8202,7 +8202,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *. Output
       INTEGER I_ABSPGP(2,*)
 *
-      NTEST = 0
+      NTEST = 1000 !VOG
       IF(NTEST.GE.10) THEN 
         WRITE(6,*) ' ABSPGP_TO_CISPACE reporting '
         WRITE(6,*) ' ============================='
@@ -9422,7 +9422,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *. Scratch: Each holding one block(ICISTR>1) or one vector(ICISTR=1)
       REAL*8 VEC(*),VEC_OUT(*)
 *
-      NTEST = 000
+      NTEST = 1000
       IF(NTEST.GE.10) THEN
         WRITE(6,*)  ' Output from EXP_BLKVEC '
         WRITE(6,*)  ' ======================='
@@ -15997,7 +15997,7 @@ C         IF(IREO(JOC_IN).EQ.ABS(ICONFP_IN(JOB))) THEN
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GTNDMM')
 *
 *
-      NTEST = 00
+      NTEST = 100
       IF(NTEST.GE.100) THEN
        WRITE(6,*) ' GET_NSD_MINMAX in action '
        WRITE(6,*) ' ========================= '
