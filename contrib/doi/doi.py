@@ -7,6 +7,7 @@
 
 from argparse import ArgumentParser
 import pycurl
+import sys
 try:
     from io import BytesIO
 except ImportError:
@@ -56,6 +57,11 @@ def lookup_dois(doi_table):
         #c.setopt(c.WRITEFUNCTION, buffer.write)
         c.setopt(c.FOLLOWLOCATION, True)
         c.perform()
+        stat = c.getinfo(c.RESPONSE_CODE)
+        if stat != 200:
+            sys.stderr.write("ERROR: Lookup of %s failed\n" % doi.rstrip("\n"))
+            sys.stderr.write("ERROR: Response code %d\n" % stat)
+            c.reset()
 
     c.close()
 
