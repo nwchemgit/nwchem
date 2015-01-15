@@ -43,7 +43,14 @@ c ---------------------------------------
       double precision factor,denom
       double precision denom_p4,denom_p5,denom_p6
       double precision denom_h1,denom_h2,denom_h3
-      external nxtask
+      integer k_aux,k_list,l_aux,l_list
+      integer ccsd_t_6tasks,tot_task
+      integer k,iptr,k_grain
+      double precision wall
+      integer n_progr,pct_progr
+      parameter(n_progr=20)
+      logical i_progr(n_progr)
+      external nxtask,ccsd_t_6tasks
 C
 c
 c - T1/X1 LOCALIZATION ----------
@@ -58,8 +65,6 @@ ccx        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
 c -------------------------------
 C
       nprocs = GA_NNODES()
-      count = 0
-      next = nxtask(nprocs,1)
       energy(1)=0.0d0
       energy(2)=0.0d0
       energy1 = 0.0d0
@@ -93,48 +98,65 @@ c      call util_align64(size)
       triplesx1_alloced=.true.
       call offl_alloc(dbl_mb(k_doubles),size)
       triplesx_alloced=.true.
-#endif      
+#endif    
+#ifdef DEBUG  
+      wall=-util_wallsec()
+#endif
+      tot_task= ccsd_t_6tasks(
+     R     restricted,noab,nvab,
+     I     int_mb(k_spin),int_mb(k_sym))
+      if (.not.ma_push_get(mt_int,6*tot_task,"list.task",
+     1  l_list,k_list)) call errquit("k_list",1,MA_ERR)
+      if (.not.ma_push_get(mt_int,7*tot_task,"auxtask",
+     1  l_aux,k_aux)) call errquit("k_aux",2,MA_ERR)
+      call ccsd_t_neword(tot_task,
+     R     restricted,noab,nvab,
+     K     int_mb(k_spin),int_mb(k_sym),
+     K     int_mb(k_range),
+     A     int_mb(k_aux),int_mb(k_list))
+
+      if (.not.MA_POP_STACK(l_aux))
+     1     call errquit('ordering',3,MA_ERR)
+      count = 0
+#ifdef DEBUG
+      wall=wall+util_wallsec()
+      if(ga_nodeid().eq.0) write(6,'(a,f15.2,a)')
+     W     ' Wall time for ordering ',wall,' sec'
+#endif
+      k_grain=min(5,tot_task/nprocs/5)
+      k_grain=max(k_grain,1)
+      if(ga_nodeid().eq.0) then
+         write(6,*) ' nxtask granularity ',k_grain
+      endif
+      next = nxtask(nprocs,k_grain)
+      do k=1,n_progr
+         i_progr(k)=.true.
+      enddo
 c     stagger start of loop
       call util_mpinap(100)
-      do t_p4b = noab+1,noab+nvab
-       range_p4 = int_mb(k_range+t_p4b-1)
-       offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1
-       do t_p5b = t_p4b,noab+nvab
-        range_p5 = int_mb(k_range+t_p5b-1)
-        offset_p5 = k_evl_sorted+int_mb(k_offset+t_p5b-1)-1
-        do t_p6b = t_p5b,noab+nvab
-         range_p6 = int_mb(k_range+t_p6b-1)
-         offset_p6 = k_evl_sorted+int_mb(k_offset+t_p6b-1)-1
-         do t_h1b = 1,noab
-          range_h1 = int_mb(k_range+t_h1b-1)
-          offset_h1 = k_evl_sorted+int_mb(k_offset+t_h1b-1)-1
-          do t_h2b = t_h1b,noab
-           range_h2 = int_mb(k_range+t_h2b-1)
-           offset_h2 = k_evl_sorted+int_mb(k_offset+t_h2b-1)-1
-           do t_h3b = t_h2b,noab
+      do k=1,tot_task
+c
+         if (next.eq.count) then
+            iptr=k_list+(k-1)*6
+            t_p4b=int_mb(iptr)
+cdbg            write(6,*) ' k ',k,'t_p4b',t_p4b
+            range_p4 = int_mb(k_range+t_p4b-1)
+            offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1
+            t_p5b=int_mb(iptr+1)
+            range_p5 = int_mb(k_range+t_p5b-1)
+            offset_p5 = k_evl_sorted+int_mb(k_offset+t_p5b-1)-1
+            t_p6b=int_mb(iptr+2)
+            range_p6 = int_mb(k_range+t_p6b-1)
+            offset_p6 = k_evl_sorted+int_mb(k_offset+t_p6b-1)-1
+            t_h1b=int_mb(iptr+3)
+            range_h1 = int_mb(k_range+t_h1b-1)
+            offset_h1 = k_evl_sorted+int_mb(k_offset+t_h1b-1)-1
+            t_h2b=int_mb(iptr+4)
+            range_h2 = int_mb(k_range+t_h2b-1)
+            offset_h2 = k_evl_sorted+int_mb(k_offset+t_h2b-1)-1
+            t_h3b=int_mb(iptr+5)
             range_h3 = int_mb(k_range+t_h3b-1)
             offset_h3 = k_evl_sorted+int_mb(k_offset+t_h3b-1)-1
-            if (int_mb(k_spin+t_p4b-1)
-     1         +int_mb(k_spin+t_p5b-1)
-     2         +int_mb(k_spin+t_p6b-1)
-     3      .eq.int_mb(k_spin+t_h1b-1)
-     4         +int_mb(k_spin+t_h2b-1)
-     5         +int_mb(k_spin+t_h3b-1)) then
-            if ((.not.restricted).or.
-     1         (int_mb(k_spin+t_p4b-1)
-     1         +int_mb(k_spin+t_p5b-1)
-     2         +int_mb(k_spin+t_p6b-1)
-     3         +int_mb(k_spin+t_h1b-1)
-     4         +int_mb(k_spin+t_h2b-1)
-     5         +int_mb(k_spin+t_h3b-1).le.8)) then
-            if (ieor(int_mb(k_sym+t_p4b-1),
-     1          ieor(int_mb(k_sym+t_p5b-1),
-     2          ieor(int_mb(k_sym+t_p6b-1),
-     3          ieor(int_mb(k_sym+t_h1b-1),
-     4          ieor(int_mb(k_sym+t_h2b-1),
-     5               int_mb(k_sym+t_h3b-1)))))).eq.0) then
-c
-            if (next.eq.count) then
 c
             size = range_p4 * range_p5 * range_p6
      3           * range_h1 * range_h2 * range_h3
@@ -142,7 +164,7 @@ c zeroing ---
         call dcopy(size, 0.0d0, 0, dbl_mb(k_singles), 1)
         call offl_zerofill(dbl_mb(k_singles),size)
         call dcopy(size, 0.0d0, 0, dbl_mb(k_doubles), 1)
-      call offl_zerofill(dbl_mb(k_doubles),size)
+        call offl_zerofill(dbl_mb(k_doubles),size)
 c -----------
 #ifdef USE_OFFLOAD
 #define USE_OMP_TRIPLES_DOT_PRODUCT 1
@@ -217,18 +239,19 @@ c
             enddo
 #endif
 c
-            next = nxtask(nprocs,1)
+            if(ga_nodeid().eq.0) then
+               pct_progr=(k*n_progr)/tot_task
+               if(i_progr(pct_progr)) then
+                  i_progr(pct_progr)=.false.
+                  write(6,'(a,f6.1,a)') '  done ',
+     K                 (k*100d0)/tot_task,'% '
+                  call util_flush(6)
+               endif
+            endif
+            next = nxtask(nprocs,k_grain)
             endif
             count = count + 1
 c
-            endif
-            endif
-            endif
-           enddo
-          enddo
-         enddo
-        enddo
-       enddo
       enddo
 c cleanup to dealloc
 c      triplesx_free=.true.
@@ -242,14 +265,21 @@ c     1     k_v2_offset,1,1,1,1,1,1,2)
       triplesx1_alloced=.false.
 #endif
 
+      if (.not.MA_POP_STACK(l_list))
+     1     call errquit('ordering',3,MA_ERR)
       if (.not.MA_POP_STACK(l_doubles)) 
      1     call errquit('ccsd_t doubles',3,MA_ERR)
       if (.not.MA_POP_STACK(l_singles)) 
      1     call errquit('ccsd_t singles',4,MA_ERR)
-      next = nxtask(-nprocs,1)
+#ifdef DEBUG
+      write(6,*) ga_nodeid(),' before nxt '
+      call util_flush(6)
+#endif
+      next = nxtask(-nprocs,k_grain)
       energy(1) = energy1
       energy(2) = energy2
-      call ga_dgop(mt_dbl,energy,2,'+')
+      call ga_mask_sync(.false.,.true.)
+      call ga_dgop(1975,energy,2,'+')
       energy1 = energy(1)
       energy2 = energy(2)
 c - T1/X1 LOCALIZATION ------
