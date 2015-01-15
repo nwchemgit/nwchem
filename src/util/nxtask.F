@@ -42,8 +42,13 @@ c
 #ifdef GANXTVAL
       if (odlb) then
         if(f1stcall) then
+c     skip read inc for first call                                              
+#if 1
+           junk=util_gnxtval(0)
+#else
            junk=util_gnxtval(0)
            f1stcall=.false.
+#endif
         endif
       else
 c       No dynamic load balancing 
@@ -68,7 +73,17 @@ c
       if(nproc.eq.ga_nnodes()) then
          if(nleft.eq.0) then
 #ifdef GANXTVAL
+#if 1
+c     skip read inc for first call   
+            if(f1stcall) then
+               f1stcall=.false.
+               icount=(ga_nodeid()) * ichunk
+            else
+               icount = (util_gnxtval(nproc) +ga_nnodes()) * ichunk
+            endif
+#else
             icount = util_gnxtval(nproc) * ichunk
+#endif
 #else
             icount = nxtval(nproc) * ichunk
 #endif
