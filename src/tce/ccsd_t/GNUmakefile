@@ -11,7 +11,7 @@ OBJ_OPTIMIZE = ccsd_t.o ccsd_t_doubles.o ccsd_t_singles.o lambda_ccsd_t.o lambda
                ccsd_t_6dts.o ccsd_t_singles_l_6dts.o ccsd_t_doubles_l_6dts.o \
                offl_ccsd_t_doubles_l.o ccsd_t_kernels_omp.o \
                tce_hashnsort.o ccsd_t_pstat.o \
-               offl_ccsd_t_singles_l.o offl_ccsd_t_singles_l_1.o ccsd_t_dot.o
+               offl_ccsd_t_singles_l.o offl_ccsd_t_singles_l_1.o ccsd_t_dot.o ccsd_t_neword.o
 
 LIB_INCLUDES = -I../include
 
