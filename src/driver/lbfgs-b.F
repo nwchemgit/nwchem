@@ -256,7 +256,7 @@ c======================= The end of setulb =============================
      +                  sy, ss, yy, wt, wn, snd, z, r, d, t, wa, sg,
      +                  sgo, yg, ygo, index, iwhere, indx2, task,
      +                  iprint, csave, lsave, isave, dsave)
- 
+CDEC$ OPTIMIZE :1 
       character*60     task, csave
       logical          lsave(4)
       integer          n, m,nfmax, iprint, nbd(n), index(n),
@@ -647,6 +647,7 @@ c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       call my_timer(cpu1) 
+CDEC$ NOINLINE
       call cauchy(n,x,l,u,nbd,g,indx2,iwhere,t,d,z,
      +            m,wy,ws,sy,wt,theta,col,head,
      +            wa(1),wa(2*m+1),wa(4*m+1),wa(6*m+1),nint,
@@ -1197,7 +1198,6 @@ c======================== The end of bmv ===============================
       subroutine cauchy(n, x, l, u, nbd, g, iorder, iwhere, t, d, xcp, 
      +                  m, wy, ws, sy, wt, theta, col, head, p, c, wbp, 
      +                  v, nint, sg, yg, iprint, sbgnrm, info)
-      
       integer          n, m, head, col, nint, iprint, info, 
      +                 nbd(n), iorder(n), iwhere(n)
       double precision theta,
