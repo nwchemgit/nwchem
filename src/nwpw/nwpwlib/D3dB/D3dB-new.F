@@ -602,10 +602,7 @@ c     p = p_map(k)
       integer nfft3d_out
 
 #include "D3dB.fh"
-!MATHIAS
-!$OMP SINGLE
       nfft3d_out = nfft3d(nb)
-!$OMP END SINGLE copyprivate(nfft3d_out)
       return
       end
 
@@ -4230,10 +4227,23 @@ CDIR$ NOVECTOR
          do j=1,ny(nb)
             index = (nx(nb)+1) + (j-1)*(nx(nb)+2) 
      >                         + (q-1)*(nx(nb)+2)*(ny(nb))
+
             A(index)   = 0.0d0
             A(index+1) = 0.0d0
          end do
       end do
+
+!MATHIAS can't this be made homogeneous with Hilbert mapping ?
+!      call Parallel2d_taskid_i(taskid)
+!      do k=1,nz(nb)
+!         do j=1,ny(nb)
+!            D3dB_ijktoindex2p(nb,(nx(nb)+1),j,k,index,p)
+!           if (p.eq.taskid) then
+!              A(index)   = 0.0d0
+!              A(index+1) = 0.0d0
+!           end if
+!         end do
+!      end do
 
 
       !**** hilbert mapping ****

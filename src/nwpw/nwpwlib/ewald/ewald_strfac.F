@@ -114,8 +114,6 @@ ccccccc start of code
       tid = Parallel_threadid()
       nthr = Parallel_nthreads()
 
-
-
       pi=4.0d0*datan(1.0d0)
       nion=ion_nion()
 
@@ -123,7 +121,7 @@ ccccccc start of code
       nyh=ny/2
       nzh=nz/2
 c     Each thread processes independend ions (if USE_OPENMP is defined)
-      do i=tid,nion,nthr
+      do i=tid+1,nion,nthr
         sw1=lattice_unitg(1,1)*ion_rion(1,i) 
      >     +lattice_unitg(2,1)*ion_rion(2,i) 
      >     +lattice_unitg(3,1)*ion_rion(3,i)+pi

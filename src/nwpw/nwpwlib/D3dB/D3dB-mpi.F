@@ -862,6 +862,7 @@ c     implicit none
       if (.not. value) 
      > call errquit('D3dB_Vector_SumAll:out of stack',0, MA_ERR)
 
+
 #ifdef MPI4
       stupid_msglen = n
       call MPI_Allreduce(sum,dbl_mb(sumall(1)),

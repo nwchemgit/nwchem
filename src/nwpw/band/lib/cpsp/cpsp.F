@@ -143,7 +143,7 @@
       nprj_max = cpsp_nprj_max()
       call Cram_max_npack(npack1)
 
-      axsize=npack1*nprj_max*2
+      axsize=npack1*nprj_max
       value = BA_alloc_get(mt_dcpl,axsize,'prjtmp',prjtmp(2),prjtmp(1))
       if (.not. value) 
      >   call errquit('cpsp_proj_init:out of heap memory',0,MA_ERR)

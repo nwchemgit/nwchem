@@ -164,8 +164,8 @@ C
       call D3dB_nz(1,nz)
 
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
-c     Each thread processes independend ions (if USE_OPENMP is defined)
-      do i=tid,ion_nion(),nthr
+!      do i=1,ion_nion()
+      do i=tid+1,ion_nion(),nthr
 
         sw1= lattice_unitg(1,1)*ion_rion(1,i)
      >     + lattice_unitg(2,1)*ion_rion(2,i)

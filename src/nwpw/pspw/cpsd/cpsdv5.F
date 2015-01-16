@@ -180,10 +180,6 @@ c#include "Parallel.fh"
       external Parallel_threadid,Parallel_nthreads
       integer tid
 
-c      common / parallel_omp / threadid,nthreads
-c#ifdef USE_OPENMP
-c!$OMP THREADPRIVATE(/ parallel_omp /)
-c#endif
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -202,32 +198,11 @@ c#endif
       call Parallel_taskid(taskid)
 
       value = MA_set_hard_fail(.true.)
-#ifdef USE_OPENMP
-!$cOMP PARALLEL private(tid)
-c     num_threads(2)
-c      call Parallel_thread_init()
-c      tid = Parallel_threadid()
-c      omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
-#else
-      omaster =  (taskid.eq.MASTER)
-#endif
 
-      call Parallel_thread_init()
       tid = Parallel_threadid()
       omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
 
-
-!$OMP SINGLE
-c      dummy = omp_get_level()
-c      write(*,*) "dummy=",dummy
-!$OMP END SINGLE
-
-
-
-
-
-
-
+      if (omaster) call current_second(cpu1)
       if (omaster) call current_second(cpu1)
 
 *     ***** print out header ****
@@ -270,89 +245,33 @@ c      write(*,*) "dummy=",dummy
 *     **** initialize psi_data ****
       call psi_data_init(100)
 
-
-
-
 *     **** initialize D3dB data structure ****
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call D3dB_nfft3d(1,nfft3d)
-!$OMP SINGLE
       n2ft3d = 2*nfft3d
-!$OMP END SINGLE
-
-
-
-
-
 
 *     ***** Initialize double D3dB data structure ****
       if (control_version().eq.4) 
      >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
 
-
-
 *     **** initialize lattice and packing data structure ****
-      if (omaster) write (*,*) "Starting Lattice_init"
       call lattice_init()
-
-      if (omaster) write (*,*) "Starting G_init"
       call G_init()
-
-      if (tid.eq.0) write (*,*) "Starting Mask_init"
       call mask_init()
-
-
-      if (tid.eq.0) write (*,*) "Starting Pack_init"
       call Pack_Init()
-      if (tid.eq.0) write (*,*) "Starting Pack_npack"
       call Pack_npack(1,npack1)      
-
-!MATHIAS
-!$OMP BARRIER
-      !$OMP CRITICAL
-      write(*,*) "Checking memory"," tid=",
-     > Parallel_threadid()
-      value = MA_verify_allocator_stuff()
-      !$OMP END CRITICAL
-!$OMP BARRIER
-
-#ifdef USE_OPENMP 
-!$cOMP END PARALLEL
-#endif
-
-      if (tid.eq.0) write (*,*) "Starting D3dB_pfft_init"
       call D3dB_pfft_init()
       !call ga_sync()
 
-
-
-
-
-
-
- 
-!$OMP BARRIER
-      if (tid.eq.0) write (*,*) "Starting ion_init"
 *     **** read ions ****
       value = ion_init(rtdb)
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
-
-
-!$OMP BARRIER
-
-!$OMP BARRIER
-      if (tid.eq.0) write (*,*) "Starting psp_init"
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
       call psp_readall()
       if (psp_semicore(0)) call semicore_check()
-
-
-
-
-
 
 *     **** initialize G,mask,ke,and coulomb data structures ****
       call ke_init()
@@ -1141,10 +1060,6 @@ c      call frac_occ_end()
 
 
       call Parallel2d_Finalize()
-
-#ifdef USE_OPENMP 
-!$cOMP END PARALLEL
-#endif
       call Parallel_Finalize()
       cpsdv5 = value
       return

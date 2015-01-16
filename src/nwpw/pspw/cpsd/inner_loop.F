@@ -132,7 +132,6 @@ c     real*8     fion(3,natmx)
       external Parallel_threadid
 
 
-
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
@@ -222,28 +221,28 @@ c     real*8     fion(3,natmx)
 *     ****                                  ****
 *     ******************************************
       do it=1,it_in
+
+#ifdef USE_OPENMP
+!$OMP PARALLEL private(tid)
+c     num_threads(2)
+      tid = Parallel_threadid()
+#endif
+
+
+
+!$OMP SINGLE
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
         if (move) call ion_shift()
+!$OMP END SINGLE
 
 *       ********************************
 *       **** generate phaze factors ****
 *       ********************************
 
-#ifdef USE_OPENMP
-!$OMP PARALLEL private(tid)
-c     num_threads(2)
-      call Parallel_thread_init()
-      tid = Parallel_threadid()
-#endif
-
 c       these two functions are now threadsafe/multithreaded
         call phafac()
         if (control_version().eq.3) call ewald_phafac()
 
-
-#ifdef USE_OPENMP 
-!$OMP END PARALLEL
-#endif
 
 
         call nwpw_timing_start(11)
@@ -257,16 +256,30 @@ c           call Pack_c_unpack(1,psi_r(1,n))
 c           call D3dB_cr_fft3b(1,psi_r(1,n))
 c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
 c        end do
+#ifdef USE_OPENMP 
+!$OMP END PARALLEL
+#endif
+
+
+!$OMP SINGLE
         do n=n1(1),n2(ispin)
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
         end do
+!$OMP END SINGLE
+
+!$OMP MASTER
         call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP SINGLE
         do n=n1(1),n2(ispin)
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
+!$OMP END SINGLE
 
+
+c       this function calls non pipelined 3d fft
         call nwpw_meta_gga_gen_tau(ispin,ne,psi1)
-
 
 *       *********************
 *       **** generate dn ****
@@ -340,7 +353,8 @@ c
 *       **** generate local pseudopotential  ****
 *       **** and also get force if move true ****
 *       *****************************************
- 
+
+!MATHIAS We might be able to add some parallelism between ions in that function 
         call v_local(dcpl_mb(vl(1)),
      >               move,
      >               dcpl_mb(dng(1)),
@@ -460,8 +474,19 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
 
+        write(*,*) "DEBUG LAGRANGE"
         if (psp_pawexist()) then
+
+#ifdef USE_OPENMP
+!$OMP PARALLEL
+#endif
+        write(*,*) "DEBUG ENTERING PSP_OVERLAP_S"
         call psp_overlap_S(ispin,ne,psi1,psi_r)
+#ifdef USE_OPENMP 
+!$OMP END PARALLEL
+#endif
+
+!MATHIAS no parallelism between spins
         call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
      >                  dte,
      >                  lmd,dbl_mb(tmp_L(1)),ierr)
