@@ -1,0 +1,68 @@
+       logical  mm_on
+       external mm_on
+
+       logical  mm_create
+       external mm_create
+
+       logical  mm_pset
+       external mm_pset
+
+       logical  mm_set
+       external mm_set
+
+       logical  mm_get
+       external mm_get
+
+       logical  mm_ncenter
+       external mm_ncenter
+
+       logical  mm_check_handle
+       external mm_check_handle
+
+       logical  mm_namespace
+       external mm_namespace
+
+       logical  mm_index_coord
+       external mm_index_coord
+
+       logical  mm_index_charge
+       external mm_index_charge
+
+       logical  mm_rtdb_store
+       external mm_rtdb_store
+
+       logical  mm_rtdb_load
+       external mm_rtdb_load
+
+       logical  mm_destroy_all
+       external mm_destroy_all
+
+       logical  mm_destroy
+       external mm_destroy
+
+       logical  mm_activate
+       external mm_activate
+
+       logical  mm_deactivate
+       external mm_deactivate
+
+       logical  mm_get_active
+       external mm_get_active
+
+       logical  mm_add_nuc_rep_energy
+       external mm_add_nuc_rep_energy
+
+       logical  mm_nuc_energy
+       external mm_nuc_energy
+
+
+       logical  mm_alloc
+       external mm_alloc
+
+       logical  mm_get_handle
+       external mm_get_handle
+
+       logical  mm_checksum
+       external mm_checksum
+
+c $Id: bq.fh 25498 2014-04-18 02:44:47Z d3y133 $

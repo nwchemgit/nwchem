@@ -1,0 +1,17 @@
+*
+* $Id: mm_data.fh 19697 2010-10-29 16:57:34Z d3y133 $
+*
+
+      integer ntot
+      integer nqm
+      integer nmm
+      integer h_r,h_t
+      integer i_r,i_t
+
+      common /mm_coords_data/ 
+     &                   ntot,
+     &                   nmm,
+     &                   nqm,
+     &                   h_r,h_t,
+     &                   i_r,i_t
+

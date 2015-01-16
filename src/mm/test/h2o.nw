@@ -1,0 +1,30 @@
+echo
+start h2o-dat
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+scf
+ rohf
+ singlet
+end
+
+mm test
+#load vdw nwchem.parms
+vdw load nwchem.parms
+coords load nwchem.bq
+end
+
+task mm scf gradient
+

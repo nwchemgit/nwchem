@@ -1,0 +1,2240 @@
+ argument  1 = nwchem.nw
+
+
+
+============================== echo of input deck ==============================
+start nwchem
+title "NWChem run using SANDER external interface."
+permanent_dir ./perm
+scratch_dir ./data
+echo
+charge -1
+
+geometry units angstroms noautoz nocenter noautosym noprint
+C         0.1907320783277023      -0.1764573136860906       0.6454991303991441
+Cl       -0.2265468657300120      -0.8864632355209032       2.2819283740044041
+Cl       -0.3368673657300121       1.5385114644790967       0.5593851740044041
+H        -0.2775195476501520      -0.7410282671473359      -0.1607887050813576
+H         1.2795137281612114      -0.1900667362715540       0.5957103607282348
+O        -0.3473244107968463      -1.4123083773965368      -2.0903667456710409
+H        -1.2795137281612128      -1.5385114644790951      -2.2819283740044045
+end
+
+#bq units angstroms
+#  force
+#  load nwchem.bq format 1 2 3 4
+#end
+
+basis
+  * library 6-31G*
+end
+
+dft
+#  convergence energy 1e-8
+#  grid fine
+  xc becke88 lyp
+#  iterations 30
+#  mult 1
+#  noio
+#  direct
+#  noprint "final vectors analysis"
+vectors input nwchem.movecs
+end
+
+mm
+vdw load nwchem.parms
+coords load nwchem.bq
+end
+
+#set geometry:actlist 2 3 4 5 6 7
+task dft mm gradient
+#task dft mm gradient
+#task dft gradient
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.5
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2013
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = we28471
+    program         = nwchem
+    date            = Mon Jan  5 16:36:14 2015
+
+    compiled        = Mon_Jan_05_16:36:09_2015
+    source          = /Users/marat/codes/nwchem-dev
+    nwchem branch   = Development
+    nwchem revision = 26548
+    ga revision     = 10514
+    input           = nwchem.nw
+    prefix          = nwchem.
+    data base       = ./perm/nwchem.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = ./perm
+  0 scratch   = ./data
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                    NWChem run using SANDER external interface.
+                    -------------------------------------------
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           6-31G*                   on all atoms 
+
+
+ Successfully opening file nwchem.bq
+
+ ntot=                  367
+ Successfully opening file nwchem.bq
+
+ test=au_ang 
+ Successfully opening file nwchem.parms
+
+ nvdw,max_vdw                  720                  720
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                    NWChem run using SANDER external interface.
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  C (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.04752490E+03  0.001835
+  1 S  4.57369510E+02  0.014037
+  1 S  1.03948690E+02  0.068843
+  1 S  2.92101550E+01  0.232184
+  1 S  9.28666300E+00  0.467941
+  1 S  3.16392700E+00  0.362312
+
+  2 S  7.86827240E+00 -0.119332
+  2 S  1.88128850E+00 -0.160854
+  2 S  5.44249300E-01  1.143456
+
+  3 P  7.86827240E+00  0.068999
+  3 P  1.88128850E+00  0.316424
+  3 P  5.44249300E-01  0.744308
+
+  4 S  1.68714400E-01  1.000000
+
+  5 P  1.68714400E-01  1.000000
+
+  6 D  8.00000000E-01  1.000000
+
+  Cl (Chlorine)
+  -------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  2.51801000E+04  0.001833
+  1 S  3.78035000E+03  0.014034
+  1 S  8.60474000E+02  0.069097
+  1 S  2.42145000E+02  0.237452
+  1 S  7.73349000E+01  0.483034
+  1 S  2.62470000E+01  0.339856
+
+  2 S  4.91765000E+02 -0.002297
+  2 S  1.16984000E+02 -0.030714
+  2 S  3.74153000E+01 -0.112528
+  2 S  1.37834000E+01  0.045016
+  2 S  5.45215000E+00  0.589353
+  2 S  2.22588000E+00  0.465206
+
+  3 P  4.91765000E+02  0.003989
+  3 P  1.16984000E+02  0.030318
+  3 P  3.74153000E+01  0.129880
+  3 P  1.37834000E+01  0.327951
+  3 P  5.45215000E+00  0.453527
+  3 P  2.22588000E+00  0.252154
+
+  4 S  3.18649000E+00 -0.251830
+  4 S  1.14427000E+00  0.061589
+  4 S  4.20377000E-01  1.060180
+
+  5 P  3.18649000E+00 -0.014299
+  5 P  1.14427000E+00  0.323572
+  5 P  4.20377000E-01  0.743507
+
+  6 S  1.42657000E-01  1.000000
+
+  7 P  1.42657000E-01  1.000000
+
+  8 D  7.50000000E-01  1.000000
+
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.87311370E+01  0.033495
+  1 S  2.82539370E+00  0.234727
+  1 S  6.40121700E-01  0.813757
+
+  2 S  1.61277800E-01  1.000000
+
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  5.48467170E+03  0.001831
+  1 S  8.25234950E+02  0.013950
+  1 S  1.88046960E+02  0.068445
+  1 S  5.29645000E+01  0.232714
+  1 S  1.68975700E+01  0.470193
+  1 S  5.79963530E+00  0.358521
+
+  2 S  1.55396160E+01 -0.110778
+  2 S  3.59993360E+00 -0.148026
+  2 S  1.01376180E+00  1.130767
+
+  3 P  1.55396160E+01  0.070874
+  3 P  3.59993360E+00  0.339753
+  3 P  1.01376180E+00  0.727159
+
+  4 S  2.70005800E-01  1.000000
+
+  5 P  2.70005800E-01  1.000000
+
+  6 D  8.00000000E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                           6-31G*                  6       15   3s2p1d
+ Cl                          6-31G*                  8       19   4s3p1d
+ H                           6-31G*                  2        2   2s
+ O                           6-31G*                  6       15   3s2p1d
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                           6-31G*                  6       15   3s2p1d
+ Cl                          6-31G*                  8       19   4s3p1d
+ H                           6-31G*                  2        2   2s
+ O                           6-31G*                  6       15   3s2p1d
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     7
+          No. of electrons :    52
+           Alpha electrons :    26
+            Beta electrons :    26
+          Charge           :    -1
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    74
+                     number of shells:    34
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                    Becke 1988 Exchange Functional  1.000          
+              Lee-Yang-Parr Correlation Functional  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          10.0       434
+          Cl                  1.00       88          11.0       590
+          H                   0.35       45          12.0       434
+          O                   0.60       49          11.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   409
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+ Loading old vectors from job with title :
+
+NWChem run using SANDER external interface.
+
+   Time after variat. SCF:      0.3
+   Time prior to 1st pass:      0.3
+
+ Integral file          = ./data/nwchem.aoints.0
+ Record size in doubles =    65536    No. of integs per rec  =    43688
+ Max. records in memory =      122    Max. records in file   =  1444824
+ No. of bits per label  =        8    No. of bits per value  =       64
+
+
+ #quartets = 1.348D+05 #integrals = 2.587D+06 #direct =  0.0% #cached =100.0%
+
+
+ Grid_pts file          = ./data/nwchem.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     88        Max. recs in file   =   7705084
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        4.02             4021500
+          Stack Space remaining (MW):       13.11            13106620
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1  -1035.3995420612 -1.22D+03  2.96D-07  5.04D-12     1.9
+ d= 0,ls=0.0,diis     2  -1035.3995420761 -1.49D-08  4.35D-07  7.03D-11     2.5
+
+
+         Total DFT energy =    -1035.399542076100
+      One electron energy =    -1811.937641402310
+           Coulomb energy =      660.495989431024
+    Exchange-Corr. energy =      -71.790017684994
+ Nuclear repulsion energy =      187.832127580181
+
+ Numeric. integr. density =       51.999993792899
+
+     Total iterative time =      2.2s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector   12  Occ=2.000000D+00  E=-6.838404D+00
+              MO Center= -2.3D-01, -8.9D-01,  2.3D+00, r^2= 5.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.825858  2 Cl px                19      0.386459  2 Cl py         
+    20      0.386842  2 Cl pz         
+
+ Vector   13  Occ=2.000000D+00  E=-6.374695D-01
+              MO Center= -1.2D-01,  2.9D-01,  1.1D+00, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    40      0.469450  3 Cl s                 21      0.397241  2 Cl s          
+    36     -0.236999  3 Cl s                  2      0.219299  1 C  s          
+     6      0.215286  1 C  s                 17     -0.201586  2 Cl s          
+    44      0.152740  3 Cl s          
+
+ Vector   14  Occ=2.000000D+00  E=-5.741466D-01
+              MO Center= -2.2D-01,  1.3D-01,  1.4D+00, r^2= 2.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.572885  2 Cl s                 40     -0.509366  3 Cl s          
+    17     -0.285024  2 Cl s                 36      0.251932  3 Cl s          
+    25      0.223973  2 Cl s                 44     -0.195797  3 Cl s          
+
+ Vector   15  Occ=2.000000D+00  E=-5.115836D-01
+              MO Center= -5.9D-01, -1.4D+00, -2.1D+00, r^2= 5.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    63      0.477120  6 O  s                 59      0.459117  6 O  s          
+    58     -0.211713  6 O  s                 73      0.182444  7 H  s          
+
+ Vector   16  Occ=2.000000D+00  E=-4.167848D-01
+              MO Center=  1.3D-01,  8.8D-03,  8.8D-01, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.362357  1 C  s                  2      0.334434  1 C  s          
+    40     -0.332955  3 Cl s                 21     -0.320792  2 Cl s          
+    44     -0.188080  3 Cl s                 25     -0.185052  2 Cl s          
+    56      0.164330  5 H  s                  1     -0.162438  1 C  s          
+    36      0.158775  3 Cl s                 17      0.153637  2 Cl s          
+
+ Vector   17  Occ=2.000000D+00  E=-2.504956D-01
+              MO Center=  2.4D-01, -8.1D-02,  6.8D-01, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.409892  1 C  px                56      0.219201  5 H  s          
+     7      0.195069  1 C  px                42      0.183436  3 Cl py         
+    57      0.164708  5 H  s                 54     -0.157899  4 H  s          
+    22      0.155974  2 Cl px         
+
+ Vector   18  Occ=2.000000D+00  E=-2.281241D-01
+              MO Center= -9.7D-02,  3.0D-01,  7.0D-01, r^2= 2.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    42      0.365581  3 Cl py                 4     -0.286008  1 C  py         
+     5     -0.250245  1 C  pz                23     -0.239948  2 Cl py         
+    43     -0.182431  3 Cl pz                54      0.162483  4 H  s          
+     8     -0.151741  1 C  py         
+
+ Vector   19  Occ=2.000000D+00  E=-2.215607D-01
+              MO Center= -1.6D-01, -8.5D-02,  1.5D+00, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      0.442359  2 Cl pz                42     -0.294474  3 Cl py         
+     5     -0.265970  1 C  pz                 4      0.223516  1 C  py         
+    20     -0.176273  2 Cl pz                28      0.163570  2 Cl pz         
+    23     -0.161665  2 Cl py                41      0.155494  3 Cl px         
+    25      0.154010  2 Cl s          
+
+ Vector   20  Occ=2.000000D+00  E=-1.193002D-01
+              MO Center= -2.5D-01,  2.8D-01,  1.4D+00, r^2= 3.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    43      0.383591  3 Cl pz                23      0.318610  2 Cl py         
+    24      0.304846  2 Cl pz                41     -0.292376  3 Cl px         
+    22     -0.224960  2 Cl px                47      0.224510  3 Cl pz         
+    27      0.196884  2 Cl py                45     -0.163664  3 Cl px         
+    28      0.160457  2 Cl pz                39     -0.151242  3 Cl pz         
+
+ Vector   21  Occ=2.000000D+00  E=-1.139535D-01
+              MO Center= -2.7D-01,  3.0D-01,  1.4D+00, r^2= 3.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.484173  2 Cl px                41     -0.443256  3 Cl px         
+    26      0.282874  2 Cl px                45     -0.256755  3 Cl px         
+    43     -0.195680  3 Cl pz                18     -0.190924  2 Cl px         
+    42     -0.175615  3 Cl py                37      0.174443  3 Cl px         
+    24      0.158872  2 Cl pz         
+
+ Vector   22  Occ=2.000000D+00  E=-9.888669D-02
+              MO Center= -2.6D-01,  2.6D-01,  1.4D+00, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      0.528821  2 Cl py                43     -0.482234  3 Cl pz         
+    27      0.302825  2 Cl py                47     -0.270235  3 Cl pz         
+    19     -0.206649  2 Cl py                39      0.188304  3 Cl pz         
+    42      0.158140  3 Cl py         
+
+ Vector   23  Occ=2.000000D+00  E=-9.342304D-02
+              MO Center= -1.8D-01,  1.7D-01,  1.2D+00, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.414067  2 Cl px                41      0.380763  3 Cl px         
+    26      0.252243  2 Cl px                43      0.237520  3 Cl pz         
+    45      0.232050  3 Cl px                 3     -0.173738  1 C  px         
+    24      0.174370  2 Cl pz                18     -0.162703  2 Cl px         
+    57     -0.159192  5 H  s          
+
+ Vector   24  Occ=2.000000D+00  E=-4.450460D-02
+              MO Center= -4.3D-01, -1.4D+00, -2.0D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    63      0.517220  6 O  s                 60      0.465027  6 O  px         
+    74     -0.313124  7 H  s                 73     -0.268620  7 H  s          
+    64      0.255545  6 O  px                59      0.161366  6 O  s          
+
+ Vector   25  Occ=2.000000D+00  E= 9.463688D-02
+              MO Center= -3.4D-01, -1.3D+00, -1.7D+00, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.573878  1 C  s                 62     -0.523095  6 O  pz         
+    66     -0.415705  6 O  pz                55     -0.317405  4 H  s          
+    61     -0.192240  6 O  py                28      0.171977  2 Cl pz         
+    60      0.154293  6 O  px                65     -0.153675  6 O  py         
+
+ Vector   26  Occ=2.000000D+00  E= 1.108512D-01
+              MO Center= -3.6D-01, -1.4D+00, -2.1D+00, r^2= 7.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    61      0.574056  6 O  py                65      0.493771  6 O  py         
+    62     -0.225592  6 O  pz                66     -0.187116  6 O  pz         
+
+ Vector   27  Occ=0.000000D+00  E= 1.283283D-01
+              MO Center= -1.2D-01, -8.3D-03,  1.0D+00, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.147805  1 C  s                  9      0.523917  1 C  pz         
+    46      0.516822  3 Cl py                28      0.508661  2 Cl pz         
+    25     -0.410153  2 Cl s                 44     -0.386732  3 Cl s          
+     5      0.345338  1 C  pz                27     -0.305077  2 Cl py         
+     8      0.297335  1 C  py                42      0.292630  3 Cl py         
+
+ Vector   28  Occ=0.000000D+00  E= 1.667409D-01
+              MO Center= -5.2D-02,  2.1D-01,  9.2D-01, r^2= 3.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.794149  1 C  py                46      0.654221  3 Cl py         
+    28     -0.511950  2 Cl pz                44     -0.501343  3 Cl s          
+     9     -0.492353  1 C  pz                 4      0.476621  1 C  py         
+    25      0.365284  2 Cl s                  5     -0.306734  1 C  pz         
+    42      0.293222  3 Cl py                24     -0.256498  2 Cl pz         
+
+ Vector   29  Occ=0.000000D+00  E= 2.433165D-01
+              MO Center=  1.2D+00, -1.6D-01,  6.3D-01, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    57      1.962066  5 H  s                  6     -1.443486  1 C  s          
+     7     -1.046101  1 C  px                 3     -0.368257  1 C  px         
+    55      0.199996  4 H  s                 40     -0.167313  3 Cl s          
+    21     -0.154639  2 Cl s                 26      0.150816  2 Cl px         
+
+ Vector   30  Occ=0.000000D+00  E= 3.068783D-01
+              MO Center= -1.2D+00, -1.4D+00, -1.8D+00, r^2= 3.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    74      1.378665  7 H  s                 63     -0.993382  6 O  s          
+    55      0.832915  4 H  s                 64      0.541996  6 O  px         
+     7      0.378090  1 C  px                 6     -0.359818  1 C  s          
+     9      0.342925  1 C  pz                57     -0.322347  5 H  s          
+    60      0.299180  6 O  px                 8      0.227847  1 C  py         
+
+ Vector   31  Occ=0.000000D+00  E= 3.773017D-01
+              MO Center= -5.3D-01, -8.0D-01, -4.1D-01, r^2= 4.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    55      1.911868  4 H  s                  6     -1.212985  1 C  s          
+     9      0.802981  1 C  pz                74     -0.803424  7 H  s          
+     7      0.657400  1 C  px                 8      0.535482  1 C  py         
+    57     -0.343766  5 H  s                 64     -0.318686  6 O  px         
+    63      0.307439  6 O  s                 66     -0.304825  6 O  pz         
+
+ Vector   32  Occ=0.000000D+00  E= 4.689332D-01
+              MO Center= -4.4D-01,  5.6D-01,  1.7D+00, r^2= 4.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44      1.307527  3 Cl s                 25      1.293178  2 Cl s          
+    40     -0.881986  3 Cl s                 21     -0.875341  2 Cl s          
+    55     -0.552879  4 H  s                  9     -0.527212  1 C  pz         
+    47      0.347809  3 Cl pz                 8     -0.336130  1 C  py         
+    27      0.330190  2 Cl py                43     -0.306041  3 Cl pz         
+
+ Vector   33  Occ=0.000000D+00  E= 5.032590D-01
+              MO Center= -3.1D-01,  3.0D-01,  1.6D+00, r^2= 6.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      0.760470  2 Cl s                 44     -0.757698  3 Cl s          
+    21     -0.690090  2 Cl s                 40      0.668666  3 Cl s          
+    46     -0.573365  3 Cl py                42      0.549261  3 Cl py         
+    28      0.519637  2 Cl pz                24     -0.484033  2 Cl pz         
+    27     -0.452852  2 Cl py                23      0.403708  2 Cl py         
+
+ Vector   34  Occ=0.000000D+00  E= 5.367740D-01
+              MO Center= -3.8D-01,  6.0D-01,  1.4D+00, r^2= 5.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    46      1.111136  3 Cl py                 6      0.908787  1 C  s          
+    42     -0.764755  3 Cl py                27     -0.697917  2 Cl py         
+    28      0.638799  2 Cl pz                23      0.624582  2 Cl py         
+    24     -0.389275  2 Cl pz                 9      0.380791  1 C  pz         
+    47     -0.354961  3 Cl pz                43      0.351917  3 Cl pz         
+
+ Vector   35  Occ=0.000000D+00  E= 5.464164D-01
+              MO Center= -2.5D-01,  4.1D-01,  1.2D+00, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    45     -0.909945  3 Cl px                41      0.834554  3 Cl px         
+    28     -0.703325  2 Cl pz                24      0.519805  2 Cl pz         
+    22      0.453172  2 Cl px                26     -0.423846  2 Cl px         
+    25      0.420361  2 Cl s                 44     -0.361973  3 Cl s          
+    23      0.260068  2 Cl py                37     -0.217831  3 Cl px         
+
+ Vector   36  Occ=0.000000D+00  E= 5.505271D-01
+              MO Center= -1.2D-01, -1.0D-01,  1.5D+00, r^2= 4.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      0.851576  2 Cl px                22     -0.736529  2 Cl px         
+    28     -0.734626  2 Cl pz                25      0.719259  2 Cl s          
+    44     -0.581869  3 Cl s                 46      0.562174  3 Cl py         
+    47      0.518970  3 Cl pz                43     -0.514989  3 Cl pz         
+    24      0.411689  2 Cl pz                40      0.339233  3 Cl s          
+
+
+ center of mass
+ --------------
+ x =  -0.43516815 y =  -0.08226294 z =   1.34410044
+
+ moments of inertia (a.u.)
+ ------------------
+        1313.416025535647           9.729888084955         -31.120657031747
+           9.729888084955         816.468785945911         -42.432903923290
+         -31.120657031747         -42.432903923290         540.892523671473
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -1.000000    -26.000000    -26.000000     51.000000
+
+     1   1 0 0      0.535203     11.123855     11.123855    -21.712506
+     1   0 1 0      1.432614      4.251982      4.251982     -7.071350
+     1   0 0 1      1.293310    -31.105829    -31.105829     63.504968
+
+     2   2 0 0    -28.523192    -27.360844    -27.360844     26.198495
+     2   1 1 0      0.069292     -0.423647     -0.423647      0.916586
+     2   1 0 1      0.841573      3.488780      3.488780     -6.135988
+     2   0 2 0    -37.694947   -148.645299   -148.645299    259.595651
+     2   0 1 1     -5.699109    -14.800821    -14.800821     23.902533
+     2   0 0 2    -46.224831   -267.528291   -267.528291    488.831751
+
+
+ Parallel integral file used      60 records with       0 large values
+
+
+
+                            NWChem DFT Gradient Module
+                            --------------------------
+
+
+                    NWChem run using SANDER external interface.
+
+
+
+  charge          =  -1.00
+  wavefunction    = closed shell
+
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 C       0.360431  -0.333456   1.219816   -0.007580   0.000087   0.000137
+   2 Cl     -0.428111  -1.675173   4.312219    0.003848   0.011814  -0.022287
+   3 Cl     -0.636587   2.907365   1.057085    0.004269  -0.022371   0.002897
+   4 H      -0.524436  -1.400340  -0.303847    0.007617   0.014232   0.027503
+   5 H       2.417930  -0.359174   1.125729   -0.005114  -0.000304   0.003072
+   6 O      -0.656348  -2.668876  -3.950220   -0.030552  -0.004639  -0.012649
+   7 H      -2.417930  -2.907365  -4.312219    0.027511   0.001181   0.001327
+
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.01   |       2.66   |
+                 ----------------------------------------
+                 |  WALL  |       0.01   |       2.66   |
+                 ----------------------------------------
+ test=au_ang 
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   5.1864765334443925        1.3818847016706393        3.9318074559984884                         1
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.5878510891616409        2.8403310378254534        6.1287848068625399                         4
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -1.9708461299812958       -6.4915204552067491       -1.5498916941336787                         7
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.7128688974256516       -5.0629089969602923        1.1422882020629279                        10
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -1.2479511556404501        7.3287550714074907        5.8528459567330744                        13
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.3068104770175797       0.47214369848999171       -2.6004513009704446E-002                   15
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   5.4246365093212514       -1.2830863638326611        4.4399556480348386                        19
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -4.6959454305121628        2.1171181644720516        4.5044364800839887                        22
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.3095162951748969       -6.3493708397179285        2.7391640176629757                        25
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.4466137921329403       -5.6319890857837382        6.5985306305691003                        28
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -7.7967211214625225       -4.4062235985355374       0.42658969548949405                        31
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.5027099405633666      -0.57411967573597855       -6.0218815868271030                        34
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   8.8068788839084942        1.8860424480366431       0.17454584020834110                        37
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -5.3244209606072861        4.3736655372920437        5.9050159932857795                        39
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -1.0388014267851249        1.7099622270758150       -5.6891023575303743                        42
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   2.3166182630815286        8.6344673783594068      -0.75060386038882410                        45
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -9.0367892691504288       -2.1096114834155038      -0.53091467096086087                        48
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.7920390347965953        5.3166122961502307        4.8620592653816432                        50
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.8312971555123543       -1.6223933100495547       -3.6035341479037575                        53
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -1.5013694534911761       -4.1655519020380805       -7.6427261186884961                        56
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -7.5494842469404944        3.8248335757059801      -0.82537874508731524                        59
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -1.0690466764572939       -1.6290951191416800        6.9242876636915804                        61
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.4063599533272351       -3.0197748621399594        2.5000604176075587                        64
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord= -0.16774755714321959       -6.1314873060004684        5.2676964547707215                        67
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -4.7159315938385049        4.9033670216594594       -4.1656386846429960                        70
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -5.0744864216251973        2.7262472463146117      -0.70293547797998279                        74
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.3466114923408297       0.51557276522200468        8.1057804343169195                        77
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   6.4447288781747494        3.9335875293074083        3.9706406580120293                        80
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   8.8801059453461999      -0.84666995041669113        1.5482654477204914                        83
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -5.0008020512988773        2.6396627738992122       -7.3297083271682970                        85
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   5.4483039717948216        2.7017692843115282       -1.2560100130941261                        87
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.1480189491569559        6.0143712967317899        6.1113194363059193                        90
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.7284755843857713        7.2192153339648684        3.3779386108547547                        93
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.8222329599747367       -1.0573992516155242       -6.5681636886594026                       100
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.15678082689848097       -6.9402959572001324       -6.8082488340465668                       103
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   2.2817527532109541        3.9552843584313315       0.93481120577786037                       106
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -5.6828547137530219       -2.4080645340800442       -6.7604276398730718                       109
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -6.8604104636439329       -4.1021028881908626       -4.9659773467879722                       112
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.1621024824596677       -3.2302424709475694        7.6277834678574772                       115
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.1425581770685840        1.7268596149712463       -4.5513094887915475                       118
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.2510926276638081       -2.7065183733080529        8.0430916390061089                       122
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.93119194978900477       -7.6816151991262167        1.0109258348779573                       125
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord= -0.60750181660492364      -0.40163840101515286       -8.0232633750378550                       128
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord= -0.53507852646188026       0.13381962831500183        10.061428224653627                       131
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   6.7166967334067310E-002  -7.9213668827065273       -2.6909853783701685                       133
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.6937411847741917        5.0725028436081132        2.1169371033591702                       136
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -4.4667328946951885       -3.7182045454020054       -3.6611303479612869                       139
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.4343907125488733      -0.87378742489162109        1.9010014184519313                       142
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -4.0303827651689117       0.38083708282968975       -4.6223190939617123                       147
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.72777171132753860       -2.8063363914342161       -4.1761338237020960                       150
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.2721810294034648        2.3518774384724117        2.2135559871600559                       153
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.7592139173143662        3.2886139075152467       -7.3105564847968543                       156
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord= -0.99061155359275133        1.0543026214235787        7.4845840057793476                       158
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -6.1183992002907450      -0.84158529880007615        2.4788942028255803                       162
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -4.2302984463259721       -7.9771115536049848       -1.7182933717440096                       165
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.99881467621752029        1.6374501745735359        4.0478829106592489                       168
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.9799319142675209        2.8195495051951687       -4.0714254300470083                       171
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -4.5316800918206050       -5.0247557236560274        6.1839920820599952                       175
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.9823092065783334E-002   5.5735501957755451        1.5322649841035314                       178
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.3371298733461128        3.5802753237176548       -7.4806974249295788                       181
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -7.1737194474114139       -6.0028172126429959       -3.0592865556456701                       183
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   6.6241887737667469       0.81886702249860288        1.5289268562014497                       186
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.7934240799150714       0.38016961413950345      -0.48115695485808990                       189
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord= -0.22432745569542828        6.8656303079043894       -4.5363247025380629                       192
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.2102995252261677       -3.1368104973880868      -0.88902981940094439                       197
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.6089608115640119        7.7924337167457720        1.7518579258078946                       200
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.8639921189557667       -5.4987216775993302       -1.9149188323132864                       203
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   2.4383104173743253       -7.8061462243706883       -1.3421743921706584                       206
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.1536248438955508        4.5895731308210603       -4.9592783134885465                       209
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.7804257619384449       -4.8739225361822083       -5.3630121768013721                       212
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.5664611387181764        6.4366455140132963       -1.8229791294665363                       215
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -5.7417950975059053       -5.8328383138398099      -0.62223267768060331                       218
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   6.6703551504670013        3.6951059677785629       -3.5119731364785469                       221
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord= -0.54281446554600543        3.5448428764243012       -3.0462411843065307                       223
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   2.3156274400298757      -0.67922057393722601       -2.1605860093495637                       226
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   6.4184462094285681        4.5826918146511773       0.48346729257326404                       230
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.6075168149074703       -1.3627894119734867       -2.5786627427406450                       234
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.9227393620961153       0.58364316106401348       -7.9226568029110371                       237
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -6.5226913174481229        1.6918840614095796        1.4290578513083803                       240
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -6.7906094746485275       -4.0669094148964389        5.0163783023232211                       244
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   2.8302262507252167       -3.7972317711712456        4.6884002611989724                       247
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -4.6346720431164243       0.11674201343169550       -8.3194891306083285                       250
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.9224291567727017       -3.7285747496189585       -6.6957362468340289                       253
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -6.6666700269959831      -0.28985177952185792       -5.3179266167487667                       256
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.3559018612695670       -5.7131439525754315        2.1591318501605299                       259
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.4365467478858314        4.7808031652193170        2.3375665375517198                       262
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.8305666002947811        2.1709996054730465        6.4730916389772126                       265
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -5.2707281073269332      -0.35331758243704531        5.5802556113503927                       267
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.5840937696261626       -4.2413543516048886       -1.1719301473032833                       270
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -6.6848605485736720E-002   7.8967416007082258       -1.9755591077447834                       273
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.39548971986933035       -4.1386279868925513        3.3817305716878541                       276
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.0278320577691558        1.6154987730301735        2.1500951128479766                       279
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.3871788665155007       -3.5726000455457356        2.6461580055600371                       282
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.38812517080837738        4.4295734620467799        3.9128052249054837                       285
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   6.5638542849298149       0.50801551201692607       -4.1370721009085880                       288
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.3657309472959764       -7.5251773844287282       -5.9412164222127153                       291
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.8315668121617441       -7.0355731105660180        5.3374013663167776                       294
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   2.9643406808338195        3.7396868426000216       -1.7120777665454430                       296
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -4.8117352591605647        6.2079903245754924       0.55025517164326276                       299
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   1.4155660787171171        2.0926703957678923        6.7420391236267205                       302
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -5.3809584973211155        1.2893946846302997        7.7958237695888872                       305
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -6.2568091482934838        6.0496844829459944        3.0028847687387890                       306
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.69026135803529221       -2.5994154951685560       -7.1047039373950378                       309
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.2151315706209220        6.4003345835227226       -4.5145851083086335                       312
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   7.0358860731565276       -3.2832083490897062      -0.89517965920257536                       314
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -8.3324402594649403       -1.0620445336256148       -3.1257185336341036                       317
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -2.9551817212026306       -1.5963962942902254        4.8517473520352574                       320
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -7.6032053995710562        3.5796071325364078        2.9501778880955851                       324
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.21663467502596548       -5.2469323654959767        7.8379282936321921                       326
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord= -0.96481494589650640        5.4655468567267977       -1.0511246060689479                       329
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.2775111292340480       -3.1839689833025084      -0.38675406134975338                       332
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  0.18309692434144381       0.91889182525667479       -3.1734446344026526                       335
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -1.8166528708069127       -7.7442956088738946       0.86380540904068348                       338
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -6.0826909087666756       -3.5782619322875995        2.4166978958558207                       341
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   3.4473956591091430       -4.6348441434373830       -4.5238290514091535                       344
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   6.5853661636409679       -5.5503526987186653       0.57955577119088475                       347
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   4.0959637108686238       -2.1858472026711206        8.1498215384177932                       350
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.9299506127458965       -3.4425538433393892       -8.6633185664786758                       353
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=  -3.6649644332030653        4.9366099361280149       -1.5413277482525114                       356
+ qm coord=  0.19073207832781128      -0.17645731368619144       0.64549913039951290                         1
+ mm coord=   7.2016870571877947       -3.0614925548574212       -3.6294853968492240                       359
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   5.1864765334443925        1.3818847016706393        3.9318074559984884                         1
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.5878510891616409        2.8403310378254534        6.1287848068625399                         4
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -1.9708461299812958       -6.4915204552067491       -1.5498916941336787                         7
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.7128688974256516       -5.0629089969602923        1.1422882020629279                        10
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -1.2479511556404501        7.3287550714074907        5.8528459567330744                        13
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.3068104770175797       0.47214369848999171       -2.6004513009704446E-002                   15
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   5.4246365093212514       -1.2830863638326611        4.4399556480348386                        19
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -4.6959454305121628        2.1171181644720516        4.5044364800839887                        22
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.3095162951748969       -6.3493708397179285        2.7391640176629757                        25
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.4466137921329403       -5.6319890857837382        6.5985306305691003                        28
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -7.7967211214625225       -4.4062235985355374       0.42658969548949405                        31
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.5027099405633666      -0.57411967573597855       -6.0218815868271030                        34
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   8.8068788839084942        1.8860424480366431       0.17454584020834110                        37
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -5.3244209606072861        4.3736655372920437        5.9050159932857795                        39
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -1.0388014267851249        1.7099622270758150       -5.6891023575303743                        42
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   2.3166182630815286        8.6344673783594068      -0.75060386038882410                        45
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -9.0367892691504288       -2.1096114834155038      -0.53091467096086087                        48
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.7920390347965953        5.3166122961502307        4.8620592653816432                        50
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.8312971555123543       -1.6223933100495547       -3.6035341479037575                        53
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -1.5013694534911761       -4.1655519020380805       -7.6427261186884961                        56
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -7.5494842469404944        3.8248335757059801      -0.82537874508731524                        59
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -1.0690466764572939       -1.6290951191416800        6.9242876636915804                        61
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.4063599533272351       -3.0197748621399594        2.5000604176075587                        64
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord= -0.16774755714321959       -6.1314873060004684        5.2676964547707215                        67
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -4.7159315938385049        4.9033670216594594       -4.1656386846429960                        70
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -5.0744864216251973        2.7262472463146117      -0.70293547797998279                        74
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.3466114923408297       0.51557276522200468        8.1057804343169195                        77
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   6.4447288781747494        3.9335875293074083        3.9706406580120293                        80
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   8.8801059453461999      -0.84666995041669113        1.5482654477204914                        83
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -5.0008020512988773        2.6396627738992122       -7.3297083271682970                        85
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   5.4483039717948216        2.7017692843115282       -1.2560100130941261                        87
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.1480189491569559        6.0143712967317899        6.1113194363059193                        90
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.7284755843857713        7.2192153339648684        3.3779386108547547                        93
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.8222329599747367       -1.0573992516155242       -6.5681636886594026                       100
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.15678082689848097       -6.9402959572001324       -6.8082488340465668                       103
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   2.2817527532109541        3.9552843584313315       0.93481120577786037                       106
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -5.6828547137530219       -2.4080645340800442       -6.7604276398730718                       109
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -6.8604104636439329       -4.1021028881908626       -4.9659773467879722                       112
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.1621024824596677       -3.2302424709475694        7.6277834678574772                       115
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.1425581770685840        1.7268596149712463       -4.5513094887915475                       118
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.2510926276638081       -2.7065183733080529        8.0430916390061089                       122
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.93119194978900477       -7.6816151991262167        1.0109258348779573                       125
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord= -0.60750181660492364      -0.40163840101515286       -8.0232633750378550                       128
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord= -0.53507852646188026       0.13381962831500183        10.061428224653627                       131
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   6.7166967334067310E-002  -7.9213668827065273       -2.6909853783701685                       133
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.6937411847741917        5.0725028436081132        2.1169371033591702                       136
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -4.4667328946951885       -3.7182045454020054       -3.6611303479612869                       139
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.4343907125488733      -0.87378742489162109        1.9010014184519313                       142
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -4.0303827651689117       0.38083708282968975       -4.6223190939617123                       147
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.72777171132753860       -2.8063363914342161       -4.1761338237020960                       150
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.2721810294034648        2.3518774384724117        2.2135559871600559                       153
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.7592139173143662        3.2886139075152467       -7.3105564847968543                       156
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord= -0.99061155359275133        1.0543026214235787        7.4845840057793476                       158
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -6.1183992002907450      -0.84158529880007615        2.4788942028255803                       162
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -4.2302984463259721       -7.9771115536049848       -1.7182933717440096                       165
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.99881467621752029        1.6374501745735359        4.0478829106592489                       168
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.9799319142675209        2.8195495051951687       -4.0714254300470083                       171
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -4.5316800918206050       -5.0247557236560274        6.1839920820599952                       175
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.9823092065783334E-002   5.5735501957755451        1.5322649841035314                       178
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.3371298733461128        3.5802753237176548       -7.4806974249295788                       181
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -7.1737194474114139       -6.0028172126429959       -3.0592865556456701                       183
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   6.6241887737667469       0.81886702249860288        1.5289268562014497                       186
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.7934240799150714       0.38016961413950345      -0.48115695485808990                       189
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord= -0.22432745569542828        6.8656303079043894       -4.5363247025380629                       192
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.2102995252261677       -3.1368104973880868      -0.88902981940094439                       197
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.6089608115640119        7.7924337167457720        1.7518579258078946                       200
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.8639921189557667       -5.4987216775993302       -1.9149188323132864                       203
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   2.4383104173743253       -7.8061462243706883       -1.3421743921706584                       206
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.1536248438955508        4.5895731308210603       -4.9592783134885465                       209
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.7804257619384449       -4.8739225361822083       -5.3630121768013721                       212
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.5664611387181764        6.4366455140132963       -1.8229791294665363                       215
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -5.7417950975059053       -5.8328383138398099      -0.62223267768060331                       218
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   6.6703551504670013        3.6951059677785629       -3.5119731364785469                       221
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord= -0.54281446554600543        3.5448428764243012       -3.0462411843065307                       223
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   2.3156274400298757      -0.67922057393722601       -2.1605860093495637                       226
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   6.4184462094285681        4.5826918146511773       0.48346729257326404                       230
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.6075168149074703       -1.3627894119734867       -2.5786627427406450                       234
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.9227393620961153       0.58364316106401348       -7.9226568029110371                       237
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -6.5226913174481229        1.6918840614095796        1.4290578513083803                       240
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -6.7906094746485275       -4.0669094148964389        5.0163783023232211                       244
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   2.8302262507252167       -3.7972317711712456        4.6884002611989724                       247
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -4.6346720431164243       0.11674201343169550       -8.3194891306083285                       250
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.9224291567727017       -3.7285747496189585       -6.6957362468340289                       253
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -6.6666700269959831      -0.28985177952185792       -5.3179266167487667                       256
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.3559018612695670       -5.7131439525754315        2.1591318501605299                       259
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.4365467478858314        4.7808031652193170        2.3375665375517198                       262
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.8305666002947811        2.1709996054730465        6.4730916389772126                       265
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -5.2707281073269332      -0.35331758243704531        5.5802556113503927                       267
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.5840937696261626       -4.2413543516048886       -1.1719301473032833                       270
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -6.6848605485736720E-002   7.8967416007082258       -1.9755591077447834                       273
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.39548971986933035       -4.1386279868925513        3.3817305716878541                       276
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.0278320577691558        1.6154987730301735        2.1500951128479766                       279
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.3871788665155007       -3.5726000455457356        2.6461580055600371                       282
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.38812517080837738        4.4295734620467799        3.9128052249054837                       285
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   6.5638542849298149       0.50801551201692607       -4.1370721009085880                       288
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.3657309472959764       -7.5251773844287282       -5.9412164222127153                       291
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.8315668121617441       -7.0355731105660180        5.3374013663167776                       294
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   2.9643406808338195        3.7396868426000216       -1.7120777665454430                       296
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -4.8117352591605647        6.2079903245754924       0.55025517164326276                       299
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   1.4155660787171171        2.0926703957678923        6.7420391236267205                       302
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -5.3809584973211155        1.2893946846302997        7.7958237695888872                       305
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -6.2568091482934838        6.0496844829459944        3.0028847687387890                       306
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.69026135803529221       -2.5994154951685560       -7.1047039373950378                       309
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.2151315706209220        6.4003345835227226       -4.5145851083086335                       312
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   7.0358860731565276       -3.2832083490897062      -0.89517965920257536                       314
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -8.3324402594649403       -1.0620445336256148       -3.1257185336341036                       317
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -2.9551817212026306       -1.5963962942902254        4.8517473520352574                       320
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -7.6032053995710562        3.5796071325364078        2.9501778880955851                       324
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.21663467502596548       -5.2469323654959767        7.8379282936321921                       326
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord= -0.96481494589650640        5.4655468567267977       -1.0511246060689479                       329
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.2775111292340480       -3.1839689833025084      -0.38675406134975338                       332
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  0.18309692434144381       0.91889182525667479       -3.1734446344026526                       335
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -1.8166528708069127       -7.7442956088738946       0.86380540904068348                       338
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -6.0826909087666756       -3.5782619322875995        2.4166978958558207                       341
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   3.4473956591091430       -4.6348441434373830       -4.5238290514091535                       344
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   6.5853661636409679       -5.5503526987186653       0.57955577119088475                       347
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   4.0959637108686238       -2.1858472026711206        8.1498215384177932                       350
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.9299506127458965       -3.4425538433393892       -8.6633185664786758                       353
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=  -3.6649644332030653        4.9366099361280149       -1.5413277482525114                       356
+ qm coord= -0.22654686573014149      -0.88646323552140971        2.2819283740057079                         2
+ mm coord=   7.2016870571877947       -3.0614925548574212       -3.6294853968492240                       359
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   5.1864765334443925        1.3818847016706393        3.9318074559984884                         1
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.5878510891616409        2.8403310378254534        6.1287848068625399                         4
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -1.9708461299812958       -6.4915204552067491       -1.5498916941336787                         7
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.7128688974256516       -5.0629089969602923        1.1422882020629279                        10
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -1.2479511556404501        7.3287550714074907        5.8528459567330744                        13
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.3068104770175797       0.47214369848999171       -2.6004513009704446E-002                   15
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   5.4246365093212514       -1.2830863638326611        4.4399556480348386                        19
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -4.6959454305121628        2.1171181644720516        4.5044364800839887                        22
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.3095162951748969       -6.3493708397179285        2.7391640176629757                        25
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.4466137921329403       -5.6319890857837382        6.5985306305691003                        28
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -7.7967211214625225       -4.4062235985355374       0.42658969548949405                        31
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.5027099405633666      -0.57411967573597855       -6.0218815868271030                        34
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   8.8068788839084942        1.8860424480366431       0.17454584020834110                        37
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -5.3244209606072861        4.3736655372920437        5.9050159932857795                        39
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -1.0388014267851249        1.7099622270758150       -5.6891023575303743                        42
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   2.3166182630815286        8.6344673783594068      -0.75060386038882410                        45
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -9.0367892691504288       -2.1096114834155038      -0.53091467096086087                        48
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.7920390347965953        5.3166122961502307        4.8620592653816432                        50
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.8312971555123543       -1.6223933100495547       -3.6035341479037575                        53
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -1.5013694534911761       -4.1655519020380805       -7.6427261186884961                        56
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -7.5494842469404944        3.8248335757059801      -0.82537874508731524                        59
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -1.0690466764572939       -1.6290951191416800        6.9242876636915804                        61
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.4063599533272351       -3.0197748621399594        2.5000604176075587                        64
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord= -0.16774755714321959       -6.1314873060004684        5.2676964547707215                        67
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -4.7159315938385049        4.9033670216594594       -4.1656386846429960                        70
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -5.0744864216251973        2.7262472463146117      -0.70293547797998279                        74
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.3466114923408297       0.51557276522200468        8.1057804343169195                        77
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   6.4447288781747494        3.9335875293074083        3.9706406580120293                        80
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   8.8801059453461999      -0.84666995041669113        1.5482654477204914                        83
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -5.0008020512988773        2.6396627738992122       -7.3297083271682970                        85
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   5.4483039717948216        2.7017692843115282       -1.2560100130941261                        87
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.1480189491569559        6.0143712967317899        6.1113194363059193                        90
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.7284755843857713        7.2192153339648684        3.3779386108547547                        93
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.8222329599747367       -1.0573992516155242       -6.5681636886594026                       100
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.15678082689848097       -6.9402959572001324       -6.8082488340465668                       103
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   2.2817527532109541        3.9552843584313315       0.93481120577786037                       106
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -5.6828547137530219       -2.4080645340800442       -6.7604276398730718                       109
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -6.8604104636439329       -4.1021028881908626       -4.9659773467879722                       112
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.1621024824596677       -3.2302424709475694        7.6277834678574772                       115
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.1425581770685840        1.7268596149712463       -4.5513094887915475                       118
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.2510926276638081       -2.7065183733080529        8.0430916390061089                       122
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.93119194978900477       -7.6816151991262167        1.0109258348779573                       125
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord= -0.60750181660492364      -0.40163840101515286       -8.0232633750378550                       128
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord= -0.53507852646188026       0.13381962831500183        10.061428224653627                       131
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   6.7166967334067310E-002  -7.9213668827065273       -2.6909853783701685                       133
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.6937411847741917        5.0725028436081132        2.1169371033591702                       136
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -4.4667328946951885       -3.7182045454020054       -3.6611303479612869                       139
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.4343907125488733      -0.87378742489162109        1.9010014184519313                       142
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -4.0303827651689117       0.38083708282968975       -4.6223190939617123                       147
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.72777171132753860       -2.8063363914342161       -4.1761338237020960                       150
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.2721810294034648        2.3518774384724117        2.2135559871600559                       153
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.7592139173143662        3.2886139075152467       -7.3105564847968543                       156
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord= -0.99061155359275133        1.0543026214235787        7.4845840057793476                       158
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -6.1183992002907450      -0.84158529880007615        2.4788942028255803                       162
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -4.2302984463259721       -7.9771115536049848       -1.7182933717440096                       165
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.99881467621752029        1.6374501745735359        4.0478829106592489                       168
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.9799319142675209        2.8195495051951687       -4.0714254300470083                       171
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -4.5316800918206050       -5.0247557236560274        6.1839920820599952                       175
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.9823092065783334E-002   5.5735501957755451        1.5322649841035314                       178
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.3371298733461128        3.5802753237176548       -7.4806974249295788                       181
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -7.1737194474114139       -6.0028172126429959       -3.0592865556456701                       183
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   6.6241887737667469       0.81886702249860288        1.5289268562014497                       186
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.7934240799150714       0.38016961413950345      -0.48115695485808990                       189
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord= -0.22432745569542828        6.8656303079043894       -4.5363247025380629                       192
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.2102995252261677       -3.1368104973880868      -0.88902981940094439                       197
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.6089608115640119        7.7924337167457720        1.7518579258078946                       200
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.8639921189557667       -5.4987216775993302       -1.9149188323132864                       203
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   2.4383104173743253       -7.8061462243706883       -1.3421743921706584                       206
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.1536248438955508        4.5895731308210603       -4.9592783134885465                       209
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.7804257619384449       -4.8739225361822083       -5.3630121768013721                       212
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.5664611387181764        6.4366455140132963       -1.8229791294665363                       215
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -5.7417950975059053       -5.8328383138398099      -0.62223267768060331                       218
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   6.6703551504670013        3.6951059677785629       -3.5119731364785469                       221
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord= -0.54281446554600543        3.5448428764243012       -3.0462411843065307                       223
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   2.3156274400298757      -0.67922057393722601       -2.1605860093495637                       226
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   6.4184462094285681        4.5826918146511773       0.48346729257326404                       230
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.6075168149074703       -1.3627894119734867       -2.5786627427406450                       234
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.9227393620961153       0.58364316106401348       -7.9226568029110371                       237
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -6.5226913174481229        1.6918840614095796        1.4290578513083803                       240
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -6.7906094746485275       -4.0669094148964389        5.0163783023232211                       244
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   2.8302262507252167       -3.7972317711712456        4.6884002611989724                       247
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -4.6346720431164243       0.11674201343169550       -8.3194891306083285                       250
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.9224291567727017       -3.7285747496189585       -6.6957362468340289                       253
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -6.6666700269959831      -0.28985177952185792       -5.3179266167487667                       256
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.3559018612695670       -5.7131439525754315        2.1591318501605299                       259
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.4365467478858314        4.7808031652193170        2.3375665375517198                       262
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.8305666002947811        2.1709996054730465        6.4730916389772126                       265
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -5.2707281073269332      -0.35331758243704531        5.5802556113503927                       267
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.5840937696261626       -4.2413543516048886       -1.1719301473032833                       270
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -6.6848605485736720E-002   7.8967416007082258       -1.9755591077447834                       273
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.39548971986933035       -4.1386279868925513        3.3817305716878541                       276
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.0278320577691558        1.6154987730301735        2.1500951128479766                       279
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.3871788665155007       -3.5726000455457356        2.6461580055600371                       282
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.38812517080837738        4.4295734620467799        3.9128052249054837                       285
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   6.5638542849298149       0.50801551201692607       -4.1370721009085880                       288
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.3657309472959764       -7.5251773844287282       -5.9412164222127153                       291
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.8315668121617441       -7.0355731105660180        5.3374013663167776                       294
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   2.9643406808338195        3.7396868426000216       -1.7120777665454430                       296
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -4.8117352591605647        6.2079903245754924       0.55025517164326276                       299
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   1.4155660787171171        2.0926703957678923        6.7420391236267205                       302
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -5.3809584973211155        1.2893946846302997        7.7958237695888872                       305
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -6.2568091482934838        6.0496844829459944        3.0028847687387890                       306
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.69026135803529221       -2.5994154951685560       -7.1047039373950378                       309
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.2151315706209220        6.4003345835227226       -4.5145851083086335                       312
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   7.0358860731565276       -3.2832083490897062      -0.89517965920257536                       314
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -8.3324402594649403       -1.0620445336256148       -3.1257185336341036                       317
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -2.9551817212026306       -1.5963962942902254        4.8517473520352574                       320
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -7.6032053995710562        3.5796071325364078        2.9501778880955851                       324
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.21663467502596548       -5.2469323654959767        7.8379282936321921                       326
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord= -0.96481494589650640        5.4655468567267977       -1.0511246060689479                       329
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.2775111292340480       -3.1839689833025084      -0.38675406134975338                       332
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  0.18309692434144381       0.91889182525667479       -3.1734446344026526                       335
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -1.8166528708069127       -7.7442956088738946       0.86380540904068348                       338
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -6.0826909087666756       -3.5782619322875995        2.4166978958558207                       341
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   3.4473956591091430       -4.6348441434373830       -4.5238290514091535                       344
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   6.5853661636409679       -5.5503526987186653       0.57955577119088475                       347
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   4.0959637108686238       -2.1858472026711206        8.1498215384177932                       350
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.9299506127458965       -3.4425538433393892       -8.6633185664786758                       353
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=  -3.6649644332030653        4.9366099361280149       -1.5413277482525114                       356
+ qm coord= -0.33686736573020459        1.5385114644799758       0.55938517400472365                         3
+ mm coord=   7.2016870571877947       -3.0614925548574212       -3.6294853968492240                       359
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   5.1864765334443925        1.3818847016706393        3.9318074559984884                         1
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.5878510891616409        2.8403310378254534        6.1287848068625399                         4
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -1.9708461299812958       -6.4915204552067491       -1.5498916941336787                         7
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.7128688974256516       -5.0629089969602923        1.1422882020629279                        10
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -1.2479511556404501        7.3287550714074907        5.8528459567330744                        13
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.3068104770175797       0.47214369848999171       -2.6004513009704446E-002                   15
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   5.4246365093212514       -1.2830863638326611        4.4399556480348386                        19
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -4.6959454305121628        2.1171181644720516        4.5044364800839887                        22
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.3095162951748969       -6.3493708397179285        2.7391640176629757                        25
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.4466137921329403       -5.6319890857837382        6.5985306305691003                        28
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -7.7967211214625225       -4.4062235985355374       0.42658969548949405                        31
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.5027099405633666      -0.57411967573597855       -6.0218815868271030                        34
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   8.8068788839084942        1.8860424480366431       0.17454584020834110                        37
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -5.3244209606072861        4.3736655372920437        5.9050159932857795                        39
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -1.0388014267851249        1.7099622270758150       -5.6891023575303743                        42
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   2.3166182630815286        8.6344673783594068      -0.75060386038882410                        45
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -9.0367892691504288       -2.1096114834155038      -0.53091467096086087                        48
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.7920390347965953        5.3166122961502307        4.8620592653816432                        50
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.8312971555123543       -1.6223933100495547       -3.6035341479037575                        53
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -1.5013694534911761       -4.1655519020380805       -7.6427261186884961                        56
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -7.5494842469404944        3.8248335757059801      -0.82537874508731524                        59
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -1.0690466764572939       -1.6290951191416800        6.9242876636915804                        61
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.4063599533272351       -3.0197748621399594        2.5000604176075587                        64
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord= -0.16774755714321959       -6.1314873060004684        5.2676964547707215                        67
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -4.7159315938385049        4.9033670216594594       -4.1656386846429960                        70
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -5.0744864216251973        2.7262472463146117      -0.70293547797998279                        74
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.3466114923408297       0.51557276522200468        8.1057804343169195                        77
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   6.4447288781747494        3.9335875293074083        3.9706406580120293                        80
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   8.8801059453461999      -0.84666995041669113        1.5482654477204914                        83
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -5.0008020512988773        2.6396627738992122       -7.3297083271682970                        85
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   5.4483039717948216        2.7017692843115282       -1.2560100130941261                        87
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.1480189491569559        6.0143712967317899        6.1113194363059193                        90
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.7284755843857713        7.2192153339648684        3.3779386108547547                        93
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.8222329599747367       -1.0573992516155242       -6.5681636886594026                       100
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.15678082689848097       -6.9402959572001324       -6.8082488340465668                       103
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   2.2817527532109541        3.9552843584313315       0.93481120577786037                       106
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -5.6828547137530219       -2.4080645340800442       -6.7604276398730718                       109
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -6.8604104636439329       -4.1021028881908626       -4.9659773467879722                       112
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.1621024824596677       -3.2302424709475694        7.6277834678574772                       115
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.1425581770685840        1.7268596149712463       -4.5513094887915475                       118
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.2510926276638081       -2.7065183733080529        8.0430916390061089                       122
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.93119194978900477       -7.6816151991262167        1.0109258348779573                       125
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord= -0.60750181660492364      -0.40163840101515286       -8.0232633750378550                       128
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord= -0.53507852646188026       0.13381962831500183        10.061428224653627                       131
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   6.7166967334067310E-002  -7.9213668827065273       -2.6909853783701685                       133
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.6937411847741917        5.0725028436081132        2.1169371033591702                       136
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -4.4667328946951885       -3.7182045454020054       -3.6611303479612869                       139
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.4343907125488733      -0.87378742489162109        1.9010014184519313                       142
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -4.0303827651689117       0.38083708282968975       -4.6223190939617123                       147
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.72777171132753860       -2.8063363914342161       -4.1761338237020960                       150
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.2721810294034648        2.3518774384724117        2.2135559871600559                       153
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.7592139173143662        3.2886139075152467       -7.3105564847968543                       156
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord= -0.99061155359275133        1.0543026214235787        7.4845840057793476                       158
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -6.1183992002907450      -0.84158529880007615        2.4788942028255803                       162
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -4.2302984463259721       -7.9771115536049848       -1.7182933717440096                       165
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.99881467621752029        1.6374501745735359        4.0478829106592489                       168
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.9799319142675209        2.8195495051951687       -4.0714254300470083                       171
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -4.5316800918206050       -5.0247557236560274        6.1839920820599952                       175
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.9823092065783334E-002   5.5735501957755451        1.5322649841035314                       178
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.3371298733461128        3.5802753237176548       -7.4806974249295788                       181
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -7.1737194474114139       -6.0028172126429959       -3.0592865556456701                       183
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   6.6241887737667469       0.81886702249860288        1.5289268562014497                       186
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.7934240799150714       0.38016961413950345      -0.48115695485808990                       189
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord= -0.22432745569542828        6.8656303079043894       -4.5363247025380629                       192
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.2102995252261677       -3.1368104973880868      -0.88902981940094439                       197
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.6089608115640119        7.7924337167457720        1.7518579258078946                       200
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.8639921189557667       -5.4987216775993302       -1.9149188323132864                       203
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   2.4383104173743253       -7.8061462243706883       -1.3421743921706584                       206
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.1536248438955508        4.5895731308210603       -4.9592783134885465                       209
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.7804257619384449       -4.8739225361822083       -5.3630121768013721                       212
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.5664611387181764        6.4366455140132963       -1.8229791294665363                       215
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -5.7417950975059053       -5.8328383138398099      -0.62223267768060331                       218
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   6.6703551504670013        3.6951059677785629       -3.5119731364785469                       221
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord= -0.54281446554600543        3.5448428764243012       -3.0462411843065307                       223
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   2.3156274400298757      -0.67922057393722601       -2.1605860093495637                       226
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   6.4184462094285681        4.5826918146511773       0.48346729257326404                       230
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.6075168149074703       -1.3627894119734867       -2.5786627427406450                       234
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.9227393620961153       0.58364316106401348       -7.9226568029110371                       237
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -6.5226913174481229        1.6918840614095796        1.4290578513083803                       240
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -6.7906094746485275       -4.0669094148964389        5.0163783023232211                       244
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   2.8302262507252167       -3.7972317711712456        4.6884002611989724                       247
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -4.6346720431164243       0.11674201343169550       -8.3194891306083285                       250
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.9224291567727017       -3.7285747496189585       -6.6957362468340289                       253
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -6.6666700269959831      -0.28985177952185792       -5.3179266167487667                       256
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.3559018612695670       -5.7131439525754315        2.1591318501605299                       259
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.4365467478858314        4.7808031652193170        2.3375665375517198                       262
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.8305666002947811        2.1709996054730465        6.4730916389772126                       265
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -5.2707281073269332      -0.35331758243704531        5.5802556113503927                       267
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.5840937696261626       -4.2413543516048886       -1.1719301473032833                       270
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -6.6848605485736720E-002   7.8967416007082258       -1.9755591077447834                       273
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.39548971986933035       -4.1386279868925513        3.3817305716878541                       276
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.0278320577691558        1.6154987730301735        2.1500951128479766                       279
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.3871788665155007       -3.5726000455457356        2.6461580055600371                       282
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.38812517080837738        4.4295734620467799        3.9128052249054837                       285
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   6.5638542849298149       0.50801551201692607       -4.1370721009085880                       288
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.3657309472959764       -7.5251773844287282       -5.9412164222127153                       291
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.8315668121617441       -7.0355731105660180        5.3374013663167776                       294
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   2.9643406808338195        3.7396868426000216       -1.7120777665454430                       296
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -4.8117352591605647        6.2079903245754924       0.55025517164326276                       299
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   1.4155660787171171        2.0926703957678923        6.7420391236267205                       302
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -5.3809584973211155        1.2893946846302997        7.7958237695888872                       305
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -6.2568091482934838        6.0496844829459944        3.0028847687387890                       306
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.69026135803529221       -2.5994154951685560       -7.1047039373950378                       309
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.2151315706209220        6.4003345835227226       -4.5145851083086335                       312
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   7.0358860731565276       -3.2832083490897062      -0.89517965920257536                       314
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -8.3324402594649403       -1.0620445336256148       -3.1257185336341036                       317
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -2.9551817212026306       -1.5963962942902254        4.8517473520352574                       320
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -7.6032053995710562        3.5796071325364078        2.9501778880955851                       324
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.21663467502596548       -5.2469323654959767        7.8379282936321921                       326
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord= -0.96481494589650640        5.4655468567267977       -1.0511246060689479                       329
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.2775111292340480       -3.1839689833025084      -0.38675406134975338                       332
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  0.18309692434144381       0.91889182525667479       -3.1734446344026526                       335
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -1.8166528708069127       -7.7442956088738946       0.86380540904068348                       338
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -6.0826909087666756       -3.5782619322875995        2.4166978958558207                       341
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   3.4473956591091430       -4.6348441434373830       -4.5238290514091535                       344
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   6.5853661636409679       -5.5503526987186653       0.57955577119088475                       347
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   4.0959637108686238       -2.1858472026711206        8.1498215384177932                       350
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.9299506127458965       -3.4425538433393892       -8.6633185664786758                       353
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=  -3.6649644332030653        4.9366099361280149       -1.5413277482525114                       356
+ qm coord= -0.27751954765031056      -0.74102826714775927      -0.16078870508144949                         4
+ mm coord=   7.2016870571877947       -3.0614925548574212       -3.6294853968492240                       359
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   5.1864765334443925        1.3818847016706393        3.9318074559984884                         1
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.5878510891616409        2.8403310378254534        6.1287848068625399                         4
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -1.9708461299812958       -6.4915204552067491       -1.5498916941336787                         7
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.7128688974256516       -5.0629089969602923        1.1422882020629279                        10
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -1.2479511556404501        7.3287550714074907        5.8528459567330744                        13
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.3068104770175797       0.47214369848999171       -2.6004513009704446E-002                   15
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   5.4246365093212514       -1.2830863638326611        4.4399556480348386                        19
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -4.6959454305121628        2.1171181644720516        4.5044364800839887                        22
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.3095162951748969       -6.3493708397179285        2.7391640176629757                        25
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.4466137921329403       -5.6319890857837382        6.5985306305691003                        28
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -7.7967211214625225       -4.4062235985355374       0.42658969548949405                        31
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.5027099405633666      -0.57411967573597855       -6.0218815868271030                        34
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   8.8068788839084942        1.8860424480366431       0.17454584020834110                        37
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -5.3244209606072861        4.3736655372920437        5.9050159932857795                        39
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -1.0388014267851249        1.7099622270758150       -5.6891023575303743                        42
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   2.3166182630815286        8.6344673783594068      -0.75060386038882410                        45
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -9.0367892691504288       -2.1096114834155038      -0.53091467096086087                        48
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.7920390347965953        5.3166122961502307        4.8620592653816432                        50
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.8312971555123543       -1.6223933100495547       -3.6035341479037575                        53
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -1.5013694534911761       -4.1655519020380805       -7.6427261186884961                        56
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -7.5494842469404944        3.8248335757059801      -0.82537874508731524                        59
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -1.0690466764572939       -1.6290951191416800        6.9242876636915804                        61
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.4063599533272351       -3.0197748621399594        2.5000604176075587                        64
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord= -0.16774755714321959       -6.1314873060004684        5.2676964547707215                        67
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -4.7159315938385049        4.9033670216594594       -4.1656386846429960                        70
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -5.0744864216251973        2.7262472463146117      -0.70293547797998279                        74
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.3466114923408297       0.51557276522200468        8.1057804343169195                        77
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   6.4447288781747494        3.9335875293074083        3.9706406580120293                        80
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   8.8801059453461999      -0.84666995041669113        1.5482654477204914                        83
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -5.0008020512988773        2.6396627738992122       -7.3297083271682970                        85
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   5.4483039717948216        2.7017692843115282       -1.2560100130941261                        87
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.1480189491569559        6.0143712967317899        6.1113194363059193                        90
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.7284755843857713        7.2192153339648684        3.3779386108547547                        93
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.8222329599747367       -1.0573992516155242       -6.5681636886594026                       100
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.15678082689848097       -6.9402959572001324       -6.8082488340465668                       103
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   2.2817527532109541        3.9552843584313315       0.93481120577786037                       106
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -5.6828547137530219       -2.4080645340800442       -6.7604276398730718                       109
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -6.8604104636439329       -4.1021028881908626       -4.9659773467879722                       112
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.1621024824596677       -3.2302424709475694        7.6277834678574772                       115
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.1425581770685840        1.7268596149712463       -4.5513094887915475                       118
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.2510926276638081       -2.7065183733080529        8.0430916390061089                       122
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.93119194978900477       -7.6816151991262167        1.0109258348779573                       125
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord= -0.60750181660492364      -0.40163840101515286       -8.0232633750378550                       128
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord= -0.53507852646188026       0.13381962831500183        10.061428224653627                       131
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   6.7166967334067310E-002  -7.9213668827065273       -2.6909853783701685                       133
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.6937411847741917        5.0725028436081132        2.1169371033591702                       136
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -4.4667328946951885       -3.7182045454020054       -3.6611303479612869                       139
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.4343907125488733      -0.87378742489162109        1.9010014184519313                       142
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -4.0303827651689117       0.38083708282968975       -4.6223190939617123                       147
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.72777171132753860       -2.8063363914342161       -4.1761338237020960                       150
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.2721810294034648        2.3518774384724117        2.2135559871600559                       153
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.7592139173143662        3.2886139075152467       -7.3105564847968543                       156
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord= -0.99061155359275133        1.0543026214235787        7.4845840057793476                       158
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -6.1183992002907450      -0.84158529880007615        2.4788942028255803                       162
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -4.2302984463259721       -7.9771115536049848       -1.7182933717440096                       165
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.99881467621752029        1.6374501745735359        4.0478829106592489                       168
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.9799319142675209        2.8195495051951687       -4.0714254300470083                       171
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -4.5316800918206050       -5.0247557236560274        6.1839920820599952                       175
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.9823092065783334E-002   5.5735501957755451        1.5322649841035314                       178
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.3371298733461128        3.5802753237176548       -7.4806974249295788                       181
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -7.1737194474114139       -6.0028172126429959       -3.0592865556456701                       183
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   6.6241887737667469       0.81886702249860288        1.5289268562014497                       186
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.7934240799150714       0.38016961413950345      -0.48115695485808990                       189
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord= -0.22432745569542828        6.8656303079043894       -4.5363247025380629                       192
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.2102995252261677       -3.1368104973880868      -0.88902981940094439                       197
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.6089608115640119        7.7924337167457720        1.7518579258078946                       200
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.8639921189557667       -5.4987216775993302       -1.9149188323132864                       203
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   2.4383104173743253       -7.8061462243706883       -1.3421743921706584                       206
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.1536248438955508        4.5895731308210603       -4.9592783134885465                       209
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.7804257619384449       -4.8739225361822083       -5.3630121768013721                       212
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.5664611387181764        6.4366455140132963       -1.8229791294665363                       215
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -5.7417950975059053       -5.8328383138398099      -0.62223267768060331                       218
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   6.6703551504670013        3.6951059677785629       -3.5119731364785469                       221
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord= -0.54281446554600543        3.5448428764243012       -3.0462411843065307                       223
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   2.3156274400298757      -0.67922057393722601       -2.1605860093495637                       226
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   6.4184462094285681        4.5826918146511773       0.48346729257326404                       230
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.6075168149074703       -1.3627894119734867       -2.5786627427406450                       234
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.9227393620961153       0.58364316106401348       -7.9226568029110371                       237
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -6.5226913174481229        1.6918840614095796        1.4290578513083803                       240
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -6.7906094746485275       -4.0669094148964389        5.0163783023232211                       244
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   2.8302262507252167       -3.7972317711712456        4.6884002611989724                       247
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -4.6346720431164243       0.11674201343169550       -8.3194891306083285                       250
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.9224291567727017       -3.7285747496189585       -6.6957362468340289                       253
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -6.6666700269959831      -0.28985177952185792       -5.3179266167487667                       256
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.3559018612695670       -5.7131439525754315        2.1591318501605299                       259
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.4365467478858314        4.7808031652193170        2.3375665375517198                       262
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.8305666002947811        2.1709996054730465        6.4730916389772126                       265
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -5.2707281073269332      -0.35331758243704531        5.5802556113503927                       267
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.5840937696261626       -4.2413543516048886       -1.1719301473032833                       270
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -6.6848605485736720E-002   7.8967416007082258       -1.9755591077447834                       273
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.39548971986933035       -4.1386279868925513        3.3817305716878541                       276
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.0278320577691558        1.6154987730301735        2.1500951128479766                       279
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.3871788665155007       -3.5726000455457356        2.6461580055600371                       282
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.38812517080837738        4.4295734620467799        3.9128052249054837                       285
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   6.5638542849298149       0.50801551201692607       -4.1370721009085880                       288
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.3657309472959764       -7.5251773844287282       -5.9412164222127153                       291
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.8315668121617441       -7.0355731105660180        5.3374013663167776                       294
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   2.9643406808338195        3.7396868426000216       -1.7120777665454430                       296
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -4.8117352591605647        6.2079903245754924       0.55025517164326276                       299
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   1.4155660787171171        2.0926703957678923        6.7420391236267205                       302
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -5.3809584973211155        1.2893946846302997        7.7958237695888872                       305
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -6.2568091482934838        6.0496844829459944        3.0028847687387890                       306
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.69026135803529221       -2.5994154951685560       -7.1047039373950378                       309
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.2151315706209220        6.4003345835227226       -4.5145851083086335                       312
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   7.0358860731565276       -3.2832083490897062      -0.89517965920257536                       314
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -8.3324402594649403       -1.0620445336256148       -3.1257185336341036                       317
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -2.9551817212026306       -1.5963962942902254        4.8517473520352574                       320
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -7.6032053995710562        3.5796071325364078        2.9501778880955851                       324
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.21663467502596548       -5.2469323654959767        7.8379282936321921                       326
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord= -0.96481494589650640        5.4655468567267977       -1.0511246060689479                       329
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.2775111292340480       -3.1839689833025084      -0.38675406134975338                       332
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  0.18309692434144381       0.91889182525667479       -3.1734446344026526                       335
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -1.8166528708069127       -7.7442956088738946       0.86380540904068348                       338
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -6.0826909087666756       -3.5782619322875995        2.4166978958558207                       341
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   3.4473956591091430       -4.6348441434373830       -4.5238290514091535                       344
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   6.5853661636409679       -5.5503526987186653       0.57955577119088475                       347
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   4.0959637108686238       -2.1858472026711206        8.1498215384177932                       350
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.9299506127458965       -3.4425538433393892       -8.6633185664786758                       353
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=  -3.6649644332030653        4.9366099361280149       -1.5413277482525114                       356
+ qm coord=   1.2795137281619426      -0.19006673627166260       0.59571036072857519                         5
+ mm coord=   7.2016870571877947       -3.0614925548574212       -3.6294853968492240                       359
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   5.1864765334443925        1.3818847016706393        3.9318074559984884                         1
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.5878510891616409        2.8403310378254534        6.1287848068625399                         4
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -1.9708461299812958       -6.4915204552067491       -1.5498916941336787                         7
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.7128688974256516       -5.0629089969602923        1.1422882020629279                        10
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -1.2479511556404501        7.3287550714074907        5.8528459567330744                        13
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.3068104770175797       0.47214369848999171       -2.6004513009704446E-002                   15
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   5.4246365093212514       -1.2830863638326611        4.4399556480348386                        19
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -4.6959454305121628        2.1171181644720516        4.5044364800839887                        22
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.3095162951748969       -6.3493708397179285        2.7391640176629757                        25
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.4466137921329403       -5.6319890857837382        6.5985306305691003                        28
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -7.7967211214625225       -4.4062235985355374       0.42658969548949405                        31
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.5027099405633666      -0.57411967573597855       -6.0218815868271030                        34
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   8.8068788839084942        1.8860424480366431       0.17454584020834110                        37
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -5.3244209606072861        4.3736655372920437        5.9050159932857795                        39
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -1.0388014267851249        1.7099622270758150       -5.6891023575303743                        42
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   2.3166182630815286        8.6344673783594068      -0.75060386038882410                        45
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -9.0367892691504288       -2.1096114834155038      -0.53091467096086087                        48
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.7920390347965953        5.3166122961502307        4.8620592653816432                        50
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.8312971555123543       -1.6223933100495547       -3.6035341479037575                        53
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -1.5013694534911761       -4.1655519020380805       -7.6427261186884961                        56
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -7.5494842469404944        3.8248335757059801      -0.82537874508731524                        59
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -1.0690466764572939       -1.6290951191416800        6.9242876636915804                        61
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.4063599533272351       -3.0197748621399594        2.5000604176075587                        64
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord= -0.16774755714321959       -6.1314873060004684        5.2676964547707215                        67
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -4.7159315938385049        4.9033670216594594       -4.1656386846429960                        70
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -5.0744864216251973        2.7262472463146117      -0.70293547797998279                        74
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.3466114923408297       0.51557276522200468        8.1057804343169195                        77
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   6.4447288781747494        3.9335875293074083        3.9706406580120293                        80
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   8.8801059453461999      -0.84666995041669113        1.5482654477204914                        83
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -5.0008020512988773        2.6396627738992122       -7.3297083271682970                        85
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   5.4483039717948216        2.7017692843115282       -1.2560100130941261                        87
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.1480189491569559        6.0143712967317899        6.1113194363059193                        90
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.7284755843857713        7.2192153339648684        3.3779386108547547                        93
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.8222329599747367       -1.0573992516155242       -6.5681636886594026                       100
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.15678082689848097       -6.9402959572001324       -6.8082488340465668                       103
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   2.2817527532109541        3.9552843584313315       0.93481120577786037                       106
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -5.6828547137530219       -2.4080645340800442       -6.7604276398730718                       109
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -6.8604104636439329       -4.1021028881908626       -4.9659773467879722                       112
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.1621024824596677       -3.2302424709475694        7.6277834678574772                       115
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.1425581770685840        1.7268596149712463       -4.5513094887915475                       118
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.2510926276638081       -2.7065183733080529        8.0430916390061089                       122
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.93119194978900477       -7.6816151991262167        1.0109258348779573                       125
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord= -0.60750181660492364      -0.40163840101515286       -8.0232633750378550                       128
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord= -0.53507852646188026       0.13381962831500183        10.061428224653627                       131
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   6.7166967334067310E-002  -7.9213668827065273       -2.6909853783701685                       133
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.6937411847741917        5.0725028436081132        2.1169371033591702                       136
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -4.4667328946951885       -3.7182045454020054       -3.6611303479612869                       139
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.4343907125488733      -0.87378742489162109        1.9010014184519313                       142
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -4.0303827651689117       0.38083708282968975       -4.6223190939617123                       147
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.72777171132753860       -2.8063363914342161       -4.1761338237020960                       150
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.2721810294034648        2.3518774384724117        2.2135559871600559                       153
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.7592139173143662        3.2886139075152467       -7.3105564847968543                       156
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord= -0.99061155359275133        1.0543026214235787        7.4845840057793476                       158
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -6.1183992002907450      -0.84158529880007615        2.4788942028255803                       162
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -4.2302984463259721       -7.9771115536049848       -1.7182933717440096                       165
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.99881467621752029        1.6374501745735359        4.0478829106592489                       168
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.9799319142675209        2.8195495051951687       -4.0714254300470083                       171
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -4.5316800918206050       -5.0247557236560274        6.1839920820599952                       175
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.9823092065783334E-002   5.5735501957755451        1.5322649841035314                       178
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.3371298733461128        3.5802753237176548       -7.4806974249295788                       181
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -7.1737194474114139       -6.0028172126429959       -3.0592865556456701                       183
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   6.6241887737667469       0.81886702249860288        1.5289268562014497                       186
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.7934240799150714       0.38016961413950345      -0.48115695485808990                       189
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord= -0.22432745569542828        6.8656303079043894       -4.5363247025380629                       192
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.2102995252261677       -3.1368104973880868      -0.88902981940094439                       197
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.6089608115640119        7.7924337167457720        1.7518579258078946                       200
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.8639921189557667       -5.4987216775993302       -1.9149188323132864                       203
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   2.4383104173743253       -7.8061462243706883       -1.3421743921706584                       206
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.1536248438955508        4.5895731308210603       -4.9592783134885465                       209
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.7804257619384449       -4.8739225361822083       -5.3630121768013721                       212
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.5664611387181764        6.4366455140132963       -1.8229791294665363                       215
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -5.7417950975059053       -5.8328383138398099      -0.62223267768060331                       218
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   6.6703551504670013        3.6951059677785629       -3.5119731364785469                       221
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord= -0.54281446554600543        3.5448428764243012       -3.0462411843065307                       223
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   2.3156274400298757      -0.67922057393722601       -2.1605860093495637                       226
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   6.4184462094285681        4.5826918146511773       0.48346729257326404                       230
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.6075168149074703       -1.3627894119734867       -2.5786627427406450                       234
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.9227393620961153       0.58364316106401348       -7.9226568029110371                       237
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -6.5226913174481229        1.6918840614095796        1.4290578513083803                       240
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -6.7906094746485275       -4.0669094148964389        5.0163783023232211                       244
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   2.8302262507252167       -3.7972317711712456        4.6884002611989724                       247
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -4.6346720431164243       0.11674201343169550       -8.3194891306083285                       250
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.9224291567727017       -3.7285747496189585       -6.6957362468340289                       253
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -6.6666700269959831      -0.28985177952185792       -5.3179266167487667                       256
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.3559018612695670       -5.7131439525754315        2.1591318501605299                       259
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.4365467478858314        4.7808031652193170        2.3375665375517198                       262
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.8305666002947811        2.1709996054730465        6.4730916389772126                       265
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -5.2707281073269332      -0.35331758243704531        5.5802556113503927                       267
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.5840937696261626       -4.2413543516048886       -1.1719301473032833                       270
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -6.6848605485736720E-002   7.8967416007082258       -1.9755591077447834                       273
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.39548971986933035       -4.1386279868925513        3.3817305716878541                       276
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.0278320577691558        1.6154987730301735        2.1500951128479766                       279
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.3871788665155007       -3.5726000455457356        2.6461580055600371                       282
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.38812517080837738        4.4295734620467799        3.9128052249054837                       285
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   6.5638542849298149       0.50801551201692607       -4.1370721009085880                       288
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.3657309472959764       -7.5251773844287282       -5.9412164222127153                       291
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.8315668121617441       -7.0355731105660180        5.3374013663167776                       294
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   2.9643406808338195        3.7396868426000216       -1.7120777665454430                       296
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -4.8117352591605647        6.2079903245754924       0.55025517164326276                       299
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   1.4155660787171171        2.0926703957678923        6.7420391236267205                       302
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -5.3809584973211155        1.2893946846302997        7.7958237695888872                       305
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -6.2568091482934838        6.0496844829459944        3.0028847687387890                       306
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.69026135803529221       -2.5994154951685560       -7.1047039373950378                       309
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.2151315706209220        6.4003345835227226       -4.5145851083086335                       312
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   7.0358860731565276       -3.2832083490897062      -0.89517965920257536                       314
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -8.3324402594649403       -1.0620445336256148       -3.1257185336341036                       317
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -2.9551817212026306       -1.5963962942902254        4.8517473520352574                       320
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -7.6032053995710562        3.5796071325364078        2.9501778880955851                       324
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.21663467502596548       -5.2469323654959767        7.8379282936321921                       326
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord= -0.96481494589650640        5.4655468567267977       -1.0511246060689479                       329
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.2775111292340480       -3.1839689833025084      -0.38675406134975338                       332
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  0.18309692434144381       0.91889182525667479       -3.1734446344026526                       335
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -1.8166528708069127       -7.7442956088738946       0.86380540904068348                       338
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -6.0826909087666756       -3.5782619322875995        2.4166978958558207                       341
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   3.4473956591091430       -4.6348441434373830       -4.5238290514091535                       344
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   6.5853661636409679       -5.5503526987186653       0.57955577119088475                       347
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   4.0959637108686238       -2.1858472026711206        8.1498215384177932                       350
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.9299506127458965       -3.4425538433393892       -8.6633185664786758                       353
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=  -3.6649644332030653        4.9366099361280149       -1.5413277482525114                       356
+ qm coord= -0.34732441079704474       -1.4123083773973439       -2.0903667456722355                         6
+ mm coord=   7.2016870571877947       -3.0614925548574212       -3.6294853968492240                       359
+ vdw energy   1.2386659609838564     
+ test=kca_au 
+ test=ang_au 
+
+
+                         MM/VDW ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1    C    0.190732  -0.176457   0.645499    0.000183  -0.000269  -0.000169
+   2    C   -0.226547  -0.886463   2.281928   -0.001948   0.000772   0.000837
+   3    C   -0.336867   1.538511   0.559385   -0.000258   0.000052   0.000630
+   4    H   -0.277520  -0.741028  -0.160789    0.000118  -0.000162  -0.000008
+   5    H    1.279514  -0.190067   0.595710    0.000094   0.000065  -0.000016
+   6    O   -0.347324  -1.412308  -2.090367    0.025737   0.000554  -0.006462
+   7    H   -1.279514  -1.538511  -2.281928    0.000000   0.000000   0.000000
+
+
+
+                         QM + MM/VDW ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1    C    0.190732  -0.176457   0.645499   -0.007397  -0.000182  -0.000032
+   2    C   -0.226547  -0.886463   2.281928    0.001900   0.012585  -0.021450
+   3    C   -0.336867   1.538511   0.559385    0.004011  -0.022319   0.003527
+   4    H   -0.277520  -0.741028  -0.160789    0.007736   0.014070   0.027495
+   5    H    1.279514  -0.190067   0.595710   -0.005020  -0.000239   0.003056
+   6    O   -0.347324  -1.412308  -2.090367   -0.004814  -0.004085  -0.019111
+   7    H   -1.279514  -1.538511  -2.281928    0.027511   0.001181   0.001327
+
+
+
+ Task  times  cpu:        6.0s     wall:        6.0s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:   85       85     1.06e+05 2740     5516        0        0     1461     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             2.72e+07 2.56e+06 6.88e+06 0.00e+00 0.00e+00 1.17e+04
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 1708512 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        29	        50
+	current total bytes		         0	         0
+	maximum total bytes		  72685576	  32917160
+	maximum total K-bytes		     72686	     32918
+	maximum total M-bytes		        73	        33
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+        S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov,
+    F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+         P.-D. Fan, A. Fonari, R. J. Harrison, M. Dupuis, D. Silverstein,
+    D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+        A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        6.2s     wall:        6.2s

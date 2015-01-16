@@ -1,0 +1,33 @@
+c
+c $Id: qmmm_params.fh 19708 2010-10-29 18:04:21Z d3y133 $
+c
+c     conversion parameters
+c     -------------------
+      double precision cnm2au,cau2ang,cau2nm,cau2kj,cnm2ang
+      double precision ckcal2au,cau2kcal
+      parameter(ckcal2au=0.00159362d00)
+      parameter(cau2kcal=627.503d00)
+      parameter(cnm2au=1.88972598786d+01)
+      parameter(cau2ang = 0.529177249d00)
+      parameter(cau2nm=5.29177249d-02)
+      parameter(cau2kj=2.625499962d+03)
+      parameter(cnm2ang=10.0d00)
+
+c     other parameters
+c     ---------------
+      integer max_nb
+      parameter(max_nb=4)
+
+      integer max_driver_atoms
+      parameter(max_driver_atoms=3000)
+
+c
+c     Boltzman const in kcal/(mol*K)
+c     -----------------------------
+      double precision kb
+      parameter(kb=1.98792d-03)
+c
+c     Boltzman const in au/K
+c     -----------------------------
+      double precision kb_au
+      parameter(kb_au=3.16679d-6)
