@@ -8207,6 +8207,9 @@ c -------------------------
       INTEGER l_c
       INTEGER k_c
       integer p5b_in
+      integer k_aux,k_list,l_aux,l_list
+      integer tot_task
+      integer k,iptr,k_grain
       DOUBLE PRECISION FACTORIAL
 c *** peta ****
 c      logical nodezero         ! True if node 0
@@ -8221,6 +8224,7 @@ c old way      next = NXTASK(nprocs, 1)
 c --- new way ----
       call nxt_ctx_next(ctx, icounter, next)
 c ----------------
+#if 0
       DO p3b = noab+1,noab+nvab
       DO p4b = p3b,noab+nvab
       DO h1b = 1,noab
@@ -8233,17 +8237,43 @@ c ----------------
      &k_sym+h1b-1),int_mb(k_sym+h2b-1)))) .eq. ieor(irrep_v,irrep_t)) TH
      &EN
       IF (next.eq.count) THEN
+#else
+      call icsd_t2_8_ord(.true.,tot_task,
+     I     irrep_v,irrep_t,
+     R     restricted,noab,nvab,
+     K     int_mb(k_spin),int_mb(k_sym),
+     K     int_mb(k_range),
+     A     int_mb(k_aux),int_mb(k_list))
+      if (.not.ma_push_get(mt_int,4*tot_task,"list.task",
+     1  l_list,k_list)) call errquit("k_list",1,MA_ERR)
+      if (.not.ma_push_get(mt_int,5*tot_task,"auxtask",
+     1  l_aux,k_aux)) call errquit("k_aux",2,MA_ERR)
+      call icsd_t2_8_ord(.false.,tot_task,
+     I     irrep_v,irrep_t,
+     R     restricted,noab,nvab,
+     K     int_mb(k_spin),int_mb(k_sym),
+     K     int_mb(k_range),
+     A     int_mb(k_aux),int_mb(k_list))
+
+      if (.not.MA_POP_STACK(l_aux))
+     1     call errquit('ordering',3,MA_ERR)
+      do k=1,tot_task
+c     
+         if (next.eq.count) then
+            iptr=k_list+(k-1)*4
+            p3b=int_mb(iptr)
+            p4b=int_mb(iptr+1)
+            h1b=int_mb(iptr+2)
+            h2b=int_mb(iptr+3)
+      
+#endif
       dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) * int_mb(k_ra
      &nge+h1b-1) * int_mb(k_range+h2b-1)
       IF (.not.MA_PUSH_GET(mt_dbl,dimc,'noname',l_c_sort,k_c_sort)) CALL
      & ERRQUIT('icsd_t2_8',0,MA_ERR)
       CALL DFILL(dimc,0.0d0,dbl_mb(k_c_sort),1)
-#if 0
-      DO p5b = noab+1,noab+nvab
-#else
       DO p5b_in = 1+ga_nodeid(),nvab+ga_nodeid()
          p5b=mod(p5b_in,nvab)+1+noab
-#endif
       DO p6b = p5b,noab+nvab
       IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq. int_mb(k_spin+h
      &1b-1)+int_mb(k_spin+h2b-1)) THEN
@@ -8380,6 +8410,7 @@ c --- new way ----
 c ----------------
       END IF
       count = count + 1
+#if 0
       END IF
       END IF
       END IF
@@ -8387,6 +8418,11 @@ c ----------------
       END DO
       END DO
       END DO
+#else
+      enddo
+      if (.not.MA_POP_STACK(l_list))
+     1     call errquit('ordering',3,MA_ERR)
+#endif
 c old way      next = NXTASK(-nprocs, 1)
 c old way      call GA_SYNC()
  9020 format('  T2 GA',i4,1x,'Cpu  wall ',2(f17.12,1x),1x,4i4,2x,i10)
