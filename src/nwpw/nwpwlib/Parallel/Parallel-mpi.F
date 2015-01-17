@@ -139,67 +139,6 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 *     *************************************
 *     *                                   *
-*     *        Parallel_thread_init       *
-*     *                                   *
-*     *************************************
-      subroutine Parallel_thread_init()
-      implicit none
-#include "Parallel.fh"
-
-#ifdef USE_OPENMP
-      integer  omp_get_thread_num,omp_get_num_threads
-      external omp_get_thread_num,omp_get_num_threads
-#endif
-
-#ifdef USE_OPENMP
-      threadid = omp_get_thread_num()
-      nthreads = omp_get_num_threads()
-#else
-      threadid = 0
-      nthreads = 1
-#endif
-
-      !write(*,*) "---threadid=",threadid
-      return
-      end
-
-      integer function Parallel_threadid()
-      implicit none
-#include "Parallel.fh"
-#ifdef USE_OPENMP
-      integer  omp_get_thread_num
-      external omp_get_thread_num
-#endif
-
-#ifdef USE_OPENMP
-      Parallel_threadid = omp_get_thread_num()
-#else
-      Parallel_threadid = 0
-#endif
-      return
-      end
-
-      integer function Parallel_nthreads()
-      implicit none
-#include "Parallel.fh"
-#ifdef USE_OPENMP
-      integer  omp_get_num_threads
-      external omp_get_num_threads
-#endif
-
-#ifdef USE_OPENMP
-      Parallel_nthreads = omp_get_num_threads()
-#else
-      Parallel_nthreads = 1
-#endif
-
-      return
-      end
-
-
-
-*     *************************************
-*     *                                   *
 *     *        Parallel2d_Init            *
 *     *                                   *
 *     *************************************
