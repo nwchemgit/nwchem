@@ -153,10 +153,10 @@ c
       do ii=nsplits,1,-1
          w_in=wl_min+((wl_max-wl_min)*(ii-1))/nsplits
           call ccsd_sillysort(w_in,
-     R     kaux,klist, tot_task,m)
+     R     kaux,klist, tot_task,m,7)
        enddo
       call ccsd_sillysort(0,
-     R     kaux,klist, tot_task,m)
+     R     kaux,klist, tot_task,m,7)
 c     check that everybody has been invalidated
       do i=1,tot_task
          if(kaux(7,i).ge.0) then
@@ -175,7 +175,7 @@ c     check that everybody has been invalidated
       return
       end
       subroutine ccsd_sillysort(value,
-     R     kaux,klist,n,found   )
+     R     kaux,klist,n,found,highindx )
       implicit none
 c
 c very simple sorting
@@ -183,17 +183,18 @@ c
       integer value
       integer n
       integer found
-      integer kaux(7,*)
-      integer klist(6,*)
+      integer highindx
+      integer kaux(highindx,*)
+      integer klist(highindx-1,*)
 c
       integer i,j,m
 c
       do m=1,n
-         if(kaux(7,m).gt.value) then
+         if(kaux(highindx,m).gt.value) then
 c     invalidate
-            kaux(7,m)=-99
+            kaux(highindx,m)=-99
             found=found+1
-            do j=1,6
+            do j=1,highindx-1
                klist(j,found)=kaux(j,m)
             enddo
          endif

@@ -118,13 +118,11 @@ c      call util_align64(size)
       if (.not.MA_POP_STACK(l_aux))
      1     call errquit('ordering',3,MA_ERR)
       count = 0
-#ifdef DEBUG
-      wall=wall+util_wallsec()
-      if(ga_nodeid().eq.0) write(6,'(a,f15.2,a)')
-     W     ' Wall time for ordering ',wall,' sec'
-#endif
+      k_grain=1
+#if 0
       k_grain=min(5,nint((tot_task/15d0)/nprocs))
       k_grain=max(k_grain,1)
+#endif
       if(ga_nodeid().eq.0) then
          write(6,*) ' nxtask granularity ',k_grain
       endif
@@ -139,7 +137,6 @@ c
          if (next.eq.count) then
             iptr=k_list+(k-1)*6
             t_p4b=int_mb(iptr)
-cdbg            write(6,*) ' k ',k,'t_p4b',t_p4b
             range_p4 = int_mb(k_range+t_p4b-1)
             offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1
             t_p5b=int_mb(iptr+1)
