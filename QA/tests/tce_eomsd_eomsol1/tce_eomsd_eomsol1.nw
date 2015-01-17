@@ -2,6 +2,8 @@ title "tce_eomccsd_eomsol1"
 echo
 start tce_eomccsd_eomsol1
 
+memory stack 800 mb heap 100 mb global 1000 mb
+
 geometry units angstrom
 N            .034130    -.986909     .000000
 N          -1.173397     .981920     .000000
