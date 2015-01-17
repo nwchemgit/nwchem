@@ -123,7 +123,7 @@ c      call util_align64(size)
       if(ga_nodeid().eq.0) write(6,'(a,f15.2,a)')
      W     ' Wall time for ordering ',wall,' sec'
 #endif
-      k_grain=min(5,tot_task/nprocs/5)
+      k_grain=min(5,nint((tot_task/15d0)/nprocs))
       k_grain=max(k_grain,1)
       if(ga_nodeid().eq.0) then
          write(6,*) ' nxtask granularity ',k_grain
@@ -243,8 +243,8 @@ c
                pct_progr=(k*n_progr)/tot_task
                if(i_progr(pct_progr)) then
                   i_progr(pct_progr)=.false.
-                  write(6,'(a,f6.1,a)') '  done ',
-     K                 (k*100d0)/tot_task,'% '
+                  write(6,'(a,i4,a)') '  done ',
+     K                 int((k*100d0)/tot_task),'% '
                   call util_flush(6)
                endif
             endif
