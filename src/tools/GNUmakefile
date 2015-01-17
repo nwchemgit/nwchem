@@ -199,6 +199,12 @@ ifeq ($(ARMCI_NETWORK),DMAPP)
 	@exit 1
    endif
     DMAPP_COMBINED =
+    ifneq ($(CRAY_DMAPP_INCLUDE_OPTS),)
+        DMAPP_COMBINED += $(CRAY_DMAPP_INCLUDE_OPTS)
+    endif
+    ifneq ($(CRAY_DMAPP_POST_LINK_OPTS),)
+        DMAPP_COMBINED += $(CRAY_DMAPP_POST_LINK_OPTS)
+    endif
     ifneq ($(DMAPP_INCLUDE),)
         DMAPP_COMBINED += $(DMAPP_INCLUDE)
     endif
