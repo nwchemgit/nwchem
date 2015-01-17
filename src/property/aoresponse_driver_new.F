@@ -849,11 +849,11 @@ c
 c         diagonalize
           call hnd_diag(alfare2,alphaevr,3,.false.,.false.) ! replaces dgeev call
 
-          alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
+          alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0 ! isotropic part
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
-          alphaani = dsqrt(0.5d0*alphaani)
+          alphaani = dsqrt(alphaani/3.d0)  ! anisotropic part
 
           if (oprint) write(LuOut,9434) "DFT Linear Response",
      1        dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
