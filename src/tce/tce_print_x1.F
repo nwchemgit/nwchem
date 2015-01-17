@@ -30,7 +30,8 @@ c
       data spinnames/'alpha','beta '/
 c
       nodezero = (ga_nodeid().eq.0)
-      if (nodezero) write(LuOut,9000) 'Singles contributions'
+      if (nodezero) then
+         write(LuOut,9000) 'Singles contributions'
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (int_mb(k_spin+p1b-1) .eq. int_mb(k_spin+h2b-1)) then 
@@ -75,6 +76,7 @@ c     3                dbl_mb(k_r1+i-1)
           endif
         enddo
       enddo
+      endif
       call ga_sync()
  9000 format(/,1x,a)
  9010 format(1x,i5,a4,'(',a5,') --- ',i5,a4,'(',a5,')',f20.10)
@@ -111,7 +113,8 @@ c
       data spinnames/'alpha','beta '/
 c
       nodezero = (ga_nodeid().eq.0)
-      if (nodezero) write(LuOut,9000) 'Singles contributions'
+      if (nodezero) then
+         write(LuOut,9000) 'Singles contributions'
       do h2b = 1,noab
         do p1b = noab+1,noab+nvab
           if (int_mb(k_spin+p1b-1) .eq. int_mb(k_spin+h2b-1)) then 
@@ -147,6 +150,7 @@ c
           endif
         enddo
       enddo
+      endif
       call ga_sync()
  9000 format(/,1x,a)
  9010 format(1x,i5,a4,'(',a5,') --- ',i5,a4,'(',a5,')',f20.10)
@@ -197,6 +201,7 @@ c
 c
       nodezero = (ga_nodeid().eq.0)
 c      if (nodezero) write(LuOut,9000) 'Singles contributions'
+      if(nodezero) then
       do g2b = 1,noab+nvab
         do g1b = 1,noab+nvab
           if (int_mb(k_spin+g1b-1) .eq. int_mb(k_spin+g2b-1)) then
@@ -251,6 +256,7 @@ c      if (nodezero) write(LuOut,9000) 'Singles contributions'
           endif
         enddo
       enddo
+      endif
       call ga_sync()
  9000 format(/,1x,a)
  9011 format(1x,i3,a4,'(',a5,') --- ',i3,a4,'(',a5,')',f20.14)

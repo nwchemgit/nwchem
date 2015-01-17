@@ -35,22 +35,12 @@ c
       data spinnames/'alpha','beta '/
 c
       nodezero = (ga_nodeid().eq.0)
-      if (nodezero) write(LuOut,9000) 'Doubles contributions'
-#if 0
+      if (nodezero) then
+      write(LuOut,9000) 'Doubles contributions'
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab
             do h4b = h3b,noab
-#else
-      do p1b_in = 1+ga_nodeid(),nvab+ga_nodeid()
-         p1b=mod(p1b_in,nvab)+1+noab
-        do p2b_in = 1+ga_nodeid(),noab+nvab-p1b+1+ga_nodeid()
-           p2b=mod(p2b_in,noab+nvab-p1b+1)+p1b+1
-c        do p2b = p1b,noab+nvab
-           do h3b_in = 1+ga_nodeid(),noab+ga_nodeid()
-              h3b=mod(h3b_in,noab)+1
-            do h4b = h3b,noab
-#endif
               if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1) 
      1          .eq. int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)) then
               if ((.not.restricted).or.
@@ -114,6 +104,7 @@ c     5            dbl_mb(k_r2+i-1)
           enddo
         enddo
       enddo
+      endif
       call ga_sync()
  9000 format(/,1x,a)
  9010 format(1x,i5,a4,'(',a5,') ',i5,a4,'(',a5,') --- ',
@@ -159,7 +150,8 @@ c
       data spinnames/'alpha','beta '/
 c
       nodezero = (ga_nodeid().eq.0)
-      if (nodezero) write(LuOut,9000) 'Doubles contributions'
+      if (nodezero) then
+         write(LuOut,9000) 'Doubles contributions'
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
           do h3b = 1,noab
@@ -229,6 +221,7 @@ c     5            dbl_mb(k_r2+i-1)
           enddo
         enddo
       enddo
+      endif
       call ga_sync()
  9000 format(/,1x,a)
  9010 format(1x,i5,a4,'(',a5,') ',i5,a4,'(',a5,') --- ',
@@ -271,7 +264,8 @@ c
       data spinnames/'alpha','beta '/
 c
       nodezero = (ga_nodeid().eq.0)
-      if (nodezero) write(LuOut,9000) 'Doubles contributions'
+      if (nodezero) then
+         write(LuOut,9000) 'Doubles contributions'
       do h3b = 1,noab
         do h4b = h3b,noab
           do p1b = noab+1,noab+nvab
@@ -326,6 +320,7 @@ c
           enddo
         enddo
       enddo
+      endif
       call ga_sync()
  9000 format(/,1x,a)
  9010 format(1x,i5,a4,'(',a5,') ',i5,a4,'(',a5,') --- ',
@@ -374,6 +369,7 @@ c
       endif
 c
       nodezero = (ga_nodeid().eq.0)
+      if(nodezero) then
 c      if (nodezero) write(LuOut,9000) 'Doubles contributions'
       do g3b = 1,noab+nvab
         do g4b = g3b,noab+nvab
@@ -456,6 +452,7 @@ c      if (nodezero) write(LuOut,9000) 'Doubles contributions'
           enddo
         enddo
       enddo
+      endif
       call ga_sync()
  9000 format(/,1x,a)
  9011 format(1x,i3,a4,'(',a5,') ',i3,a4,'(',a5,') --- ',
