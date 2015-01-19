@@ -1,0 +1,1860 @@
+refund: UserID = kowalski
+refund: SLURM Job ID = 1252103
+refund: Number of nodes          = 4
+refund: Number of cores per node = 8
+refund: Number of cores          = 32
+refund: Amount of time requested = 1:00
+refund: Directory = /home/kowalski/nwchem_mic/QA/tests/tce_mrcc_bwcc_subgroups
+ 
+Processor list
+ 
+g[0-3]
+ 
+00:  argument  1 = /home/kowalski/nwchem_mic/QA/tests/tce_mrcc_bwcc_subgroups/test_big_ozone_subgroup.nw
+00:  
+00: 
+00: 
+00: ============================== echo of input deck ==============================
+00: start test_big_ozone_subgroup
+00: 
+00: echo
+00: 
+00: memory stack 1300 mb heap 100 mb global 3200 mb noverify
+00: 
+00: geometry units bohr
+00: symmetry c1
+00: O   0.0000000000        0.0000000000        0.0000000000
+00: O   0.0000000000       -2.0473224350       -1.2595211660
+00: O   0.0000000000        2.0473224350       -1.2595211660
+00: end
+00: 
+00: BASIS spherical
+00: #BASIS SET: (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
+00: O    S
+00:   61420.0000000              0.0000900             -0.0000200
+00:    9199.0000000              0.0006980             -0.0001590
+00:    2091.0000000              0.0036640             -0.0008290
+00:     590.9000000              0.0152180             -0.0035080
+00:     192.3000000              0.0524230             -0.0121560
+00:      69.3200000              0.1459210             -0.0362610
+00:      26.9700000              0.3052580             -0.0829920
+00:      11.1000000              0.3985080             -0.1520900
+00:       4.6820000              0.2169800             -0.1153310
+00: O    S
+00:       1.4280000              1.0000000
+00: O    S
+00:       0.5547000              1.0000000
+00: O    S
+00:       0.2067000              1.0000000
+00: O    P
+00:      63.4200000              0.0060440
+00:      14.6600000              0.0417990
+00:       4.4590000              0.1611430
+00: O    P
+00:       1.5310000              1.0000000
+00: O    P
+00:       0.5302000              1.0000000
+00: O    P
+00:       0.1750000              1.0000000
+00: O    D
+00:       3.7750000              1.0000000
+00: O    D
+00:       1.3000000              1.0000000
+00: O    D
+00:       0.4440000              1.0000000
+00: O    F
+00:       2.6660000              1.0000000
+00: O    F
+00:       0.8590000              1.0000000
+00: O    G
+00:       1.8460000              1.0000000
+00: END
+00: 
+00: scf
+00: thresh 1.0e-10
+00: tol2e 1.0e-10
+00: singlet
+00: rhf
+00: end
+00: 
+00: tce
+00:   bwccsd
+00:   targetsym a
+00:   io ga
+00:   diis 0
+00:   thresh 1e-6
+00:   tilesize 20
+00: end
+00: 
+00: ## runs 4 subgroups; each subgroup uses 8 processors
+00: ## test run uses 4 nodes -> 8 cores per node -> total 32 processors
+00: 
+00: mrccdata
+00:   subgroupsize 8
+00:   improvetiling
+00:   root 1
+00:   cas 2 2
+00: end
+00: 
+00: task tce energy
+00: 
+00: ================================================================================
+00: 
+00: 
+00:                                          
+00:                                          
+00:  
+00:  
+00:               Northwest Computational Chemistry Package (NWChem) 6.5
+00:               ------------------------------------------------------
+00:  
+00:  
+00:                     Environmental Molecular Sciences Laboratory
+00:                        Pacific Northwest National Laboratory
+00:                                 Richland, WA 99352
+00:  
+00:                               Copyright (c) 1994-2013
+00:                        Pacific Northwest National Laboratory
+00:                             Battelle Memorial Institute
+00:  
+00:              NWChem is an open-source computational chemistry package
+00:                         distributed under the terms of the
+00:                       Educational Community License (ECL) 2.0
+00:              A copy of the license is included with this distribution
+00:                               in the LICENSE.TXT file
+00:  
+00:                                   ACKNOWLEDGMENT
+00:                                   --------------
+00: 
+00:             This software and its documentation were developed at the
+00:             EMSL at Pacific Northwest National Laboratory, a multiprogram
+00:             national laboratory, operated for the U.S. Department of Energy
+00:             by Battelle under Contract Number DE-AC05-76RL01830. Support
+00:             for this work was provided by the Department of Energy Office
+00:             of Biological and Environmental Research, Office of Basic
+00:             Energy Sciences, and the Office of Advanced Scientific Computing.
+00: 
+00: 
+00:            Job information
+00:            ---------------
+00: 
+00:     hostname        = g0
+00:     program         = /home/kowalski/nwchem_mic/bin/LINUX64/nwchem
+00:     date            = Mon Jan 19 12:31:59 2015
+00: 
+00:     compiled        = Mon_Jan_19_11:29:34_2015
+00:     source          = /home/kowalski/nwchem_mic
+00:     nwchem branch   = Development
+00:     nwchem revision = 26686
+00:     ga revision     = 10514
+00:     input           = /home/kowalski/nwchem_mic/QA/tests/tce_mrcc_bwcc_subgroups/test_big_ozone_subgroup.nw
+00:     prefix          = test_big_ozone_subgroup.
+00:     data base       = ./test_big_ozone_subgroup.db
+00:     status          = startup
+00:     nproc           =       32
+00:     time left       =   3577s
+00: 
+00: 
+00: 
+00:            Memory information
+00:            ------------------
+00: 
+00:     heap     =   13107198 doubles =    100.0 Mbytes
+00:     stack    =  170393595 doubles =   1300.0 Mbytes
+00:     global   =  419430400 doubles =   3200.0 Mbytes (distinct from heap & stack)
+00:     total    =  602931193 doubles =   4600.0 Mbytes
+00:     verify   = no 
+00:     hardfail = no 
+00: 
+00: 
+00:            Directory information
+00:            ---------------------
+00:  
+00:   0 permanent = .
+00:   0 scratch   = .
+00:  
+00:  
+00:  
+00:  
+00:                                 NWChem Input Module
+00:                                 -------------------
+00:  
+00:  
+00:  Turning off AUTOSYM since
+00:  SYMMETRY directive was detected!
+00:  
+00: 
+00:           ------
+00:           auto-z
+00:           ------
+00:  
+00:  
+00:                              Geometry "geometry" -> ""
+00:                              -------------------------
+00:  
+00:  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+00:  
+00:   No.       Tag          Charge          X              Y              Z
+00:  ---- ---------------- ---------- -------------- -------------- --------------
+00:     1 O                    8.0000     0.00000000     0.00000000     0.83968078
+00:     2 O                    8.0000     0.00000000    -2.04732243    -0.41984039
+00:     3 O                    8.0000     0.00000000     2.04732243    -0.41984039
+00:  
+00:       Atomic Mass 
+00:       ----------- 
+00:  
+00:       O                 15.994910
+00:  
+00: 
+00:  Effective nuclear repulsion energy (a.u.)      68.8807220355
+00: 
+00:             Nuclear Dipole moment (a.u.) 
+00:             ----------------------------
+00:         X                 Y               Z
+00:  ---------------- ---------------- ----------------
+00:      0.0000000000     0.0000000000    -0.0000000000
+00:  
+00: 
+00: 
+00:                                 Z-matrix (autoz)
+00:                                 -------- 
+00: 
+00:  Units are Angstrom for bonds and degrees for angles
+00:  
+00:       Type          Name      I     J     K     L     M      Value
+00:       ----------- --------  ----- ----- ----- ----- ----- ----------
+00:     1 Stretch                  1     2                       1.27200
+00:     2 Stretch                  1     3                       1.27200
+00:     3 Bend                     2     1     3               116.80000
+00:  
+00:  
+00:             XYZ format geometry
+00:             -------------------
+00:      3
+00:  geometry
+00:  O                     0.00000000     0.00000000     0.44433996
+00:  O                     0.00000000    -1.08339645    -0.22216998
+00:  O                     0.00000000     1.08339645    -0.22216998
+00:  
+00:  ==============================================================================
+00:                                 internuclear distances
+00:  ------------------------------------------------------------------------------
+00:        center one      |      center two      | atomic units |       a.u.
+00:  ------------------------------------------------------------------------------
+00:     2 O                |   1 O                |     2.40373  |     2.40373
+00:     3 O                |   1 O                |     2.40373  |     2.40373
+00:  ------------------------------------------------------------------------------
+00:                          number of included internuclear distances:          2
+00:  ==============================================================================
+00: 
+00: 
+00: 
+00:  ==============================================================================
+00:                                  internuclear angles
+00:  ------------------------------------------------------------------------------
+00:         center 1       |       center 2       |       center 3       |  degrees
+00:  ------------------------------------------------------------------------------
+00:     2 O                |   1 O                |   3 O                |   116.80
+00:  ------------------------------------------------------------------------------
+00:                             number of included internuclear angles:          1
+00:  ==============================================================================
+00: 
+00: 
+00: 
+00:   library name resolved from: environment
+00:   library file name is: <
+00:  /home/scicons/cascade/apps/nwchem-6.5//src/basis/libraries/>
+00:   
+00:                       Basis "ao basis" -> "" (spherical)
+00:                       -----
+00:   O (Oxygen)
+00:   ----------
+00:             Exponent  Coefficients 
+00:        -------------- ---------------------------------------------------------
+00:   1 S  6.14200000E+04  0.000090
+00:   1 S  9.19900000E+03  0.000698
+00:   1 S  2.09100000E+03  0.003664
+00:   1 S  5.90900000E+02  0.015218
+00:   1 S  1.92300000E+02  0.052423
+00:   1 S  6.93200000E+01  0.145921
+00:   1 S  2.69700000E+01  0.305258
+00:   1 S  1.11000000E+01  0.398508
+00:   1 S  4.68200000E+00  0.216980
+00:  
+00:   2 S  6.14200000E+04 -0.000020
+00:   2 S  9.19900000E+03 -0.000159
+00:   2 S  2.09100000E+03 -0.000829
+00:   2 S  5.90900000E+02 -0.003508
+00:   2 S  1.92300000E+02 -0.012156
+00:   2 S  6.93200000E+01 -0.036261
+00:   2 S  2.69700000E+01 -0.082992
+00:   2 S  1.11000000E+01 -0.152090
+00:   2 S  4.68200000E+00 -0.115331
+00:  
+00:   3 S  1.42800000E+00  1.000000
+00:  
+00:   4 S  5.54700000E-01  1.000000
+00:  
+00:   5 S  2.06700000E-01  1.000000
+00:  
+00:   6 P  6.34200000E+01  0.006044
+00:   6 P  1.46600000E+01  0.041799
+00:   6 P  4.45900000E+00  0.161143
+00:  
+00:   7 P  1.53100000E+00  1.000000
+00:  
+00:   8 P  5.30200000E-01  1.000000
+00:  
+00:   9 P  1.75000000E-01  1.000000
+00:  
+00:  10 D  3.77500000E+00  1.000000
+00:  
+00:  11 D  1.30000000E+00  1.000000
+00:  
+00:  12 D  4.44000000E-01  1.000000
+00:  
+00:  13 F  2.66600000E+00  1.000000
+00:  
+00:  14 F  8.59000000E-01  1.000000
+00:  
+00:  15 G  1.84600000E+00  1.000000
+00:  
+00: 
+00: 
+00:  Summary of "ao basis" -> "" (spherical)
+00:  ------------------------------------------------------------------------------
+00:        Tag                 Description            Shells   Functions and Types
+00:  ---------------- ------------------------------  ------  ---------------------
+00:  O                       user specified             15       55   5s4p3d2f1g
+00: 
+00: 
+00: Entering MRCC input module
+00: 
+00:  roottooverlap                     0
+00:  usesamefock_it F
+00:  ignorecomplex F
+00:  savet F
+00:  se4t F
+00:  no_aposteriori F
+00:  Using fermivacuum by default
+00:  Using rootfromoverlap  F
+00:  standard version of CCSD is used
+00:  All integrlas stored in memory
+00:  BYTES BYTES                     8
+00:                                  NWChem SCF Module
+00:                                  -----------------
+00:  
+00:  
+00: 
+00:   ao basis        = "ao basis"
+00:   functions       =   165
+00:   atoms           =     3
+00:   closed shells   =    12
+00:   open shells     =     0
+00:   charge          =   0.00
+00:   wavefunction    = RHF 
+00:   input vectors   = atomic
+00:   output vectors  = ./test_big_ozone_subgroup.movecs
+00:   use symmetry    = F
+00:   symmetry adapt  = F
+00: 
+00: 
+00:  Summary of "ao basis" -> "ao basis" (spherical)
+00:  ------------------------------------------------------------------------------
+00:        Tag                 Description            Shells   Functions and Types
+00:  ---------------- ------------------------------  ------  ---------------------
+00:  O                       user specified             15       55   5s4p3d2f1g
+00: 
+00: 
+00: 
+00:  Forming initial guess at      18.5s
+00: 
+00:  
+00:       Superposition of Atomic Density Guess
+00:       -------------------------------------
+00:  
+00:  Sum of atomic energies:        -224.35679241
+00:  
+00:       Non-variational initial energy
+00:       ------------------------------
+00: 
+00:  Total energy =    -224.651827
+00:  1-e energy   =    -446.841136
+00:  2-e energy   =     153.308588
+00:  HOMO         =      -0.322693
+00:  LUMO         =      -0.163134
+00:  
+00: 
+00:  Starting SCF solution at      18.7s
+00: 
+00: 
+00: 
+00:  ----------------------------------------------
+00:          Quadratically convergent ROHF
+00: 
+00:  Convergence threshold     :          1.000E-10
+00:  Maximum no. of iterations :           30
+00:  Final Fock-matrix accuracy:          1.000E-10
+00:  ----------------------------------------------
+00: 
+00: 
+00:  Integral file          = ./test_big_ozone_subgroup.aoints.00
+00:  Record size in doubles =  65536        No. of integs per rec  =  43688
+00:  Max. records in memory =     92        Max. records in file   =  57056
+00:  No. of bits per label  =      8        No. of bits per value  =     64
+00: 
+00: 
+00:  #quartets = 5.121D+05 #integrals = 4.164D+07 #direct =  0.0% #cached =100.0%
+00: 
+00: 
+00: File balance: exchanges=    77  moved=    59  time=   0.0
+00: 
+00: 
+00:               iter       energy          gnorm     gmax       time
+00:              ----- ------------------- --------- --------- --------
+00:                  1     -224.1821336627  1.98D+00  6.40D-01      4.7
+00:                  2     -224.3421533519  4.95D-01  1.02D-01      4.9
+00:                  3     -224.3558976135  1.82D-01  4.91D-02      4.9
+00:                  4     -224.3584571742  8.49D-03  4.74D-03      5.1
+00:                  5     -224.3584740835  6.59D-05  2.58D-05      5.2
+00:                  6     -224.3584740842  1.86D-09  4.89D-10      5.5
+00:                  7     -224.3584740842  9.42D-12  4.43D-12      5.7
+00: 
+00: 
+00:        Final RHF  results 
+00:        ------------------ 
+00: 
+00:          Total SCF energy =   -224.358474084187
+00:       One-electron energy =   -445.232956273523
+00:       Two-electron energy =    151.993760153853
+00:  Nuclear repulsion energy =     68.880722035483
+00: 
+00:         Time for solution =      1.5s
+00: 
+00: 
+00:              Final eigenvalues
+00:              -----------------
+00: 
+00:               1      
+00:     1  -20.9187
+00:     2  -20.7058
+00:     3  -20.7057
+00:     4   -1.7514
+00:     5   -1.4313
+00:     6   -1.0928
+00:     7   -0.8327
+00:     8   -0.7997
+00:     9   -0.7822
+00:    10   -0.5633
+00:    11   -0.5522
+00:    12   -0.4871
+00:    13   -0.0432
+00:    14    0.2667
+00:    15    0.3201
+00:    16    0.4488
+00:    17    0.5036
+00:    18    0.5132
+00:    19    0.5218
+00:    20    0.5722
+00:    21    0.5824
+00:    22    0.6083
+00:  
+00:                        ROHF Final Molecular Orbital Analysis
+00:                        -------------------------------------
+00:  
+00:  Vector    3  Occ=2.000000D+00  E=-2.070570D+01
+00:               MO Center= -1.5D-20, -3.2D-11, -2.2D-01, r^2= 1.2D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     56      0.701646  2 O  s                111      0.701646  3 O  s          
+00:  
+00:  Vector    4  Occ=2.000000D+00  E=-1.751391D+00
+00:               MO Center= -3.2D-18, -1.9D-14,  1.5D-01, r^2= 6.8D-01
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:      4      0.427327  1 O  s                  2      0.265571  1 O  s          
+00:      3      0.211852  1 O  s                 59      0.206992  2 O  s          
+00:    114      0.206992  3 O  s          
+00:  
+00:  Vector    5  Occ=2.000000D+00  E=-1.431294D+00
+00:               MO Center= -4.4D-17,  1.5D-15, -2.2D-02, r^2= 1.2D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     59      0.348447  2 O  s                114     -0.348447  3 O  s          
+00:     57      0.219673  2 O  s                112     -0.219673  3 O  s          
+00:     58      0.175224  2 O  s                113     -0.175224  3 O  s          
+00:     13     -0.161195  1 O  py         
+00:  
+00:  Vector    6  Occ=2.000000D+00  E=-1.092764D+00
+00:               MO Center=  2.3D-18, -7.7D-15,  3.9D-02, r^2= 1.6D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:      4      0.380722  1 O  s                 59     -0.323490  2 O  s          
+00:    114     -0.323490  3 O  s                  2      0.219537  1 O  s          
+00:      5      0.205624  1 O  s                 57     -0.193697  2 O  s          
+00:    112     -0.193697  3 O  s                 60     -0.191106  2 O  s          
+00:    115     -0.191106  3 O  s                  3      0.183953  1 O  s          
+00:  
+00:  Vector    7  Occ=2.000000D+00  E=-8.326686D-01
+00:               MO Center=  6.9D-17, -6.6D-14,  2.0D-01, r^2= 1.4D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     14      0.314490  1 O  pz                11      0.251694  1 O  pz         
+00:     68     -0.163464  2 O  py               123      0.163464  3 O  py         
+00:  
+00:  Vector    8  Occ=2.000000D+00  E=-7.997133D-01
+00:               MO Center=  7.9D-17,  6.0D-14, -1.6D-01, r^2= 1.6D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     13      0.255105  1 O  py                10      0.216658  1 O  py         
+00:     59      0.195747  2 O  s                114     -0.195747  3 O  s          
+00:     69     -0.158859  2 O  pz               124      0.158859  3 O  pz         
+00:     60      0.157160  2 O  s                115     -0.157160  3 O  s          
+00:  
+00:  Vector    9  Occ=2.000000D+00  E=-7.821581D-01
+00:               MO Center= -7.7D-17, -2.2D-14,  1.7D-01, r^2= 1.0D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     12      0.330216  1 O  px                 9      0.251929  1 O  px         
+00:     67      0.176523  2 O  px               122      0.176523  3 O  px         
+00:  
+00:  Vector   10  Occ=2.000000D+00  E=-5.632809D-01
+00:               MO Center=  2.1D-16, -6.7D-13, -1.6D-01, r^2= 1.8D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     68      0.233890  2 O  py               123      0.233890  3 O  py         
+00:     69     -0.226559  2 O  pz               124      0.226559  3 O  pz         
+00:     66     -0.179773  2 O  pz               121      0.179773  3 O  pz         
+00:     65      0.177805  2 O  py               120      0.177805  3 O  py         
+00:  
+00:  Vector   11  Occ=2.000000D+00  E=-5.521507D-01
+00:               MO Center=  3.6D-18,  7.1D-13, -1.1D-01, r^2= 1.6D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     69      0.281828  2 O  pz               124      0.281828  3 O  pz         
+00:     66      0.223045  2 O  pz               121      0.223045  3 O  pz         
+00:     14     -0.213751  1 O  pz                72      0.175375  2 O  pz         
+00:    127      0.175375  3 O  pz                11     -0.170470  1 O  pz         
+00:  
+00:  Vector   12  Occ=2.000000D+00  E=-4.871338D-01
+00:               MO Center= -2.9D-16,  2.7D-14, -1.9D-01, r^2= 1.8D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     67      0.307682  2 O  px               122     -0.307682  3 O  px         
+00:     64      0.233632  2 O  px               119     -0.233632  3 O  px         
+00:     70      0.217464  2 O  px               125     -0.217464  3 O  px         
+00:  
+00:  Vector   13  Occ=0.000000D+00  E=-4.319815D-02
+00:               MO Center=  1.2D-19, -5.6D-15,  2.2D-02, r^2= 1.6D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     15      0.354424  1 O  px                12      0.330503  1 O  px         
+00:     70     -0.305904  2 O  px               125     -0.305904  3 O  px         
+00:      9      0.247474  1 O  px                67     -0.243074  2 O  px         
+00:    122     -0.243074  3 O  px                64     -0.192721  2 O  px         
+00:    119     -0.192721  3 O  px         
+00:  
+00:  Vector   14  Occ=0.000000D+00  E= 2.667179D-01
+00:               MO Center= -7.6D-16,  8.6D-13,  7.0D-03, r^2= 3.4D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:      5      3.639332  1 O  s                 60     -1.732890  2 O  s          
+00:    115     -1.732890  3 O  s                 17     -1.407346  1 O  pz         
+00:     71     -1.187691  2 O  py               126      1.187691  3 O  py         
+00:     72     -0.502353  2 O  pz               127     -0.502353  3 O  pz         
+00:     14     -0.435032  1 O  pz                68     -0.418276  2 O  py         
+00:  
+00:  Vector   15  Occ=0.000000D+00  E= 3.201033D-01
+00:               MO Center=  1.2D-15, -8.4D-13, -2.0D-01, r^2= 4.4D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     16      2.737674  1 O  py                60      2.603418  2 O  s          
+00:    115     -2.603418  3 O  s                 71      1.401184  2 O  py         
+00:    126      1.401184  3 O  py                72      1.043324  2 O  pz         
+00:    127     -1.043324  3 O  pz                13      0.909167  1 O  py         
+00:     29     -0.417495  1 O  d -1              68      0.338916  2 O  py         
+00:  
+00:  Vector   16  Occ=0.000000D+00  E= 4.487804D-01
+00:               MO Center=  1.4D-14,  1.5D-13,  9.8D-01, r^2= 2.3D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:      5      3.552915  1 O  s                 60     -2.375553  2 O  s          
+00:    115     -2.375553  3 O  s                 17     -2.095723  1 O  pz         
+00:     71     -0.880176  2 O  py               126      0.880176  3 O  py         
+00:     32     -0.445071  1 O  d  2              72     -0.428419  2 O  pz         
+00:    127     -0.428419  3 O  pz                59      0.422028  2 O  s          
+00:  
+00:  Vector   17  Occ=0.000000D+00  E= 5.036098D-01
+00:               MO Center=  1.2D-14, -1.8D-14,  1.4D-01, r^2= 3.0D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     15      0.751670  1 O  px                12     -0.476878  1 O  px         
+00:     70      0.462409  2 O  px               125      0.462409  3 O  px         
+00:     67     -0.427951  2 O  px               122     -0.427951  3 O  px         
+00:  
+00:  Vector   18  Occ=0.000000D+00  E= 5.131865D-01
+00:               MO Center= -3.9D-15,  3.0D-13,  3.6D-01, r^2= 3.0D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     16      2.258155  1 O  py                60      2.053015  2 O  s          
+00:    115     -2.053015  3 O  s                 71      1.102254  2 O  py         
+00:    126      1.102254  3 O  py                29     -0.702560  1 O  d -1       
+00:     10     -0.337783  1 O  py                13      0.315060  1 O  py         
+00:     84      0.308533  2 O  d -1             139      0.308533  3 O  d -1       
+00:  
+00:  Vector   19  Occ=0.000000D+00  E= 5.217942D-01
+00:               MO Center= -2.7D-14,  3.3D-13, -8.9D-01, r^2= 3.0D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:      5      2.411301  1 O  s                 72     -1.004558  2 O  pz         
+00:    127     -1.004558  3 O  pz                59     -0.687978  2 O  s          
+00:    114     -0.687978  3 O  s                  4     -0.484022  1 O  s          
+00:     71     -0.396455  2 O  py               126      0.396455  3 O  py         
+00:     32     -0.306673  1 O  d  2              30     -0.268837  1 O  d  0       
+00:  
+00:  Vector   20  Occ=0.000000D+00  E= 5.721840D-01
+00:               MO Center= -1.9D-15,  1.0D-12, -4.1D-03, r^2= 4.1D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     71      0.863204  2 O  py               126      0.863204  3 O  py         
+00:     72      0.829598  2 O  pz               127     -0.829598  3 O  pz         
+00:     60      0.618557  2 O  s                115     -0.618557  3 O  s          
+00:     13      0.505879  1 O  py                69     -0.368199  2 O  pz         
+00:    124      0.368199  3 O  pz                16     -0.331768  1 O  py         
+00:  
+00:  Vector   21  Occ=0.000000D+00  E= 5.824231D-01
+00:               MO Center= -1.2D-15, -1.9D-12, -3.0D-01, r^2= 4.2D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:      5      3.580077  1 O  s                 71     -1.452063  2 O  py         
+00:    126      1.452063  3 O  py                60     -1.344080  2 O  s          
+00:    115     -1.344080  3 O  s                 17     -0.826646  1 O  pz         
+00:     14     -0.399056  1 O  pz                 4     -0.373400  1 O  s          
+00:     69     -0.316321  2 O  pz               124     -0.316321  3 O  pz         
+00:  
+00:  Vector   22  Occ=0.000000D+00  E= 6.082619D-01
+00:               MO Center=  4.6D-15,  2.2D-13, -2.3D-01, r^2= 4.2D+00
+00:    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+00:   ----- ------------  ---------------      ----- ------------  ---------------
+00:     70      1.102669  2 O  px               125     -1.102669  3 O  px         
+00:     67     -0.532709  2 O  px               122      0.532709  3 O  px         
+00:     28      0.215573  1 O  d -2       
+00:  
+00: 
+00:  center of mass
+00:  --------------
+00:  x =   0.00000000 y =   0.00000000 z =  -0.00000000
+00: 
+00:  moments of inertia (a.u.)
+00:  ------------------
+00:          151.002411350144           0.000000000000           0.000000000000
+00:            0.000000000000          16.916148225582           0.000000000000
+00:            0.000000000000           0.000000000000         134.086263124562
+00:  
+00:   Mulliken analysis of the total density
+00:   --------------------------------------
+00: 
+00:     Atom       Charge   Shell Charges
+00:  -----------   ------   -------------------------------------------------------
+00:     1 O    8     7.68   1.99 -0.03  0.43  1.05  0.31  0.42  1.26  1.74  0.35  0.00  0.03  0.11  0.00  0.02  0.00
+00:     2 O    8     8.16   1.98 -0.03  0.43  1.05  0.46  0.43  1.28  1.82  0.67  0.00  0.02  0.03  0.00  0.01  0.00
+00:     3 O    8     8.16   1.98 -0.03  0.43  1.05  0.46  0.43  1.28  1.82  0.67  0.00  0.02  0.03  0.00  0.01  0.00
+00:  
+00:        Multipole analysis of the density wrt the origin
+00:        ------------------------------------------------
+00:  
+00:      L   x y z        total         open         nuclear
+00:      -   - - -        -----         ----         -------
+00:      0   0 0 0     -0.000000      0.000000     24.000000
+00:  
+00:      1   1 0 0      0.000000      0.000000      0.000000
+00:      1   0 1 0     -0.000000      0.000000      0.000000
+00:      1   0 0 1      0.317413      0.000000     -0.000000
+00:  
+00:      2   2 0 0    -10.960174      0.000000      0.000000
+00:      2   1 1 0      0.000000      0.000000      0.000000
+00:      2   1 0 1     -0.000000      0.000000      0.000000
+00:      2   0 2 0    -12.851691      0.000000     67.064466
+00:      2   0 1 1      0.000000      0.000000      0.000000
+00:      2   0 0 2    -11.637023      0.000000      8.460766
+00:  
+00: 
+00:  Parallel integral file used     971 records with       0 large values
+00: 
+00: WARNING!!!!!!!! ROHF FOR MRCC CODE. OCC HAS BEEN CHANGED.
+00: Occupation nocc(1)         12 nocc(2)         12 mult          1 nopen          0
+00:                    NWChem Extensible Many-Electron Theory Module
+00:                    ---------------------------------------------
+00:  
+00:               ======================================================
+00:                    This portion of the program was automatically
+00:                   generated by a Tensor Contraction Engine (TCE).
+00:                   The development of this portion of the program
+00:                  and TCE was supported by US Department of Energy,
+00:                 Office of Science, Office of Basic Energy Science.
+00:                       TCE is a product of Battelle and PNNL.
+00:               Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+00:               ======================================================
+00:  
+00:             General Information
+00:             -------------------
+00:       Number of processors :    32
+00:          Wavefunction type : Restricted open-shell Hartree-Fock
+00:           No. of electrons :    24
+00:            Alpha electrons :    12
+00:             Beta electrons :    12
+00:            No. of orbitals :   330
+00:             Alpha orbitals :   165
+00:              Beta orbitals :   165
+00:         Alpha frozen cores :     0
+00:          Beta frozen cores :     0
+00:      Alpha frozen virtuals :     0
+00:       Beta frozen virtuals :     0
+00:          Spin multiplicity : singlet 
+00:     Number of AO functions :   165
+00:        Number of AO shells :    45
+00:         Use of symmetry is : off
+00:       Symmetry adaption is : off
+00:          Schwarz screening : 0.10D-09
+00:  
+00:           Correlation Information
+00:           -----------------------
+00:           Calculation type : State Specific Multireference Brillouin-Wigner CCSD theory  
+00:    Perturbative correction : none                                                        
+00:             Max iterations :      100
+00:         Residual threshold : 0.10D-05
+00:      T(0) DIIS level shift : 0.00D+00
+00:      L(0) DIIS level shift : 0.00D+00
+00:      T(1) DIIS level shift : 0.00D+00
+00:      L(1) DIIS level shift : 0.00D+00
+00:      T(R) DIIS level shift : 0.00D+00
+00:      T(I) DIIS level shift : 0.00D+00
+00:           Amplitude update : Jacobi
+00:                 I/O scheme : Global Array Library
+00: 
+00: Active elec :   2
+00: Active orbs :   2
+00: 
+00: 
+00: Alpha 10
+00: Beta  10
+00:  2222222222220                      1
+00:  22222222222ab                      2
+00:  22222222222ba                      3
+00:  2222222222202                      4
+00: 
+00: Total no. of references:    4
+00: 
+00: 
+00: MRCC module - reference analysis
+00: 
+00: Fermi vacuum according to SCF wave function  has been requested.
+00: 
+00: MRCC module finished
+00: 
+00: 
+00:  Global array virtual files algorithm will be used
+00: 
+00:  Parallel file system coherency ......... OK
+00:  
+00:             Memory Information
+00:             ------------------
+00:           Available GA space size is    ********** doubles
+00:           Available MA space size is     183484580 doubles
+00:  
+00: Maximum block size   20 supplied by input
+00: Maximum block size doubles
+00: 
+00: nbf,nmo(1):   165   165
+00: 
+00: 
+00: Blocks for reference    1
+00: 
+00:  Block   Spin    Irrep     Size     Offset   Alpha   Active
+00:  -----------------------------------------------------------
+00:    1    alpha     a     12 doubles       0       1       T
+00:    2    beta      a     12 doubles      12       2       T
+00:    3    alpha     a     19 doubles      24       3       T
+00:    4    alpha     a     19 doubles      43       4       T
+00:    5    alpha     a     19 doubles      62       5       T
+00:    6    alpha     a     19 doubles      81       6       T
+00:    7    alpha     a     19 doubles     100       7       T
+00:    8    alpha     a     19 doubles     119       8       T
+00:    9    alpha     a     19 doubles     138       9       T
+00:   10    alpha     a     20 doubles     157      10       T
+00:   11    beta      a     19 doubles     177      11       T
+00:   12    beta      a     19 doubles     196      12       T
+00:   13    beta      a     19 doubles     215      13       T
+00:   14    beta      a     19 doubles     234      14       T
+00:   15    beta      a     19 doubles     253      15       T
+00:   16    beta      a     19 doubles     272      16       T
+00:   17    beta      a     19 doubles     291      17       T
+00:   18    beta      a     20 doubles     310      18       T
+00: 
+00: Blocks for reference    2
+00: 
+00:  Block   Spin    Irrep     Size     Offset   Alpha   Active
+00:  -----------------------------------------------------------
+00:    1    alpha     a     12 doubles       0       1       T
+00:    2    beta      a     12 doubles      12       2       T
+00:    3    alpha     a     19 doubles      24       3       T
+00:    4    alpha     a     19 doubles      43       4       T
+00:    5    alpha     a     19 doubles      62       5       T
+00:    6    alpha     a     19 doubles      81       6       T
+00:    7    alpha     a     19 doubles     100       7       T
+00:    8    alpha     a     19 doubles     119       8       T
+00:    9    alpha     a     19 doubles     138       9       T
+00:   10    alpha     a     20 doubles     157      10       T
+00:   11    beta      a     19 doubles     177      11       T
+00:   12    beta      a     19 doubles     196      12       T
+00:   13    beta      a     19 doubles     215      13       T
+00:   14    beta      a     19 doubles     234      14       T
+00:   15    beta      a     19 doubles     253      15       T
+00:   16    beta      a     19 doubles     272      16       T
+00:   17    beta      a     19 doubles     291      17       T
+00:   18    beta      a     20 doubles     310      18       T
+00: 
+00: Blocks for reference    3
+00: 
+00:  Block   Spin    Irrep     Size     Offset   Alpha   Active
+00:  -----------------------------------------------------------
+00:    1    alpha     a     12 doubles       0       1       T
+00:    2    beta      a     12 doubles      12       2       T
+00:    3    alpha     a     19 doubles      24       3       T
+00:    4    alpha     a     19 doubles      43       4       T
+00:    5    alpha     a     19 doubles      62       5       T
+00:    6    alpha     a     19 doubles      81       6       T
+00:    7    alpha     a     19 doubles     100       7       T
+00:    8    alpha     a     19 doubles     119       8       T
+00:    9    alpha     a     19 doubles     138       9       T
+00:   10    alpha     a     20 doubles     157      10       T
+00:   11    beta      a     19 doubles     177      11       T
+00:   12    beta      a     19 doubles     196      12       T
+00:   13    beta      a     19 doubles     215      13       T
+00:   14    beta      a     19 doubles     234      14       T
+00:   15    beta      a     19 doubles     253      15       T
+00:   16    beta      a     19 doubles     272      16       T
+00:   17    beta      a     19 doubles     291      17       T
+00:   18    beta      a     20 doubles     310      18       T
+00: 
+00: Blocks for reference    4
+00: 
+00:  Block   Spin    Irrep     Size     Offset   Alpha   Active
+00:  -----------------------------------------------------------
+00:    1    alpha     a     12 doubles       0       1       T
+00:    2    beta      a     12 doubles      12       2       T
+00:    3    alpha     a     19 doubles      24       3       T
+00:    4    alpha     a     19 doubles      43       4       T
+00:    5    alpha     a     19 doubles      62       5       T
+00:    6    alpha     a     19 doubles      81       6       T
+00:    7    alpha     a     19 doubles     100       7       T
+00:    8    alpha     a     19 doubles     119       8       T
+00:    9    alpha     a     19 doubles     138       9       T
+00:   10    alpha     a     20 doubles     157      10       T
+00:   11    beta      a     19 doubles     177      11       T
+00:   12    beta      a     19 doubles     196      12       T
+00:   13    beta      a     19 doubles     215      13       T
+00:   14    beta      a     19 doubles     234      14       T
+00:   15    beta      a     19 doubles     253      15       T
+00:   16    beta      a     19 doubles     272      16       T
+00:   17    beta      a     19 doubles     291      17       T
+00:   18    beta      a     20 doubles     310      18       T
+00: 
+00: MRCC tiling completed in             0.0            0.0
+00: 
+00:  Integral file          = ./test_big_ozone_subgroup.aoints.00
+00:  Record size in doubles =  65536        No. of integs per rec  =  43688
+00:  Max. records in memory =     92        Max. records in file   =  57056
+00:  No. of bits per label  =      8        No. of bits per value  =     64
+00: 
+00: 
+00:  #quartets = 5.074D+05 #integrals = 4.122D+07 #direct =  0.0% #cached =100.0%
+00: 
+00: 
+00: File balance: exchanges=    78  moved=    55  time=   0.0
+00: 
+00: tce_ao1e_fock2e        0.50692        0.51677
+00: F:     1 in bytes =               435600
+00: tce_mo1e        0.01200        0.00909
+00: eone,etwo,enrep,energy   -445.232956273523    151.993760154053     68.880722035483   -224.358474083987
+00: mrcc_uhf_energy        0.03099        0.03208
+00: 
+00:  Parallel integral file used     959 records with       0 large values
+00: 
+00: 
+00:  Integral file          = ./test_big_ozone_subgroup.aoints.00
+00:  Record size in doubles =  65536        No. of integs per rec  =  43688
+00:  Max. records in memory =     92        Max. records in file   =  57056
+00:  No. of bits per label  =      8        No. of bits per value  =     64
+00: 
+00: 
+00:  #quartets = 5.074D+05 #integrals = 4.122D+07 #direct =  0.0% #cached =100.0%
+00: 
+00: 
+00: File balance: exchanges=    64  moved=    60  time=   0.0
+00: 
+00: tce_ao1e_fock2e        0.50292        0.51406
+00: F:     2 in bytes =               435600
+00: tce_mo1e        0.01400        0.00917
+00: eone,etwo,enrep,energy   -445.452410299604    152.366300822194     68.880722035483   -224.205387441927
+00: mrcc_uhf_energy        0.03199        0.03246
+00: 
+00:  Parallel integral file used     963 records with       0 large values
+00: 
+00: 
+00:  Integral file          = ./test_big_ozone_subgroup.aoints.00
+00:  Record size in doubles =  65536        No. of integs per rec  =  43688
+00:  Max. records in memory =     92        Max. records in file   =  57056
+00:  No. of bits per label  =      8        No. of bits per value  =     64
+00: 
+00: 
+00:  #quartets = 5.074D+05 #integrals = 4.122D+07 #direct =  0.0% #cached =100.0%
+00: 
+00: 
+00: File balance: exchanges=    79  moved=    58  time=   0.0
+00: 
+00: tce_ao1e_fock2e        0.51592        0.52439
+00: F:     3 in bytes =               435600
+00: tce_mo1e        0.01300        0.00931
+00: eone,etwo,enrep,energy   -445.452410299604    152.366300822194     68.880722035483   -224.205387441927
+00: mrcc_uhf_energy        0.03200        0.03301
+00: 
+00:  Parallel integral file used     959 records with       0 large values
+00: 
+00: 
+00:  Integral file          = ./test_big_ozone_subgroup.aoints.00
+00:  Record size in doubles =  65536        No. of integs per rec  =  43688
+00:  Max. records in memory =     92        Max. records in file   =  57056
+00:  No. of bits per label  =      8        No. of bits per value  =     64
+00: 
+00: 
+00:  #quartets = 5.074D+05 #integrals = 4.122D+07 #direct =  0.0% #cached =100.0%
+00: 
+00: 
+00: File balance: exchanges=    48  moved=    61  time=   0.0
+00: 
+00: tce_ao1e_fock2e        0.50892        0.51931
+00: F:     4 in bytes =               435600
+00: tce_mo1e        0.01100        0.00919
+00: eone,etwo,enrep,energy   -445.671864325686    152.832448996620     68.880722035483   -223.958693293582
+00: mrcc_uhf_energy        0.03200        0.03270
+00: 
+00:  Parallel integral file used     956 records with       0 large values
+00: 
+00: 
+00: Subgroups will be used
+00: ======================
+00: 
+00: Total Number of cores:       32
+00: 
+00: Nodes per ref:        8
+00: Free nodes left:        0
+00: Total number of non-overlapping groups:        4
+00: 
+00: 
+00: Processor distribution
+00: ======================
+00: 
+00: Subgroup no.      1 size:      8
+00: Subgroup no.      2 size:      8
+00: Subgroup no.      3 size:      8
+00: Subgroup no.      4 size:      8
+00: 
+00: Reference static distribution
+00: =============================
+00: 
+00: Reference no.      1 will run on:      1
+00: Reference no.      2 will run on:      2
+00: Reference no.      3 will run on:      3
+00: Reference no.      4 will run on:      4
+00:   
+00: 2-e(intermediate) ./test_big_ozone_sub in bytes=        12528073800
+16: 2-e(intermediate) ./test_big_ozone_sub in bytes=        12528073800
+08: 2-e(intermediate) ./test_big_ozone_sub in bytes=        12528073800
+24: 2-e(intermediate) ./test_big_ozone_sub in bytes=        12528073800
+16: Ref.   3 Half 2-e          36.35          36.38
+24: Ref.   4 Half 2-e          36.35          36.38
+16: V 2-e ./test_big_ozone_sub in bytes=         9600995464
+24: V 2-e ./test_big_ozone_sub in bytes=         9600995464
+08: Ref.   2 Half 2-e          36.41          36.44
+08: V 2-e ./test_big_ozone_sub in bytes=         9600995464
+00: Ref.   1 Half 2-e          36.74          36.75
+00: V 2-e ./test_big_ozone_sub in bytes=         9600995464
+08: Ref.   2 2-e transform. completed
+08: T2:     2 in bytes =             57306240
+08: T1:     2 in bytes =                29376
+16: Ref.   3 2-e transform. completed
+16: T2:     3 in bytes =             57306240
+16: T1:     3 in bytes =                29376
+24: Ref.   4 2-e transform. completed
+24: T2:     4 in bytes =             57306240
+24: T1:     4 in bytes =                29376
+00: Ref.   1 2-e transform. completed
+00: 
+00: Integral replication completed.
+00: Proceeding the allocation of the memory for intermediates.
+00: 
+00: T2:     1 in bytes =             57306240
+00: T1:     1 in bytes =                29376
+00: Done.
+00: 
+00: 
+00: Symmetry of references
+00: 
+00: Ref.   1 sym:a   
+00: Ref.   2 sym:a   
+00: Ref.   3 sym:a   
+00: Ref.   4 sym:a   
+00: MR BWCCSD, version 1.0
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -293.23919612    0.00000000    0.00000000    0.15390908
+00:     0    2    0.00000000 -293.08610948    0.15390908   -0.00000000
+00:     0    3    0.00000000    0.15390908 -293.08610948   -0.00000000
+00:     0    4    0.15390908   -0.00000000   -0.00000000 -292.83941533
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -293.291583697210    0.00000000
+00:  -292.787027751325    0.00000000
+00:  -292.932200395359    0.00000000
+00:  -293.240018559461    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.94666305    0.32222519    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.32222519    0.94666305   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.94666305    0.32222519   -0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.32222519    0.94666305   -0.00000000   -0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   1      -293.2915836972099      -224.4108616617269      -293.2915836972099
+00:  Residues and T update / sec            5.4            5.6
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.12214875    0.00000000    0.00000000    0.08618586
+00:     0    2    0.00000000 -293.97126431    0.08947013   -0.00000000
+00:     0    3    0.00000000    0.08947013 -293.97126431   -0.00000000
+00:     0    4    0.08862933   -0.00000000   -0.00000000 -293.75030628
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.141666802431    0.00000000
+00:  -293.730788227757    0.00000000
+00:  -293.881794182691    0.00000000
+00:  -294.060734444289    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.97659913    0.22087164    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.21506778    0.97530289   -0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.97530289    0.21506778    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.22087164    0.97659913   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   2      -294.1416668024307      -225.2609447669477        -0.8500831052208
+00:  Residues and T update / sec            5.3            5.4
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.06399419    0.00000000    0.00000000    0.11538027
+00:     0    2    0.00000000 -293.91998569    0.09970487   -0.00000000
+00:     0    3    0.00000000    0.09970487 -293.91998569   -0.00000000
+00:     0    4    0.10802969   -0.00000000   -0.00000000 -293.70911453
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.096195449144    0.00000000
+00:  -293.676913269048    0.00000000
+00:  -293.820280816417    0.00000000
+00:  -294.019690558335    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95833177    0.26881537    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28565752    0.96319172   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96319172    0.28565752    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.26881537    0.95833177   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   3      -294.0961954491435      -225.2154734136606         0.0454713532872
+00:  Residues and T update / sec            5.2            5.3
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.10245963    0.00000000    0.00000000    0.11143154
+00:     0    2    0.00000000 -293.95747978    0.09122627   -0.00000000
+00:     0    3    0.00000000    0.09122627 -293.95747978   -0.00000000
+00:     0    4    0.10000011   -0.00000000   -0.00000000 -293.74454624
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.131273640311    0.00000000
+00:  -293.715732228168    0.00000000
+00:  -293.866253516710    0.00000000
+00:  -294.048706048130    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.96090589    0.25034623    0.00000000    0.00000000
+00:     2    0.00000000   -0.00000000   -0.70710678   -0.70710678
+00:     3   -0.00000000   -0.00000000   -0.70710678    0.70710678
+00:     4    0.27687518    0.96815638    0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96815638    0.27687518   -0.00000000   -0.00000000
+00: VR    2    0.00000000    0.00000000   -0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000   -0.70710678    0.70710678
+00: VR    4    0.25034623    0.96090589   -0.00000000   -0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   4      -294.1312736403113      -225.2505516048283        -0.0350781911678
+00:  Residues and T update / sec            5.2            5.3
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09285701    0.00000000    0.00000000    0.11482374
+00:     0    2    0.00000000 -293.94897393    0.09375188   -0.00000000
+00:     0    3    0.00000000    0.09375188 -293.94897393   -0.00000000
+00:     0    4    0.10445985   -0.00000000   -0.00000000 -293.73654493
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.123827831699    0.00000000
+00:  -293.705574103453    0.00000000
+00:  -294.042725805003    0.00000000
+00:  -293.855222049169    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95874871    0.26041830    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000   -0.70710678    0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28425502    0.96549589    0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96549589    0.28425502    0.00000000   -0.00000000
+00: VR    2    0.00000000    0.00000000   -0.70710678    0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.26041830    0.95874871    0.00000000   -0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   5      -294.1238278316988      -225.2431057962158         0.0074458086125
+00:  Residues and T update / sec            5.2            5.3
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09878967    0.00000000    0.00000000    0.11393040
+00:     0    2    0.00000000 -293.95440747    0.09182654   -0.00000000
+00:     0    3    0.00000000    0.09182654 -293.95440747   -0.00000000
+00:     0    4    0.10263273   -0.00000000   -0.00000000 -293.74324785
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.129094430716    0.00000000
+00:  -293.712943088758    0.00000000
+00:  -294.046234009503    0.00000000
+00:  -293.862580930726    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95906479    0.25705535    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000   -0.70710678    0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28318674    0.96639668    0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96639668    0.28318674    0.00000000   -0.00000000
+00: VR    2    0.00000000    0.00000000   -0.70710678    0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25705535    0.95906479    0.00000000   -0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   6      -294.1290944307164      -225.2483723952334        -0.0052665990176
+00:  Residues and T update / sec            5.2            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09681887    0.00000000    0.00000000    0.11478309
+00:     0    2    0.00000000 -293.95270384    0.09239325   -0.00000000
+00:     0    3    0.00000000    0.09239325 -293.95270384   -0.00000000
+00:     0    4    0.10395672   -0.00000000   -0.00000000 -293.74071976
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.127657124292    0.00000000
+00:  -293.709881507234    0.00000000
+00:  -294.045097092550    0.00000000
+00:  -293.860310596858    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95870697    0.25946442    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000   -0.70710678    0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28439577    0.96575267    0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96575267    0.28439577    0.00000000   -0.00000000
+00: VR    2    0.00000000    0.00000000   -0.70710678    0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25946442    0.95870697    0.00000000   -0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   7      -294.1276571242918      -225.2469350888088         0.0014373064246
+00:  Residues and T update / sec            5.2            5.3
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09829842    0.00000000    0.00000000    0.11448015
+00:     0    2    0.00000000 -293.95388555    0.09189322   -0.00000000
+00:     0    3    0.00000000    0.09189322 -293.95388555   -0.00000000
+00:     0    4    0.10340088   -0.00000000   -0.00000000 -293.74252699
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128932906462    0.00000000
+00:  -293.711892498824    0.00000000
+00:  -293.861992323819    0.00000000
+00:  -294.045778773233    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95880520    0.25850116    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28406440    0.96601095   -0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96601095    0.28406440    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25850116    0.95880520   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   8      -294.1289329064621      -225.2482108709791        -0.0012757821703
+00:  Residues and T update / sec            5.2            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09772599    0.00000000    0.00000000    0.11472374
+00:     0    2    0.00000000 -293.95342732    0.09203290   -0.00000000
+00:     0    3    0.00000000    0.09203290 -293.95342732   -0.00000000
+00:     0    4    0.10385387   -0.00000000   -0.00000000 -293.74167786
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128524992223    0.00000000
+00:  -293.710878865271    0.00000000
+00:  -293.861394423973    0.00000000
+00:  -294.045460214505    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95872898    0.25928137    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28432155    0.96580183   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96580183    0.28432155    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25928137    0.95872898   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #   9      -294.1285249922233      -225.2478029567404         0.0004079142387
+00:  Residues and T update / sec            5.2            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09821129    0.00000000    0.00000000    0.11461901
+00:     0    2    0.00000000 -293.95374791    0.09188997   -0.00000000
+00:     0    3    0.00000000    0.09188997 -293.95374791   -0.00000000
+00:     0    4    0.10366070   -0.00000000   -0.00000000 -293.74221714
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128935193838    0.00000000
+00:  -293.711493243997    0.00000000
+00:  -293.861857934845    0.00000000
+00:  -294.045637875485    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95877388    0.25891205    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28417012    0.96590090   -0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96590090    0.28417012    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25891205    0.95877388   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  10      -294.1289351938377      -225.2482131583547        -0.0004102016143
+00:  Residues and T update / sec            5.2            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09801163    0.00000000    0.00000000    0.11469236
+00:     0    2    0.00000000 -293.95360204    0.09192882   -0.00000000
+00:     0    3    0.00000000    0.09192882 -293.95360204   -0.00000000
+00:     0    4    0.10382643   -0.00000000   -0.00000000 -293.74192628
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128792549219    0.00000000
+00:  -293.711145364177    0.00000000
+00:  -293.861673221791    0.00000000
+00:  -294.045530866488    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95875401    0.25920552    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28423713    0.96582219   -0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96582219    0.28423713    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25920552    0.95875401   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  11      -294.1287925492188      -225.2480705137359         0.0001426446188
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09819050    0.00000000    0.00000000    0.11465650
+00:     0    2    0.00000000 -293.95369915    0.09188525   -0.00000000
+00:     0    3    0.00000000    0.09188525 -293.95369915   -0.00000000
+00:     0    4    0.10375545   -0.00000000   -0.00000000 -293.74209569
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128942318022    0.00000000
+00:  -293.711343876251    0.00000000
+00:  -293.861813897302    0.00000000
+00:  -294.045584395840    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95877429    0.25905247    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28416871    0.96586325   -0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96586325    0.28416871    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25905247    0.95877429   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  12      -294.1289423180222      -225.2482202825393        -0.0001497688034
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09811624    0.00000000    0.00000000    0.11467942
+00:     0    2    0.00000000 -293.95364880    0.09189728   -0.00000000
+00:     0    3    0.00000000    0.09189728 -293.95364880   -0.00000000
+00:     0    4    0.10381807   -0.00000000   -0.00000000 -293.74199401
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128888929257    0.00000000
+00:  -293.711221321277    0.00000000
+00:  -294.045546079478    0.00000000
+00:  -293.861751522138    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95876848    0.25916815    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000   -0.70710678    0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28418831    0.96583222    0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96583222    0.28418831    0.00000000   -0.00000000
+00: VR    2    0.00000000    0.00000000   -0.70710678    0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25916815    0.95876848    0.00000000   -0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  13      -294.1288889292567      -225.2481668937738         0.0000533887655
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09818511    0.00000000    0.00000000    0.11466716
+00:     0    2    0.00000000 -293.95367986    0.09188344   -0.00000000
+00:     0    3    0.00000000    0.09188344 -293.95367986   -0.00000000
+00:     0    4    0.10379136   -0.00000000   -0.00000000 -293.74204912
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128946404328    0.00000000
+00:  -293.711287828151    0.00000000
+00:  -293.861796416786    0.00000000
+00:  -294.045563294464    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95877723    0.25910446    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28415879    0.96584931   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96584931    0.28415879    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25910446    0.95877723   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  14      -294.1289464043278      -225.2482243688449        -0.0000574750711
+00:  Residues and T update / sec            5.2            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09815702    0.00000000    0.00000000    0.11467455
+00:     0    2    0.00000000 -293.95366172    0.09188748   -0.00000000
+00:     0    3    0.00000000    0.09188748 -293.95366172   -0.00000000
+00:     0    4    0.10381543   -0.00000000   -0.00000000 -293.74201286
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128926155706    0.00000000
+00:  -293.711243721443    0.00000000
+00:  -293.861774241473    0.00000000
+00:  -294.045549195963    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95877545    0.25915050    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28416481    0.96583695   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96583695    0.28416481    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25915050    0.95877545   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  15      -294.1289261557055      -225.2482041202226         0.0000202486223
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09818400    0.00000000    0.00000000    0.11467034
+00:     0    2    0.00000000 -293.95367194    0.09188296   -0.00000000
+00:     0    3    0.00000000    0.09188296 -293.95367194   -0.00000000
+00:     0    4    0.10380527   -0.00000000   -0.00000000 -293.74203124
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128948662515    0.00000000
+00:  -293.711266577007    0.00000000
+00:  -293.861788973173    0.00000000
+00:  -294.045554901808    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95877912    0.25912427    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28415243    0.96584399   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96584399    0.28415243    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25912427    0.95877912   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  16      -294.1289486625149      -225.2482266270319        -0.0000225068093
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09817336    0.00000000    0.00000000    0.11467278
+00:     0    2    0.00000000 -293.95366522    0.09188440   -0.00000000
+00:     0    3    0.00000000    0.09188440 -293.95366522   -0.00000000
+00:     0    4    0.10381461   -0.00000000   -0.00000000 -293.74201807
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128941007611    0.00000000
+00:  -293.711250418527    0.00000000
+00:  -293.861780819703    0.00000000
+00:  -294.045549619630    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95877857    0.25914257    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28415428    0.96583908   -0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96583908    0.28415428    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25914257    0.95877857   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  17      -294.1289410076112      -225.2482189721283         0.0000076549036
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09818401    0.00000000    0.00000000    0.11467132
+00:     0    2    0.00000000 -293.95366863    0.09188290   -0.00000000
+00:     0    3    0.00000000    0.09188290 -293.95366863   -0.00000000
+00:     0    4    0.10381073   -0.00000000   -0.00000000 -293.74202432
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128949906398    0.00000000
+00:  -293.711258418888    0.00000000
+00:  -293.861785732643    0.00000000
+00:  -294.045551536974    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95878009    0.25913189    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28414915    0.96584195   -0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96584195    0.28414915    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25913189    0.95878009   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  18      -294.1289499063984      -225.2482278709155        -0.0000088987872
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09817999    0.00000000    0.00000000    0.11467215
+00:     0    2    0.00000000 -293.95366609    0.09188343   -0.00000000
+00:     0    3    0.00000000    0.09188343 -293.95366609   -0.00000000
+00:     0    4    0.10381438   -0.00000000   -0.00000000 -293.74201945
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128947035844    0.00000000
+00:  -293.711252409562    0.00000000
+00:  -293.861782659256    0.00000000
+00:  -294.045549526459    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95877993    0.25913914    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28414969    0.96584000   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96584000    0.28414969    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25913914    0.95877993   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  19      -294.1289470358444      -225.2482250003615         0.0000028705540
+00:  Residues and T update / sec            5.2            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09818422    0.00000000    0.00000000    0.11467163
+00:     0    2    0.00000000 -293.95366724    0.09188293   -0.00000000
+00:     0    3    0.00000000    0.09188293 -293.95366724   -0.00000000
+00:     0    4    0.10381290   -0.00000000   -0.00000000 -293.74202160
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128950574841    0.00000000
+00:  -293.711255247834    0.00000000
+00:  -293.861784312485    0.00000000
+00:  -294.045550173079    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95878055    0.25913483    0.00000000    0.00000000
+00:     2    0.00000000   -0.00000000   -0.70710678   -0.70710678
+00:     3   -0.00000000   -0.00000000   -0.70710678    0.70710678
+00:     4    0.28414758    0.96584116    0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96584116    0.28414758   -0.00000000   -0.00000000
+00: VR    2    0.00000000    0.00000000   -0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000   -0.70710678    0.70710678
+00: VR    4    0.25913483    0.95878055   -0.00000000   -0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  20      -294.1289505748410      -225.2482285393581        -0.0000035389966
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09818271    0.00000000    0.00000000    0.11467192
+00:     0    2    0.00000000 -293.95366626    0.09188313   -0.00000000
+00:     0    3    0.00000000    0.09188313 -293.95366626   -0.00000000
+00:     0    4    0.10381433   -0.00000000   -0.00000000 -293.74201978
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128949509380    0.00000000
+00:  -293.711252983947    0.00000000
+00:  -293.861783130745    0.00000000
+00:  -294.045549396484    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95878051    0.25913769    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28414772    0.96584039   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96584039    0.28414772    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25913769    0.95878051   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  21      -294.1289495093797      -225.2482274738967         0.0000010654614
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09818440    0.00000000    0.00000000    0.11467174
+00:     0    2    0.00000000 -293.95366665    0.09188296   -0.00000000
+00:     0    3    0.00000000    0.09188296 -293.95366665   -0.00000000
+00:     0    4    0.10381377   -0.00000000   -0.00000000 -293.74202053
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128950923106    0.00000000
+00:  -293.711254000589    0.00000000
+00:  -293.861783688877    0.00000000
+00:  -294.045549613410    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95878077    0.25913596    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28414686    0.96584085   -0.00000000    0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96584085    0.28414686    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25913596    0.95878077   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  22      -294.1289509231063      -225.2482288876234        -0.0000014137267
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.09818383    0.00000000    0.00000000    0.11467184
+00:     0    2    0.00000000 -293.95366627    0.09188304   -0.00000000
+00:     0    3    0.00000000    0.09188304 -293.95366627   -0.00000000
+00:     0    4    0.10381433   -0.00000000   -0.00000000 -293.74201984
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.128950532507    0.00000000
+00:  -293.711253138096    0.00000000
+00:  -293.861783226947    0.00000000
+00:  -294.045549309310    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.95878076    0.25913708    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000    0.70710678   -0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.28414688    0.96584055   -0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.96584055    0.28414688    0.00000000    0.00000000
+00: VR    2    0.00000000    0.00000000    0.70710678   -0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.25913708    0.95878076   -0.00000000    0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  23      -294.1289505325067      -225.2482284970237         0.0000003905997
+00: 
+00: The MR-BWCCSD iteration has converged.
+00: 
+00: No a posteriori correction to Energy: Iter  23      -294.1289505325067      -225.2482284970237         0.0000003905997
+00:  Residues and T update / sec            5.1            5.2
+00: 
+00: Heff
+00: =============================================
+00:     0    1 -294.10443904    0.00000000    0.00000000    0.11695866
+00:     0    2    0.00000000 -293.99402355    0.08460909   -0.00000000
+00:     0    3    0.00000000    0.08460909 -293.99402355   -0.00000000
+00:     0    4    0.10315410   -0.00000000   -0.00000000 -293.86332272
+00: 
+00: Eigenvalues (real and imaginary)
+00: =============================================
+00:  -294.146972991020    0.00000000
+00:  -293.820788776155    0.00000000
+00:  -294.078632644458    0.00000000
+00:  -293.909414465034    0.00000000
+00: 
+00: Left eigenvectors
+00: =============================================
+00:     1   -0.92449268    0.34176808    0.00000000    0.00000000
+00:     2   -0.00000000    0.00000000   -0.70710678    0.70710678
+00:     3    0.00000000    0.00000000    0.70710678    0.70710678
+00:     4    0.38119980    0.93978433    0.00000000   -0.00000000
+00: 
+00: Right eigenvectors
+00: =============================================
+00: VR    1   -0.93978433    0.38119980    0.00000000   -0.00000000
+00: VR    2    0.00000000    0.00000000   -0.70710678    0.70710678
+00: VR    3    0.00000000    0.00000000    0.70710678    0.70710678
+00: VR    4    0.34176808    0.92449268    0.00000000   -0.00000000
+00: Target root:    1
+00: 
+00: BWCC iter. #  24      -294.1469729910203      -225.2662509555373        -0.0180224585136
+00:  
+00: =====================================================================================================
+00:  
+00:  BW-MRCCSD with a posteriori correction (Hartrees) =      -225.266250955537316
+00:  
+00: =====================================================================================================
+00:  
+00:  MRCC cpu & wall time / sec          124.0          125.9
+00: 
+00:  Task  times  cpu:      250.1s     wall:      252.5s
+00:  
+00:  
+00:                                 NWChem Input Module
+00:                                 -------------------
+00:  
+00:  
+00:  Summary of allocated global arrays
+00: -----------------------------------
+00:   No active global arrays
+00: 
+00: 
+00: 
+00:                          GA Statistics for process    0
+00:                          ------------------------------
+00: 
+00:        create   destroy   get      put      acc     scatter   gather  read&inc
+00: calls: 2976     2976     8.61e+05 1.11e+04 2.04e+04    0        0     5.55e+04 
+00: number of processes/call 1.05e+00 1.21e+00 1.27e+00 0.00e+00 0.00e+00
+00: bytes total:             1.08e+11 3.81e+09 6.07e+09 0.00e+00 0.00e+00 4.44e+05
+00: bytes remote:            6.78e+10 3.35e+09 5.28e+09 0.00e+00 0.00e+00 0.00e+00
+00: Max memory consumed for GA by this process: 2766251504 bytes
+00:  
+00: MA_summarize_allocated_blocks: starting scan ...
+00: MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+00: MA usage statistics:
+00: 
+00: 	allocation statistics:
+00: 					      heap	     stack
+00: 					      ----	     -----
+00: 	current number of blocks	         0	         0
+00: 	maximum number of blocks	        17	       104
+00: 	current total bytes		         0	         0
+00: 	maximum total bytes		  48350888	  86271672
+00: 	maximum total K-bytes		     48351	     86272
+00: 	maximum total M-bytes		        49	        87
+00:  
+00:  
+00:                                      CITATION
+00:                                      --------
+00:                 Please cite the following reference when publishing
+00:                            results obtained with NWChem:
+00:  
+00:                  M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+00:               T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+00:                         E. Apra, T.L. Windus, W.A. de Jong
+00:                  "NWChem: a comprehensive and scalable open-source
+00:                   solution for large scale molecular simulations"
+00:                       Comput. Phys. Commun. 181, 1477 (2010)
+00:                            doi:10.1016/j.cpc.2010.04.018
+00:  
+00:                                       AUTHORS
+00:                                       -------
+00:           E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+00:        T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+00:         J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+00:         S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov,
+00:     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, A. Marenich,
+00:    A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+00:          P.-D. Fan, A. Fonari, R. J. Harrison, M. Dupuis, D. Silverstein,
+00:     D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan, B. E. Van Kuiken,
+00:         A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+00:      A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+00:    H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+00:     K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+00:    H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+00:    A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+00:    R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+00:    K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+00:                                A. T. Wong, Z. Zhang.
+00: 
+00:  Total times  cpu:      253.5s     wall:      270.4s

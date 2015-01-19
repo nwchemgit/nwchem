@@ -1,0 +1,85 @@
+start test_big_ozone_subgroup_2emet20
+
+echo
+
+memory stack 1300 mb heap 100 mb global 3200 mb noverify
+
+geometry units bohr
+symmetry c1
+O   0.0000000000        0.0000000000        0.0000000000
+O   0.0000000000       -2.0473224350       -1.2595211660
+O   0.0000000000        2.0473224350       -1.2595211660
+end
+
+BASIS spherical
+#BASIS SET: (12s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
+O    S
+  61420.0000000              0.0000900             -0.0000200
+   9199.0000000              0.0006980             -0.0001590
+   2091.0000000              0.0036640             -0.0008290
+    590.9000000              0.0152180             -0.0035080
+    192.3000000              0.0524230             -0.0121560
+     69.3200000              0.1459210             -0.0362610
+     26.9700000              0.3052580             -0.0829920
+     11.1000000              0.3985080             -0.1520900
+      4.6820000              0.2169800             -0.1153310
+O    S
+      1.4280000              1.0000000
+O    S
+      0.5547000              1.0000000
+O    S
+      0.2067000              1.0000000
+O    P
+     63.4200000              0.0060440
+     14.6600000              0.0417990
+      4.4590000              0.1611430
+O    P
+      1.5310000              1.0000000
+O    P
+      0.5302000              1.0000000
+O    P
+      0.1750000              1.0000000
+O    D
+      3.7750000              1.0000000
+O    D
+      1.3000000              1.0000000
+O    D
+      0.4440000              1.0000000
+O    F
+      2.6660000              1.0000000
+O    F
+      0.8590000              1.0000000
+O    G
+      1.8460000              1.0000000
+END
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+  bwccsd
+  targetsym a
+  io ga
+  diis 0
+  thresh 1e-6
+  2emet 20
+  tilesize 20
+  attilesize 80
+end
+
+## runs 4 subgroups; each subgroup uses 8 processors
+## test run uses 4 nodes -> 8 cores per node -> total 32 processors
+
+mrccdata
+  subgroupsize 8
+  improvetiling
+  root 1
+  cas 2 2
+end
+
+task tce energy
+

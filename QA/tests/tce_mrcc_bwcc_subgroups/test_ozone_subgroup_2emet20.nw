@@ -1,0 +1,47 @@
+start test_ozone_subgroup_2emet20
+
+echo
+
+memory stack 1300 mb heap 100 mb global 3200 mb noverify
+
+geometry units bohr
+symmetry c1
+O   0.0000000000        0.0000000000        0.0000000000
+O   0.0000000000       -2.0473224350       -1.2595211660
+O   0.0000000000        2.0473224350       -1.2595211660
+end
+
+BASIS spherical
+ * library cc-pvtz
+END
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+  bwccsd
+  targetsym a
+  io ga
+  diis 0
+  thresh 1e-6
+  2emet 20
+  tilesize 20
+  attilesize 40
+end
+
+## runs 4 subgroups; each subgroup uses 4 processors
+## test run uses 2 nodes -> 8 cores per node -> total 16 processors
+
+mrccdata
+  subgroupsize 4
+  improvetiling
+  root 1
+  cas 2 2
+end
+
+task tce energy
+
