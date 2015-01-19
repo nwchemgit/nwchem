@@ -34,6 +34,9 @@ c      integer iignore,isubsize
       integer isubsize
       integer istartmk
 c
+c --- 4 index transform. ---
+      integer maxs
+c
 c ----------
 c Initialization
 c ----------
@@ -208,6 +211,17 @@ ckbn-9
      2   RTDB_ERR)
           goto 10
       endif
+c 4-index transfromation
+      if (inp_compare(.false.,test,'attilesize')) then
+        if (.not.inp_i(maxs)) then
+          write(LuOut,*) 'tce_input: attilesize value not found; ',
+     1      'default value of 30 will be used'
+          maxs=30
+        endif
+        if (.not.rtdb_put(rtdb,'tce:maxs',mt_int,1,maxs))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      end if
 
 ckbn roottooverlap
       if (inp_compare(.false.,test,'rootfromoverlap')) then
