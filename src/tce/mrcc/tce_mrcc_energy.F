@@ -55,6 +55,9 @@ c     logical mrccdebug
       double precision wall    ! WALL sec counter
       double precision itcpu,itcpu2     ! CPU sec counter
       double precision itwall,itwall2    ! WALL sec counter
+c DEBUG LM2
+      double precision lm2wall,lm2cpu
+c
       integer d_v2m(maxref)
       logical needt1
       logical needt2
@@ -819,6 +822,11 @@ c  2-e integrals first half
          wall = - util_wallsec()
          if(fast2e.eq.1) then
           call tce_mrcc_ao2e(rtdb,d_ao2e,iref)
+         elseif (fast2e.eq.20) then
+          if(nodezero) then
+           write(LuOut,*)'fast2e 20 4-index transformation is used'
+           call util_flush(6)
+          end if
          else
           write(LuOut,9123)fast2e
           call errquit('tce_energy: invalid 2emet: ',fast2e,CALC_ERR)
@@ -844,7 +852,7 @@ c       if((nodezero) .or. (ga_pgroup_nodeid(mypgid).eq.0))
      +       ((ga_pgroup_nodeid(mypgid).eq.0) .and. lusesub))
      +   write(LuOut,'(A,A,A,I18)')
      +    "V 2-e ",filename(1:20)," in bytes= ",size_2em(iref)*8
-        if(fast2e.eq.1) then
+        if((fast2e.eq.1).or.(fast2e.eq.20)) then  ! added 20
          if(lusesub) then
           call pgcreatefile(filename,d_v2m(iref),size_2em(iref),
      1    int_mb(k_innodes+innodes+ga_nodeid()))
@@ -863,8 +871,41 @@ c          if(nodezero) write(*,*) "I am here read mrvn_r"
            call reconcilefile(d_v2m(iref),size_2em(iref))
           endif
          else
+c
+c
+c
+c
+c
+         if(fast2e.eq.20) then
+c
+         if(.not.lusesub) 
+     1    call errquit('2emet 20 can only be used with subgroups',
+     1    0,MA_ERR)
+c
+        if (.not.rtdb_get(rtdb,'tce:maxs',mt_int,1,imaxsize)) then
+         imaxsize = 30
+         if (.not.rtdb_put(rtdb,'tce:maxs',mt_int,1,imaxsize))
+     1   call errquit('tce_init: failed to write maxs',0,RTDB_ERR)
+        endif
+          call atpart_nalength_mrcc
+          lm2cpu = - util_cpusec()
+          lm2wall = - util_wallsec()
+          call new_ga4ind_N5uhf_mrcc_lm2(rtdb,d_v2m(iref),
+     1                                k_v2_offsetm(iref),
+     1                                size_2em(iref),iref)
+          lm2cpu = lm2cpu + util_cpusec()
+          lm2wall = lm2wall + util_wallsec()
+          if(nodezero) then
+           write(LuOut,"('LM2 2-e ints ',2f15.1)") lm2cpu,lm2wall
+          end if
+         else
           call tce_mrcc_mo2e(rtdb,d_ao2e,d_v2m(iref),k_v2_offsetm(iref),
      1     iref,d_v2m(1),k_v2_offsetm(1))
+         end if
+c
+c
+c
+c
           if((nodezero .and. (.not.lusesub)).or.
      +       ((ga_pgroup_nodeid(mypgid).eq.0) .and. lusesub))
      +    write(LuOut,'(A,I4,A)')"Ref.",iref," 2-e transform. completed"
