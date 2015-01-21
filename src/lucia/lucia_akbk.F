@@ -708,7 +708,10 @@ cVOG &     H0,SHIFT,H0SCR,XH0IX,
 cVOG &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
 *      H0M1TD(LUOUT,LUDIA,LUIN,LBLK,NPQDM,IPNTR,
       call ga_add_constant(KLU_Q3,SHIFT) 
-      call ga_elem_divide(KLU_Q2,KLU_Q3,KLU_Q2)
+      call ga_elem_divide_patch(KLU_Q2, NSDP+1, NSDPQ,
+     &                          KLU_Q3, 1, NSDQ,
+     &                          KLU_Q2, 1, NSDQ)
+!      call ga_elem_divide(KLU_Q2,KLU_Q3,KLU_Q2)
        IF(NTEST.GE.1000) WRITE(6,*) ' Apres H0M1TD '
        CALL MEMCHK2('APH0M1')
        IF(NTEST.GE.1000) THEN
