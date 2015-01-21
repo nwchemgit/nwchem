@@ -718,7 +718,10 @@ cVOG &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
       bhi(2) = 1
       call ga_elem_divide_patch(KLU_Q2, alo, ahi,     
      &                          KLU_Q3, blo, bhi,
-     &                          KLU_Q2, blo, bhi)
+     &                          KLU_Q2, alo, ahi)
+      alo(1) = 1
+      ahi(1) = NSDP
+      call nga_zero_patch(KLU_Q2, alo, ahi)
 !      call ga_elem_divide(KLU_Q2,KLU_Q3,KLU_Q2)
        IF(NTEST.GE.1000) WRITE(6,*) ' Apres H0M1TD '
        CALL MEMCHK2('APH0M1')
