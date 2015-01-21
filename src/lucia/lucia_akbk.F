@@ -592,7 +592,7 @@ C?    END IF
       INCLUDE 'cands.inc'
       INCLUDE 'crun.inc'
 *
-      integer CB,HCB
+      integer CB,HCB, alo(2),ahi(2),blo(2),bhi(2)
 *
       LBLK = -1
 *
@@ -708,9 +708,17 @@ cVOG &     H0,SHIFT,H0SCR,XH0IX,
 cVOG &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
 *      H0M1TD(LUOUT,LUDIA,LUIN,LBLK,NPQDM,IPNTR,
       call ga_add_constant(KLU_Q3,SHIFT) 
-      call ga_elem_divide_patch(KLU_Q2, NSDP+1, NSDPQ,
-     &                          KLU_Q3, 1, NSDQ,
-     &                          KLU_Q2, 1, NSDQ)
+      alo(1) = NSDP+1
+      ahi(1) = NSDPQ
+      alo(2) = 1
+      ahi(2) = 1
+      blo(1) = 1
+      bhi(1) = NSDQ
+      blo(2) = 1
+      bhi(2) = 1
+      call ga_elem_divide_patch(KLU_Q2, alo, ahi,     
+     &                          KLU_Q3, blo, bhi,
+     &                          KLU_Q2, blo, bhi)
 !      call ga_elem_divide(KLU_Q2,KLU_Q3,KLU_Q2)
        IF(NTEST.GE.1000) WRITE(6,*) ' Apres H0M1TD '
        CALL MEMCHK2('APH0M1')
