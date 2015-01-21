@@ -4379,6 +4379,8 @@ C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
          CALL MV7(VEC1,VEC2,0,0,0,0)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
+      CALL ga_print(VEC1)
+      CALL ga_print(VEC2)
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
          if(dra_wait(itask).ne.0) call errquit('dra writ err',itask,911)
@@ -4446,7 +4448,6 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU2,IMZERO,IAMPAC)
            if (dra_wait(itask).ne.0) call errquit('dra read err',
      &         itask,911)
            FACTOR = AVEC((IROOT-1)*NVEC+IVEC)
-           write(*,*) 'VOG', FACTOR, IVEC
            call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    60    CONTINUE
