@@ -9,6 +9,7 @@
 #include <offload.h>
 
 #define DEBUG_ 1
+#define DEBUG2_ 1
 #define DBG_NUM_DEVS 2
 #ifndef DEFAULT_OFFLOAD_THREAD_MULTIPLIER
 #define DEFAULT_OFFLOAD_THREAD_MULTIPLIER 4
@@ -63,16 +64,13 @@ int offload_master_(){
 
 
 #ifdef DEBUG2
-  /* internal check valid only for Cascade */
-  if((GA_Nodeid()%2 == 0) && (nnn != 1) ){
+  /* debug */
     char *myhostname = (char *) malloc (MAXGETHOSTNAME);
       gethostname(myhostname, sizeof(myhostname) );
-      printf( " me = %d hostname %s ppn = %d r_p_d %d n_d %d nnn %d\n", GA_Nodeid(), myhostname,
-	    ppn,ranks_per_device,util_mic_get_num_devices_(), nnn);
+      printf( " me = %d hostname %s ppn = %d my_smp_index = %d r_p_d %d n_d %d nnn %d\n", GA_Nodeid(), myhostname,
+	      ppn, util_my_smp_index(), ranks_per_device,util_mic_get_num_devices_(), nnn);
       fflush(stdout);
       free(myhostname);
-    GA_Error("offload master check error", 0L);
-}
 
 #endif
   return nnn;
