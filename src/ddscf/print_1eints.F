@@ -242,7 +242,7 @@ c
 cprog            if (mod(ijshell, nproc) .eq. iproc) then
               odoit = .true.
               if (oskel) odoit = sym_shell_pair(ibas,ishell,jshell,q2)
-              if (odoit) then
+cnosym              if (odoit) then
                 if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi)) 
      $           call errquit('print_1eints: bas_cn2bfr',ibas,BASIS_ERR)
                 if (.not. bas_cn2bfr(jbas, jshell, jlo, jhi))
@@ -357,7 +357,7 @@ c
 c                 The end
 c
                 endif
-              end if
+cnosym              end if
 c            endif !proc
             ijshell = ijshell + 1
          end do
