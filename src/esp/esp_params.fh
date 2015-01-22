@@ -1,6 +1,8 @@
 c
 c $Id$
 c
+      real*8 cau2ang
+      parameter(cau2ang = 0.529177249d00)
       real*8 cau2nm
       parameter(cau2nm=5.29177249d-02)
       real*8 cnm2au
