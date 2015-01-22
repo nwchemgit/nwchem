@@ -22,6 +22,10 @@ c
 c
       if(me.eq.0) then
 c
+      call util_file_name('esp',.false.,.false.,chgfil)
+      open(unit=lfnchg,file=chgfil,form='formatted',status='unknown')
+      rewind(lfnchg)
+c
       call util_file_name('q',.false.,.false.,chgfil)
       open(unit=lfnchg,file=chgfil,form='formatted',status='unknown')
       rewind(lfnchg)
@@ -47,7 +51,10 @@ c
       if(util_print('output',print_medium)) then
       write(lfnout,603)
      + i,tag(i)(1:2),(cau2nm*x(j,i),j=1,3),(qf(i,j),j=1,nf)
-  603 format(i5,1x,a2,3f8.3,6f12.6)
+      write(65,903)
+     + tag(i)(1:2),(cau2ang*x(j,i),j=1,3),(qf(i,nf))
+  603 format(i5,1x,a2,3f12.6,6f12.6)
+  903 format(a2,3f12.6,6f12.6)
       endif
       write(lfnchg,703)
      + tag(i)(1:2),(cau2nm*x(j,i),j=1,3),(qf(i,j),j=1,nf) 
