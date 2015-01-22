@@ -8,10 +8,51 @@
 #include "ga.h"
 #include "typesf2c.h"
 #define SIZE_GROUP 400
+
+#if defined(__bgq__)
+#include <process.h>
+#include <location.h>
+#include <personality.h>
+#elif defined(__CRAYXT) || defined(__CRAYXE) || defined(__CRAYXC)
+#include <pmi.h>
+#endif
+
+static inline util_mpi_check(int rc, char * name)
+{
+  if (rc != MPI_SUCCESS) {
+    fprintf(stdout,"util_getppn: %s failed\n",name);
+    return 1;
+  }
+  return 0;
+}
+
 static short int ppn_initialized=0;
 static int ppn=0;
 void FATR util_getppn_(Integer *ppn_out){
 
+#if defined(__bgq__)
+    *ppn_out = Kernel_ProcessCount();
+#elif MPI_VERSION >= 3
+    int err;
+    int node_size;
+    MPI_Comm comm_node;
+
+    err = MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &comm_node);
+    if (util_mpi_check(err,"MPI_Comm_split_type")) return;
+
+    err = MPI_Comm_size(comm_node, &node_size);
+    if (util_mpi_check(err,"MPI_Comm_size")) return;
+
+    err = MPI_Comm_free(&comm_node);
+    if (util_mpi_check(err,"MPI_Comm_free")) return;
+
+    *ppn_out=node_size;
+    return;
+#else // no MPI-3 or machine-specific optimized implementation
+    /* A space-efficient implementation is described in pseudo-code here:
+     * http://lists.mcs.anl.gov/pipermail/mpich-discuss/2012-January/011662.html
+     * A slightly more efficient implementation than below may be:
+     * https://github.com/jeffhammond/HPCInfo/blob/master/mpi/advanced/symmetric-heap.c */
   const int mxlen = 255;
   char myhostname[mxlen];
   char* recvbuf;
@@ -121,6 +162,7 @@ void FATR util_getppn_(Integer *ppn_out){
   errlab:
     GA_Error(" util_getppn failure", 0);
   }
+#endif
 } 
 
 /* C binding for util_ppn */
