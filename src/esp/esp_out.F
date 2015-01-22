@@ -14,14 +14,18 @@ c
       character*16 tag(natoms)
       real*8 x(3,natoms),qf(ndim,6),qsum(6)
       real*8 g(3,mxgrid),v(mxgrid)
+
+      logical util_io_unit
+      external util_io_unit
 c
       integer i,j,k
+      integer fn
       character*16 Atag
-      character*80 name
+      character*80 name,espfilename
       real*8 coord(3)
 c
       if(me.eq.0) then
-c
+
       call util_file_name('esp',.false.,.false.,chgfil)
       open(unit=lfnchg,file=chgfil,form='formatted',status='unknown')
       rewind(lfnchg)
@@ -31,7 +35,12 @@ c
       rewind(lfnchg)
 c
       write(lfnchg,'(i7,i3)') natoms,nf
-c
+c      
+      if(.not.util_io_unit(80,90,fn))
+     +  call errquit("cannot get io unit in esp_out",0,0)
+      call util_file_name('esp',.false.,.false.,espfilename)
+      open(unit=fn,file=espfilename,status='unknown',form="formatted")
+cc
       if(util_print('output',print_medium)) then
       write(lfnout,600)
   600 format(//,'    Atom',t17,'Coordinates',t55,'Charge',/)
@@ -47,15 +56,17 @@ c
       qsum(4)=zero
       qsum(5)=zero
       qsum(6)=zero
+      write(fn,902) natoms
       do 1 i=1,natoms
       if(util_print('output',print_medium)) then
       write(lfnout,603)
      + i,tag(i)(1:2),(cau2nm*x(j,i),j=1,3),(qf(i,j),j=1,nf)
-      write(65,903)
-     + tag(i)(1:2),(cau2ang*x(j,i),j=1,3),(qf(i,nf))
   603 format(i5,1x,a2,3f12.6,6f12.6)
-  903 format(a2,3f12.6,6f12.6)
       endif
+      write(fn,903)
+     + tag(i)(1:2),(cau2ang*x(j,i),j=1,3),(qf(i,nf))
+  902 format(i5,/)
+  903 format(a2,3f12.6,6f12.6)
       write(lfnchg,703)
      + tag(i)(1:2),(cau2nm*x(j,i),j=1,3),(qf(i,j),j=1,nf) 
   703 format(a2,3f12.6,6f12.6)
@@ -63,6 +74,7 @@ c
       qsum(j)=qsum(j)+qf(i,j)
     2 continue
     1 continue
+      close(fn)
       close(unit=lfnchg)
       if(util_print('output',print_medium)) then
       write(lfnout,604) ('------------',i=1,nf)
