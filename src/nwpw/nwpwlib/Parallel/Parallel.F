@@ -476,6 +476,7 @@
 
 
 
+
 *     *************************************
 *     *                                   *
 *     *        Parallel_thread_init       *
@@ -505,16 +506,33 @@
       integer function Parallel_threadid()
       implicit none
 #include "Parallel.fh"
+#ifdef USE_OPENMP
+      integer  omp_get_thread_num
+      external omp_get_thread_num
+#endif
 
-      Parallel_threadid = threadid
+#ifdef USE_OPENMP
+      Parallel_threadid = omp_get_thread_num()
+#else
+      Parallel_threadid = 0
+#endif
       return
       end
 
       integer function Parallel_nthreads()
       implicit none
 #include "Parallel.fh"
+#ifdef USE_OPENMP
+      integer  omp_get_num_threads
+      external omp_get_num_threads
+#endif
 
-      Parallel_nthreads = nthreads
+#ifdef USE_OPENMP
+      Parallel_nthreads = omp_get_num_threads()
+#else
+      Parallel_nthreads = 1
+#endif
+
       return
       end
 
