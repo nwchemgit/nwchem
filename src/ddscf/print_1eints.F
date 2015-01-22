@@ -235,10 +235,11 @@ c
       call print_1e_init_cartbf(cartbf)
 c
 c
+      if(iproc.eq.0) then
       do jshell = 1, nshell_j
          do ishell = 1, nshell_i
 c
-            if (mod(ijshell, nproc) .eq. iproc) then
+cprog            if (mod(ijshell, nproc) .eq. iproc) then
               odoit = .true.
               if (oskel) odoit = sym_shell_pair(ibas,ishell,jshell,q2)
               if (odoit) then
@@ -357,10 +358,11 @@ c                 The end
 c
                 endif
               end if
-            endif
+c            endif !proc
             ijshell = ijshell + 1
          end do
       end do
+      endif ! iproc.eq.0
 c     
 c     chop stack at first item allocated
 c     
