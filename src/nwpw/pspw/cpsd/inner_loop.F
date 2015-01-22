@@ -131,6 +131,18 @@ c     real*8     fion(3,natmx)
       integer tid, Parallel_threadid
       external Parallel_threadid
 
+      double precision tHpsi_start,tInnerLoop_start,tPhaze_start,
+     >                 tLagrange_start, tPipeFFT_start, tExchCorr_start
+
+      double precision tHpsi, tInnerLoop, tPhaze, tPipeFFT, tLagrange,
+     >                   tExchCorr
+      common / innerloop_timing / tHpsi, tInnerLoop, tPhaze, tPipeFFT,
+     >                            tLagrange, tExchCorr
+
+      double precision omp_get_wtime
+      external omp_get_wtime
+
+      tInnerLoop_start = omp_get_wtime()
 
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
@@ -238,11 +250,12 @@ c     num_threads(2)
 *       ********************************
 *       **** generate phaze factors ****
 *       ********************************
-
+        
+        tPhaze_start = omp_get_wtime()
 c       these two functions are now threadsafe/multithreaded
         call phafac()
         if (control_version().eq.3) call ewald_phafac()
-
+        tPhaze = tPhaze + omp_get_wtime() - tPhaze_start
 
 
         call nwpw_timing_start(11)
@@ -260,7 +273,7 @@ c        end do
 !$OMP END PARALLEL
 #endif
 
-
+        tPipeFFT_start = omp_get_wtime()
 !$OMP SINGLE
         do n=n1(1),n2(ispin)
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
@@ -277,9 +290,11 @@ c        end do
         end do
 !$OMP END SINGLE
 
+        tPipeFFT = tPipeFFT + omp_get_wtime() - tPipeFFT_start
 
 c       this function calls non pipelined 3d fft
         call nwpw_meta_gga_gen_tau(ispin,ne,psi1)
+
 
 *       *********************
 *       **** generate dn ****
@@ -382,6 +397,7 @@ c
         if (control_version().eq.4) 
      >     call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
 
+        tExchCorr_start = omp_get_wtime();
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
@@ -391,6 +407,7 @@ c
      >                        dbl_mb(xce(1)),
      >                        dcpl_mb(tmp1(1)))
 
+        tExchCorr = tExchCorr + omp_get_wtime() - tExchCorr_start;
      
 *       *******************************************
 *       ***** generate other real-space fields ****
@@ -411,6 +428,7 @@ c
         call nwpw_timing_start(13)
 
 
+        tHpsi_start = omp_get_wtime();
 
 *       ******************
 *       **** get Hpsi ****
@@ -429,10 +447,12 @@ c
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
 
+        tHpsi = tHpsi + omp_get_wtime() - tHpsi_start;
         
 *       ************************************
 *       **** do a steepest descent step ****
 *       ************************************
+        tLagrange_start = omp_get_wtime()
         do n=1,n2(ispin)
           call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
 c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
@@ -474,7 +494,6 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
 
-        write(*,*) "DEBUG LAGRANGE"
         if (psp_pawexist()) then
 
 #ifdef USE_OPENMP
@@ -501,7 +520,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         end if
-
+        tLagrange = tLagrange + omp_get_wtime() - tLagrange_start
 
       end do
 
@@ -773,7 +792,7 @@ c     end do
       value = Dneall_m_pop_stack(tmp_L)
 
       call nwpw_timing_end(12)
-
+      tInnerLoop = tInnerLoop + omp_get_wtime() - tInnerLoop_start
 
       return
       end

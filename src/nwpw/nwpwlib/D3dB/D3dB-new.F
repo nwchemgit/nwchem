@@ -2034,6 +2034,9 @@ c      end
       integer tmp2(2),tmp3(2)
       logical value
 
+      integer tid,nthr
+      integer Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(1)
 
@@ -2264,8 +2267,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #endif
 #endif
 
+!$OMP PARALLEL private(indx,tid,nthr,q) firstprivate(nxh,nb) 
       call D3dB_c_transpose_ijk(nb,1,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
+!$OMP END PARALLEL
 *     ********************************************
 *     ***     do fft along ny(nb) dimension        ***
 *     ***   A(ky,nz(nb),kx) <- fft1d[A(ny(nb),nz(nb),kx)]  ***

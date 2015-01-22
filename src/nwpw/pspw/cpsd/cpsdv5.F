@@ -180,7 +180,17 @@ c#include "Parallel.fh"
       external Parallel_threadid,Parallel_nthreads
       integer tid
 
+      double precision tHpsi, tInnerLoop, tPhaze, tPipeFFT, tLagrange,
+     >                   tExchCorr
+      common / innerloop_timing / tHpsi, tInnerLoop, tPhaze, tPipeFFT,
+     >                            tLagrange, tExchCorr
 
+      tHpsi = 0.0
+      tExchCorr = 0.0
+      tInnerLoop = 0.0
+      tLagrange = 0.0
+      tPipeFFT = 0.0
+      tPhaze = 0.0
 *                            |************|
 *****************************|  PROLOGUE  |****************************
 *                            |************|
@@ -655,7 +665,12 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
       if (oprint) CALL nwpw_MESSAGE(3)
       if (oprint) call current_second(cpu3)
 
-
+      write(*,*) "DEBUG tInnerLoop = ",tInnerLoop
+      write(*,*) "DEBUG tPhaze = ",tPhaze
+      write(*,*) "DEBUG tPipeFFT = ",tPipeFFT
+      write(*,*) "DEBUG tLagrange = ",tLagrange
+      write(*,*) "DEBUG tExchCorr = ",tExchCorr
+      write(*,*) "DEBUG tHpsi = ",tHpsi
 
 *         |****************************************|
 *********** produce CHECK file and diagonalize hml *****************
