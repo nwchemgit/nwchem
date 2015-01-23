@@ -329,6 +329,11 @@ ifeq ($(ARMCI_NETWORK),MPI-SPAWN)
     MAYBE_ARMCI = --with-mpi-spawn
 endif # MPI-SPAWN
 
+# ARMCI with progress thread
+ifeq ($(ARMCI_NETWORK),MPI-PT) 
+    MAYBE_ARMCI = --with-mpi-pt
+endif # MPI-PT
+
 # ARMCI over Multi-threaded MPI
 ifeq ($(ARMCI_NETWORK),MPI-MT) 
     MAYBE_ARMCI = --with-mpi-mt
