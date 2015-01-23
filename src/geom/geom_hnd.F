@@ -2316,14 +2316,11 @@ c     implicit double precision (a-h,o-z)
       integer mang,nang,nfound,nuser_specified
       double precision cosb,rijsq,rij,rik,riksq,rjksq,rilsq,rjk,rklsq
       double precision rkl
-      double precision distsq,dotprd
+      double precision distsq
 c     
       distsq(iat,jat)=(c(1,iat)-c(1,jat))**2+
      1     (c(2,iat)-c(2,jat))**2+
      2     (c(3,iat)-c(3,jat))**2
-      dotprd(iat,jat,kat)=(c(1,iat)-c(1,jat))*(c(1,kat)-c(1,jat))+
-     1     (c(2,iat)-c(2,jat))*(c(2,kat)-c(2,jat))+
-     2     (c(3,iat)-c(3,jat))*(c(3,kat)-c(3,jat))
 c     
       iw=luout
       dbug=.false.
@@ -2602,7 +2599,7 @@ c$$$  data zero   /0.0d+00/
 c$$$  data one    /1.0d+00/
       data two    /2.0d+00/
       integer iat,jat,kat
-      double precision distsq,dotprd
+      double precision distsq
       double precision cosbk,cosbj,rjksq,rik,rijsq,rij,rjk,riksq
       double precision rjl,rjlsq,rklsq,rkl
       integer i,ii,ij,ijbnd,ik,il,jtor,jj,itor,ji,jk,jkbnd,jlbnd,jl
@@ -2613,9 +2610,6 @@ c
       distsq(iat,jat)=(c(1,iat)-c(1,jat))**2+
      1     (c(2,iat)-c(2,jat))**2+
      2     (c(3,iat)-c(3,jat))**2
-      dotprd(iat,jat,kat)=(c(1,iat)-c(1,jat))*(c(1,kat)-c(1,jat))+
-     1     (c(2,iat)-c(2,jat))*(c(2,kat)-c(2,jat))+
-     2     (c(3,iat)-c(3,jat))*(c(3,kat)-c(3,jat))
 c     
       iw=luout
       dbug=.false.
