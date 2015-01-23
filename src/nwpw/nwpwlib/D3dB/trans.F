@@ -73,7 +73,7 @@
 
 
 !$OMP SINGLE
-      write(*,*) "Thread doing the job ",Parallel_threadid()
+cb      write(*,*) "Thread doing the job ",Parallel_threadid()
       index1 = 1 
       index2 = 1
       do it=0,np-1
