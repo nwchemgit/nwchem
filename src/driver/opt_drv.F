@@ -2690,6 +2690,7 @@ c
       integer i, j, k, l_pmat, k_pmat, i3, ma_type, nelem
       character*26 date
       integer ind
+      logical omm
       logical task_qmmm
       logical opt_geom_cart_coords_get
       ind(i,j) = k_pmat + i-1 + (j-1)*ncart
@@ -2769,12 +2770,17 @@ c
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 
+      if( .not. rtdb_get(rtdb,'task:mm',mt_log,1,omm))
+     &    omm = .false.
+
+        write(*,*) "omm is",omm
       if ( rtdb_get_info(rtdb, 'geometry:actlist', ma_type, 
      $     nelem, date) .or.
      $     rtdb_get_info(rtdb, 'geometry:inactlist', ma_type, 
      $     nelem, date) .or.
      $     isystype .ne. 0 .or.
      $     task_qmmm .or. 
+     $     omm .or. 
      $     geom_extbq_on() ) then
 c     
 c     Some atoms are frozen or we have a periodic system so don't have
