@@ -94,7 +94,7 @@ c
             Do I = ILo, IHi
                Off = Off + 1
 C
-C              If we're using only the lower triangle, the diagonal
+C              If we are using only the lower triangle, the diagonal
 C              comes in with a factor of one in front, and the lower
 C              triangle with a factor of two.  Nothing comes from the
 C              upper triangle.
