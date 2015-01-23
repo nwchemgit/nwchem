@@ -618,10 +618,10 @@ $(GA_DIR)/configure: $(GA_DIR)/Makefile.in
 	@echo "No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
 	touch $(GA_DIR)/configure
-$(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
-	@echo "No Global Arrays found: Attempting running ./get-tools"
-	./get-tools
-	touch $(GA_DIR)/armci/Makefile.in
+#$(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
+#	@echo "No Global Arrays found: Attempting running ./get-tools"
+#	./get-tools
+#	touch $(GA_DIR)/armci/Makefile.in
 $(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
 	@echo "No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
