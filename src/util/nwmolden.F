@@ -246,7 +246,7 @@ c
 c
 c     allocate local memory
 c
-c     TODO: this is not scalable and probably won't work in DDSCF scheme
+c     TODO: this is not scalable and probably will not work in DDSCF scheme
 c
       if (.not.ma_push_get(mt_dbl,nbf,'vector',l_vec,k_vec))
      1    call errquit('nwmolden_movecs: MA alloc. failed',nbf,MA_ERR)
