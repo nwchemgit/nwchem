@@ -109,10 +109,26 @@ c     now try perm directory
 #include "stdio.fh"
 #include "mm_data.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
+#include "rtdb.fh"
 
       integer rtdb
       double precision e
-      call mm_vdw_add_energy(rtdb,e)
+c
+      logical rtdb_mode
+      integer master
+c
+      master=0
+      rtdb_mode = rtdb_parallel(.false.)
+      if(ga_nodeid().eq.master) then
+        call mm_vdw_add_energy(rtdb,e)
+      end if
+      call ga_sync()
+      call ga_brdcst(msg_smd,e,
+     >     ma_sizeof(mt_dbl,1,mt_byte),master)
+      call ga_sync()
+      rtdb_mode = rtdb_parallel(rtdb_mode)
       end
 
       subroutine mm_add_egrad(rtdb,e,n,g)
@@ -123,6 +139,9 @@ c     now try perm directory
 #include "stdio.fh"
 #include "mm_data.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
+#include "global.fh"
+#include "rtdb.fh"
 
       integer rtdb
       double precision e
@@ -131,28 +150,96 @@ c     now try perm directory
 c
       integer i,j
       character*30 pname
+      integer master
+      logical rtdb_mode
 
-      call mm_vdw_add_egrad(rtdb,e,n,g)
+      master=0
+      rtdb_mode = rtdb_parallel(.false.)
+      if(ga_nodeid().eq.master) then
 
-      write(6,1000) "QM + MM/VDW",
-     $     'x','y','z','x','y','z'
-      do i = 1, nqm
-         write(6,2000) i, byte_mb(i_t+16*(i-1)),
-     $        (dbl_mb(i_r+3*(i-1)+j),j=0,2),
-     $        g(1,i),g(2,i),g(3,i)
-      enddo
-      write(6,*)
+        call mm_vdw_add_egrad(rtdb,e,n,g)
 
+        write(6,1000) "QM + MM/VDW",
+     $       'x','y','z','x','y','z'
+        do i = 1, nqm
+           write(6,2000) i, byte_mb(i_t+16*(i-1)),
+     $          (dbl_mb(i_r+3*(i-1)+j),j=0,2),
+     $          g(1,i),g(2,i),g(3,i)
+        enddo
+        write(6,*)
 
+ 1000   format(/,/,25X,A,' ENERGY GRADIENTS',/,/,4X,'atom',15X,
+     $       'coordinates',
+     $       24X,'gradient',/,6X,2(1X,(3(10X,A1))))
+ 2000   format(1X,I3,1X,A4,2(1X,3(1X,F10.6)))
+        write(6,*)
+        call util_flush(6)
 
- 1000 format(/,/,25X,A,' ENERGY GRADIENTS',/,/,4X,'atom',15X,
-     $     'coordinates',
-     $     24X,'gradient',/,6X,2(1X,(3(10X,A1))))
- 2000 format(1X,I3,1X,A4,2(1X,3(1X,F10.6)))
-      write(6,*)
-      call util_flush(6)
+      end if
+      call ga_sync()
+      call ga_brdcst(msg_smd,e,
+     >     ma_sizeof(mt_dbl,1,mt_byte),master)
+      call ga_brdcst(msg_smd,g,
+     >     3*n*ma_sizeof(mt_dbl,1,mt_byte),master)
+      call ga_sync()
+      rtdb_mode = rtdb_parallel(rtdb_mode)
 
       return
 911   call errquit("error "//trim(pname),0,-1)
       end
 
+C      subroutine mm_add_energy(rtdb,e)
+C      implicit none
+C#include "util.fh"
+C#include "errquit.fh"
+C#include "inp.fh"
+C#include "stdio.fh"
+C#include "mm_data.fh"
+C#include "mafdecls.fh"
+C
+C      integer rtdb
+C      double precision e
+C      call mm_vdw_add_energy(rtdb,e)
+C      end
+C
+C      subroutine mm_add_egrad(rtdb,e,n,g)
+C      implicit none
+C#include "util.fh"
+C#include "errquit.fh"
+C#include "inp.fh"
+C#include "stdio.fh"
+C#include "mm_data.fh"
+C#include "mafdecls.fh"
+C
+C      integer rtdb
+C      double precision e
+C      integer n
+C      double precision g(3,n)
+Cc
+C      integer i,j
+C      character*30 pname
+C
+C      call mm_vdw_add_egrad(rtdb,e,n,g)
+C
+C      write(6,1000) "QM + MM/VDW",
+C     $     'x','y','z','x','y','z'
+C      do i = 1, nqm
+C         write(6,2000) i, byte_mb(i_t+16*(i-1)),
+C     $        (dbl_mb(i_r+3*(i-1)+j),j=0,2),
+C     $        g(1,i),g(2,i),g(3,i)
+C      enddo
+C      write(6,*)
+C
+C
+C
+C 1000 format(/,/,25X,A,' ENERGY GRADIENTS',/,/,4X,'atom',15X,
+C     $     'coordinates',
+C     $     24X,'gradient',/,6X,2(1X,(3(10X,A1))))
+C 2000 format(1X,I3,1X,A4,2(1X,3(1X,F10.6)))
+C      write(6,*)
+C      call util_flush(6)
+C
+C      return
+C911   call errquit("error "//trim(pname),0,-1)
+C      end
+C
