@@ -18,6 +18,16 @@ include ../config/makelib.h
   ifeq ($(FC),pgf90)
             FDEBUG += -Mnorecursive
   endif
+  ifeq ($(FC),gfortran)
+        ifdef USE_OPENMP
+            FOPTIONS += -fno-recursive -fno-openmp
+	endif
+  endif
+  ifeq ($(_FC),gfortran)
+	ifdef USE_OPENMP
+            FOPTIONS += -fno-recursive -fno-openmp
+	endif
+  endif
   ifeq ($(FC),pathf90)
             FDEBUG += -O1 -g -LANG:heap_allocation_threshold=0
   endif
