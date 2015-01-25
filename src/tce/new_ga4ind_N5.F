@@ -80,6 +80,9 @@ c
       integer l_integral,l_coeff
       integer k_integral,k_coeff
       integer l_aux,k_aux,size_aux
+      integer l_aux2,k_aux2,size_aux2
+      integer l_aux3,k_aux3,size_aux3
+      integer istart
       integer size_ic,size_icc,size_integral,size_coeff,max_na
 c
       integer INDEX_PAIR,icol,irow
@@ -379,69 +382,75 @@ c do parallel
      A      (ihi.ge.offset_agaa+1)) then
 cold      IF (next.eq.count) THEN
        call dfill(size_loc_agaa,0.0d0, dbl_mb(k_loc_agaa), 1)
+c open k_aux (
+c     declare (k_aux) ( all-az4 az3 | az1 az2)
+      size_aux2=nbf*nalength(azone3)*nalength(azone1)
+     1         *nalength(azone2)
+       if (.not.ma_push_get(mt_dbl,size_aux2,'loc_qm2',
+     1 l_aux2,k_aux2))
+     1 call errquit('step2:1m4',0,MA_ERR)
+      istart=0
 c
        DO azone4=1,atpart
-        tot_azone4_sh=tot_zone(azone4)
-        size_loc_aaaa=nalength(azone1)*nalength(azone2)*
+        size_aux3=nalength(azone1)*nalength(azone2)*
      1  nalength(azone3)*nalength(azone4)
-c --- C_[g3][azone4]
-        i = 0
-        do irho1 =  1,nalength(azone4)
-        do igi3    =  1,int_mb(k_range_alpha+g3b-1)
-        i = i+1
-        ipos1=(int_mb(k_offset_alpha+g3b-1)+igi3-1)*nbf+tot_azone4_sh
-     &       +irho1
-        dbl_mb(k_coeff+i-1)=dbl_mb(k_movecs_orb+ipos1-1)
-        enddo
-        enddo
-c ---
+       if (.not.ma_push_get(mt_dbl,size_aux3,'loc_qm3',
+     1 l_aux3,k_aux3))
+     1 call errquit('Xtep2:1m4',0,MA_ERR)
         if(azone4.le.azone3) then ! azone4 <= azone3
          key_aaaa=azone3-1+atpart*(azone4-1+
      &          atpart*(azone2-1+atpart*(azone1-1)))
          call tce_hash(int_mb(k_4af_offset),key_aaaa,offset_aaaa)
-         call ga_get(d_4af,offset_aaaa+1,offset_aaaa+size_loc_aaaa,1,1,
-     1    dbl_mb(k_loc_aaaa),1)
-c now C([g3][azone4]) ([azone4]<=[azone3]|[azone1]<=[azone2]) 
-        call  dgemm('N','N',
-     1   int_mb(k_range_alpha+g3b-1),  !m
-     1   nalength(azone1)*nalength(azone2)*nalength(azone3), !n
-     1   nalength(azone4), !k
-     1   1.0d0,
-     1   dbl_mb(k_coeff),                    !A
-     1   int_mb(k_range_alpha+g3b-1), !lda
-     1   dbl_mb(k_loc_aaaa),nalength(azone4),          ! B,ldb
-     1   1.0d0,dbl_mb(k_loc_agaa),
-     1   int_mb(k_range_alpha+g3b-1))
+c k_aux3: (az4 az3| az1 az2) -> (az2 az3|az1 az4)
+         call ga_get(d_4af,offset_aaaa+1,offset_aaaa+size_aux3,1,1,
+     1    dbl_mb(k_aux3),1)
+c transposition (az4 az3|az1 az2) --> (az2 az3|az1 az4)
+        call TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_aux2+istart),
+     1   nalength(azone4),nalength(azone3),
+     1   nalength(azone1),nalength(azone2),4,2,3,1,1.0d0)
+        istart=istart+size_aux3
         else    ! azone4 > azone3
          key_aaaa=azone4-1+atpart*(azone3-1+
      &          atpart*(azone2-1+atpart*(azone1-1)))
          call tce_hash(int_mb(k_4af_offset),key_aaaa,offset_aaaa)
-         call ga_get(d_4af,offset_aaaa+1,offset_aaaa+size_loc_aaaa,1,1,
-     1    dbl_mb(k_loc_aaaa),1)
-         CALL TCE_SORT_4KG_(dbl_mb(k_loc_aaaa),dbl_mb(k_aux),
-     &   nalength(azone3),nalength(azone4),
-     &   nalength(azone1),nalength(azone2),
-     &   2,1,3,4,1.0d0)
-c C([g3][azone4]) ([azone4]>[azone3]|[azone1]<=[azone2])
-        call  dgemm('N','N',
-     1   int_mb(k_range_alpha+g3b-1),  !m
-     1   nalength(azone1)*nalength(azone2)*nalength(azone3), !n
-     1   nalength(azone4), !k
-     1   1.0d0,
-     1   dbl_mb(k_coeff),                    !A
-     1   int_mb(k_range_alpha+g3b-1), !lda
-     1   dbl_mb(k_aux),nalength(azone4),          ! B,ldb
-     1   1.0d0,dbl_mb(k_loc_agaa),
-     1   int_mb(k_range_alpha+g3b-1))
+         call ga_get(d_4af,offset_aaaa+1,offset_aaaa+size_aux3,1,1,
+     1    dbl_mb(k_aux3),1)
+c        k_aux3: (az3 az4|az1 az2) -> (az2 az3|az1 az4)
+        call TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_aux2+istart),
+     1   nalength(azone3),nalength(azone4),
+     1   nalength(azone1),nalength(azone2),4,1,3,2,1.0d0)
+        istart=istart+size_aux3
         end if  ! azone4 <= azone3
+        if (.not.ma_pop_stack(l_aux3))
+     1  call errquit('f4ind:QA1',15,MA_ERR)
        ENDDO  !azone4
-C TRANSPOSITION HERE (g3 az3|az1 <=az2) => (az3 g3|az1 <=az2)
-       CALL TCE_SORT_4KG_(dbl_mb(k_loc_agaa),dbl_mb(k_aux),
-     &  int_mb(k_range_alpha+g3b-1),nalength(azone3),
-     &  nalength(azone1),nalength(azone2),
-     &  2,1,3,4,1.0d0)
+c big dgemm here (az2 az3|az1 all-az4)(all-az4 g3)=(az2 az3|az1 g3)
+       if (.not.ma_push_get(mt_dbl,size_loc_agaa,'loc_qm3',
+     1 l_aux3,k_aux3))
+     1 call errquit('Xtep2:1m4',0,MA_ERR)
+       call dgemm('N','N',
+     1  nalength(azone2)*nalength(azone3)*nalength(azone1),
+     2  int_mb(k_range_alpha+g3b-1),
+     3  nbf,
+     4  1.0d0,
+     5  dbl_mb(k_aux2),
+     1  nalength(azone2)*nalength(azone3)*nalength(azone1),
+     7  dbl_mb(k_movecs_orb+int_mb(k_offset_alpha+g3b-1)*nbf),
+     8  nbf,0.0d0,
+     9  dbl_mb(k_aux3),
+     1  nalength(azone2)*nalength(azone3)*nalength(azone1))
+c TRANSPOSITION
+       CALL TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_loc_agaa),
+     &  nalength(azone2),nalength(azone3),
+     &  nalength(azone1),int_mb(k_range_alpha+g3b-1),
+     &  2,4,3,1,1.0d0)
+        if (.not.ma_pop_stack(l_aux3))
+     1  call errquit('f4ind:QA1',15,MA_ERR)
        call ga_put(d_agaa,offset_agaa+1,offset_agaa+size_loc_agaa,1,1,
-     1  dbl_mb(k_aux),1)
+     1  dbl_mb(k_loc_agaa),1)
+c
+        if (.not.ma_pop_stack(l_aux2))
+     1  call errquit('g4ind:QA1',15,MA_ERR)
 c
 cold      next = NXTASK(nprocs, 1)
       END IF
@@ -501,46 +510,66 @@ cold      IF (next.eq.count) THEN
      1 l_loc_ggaa,k_loc_ggaa))
      1 call errquit('step2:1',0,MA_ERR)
       call dfill(size_loc_ggaa,0.0d0, dbl_mb(k_loc_ggaa), 1)
-
+c
+c     declare (k_aux) ( nbf(az3) g3b | az1 az2)
+      size_aux=nbf*int_mb(k_range_alpha+g3b-1)*nalength(azone1)
+     1         *nalength(azone2)
+       if (.not.ma_push_get(mt_dbl,size_aux,'loc_all-a-gaa',
+     1 l_aux,k_aux))
+     1 call errquit('step2:1m4',0,MA_ERR)
+      istart=0
+c
        DO azone3=1,atpart
-        tot_azone3_sh=tot_zone(azone3)
         size_loc_agaa=nalength(azone1)*nalength(azone2)*
      1  int_mb(k_range_alpha+g3b-1)*nalength(azone3)
-        if (.not.ma_push_get(mt_dbl,size_loc_agaa,'loc_agaa',
-     1  l_loc_agaa,k_loc_agaa))
-     1 call errquit('step2:2',0,MA_ERR)
-c --- C_[g4][azone3]
-        i = 0
-        do isigma1 =  1,nalength(azone3)
-        do igi4    =  1,int_mb(k_range_alpha+g4b-1)
-        i = i+1
-        ipos1=(int_mb(k_offset_alpha+g4b-1)+igi4-1)*nbf+tot_azone3_sh
-     &       +isigma1
-        dbl_mb(k_coeff+i-1)=dbl_mb(k_movecs_orb+ipos1-1)
-        enddo
-        enddo
-c ---
         key_agaa=azone3-1+atpart*(g3b-1+
      1   (noa+nva)*(azone1-1+atpart*(azone2-1)))
         call tce_hash_n(int_mb(k_offset_agaa),key_agaa,offset_agaa)
+       if (.not.ma_push_get(mt_dbl,size_loc_agaa,'loc_agaa',
+     1  l_aux2,k_aux2))
+     1  call errquit('step2:1m4uu',0,MA_ERR)
         call ga_get(d_agaa,offset_agaa+1,offset_agaa+size_loc_agaa,1,1,
-     1   dbl_mb(k_loc_agaa),1)
-c  C([g4b][az3]) * ([az3][g3b]|[az1][az2])
-        call  dgemm('N','N',
-     1   int_mb(k_range_alpha+g4b-1),  !m
-     1   nalength(azone1)*nalength(azone2)*int_mb(k_range_alpha+g3b-1), !n
-     1   nalength(azone3), !k
-     1   1.0d0,
-     1   dbl_mb(k_coeff),                    !A
-     1   int_mb(k_range_alpha+g4b-1), !lda
-     1   dbl_mb(k_loc_agaa),nalength(azone3),          ! B,ldb
-     1   1.0d0,dbl_mb(k_loc_ggaa),
-     1   int_mb(k_range_alpha+g4b-1))
-c
-        if (.not.ma_pop_stack(l_loc_agaa))
-     1  call errquit('g4ind:MA1',16,MA_ERR)
+     1   dbl_mb(k_aux2),1)
+        call TCE_SORT_4KG_(dbl_mb(k_aux2),dbl_mb(k_aux+istart),
+     1   nalength(azone3),int_mb(k_range_alpha+g3b-1),
+     1   nalength(azone1),nalength(azone2),4,2,3,1,1.0d0)
+        istart=istart+size_loc_agaa
+        if (.not.ma_pop_stack(l_aux2))
+     1  call errquit('g4ind:MA1xo',16,MA_ERR)
+c stored as (az2 g3b az1 all-az3)
 c
        ENDDO
+c 
+c   do global dgemm (az2 g3b az1 all-az3) C(all-az3 g4) => 
+c      (az2 g3b az1 g4)
+c
+       if (.not.ma_push_get(mt_dbl,size_loc_ggaa,'aux2',
+     1  l_aux2,k_aux2))
+     1 call errquit('step2:1m4z5',0,MA_ERR)
+c
+       call dgemm('N','N',
+     1  nalength(azone2)*int_mb(k_range_alpha+g3b-1)*nalength(azone1),
+     2  int_mb(k_range_alpha+g4b-1),
+     3  nbf,
+     4  1.0d0,
+     5  dbl_mb(k_aux),
+     6  nalength(azone2)*int_mb(k_range_alpha+g3b-1)*nalength(azone1),
+     7  dbl_mb(k_movecs_orb+int_mb(k_offset_alpha+g4b-1)*nbf),
+     8  nbf,0.0d0,
+     9  dbl_mb(k_aux2),
+     1  nalength(azone2)*int_mb(k_range_alpha+g3b-1)*nalength(azone1))
+c
+        call TCE_SORT_4KG_(dbl_mb(k_aux2),dbl_mb(k_loc_ggaa),
+     1   nalength(azone2),int_mb(k_range_alpha+g3b-1),
+     1   nalength(azone1),int_mb(k_range_alpha+g4b-1),
+     1   4,2,3,1,1.0d0)
+c
+        if (.not.ma_pop_stack(l_aux2))
+     1  call errquit('g4ind:MA1x9',16,MA_ERR)
+c
+c   delete k_aux
+       if (.not.ma_pop_stack(l_aux))
+     1 call errquit('g4ind:MAu3',15,MA_ERR)
 c     
        call ga_put(d_ggaa,offset_ggaa+1,offset_ggaa+size_loc_ggaa,1,1,
      1  dbl_mb(k_loc_ggaa),1)
@@ -613,24 +642,17 @@ c     do only if ilo <= offset_ggga+size_loc_ggga & ihi>=offset_ggga+1
      1 l_loc_ggga,k_loc_ggga))
      1 call errquit('step3:1',0,MA_ERR)
        call dfill(size_loc_ggga,0.0d0, dbl_mb(k_loc_ggga), 1)
+c     declare (k_aux) ( g4 g3 |  az2 all-az1)
+      size_aux2=int_mb(k_range_alpha+g4b-1)*
+     1         int_mb(k_range_alpha+g3b-1)*
+     1         nalength(azone2)*
+     1         nbf
+      if (.not.ma_push_get(mt_dbl,size_aux2,'loc_all-a-gaa',
+     1 l_aux2,k_aux2))
+     1 call errquit('step2:1m4',0,MA_ERR)
+      istart=0
+c
        DO azone1=1,atpart ! azone1
-        tot_azone1_sh=tot_zone(azone1)
-        size_loc_ggaa=nalength(azone1)*nalength(azone2)*
-     1  int_mb(k_range_alpha+g3b-1)*int_mb(k_range_alpha+g4b-1) 
-        if (.not.ma_push_get(mt_dbl,size_loc_ggaa,'loc_ggaa',
-     1  l_loc_ggaa,k_loc_ggaa))
-     1  call errquit('step3:2',0,MA_ERR)
-c --- C_[azone1][g2]
-        ii=0
-        do igi2 =  1,int_mb(k_range_alpha+g2b-1)
-        do inu1 =  1,nalength(azone1)
-         ii = ii+1
-         ipos1=(int_mb(k_offset_alpha+g2b-1)+igi2-1)*nbf+tot_azone1_sh
-     &           +inu1
-         dbl_mb(k_coeff+ii-1)=dbl_mb(k_movecs_orb+ipos1-1)
-        enddo
-        enddo
-c ---
         if(azone2.le.azone1) then ! azone2 <= azone1
          size_loc_ggaa= nalength(azone1)*nalength(azone2)*
      1   int_mb(k_range_alpha+g3b-1)*int_mb(k_range_alpha+g4b-1)
@@ -638,66 +660,60 @@ c ---
      &   (noa+nva)*(azone2-1+atpart*(azone1-1)))
          call tce_hash(int_mb(k_offset_ggaa),key_ggaa,offset_ggaa)
          call ga_get(d_ggaa,offset_ggaa+1,offset_ggaa+size_loc_ggaa,1,1,
-     1   dbl_mb(k_loc_ggaa),1)
-c ([g4]=>[g3]|[azone2]<=[azone1])*C_([azone1][g2])
-         call dgemm('N','N',
-     1   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
-     1   nalength(azone2),                                        !m
-     1   int_mb(k_range_alpha+g2b-1),                             !n
-     3   nalength(azone1),                                        !k
-     4   1.0d0,dbl_mb(k_loc_ggaa),
-     5   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
-     5   nalength(azone2),
-     6   dbl_mb(k_coeff),nalength(azone1),
-     7   1.0d0,dbl_mb(k_loc_ggga),
-     8   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
-     8   nalength(azone2))
+     1   dbl_mb(k_aux2+istart),1)
+         istart=istart+size_loc_ggaa
+c k_aux accumulates (g4 g3 |az2 az1)
         else ! azone2 <= azone1
          size_loc_ggaa= nalength(azone1)*nalength(azone2)*
      1   int_mb(k_range_alpha+g3b-1)*int_mb(k_range_alpha+g4b-1)
          key_ggaa=g4b-1+(noa+nva)*(g3b-1+
      &   (noa+nva)*(azone1-1+atpart*(azone2-1)))
          call tce_hash(int_mb(k_offset_ggaa),key_ggaa,offset_ggaa)
-         call ga_get(d_ggaa,offset_ggaa+1,offset_ggaa+size_loc_ggaa,1,1,
-     1   dbl_mb(k_loc_ggaa),1)
+c open k_aux3
          if (.not.ma_push_get(mt_dbl,size_loc_ggaa,'auxaaaa',
-     1   l_aux,k_aux))
+     1   l_aux3,k_aux3))
      1   call errquit('step3:3',0,MA_ERR)
-         CALL TCE_SORT_4KG_(dbl_mb(k_loc_ggaa),dbl_mb(k_aux),
+         call ga_get(d_ggaa,offset_ggaa+1,offset_ggaa+size_loc_ggaa,1,1,
+     1   dbl_mb(k_aux3),1)
+c k_aux3: (g4 g3|az1 az2) => (g4 g3|az2 az1-all)
+         CALL TCE_SORT_4KG_(dbl_mb(k_aux3),dbl_mb(k_aux2+istart),
      &   int_mb(k_range_alpha+g4b-1),int_mb(k_range_alpha+g3b-1),
      &   nalength(azone1),nalength(azone2),
      &   1,2,4,3,1.0d0)
-c ([g4]=>[g3]|[azone2]>[azone1])*C_([azone1][g2])
+         istart=istart+size_loc_ggaa
+c 
+         if (.not.ma_pop_stack(l_aux3))
+     1   call errquit('g4Znd:MA1',15,MA_ERR)
+        end if ! azone2 <= azone1
+       ENDDO ! azone1
+c ([g4]=>[g3]|[azone2]all-azone1])*C_(all-azone1[g2])
+        if (.not.ma_push_get(mt_dbl,size_loc_ggga,'loc_qyaa',
+     1   l_aux,k_aux))
+     1  call errquit('step3:1ma',0,MA_ERR)
+c
          call dgemm('N','N',
      1   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
      1   nalength(azone2),                                        !m
      1   int_mb(k_range_alpha+g2b-1),                             !n
-     3   nalength(azone1),                                        !k
-     4   1.0d0,dbl_mb(k_aux),
+     3   nbf,                                                     !k
+     4   1.0d0,dbl_mb(k_aux2),
      5   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
      5   nalength(azone2),
-     6   dbl_mb(k_coeff),nalength(azone1),
-     7   1.0d0,dbl_mb(k_loc_ggga),
+     6   dbl_mb(k_movecs_orb+int_mb(k_offset_alpha+g2b-1)*nbf),nbf,
+     7   0.0d0,dbl_mb(k_aux),
      8   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
      8   nalength(azone2))
-         if (.not.ma_pop_stack(l_aux))
-     1   call errquit('g4ind:MA1',15,MA_ERR)
-        end if ! azone2 <= azone1
-         if (.not.ma_pop_stack(l_loc_ggaa))
-     1   call errquit('g4ind:MA1',15,MA_ERR)
-       ENDDO ! azone1
 C TRANSPOSITION HERE (g4=>g3|az2 g2) => (g4=>g3|g2 az2)
-       if (.not.ma_push_get(mt_dbl,size_loc_ggga,'auxggga',
-     1  l_aux,k_aux))
-     1 call errquit('step3:4',0,MA_ERR)
-       CALL TCE_SORT_4KG_(dbl_mb(k_loc_ggga),dbl_mb(k_aux),
+       CALL TCE_SORT_4KG_(dbl_mb(k_aux),dbl_mb(k_loc_ggga),
      & int_mb(k_range_alpha+g4b-1),int_mb(k_range_alpha+g3b-1),
      & nalength(azone2),int_mb(k_range_alpha+g2b-1),
      & 1,2,4,3,1.0d0)
        call ga_put(d_ggga,offset_ggga+1,offset_ggga+size_loc_ggga,1,1,
-     1  dbl_mb(k_aux),1)
+     1  dbl_mb(k_loc_ggga),1)
        if (.not.ma_pop_stack(l_aux))
      1  call errquit('g4ind:MA1',15,MA_ERR)
+       if (.not.ma_pop_stack(l_aux2))
+     1  call errquit('g4Pnd:MA1',15,MA_ERR)
        if (.not.ma_pop_stack(l_loc_ggga))
      1 call errquit('g4ind:MA1',15,MA_ERR)
 c
@@ -764,49 +780,46 @@ cold      IF (next.eq.count) THEN
      1 l_loc_gggg,k_loc_gggg))
      1 call errquit('step4:1',0,MA_ERR)
       call dfill(size_loc_gggg,0.0d0, dbl_mb(k_loc_gggg), 1)
-c
+c k_aux2: (g4 g3| g2 all-az2)
+      size_aux2=int_mb(k_range_alpha+g4b-1)*
+     1         int_mb(k_range_alpha+g3b-1)*
+     1         int_mb(k_range_alpha+g2b-1)*
+     1         nbf
+      if (.not.ma_push_get(mt_dbl,size_aux2,'loc_all-a-gaa',
+     1 l_aux2,k_aux2))
+     1 call errquit('step4:1m4',0,MA_ERR)
+      istart=0
        DO azone2=1,atpart
-        tot_azone2_sh=tot_zone(azone2)
         size_loc_ggga=nalength(azone2)*int_mb(k_range_alpha+g2b-1)*
      1  int_mb(k_range_alpha+g3b-1)*int_mb(k_range_alpha+g4b-1)
-        if (.not.ma_push_get(mt_dbl,size_loc_ggga,'loc_ggga',
-     1  l_loc_ggga,k_loc_ggga))
-     1  call errquit('step4:2',0,MA_ERR)
-c --- C_[azone2][g1]
-        ii=0
-        do igi1 =  1,int_mb(k_range_alpha+g1b-1)
-        do imu1 =  1,nalength(azone2)
-         ii = ii+1
-         ipos1=(int_mb(k_offset_alpha+g1b-1)+igi1-1)*nbf+tot_azone2_sh
-     &           +imu1
-         dbl_mb(k_coeff+ii-1)=dbl_mb(k_movecs_orb+ipos1-1)
-        enddo
-        enddo
-c ---
         key_ggga=g4b-1+(noa+nva)*(g3b-1+
      &  (noa+nva)*(g2b-1+(noa+nva)*(azone2-1)))
         call tce_hash_n(int_mb(k_offset_ggga),key_ggga,offset_ggga)
         call ga_get(d_ggga,offset_ggga+1,offset_ggga+size_loc_ggga,1,1,
-     1   dbl_mb(k_loc_ggga),1)
+     1   dbl_mb(k_aux2+istart),1)
+        istart=istart+size_loc_ggga
+c
+       ENDDO !azone2
+c
         call dgemm('N','N',
      1   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
      1   int_mb(k_range_alpha+g2b-1),                             !m
      1   int_mb(k_range_alpha+g1b-1),                             !n
-     3   nalength(azone2),                                        !k
-     4   1.0d0,dbl_mb(k_loc_ggga),
+     3   nbf,                                                     !k
+     4   1.0d0,dbl_mb(k_aux2),
      5   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
      5   int_mb(k_range_alpha+g2b-1),
-     6   dbl_mb(k_coeff),nalength(azone2),
-     7   1.0d0,dbl_mb(k_loc_gggg),
+     6   dbl_mb(k_movecs_orb+int_mb(k_offset_alpha+g1b-1)*nbf),
+     7   nbf,
+     7   0.0d0,dbl_mb(k_loc_gggg),
      8   int_mb(k_range_alpha+g4b-1)*int_mb(k_range_alpha+g3b-1)*
      8   int_mb(k_range_alpha+g2b-1))
 c
-       if (.not.ma_pop_stack(l_loc_ggga))
-     1 call errquit('g4ind:MA1',15,MA_ERR)
-c
-       ENDDO !azone2
        call ga_put(d_v2,offset_gggg+1,offset_gggg+size_loc_gggg,1,1,
      1  dbl_mb(k_loc_gggg),1)
+
+       if (.not.ma_pop_stack(l_aux2))
+     1 call errquit('g4ppq:MA1',15,MA_ERR)
        if (.not.ma_pop_stack(l_loc_gggg))
      1 call errquit('g4ind:MA1',15,MA_ERR)
 cold      next = NXTASK(nprocs, 1)
