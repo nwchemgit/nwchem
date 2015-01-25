@@ -154,6 +154,17 @@ c
  2002 format('end')
       endif
 c
+      if(fmt.eq.'xyz') then
+      write(iunit,*) nsa
+      write(iunit,*) 
+      do 41 i=1,nsa
+      elemnt=sgmnam(i)(6:7)
+      if(elemnt(1:1).eq.'1'.or.elemnt(1:1).eq.'2'.or.
+     + elemnt(1:1).eq.'3'.or.elemnt(1:1).eq.'4') elemnt(1:1)=' '
+      write(iunit,*) elemnt,(1.0d1*x(i,j),j=1,3)
+   41 continue
+      endif
+c
       if(fmt.eq.'amb') then
       if(lxw.and..not.lsonly) then
       write(iunit,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa),
