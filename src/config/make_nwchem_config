@@ -66,7 +66,7 @@ MODULES := $(NWCHEM_MODULES)
 # For convenience, we define some shorthand "module" names which are
 # expanded below.
 
-EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm
+EXPANSIONS = all qm md classical tps alldev pnnl pnnldev smallqm smallqmmm
 
 EXP_all = $(filter-out argos leps smd uccsdt python develop scfaux rimp2_grad geninterface diana nbo rism lucia,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python dntmc
@@ -77,6 +77,9 @@ EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver vib qmd mcscf property solvation selci dplot \
            mp2_grad esp etrans vscf nwmd
+EXP_smallqmmm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
+          optim stepper driver vib qmd mcscf property solvation selci dplot \
+           mp2_grad esp etrans vscf nwmd qmmm prepar analyz
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
@@ -97,6 +100,7 @@ MODULES := $(patsubst all,$(EXP_all),$(MODULES) )
 MODULES := $(patsubst pnnl,$(EXP_pnnl),$(MODULES) )
 MODULES := $(patsubst qm,$(EXP_qm),$(MODULES) )
 MODULES := $(patsubst smallqm,$(EXP_smallqm),$(MODULES) )
+MODULES := $(patsubst smallqmmm,$(EXP_smallqmmm),$(MODULES) )
 MODULES := $(patsubst classical,$(EXP_classical),$(MODULES))
 MODULES := $(patsubst md,$(EXP_md),$(MODULES))
 MODULES := $(patsubst qmmm_valiev,$(EXP_qmmm_valiev),$(MODULES))
@@ -294,7 +298,7 @@ STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dntmc,task_dntmc dntmc_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dangchang,dc_energy dangchang_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst leps,leps_energy mymd_input mymc_input leps_gradient md_driver md_data  mc_driver mc_data gasdev crossing mc_main md_set mc_init urand,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input ofpw_energy paw_energy paw_gradient task_paw task_pspw task_ofpw pspw_input pspw_energy pspw_gradient band_energy band_gradient task_band,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input ofpw_energy paw_energy paw_gradient task_paw task_pspw task_ofpw pspw_input pspw_energy pspw_gradient band_energy band_gradient task_band pspw_bq_gradient,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst smd,task_smd smd_input task_smd_energy task_smd_dynamics task_fragment_energy task_smd_fragment,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
