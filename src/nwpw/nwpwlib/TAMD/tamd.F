@@ -21,7 +21,7 @@ c     **********************************************
       logical value,cnmeta_read
       integer d,i,j,n1,n2,s1,s2,yshift,ntype,seed
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0,gamma,k
-      real*8 boundary(2),temp,fac,sn2(12),mass,ztemp,zinitial(2)
+      real*8 boundary(2),temp,fac,sn2(12),mass,ztemp,zinitial(2),n12
       character*80 rtdb_name,potential_filename
       character*60 gauss_filename
       character*4 celement1,celement2
@@ -382,10 +382,11 @@ c     **********************************************
              n  =  dbl_mb(parammeta(1)+s2+8)
              m  =  dbl_mb(parammeta(1)+s2+9)
              r0 =  dbl_mb(parammeta(1)+s2+10)
+             n12=  dbl_mb(parammeta(1)+s2+12)
              write(luout,1001) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
              write(luout,1002) (int_mb(indxmeta(1)+s1+3+n1+j-1),j=1,n2)
 
-             write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
+             write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,
      >                   /6x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,4x,A,F11.6,
@@ -394,7 +395,7 @@ c     **********************************************
      >                   /6x,A,I5,
      >                   /6x,A,I2)')
      >       "   - Coordination Number Parameters: ",
-     >           'n= ',n,'m=       ',m,
+     >           'n= ',n,'m=       ',m,'n12= ',n12,
      >           'r0=',r0,
      >           'gamma=',gamma,'k=',k,
      >           'mass=    ',mass,
@@ -719,7 +720,7 @@ c     **********************************************
       integer i,j,ntype,n1,n2,nion
       real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r2,r3
       real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f,la,lb
-      real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2,d1a,d2a,d1b,d2b
+      real*8 nx,ny,nz,x4,y4,z4,dx2,dy2,dz2,d1a,d2a,d1b,d2b,n12
 
 *     **** external functions ****
       integer  ion_rion_ptr,ion_nion
@@ -821,6 +822,7 @@ c     **** coordination number ****
             n  = param(9)
             m  = param(10)
             r0 = param(11)
+            n12= param(13)
             do i=1,n1
                do j=1,n2
                   x1 = ion_rion(1,indx(3+i))
@@ -837,11 +839,13 @@ c     **** coordination number ****
                   f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
                end do
             end do
+            f = f/n12
          else
             f = 0.0d0
             n  = param(9)
             m  = param(10)
             r0 = param(11)
+            n12= param(13)
             do i=1,n1
                do j=1,n2
                   x1 = ion_rion(1,indx(3+i))
@@ -859,6 +863,7 @@ c                 f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
                   f = f + 1.d0/(1.d0+dexp(n*(r1-r0)))
                end do
             end do
+            f = f/n12
          end if
 
 c     **** n-plane ****
@@ -993,7 +998,7 @@ c     **********************************************
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz,la,lb
       real*8 x4,y4,z4,dx2,dy2,dz2,r2,df1,df2,d1a,d2a,d1b,d2b
-      real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2
+      real*8 dfla,dflb,dlar1,dlar2,dlbr1,dlbr2,n12
 
 *     **** external functions ****
       integer  ion_rion_ptr,ion_nion
@@ -1151,6 +1156,7 @@ c     **** coordination number ***
             n  = param(9)
             m  = param(10)
             r0 = param(11)
+            n12= param(13)
             do i=1,n1
                do j=1,n2
                   x1 = ion_rion(1,indx(3+i))
@@ -1168,6 +1174,7 @@ c     **** coordination number ***
                   rm  = (1.0d0-(r/r0)**m)
                   df = (-n*rm/r0*(r/r0)**(n-1) + m*rn/r0*(r/r0)**(m-1))
      >                 / (rm**2)
+                  df = df/n12
                   fmeta(1,indx(3+i)) = fmeta(1,indx(3+i)) - (dx/r)*df*dv
                   fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) - (dy/r)*df*dv
                   fmeta(3,indx(3+i)) = fmeta(3,indx(3+i)) - (dz/r)*df*dv
@@ -1183,6 +1190,7 @@ c     **** coordination number ***
             n  = param(9)
             m  = param(10)
             r0 = param(11)
+            n12= param(13)
             do i=1,n1
                do j=1,n2
                   x1 = ion_rion(1,indx(3+i))
@@ -1202,6 +1210,7 @@ c                 df = (-n*rm/r0*(r/r0)**(n-1) + m*rn/r0*(r/r0)**(m-1))
 c    >                 / (rm**2)
                   rn  = 1.d0+dexp(n*(r-r0))
                   df = -n*(rn-1.d0)/(rn*rn)
+                  df = df/n12
                   fmeta(1,indx(3+i)) = fmeta(1,indx(3+i)) - (dx/r)*df*dv
                   fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) - (dy/r)*df*dv
                   fmeta(3,indx(3+i)) = fmeta(3,indx(3+i)) - (dz/r)*df*dv

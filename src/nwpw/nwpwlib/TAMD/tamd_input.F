@@ -46,7 +46,7 @@ c
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
-      parameter (num_dirs2 = 13)
+      parameter (num_dirs2 = 14)
       character*10 dirs2(num_dirs2)
       data dirs2 / 'index1',
      >             'index2',
@@ -60,7 +60,7 @@ c
      >             'zinitial',
      >             'range',
      >             'nrange',
-     >             'sprik'/
+     >             'sprik','n12'/
 
       integer num_dirs3          ! No. of known directives
       parameter (num_dirs3 = 8)
@@ -640,6 +640,11 @@ c
       sdist(6) = -1.0
       sdist(7) = -1.0
       sdist(8) = -1.0
+      sdist(9) =  6.0
+      sdist(10) = 12.0
+      sdist(11) = 3.0
+      sdist(12) = 1.0
+      sdist(13) = 1.0
       sindx(1) = 501
       n1 = 0
       n2 = 0
@@ -648,7 +653,8 @@ c
      >  call errquit(
      >  'tamd_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 510,520,530,540,550,560,562,564,566,570,580,590,595 ) ind2
+      goto ( 510,520,530,540,550,560,562,564,566,570,580,590,595,
+     >       545 ) ind2
       call errquit(
      >     'tamd_input: unimplemented directive',ind2,INPUT_ERR)
 
@@ -687,6 +693,12 @@ c m
 c
  540  if (.not.inp_f(sdist(10))) sdist(10)=12.0d0
       goto 501
+c
+c n12
+c
+ 545  if (.not.inp_f(sdist(13))) sdist(13)=1.0d0
+      goto 501
+
 c
 c r0
 c
@@ -769,7 +781,8 @@ c
       dbl_mb(parammeta(1)+nparammeta+9)  = sdist(10)
       dbl_mb(parammeta(1)+nparammeta+10) = sdist(11)
       dbl_mb(parammeta(1)+nparammeta+11) = sdist(12)
-      nparammeta  = nparammeta + 12
+      dbl_mb(parammeta(1)+nparammeta+12) = sdist(13)
+      nparammeta  = nparammeta + 13
 
       nxmeta_all = nxmeta_all*sindx(1)
       int_mb(nxmeta(1)+nmeta) = sindx(1)
