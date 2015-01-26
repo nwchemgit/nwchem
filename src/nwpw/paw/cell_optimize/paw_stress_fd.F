@@ -1,6 +1,11 @@
 *
 * $Id$
 *
+*     *****************************************
+*     *                                       *
+*     *            paw_stress_fd              *
+*     *                                       *
+*     *****************************************
       logical function paw_stress_fd(rtdb)
       implicit none
       integer rtdb
@@ -11,6 +16,7 @@
 #include "inp.fh"
 #include "util.fh"
 #include "geom.fh"
+#include "stdio.fh"
 
       integer MASTER,taskid
       parameter (MASTER=0)
@@ -79,11 +85,36 @@
      >  noit_energy = .false.
 
 
+
 *     **** get finite difference step and initialize ****
       if (.not.
      >    btdb_get(rtdb,'nwpw:stress_alpha',mt_dbl,1,alpha))
      >  alpha = 0.00100d0
 
+
+*     **** print out finite difference stress options ****
+      if (oprint) then
+         write(luout,*)
+         if (lstress_numerical) then
+            write(luout,*) "numerical finite difference paw lstress"
+         else
+            write(luout,*) "numerical finite difference paw stress"
+         end if
+         if (noit_energy) then
+            write(luout,*) "  - noit_energy"
+         else
+            write(luout,*) "  - energy mimimized"
+         end if
+         write(luout,*) "  - alpha=",alpha
+         write(luout,*)
+      end if
+
+
+*     ******************************
+*     ******************************
+*     ** finite difference stress **
+*     ******************************
+*     ******************************
       if (.not.lstress_numerical) then
 
       call dcopy(9,0.0d0,0,ke_stress,      1)
@@ -97,9 +128,9 @@
       do i=1,3
 
 
-*     *****************************
-*     **** + finite difference ****
-*     *****************************
+*     ***********************
+*     * + finite difference *
+*     ***********************
       call dcopy(9,unita,1,unita2,1)
       unita2(i,j) = unita2(i,j) + alpha
 
@@ -107,8 +138,8 @@
       call util_date(date_string)
       date_len = inp_strlen(date_string)
       if (oprint) then
-      write(6,*)
-      write(6,
+      write(luout,*)
+      write(luout,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &   'amatrix i,j:',i,j,unita2(i,j),'(+)',
      &   'wall time:',util_wallsec(),
@@ -146,9 +177,9 @@
 
 
 
-*     *****************************
-*     **** - finite difference ****
-*     *****************************
+*     ***********************
+*     * - finite difference *
+*     ***********************
       call dcopy(9,unita,1,unita3,1)
       unita3(i,j) = unita3(i,j) - alpha
 
@@ -156,8 +187,8 @@
       call util_date(date_string)
       date_len = inp_strlen(date_string)
       if (oprint) then
-      write(6,*)
-      write(6,
+      write(luout,*)
+      write(luout,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &   'amatrix i,j:',i,j,unita3(i,j),'(-)',
      &   'wall time:',util_wallsec(),
@@ -211,18 +242,24 @@
       call write_stress(stress,"TOTAL FD")
 
 
-*     **************************************
-*     **** output stress for use driver ****
-*     **************************************
+*     ********************************
+*     * output stress for use driver *
+*     ********************************
       value = value.and.btdb_put(rtdb,'paw:stress',mt_dbl,9,stress)
 
 
+
+*     *******************************
+*     *******************************
+*     ** finite difference lstress **
+*     *******************************
+*     *******************************
       else
          call cell_unita_abc_abg(unita,lattice)
          do i=1,6
-*           *****************************
-*           **** + finite difference ****
-*           *****************************
+*           ***********************
+*           * + finite difference *
+*           ***********************
             call dcopy(6,lattice,1,lattice2,1)
             lattice2(i) = lattice2(i) + alpha
             call cell_abc_abg_unita(lattice2,unita2)
@@ -265,9 +302,9 @@
      >               btdb_get(rtdb,'paw:E_local',mt_dbl,1,E)
             local_lstress(i) = E
 
-*           *****************************
-*           **** - finite difference ****
-*           *****************************
+*           ***********************
+*           * - finite difference *
+*           ***********************
             call dcopy(6,lattice,1,lattice3,1)
             lattice3(i) = lattice3(i) - alpha
             call cell_abc_abg_unita(lattice3,unita3)
@@ -275,8 +312,8 @@
 *           **** update geometry object ****
             call util_date(date_string)
             date_len = inp_strlen(date_string)
-            if (oprint) write(6,*)
-            if (oprint) write(6,
+            if (oprint) write(luout,*)
+            if (oprint) write(luout,
      &         '(1x,a12,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &         'lattice i:',i,lattice3(i),'(-)',
      &         'wall time:',util_wallsec(),
@@ -329,9 +366,9 @@
          call daxpy(6,1.0d0,local_lstress,1,lstress,1)
          call write_lstress(lstress,"TOTAL FD")
 
-*        **************************************
-*        **** output lstress for use driver ****
-*        **************************************
+*        *********************************
+*        * output lstress for use driver *
+*        *********************************
          value = value.and.
      >           btdb_put(rtdb,'paw:lstress',mt_dbl,6,lstress)
       end if
