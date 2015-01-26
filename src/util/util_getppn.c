@@ -1,5 +1,7 @@
 /* $Id$ */
-/* computes the number of processes per node a.k.a ppn */
+/* computes the number of processes per node a.k.a ppn 
+ it is called by every process only once,
+ later calls might not be collective */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,7 +9,6 @@
 #include <mpi.h>
 #include "ga.h"
 #include "typesf2c.h"
-#define SIZE_GROUP 400
 
 #if defined(__bgq__)
 #include <process.h>
@@ -34,19 +35,23 @@ void FATR util_getppn_(Integer *ppn_out){
     *ppn_out = Kernel_ProcessCount();
 #elif MPI_VERSION >= 3
     int err;
-    int node_size;
     MPI_Comm comm_node;
 
+  if(ppn_initialized) {
+    *ppn_out = (Integer) ppn;
+    
+  }else{
     err = MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &comm_node);
-    if (util_mpi_check(err,"MPI_Comm_split_type")) return;
+    if (util_mpi_check(err,"MPI_Comm_split_type")) goto errlab;
 
-    err = MPI_Comm_size(comm_node, &node_size);
-    if (util_mpi_check(err,"MPI_Comm_size")) return;
+    err = MPI_Comm_size(comm_node, &ppn);
+    if (util_mpi_check(err,"MPI_Comm_size")) goto errlab;
 
     err = MPI_Comm_free(&comm_node);
-    if (util_mpi_check(err,"MPI_Comm_free")) return;
+    if (util_mpi_check(err,"MPI_Comm_free")) goto errlab;
 
-    *ppn_out=node_size;
+    ppn_initialized=1;
+    *ppn_out = (Integer) ppn;
     return;
 #else // no MPI-3 or machine-specific optimized implementation
     /* A space-efficient implementation is described in pseudo-code here:
@@ -57,49 +62,15 @@ void FATR util_getppn_(Integer *ppn_out){
   char myhostname[mxlen];
   char* recvbuf;
   int i, num_procs, me,  err, modppn;
-  int size_group=SIZE_GROUP;
-  MPI_Group wgroup_handle,group_handle;
-  MPI_Comm group_comm;
-  int ranks[SIZE_GROUP];
   
   if(ppn_initialized) {
-    *ppn_out = (long) ppn;
+    *ppn_out = (Integer) ppn;
     
   }else{
     num_procs = GA_Nnodes();
     me = GA_Nodeid();
     
-    if(size_group> num_procs) size_group=num_procs;
-    
-    /*get world group handle to be used later */
-    err=MPI_Comm_group(MPI_COMM_WORLD, &wgroup_handle);
-    if (err != MPI_SUCCESS) {
-      fprintf(stderr,"util_getppn: MPI_Comm_group failed\n");
-      *ppn_out=0;
-      return;
-    }
-    
-    for (i=0; i< size_group; i++) ranks[i]=i;
-    
-    /* create new group of size size_group */
-    err=MPI_Group_incl(wgroup_handle, size_group, ranks, &group_handle);
-    if (err != MPI_SUCCESS) {
-      fprintf(stdout,"util_getppn: MPI_Group_incl failed\n");
-      *ppn_out=0;
-      return;
-    }
-    
-    /* Create new new communicator for the newly created group */
-    err=MPI_Comm_create(MPI_COMM_WORLD, group_handle, &group_comm);
-    if (err != MPI_SUCCESS) {
-      fprintf(stdout,"util_getppn: MPI_Comm_group failed\n");
-      *ppn_out=0;
-      return;
-    }
-    
-    
-    if(me < size_group) {
-      recvbuf=(char*)malloc(size_group*(mxlen+1)*(sizeof(char)));
+      recvbuf=(char*)malloc(num_procs*(mxlen+1)*(sizeof(char)));
       
       err=gethostname(myhostname, sizeof(myhostname) );
       if (err != 0) {
@@ -109,7 +80,7 @@ void FATR util_getppn_(Integer *ppn_out){
       }
       
       
-      err=MPI_Allgather(myhostname, mxlen, MPI_CHAR, recvbuf, mxlen, MPI_CHAR, group_comm);
+      err=MPI_Allgather(myhostname, mxlen, MPI_CHAR, recvbuf, mxlen, MPI_CHAR, MPI_COMM_WORLD);
       if (err != MPI_SUCCESS) {
 	fprintf(stdout,"util_getppn: MPI_Allgather failed\n");
 	ppn=0;
@@ -117,29 +88,14 @@ void FATR util_getppn_(Integer *ppn_out){
       }
       
       
-      for (i=0; i< size_group; i++){
+      for (i=0; i< num_procs; i++){
 	if(strcmp(myhostname,&recvbuf[mxlen*i])==0) ppn++;
       }
       
       /*	  free malloc'ed memory */
       free(recvbuf);
-      /*flush group and comm*/
-      err=MPI_Group_free(&group_handle);
-      if (err != MPI_SUCCESS) {
-	fprintf(stdout,"util_getppn: MPI_Group_free failed\n");
-	ppn=0;
-	goto errlab;
-      }
       
-      err=MPI_Comm_free(&group_comm);
-      if (err != MPI_SUCCESS) {
-	fprintf(stdout,"util_getppn: MPI_Comm_free failed\n");
-	ppn=0;
-	goto errlab;
-      }
       
-    }
-    /* back to world comm  -- i hope */
     /* broadcast ppn to everybody */
     err= MPI_Bcast(&ppn, 1, MPI_INT, 0, MPI_COMM_WORLD);
     if (err != MPI_SUCCESS) {
@@ -153,16 +109,17 @@ void FATR util_getppn_(Integer *ppn_out){
     modppn = num_procs%ppn;
     if (modppn ==0){
       ppn_initialized=1;
-      *ppn_out = (long) ppn;
+      *ppn_out = (Integer) ppn;
       return;
     }else{
       printf(" ERROR: numprocs %d  ppn %d  mod %d\n", num_procs, ppn,  modppn);
       goto errlab;
     }
+#endif
   errlab:
     GA_Error(" util_getppn failure", 0);
+    return;
   }
-#endif
 } 
 
 /* C binding for util_ppn */
