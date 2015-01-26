@@ -490,8 +490,12 @@ cstaggering to avoid congestion in ga-acc
          call dgemm('t', 'n', nvir, ssij, nbf, 1.d0,
      $               xc(1,vlo), nbf, ssni(1,jlo,ilo,a),
      $               nbf, 0.d0, ssv, nvir )
+! scale=1.0 is the common case, scale=0.5 is exception on i=j
          do b=ostart,ostart+nocc-1
            call dfill(nni,0.d0,h1,1)
+! this could be DGEMV if ssv(v,j,i) is transposed to ssv2(v,i,j)
+! in the current form, we can use a loop over range(i) DAXPYs
+! TODO: use DAXPY here
            do j=jlo,jhi
              cc = c(j,b)
              do i=ilo,ihi
@@ -507,6 +511,11 @@ cstaggering to avoid congestion in ga-acc
          enddo
          do b=ostart,ostart+nocc-1
            call dfill(nnj,0.d0,h2,1)
+! this is a DGEMV call of the form
+! h2(vj) += cb(i) * ssv(vj,i)
+! where we fuse vj=j*vdim+v
+! and set cb(:) = c(:,b)
+! TODO: actually use DGEMV here
            do i=ilo,ihi
             cc = c(i,b)
             do j=jlo,jhi
