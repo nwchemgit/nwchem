@@ -2773,7 +2773,6 @@ c
       if( .not. rtdb_get(rtdb,'task:mm',mt_log,1,omm))
      &    omm = .false.
 
-        write(*,*) "omm is",omm
       if ( rtdb_get_info(rtdb, 'geometry:actlist', ma_type, 
      $     nelem, date) .or.
      $     rtdb_get_info(rtdb, 'geometry:inactlist', ma_type, 
