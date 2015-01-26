@@ -14,7 +14,7 @@
 
       integer MASTER,taskid
       parameter (MASTER=0)
-      logical oprint,lstress_numerical
+      logical oprint,lstress_numerical,noit_energy
 
       integer l,i,j
       integer r1(2),geom,nion
@@ -49,15 +49,12 @@
       double precision RIJ_lstress(6)
       double precision ewaldG_lstress(6)
 
-
-
-
       integer date_len
       character*40 date_string
 
 *     *** external functions ****
-      logical  paw_noit_energy
-      external paw_noit_energy
+      logical  paw_noit_energy,paw_energy
+      external paw_noit_energy,paw_energy
 
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER)
@@ -75,6 +72,11 @@
      >    btdb_get(rtdb,'nwpw:lstress_numerical',
      >             mt_log,1,lstress_numerical))
      >  lstress_numerical = .false.
+
+      if (.not.
+     >    btdb_get(rtdb,'nwpw:noit_stress_numerical',
+     >             mt_log,1,noit_energy))
+     >  noit_energy = .false.
 
 
 *     **** get finite difference step and initialize ****
@@ -115,7 +117,11 @@
       end if
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
-      value = value.and.paw_noit_energy(rtdb)
+      if (noit_energy) then
+         value = value.and.paw_noit_energy(rtdb)
+      else
+         value = value.and.paw_energy(rtdb)
+      end if
 
 
       value = value.and.
@@ -160,8 +166,11 @@
       end if
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
-    
-      value = paw_noit_energy(rtdb)
+      if (noit_energy) then
+         value = value.and.paw_noit_energy(rtdb)
+      else
+         value = value.and.paw_energy(rtdb)
+      end if
 
 
       value = value.and.btdb_get(rtdb,'paw:E_ke',mt_dbl,1,E)
@@ -230,7 +239,11 @@
             if (oprint) call util_flush(6)
             call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
             value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
-            value = value.and.paw_noit_energy(rtdb)
+            if (noit_energy) then
+               value = value.and.paw_noit_energy(rtdb)
+            else
+               value = value.and.paw_energy(rtdb)
+            end if
 
             value = value.and.
      >               btdb_get(rtdb,'paw:E_ke',mt_dbl,1,E)
@@ -271,7 +284,11 @@
             if (oprint) call util_flush(6)
             call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
             value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
-            value = value.and.paw_noit_energy(rtdb)
+            if (noit_energy) then
+               value = value.and.paw_noit_energy(rtdb)
+            else
+               value = value.and.paw_energy(rtdb)
+            end if
 
             value = value.and.
      >               btdb_get(rtdb,'paw:E_ke',mt_dbl,1,E)
