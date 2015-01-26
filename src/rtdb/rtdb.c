@@ -4,7 +4,7 @@
 #include "rtdb.h"
 #include "macdecls.h"
 #include "ga.h"
-#include "hdbm.h"
+#include "hdbm/hdbm.h"
 
 #define TYPE_RTDB_HANDLE  30001
 #define TYPE_RTDB_STATUS  30002

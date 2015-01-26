@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 #ifdef USE_HDBM
-#include "hdbm.h"
+#include "hdbm/hdbm.h"
 #define DBT datum
 #define SIZE(a) ((a).dsize)
 #define DATA(a) ((a).dptr)
