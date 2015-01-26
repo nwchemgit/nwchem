@@ -1,5 +1,5 @@
 
-# $Id$
+# $Id: makefile.h 26564 2014-12-22 17:20:10Z jhammond $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -42,11 +42,15 @@ endif
 #
 # NWCHEM_TARGET :  
 #                  CYGNUS       (Windows under Cygwin tools)
+#                  DECOSF
 #                  IBM
 #                  LINUX        NWCHEM_TARGET_CPU :
 #                                                  nothing for X86 (e.g. do not set this)
+#                                                  ALPHA for AlphaLinux (broke)
 #                                                  POWERPC for MkLinux 
 #                  SGI
+#                  SGI_N32      NWCHEM_TARGET_CPU : R8000 or R10000
+#                  SGITFP       NWCHEM_TARGET_CPU : R8000 or R10000
 #                  SOLARIS      NWCHEM_TARGET_CPU : not defined or ULTRA
 #                  LAPI         NWCHEM_TARGET_CPU : P2SC
 #                      (uses thread safe libraries and LAPI)
@@ -58,7 +62,7 @@ error2:
 	@echo You must define NWCHEM_TARGET in your environment to be the name
 	@echo of the machine you wish to build for ... for example
 	@echo     setenv NWCHEM_TARGET SOLARIS
-	@echo Known targets are SOLARIS, ...
+	@echo Known targets are SOLARIS, SGI_N32, ...
 	@echo See the INSTALL instructions for a complete list
 	@exit 2
 endif
@@ -223,6 +227,8 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 #
 #        NWCHEM_TARGET                NWCHEM_TARGET_CPU          
 #           LAPI                         P2SC
+#           SGITFP                       R10000/R8000
+#           SGI_N32                      R10000/R8000
 #
 
 
@@ -402,47 +408,282 @@ endif
     CORE_LIBS += -lsocket -lrpcsvc -lnsl
     EXTRA_LIBS =  -ldl -lfsu
   endif
+
+
 #end of solaris
 endif
 
 ifeq ($(TARGET),PURESOLARIS)
-    @echo DEPRECATED
-    @exit
+#
+# NOT TESTED RECENTLY
+#
+# Sun running Solaris 2.4 or later and if you want to use purecoverage tool you must
+#
+      SHELL := $(NICE) /bin/sh
+    CORE_SUBDIRS_EXTRA = blas lapack
+         CC = purecov gcc
+         FC = purecov f77
+     RANLIB = echo
+  MAKEFLAGS = -j 2 --no-print-directory
+    INSTALL = echo $@ is built
+# -fast introduces many options that must be applied to all files
+# -stackvar puts locals on t
+# the stack which seems a good thing
+#     but may need to increase the stacksize at runtime using limit
+# -xs allows debugging without .o files
+   FOPTIONS = -Nl199 -fast -dalign -stackvar
+   COPTIONS = -Wall
+# Under Solaris -O3 is the default with -fast (was -O2 with SUNOS)
+# -fsimple=2 enables more rearranging of floating point expressions
+# -depend enables more loop restructuring
+  FOPTIMIZE = -O3 -fsimple=2 -depend 
+# Under Solaris -g no longer disables optimization ... -O2 seems solid
+# but is slow and impairs debug ... use -O1 for speed and debugability
+     FDEBUG = -g -O1
+  COPTIMIZE = -g -O1
+   LIBPATH += -L/usr/ucblib
+   LIBPATH += -L/afs/msrc/sun4m_54/apps/purecov
+   OPTIONS = -xildoff -Bstatic
+   CORE_LIBS +=  -llapack $(BLASOPT) -lblas
+# First four needed for parallel stuff, last for linking with profiling
+	   EXTRA_LIBS = -lsocket -lrpcsvc -lnsl -lucb -lintl -lc -lc -lpurecov_stubs
+
+#end of puresolaris
 endif
 
-ifeq ($(TARGET),FUJITSU_VPP)
-    @echo DEPRECATED
-    @exit
-endif
-
-ifeq ($(TARGET),FUJITSU_VPP64)
-    @echo DEPRECATED
-    @exit
-endif
-
-ifeq ($(TARGET),cray-sv2)
-    @echo DEPRECATED
-    @exit
-endif
 
 ifeq ($(TARGET),CRAY-T3E)
-    @echo DEPRECATED
-    @exit
+#
+#
+   CORE_SUBDIRS_EXTRA = blas lapack # Only a couple of routines not in scilib
+               RANLIB = echo
+            MAKEFLAGS = -j 1 --no-print-directory
+              INSTALL = @echo $@ is built
+        OUTPUT_OPTION =
+
+                   FC = f90
+                  CPP = /opt/ctl/CC/CC/lib/mppcpp -P  -N
+             FOPTIONS = -d p -F 
+             COPTIONS =
+               FDEBUG = -O scalar1
+#               FDEBUG = -g
+            FOPTIMIZE = -O scalar3,aggress,unroll2,vector3
+#,pipeline3
+               CDEBUG = -O 1
+            COPTIMIZE = -O
+#
+# to debug code you must remove the -s flag unless you know assembler
+#
+#            LDOPTIONS = -g -Xm  -lmfastv
+            LDOPTIONS = -Wl"-s" -Xm  -lmfastv
+
+              DEFINES = -DCRAY_T3E -DCRAY_T3D -D__F90__ -DUSE_FCD
+
+               LINK.f = f90 $(LDFLAGS)
+
+            CORE_LIBS += -llapack $(BLASOPT) -lblas
+#
+# 
+ifeq ($(BUILDING_PYTHON),python)
+#** on the NERSC CRAY-T3E you need to:
+#**** % module load python
+#**** % module load tcltk
+      EXTRA_LIBS += -ltk -ltcl -lX11
+endif
+#
+
+      FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
+      EXPLICITF     = TRUE
 endif
 
 ifeq ($(TARGET),SGITFP)
-    @echo DEPRECATED
-    @exit
+#
+# SGI power challenge
+#
+# CORE_SUBDIRS_EXTRA are those machine specific libraries required 
+#
+# TPS 95/11/22:
+# Optimization options const_copy_limit=18000, global_limit=18000 and 
+# fprop_limit=1200 added to FOPTIMIZE to allow full optimization of the 
+# MD module nwArgos on SGI Power Indigo^2
+#
+# RJH ... note that fprop_limit is not supported by 7.0 compilers
+#
+# TPS 95/12/12:
+# Increased fprop_limit to 1750
+# Removed -j 12 from MAKEFLAGS
+# Added -lnwcutil to core libraries
+#
+# TPS 96/01/14:
+# Increased const_copy_limit and global_limit to 18500
+#
+# RJH ... from Roberto ... on the R10k TENV=3 may cause very expensive
+#     interrupts (he recommends 1 when we go to 10K, but 3 is good for 8k)
+#     ... also going to 10K use -SWP:if_conversion=OFF
+#     ... in going to 6.1/2 then should also set -SWP:*ivdep*=ON/OFF
+#         (default changed from agressive to conservative and we want
+#         the agressive)
+#     ... sometimes the default KAP parameters are best (only for critical
+#         routines)
+#     ... -dr=AKC forces it to recognize all compiler directives (C=CRAY
+#         not on by default) ... can put everywhere.
+#     ... on -WK also add -r=3 (level of reduction) even with -o=1
+#     ... could benefit from -Wk on FOPTIMIZE ... actually have it on now.
+#     ... roundoff/ieee only modify pipelining which happens only at O3
+#
+# TPS 96/06/27:
+# Added -lnwcutil to core libraries (again!)
+#
+# TPS 96/07/26:
+# Fortran optimization limits: const_copy_limit=20000 
+#                              global_limit=20000
+#                              fprop_limit=2000
+#
+# JN 96/10/02:
+# Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
+#
+# JN 99/05/26: MA now has its own library -lma
+#
+# TLW 99/10/08:
+# From Gerardo Cisneros
+#  - took out obsolete options
+#       "-OPT:fold_arith_limit=4000"
+#       "-OPT:fprop_limit=2000"
+#       "-OPT:global_limit=20000"
+#       "-SWP:if_conversion=OFF"
+
+
+	CPP = /usr/lib/cpp
+  CORE_SUBDIRS_EXTRA = blas lapack
+         FC = f77
+     RANLIB = echo
+
+
+    INSTALL = @echo nwchem is built
+  MAKEFLAGS = -j 4 --no-print-directory
+
+# RJH ... moved -OPT... to the FOPTIMIZE macro since it's an optimization!
+# (that breaks things).
+  FOPTIONS = -d8 -i8 -mips4 -align64 -64 -r8 -G 0 
+  COPTIONS = -fullwarn -mips4 -64
+
+#optimization flags for R8000 (IP21)
+# FOPTIMIZE_8K = -O3 -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+ FOPTIMIZE_8K = -O3 -OPT:const_copy_limit=20000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_8K = -O3 -TENV:X=3 -WK,-dr=AKC
+
+#optimization flags for R10000 (IP28)
+ FOPTIMIZE_10K = -O3 -OPT:const_copy_limit=20000:Olimit=4800 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_10K = -O3 -TENV:X=1 -WK,-dr=AKC
+
+#optimization flags for R12000 (IP30)
+ FOPTIMIZE_12K = -O3 -OPT:const_copy_limit=20000:Olimit=4800 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_12K = -O3 -TENV:X=1 -WK,-dr=AKC
+
+ COPTIMIZE = -O
+ FOPTIMIZE = -O3
+
+ifeq ($(NWCHEM_TARGET_CPU),R12000)
+ FOPTIMIZE = $(FOPTIMIZE_12K)
+ FVECTORIZE = $(FVECTORIZE_12K)
 endif
+ifeq ($(NWCHEM_TARGET_CPU),R10000)
+ FOPTIMIZE = $(FOPTIMIZE_10K)
+ FVECTORIZE = $(FVECTORIZE_10K)
+endif
+ifeq ($(NWCHEM_TARGET_CPU),R8000)
+ FOPTIMIZE = $(FOPTIMIZE_8K)
+ FVECTORIZE = $(FVECTORIZE_8K)
+endif
+  FOPTIMIZE += -OPT:roundoff=3:IEEE_arithmetic=3
+  FVECTORIZE += -OPT:roundoff=3:IEEE_arithmetic=3
+
+  DEFINES = -DSGI -DSGITFP -DEXT_INT
+  CORE_LIBS += -llapack $(BLASOPT) -lblas
+ifeq ($(BUILDING_PYTHON),python)
+#needed for python 2.2.2
+      EXTRA_LIBS += -lpthread
+endif
+endif
+
+
+
 
 ifeq ($(TARGET),SGI_N32)
-    @echo DEPRECATED
-    @exit
+#
+# SGI 64-bit MIPS-4 processors (R5k, R8k, R10k) under IRIX > 6.0  (ABI)
+#
+# JN, 12.06.96:
+# -n32 allows to use 64-bit processor features and 32-bit address space
+# 32-bit address space - use SGITFP if 64-bit addresses needed
+#
+# SGI BLAS can be used directly
+
+    CORE_SUBDIRS_EXTRA = lapack
+         FC = f77
+         CPP = /usr/lib/cpp
+         AR = ar
+     RANLIB = echo
+
+    INSTALL = @echo nwchem is built
+  MAKEFLAGS = -j 4 --no-print-directory
+    DEFINES = -DSGI  -DSGI_N32
+
+# RJH ... moved -OPT... to the FOPTIMIZE macro since it's an optimization!
+# (that breaks things).
+  FOPTIONS = -n32 -mips4 -G 0 
+  COPTIONS = -n32 -mips4 -fullwarn
+
+#optimization flags for R8000 (IP21)
+ FOPTIMIZE_8K = -O3 -OPT:const_copy_limit=20000 -TENV:X=3 -WK,-so=1,-o=1,-r=3,-dr=AKC
+FVECTORIZE_8K = -O3 -TENV:X=3 -WK,-dr=AKC
+
+#optimization flags for R10000 (IP28)
+ FOPTIMIZE_10K = -O3 -OPT:const_copy_limit=20000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC 
+FVECTORIZE_10K = -O3 -TENV:X=1 -WK,-dr=AKC
+
+#optimization flags for R12000 (IP27)
+# FOPTIMIZE_12K = -O   -r12000  -TARG:platform=ip27  -LNO:cs2=8M -TENV:X=3
+# FOPTIMIZE_12K = -O3 -r12000 -TARG:platform=ip27 -LNO:prefetch=1:cs2=8M:fusion=2:fission=2 -LIST:all_options -OPT:swp=ON:space=ON 
+# FVECTORIZE_12K = -O3 -r12000 -TARG:platform=ip27 -LNO:prefetch=1:cs2=8M:fusion=2:fission=2 -LIST:all_options -OPT:swp=ON:space=ON 
+# The above options are some Edo used to optimize for a particular machine
+ FOPTIMIZE_12K = -O3 -OPT:const_copy_limit=20000 -TENV:X=1 -WK,-so=1,-o=1,-r=3,-dr=AKC 
+FVECTORIZE_12K = -O3 -TENV:X=1 -WK,-dr=AKC
+
+ FOPTIMIZE = -O3
+ COPTIMIZE = -O2
+
+ifeq ($(NWCHEM_TARGET_CPU),R12000)
+ FOPTIMIZE = $(FOPTIMIZE_12K)
+ FVECTORIZE = $(FVECTORIZE_12K)
+endif
+ifeq ($(NWCHEM_TARGET_CPU),R10000)
+ FOPTIMIZE = $(FOPTIMIZE_10K)
+ FVECTORIZE = $(FVECTORIZE_10K)
+endif
+ifeq ($(NWCHEM_TARGET_CPU),R8000)
+ FOPTIMIZE = $(FOPTIMIZE_8K)
+ FVECTORIZE = $(FVECTORIZE_8K)
+endif
+  FOPTIMIZE += -OPT:roundoff=3:IEEE_arithmetic=3
+  FVECTORIZE += -OPT:roundoff=3:IEEE_arithmetic=3
+
+ifeq ($(BUILDING_PYTHON),python)
+# needed if python was compiled with gcc (common)
+      EXTRA_LIBS += -L/msrc/apps/gcc-2.8.1/lib/gcc-lib/mips-sgi-irix6.5/2.8.1 -lgcc
+# needed here if using a python version with tk/tcl extensions  (common)
+      EXTRA_LIBS += -L/msrc/apps/lib -ltk8.0 -ltcl8.0 
+# needed here if using a python version built with BLT extensions
+#     EXTRA_LIBS += -L/msrc/apps/lib -lBLT 
+# Both tk/tcl and BLT need X11 (common)
+      EXTRA_LIBS += -lX11
 endif
 
-ifeq ($(TARGET),DECOSF)
-    @echo DEPRECATED
-    @exit
+       CORE_LIBS += -llapack $(BLASOPT) -lblas 
+ifeq ($(BUILDING_PYTHON),python)
+#needed for python 2.2.2
+      EXTRA_LIBS += -lpthread
+endif
 endif
 
 ifeq ($(TARGET),HPUX)
@@ -817,6 +1058,51 @@ endif
 #
 endif
 
+ifeq ($(TARGET),DECOSF)
+#
+# DEC AXP OSF1
+#
+# JN 96/10/02:
+# Replaced -DLongInteger with -DEXT_INT for consistency with GA, DRA, PEIGS ...
+
+    CORE_SUBDIRS_EXTRA = blas lapack
+#                  NICE = nice
+#                SHELL := $(NICE) /bin/sh
+                    FC = f77
+                    AR = ar
+                RANLIB = echo
+	 	   CPP = /usr/bin/cpp -P -C	
+
+               INSTALL = @echo nwchem is built
+             MAKEFLAGS = -j 1 --no-print-directory
+
+# -fpe2 and call to util/dec_fpe.f from nwchem.F necessary to avoid
+# braindead alpha undflows inside texas (c6h6 6-31g)
+
+# assume noaccuracy_sensitive was breaking the code in recent versions (EA)
+              FDEBUG = -g -O0
+              FOPTIONS = -align dcommons -math_library fast -fpe2 -check nounderflow -check nopower -check nooverflow  -warn argument_checking -warn unused -automatic -math_library fast
+
+             COPTIONS = 
+             LDOPTIONS = -O
+             LINK.f = f77 $(LDFLAGS)
+             FOPTIMIZE =  -O4  -tune host -arch host  
+             FVECTORIZE = -fast -O4 -tune host -arch host
+             COPTIMIZE = -O
+
+               DEFINES = -DDECOSF
+ifdef USE_I4FLAGS
+              FOPTIONS +=  -i4
+else
+              FOPTIONS +=  -i8
+endif
+               DEFINES +=  -DEXT_INT 
+             CORE_LIBS +=  -llapack $(BLASOPT) -lblas 
+            EXTRA_LIBS = -laio 
+ifeq ($(BUILDING_PYTHON),python)
+      EXTRA_LIBS += -lX11
+endif
+endif
 ifeq ($(TARGET),MACX)
   FC = gfortran
   _FC = gfortran
@@ -1551,6 +1837,26 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
      endif
      RANLIB = echo
      DEFINES   +=   -DLINUX -DLINUX64
+     ifeq ($(_CPU),alpha)
+# using COMPAQ/DEC compilers (EA 3/13/2000)
+       FC  = fort
+       CC  = ccc      
+       FOPTIONS   += -assume no2underscore -align dcommons -check nooverflow -assume accuracy_sensitive -check nopower -check nounderflow  -noautomatic
+       DEFINES   +=   -DLINUXALPHA
+       FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
+       FVECTORIZE = -fast -O5 -tune host -arch host
+
+       ifdef USE_I4FLAGS
+         FOPTIONS +=  -fpe0
+# needed: binutils 2.11 for -taso option with some more hacking on bfd/elf.c
+       else
+         FOPTIONS += -fpe3
+       endif
+         LINK.f = fort $(LDFLAGS)  
+# this creates a static executable
+#  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
+#         CORE_LIBS += -llapack $(BLASOPT) -lblas
+     endif
 
     ifeq ($(_CPU),ia64)
 # Itanium  
@@ -1946,6 +2252,146 @@ endif
 endif
 endif
 #endof of LINUX64
+
+ifeq ($(TARGET),FUJITSU_VPP)
+#
+# FUJITSU VPP5000 32-bit
+#
+
+         FC = frt
+      CPP = /lib/cpp -P -C
+     RANLIB = echo
+  MAKEFLAGS = 
+    INSTALL = @echo $@ is built
+                        
+    DEFINES = -DFUJITSU_VPP
+    USE_MPI = TRUE
+
+ #search include files for tools directories that are not built
+   LIB_INCLUDES += -I$(NWCHEM_TOP)/src/tools/include \
+                   -I$(NWCHEM_TOP)/src/tools/ma \
+                   -I$(NWCHEM_TOP)/src/tools/tcgmsg-mpi \
+                   -I$(NWCHEM_TOP)/src/tools/global/src \
+                   -I$(NWCHEM_TOP)/src/tools/pario/eaf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/elio \
+                   -I$(NWCHEM_TOP)/src/tools/pario/sf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/dra
+
+ #change DEFINES and LIB_DEFINES so that frt understands them and add them
+ #to FOPTIONS
+     comma:= ,
+     end:=
+     space:= $(end) $(end)
+   FDEFINES_1:= $(DEFINES) $(LIB_DEFINES)
+   FDEFINES:= -Wp,$(subst $(space),$(comma),$(strip $(FDEFINES_1)))
+    FOPTIONS = -w -Sw -KA32 $(FDEFINES)
+    COPTIONS = -KA32
+     FDEBUG = -Ob -g
+  FOPTIMIZE = -Kfast
+  COPTIMIZE = -K4
+
+# removed global, ma, tcgmsg-mpi, as they are part of the native GA
+ NW_CORE_SUBDIRS = include basis geom inp input  \
+       pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
+
+ifdef OLD_GA
+        CORE_LIBS = -lnwcutil \
+                    -L$(GA_LIBDIR) -lglobal -lpario -lma -lpeigs \
+                    -ltcgmsg-mpi -L/usr/lang/mpi2/lib32 -lmpi -lmp
+else
+        CORE_LIBS = -lnwcutil \
+                    -L$(GA_LIBDIR) -lga -lpeigs \
+                    -L/usr/lang/mpi2/lib32 -lmpi -lmp
+endif
+       EXTRA_LIBS = -llapackvp -lblasvp -lsocket -Wl,-J,-P,-t,-dy
+#end of FUJITSU_VPP 
+endif
+
+ifeq ($(TARGET),FUJITSU_VPP64)
+#
+# FUJITSU VX/VPP 64-bit
+#
+
+         FC = frt
+      CPP = /lib/cpp -P -C
+     RANLIB = echo
+  MAKEFLAGS = 
+    INSTALL = @echo $@ is built
+                        
+    DEFINES = -DFUJITSU_VPP -DEXT_INT
+    USE_MPI = TRUE
+     CORE_SUBDIRS_EXTRA = blas lapack
+
+ #search include files for tools directories that are not built
+   LIB_INCLUDES += -I$(NWCHEM_TOP)/src/tools/include \
+                   -I$(NWCHEM_TOP)/src/tools/ma \
+                   -I$(NWCHEM_TOP)/src/tools/tcgmsg-mpi \
+                   -I$(NWCHEM_TOP)/src/tools/global/src \
+                   -I$(NWCHEM_TOP)/src/tools/pario/eaf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/elio \
+                   -I$(NWCHEM_TOP)/src/tools/pario/sf \
+                   -I$(NWCHEM_TOP)/src/tools/pario/dra
+
+ #change DEFINES and LIB_DEFINES so that frt understands them and add them
+ #to FOPTIONS
+     comma:= ,
+     end:=
+     space:= $(end) $(end)
+   FDEFINES_1:= $(DEFINES) $(LIB_DEFINES)
+   FDEFINES:= -Wp,$(subst $(space),$(comma),$(strip $(FDEFINES_1)))
+    FOPTIONS = -w -Sw -KA64 -CcdII8 -CcdLL8 $(FDEFINES)
+    COPTIONS = -KA64
+     FDEBUG = -Ob -g
+  FOPTIMIZE = -Kfast
+  COPTIMIZE = -K4
+
+# removed global, ma, tcgmsg-mpi, as they are part of the native GA
+ NW_CORE_SUBDIRS = include basis geom inp input  \
+       pstat rtdb task symmetry util peigs $(CORE_SUBDIRS_EXTRA)
+
+ifdef OLD_GA
+        CORE_LIBS = -lnwcutil \
+                    -L$(GA_LIBDIR) -lglobal -lpeigs -lpario -lma \
+                    -ltcgmsg-mpi -L/usr/lang/mpi2/lib64 -lmpi -lmp
+else
+        CORE_LIBS = -lnwcutil \
+                    -L$(GA_LIBDIR) -lga -lpeigs \
+                    -L/usr/lang/mpi2/lib64 -lmpi -lmp
+endif
+       EXTRA_LIBS = -llapack -lblas -lsocket -Wl,-J,-P,-t,-dy
+#end of FUJITSU_VPP64
+endif
+
+ifeq ($(TARGET),cray-sv2)
+#
+# Cray sv2 aka x1
+#
+
+         FC = ftn
+     RANLIB = echo
+  MAKEFLAGS = 
+    INSTALL = @echo $@ is built
+    DEFINES =  -DEXT_INT  -DUSE_POSIXF  -DUSE_FFIO
+    USE_FFIO = y
+     CORE_SUBDIRS_EXTRA = blas lapack
+
+   FOPTIONS =  -F -s integer64
+   ifdef USE_SSP
+      FOPTIONS += -O ssp
+      COPTIONS += -h ssp
+   endif
+   FOPTIMIZE = -O scalar3,aggress,unroll2,vector2
+      FDEBUG = -O scalar1,vector1
+   COPTIMIZE = -O -h inline2  -h aggress
+
+
+       EXTRA_LIBS = -lsci64 -llapack  -lblas  # need make dbl_to_sngl for this
+#       EXTRA_LIBS =  -llapack  -lblas 
+
+#      EXPLICITF     = TRUE
+      FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
+#end of sv2
+endif
 
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 #
