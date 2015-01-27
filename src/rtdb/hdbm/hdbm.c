@@ -445,7 +445,7 @@ int hdbm_open(const char *name, int use_file, hdbm *db)
 	if (!(hash_tables[i].file = fopen(name, "r+b")))
 	    if (!(hash_tables[i].file = fopen(name, "w+b"))) {
 perror(name);
-		(void) fprintf(stderr, "hdbm_open: open of %s failed %x\n", name,hash_tables[i].file);
+		(void) fprintf(stderr, "hdbm_open: open of %s failed\n", name);
 		return 0;
 	    }
 	retval = hdbm_fseek(hash_tables[i].file, 0L, SEEK_END);
