@@ -302,16 +302,16 @@ static int datum_fread(FILE *file, size_t file_ptr, size_t size, datum *d)
     d->dsize = 0;
     
     if (!(d->dptr = hdbm_malloc((size_t) size))) {
-	fprintf(stderr, "datum_fread: failed to malloc %d\n", size);
+	fprintf(stderr, "datum_fread: failed to malloc %lu\n", size);
 	return 0;
     }
     if (hdbm_fseek(file, file_ptr, SEEK_SET)) {
-	fprintf(stderr, "datum_fread: failed to position file %ld\n", 
+	fprintf(stderr, "datum_fread: failed to position file %lu\n", 
 		(long) file_ptr);
 	return 0;
     }
     if (hdbm_fread((char *) d->dptr, (size_t) 1, (size_t) size, file) != size) {
-	fprintf(stderr, "datum_fread: failed to read data %d\n", size);
+	fprintf(stderr, "datum_fread: failed to read data %lu\n", size);
 	return 0;
     }
     
