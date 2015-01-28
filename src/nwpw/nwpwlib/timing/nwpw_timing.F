@@ -57,7 +57,7 @@
 
 #include "nwpw_timing_common.fh"
       call current_second(t0)
-      call dcopy(50,0.0d0,0,times,1)
+      call dcopy(60,0.0d0,0,times,1)
       return 
       end
 
