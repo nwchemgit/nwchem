@@ -18,6 +18,7 @@ c
       character*10 today,now
       integer i,j,k,l
       character*2 elemnt
+      character*2 atom
 c
       character*1 cdummy
       character*7 string
@@ -155,14 +156,34 @@ c
       endif
 c
       if(fmt.eq.'xyz') then
-      write(iunit,*) nsa
-      write(iunit,*) 
-      do 41 i=1,nsa
+      write(iunit,*) nsa+nwa*nwm
+      write(iunit,*)
+      do 22 i=1,nsa
       elemnt=sgmnam(i)(6:7)
       if(elemnt(1:1).eq.'1'.or.elemnt(1:1).eq.'2'.or.
      + elemnt(1:1).eq.'3'.or.elemnt(1:1).eq.'4') elemnt(1:1)=' '
       write(iunit,*) elemnt,(1.0d1*x(i,j),j=1,3)
-   41 continue
+   22 continue
+      do 23 i=1,nwm
+      if(iwsel(i).ne.0) then
+      do 24 j=1,nwa
+      atom=wnam(j)(6:7)
+      if(atom(1:1).eq.'1') atom(1:1)=' '
+      if(atom(1:1).eq.'2') atom(1:1)=' '
+      if(atom(1:1).eq.'3') atom(1:1)=' '
+      if(atom(1:1).eq.'4') atom(1:1)=' '
+      if(atom(1:1).eq.'5') atom(1:1)=' '
+      if(atom(1:1).eq.'6') atom(1:1)=' '
+      if(atom(1:1).eq.'7') atom(1:1)=' '
+      if(atom(1:1).eq.'8') atom(1:1)=' '
+      if(atom(1:1).eq.'9') atom(1:1)=' '
+      if(atom(1:1).eq.'0') atom(1:1)=' '
+      if(atom(1:1).eq.' ') atom=atom(2:2)//' '
+      write(iunit,2501) atom,(1.0d1*w(i,j,k),k=1,3)
+ 2501 format(a2,3f12.6)
+   24 continue
+      endif
+   23 continue
       endif
 c
       if(fmt.eq.'amb') then
