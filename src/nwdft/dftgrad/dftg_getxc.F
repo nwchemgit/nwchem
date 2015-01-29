@@ -44,6 +44,7 @@ c
       character*4 scftype
 c
       integer nproc,i
+      double precision tol_rho_scf ! store scf tol_rho before hack
       logical grid_reopen
       external grid_reopen
 c
@@ -60,6 +61,11 @@ c
 c
       if (xc_gotxc())then
 c     
+c     hack tol_rho to improve gradient precision
+c
+      tol_rho_scf=tol_rho
+      tol_rho=min(tol_rho*0.1d0,1d-11)
+c
 c        Compute via direct numerical quadrature.
          if(.not.grid_written) then
 c
@@ -171,6 +177,10 @@ c
          endif
 c!!! BGJ test !!!
       endif
+c
+c    restore tol_rho value
+c
+      tol_rho = tol_rho_scf
 c
       return
       end
