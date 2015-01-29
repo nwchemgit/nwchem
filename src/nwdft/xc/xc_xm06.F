@@ -12,6 +12,7 @@ c                              ijzy - 4  M06-2X
 c     References: 
 c     [a]	Zhao, Y. and  Truhlar, D. G. J. Chem. Phys. 2006, 125, 194101;
 c     [b]       Zhao, Y. and  Truhlar, D. G. J. Phys. Chem. A (2006),110(49),13126-13130.    
+c     [c]       Grafenstein, J., Izotov, D. and Cremer, D. J. Chem. Phys.  2007, 127, 214103.
 
 
       Subroutine xc_xm06(tol_rho, fac,lfac,nlfac, rho, delrho, 
@@ -188,7 +189,7 @@ c
 c
              
             tauN = tau(n,1)
-         if(taun.lt.dtol) goto 10
+            if(taun.lt.dtol) goto 10
             tauu=tauN 
             TauUEG=0.3d0*P32*rho53
             Tsig =TauUEG/tauu
@@ -212,7 +213,7 @@ c
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
             Gamma = dsqrt(Gamma2)
-         if(gamma.lt.dtol) goto 10
+            if(gamma.lt.dtol) goto 10
             s      = Cs*Gamma/rho43
             s2     = s*s
             En     = C1*s2
@@ -272,6 +273,7 @@ c
 
              tauN = tau(n,1)
              tauu = Two*tauN
+             if(tauu.lt.dtol) goto 25
              TauUEG=0.3d0*P32*rho53
              Tsig =TauUEG/tauu
              Wsig =(Tsig-One)/(Tsig+One)
@@ -296,6 +298,7 @@ c
      &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = Four*Gamma2
             Gamma = dsqrt(Gamma2)
+            if(Gamma.lt.dtol) goto 25
 
             s      = Cs*Gamma/rho43
             s2     = s*s
@@ -354,6 +357,7 @@ c
 
              tauN = tau(n,2)
              tauu = Two*tauN
+             if(tauu.lt.dtol) goto 20
              TauUEG=0.3d0*P32*rho53
              Tsig =TauUEG/tauu
              Wsig =(Tsig-One)/(Tsig+One)
@@ -378,6 +382,7 @@ c
      &              delrho(n,3,2)*delrho(n,3,2)
             Gamma2 = Four*Gamma2
             Gamma = dsqrt(Gamma2)
+            if(Gamma.lt.dtol) goto 20
             s      = Cs*Gamma/rho43
             s2     = s*s
             En     = C1*s2

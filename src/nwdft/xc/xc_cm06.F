@@ -20,6 +20,7 @@ c
 c
 c     [a]   Zhao, Y. and  Truhlar, D. G. J. Chem. Phys. 2006, 125, 194101;
 c     [b]   Zhao, Y. and  Truhlar, D. G. J. Phys. Chem. A (2006),110(49),13126-13130.
+c     [c]   Grafenstein, J., Izotov, D. and Cremer, D. J. Chem. Phys. 2007, 127, 214103.
     
 
       implicit none
@@ -179,6 +180,16 @@ c UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUnrestricted
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
+         ChiA  = 0.0d0
+         ChiAP = 0.0d0
+         ChiAG = 0.0d0
+         ChiB  = 0.0d0
+         ChiBP = 0.0d0
+         ChiBG = 0.0d0
+         EUA   = 0.0d0
+         EUB   = 0.0d0
+         EUPA  = 0.0d0
+         EUPB  = 0.0d0
 c
 c       alpha
 c
@@ -192,6 +203,9 @@ c
 c  In the m05css subroutine, we use 2*TA as the tau 
 c
          TA = 2*tau(n,1) 
+
+         if(sqrt(gaa).lt.tol_rho) goto 25
+         if(ta.lt.tol_rho) goto 25
 
          Call m06css(Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG,ijzy)
@@ -214,6 +228,9 @@ c
      &          delrho(n,3,2)*delrho(n,3,2)
 
          TB = 2*tau(n,2)
+
+         if(sqrt(gbb).lt.tol_rho) goto 30
+         if(tb.lt.tol_rho) goto 30
 
          Call m06css(Tol_Rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                ChiB,EUPB,ChiBP,ChiBG,ijzy)
