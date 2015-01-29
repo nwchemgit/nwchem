@@ -1539,6 +1539,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
       call nwpw_timing_end(5)
 
+
       return
       end
 
@@ -1679,6 +1680,7 @@ c                end do
      >  call errquit('v_local:popping stack',0,MA_ERR)
 
       call nwpw_timing_end(5)
+
       return 
       end
 
@@ -2139,7 +2141,7 @@ c           end do
 
 *        **** update ncmp*Vloc ****
          if (move) call psp_dE_ncmp_vloc_Qlm(ispin,move,fion)
-        call nwpw_compcharge_add_dElocal_Qlm(ispin)
+         call nwpw_compcharge_add_dElocal_Qlm(ispin)
 
          do ip=1,nion_prj_indx
             ii          = int_mb(ii_prj_indx(1)+ip-1)
@@ -2954,9 +2956,6 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
       external lattice_omega
       logical  control_parallel_io
       external control_parallel_io
-      !MATHIAS
-      logical value
-      integer i
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
@@ -2976,7 +2975,6 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
 
 
 *     **** open fname binary file ****
-!$OMP SINGLE
       if (taskid_p.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
@@ -3007,7 +3005,6 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
          call iread(5,b_projector,nprj)
          end if
       end if
-!$OMP END SINGLE
 
 
 *     **** send header data to all processors ****
@@ -3025,8 +3022,6 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,iatom)
       atom(1:1) = char(iatom(1))
       atom(2:2) = char(iatom(2))
-
-
 
       msglen = 1
       call Parallela_Brdcst_values(com_p,MASTER,msglen,amass)
@@ -3054,6 +3049,7 @@ c      call f_vnonlocal_check(ispin,ne,psi1,fractional,occ)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,l_projector)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,m_projector)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,b_projector)
+
 
 *     ***** read in Gijl's ****
       if (nprj.gt.0) then
@@ -3647,8 +3643,12 @@ c     logocal semicore(0:nkatmx)
            write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
            write(luout,*)
          else 
+            cmment = comment(ia)
+            i = inp_strlen(cmment)
             write(luout,2141) ia,ion_atom(ia),psp_zv(ia),
      >                        psp_zion(ia)-psp_zv(ia)
+            write(luout,1157) cmment(1:i)
+            write(luout,1158) psp_psp_type(ia)
             write(luout,2142) psp_r1(ia)
             write(luout,2143) psp_rmax(ia)
             write(luout,2144) psp_n1dgrid(ia)
