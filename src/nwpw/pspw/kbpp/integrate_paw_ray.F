@@ -136,30 +136,33 @@
 
 *::::::::::::::::::::::::::::::  local  :::::::::::::::::::::::::::::::
         if (version.eq.3) then
-           do  i=1,nrho
-             xerf1 = rho(i)/sigma
-             yerf1 = util_erf(xerf1)
-             !f(i)=(rho(i)*vlocal(i)-zv*yerf1)*sn(i)
-             f(i)=(-zv*yerf1)*sn(i)
-           end do
+c           do  i=1,nrho
+c             xerf1 = rho(i)/sigma
+c             yerf1 = util_erf(xerf1)
+c             !f(i)=(rho(i)*vlocal(i)-zv*yerf1)*sn(i)
+c             f(i)=(-zv*yerf1)*sn(i)
+c           end do
 ccccc        vl_ray(k1)=simp(NRHO,F,DRHO)*forpi/Q-zv*forpi*CS(NRHO)/(Q*Q)
-           vl_ray(k1)=forpi
-     >               *log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
-     >            -zv*forpi*cs(nrho)/(Q*Q)
+c           vl_ray(k1)=forpi
+c     >               *log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
+c     >            -zv*forpi*cs(nrho)/(Q*Q)
+           vl_ray(k1)=-zv*(forpi/(Q*Q))*dexp(-0.25d0*(Q*sigma)**2)
         end if
  
         if (version.eq.4) then
-           do i=1,nrho
-             xerf1 = rho(i)/sigma
-             yerf1 = util_erf(xerf1)
-             xerf=rho(i)/rlocal
-             yerf = util_erf(xerf)
-             !f(i)=(rho(i)*vlocal(i)-zv*yerf1+zv*yerf)*sn(i)
-             f(i)=(-zv*yerf1+zv*yerf)*sn(i)
-           end do
+c           do i=1,nrho
+c             xerf1 = rho(i)/sigma
+c             yerf1 = util_erf(xerf1)
+c             xerf=rho(i)/rlocal
+c             yerf = util_erf(xerf)
+c             !f(i)=(rho(i)*vlocal(i)-zv*yerf1+zv*yerf)*sn(i)
+c             f(i)=(-zv*yerf1+zv*yerf)*sn(i)
+c           end do
 cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
-           vl_ray(k1)=forpi
-     >               *log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
+c           vl_ray(k1)=forpi
+c     >               *log_integrate_def(0,f,0,rho,log_amesh,nrho)/Q
+           vl_ray(k1)=-zv*(forpi/(Q*Q))*(dexp(-0.25d0*(Q*sigma)**2)
+     >                                  -dexp(-0.25d0*(Q*rlocal)**2))
         end if
 
 *       **** vlpaw potential ****
@@ -177,27 +180,33 @@ cccc        vl_ray(k1)=SIMP(NRHO,F,DRHO)*forpi/Q
 
 *:::::::::::::::::::::::::::::::  G=0  ::::::::::::::::::::::::::::::::      
       if (version.eq.3) then
-         do i=1,nrho
-           xerf1 = rho(i)/sigma
-           yerf1 = util_erf(xerf1)
-           !f(i)=(vlocal(i)*rho(i)-zv*yerf1)*rho(i)
-           f(i)=(-zv*yerf1)*rho(i)
-         end do
-         vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
-     >            +twopi*zv*rho(nrho)**2
+c         do i=1,nrho
+c           xerf1 = rho(i)/sigma
+c           yerf1 = util_erf(xerf1)
+c           !f(i)=(vlocal(i)*rho(i)-zv*yerf1)*rho(i)
+c
+c           !f(i)=(-zv*yerf1)*rho(i)
+c           f(i)=(-zv*yerf1)
+c         end do
+c         vl_ray(1)=forpi*log_integrate_def(1,f,1,rho,log_amesh,nrho)
+c     >            +twopi*zv*rho(nrho)**2
+         vl_ray(1) = zv*pi*sigma**2
+c          write(*,*) "vl(G=0)=",vl_ray(1),zv*pi*sigma**2,sigma,zv,pi
 c         vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
       end if
 
       if (version.eq.4) then
-         do i=1,nrho
-           xerf1 = rho(i)/sigma
-           yerf1 = util_erf(xerf1)
-           xerf=rho(i)/rlocal
-           yerf = util_erf(xerf)
-           !f(i)=(vlocal(i)*rho(i)-zv*yerf1+zv*yerf)*rho(i)
-           f(i)=(-zv*yerf1+zv*yerf)*rho(i)
-         end do
-         vl_ray(1)=forpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
+c         do i=1,nrho
+c           xerf1 = rho(i)/sigma
+c           yerf1 = util_erf(xerf1)
+c           xerf=rho(i)/rlocal
+c           yerf = util_erf(xerf)
+c           !f(i)=(vlocal(i)*rho(i)-zv*yerf1+zv*yerf)*rho(i)
+c           !f(i)=(-zv*yerf1+zv*yerf)*rho(i)
+c           f(i)=(-zv*yerf1+zv*yerf)
+c         end do
+c         vl_ray(1)=forpi*log_integrate_def(1,f,1,rho,log_amesh,nrho)
+         vl_ray(1) = zv*pi*(sigma**2-rlocal**2)
       end if
 
       do i=1,nrho
