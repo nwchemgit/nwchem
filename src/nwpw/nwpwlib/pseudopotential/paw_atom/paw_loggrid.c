@@ -71,6 +71,8 @@ void  paw_init_LogGrid_from_file( double Z, FILE *fp)
         r0 = r0Z/Z;
         Ngrid = (int) floor(log(Lmax/r0)/log_amesh)+1;
 
+        /* make sure Ngrid is odd */
+        if ((Ngrid%2)==0) Ngrid += 1;
 
     }
     else
