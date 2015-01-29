@@ -659,6 +659,9 @@
       log_bmesh = dlog(bmesh)
       nrho = int(dlog(25.0d0/0.00025d0)/log_bmesh) + 1
 
+      !*** make sure loggrid is odd ***
+      if (mod(nrho,2).eq.0) nrho = nrho + 1
+
       value = BA_push_get(mt_dbl,nray,'Gray',Gray(2),Gray(1))
       value = value.and.
      >        BA_push_get(mt_dbl,3*nray,'vlray',vlray(2),vlray(1))
@@ -747,34 +750,43 @@
       call dcopy(nray,0.0d0,0,vlray,1)
       do k=2,nray
          q = Gray(k)
-         do i=1,nrho
-            sn = dsin(q*rho(i))
-            xerf1 = rho(i)/sigma_smooth
-            yerf1 = util_erf(xerf1)
-            f(i)=(-yerf1)*sn
-         end do
-         cs = dcos(q*rho(nrho))
-         if (periodic) then
-            vlray(k,1)=fourpi
-     >            *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
-     >           -fourpi*cs/(q*q)
-         else
-            vlray(k,1)=fourpi
-     >            *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
-         end if
+c         do i=1,nrho
+c            sn = dsin(q*rho(i))
+c            xerf1 = rho(i)/sigma_smooth
+c            yerf1 = util_erf(xerf1)
+c            f(i)=(-yerf1)*sn
+c         end do
+c         cs = dcos(q*rho(nrho))
+
+c   aperiodic should not use this?
+c         if (periodic) then
+c            vlray(k,1)=fourpi
+c     >            *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
+c     >           -fourpi*cs/(q*q)
+            vlray(k,1)=-(fourpi/(q*q))*dexp(-0.25d0*(sigma_smooth*q)**2)
+c         else
+c            vlray(k,1)=fourpi
+c     >            *log_integrate_def(0,f,0,rho,log_amesh,nrho)/q
+c         end if
       end do
 
-      do i=1,nrho
-         xerf1 = rho(i)/sigma_smooth
-         yerf1 = util_erf(xerf1)
-         f(i)=(-yerf1)*rho(i)
-      end do
-      if (periodic) then
-         vlray(1,1) = fourpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
-     >              + twopi*rho(nrho)**2
-      else
-         vlray(1,1) = fourpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
-      end if
+c      do i=1,nrho
+c         xerf1 = rho(i)/sigma_smooth
+c         yerf1 = util_erf(xerf1)
+c         !f(i)=(-yerf1)*rho(i)
+c         f(i)=(-yerf1)
+c      end do
+
+c   aperiodic shou not use this?
+c      if (periodic) then
+c         vlray(1,1) = fourpi*log_integrate_def(1,f,1,rho,log_amesh,nrho)
+c     >              + twopi*rho(nrho)**2
+         vlray(1,1) = 0.5d0*twopi*sigma_smooth**2
+c         write(*,*) "Vksmooth(G=0)=",vlray(1,1),
+c     >              0.5d0*twopi*sigma_smooth**2
+c      else
+c         vlray(1,1) = fourpi*log_integrate_def(0,f,0,rho,log_amesh,nrho)
+c      end if
 
       if (control_kbpp_filter())
      >  call nwpw_kbpp_filter_ray(nray,Gray,ecut,vlray)
@@ -3289,10 +3301,9 @@ c     >                                         l2,m2,s1,Rab)
                            W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
                            !e1=e1+0.5d0*W1+0.5d0*W4-0.5d0*W2-0.5d0*W3
-                           !e1=e1+0.5d0*W1+0.5d0*W4-W2
-
-                           e1=e1+(W1+W4-2.0d0*W2)
+                           !e1=e1+(W1+W4-2.0d0*W2)
                            !e1=e1+(W1+W4-W2-W3)
+                           e1=e1+0.5d0*W1+0.5d0*W4-W2
                         end if
                      end do
 
@@ -4043,7 +4054,6 @@ c     >                                   +tmpz
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:popping stack',
      >               1,MA_ERR)
-
 
       fourpi = 16.0d0*datan(1.0d0)
       do k=1,ngauss
