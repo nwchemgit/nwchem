@@ -986,13 +986,11 @@ endif
 
 endif
 ifeq ($(TARGET),MACX64)
-    ifndef FC
-      @echo Defaulting to FC=gfortran
-      FC=gfortran
-    endif
-    ifndef _FC
-      _FC=$(FC)
-    endif
+
+   ifeq ($(FC),f77)
+     FC = gfortran
+     _FC = gfortran
+   endif
 #
 # MacOSX 64bit
 #
