@@ -46,7 +46,7 @@ c
      &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
      &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
      &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,
-     L	   lxdm,
+     L     lxdm,
 c
 c     old common handles 
 c
@@ -87,7 +87,7 @@ c
      &     nbf_cd_mxnbf_cn, nbf_cd_mxnbf_ce, nshells_cd,
      &     nbf_xc, nbf_xc_mxprim, nbf_xc_mxang, nbf_xc_mxcont, 
      &     nbf_xc_mxnbf_cn, nbf_xc_mxnbf_ce, nshells_xc,
-     L	   lxdm, 
+     L     lxdm,
 c
 c     old common handles 
 c
