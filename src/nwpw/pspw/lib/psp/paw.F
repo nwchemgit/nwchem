@@ -1320,33 +1320,17 @@ c           end do
       external psi_data_get_ptr
       external lattice_omega
 
-*     **** threads ****
-#ifdef USE_OPENMP
-      integer thPrjtmp(2)
-#endif
-      integer tid,nthr
-      integer Parallel_threadid, Parallel_nthreads
-      external Parallel_threadid, Parallel_nthreads
-
-      tid = Parallel_threadid()
-      nthr = Parallel_nthreads()
-
       call nwpw_timing_start(6) 
 
 *     **** allocate local memory ****
       nn = neq(1)+neq(2)
       call Pack_npack(1,npack1)
 
-      value = BA_push_get(mt_dcpl,npack1*nthr,'exi', exi(2), exi(1))
+      value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
-     >        BA_push_get(mt_dbl,nn*nprj_max*nthr,'sw1',sw1(2),sw1(1))
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
       value = value.and.
-     >        BA_push_get(mt_dbl,nn*nprj_max*nthr,'sw2',sw2(2),sw2(1))
-#ifdef USE_OPENMP
-      value = value.and.
-     >        BA_push_get(mt_dbl,npack1*nprj_max*nthr,'thPrjtmp',
-     >          thPrjtmp(2),thPrjtmp(1))
-#endif
+     >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
       if (.not.value) 
      >  call errquit('psp_overlap_S: out of stack',0,MA_ERR)
 
@@ -1354,22 +1338,17 @@ c           end do
       scal = 1.0d0/(omega)
       scalsqr = scal*scal
 
-!$OMP SINGLE
       call dcopy(2*npack1*nn,psi1,1,psi2,1)
-!$OMP END SINGLE
-      do iii=tid+1,nion_paw,nthr
+      do iii=1,nion_paw
         ii = int_mb(ion_pawtoion(1)+iii-1)
         ia = ion_katm(ii)
-        write(*,*) "Thread ",tid," working on ion ", iii,
-     >                                 " ii ",ii," ia ", ia
-        
 
         nproj = int_mb(nprj(1)+ia-1)
 
         if (nproj.gt.0) then
 
 *       **** structure factor and local pseudopotential ****
-        call strfac_pack(1,ii,dcpl_mb(exi(1)+nthr*tid))
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
 
 *       **** generate sw1's and projectors ****
         do l=1,nproj
@@ -1393,29 +1372,9 @@ c           end do
 *           **** phase fact DOES matter for compensation charge!!!!     ****
 *           **** assume that sign factor for proj is in kbpp formatting ****
 
-#ifdef USE_OPENMP
 *          *** current function is s or d ****
            if (sd_function) then
-              call Pack_tc_Mul(1, dbl_mb(shift),
-     >                           dcpl_mb(exi(1)+npack1*tid),
-     >                           dcpl_mb(thPrjtmp(1)+nproj*npack1*tid
-     >                            +(l-1)*npack1))
-*          *** current function is p or f ****
-           else
-              call Pack_tc_iMul(1,dbl_mb(shift),
-     >                           dcpl_mb(exi(1)+npack1*tid),
-     >                           dcpl_mb(thPrjtmp(1)+nproj*npack1*tid
-     >                            +(l-1)*npack1))
-           end if
-           call Pack_cc_indot(1,nn,
-     >                      psi1,
-     >                      dcpl_mb(thPrjtmp(1)+nproj*npack1*tid
-     >                         +(l-1)*npack1),
-     >                      dbl_mb(sw1(1)+nn*nproj*tid+(l-1)*nn))
-#else
-*          *** current function is s or d ****
-           if (sd_function) then
-              call Pack_tc_Mul(1, dbl_mb(shift),
+              call Pack_tc_Mul(1,dbl_mb(shift),
      >                           dcpl_mb(exi(1)),
      >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
 *          *** current function is p or f ****
@@ -1427,14 +1386,10 @@ c           end do
            call Pack_cc_indot(1,nn,
      >                      psi1,
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
-     >                      dbl_mb(sw1(1)+nn*nproj*tid+(l-1)*nn))
-#endif
+     >                      dbl_mb(sw1(1)+(l-1)*nn))
+
         end do
-!MATHIAS we could do multiple ions at a time by changing the layout
-!MATHIAS This calls MPI so CRITICAL required
-!$OMP CRITICAL
-        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)+nn*nproj*tid))
-!$OMP END CRITICAL
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
 
 *       **** sw2 = Sijl*sw1 ******
         Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),2)
@@ -1449,40 +1404,26 @@ c           end do
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         dbl_mb(Gijl_indx),
-     >                         dbl_mb(sw1(1)+nn*nproj*tid),
-     >                         dbl_mb(sw2(1)+nn*nproj*tid))
+     >                         dbl_mb(sw1(1)),
+     >                         dbl_mb(sw2(1)))
         
 *       **** do Kleinman-Bylander Multiplication ****
         !scal = 1.0d0/(omega)
         !nproj = int_mb(nprj(1)+ia-1)
         !call dscal(nn*int_mb(nprj(1)+ia-1),scal,dbl_mb(sw2(1)),1)
-
-        call dscal(nn*nproj,scal,dbl_mb(sw2(1)+nn*nproj*tid),1)
-
-#ifdef USE_OPENMP
-        call DGEMM('N','T',2*npack1,nn,nproj,
-     >             (1.0d0),
-     >             dcpl_mb(thPrjtmp(1)+npack1*nproj*tid), 2*npack1,
-     >             dbl_mb(sw2(1)),     nn,
-     >             (1.0d0),
-     >             psi2,               2*npack1)
-#else
+        call dscal(nn*nproj,scal,dbl_mb(sw2(1)),1)
         call DGEMM('N','T',2*npack1,nn,nproj,
      >             (1.0d0),
      >             dcpl_mb(prjtmp(1)), 2*npack1,
      >             dbl_mb(sw2(1)),     nn,
      >             (1.0d0),
      >             psi2,               2*npack1)
-#endif
+
+
         end if !** nproj>0 **
       end do !** iii **
 
-#ifdef USE_OPENMP
-      value =           BA_pop_stack(thPrjtmp(2))
-      value = value.and.BA_pop_stack(sw2(2))
-#else
       value =           BA_pop_stack(sw2(2))
-#endif
       value = value.and.BA_pop_stack(sw1(2))
       value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_overlap_S: popping stack',3,
