@@ -66,17 +66,18 @@
       do i=1,nkatm
          int_mb(natm(1)+i-1) = 0
       end do
-!$OMP END MASTER
-!$cOMP BARRIER
+!!$OMP END MASTER
+!!$cOMP BARRIER
       do i=1,nion
          aname = aname_function(i)
          ka=pspw_compare_atom(aname,nkatm,byte_mb(atom(1)))
          int_mb(katm(1)+i-1) = ka
-!$OMP MASTER
+!!$OMP MASTER
          int_mb(natm(1)+ka-1) = int_mb(natm(1)+ka-1)+1
-!$OMP END MASTER
+!!$OMP END MASTER
       end do
-!$cOMP BARRIER
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end

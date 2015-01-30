@@ -3542,7 +3542,7 @@ c autoang=0.52917726d0
 
       tooshort = .false.
 
-!$cOMP BARRIER
+!$OMP BARRIER
 !$OMP SINGLE
       if (control_version().eq.4) then
          do ii=1,   nion-1

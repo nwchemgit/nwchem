@@ -131,18 +131,18 @@ c     real*8     fion(3,natmx)
       integer tid, Parallel_threadid
       external Parallel_threadid
 
-      double precision tHpsi_start,tInnerLoop_start,tPhaze_start,
-     >                 tLagrange_start, tPipeFFT_start, tExchCorr_start
 
-      double precision tHpsi, tInnerLoop, tPhaze, tPipeFFT, tLagrange,
-     >                   tExchCorr
-      common / innerloop_timing / tHpsi, tInnerLoop, tPhaze, tPipeFFT,
-     >                            tLagrange, tExchCorr
+#ifdef USE_OPENMP
+      logical is_par
+      common    / Debug_openmp / is_par
+#endif
 
-cb      double precision omp_get_wtime
-cb      external omp_get_wtime
 
-cb      tInnerLoop_start = omp_get_wtime()
+      call nwpw_timing_start(42)
+
+#ifdef USE_OPENMP
+      is_par = .true.
+#endif
 
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
@@ -235,8 +235,7 @@ cb      tInnerLoop_start = omp_get_wtime()
       do it=1,it_in
 
 #ifdef USE_OPENMP
-!$OMP PARALLEL private(tid)
-c     num_threads(2)
+!$OMP PARALLEL private(tid)  
       tid = Parallel_threadid()
 #endif
 
@@ -251,11 +250,11 @@ c     num_threads(2)
 *       **** generate phaze factors ****
 *       ********************************
         
-cb        tPhaze_start = omp_get_wtime()
+        call nwpw_timing_start(43)
 c       these two functions are now threadsafe/multithreaded
         call phafac()
         if (control_version().eq.3) call ewald_phafac()
-cb        tPhaze = tPhaze + omp_get_wtime() - tPhaze_start
+        call nwpw_timing_end(43)
 
 
         call nwpw_timing_start(11)
@@ -273,7 +272,7 @@ c        end do
 !$OMP END PARALLEL
 #endif
 
-cb        tPipeFFT_start = omp_get_wtime()
+        call nwpw_timing_start(44)
 !$OMP SINGLE
         do n=n1(1),n2(ispin)
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
@@ -289,8 +288,7 @@ cb        tPipeFFT_start = omp_get_wtime()
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
 !$OMP END SINGLE
-
-cb        tPipeFFT = tPipeFFT + omp_get_wtime() - tPipeFFT_start
+        call nwpw_timing_end(44)
 
 c       this function calls non pipelined 3d fft
         call nwpw_meta_gga_gen_tau(ispin,ne,psi1)
@@ -329,6 +327,7 @@ c       this function calls non pipelined 3d fft
 *       **********************
         call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
         call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dcpl_mb(tmp1(1)))
+!MATHIAS This one is done in parallel because is_par is true
         call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
 c        call mask_C(0,dcpl_mb(dng(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
@@ -397,7 +396,7 @@ c
         if (control_version().eq.4) 
      >     call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
 
-cb        tExchCorr_start = omp_get_wtime();
+        call nwpw_timing_start(46)
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
@@ -407,7 +406,7 @@ cb        tExchCorr_start = omp_get_wtime();
      >                        dbl_mb(xce(1)),
      >                        dcpl_mb(tmp1(1)))
 
-cb        tExchCorr = tExchCorr + omp_get_wtime() - tExchCorr_start;
+        call nwpw_timing_end(46)
      
 *       *******************************************
 *       ***** generate other real-space fields ****
@@ -428,7 +427,7 @@ cb        tExchCorr = tExchCorr + omp_get_wtime() - tExchCorr_start;
         call nwpw_timing_start(13)
 
 
-cb        tHpsi_start = omp_get_wtime();
+        call nwpw_timing_start(47)
 
 *       ******************
 *       **** get Hpsi ****
@@ -447,12 +446,12 @@ cb        tHpsi_start = omp_get_wtime();
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
 
-cb        tHpsi = tHpsi + omp_get_wtime() - tHpsi_start;
+        call nwpw_timing_end(47)
         
 *       ************************************
 *       **** do a steepest descent step ****
 *       ************************************
-cb        tLagrange_start = omp_get_wtime()
+        call nwpw_timing_start(45)
         do n=1,n2(ispin)
           call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
 c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
@@ -496,14 +495,14 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
         if (psp_pawexist()) then
 
-#ifdef USE_OPENMP
-!$OMP PARALLEL
-#endif
+!#ifdef USE_OPENMP
+!!$OMP PARALLEL
+!#endif
         write(*,*) "DEBUG ENTERING PSP_OVERLAP_S"
         call psp_overlap_S(ispin,ne,psi1,psi_r)
-#ifdef USE_OPENMP 
-!$OMP END PARALLEL
-#endif
+!#ifdef USE_OPENMP 
+!!$OMP END PARALLEL
+!#endif
 
 !MATHIAS no parallelism between spins
         call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
@@ -520,7 +519,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         end if
-cb        tLagrange = tLagrange + omp_get_wtime() - tLagrange_start
+        call nwpw_timing_end(45)
 
       end do
 
@@ -792,7 +791,12 @@ c     end do
       value = Dneall_m_pop_stack(tmp_L)
 
       call nwpw_timing_end(12)
-cb      tInnerLoop = tInnerLoop + omp_get_wtime() - tInnerLoop_start
+
+#ifdef USE_OPENMP
+        is_par = .false.
+#endif
+
+      call nwpw_timing_end(42)
 
       return
       end

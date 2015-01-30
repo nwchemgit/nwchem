@@ -381,42 +381,42 @@ c     integer i2_start(NFFT3+1)
 
       !**** slab mapping ****
       if (mapping.eq.1) then
-      value = value.and.MA_free_heap(q_map(2,nb))
-      value = value.and.MA_free_heap(p_map(2,nb))
-      value = value.and.MA_free_heap(k_map(2,nb))
+      value = value.and.BA_free_heap(q_map(2,nb))
+      value = value.and.BA_free_heap(p_map(2,nb))
+      value = value.and.BA_free_heap(k_map(2,nb))
       end if
 
       !**** hilbert mappings ****
       if (mapping.eq.2) then
-      value = value.and.MA_free_heap(q_map1(2,nb))
-      value = value.and.MA_free_heap(p_map1(2,nb))
-      value = value.and.MA_free_heap(q_map2(2,nb))
-      value = value.and.MA_free_heap(p_map2(2,nb))
-      value = value.and.MA_free_heap(q_map3(2,nb))
-      value = value.and.MA_free_heap(p_map3(2,nb))
+      value = value.and.BA_free_heap(q_map1(2,nb))
+      value = value.and.BA_free_heap(p_map1(2,nb))
+      value = value.and.BA_free_heap(q_map2(2,nb))
+      value = value.and.BA_free_heap(p_map2(2,nb))
+      value = value.and.BA_free_heap(q_map3(2,nb))
+      value = value.and.BA_free_heap(p_map3(2,nb))
       end if
 
       !**** slab transpose mappings ****
       if (mapping.eq.1) then
-      value = value.and.MA_free_heap(i1_start(2,nb))
-      value = value.and.MA_free_heap(i2_start(2,nb))
-      value = value.and.MA_free_heap(iq_to_i1(2,nb))
-      value = value.and.MA_free_heap(iq_to_i2(2,nb))
+      value = value.and.BA_free_heap(i1_start(2,nb))
+      value = value.and.BA_free_heap(i2_start(2,nb))
+      value = value.and.BA_free_heap(iq_to_i1(2,nb))
+      value = value.and.BA_free_heap(iq_to_i2(2,nb))
       end if
 
       !**** hilbert transpose mappings ****
       if (mapping.eq.2) then
       do i=1,6
-      value = value.and.MA_free_heap(h_i1_start(2,i,nb))
-      value = value.and.MA_free_heap(h_i2_start(2,i,nb))
-      value = value.and.MA_free_heap(h_iq_to_i1(2,i,nb))
-      value = value.and.MA_free_heap(h_iq_to_i2(2,i,nb))
+      value = value.and.BA_free_heap(h_i1_start(2,i,nb))
+      value = value.and.BA_free_heap(h_i2_start(2,i,nb))
+      value = value.and.BA_free_heap(h_iq_to_i1(2,i,nb))
+      value = value.and.BA_free_heap(h_iq_to_i2(2,i,nb))
       end do
       end if
 
 #ifndef MPI
-      value = value.and.MA_free_heap(channel_proc(2,nb))
-      value = value.and.MA_free_heap(channel_type(2,nb))
+      value = value.and.BA_free_heap(channel_proc(2,nb))
+      value = value.and.BA_free_heap(channel_type(2,nb))
 #endif
 
       if (.not. value)
@@ -767,6 +767,7 @@ c     p = p_map(k)
 
 #include "D3dB.fh"
 
+
       !**** local variables ****
       integer MASTER
       parameter (MASTER=0)
@@ -1062,7 +1063,11 @@ c      end
 #include "D3dB.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common	/ D3dB_fft / tmpx,tmpy,tmpz
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+#ifdef USE_OPENMP
+      logical is_par
+      common    / Debug_openmp / is_par
+#endif
 
 #ifdef FFTW3
 #include "fftw3.fh"
@@ -1070,6 +1075,14 @@ c      end
 #endif
 
       logical value
+      integer i,mthr, Parallel_maxthreads
+      external Parallel_maxthreads
+
+      mthr = Parallel_maxthreads()
+      
+#ifdef USE_OPENMP
+      is_par = .false.
+#endif
 
       !call D3dB_nfft3d(nb,nfft3d)
 
@@ -1081,13 +1094,13 @@ c     >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
 c      value = value.and.
 c     >        BA_alloc_get(mt_dcpl,(nfft3d(nb)),
 c     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
-      value = BA_alloc_get(mt_dcpl,(2*nx(nb)+15),
+      value = BA_alloc_get(mt_dcpl,mthr*(2*nx(nb)+15),
      >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
       value = value.and.
-     >        BA_alloc_get(mt_dcpl,(2*ny(nb)+15),
+     >        BA_alloc_get(mt_dcpl,mthr*(2*ny(nb)+15),
      >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
       value = value.and.
-     >        BA_alloc_get(mt_dcpl,(2*nz(nb)+15),
+     >        BA_alloc_get(mt_dcpl,mthr*(2*nz(nb)+15),
      >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
       if (.not. value) 
      >   call errquit('D3dB_fft_init:out of heap memory',0, MA_ERR)
@@ -1102,9 +1115,19 @@ c     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
      >            dcpl_mb(tmpz(1,nb)),-3,ierr)
 
 #else
-      call drffti(nx(nb),dcpl_mb(tmpx(1,nb)))
-      call dcffti(ny(nb),dcpl_mb(tmpy(1,nb)))
-      call dcffti(nz(nb),dcpl_mb(tmpz(1,nb)))
+#ifdef USE_OPENMP
+!!$OMP DO
+!! schedule(static)
+#endif
+      do i=1,mthr
+        write(*,*) "DEBUG init fft arrays of thread ", i-1
+        call drffti(nx(nb),dcpl_mb(tmpx(1,nb)+(i-1)*(2*nx(nb)+15)))
+        call dcffti(ny(nb),dcpl_mb(tmpy(1,nb)+(i-1)*(2*ny(nb)+15)))
+        call dcffti(nz(nb),dcpl_mb(tmpz(1,nb)+(i-1)*(2*nz(nb)+15)))
+      end do
+#ifdef USE_OPENMP
+!!$OMP END DO
+#endif
 #endif
 
 #ifdef FFTW3
@@ -1174,7 +1197,7 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                        iforward,FFTW_EXHAUSTIVE)
 
 
-         if (.not.MA_free_heap(Atest(2)))
+         if (.not.BA_free_heap(Atest(2)))
      >   call errquit('D3dB_fft_init:freeing heap',0,MA_ERR)
 
       else
@@ -1230,7 +1253,7 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                        dcpl_mb(Atest(1)),nz(nb),1,1,
      >                        iforward,FFTW_EXHAUSTIVE)
 
-         if (.not.MA_free_heap(Atest(2)))
+         if (.not.BA_free_heap(Atest(2)))
      >   call errquit('D3dB_fft_init:freeing heap',0,MA_ERR)
 
       end if
@@ -1257,6 +1280,10 @@ c       iestimate = FFTW_EXHAUSTIVE
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
+#ifdef USE_OPENMP
+      logical is_par
+      common    / Debug_openmp / is_par
+#endif
 
       logical value
       integer i
@@ -1268,9 +1295,9 @@ c       iestimate = FFTW_EXHAUSTIVE
 c      call dfftw_cleanup_threads()
 #endif
 
-      value =           MA_free_heap(tmpx(2,nb))
-      value = value.and.MA_free_heap(tmpy(2,nb))
-      value = value.and.MA_free_heap(tmpz(2,nb))
+      value =           BA_free_heap(tmpx(2,nb))
+      value = value.and.BA_free_heap(tmpy(2,nb))
+      value = value.and.BA_free_heap(tmpz(2,nb))
       if (.not.value)
      >   call errquit(
      >   'D3dB_fft_end:error deallocatingof heap memory',0, MA_ERR)
@@ -1328,8 +1355,8 @@ c      common    / D3dB_n_fft / tmp2,tmp3
 c
 c      logical value
 c
-c      value =           MA_free_heap(tmp2(2,nb))
-c      value = value.and.MA_free_heap(tmp3(2,nb))
+c      value =           BA_free_heap(tmp2(2,nb))
+c      value = value.and.BA_free_heap(tmp3(2,nb))
 c      if (.not.value)
 c     > call errquit(
 c     > 'D3dB_n_fft_end:error deallocatingof heap memory',0,MA_ERR)
@@ -1376,10 +1403,9 @@ c      end
 
 #include "D3dB.fh"
 
+
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
-
-
 
 *     *** local variables ***
       integer i,j,k,q,indx
@@ -1389,6 +1415,26 @@ c      end
       !integer tmp1(2),tmp2(2),tmp3(2)
       integer tmp2(2),tmp3(2)
       logical value
+
+      integer tid,nthr,offset
+      integer Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+#ifdef USE_OPENMP
+      logical omp_in_parallel
+      external omp_in_parallel
+#endif
+
+#ifdef USE_OPENMP
+      logical is_par
+      common    / Debug_openmp / is_par
+#endif
+
+#ifdef USE_OPENMP
+!$OMP PARALLEL if(is_par) private(tid,nthr,offset) 
+#endif
+
+      tid = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       call nwpw_timing_start(1)
 
@@ -1604,11 +1650,13 @@ c      end do
 #ifdef NUSE_OPENMP
       call D3dB_fftbz_sub2(nq3(nb),nz(nb),dcpl_mb(tmpz(1,nb)),A)
 #else
-      indx = 1
-      do q=1,nq3(nb)
-         call dcfftb(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
-         indx = indx + nz(nb)
+
+      offset=tid*(2*nz(nb)+15)
+!$OMP DO 
+      do i=1,nq3(nb)
+        call dcfftb(nz(nb),A(1+(i-1)*nz(nb)),dcpl_mb(tmpz(1,nb)+offset))
       end do
+!$OMP END DO
 #endif
 #endif
 #endif
@@ -1635,11 +1683,12 @@ c      end do
 #ifdef NUSE_OPENMP
       call D3dB_fftby_sub2(nq2(nb),ny(nb),dcpl_mb(tmpy(1,nb)),A)
 #else
-      indx = 1
-      do q=1,nq2(nb)
-         call dcfftb(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
-         indx = indx + ny(nb)
+      offset=tid*(2*ny(nb)+15)
+!$OMP DO 
+      do i=1,nq2(nb)
+        call dcfftb(ny(nb),A(1+(i-1)*ny(nb)),dcpl_mb(tmpy(1,nb)+offset))
       end do
+!$OMP END DO
 #endif
 #endif
 #endif
@@ -1669,11 +1718,14 @@ c      end do
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
 #else
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
-      indx = 1
-      do q=1,nq1(nb)
-         call drfftb(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
-         indx = indx + nxh
+
+      offset=tid*(2*nx(nb)+15)
+!$OMP DO 
+      do i=1,nq1(nb)
+        call drfftb(nx(nb),A(1+(i-1)*nxh),dcpl_mb(tmpx(1,nb)+offset))
       end do
+!$OMP END DO
+
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
 #endif
 #endif
@@ -1689,6 +1741,10 @@ c      end do
       if (.not. value) call errquit('popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(1)
+
+#ifdef USE_OPENMP
+!$OMP END PARALLEL
+#endif
       return
       end
 
@@ -1752,15 +1808,17 @@ c      end do
 c     do n=1,ne
 c     do q=1,nq
 
-      indx = 1
+!$OMP BARRIER
+!$OMP DO
       do j=1,(ny*nq*ne)
+        indx = 1+(j-1)*(nx+2)
 c        indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
 c    >            + (n-1)*(nx+2)*ny*nq
          do i=2,nx
             A(indx+i-1) = A(indx+i)
          end do
-         indx = indx + (nx+2)
       end do
+!$OMP END DO
 
 c     end do
 c     end do
@@ -1773,12 +1831,14 @@ c     end do
       real*8 A(*)
 
       integer i,indx
-      indx  = nx+1
+!$OMP BARRIER
+!$OMP DO
       do i=1,(ny*nq*ne)
+         indx = nx+1+(i-1)*(nx+2)
          A(indx)   = 0.0d0
          A(indx+1) = 0.0d0
-         indx      = indx + (nx+2)
       end do
+!$OMP END DO
 
       return
       end 
@@ -2024,6 +2084,12 @@ c      end
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
+#ifdef USE_OPENMP
+      logical is_par
+      common    / Debug_openmp / is_par
+#endif
+
+
 
 
 *     *** local variables ***
@@ -2034,9 +2100,19 @@ c      end
       integer tmp2(2),tmp3(2)
       logical value
 
-      integer tid,nthr
+      integer tid,nthr,offset
       integer Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
+#ifdef USE_OPENMP
+      logical omp_in_parallel
+      external omp_in_parallel
+#endif
+
+#ifdef USE_OPENMP
+!$OMP PARALLEL if(is_par) private(tid,nthr,offset) 
+#endif
+      tid = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       call nwpw_timing_start(1)
 
@@ -2091,7 +2167,7 @@ c        dbl_mb(tmp3(1)+1)    = 0.0d0
 c        dbl_mb(tmp3(1)+nx(nb)+1) = 0.0d0
 c        call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
 
-         call drfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
+         call drfftf(nx(nb),A(indx),dbl_mb(tmpx(1,nb)))
          indx = indx + nxh
       end do
       end do
@@ -2163,7 +2239,6 @@ c      end do
 #endif
 
 #endif
-
 
 *     ********************************************
 *     ***         Do a transpose of A          ***
@@ -2257,20 +2332,21 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call D3dB_fftfx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
 #else
-      indx = 1
-      do q=1,nq1(nb)
-         call drfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
-         indx = indx + nxh
+
+
+      offset=tid*(2*nx(nb)+15)
+!$OMP DO 
+      do i=1,nq1(nb)
+        call drfftf(nx(nb),A(1+(i-1)*nxh),dcpl_mb(tmpx(1,nb)+offset))
       end do
+!$OMP END DO
+
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
 #endif
 #endif
 #endif
 
-!$OMP PARALLEL private(indx,tid,nthr,q) firstprivate(nxh,nb) 
       call D3dB_c_transpose_ijk(nb,1,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
-
-!$OMP END PARALLEL
 *     ********************************************
 *     ***     do fft along ny(nb) dimension        ***
 *     ***   A(ky,nz(nb),kx) <- fft1d[A(ny(nb),nz(nb),kx)]  ***
@@ -2291,11 +2367,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef NUSE_OPENMP
       call D3dB_fftfy_sub2(nq2(nb),ny(nb),dcpl_mb(tmpy(1,nb)),A)
 #else
-      indx = 1
-      do q=1,nq2(nb)
-         call dcfftf(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
-         indx = indx + ny(nb)
+      offset=tid*(2*ny(nb)+15)
+!$OMP DO 
+      do i=1,nq2(nb)
+        call dcfftf(ny(nb),A(1+(i-1)*ny(nb)),dcpl_mb(tmpy(1,nb)+offset))
       end do
+!$OMP END DO
 #endif
 #endif
 #endif
@@ -2321,11 +2398,13 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef NUSE_OPENMP
       call D3dB_fftfz_sub2(nq3(nb),nz(nb),dcpl_mb(tmpz(1,nb)),A)
 #else
-      indx = 1
-      do q=1,nq3(nb)
-         call dcfftf(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
-         indx = indx + nz(nb)
+      offset=tid*(2*nz(nb)+15)
+!$OMP DO 
+      do i=1,nq2(nb)
+        call dcfftf(nz(nb),A(1+(i-1)*nz(nb)),dcpl_mb(tmpz(1,nb)+offset))
       end do
+!$OMP END DO
+
 #endif
 #endif
 #endif
@@ -2338,6 +2417,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !value = BA_pop_stack(tmp1(2))
 
       call nwpw_timing_end(1)
+
+#ifdef USE_OPENMP
+!$OMP END PARALLEL
+#endif
       return
       end
 
@@ -2403,18 +2486,21 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i,j,indx
 
-      indx = 1
+!$OMP BARRIER
+!$OMP DO
       do j=1,(ny*nq*ne)
+        indx = 1+(j-1)*(nx+2)
 c        indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
-c    >        + (n-1)*(nx+2)*ny*nq
+c     >        + (n-1)*(nx+2)*ny*nq
 
          do i=nx,2,-1
             A(indx+i) = A(indx+i-1)
          end do
          A(indx+1)    = 0.0d0
          A(indx+nx+1) = 0.0d0
-         indx = indx + (nx+2)
+!         indx = indx + (nx+2)
       end do
+!$OMP END DO
 
       return
       end 
@@ -5268,13 +5354,13 @@ c     integer i2_start(NFFT3+1)
 
       logical value
 
-      value = MA_free_heap(i1_start(2,nb))
+      value = BA_free_heap(i1_start(2,nb))
       value = value.and.
-     >        MA_free_heap(i2_start(2,nb))
+     >        BA_free_heap(i2_start(2,nb))
       value = value.and.
-     >        MA_free_heap(iq_to_i1(2,nb))
+     >        BA_free_heap(iq_to_i1(2,nb))
       value = value.and.
-     >        MA_free_heap(iq_to_i2(2,nb))
+     >        BA_free_heap(iq_to_i2(2,nb))
       if (.not.value) call errquit('error freeing heap',0, MA_ERR)
       return
       end

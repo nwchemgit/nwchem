@@ -1320,6 +1320,17 @@ c           end do
       external psi_data_get_ptr
       external lattice_omega
 
+*     **** threads ****
+!#ifdef USE_OPENMP
+!      integer thPrjtmp(2)
+!#endif
+      integer tid,nthr
+      integer Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
+
+      tid = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
       call nwpw_timing_start(6) 
 
 *     **** allocate local memory ****
@@ -1329,8 +1340,17 @@ c           end do
       value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
      >        BA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+#ifndef USE_OPENMP
       value = value.and.
      >        BA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+#else
+      value = value.and.
+     >        BA_push_get(mt_dbl,nn*nprj_max*nthr,'sw2',sw2(2),sw2(1))
+!      value = value.and.
+!     >        BA_push_get(mt_dbl,npack1*nprj_max*nthr,'thPrjtmp',
+!     >          thPrjtmp(2),thPrjtmp(1))
+#endif
+
       if (.not.value) 
      >  call errquit('psp_overlap_S: out of stack',0,MA_ERR)
 
@@ -1339,7 +1359,10 @@ c           end do
       scalsqr = scal*scal
 
       call dcopy(2*npack1*nn,psi1,1,psi2,1)
+!!$OMP SINGLE
+!!$OMP END SINGLE
       do iii=1,nion_paw
+!      do iii=tid+1,nion_paw,nthr
         ii = int_mb(ion_pawtoion(1)+iii-1)
         ia = ion_katm(ii)
 
@@ -1373,8 +1396,27 @@ c           end do
 *           **** assume that sign factor for proj is in kbpp formatting ****
 
 *          *** current function is s or d ****
+!#ifdef USE_OPENMP
+!           if (sd_function) then
+!              call Pack_tc_Mul(1, dbl_mb(shift),
+!     >                           dcpl_mb(exi(1)+npack1*tid),
+!     >                           dcpl_mb(thPrjtmp(1)+nproj*npack1*tid
+!     >                            +(l-1)*npack1))
+!*          *** current function is p or f ****
+!           else
+!              call Pack_tc_iMul(1,dbl_mb(shift),
+!     >                           dcpl_mb(exi(1)+npack1*tid),
+!     >                           dcpl_mb(thPrjtmp(1)+nproj*npack1*tid
+!     >                            +(l-1)*npack1))
+!           end if
+!           call Pack_cc_indot(1,nn,
+!     >                      psi1,
+!     >                      dcpl_mb(thPrjtmp(1)+nproj*npack1*tid
+!     >                         +(l-1)*npack1),
+!     >                      dbl_mb(sw1(1)+nn*nproj*tid+(l-1)*nn))
+!#else
            if (sd_function) then
-              call Pack_tc_Mul(1,dbl_mb(shift),
+              call Pack_tc_Mul(1, dbl_mb(shift),
      >                           dcpl_mb(exi(1)),
      >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
 *          *** current function is p or f ****
@@ -1383,13 +1425,24 @@ c           end do
      >                           dcpl_mb(exi(1)),
      >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
            end if
+#ifndef USE_OPENMP
            call Pack_cc_indot(1,nn,
      >                      psi1,
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dbl_mb(sw1(1)+(l-1)*nn))
-
+#else
+           call Pack_cc_indot(1,nn,
+     >                      psi1,
+     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                      dbl_mb(sw1(1)+nn*nproj*tid+(l-1)*nn))
+#endif
         end do
+#ifndef USE_OPENMP
         call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
+#else
+!MATHIAS we could do multiple ions at a time by changing the layout
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)+nn*nproj*tid))
+#endif
 
 *       **** sw2 = Sijl*sw1 ******
         Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),2)
@@ -1411,19 +1464,36 @@ c           end do
         !scal = 1.0d0/(omega)
         !nproj = int_mb(nprj(1)+ia-1)
         !call dscal(nn*int_mb(nprj(1)+ia-1),scal,dbl_mb(sw2(1)),1)
+#ifndef USE_OPENMP
         call dscal(nn*nproj,scal,dbl_mb(sw2(1)),1)
+#else
+        call dscal(nn*nproj,scal,dbl_mb(sw2(1)+nn*nproj*tid),1)
+#endif
+
+!#ifdef USE_OPENMP
+!        call DGEMM('N','T',2*npack1,nn,nproj,
+!     >             (1.0d0),
+!     >             dcpl_mb(thPrjtmp(1)+npack1*nproj*tid), 2*npack1,
+!     >             dbl_mb(sw2(1)),     nn,
+!     >             (1.0d0),
+!     >             psi2,               2*npack1)
+!#else
         call DGEMM('N','T',2*npack1,nn,nproj,
      >             (1.0d0),
      >             dcpl_mb(prjtmp(1)), 2*npack1,
      >             dbl_mb(sw2(1)),     nn,
      >             (1.0d0),
      >             psi2,               2*npack1)
-
-
+!#endif
         end if !** nproj>0 **
       end do !** iii **
 
+!#ifdef USE_OPENMP
+!      value =           BA_pop_stack(thPrjtmp(2))
+!      value = value.and.BA_pop_stack(sw2(2))
+!#else
       value =           BA_pop_stack(sw2(2))
+!#endif
       value = value.and.BA_pop_stack(sw1(2))
       value = value.and.BA_pop_stack(exi(2))
       if (.not.value) call errquit('psp_overlap_S: popping stack',3,

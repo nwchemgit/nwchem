@@ -65,12 +65,12 @@ c
         nyh = ny/2
         nzh = nz/2
 
-!$OMP SINGLE
+!!$OMP SINGLE
 *       **** inefficient but less confusing algorithm ****
         call dcopy(3*nfft3d,0.0d0,0,dbl_mb(G(1)),1)
-!$OMP END SINGLE
+!!$OMP END SINGLE
 !MATHIAS : this one might be doable with an omp parallel
-!$OMP SINGLE
+!!$OMP SINGLE
         do k3 = -nzh+1, nzh
            do k2 = -nyh+1, nyh
               do k1 = 0,nxh
@@ -107,7 +107,7 @@ c    >                  + i+1
               end do  
            end do
         end do
-!$OMP END SINGLE
+!!$OMP END SINGLE
 
 
       return

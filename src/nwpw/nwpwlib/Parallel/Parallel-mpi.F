@@ -191,7 +191,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_np_i = np_i
       stupid_np_j = np_j
 *     **** set global processor group ****
-!$OMP single
+!$OMP BARRIER
+!$OMP MASTER
       call MPI_COMM_group(stupid_world,stupid_mpi_group,stupid_ierr)
 
       do i=0,np_i-1
@@ -215,7 +216,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       call MPI_Comm_create(stupid_world,stupid_group_j,stupid_comm_j,  
      >                     stupid_ierr)
 
-!$OMP end single
+!$OMP END MASTER
+!$OMP BARRIER
 
       group_i = stupid_group_i
       comm_i  = stupid_comm_i
@@ -226,7 +228,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 #else
 *     **** set global processor group ****
-!$OMP single
+!$OMP BARRIER
+!$OMP MASTER
       call MPI_COMM_group(comm_world,mpi_group,ierr)
 
       do i=0,np_i-1
@@ -240,7 +243,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       end do
       call MPI_Group_incl(mpi_group,np_j,int_mb(tmp(1)),group_j,ierr)
       call MPI_Comm_create(comm_world,group_j,comm_j,  ierr)
-!$OMP end single
+!$OMP END MASTER
+!$OMP BARRIER
 #endif
 
       if (.not.BA_pop_stack(tmp(2)))
@@ -273,12 +277,14 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 #ifdef MPI4
       if (np_j.gt.1) then
 *      **** free comm_i and comm_j communicators ****
-!$OMP single
+!$OMP BARRIER
+!$OMP MASTER
       call MPI_Comm_free(stupid_comm_i,  stupid_ierr)
       call MPI_Group_free(stupid_group_i,stupid_ierr)
       call MPI_Comm_free(stupid_comm_j,  stupid_ierr)
       call MPI_Group_free(stupid_group_j,stupid_ierr)
-!$OMP end single
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 #else
 *     *** local variable ***
@@ -286,12 +292,14 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
       if (np_j.gt.1) then
 *      **** free comm_i and comm_j communicators ****
-!$OMP single
+!$OMP BARRIER
+!$OMP MASTER
       call MPI_Comm_free(comm_i,  mpierr)
       call MPI_Group_free(group_i,mpierr)
       call MPI_Comm_free(comm_j,  mpierr)
       call MPI_Group_free(group_j,mpierr)
-!$OMP end single
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 #endif
 
@@ -357,7 +365,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_np_j = np_j
       stupid_np_k = np_k
 *     **** set global processor group ****
-!$OMP single
+!$OMP BARRIER
+!$OMP MASTER
       call MPI_COMM_group(stupid_world,stupid_mpi_group,stupid_ierr)
 
       do i=0,np_i-1
@@ -401,7 +410,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       call MPI_Comm_create(stupid_world,stupid_group_k,
      >                     stupid_comm_k,stupid_ierr)
 
-!$OMP end single
+!$OMP END MASTER
+!$OMP BARRIER
       group_i = stupid_group_i
       comm_i  = stupid_comm_i
       group_j = stupid_group_j
@@ -470,28 +480,32 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 #ifdef MPI4
 *      **** free comm_i and comm_j communicators ****
-!$OMP single
+!$OMP BARRIER
+!$OMP MASTER
       call MPI_Comm_free(stupid_comm_i,  stupid_ierr)
       call MPI_Group_free(stupid_group_i,stupid_ierr)
       call MPI_Comm_free(stupid_comm_j,  stupid_ierr)
       call MPI_Group_free(stupid_group_j,stupid_ierr)
       call MPI_Comm_free(stupid_comm_k,  stupid_ierr)
       call MPI_Group_free(stupid_group_k,stupid_ierr)
-!$OMP end single
+!$OMP END MASTER
+!$OMP BARRIER
 #else
 
 *     *** local variable ***
       integer mpierr
 
 *      **** free comm_i and comm_j communicators ****
-!$OMP single
+!$OMP BARRIER
+!$OMP MASTER
       call MPI_Comm_free(comm_i,  mpierr)
       call MPI_Group_free(group_i,mpierr)
       call MPI_Comm_free(comm_j,  mpierr)
       call MPI_Group_free(group_j,mpierr)
       call MPI_Comm_free(comm_k,  mpierr)
       call MPI_Group_free(group_k,mpierr)
-!$OMP end single
+!$OMP END MASTER
+!$OMP BARRIER
 #endif
 
       return

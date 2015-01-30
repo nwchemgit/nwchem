@@ -88,7 +88,7 @@ c        ***** calculate rho tmp1=rho(g) ****
          call D3dB_rr_Sum(1,dn(1,1),dn(1,1),dbl_mb(rho(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(rho(1)))
          call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dbl_mb(rhog(1)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(rhog(1)))
          call mask_C(0,dbl_mb(rhog(1)))
 
@@ -103,7 +103,7 @@ c        ***** calculated  grup= grad n ****
          call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
      >                      dbl_mb(rhog(1)),
      >                      dbl_mb(grz(1)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_cr_fft3b(1,dbl_mb(grx(1)))
          call D3dB_cr_fft3b(1,dbl_mb(gry(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grz(1)))
@@ -244,7 +244,7 @@ c     >                            dbl_mb(grz(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grx(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(gry(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grz(1)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(grx(1)))
          call D3dB_rc_fft3f(1,dbl_mb(gry(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grz(1)))
@@ -273,7 +273,7 @@ c     >                      dbl_mb(fdn(1)))
          call D3dB_cc_Sum2(1,dbl_mb(grz(1)),dbl_mb(fdn(1)))
 
          call mask_C(0,dbl_mb(fdn(1)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_cr_fft3b(1,dbl_mb(fdn(1)))
          call D3dB_rr_Minus(1,dbl_mb(fn(1)),
      >                        dbl_mb(fdn(1)),
@@ -354,7 +354,7 @@ c        ***** calculate rhoup  ****
 c         call D3dB_r_SMul(1,scal1,dbl_mb(rhoup(1)),
 c     >                            dbl_mb(rhoup(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(rhoup(1)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(rhoup(1)))
          call mask_C(0,dbl_mb(rhoup(1)))
 
@@ -368,7 +368,7 @@ c        ***** calculate   grup= grad nup ****
          call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
      >                      dbl_mb(rhoup(1)),
      >                      dbl_mb(grupz(1)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_cr_fft3b(1,dbl_mb(grupx(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grupy(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grupz(1)))
@@ -402,7 +402,7 @@ c        ***** calculate rhodn  ****
 c         call D3dB_r_SMul(1,scal1,dbl_mb(rhodn(1)),
 c     >                            dbl_mb(rhodn(1)))
          call D3dB_r_SMul1(1,scal1,dbl_mb(rhodn(1)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(rhodn(1)))
          call mask_C(0,dbl_mb(rhodn(1)))
 
@@ -416,7 +416,7 @@ c        ***** calculate   grdn = grad ndn ****
          call D3dB_ic_Mul(1,dbl_mb(G_indx(3)),
      >                      dbl_mb(rhodn(1)),
      >                      dbl_mb(grdnz(1)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_cr_fft3b(1,dbl_mb(grdnx(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grdny(1)))
          call D3dB_cr_fft3b(1,dbl_mb(grdnz(1)))
@@ -720,7 +720,7 @@ c     >                            dbl_mb(grdnz(1)))
          call D3dB_r_Zero_Ends(1,dbl_mb(grdnz(1)))
 
 *        **** put sums in k-space ***
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_rc_fft3f(1,dbl_mb(grupx(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grupy(1)))
          call D3dB_rc_fft3f(1,dbl_mb(grupz(1)))
@@ -776,7 +776,7 @@ c     >                      dbl_mb(fdn(2)))
 *        **** put back in r-space and subtract from df/dnup,df/dndn ****
          call mask_C(0,dbl_mb(fdn(1)))
          call mask_C(0,dbl_mb(fdn(2)))
-!MATHIAS mpi
+!MATHIAS OPENMP OK
          call D3dB_cr_fft3b(1,dbl_mb(fdn(1)))
          call D3dB_cr_fft3b(1,dbl_mb(fdn(2)))
          call D3dB_rr_Minus(1,dbl_mb(fn(1)),

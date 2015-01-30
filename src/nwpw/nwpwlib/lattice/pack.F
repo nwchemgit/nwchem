@@ -181,7 +181,6 @@ c     >                                      nidb(1),nidb2(1)
 
 
 *     **** allocate and define G_pack ****
-!$OMP SINGLE
       nsize = 3*((nida(0)+nidb2(0)) + (nida(1)+nidb2(1)))
       value = BA_push_get(mt_dbl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
@@ -189,6 +188,7 @@ c     >                                      nidb(1),nidb2(1)
      >                     'G_pack',G_pack_hndl,G_pack(1,0))
       if (.not. value) 
      > call errquit('Pack_init:error pushing stack',0,MA_ERR)
+!$OMP SINGLE
       G_pack(2,0) = G_pack(1,0) + (nida(0)+nidb2(0))
       G_pack(3,0) = G_pack(2,0) + (nida(0)+nidb2(0))
       G_pack(1,1) = G_pack(3,0) + (nida(0)+nidb2(0))

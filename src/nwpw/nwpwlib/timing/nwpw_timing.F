@@ -49,6 +49,13 @@
 *   40 - qmmm LJ
 *   41 - qmmm residual Q
 
+*   42 - MATHIAS InnerLoop
+*   43 - MATHIAS Phaze
+*   44 - MATHIAS Pipelined FFTs
+*   45 - MATHIAS Lagrange
+*   46 - MATHIAS Exch Corr
+*   47 - MATHIAS Hpsi
+
 *   50 - io time
 
 
@@ -66,8 +73,9 @@
       integer counter
 
 #include "nwpw_timing_common.fh"
-
+!$OMP MASTER
 	  call current_second(nwpw_tim1(counter))
+!$OMP END MASTER
       return
       end
 
@@ -78,10 +86,12 @@
 #include "nwpw_timing_common.fh"
 
       
+!$OMP MASTER
 	  call current_second(nwpw_tim2(counter))
      
       times(counter) = times(counter) 
      >               + (nwpw_tim2(counter)-nwpw_tim1(counter))
+!$OMP END MASTER
       return
       end
 
@@ -235,6 +245,24 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  qmmm residual Q            : ',
      >                 nwpw_timing(41),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  MATHIAS InnerLoop          : ',
+     >                 nwpw_timing(42),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  MATHIAS Phaze              : ',
+     >                 nwpw_timing(43),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  MATHIAS Pipelined FFTs     : ',
+     >                 nwpw_timing(44),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  MATHIAS Lagrange           : ',
+     >                 nwpw_timing(45),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  MATHIAS Exch Corr          : ',
+     >                 nwpw_timing(46),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  MATHIAS Hpsi               : ',
+     >                 nwpw_timing(47),counter,ttime)
       end if
 
 

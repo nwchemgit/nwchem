@@ -536,5 +536,22 @@
       return
       end
 
+      integer function Parallel_maxthreads()
+      implicit none
+#include "Parallel.fh"
+#ifdef USE_OPENMP
+      integer  omp_get_max_threads
+      external omp_get_max_threads
+#endif
+
+#ifdef USE_OPENMP
+      Parallel_maxthreads = omp_get_max_threads()
+#else
+      Parallel_maxthreads = 1
+#endif
+
+      return
+      end
+
 
 

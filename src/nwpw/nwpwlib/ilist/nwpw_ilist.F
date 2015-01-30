@@ -27,10 +27,11 @@
 
 
 *     **** initialize list ****
-!$OMP SINGLE
+!!$OMP SINGLE
       mem(1) = NIL
       mem(2) = NIL
-!OMP END SINGLE copyprivate(mem)
+!!OMP END SINGLE copyprivate(mem)
+!OMP BARRIER
 
       return
       end
