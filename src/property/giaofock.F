@@ -18,6 +18,7 @@ c                       2011-06-17 20:00     FA
 #include "hnd_giao.fh"
 #include "hnd_pointers.fh"
 #include "global.fh"
+#include "stdio.fh"
 #include "case.fh"
 
       integer npol,ntot
@@ -102,18 +103,21 @@ c ------ create g_fock1 ---------- END
 c
 c     == take care of attenuated or non-attenuated 2e ==
       call ga_zero(g_fock)
-      if      (npol.eq.1) then
-       ntot=1 
-       factor_cam =1.0d0 
-       factor_xch =1.0d0  
+      ntot=1 
+      factor_cam =1.0d0 
+      factor_xch =1.0d0  
+      if (npol.eq.1) then
+        ntot=1 
+        factor_cam =1.0d0 
+        factor_xch =1.0d0  
       else if (npol.eq.2) then
-       ntot=3
-       factor_cam =2.0d0 
-       factor_xch =2.0d0  
+        ntot=3
+        factor_cam =2.0d0 
+        factor_xch =2.0d0  
       else
-       write(*,*) 'Error in new_giao_2e:: npol=1 or 2 npol=',npol
-      endif
-c
+        call errquit('new_giao_2e: npol error',555, INPUT_ERR)
+      end if
+c 
       do ispin=1,npol
         call ga_zero(g_fock1) ! reset g_fock1
 c
@@ -124,17 +128,9 @@ c
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
-     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0) ! get full coulomb
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, kfac)
         call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)
-        call ga_zero(g_loc)
-        call giaofock(basis,geom,g_dens(ispin),g_loc,
-     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
-     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
-     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
-     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
-     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange           
-        call ga_add(factor_xch, g_loc, 1.0d0, g_fock1, g_fock1)
-      else
+      else ! for attenuation calculations
         call ga_zero(g_loc)
         call case_setflags(.false.) ! turn off attenuation
         call giaofock(basis,geom,g_dens(ntot),g_loc,
@@ -452,6 +448,7 @@ c     == local array ==
 c ------ create g_fock1 ---------- END    
 
       call ga_zero(g_fock)
+      ntot = 1
       if      (npol.eq.1) then
        ntot=1 
        factor_cam =1.0d0 
