@@ -1,0 +1,3281 @@
+#!/bin/bash
+function usage ()
+{
+   cat<<EOF
+ autoxc-Ds - script to autogenerate Fortran code for Electron Density
+             Functionals and their derivatives using Maxima, for the special
+             case of meta-GGAs with unstable derivatives
+
+ Usage:
+
+    $0 [-o <source-file>] <functional>.max
+
+ The Autoxc-Ds script takes a file specifying an electron density functional 
+ and invokes Maxima [1] to generate expressions for the functional itself
+ and its partial derivatives up to 3rd order. Subsequently Maxima transforms
+ the expressions into Fortran code. 
+
+ The script is based on the idea published by Strange et al. [2]. However,
+ the dfauto script they published requires Maple [3] which is inconvenient
+ for free software projects because of the commercial licensing. Hence
+ this is a complete re-implementation of the approach.
+
+ As a little extra the file containing the functional may define two 
+ special strings:
+ - reference : the literature reference of the functional (default
+               "unpublished")
+ - doi       : the DOI of the paper (default "unpublished")
+ These variables are used to add the reference and DOI to the Doxygen
+ documentation of the generated source code.
+
+ The file containing the functional may specify three different expression:
+ - f : a correlation functional term
+ - g : an exchange functional term
+ - G : a limiting expression for the limit rho_s -> 0
+ These expressions should be specified as
+ - f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau)
+ - g(rho_s,sigma_ss,tau_s)
+ - G(rho_s,sigma_ss,tau_s,tau_u)
+ where "s" refers to one spin-channel and then "u" refers to the other one,
+ i.e. if "u" refers to the alpha spin-channel then "u" refers to the beta
+ one and vice versa.
+ The script will substitute
+ - rho   = rho_a + rho_b
+ - zeta  = (rho_a - rho_b) / rho
+ - sigma = sigma_aa + 2 * sigma_ab + sigma_bb
+ - tau   = tau_a + tau_b
+ Given this information the total functional is defined as:
+
+   When rho_a and rho_b > 0.0d0
+
+     - K = sum(s=(a,b),g(rho_s,sigma_ss,tau_s))
+         + f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,
+             tau_a,tau_b,tau)
+
+   when rho_a > 0.0d0 and rho_b = 0.0d0 and G defined
+
+     - K = g(rho_a,sigma_aa,tau_a)
+         + G(rho_a,sigma_aa,tau_a,tau_b)
+ 
+   when rho_a = 0.0d0 and rho_b > 0.0d0 and G defined
+
+     - K = g(rho_b,sigma_bb,tau_b)
+         + G(rho_b,sigma_bb,tau_b,tau_a)
+
+ With meta-GGAs problems arise when tau approaches zero at positions where the
+ density is non-zero [4]. To avoid singularities additional expressions need to
+ be derived by taking suitable limits of the functional. In practice this 
+ happens for correlation functionals that use 
+
+    D_s = (1-sigma_ss/(4*rho_s*tau_s))
+
+ In this class of functionals we find the VS98, M05, M06, PKZB, and TPSS
+ correlation functionals. This script provides a special implementation to deal
+ with this specific problem.
+
+ References
+ ==========
+ 
+ [1] "Maxima, a Computer Algebra System", Version 5.27.0,
+     http://maxima.sourceforge.net/
+
+ [2] R. Strange, F.R. Manby, P.J. Knowles,
+     "Automatic code generation in density functional theory",
+     Comp. Phys. Commun. 136 (2001) 310,
+     DOI: 10.1016/S0010-4655(01)00148-5
+
+ [3] M.B. Monagan, K.O. Geddes, K.M. Heal, G. Labahn, S.M. Vorkoetter,
+     J. McCarron, P. DeMarco,
+     "Maple 10 Programming Guide",
+     Maplesoft, Waterloo ON, Canada, 2005.
+
+ [4] J. Grafenstein, D. Izotov, D. Cremer, "Avoiding singularity problems
+     associated with meta-GGA exchange and correlation functionals containing
+     the kinetic energy density",
+     J. Chem. Phys. 127 (2007) 214103,
+     DOI: 10.1063/1.2800011
+
+$Id$
+EOF
+}
+# Note on the mathematics
+# -----------------------
+#
+# In the expressions for G only the densities and gradients for one
+# spin channel are used, but the kinetic energy density for both
+# appears.
+#
+# These expressions are correct because when the density goes to 
+# zero so do the gradients of the density, therefore rho_s equals zero
+# implies that sigma_ss and sigma_st are also zero.
+#
+# The proof follows simply from the fact that the density is a non-negative
+# expression and hence zero density corresponds to a minimum. At the minimum
+# the gradient is zero also.
+#
+# A similar argument cannot be constructed for the kinetic energy density or
+# the Laplacian of the density (which we currently do not use).
+#
+# Variables in this script
+# ------------------------
+#
+# The input file containing the DFT functional specification as a
+# Maxima expression
+#
+inputfile=""
+#
+# The output file where the source code is written to
+#
+outputfile=""
+#
+# The name of the density functional
+#
+functional_name=""
+#
+# The intermediate density functional representation file that tells Maxima to
+# be relatively quiet
+#
+f_quiet=""
+#
+# In the Maxima definitions we will use:
+# - f : the correlation part of the functional
+# - g : the exchange part of the functional
+# - G : the limit of the correlation functional when one of the alpha or beta
+#       densities goes to 0 (this expression has an exchange like form)
+#
+# From the above definitions we will derive:
+# - excess      : Is there a special definition for when there is an excess of
+#                 alpha- or beta-electron density, i.e. is there a definition
+#                 of G?
+# - rho_deriv   : Is the functional density dependent?
+# - sigma_deriv : Is the functional density gradient dependent?
+# - tau_deriv   : Is the functional kinetic energy density dependent?
+#
+excess=false
+rho_deriv=false
+sigma_deriv=false
+tau_deriv=false
+#
+# Establish the script path and locations of utilities
+# ----------------------------------------------------
+#
+if [ -f "$0" ] ; then
+   # The first item on the command line is an actual file so this script must
+   # have been specified including the path.
+   script_path="`dirname \"$0\"`"
+else
+   # The first item on the command line is not a file so this script must have
+   # been found in PATH.
+   script_path="`which \"$0\"`"
+   script_path="`dirname \"$path\"`"
+fi
+#
+# Check the command line
+# ----------------------
+#
+# Are there a reasonable number of arguments?
+#
+if [ $# -lt 1 ] ; then
+  usage
+  exit 1
+elif [ $# -gt 3 ] ; then
+  usage
+  exit 1
+fi
+#
+# Go through argument list and pick up the outputfile (optional)
+# and the inputfile (required)
+#
+while getopts "o:" arg ; do
+    case $arg in
+    o)  outputfile="$OPTARG" ;;
+    esac
+done
+shift $((OPTIND - 1))
+inputfile="$1"
+#
+# If no outputfile was specified generate the outputfile from the inputfile
+# by replacing the .max extension with .F
+#
+if [ "x$outputfile" == "x" ] ; then
+  outputfile=`echo "$inputfile" | sed 's/\.max/.F/'`
+fi
+#
+# Work out a sensible name for the functional:
+# - Start with the filename without extension
+# - Replace "-" and "+" with "_"
+# - Maybe do other things but we will see what creative ideas people come up
+#   with
+functional_name=${inputfile%.max}
+functional_name=`basename $functional_name`
+functional_name=`echo "$functional_name" | sed -e 's/^nwxc_//' -e 's/-/_/' -e 's/+/_/'`
+#
+# Normally Maxima will print everything it is doing. This behavior can be 
+# suppressed by terminating the lines with $-signs instead of ;-signs.
+# Hence create an intermediate Maxima specification of the functional that
+# suppresses all the printing.
+#
+f_quiet=${TMPDIR:-/tmp}/fnc_intermediate.$$
+sed -e 's/ *$//' -e 's/;$/$/' $inputfile > $f_quiet
+#
+# What version of Maxima are we using?
+#
+maxima_version=`maxima --version`
+#
+# Write Maxima code to analyze the functional given
+#
+# Analyze the functional definition we have been given. We want to know whether
+# f, g, and/or G are present. The presence of G requires additional source
+# code to be generated for when one of the alpha or beta density is 0.
+#
+f_maxima=${TMPDIR:-/tmp}/fnc_maxima.$$
+f_dependency=${TMPDIR:-/tmp}/fnc_dependency.$$.out
+f_dependency_sh=${TMPDIR:-/tmp}/fnc_dependency.$$.sh
+cat <<EOF > $f_maxima
+reference: "unpublished"$
+doi: "unpublished"$
+f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau):=0$
+g(rho_s,sigma_ss,tau_s):=0$
+G(rho_s,sigma_ss,tau_s,tau_u):=0$
+functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=0$
+gradef(nwxcm_heaviside(x),0)$
+EOF
+cat $f_quiet >> $f_maxima
+cat <<EOF >> $f_maxima
+functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=  
+    f((rho_a-rho_b)/(rho_a+rho_b),rho_a,rho_b,rho_a+rho_b,        
+      sigma_aa,sigma_ab,sigma_bb,sigma_aa+2*sigma_ab+sigma_bb,    
+      tau_a,tau_b,tau_a+tau_b)                                    
+  + g(rho_a,sigma_aa,tau_a)       + g(rho_b,sigma_bb,tau_b)             
+  + G(rho_a,sigma_aa,tau_a,tau_b) + G(rho_b,sigma_bb,tau_b,tau_a)$
+rho_deriv:is (diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                              tau_a,tau_b),rho_a)#0 or
+              diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                              tau_a,tau_b),rho_b)#0)$
+sigma_deriv:is (diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                                tau_a,tau_b),sigma_aa)#0 or
+                diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                                tau_a,tau_b),sigma_ab)#0 or  
+                diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                                tau_a,tau_b),sigma_bb)#0)$
+tau_deriv:is (diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                              tau_a,tau_b),tau_a)#0 or
+              diff(functional(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,
+                              tau_a,tau_b),tau_b)#0)$
+sums : 0$
+if (f((rho_a-rho_b)/(rho_a+rho_b),rho_a,rho_b,rho_a+rho_b,        
+      sigma_aa,sigma_ab,sigma_bb,sigma_aa+2*sigma_ab+sigma_bb,    
+      tau_a,tau_b,tau_a+tau_b)#0) then
+  sums : sums + 1$
+if (g(rho_a,sigma_aa,tau_a)#0) then
+  sums : sums + 1$
+if (G(rho_a,sigma_aa,tau_a,tau_b)#0) then
+  sums : sums + 1$
+excess: is (G(rho_a,sigma_aa,tau_a,tau_b)#0)$
+
+/* Set line length to something huge to avoid strings getting wrapped */
+linel: 20000$
+with_stdout("$f_dependency",        
+   print("sums=",sums),      
+   print("excess=",excess),      
+   print("rho_deriv=",rho_deriv),      
+   print("sigma_deriv=",sigma_deriv),  
+   print("tau_deriv=",tau_deriv),
+   print("reference=\"",reference,"\""),
+   print("doi=\"",doi,"\""))$
+/* printfile("$f_dependency")$ */
+EOF
+maxima -b $f_maxima
+sed -e "s/ //" $f_dependency > $f_dependency_sh
+source $f_dependency_sh
+if [ $sums -eq 0 ] ; then
+    echo "No functional definition in $inputfile"
+    echo "Bombing"
+    exit 10
+fi
+#
+# Now we know:
+#
+# - whether the functional depends on the density
+# - whether the functional depends on the gradient of the density
+# - whether the functional depends on the kinetic energy density
+# - whether the functional has a special limiting case for densities tending
+#   to zero
+#
+# So, now we do the real thing:
+#
+# - Initialize all the expressions f, g, and G
+# - Pick up the functional specification
+# - Work out the derivative expressions
+# - Generate the Fortran (currently compiler support many more continuation
+#   lines, hopefully it is enough...)
+# 
+cat <<EOF > $f_maxima
+f(zeta,rho_a,rho_b,rho,sigma_aa,sigma_ab,sigma_bb,sigma,tau_a,tau_b,tau):=0$
+g(rho_s,sigma_ss,tau_s):=0$
+G(rho_s,sigma_ss,tau_s,tau_u):=0$
+/* Func is the functional for the regular case: f(a,b) + g(a) + g(b).
+   I.e. both spin channels have non-zero density. */
+func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=0$
+/* Funcs is the functional for one spin channel assuming that the density
+   in the other spin channel vanishes: g(s) + G(s). */
+funcs(rho_s,sigma_ss,tau_s,tau_u):=0$
+gradef(nwxcm_heaviside(x),0)$
+EOF
+cat $f_quiet >> $f_maxima
+cat <<EOF >> $f_maxima
+excess:$excess\$
+rho_deriv:$rho_deriv\$
+sigma_deriv:$sigma_deriv\$
+tau_deriv:$tau_deriv\$
+EOF
+cat <<EOF >> $f_maxima
+func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b):=
+   wght*(f((rho_a-rho_b)/(rho_a+rho_b),rho_a,rho_b,rho_a+rho_b,
+           sigma_aa,sigma_ab,sigma_bb,sigma_aa+2*sigma_ab+sigma_bb,
+           tau_a,tau_b,tau_a+tau_b)
+       + g(rho_a,sigma_aa,tau_a) + g(rho_b,sigma_bb,tau_b))$
+if excess then
+   funcs(rho_s,sigma_ss,tau_s,tau_u):=
+      wght*(g(rho_s,sigma_ss,tau_s) + G(rho_s,sigma_ss,tau_s,tau_u))
+else
+   funcs(rho_s,sigma_ss,tau_s,tau_u):=
+      wght*(g(rho_s,sigma_ss,tau_s)
+          + f(1,rho_s,0,rho_s,sigma_ss,0,0,sigma_ss,tau_s,tau_u,tau_s+tau_u))$
+
+/* Hassle with singularities in Meta-GGAs
+   ======================================
+
+   Meta-GGAs depend on the density, the gradient of the density and the kinetic
+   energy density. It is possible for the kinetic energy density to go to zero
+   where the density is non-zero [4]. The form of many meta-GGAs is such that
+   this leads to singularities. To avoid these singularities suitable limits
+   of the expressions need to be derived. To see what needs to be done consider
+   that
+
+      \rho(r) = \sum_i \phi^2_i(r)
+
+      \grad\rho(r) = 2\sum_i \phi_i(r)\grad\phi_i(r)
+
+      \grad\rho(r)\cdot\grad\rho(r)
+           = 4\sum_{ij}(\phi_i(r)\grad\phi_i(r))\cdot(\phi_j(r)\grad\phi_j(r))
+
+      \tau(r) = \sum_i (\grad\phi_i(r))\cdot(\grad\phi_i(r))
+
+   from this it is clear that if \tau_a -> 0 then \grad\rho_a -> 0 also.
+   Therefore we need
+                     |
+      funcla = lim(x V 0,func(rho_a,rho_b,x,x,sigma_bb,x,tau_b))
+
+   and the same thing for the beta spin channel and then again for the single
+   spin channel equations.
+
+   Unfortunately Maxima seems to be extremely slow in taking limits. However,
+   the limiting equations can be found by suitable substitutions. For the
+   problem in hand we therefore find the "limit" by substituting
+
+     tau_s = 1.0e-50
+
+     sigma_ss = 4 * rho_s * 1.0-50
+
+   The value 1.0e-50 is large enough for Maxima to use in its symbolic 
+   derivations but it is small enough that it will typically underflow to
+   zero in the Fortran generation.
+
+   To minimize confusion we introduce the following naming conventions for
+   the expressions involving limits:
+
+     funcla, funclab, funclb
+     funcl<spin> -- "func" is from functional as introduced above for the
+                    regular case, "l" refers to the fact that a limit was 
+                    taken, and then <spin> might be "a", "b", or "ab" depending
+                    on spin channel(s) for which the limit was taken.
+                    I.e. "funcla" means the regular functional where the
+                    limit for sigma_aa (and by implication sigma_ab) and
+                    tau_a to 0 was taken.
+
+     funcls, funclsu, funclu
+     funcl<spin> -- Similar to the above except that we refer to spin channels
+                    with "s" and "u" to indicate that we took the limits of 
+                    the "funcs" energy expression. I.e. the case where the 
+                    density in one of the spin channels is 0.
+
+   The derivatives are named mostly analogously to the regular derivatives
+   except that we need to identify which limits were taken. Hence we have
+
+     dfla1ra  <-- df1ra with limits on the alpha spin channel
+     dflab1ra <-- df1ra with limits on the alpha and beta spin channel
+     dflb1ra  <-- df1ra with limits on the beta spin channel
+
+  likewise for the single spin channel expression we have
+
+     dfls1rs  <-- dfs1rs with limits on the "s" spin channel
+     dfls1tu  <-- dfs1tu with limits on the "s" spin channel
+     dflsu1rs <-- dfs1rs with limits on both the "s" and "u" spin channel
+     dflu1rs  <-- dfs1rs with limits on the "u" spin channel
+
+  For the expression optimization and Fortran generation the expressions are
+  grouped in lists (we reuse the lists for the labels, i.e. ul0, ul1r, etc.).
+  For the expression lists we have
+
+     ue0la   <-- ue0 with limits on the alpha spin channel
+     ue1lar  <-- ue1r with limits on the alpha spin channel
+     ue1labr <-- ue1r with limits on the alpha and beta spin channel
+     ue1lbr  <-- ue1r with limits on the alpha spin channel
+
+*/
+
+funcla(rho_a,rho_b,sigma_bb,tau_b):=
+   func(rho_a,rho_b,4*rho_a*1.0e-50,0,sigma_bb,1.0e-50,tau_b)$
+funclab(rho_a,rho_b):=
+   func(rho_a,rho_b,4*rho_a*1.0e-50,0,4*rho_b*1.0e-50,1.0e-50,1.0e-50)$
+funclb(rho_a,rho_b,sigma_aa,tau_a):=
+   func(rho_a,rho_b,sigma_aa,0,4*rho_b*1.0e-50,tau_a,1.0e-50)$
+funcls(rho_s,tau_u):=
+   limit(funcs(rho_s,4*rho_s*1.0e-50,1.0e-50,tau_u)$
+funclsu(rho_s):=
+   limit(funcs(rho_s,4*rho_s*1.0e-50,1.0e-50,1.0e-50)$
+funclu(rho_s,sigma_ss,tau_s):=
+   limit(funcs(rho_s,sigma_ss,tau_s,1.0e-50)$
+
+/* debugmode(true) $ */
+
+/* When generating the actual code the optimization function will be used
+   to create compact code. At that stage Maxima will generate sub-expressions
+   and assign the results to some variables. To ensure that the result is 
+   valid Fortran we have to reset the optimprefix as otherwise the variable
+   names will start with "%". Here, I have chosen "t" as short hand for
+   "temporary".
+*/
+
+optimprefix: t$
+
+/* Increase the indentation to generate properly indented code */
+
+fortindent: 6$
+if tau_deriv then 
+  fortindent: 8$
+
+/* Set line length to something huge to avoid strings getting wrapped */
+
+linel: 20000$
+
+/* Maxima can handle different floating point precisions. To get good agreement
+   between the automatic differentiation code and the Maxima generated code
+   the floating point precisions used in pre-calculating constants has to
+   match reasonably well.
+*/
+
+fpprec: 32$
+
+/* The usual psychosis:
+   Running fortran(%pi) produces "%pi" instead of a number or something else a
+   Fortran compiler would recognize. Getting Maxima to produce actual Fortran
+   with "fortran" we need to tell it to evaluate everything numerically. So we
+   need to create a function for that.
+ */
+
+Fortran(expr):= fortran(ev(expr,numer))$
+
+/* Generate and print optimized Fortran to:
+   1. Keep the subroutine sizes in check
+   2. Keep the compiler from complaining about too many continuation lines
+   3. Get code that performs reasonably well (hopefully)
+*/
+
+Fortran_block(l,e) := block( [ml: l, me : e, n : 0],
+  for n:1 thru length(me) do
+    Fortran(ml[n] = ml[n] + me[n])
+  )$
+
+/* The optimize(e) function produces different results depending on whether
+   it could optimize the expressions in e or not. 
+
+   If the optimization failed to achieve anything then optimize(e) will 
+   simply return e. I.e. if e is 
+
+              4/3          4/3               1/3              1/3       c3 wght     c3 wght  c4 wght        c4 wght
+     [(c1 rhob    + c1 rhoa   ) wght, c2 rhoa    wght, c2 rhob    wght, -------, 0, -------, -------, 0, 0, -------] 
+                                                                            2/3         2/3      5/3            5/3
+                                                                        rhoa        rhob     rhoa           rhob
+
+   optimize(e) will simply throw the same thing back. However if the
+   optimization was successful optimize(e) will return a nested list. I.e.
+   optimize(e) will return something like
+
+                          c3 wght       c4 wght          4/3              1/3
+     block([t1, t2], t1 : -------, t2 : -------, [c1 rhoa    wght, c2 rhoa    wght, t1, t1, t2, t2]) 
+                              2/3           5/3
+                          rhoa          rhoa
+
+   where t1 and t2 are the expressions broken out, and the embedded list 
+   contains the optimized expressions.
+
+   The Fortran_opt routine needs to be aware of these different kinds of
+   results and adapt accordingly. Below op(rest(args(le))[1])=":" is true if we
+   have the second kind of result, otherwise we pass the result from
+   optimize(e) directly to Fortran_block.
+*/
+
+Fortran_opt(l,e) := block( [ll: l, le: optimize(e)],
+  if atom(rest(args(le))[1]) then
+    Fortran_block(ll,le)
+  else if op(rest(args(le))[1])=":" then
+    for p in rest(args(le)) do
+      if atom(p) then print("Pos1: What the heck?: ",p)
+      else if op(p)=":" then Fortran(apply("=",args(p)))
+      else if listp(p) then Fortran_block(ll,p)
+      else print("Pos2: What the heck?: ",p)
+  else Fortran_block(ll,le)
+  )$
+
+/* Generate and print optimized TeX to:
+   1. Get some readable expressions (i.e. not 10 screens wide)
+*/
+
+TeX_block(l,e) := block( [ml: l, me : e, n : 0],
+  for n:1 thru length(me) do
+    print(sconcat("C>   ",tex1(ml[n])," &=& ",tex1(me[n]),"\\\\\\\\\\\\\\\\"))
+  )$
+
+TeX_opt(l,e) := block( [ll: l, le: optimize(e)],
+  if atom(rest(args(le))[1]) then
+    TeX_block(ll,le)
+  else if op(rest(args(le))[1])=":" then
+    for p in rest(args(le)) do
+      if atom(p) then print("Pos1: What the heck?: ",p)
+      else if op(p)=":" then
+        print(sconcat("C>   ",tex1(args(p)[1])," &=& ",tex1(args(p)[2]),"\\\\\\\\\\\\\\\\"))
+      else if listp(p) then TeX_block(ll,p)
+      else print("Pos2: What the heck?: ",p)
+  else TeX_block(ll,le)
+  )$
+
+/* Ideally we want reasonably compact expressions so we extend diff to try and
+   generate those.
+*/
+
+Diff(x,y):=combine(diff(x,y))$
+
+/* 1st order derivatives */
+/* Alpha and Beta spin channel */
+
+df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_a)$
+df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df1gbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df1ta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df1tb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(func(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla1ra(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(funcla(rho_a,rho_b,sigma_bb,tau_b),rho_a)$
+dfla1rb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(funcla(rho_a,rho_b,sigma_bb,tau_b),rho_b)$
+dfla1gbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(funcla(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
+dfla1tb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(funcla(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflab1ra(rho_a,rho_b)
+:=Diff(funclab(rho_a,rho_b),rho_a)$
+dflab1rb(rho_a,rho_b)
+:=Diff(funclab(rho_a,rho_b),rho_b)$
+
+dflb1ra(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(funclb(rho_a,rho_b,sigma_aa,tau_a),rho_a)$
+dflb1rb(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(funclb(rho_a,rho_b,sigma_aa,tau_a),rho_b)$
+dflb1gaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(funclb(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+dflb1ta(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(funclb(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* One spin channel */
+
+dfs1rs(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(funcs(rho_s,sigma_ss,tau_s,tau_u),rho_s)$
+dfs1gss(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(funcs(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs1ts(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(funcs(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs1tu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(funcs(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+
+dfls1rs(rho_s,tau_u)
+:=Diff(funcls(rho_s,tau_u),rho_s)$
+dfls1tu(rho_s,tau_u)
+:=Diff(funcls(rho_s,tau_u),tau_u)$
+dflsu1rs(rho_s)
+:=Diff(funclsu(rho_s),rho_s)$
+dflu1rs(rho_s,sigma_ss,tau_s)
+:=Diff(funclu(rho_s,sigma_ss,tau_s),rho_s)$
+dflu1gss(rho_s,sigma_ss,tau_s)
+:=Diff(funclu(rho_s,sigma_ss,tau_s),sigma_ss)$
+dflu1ts(rho_s,sigma_ss,tau_s)
+:=Diff(funclu(rho_s,sigma_ss,tau_s),tau_s)$
+
+/* 2nd order derivatives */
+/* Alpha and Beta spin channel */
+/* Rho Rho */
+
+df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_a)$
+df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+
+dfla2rara(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1ra(rho_a,rho_b,sigma_bb,tau_b),rho_a)$
+dfla2rarb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1ra(rho_a,rho_b,sigma_bb,tau_b),rho_b)$
+dfla2rbrb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1rb(rho_a,rho_b,sigma_bb,tau_b),rho_b)$
+
+dflab2rara(rho_a,rho_b)
+:=Diff(dflab1ra(rho_a,rho_b),rho_a)$
+dflab2rarb(rho_a,rho_b)
+:=Diff(dflab1ra(rho_a,rho_b),rho_b)$
+dflab2rbrb(rho_a,rho_b)
+:=Diff(dflab1rb(rho_a,rho_b),rho_b)$
+
+dflb2rara(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dflb1ra(rho_a,rho_b,sigma_bb,tau_b),rho_a)$
+dflb2rarb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dflb1ra(rho_a,rho_b,sigma_bb,tau_b),rho_b)$
+dflb2rbrb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dflb1rb(rho_a,rho_b,sigma_bb,tau_b),rho_b)$
+
+/* Rho Sigma */
+df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+dfla2ragbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1ra(rho_a,rho_b,sigma_bb,tau_a),sigma_bb)$
+dfla2rbgbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1rb(rho_a,rho_b,sigma_bb,tau_a),sigma_bb)$
+
+dflb2ragaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb1ra(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+dflb2rbgaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb1rb(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+
+/* Rho Tau */
+
+df2rata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2ratb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ra(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df2rbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2rbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla2ratb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1ra(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+dfla2rbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1rb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb2rata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb1ra(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+dflb2rbta(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb1rb(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* Sigma Sigma */
+
+df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df2gaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df2gabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df2gbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+dfla2gbbgbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1gbb(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
+
+dflb2gaagaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb1gaa(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+
+/* Sigma Tau */
+
+df2gaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2gaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df2gabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2gabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df2gbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2gbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1gbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla2gbbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1gbb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb2gaata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb1gaa(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* Tau Tau */
+
+df2tata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df2tatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1ta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df2tbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df1tb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla2tbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla1tb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb2tata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb1ta(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* 2nd order derivatives */
+/* One spin channel */
+
+dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1rs(rho_s,sigma_ss,tau_s,tau_u),rho_s)$
+dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1rs(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs2rsts(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1rs(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs2rstu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1rs(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs2gssgss(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1gss(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs2gssts(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1gss(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs2gsstu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1gss(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs2tsts(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1ts(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs2tstu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1ts(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs2tutu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs1tu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+
+dfls2rsrs(rho_s,tau_u)
+:=Diff(dfls1rs(rho_s,tau_u),rho_s)$
+dfls2rstu(rho_s,tau_u)
+:=Diff(dfls1rs(rho_s,tau_u),tau_u)$
+dfls2tutu(rho_s,tau_u)
+:=Diff(dfls1tu(rho_s,tau_u),tau_u)$
+
+dflsu2rsrs(rho_s)
+:=Diff(dflsu1rs(rho_s),rho_s)$
+
+dflu2rsrs(rho_s,sigma_ss,tau_s)
+:=Diff(dflu1rs(rho_s,sigma_ss,tau_s),rho_s)$
+dflu2rsgss(rho_s,sigma_ss,tau_s)
+:=Diff(dflu1rs(rho_s,sigma_ss,tau_s),sigma_ss)$
+dflu2rsts(rho_s,sigma_ss,tau_s)
+:=Diff(dflu1rs(rho_s,sigma_ss,tau_s),tau_s)$
+dflu2gssgss(rho_s,sigma_ss,tau_s)
+:=Diff(dflu1gss(rho_s,sigma_ss,tau_s),sigma_ss)$
+dflu2gssts(rho_s,sigma_ss,tau_s)
+:=Diff(dflu1gss(rho_s,sigma_ss,tau_s),tau_s)$
+dflu2tsts(rho_s,sigma_ss,tau_s)
+:=Diff(dflu1ts(rho_s,sigma_ss,tau_s),tau_s)$
+
+/* 3rd order derivatives */
+/* Alpha and Beta spin channel */
+/* Rho Rho Rho */
+
+df3rarara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_a)$
+df3rararb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+df3rarbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+df3rbrbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),rho_b)$
+
+dfla3rarara(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rara(rho_a,rho_b,sigma_bb,tau_b),rho_a)$
+dfla3rararb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rara(rho_a,rho_b,sigma_bb,tau_b),rho_b)$
+dfla3rarbrb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rarb(rho_a,rho_b,sigma_bb,tau_b),rho_b)$
+dfla3rbrbrb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rbrb(rho_a,rho_b,sigma_bb,tau_b),rho_b)$
+
+dflab3rarara(rho_a,rho_b)
+:=Diff(dflab2rara(rho_a,rho_b),rho_a)$
+dflab3rararb(rho_a,rho_b)
+:=Diff(dflab2rara(rho_a,rho_b),rho_b)$
+dflab3rarbrb(rho_a,rho_b)
+:=Diff(dflab2rarb(rho_a,rho_b),rho_b)$
+dflab3rbrbrb(rho_a,rho_b)
+:=Diff(dflab2rbrb(rho_a,rho_b),rho_b)$
+
+dflb3rarara(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rara(rho_a,rho_b,sigma_aa,tau_a),rho_a)$
+dflb3rararb(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rara(rho_a,rho_b,sigma_aa,tau_a),rho_b)$
+dflb3rarbrb(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rarb(rho_a,rho_b,sigma_aa,tau_a),rho_b)$
+dflb3rbrbrb(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rbrb(rho_a,rho_b,sigma_aa,tau_a),rho_b)$
+
+/* Rho Rho Sigma */
+
+df3raragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3raragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3raragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3rarbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3rarbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3rarbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3rbrbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3rbrbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3rbrbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+dfla3raragbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rara(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
+dfla3rarbgbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rarb(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
+dfla3rbrbgbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rbrb(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
+
+dflb3raragaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rara(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+dflb3rarbgaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rarb(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+dflb3rbrbgaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rbrb(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+
+/* Rho Rho Tau */
+
+df3rarata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3raratb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rara(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rarbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rarbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rarb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbrbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbrbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbrb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla3raratb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rara(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+dfla3rarbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rarb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+dfla3rbrbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rbrb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb3rarata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rara(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+dflb3rarbta(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rarb(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+dflb3rbrbta(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rbrb(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* Rho Sigma Sigma */
+
+df3ragaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3ragaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3ragaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3ragabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3ragabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3ragbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+df3rbgaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3rbgaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3rbgaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3rbgabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3rbgabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3rbgbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+dfla3ragbbgbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2ragbb(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
+dfla3rbgbbgbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2rbgbb(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
+
+dflb3ragaagaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2ragaa(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+dflb3rbgaagaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rbgaa(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+
+
+/* Rho Sigma Tau */
+
+df3ragaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3ragaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3ragabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3ragabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3ragbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3ragbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ragbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbgaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbgaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbgabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbgabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbgbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbgbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla3ragbbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dflb2ragbb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+dfla3rbgbbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dflb2rbgbb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb3ragaata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2ragaa(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+dflb3rbgaata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rbgaa(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* Rho Tau Tau */
+
+df3ratata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3ratatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3ratbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2ratb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbtata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3rbtatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3rbtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2rbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla3ratbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2ratb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+dfla3rbtbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dflb2rbtb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb3ratata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rata(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+dflb3rbtata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2rbta(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* Sigma Sigma Sigma */
+
+df3gaagaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_aa)$
+df3gaagaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3gaagaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gaagabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3gaagabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gaagbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gabgabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_ab)$
+df3gabgabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gabgbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+df3gbbgbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
+
+dfla3gbbgbbgbb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2gbbgbb(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
+
+dflb3gaagaagaa(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2gaagaa(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
+
+/* Sigma Sigma Tau */
+
+df3gaagaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gaagaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagaa(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gaagabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gaagabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gaagbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gaagbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaagbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gabgabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gabgabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabgab(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gabgbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gabgbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gbbgbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gbbgbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gbbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla3gbbgbbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2gbbgbb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb3gaagaata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2gaagaa(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* Sigma Tau Tau */
+
+df3gaatata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gaatatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gaatbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gaatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gabtata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gabtatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gabtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gabtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gbbtata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3gbbtatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gbbta(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3gbbtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2gbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla3gbbtbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2gbbtb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb3gaatata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2gaata(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* Tau Tau Tau */
+
+df3tatata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2tata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_a)$
+df3tatatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2tata(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3tatbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2tatb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+df3tbtbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
+:=Diff(df2tbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
+
+dfla3tbtbtb(rho_a,rho_b,sigma_bb,tau_b)
+:=Diff(dfla2tbtb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+
+dflb3tatata(rho_a,rho_b,sigma_aa,tau_a)
+:=Diff(dflb2tata(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
+
+/* 3rd order derivatives */
+/* One spin channel */
+
+dfs3rsrsrs(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),rho_s)$
+dfs3rsrsgss(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs3rsrsts(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3rsrstu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsrs(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3rsgssgss(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs3rsgssts(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3rsgsstu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsgss(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3rststs(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsts(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3rststu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rsts(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3rstutu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2rstu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3gssgssgss(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2gssgss(rho_s,sigma_ss,tau_s,tau_u),sigma_ss)$
+dfs3gssgssts(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2gssgss(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3gssgsstu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2gssgss(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3gsststs(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2gssts(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3gsststu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2gssts(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3gsstutu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2gsstu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3tststs(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2tsts(rho_s,sigma_ss,tau_s,tau_u),tau_s)$
+dfs3tststu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2tsts(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3tstutu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2tstu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+dfs3tututu(rho_s,sigma_ss,tau_s,tau_u)
+:=Diff(dfs2tutu(rho_s,sigma_ss,tau_s,tau_u),tau_u)$
+
+dfls3rsrsrs(rho_s,tau_u)
+:=Diff(dfls2rsrs(rho_s,tau_u),rho_s)$
+dfls3rsrstu(rho_s,tau_u)
+:=Diff(dfls2rsrs(rho_s,tau_u),tau_u)$
+dfls3rstutu(rho_s,tau_u)
+:=Diff(dfls2rstu(rho_s,tau_u),tau_u)$
+dfls3tututu(rho_s,tau_u)
+:=Diff(dfls2tutu(rho_s,tau_u),tau_u)$
+
+dflsu3rsrsrs(rho_s)
+:=Diff(dflsu2rsrs(rho_s),rho_s)$
+
+dflu3rsrsrs(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2rsrs(rho_s,sigma_ss,tau_s),rho_s)$
+dflu3rsrsgss(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2rsrs(rho_s,sigma_ss,tau_s),sigma_ss)$
+dflu3rsrsts(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2rsrs(rho_s,sigma_ss,tau_s),tau_s)$
+dflu3rsgssgss(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2rsgss(rho_s,sigma_ss,tau_s),sigma_ss)$
+dflu3rsgssts(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2rsgss(rho_s,sigma_ss,tau_s),tau_s)$
+dflu3rststs(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2rsts(rho_s,sigma_ss,tau_s),tau_s)$
+dflu3gssgssgss(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2gssgss(rho_s,sigma_ss,tau_s),sigma_ss)$
+dflu3gssgssts(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2gssgss(rho_s,sigma_ss,tau_s),tau_s)$
+dflu3gsststs(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2gssts(rho_s,sigma_ss,tau_s),tau_s)$
+dflu3tststs(rho_s,sigma_ss,tau_s)
+:=Diff(dflu2tsts(rho_s,sigma_ss,tau_s),tau_s)$
+
+texput(zeta,"\\\\zeta")$
+texput(rhoa,"\\\\rho_\\\\alpha")$
+texput(rhob,"\\\\rho_\\\\beta")$
+texput(rho,"\\\\rho")$
+texput(sigmaaa,"\\\\sigma_{\\\\alpha\\\\alpha}")$
+texput(sigmaab,"\\\\sigma_{\\\\alpha\\\\beta}")$
+texput(sigmabb,"\\\\sigma_{\\\\beta\\\\beta}")$
+texput(sigma,"\\\\sigma")$
+texput(taua,"\\\\tau_\\\\alpha")$
+texput(taub,"\\\\tau_\\\\beta")$
+texput(tau,"\\\\tau")$
+texput(rhos,"\\\\rho_s")$
+texput(sigmass,"\\\\sigma_{ss}")$
+texput(taus,"\\\\tau_s")$
+texput(tauu,"\\\\tau_{\\\\bar s}")$
+tl : [f, g, G] $
+te : [f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau),
+      g(rhos,sigmass,taus),
+      G(rhos,sigmass,taus,tauu)] $
+
+/* Lists of first order quantities */
+
+/* Unrestricted open-shell */
+
+ul0 : [ fnc(iq) ] $
+ul1r: [ Amat(iq,D1_RA),  Amat(iq,D1_RB) ] $
+ul1g: [ Cmat(iq,D1_GAA), Cmat(iq,D1_GAB), Cmat(iq,D1_GBB) ] $
+ul1t: [ Mmat(iq,D1_TA),  Mmat(iq,D1_TB) ] $
+
+ue0 : [ func(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+ue1r: [ df1ra(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df1rb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+ue1g: [ df1gaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df1gab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df1gbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+ue1t: [ df1ta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df1tb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+
+ue0la : [ funcla(rhoa,rhob,gammabb,taub) ] $
+ue1lar: [ dfla1ra(rhoa,rhob,gammabb,taub),
+          dfla1rb(rhoa,rhob,gammabb,taub) ] $
+ue1lag: [ 0,
+          0,
+          df1gbb(rhoa,rhob,gammabb,taub) ] $
+ue1lat: [ 0,
+          df1tb(rhoa,rhob,gammabb,taub) ] $
+
+ue0lab : [ funclab(rhoa,rhob) ] $
+ue1labr: [ dflab1ra(rhoa,rhob),
+           dflab1rb(rhoa,rhob) ] $
+ue1labg: [ 0,
+           0,
+           0 ] $
+ue1labt: [ 0,
+           0 ] $
+
+ue0lb : [ funclb(rhoa,rhob,gammaaa,taua) ] $
+ue1lbr: [ dflb1ra(rhoa,rhob,gammaaa,taua),
+          dflb1rb(rhoa,rhob,gammaaa,taua) ] $
+ue1lbg: [ dflb1gaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0 ] $
+ue1lbt: [ dflb1ta(rhoa,rhob,gammaaa,taua),
+          0 ] $
+
+/* Unrestricted open-shell, alpha density only (beta density equals zero) */
+
+ula0 : [ fnc(iq) ] $
+ula1r: [ Amat(iq,D1_RA)  ] $
+ula1g: [ Cmat(iq,D1_GAA) ] $
+ula1t: [ Mmat(iq,D1_TA),  Mmat(iq,D1_TB) ] $
+
+uea0 : [ funcs(rhoa,gammaaa,taua,taub) ] $
+uea1r: [ dfs1rs(rhoa,gammaaa,taua,taub) ] $
+uea1g: [ dfs1gss(rhoa,gammaaa,taua,taub) ] $
+uea1t: [ dfs1ts(rhoa,gammaaa,taua,taub),
+         dfs1tu(rhoa,gammaaa,taua,taub) ] $
+
+uea0la : [ funcls(rhoa,taub) ] $
+uea1lar: [ dfls1rs(rhoa,taub) ] $
+uea1lag: [ 0 ] $
+uea1lat: [ 0,
+           dfls1tu(rhoa,taub) ] $
+
+uea0lab : [ funcls(rhoa) ] $
+uea1labr: [ dflsu1rs(rhoa) ] $
+uea1labg: [ 0 ] $
+uea1labt: [ 0,
+            0 ] $
+
+uea0lb : [ funclu(rhoa,gammaaa,taua) ] $
+uea1lbr: [ dflu1rs(rhoa,gammaaa,taua) ] $
+uea1lbg: [ dflu1gss(rhoa,gammaaa,taua) ] $
+uea1lbt: [ dflu1ts(rhoa,gammaaa,taua),
+           0 ] $
+
+/* Unrestricted open-shell, beta density only (alpha density equals zero) */
+
+ulb0 : [ fnc(iq) ] $
+ulb1r: [ Amat(iq,D1_RB)  ] $
+ulb1g: [ Cmat(iq,D1_GBB) ] $
+ulb1t: [ Mmat(iq,D1_TB),  Mmat(iq,D1_TA) ] $
+
+ueb0 : [ funcs(rhob,gammabb,taub,taua) ] $
+ueb1r: [ dfs1rs(rhob,gammabb,taub,taua) ] $
+ueb1g: [ dfs1gss(rhob,gammabb,taub,taua) ] $
+ueb1t: [ dfs1ts(rhob,gammabb,taub,taua),
+         dfs1tu(rhob,gammabb,taub,taua) ] $
+
+ueb0lb : [ funcls(rhob,taua) ] $
+ueb1lbr: [ dfls1rs(rhob,taua) ] $
+ueb1lbg: [ 0 ] $
+ueb1lbt: [ 0,
+           dfls1tu(rhob,taua) ] $
+
+ueb0lab : [ funcls(rhob) ] $
+ueb1labr: [ dflsu1rs(rhob) ] $
+ueb1labg: [ 0 ] $
+ueb1labt: [ 0,
+            0 ] $
+
+ueb0la : [ funclu(rhob,gammabb,taub) ] $
+ueb1lar: [ dflu1rs(rhob,gammabb,taub) ] $
+ueb1lag: [ dflu1gss(rhob,gammabb,taub) ] $
+ueb1lat: [ dflu1ts(rhob,gammabb,taub),
+           0 ] $
+
+/* Closed-shell */
+
+cl0 : [ fnc(iq) ] $
+cl1r: [ Amat(iq,D1_RA) ] $
+cl1g: [ Cmat(iq,D1_GAA), Cmat(iq,D1_GAB) ] $
+cl1t: [ Mmat(iq,D1_TA) ] $
+
+ce0 : [ func(rhoa,rhoa,gammaaa,gammaaa,gammaaa,taua,taua) ] $
+ce1r: [ at(df1ra(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+ce1g: [ at(df1gaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df1gab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+ce1t: [ at(df1ta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+
+ce0l : [ funclab(rhoa,rhoa) ] $
+ce1lr: [ at(df1labra(rhoa,rhob),[rhoa=rhoa,rhob=rhoa]) ] $
+ce1lg: [ 0,
+         0 ] $
+ce1lt: [ 0 ] $
+
+/* Lists of second order quantities */
+
+/* Unrestricted open-shell */
+
+ul2r: [ Amat2(iq,D2_RA_RA),   Amat2(iq,D2_RA_RB),   Amat2(iq,D2_RB_RB) ] $
+ul2g: [ Cmat2(iq,D2_RA_GAA),  Cmat2(iq,D2_RA_GAB),  Cmat2(iq,D2_RA_GBB),
+        Cmat2(iq,D2_RB_GAA),  Cmat2(iq,D2_RB_GAB),  Cmat2(iq,D2_RB_GBB),
+        Cmat2(iq,D2_GAA_GAA), Cmat2(iq,D2_GAA_GAB), Cmat2(iq,D2_GAA_GBB),
+        Cmat2(iq,D2_GAB_GAB), Cmat2(iq,D2_GAB_GBB), Cmat2(iq,D2_GBB_GBB) ] $
+ul2t: [ Mmat2(iq,D2_RA_TA),   Mmat2(iq,D2_RA_TB),
+        Mmat2(iq,D2_RB_TA),   Mmat2(iq,D2_RB_TB),
+        Mmat2(iq,D2_GAA_TA),  Mmat2(iq,D2_GAA_TB),
+        Mmat2(iq,D2_GAB_TA),  Mmat2(iq,D2_GAB_TB),
+        Mmat2(iq,D2_GBB_TA),  Mmat2(iq,D2_GBB_TB),
+        Mmat2(iq,D2_TA_TA),   Mmat2(iq,D2_TA_TB),   Mmat2(iq,D2_TB_TB) ] $
+
+ue2r: [ df2rara(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2rarb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2rbrb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+ue2g: [ df2ragaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2ragab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2ragbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2rbgaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2rbgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2rbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gbbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+ue2t: [ df2rata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2ratb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2rbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2rbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df2gaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df2gabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df2gbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2gbbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df2tata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2tatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df2tbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+
+ue2lar: [ dfla2rara(rhoa,rhob,gammabb,taub),
+          dfla2rarb(rhoa,rhob,gammabb,taub),
+          dfla2rbrb(rhoa,rhob,gammabb,taub) ] $
+ue2lag: [ 0,
+          0,
+          dfla2ragbb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          dfla2rbgbb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          0,
+          0,
+          0,
+          dfla2gbbgbb(rhoa,rhob,gammabb,taub) ] $
+ue2lat: [ 0,
+          dfla2ratb(rhoa,rhob,gammabb,taub),
+          0,
+          dfla2rbtb(rhoa,rhob,gammabb,taub), 
+          0,
+          0,
+          0,
+          0,
+          0,
+          dfla2gbbtb(rhoa,rhob,gammabb,taub), 
+          0,
+          0,
+          dfla2tbtb(rhoa,rhob,gammabb,taub) ] $
+
+ue2labr: [ dflab2rara(rhoa,rhob),
+           dflab2rarb(rhoa,rhob),
+           dflab2rbrb(rhoa,rhob) ] $
+ue2labg: [ 0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0 ] $
+ue2labt: [ 0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0 ] $
+
+ue2lbr: [ dflb2rara(rhoa,rhob,gammaaa,taua),
+          dflb2rarb(rhoa,rhob,gammaaa,taua),
+          dflb2rbrb(rhoa,rhob,gammaaa,taua) ] $
+ue2lbg: [ dflb2ragaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          dflb2rbgaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          dflb2gaagaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0 ] $
+ue2lbt: [ df2rata(rhoa,rhob,gammaaa,taua),
+          0,
+          df2rbta(rhoa,rhob,gammaaa,taua),
+          0,
+          df2gaata(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0,
+          df2tata(rhoa,rhob,gammaaa,taua),
+          0,
+          0 ] $
+
+/* Unrestricted open-shell, alpha density only (beta density equals zero) */
+
+ula2r: [ Amat2(iq,D2_RA_RA)  ] $
+ula2g: [ Cmat2(iq,D2_RA_GAA), Cmat2(iq,D2_GAA_GAA) ] $
+ula2t: [ Mmat2(iq,D2_RA_TA),  Mmat2(iq,D2_RA_TB),
+         Mmat2(iq,D2_GAA_TA), Mmat2(iq,D2_GAA_TB),
+         Mmat2(iq,D2_TA_TA),  Mmat2(iq,D2_TA_TB),
+         Mmat2(iq,D2_TB_TB)   ] $
+
+uea2r: [ dfs2rsrs(rhoa,gammaaa,taua,taub) ] $
+uea2g: [ dfs2rsgss(rhoa,gammaaa,taua,taub),
+         dfs2gssgss(rhoa,gammaaa,taua,taub) ] $
+uea2t: [ dfs2rsts(rhoa,gammaaa,taua,taub),
+         dfs2rstu(rhoa,gammaaa,taua,taub),
+         dfs2gssts(rhoa,gammaaa,taua,taub),
+         dfs2gsstu(rhoa,gammaaa,taua,taub),
+         dfs2tsts(rhoa,gammaaa,taua,taub),
+         dfs2tstu(rhoa,gammaaa,taua,taub),
+         dfs2tutu(rhoa,gammaaa,taua,taub)   ] $
+
+uea2lar: [ dfls2rsrs(rhoa,taub) ] $
+uea2lag: [ 0,
+           0 ] $
+uea2lat: [ 0,
+           dfls2rstu(rhoa,taub),
+           0,
+           0,
+           0,
+           0,
+           dfls2tutu(rhoa,taub)   ] $
+
+uea2labr: [ dflsu2rsrs(rhoa) ] $
+uea2labg: [ 0,
+            0 ] $
+uea2labt: [ 0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0   ] $
+
+uea2lbr: [ dflu2rsrs(rhoa,gammaaa,taua) ] $
+uea2lbg: [ dflu2rsgss(rhoa,gammaaa,taua),
+           dflu2gssgss(rhoa,gammaaa,taua) ] $
+uea2lbt: [ dflu2rsts(rhoa,gammaaa,taua),
+           0,
+           dflu2gssts(rhoa,gammaaa,taua),
+           0,
+           dflu2tsts(rhoa,gammaaa,taua),
+           0,
+           0   ] $
+
+/* Unrestricted open-shell, beta density only (alpha density equals zero) */
+
+ulb2r: [ Amat2(iq,D2_RB_RB)  ] $
+ulb2g: [ Cmat2(iq,D2_RB_GBB), Cmat2(iq,D2_GBB_GBB) ] $
+ulb2t: [ Mmat2(iq,D2_RB_TA),  Mmat2(iq,D2_RB_TB),
+         Mmat2(iq,D2_GBB_TA), Mmat2(iq,D2_GBB_TB),
+         Mmat2(iq,D2_TA_TA),  Mmat2(iq,D2_TA_TB),
+         Mmat2(iq,D2_TB_TB)   ] $
+
+ueb2r: [ dfs2rsrs(rhob,gammabb,taub,taua) ] $
+ueb2g: [ dfs2rsgss(rhob,gammabb,taub,taua),
+         dfs2gssgss(rhob,gammabb,taub,taua) ] $
+ueb2t: [ dfs2rstu(rhob,gammabb,taub,taua),
+         dfs2rsts(rhob,gammabb,taub,taua),
+         dfs2gsstu(rhob,gammabb,taub,taua),
+         dfs2gssts(rhob,gammabb,taub,taua),
+         dfs2tutu(rhob,gammabb,taub,taua),
+         dfs2tstu(rhob,gammabb,taub,taua),
+         dfs2tsts(rhob,gammabb,taub,taua)   ] $
+
+ueb2lar: [ dflu2rsrs(rhob,gammabb,taub) ] $
+ueb2lag: [ dflu2rsgss(rhob,gammabb,taub),
+           dflu2gssgss(rhob,gammabb,taub) ] $
+ueb2lat: [ 0,
+           dflu2rsts(rhob,gammabb,taub),
+           0,
+           dflu2gssts(rhob,gammabb,taub),
+           0,
+           0,
+           dflu2tsts(rhob,gammabb,taub)   ] $
+
+ueb2labr: [ dflsu2rsrs(rhob) ] $
+ueb2labg: [ 0,
+            0 ] $
+ueb2labt: [ 0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0   ] $
+
+ueb2lbr: [ dfs2rsrs(rhob,taua) ] $
+ueb2lbg: [ 0,
+           0 ] $
+ueb2lbt: [ dfs2rstu(rhob,taua),
+           0,
+           0,
+           0,
+           dfs2tutu(rhob,taua),
+           0,
+           0   ] $
+
+/* Closed-shell */
+
+cl2r: [ Amat2(iq,D2_RA_RA),   Amat2(iq,D2_RA_RB) ] $
+cl2g: [ Cmat2(iq,D2_RA_GAA),  Cmat2(iq,D2_RA_GAB),  Cmat2(iq,D2_RA_GBB),
+        Cmat2(iq,D2_GAA_GAA), Cmat2(iq,D2_GAA_GAB), Cmat2(iq,D2_GAA_GBB),
+        Cmat2(iq,D2_GAB_GAB) ] $
+cl2t: [ Mmat2(iq,D2_RA_TA),   Mmat2(iq,D2_RA_TB),
+        Mmat2(iq,D2_GAA_TA),  Mmat2(iq,D2_GAA_TB),
+        Mmat2(iq,D2_GAB_TA),
+        Mmat2(iq,D2_TA_TA),   Mmat2(iq,D2_TA_TB) ] $
+
+ce2r: [ at(df2rara(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2rarb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+ce2g: [ at(df2ragaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2ragab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2ragbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+ce2t: [ at(df2rata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2ratb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2gabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2tata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df2tatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+
+ce2lr: [ at(dflab2rara(rhoa,rhob),[rhoa=rhoa,rhob=rhoa]),
+         at(dflab2rarb(rhoa,rhob),[rhoa=rhoa,rhob=rhoa]) ] $
+ce2lg: [ 0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0 ] $
+ce2lt: [ 0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0 ] $
+
+/* Lists of third order quantities */
+
+/* Unrestricted open-shell */
+
+ul3r: [ Amat3(iq,D3_RA_RA_RA),    Amat3(iq,D3_RA_RA_RB),
+        Amat3(iq,D3_RA_RB_RB),    Amat3(iq,D3_RB_RB_RB) ] $
+
+ul3g: [ Cmat3(iq,D3_RA_RA_GAA),   Cmat3(iq,D3_RA_RA_GAB),
+        Cmat3(iq,D3_RA_RA_GBB),   Cmat3(iq,D3_RA_RB_GAA),
+        Cmat3(iq,D3_RA_RB_GAB),   Cmat3(iq,D3_RA_RB_GBB),
+        Cmat3(iq,D3_RB_RB_GAA),   Cmat3(iq,D3_RB_RB_GAB),
+        Cmat3(iq,D3_RB_RB_GBB),
+        Cmat3(iq,D3_RA_GAA_GAA),  Cmat3(iq,D3_RA_GAA_GAB),
+        Cmat3(iq,D3_RA_GAA_GBB),  Cmat3(iq,D3_RA_GAB_GAB),
+        Cmat3(iq,D3_RA_GAB_GBB),  Cmat3(iq,D3_RA_GBB_GBB),
+        Cmat3(iq,D3_RB_GAA_GAA),  Cmat3(iq,D3_RB_GAA_GAB),
+        Cmat3(iq,D3_RB_GAA_GBB),  Cmat3(iq,D3_RB_GAB_GAB),
+        Cmat3(iq,D3_RB_GAB_GBB),  Cmat3(iq,D3_RB_GBB_GBB),
+        Cmat3(iq,D3_GAA_GAA_GAA), Cmat3(iq,D3_GAA_GAA_GAB),
+        Cmat3(iq,D3_GAA_GAA_GBB), Cmat3(iq,D3_GAA_GAB_GAB),
+        Cmat3(iq,D3_GAA_GAB_GBB), Cmat3(iq,D3_GAA_GBB_GBB),
+        Cmat3(iq,D3_GAB_GAB_GAB), Cmat3(iq,D3_GAB_GAB_GBB),
+        Cmat3(iq,D3_GAB_GBB_GBB), Cmat3(iq,D3_GBB_GBB_GBB) ] $
+
+ul3t: [ Mmat3(iq,D3_RA_RA_TA),    Mmat3(iq,D3_RA_RA_TB),
+        Mmat3(iq,D3_RA_RB_TA),    Mmat3(iq,D3_RA_RB_TB),
+        Mmat3(iq,D3_RB_RB_TA),    Mmat3(iq,D3_RB_RB_TB),
+        Mmat3(iq,D3_RA_GAA_TA),   Mmat3(iq,D3_RA_GAA_TB),
+        Mmat3(iq,D3_RA_GAB_TA),   Mmat3(iq,D3_RA_GAB_TB),
+        Mmat3(iq,D3_RA_GBB_TA),   Mmat3(iq,D3_RA_GBB_TB),
+        Mmat3(iq,D3_RB_GAA_TA),   Mmat3(iq,D3_RB_GAA_TB),
+        Mmat3(iq,D3_RB_GAB_TA),   Mmat3(iq,D3_RB_GAB_TB),
+        Mmat3(iq,D3_RB_GBB_TA),   Mmat3(iq,D3_RB_GBB_TB),
+        Mmat3(iq,D3_RA_TA_TA),    Mmat3(iq,D3_RA_TA_TB),
+        Mmat3(iq,D3_RA_TB_TB),    Mmat3(iq,D3_RB_TA_TA),
+        Mmat3(iq,D3_RB_TA_TB),    Mmat3(iq,D3_RB_TB_TB),
+        Mmat3(iq,D3_GAA_GAA_TA),  Mmat3(iq,D3_GAA_GAA_TB),
+        Mmat3(iq,D3_GAA_GAB_TA),  Mmat3(iq,D3_GAA_GAB_TB),
+        Mmat3(iq,D3_GAA_GBB_TA),  Mmat3(iq,D3_GAA_GBB_TB),
+        Mmat3(iq,D3_GAB_GAB_TA),  Mmat3(iq,D3_GAB_GAB_TB),
+        Mmat3(iq,D3_GAB_GBB_TA),  Mmat3(iq,D3_GAB_GBB_TB),
+        Mmat3(iq,D3_GBB_GBB_TA),  Mmat3(iq,D3_GBB_GBB_TB),
+        Mmat3(iq,D3_GAA_TA_TA),   Mmat3(iq,D3_GAA_TA_TB),
+        Mmat3(iq,D3_GAA_TB_TB),   Mmat3(iq,D3_GAB_TA_TA),
+        Mmat3(iq,D3_GAB_TA_TB),   Mmat3(iq,D3_GAB_TB_TB),
+        Mmat3(iq,D3_GBB_TA_TA),   Mmat3(iq,D3_GBB_TA_TB),
+        Mmat3(iq,D3_GBB_TB_TB),
+        Mmat3(iq,D3_TA_TA_TA),    Mmat3(iq,D3_TA_TA_TB),
+        Mmat3(iq,D3_TA_TB_TB),    Mmat3(iq,D3_TB_TB_TB) ] $
+
+ue3r: [ df3rarara(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rararb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rarbrb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbrbrb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+
+ue3g: [ df3raragaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3raragab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3raragbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rarbgaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rarbgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rarbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbrbgaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbrbgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbrbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragbbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgbbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagbbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabgabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabgabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabgbbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gbbgbbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+
+ue3t: [ df3rarata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3raratb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rarbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rarbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df3rbrbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbrbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df3ragaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df3ragabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df3ragbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3ragbbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df3rbgaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df3rbgabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df3rbgbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3rbgbbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub), 
+        df3gaagaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaagbbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabgabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabgabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabgbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabgbbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gbbgbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gbbgbbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaatata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaatatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gaatbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabtata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabtatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gabtbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gbbtata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gbbtatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3gbbtbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3tatata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3tatatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3tatbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),
+        df3tbtbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub) ] $
+
+ue3lar: [ dfla3rarara(rhoa,rhob,gammabb,taub),
+          dfla3rararb(rhoa,rhob,gammabb,taub),
+          dfla3rarbrb(rhoa,rhob,gammabb,taub),
+          dfla3rbrbrb(rhoa,rhob,gammabb,taub) ] $
+
+ue3lag: [ 0,
+          0,
+          dfla3raragbb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          dfla3rarbgbb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          dfla3rbrbgbb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          0,
+          0,
+          0,
+          dfla3ragbbgbb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          0,
+          0,
+          0,
+          dfla3rbgbbgbb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          dfla3gbbgbbgbb(rhoa,rhob,gammabb,taub) ] $
+
+ue3lat: [ 0,
+          df3raratb(rhoa,rhob,gammabb,taub),
+          0,
+          df3rarbtb(rhoa,rhob,gammabb,taub), 
+          0,
+          df3rbrbtb(rhoa,rhob,gammabb,taub), 
+          0,
+          0,
+          0,
+          0,
+          0,
+          df3ragbbtb(rhoa,rhob,gammabb,taub), 
+          0,
+          0,
+          0,
+          0,
+          0,
+          df3rbgbbtb(rhoa,rhob,gammabb,taub), 
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          df3gbbgbbtb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          df3gbbtbtb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          0,
+          df3tbtbtb(rhoa,rhob,gammabb,taub) ] $
+
+ue3labr: [ dflab3rarara(rhoa,rhob),
+           dflab3rararb(rhoa,rhob),
+           dflab3rarbrb(rhoa,rhob),
+           dflab3rbrbrb(rhoa,rhob) ] $
+
+ue3labg: [ 0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0 ] $
+
+ue3labt: [ 0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           0 ] $
+
+ue3lbr: [ dflb3rarara(rhoa,rhob,gammaaa,taua),
+          dflb3rararb(rhoa,rhob,gammaaa,taua),
+          dflb3rarbrb(rhoa,rhob,gammaaa,taua),
+          dflb3rbrbrb(rhoa,rhob,gammaaa,taua) ] $
+
+ue3lbg: [ dflb3raragaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          dflb3rarbgaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          dflb3rbrbgaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          dflb3ragaagaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0,
+          dflb3rbgaagaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0,
+          dflb3gaagaagaa(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0 ] $
+
+ue3lbt: [ dflb3rarata(rhoa,rhob,gammaaa,taua),
+          0,
+          dflb3rarbta(rhoa,rhob,gammaaa,taua),
+          0,
+          dflb3rbrbta(rhoa,rhob,gammaaa,taua),
+          0,
+          dflb3ragaata(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0,
+          dflb3rbgaata(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0,
+          dflb3gaagaata(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          dflb3gaatata(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          dflb3tatata(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          0 ] $
+
+/* Unrestricted open-shell, alpha density only (beta density equals zero) */
+
+ula3r: [ Amat3(iq,D3_RA_RA_RA)  ] $
+ula3g: [ Cmat3(iq,D3_RA_RA_GAA),  Cmat3(iq,D3_RA_GAA_GAA), 
+         Cmat3(iq,D3_GAA_GAA_GAA) ] $
+ula3t: [ Mmat3(iq,D3_RA_RA_TA),   Mmat3(iq,D3_RA_RA_TB),
+         Mmat3(iq,D3_RA_GAA_TA),  Mmat3(iq,D3_RA_GAA_TB),
+         Mmat3(iq,D3_GAA_GAA_TA), Mmat3(iq,D3_GAA_GAA_TB),
+         Mmat3(iq,D3_RA_TA_TA),   Mmat3(iq,D3_RA_TA_TB),
+         Mmat3(iq,D3_RA_TB_TB),
+         Mmat3(iq,D3_GAA_TA_TA),  Mmat3(iq,D3_GAA_TA_TB),
+         Mmat3(iq,D3_GAA_TB_TB),
+         Mmat3(iq,D3_TA_TA_TA),   Mmat3(iq,D3_TA_TA_TB),
+         Mmat3(iq,D3_TA_TB_TB),   Mmat3(iq,D3_TB_TB_TB) ] $
+
+uea3r: [ dfs3rsrsrs(rhoa,gammaaa,taua,taub) ] $
+uea3g: [ dfs3rsrsgss(rhoa,gammaaa,taua,taub),
+         dfs3rsgssgss(rhoa,gammaaa,taua,taub),
+         dfs3gssgssgss(rhoa,gammaaa,taua,taub) ] $
+uea3t: [ dfs3rsrsts(rhoa,gammaaa,taua,taub),
+         dfs3rsrstu(rhoa,gammaaa,taua,taub),
+         dfs3rsgssts(rhoa,gammaaa,taua,taub),
+         dfs3rsgsstu(rhoa,gammaaa,taua,taub),
+         dfs3gssgssts(rhoa,gammaaa,taua,taub),
+         dfs3gssgsstu(rhoa,gammaaa,taua,taub),
+         dfs3rststs(rhoa,gammaaa,taua,taub),
+         dfs3rststu(rhoa,gammaaa,taua,taub),
+         dfs3rstutu(rhoa,gammaaa,taua,taub),
+         dfs3gsststs(rhoa,gammaaa,taua,taub),
+         dfs3gsststu(rhoa,gammaaa,taua,taub),
+         dfs3gsstutu(rhoa,gammaaa,taua,taub),
+         dfs3tststs(rhoa,gammaaa,taua,taub),
+         dfs3tststu(rhoa,gammaaa,taua,taub),
+         dfs3tstutu(rhoa,gammaaa,taua,taub),
+         dfs3tututu(rhoa,gammaaa,taua,taub) ] $
+
+uea3lar: [ dfls3rsrsrs(rhoa,taub) ] $
+uea3lag: [ 0,
+           0,
+           0 ] $
+uea3lat: [ 0,
+           dfls3rsrstu(rhoa,taub),
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           dfls3rstutu(rhoa,taub),
+           0,
+           0,
+           0,
+           0,
+           0,
+           0,
+           dfls3tututu(rhoa,taub) ] $
+
+uea3labr: [ dflsu3rsrsrs(rhoa) ] $
+uea3labg: [ 0,
+            0,
+            0 ] $
+uea3labt: [ 0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0 ] $
+
+uea3lbr: [ dflu3rsrsrs(rhoa,gammaaa,taua) ] $
+uea3lbg: [ dflu3rsrsgss(rhoa,gammaaa,taua),
+           dflu3rsgssgss(rhoa,gammaaa,taua),
+           dflu3gssgssgss(rhoa,gammaaa,taua) ] $
+uea3lbt: [ dflu3rsrsts(rhoa,gammaaa,taua),
+           0,
+           dflu3rsgssts(rhoa,gammaaa,taua),
+           0,
+           dflu3gssgssts(rhoa,gammaaa,taua),
+           0,
+           dflu3rststs(rhoa,gammaaa,taua),
+           0,
+           0,
+           dflu3gsststs(rhoa,gammaaa,taua),
+           0,
+           0,
+           dflu3tststs(rhoa,gammaaa,taua),
+           0,
+           0,
+           0 ] $
+
+/* Unrestricted open-shell, beta density only (alpha density equals zero) */
+
+ulb3r: [ Amat3(iq,D3_RB_RB_RB)  ] $
+ulb3g: [ Cmat3(iq,D3_RB_RB_GBB),  Cmat3(iq,D3_RB_GBB_GBB), 
+         Cmat3(iq,D3_GBB_GBB_GBB) ] $
+ulb3t: [ Mmat3(iq,D3_RB_RB_TA),   Mmat3(iq,D3_RB_RB_TB),
+         Mmat3(iq,D3_RB_GBB_TA),  Mmat3(iq,D3_RB_GBB_TB),
+         Mmat3(iq,D3_GBB_GBB_TA), Mmat3(iq,D3_GBB_GBA_TB),
+         Mmat3(iq,D3_RB_TA_TA),   Mmat3(iq,D3_RB_TA_TB),
+         Mmat3(iq,D3_RB_TB_TB),
+         Mmat3(iq,D3_GBB_TA_TA),  Mmat3(iq,D3_GBB_TA_TB),
+         Mmat3(iq,D3_GBB_TB_TB),
+         Mmat3(iq,D3_TA_TA_TA),   Mmat3(iq,D3_TA_TA_TB),
+         Mmat3(iq,D3_TA_TB_TB),   Mmat3(iq,D3_TB_TB_TB) ] $
+
+ueb3r: [ dfs3rsrsrs(rhob,gammabb,taub,taua) ] $
+ueb3g: [ dfs3rsrsgss(rhob,gammabb,taub,taua),
+         dfs3rsgssgss(rhob,gammabb,taub,taua),
+         dfs3gssgssgss(rhob,gammabb,taub,taua) ] $
+ueb3t: [ dfs3rsrstu(rhob,gammabb,taub,taua),
+         dfs3rsrsts(rhob,gammabb,taub,taua),
+         dfs3rsgsstu(rhob,gammabb,taub,taua),
+         dfs3rsgssts(rhob,gammabb,taub,taua),
+         dfs3gssgsstu(rhob,gammabb,taub,taua),
+         dfs3gssgssts(rhob,gammabb,taub,taua),
+         dfs3rstutu(rhob,gammabb,taub,taua),
+         dfs3rststu(rhob,gammabb,taub,taua),
+         dfs3rststs(rhob,gammabb,taub,taua),
+         dfs3gsstutu(rhob,gammabb,taub,taua),
+         dfs3gsststu(rhob,gammabb,taub,taua),
+         dfs3gsststs(rhob,gammabb,taub,taua),
+         dfs3tututu(rhob,gammabb,taub,taua),
+         dfs3tstutu(rhob,gammabb,taub,taua),
+         dfs3tststu(rhob,gammabb,taub,taua),
+         dfs3tststs(rhob,gammabb,taub,taua) ] $
+
+ueb3lar: [ dflu3rsrsrs(rhob,gammabb,taub) ] $
+ueb3lag: [ dflu3rsrsgss(rhob,gammabb,taub),
+           dflu3rsgssgss(rhob,gammabb,taub),
+           dflu3gssgssgss(rhob,gammabb,taub) ] $
+ueb3lat: [ 0,
+           dflu3rsrsts(rhob,gammabb,taub),
+           0,
+           dflu3rsgssts(rhob,gammabb,taub),
+           0,
+           dflu3gssgssts(rhob,gammabb,taub),
+           0,
+           0,
+           dflu3rststs(rhob,gammabb,taub),
+           0,
+           0,
+           dflu3gsststs(rhob,gammabb,taub),
+           0,
+           0,
+           0,
+           dflu3tststs(rhob,gammabb,taub) ] $
+
+ueb3labr: [ dflsu3rsrsrs(rhob) ] $
+ueb3labg: [ 0,
+            0,
+            0 ] $
+ueb3labt: [ 0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0 ] $
+
+ueb3lbr: [ dfls3rsrsrs(rhob,taua) ] $
+ueb3lbg: [ 0,
+           0,
+           0 ] $
+ueb3lbt: [ dfls3rsrstu(rhob,taua),
+           0,
+           0,
+           0,
+           0,
+           0,
+           dfls3rstutu(rhob,taua),
+           0,
+           0,
+           0,
+           0,
+           0,
+           dfls3tututu(rhob,taua),
+           0,
+           0,
+           0 ] $
+
+/* Closed-shell */
+
+cl3r: [ Amat3(iq,D3_RA_RA_RA),    Amat3(iq,D3_RA_RA_RB) ] $
+
+cl3g: [ Cmat3(iq,D3_RA_RA_GAA),   Cmat3(iq,D3_RA_RA_GAB),
+        Cmat3(iq,D3_RA_RA_GBB),   Cmat3(iq,D3_RA_RB_GAA),
+        Cmat3(iq,D3_RA_RB_GAB),
+        Cmat3(iq,D3_RA_GAA_GAA),  Cmat3(iq,D3_RA_GAA_GAB),
+        Cmat3(iq,D3_RA_GAA_GBB),  Cmat3(iq,D3_RA_GAB_GAB),
+        Cmat3(iq,D3_RA_GAB_GBB),  Cmat3(iq,D3_RA_GBB_GBB),
+        Cmat3(iq,D3_GAA_GAA_GAA), Cmat3(iq,D3_GAA_GAA_GAB),
+        Cmat3(iq,D3_GAA_GAA_GBB), Cmat3(iq,D3_GAA_GAB_GAB),
+        Cmat3(iq,D3_GAA_GAB_GBB), Cmat3(iq,D3_GAB_GAB_GAB) ] $
+
+cl3t: [ Mmat3(iq,D3_RA_RA_TA),    Mmat3(iq,D3_RA_RA_TB),
+        Mmat3(iq,D3_RA_RB_TA),
+        Mmat3(iq,D3_RA_GAA_TA),   Mmat3(iq,D3_RA_GAA_TB),
+        Mmat3(iq,D3_RA_GAB_TA),   Mmat3(iq,D3_RA_GAB_TB),
+        Mmat3(iq,D3_RA_GBB_TA),   Mmat3(iq,D3_RA_GBB_TB),
+        Mmat3(iq,D3_GAA_GAA_TA),  Mmat3(iq,D3_GAA_GAA_TB),
+        Mmat3(iq,D3_GAA_GAB_TA),  Mmat3(iq,D3_GAA_GAB_TB),
+        Mmat3(iq,D3_GAA_GBB_TA),  Mmat3(iq,D3_GAB_GAB_TA),
+        Mmat3(iq,D3_TA_TA_TA),    Mmat3(iq,D3_TA_TA_TB) ] $
+
+ce3r: [ at(df3rarara(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3rararb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+
+ce3g: [ at(df3raragaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3raragab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3raragbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3rarbgaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3rarbgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragbbgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaagaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaagab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaagbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagabgbb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gabgabgab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+
+ce3t: [ at(df3rarata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3raratb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3rarbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3ragbbtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagaatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagabtb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gaagbbta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3gabgabta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3tatata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]),
+        at(df3tatatb(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
+
+ce3lr: [ at(dflab3rarara(rhoa,rhob),[rhoa=rhoa,rhob=rhoa]),
+         at(dflab3rararb(rhoa,rhob),[rhoa=rhoa,rhob=rhoa]) ] $
+
+ce3lg: [ 0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0 ] $
+
+ce3lt: [ 0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0,
+         0 ] $
+
+/* if excess then */
+  if rho_deriv then
+    if sigma_deriv then
+      if tau_deriv then (
+
+        /* Lists combining 0th, and 1st order terms */
+
+        ul01     : append(ul0,     ul1r,     ul1g,     ul1t) ,
+        ue01     : append(ue0,     ue1r,     ue1g,     ue1t) ,
+        ue01la   : append(ue0la,   ue1lar,   ue1lag,   ue1lat) ,
+        ue01lab  : append(ue0lab,  ue1labr,  ue1labg,  ue1labt) ,
+        ue01lb   : append(ue0lb,   ue1lbr,   ue1lbg,   ue1lbt) ,
+
+        ula01    : append(ula0,    ula1r,    ula1g,    ula1t) ,
+        uea01    : append(uea0,    uea1r,    uea1g,    uea1t) ,
+        uea01la  : append(uea0la,  uea1lar,  uea1lag,  uea1lat) ,
+        uea01lab : append(uea0lab, uea1labr, uea1labg, uea1labt) ,
+        uea01lb  : append(uea0la,  uea1lar,  uea1lag,  uea1lat) ,
+
+        ulb01    : append(ulb0,    ulb1r,    ulb1g,    ulb1t) ,
+        ueb01    : append(ueb0,    ueb1r,    ueb1g,    ueb1t) ,
+        ueb01la  : append(ueb0la,  ueb1lar,  ueb1lag,  ueb1lat) ,
+        ueb01lab : append(ueb0lab, ueb1labr, ueb1labg, ueb1labt) ,
+        ueb01lb  : append(ueb0lb,  ueb1lbr,  ueb1lbg,  ueb1lbt) ,
+
+        cl01     : append(cl0,     cl1r,     cl1g,     cl1t) ,
+        ce01     : append(ce0,     ce1r,     ce1g,     ce1t) ,
+        ce01lab  : append(ce0lab,  ce1lr,    ce1lg,    ce1lt) ,
+
+        /* Lists combining 0th, 1st, and 2nd order terms */
+
+        ul012     : append(ul01,     ul2r,     ul2g,     ul2t) ,
+        ue012     : append(ue01,     ue2r,     ue2g,     ue2t) ,
+        ue012la   : append(ue01la,   ue2lar,   ue2lag,   ue2lat) ,
+        ue012lab  : append(ue01lab,  ue2labr,  ue2labg,  ue2labt) ,
+        ue012lb   : append(ue01lb,   ue2lbr,   ue2lbg,   ue2lbt) ,
+
+        ula012    : append(ula01,    ula2r,    ula2g,    ula2t) ,
+        uea012    : append(uea01,    uea2r,    uea2g,    uea2t) ,
+        uea012la  : append(uea01la,  uea2lar,  uea2lag,  uea2lat) ,
+        uea012lab : append(uea01lab, uea2labr, uea2labg, uea2labt) ,
+        uea012lb  : append(uea01lb,  uea2lbr,  uea2lbg,  uea2lbt) ,
+
+        ulb012    : append(ulb01,    ulb2r,    ulb2g,    ulb2t) ,
+        ueb012    : append(ueb01,    ueb2r,    ueb2g,    ueb2t) ,
+        ueb012la  : append(ueb01la,  ueb2lar,  ueb2lag,  ueb2lat) ,
+        ueb012lab : append(ueb01lab, ueb2labr, ueb2labg, ueb2labt) ,
+        ueb012lb  : append(ueb01lb,  ueb2lbr,  ueb2lbg,  ueb2lbt) ,
+
+        cl012     : append(cl01,     cl2r,     cl2g,     cl2t) ,
+        ce012     : append(ce01,     ce2r,     ce2g,     ce2t) ,
+        ce012lab  : append(ce01lab,  ce2lr,    ce2lg,    ce2lt) ,
+
+        /* Lists combining 0th, 1st, 2nd, and 3rd order terms */
+
+        ul0123     : append(ul012,     ul3r,     ul3g,     ul3t) ,
+        ue0123     : append(ue012,     ue3r,     ue3g,     ue3t) ,
+        ue0123la   : append(ue012la,   ue3lar,   ue3lag,   ue3lat) ,
+        ue0123lab  : append(ue012lab,  ue3labr,  ue3labg,  ue3labt) ,
+        ue0123lb   : append(ue012lb,   ue3lbr,   ue3lbg,   ue3lbt) ,
+
+        ula0123    : append(ula012,    ula3r,    ula3g,    ula3t) ,
+        uea0123    : append(uea012,    uea3r,    uea3g,    uea3t) ,
+        uea0123la  : append(uea012la,  uea3lar,  uea3lag,  uea3lat) ,
+        uea0123lab : append(uea012lab, uea3labr, uea3labg, uea3labt) ,
+        uea0123lb  : append(uea012lb,  uea3lbr,  uea3lbg,  uea3lbt) ,
+
+        ulb0123    : append(ulb012,    ulb3r,    ulb3g,    ulb3t) ,
+        ueb0123    : append(ueb012,    ueb3r,    ueb3g,    ueb3t) ,
+        ueb0123la  : append(ueb012la,  ueb3lar,  ueb3lag,  ueb3lat) ,
+        ueb0123lab : append(ueb012lab, ueb3labr, ueb3labg, ueb3labt) ,
+        ueb0123lb  : append(ueb012lb,  ueb3lbr,  ueb3lbg,  ueb3lbt) ,
+
+        cl0123     : append(cl012,     cl3r,     cl3g,     cl3t) ,
+        ce0123     : append(ce012,     ce3r,     ce3g,     ce3t) ,
+        ce0123lab  : append(ce012lab,  ce3lr,    ce3lg,    ce3lt) ,
+
+        with_stdout("$outputfile",
+          print("C> \\\\ingroup nwxc"),
+          print("C> @{"),
+          print("C>"),
+          print("C> \\\\file ${functional_name}.F"),
+          print("C> The $functional_name functional"),
+          print("C>"),
+          print("C> @}"),
+          print("C>"),
+          print("C> \\\\ingroup nwxc_priv"),
+          print("C> @{"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,rgamma,tau,fnc,Amat,Cmat,Mmat)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,NCOL_RHO)      !< [Input] The density"),
+          print("      double precision rgamma(nq,NCOL_GAMMA) !< [Input] The norm of the density"),
+          print("                                             !< gradients"),
+          print("      double precision tau(nq,NCOL_TAU)      !< [Input] The kinetic energy density"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,NCOL_AMAT)   !< [Output] The derivative wrt rho"),
+          print("      double precision Cmat(nq,NCOL_CMAT)   !< [Output] The derivative wrt rgamma"),
+          print("      double precision Mmat(nq,NCOL_MMAT)   !< [Output] The derivative wrt tau"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          gammaaa = 0.25d0*rgamma(iq,G_TT)"),
+          print("          taua    = 0.5d0*tau(iq,T_T)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho) then"),
+          Fortran_opt(cl01,ce01),
+          print("            else"),
+          Fortran_opt(cl01,ce01lab),
+          print("            endif"),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          gammaaa = rgamma(iq,G_AA)"),
+          print("          gammaab = rgamma(iq,G_AB)"),
+          print("          gammabb = rgamma(iq,G_BB)"),
+          print("          taua    = tau(iq,T_A)"),
+          print("          taub    = tau(iq,T_B)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ul01,ue01),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ul01,ue01lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ul01,ue01la),
+          print("            else"),
+          Fortran_opt(ul01,ue01lab),
+          print("            endif"),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ula01,uea01),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ula01,uea01lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ula01,uea01la),
+          print("            else"),
+          Fortran_opt(ula01,uea01lab),
+          print("            endif"),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ulb01,ueb01),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ulb01,ueb01lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ulb01,ueb01la),
+          print("            else"),
+          Fortran_opt(ulb01,ueb01lab),
+          print("            endif"),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}_d2(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,rgamma,tau,fnc,Amat,Amat2,Cmat,Cmat2,Mmat,Mmat2)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,NCOL_RHO)      !< [Input] The density"),
+          print("      double precision rgamma(nq,NCOL_GAMMA) !< [Input] The norm of the density"),
+          print("                                             !< gradients"),
+          print("      double precision tau(nq,NCOL_TAU)      !< [Input] The kinetic energy density"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,NCOL_AMAT)   !< [Output] The derivative wrt rho"),
+          print("      double precision Cmat(nq,NCOL_CMAT)   !< [Output] The derivative wrt rgamma"),
+          print("      double precision Mmat(nq,NCOL_MMAT)   !< [Output] The derivative wrt tau"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat2(nq,NCOL_AMAT2)  !< [Output] The 2nd derivative wrt rho"),
+          print("      double precision Cmat2(nq,NCOL_CMAT2)  !< [Output] The 2nd derivative wrt rgamma"),
+          print("                                             !< and possibly rho"),
+          print("      double precision Mmat2(nq,NCOL_MMAT2)  !< [Output] The 2nd derivative wrt tau"),
+          print("                                             !< and possibly rho"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          gammaaa = 0.25d0*rgamma(iq,G_TT)"),
+          print("          taua    = 0.5d0*tau(iq,T_T)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho) then"),
+          Fortran_opt(cl012,ce012),
+          print("            else"),
+          Fortran_opt(cl012,ce012lab),
+          print("            endif"),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          gammaaa = rgamma(iq,G_AA)"),
+          print("          gammaab = rgamma(iq,G_AB)"),
+          print("          gammabb = rgamma(iq,G_BB)"),
+          print("          taua    = tau(iq,T_A)"),
+          print("          taub    = tau(iq,T_B)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ul012,ue012),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ul012,ue012lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ul012,ue012la),
+          print("            else"),
+          Fortran_opt(ul012,ue012lab),
+          print("            endif"),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ula012,uea012),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ula012,uea012lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ula012,uea012la),
+          print("            else"),
+          Fortran_opt(ula012,uea012lab),
+          print("            endif"),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ulb012,ueb012),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ulb012,ueb012lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ulb012,ueb012la),
+          print("            else"),
+          Fortran_opt(ulb012,ueb012lab),
+          print("            endif"),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}_d3(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,rgamma,tau,fnc,Amat,Amat2,Amat3,"),
+          print("     +Cmat,Cmat2,Cmat3,Mmat,Mmat2,Mmat3)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,NCOL_RHO)      !< [Input] The density"),
+          print("      double precision rgamma(nq,NCOL_GAMMA) !< [Input] The norm of the density"),
+          print("                                             !< gradients"),
+          print("      double precision tau(nq,NCOL_TAU)      !< [Input] The kinetic energy density"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,NCOL_AMAT)   !< [Output] The derivative wrt rho"),
+          print("      double precision Cmat(nq,NCOL_CMAT)   !< [Output] The derivative wrt rgamma"),
+          print("      double precision Mmat(nq,NCOL_MMAT)   !< [Output] The derivative wrt tau"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat2(nq,NCOL_AMAT2)  !< [Output] The 2nd derivative wrt rho"),
+          print("      double precision Cmat2(nq,NCOL_CMAT2)  !< [Output] The 2nd derivative wrt rgamma"),
+          print("                                             !< and possibly rho"),
+          print("      double precision Mmat2(nq,NCOL_MMAT2)  !< [Output] The 2nd derivative wrt tau"),
+          print("                                             !< and possibly rho"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat3(nq,NCOL_AMAT3)  !< [Output] The 3rd derivative wrt rho"),
+          print("      double precision Cmat3(nq,NCOL_CMAT3)  !< [Output] The 3rd derivative wrt rgamma"),
+          print("                                             !< and possibly rho"),
+          print("      double precision Mmat3(nq,NCOL_MMAT3)  !< [Output] The 3rd derivative wrt tau"),
+          print("                                             !< and possibly rho"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          gammaaa = 0.25d0*rgamma(iq,G_TT)"),
+          print("          taua    = 0.5d0*tau(iq,T_T)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho) then"),
+          Fortran_opt(cl0123,ce0123),
+          print("            else"),
+          Fortran_opt(cl0123,ce0123lab),
+          print("            endif"),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          gammaaa = rgamma(iq,G_AA)"),
+          print("          gammaab = rgamma(iq,G_AB)"),
+          print("          gammabb = rgamma(iq,G_BB)"),
+          print("          taua    = tau(iq,T_A)"),
+          print("          taub    = tau(iq,T_B)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ul0123,ue0123),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ul0123,ue0123lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ul0123,ue0123la),
+          print("            else"),
+          Fortran_opt(ul0123,ue0123lab),
+          print("            endif"),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ula0123,uea0123),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ula0123,uea0123lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ula0123,uea0123la),
+          print("            else"),
+          Fortran_opt(ula0123,uea0123lab),
+          print("            endif"),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          print("            if (taua.gt.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ulb0123,ueb0123),
+          print("            elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then"),
+          Fortran_opt(ulb0123,ueb0123lb),
+          print("            elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then"),
+          Fortran_opt(ulb0123,ueb0123la),
+          print("            else"),
+          Fortran_opt(ulb0123,ueb0123lab),
+          print("            endif"),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C> @}")
+          )
+          )
+      else ( /* rho sigma tau */
+
+        /* Lists combining 0th, and 1st order terms */
+
+        ul01  : append(ul0,  ul1r,  ul1g) ,
+        ue01  : append(ue0,  ue1r,  ue1g) ,
+        ula01 : append(ula0, ula1r, ula1g) ,
+        uea01 : append(uea0, uea1r, uea1g) ,
+        ulb01 : append(ulb0, ulb1r, ulb1g) ,
+        ueb01 : append(ueb0, ueb1r, ueb1g) ,
+        cl01  : append(cl0,  cl1r,  cl1g) ,
+        ce01  : append(ce0,  ce1r,  ce1g) ,
+
+        /* Lists combining 0th, 1st, and 2nd order terms */
+
+        ul012  : append(ul01,  ul2r,  ul2g) ,
+        ue012  : append(ue01,  ue2r,  ue2g) ,
+        ula012 : append(ula01, ula2r, ula2g) ,
+        uea012 : append(uea01, uea2r, uea2g) ,
+        ulb012 : append(ulb01, ulb2r, ulb2g) ,
+        ueb012 : append(ueb01, ueb2r, ueb2g) ,
+        cl012  : append(cl01,  cl2r,  cl2g) ,
+        ce012  : append(ce01,  ce2r,  ce2g) ,
+
+        /* Lists combining 0th, 1st, 2nd, and 3rd order terms */
+
+        ul0123  : append(ul012,  ul3r,  ul3g) ,
+        ue0123  : append(ue012,  ue3r,  ue3g) ,
+        ula0123 : append(ula012, ula3r, ula3g) ,
+        uea0123 : append(uea012, uea3r, uea3g) ,
+        ulb0123 : append(ulb012, ulb3r, ulb3g) ,
+        ueb0123 : append(ueb012, ueb3r, ueb3g) ,
+        cl0123  : append(cl012,  cl3r,  cl3g) ,
+        ce0123  : append(ce012,  ce3r,  ce3g) ,
+
+        with_stdout("$outputfile",
+          print("C> \\\\ingroup nwxc"),
+          print("C> @{"),
+          print("C>"),
+          print("C> \\\\file ${functional_name}.F"),
+          print("C> The $functional_name functional"),
+          print("C>"),
+          print("C> @}"),
+          print("C>"),
+          print("C> \\\\ingroup nwxc_priv"),
+          print("C> @{"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,rgamma,fnc,Amat,Cmat)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,*)    !< [Input] The density"),
+          print("      double precision rgamma(nq,*) !< [Input] The norm of the density"),
+          print("                                    !< gradients"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,*)   !< [Output] The derivative wrt rho"),
+          print("      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          gammaaa = 0.25d0*rgamma(iq,G_TT)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          Fortran_opt(cl01,ce01),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          gammaaa = rgamma(iq,G_AA)"),
+          print("          gammaab = rgamma(iq,G_AB)"),
+          print("          gammabb = rgamma(iq,G_BB)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ul01,ue01),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          Fortran_opt(ula01,uea01),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ulb01,ueb01),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}_d2(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,*)    !< [Input] The density"),
+          print("      double precision rgamma(nq,*) !< [Input] The norm of the density"),
+          print("                                    !< gradients"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,*)   !< [Output] The derivative wrt rho"),
+          print("      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho"),
+          print("      double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma"),
+          print("                                    !< and possibly rho"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          gammaaa = 0.25d0*rgamma(iq,G_TT)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          Fortran_opt(cl012,ce012),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          gammaaa = rgamma(iq,G_AA)"),
+          print("          gammaab = rgamma(iq,G_AB)"),
+          print("          gammabb = rgamma(iq,G_BB)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ul012,ue012),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          Fortran_opt(ula012,uea012),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ulb012,ueb012),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}_d3(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,rgamma,fnc,Amat,Amat2,Amat3,"),
+          print("     +Cmat,Cmat2,Cmat3)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,*)    !< [Input] The density"),
+          print("      double precision rgamma(nq,*) !< [Input] The norm of the density"),
+          print("                                    !< gradients"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,*)   !< [Output] The derivative wrt rho"),
+          print("      double precision Cmat(nq,*)   !< [Output] The derivative wrt rgamma"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho"),
+          print("      double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma"),
+          print("                                    !< and possibly rho"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat3(nq,*)  !< [Output] The 3rd derivative wrt rho"),
+          print("      double precision Cmat3(nq,*)  !< [Output] The 3rd derivative wrt rgamma"),
+          print("                                    !< and possibly rho"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          gammaaa = 0.25d0*rgamma(iq,G_TT)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          Fortran_opt(cl0123,ce0123),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          gammaaa = rgamma(iq,G_AA)"),
+          print("          gammaab = rgamma(iq,G_AB)"),
+          print("          gammabb = rgamma(iq,G_BB)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ul0123,ue0123),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          Fortran_opt(ula0123,uea0123),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ulb0123,ueb0123),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C> @}")
+          )
+          )
+    else ( /* rho sigma */
+
+        /* Lists combining 0th, and 1st order terms */
+
+        ul01  : append(ul0,  ul1r) ,
+        ue01  : append(ue0,  ue1r) ,
+        ula01 : append(ula0, ula1r) ,
+        uea01 : append(uea0, uea1r) ,
+        ulb01 : append(ulb0, ulb1r) ,
+        ueb01 : append(ueb0, ueb1r) ,
+        cl01  : append(cl0,  cl1r) ,
+        ce01  : append(ce0,  ce1r) ,
+
+        /* Lists combining 0th, 1st, and 2nd order terms */
+
+        ul012  : append(ul01,  ul2r) ,
+        ue012  : append(ue01,  ue2r) ,
+        ula012 : append(ula01, ula2r) ,
+        uea012 : append(uea01, uea2r) ,
+        ulb012 : append(ulb01, ulb2r) ,
+        ueb012 : append(ueb01, ueb2r) ,
+        cl012  : append(cl01,  cl2r) ,
+        ce012  : append(ce01,  ce2r) ,
+
+        /* Lists combining 0th, 1st, 2nd, and 3rd order terms */
+
+        ul0123  : append(ul012,  ul3r) ,
+        ue0123  : append(ue012,  ue3r) ,
+        ula0123 : append(ula012, ula3r) ,
+        uea0123 : append(uea012, uea3r) ,
+        ulb0123 : append(ulb012, ulb3r) ,
+        ueb0123 : append(ueb012, ueb3r) ,
+        cl0123  : append(cl012,  cl3r) ,
+        ce0123  : append(ce012,  ce3r) ,
+
+        with_stdout("$outputfile",
+          print("C> \\\\ingroup nwxc"),
+          print("C> @{"),
+          print("C>"),
+          print("C> \\\\file ${functional_name}.F"),
+          print("C> The $functional_name functional"),
+          print("C>"),
+          print("C> @}"),
+          print("C>"),
+          print("C> \\\\ingroup nwxc_priv"),
+          print("C> @{"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,fnc,Amat)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,*)    !< [Input] The density"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,*)   !< [Output] The derivative wrt rho"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          Fortran_opt(cl01,ce01),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ul01,ue01),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          Fortran_opt(ula01,uea01),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ulb01,ueb01),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}_d2(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,fnc,Amat,Amat2)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,*)    !< [Input] The density"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,*)   !< [Output] The derivative wrt rho"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho"),
+          print("c"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          Fortran_opt(cl012,ce012),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ul012,ue012),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          Fortran_opt(ula012,uea012),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ulb012,ueb012),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C>"),
+          print("C> \\\\brief Evaluate the $functional_name functional [1]"),
+          print("C>"),
+          print("C> \\\\f{eqnarray*}{"),
+          TeX_opt(tl,te),
+          print("C> \\\\f}"),
+          print("C>"),
+          print("C> Code generated with $maxima_version [2]"),
+          print("C>"),
+          print("C> ### References ###"),
+          print("C>"),
+          print("C> [1] $reference, DOI:"),
+          print("C> <a href=\"http://dx.doi.org/$doi\">"),
+          print("C> $doi</a>"),
+          print("C>"),
+          print("C> [2] Maxima, a computer algebra system,"),
+          print("C> <a href=\"http://maxima.sourceforge.net/\">"),
+          print("C> http://maxima.sourceforge.net/</a>"),
+          print("C>"),
+          print("      subroutine ${functional_name}_d3(param,tol_rho,ipol,nq,wght,"),
+          print("     +rho,fnc,Amat,Amat2,Amat3)"),
+          print("c \$Id: \$"),
+          print("      implicit double precision (a-h,o-z), integer (i-n)"),
+          print("#include \"nwxc_param.fh\""),
+          print("      double precision param(*)     !< [Input] Parameters of functional"),
+          print("      double precision tol_rho      !< [Input] The lower limit on the density"),
+          print("      integer ipol                  !< [Input] The number of spin channels"),
+          print("      integer nq                    !< [Input] The number of points"),
+          print("      double precision wght         !< [Input] The weight of the functional"),
+          print("      double precision rho(nq,*)    !< [Input] The density"),
+          print("      double precision fnc(nq)      !< [Output] The value of the functional"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat(nq,*)   !< [Output] The derivative wrt rho"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat2(nq,*)  !< [Output] The 2nd derivative wrt rho"),
+          print("c"),
+          print("c     Sampling Matrices for the XC Kernel"),
+          print("c"),
+          print("      double precision Amat3(nq,*)  !< [Output] The 3rd derivative wrt rho"),
+          print("c"),
+          print("      integer iq"),
+          print("      double precision tmp"),
+          print("      double precision rhoa,rhob"),
+          print("      double precision gammaaa,gammaab,gammabb"),
+          print("      double precision taua,taub"),
+          print("      double precision nwxcm_heaviside"),
+          print("      external         nwxcm_heaviside"),
+          print("      do iq = 1, nq"),
+          print("        if (ipol.eq.1) then"),
+          print("          rhoa    = 0.5d0*rho(iq,R_T)"),
+          print("          if (rhoa.gt.tol_rho) then"),
+          Fortran_opt(cl0123,ce0123),
+          print("          endif ! rhoa.gt.tol_rho"),
+          print("        else  ! ipol.eq.1"),
+          print("          rhoa    = rho(iq,R_A)"),
+          print("          rhob    = rho(iq,R_B)"),
+          print("          if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ul0123,ue0123),
+          print("          elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then"),
+          Fortran_opt(ula0123,uea0123),
+          print("          elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then"),
+          Fortran_opt(ulb0123,ueb0123),
+          print("          endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho"),
+          print("        endif ! ipol.eq.1"),
+          print("      enddo ! iq"),
+          print("      end"),
+          print("C> @}")
+          )
+          )
+  else ( /* rho */
+    print("The DENSITY FUNCTIONAL does not depend on the electron density???"),
+    exit,
+    if sigma_deriv then
+      if tau_deriv then
+        with_stdout("fortran.F",print("excess,!rho_deriv,sigma_deriv,tau_deriv"))
+      else /* !rho sigma tau */
+        with_stdout("fortran.F",print("excess,!rho_deriv,sigma_deriv,!tau_deriv"))
+    else /* !rho sigma */
+      if tau_deriv then
+        with_stdout("fortran.F",print("excess,!rho_deriv,!sigma_deriv,tau_deriv"))
+      else /* !rho !sigma tau */
+        with_stdout("fortran.F",print("excess,!rho_deriv,!sigma_deriv,!tau_deriv"))
+  )
+/* else
+  if rho_deriv then
+    if sigma_deriv then
+      if tau_deriv then
+        with_stdout("fortran.F",print("!excess,rho_deriv,sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("!excess,rho_deriv,sigma_deriv,!tau_deriv"))
+    else
+      if tau_deriv then
+        with_stdout("fortran.F",print("!excess,rho_deriv,!sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("!excess,rho_deriv,!sigma_deriv,!tau_deriv"))
+  else
+    if sigma_deriv then
+      if tau_deriv then
+        with_stdout("fortran.F",print("!excess,!rho_deriv,sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("!excess,!rho_deriv,sigma_deriv,!tau_deriv"))
+    else
+      if tau_deriv then
+        with_stdout("fortran.F",print("!excess,!rho_deriv,!sigma_deriv,tau_deriv"))
+      else
+        with_stdout("fortran.F",print("!excess,!rho_deriv,!sigma_deriv,!tau_deriv")) */ 
+$
+EOF
+maxima -b $f_maxima
+
+#
+# Cleaning up (i.e. deleting all the temporary files)
+#
+rm $f_quiet
+rm $f_maxima
+rm $f_dependency
+rm $f_dependency_sh
