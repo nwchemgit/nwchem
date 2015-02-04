@@ -21,10 +21,12 @@ c     compute no. of 3-ctr integrals non null
 c     according to Schwarz screening
 c
       integer me,nproc,ishc,ifirstc,ilastc,nshbfc,ishd,
-     &        ifirstd,ilastd,nshbfd,mxshbf_ao,
+     &        ifirstd,ilastd,nshbfd,mxcebf_ao,
      &        nao2_max,icount
       integer maxg, mscratch_2e3c
       integer itype,nprimo,isphere
+      integer sh_lo_d, sh_hi_d, atom_d
+      integer sh_lo_c, sh_hi_c, atom_c
       double precision THRESHOLD,ERI_est,n3,ischw1,batch_max
       logical oprint_3c2e,spherical_ao,spherical_cd
 c
@@ -37,7 +39,7 @@ c
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
 c
-      if( .not. bas_nbf_cn_max(AO_bas_han,mxshbf_ao) )then
+      if( .not. bas_nbf_ce_max(AO_bas_han,mxcebf_ao) )then
         call errquit('Exiting in dft_n3c.',1, BASIS_ERR)
       end if
 c      
@@ -49,7 +51,10 @@ c
       ischw1 = 0.0d0
       call int_mem_2e3c(maxg, mscratch_2e3c)
 c      
-      do 240 ishc = 1,nshells_ao
+      do atom_c=1,ncenters
+         if (.not. bas_ce2cnr( ao_bas_han, atom_c, sh_lo_c, sh_hi_c)) 
+     &        call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
+      do ishc = sh_lo_c,sh_hi_c
 c
          if(spherical_ao) then
             if(.not.bas_continfo(ao_bas_han,ishc,
@@ -62,7 +67,10 @@ c
             nshbfc=ilastc-ifirstc+1
          endif
 c        
-        do 230 ishd = 1,ishc
+      do atom_d=1,atom_c
+         if (.not. bas_ce2cnr( ao_bas_han, atom_c, sh_lo_d, sh_hi_d)) 
+     &        call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
+        do ishd = sh_lo_d, sh_hi_d
 c         
 c          Schwarz Screen integral blocks:  (p|cd) .le. (cd|cd)
 c         
@@ -85,22 +93,25 @@ c
 c
           end if
 c          
-  230   continue
+       enddo ! ishd
 c
-  240 continue
+      enddo ! ishc
+      enddo
+      enddo
       ischw1 = ischw1*nbf_cd
 c
 c     add max 3-center 2e- batch size
 c      
-c     Loops are parallelized over the products of AO shells
+c     Loops are parallelized over the products of atoms
 c     (check for zero ... must be at least 1).
 c      
-      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
-c      icount = (nshells_ao*(nshells_ao+1))/(2*nproc)
+
+      icount = (ncenters + mod(ncenters,2))/(2*nproc)
+
       icount = max(icount,1)
       if(nproc.eq.1)icount = 1
 c      
-      nao2_max = mxshbf_ao**2
+      nao2_max = mxcebf_ao**2
       batch_max = dble(nao2_max)*dble(nbf_cd)*dble(icount)
 c
 c     Define n3 = maximum number of 3 center 2e- integrals. 
@@ -118,7 +129,7 @@ c
      + 4096.0d0
 c      dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 1024.0d0
 c
-c     cannot be smaller than mxsh*mxsh*nbf_cd*icount
+c     cannot be smaller than mxce*mxce*nbf_cd*icount
 c
       dft_n3cdbl = max(dft_n3cdbl,batch_max)
 c
@@ -159,11 +170,10 @@ c
 c
 c       Allow for some load-imbalance (factor of 1.2).
 c
-        dft_n3cint = nshells_ao*(nshells_ao+1)/nproc
-        dft_n3cint=max(dft_n3cint,nshells_ao)
+        dft_n3cint = ncenters*(ncenters+1)/nproc
+        dft_n3cint=max(dft_n3cint,ncenters)
       else
-        dft_n3cint = nshells_ao*nshells_ao
+        dft_n3cint = ncenters*(ncenters+1)
       endif
-c
       return
       end

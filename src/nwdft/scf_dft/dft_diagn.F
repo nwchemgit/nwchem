@@ -1,5 +1,5 @@
 cedo#define USE_PDSYEVR 1
-cedo#define USE_ELPA 1
+#define USE_ELPA 1
       subroutine dft_diagn(levelshifting,
      ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,

@@ -30,10 +30,11 @@
       external dft_n3cdbl
       double precision n3c_dbl_r
       integer nao2_max,batch_max
+      integer nshpair_sum
       integer me,nproc,icount
       integer maxg,scrmx
       integer ishc,itype,nprimo,nshbfc,isphere
-      integer deficit
+      integer deficit,atom_c,sh_lo_c,sh_hi_c
       logical spherical_ao
 c
       me=ga_nodeid()
@@ -101,7 +102,7 @@ c
       availm_r = min(availm_r,n3c_dbl_r)
       deficit=0
       if (availm_r.lt.n3c_dbl_r)then
-         deficit=n3c_dbl_r-availm_r
+         deficit=nint(n3c_dbl_r)-availm_r
 c
 c     get amount of local MA in Mbytes need to get incore done
 c
@@ -123,26 +124,33 @@ c
       
       if(deficit.ne.0.and.me.eq.0) write(luout,3230) deficit
 c     
-c     Loops are parallelized over the products of AO shells
+c     Loops are parallelized over the products of atoms
 c     (check for zero ... must be at least 1).
 c     
-      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      icount = (natoms + mod(natoms,2))/(2*nproc)
       icount = max(icount,1)
       if (nproc.eq.1)icount = 1
 c     
-      nao2_max = nbf_ao_mxnbf_cn**2
+      nao2_max = nbf_ao_mxnbf_ce**2
       spherical_ao=bas_spherical(ao_bas_han)
-      if(spherical_ao) then
-         nao2_max=0
-         do ishc=1,nshells_ao
+c     hack for spherical since there is always a cartesian internal bit
+      nao2_max=0
+      do atom_c=1,natoms
+         if (.not. bas_ce2cnr( ao_bas_han, atom_c, sh_lo_c, sh_hi_c)) 
+     &        call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
+         nshpair_sum=0
+         do ishc=sh_lo_c,sh_hi_c
             if(.not.bas_continfo(ao_bas_han,ishc,
      &           itype,nprimo,nshbfc,isphere))
      &           call errquit('Exiting in fitcd.',44, CALC_ERR)
-           nao2_max=max(nao2_max,
-     ,           ((itype+1)*(itype+2))/2*nshbfc)
+            
+            nshpair_sum = nshpair_sum +
+     P           ((itype+1)*(itype+2))/2*nshbfc
          enddo
-         nao2_max=nao2_max**2
-      endif
+         nao2_max=max(nao2_max,nshpair_sum)
+      enddo
+      nao2_max=nao2_max**2
+
 c     
 c     compute size of largest block of integrals computed
 c     
@@ -154,13 +162,6 @@ c
          n3c_int = 1
       endif
       if (availm_r.lt.n3c_dbl_r)then
-c     
-c     cannot all be done incore, compute number of buffers 
-c     required if semi-direct (I/O)
-c     
-         n_semi_bufs = nint(n3c_dbl_r/availm_r) 
-c         n_semi_bufs = nint(n3c_dbl_r/availm_r) + 1
-      else
          n_semi_bufs = 0
       endif
       if (.not.MA_Push_Get

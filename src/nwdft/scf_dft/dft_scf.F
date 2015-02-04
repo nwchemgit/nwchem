@@ -846,9 +846,9 @@ c
         if(dft_mem3c(natoms,npol,oprint_parm,oprint_3c2e,
      O               n3c_int,n3c_dbl,n_semi_bufs,
      O               l_3ceri,k_3cERI, l_3cwhat,k_3cwhat)) then
+           incore=.false.
           call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
-     &                     dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
-     &                     n_semi_bufs, fd)
+     &                     dbl_mb(k_3cERI), n3c_dbl, iwhat_max)
           incore=.true.
         else
           if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)

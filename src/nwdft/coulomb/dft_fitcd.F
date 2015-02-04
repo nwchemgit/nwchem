@@ -1,6 +1,6 @@
       Subroutine dft_fitcd(nfit,CD_coef, i3c_ERI, Ecoul1, 
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
-     &                     n3c_dbl, iwhat_max, n_semi_bufs, fd, IOLGC,
+     &                     n3c_dbl, iwhat_max,  fd, IOLGC,
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
@@ -14,7 +14,6 @@ c
 #include "cdft.fh"
 #include "stdio.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "util.fh"
 #include "schwarz.fh"
 #include "msgids.fh"
@@ -30,9 +29,8 @@ c
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax         ! max no. batches
       integer iwhat(n_bmax)  ! what batches have been computed [out]
-      integer n3c_dbl
-      integer iwhat_max
-      integer n_semi_bufs
+      integer n3c_dbl        ! max no. ints [in]
+      integer iwhat_max      !  last batch computed = iwhat(n_batch)
       integer fd
 c
       double precision CD_coef(nbf_cd,nfit)
@@ -42,26 +40,18 @@ c
 c
       Logical IOLGC, derfit, have_Tvec
 c
-      integer current_nbuf, n3c_b, n_batch_read
       double precision offset
-      double precision length, q1
       double precision F(2)
-      double precision fac, THRESHOLD, Pmat_max, ERI_est, Q, AZ, alpha,
+      double precision THRESHOLD,  Q, AZ, alpha,
      &                 rho_int
       integer nproc, me, 
-     &        ischw1, icount, Nao2, n1, n2, ishc, ifirstc, ilastc,
-     &        nshbfc, ishd, ifirstd,  ilastd, nshbfd, istart,
-     &        ishp, ifirstp, ilastp, nshbfp, Nintegrals, nscr,
-     &        max1e, nscr1e, j, next,  mscratch_2e3c,
-     &        ifirst, ilast, nshbf, maxg, ish, lmiss, ifit
-      integer iTvec, lTvec, lgvec, igvec, lERI, iERI, lcgtf, icgtf,
+     &        nscr,max1e, nscr1e, j,   
+     &        ifirst, ilast, nshbf, ish, lmiss, ifit
+      integer iTvec, lTvec, lcgtf, icgtf,
      &     lscr, iscr, iqatom, lqatom, iqshell_cd, lqshell_cd, 
      &     iqshell_lab, lqshell_lab, lqshtyp_cd, iqshtyp_cd,
-     &     lTcgtf, iTcgtf,ninteg_api
-      logical oprint, dowork, oprint_ioinfo
-      integer nlast, ntasks
-      integer ishc_be, ishd_be
-      integer ndone, ipoint
+     &     lTcgtf, iTcgtf
+      logical oprint, oprint_ioinfo
       character*(nw_max_path_len) cdfit_filename
       double precision dabsmax
       integer nxtask
@@ -106,318 +96,13 @@ c
 c     If we already have the right side vectors for the fit, skip right
 c     to the determination of the fit coefficients
 c
-      if (have_Tvec) goto 500
-c      
-c     Parallelize the loop over the products of AO shells.
-c      
-      ischw1 = 0
-cedo      call ga_sync
-cedo      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
-      icount = 1
-      icount = max(1,icount)
-c      
-      Nao2 = nbf_ao_mxnbf_cn*nbf_ao_mxnbf_cn
-      if(.not.MA_Push_Get(MT_Dbl,Nao2*nfit,'gather vector',lgvec,igvec))
-     &  call errquit('dft_fitcd: cannot allocate gather vector',0,
-     &       MA_ERR)
-c
-      call int_mem_2e3c(maxg, mscratch_2e3c)
-      if(.not.MA_Push_Get(MT_Dbl,maxg*nshells_cd,'ERI',lERI,iERI))
-     &  call errquit('dft_fitcd: cannot allocate ERI',0, MA_ERR)
-      nscr =  mscratch_2e3c 
-      if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &  call errquit('dft_fitcd: cannot allocate scr',0, MA_ERR)
-c
-      if(.not.incore)then
-        iwhat_max = -1
-        goto 25
-      endif
-c
-c     Exhaust in-core 3c 2e- buffers first.
-c
-      ndone = 1
-      ipoint = 1
-      if(ndone.gt.n_batch)goto 25
-c
-c     check for semi-direct, if so, load 1st buffer
-c
-      n3c_b = 8*n3c_dbl
-      current_nbuf = 0
-c      write(6,*)' n_semi_bufs = ',n_semi_bufs
-      if (n_semi_bufs.gt.0)then
-c
-c        check to make sure file is there
-c
-c         write(6,*)' fd = ',fd
-         if (eaf_length(fd, length) .ne. 0) call errquit
-     $      ('dft_fitcd: unable to determine 3c2e file length',0,
-     &       DISK_ERR)
-c         write(6,*)' length = ',length
-         current_nbuf = current_nbuf + 1
-         offset = (current_nbuf-1)*n3c_b
-         if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)call errquit
-     &      ('dft_fitcd: 3c-2e integral buffer read failed',0, DISK_ERR)
-         n_batch = nint(i3c_eri(n3c_dbl))
-c         write(6,*)' n_batch = ',n_batch
-c
-c        temp stop
-c
-c         call errquit(' temp stop in dft_3cincor ',0)
-      endif
-c
-      do 24 ishc = 1,nshells_ao
-        if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
-     &       call errquit('Exiting in dft_fitcd',111, BASIS_ERR)
-        nshbfc = ilastc-ifirstc+1
-c
-        do 23 ishd = 1,ishc
-          dowork = iwhat(ndone).eq.((ishc*(ishc-1))/2 + ishd-1)
-          if(dowork) then
-c
-c            write(LuOut,*)
-c     &      'me,ishc,ishd,ndone,iwhat(ndone),ipoint', 
-c     &       me,ishc,ishd,ndone,iwhat(ndone),ipoint
-c            call util_flush(LuOut)
-c
-            if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
-     &         call errquit('Exiting in dft_fitcd',1111, BASIS_ERR)
-            nshbfd = ilastd-ifirstd+1
-            Nao2 = nshbfd*nshbfc
-c
-c           Gather the needed density matrix elements.
-c
-            do ifit = 1, nfit
-               call ga_get(g_dens(ifit), ifirstd, ilastd, ifirstc,
-     &                     ilastc, dbl_mb(igvec+(ifit-1)*Nao2), nshbfd)
-            enddo
-c            
-c           Determine the maximum density matrix element for this product of AO shells.
-c
-            Pmat_max = dabsmax(Nao2*nfit,DBL_MB(igvec))
-c            
-c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
-c
-            ERI_est = schwarz_shell(ishc,ishd)
-c            
-            if( Pmat_max*ERI_est.gt.THRESHOLD )then
-c              
-              ischw1 = ischw1 + nshells_cd
-c              
-              istart = iERI
-              fac = 2.0d0
-              if(ishc.eq.ishd) fac = 1.d0
-c
-c             Use dgemv for case of 1 fit (more efficient), else use dgemm
-c
-              if (nfit.eq.1) then
-                 call dgemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
-     &                Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
-              else
-                 call dgemm('T','N',nbf_cd,nfit,Nao2,fac,
-     &                i3c_ERI(ipoint),Nao2,dbl_mb(igvec),nbf_cd,
-     &                1d0,dbl_mb(iTvec),nbf_cd)
-                 call errquit('not impl in dft_fitcd',0, UNKNOWN_ERR)
-              endif
-            end if
-c
-            ndone = ndone+1
-c            write(6,*)' ndone, n_batch ',ndone,n_batch
-            if(ndone.gt.n_batch)then
-c
-c             if not reading 3c2e integrals from disk - then done
-c             start "direct"
-c
-              if(n_semi_bufs.eq.0)goto 25
-c
-c             Finished processing this batch of integrals, either get
-c
-              if (current_nbuf .eq. n_semi_bufs)goto 25
-              current_nbuf = current_nbuf + 1
-              offset = (current_nbuf-1)*n3c_b
-              if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)
-     &           call errquit
-     &           ('dft_fitcd: 3c-2e integral buffer read failed',0,
-     &       DISK_ERR)
-              n_batch_read = nint(i3c_eri(n3c_dbl))
-c              write(6,*)' n_batch_read = ',n_batch_read
-              n_batch = n_batch + n_batch_read
-              ipoint = 1
-            else
-              ipoint = ipoint+Nao2*nbf_cd
-            endif
-c
-c            write(LuOut,*)' Done with: ishc, ishd, n_batch, ndone: ',
-c     &                                 ishc, ishd, n_batch, ndone
-c            call util_flush(LuOut)
-c
-          end if
-c
-   23   continue
-   24 continue
-   25 continue
-c
-c     Finally, process any 3c 2e- integrals still needed in direct mode.
-c
-c     Find last ishc and ishd; add 1 to iwhat_max since starting at 0.
-c
-      nlast = iwhat_max + 1
-c
-c     Determine total number of shell pairs.
-c
-      ntasks = (nshells_ao*(nshells_ao+1))/2
-c
-      if (nlast.eq.ntasks)goto 241
-c
-      do n1 = 1, nshells_ao
-        if ((n1*(n1-1))/2.gt.nlast)then
-          ishc_be = n1 - 1
-          goto 219
-        endif
-      enddo
-      ishc_be = nshells_ao
-  219 continue
-      ishd_be = nlast - (ishc_be*(ishc_be-1))/2
-c
-      ishd_be = ishd_be + 1
-      if(ishd_be.gt.ishc_be)then
-        ishc_be = ishc_be + 1
-        ishd_be = 1
-      endif
-c
-c      call ga_sync
-c      do n1 = 0, nproc
-c        call ga_sync
-c        if(me.eq.n1)then
-c          write(LuOut,*)' me, ishc_be, ishd_be ', me, ishc_be, ishd_be
-c          call util_flush(LuOut)
-c        endif
-c        call ga_sync
-c      enddo
-c      call ga_sync
-c
-      n1 = nxtask(nproc,icount)
-      n2 = 0
-c
-      do 240 ishc = ishc_be, nshells_ao
-        if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
-     &       call errquit('Exiting in dft_fitcd',111, BASIS_ERR)
-        nshbfc = ilastc-ifirstc+1
-c
-        do 230 ishd = ishd_be, ishc
-          dowork = n1.eq.n2
-          if(dowork) then
-c
-c            write(LuOut,*)'me,ishc,ishd,n1,n2', me,ishc,ishd,n1,n2
-c            call util_flush(LuOut)
-c
-            if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
-     &         call errquit('Exiting in dft_fitcd',1111, BASIS_ERR)
-            nshbfd = ilastd-ifirstd+1
-            Nao2 = nshbfd*nshbfc
-c
-c           Gather the needed density matrix elements.
-c
-            do ifit = 1, nfit
-               call ga_get(g_dens(ifit), ifirstd, ilastd, ifirstc,
-     &              ilastc, dbl_mb(igvec+(ifit-1)*Nao2), nshbfd)
-            enddo
-c            
-c           Determine the maximum density matrix element for this product of AO shells.
-c
-            Pmat_max = dabsmax(Nao2*nfit,DBL_MB(igvec))
-c            
-c           Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
-c
-            ERI_est = schwarz_shell(ishc,ishd)
-c            
-            if( Pmat_max*ERI_est.gt.THRESHOLD )then
-c              
-              ischw1 = ischw1 + nshells_cd
-c              
-              istart = iERI
-              fac = 2.0d0
-              if(ishc.eq.ishd) fac = 1.d0
-              do 220 ishp = 1,nshells_cd
-c                  
-c               Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
-c                  
-                if (.not. bas_cn2bfr( CD_bas_han,ishp,ifirstp,ilastp))
-     &               call errquit('Exiting in fitcd.',5, BASIS_ERR)
-                nshbfp = ilastp-ifirstp+1
-c                  
-                Nintegrals = nshbfp*Nao2
-                Ninteg_api = maxg
-c
-c               check for use of symmetry
-c
-c     Must turn symmetry off for derivative fits since derivative
-c     densities will not be totally symmetric in general
-c
-                if (oskel .and. .not.derfit) then
-                   if (sym_shell(cd_bas_han, ishp, q1))then
-                      call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
-     &                ishd,nscr,Dbl_MB(iscr),Ninteg_api,Dbl_MB(istart))
-                      call dscal(Nintegrals, q1, Dbl_MB(istart), 1)
-                   else
-                      call dcopy(nintegrals,0d0,0,Dbl_MB(istart), 1)
-                   endif
-                else
-                   call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
-     &             ishd,nscr,Dbl_MB(iscr),Ninteg_api,Dbl_MB(istart))
-                endif                   
-c
-                istart = istart+Nintegrals
-c
-  220         continue
-c               
-c             Multiply the matrix of 3-ctr ERIs by the density matrix elements.
-c               
-              if (nfit.eq.1) then
-                 call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
-     &                Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
-              else
-                 call errquit('dft_fitcd: not impl',1, BASIS_ERR)
-              endif
-            end if
-c
-c            write(LuOut,*)' Done with: ishc,ishd; n1,n2 ',
-c     &                                 ishc,ishd, n1,n2
-c            call util_flush(LuOut)
-c
-            n1 = nxtask(nproc,icount)
-c
-          end if
-c          
-          n2 = n2 + 1
-c          
-  230   continue
-c
-c       Reset ishd_be to 1.
-c
-        ishd_be = 1
-  240 continue
-  241 continue
-c
-      n1 = nxtask(-nproc,icount)
-c
-      if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
-      if(.not.ma_pop_stack(lERI))
-     &  call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
-      if(.not.ma_pop_stack(lgvec))
-     &  call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
-c
-      call ga_dgop(Msg_gop_Tvec,Dbl_MB(iTvec),nbf_cd*nfit,'+')
-c
-c
-      if (oskel .and. .not.derfit) then
-         do ifit = 1, nfit
-            call sym_vec_symmetrize(geom, cd_bas_han,
-     &           Dbl_MB(iTvec+(ifit-1)*nbf_cd))
-         enddo
-      endif
-c
- 500  continue
+      if (.not.have_Tvec) 
+     T     call dft_getcdt(natoms, nfit, derfit, threshold, 
+     C     .false., ! do not compute 3c ints
+     N     n_batch, n_bmax, iwhat,
+     &     n3c_dbl, iwhat_max, i3c_eri,
+     T     dbl_mb(itvec),g_dens)
+
 c      
 c     Compute the CD expansion coefficients.
 c     
@@ -483,7 +168,7 @@ c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
            lmiss = 0
            call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
         endif
-        call ga_brdcst(2000, lmiss,mitob(1),0)
+        call ga_brdcst(2000, lmiss,MA_sizeof(MT_INT,1,MT_BYTE),0)
         if(lmiss.ne.0)call errquit
      &       (' dft_fitcd; dft_invio - abnormal read of CDI ',0, GA_ERR)
 cedo        call ga_sync
@@ -491,49 +176,6 @@ cedo        call ga_sync
           call ga_print(g_cdinv)
         endif
       endif
-#if 0
-c
-c     Compute the Lagrange Multiplier, alpha.
-c     
-      F(1) = 0.D0
-      F(2) = 0.D0
-      next = nxtask(nproc, 1)+1
-      do j = 1,nbf_cd
-        if (j.eq.next) then
-          next = nxtask(nproc, 1)+1
-          call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
-          AZ = ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
-          F(1) = F(1)+AZ*DBL_MB(iTvec+j-1)
-          F(2) = F(2)+AZ*DBL_MB(icgtf+j-1)
-        endif
-      enddo
-      next = nxtask(-nproc, 1)
-cedo      call ga_sync
-      call ga_dgop(Msg_Lagrange,F,2,'+')
-cedo      call ga_sync
-      alpha = (Q - F(1))/F(2)
-c
-c     Qfrac = (Q - F(1))/Q
-c
-c     Multiply: S**(-1) * (alpha*N + T)
-c      
-c     Initialize the CD_coef vector.
-      
-      call dfill(nbf_cd,0.D0,CD_coef,1)
-c
-      next = nxtask(nproc, 1)+1
-      do j = 1,nbf_cd
-        if (j.eq.next) then
-          next = nxtask(nproc, 1) + 1
-          AZ = DBL_MB(iTvec+j-1) + alpha*DBL_MB(icgtf+j-1)
-          call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
-          call daxpy(nbf_cd,AZ,DBL_MB(iscr),1,CD_Coef,1)
-        endif
-      enddo
-      next = nxtask(-nproc, 1)
-      call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd,'+')
-cedo      call ga_sync
-#else
 c
 c     Multiply T and cgtf by S**(-1) and store
 c
@@ -546,25 +188,6 @@ c     Need another temp array to store S**(-1) * cgtf
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tcgtf',lTcgtf,iTcgtf))
      &     call errquit('dft_fitcd: cannot allocate Tcgtf',0, MA_ERR)
-#if 0
-      call dfill(nbf_cd,0.D0,dbl_mb(iTcgtf),1)
-c
-      next = nxtask(nproc, 1)+1
-      do j = 1,nbf_cd
-        if (j.eq.next) then
-          next = nxtask(nproc, 1)+1
-          call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
-          AZ = ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
-          dbl_mb(iTcgtf+j-1) = dbl_mb(iTcgtf+j-1) + AZ
-          do ifit = 1, nfit
-             AZ = ddot(nbf_cd,DBL_mb(iscr),1,
-     &            DBL_MB(iTvec+(ifit-1)*nbf_cd),1)
-             CD_coef(j,ifit) = CD_coef(j,ifit) + AZ
-          enddo
-        endif
-      enddo
-      next = nxtask(-nproc, 1)
-#else
        call dcopy(nbf_cd,0.D0,0,dbl_mb(iTcgtf),1)
 c
       call ga_sync()
@@ -584,10 +207,11 @@ c
        enddo
       call ga_release(g_cdinv, ilo, ihi, jlo, jhi)
       endif
-#endif
-      call ga_sync
+cedo      call ga_sync
+      call ga_mask_sync(.true.,.false.)
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd*nfit,'+')
 c!!! What Msg should be here? !!!
+      call ga_mask_sync(.false.,.true.)
       call ga_dgop(Msg_Tcgtf,dbl_mb(iTcgtf),nbf_cd,'+')
 cedo      call ga_sync
 c
@@ -613,7 +237,7 @@ c
 c
       if (.not.ma_pop_stack(lTcgtf))
      &   call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
-#endif
+
       if(me.eq.0) then
          if (derfit) then
             call util_file_name('cdfit_deriv', .true., .false.,
@@ -841,5 +465,46 @@ cedo      call ga_sync
    30 format(1x,i4,1x,f8.2,1x,10(f6.2))
    35 format(15x,10(f6.2))
 c
+      return
+      end
+      subroutine dft_copyfrom(
+     I     ld_dm,
+     O     row_ld, col_ld,
+     I     dm, 
+     O     dmsub,  
+     P     row_ptr,col_ptr)
+      implicit none
+      integer ld_dm                      ! [in]
+      integer row_ld, col_ld             ! [in]
+      double precision dm(ld_dm,*)       ! [in]
+      double precision dmsub(1:row_ld,1:col_ld) ! [out]
+      integer row_ptr,col_ptr            ! [in]
+c
+      integer j
+c
+      do j=1, col_ld
+            
+        call dcopy(row_ld,dm(row_ptr+1,col_ptr+j),1,dmsub(1,j),1)
+      enddo
+      return
+      end
+      subroutine dft_copyto(
+     I     ld_dm,
+     O     row_ld, col_ld,
+     I     dm, 
+     O     dmsub,  
+     P     row_ptr,col_ptr)
+      implicit none
+      integer ld_dm                      ! [in]
+      integer row_ld, col_ld             ! [in]
+      double precision dm(ld_dm,*)       ! [in]
+      double precision dmsub(1:row_ld,1:col_ld) ! [out]
+      integer row_ptr,col_ptr            ! [in]
+c
+      integer j
+c
+      do j=1, col_ld
+        call dcopy(row_ld,dmsub(1,j),1,dm(row_ptr+1,col_ptr+j),1)
+      enddo
       return
       end

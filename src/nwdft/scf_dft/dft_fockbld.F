@@ -53,6 +53,9 @@ c     double precision evals (*)
       double precision rho_n ![out]
       double precision fant_a,fant_d,dft_fant
       external dft_fant
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+
       integer ivcoul_Opt,nexc,ivxc_opt
 c
       integer me,nscr,lscr,iscr,lcd_coef,icd_coef
@@ -107,6 +110,7 @@ c     =========================================================================
 
       me=ga_nodeid()
       if (odftps) call pstat_on(ps_fockb)
+
 c
       Ecoul  = 0d0
       Exc(1)= 0d0
@@ -232,7 +236,7 @@ c
          call dft_fitcd(1,Dbl_MB(icd_coef),dd3cERI,Ecoul,
      &                  g_dens, nTotEl, n_batch, n3c_int,
      &                  ii3cwhat, n3c_dbl, iwhat_max, 
-     &                  n_semi_bufs, fd, IOLGC, 
+     &                  fd, IOLGC, 
      .        natoms,
      &                  .false., 0d0, .false.)
          if (odftps) call pstat_off(ps_fitcd)
@@ -244,7 +248,7 @@ c
       call dft_getvc(Dbl_MB(icd_coef), dd3cERI, Ecoul,
      &               g_tmp, iVcoul_opt, n_batch, 
      &               n3c_int, ii3cwhat, n3c_dbl, iwhat_max,
-     &               n_semi_bufs, fd, IOLGC,
+     &               fd, IOLGC,
      &               .false., 1)
       if (odftps) call pstat_off(ps_vcoul)
 c     
