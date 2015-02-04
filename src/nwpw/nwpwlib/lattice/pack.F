@@ -1457,6 +1457,24 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       return
       end
 
+      subroutine Pack_c_nCopy(nb,n,A,B)
+      implicit none
+      integer    nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+        
+
+      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
+        
+      return 
+      end
+
+
 *     ***********************************
 *     *					*
 *     *	         Pack_t_Copy		*	
