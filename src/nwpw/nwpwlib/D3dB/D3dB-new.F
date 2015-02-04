@@ -989,6 +989,18 @@ c      end
       return
       end
 
+      subroutine D3dB_c_nZero(nb,n,A)
+      implicit none
+      integer nb,n
+      complex*16 A(*)
+
+#include "D3dB.fh"
+
+
+      call dcopy(n*n2ft3d_map(nb),0.0d0,0,A,1)
+      return
+      end
+
 
       subroutine D3dB_r_Zero(nb,A)     
       implicit none 
@@ -998,6 +1010,18 @@ c      end
 #include "D3dB.fh"
 
       call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
+      return
+      end
+
+
+      subroutine D3dB_r_nZero(nb,n,A)
+      implicit none
+      integer nb,n
+      real*8  A(*)
+
+#include "D3dB.fh"
+
+      call dcopy(n*n2ft3d_map(nb),0.0d0,0,A,1)
       return
       end
 
@@ -1021,6 +1045,19 @@ c      end
       return
       end
 
+      subroutine D3dB_c_nCopy(nb,n,A,B)
+      implicit none
+      integer nb,n
+      complex*16 A(*)
+      complex*16 B(*)
+
+#include "D3dB.fh"
+
+      call dcopy(n*2*nfft3d_map(nb),A,1,B,1)
+      return
+      end
+
+
       subroutine D3dB_r_Copy(nb,A,B)     
       implicit none 
       integer nb
@@ -1033,6 +1070,20 @@ c      end
       return
       end
 
+
+      subroutine D3dB_r_nCopy(nb,n,A,B)
+      implicit none
+      integer nb,n
+      real*8 A(*)
+      real*8 B(*)
+
+#include "D3dB.fh"
+
+      call dcopy(n*n2ft3d_map(nb),A,1,B,1)
+      return
+      end
+
+
       subroutine D3dB_t_Copy(nb,A,B)     
       implicit none 
       integer nb
@@ -1042,6 +1093,19 @@ c      end
 #include "D3dB.fh"
 
       call dcopy(nfft3d_map(nb),A,1,B,1)
+      return
+      end
+
+
+      subroutine D3dB_t_nCopy(nb,n,A,B)
+      implicit none
+      integer nb,n
+      real*8 A(*)
+      real*8 B(*)
+
+#include "D3dB.fh"
+
+      call dcopy(n*nfft3d_map(nb),A,1,B,1)
       return
       end
 
