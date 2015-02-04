@@ -1,0 +1,33 @@
+echo
+start metagga_dat
+geometry noautosym
+   li        -0.91515825    -1.07210472    -0.90562941
+   h         -0.91591765    -0.90670004     0.88759515
+   h         -0.29962839     1.27515914    -0.28845749
+   h          0.87878734    -0.89504261    -0.93360279
+   li         1.22182214     0.75373418    -1.22261459
+   li         0.87097426    -1.13269424     0.85448224
+   li        -1.20238464     0.74087268     1.24480228
+   h          0.36150521     1.23677562     0.36342460
+end
+charge +1
+
+basis
+  * library "6-311++G(2d,2p)"
+end
+
+dft
+  direct
+  odft
+  mult 2
+  xc xpkzb99 cpkzb99
+  maxiter 100
+end
+
+driver
+  clear
+  maxiter 100
+end
+
+task dft optimize
+task dft frequencies numerical

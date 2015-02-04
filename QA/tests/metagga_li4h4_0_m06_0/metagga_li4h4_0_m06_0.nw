@@ -1,0 +1,30 @@
+echo
+start metagga_dat
+geometry noautosym
+   li           -0.86951255    -0.86951258    -0.86951257
+   h            -0.94323913    -0.94323915     0.94323910
+   h            -0.94323915     0.94323911    -0.94323918
+   h             0.94323909    -0.94323917    -0.94323918
+   li            0.86951263     0.86951263    -0.86951264
+   li            0.86951266    -0.86951265     0.86951266
+   li           -0.86951267     0.86951268     0.86951268
+   h             0.94323913     0.94323913     0.94323914
+end
+
+basis
+  * library "6-311++G(2d,2p)"
+end
+
+dft
+  direct
+  xc xm06
+  maxiter 1000
+end
+
+driver
+  clear
+  maxiter 100
+end
+
+task dft optimize
+task dft frequencies numerical
