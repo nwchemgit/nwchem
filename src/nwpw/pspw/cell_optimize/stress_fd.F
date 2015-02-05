@@ -11,6 +11,7 @@
 #include "inp.fh"
 #include "util.fh"
 #include "geom.fh"
+#include "stdio.fh"
 
       logical oprint,lstress_numerical,noit_energy
       integer taskid,MASTER
@@ -130,6 +131,27 @@
      >    btdb_get(rtdb,'pspw:stress_alpha',mt_dbl,1,alpha))
      >  alpha = 0.00100d0
 
+
+*     **** print out finite difference stress options ****
+      if (oprint) then
+         write(luout,*)
+         if (lstress_numerical) then
+            write(luout,*) "numerical finite difference pspw lstress"
+         else
+            write(luout,*) "numerical finite difference pspw stress"
+         end if
+         if (noit_energy) then
+            write(luout,*) "  - noit_energy"
+         else
+            write(luout,*) "  - energy mimimized"
+         end if
+         write(luout,*) "  - alpha=",alpha
+         write(luout,*)
+      end if
+
+
+
+
       if (.not.lstress_numerical) then
       call dcopy(9,0.0d0,0,ke_stress,      1)
       call dcopy(9,0.0d0,0,xc_stress,      1)
@@ -173,8 +195,8 @@
 *     **** update geometry object ****
       call util_date(date_string)
       date_len = inp_strlen(date_string)
-      if (oprint) write(6,*)
-      if (oprint) write(6,
+      if (oprint) write(luout,*)
+      if (oprint) write(luout,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &   'amatrix i,j:',i,j,unita2(i,j),'(+)',
      &   'wall time:',util_wallsec(),
@@ -305,8 +327,8 @@
 *     **** update geometry object ****
       call util_date(date_string)
       date_len = inp_strlen(date_string)
-      if (oprint) write(6,*)
-      if (oprint) write(6,
+      if (oprint) write(luout,*)
+      if (oprint) write(luout,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &   'amatrix i,j:',i,j,unita3(i,j),'(-)',
      &   'wall time:',util_wallsec(),
@@ -493,8 +515,8 @@
 *           **** update geometry object ****
             call util_date(date_string)
             date_len = inp_strlen(date_string)
-            if (oprint) write(6,*)
-            if (oprint) write(6,
+            if (oprint) write(luout,*)
+            if (oprint) write(luout,
      &      '(1x,a12,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &      'lattice i:',i,lattice2(i),'(+)',
      &      'wall time:',util_wallsec(),
@@ -602,8 +624,8 @@
 *           **** update geometry object ****
             call util_date(date_string)
             date_len = inp_strlen(date_string)
-            if (oprint) write(6,*)
-            if (oprint) write(6,
+            if (oprint) write(luout,*)
+            if (oprint) write(luout,
      &         '(1x,a12,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &         'lattice i:',i,lattice3(i),'(-)',
      &         'wall time:',util_wallsec(),
