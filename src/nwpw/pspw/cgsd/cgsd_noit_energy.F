@@ -396,6 +396,9 @@ c            end do
       value = value.and.btdb_put(rtdb,'pspw:ion_core', mt_dbl,1,E(45))
       value = value.and.btdb_put(rtdb,'pspw:vloc_atom',mt_dbl,1,E(39))
       value = value.and.btdb_put(rtdb,'pspw:E_all',       mt_dbl,1,E(1))
+      if (.not. value) call errquit(
+     >   'cgsd_noit_energy: numerical force - error writing rtdb',1,
+     >       RTDB_ERR)
 
 
       cgsd_noit_energy = E(1)
