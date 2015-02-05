@@ -1497,7 +1497,7 @@ c      end
 !$OMP PARALLEL if(is_par) private(tid,nthr,offset) 
 #endif
 
-      tid = Parallel_threadid()
+      tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
 
       call nwpw_timing_start(1)
@@ -2464,7 +2464,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #else
       offset=tid*(2*nz(nb)+15)
 !$OMP DO 
-      do i=1,nq2(nb)
+      do i=1,nq3(nb)
         call dcfftf(nz(nb),A(1+(i-1)*nz(nb)),dcpl_mb(tmpz(1,nb)+offset))
       end do
 !$OMP END DO
