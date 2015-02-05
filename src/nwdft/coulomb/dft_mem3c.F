@@ -1,6 +1,6 @@
       logical function dft_mem3c(
      I     natoms,npol,oprint_parm,oprint_3c2e,
-     O     n3c_int,n3c_dbl,n_semi_bufs,
+     O     n3c_int,n3c_dbl,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
 * $Id$
       implicit none
@@ -16,7 +16,6 @@
       integer npol ! [in]
       integer n3c_int ! [out]
       integer n3c_dbl ! [out]
-      integer  n_semi_bufs ! [out]
       logical oprint_parm,oprint_3c2e ![in]
       integer l_3ceri,k_3ceri ! [out]
       integer l_3cwhat,k_3cwhat ! [out]
@@ -160,9 +159,6 @@ c
          dft_mem3c = .false.
          n3c_dbl = 1
          n3c_int = 1
-      endif
-      if (availm_r.lt.n3c_dbl_r)then
-         n_semi_bufs = 0
       endif
       if (.not.MA_Push_Get
      &     (MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))

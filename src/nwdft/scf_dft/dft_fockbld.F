@@ -1,8 +1,8 @@
       subroutine dft_fockbld(rtdb,natoms,ntotel,
      ,     g_fock,g_focks,g_dens,g_vxc,g_movecs,g_xcinv,
      ,     g_tmp,g_nq,g_wght,g_xyz,
-     ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
-     ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
+     ,     ivcoul_Opt,nexc,ivxc_opt,wght_GA,
+     ,     n_batch,n3c_int,n3c_dbl,IOLGC,
      ,     evals, rdens_atom,dd3ceri,ii3cwhat,
      ,     cetobfr, iter, ecore, ecoul,exc, rho_n,ldmix,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
@@ -33,7 +33,6 @@ c
       integer rtdb ! [in]
       integer natoms ! [in]
       logical wght_GA
-      integer iwhat_max
 c     double precision evals (*)
       integer evals(2)
       double precision rdens_atom(*)
@@ -44,7 +43,7 @@ c     double precision evals (*)
       integer iter ! [in]
       integer n_levels(2), act_levels
       double precision ecore, ecoul,exc(2) ! [out]
-      integer ntotel,n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd
+      integer ntotel,n_batch,n3c_int,n3c_dbl
       logical IOLGC, ldmix
       integer test_sic ! [in]
       integer exact_pot, iter_ini
@@ -235,8 +234,7 @@ c
          call case_setflags(.false.)  ! no attenuation for Coulomb
          call dft_fitcd(1,Dbl_MB(icd_coef),dd3cERI,Ecoul,
      &                  g_dens, nTotEl, n_batch, n3c_int,
-     &                  ii3cwhat, n3c_dbl, iwhat_max, 
-     &                  fd, IOLGC, 
+     &                  ii3cwhat, n3c_dbl, IOLGC,
      .        natoms,
      &                  .false., 0d0, .false.)
          if (odftps) call pstat_off(ps_fitcd)
@@ -247,8 +245,8 @@ c
       if (odftps) call pstat_on(ps_vcoul)
       call dft_getvc(Dbl_MB(icd_coef), dd3cERI, Ecoul,
      &               g_tmp, iVcoul_opt, n_batch, 
-     &               n3c_int, ii3cwhat, n3c_dbl, iwhat_max,
-     &               fd, IOLGC,
+     &               n3c_int, ii3cwhat, n3c_dbl,
+     &               IOLGC,
      &               .false., 1)
       if (odftps) call pstat_off(ps_vcoul)
 c     

@@ -1,7 +1,7 @@
       Subroutine dft_getvc(CD_coef, i3c_ERI, Ecoul,  g_vc,
      &                     iVcoul_opt, n_batch,
-     &                     n_bmax, iwhat, n3c_dbl, iwhat_max, 
-     &                     fd, IOLGC, 
+     &                     n_bmax, iwhat, n3c_dbl,
+     &                     IOLGC, 
      &                     derfit, nmat)
 c
 C$Id$
@@ -22,8 +22,6 @@ c
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl
-      integer iwhat_max
-      integer fd
       integer nmat           ! number of fitted J matrices to make [in]
       logical IOLGC, derfit
 c
@@ -51,10 +49,9 @@ c       Compute the Coulomb potential via a LSQ fitting procedure.
 
         call dft_fitvc(CD_coef, i3c_ERI, Ecoul2,  g_vc,
      &                 n_batch, n_bmax, iwhat, n3c_dbl,
-     &                 iwhat_max, fd, IOLGC,
-     &                 derfit, nmat,
+     &                 IOLGC, derfit, nmat,
      &                 .true.)
-        call ga_sync
+c        call ga_sync
 c
 c       Compute the Coulomb energy.
 c

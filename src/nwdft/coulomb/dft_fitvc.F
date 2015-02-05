@@ -1,6 +1,6 @@
       Subroutine dft_fitvc(CD_coef, i3c_ERI, Ecoul2,  g_vc, 
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
-     &                     iwhat_max,  fd, IOLGC,
+     &                     IOLGC,
      &                     dermat, nmat, do_init)
 c     $Id$
       implicit none
@@ -10,7 +10,6 @@ c
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgids.fh"
 #include "schwarz.fh"
 #include "util.fh"
@@ -24,8 +23,6 @@ c
       integer n_bmax  ! max no. batches
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl
-      integer iwhat_max
-      integer fd
 c
       double precision CD_coef(nbf_cd,nmat)
       double precision i3c_ERI(n3c_dbl)
@@ -37,22 +34,20 @@ c     Compute the fitted Coulomb potential. The fitting coefficients are
 c     obtained by solving the normal equations for a standard linear least
 c     squares problem.
 c
-      integer me,nproc,i1,ishp,ishbf,lshbf,lmiss,ischw1,ischw2,
+      integer me,nproc,i1,ishp,ishbf,lshbf,lmiss,ischw1,
      ,     icount,Nao2,i,nERI,maxg,mscratch_2e3c,nscr,
      ,     n1,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
      ,     nshbfd,nfunz,ifirstp,ilastp,Nintegrals,
-     ,     ntasks,nshbf_cd,imat,ninteg_api
+     ,     nshbf_cd,imat,ninteg_api
       integer lcd_shell,icd_shell,lsvec,isvec,
-     ,     lsvec2,isvec2,iERI,lERI,lscr,iscr
+     ,     iERI,lERI,lscr,iscr
       double precision THRESHOLD,CD_coef_max,shmax,
      ,     Vcoul_est,ERI_est
-      integer current_nbuf, n3c_b
       double precision q1
-      integer ishc_be, ishd_be, nlast
       integer nxtask
       logical dowork
       logical oprint_ioinfo,use_nxtask
-      integer ipoint,nbatch_done
+      integer ipoint
       integer ilo, ihi, jlo, jhi, adrc, ldc,nnii,iptr,j
       integer atom_c,atom_d
       integer sh_lo_c,sh_hi_c, sh_lo_d, sh_hi_d, ishd_0, ishd_1
@@ -91,19 +86,19 @@ c     sets is taken
 c
       CD_coef_max = 0.D0
       i1 = 1
-      do 5 ishp = 1,nshells_cd
+      do  ishp = 1,nshells_cd
         if( .not. bas_cn2bfr(CD_bas_han,ishp,ishbf,lshbf) )then
           call errquit('Exiting in fitvcoul.',4,0)
         end if
         shmax = 0.D0
-        do 2 i = ishbf,lshbf
+        do i = ishbf,lshbf
            do imat = 1, nmat
               shmax = max(abs(CD_coef(i,imat)), shmax)
            enddo
-    2   continue
+        enddo
         Dbl_MB((icd_shell-1)+ishp) = shmax
         CD_coef_max = max(shmax, CD_coef_max)
-    5 continue
+      enddo
       if (IOLGC)then
 *ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
@@ -127,14 +122,12 @@ c
       Nao2 = nbf_ao_mxnbf_cn**2
       if(.not.MA_Push_Get(MT_Dbl,Nao2*nmat,'isvec',lsvec,isvec))
      &  call errquit('dft_fitvc: cannot allocate isvec',0,0)
-      if(.not.MA_Push_Get(MT_Dbl,nmat*Nao2,'isvec2',lsvec2,isvec2))
-     &  call errquit('dft_fitvc: cannot allocate isvec2',0,0)
       Nao2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(.not.MA_Push_Get(MT_Dbl,Nao2,'pp array',l_p,k_p))
      &  call errquit('dft_fitcd: cannot allocate p',0,  MA_ERR)
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
-c      nERI    = Nao2*nbf_cd_mxnbf_cn
+
       nERI    = maxg
       if(.not.MA_Push_Get(MT_Dbl,nERI,'ERI',lERI,iERI))
      &  call errquit('dft_fitvc: cannot allocate ERI',0,0)
@@ -184,9 +177,8 @@ czero k_p
                   
                   ishd_0 = sh_lo_d
                   ishd_1 = sh_hi_d
-#if 1
                   if (atom_c.eq.atom_d) ishd_1=ishc
-#endif
+
                   icount_d=0
                   do ishd =  ishd_0,  ishd_1
                      
@@ -289,12 +281,11 @@ c                  if (.false.) then
                   icount_c=icount_c+nshbfc
                enddo            ! ishc
 
-#if 1
                call ga_put(g_vc, 
      B              bf_lo_d, bf_hi_d, 
      C              bf_lo_c,bf_hi_c,
      C              dbl_mb(k_p), nbf_at_d)
-#endif
+
                if(use_nxtask) then
                   n1 = nxtask(nproc,1)
                else

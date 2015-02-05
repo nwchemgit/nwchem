@@ -1,6 +1,6 @@
       Subroutine dft_fitcd(nfit,CD_coef, i3c_ERI, Ecoul1, 
      &                     g_dens, nTotEl, n_batch, n_bmax, iwhat,
-     &                     n3c_dbl, iwhat_max,  fd, IOLGC,
+     &                     n3c_dbl, IOLGC,
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
@@ -30,7 +30,6 @@ c
       integer n_bmax         ! max no. batches
       integer iwhat(n_bmax)  ! what batches have been computed [out]
       integer n3c_dbl        ! max no. ints [in]
-      integer iwhat_max      !  last batch computed = iwhat(n_batch)
       integer fd
 c
       double precision CD_coef(nbf_cd,nfit)
@@ -100,7 +99,7 @@ c
      T     call dft_getcdt(natoms, nfit, derfit, threshold, 
      C     .false., ! do not compute 3c ints
      N     n_batch, n_bmax, iwhat,
-     &     n3c_dbl, iwhat_max, i3c_eri,
+     &     n3c_dbl, i3c_eri,
      T     dbl_mb(itvec),g_dens)
 
 c      

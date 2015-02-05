@@ -69,9 +69,7 @@ c
       integer nmo(2), icall(2), nprint
       integer mclosed(2), mopen(2)  ! used for cosmo_charges: used in same way as scf does
       integer n3c_dbl, n3c_int, n_batch
-      integer iwhat_max
       integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
-      integer n_semi_bufs, fd
 c
 cc    Jorge Garza/Begin
 c
@@ -844,11 +842,11 @@ c
       if (CDFIT)then
         if (odftps) call pstat_on(ps_incore)
         if(dft_mem3c(natoms,npol,oprint_parm,oprint_3c2e,
-     O               n3c_int,n3c_dbl,n_semi_bufs,
+     O               n3c_int,n3c_dbl,
      O               l_3ceri,k_3cERI, l_3cwhat,k_3cwhat)) then
            incore=.false.
           call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
-     &                     dbl_mb(k_3cERI), n3c_dbl, iwhat_max)
+     &                     dbl_mb(k_3cERI), n3c_dbl)
           incore=.true.
         else
           if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
@@ -1103,8 +1101,8 @@ c
       call dft_fockbld(rtdb,natoms,ntotel,
      ,     g_fock,g_focks,g_dens,g_vxc,g_movecs,g_xcinv, 
      ,     g_tmp,g_nq,g_wght,g_xyz,
-     ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
-     ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
+     ,     ivcoul_Opt,nexc,ivxc_opt,wght_GA,
+     ,     n_batch,n3c_int,n3c_dbl,IOLGC,
      ,     k_eval, dbl_mb(irdens_atom),
      ,     dbl_mb(k_3ceri),int_mb(k_3cwhat),
      ,     int_mb(icetobfr),

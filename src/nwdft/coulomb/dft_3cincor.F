@@ -1,5 +1,5 @@
       subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
-     &                       n3c_dbl, iwhat_max) 
+     &                       n3c_dbl) 
 c 
 C$Id$
 c
@@ -10,7 +10,6 @@ c
       integer n_bmax  ! max no. batches [in]
       integer iwhat(n_bmax) ! what batches have been computed [out]
       integer n3c_dbl ! max no. ints [in]
-      integer iwhat_max
       double precision i3c_ERI(n3c_dbl) ! int values [out]
 c
 #include "global.fh"
@@ -35,7 +34,7 @@ c
 
       call dft_getcdt(ncenters, 1, .false., threshold, .true.,
      N     n_batch, n_bmax, iwhat,
-     &     n3c_dbl, iwhat_max, i3c_eri,
+     &     n3c_dbl, i3c_eri,
      T     dbldum, intdum)
 
       return
@@ -43,7 +42,7 @@ c
 
       subroutine dft_getcdt(natoms, nfit, derfit, threshold, compute,
      N     n_batch, n_bmax, iwhat,
-     &     n3c_dbl, iwhat_max, i3c_eri,
+     &     n3c_dbl, i3c_eri,
      T     tvec,g_dens)
       implicit none
 #include "errquit.fh"
@@ -68,7 +67,6 @@ c
       integer n_bmax         ! max no. batches
       integer iwhat(n_bmax)  ! what batches have been computed [out]
       integer n3c_dbl        ! max no. ints [in]
-      integer iwhat_max      !  last batch computed = iwhat(n_batch)
       double precision i3c_ERI(n3c_dbl) ! int values [out]
 c
       integer nao2
