@@ -82,7 +82,7 @@
       if (.not.
      >    btdb_get(rtdb,'nwpw:noit_stress_numerical',
      >             mt_log,1,noit_energy))
-     >  noit_energy = .false.
+     >  noit_energy = .true.
 
 
 
