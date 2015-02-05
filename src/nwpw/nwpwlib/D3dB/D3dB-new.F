@@ -1184,7 +1184,7 @@ c     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
 !! schedule(static)
 #endif
       do i=1,mthr
-        write(*,*) "DEBUG init fft arrays of thread ", i-1
+        !write(*,*) "DEBUG init fft arrays of thread ", i-1
         call drffti(nx(nb),dcpl_mb(tmpx(1,nb)+(i-1)*(2*nx(nb)+15)))
         call dcffti(ny(nb),dcpl_mb(tmpy(1,nb)+(i-1)*(2*ny(nb)+15)))
         call dcffti(nz(nb),dcpl_mb(tmpz(1,nb)+(i-1)*(2*nz(nb)+15)))
