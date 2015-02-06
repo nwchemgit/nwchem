@@ -968,7 +968,7 @@ c only texas correction to the pnl norm :
 c
 CC--> call txs_cor_norm(bl,inx(inxx),ibas,inuc,ncs,iprint0)
 cccc  call txs_cor_norm(dbl_mb,inx(inxx),ibas-1,inuc-1,ncs,iprint0)
-      call txs_cor_norm(dbl_mb,inx(inxx),ibas-1,inuc-1,ncs)
+      call txs_cor_norm(dbl_mb(ibas),inx(inxx),ibas-1,inuc-1,ncs)
 c------------------------------------
 c reserve memory for: ncfunct,ncshell and iny :
 c
@@ -1250,45 +1250,52 @@ cccc  subroutine txs_cor_norm(bl,inx,ibas,inuc,ncs,iprint)
       subroutine txs_cor_norm(bl,inx,ibas,inuc,ncs)
 c bl is now replaced by pnl-array BASNUC .
       implicit real*8 (a-h,o-z)
-      common /number/ zero,half,one,two,three,four,five,ten,ten6,tenm8,p
-     1i,acc
-      dimension bl(*),inx(12,*)
+      double precision pi
+cold      dimension bl(*),inx(12,*)
+      dimension bl(0:12,*),inx(12,*)
 c---------------------------------------------------------------------
-      data pii /3.1415926535898d0/   
 C (2/pi)**3/4 :
-      twopi=two/pii
+      pii=acos(-1d0)
+      twopi=2d0/pii
       twopi3=twopi*twopi*twopi
       twopi75=sqrt(sqrt(twopi3))
 c
-      twopi75=one/twopi75
+      twopi75=1d0/twopi75
 c---------------------------------------------------------------------
-      do 290 i=1,ncs
+      do i=1,ncs
          ityp=inx(12,i)
 c        begin and end of the contraction
          ig=inx(1,i)+1
          ie=inx(5,i)
          ngc=inx(4,i)
-         do 285 igc=1,ngc+1
-         do 280 ii=ig,ie
-            ja=ibas+13*ii-12
-cc          i1=inx(2,i)
-cc          i2=inuc+i1*5
-  270       a=bl(ja)
-c
-c exponent may be zero (only once) to handel 3- and 2-center(index) integrals:
-c
-            if(a.gt.zero) then
-               a75=a**(-0.75d0)
+         do igc=1,ngc+1
+            if(ig.eq.ie) then
+               if(abs(bl(0,ig)).gt.1d-19) then
+                  a75=(bl(0,ig)**(-0.75d0))*twopi75
+               else
+                  a75=twopi75
+               endif
+c-----------------------------
+               bl(igc,ig)=bl(igc,ig)*a75
+               if(ityp.eq.3) bl(2,ig)=bl(2,ig)* a75
             else
-               a75=one
+               do ii=ig,ie
+c
+c exponent may be zero (only once) to handle 3- and 2-center(index) integrals:
+c
+                  if(abs(bl(0,ii)).gt.1d-19) then
+                     a75=(bl(0,ii)**(-0.75d0))*twopi75
+                  else
+                     a75=twopi75
+                  endif
+c-----------------------------
+                  bl(igc,ii)=bl(igc,ii)*a75
+                  if(ityp.eq.3) bl(2,ii)=bl(2,ii)* a75
+c-----------------------------
+               enddo
             endif
-c-----------------------------
-            bl(ja+igc)=bl(ja+igc)*twopi75 * a75
-            if(ityp.eq.3) bl(ja+2)=bl(ja+2)*twopi75 * a75
-c-----------------------------
-  280    continue
-  285    continue
-  290 continue
+         enddo
+      enddo
 c
       end
 c=================================================================
