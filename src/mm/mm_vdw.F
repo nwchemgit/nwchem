@@ -266,6 +266,7 @@ c     $        (g(j,i),j=1,3)
       character*30 message
       integer i,j
 
+      call mm_coords_qm_load(rtdb,nqm,byte_mb(i_t),dbl_mb(i_r))
       call mm_vdw_energy(ntot,dbl_mb(i_r),
      &                      nvdw,int_mb(i_ivdw),int_mb(i_jvdw),
      &                      dbl_mb(i_avdw),dbl_mb(i_bvdw),
