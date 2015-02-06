@@ -1,3 +1,28 @@
+C> \ingroup nwdft_xc
+C> @{
+C>
+C> \file grid_pscreen.F
+C> Screen the grid points
+C>
+C> @}
+C>
+C> \ingroup nwdft_x
+C> @{
+C>
+C> \brief Screen the grid points and associated quantities
+C>
+C> Estimate the maximum contribution that grid points may make
+C> based on the amplitudes of the basis functions across all atoms,
+C> the maximum density matrix element on an atom, and the weight of
+C> each grid point. If a grid point contributes too little it is 
+C> eliminated. 
+C>
+C> Returned are:
+C> * The number of remaining grid points
+C> * The compressed list of grid point coordinates and weights
+C> * The compressed list of basis function values
+C> * The compressed list of basis function gradients
+C>
       subroutine grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
      ,     mbf_ao,grad,ipol,iscratch)
@@ -6,16 +31,30 @@ c$Id$
 c
       implicit none
 #include "mafdecls.fh"
-      integer natoms
-      integer nqpts ![in/out]
-      double precision qwght(*),qxyz(3,*)! [in/out]
-      double precision rchi_atom(*),rdelchi_atom(*)
-      double precision chi(*),delchi(*)
-      double precision rdens_atom(natoms,natoms,*)
-      integer iniz(*),mbf_ao,iscratch(*)
-      double precision tol_rho
-      logical grad
-      integer ipol
+      integer natoms !< [Input] The number of atoms
+      integer nqpts !< [In/output] The number of grid points
+      double precision qwght(*) !< [In/output] The grid point weights
+      double precision qxyz(3,*)!< [In/output] The grid point coordinates
+      double precision rchi_atom(*) !< [Input] The overall basis function
+                                    !< amplitude for each atom
+      double precision rdelchi_atom(*) !< [Input] The overall basis
+                                       !< function gradient amplitude
+                                       !< for each atom
+      double precision chi(*)   !< [Input] The basis function values on
+                                !< the grid
+      double precision delchi(*) !< [Input] The basis function gradient
+                                 !< values on the grid
+      double precision rdens_atom(natoms,natoms,*) !< [Input] The 
+      !< density matrix size for each pair of atoms and spin
+      integer iniz(*) !< [Input] The initial basis function for each
+                      !< atom
+      integer mbf_ao  !< [Input] The number of basis functions
+      integer iscratch(*) !< [Scratch]
+      double precision tol_rho !< [Input] The tolerance on the density
+      logical grad !< [Input] If `.true.` the basis function gradients
+                   !< have to be handled in addition to the basis
+                   !< functions
+      integer ipol !< [Input] The number of spin channels present
 c
       double precision dabsmax
       external dabsmax
@@ -128,3 +167,5 @@ c
 #endif
       return
       end
+C>
+C> @}
