@@ -1,3 +1,10 @@
+C> \ingroup nwdft_xc
+C> @{
+C>
+C> \file dft_utilmap.F
+C> Various routines that build or use mappings between atoms, matrix
+C> elements and what not.
+C>
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
@@ -229,16 +236,48 @@ c      write(6,*) ' util_irreg_mat_reduce: reduced matrix '
 c      call output(r, 1, nr_row, 1, nr_col, nr_row, nr_col, 1)
 c
       end
+C>
+C> \brief Compute the root-mean-square value of the basis functions
+C> or basis function gradients for each atom
+C>
+C> Compute the root-mean-square value of basis functions or basis
+C> function gradients for each atom. This data is usefull for screening
+C> purposes and is a measure for the size of the basis functions on
+C> a particular atom at the grid points.
+C>
+C> The exact quantity computed depends on the inputs for `chi` and
+C> `nqsmall`. If `chi` represents basis functions then `rchi` will
+C> be computed to be
+C> \f{eqnarray*}{
+C>   \mathrm{rchi}(i_{at})
+C>   &=& \sqrt{\sum_{j\in\{\chi(i_{at})\}}\sum_q\chi_j^2(r_q)}
+C> \f}
+C> If `chi` represents the gradients of the basis functions then `rchi`
+C> will be computed to be (the number of components in the gradient is
+C> in practice encoded in `nqsmall`)
+C> \f{eqnarray*}{
+C>   \mathrm{rchi}(i_{at})
+C>   &=& \sqrt{\sum_{j\in\{\chi(i_{at})\}}\sum_q\sum_{c\in\{x,y,z\}}
+C>             \nabla_c\chi_j^2(r_q)}
+C> \f}
+C> where \f$\{\chi(i_{at})\}\f$ designates the set of all basis
+C> functions on atom \f$i_{at}\f$.
+C>
       subroutine util_rmsatbf(nqsmall, natoms,iniz,ifin,
      .     chi,rchi)
       implicit none
-      integer nqsmall ! [input]
-      integer natoms  ! [input]
-      integer iniz(*) ! [input]
-      integer ifin(*) ! [input]
-      double precision chi(nqsmall,*) ! [input]
-      double precision rchi(*) ! [output]
-      
+      integer nqsmall !< [Input] The number of data points 
+                      !< - the number of grid points, `nq`, for basis
+                      !< functions
+                      !< - `3*nq` for gradients of basis functions
+      integer natoms  !< [Input] The number of atoms
+      integer iniz(*) !< [Input] The initial basis function on each
+                      !< atom
+      integer ifin(*) !< [Input] The final basis function on each atom
+      double precision chi(nqsmall,*) !< [Input] The basis function
+                                      !< (gradient) amplitudes
+      double precision rchi(*) !< [Output] The root-mean-square of 
+                               !< of all amplitudes on each atom
 c
       integer q,iat,jf
       double precision sum,mxsum
@@ -259,3 +298,5 @@ c
       enddo
       return
       end
+C>
+C> @}
