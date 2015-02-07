@@ -188,7 +188,7 @@ endif
 	      fortchar.o seq_output.o ga_mat2col.o \
               util_ch_brd.o two_ind_trn.o \
 	      util_pname.o sread.o swrite.o \
-	      banner.o util_print.o \
+	      banner.o util_print.o util_module_avail.o \
               util_version.o util_nwchem_version.o util_ga_version.o \
               util_nwchem_paper.o util_nwchem_srcdir.o utilc_nwchem_srcdir.o \
               mk_fit_xf.o \

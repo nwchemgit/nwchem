@@ -1,0 +1,15 @@
+C> \brief Tells whether a given module is present in the build
+C>
+C> Provided with a module name this function returns whether the 
+C> module is available in the current build. 
+C>
+C> \return
+C> * `.true.` if the module is available
+C> * `.false.` if the module is unavailable
+C>
+      logical function util_module_avail(mod_name)
+      implicit none
+#include "inp.fh"
+      character*(*) mod_name
+      util_module_avail = .true.
+      select case (mod_name(1:inp_strlen(mod_name)))

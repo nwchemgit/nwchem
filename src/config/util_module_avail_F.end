@@ -1,0 +1,5 @@
+        case default
+          util_module_avail = .false.
+      end select
+      return
+      end
