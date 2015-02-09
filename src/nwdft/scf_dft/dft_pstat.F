@@ -24,6 +24,8 @@ c
      $     ps_inv)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:  xc', pstat_qstat, 0, junk,
      $     ps_xc)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:fck2e', pstat_qstat, 0, junk,
+     $     ps_f2e)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:qv0b', pstat_qstat, 0, junk,
      $     ps_qv0b)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:xmrge', pstat_qstat, 0, junk,
@@ -82,6 +84,7 @@ c
          if (.not. pstat_free(ps_onel))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_guess))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_xc))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_f2e))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_qv0b))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_diis))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_fockb))call errquit('dft_pstat?', 0,0)
