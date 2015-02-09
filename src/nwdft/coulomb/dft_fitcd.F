@@ -297,7 +297,7 @@ c      endif
 c
 c     Get mulliken population analysis of charge density fit
 c
-      if (.not.derfit) then
+      if (.not.derfit.and..false.) then
 c
       if (.not. geom_ncent(geom, natoms))
      &     call errquit('dft_fitcd: geom_ncent failed',73,
@@ -329,8 +329,6 @@ c
 c
       endif                     ! .not.derfit
 c
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
-c      if(IOLGC) call gadest(g_cdinv)
       if (IOLGC)then
          if (.not. ga_destroy(g_cdinv)) call errquit
      &      ('dft_fitcd: could not destroy g_cdinv', 0, GA_ERR)

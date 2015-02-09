@@ -119,6 +119,12 @@ c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitcd: cannot allocate scr',0, MA_ERR)
 c
+c     invalidate iwhat for procs that might remain out of work
+      if(compute) then
+         do ishp=1,n_bmax
+            iwhat(ishp)=-123
+         enddo
+      endif
 c
       n1=0
       use_nxtask=compute.or.(.not.incore)
@@ -197,7 +203,6 @@ c     Determine the maximum density matrix element for this product of AO shells
 c     
                  Pmat_max = dabsmax(Nao2*nfit,DBL_MB(igvec))
               endif 
-
 c            
               if( Pmat_max*ERI_est.gt.THRESHOLD )then
 c              

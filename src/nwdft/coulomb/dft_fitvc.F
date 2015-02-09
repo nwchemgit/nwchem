@@ -237,7 +237,6 @@ c
      &                                      1,1.D0,Dbl_MB(isvec),1)
                                     endif
                                  endif
-                              else
                               endif ! schw on VCoul_est
 c
                               nfunz=nfunz+nshbf_cd
@@ -259,15 +258,11 @@ c
                            ipoint=ipoint + nao2*nbf_cd
                            
                         endif   ! schwartz with cdmax
-                     else
-
-                        
-                     endif      ! schwartz with cdmax=1
+                     endif      ! schwartz with cdmax=1 (incore)
 
                      icount_d=icount_d+nshbfd
                   enddo         ! ishd
 c     add extra bit to ipoint if ishd_1 is truncated
-c                  if (.false.) then
                   if (atom_c.eq.atom_d.and.ishd_1.ne.sh_hi_d) then
                      do ishd=ishd_1+1,sh_hi_d
                         if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, 
