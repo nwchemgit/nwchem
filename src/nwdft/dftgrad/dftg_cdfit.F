@@ -48,14 +48,12 @@ c
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "msgids.fh"
 #include "util.fh"
 #include "sym.fh"
 #include "eaf.fh"
 #include "stdio.fh"
 #include "inp.fh"
-#include "dftpara.fh"
 c
       integer  AO_bas_han, CD_bas_han
       integer  nbf_cd, nat, max_sh_bf
@@ -70,7 +68,6 @@ c     scratch arrays for dgem
 c
       double precision vec(*),
      &                 PPP(*)
-!     &                 PPP(max_sh_bf,max_sh_bf)
 c
 c-->  Charge Density Expansion Coefficients
 c     
@@ -101,9 +98,16 @@ c
       integer nproc,me,icount,igran
       integer nshells_ao,nshells_cd,ishp,ishq
       integer ifirstq, ilastq, ifirstp, ilastp,nshbfq,nshbfp,Nao2
-      integer mu,nu,Nintegrals,ishd,ifirstd,ilastd,nshbfd
-      integer iat,icount2,ifp,next,nxtask,icart,ist,l_dfkl,k_dfkl
+      integer Nintegrals,ishd,ifirstd,ilastd,nshbfd
+      integer iat,next,nxtask,icart,l_dfkl,k_dfkl
       integer iatom,ishatf,ishatl
+      integer atom_p,atom_q
+      integer sh_lo_p,sh_hi_p, sh_lo_q, sh_hi_q
+      integer bf_lo_p,bf_hi_p,bf_lo_q,bf_hi_q
+      integer k_p,l_p
+      integer icount_p,icount_q,nbf_at_q
+      integer ishq_0,ishq_1,icount_task
+      integer nbf_ao_mxnbf_ce
       double precision PPP_max,dE,fac,schwarz_shell,q1
       logical do_force, do_cpks_r, do_hess
       integer ierr,LU
@@ -175,7 +179,8 @@ c
         endif
       endif
 c
-      call ga_brdcst(Msg_dftg_cdf,CD_coef,mdtob(nbf_cd),0)
+      call ga_brdcst(Msg_dftg_cdf,CD_coef,
+     M     ma_sizeof(MT_LOG,nbf_cd,MT_BYTE),0)
 c      
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
@@ -189,23 +194,46 @@ c
 c
 c     2el. 3-c integral derivatives
 c
-c     increased granularity
+      if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
+     C     call errquit('dftg_fitcd: bas_nbf failed ',0,BASIS_ERR)
+      if(.not.MA_Push_Get(MT_Dbl,nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce,
+     G     'gather vector',l_p,k_p))
+     &  call errquit('dft_fitcd: cannot allocate gather vector',0,
+     &       MA_ERR)
 c
-      igran = (nshells_ao + mod(nshells_ao,2))/(4*nproc)
-      igran = max(1,igran)
+      next = nxtask(nproc,1) + 1
+      icount_task=1
 c
-      next = nxtask(nproc,igran) + 1
+      do atom_p=1,nat
+        if (.not. bas_ce2cnr( AO_bas_han, atom_p, sh_lo_p, sh_hi_p)) 
+     &       call errquit('Exiting in dftg_cdfit',110, BASIS_ERR)
+        if (.not. bas_ce2bfr(AO_bas_han,atom_p,bf_lo_p,bf_hi_p)) 
+     &       call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
+        do atom_q=atom_p, nat
+         if (icount_task.eq.next)then
+           if (.not. bas_ce2cnr(AO_bas_han,atom_q,sh_lo_q,sh_hi_q)) 
+     &       call errquit('Exiting in dftg_cdfit',110, BASIS_ERR)
+           if (.not. bas_ce2bfr(AO_bas_han,atom_q,bf_lo_q,bf_hi_q)) 
+     &          call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
+           nbf_at_q=bf_hi_q - bf_lo_q + 1
+
+               call ga_get(iga_dens, bf_lo_q, bf_hi_q, 
+     C              bf_lo_p,bf_hi_p,
+     C              dbl_mb(k_p), 
+     B              (bf_hi_q - bf_lo_q + 1))
+               icount_p=0
+           do  ishp = sh_lo_p, sh_hi_p
 c
-      do 205 ishp = 1, nshells_ao
-         if (ishp.eq.next)then
-c
-            next = nxtask(nproc,igran) + 1
 c
             if (.not. bas_cn2bfr(AO_bas_han,ishp,ifirstp,ilastp))
      &         call errquit('Exiting in dftg_cdfit_gen.',6, BASIS_ERR)
             nshbfp = ilastp - ifirstp + 1
-c          
-            do ishq = ishp,nshells_ao
+c     
+               ishq_0 =  sh_lo_q
+               ishq_1 =  sh_hi_q
+cicic               if(atom_p.eq.atom_q) ishq_0=ishp
+               icount_q=0
+            do ishq = ishq_0,ishq_1
                if (.not. bas_cn2bfr(AO_bas_han,ishq,ifirstq,ilastq))
      &            call errquit('Exiting in dftg_cdfit_gen.',7,
      &       BASIS_ERR)
@@ -214,23 +242,20 @@ c
 c
                if (do_force.or.do_hess) then
                   fac = 2d0
-                  if (ishp.eq.ishq) fac = 1d0
+c                  if (ishp.eq.ishq) fac = 1d0
+                  if (atom_p.eq.atom_q) fac = 1d0
                else
                   fac = 1d0
                endif
 c
 c              get shell block of DM
 c
-               if(truerepdm) then
-c busted for open shell??
-                  call xc_dmget(dbl_mb(k_repdm(1)),nbf_ld,
-     Q                 ifirstq, ilastq, 
-     P                 ifirstp, ilastp,
-     M                 PPP,nshbfq)
-               else
-                  call ga_get (iga_dens, ifirstq, ilastq, 
-     I                 ifirstp, ilastp, PPP, nshbfq)
-               endif
+
+c     copy pmat into ppp for now
+                    call dft_copyfrom(
+     I                   nbf_at_q,nshbfq,nshbfp,
+     I                   dbl_mb(k_p),ppp,
+     A                   icount_q,icount_p)
                
 c
 c              Schwarz screening on product MAX(ABS(DM(i,j)))*schwarz(i,j)
@@ -326,12 +351,20 @@ c
   204                continue
                   enddo
                endif
-            enddo
-         endif
-  205 continue
+               icount_q=icount_q+nshbfq
+            enddo ! ishq
+            icount_p=icount_p+nshbfp
+      enddo                     ! ishp
+      next = nxtask(nproc,1) + 1
+      endif
+      icount_task=icount_task+1
+      enddo                     ! atom_q
+      enddo                     ! atom_p
 c
-      next = nxtask(-nproc,igran)
+      next = nxtask(-nproc,1)
 c
+      if (.not.MA_pop_stack(l_p))
+     &     call errquit('dftg_cdfit_gen: cannot pop l_p',1, MA_ERR)
       if (do_cpks_r) then
          if (.not.MA_pop_stack(l_dfkl))
      &        call errquit('dftg_cdfit_gen: cannot pop dfkl',1, MA_ERR)
@@ -358,7 +391,6 @@ c
          if (.not. bas_ce2cnr(CD_bas_han,iatom,ishatf,ishatl))
      &        call errquit('Exiting in dftg_cdfit_gen.',-9, BASIS_ERR)
       do 305 ishp = ishatf, ishatl
-c!!!      do 305 ishp = 1, nshells_cd
 c
          if (ishp.eq.next)then
 c
@@ -368,7 +400,6 @@ c
      &         call errquit('Exiting in dftg_cdfit_gen.',9, BASIS_ERR)
                nshbfp = ilastp - ifirstp + 1
 c
-c!!!            do ishq = 1, ishp
             do ishq = 1, ishatf-1
 c
                if (.not. bas_cn2bfr(CD_bas_han,ishq,ifirstq,ilastq))
