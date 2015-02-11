@@ -4377,8 +4377,11 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 *
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
+      CALL ga_print(VEC1)
+      CALL ga_print(VEC2)
          CALL MV7(VEC1,VEC2,0,0,0,0)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
+      write(*,*) 'After Initial AKBKSIGMA', IVEC
       CALL ga_print(VEC1)
       CALL ga_print(VEC2)
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
@@ -4463,11 +4466,11 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
            call ga_add(FACTOR,VEC2,1.0D0,VEC1,VEC1)
 CNW        CALL VECSUM(VEC1,VEC1,VEC2,1.0D0,FACTOR,NVAR)
    50    CONTINUE
-           IF ( IPRT  .GE.600 ) THEN
+!           IF ( IPRT  .GE.600 ) THEN
              WRITE(6,*) '  ( HX - EX ) '
              call ga_print(VEC1)
 CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-           END IF
+!           END IF
 *  STRANGE PLACE TO TEST CONVERGENCE , BUT ....
 CNW      RNORM = SQRT( INPROD(VEC1,VEC1,NVAR) )
          RNORM = SQRT( ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
@@ -4490,14 +4493,16 @@ CNW        CALL FRMDSC(VEC2,NVAR,-1  ,LUDIA,IMZERO,IAMPACK)
      &         call errquit('dra error',itask,911)
            if (dra_wait(itask).ne.0) call errquit('dra read err',
      &         itask,911)
+      write(*,*) 'And Here?'
+             call ga_print(VEC2)
            CALL H0M1TV(VEC2,VEC1,VEC1,NVAR,NPRDIM,IPNTR,
      &                 H0,-EIGAPR,H0SCR,XDUMMY,NP1,NP2,NQ,
      &                 IPRT)
-           IF ( IPRT  .GE. 600) THEN
+!           IF ( IPRT  .GE. 600) THEN
              WRITE(6,*) '  (D-E)-1 *( HX - EX ) '
              call ga_print(VEC1)
 CNW          CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
-           END IF
+!           END IF
 *
            IF(IOLSTM .NE. 0 ) THEN
 * add Olsen correction if neccessary
@@ -4645,6 +4650,7 @@ CNW          CALL SCALVE(VEC1,FACTOR,NVAR)
              call ga_scale(VEC1,FACTOR)
 *
 CNW          CALL TODSC(VEC1,NVAR,-1  ,LU1)
+        write(*,*) 'Am I here? new?'
              if (dra_write_section(.false.,VEC1,1,NVAR,1,1,
      &          LU1,1,NVAR,NVEC+IADD,NVEC+IADD,itask).ne.0) 
      &          call errquit('dra error',itask,911)
@@ -4683,7 +4689,11 @@ CNW     CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
      &     call errquit('dra error',itask,911)
         if (dra_wait(itask).ne.0) call errquit('dra read err',
      &      itask,911)
+      CALL ga_print(VEC1)
+      CALL ga_print(VEC2)
         CALL MV7(VEC1,VEC2,0,0,0,0)
+      CALL ga_print(VEC1)
+      CALL ga_print(VEC2)
 CNW     CALL TODSC(VEC2,NVAR,-1  ,LU2)
         if (dra_write_section(.false.,VEC2,1,NVAR,1,1,
      &     LU2,1,NVAR,NVEC+IVEC,NVEC+IVEC,itask).ne.0)
@@ -4772,6 +4782,7 @@ CNW     CALL REWINO( LU3)
 CNW     CALL REWINO( LU1)
 *. Current trial vector
 CNW     CALL SETVEC(VEC1,0.0D0,NVAR)
+       write(*,*) 'Am I here? 07.1'
         call ga_zero(VEC1)
         DO 2200 IVEC = 1, NVEC
 CNW       CALL FRMDSC(VEC2,NVAR,-1  ,LU1,IMZERO,IAMPACK)
@@ -4915,6 +4926,7 @@ CNW        APROJ(IJ) = INPROD(VEC1,VEC2,NVAR)
       END IF
       IF(NVEC+NROOT.GT.MAXVEC .OR. CONVER .OR. MAXIT .EQ.ITER)THEN
 CNW     CALL REWINO( LU3)
+       write(*,*) 'Am I here? 07.2'
         DO 320 IROOT = 1, NROOT
 CNW       CALL REWINO( LU1)
 CNW       CALL SETVEC(VEC1,0.0D0,NVAR)

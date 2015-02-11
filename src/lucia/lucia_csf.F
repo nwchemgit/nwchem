@@ -6832,7 +6832,7 @@ C?          WRITE(6,*) ' IGAS, NEL, NORB = ', IGAS, NEL, NORB
 *. Length: INTEGER: (NDET_C + NDET_S)*N_EL_CONF + NDET_C + 6*NORB *. (NELEC .le. 2*NORB)
 *          REAL   : 2 NDETL x NDETR matrix (could be reduced)
 *
-      NTEST = 1000 !VOG 000
+      NTEST = 000
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' Output from GET_CSF_H_PRECOND'
@@ -8202,7 +8202,7 @@ C     WRITE(6,*) ' TEST,  NCONF_OCCLS_ALLSYM = ',  NCONF_OCCLS_ALLSYM
 *. Output
       INTEGER I_ABSPGP(2,*)
 *
-      NTEST = 1000 !VOG
+      NTEST = 000
       IF(NTEST.GE.10) THEN 
         WRITE(6,*) ' ABSPGP_TO_CISPACE reporting '
         WRITE(6,*) ' ============================='

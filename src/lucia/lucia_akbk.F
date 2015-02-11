@@ -647,7 +647,7 @@ cVOG  CALL MV7(CB,HCB,LUC,LU_Q2,XDUM,XDUM)
       CALL MV7(CB,KLU_Q2,0,0,0,0)
       IF(NTEST.GE.1000) WRITE(6,*) ' H(QP)P CP accomplished'
       IF(NTEST.GE.1000) THEN
-       call ga_print(CB)
+       CALL ga_print(CB)
        CALL ga_print(KLU_Q2)
 cVOG   CALL WRTVCD(CB,LU_Q2,1,LBLK)
       END IF
@@ -712,8 +712,8 @@ cVOG &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
       ahi(1) = NSDPQ
       alo(2) = 1
       ahi(2) = 1
-      blo(1) = 1
-      bhi(1) = NSDQ
+      blo(1) = NSDP+1
+      bhi(1) = NSDPQ
       blo(2) = 1
       bhi(2) = 1
       call ga_elem_divide_patch(KLU_Q2, alo, ahi,     
@@ -752,6 +752,7 @@ cVOG    CALL WRTVCD(CB,LU_Q3,1,LBLK)
       ICSPC = IPSPC
 cVOG  CALL REWINO(LU_Q1)
 cVOG  CALL MV7(CB,HCB,LUC,LU_Q1,XDUM,XDUM)
+      call ga_print(CB)
       CALL MV7(CB,KLU_Q1,0,0,0,0)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' HPP CP: '
