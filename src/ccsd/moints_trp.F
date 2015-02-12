@@ -495,7 +495,31 @@ cstaggering to avoid congestion in ga-acc
            call dfill(nni,0.d0,h1,1)
 ! this could be DGEMV if ssv(v,j,i) is transposed to ssv2(v,i,j)
 ! in the current form, we can use a loop over range(i) DAXPYs
-! TODO: use DAXPY here
+#if USE_BLAS_NOT_LOOPS
+             do j=jlo,jhi
+               do i=ilo,ihi
+                  call daxpy(nvir,scale*c(j,b),ssv(1,j,i),1,h1(1,i),1)
+               enddo
+             enddo
+#elif USE_NEW_LOOPS
+           if (abs(scale-1.0d0).lt.(1.e-13)) then
+             do j=jlo,jhi
+               do i=ilo,ihi
+                 do v=1,nvir
+                   h1(v,i) = h1(v,i) + c(j,b)*ssv(v,j,i)
+                 enddo
+               enddo
+             enddo
+           else ! scale .ne. 1.0
+             do j=jlo,jhi
+               do i=ilo,ihi
+                 do v=1,nvir
+                   h1(v,i) = h1(v,i) + scale*c(j,b)*ssv(v,j,i)
+                 enddo
+               enddo
+             enddo
+           endif
+#else
            do j=jlo,jhi
              cc = c(j,b)
              do i=ilo,ihi
@@ -504,6 +528,7 @@ cstaggering to avoid congestion in ga-acc
                enddo
              enddo
            enddo
+#endif
 #ifndef NOCOMMS
            ab = (a-olo)*nocc+b-ostart+1
            call ga_acc(g_exch,ivlo,ivhi,ab,ab,h1,nni,1.d0)
