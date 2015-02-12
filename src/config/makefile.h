@@ -1085,6 +1085,19 @@ endif
            DEFINES   += -DUSE_OPENMP
         endif
         ifeq ($(_IFCV11),Y) 
+            # The MKL option is available since Intel 11.1.
+            # TODO: Test minor version number above when major=11.
+            # https://software.intel.com/en-us/articles/using-mkl-in-intel-compiler-mkl-qmkl-options
+            ifndef BLASOPT
+                # When user requests OpenMP, MKL should use it, otherwise not (to avoid oversubscription).
+                ifdef USE_OPENMP
+                    BLASOPT = -mkl=parallel
+                else
+                    BLASOPT = -mkl=sequential
+                endif
+            endif
+        endif
+        ifeq ($(_IFCV11),Y) 
 #next 2 lines needed for fp accuracy
           FDEBUG += -fp-model source
           ifeq ($(_IFCV12),Y) 
