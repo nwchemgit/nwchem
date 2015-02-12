@@ -4314,6 +4314,24 @@ CDIR$ NOVECTOR
       return
       end
 
+      subroutine D3dB_r_abs1(nb,A)
+      implicit none
+      integer nb
+      real*8 A(*)
+
+#include "D3dB.fh"
+
+
+      integer index
+
+      do index=1,n2ft3d_map(nb)
+         !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
+         A(index) = dabs(A(index))
+      end do
+      return
+      end
+
+
 *     ***********************************
 *     *                                 *
 *     *          D3dB_r_ZeroNegative    *
