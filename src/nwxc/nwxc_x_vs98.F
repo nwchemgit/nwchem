@@ -18,6 +18,8 @@ C>
 C> The VS98 functional [1,2] is a meta-GGA. This routine implements
 C> the exchange component.
 C>
+C> ### References ###
+C>
 C> [1] T van Voorhis, GE Scuseria,
 C>     "A novel form for the exchange-correlation energy functional",
 C>     J.Chem.Phys. <b>109</b>, 400-410 (1998), DOI:
@@ -187,10 +189,9 @@ c
             rho83 = rho53*rhoo 
 c
             tauN = tau(n,T_T)
-            if(taun.lt.dtol) goto 10
+c           if(taun.lt.dtol) goto 10
             tauu=tauN
             gamma = rgamma(n,G_TT)
-            if(sqrt(gamma).lt.dtol) goto 10
             gamma = gamma/Four
             x = gamma/rho83
 c           dxdr = -f83*x*rrho
@@ -252,6 +253,8 @@ c
            tauN = tau(n,T_A)
            tauu = tauN*Two
 
+c          if (tauu).lt.DTol) goto 25
+
            Gamma = rgamma(n,G_AA)
 
            x = gamma/rho83
@@ -304,6 +307,7 @@ c
            tauN = tau(n,T_B)
            tauu = Two*tauN
 
+c          if (tauu.lt.DTol) goto 20
 c
            Gamma = rgamma(n,G_BB)
 c
@@ -381,7 +385,8 @@ c    some working variables
       double precision r1,r2,r3,r4,r5,r6
       double precision sr1,sr2,sr3,sr4,sr5,sr6
 #endif
-      double precision sc,sct,sk2
+c     double precision sc,sct,sk2
+      double precision sc,sct
       double precision One, Two, Three, Four, Six
       Data One/1.0d0/, Two/2.0d0/, Three/3.0d0/, Four/4.0d0/, Six/6.0d0/
 C

@@ -18,6 +18,10 @@ C>
 C> The M05 functional [1,2] is a meta-GGA of which this evaluates
 C> the correlation component.
 C>
+C> Due to the form of the meta-GGAs we need to screen on the kinetic
+C> energy density to ensure that LDA will be obtained when the kinetic
+C> energy density goes to zero [3].
+C>
 C> ### References ###
 C>
 C> [1] Y Zhao, NE Schultz, DG Truhlar,
@@ -36,7 +40,13 @@ C>     J.Chem.Theory.Comput. <b>2</b>, 364-382 (2006), DOI:
 C>     <a href="http://dx.doi.org/10.1021/ct0502763">
 C>     10.1021/ct0502763</a>.
 C>
-
+C> [3] J. Gr&auml;fenstein, D. Izotov, D. Cremer,
+C>     "Avoiding singularity problems associated with meta-GGA exchange
+C>     and correlation functionals containing the kinetic energy
+C>     density", J. Chem. Phys. <b>127</b>, 214103 (2007), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2800011">
+C>     10.1063/1.2800011</a>.
+C>
 c   M05 or M05-2X  exchange functional  
 c           META GGA
 C         utilizes ingredients:
@@ -241,17 +251,14 @@ c
             rho13 = rho43*rrho
             rho53 = rhoo**F53
 c
+            Gamma2 = rgamma(n,G_TT)
+c           Gamma = sqrt(Gamma2)
             tauN = tau(n,T_T)
             tauu=tauN 
-c           Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
-c    &              delrho(n,2,1)*delrho(n,2,1) +
-c    &              delrho(n,3,1)*delrho(n,3,1)
-            Gamma2 = rgamma(n,G_TT)
-            Gamma = sqrt(Gamma2)
-            if (gamma.lt.DTol) goto 10
             TauUEG=0.3d0*P32*rho53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig-One)/(Tsig+One)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig-One)/(Tsig+One)
+            Wsig =(TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -267,8 +274,9 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
      &          + at4*W4 + at5*W5 + at6*W6 + at7*W7
      &          + at8*W8 + at9*W9 + at10*W10 + at11*W11)
 
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -330,8 +338,9 @@ c
              tauN = tau(n,T_A)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
-             Tsig =TauUEG/tauu
-             Wsig =(Tsig-One)/(Tsig+One)
+c            Tsig =TauUEG/tauu
+c            Wsig =(Tsig-One)/(Tsig+One)
+             Wsig =(TauUEG-tauu)/(TauUEG+tauu)
              W1=Wsig
              W2=Wsig*W1
              W3=Wsig*W2
@@ -353,11 +362,11 @@ c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_AA)
             Gamma2 = Four*Gamma2
-            Gamma = sqrt(Gamma2)
-            if (gamma.lt.DTol) goto 25
+c           Gamma = sqrt(Gamma2)
 
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -413,8 +422,9 @@ c
              tauN = tau(n,T_B)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
-             Tsig =TauUEG/tauu
-             Wsig =(Tsig-One)/(Tsig+One)
+c            Tsig =TauUEG/tauu
+c            Wsig =(Tsig-One)/(Tsig+One)
+             Wsig =(TauUEG-tauu)/(TauUEG+tauu)
              W1=Wsig
              W2=Wsig*W1
              W3=Wsig*W2
@@ -436,10 +446,10 @@ c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             Gamma2 = rgamma(n,G_BB)
             Gamma2 = Four*Gamma2
-            Gamma = sqrt(Gamma2)
-            if (gamma.lt.DTol) goto 20
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -483,7 +493,7 @@ c
 c----------------------------------------------------------------------
 C> \brief Calculate the dlDF correlation functional
 C>
-C> Calculate the dlDF correlation functional [1].
+C> Calculate the dlDF exchange functional [1].
 C>
 C> ### References ###
 C>
@@ -561,8 +571,10 @@ c
       double precision at1, at2, at3, at4, at5, at6, at7, at8, at9
       double precision at, at10, at11, C1, C2, fL, fNL
       type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53
-      type(nwad_dble)::Gamma2, Gamma
-      type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+c     type(nwad_dble)::Gamma2, Gamma
+c     type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+      type(nwad_dble)::Gamma2
+      type(nwad_dble)::TauUEG, Wsig, W1, W2, W3, W4, W5, W6
       type(nwad_dble)::W7, W8, W9, W10, W11, Fsig
 c
 c     kinetic energy density   or  tau
@@ -651,11 +663,11 @@ c           Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_TT)
-            Gamma = sqrt(Gamma2)
-            if (gamma.lt.DTol) goto 10
+c           Gamma = sqrt(Gamma2)
             TauUEG=0.3d0*P32*rho53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig-One)/(Tsig+One)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig-One)/(Tsig+One)
+            Wsig =(TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -671,8 +683,9 @@ c    &              delrho(n,3,1)*delrho(n,3,1)
      &          + at4*W4 + at5*W5 + at6*W6 + at7*W7
      &          + at8*W8 + at9*W9 + at10*W10 + at11*W11)
 
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -734,8 +747,9 @@ c
              tauN = tau(n,T_A)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
-             Tsig =TauUEG/tauu
-             Wsig =(Tsig-One)/(Tsig+One)
+c            Tsig =TauUEG/tauu
+c            Wsig =(Tsig-One)/(Tsig+One)
+             Wsig = (TauUEG-tauu)/(TauUEG+tauu)
              W1=Wsig
              W2=Wsig*W1
              W3=Wsig*W2
@@ -757,11 +771,10 @@ c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_AA)
             Gamma2 = Four*Gamma2
-            Gamma = sqrt(Gamma2)
-            if (gamma.lt.DTol) goto 25
-
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma  = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -811,14 +824,13 @@ c
              rrho = 1.0d0/rhoo       ! reciprocal of rho
              rho13 = rho43*rrho
              rho53 = rhoo**F53
-
 c
-
              tauN = tau(n,T_B)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
-             Tsig =TauUEG/tauu
-             Wsig =(Tsig-One)/(Tsig+One)
+c            Tsig =TauUEG/tauu
+c            Wsig =(Tsig-One)/(Tsig+One)
+             Wsig =(TauUEG-tauu)/(TauUEG+tauu)
              W1=Wsig
              W2=Wsig*W1
              W3=Wsig*W2
@@ -840,10 +852,10 @@ c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             Gamma2 = rgamma(n,G_BB)
             Gamma2 = Four*Gamma2
-            Gamma = sqrt(Gamma2)
-            if (gamma.lt.DTol) goto 20
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed

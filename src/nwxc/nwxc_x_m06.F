@@ -140,8 +140,10 @@ c
       integer n
       double precision at, C1, C2, fL, fNL
       type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53
-      type(nwad_dble)::Gamma2, Gamma
-      type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+c     type(nwad_dble)::Gamma2, Gamma
+c     type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+      type(nwad_dble)::Gamma2
+      type(nwad_dble)::TauUEG, Wsig, W1, W2, W3, W4, W5, W6
       type(nwad_dble)::W7, W8, W9, W10, W11, Fsig
 c
       type(nwad_dble)::tauN,tauu
@@ -296,11 +298,11 @@ c
 c
              
             tauN = tau(n,T_T)
-            if(taun.lt.dtol) goto 10
             tauu=tauN 
             TauUEG=0.3d0*P32*rho53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig-One)/(Tsig+One)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig-One)/(Tsig+One)
+            Wsig =(TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -320,10 +322,10 @@ c           Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_TT)
-            Gamma = sqrt(Gamma2)
-            if(gamma.lt.dtol) goto 10
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -381,8 +383,9 @@ c
              tauN = tau(n,T_A)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
-             Tsig =TauUEG/tauu
-             Wsig =(Tsig-One)/(Tsig+One)
+c            Tsig =TauUEG/tauu
+c            Wsig =(Tsig-One)/(Tsig+One)
+             Wsig =(TauUEG-tauu)/(TauUEG+tauu)
              W1=Wsig
              W2=Wsig*W1
              W3=Wsig*W2
@@ -404,10 +407,10 @@ c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_AA)
             Gamma2 = Four*Gamma2
-            Gamma = sqrt(Gamma2)
-
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -461,8 +464,9 @@ c
              tauN = tau(n,T_B)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
-             Tsig =TauUEG/tauu
-             Wsig =(Tsig-One)/(Tsig+One)
+c            Tsig =TauUEG/tauu
+c            Wsig =(Tsig-One)/(Tsig+One)
+             Wsig = (TauUEG-tauu)/(TauUEG+tauu)
              W1=Wsig
              W2=Wsig*W1
              W3=Wsig*W2
@@ -484,9 +488,10 @@ c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             Gamma2 = rgamma(n,G_BB)
             Gamma2 = Four*Gamma2
-            Gamma  = sqrt(Gamma2)
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma  = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -632,8 +637,10 @@ c
       integer n
       double precision at, C1, C2, fL, fNL
       type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53
-      type(nwad_dble)::Gamma2, Gamma
-      type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+c     type(nwad_dble)::Gamma2, Gamma
+c     type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
+      type(nwad_dble)::Gamma2
+      type(nwad_dble)::TauUEG, Wsig, W1, W2, W3, W4, W5, W6
       type(nwad_dble)::W7, W8, W9, W10, W11, Fsig
 c
       type(nwad_dble)::tauN,tauu
@@ -768,15 +775,13 @@ c
             rrho = 1d0/rhoo       ! reciprocal of rho
             rho13 = rho43*rrho
             rho53 = rhoo**F53
-
 c
-             
             tauN = tau(n,T_T)
-            if(taun.lt.dtol) goto 10
             tauu=tauN 
             TauUEG=0.3d0*P32*rho53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig-One)/(Tsig+One)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig-One)/(Tsig+One)
+            Wsig =(TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -796,10 +801,10 @@ c           Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_TT)
-            Gamma = sqrt(Gamma2)
-            if(gamma.lt.dtol) goto 10
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -857,8 +862,9 @@ c
              tauN = tau(n,T_A)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
-             Tsig =TauUEG/tauu
-             Wsig =(Tsig-One)/(Tsig+One)
+c            Tsig =TauUEG/tauu
+c            Wsig =(Tsig-One)/(Tsig+One)
+             Wsig =(TauUEG-tauu)/(TauUEG+tauu)
              W1=Wsig
              W2=Wsig*W1
              W3=Wsig*W2
@@ -880,10 +886,10 @@ c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = rgamma(n,G_AA)
             Gamma2 = Four*Gamma2
-            Gamma = sqrt(Gamma2)
-
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed
@@ -937,8 +943,9 @@ c
              tauN = tau(n,T_B)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
-             Tsig =TauUEG/tauu
-             Wsig =(Tsig-One)/(Tsig+One)
+c            Tsig =TauUEG/tauu
+c            Wsig =(Tsig-One)/(Tsig+One)
+             Wsig =(TauUEG-tauu)/(TauUEG+tauu)
              W1=Wsig
              W2=Wsig*W1
              W3=Wsig*W2
@@ -960,9 +967,10 @@ c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             Gamma2 = rgamma(n,G_BB)
             Gamma2 = Four*Gamma2
-            Gamma = sqrt(Gamma2)
-            s      = Cs*Gamma/rho43
-            s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c           s      = Cs*Gamma/rho43
+c           s2     = s*s
+            s2     = Cs*Cs*Gamma2/(rho43*rho43)
             En     = C1*s2
             Ed     = One + C2*s2
             E      = En/Ed

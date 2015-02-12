@@ -17,6 +17,10 @@ C> \brief Evaluate the TPSS exchange functional
 C>
 C> Evaluate the TPSS meta-GGA exchange functional [1,2]. 
 C>
+C> Due to the form of the meta-GGAs we need to screen on the kinetic
+C> energy density to ensure that LDA will be obtained when the kinetic
+C> energy density goes to zero [3].
+C>
 C> ### References ###
 C>
 C> [1] J. Tao, J.P. Perdew, V.N. Staveroverov, G.E. Scuseria,
@@ -33,6 +37,13 @@ C> realistic nonempirical density functional",
 C> J. Chem. Phys. <b>120</b>, 6898-6911 (2004), DOI:
 C> <a href="http://dx.doi.org/10.1063/1.1665298">
 C> 10.1103/1.1665298</a>.
+C>
+C> [3] J. Gr&auml;fenstein, D. Izotov, D. Cremer,
+C>     "Avoiding singularity problems associated with meta-GGA exchange
+C>     and correlation functionals containing the kinetic energy
+C>     density", J. Chem. Phys. <b>127</b>, 214103 (2007), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2800011">
+C>     10.1063/1.2800011</a>.
 C>
 c   
 c$Id$
@@ -292,34 +303,38 @@ c    &           delrho(n,3)*delrho(n,3)
             gamma=rgamma(n)
             gamma=gamma*facttwo*facttwo
             tauN = tau(n)*facttwo
-            tauW=0.125d0*gamma*rrho
-            tauU=0.3d0*P32*rhoval**F53
+              tauW=0.125d0*gamma*rrho
+              tauU=0.3d0*P32*rhoval**F53
 c     
 c     Evaluate the Fx, i.e. mt(x) = Fx - 1 (LDA bit already there)
 c     
-            p=gamma/(rhoval**F83*P32*4.d0)
-            z=tauW/tauN
-            al=(tauN-tauW)/tauU
+              p=gamma/(rhoval**F83*P32*4.d0)
+              if (tauN.ge.tol_rho) then
+                z=tauW/tauN
+              else
+                z=0.0d0
+              endif
+              al=(tauN-tauW)/tauU
 c     al=dabs(al)
-            if(al.lt.0d0)  al=0d0
+              if(al.lt.0d0)  al=0d0
             
-            qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0)) +
-     +           F23*p
+              qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0)) +
+     +             F23*p
             
-            xb=(c*z**2.0d0)/( (1.0d0+z**2.0d0)**2.0d0 )
-            x1=(C1 + xb)*p
-            x2=C2*qtil*qtil
-            xc=C3*qtil
-            xd=(0.5d0*(.6d0*z)**2.0d0  + .5d0*p*p)**.5d0
-            x3=xc*xd
-            x4=C1*C1*p*p/kap
-            x5=2.d0*es*C1*(.6d0*z)**2.0d0
-            x6= e*mu*p*p*p
-            x7 = (1.d0+es*p)**(-2.d0)
-            
-            x=(x1+x2+x3 +x4 +x5+x6)*x7
+              xb=(c*z**2.0d0)/( (1.0d0+z**2.0d0)**2.0d0 )
+              x1=(C1 + xb)*p
+              x2=C2*qtil*qtil
+              xc=C3*qtil
+              xd=(0.5d0*(.6d0*z)**2.0d0  + .5d0*p*p)**.5d0
+              x3=xc*xd
+              x4=C1*C1*p*p/kap
+              x5=2.d0*es*C1*(.6d0*z)**2.0d0
+              x6= e*mu*p*p*p
+              x7 = (1.d0+es*p)**(-2.d0)
+              
+              x=(x1+x2+x3 +x4 +x5+x6)*x7
          
-            if (abs(x).lt.tol_rho) write(0,*) ' x for fx ',x
+              if (abs(x).lt.tol_rho) write(0,*) ' x for fx ',x
          
 c     functional derivatives FFFFFFFFFFFFFFFFFFFFFFFFFFFF
          
@@ -399,9 +414,9 @@ c           dxmanydt= dx1dt+dx2dt+dx3dt+dx5dt
 c           dxdt=x7*dxmanydt
 c     ttttttttttttttttttttttttttttttttttttttttttttttttttt
 
-            mt = kap - kap/(1.d0 + x/kap)
+              mt = kap - kap/(1.d0 + x/kap)
             
-            func(n)= func(n) + mt*rho43*wght*afact2
+              func(n)= func(n) + mt*rho43*wght*afact2
             
 c           dmtdn=dxdn/(1.d0+x/kap)**2
 c           derivn=mt*F43*rho13+rho43*dmtdn

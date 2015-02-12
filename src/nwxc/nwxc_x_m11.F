@@ -219,7 +219,8 @@ c     double precision PDUM
       double precision dgga1dg, dgga2dg, dgga3dg, dgga4dg
 c
       type(nwad_dble)::rho43, rho13, rhoo, rho53
-      type(nwad_dble)::Gamma2, Gamma
+c     type(nwad_dble)::Gamma2, Gamma
+      type(nwad_dble)::Gamma2
       type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
       type(nwad_dble)::W7, W8, W9, W10, W11
       logical UseLC
@@ -466,11 +467,11 @@ c
             rho53 = rhoo**F5o3
 c            
             tauN = tau(n,T_T)
-         if(taun.lt.dtol) goto 10
             tauu=tauN
             TAUUEG=F3O5*((F6*PI*PI)**F2O3)*RHO53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig - F1)/(Tsig + F1)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig - F1)/(Tsig + F1)
+            Wsig = (TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -499,12 +500,12 @@ c           Gamma2 =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))/F4
             Gamma2 = rgamma(n,G_TT)/F4
-            Gamma = sqrt(Gamma2)
-         if(gamma.lt.dtol) goto 10
-         
-         X = GAMMA/RHO43
-         S = X/(F48*PI*PI)**F1o3
-         s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c        
+c        X = GAMMA/RHO43
+c        S = X/(F48*PI*PI)**F1o3
+c        s2     = s*s
+         s2 = Gamma2/(rho43*rho43)/(F48*PI*PI)**F2o3
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
          fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
@@ -635,11 +636,11 @@ c
 c       
             tauN = tau(n,T_A)*F2
      
-         if(taun.lt.dtol) goto 25
             tauu=tauN
             TAUUEG=F3O5*((F6*PI*PI)**F2O3)*RHO53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig - F1)/(Tsig + F1)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig - F1)/(Tsig + F1)
+            Wsig =(TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -668,12 +669,12 @@ c           Gamma2 =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))
             Gamma2 = rgamma(n,G_AA)
-            Gamma = sqrt(Gamma2)
-         if(gamma.lt.dtol) goto 25
-         
-         X = GAMMA/RHO43
-         S = X/(F48*PI*PI)**F1o3
-         s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c        
+c        X = GAMMA/RHO43
+c        S = X/(F48*PI*PI)**F1o3
+c        s2     = s*s
+         s2 = Gamma2/(rho43*rho43)/(F48*PI*PI)**F2o3
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
          fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
@@ -793,11 +794,11 @@ c
              
             tauN = tau(n,T_B)*F2
      
-         if(taun.lt.dtol) goto 20
             tauu=tauN
             TAUUEG=F3O5*((F6*PI*PI)**F2O3)*RHO53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig - F1)/(Tsig + F1)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig - F1)/(Tsig + F1)
+            Wsig =(TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -826,12 +827,12 @@ c           Gamma2 =(delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2))
             Gamma2 = rgamma(n,G_BB)
-            Gamma = sqrt(Gamma2)
-         if(gamma.lt.dtol) goto 20
-         
-         X = GAMMA/RHO43
-         S = X/(F48*PI*PI)**F1o3
-         s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c        
+c        X = GAMMA/RHO43
+c        S = X/(F48*PI*PI)**F1o3
+c        s2     = s*s
+         s2 = Gamma2/(rho43*rho43)/(F48*PI*PI)**F2o3
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
          fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
@@ -1408,11 +1409,11 @@ c
             rho53 = rhoo**F5o3
 c            
             tauN = tau(n,T_T)
-         if(taun.lt.dtol) goto 10
             tauu=tauN
             TAUUEG=F3O5*((F6*PI*PI)**F2O3)*RHO53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig - F1)/(Tsig + F1)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig - F1)/(Tsig + F1)
+            Wsig =(TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -1441,12 +1442,12 @@ c           Gamma2 =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))/F4
             Gamma2 = rgamma(n,G_TT)/F4
-            Gamma = sqrt(Gamma2)
-         if(gamma.lt.dtol) goto 10
-         
-         X = GAMMA/RHO43
-         S = X/(F48*PI*PI)**F1o3
-         s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c        
+c        X = GAMMA/RHO43
+c        S = X/(F48*PI*PI)**F1o3
+c        s2     = s*s
+         s2 = Gamma2/(rho43*rho43)/(F48*PI*PI)**F2o3
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
          fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
@@ -1577,11 +1578,11 @@ c
 c       
             tauN = tau(n,T_A)*F2
      
-         if(taun.lt.dtol) goto 25
             tauu=tauN
             TAUUEG=F3O5*((F6*PI*PI)**F2O3)*RHO53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig - F1)/(Tsig + F1)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig - F1)/(Tsig + F1)
+            Wsig = (TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -1610,12 +1611,12 @@ c           Gamma2 =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))
             Gamma2 = rgamma(n,G_AA)
-            Gamma = sqrt(Gamma2)
-         if(gamma.lt.dtol) goto 25
-         
-         X = GAMMA/RHO43
-         S = X/(F48*PI*PI)**F1o3
-         s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c        
+c        X = GAMMA/RHO43
+c        S = X/(F48*PI*PI)**F1o3
+c        s2     = s*s
+         s2 = Gamma2/(rho43*rho43)/(F48*PI*PI)**F2o3
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
          fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
@@ -1735,11 +1736,11 @@ c
              
             tauN = tau(n,T_B)*F2
      
-         if(taun.lt.dtol) goto 20
             tauu=tauN
             TAUUEG=F3O5*((F6*PI*PI)**F2O3)*RHO53
-            Tsig =TauUEG/tauu
-            Wsig =(Tsig - F1)/(Tsig + F1)
+c           Tsig =TauUEG/tauu
+c           Wsig =(Tsig - F1)/(Tsig + F1)
+            Wsig = (TauUEG-tauu)/(TauUEG+tauu)
             W1=Wsig 
             W2=Wsig*W1
             W3=Wsig*W2
@@ -1768,12 +1769,12 @@ c           Gamma2 =(delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2))
             Gamma2 = rgamma(n,G_BB)
-            Gamma = sqrt(Gamma2)
-         if(gamma.lt.dtol) goto 20
-         
-         X = GAMMA/RHO43
-         S = X/(F48*PI*PI)**F1o3
-         s2     = s*s
+c           Gamma = sqrt(Gamma2)
+c        
+c        X = GAMMA/RHO43
+c        S = X/(F48*PI*PI)**F1o3
+c        s2     = s*s
+         s2 = Gamma2/(rho43*rho43)/(F48*PI*PI)**F2o3
          Deno = (F1 + Mu*s2/kapa)
          fx1=F1+kapa*(F1-F1/Deno)
          fx2=F1+kapas*(F1-Exp(-Mus*s2/kapas))
