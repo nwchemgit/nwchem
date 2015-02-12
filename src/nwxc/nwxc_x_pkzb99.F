@@ -18,6 +18,8 @@ C>
 C> The meta-GGA exchange functional by Perdew, Kurth, Zupan and Blaha
 C> that provides a self-interaction free energy [1,2].
 C>
+C> ### References ###
+C>
 C> [1] J.P. Perdew, S. Kurth, A. Zupan, P. Blaha,
 C>     <i>"Accurate density functional with correct formal properties:
 C>     A Step Beyond the Generalized Gradient Approximation"</i>,
@@ -366,7 +368,6 @@ c            gam12 = 2d0*dsqrt(gamma)
 c            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 20
 
             tauN = 2.0d0*tau(n,T_B)
-
             
 c
 c     Evaluate the GC part of F(x), i.e. mt(x) = Fx - 1
