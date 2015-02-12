@@ -2194,6 +2194,15 @@ ifeq ($(BLAS_LIB),)
       CORE_LIBS +=  -lblas 
 endif
 
+ifndef BLASOPT
+errordgemm:
+	@echo "You did not define BLASOPT.  Performance may suffer greatly."
+	@echo "Please consider using ATLAS, GotoBLAS2, OpenBLAS, Intel MKL,"
+	@echo "IBM ESSL, AMD ACML, etc. to improve performance."
+	@echo "If you insist on not using a fast implementation of BLAS/LAPACK,"
+	@echo "define BLASOPT=\"-llapack -lblas\" and the internal Netlib will be used."
+endif
+
 ifdef USE_NOIO
  DEFINES += -DNOIO
 endif
