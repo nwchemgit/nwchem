@@ -1,5 +1,5 @@
 cedo#define NBACC 1
-cedo#define NBGET 1
+#define NBGET 1
       subroutine new_giao_2e(geom, !  in: geometry handle
      &                      basis, !  in: basis handle
      &                        nbf, !  in: nr. of basis functions
@@ -780,7 +780,7 @@ c     smax  = schwarz_max()
 c     call int_acc_std()
 c
       nproc = ga_nnodes()
-      task_size = nshell*(nshell+1)/2
+      task_size = (nshell*(nshell+1)/2)/8
       task_size = max(1,task_size/nproc)
       ijfirst=.true.
       jifirst=.true.
