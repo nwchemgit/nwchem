@@ -798,7 +798,8 @@ c
       mone = cmplx(-1.0d0,0.0d0)
 c
       trust = trustmin
-      acc = 0.01d0*tol
+cold      acc = 0.01d0*tol
+      acc = 0.0001d0*tol
       if (maxsub .gt. maxmaxsub) maxsub = maxmaxsub
       odebug = util_print('debug lsolve', print_never) .and. 
      $     ga_nodeid().eq.0
