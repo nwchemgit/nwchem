@@ -299,6 +299,7 @@ c     >    (.not.stalled          ))) then
          stalled_count     = 0
 
       end if
+      call D3db_r_abs1(1,dbl_mb(rho_out(1)))
       call psi_set_density(1,dbl_mb(rho_out(1)))
       
           
