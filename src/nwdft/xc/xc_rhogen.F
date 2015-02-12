@@ -10,6 +10,11 @@ C>
 C> \file xc_rhogen.F
 C> Evaluate density and derivatives
 C>
+C> @}
+C>
+C> \ingroup nwdft_xc
+C> @{
+C>
 C> \brief Evaluate the density and their derivatives on a grid
 C>
 C> 
@@ -40,7 +45,8 @@ C>
                    !<   with respect to electron position)
                    !< - what=2: calculate derivative with respect to
                    !<   nuclear coordinates
-       logical dolap        ! true if lap is required [in]
+       logical dolap       !< [Input] .true. if the Laplacian of the 
+                           !< density is required
 
 c what=0 dens
 c what=1 pert
@@ -114,7 +120,7 @@ c     Evaluate the charge density and its gradient at each of the
 c     sampling points 
 c
       doffd=(what.eq.2.and.grad).or.(what.eq.0.and.kske).or.
-     & (what.eq.1.and.kske).or.(what.eq.0.and.dolap)
+     &      (what.eq.1.and.kske).or.(what.eq.0.and.dolap)
       
       npol = (ipol*(ipol+1))/2
 c     to keep compilers quiet
@@ -122,9 +128,9 @@ c     to keep compilers quiet
       jatcur=1
 c
       if(what.eq.0) then
-         call dcopy(nq*npol,0.D0,0,rho,1)
-         if (grad) call dcopy(3*nq*ipol,0.D0,0,delrho,1)
-         if (kske) call dcopy(nq*ipol,0.D0,0,ttau,1)  ! total
+         call dfill(nq*npol,0.D0,rho,1)
+         if (grad) call dfill(3*nq*ipol,0.D0,delrho,1)
+         if (kske) call dfill(nq*ipol,0.D0,ttau,1)  ! total
          if (dolap) call dfill(nq*ipol2,0.D0,lap,1)  ! total
 c
 c     repl stuff
@@ -176,7 +182,7 @@ c
          call xc_getdmblock(int_mb(i_nz),nonz0,natoms,cetobfr,
      G        g_dens(1),
      A        Pmat,nbhandl)
-         endif
+      endif
 
       do 230 iat = 1, natoms
          inizia = iniz(iat)
@@ -194,28 +200,28 @@ c        screening parameters
 c
          FUNC_MAXI = rchi_atom(iat)
          if(grad)
-     .   FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
+     .     FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
          FUNC_MAXJ = max(FUNC_MAX,DELFUNC_MAX)
          if(what.lt.2) then
             if (ipol.gt.1)then
-            P_MAXJ_A = dabsmax(natoms,rdens_atom(1,iat,1))
-            P_MAXJ_B = dabsmax(natoms,rdens_atom(1,iat,2))
-            P_MAXJ = MAX(P_MAXJ_A, P_MAXJ_B)
-         else
-            P_MAXJ=0d0
-            do jat=1,iat
-               if(iniz(jat).ne.0) 
-     .              P_MAXJ=max(P_MAXJ,rdens_atom(jat,iat,1))
-            enddo
+              P_MAXJ_A = dabsmax(natoms,rdens_atom(1,iat,1))
+              P_MAXJ_B = dabsmax(natoms,rdens_atom(1,iat,2))
+              P_MAXJ = MAX(P_MAXJ_A, P_MAXJ_B)
+            else
+              P_MAXJ=0d0
+              do jat=1,iat
+                 if(iniz(jat).ne.0) 
+     .                P_MAXJ=max(P_MAXJ,rdens_atom(jat,iat,1))
+              enddo
+            endif
+            if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXJ.lt.tol_rho) goto 225
          endif
-         if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXJ.lt.tol_rho) goto 225
-      endif
          do 220 jat = 1, iat
             inizja = iniz(jat)
             if (inizja.eq.0)goto 220
             if(what.eq.2) then
-               jatcur = curatoms(jat)
-               if (jatcur.eq.0.and.iatcur.eq.0) goto 220
+              jatcur = curatoms(jat)
+              if (jatcur.eq.0.and.iatcur.eq.0) goto 220
             endif
             call starttimer(monitor_rscreen0)
             ifinja = ifin(jat)
@@ -228,183 +234,275 @@ c           screening parameters
 c
             FUNC_MAXJ=rchi_atom(jat)
             if(grad)
-     .      FUNC_MAXJ = max(FUNC_MAXJ,rdelchi_atom(jat))
+     .        FUNC_MAXJ = max(FUNC_MAXJ,rdelchi_atom(jat))
             doitt=.true.
             if(what.lt.2) then
-               P_MAXIJ = rdens_atom(iat,jat,1)
-               if(ipol.eq.2) P_MAXIJ = max(P_MAXIJ,
-     &              rdens_atom(iat,jat,2))
-               doitt=(wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.ge.tol_rho)
+              P_MAXIJ = rdens_atom(iat,jat,1)
+              if(ipol.eq.2) P_MAXIJ = max(P_MAXIJ,
+     &             rdens_atom(iat,jat,2))
+              doitt=(wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.ge.tol_rho)
             endif
             call endtimer(monitor_rscreen0)
             if (doitt) then
-            do ii = 1, ipol
+              do ii = 1, ipol
 c
-c              screening parameters
+c               screening parameters
 c
-            if((what.gt.1).or.(rdens_atom(iat,jat,ii)*
-     R              wmax*FUNC_MAXI*FUNC_MAXJ.ge.tol_rho)) then
+                if((what.gt.1).or.(rdens_atom(iat,jat,ii)*
+     R               wmax*FUNC_MAXI*FUNC_MAXJ.ge.tol_rho)) then
 c
-c           Loop over perturbations
+c                  Loop over perturbations
 c
-            do 215 ipert = 1,npert
-               sizeblk=nbfia*nbfja
-               call updist(monitor_size_ga_get, sizeblk)
+                   do 215 ipert = 1,npert
+                     sizeblk=nbfia*nbfja
+                     call updist(monitor_size_ga_get, sizeblk)
 c
-               if(dftnbget) then
-                  call starttimer(monitor_wait3)
-                  call ga_nbwait(nbhandl)
-                  call endtimer(monitor_wait3)
-                  call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, 
-     I                 ifirst, jfirst, ibf(inizia), ibf(inizja))
-                  nonz0=nonz0+1
-                  if((npert*ipol).gt.1) then
-                     gindx=ipert+(ii-1)*npert+1
-                    
-                     if(gindx.gt.npert*ipol)gindx=mod(gindx,npert*ipol)
-                  else
-                     gindx=1
-                  endif
-                  if(nonz0.le.nonzero)
-     C                 call xc_getdmblock(int_mb(i_nz),nonz0,natoms,
-     C                 cetobfr,g_dens(gindx),
-     A                    Pmat,nbhandl)
-               if (wmax*FUNC_MAXI*FUNC_MAXJ*
-     .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 215
-               else
-                  call starttimer(monitor_gaget)
-                  if(truerepdm) then
-                  call xc_dmget(dbl_mb(k_repdm(ipert+(ii-1)*npert)), 
-     &                    nbf_ld,
-     %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
-                  else
-                  call ga_get(g_dens(ipert+(ii-1)*npert), 
-     %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
-                  endif
-                  call endtimer(monitor_gaget)
-               if (wmax*FUNC_MAXI*FUNC_MAXJ*
-     .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 215
-               call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, ifirst, 
-     &                      jfirst, ibf(inizia), ibf(inizja))
-               endif
-
-c
-               call starttimer(monitor_rhocomp)
-               if(iat.ne.jat) call dscal(nnia*nnja,2d0,F,1)
-c
-c              Compute Xiat(r)*Xjat(r)*Diat,jat
-c
-               call dgemm('n','n',nq,nnja,nnia,1d0,
-     A              chi(1,inizia),nq,F,nnia,0d0,ff,nq)
-               if(what.lt.2) then
-                  jj=i0+ii
-                  if(what.eq.1) jj=ii
-                  do mu=inizja,ifinja
-                     do n=1,nq
-                        rho(n,jj,ipert) = rho(n,jj,ipert) + 
-     P                       chi(n,mu)*ff(n,mu-inizja+1)
-                     enddo
-                  enddo
-               endif
-               if(doffd) then
-                  call dgemm('n','n',nq*3,nnja,nnia,1d0,
-     A                 delchi(1,1,inizia),nq*3,F,nnia,0d0,ffd,nq*3)
-c
-c              build tau for meta GGA
-c
-                  if(kske) then
-                     do mu=inizja,ifinja
-                        do n=1,nq
-                           ttau(n,ii,ipert) = ttau(n,ii,ipert)+0.5d0*(
-     &                       delchi(n,1,mu)*ffd(n,1,mu-inizja+1)+
-     &                       delchi(n,2,mu)*ffd(n,2,mu-inizja+1)+
-     &                       delchi(n,3,mu)*ffd(n,3,mu-inizja+1))
-                        enddo
-                     enddo
-                  endif
-
-                  if (dolap) then
-                     do mu=inizja,ifinja
-                        do n=1,nq
-                           ! total
-                           lap(n,ii,ipert) = lap(n,ii,ipert) + 2d0*
-     &                          (delchi(n,1,mu)*ffd(n,1,mu-inizja+1) +
-     &                          delchi(n,2,mu)*ffd(n,2,mu-inizja+1) +
-     &                          delchi(n,3,mu)*ffd(n,3,mu-inizja+1) +
-     &                          heschi(n,1,mu)*ff(n,mu-inizja+1) +
-     &                          heschi(n,4,mu)*ff(n,mu-inizja+1) +
-     &                          heschi(n,6,mu)*ff(n,mu-inizja+1))
-                        enddo
-                     enddo
-                  endif
-               endif
-c
-               if((what.eq.2.and.jatcur.ne.0).or.
-c
-c     We need the "grad" code at zero order in the nuclear deriv case,
-c     but we can skip this part if iat is not active
-c     
-     O              (what.ne.2.and.grad)) then
-                  if(what.eq.0.or.what.eq.1) then
-                     call xc_dchiff(nq,inizja,ifinja,
-     P                    delrho(1,1,ii,ipert),delchi,
-     F                    ff)
-                  elseif(what.eq.2) then
-                     call xc_dchiffp(nq,ipol2,inizja,ifinja,
-     P                    rho,delchi,ff,
-     M                    ii,jat)
-                     if (grad) then
-c     
-c     Compute nuclear gradient of delrho
-c     
-                        call xc_drhonuc(nq,ipol,inizja,ifinja,
-     D                       delrho,heschi,delchi,ff,ffd,
-     I                       ii,jat)
+                     if(dftnbget) then
+                       call starttimer(monitor_wait3)
+                       call ga_nbwait(nbhandl)
+                       call endtimer(monitor_wait3)
+                       call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, 
+     I                      ifirst, jfirst, ibf(inizia), ibf(inizja))
+                       nonz0=nonz0+1
+                       if((npert*ipol).gt.1) then
+                         gindx=ipert+(ii-1)*npert+1
+                      
+                         if(gindx.gt.npert*ipol)
+     +                      gindx=mod(gindx,npert*ipol)
+                       else
+                         gindx=1
+                       endif
+                       if(nonz0.le.nonzero)
+     C                   call xc_getdmblock(int_mb(i_nz),nonz0,natoms,
+     C                   cetobfr,g_dens(gindx),
+     A                      Pmat,nbhandl)
+                       if (wmax*FUNC_MAXI*FUNC_MAXJ*
+     .                     dabsmax(sizeblk,Pmat).lt.tol_rho)goto 215
+                     else
+                       call starttimer(monitor_gaget)
+                       if(truerepdm) then
+                         call xc_dmget(
+     +                      dbl_mb(k_repdm(ipert+(ii-1)*npert)),nbf_ld,
+     %                      ifirst, ilast, jfirst, jlast, Pmat,nbfia)
+                       else
+                         call ga_get(g_dens(ipert+(ii-1)*npert), 
+     %                        ifirst, ilast, jfirst, jlast, Pmat,nbfia)
+                       endif
+                       call endtimer(monitor_gaget)
+                       if (wmax*FUNC_MAXI*FUNC_MAXJ*
+     .                     dabsmax(sizeblk,Pmat).lt.tol_rho)goto 215
+                       call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja,
+     +                      ifirst, jfirst, ibf(inizia), ibf(inizja))
                      endif
-                  endif
-               endif
 c
-               if((what.eq.2.and.iatcur.ne.0).or.
-     O              (what.ne.2.and.grad)) then
+                     call starttimer(monitor_rhocomp)
+                     if(iat.ne.jat) call dscal(nnia*nnja,2d0,F,1)
 c
-c                 Compute delXiat(r)*Xjat(r)*Diat,jat
+c                    Compute Xiat(r)*Xjat(r)*Diat,jat
+c
+                     call dgemm('n','n',nq,nnja,nnia,1d0,
+     A                    chi(1,inizia),nq,F,nnia,0d0,ff,nq)
+                     if(what.lt.2) then
+                        jj=i0+ii
+                        if(what.eq.1) jj=ii
+                        do mu=inizja,ifinja
+                           do n=1,nq
+                              rho(n,jj,ipert) = rho(n,jj,ipert) + 
+     P                             chi(n,mu)*ff(n,mu-inizja+1)
+                           enddo
+                        enddo
+                     endif
+                     if(doffd) then
+                       call dgemm('n','n',nq*3,nnja,nnia,1d0,
+     A                      delchi(1,1,inizia),nq*3,F,nnia,0d0,ffd,nq*3)
+c
+c                      build tau for meta GGA
+c
+                       if(kske) then
+                         do mu=inizja,ifinja
+                           do n=1,nq
+                             ttau(n,ii,ipert) = ttau(n,ii,ipert)+0.5d0*(
+     &                         delchi(n,1,mu)*ffd(n,1,mu-inizja+1)+
+     &                         delchi(n,2,mu)*ffd(n,2,mu-inizja+1)+
+     &                         delchi(n,3,mu)*ffd(n,3,mu-inizja+1))
+                           enddo
+                         enddo
+                       endif
+
+                       if (dolap) then
+                         do mu=inizja,ifinja
+                           do n=1,nq
+                              ! total
+                              lap(n,ii,ipert) = lap(n,ii,ipert) + 2d0*
+     &                            (delchi(n,1,mu)*ffd(n,1,mu-inizja+1) +
+     &                             delchi(n,2,mu)*ffd(n,2,mu-inizja+1) +
+     &                             delchi(n,3,mu)*ffd(n,3,mu-inizja+1) +
+     &                             heschi(n,1,mu)*ff(n,mu-inizja+1) +
+     &                             heschi(n,4,mu)*ff(n,mu-inizja+1) +
+     &                             heschi(n,6,mu)*ff(n,mu-inizja+1))
+                           enddo
+                         enddo
+                       endif
+                     endif
+c
+                     if((what.eq.2.and.jatcur.ne.0).or.
+c
+c                      We need the "grad" code at zero order in the
+c                      nuclear deriv case, but we can skip this part if
+c                      iat is not active
+c     
+     O                  (what.ne.2.and.grad)) then
+                       if(what.eq.0.or.what.eq.1) then
+                         call xc_dchiff(nq,inizja,ifinja,
+     P                        delrho(1,1,ii,ipert),delchi,
+     F                        ff)
+                       elseif(what.eq.2) then
+                         call xc_dchiffp(nq,ipol2,inizja,ifinja,
+     P                        rho,delchi,ff,
+     M                        ii,jat)
+                         if (grad) then
+c     
+c                          Compute nuclear gradient of delrho
+c     
+                           call xc_drhonuc(nq,ipol,inizja,ifinja,
+     D                          delrho,heschi,delchi,ff,ffd,
+     I                          ii,jat)
+                         endif
+                       endif
+                     endif
+c
+                     if((what.eq.2.and.iatcur.ne.0).or.
+     O                  (what.ne.2.and.grad)) then
+c
+c                      Compute delXiat(r)*Xjat(r)*Diat,jat
 c                  
-               call dgemm('n','t',nq,nnia,nnja,1d0,
-     A              chi(1,inizja),nq,F,nnia,0d0,ff,nq)
-                  if(what.lt.2) then
-                     call xc_dchiff(nq,inizia,ifinia,
-     P                    delrho(1,1,ii,ipert),delchi,
-     F                    ff)
-                  elseif(what.eq.2) then
-                     call xc_dchiffp(nq,ipol2,inizia,ifinia,
-     P                    rho,delchi,ff,
-     M                    ii,iat)
-                     if(grad) then
-                        call dgemm('n','t',nq*3,nnia,nnja,1d0,
-     A                    delchi(1,1,inizja),nq*3,F,nnia,0d0,ffd,nq*3)
+                       call dgemm('n','t',nq,nnia,nnja,1d0,
+     A                      chi(1,inizja),nq,F,nnia,0d0,ff,nq)
+                       if(what.lt.2) then
+                         call xc_dchiff(nq,inizia,ifinia,
+     P                        delrho(1,1,ii,ipert),delchi,
+     F                        ff)
+                       elseif(what.eq.2) then
+                         call xc_dchiffp(nq,ipol2,inizia,ifinia,
+     P                        rho,delchi,ff,
+     M                        ii,iat)
+                         if(grad) then
+                           call dgemm('n','t',nq*3,nnia,nnja,1d0,
+     A                          delchi(1,1,inizja),nq*3,F,nnia,0d0,ffd,
+     +                          nq*3)
 c     
-c     Compute nuclear gradient of delrho
+c                          Compute nuclear gradient of delrho
 c     
-                        call xc_drhonuc(nq,ipol,inizia,ifinia,
-     D                       delrho,heschi,delchi,ff,ffd,
-     I                       ii,iat)
+                           call xc_drhonuc(nq,ipol,inizia,ifinia,
+     D                          delrho,heschi,delchi,ff,ffd,
+     I                          ii,iat)
                         
+                         endif
+                       endif
                      endif
-                  endif
+                     call endtimer(monitor_rhocomp)
+  215              continue
+                endif
+              enddo
             endif
-               call endtimer(monitor_rhocomp)
-  215       continue
-         endif
-         enddo
-         endif
   220    continue
   225    continue
   230 continue
-
+c
+c     Enforce results that are compatible with the laws of physics.
+c     I.e. Rho >= 0, Tau >= 0, Rho=0 ==> Grad(Rho)=0, and
+c     Tau=0 ==> Grad(Rho)=0. The reason for doing this is that density
+c     functionals have been designed to be valid for physically 
+c     sensible data points. They may fail spectacularly for data points
+c     outside the physically sensible range. Alternatively to screening
+c     the data here it might be done in the functionals themselves. 
+c     However, this requires a great deal of care to make sure that the
+c     right limits are taken.
+c
+c     Rho should be non-negative. Numerical errors in the construction
+c     may leave small negative values that are formally incorrect.
+c     Hence filter negative values out.
+c
+c     Also note that rho.eq.0 implies delrho=0, so this is enforced as
+c     well. Proof: Rho is a non-negative quantity. Hence if rho.eq.0
+c     then rho is at a minimum. A minimum being an extremum it follows
+c     that its gradient must be zero. QED.
+c
+      if (what.eq.0) then
+        do ii = 1, ipol
+          jj = i0 + ii
+          do n = 1, nq
+            if (rho(n,jj,1).le.0.0d0) then
+              rho(n,jj,1) = 0.0d0
+              if (grad) then
+                delrho(n,1,ii,1) = 0.0d0
+                delrho(n,2,ii,1) = 0.0d0
+                delrho(n,3,ii,1) = 0.0d0
+              endif
+            endif
+          enddo
+        enddo
+      else if (what.eq.1) then
+        do ii = 1, ipol
+          jj = ii
+          do n = 1, nq
+            if (rho(n,jj,npert).le.0.0d0) then
+              rho(n,jj,npert) = 0.0d0
+              if (grad) then
+                delrho(n,1,ii,npert) = 0.0d0
+                delrho(n,2,ii,npert) = 0.0d0
+                delrho(n,3,ii,npert) = 0.0d0
+              endif
+            endif
+          enddo
+        enddo
+      endif
+c
+c     Tau should be non-negative. Numerical errors in the construction
+c     may leave small negative values that can cause trouble in the
+c     density functionals. Hence filter negative values out.
+c
+c     Also note that tau.eq.0 implies delrho=0, so this is enforced as
+c     well. Proof: tau =1/2 \sum_i (\nabla\phi_i)\cdot(\nabla\phi_i)
+c     hence tau.eq.0 iff (\nabla\phi_i)=0 for all i. Delrho is 
+c     defined as delrho = \sum_i\nabla\phi_i^2 hence if the gradient
+c     of the orbital is zero for all orbitals i then delrho must be 
+c     zero as well. QED.
+c
+      if (kske) then
+        if (what.eq.0) then
+          do ii = 1, ipol
+            do n = 1, nq
+              if (ttau(n,ii,1).le.0.0d0) then
+                ttau(n,ii,1) = 0.0d0
+                if (grad) then
+                  delrho(n,1,ii,1) = 0.0d0
+                  delrho(n,2,ii,1) = 0.0d0
+                  delrho(n,3,ii,1) = 0.0d0
+                endif
+              endif
+            enddo
+          enddo
+        else if (what.eq.1) then
+          do ii = 1, ipol
+            do n = 1, nq
+              if (ttau(n,ii,npert+1).le.0.0d0) then
+                ttau(n,ii,npert+1) = 0.0d0
+                if (grad) then
+                  delrho(n,1,ii,npert+1) = 0.0d0
+                  delrho(n,2,ii,npert+1) = 0.0d0
+                  delrho(n,3,ii,npert+1) = 0.0d0
+                endif
+              endif
+            enddo
+          enddo
+        endif
+      endif
+c
       call starttimer(monitor_rhocomp2)
       if(what.eq.0) then
 c
-c     Only construct total densities for regular case
+c       Only construct total densities for regular case
 c
          if (ipol.eq.2)then
             call dcopy(nq, rho(1,2,1), 1, rho(1,1,1), 1)
