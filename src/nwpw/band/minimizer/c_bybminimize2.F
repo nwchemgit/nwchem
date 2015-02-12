@@ -253,6 +253,7 @@ c
          stalled_count     = 0
 
       end if
+      call C3dB_r_abs1(1,dbl_mb(rho_out(1)))
       call cpsi_set_density(1,dbl_mb(rho_out(1)))
       
           
