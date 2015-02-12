@@ -2893,6 +2893,52 @@ c      call Parallel3d_np_i(np)
 
 *     ***********************************
 *     *                                 *
+*     *          C3dB_r_abs1             *
+*     *                                 *
+*     ***********************************
+      subroutine C3dB_r_abs1(nb,A)
+      implicit none
+      integer nb
+      real*8 A(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         A(i) = dabs(A(i))
+      end do
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_r_thresh          *
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_r_thresh(nb,eta,A)
+      implicit none
+      integer nb
+      real*8 eta
+      real*8 A(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         if (dabs(A(i)).lt.eta) A(i) = 0.0d0
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
 *     *          C3dB_rr_Minus          *
 *     *                                 *
 *     ***********************************
