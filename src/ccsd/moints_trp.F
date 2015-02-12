@@ -540,8 +540,35 @@ cstaggering to avoid congestion in ga-acc
 ! h2(vj) += cb(i) * ssv(vj,i)
 ! where we fuse vj=j*vdim+v
 ! and set cb(:) = c(:,b)
+#if USE_BLAS_NOT_LOOPS
 ! TODO: actually use DGEMV here
-           do i=ilo,ihi
+          do i=ilo,ihi
+            do j=jlo,jhi
+              do v=1,nvir
+                h2(v,j) = h2(v,j) + scale*c(i,b)*ssv(v,j,i)
+              enddo
+            enddo
+          enddo
+#elif USE_NEW_LOOPS
+          if (abs(scale-1.0d0).lt.(1.e-13)) then
+            do i=ilo,ihi
+              do j=jlo,jhi
+                do v=1,nvir
+                  h2(v,j) = h2(v,j) + c(i,b)*ssv(v,j,i)
+                enddo
+              enddo
+            enddo
+          else ! scale .ne. 1.0
+            do i=ilo,ihi
+              do j=jlo,jhi
+                do v=1,nvir
+                  h2(v,j) = h2(v,j) + scale*c(i,b)*ssv(v,j,i)
+                enddo
+              enddo
+            enddo
+          endif
+#else
+          do i=ilo,ihi
             cc = c(i,b)
             do j=jlo,jhi
               do v=1,nvir
@@ -549,6 +576,7 @@ cstaggering to avoid congestion in ga-acc
               enddo
             enddo
           enddo
+#endif
 #ifndef NOCOMMS
           ab = (a-olo)*nocc+b-ostart+1
           call ga_acc(g_exch,jvlo,jvhi,ab,ab,h2,nnj,1.d0)
