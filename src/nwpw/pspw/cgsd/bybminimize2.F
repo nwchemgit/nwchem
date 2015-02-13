@@ -36,8 +36,8 @@ c
        
       integer rho_in(2),rho_out(2),rho_junk(2)
       real*8  E0,dE0,deltae_old,Ein,deltae_history(10)
-      real*8  ks_deltae,deltav,dV,deltav_old,diis_error
-      integer nx,ny,nz,stalled_count,sd_count
+      real*8  ks_deltae,deltav,dV,deltav_old,diis_error,tcharge
+      integer nx,ny,nz,stalled_count,sd_count,ms,ne(2)
 
 
       real*8     tole,tolc
@@ -61,6 +61,7 @@ c
       logical control_print,control_fractional
       integer  control_ispin,control_scf_algorithm,control_ks_algorithm
       integer  control_it_in,control_it_out,psi_ne,control_version
+      integer  psi_ispin
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   rho_error,psi_1energy,psi_error
       real*8   dng_1ehartree,lattice_omega
@@ -76,6 +77,7 @@ c
       external control_ispin,control_scf_algorithm,control_ks_algorithm
       external control_it_in,control_it_out,psi_ne,control_version
       external control_tole,control_tolc,control_ks_alpha
+      external psi_ispin
       external rho_error,psi_1energy,psi_error
       external dng_1ehartree,lattice_omega
       external psi_1ke
@@ -131,7 +133,9 @@ c
       tole  = control_tole()
       tolc  = control_tolc()
       precondition = control_precondition()
-      ispin = control_ispin()
+      ispin = psi_ispin()
+      ne(1) = psi_ne(1)
+      ne(2) = psi_ne(2)
       deltav_old = 10.0d0
       deltav     = 0.0d0
 
@@ -299,7 +303,18 @@ c     >    (.not.stalled          ))) then
          stalled_count     = 0
 
       end if
-      call D3db_r_abs1(1,dbl_mb(rho_out(1)))
+
+      !*** make sure charge is positive and normalized properly ***
+      do ms=1,ispin
+         call D3dB_r_abs1(1,dbl_mb(rho_out(1)+(ms-1)*n2ft3d))
+         call D3dB_r_dsum(1,dbl_mb(rho_out(1)+(ms-1)*n2ft3d),tcharge)
+         tcharge = tcharge*dV
+         if (dabs(tcharge-dble(ne(ms))).gt.1.0d-10) 
+     >      call D3dB_r_SMul1(1,(dble(ne(ms))/tcharge),
+     >                        dbl_mb(rho_out(1)+(ms-1)*n2ft3d))
+      end do
+
+*     *** set the charge ****
       call psi_set_density(1,dbl_mb(rho_out(1)))
       
           
