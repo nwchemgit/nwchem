@@ -99,7 +99,8 @@ c     double precision Cmat2(nq,*)  !< [Output] The 2nd derivative wrt rgamma
 c                                   !< and possibly rho
 #endif
 c
-      type(nwad_dble)::Etmp,rho13,rho43,gamma,x,x2,g,ums,vms
+c     type(nwad_dble)::Etmp,rho13,rho43,gamma,x,x2,g,ums,vms
+      type(nwad_dble)::Etmp,rho13,rho43,gamma,x2,g,ums,vms
       type(nwad_dble)::gdenom,hdenom
       double precision Atmp, Ctmp
       double precision A2tmp, C2tmp, C3tmp
@@ -185,14 +186,15 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_TT)
-            if (sqrt(gamma).gt.tol_rho)then
-               gamma = 0.25d0 * gamma
-               x = sqrt(gamma) / rho43
-               x2 = x*x
-            else
-               x = 0d0
-               x2 = 0d0
-            endif
+c           if (sqrt(gamma).gt.tol_rho)then
+c              gamma = 0.25d0 * gamma
+c              x = sqrt(gamma) / rho43
+c              x2 = x*x
+               x2 = gamma/(4.0d0*rho43*rho43)
+c           else
+c              x = 0d0
+c              x2 = 0d0
+c           endif
 c
             gdenom = 1d0 + rC*x2 + rD*x2*x2
             hdenom = 1d0 + rE*x2
@@ -284,13 +286,14 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_AA)
-            if (sqrt(gamma).gt.tol_rho)then
-               x = sqrt(gamma) / rho43
-               x2 = x*x
-            else
-               x = 0d0
-               x2 = 0d0
-            endif
+c           if (sqrt(gamma).gt.tol_rho)then
+c              x = sqrt(gamma) / rho43
+c              x2 = x*x
+               x2 = gamma/(rho43*rho43)
+c           else
+c              x = 0d0
+c              x2 = 0d0
+c           endif
 c
             gdenom = 1d0 + rC*x2 + rD*x2*x2
             hdenom = 1d0 + rE*x2
@@ -377,13 +380,14 @@ c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             gamma = rgamma(n,G_BB)
-            if (sqrt(gamma).gt.tol_rho)then
-               x = sqrt(gamma) / rho43
-               x2 = x*x
-            else
-               x = 0d0
-               x2 = 0d0
-            endif
+c           if (sqrt(gamma).gt.tol_rho)then
+c              x = sqrt(gamma) / rho43
+c              x2 = x*x
+               x2 = gamma/(rho43*rho43)
+c           else
+c              x = 0d0
+c              x2 = 0d0
+c           endif
 c
             gdenom = 1d0 + rC*x2 + rD*x2*x2
             hdenom = 1d0 + rE*x2

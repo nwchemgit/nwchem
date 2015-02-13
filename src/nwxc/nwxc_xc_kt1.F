@@ -130,11 +130,11 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            if (sqrt(gamma).gt.tol_rho) then
+c           if (sqrt(gamma).gt.tol_rho) then
                gamma = 0.25d0 * gamma
-            else
-               goto 10
-            endif
+c           else
+c              goto 10
+c           endif
 c
             gdenom = 1.d0 / (rho43 + DELTA)
             gdenom2 = gdenom*gdenom
@@ -179,9 +179,9 @@ c
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            if (sqrt(gamma).lt.tol_rho) then
-               goto 25
-            endif
+c           if (sqrt(gamma).lt.tol_rho) then
+c              goto 25
+c           endif
 c
             gdenom = 1d0 / (rho43 + DELTA)
             gdenom2 = gdenom*gdenom
@@ -219,9 +219,9 @@ c
 c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
-            if (sqrt(gamma).lt.tol_rho) then
-               goto 20
-            endif
+c           if (sqrt(gamma).lt.tol_rho) then
+c              goto 20
+c           endif
 c           
             gdenom = 1d0 / (rho43 + DELTA)
             gdenom2 = gdenom*gdenom 

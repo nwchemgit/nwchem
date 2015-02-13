@@ -105,12 +105,13 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_TT)
-            if (sqrt(gamma).gt.tol_rho)then
-               gamma = 0.25d0 * gamma
-               x = sqrt(gamma) / rho43
-            else
-               x = 0d0
-            endif
+c           if (sqrt(gamma).gt.tol_rho)then
+c              gamma = 0.25d0 * gamma
+c              x = sqrt(gamma) / rho43
+            x = gamma/(4.0d0*rho43*rho43)
+c           else
+c              x = 0d0
+c           endif
 c
             g = -ux(x,gamma86)**p
 c           dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
@@ -143,11 +144,12 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_AA)
-            if (sqrt(gamma).gt.tol_rho)then
-               x = sqrt(gamma) / rho43
-            else
-               x = 0d0
-            endif
+c           if (sqrt(gamma).gt.tol_rho)then
+c              x = sqrt(gamma) / rho43
+            x = gamma/(rho43*rho43)
+c           else
+c              x = 0d0
+c           endif
 c
             g = -ux(x,gamma86)**p
 c           dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
@@ -174,11 +176,12 @@ c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             gamma = rgamma(n,G_BB)
-            if (sqrt(gamma).gt.tol_rho)then
-               x = sqrt(gamma) / rho43
-            else
-               x = 0d0
-            endif
+c           if (sqrt(gamma).gt.tol_rho)then
+c              x = sqrt(gamma) / rho43
+            x = gamma/(rho43*rho43)
+c           else
+c              x = 0d0
+c           endif
             g = -ux(x,gamma86)**p
 c           dg = -p*ux(x,gamma86)**(p-1)*uxp(x,gamma86)
 c
@@ -224,7 +227,7 @@ c
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: gx
         type(nwad_dble)              :: s
-        s = gx*x*x/(1d0+gx*x*x)
+        s = gx*x/(1d0+gx*x)
       end function
 c
       end

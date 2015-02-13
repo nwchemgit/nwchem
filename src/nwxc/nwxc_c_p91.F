@@ -116,13 +116,14 @@ c
       parameter (TOLL = 1.0D-40, EXPTOL = 40.0d0)
       parameter (EPS = 1.0e-8)
       type(nwad_dble)::rho_t(3)
-      type(nwad_dble)::dsqgamma
+c     type(nwad_dble)::dsqgamma
 c
 c     Intermediate derivative results, etc.
 c
       integer n
       type(nwad_dble)::rhoval, gammaval
-      type(nwad_dble)::nepsc(1),epsc,kf,ks,zeta,t,rs,cnum,cden,ccrs
+c     type(nwad_dble)::nepsc(1),epsc,kf,ks,zeta,t,rs,cnum,cden,ccrs
+      type(nwad_dble)::nepsc(1),epsc,kf,ks,zeta,t2,rs,cnum,cden,ccrs
       type(nwad_dble)::fAt,fAtnum,fAtden,argexp,arglog,H0,H1
       type(nwad_dble)::H1argexp,H1prefac,expinH1
       type(nwad_dble)::phi,expinA,A
@@ -291,7 +292,7 @@ c    &                 delrho(n,3,1)*delrho(n,3,2))
      &                 rgamma(n,G_AB)*2.0d0
          endif
 c        dsqgamma = max(sqrt(gammaval),tol_rho)
-         dsqgamma = sqrt(gammaval)
+c        dsqgamma = sqrt(gammaval)
          nepsc(1) = 0.0d0
 c        dnepscdn(1) = 0.0d0
 c        if (ipol.eq.2) dnepscdn(2) = 0.0d0
@@ -321,7 +322,7 @@ c
 c        ============
 c        PW91 H0 part
 c        ============
-         if(abs(nepsc(1)).lt.tol_rho*tol_rho) goto 20
+c        if(abs(nepsc(1)).lt.tol_rho*tol_rho) goto 20
 c
 c        epsilon_c = n*epsilon_c / n
 c
@@ -445,7 +446,8 @@ c    &               + dphidzeta*d2zetadnb2
 c
 c        t = |Nabla n|/(2*phi*ks*n) and its derivs
 c
-         t = dsqgamma/(2.0d0*phi*ks*rhoval)
+c        t = dsqgamma/(2.0d0*phi*ks*rhoval)
+         t2 = gammaval/((2.0d0*phi*ks*rhoval)**2.0d0)
 c        dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
 c        dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
 #ifdef SECOND_DERIV
@@ -533,8 +535,10 @@ c    &               *expinA*expinA/(expinA-1.0d0)**3
 c
 c        fAt = (1 + A * t**2)/(1 + A * t**2 + A**2 * t**4) and its derivs
 c
-         fAtnum = 1.0d0+A*(t**2.0d0)
-         fAtden = 1.0d0+A*(t**2.0d0)+(A**2.0d0)*(t**4.0d0)
+c        fAtnum = 1.0d0+A*(t**2.0d0)
+c        fAtden = 1.0d0+A*(t**2.0d0)+(A**2.0d0)*(t**4.0d0)
+         fAtnum = 1.0d0+A*t2
+         fAtden = 1.0d0+A*t2+(A**2.0d0)*(t2**2.0d0)
          fAt = fAtnum/fAtden
 c        dfAtnumdt = 2.0d0*A*t
 c        dfAtnumdA = t**2
@@ -577,7 +581,8 @@ c    &             + d2fAtdA2*dAdna*dAdnb + dfAtdA*d2Adnadnb
 c
 c        arglog = 1 + 2*ALPHA/BETA * t**2 * fAt and its derivs
 c
-         arglog = 1.0d0 + (2.0d0*ALPHA/BETA)*(t**2.0d0)*fAt
+c        arglog = 1.0d0 + (2.0d0*ALPHA/BETA)*(t**2.0d0)*fAt
+         arglog = 1.0d0 + (2.0d0*ALPHA/BETA)*t2*fAt
 c        darglogdna = 2.0d0*ALPHA/BETA*(2.0d0*t*dtdna*fAt
 c    &                            +t*t*dfAtdna)
 c        darglogdnb = 2.0d0*ALPHA/BETA*(2.0d0*t*dtdnb*fAt
@@ -695,8 +700,10 @@ c        d2kfdnb2 = (-2.0d0/3.0d0)*dkfdnb/rhoval
 c
 c        H1argexp = -100 * phi**4 * (ks**2/kf**2) * t**2 and its derivs
 c
+c        H1argexp = -100.0d0*(phi**4.0d0)*((ks**2.0d0)
+c    &            / (kf**2.0d0))*(t**2.0d0)
          H1argexp = -100.0d0*(phi**4.0d0)*((ks**2.0d0)
-     &            / (kf**2.0d0))*(t**2.0d0)
+     &            / (kf**2.0d0))*t2
 c        dH1argexpdna = 4.0d0*H1argexp/phi*dphidna
 c    &                 +2.0d0*H1argexp/ks*dksdna
 c    &                 -2.0d0*H1argexp/kf*dkfdna
@@ -746,8 +753,10 @@ c    &                   +2.0d0*H1argexp/t*d2tdnadnb
 c
 c        H1prefac = NU*[CC(rs) - CC(0)-3/7*CX] * g**3 * t**2
 c
+c        H1prefac = NU*(ccrs - (CCZERO + (3.0d0/7.0d0)*CX))
+c    &            * (phi**3.0d0) * (t**2.0d0)
          H1prefac = NU*(ccrs - (CCZERO + (3.0d0/7.0d0)*CX))
-     &            * (phi**3.0d0) * (t**2.0d0)
+     &            * (phi**3.0d0) * t2
 c        dH1prefacdna = NU*dccrsdna * phi**3 * t**2
 c    &                + 3.0d0*H1prefac/phi*dphidna
 c    &                + 2.0d0*H1prefac/t*dtdna
