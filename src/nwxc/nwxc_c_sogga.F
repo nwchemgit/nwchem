@@ -85,11 +85,11 @@ c     Input and other parameters
 c
 #if defined(NWAD_PRINT)
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-      type(nwad_dble)::param(*)!< [Input] Parameters of the functional,
+      type(nwad_dble)::param(*) !< [Input] Parameters of the functional,
       type(nwad_dble)::CcA(0:5),CcB(0:5)
       type(nwad_dble)::FA0, FB0
 #else
-      double precision param(*)!< [Input] Parameters of the functional,
+      double precision param(*) !< [Input] Parameters of the functional,
       double precision CcA(0:5),CcB(0:5)
       double precision FA0, FB0
 #endif
@@ -155,7 +155,8 @@ c
       double precision FKFAC
       type(nwad_dble)::G, G2, G3
       double precision PI, PI34
-      type(nwad_dble)::PON, T, T2
+c     type(nwad_dble)::PON, T, T2
+      type(nwad_dble)::PON, T2
       type(nwad_dble)::RHO16, RHO76, GRHO, POTLC, ELOC
       double precision SCFAC, SKFAC, XNU
       double precision dummy
@@ -248,7 +249,8 @@ c    &                delrho(n,3,1)*delrho(n,3,2))
          endif
          Rhoval  = RhoA + RhoB
 c        GRho = max(dsqrt(gammaval),tol_rho)
-         GRho = sqrt(gammaval)
+c        GRho = sqrt(gammaval)
+         GRho = gammaval
          if (rhoval.le.tol_rho) goto 20
          rS = (Pi34/Rhoval)**F1o3
          Zeta = (RhoA-RhoB)/Rhoval
@@ -277,8 +279,9 @@ c
          SKFac = Sqrt(FKFac/Pi)*F2
          Rho16 = Rhoval**F1o6
          Rho76 = Rhoval*Rho16
-         T  = GRho/(F2*SKFac*Rho76*G)
-         T2 = T*T
+c        T  = GRho/(F2*SKFac*Rho76*G)
+c        T2 = T*T
+         T2 = GRho/((F2*SKFac*Rho76*G)**2.0d0)
          G2 = G*G
          G3 = G*G2
          PON = (G3*beta*T2)/PotLC
