@@ -138,8 +138,8 @@ c           endif
 c           drho2 = (delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))
-            drho = sqrt(drho2) 
-            if (drho.le.tol_rho**2) goto 10
+c           drho = sqrt(drho2) 
+c           if (drho.le.tol_rho**2) goto 10
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43
@@ -204,8 +204,8 @@ c           endif
 c           drho2 = (delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)) 
-            drho = sqrt(drho2) 
-            if (drho.le.tol_rho**2) goto 150
+c           drho = sqrt(drho2) 
+c           if (drho.le.tol_rho**2) goto 150
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43
@@ -259,8 +259,8 @@ c           endif
 c           drho2 = (delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &           delrho(n,3,2)*delrho(n,3,2))
-            drho = sqrt(drho2)  
-            if (drho.le.tol_rho**2) goto 100
+c           drho = sqrt(drho2)  
+c           if (drho.le.tol_rho**2) goto 100
 
 c     Gradient correction
             dr2_r43 = drho2 / rho43
