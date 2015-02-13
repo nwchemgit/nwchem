@@ -91,7 +91,7 @@ c
       parameter (TOLL = 1.0D-40, EXPTOL = 40.0d0)
       parameter (EPS = 1.0e-8)
       type(nwad_dble)::rho_t(2)
-      type(nwad_dble)::dsqgamma
+c     type(nwad_dble)::dsqgamma
 c
 c     Intermediate derivative results, etc.
 c
@@ -99,7 +99,7 @@ c
       type(nwad_dble)::rhoval, gammaval
       type(nwad_dble)::nepsc(1),epsc,H0,phi,zeta,arglog,
      +                 fAt,fAtnum,fAtden
-      type(nwad_dble)::A,t,ks,argexp,expinA
+      type(nwad_dble)::A,t2,ks,argexp,expinA
       double precision dnepscdn(2)
       double precision depscdna, depscdnb
       double precision dH0dna, dH0dnb, dH0dg
@@ -217,7 +217,7 @@ c
      &               + rgamma(n,G_BB)
      &               + rgamma(n,G_AB)*2.0d0
          endif
-         dsqgamma = sqrt(gammaval)
+c        dsqgamma = sqrt(gammaval)
          nepsc(1) = 0.0d0
 c        dnepscdn(D1_RA) = 0.0d0
 c        if (ipol.eq.2) dnepscdn(D1_RB) = 0.0d0
@@ -374,7 +374,8 @@ c    &               + dphidzeta*d2zetadnb2
 c
 c        t = |Nabla n|/(2*phi*ks*n) and its derivs
 c
-         t = dsqgamma/(2.0d0*phi*ks*rhoval)
+c        t = dsqgamma/(2.0d0*phi*ks*rhoval)
+         t2 = gammaval/((2.0d0*phi*ks*rhoval)**2.0d0)
 c        dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
 c        dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
 #ifdef SECOND_DERIV
@@ -463,7 +464,7 @@ c
 c        fAt = (1 + A * t**2)/(1 + A * t**2 + A**2 * t**4) and its derivs
 c
          fAtnum = 1.0d0
-         fAtden = 1.0d0+A*t**2.0d0
+         fAtden = 1.0d0+A*t2
          fAt = fAtnum/fAtden
 c        dfAtdendt = 2.0d0*A*t
 c        dfAtdendA = t**2
@@ -500,7 +501,7 @@ c    &             + d2fAtdA2*dAdna*dAdnb + dfAtdA*d2Adnadnb
 c
 c        arglog = 1 + BETA/GAMMA * t**2 * fAt and its derivs
 c
-         arglog = 1.0d0 + BETA/GAMMA*t**2.0d0*fAt
+         arglog = 1.0d0 + BETA/GAMMA*t2*fAt
 c        darglogdna = BETA/GAMMA*(2.0d0*t*dtdna*fAt
 c    &                            +t*t*dfAtdna)
 c        darglogdnb = BETA/GAMMA*(2.0d0*t*dtdnb*fAt

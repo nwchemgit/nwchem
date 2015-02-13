@@ -148,7 +148,7 @@ c
       parameter (TOLL = 1.0D-40, EXPTOL = 40.0d0)
       parameter (EPS = 1.0e-8)
       type(nwad_dble)::rho_t(2)
-      type(nwad_dble)::dsqgamma
+c     type(nwad_dble)::dsqgamma
 c
 c     Intermediate derivative results, etc.
 c
@@ -178,7 +178,8 @@ c
       type(nwad_dble)::rks
       type(nwad_dble)::rphi, rphi2, rphi3, rphi4
       type(nwad_dble)::expmone, expmone2
-      type(nwad_dble)::t, t2, t3, t4
+c     type(nwad_dble)::t, t2, t3, t4
+      type(nwad_dble)::t2, t4
       type(nwad_dble)::fAtden,fAtden2
       type(nwad_dble)::phi, phi2, phi3
 c
@@ -342,7 +343,7 @@ c calculation.
      &               + rgamma(n,G_BB)
      &               + rgamma(n,G_AB)*2.0d0
          endif
-         dsqgamma = sqrt(gammaval)
+c        dsqgamma = sqrt(gammaval)
 c Daniel (7-24-12): variable for storing the product of the density
 c and the correlation energy per particle, and its derivatives.  This 
 c is later used for storing the correlation energy from the LDA part
@@ -627,7 +628,7 @@ c
          rphi2 = rphi*rphi
          rphi3 = rphi2*rphi
 c
-         t = dsqgamma*rphi*rks*rrho/2.0d0
+c        t = dsqgamma*rphi*rks*rrho/2.0d0
 c        dtdna = -t*rrho-t*rphi*dphidna-t*rks*dksdna
 c        dtdnb = -t*rrho-t*rphi*dphidnb-t*rks*dksdnb
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
@@ -910,9 +911,10 @@ c    A                expinA/expmone2
 c
 c        fAt = (1 + A * t**2)/(1 + A * t**2 + A**2 * t**4) and its derivs
 c
-         t2 = t*t
-         t3 = t2*t
-         t4 = t3*t
+         t2 = gammaval*(rphi*rks*rrho/2.0d0)**2.0d0
+c        t2 = t*t
+c        t3 = t2*t
+         t4 = t2*t2
 c
          fAtnum = 1.0d0+A*t2
          fAtden = 1.0d0+A*t2+A*A*t4

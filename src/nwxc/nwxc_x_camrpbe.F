@@ -242,10 +242,11 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_TT)
-            gam12 = sqrt(gamma)
-            if (gam12.lt.tol_rho**2) goto 10
+c           gam12 = sqrt(gamma)
+c           if (gam12.lt.tol_rho**2) goto 10
 c
-            s = Cs*gam12/rho43
+c           s = Cs*gam12/rho43
+            s = Cs*Cs*gamma/(rho43*rho43)
 c           d1s(1) = -F43*s*rrho
 c           d1s(2) = 0.5d0*s/gamma
 c
@@ -410,10 +411,11 @@ c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_AA)
-            gam12 = 2d0*sqrt(gamma)
-            if (gam12.lt.tol_rho**2) goto 25
+c           gam12 = 2d0*sqrt(gamma)
+c           if (gam12.lt.tol_rho**2) goto 25
 c
-            s = Cs*gam12/rho43
+c           s = Cs*gam12/rho43
+            s = 4.0d0*Cs*Cs*gamma/(rho43*rho43)
 c           d1s(1) = -F43*s*rrho
 c           d1s(2) = 0.5d0*s/gamma
 c
@@ -562,10 +564,11 @@ c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             gamma = rgamma(n,G_BB)
-            gam12 = 2d0*sqrt(gamma)
-            if (gam12.lt.tol_rho**2) goto 20
+c           gam12 = 2d0*sqrt(gamma)
+c           if (gam12.lt.tol_rho**2) goto 20
 c
-            s = Cs*gam12/rho43
+c           s = Cs*gam12/rho43
+            s = 4.0d0*Cs*Cs*gamma/(rho43*rho43)
 c           d1s(1) = -F43*s*rrho
 c           d1s(2) = 0.5d0*s/gamma
 c
@@ -713,7 +716,7 @@ c
         implicit none
         type(nwad_dble), intent(in) :: r
         type(nwad_dble)             :: s
-        s = uk*(1d0 - exp(-umk*r*r))
+        s = uk*(1d0 - exp(-umk*r))
       end function
 c
       end
