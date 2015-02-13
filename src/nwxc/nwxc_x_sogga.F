@@ -165,7 +165,8 @@ c
       double precision MU
       type(nwad_dble)::FA1, FA2, FA3, FA4, FA5
       type(nwad_dble)::FB1, FB2, FB3, FB4, FB5
-      type(nwad_dble)::Gam12, Gam, X, FEXP, FFRAC, FGGAX, S, Y, ELOC
+c     type(nwad_dble)::Gam12, Gam, X, FEXP, FFRAC, FGGAX, S, Y, ELOC
+      type(nwad_dble)::Gam, X, FEXP, FFRAC, FGGAX, Y, ELOC
       type(nwad_dble)::PON
 c      
       double precision f1,f2,f3,f4,f5,f8
@@ -257,13 +258,14 @@ c
 c           Gam =(delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1))/F4
-            Gam12 = sqrt(Gam)
-            if(gam12.lt.dtol) goto 10
+c           Gam12 = sqrt(Gam)
+c           if(gam12.lt.dtol) goto 10
 c
             Eloc = Ax*Rho43
-            x = Gam12/Rho43
-            s = As*x
-            y = s*s
+c           x = Gam12/Rho43
+c           s = As*x
+c           y = s*s
+            y = As*As*Gam/(Rho43*Rho43)
             PON = mu*y
             Ffrac = F1-F1/(F1+PON)
             Fexp  = F1-exp(-PON)
@@ -357,13 +359,14 @@ c
 c          Gam =(delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1))
-           Gam12 = sqrt(Gam)
-           if(gam12.lt.dtol) goto 25
+c          Gam12 = sqrt(Gam)
+c          if(gam12.lt.dtol) goto 25
 c
            Eloc = Ax*Rho43
-           x = Gam12/Rho43
-           s = As*x
-           y = s*s
+c          x = Gam12/Rho43
+c          s = As*x
+c          y = s*s
+           y = As*As*Gam/(Rho43*Rho43)
            PON = mu*y
            Ffrac = F1-F1/(F1+PON)
            Fexp  = F1-exp(-PON)
@@ -446,13 +449,14 @@ c
 c          Gam =(delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &           delrho(n,3,2)*delrho(n,3,2))
-           Gam12 = sqrt(Gam)
-           if(gam12.lt.dtol) goto 20
+c          Gam12 = sqrt(Gam)
+c          if(gam12.lt.dtol) goto 20
 c
            Eloc = Ax*Rho43
-           x = Gam12/Rho43
-           s = As*x
-           y = s*s
+c          x = Gam12/Rho43
+c          s = As*x
+c          y = s*s
+           y = As*As*Gam/(Rho43*Rho43)
            PON = mu*y
            Ffrac = F1-F1/(F1+PON)
            Fexp  = F1-exp(-PON)
