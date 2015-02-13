@@ -8,7 +8,11 @@ c
       integer nroots, maxrys, maxleg, maxuniqleg, leg_aux, rys_leg
 c
       parameter(maxrys=20, maxleg=75, maxuniqleg=12)
-      parameter(hnd_acc=1.0d-14)
+#ifdef  DBLEPREC_RYS 1
+      parameter(hnd_acc=1.0d-12)
+#else
+      parameter(hnd_acc=1.0q-14)
+#endif
 c
       common/hnd_hfk/yy,u9(maxrys),w9(maxrys),nroots
       common/hnd_rysr/large_z(maxrys),rts_large(maxrys,maxrys),

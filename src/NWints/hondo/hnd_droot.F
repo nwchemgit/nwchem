@@ -1,3 +1,6 @@
+#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#define DBLEPREC_RYS 1
+#endif
       subroutine hnd_droot
 c $Id$
       implicit none
@@ -6,8 +9,8 @@ c
 c Wrapper routine. 
 c
       goto (1,1,1,2,3) nroots
-      call hnd_droot_new
-c     call hnd_droot1
+c      call hnd_droot_new
+      call hnd_droot1
       return
     1 call hnd_rt123
       return
@@ -19,7 +22,7 @@ c     call hnd_droot1
 c
       subroutine hnd_droot1
       implicit none
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       double precision ff, r, ww, c, s, a, rt, pt5, zero, one, four
       double precision x, wsum, dum, root, poly
 #else
@@ -32,7 +35,7 @@ c
       common/hnd_rysrw/r(maxrys,maxrys),ww(maxrys,maxrys)
       dimension c(maxrys+1,maxrys+1),s(maxrys+1,maxrys+1)
       dimension a(maxrys+1),rt(maxrys+1)
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       data pt5,zero,one,four /0.5d+00,0.0d+00,1.0d+00,4.0d+00/
 #else
       data pt5,zero,one,four /0.5q+00,0.0q+00,1.0q+00,4.0q+00/
@@ -97,7 +100,7 @@ c
       subroutine hnd_rysfun(x,n)
       implicit none
 #include "hnd_rys.fh"
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       double precision ff, pt5, one, two, x
       double precision e, xx, facmin, term 
       double precision a, sum, fac, t, s, tmax
@@ -108,7 +111,7 @@ c
 #endif
       integer n, m
       common/hnd_rysff/ff(2*maxrys+1)
-#if defined(LINUX)  || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       data pt5,one,two /0.5d+00,1.0d+00,2.0d+00/
       e=0.5409855304296342219319112d-78
       xx=x+x
@@ -146,7 +149,7 @@ c
 c
 c     use asymptotic expansion for large arguments.
 c
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
   100 a= sqrt(.7853981633974483096156608d+00/x)
 #else
   100 a= sqrt(.7853981633974483096156608q+00/x)
@@ -173,7 +176,7 @@ c
       subroutine hnd_ryssmt(c,s,n)
       implicit none
 #include "hnd_rys.fh"
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       double precision c, s, v, y, zero, one
       double precision fac, dot
 #else
@@ -183,7 +186,7 @@ c
       integer n, i, j, k, kmax,ii,jj
       dimension c(maxrys+1,maxrys+1),s(maxrys+1,maxrys+1)
       dimension v(maxrys+1),y(maxrys+1)
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       data zero,one /0.0d+00,1.0d+00/
 #else
       data zero,one /0.0q+00,1.0q+00/
@@ -221,20 +224,20 @@ c
       subroutine hnd_rysnod(a,rt,k)
       implicit none
 #include "hnd_rys.fh"
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       double precision a, rt, zero, tol, r1, p1, r2, p2
       double precision prod, r3, p3, r4, p4, r5, p5, r6, p6
-      double precision r, dr, delta
+      double precision r, dr, delta, ff5, ff6
 #else
       real*16 a, rt, zero, tol, r1, p1, r2, p2
       real*16 prod, r3, p3, r4, p4, r5, p5, r6, p6
-      real*16 r, dr, delta
+      real*16 r, dr, delta, ff5, ff6
 #endif
 #include "stdio.fh"
 #include "errquit.fh"
       integer k, k1, m, i
       dimension a(maxrys+1),rt(maxrys+1)
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       data zero /0.0d+00/
 #else
       data zero /0.0q+00/
@@ -244,7 +247,7 @@ c     routine returns rt(i) the ith root of a polynomial of order
 c     k whose mth coefficient is stored in a(m+1).  it is assumed that
 c     the initial values in rt bracket the final values.
 c
-#if defined(LINUX)  || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       tol=1.0d-09
 #else
       tol=1.0q-11
@@ -278,7 +281,7 @@ c
       dr=r4-r3
       delta=dr
       if( abs(delta).lt.tol) go to 90
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       dr=0.0625d+00*dr
 #else
       dr=0.0625q+00*dr
@@ -289,14 +292,15 @@ c
       if(r6.gt.r4) r6=r4
       p5=a(k1)
       p6=p5
-      do 40 i=1,k
-      p5=p5*r5+a(k1-i)
-   40 p6=p6*r6+a(k1-i)
+      do i=1,k
+         p5=p5*r5+a(k1-i)
+         p6=p6*r6+a(k1-i)
+      enddo
    45 prod=p5*p6
       if(prod.lt. zero) go to 30
       prod=p3*p5
       if(prod.gt. zero) go to 60
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
       r5=0.25d+00*r3+0.75d+00*r5
 #else
       r5=0.25q+00*r3+0.75q+00*r5
@@ -305,7 +309,7 @@ c
       do 50 i=1,k
    50 p5=p5*r5+a(k1-i)
       go to 45
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
+#ifdef DBLEPREC_RYS
    60 r6=0.25d+00*r4+0.75d+00*r6
 #else
    60 r6=0.25q+00*r4+0.75q+00*r6
