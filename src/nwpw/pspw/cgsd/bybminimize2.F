@@ -36,8 +36,9 @@ c
        
       integer rho_in(2),rho_out(2),rho_junk(2)
       real*8  E0,dE0,deltae_old,Ein,deltae_history(10)
-      real*8  ks_deltae,deltav,dV,deltav_old,diis_error,tcharge
-      integer nx,ny,nz,stalled_count,sd_count,ms,ne(2)
+      real*8  ks_deltae,deltav,dV,deltav_old,diis_error
+      real*8  tcharge,charge(2)
+      integer nx,ny,nz,stalled_count,sd_count,ms
 
 
       real*8     tole,tolc
@@ -134,8 +135,6 @@ c
       tolc  = control_tolc()
       precondition = control_precondition()
       ispin = psi_ispin()
-      ne(1) = psi_ne(1)
-      ne(2) = psi_ne(2)
       deltav_old = 10.0d0
       deltav     = 0.0d0
 
@@ -193,6 +192,12 @@ c
          call psi_get_density(1,dbl_mb(rho_out(1)))
       end if
       call psi_set_density(1,dbl_mb(rho_out(1)))
+
+*     **** set the charge from initial density ****
+      do ms=1,ispin
+         call D3dB_r_dsum(1,dbl_mb(rho_out(1)+(ms-1)*n2ft3d),tcharge)
+         charge(ms) = tcharge*dV
+      end do
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
@@ -309,8 +314,9 @@ c     >    (.not.stalled          ))) then
          call D3dB_r_abs1(1,dbl_mb(rho_out(1)+(ms-1)*n2ft3d))
          call D3dB_r_dsum(1,dbl_mb(rho_out(1)+(ms-1)*n2ft3d),tcharge)
          tcharge = tcharge*dV
-         if (dabs(tcharge-dble(ne(ms))).gt.1.0d-10) 
-     >      call D3dB_r_SMul1(1,(dble(ne(ms))/tcharge),
+         write(*,*) "tcharge=",ms,tcharge,charge(ms)
+         if (dabs(tcharge-charge(ms)).gt.1.0d-10) 
+     >      call D3dB_r_SMul1(1,(charge(ms)/tcharge),
      >                        dbl_mb(rho_out(1)+(ms-1)*n2ft3d))
       end do
 
