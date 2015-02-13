@@ -72,7 +72,7 @@ c
       real*8   rho_1exc
       real*8   rho_1pxc
       real*8   ewald_e,ion_ion_e
-      real*8   psi_1eorbit,psi_smearcorrection
+      real*8   psi_1eorbit,psi_smearcorrection,psi_occupation
    
       external control_print,control_fractional
       external control_ispin,control_scf_algorithm,control_ks_algorithm
@@ -87,7 +87,7 @@ c
       external rho_1exc
       external rho_1pxc
       external ewald_e,ion_ion_e
-      external psi_1eorbit,psi_smearcorrection
+      external psi_1eorbit,psi_smearcorrection,psi_occupation
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found
@@ -193,10 +193,12 @@ c
       end if
       call psi_set_density(1,dbl_mb(rho_out(1)))
 
-*     **** set the charge from initial density ****
+*     **** set the charge from the occupations ****
       do ms=1,ispin
-         call D3dB_r_dsum(1,dbl_mb(rho_out(1)+(ms-1)*n2ft3d),tcharge)
-         charge(ms) = tcharge*dV
+         charge(ms) = 0.0d0
+         do i=1,psi_ne(ms)
+            charge(ms) = charge(ms) + psi_occupation(ms,i)
+         end do
       end do
   
 *     **** iniitialize SCF Mixing ****    
@@ -314,7 +316,6 @@ c     >    (.not.stalled          ))) then
          call D3dB_r_abs1(1,dbl_mb(rho_out(1)+(ms-1)*n2ft3d))
          call D3dB_r_dsum(1,dbl_mb(rho_out(1)+(ms-1)*n2ft3d),tcharge)
          tcharge = tcharge*dV
-         write(*,*) "tcharge=",ms,tcharge,charge(ms)
          if (dabs(tcharge-charge(ms)).gt.1.0d-10) 
      >      call D3dB_r_SMul1(1,(charge(ms)/tcharge),
      >                        dbl_mb(rho_out(1)+(ms-1)*n2ft3d))
