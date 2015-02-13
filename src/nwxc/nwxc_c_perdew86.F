@@ -183,7 +183,11 @@ c           d3rs = -SEVEN3*d2rs*arho
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
-            gam12 = sqrt(gamma)
+            if (gamma.gt.tol_rho*tol_rho) then
+              gam12 = sqrt(gamma)
+            else
+              gam12 = 0.0d0
+            endif
 c         
 c           C(n)
 c         
@@ -411,7 +415,11 @@ c    &              delrho(n,3,2)*delrho(n,3,2) +
 c    &        2.d0*(delrho(n,1,1)*delrho(n,1,2) +
 c    &              delrho(n,2,1)*delrho(n,2,2) +
 c    &              delrho(n,3,1)*delrho(n,3,2))
-            gam12 = sqrt(gamma)
+            if (gamma.gt.tol_rho*tol_rho) then
+              gam12 = sqrt(gamma)
+            else
+              gam12 = 0.0d0
+            endif
             zeta = (rho(n,R_A) - rho(n,R_B))*arho
             if(zeta.lt.-1d0) zeta=-1d0
             if(zeta.gt.1d0) zeta=1d0
