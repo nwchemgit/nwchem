@@ -35,7 +35,7 @@ c
       real*8  Ein,deltae_history(10),ehfx,phfx
       real*8  ks_deltae,deltav,dV,deltav_old,diis_error
       real*8  charge(2),tcharge
-      integer nx,ny,nz,stalled_count,ms
+      integer nx,ny,nz,stalled_count,ms,nb,i
 
 
       real*8     tole,tolc
@@ -55,7 +55,7 @@ c
       logical  control_print,control_precondition,control_fractional
       integer  control_ispin,control_scf_algorithm
       integer  control_it_in,control_it_out,control_version
-      integer  cpsi_ispin,cpsi_ne
+      integer  cpsi_ispin,cpsi_ne,cpsi_nbrillq
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   c_rho_error,cpsi_1energy
       real*8   c_dng_1ehartree,lattice_omega
@@ -67,13 +67,14 @@ c
       real*8   c_rho_1pxc
       real*8   ewald_e
       real*8   cpsi_1eorbit,cpsi_smearfermi,cpsi_smearcorrection
+      real*8   cpsi_occupation,brillioun_weight
    
       external band_HFX
       external control_print,control_precondition,control_fractional
       external control_ispin,control_scf_algorithm
       external control_it_in,control_it_out,control_version
       external control_tole,control_tolc,control_ks_alpha
-      external cpsi_ispin,cpsi_ne
+      external cpsi_ispin,cpsi_ne,cpsi_nbrillq
       external c_rho_error,cpsi_1energy
       external c_dng_1ehartree,lattice_omega
       external cpsi_1ke
@@ -84,6 +85,7 @@ c
       external c_rho_1pxc
       external ewald_e
       external cpsi_1eorbit,cpsi_smearfermi,cpsi_smearcorrection
+      external cpsi_occupation,brillioun_weight
 
       real*8   cpsi_1_noupdate_energy,cpsi_eigenvalue,ion_disp_energy
       external cpsi_1_noupdate_energy,cpsi_eigenvalue,ion_disp_energy
@@ -163,10 +165,16 @@ c
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
       end if
 
-*     **** set the charge from initial density ****
+*     **** set the charge from the occupations ****
       do ms=1,ispin
-         call C3dB_r_dsum(1,dbl_mb(rho_out(1)+(ms-1)*nfft3d),tcharge)
-         charge(ms) = tcharge*dV
+         charge(ms) = 0.0d0
+         do nb=1,cpsi_nbrillq()
+         do i=1,cpsi_ne(ms)
+            charge(ms) = charge(ms)
+     >                 + cpsi_occupation(nb,ms,i)*brillioun_weight(nb)
+         end do
+         end do
+         call K1dB_SumAll(charge(ms))
       end do
   
 *     **** iniitialize SCF Mixing ****    
@@ -268,6 +276,7 @@ c
          call C3dB_r_abs1(1,dbl_mb(rho_out(1)+(ms-1)*nfft3d))
          call C3dB_r_dsum(1,dbl_mb(rho_out(1)+(ms-1)*nfft3d),tcharge)
          tcharge = tcharge*dV
+         !write(*,*) "tcharge=",ms,tcharge,charge(ms)
          if (dabs(tcharge-charge(ms)).gt.1.0d-10) 
      >      call C3dB_r_SMul1(1,(charge(ms)/tcharge),
      >                        dbl_mb(rho_out(1)+(ms-1)*nfft3d))
