@@ -34,7 +34,8 @@ c
       integer rho_in(2),rho_out(2),rho_junk(2)
       real*8  Ein,deltae_history(10),ehfx,phfx
       real*8  ks_deltae,deltav,dV,deltav_old,diis_error
-      integer nx,ny,nz,stalled_count
+      real*8  tcharge
+      integer nx,ny,nz,stalled_count,ms,ne(2)
 
 
       real*8     tole,tolc
@@ -54,6 +55,7 @@ c
       logical  control_print,control_precondition,control_fractional
       integer  control_ispin,control_scf_algorithm
       integer  control_it_in,control_it_out,control_version
+      integer  cpsi_ispin,cpsi_ne
       real*8   control_tole,control_tolc,control_ks_alpha
       real*8   c_rho_error,cpsi_1energy
       real*8   c_dng_1ehartree,lattice_omega
@@ -71,6 +73,7 @@ c
       external control_ispin,control_scf_algorithm
       external control_it_in,control_it_out,control_version
       external control_tole,control_tolc,control_ks_alpha
+      external cpsi_ispin,cpsi_ne
       external c_rho_error,cpsi_1energy
       external c_dng_1ehartree,lattice_omega
       external cpsi_1ke
@@ -108,7 +111,9 @@ c
       tole  = control_tole()
       tolc  = control_tolc()
       precondition = control_precondition()
-      ispin = control_ispin()
+      ispin = cpsi_ispin()
+      ne(1) = cpsi_ne(1)
+      ne(2) = cpsi_ne(2)
       deltav_old = 10.0d0
       deltav     = 0.0d0
 
@@ -253,7 +258,18 @@ c
          stalled_count     = 0
 
       end if
-      call C3dB_r_abs1(1,dbl_mb(rho_out(1)))
+
+      !*** make sure charge is positive and normalized properly ***
+      do ms=1,ispin
+         call C3dB_r_abs1(1,dbl_mb(rho_out(1)+(ms-1)*nfft3d))
+         call C3dB_r_dsum(1,dbl_mb(rho_out(1)+(ms-1)*nfft3d),tcharge)
+         tcharge = tcharge*dV
+         if (dabs(tcharge-dble(ne(ms))).gt.1.0d-10) 
+     >      call C3dB_r_SMul1(1,(dble(ne(ms))/tcharge),
+     >                        dbl_mb(rho_out(1)+(ms-1)*nfft3d))
+      end do
+
+      !*** set the density ***
       call cpsi_set_density(1,dbl_mb(rho_out(1)))
       
           
