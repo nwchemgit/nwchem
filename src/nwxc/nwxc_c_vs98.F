@@ -18,6 +18,12 @@ C>
 C> The VS98 functional [1,2] is a meta-GGA. This routine implements
 C> the correlation component.
 C>
+C> Due to the form of the meta-GGAs we need to screen on the kinetic
+C> energy density to ensure that LDA will be obtained when the kinetic
+C> energy density goes to zero [3].
+C>
+C> ### References ###
+C>
 C> [1] T van Voorhis, GE Scuseria,
 C>     "A novel form for the exchange-correlation energy functional",
 C>     J.Chem.Phys. <b>109</b>, 400-410 (1998), DOI:
@@ -30,6 +36,13 @@ C>     functional",
 C>     J.Chem.Phys. <b>129</b>, 219901-219901 (2008), DOI:
 C>     <a href="http://dx.doi.org/10.1063/1.3005348">
 C>     10.1063/1.3005348</a>.
+C>
+C> [3] J. Gr&auml;fenstein, D. Izotov, D. Cremer,
+C>     "Avoiding singularity problems associated with meta-GGA exchange
+C>     and correlation functionals containing the kinetic energy
+C>     density", J. Chem. Phys. <b>127</b>, 214103 (2007), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2800011">
+C>     10.1063/1.2800011</a>.
 C>
 c    VSXC correlation functional          
 c           META GGA
@@ -195,10 +208,13 @@ c
 c         get the density, gradient, and tau for the alpha spin
 c         from the total 
 c
-          PA = rho(n,R_A)/F2
-          PB = 0.0d0
-          GAA = rgamma(n,G_AA)/4.0d0
-          if(sqrt(gaa).lt.dtol) goto 20
+          PA   = rho(n,R_A)/F2
+          PB   = 0.0d0
+          EUA  = 0.0d0
+          ChiA = 0.0d0
+          EUB  = 0.0d0
+          ChiB = 0.0d0
+          GAA  = rgamma(n,G_AA)/4.0d0
 c         In the bc95css subroutine, we use 2*TA as the tau, so we do
 c         not divide the tau by 2 here
 
@@ -255,13 +271,17 @@ c
 c       alpha
 c
          
-         PA = rho(n,R_A)
+         PA   = rho(n,R_A)
+         EUA  = 0.0d0
+         ChiA = 0.0d0
+         ZA   = 0.0d0
          if (PA.le.DTol) go to 25
          GAA = rgamma(n,G_AA)
 c
 c        In the bc95css subroutine, we use 2*TA as the tau 
 c
          TA = tau(n,T_A)*2.0d0
+         if (TA.le.DTol) go to 25
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
@@ -296,9 +316,16 @@ c       Beta
 c
  25      continue
          PB = rho(n,R_B)
+         EUB  = 0.0d0
+         ChiB = 0.0d0
+         ZB   = 0.0d0
+
          if(PB.le.DTol) go to 30
+
          GBB = rgamma(n,G_BB)
          TB = tau(n,T_B)*2.0d0
+
+         if(TB.le.DTol) go to 30
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
@@ -330,7 +357,7 @@ c        Mmat(n,D1_TB)  = Mmat(n,D1_TB)  + FTB*wght
       endif
  30   continue
       P = PA + PB
-      If(PA.gt.DTol.and.PB.gt.DTol) then
+      If(PA.gt.DTol.or.PB.gt.DTol) then
           RS = (Pi34/P) ** F13 
 c         RSP = -RS/(F3*P)
           Zeta = (PA-PB)/P

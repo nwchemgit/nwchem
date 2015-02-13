@@ -175,7 +175,7 @@ c
       double precision EXPTOL
       parameter (EXPTOL = 40.0d0)
       type(nwad_dble)::rho_t(3)
-      type(nwad_dble)::dsqgamma
+c     type(nwad_dble)::dsqgamma
 c
 c     Intermediate derivative results, etc.
 c
@@ -191,7 +191,8 @@ c
       double precision dggadrb, dgrhody, dhdga, dhdgb, dhdgc, dhdy
       double precision dlsdadra, dlsdadrb, dtdr, dtdtau, dwdt
       type(nwad_dble)::fsig1, fsig2
-      type(nwad_dble)::taup, tauueg, tsig, wsig 
+c     type(nwad_dble)::taup, tauueg, tsig, wsig 
+      type(nwad_dble)::taup, tauueg, wsig 
       
       type(nwad_dble)::nepsc(1),epsc
       double precision dnepscdn(2)
@@ -199,7 +200,7 @@ c
       type(nwad_dble)::H0
       double precision dH0dna, dH0dnb, dH0dg
 
-      type(nwad_dble)::phi,zeta,arglog,fAt,fAtnum,fAtden,A,t,ks
+      type(nwad_dble)::phi,zeta,arglog,fAt,fAtnum,fAtden,A,t2,ks
       type(nwad_dble)::argexp
       double precision dphidna, dphidnb, dphidzeta
       double precision dzetadna, dzetadnb
@@ -431,11 +432,11 @@ c    &             delrho(n,3,1)*delrho(n,3,2))
       endif
       RHOVAL  = RHOA + RHOB
       TauP = TA+TB
-      t = tol_rho
+c     t = tol_rho
 c     dsqgamma = max(sqrt(gammaval),t)
-      dsqgamma = sqrt(gammaval)
+c     dsqgamma = sqrt(gammaval)
       if (rhoval.le.tol_rho) goto 20
-      if (taup.lt.tol_rho) goto 20 
+c     if (taup.lt.tol_rho) goto 20 
 c
       nepsc(1) = 0.0d0
       dnepscdn(1) = 0.0d0
@@ -520,7 +521,8 @@ c        endif
 c        dphidna = dphidzeta*dzetadna
 c        dphidnb = dphidzeta*dzetadnb
 c
-         t = dsqgamma/(2.0d0*phi*ks*rhoval)
+c        t = dsqgamma/(2.0d0*phi*ks*rhoval)
+         t2 = gammaval/((2.0d0*phi*ks*rhoval)**2.0d0)
 c        dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
 c        dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
 c
@@ -539,8 +541,10 @@ c
 c        dAdna = -BETA/GAMMA*dargexpdna*expinA/(expinA-1.0d0)**2
 c        dAdnb = -BETA/GAMMA*dargexpdnb*expinA/(expinA-1.0d0)**2
 c
-         fAtnum = 1.0d0+A*t**2.0d0
-         fAtden = 1.0d0+A*t**2.0d0+A**2.0d0*t**4.0d0
+c        fAtnum = 1.0d0+A*t**2.0d0
+c        fAtden = 1.0d0+A*t**2.0d0+A**2.0d0*t**4.0d0
+         fAtnum = 1.0d0+A*t2
+         fAtden = 1.0d0+A*t2+A**2.0d0*t2**2.0d0
          fAt = fAtnum/fAtden
 c        dfAtnumdt = 2.0d0*A*t
 c        dfAtnumdA = t**2
@@ -551,7 +555,8 @@ c        dfAtdA = (dfAtnumdA*fAtden-fAtnum*dfAtdendA)/(fAtden**2)
 c        dfAtdna = dfAtdt * dtdna + dfAtdA * dAdna
 c        dfAtdnb = dfAtdt * dtdnb + dfAtdA * dAdnb
 c
-         arglog = 1.0d0 + BETA/GAMMA*t**2.0d0*fAt
+c        arglog = 1.0d0 + BETA/GAMMA*t**2.0d0*fAt
+         arglog = 1.0d0 + BETA/GAMMA*t2*fAt
 c        darglogdna = BETA/GAMMA*(2.0d0*t*dtdna*fAt
 c    &                            +t*t*dfAtdna)
 c        darglogdnb = BETA/GAMMA*(2.0d0*t*dtdnb*fAt
@@ -564,8 +569,9 @@ c        dH0dnb = GAMMA*(3.0d0*(phi**2)*dphidnb*dlog(arglog)
 c    &                  +(phi**3)*darglogdnb/arglog)       
 c
         TauUEG=F3*(F3*Pi*Pi)**F2o3*rhoval**F5o3/F10
-        Tsig =TauUEG/TauP
-        Wsig =(Tsig - F1)/(Tsig + F1)
+c       Tsig =TauUEG/TauP
+c       Wsig =(Tsig - F1)/(Tsig + F1)
+        Wsig =(TauUEG - TauP)/(TauUEG + TauP)
         Fsig1=(at0 + Wsig*(at1 + Wsig*(at2 + Wsig*(at3 + Wsig*(
      &            at4 + Wsig*(at5 + Wsig*(at6 + Wsig*(at7 + Wsig*(
      &            at8 + Wsig*(at9 + Wsig*(at10+Wsig*at11)))))))))))

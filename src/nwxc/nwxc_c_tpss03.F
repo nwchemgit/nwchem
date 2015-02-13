@@ -17,6 +17,10 @@ C> \brief Evaluate the TPSS correlation functional
 C>
 C> Evaluate the TPSS meta-GGA correlation functional [1,2]. 
 C>
+C> Due to the form of the meta-GGAs we need to screen on the kinetic
+C> energy density to ensure that LDA will be obtained when the kinetic
+C> energy density goes to zero [3].
+C>
 C> ### References ###
 C>
 C> [1] J. Tao, J.P. Perdew, V.N. Staveroverov, G.E. Scuseria,
@@ -33,6 +37,13 @@ C> realistic nonempirical density functional",
 C> J. Chem. Phys. <b>120</b>, 6898-6911 (2004), DOI:
 C> <a href="http://dx.doi.org/10.1063/1.1665298">
 C> 10.1103/1.1665298</a>.
+C>
+C> [3] J. Gr&auml;fenstein, D. Izotov, D. Cremer,
+C>     "Avoiding singularity problems associated with meta-GGA exchange
+C>     and correlation functionals containing the kinetic energy
+C>     density", J. Chem. Phys. <b>127</b>, 214103 (2007), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2800011">
+C>     10.1063/1.2800011</a>.
 C>
 c   
 c$Id$
@@ -182,7 +193,8 @@ c     type(nwad_dble)::denccc,onemzeta,onepzeta
       double precision ddelzeta2dna,ddelzeta2dnb
       double precision ddelzeta2dgaa,ddelzeta2dgbb,ddelzeta2dgab
       double precision ddencccdna,ddencccdnb
-      type(nwad_dble)::gam12,gammaval,tauN
+c     type(nwad_dble)::gam12,gammaval,tauN
+      type(nwad_dble)::gammaval,tauN
       double precision fac
 c
       parameter (dd = 2.8d0)
@@ -218,7 +230,7 @@ c        gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &        delrho(n,2,1)*delrho(n,2,1) +
 c    &        delrho(n,3,1)*delrho(n,3,1)
          gammaval = rgamma(n,G_TT)
-         gam12=sqrt(gammaval)
+c        gam12=sqrt(gammaval)
 c
 c     get E_GGA[rho,gamma]
 c
@@ -247,15 +259,21 @@ c
 c        epGGA = n*(epsilon_c^GGA) / n =cor. energy per electron
 c        epGGA= ec^LDA +H  = pbe
 
-         tauN = tau(n,T_T)
-
          ccc = 0.53d0           !since zeta=0
-
          tauw = 0.125d0*gammaval/rhoval
 
-         xx2 = (tauw/tauN)**2.d0
-         xx3 = (tauw/tauN)**3.d0
+         tauN = tau(n,T_T)
+         if (tauN.ge.tol_rho) then
 
+           xx2 = (tauw/tauN)**2.d0
+           xx3 = (tauw/tauN)**3.d0
+
+         else
+
+           xx2 = 0.0d0
+           xx3 = 0.0d0
+
+         endif
          en = pbe*(1.d0 + ccc*xx2)
 c
 c    set up values to call PBE subroutine as 
@@ -423,7 +441,7 @@ c    &        2.d0*(delrho(n,1,1)*delrho(n,1,2) +
 c    &        delrho(n,2,1)*delrho(n,2,2) +
 c    &        delrho(n,3,1)*delrho(n,3,2))
          gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
-         gam12=sqrt(gammaval)
+c        gam12=sqrt(gammaval)
          tauNa = tau(n,T_A)
          tauNb = tau(n,T_B)
          taun = tauna+taunb
@@ -432,7 +450,7 @@ c    &        delrho(n,3,1)*delrho(n,3,2))
 c
 c        Check for small densities (H atom case as well)
 c
-         if ((rhoa.lt.0.5d0*tol_rho).or.
+         if ((rhoa.lt.0.5d0*tol_rho).and.
      &       (rhob.lt.0.5d0*tol_rho)) goto 20
 c
 c        dcccdna=0.d0
@@ -493,7 +511,13 @@ c           dxi2dgaa=onemzeta*onemzeta/rhoval2/denxi22
 c           dxi2dgbb=onepzeta*onepzeta/rhoval2/denxi22
 c           dxi2dgab=-2.d0*onepzeta*onemzeta/rhoval2/denxi22
 c
-            ccc=czeta0(zeta)/(denccc(zeta,xi2)**4.0d0)
+            if (1.0d0-zeta.le.tol_rho) then
+              ccc=0.0d0 ! limit established by Maxima
+            else if (1.0d0+zeta.le.tol_rho) then
+              ccc=0.0d0 ! limit established by Maxima
+            else
+              ccc=czeta0(zeta)/(denccc(zeta,xi2)**4.0d0)
+            endif
 c           ddencccdna=2.d0*(denccc(zeta,xi2)**3)*
 c    &       (dxi2dna*(onepzeta**(-F43) + onemzeta**(-F43)) 
 c    &        + xi2*F43*(onemzeta**(-F73) - onepzeta**(-F73))*dzetadna)
@@ -519,8 +543,13 @@ c    &       dxi2dgab*(onepzeta**(-F43) + onemzeta**(-F43))
 c
          tauw = 0.125d0*gammaval/rhoval
 c
-         xx2 = (tauw/tauN)**2.d0
-         xx3 = (tauw/tauN)**3.d0
+         if (tauN.ge.tol_rho) then
+           xx2 = (tauw/tauN)**2.d0
+           xx3 = (tauw/tauN)**3.d0
+         else
+           xx2 = 0.0d0
+           xx3 = 0.0d0
+         endif
 c        dtwt2dn = -2.d0*xx2/rhoval
 c        dtwt3dn = -3.d0*xx3/rhoval
 c        dtwt3dt = -3.d0*xx3/taun

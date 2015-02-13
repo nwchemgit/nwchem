@@ -16,6 +16,10 @@ C>
 C> The M05 functional [1,2] is a meta-GGA of which this evaluates
 C> the correlation component.
 C>
+C> Due to the form of the meta-GGAs we need to screen on the kinetic
+C> energy density to ensure that LDA will be obtained when the kinetic
+C> energy density goes to zero [3].
+C>
 C> ### References ###
 C>
 C> [1] Y Zhao, NE Schultz, DG Truhlar,
@@ -33,6 +37,13 @@ C>     thermochemical kinetics, and noncovalent interactions",
 C>     J.Chem.Theory.Comput. <b>2</b>, 364-382 (2006), DOI:
 C>     <a href="http://dx.doi.org/10.1021/ct0502763">
 C>     10.1021/ct0502763</a>.
+C>
+C> [3] J. Gr&auml;fenstein, D. Izotov, D. Cremer,
+C>     "Avoiding singularity problems associated with meta-GGA exchange
+C>     and correlation functionals containing the kinetic energy
+C>     density", J. Chem. Phys. <b>127</b>, 214103 (2007), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2800011">
+C>     10.1063/1.2800011</a>.
 C>
 c    M05 and M05-2X correlation functional 
 c           META GGA
@@ -177,7 +188,15 @@ c     endif
       F13 = F1 / F3
 
       do 20 n = 1, nq
-       if (rho(n,R_T).lt.DTol) goto 20
+
+       FA = 0.0d0
+       EUA = 0.0d0
+       ChiA = 0.0d0
+       FB = 0.0d0
+       EUB = 0.0d0
+       ChiB = 0.0d0
+
+       if (rho(n,R_T).le.DTol) goto 20
        if (ipol.eq.1) then
 c
 c    get the density, gradient, and tau for the alpha spin from the total 
@@ -191,21 +210,23 @@ c  In the m05css subroutine, we use 2*TA as the tau, so we do not divide
 c  the tau by 2 here
 
          TA = tau(n,T_T)
+         if (TA.gt.DTol) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
 #if defined(NWAD_PRINT)
-         Call nwxc_m05css_p(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_m05css_p(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                  ChiA,EUPA,ChiAP,ChiAG)
 #else
-         Call nwxc_m05css(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_m05css(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                  ChiA,EUPA,ChiAP,ChiAG)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
-         Call nwxc_m05css_d2(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_m05css_d2(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                  ChiA,EUPA,ChiAP,ChiAG)
 #else
-         Call nwxc_m05css_d3(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_m05css_d3(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                  ChiA,EUPA,ChiAP,ChiAG)
 #endif
+         endif
          PB = PA
          GBB = GAA
          TB = TA
@@ -245,22 +266,23 @@ c
 c  In the m05css subroutine, we use 2*TA as the tau 
 c
          TA = 2.0d0*tau(n,T_A) 
-
+         if (TA.gt.DTol) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
 #if defined(NWAD_PRINT)
-         Call nwxc_m05css_p(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_m05css_p(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                        ChiA,EUPA,ChiAP,ChiAG)
 #else
-         Call nwxc_m05css(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_m05css(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                      ChiA,EUPA,ChiAP,ChiAG)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
-         Call nwxc_m05css_d2(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_m05css_d2(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                         ChiA,EUPA,ChiAP,ChiAG)
 #else
-         Call nwxc_m05css_d3(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_m05css_d3(param,DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                         ChiA,EUPA,ChiAP,ChiAG)
 #endif
+         endif
 c        Ec = Ec + FA*qwght(n)     
          func(n)=func(n)+ FA*wght
 c        Amat(n,D1_RA)=Amat(n,D1_RA)+ FPA*wght
@@ -281,22 +303,23 @@ c    &          delrho(n,3,2)*delrho(n,3,2)
          GBB = rgamma(n,G_BB)
 
          TB = 2.0d0*tau(n,T_B)
-
+         if (TB.gt.DTol) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
 #if defined(NWAD_PRINT)
-         Call nwxc_m05css_p(param,DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
-     &                ChiB,EUPB,ChiBP,ChiBG)
+           Call nwxc_m05css_p(param,DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                        ChiB,EUPB,ChiBP,ChiBG)
 #else
-         Call nwxc_m05css(param,DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
-     &                ChiB,EUPB,ChiBP,ChiBG)
+           Call nwxc_m05css(param,DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                      ChiB,EUPB,ChiBP,ChiBG)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)                  
-         Call nwxc_m05css_d2(param,DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
-     &                ChiB,EUPB,ChiBP,ChiBG)
+           Call nwxc_m05css_d2(param,DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                         ChiB,EUPB,ChiBP,ChiBG)
 #else
-         Call nwxc_m05css_d3(param,DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
-     &                ChiB,EUPB,ChiBP,ChiBG)
+           Call nwxc_m05css_d3(param,DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                         ChiB,EUPB,ChiBP,ChiBG)
 #endif
+         endif
 c        Ec = Ec + FB*qwght(n)          
          func(n)=func(n)+ FB*wght
 c        Amat(n,2)= Amat(n,2)+ FPB*wght
@@ -307,7 +330,7 @@ c        Mmat(n,2)=  Mmat(n,2) + FTB*wght
  30   continue
       P = PA + PB
       
-      If((PA.gt.0.5d0*DTol).and.(PB.gt.0.5d0*DTol)) then
+      If((PA.gt.0.5d0*DTol).or.(PB.gt.0.5d0*DTol)) then
           RS = (Pi34/P) ** F13
 c         RSP = -RS/(F3*P)
           Zeta = (PA-PB)/P
@@ -650,6 +673,14 @@ C     Parameters for dlDF Correlation
       F13 = F1 / F3
 
       do 20 n = 1, nq
+
+       FA = 0.0d0
+       EUA = 0.0d0
+       ChiA = 0.0d0
+       FB = 0.0d0
+       EUB = 0.0d0
+       ChiB = 0.0d0
+
        if (rho(n,R_T).lt.DTol) goto 20
        if (ipol.eq.1) then
 c
@@ -664,22 +695,23 @@ c  In the dldfcss subroutine, we use 2*TA as the tau, so we do not divide
 c  the tau by 2 here
 
          TA = tau(n,T_T)
-                  
+         if (TA.ge.DTol) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-         Call nwxc_dldfcss_p(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_dldfcss_p(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                         ChiA,EUPA,ChiAP,ChiAG)
 #else
-         Call nwxc_dldfcss(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_dldfcss(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                       ChiA,EUPA,ChiAP,ChiAG)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-         Call nwxc_dldfcss_d2(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_dldfcss_d2(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                          ChiA,EUPA,ChiAP,ChiAG)
 #else
-         Call nwxc_dldfcss_d3(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_dldfcss_d3(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                          ChiA,EUPA,ChiAP,ChiAG)
 #endif
+         endif
          PB = PA
          GBB = GAA
          TB = TA
@@ -719,22 +751,23 @@ c
 c  In the dldfcss subroutine, we use 2*TA as the tau 
 c
          TA = 2.0d0*tau(n,T_A)
-
+         if (TA.gt.DTol) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-         Call nwxc_dldfcss_p(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_dldfcss_p(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                         ChiA,EUPA,ChiAP,ChiAG)
 #else
-         Call nwxc_dldfcss(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_dldfcss(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                       ChiA,EUPA,ChiAP,ChiAG)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-         Call nwxc_dldfcss_d2(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_dldfcss_d2(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                          ChiA,EUPA,ChiAP,ChiAG)
 #else
-         Call nwxc_dldfcss_d3(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
-     &                ChiA,EUPA,ChiAP,ChiAG)
+           Call nwxc_dldfcss_d3(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
+     &                          ChiA,EUPA,ChiAP,ChiAG)
 #endif
+         endif
 c        Ec = Ec + FA*qwght(n)     
          func(n)=func(n)+ FA*wght
 c        Amat(n,D1_RA)=Amat(n,D1_RA)+ FPA*wght
@@ -755,22 +788,23 @@ c    &          delrho(n,3,2)*delrho(n,3,2)
          GBB = rgamma(n,G_BB)
 
          TB = 2.0d0*tau(n,T_B) 
-
+         if (TB.gt.DTol) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-         Call nwxc_dldfcss_p(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
-     &                ChiB,EUPB,ChiBP,ChiBG)
+           Call nwxc_dldfcss_p(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                         ChiB,EUPB,ChiBP,ChiBG)
 #else
-         Call nwxc_dldfcss(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
-     &                ChiB,EUPB,ChiBP,ChiBG)
+           Call nwxc_dldfcss(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                       ChiB,EUPB,ChiBP,ChiBG)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-         Call nwxc_dldfcss_d2(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
-     &                ChiB,EUPB,ChiBP,ChiBG)
+           Call nwxc_dldfcss_d2(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                          ChiB,EUPB,ChiBP,ChiBG)
 #else
-         Call nwxc_dldfcss_d3(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
-     &                ChiB,EUPB,ChiBP,ChiBG)
+           Call nwxc_dldfcss_d3(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
+     &                          ChiB,EUPB,ChiBP,ChiBG)
 #endif
+         endif
 c        Ec = Ec + FB*qwght(n)          
          func(n)=func(n)+ FB*wght
 c        Amat(n,D1_RB)= Amat(n,D1_RB)+ FPB*wght
@@ -781,7 +815,7 @@ c        Mmat(n,D1_TB)=  Mmat(n,D1_TB) + FTB*wght
  30   continue
       P = PA + PB
       
-      If((PA.gt.0.5d0*DTol).and.(PB.gt.0.5d0*DTol)) then
+      If((PA.gt.0.5d0*DTol).or.(PB.gt.0.5d0*DTol)) then
           RS = (Pi34/P) ** F13
 c         RSP = -RS/(F3*P)
           Zeta = (PA-PB)/P
@@ -790,21 +824,17 @@ c         dZdB = (-F1-Zeta)/P
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
           Call nwxc_c_lsda_p(dtol,
-     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
-     $      d2LdZZ)
+     &         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
 #else
           Call nwxc_c_lsda(dtol,
-     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
-     $      d2LdZZ)
+     &         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
           Call nwxc_c_lsda_d2(dtol,
-     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
-     $      d2LdZZ)
+     &         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
 #else
           Call nwxc_c_lsda_d3(dtol,
-     D         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,
-     $      d2LdZZ)
+     &         RS,Zeta,PotLC,dLdS,dLdZ,d2LdSS,d2LdSZ,d2LdZZ)
 #endif
           EUEG = P*PotLC - EUA - EUB
           U = COpp*(ChiA+ChiB)/(F1 + COpp*(ChiA+ChiB))

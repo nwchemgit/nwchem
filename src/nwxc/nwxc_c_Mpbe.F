@@ -63,7 +63,7 @@ c
       parameter (TOLL = 1.0D-40, EXPTOL = 40.0d0)
       parameter (EPS = 1.0e-8)
       type(nwad_dble)::rho_t(1,2)
-      type(nwad_dble)::dsqgamma
+c     type(nwad_dble)::dsqgamma
 c
 c     Intermediate derivative results, etc.
 c
@@ -81,7 +81,8 @@ c
       type(nwad_dble)::fAtden, dfAtdendt, dfAtdendA
       type(nwad_dble)::dfAtdna, dfAtdnb, dfAtdg
       type(nwad_dble)::A, dAdna, dAdnb
-      type(nwad_dble)::t, dtdna, dtdnb, dtdg
+c     type(nwad_dble)::t, dtdna, dtdnb, dtdg
+      type(nwad_dble)::t2, dtdna, dtdnb, dtdg
       type(nwad_dble)::ks, dksdna, dksdnb
       type(nwad_dble)::argexp, dargexpdna, dargexpdnb
       type(nwad_dble)::expinA
@@ -179,7 +180,7 @@ c    &                 delrho(n,2,1)*delrho(n,2,2) +
 c    &                 delrho(n,3,1)*delrho(n,3,2))
             gammaval = rgamma(G_AA)+rgamma(G_BB)+2.0d0*rgamma(G_AB)
          endif
-         dsqgamma = sqrt(gammaval)
+c        dsqgamma = sqrt(gammaval)
          nepsc(1) = 0.0d0
          dnepscdn(1) = 0.0d0
          if (ipol.eq.2) dnepscdn(2) = 0.0d0
@@ -266,17 +267,18 @@ c    &               +(1.0d0-zeta)**(2.0d0/3.0d0))
 c
 c        t = |Nabla n|/(2*phi*ks*n) and its derivs
 c
-         t = dsqgamma/(2.0d0*phi*ks*rhoval)
-         dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
-         dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
+c        t = dsqgamma/(2.0d0*phi*ks*rhoval)
+         t2 = gammaval/((2.0d0*phi*ks*rhoval)**2.0d0)
+c        dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
+c        dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
 c
 c        { ... } in A (see below) and its derivs
 c
          argexp = -epsc/GAMMA/(phi**3.0d0)
-         dargexpdna = -depscdna/GAMMA/(phi**3.0d0)
-     &                +3.0d0*epsc/GAMMA/(phi**4.0d0)*dphidna
-         dargexpdnb = -depscdnb/GAMMA/(phi**3.0d0)
-     &                +3.0d0*epsc/GAMMA/(phi**4.0d0)*dphidnb
+c        dargexpdna = -depscdna/GAMMA/(phi**3.0d0)
+c    &                +3.0d0*epsc/GAMMA/(phi**4.0d0)*dphidna
+c        dargexpdnb = -depscdnb/GAMMA/(phi**3.0d0)
+c    &                +3.0d0*epsc/GAMMA/(phi**4.0d0)*dphidnb
 c
 c        A = BETA/GAMMA [exp{-epsilon_c/(GAMMA*phi**3)}-1]**(-1)
 c
@@ -286,38 +288,41 @@ c        else
 c           expinA=0.0d0
 c        endif
          A = BETA/GAMMA/(expinA-1.0d0)
-         dAdna = -BETA/GAMMA*dargexpdna*expinA/(expinA-1.0d0)**2.0d0
-         dAdnb = -BETA/GAMMA*dargexpdnb*expinA/(expinA-1.0d0)**2.0d0
+c        dAdna = -BETA/GAMMA*dargexpdna*expinA/(expinA-1.0d0)**2.0d0
+c        dAdnb = -BETA/GAMMA*dargexpdnb*expinA/(expinA-1.0d0)**2.0d0
 c
 c        fAt = (1 + A * t**2)/(1 + A * t**2 + A**2 * t**4) and its derivs
 c
-         fAtnum = 1.0d0+A*t**2.0d0
-         fAtden = 1.0d0+A*t**2.0d0+A**2.0d0*t**4.0d0
+c        fAtnum = 1.0d0+A*t**2.0d0
+c        fAtden = 1.0d0+A*t**2.0d0+A**2.0d0*t**4.0d0
+         fAtnum = 1.0d0+A*t2
+         fAtden = 1.0d0+A*t2+A**2.0d0*t2**2.0d0
          fAt = fAtnum/fAtden
-         dfAtnumdt = 2.0d0*A*t
-         dfAtnumdA = t**2.0d0
-         dfAtdendt = 2.0d0*A*t+4.0d0*A**2.0d0*t**3.0d0
-         dfAtdendA = t**2.0d0+2.0d0*A*t**4.0d0
-         dfAtdt = (dfAtnumdt*fAtden-fAtnum*dfAtdendt)/(fAtden**2.0d0)
-         dfAtdA = (dfAtnumdA*fAtden-fAtnum*dfAtdendA)/(fAtden**2.0d0)
-         dfAtdna = dfAtdt * dtdna + dfAtdA * dAdna
-         dfAtdnb = dfAtdt * dtdnb + dfAtdA * dAdnb
+c        dfAtnumdt = 2.0d0*A*t
+c        dfAtnumdA = t**2.0d0
+c        dfAtdendt = 2.0d0*A*t+4.0d0*A**2.0d0*t**3.0d0
+c        dfAtdendA = t**2.0d0+2.0d0*A*t**4.0d0
+c        dfAtdt = (dfAtnumdt*fAtden-fAtnum*dfAtdendt)/(fAtden**2.0d0)
+c        dfAtdA = (dfAtnumdA*fAtden-fAtnum*dfAtdendA)/(fAtden**2.0d0)
+c        dfAtdna = dfAtdt * dtdna + dfAtdA * dAdna
+c        dfAtdnb = dfAtdt * dtdnb + dfAtdA * dAdnb
 c
 c        arglog = 1 + BETA/GAMMA * t**2 * fAt and its derivs
 c
-         arglog = 1.0d0 + BETA/GAMMA*t**2.0d0*fAt
-         darglogdna = BETA/GAMMA*(2.0d0*t*dtdna*fAt
-     &                            +t*t*dfAtdna)
-         darglogdnb = BETA/GAMMA*(2.0d0*t*dtdnb*fAt
-     &                            +t*t*dfAtdnb)
+c        arglog = 1.0d0 + BETA/GAMMA*t**2.0d0*fAt
+         arglog = 1.0d0 + BETA/GAMMA*t2*fAt
+c        darglogdna = BETA/GAMMA*(2.0d0*t*dtdna*fAt
+c    &                            +t*t*dfAtdna)
+c        darglogdnb = BETA/GAMMA*(2.0d0*t*dtdnb*fAt
+c    &                            +t*t*dfAtdnb)
 c
 c        H0 = GAMMA * phi**3 * log{arglog} and its derivs
 c
          H0 = GAMMA*(phi**3.0d0)*log(arglog)
-         dH0dna = GAMMA*(3.0d0*(phi**2.0d0)*dphidna*log(arglog)
-     &                  +(phi**3.0d0)*darglogdna/arglog)
-         dH0dnb = GAMMA*(3.0d0*(phi**2.0d0)*dphidnb*log(arglog)
-     &                  +(phi**3.0d0)*darglogdnb/arglog)
+c        dH0dna = GAMMA*(3.0d0*(phi**2.0d0)*dphidna*log(arglog)
+c    &                  +(phi**3.0d0)*darglogdna/arglog)
+c        dH0dnb = GAMMA*(3.0d0*(phi**2.0d0)*dphidnb*log(arglog)
+c    &                  +(phi**3.0d0)*darglogdnb/arglog)
 c
 c        Now we update Ec, Amat, and Amat2
 c

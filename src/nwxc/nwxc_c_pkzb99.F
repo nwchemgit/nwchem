@@ -18,6 +18,12 @@ C>
 C> The meta-GGA correlation functional by Perdew, Kurth, Zupan and Blaha
 C> that provides a self-interaction free energy [1,2].
 C>
+C> Due to the form of the meta-GGAs we need to screen on the kinetic
+C> energy density to ensure that LDA will be obtained when the kinetic
+C> energy density goes to zero [3].
+C>
+C> ### References ###
+C>
 C> [1] J.P. Perdew, S. Kurth, A. Zupan, P. Blaha,
 C>     <i>"Accurate density functional with correct formal properties:
 C>     A Step Beyond the Generalized Gradient Approximation"</i>,
@@ -32,6 +38,13 @@ C>     Approximation"</i>,
 C>     Phys. Rev. Lett. <b>82</b>, 5179-5179 (1999), DOI:
 C>     <a href="http://dx.doi.org/10.1103/PhysRevLett.82.5179">
 C>     10.1103/PhysRevLett.82.5179</a>.
+C>
+C> [3] J. Gr&auml;fenstein, D. Izotov, D. Cremer,
+C>     "Avoiding singularity problems associated with meta-GGA exchange
+C>     and correlation functionals containing the kinetic energy
+C>     density", J. Chem. Phys. <b>127</b>, 214103 (2007), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2800011">
+C>     10.1063/1.2800011</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
@@ -107,7 +120,7 @@ c   Second call to the cPBE subroutine
       type(nwad_dble)::rho_t(3), rgamma_t(3)
       type(nwad_dble):: tauNA,tauNB
 c    
-      type(nwad_dble)::gam12,pbe,tauw,xx2,en,
+      type(nwad_dble)::pbe,tauw,xx2,en,
      ,     tauwa,tauwb,xx2a,xx2b,dtwat2dg,dtwat2dn,
      ,     dtwbt2dg,dtwbt2dn
       type(nwad_dble)::pbeup,dtwt2dn,decggadn,dtwt2dg,
@@ -163,7 +176,7 @@ c        gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
          gammaval = rgamma(n,G_TT)
-         gam12=sqrt(gammaval)
+c        gam12=sqrt(gammaval)
 c
 c     get E_GGA[rho,gamma]
 c
@@ -185,8 +198,13 @@ c
          pbe = neGGA
 
          tauN = tau(n,T_T)
-         tauw = 0.125d0*gammaval/rhoval
-         xx2 = (tauw/tauN)**2.d0
+         if (tauN.lt.tol_rho) then
+           tauw = 0.0d0
+           xx2 = 0.0d0
+         else
+           tauw = 0.125d0*gammaval/rhoval
+           xx2 = (tauw/tauN)**2.d0
+         endif
          en = pbe*(1.d0 + ccc*xx2)
 c
 c    set up values to call PBE subroutine as 
@@ -242,30 +260,30 @@ c
          pbeup = neFSP
 
 c        functional deriv info below fffffffffffff
-         dtwt2dn = -2.d0*xx2/rhoval
-         decggadn= dneGGAdn(1)
-         dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2.0d0)
-         decggadg= dneGGAdg(1)
+c        dtwt2dn = -2.d0*xx2/rhoval
+c        decggadn= dneGGAdn(1)
+c        dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2.0d0)
+c        decggadg= dneGGAdg(1)
          delc= xx2*pbeup
 
 C  eps-tilda is eps^FSP
 C  functional deriv info below fffffffffffffffff
 
-         dpbeupdn = 0.5d0*dneFSPdn(1)
+c        dpbeupdn = 0.5d0*dneFSPdn(1)
 c  above note the .5's.  you are taking deriv wrt total density n
 c                        not deriv wrt n_up
-         dpbeupdg = 0.25d0*dneFSPdg(1)
+c        dpbeupdg = 0.25d0*dneFSPdg(1)
 c  note .25 above is because you want gamma=deln_tot*deln_tot
 
 
-         atermn=pbe*ccc*dtwt2dn+(1.d0+ccc*xx2)*decggadn
-         btermn=(1.d0+ccc)*(xx2*dpbeupdn + pbeup*dtwt2dn)
-         drevdn=atermn - btermn
+c        atermn=pbe*ccc*dtwt2dn+(1.d0+ccc*xx2)*decggadn
+c        btermn=(1.d0+ccc)*(xx2*dpbeupdn + pbeup*dtwt2dn)
+c        drevdn=atermn - btermn
 
-         atermg=pbe*ccc*dtwt2dg+(1.d0+ccc*xx2)*decggadg
-         btermg=(1.d0+ccc)*(xx2*dpbeupdg+pbeup*dtwt2dg)
-         drevdg=atermg-btermg
-         drevdt=(ccc*pbe-(1.d0+ccc)*pbeup)*xx2*(-2.d0/tauN)
+c        atermg=pbe*ccc*dtwt2dg+(1.d0+ccc*xx2)*decggadg
+c        btermg=(1.d0+ccc)*(xx2*dpbeupdg+pbeup*dtwt2dg)
+c        drevdg=atermg-btermg
+c        drevdt=(ccc*pbe-(1.d0+ccc)*pbeup)*xx2*(-2.d0/tauN)
         
          delc = -(1.d0 + ccc)*delc
          erevc = en + delc
@@ -356,25 +374,43 @@ c
 c
 c        Check for small densities (H atom case as well)
 c
-         if ((rhoa.lt.tol_rho).or.
-     &          (rhob.lt.tol_rho)) goto 20
-c
-         tauwa = 0.125d0*gaa/rhoa
-         tauwb = 0.125d0*gbb/rhob
+         if ((rhoa.lt.tol_rho).or.(rhob.lt.tol_rho)) goto 20
 c
          tauna = tau(n,T_A)
          taunb = tau(n,T_B)
+         taun  = tauna+taunb
 c
-         tauw = tauwa+tauwb
-         taun = tauna+taunb
+         if (rhoa.lt.tol_rho) then
+           tauwa = 0.0d0
+         else
+           tauwa = 0.125d0*gaa/rhoa
+         endif
+         if (rhob.lt.tol_rho) then
+           tauwb = 0.0d0
+         else
+           tauwb = 0.125d0*gbb/rhob
+         endif
+         tauw  = tauwa+tauwb
 c
-         xx1 = tauw/taun
+         if (taun.lt.tol_rho) then
+           xx1 = 0.0d0
+         else
+           xx1 = tauw/taun
+         endif
          xx2 = xx1*xx1
 c
-         xx1a = tauwa/tauna  
+         if (tauna.lt.tol_rho) then
+           xx1a = 0.0d0
+         else
+           xx1a = tauwa/tauna  
+         endif
          xx2a = xx1a*xx1a 
 c
-         xx1b = tauwb/taunb  
+         if (taunb.lt.tol_rho) then
+           xx1b = 0.0d0
+         else
+           xx1b = tauwb/taunb  
+         endif
          xx2b = xx1b*xx1b 
 c
          en = pbe*(1.d0 + ccc*xx2)
@@ -419,10 +455,10 @@ c
 c
 c        functional deriv info below fffffffffffff
          etildea= pbeup
-         detiladna = dneFSPdn(1)
-         detiladnb = 0d0
-         detiladgaa = dneFSPdg(D1_GAA)
-         detiladgbb = 0d0
+c        detiladna = dneFSPdn(1)
+c        detiladnb = 0d0
+c        detiladgaa = dneFSPdg(D1_GAA)
+c        detiladgbb = 0d0
 c
 c     n_sigma/n_total factor
        fabup=rhoa/rhoval
@@ -434,8 +470,8 @@ c    set up values to call PBE subroutine as
 c     Fully SpinPolarized system for beta spin
 c     to get E_GGA[rho_beta,0,gamma_beta,0]
 c
-       rho_A(1) = 0.0d0
-       rho_A(2) = rhob          ! beta  equals zero
+       rho_A(1) = 0.0d0         ! alpha equals zero
+       rho_A(2) = rhob
 c      delrho_A(1,1) = delrho_t(1,2) ! nabla n_up x  
 c      delrho_A(2,1) = delrho_t(2,2) ! nabla n_up y
 c      delrho_A(3,1) = delrho_t(3,2) ! nabla n_up z
@@ -468,10 +504,10 @@ c
 c
 c      functional deriv info below fffffffffffff
        etildeb= pbedown
-       detilbdna=0d0
-       detilbdnb = dneFSPdn(1)
-       detilbdgaa=0d0
-       detilbdgbb = dneFSPdg(D1_GAA)
+c      detilbdna=0d0
+c      detilbdnb = dneFSPdn(1)
+c      detilbdgaa=0d0
+c      detilbdgbb = dneFSPdg(D1_GAA)
 c
 c     n_sigma/n_total factor
        fabdown=rhob/rhoval

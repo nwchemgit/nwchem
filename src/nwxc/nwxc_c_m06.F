@@ -18,6 +18,10 @@ C>
 C> The M06 functional [1,2] is a meta-GGA of which this evaluates
 C> the correlation component.
 C>
+C> Due to the form of the meta-GGAs we need to screen on the kinetic
+C> energy density to ensure that LDA will be obtained when the kinetic
+C> energy density goes to zero [3].
+C>
 C> ### References ###
 C>
 C> [1] Y Zhao, DG Truhlar, 
@@ -35,6 +39,13 @@ C> and better performance on average than B3LYP for ground states",
 C> J. Phys. Chem. A <b>110</b>, 13126-13130 (2006), DOI:
 C> <a href="http://dx.doi.org/10.1021/jp066479k">
 C> 10.1021/jp066479k</a>.
+C>
+C> [3] J. Gr&auml;fenstein, D. Izotov, D. Cremer,
+C>     "Avoiding singularity problems associated with meta-GGA exchange
+C>     and correlation functionals containing the kinetic energy
+C>     density", J. Chem. Phys. <b>127</b>, 214103 (2007), DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2800011">
+C>     10.1063/1.2800011</a>.
 C>
 c    M06 suite correlation functional 
 c           META GGA
@@ -225,6 +236,10 @@ c     endif
 
       do 20 n = 1, nq
        if (rho(n,R_T).lt.Tol_Rho) goto 20
+       EUA  = 0.0d0
+       EUB  = 0.0d0
+       ChiA = 0.0d0
+       ChiB = 0.0d0
        if (ipol.eq.1) then
 c
 c    get the density, gradient, and tau for the alpha spin from the total 
@@ -233,13 +248,14 @@ c
 c        GAA = (    delrho(n,1,1)*delrho(n,1,1) +
 c    &                 delrho(n,2,1)*delrho(n,2,1) +
 c    &                 delrho(n,3,1)*delrho(n,3,1))/F4
+         PB = PA
          GAA = rgamma(n,G_TT)/F4
-         if(sqrt(gaa).lt.tol_rho) goto 20
+c        if(sqrt(gaa).lt.tol_rho) goto 20
 c  In the m06css subroutine, we use 2*TA as the tau, so we do not divide 
 c  the tau by 2 here
 
          TA = tau(n,T_T)
-         if(ta.lt.tol_rho) goto 20
+         if(ta.lt.tol_rho) goto 30
                   
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
@@ -256,7 +272,6 @@ c  the tau by 2 here
          Call nwxc_m06css_d3(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG)
 #endif
-         PB = PA
          GBB = GAA
          TB = TA
          FB = FA
@@ -295,7 +310,7 @@ c
 c  In the m06css subroutine, we use 2*TA as the tau 
 c
          TA = 2.0d0*tau(n,T_A) 
-
+         if (TA.le.Tol_Rho) go to 25
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
          Call nwxc_m06css_p(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
@@ -331,7 +346,7 @@ c    &          delrho(n,3,2)*delrho(n,3,2)
          GBB = rgamma(n,G_BB)
 
          TB = 2.0d0*tau(n,T_B)
-
+         if (TB.le.Tol_Rho) go to 30
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
          Call nwxc_m06css_p(param,Tol_Rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
@@ -357,7 +372,7 @@ c        Mmat(n,D1_TB)  = Mmat(n,D1_TB) + FTB
  30   continue
       P = PA + PB
       
-      If((PA.gt.0.5d0*Tol_Rho).and.(PB.gt.0.5d0*Tol_Rho)) then
+      If((PA.gt.0.5d0*Tol_Rho).or.(PB.gt.0.5d0*Tol_Rho)) then
           RS = (Pi34/P) ** F13
 c         RSP = -RS/(F3*P)
           Zeta = (PA-PB)/P
