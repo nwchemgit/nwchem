@@ -2,9 +2,9 @@ doi: "10.1103/PhysRevLett.82.2544";
 reference: "JP Perdew, S Kurth, A Zupan, P Blaha, Phys.Rev.Lett. 82, 2544 (1999) ";
 F000001:   0.0000000000000000E+00;
 F000002(rhoa,rhob):= rhoa+rhob;
-/* comp: F000002(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000002(rhoa,rhob).lt.0.1000000000000000E-09
 */
-/* comp: rhoa.lt.0.1000000000000000E-17
+/* comp: rhoa.lt.0.1000000000000000E-09
 */
 F000003(rhoa):= 0.2000000000000000E+01*rhoa;
 F000004(rhoa):= F000003(rhoa)^(4/3);
@@ -44,7 +44,7 @@ F000037(rhoa,sigmaaa,taua):= F000005(rhoa)*F000036(rhoa,sigmaaa,taua);
 F000038(rhoa,sigmaaa,taua):= F000037(rhoa,sigmaaa,taua)*0.1000000000000000E+01;
 F000039(rhoa,sigmaaa,taua):= F000038(rhoa,sigmaaa,taua)*0.5000000000000000E+00;
 F000040(rhoa,sigmaaa,taua):= F000012(rhoa)+F000039(rhoa,sigmaaa,taua);
-/* comp: rhob.lt.0.1000000000000000E-17
+/* comp: rhob.lt.0.1000000000000000E-09
 */
 F000041(rhob):= 0.2000000000000000E+01*rhob;
 F000042(rhob):= F000041(rhob)^(4/3);
@@ -87,9 +87,9 @@ F000078(rhoa,rhob,sigmaaa,sigmabb,taua,taub):= F000050(rhoa,rhob,sigmaaa,taua)+F
 f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000078(rhoa,rhob,sigmaaa,sigmabb,taua,taub);
 F000079:   0.0000000000000000E+00;
 F000080(rhoa,rhob):= rhoa+rhob;
-/* comp: F000080(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000080(rhoa,rhob).lt.0.1000000000000000E-09
 */
-/* comp: rhoa.lt.0.1000000000000000E-17
+/* comp: rhoa.lt.0.1000000000000000E-09
 */
 F000081(rhoa):= 0.2000000000000000E+01*rhoa;
 F000082(rhoa):= F000081(rhoa)^(4/3);
@@ -129,6 +129,6 @@ F000115(rhoa,sigmaaa,taua):= F000083(rhoa)*F000114(rhoa,sigmaaa,taua);
 F000116(rhoa,sigmaaa,taua):= F000115(rhoa,sigmaaa,taua)*0.1000000000000000E+01;
 F000117(rhoa,sigmaaa,taua):= F000116(rhoa,sigmaaa,taua)*0.5000000000000000E+00;
 F000118(rhoa,sigmaaa,taua):= F000090(rhoa)+F000117(rhoa,sigmaaa,taua);
-/* comp: rhob.lt.0.1000000000000000E-17
+/* comp: rhob.lt.0.1000000000000000E-09
 */
 G(rhoa,sigmaaa,taua,taub):=F000118(rhoa,sigmaaa,taua);

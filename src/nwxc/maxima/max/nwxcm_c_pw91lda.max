@@ -2,7 +2,7 @@ doi: "10.1103/PhysRevB.45.13244";
 reference: "JP Perdew, Y Wang, Phys.Rev.B 45, 13244 (1992) ";
 F000001:   0.0000000000000000E+00;
 F000002(rhoa,rhob):= rhoa+rhob;
-/* comp: F000002(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000002(rhoa,rhob).lt.0.1000000000000000E-09
 */
 F000003(rhoa,rhob):= F000002(rhoa,rhob)^-0.3333333333333333E+00;
 F000004(rhoa,rhob):= 0.6203504908994001E+00*F000003(rhoa,rhob);
@@ -88,7 +88,7 @@ F000075(rhoa,rhob):= F000001+F000074(rhoa,rhob);
 f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000075(rhoa,rhob);
 F000076:   0.0000000000000000E+00;
 F000077(rhoa,rhob):= rhoa+rhob;
-/* comp: F000077(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000077(rhoa,rhob).lt.0.1000000000000000E-09
 */
 F000078(rhoa,rhob):= F000077(rhoa,rhob)^-0.3333333333333333E+00;
 F000079(rhoa,rhob):= 0.6203504908994001E+00*F000078(rhoa,rhob);

@@ -1,13 +1,13 @@
 doi: "10.1063/1.477267";
 reference: "FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998) ";
 F000001:   0.0000000000000000E+00;
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000013:   0.0000000000000000E+00;
 F000014(rhoa,rhob):= rhoa+rhob;
@@ -94,7 +94,7 @@ F000084(rhoa,rhob):= F000031(rhoa,rhob)+F000083(rhoa,rhob);
 F000085(rhoa,rhob):= F000084(rhoa,rhob)*F000014(rhoa,rhob);
 F000086(rhoa,rhob):= F000085(rhoa,rhob)*0.1000000000000000E+01;
 F000087(rhoa,rhob):= F000013+F000086(rhoa,rhob);
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
 F000088:   0.0000000000000000E+00;
 F000089:   0.0000000000000000E+00;
@@ -178,7 +178,7 @@ F000156(rhoa):= F000107(rhoa)+F000155(rhoa);
 F000157(rhoa):= F000156(rhoa)*F000090(rhoa);
 F000158(rhoa):= F000157(rhoa)*0.1000000000000000E+01;
 F000159(rhoa):= F000089+F000158(rhoa);
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000160:   0.0000000000000000E+00;
 F000161:   0.0000000000000000E+00;
@@ -264,7 +264,7 @@ F000230(rhob):= F000229(rhob)*0.1000000000000000E+01;
 F000231(rhob):= F000161+F000230(rhob);
 F000232(rhoa,rhob):= F000087(rhoa,rhob)-F000159(rhoa);
 F000233(rhoa,rhob):= F000232(rhoa,rhob)-F000231(rhob);
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
 F000234(rhoa):= rhoa^(8/3);
 F000235(rhoa,sigmaaa):= sigmaaa/F000234(rhoa);
@@ -286,7 +286,7 @@ F000250(rhoa,sigmaaa):= F000249(rhoa,sigmaaa)*F000239(rhoa,sigmaaa);
 F000251(rhoa,sigmaaa):= F000250(rhoa,sigmaaa)*F000239(rhoa,sigmaaa);
 F000252(rhoa,sigmaaa):= F000251(rhoa,sigmaaa)*F000239(rhoa,sigmaaa);
 F000253(rhoa,sigmaaa):= F000248(rhoa,sigmaaa)+F000252(rhoa,sigmaaa);
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000254(rhob):= rhob^(8/3);
 F000255(rhob,sigmabb):= sigmabb/F000254(rhob);
@@ -308,9 +308,9 @@ F000270(rhob,sigmabb):= F000269(rhob,sigmabb)*F000259(rhob,sigmabb);
 F000271(rhob,sigmabb):= F000270(rhob,sigmabb)*F000259(rhob,sigmabb);
 F000272(rhob,sigmabb):= F000271(rhob,sigmabb)*F000259(rhob,sigmabb);
 F000273(rhob,sigmabb):= F000268(rhob,sigmabb)+F000272(rhob,sigmabb);
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000274(rhoa):= rhoa^(8/3);
 F000275(rhob):= rhob^(8/3);
@@ -346,13 +346,13 @@ F000304(rhoa,rhob,sigmaaa,sigmabb):= F000303(rhoa,rhob,sigmaaa,sigmabb)*0.100000
 F000305(rhoa,rhob,sigmaaa,sigmabb):= F000001+F000304(rhoa,rhob,sigmaaa,sigmabb);
 f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000305(rhoa,rhob,sigmaaa,sigmabb);
 F000306:   0.0000000000000000E+00;
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000318:   0.0000000000000000E+00;
 F000319(rhoa,rhob):= rhoa+rhob;
@@ -435,7 +435,7 @@ F000385(rhoa,rhob):= F000336(rhoa,rhob)+F000384(rhoa,rhob);
 F000386(rhoa,rhob):= F000385(rhoa,rhob)*F000319(rhoa,rhob);
 F000387(rhoa,rhob):= F000386(rhoa,rhob)*0.1000000000000000E+01;
 F000388(rhoa,rhob):= F000318+F000387(rhoa,rhob);
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
 F000389:   0.0000000000000000E+00;
 F000390:   0.0000000000000000E+00;
@@ -519,12 +519,12 @@ F000457(rhoa):= F000408(rhoa)+F000456(rhoa);
 F000458(rhoa):= F000457(rhoa)*F000391(rhoa);
 F000459(rhoa):= F000458(rhoa)*0.1000000000000000E+01;
 F000460(rhoa):= F000390+F000459(rhoa);
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000461:   0.0000000000000000E+00;
 F000462(rhoa,rhob):= F000388(rhoa,rhob)-F000460(rhoa);
 F000463(rhoa,rhob):= F000462(rhoa,rhob)-F000461;
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
 F000464(rhoa):= rhoa^(8/3);
 F000465(rhoa,sigmaaa):= sigmaaa/F000464(rhoa);
@@ -546,12 +546,12 @@ F000480(rhoa,sigmaaa):= F000479(rhoa,sigmaaa)*F000469(rhoa,sigmaaa);
 F000481(rhoa,sigmaaa):= F000480(rhoa,sigmaaa)*F000469(rhoa,sigmaaa);
 F000482(rhoa,sigmaaa):= F000481(rhoa,sigmaaa)*F000469(rhoa,sigmaaa);
 F000483(rhoa,sigmaaa):= F000478(rhoa,sigmaaa)+F000482(rhoa,sigmaaa);
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000484:   0.0000000000000000E+00;
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000485:   0.0000000000000000E+00;
 F000486(rhoa,sigmaaa):= F000460(rhoa)*F000483(rhoa,sigmaaa);

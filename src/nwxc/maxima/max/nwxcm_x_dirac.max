@@ -1,13 +1,13 @@
 doi: "10.1103/PhysRev.81.385";
 reference: "JC Slater, Phys.Rev. 81, 385 (1951) ";
 F000001:   0.0000000000000000E+00;
-/* comp: rhoa.gt.0.5000000000000000E-18
+/* comp: rhoa.gt.0.5000000000000000E-10
 */
 F000002(rhoa):= rhoa^(1/3);
 F000003(rhoa):= -0.9305257363491000E+00*rhoa;
 F000004(rhoa):= F000003(rhoa)*F000002(rhoa);
 F000005(rhoa):= F000001+F000004(rhoa);
-/* comp: rhob.gt.0.5000000000000000E-18
+/* comp: rhob.gt.0.5000000000000000E-10
 */
 F000006(rhob):= rhob^(1/3);
 F000007(rhob):= -0.9305257363491000E+00*rhob;
@@ -15,12 +15,12 @@ F000008(rhob):= F000007(rhob)*F000006(rhob);
 F000009(rhoa,rhob):= F000005(rhoa)+F000008(rhob);
 f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000009(rhoa,rhob);
 F000010:   0.0000000000000000E+00;
-/* comp: rhoa.gt.0.5000000000000000E-18
+/* comp: rhoa.gt.0.5000000000000000E-10
 */
 F000011(rhoa):= rhoa^(1/3);
 F000012(rhoa):= -0.9305257363491000E+00*rhoa;
 F000013(rhoa):= F000012(rhoa)*F000011(rhoa);
 F000014(rhoa):= F000010+F000013(rhoa);
-/* comp: rhob.gt.0.5000000000000000E-18
+/* comp: rhob.gt.0.5000000000000000E-10
 */
 G(rhoa,sigmaaa,taua,taub):=F000014(rhoa);

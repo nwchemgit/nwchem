@@ -3,7 +3,7 @@ reference: "C Lee, W Yang, RG Parr, Phys.Rev.B 37, 785 (1988) ";
 F000001:   0.0000000000000000E+00;
 F000002:   0.0000000000000000E+00;
 F000003(rhoa,rhob):= rhoa+rhob;
-/* comp: F000003(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000003(rhoa,rhob).lt.0.1000000000000000E-09
 */
 F000004(rhoa,rhob):= rhoa+rhob;
 F000005(rhoa,rhob):= 0.1000000000000000E+01/F000004(rhoa,rhob);
@@ -97,7 +97,7 @@ f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000091(rhoa,
 F000092:   0.0000000000000000E+00;
 F000093:   0.0000000000000000E+00;
 F000094(rhoa,rhob):= rhoa+rhob;
-/* comp: F000094(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000094(rhoa,rhob).lt.0.1000000000000000E-09
 */
 F000095(rhoa,rhob):= rhoa+rhob;
 F000096(rhoa,rhob):= 0.1000000000000000E+01/F000095(rhoa,rhob);

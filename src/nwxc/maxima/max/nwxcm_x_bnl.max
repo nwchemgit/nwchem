@@ -2,7 +2,7 @@ doi: "10.1039/B617919C";
 reference: "R Baer, D Neuhauser, E Livshits, Phys.Chem.Chem.Phys. 9, 2932 (2007) ";
 F000001:   0.0000000000000000E+00;
 F000003(rhoa,rhob):= rhoa+rhob;
-/* comp: F000003(rhoa,rhob).gt.0.1000000000000000E-17
+/* comp: F000003(rhoa,rhob).gt.0.1000000000000000E-09
 */
 F000004(rhoa):= rhoa*0.2000000000000000E+01;
 F000005(rhob):= rhob*0.2000000000000000E+01;
@@ -66,7 +66,7 @@ F000054(rhoa,rhob):= F000001+F000053(rhoa,rhob);
 f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000054(rhoa,rhob);
 F000055:   0.0000000000000000E+00;
 F000057(rhoa,rhob):= rhoa+rhob;
-/* comp: F000057(rhoa,rhob).gt.0.1000000000000000E-17
+/* comp: F000057(rhoa,rhob).gt.0.1000000000000000E-09
 */
 F000058(rhoa):= rhoa*0.2000000000000000E+01;
 F000059(rhob):= rhob*0.2000000000000000E+01;

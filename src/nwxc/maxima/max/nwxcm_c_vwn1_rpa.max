@@ -2,9 +2,9 @@ doi: "10.1139/p80-159";
 reference: "SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980) ";
 F000001:   0.0000000000000000E+00;
 F000002(rhoa,rhob):= rhoa+rhob;
-/* comp: F000002(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000002(rhoa,rhob).lt.0.1000000000000000E-09
 */
-/* comp: F000002(rhoa,rhob).gt.0.1000000000000000E-17
+/* comp: F000002(rhoa,rhob).gt.0.1000000000000000E-09
 */
 F000003(rhoa,rhob):= F000002(rhoa,rhob)^-0.3333333333333333E+00;
 F000004(rhoa,rhob):= 0.6203504908994001E+00*F000003(rhoa,rhob);
@@ -82,9 +82,9 @@ F000067(rhoa,rhob):= F000001+F000066(rhoa,rhob);
 f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000067(rhoa,rhob);
 F000068:   0.0000000000000000E+00;
 F000069(rhoa,rhob):= rhoa+rhob;
-/* comp: F000069(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000069(rhoa,rhob).lt.0.1000000000000000E-09
 */
-/* comp: F000069(rhoa,rhob).gt.0.1000000000000000E-17
+/* comp: F000069(rhoa,rhob).gt.0.1000000000000000E-09
 */
 F000070(rhoa,rhob):= F000069(rhoa,rhob)^-0.3333333333333333E+00;
 F000071(rhoa,rhob):= 0.6203504908994001E+00*F000070(rhoa,rhob);

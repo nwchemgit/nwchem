@@ -2,9 +2,9 @@ doi: "10.1063/1.3005348";
 reference: "T van Voorhis, GE Scuseria, J.Chem.Phys. 109, 400 (1998) ";
 F000001:   0.0000000000000000E+00;
 F000008(rhoa,rhob):= rhoa+rhob;
-/* comp: F000008(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000008(rhoa,rhob).lt.0.1000000000000000E-09
 */
-/* comp: rhoa.lt.0.1000000000000000E-17
+/* comp: rhoa.lt.0.1000000000000000E-09
 */
 F000009(rhoa):= rhoa^(4/3);
 F000010(rhoa):= 0.1000000000000000E+01/rhoa;
@@ -38,7 +38,7 @@ F000037(rhoa,sigmaaa,taua):= F000036(rhoa,sigmaaa,taua)/F000021(rhoa,sigmaaa,tau
 F000038(rhoa,sigmaaa,taua):= F000009(rhoa)*F000037(rhoa,sigmaaa,taua);
 F000039(rhoa,sigmaaa,taua):= F000038(rhoa,sigmaaa,taua)*0.1000000000000000E+01;
 F000040(rhoa,sigmaaa,taua):= F000001+F000039(rhoa,sigmaaa,taua);
-/* comp: rhob.lt.0.1000000000000000E-17
+/* comp: rhob.lt.0.1000000000000000E-09
 */
 F000041(rhob):= rhob^(4/3);
 F000042(rhob):= 0.1000000000000000E+01/rhob;
@@ -75,9 +75,9 @@ F000072(rhoa,rhob,sigmaaa,sigmabb,taua,taub):= F000040(rhoa,sigmaaa,taua)+F00007
 f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000072(rhoa,rhob,sigmaaa,sigmabb,taua,taub);
 F000073:   0.0000000000000000E+00;
 F000080(rhoa,rhob):= rhoa+rhob;
-/* comp: F000080(rhoa,rhob).lt.0.1000000000000000E-17
+/* comp: F000080(rhoa,rhob).lt.0.1000000000000000E-09
 */
-/* comp: rhoa.lt.0.1000000000000000E-17
+/* comp: rhoa.lt.0.1000000000000000E-09
 */
 F000081(rhoa):= rhoa^(4/3);
 F000082(rhoa):= 0.1000000000000000E+01/rhoa;
@@ -111,6 +111,6 @@ F000109(rhoa,sigmaaa,taua):= F000108(rhoa,sigmaaa,taua)/F000093(rhoa,sigmaaa,tau
 F000110(rhoa,sigmaaa,taua):= F000081(rhoa)*F000109(rhoa,sigmaaa,taua);
 F000111(rhoa,sigmaaa,taua):= F000110(rhoa,sigmaaa,taua)*0.1000000000000000E+01;
 F000112(rhoa,sigmaaa,taua):= F000073+F000111(rhoa,sigmaaa,taua);
-/* comp: rhob.lt.0.1000000000000000E-17
+/* comp: rhob.lt.0.1000000000000000E-09
 */
 G(rhoa,sigmaaa,taua,taub):=F000112(rhoa,sigmaaa,taua);

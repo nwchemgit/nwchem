@@ -1,11 +1,11 @@
 doi: "10.1063/1.475007";
 reference: "AD Becke, J.Chem.Phys. 107, 8554 (1997) ";
 F000001:   0.0000000000000000E+00;
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
 F000006(rhoa):= rhoa^(8/3);
 F000007(rhoa,sigmaaa):= sigmaaa/F000006(rhoa);
@@ -21,7 +21,7 @@ F000016(rhoa,sigmaaa):= F000013(rhoa,sigmaaa)+F000015(rhoa,sigmaaa);
 F000017(rhoa):= rhoa^(4/3);
 F000018(rhoa):= 0.9305257363490993E+00*F000017(rhoa);
 F000019(rhoa):= -(F000018(rhoa));
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000020(rhob):= rhob^(8/3);
 F000021(rhob,sigmabb):= sigmabb/F000020(rhob);
@@ -45,11 +45,11 @@ F000038(rhoa,rhob,sigmaaa,sigmabb):= F000037(rhoa,rhob,sigmaaa,sigmabb)*0.100000
 F000039(rhoa,rhob,sigmaaa,sigmabb):= F000001+F000038(rhoa,rhob,sigmaaa,sigmabb);
 f(zeta,rhoa,rhob,rho,sigmaaa,sigmaab,sigmabb,sigma,taua,taub,tau):=F000039(rhoa,rhob,sigmaaa,sigmabb);
 F000040:   0.0000000000000000E+00;
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
-/* comp: rhoa.gt.0.1000000000000000E-17
+/* comp: rhoa.gt.0.1000000000000000E-09
 */
 F000045(rhoa):= rhoa^(8/3);
 F000046(rhoa,sigmaaa):= sigmaaa/F000045(rhoa);
@@ -65,7 +65,7 @@ F000055(rhoa,sigmaaa):= F000052(rhoa,sigmaaa)+F000054(rhoa,sigmaaa);
 F000056(rhoa):= rhoa^(4/3);
 F000057(rhoa):= 0.9305257363490993E+00*F000056(rhoa);
 F000058(rhoa):= -(F000057(rhoa));
-/* comp: rhob.gt.0.1000000000000000E-17
+/* comp: rhob.gt.0.1000000000000000E-09
 */
 F000059:   0.0000000000000000E+00;
 F000060:   0.0000000000000000E+00;
