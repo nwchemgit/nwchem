@@ -34,11 +34,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.414213562373095\,{\it t_{12}}\,{\it t_{16}}\,{\it t_{15}}\,{\it t_{17}}}\over{\left(1.0\,\left(\rho_s+{\it t_3}\right)\,{\it t_{12}}+1.0\right)^{{{5}\over{6}}}\,e^{{{8.129082500000001 \times 10^{-4}\,\sqrt{{\it t_{17}}}}\over{{\it t_{16}}\,{\it t_{14}}^{1.166666666666667}}}}}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, Phys.Rev. B 33, 8822 (1986)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.33.8822 "> 
 C> 10.1103/PhysRevB.33.8822 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_perdew86(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -287,11 +296,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.414213562373095\,{\it t_{12}}\,{\it t_{16}}\,{\it t_{15}}\,{\it t_{17}}}\over{\left(1.0\,\left(\rho_s+{\it t_3}\right)\,{\it t_{12}}+1.0\right)^{{{5}\over{6}}}\,e^{{{8.129082500000001 \times 10^{-4}\,\sqrt{{\it t_{17}}}}\over{{\it t_{16}}\,{\it t_{14}}^{1.166666666666667}}}}}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, Phys.Rev. B 33, 8822 (1986)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.33.8822 "> 
 C> 10.1103/PhysRevB.33.8822 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_perdew86_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -844,11 +862,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.414213562373095\,{\it t_{12}}\,{\it t_{16}}\,{\it t_{15}}\,{\it t_{17}}}\over{\left(1.0\,\left(\rho_s+{\it t_3}\right)\,{\it t_{12}}+1.0\right)^{{{5}\over{6}}}\,e^{{{8.129082500000001 \times 10^{-4}\,\sqrt{{\it t_{17}}}}\over{{\it t_{16}}\,{\it t_{14}}^{1.166666666666667}}}}}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, Phys.Rev. B 33, 8822 (1986)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.33.8822 "> 
 C> 10.1103/PhysRevB.33.8822 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_perdew86_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

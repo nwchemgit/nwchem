@@ -39,11 +39,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{13}}\,\left(0.5848223622634648\,\left(1.923661050931536\,\left({{{\it t_{20}}}\over{{\it t_{13}}}}+1.0\right)^{{{4}\over{3}}}-3.847322101863072\right)\,\left({{{\it t_{20}}^4\,\left(1.709920934161365\,\left(0.0621814\,{\it t_{16}}\,{\it t_{19}}-0.0310907\,\left(0.1274696188700087\,{\it t_{15}}+1.0\right)\,\log \left({{1.269642451250142\,{\it t_{17}}}\over{0.7876233178997433\,{\it t_{18}}\,\left(0.7876233178997433\,{\it t_{18}}\,\left(0.01530901310039024\,{\it t_{18}}+0.10465751434\right)+0.19269083139\right)+0.43896648423}}+1.0\right)\right)-0.0337738\,{\it t_{21}}\,{\it t_{22}}\right)}\over{{\it t_{13}}^4}}+0.0337738\,{\it t_{21}}\,{\it t_{22}}\right)-0.0621814\,{\it t_{16}}\,{\it t_{19}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, Y Wang, Phys.Rev.B 45, 13244 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.45.13244 "> 
 C> 10.1103/PhysRevB.45.13244 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_pw91lda(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat) 
@@ -319,11 +328,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{13}}\,\left(0.5848223622634648\,\left(1.923661050931536\,\left({{{\it t_{20}}}\over{{\it t_{13}}}}+1.0\right)^{{{4}\over{3}}}-3.847322101863072\right)\,\left({{{\it t_{20}}^4\,\left(1.709920934161365\,\left(0.0621814\,{\it t_{16}}\,{\it t_{19}}-0.0310907\,\left(0.1274696188700087\,{\it t_{15}}+1.0\right)\,\log \left({{1.269642451250142\,{\it t_{17}}}\over{0.7876233178997433\,{\it t_{18}}\,\left(0.7876233178997433\,{\it t_{18}}\,\left(0.01530901310039024\,{\it t_{18}}+0.10465751434\right)+0.19269083139\right)+0.43896648423}}+1.0\right)\right)-0.0337738\,{\it t_{21}}\,{\it t_{22}}\right)}\over{{\it t_{13}}^4}}+0.0337738\,{\it t_{21}}\,{\it t_{22}}\right)-0.0621814\,{\it t_{16}}\,{\it t_{19}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, Y Wang, Phys.Rev.B 45, 13244 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.45.13244 "> 
 C> 10.1103/PhysRevB.45.13244 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_pw91lda_d2(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2) 
@@ -827,11 +845,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{13}}\,\left(0.5848223622634648\,\left(1.923661050931536\,\left({{{\it t_{20}}}\over{{\it t_{13}}}}+1.0\right)^{{{4}\over{3}}}-3.847322101863072\right)\,\left({{{\it t_{20}}^4\,\left(1.709920934161365\,\left(0.0621814\,{\it t_{16}}\,{\it t_{19}}-0.0310907\,\left(0.1274696188700087\,{\it t_{15}}+1.0\right)\,\log \left({{1.269642451250142\,{\it t_{17}}}\over{0.7876233178997433\,{\it t_{18}}\,\left(0.7876233178997433\,{\it t_{18}}\,\left(0.01530901310039024\,{\it t_{18}}+0.10465751434\right)+0.19269083139\right)+0.43896648423}}+1.0\right)\right)-0.0337738\,{\it t_{21}}\,{\it t_{22}}\right)}\over{{\it t_{13}}^4}}+0.0337738\,{\it t_{21}}\,{\it t_{22}}\right)-0.0621814\,{\it t_{16}}\,{\it t_{19}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, Y Wang, Phys.Rev.B 45, 13244 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.45.13244 "> 
 C> 10.1103/PhysRevB.45.13244 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_pw91lda_d3(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2,Amat3) 

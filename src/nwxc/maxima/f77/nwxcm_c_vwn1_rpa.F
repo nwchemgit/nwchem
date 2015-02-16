@@ -46,11 +46,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{17}}\,\left(1.923661050931536\,\left(\left({{\rho_s+{\it t_{13}}}\over{{\it t_{17}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(0.01554535\,\log \left(0.6203504908994001\,{\it t_{27}}\,{\it t_{29}}\right)+0.002667310007273315\,\log \left(1.0\,\left({\it t_{22}}+0.743294\right)^2\,{\it t_{29}}\right)-0.0310907\,{\it t_{28}}-0.004431373767749538\,{\it t_{26}}+0.6188180297906176\,\arctan \left({{1.171685277708971}\over{{\it t_{20}}+20.1231}}\right)-20.52197293770518\,{\it t_{21}}\right)+0.0310907\,{\it t_{28}}+0.004431373767749538\,{\it t_{26}}+20.52197293770518\,{\it t_{21}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
 C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_vwn1_rpa(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat) 
@@ -359,11 +368,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{17}}\,\left(1.923661050931536\,\left(\left({{\rho_s+{\it t_{13}}}\over{{\it t_{17}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(0.01554535\,\log \left(0.6203504908994001\,{\it t_{27}}\,{\it t_{29}}\right)+0.002667310007273315\,\log \left(1.0\,\left({\it t_{22}}+0.743294\right)^2\,{\it t_{29}}\right)-0.0310907\,{\it t_{28}}-0.004431373767749538\,{\it t_{26}}+0.6188180297906176\,\arctan \left({{1.171685277708971}\over{{\it t_{20}}+20.1231}}\right)-20.52197293770518\,{\it t_{21}}\right)+0.0310907\,{\it t_{28}}+0.004431373767749538\,{\it t_{26}}+20.52197293770518\,{\it t_{21}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
 C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_vwn1_rpa_d2(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2) 
@@ -944,11 +962,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{17}}\,\left(1.923661050931536\,\left(\left({{\rho_s+{\it t_{13}}}\over{{\it t_{17}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(0.01554535\,\log \left(0.6203504908994001\,{\it t_{27}}\,{\it t_{29}}\right)+0.002667310007273315\,\log \left(1.0\,\left({\it t_{22}}+0.743294\right)^2\,{\it t_{29}}\right)-0.0310907\,{\it t_{28}}-0.004431373767749538\,{\it t_{26}}+0.6188180297906176\,\arctan \left({{1.171685277708971}\over{{\it t_{20}}+20.1231}}\right)-20.52197293770518\,{\it t_{21}}\right)+0.0310907\,{\it t_{28}}+0.004431373767749538\,{\it t_{26}}+20.52197293770518\,{\it t_{21}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
 C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_vwn1_rpa_d3(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2,Amat3) 

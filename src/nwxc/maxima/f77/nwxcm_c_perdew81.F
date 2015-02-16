@@ -38,11 +38,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{13}}\,\left(1.923661050931536\,\left(\left({{\rho_s+{\it t_{10}}}\over{{\it t_{13}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(-{\it t_{19}}\,{\it t_{21}}+{\it t_{19}}\,\left(4.3424534362958 \times 10^{-4}\,{\it t_{14}}\,{\it t_{20}}+0.01555\,{\it t_{20}}-0.00297768235631712\,{\it t_{14}}-0.0269\right)-{{0.0843\,{\it t_{18}}}\over{1.101176160755631\,{\it t_{15}}+0.1619735131738333\,{\it t_{14}}+1.0}}+0.1423\,{\it t_{16}}\,{\it t_{18}}\right)+{\it t_{19}}\,{\it t_{21}}-0.1423\,{\it t_{16}}\,{\it t_{18}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, A Zunger, Phys.Rev. B 23, 5048 (1981)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.23.5048 "> 
 C> 10.1103/PhysRevB.23.5048 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_perdew81(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat) 
@@ -248,11 +257,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{13}}\,\left(1.923661050931536\,\left(\left({{\rho_s+{\it t_{10}}}\over{{\it t_{13}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(-{\it t_{19}}\,{\it t_{21}}+{\it t_{19}}\,\left(4.3424534362958 \times 10^{-4}\,{\it t_{14}}\,{\it t_{20}}+0.01555\,{\it t_{20}}-0.00297768235631712\,{\it t_{14}}-0.0269\right)-{{0.0843\,{\it t_{18}}}\over{1.101176160755631\,{\it t_{15}}+0.1619735131738333\,{\it t_{14}}+1.0}}+0.1423\,{\it t_{16}}\,{\it t_{18}}\right)+{\it t_{19}}\,{\it t_{21}}-0.1423\,{\it t_{16}}\,{\it t_{18}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, A Zunger, Phys.Rev. B 23, 5048 (1981)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.23.5048 "> 
 C> 10.1103/PhysRevB.23.5048 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_perdew81_d2(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2) 
@@ -577,11 +595,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{13}}\,\left(1.923661050931536\,\left(\left({{\rho_s+{\it t_{10}}}\over{{\it t_{13}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(-{\it t_{19}}\,{\it t_{21}}+{\it t_{19}}\,\left(4.3424534362958 \times 10^{-4}\,{\it t_{14}}\,{\it t_{20}}+0.01555\,{\it t_{20}}-0.00297768235631712\,{\it t_{14}}-0.0269\right)-{{0.0843\,{\it t_{18}}}\over{1.101176160755631\,{\it t_{15}}+0.1619735131738333\,{\it t_{14}}+1.0}}+0.1423\,{\it t_{16}}\,{\it t_{18}}\right)+{\it t_{19}}\,{\it t_{21}}-0.1423\,{\it t_{16}}\,{\it t_{18}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, A Zunger, Phys.Rev. B 23, 5048 (1981)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.23.5048 "> 
 C> 10.1103/PhysRevB.23.5048 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_perdew81_d3(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2,Amat3) 

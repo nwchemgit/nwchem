@@ -61,11 +61,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{24}}\,\left({{1.125\,\left(\left({{{\it t_{36}}}\over{{\it t_{24}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(0.01554535\,\log \left(0.6203504908994001\,{\it t_{34}}\,{\it t_{37}}\right)+0.002247867095542611\,\log \left(1.0\,\left({\it t_{29}}+0.325\right)^2\,{\it t_{37}}\right)-0.0310907\,{\it t_{35}}-9.690227711544375 \times 10^{-4}\,{\it t_{33}}+0.05249139316978092\,\arctan \left({{4.730926909560114}\over{{\it t_{27}}+7.06042}}\right)-0.03878329487811301\,{\it t_{28}}\right)\,\left({{{\it t_{36}}^4\,\left(1.709920934161365\,{\it t_{44}}+0.01688686394038963\,{\it t_{41}}+3.649033517917767 \times 10^{-4}\,{\it t_{40}}+0.005458482358638966\,{\it t_{38}}\right)}\over{{\it t_{24}}^4}}-0.01688686394038963\,{\it t_{41}}-3.649033517917767 \times 10^{-4}\,{\it t_{40}}-0.005458482358638966\,{\it t_{38}}\right)}\over{{\it t_{44}}}}+0.0310907\,{\it t_{35}}+9.690227711544375 \times 10^{-4}\,{\it t_{33}}+0.03878329487811301\,{\it t_{28}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
 C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_vwn3(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat) 
@@ -576,11 +585,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{24}}\,\left({{1.125\,\left(\left({{{\it t_{36}}}\over{{\it t_{24}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(0.01554535\,\log \left(0.6203504908994001\,{\it t_{34}}\,{\it t_{37}}\right)+0.002247867095542611\,\log \left(1.0\,\left({\it t_{29}}+0.325\right)^2\,{\it t_{37}}\right)-0.0310907\,{\it t_{35}}-9.690227711544375 \times 10^{-4}\,{\it t_{33}}+0.05249139316978092\,\arctan \left({{4.730926909560114}\over{{\it t_{27}}+7.06042}}\right)-0.03878329487811301\,{\it t_{28}}\right)\,\left({{{\it t_{36}}^4\,\left(1.709920934161365\,{\it t_{44}}+0.01688686394038963\,{\it t_{41}}+3.649033517917767 \times 10^{-4}\,{\it t_{40}}+0.005458482358638966\,{\it t_{38}}\right)}\over{{\it t_{24}}^4}}-0.01688686394038963\,{\it t_{41}}-3.649033517917767 \times 10^{-4}\,{\it t_{40}}-0.005458482358638966\,{\it t_{38}}\right)}\over{{\it t_{44}}}}+0.0310907\,{\it t_{35}}+9.690227711544375 \times 10^{-4}\,{\it t_{33}}+0.03878329487811301\,{\it t_{28}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
 C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_vwn3_d2(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2) 
@@ -1643,11 +1661,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,{\it t_{24}}\,\left({{1.125\,\left(\left({{{\it t_{36}}}\over{{\it t_{24}}}}+1.0\right)^{{{4}\over{3}}}-2.0\right)\,\left(0.01554535\,\log \left(0.6203504908994001\,{\it t_{34}}\,{\it t_{37}}\right)+0.002247867095542611\,\log \left(1.0\,\left({\it t_{29}}+0.325\right)^2\,{\it t_{37}}\right)-0.0310907\,{\it t_{35}}-9.690227711544375 \times 10^{-4}\,{\it t_{33}}+0.05249139316978092\,\arctan \left({{4.730926909560114}\over{{\it t_{27}}+7.06042}}\right)-0.03878329487811301\,{\it t_{28}}\right)\,\left({{{\it t_{36}}^4\,\left(1.709920934161365\,{\it t_{44}}+0.01688686394038963\,{\it t_{41}}+3.649033517917767 \times 10^{-4}\,{\it t_{40}}+0.005458482358638966\,{\it t_{38}}\right)}\over{{\it t_{24}}^4}}-0.01688686394038963\,{\it t_{41}}-3.649033517917767 \times 10^{-4}\,{\it t_{40}}-0.005458482358638966\,{\it t_{38}}\right)}\over{{\it t_{44}}}}+0.0310907\,{\it t_{35}}+9.690227711544375 \times 10^{-4}\,{\it t_{33}}+0.03878329487811301\,{\it t_{28}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] SH Vosko, L Wilk, M Nusair, Can.J.Phys. 58, 1200 (1980)  , DOI: 
 C> <a href="http://dx.doi.org/10.1139/p80-159 "> 
 C> 10.1139/p80-159 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_vwn3_d3(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2,Amat3) 
