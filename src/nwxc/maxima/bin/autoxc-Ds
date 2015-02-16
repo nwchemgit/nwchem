@@ -438,11 +438,11 @@ funclab(rho_a,rho_b):=
 funclb(rho_a,rho_b,sigma_aa,tau_a):=
    func(rho_a,rho_b,sigma_aa,0,4*rho_b*1.0e-50,tau_a,1.0e-50)$
 funcls(rho_s,tau_u):=
-   limit(funcs(rho_s,4*rho_s*1.0e-50,1.0e-50,tau_u)$
+   funcs(rho_s,4*rho_s*1.0e-50,1.0e-50,tau_u)$
 funclsu(rho_s):=
-   limit(funcs(rho_s,4*rho_s*1.0e-50,1.0e-50,1.0e-50)$
+   funcs(rho_s,4*rho_s*1.0e-50,1.0e-50,1.0e-50)$
 funclu(rho_s,sigma_ss,tau_s):=
-   limit(funcs(rho_s,sigma_ss,tau_s,1.0e-50)$
+   funcs(rho_s,sigma_ss,tau_s,1.0e-50)$
 
 /* debugmode(true) $ */
 
@@ -465,14 +465,6 @@ if tau_deriv then
 /* Set line length to something huge to avoid strings getting wrapped */
 
 linel: 20000$
-
-/* Maxima can handle different floating point precisions. To get good agreement
-   between the automatic differentiation code and the Maxima generated code
-   the floating point precisions used in pre-calculating constants has to
-   match reasonably well.
-*/
-
-fpprec: 32$
 
 /* The usual psychosis:
    Running fortran(%pi) produces "%pi" instead of a number or something else a
@@ -1240,9 +1232,9 @@ ue1lar: [ dfla1ra(rhoa,rhob,gammabb,taub),
           dfla1rb(rhoa,rhob,gammabb,taub) ] $
 ue1lag: [ 0,
           0,
-          df1gbb(rhoa,rhob,gammabb,taub) ] $
+          dfla1gbb(rhoa,rhob,gammabb,taub) ] $
 ue1lat: [ 0,
-          df1tb(rhoa,rhob,gammabb,taub) ] $
+          dfla1tb(rhoa,rhob,gammabb,taub) ] $
 
 ue0lab : [ funclab(rhoa,rhob) ] $
 ue1labr: [ dflab1ra(rhoa,rhob),
@@ -1281,7 +1273,7 @@ uea1lag: [ 0 ] $
 uea1lat: [ 0,
            dfls1tu(rhoa,taub) ] $
 
-uea0lab : [ funcls(rhoa) ] $
+uea0lab : [ funclsu(rhoa) ] $
 uea1labr: [ dflsu1rs(rhoa) ] $
 uea1labg: [ 0 ] $
 uea1labt: [ 0,
@@ -1312,7 +1304,7 @@ ueb1lbg: [ 0 ] $
 ueb1lbt: [ 0,
            dfls1tu(rhob,taua) ] $
 
-ueb0lab : [ funcls(rhob) ] $
+ueb0lab : [ funclsu(rhob) ] $
 ueb1labr: [ dflsu1rs(rhob) ] $
 ueb1labg: [ 0 ] $
 ueb1labt: [ 0,
@@ -1337,10 +1329,10 @@ ce1g: [ at(df1gaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=r
         at(df1gab(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
 ce1t: [ at(df1ta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
 
-ce0l : [ funclab(rhoa,rhoa) ] $
+ce0lab : [ funclab(rhoa,rhoa) ] $
 ce1lr: [ at(df1labra(rhoa,rhob),[rhoa=rhoa,rhob=rhoa]) ] $
 ce1lg: [ 0,
-         0 ] $
+           0 ] $
 ce1lt: [ 0 ] $
 
 /* Lists of second order quantities */
@@ -1461,17 +1453,17 @@ ue2lbg: [ dflb2ragaa(rhoa,rhob,gammaaa,taua),
           0,
           0,
           0 ] $
-ue2lbt: [ df2rata(rhoa,rhob,gammaaa,taua),
+ue2lbt: [ dflb2rata(rhoa,rhob,gammaaa,taua),
           0,
-          df2rbta(rhoa,rhob,gammaaa,taua),
+          dflb2rbta(rhoa,rhob,gammaaa,taua),
           0,
-          df2gaata(rhoa,rhob,gammaaa,taua),
-          0,
-          0,
+          dflb2gaata(rhoa,rhob,gammaaa,taua),
           0,
           0,
           0,
-          df2tata(rhoa,rhob,gammaaa,taua),
+          0,
+          0,
+          dflb2tata(rhoa,rhob,gammaaa,taua),
           0,
           0 ] $
 
@@ -1570,14 +1562,14 @@ ueb2labt: [ 0,
             0,
             0   ] $
 
-ueb2lbr: [ dfs2rsrs(rhob,taua) ] $
+ueb2lbr: [ dfls2rsrs(rhob,taua) ] $
 ueb2lbg: [ 0,
            0 ] $
-ueb2lbt: [ dfs2rstu(rhob,taua),
+ueb2lbt: [ dfls2rstu(rhob,taua),
            0,
            0,
            0,
-           dfs2tutu(rhob,taua),
+           dfls2tutu(rhob,taua),
            0,
            0   ] $
 
@@ -1795,25 +1787,23 @@ ue3lag: [ 0,
           dfla3gbbgbbgbb(rhoa,rhob,gammabb,taub) ] $
 
 ue3lat: [ 0,
-          df3raratb(rhoa,rhob,gammabb,taub),
+          dfla3raratb(rhoa,rhob,gammabb,taub),
           0,
-          df3rarbtb(rhoa,rhob,gammabb,taub), 
+          dfla3rarbtb(rhoa,rhob,gammabb,taub), 
           0,
-          df3rbrbtb(rhoa,rhob,gammabb,taub), 
-          0,
-          0,
-          0,
-          0,
-          0,
-          df3ragbbtb(rhoa,rhob,gammabb,taub), 
+          dfla3rbrbtb(rhoa,rhob,gammabb,taub), 
           0,
           0,
           0,
           0,
           0,
-          df3rbgbbtb(rhoa,rhob,gammabb,taub), 
+          dfla3ragbbtb(rhoa,rhob,gammabb,taub), 
           0,
           0,
+          0,
+          0,
+          0,
+          dfla3rbgbbtb(rhoa,rhob,gammabb,taub), 
           0,
           0,
           0,
@@ -1823,7 +1813,9 @@ ue3lat: [ 0,
           0,
           0,
           0,
-          df3gbbgbbtb(rhoa,rhob,gammabb,taub),
+          0,
+          0,
+          dfla3gbbgbbtb(rhoa,rhob,gammabb,taub),
           0,
           0,
           0,
@@ -1832,11 +1824,11 @@ ue3lat: [ 0,
           0,
           0,
           0,
-          df3gbbtbtb(rhoa,rhob,gammabb,taub),
+          dfla3gbbtbtb(rhoa,rhob,gammabb,taub),
           0,
           0,
           0,
-          df3tbtbtb(rhoa,rhob,gammabb,taub) ] $
+          dfla3tbtbtb(rhoa,rhob,gammabb,taub) ] $
 
 ue3labr: [ dflab3rarara(rhoa,rhob),
            dflab3rararb(rhoa,rhob),
