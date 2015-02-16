@@ -43,6 +43,7 @@ def remove_duplicates(doi_table):
     must be unique"""
     doi_set = set(doi_table)
     doi_table = list(doi_set)
+    doi_table.sort()
     return doi_table
 
 def lookup_dois(doi_table):
