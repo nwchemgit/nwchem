@@ -41,11 +41,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-0.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] C Lee, W Yang, RG Parr, Phys.Rev.B 37, 785 (1988)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.37.785 "> 
 C> 10.1103/PhysRevB.37.785 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_lyp(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -356,11 +365,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-0.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] C Lee, W Yang, RG Parr, Phys.Rev.B 37, 785 (1988)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.37.785 "> 
 C> 10.1103/PhysRevB.37.785 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_lyp_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -1019,11 +1037,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_s\,{\it t_{15}}\,{\it t_{23}}+1.0\right)+{\it t_9}\right)\,{\it t_{20}}\,\sigma_{ss}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left({\it t_{24}}-1.0\,\rho_\beta\,{\it t_{15}}\,{\it t_{23}}+1.0\right)-\rho_s^2\right)\,{\it t_{20}}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_{18}}\,{\it t_{17}}\,\left(0.1111111111111111\,\rho_\beta\,\rho_s\,\left(47.0-7.0\,{\it t_{22}}\right)-1.333333333333333\,{\it t_{14}}^2\right)\,{\it t_{20}}\,\sigma_{\alpha\beta}-0.2367051431943866\,\rho_\beta\,\rho_s\,{\it t_{18}}\,\left(\rho_s^{{{8}\over{3}}}+{\it t_6}\right)\,{\it t_{17}}\,{\it t_{20}}-0.19672\,\rho_\beta\,\rho_s\,{\it t_{15}}\,{\it t_{17}}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] C Lee, W Yang, RG Parr, Phys.Rev.B 37, 785 (1988)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevB.37.785 "> 
 C> 10.1103/PhysRevB.37.785 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_lyp_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

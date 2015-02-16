@@ -59,11 +59,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(0.9999999999999991\,\left(0.0621814\,{\it t_{39}}\,{\it t_{40}}-0.0310907\,\log \left({{1.269642451250142\,{\it t_{36}}}\over{0.7876233178997433\,\left(0.7876233178997433\,\left(0.01530901310039024\,{\it t_{37}}+0.10465751434\right)\,{\it t_{37}}+0.19269083139\right)\,{\it t_{37}}+0.43896648423}}+1.0\right)\,\left(0.1274696188700087\,{\it t_{38}}+1.0\right)\right)-0.0621814\,{\it t_{39}}\,{\it t_{40}}\right)\,\rho_s\,\left({{0.2\,{\it t_{12}}\,{\it t_{41}}\,\sigma_{ss}}\over{{\it t_{42}}}}+{{0.04000000000000001\,{\it t_9}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{42}}^2}}+{\it t_8}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] AD Becke, J.Chem.Phys. 107, 8554 (1997)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.475007 "> 
 C> 10.1063/1.475007 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_b97(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -590,11 +599,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(0.9999999999999991\,\left(0.0621814\,{\it t_{39}}\,{\it t_{40}}-0.0310907\,\log \left({{1.269642451250142\,{\it t_{36}}}\over{0.7876233178997433\,\left(0.7876233178997433\,\left(0.01530901310039024\,{\it t_{37}}+0.10465751434\right)\,{\it t_{37}}+0.19269083139\right)\,{\it t_{37}}+0.43896648423}}+1.0\right)\,\left(0.1274696188700087\,{\it t_{38}}+1.0\right)\right)-0.0621814\,{\it t_{39}}\,{\it t_{40}}\right)\,\rho_s\,\left({{0.2\,{\it t_{12}}\,{\it t_{41}}\,\sigma_{ss}}\over{{\it t_{42}}}}+{{0.04000000000000001\,{\it t_9}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{42}}^2}}+{\it t_8}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] AD Becke, J.Chem.Phys. 107, 8554 (1997)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.475007 "> 
 C> 10.1063/1.475007 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_b97_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -1659,11 +1677,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(0.9999999999999991\,\left(0.0621814\,{\it t_{39}}\,{\it t_{40}}-0.0310907\,\log \left({{1.269642451250142\,{\it t_{36}}}\over{0.7876233178997433\,\left(0.7876233178997433\,\left(0.01530901310039024\,{\it t_{37}}+0.10465751434\right)\,{\it t_{37}}+0.19269083139\right)\,{\it t_{37}}+0.43896648423}}+1.0\right)\,\left(0.1274696188700087\,{\it t_{38}}+1.0\right)\right)-0.0621814\,{\it t_{39}}\,{\it t_{40}}\right)\,\rho_s\,\left({{0.2\,{\it t_{12}}\,{\it t_{41}}\,\sigma_{ss}}\over{{\it t_{42}}}}+{{0.04000000000000001\,{\it t_9}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{42}}^2}}+{\it t_8}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] AD Becke, J.Chem.Phys. 107, 8554 (1997)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.475007 "> 
 C> 10.1063/1.475007 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_b97_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

@@ -61,11 +61,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(0.9999999999999991\,\left(0.0621814\,{\it t_{41}}\,{\it t_{42}}-0.0310907\,\log \left({{1.269642451250142\,{\it t_{38}}}\over{0.7876233178997433\,\left(0.7876233178997433\,\left(0.01530901310039024\,{\it t_{39}}+0.10465751434\right)\,{\it t_{39}}+0.19269083139\right)\,{\it t_{39}}+0.43896648423}}+1.0\right)\,\left(0.1274696188700087\,{\it t_{40}}+1.0\right)\right)-0.0621814\,{\it t_{41}}\,{\it t_{42}}\right)\,\rho_s\,\left({{0.2\,{\it t_{14}}\,{\it t_{43}}\,\sigma_{ss}}\over{{\it t_{44}}}}+{{0.04000000000000001\,{\it t_{13}}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{44}}^2}}+{{0.008000000000000002\,{\it t_{12}}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{44}}^3}}+{{0.001600000000000001\,{\it t_9}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{44}}^4}}+{\it t_8}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_hcth(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -701,11 +710,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(0.9999999999999991\,\left(0.0621814\,{\it t_{41}}\,{\it t_{42}}-0.0310907\,\log \left({{1.269642451250142\,{\it t_{38}}}\over{0.7876233178997433\,\left(0.7876233178997433\,\left(0.01530901310039024\,{\it t_{39}}+0.10465751434\right)\,{\it t_{39}}+0.19269083139\right)\,{\it t_{39}}+0.43896648423}}+1.0\right)\,\left(0.1274696188700087\,{\it t_{40}}+1.0\right)\right)-0.0621814\,{\it t_{41}}\,{\it t_{42}}\right)\,\rho_s\,\left({{0.2\,{\it t_{14}}\,{\it t_{43}}\,\sigma_{ss}}\over{{\it t_{44}}}}+{{0.04000000000000001\,{\it t_{13}}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{44}}^2}}+{{0.008000000000000002\,{\it t_{12}}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{44}}^3}}+{{0.001600000000000001\,{\it t_9}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{44}}^4}}+{\it t_8}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_hcth_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -2017,11 +2035,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\left(0.9999999999999991\,\left(0.0621814\,{\it t_{41}}\,{\it t_{42}}-0.0310907\,\log \left({{1.269642451250142\,{\it t_{38}}}\over{0.7876233178997433\,\left(0.7876233178997433\,\left(0.01530901310039024\,{\it t_{39}}+0.10465751434\right)\,{\it t_{39}}+0.19269083139\right)\,{\it t_{39}}+0.43896648423}}+1.0\right)\,\left(0.1274696188700087\,{\it t_{40}}+1.0\right)\right)-0.0621814\,{\it t_{41}}\,{\it t_{42}}\right)\,\rho_s\,\left({{0.2\,{\it t_{14}}\,{\it t_{43}}\,\sigma_{ss}}\over{{\it t_{44}}}}+{{0.04000000000000001\,{\it t_{13}}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{44}}^2}}+{{0.008000000000000002\,{\it t_{12}}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{44}}^3}}+{{0.001600000000000001\,{\it t_9}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{44}}^4}}+{\it t_8}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_c_hcth_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 
