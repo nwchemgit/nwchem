@@ -23,11 +23,20 @@ C>   g &=& 0\\\\
 C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}\,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}+1.0}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] AD Becke, Phys.Rev.A 38, 3098 (1988)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevA.38.3098 "> 
 C> 10.1103/PhysRevA.38.3098 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_b88(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -171,11 +180,20 @@ C>   g &=& 0\\\\
 C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}\,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}+1.0}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] AD Becke, Phys.Rev.A 38, 3098 (1988)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevA.38.3098 "> 
 C> 10.1103/PhysRevA.38.3098 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_b88_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -455,11 +473,20 @@ C>   g &=& 0\\\\
 C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}\,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}+1.0}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] AD Becke, Phys.Rev.A 38, 3098 (1988)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevA.38.3098 "> 
 C> 10.1103/PhysRevA.38.3098 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_b88_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

@@ -50,11 +50,20 @@ C>   g &=& 0\\\\
 C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}-0.9305257363491002\,{\it t_{25}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{\it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({\it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_camb88(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -442,11 +451,20 @@ C>   g &=& 0\\\\
 C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}-0.9305257363491002\,{\it t_{25}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{\it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({\it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_camb88_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -1378,11 +1396,20 @@ C>   g &=& 0\\\\
 C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}-0.9305257363491002\,{\it t_{25}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{\it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({\it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_camb88_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

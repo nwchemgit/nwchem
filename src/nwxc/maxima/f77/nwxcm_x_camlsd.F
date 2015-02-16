@@ -35,11 +35,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left(-0.342075316941445\,{\it t_2}\,{\it t_3}\,{\it t_{16}}\,\left(0.2565564877060837\,{\it t_3}\,{\it t_{16}}\,\left({\it t_{18}}-{{0.03291061569204095\,{\it t_7}\,\left({\it t_{18}}-1.0\right)}\over{{\it t_{17}}}}-1.5\right)+1.77245385090552\,\mathrm{erf}\left(3.897777089720764\,{\it t_6}\,{\it t_{15}}\right)\right)+{\it t_1}+1.0\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_camlsd(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat) 
@@ -228,11 +237,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left(-0.342075316941445\,{\it t_2}\,{\it t_3}\,{\it t_{16}}\,\left(0.2565564877060837\,{\it t_3}\,{\it t_{16}}\,\left({\it t_{18}}-{{0.03291061569204095\,{\it t_7}\,\left({\it t_{18}}-1.0\right)}\over{{\it t_{17}}}}-1.5\right)+1.77245385090552\,\mathrm{erf}\left(3.897777089720764\,{\it t_6}\,{\it t_{15}}\right)\right)+{\it t_1}+1.0\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_camlsd_d2(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2) 
@@ -503,11 +521,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left(-0.342075316941445\,{\it t_2}\,{\it t_3}\,{\it t_{16}}\,\left(0.2565564877060837\,{\it t_3}\,{\it t_{16}}\,\left({\it t_{18}}-{{0.03291061569204095\,{\it t_7}\,\left({\it t_{18}}-1.0\right)}\over{{\it t_{17}}}}-1.5\right)+1.77245385090552\,\mathrm{erf}\left(3.897777089720764\,{\it t_6}\,{\it t_{15}}\right)\right)+{\it t_1}+1.0\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_camlsd_d3(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2,Amat3) 

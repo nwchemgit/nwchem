@@ -26,11 +26,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363491001\,\rho_s^{{{4}\over{3}}}\,\left(1.0-0.1710376584707229\,{\it t_1}\,{\it t_9}\,\left(0.2565564877060844\,{\it t_1}\,\left(0.06582123138408225\,\left({\it t_1}\,{\it t_9}\right)^{2.0}-2.0\right)\,{\it t_9}\,\left(1.0-{{1}\over{e^{15.19266624115199\,{\it t_5}\,\rho_s^{{{2}\over{3}}}}}}\right)-0.2565564877060844\,{\it t_1}\,{\it t_9}+3.544907701811032\,\mathrm{erf}\left(3.897777089720754\,{\it t_4}\,{\it t_8}\right)\right)\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] R Baer, D Neuhauser, E Livshits, Phys.Chem.Chem.Phys. 9, 2932 (2007)  , DOI: 
 C> <a href="http://dx.doi.org/10.1039/B617919C "> 
 C> 10.1039/B617919C </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_bnl(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat) 
@@ -209,11 +218,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363491001\,\rho_s^{{{4}\over{3}}}\,\left(1.0-0.1710376584707229\,{\it t_1}\,{\it t_9}\,\left(0.2565564877060844\,{\it t_1}\,\left(0.06582123138408225\,\left({\it t_1}\,{\it t_9}\right)^{2.0}-2.0\right)\,{\it t_9}\,\left(1.0-{{1}\over{e^{15.19266624115199\,{\it t_5}\,\rho_s^{{{2}\over{3}}}}}}\right)-0.2565564877060844\,{\it t_1}\,{\it t_9}+3.544907701811032\,\mathrm{erf}\left(3.897777089720754\,{\it t_4}\,{\it t_8}\right)\right)\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] R Baer, D Neuhauser, E Livshits, Phys.Chem.Chem.Phys. 9, 2932 (2007)  , DOI: 
 C> <a href="http://dx.doi.org/10.1039/B617919C "> 
 C> 10.1039/B617919C </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_bnl_d2(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2) 
@@ -483,11 +501,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363491001\,\rho_s^{{{4}\over{3}}}\,\left(1.0-0.1710376584707229\,{\it t_1}\,{\it t_9}\,\left(0.2565564877060844\,{\it t_1}\,\left(0.06582123138408225\,\left({\it t_1}\,{\it t_9}\right)^{2.0}-2.0\right)\,{\it t_9}\,\left(1.0-{{1}\over{e^{15.19266624115199\,{\it t_5}\,\rho_s^{{{2}\over{3}}}}}}\right)-0.2565564877060844\,{\it t_1}\,{\it t_9}+3.544907701811032\,\mathrm{erf}\left(3.897777089720754\,{\it t_4}\,{\it t_8}\right)\right)\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] R Baer, D Neuhauser, E Livshits, Phys.Chem.Chem.Phys. 9, 2932 (2007)  , DOI: 
 C> <a href="http://dx.doi.org/10.1039/B617919C "> 
 C> 10.1039/B617919C </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_bnl_d3(param,tol_rho,ipol,nq,wght, 
      +rho,fnc,Amat,Amat2,Amat3) 

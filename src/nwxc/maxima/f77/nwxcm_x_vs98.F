@@ -38,11 +38,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({\it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{\it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,\sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T van Voorhis, GE Scuseria, J.Chem.Phys. 109, 400 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.3005348 "> 
 C> 10.1063/1.3005348 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_vs98(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Cmat,Mmat) 
@@ -336,11 +345,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({\it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{\it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,\sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T van Voorhis, GE Scuseria, J.Chem.Phys. 109, 400 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.3005348 "> 
 C> 10.1063/1.3005348 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_vs98_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Cmat,Cmat2,Mmat,Mmat2) 
@@ -1136,11 +1154,20 @@ C>   g &=& 0\\\\
 C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({\it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{\it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,\sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] T van Voorhis, GE Scuseria, J.Chem.Phys. 109, 400 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.3005348 "> 
 C> 10.1063/1.3005348 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_vs98_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Amat3, 

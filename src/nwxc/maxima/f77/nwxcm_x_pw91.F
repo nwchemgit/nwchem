@@ -42,11 +42,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}\,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{\it t_{25}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}-0.9305257363491\,{\it t_{20}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pw91(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -317,11 +326,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}\,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{\it t_{25}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}-0.9305257363491\,{\it t_{20}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pw91_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -901,11 +919,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}\,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{\it t_{25}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}-0.9305257363491\,{\it t_{20}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pw91_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

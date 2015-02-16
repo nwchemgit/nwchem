@@ -28,11 +28,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{\it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{11}}^4}}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_hcth(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -295,11 +304,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{\it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{11}}^4}}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_hcth_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -787,11 +805,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{\it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{11}}^4}}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_hcth_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

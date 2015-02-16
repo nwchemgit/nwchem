@@ -38,11 +38,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363491002\,\rho_s^{{{4}\over{3}}}\,\left({\it t_{15}}\,{\it t_{21}}+{\it t_{14}}\,{\it t_{21}}^{5.0}+{\it t_{13}}\,{\it t_{21}}^{4.0}+{\it t_{12}}\,{\it t_{21}}^{3.0}+{\it t_{10}}\,{\it t_{21}}^{2.0}+{\it t_9}\,{\it t_{20}}^{5.0}+{\it t_8}\,{\it t_{20}}^{4.0}+{\it t_7}\,{\it t_{20}}^{3.0}+{\it t_6}\,{\it t_{20}}^{2.0}+{\it t_3}\,{\it t_{20}}+{\it t_2}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Chem.Phys. 128, 184109 (2008)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.2912068 "> 
 C> 10.1063/1.2912068 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_sogga(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -339,11 +348,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363491002\,\rho_s^{{{4}\over{3}}}\,\left({\it t_{15}}\,{\it t_{21}}+{\it t_{14}}\,{\it t_{21}}^{5.0}+{\it t_{13}}\,{\it t_{21}}^{4.0}+{\it t_{12}}\,{\it t_{21}}^{3.0}+{\it t_{10}}\,{\it t_{21}}^{2.0}+{\it t_9}\,{\it t_{20}}^{5.0}+{\it t_8}\,{\it t_{20}}^{4.0}+{\it t_7}\,{\it t_{20}}^{3.0}+{\it t_6}\,{\it t_{20}}^{2.0}+{\it t_3}\,{\it t_{20}}+{\it t_2}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Chem.Phys. 128, 184109 (2008)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.2912068 "> 
 C> 10.1063/1.2912068 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_sogga_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -1026,11 +1044,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363491002\,\rho_s^{{{4}\over{3}}}\,\left({\it t_{15}}\,{\it t_{21}}+{\it t_{14}}\,{\it t_{21}}^{5.0}+{\it t_{13}}\,{\it t_{21}}^{4.0}+{\it t_{12}}\,{\it t_{21}}^{3.0}+{\it t_{10}}\,{\it t_{21}}^{2.0}+{\it t_9}\,{\it t_{20}}^{5.0}+{\it t_8}\,{\it t_{20}}^{4.0}+{\it t_7}\,{\it t_{20}}^{3.0}+{\it t_6}\,{\it t_{20}}^{2.0}+{\it t_3}\,{\it t_{20}}+{\it t_2}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Chem.Phys. 128, 184109 (2008)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.2912068 "> 
 C> 10.1063/1.2912068 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_sogga_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

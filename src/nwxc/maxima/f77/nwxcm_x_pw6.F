@@ -43,11 +43,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}\,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}-{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Phys.Chem. A 109, 5656 (2005)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pw6(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -314,11 +323,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}\,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}-{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Phys.Chem. A 109, 5656 (2005)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pw6_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -895,11 +913,20 @@ C>   g &=& 0\\\\
 C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}\,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}-{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Phys.Chem. A 109, 5656 (2005)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pw6_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

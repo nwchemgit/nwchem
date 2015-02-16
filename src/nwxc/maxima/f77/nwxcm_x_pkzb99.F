@@ -26,11 +26,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490997\,{\it t_7}\,\left(0.804-{{0.804}\over{1.243781094527363\,\left(0.07209876543209877\,{\it t_9}^2-0.002966018451258026\,{\it t_8}\,\sigma_{ss}\,{\it t_9}+{{3.573099207904788 \times 10^{-5}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}}}+0.002031519487163032\,{\it t_8}\,\sigma_{ss}\right)+1.0}}\right)-0.9305257363490997\,{\it t_7}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, S Kurth, A Zupan, P Blaha, Phys.Rev.Lett. 82, 2544 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 "> 
 C> 10.1103/PhysRevLett.82.2544 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pkzb99(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Cmat,Mmat) 
@@ -253,11 +262,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490997\,{\it t_7}\,\left(0.804-{{0.804}\over{1.243781094527363\,\left(0.07209876543209877\,{\it t_9}^2-0.002966018451258026\,{\it t_8}\,\sigma_{ss}\,{\it t_9}+{{3.573099207904788 \times 10^{-5}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}}}+0.002031519487163032\,{\it t_8}\,\sigma_{ss}\right)+1.0}}\right)-0.9305257363490997\,{\it t_7}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, S Kurth, A Zupan, P Blaha, Phys.Rev.Lett. 82, 2544 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 "> 
 C> 10.1103/PhysRevLett.82.2544 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pkzb99_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Cmat,Cmat2,Mmat,Mmat2) 
@@ -708,11 +726,20 @@ C>   g &=& 0\\\\
 C>   G &=& -0.9305257363490997\,{\it t_7}\,\left(0.804-{{0.804}\over{1.243781094527363\,\left(0.07209876543209877\,{\it t_9}^2-0.002966018451258026\,{\it t_8}\,\sigma_{ss}\,{\it t_9}+{{3.573099207904788 \times 10^{-5}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}}}+0.002031519487163032\,{\it t_8}\,\sigma_{ss}\right)+1.0}}\right)-0.9305257363490997\,{\it t_7}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] JP Perdew, S Kurth, A Zupan, P Blaha, Phys.Rev.Lett. 82, 2544 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 "> 
 C> 10.1103/PhysRevLett.82.2544 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_pkzb99_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Amat3, 

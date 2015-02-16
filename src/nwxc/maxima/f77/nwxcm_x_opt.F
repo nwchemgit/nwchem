@@ -20,11 +20,20 @@ C>   g &=& 0\\\\
 C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}\,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}\,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] NC Handy, AJ Cohen, Mol.Phys. 99, 403 (2001)  , DOI: 
 C> <a href="http://dx.doi.org/10.1080/00268970010018431 "> 
 C> 10.1080/00268970010018431 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_opt(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -165,11 +174,20 @@ C>   g &=& 0\\\\
 C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}\,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}\,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] NC Handy, AJ Cohen, Mol.Phys. 99, 403 (2001)  , DOI: 
 C> <a href="http://dx.doi.org/10.1080/00268970010018431 "> 
 C> 10.1080/00268970010018431 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_opt_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -432,11 +450,20 @@ C>   g &=& 0\\\\
 C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}\,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}\,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] NC Handy, AJ Cohen, Mol.Phys. 99, 403 (2001)  , DOI: 
 C> <a href="http://dx.doi.org/10.1080/00268970010018431 "> 
 C> 10.1080/00268970010018431 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_opt_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

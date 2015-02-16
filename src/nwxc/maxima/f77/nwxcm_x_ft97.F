@@ -26,11 +26,20 @@ C>   g &=& 0\\\\
 C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}\,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{\it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}\over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,\sigma_{ss}\right)+1.0}}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
 C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
 C> 10.1080/002689797170950 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_ft97(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -257,11 +266,20 @@ C>   g &=& 0\\\\
 C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}\,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{\it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}\over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,\sigma_{ss}\right)+1.0}}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
 C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
 C> 10.1080/002689797170950 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_ft97_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -779,11 +797,20 @@ C>   g &=& 0\\\\
 C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}\,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{\it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}\over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,\sigma_{ss}\right)+1.0}}}\\\\ 
 C> \f} 
 C> 
+C> Code generated with Maxima 5.34.0 [2] 
+C> driven by autoxc [3]. 
+C> 
 C> ### References ### 
 C> 
 C> [1] M Filatov, W Thiel, Mol.Phys. 91, 847 (1997)  , DOI: 
 C> <a href="http://dx.doi.org/10.1080/002689797170950 "> 
 C> 10.1080/002689797170950 </a> 
+C> 
+C> [2] Maxima, a computer algebra system, 
+C> <a href="http://maxima.sourceforge.net/"> 
+C> http://maxima.sourceforge.net/</a> 
+C> 
+C> [3] autoxc, revision 26535 2014-12-14 
 C> 
       subroutine nwxcm_x_ft97_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 
