@@ -2,7 +2,7 @@
 /* routine to avoid 32-bit integer overflow present both in GA and MPI collectives*/
 #include <stdio.h>
 #include <math.h>
-#include <mpi.h>
+#include "ga-mpi.h"
 #include "ga.h"
 #include "macdecls.h"
 #include "typesf2c.h"
@@ -17,6 +17,7 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
   char err_buffer[MPI_MAX_ERROR_STRING];
   long bigint8 = ((long)pow(2.,31.)-1024)/sizeof(DoublePrecision);
   int bigint = (int) bigint8;
+  MPI_Comm ga_comm;
 #ifdef DEBUG   
     if(GA_Nodeid() == 0) printf(" bcast: bigint8 %11ld bigint %11d\n", bigint8, bigint);
 #endif
@@ -48,7 +49,9 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
     if(GA_Nodeid() == 0) printf(" bcast: is %11ld len %11d  end8 %11ld step i %2d of %4d lentot %8ld\n", istart, len, istart+(long)(len-1), i+1, nsteps, len8);
 #endif
 
-    ierr= MPI_Bcast(a+istart, len, MPI_DOUBLE_PRECISION, 0, MPI_COMM_WORLD);
+    ga_comm=GA_MPI_Comm_pgroup_default();
+
+    ierr= MPI_Bcast(a+istart, len, MPI_DOUBLE_PRECISION, 0, ga_comm);
     
     if (ierr != MPI_SUCCESS) {
       fprintf(stdout,"util_mygabcast: MPI_Bcast failed step %2d len %11d\n", i, len);
@@ -59,7 +62,7 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
     
     istart+=len;
   }
-  MPI_Barrier(MPI_COMM_WORLD);
+  MPI_Barrier(ga_comm);
 
 
 }
