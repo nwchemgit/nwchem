@@ -386,7 +386,7 @@ else
 
    The value 1.0e-50 is large enough for Maxima to use in its symbolic 
    derivations but it is small enough that it will typically underflow to
-   zero in the Fortran generation.
+   zero in the Fortran generation or vanish in the noise.
 
    To minimize confusion we introduce the following naming conventions for
    the expressions involving limits:
@@ -972,9 +972,9 @@ df3rbgbbtb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
 :=Diff(df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),tau_b)$
 
 dfla3ragbbtb(rho_a,rho_b,sigma_bb,tau_b)
-:=Diff(dflb2ragbb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+:=Diff(dfla2ragbb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
 dfla3rbgbbtb(rho_a,rho_b,sigma_bb,tau_b)
-:=Diff(dflb2rbgbb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
+:=Diff(dfla2rbgbb(rho_a,rho_b,sigma_bb,tau_b),tau_b)$
 
 dflb3ragaata(rho_a,rho_b,sigma_aa,tau_a)
 :=Diff(dflb2ragaa(rho_a,rho_b,sigma_aa,tau_a),tau_a)$
