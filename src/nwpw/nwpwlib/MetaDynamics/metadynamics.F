@@ -799,7 +799,7 @@ c     **** n-plane ****
       else if (ntype.eq.6) then
          if (indx(2).eq.1)  then
             f = ion_rion(1,indx(3))
-         else if (indx(2).eq.1)  then
+         else if (indx(2).eq.2)  then
             f = ion_rion(2,indx(3))
          else
             f = ion_rion(3,indx(3))
@@ -1179,7 +1179,7 @@ c     **** n-plane ****
       else if (ntype.eq.6) then
          if (indx(2).eq.1)  then
             fmeta(1,indx(3)) = fmeta(1,indx(3)) - dv
-         else if (indx(2).eq.1)  then
+         else if (indx(2).eq.2)  then
             fmeta(2,indx(3)) = fmeta(2,indx(3)) - dv
          else
             fmeta(3,indx(3)) = fmeta(3,indx(3)) - dv
