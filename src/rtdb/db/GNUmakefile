@@ -30,14 +30,6 @@ ifeq ($(TARGET),IPSC)
   LIB_DEFINES = -DBYTE_ORDER=LITTLE_ENDIAN -DMEMMOVE
         EXTRA = ipsc_lseek.o memmove.o realloc.o
 endif
-ifeq ($(TARGET),DELTA)
-  LIB_DEFINES = -DBYTE_ORDER=LITTLE_ENDIAN -DMEMMOVE
-        EXTRA = ipsc_lseek.o memmove.o realloc.o
-endif
-ifeq ($(TARGET),PARAGON)
-        EXTRA = realloc.o
-  LIB_DEFINES = -DBYTE_ORDER=LITTLE_ENDIAN -DMEMMOVE
-endif
 
 # default definition
 ifndef LIB_DEFINES
