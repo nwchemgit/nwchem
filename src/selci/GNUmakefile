@@ -46,10 +46,6 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 
-ifeq ($(TARGET),CRAY-T3E)
-# vector 3 breaks code in this directory only
-            FOPTIMIZE = -O scalar3,aggress,unroll2,vector2
-endif
 ifeq ($(_IFCV81),Y)
    FOPTIMIZE=-O3
    COPTIONS=-O0 -g

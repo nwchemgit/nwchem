@@ -17,12 +17,6 @@ include ../config/makefile.h
 #ifeq ($(TARGET),KSR)
 #       PRECISION = single   
 #endif
-#ifeq ($(TARGET),CRAY-T3D)
-#       PRECISION = single
-#endif
-#ifeq ($(TARGET),CRAY-T3E)
-#       PRECISION = single
-#endif
 #
 #
 #ifndef PRECISION

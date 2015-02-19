@@ -134,15 +134,6 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                clatrs.o ctrevc.o cunghr.o slabad.o claswp.o \
                sgebak.o sgebal.o sgehrd.o shseqr.o sorghr.o strevc.o
 endif
-CRAYS = CRAY-T3E CRAY-T3D CRAY-YMP
-ifeq ($(TARGET),$(findstring $(TARGET),$(CRAYS)))
-       PRECISION = single
-OBJ_OPTIMIZE = slagtf.o slagts.o lsamen.o slaset.o \
-               ssyev.o slansy.o ssteqr.o ssterf.o slae2.o \
-               slaev2.o slasr.o slanst.o slascl.o slasrt.o \
-               ssygv.o ssygst.o ssygs2.o slas2.o slapy2.o slassq.o
-endif
-
 
 include ../config/makelib.h
 

@@ -164,12 +164,6 @@ sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
-ifeq ($(TARGET),CRAY-T3E)
-	$(MAKE) cleanDEP
-endif        
-ifeq ($(TARGET),CRAY-T3D)
-	$(MAKE) cleanDEP
-endif        
 	touch $@
 
 clear_64_to_32:
