@@ -69,18 +69,3 @@ ifeq ($(_CPU),ia64)
   endif
 endif
 
-ifeq ($(TARGET),CRAY-T3D)
-  FNOOPT = -g -dp -Ccray-t3d -Wf"-o noscalar,jump,noieeedivide"
-$(LIBRARY_PATH)(dosymops.o):  dosymops.f
-	$(FC) -c $(FNOOPT) $^
-$(LIBRARY_PATH)(sym_mo_ap_op.o):  sym_mo_ap_op.F
-	$(FCONVERT)
-	$(FC) -c $(FNOOPT) sym_mo_ap_op.f
-	@/bin/rm -f sym_mo_ap_op.f
-$(LIBRARY_PATH)(sym_mo_adapt.o):  sym_mo_adapt.F
-	$(FCONVERT)
-	$(FC) -c $(FNOOPT) sym_mo_adapt.f
-	@/bin/rm -f sym_mo_adapt.f
-endif
-             
-
