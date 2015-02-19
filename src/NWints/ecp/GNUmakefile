@@ -119,9 +119,6 @@ LIBRARY = libnwints.a
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-ifeq ($(NWCHEM_TARGET),DECOSF)
-        FOPTIONS+= -math_library accurate
-endif
 
 test_drive:	test_drive.o 
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ test_drive.o $(LIBS)

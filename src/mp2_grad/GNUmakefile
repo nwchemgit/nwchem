@@ -26,12 +26,6 @@ ifneq (,$(findstring SGI, $(TARGET)))
 else
    OBJ_OPTIMIZE += mp2_make_tuhf.o
 endif
-ifeq ($(TARGET),DECOSF)
-	FC = f77 -notransform_loops
-#  -O5 alone breaks on mp2_make_tuhf.o ; -notransform loops keeps O5 going
-# EA 4/20/200
-endif
-
 
 USES_BLAS = mp2_energy.F mp2_lai_uhf.F \
             mp2_make_tuhf.F mp2_pijab_uhf.F \

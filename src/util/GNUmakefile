@@ -132,11 +132,6 @@ ifeq ($(TARGET),HPUX)
   LIB_DEFINES += -DBYTE_SHORT_PACKING  
 endif
 
-ifeq ($(TARGET),DECOSF)
-  LIB_DEFINES += -DBYTE_SHORT_PACKING  -D_POSIX_PII_SOCKET
-  EXTRA_OBJ = dec_fpe.o
-endif
- 
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
    LIB_DEFINES += -I/opt/xt-catamount/default/catamount/linux/include/ -I/opt/xt-catamount/default/catamount/linux/include/amd64/
   EXTRA_OBJ += util_allocga.o xt3_dclock.o  util_fullbuff.o util_sigprof.o
