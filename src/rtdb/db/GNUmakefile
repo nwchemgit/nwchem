@@ -26,13 +26,6 @@ ifeq ($(TARGET),SGI)
   LIB_DEFINES = -DBYTE_ORDER=LITTLE_ENDIAN
   EXTRA = realloc.o
 endif
-ifeq ($(TARGET),SGITFP)
-#
-# Byte-swapping is hardwired to 32 bit machines. Ugh.
-# Pretend that is BIG endian
-  LIB_DEFINES = 
-  EXTRA = realloc.o
-endif
 ifeq ($(TARGET),IPSC)
   LIB_DEFINES = -DBYTE_ORDER=LITTLE_ENDIAN -DMEMMOVE
         EXTRA = ipsc_lseek.o memmove.o realloc.o

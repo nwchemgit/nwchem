@@ -3,11 +3,7 @@
       LIBRARY = libnwcutil.a
  OBJ_OPTIMIZE = inp.o inp_irange.o
           OBJ = c_inp.o hnd_rdfree.o
-ifeq ($(TARGET),SGITFP)
-         OBJ  += inp_ilist.o
-else
  OBJ_OPTIMIZE += inp_ilist.o
-endif
   LIB_TARGETS = test.o test hnd_rdfree.o hnd_rdfree
       HEADERS = inp.fh
 

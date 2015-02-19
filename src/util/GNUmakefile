@@ -260,10 +260,6 @@ ifeq ($(TARGET),SGI)
    OBJ += sgi_flush6.o
 DEFINES += -DNOSOCKLEN
 endif
-ifeq ($(TARGET),SGITFP)
-   OBJ += sgi_flush6.o
-DEFINES += -DNOSOCKLEN
-endif
 ifdef SLURM
   ifdef SLURMOPT
     DEFINES += -DSLURM

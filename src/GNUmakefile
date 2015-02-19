@@ -112,9 +112,6 @@ libraries:
 		echo Making $@ in $$dir; \
 		$(MAKE)	-C $$dir || exit 1 ;  \
 	done
-ifeq ($(TARGET),SGITFP)
-	@(cd rtdb/hdbm;ls -l;touch hdbm.c;$(MAKE)) || exit 1
-endif
 
 showdir: 
 	@echo "subdirectories in this build <$(SUBDIRS)>"

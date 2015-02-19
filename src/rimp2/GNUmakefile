@@ -22,11 +22,7 @@ OBJ_OPTIMIZE =      rimp2_denom.o   \
                 sum_pairs.o     xf3ci_s12a.o \
 		xf3ci_s12b.o
 
-ifeq ($(TARGET),SGITFP)
-   OBJ += eval_3ci.o
-else
    OBJ_OPTIMIZE += eval_3ci.o
-endif
 
 USES_BLAS = dgecop.F eval_3ci.F rimp2_v_e2.F xf3ci_s12a.F xf3ci_s12b.F
 

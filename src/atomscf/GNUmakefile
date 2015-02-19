@@ -1,10 +1,6 @@
 # $Id$
 
-# optimization breaks on the SGITFP ... there's no point
-# optimizing this stuff anyway.
-
-# well actually in large basis sets the atomic guess can take
-# a long time ... optimize except on the SGI for now.
+# well actually in large basis sets the atomic guess can take a long time
 
  OBJ_OPTIMIZE = orderd.o \
                 atcond.o \
@@ -33,13 +29,6 @@
 		printbasis.o \
                 atscf_ecp.o \
                 atscf_atscf.o
-
-# BEGIN_WIN32_IGNORE
-ifeq ($(TARGET),SGITFP)
-  OBJ := $(OBJ_OPTIMIZE)
-  OBJ_OPTIMIZE :=
-endif
-# END_WIN32_IGNORE
 
   USES_BLAS = atomd.F atscf_atscf.F atscf_ecp.F
 
