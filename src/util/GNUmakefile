@@ -31,9 +31,6 @@ errorlongpwd:
 endif
    LIB_DEFINES += -DNWCHEM_SRCDIR="\"$(SRCDIR)\""
 
-ifeq ($(TARGET),FUJITSU_VPP)
-   LIB_DEFINES += -Wp,-DNWCHEM_SRCDIR="\"$(SRCDIR)\""
-endif
 
 
 # The packing routines have been modified so that they work
@@ -138,12 +135,6 @@ ifeq ($(NWCHEM_TARGET),CATAMOUNT)
 endif
 ifeq ($(ARMCI_NETWORK),PORTALS)
    LIB_DEFINES += -DGANXTVAL
-endif
-ifeq ($(TARGET),FUJITSU_VPP)
-   LIB_DEFINES = \
-                 -Wp,-DBINDIR=\"$(BINDIR)\" \
-                 -Wp,-DBYTE_SHORT_PACKING \
-                 -Wp,-DINTEGER_1=byte
 endif
 
 ifneq ($(OLD_GA),)

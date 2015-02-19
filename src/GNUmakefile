@@ -10,11 +10,6 @@ include config/makefile.h
   LIB_DEFINES =  -DCOMPILATION_DATE="'`date +%a_%b_%d_%H:%M:%S_%Y`'" \
                  -DCOMPILATION_DIR="'$(TOPDIR)'" \
                  -DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
-ifeq ($(TARGET),FUJITSU_VPP)
-  LIB_DEFINES =  -Wp,-DCOMPILATION_DATE="'`date`'" \
-                 -Wp,-DCOMPILATION_DIR="'$(TOPDIR)'" \
-                 -Wp,-DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
-endif
 ifeq ($(XLFMAC),y)
   FOPTIONS +=  -WF,-DCOMPILATION_DATE="'`date`'" \
                  -WF,-DCOMPILATION_DIR="'$(TOPDIR)'" \
