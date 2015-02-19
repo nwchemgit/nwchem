@@ -59,9 +59,6 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 # LIB_DEFINES = -DQUADV0_REVERT
 
 LIB_INCLUDES = -I../include
-ifeq ($(TARGET),cray-sv2)
-    EXPLICITF=TRUE
-endif
 
    USES_BLAS = xc_fitv.F xc_dirac.F xc_bnl.F xc_att_xc.F xc_tabcd.F xc_rhogen.F \
                xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \

@@ -7,18 +7,6 @@ include makefile.h
 DEPENDCFLAGS = 
 DEPEND_CC=$(CC)
 
-ifeq ($(TARGET),CRAY-T3D)
-# Assume here that are cross compiling on a YMP
-  DEPENDCFLAGS = -Tcray-ymp 
-endif
-
-ifeq ($(TARGET),cray-sv2)
-# Needed to avoid having depend.x compiled as an application.
-# With this flag depend.x will run on the OS node.
-# From Ted Packwood
-  DEPENDCFLAGS = -hcommand
-endif
-
 ifeq ($(TARGET),HPUX)
   DEPENDCFLAGS = -Aa -D_HPUX_SOURCE +e
 endif
