@@ -247,10 +247,6 @@ DEFINES += -DNEED_LOC
 LIB_DEFINES += -DNO_UTIL_TESTS
 endif
 
-ifeq ($(TARGET),SGI)
-   OBJ += sgi_flush6.o
-DEFINES += -DNOSOCKLEN
-endif
 ifdef SLURM
   ifdef SLURMOPT
     DEFINES += -DSLURM

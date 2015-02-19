@@ -21,11 +21,7 @@ OBJ_OPTIMIZE = mp2_back_transform.o \
                mp2_lai_uhf.o \
                mp2_lai_fock_uhf.o mp2_memory.o
 
-ifneq (,$(findstring SGI, $(TARGET)))
-   OBJ += mp2_make_tuhf.o
-else
    OBJ_OPTIMIZE += mp2_make_tuhf.o
-endif
 
 USES_BLAS = mp2_energy.F mp2_lai_uhf.F \
             mp2_make_tuhf.F mp2_pijab_uhf.F \

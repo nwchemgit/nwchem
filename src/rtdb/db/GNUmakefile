@@ -22,14 +22,6 @@ endif
 ifeq ($(TARGET),SP)
   EXTRA = realloc.o
 endif
-ifeq ($(TARGET),SGI)
-  LIB_DEFINES = -DBYTE_ORDER=LITTLE_ENDIAN
-  EXTRA = realloc.o
-endif
-ifeq ($(TARGET),IPSC)
-  LIB_DEFINES = -DBYTE_ORDER=LITTLE_ENDIAN -DMEMMOVE
-        EXTRA = ipsc_lseek.o memmove.o realloc.o
-endif
 
 # default definition
 ifndef LIB_DEFINES
