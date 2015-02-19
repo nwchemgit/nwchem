@@ -46,7 +46,6 @@ endif
 #                  LINUX        NWCHEM_TARGET_CPU :
 #                                                  nothing for X86 (e.g. do not set this)
 #                                                  POWERPC for MkLinux 
-#                  SGI
 #                  SOLARIS      NWCHEM_TARGET_CPU : not defined or ULTRA
 #                  LAPI         NWCHEM_TARGET_CPU : P2SC
 #                      (uses thread safe libraries and LAPI)
