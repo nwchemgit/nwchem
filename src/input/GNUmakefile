@@ -20,12 +20,6 @@ HOSTNAME := $(shell hostname)
 
 HOSTSUFFIX := $(shell hostname | sed -e 's/et....//' | sed -e 's/^\.//')
 
-ifeq ($(HOSTNAME),mcurie)
-# 170 MB              = 22282240
-# 180 MB              = 23592960
-# 200 MB on NERSC T3E = 26214400
-  LIB_DEFINES += -DDFLT_TOT_MEM=22282240
-endif
 ifeq ($(HOSTNAME),ng126)
 # 1800 MB = 700 + 700 + 400
  LIB_DEFINES += -DDFLT_TOT_MEM=235929600 -DELAN3HACK

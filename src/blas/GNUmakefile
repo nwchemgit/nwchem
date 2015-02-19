@@ -70,12 +70,6 @@ OBJ_OPTIMIZE +=sasum.o      saxpy.o      scopy.o      sdot.o         \
                 ctrmm.o      ctrmv.o      ctrsm.o      ctrsv.o        \
                 cgeru.o scasum.o cdotu.o
 #endif
-ifeq ($(TARGET),CRAY-T3D)
-OBJ_OPTIMIZE = idamax.o
-endif
-ifeq ($(TARGET),CRAY-T3E)
-OBJ_OPTIMIZE = idamax.o
-endif
 
 ifeq ($(TARGET),MACX)
   ifdef USE_VECLIB
