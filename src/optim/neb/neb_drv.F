@@ -295,6 +295,11 @@ c      end do
          
 *         ***** fixed point iteration ****
           if (neb_algorithm.eq.0) then
+
+*           *** save old forces  and coordinates ***
+            call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
+            call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(g0(1)),1)
+
              if (oprint) write(luout,*)'neb: using fixed point'
 
              if (itm.le.m) then
@@ -419,6 +424,11 @@ c               if (finishedstep) sum0_old = sum0
 *         ***** refined CG iteration ****
           else if (neb_algorithm.eq.2) then
             if (oprint) write(luout,*) 'neb: using cg algorithm'
+
+*           *** save old forces  and coordinates ***
+            call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
+            call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(g0(1)),1)
+
             call neb_cg_direction(ng,
      >                         dbl_mb(g0(1)),
      >                         dbl_mb(g1(1)),
