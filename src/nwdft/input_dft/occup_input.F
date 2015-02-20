@@ -1,3 +1,59 @@
+C> \ingroup nwdft
+C> @{
+C>
+C> \file occup_input.F
+C> Read the occupation numbers
+C>
+C> @}
+C>
+C> \ingroup nwdft
+C> @{
+C>
+C> \brief Orbital occupations input reader
+C>
+C> Read the orbital occupation numbers either from the input or from
+C> a file. An example of the input block is
+C>
+C> \code
+C>   occup
+C>     5   3
+C>     1.0 1.0
+C>     1.0 1.0
+C>     1.0 1.0
+C>     1.0
+C>     1.0
+C>   end
+C> \endcode
+C>
+C> The first line with two integers specifies how many occupation
+C> numbers there are to read for each spin channel. Next there are
+C> a number of lines specifying the orbital occupations.
+C>
+C> Similary for reading the occupation numbers from a file
+C>
+C> \code
+C>   occup
+C>     5   3
+C>     load file.occup
+C>   end
+C> \endcode
+C>
+C> After reading the occupation numbers they are stored on the 
+C> runtime database in the fields:
+C>
+C> - `focc:occup_switch` -- there was an "occup" input block
+C>
+C> - `focc:occup` -- the number of alpha- and beta-occupation numbers
+C>
+C> - `focc:occup_list` -- the list of occupation numbers
+C>
+C> The occupation number list is stored essentially as read. E.g. for
+C> the input block given above this list is stored as
+C>
+C> \code
+C>   alpha(1) beta(1) alpha(2) beta(2) alpha(3) beta(3) alpha(4) alpha(5)
+C> \endcode
+C>
 c     orbital occupations handler
 c
       subroutine occup_input(rtdb)
@@ -26,7 +82,7 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 c
-      integer rtdb              ! [input]     
+      integer rtdb              !< [Input] The RTDB handle
       character*255 field       ! for character input
       integer offset,nocc1,nocc2    ! counts no. of centers as input
       logical status            ! scratch for return codes
@@ -148,7 +204,12 @@ c
       end
 c
 c     load occupations from file
-
+C>
+C> \brief Read the orbital occupations from an external file
+C>
+C> Reads the occupation numbers from a file in exactly the same
+C> format as read from the input file.
+C>
       subroutine occ_from_file(fileoccup,imin,imaj,nfocc,nfocc_in,occ)
 
       implicit none
@@ -161,11 +222,14 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 c
-      character*255 fileoccup
-      integer imin,imaj
-      integer nfocc
-      integer nfocc_in(2)
-      double precision occ(0:nfocc-1)
+      character*255 fileoccup !< [Input] The filename
+      integer imin  !< [Input] The minority spin channel
+                    !< (1=alpha, 2=beta)
+      integer imaj  !< [Input] The majority spin channel
+      integer nfocc !< [Input] The total number of occupation numbers
+      integer nfocc_in(2) !< [Input] The number of occupation numbers
+                          !< per spin channel
+      double precision occ(0:nfocc-1) !< [Output] The occupation numbers
 c      
       character*32 pname
       integer unitno
@@ -221,3 +285,4 @@ c
  1002 call errquit(pname//'failed to close file',0,-1)
 c
       end
+C> @}
