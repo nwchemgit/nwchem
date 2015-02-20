@@ -286,9 +286,9 @@ c      end do
          itm = itm + 1
          if (oprint) write(luout,*) 'neb: iteration #',it,itm
 
-*        *** save old forces  and coordinates ***
-         call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
-         call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(g0(1)),1)
+*        !*** save old forces  and coordinates ***
+         !call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
+         !call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(g0(1)),1)
 
          norm0=norm
 
