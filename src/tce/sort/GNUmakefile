@@ -27,7 +27,7 @@ OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o
 # This is used in the EOM code.
 OBJ_OPTIMIZE += tce_sort1.o
 
-LIB_INCLUDES = -I./include
+LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
@@ -35,6 +35,6 @@ USES_BLAS =
 
 HEADERS =
 
-include ../config/makefile.h
-include ../config/makelib.h
+include ../../config/makefile.h
+include ../../config/makelib.h
 
