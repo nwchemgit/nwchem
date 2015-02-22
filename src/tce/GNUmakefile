@@ -56,7 +56,7 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_x1_offset.o tce_x2_offset.o tce_x3_offset.o tce_x4_offset.o \
       tce_y1_offset.o tce_y2_offset.o tce_y3_offset.o tce_y4_offset.o \
       tce_mbpt2.o tce_restricted.o \
-      tce_hash.o get_hash_block.o put_hash_block.o add_hash_block.o tce_sort_4kg.o \
+      tce_hash.o get_hash_block.o put_hash_block.o add_hash_block.o \
       tce_residual_t3a.o tce_t3a_offset.o tce_x3a_offset.o \
       tce_cholesky.o tce_ao2e_cholesky.o tce_ao2e_cholesky_2d.o tce_ao2e_cholesky_4d.o \
       e2_offset_2_offset.o get_block_ind.o get_block_ind_sf.o tce_hash_ind.o \
@@ -96,30 +96,6 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_t2a_offset.o tce_x2a_offset.o new_ga4ind_N5.o 
 
 OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
-
-# OLD DEFAULT
-#OBJ_OPTIMIZE += tce_sort.o tce_sortacc.o
-
-# OLD NON-DEFAULT (missing some cases that can be added per-file as below)
-#OBJ_OPTIMIZE += tce_sortacc_saday.o tce_sort_saday.o
-
-# These are pointless utility routines that exist only because of code generator.
-OBJ_OPTIMIZE += tce_sort0.o tce_sortacc0.o
-
-# NEW sorts - faster, simpler, amenable to OpenMP
-OBJ_OPTIMIZE += new_sort2.o 
-OBJ_OPTIMIZE += new_sort4.o 
-OBJ_OPTIMIZE += new_sort6.o 
-# OLD sorts
-#OBJ_OPTIMIZE += tce_sort2.o tce_sortacc2.o
-#OBJ_OPTIMIZE += tce_sort4.o tce_sortacc4.o
-#OBJ_OPTIMIZE += tce_sort6.o tce_sortacc6.o
-
-# These have not been optimized yet because quadruples do not get used much.
-OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o
-
-# This is used in the EOM code.
-OBJ_OPTIMIZE += tce_sort1.o
 
 ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LAPI64 IBM64))
       #OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
