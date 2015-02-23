@@ -123,12 +123,20 @@ c
      >     call errquit('string_input: rtdb put failed',27,
      >     RTDB_ERR)
 
+      else if (inp_compare(.false.,'algorithm', field)) then
+         if(.not. inp_i(ind))
+     >    call errquit('string_input: algorithm',911,
+     >    INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'string:algorithm',mt_int,1,ind))
+     >     call errquit('string_input: rtdb put failed',28,
+     >     RTDB_ERR)
+
 c
 c     reset
 c     ----------------------------
       else if (inp_compare(.false.,'reset', field)) then
        if (.not. rtdb_put(rtdb,'bead_list:new',mt_log,1,.true.))
-     >     call errquit('string_input: rtdb put failed',28,
+     >     call errquit('string_input: rtdb put failed',29,
      >     RTDB_ERR)
 
 
@@ -140,26 +148,26 @@ c     ----------------------------
 
             nbeads = neb_nbeads_xyzfilename(test2)
             if (.not. rtdb_put(rtdb,'string:nbeads',mt_int,1,nbeads))
-     >        call errquit('string_input: rtdb put failed',29,
+     >        call errquit('string_input: rtdb put failed',30,
      >        RTDB_ERR)
 
             if (.not. rtdb_put(rtdb,'bead_list:size',mt_int,1,nbeads))
-     >        call errquit('string_input: rtdb put failed',30,
+     >        call errquit('string_input: rtdb put failed',31,
      >        RTDB_ERR)
 
             do i=1,nbeads
                geom_name = 'bead'//bead_index_name(i)//':geom'
                if (.not.neb_setgeom_xyzfilename(rtdb,test2,i,geom_name))
-     >           call errquit('string_input: rtdb put failed',31,
+     >           call errquit('string_input: rtdb put failed',32,
      >           RTDB_ERR)
             end do
 
             if (.not. rtdb_put(rtdb,'neb:custom_path',mt_log,1,.true.))
-     >        call errquit('string_input: rtdb put failed',32,
+     >        call errquit('string_input: rtdb put failed',33,
      >        RTDB_ERR)
 
             if (.not. rtdb_put(rtdb,'bead_list:new',mt_log,1,.false.))
-     >        call errquit('string_input: rtdb put failed',33,
+     >        call errquit('string_input: rtdb put failed',34,
      >        RTDB_ERR)
 
          end if

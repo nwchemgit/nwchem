@@ -61,6 +61,7 @@ C> @{
       integer l_dVdx, k_dVdx,l_coords_old, k_coords_old
       integer l_wrk, k_wrk,l_coords, k_coords
       integer l_tmp_list, k_tmp_list
+      integer l_mass,k_mass
 
 ! Local variables
       integer maxit,nbeads,natoms,middle,geom,geom2,size,i,interpol
@@ -70,6 +71,7 @@ C> @{
       character*255 geom_name
       integer geom_len,nbeads_exist
       integer lold_coords,kold_coords,j1,j2,shift,shift1,shift2,m
+      integer algorithm
       integer ks,km,ke,ifit(2),wfit(2),nfit
 
 *     **** external functions ****
@@ -104,6 +106,10 @@ C> @{
 ! nhist=m
       if (.not. rtdb_get(rtdb,'string:m',mt_int,1,m)) m = 3
 
+! algorithm
+      if (.not. rtdb_get(rtdb,'string:algorithm',mt_int,1,algorithm))
+     >     algorithm = 0
+
 ! The general geometry structure
       if (.not. geom_create(geom, 'geometry'))
      &   call errquit('task_string: geom_create?', 911, GEOM_ERR)
@@ -131,10 +137,19 @@ C> @{
      $     call errquit('task_string: memory', size, MA_ERR)
       if(.not.ma_push_get(mt_dbl,size,'coords',l_coords, k_coords))
      $     call errquit('task_string: memory', size, MA_ERR)
+
       size = 3*natoms*nbeads*(2*m+1)
       if(.not.ma_push_get(mt_dbl,size,'tmp_list',
      $                    l_tmp_list, k_tmp_list))
      $     call errquit('task_string: memory', size, MA_ERR)
+
+      size = 3*natoms
+      if(.not.ma_push_get(mt_dbl,size,'mass',l_mass, k_mass))
+     $     call errquit('task_string: memory', size, MA_ERR)
+      if (.not.geom_masses_get(geom,natoms,dbl_mb(k_mass)))
+     $     call errquit('task_string: masses?',geom,GEOM_ERR)
+      call dscal(natoms,1822.89d0,dbl_mb(k_mass),1)
+
 
 ! Warning: No way to read in all nbead geomtries
 
@@ -322,13 +337,14 @@ c        **** impose ****
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.true.))
      $     call errquit('task_string: rtdb_put failed',0,
      &       RTDB_ERR)
-      call zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
+      call zts_meps(maxit,nbeads,tol,stepsize,algorithm,natoms,middle,
      &    dbl_mb(k_coords),geom,rtdb,dbl_mb(k_dg),dbl_mb(k_energy),
      &    dbl_mb(k_dVdx),dbl_mb(k_dcoords),dbl_mb(k_coords_old),
      &    dbl_mb(k_wrk),
      &    m, dbl_mb(k_tmp_list),
      &       dbl_mb(k_tmp_list+3*natoms*nbeads*m),
      &       dbl_mb(k_tmp_list+3*natoms*nbeads*2*m),
+     &       dbl_mb(k_mass),
      &    interpol,freeze1,freezeN,converged)
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.false.))
      $     call errquit('task_string: rtdb_put failed',0,
@@ -371,9 +387,10 @@ C> @}
 *     *                 zts_meps                         *
 *     *                                                  *
 *     ****************************************************
-      subroutine zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
+      subroutine zts_meps(maxit,nbeads,tol,stepsize,algorithm,
+     &    natoms,middle,
      &    coords,geom,rtdb,dg,energy,dVdx,dcoords,coords_old,wrk,
-     &    m,coords_list,dVdx_list,HdVdx,
+     &    m,coords_list,dVdx_list,HdVdx,masses,
      &    interpol,freeze1,freezeN,converged)
       implicit none
       
@@ -395,6 +412,7 @@ C> @}
       integer nbeads  ! Number of images or beads along the path (3 or more)
       real*8 tol ! Tolerance for convergence  (1.0d-7)
       real*8 stepsize ! The "time" step size (0.0001)
+      integer algorithm
       integer natoms ! The number of atoms
       integer middle ! The "middle" coordinates bead number - 0 if none, -1 all
                      !      of the coordinates are filled
@@ -419,6 +437,7 @@ C> @}
       real*8 coords_list(*)
       real*8 dVdx_list(*)
       real*8 HdVdx(3,natoms,nbeads)
+      real*8 masses(*)
 
 ! Local variables
       integer i, j, k, nstep,print_shift,print_count,ii,ng,shift,itm
@@ -491,6 +510,11 @@ C> @}
         write(luout,'(a,i9)')  '@zts Maximum Time Steps   = ', maxit
         write(luout,'(a,i9)')  '@zts Number of replicas   = ', nbeads
         write(luout,'(a,i9)')  '@zts Number of histories  = ', m
+        if (algorithm.eq.0) then
+           write(luout,'(a)')  '@zts algorithm            = Fixed Point'
+        else 
+           write(luout,'(a)')  '@zts algorithm            = Verlet     '
+        end if
         write(luout,'(a,i9)')  '@zts String Interpolator  = ', interpol
         if (freeze1) then
           write(luout,'(a)')   '@zts First Replica        = frozen'
@@ -535,12 +559,14 @@ C> @}
 
       itm = 0
       do nstep = 1, maxit
-         if (oprint) write(luout,*) "string: iteration #",nstep
+       if (oprint) write(luout,*) "string: iteration #",nstep
+
+       !**** lmbfgs update ****
+       if (algorithm.eq.0) then
          itm = itm+1
 
          call dcopy(3*natoms*nbeads,coords,1,coords_old,1)
 
-         !**** lmbfgs update ****
          if (itm.le.m) then
              shift = (itm-1)*ng+1
              call dcopy(ng,coords_old,1,coords_list(shift),1)
@@ -624,6 +650,17 @@ C> @}
 
           end do
           sum0_old = sum0
+
+       !**** damped verlet update ****
+        else
+          call string_verlet_move(stepsize,interpol,geom,natoms,nbeads,
+     >                    dg,wrk,masses,dcoords,coords_old,dVdx,coords)
+
+          call zts_runall(rtdb,geom,natoms,nbeads,nstep,
+     >                    freeze1,freezeN,projection1,
+     >                    coords,energy,dVdx)
+
+        end if
 
 
          !**** Check convergence ****
@@ -1702,6 +1739,108 @@ C> @}
         do j=1,natoms
           do k=1,3
             coords2(k,j,i) = coords1(k,j,i) - alpha*HdVdx(k,j,i)
+          end do
+        end do
+      end do
+
+!     *** Project out net motion - Can rotate/translater frozen N bead ***
+      do i = 2, nbeads
+         call zts_min_motion(natoms,coords2(1,1,i),coords2(1,1,i-1),
+     >                        geom)
+      end do
+
+      !*** reparameterize - This is where the magic happens ****
+      dcoords(1) = 0.0d0
+      do i=2,nbeads
+        dcoords(i) = 
+     &     zts_distance(natoms,coords2(1,1,i),coords2(1,1,i-1))
+      end do
+      do i=2,nbeads
+        dcoords(i) = dcoords(i) + dcoords(i-1) ! Now relative to bead 1
+      end  do
+      do i=1,nbeads
+        dcoords(i) = dcoords(i)/dcoords(nbeads) ! Runs from zero to one
+      end do
+      do i=2,nbeads-1
+        if (dcoords(i).le.dcoords(i-1)) then  ! paranoid
+            dcoords(i) = (99.0d0*dcoords(i-1)+dcoords(i+1))/100.0d0
+        end if
+      end do
+      if (dcoords(nbeads) .le. dcoords(nbeads-1)) then  ! paranoid
+        dcoords(nbeads-1) = (dcoords(nbeads-2)+dcoords(nbeads))/2.0d0
+      end if
+
+      ! We now interpolate new points along the string
+      ! This adds more points near regions of big dcoords
+      ! This really a normalized arc length on a spline
+      if (interpol .eq. 1) then
+        call zts_linear_fit(natoms*3,nbeads,coords2,dcoords,wrk)
+      else if (interpol .eq. 2) then
+        call zts_spline_fit(natoms*3,nbeads,coords2,dcoords,dg)
+      else if (interpol .eq. 3) then
+        call zts_akima_fit(natoms*3,nbeads,coords2,dcoords,dg)
+      else
+         call errquit('zts_meps: fatal error',0,0)
+      end if
+
+!     Project out net motion - Can rotate/translater frozen N bead
+      do i=2,nbeads
+        call zts_min_motion(natoms,coords2(1,1,i),coords2(1,1,i-1),
+     >                      geom)
+      end do
+
+c!     Look for atoms that are too close
+c      do i=1,nbeads
+c        call zts_Robinson(natoms,geom,coords2(1,1,i),badgeom)
+c      end do
+c
+c!      Project out net motion
+c      do i=2,nbeads
+c        call zts_min_motion(natoms,coords2(1,1,i),coords2(1,1,i-1),
+c     >                      geom)
+c      end do
+      return 
+      end
+
+      
+
+
+*     ************************************************
+*     *                                              *
+*     *               string_verlet_move             *
+*     *                                              *
+*     ************************************************
+      subroutine string_verlet_move(dt,interpol,geom,natoms,nbeads,
+     >                       dg,wrk,mass,dcoords,coords1,dVdx,coords2)
+      implicit none
+      real*8 dt
+      integer interpol,geom
+      integer natoms,nbeads
+      real*8 dg(*),wrk(*)
+      real*8 mass(*)
+      real*8 dcoords(nbeads)
+      real*8 coords1(3,natoms,nbeads)
+      real*8 dVdx(3,natoms,nbeads)
+      real*8 coords2(3,natoms,nbeads)
+
+*     **** local variables ****
+      integer i,j,k
+      logical badgeom
+      real*8 v
+
+*     **** external functions ****
+      real*8   zts_distance
+      external zts_distance
+
+*     *** c1 <- 2*c1 - c0 + dti*g          ***
+*     ***    <- c1 + ((c1-c0)/t)*t + dti*g ***
+      do i=1,nbeads
+        do j=1,natoms
+          do k=1,3
+            v = coords2(k,j,i) - coords1(k,j,i)
+            if (v*dVdx(k,j,i).gt.0.0d0) v = 0.0d0
+            coords1(k,j,i)= coords2(k,j,i)
+            coords2(k,j,i)= coords2(k,j,i)+v-(dt*dt/mass(j))*dVdx(k,j,i)
           end do
         end do
       end do
