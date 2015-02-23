@@ -1000,7 +1000,7 @@ c          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
 *        *** NEED: CONSTRAINED DYNAMICS (FROZEN ATOMS)
          do i=1,ng
            v1(i) = c1(i)-c0(i)
-           if (v1(i)*g1(i).lt.0.0d0) v1(i) = 0.0d0
+           if (v1(i)*g1(i).gt.0.0d0) v1(i) = 0.0d0
          end do
          call dcopy(ng,c1(1),1,c0(1),1)
          do i=1,ng
@@ -1072,7 +1072,7 @@ c     *** choosing Polac-Ribiere coeff ***
 
       oprint = ga_nodeid() .eq. 0
 
-      Gmax = 0.0
+      Gmax = 0.0d0
       imax = 0
       do ii=1,ng
         if (dabs(g1(ii)).gt.Gmax) then
@@ -1082,19 +1082,19 @@ c     *** choosing Polac-Ribiere coeff ***
       end do
       if (oprint) write(*,*) "neb: imax,Gmax=",imax,Gmax
 
-      Grms = 0.0
+      Grms = 0.0d0
       do ii=1,ng
         Grms = Grms + g1(ii)*g1(ii)
       end do
       Grms = dsqrt(Grms)/dble(ng)
 
-      Xmax = 0.0
+      Xmax = 0.0d0
       do ii=1,ng
         dx = dabs(c1(ii)-c0(ii))
         if (dabs(g1(ii)).gt.Xmax) Xmax = dx
       end do
 
-      Xrms = 0.0
+      Xrms = 0.0d0
       do ii=1,ng
         dx = dabs(c1(ii)-c0(ii))
         Xrms = Xrms + dx*dx

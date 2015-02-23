@@ -21,7 +21,7 @@
 c     
 *     **** local variables ****     
       logical value,newchain,svalue,verlet,oprint,done,converged,found
-      logical ostress,finishedstep,converged1
+      logical ostress,finishedstep,converged1,converged2
       character*9 cvg1,cvg2,cvg3,cvg4
       character*4    mark
       character*50 bead_list,filename
@@ -30,15 +30,15 @@ c
       character*255 full_filename,full_filename2,filename2
       character ch_tmp
       integer ii,shift,print_shift,print_count,jj,manyjj,itm,goodjj
-      integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm
+      integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm,algorithm
       integer nbeads1,nbeads2
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
       integer mass(2),dti(2),cs(2),gs(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
       real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin,trust
       real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,sum,sum2,t,alpha
-      real*8  alphamin,deltaE,sum0,sum0_old,time_step0
-      real*8  emid0,emin0,emax0
+      real*8  alphamin,deltaE,sum0a,sum0b,sum0,sum0_old,time_step0
+      real*8  emid0,emin0,emax0,x0,x1,x2,f0,f1,f2,a,b,c,d
 
 *     **** external functions ****
       logical task_gradient
@@ -96,7 +96,8 @@ c
 
 *     *** neb_algorithm ***
       if (.not.rtdb_get(rtdb,'neb:algorithm',mt_int,1,neb_algorithm))
-     >  neb_algorithm = 0
+     >  neb_algorithm = 3
+      algorithm = neb_algorithm
       if (.not.rtdb_get(rtdb,'neb:m',mt_int,1,m))  m = 5
 
       if (.not.rtdb_get(rtdb,'neb:print_shift',mt_int,1,print_shift))
@@ -122,17 +123,27 @@ c
      >  newchain = .true.
 
       if(newchain) then
-        if (oprint) write(*,*)'NEW NEB CHAIN, INITIALIZING'
+        if (oprint) write(luout,*)'neb: NEW NEB CHAIN, INITIALIZING'
         call neb_initialize(rtdb,bead_list)
         print_count = 0
+
+*       **** write out intial xyz path ****
+        call util_file_prefix('neb_intial.xyz',filename2)
+        call util_file_name_noprefix(filename2,.false.,
+     >                             .false.,
+     >                             full_filename2)
+        if (oprint) open(unit=19,file=full_filename2,form='formatted')
+        call create_xyz_file_bead_list(19,bead_list,.false.)
+        if (oprint) close(19)
+
       else
-         if (oprint) write(*,*)'EXISTING NEB CHAIN? RESTARTING'
+         if (oprint) write(luout,*)'neb: EXISTING NEB CHAIN? RESTARTING'
          call set_rtdb_bead_list(rtdb)
          nbeads1 = size_bead_list(bead_list)
          if (.not.rtdb_get(rtdb,'neb:nbeads',mt_int,1,nbeads2))
      >      nbeads2 = 5
          if (nbeads1.ne.nbeads2) then
-            if (oprint) write(*,*) 'RESIZING NEB CHAIN'
+            if (oprint) write(luout,*) 'neb: RESIZING NEB CHAIN'
             call neb_resize_path(rtdb,bead_list,nbeads1,nbeads2)
          end if
          if (.not.rtdb_get(rtdb,'neb:print_count',mt_int,1,print_count))
@@ -149,9 +160,13 @@ c
          if (neb_algorithm.eq.0) then
             tmp = "Fixed Point"
          else if (neb_algorithm.eq.1) then
-            tmp = "Verlet"
+            tmp = "Damped Verlet"
          else if (neb_algorithm.eq.2) then
             tmp = "refining conjugate gradient"
+         else if (neb_algorithm.eq.3) then
+            tmp = "Damped Verlet - Fixed Point"
+         else if (neb_algorithm.eq.4) then
+            tmp = "Damped Verlet-Fixed Point w/ q-fit step"
          else
             tmp = "not implemented"
          end if
@@ -162,25 +177,25 @@ c
      >                  neb_algorithm,tmp,
      >                  neb_movecs
          if (ostress) 
-     >      write(luout,*) ' INCLUDING STRESS !!!!!!!!!!!!!!!!'
+     >      write(luout,*) 'neb: INCLUDING STRESS !!!!!!!!!!!!!!!!'
          write(luout,*)
          write(luout,*)
  1       format(
-     >        ' maximum gradient threshold         (gmax) = ', f10.6,/,
-     >        ' rms gradient threshold             (grms) = ', f10.6,/,
-     >        ' maximum cartesian step threshold   (xmax) = ', f10.6,/,
-     >        ' rms cartesian step threshold       (xrms) = ', f10.6,/,
-     >        0p,/,
-     >        ' step size                      (stepsize) = ', f10.6,/,
-     >        ' fixed trust radius                (trust) = ', f10.6,/,
-     >        ' maximum number of steps         (maxiter) = ', i4,/,
-     >        ' number of images in path         (nbeads) = ', i4,/,
-     >        ' number of histories               (nhist) = ', i4,/,
-     >        ' number of atoms                           = ', i4,/,
-     >        ' NEB spring constant in a.u.      (kbeads) = ', f10.6,/,
-     >        ' NEB algorithm                 (algorithm) = ', i4,
+     >    'neb: maximum gradient threshold         (gmax) = ', f10.6,/,
+     >    'neb: rms gradient threshold             (grms) = ', f10.6,/,
+     >    'neb: maximum cartesian step threshold   (xmax) = ', f10.6,/,
+     >    'neb: rms cartesian step threshold       (xrms) = ', f10.6,/,
+     >    0p,/,
+     >    'neb: step size                      (stepsize) = ', f10.6,/,
+     >    'neb: fixed trust radius                (trust) = ', f10.6,/,
+     >    'neb: maximum number of steps         (maxiter) = ', i4,/,
+     >    'neb: number of images in path         (nbeads) = ', i4,/,
+     >    'neb: number of histories               (nhist) = ', i4,/,
+     >    'neb: number of atoms                           = ', i4,/,
+     >    'neb: NEB spring constant in a.u.      (kbeads) = ', f10.6,/,
+     >    'neb: NEB algorithm                 (algorithm) = ', i4,
      >                                                   1x,'(',a30,')'/,
-     >        ' NEB movecs filename                       = ', a)
+     >    'neb: NEB movecs filename                       = ', a)
       end if
 
 
@@ -237,6 +252,7 @@ c
 *     **** initial step ****
       if (oprint) write(luout,*) "neb: Calculating Initial Path Energy"
       call neb_coords_get(bead_list,dbl_mb(c1(1)))
+      call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
       call runall_bead_list(bead_list,task_gradient)
       call neb_energies_get(bead_list,dbl_mb(e1(1)))
       call dcopy(ng,0.0d0,0,dbl_mb(t1(1)),1)
@@ -251,6 +267,21 @@ c
       manyjj = 0
       goodjj = 0
       time_step0 = time_step
+
+      if (neb_algorithm.ge.3) then
+         Gmax = 0.0d0
+         do ii=1,ng
+           if (dabs(dbl_mb(g1(1)+ii-1)).gt.Gmax) 
+     >        Gmax = dabs(dbl_mb(g1(1)+ii-1))
+         end do
+         if (Gmax.gt.0.5d0) then
+            algorithm = 1
+         else
+            algorithm  = 0
+            if (time_step.gt.1.0d0) time_step  = 1.0d0
+            time_step0 = time_step
+         end if
+      end if
 
 c      do i=1,ng
 c       write(*,*) "i,c1(i)=",i,dbl_mb(c1(1)+i-1)
@@ -273,7 +304,8 @@ c      end do
       call create_xyz_file_bead_list(luout,bead_list,.true.)
 
       norm = dsqrt(ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1))
-      if (oprint) write(luout,*) "Path Energy, Path Distance, |G_neb|:",
+      if (oprint) 
+     >   write(luout,*) "neb:Path Energy, Path Distance, |G_neb|:",
      >            path_energy,path_distance,norm
 
       call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(s(1)),1)
@@ -283,8 +315,7 @@ c      end do
       done = .false.
       do while (.not.done)
          it  = it + 1
-         itm = itm + 1
-         if (oprint) write(luout,*) 'neb: iteration #',it,itm
+         if (oprint) write(luout,*) 'neb: iteration #',it
 
 *        !*** save old forces  and coordinates ***
          !call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
@@ -294,11 +325,12 @@ c      end do
 
          
 *         ***** fixed point iteration ****
-          if (neb_algorithm.eq.0) then
+          if (algorithm.eq.0) then
 
 *           *** save old forces  and coordinates ***
             call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
             call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(g0(1)),1)
+            itm = itm + 1
 
              if (oprint) write(luout,*)'neb: using fixed point'
 
@@ -339,72 +371,110 @@ c     >                                dbl_mb(s(1)))
              alpha = time_step
              jj = 0
              do while ((.not.finishedstep).and.(jj.lt.9))
-             jj = jj + 1
-             sum = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
+                jj = jj + 1
+                sum = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
 
-             if ((sum.le.0.0d0).or.(sum0.gt.sum0_old))  then
-                call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
-                itm = 0
-                if (oprint) write(*,*) "neb: s=g and itm reset to 0"
-             end if
+                if ((sum.le.0.0d0).or.(sum0.gt.sum0_old))  then
+                   call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
+                   itm = 0
+                   if (oprint) write(*,*) "neb: s=g and itm reset to 0"
+                   if (oprint) write(*,*) "neb: sum,sum0,sum0_old=",
+     >                                    sum,sum0,sum0_old
+                end if
 
-             sum2 = dsqrt(ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1))
-     >              /dble(nbeads)
-             if (oprint) 
-     >          write(*,*) "neb: |<s|s>|,<g|s>=",sum2,sum
+                sum2 = dsqrt(ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1))
+     >                 /dble(nbeads)
+                if (oprint) 
+     >             write(*,*) "neb: |<s|s>|,<g|s>=",sum2,sum
 
-             call neb_move(ng,
-     >                     (-alpha),
-     >                     dbl_mb(c0(1)),
-     >                     dbl_mb(c1(1)),
-     >                     dbl_mb(s(1)))
-              call neb_coords_set(bead_list,dbl_mb(c1(1)))
+                call neb_move(ng,
+     >                        (-alpha),
+     >                        dbl_mb(c0(1)),
+     >                        dbl_mb(c1(1)),
+     >                        dbl_mb(s(1)))
+                call neb_coords_set(bead_list,dbl_mb(c1(1)))
 
-              if (oprint) write(luout,*) "neb: running internal beads"
-              call runmid_bead_list(bead_list,task_gradient)
-
-              call neb_energies_get(bead_list,dbl_mb(e1(1)))
-              call neb_gradient_get(bead_list,kbeads,
+                if (oprint)
+     >             write(luout,*) "neb: taking fixed point step, ",
+     >                            "running internal beads"
+                call runmid_bead_list(bead_list,task_gradient)
+                call neb_energies_get(bead_list,dbl_mb(e1(1)))
+                call neb_gradient_get(bead_list,kbeads,
      >                             dbl_mb(c1(1)),
      >                             dbl_mb(e1(1)),
      >                             dbl_mb(t1(1)),
      >                             dbl_mb(g1(1)))
-               sum0     = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
+                sum0a = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(g0(1)),1)
+                sum0b = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
+                sum0  = sum0b
 
-               finishedstep = (sum0.le.sum0_old)
-               if (.not.finishedstep) then
-                   alpha = 0.50d0*alpha
-                   manyjj = manyjj+1
-                   goodjj = 0
-                   if (manyjj.gt.2) then
-                      time_step = 0.5d0*time_step
-                      manyjj = 0
-                      if (oprint) 
-     >                   write(*,*) "neb: reducing timestep=",time_step
+                !*** try to take one secant step ***
+c                if ((neb_algorithm.gt.3).and.
+c     >              (jj.le.1))           then
+c                   x0 = 0.0d0
+c                   x2 = -alpha
+c                   f0 = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(g0(1)),1)
+c                   f2 = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
+c
+c                   call neb_move(ng,
+c     >                        (-0.5d0*alpha),
+c     >                        dbl_mb(c0(1)),
+c     >                        dbl_mb(c1(1)),
+c     >                        dbl_mb(s(1)))
+c                   call neb_coords_set(bead_list,dbl_mb(c1(1)))
+c
+c                   if (oprint)
+c     >                write(luout,*) "neb: taking secant step, ",
+c     >                               "running internal beads"
+c                   call runmid_bead_list(bead_list,task_gradient)
+c                   call neb_energies_get(bead_list,dbl_mb(e1(1)))
+c                   call neb_gradient_get(bead_list,kbeads,
+c     >                             dbl_mb(c1(1)),
+c     >                             dbl_mb(e1(1)),
+c     >                             dbl_mb(t1(1)),
+c     >                             dbl_mb(g1(1)))
+c                   x1 = -0.5d0*alpha
+c                   f1 = ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1)
+c                   if (oprint) write(*,*) "neb: x0,x1,x2,f0,f1,f2=",
+c     >                         x0,x1,x2,f0,f1,f2
+c                end if
+
+                finishedstep = (sum0.le.sum0_old)
+                if (.not.finishedstep) then
+                    alpha = 0.50d0*alpha
+                    manyjj = manyjj+1
+                    goodjj = 0
+                    if (manyjj.gt.2) then
+                       time_step = 0.5d0*time_step
+                       manyjj = 0
+                       if (oprint) 
+     >                  write(*,*) "neb: reducing timestep=",time_step
+                    end if
+                end if
+                if (finishedstep.and.(jj.eq.1)) then
+                   goodjj = goodjj + 1
+                   if (goodjj.gt.10) then
+                      time_step = 2.0d0*time_step
+                      if (time_step.gt.time_step0) time_step=time_step0
+                      goodjj = 0
                    end if
-               end if
-               if (finishedstep.and.(jj.eq.1)) then
-                  goodjj = goodjj + 1
-                  if (goodjj.gt.10) then
-                     time_step = 2.0d0*time_step
-                     if (time_step.gt.time_step0) time_step = time_step0
-                     goodjj = 0
-                  end if
-               end if
+                end if
 
-               if(oprint) 
-     >             write(*,*) "neb: sum0,sum0_old=",
-     >                        sum0,sum0_old,jj,finishedstep,alpha
+                if(oprint) 
+     >             write(*,*) "neb: sum0a,sum0b,sum0,sum0_old=",
+     >                sum0a,sum0b,sum0,sum0_old,jj,finishedstep,alpha
 
-c               if (finishedstep) sum0_old = sum0
+c                  if (finishedstep) sum0_old = sum0
 
              end do
+             if (sum0b.ge.sum0_old) time_step = 0.5d0*time_step
              sum0_old = sum0
 
 
 *         ***** Verlet iteration ****
-          else if (neb_algorithm.eq.1) then
-            IF (oprint) write(luout,*)'neb: using verlet algroithm'
+          else if (algorithm.eq.1) then
+            if (oprint)
+     >         write(luout,*)'neb: using damped Verlet algorithm'
             call neb_verlet_update(ng,
      >                         dbl_mb(c0(1)),
      >                         dbl_mb(c1(1)),
@@ -422,7 +492,7 @@ c               if (finishedstep) sum0_old = sum0
      >                            dbl_mb(g1(1)))
 
 *         ***** refined CG iteration ****
-          else if (neb_algorithm.eq.2) then
+          else if (algorithm.eq.2) then
             if (oprint) write(luout,*) 'neb: using cg algorithm'
 
 *           *** save old forces  and coordinates ***
@@ -469,6 +539,23 @@ c               if (finishedstep) sum0_old = sum0
             end do
          end if
 19       continue         
+
+         emid0 = path_energy/path_distance
+         call neb_path_energy(bead_list,
+     >                        path_distance,
+     >                        path_energy) 
+         dE = dabs((path_energy/path_distance) - emid0)
+         call neb_calc_convergence(ng,dbl_mb(g1(1)),
+     >                                dbl_mb(c0(1)),
+     >                                dbl_mb(c1(1)),
+     >                                Gmax,Grms,Xmax,Xrms)
+
+        !*** switch to fixed point if Gmax less than 0.5 ***
+        if ((neb_algorithm.ge.3).and.(Gmax.lt.0.5d0)) then
+           algorithm = 0
+           if (time_step.gt.1.0d0) time_step = 1.0d0
+           time_step0 = time_step
+        end if
 
          if (oprint) then
             inquire(file=full_filename,exist=found)
@@ -519,7 +606,7 @@ c               if (finishedstep) sum0_old = sum0
          if (oprint) then
             write(luout,*)
             write(luout,*) "neb: Path Energy #",it
-            write(luout,*) "----------------------------"
+            write(luout,*) "neb: ----------------------------"
             do i=1,nbeads
                write(luout,*) "neb: ",i,dbl_mb(e1(1)+i-1)
             end do
@@ -546,15 +633,6 @@ c               if (finishedstep) sum0_old = sum0
          if (.not.rtdb_put(rtdb,'neb:print_count',mt_int,1,print_count))
      >      call errquit('setting neb:print_count failed',4,RTDB_ERR)
 
-         emid0 = path_energy/path_distance
-         call neb_path_energy(bead_list,
-     >                        path_distance,
-     >                        path_energy) 
-         dE = dabs((path_energy/path_distance) - emid0)
-         call neb_calc_convergence(ng,dbl_mb(g1(1)),
-     >                                dbl_mb(c0(1)),
-     >                                dbl_mb(c1(1)),
-     >                                Gmax,Grms,Xmax,Xrms)
 
          emid0 = emid
          emin0 = emin
@@ -581,10 +659,10 @@ c               if (finishedstep) sum0_old = sum0
            cvg2 = ' '
            cvg3 = ' '
            cvg4 = ' '
-           if (gmax .lt. nebGmax) cvg1 = '     ok  '
-           if (grms .lt. nebGrms) cvg2 = '     ok  '
-           if (xrms .lt. nebXrms) cvg3 = '     ok  '
-           if (xmax .lt. nebXmax) cvg4 = '     ok  '
+           if (Gmax .lt. nebGmax) cvg1 = '     ok  '
+           if (Grms .lt. nebGrms) cvg2 = '     ok  '
+           if (Xrms .lt. nebXrms) cvg3 = '     ok  '
+           if (Xmax .lt. nebXmax) cvg4 = '     ok  '
 
            mark = '@neb'
            if (it .gt. 1) mark = ' '
@@ -608,7 +686,7 @@ c               if (finishedstep) sum0_old = sum0
            write(luout,10) mark, mark
      
            mark = '@neb'
-           write(luout,11) mark, it, path_energy/path_distance, 
+           write(luout,11) mark,it,(path_energy/path_distance), 
      >       emid,emin,emax,
      >       Gmax, Grms, Xrms, Xmax, util_wallsec(),
      >       cvg1,cvg2,cvg3,cvg4
@@ -620,11 +698,12 @@ c               if (finishedstep) sum0_old = sum0
      >        ' --------------',
      >        ' -------- -------- -------- -------- --------')
  11        format(
-     >        a4,i5,4f15.6,1p,4f9.5,f9.1,/,
+     >        a4,i5,4f15.6,4f9.5,f9.1,/,
      >        1x,5x,17x,9x,4a9,/)
  12        format(a4,1x,a)
  13        format(a4,1x,a,i9)
  14        format(a4,1x,a,e9.3)
+
 
          endif
 
@@ -633,8 +712,9 @@ c               if (finishedstep) sum0_old = sum0
         converged = converged.and.(Xmax.le.nebxmax)
         converged = converged.and.(Xrms.le.nebxrms)
         if (dE.gt.1.0d-6) converged = converged.and.converged1
+        converged2=(Xmax.le.1.0d0*nebxmax).and.(Xrms.le.1.0d0*nebxrms)
 
-        done = converged.or.(it.ge.nebsteps)
+        done = converged.or.(it.ge.nebsteps).or.converged2
   
       end do
       if (oprint) then
@@ -646,6 +726,10 @@ c               if (finishedstep) sum0_old = sum0
      >           "...Try increasing the number of beads."
          else
             write(luout,'(a)') "@neb   NEB calculation not converged"
+            if (converged2) 
+     >         write(luout,'(2a)') 
+     >           "@neb  However NEB Xmax and Xrms converged",
+     >           "...Try increasing the number of beads."
          end if
           
       end if
