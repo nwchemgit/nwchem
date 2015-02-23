@@ -8,7 +8,8 @@ SUBDIRS = include diis diis2 diis3 gradients \
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cis cisd cisdt cisdtq \
           ccsdt ccsdt_lambda eomccsdt \
-          ccsd_act eomccsd_act cr_eomccsd_t_act
+          ccsd_act eomccsd_act cr_eomccsd_t_act \
+	  sort
 
 ifdef EACCSD
       SUBDIRS +=eaccsd
