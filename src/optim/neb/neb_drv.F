@@ -734,32 +734,25 @@ c                  if (finishedstep) sum0_old = sum0
 
          endif
 
-        converged1 = (Gmax.le.nebgmax)
-        converged =               (Grms.le.nebgrms)
+        converged = (Gmax.le.nebgmax)
+        converged = converged.and.(Grms.le.nebgrms)
         converged = converged.and.(Xmax.le.nebxmax)
         converged = converged.and.(Xrms.le.nebxrms)
-        if (dE.gt.1.0d-6) converged = converged.and.converged1
-        converged2=(Xmax.le.1.0d0*nebxmax).and.(Xrms.le.1.0d0*nebxrms)
-     >             .and.(algorithm.ne.1)
 
-        if (algorithm.eq.1) converged = converged.and.converged1
 
-        done = converged.or.(it.ge.nebsteps).or.converged2
+        done = converged.or.(it.ge.nebsteps)
+
+        if (oprint) write(luout,*) "it,converged=",it,converged
 
   
       end do
       if (oprint) then
          if (converged) then
             write(luout,'(a)') "@neb  NEB calculation converged"
-            if (.not.converged1) 
-     >         write(luout,'(2a)') 
-     >           "@neb  However NEB Gmax not converged",
-     >           "...Try increasing the number of beads."
          else
             write(luout,'(a)') "@neb   NEB calculation not converged"
-            if (converged2) 
-     >         write(luout,'(2a)') 
-     >           "@neb  However NEB Xmax and Xrms converged",
+            write(luout,'(2a)') 
+     >           "@neb  Try increasing number of steps or",
      >           "...Try increasing the number of beads."
          end if
           
