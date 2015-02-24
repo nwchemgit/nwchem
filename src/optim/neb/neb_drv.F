@@ -21,7 +21,7 @@
 c     
 *     **** local variables ****     
       logical value,newchain,svalue,verlet,oprint,done,converged,found
-      logical ostress,finishedstep,converged1,converged2
+      logical ostress,finishedstep,converged1,converged2,stalled
       character*9 cvg1,cvg2,cvg3,cvg4
       character*4    mark
       character*50 bead_list,filename
@@ -37,8 +37,10 @@ c
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
       real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin,trust
       real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,sum,sum2,t,alpha
-      real*8  alphamin,deltaE,sum0a,sum0b,sum0,sum0_old,time_step0
+      real*8  alphamin,deltaE,sum0a,sum0b,sum0,sum0_old
+      real*8  time_step0,time_step1
       real*8  emid0,emin0,emax0,x0,x1,x2,f0,f1,f2,a,b,c,d
+      real*8  gmax0,grms0,xmax0,xrms0
 
 *     **** external functions ****
       logical task_gradient
@@ -267,6 +269,8 @@ c
       manyjj = 0
       goodjj = 0
       time_step0 = time_step
+      time_step1 = time_step
+      if (time_step0.gt.1.0d0) time_step0 = 1.0d0
 
       if (neb_algorithm.ge.3) then
          Gmax = 0.0d0
@@ -276,10 +280,10 @@ c
          end do
          if (Gmax.gt.0.5d0) then
             algorithm = 1
+            time_step = time_step1
          else
             algorithm  = 0
-            if (time_step.gt.1.0d0) time_step  = 1.0d0
-            time_step0 = time_step
+            if (time_step.gt.time_step0) time_step  = time_step0
          end if
       end if
 
@@ -376,8 +380,8 @@ c     >                                dbl_mb(s(1)))
 
                 if ((sum.le.0.0d0).or.(sum0.gt.sum0_old))  then
                    call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
-                   itm = 0
-                   if (oprint) write(*,*) "neb: s=g and itm reset to 0"
+                   !itm = 0
+                   !if (oprint) write(*,*) "neb: s=g and itm reset to 0"
                    if (oprint) write(*,*) "neb: sum,sum0,sum0_old=",
      >                                    sum,sum0,sum0_old
                 end if
@@ -545,17 +549,40 @@ c                  if (finishedstep) sum0_old = sum0
      >                        path_distance,
      >                        path_energy) 
          dE = dabs((path_energy/path_distance) - emid0)
+         gmax0 = Gmax
+         grms0 = Grms
+         xmax0 = Xmax
+         xrms0 = Xrms
          call neb_calc_convergence(ng,dbl_mb(g1(1)),
      >                                dbl_mb(c0(1)),
      >                                dbl_mb(c1(1)),
      >                                Gmax,Grms,Xmax,Xrms)
 
-        !*** switch to fixed point if Gmax less than 0.5 ***
-        if ((neb_algorithm.ge.3).and.(Gmax.lt.0.5d0)) then
-           algorithm = 0
-           if (time_step.gt.1.0d0) time_step = 1.0d0
-           time_step0 = time_step
-        end if
+         stalled = ((Gmax.ge.gmax0).or.(Grms.ge.grms0)).and.(it.gt.1)
+
+         !*** neb algorithm 3 - switch between fixed point and damped Verlet ***
+         if (neb_algorithm.ge.3) then
+
+            !*** switch to fixed point if Gmax less than 0.5 ***
+            if ((Gmax.lt.0.5d0).and.
+     >          (Gmax.lt.Gmax0).and.
+     >          (Grms.lt.Grms0).and.
+     >          (algorithm.ne.0)    ) then
+               algorithm = 0
+               itm = 0
+               if (time_step.gt.time_step0) time_step = time_step0
+               if (oprint) write(luout,*) "neb: switching to fixed ",
+     >                                    " point, time_step=",time_step
+            end if
+
+            !*** if stalled switch to damped Verlet ***
+            if ((stalled).and.(algorithm.ne.1)) then
+               algorithm = 1
+               time_step = time_step1
+               if (oprint) write(luout,*) "neb: switching to damped ",
+     >                                    "Verlet, time_step=",time_step
+            end if
+         end if
 
          if (oprint) then
             inquire(file=full_filename,exist=found)
@@ -713,8 +740,12 @@ c                  if (finishedstep) sum0_old = sum0
         converged = converged.and.(Xrms.le.nebxrms)
         if (dE.gt.1.0d-6) converged = converged.and.converged1
         converged2=(Xmax.le.1.0d0*nebxmax).and.(Xrms.le.1.0d0*nebxrms)
+     >             .and.(algorithm.ne.1)
+
+        if (algorithm.eq.1) converged = converged.and.converged1
 
         done = converged.or.(it.ge.nebsteps).or.converged2
+
   
       end do
       if (oprint) then
