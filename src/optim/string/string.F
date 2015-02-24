@@ -717,7 +717,7 @@ C> @}
          end do
          end do
          end do
-         grms = grms/dble(ng)
+         grms = dsqrt(grms/dble(ng))
          xrms = 0.0d0
          xmax = 0.0d0
          do i = 1, nbeads
