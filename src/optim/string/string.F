@@ -71,7 +71,7 @@ C> @{
       character*255 geom_name
       integer geom_len,nbeads_exist
       integer lold_coords,kold_coords,j1,j2,shift,shift1,shift2,m
-      integer algorithm
+      integer string_algorithm
       integer ks,km,ke,ifit(2),wfit(2),nfit
 
 *     **** external functions ****
@@ -107,8 +107,9 @@ C> @{
       if (.not. rtdb_get(rtdb,'string:m',mt_int,1,m)) m = 3
 
 ! algorithm
-      if (.not. rtdb_get(rtdb,'string:algorithm',mt_int,1,algorithm))
-     >     algorithm = 0
+      if(.not.rtdb_get(rtdb,'string:algorithm',mt_int,1,
+     >                 string_algorithm))
+     >     string_algorithm = 3
 
 ! The general geometry structure
       if (.not. geom_create(geom, 'geometry'))
@@ -256,7 +257,8 @@ c        **** impose ****
      >                     mt_int,1,nbeads_exist))
      >     call errquit('getting string:nbeads_exist failed',4,RTDB_ERR)
 
-         if (oprint) write(luout,*) "nbeads,nbeads_exist=",nbeads,nbeads_exist
+         if (oprint) 
+     >   write(luout,*) "nbeads,nbeads_exist=",nbeads,nbeads_exist
 
          if (.not. geom_create(geom2, 'geom2'))
      &      call errquit('task_string: geom_create?', 921, GEOM_ERR)
@@ -264,6 +266,8 @@ c        **** impose ****
 *        **** resize the bead list ****
          if (nbeads_exist.ne.nbeads) then
 
+            !size = 3*natoms*nbeads*(2*m+1)
+            size = 3*natoms*nbeads
             if(.not.ma_push_get(mt_dbl,size,'old_coords',
      >          lold_coords, kold_coords))
      >          call errquit('task_string: memory', size, MA_ERR)
@@ -337,7 +341,8 @@ c        **** impose ****
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.true.))
      $     call errquit('task_string: rtdb_put failed',0,
      &       RTDB_ERR)
-      call zts_meps(maxit,nbeads,tol,stepsize,algorithm,natoms,middle,
+      call zts_meps(maxit,nbeads,tol,stepsize,string_algorithm,
+     &    natoms,middle,
      &    dbl_mb(k_coords),geom,rtdb,dbl_mb(k_dg),dbl_mb(k_energy),
      &    dbl_mb(k_dVdx),dbl_mb(k_dcoords),dbl_mb(k_coords_old),
      &    dbl_mb(k_wrk),
@@ -377,7 +382,8 @@ c        **** impose ****
      &   call errquit('task_string: geom_destroy?', geom, GEOM_ERR)
 
 ! Done
-      task_string = converged
+      !task_string = converged
+      task_string = .true.
       return
       end
 C> @}
@@ -387,7 +393,7 @@ C> @}
 *     *                 zts_meps                         *
 *     *                                                  *
 *     ****************************************************
-      subroutine zts_meps(maxit,nbeads,tol,stepsize,algorithm,
+      subroutine zts_meps(maxit,nbeads,tol,stepsize,string_algorithm,
      &    natoms,middle,
      &    coords,geom,rtdb,dg,energy,dVdx,dcoords,coords_old,wrk,
      &    m,coords_list,dVdx_list,HdVdx,masses,
@@ -412,7 +418,7 @@ C> @}
       integer nbeads  ! Number of images or beads along the path (3 or more)
       real*8 tol ! Tolerance for convergence  (1.0d-7)
       real*8 stepsize ! The "time" step size (0.0001)
-      integer algorithm
+      integer string_algorithm
       integer natoms ! The number of atoms
       integer middle ! The "middle" coordinates bead number - 0 if none, -1 all
                      !      of the coordinates are filled
@@ -442,15 +448,16 @@ C> @}
 ! Local variables
       integer i, j, k, nstep,print_shift,print_count,ii,ng,shift,itm
       real*8 tmp, tmp2,t
-      logical badgeom,oprint
+      logical badgeom,oprint,stalled
       real*8 g1(3),g2(3),g3(3)
       integer iistart, iiend
       real*8 hess, e0, e1, a2, dsgrad,sum,sum2,e3
       logical linopt
       logical projection1,found,status,finishedstep
-      integer pathguess,manyjj,goodjj,jj
-      real*8  sum0,sum0_old,alpha,stepsize0,stepsizem
-      real*8  xmax,xrms
+      integer pathguess,manyjj,goodjj,jj,algorithm
+      real*8  sum0,sum0_old,alpha,stepsize0,stepsize1,stepsizem
+      real*8  gmax,grms,xmax,xrms
+      real*8  gmax0,grms0,xmax0,xrms0
 
       character     ch_tmp
       character*255 filename,full_filename,perm_name,movecs_name
@@ -510,10 +517,13 @@ C> @}
         write(luout,'(a,i9)')  '@zts Maximum Time Steps   = ', maxit
         write(luout,'(a,i9)')  '@zts Number of replicas   = ', nbeads
         write(luout,'(a,i9)')  '@zts Number of histories  = ', m
-        if (algorithm.eq.0) then
+        if (string_algorithm.eq.0) then
            write(luout,'(a)')  '@zts algorithm            = Fixed Point'
-        else 
+        else if (string_algorithm.eq.1) then
            write(luout,'(a)')  '@zts algorithm            = Verlet     '
+        else 
+           write(luout,'(a)')
+     >     '@zts algorithm            = Fixed Point - damped Verlet'
         end if
         write(luout,'(a,i9)')  '@zts String Interpolator  = ', interpol
         if (freeze1) then
@@ -528,7 +538,7 @@ C> @}
         endif
         write(luout,'(a)')'@zts'
         write(luout,'(a)')
-     &    '@zts  Step     xrms     xmax        E start       '
+     &    '@zts  Step       xrms       xmax        E start       '
      &     //'E middle          E end          E max      E average'
       endif
       if (maxit .lt. 1) then ! Just printing out initial geometries
@@ -555,7 +565,30 @@ C> @}
       manyjj = 0
       goodjj = 0
       stepsize0 = stepsize
+      stepsize1 = stepsize
       stepsizem = stepsize/16.0d0
+      if (stepsize0.gt.1.0d0) stepsize0 = 1.0d0
+      
+      algorithm = string_algorithm
+      gmax = 0.0d0
+      grms = 0.0d0
+      if (string_algorithm.ge.2) then
+         gmax = 0.0d0
+         do i=1,nbeads
+            do j=1,natoms
+               do k=1,3
+                  if (dabs(dVdx(k,j,i)).gt.gmax) gmax=dabs(dVdx(k,j,i))
+               end do
+            end do
+         end do
+         if (gmax.gt.0.5d0) then
+            algorithm = 1
+            stepsize = stepsize1
+         else
+            algorithm  = 0
+            if (stepsize.gt.stepsize0) stepsize  = stepsize0
+         end if
+      end if
 
       itm = 0
       do nstep = 1, maxit
@@ -563,6 +596,7 @@ C> @}
 
        !**** lmbfgs update ****
        if (algorithm.eq.0) then
+         if (oprint) write(*,*) "string: Fixed Point step"
          itm = itm+1
 
          call dcopy(3*natoms*nbeads,coords,1,coords_old,1)
@@ -610,9 +644,8 @@ C> @}
              sum  = ddot(ng,dVdx,1,HdVdx,1) 
              if ((sum.le.0).or.(sum0.gt.sum0_old)) then
                 call dcopy(ng,dVdx,1,HdVdx,1)
-                itm = 0
-                if (oprint)
-     >             write(luout,*) "string: s=g and itm reset to 0"
+                !itm = 0
+                if (oprint) write(luout,*) "string: s=g"
              end if
              call string_move(alpha,interpol,geom,natoms,nbeads,
      >                      dg,wrk,dcoords,coords_old,HdVdx,coords)
@@ -653,6 +686,8 @@ C> @}
 
        !**** damped verlet update ****
         else
+         if (oprint) write(*,*) "string: Damped Verlet step, stepsize=",
+     >                          stepsize
           call string_verlet_move(stepsize,interpol,geom,natoms,nbeads,
      >                    dg,wrk,masses,dcoords,coords_old,dVdx,coords)
 
@@ -663,7 +698,23 @@ C> @}
         end if
 
 
+         gmax0 = gmax
+         grms0 = grms
+         xrms0 = xrms
+         xmax0 = xmax
+
          !**** Check convergence ****
+         gmax = 0.0d0
+         grms = 0.0d0
+         do i=1,nbeads
+         do j=1,natoms
+         do k=1,3
+            grms = grms + dVdx(k,j,i)**2
+            if (dabs(dVdx(k,j,i)).gt.gmax) gmax = dabs(dVdx(k,j,i))
+         end do
+         end do
+         end do
+         grms = grms/dble(ng)
          xrms = 0.0d0
          xmax = 0.0d0
          do i = 1, nbeads
@@ -673,7 +724,36 @@ C> @}
          enddo
          xrms = xrms/dble(nbeads*natoms)
 
-         if (ga_nodeid() .eq. 0) then
+         if (oprint) write(luout,*) "string: gmax,grms,xrms,xmax=",
+     >                              gmax,grms,xrms,xmax
+
+         stalled = ((gmax.ge.gmax0).or.(grms.ge.grms0)).and.(nstep.gt.1)
+
+         !*** neb algorithm 3 - switch between fixed point and damped Verlet ***
+         if (string_algorithm.ge.3) then
+      
+            !*** switch to fixed point if Xmax less than 1.0 ***
+            if ((gmax.lt.0.5d0).and.
+     >          (gmax.lt.gmax0).and.
+     >          (grms.lt.grms0).and.
+     >          (algorithm.ne.0)    ) then
+               algorithm = 0
+               itm = 0
+               if (stepsize.gt.stepsize0) stepsize = stepsize0
+               if (oprint) write(luout,*) "string: switching to fixed ",
+     >                                    " point, stepsize=",stepsize
+            end if
+
+            !*** if stalled switch to damped Verlet ***
+            if ((stalled).and.(algorithm.ne.1)) then
+               algorithm = 1
+               stepsize = stepsize1
+               if (oprint) write(luout,*) "string: switching to damped",
+     >                                    " Verlet, time_step=",stepsize
+            end if
+         end if
+
+         if (ga_nodeid().eq.0) then
            tmp2 = energy(1)
            do i = 2, nbeads
              if (energy(i).gt.tmp2) tmp2=energy(i)
@@ -684,7 +764,7 @@ C> @}
            end do
            e3 = e3/dble(nbeads)
            write(luout,
-     &     '(a5,i5,1x,f8.6,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7,
+     &    '(a5,i5,1x,f10.6,1x,f10.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7,
      &       1x,F14.7)'
      &            )'@zts ',nstep,xrms,xmax,energy(1),
      &                            energy(1+nbeads/2),
@@ -820,7 +900,7 @@ C> @}
          close(19)
       endif
 
-      if (ga_nodeid() .eq. 0) write(*,*)
+      if (ga_nodeid() .eq. 0) write(luout,*)
       
       end
       
