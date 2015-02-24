@@ -2,6 +2,8 @@
 
 include ../../config/makefile.h
 
+      LIB_DEFINES = -DDBLEPREC_RYS
+
   OBJ_OPTIMIZE = hnd_whermt.o \
                  hnd_rt123.o  \
                  hnd_root4.o  \

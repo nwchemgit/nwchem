@@ -1,6 +1,3 @@
-#if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
-#define DBLEPREC_RYS 1
-#endif
       subroutine hnd_droot
 c $Id$
       implicit none

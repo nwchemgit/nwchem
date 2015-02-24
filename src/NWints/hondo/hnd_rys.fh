@@ -8,7 +8,7 @@ c
       integer nroots, maxrys, maxleg, maxuniqleg, leg_aux, rys_leg
 c
       parameter(maxrys=20, maxleg=75, maxuniqleg=12)
-#ifdef  DBLEPREC_RYS 1
+#ifdef DBLEPREC_RYS 
       parameter(hnd_acc=1.0d-12)
 #else
       parameter(hnd_acc=1.0q-14)
