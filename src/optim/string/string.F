@@ -518,12 +518,14 @@ C> @}
         write(luout,'(a,i9)')  '@zts Number of replicas   = ', nbeads
         write(luout,'(a,i9)')  '@zts Number of histories  = ', m
         if (string_algorithm.eq.0) then
-           write(luout,'(a)')  '@zts algorithm            = Fixed Point'
+           write(luout,'(a)') '@zts algorithm            = 0'//
+     >                        ' (QN Fixed Point)'
         else if (string_algorithm.eq.1) then
-           write(luout,'(a)')  '@zts algorithm            = Verlet     '
+           write(luout,'(a)') '@zts algorithm            = 1'//
+     >                        ' (Verlet)'
         else 
-           write(luout,'(a)')
-     >     '@zts algorithm            = Fixed Point - damped Verlet'
+           write(luout,'(a)') '@zts algorithm            = 3'//
+     >                        ' (QN Fixed Point - Damped Verlet)'
         end if
         write(luout,'(a,i9)')  '@zts String Interpolator  = ', interpol
         if (freeze1) then
@@ -540,6 +542,7 @@ C> @}
         write(luout,'(a)')
      &    '@zts  Step       xrms       xmax        E start       '
      &     //'E middle          E end          E max      E average'
+     &     //' Walltime'
       endif
       if (maxit .lt. 1) then ! Just printing out initial geometries
          do i = 1, nbeads
@@ -765,10 +768,10 @@ C> @}
            e3 = e3/dble(nbeads)
            write(luout,
      &    '(a5,i5,1x,f10.6,1x,f10.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7,
-     &       1x,F14.7)'
+     &       1x,F14.7,f9.1)'
      &            )'@zts ',nstep,xrms,xmax,energy(1),
      &                            energy(1+nbeads/2),
-     &                            energy(nbeads),tmp2,e3
+     &                            energy(nbeads),tmp2,e3,util_wallsec()
 
 
 *           ***************************************
@@ -794,6 +797,7 @@ C> @}
             write(19,*)
      > "#-------------------------------------------------------"
             write(19,*)  "# String Path iteration  = ",nstep
+            write(19,*)  "# algorithm              = ",string_algorithm
             write(19,*)  "# String Interpolator    = ",interpol
             write(19,*)  "# nbeads                 = ",nbeads
             write(19,*)  "# step Size              = ",stepsize
@@ -886,6 +890,7 @@ C> @}
          write(19,*)
      > "#-------------------------------------------------------"
          write(19,*)  "# String Path iteration  = ",nstep
+         write(19,*)  "# algorithm              = ",string_algorithm
          write(19,*)  "# String Interpolator    = ",interpol
          write(19,*)  "# nbeads                 = ",nbeads
          write(19,*)  "# step Size              = ",stepsize
