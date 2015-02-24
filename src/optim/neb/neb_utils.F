@@ -1086,7 +1086,7 @@ c     *** choosing Polac-Ribiere coeff ***
       do ii=1,ng
         Grms = Grms + g1(ii)*g1(ii)
       end do
-      Grms = dsqrt(Grms)/dble(ng)
+      Grms = dsqrt(Grms/dble(ng))
 
       Xmax = 0.0d0
       do ii=1,ng
@@ -1099,7 +1099,7 @@ c     *** choosing Polac-Ribiere coeff ***
         dx = dabs(c1(ii)-c0(ii))
         Xrms = Xrms + dx*dx
       end do
-      Xrms = dsqrt(Xrms)/dble(ng)
+      Xrms = dsqrt(Xrms/dble(ng))
 
 
       return

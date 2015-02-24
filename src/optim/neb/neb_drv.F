@@ -160,13 +160,13 @@ c
       if (oprint) then
 
          if (neb_algorithm.eq.0) then
-            tmp = "Fixed Point"
+            tmp = "QN Fixed Point"
          else if (neb_algorithm.eq.1) then
             tmp = "Damped Verlet"
          else if (neb_algorithm.eq.2) then
             tmp = "refining conjugate gradient"
          else if (neb_algorithm.eq.3) then
-            tmp = "Damped Verlet - Fixed Point"
+            tmp = "QN Fixed Point - Damped Verlet"
          else if (neb_algorithm.eq.4) then
             tmp = "Damped Verlet-Fixed Point w/ q-fit step"
          else
@@ -196,7 +196,7 @@ c
      >    'neb: number of atoms                           = ', i4,/,
      >    'neb: NEB spring constant in a.u.      (kbeads) = ', f10.6,/,
      >    'neb: NEB algorithm                 (algorithm) = ', i4,
-     >                                                   1x,'(',a30,')'/,
+     >                                                   1x,'(',a,')'/,
      >    'neb: NEB movecs filename                       = ', a)
       end if
 
@@ -696,7 +696,7 @@ c                  if (finishedstep) sum0_old = sum0
 
            write(luout,12)  mark," "
            write(luout,12)  mark,"NEB Method"
-           write(luout,13)  mark,"algorithm      = ",neb_algorithm
+           write(luout,15)  mark,"algorithm      = ",neb_algorithm,tmp
            write(luout,13)  mark,"maxiter        = ",nebsteps
            write(luout,13)  mark,"nbeads         = ",nbeads
            write(luout,13)  mark,"nhist          = ",m
@@ -730,6 +730,7 @@ c                  if (finishedstep) sum0_old = sum0
  12        format(a4,1x,a)
  13        format(a4,1x,a,i9)
  14        format(a4,1x,a,e9.3)
+ 15        format(a4,1x,a,i9,1x,'(',a,')')
 
 
          endif
