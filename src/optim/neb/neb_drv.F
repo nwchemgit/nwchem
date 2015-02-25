@@ -578,6 +578,7 @@ c                  if (finishedstep) sum0_old = sum0
             !*** if stalled switch to damped Verlet ***
             if ((stalled).and.(algorithm.ne.1)) then
                algorithm = 1
+               call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
                time_step = time_step1
                if (oprint) write(luout,*) "neb: switching to damped ",
      >                                    "Verlet, time_step=",time_step
