@@ -31,7 +31,7 @@ c     1                           iref,nref)
 #include "tce_prop.fh"
 #include "tce_restart.fh"
 #include "tce_mrcc.fh"
-
+#include "offl.fh"
 c      integer nref
       integer iref
       integer d_t1
@@ -90,15 +90,54 @@ ckbn-2
       count = 0
       next = nxtask(nprocs,1)
       endif
-
-
-
+c
       energy(1)=0.0d0
       energy(2)=0.0d0
       energy(3)=0.0d0
 c      energy1  =0.0d0
 c      energy2  =0.0d0
       energy3  =0.0d0
+c
+c MIC 
+c
+      triplesx_alloced=.false.
+      triplesx1_alloced=.false.
+      v2sub_alloced=.false.
+      t1sub_alloced=.false.
+      t2sub_alloced=.false.
+c     estimate triplesx size
+      range_p4=0
+      do t_p4b = noab+1,noab+nvab
+         range_p4 = max(range_p4,int_mb(k_range+t_p4b-1))
+      enddo
+      range_h1=0
+      do t_h1b = 1,noab
+         range_h1 = max(range_h1,int_mb(k_range+t_h1b-1))
+      enddo
+      size=(range_p4**3)*(range_h1**3)
+      triplesx_copyback=.true.
+c      call util_align64(size)
+      triplesx_mxlgth=size
+      if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
+     1     k_singles)) call errquit('ccsd_t: MA error sgl',
+     2     size,MA_ERR)
+      if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
+     1     k_doubles)) call errquit('ccsd_t: MA error dbl',
+     2     size,MA_ERR)
+#ifdef USE_OFFLOAD
+#if 0
+      call offl_alloc(dbl_mb(k_singles),size)
+      triplesx1_alloced=.true.
+#else
+      triplesx1_alloced=.false.
+#endif
+      call offl_alloc(dbl_mb(k_doubles),size)
+      triplesx_alloced=.true.
+#endif
+c     stagger start of loop
+      call util_mpinap(100)
+c
+c
       do t_p4b = noab+1,noab+nvab
        range_p4 = int_mb(k_range+t_p4b-1)
        offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1
@@ -141,15 +180,33 @@ c      energy2  =0.0d0
 
             size = range_p4 * range_p5 * range_p6
      3           * range_h1 * range_h2 * range_h3
-            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
-     1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
-            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
-     1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
-            do i = 0, size-1
-              dbl_mb(k_singles+i) = 0.0d0
-              dbl_mb(k_doubles+i) = 0.0d0
-            enddo
-           call tce_mrcc_q3vnt2(dbl_mb(k_doubles),d_t2,d_v2,k_t2_offset,
+c MIC
+c zeroing ---
+cc        call dcopy(size, 0.0d0, 0, dbl_mb(k_singles), 1)
+cc        call offl_zerofill(dbl_mb(k_singles),size)
+cc        call dcopy(size, 0.0d0, 0, dbl_mb(k_doubles), 1)
+cc        call offl_zerofill(dbl_mb(k_doubles),size)
+        call dcopy(triplesx_mxlgth, 0.0d0, 0, dbl_mb(k_singles), 1)
+#if 0
+        call offl_zerofill(dbl_mb(k_singles),triplesx_mxlgth)
+#endif
+
+        call dcopy(triplesx_mxlgth, 0.0d0, 0, dbl_mb(k_doubles), 1)
+        call offl_zerofill(dbl_mb(k_doubles),triplesx_mxlgth)
+c -----------
+c
+ccx            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
+ccx     1        k_singles)) call errquit('ccsd_t: MA error',1,MA_ERR)
+ccx            if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
+ccx     1        k_doubles)) call errquit('ccsd_t: MA error',2,MA_ERR)
+ccx            do i = 0, size-1
+ccx              dbl_mb(k_singles+i) = 0.0d0
+ccx              dbl_mb(k_doubles+i) = 0.0d0
+ccx            enddo
+cx           call tce_mrcc_q3vnt2(dbl_mb(k_doubles),d_t2,d_v2,k_t2_offset,
+cx     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+            call ccsd_t_doubles_l(dbl_mb(k_doubles),
+     1        d_t2,d_v2,k_t2_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
            call tce_mrcc_q3vnt1_subg(dbl_mb(k_singles),d_t1,d_v2,
      +        k_t1_offset,
@@ -300,10 +357,10 @@ c     1                    * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
             enddo
 c            if (.not.MA_POP_STACK(l_q3fnt2)) 
 c     1        call errquit('ccsd_t',2,MA_ERR)
-            if (.not.MA_POP_STACK(l_doubles)) 
-     1        call errquit('ccsd_t',3,MA_ERR)
-            if (.not.MA_POP_STACK(l_singles)) 
-     1        call errquit('ccsd_t',4,MA_ERR)
+ccx            if (.not.MA_POP_STACK(l_doubles)) 
+ccx     1        call errquit('ccsd_t',3,MA_ERR)
+ccx            if (.not.MA_POP_STACK(l_singles)) 
+ccx     1        call errquit('ccsd_t',4,MA_ERR)
             endif
             endif
             endif
@@ -321,6 +378,23 @@ c            ENDIF
         enddo
        enddo
       enddo
+c
+c
+#ifdef USE_OFFLOAD
+      call offl_free(dbl_mb(k_doubles),size)
+      triplesx_alloced=.false.
+#if 0
+      call offl_free(dbl_mb(k_singles),size)
+      triplesx1_alloced=.false.
+#endif
+#endif
+
+      if (.not.MA_POP_STACK(l_doubles))
+     1     call errquit('ccsd_t doubles',3,MA_ERR)
+      if (.not.MA_POP_STACK(l_singles))
+     1     call errquit('ccsd_t singles',4,MA_ERR)
+c
+c
       if(lusesub) then
       next = NXTASKsub(-nprocs,1,mypgid)
       call ga_pgroup_sync(mypgid)

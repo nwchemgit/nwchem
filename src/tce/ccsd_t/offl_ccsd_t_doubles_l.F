@@ -825,13 +825,13 @@ c
 c
       END IF
       END DO ! ia6 loop
-#ifdef OFFLOAD_CODE_OLD
+#ifdef OFFLOAD_CODE
 #ifndef OPENMP_OFFLOAD
       if (otceps) then
          call pstat_on(ps_sxoff)
          t0=omp_get_wtime()
       endif
-      if(triplesx_copyback)
+      if(triplesx_copyback) then
 !DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
      O   OUT(triplesx:length(l_triplesx) 
      &   REUSE)

@@ -114,7 +114,8 @@ c      call util_align64(size)
 c
 c     get first task with weight lt ? 8
 c
-      w_thresh=10
+c      w_thresh=10
+      w_thresh=0
       w_thresh=w_thresh**6
       call ccsd_t_neword(tot_task, w_thresh,task_thresh,
      R     restricted,noab,nvab,
