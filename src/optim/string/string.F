@@ -592,6 +592,7 @@ C> @}
          end if
       end if
 
+      call dcopy(ng,coords,1,coords_old,1)
       itm = 0
       do nstep = 1, maxit
        if (oprint) write(luout,*) "string: iteration #",nstep
@@ -749,10 +750,12 @@ C> @}
             !*** if stalled switch to damped Verlet ***
             if ((stalled).and.(algorithm.ne.1)) then
                algorithm = 1
+               call dcopy(ng,coords,1,coords_old,1)
                stepsize = stepsize1
                if (oprint) write(luout,*) "string: switching to damped",
-     >                                    " Verlet, time_step=",stepsize
+     >                                    " Verlet, stepsize=",stepsize
             end if
+
          end if
 
          if (ga_nodeid().eq.0) then
