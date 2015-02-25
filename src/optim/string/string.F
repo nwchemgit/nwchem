@@ -522,7 +522,7 @@ C> @}
      >                        ' (QN Fixed Point)'
         else if (string_algorithm.eq.1) then
            write(luout,'(a)') '@zts algorithm            = 1'//
-     >                        ' (Verlet)'
+     >                        ' (Damped Verlet)'
         else 
            write(luout,'(a)') '@zts algorithm            = 3'//
      >                        ' (QN Fixed Point - Damped Verlet)'
@@ -567,10 +567,9 @@ C> @}
       sum0_old = sum0
       manyjj = 0
       goodjj = 0
-      stepsize0 = stepsize
+      stepsize0 = 1.0d0
       stepsize1 = stepsize
       stepsizem = stepsize/16.0d0
-      if (stepsize0.gt.1.0d0) stepsize0 = 1.0d0
       
       algorithm = string_algorithm
       gmax = 0.0d0
@@ -589,7 +588,7 @@ C> @}
             stepsize = stepsize1
          else
             algorithm  = 0
-            if (stepsize.gt.stepsize0) stepsize  = stepsize0
+            stepsize = stepsize0
          end if
       end if
 
@@ -742,7 +741,7 @@ C> @}
      >          (algorithm.ne.0)    ) then
                algorithm = 0
                itm = 0
-               if (stepsize.gt.stepsize0) stepsize = stepsize0
+               stepsize = stepsize0
                if (oprint) write(luout,*) "string: switching to fixed ",
      >                                    " point, stepsize=",stepsize
             end if
