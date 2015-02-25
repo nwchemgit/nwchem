@@ -742,7 +742,7 @@ C> @}
      >          (algorithm.ne.0)    ) then
                algorithm = 0
                itm = 0
-               stepsize = stepsize0
+               if (stepsize.gt.stepsize0) stepsize = stepsize0
                if (oprint) write(luout,*) "string: switching to fixed ",
      >                                    " point, stepsize=",stepsize
             end if
@@ -751,7 +751,7 @@ C> @}
             if ((stalled).and.(algorithm.ne.1)) then
                algorithm = 1
                call dcopy(ng,coords,1,coords_old,1)
-               stepsize = stepsize1
+               if (stepsize.gt.stepsize1) stepsize = stepsize1
                if (oprint) write(luout,*) "string: switching to damped",
      >                                    " Verlet, stepsize=",stepsize
             end if
