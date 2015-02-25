@@ -39,7 +39,8 @@ c
       return
       end
 c
-      subroutine ccsd_t_neword(tot_task,
+      subroutine ccsd_t_neword(tot_task, 
+     w     w_thresh,task_thresh,
      R     restricted,noab,nvab,kspin,ksym,
      K     krange,kaux,klist)
       implicit none
@@ -47,11 +48,12 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
       logical restricted
+      integer w_thresh,task_thresh
       integer tot_task
       integer noab,nvab
       integer kspin(*),ksym(*)
       integer krange(*)
-      integer kaux(7,*),klist(6,*)
+      integer kaux(7,*),klist(7,*)
 c
       integer t_p4b,t_p5b,t_p6b
       integer t_h1b,t_h2b,t_h3b
@@ -60,8 +62,11 @@ c
       integer range_p4,range_p5,range_p6,
      R     range_h1,range_h2,range_h3
       integer nsplits,ii,w_in
+      integer highindx
+      parameter (highindx=7)
       double precision rr456,rr4561,rr45612
 c
+      task_thresh=tot_task
       m=0
       do t_p4b = noab+1,noab+nvab
        range_p4 = krange(t_p4b)
@@ -93,7 +98,7 @@ c
             kaux(5,m)=t_h2b
             kaux(6,m)=t_h3b
             range_h3 = krange(t_h3b)
-            kaux(7,m)=rr45612*range_h3
+            kaux(highindx,m)=rr45612*range_h3
             endif
             endif
             endif
@@ -105,7 +110,7 @@ c
       enddo
 #ifdef DEBUG
       do i=1,tot_task
-         write(6,12) i,(kaux(j,i),j=1,7)
+         write(6,12) i,(kaux(j,i),j=1,highindx)
  12      format(I7,6I8,I20)
       enddo
 #endif
@@ -117,19 +122,31 @@ c
 c
       wl_max=0
       do m=1,tot_task
-        wl_max=max(kaux(7,m),wl_max)
+        wl_max=max(kaux(highindx,m),wl_max)
       enddo
 c
       wl_min=wl_max
       do m=1,tot_task
-        wl_min=min(kaux(7,m),wl_min)
+        wl_min=min(kaux(highindx,m),wl_min)
       enddo
+c     all tiles the same. no ordering needed
+#if 1
+      if(((wl_max-wl_min)*100d0)/wl_max.lt.1d0) then 
+      do m=1,tot_task
+         do j=1,highindx
+            klist(j,m)=kaux(j,m)
+         enddo
+      enddo
+      return
+      endif
+#endif
+
 c
 c simple sorting
 c
 c
       do m=1,tot_task
-         do j=1,6
+         do j=1,highindx
             klist(j,m)=-1
          enddo
       enddo
@@ -138,10 +155,10 @@ c
          write(6,33) ' total no. of tasks ',tot_task
          write(6,33) ' total no. of tasks / no. procs ',
      c        tot_task/ga_nnodes()
-         write(6,33) ' wl_min ',wl_min,nint((wl_min)**(1d0/6d0))
-         write(6,33) ' wl_max ',wl_max,nint((wl_max)**(1d0/6d0))
+         write(6,33) ' wl_min ',wl_min,(wl_min)**(1d0/6d0)
+         write(6,33) ' wl_max ',wl_max,(wl_max)**(1d0/6d0)
       endif
- 33   format(a32,2i12)
+ 33   format(a32,i12,f14.1)
 
 #ifdef DEBUG
       write(6,*) ' sort1 '
@@ -153,18 +170,37 @@ c
       do ii=nsplits,1,-1
          w_in=wl_min+((wl_max-wl_min)*(ii-1))/nsplits
           call ccsd_sillysort(w_in,
-     R     kaux,klist, tot_task,m,7)
+     R     kaux,klist, tot_task,m,highindx)
        enddo
       call ccsd_sillysort(0,
-     R     kaux,klist, tot_task,m,7)
+     R     kaux,klist, tot_task,m,highindx)
 c     check that everybody has been invalidated
       do i=1,tot_task
-         if(kaux(7,i).ge.0) then
+         if(kaux(highindx,i).ge.0) then
             write(6,*) ' kaux element ',i,
-     R           'not sorted. val = ',kaux(7,i)
+     R           'not sorted. val = ',kaux(highindx,i)
             call errquit('neworder error ',0,0)
             endif
       enddo
+c
+c     figure out task with w lt w_thresh
+c
+c      w_thresh=w_thresh**6
+
+      do i=1,tot_task
+         if(klist(highindx,i).lt.w_thresh) then
+            task_thresh=i
+            goto 1973
+         endif
+      enddo
+c
+c     task_thresh must be gt ga_nnodes because of the static nxtask for the first task
+c      
+ 1973 continue
+      task_thresh=max(task_thresh,ga_nnodes()+1) 
+      if(ga_nodeid().eq.0) then
+         write(6,33) ' thresh for no. of tasks ',task_thresh
+      endif
 #ifdef DEBUG
       write(6,*) ' sorting ok '
       do m=1,tot_task
@@ -185,18 +221,18 @@ c
       integer found
       integer highindx
       integer kaux(highindx,*)
-      integer klist(highindx-1,*)
+      integer klist(highindx,*)
 c
       integer i,j,m
 c
       do m=1,n
          if(kaux(highindx,m).gt.value) then
-c     invalidate
-            kaux(highindx,m)=-99
             found=found+1
-            do j=1,highindx-1
+            do j=1,highindx
                klist(j,found)=kaux(j,m)
             enddo
+c     invalidate
+            kaux(highindx,m)=-99
          endif
       enddo
       return

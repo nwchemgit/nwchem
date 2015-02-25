@@ -831,6 +831,7 @@ c
          call pstat_on(ps_sxoff)
          t0=omp_get_wtime()
       endif
+      if(triplesx_copyback)
 !DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
      O   OUT(triplesx:length(l_triplesx) 
      &   REUSE)
@@ -838,6 +839,7 @@ c
          call pstat_off(ps_sxoff)
          deltat_off=(omp_get_wtime()-t0)*1.D6
          call updist(fdist_sxoff, deltat_off)
+      endif
       endif
 #endif
 #endif

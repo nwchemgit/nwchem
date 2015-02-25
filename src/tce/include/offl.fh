@@ -12,8 +12,9 @@ c k_b_sort v2sub
       logical t1sub_alloced
       logical t2sub_alloced
       logical v2sub_alloced
+      logical triplesx_copyback
       integer	triplesx_mxlgth
       common /offl_ccsdt/triplesx_alloced,
      1 t1sub_alloced, 
      1 t2sub_alloced, 
-     1 v2sub_alloced
+     1 v2sub_alloced,triplesx_copyback

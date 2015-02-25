@@ -524,9 +524,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_3
       do p4=1,p4d
       do p5=1,p5d
       do p6=1,p6d
+      do h1=1,h1d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h3h2=1,h3d*h2d
-      do h1=1,h1d
        triplesx(h1,h3h2,p6,p5,p4)=triplesx(h1,h3h2,p6,p5,p4)
      1   + t1sub(p4,h1)*v2sub(h3h2,p6,p5)
       enddo
@@ -640,9 +640,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_6
       do p5=1,p5d
       do p4=1,p4d
       do p6=1,p6d
+      do h1=1,h1d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h3h2=1,h3d*h2d
-      do h1=1,h1d
        triplesx(h1,h3h2,p6,p4,p5)=triplesx(h1,h3h2,p6,p4,p5)
      1   - t1sub(p4,h1)*v2sub(h3h2,p6,p5)
       enddo
@@ -756,9 +756,9 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_mic_sd_t_s1_9
       do p5=1,p5d
       do p6=1,p6d
       do p4=1,p4d
+      do h1=1,h1d
 !DEC$ LOOP COUNT MAX=900, MIN=30
       do h3h2=1,h3d*h2d
-      do h1=1,h1d
        triplesx(h1,h3h2,p4,p6,p5)=triplesx(h1,h3h2,p4,p6,p5)
      1   + t1sub(p4,h1)*v2sub(h3h2,p6,p5)
       enddo

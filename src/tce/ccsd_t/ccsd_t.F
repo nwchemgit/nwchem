@@ -44,13 +44,15 @@ c ---------------------------------------
       double precision denom_p4,denom_p5,denom_p6
       double precision denom_h1,denom_h2,denom_h3
       integer k_aux,k_list,l_aux,l_list
-      integer ccsd_t_6tasks,tot_task
+      integer ccsd_t_6tasks,tot_task,w_thresh,task_thresh
       integer k,iptr,k_grain
       double precision wall
       integer n_progr,pct_progr
       parameter(n_progr=20)
       logical i_progr(n_progr)
       external nxtask,ccsd_t_6tasks
+      integer offload_master
+      external offload_master
 C
 c
 c - T1/X1 LOCALIZATION ----------
@@ -85,6 +87,8 @@ c     estimate triplesx size
          range_h1 = max(range_h1,int_mb(k_range+t_h1b-1))
       enddo
       size=(range_p4**3)*(range_h1**3)
+
+      triplesx_copyback=.false.
 c      call util_align64(size)
       triplesx_mxlgth=size
       if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
@@ -99,21 +103,25 @@ c      call util_align64(size)
       call offl_alloc(dbl_mb(k_doubles),size)
       triplesx_alloced=.true.
 #endif    
-#ifdef DEBUG  
       wall=-util_wallsec()
-#endif
       tot_task= ccsd_t_6tasks(
      R     restricted,noab,nvab,
      I     int_mb(k_spin),int_mb(k_sym))
-      if (.not.ma_push_get(mt_int,6*tot_task,"list.task",
+      if (.not.ma_push_get(mt_int,7*tot_task,"list.task",
      1  l_list,k_list)) call errquit("k_list",1,MA_ERR)
       if (.not.ma_push_get(mt_int,7*tot_task,"auxtask",
      1  l_aux,k_aux)) call errquit("k_aux",2,MA_ERR)
-      call ccsd_t_neword(tot_task,
+c
+c     get first task with weight lt ? 8
+c
+      w_thresh=10
+      w_thresh=w_thresh**6
+      call ccsd_t_neword(tot_task, w_thresh,task_thresh,
      R     restricted,noab,nvab,
      K     int_mb(k_spin),int_mb(k_sym),
      K     int_mb(k_range),
      A     int_mb(k_aux),int_mb(k_list))
+
 
       if (.not.MA_POP_STACK(l_aux))
      1     call errquit('ordering',3,MA_ERR)
@@ -122,140 +130,77 @@ c      call util_align64(size)
 #if 0
       k_grain=min(5,nint((tot_task/15d0)/nprocs))
       k_grain=max(k_grain,1)
-#endif
       if(ga_nodeid().eq.0) then
          write(6,*) ' nxtask granularity ',k_grain
       endif
+#endif
       next = nxtask(nprocs,k_grain)
       do k=1,n_progr
          i_progr(k)=.true.
       enddo
 c     stagger start of loop
       call util_mpinap(100)
-      do k=1,tot_task
+      if(task_thresh.gt.1) then
+      do k=1,task_thresh-1
 c
          if (next.eq.count) then
-            iptr=k_list+(k-1)*6
-            t_p4b=int_mb(iptr)
-            range_p4 = int_mb(k_range+t_p4b-1)
-            offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1
-            t_p5b=int_mb(iptr+1)
-            range_p5 = int_mb(k_range+t_p5b-1)
-            offset_p5 = k_evl_sorted+int_mb(k_offset+t_p5b-1)-1
-            t_p6b=int_mb(iptr+2)
-            range_p6 = int_mb(k_range+t_p6b-1)
-            offset_p6 = k_evl_sorted+int_mb(k_offset+t_p6b-1)-1
-            t_h1b=int_mb(iptr+3)
-            range_h1 = int_mb(k_range+t_h1b-1)
-            offset_h1 = k_evl_sorted+int_mb(k_offset+t_h1b-1)-1
-            t_h2b=int_mb(iptr+4)
-            range_h2 = int_mb(k_range+t_h2b-1)
-            offset_h2 = k_evl_sorted+int_mb(k_offset+t_h2b-1)-1
-            t_h3b=int_mb(iptr+5)
-            range_h3 = int_mb(k_range+t_h3b-1)
-            offset_h3 = k_evl_sorted+int_mb(k_offset+t_h3b-1)-1
+            call ccsd_t_loop(k,energy1,energy2,
+     L         int_mb(k_list),int_mb(k_range),int_mb(k_offset),
+     D         dbl_mb(k_singles),dbl_mb(k_doubles),
+     i         k_t1_local,k_t1_offset,d_t2,d_v2,k_t2_offset,k_v2_offset,
+     C         restricted,k_evl_sorted,size)
 c
-            size = range_p4 * range_p5 * range_p6
-     3           * range_h1 * range_h2 * range_h3
-c zeroing ---
-        call dcopy(size, 0.0d0, 0, dbl_mb(k_singles), 1)
-        call offl_zerofill(dbl_mb(k_singles),size)
-        call dcopy(size, 0.0d0, 0, dbl_mb(k_doubles), 1)
-        call offl_zerofill(dbl_mb(k_doubles),size)
-c -----------
-#ifdef USE_OFFLOAD
-#define USE_OMP_TRIPLES_DOT_PRODUCT 1
-#warning offload code enabled
-            call offl_ccsd_t_singles_l(dbl_mb(k_singles),
-     1        k_t1_local,d_v2,k_t1_offset,
-     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-#else
-            call ccsd_t_singles_l(dbl_mb(k_singles),
-     1        k_t1_local,d_v2,k_t1_offset,
-     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-#endif
-            call ccsd_t_doubles_l(dbl_mb(k_doubles),
-     1        d_t2,d_v2,k_t2_offset,
-     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-#ifdef USE_OMP_TRIPLES_DOT_PRODUCT
-            call ccsd_t_esum(
-     C           dbl_mb(k_singles),dbl_mb(k_doubles),
-     R           restricted,
-     &                      t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
-     &                      dbl_mb(offset_h1+1),dbl_mb(offset_h2+1),
-     D           dbl_mb(offset_h3+1),
-     &                      dbl_mb(offset_p4+1),dbl_mb(offset_p5+1),
-     D           dbl_mb(offset_p6+1),
-     &                      range_h1,range_h2,range_h3,
-     &                      range_p4,range_p5,range_p6,
-     &                      energy1,energy2)
-#else
-            if (restricted) then
-              factor = 2.0d0
-            else
-              factor = 1.0d0
-            endif
-            if ((t_p4b.eq.t_p5b).and.(t_p5b.eq.t_p6b)) then
-              factor = factor / 6.0d0
-            else if ((t_p4b.eq.t_p5b).or.(t_p5b.eq.t_p6b)) then
-              factor = factor / 2.0d0
-            endif
-            if ((t_h1b.eq.t_h2b).and.(t_h2b.eq.t_h3b)) then
-              factor = factor / 6.0d0
-            else if ((t_h1b.eq.t_h2b).or.(t_h2b.eq.t_h3b)) then
-              factor = factor / 2.0d0
-            endif
-c
-c factor = [ 1/36, 1/18, 1/12, 1/6, 1/4, 1/3, 1/2, 1, 2]
-c
-            i = 0
-            do t_p4 = 1, range_p4
-             denom_p4 = dbl_mb(offset_p4+t_p4)
-             do t_p5 = 1, range_p5
-              denom_p5 = dbl_mb(offset_p5+t_p5)
-              do t_p6 = 1, range_p6
-               denom_p6 = dbl_mb(offset_p6+t_p6)
-               do t_h1 = 1, range_h1
-                denom_h1 = dbl_mb(offset_h1+t_h1)
-                do t_h2 = 1, range_h2
-                 denom_h2 = dbl_mb(offset_h2+t_h2)
-                 do t_h3 = 1, range_h3
-                  denom_h3 = dbl_mb(offset_h3+t_h3)
-                  denom = 1.0d0 / ( ( denom_h1 + denom_h2 + denom_h3 )
-     1                            - ( denom_p4 + denom_p5 + denom_p6 ) )
-                  energy1 = energy1 + factor*denom
-     1                    * dbl_mb(k_doubles+i)*dbl_mb(k_doubles+i)
-                  energy2 = energy2 + factor*denom*dbl_mb(k_doubles+i)
-     1                    * (dbl_mb(k_doubles+i)+dbl_mb(k_singles+i))
-                  i = i + 1
-                 enddo
-                enddo
-               enddo
-              enddo
-             enddo
-            enddo
-#endif
-c
-            if(ga_nodeid().eq.0) then
+
+            if(ga_nodeid().eq.2) then
                pct_progr=(k*n_progr)/tot_task
                if(i_progr(pct_progr)) then
                   i_progr(pct_progr)=.false.
-                  write(6,'(a,i4,a)') '  done ',
-     K                 int((k*100d0)/tot_task),'% '
+                  write(6,'(a,i5,a,i4,a,f15.1,a,f9.1)') 
+     T           '0task ',k,'  done ',
+     K                 int((k*100d0)/tot_task),'%  at',
+     W                 wall+util_wallsec(),' sec, (size)^1/6= ',
+     W                 (size)**(1d0/6d0)
                   call util_flush(6)
                endif
             endif
             next = nxtask(nprocs,k_grain)
+         endif
+         count = count + 1
+      enddo
+      endif
+      if(task_thresh.le.tot_task) then
+      next = nxtask(-nprocs,k_grain)
+      if(.not.offload_master()) then
+         next = nxtask(nprocs,k_grain)
+         count=0
+         do k=task_thresh,tot_task
+            if (next.eq.count) then
+               call ccsd_t_loop(k,energy1,energy2,
+     L         int_mb(k_list),int_mb(k_range),int_mb(k_offset),
+     D         dbl_mb(k_singles),dbl_mb(k_doubles),
+     i         k_t1_local,k_t1_offset,d_t2,d_v2,k_t2_offset,k_v2_offset,
+     C              restricted,k_evl_sorted,size)
+c     
+               next = nxtask(nprocs,k_grain)
+               if(ga_nodeid().eq.2) then
+                  pct_progr=(k*n_progr)/tot_task
+                  if(i_progr(pct_progr)) then
+                     i_progr(pct_progr)=.false.
+                     write(6,'(a,i8,a,i4,a,f15.1,a,f9.1)') 
+     T                 ' task',k,'  done ',
+     K                    int((k*100d0)/tot_task),'%  at',
+     W                    wall+util_wallsec(),' sec, (size)^1/6= ',
+     W                    (size)**(1d0/6d0)
+                     call util_flush(6)
+                  endif
+               endif
             endif
             count = count + 1
-c
-      enddo
-c cleanup to dealloc
-c      triplesx_free=.true.
-c      call ccsd_t_doubles_l(dbl_mb(k_doubles),
-c     1     d_t2,d_v2,k_t2_offset,
-c     1     k_v2_offset,1,1,1,1,1,1,2)
+         enddo
+      endif
+      endif
 #ifdef USE_OFFLOAD
+c  dealloc
       call offl_free(dbl_mb(k_doubles),size)
       triplesx_alloced=.false.
       call offl_free(dbl_mb(k_singles),size)
@@ -268,11 +213,8 @@ c     1     k_v2_offset,1,1,1,1,1,1,2)
      1     call errquit('ccsd_t doubles',3,MA_ERR)
       if (.not.MA_POP_STACK(l_singles)) 
      1     call errquit('ccsd_t singles',4,MA_ERR)
-#ifdef DEBUG
-      write(6,*) ga_nodeid(),' before nxt '
-      call util_flush(6)
-#endif
       next = nxtask(-nprocs,k_grain)
+c      call ga_sync()
       energy(1) = energy1
       energy(2) = energy2
       call ga_mask_sync(.false.,.true.)
@@ -418,5 +360,83 @@ c
       call offl_zero(ttt,l_ttt)
       endif
 #endif
+      return
+      end
+      subroutine ccsd_t_loop(k,energy1,energy2,
+     L     k_list,k_range,k_offset,k_singles,k_doubles,
+     i     k_t1_local,k_t1_offset,d_t2,d_v2,k_t2_offset,k_v2_offset,
+     C     restricted,k_evl_sorted,size)
+      implicit none
+#include "mafdecls.fh"
+      integer k
+      double precision energy1,energy2
+      integer k_list(7,*)
+      integer k_range(*),k_offset(*)
+      double precision k_singles(*),k_doubles(*)
+      logical restricted
+      integer k_evl_sorted
+      integer k_t1_local,k_t1_offset
+      integer d_t2,d_v2
+      integer k_t2_offset,k_v2_offset
+      integer size
+c
+      integer t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b
+      integer range_p4,range_p5,range_p6,
+     R     range_h1,range_h2,range_h3
+      integer offset_p4,offset_p5,offset_p6,
+     O     offset_h1,offset_h2,offset_h3
+
+c
+            t_p4b=k_list(1,k)
+            range_p4 = k_range(t_p4b)
+            offset_p4 = k_evl_sorted+k_offset(t_p4b)-1
+            t_p5b=k_list(2,k)
+            range_p5 = k_range(t_p5b)
+            offset_p5 = k_evl_sorted+k_offset(t_p5b)-1
+            t_p6b=k_list(3,k)
+            range_p6 = k_range(t_p6b)
+            offset_p6 = k_evl_sorted+k_offset(t_p6b)-1
+            t_h1b=k_list(4,k)
+            range_h1 = k_range(t_h1b)
+            offset_h1 = k_evl_sorted+k_offset(t_h1b)-1
+            t_h2b=k_list(5,k)
+            range_h2 = k_range(t_h2b)
+            offset_h2 = k_evl_sorted+k_offset(t_h2b)-1
+            t_h3b=k_list(6,k)
+            range_h3 = k_range(t_h3b)
+            offset_h3 = k_evl_sorted+k_offset(t_h3b)-1
+c
+            size = range_p4 * range_p5 * range_p6
+     3           * range_h1 * range_h2 * range_h3
+c zeroing ---
+        call dcopy(size, 0.0d0, 0, k_singles, 1)
+        call offl_zerofill(k_singles,size)
+        call dcopy(size, 0.00, 0, k_doubles, 1)
+        call offl_zerofill(k_doubles,size)
+c -----------
+#ifdef USE_OFFLOAD
+            call offl_ccsd_t_singles_l(k_singles,
+     1        k_t1_local,d_v2,k_t1_offset,
+     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+#else
+            call ccsd_t_singles_l(k_singles,
+     1        k_t1_local,d_v2,k_t1_offset,
+     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+#endif
+            call ccsd_t_doubles_l(k_doubles,
+     1        d_t2,d_v2,k_t2_offset,
+     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+            call ccsd_t_esum(
+     C           k_singles,k_doubles,
+     R           restricted,
+     &                      t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
+     &                      dbl_mb(offset_h1+1),dbl_mb(offset_h2+1),
+     D           dbl_mb(offset_h3+1),
+     &                      dbl_mb(offset_p4+1),dbl_mb(offset_p5+1),
+     D           dbl_mb(offset_p6+1),
+     &                      range_h1,range_h2,range_h3,
+     &                      range_p4,range_p5,range_p6,
+     &                      energy1,energy2)
+
       return
       end

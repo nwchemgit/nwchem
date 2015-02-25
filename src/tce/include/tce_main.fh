@@ -20,7 +20,7 @@ c
       integer max_size                        ! A large number
       parameter (max_size = 10000)
       integer max_files                       ! Maximum number of files
-      parameter (max_files = 131072)
+      parameter (max_files = 2048)
       integer geom                            ! Geometry handle
       integer ao_bas_han                      ! AO basis set handle
       logical oskel,oadapt                    ! Symmetry control parameters
