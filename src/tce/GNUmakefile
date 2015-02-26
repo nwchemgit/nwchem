@@ -90,7 +90,7 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_mo2e_disk_2eorb.o tce_mo2e_incore_2eorb.o tce_mo2e_incore_2eorb_split.o \
       tce_mo2e_hybrid_2eorb_split.o tce_mo2e_offset_intorb_hybrid.o \
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
-      tce_make_denom1.o tce_make_denom2.o get_hash_block_ma.o \
+      get_hash_block_ma.o \
       ccsd_energy_loc.o cc2_energy.o ccsd_lambda.o ccsd_imaginary.o ccsd_lr_alpha.o \
       ccsd_qr_beta.o tce_dgeev.o tce_schmidt.o tensor_read_write.o \
       tce_diis_act.o tce_mo2e_zones_4a_disk_ga_act.o tce_mo2e_zones_4a_disk_ga_chop_act.o \
