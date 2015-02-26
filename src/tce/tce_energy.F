@@ -2666,7 +2666,6 @@ c === jaguar ===
           call ga_sync()
          end if
 c ==============
-        endif
   320    continue
 c -------------
 c CCSD    left
@@ -3363,6 +3362,7 @@ c -------------
      6         size_yr1,size_yr2)
 c
         endif ! leftresp
+      endif ! (model.eq.'ccsd').or.do_ccsd
 c -------------------
 c CCSD(T) and CCSD[T]
 c -------------------
