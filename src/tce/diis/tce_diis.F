@@ -465,7 +465,7 @@ c
           call util_flush(LuOut)
         endif
 c
-c     Make New t's
+c     Make New T amplitudes
 c
         if (t1) call daxfile(diis,b,t1_diis,d_t1,size_t1)
         if (t2) call daxfile(diis,b,t2_diis,d_t2,size_t2)
