@@ -9,6 +9,7 @@ c
 #include "inp.fh"
 #include "bafdecls.fh"
 #include "rtdb.fh"
+#include "nwc_const.fh"
 #include "errquit.fh"
 #include "nwxc.fh"
 c
@@ -142,6 +143,8 @@ c
       logical mulliken,allow_translation
       integer ispin,multiplicity,space_avail
       integer nx,ny,nz,minimizer,h_values,i_values,nuterms
+      integer index_start1(2),n1,j,jstart,jlast,jstride
+
 chvd
       double precision a,b,c
       logical hfsr
@@ -1124,6 +1127,29 @@ c
       if (.not.(rtdb_put(rtdb,'nwpw:scaling',mt_dbl,2,scaling).and.
      >          rtdb_put(rtdb,'cpmd:scaling',mt_dbl,2,scaling)))
      >  call errquit('nwpw_input: error writing to rtdb',5700,RTDB_ERR)
+
+      !*** try reading in atom indexes ****
+      if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start1',
+     >                    index_start1(2),index_start1(1)))
+     >    call errquit(
+     > 'nwpw_input:failed allocating index_start1',0,MA_ERR)
+      n1 = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start1(1)+n1) = j
+          n1 = n1+1
+         end do
+      end do
+      if (n1.gt.0) then
+         if (.not.rtdb_put(rtdb,'nwpw:scaling_natms',
+     >                     mt_int,1,n1))
+     >      call errquit('nwpw_input:nwpw:scaling_natms',0,RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'nwpw:scaling_atoms',
+     >                     mt_int,n1,int_mb(index_start1(1))))
+     >      call errquit('nwpw_input:nwpw:scaling_atoms',0,RTDB_ERR)
+      end if
+      if (.not.BA_pop_stack(index_start1(2))) call errquit(
+     > 'nwpw_input:failed deallocating index_start1',0,MA_ERR)
 
       goto 10
 

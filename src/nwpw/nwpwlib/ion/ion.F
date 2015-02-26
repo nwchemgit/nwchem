@@ -17,6 +17,7 @@
       logical value
 
       call FMM_end()
+      call ion_scaling_atoms_end()
 
       value = BA_free_heap(r2(2))
       value = value.and.BA_free_heap(r1(2))
@@ -377,6 +378,7 @@ c         eki1=0.5d0*eki1
       call ion_check_distances()
 
       call FMM_start()
+      call ion_scaling_atoms_start(rtdb)
 
       call nwpw_timing_end(50)
       ion_init = value
@@ -1071,7 +1073,8 @@ c         eki1=0.5d0*eki1
 
 
 *     **** scale velocities then find kinetic energy ***
-      call dscal((3*nion),control_rti(),dbl_mb(r0(1)),1)
+      !call dscal((3*nion),control_rti(),dbl_mb(r0(1)),1)
+      call ion_scaling_atoms(control_rti(),nion,dbl_mb(r0(1)))
       eki1 = 0.0d0
       do i=1,nion
          eki1 = eki1 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2

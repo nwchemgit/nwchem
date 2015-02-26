@@ -159,10 +159,10 @@
 
       integer  control_bo_steps_in,control_bo_steps_out
       integer  control_bo_algorithm,control_opt_algorithm
-      real*8   control_opt_step_size,control_rti
+      real*8   control_opt_step_size
       external control_bo_steps_in,control_bo_steps_out 
       external control_bo_algorithm,control_opt_algorithm
-      external control_opt_step_size,control_rti
+      external control_opt_step_size
       real*8   control_opt_lattice_step
       external control_opt_lattice_step
 

@@ -336,6 +336,7 @@ c       call nwxc_print()
         scaling(1) = 1.0d0
         scaling(2) = 1.0d0
       end if
+
       tolerances(1) = 0.0d0
       tolerances(2) = 0.0d0
       tolerances(3) = 0.0d0
@@ -2147,8 +2148,6 @@ c         mtensor(3,3) = z
       control_rti = scaling(2)
       return
       end
-
-
 
 
 *     ***********************************

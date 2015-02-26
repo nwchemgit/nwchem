@@ -4,18 +4,19 @@
  SUBDIRS = shake
 
  OBJ_OPTIMIZE = \
-            center.o \
-			ion_FixIon.o \
-            incell1.o \
-            incell2.o \
-            incell3.o \
-            unfold.o \
-			xyz.o \
-            ion.o \
-			katm_list.o \
-            fcoord.o \
-			seperate_molpsp.o \
-			seperate_pointcharge.o
+		center.o \
+		ion_FixIon.o \
+		incell1.o \
+		incell2.o \
+		incell3.o \
+		unfold.o \
+		xyz.o \
+		ion.o \
+		katm_list.o \
+		fcoord.o \
+		seperate_molpsp.o \
+		seperate_pointcharge.o \
+		ion_scaling_atoms.o
 
 
 	  OBJ = 

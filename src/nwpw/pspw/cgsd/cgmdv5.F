@@ -156,9 +156,11 @@
 
       integer  control_bo_steps_in,control_bo_steps_out
       integer  control_bo_algorithm
+      integer  ion_scaling_atoms_natms,ion_scaling_atoms
       real*8   control_bo_time_step,control_rti,ion_ke,ion_Temperature
       external control_bo_steps_in,control_bo_steps_out 
       external control_bo_algorithm
+      external ion_scaling_atoms_natms,ion_scaling_atoms
       external control_bo_time_step,control_rti,ion_ke,ion_Temperature
       real*8   ion_com_Temperature
       external ion_com_Temperature
@@ -604,6 +606,7 @@ c         end if
          if(control_bo_algorithm().eq.2) write(6,1330) "Leap Frog"
 
          write(luout,1340) control_rti()
+         call ion_scaling_atoms_print(luout)
          write(luout,1222) eki0,ekg
          write(luout,1223) eki1
          write(luout,1224) (eki1-eki0)

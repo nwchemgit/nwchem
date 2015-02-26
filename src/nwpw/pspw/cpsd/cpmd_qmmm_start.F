@@ -517,6 +517,7 @@ c         end if
          if (.not.control_rotation())    write(6,1272)
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_rte(),control_rti()
+         call ion_scaling_atoms_print(6)
          write(6,1222) eke0,eki0,ekg
          write(6,1223) eke1,eki1
          write(6,1224) (eke1-eke0),(eki1-eki0)

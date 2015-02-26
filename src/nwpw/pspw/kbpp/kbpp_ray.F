@@ -164,3 +164,43 @@ c     >      /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
       end do
       return
       end
+
+*     *********************************************
+*     *                                           *
+*     *               kbpp_filter                 *
+*     *                                           *
+*     *********************************************
+      subroutine kbpp_filter(nfft1,nfft2,nfft3,G,ecut,vl)
+      implicit none
+      integer nfft1,nfft2,nfft3
+      double precision G(nfft1/2+1,nfft2,nfft3,3)
+      double precision ecut
+      double precision vl(nfft1/2+1,nfft2,nfft3)
+
+*     **** local variables ****
+      !real*8 ncut,eps
+      !parameter (eps=1.0d-12,ncut=15.0d0)
+      integer ncut
+      parameter (ncut=15)
+      integer i,j,k
+      double precision q,qmax,fac
+
+c      qmax = dsqrt(ecut+ecut)
+c     >      /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
+      qmax = dsqrt(ecut+ecut)
+      do k=1,nfft3
+      do j=1,nfft2
+      do i=1,(nfft1/2+1)
+         q=DSQRT(G(i,j,k,1)**2
+     >          +G(i,j,k,2)**2
+     >          +G(i,j,k,3)**2)
+
+         if (q.gt.(qmax-0.2d0)) then
+            fac = 1.0d0 - (1.0d0-exp(-(q/qmax)**ncut))**ncut
+            vl(i,j,k) = vl(i,j,k)*fac
+         end if
+      end do
+      end do
+      end do
+      return
+      end

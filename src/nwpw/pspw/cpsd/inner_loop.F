@@ -201,9 +201,12 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+      !call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
+      !call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+      !call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+      call D3dB_r_nZero(1,2,dbl_mb(dnall(1)))
+      call D3dB_r_nZero(1,2,dbl_mb(xcp(1)))
+      call D3dB_r_nZero(1,2,dbl_mb(xce(1)))
 
       call nwpw_timing_end(12)
      
@@ -242,7 +245,9 @@ c     real*8     fion(3,natmx)
 
 
 !$OMP SINGLE
-        call dcopy(2*npack1*nemax,psi2,1,psi1,1)
+        !call dcopy(2*npack1*nemax,psi2,1,psi1,1)
+        call Pack_c_Copy(1,nemax,psi2,psi1)
+
         if (move) call ion_shift()
 !$OMP END SINGLE
 
@@ -297,7 +302,8 @@ c       this function calls non pipelined 3d fft
 *       *********************
 *       **** generate dn ****
 *       *********************
-        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
+        !call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
+        call D3dB_r_nZero(1,ispin,dn)
         if (fractional) then
           do ms=1,ispin
              do n=n1(ms),n2(ms)
@@ -343,7 +349,8 @@ c        call mask_C(0,dcpl_mb(dng(1)))
            call semicore_density(dcpl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
         else
-           call dcopy(n2ft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
+           !call dcopy(n2ft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
+           call D3dB_r_Zero(1,dcpl_mb(tmp1(1)))
         end if
         do ms=1,ispin
           call D3dB_rr_Sum(1,dn(1,ms),
@@ -413,7 +420,8 @@ c
 *       *******************************************
         if (field_exist) then
 
-           call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+           !call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+           call D3dB_r_Zero(1,dbl_mb(v_field(1)))
 
 
 *          **** generate charge potential ****

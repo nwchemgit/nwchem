@@ -497,7 +497,6 @@ c        end if
          fnx  = fourthird*(ex - ex_lda*Fs*s) 
          fdnx = fdnx_const*Fs
 
-			
 
 *        *********************************************************************
 c        ***** calculate unpolarized correlation energies and potentials *****

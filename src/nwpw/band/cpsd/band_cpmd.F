@@ -643,6 +643,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
          if (.not.control_rotation())    write(luout,1272)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_rte(),control_rti()
+         call ion_scaling_atoms_print(luout)
          write(luout,1281) control_it_in()*control_it_out(),
      >                 control_it_in(),control_it_out()
 

@@ -605,6 +605,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          if (.not.control_rotation())    write(luout,1272)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_rte(),control_rti()
+         call ion_scaling_atoms_print(luout)
          write(luout,1281) control_it_in()*control_it_out(),
      >                 control_it_in(),control_it_out()
          write(luout,1222) eke0,eki0,ekg

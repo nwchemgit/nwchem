@@ -19,12 +19,13 @@
 #include "msgtypesf.h"
 #include "errquit.fh"
 #include "util.fh"
+#include "stdio.fh"
 
-      logical          oprint_in
+      logical          oprint_in,filter
       integer          version
       character*50     psp_filename,formatted_filename
       integer          ngrid(3)
-      double precision unita(3,3)
+      double precision unita(3,3),ecut,wcut,zvec(3)
       integer nbrillioun
       real*8  kvectors(3,*)
 
@@ -65,8 +66,10 @@
       integer nmax,nprj
 
 *     **** external functions ****
-      logical  control_print
-      external control_print
+      logical  control_print,control_kbpp_filter
+      external control_print,control_kbpp_filter
+      real*8   control_ecut,control_wcut
+      external control_ecut,control_wcut
 
 
       !call Parallel_init()
@@ -278,6 +281,9 @@
       end do
       end do
 
+      filter = control_kbpp_filter()
+      ecut   = control_ecut()
+      wcut   = control_wcut()
 
 *     **** preparation of constants ****
       nfft1=ngrid(1)
@@ -292,6 +298,18 @@
      >               nfft1,nfft2,nfft3,
      >               dbl_mb(G_indx),
      >               dbl_mb(vl_indx))
+
+      if (filter) then
+         zvec(1) = 0.0d0
+         zvec(2) = 0.0d0
+         zvec(3) = 0.0d0
+         call kbpp_band_filter(nfft1,nfft2,nfft3,
+     >                    zvec,
+     >                    dbl_mb(G_indx),
+     >                    ecut,
+     >                    dbl_mb(vl_indx))
+      end if
+
 
 
       if ((taskid.eq.MASTER).and.(oprint)) then
@@ -344,9 +362,10 @@
      >                    full_filename)
          l = index(full_filename,' ') - 1
          if (mprint) then
-           write(*,*)
-           write(*,*) "Generated formatted_filename: ",
+           write(luout,*)
+           write(luout,*) "Generated formatted_filename: ",
      >          full_filename(1:l)
+           if (filter) write(luout,*) "- filtering pseudopotential -"
          end if
          call openfile(2,full_filename,l,'w',l)     
          call cwrite(2,comment,80)
@@ -405,6 +424,13 @@
              dbl_mb(vnl_indx+(i-1)*nsize+j-1)
      >        = dbl_mb(vnl_indx+(i-1)*nsize+j-1)*dbl_mb(Slm_indx+j-1)
            end do
+           if (filter)
+     >        call kbpp_band_filter(nfft1,nfft2,nfft3,
+     >                    kvectors(1,nb),
+     >                    dbl_mb(G_indx),
+     >                    wcut,
+     >                    dbl_mb(vnl_indx+(i-1)*nsize))
+
         end do
 
         if ((taskid.eq.MASTER).and.(nprj.gt.0)) then

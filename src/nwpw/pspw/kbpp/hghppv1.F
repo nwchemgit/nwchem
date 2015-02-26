@@ -20,7 +20,7 @@
 #include "util.fh"
 #include "stdio.fh"
 
-      logical          oprint_in
+      logical          oprint_in,filter
       integer          version
       character*50     psp_filename,formatted_filename
       integer          ngrid(3)
@@ -44,6 +44,7 @@
       double precision r(0:3),H(3,0:3),K(3,0:3)
       double precision Gijl(9*4),Gtmp(3,3,0:3)
       double precision rcore
+      double precision ecut,wcut
 
       integer lmax,locp
 
@@ -61,8 +62,10 @@
       integer nmax,nprj
 
 *     **** external functions ****
-      logical  control_print
-      external control_print
+      logical  control_print,control_kbpp_filter
+      external control_print,control_kbpp_filter
+      real*8   control_ecut,control_wcut
+      external control_ecut,control_wcut
 
 
 
@@ -240,6 +243,9 @@ c      call Parallel_init()
       end do
       end do
 
+      filter = control_kbpp_filter()
+      ecut   = control_ecut()
+      wcut   = control_wcut()
 
 *     **** preparation of constants ****
       nfft1=ngrid(1)
@@ -253,6 +259,11 @@ c      call Parallel_init()
      >               nfft1,nfft2,nfft3,
      >               dbl_mb(G_indx),
      >               dbl_mb(vl_indx))
+      if (filter)
+     >   call kbpp_filter(nfft1,nfft2,nfft3,
+     >                    dbl_mb(G_indx),
+     >                    ecut,
+     >                    dbl_mb(vl_indx))
 
       do i=1,nprj
          n=int_mb(n_prj_indx+i-1)
@@ -274,6 +285,11 @@ c      call Parallel_init()
      >    = dbl_mb(vnl_indx+(i-1)*nsize+j-1)*dbl_mb(Ylm_indx+j-1)
          end do
 
+         if (filter)
+     >      call kbpp_filter(nfft1,nfft2,nfft3,
+     >                    dbl_mb(G_indx),
+     >                    wcut,
+     >                    dbl_mb(vnl_indx+(i-1)*nsize))
       end do
 
 
@@ -332,6 +348,7 @@ c      call Parallel_init()
       if (mprint) then
       write(luout,*)
       write(luout,*) "Generated formatted_filename: ",full_filename(1:l)
+      if (filter) write(luout,*) "- filtering pseudopotential -"
       !write(luout,*)
       end if
       call openfile(2,full_filename,l,'w',l)     

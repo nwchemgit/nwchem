@@ -162,3 +162,49 @@
       end do
       return
       end
+
+*     *********************************************
+*     *                                           *
+*     *               kbpp_band_filter            *
+*     *                                           *
+*     *********************************************
+      subroutine kbpp_band_filter(nfft1,nfft2,nfft3,kvec,G,ecut,vl)
+      implicit none
+      integer nfft1,nfft2,nfft3
+      double precision kvec(3)
+      double precision G(nfft1,nfft2,nfft3,3)
+      double precision ecut
+      double precision vl(nfft1,nfft2,nfft3)
+
+*     **** local variables ****
+      !real*8 ncut,eps
+      !parameter (eps=1.0d-12,ncut=15.0d0)
+      integer ncut
+      parameter (ncut=15)
+      integer i,j,k
+      double precision q,qmax,fac
+      double precision gx,gy,gz
+
+c      qmax = dsqrt(ecut+ecut)
+c     >      /(-log(1.0d0-(1.0d0-eps)**(1.0d0/ncut)))**(1.0d0/ncut)
+      qmax = dsqrt(ecut+ecut)
+      do k=1,nfft3
+      do j=1,nfft2
+      do i=1,nfft1
+         gx = G(i,j,k,1) + kvec(1)
+         gy = G(i,j,k,2) + kvec(2)
+         gz = G(i,j,k,3) + kvec(3)
+         q = dsqrt(gx*gx + gy*gy + gz*gz)
+
+         if (q.gt.(qmax-0.2d0)) then
+            fac = 1.0d0 - (1.0d0-exp(-(q/qmax)**ncut))**ncut
+            vl(i,j,k) = vl(i,j,k)*fac
+         end if
+      end do
+      end do
+      end do
+      return
+      end
+
+
+

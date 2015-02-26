@@ -5,11 +5,12 @@ c
 
       subroutine cpmd_input(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 #include "inp.fh"
 #include "bafdecls.fh"
 #include "rtdb.fh"
+#include "nwc_const.fh"
+#include "errquit.fh"
 c
       logical value
 c
@@ -100,6 +101,7 @@ c
        logical          nose,nosers,move
        double precision Pe,Te,fe
        double precision Pr,Tr
+       integer index_start1(2),n1,j,jstart,jlast,jstride
 
        logical  nwpw_parse_boolean
        external nwpw_parse_boolean
@@ -239,6 +241,29 @@ c
      >     call errquit(
      >          'cpmd_input: failed to read scaling', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:scaling',mt_dbl,2,scaling)
+
+      !*** try reading in atom indexes ****
+      if (.not.BA_push_get(mt_int,nw_max_atom,'indx_start1',
+     >                    index_start1(2),index_start1(1)))
+     >    call errquit(
+     > 'cpmd_input:failed allocating index_start1',0,MA_ERR)
+      n1 = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride               
+          int_mb(index_start1(1)+n1) = j
+          n1 = n1+1
+         end do
+      end do
+      if (n1.gt.0) then
+         value = value.and.rtdb_put(rtdb,'nwpw:scaling_natms',
+     >                              mt_int,1,n1)
+         value = value.and.rtdb_put(rtdb,'nwpw:scaling_atoms',
+     >                              mt_int,n1,int_mb(index_start1(1)))
+      end if
+
+      if (.not.BA_pop_stack(index_start1(2))) call errquit(
+     > 'cpmd_input:failed deallocating index_start1',0,MA_ERR)
+
       if (.not.value)
      > call errquit('cpmd_input: writing ', 900, RTDB_ERR)
       goto 10

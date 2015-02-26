@@ -555,6 +555,7 @@ c         end if
          write(luout,1325) mc_ngroups
 
          write(luout,1340) control_rti()
+         call ion_scaling_atoms_print(luout)
          write(luout,1222) eki0,ekg
          write(luout,1223) eki1
          write(luout,1224) (eki1-eki0)
