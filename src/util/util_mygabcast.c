@@ -2,7 +2,7 @@
 /* routine to avoid 32-bit integer overflow present both in GA and MPI collectives*/
 #include <stdio.h>
 #include <math.h>
-#include "mpi.h"
+#include <mpi.h>
 #include "ga.h"
 #include "macdecls.h"
 #include "typesf2c.h"
