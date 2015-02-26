@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 109)
+      parameter (num_dirs = 110)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -125,6 +125,7 @@ c
      >            'smooth_cutoff',
      >            'md_xs',
      >            'dipole_motion',
+     >            'energy',
      >            'end'/
 
       double precision kb
@@ -192,7 +193,7 @@ c
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
-     >       7700,7800,7900,8000,8100,
+     >       7700,7800,7900,8000,8100,6650,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1332,6 +1333,16 @@ c
      > call errquit('nwpw_input: writing ', 6600, RTDB_ERR)
       goto 10
 
+c
+c energy
+c
+ 6650 nose = .false.
+      value =    rtdb_put(rtdb,'cpmd:nose',mt_log,1,nose)
+     >      .and.rtdb_put(rtdb,'nwpw:nose',mt_log,1,nose)
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 6650, RTDB_ERR)
+
+      goto 10
 
 c
 c  metadynamics
