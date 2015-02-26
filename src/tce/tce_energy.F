@@ -1684,23 +1684,18 @@ c ccsd_act/eomccsd_act
       if (.not.rtdb_get(rtdb,'tce:do_pt',mt_log,1,do_pt)) then
         do_pt = .false.
       endif
-      if(nodezero) write(LuOut,*) 'do_pt = ',do_pt
       if (.not.rtdb_get(rtdb,'tce:do_lam_pt',mt_log,1,do_lam_pt)) then
         do_lam_pt = .false.
       endif
-      if(nodezero) write(LuOut,*) 'do_lam_pt = ',do_lam_pt
       if (.not.rtdb_get(rtdb,'tce:do_cr_pt',mt_log,1,do_cr_pt)) then
         do_cr_pt = .false.
       endif
-      if(nodezero) write(LuOut,*) 'do_cr_pt = ',do_cr_pt
       if (.not.rtdb_get(rtdb,'tce:do_lcr_pt',mt_log,1,do_lcr_pt)) then
         do_lcr_pt = .false.
       endif
-      if(nodezero) write(LuOut,*) 'do_lcr_pt = ',do_lcr_pt
       if (.not.rtdb_get(rtdb,'tce:do_2t_pt',mt_log,1,do_2t_pt)) then
         do_2t_pt = .false.
       endif
-      if(nodezero) write(LuOut,*) 'do_2t_pt = ',do_2t_pt
 c
 c     t1 amplitudes
 c
