@@ -254,9 +254,9 @@ c
           n1 = n1+1
          end do
       end do
-      if (n1.gt.0) then
-         value = value.and.rtdb_put(rtdb,'nwpw:scaling_natms',
+      value = value.and.rtdb_put(rtdb,'nwpw:scaling_natms',
      >                              mt_int,1,n1)
+      if (n1.gt.0) then
          value = value.and.rtdb_put(rtdb,'nwpw:scaling_atoms',
      >                              mt_int,n1,int_mb(index_start1(1)))
       end if
