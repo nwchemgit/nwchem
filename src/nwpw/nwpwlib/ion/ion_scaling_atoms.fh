@@ -1,0 +1,4 @@
+
+*     **** isatoms_common common block ****
+      integer scaling_natms,scaling_atoms(2)
+      common / ionsatoms_common / scaling_atoms,scaling_natms
