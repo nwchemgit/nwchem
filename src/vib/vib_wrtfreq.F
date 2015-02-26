@@ -13,7 +13,7 @@ c
 c
       integer rtdb
       integer nat3
-      LOGICAL ZEROPE
+      LOGICAL ZEROPE,isatom
       integer npri
       double precision EIGVAL(NAT3)    ! eigenvalues
 c
@@ -43,6 +43,8 @@ c
       parameter (Rgas = 1.9863d0/1000.0d0/AUKCAL)           ! atomic units
 
 c
+      isatom = (nat3.eq.3)
+
 *rak:      ITAP96 = 96
 c: error check :
       if (nat3.gt.maxfrq) then
@@ -169,22 +171,30 @@ c     &      555, RTDB_ERR)
         end do
         ezero    = ezero*Rgas
         ethermal = ethermal*Rgas
-
-        if (linear) then
-        ethermal = ethermal + 2.5d0*Rgas*temp ! add translational(3/2RT) and rotation(2/2RT) thermal corrections
+ 
+        if (isatom) then
+              ethermal = ethermal + 1.5d0*Rgas*temp ! add only translational(3/2RT) thermal corrections
         else
-        ethermal = ethermal + 3.0d0*Rgas*temp ! add translational(3/2RT) and rotation(3/2RT) thermal corrections
+           if (linear) then
+              ethermal = ethermal + 2.5d0*Rgas*temp ! add translational(3/2RT) and rotation(2/2RT) thermal corrections
+           else
+              ethermal = ethermal + 3.0d0*Rgas*temp ! add translational(3/2RT) and rotation(3/2RT) thermal corrections
+           end if
         end if
 
         hthermal = ethermal + Rgas*temp       ! htermal = ethermal+pV=ethermal+RT, since pV=RT
        
         WRITE (6,10023) temp
         WRITE (6,10022) scalefreq
-        if (linear) then
-           write(6,10027)
-           if (.not.rtdb_put(rtdb,'vib:linear',mt_log,1,.true.))
-     &        call errquit('vib: failed to set linear',555, RTDB_ERR)
-        endif
+        if (isatom) then
+           write(6,10028)
+        else
+           if (linear) then
+              write(6,10027)
+              if (.not.rtdb_put(rtdb,'vib:linear',mt_log,1,.true.))
+     &           call errquit('vib: failed to set linear',555, RTDB_ERR)
+           end if
+        end if
         WRITE (6,10024) ezero*AUKCAL,   ezero
         WRITE (6,10025) ethermal*AUKCAL,ethermal
         WRITE (6,10026) hthermal*AUKCAL,hthermal
@@ -197,6 +207,7 @@ c     &      555, RTDB_ERR)
 10026 FORMAT( 1X,'Thermal correction to Enthalpy   = ',f8.3, 
      .     ' kcal/mol  (',f10.6,' au)')
 10027 FORMAT(//1X,'Linear Molecule                   ')
+10028 FORMAT(//1X,'Atom                              ')
 
 *     ********************************************************
 *     **** Write out Entropies                            ****
@@ -208,23 +219,28 @@ c     &      555, RTDB_ERR)
         Strans = (5.0d0/2.0d0)*Rgas*log(temp)
      >         + (3.0d0/2.0d0)*Rgas*log(M) 
      >         - 2.3135d0/AUKCAL/1000.0d0
-        inertprod=inertia_A*inertia_B*inertia_C
-        if (abs(inertprod).lt.1d-9) then
-           Cv_rot = (2.0d0/2.0d0)*Rgas
-           Srot=0.0d0
-           if (linear) then
-             Srot   = (Rgas)*(  log(temp) 
-     >                        - log(inertia_C) 
-     >                        - log(dble(sigma))) 
-     >              + 1.2639d0/AUKCAL/1000.0d0
-           end if
+
+        if (isatom) then
+           Cv_rot = 0.0d0
+           Srot = 0.0d0
         else
-           Cv_rot = (3.0d0/2.0d0)*Rgas
-           Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) -
-     >          log(inertprod) -
-     >          2.0d0*log(dble(sigma))) +
-     >           3.0327d0/AUKCAL/1000.0d0
-        endif
+           if (dabs(inertprod).lt.1.0d-9) then
+              Cv_rot = (2.0d0/2.0d0)*Rgas
+              Srot=0.0d0
+              if (linear) then
+                  Srot   = (Rgas)*(  log(temp) 
+     >                           - log(inertia_C) 
+     >                           - log(dble(sigma))) 
+     >                    + 1.2639d0/AUKCAL/1000.0d0
+              end if
+           else
+              Cv_rot = (3.0d0/2.0d0)*Rgas
+              Srot   = (Rgas/2.0d0)*( 3.0d0*log(temp) -
+     >             log(inertprod) -
+     >             2.0d0*log(dble(sigma))) +
+     >              3.0327d0/AUKCAL/1000.0d0
+           endif
+        end if
 
 *       **** add up vibrational contributions ****
         Cv_vib = 0.0d0

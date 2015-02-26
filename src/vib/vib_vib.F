@@ -81,7 +81,7 @@ C
 
       call vib_setup ! subroutine to set up some constants
       NATOM  =  natomin ! number of atoms in species.
-      IF (NATOM.LE.1) THEN      ! check for incorrect number of atoms
+      IF (NATOM.LT.1) THEN      ! check for incorrect number of atoms
           WRITE(6,*)' You want to calculate the vibrational ',
      +              'frequencies for ',NATOM,' atoms?'
           WRITE(6,*)' Unfortunately this is not possible '
@@ -247,10 +247,12 @@ C     Note: ! scratch pointer for givens (real 5*NAT3 words)
 c use hessp as scratch now calling rsg
 C
 
-      CALL vib_CALLG(DBL_MB(IHESSt),nhesst,DBL_MB(IHESSP),
+      if (NATOM.gt.1) then
+         CALL vib_CALLG(DBL_MB(IHESSt),nhesst,DBL_MB(IHESSP),
      &               dbl_mb(iscr),dbl_mb(iscr+nat3),DBL_MB(IEGVAL),
      &               DBL_MB(IEGVEC), NAT3,NAT3)
-      call vib_vecphase(dbl_mb(icoord),dbl_mb(iegvec),nat3)
+         call vib_vecphase(dbl_mb(icoord),dbl_mb(iegvec),nat3)
+      end if
       call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
 C
          CALL vib_WRTFREQ(rtdb,DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
