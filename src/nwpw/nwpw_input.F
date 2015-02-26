@@ -1141,10 +1141,12 @@ c
           n1 = n1+1
          end do
       end do
+
+      if (.not.rtdb_put(rtdb,'nwpw:scaling_natms',
+     >                  mt_int,1,n1))
+     >   call errquit('nwpw_input:nwpw:scaling_natms',0,RTDB_ERR)
+
       if (n1.gt.0) then
-         if (.not.rtdb_put(rtdb,'nwpw:scaling_natms',
-     >                     mt_int,1,n1))
-     >      call errquit('nwpw_input:nwpw:scaling_natms',0,RTDB_ERR)
          if (.not.rtdb_put(rtdb,'nwpw:scaling_atoms',
      >                     mt_int,n1,int_mb(index_start1(1))))
      >      call errquit('nwpw_input:nwpw:scaling_atoms',0,RTDB_ERR)
