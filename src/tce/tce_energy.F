@@ -11544,8 +11544,8 @@ c Use 9431 for frequency
  9511 format(1x,'NUMBER OF ROOTS ',i2)
  9512 format(1x,'NO R0 RESTARTED')
  9515 format(3x,'TCE RESTART OPTIONS')
- 9520 format(3x,'     L-threshold : ',d8.2)
- 9521 format(3x,'     EOM-threshold : ',d8.2)
+ 9520 format(3x,'     L-threshold : ',d9.2)
+ 9521 format(3x,'     EOM-threshold : ',d9.2)
       end
       subroutine tce_hbarinit(hbar,hbard)
       implicit none
