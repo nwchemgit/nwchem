@@ -251,6 +251,11 @@ endif
 	@exit 1
     endif
 
+# -U option needed for introducing timestamps in libraries
+# see https://bugzilla.redhat.com/show_bug.cgi?id=1195883
+    ifdef USE_ARUR
+        ARFLAGS = rU
+    endif
 #
 # Machine specific stuff
 #
