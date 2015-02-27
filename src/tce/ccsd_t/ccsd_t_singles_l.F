@@ -199,9 +199,6 @@ c
       dimc = int_mb(k_range+p4b-1) * int_mb(k_range+p5b-1) * int_mb(k_ra
      &nge+p6b-1) * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1) * int_m
      &b(k_range+h3b-1)
-ccx      IF (.not.MA_PUSH_GET(mt_dbl,dimc,'noname',l_c_sort,k_c_sort)) CALL
-ccx     & ERRQUIT('ccsd_t_singles_1',0,MA_ERR)
-ccx      CALL DFILL(dimc,0.0d0,dbl_mb(k_c_sort),1)
       IF (int_mb(k_spin+p4b-1) .eq. int_mb(k_spin+h1b-1)) THEN
       IF (ieor(int_mb(k_sym+p4b-1),int_mb(k_sym+h1b-1)) .eq. irrep_t) TH
      &EN
@@ -227,8 +224,6 @@ ccx      CALL DFILL(dimc,0.0d0,dbl_mb(k_c_sort),1)
      &RR)
       IF (.not.MA_PUSH_GET(mt_dbl,dimb,'noname',l_b_sort,k_b_sort)) CALL
      & ERRQUIT('ccsd_t_singles_1',4,MA_ERR)
-ccx      IF (.not.MA_PUSH_GET(mt_dbl,dimb,'noname',l_b,k_b)) CALL ERRQUIT('
-ccx     &ccsd_t_singles_1',5,MA_ERR)
       if(.not.intorb) then
       CALL GET_HASH_BLOCK(d_b,dbl_mb(k_b_sort),dimb,
      &int_mb(k_b_offset),(h3b_2
@@ -241,28 +236,9 @@ ccx     &ccsd_t_singles_1',5,MA_ERR)
      & - 1 + (noab+nvab) * (h2b_2 - 1 + (noab+nvab) * (p6b_2 - 1 + (noab
      &+nvab) * (p5b_2 - 1)))),h3b_2,h2b_2,p6b_2,p5b_2)
       end if
-ccx      CALL TCE_SORT_4(dbl_mb(k_b),dbl_mb(k_b_sort),int_mb(k_range+p5b-1)
-ccx     &,int_mb(k_range+p6b-1),int_mb(k_range+h2b-1),int_mb(k_range+h3b-1)
-ccx     &,4,3,2,1,1.0d0)
-ccx      IF (.not.MA_POP_STACK(l_b)) CALL ERRQUIT('ccsd_t_singles_1',6,MA_E
-ccx     &RR)
-ccx      CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,1.0d0,dbl_mb(k_a
-ccx     &_sort),dim_common,dbl_mb(k_b_sort),dim_common,1.0d0,dbl_mb(k_c_sor
-ccx     &t),dima_sort)
-ccx      IF (.not.MA_POP_STACK(l_b_sort)) CALL ERRQUIT('ccsd_t_singles_1',7
-ccx     &,MA_ERR)
-ccx      IF (.not.MA_POP_STACK(l_a_sort)) CALL ERRQUIT('ccsd_t_singles_1',8
-ccx     &,MA_ERR)
-ccx      END IF
-ccx      END IF
-ccx      END IF
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,4,3,5,2,1,1.0d0)
-
       call sd_t_s1_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
@@ -272,10 +248,6 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,4,3,5,2,1,1.0d0)
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,4,3,2,5,1,-1.0d0)
-
       call sd_t_s1_2(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
@@ -285,10 +257,6 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,4,3,2,5,1,-1.0d0)
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,4,3,2,1,5,1.0d0)
-
       call sd_t_s1_3(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
@@ -298,10 +266,6 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),6,4,3,2,1,5,1.0d0)
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,6,3,5,2,1,-1.0d0)
-
       call sd_t_s1_4(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
@@ -311,10 +275,6 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,6,3,5,2,1,-1.0d0)
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,6,3,2,5,1,1.0d0)
-
       call sd_t_s1_5(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
@@ -324,10 +284,6 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,6,3,2,5,1,1.0d0)
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,6,3,2,1,5,-1.0d0)
-
       call sd_t_s1_6(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
@@ -337,10 +293,6 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,6,3,2,1,5,-1.0d0)
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,3,6,5,2,1,1.0d0)
-
       call sd_t_s1_7(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
@@ -350,10 +302,6 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,3,6,5,2,1,1.0d0)
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
      &3b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,3,6,2,5,1,-1.0d0)
-
       call sd_t_s1_8(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
@@ -363,19 +311,12 @@ ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,3,6,2,5,1,-1.0d0)
       IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
      & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
      &1b)) THEN
-ccx      CALL TCE_SORTACC_6(dbl_mb(k_c_sort),a_c,int_mb(k_range+h3b-1),int_
-ccx     &mb(k_range+h2b-1),int_mb(k_range+p6b-1),int_mb(k_range+p5b-1),int_
-ccx     &mb(k_range+h1b-1),int_mb(k_range+p4b-1),4,3,6,2,1,5,1.0d0)
-
       call sd_t_s1_9(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
 
       END IF
-ccx      IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('ccsd_t_singles_1',9
-ccx     &,MA_ERR)
-
       IF (.not.MA_POP_STACK(l_b_sort)) CALL ERRQUIT('ccsd_t_singles_1',7
      &,MA_ERR)
       IF (.not.MA_POP_STACK(l_a_sort)) CALL ERRQUIT('ccsd_t_singles_1',8
