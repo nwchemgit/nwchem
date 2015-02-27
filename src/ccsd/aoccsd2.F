@@ -14,6 +14,7 @@ c
       Integer RTDB, geom
       logical oconverged, occd, use_trpdrv_nb
       logical use_trpdrv_omp, use_trpdrv_bgp2
+      logical use_trpdrv_offload
 c
 #include "ccsd_len.fh"
 #include "tcgmsg.fh"
@@ -600,6 +601,9 @@ c
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_omp', mt_log, 1,
      1                   use_trpdrv_omp))
      2    use_trpdrv_omp=.false.
+      if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_offload', mt_log, 1,
+     1                   use_trpdrv_offload))
+     2    use_trpdrv_offload=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_bgp2', mt_log, 1,
      1                   use_trpdrv_bgp2))
      2    use_trpdrv_bgp2=.false.
@@ -858,6 +862,29 @@ c
      $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
      $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
 c
+#ifdef USE_MIC_TRPDRV
+         elseif (use_trpdrv_offload) then
+c
+         if (iam.eq.0.and.oprint) then
+            write(luout,1848) nvpass
+            call util_flush(luout)
+         endif
+ 1848    format(' commencing triples evaluation - offload version',i8)
+         call ccsd_trpdrv_offload(dbl_mb(k_t1),dbl_mb(k_f1n),
+     $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
+     $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),
+     $        dbl_mb(k_f4t),eorb,
+     $        g_objo,g_objv,g_coul,g_exch,
+     $        ncor,nocc,nvir,
+     $        empt(1),empt(2),oseg_lo,oseg_hi,kchunk,
+     $        dbl_mb(k_trp_Tij), dbl_mb(k_trp_Tkj), dbl_mb(k_trp_Tia),
+     $        dbl_mb(k_trp_Tka), dbl_mb(k_trp_Xia), dbl_mb(k_trp_Xka),
+     $        dbl_mb(k_trp_Jia), dbl_mb(k_trp_Jka), dbl_mb(k_trp_Kia),
+     $        dbl_mb(k_trp_Kka), dbl_mb(k_trp_Jij), dbl_mb(k_trp_Jkj),
+     $        dbl_mb(k_trp_Kij), dbl_mb(k_trp_Kkj), dbl_mb(k_trp_Dja),
+     $        dbl_mb(k_trp_Djka), dbl_mb(k_trp_Djia))
+c
+#endif
 #ifdef BGP
          elseif (use_trpdrv_bgp2) then
 c

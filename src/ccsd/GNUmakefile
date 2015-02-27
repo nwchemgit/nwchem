@@ -2,8 +2,6 @@
 
 include ../config/makefile.h
 
- #OBJ = \
-
  OBJ_OPTIMIZE = \
         ccden_driver.o \
         ccden_interm2.o \
@@ -91,8 +89,11 @@ ifeq ($(TARGET),BGP)
   LIB_DEFINES += -DBGP
 endif
 
- #LIB_DEFINES = 
- #LIB_DEFINES = -DDEBUG_PRINT
+ifdef USE_MIC_TRPDRV
+  OBJ_OPTIMIZE += ccsd_trpdrv_offload.o
+  USES_BLAS    += ccsd_trpdrv_offload.F
+  LIB_DEFINES += -DUSE_MIC_TRPDRV
+endif
 
  LIBRARY = libccsd.a
 
