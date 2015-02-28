@@ -19,12 +19,12 @@ c     **********************************
       end if
 
       if (scaling_natms.gt.0) then
-         if (.not.BA_alloc_get(mt_int,(scaling_natms),
+         if (.not.BA_alloc_get(mt_int,scaling_natms,
      >           'ionscaling_atoms',scaling_atoms(2),scaling_atoms(1)))
      >      call errquit('scaling_atoms_init:out of memory',0,MA_ERR)
 
          if (.not.btdb_get(rtdb,'nwpw:scaling_atoms',
-     >                     mt_int,scaling_natms,scaling_atoms(1)))
+     >                mt_int,scaling_natms,int_mb(scaling_atoms(1))))
      >      call errquit('scaling_atoms_init',0,RTDB_ERR)
       end if
 
