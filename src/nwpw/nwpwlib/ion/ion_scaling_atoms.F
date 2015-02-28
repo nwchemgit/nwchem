@@ -114,7 +114,7 @@ c     **********************************
             vion(3,ii) = vion(3,ii)*rti
          end do
       else
-         call dcopy(3*nion,rti,vion,1)
+         call dscal(3*nion,rti,vion,1)
       end if
 
       return
