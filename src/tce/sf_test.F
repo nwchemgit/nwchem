@@ -6,13 +6,8 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
-#include "sf.fh"
-#include "eaf.fh"
-#include "dra.fh"
 #include "stdio.fh"
-#include "msgids.fh"
 #include "errquit.fh"
-#include "tce.fh"
 #include "tce_main.fh"
       integer d_test
       integer size
