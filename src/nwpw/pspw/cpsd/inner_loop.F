@@ -246,7 +246,7 @@ c     real*8     fion(3,natmx)
 
 !$OMP SINGLE
         !call dcopy(2*npack1*nemax,psi2,1,psi1,1)
-        call Pack_c_Copy(1,nemax,psi2,psi1)
+        call Pack_c_nCopy(1,nemax,psi2,psi1)
 
         if (move) call ion_shift()
 !$OMP END SINGLE

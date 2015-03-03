@@ -1,6 +1,8 @@
-
-
-
+*     *************************************
+*     *                                   *
+*     *          kp_structure             *
+*     *                                   *
+*     *************************************
       subroutine kp_structure(rtdb)
       implicit none
       integer rtdb
