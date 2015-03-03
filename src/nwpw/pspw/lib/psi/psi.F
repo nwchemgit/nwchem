@@ -6644,18 +6644,30 @@ c      end if
 *     **** generate DENSITY OF STATES *****
       if (ispin.eq.1) then
         filename = "smear_dos_both"
-        call densityofstates(filename,
+        call densityofstates(filename,.false.,
+     >                     dbl_mb(eig(1)),dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+        filename = "smear_fdos_both"
+        call densityofstates(filename,.false.,
      >                     dbl_mb(eig(1)),dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
       end if
 
       if (ispin.eq.2) then
         filename = "smear_dos_alpha"
-        call densityofstates(filename,
+        call densityofstates(filename,.false.,
      >                     dbl_mb(eig(1)),dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
         filename = "smear_dos_beta"
-        call densityofstates(filename,
+        call densityofstates(filename,.false.,
+     >               dbl_mb(eig(1)+ne(1)),dbl_mb(weight(1)),ne(2),
+     >               -1.0d0,alpha,npoints,emin,emax)
+        filename = "smear_fdos_alpha"
+        call densityofstates(filename,.false.,
+     >                     dbl_mb(eig(1)),dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+        filename = "smear_fdos_beta"
+        call densityofstates(filename,.false.,
      >               dbl_mb(eig(1)+ne(1)),dbl_mb(weight(1)),ne(2),
      >               -1.0d0,alpha,npoints,emin,emax)
       end if
@@ -6726,7 +6738,12 @@ c      end if
 *     **** generate DENSITY OF STATES *****
       if (ispin.eq.1) then
         filename = "smear_vdos_both"
-        call densityofstates(filename,
+        call densityofstates(filename,.false.,
+     >                     dbl_mb(eig_excited(1)),dbl_mb(weight(1)),
+     >                     ne_excited(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+        filename = "smear_dos_both"
+        call densityofstates(filename,.true.,
      >                     dbl_mb(eig_excited(1)),dbl_mb(weight(1)),
      >                     ne_excited(1),
      >                     1.0d0,alpha,npoints,emin,emax)
@@ -6734,12 +6751,22 @@ c      end if
 
       if (ispin.eq.2) then
         filename = "smear_vdos_alpha"
-        call densityofstates(filename,
+        call densityofstates(filename,.false.,
      >                     dbl_mb(eig_excited(1)),dbl_mb(weight(1)),
      >                     ne_excited(1),
      >                     1.0d0,alpha,npoints,emin,emax)
         filename = "smear_vdos_beta"
-        call densityofstates(filename,
+        call densityofstates(filename,.false.,
+     >           dbl_mb(eig_excited(1)+ne_excited(1)),dbl_mb(weight(1)),
+     >           ne_excited(2),
+     >           -1.0d0,alpha,npoints,emin,emax)
+        filename = "smear_dos_alpha"
+        call densityofstates(filename,.true.,
+     >                     dbl_mb(eig_excited(1)),dbl_mb(weight(1)),
+     >                     ne_excited(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+        filename = "smear_dos_beta"
+        call densityofstates(filename,.true.,
      >           dbl_mb(eig_excited(1)+ne_excited(1)),dbl_mb(weight(1)),
      >           ne_excited(2),
      >           -1.0d0,alpha,npoints,emin,emax)
