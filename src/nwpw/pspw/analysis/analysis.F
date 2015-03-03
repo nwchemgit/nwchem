@@ -2,6 +2,12 @@ c
 c $Id$
 c
 
+*     ****************************************
+*     *                                      *
+*     *            pspw_analysis             *
+*     *                                      *
+*     ****************************************
+
       subroutine pspw_analysis(flag,rtdb,ispin,ne,psi,eig)
       implicit none
       integer flag
@@ -471,6 +477,7 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
 *     ***********************************************
 *     **** generate projected DENSITY OF STATES *****
 *     ***********************************************
+      write(*,*) "into mulliken DOS"
       if (control_DOS()) then
 
       value = BA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
@@ -573,21 +580,40 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
          end if
 
          if (ispin.eq.1) then
-           if (flag.eq.0) filename = "mulliken_dos_both_"//spdf_name(l)
+           if (flag.eq.0) filename = "mulliken_fdos_both_"//spdf_name(l)
            if (flag.eq.1) filename = "mulliken_vdos_both_"//spdf_name(l)
-           call densityofstates(filename,
+           call densityofstates(filename,.false.,
+     >                     eig,dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+           if (flag.eq.0) value = .true.
+           if (flag.eq.1) value = .false.
+           filename = "mulliken_dos_both_"//spdf_name(l)
+           call densityofstates(filename,value,
      >                     eig,dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
          end if
          if (ispin.eq.2) then
-           if (flag.eq.0) filename= "mulliken_dos_alpha_"//spdf_name(l)
+           if (flag.eq.0) filename= "mulliken_fdos_alpha_"//spdf_name(l)
            if (flag.eq.1) filename= "mulliken_vdos_alpha_"//spdf_name(l)
-           call densityofstates(filename,
+           call densityofstates(filename,.false.,
      >                     eig,dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
-           if (flag.eq.0) filename = "mulliken_dos_beta_"//spdf_name(l)
+           if (flag.eq.0) value = .true.
+           if (flag.eq.1) value = .false.
+           filename= "mulliken_dos_alpha_"//spdf_name(l)
+           call densityofstates(filename,value,
+     >                     eig,dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+
+           if (flag.eq.0) filename = "mulliken_fdos_beta_"//spdf_name(l)
            if (flag.eq.1) filename = "mulliken_vdos_beta_"//spdf_name(l)
-           call densityofstates(filename,
+           call densityofstates(filename,.false.,
+     >               eig(1+ne(1)),dbl_mb(weight(1)+ne(1)),ne(2),
+     >               -1.0d0,alpha,npoints,emin,emax)
+           if (flag.eq.0) value = .true.
+           if (flag.eq.1) value = .false.
+           filename= "mulliken_dos_beta_"//spdf_name(l)
+           call densityofstates(filename,value,
      >               eig(1+ne(1)),dbl_mb(weight(1)+ne(1)),ne(2),
      >               -1.0d0,alpha,npoints,emin,emax)
          end if
@@ -631,21 +657,43 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
          end if
 
          if (ispin.eq.1) then
-           if (flag.eq.0) filename = "mulliken_dos_both_all"
+           if (flag.eq.0) filename = "mulliken_fdos_both_all"
            if (flag.eq.1) filename = "mulliken_vdos_both_all"
-           call densityofstates(filename,
+           call densityofstates(filename,.false.,
+     >                     eig,dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+
+           if (flag.eq.0) value = .true.
+           if (flag.eq.1) value = .false.
+           filename = "mulliken_dos_both_all"
+           call densityofstates(filename,value,
      >                     eig,dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
          end if
          if (ispin.eq.2) then
-           if (flag.eq.0) filename = "mulliken_dos_alpha_all"
+           if (flag.eq.0) filename = "mulliken_fdos_alpha_all"
            if (flag.eq.1) filename = "mulliken_vdos_alpha_all"
-           call densityofstates(filename,
+           call densityofstates(filename,.false.,
      >                     eig,dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
-           if (flag.eq.0) filename = "mulliken_dos_beta_all"
+
+           if (flag.eq.0) value = .true.
+           if (flag.eq.1) value = .false.
+           filename = "mulliken_dos_alpha_all"
+           call densityofstates(filename,value,
+     >                     eig,dbl_mb(weight(1)),ne(1),
+     >                     1.0d0,alpha,npoints,emin,emax)
+
+           if (flag.eq.0) filename = "mulliken_fdos_beta_all"
            if (flag.eq.1) filename = "mulliken_vdos_beta_all"
-           call densityofstates(filename,
+           call densityofstates(filename,.false.,
+     >               eig(1+ne(1)),dbl_mb(weight(1)+ne(1)),ne(2),
+     >               -1.0d0,alpha,npoints,emin,emax)
+
+           if (flag.eq.0) value = .true.
+           if (flag.eq.1) value = .false.
+           filename = "mulliken_dos_beta_all"
+           call densityofstates(filename,.false.,
      >               eig(1+ne(1)),dbl_mb(weight(1)+ne(1)),ne(2),
      >               -1.0d0,alpha,npoints,emin,emax)
          end if
