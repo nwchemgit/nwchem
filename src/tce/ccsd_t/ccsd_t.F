@@ -51,7 +51,7 @@ c ---------------------------------------
       parameter(n_progr=20)
       logical i_progr(n_progr)
       external nxtask,ccsd_t_6tasks
-      integer offload_master
+      logical offload_master
       external offload_master
 C
 c
