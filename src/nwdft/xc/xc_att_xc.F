@@ -164,8 +164,13 @@ c
           ta9 = ta8*ta
           ta10 = ta9*ta
 c
-          expf = exp(-1d0/(4d0*a2))
-          erff = DERF(1d0/(2d0*a))
+          if (a .lt. 1.0d-10) then
+            expf = 0.0d0
+            erff = 1.0d0
+          else
+            expf = exp(-1d0/(4d0*a2))
+            erff = DERF(1d0/(2d0*a))
+          endif
 c
           if (a .lt. 0.14d0) then
 c             write(luout,*) 'a is small'
