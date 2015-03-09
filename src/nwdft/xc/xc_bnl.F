@@ -191,14 +191,14 @@ c
 
       double precision q,TwoSqrtPi,OneOverQ,q2,DERF
 
-      OneOverQ = 1.0d0/q
-      TwoSqrtPi = 2.0d0*dsqrt(pi) 
-      q2 = q**2.0d0
-
       if (q .lt. 1D-15) then
          HqBNL=1.d0
          return
       end if
+
+      OneOverQ = 1.0d0/q
+      TwoSqrtPi = 2.0d0*dsqrt(pi) 
+      q2 = q**2.0d0
 
       if (q .lt. 0.1d0) then
          HqBNL=1.0d0-q*2.0d0/3.0d0*(TwoSqrtPi-q+q*(q2-2.0d0))
@@ -264,14 +264,14 @@ c
 
       double precision q,OneOverQ,q2,q3,DERF
 
-      OneOverQ = 1.0d0/q
-      q2 = q**2.0d0
-      q3 = q**3.0d0
-
       if (q .lt. 0.1d0) then
         HqBNLPrime = -4.0d0/3.0d0*(dsqrt(Pi)+2.0d0*q3-3.0d0*q)
         return
       end if
+
+      OneOverQ = 1.0d0/q
+      q2 = q**2.0d0
+      q3 = q**3.0d0
 
       HqBNLPrime = 4.0d0/3.0d0*(q*(exp(-OneOverQ*OneOverQ)*(2.0d0*q2
      $     -1.0d0)+(3.0d0-2.0d0*q2))-dsqrt(Pi)*DERF(OneOverQ))
@@ -356,13 +356,13 @@ c
 
       double precision q,OneOverQ,q2
 
-      OneOverQ = 1.0d0/q
-      q2 = q**2.0d0
-
       if (q .lt. 0.1d0) then
          HqBNLTwoPrime = 4.0d0-8.0d0*q2
          return
       end if
+
+      OneOverQ = 1.0d0/q
+      q2 = q**2.0d0
 
       HqBNLTwoPrime = exp(-OneOverQ*OneOverQ)*(4.0d0+8.0d0*q2)
      $     -8.0d0*q2+4.0d0
@@ -472,15 +472,15 @@ c
       double precision q,OneOverQ
       double precision q2, q3, q4
 
-      OneOverQ = 1.0d0/q
-      q2 = q*q
-      q3 = q2*q
-      q4 = q3*q
-
       if (q .lt. 0.1d0) then
          HqBNLThreePrime = -16.0d0*q
          return
       end if
+
+      OneOverQ = 1.0d0/q
+      q2 = q*q
+      q3 = q2*q
+      q4 = q3*q
 
       HqBNLThreePrime = 8.0d0*( exp(-OneOverQ*OneOverQ)
      1                        + 2.0d0*q2*exp(-OneOverQ*OneOverQ)
