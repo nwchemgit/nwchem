@@ -325,7 +325,11 @@ c     al=dabs(al)
               x1=(C1 + xb)*p
               x2=C2*qtil*qtil
               xc=C3*qtil
-              xd=(0.5d0*(.6d0*z)**2.0d0  + .5d0*p*p)**.5d0
+              if (gamma.lt.tol_rho) then
+                xd = 0.0d0
+              else
+                xd=(0.5d0*(.6d0*z)**2.0d0  + .5d0*p*p)**.5d0
+              endif
               x3=xc*xd
               x4=C1*C1*p*p/kap
               x5=2.d0*es*C1*(.6d0*z)**2.0d0
