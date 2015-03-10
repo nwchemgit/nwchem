@@ -1330,7 +1330,7 @@ ce1g: [ at(df1gaa(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=r
 ce1t: [ at(df1ta(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rhob=rhoa,gammaaa=gammaaa,gammaab=gammaaa,gammabb=gammaaa,taua=taua,taub=taua]) ] $
 
 ce0lab : [ funclab(rhoa,rhoa) ] $
-ce1lr: [ at(df1labra(rhoa,rhob),[rhoa=rhoa,rhob=rhoa]) ] $
+ce1lr: [ at(dflab1ra(rhoa,rhob),[rhoa=rhoa,rhob=rhoa]) ] $
 ce1lg: [ 0,
            0 ] $
 ce1lt: [ 0 ] $
@@ -2309,7 +2309,7 @@ ce3lt: [ 0,
         uea01 : append(uea0, uea1r, uea1g, uea1t) ,
         uea01la  : append(uea0la,  uea1lar,  uea1lag,  uea1lat) ,
         uea01lab : append(uea0lab, uea1labr, uea1labg, uea1labt) ,
-        uea01lb  : append(uea0la,  uea1lar,  uea1lag,  uea1lat) ,
+        uea01lb  : append(uea0lb,  uea1lbr,  uea1lbg,  uea1lbt) ,
 
         ulb01 : append(ulb0, ulb1r, ulb1g, ulb1t) ,
         ueb01 : append(ueb0, ueb1r, ueb1g, ueb1t) ,
