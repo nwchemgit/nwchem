@@ -259,7 +259,7 @@ c
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
 c
       do_cosmo_model = DO_COSMO_YK
-      solvname_short  = 'h2o'
+      solvname_short  = 'unknown'
       dielec   =78.4d+00
       dielecinf = 1.333d0*1.333d0 ! n**2 (refractive index squarred)
       cosmo_screen = COSMO_SCREEN_ST

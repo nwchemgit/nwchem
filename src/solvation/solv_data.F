@@ -15,15 +15,15 @@ c
       double precision sola,solb,solc,solg,solh,soln
 c
 c     initialize
-      eps = -1.d0
-      epsinf = -1.d0
-      sola = -1.d0
-      solb = -1.d0
-      solc = -1.d0
-      solg = -1.d0
-      solh = -1.d0
-      soln = -1.d0
-      icds = 0
+c      eps = -1.d0
+c      epsinf = -1.d0
+c      sola = -1.d0
+c      solb = -1.d0
+c      solc = -1.d0
+c      solg = -1.d0
+c      solh = -1.d0
+c      soln = -1.d0
+c      icds = 0
 c
 c     get the solvent data
 c
