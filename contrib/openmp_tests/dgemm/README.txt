@@ -28,6 +28,6 @@ The list of tested implementations is:
 
 dgemm_mpi.F        : An MPI only implementation
 dgemm_ga.F         : A Global Array only implementation
-dgemm_mpi_openmpi.F: An MPI/OpenMP implementation
-dgemm_ga_openmpi.F : A Global Array/OpenMP implementation
+dgemm_mpi_openmp.F : An MPI/OpenMP implementation
+dgemm_ga_openmp.F  : A Global Array/OpenMP implementation
 
