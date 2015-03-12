@@ -101,6 +101,7 @@ c
       double precision sola
       double precision solb
       double precision solc
+      double precision solg
       double precision solh
       double precision soln
       double precision pol_cosmo_vem(2)
@@ -148,6 +149,7 @@ c
       sola = -1.d0
       solb = -1.d0
       solc = -1.d0
+      solg = -1.d0
       solh = -1.d0
       soln = -1.d0
 c
@@ -270,6 +272,10 @@ c
       else if(inp_compare(.false.,'solc',field)) then
         status = inp_f(solc)
         if (.not. rtdb_put(rtdb,'cosmo:solc',mt_dbl,1,solc))
+     $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'solg',field)) then
+        status = inp_f(solg)
+        if (.not. rtdb_put(rtdb,'cosmo:solg',mt_dbl,1,solg))
      $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
       else if(inp_compare(.false.,'solh',field)) then
         status = inp_f(solh)
