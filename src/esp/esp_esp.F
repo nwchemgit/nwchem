@@ -29,6 +29,10 @@ c
       integer imin,nval,jshi
       real*8 dmin,fact
       character*10 today,now
+c
+      integer maxbuf,maxscr,avail
+      integer batch,no_batches,ngrid_batches
+      integer iptr
       logical ldummy(1)
 c
 c     get the density matrix, occupation and energies
@@ -43,7 +47,26 @@ c
          val(i)=0.0d0
       end do
 c
-      call hnd_elfcon(ibasis,igeom,lg_d,grid(1,1),ngrid,val(1),0)
+c     estimate mem. req.
+c
+      call int_init_1eelec(maxbuf,maxscr,ibasis,0,ngrid)
+      avail=ma_inquire_avail(mt_dbl)*8/10
+      no_batches=nint(dble(maxbuf+maxscr)/dble(avail))
+      ngrid_batches=ngrid/no_batches
+#ifdef DEBUG
+      if(me.eq.0) then
+      write(6,*) ' avail ',avail
+      write(6,*) ' no_batches ',no_batches
+      write(6,*) ' ngrid_batches ',ngrid_batches
+      endif
+#endif
+      iptr=1
+      do batch=1,no_batches
+         if(batch.eq.no_batches) ngrid_batches=ngrid-iptr+1
+         call hnd_elfcon(ibasis,igeom,lg_d,
+     C        grid(1,iptr),ngrid_batches,val(iptr),0)
+         iptr=iptr+ngrid_batches
+      enddo
       if(me.eq.0) then
       do 8 i=1,ngrid
          imin=0
