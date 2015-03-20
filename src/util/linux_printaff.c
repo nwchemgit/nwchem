@@ -6,6 +6,9 @@
 int linux_printaff_(){
   return 0;
 }
+int linux_setffaff_(){
+  return 0;
+}
 #else
 #ifdef MPI
 #include <mpi.h>
@@ -42,6 +45,24 @@ int linux_printaff_(){
     }
     printf(" \n");
     fflush(stdout);
+  }
+  return 0;
+}
+int linux_unsetaff_(){
+  mypid=getpid();
+#ifdef MPI
+  MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
+#else
+  myrank=GA_Nodeid();
+#endif
+  CPU_ZERO(&mycpuid);
+  for (i = 0; i < MXCPUS; i++){
+    CPU_SET(i, &mycpuid);
+    }
+
+  if (sched_setaffinity(mypid, sizeof(mycpuid), &mycpuid) < 0) {
+    perror("sched_getaffinity");
+    return -1;
   }
   return 0;
 }

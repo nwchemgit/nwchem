@@ -67,7 +67,7 @@ c
 c
       if (.not. rtdb_get(bgj_rtdb, 'bgj:scf_type', mt_int,
      &     1, itype)) then
-         call errquit('bgj_get_scf_method: error reading rtdb',1,
+         call errquit('bgj_get_scf_method: error reading rtdb',bgj_rtdb,
      &       RTDB_ERR)
       endif
       if (itype.eq.1) then
