@@ -12,7 +12,7 @@ C     $Id$
       PARAMETER        (MB=512,NB=MB,KB=512)
 #else
 !x86 cache=256K   
-       PARAMETER        (MB=64,NB=MB,KB=64)
+       PARAMETER        (MB=128,NB=MB,KB=96)
 #endif
 C     .. Scalar Arguments ..
       DOUBLE PRECISION ALPHA, BETA
