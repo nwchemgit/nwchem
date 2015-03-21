@@ -43,7 +43,9 @@
 
      LIBRARY = libnwdft.a
 ifndef OLD_GA
-ifdef USE_SCALAPACK
+_USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
+
+ifdef _USE_SCALAPACK
 ifeq ($(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk '/HAVE_ELPA/ {print "Y"}'),Y)
  LIB_DEFINES += -DUSE_ELPA
 endif
