@@ -127,7 +127,7 @@ c
          goto 10
       else
          if ((nswap+2) .gt. max_swap) call errquit
-     $        ('vectors_input: swapping too many orbitls', nswap,
+     $        ('vectors_input: swapping too many orbitals', nswap,
      &       INPUT_ERR)
          swap(nswap+1) = itest
          if (.not. inp_i(swap(nswap+2))) call errquit
