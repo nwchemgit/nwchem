@@ -73,7 +73,8 @@ c      debug=.true.
 
       odebug = util_print('debug lsolve', print_never) .and. 
      $     ga_nodeid().eq.0
-      if (.not.rtdb_get(rtdb,'cphf:acc',mt_dbl,1,acc)) acc=0.01d0*tol
+cold      if (.not.rtdb_get(rtdb,'cphf:acc',mt_dbl,1,acc)) acc=0.01d0*tol
+      if (.not.rtdb_get(rtdb,'cphf:acc',mt_dbl,1,acc)) acc=1d-4*tol
       call ga_inquire(g_x, type, n, nvec)
       maxsub = mmaxsub          ! So don't modify input scalar arg
       if (maxsub .lt. 3*nvec) maxsub = 3*nvec
