@@ -210,7 +210,7 @@ endif
               ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o util_mpinap.o \
 	      ga_lkain_2cpl3_ext.o  util_dgeev.o util_nwsort.o \
 	      util_mygabcast.o util_getppn.o util_units.o \
-              util_intrsc2008.o util_fadvise.o util_allocga.o \
+              util_intrsc2008.o util_fadvise.o  \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o
