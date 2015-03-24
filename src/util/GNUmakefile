@@ -156,7 +156,7 @@ endif
 
  OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS) \
                  ga_it_lsolve.o ga_it_orth.o ga_orthog.o idamin.o \
-                 util_jacobi.o rsg.o stpr_sjacobi.o util_memcpy.o ga_accback.o \
+                 util_jacobi.o stpr_sjacobi.o util_memcpy.o ga_accback.o \
                  ga_asymmetr.o util_gnxtval.o nxtask.o util_mirror.o  \
                  ga_copy_dz.o dgami.o util_eri_cholesky.o \
                  util_test_cholesky.o 
@@ -210,7 +210,7 @@ endif
               ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o util_mpinap.o \
 	      ga_lkain_2cpl3_ext.o  util_dgeev.o util_nwsort.o \
 	      util_mygabcast.o util_getppn.o util_units.o \
-              util_intrsc2008.o util_fadvise.o \
+              util_intrsc2008.o util_fadvise.o util_allocga.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o
