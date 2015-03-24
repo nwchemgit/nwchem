@@ -7,6 +7,7 @@ C$Id$
 C  This is needed so that subgroups work, GA has MPI_COMM_WORLD in it
 C  But, it does not work on all platforms
 #define GANXTVAL 1
+#define SKIPFIRST_ 1
       integer rtdb
 c
 c     load dlb info
@@ -43,7 +44,7 @@ c
       if (odlb) then
         if(f1stcall) then
 c     skip read inc for first call                                              
-#if 1
+#ifdef SKIPFIRST
            junk=util_gnxtval(0)
 #else
            junk=util_gnxtval(0)
@@ -73,7 +74,7 @@ c
       if(nproc.eq.ga_nnodes()) then
          if(nleft.eq.0) then
 #ifdef GANXTVAL
-#if 1
+#ifdef SKIPFIRST
 c     skip read inc for first call   
             if(f1stcall) then
                f1stcall=.false.

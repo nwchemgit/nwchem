@@ -39,6 +39,7 @@ Integer util_gnxtval_(Integer *val) {
        initialized=1;
 
        /* create task array */
+       GA_Mask_sync(0, 1);
        g_T = NGA_Create(C_LONG, 1, &n,"Atomic Task", NULL);
        
        /* Initialize the task array */
