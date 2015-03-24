@@ -112,7 +112,7 @@ c
       odebug = util_print('debug lsolve', print_never) .and. 
      $   ga_nodeid().eq.0
       if (.not. rtdb_get(rtdb, 'cphf:acc',    mt_dbl, 1,
-     &                            acc)) acc = 0.01d0*tol
+     &                            acc)) acc = 1d-4*tol
 c     
       call ga_inquire(g_x(1), type, n, nvec)
 
