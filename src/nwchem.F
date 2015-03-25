@@ -252,12 +252,14 @@ c
 
 #ifdef USE_OFFLOAD
       call util_getppn(ppnout)
+      if(ppnout.eq.0) call errquit('util_getppn failed ',0,UERR)
       if(ga_nodeid().eq.0)write(luout,*)  ga_nodeid(),' ppn ',ppnout
       if(offload_master()) then
       if(ga_nodeid().lt.ppnout)
      w        write(luout,*)  ga_nodeid(),' offload_master '
       call util_mic_set_affinity()
       endif
+      call ga_sync()
 #endif
 
       if (orestart .or. ocontinue) call nw_print_restart_info(rtdb)
