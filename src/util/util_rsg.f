@@ -1,5 +1,5 @@
 C$Id: ga_it_proj.F 19707 2010-10-29 17:59:36Z d3y133 $
-      double precision function epslon (x)
+      double precision function util_epslon (x)
       double precision x
 c
 c     estimate unit roundoff in quantities of size x.
@@ -32,14 +32,14 @@ c
       c = b + b + b
       eps = dabs(c-1.0d0)
       if (eps .eq. 0.0d0) go to 10
-      epslon = eps*dabs(x)
+      util_epslon = eps*dabs(x)
       return
       end
       subroutine tqlrat(n,d,e2,ierr)
 c
       integer i,j,l,m,n,ii,l1,mml,ierr
       double precision d(n),e2(n)
-      double precision b,c,f,g,h,p,r,s,t,epslon,pythag
+      double precision b,c,f,g,h,p,r,s,t,util_epslon,util_pythag
 c
 c     this subroutine is a translation of the algol procedure tqlrat,
 c     algorithm 464, comm. acm 16, 689(1973) by reinsch.
@@ -70,7 +70,7 @@ c          zero       for normal return,
 c          j          if the j-th eigenvalue has not been
 c                     determined after 30 iterations.
 c
-c     calls pythag for  dsqrt(a*a + b*b) .
+c     calls util_pythag for  dsqrt(a*a + b*b) .
 c
 c     questions and comments should be directed to burton s. garbow,
 c     mathematics and computer science div, argonne national laboratory
@@ -94,7 +94,7 @@ c
          h = dabs(d(l)) + dsqrt(e2(l))
          if (t .gt. h) go to 105
          t = h
-         b = epslon(t)
+         b = util_epslon(t)
          c = b * b
 c     .......... look for small squared sub-diagonal element ..........
  105         do 110 m = l, n
@@ -111,7 +111,7 @@ c     .......... form shift ..........
          s = dsqrt(e2(l))
          g = d(l)
          p = (d(l1) - g) / (2.0d0 * s)
-         r = pythag(p,1.0d0)
+         r = util_pythag(p,1.0d0)
          d(l) = s / (p + dsign(r,p))
          h = g - d(l)
 c
@@ -165,7 +165,7 @@ c                eigenvalue after 30 iterations ..........
  1000  ierr = l
  1001   return
       end
-      double precision function pythag(a,b)
+      double precision function util_pythag(a,b)
       double precision a,b
 c
 c     finds dsqrt(a**2+b**2) without overflow or destructive underflow
@@ -182,7 +182,7 @@ c
          p = u*p
          r = (s/u)**2 * r
       go to 10
- 20    pythag = p
+ 20    util_pythag = p
       return
       end
       subroutine rebak(nm,n,b,dl,m,z)
@@ -430,7 +430,7 @@ c     .......... find both eigenvalues and eigenvectors ..........
 c
       integer i,j,k,l,m,n,ii,l1,l2,nm,mml,ierr
       double precision d(n),e(n),z(nm,n)
-      double precision c,c2,c3,dl1,el1,f,g,h,p,r,s,s2,tst1,tst2,pythag
+      double precision c,c2,c3,dl1,el1,f,g,h,p,r,s,s2,tst1,tst2,util_pythag
 c
 c     this subroutine is a translation of the algol procedure tql2,
 c     num. math. 11, 293-306(1968) by bowdler, martin, reinsch, and
@@ -479,7 +479,7 @@ c          zero       for normal return,
 c          j          if the j-th eigenvalue has not been
 c                     determined after 30 iterations.
 c
-c     calls pythag for  dsqrt(a*a + b*b) .
+c     calls util_pythag for  dsqrt(a*a + b*b) .
 c
 c     questions and comments should be directed to burton s. garbow,
 c     mathematics and computer science div, argonne national laboratory
@@ -518,7 +518,7 @@ c     .......... form shift ..........
          l2 = l1 + 1
          g = d(l)
          p = (d(l1) - g) / (2.0d0 * e(l))
-         r = pythag(p,1.0d0)
+         r = util_pythag(p,1.0d0)
          d(l) = e(l) / (p + dsign(r,p))
          d(l1) = e(l) * (p + dsign(r,p))
          dl1 = d(l1)
@@ -544,7 +544,7 @@ c     .......... for i=m-1 step -1 until l do -- ..........
             i = m - ii
             g = c * e(i)
             h = c * p
-            r = pythag(p,e(i))
+            r = util_pythag(p,e(i))
             e(i+1) = s * r
             s = e(i) / r
             c = p / r
