@@ -203,7 +203,7 @@ c               write(*,*)"i,j,aa,ss", i,j, aa(i,j), ss(i,j)
 c     
 c     Solve the reduced space equations (Ay = Sye)
 c     
-         call rsg(maxdim, nsub, aa, ss, ee, 1, yy, fv1, fv2, info)
+         call util_rsg(maxdim, nsub, aa, ss, ee, 1, yy, fv1, fv2, info)
          if (info .ne. 0) call errquit
      $        ('ga_iter_diag: rsg failed', info, CALC_ERR)
          if (odebug .and. ga_nodeid().eq.0) then
