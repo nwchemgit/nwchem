@@ -41,6 +41,8 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      call errquit('nwxcm_x_camrpbe: not implemented, use "xc autodiff c
+     +amrpbe" instead',0,0)
       end 
 C> 
 C> \brief Evaluate the nwxcm_x_camrpbe functional [1] 
@@ -81,6 +83,8 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      call errquit('nwxcm_x_camrpbe: not implemented, use "xc autodiff c
+     +amrpbe" instead',0,0)
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -146,6 +150,8 @@ c
       double precision rhoa,rhob 
       double precision gammaaa,gammaab,gammabb 
       double precision taua,taub 
+      call errquit('nwxcm_x_camrpbe: not implemented, use "xc autodiff c
+     +amrpbe" instead',0,0)
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
