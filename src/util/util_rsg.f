@@ -40,6 +40,7 @@ c
       integer i,j,l,m,n,ii,l1,mml,ierr
       double precision d(n),e2(n)
       double precision b,c,f,g,h,p,r,s,t,util_epslon,util_pythag
+      external util_epslon,util_pythag
 c
 c     this subroutine is a translation of the algol procedure tqlrat,
 c     algorithm 464, comm. acm 16, 689(1973) by reinsch.
@@ -430,7 +431,9 @@ c     .......... find both eigenvalues and eigenvectors ..........
 c
       integer i,j,k,l,m,n,ii,l1,l2,nm,mml,ierr
       double precision d(n),e(n),z(nm,n)
-      double precision c,c2,c3,dl1,el1,f,g,h,p,r,s,s2,tst1,tst2,util_pythag
+      double precision c,c2,c3,dl1,el1,f,g,h,p,r,s,s2,tst1,tst2
+      double precision util_pythag
+      external util_pythag
 c
 c     this subroutine is a translation of the algol procedure tql2,
 c     num. math. 11, 293-306(1968) by bowdler, martin, reinsch, and
