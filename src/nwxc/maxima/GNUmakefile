@@ -1,5 +1,32 @@
-FNCPRINT = ../nwxc_fnc_print
-AUTOXC   = ./bin/autoxc
+FNCPRINT  = ../nwxc_fnc_print
+AUTOXC    = echo
+AUTOXC_DS = echo
+# 
+# To run MAXIMA uncomment these lines
+# -----------------------------------
+#
+# Note that generating all the functional source code took 62 hours on 2 cores
+# hence do this only when you have to! For example when you want to add a
+# new functional run 
+#
+#	touch f77/*.F
+#
+# to update the timestamps on the pre-existing routines to avoid regenerating
+# those. That way only the subroutine for your new functional will be generated.
+#
+# In addition note that if you need to generate the Maxima expression itself
+# as well you will need the nwxc_fnc_print executable. To generate that run
+#
+#	cd ..
+#	make nwxc_fnc_print
+#
+# There is no dependency for generating this executable as that would trigger
+# regenerating all the *.max and *.F files. In addition this process is only
+# occassionally needed so the inconvience of having to do this manually should
+# be insignificant (famous last words...).
+#
+#AUTOXC    = ./bin/autoxc
+#AUTOXC_DS = ./bin/autoxc-Ds
 
 LIBRARY = libnwxc.a
 
@@ -71,6 +98,11 @@ OBJ =  \
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+
+# This Makefile should not be executed in parallel as the compilers
+# will run out of memory in that case.
+#
+.NOTPARALLEL:
 
 .SECONDARY:
 .SECONDARY: \
@@ -197,37 +229,63 @@ include ../../config/makelib.h
 	f77/nwxcm_x_ssbd.F \
 	f77/nwxcm_x_tpss03.F \
 	f77/nwxcm_x_vs98.F \
-	f77/nwxcm_x_wpbe.F
+	f77/nwxcm_x_wpbe.F \
+	f77/nwxcm_c_vs98.F.start \
+	f77/nwxcm_c_vs98.F.finished \
+	f77/nwxcm_c_dldf.F.start \
+	f77/nwxcm_c_dldf.F.finished \
+	f77/nwxcm_c_m05.F.start \
+	f77/nwxcm_c_m05.F.finished \
+	f77/nwxcm_c_m06.F.start \
+	f77/nwxcm_c_m06.F.finished \
+	f77/nwxcm_c_pkzb99.F.start \
+	f77/nwxcm_c_pkzb99.F.finished \
+	f77/nwxcm_c_tpss03.F.start \
+	f77/nwxcm_c_tpss03.F.finished \
+	f77/nwxcm_x_tpss03.F.start \
+	f77/nwxcm_x_tpss03.F.finished
+
+
+f77/nwxcm_c_vs98.F: max/nwxcm_c_vs98.max
+	date > $@.start
+	$(AUTOXC_DS) -o $@ $<
+	date > $@.finished
+
+f77/nwxcm_c_dldf.F: max/nwxcm_c_dldf.max
+	date > $@.start
+	$(AUTOXC_DS) -o $@ $<
+	date > $@.finished
+
+f77/nwxcm_c_m05.F: max/nwxcm_c_m05.max
+	date > $@.start
+	$(AUTOXC_DS) -o $@ $<
+	date > $@.finished
+
+f77/nwxcm_c_m06.F: max/nwxcm_c_m06.max
+	date > $@.start
+	$(AUTOXC_DS) -o $@ $<
+	date > $@.finished
+
+f77/nwxcm_c_pkzb99.F: max/nwxcm_c_pkzb99.max
+	date > $@.start
+	$(AUTOXC_DS) -o $@ $<
+	date > $@.finished
+
+f77/nwxcm_c_tpss03.F: max/nwxcm_c_tpss03.max
+	date > $@.start
+	$(AUTOXC_DS) -o $@ $<
+	date > $@.finished
+
+f77/nwxcm_x_tpss03.F: max/nwxcm_x_tpss03.max
+	date > $@.start
+	$(AUTOXC_DS) -o $@ $<
+	date > $@.finished
 
 %.o: f77/%.F
 	$(FC) $(FFLAGS) -I./f77 -c $< 
 
-# 
-# To run MAXIMA uncomment these lines
-# -----------------------------------
-#
-# Note that generating all the functional source code took 62 hours on 2 cores
-# hence do this only when you have to! For example when you want to add a
-# new functional run 
-#
-#	touch f77/*.F
-#
-# to update the timestamps on the pre-existing routines to avoid regenerating
-# those. That way only the subroutine for your new functional will be generated.
-#
-# In addition note that if you need to generate the Maxima expression itself
-# as well you will need the nwxc_fnc_print executable. To generate that run
-#
-#	cd ..
-#	make nwxc_fnc_print
-#
-# There is no dependency for generating this executable as that would trigger
-# regenerating all the *.max and *.F files. In addition this process is only
-# occassionally needed so the inconvience of having to do this manually should
-# be insignificant (famous last words...).
-#
-#f77/%.F: max/%.max
-#	$(AUTOXC) -o $@ $<
+f77/%.F: max/%.max
+	$(AUTOXC) -o $@ $<
 
 max/%.max: input/%.nw
 	$(FNCPRINT) $<
