@@ -51,7 +51,7 @@ c     estimate mem. req.
 c
       call int_init_1eelec(maxbuf,maxscr,ibasis,0,ngrid)
       avail=ma_inquire_avail(mt_dbl)*8/10
-      no_batches=nint(dble(maxbuf+maxscr)/dble(avail))
+      no_batches=nint(dble(maxbuf+maxscr)/dble(avail))+1
       ngrid_batches=ngrid/no_batches
 #ifdef DEBUG
       if(me.eq.0) then
