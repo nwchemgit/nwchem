@@ -149,7 +149,8 @@ c
 cold         avail_file=0.99d0*((avail_ma*(9d0*3d0))/(16d0*4d0))
 cold         avail_ma=(7d0*avail_ma)/16d0
 #ifdef NOIO
-      avail_ma=avail_ma/2
+cold      avail_ma=avail_ma/2
+      avail_ma=avail_ma*7/8
       avail_file=0
 #endif
 c
@@ -191,7 +192,16 @@ c
             call util_flush(6)
          end if
 #ifdef NOIO
-         avail_file=(avail_ma-max_ma)/2
+cold         avail_file=(avail_ma-max_ma)/2
+                  avail_file=(avail_ma-max_ma)
+         if(oprint_mem) then
+            write(6,222) npasses, num_i_perseg, avail_ma, avail_ga, 
+     C           dble(avail_file)
+ 222         format(1x,i3,' passes of',i4,': M',
+     $           ' ',i12,'           G',i15,
+     $           '           F',f15.0)
+            call util_flush(6)
+         end if
 #endif
          if(ga_uses_ma().and..not.ga_memory_limited())then
             if(max_ma+max_ga.le.avail_ma.and.max_file.le.
@@ -210,7 +220,7 @@ c
          call util_flush(6)
       end if
 c     
-      if (npasses .gt. 100) call errquit
+      if (npasses .gt. 200) call errquit
      $     ('mp2_grad: too many passes',npasses, CALC_ERR)
 c     
       npass=0
@@ -527,24 +537,15 @@ c
 c     
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
-     $     MT_INT, 1, eaf_size_in_mb)) then
-         mp2_eaftype=inntsize*1024
-      else
-         if(ga_nodeid().eq.0) then
-            write(luout,'(A,I12)')
-     I           ' EAF : eafsizeinmb ',eaf_size_in_mb
-         endif
-         mp2_eaftype=eaf_size_in_mb*1024*1024
-      endif
-
-      mp2_eaftype=1D6+max(mp2_eaftype,
-     I     inntsize*(int(file_size*11./10.)))
-
+     $     MT_INT, 1, mp2_eaftype)) mp2_eaftype=
+     E     inntsize*file_size/1024/1024
+c     extra factor for load imbalance
+      mp2_eaftype=mp2_eaftype*12/10
       if(ga_nodeid().eq.0) then
          write(luout,'(A,I12,F12.0)')
-     I        ' EAF : eaftypeinmb filesize',
-     A        mp2_eaftype/1024/1024,
-     C        file_size/1024/1024
+     I        ' EAF : mp2_eaftype filesize',
+     A        mp2_eaftype,
+     C        file_size
          call util_flush(luout)
       endif
       return
