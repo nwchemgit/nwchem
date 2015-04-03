@@ -45,7 +45,7 @@ c
      ,     Vcoul_est,ERI_est
       double precision q1
       integer nxtask
-      logical dowork
+      logical dowork,doshell
       logical oprint_ioinfo,use_nxtask
       integer ipoint
       integer ilo, ihi, jlo, jhi, adrc, ldc,nnii,iptr,j
@@ -213,7 +213,11 @@ c     Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
 c     
 c     check for use of symmetry
                                  q1=1d0
-                                 if (sym_shell(cd_bas_han,ishp,q1))then
+                                 doshell=.true.
+                                 if(oskel) doshell =
+     Z                                sym_shell(cd_bas_han,ishp,q1)
+
+                                 if(doshell) then
 c read incore ints
                                     if(incore) then
                                        call dgemv('N',Nao2,nshbf_cd,1D0,

@@ -89,7 +89,7 @@ c
       integer ndone,n_batch_done
       integer nxtask,icount,ipoint
       integer ishd_0,ishd_1
-      logical dowork,use_nxtask,lschw_pmax1
+      logical dowork,use_nxtask,lschw_pmax1,doshell
       double precision dabsmax
       external nxtask,dabsmax
 c      
@@ -230,7 +230,12 @@ c
 c     Must turn symmetry off for derivative fits since derivative
 c     densities will not be totally symmetric in general
 c
-                       if (sym_shell(cd_bas_han, ishp, q1))then
+                       q1=1.d0
+                       doshell=.true.
+                       if(oskel) doshell=sym_shell(cd_bas_han,ishp,q1)
+
+                       if (doshell) then
+
                           call int_2e3c(CD_bas_han,ishp,AO_bas_han,
      I                         ishc,ishd,nscr,Dbl_MB(iscr),
      N                         Ninteg_api,Dbl_MB(istart))
