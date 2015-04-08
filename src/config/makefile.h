@@ -904,7 +904,7 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG += -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
-          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
+#gone          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           
           FOPTIONS += -Warray-bounds
         endif
@@ -1046,7 +1046,7 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG += -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
-          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
+#gone          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
         endif # GNU_GE_4_8
         endif # GNUMAJOR
@@ -1525,7 +1525,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
         ifeq ($(GNU_GE_4_8),true)
           FDEBUG =-O2 -g -fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
-          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
+#gone          FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           FOPTIONS += -Warray-bounds
 	  else
           FOPTIONS   += -Wuninitialized # -Wextra -Wunused
@@ -1881,7 +1881,8 @@ $(error )
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         ifeq ($(GNU_GE_4_6),true) 
-          FOPTIMIZE += -march=native -mtune=native
+          FOPTIONS += -march=native -mtune=native
+          FOPTIONS += -finline-functions
         else
         ifeq ($(_GOT3DNOW),Y) 
 #we guess its an opteron
@@ -2197,7 +2198,7 @@ ifeq ($(XLFBREN),y)
 	      -brename:.pdgetrf_,.pdgetrf \
 	      -brename:.pdgetrs_,.pdgetrs 
 endif
-  CORE_LIBS += $(SCALAPACK) $(PBLAS) $(BLACS)
+  CORE_LIBS += $(ELPA) $(SCALAPACK) $(PBLAS) $(BLACS)
 endif
 
 ifdef USE_64TO32

@@ -490,6 +490,13 @@ ifneq ($(SCALAPACK_LIB),)
         MAYBE_SCALAPACK = --with-scalapack8="$(strip $(SCALAPACK_LIB))"
     endif
 endif
+ifneq ($(ELPA),)
+    ifeq ($(ELPA_SIZE),8)
+        MAYBE_ELPA = --with-elpa8="$(strip $(ELPA))"
+    else
+        MAYBE_ELPA = --with-elpa="$(strip $(ELPA))"
+    endif
+endif
 
 ifneq ($(SCALAPACK),)
     ifeq ($(SCALAPACK_SIZE),8)
@@ -575,7 +582,7 @@ BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
 TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_ELPA) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst /,-,$(subst $(SPACE),-,$(strip $(FC))).FC.stamp)
