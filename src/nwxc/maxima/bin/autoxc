@@ -1176,7 +1176,7 @@ ulb3g: [ Cmat3(iq,D3_RB_RB_GBB),  Cmat3(iq,D3_RB_GBB_GBB),
          Cmat3(iq,D3_GBB_GBB_GBB) ] $
 ulb3t: [ Mmat3(iq,D3_RB_RB_TA),   Mmat3(iq,D3_RB_RB_TB),
          Mmat3(iq,D3_RB_GBB_TA),  Mmat3(iq,D3_RB_GBB_TB),
-         Mmat3(iq,D3_GBB_GBB_TA), Mmat3(iq,D3_GBB_GBA_TB),
+         Mmat3(iq,D3_GBB_GBB_TA), Mmat3(iq,D3_GBB_GBB_TB),
          Mmat3(iq,D3_RB_TA_TA),   Mmat3(iq,D3_RB_TA_TB),
          Mmat3(iq,D3_RB_TB_TB),
          Mmat3(iq,D3_GBB_TA_TA),  Mmat3(iq,D3_GBB_TA_TB),
@@ -2122,7 +2122,7 @@ ce3t: [ at(df3rarata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rho
         with_stdout("fortran.F",print("excess,!rho_deriv,!sigma_deriv,tau_deriv"))
       else /* !rho !sigma tau */
         with_stdout("fortran.F",print("excess,!rho_deriv,!sigma_deriv,!tau_deriv"))
-  )
+  )$
 /* else
   if rho_deriv then
     if sigma_deriv then
@@ -2146,7 +2146,6 @@ ce3t: [ at(df3rarata(rhoa,rhob,gammaaa,gammaab,gammabb,taua,taub),[rhoa=rhoa,rho
         with_stdout("fortran.F",print("!excess,!rho_deriv,!sigma_deriv,tau_deriv"))
       else
         with_stdout("fortran.F",print("!excess,!rho_deriv,!sigma_deriv,!tau_deriv")) */ 
-$
 EOF
 maxima -b $f_maxima
 

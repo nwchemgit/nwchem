@@ -2098,7 +2098,7 @@ ulb3g: [ Cmat3(iq,D3_RB_RB_GBB),  Cmat3(iq,D3_RB_GBB_GBB),
          Cmat3(iq,D3_GBB_GBB_GBB) ] $
 ulb3t: [ Mmat3(iq,D3_RB_RB_TA),   Mmat3(iq,D3_RB_RB_TB),
          Mmat3(iq,D3_RB_GBB_TA),  Mmat3(iq,D3_RB_GBB_TB),
-         Mmat3(iq,D3_GBB_GBB_TA), Mmat3(iq,D3_GBB_GBA_TB),
+         Mmat3(iq,D3_GBB_GBB_TA), Mmat3(iq,D3_GBB_GBB_TB),
          Mmat3(iq,D3_RB_TA_TA),   Mmat3(iq,D3_RB_TA_TB),
          Mmat3(iq,D3_RB_TB_TB),
          Mmat3(iq,D3_GBB_TA_TA),  Mmat3(iq,D3_GBB_TA_TB),
