@@ -1,4 +1,3 @@
-cedo#define USE_INTEGER8 1
 #ifdef USE_INTEGER8
 #define INTGR4 integer*8
 #else

@@ -12,6 +12,9 @@
                  xscal.o xaxpy.o xgemm.o xheev.o xcopy.o xdotc.o \
                  ixamax.o
 
+        ifeq ($(BLAS_SIZE),8)
+	LIB_DEFINES += -DUSE_INTEGER8
+	endif
 
 include ../config/makefile.h
 include ../config/makelib.h
