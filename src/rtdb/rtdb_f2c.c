@@ -7,6 +7,7 @@
 #include <fortran.h>
 #endif
 #define FATR 
+#define MXLGTH 32768
 
 #define FORTRAN_TRUE  ((Logical) 1)
 #define FORTRAN_FALSE ((Logical) 0)
@@ -166,7 +167,7 @@ Logical FATR rtdb_getfname_(const Integer *handle, char *fname, const int mlen)
 
   if (rtdb_getfname(hbuf, mbuf)){
     if (!string_to_fortchar(fname, mlen, mbuf)) {
-      (void) fprintf(stderr, "rtdb_fname: mbuf is too small, need=%d\n",strlen(mbuf));
+      (void) fprintf(stderr, "rtdb_fname: mbuf is too small, need=%ld\n",strlen(mbuf));
       return FORTRAN_FALSE;
     }
     return FORTRAN_TRUE;
@@ -395,11 +396,12 @@ Logical FATR rtdb_cput_(const Integer *handle, const char *name,
 
   int hbuf = (int) *handle;
   char nbuf[256];
-  char abuf[20480]=" ";
-  int nelbuf;
+  char abuf[MXLGTH]=" ";
+  int nelbuf; 
   int typebuf;
   int i, left;
   char *next;
+
   for (i=0, left=sizeof(abuf), next=abuf;
        i<*nelem;
        i++, array+=alen) {
@@ -416,7 +418,7 @@ Logical FATR rtdb_cput_(const Integer *handle, const char *name,
 #endif
     
     if (!fortchar_to_string(element, alen, next, left)) {
-      (void) fprintf(stderr, "rtdb_cput: abuf is too small, need=%d\n", 
+      (void) fprintf(stderr, "rtdb_cput: abuf is too small, increase MXLGTH to=%d\n", 
 		     (int) (alen + sizeof(abuf) - left));
       return FORTRAN_FALSE;
     }
@@ -486,8 +488,7 @@ Logical FATR rtdb_cget_size_(const Integer *handle, const char *name,
 
   int hbuf = (int) *handle;
   char nbuf[256];
-  char abuf[20480];
-  /*  char abuf[10240];*/
+  char abuf[MXLGTH];
   int nelbuf;
   int typebuf;
   int i;
@@ -558,8 +559,7 @@ Logical FATR rtdb_cget_(const Integer *handle, const char *name,
 
   int hbuf = (int) *handle;
   char nbuf[256];
-  char abuf[20480];
-  /*  char abuf[10240];*/
+  char abuf[MXLGTH];
   int nelbuf;
   int typebuf;
   int i;
