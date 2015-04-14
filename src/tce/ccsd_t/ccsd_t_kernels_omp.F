@@ -24,7 +24,9 @@ c
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
 !dir$ simd
+#ifdef USE_OPENMP
 !DIR$ IVDEP
+#endif
       do h3=1,h3d
        triplesx(h3,h2,h1,p6,p5,p4)=triplesx(h3,h2,h1,p6,p5,p4)
      1   + t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
@@ -60,7 +62,9 @@ c
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
 !dir$ simd
+#ifdef USE_OPENMP
 !DIR$ IVDEP
+#endif
       do h3=1,h3d
        triplesx(h3,h1,h2,p6,p5,p4)=triplesx(h3,h1,h2,p6,p5,p4)
      1   - t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
@@ -100,7 +104,9 @@ c
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
 !dir$ simd
+#ifdef USE_OPENMP
 !DIR$ IVDEP
+#endif
 #ifndef CRAYFTN
       do h1=1,h1d
 #endif
@@ -139,8 +145,9 @@ c
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
 !dir$ simd
+#ifdef USE_OPENMP
 !DIR$ IVDEP
-!DIR$ IVDEP
+#endif
       do h3=1,h3d
        triplesx(h3,h2,h1,p6,p4,p5)=triplesx(h3,h2,h1,p6,p4,p5)
      1   - t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
@@ -177,7 +184,9 @@ c
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
 !dir$ simd
+#ifdef USE_OPENMP
 !DIR$ IVDEP
+#endif
       do h3=1,h3d
        triplesx(h3,h1,h2,p6,p4,p5)=triplesx(h3,h1,h2,p6,p4,p5)
      1   + t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
@@ -214,7 +223,9 @@ c
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
 !dir$ simd
+#ifdef USE_OPENMP
 !DIR$ IVDEP
+#endif
       do h1=1,h1d
        triplesx(h1,h3,h2,p6,p4,p5)=triplesx(h1,h3,h2,p6,p4,p5)
      1   - t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
@@ -251,7 +262,9 @@ c
 !dec$ unroll_and_jam = 8
 !dec$ vector always nontemporal
 !dir$ simd
+#ifdef USE_OPENMP
 !DIR$ IVDEP
+#endif
       do h3=1,h3d
        triplesx(h3,h2,h1,p4,p6,p5)=triplesx(h3,h2,h1,p4,p6,p5)
      1   + t1sub(p4,h1)*v2sub(h3,h2,p6,p5)
