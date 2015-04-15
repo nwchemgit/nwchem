@@ -27,6 +27,7 @@ c$Id$
 c
       implicit none
 c
+#include "errquit.fh"
 c      
       double precision fac, Ex
       integer nq, ipol
@@ -127,6 +128,8 @@ c
         r4 =   0.000000D+00
         r5 =   0.000000D+00
         r6 =   0.000000D+00
+      else
+        call errquit("xc_xvs98: illegal value of ijzy",ijzy,UERR)
       endif
       
       DTol = tol_rho

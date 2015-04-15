@@ -26,6 +26,7 @@ c   [b] Y. Zhao and D. G. Truhlar, J. Chem. Phys. 125, 194101 (2006).
 c
       implicit none
 c
+#include "errquit.fh"
 c
 c
 c     Input and other parameters
@@ -139,6 +140,8 @@ C     Parameters for M06-2X
               r10= 6.720580D-05
               r11= 8.448011D-04
               r12= 0.000000D+00
+      else
+         call errquit("xc_cvs98: illegal value of ijzy",ijzy,UERR)
       endif
       Pi = F4*ATan(F1)
       F6=6.0d0
@@ -305,6 +308,8 @@ c      stop
       Subroutine vs98ss(tol_rho,PX,GX,TX,F,FP,FG,FT,EUEG,Z,Chi,EUEGP,
      &                   ChiP,ChiG,ZP,ZT,ijzy)
       Implicit none
+c
+#include "errquit.fh"
 C
 C     Compute the same-spin part of the vs98 correlation functional for one grid
 C     point and one spin-case.
@@ -368,6 +373,8 @@ C     Parameters for M06-2X
               r16= -1.968264D-03
               r17= -6.775479D-03
               r18=  0.000000D+00
+      else
+        call errquit("vs98ss: illegal value of ijzy",ijzy,UERR)
       endif
 couch
 c      DTol =1.0d-7 

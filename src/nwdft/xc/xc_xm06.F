@@ -25,6 +25,7 @@ c$Id$
 c
       implicit none
 c
+#include "errquit.fh"
 c      
       double precision fac, Ex
       integer nq, ipol
@@ -145,6 +146,8 @@ C     Parameters for M06-2X
         at9=    -3.924093D+01
         at10=   1.522808D+01
         at11=   1.522227D+01
+      else
+        call errquit("xc_xm06: illegal value of ijzy",ijzy,UERR)
       endif
 
       at=1.0d0

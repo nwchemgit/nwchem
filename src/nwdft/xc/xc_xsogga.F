@@ -24,6 +24,8 @@ c                                                                      c
 c**********************************************************************c    
 c
       implicit none
+c
+#include "errquit.fh"
 c      
       double precision fac, Ex
       integer nq, ipol
@@ -123,6 +125,8 @@ c SOGGA11-X
        CxB3 = -2.45393d+00
        CxB4 = -3.75495d+00
        CxB5 =  3.96613d+00
+      else
+       call errquit("xc_xsogga: illegal value of ijzy",ijzy,UERR)
       endif
 c
       DTol = tol_rho

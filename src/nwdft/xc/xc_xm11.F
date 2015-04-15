@@ -28,6 +28,8 @@ c                                                                      c
 c**********************************************************************c    
 c
       implicit none
+c
+#include "errquit.fh"
 c      
       double precision fac, Ex
       integer nq, ipol
@@ -153,6 +155,7 @@ C
         bt10=0.000000D+00 
         bt11=0.000000D+00 
         UseLC=.False.
+        Emu =0.00D+00
 C
       if (ijzy.eq.1) then
 C     Parameters for M08-HX
@@ -302,6 +305,8 @@ C
         UseLC=.True.
         Emu =0.25D+00
 C
+      else
+        call errquit("xc_xm11: illegal value of ijzy",ijzy,UERR)
       endif
       DTol=tol_rho
       F1o3 = F1/F3 

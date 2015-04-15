@@ -25,6 +25,7 @@ c     [c]   Grafenstein, J., Izotov, D. and Cremer, D. J. Chem. Phys. 2007, 127,
 
       implicit none
 c
+#include "errquit.fh"
 c
 c
 c     Input and other parameters
@@ -122,6 +123,8 @@ C     Parameters for M06-2X Correlation
          sopp2= -7.043548D+01
          sopp3= 4.978271D+01
          sopp4= -1.852891D+01
+      else
+         call errquit("xc_cm06: illegal value of ijzy",ijzy,UERR)
       endif
 
       call xc_cvs98(tol_rho, 1.0d0, lfac, nlcfac,
@@ -299,6 +302,8 @@ c      Stop
       Subroutine m06css(Tol_Rho,PX,GX,TX,F,FP,FG,FT,EUEG,Chi,EUEGP,
      &                   ChiP,ChiG,ijzy)
       Implicit none
+c
+#include "errquit.fh"
 C
 C     Compute the same-spin part of the m05 correlation functional for one grid
 C     point and one spin-case.
@@ -351,6 +356,8 @@ C     Parameters for M06-2X Correlation
          sss2=  1.347420D+01
          sss3=  -3.213623D+01
          sss4=  2.846742D+01
+      else
+         call errquit("m06css: illegal value of ijzy",ijzy,UERR)
       endif
       
       If ((PX.le.Tol_Rho))  then

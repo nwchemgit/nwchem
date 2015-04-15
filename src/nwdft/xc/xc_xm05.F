@@ -17,12 +17,12 @@ c     [b]       Zhao, Y.; Schultz, N. E.; Truhlar, D. G. J. Chem. Theory Comput.
      &                     Amat, Cmat, nq, ipol, Ex, 
      &                     qwght, ldew, func, tau, Mmat, ijzy)
 
-
 c   
 c$Id$
 c
       implicit none
 c
+#include "errquit.fh"
 c      
       double precision fac, Ex
       integer nq, ipol
@@ -114,6 +114,8 @@ c     Parameters for M05-2X
         at9=    -60.25778d0
         at10=   -13.22205d0
         at11=   15.23694d0
+      else
+        call errquit("xc_xm05: illegal ijzy",ijzy,UERR)
       endif
       
       at=1.0d0

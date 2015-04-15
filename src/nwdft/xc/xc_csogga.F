@@ -23,6 +23,7 @@ c**********************************************************************c
 c
       implicit none
 c
+#include "errquit.fh"
 #include "dft2drv.fh"
 c
 c     Input and other parameters
@@ -124,6 +125,8 @@ c
        CcB(3) =  2.08129d+00
        CcB(4) =  7.50769d+00
        CcB(5) = -1.01861d+01
+      else
+       call errquit("xc_csogga: illegal value of ijzy",ijzy,UERR)
       endif
 
       Pi = ACos(-F1)

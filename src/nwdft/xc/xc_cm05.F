@@ -20,6 +20,7 @@ c     [b]       Zhao, Y.; Schultz, N. E.; Truhlar, D. G. J. Chem. Theory Comput.
 
       implicit none
 c
+#include "errquit.fh"
 c
 c
 c     Input and other parameters
@@ -105,6 +106,8 @@ C     Parameters for M05-2X Correlation
          sopp2= -3.79171
          sopp3= 2.82810
          sopp4= -10.58909
+      else
+         call errquit("xc_cm05: illegal value of ijzy",ijzy,UERR)
       endif
 
       Pi = F4*ATan(F1)
@@ -258,6 +261,8 @@ c      Stop
       Subroutine m05css(DTol,PX,GX,TX,F,FP,FG,FT,EUEG,Chi,EUEGP,
      &                   ChiP,ChiG,ijzy)
       Implicit none
+c
+#include "errquit.fh"
 C
 C     Compute the same-spin part of the m05 correlation functional for one grid
 C     point and one spin-case.
@@ -296,6 +301,8 @@ C     Parameters for M05-2X Correlation
          sss2=  7.61854d0
          sss3=  1.47665d0
          sss4=  -11.92365d0
+      else
+         call errquit("m05css: illegal value of ijzy",ijzy,UERR)
       endif
       
       If ((PX.le.DTol).or.(TX.le.dtol)) then
