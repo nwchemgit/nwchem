@@ -42,8 +42,6 @@ c
       double precision DPOW
       double precision BETA,  tol_rho, CPW91
 
-       Data BETA/0.00538d0/, CPW91/1.7382d0/,DPOW/3.8901d0/! PW6B95
-
 #ifdef SECOND_DERIV
 c
 c     Second Derivatives of the Exchange Energy Functional
@@ -59,12 +57,20 @@ c***************************************************************************
       integer n
       double precision gamma
 c
-c parameters for PWB6K
-c
       if (ijzy.eq.2) then
-        BETA = 0.00539d0
-        CPW91= 1.7077d0
-        DPOW= 4.0876d0
+c
+c       parameters for PWB6K
+c
+        BETA  = 0.00539d0
+        CPW91 = 1.7077d0
+        DPOW  = 4.0876d0
+      else
+c
+c       parameters for PW6B95
+c
+        BETA  = 0.00538d0
+        CPW91 = 1.7382d0
+        DPOW  = 3.8901d0
       endif
       if (ipol.eq.1 )then
 c
