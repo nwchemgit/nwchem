@@ -38,7 +38,7 @@ c
 c     Threshold parameters
 c
       double precision DTol,F1, F2, F3, F4,COpp 
-      Data COpp/0.0031d0/,F1/1.0d0/,F2/2.0d0/,
+      Data F1/1.0d0/,F2/2.0d0/,
      & F3/3.0d0/,F4/4.0d0/ 
 c
 c     Correlation energy
@@ -94,6 +94,10 @@ C     Parameters for PW6B95 Correlation
       elseif (ijmswitch.eq.2) then
 C     Parameters for PWB6K Correlation
         COpp=0.00353d0
+      else
+C     Parameters for B95 (data statement is unsafe as values may survive
+C     between calls)
+        COpp=0.0031d0
       endif
       Pi = F4*ATan(F1)
       F6=6.0d0
@@ -266,8 +270,7 @@ C
 
 
       Data Zero/0.0d0/, Pt25/0.25d0/, F1/1.0d0/, F2/2.0d0/, F3/3.0d0/,
-     $  F4/4.0d0/, F5/5.0d0/, F6/6.0d0/, F8/8.0d0/, F11/11.0d0/,
-     $  Css/0.038d0/
+     $  F4/4.0d0/, F5/5.0d0/, F6/6.0d0/, F8/8.0d0/, F11/11.0d0/
 C
       if (ijmswitch.eq.1) then
 C     Parameters for PW6B95 Correlation
@@ -275,6 +278,10 @@ C     Parameters for PW6B95 Correlation
       elseif (ijmswitch.eq.2) then
 C     Parameters for PWB6K Correlation
        Css=0.04120d0
+      else
+C     Parameters for B95 (data statement is unsafe as values may survive
+C     between calls)
+       Css=0.038d0
       endif
       DTol =1.0d-6 
       If(PX.le.DTol) then
