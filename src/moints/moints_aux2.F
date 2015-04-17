@@ -639,59 +639,48 @@ c$$$      CALL MOINTS_MATPRINT(LBLEN,KBLEN,SSBB(LBLO,KBLO,JBFLO,IBFLO))
       double precision ssbb(llo:lhi,klo:khi,jlen,ilen)
       double precision ct(qlo:qhi,nbf)
       double precision ssni(nbf,jlen,ilen,mo1_lo:mo1_hi)
-*     double precision hlp(*)
-      double precision hlp(mo1_lo:mo1_hi,nbf)
+      double precision hlp(mo1_lo:mo1_hi,*)
 c     
       double precision s
       double precision tol
       data tol/1.d-12/
 c     
       integer i, j, k, l, o
+      integer kk,ll,mm
+      double precision dabsmax
+      external dabsmax
 c     
+      kk=khi-klo+1
+      ll=lhi-llo+1
+      mm=mo1_hi-mo1_lo+1
       do i = 1, ilen
          do j = 1, jlen
-c     
-            do k = klo, khi
-               do o = mo1_lo, mo1_hi
-                  hlp(o,k) = 0.0d0
-               enddo
-            enddo
+
             if (klo.ne.llo) then
-               do l = llo, lhi
-                  do o = mo1_lo, mo1_hi
-                     hlp(o,l) = 0.0d0
+               call dgemm('n','n',mm,kk,ll,
+     A              1d0,ct(mo1_lo,llo),qhi-qlo+1,
+     B              ssbb(llo,klo,j,i),ll,
+     C              0d0,hlp(mo1_lo,1),mm)
+cc     C              0d0,hlp(mo1_lo,klo),mm)
+               do o = mo1_lo, mo1_hi
+                  do k = klo, khi
+                     ssni(k,j,i,o) = ssni(k,j,i,o) + hlp(o,k-klo+1)
+c                     ssni(k,j,i,o) = ssni(k,j,i,o) + hlp(o,k)
                   enddo
                enddo
             endif
 c     
-            do k = klo, khi
-               do l = llo, lhi
-                  s = ssbb(l,k,j,i)
-                  if (abs(s) .gt. tol) then
-                     do o = mo1_lo, mo1_hi
-                        hlp(o,l) = hlp(o,l) + s*ct(o,k)
-                     enddo
-                     if (klo.ne.llo) then
-                        do o = mo1_lo, mo1_hi
-                           hlp(o,k) = hlp(o,k) + s*ct(o,l)
-                        enddo
-                     endif
-                  endif
-               enddo
-            enddo
-c     
+            call dgemm('n','t',mm,ll,kk,
+     A           1d0,ct(mo1_lo,klo),qhi-qlo+1,
+     B           ssbb(llo,klo,j,i),ll,
+     C           0d0,hlp(mo1_lo,1),mm)
+c     C           0d0,hlp(mo1_lo,llo),mm)
             do o = mo1_lo, mo1_hi
-               do k = klo, khi
-                  ssni(k,j,i,o) = ssni(k,j,i,o) + hlp(o,k)
+               do l = llo, lhi
+                  ssni(l,j,i,o) = ssni(l,j,i,o) + hlp(o,l-llo+1)
+c                  ssni(l,j,i,o) = ssni(l,j,i,o) + hlp(o,l)
                enddo
             enddo
-            if (klo.ne.llo) then
-               do o = mo1_lo, mo1_hi
-                  do l = llo, lhi
-                     ssni(l,j,i,o) = ssni(l,j,i,o) + hlp(o,l)
-                  enddo
-               enddo
-            endif
          enddo
       enddo
 c     

@@ -404,7 +404,8 @@ c$$$       integer l_ssbbt, k_ssbbt
 #endif
        integer l_eri, k_eri, l_iscr,k_iscr
        integer l_xmo, k_xmo, l_xmo_t, k_xmo_t
-       integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_hlp2, n_hlp3
+       integer n_ssbb, n_ssbb1, n_ssni, n_hlp, n_hlp2, n_hlp3,
+     I      n_hlpx
        integer iz, jz, kz, bsize
        integer mem2, max2e, jopass
        double precision iocnt
@@ -570,7 +571,8 @@ c
                    mi_flop1 = mi_flop1 + 
      $                   4.d-6*ilen*jlen*kblen*lblen*(oseghi-oseglo+1)
 
-                   if (.not. ma_push_get(MT_DBL,n_hlp,'hlp block',
+       n_hlpx = (oseghi-oseglo+1)*max(kbfhi-kbflo+1,lbfhi-lbflo+1)
+                   if (.not. ma_push_get(MT_DBL,n_hlpx,'hlp block',
      $                  l_hlp,k_hlp)) 
      $                  call errquit('moints_semi: hlp', n_hlp,
      &       MA_ERR)
