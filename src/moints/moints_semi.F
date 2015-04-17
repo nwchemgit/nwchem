@@ -63,7 +63,7 @@ c
        integer pvlo, pvhi
        integer niofl
        integer myid, numnodes, rlo, rhi, clo, chi
-       integer itmp, vtmp(10), mxrlen
+       integer itmp, vtmp(10), mxrlen,mxrlen_in
        integer lmemreq, nvir_node
        double precision gmem, gmem_agg
        double precision iotmpptr
@@ -153,6 +153,8 @@ c
        mxrlen = min(
      $      mxrlen, 
      $      min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
+       if (rtdb_get(rtdb, 'mp2:mxrlen', mt_int, 1, mxrlen_in)) 
+     c      mxrlen=max(mxrlen_in*1024,mxrlen)
 c
        if (oprint_mem) then
           write(6,720) mxrlen, nseg, nvir, nbf, maxbfsh, numnodes
@@ -672,6 +674,7 @@ c  Checkpoint for I/O
 c
              if (ploop.eq.ionext(iiofl)) then
                t0 = util_cpusec()
+               call ga_mask_sync(.true.,.false.)
                call ga_sync()
                t1 = util_cpusec() - t0
                mi_nsynchs = mi_nsynchs + 1
@@ -690,7 +693,7 @@ c
          enddo
        enddo
        t0 = util_cpusec()
-       call ga_sync
+cedo       call ga_sync
        next = nxtask(-num_nodes, 1)
        t1 = util_cpusec() - t0
        mi_nsynchs = mi_nsynchs + 1
@@ -749,6 +752,7 @@ c
 c
       ilen = ihi - ilo + 1
       jlen = jhi - jlo + 1
+      nij = (ilen*(ilen+1))/2
       ijlen = ilen*jlen
       glo = gloc(ilo,jlo)
       ghi = gloc(ihi,jhi)
@@ -769,7 +773,6 @@ c
               enddo
             enddo
           enddo
-          nij = (ilen*(ilen+1))/2
 #ifndef NOCOMMS
           call ga_put( g_buf, ijolo, ijohi, 1, nvir, h2, nij )
 #endif
