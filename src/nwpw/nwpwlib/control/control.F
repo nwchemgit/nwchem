@@ -373,11 +373,11 @@ c       call nwxc_print()
       if (.not.btdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
      >   nose = .false.
       if (.not.btdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe))
-     >   Pe = 1000.0d0
+     >   Pe = 1200.0d0
       if (.not.btdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te))
      >   Te = 298.15d0
       if (.not.btdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr))
-     >   Pr = 1000.0d0
+     >   Pr = 1200.0d0
       if (.not.btdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
      >   Tr = 298.15d0
 
@@ -569,11 +569,11 @@ c       call nwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:nose',mt_log,1,nose))
      >   nose = .false.
       if (.not.btdb_get(rtdb,'nwpw:Pe',mt_dbl,1,Pe))
-     >   Pe = 1000.0d0
+     >   Pe = 1200.0d0
       if (.not.btdb_get(rtdb,'nwpw:Te',mt_dbl,1,Te))
      >   Te = 298.15d0
       if (.not.btdb_get(rtdb,'nwpw:Pr',mt_dbl,1,Pr))
-     >   Pr = 1000.0d0
+     >   Pr = 1200.0d0
       if (.not.btdb_get(rtdb,'nwpw:Tr',mt_dbl,1,Tr))
      >   Tr = 298.15d0
 
@@ -915,11 +915,11 @@ c       call nwxc_print()
       if (.not.btdb_get(rtdb,'cpmd:nose',mt_log,1,nose))
      >   nose = .false.
       if (.not.btdb_get(rtdb,'cpmd:Pe',mt_dbl,1,Pe))
-     >   Pe = 1000.0d0
+     >   Pe = 1200.0d0
       if (.not.btdb_get(rtdb,'cpmd:Te',mt_dbl,1,Te))
      >   Te = 298.15d0
       if (.not.btdb_get(rtdb,'cpmd:Pr',mt_dbl,1,Pr))
-     >   Pr = 1000.0d0
+     >   Pr = 1200.0d0
       if (.not.btdb_get(rtdb,'cpmd:Tr',mt_dbl,1,Tr))
      >   Tr = 298.15d0
 
@@ -4724,15 +4724,14 @@ c      end
       integer rtdb
       common / control_rtdb1 / rtdb
 
-      logical value
-      real*8  temp
+      logical ok,tmp
 
-      value = .true.
-      if (.not.btdb_get(rtdb,'cpmd:init_velocities_temperature',
-     >     mt_dbl,1,temp))
-     >   value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:init_velocities',mt_log,1,tmp))
+     >   tmp = .false.
 
-      control_init_velocities = value
+      if (tmp) ok = rtdb_delete(rtdb,'nwpw:init_velocities')
+
+      control_init_velocities = tmp
       return
       end
 
@@ -4941,13 +4940,39 @@ c      end
 
       real*8 value
 
-      if (.not.btdb_get(rtdb,'cpmd:init_velocities_temperature',
+      if (.not.btdb_get(rtdb,'nwpw:init_velocities_temperature',
      >                  mt_dbl,1,value))
      >   value = 300.0d0
 
       control_init_velocities_temperature = value
       return
       end
+
+*     **********************************************
+*     *                                            *
+*     *      control_init_velocities_seed          *
+*     *                                            *
+*     **********************************************
+      integer function control_init_velocities_seed()
+      implicit none
+         
+#include "bafdecls.fh"
+#include "btdb.fh"
+         
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+            
+      integer seed
+            
+      if (.not.btdb_get(rtdb,'nwpw:init_velocities_seed',
+     >                  mt_int,1,seed)) 
+     >   seed = 494
+            
+      control_init_velocities_seed = seed
+      return
+      end      
+
 
 
 
