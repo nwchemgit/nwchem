@@ -16,7 +16,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 60)
+      parameter (num_dirs = 61)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -75,11 +75,12 @@ c
      >            'Fei_quench',
      >            'pressure',
      >            'cutoff',
-     >            'initial_ion_temperature',
+     >            'initial_velocities',
      >            'reset_Temperature',
      >            'rotation',
      >            'translation',
      >            'dipole_motion',
+     >            'temperature',
      >            'end'/
 
        character*50 cell_name
@@ -129,7 +130,7 @@ c      call cpmd_input_default(rtdb)
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
      >       2500,2600,2700,2800,2900,3000,1150,3100,3200,
-     >       3300,3400,3500,
+     >       3300,3400,3500,3600,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind,
@@ -386,8 +387,8 @@ c Nose-Hoover
 c
  1900 nose   = .true.
       nosers = .true.
-      Pe = 100.00d0
-      Pr = 100.00d0
+      Pe = 1200.00d0
+      Pr = 1200.00d0
       Te = 298.15d0
       Tr = 298.15d0
       mchain = 1
@@ -561,15 +562,26 @@ c      if (inp_compare(.false.,zone_name,'.false.')) value=.false.
       goto 10
 
 c
-c initial_ion_temperature
+c initial_velocities temperature seed
 c  rtdb = cpmd:init_velocities_temperature
 c
  3100 if (inp_f(scaling(1))) then            !*** in units of K ***
-         if (.not.rtdb_put(rtdb,'cpmd:init_velocities_temperture',
+         if (.not.inp_i(n1)) n1 = 494
+
+         if (.not.rtdb_put(rtdb,'nwpw:init_velocities_temperature',
      >                  mt_dbl,1,scaling))
      >   call errquit('cpmd_input: initial temperature',3100,RTDB_ERR)
+
+         if (.not.rtdb_put(rtdb,'nwpw:init_velocities_seed',
+     >                  mt_int,1,n1))
+     >   call errquit('cpmd_input: initial temperature',3100,RTDB_ERR)
+
+         if (.not.rtdb_put(rtdb,'nwpw:init_velocities',
+     >                  mt_log,1,.true.))
+     >   call errquit('cpmd_input: initial velocities',3100,RTDB_ERR)
+
       else
-         value = rtdb_delete(rtdb,'cpmd:init_velocities_temperture')
+         value = rtdb_delete(rtdb,'nwpw:init_velocities')
       end if
       goto 10
 
@@ -614,6 +626,51 @@ c
       end if
       if (.not.rtdb_put(rtdb,'nwpw:dipole_motion',mt_log,1,value))
      > call errquit('cpmd_input: writing dipole_motion',3500,RTDB_ERR)
+      goto 10
+
+
+c
+c temperature Tion Pion Telc Pion Pelc start/restart nchain mchain
+c - a reordering of the parameters for nose-hoover
+c
+ 3600 nose   = .true.
+      nosers = .true.
+      Tr =  298.15d0
+      Pr = 1200.00d0
+      Te =  298.15d0
+      Pe = 1200.00d0
+      mchain = 1
+      nchain = 1
+      if (.not. inp_f(fe)) goto 3601
+      Tr = fe
+      Te = fe
+      if (.not. inp_f(fe)) goto 3601
+      Pr = fe
+      Pe = fe
+      if (.not. inp_f(fe)) goto 3601
+      Te = fe
+      if (.not. inp_f(fe)) goto 3601
+      Pe = fe
+ 3601 if (.not.inp_a(zone_name)) goto 3602
+      if (inp_compare(.false.,zone_name,'restart'))    nosers=.true.
+      if (inp_compare(.false.,zone_name,'start'))      nosers=.false.
+      if (inp_compare(.false.,zone_name,'clear'))      nosers=.false.
+      if (inp_compare(.false.,zone_name,'initialize')) nosers=.false.
+ 3602 if (.not.inp_i(nchain)) goto 3603
+      mchain = nchain
+      if (.not.inp_i(mchain)) goto 3603
+
+ 3603 value = rtdb_put(rtdb,'cpmd:nose',mt_log,1,nose)
+      value = value.and.
+     >        rtdb_put(rtdb,'cpmd:nose_restart',mt_log,1,nosers)
+      value = value.and.rtdb_put(rtdb,'cpmd:Pe',mt_dbl,1,Pe)
+      value = value.and.rtdb_put(rtdb,'cpmd:Te',mt_dbl,1,Te)
+      value = value.and.rtdb_put(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
+      value = value.and.rtdb_put(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
+      value = value.and.rtdb_put(rtdb,'cpmd:Mchain',mt_int,1,mchain)
+      value = value.and.rtdb_put(rtdb,'cpmd:Nchain',mt_int,1,nchain)
+      if (.not.value)
+     > call errquit('cpmd_input: writing ', 3600, RTDB_ERR)
       goto 10
 
 
@@ -704,8 +761,8 @@ c      omotion_filename    = 'OMOTION'
 c      ion_motion_filename = 'MOTION'
 
       nose = .false.
-      Pe = 100.00d0
-      Pr = 100.00d0
+      Pe = 1200.00d0
+      Pr = 1200.00d0
       Te = 298.15d0
       Tr = 298.15d0
 
