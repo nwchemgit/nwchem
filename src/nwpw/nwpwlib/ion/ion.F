@@ -969,6 +969,8 @@ c         eki1=0.5d0*eki1
 
 
 #include "bafdecls.fh"
+#include "stdio.fh"
+#include "util.fh"
 
 ***** ion common block ****
 #include "ion.fh"
@@ -986,27 +988,46 @@ c         eki1=0.5d0*eki1
       double precision kb
       parameter (kb=3.16679d-6)
 
-      integer i
-      real*8  vgx,vgy,vgz,T,Tf
+      logical oprint
+      integer i,seed
+      real*8  vgx,vgy,vgz,T,Tf,twopi
 
 *     **** external functions ****
-      logical  control_COM_shift,control_init_velocities
-      real*8   control_rti,ion_amass,util_random
+      logical  control_COM_shift,control_init_velocities,control_print
+      real*8   control_rti,ion_amass
       real*8   control_init_velocities_temperature
-      external control_COM_shift,control_init_velocities
-      external control_rti,ion_amass,util_random
+      integer  control_init_velocities_seed
+      external control_COM_shift,control_init_velocities,control_print
+      external control_rti,ion_amass
       external control_init_velocities_temperature
+      external control_init_velocities_seed
+
 
       !**** generate random initial velocities *****
       if (control_init_velocities()) then
          call Parallel_taskid(taskid)
          call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
-         Tf = control_init_velocities_temperature()
+         Tf   = control_init_velocities_temperature()
+         seed = control_init_velocities_seed()
+         twopi = 8.0d0*datan(1.0d0)
 
+         oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+         if (oprint) write(luout,238) Tf,seed
          if (taskid.eq.MASTER) then
-            vgx = util_random(394) !*** initialize random sequence ****
-            do i=1,3*nion
-               dbl_mb(r0(1)+i-1) = 0.1d0*(0.5d0-util_random(0))
+
+            vgx = util_random(seed) !*** initialize random sequence ****
+            do i=1,nion
+               vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
+               vgy = dcos(twopi*util_random(0))
+               dbl_mb(r0(1)+3*(i-1))   = dsqrt(vgx)*vgy
+
+               vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
+               vgy = dcos(twopi*util_random(0))
+               dbl_mb(r0(1)+3*(i-1)+1) = dsqrt(vgx)*vgy
+
+               vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
+               vgy = dcos(twopi*util_random(0))
+               dbl_mb(r0(1)+3*(i-1)+2) = dsqrt(vgx)*vgy
             end do
             call center_v_mass(vgx,vgy,vgz)
             do i=1,nion
@@ -1032,6 +1053,8 @@ c         eki1=0.5d0*eki1
          call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r0(1)))
 
       end if
+  238 format(/1x,"Initializing ion velocities: Temperature = ",F8.2,
+     >       "K, seed = ",I8)
 
 
 *     **** remove ion velocities using ion_FixIon ****
