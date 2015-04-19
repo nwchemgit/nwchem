@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 110)
+      parameter (num_dirs = 112)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -126,6 +126,8 @@ c
      >            'md_xs',
      >            'dipole_motion',
      >            'energy',
+     >            'initial_velocities',
+     >            'temperature',
      >            'end'/
 
       double precision kb
@@ -193,7 +195,7 @@ c
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
-     >       7700,7800,7900,8000,8100,6650,
+     >       7700,7800,7900,8000,8100,6650,8200,8300,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1792,6 +1794,83 @@ c
      > call errquit('nwpw_input: writing dipole',8100,RTDB_ERR)
 
       goto 10
+c
+c initial_velocities temperature seed
+c
+ 8200 if (inp_f(scaling(1))) then            !*** in units of K ***
+         if (.not.inp_i(ispin)) ispin = 494
+
+         if (.not.rtdb_put(rtdb,'nwpw:init_velocities_temperature',
+     >                     mt_dbl,1,scaling))
+     >   call errquit('cpmd_input: initial temperature',8200,RTDB_ERR)
+
+         if (.not.rtdb_put(rtdb,'nwpw:init_velocities_seed',
+     >                     mt_int,1,ispin))
+     >   call errquit('cpmd_input: initial temperature',8200,RTDB_ERR)
+
+         if (.not.rtdb_put(rtdb,'nwpw:init_velocities',
+     >                  mt_log,1,.true.))
+     >   call errquit('cpmd_input: initial velocities',8200,RTDB_ERR)
+
+      else
+         value = rtdb_delete(rtdb,'nwpw:init_velocities')
+      end if
+      goto 10
+
+c
+c temperature Tion Pion Telc Pion Pelc start/restart nchain mchain
+c - a reordering of the parameters for nose-hoover
+c
+ 8300 nose   = .true.
+      nosers = .true.
+      Tr = 298.15d0
+      Pr = 1200.00d0
+      Te = 298.15d0
+      Pe = 1200.00d0
+      mchain = 1
+      nchain = 1
+      if (.not. inp_f(fe)) goto 8301
+      Tr = fe
+      Te = fe
+      if (.not. inp_f(fe)) goto 8301
+      Pr = fe
+      Pe = fe
+      if (.not. inp_f(fe)) goto 8301
+      Te = fe
+      if (.not. inp_f(fe)) goto 8301
+      Pe = fe
+ 8301 if (.not.inp_a(zone_name)) goto 8302
+      if (inp_compare(.false.,zone_name,'restart'))    nosers=.true.
+      if (inp_compare(.false.,zone_name,'start'))      nosers=.false.
+      if (inp_compare(.false.,zone_name,'clear'))      nosers=.false.
+      if (inp_compare(.false.,zone_name,'initialize')) nosers=.false.
+ 8302 if (.not.inp_i(nchain)) goto 8303
+      mchain = nchain
+      if (.not.inp_i(mchain)) goto 8303
+
+ 8303 value = rtdb_put(rtdb,'cpmd:nose',mt_log,1,nose)
+     >   .and.rtdb_put(rtdb,'nwpw:nose',mt_log,1,nose)
+      value = value.and.
+     >        rtdb_put(rtdb,'cpmd:nose_restart',mt_log,1,nosers)
+     >   .and.rtdb_put(rtdb,'nwpw:nose_restart',mt_log,1,nosers)
+      value = value.and.rtdb_put(rtdb,'cpmd:Pe',mt_dbl,1,Pe)
+      value = value.and.rtdb_put(rtdb,'nwpw:Pe',mt_dbl,1,Pe)
+      value = value.and.rtdb_put(rtdb,'cpmd:Te',mt_dbl,1,Te)
+      value = value.and.rtdb_put(rtdb,'nwpw:Te',mt_dbl,1,Te)
+      value = value.and.rtdb_put(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
+      value = value.and.rtdb_put(rtdb,'nwpw:Pr',mt_dbl,1,Pr)
+      value = value.and.rtdb_put(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
+      value = value.and.rtdb_put(rtdb,'nwpw:Tr',mt_dbl,1,Tr)
+      value = value.and.rtdb_put(rtdb,'cpmd:Mchain',mt_int,1,mchain)
+      value = value.and.rtdb_put(rtdb,'nwpw:Mchain',mt_int,1,mchain)
+      value = value.and.rtdb_put(rtdb,'cpmd:Nchain',mt_int,1,nchain)
+      value = value.and.rtdb_put(rtdb,'nwpw:Nchain',mt_int,1,nchain)
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 8300, RTDB_ERR)
+      goto 10
+
+
+
 
 
 ************************************************************************
