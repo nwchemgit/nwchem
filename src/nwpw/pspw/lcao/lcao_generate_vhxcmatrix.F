@@ -16,9 +16,10 @@
 #include "bafdecls.fh"
 #include "global.fh"
 #include "nwxc.fh"
+#include "util.fh"
 
 *     **** local variables ****
-      logical value
+      logical value, use_lda
       integer ms,i,j,nbasis,npack1,nfft3d,gga
       integer nx,ny,nz
       real*8  sum,scal1,scal2,dv,exc2,pxc2
@@ -79,8 +80,13 @@ c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
 
 
       gga = control_gga()
-      if ((.not.nwxc_is_on().and.gga.eq.0).or.
-     &    (nwxc_is_on().and.nwxc_is_lda())) then
+      if (util_module_avail("nwxc")) then
+        use_lda = (.not.nwxc_is_on().and.gga.eq.0).or.
+     &            (nwxc_is_on().and.nwxc_is_lda())
+      else
+        use_lda = gga.eq.0
+      endif
+      if (use_lda) then
         call vxc(n2ft3d,ispin,dbl_mb(dnall(1)),
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(tmp1(1)),

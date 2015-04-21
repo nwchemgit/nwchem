@@ -21,12 +21,16 @@
 #include "errquit.fh"
 #include "nwpw_meta_gga.fh"
 #include "nwxc.fh"
+#include "util.fh"
 
 *     **** local variables ****
       logical ok
       integer n2ft3d
 
-      meta_on = nwxc_is_mgga()
+      meta_on = .false.
+      if (util_module_avail("nwxc")) then
+        meta_on = nwxc_is_mgga()
+      endif
 
       if (meta_on) then
          call D3dB_n2ft3d(1,n2ft3d)

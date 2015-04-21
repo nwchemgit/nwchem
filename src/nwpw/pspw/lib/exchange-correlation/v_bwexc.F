@@ -25,10 +25,11 @@
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwxc.fh"
+#include "util.fh"
 
 
 c     **** local variables ****      
-      logical value
+      logical value, use_nwxc
       integer nx,ny,nz
       real*8  scal1
       integer rho(2),grx(2),gry(2),grz(2)
@@ -128,7 +129,11 @@ c     >                      dbl_mb(agr(1)),
 c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-         if (nwxc_is_on()) then
+         use_nwxc = .false.
+         if (util_module_avail("nwxc")) then
+           use_nwxc = nwxc_is_on()
+         endif
+         if (use_nwxc) then
            call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
@@ -477,7 +482,7 @@ c     >                       dbl_mb(agr(3)))
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(3)))
 
  
-         if (nwxc_is_on()) then
+         if (use_nwxc) then
 c
 c          Copy |grad nup|->grad(1), |grad n|->grad(2), and |grad ndn|->grad(3)
 c

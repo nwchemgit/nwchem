@@ -6,6 +6,7 @@
       implicit double precision(a-h, o-z)
       implicit integer (i-n)
 #include "nwxc.fh"
+#include "util.fh"
 
       integer n2ft3d
       integer ispin
@@ -50,13 +51,18 @@
 
 *     square root of wigner radius
       do 100 k=1,n2ft3d
-        if (nwxc_is_on()) then
-          if (ispin.eq.1) then
-            rho=dn(k,1)+dn(k,ispin)+dncut
-            x(k)        = rho
+        if (util_module_avail("nwxc")) then
+          if (nwxc_is_on()) then
+            if (ispin.eq.1) then
+              rho=dn(k,1)+dn(k,ispin)+dncut
+              x(k)        = rho
+            else
+              x(k)        = dn(k,1) + 0.5d0*dncut
+              x(n2ft3d+k) = dn(k,2) + 0.5d0*dncut
+            endif
           else
-            x(k)        = dn(k,1) + 0.5d0*dncut
-            x(n2ft3d+k) = dn(k,2) + 0.5d0*dncut
+            rho=dn(k,1)+dn(k,ispin)+dncut
+            x(k)=crs/rho**one6th
           endif
         else
           rho=dn(k,1)+dn(k,ispin)+dncut
@@ -64,19 +70,21 @@
         endif
   100 continue
 
-      if (nwxc_is_on()) then
-        call nwxc_eval_df(ispin,n2ft3d,x,dumgam,dumtau,xce,xcp,
-     &                    dumgam,dumtau)
-        if (ispin.eq.1) then
-          do k = 1, n2ft3d
-            xce(k,1) = xce(k,1)/x(k)
-          enddo
-        else
-          do k = 1, n2ft3d
-            xce(k,1) = xce(k,1)/(x(k)+x(n2ft3d+k))
-          enddo
+      if (util_module_avail("nwxc")) then
+        if (nwxc_is_on()) then
+          call nwxc_eval_df(ispin,n2ft3d,x,dumgam,dumtau,xce,xcp,
+     &                      dumgam,dumtau)
+          if (ispin.eq.1) then
+            do k = 1, n2ft3d
+              xce(k,1) = xce(k,1)/x(k)
+            enddo
+          else
+            do k = 1, n2ft3d
+              xce(k,1) = xce(k,1)/(x(k)+x(n2ft3d+k))
+            enddo
+          endif
+          return
         endif
-        return
       endif
 *     paramagnetic correlation energy & potential
       do 110 k=1,n2ft3d

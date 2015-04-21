@@ -12,6 +12,7 @@ c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "nwxc.fh"
+#include "util.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
@@ -676,7 +677,9 @@ c       call inp_prev_field()
         goto 10
       endif
 
-      value = nwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
+      if (util_module_avail("nwxc")) then
+        value = nwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
+      endif
 
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))

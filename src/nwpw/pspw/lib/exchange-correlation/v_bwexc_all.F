@@ -20,12 +20,24 @@
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwxc.fh"
+#include "util.fh"
 
       integer tmp1(2)
+      logical use_lda, use_gga, use_mgga
       
 *     **** lda's ****
-      if ((.not.nwxc_is_on().and.gga.eq.0).or.
-     +    (nwxc_is_on().and.nwxc_is_lda())) then
+      if (util_module_avail("nwxc")) then
+         use_lda  = (.not.nwxc_is_on().and.gga.eq.0).or.
+     +              (nwxc_is_on().and.nwxc_is_lda())
+         use_gga  = (.not.nwxc_is_on().and.(gga.ge.10).and.(gga.lt.100))
+     +              .or.(nwxc_is_on().and.nwxc_is_gga())
+         use_mgga = nwxc_is_mgga()
+      else
+         use_lda  = gga.eq.0
+         use_gga  = (gga.ge.10).and.(gga.lt.100)
+         use_mgga = .false.
+      endif
+      if (use_lda) then
          if (.not.BA_push_get(mt_dbl,(ispin*n2ft3d),'tmp1',
      >                        tmp1(2),tmp1(1)))
      >      call errquit('v_bwexc_all: out of stack memory',0,MA_ERR)
@@ -38,12 +50,11 @@
 
 
 *     **** gga's ****
-      else if ((.not.nwxc_is_on().and.(gga.ge.10).and.(gga.lt.100)).or.
-     +         (nwxc_is_on().and.nwxc_is_gga())) then
+      else if (use_gga) then
          call v_bwexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
       
 *     **** meta-gga's ****
-      else if (nwxc_is_mgga()) then
+      else if (use_mgga) then
          call v_mexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
 
 *     **** hybrid gga's ****
@@ -82,16 +93,27 @@
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "nwxc.fh"
+#include "util.fh"
+
+      logical use_lda, use_gga
+
+      if (util_module_avail("nwxc")) then
+        use_lda = (.not.nwxc_is_on().and.gga.eq.0).or.
+     +            (nwxc_is_on().and.nwxc_is_lda())
+        use_gga = (.not.nwxc_is_on().and.(gga.ge.10).and.(gga.lt.100))
+     +            .or.(nwxc_is_on().and.nwxc_is_gga())
+      else
+        use_lda = gga.eq.0
+        use_gga = (gga.ge.10).and.(gga.lt.100)
+      endif
 
 *     **** lda's ****
-      if ((.not.nwxc_is_on().and.gga.eq.0).or.
-     +    (nwxc_is_on().and.nwxc_is_lda())) then
+      if (use_lda) then
 
          call vxc(n2ft3d,ispin,dn,xcp,xce,tmp1)
 
 *     **** gga's ****
-      else if ((.not.nwxc_is_on().and.(gga.ge.10).and.(gga.lt.100)).or.
-     +         (nwxc_is_on().and.nwxc_is_gga())) then
+      else if (use_gga) then
 
          call v_bwexc(gga,n2ft3d,ispin,dn,1.0d0,1.0d0,xcp,xce)
       
@@ -122,15 +144,18 @@
 
 #include "errquit.fh"
 #include "nwxc.fh"
+#include "util.fh"
 
       logical  control_has_disp
       external control_has_disp
       character*80 control_options_disp
       external     control_options_disp
 
-      if (nwxc_is_on()) then
-         call nwxc_print_nwpw()
-         return
+      if (util_module_avail("nwxc")) then
+         if (nwxc_is_on()) then
+            call nwxc_print_nwpw()
+            return
+         endif
       endif
       IF (gga.eq.-1) THEN
          write(luout,1131) 'off'

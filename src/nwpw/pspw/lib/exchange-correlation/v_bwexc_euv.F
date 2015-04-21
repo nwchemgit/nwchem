@@ -25,10 +25,11 @@
 
 #include "bafdecls.fh"
 #include "nwxc.fh"
+#include "util.fh"
 
 
 c     **** local variables ****      
-      logical value
+      logical value, use_nwxc
       integer nx,ny,nz,u,v,s
       real*8  scal1,pi,scal,sum
       integer rho(2),grx(2),gry(2),grz(2)
@@ -138,7 +139,11 @@ c     >                      dbl_mb(agr(1)),
 c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-         if (nwxc_is_on()) then
+         use_nwxc = .false.
+         if (util_module_avail("nwxc")) then
+           use_nwxc = nwxc_is_on()
+         endif
+         if (use_nwxc) then
 c
 c          Evaluate the functional
 c
@@ -511,7 +516,7 @@ c     >                      dbl_mb(agr(3)))
 c         call D3dB_rr_Sqrt(1,dbl_mb(agr(3)),
 c     >                       dbl_mb(agr(3)))
          call D3dB_rr_Sqrt1(1,dbl_mb(agr(3)))
-         if (nwxc_is_on()) then
+         if (use_nwxc) then
 c
 c          Copy |grad nup|->grad(1), |grad n|->grad(2), and |grad ndn|->grad(3)
 c
@@ -616,7 +621,7 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          else 
           call errquit('bad gga',0,0)
          end if
-         end if ! nwxc_is_on
+         end if ! use_nwxc
 
          
 *        **** calculate df/d|grad nup|* (grad nup)/|grad nup|  ****
