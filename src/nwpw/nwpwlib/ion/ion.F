@@ -1003,32 +1003,47 @@ c         eki1=0.5d0*eki1
       external control_init_velocities_seed
 
 
-      !**** generate random initial velocities *****
+      !**** generate random initial velocities - only set with random velocities if seed > 0 ***
       if (control_init_velocities()) then
          call Parallel_taskid(taskid)
-         call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
          Tf   = control_init_velocities_temperature()
          seed = control_init_velocities_seed()
          twopi = 8.0d0*datan(1.0d0)
 
+
          oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
-         if (oprint) write(luout,238) Tf,seed
+         if (oprint) then
+            if (seed.gt.0) then
+               write(luout,238) Tf,seed
+            else
+               write(luout,239) Tf,seed
+            end if
+         end if
+
+         !*** only reset velocities if seed > 0 ***
+         if (seed.gt.0) call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
+
          if (taskid.eq.MASTER) then
+           
+            !*** only reset velocities if seed > 0 ***
+            if (seed.gt.0) then
+               vgx = util_random(seed) !*** initialize random sequence ****
+               do i=1,nion
+                  vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
+                  vgy = dcos(twopi*util_random(0))
+                  dbl_mb(r0(1)+3*(i-1))   = dsqrt(vgx)*vgy
 
-            vgx = util_random(seed) !*** initialize random sequence ****
-            do i=1,nion
-               vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
-               vgy = dcos(twopi*util_random(0))
-               dbl_mb(r0(1)+3*(i-1))   = dsqrt(vgx)*vgy
+                  vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
+                  vgy = dcos(twopi*util_random(0))
+                  dbl_mb(r0(1)+3*(i-1)+1) = dsqrt(vgx)*vgy
 
-               vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
-               vgy = dcos(twopi*util_random(0))
-               dbl_mb(r0(1)+3*(i-1)+1) = dsqrt(vgx)*vgy
+                  vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
+                  vgy = dcos(twopi*util_random(0))
+                  dbl_mb(r0(1)+3*(i-1)+2) = dsqrt(vgx)*vgy
+               end do
+            end if
 
-               vgx = -(2.0d0*kb*Tf/ion_amass(i))*dlog(util_random(0))
-               vgy = dcos(twopi*util_random(0))
-               dbl_mb(r0(1)+3*(i-1)+2) = dsqrt(vgx)*vgy
-            end do
+            !*** rescale the velocities ***
             call center_v_mass(vgx,vgy,vgz)
             do i=1,nion
                dbl_mb(r0(1)+(i-1)*3+0) = dbl_mb(r0(1)+(i-1)*3+0)-vgx
@@ -1054,6 +1069,8 @@ c         eki1=0.5d0*eki1
 
       end if
   238 format(/1x,"Initializing ion velocities: Temperature = ",F8.2,
+     >       "K, seed = ",I8)
+  239 format(/1x,"Rescaling ion velocities: Temperature = ",F8.2,
      >       "K, seed = ",I8)
 
 
