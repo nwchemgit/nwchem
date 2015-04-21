@@ -137,10 +137,10 @@ c      value = value.and.BA_free_heap(Vt(2))
       integer i,npack1,V(2),ispin,neq(2)
 
 *     **** external functions ****
-      logical  Dneall_m_allocate,Dneall_m_free,psp_pawexist
+      logical  Dneall_m_push_get,Dneall_m_pop_stack,psp_pawexist
       integer  psi_ispin,psi_ne,psi_neq
       real*8   electron_eorbit_noocc
-      external Dneall_m_allocate,Dneall_m_free,psp_pawexist
+      external Dneall_m_push_get,Dneall_m_pop_stack,psp_pawexist
       external psi_ispin,psi_ne,psi_neq
       external electron_eorbit_noocc
 
@@ -148,7 +148,7 @@ c      value = value.and.BA_free_heap(Vt(2))
       call Pack_npack(1,npack1)
 
 *     **** allocate tmp space ****
-      if (.not.Dneall_m_allocate(0,V))
+      if (.not.Dneall_m_push_get(0,V))
      >   call errquit('geodesic_start:out of stack memory',0,MA_ERR)
       
 *     **** HomeGrown SVD ****
@@ -183,7 +183,7 @@ c      value = value.and.BA_free_heap(Vt(2))
       dE = 2.0d0*electron_eorbit_noocc(A)
 
 *     **** deallocate tmp space ****   
-      if (.not.Dneall_m_free(V))  
+      if (.not.Dneall_m_pop_stack(V))  
      >   call errquit('geodesic_start:error popping stack',0,MA_ERR)
 
       call nwpw_timing_end(10)
