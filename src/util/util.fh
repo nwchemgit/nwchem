@@ -10,6 +10,7 @@ C$Id$
       integer util_time_remaining
       logical util_test_time_remaining
       logical util_nwchemrc_get
+      logical util_module_avail
       external util_print
       external ddot
       external util_cpusec
@@ -19,6 +20,7 @@ C$Id$
       external util_time_remaining
       external util_test_time_remaining
       external util_nwchemrc_get
+      external util_module_avail
 c
       logical util_xyz_seek
       external util_xyz_seek
