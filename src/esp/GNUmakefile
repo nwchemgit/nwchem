@@ -7,6 +7,8 @@
                  esp_denmat.o\
                  esp_elemom.o\
                  esp_esp.o\
+                 esp_fastesp.o\
+                 esp_getden.o\
                  esp_fit.o\
 		 esp_getg.o\
                  esp_getx.o\

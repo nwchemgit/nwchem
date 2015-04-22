@@ -29,13 +29,14 @@ c
       integer ncon,icon(2500),irest,niter,maxit,ihfree,ngto,ngfr,idump
       integer lfngrd,nf,mbf,lscrn,newgrd,denmat,lfner,lfnplt,lfnxyz,
      + lfnchg
+      logical fastesp
       real*8 factor,probe,scrtol,qh
       common/esp_atm/rcut,spac,xmin,xmax,charge,chgnuc,chgele,radius,
      + rcon,resa,resb,resc,resd,toler,dipmom,rms,quamom,factor,probe,
      + scrtol,qh,
      + natoms,nbf,mgrid,mxgrid,ngrid,nset,nmo,nocc,nconst,ndim,
      + ncon,icon,irest,niter,maxit,ihfree,ngto,ngfr,idump,lfngrd,nf,mbf,
-     + lscrn,newgrd,denmat,lfner,lfnplt,lfnxyz,lfnchg
+     + lscrn,newgrd,denmat,lfner,lfnplt,lfnxyz,lfnchg,fastesp
 c
 c     esp_chr : character variables
 c
