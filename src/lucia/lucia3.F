@@ -3179,7 +3179,7 @@ C         END IF
                DO L = 1, NL
                  JB = KBJB(KB,L)
                  IF(NTEST.GE.100) 
-     &           WRITE(6,*) ' KB,K,L,IB,JB',KB,K,L,IB,JB
+     &           WRITE(6,'(a,5I4)') ' KB,K,L,IB,JB',KB,K,L,IB,JB
                  IF(JB.NE.0) THEN
                    SGNL = XKBJB(KB,L)
                    FACTOR = SGNK*SGNL

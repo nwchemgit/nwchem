@@ -1950,6 +1950,7 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
+      IPRNT=2 !VOG
       MXACJ = 0
       MXACIJ = 0
       MXAADST = 0
@@ -13207,7 +13208,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 1000 !VOG
+      NTEST = 1000 !000 VOG
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
@@ -13418,6 +13419,7 @@ C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
           CALL WRTVCD(dbl_mb(CB),LUHC,1,-1)
         ELSE 
           call ga_print(HCB)
+          call ga_print(CB) !VOG
 CNW       CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
         END IF
       END IF
@@ -15245,7 +15247,7 @@ CNW   DIMENSION SV(*),CV(*)
       CHARACTER*6 ITASK
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 000
+      NTEST = 1000 !VOG 000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -15417,7 +15419,6 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
 *
 COLD  INTEGER CITYP
 *.Largest allowed number of allowed irreps for orbs
- 
       INCLUDE 'lucinp.inc'
       INCLUDE 'cstate.inc' 
       INCLUDE 'crun.inc'
@@ -21130,7 +21131,7 @@ c      END IF
 * 163: Largest number of macroiterations
 *
       IF(ISETKW(163).EQ.0) THEN
-        MAXITM = 3
+        MAXITM = 20
         ISETKW(163) = 2
       END IF
 *

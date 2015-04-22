@@ -3558,54 +3558,54 @@ C?        WRITE(6,*) ' Number of elements readin ',IDET
           END IF
           DO  IA = MINIA,IABAS+NIA-1
 *
-            IF(ILOOP .EQ. 1 ) NCIVAR = NCIVAR + 1
-            IDET = IDET + 1
-            ITDET = ITDET + 1
-            call ga_get(C,IDET,IDET,1,1,XVAL,1)
-CNW         IF( XMAX .GE. ABS(C(IDET)) .AND.
-CNW  &      ABS(C(IDET)).GT. XMIN ) THEN
-            IF( XMAX .GE. ABS(XVAL) .AND.
-     &      ABS(XVAL).GT. XMIN ) THEN
-              ITRM = ITRM + 1
-              IIDET = IIDET + 1
-              IF( ITRM .LE. MAXTRM ) THEN
-CNW             CNORM = CNORM + C(IDET) ** 2
-                CNORM = CNORM + XVAL ** 2
-                WRITE(6,'(A)')
-                WRITE(6,'(A)')
-     &          '                 =================== '
-                WRITE(6,*)
-*
-C                WRITE(6,'(A,I8,A,E14.8)')
-C    &          '  Coefficient of combination ',IDET,' is ',
-                WRITE(6,'(A,I8,A,E14.8)')
-     &          '  Coefficient of combination ',ITDET,' is ',
-     &          XVAL   
-CNW  &          C(IDET)
-                WRITE(6,'(A)')
-     &          '  Corresponding alpha - and beta string '
-                IF(IUSLAB.EQ.0) THEN
-                  IF(NINOB.EQ.0) THEN
-                    WRITE(6,'(4X,10I4)')
-     &              (IASTR(IEL,IA),IEL = 1, NAEL )
-                    WRITE(6,'(4X,10I4)')
-     &              (IBSTR(IEL,IB),IEL = 1, NBEL )
-                  ELSE
-                    WRITE(6,'(4X,A,10I4,(/,
-     &                        16X,10I4))') ' (Inactive) ',
-     &              (IASTR(IEL,IA),IEL = 1, NAEL )
-                    WRITE(6,'(4X,A,10I4,(/,
-     &                        16X,10I4))') ' (Inactive) ',
-     &              (IBSTR(IEL,IB),IEL = 1, NBEL )
-                  END IF
-                ELSE 
-                  WRITE(6,'(4X,10(1X,A6))')
-     &            (IOBLAB(IASTR(IEL,IA)),IEL = 1, NAEL )
-                  WRITE(6,'(4X,10(1X,A6))')
-     &            (IOBLAB(IBSTR(IEL,IB)),IEL = 1, NBEL )
-                END IF
-              END IF
-            END IF
+!            IF(ILOOP .EQ. 1 ) NCIVAR = NCIVAR + 1
+!            IDET = IDET + 1
+!            ITDET = ITDET + 1
+!            call ga_get(C,IDET,IDET,1,1,XVAL,1)
+!CNW         IF( XMAX .GE. ABS(C(IDET)) .AND.
+!CNW  &      ABS(C(IDET)).GT. XMIN ) THEN
+!            IF( XMAX .GE. ABS(XVAL) .AND.
+!     &      ABS(XVAL).GT. XMIN ) THEN
+!              ITRM = ITRM + 1
+!              IIDET = IIDET + 1
+!              IF( ITRM .LE. MAXTRM ) THEN
+!CNW             CNORM = CNORM + C(IDET) ** 2
+!                CNORM = CNORM + XVAL ** 2
+!                WRITE(6,'(A)')
+!                WRITE(6,'(A)')
+!     &          '                 =================== '
+!                WRITE(6,*)
+!*
+!C                WRITE(6,'(A,I8,A,E14.8)')
+!C    &          '  Coefficient of combination ',IDET,' is ',
+!                WRITE(6,'(A,I8,A,E14.8)')
+!     &          '  Coefficient of combination ',ITDET,' is ',
+!     &          XVAL   
+!CNW  &          C(IDET)
+!                WRITE(6,'(A)')
+!     &          '  Corresponding alpha - and beta string '
+!                IF(IUSLAB.EQ.0) THEN
+!                  IF(NINOB.EQ.0) THEN
+!                    WRITE(6,'(4X,10I4)')
+!     &              (IASTR(IEL,IA),IEL = 1, NAEL )
+!                    WRITE(6,'(4X,10I4)')
+!     &              (IBSTR(IEL,IB),IEL = 1, NBEL )
+!                  ELSE
+!                    WRITE(6,'(4X,A,10I4,(/,
+!     &                        16X,10I4))') ' (Inactive) ',
+!     &              (IASTR(IEL,IA),IEL = 1, NAEL )
+!                    WRITE(6,'(4X,A,10I4,(/,
+!     &                        16X,10I4))') ' (Inactive) ',
+!     &              (IBSTR(IEL,IB),IEL = 1, NBEL )
+!                  END IF
+!                ELSE 
+!                  WRITE(6,'(4X,10(1X,A6))')
+!     &            (IOBLAB(IASTR(IEL,IA)),IEL = 1, NAEL )
+!                  WRITE(6,'(4X,10(1X,A6))')
+!     &            (IOBLAB(IBSTR(IEL,IB)),IEL = 1, NBEL )
+!                END IF
+!              END IF
+!            END IF
           END DO
 *         ^ End of loop over alpha strings
         END DO
@@ -3671,6 +3671,7 @@ CNW  &          C(IDET)
           END IF
           DO IA = MINIA,IABAS+NIA-1
             IDET = IDET + 1
+            call ga_print(C)
             call ga_get(C,IDET,IDET,1,1,XVAL,1)
             DO IPOT = 1, 10
 CNW           IF(10.0D0 ** (-IPOT+1).GE.ABS(C(IDET)).AND.

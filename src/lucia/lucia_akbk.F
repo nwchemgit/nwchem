@@ -31,6 +31,7 @@
 *
       LOGICAL CONV_F, CONV_LOCAL
       EXTERNAL AKBKSIGMA, AKBKSIGMA2
+      real(8) KATI(4) !VOG
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'AKBKCT')
@@ -137,8 +138,9 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
 *
 * Info on batches
 *
-      LBLOCK  = NSD_FOR_OCCLS_MAX
-      IF (NOCSF.EQ.1) CALL IAIBCM(1,LBLOCK)
+      LBLOCK  = MXSOOB 
+!      LBLOCK  = NSD_FOR_OCCLS_MAX
+!      IF (NOCSF.EQ.1) CALL IAIBCM(1,LBLOCK)
       write(*,*) 'LBLOCK', LBLOCK
       ICOMP = 0
 * Start be letting P be C-space and Q be S-space
@@ -175,9 +177,9 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       NBLOCK_Q = NSBLOCK
       NBATCH_Q = NSBATCH
       NSBLK = NSBLOCK
-      WRITE(6,*)  
+      WRITE(6,'(a,2I9)')  
      & ' Number of blocks and batches in P  ',NBLOCK_P, NBATCH_P
-      WRITE(6,*)  
+      WRITE(6,'(a,2I9)')  
      & ' Number of blocks and batches in PQ ',NBLOCK_Q, NBATCH_Q
 *
       IF (NOCSF.EQ.1) THEN
@@ -204,14 +206,14 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
 *
 * Allocate KVEC3
 *
-       IF ( .not. ga_create( mt_dbl, NSDQ, 1, 'VEC3', 0, 0, KVEC3) )
-     $    CALL ERRQUIT('AKBK: ga_create VEC3 failed', NSDQ, GA_ERR)
-       CALL ga_zero(KVEC3)
+*       IF ( .not. ga_create( mt_dbl, NSDQ, 1, 'VEC3', 0, 0, KVEC3) )
+*     $    CALL ERRQUIT('AKBK: ga_create VEC3 failed', NSDQ, GA_ERR)
+*       CALL ga_zero(KVEC3)
 *
 *LOCAL
-!      CALL MEMMAN(KVEC1P, NSDP,'ADDS  ',2,'VEC1P ')
-!      CALL MEMMAN(KVEC2P, NSDP,'ADDS  ',2,'VEC2P ')
-!      CALL MEMMAN(KC2,    NSDQ,'ADDS  ',2,'VEC3  ') ! Not sure
+*      CALL MEMMAN(KVEC1P, NSDP,'ADDS  ',2,'VEC1P ')
+*      CALL MEMMAN(KVEC2P, NSDP,'ADDS  ',2,'VEC2P ')
+      CALL MEMMAN(KC2,    NSDQ,'ADDS  ',2,'VEC3  ')
 *
 * Analyze P-space expansion (Do I need it?)
 *
@@ -237,11 +239,11 @@ cVOG   CALL GASANA(dbl_mb(KVEC1P),NBLOCK,NSDP,NSDP,LUC,ICISTR)
         WRITE(6,'(a)')     ' ================================= '
         WRITE(6,'(a)')     '  Dimensions for AKBK Calculation  '
         WRITE(6,'(a)')     ' ================================= '
-        WRITE(6,'(a,i12)') ' Number of CI Spaces   ', NCMBSPC
-        WRITE(6,'(a,i12)') ' Dimension of P space  ', NSDP
-        WRITE(6,'(a,i12)') ' Dimension of Q space  ', NSDQ
-        WRITE(6,'(a,i12)') ' Dimension of PQ space ', NSDPQ
-        WRITE(6,'(a,i12)') ' Max CI Vector         ', MAXCIV
+        WRITE(6,'(a,i12)') ' Number of CI Spaces    ', NCMBSPC
+        WRITE(6,'(a,i12)') ' Dimension of P space   ', NSDP
+        WRITE(6,'(a,i12)') ' Dimension of Q space   ', NSDQ
+        WRITE(6,'(a,i12)') ' Dimension of PQ space  ', NSDPQ
+        WRITE(6,'(a,i12)') ' Max Num of Occ. Classes', NOCCLS_MAX
         WRITE(6,'(a)')     ' Print initial vector:'
         CALL ga_print(KCOMVEC1)
         WRITE(6,'(a)')     ' ================================= '
@@ -399,6 +401,20 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
        write(*,*) 'int_mb(ISPC)', int_mb(ISPC)
        write(*,*) 'KCOMVEC1', KCOMVEC1
        write(*,*) 'KCOMVEC2', KCOMVEC2
+** VOG: Force CI-vector of Original Lucia (MOLCAS) as starting vector
+*        KATI(1) = -0.44231
+*        KATI(2) =  0.89488
+*        KATI(3) =  0.00000
+*        KATI(4) = -0.05952
+*        WRITE(*,*) (KATI(I), I = 1, 4)
+*        WRITE(*,*) KATI
+*        CALL ga_put(KCOMVEC1,1,4,1,1,KATI,1)
+*         if (dra_write_section(.false.,KCOMVEC1,1,4,1,1,
+*     &                         LUC,1,4,1,1,itask).ne.0)
+*     &        call errquit('dra error',itask,911)
+*         if(dra_wait(itask).ne.0) call errquit('dra writ err',itask,911)
+*       CALL ga_zero(KCOMVEC1)
+** VOG: Force CI-vector of Original Lucia (MOLCAS) as starting vector(end)
        CALL CIEIG5(AKBKSIGMA,INICI,EROOT,KCOMVEC1,KCOMVEC2,
      & MINST,LUDIA,LUC,LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LU8,
      & NVAR,NBLK,NROOT,MXCIV,MAXIT,LUCIVI,IPRDIA,dbl_mb(KSBEVC),
@@ -593,6 +609,7 @@ C?    END IF
       INCLUDE 'crun.inc'
 *
       integer CB,HCB, alo(2),ahi(2),blo(2),bhi(2)
+      real(8) KATI(4)
 *
       LBLK = -1
 *
@@ -606,12 +623,24 @@ C?    END IF
         WRITE(6,*)
       END IF 
       IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' LUC, LUHC  = ', LUC, LUHC
-        WRITE(6,*) ' NSDP, NSDQ = ', NSDP,NSDQ
+        WRITE(6,*) ' LUC,  LUHC = ', LUC, LUHC
+        WRITE(6,*) ' NSDP, NSDQ = ', NSDP, NSDQ
       END IF
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' Input vector to AKBKSIGMA '
         CALL ga_print(CB)
+!        KATI = 0.0d0
+!        KATI(1) = -0.44231
+!        KATI(2) =  0.89488
+!        KATI(3) = -0.05952
+!        KATI(4) =  0.00000
+!        WRITE(*,*) (KATI(I), I = 1, 4)
+!        WRITE(*,*) KATI
+!        CALL ga_put(CB,1,4,1,1,KATI,1)
+!         if (dra_write_section(.false.,CB,1,4,1,1,
+!     &                         LUDIA,1,4,1,1,itask).ne.0)
+!     &        call errquit('dra error',itask,911)
+!        CALL ga_print(CB)
 cVOG    CALL WRTVCD(CB,LUC,1,LBLK)
       END IF
 *
@@ -655,26 +684,27 @@ cVOG   CALL WRTVCD(CB,LU_Q2,1,LBLK)
 *. Well really, we wanted HQP CP only in Q space, remove P space terms, to LU_Q1
 *
 *. Array giving dimensions of occlass for given sym
-      CALL MEMMAN(KLLOCCLS_SM,NOCCLS_MAX,'ADDL  ',1,'OC_LSM')
-      IF(NTEST.GE.1000) WRITE(6,*) ' ISSM, NIRREP = ', ISSM, NIRREP
-C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
-      CALL EXTRROW(int_mb(KNCS_FOR_OCCLS),ISSM,NIRREP,NOCCLS_MAX,
-     &             int_mb(KLLOCCLS_SM))
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Number of CSF of right sym per occls'
-        CALL IWRTMA(int_mb(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
-        write(*,*) 'NOCCLS_P, int_mb(KLOCCLS_P)',
-     &              NOCCLS_P, int_mb(KLOCCLS_P)
-        write(*,*) 'NOCCLS_Q, int_mb(KLOCCLS_Q)',
-     &              NOCCLS_Q, int_mb(KLOCCLS_Q)
-      END IF
-*
-! Be careful, it's working as SplitCAS at the moment      
+*      CALL MEMMAN(KLLOCCLS_SM,NOCCLS_MAX,'ADDL  ',1,'OC_LSM')
+*      IF(NTEST.GE.1000) WRITE(6,*) ' ISSM, NIRREP = ', ISSM, NIRREP
+*C          EXTRROW(WORK(KLCIBT),8,8,NBLOCK,LBLOCK)
+cVOG   CALL EXTRROW(int_mb(KNCS_FOR_OCCLS),ISSM,NIRREP,NOCCLS_MAX,
+cVOG  &             int_mb(KLLOCCLS_SM))
+cVOG  IF(NTEST.GE.1000) THEN
+cVOG    WRITE(6,*) ' Number of CSF of right sym per occls'
+cVOG    CALL IWRTMA(int_mb(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
+cVOG    write(*,*) 'NOCCLS_P, int_mb(KLOCCLS_P)',
+cVOG &              NOCCLS_P, int_mb(KLOCCLS_P)
+cVOG    write(*,*) 'NOCCLS_Q, int_mb(KLOCCLS_Q)',
+cVOG &              NOCCLS_Q, int_mb(KLOCCLS_Q)
+cVOG  END IF
+* Be careful, it's working as SplitCAS at the moment      
       CALL ga_copy_patch('N', KLU_Q2, 1, NSDP, 1, 1,
      &                        KLU_Q1, 1, NSDP, 1, 1)
       write(*,*) 'Copy P space terms to LU_Q1'
+      call util_flush(6)
       CALL ga_print(KLU_Q1)
       CALL ga_print(KLU_Q2)
+      call util_flush(6)
 cVOG  CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,int_mb(KLOCCLS_P),
 cVOG &                LU_Q1,NOCCLS_Q,int_mb(KLOCCLS_Q),
 cVOG &                int_mb(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
@@ -799,7 +829,7 @@ C?    STOP ' Jeppe forced me to stop.... '
       write(*,*) 'KVEC3 ', KVEC3
       CALL ga_print(CB)
       CALL ga_print(HCB)
-      CALL ga_print(KVEC3)
+!      CALL ga_print(KVEC3)
       write(*,*) ' DeBuG!!! '
 !      STOP ' VOGs REGROUP'
 *
@@ -932,7 +962,6 @@ C?    STOP ' Jeppe forced me to stop.... '
           KXLBT = KELBT
         END IF
 *
-       write(*,*) 'Eimai edw? CSDIAG'
         CALL CSDIAG(VECUT,VECSCR,
      &       NCONF_PER_OPEN(1,ISM),MAXOP,ISM,
      &       dbl_mb(KSDREO_I(ISM)),NPCMCNF,NPCSCNF,IPRCSF,

@@ -11776,7 +11776,7 @@ C?        WRITE(6,*) ' IAMOKAY = ', IAMOKAY
 *. Number of occupation classes per batch and offset
       INTEGER NOCCLS_BAT(*), IBOCCLS_BAT(*)
 *
-      NTEST = 000
+      NTEST = 1000 !000 VOG
       NTEST = MAX(NTEST,IPRNT)
 *
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
