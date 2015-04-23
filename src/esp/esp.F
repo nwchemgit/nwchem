@@ -66,7 +66,7 @@ c
 c     calculate the electrostatic potential on the grid
 c
       if(newgrd.ne.0.or.denmat.ne.0) then 
-         write(6,*) 'FASTESP ',fastesp
+         if(me.eq.0) write(6,*) 'FASTESP ',fastesp
          if(fastesp) then
             call esp_fastesp(dbl_mb(ieptr), !ene
      +           dbl_mb(ioptr), !occ 
