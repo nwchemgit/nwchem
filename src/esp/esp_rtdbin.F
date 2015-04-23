@@ -190,7 +190,7 @@ c
       if(.not.rtdb_get(irtdb,'esp:qh',mt_dbl,1,qh)) qh=0.0d0
       if(.not.rtdb_get(irtdb,'esp:newgrd',mt_int,1,newgrd)) newgrd=0
       if(.not.rtdb_get(irtdb,'esp:denmat',mt_int,1,denmat)) denmat=0
-      if(.not.rtdb_get(irtdb,'esp:fastest',mt_log,1,fastesp)) 
+      if(.not.rtdb_get(irtdb,'esp:fastesp',mt_log,1,fastesp)) 
      C     fastesp=.false.
 c
 c     convert rcut and spac from nm to au
