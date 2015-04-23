@@ -2,14 +2,47 @@ c
 c     $Id$
 c
 
-c      Interpolation of C6 to account for coordination number dependence
+c     Interpolation of C6 to account for coordination number dependence
 c
+C> \brief Interpolate \f$C_6\f$ to account for coordination numbers
+C>
+C> Interpolate the \f$C_6\f$ coefficients according to Eq.(16) of [1]:
+C> \f{eqnarray*}{
+C>   C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)
+C>   &=& \frac{\sum_i^{N_A}\sum_j^{N_B}C_{6,\mathrm{ref}}^{AB}\left(\mathrm{CN}_i^A,\mathrm{CN}_j^B\right)L_{ij}^{AB}(R)}{\sum_i^{N_A}\sum_j^{N_B}L_{ij}^{AB}(R)} \\\\
+C>   L_{ij}^{AB}(R) &=& e^{-k_3[(\mathrm{CN}^A(R)-\mathrm{CN}^A_i)^2
+C>                             +(\mathrm{CN}^B(R)-\mathrm{CN}^B_j)^2]}
+C> \f}
+C> where \f$\mathrm{CN}^A(R)\f$ and \f$\mathrm{CN}^B(R)\f$ are geometry
+C> dependent coordination numbers for atoms \f$A\f$ and \f$B\f$.
+C> The quantities \f$\mathrm{CN}^A_i\f$ and \f$\mathrm{CN}^B_j\f$
+C> are coordination numbers of atoms of the same type as \f$A\f$ and
+C> \f$B\f$ in reference molecules \f$i\f$ and \f$j\f$. These latter 
+C> quantities as well as \f$C_{6,\mathrm{ref}}^{AB}\f$ are precomputed
+C> constants, independent of the current geometry.
+C> 
+C> \return The coordination number dependent \f$C_6\f$ coefficient
+C>
+C> ### References ###
+C>
+C> [1] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+C>     "A consistent and accurate ab initio parametrization of density
+C>      functional dispersion correction (DFT-D) for the 94 elements
+C>      H-Pu",
+C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.3382344"> 
+C>     10.1063/1.3382344</a>.
+C>
       double precision function c6cn(iat,jat,cni,cnj)
       implicit none
 #include "xc_vdw.fh"
-      integer iat,jat,i,j
-      double precision cni,cnj,top,bottom,dist,c6_ref
+      integer iat !< [Input] The atomic number of \f$A\f$ (i.e. \f$Z_A\f$)
+      integer jat !< [Input] The atomic number of \f$B\f$ (i.e. \f$Z_B\f$)
+      double precision cni !< [Input] \f$\mathrm{CN}^A(R)\f$
+      double precision cnj !< [Input] \f$\mathrm{CN}^B(R)\f$
+      double precision top,bottom,dist,c6_ref
       double precision cna,cnb
+      integer i,j
 c
       c6cn=0.0d0
       top=0.0d0
@@ -37,16 +70,61 @@ c
 c
 c     Analytical gradient of coordination number dependent C6
 c
+C> \brief Gradient of \f$C_6\f$
+C>
+C> Calculate the gradient of the geometry dependent \f$C_6\f$ 
+C> coefficients. The \f$C_6\f$ coefficients
+C> are calculated according to Eq.(16) of [1]:
+C> \f{eqnarray*}{
+C>   C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)
+C>   &=& \frac{\sum_i^{N_A}\sum_j^{N_B}C_{6,\mathrm{ref}}^{AB}\left(\mathrm{CN}_i^A,\mathrm{CN}_j^B\right)L_{ij}^{AB}(R)}{\sum_i^{N_A}\sum_j^{N_B}L_{ij}^{AB}(R)} \\\\
+C>   L_{ij}^{AB}(R) &=& e^{-k_3[(\mathrm{CN}^A(R)-\mathrm{CN}^A_i)^2
+C>                             +(\mathrm{CN}^B(R)-\mathrm{CN}^B_j)^2]}
+C> \f}
+C> where \f$\mathrm{CN}^A(R)\f$ and \f$\mathrm{CN}^B(R)\f$ are geometry
+C> dependent coordination numbers for atoms \f$A\f$ and \f$B\f$.
+C> The quantities \f$\mathrm{CN}^A_i\f$ and \f$\mathrm{CN}^B_j\f$
+C> are coordination numbers of atoms of the same type as \f$A\f$ and
+C> \f$B\f$ in reference molecules \f$i\f$ and \f$j\f$. These latter 
+C> quantities as well as \f$C_{6,\mathrm{ref}}^{AB}\f$ are precomputed
+C> constants, independent of the current geometry.
+C>
+C> Here we calculate 
+C> \f{eqnarray*}{
+C>   \frac{\partial C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)}
+C>        {\partial R_C}
+C> \f}
+C> where atom \f$C\f$ maybe equal to \f$A\f$, \f$B\f$ or some other
+C> atom entirely.
+C> 
+C> ### References ###
+C>
+C> [1] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+C>     "A consistent and accurate ab initio parametrization of density
+C>      functional dispersion correction (DFT-D) for the 94 elements
+C>      H-Pu",
+C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.3382344"> 
+C>     10.1063/1.3382344</a>.
+C>
       subroutine c6_grad(grad,iat,jat,kat,x,z,n,cnij,cnijk)
       implicit none
 #include "xc_vdw.fh"
-      integer n,iat,jat,kat,z(n),i,j
-      double precision x(3,n)
-      double precision grad(3),cnij(3,n),cnijk(3,n,n),cni,cnj
+      integer n   !< [Input] The number of atoms
+      integer iat !< [Input] Atom \f$A\f$
+      integer jat !< [Input] Atom \f$B\f$
+      integer kat !< [Input] Atom \f$C\f$
+      integer z(n) !< [Input] The atomic numbers of the atoms
+      double precision cnij(3,n) !< [Input] \f$\mathrm{cnij}(i,A)=\frac{\partial\mathrm{CN}^A(R)}{\partial \left(\vec{R}_A\right)_i}\f$
+      double precision cnijk(3,n,n) !< [Input] \f$\mathrm{cnijk}(i,B,A)=\frac{\partial\mathrm{CN}^A(R)}{\partial \left(\vec{R}_B\right)_i}\f$
+      double precision grad(3) !< [Output] The gradient
+      double precision cni,cnj
       double precision crd_nr,cnik(3),cnjk(3)
+      double precision x(3,n)
       external crd_nr
       double precision t1,t2,dt1x,dt1y,dt1z,dt2x,dt2y,dt2z
       double precision tmp1,tmp2,tmp3,tmp4,fac1,fac2
+      integer i,j
 c
       cni=crd_nr(iat,n,x,z)
       cnj=crd_nr(jat,n,x,z)
@@ -156,14 +234,46 @@ c     S. Grimme J Chem Phys 132, 154104 (2010)
       return
       end
 c
-c      Derivatives of coordination number function
+c     Derivatives of coordination number function
 c
+C> \brief Fractional coordination number gradients
+C> 
+C> This routine evaluates the gradients of the fractional coordination
+C> numbers of the atoms. The fractional coordination numbers are
+C> given by Eq.(15) of [1]:
+C> \f{eqnarray*}{
+C>    \mathrm{CN}^A &=& \sum_{B\ne A}^{N_{atom}} 
+C>    \frac{1}{1+e^{-k_1\left(k_2\frac{R_{A,\mathrm{cov}}+R_{B,\mathrm{cov}}}{R_{AB}}-1\right)}}
+C> \f}
+C> In the actual implementation the factor \f$k_2\f$ has been absorbed
+C> in \f$R_{A,\mathrm{cov}}\f$ and those scaled covalent radii are
+C> stored in `cov_table`.
+C>
+C> The derivatives wrt. atoms \f$B\f$ are calculated separately and
+C> stored for every atom \f$A\f$. The derivatives wrt. atom \f$A\f$ are
+C> calculated exploiting the translational invariance of the gradient.
+C>
+C> ### References ###
+C>
+C> [1] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+C>     "A consistent and accurate ab initio parametrization of density
+C>      functional dispersion correction (DFT-D) for the 94 elements
+C>      H-Pu",
+C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.3382344">
+C>     10.1063/1.3382344</a>.
+C>
       subroutine crd_nr_der(n,xyz,iz,cnij,cnijk)
       implicit none
 #include "xc_vdw.fh"
-      integer n,iat,i,iz(n)
-      double precision cnij(3,n),cnijk(3,n,n),xyz(3,n)
+      integer n      !< [Input] The number of atoms \f$N_{atom}\f$
+      integer iz(n)  !< [Input] The atomic numbers of the atoms
+      double precision xyz(3,n) !< [Input] The atomic coordinates
+      double precision cnij(3,n) !< [Output] \f$\mathrm{cnij}(i,A)=\frac{\partial\mathrm{CN}^A}{\partial \left(\vec{R}_A\right)_i}\f$
+      double precision cnijk(3,n,n) !< [Output] \f$\mathrm{cnijk}(i,B,A)=\frac{\partial\mathrm{CN}^A}{\partial \left(\vec{R}_B\right)_i}\f$
       double precision dx,dy,dz,r,cov_rad,expf,fac2,fac3
+      integer iat !< Atom B
+      integer i   !< Atom A
 c
       do i=1,n
          cnij(1,i)=0.0d0
@@ -203,13 +313,41 @@ c
       return
       end
 c
-c      Coordination numbers based on inverse damping function 
+c     Coordination numbers based on inverse damping function 
 c
+C> \brief Fractional coordination numbers
+C> 
+C> This routine evaluates the fractional coordination of an atom
+C> according to Eq.(15) of [1]:
+C> \f{eqnarray*}{
+C>    \mathrm{CN}^A &=& \sum_{B\ne A}^{N_{atom}} 
+C>    \frac{1}{1+e^{-k_1\left(k_2\frac{R_{A,\mathrm{cov}}+R_{B,\mathrm{cov}}}{R_{AB}}-1\right)}}
+C> \f}
+C> In the actual implementation the factor \f$k_2\f$ has been absorbed
+C> in \f$R_{A,\mathrm{cov}}\f$ and those scaled covalent radii are
+C> stored in `cov_table`.
+C>
+C> \return The value of \f$\mathrm{CN}^A\f$.
+C>
+C> ### References ###
+C>
+C> [1] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+C>     "A consistent and accurate ab initio parametrization of density
+C>      functional dispersion correction (DFT-D) for the 94 elements
+C>      H-Pu",
+C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.3382344">
+C>     10.1063/1.3382344</a>.
+C>
       double precision function crd_nr(iat,nat,xyz,iz)
       implicit none
 #include "xc_vdw.fh"
-      integer iat,nat,iz(nat),i
-      double precision xyz(3,nat),dx,dy,dz,r,rcov
+      integer iat    !< [Input] The atom \f$A\f$
+      integer nat    !< [Input] The number of atoms \f$N_{atom}\f$
+      integer iz(nat) !< [Input] The atomic numbers of the atoms
+      double precision xyz(3,nat) !< The atomic coordinates
+      double precision dx,dy,dz,r,rcov
+      integer i
 c       
       crd_nr=0.0d0
       if (iz(iat).eq.0) return
@@ -645,8 +783,9 @@ c
         scalesr8 = 0.0d0
 c BLYP
         if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
-c          scalesr6 = 1.094d0
-c          scales8  = 1.682d0
+           scales8  = 2.6996d0
+           a1       = 0.4298d0
+           a2       = 4.2359d0
 c BP86 
 c       else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
 c          scalesr6 = 1.139d0
