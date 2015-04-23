@@ -1,3 +1,4 @@
+#define M12 1
       subroutine hnd_elfcon(basis,geom,g_dens,points,npt,elfval,nder)
 c
 c $Id$
@@ -18,6 +19,7 @@ c
 #include "geom.fh"
 #include "stdio.fh"
 #include "msgids.fh"
+#include "schwarz.fh"
 c
       integer basis    ! [input] basis set
       integer geom     ! [input] geometry
@@ -31,6 +33,9 @@ c
       integer ilo, ihi, jlo, jhi, idim, jdim, nint
       integer l_dens, k_dens, l_scr, k_scr, l_buf, k_buf
       integer maxbuf, maxscr, i
+      double precision thresh,pmat_max,dabsmax
+      external dabsmax
+      parameter (thresh=1d-12)
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
@@ -61,7 +66,7 @@ c
 c
 c     ----- calculate electronic integral component(s) at all points -----
 c
-
+      call schwarz_init(geom, basis)
       ijshell = 0
       do ishell = 1, nshell
 c
@@ -71,7 +76,11 @@ c
      &      ('hnd_elfcon: bas_cn2bfr failed for basis',basis,BASIS_ERR)
          idim = ihi - ilo + 1
 
+#ifndef M12
          do jshell = 1, nshell
+#else
+         do jshell=1,ishell
+#endif
             ijshell = ijshell + 1
             if (mod(ijshell,nproc) .eq. me) then
 c
@@ -86,17 +95,26 @@ c     Get the density patch, make the integrals and contract
 c
                call ga_get(g_dens, ilo, ihi, jlo, jhi,
      $                     dbl_mb(k_dens), idim)
+
+            pmat_max = dabsmax(idim*jdim,dbl_mb(k_dens))
+c
+           if((schwarz_shell(ishell,jshell)*pmat_max).gt.thresh) then
 c
                call int_1eelec(basis,ishell,basis,jshell,maxscr,
      &                         dbl_mb(k_scr),nint,dbl_mb(k_buf),
      &                         nder,points,npt)
+#ifdef M12
+               if(ishell.ne.jshell)
+     D              call dscal(idim*jdim,2d0,dbl_mb(k_dens),1)
+#endif
 !DEC$ NOINLINE
                call multi_reduce(dbl_mb(k_buf),dbl_mb(k_dens),
      &                           elfval,idim,jdim,npt*(max(nder*3,1)))
+               endif
             end if  ! mod parallel loop
          end do   ! jshell
       end do    ! ishell
-c
+      call schwarz_tidy()
 c     Collect components from all the nodes for all points
 c
       call ga_sync()
@@ -118,12 +136,12 @@ c
       implicit none
       integer idim,jdim,nblock
       double precision mblock(idim,jdim,nblock), block(idim,jdim)
-      double precision rblock(nblock)
+      double precision rblock(nblock) ! [out]
 c
       integer iblock,i,j
-      do j = 1, jdim
-!DEC$ LOOP COUNT MAX=9
-         do iblock = 1, nblock
+         do j = 1, jdim
+      do iblock = 1, nblock
+!DEC$ LOOP COUNT MAX=40
             do i = 1, idim
                rblock(iblock)=rblock(iblock)+mblock(i,j,iblock)*
      &                                       block(i,j)
