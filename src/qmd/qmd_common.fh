@@ -7,12 +7,8 @@ c
       common/qmd_int/lgeom,igeom,jdebug
 c
 c     constants
-      double precision kb,au2fs
-      common/qmd_consts/kb,au2fs
-c
-c     berendsen thermostat
-      logical do_berendsen
-      double precision tau
+      double precision kb,au2fs,amu2au,au2ang
+      common/qmd_consts/kb,au2fs,amu2au,au2ang
 c
 c     nose-hoover thermostat parameters
       integer maxchain
@@ -22,9 +18,27 @@ c     nose-hoover thermostat parameters
       double precision v_nh(maxchain)    ! chain velocities
       double precision m_nh(maxchain)    ! chain masses
       double precision g_nh(maxchain)    ! bath couplings
+c
+c     berendsen thermostat
+      logical do_berendsen
+      double precision tau
+c
+c     langevin thermostat
+      logical do_langevin
+      double precision friction
+      integer idum
+c
+c     velocity rescaling
+      logical do_rescale
+c
+c     BDP rescaling
+      logical do_BDP
 c     
-      common/qmd_tstats/do_berendsen,tau,
-     &                      do_nosehoover,r_nh,v_nh,m_nh,g_nh
+      common/qmd_thermostats/do_berendsen,tau,
+     &                       do_nosehoover,r_nh,v_nh,m_nh,g_nh,
+     &                       do_langevin,friction,
+     &                       do_rescale,idum,
+     &                       do_BDP
 c
 c     temperature
       double precision targ_temp

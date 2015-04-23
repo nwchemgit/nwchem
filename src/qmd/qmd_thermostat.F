@@ -1,7 +1,7 @@
 c
 c     qmd_thermostat: apply thermostat
 c
-      subroutine qmd_thermostat(nat,dt,m,v,ekin)
+      subroutine qmd_thermostat(n,dt,m,v,ekin)
 c
       implicit none
 c
@@ -12,11 +12,12 @@ c
 c
 #include "qmd_common.fh"
 c
-      integer nat                ! number of atoms
-      double precision dt        ! step size
-      double precision m(nat)    ! mass
-      double precision v(3,nat)  ! velocities
-      double precision ekin      ! instantaneous kinetic energy
+      integer n                ! number of atoms
+      double precision dt      ! step size
+      double precision m(n)    ! mass
+      double precision v(3,n)  ! velocities
+      double precision ekin    ! instantaneous kinetic energy
+      double precision ekin2
 c
       character*30 pname
 c
@@ -24,13 +25,19 @@ c     preliminaries
       pname='qmd_thermostat: '
 c
 c     calculate kinetic energy
-      call qmd_kinetic(nat,m,v,ekin)
+      call qmd_kinetic(n,m,v,ekin)
 c
 c     apply thermostat
       if (do_nosehoover) then
-         call qmd_nosehoover(nat,dt,v,ekin)
+         call qmd_nosehoover(n,dt,m,v,ekin)
       else if (do_berendsen) then
-         call qmd_berendsen(nat,dt,v,ekin)
+         call qmd_berendsen(n,dt,m,v,ekin)
+      else if (do_langevin) then
+         call qmd_langevin(n,dt,m,v,ekin)
+      else if (do_rescale) then
+         call qmd_rescale(n,m,v,ekin,ekin2)
+      else if (do_BDP) then
+         call qmd_BDP(n,dt,m,v,ekin)
       else
          call errquit(pname//'unknown thermostat',0,RTDB_ERR)
       end if
@@ -40,7 +47,7 @@ c
 c
 c     qmd_nosehoover: nose-hoover thermostat
 c
-      subroutine qmd_nosehoover(nat,dt,v,ekin)
+      subroutine qmd_nosehoover(n,dt,m,v,ekin)
 c
       implicit none
 c
@@ -51,9 +58,10 @@ c
 c
 #include "qmd_common.fh"
 c
-      integer nat
+      integer n
       double precision dt
-      double precision v(3,nat)
+      double precision m(n)    ! mass
+      double precision v(3,n)
       double precision ekin
 c
       double precision dt2,dt4,dt8
@@ -102,7 +110,7 @@ c
       v_nh(2) = v_nh(2) + g_nh(2)*dt4
 c
 c     scale velocity
-      do i = 1,nat
+      do i = 1,n
         v(1,i) = scalefac*v(1,i)
         v(2,i) = scalefac*v(2,i)
         v(3,i) = scalefac*v(3,i)
@@ -113,7 +121,7 @@ c
 c
 c     qmd_berendsen: berendsen thermostat
 c
-      subroutine qmd_berendsen(nat,dt,v,ekin)
+      subroutine qmd_berendsen(n,dt,m,v,ekin)
 c
       implicit none
 c
@@ -124,9 +132,10 @@ c
 c
 #include "qmd_common.fh"
 c
-      integer nat
+      integer n
       double precision dt
-      double precision v(3,nat)
+      double precision m(n)    ! mass
+      double precision v(3,n)
       double precision ekin
 c
       integer i,j
@@ -142,9 +151,160 @@ c     instantaneous temperature
 c
 c     velocity scaling factor: Berendsen scaling
       ratio_temp = targ_temp/inst_temp
-      scalefac = dsqrt(1.d0 + (dt/tau)*(ratio_temp-1.d0))
+      scalefac = dsqrt(1.d0 + (dt/(2.d0*tau))*(ratio_temp-1.d0))
 c
-      do i = 1,nat
+      do i = 1,n
+        v(1,i) = scalefac*v(1,i)
+        v(2,i) = scalefac*v(2,i)
+        v(3,i) = scalefac*v(3,i)
+      end do
+c
+      return
+      end
+c
+c     qmd_langevin: Langevin thermostat: 
+c     Bussi and Parrinello, Phys. Rev. E (2007)
+c
+      subroutine qmd_langevin(n,dt,m,v,ekin)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "global.fh"
+c
+#include "qmd_common.fh"
+c
+      integer n
+      double precision dt
+      double precision m(n)    ! mass
+      double precision v(3,n)
+      double precision ekin
+c
+      integer i,j
+      double precision inst_temp
+      double precision ratio_temp
+      double precision c1,c2
+c
+      external qmd_gasdev
+      double precision qmd_gasdev
+c
+      character*32 pname
+      pname='qmd_langevin: '
+c
+c     calculate c1
+      c1 = exp(-friction*dt/2.d0)   
+      do i = 1,n
+        c2=sqrt((1.d0-c1**2)*(kb*targ_temp)/(m(i)*amu2au)) 
+        do j = 1,3
+         v(j,i) = c1*v(j,i)+c2*qmd_gasdev(idum)
+        end do
+      end do
+c
+      return
+      end
+c
+c
+c     qmd_rescale: velocity rescaling
+c
+      subroutine qmd_rescale(n,m,v,ekin,ekin2)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "global.fh"
+c
+#include "qmd_common.fh"
+c
+      integer n
+      double precision m(n)
+      double precision v(3,n)
+      double precision ekin
+      double precision ekin2
+c
+      integer i
+      double precision inst_temp
+      double precision ratio_temp
+      double precision scalefac
+c
+      character*32 pname
+      pname='qmd_rescale: '
+c
+c     instantaneous temperature
+      inst_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
+c
+c     velocity rescaling
+c      ratio_temp = targ_temp/inst_temp
+      ratio_temp = ekin/ekin2
+      scalefac = dsqrt(ratio_temp)
+c
+      do i = 1,n
+        v(1,i) = scalefac*v(1,i)
+        v(2,i) = scalefac*v(2,i)
+        v(3,i) = scalefac*v(3,i)
+      end do
+c
+      return
+      end
+c
+c
+c     qmd_BDP: canonical velocity rescaling
+c     Bussi, Donadio, and Parrinello
+c     J. Chem. Phys. 126, 014101 (2007)
+c
+      subroutine qmd_BDP(n,dt,m,v,ekin)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "global.fh"
+c
+#include "qmd_common.fh"
+c
+      integer n
+      double precision dt
+      double precision m(n)
+      double precision v(3,n)
+      double precision ekin
+c
+      integer i
+      double precision scheck
+      double precision sigma
+      double precision rr, ss, cc
+      double precision scalefac
+c
+      external qmd_gasdev
+      double precision qmd_gasdev
+      external qmd_sumno
+      double precision qmd_sumno
+c
+      character*32 pname
+      pname='qmd_BDP: '
+c
+c     idum, tau, ndeg, targ_temp in common block
+c
+      if (tau.ne.0.d0) then
+        cc = exp(-dt/(2.d0*tau))
+      else
+        cc = 0.d0
+      end if
+c
+      rr = qmd_gasdev(idum)
+      sigma = dble(ndeg)*kb*targ_temp/2.d0
+      ss = qmd_sumno(ndeg-1,idum)
+      scheck = rr + dsqrt(cc*dble(ndeg)*ekin/((1.d0-cc)*sigma))
+c
+      scalefac = cc + (sigma/(dble(ndeg)*ekin))*(1.d0-cc)*(ss+rr**2) 
+     $          + 2.d0*rr*dsqrt(cc*(1.d0-cc)*sigma/(dble(ndeg)*ekin))
+c
+      scalefac = dsign(dsqrt(scalefac),scheck)
+c
+      do i = 1,n
         v(1,i) = scalefac*v(1,i)
         v(2,i) = scalefac*v(2,i)
         v(3,i) = scalefac*v(3,i)

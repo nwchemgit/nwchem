@@ -24,7 +24,10 @@ c
       integer nstep_nucl
       double precision dt_elec
       integer nstep_elec
+      integer fstep
       double precision targ_temp
+      double precision friction
+      integer idum
       double precision tau
       double precision nh_mass(2)
       character*32 test
@@ -42,7 +45,7 @@ c     Set default values
 c     ------------------
 c
 c     Nuclear MD time step: dt_nucl
-      dt_nucl = 1.d0
+      dt_nucl = 10.d0
       if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
      & call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
 c
@@ -67,12 +70,12 @@ c     Target nuclear MD temperature: targ_temp (Kelvin)
      & call errquit(pname//'failed to write targ_temp',0,RTDB_ERR)
 c
 c     Nuclear thermostat
-      thermostat='berendsen'
+      thermostat='none'
       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      & call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
-c     Berendsen tau parameter
-      tau=0.1d0
+c     Berendsen tau parameter, also used for BDP
+      tau=1.d3
       if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
 c
@@ -93,6 +96,11 @@ c     Is linear molecule ?
       if (.not.rtdb_put(rtdb,'qmd:linear',mt_log,1,do_linear))
      & call errquit(pname//'failed to write do_linear',0,RTDB_ERR)
 c
+c     Remove translations/rotations every fsteps
+      fstep=1000
+      if (.not.rtdb_put(rtdb,'qmd:fstep',mt_int,1,fstep))
+     & call errquit(pname//'failed to write fstep',0,RTDB_ERR)
+c
 c     ----------
 c     Read input
 c     ----------
@@ -106,8 +114,8 @@ c     Nuclear MD time step: dt_nucl in femtoseconds
       if (inp_compare(.false.,test,'dt_nucl')) then
        if (.not.inp_f(dt_nucl)) then
           write(luout,*) 'dt_nucl: value not found; ',
-     1      'default value of 1.0 au will be used'
-          dt_nucl = 1.d0
+     1      'default value of 10.0 au will be used'
+          dt_nucl = 10.d0
        endif
        if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
      &  call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
@@ -169,9 +177,45 @@ c     Nuclear thermostat: Berendsen
           thermostat='berendsen'
        if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
-       if (.not.inp_f(tau)) tau = 0.1d0
+       if (.not.inp_f(tau)) tau = 1.d3
        if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
      &  call errquit(pname//'failed to write tau',0,RTDB_ERR)
+c
+c     Nuclear thermostat: BDP (Bussi, Donadio, Parrinello 2007)
+      else if (inp_compare(.false.,test,'BDP')) then
+          thermostat='BDP'
+       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
+     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
+       if (.not.inp_f(tau)) tau = 1.d2
+       if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
+     &  call errquit(pname//'failed to write tau',0,RTDB_ERR)
+c
+c     Nuclear thermostat: Langevin (Bussi, Parrinello 2007))
+      else if (inp_compare(.false.,test,'langevin')) then
+          thermostat='langevin'
+       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
+     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
+c
+c     Nuclear thermostat: Velocity rescaling
+      else if (inp_compare(.false.,test,'rescale')) then
+          thermostat='rescale'
+       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
+     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
+c
+c     Friction
+      else if (inp_compare(.false.,test,'friction')) then
+       if (.not.inp_f(friction)) friction = 0.1d0
+       if (.not.rtdb_put(rtdb,'qmd:friction',mt_dbl,1,friction))
+     &  call errquit(pname//'failed to write friction',0,
+     &     RTDB_ERR)
+c
+c     Random number seed
+      else if (inp_compare(.false.,test,'rand_seed')) then
+       if (.not.inp_i(idum)) idum = 3989
+       idum = sign(idum,-1)   ! seed needs to be negative
+       if (.not.rtdb_put(rtdb,'qmd:rand_seed',mt_int,1,idum))
+     &  call errquit(pname//'failed to write rand_seed',0,
+     &     RTDB_ERR)
 c
 c     Nuclear MD integrator
       else if (inp_compare(.false.,test,'velocity-verlet')) then
@@ -184,6 +228,12 @@ c     Is linear molecule ?
           do_linear=.true.
       if (.not.rtdb_put(rtdb,'qmd:linear',mt_log,1,do_linear))
      &  call errquit(pname//'failed to write do_linear',0,RTDB_ERR)
+c
+c     Remove translations and rotations every fsteps
+      else if (inp_compare(.false.,test,'fstep')) then
+       if (.not.inp_i(fstep)) fstep=1000
+       if (.not.rtdb_put(rtdb,'qmd:fstep',mt_int,1,fstep))
+     &  call errquit(pname//'failed to write fstep',0,RTDB_ERR)
 c
 c     Print
       else if (inp_compare(.false.,test,'print')) then

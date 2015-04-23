@@ -34,13 +34,18 @@ c
       integer nat                   ! number of atoms
       integer nactive               ! number of active atoms
       integer nstep_nucl           ! total nuclear steps
+      integer sstep_nucl           ! first nuclear step
       integer istep_nucl           ! nuclear md step
+      integer fstep                 ! how often to remove trans/rot
       double precision dt_nucl      ! nuclear md time step
+      double precision eltime       ! elapsed time (in fs)
       double precision esys         ! system energy (from task_gradient)
       double precision ekin         ! kinetic energy from the md part
       double precision etotal       ! total energy: esys + ekin
 c
       logical status
+      logical rst_exists
+      logical do_none
 c
       character*32 pname
       integer xyzfileunit
@@ -73,7 +78,7 @@ c     get rstfilename
       call util_file_name('qmdrst',.false.,.false.,rstfilename)
 c
 c     initialize parameters
-      call qmd_init(rtdb,nstep_nucl,dt_nucl)
+      call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,fstep)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -106,7 +111,6 @@ c
       if(.not.ma_push_get(mt_dbl,3*nat,'grads',l_g,k_g))  ! grads
      $   call errquit(pname//'ma_push_get grads',3*nat,MA_ERR)
       call dfill(3*nat, 0.0d0, dbl_mb(k_g), 1)
-c
 c     get the active atoms (also need a check for linearity)
 c     need to implement constraints
       if (.not. ma_push_get(mt_log,nat,'active atoms',l_act,k_act)) ! active
@@ -124,24 +128,67 @@ c     get the masses, initial coordinates
       if (.not.geom_cart_coords_get(geom,dbl_mb(k_r)))
      $   call errquit(pname//'geom_cart_coords_get',0,GEOM_ERR)
 c
+      inquire(file=rstfilename,exist=rst_exists)
+      if (rst_exists) then
+        if (ga_nodeid().eq.0) then
+          write(luout,*) 'Restart file found'
+          write(luout,*) 'Reading positions, velocities, KE,'
+          write(luout,*) 'and last time step from file.'
+        end if
+c       read velocities from file
+        call qmd_read_rst(rstfilename,rstfileunit,nat,dbl_mb(k_v),
+     $         dbl_mb(k_r),ekin,sstep_nucl)
+c       remove global translations and rotations
+c       kinetic energy is the same on exit as was on entry
+        call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
+     $         ekin,.true.)
+c       update geom and store in rtdb
+        call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
+      else
+        if (ga_nodeid().eq.0) then
+          write(luout,*) 'No restart file found'
+          write(luout,*) 'Beginning with random velocities'
+        end if
+c       randomize velocities for the given temperature
+        call qmd_randomize(nat,dbl_mb(k_m),dbl_mb(k_v))
+        sstep_nucl=1
+c       remove global translations and rotations
+c       kinetic energy is NOT the same on exit as was on entry
+        call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
+     $         ekin,.false.)
+      end if
+c
+      call ga_sync()
+c
+      if (ga_nodeid().eq.0) then
+        final_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
+        write(luout,120) "Current temp. (K):",final_temp
+      end if
+c
 c     perform energy gradient calculation on initial coordinates
       call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
 c
-c     initialize velocity and acceleration 
-      call qmd_nucl_dt(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_g))
-c
-c     apply thermostat to initial velocities
-      call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
-c
 c     start nuclear molecular dynamics loop
-      do istep_nucl = 1,nstep_nucl
+      do istep_nucl = sstep_nucl,nstep_nucl
 c
-c       update position and velocity at half step: dt2
-        call qmd_nucl_dt2(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_r),
-     &      dbl_mb(k_v),dbl_mb(k_g))
+        if (mod(istep_nucl,fstep).eq.0) then
+c         remove global translations and rotations
+c         kinetic energy is the same on exit as was on entry
+          call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
+     $           ekin,.true.)
+        end if
+        if (.not.do_none) then
+c         apply thermostat to velocities
+          call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+        end if
 c
-c       apply thermostat
-        call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+c       update velocity at half step (dt/2)
+        call qmd_nucl_vel(nat,0.5d0*dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
+     &         dbl_mb(k_g))
+c
+c       update position at dt
+        call qmd_nucl_pos(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_r),
+     &        dbl_mb(k_v))
 c
 c       update geom and store in rtdb
         call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
@@ -149,17 +196,21 @@ c
 c       calculate energy and gradient
         call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
 c
-c       update velocity at full step: dt
-        call qmd_nucl_dt(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
-     &             dbl_mb(k_g))
+c       update velocity at half step (dt/2)
+        call qmd_nucl_vel(nat,0.5d0*dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
+     &         dbl_mb(k_g))
 c
-c       apply thermostat
-        call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+        if (.not.do_none) then
+c         apply thermostat to velocities
+          call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+        end if
 c
 c       persist updated velocity in geom
         if (.not.geom_vel_set(geom,dbl_mb(k_v)))
      $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
 c
+c       calculate current kinetic energy
+        call qmd_kinetic(nat,dbl_mb(k_m),dbl_mb(k_v),ekin)
 c       instantaneous total energy: instantaneous kinetic energy + system energy
         etotal = ekin + esys
 c
@@ -172,27 +223,28 @@ c
          write(luout,*)
          write(luout,*)
          call util_print_centered(LuOut,'QMD Run Information',20,.true.)
-         write(luout,*) "istep_nucl: ",istep_nucl
-         write(luout,*) "Time elapsed: ",istep_nucl*dt_nucl*au2fs
-         write(luout,*) "ekin: ",ekin
-         write(luout,*) "esys: ",esys
-         write(luout,*) "etotal: ",etotal
-         write(luout,*) "targ_temp: ",targ_temp
-         write(luout,*) "final_temp: ",final_temp
-         write(luout,*)
+         write(luout,110) "Current time step:",istep_nucl
+         eltime=dble(istep_nucl)*dt_nucl*au2fs
+         write(luout,130) "Time elapsed (fs):",eltime
+         write(luout,130) "Kinetic energy (a.u.):",ekin
+         write(luout,130) "Potential energy (a.u.):",esys
+         write(luout,130) "Total energy (a.u.):",etotal
+         write(luout,120) "Target temp. (K):",targ_temp
+         write(luout,120) "Current temp. (K):",final_temp
+
 c
 c        write trajectory
          call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
      &          istep_nucl,etotal,geom)
+c
+         call qmd_write_rst(rstfilename,rstfileunit,
+     &             nat,istep_nucl,ekin,geom)
         end if  ! ga_nodeid()
 c
       end do  ! istep_nucl
-c
-c     write restart information
-      if (ga_nodeid().eq.0) then
-         call qmd_write_rst(rstfilename,rstfileunit,
-     &             nat,istep_nucl-1,esys,ekin,geom)
-      end if
+  110 format(A25,I20)
+  120 format(A25,F20.2)
+  130 format(A25,F20.6)
 c
 c     clear memory
       if(.not.ma_pop_stack(l_act))! active

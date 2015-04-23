@@ -22,6 +22,8 @@ c
 c
       logical task_gradient
       external task_gradient
+      logical task_energy
+      external task_energy
 c
 c     preliminaries
       pname = "qmd_gradient: "
