@@ -21,7 +21,7 @@ c
  1000 format(//,' Density matrix',/)
       do 1002 j=jfr,jto
       write(lfnout,1001) (i,dns(i,j),i=ifr,ito)
- 1001 format(i5,f12.6,/,(5x,10f12.6))
+ 1001 format(i5,f12.6)
  1002 continue
       endif
 c

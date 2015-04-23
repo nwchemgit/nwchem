@@ -1,4 +1,3 @@
-#define M12 1
       subroutine hnd_elfcon(basis,geom,g_dens,points,npt,elfval,nder)
 c
 c $Id$
@@ -9,6 +8,45 @@ c     the grid points defined in points.
 c
 c     It returns an array (max(nder*3,1),npts) which holds all 
 c     max(nder*3,1) components for each grid point
+c
+      implicit none
+      integer basis    ! [input] basis set
+      integer geom     ! [input] geometry
+      integer g_dens   ! [input] GA with density
+      integer npt      ! [input] number of coord points
+      integer nder     ! [input] electronic integral type
+      double precision points(*) ! [input] coordinates for points
+      double precision elfval(*)     ! [output] efg values for each coord
+      call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
+     D     .false.)
+      return
+      end 
+      subroutine hnd_elfcon_schw(basis,geom,g_dens,points,npt,elfval,
+     N     nder)
+c
+c     modified hnd_elfcon: Schwarz screening is used
+c     more details below
+c
+      implicit none
+      integer basis    ! [input] basis set
+      integer geom     ! [input] geometry
+      integer g_dens   ! [input] GA with density
+      integer npt      ! [input] number of coord points
+      integer nder     ! [input] electronic integral type
+      double precision points(*) ! [input] coordinates for points
+      double precision elfval(*)     ! [output] efg values for each coord
+      call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
+     D     .true.)
+      return
+      end 
+      subroutine hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
+     D     doschwarz)
+c
+c     kernel routine for hnd_elfcon
+c     can do schwarz screening if needed
+c     Careful: since it initialize and cleans up schwarz, could conflict
+c     previous schwarz initializations
+#define M12 1
 c
       implicit none
 #include "nwc_const.fh"
@@ -28,12 +66,15 @@ c
       integer nder     ! [input] electronic integral type
       double precision points(3,npt) ! [input] coordinates for points
       double precision elfval(*)     ! [output] efg values for each coord
+      logical doschwarz ! [input] use and init schwarz screening
 c
       integer ishell, jshell, ijshell, nshell, nbf_max, me, nproc
       integer ilo, ihi, jlo, jhi, idim, jdim, nint
       integer l_dens, k_dens, l_scr, k_scr, l_buf, k_buf
       integer maxbuf, maxscr, i
-      double precision thresh,pmat_max,dabsmax
+      integer nxtask, task_size,next
+      external nxtask
+      double precision thresh,pmat_max,dabsmax,schw_ij
       external dabsmax
       parameter (thresh=1d-12)
 c
@@ -66,8 +107,10 @@ c
 c
 c     ----- calculate electronic integral component(s) at all points -----
 c
-      call schwarz_init(geom, basis)
+      if (doschwarz) call schwarz_init(geom, basis)
       ijshell = 0
+      task_size = 1
+      next = nxtask(nproc,task_size)+1
       do ishell = 1, nshell
 c
 c     get basis info
@@ -81,8 +124,14 @@ c
 #else
          do jshell=1,ishell
 #endif
+            if(doschwarz) then
+               schw_ij=schwarz_shell(ishell,jshell)
+            else
+               schw_ij=1d99
+            endif
+            if(schw_ij.gt.thresh*1d-1) then
             ijshell = ijshell + 1
-            if (mod(ijshell,nproc) .eq. me) then
+            if (ijshell.eq.next) then
 c
 c     get basis info
 c
@@ -96,9 +145,13 @@ c
                call ga_get(g_dens, ilo, ihi, jlo, jhi,
      $                     dbl_mb(k_dens), idim)
 
-            pmat_max = dabsmax(idim*jdim,dbl_mb(k_dens))
+               if(doschwarz) then
+                  pmat_max = dabsmax(idim*jdim,dbl_mb(k_dens))
+               else
+                  pmat_max=1d0
+               endif
 c
-           if((schwarz_shell(ishell,jshell)*pmat_max).gt.thresh) then
+           if(schw_ij*pmat_max.gt.thresh) then
 c
                call int_1eelec(basis,ishell,basis,jshell,maxscr,
      &                         dbl_mb(k_scr),nint,dbl_mb(k_buf),
@@ -111,13 +164,17 @@ c
                call multi_reduce(dbl_mb(k_buf),dbl_mb(k_dens),
      &                           elfval,idim,jdim,npt*(max(nder*3,1)))
                endif
+               next = nxtask(nproc,task_size)+1
+               endif
             end if  ! mod parallel loop
          end do   ! jshell
       end do    ! ishell
-      call schwarz_tidy()
+      if(doschwarz) call schwarz_tidy()
 c     Collect components from all the nodes for all points
 c
-      call ga_sync()
+      next = nxtask(-nproc,task_size)
+
+      call ga_mask_sync(.false.,.true.)
       call ga_dgop(msg_efgs_col,elfval,npt*(max(nder*3,1)),'+')
 c
 c     Clean up MA data blocks

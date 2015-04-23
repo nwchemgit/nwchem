@@ -64,7 +64,7 @@ c
       iptr=1
       do batch=1,no_batches
          if(batch.eq.no_batches) ngrid_batches=ngrid-iptr+1
-         call hnd_elfcon(ibasis,igeom,lg_d,
+         call hnd_elfcon_schw(ibasis,igeom,lg_d,
      C        grid(1,iptr),ngrid_batches,val(iptr),0)
          iptr=iptr+ngrid_batches
       enddo
