@@ -91,9 +91,9 @@ text="yes"
 while [ $# -ge 1 ] ; do
   case $1 in
     -h) task="help" ; shift 1 ;;
-    -g) graph="yes" ; shift 1 ;;
-    -t) text="yes"  ; man="no" ; shift 1 ;;
-    -m) text="no"   ; man="yes" ; shift 1 ;;
+    -g) text="no"   ; graph="yes" ; man="no"  ; shift 1 ;;
+    -t) text="yes"  ; graph="no"  ; man="no"  ; shift 1 ;;
+    -m) text="no"   ; graph="no"  ; man="yes" ; shift 1 ;;
     -s) src="yes"   ; shift 1 ;;
     -u) task="update" ; shift 1 ;;
     -v) task="version" ; shift 1 ;;
@@ -109,6 +109,16 @@ while [ $# -ge 1 ] ; do
     *)  task="help" ; shift 1 ;;
   esac
 done
+if [ ${#RUN_DOXYGEN_DEBUG} -ne 0 ]; then
+  echo "run_doxygen input options:"
+  echo "graph = " $graph
+  echo "latex = " $latex
+  echo "man   = " $man 
+  echo "mjax  = " $mjax
+  echo "src   = " $src 
+  echo "task  = " $task
+  echo "text  = " $text
+fi
 #
 # If all we need to do is to print the usage information, do it now and be done.
 #
@@ -153,7 +163,7 @@ if [ "$task" == "doc" ] ; then
     echo "CALLER_GRAPH           = YES" >> "$path/doxygen_tmp$$.rc"
     echo "GRAPHICAL_HIERARCHY    = YES" >> "$path/doxygen_tmp$$.rc"
     echo "DIRECTORY_GRAPH        = YES" >> "$path/doxygen_tmp$$.rc"
-    echo "DOT_GRAPH_MAX_NODES    = 0"   >> "$path/doxygen_tmp$$.rc"
+    echo "DOT_GRAPH_MAX_NODES    = 100" >> "$path/doxygen_tmp$$.rc"
     echo "MAX_DOT_GRAPH_DEPTH    = 0"   >> "$path/doxygen_tmp$$.rc"
     mv -f "$path/doxygen_tmp$$.rc" "$path/doxygen$$.rc"
   fi
