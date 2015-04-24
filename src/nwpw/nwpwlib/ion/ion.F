@@ -1069,9 +1069,9 @@ c         eki1=0.5d0*eki1
 
       end if
   238 format(/1x,"Initializing ion velocities: Temperature = ",F8.2,
-     >       "K, seed = ",I8)
+     >       "K, seed = ",I8/)
   239 format(/1x,"Rescaling ion velocities: Temperature = ",F8.2,
-     >       "K, seed = ",I8)
+     >       "K, seed = ",I8/)
 
 
 *     **** remove ion velocities using ion_FixIon ****
