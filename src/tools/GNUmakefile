@@ -329,6 +329,11 @@ ifeq ($(ARMCI_NETWORK),MPI-SPAWN)
     MAYBE_ARMCI = --with-mpi-spawn
 endif # MPI-SPAWN
 
+# ARMCI with progress rrrrrrrrr
+ifeq ($(ARMCI_NETWORK),MPI-PR) 
+    MAYBE_ARMCI = --with-mpi-pr
+endif # MPI-PR
+
 # ARMCI with progress thread
 ifeq ($(ARMCI_NETWORK),MPI-PT) 
     MAYBE_ARMCI = --with-mpi-pt
@@ -560,7 +565,8 @@ else
     ifdef EXP_GA
         GA_DIR = ga-exp1
     else
-        GA_DIR = ga-5-3
+        #GA_DIR = ga-5-3
+        GA_DIR = ga-dev
     endif
 endif
 ifndef ARMCI_NETWORK
@@ -619,18 +625,18 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 ifndef DONTCARE
 $(GA_DIR)/Makefile.in:
-	@echo "No Global Arrays found: Attempting running ./get-tools"
+	@echo "0No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
-$(GA_DIR)/configure: $(GA_DIR)/Makefile.in
-	@echo "No Global Arrays found: Attempting running ./get-tools"
-	./get-tools
-	touch $(GA_DIR)/configure
+#$(GA_DIR)/configure: $(GA_DIR)/Makefile.in
+#	@echo "1No Global Arrays found: Attempting running ./get-tools"
+#	./get-tools
+#	touch $(GA_DIR)/configure
 #$(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
 #	@echo "No Global Arrays found: Attempting running ./get-tools"
 #	./get-tools
 #	touch $(GA_DIR)/armci/Makefile.in
 $(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
-	@echo "No Global Arrays found: Attempting running ./get-tools"
+	@echo "3No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
 	touch $(GA_DIR)/armci/configure
 endif # DONTCARE
