@@ -63,8 +63,11 @@ C
       call fock_2e_tidy (params%rtdb)
 
       if (cdfit) then
-         if (.not. ma_pop_stack (params%l_3cwhat))
-     $        call errquit (pname//"failed to pop 3cwhat", 0, MA_ERR)
+         if (.not. ma_pop_stack (params%l_3cwhat)) then
+            call ma_summarize_allocated_blocks()
+             call errquit (pname//"failed to pop 3cwhat", 
+     C           params%l_3cwhat, MA_ERR)
+          endif
       
          if (.not. ma_pop_stack (params%l_3ceri))
      $        call errquit (pname//"failed to pop 3ceri", 0, MA_ERR)
