@@ -66,7 +66,7 @@ C
       call dft_fitcd (1, dbl_mb(icd_coef), dbl_mb(params%k_3ceri),
      $     Ecoul, g_densre_tot, params%ntotel, params%n_batch,
      $     params%n3c_int, int_mb(params%k_3cwhat), params%n3c_dbl,
-     $     params%iwhat_max, params%n_semi_bufs, params%fd,
+cold     $     params%iwhat_max, params%n_semi_bufs, params%fd,
      $     params%iolgc, params%natoms, .false., 0d0, .false.)
 
       
@@ -76,7 +76,7 @@ C
       call dft_getvc(dbl_mb(icd_coef), dbl_mb(params%k_3ceri),
      $     Ecoul, g_vc(1), iVcoul_opt, params%n_batch,
      $     params%n3c_int, int_mb(params%k_3cwhat), params%n3c_dbl,
-     $     params%iwhat_max, params%n_semi_bufs, params%fd,
+cold     $     params%iwhat_max, params%n_semi_bufs, params%fd,
      $     params%iolgc, .false., 1)
 
 
