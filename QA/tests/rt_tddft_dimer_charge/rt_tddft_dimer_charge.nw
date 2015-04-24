@@ -35,8 +35,6 @@
 
 title "Hydrogen dimer fragment charge dynamics"
 echo
-scratch_dir ./scratch
-permanent_dir ./perm
 
 start frags
 
