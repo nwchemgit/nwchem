@@ -1098,7 +1098,7 @@ int hdbm_first_key(hdbm db, datum *key)
     }
     
     for (cur_bin=0; 
-	 (hash_tables[db].nentry[cur_bin] == 0) && (cur_bin < NBINS); 
+	 (cur_bin < NBINS) && (hash_tables[db].nentry[cur_bin] == 0); 
 	 cur_bin++)
 	;
     
