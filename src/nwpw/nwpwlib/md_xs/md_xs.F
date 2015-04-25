@@ -335,19 +335,20 @@ c     **** deallocate stack ****
             end if
          end do
          call util_ascii_setwindow(xmin,xmax,ymin,ymax)
-         write(luout,'(A,E10.3,A)') "chi_max=",ymax
+         !write(luout,'(A,E10.3,A)') "chi_max=",ymax
          call util_ascii_plotter(luout,iii,
      >                           dbl_mb(kf(1)),
      >                           dbl_mb(chif(1)),'*',
-     >                           "Chi(k) - EXAFS Spectra")
-         write(luout,'(A,E10.3)') "chi_min=",ymin
-         write(luout,*)
-         write(luout,900) xmin,0.5d0*(xmax+xmin),xmax
+     >                           "Chi(k) - EXAFS Spectra",
+     >                           "K (Ang-1)","Chi(K)")
+         !write(luout,'(A,E10.3)') "chi_min=",ymin
+         !write(luout,*)
+         !write(luout,900) xmin,0.5d0*(xmax+xmin),xmax
          write(luout,*)
          write(luout,*)
       end if
-  900 format('kmin=',f6.1,'Ang-1',18x,f6.1,'Ang-1',
-     >                           17x,'kmax=',f6.1,'Ang-1')
+c  900 format('kmin=',f6.1,'Ang-1',18x,f6.1,'Ang-1',
+c     >                           17x,'kmax=',f6.1,'Ang-1')
 
 
 
@@ -442,19 +443,20 @@ c     **** allocate stack - fft  ****
             end if
          end do
          call util_ascii_setwindow(xmin,xmax,ymin,ymax)
-         write(luout,'(A,E10.3,A)') "chi_r_max=",ymax
+         !write(luout,'(A,E10.3,A)') "chi_r_max=",ymax
          call util_ascii_plotter(luout,iii,
      >                           dbl_mb(r(1)),
      >                           dbl_mb(tmpfft(1)),'*',
-     >                           "|FFT(k^(w)*Chi(k))| - EXAFS Spectra")
-         write(luout,'(A,E10.3)') "chi_r_min=",ymin
-         write(luout,*)
-         write(luout,901) xmin,0.5d0*(xmax+xmin),xmax
+     >                           "|FFT(k^(w)*Chi(k))| - EXAFS Spectra",
+     >                           "r (Ang)", "Chi(r)")
+         !write(luout,'(A,E10.3)') "chi_r_min=",ymin
+         !write(luout,*)
+         !write(luout,901) xmin,0.5d0*(xmax+xmin),xmax
          write(luout,*)
          write(luout,*)
       end if
-  901 format('rmin=',f6.1,'Ang',18x,f6.1,'Ang',
-     >                           17x,'rmax=',f6.1,'Ang')
+c  901 format('rmin=',f6.1,'Ang',18x,f6.1,'Ang',
+c     >                           17x,'rmax=',f6.1,'Ang')
 
 *     ************************************
 *     **** write out chi_r data file ****
