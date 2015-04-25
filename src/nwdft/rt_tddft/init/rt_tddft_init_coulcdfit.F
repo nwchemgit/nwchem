@@ -185,8 +185,7 @@ C
      $     n3c_int, n3c_dbl, !! n_semi_bufs,
      $     l_3ceri, k_3ceri, l_3cwhat, k_3cwhat)) then
          
-cold         call dft_3cincor (n_batch, n3c_int, int_mb(k_3cwhat),
-cold     $        dbl_mb(k_3cERI), n3c_dbl, iwhat_max, n_semi_bufs, fd)
+         incore=.false.
          call dft_3cincor (n_batch, n3c_int, int_mb(k_3cwhat),
      $        dbl_mb(k_3cERI), n3c_dbl)
          
