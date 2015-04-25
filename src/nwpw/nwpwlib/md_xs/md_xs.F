@@ -27,6 +27,7 @@ c     **********************************************
       integer nframes,natoms,stride,natoms1,center,nkf,nr
       integer iii,i,k,icount,icpu,pto,pfrom,iw
       real*8  rmax,rcut,x,y,z,vx,vy,vz,time1,volume,unita(3,3),ft(3)
+      real*8  xmin,xmax,ymin,ymax
       complex*16 zz
 
       integer nkf0
@@ -92,7 +93,97 @@ c     **********************************************
 
       if (oprint) then
          write(luout,*) 
-     >   "==== ","MD XS analysis: ",codeversion," ===="
+     >   "==== ","MD XS analysis - Distribution: ",codeversion," ===="
+         write(luout,*)
+         write(luout,*) "Copyright (c) [2002] University of Washington"
+         write(luout,*) "see ./nwchem/src/nwpw/nwpwlib/md_xs/FEFF6L",
+     >                  " LICENSE file for copying details"
+          write(luout,*)
+          write(luout,*)
+         write(luout,*)
+     >"************************************************************",
+     >"**********"
+          write(luout,*) "Distribution:  FEFF6L"
+         write(luout,*)
+     >"This software was prepared in part with US Government Funding",
+     >" under"
+      write(luout,*)
+     >"DOE contract DE-FG03-97ER45623."
+         write(luout,*)
+     >"Redistribution and use of this Distribution in source and binary"
+         write(luout,*)
+     >"formats, with or without modification is permitted, provided the"
+         write(luout,*)
+     >"following conditions are met:"
+         write(luout,*)
+         write(luout,*)
+     >"Redistributions must retain the above notices and the following",
+     >" list"
+         write(luout,*)
+     >"of conditions and disclaimer "
+         write(luout,*)
+         write(luout,*)
+     >"Modified versions carry the marking"
+         write(luout,*)
+     >"     Based on or developed using Distribution: FEFF6L"
+         write(luout,*)
+     >"     Copyright (c) [2002] University of Washington"
+         write(luout,*)
+         write(luout,*)
+     >"Recipient acknowledges the right of the University of",
+     >" Washington to"
+         write(luout,*)
+     >"prepare uses of this Distribution and its modifications that",
+     >" may be"
+         write(luout,*)
+     >"substantially similar or functionally equivalent to"
+         write(luout,*)
+     >"Recipient-prepared modifications."
+         write(luout,*)
+         write(luout,*)
+     >"Recipient and anyone obtaining access to the Distribution",
+     >" through"
+         write(luout,*)
+     >"recipient's actions accept all risk associated with possession",
+     >" and"
+         write(luout,*)
+     >"use of the Distribution."
+         write(luout,*)
+         write(luout,*)
+     >"THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED"
+         write(luout,*)
+     >"WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED",
+     >" WARRANTIES OF"
+         write(luout,*)
+     >"MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE",
+     >" DISCLAIMED."
+         write(luout,*)
+     >"IN NO EVENT SHALL THE UNIVERSITY OF WASHINGTON OR CONTRIBUTORS",
+     >" TO THE"
+         write(luout,*)
+     >"DISTRIBUTION BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,",
+     >" SPECIAL,"
+         write(luout,*)
+     >"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED",
+     >" TO,"
+         write(luout,*)
+     >"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,",
+     >" OR"
+         write(luout,*)
+     >"REVENUE; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY",
+     >" THEORY OF"
+         write(luout,*)
+     >"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT",
+     >"  (INCLUDING"
+         write(luout,*)
+     >"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE",
+     >" OF THIS"
+         write(luout,*)
+     >"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+         write(luout,*)
+     >"************************************************************",
+     >"**********"
+         write(luout,*)
          write(luout,*)
          write(luout,*) 'MOTION filename:  ',trim(filename)
       end if
@@ -217,6 +308,48 @@ c     **** deallocate stack ****
      >   call errquit("md_xs_analysis: popping stack",2,MA_ERR)
 
       
+*     ***************************
+*     **** ascii plot of chi ****
+*     ***************************
+      if (taskid.eq.MASTER) then
+         write(luout,*)
+         write(luout,*)
+         xmin =  999.0e12
+         ymin =  999.0e12
+         xmax = -999.0e12
+         ymax = -999.0e12
+         do i=1,nkf
+            y = dbl_mb(chif(1)+i-1)
+            if (y.lt.ymin) ymin = y
+            if (y.gt.ymax) ymax = y
+         end do
+         iii = -9
+         xmin = dbl_mb(kf(1))
+         xmax = dbl_mb(kf(1)+nkf-1)
+         do i=nkf,1,-1
+            x = dbl_mb(kf(1)+i-1)
+            y = dbl_mb(chif(1)+i-1)
+            if ((dabs(y/ymax).gt.0.01d0).and.(iii.lt.0)) then
+               iii = i
+               xmax = x
+            end if
+         end do
+         call util_ascii_setwindow(xmin,xmax,ymin,ymax)
+         write(luout,'(A,E10.3,A)') "chi_max=",ymax
+         call util_ascii_plotter(luout,iii,
+     >                           dbl_mb(kf(1)),
+     >                           dbl_mb(chif(1)),'*',
+     >                           "Chi(k) - EXAFS Spectra")
+         write(luout,'(A,E10.3)') "chi_min=",ymin
+         write(luout,*)
+         write(luout,900) xmin,0.5d0*(xmax+xmin),xmax
+         write(luout,*)
+         write(luout,*)
+      end if
+  900 format('kmin=',f6.1,'Ang-1',18x,f6.1,'Ang-1',
+     >                           17x,'kmax=',f6.1,'Ang-1')
+
+
 
 *     *********************************
 *     **** write out chi data file ****
@@ -256,12 +389,14 @@ c     **** deallocate stack ****
             write(19,'(F16.4,4E20.9)') x,y,x*y,x*x*y,x*x*x*y
          end do
          close(19)
+
       end if
+
 
 c     **** allocate stack - fft  ****
       !nr = 2*nkf
       nr = 2048
-      value = BA_push_get(mt_dcpl,(4*nr+15),'tmpfft',
+      value = BA_push_get(mt_dbl,(8*nr+30),'tmpfft',
      >                     tmpfft(2),tmpfft(1))
       value = value.and.
      >        BA_push_get(mt_dcpl,(nr),'chi_r',chi_r(2),chi_r(1))
@@ -270,17 +405,62 @@ c     **** allocate stack - fft  ****
       if (.not.value) 
      >   call errquit("md_xs_analysis: out of stack",3,MA_ERR)
       
-      call dcffti(nr,dcpl_mb(tmpfft(1)))
+      call dcffti(nr,dbl_mb(tmpfft(1)))
+
+*     ***************************************
+*     **** compute the fourier transform ****
+*     ***************************************
+      call md_xs_fourier(iw,ft(1),ft(2),ft(3),
+     >                    nkf,dbl_mb(kf(1)),dbl_mb(chif(1)),
+     >                    nr, dbl_mb(r(1)),dcpl_mb(chi_r(1)),
+     >                    dbl_mb(tmpfft(1)))
+
+*     *****************************
+*     **** ascii plot of chi_r ****
+*     *****************************
+      if (taskid.eq.MASTER) then
+         write(luout,*)
+         write(luout,*)
+         ymin = 0.0d0
+         ymax = -999.0e12
+         do i=1,nr/2
+            zz = dcpl_mb(chi_r(1)+i-1)
+            y  = dsqrt(dble(zz)**2 + dimag(zz)**2)
+            dbl_mb(tmpfft(1)+i-1) = y
+            if (y.gt.ymax) ymax = y
+         end do
+         iii = -9
+         xmin = dbl_mb(r(1))
+         xmax = dbl_mb(r(1)+nr/2-1)
+         do i=nr/2,1,-1
+            x  = dbl_mb(r(1)+i-1)
+            zz = dcpl_mb(chi_r(1)+i-1)
+            y  = dsqrt(dble(zz)**2 + dimag(zz)**2)
+            if ((dabs(y/ymax).gt.0.01d0).and.(iii.lt.0)) then
+               iii = i
+               xmax = x
+            end if
+         end do
+         call util_ascii_setwindow(xmin,xmax,ymin,ymax)
+         write(luout,'(A,E10.3,A)') "chi_r_max=",ymax
+         call util_ascii_plotter(luout,iii,
+     >                           dbl_mb(r(1)),
+     >                           dbl_mb(tmpfft(1)),'*',
+     >                           "|FFT(k^(w)*Chi(k))| - EXAFS Spectra")
+         write(luout,'(A,E10.3)') "chi_r_min=",ymin
+         write(luout,*)
+         write(luout,901) xmin,0.5d0*(xmax+xmin),xmax
+         write(luout,*)
+         write(luout,*)
+      end if
+  901 format('rmin=',f6.1,'Ang',18x,f6.1,'Ang',
+     >                           17x,'rmax=',f6.1,'Ang')
 
 *     ************************************
 *     **** write out chi_r data file ****
 *     ************************************
 
 *     **** define the chi_r data filename ****
-      call md_xs_fourier(iw,ft(1),ft(2),ft(3),
-     >                    nkf,dbl_mb(kf(1)),dbl_mb(chif(1)),
-     >                    nr, dbl_mb(r(1)),dcpl_mb(chi_r(1)),
-     >                    dcpl_mb(tmpfft(1)))
       if (.not.btdb_cget(rtdb,'md_xs:chi_r_filename',1,chi_filename))
      >    call util_file_prefix('chi_r',chi_filename)
       call util_file_name_noprefix(chi_filename,.false.,
@@ -358,7 +538,8 @@ c     **** deallocate stack ****
       integer nr
       real*8 r(*)
       complex*16 chi_r(*)
-      complex*16 tmpfft(*)
+      real*8     tmpfft(*)
+      !complex*16 tmpfft(*)
 
 *     **** local variables ****
       integer i
