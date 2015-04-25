@@ -210,8 +210,8 @@ c     **********************************************
          write(luout,*) 'absorber:         ',absorber
          write(luout,*) 'edge:             ',edge
          write(luout,*) 'center:           ',center
-         write(luout,*) 'rmax (Angstroms): ',rmax
-         write(luout,*) 'rcut (Angstroms): ',rcut*0.529177d0
+         write(luout,*) 'Rmax (Angstroms): ',rmax
+         write(luout,*) 'Rcut (Angstroms): ',rcut*0.529177d0
          write(luout,*)
          write(luout,*) 'Fourier Transform Window'
          write(luout,*) 'Kmin (Angstroms): ',ft(1)
@@ -339,7 +339,7 @@ c     **** deallocate stack ****
          call util_ascii_plotter(luout,iii,
      >                           dbl_mb(kf(1)),
      >                           dbl_mb(chif(1)),'*',
-     >                           "Chi(k) - EXAFS Spectra",
+     >                           "Chi(K) - EXAFS Spectra",
      >                           "K (Ang-1)","Chi(K)")
          !write(luout,'(A,E10.3)') "chi_min=",ymin
          !write(luout,*)
@@ -362,8 +362,10 @@ c     >                           17x,'kmax=',f6.1,'Ang-1')
       call util_file_name_noprefix(chi_filename,.false.,
      >                             .false.,
      >                             full_chi_filename)
-      if (oprint) write(luout,*)
-     >            'Chi_k data filename:',trim(full_chi_filename)
+      if (oprint) then
+         write(luout,*) "The following file can be used for plotting:"
+         write(luout,*) 'Chi_k data filename:',trim(full_chi_filename)
+      end if
 
       if (taskid.eq.MASTER) then
          open(unit=19,file=full_chi_filename,form='formatted')
@@ -447,8 +449,8 @@ c     **** allocate stack - fft  ****
          call util_ascii_plotter(luout,iii,
      >                           dbl_mb(r(1)),
      >                           dbl_mb(tmpfft(1)),'*',
-     >                           "|FFT(k^(w)*Chi(k))| - EXAFS Spectra",
-     >                           "r (Ang)", "Chi(r)")
+     >                           "|FFT(K^w*Chi(K))| - EXAFS Spectra",
+     >                           "R (Ang)", "|Chi(R)|")
          !write(luout,'(A,E10.3)') "chi_r_min=",ymin
          !write(luout,*)
          !write(luout,901) xmin,0.5d0*(xmax+xmin),xmax
@@ -468,8 +470,10 @@ c     >                           17x,'rmax=',f6.1,'Ang')
       call util_file_name_noprefix(chi_filename,.false.,
      >                             .false.,
      >                             full_chi_filename)
-      if (oprint) write(luout,*)
-     >            'Chi_r data filename:',trim(full_chi_filename)
+      if (oprint) then
+         write(luout,*) 'The following file can be used for plotting:'
+         write(luout,*) 'Chi_r data filename:',trim(full_chi_filename)
+      end if
 
       if (taskid.eq.MASTER) then
          open(unit=19,file=full_chi_filename,form='formatted')
@@ -529,7 +533,11 @@ c     **** deallocate stack ****
  1243 FORMAT(5x,'             a3=<',3f8.3,' >')
       end
 
-
+c     **********************************************
+c     *                                            *
+c     *                md_xs_fourier               *
+c     *                                            *
+c     **********************************************
       subroutine md_xs_fourier(iw,wmin,wmax,dw,
      >                         nk,k,chi_k,
      >                         nr,r,chi_r,tmpfft)
