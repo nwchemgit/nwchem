@@ -1,0 +1,56 @@
+c///////////////////////////////////////////////////////////////////////
+c Distribution:  FEFF6L
+c Copyright (c) [2002] University of Washington
+c 
+c This software was prepared in part with US Government Funding under
+c DOE contract DE-FG03-97ER45623.
+
+c Redistribution and use of this Distribution in source and binary
+c formats, with or without modification is permitted, provided the 
+c following conditions are met:
+c 
+c Redistributions must retain the above notices and the following list
+c of conditions and disclaimer;
+c 
+c Modified versions carry the marking
+c     "Based on or developed using Distribution: FEFF6L
+c      Copyright (c) [2002] University of Washington"
+c 
+c Recipient acknowledges the right of the University of Washington to
+c prepare uses of this Distribution and its modifications that may be
+c substantially similar or functionally equivalent to
+c Recipient-prepared modifications.
+c
+c Recipient and anyone obtaining access to the Distribution through
+c recipient's actions accept all risk associated with possession and
+c use of the Distribution.
+c
+c THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+c WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+c MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+c IN NO EVENT SHALL THE UNIVERSITY OF WASHINGTON OR CONTRIBUTORS TO THE
+c DISTRIBUTION BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+c EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+c PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+c REVENUE; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+c LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+c NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+c SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+c///////////////////////////////////////////////////////////////////////
+c License is applicable for routines listed below, unless otherwise specified.
+c
+arrays.h  diff.f    ffq.f     inouh.f	 mpprmd.f  pola.h    rpotph.f  timrep.f
+atom.f	            fixvar.f  inth.f	 mpprmp.f  potph.f   sclmz.f   totale.f
+besjn.f   dim.h     fmatrx.h  intpol.f	 mrb.f	   potsl.f   sdist.f   trap.f
+bjnser.f  dirac.f   fmtrxi.f  ipack.f	 nlm.h	   potslw.f  setgam.f  vers.h
+ccrit.f   dist.f    fovrg.f   istprm.f	 outcrt.f  prcrit.f  setlam.f  wphase.f
+cdsld.f   edp.f     fpot.f    istval.f	 ovrlp.f   quinn.f   sidx.f    wpot.f
+chopen.f  exchan.f  frnrm.f   lambda.h	 pathsd.f  rdhead.f  sigms.f   xcpot.f
+clmz.h	  exchee.f  genfmt.f             paths.f   rdinp.f   snlm.f    xx.f
+const.h   exjlnl.f  getorb.f  Makefile	 pdata.h   rdpath.f  somm.f    ykdir.f
+cpl0.f	  feffbd.f  getxk.f   mcrith.f	 pertab.f  renorm.f  sortix.f
+cright.f  feff.f    head.f    mcritk.f	 phase.f   rhl.f     strap.f
+csomm.f             heap.f    mkptz.f	 phash.f   rot3i.f   str.f
+cubic.f   fermi.f   imhl.f    mmtr.f	 phmesh.f  rotmat.h  sumax.f
+dalp.f	  ff2chi.f  indata.f  mmtrxi.f	 pijump.f  rphbin.f  terp.f
+
