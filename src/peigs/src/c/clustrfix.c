@@ -362,7 +362,8 @@ Integer clustrfix_ (n, d, e, m, w, iblock, nsplit, isplit, num_clustr, clustr_in
   
   jjj =0;
   for ( iii = 0; iii < num_cls; iii++ ) {
-    printf(" cptr c1 %d cn  %d b1 %d bn %d \n", clustr_info[jjj++], clustr_info[jjj++], clustr_info[jjj++], clustr_info[jjj++]);
+    printf(" cptr c1 %d cn  %d b1 %d bn %d \n", clustr_info[jjj], clustr_info[jjj+1], clustr_info[jjj+2], clustr_info[jjj+3]);
+    jjj += 4;
   }
   
   *num_clustr = num_cls;
