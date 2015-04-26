@@ -229,25 +229,28 @@ c     **********************************************
             if (boundary(1).gt.0.0d0) then
                if (taskid.eq.MASTER)
      >            write(luout,'(A,2F11.6)') 
-     >                 "  ... setting boundary, w,sigma=",
+     >            " Metadynamics: setting boundary, w,sigma=",
      >                 boundary(1),boundary(2)
                call meta_setboundary(boundary(1),boundary(2))
             end if
             if (dabs(sn2(1)).gt.0.0d0) then
                if (taskid.eq.MASTER)
-     >            write(luout,'(A)') "  ... setting sn2 surface"
+     >            write(luout,'(A)')
+     >            " Metadynamics: setting sn2 surface"
                call meta_setsn2surface(sn2)
             end if
          else
             if (taskid.eq.MASTER) 
-     >        write(luout,*) "  ... reading metadynamics data from rtdb"
+     >        write(luout,*) 
+     >        "Metadynamics: reading metadynamics data from rtdb"
 
             !*** re-scale tempered ***
             fac = 1.0d0
             if (dTtempered.gt.0.0d0) then
                if (taskid.eq.MASTER) 
      >            write(luout,*) 
-     >            "  ... re-scaling to be consistent with tempering"
+     >            "Metadynamics: re-scaling to be consistent",
+     >            " with tempering"
                if (control_Nose()) then
                   temp = control_Nose_Tr()
                else
@@ -1415,7 +1418,7 @@ c                  r0    = meta_collective(int_mb(indxmeta(1)+s1),
 c     >                                    dbl_mb(parammeta(1)+s2),
 c     >                                    ispin,ne,psi1)
                   sigma = dbl_mb(parammeta(1)+s2+1)
-                  if (pmeta(d).eq.0) then
+                  if (int_mb(pmeta(1)+d-1).eq.0) then
                      x = dbl_mb(ameta(1)+d-1) 
      >                + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
      >                    /dble(int_mb(nxmeta(1)+d-1)-1)
@@ -1788,8 +1791,6 @@ c               close(53)
 
 
 
-
-
 *     ***********************************************
 *     *                                             *
 *     *              meta_setboundary               *
@@ -1815,7 +1816,7 @@ c               close(53)
             do i=1,nxmeta_all
                ww = 0.0d0
                do d=1,nmeta
-                  if (pmeta(d).eq.0) then
+                  if (int_mb(pmeta(1)+d-1).eq.0) then
                      x = dbl_mb(ameta(1)+d-1) 
      >                + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
      >                      /dble(int_mb(nxmeta(1)+d-1)-1)
