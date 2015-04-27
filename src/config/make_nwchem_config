@@ -137,7 +137,7 @@ MODULES := $(patsubst property,property ddscf solvation,$(MODULES) )
 #MODULES := $(patsubst oimp2,oimp2 rimp2 moints,$(MODULES) )
 
 MODULES := $(patsubst vib,vib stepper driver optim gradients,$(MODULES) )
-MODULES := $(patsubst driver, driver stepper optim gradients,$(MODULES) )
+MODULES := $(patsubst driver, driver stepper optim gradients vib,$(MODULES) )
 MODULES := $(patsubst stepper,stepper gradients,$(MODULES) )
 MODULES := $(patsubst gradients,gradients ddscf nwdft,$(MODULES) )
 MODULES := $(patsubst hessian,hessian ddscf gradients nwdft cphf property stepper vib,$(MODULES) )
