@@ -168,7 +168,7 @@ c     Save central atom dirac components, see comments below.
 
       character*40 ttl
       character*2  titre
-      common /char/ titre(30), ttl
+      common /char2/ titre(30), ttl
 
       dimension tden(30)
       character*30 fname
@@ -911,7 +911,7 @@ c     if xout is too small
 c titre = identification of the wave functions  s,p*,p,........
       character*40 ttl
       character*2  titre
-      common /char/ titre(30), ttl
+      common /char2/ titre(30), ttl
 
 c  -- This read commented out to make input easier, not used for
 c     PHASE calculations
@@ -3891,7 +3891,7 @@ c     logical unit from which to read input
 
       character*40 ttl
       character*2  titre
-      common /char/ titre(30), ttl
+      common /char2/ titre(30), ttl
 
       character*2  ttire(9)
       data ttire /'s ', 'p*', 'p ', 'd*', 'd ', 'f*', 'f ','g*', 'g '/
@@ -12412,7 +12412,7 @@ c     **** parse "geometry": json item ****
          open(15,file=trim(header)//'chi.dat')
          do
             read(15,'(A)',end=311,err=311) buf
-            dict_out = trim(dict_out)//trim(buf)//NEW_LINE('A')
+            !dict_out = trim(dict_out)//trim(buf)//NEW_LINE('A')
          end do
  311     close(15)
       else
