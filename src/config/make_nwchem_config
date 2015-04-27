@@ -153,7 +153,7 @@ MODULES := $(patsubst moints,moints ddscf NWints,$(MODULES) )
 MODULES := $(patsubst cphf,cphf ddscf,$(MODULES) )
 MODULES := $(patsubst scfaux,scfaux ddscf,$(MODULES) )
 
-MODULES := $(patsubst nwdft,nwdft ddscf NWints,$(MODULES) )
+MODULES := $(patsubst nwdft,nwdft ddscf gradients NWints property cphf hessian,$(MODULES) )
 
 MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
