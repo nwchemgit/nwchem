@@ -1300,7 +1300,7 @@ if [ ${#LARGE_FILES} -eq 0 ] ; then
 fi
 export LDOPTIONS=" "
 #export USE_SUBGROUPS=y # disables parallel diag, do not set for release
-#export DEV_GA=y        # do not set this for the release
+export DEV_GA=y         # Edo has made this a requirement...
 #export USE_GPROF=y
 #
 # Now we try and guess the network on the machine.
