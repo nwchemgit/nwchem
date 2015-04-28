@@ -168,12 +168,13 @@ c
 c
       if(nproc.gt.1) then
 c
-c       Allow for some load-imbalance (factor of 1.2).
+c       Allow for some load-imbalance (factor of 1.5).
 c
         dft_n3cint = ncenters*(ncenters+1)/nproc
+        dft_n3cint = dft_n3cint*15/10
         dft_n3cint=max(dft_n3cint,ncenters)
       else
-        dft_n3cint = ncenters*(ncenters+1)
+         dft_n3cint = ncenters*(ncenters+1)
       endif
       return
       end
