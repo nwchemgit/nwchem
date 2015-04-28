@@ -160,7 +160,7 @@ c
          nbf_at_c=bf_hi_c - bf_lo_c + 1
 c     
          do atom_d_in= 1,atom_c_in
-         atom_d=int_mb(k_at+atom_d_in-1)
+            atom_d=int_mb(k_at+atom_d_in-1)
             if(use_nxtask) then
                dowork=n1.eq.icount
             else
