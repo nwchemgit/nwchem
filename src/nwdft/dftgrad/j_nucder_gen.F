@@ -149,7 +149,7 @@ c     fitted case (allocation is set up properly in j_nucder_alloc)
 c
          if (bgj_print().gt.0) write(*,*)
      &      ': what about oactive for fitted J?'
-         call dftg_cdfit_gen(AO_bas_han, CD_bas_han,
+         call dftg_cdfit_gen(geom,AO_bas_han, CD_bas_han,
      &                       nbf_cd, natoms, tol2e,
      &                       dbl_mb(k_scr), lscr, dbl_mb(k_buf), lbuf,
      &                       dbl_mb(k_d_kla), dbl_mb(k_d_ija),

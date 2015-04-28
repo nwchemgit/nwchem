@@ -1,4 +1,4 @@
-      Subroutine dftg_cdfit(AO_bas_han, CD_bas_han,
+      Subroutine dftg_cdfit(geom,AO_bas_han, CD_bas_han,
      &                      nbf_cd, nat, tol2e, scr, 
      &                      lscr, buf, lbuf, vec, PPP, max_sh_bf,
      &                      iga_dens, force, CD_coef,
@@ -11,6 +11,7 @@ c
 *
 * $Id$
 *
+      integer geom
       integer  AO_bas_han, CD_bas_han
       integer nbf_cd, nat, max_sh_bf
       integer iga_dens, lbuf, lscr
@@ -23,7 +24,7 @@ c
       double precision tol2e
       logical oskel
 c
-      call dftg_cdfit_gen( AO_bas_han, CD_bas_han,
+      call dftg_cdfit_gen(geom, AO_bas_han, CD_bas_han,
      &                    nbf_cd, nat, tol2e, scr, 
      &                    lscr, buf, lbuf, vec, PPP, max_sh_bf,
      &                    iga_dens, force, 0d0, 0, 0d0,
@@ -37,7 +38,7 @@ c     matrices and hessian as well as fitted J forces
 c
 c     BGJ - 3/99
 c
-      Subroutine dftg_cdfit_gen( AO_bas_han, CD_bas_han,
+      Subroutine dftg_cdfit_gen(geom, AO_bas_han, CD_bas_han,
      &                           nbf_cd, nat, tol2e, scr, 
      &                          lscr, buf, lbuf, vec, PPP, max_sh_bf,
      &                          iga_dens, force, hess,
@@ -55,6 +56,7 @@ c
 #include "stdio.fh"
 #include "inp.fh"
 c
+      integer geom
       integer  AO_bas_han, CD_bas_han
       integer  nbf_cd, nat, max_sh_bf
       integer iga_dens, lbuf, lscr, calc_type
@@ -111,6 +113,7 @@ c
       double precision PPP_max,dE,fac,schwarz_shell,q1
       logical do_force, do_cpks_r, do_hess
       integer ierr,LU
+      integer k_at,l_at,atom_p_in,atom_q_in
       character*255 errmsg
 c
       character*(nw_max_path_len) cdfit
@@ -200,17 +203,23 @@ c
      G     'gather vector',l_p,k_p))
      &  call errquit('dft_fitcd: cannot allocate gather vector',0,
      &       MA_ERR)
+      if(.not.MA_Push_Get(MT_int,nat,'at list',l_at,k_at))
+     &  call errquit('dft_cdfit: cannot allocate at list',0, MA_ERR)
+c     sort atoms list based on decreasing atomic weight
+      call dft_sortatbyz(geom,nat,int_mb(k_at))
 c
       next = nxtask(nproc,1) + 1
       icount_task=1
 c
-      do atom_p=1,nat
+      do atom_p_in=1,nat
+         atom_p=int_mb(k_at+atom_p_in-1)
         if (.not. bas_ce2cnr( AO_bas_han, atom_p, sh_lo_p, sh_hi_p)) 
      &       call errquit('Exiting in dftg_cdfit',110, BASIS_ERR)
         if (.not. bas_ce2bfr(AO_bas_han,atom_p,bf_lo_p,bf_hi_p)) 
      &       call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
-        do atom_q=atom_p, nat
+        do atom_q_in=atom_p_in, nat
          if (icount_task.eq.next)then
+            atom_q=int_mb(k_at+atom_q_in-1)
            if (.not. bas_ce2cnr(AO_bas_han,atom_q,sh_lo_q,sh_hi_q)) 
      &       call errquit('Exiting in dftg_cdfit',110, BASIS_ERR)
            if (.not. bas_ce2bfr(AO_bas_han,atom_q,bf_lo_q,bf_hi_q)) 
@@ -363,7 +372,7 @@ c
 c
       next = nxtask(-nproc,1)
 c
-      if (.not.MA_pop_stack(l_p))
+      if (.not.MA_chop_stack(l_p))
      &     call errquit('dftg_cdfit_gen: cannot pop l_p',1, MA_ERR)
       if (do_cpks_r) then
          if (.not.MA_pop_stack(l_dfkl))

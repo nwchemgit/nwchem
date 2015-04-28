@@ -458,7 +458,7 @@ c
          if (odftps) call pstat_on(ps_vcoul)
          call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,iga_dens,
      &        nbf_ao,ipol,.true.,.true.)
-         call dftg_cdfit(ao_bas_han, cd_bas_han,
+         call dftg_cdfit(geom,ao_bas_han, cd_bas_han,
      $        nbf_cd, nat, tol2e, dbl_mb(k_scr), 
      $        lscratch, dbl_mb(k_buf), lbuf,
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
