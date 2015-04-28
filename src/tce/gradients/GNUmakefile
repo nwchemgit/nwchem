@@ -60,7 +60,7 @@ USES_BLAS = ccsd_1pdm_hh_mo.F   ccsd_1pdm_pp_mo.F ccsd_1pdm_hp_mo.F ccsd_1pdm_ph
             wdm_hh_mo_c_d.F wdm_hh_mo_c_e_a.F wdm_hh_mo_c_e_b.F wdm_hh_mo_c_f_a.F wdm_hh_mo_c_f_b.F \
             wdm_hh_mo_d.F \
             wdm_hp_mo_a.F   wdm_hp_mo_b_a_a.F wdm_hp_mo_b_a_b.F wdm_hp_mo_b_b_a.F wdm_hp_mo_b_b_b.F \
-            wdm_hp_mo_b_c.F wdm_hp_b_d_a.F wdm_hp_b_d_b.F wdm_hp_b_e_a.F wdm_hp_b_e_b.F \
+            wdm_hp_mo_b_c.F wdm_hp_mo_b_d_a.F wdm_hp_mo_b_d_b.F wdm_hp_mo_b_e_a.F wdm_hp_mo_b_e_b.F \
             wdm_hp_mo_b_f.F wdm_hp_mo_c.F \
             wdm_pp_mo_a.F   wdm_pp_mo_b_a_a.F wdm_pp_mo_b_a_b.F wdm_pp_mo_b_b_a.F wdm_pp_mo_b_b_b.F \
             wdm_pp_mo_b_c.F wdm_pp_mo_b_d_a.F wdm_pp_mo_b_d_b.F wdm_pp_mo_b_e_a.F wdm_pp_mo_b_e_b.F \
