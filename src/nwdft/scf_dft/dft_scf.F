@@ -841,9 +841,9 @@ c
 c
       if (CDFIT)then
         if (odftps) call pstat_on(ps_incore)
-        if(dft_mem3c(natoms,npol,oprint_parm,oprint_3c2e,
+        if(dft_mem3c(rtdb,natoms,npol,oprint_parm,oprint_3c2e,
      O               n3c_int,n3c_dbl,
-     O               l_3ceri,k_3cERI, l_3cwhat,k_3cwhat)) then
+     O               l_3ceri,k_3cERI, l_3cwhat,k_3cwhat)) then 
            incore=.false.
           call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
      &                     dbl_mb(k_3cERI), n3c_dbl)

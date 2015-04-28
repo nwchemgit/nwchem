@@ -168,12 +168,12 @@ c
 c
       if(nproc.gt.1) then
 c
-c       Allow for some load-imbalance (factor of 2.5).
+c       Allow for some load-imbalance (factor of 2).
 c
         dft_n3cint = ncenters*(ncenters+1)/nproc
         if(ga_nodeid().eq.0)
      C       write(6,*) ' dft_n3cint0 ',dft_n3cint, ' nctr0 ',ncenters
-        dft_n3cint = dft_n3cint*25/10
+        dft_n3cint = dft_n3cint*2
         dft_n3cint=max(dft_n3cint,ncenters)
         if(ga_nodeid().eq.0)
      C       write(6,*) ' dft_n3cint ',dft_n3cint, ' nctr ',ncenters

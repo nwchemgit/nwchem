@@ -180,7 +180,7 @@ C
 C     Set up three center integrals.  This was already done in SCF, but
 C     we have to redo it here.
 C     
-      if (dft_mem3c(
+      if (dft_mem3c(params%rtdb,
      $     params%natoms, npol, .false., .false.,
      $     n3c_int, n3c_dbl, !! n_semi_bufs,
      $     l_3ceri, k_3ceri, l_3cwhat, k_3cwhat)) then

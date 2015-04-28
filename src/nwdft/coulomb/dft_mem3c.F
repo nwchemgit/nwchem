@@ -1,4 +1,4 @@
-      logical function dft_mem3c(
+      logical function dft_mem3c(rtdb,
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
@@ -12,6 +12,8 @@
 #include "cdft.fh"
 #include "basP.fh"
 #include "bas.fh"
+#include "rtdb.fh"
+      integer rtdb   ! [in]
       integer natoms ! [in]
       integer npol ! [in]
       integer n3c_int ! [out]
@@ -35,6 +37,7 @@
       integer ishc,itype,nprimo,nshbfc,isphere
       integer deficit,atom_c,sh_lo_c,sh_hi_c
       logical spherical_ao
+      integer n3c_int_in
 c
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -47,6 +50,10 @@ c     - amount needed for all incore:
 c     
       n3c_dbl_r = dft_n3cdbl()
       n3c_int = dft_n3cint()
+c     either read no. of batches or make it at least 1000
+      if(.not.rtdb_get(rtdb,'dft:n3c_int',mt_int,1,n3c_int_in))
+     N     n3c_int_in=1000
+      n3c_int=max(n3c_int,n3c_int_in)
 c     
 c     find - (minimum)amount local available memory on all nodes
 c     
@@ -119,7 +126,7 @@ c
 
       n3c_dbl = nint(availm_r)
       if (me.eq.0 .and. oprint_parm)
-     &     write(LuOut,3228)avail, availm, n3c_dbl
+     &     write(LuOut,3228)avail, availm, n3c_dbl,n3c_int
       
       if(deficit.ne.0.and.me.eq.0) write(luout,3230) deficit
 c     
@@ -176,7 +183,9 @@ c     if(me.eq.0) call MA_summarize_allocated_blocks()
          return
  3228 format(10x,'Minimum dble words available (all nodes) is: ',i15,
      &     /,10x,'         This is reduced (for later use) to: ',i15,
-     &     /,10x,'                   Suggested buffer size is: ',i15)
+     &     /,10x,'                   Suggested buffer size is: ',i15,
+     &     /,10x,'                    no. integral batches is: ',i15)
+
  3230 format(/7x,
      &     'Extra Local Memory (stack+heap) needed for incore:',i6,
      &     ' Mbytes ')
