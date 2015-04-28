@@ -54,6 +54,7 @@ c
       integer bf_lo_c,bf_hi_c, bf_lo_d, bf_hi_d
       integer nbf_at_c,nbf_at_d
       integer k_p,l_p,icount_d,icount_c, n_batch_done
+      integer k_at,l_at,atom_c_in,atom_d_in
       external nxtask
 c
       if(dermat) call errquit(
@@ -138,6 +139,10 @@ c
       if (.not.do_init) call errquit(
      C     ' dft_fitvc: do_init has to be true',0,0)
       call ga_zero(g_vc)
+      if(.not.MA_Push_Get(MT_int,ncenters,'at list',l_at,k_at))
+     &  call errquit('dft_fitvc: cannot allocate at list',0, MA_ERR)
+c     sort atoms list based on decreasing atomic weight
+      call dft_sortatbyz(geom,ncenters,int_mb(k_at))
 c
       n1=0
       use_nxtask=.not.incore
@@ -146,19 +151,21 @@ c
       ipoint=1
 c
       n_batch_done = 1
-      do atom_c = 1,ncenters
+      do atom_c_in = 1,ncenters
+         atom_c=int_mb(k_at+atom_c_in-1)
          if (.not. bas_ce2cnr( AO_bas_han, atom_c, sh_lo_c, sh_hi_c)) 
      &        call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
          if (.not. bas_ce2bfr( AO_bas_han, atom_c, bf_lo_c, bf_hi_c)) 
      &        call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
          nbf_at_c=bf_hi_c - bf_lo_c + 1
 c     
-         do atom_d= 1,atom_c
+         do atom_d_in= 1,atom_c_in
+         atom_d=int_mb(k_at+atom_d_in-1)
             if(use_nxtask) then
                dowork=n1.eq.icount
             else
                dowork=iwhat(n_batch_done).eq.
-     A              ((atom_c*(atom_c-1))/2 + atom_d-1)
+     A              ((atom_c_in*(atom_c_in-1))/2 + atom_d_in-1)
             endif
             if(dowork) then
                if (.not.bas_ce2bfr(AO_bas_han,atom_d,bf_lo_d, bf_hi_d)) 
