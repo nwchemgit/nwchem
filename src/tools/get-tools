@@ -58,7 +58,7 @@ if [ $ga_version == 0 ] ; then
 fi
 
 # If DEV_GA is set at all in the user's environment then it means 'yes'
-    DEV_GA=y
+#    DEV_GA=y
 if test "x$DEV_GA" != x
 then
     GA_SVN=$GA_DEV_SVN
