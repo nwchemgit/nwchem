@@ -92,10 +92,10 @@ C>
 C> Here we calculate 
 C> \f{eqnarray*}{
 C>   \frac{\partial C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)}
-C>        {\partial R_C}
+C>        {\partial \left(R_C\right)_i}
 C> \f}
 C> where atom \f$C\f$ maybe equal to \f$A\f$, \f$B\f$ or some other
-C> atom entirely.
+C> atom entirely, \f$i\f$ is either \f$x, y,\f$ or \f$z\f$.
 C> 
 C> ### References ###
 C>
@@ -129,12 +129,19 @@ c
       cni=crd_nr(iat,n,x,z)
       cnj=crd_nr(jat,n,x,z)
       if (iat.eq.kat) then
-         cnik(1)=cnij(1,iat)
-         cnik(2)=cnij(2,iat)
-         cnik(3)=cnij(3,iat)
-         cnjk(1)=cnijk(1,iat,jat)
-         cnjk(2)=cnijk(2,iat,jat)
-         cnjk(3)=cnijk(3,iat,jat)
+         cnik(1)=cnij(1,kat)
+         cnik(2)=cnij(2,kat)
+         cnik(3)=cnij(3,kat)
+         cnjk(1)=cnijk(1,kat,jat)
+         cnjk(2)=cnijk(2,kat,jat)
+         cnjk(3)=cnijk(3,kat,jat)
+      else if (jat.eq.kat) then
+         cnik(1)=cnijk(1,kat,iat)
+         cnik(2)=cnijk(2,kat,iat)
+         cnik(3)=cnijk(3,kat,iat)
+         cnjk(1)=cnij(1,kat)
+         cnjk(2)=cnij(2,kat)
+         cnjk(3)=cnij(3,kat)
       else
          cnik(1)=cnijk(1,kat,iat)
          cnik(2)=cnijk(2,kat,iat)
@@ -389,7 +396,7 @@ C>
 C> Evaluate the Becke-Johnson damping factor [1,2] for the dispersion
 C> correction:
 C> \f{eqnarray}{
-C>   \mathrm{xc_fdmpbj}(R,R^0,a_1,a_2,n) &=&
+C>   \mathrm{xc\_fdmpbj}(R,R^0,a_1,a_2,n) &=&
 C>   \frac{1}{R^n+f(R^0,a_1,a_2)^n} \\\\
 C>   f(R^0,a_1,a_2) &=& a_1 R^0 + a_2
 C> \f}
@@ -431,15 +438,15 @@ C>
 C> The Becke-Johnson damping factor [1,2] for the dispersion
 C> correction is:
 C> \f{eqnarray}{
-C>   \mathrm{xc_fdmpbj}(R,R^0,a_1,a_2,n) &=&
+C>   \mathrm{xc\_fdmpbj}(R,R^0,a_1,a_2,n) &=&
 C>   \frac{1}{R^n+f(R^0,a_1,a_2)^n} \\\\
 C>   f(R^0,a_1,a_2) &=& a_1 R^0 + a_2
 C> \f}
 C> This function evaluates the gradient of the Becke-Johnson damping
 C> wrt. \f$R\f$:
 C> \f{eqnarray}{
-C>   \frac{\partial\mathrm{xc_fdmpbj}(R,R^0,a_1,a_2,n)}{\partial R} &=&
-C>   -n R^{n-1}\mathrm{xc_fdmpbj}(R,R^0,a_1,a_2,n)^2
+C>   \frac{\partial\mathrm{xc\_fdmpbj}(R,R^0,a_1,a_2,n)}{\partial R} &=&
+C>   \frac{-n R^{n-1}}{\mathrm{xc\_fdmpbj}(R,R^0,a_1,a_2,n)^2}
 C> \f}
 C>
 C> ### References ###

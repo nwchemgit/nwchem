@@ -240,7 +240,7 @@ c
            force(3,A)=0.0d0
            if (Z(A).ne.0) then
              do j=1,n
-               if(A.ne.j) then      
+               if(A.ne.j.and.Z(j).ne.0) then      
                   dxAj=x(1,A)-x(1,j)
                   dyAj=x(2,A)-x(2,j)
                   dzAj=x(3,A)-x(3,j)
@@ -256,7 +256,6 @@ c
 c                 Factors
 c
                   rAj = dsqrt(rAj)
-                  r0aj=r0AB(z(A),z(j))
                   Qfac=Qatom(z(A))*Qatom(z(j))
 c
 c                 Coordination dependent C6_AB value
@@ -265,6 +264,7 @@ c
                   cnj=crd_nr(j,n,x,z)
                   c6Aj=c6cn(z(A),z(j),cnA,cnj)
                   c8=3.0d0*c6Aj*Qfac
+                  r0Aj=dsqrt(3.0d0*Qfac)
 c
 c                 Get gradient for coordination number dependent C6
 c
@@ -274,38 +274,35 @@ c
 c                 dx contribution to A
 c
                   force(1,A)=force(1,A)
-     $              -s6*c6Aj*xc_fdmpbj_d1(rAj,dsqrt(c8/c6Aj),a1,a2,6)
-     $               *dxAj/(rAj**3)
-     $              -s6*grad_c6(1)*xc_fdmpbj(rAj,dsqrt(c8/c6Aj),a1,a2,6)
-     $               *dxAj/(rAj**3)
-     $              -s8*c8*xc_fdmpbj_d1(rAj,dsqrt(c8/c6Aj),a1,a2,8)
-     $               *dxAj/(rAj**3)
-     $              -s8*grad_c6(1)*Qfac*xc_fdmpbj(rAj,dsqrt(c8/c6Aj),
-     $                a1,a2,8)*dxAj/(rAj**3)
+     $              -s6*c6Aj*xc_fdmpbj_d1(rAj,r0Aj,a1,a2,6)
+     $               *dxAj/rAj
+     $              -s8*c8*xc_fdmpbj_d1(rAj,r0Aj,a1,a2,8)
+     $               *dxAj/rAj
+     $              -s6*grad_c6(1)*xc_fdmpbj(rAj,r0Aj,a1,a2,6)
+     $              -s8*3.0d0*grad_c6(1)*Qfac*xc_fdmpbj(rAj,r0Aj,
+     $                a1,a2,8)
 c
 c                 dy contribution to A
 c
                   force(2,A)=force(2,A)
-     $              -s6*c6Aj*xc_fdmpbj_d1(rAj,dsqrt(c8/c6Aj),a1,a2,6)
-     $               *dyAj/(rAj**3)
-     $              -s6*grad_c6(2)*xc_fdmpbj(rAj,dsqrt(c8/c6Aj),a1,a2,6)
-     $               *dyAj/(rAj**3)
-     $              -s8*c8*xc_fdmpbj_d1(rAj,dsqrt(c8/c6Aj),a1,a2,8)
-     $               *dyAj/(rAj**3)
-     $              -s8*grad_c6(2)*Qfac*xc_fdmpbj(rAj,dsqrt(c8/c6Aj),
-     $                a1,a2,8)*dyAj/(rAj**3)
+     $              -s6*c6Aj*xc_fdmpbj_d1(rAj,r0Aj,a1,a2,6)
+     $               *dyAj/rAj
+     $              -s8*c8*xc_fdmpbj_d1(rAj,r0Aj,a1,a2,8)
+     $               *dyAj/rAj
+     $              -s6*grad_c6(2)*xc_fdmpbj(rAj,r0Aj,a1,a2,6)
+     $              -s8*3.0d0*grad_c6(2)*Qfac*xc_fdmpbj(rAj,r0Aj,
+     $                a1,a2,8)
 c
 c                 dz contribution to A
 c
                   force(3,A)=force(3,A)
-     $              -s6*c6Aj*xc_fdmpbj_d1(rAj,dsqrt(c8/c6Aj),a1,a2,6)
-     $               *dzAj/(rAj**3)
-     $              -s6*grad_c6(3)*xc_fdmpbj(rAj,dsqrt(c8/c6Aj),a1,a2,6)
-     $               *dzAj/(rAj**3)
-     $              -s8*c8*xc_fdmpbj_d1(rAj,dsqrt(c8/c6Aj),a1,a2,8)
-     $               *dzAj/(rAj**3)
-     $              -s8*grad_c6(3)*Qfac*xc_fdmpbj(rAj,dsqrt(c8/c6Aj),
-     $                a1,a2,6)*dzAj/(rAj**3)
+     $              -s6*c6Aj*xc_fdmpbj_d1(rAj,r0Aj,a1,a2,6)
+     $               *dzAj/rAj
+     $              -s8*c8*xc_fdmpbj_d1(rAj,r0Aj,a1,a2,8)
+     $               *dzAj/rAj
+     $              -s6*grad_c6(3)*xc_fdmpbj(rAj,r0Aj,a1,a2,6)
+     $              -s8*3.0d0*grad_c6(3)*Qfac*xc_fdmpbj(rAj,r0Aj,
+     $                a1,a2,8)
  941              continue
                endif
              enddo
@@ -313,8 +310,8 @@ c
 c            Three center derivatives. Grimme uses aggressive screening
 c            to get this N^3 contribution back to N^2
 c
-             do j=2,n
-               if(A.ne.j) then      
+             do j=1,n
+               if(A.ne.j.and.z(j).ne.0) then      
                   rAj=sqrt(
      +                 (x(1,A)-x(1,j))**2 +
      +                 (x(2,A)-x(2,j))**2 +
@@ -327,8 +324,8 @@ c
 c
 c                 Third center involved
 c
-                  do k=1,j-1
-                     if(A.ne.k) then      
+                  do k=1,n
+                     if(A.ne.k.and.k.ne.j.and.z(k).ne.0) then      
                        dxAk=x(1,A)-x(1,k)
                        dyAk=x(2,A)-x(2,k)
                        dzAk=x(3,A)-x(3,k)
@@ -357,14 +354,14 @@ c
                        fdmp6=xc_fdmpbj(rjk,dsqrt(3.0d0*Qfac),a1,a2,6)
                        fdmp8=xc_fdmpbj(rjk,dsqrt(3.0d0*Qfac),a1,a2,8)
                        force(1,A)=force(1,A)
-     $                 -fdmp6*s6*grad_c6(1)*dxjk/(rjk**3.0d0)
-     $                 -3.0d0*fdmp8*s8*grad_c6(1)*Qfac*dxjk/(rjk**3.0d0)
+     $                           -fdmp6*s6*grad_c6(1)
+     $                           -3.0d0*fdmp8*s8*grad_c6(1)*Qfac
                        force(2,A)=force(2,A)
-     $                 -fdmp6*s6*grad_c6(2)*dyjk/(rjk**3.0d0)
-     $                 -3.0d0*fdmp8*s8*grad_c6(2)*Qfac*dyjk/(rjk**3.0d0)
+     $                           -fdmp6*s6*grad_c6(2)
+     $                           -3.0d0*fdmp8*s8*grad_c6(2)*Qfac
                        force(3,A)=force(3,A)
-     $                 -fdmp6*s6*grad_c6(3)*dzjk/(rjk**3.0d0)
-     $                 -3.0d0*fdmp8*s8*grad_c6(3)*Qfac*dzjk/(rjk**3.0d0)
+     $                           -fdmp6*s6*grad_c6(3)
+     $                           -3.0d0*fdmp8*s8*grad_c6(3)*Qfac
                      endif
  951              continue
                   enddo
@@ -384,7 +381,61 @@ c
 #endif
       return
       end
-c
+C>
+C> \brief Evaluate the dispersion energy
+C>
+C> This function evaluates the dispersion energy based on an empirical
+C> expression. This routine supports multiple expressions commonly 
+C> used in density functional theory. 
+C>
+C> The DFT-D3 correction with BJ damping [4,5] is given by
+C> \f{eqnarray*}{
+C>   E_{\mathrm{disp}}^{D3(BJ)} &=& -\frac{1}{2}\sum_{A\ne B}
+C>     s_6\frac{C_6^{AB}}{R_{AB}^6+[f(R^0_{AB})]^6} +
+C>     s_8\frac{C_8^{AB}}{R_{AB}^8+[f(R^0_{AB})]^8} \\\\
+C>   f(R^0_{AB}) &=& a_1R^0_{AB}+a_2 \\\\
+C>   R^0_{AB} &=& \sqrt{\frac{C_8^{AB}}{C_6^{AB}}}
+C> \f}
+C>
+C> \return The dispersion energy \f$E_{\mathrm{disp}}\f$.
+C>
+C> ### References ###
+C>
+C> [1] S. Grimme,
+C>     "Accurate description of van der Waals complexes by density
+C>      functional theory including empirical corrections",
+C>     J. Comp. Chem. (2004) <b>25</b>, 1463-1473, DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.20078">
+C>     10.1002/jcc.20078</a>.
+C>
+C> [2] U. Zimmerli, M. Parrinello, P. Koumoutsakos,
+C>     "Dispersion corrections to density functionals for water
+C>      aromatic interactions",
+C>     J. Chem. Phys. (2004) <b>120</b>, 2693, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.1637034">
+C>     10.1063/1.1637034</a>.
+C>
+C> [3] Q. Wu, W. Yang,
+C>     "Empirical correction to density functional theory for van der
+C>      Waals interactions",
+C>     J. Chem. Phys. (2002) <b>116</b>, 515, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.1424928">
+C>     10.1063/1.1424928</a>.
+C>
+C> [4] A.D. Becke, E.R. Johnson,
+C>     "A unified density-functional treatment of dynamical,
+C>      nondynamical and dispersion correlations",
+C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     10.1063/1.2768530</a> (See appendix C).
+C>
+C> [5] S. Grimme, S. Ehrlich, L. Goerigk,
+C>     "Effect of the damping function in dispersion corrected
+C>      density functional theory", J. Comput. Chem. (2011)
+C>     <b>32</b>, pp. 1456-1465, DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
+C>
       double precision function xc_vdw_e(s6,s8,sr6,sr8,a1,a2,n,x,z)
 c
 c     S. Grimme J Comp Chem 25, 1463 (2004)
@@ -394,10 +445,15 @@ c
       implicit none
 #include "errquit.fh"
 #include "xc_vdw.fh"
-      double precision s6,s8,sr6,sr8,a1,a2
-      integer n
-      double precision x(3,n)
-      integer z(n)
+      double precision s6     !< [Input] The \f$s_6\f$ coefficient
+      double precision s8     !< [Input] The \f$s_8\f$ coefficient
+      double precision sr6    !< [Input] The \f$s_{r,6}\f$ coefficient
+      double precision sr8    !< [Input] The \f$s_{r,8}\f$ coefficient
+      double precision a1     !< [Input] The \f$a_1\f$ coefficient
+      double precision a2     !< [Input] The \f$a_2\f$ coefficient
+      integer n               !< [Input] The number of atoms
+      double precision x(3,n) !< [Input] The atomic coordinates
+      integer z(n)            !< [Input] The atomic numbers of the atoms
 c
       integer i,j
       integer i6, i8
@@ -561,6 +617,7 @@ c
       if (.not.rtdb_get(rtdb,'dft:vdwalpha',MT_DBL,1,alpha))
      &      alpha = 20.0d0
       if (ivdw.eq.3) alpha = 14.0d0
+      if (ivdw.eq.4) alpha = 14.0d0
 c
 c     Get proper scaling factors depending on Grimme dispersion version
 c
