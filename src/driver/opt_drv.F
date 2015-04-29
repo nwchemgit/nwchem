@@ -1,3 +1,15 @@
+C>
+C> \ingroup driver
+C> @{
+C>
+C> \file opt_drv.F
+C> The top-level Driver code
+C>
+C> @}
+C>
+C> \ingroup driver
+C> @{
+C>
       logical function driver(rtdb)
 *
 * $Id$
@@ -2211,7 +2223,7 @@ c
         if (oprint) write(6,2) e2p, e2,alpha
  2         format( 'warning: line search expected E=',f14.6,' found E=',
      &             f14.6,' Backtracking to alpha=',f5.2)
-      else ! 012&0121
+      else ! 012&021
         ! This is not good, the previous geometry is lower than both
         lsmode = 'notok'
         if (abs(a2) .gt. abs(a1)) then
@@ -4571,4 +4583,5 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       end if
       return
       end
-
+C>
+C> @}

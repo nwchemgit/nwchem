@@ -1,0 +1,25 @@
+/* This file contains only Doxygen documentation on the DRIVER
+   module.
+*/
+
+/**
+\defgroup driver The Driver geometry optimizer
+\brief Notes on the Driver geometry optimizer
+
+The Driver geometry optimization module delivers capabilities to:
+
+- Find minimum energy geometries
+
+- Find transition states
+
+It can perform these optimizations using different coordinate systems:
+
+- Cartesian coordinates
+
+- Internal coordinates
+
+These optimizations may be performed with or without constraints, 
+and with or without periodic boundary conditions.
+
+*/
+/* $Id: geom_dox.c 25011 2013-12-19 17:45:25Z d3y133 $ */

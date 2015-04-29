@@ -1,3 +1,15 @@
+C>
+C> \ingroup driver
+C> @{
+C>
+C> \file driver_input.F
+C> The Driver input reader
+C>
+C> @}
+C>
+C> \ingroup driver
+C> @{
+C>
       subroutine driver_input(rtdb)
 *
 * $Id$
@@ -257,3 +269,5 @@ c
       goto 10                   ! While loop
 c
       end
+C>
+C> @}
