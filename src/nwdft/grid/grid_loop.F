@@ -34,6 +34,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "cdft.fh"
+#include "errquit.fh"
       logical dogradient
       integer nops
       logical dosympts,sub4,oprint,largenode
@@ -87,6 +88,7 @@ c
       double precision Amat3(*), Cmat3(*)
       logical do_gxc
       integer ngxc
+      integer l_at,k_at,i_a_in
       double precision rhosave(*)
       double precision delrhosave(*)
       logical do_tddftvxc  !dVxc*P contribution to TDDFT grads
@@ -113,7 +115,13 @@ c
       if(dosympts) call grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,nqmax)
 
-      do 111 i_a =1,ncenters
+      if(.not.MA_Push_Get(MT_int,ncenters,'at list',l_at,k_at))
+     &  call errquit('grid_loop: cannot allocate at list',0, MA_ERR)
+c     sort atoms list based on decreasing atomic weight
+      call dft_sortatbyz(geom,ncenters,int_mb(k_at))
+
+      do 111 i_a_in =1,ncenters
+         i_a=int_mb(k_at+i_a_in-1)
          iang_done=-1
          nwrbuf=1
          if(oskel) then
@@ -254,6 +262,9 @@ c Daniel (1-11-13): Added XC-third derivative stuff
             endif
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
+      if (.not.MA_chop_stack(l_at))
+     &     call errquit('grid_loop: cannot pop l_at',1, MA_ERR)
+      
       n1 = nxtask(-nproc,icount)
 c
       if(oprint.and.ncubenz.ne.0) write(LuOut,16) ' me ',me,
