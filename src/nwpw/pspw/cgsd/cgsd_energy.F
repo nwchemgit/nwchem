@@ -19,11 +19,10 @@ c#include "global.fh"
 #include "btdb.fh"
 
       logical newpsi
-      integer MASTER
+      integer MASTER,taskid
       parameter (MASTER=0)
 
       logical stalled,value,oprint,psitmp,failed
-      integer taskid
       integer minimizer
       integer i,j,ms,neall,NN,nx,ny,nz,n2ft3d,tmp1(2)
       integer it_in,it_out,icount,bfgscount
@@ -124,8 +123,8 @@ c#include "global.fh"
       if (minimizer.eq.5) it_out = 1
       if (minimizer.eq.8) it_out = 1
       if (newpsi) then
-        call sdminimize(15)
-        !call bybminimize(E,deltae,deltac,1,.true.,2)
+         call sdminimize(15)
+         !call bybminimize(E,deltae,deltac,1,.true.,2)
       end if
    2  continue
          icount = icount + 1
@@ -133,6 +132,7 @@ c#include "global.fh"
            call sdminimize(0)
            bfgscount = 0 
          end if
+
 
          deltae_old = deltae
          if (minimizer.eq.1) then
