@@ -81,7 +81,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol1
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol2
 ./runtests.mpi.unix procs $np tce_uracil_creomact
-./runtests.mpi.unix procs $np li2h2_tce_ccsd
+#./runtests.mpi.unix procs $np li2h2_tce_ccsd # this case seems to hang on the Felicia test cluster
 if [ ${#MRCC_METHODS} -eq 1 ] ; then
   if [ "x$MRCC_METHODS" == "xy" ] ; then
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc
