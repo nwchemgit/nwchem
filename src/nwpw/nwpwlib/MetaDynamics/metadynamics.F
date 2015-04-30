@@ -1831,6 +1831,9 @@ c               close(53)
                   wb = dexp(-0.5d0*((x-rb)/bsigma)**2)
                   ww = ww + wa + wb
                end do
+
+               !*** make sure the maximum barrier height is bheight ***
+               if (ww.gt.1.0d0) ww = 1.0d0 
             
                dbl_mb(ymeta(1)+i-1) = dbl_mb(ymeta(1)+i-1) + bheight*ww
 
