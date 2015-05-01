@@ -446,9 +446,13 @@ c
                                  !< (exchange and correlation)
       parameter (NWXCP_BOP = NWXCP_BLYP + 1)
 c
+      integer NWXCP_CAMB3LYP     !< The CAM-B3LYP functional 
+                                 !< (exchange and correlation)
+      parameter (NWXCP_CAMB3LYP = NWXCP_BOP + 1)
+c
       integer NWXCP_CAMS12G      !< The CAM-S12G functional 
                                  !< (exchange and correlation)
-      parameter (NWXCP_CAMS12G = NWXCP_BOP + 1)
+      parameter (NWXCP_CAMS12G = NWXCP_CAMB3LYP + 1)
 c
       integer NWXCP_CAMS12H      !< The CAM-S12H functional 
                                  !< (exchange and correlation)
