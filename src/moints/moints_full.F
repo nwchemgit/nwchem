@@ -196,8 +196,8 @@ c
       if (.not. rtdb_get(rtdb,'fourindex:ignore contamination',MT_LOG,1,
      $     ocontam)) ocontam = .false.
       if (.not. rtdb_get(rtdb,'fourindex:tol', MT_DBL,1,
-     $     tol_out)) tol_out = 1.0d-9
-      tol_sym = max(tol_out*0.01d0,1d-12)
+     $     tol_out)) tol_out = 1.0d-14
+      tol_sym = max(tol_out*0.01d0,1d-16)
       if (.not. rtdb_get(rtdb,'fourindex:osymblock',MT_LOG,1,
      $     osymblock)) osymblock = .false.
       if (.not. rtdb_cget(rtdb, 'fourindex:method ', 1, algo))

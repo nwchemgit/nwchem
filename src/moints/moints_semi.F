@@ -1315,7 +1315,7 @@ c
               do j = jlo, jtop
                 do k = klo, khi
                   s = ssni(k,j,i,o)
-                  if (abs(s) .gt. 1d-12) then
+                  if (abs(s) .gt. 1d-16) then
                     do v = vbot,vtop
                       h(v,j,i) = h(v,j,i) + s*ct(v,k)
                     enddo

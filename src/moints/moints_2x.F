@@ -101,7 +101,7 @@ c
 c     Set accuracy of integrals from required precision
 c     ... this should come via the argument list but that can wait
 c
-       tol2e = 1d-12             ! No database !!!!
+       tol2e = 1d-16             ! No database !!!!
 *       integ_acc = min(1d-9, max(0.01d0*tol2e,1d-17))
 *       call int_acc_set(integ_acc)
 c
