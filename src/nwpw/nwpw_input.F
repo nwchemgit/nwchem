@@ -16,7 +16,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 112)
+      parameter (num_dirs = 113)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -129,6 +129,7 @@ c
      >            'energy',
      >            'initial_velocities',
      >            'temperature',
+     >            'cutoff_boot_wavefunction',
      >            'end'/
 
       double precision kb
@@ -196,7 +197,7 @@ c
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
-     >       7700,7800,7900,8000,8100,6650,8200,8300,
+     >       7700,7800,7900,8000,8100,6650,8200,8300,8400,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1872,7 +1873,15 @@ c
      > call errquit('nwpw_input: writing ', 8300, RTDB_ERR)
       goto 10
 
-
+c
+c cutoff_boot_wavefunction .true.||.false
+c
+ 8400 if (.not.inp_a(zone_name)) move = .true.
+      move = nwpw_parse_boolean(zone_name,move)
+      if (.not.rtdb_put(rtdb,'nwpw:cutoff_boot_psi',mt_log,1,
+     >                  move))
+     >  call errquit('nwpw_input: error writing to rtdb',8400,RTDB_ERR)
+      goto 10
 
 
 
