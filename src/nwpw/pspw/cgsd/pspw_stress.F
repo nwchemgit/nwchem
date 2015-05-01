@@ -17,6 +17,7 @@
       logical  cgsdv5,pspw_stress_numerical
       external cgsdv5,pspw_stress_numerical
 
+      call pspw_cutoff_boot_psi(rtdb)
 
       if (.not.
      >  btdb_get(rtdb,'nwpw:stress_numerical',mt_log,1,numerical))
