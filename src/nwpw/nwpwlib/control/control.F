@@ -164,7 +164,6 @@
       smooth_cutoff = .true.
       if (.not.btdb_get(rtdb,'nwpw:smooth_cutoff',
      >                  mt_dbl,2,smooth_cutoff_values)) then
-        call util_flush(6)
          smooth_cutoff           = .false.
          smooth_cutoff_values(1) = 2.0d0
          smooth_cutoff_values(2) = 4.0d0
