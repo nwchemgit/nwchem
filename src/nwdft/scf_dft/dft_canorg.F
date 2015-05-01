@@ -268,7 +268,7 @@ c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
       delta = -etold+etnew
-      if (abs(delta).lt.5d-2)then
+      if (abs(delta).lt.5d-2.or.ltight)then
 c     
 c        Set coulomb acc to max (e.g., input parameter).
 c        (note, may also require re-initializing DIIS)
