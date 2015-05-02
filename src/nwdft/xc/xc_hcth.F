@@ -55,7 +55,7 @@ c
             gammaval=0.25d0*(delrho(n,1,1)*delrho(n,1,1) +
      &           delrho(n,2,1)*delrho(n,2,1) +
      &           delrho(n,3,1)*delrho(n,3,1))
-            if(gammaval.gt.tol_rho)  za=sqrt(gammaval)
+            if(gammaval.gt.tol_rho**2)  za=sqrt(gammaval)
             zb=za
             call hcth(ipol,funcname,
      *           dfdrax,dfdrac, dfdzax,dfdzac, 
@@ -79,12 +79,12 @@ c
             gammaval=delrho(n,1,1)*delrho(n,1,1) +
      &           delrho(n,2,1)*delrho(n,2,1) +
      &           delrho(n,3,1)*delrho(n,3,1)
-            if(gammaval.gt.tol_rho) za=sqrt(gammaval)
+            if(gammaval.gt.tol_rho**2) za=sqrt(gammaval)
             zb=0.d0
             gammaval=delrho(n,1,2)*delrho(n,1,2) +
      &           delrho(n,2,2)*delrho(n,2,2) +
      &           delrho(n,3,2)*delrho(n,3,2) 
-            if(gammaval.gt.tol_rho) zb=sqrt(gammaval)
+            if(gammaval.gt.tol_rho**2) zb=sqrt(gammaval)
             call hcth(ipol,funcname,
      *           dfdrax,dfdrac, dfdzax,dfdzac, 
      *           dfdrbx,dfdrbc, dfdzbx,dfdzbc, 
