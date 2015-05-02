@@ -452,6 +452,12 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97_3,dfweight)
       else if (dfname.eq."cbecke97-d") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97_D,dfweight)
+        nwxc_disp_id    = NWXC_DISP_D2
+        nwxc_disp_s6    = 1.25d0
+        nwxc_disp_s8    = 0.0d0
+        nwxc_disp_sr6   = 0.0d0
+        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_alpha = 20.0d0
       else if (dfname.eq."cbecke97gga1") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_B97_G,dfweight)
       else if (dfname.eq."cbecke98") then
@@ -461,20 +467,20 @@ c       nwxc_wght_hf    = 1.00d0
         nwxc_add_df = nwxc_add_df .and. 
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
         nwxc_disp_id    = NWXC_DISP_D3
-        nwxc_disp_s6    = 0.0d0
+        nwxc_disp_s6    = 1.0d0
         nwxc_disp_s8    = 0.86124355d0
         nwxc_disp_sr6   = 1.20250451d0
-        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_sr8   = 1.0d0
         nwxc_disp_alpha = 14.0d0
       else if (dfname.eq."ccams12h".or.dfname.eq."ccam-s12h") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_C_CAMS12H,dfweight)
         nwxc_add_df = nwxc_add_df .and. 
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
         nwxc_disp_id    = NWXC_DISP_D3
-        nwxc_disp_s6    = 0.0d0
+        nwxc_disp_s6    = 1.0d0
         nwxc_disp_s8    = 0.37999939d0
         nwxc_disp_sr6   = 1.08034183d0
-        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_sr8   = 1.0d0
         nwxc_disp_alpha = 14.0d0
       else if (dfname.eq."cdldf") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_DLDF,dfweight)
@@ -533,20 +539,20 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_add_df = nwxc_add_df .and. 
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
         nwxc_disp_id    = NWXC_DISP_D3
-        nwxc_disp_s6    = 0.0d0
+        nwxc_disp_s6    = 1.0d0
         nwxc_disp_s8    = 0.84432515d0
         nwxc_disp_sr6   = 1.17755954d0
-        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_sr8   = 1.0d0
         nwxc_disp_alpha = 14.0d0
       else if (dfname.eq."cs12h") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_C_S12H,dfweight)
         nwxc_add_df = nwxc_add_df .and. 
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
         nwxc_disp_id    = NWXC_DISP_D3
-        nwxc_disp_s6    = 0.0d0
+        nwxc_disp_s6    = 1.0d0
         nwxc_disp_s8    = 0.37705816d0
         nwxc_disp_sr6   = 1.07735222d0
-        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_sr8   = 1.0d0
         nwxc_disp_alpha = 14.0d0
       else if (dfname.eq."cspbe96") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_SPBE,dfweight)
@@ -724,6 +730,12 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
      &                nwxc_add_func(NWXCP_X_B97_D,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_B97_D,dfweight)
+        nwxc_disp_id    = NWXC_DISP_D2
+        nwxc_disp_s6    = 1.25d0
+        nwxc_disp_s8    = 0.0d0
+        nwxc_disp_sr6   = 0.0d0
+        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_alpha = 20.0d0
       else if (dfname.eq."becke97gga1") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_B97_G,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -752,6 +764,19 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
      &                nwxc_add_func(NWXCP_X_SLATER,dfweight)
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_X_B88,dfweight)
+      else if (dfname.eq."camb3lyp".or.dfname.eq."cam-b3lyp") then
+        nwxc_add_df = nwxc_usr_add_func(NWXCP_CAMB3LYP,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_X_CAMB88,dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_VWN5,0.19d0*dfweight)
+        nwxc_add_df = nwxc_add_df .and.
+     &                nwxc_add_func(NWXCP_C_LYP,0.81d0*dfweight)
+        nwxc_wght_hf    = nwxc_wght_hf + dfweight
+        nwxc_cam_alpha  = 0.19d0
+        nwxc_cam_beta   = 0.46d0
+        nwxc_cam_gamma  = 0.33d0
+        nwxc_cam_srhfex = .false.
       else if (dfname.eq."cams12g".or.dfname.eq."cam-s12g") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_CAMS12G,dfweight)
         nwxc_add_df = nwxc_add_df .and.
@@ -764,10 +789,10 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_cam_gamma  = 1.52420731d0
         nwxc_cam_srhfex = .false.
         nwxc_disp_id    = NWXC_DISP_D3
-        nwxc_disp_s6    = 0.0d0
+        nwxc_disp_s6    = 1.0d0
         nwxc_disp_s8    = 0.86124355d0
         nwxc_disp_sr6   = 1.20250451d0
-        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_sr8   = 1.0d0
         nwxc_disp_alpha = 14.0d0
       else if (dfname.eq."cams12h".or.dfname.eq."cam-s12h") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_CAMS12H,dfweight)
@@ -781,10 +806,10 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_cam_gamma  = 0.48516891d0
         nwxc_cam_srhfex = .false.
         nwxc_disp_id    = NWXC_DISP_D3
-        nwxc_disp_s6    = 0.0d0
+        nwxc_disp_s6    = 1.0d0
         nwxc_disp_s8    = 0.37999939d0
         nwxc_disp_sr6   = 1.08034183d0
-        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_sr8   = 1.0d0
         nwxc_disp_alpha = 14.0d0
       else if (dfname.eq."dldf") then ! alias
         nwxc_add_df = nwxc_usr_add_func(NWXCP_DLDF,dfweight)
@@ -1078,10 +1103,10 @@ c       In the NWChem DFT code RPBE does not include correlation
         nwxc_add_df = nwxc_add_df .and.
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
         nwxc_disp_id    = NWXC_DISP_D3
-        nwxc_disp_s6    = 0.0d0
+        nwxc_disp_s6    = 1.0d0
         nwxc_disp_s8    = 0.84432515d0
         nwxc_disp_sr6   = 1.17755954d0
-        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_sr8   = 1.0d0
         nwxc_disp_alpha = 14.0d0
       else if (dfname.eq."s12h") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_S12H,dfweight)
@@ -1095,10 +1120,10 @@ c       In the NWChem DFT code RPBE does not include correlation
      &                nwxc_add_func(NWXCP_C_PBE,dfweight)
         nwxc_wght_hf= nwxc_wght_hf + 0.25d0*dfweight
         nwxc_disp_id    = NWXC_DISP_D3
-        nwxc_disp_s6    = 0.0d0
+        nwxc_disp_s6    = 1.0d0
         nwxc_disp_s8    = 0.37705816d0
         nwxc_disp_sr6   = 1.07735222d0
-        nwxc_disp_sr8   = 0.0d0
+        nwxc_disp_sr8   = 1.0d0
         nwxc_disp_alpha = 14.0d0
       else if (dfname.eq."sogga") then
         nwxc_add_df = nwxc_usr_add_func(NWXCP_SOGGA,dfweight)
