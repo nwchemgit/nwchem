@@ -1405,7 +1405,7 @@ c
             if (rho(n,R_T).lt.DTol) goto 10
             rhoo = rho(n,R_T)/F2
             rho43 = rhoo**F4o3  
-            rho13 = rho43/rhoo
+            rho13 = rhoo**F1o3
             rho53 = rhoo**F5o3
 c            
             tauN = tau(n,T_T)
@@ -1573,7 +1573,7 @@ c
            if (rho(n,R_A).lt.0.5d0*DTol) goto 25           
             rhoo  = rho(n,R_A)
             rho43 = rhoo**F4o3  
-            rho13 = rho43/rhoo
+            rho13 = rhoo**F1o3
             rho53 = rhoo**F5o3
 c       
             tauN = tau(n,T_A)*F2
@@ -1730,7 +1730,7 @@ c
             if (rho(n,R_B).lt.0.5d0*DTol) goto 20
             rhoo  = rho(n,R_B)
             rho43 = rhoo**F4o3  
-            rho13 = rho43/rhoo
+            rho13 = rhoo**F1o3
             rho53 = rhoo**F5o3
 c
              
