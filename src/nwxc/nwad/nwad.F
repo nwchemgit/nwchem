@@ -291,20 +291,39 @@
       !>
       type :: nwad_dble
 #ifdef NWAD_PRINT
-        integer(kind=8)   :: var_fid  = 0
-        character(len=16) :: var_name = ""
+        integer(kind=8)    :: var_fid  = 0
+        character(len=16)  :: var_name = ""
 #endif
-        integer          :: nvar
-        integer          :: ivar
-        double precision :: d0
-#if NWAD_DEG >= 1
-        double precision  :: d1(mxvar)
-#endif
-#if NWAD_DEG >= 2
-        double precision  :: d2(mxvar*(mxvar+1)/2)
-#endif
-#if NWAD_DEG >= 3
-        double precision  :: d3(mxvar*(mxvar+1)*(mxvar+2)/6)
+        integer            :: nvar
+        integer            :: ivar
+#ifdef NWAD_QUAD_PREC
+c       Quadruple precision is not supported in hardware
+c       hence this will generate extremely slow code!!!
+c       Use only when suspecting serious numerical problems,
+c       and even then only for debugging.
+        real(kind=selected_real_kind(30)) :: d0
+#  if NWAD_DEG >= 1
+        real(kind=selected_real_kind(30)) :: d1(mxvar)
+#  endif
+#  if NWAD_DEG >= 2
+        real(kind=selected_real_kind(30)) :: d2(mxvar*(mxvar+1)/2)
+#  endif
+#  if NWAD_DEG >= 3
+        real(kind=selected_real_kind(30)) ::
+     +            d3(mxvar*(mxvar+1)*(mxvar+2)/6)
+#  endif
+#else
+        real(kind=selected_real_kind(15)) :: d0
+#  if NWAD_DEG >= 1
+        real(kind=selected_real_kind(15)) :: d1(mxvar)
+#  endif
+#  if NWAD_DEG >= 2
+        real(kind=selected_real_kind(15)) :: d2(mxvar*(mxvar+1)/2)
+#  endif
+#  if NWAD_DEG >= 3
+        real(kind=selected_real_kind(15)) ::
+     +            d3(mxvar*(mxvar+1)*(mxvar+2)/6)
+#  endif
 #endif
       end type nwad_dble
       interface assignment (=)

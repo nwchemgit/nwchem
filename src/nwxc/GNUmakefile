@@ -35,11 +35,15 @@
 
     LIB_INCLUDES = -I./nwad
 
+ifdef NWCHEM_NWXC_QUAD_PREC
+     LIB_DEFINES = -DNWAD_QUAD_PREC -DNWXC_QUAD_PREC
+endif
+
      LIB_TARGETS = 
 
        TEST_LIBS = $(LIBRARY) $(LIBS) 
 
-USES_BLAS =  nwxc_vdw_main.F nwxc_vdw_e.F nwxc_vdw_der.F nwxc_vdw_hess.F nwxc_vdw_util.F
+       USES_BLAS =  nwxc_vdw_main.F nwxc_vdw_e.F nwxc_vdw_der.F nwxc_vdw_hess.F nwxc_vdw_util.F
 
 include ../config/makefile.h
 include ../config/makelib.h
