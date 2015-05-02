@@ -1,6 +1,9 @@
 c
 c     empirical dispersion: main wrapper
 c
+C> \ingroup nwxc_api
+C> @{
+C>
       subroutine nwxc_vdw(rtdb,geom,exc,force,what)
 c
       implicit none
@@ -219,4 +222,6 @@ c
 c
       return
       end
+C>
+C> @}
 c $Id$

@@ -1,6 +1,63 @@
 c
 c     empirical dispersion: energy
 c
+C> \ingroup nwxc_priv
+C> @{
+C>
+C> \brief Evaluate the dispersion energy
+C>
+C> This function evaluates the dispersion energy based on an empirical
+C> expression. This routine supports multiple expressions commonly 
+C> used in density functional theory. 
+C>
+C> The DFT-D3 correction with BJ damping [4,5] is given by
+C> \f{eqnarray*}{
+C>   E_{\mathrm{disp}}^{D3(BJ)} &=& -\frac{1}{2}\sum_{A\ne B}
+C>     s_6\frac{C_6^{AB}}{R_{AB}^6+[f(R^0_{AB})]^6} +
+C>     s_8\frac{C_8^{AB}}{R_{AB}^8+[f(R^0_{AB})]^8} \\\\
+C>   f(R^0_{AB}) &=& a_1R^0_{AB}+a_2 \\\\
+C>   R^0_{AB} &=& \sqrt{\frac{C_8^{AB}}{C_6^{AB}}}
+C> \f}
+C>
+C> \return The dispersion energy \f$E_{\mathrm{disp}}\f$.
+C>
+C> ### References ###
+C>
+C> [1] S. Grimme,
+C>     "Accurate description of van der Waals complexes by density
+C>      functional theory including empirical corrections",
+C>     J. Comp. Chem. (2004) <b>25</b>, 1463-1473, DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.20078">
+C>     10.1002/jcc.20078</a>.
+C>
+C> [2] U. Zimmerli, M. Parrinello, P. Koumoutsakos,
+C>     "Dispersion corrections to density functionals for water
+C>      aromatic interactions",
+C>     J. Chem. Phys. (2004) <b>120</b>, 2693, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.1637034">
+C>     10.1063/1.1637034</a>.
+C>
+C> [3] Q. Wu, W. Yang,
+C>     "Empirical correction to density functional theory for van der
+C>      Waals interactions",
+C>     J. Chem. Phys. (2002) <b>116</b>, 515, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.1424928">
+C>     10.1063/1.1424928</a>.
+C>
+C> [4] A.D. Becke, E.R. Johnson,
+C>     "A unified density-functional treatment of dynamical,
+C>      nondynamical and dispersion correlations",
+C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     10.1063/1.2768530</a> (See appendix C).
+C>
+C> [5] S. Grimme, S. Ehrlich, L. Goerigk,
+C>     "Effect of the damping function in dispersion corrected
+C>      density functional theory", J. Comput. Chem. (2011)
+C>     <b>32</b>, pp. 1456-1465, DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
+C>
       double precision function nwxc_vdw_e(s6,s8,sr6,sr8,a1,a2,n,x,z)
 c
 c     S. Grimme J Comp Chem 25, 1463 (2004)
@@ -11,16 +68,22 @@ c
 c
 #include "nwxc_vdw.fh"
 c
-      double precision s6,s8,sr6,sr8,a1,a2
-      integer n
-      double precision x(3,n)
-      integer z(n)
+      double precision s6     !< [Input] The \f$s_6\f$ coefficient
+      double precision s8     !< [Input] The \f$s_8\f$ coefficient
+      double precision sr6    !< [Input] The \f$s_{r,6}\f$ coefficient
+      double precision sr8    !< [Input] The \f$s_{r,8}\f$ coefficient
+      double precision a1     !< [Input] The \f$a_1\f$ coefficient
+      double precision a2     !< [Input] The \f$a_2\f$ coefficient
+      integer n               !< [Input] The number of atoms
+      double precision x(3,n) !< [Input] The atomic coordinates
+      integer z(n)            !< [Input] The atomic numbers of the atoms
 c
       integer i,j
       double precision nwxc_fdmp, nwxc_fdmp3, nwxc_fdmpbj, cni, cnj,c6d3
       double precision nwxc_c6ij_sk,rij,nwxc_c6cn,nwxc_crd_nr,e6,e8
-      external nwxc_c6ij_sk,nwxc_c6cn,nxtask,nwxc_crd_nr,nwxc_fdmp3
-      external nwxc_fdmpbj
+      double precision r0bj
+      external nwxc_c6ij_sk,nwxc_c6cn,nxtask,nwxc_crd_nr,
+     &         nwxc_fdmp,nwxc_fdmp3,nwxc_fdmpbj
 c
       nwxc_vdw_e=0d0
       e6=0.0d0
@@ -88,8 +151,9 @@ c
                cnj=nwxc_crd_nr(j,n,x,z)
                c6d3=nwxc_c6cn(z(i),z(j),cni,cnj)
                c8=3.0d0*c6d3*Qatom(z(i))*Qatom(z(j))
-               e6=e6-c6d3*nwxc_fdmpbj(rij,dsqrt(c8/c6d3),a1,a2,6)
-               e8=e8-c8*nwxc_fdmpbj(rij,dsqrt(c8/c6d3),a1,a2,8)
+               r0bj=dsqrt(c8/c6d3)
+               e6=e6-c6d3*nwxc_fdmpbj(rij,r0bj,a1,a2,6)
+               e8=e8-c8*nwxc_fdmpbj(rij,r0bj,a1,a2,8)
             enddo
           endif
         enddo
@@ -98,4 +162,6 @@ c
 c
       return
       end
+C>
+C> @}
 c $Id$

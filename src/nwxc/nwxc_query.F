@@ -162,8 +162,8 @@ C>
       double precision sr6 !< [Output] The \f$S_{r6}\f$ scale factor
       double precision sr8 !< [Output] The \f$S_{r8}\f$ scale factor
       double precision alpha !< [Output] The \f$\alpha\f$ damping factor
-      double precision a1 !< [Output] The \f$a_1\f$ damping factor
-      double precision a2 !< [Output] The \f$a_2\f$ damping factor
+      double precision a1  !< [Output] The \f$a_{1}\f$ scale factor
+      double precision a2  !< [Output] The \f$a_{2}\f$ scale factor
       dispid = nwxc_disp_id
       s6     = nwxc_disp_s6
       s8     = nwxc_disp_s8
@@ -900,6 +900,10 @@ c
            cdata = "BOP (T Tsuneda, T Suzumura, K Hirao, "
      +             //"J.Chem.Phys. 110, 10664 (1999)"
      +             //" doi:10.1063/1.479012)"
+         case (NWXCP_CAMB3LYP)
+           cdata = "CAM-B3LYP (T Yanai, D Tew, NC Handy, "
+     +             //"Chem.Phys.Lett 393, 51 (2004)"
+     +             //" doi:10.1016/j.cplett.2004.06.011)"
          case (NWXCP_CAMS12G)
            cdata = "CAM-S12g (M Swart, "
      +             //"Chem.Phys.Lett. 580, 166 (2013)"

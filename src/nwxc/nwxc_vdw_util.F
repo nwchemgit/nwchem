@@ -1,18 +1,55 @@
 c
 c     $Id$
 c
-
-c      Interpolation of C6 to account for coordination number dependence
+C> \ingroup nwxc_priv
+C> @{
+C>
+c     Interpolation of C6 to account for coordination number dependence
 c
+C> \brief Interpolate \f$C_6\f$ to account for coordination numbers
+C>
+C> Interpolate the \f$C_6\f$ coefficients according to Eq.(16) of [1]:
+C> \f{eqnarray*}{
+C>   C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)
+C>   &=& \frac{\sum_i^{N_A}\sum_j^{N_B}C_{6,\mathrm{ref}}^{AB}\left(\mathrm{CN}_i^A,\mathrm{CN}_j^B\right)L_{ij}^{AB}(R)}{\sum_i^{N_A}\sum_j^{N_B}L_{ij}^{AB}(R)} \\\\
+C>   L_{ij}^{AB}(R) &=& e^{-k_3[(\mathrm{CN}^A(R)-\mathrm{CN}^A_i)^2
+C>                             +(\mathrm{CN}^B(R)-\mathrm{CN}^B_j)^2]}
+C> \f}
+C> where \f$\mathrm{CN}^A(R)\f$ and \f$\mathrm{CN}^B(R)\f$ are geometry
+C> dependent coordination numbers for atoms \f$A\f$ and \f$B\f$.
+C> The quantities \f$\mathrm{CN}^A_i\f$ and \f$\mathrm{CN}^B_j\f$
+C> are coordination numbers of atoms of the same type as \f$A\f$ and
+C> \f$B\f$ in reference molecules \f$i\f$ and \f$j\f$. These latter 
+C> quantities as well as \f$C_{6,\mathrm{ref}}^{AB}\f$ are precomputed
+C> constants, independent of the current geometry.
+C> 
+C> \return The coordination number dependent \f$C_6\f$ coefficient
+C>
+C> ### References ###
+C>
+C> [1] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+C>     "A consistent and accurate ab initio parametrization of density
+C>      functional dispersion correction (DFT-D) for the 94 elements
+C>      H-Pu",
+C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.3382344"> 
+C>     10.1063/1.3382344</a>.
+C>
       double precision function nwxc_c6cn(iat,jat,cni,cnj)
 c
       implicit none
 c
 #include "nwxc_vdw.fh"
 c
-      integer iat,jat,i,j
-      double precision cni,cnj,top,bottom,dist,c6_ref
+      integer iat          !< [Input] The atomic number of
+                           !< \f$A\f$ (i.e. \f$Z_A\f$)
+      integer jat          !< [Input] The atomic number of
+                           !< \f$B\f$ (i.e. \f$Z_B\f$)
+      double precision cni !< [Input] \f$\mathrm{CN}^A(R)\f$
+      double precision cnj !< [Input] \f$\mathrm{CN}^B(R)\f$
+      double precision top,bottom,dist,c6_ref
       double precision cna,cnb
+      integer i,j
 c
       nwxc_c6cn=0.0d0
       top=0.0d0
@@ -40,15 +77,62 @@ c
 c
 c     Analytical gradient of coordination number dependent C6
 c
+C> \brief Gradient of \f$C_6\f$
+C>
+C> Calculate the gradient of the geometry dependent \f$C_6\f$ 
+C> coefficients. The \f$C_6\f$ coefficients
+C> are calculated according to Eq.(16) of [1]:
+C> \f{eqnarray*}{
+C>   C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)
+C>   &=& \frac{\sum_i^{N_A}\sum_j^{N_B}C_{6,\mathrm{ref}}^{AB}\left(\mathrm{CN}_i^A,\mathrm{CN}_j^B\right)L_{ij}^{AB}(R)}{\sum_i^{N_A}\sum_j^{N_B}L_{ij}^{AB}(R)} \\\\
+C>   L_{ij}^{AB}(R) &=& e^{-k_3[(\mathrm{CN}^A(R)-\mathrm{CN}^A_i)^2
+C>                             +(\mathrm{CN}^B(R)-\mathrm{CN}^B_j)^2]}
+C> \f}
+C> where \f$\mathrm{CN}^A(R)\f$ and \f$\mathrm{CN}^B(R)\f$ are geometry
+C> dependent coordination numbers for atoms \f$A\f$ and \f$B\f$.
+C> The quantities \f$\mathrm{CN}^A_i\f$ and \f$\mathrm{CN}^B_j\f$
+C> are coordination numbers of atoms of the same type as \f$A\f$ and
+C> \f$B\f$ in reference molecules \f$i\f$ and \f$j\f$. These latter 
+C> quantities as well as \f$C_{6,\mathrm{ref}}^{AB}\f$ are precomputed
+C> constants, independent of the current geometry.
+C>
+C> Here we calculate 
+C> \f{eqnarray*}{
+C>   \frac{\partial C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)}
+C>        {\partial \left(R_C\right)_i}
+C> \f}
+C> where atom \f$C\f$ maybe equal to \f$A\f$, \f$B\f$ or some other
+C> atom entirely, \f$i\f$ is either \f$x, y,\f$ or \f$z\f$.
+C> 
+C> ### References ###
+C>
+C> [1] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+C>     "A consistent and accurate ab initio parametrization of density
+C>      functional dispersion correction (DFT-D) for the 94 elements
+C>      H-Pu",
+C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.3382344"> 
+C>     10.1063/1.3382344</a>.
+C>
       subroutine nwxc_c6_grad(grad,iat,jat,kat,x,z,n,cnij,cnijk)
 c
       implicit none
 c
 #include "nwxc_vdw.fh"
 c
-      integer n,iat,jat,kat,z(n),i,j
-      double precision x(3,n)
-      double precision grad(3),cnij(3,n),cnijk(3,n,n),cni,cnj
+      integer n                     !< [Input] The number of atoms
+      integer iat                   !< [Input] Atom \f$A\f$
+      integer jat                   !< [Input] Atom \f$B\f$
+      integer kat                   !< [Input] Atom \f$C\f$
+      integer z(n)                  !< [Input] The atomic numbers of the
+                                    !< atoms
+      double precision x(3,n)       !< [Input] The atomic coordinates
+      double precision cnij(3,n)    !< [Input] \f$\mathrm{cnij}(i,A)=\frac{\partial\mathrm{CN}^A(R)}{\partial \left(\vec{R}_A\right)_i}\f$
+      double precision cnijk(3,n,n) !< [Input] \f$\mathrm{cnijk}(i,B,A)=\frac{\partial\mathrm{CN}^A(R)}{\partial \left(\vec{R}_B\right)_i}\f$
+      double precision grad(3)      !< [Output] The gradient
+c
+      integer i,j
+      double precision cni,cnj
       double precision nwxc_crd_nr,cnik(3),cnjk(3)
       external nwxc_crd_nr
       double precision t1,t2,dt1x,dt1y,dt1z,dt2x,dt2y,dt2z
@@ -57,12 +141,19 @@ c
       cni=nwxc_crd_nr(iat,n,x,z)
       cnj=nwxc_crd_nr(jat,n,x,z)
       if (iat.eq.kat) then
-         cnik(1)=cnij(1,iat)
-         cnik(2)=cnij(2,iat)
-         cnik(3)=cnij(3,iat)
-         cnjk(1)=cnijk(1,iat,jat)
-         cnjk(2)=cnijk(2,iat,jat)
-         cnjk(3)=cnijk(3,iat,jat)
+         cnik(1)=cnij(1,kat)
+         cnik(2)=cnij(2,kat)
+         cnik(3)=cnij(3,kat)
+         cnjk(1)=cnijk(1,kat,jat)
+         cnjk(2)=cnijk(2,kat,jat)
+         cnjk(3)=cnijk(3,kat,jat)
+      else if (jat.eq.kat) then
+         cnik(1)=cnijk(1,kat,iat)
+         cnik(2)=cnijk(2,kat,iat)
+         cnik(3)=cnijk(3,kat,iat)
+         cnjk(1)=cnij(1,kat)
+         cnjk(2)=cnij(2,kat)
+         cnjk(3)=cnij(3,kat)
       else
          cnik(1)=cnijk(1,kat,iat)
          cnik(2)=cnijk(2,kat,iat)
@@ -167,15 +258,49 @@ c     S. Grimme J Chem Phys 132, 154104 (2010)
 c
 c     Derivatives of coordination number function
 c
+C> \brief Fractional coordination number gradients
+C> 
+C> This routine evaluates the gradients of the fractional coordination
+C> numbers of the atoms. The fractional coordination numbers are
+C> given by Eq.(15) of [1]:
+C> \f{eqnarray*}{
+C>    \mathrm{CN}^A &=& \sum_{B\ne A}^{N_{atom}} 
+C>    \frac{1}{1+e^{-k_1\left(k_2\frac{R_{A,\mathrm{cov}}+R_{B,\mathrm{cov}}}{R_{AB}}-1\right)}}
+C> \f}
+C> In the actual implementation the factor \f$k_2\f$ has been absorbed
+C> in \f$R_{A,\mathrm{cov}}\f$ and those scaled covalent radii are
+C> stored in `cov_table`.
+C>
+C> The derivatives wrt. atoms \f$B\f$ are calculated separately and
+C> stored for every atom \f$A\f$. The derivatives wrt. atom \f$A\f$ are
+C> calculated exploiting the translational invariance of the gradient.
+C>
+C> ### References ###
+C>
+C> [1] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+C>     "A consistent and accurate ab initio parametrization of density
+C>      functional dispersion correction (DFT-D) for the 94 elements
+C>      H-Pu",
+C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.3382344">
+C>     10.1063/1.3382344</a>.
+C>
       subroutine nwxc_crd_nr_der(n,xyz,iz,cnij,cnijk)
 c
       implicit none
 c
 #include "nwxc_vdw.fh"
 c
-      integer n,iat,i,iz(n)
-      double precision cnij(3,n),cnijk(3,n,n),xyz(3,n)
+      integer n                     !< [Input] The number of atoms
+                                    !< \f$N_{atom}\f$
+      integer iz(n)                 !< [Input] The atomic numbers of
+                                    !< the atoms
+      double precision xyz(3,n)     !< [Input] The atomic coordinates
+      double precision cnij(3,n)    !< [Output] \f$\mathrm{cnij}(i,A)=\frac{\partial\mathrm{CN}^A}{\partial \left(\vec{R}_A\right)_i}\f$
+      double precision cnijk(3,n,n) !< [Output] \f$\mathrm{cnijk}(i,B,A)=\frac{\partial\mathrm{CN}^A}{\partial \left(\vec{R}_B\right)_i}\f$
       double precision dx,dy,dz,r,cov_rad,expf,fac2,fac3
+      integer iat !< Atom B
+      integer i   !< Atom A
 c
       do i=1,n
          cnij(1,i)=0.0d0
@@ -217,14 +342,44 @@ c
 c
 c     Coordination numbers based on inverse damping function 
 c
+C> \brief Fractional coordination numbers
+C> 
+C> This routine evaluates the fractional coordination of an atom
+C> according to Eq.(15) of [1]:
+C> \f{eqnarray*}{
+C>    \mathrm{CN}^A &=& \sum_{B\ne A}^{N_{atom}} 
+C>    \frac{1}{1+e^{-k_1\left(k_2\frac{R_{A,\mathrm{cov}}+R_{B,\mathrm{cov}}}{R_{AB}}-1\right)}}
+C> \f}
+C> In the actual implementation the factor \f$k_2\f$ has been absorbed
+C> in \f$R_{A,\mathrm{cov}}\f$ and those scaled covalent radii are
+C> stored in `cov_table`.
+C>
+C> \return The value of \f$\mathrm{CN}^A\f$.
+C>
+C> ### References ###
+C>
+C> [1] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
+C>     "A consistent and accurate ab initio parametrization of density
+C>      functional dispersion correction (DFT-D) for the 94 elements
+C>      H-Pu",
+C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.3382344">
+C>     10.1063/1.3382344</a>.
+C>
       double precision function nwxc_crd_nr(iat,nat,xyz,iz)
 c
       implicit none
 c
 #include "nwxc_vdw.fh"
 c
-      integer iat,nat,iz(nat),i
-      double precision xyz(3,nat),dx,dy,dz,r,rcov
+      integer iat                 !< [Input] The atom \f$A\f$
+      integer nat                 !< [Input] The number of atoms
+                                  !< \f$N_{atom}\f$
+      integer iz(nat)             !< [Input] The atomic numbers of
+                                  !< the atoms
+      double precision xyz(3,nat) !< [Input] The atomic coordinates
+      double precision dx,dy,dz,r,rcov
+      integer i
 c       
       nwxc_crd_nr=0.0d0
       if (iz(iat).eq.0) return
@@ -272,7 +427,7 @@ C>
 C> Evaluate the Becke-Johnson damping factor [1,2] for the dispersion
 C> correction:
 C> \f{eqnarray}{
-C>   \mathrm{nwxc_fdmpbj}(R,R^0,a_1,a_2,n) &=&
+C>   \mathrm{nwxc\_fdmpbj}(R,R^0,a_1,a_2,n) &=&
 C>   \frac{1}{R^n+f(R^0,a_1,a_2)^n} \\\\
 C>   f(R^0,a_1,a_2) &=& a_1 R^0 + a_2
 C> \f}
@@ -297,8 +452,8 @@ C>
 c
       implicit none
 c
-      integer          n !< [Input] The order of the term
-      double precision r !< [Input] Interactomic distance \f$R\f$
+      integer          n  !< [Input] The order of the term
+      double precision r  !< [Input] Interactomic distance \f$R\f$
       double precision r0 !< [Input] Parameter \f$R^0=\sqrt{C_8/C_6}\f$
       double precision a1 !< [Input] Parameter \f$a_1\f$
       double precision a2 !< [Input] Parameter \f$a_2\f$
@@ -306,6 +461,56 @@ c
       double precision f
       f=a1*r0+a2
       nwxc_fdmpbj=1.0d0/(r**n+f**n)
+      return
+      end
+C>
+C> \brief Evaluate the gradient of the Becke-Johnson damping factor
+C>
+C> The Becke-Johnson damping factor [1,2] for the dispersion
+C> correction is:
+C> \f{eqnarray}{
+C>   \mathrm{nwxc\_fdmpbj}(R,R^0,a_1,a_2,n) &=&
+C>   \frac{1}{R^n+f(R^0,a_1,a_2)^n} \\\\
+C>   f(R^0,a_1,a_2) &=& a_1 R^0 + a_2
+C> \f}
+C> This function evaluates the gradient of the Becke-Johnson damping
+C> wrt. \f$R\f$:
+C> \f{eqnarray}{
+C>   \frac{\partial\mathrm{nwxc\_fdmpbj}(R,R^0,a_1,a_2,n)}{\partial R} &=&
+C>   -n R^{n-1}\mathrm{nwxc\_fdmpbj}(R,R^0,a_1,a_2,n)^2
+C> \f}
+C>
+C> ### References ###
+C>
+C> [1] A.D. Becke, E.R. Johnson,
+C>     "A unified density-functional treatment of dynamical,
+C>      nondynamical and dispersion correlations",
+C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
+C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     10.1063/1.2768530</a> (See appendix C).
+C>
+C> [2] S. Grimme, S. Ehrlich, L. Goerigk,
+C>     "Effect of the damping function in dispersion corrected
+C>      density functional theory", J. Comput. Chem. (2011)
+C>     <b>32</b>, pp. 1456-1465, DOI:
+C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
+C>
+      double precision function nwxc_fdmpbj_d1(r,r0,a1,a2,n)
+c
+      implicit none
+c
+      integer          n  !< [Input] The order of the term
+      double precision r  !< [Input] Interactomic distance \f$R\f$
+      double precision r0 !< [Input] Parameter \f$R^0=\sqrt{C_8/C_6}\f$
+      double precision a1 !< [Input] Parameter \f$a_1\f$
+      double precision a2 !< [Input] Parameter \f$a_2\f$
+c
+      double precision nwxc_fdmpbj
+      external         nwxc_fdmpbj
+c
+      nwxc_fdmpbj_d1=-n*r**(n-1)*(nwxc_fdmpbj(r,r0,a1,a2,n)**2)
+c
       return
       end
 c
@@ -647,6 +852,8 @@ c
       if(z.gt.10) stop 'neff stop '
 c
       nwxc_neff=1.17d0+0.33d0*nv
-
+c
       return
       end
+C>
+C> @}
