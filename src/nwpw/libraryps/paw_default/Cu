@@ -2,9 +2,18 @@ Comment:
 Comment: PAW basis set generation file for Copper
 Comment: 
 
+Comment: ref0 refM Rcmp   3s  3p  3d  4s  4p    config   CuO Dist
+Comment: -1.5  1.8  2.2  1.8 1.8 1.8 1.8 1.8  4s1 3d10
+Comment: -1.5  1.8  2.0  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43869
+Comment: -1.5  1.8  1.8  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43861
+Comment: -1.5  1.8  1.6  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43846
+Comment: -1.5  1.8  1.4  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43844
+Comment: -1.5  1.8  1.2  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43836
+Comment: -1.5  1.8  1.0  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43825
+
 [psp_type] 4
 
-<atom_charge> 29.0 
+<atom_charge> 29.0
 <orbitals>
 7 1 1
 1  0   2.0
@@ -14,22 +23,25 @@ Comment:
 3  1   6.0
 3  2   10.0
 4  0   1.0
-4  1   0.0   
-4  2   0.0   0.1
+4  1   0.0
+4  2   0.0  0.1
 <paw_basis>
-3
-3  2   2.0
-4  0   2.0
-4  1   2.0
+5
+3  0   1.8
+3  1   1.8
+3  2   1.8
+4  0   1.8
+4  1   1.8
 4  2   2.0
-<ref_potential_matching_radius> 2.0
-<ref_potential_at_zero> -3.5
-<compensation_charge_radius> 1.8
+<ref_potential_matching_radius> 1.80
+<ref_potential_at_zero>      -1.5
+<compensation_charge_radius> 2.2
 <nodal_constraint> on
 <projector_method> blochl
 
 <scattering_test>
 3
-1  -2.5  -1.5  1.8 300
-0  -1.5  0.5  1.8 300
-2  -0.5  0.5  1.8 100
+1  -1.0  0.5  1.8 300
+0  -1.0  0.5  1.8 300
+2  -1.0  0.5  1.8 100
+
