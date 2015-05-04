@@ -3,13 +3,26 @@ Comment: PAW basis set generation file for Copper
 Comment: 
 
 Comment: ref0 refM Rcmp   3s  3p  3d  4s  4p    config   CuO Dist
-Comment: -1.5  1.8  2.2  1.8 1.8 1.8 1.8 1.8  4s1 3d10
+Comment: -1.5  1.8  2.2  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43887
 Comment: -1.5  1.8  2.0  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43869
 Comment: -1.5  1.8  1.8  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43861
 Comment: -1.5  1.8  1.6  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43846
 Comment: -1.5  1.8  1.4  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43844
 Comment: -1.5  1.8  1.2  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43836
 Comment: -1.5  1.8  1.0  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43825
+
+Comment: -1.0  1.6  2.0  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43710
+
+Comment: -1.0  2.0  2.0  1.6 1.6 1.6 1.8 1.8  4s1 3d10     1.44866
+Comment: -2.0  2.0  2.0  1.4 1.4 1.6 1.8 1.8  4s1 3d10
+Comment: -1.0  2.0  2.0  1.6 1.6 1.8 1.8 1.8  4s1 3d10     1.44442
+
+Comment: -1.0  2.0  2.0  1.8 1.8 2.0 2.0 2.0  4s1 3d10     1.44479
+
+Comment: -1.0  2.0  2.0  1.8 1.8 2.0 2.0 2.0  4s2 3d9      1.44847
+Comment: -1.0  2.0  2.0  1.8 1.8 1.8 2.0 2.0  4s2 3d9      1.44547
+Comment: -1.0  2.0  2.0  1.6 1.6 1.8 2.0 2.0  4s2 3d9      1.44442
+
 
 [psp_type] 4
 
@@ -21,21 +34,21 @@ Comment: -1.5  1.8  1.0  1.8 1.8 1.8 1.8 1.8  4s1 3d10     1.43825
 2  1   6.0
 3  0   2.0
 3  1   6.0
-3  2   10.0
-4  0   1.0
+3  2   9.0
+4  0   2.0
 4  1   0.0
 4  2   0.0  0.1
 <paw_basis>
 5
 3  0   1.8
 3  1   1.8
-3  2   1.8
-4  0   1.8
-4  1   1.8
+3  2   2.0
+4  0   2.0
+4  1   2.0
 4  2   2.0
-<ref_potential_matching_radius> 1.80
-<ref_potential_at_zero>      -1.5
-<compensation_charge_radius> 2.2
+<ref_potential_matching_radius> 2.00
+<ref_potential_at_zero>      -1.0
+<compensation_charge_radius> 2.0
 <nodal_constraint> on
 <projector_method> blochl
 
