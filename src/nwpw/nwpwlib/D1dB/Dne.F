@@ -7214,6 +7214,43 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
+c     *           Dneall_mm_daxpy            *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_mm_daxpy(mb,alpha,M1,M2)
+      implicit none
+      integer mb
+      real*8 alpha
+      real*8 M1(*),M2(*)
+
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer nn
+
+      if (mparallelized) then
+         if (mb.eq.0) then
+            nn = mcq(1)*ncq(1)+mcq(2)*ncq(2)
+         else
+            nn = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then
+            nn = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            nn = ne(mb)*ne(mb)
+         end if
+      end if
+
+      call daxpy(nn,alpha,M1,1,M2,1)
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
 c     *           Dneall_m_zero              *
 c     *                                      *
 c     ****************************************
