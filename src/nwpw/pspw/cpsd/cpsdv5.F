@@ -42,7 +42,8 @@ cccc#include "frac_occ.fh"
       integer npack1
 
 *     **** electronic variables ****
-      real*8 icharge
+      logical first_iteration
+      real*8  icharge
       integer ispin
       integer ne(2),n1(2),n2(2),nemax,neq(2),nemaxq
       real*8  en(2),en1(2),en2(2)
@@ -65,7 +66,7 @@ cccc#include "frac_occ.fh"
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
 *     real*8  lmd(2*nemax*nemax)
-      integer eig(2),hml(2),lmd(2)
+      integer eig(2),hml(2),lmd(2),lmd1(2)
 
 *     **** psi smearing block ****
       logical fractional
@@ -266,6 +267,7 @@ c#include "Parallel.fh"
       value = ion_init(rtdb)
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
+      first_iteration = .true.
 
 *     **** allocate psp data structure and read in psedupotentials into it ****
       call psp_init()
@@ -415,6 +417,7 @@ c         end if
       value = BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
       value = value.and.Dneall_m_allocate(0,hml)
       value = value.and.Dneall_m_allocate(0,lmd)
+      value = value.and.Dneall_m_allocate(0,lmd1)
 
       value = value.and.
      >        BA_alloc_get(mt_dbl,(4*nfft3d),
@@ -620,7 +623,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
      >             npack1,nfft3d,nemaxq,
      >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
      >             it_in,E,deltae,deltac,deltar,
-     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
+     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),dbl_mb(lmd1(1)),
+     >             first_iteration,
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)),
      >             fractional,dbl_mb(occ1(1)),dbl_mb(occ2(1)))
 
@@ -1019,6 +1023,7 @@ c      call frac_occ_end()
       value = BA_free_heap(eig(2))
       value = Dneall_m_free(hml)
       value = Dneall_m_free(lmd)
+      value = Dneall_m_free(lmd1)
       value = BA_free_heap(psi1(2))
       value = BA_free_heap(psi2(2))
       if (fractional) then

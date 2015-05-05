@@ -21,7 +21,7 @@
      >                      npack1,nfft3d,nemax,
      >                      psi1,psi2,dn,
      >                      it_in,E,deltae,deltac,deltar,
-     >                      hml,lmd,
+     >                      hml,lmd,lmd1,first_iteration,
      >                      psi_r,Hpsi,
      >                      fractional,occ1,occ2)
       implicit none
@@ -33,7 +33,8 @@
       integer    it_in
       real*8     E(*)
       real*8     deltae,deltac,deltar
-      real*8     hml(*),lmd(*)
+      real*8     hml(*),lmd(*),lmd1(*)
+      logical    first_iteration
 
 *     **** very big workspace variables ****
       real*8     psi_r(2*nfft3d,nemax)
@@ -484,6 +485,26 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
               call semicore_xc_F(ispin,dbl_mb(xcp(1)),dbl_mb(fion(1)))
            end if
 
+*          **** get the paw lagrange multiplier force ****
+           if (psp_pawexist()) then
+              if (first_iteration) then
+                 call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
+                 call Dneall_m_scal(0,(-1.0d0),hml)
+                 call Dneall_mm_copy(0,hml,lmd)
+                 call Dneall_mm_copy(0,hml,lmd1)
+                 first_iteration = .false.
+              end if
+              !tmp_L = 2*lmd - lmda1
+              call Dneall_mm_copy(0,lmd,dbl_mb(tmp_L(1)))
+              call Dneall_m_scal(0,2.0d0,dbl_mb(tmp_L(1)))
+              call Dneall_mm_daxpy(0,-1.0d0,lmd1,dbl_mb(tmp_L(1)))
+              call psp_paw_overlap_fion(ispin,
+     >                             dbl_mb(tmp_L(1)),
+     >                             psi1,
+     >                             dbl_mb(fion(1)))
+              call Dneall_mm_copy(0,lmd,lmd1)
+           end if
+
 *          **** get the qmmm force ****
            if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
 
@@ -500,32 +521,22 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
-
         if (psp_pawexist()) then
+           call psp_overlap_S(ispin,ne,psi1,psi_r)
+           call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
+     >                     dte,
+     >                     lmd,dbl_mb(tmp_L(1)),ierr)
 
-!#ifdef USE_OPENMP
-!!$OMP PARALLEL
-!#endif
-        write(*,*) "DEBUG ENTERING PSP_OVERLAP_S"
-        call psp_overlap_S(ispin,ne,psi1,psi_r)
-!#ifdef USE_OPENMP 
-!!$OMP END PARALLEL
-!#endif
-
-!MATHIAS no parallelism between spins
-        call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
-     >                  dte,
-     >                  lmd,dbl_mb(tmp_L(1)),ierr)
         else if (fractional) then
-        call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
-     >                  dte,occ1,
-     >                  lmd,dbl_mb(tmp_L(1)),ierr)
+           call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
+     >                     dte,occ1,
+     >                     lmd,dbl_mb(tmp_L(1)),ierr)
         else if (sic.or.hfx) then
-        call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
-     >                 lmd,dbl_mb(tmp_L(1)),ierr)
+           call psi_lmbda_sic(ispin,ne,nemax,npack1,psi1,psi2,dte,
+     >                    lmd,dbl_mb(tmp_L(1)),ierr)
         else
-        call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
-     >                 lmd,dbl_mb(tmp_L(1)),ierr)
+           call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
+     >                    lmd,dbl_mb(tmp_L(1)),ierr)
         end if
         call nwpw_timing_end(45)
 
