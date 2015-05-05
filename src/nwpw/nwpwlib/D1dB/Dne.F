@@ -3820,14 +3820,16 @@ c     ****************************************
                ishift2 = 0
             end if
             do ms=ms1,ms2
-               shift1 =   (ms-1)*ishift1
-               shift2 = 1+(ms-1)*ishift2
-               call DGEMM('N','T',ne(ms),ne(ms),nprj,
-     >                    scal,
-     >                    dbl_mb(sw1b(1)+shift1), nn,
-     >                    dbl_mb(sw2b(1)+shift1), nn,
-     >                    1.0d0,
-     >                    S(shift2),ne(ms))
+               if (ne(ms).gt.0) then
+                  shift1 =   (ms-1)*ishift1
+                  shift2 = 1+(ms-1)*ishift2
+                  call DGEMM('N','T',ne(ms),ne(ms),nprj,
+     >                       scal,
+     >                       dbl_mb(sw1b(1)+shift1), nn,
+     >                       dbl_mb(sw2b(1)+shift1), nn,
+     >                       1.0d0,
+     >                       S(shift2),ne(ms))
+               end if
             end do
          end if
          value =           BA_pop_stack(sw2b(2))
@@ -3849,26 +3851,22 @@ c     ****************************************
             nn = ne(mb)
          end if
          do ms=ms1,ms2
-           shift1 = 1+(ms-1)*ishift1
-           shift2 = 1+(ms-1)*ishift2
-           call DGEMM('N','T',
-     >               ne(ms),ne(ms),nprj,
-     >               scal,
-     >               sw1(shift1), nn,
-     >               sw2(shift1), nn,
-     >               1.0d0,
-     >               S(shift2), ne(ms))
+            if (ne(ms).gt.0) then
+               shift1 = 1+(ms-1)*ishift1
+               shift2 = 1+(ms-1)*ishift2
+               call DGEMM('N','T',
+     >                    ne(ms),ne(ms),nprj,
+     >                    scal,
+     >                    sw1(shift1), nn,
+     >                    sw2(shift1), nn,
+     >                    1.0d0,
+     >                    S(shift2), ne(ms))
+            end if
          end do
       end if
 
       return
       end
-
-
-
-
-
-
 
 
 
