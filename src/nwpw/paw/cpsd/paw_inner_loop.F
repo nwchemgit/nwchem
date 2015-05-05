@@ -151,10 +151,12 @@
 #include "paw_energy_hartree_atom.fh"
 #include "paw_xc.fh"
 #include "nwxc.fh"
+#include "util.fh"
 
 
 *     **** local variables ****
       logical move
+      logical use_lda
       integer n2ft3d,np
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
@@ -450,8 +452,13 @@ c        call paw_density_solve()
         !call paw_xc_print()
         
 *       *** plane wave ***
-        if ((.not.nwxc_is_on().and.gga.eq.0).or.
-     &      (nwxc_is_on().and.nwxc_is_lda())) then
+        if (util_module_avail("nwxc")) then
+          use_lda = ((.not.nwxc_is_on().and.gga.eq.0).or.
+     &               (nwxc_is_on().and.nwxc_is_lda()))
+        else
+          use_lda = gga.eq.0
+        endif
+        if (use_lda) then
           call vxc(n2ft3d,ispin,dn,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),

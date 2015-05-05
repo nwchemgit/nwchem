@@ -1545,11 +1545,13 @@ c      end do
 #include "bafdecls.fh"
 #include "paw_electron.fh"
 #include "nwxc.fh"
+#include "util.fh"
 #include "errquit.fh"
 
 
 *     ***** local variables ****
       logical value
+      logical use_lda
       integer n2ft3d,nx,ny,nz,gga
       integer tmp1(2),tmp2(2)
       real*8  vzero,scal1
@@ -1670,8 +1672,13 @@ c      call paw_density_solve()
 
 *     **** plane wave portion ****
       gga = control_gga()
-      if ((.not.nwxc_is_on().and.gga.eq.0).or.
-     &    (nwxc_is_on().and.nwxc_is_lda())) then
+      if (util_module_avail("nwxc")) then
+        use_lda = ((.not.nwxc_is_on().and.gga.eq.0).or.
+     &             (nwxc_is_on().and.nwxc_is_lda()))
+      else
+        use_lda = gga.eq.0
+      endif
+      if (use_lda) then
         call vxc(n2ft3d,ispin,dn,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)),
