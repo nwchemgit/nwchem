@@ -45,6 +45,9 @@ c
       external xc_chkgrad, xc_chktau
       logical l3d
       logical triplet
+      integer k_becke
+      integer l_becke
+      logical oprint_qbecke
       double precision StericEnergyTotal, StericEnergy
 
 c
@@ -58,6 +61,12 @@ c
       ibas_cent_xinfo = 0
       ibas_cset_xinfo = 0
       idocsetx = 0
+c
+c     becke charges
+c
+      oprint_qbecke = util_print('becke charges', print_high)
+      if(oprint_qbecke) 
+     R    call dft_initqbecke(natoms,k_becke,l_becke)
 c
 c     rewind grid pts file
 c
@@ -148,7 +157,8 @@ c
      &       int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      &       log_mb(idocsetx),
      &       ttau, kske, Mmat, Mmat2, StericEnergy,
-     1       do_gxc, Amat3, Cmat3)
+     1       do_gxc, Amat3, Cmat3,
+     Q           dbl_mb(k_becke))
 c
              ntot_cube=ntot_cube+1
 c
@@ -169,8 +179,76 @@ c
       if (.not.ma_chop_stack(lbas_cent_info))
      &     call errquit('grid_quadv0a: pop stack failed.',1, MA_ERR)
  100  continue
+      if(oprint_qbecke) then
+         call dft_printqbecke(geom,ao_bas_han,ncenters,dbl_mb(k_becke))
+         if (.not.ma_pop_stack(l_becke)) 
+     Z        call errquit('grid_loop: pop stack failed.',0, MA_ERR)
+      endif
 c
       call ga_sync
       return
       end
 c $Id$
+      subroutine dft_printqbecke(geom,ao_bas_han,ncenters,
+     C     q_becke)
+      implicit none
+#include "global.fh"
+#include "sym.fh"
+#include "stdio.fh"
+#include "geom.fh"
+#include "errquit.fh"
+      integer geom
+      integer ao_bas_han
+      integer ncenters
+      double precision q_becke(*)
+c
+      integer i_a
+      double precision symfact
+      character*2 symbol
+      character*16 tag
+      character*32 element
+      integer atn
+      double precision coord(3),qnuc
+c
+      call ga_dgop(2015, q_becke , ncenters, '+') 
+      if(ga_nodeid().eq.0) then
+         call dft_header
+     &     (' Total Density - Becke Population Analysis')
+        write(LuOut,1)
+    1   format(/'    Atom         Charge   ')
+        write(luout,11)
+ 11     format( ' -----------   -------- ')
+         do i_a=1,ncenters
+            if (.not.sym_atom(geom, i_a, symfact))  symfact=1d0
+            q_becke(i_a)=q_becke(i_a)/symfact
+            if(q_becke(i_a).gt.1d-12) then
+               if (.not. geom_cent_get(geom, i_a, tag, coord, qnuc)) 
+     $              call errquit('mull_pop: geom_cent_tag failed',0,
+     &              GEOM_ERR)
+               if (.not. geom_tag_to_element(tag, symbol, element, atn))
+     $              symbol = 'X'
+               write(LuOut,2) i_a,symbol,nint(qnuc),q_becke(i_a)
+            endif
+ 2          format(1x,i4,1x,a2,i4,1x,f10.3)
+         enddo
+        write(LuOut,*)
+      endif
+      return
+      end
+      subroutine dft_initqbecke(natoms,k_becke,l_becke)
+      implicit none
+#include "errquit.fh"
+#include "util.fh"
+#include "mafdecls.fh"
+      integer natoms
+      integer k_becke
+      integer l_becke
+c
+c     becke charges
+c
+      if (.not.MA_Push_Get(mt_dbl, natoms, 'becke charges',
+     &     l_becke, k_becke))
+     &     call errquit('dft_initqb: cant allocate becke q',0,MA_ERR)
+      call dfill(natoms,0d0,dbl_mb(k_becke),1)
+      return
+      end

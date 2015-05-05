@@ -23,6 +23,7 @@ C$Id$
 #include "cgridfile.fh"
 #include "grid_quad.fh"
 #include "global.fh"
+#include "util.fh"
 #include "stdio.fh"
 c
 c     copy to buffer for XC and compute XC if npts=buff_size
@@ -46,8 +47,17 @@ c
       logical l3d
       logical triplet
       logical kske
+      integer k_becke
+      integer l_becke
+      logical oprint_qbecke
       double precision StericEnergy
 c
+c
+c     becke charges
+c
+      oprint_qbecke = util_print('becke charges', print_high)
+      if(oprint_qbecke) 
+     R    call dft_initqbecke(natoms,k_becke,l_becke)
       ibas_cent_xinfo = 0
       ibas_cset_xinfo = 0
       idocsetx = 0
@@ -123,7 +133,8 @@ c
      .     int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .        log_mb(idocsetx),
      &        ttau, kske, Mmat, Mmat2, StericEnergy,
-     1        do_gxc, Amat3, Cmat3)
+     1        do_gxc, Amat3, Cmat3,
+     Q        dbl_mb(k_becke))
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1
@@ -149,6 +160,11 @@ c
  100  continue
       if (.not.MA_chop_Stack(lbas_cent_info))
      &     call errquit('grid_quadvc: pop stack failed.',1, MA_ERR)
+      if(oprint_qbecke) then
+ctoomanyprints         call dft_printqbecke(geom,ao_bas_han,ncenters,dbl_mb(k_becke))
+         if (.not.ma_pop_stack(l_becke)) 
+     Z        call errquit('grid_loop: pop stack failed.',0, MA_ERR)
+      endif
 c
       return
       end

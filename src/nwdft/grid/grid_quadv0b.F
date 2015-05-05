@@ -16,7 +16,8 @@
      &     docsetx, 
      &     ttau, kske, Mmat, Mmat2,
      &     StericEnergy,
-     &     do_gxc, Amat3, Cmat3)
+     &     do_gxc, Amat3, Cmat3,
+     Q     qbecke)
 c
       implicit none
 #include "errquit.fh"
@@ -58,12 +59,14 @@ c
       logical do_2nd
       double precision StericEnergy
       logical do_3rd
+      double precision qbecke(*)
       double precision lapdum
 c     AOR begin
       integer nxdm
       integer ixdm_v, ixdm_ml, lxdm_v, lxdm_ml
       common /xdmd/ nxdm, ixdm_v, lxdm_v, ixdm_ml, lxdm_ml
 c     AOR end
+      logical oprint_qbecke
 
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
@@ -79,6 +82,10 @@ c     AOR end
          idelchi_ao = 0
          iheschi_ao = 0
       endif
+c
+c     becke charges
+c
+      oprint_qbecke = util_print('becke charges', print_high)
 c
 c     Evaluate the AO basis set at each of the quad. points.
 c     allocate arrays for exponents and contraction coefficients
@@ -210,6 +217,10 @@ c
 c     
       rho0=rho_int
       rho_int = rho_int + ddot(nqpts, qwght, 1, rho, 1)
+         if(oprint_qbecke) then
+            qbecke(ictr_buf)=qbecke(ictr_buf)+(rho_int-rho0)
+         endif
+
 
       if(do_scf.and.abs(rho0-rho_int).lt.tol_rho) goto 2010
 c     
