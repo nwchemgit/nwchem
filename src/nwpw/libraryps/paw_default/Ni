@@ -2,9 +2,25 @@ Comment:
 Comment: PAW basis set generation file for Nickel
 Comment: 
 
-[psp_type] 4
+Comment: LDA results - cutoff = 50
+Comment: ref0 refM Rcmp   3s  3p  3d  4s  4p    config   NiH Dist
+Comment: -1.0  2.0  2.0  1.8 1.8 2.0 2.0 2.0  4s2 3d8    1.44637
 
-<atom_charge> 28.0 
+
+Comment: PBE results - periodic SC = 20
+Comment: ref0 refM Rcmp   3s  3p  3d  4s  4p   config cutoff  NiH Dist    NiH w0              E
+Comment: -1.0  2.0  2.0  1.8 1.8 2.0 2.0 2.0  4s2 3d8     10 
+Comment: -1.0  2.0  2.0  1.8 1.8 2.0 2.0 2.0  4s2 3d9     20
+Comment: -1.0  2.0  2.0  1.8 1.8 2.0 2.0 2.0  4s2 3d8     30
+Comment: -1.0  2.0  2.0  1.8 1.8 2.0 2.0 2.0  4s2 3d8     40
+Comment: -1.0  2.0  2.0  1.8 1.8 2.0 2.0 2.0  4s2 3d8     50   1.46639 
+
+
+
+[psp_type] 4
+[cutoff] 50.0
+
+<atom_charge> 28.0
 <orbitals>
 7 1 1
 1  0   2.0
@@ -14,22 +30,25 @@ Comment:
 3  1   6.0
 3  2   8.0
 4  0   2.0
-4  1   0.0   
-4  2   0.0   0.1
+4  1   0.0
+4  2   0.0  0.1
 <paw_basis>
-3
+5
+3  0   1.8
+3  1   1.8
 3  2   2.0
 4  0   2.0
 4  1   2.0
 4  2   2.0
-<ref_potential_matching_radius> 2.0
-<ref_potential_at_zero> -3.5
-<compensation_charge_radius> 1.8
+<ref_potential_matching_radius> 2.00
+<ref_potential_at_zero>      -1.0
+<compensation_charge_radius> 2.0
 <nodal_constraint> on
 <projector_method> blochl
 
 <scattering_test>
 3
-1  -2.5  -1.5  1.8 300
-0  -1.5  0.5  1.8 300
-2  -0.5  0.5  1.8 100
+1  -1.0  0.5  1.8 300
+0  -1.0  0.5  1.8 300
+2  -1.0  0.5  1.8 100
+
