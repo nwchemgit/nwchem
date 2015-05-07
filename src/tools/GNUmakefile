@@ -544,17 +544,17 @@ $(GA_DIR)/Makefile.in:
 	@echo "No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
 $(GA_DIR)/configure: $(GA_DIR)/Makefile.in
-	@echo "1No Global Arrays found: Attempting running ./get-tools"
+	@echo "No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
 	touch $(GA_DIR)/configure
 ifndef DONTCARE
 $(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
 	@echo "No Global Arrays found: Attempting running ./get-tools"
-	DONTCARE=y ./get-tools
+	./get-tools
 	touch $(GA_DIR)/armci/Makefile.in
 $(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
 	@echo "No Global Arrays found: Attempting running ./get-tools"
-	DONTCARE=y ./get-tools
+	./get-tools
 	touch $(GA_DIR)/armci/configure
 endif # DONTCARE
 $(STAMP_FC): 
