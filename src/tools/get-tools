@@ -29,8 +29,8 @@ TOOLSVN=`which svn`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
    GA_DEV_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
        GA_DEV=ga-dev
-GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-3 # Comment this line out for NWChem releases
-    GA_STABLE=ga-5-3
+GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-4 # Comment this line out for NWChem releases
+    GA_STABLE=ga-5-4
    GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/tags/ga-4-3     # For GA release 4.3
    GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3 # Comment this line out for NWChem releases
        GA_OLD=ga-4-3
@@ -90,6 +90,8 @@ if [ $stat -ne 0 ] ; then
   exit 0
 fi
 
+if test "x$DONTCARE" = x
+then
 # Update the "OLD_GA" source.
 if test -e $TOOLDIR/armci
 then
@@ -123,6 +125,7 @@ then
     rm -f GNUmakefile
     cp -f -R * ..
     cd $TOOLDIR
+fi
 fi
 
 # Update the autotools build of GA.
