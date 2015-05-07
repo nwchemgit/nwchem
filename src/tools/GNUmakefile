@@ -5,88 +5,6 @@ include ../config/makefile.h
 
 SHELL = /bin/sh
 
-ifdef OLD_GA
-#
-# GNUmakefile-based build of GA
-# 
-
-export ARMCI_DIR_NAME := armci
-ifeq ($(ARMCI_NETWORK),PORTALS)
-    export ARMCI_DIR_NAME := armci-portals
-endif
-
-ifdef NWCHEM_TARGET_CPU
- TARGET_CPU = $(NWCHEM_TARGET_CPU)
-endif
-MAKESUBDIRS = for dir in $(SUBDIRS); do $(MAKE)  -C $$dir $@ || exit 1 ; done
-    SUBDIRS = ma global tcgmsg-mpi LinAlg/lapack+blas tcgmsg $(ARMCI_DIR_NAME)/src pario
-ifndef USE_MPI
-  EXTRA_INC = "TCG_INCLUDE=../../include"
-      EXTRA = "MSG_COMMS=TCGMSG"
-     MP_VER = TCG
-else
-     MP_VER = MPI
-endif
-     GA_VER = O
-
-ifndef TARGET
-info:
-	@echo ''
-	@echo '*** This is the Global Arrays package ****'
-	@echo "*** you need to define TARGET machine, for example"
-	@echo "***     setenv TARGET SUN"
-	@echo "*** or "
-	@echo "***     make TARGET=SUN"
-	@echo ''
-endif
-
-export TARGET TARGET_CPU BINDIR
-
-tools:  $(STAMP) lib/$(TARGET) include
-	@echo ''
-	@echo '*** Building Parallel Tools ****'
-	@echo ''
-	@echo '>>> making Memory Allocator (MA) library <<< '
-	(cd ./ma; $(MAKE))
-ifdef USE_MPI
-	@echo '>>> making TCGMSG library on top of MPI <<< '
-	(cd ./tcgmsg-mpi; $(MAKE) MACHINE=$(TARGET) )
-else
-	@echo '>>> making TCGMSG library <<<'
-	(cd ./tcgmsg; $(MAKE) MACHINE=$(TARGET))
-endif
-	@echo '>>> making Linear Algebra utility libraries <<< '
-	(cd ./LinAlg/lapack+blas; $(MAKE))
-	@echo '>>> making ARMCI remote memory copy library <<< '
-	(cd ./$(ARMCI_DIR_NAME)/src; \
-	$(MAKE) LIB_DISTRIB=../../lib $(EXTRA) $(EXTRA_INC) )
-	@echo '>>> making Global Arrays library <<< '
-	(cd ./global; $(MAKE) DIAG=PAR )
-	(cd ./pario; $(MAKE))
-	(../util/util_ga_version.bash ga-4-3)
-
-lib/$(TARGET):
-	$(MKDIR) -p $@
-
-include: 
-	$(MKDIR) -p $@
-
-include_stamp: tools
-
-clean:
-	$(MAKESUBDIRS) $^
-	$(RM) -r include/* *.stamp
-	(cd ./$(ARMCI_DIR_NAME)/src; $(MAKE) LIB_DISTRIB=../../lib clean )
-
-STAMP = $(TARGET)-$(MP_VER)-$(GA_VER).stamp
-
-$(STAMP): 
-	$(MAKE) clean
-	echo "" > $(STAMP)
-
-realclean: clean
-
-else
 #
 # GNU Autotools-based build of GA
 #
@@ -186,18 +104,14 @@ ifeq ($(ARMCI_NETWORK),GEMINI)
 endif # GEMINI
 
 ifeq ($(ARMCI_NETWORK),DMAPP)
-  ifneq ($(GA_DIR),ga-cray)
     nogacrayerror:
 	@echo "  "
-	@echo "   Please do the following for compiling ARMCI_NETWORK=DMAPP"
-	@echo "   cd $$NWCHEM_TOP/src/tools"
-	@echo "   wget https://github.com/ryanolson/ga/archive/cray.zip -O cray.zip"
-	@echo "   unzip cray.zip"
-	@echo "   make FC=ftn GA_DIR=ga-cray"
+	@echo "   we discourage the use of ARMCI_NETWORK=DMAPP "
+	@echo "   please use ARMCI_NETWORK=MPI-PR, instead "
 	@echo "  " 
 	@echo
 	@exit 1
-   endif
+
     DMAPP_COMBINED =
     ifneq ($(CRAY_DMAPP_INCLUDE_OPTS),)
         DMAPP_COMBINED += $(CRAY_DMAPP_INCLUDE_OPTS)
@@ -565,7 +479,11 @@ else
     ifdef EXP_GA
         GA_DIR = ga-exp1
     else
-        GA_DIR = ga-5-4
+        ifdef GA_STABLE
+           GA_DIR = $(GA_STABLE)
+        else
+           GA_DIR = ga-5-4
+        endif
     endif
 endif
 ifndef ARMCI_NETWORK
@@ -623,20 +541,20 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 $(GA_DIR)/Makefile.in:
-	@echo "0No Global Arrays found: Attempting running ./get-tools"
+	@echo "No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
-ifndef DONTCARE
 $(GA_DIR)/configure: $(GA_DIR)/Makefile.in
 	@echo "1No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
 	touch $(GA_DIR)/configure
+ifndef DONTCARE
 $(GA_DIR)/armci/Makefile.in: $(GA_DIR)/configure
 	@echo "No Global Arrays found: Attempting running ./get-tools"
-	./get-tools
+	DONTCARE=y ./get-tools
 	touch $(GA_DIR)/armci/Makefile.in
 $(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
-	@echo "3No Global Arrays found: Attempting running ./get-tools"
-	./get-tools
+	@echo "No Global Arrays found: Attempting running ./get-tools"
+	DONTCARE=y ./get-tools
 	touch $(GA_DIR)/armci/configure
 endif # DONTCARE
 $(STAMP_FC): 
@@ -656,7 +574,6 @@ clean:
 realclean:
 	@rm -rf $(BUILDDIR) $(INSTALLDIR)
 
-endif
 #
 # Common targets shared between GNUmakefile's and automake Makefiles
 #

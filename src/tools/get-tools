@@ -29,31 +29,24 @@ TOOLSVN=`which svn`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
    GA_DEV_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
        GA_DEV=ga-dev
-GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-4 # Comment this line out for NWChem releases
+
+if test "x$GA_STABLE" = x
+then
     GA_STABLE=ga-5-4
-   GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/tags/ga-4-3     # For GA release 4.3
-   GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3 # Comment this line out for NWChem releases
-       GA_OLD=ga-4-3
+GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-4
+else
+     GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/$GA_STABLE
+fi
+
    GA_EXP_SVN=https://svn.pnl.gov/svn/hpctools/branches/exp1
        GA_EXP=ga-exp1
 
-# If OLD_GA is set at all in the user's environment then it means 'yes'
-if test "x$OLD_GA" != x
-then
-    OLD_GA=yes
-fi
-# Or, if OLD_GA is uncommented within $NWCHEM_TOP/src/config/makefile.h
-if grep "^\s*OLD_GA\s*=" $CONFIG >/dev/null 2>&1
-then
-    OLD_GA=yes
-fi
 # If EXP_GA is set at all in the user's environment then it means 'yes'
 if test "x$EXP_GA" != x
 then
     EXP_GA=yes
 fi
 if [ $ga_version == 0 ] ; then
-  echo "OLD_GA=$OLD_GA"
   echo "EXP_GA=$EXP_GA"
 fi
 
@@ -90,43 +83,6 @@ if [ $stat -ne 0 ] ; then
   exit 0
 fi
 
-if test "x$DONTCARE" = x
-then
-# Update the "OLD_GA" source.
-if test -e $TOOLDIR/armci
-then
-    echo "You have an old copy of the ga tools using GNUmakefiles"
-    echo "Deleting it now"
-    rm -rf $TOOLDIR/armci
-    rm -rf $TOOLDIR/armci-portals
-    rm -rf $TOOLDIR/build-aux
-    rm -rf $TOOLDIR/cca
-    rm -rf $TOOLDIR/config
-    rm -rf $TOOLDIR/doc
-    rm -rf $TOOLDIR/examples
-    rm -rf $TOOLDIR/f2c
-    rm -rf $TOOLDIR/ga++
-    rm -rf $TOOLDIR/gaf2c
-    rm -rf $TOOLDIR/global
-    rm -rf $TOOLDIR/lib
-    rm -rf $TOOLDIR/LinAlg
-    rm -rf $TOOLDIR/ma
-    rm -rf $TOOLDIR/pario
-    rm -rf $TOOLDIR/tcgmsg
-    rm -rf $TOOLDIR/tcgmsg-mpi
-fi
-if svn checkout $GA_OLD_SVN $GA_OLD --username nwchem --password nwchem
-then
-    cd $GA_OLD
-    rm -f README
-    rm -f license.txt
-    rm -f INSTALL
-    rm -f NOTES
-    rm -f GNUmakefile
-    cp -f -R * ..
-    cd $TOOLDIR
-fi
-fi
 
 # Update the autotools build of GA.
 #if test -e $TOOLDIR/build
