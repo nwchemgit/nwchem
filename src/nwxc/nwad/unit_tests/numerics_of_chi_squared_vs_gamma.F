@@ -61,16 +61,19 @@ C>
       program numerics_chi
       implicit none
       integer mxp
-      parameter(mxp = 100)
+      parameter(mxp = 7)
       double precision gamma(mxp)
       double precision dgamma(mxp)
       double precision d2gamma(mxp)
+      double precision d3gamma(mxp)
       double precision chi(mxp)
       double precision dchi(mxp)
       double precision d2chi(mxp)
+      double precision d3chi(mxp)
       double precision gamma2(mxp)
       double precision dgamma2(mxp)
       double precision d2gamma2(mxp)
+      double precision d3gamma2(mxp)
 
       integer ii
 
@@ -117,8 +120,23 @@ c
       enddo
 c
       do ii = 1, mxp
-        write(*,'(i6,3e24.15)')ii,gamma(ii),dgamma(ii),d2gamma(ii)
-        write(*,'(i6,3e24.15)')ii,gamma2(ii),dgamma2(ii),d2gamma2(ii)
+        d3chi(ii) = 1.5d0*0.25d0/(gamma(ii)**2.5d0)
+      enddo
+c
+      do ii = 1, mxp
+        d3gamma(ii) = 0.0d0
+      enddo
+c
+      do ii = 1, mxp
+        d3gamma2(ii) = d3chi(ii)*chi(ii) + 3*d2chi(ii)*dchi(ii)
+     +               + 3*dchi(ii)*d2chi(ii) + chi(ii)*d3chi(ii)
+      enddo
+c
+      do ii = 1, mxp
+        write(*,'(i6,4e24.15)')ii,gamma(ii),dgamma(ii),
+     +                            d2gamma(ii),d3gamma(ii)
+        write(*,'(i6,4e24.15)')ii,gamma2(ii),dgamma2(ii),
+     +                            d2gamma2(ii),d3gamma2(ii)
         write(*,*)
       enddo
 c
