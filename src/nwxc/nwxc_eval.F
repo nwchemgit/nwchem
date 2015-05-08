@@ -990,7 +990,7 @@ c           parameters A
             param(09) = -1.48447565D+00
             param(10) =  5.51042124D+01
             param(11) = -1.34714184D+01
-            param(12) =  0.000000D+00
+            param(12) =  0.00000000D+00
 c           parameters B
             param(13) =  0.75599900D+00
             param(14) =  1.37137944D+01
@@ -1003,7 +1003,7 @@ c           parameters B
             param(21) =  1.85349258D+01
             param(22) = -5.56825639D+01
             param(23) =  7.47980859D+00
-            param(24) =  0.000000D+00
+            param(24) =  0.00000000D+00
 c           parameters C and D
             do n = 25, 48
               param(n) = 0.0d0
