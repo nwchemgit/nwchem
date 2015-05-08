@@ -117,7 +117,13 @@ C>
       subroutine nwxcm_c_tpss03(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Cmat,Mmat) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n)
+      integer, parameter :: rk=selected_real_kind(30)
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n)
+      integer, parameter :: rk=selected_real_kind(15)
+#endif
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -3325,7 +3331,13 @@ C>
       subroutine nwxcm_c_tpss03_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Cmat,Cmat2,Mmat,Mmat2) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n)
+      integer, parameter :: rk=selected_real_kind(30)
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n)
+      integer, parameter :: rk=selected_real_kind(15)
+#endif
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -12578,7 +12590,13 @@ C>
      +rho,rgamma,tau,fnc,Amat,Amat2,Amat3, 
      +Cmat,Cmat2,Cmat3,Mmat,Mmat2,Mmat3) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n)
+      integer, parameter :: rk=selected_real_kind(30)
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n)
+      integer, parameter :: rk=selected_real_kind(15)
+#endif
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -38234,7 +38252,7 @@ c
               Mmat3(iq,D3_RB_GBB_TA) = t400+Mmat3(iq,D3_RB_GBB_TA)
               Mmat3(iq,D3_RB_GBB_TB) = t400+Mmat3(iq,D3_RB_GBB_TB)
               Mmat3(iq,D3_GBB_GBB_TA) = t402+Mmat3(iq,D3_GBB_GBB_TA)
-              Mmat3(iq,D3_GBB_GBA_TB) = t402+Mmat3(iq,D3_GBB_GBA_TB)
+              Mmat3(iq,D3_GBB_GBB_TB) = t402+Mmat3(iq,D3_GBB_GBB_TB)
               Mmat3(iq,D3_RB_TA_TA) = t405+Mmat3(iq,D3_RB_TA_TA)
               Mmat3(iq,D3_RB_TA_TB) = t405+Mmat3(iq,D3_RB_TA_TB)
               Mmat3(iq,D3_RB_TB_TB) = t405+Mmat3(iq,D3_RB_TB_TB)
@@ -38901,7 +38919,7 @@ c
               Mmat3(iq,D3_RB_GBB_TA) = Mmat3(iq,D3_RB_GBB_TA)
               Mmat3(iq,D3_RB_GBB_TB) = Mmat3(iq,D3_RB_GBB_TB)
               Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA)
-              Mmat3(iq,D3_GBB_GBA_TB) = Mmat3(iq,D3_GBB_GBA_TB)
+              Mmat3(iq,D3_GBB_GBB_TB) = Mmat3(iq,D3_GBB_GBB_TB)
               Mmat3(iq,D3_RB_TA_TA) = -2.34375d-2*t103*t136*t265*t60*t68
      1           *wght+2.0d+0*rhob*t332*t68*wght+2.0d+0*rhob*t66*(1.6021
      2           728515624997d-5*t138*t22*t259*t60*t61*t67-1.60217285156
@@ -39869,7 +39887,7 @@ c
      3           +0*rhob*t146*t273*wght+2.0d+0*t139*t146*wght+Mmat3(iq,D
      4           3_RB_GBB_TB)
               Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA)
-              Mmat3(iq,D3_GBB_GBA_TB) = 7.8125d-3*t142*t143*t60*t61*(6.8
+              Mmat3(iq,D3_GBB_GBB_TB) = 7.8125d-3*t142*t143*t60*t61*(6.8
      1           359375d-4*t67*(-1.2144801120958938d-4*t112*t144*t22*t30
      2           8*t99+3.886336358706861d-3*t85*(-2.1622114952063784d-1*
      3           t21*t27*t305*t86-2.3375792750013014d-2*t130*t22*t25*t30
@@ -39885,7 +39903,7 @@ c
      =           4*t61*t65+1.6021728515624997d-5*t142*t200*t393*t60*t64)
      >           *wght+2.0d+0*rhob*t395*t68*wght+4.0d+0*rhob*t139*t315*w
      ?           ght+4.0d+0*rhob*t141*t312*wght+2.0d+0*rhob*t146*t291*wg
-     @           ht+Mmat3(iq,D3_GBB_GBA_TB)
+     @           ht+Mmat3(iq,D3_GBB_GBB_TB)
               Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA)
               Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB)
               Mmat3(iq,D3_RB_TB_TB) = 1.5625d-2*t142*t143*t60*t61*(6.835
@@ -40494,7 +40512,7 @@ c
               Mmat3(iq,D3_RB_GBB_TA) = Mmat3(iq,D3_RB_GBB_TA)
               Mmat3(iq,D3_RB_GBB_TB) = Mmat3(iq,D3_RB_GBB_TB)
               Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA)
-              Mmat3(iq,D3_GBB_GBA_TB) = Mmat3(iq,D3_GBB_GBA_TB)
+              Mmat3(iq,D3_GBB_GBB_TB) = Mmat3(iq,D3_GBB_GBB_TB)
               Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA)
               Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB)
               Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB)
