@@ -96,6 +96,10 @@ OBJ =  \
 #f77/nwxcm_c_ft97.o \
 #	nwxcm_x_camrpbe.o \
 
+ifdef NWCHEM_NWXC_QUAD_PREC
+     LIB_DEFINES = -DNWAD_QUAD_PREC -DNWXC_QUAD_PREC
+endif
+
 include ../../config/makefile.h
 include ../../config/makelib.h
 
@@ -282,7 +286,7 @@ f77/nwxcm_x_tpss03.F: max/nwxcm_x_tpss03.max
 	date > $@.finished
 
 %.o: f77/%.F
-	$(FC) $(FFLAGS) -I./f77 -c $< 
+	$(FC) $(FFLAGS) $(LIB_DEFINES) -I./f77 -c $< 
 
 f77/%.F: max/%.max
 	$(AUTOXC) -o $@ $<

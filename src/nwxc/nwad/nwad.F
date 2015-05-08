@@ -267,6 +267,17 @@
       !> the data arrays. 
       integer mxvar
       parameter (mxvar = 7)
+      !> The real kind to use
+      integer, private :: rk
+#ifdef NWAD_QUAD_PREC
+c     Quadruple precision is not supported in hardware
+c     hence this will generate extremely slow code!!!
+c     Use only when suspecting serious numerical problems,
+c     and even then only for debugging.
+      parameter (rk=selected_real_kind(30))
+#else
+      parameter (rk=selected_real_kind(15))
+#endif
 #ifdef NWAD_PRINT
       !> This option adds the capability to write a Maxima definition of the
       !> functional being executed.
@@ -296,35 +307,17 @@
 #endif
         integer            :: nvar
         integer            :: ivar
-#ifdef NWAD_QUAD_PREC
-c       Quadruple precision is not supported in hardware
-c       hence this will generate extremely slow code!!!
-c       Use only when suspecting serious numerical problems,
-c       and even then only for debugging.
-        real(kind=selected_real_kind(30)) :: d0
+c
+        real(kind=rk) :: d0
 #  if NWAD_DEG >= 1
-        real(kind=selected_real_kind(30)) :: d1(mxvar)
+        real(kind=rk) :: d1(mxvar)
 #  endif
 #  if NWAD_DEG >= 2
-        real(kind=selected_real_kind(30)) :: d2(mxvar*(mxvar+1)/2)
+        real(kind=rk) :: d2(mxvar*(mxvar+1)/2)
 #  endif
 #  if NWAD_DEG >= 3
-        real(kind=selected_real_kind(30)) ::
-     +            d3(mxvar*(mxvar+1)*(mxvar+2)/6)
+        real(kind=rk) :: d3(mxvar*(mxvar+1)*(mxvar+2)/6)
 #  endif
-#else
-        real(kind=selected_real_kind(15)) :: d0
-#  if NWAD_DEG >= 1
-        real(kind=selected_real_kind(15)) :: d1(mxvar)
-#  endif
-#  if NWAD_DEG >= 2
-        real(kind=selected_real_kind(15)) :: d2(mxvar*(mxvar+1)/2)
-#  endif
-#  if NWAD_DEG >= 3
-        real(kind=selected_real_kind(15)) ::
-     +            d3(mxvar*(mxvar+1)*(mxvar+2)/6)
-#  endif
-#endif
       end type nwad_dble
       interface assignment (=)
         module procedure nwad_dble_assignx
@@ -3104,7 +3097,7 @@ c
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         type(nwad_dble)             :: s
-        s = abs(x) * sign(1.0d0,y%d0)
+        s = abs(x) * dble(sign(1.0_rk,y%d0))
 #ifdef NWAD_PRINT
         call errquit("sign function",0,0)
 #endif
@@ -3136,7 +3129,7 @@ c
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         double precision             :: s
-        s = abs(x) * sign(1.0d0,y%d0)
+        s = abs(x) * dble(sign(1.0_rk,y%d0))
 #ifdef NWAD_PRINT
         call errquit("sign function",0,0)
 #endif
@@ -3166,7 +3159,7 @@ c
         s%d0 = abs(x%d0)
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
-        if (x%d0.lt.0.0d0) then
+        if (x%d0.lt.0.0_rk) then
           do ix = 1, x%nvar
             s%d1(ix) = -x%d1(ix)
           enddo
@@ -3180,7 +3173,7 @@ c
             s%d3(ix) = -x%d3(ix)
           enddo
 #endif
-        else if (x%d0.gt.0.0d0) then
+        else if (x%d0.gt.0.0_rk) then
           do ix = 1, x%nvar
             s%d1(ix) = x%d1(ix)
           enddo
@@ -3196,16 +3189,16 @@ c
 #endif
         else
           do ix = 1, x%nvar
-            s%d1(ix) = 0.0d0
+            s%d1(ix) = 0.0_rk
           enddo
 #if NWAD_DEG >= 2
           do ix = 1, x%nvar*(x%nvar+1)/2
-            s%d2(ix) = 0.0d0
+            s%d2(ix) = 0.0_rk
           enddo
 #endif
 #if NWAD_DEG >= 3
           do ix = 1, x%nvar*(x%nvar+1)*(x%nvar+2)/6
-            s%d3(ix) = 0.0d0
+            s%d3(ix) = 0.0_rk
           enddo
 #endif
         endif
@@ -3280,15 +3273,15 @@ c
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
         do ix = 1, x%nvar
-          s%d1(ix) = 0.5d0/sqrt(x%d0)*x%d1(ix)
+          s%d1(ix) = 0.5_rk/sqrt(x%d0)*x%d1(ix)
         enddo
 #endif
 #if NWAD_DEG >= 2
         do ix = 1, x%nvar
           do ix2 = 1, ix
             s%d2(ix*(ix-1)/2+ix2)
-     &      = 0.5d0/sqrt(x%d0)*x%d2(ix*(ix-1)/2+ix2)
-     &      - 0.25d0/(x%d0*sqrt(x%d0))*x%d1(ix)*x%d1(ix2)
+     &      = 0.5_rk/sqrt(x%d0)*x%d2(ix*(ix-1)/2+ix2)
+     &      - 0.25_rk/(x%d0*sqrt(x%d0))*x%d1(ix)*x%d1(ix2)
           enddo
         enddo
 #endif
@@ -3297,19 +3290,19 @@ c
           do ix2 = 1, ix
             do ix3 = 1, ix2
               s%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
-     &        = 0.5d0/sqrt(x%d0)
+     &        = 0.5_rk/sqrt(x%d0)
      &          *x%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
 c
 c             d1*d2 needs permutation of arguments here
 c
-     &        - 0.25d0/(x%d0*sqrt(x%d0))
+     &        - 0.25_rk/(x%d0*sqrt(x%d0))
      &          *x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)
-     &        - 0.25d0/(x%d0*sqrt(x%d0))
+     &        - 0.25_rk/(x%d0*sqrt(x%d0))
      &          *x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)
-     &        - 0.25d0/(x%d0*sqrt(x%d0))
+     &        - 0.25_rk/(x%d0*sqrt(x%d0))
      &          *x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)
 c
-     &        + 3.0d0/(8.0d0*x%d0**2*sqrt(x%d0))
+     &        + 3.0_rk/(8.0_rk*x%d0**2*sqrt(x%d0))
      &          *x%d1(ix)*x%d1(ix2)*x%d1(ix3)
             enddo
           enddo
@@ -4165,8 +4158,12 @@ c
         integer                      :: ix, ix2, ix3
         real*8 util_erf
         external util_erf
-        t1 = exp(-(x%d0**2))/sqrt(acos(-1.0d0))
+        t1 = exp(-(x%d0**2))/sqrt(acos(-1.0_rk))
+#ifdef NWAD_QUAD_PREC
+        s%d0 = erf(x%d0)
+#else
         s%d0 = util_erf(x%d0)
+#endif
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
         do ix = 1, x%nvar
@@ -4244,8 +4241,12 @@ c
         integer                      :: ix, ix2, ix3
         real*8 util_erf
         external util_erf
-        t1 = exp(-(x%d0**2))/sqrt(acos(-1.0d0))
+        t1 = exp(-(x%d0**2))/sqrt(acos(-1.0_rk))
+#ifdef NWAD_QUAD_PREC
+        s%d0 = 1.0_rk-erf(x%d0)
+#else
         s%d0 = 1.0d0-util_erf(x%d0)
+#endif
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
         do ix = 1, x%nvar
