@@ -62,6 +62,10 @@ ifeq ($(USE_MPI),y)
     LDFLAGS += ${LIBMPI}
   endif
 endif
+ifneq ($(USE_GPROF),)
+  FFLAGS += -pg
+  LDFLAGS += -pg
+endif
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 LDFLAGS += $(COMM_LIBS)
 
