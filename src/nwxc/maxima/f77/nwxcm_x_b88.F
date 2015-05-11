@@ -36,7 +36,7 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 26985 2015-04-09 
+C> [3] autoxc, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_x_b88(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Cmat) 
@@ -199,7 +199,7 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 26985 2015-04-09 
+C> [3] autoxc, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_x_b88_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -498,7 +498,7 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 26985 2015-04-09 
+C> [3] autoxc, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_x_b88_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,fnc,Amat,Amat2,Amat3, 

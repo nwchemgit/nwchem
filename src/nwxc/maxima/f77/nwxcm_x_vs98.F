@@ -51,12 +51,18 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 26535 2014-12-14 
+C> [3] autoxc, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_x_vs98(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Cmat,Mmat) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(30) 
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(15) 
+#endif 
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -358,12 +364,18 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 26535 2014-12-14 
+C> [3] autoxc, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_x_vs98_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Cmat,Cmat2,Mmat,Mmat2) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(30) 
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(15) 
+#endif 
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -1167,13 +1179,19 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 26535 2014-12-14 
+C> [3] autoxc, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_x_vs98_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Amat3, 
      +Cmat,Cmat2,Cmat3,Mmat,Mmat2,Mmat3) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(30) 
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(15) 
+#endif 
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -3059,7 +3077,7 @@ c
      7         *t10*t2*t49-3.73452d-3*t10*t3*t44+1.3946639630399998d-5*t
      8         19*t23*t28+Mmat3(iq,D3_RB_GBB_TB)
             Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA)
-            Mmat3(iq,D3_GBB_GBA_TB) = 1.0d+0*t1*t6*(-3.125040277951284d-
+            Mmat3(iq,D3_GBB_GBB_TB) = 1.0d+0*t1*t6*(-3.125040277951284d-
      1         7*t59*t7*t8/rhob**1.2333333333333334d+1+1.673596755648d-4
      2         *gammabb*t32*t50*t7-1.4938079999999998d-2*t19*t27*t7-3.12
      3         5040277951284d-7*gammabb*t11*t4*t50*t59-3.125040277951284
@@ -3071,7 +3089,7 @@ c
      9         079999999998d-2*t11*t19*t27)*wght-7.812600694878209d-8*t1
      :         6*t32*t60*wght+2.7893279260799997d-5*t19*t25*t52*wght-3.7
      ;         3452d-3*t10*t26*t51*wght+6.973319815199999d-6*t19*t29*t47
-     <         *wght-3.73452d-3*t10*t30*t46*wght+Mmat3(iq,D3_GBB_GBA_TB)
+     <         *wght-3.73452d-3*t10*t30*t46*wght+Mmat3(iq,D3_GBB_GBB_TB)
             Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA)
             Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB)
             Mmat3(iq,D3_RB_TB_TB) = t6*(1.0d+0*t1*(-5.578655852159999d-4

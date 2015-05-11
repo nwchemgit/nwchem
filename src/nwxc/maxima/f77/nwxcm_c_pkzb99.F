@@ -73,12 +73,18 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc-Ds, revision 26933 2015-03-10 
+C> [3] autoxc-Ds, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_c_pkzb99(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Cmat,Mmat) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(30) 
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(15) 
+#endif 
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -1729,12 +1735,18 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc-Ds, revision 26933 2015-03-10 
+C> [3] autoxc-Ds, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_c_pkzb99_d2(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Cmat,Cmat2,Mmat,Mmat2) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(30) 
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(15) 
+#endif 
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -6271,13 +6283,19 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc-Ds, revision 26933 2015-03-10 
+C> [3] autoxc-Ds, revision 27097 2015-05-08 
 C> 
       subroutine nwxcm_c_pkzb99_d3(param,tol_rho,ipol,nq,wght, 
      +rho,rgamma,tau,fnc,Amat,Amat2,Amat3, 
      +Cmat,Cmat2,Cmat3,Mmat,Mmat2,Mmat3) 
 c $Id: $ 
-      implicit double precision (a-h,o-z), integer (i-n) 
+#ifdef NWXC_QUAD_PREC 
+      implicit real(kind=selected_real_kind(30))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(30) 
+#else 
+      implicit real(kind=selected_real_kind(15))(a-h,o-z),integer(i-n) 
+      integer, parameter :: rk=selected_real_kind(15) 
+#endif 
 #include "nwxc_param.fh" 
       double precision param(*)     !< [Input] Parameters of functional 
       double precision tol_rho      !< [Input] The lower limit on the density 
@@ -19629,7 +19647,7 @@ c
               Mmat3(iq,D3_RB_GBB_TA) = Mmat3(iq,D3_RB_GBB_TA)
               Mmat3(iq,D3_RB_GBB_TB) = Mmat3(iq,D3_RB_GBB_TB)
               Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA)
-              Mmat3(iq,D3_GBB_GBA_TB) = Mmat3(iq,D3_GBB_GBA_TB)
+              Mmat3(iq,D3_GBB_GBB_TB) = Mmat3(iq,D3_GBB_GBB_TB)
               Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA)
               Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB)
               Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB)
@@ -19665,7 +19683,7 @@ c
               Mmat3(iq,D3_RB_GBB_TA) = Mmat3(iq,D3_RB_GBB_TA)
               Mmat3(iq,D3_RB_GBB_TB) = Mmat3(iq,D3_RB_GBB_TB)
               Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA)
-              Mmat3(iq,D3_GBB_GBA_TB) = Mmat3(iq,D3_GBB_GBA_TB)
+              Mmat3(iq,D3_GBB_GBB_TB) = Mmat3(iq,D3_GBB_GBB_TB)
               Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA)
               Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB)
               Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB)
@@ -19701,7 +19719,7 @@ c
               Mmat3(iq,D3_RB_GBB_TA) = Mmat3(iq,D3_RB_GBB_TA)
               Mmat3(iq,D3_RB_GBB_TB) = Mmat3(iq,D3_RB_GBB_TB)
               Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA)
-              Mmat3(iq,D3_GBB_GBA_TB) = Mmat3(iq,D3_GBB_GBA_TB)
+              Mmat3(iq,D3_GBB_GBB_TB) = Mmat3(iq,D3_GBB_GBB_TB)
               Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA)
               Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB)
               Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB)
@@ -19737,7 +19755,7 @@ c
               Mmat3(iq,D3_RB_GBB_TA) = Mmat3(iq,D3_RB_GBB_TA)
               Mmat3(iq,D3_RB_GBB_TB) = Mmat3(iq,D3_RB_GBB_TB)
               Mmat3(iq,D3_GBB_GBB_TA) = Mmat3(iq,D3_GBB_GBB_TA)
-              Mmat3(iq,D3_GBB_GBA_TB) = Mmat3(iq,D3_GBB_GBA_TB)
+              Mmat3(iq,D3_GBB_GBB_TB) = Mmat3(iq,D3_GBB_GBB_TB)
               Mmat3(iq,D3_RB_TA_TA) = Mmat3(iq,D3_RB_TA_TA)
               Mmat3(iq,D3_RB_TA_TB) = Mmat3(iq,D3_RB_TA_TB)
               Mmat3(iq,D3_RB_TB_TB) = Mmat3(iq,D3_RB_TB_TB)
