@@ -25,7 +25,11 @@ C>     unknown.
 C>
       double precision function nwxcm_heaviside(x)
       implicit none
-      double precision x !< [Input] The coordinate
+#ifdef NWXC_QUAD_PREC
+      real(kind=selected_real_kind(30)) :: x !< [Input] The coordinate
+#else
+      real(kind=selected_real_kind(15)) :: x !< [Input] The coordinate
+#endif
 c
       if (x<0) then
         nwxcm_heaviside = 0.0d0
