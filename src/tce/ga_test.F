@@ -5,6 +5,7 @@ c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
+#include "tce_main.fh"
       integer d_test
       integer size
       integer l_sf,k_sf
@@ -15,6 +16,7 @@ c
       call ga_initialize()
       if (.not.ma_init(mt_dbl, 1000000, 1000000))
      1  call errquit('ma_init failed',0,0)
+      ioalg=2
       nodezero = (ga_nodeid() .eq. 0)
       size = ga_nnodes()
       if (.not.ma_push_get(mt_dbl,size,'sf',l_sf,k_sf))
