@@ -2225,7 +2225,7 @@ errordgemm:
 endif
 
 ifdef USE_NOIO
- DEFINES += -DNOIO
+ DEFINES += -DNOIO -DEAFHACK
 endif
 
 
