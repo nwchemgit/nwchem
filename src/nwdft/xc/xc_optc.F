@@ -37,6 +37,7 @@ c
 c    Handy NC, Cohen AJ, Mol Phys 99 (7); 607-615 2001
 c
       integer l_rho,k_rho,l_delrho,k_delrho
+      integer l_amat, k_amat, l_cmat, k_cmat
       double precision c1,c2
 !      parameter (c1=1.1015d0,c2=0.6625d0)
       parameter (c1=1.d0,c2=0d0)
@@ -74,8 +75,16 @@ c
             if (.not. ma_push_get(mt_dbl, nq*6, 
      .           ' rho aux', l_delrho, k_delrho))
      .           call errquit(' xcoptc: pus_get failed ',1, MA_ERR)
-            call dfill(nq*3,0.d0,dbl_mb(k_rho),1)
-            call dfill(nq*6,0.d0,dbl_mb(k_delrho),1)
+            if (.not. ma_push_get(mt_dbl, nq*2, 
+     .           ' amat aux', l_amat, k_amat))
+     .           call errquit(' xcoptc: push_get failed ',2, MA_ERR)
+            if (.not. ma_push_get(mt_dbl, nq*3, 
+     .           ' cmat aux', l_cmat, k_cmat))
+     .           call errquit(' xcoptc: push_get failed ',3, MA_ERR)
+            call dcopy(nq*3,0.d0,0,dbl_mb(k_rho),1)
+            call dcopy(nq*6,0.d0,0,dbl_mb(k_delrho),1)
+            call dcopy(nq*2,0.d0,0,dbl_mb(k_amat),1)
+            call dcopy(nq*3,0.d0,0,dbl_mb(k_cmat),1)
             call  dcopy(nq,rho(1,2),1,dbl_mb(k_rho),1)
             call  dcopy(nq,rho(1,2),1,dbl_mb(k_rho+nq),1)
             call  dcopy(nq*3,delrho(1,1,1),1,dbl_mb(k_delrho),1)
@@ -85,11 +94,18 @@ c     (c2-c1)*Ec[a,0]
 c
             call xc_perdew91(tol_rho, cfac, lcfac, nlcfac, 
      .        dbl_mb(k_rho),  dbl_mb(k_delrho), 
-     &           Amat, Cmat, nq, 2, 
+     &        dbl_mb(k_amat), dbl_mb(k_cmat), nq, 2, 
      &           Ec, qwght, ldew, func)
 c
-            call dfill(nq*3,0.d0,dbl_mb(k_rho),1)
-            call dfill(nq*6,0.d0,dbl_mb(k_delrho),1)
+            call daxpy(nq,1.0d0,dbl_mb(k_amat+(D1_RA-1)*nq),1,
+     &                 amat(1,D1_RA),1)
+            call daxpy(nq,1.0d0,dbl_mb(k_cmat+(D1_GAA-1)*nq),1,
+     &                 cmat(1,D1_GAA),1)
+c
+            call dcopy(nq*3,0.d0,0,dbl_mb(k_rho),1)
+            call dcopy(nq*6,0.d0,0,dbl_mb(k_delrho),1)
+            call dcopy(nq*2,0.d0,0,dbl_mb(k_amat),1)
+            call dcopy(nq*3,0.d0,0,dbl_mb(k_cmat),1)
             call  dcopy(nq,rho(1,3),1,dbl_mb(k_rho),1)
             call  dcopy(nq,rho(1,3),1,dbl_mb(k_rho+2*nq),1)
             call  dcopy(nq*3,delrho(1,1,2),1,dbl_mb(k_delrho+3*nq),1)
@@ -99,8 +115,14 @@ c     (c2-c1)*Ec[0,b]
 c
             call xc_perdew91(tol_rho, cfac, lcfac, nlcfac, 
      .        dbl_mb(k_rho),  dbl_mb(k_delrho), 
-     &           Amat, Cmat, nq, 2, 
+     &        dbl_mb(k_amat), dbl_mb(k_cmat), nq, 2, 
      &           Ec, qwght, ldew, func)
+c
+            call daxpy(nq,1.0d0,dbl_mb(k_amat+(D1_RB-1)*nq),1,
+     &                 amat(1,D1_RB),1)
+            call daxpy(nq,1.0d0,dbl_mb(k_cmat+(D1_GBB-1)*nq),1,
+     &                 cmat(1,D1_GBB),1)
+c
             if(.not.ma_chop_stack(l_rho)) call
      .           errquit(' xcoptc: chop_stack failed',0, MA_ERR)
 c

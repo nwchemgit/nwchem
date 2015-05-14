@@ -16,6 +16,9 @@ c
 #define D2_RA_RB    2
 #define D2_RB_RB    3
 c
+#define D1_RA       1
+#define D1_RB       2
+c
 c     GC 2nds use derivs wrt functional invariant parameters
 c
 c Daniel (3-11-13): Does this need to be nqpts*33?  We only have 12 
