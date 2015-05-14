@@ -156,3 +156,5 @@ HEADERS =
 include ../config/makefile.h
 include ../config/makelib.h
 
+ga_test: ga_test.o
+	$(LINK.f) $< $(LIBS) -o $@
