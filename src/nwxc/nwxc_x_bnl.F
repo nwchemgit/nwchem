@@ -137,8 +137,14 @@ c
             rA(n) = rho(n,R_T)
             rB(n) = 0.d0
          else                  ! spin-unrestricted
-            rA(n) = rho(n,R_A)
-            rB(n) = rho(n,R_B)
+            rA(n) = 0.0d0
+            rB(n) = 0.0d0
+            if (rho(n,R_A).gt.0.5d0*tol_rho) then
+              rA(n) = rho(n,R_A)
+            endif
+            if (rho(n,R_B).gt.0.5d0*tol_rho) then
+              rB(n) = rho(n,R_B)
+            endif
          end if
       end do
 c

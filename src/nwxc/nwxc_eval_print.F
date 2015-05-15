@@ -416,6 +416,7 @@ c
       type(nwad_dble) :: nwad_tau(nq,2)
       type(nwad_dble) :: nwad_f(nq)
 C
+      logical  nobeta       !< Is the beta spin channel not present (zero)?
       logical  nwxc_is_lda  !< Is the functional a GGA
       logical  nwxc_is_gga  !< Is the functional a GGA
       logical  nwxc_is_mgga !< Is the functional a meta-GGA
@@ -479,8 +480,10 @@ c
      +ub,tau):=",$)
       if (value(nwad_rho(1,2)).gt.0.0d0) then
         write(nwad_iunit,10)
+        nobeta = .false.
       else
         write(nwad_iunit,'("G(rhoa,sigmaaa,taua,taub):=",$)')
+        nobeta = .true.
       endif
       call nwad_print_entity(nwad_f(1))
       write(nwad_iunit,'(";")')
@@ -497,12 +500,27 @@ c
               dfdr(iq,D1_RA) = val
             case (2)
               dfdr(iq,D1_RB) = val
+              if (nobeta) then
+                write(nwad_iunit,'("illegal argument rhob")')
+                call errquit("nwxc_df_driver_print: illegal variable",
+     +                       iv1,UERR)
+              endif
             case (3)
               dfdg(iq,D1_GAA) = val
             case (4)
               dfdg(iq,D1_GAB) = val
+              if (nobeta) then
+                write(nwad_iunit,'("illegal argument gamma_ab")')
+                call errquit("nwxc_df_driver_print: illegal variable",
+     +                       iv1,UERR)
+              endif
             case (5)
               dfdg(iq,D1_GBB) = val
+              if (nobeta) then
+                write(nwad_iunit,'("illegal argument gamma_bb")')
+                call errquit("nwxc_df_driver_print: illegal variable",
+     +                       iv1,UERR)
+              endif
             case (6)
               dfdt(iq,D1_TA) = val
             case (7)

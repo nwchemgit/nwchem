@@ -196,8 +196,8 @@ c     endif
        EUB = 0.0d0
        ChiB = 0.0d0
 
-       if (rho(n,R_T).le.DTol) goto 20
        if (ipol.eq.1) then
+         if (rho(n,R_T).le.DTol) goto 20
 c
 c    get the density, gradient, and tau for the alpha spin from the total 
 c
@@ -252,12 +252,18 @@ c UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUnrestricted
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
+         PA  = 0.0d0
+         PB  = 0.0d0
+         GAA = 0.0d0
+         GBB = 0.0d0
+         TA  = 0.0d0
+         TB  = 0.0d0
 c
 c       alpha
 c
 
+         if (rho(n,R_A).le.0.5d0*DTol) go to 25
          PA = rho(n,R_A)
-         if (PA.le.0.5d0*DTol) go to 25
 c        GAA =   delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &          delrho(n,3,1)*delrho(n,3,1)
@@ -295,8 +301,8 @@ c
 c       Beta 
 c
  25      continue
+         if (rho(n,R_B).le.0.5d0*DTol) go to 30
          PB = rho(n,R_B)
-         if (PB.le.0.5d0*DTol) go to 30
 c        GBB =   delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &          delrho(n,3,2)*delrho(n,3,2)
@@ -681,8 +687,8 @@ C     Parameters for dlDF Correlation
        EUB = 0.0d0
        ChiB = 0.0d0
 
-       if (rho(n,R_T).lt.DTol) goto 20
        if (ipol.eq.1) then
+         if (rho(n,R_T).lt.DTol) goto 20
 c
 c    get the density, gradient, and tau for the alpha spin from the total 
 c
@@ -737,12 +743,18 @@ c UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUnrestricted
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
+         PA  = 0.0d0
+         PB  = 0.0d0
+         GAA = 0.0d0
+         GBB = 0.0d0
+         TA  = 0.0d0
+         TB  = 0.0d0
 c
 c       alpha
 c
 
+         if (rho(n,R_A).le.0.5d0*DTol) go to 25
          PA = rho(n,R_A)
-         if (PA.le.0.5d0*DTol) go to 25
 c        GAA =   delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &          delrho(n,3,1)*delrho(n,3,1)
@@ -780,8 +792,8 @@ c
 c       Beta 
 c
  25      continue
+         if (rho(n,R_B).le.0.5d0*DTol) go to 30
          PB = rho(n,R_B)
-         if (PB.le.0.5d0*DTol) go to 30
 c        GBB =   delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &          delrho(n,3,2)*delrho(n,3,2)

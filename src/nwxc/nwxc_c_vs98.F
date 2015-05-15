@@ -271,17 +271,20 @@ c
 c       alpha
 c
          
-         PA   = rho(n,R_A)
+         PA   = 0.0d0
+         GAA  = 0.0d0
+         TA   = 0.0d0
          EUA  = 0.0d0
          ChiA = 0.0d0
          ZA   = 0.0d0
-         if (PA.le.DTol) go to 25
-         GAA = rgamma(n,G_AA)
+         if (rho(n,R_A).le.0.5d0*DTol) go to 25
+         PA  = rho(n,R_A)
 c
 c        In the bc95css subroutine, we use 2*TA as the tau 
 c
+         if (tau(n,T_A).le.0.5d0*DTol) go to 25
+         GAA = rgamma(n,G_AA)
          TA = tau(n,T_A)*2.0d0
-         if (TA.le.DTol) go to 25
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
@@ -315,17 +318,20 @@ c
 c       Beta 
 c
  25      continue
-         PB = rho(n,R_B)
+         PB   = 0.0d0
+         GBB  = 0.0d0
+         TB   = 0.0d0
          EUB  = 0.0d0
          ChiB = 0.0d0
          ZB   = 0.0d0
 
-         if(PB.le.DTol) go to 30
+         if(rho(n,R_B).le.0.5d0*DTol) go to 30
 
+         PB = rho(n,R_B)
+
+         if(tau(n,T_B).le.0.5d0*DTol) go to 30
          GBB = rgamma(n,G_BB)
          TB = tau(n,T_B)*2.0d0
-
-         if(TB.le.DTol) go to 30
 
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)

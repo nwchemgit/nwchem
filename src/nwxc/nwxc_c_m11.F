@@ -415,8 +415,6 @@ c    &             delrho(n,3,1)*delrho(n,3,1))
       else
         RHOA = rho(n,R_A)
         RHOB = rho(n,R_B)
-        rho_t(1) = rho(n,R_A)
-        rho_t(2) = rho(n,R_B)
 c       gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &             delrho(n,1,2)*delrho(n,1,2) +
 c    &             delrho(n,2,1)*delrho(n,2,1) +
@@ -426,7 +424,17 @@ c    &             delrho(n,3,2)*delrho(n,3,2) +
 c    &       2.d0*(delrho(n,1,1)*delrho(n,1,2) +
 c    &             delrho(n,2,1)*delrho(n,2,2) +
 c    &             delrho(n,3,1)*delrho(n,3,2))
-        gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
+        if (rhoa.gt.0.5d0*tol_rho.and.rhob.gt.0.5d0*tol_rho) then
+          gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
+        elseif (rhoa.gt.0.5d0*tol_rho.and.rhob.le.0.5d0*tol_rho) then
+          rhob = 0.0d0
+          gammaval = rgamma(n,G_AA)
+        elseif (rhoa.le.0.5d0*tol_rho.and.rhob.gt.0.5d0*tol_rho) then
+          rhoa = 0.0d0
+          gammaval = rgamma(n,G_BB)
+        endif
+        rho_t(1) = rhoa
+        rho_t(2) = rhob
         TA =  tau(n,T_A)
         TB =  tau(n,T_B)
       endif

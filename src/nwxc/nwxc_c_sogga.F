@@ -234,9 +234,20 @@ c          gammaval =(delrho(n,1,1)*delrho(n,1,1) +
 c    &                delrho(n,2,1)*delrho(n,2,1) +
 c    &                delrho(n,3,1)*delrho(n,3,1))
          else
-           RhoA = rho(n,R_A)
-           RhoB = rho(n,R_B)
-           gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
+           RhoA = 0.0d0
+           RhoB = 0.0d0
+           gammaval = 0.0d0
+           if (rho(n,R_A).gt.0.5d0*tol_rho) then
+             RhoA = rho(n,R_A)
+             gammaval = gammaval + rgamma(n,G_AA)
+           endif
+           if (rho(n,R_B).gt.0.5d0*tol_rho) then
+             RhoB = rho(n,R_B)
+             gammaval = gammaval + rgamma(n,G_BB)
+             if (rho(n,R_A).gt.0.5d0*tol_rho) then
+               gammaval = gammaval + 2.0d0*rgamma(n,G_AB)
+             endif
+           endif
 c          gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &                delrho(n,1,2)*delrho(n,1,2) +
 c    &                delrho(n,2,1)*delrho(n,2,1) +

@@ -324,25 +324,31 @@ c
 c        n and zeta = (na - nb)/n
 c
          if (ipol.eq.2) then
-           rhoval = rho(n,R_A)+rho(n,R_B)
+           rhoval   = 0.0d0
+           rho_t(1) = 0.0d0
+           rho_t(2) = 0.0d0
+           gammaval = 0.0d0
+           if (rho(n,R_A).gt.0.5d0*tol_rho) then
+              rhoval = rhoval + rho(n,R_A)
+              rho_t(1) = rho(n,R_A)
+              gammaval = gammaval + rgamma(n,G_AA)
+           endif
+           if (rho(n,R_B).gt.0.5d0*tol_rho) then
+              rhoval = rhoval + rho(n,R_B)
+              rho_t(2) = rho(n,R_B)
+              gammaval = gammaval + rgamma(n,G_BB)
+              if (rho(n,R_A).gt.0.5d0*tol_rho) then
+                gammaval = gammaval + 2.0d0*rgamma(n,G_AB)
+              endif
+           endif
          else
            rhoval = rho(n,R_T)
-         endif
-         rho_t(1) = rhoval
-         if (ipol.eq.2) then
-            rho_t(1) = rho(n,R_A)
-            rho_t(2) = rho(n,R_B)
+           rho_t(1) = rhoval
+           gammaval = rgamma(n,G_TT)
          endif
          if (rhoval.le.tol_rho) goto 20
 c Daniel (7-24-12): gammaval is gamma^2 in the correlation part of the
 c calculation.
-         if (ipol.eq.1) then
-            gammaval = rgamma(n,G_TT)
-         else
-            gammaval = rgamma(n,G_AA)
-     &               + rgamma(n,G_BB)
-     &               + rgamma(n,G_AB)*2.0d0
-         endif
 c        dsqgamma = sqrt(gammaval)
 c Daniel (7-24-12): variable for storing the product of the density
 c and the correlation energy per particle, and its derivatives.  This 
@@ -505,8 +511,8 @@ c
          else
             zeta = (rho(n,R_A)-rho(n,R_B))/rhoval
          endif
-         if(zeta.lt.-1.0d0) zeta=-1.0d0
-         if(zeta.gt. 1.0d0) zeta= 1.0d0
+         if(zeta.le.-1.0d0) zeta=-1.0d0
+         if(zeta.ge. 1.0d0) zeta= 1.0d0
 c        if (ipol.eq.1) then
 c           dzetadna = 1.0d0*rrho
 c           dzetadnb = -1.0d0*rrho

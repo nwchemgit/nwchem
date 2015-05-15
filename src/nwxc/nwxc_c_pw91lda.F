@@ -149,7 +149,13 @@ c
          if (ipol.eq.1) then 
             rhoval = rho(n,R_T)
          else 
-            rhoval = rho(n,R_A)+rho(n,R_B)
+            rhoval = 0.0d0
+            if (rho(n,R_A).ge.0.5d0*tol_rho) then
+              rhoval = rhoval + rho(n,R_A)
+            endif
+            if (rho(n,R_B).ge.0.5d0*tol_rho) then
+              rhoval = rhoval + rho(n,R_B)
+            endif
          endif
          if (rhoval.lt.tol_rho)goto 200
 c
@@ -225,9 +231,9 @@ c
          else
             zeta = (rho(n,R_A) - rho(n,R_B))/rhoval
          endif
-         if (zeta.gt.1.d0)then
+         if (zeta.ge.1.d0)then
             zeta = 1.d0
-         elseif (zeta.lt.-1.d0)then
+         elseif (zeta.le.-1.d0)then
             zeta =-1.d0
          endif
          fz = -2.0d0*p1

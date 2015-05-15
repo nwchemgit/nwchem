@@ -215,11 +215,24 @@ c          call dfill(maxp*2,0.0d0,Amatl,1)
 c          call dfill(maxp*3,0.0d0,Cmatl,1)
            do ii = 0, num - 1
               funcl(ii+1)        = 0.0d0
-              rhol(ii+1,R_A)     = rho(iq+ii,R_A)
-              rhol(ii+1,R_B)     = rho(iq+ii,R_B)
-              rgammal(ii+1,G_AA) = rgamma(iq+ii,G_AA)
-              rgammal(ii+1,G_AB) = rgamma(iq+ii,G_AB)
-              rgammal(ii+1,G_BB) = rgamma(iq+ii,G_BB)
+              rhol(ii+1,R_A)     = 0.0d0
+              rhol(ii+1,R_B)     = 0.0d0
+              rgammal(ii+1,G_AA) = 0.0d0
+              rgammal(ii+1,G_AB) = 0.0d0
+              rgammal(ii+1,G_BB) = 0.0d0
+
+              if (rho(iq+ii,R_A).gt.0.5d0*tol_rho) then
+                rhol(ii+1,R_A)     = rho(iq+ii,R_A)
+                rgammal(ii+1,G_AA) = rgamma(iq+ii,G_AA)
+              endif
+              if (rho(iq+ii,R_B).gt.0.5d0*tol_rho) then
+                rhol(ii+1,R_B)     = rho(iq+ii,R_B)
+                rgammal(ii+1,G_BB) = rgamma(iq+ii,G_BB)
+              endif
+              if ((rho(iq+ii,R_A).gt.0.5d0*tol_rho).and.
+     &            (rho(iq+ii,R_B).gt.0.5d0*tol_rho)) then
+                rgammal(ii+1,G_AB) = rgamma(iq+ii,G_AB)
+              endif
            enddo
            fac = c1*wght
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
@@ -257,11 +270,15 @@ c          call dfill(maxp*2*lennw,0.0d0,Amatl,1)
 c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
               funcl(ii+1)        = 0.0d0
-              rhol(ii+1,R_A)     = rho(iq+ii,R_A)
+              rhol(ii+1,R_A)     = 0.0d0
               rhol(ii+1,R_B)     = 0.0d0
-              rgammal(ii+1,G_AA) = rgamma(iq+ii,G_AA)
+              rgammal(ii+1,G_AA) = 0.0d0
               rgammal(ii+1,G_AB) = 0.0d0
               rgammal(ii+1,G_BB) = 0.0d0
+              if (rho(iq+ii,R_A).gt.0.5d0*tol_rho) then
+                rhol(ii+1,R_A)     = rho(iq+ii,R_A)
+                rgammal(ii+1,G_AA) = rgamma(iq+ii,G_AA)
+              endif
            enddo
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
@@ -294,10 +311,14 @@ c          call dfill(maxp*3*lennw,0.0d0,Cmatl,1)
            do ii = 0, num - 1
               funcl(ii+1)        = 0.0d0
               rhol(ii+1,R_A)     = 0.0d0
-              rhol(ii+1,R_B)     = rho(iq+ii,R_B)
+              rhol(ii+1,R_B)     = 0.0d0
               rgammal(ii+1,G_AA) = 0.0d0
               rgammal(ii+1,G_AB) = 0.0d0
-              rgammal(ii+1,G_BB) = rgamma(iq+ii,G_BB)
+              rgammal(ii+1,G_BB) = 0.0d0
+              if (rho(iq+ii,R_B).gt.0.5d0*tol_rho) then
+                rhol(ii+1,R_B)     = rho(iq+ii,R_B)
+                rgammal(ii+1,G_BB) = rgamma(iq+ii,G_BB)
+              endif
            enddo
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)

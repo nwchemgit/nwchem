@@ -394,13 +394,26 @@ c
 c            
          if (rho(n,R_A)+rho(n,R_B).lt.tol_rho) goto 20
 
-         rhoval = rho(n,R_A)+rho(n,R_B)
+         rhoval      = 0.0d0
+         rho_t(1)    = 0.0d0
+         rho_t(2)    = 0.0d0
+         rgamma_t(1) = 0.0d0
+         rgamma_t(2) = 0.0d0
+         rgamma_t(3) = 0.0d0
 
-         rho_t(1) = rho(n,R_A)
-         rho_t(2) = rho(n,R_B)
-         rgamma_t(1) = rgamma(n,G_AA)
-         rgamma_t(2) = rgamma(n,G_AB)
-         rgamma_t(3) = rgamma(n,G_BB)
+         if (rho(n,R_A).ge.0.5d0*tol_rho) then
+           rhoval         = rhoval + rho(n,R_A)
+           rho_t(R_A)     = rho(n,R_A)
+           rgamma_t(G_AA) = rgamma(n,G_AA)
+         endif
+         if (rho(n,R_B).ge.0.5d0*tol_rho) then
+           rhoval         = rhoval + rho(n,R_B)
+           rho_t(R_B)     = rho(n,R_B)
+           rgamma_t(G_BB) = rgamma(n,G_BB)
+           if (rho(n,R_A).ge.0.5d0*tol_rho) then
+             rgamma_t(G_AB) = rgamma(n,G_AB)
+           endif
+         endif
 c         
          neGGA = 0.0d0  !Ec in PBE
 c        dneGGAdn(1) = 0.0d0   !Amat in PBE (n,1)
@@ -440,17 +453,18 @@ c    &        delrho(n,3,2)*delrho(n,3,2) +
 c    &        2.d0*(delrho(n,1,1)*delrho(n,1,2) +
 c    &        delrho(n,2,1)*delrho(n,2,2) +
 c    &        delrho(n,3,1)*delrho(n,3,2))
-         gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
+c        gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
+         gammaval = rgamma_t(G_AA)+rgamma_t(G_BB)+2.0d0*rgamma_t(G_AB)
 c        gam12=sqrt(gammaval)
          tauNa = tau(n,T_A)
          tauNb = tau(n,T_B)
-         taun = tauna+taunb
-         rhoa=rho(n,R_A)   
-         rhob=rho(n,R_B)   
+         taun  = tauna+taunb
+         rhoa  = rho_t(R_A)
+         rhob  = rho_t(R_B)
 c
 c        Check for small densities (H atom case as well)
 c
-         if ((rhoa.lt.0.5d0*tol_rho).and.
+         if ((rhoa.lt.0.5d0*tol_rho).or.
      &       (rhob.lt.0.5d0*tol_rho)) goto 20
 c
 c        dcccdna=0.d0
@@ -462,6 +476,8 @@ c
          if(rhoval.gt.tol_rho) then
 c
             zeta=(rhoa-rhob)/rhoval
+            if (zeta.ge. 1.0d0) zeta =  1.0d0
+            if (zeta.le.-1.0d0) zeta = -1.0d0
 c
             onepzeta = 1.d0+zeta
             onemzeta = 1.d0-zeta
@@ -475,9 +491,9 @@ c    &            delrho(n,3,2)*delrho(n,3,2)
 c           gab = delrho(n,1,1)*delrho(n,1,2) +
 c    &            delrho(n,2,1)*delrho(n,2,2) +
 c    &            delrho(n,3,1)*delrho(n,3,2)
-            gaa = rgamma(n,G_AA)
-            gbb = rgamma(n,G_BB)
-            gab = rgamma(n,G_AB)
+            gaa = rgamma_t(G_AA)
+            gbb = rgamma_t(G_BB)
+            gab = rgamma_t(G_AB)
 c
             rhoval2 = rhoval*rhoval
 c           rhoval3 = rhoval*rhoval*rhoval

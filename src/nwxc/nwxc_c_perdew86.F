@@ -389,7 +389,19 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1, nq
-            rhoval = rho(n,R_A)+rho(n,R_B)
+            rhoval = 0.0d0
+            gamma  = 0.0d0
+            if (rho(n,R_A).ge.0.5d0*tol_rho) then
+              rhoval = rhoval + rho(n,R_A)
+              gamma  = gamma + rgamma(n,G_AA)
+            endif
+            if (rho(n,R_B).ge.0.5d0*tol_rho) then
+              rhoval = rhoval + rho(n,R_B)
+              gamma  = gamma + rgamma(n,G_BB)
+              if (rho(n,R_A).ge.0.5d0*tol_rho) then
+                gamma  = gamma + 2.0d0*rgamma(n,G_AB)
+              endif
+            endif
             if (rhoval.lt.tol_rho) goto 20
             arho=1.d0/rhoval
             rho13  = abs(rhoval)**ONE3
@@ -405,7 +417,7 @@ c           d2rs = -FOUR3*d1rs*arho
 #if defined(THIRD_DERIV)
 c           d3rs = -SEVEN3*d2rs*arho 
 #endif
-            gamma = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
+c           gamma = rgamma(n,G_AA)+rgamma(n,G_BB)+2.0d0*rgamma(n,G_AB)
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1) +
@@ -421,8 +433,8 @@ c    &              delrho(n,3,1)*delrho(n,3,2))
               gam12 = 0.0d0
             endif
             zeta = (rho(n,R_A) - rho(n,R_B))*arho
-            if(zeta.lt.-1d0) zeta=-1d0
-            if(zeta.gt.1d0) zeta=1d0
+            if(zeta.le.-1d0) zeta=-1d0
+            if(zeta.ge.1d0) zeta=1d0
 c           d1z(1) =  (1.d0 - zeta)*arho
 c           d1z(2) = -(1.d0 + zeta)*arho
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)

@@ -247,11 +247,21 @@ c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1,nq
             if (rho(n,R_A)+rho(n,R_B).lt.tol_rho)goto 20
-            rrho = 1d0/(rho(n,R_A)+rho(n,R_B))
+            rrho = 1.0d0/(rho(n,R_A)+rho(n,R_B))
 c           rhoa = max(zero,rho(n,R_A))
 c           rhob = max(zero,rho(n,R_B))
-            rhoa = rho(n,R_A)
-            rhob = rho(n,R_B)
+            if (rho(n,R_A).ge.0.5d0*tol_rho) then
+              rhoa = rho(n,R_A)
+            else
+              rhoa = 0.0d0
+              rrho = 1.0d0/rho(n,R_B)
+            endif
+            if (rho(n,R_B).ge.0.5d0*tol_rho) then
+              rhob = rho(n,R_B)
+            else
+              rhob = 0.0d0
+              rrho = 1.0d0/rho(n,R_A)
+            endif
             rrho2 = rrho*rrho
             rho2 = 1d0/rrho2
             rhoa2 = rhoa*rhoa
@@ -301,6 +311,14 @@ c
             gaa = rgamma(n,G_AA)
             gbb = rgamma(n,G_BB)
             gab = rgamma(n,G_AB)
+            if (rho(n,R_A).lt.0.5d0*tol_rho) then
+              gaa = 0.0d0
+              gab = 0.0d0
+            endif
+            if (rho(n,R_B).lt.0.5d0*tol_rho) then
+              gbb = 0.0d0
+              gab = 0.0d0
+            endif
 c
             de11 = de - 11d0
             de47 = 47d0 - 7d0*de

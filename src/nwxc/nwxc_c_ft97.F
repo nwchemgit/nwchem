@@ -130,11 +130,19 @@ c           Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + dfdgaac*wght
         enddo
       else
         do n=1,nq
+          rhoa=0.0d0
+          rhob=0.0d0
+          za  =0.0d0
+          zb  =0.0d0
           if(rho(n,R_A)+rho(n,R_B).gt.tol_rho) then
-            rhoa=rho(n,R_A)
-            rhob=rho(n,R_B)
-            za=rgamma(n,G_AA)
-            zb=rgamma(n,G_BB)
+            if (rho(n,R_A).gt.0.5d0*tol_rho) then
+              rhoa=rho(n,R_A)
+              za=rgamma(n,G_AA)
+            endif
+            if (rho(n,R_B).gt.0.5d0*tol_rho) then
+              rhob=rho(n,R_B)
+              zb=rgamma(n,G_BB)
+            endif
 c           za=delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &           delrho(n,3,1)*delrho(n,3,1)

@@ -191,7 +191,11 @@ c
                rho33=0.0d0
              endif
 c
-             Etmp = rho32*rho(n,R_A)*P4*wght
+             if (rho(n,R_A).gt.0.5d0*tol_rho) then
+               Etmp = rho32*rho(n,R_A)*P4*wght
+             else
+               Etmp = 0.0d0
+             endif
 c            Atmp = P3*rho32*wght
 c            Ctmp = 0.d0
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
@@ -229,11 +233,15 @@ c            Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) + A3tmp
 c            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + A2tmp
 #else
 #if defined(NWAD_PRINT)
-             call nwxc_x_att_p(param,tol_rho,rho(n,R_A),ipol,
-     &            Etmp)
+             if (rho(n,R_A).gt.0.5d0*tol_rho) then
+               call nwxc_x_att_p(param,tol_rho,rho(n,R_A),ipol,
+     &              Etmp)
+             endif
 #else
-             call nwxc_x_att(param,tol_rho,rho(n,R_A),ipol,
-     &            Etmp)
+             if (rho(n,R_A).gt.0.5d0*tol_rho) then
+               call nwxc_x_att(param,tol_rho,rho(n,R_A),ipol,
+     &              Etmp)
+             endif
 #endif
 #endif
              func(n) = func(n) + Etmp
@@ -241,7 +249,11 @@ c            Amat(n,D1_RA) = Amat(n,D1_RA) + Atmp
 c
 c            Beta spin channel
 c
-             Etmp = rho33*rho(n,R_B)*P4*wght
+             if (rho(n,R_B).gt.0.5d0*tol_rho) then
+               Etmp = rho33*rho(n,R_B)*P4*wght
+             else
+               Etmp = 0.0d0
+             endif
 c            Atmp = P3*rho33*wght
 c            Ctmp = 0.d0
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
@@ -279,11 +291,15 @@ c            Amat3(n,D3_RB_RB_RB) = Amat3(n,D3_RB_RB_RB) + A3tmp
 c            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB) + A2tmp
 #else
 #if defined(NWAD_PRINT)
-             call nwxc_x_att_p(param,tol_rho,rho(n,R_B),ipol,
-     &            Etmp)
+             if (rho(n,R_B).gt.0.5d0*tol_rho) then
+               call nwxc_x_att_p(param,tol_rho,rho(n,R_B),ipol,
+     &              Etmp)
+             endif
 #else
-             call nwxc_x_att(param,tol_rho,rho(n,R_B),ipol,
-     &            Etmp)
+             if (rho(n,R_B).gt.0.5d0*tol_rho) then
+               call nwxc_x_att(param,tol_rho,rho(n,R_B),ipol,
+     &              Etmp)
+             endif
 #endif
 #endif
              func(n) = func(n) + Etmp

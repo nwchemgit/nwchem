@@ -131,10 +131,18 @@ c
         enddo
       else
         do i = 1, nq
-          rho_a(0) = rho(i,R_A)
-          rho_b(0) = rho(i,R_B)
-          rho_a(1) = rgamma(i,G_AA)
-          rho_b(1) = rgamma(i,G_BB)
+          rho_a(0) = 0.0d0
+          rho_a(1) = 0.0d0
+          rho_b(0) = 0.0d0
+          rho_b(1) = 0.0d0
+          if (rho(i,R_A).gt.tol_rho) then
+            rho_a(0) = rho(i,R_A)
+            rho_a(1) = rgamma(i,G_AA)
+          endif
+          if (rho(i,R_B).gt.tol_rho) then
+            rho_b(0) = rho(i,R_B)
+            rho_b(1) = rgamma(i,G_BB)
+          endif
           if (rho_a(0).gt.tol_rho.or.rho_b(0).gt.tol_rho) then
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #ifdef NWAD_PRINT

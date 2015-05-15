@@ -235,12 +235,12 @@ c     endif
       F13 = F1 / F3
 
       do 20 n = 1, nq
-       if (rho(n,R_T).lt.Tol_Rho) goto 20
        EUA  = 0.0d0
        EUB  = 0.0d0
        ChiA = 0.0d0
        ChiB = 0.0d0
        if (ipol.eq.1) then
+         if (rho(n,R_T).lt.Tol_Rho) goto 20
 c
 c    get the density, gradient, and tau for the alpha spin from the total 
 c
@@ -296,21 +296,26 @@ c UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUnrestricted
 c
 c        ======> SPIN-UNRESTRICTED <======
 c
+         PA  = 0.0d0
+         PB  = 0.0d0
+         GAA = 0.0d0
+         GBB = 0.0d0
+         TA  = 0.0d0
+         TB  = 0.0d0
 c
 c       alpha
 c
-
+         if (rho(n,R_A).le.0.5d0*Tol_Rho) go to 25
          PA = rho(n,R_A)
-         if (PA.le.0.5d0*Tol_Rho) go to 25
 c        GAA =   delrho(n,1,1)*delrho(n,1,1) +
 c    &           delrho(n,2,1)*delrho(n,2,1) +
 c    &          delrho(n,3,1)*delrho(n,3,1)
-         GAA = rgamma(n,G_AA)
 c
 c  In the m06css subroutine, we use 2*TA as the tau 
 c
+         if (tau(n,T_A).le.0.5d0*Tol_Rho) go to 25
+         GAA = rgamma(n,G_AA)
          TA = 2.0d0*tau(n,T_A) 
-         if (TA.le.Tol_Rho) go to 25
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
          Call nwxc_m06css_p(param,Tol_Rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
@@ -338,15 +343,15 @@ c
 c       Beta 
 c
  25      continue
+         if (rho(n,R_B).le.0.5d0*Tol_Rho) go to 30
          PB = rho(n,R_B)
-         if (PB.le.0.5d0*Tol_Rho) go to 30
 c        GBB =   delrho(n,1,2)*delrho(n,1,2) +
 c    &           delrho(n,2,2)*delrho(n,2,2) +
 c    &          delrho(n,3,2)*delrho(n,3,2)
-         GBB = rgamma(n,G_BB)
 
+         if (tau(n,T_B).le.0.5d0*Tol_Rho) go to 30
+         GBB = rgamma(n,G_BB)
          TB = 2.0d0*tau(n,T_B)
-         if (TB.le.Tol_Rho) go to 30
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
          Call nwxc_m06css_p(param,Tol_Rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,

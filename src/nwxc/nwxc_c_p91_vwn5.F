@@ -275,17 +275,31 @@ c        n and zeta = (na - nb)/n
 c
          rhoval = rho(n,R_T)
          rho_t(1) = rho(n,R_T)
+         gammaval = rgamma(n,G_TT)
          if (ipol.eq.2) then
-            rhoval = rho(n,R_A)+rho(n,R_B)
-            rho_t(1) = rho(n,R_A)
-            rho_t(2) = rho(n,R_B)
+            rhoval   = 0.0d0
+            rho_t(1) = 0.0d0
+            rho_t(2) = 0.0d0
+            gammaval = 0.0d0
+            if (rho(n,R_A).gt.0.5d0*tol_rho) then
+              rhoval = rhoval + rho(n,R_A)
+              rho_t(1) = rho(n,R_A)
+              gammaval = gammaval + rgamma(n,G_AA)
+            endif
+            if (rho(n,R_B).gt.0.5d0*tol_rho) then
+              rhoval = rhoval + rho(n,R_B)
+              rho_t(2) = rho(n,R_B)
+              gammaval = gammaval + rgamma(n,G_BB)
+              if (rho(n,R_A).gt.0.5d0*tol_rho) then
+                gammaval = gammaval + 2.0d0*rgamma(n,G_AB)
+              endif
+            endif
          endif
          if (rhoval.le.tol_rho) goto 20
          if (ipol.eq.1) then
 c           gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &                 delrho(n,2,1)*delrho(n,2,1) +
 c    &                 delrho(n,3,1)*delrho(n,3,1)
-            gammaval = rgamma(n,G_TT)
          else
 c           gammaval = delrho(n,1,1)*delrho(n,1,1) +
 c    &                 delrho(n,1,2)*delrho(n,1,2) +
@@ -296,8 +310,8 @@ c    &                 delrho(n,3,2)*delrho(n,3,2) +
 c    &           2.d0*(delrho(n,1,1)*delrho(n,1,2) +
 c    &                 delrho(n,2,1)*delrho(n,2,2) +
 c    &                 delrho(n,3,1)*delrho(n,3,2))
-            gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+
-     &                 rgamma(n,G_AB)*2.0d0
+c           gammaval = rgamma(n,G_AA)+rgamma(n,G_BB)+
+c    &                 rgamma(n,G_AB)*2.0d0
          endif
 c        dsqgamma = max(sqrt(gammaval),tol_rho)
          dsqgamma = sqrt(gammaval)
@@ -388,8 +402,8 @@ c
          else
             zeta = (rho(n,R_A)-rho(n,R_B))/rhoval
          endif
-         if(zeta.lt.-1.0d0) zeta=-1.0d0
-         if(zeta.gt. 1.0d0) zeta= 1.0d0
+         if(zeta.le.-1.0d0) zeta=-1.0d0
+         if(zeta.ge. 1.0d0) zeta= 1.0d0
 c        if (ipol.eq.1) then
 c           dzetadna = 1.0d0/rhoval
 c           dzetadnb = -1.0d0/rhoval
