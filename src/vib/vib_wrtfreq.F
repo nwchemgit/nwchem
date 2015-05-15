@@ -195,6 +195,17 @@ c     &      555, RTDB_ERR)
      &           call errquit('vib: failed to set linear',555, RTDB_ERR)
            end if
         end if
+ 
+        if(.not. rtdb_put(rtdb,'vib:zpe',MT_DBL,1,ezero))
+     &       call errquit('vib_wrtfreq:rtdb_put of ZPE failed',
+     &       555, RTDB_ERR)
+        if(.not. rtdb_put(rtdb,'vib:ethermal',MT_DBL,1,ethermal))
+     &       call errquit('vib_wrtfreq:rtdb_put of ethermal failed',
+     &       555, RTDB_ERR)
+        if(.not. rtdb_put(rtdb,'vib:hthermal',MT_DBL,1,hthermal))
+     &       call errquit('vib_wrtfreq:rtdb_put of hthermal failed',
+     &       555, RTDB_ERR)
+ 
         WRITE (6,10024) ezero*AUKCAL,   ezero
         WRITE (6,10025) ethermal*AUKCAL,ethermal
         WRITE (6,10026) hthermal*AUKCAL,hthermal
