@@ -1,5 +1,22 @@
 C $Id$
 ************************************************************************
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Assemble the relativistic small-small potential energy integrals
+C>
+C> 
+C> This routine assembles the relativistic (small-small) potential 
+C> energy integrals from a set of potential energy integrals for 
+C> shifted angular momenta. The routine uses the modified Dirac 
+C> formalism, and returns integrals in various formats, depending
+C> on the input parameter ntyp, which also determines how many 
+C> integral blocks are returned. The factors of \f$\alpha^2/4\f$ are 
+C> NOT included in the integrals, these must be added by the calling
+C> routine.
+C> 
+C> Author: K. G. Dyall
+C>
 c:tex-\subsection{rel\_pot}
 c:tex-This routine assembles the relativistic (small-small) potential 
 c:tex-energy integrals from a set of potential energy integrals for 
@@ -28,27 +45,27 @@ c:tex-\end{verbatim}
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
-      integer nints    ! [input] number of integrals of each type
-      integer ntyp     ! [input] integral type
-      integer l_A      ! [input] - angular momentum of shell A
-      integer np_A     ! [input] number of cartesian components for l_A+1
-      integer n_A      ! [input] number of cartesian components for l_A
-      integer nm_A     ! [input] number of cartesian components for l_A-1
-      integer n_cont_A ! [input] number of contracted functions on centre A
-      integer l_B      ! [input] angular momentum of functions on centre B
-      integer np_B     ! [input] number of cartesian components for l_B+1
-      integer n_B      ! [input] number of cartesian components for l_B
-      integer nm_B     ! [input] number of cartesian components for l_B-1
-      integer n_cont_B ! [input] number of contracted functions on centre B
-      integer lscr     ! [i/o] - length of scratch array/memory needed
-      integer ibug     ! debug flag. 
-      double precision Vpp(np_b,n_cont_b,np_a,n_cont_a) ! [input] integrals for l_B+1, l_A+1
-      double precision Vpm(np_b,n_cont_b,nm_a,n_cont_a) ! [input] integrals for l_B+1, l_A-1
-      double precision Vmp(nm_b,n_cont_b,np_a,n_cont_a) ! [input] integrals for l_B-1, l_A+1
-      double precision Vmm(nm_b,n_cont_b,nm_a,n_cont_a) ! [input] integrals for l_B-1, l_A-1
-      double precision Vrel(nints,ntyp) ! [output] final relativistic integrals
-      double precision scr(lscr) ! scratch array
-      logical DryRun   ! [input] logical for dry run
+      integer nints    !< [Input] number of integrals of each type
+      integer ntyp     !< [Input] integral type
+      integer l_A      !< [Input] - angular momentum of shell A
+      integer np_A     !< [Input] number of cartesian components for \f$l_A+1\f$
+      integer n_A      !< [Input] number of cartesian components for \f$l_A\f$
+      integer nm_A     !< [Input] number of cartesian components for \f$l_A-1\f$
+      integer n_cont_A !< [Input] number of contracted functions on centre A
+      integer l_B      !< [Input] angular momentum of functions on centre B
+      integer np_B     !< [Input] number of cartesian components for \f$l_B+1\f$
+      integer n_B      !< [Input] number of cartesian components for \f$l_B\f$
+      integer nm_B     !< [Input] number of cartesian components for \f$l_B-1\f$
+      integer n_cont_B !< [Input] number of contracted functions on centre B
+      integer lscr     !< [In/Output] - length of scratch array/memory needed
+      integer ibug     !< [Input] debug flag. 
+      double precision Vpp(np_b,n_cont_b,np_a,n_cont_a) !< [Input] integrals for \f$l_B+1, l_A+1\f$
+      double precision Vpm(np_b,n_cont_b,nm_a,n_cont_a) !< [Input] integrals for \f$l_B+1, l_A-1\f$
+      double precision Vmp(nm_b,n_cont_b,np_a,n_cont_a) !< [Input] integrals for \f$l_B-1, l_A+1\f$
+      double precision Vmm(nm_b,n_cont_b,nm_a,n_cont_a) !< [Input] integrals for \f$l_B-1, l_A-1\f$
+      double precision Vrel(nints,ntyp) !< [Output] final relativistic integrals
+      double precision scr(lscr) !< [Scratch] scratch array
+      logical DryRun   !< [Input] logical for dry run
 c:tex-\end{verbatim}
 c:tex-The possible values for ntyp are
 c:tex-{\leftskip 4pc\obeylines
@@ -179,3 +196,5 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
 *
       return
       end
+C>
+C> @}

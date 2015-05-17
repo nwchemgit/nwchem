@@ -1,5 +1,18 @@
 C $Id$
 ************************************************************************
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Generate the integral for various relativistic Hamiltonians
+C>
+C> This routine genrates the \f$pV\cdot p\f$ integrals needed for
+C> various relativistic Hamiltonians.
+C> \f{eqnarray*}{
+C>   \langle a | pV\cdot p| b \rangle_{ab} &=& \nabla_A\cdot\nabla_B V_{ab}^{SS}
+C> \f}
+C>
+C> Author: K. G. Dyall
+C>
 c:tex-\subsection{rel\_pvp}
 c:tex-This routine generates the pV.p integrals needed for various
 c:tex-relativistic Hamiltonians,
@@ -26,33 +39,33 @@ c:tex-\end{verbatim}
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
-      integer n_prim_A ! [input] num. prims in shell A
-      integer n_cont_A ! [input] num general conts in shell A
-      integer l_A      ! [input] angular momentum of shell A
-      integer ictr_A   ! [input] lexical atom index for shell A
-      integer n_prim_B ! [input] num. prims in shell B
-      integer n_cont_B ! [input] num general conts in shell B
-      integer l_B      ! [input] angular momentum of shell B 
-      integer ictr_B   ! [input] lexical atom index for shell B
-      integer nat      ! [input] number of atoms
-      integer lscr     ! [input] size of scratch array
-      integer lpvp     ! [input] size of integral buffer
-      integer ibug     ! [input] debug variable
-      integer ntyp    ! [input] potential energy integral type
-      double precision Axyz(3)          ! [input] position of center A
-      double precision zeta_A(n_prim_A) ! [input] exponents of shell A
-      double precision coefS_A(n_prim_A,n_cont_A) ! [input] A small coeffs
-      double precision Bxyz(3)          ! [input] position of center B
-      double precision zeta_B(n_prim_B) ! [input] exponents of shell B 
-      double precision coefS_B(n_prim_B,n_cont_B)  ! [input] B small coeffs
-      double precision Cxyz(3,nat)  ! [input] all atom positions
-      double precision zan(nat)     ! [input] charges on all atoms
-      double precision exinv(nat)   ! [input] inverse nuclear exponents
-      double precision scr(lscr)    ! [scratch] scratch buffers
-      double precision pVp(lpvp,ntyp) ! [output] pV.p integrals
-      logical canAB   ! [input] compute only canonical ints (false only)
-      logical DryRun  ! [input] true means only compute required memory
-      character*(*) msg ![input] calling func. identification message
+      integer n_prim_A !< [Input] num. prims in shell A
+      integer n_cont_A !< [Input] num general conts in shell A
+      integer l_A      !< [Input] angular momentum of shell A
+      integer ictr_A   !< [Input] lexical atom index for shell A
+      integer n_prim_B !< [Input] num. prims in shell B
+      integer n_cont_B !< [Input] num general conts in shell B
+      integer l_B      !< [Input] angular momentum of shell B 
+      integer ictr_B   !< [Input] lexical atom index for shell B
+      integer nat      !< [Input] number of atoms
+      integer lscr     !< [Input] size of scratch array
+      integer lpvp     !< [Input] size of integral buffer
+      integer ibug     !< [Input] debug variable
+      integer ntyp     !< [Input] potential energy integral type
+      double precision Axyz(3)          !< [Input] position of center A
+      double precision zeta_A(n_prim_A) !< [Input] exponents of shell A
+      double precision coefS_A(n_prim_A,n_cont_A) !< [Input] A small coeffs
+      double precision Bxyz(3)          !< [Input] position of center B
+      double precision zeta_B(n_prim_B) !< [Input] exponents of shell B 
+      double precision coefS_B(n_prim_B,n_cont_B) !< [Input] B small coeffs
+      double precision Cxyz(3,nat)  !< [Input] all atom positions
+      double precision zan(nat)     !< [Input] charges on all atoms
+      double precision exinv(nat)   !< [Input] inverse nuclear exponents
+      double precision scr(lscr)    !< [Scratch] scratch buffers
+      double precision pVp(lpvp,ntyp) !< [Output] pV.p integrals
+      logical canAB   !< [Input] compute only canonical ints (false only)
+      logical DryRun  !< [Input] true means only compute required memory
+      character*(*) msg !< [Input] calling func. identification message
 c:tex-\end{verbatim}
 c:tex-See rel_pot for a description of the allowed values of ibug and ntyp
 c:tex-Note that in the current version of this routine, the call to rel_pot 
@@ -270,3 +283,5 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
 *
       return
       end
+C>
+C> @}
