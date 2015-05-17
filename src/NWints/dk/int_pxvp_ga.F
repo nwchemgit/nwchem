@@ -1,3 +1,11 @@
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Gather pxVp integrals and put them in a global array
+C>
+C> Gather pxVp integrals from int_1epxvpe on a shell by shell basis
+C> and put them per component in a GA.
+C>
       subroutine int_pxvp_ga(ibas, g_x, g_y, g_z, oskel)
 *
 * $Id$
@@ -18,9 +26,11 @@ c
 c
 c     arguments
 c
-      integer ibas
-      integer g_x, g_y, g_z
-      logical oskel
+      integer ibas !< [Input] The basis set handle
+      integer g_x  !< [Output] The \f$x\f$ components
+      integer g_y  !< [Output] The \f$y\f$ components
+      integer g_z  !< [Output] The \f$z\f$ components
+      logical oskel !< [Input] Skeletonize the integrals
 c
 c     local variables
 c
@@ -103,3 +113,5 @@ c
 c     if(oscfps) call pstat_off(ps_int_pxvp)
 c
       end          
+C>
+C> @}

@@ -88,7 +88,10 @@ c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
       integer basis_in          !< [Input] basis sets for which integrals are computed
       integer g_in(3)           !< [Output] GA handle to array of final integrals
-      integer type              !< [Input] type of int, 1=kinetic, 2=potential, 3=both
+      integer type              !< [Input] type of int,
+                                !< * 1=kinetic,
+                                !< * 2=potential,
+                                !< * 3=both
       logical kskel             !< [Input] Skeleton integrals, yes or no?
 c:tex-\end{verbatim}
 c     
