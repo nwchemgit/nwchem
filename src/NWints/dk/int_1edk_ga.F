@@ -1,4 +1,36 @@
 c $Id$
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Compute Douglas-Kroll(-Hess) integrals and store them
+C> in a global array
+C>    
+C> Compute the Douglas-Kroll integrals and ADD them to a given global array.
+C>
+C> There are three forms of Douglas-Kroll that are or can be used:
+C> * 1. Free-particle projection operators, similar to Foldy-Wouthuysen 
+C>   transformation.
+C> * 2. External potential projection operators without pxVp terms 
+C>   (vn2 approximation). This is also Bernd Hess' implementation.
+C> * 3. External potential projection operators, i.e  complete Douglas-Kroll.
+C>
+C> Method:
+C> * A. Determine uncontracted basis (dk_fitbas) from input basis (basis_in)
+C> * B. Create p^2/2 matrix and diagonalize to get real to momentum space 
+C>   transformation.
+C> * C. Create diagonal matrices (store as vectors) of momentum operators in 
+C>   momentum space.
+C> * D. Compute all terms of E, V and p.Vp terms that are needed for form 1 
+C>   (see above).
+C> * E. Compute all combined terms that are needed for form 2 (see above) 
+C>   and add to DKg_a.
+C> * F. Compute the three W terms with pxVp required in form 3 (see above) 
+C>   and add them to the DKg_a array
+C> * G. Transform DKg_a to real space
+C> * H. Transform DKg_a from uncontracted basis to contracted basis
+C>
+C> Author: W. A. de Jong
+C>
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
 c:tex-a given basis set and stores them in a global array. 
@@ -53,10 +85,13 @@ c     arguments
 c     
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
-      integer basis_in          ! [input] basis sets for which integrals are computed
-      integer g_in              ! [output] GA handle to array of final integrals
-      integer type              ! [input] type of int, 1=kinetic, 2=potential, 3=both
-      logical kskel             ! [input] Skeleton integrals, yes or no?
+      integer basis_in          !< [Input] basis sets for which integrals are computed
+      integer g_in              !< [Output] GA handle to array of final integrals
+      integer type              !< [Input] type of int,
+                                !< * 1=kinetic,
+                                !< * 2=potential,
+                                !< * 3=both
+      logical kskel             !< [Input] Skeleton integrals, yes or no?
 c:tex-\end{verbatim}
 c     
 c     local variables
@@ -1765,3 +1800,5 @@ c
       return
 c
       end
+C>
+C> @}
