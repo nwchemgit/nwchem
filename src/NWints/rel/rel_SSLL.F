@@ -1,5 +1,17 @@
 C $Id$
 ************************************************************************
+C> \ingroup nwint
+C> @{
+C>
+C> \brief Generate the SSLL-type two-electron integrals
+C>
+C> This routine generates the SSLL-type two-electron integrals for
+C> a relativistic basis set, within the modified Dirac formalism.
+C> The integrals returned are \f$\nabla_A\cdot\nabla_B (a^Sb^S|cd)\f$,
+C> \f$\nabla_A\times\nabla_B (a^Sb^S|cd)\f$, or the 9 derivatives.
+C> 
+C> Author: K. G. Dyall
+C>
 c:tex-\subsection{rel\_SSLL}
 c:tex-This routine generates the SSLL-type two-electron integrals for
 c:tex-a relativistic basis set, within the modified Dirac formalism.
@@ -25,40 +37,40 @@ c:tex-\end{verbatim}
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
-      integer NPA     ! [input] num. prims in shell A
-      integer NCA     ! [input] num general conts in shell A
-      integer l_A     ! [input] angular momentum of shell A
-      integer NPB     ! [input] num. prims in shell B
-      integer NCB     ! [input] num general conts in shell B
-      integer l_B     ! [input] angular momentum of shell B 
-      integer NPC     ! [input] num. prims in shell C
-      integer NCC     ! [input] num general conts in shell C
-      integer l_C     ! [input] angular momentum of shell C
-      integer NPD     ! [input] num. prims in shell D
-      integer NCD     ! [input] num general conts in shell D
-      integer l_D     ! [input] angular momentum of shell D 
-      integer lscr    ! [input] size of scratch array
-      integer n_ints  ! [input] size of any integral buffer
-      integer ibug    ! [input] debug variable
-      integer ntyp    ! [input] potential energy integral type
-      double precision Axyz(3)         ! [input] position of center A
-      double precision zeta_A(NPA)     ! [input] exponents of shell A
-      double precision coef_A(NPA,NCA) ! [input] A small coeffs
-      double precision Bxyz(3)         ! [input] position of center B
-      double precision zeta_B(NPB)     ! [input] exponents of shell B 
-      double precision coef_B(NPB,NCB) ! [input] B small coeffs
-      double precision Cxyz(3)         ! [input] position of center C
-      double precision zeta_C(NPC)     ! [input] exponents of shell C
-      double precision coef_C(NPC,NCC) ! [input] C small coeffs
-      double precision Dxyz(3)         ! [input] position of center D
-      double precision zeta_D(NPD)     ! [input] exponents of shell D 
-      double precision coef_D(NPD,NCD) ! [input] D small coeffs
-      double precision scr(lscr)       ! [scratch] scratch buffers
-      double precision rel_ints(n_ints,ntyp)  ! [output] LLSS integrals
-      logical canAB   ! [input] compute only canonical ints (false only)
-      logical canCD   ! [input] compute only canonical ints (false only)
-      logical canPQ   ! [input] compute only canonical ints (false only)
-      logical DryRun  ! [input] true means only compute required memory
+      integer NPA     !< [Input] num. prims in shell A
+      integer NCA     !< [Input] num general conts in shell A
+      integer l_A     !< [Input] angular momentum of shell A
+      integer NPB     !< [Input] num. prims in shell B
+      integer NCB     !< [Input] num general conts in shell B
+      integer l_B     !< [Input] angular momentum of shell B 
+      integer NPC     !< [Input] num. prims in shell C
+      integer NCC     !< [Input] num general conts in shell C
+      integer l_C     !< [Input] angular momentum of shell C
+      integer NPD     !< [Input] num. prims in shell D
+      integer NCD     !< [Input] num general conts in shell D
+      integer l_D     !< [Input] angular momentum of shell D 
+      integer lscr    !< [Input] size of scratch array
+      integer n_ints  !< [Input] size of any integral buffer
+      integer ibug    !< [Input] debug variable
+      integer ntyp    !< [Input] potential energy integral type
+      double precision Axyz(3)         !< [Input] position of center A
+      double precision zeta_A(NPA)     !< [Input] exponents of shell A
+      double precision coef_A(NPA,NCA) !< [Input] A small coeffs
+      double precision Bxyz(3)         !< [Input] position of center B
+      double precision zeta_B(NPB)     !< [Input] exponents of shell B 
+      double precision coef_B(NPB,NCB) !< [Input] B small coeffs
+      double precision Cxyz(3)         !< [Input] position of center C
+      double precision zeta_C(NPC)     !< [Input] exponents of shell C
+      double precision coef_C(NPC,NCC) !< [Input] C small coeffs
+      double precision Dxyz(3)         !< [Input] position of center D
+      double precision zeta_D(NPD)     !< [Input] exponents of shell D 
+      double precision coef_D(NPD,NCD) !< [Input] D small coeffs
+      double precision scr(lscr)       !< [Scratch] scratch buffers
+      double precision rel_ints(n_ints,ntyp)  !< [Output] LLSS integrals
+      logical canAB   !< [Input] compute only canonical ints (false only)
+      logical canCD   !< [Input] compute only canonical ints (false only)
+      logical canPQ   !< [Input] compute only canonical ints (false only)
+      logical DryRun  !< [Input] true means only compute required memory
 c:tex-\end{verbatim}
 c:tex-See rel_pot for a description of the allowed values of ibug and ntyp
 c:tex-Note that in the current version of this routine, the call to rel_pot 
@@ -289,3 +301,5 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
       return
       end
+C>
+C> @}
