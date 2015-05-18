@@ -69,6 +69,10 @@ endif
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 LDFLAGS += $(COMM_LIBS)
 
+ifdef BLASOPT
+  LDFLAGS += $(BLASOPT)
+endif
+
 all:    mov2asc asc2mov
 
 mov2asc:	mov2asc.o
