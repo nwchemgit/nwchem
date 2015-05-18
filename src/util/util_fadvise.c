@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #endif
-#if  defined(POSIX_FADV_DONTNEED
+#if  defined(POSIX_FADV_DONTNEED)
 #include "ga.h"
 #include "macdecls.h"
 
