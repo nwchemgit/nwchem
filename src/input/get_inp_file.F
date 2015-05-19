@@ -27,7 +27,7 @@ c
       external ipxfargc
       nargs =ipxfargc() 
 #else
-#if defined(EXT_INT) 
+#if defined(EXT_INT) && !defined(USE_FORTRAN2003)
       integer*4 iargc
 #else
       integer iargc
@@ -36,7 +36,11 @@ c
       external iargc
 #endif
 c     
+#if defined(USE_FORTRAN2003)
+      nargs = command_argument_count()
+#else
       nargs = iargc()
+#endif
 #endif
       do arg = 1, nargs
          call util_getarg(arg,test)

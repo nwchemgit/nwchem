@@ -8,6 +8,9 @@
 #include "errquit.fh"
       integer iarg_in
       character*(*) arg
+#if defined(USE_FORTRAN2003)
+      call get_command_argument(iarg_in,arg)
+#else
 #if defined(EXT_INT) && !( __GNUC__ >= 4)
       integer*4 iarg
 #else
@@ -40,5 +43,6 @@ c
       call getarg(iarg,arg)
 #endif
 *
+#endif
       return
       end
