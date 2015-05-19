@@ -1941,24 +1941,24 @@ echo "unsetenv NWCHEM_MODULES"                     >> ${NWCHEM_UNENV_CSH}
 #
 if [ ${#NWCHEM_MPIF_WRAP} -ne 0 ] ; then
   echo "NWCHEM_MPIF_WRAP   =" ${NWCHEM_MPIF_WRAP}
-  echo "export NWCHEM_MPIF_WRAP=${NWCHEM_MPIF_WRAP}" >> ${NWCHEM_ENV_SH}
-  echo "setenv NWCHEM_MPIF_WRAP ${NWCHEM_MPIF_WRAP}" >> ${NWCHEM_ENV_CSH}
-  echo "unset NWCHEM_MPIF_WRAP"                      >> ${NWCHEM_UNENV_SH}
-  echo "unsetenv NWCHEM_MPIF_WRAP"                   >> ${NWCHEM_UNENV_CSH}
+  echo "export NWCHEM_MPIF_WRAP=\"${NWCHEM_MPIF_WRAP}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv NWCHEM_MPIF_WRAP \"${NWCHEM_MPIF_WRAP}\"" >> ${NWCHEM_ENV_CSH}
+  echo "unset NWCHEM_MPIF_WRAP"                          >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv NWCHEM_MPIF_WRAP"                       >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#NWCHEM_MPIC_WRAP} -ne 0 ] ; then
   echo "NWCHEM_MPIC_WRAP   =" ${NWCHEM_MPIC_WRAP}
-  echo "export NWCHEM_MPIC_WRAP=${NWCHEM_MPIC_WRAP}" >> ${NWCHEM_ENV_SH}
-  echo "setenv NWCHEM_MPIC_WRAP ${NWCHEM_MPIC_WRAP}" >> ${NWCHEM_ENV_CSH}
-  echo "unset NWCHEM_MPIC_WRAP"                      >> ${NWCHEM_UNENV_SH}
-  echo "unsetenv NWCHEM_MPIC_WRAP"                   >> ${NWCHEM_UNENV_CSH}
+  echo "export NWCHEM_MPIC_WRAP=\"${NWCHEM_MPIC_WRAP}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv NWCHEM_MPIC_WRAP \"${NWCHEM_MPIC_WRAP}\"" >> ${NWCHEM_ENV_CSH}
+  echo "unset NWCHEM_MPIC_WRAP"                          >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv NWCHEM_MPIC_WRAP"                       >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#NWCHEM_MPICXX_WRAP} -ne 0 ] ; then
   echo "NWCHEM_MPICXX_WRAP =" ${NWCHEM_MPICXX_WRAP}
-  echo "export NWCHEM_MPICXX_WRAP=${NWCHEM_MPICXX_WRAP}" >> ${NWCHEM_ENV_SH}
-  echo "setenv NWCHEM_MPICXX_WRAP ${NWCHEM_MPICXX_WRAP}" >> ${NWCHEM_ENV_CSH}
-  echo "unset NWCHEM_MPICXX_WRAP"                        >> ${NWCHEM_UNENV_SH}
-  echo "unsetenv NWCHEM_MPICXX_WRAP"                     >> ${NWCHEM_UNENV_CSH}
+  echo "export NWCHEM_MPICXX_WRAP=\"${NWCHEM_MPICXX_WRAP}\"" >> ${NWCHEM_ENV_SH}
+  echo "setenv NWCHEM_MPICXX_WRAP \"${NWCHEM_MPICXX_WRAP}\"" >> ${NWCHEM_ENV_CSH}
+  echo "unset NWCHEM_MPICXX_WRAP"                            >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv NWCHEM_MPICXX_WRAP"                         >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#NWCHEM_LONG_PATHS} -ne 0 ] ; then
   echo "NWCHEM_LONG_PATHS  =" ${NWCHEM_LONG_PATHS}
