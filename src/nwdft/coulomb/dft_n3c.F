@@ -68,7 +68,7 @@ c
          endif
 c        
       do atom_d=1,atom_c
-         if (.not. bas_ce2cnr( ao_bas_han, atom_c, sh_lo_d, sh_hi_d)) 
+         if (.not. bas_ce2cnr( ao_bas_han, atom_d, sh_lo_d, sh_hi_d)) 
      &        call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
         do ishd = sh_lo_d, sh_hi_d
 c         
