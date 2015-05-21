@@ -7,7 +7,7 @@ imperative to run these tests when porting to a new platform.
 The directions given below for running the tests are for systems without
 a batch system.  If you have a batch system, check out the contrib
 directory to see if there is an appropriate batch submission script.
-You will then need to run each of the tests seperately and check the
+You will then need to run each of the tests separately and check the
 results (the nwparse.pl script can be used for the quantum (QM) and pspw 
 tests for this purpose).
 
@@ -71,7 +71,7 @@ Here are some steps and notes on running the QA tests:
       % setenv MPIRUN_PATH /usr/local/bin/mpirun
 
    b) If the mpirun processor definition option is not -np, you will need
-      to set the environment varibale MPIRUN_NPOPT to the appropriate
+      to set the environment variable MPIRUN_NPOPT to the appropriate
       flag, e.g.
 
       % setenv MPIRUN_NPOPT -n
