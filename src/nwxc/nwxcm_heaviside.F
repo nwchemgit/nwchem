@@ -27,13 +27,15 @@ C>
       implicit none
 #ifdef NWXC_QUAD_PREC
       real(kind=selected_real_kind(30)) :: x !< [Input] The coordinate
+      integer, parameter :: rk=selected_real_kind(30)
 #else
       real(kind=selected_real_kind(15)) :: x !< [Input] The coordinate
+      integer, parameter :: rk=selected_real_kind(15)
 #endif
 c
-      if (x<0) then
+      if (x.lt.0.0_rk) then
         nwxcm_heaviside = 0.0d0
-      else if (x>0) then
+      else if (x.gt.0.0_rk) then
         nwxcm_heaviside = 1.0d0
       else
         nwxcm_heaviside = 0.5d0
