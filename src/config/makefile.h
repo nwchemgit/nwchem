@@ -2263,6 +2263,15 @@ ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn))
   MPI_LIB =
 else
 ifndef MPI_INCLUDE
+# check if mpif90 is present
+         MPIF90YN = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+  ifeq ($(MPIF90YN),mpif90notfound)
+  errormpif90:
+	@echo " "
+	@echo "mpif90 not found. Please add its location to PATH"
+	@echo "e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:..."
+	@echo " "
+  endif
         MPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
 endif
 ifndef MPI_LIB

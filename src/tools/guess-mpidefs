@@ -222,9 +222,7 @@ option=$1
 if [ "$option" != "--help" ] ; then
   NWCHEM_MPIF_WRAP=`get_mpi_fortran_wrapper`
    if [ "${NWCHEM_MPIF_WRAP}" == "notfound" ] ; then
-     echo 'mpif90 not found'
-     echo 'Please install MPI and/or'
-     echo 'add the directory with mpif90 to your PATH'
+     echo 'mpif90notfound'
      exit
    fi
 fi
