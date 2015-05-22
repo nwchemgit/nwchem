@@ -34,6 +34,7 @@ void FATR util_getppn_(Integer *ppn_out){
 #if defined(__bgq__)
     *ppn_out = Kernel_ProcessCount();
 #elif MPI_VERSION >= 3
+
     int err;
     MPI_Comm comm_node;
 
@@ -41,7 +42,8 @@ void FATR util_getppn_(Integer *ppn_out){
     *ppn_out = (Integer) ppn;
     
   }else{
-    err = MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &comm_node);
+    MPI_Comm ga_comm=GA_MPI_Comm_pgroup_default();
+    err = MPI_Comm_split_type(ga_comm, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &comm_node);
     if (util_mpi_check(err,"MPI_Comm_split_type")) goto errlab;
 
     err = MPI_Comm_size(comm_node, &ppn);
@@ -62,6 +64,7 @@ void FATR util_getppn_(Integer *ppn_out){
   char myhostname[mxlen];
   char* recvbuf;
   int i, num_procs, me,  err, modppn;
+  MPI_Comm ga_comm=GA_MPI_Comm_pgroup_default();
   
   if(ppn_initialized) {
     *ppn_out = (Integer) ppn;
@@ -80,7 +83,7 @@ void FATR util_getppn_(Integer *ppn_out){
       }
       
       
-      err=MPI_Allgather(myhostname, mxlen, MPI_CHAR, recvbuf, mxlen, MPI_CHAR, MPI_COMM_WORLD);
+      err=MPI_Allgather(myhostname, mxlen, MPI_CHAR, recvbuf, mxlen, MPI_CHAR, ga_comm);
       if (err != MPI_SUCCESS) {
 	fprintf(stdout,"util_getppn: MPI_Allgather failed\n");
 	ppn=0;
@@ -97,7 +100,7 @@ void FATR util_getppn_(Integer *ppn_out){
       
       
     /* broadcast ppn to everybody */
-    err= MPI_Bcast(&ppn, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    err= MPI_Bcast(&ppn, 1, MPI_INT, 0, ga_comm);
     if (err != MPI_SUCCESS) {
       fprintf(stdout,"util_getppn: MPI_Bcast failed\n");
       goto errlab;
