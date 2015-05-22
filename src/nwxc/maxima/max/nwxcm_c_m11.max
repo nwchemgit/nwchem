@@ -413,4 +413,4 @@ F000409(rhoa,rhob,sigmaaa,sigmaab,sigmabb,taua,taub):= F000407(rhoa,rhob,sigmaaa
 F000410(rhoa,rhob,sigmaaa,sigmaab,sigmabb,taua,taub):= F000408(rhoa,rhob,taua,taub)+F000409(rhoa,rhob,sigmaaa,sigmaab,sigmabb,taua,taub);
 F000411(rhoa,rhob,sigmaaa,sigmaab,sigmabb,taua,taub):= F000410(rhoa,rhob,sigmaaa,sigmaab,sigmabb,taua,taub)*0.1000000000000000E+01;
 F000412(rhoa,rhob,sigmaaa,sigmaab,sigmabb,taua,taub):= F000211+F000411(rhoa,rhob,sigmaaa,sigmaab,sigmabb,taua,taub);
-G(rhoa,sigmaaa,taua,taub):=F000412(rhoa,rhob,sigmaaa,sigmaab,sigmabb,taua,taub);
+G(rhoa,sigmaaa,taua,taub):=F000412(rhoa,0,sigmaaa,0,0,taua,taub);
