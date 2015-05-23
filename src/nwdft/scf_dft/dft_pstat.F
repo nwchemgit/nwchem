@@ -18,10 +18,12 @@ c
      $     ps_guess)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:incore', pstat_qstat, 0, junk,
      $     ps_incore)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:chol  ', pstat_qstat, 0, junk,
+     $     ps_chol)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:inv   ', pstat_qstat, 0, junk,
+     $     ps_inv)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:2ceri', pstat_qstat, 0, junk,
      $     ps_2cer)) call errquit('dft: dft_pstat_init', 0,0)
-      if (.not. pstat_allocate('dft:inv', pstat_qstat, 0, junk,
-     $     ps_inv)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:  xc', pstat_qstat, 0, junk,
      $     ps_xc)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:fck2e', pstat_qstat, 0, junk,
@@ -93,6 +95,7 @@ c
          if (.not. pstat_free(ps_bdgemm))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_fitcd))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_incore))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_chol))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_inv))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_2cer))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_vcoul))call errquit('dft_pstat?', 0,0)

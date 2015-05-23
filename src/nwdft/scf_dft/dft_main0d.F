@@ -270,11 +270,13 @@ c
      .           g_oi, 'overlap', oskel)
             if (oskel)call sym_symmetrize(
      (           geom, xc_bas_han, .false., g_oi)
+         if (odftps) call pstat_on(ps_chol)
 #if defined(PARALLEL_DIAG)
             call ga_chol(g_oi, g_xcinv, info)
 #else 
             call ga_chol_seq(g_oi, g_xcinv, info)
 #endif
+         if (odftps) call pstat_off(ps_chol)
             if (info.ne.0)then
                if (me.eq.0)then
                   write(LuOut,*)' Problem in performing a Cholesky '
@@ -283,6 +285,7 @@ c
                   write(LuOut,*)' Attempting a diag/inverse. '
                endif
             endif
+            if (odftps) call pstat_on(ps_inv)
             if (info.eq.0) then
 #if defined(PARALLEL_DIAG)
                call ga_inverse(g_xcinv, g_oi)
@@ -297,6 +300,7 @@ c
             else
                call dft_invdiag(g_oi, g_xcinv, nbf_xc)
             endif
+            if (odftps) call pstat_off(ps_inv)
             if (.not. ga_destroy(g_oi)) call errquit
      &         (pname//'Could not destroy g_oi', 0, GA_ERR)
             if (me.eq.0.and.IOLGC) then
@@ -354,6 +358,7 @@ c
 c         if (lmiss.eq.1) then
             call ga_zero(g_cdinv)
             info = 0
+         if (odftps) call pstat_on(ps_chol)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
             call ga_copy(g_2ceri, g_cdinv)
@@ -365,6 +370,7 @@ c         if (lmiss.eq.1) then
 #else 
             call ga_chol_seq(g_2ceri, g_cdinv, info)
 #endif
+         if (odftps) call pstat_off(ps_chol)
             if (info.ne.0)then
                if (me.eq.0)then
                   write(LuOut,*)' Problem in performing a Cholesky '

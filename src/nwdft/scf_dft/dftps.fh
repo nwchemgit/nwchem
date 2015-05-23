@@ -6,7 +6,8 @@ c
      ,     ps_scfdft,ps_onel,ps_diis,ps_fockb,ps_guess,
      ,     ps_scfend,ps_incore,ps_bld12,ps_ssw,ps_xcrho,
      ,     ps_tabcd,ps_ebf,ps_excf,ps_bdgemm,ps_xmrge,
-     ,     ps_xcopy,ps_inv,ps_2cer,ps_qv0b,ps_f2e
+     ,     ps_xcopy,ps_inv,ps_2cer,ps_qv0b,ps_f2e,
+     ,	   ps_chol
 
       logical odftps            ! True if gathering stats
       common /cdftps/ odftps,
@@ -14,6 +15,7 @@ c
      $     ps_scfdft,ps_onel,ps_diis,ps_fockb,ps_guess,
      ,     ps_scfend,ps_incore,ps_bld12,ps_ssw,ps_xcrho,
      ,     ps_tabcd,ps_ebf,ps_excf,ps_bdgemm,ps_xmrge,
-     ,     ps_xcopy,ps_inv,ps_2cer,ps_qv0b,ps_f2e
+     ,     ps_xcopy,ps_inv,ps_2cer,ps_qv0b,ps_f2e,
+     ,	   ps_chol
 
 c
