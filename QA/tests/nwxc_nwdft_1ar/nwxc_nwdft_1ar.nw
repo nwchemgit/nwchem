@@ -43,6 +43,7 @@ end
 # LDA exchange
 
 set "dft:weight derivatives" T
+set "dft:pstat"              T
 dft
   vectors input atomic
   xc slater
@@ -138,7 +139,7 @@ task dft energy
 dft
   direct
   vectors input atomic
-  xc xbnl07 hfexch 1.00
+  xc xbnl07 hfexch
   cam 0.5 cam_alpha 0.0 cam_beta 1.0
 end
 task dft energy
@@ -146,7 +147,7 @@ task dft energy
 dft
   direct
   vectors input atomic
-  xc xcamb88 hfexch 1.00
+  xc xcamb88 hfexch
   cam 0.33 cam_alpha 0.19 cam_beta 0.46
 end
 task dft energy
@@ -154,14 +155,14 @@ task dft energy
 dft 
   direct
   vectors input atomic
-  xc xcamlsd hfexch 1.00
+  xc xcamlsd hfexch
   cam 0.3 cam_alpha 0.5 cam_beta 0.5
 end
 task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
-unset int:cando_txs
+#unset int:cando_txs
 
 dft
   vectors input atomic
@@ -295,7 +296,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
-unset int:cando_txs
+#unset int:cando_txs
 
 # meta-GGA exchange
 
@@ -431,6 +432,7 @@ dft
   xc hfexch optc
 end
 task dft energy
+set dft:scftype RHF
 
 dft
   vectors input atomic
@@ -861,7 +863,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
-unset int:cando_txs
+#unset int:cando_txs
 
 dft
   vectors input atomic
@@ -922,4 +924,4 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
-unset int:cando_txs
+#unset int:cando_txs

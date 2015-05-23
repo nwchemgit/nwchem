@@ -23,6 +23,7 @@ basis
 end
 
 # LDA exchange
+set "dft:pstat"              T
 
 dft
   mult 3
@@ -178,7 +179,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
-unset int:cando_txs
+#unset int:cando_txs
 
 dft
   mult 3
@@ -337,7 +338,7 @@ dft
   mult 3
   odft
   vectors input atomic
-  xc xm11  hfexch
+  xc xm11 hfexch
   cam 0.25 cam_alpha 0.428 cam_beta 0.572
 end
 task dft energy
@@ -354,7 +355,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
-unset int:cando_txs
+#unset int:cando_txs
 
 # meta-GGA exchange
 
@@ -1102,7 +1103,7 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
-unset int:cando_txs
+#unset int:cando_txs
 
 dft 
   mult 3
@@ -1181,4 +1182,4 @@ task dft energy
 
 set dft:cam_exch F
 set dft:direct   F
-unset int:cando_txs
+#unset int:cando_txs
