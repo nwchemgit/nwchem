@@ -43,7 +43,7 @@ c
      ,     iERI,lERI,lscr,iscr
       double precision THRESHOLD,CD_coef_max,shmax,
      ,     Vcoul_est,ERI_est
-      double precision q1
+      double precision q1,kp_max
       integer nxtask
       logical dowork,doshell
       logical oprint_ioinfo,use_nxtask
@@ -55,6 +55,7 @@ c
       integer nbf_at_c,nbf_at_d
       integer k_p,l_p,icount_d,icount_c, n_batch_done
       integer k_at,l_at,atom_c_in,atom_d_in
+      logical v_nonzero
       external nxtask
 c
       if(dermat) call errquit(
@@ -168,6 +169,7 @@ c
      A              ((atom_c_in*(atom_c_in-1))/2 + atom_d_in-1)
             endif
             if(dowork) then
+               v_nonzero=.false.
                if (.not.bas_ce2bfr(AO_bas_han,atom_d,bf_lo_d, bf_hi_d)) 
      &              call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
                nbf_at_d=bf_hi_d - bf_lo_d + 1
@@ -201,9 +203,10 @@ c
 c     schwartz with CDmax=1 for incore ints reading
                      if( ERI_est.gt.THRESHOLD )then
 
-                        if( CD_coef_max*ERI_est.gt.THRESHOLD )then
+                        if( abs(CD_coef_max*ERI_est).gt.THRESHOLD )then
 c              
-                           call dfill(Nao2*nmat,0.D0,dbl_mb(isvec),1)
+                           v_nonzero=.true.
+                           call dcopy(Nao2*nmat,0.D0,0,dbl_mb(isvec),1)
                            nfunz=0
                            do ishp = 1,nshells_cd
 c                
@@ -236,13 +239,10 @@ c read incore ints
      A                                      AO_bas_han,ishc,ishd,nscr,
      D                                      Dbl_MB(iscr),Ninteg_api,
      &                                      Dbl_MB(iERI))
-                                       if (q1.ne.1d0) call 
-     Y                                      dscal(Nintegrals,
-     Q                                      q1,Dbl_MB(iERI), 1)
 c     
 c     Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c     
-                                       call dgemv('N',Nao2,nshbf_cd,1D0,
+                                       call dgemv('N',Nao2,nshbf_cd,q1,
      &                                      Dbl_MB(iERI),Nao2,
      C                                      CD_coef(1+nfunz,1),
      &                                      1,1.D0,Dbl_MB(isvec),1)
@@ -286,8 +286,10 @@ c     add extra bit to ipoint if ishd_1 is truncated
                   endif
                   icount_c=icount_c+nshbfc
                enddo            ! ishc
-
-               call ga_put(g_vc, 
+c     ga_put only if anything ever survived the schwarz scr
+               
+               if(v_nonzero)
+     G              call ga_put(g_vc, 
      B              bf_lo_d, bf_hi_d, 
      C              bf_lo_c,bf_hi_c,
      C              dbl_mb(k_p), nbf_at_d)
