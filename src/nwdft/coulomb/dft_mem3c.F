@@ -114,10 +114,9 @@ c     get amount of local MA in Mbytes need to get incore done
 c
          deficit=max((deficit*8+deficit/2)/1024/1024,1)
 c     
-c     cannot all be done incore so let's restrict memory use to a
-c     max of 5 MW for semi-direct (I/O)
+c     force direct if  memory is not sufficient
 c     
-         availm_r = min(availm_r,5d+6)
+         availm_r = 0
       endif
 c
 c     check if availm_r is big enough for max batch
