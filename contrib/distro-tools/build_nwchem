@@ -165,6 +165,9 @@ function usage()
  PYTHONVERSION     -- The version of the Python installation.
                       Examples: 2.4, 2.6.
 
+ PYTHONABIFLAGS    -- The ABI version of the Python installation.
+                      Examples: d, m, u, dm, dmu, mu.
+
  USE_PYTHON64      -- If set assume Python is a 64-bit installation.
                       Example: yes.
 
@@ -1234,6 +1237,23 @@ if [ ${#PYTHON_EXE} -ne 0 ] ; then
   fi
 fi
 #
+# If we have python, find out which ABI we have got
+#
+if [ ${#PYTHON_EXE} -ne 0 ] ; then
+  if [ ${#PYTHONABIFLAGS} -eq 0 ]; then
+    echo "import sys" > ./testpython$$.py
+    echo "print(\"%s\"%sys.abiflags)" >> ./testpython$$.py
+    PYTHONABIFLAGS=`${PYTHON_EXE} ./testpython$$.py`
+    status=$?
+    if [ ${status} -eq 0 ] ; then
+      export PYTHONABIFLAGS
+    else
+      unset PYTHONABIFLAGS
+    fi
+    rm -f ./testpython$$.py
+  fi
+fi
+#
 # Is the python a 32 or 64 bit version?
 #
 if [ ${#PYTHON_EXE} -ne 0 ] ; then
@@ -2169,6 +2189,13 @@ if [ ${#PYTHONVERSION} -ne 0 ] ; then
   echo "setenv PYTHONVERSION ${PYTHONVERSION}" >> ${NWCHEM_ENV_CSH}
   echo "unset PYTHONVERSION"                   >> ${NWCHEM_UNENV_SH}
   echo "unsetenv PYTHONVERSION"                >> ${NWCHEM_UNENV_CSH}
+fi
+if [ ${#PYTHONABIFLAGS} -ne 0 ] ; then
+  echo "PYTHONABIFLAGS     =" ${PYTHONABIFLAGS}
+  echo "export PYTHONABIFLAGS=${PYTHONABIFLAGS}" >> ${NWCHEM_ENV_SH}
+  echo "setenv PYTHONABIFLAGS ${PYTHONABIFLAGS}" >> ${NWCHEM_ENV_CSH}
+  echo "unset PYTHONABIFLAGS"                    >> ${NWCHEM_UNENV_SH}
+  echo "unsetenv PYTHONABIFLAGS"                 >> ${NWCHEM_UNENV_CSH}
 fi
 if [ ${#USE_PYTHON64} -ne 0 ] ; then
   echo "USE_PYTHON64       =" ${USE_PYTHON64}
