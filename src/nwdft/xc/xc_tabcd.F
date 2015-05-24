@@ -194,7 +194,6 @@ c     it were a 3x3 matrix
 c
       integer indh(3,3)
       logical w01,w02,w013,dofull
-      double precision ddot
       double precision raa,rbb
       integer nbhandl1,nbhandl2
       logical nbfirst1,nbfirst2,doitt
@@ -202,7 +201,6 @@ c
 #include "nwc_const.fh"
       integer nonzero(nw_max_atom),natleft,
      A     iat0,jat0
-      external ddot
       data indh / 1, 2, 3,
      &            2, 4, 5,
      &            3, 5, 6 /
