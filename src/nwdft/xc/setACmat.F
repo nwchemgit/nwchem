@@ -146,7 +146,6 @@ c
                   Cmat(jj,1,ii) = Cmat(jj,1,ii)*qwght(jj)
                   Cmat(jj,2,ii) = Cmat(jj,2,ii)*qwght(jj)
                   Cmat(jj,3,ii) = Cmat(jj,3,ii)*qwght(jj)
-                  if(kske) Mmat(jj,ii) = Mmat(jj,ii)*qwght(jj)
                enddo
             enddo
          else
@@ -173,14 +172,25 @@ c
             enddo
          enddo
       endif
+      if (kske) then
+         do ii = 1, ipol
+            do jj = 1, nq
+               Mmat(jj,ii) = Mmat(jj,ii)*qwght(jj)
+            enddo
+         enddo
+      endif
 c
 #if 0
       if (bgj_print() .gt. 1) then
-      write(LuOut,*) ' setACmat: AMAT out'
+      write(LuOut,*) ' setACmat: AMAT out' 
       call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
       if (grad) then
          write(LuOut,*) ' setACmat: CMAT out ',xform_Cmat
          call output(cmat, 1, nq, 1, 3*ipol, nq, 3*ipol, 1)
+      endif
+      if (kske) then
+         write(LuOut,*) ' setACmat: MMAT out'
+         call output(mmat, 1, nq, 1, ipol, nq, ipol, 1)
       endif
       endif
 #endif
