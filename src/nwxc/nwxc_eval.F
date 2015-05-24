@@ -1912,32 +1912,38 @@ c
 C>
 C> \brief Driver routine for the functional, 1st and 2nd derivative evaluation
 C>
-C> This driver routine initializes the active variables and loops over the
-C> functional evaluations. Afterwards it interpolates the partial derivatives
-C> and returns the values of the functional and its 1st order partial
-C> derivatives. Obviously, interpolating the 1st order partial derivatives is
-C> particularly simply, but this scheme applies to all orders of derivatives.
-C> Due to different data types being required the memory for this routine
-C> needs to be allocated in the calling routine. Calling this subroutine
-C> effectively implements a typecast.
+C> This driver routine initializes the active variables and invokes the
+C> functional evaluation. After the functional has been evaluated the results
+C> are unpacked and stored in the appropriate arrays.
 C>
-C> An issue that comes into play at the 2nd derivative level relates to the
-C> cross terms in closed shell calculations. In closed shell calculations
-C> we exploit that the \f$\alpha\f$ and \f$\beta\f$ spin densities have the
-C> same values. As a result we know that for every partial derivative there
-C> is another partial derivative with the \f$\alpha\f$ and \f$\beta\f$ labels
-C> interchanged that has the same value. I.e. 
-C> \f$\frac{\partial^2f}{\partial\rho_\alpha^2} = 
-C> \frac{\partial^2f}{\partial\rho_\beta^2}\f$. However, there are also cross
-C> terms such as \f$\frac{\partial^2f}{\partial\rho_\alpha\partial\rho_\beta}\f$
-C> that are new at this level of differentiation and that cannot be expressed
-C> in terms of anything else. Hence for closed shell systems we need to 
-C> construct the same number of partial derivatives as for the open shell 
-C> systems, but we can exploit the additional symmetry to reduce the number
-C> of partial derivatives we actually have to calculate. The partial derivatives
-C> that are the same due to the spin interchange symmetry can simply be copied.
-C> The loop structure has been adapted for the closed shell case to exploit
-C> this.
+C> An issue the first arises in calculating the 2nd derivatives is related
+C> to how spin can be handled in closed shell calculations. For some properties
+C> the energy expression can be cast in a spin free form. In those cases one
+C> can just calculate the derivatives wrt. the total density, the total density
+C> gradient and the total kinetic energy density. However, there are also
+C> quantities such as the energy of a triplet excited state from a closed 
+C> shell ground state. In this case the excitation energy is an explicitly spin 
+C> dependent quantity evaluated at equal \f$\alpha\f$ and \f$\beta\f$ spin
+C> densities. Evaluating this energy expression requires explicit knowledge
+C> of the cross terms involving different spin channels. 
+C>
+C> Here automatic differentiation has a disadvantage compared to symbolic
+C> algebra. In symbolic algebra one can derive the relevant partial derivatives
+C> and subsequently substitute that \f$\rho_\alpha\f$ equals \f$\rho_\beta\f$
+C> allowing for significant simplification of the expressions to be evaluated.
+C> In automatic differentiation, on the other hand, working out the form of
+C> the derivative expression and evaluating it are one and the same thing. 
+C> Therefore if you want to calculate cross terms between spin channels you
+C> have to treat them as separate variables. Essentially you have to deal with
+C> the equations as the unrestricted open-shell case. So there are no savings
+C> to be had from exploiting that the \f$\alpha\f$ and \f$\beta\f$ densities
+C> are the same.
+C>
+C> In practice, therefore, this code will perform a slightly different 
+C> initialization depending on whether we are running a closed shell or
+C> open shell calculation, but the functional evaluation is executed as if
+C> it is an open shell calculation. Also the data is unpacked as if it is
+C> an open shell calculation. 
 C>
       subroutine nwxc_eval_df2_driver(ipol,nq,ndbl,rho,gamma,tau,
      +           nwad_rho,nwad_gam,nwad_tau,nwad_f,nvar,ndrv,
@@ -2026,7 +2032,9 @@ c
 c
       if (ipol.eq.1) then
         do iq = 1, nq
-          nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
+c         nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
+          nwad_rho(iq,R_A) = set_rho_a(0.5d0*rho(iq,R_T))
+          nwad_rho(iq,R_B) = set_rho_b(0.5d0*rho(iq,R_T))
         enddo
       else  ! ipol.eq.1
         do iq = 1, nq
@@ -2039,7 +2047,10 @@ c
       if (nwxc_is_gga().or.nwxc_is_mgga()) then
         if (ipol.eq.1) then
           do iq = 1, nq
-            nwad_gam(iq,G_TT) = set_gamma_tt(gamma(iq,G_TT))
+c           nwad_gam(iq,G_TT) = set_gamma_tt(gamma(iq,G_TT))
+            nwad_gam(iq,G_AA) = set_gamma_aa(0.25d0*gamma(iq,G_TT))
+            nwad_gam(iq,G_AB) = set_gamma_ab(0.25d0*gamma(iq,G_TT))
+            nwad_gam(iq,G_BB) = set_gamma_bb(0.25d0*gamma(iq,G_TT))
           enddo
         else  ! ipol.eq.1
           do iq = 1, nq
@@ -2056,7 +2067,9 @@ c
       if (nwxc_is_mgga()) then
         if (ipol.eq.1) then
           do iq = 1, nq
-            nwad_tau(iq,T_T) = set_tau_t(tau(iq,T_T))
+c           nwad_tau(iq,T_T) = set_tau_t(tau(iq,T_T))
+            nwad_tau(iq,T_A) = set_tau_a(0.5d0*tau(iq,T_T))
+            nwad_tau(iq,T_B) = set_tau_b(0.5d0*tau(iq,T_T))
           enddo
         else  ! ipol.eq.1
           do iq = 1, nq
@@ -2068,12 +2081,12 @@ c
         endif ! ipol.eq.1
       endif
 c
-      call nwxc_eval_df2_doit(ipol,nq,nwad_rho,nwad_gam,
+      call nwxc_eval_df2_doit(2,nq,nwad_rho,nwad_gam,
      +     nwad_tau,nwad_f,dfdr,dfdg,dfdt)
 c
 c     Now unpack the results
 c
-      if (ipol.eq.1) then
+      if (.false..and.ipol.eq.1) then
 c
 c       Closed shell case -> use splitting factors
 c
@@ -3639,14 +3652,10 @@ C>
 C> \brief Driver routine for the functional, 1st, 2nd and 3rd derivative
 C> evaluation
 C>
-C> This driver routine initializes the active variables and loops over the
-C> functional evaluations. Afterwards it interpolates the partial derivatives
-C> and returns the values of the functional and its 1st order partial
-C> derivatives. Obviously, interpolating the 1st order partial derivatives is
-C> particularly simply, but this scheme applies to all orders of derivatives.
-C> Due to different data types being required the memory for this routine
-C> needs to be allocated in the calling routine. Calling this subroutine
-C> effectively implements a typecast.
+C> This driver routine initializes the active variables and invokes the
+C> functional evaluation. Afterwards the results are unpacked and stored
+C> into the output arrays. The handling of the closed shell case follows
+C> the same approach as outlined with `nwxc_eval_df2_driver`.
 C>
       subroutine nwxc_eval_df3_driver(ipol,nq,rho,gamma,tau,
      +           nwad_rho,nwad_gam,nwad_tau,nwad_f,nvar,ndrv,
@@ -3788,7 +3797,9 @@ c
 c
       if (ipol.eq.1) then
         do iq = 1, nq
-          nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
+c         nwad_rho(iq,R_T) = set_rho_t(rho(iq,R_T))
+          nwad_rho(iq,R_A) = set_rho_a(0.5d0*rho(iq,R_T))
+          nwad_rho(iq,R_B) = set_rho_b(0.5d0*rho(iq,R_T))
         enddo
       else  ! ipol.eq.1
         do iq = 1, nq
@@ -3801,7 +3812,10 @@ c
       if (nwxc_is_gga().or.nwxc_is_mgga()) then
         if (ipol.eq.1) then
           do iq = 1, nq
-            nwad_gam(iq,G_TT) = set_gamma_tt(gamma(iq,G_TT))
+c           nwad_gam(iq,G_TT) = set_gamma_tt(gamma(iq,G_TT))
+            nwad_gam(iq,G_AA) = set_gamma_aa(0.5d0*gamma(iq,G_TT))
+            nwad_gam(iq,G_AB) = set_gamma_ab(0.5d0*gamma(iq,G_TT))
+            nwad_gam(iq,G_BB) = set_gamma_bb(0.5d0*gamma(iq,G_TT))
           enddo
         else  ! ipol.eq.1
           do iq = 1, nq
@@ -3818,7 +3832,9 @@ c
       if (nwxc_is_mgga()) then
         if (ipol.eq.1) then
           do iq = 1, nq
-            nwad_tau(iq,T_T) = set_tau_t(tau(iq,T_T))
+c           nwad_tau(iq,T_T) = set_tau_t(tau(iq,T_T))
+            nwad_tau(iq,T_A) = set_tau_a(0.5d0*tau(iq,T_T))
+            nwad_tau(iq,T_B) = set_tau_b(0.5d0*tau(iq,T_T))
           enddo
         else  ! ipol.eq.1
           do iq = 1, nq
@@ -3830,12 +3846,12 @@ c
         endif ! ipol.eq.1
       endif
 c
-      call nwxc_eval_df3_doit(ipol,nq,nwad_rho,nwad_gam,
+      call nwxc_eval_df3_doit(2,nq,nwad_rho,nwad_gam,
      +     nwad_tau,nwad_f,dfdr,dfdg,dfdt)
 c
 c     Now unpack the results
 c
-      if (ipol.eq.1) then
+      if (.false..and.ipol.eq.1) then
 c
 c       Closed shell case -> use splitting factors
 c
