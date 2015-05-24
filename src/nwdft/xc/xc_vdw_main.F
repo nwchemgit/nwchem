@@ -556,6 +556,7 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "nwxc.fh"
 #include "xc_vdw.fh"
 c
       integer n
@@ -568,6 +569,7 @@ c
       external xc_vdw_init
       logical oprint,oprinth
       logical stat
+      logical use_nwxc_disp
 c
       logical geom_cart_get2 
       external geom_cart_get2 
@@ -601,6 +603,14 @@ c     Which Grimme dispersion version
 c
       if (.not.rtdb_get(rtdb,'dft:ivdw',MT_INT,1,ivdw))
      &      ivdw = 2
+      use_nwxc_disp = util_module_avail("nwxc")
+      if (use_nwxc_disp) then
+        use_nwxc_disp = use_nwxc_disp .and. nwxc_has_disp()
+      endif
+      if (use_nwxc_disp) then
+c       get ivdw here as this data is needed for xc_vdw_init
+        call nwxc_get_disp(ivdw,s6,s8,sr6,sr8,a1,a2,alpha)
+      endif
 c
 c     conversion factor angs 2 au
 c
@@ -621,8 +631,13 @@ c
 c
 c     Get proper scaling factors depending on Grimme dispersion version
 c
-      call get_scaling_fac(s6,s8,sr6,sr8,a1,a2)
-      stat = rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6)
+      if (.not.use_nwxc_disp) then
+        call get_scaling_fac(s6,s8,sr6,sr8,a1,a2)
+        stat = rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6)
+      else
+c       get the scaling factors here (just being paranoid)
+        call nwxc_get_disp(ivdw,s6,s8,sr6,sr8,a1,a2,alpha)
+      endif
 c
       if(what.eq.'energy') then
 c
