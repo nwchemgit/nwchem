@@ -9,6 +9,8 @@ c
 c
 #include "cdft.fh"
 #include "steric.fh"
+#include "nwxc.fh"
+#include "util.fh"
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -36,13 +38,16 @@ c
      + cfac(52) + cfac(53) + cfac(54) +
      + xfac(60) + xfac(61) + xfac(62) + xfac(63) + lxdm
 c
-      if (abs(tot).gt.eps.or.lb94.or.cs00)then
+      if (abs(tot).gt.eps.or.lb94.or.cs00) then
          xc_chkgrad = .true.
       else if (lsteric) then ! turn on gradients for steric calculations
          xc_chkgrad = .true.
       else
          xc_chkgrad = .false.
       end if
+      if (util_module_avail("nwxc")) then
+         xc_chkgrad = xc_chkgrad .or. nwxc_is_gga().or.nwxc_is_mgga()
+      endif
 c
       return
       end
@@ -50,6 +55,8 @@ c
       logical function xc_gotxc()
       implicit none
 #include "cdft.fh"
+#include "nwxc.fh"
+#include "util.fh"
       double precision tot
       integer i
 c
@@ -61,6 +68,9 @@ c
          tot = tot + abs(xfac(i)) + abs(cfac(i))
       enddo
       xc_gotxc = tot.gt.1d-8.or.lb94.or.cs00
+      if (util_module_avail("nwxc")) then
+        xc_gotxc = xc_gotxc.or.nwxc_has_xc()
+      endif
       return
       end
 c
@@ -84,6 +94,8 @@ c
       implicit none
 c
 #include "cdft.fh"
+#include "nwxc.fh"
+#include "util.fh"
 c
       xc_got2nd=.not.(
 c
@@ -150,6 +162,9 @@ chp414     .     cfac(21).ne.0d0.or.
      .     cfac(53).ne.0d0.or.
      .     cfac(54).ne.0d0.or.
      .     cfac(36).ne.0d0)
+      if (util_module_avail("nwxc")) then
+        xc_got2nd = xc_got2nd .or. nwxc_has_2nd()
+      endif
 c
       return
       end
@@ -164,6 +179,8 @@ c
 c     see if any metaGGA Functional using TAU is not null
 c
 #include "cdft.fh"
+#include "nwxc.fh"
+#include "util.fh"
 C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
 c 
       double precision tot,eps
@@ -181,6 +198,9 @@ c
          xc_chktau = .true.
       else
          xc_chktau = .false.
+      endif
+      if (util_module_avail("nwxc")) then
+         xc_chktau = xc_chktau .or. nwxc_is_mgga()
       endif
       return
       end
@@ -207,6 +227,8 @@ c
 c
 #include "cdft.fh"
 #include "case.fh"
+#include "util.fh"
+#include "nwxc.fh"
 c
       xc_hascam=(
      .     xfac(38).ne.0d0.or.
@@ -218,6 +240,9 @@ c
      .     xfac(51).ne.0d0)
 c
       xc_hascam = xc_hascam.or.cam_exch
+      if (util_module_avail("nwxc")) then
+        xc_hascam = xc_hascam.or.nwxc_has_cam()
+      endif
 c
       return
       end
@@ -274,23 +299,26 @@ c     set cam_beta
       if (.not.rtdb_put(rtdb,'dft:cam_beta',mt_dbl,1,cam_beta))
      & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
 c
-c     Force texas integrals to false for CAM calculations
-      if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
-     &   call errquit('cannot set int:cando_txs',0, RTDB_ERR)
+      if (cam_exch) then
 c
-c     Force use of direct
+c       Force texas integrals to false for CAM calculations
+        if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
+     &     call errquit('cannot set int:cando_txs',0, RTDB_ERR)
 c
-      direct = .true.
-      filesize = -1
-      memsize  = -1
-      if (.not. rtdb_put(rtdb, 'dft:direct',mt_log,1,direct))
-     &   call errquit('xc_setcamparam: rtdb_put failed',400,RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'int2e:filesize',mt_int,1,filesize))
+c       Force use of direct
+c
+        direct = .true.
+        filesize = -1
+        memsize  = -1
+        if (.not. rtdb_put(rtdb, 'dft:direct',mt_log,1,direct))
+     &     call errquit('xc_setcamparam: rtdb_put failed',400,RTDB_ERR)
+        if (.not. rtdb_put(rtdb,'int2e:filesize',mt_int,1,filesize))
      $     call errquit('xc_setcamparam: failed to store filesize',401,
      &                  RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'int2e:memsize',mt_int,1,memsize))
+        if (.not. rtdb_put(rtdb,'int2e:memsize',mt_int,1,memsize))
      $     call errquit('xc_setcamparam: failed to store filesize',402,
      &                  RTDB_ERR)
+      endif
 c
       return
       end

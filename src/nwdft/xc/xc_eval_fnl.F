@@ -38,6 +38,15 @@ c xc-third derivative header file
 #include "dft3drv.fh"
 #include "stdio.fh"
 #include "steric.fh"
+cHvD
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "nwxc.fh"
+#include "util.fh"
+      integer l_f, k_f
+      integer l_g, k_g
+      integer ii,iq
+cHvD
 c
 c List of functionals with implemented third derivatives.
 c
@@ -68,13 +77,13 @@ c
       double precision Amat2(*),Cmat2(*)
       double precision Amat3(*),Cmat3(*)
       double precision ttau(*) !< [Input] The kinetic energy density
-      double precision Mmat(*), Mmat2(*)
+      double precision Mmat(*), Mmat2(*), Mmat3(2)
 c
       double precision Ex !< [Output] The exchange energy
       double precision Ec !< [Output] The correlation energy
       double precision StericEnergy
       double precision qwght(nq), func(nq)
-      logical grad, kske, dohcth
+      logical grad, kske, dohcth, use_nwxc
 c
       character*4 whichf
 
@@ -87,30 +96,116 @@ c
 c
 c     Initialize the XC potential and energy sampling matrices.
 c
-      call dfill(ipol*nq, 0.d0, Amat, 1)
-      if(grad) call dfill(3*nq*ipol, 0.d0, Cmat, 1)
-      if(kske) call dfill(nq*ipol, 0.d0, Mmat, 1)
+      call dcopy(ipol*nq, 0.0d0, 0, Amat, 1)
+      if(grad) call dcopy(3*nq*ipol, 0.0d0, 0, Cmat, 1)
+      if(kske) call dcopy(nq*ipol, 0.0d0, 0, Mmat, 1)
       if (do_2nd) then
-         call dfill(nq*NCOL_AMAT2, 0.d0, Amat2, 1)
-         if (grad) call dfill(nq*NCOL_CMAT2, 0.d0, Cmat2, 1)
-         if (kske) call dfill(nq*NCOL_MMAT2, 0.d0, Mmat2, 1)
+         call dcopy(nq*NCOL_AMAT2, 0.0d0, 0, Amat2, 1)
+         if (grad) call dcopy(nq*NCOL_CMAT2, 0.0d0, 0, Cmat2, 1)
+         if (kske) call dcopy(nq*NCOL_MMAT2, 0.0d0, 0, Mmat2, 1)
       endif
 c
 c     Initialize the 3rd derivatives.  Note that we may need 
 c     the 2nd derivative matrices in some cases as well, so
 c     those are initialized also.
       if (do_3rd) then
-         call dfill(nq*NCOL_AMAT2, 0.0d0, Amat2, 1)
-         call dfill(nq*NCOL_AMAT3, 0.0d0, Amat3, 1)
-         if (grad) call dfill(nq*NCOL_CMAT2, 0.0d0, Cmat2, 1)         
-         if (grad) call dfill(nq*NCOL_CMAT3, 0.0d0, Cmat3, 1)
+         call dcopy(nq*NCOL_AMAT2, 0.0d0, 0, Amat2, 1)
+         call dcopy(nq*NCOL_AMAT3, 0.0d0, 0, Amat3, 1)
+         if (grad) call dcopy(nq*NCOL_CMAT2, 0.0d0, 0, Cmat2, 1)
+         if (grad) call dcopy(nq*NCOL_CMAT3, 0.0d0, 0, Cmat3, 1)
+         if (kske) call dcopy(nq*NCOL_MMAT2, 0.0d0, 0, Mmat2, 1)
+         if (kske) call errquit("xc_eval_fnc: do_3rd and kske",0,
+     +                          CAPMIS_ERR)
       endif      
 c
 c     This prevents the XC-kernel from being multiplied
 c     with the quadrature weights in TDDFT gradients. 
 c
       ldew3 = (do_3rd.and.ldew)
-      if (ldew.or.ldew2.or.ldew3) call dfill(nq, 0.d0, func, 1)
+      if (ldew.or.ldew2.or.ldew3) call dcopy(nq, 0.d0, 0, func, 1)
+c
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) then
+        use_nwxc = nwxc_is_on()
+      endif
+      if (use_nwxc) then
+c
+c       Use the nwxc functional library
+c
+        if (.not.ma_push_get(mt_dbl,nq,"ffunc",l_f,k_f))
+     +    call errquit("xc_eval_fnc: no memory",nq,MA_ERR)
+        if (.not.ma_push_get(mt_dbl,3*nq,"rgamma",l_g,k_g))
+     +    call errquit("xc_eval_fnc: no memory",3*nq,MA_ERR)
+        if (grad) call calc_rgamma(ipol,nq,delrho,dbl_mb(k_g))
+        if (ipol.eq.1) then
+          if (do_3rd) then
+            call nwxc_eval_df3(ipol,nq,rho(1),dbl_mb(k_g),ttau,
+     +                         dbl_mb(k_f),
+     +                         Amat,Amat2,Amat3,Cmat,Cmat2,Cmat3,
+     +                         Mmat,Mmat2,Mmat3)
+          else if (do_2nd) then
+            call nwxc_eval_df2(ipol,nq,rho(1),dbl_mb(k_g),ttau,
+     +                         dbl_mb(k_f),
+     +                         Amat,Amat2,Cmat,Cmat2,Mmat,Mmat2)
+          else
+            call nwxc_eval_df(ipol,nq,rho(1),dbl_mb(k_g),ttau,
+     +                        dbl_mb(k_f),
+     +                        Amat,Cmat,Mmat)
+          endif
+        else
+          if (do_3rd) then
+            call nwxc_eval_df3(ipol,nq,rho(nq+1),dbl_mb(k_g),ttau,
+     +                         dbl_mb(k_f),
+     +                         Amat,Amat2,Amat3,Cmat,Cmat2,Cmat3,
+     +                         Mmat,Mmat2,Mmat3)
+          else if (do_2nd) then
+            call nwxc_eval_df2(ipol,nq,rho(nq+1),dbl_mb(k_g),ttau,
+     +                         dbl_mb(k_f),
+     +                         Amat,Amat2,Cmat,Cmat2,Mmat,Mmat2)
+          else
+            call nwxc_eval_df(ipol,nq,rho(nq+1),dbl_mb(k_g),ttau,
+     +                        dbl_mb(k_f),
+     +                        Amat,Cmat,Mmat)
+          endif
+        endif
+
+        Ex = Ex + ddot(nq,dbl_mb(k_f),1,qwght,1)
+        if (ldew) then
+          call dcopy(nq,dbl_mb(k_f),1,func,1)
+        endif
+        if (.not.ma_pop_stack(l_g))
+     +    call errquit("xc_eval_fnc: no free",3*nq,MA_ERR)
+        if (.not.ma_pop_stack(l_f))
+     +    call errquit("xc_eval_fnc: no free",nq,MA_ERR)
+c
+c       Combine with quadrature weights
+c
+c Daniel (1-11-13): Added XC-third derivative stuff.  This currently
+c doesn't include any functionality for meta-GGAs.
+c Daniel (1-17-13): Because we need derivatives of the quadrature
+c weights for TDDFT gradients, we don't want to multiply the A 
+c and C matrices with the quadrature weights here (which would be
+c double counting).  This prevents us from multiplying the
+c quadrature weights into the matrices and then dividing them out
+c later, which is prone to numerical problems (and slow). 
+c Daniel (2-4-13): ldew3 is for the dfxc*(X+Y)*(X+Y) term in the TDDFT 
+c gradients.  ldew2 is for the dVxc*P term in the TDDFT gradients.
+        if (.not.(ldew2.or.ldew3)) then
+
+          if (.not. do_2nd .and. .not. do_3rd) then
+             call setACmat(delrho, Amat, Cmat, qwght, ipol, nq, grad,
+     &             (.not. do_2nd), kske, Mmat)
+          else if (.not. do_3rd) then
+             call setACmat_d2(delrho, Amat, Amat2, Cmat, Cmat2, qwght, 
+     &             ipol, nq, grad, (.not. do_2nd), kske, Mmat, Mmat2)
+          else
+             call setACmat_d3(delrho, Amat, Amat2, Amat3, Cmat, Cmat2,
+     &             Cmat3, qwght, ipol, nq, grad, (.not. do_3rd),
+     &             .false.)
+          endif
+        endif
+        return
+      endif
 c      if (ldew.or.ldew3) call dfill(nq, 0.d0, func, 1)
 c      if (ldew) call dfill(nq, 0.d0, func, 1)
 c
@@ -1423,6 +1518,38 @@ c gradients.  ldew2 is for the dVxc*P term in the TDDFT gradients.
       endif
 c
       return
+      end
+
+      subroutine calc_rgamma(ipol,nq,delrho,rgamma)
+      implicit none
+#include "nwxc_param.fh"
+      integer ipol !< [Input] The number of spin channels
+      integer nq   !< [Input] The number of grid points
+      double precision delrho(nq,3,ipol) !< [Input] The density gradient
+      double precision rgamma(nq,3)      !< [Output] The density gradient norm
+c
+      integer iq
+c
+      if (ipol.eq.1) then
+        do iq = 1, nq
+          rgamma(iq,G_TT) = delrho(iq,1,1)*delrho(iq,1,1)
+     &                    + delrho(iq,2,1)*delrho(iq,2,1)
+     &                    + delrho(iq,3,1)*delrho(iq,3,1)
+        enddo
+      else
+        do iq = 1, nq
+          rgamma(iq,G_AA) = delrho(iq,1,1)*delrho(iq,1,1)
+     &                    + delrho(iq,2,1)*delrho(iq,2,1)
+     &                    + delrho(iq,3,1)*delrho(iq,3,1)
+          rgamma(iq,G_BB) = delrho(iq,1,2)*delrho(iq,1,2)
+     &                    + delrho(iq,2,2)*delrho(iq,2,2)
+     &                    + delrho(iq,3,2)*delrho(iq,3,2)
+          rgamma(iq,G_AB) = delrho(iq,1,1)*delrho(iq,1,2)
+     &                    + delrho(iq,2,1)*delrho(iq,2,2)
+     &                    + delrho(iq,3,1)*delrho(iq,3,2)
+        enddo
+      endif
+c
       end
 C>
 C> @}
