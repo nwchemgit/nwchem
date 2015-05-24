@@ -1522,7 +1522,11 @@ c
 
       subroutine calc_rgamma(ipol,nq,delrho,rgamma)
       implicit none
-#include "nwxc_param.fh"
+cinclude "nwxc_param.fh"
+#define G_TT 1
+#define G_AA 1
+#define G_AB 2
+#define G_BB 3
       integer ipol !< [Input] The number of spin channels
       integer nq   !< [Input] The number of grid points
       double precision delrho(nq,3,ipol) !< [Input] The density gradient
