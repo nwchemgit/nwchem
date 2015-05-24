@@ -5,6 +5,54 @@ c     Modified to handle CPKS while reusing existing code
 c
 c     BGJ - 8/98
 c
+C> \ingroup nwdft_xc
+C> @{
+C>
+C> \brief Evaluate various matrix elements over the functionals
+C>
+C> This routine evaluates a variety of matrix elements that involve the
+C> density functional.
+C>
+C> Note that there are some inconsistencies with respect to the kinetic
+C> energy density. NWChem defines the kinetic energy density as
+C> \f{eqnarray*}{
+C>    \tau_1 &=& \sum_i \frac{1}{2}\langle\phi_i|\nabla^2|\phi_i\rangle
+C> \f}
+C> In most density functionals the kinetic energy density is defined as
+C> \f{eqnarray*}{
+C>    \tau_2 &=& \sum_i \langle\phi_i|\nabla^2|\phi_i\rangle
+C> \f}
+C> the reason being that the factor 1/2 can easily be absorpted into the
+C> density functional parameters. As a result the density functional routines
+C> evaluate 
+C> \f{eqnarray*}{
+C>    e &=& f(\rho,\gamma,\tau_2) \\\\
+C>    Amat = &=& \frac{\partial f(\rho,\gamma,\tau_2)}{\partial\rho} \\\\
+C>    Cmat = &=& \frac{\partial f(\rho,\gamma,\tau_2)}{\partial\gamma} \\\\
+C>    Mmat = &=& \frac{\partial f(\rho,\gamma,\tau_2)}{\partial\tau_2} \\\\
+C> \f}
+C> The NWDFT module in NWChem handles this situation by conceptually wrapping
+C> the functional routines used (the actual implementation just scales
+C> \f$\tau\f$ by a factor 2)
+C> \f{eqnarray*}{
+C>   e &=& g(\rho,\gamma,\tau_1) \\\\
+C>   g(\rho,\gamma,\tau_1) &=& f(\rho,\gamma,2\tau_1) \\\\
+C> \f}
+C> As a result, however, the density functional routines now return
+C> \f{eqnarray*}{
+C>    e &=& g(\rho,\gamma,\tau_1) \\\\
+C>    Amat = &=& \frac{\partial g(\rho,\gamma,\tau_1)}{\partial\rho} \\\\
+C>    Cmat = &=& \frac{\partial g(\rho,\gamma,\tau_1)}{\partial\gamma} \\\\
+C>    Mmat = &=& \frac{\partial g(\rho,\gamma,\tau_1)}{\partial\tau_2} \\\\
+C> \f}
+C> where there is an inconsistency in the derivative wrt. to \f$\tau\f$ as
+C> \f$g\f$ is a function of \f$\tau_1\f$ but differentiated wrt. \f$\tau_2\f$.
+C>
+C> In the NWXC module the differentation techniques deployed do not allow 
+C> such inconsistencies and \f$g\f$ is strictly differentiated wrt.
+C> \f$\tau_1\f$. This results in a factor \f$2\f$ difference that we need to
+C> compensate for. 
+C>
       Subroutine xc_tabcd(what,l3d_dum,
      ,     tol_rho, Tmat, TTmat, Amat, Bmat, Cmat, Dmat, 
      N     Emat,Fmat,qxyz,xyz,
@@ -15,7 +63,7 @@ c
      &     g_vxc, ibf, rchi_atom, rdelchi_atom, 
      &     rdens_atom, cetobfr,kske,Mmat,scr)
 c
-c     We're using xc_tabcd for CPKS purposes
+c     We are using xc_tabcd for CPKS purposes
 c
       implicit none
 #include "mafdecls.fh"
@@ -24,6 +72,8 @@ c
 #include "dft2drv.fh"
 #include "dist.fh"
 #include "dft_fdist.fh"
+#include "nwxc.fh"
+#include "util.fh"
 c
       Logical GRAD !< [Input] .True. if functional depends on density
                    !< gradient
@@ -137,6 +187,7 @@ c
 cnmr
       double precision Rij(3) ! vector R(jat) - R(iat)
       integer inia, iq, ix, ix1, ix2
+      logical use_nwxc
 c
 c     Indexing array for basis function hessian columns as if
 c     it were a 3x3 matrix
@@ -189,6 +240,11 @@ c
       nbfirst1=.true.
       nbfirst2=.true.
       call endtimer(monitor_screen0)
+c
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) then
+        use_nwxc = nwxc_is_on()
+      endif
 c
 c
 c     Beginning of loop over multiple XC matrices
@@ -256,12 +312,21 @@ c
                     Dmat(n,3,mu) = Cmat(n,3,ii,imat)*chi1
                     
                     if(kske) then 
-                       Dmat(n,1,mu) = Dmat(n,1,mu) +
-     &                      Mmat(n,ii,imat)*delchi(n,1,mu1)
-                       Dmat(n,2,mu) = Dmat(n,2,mu) +
-     &                      Mmat(n,ii,imat)*delchi(n,2,mu1)
-                       Dmat(n,3,mu) = Dmat(n,3,mu) +
-     &                      Mmat(n,ii,imat)*delchi(n,3,mu1)
+                      if (use_nwxc) then
+                        Dmat(n,1,mu) = Dmat(n,1,mu) +
+     &                       Mmat(n,ii,imat)*delchi(n,1,mu1)*0.5d0
+                        Dmat(n,2,mu) = Dmat(n,2,mu) +
+     &                       Mmat(n,ii,imat)*delchi(n,2,mu1)*0.5d0
+                        Dmat(n,3,mu) = Dmat(n,3,mu) +
+     &                       Mmat(n,ii,imat)*delchi(n,3,mu1)*0.5d0
+                      else
+                        Dmat(n,1,mu) = Dmat(n,1,mu) +
+     &                       Mmat(n,ii,imat)*delchi(n,1,mu1)
+                        Dmat(n,2,mu) = Dmat(n,2,mu) +
+     &                       Mmat(n,ii,imat)*delchi(n,2,mu1)
+                        Dmat(n,3,mu) = Dmat(n,3,mu) +
+     &                       Mmat(n,ii,imat)*delchi(n,3,mu1)
+                      endif
                     endif
                     
                   enddo
@@ -296,7 +361,7 @@ c
 c     To fit better into existing structure, loop over full square
 c     of atom pairs and only compute nuclear derivative contribution
 c     from jat.  Also, this way we only need check jatcur once and
-c     for all, and don't have to check iatcur at all.
+c     for all, and do not have to check iatcur at all.
 c
                   jatcur = curatoms(jat)
                   if (jatcur.eq.0) goto 168
@@ -591,3 +656,5 @@ c
      $        1.0d0,nbhandle)
 c
       end
+C>
+C> @}
