@@ -1,0 +1,932 @@
+# $Id: nwxc_nwdft_1ne.nw 25133 2014-01-15 18:52:15Z d3y133 $
+echo
+start nwxc_dat
+
+geometry
+  symmetry d2h
+  bq 0.   0.  10.0 charge +0.01
+  bq 0.   0. -10.0 charge +0.01
+  bq 0.  10.   0.0 charge -0.01
+  bq 0. -10.   0.0 charge -0.01
+  Ne 0.0 0.0 0.0
+end
+
+# Basis set by N Godbout, DR Salahub, J Andzelm, E Wimmer,
+# Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
+basis
+Ne    S
+   7883.8261000              0.0020375
+   1184.4055000              0.0155468
+    269.6730900              0.0759638
+     75.9416520              0.2511027
+     24.3210950              0.4804765
+      8.1832559              0.3251142
+Ne    S
+     17.4495240             -0.0790100
+      1.5516316              0.5676274
+Ne    S
+      0.4476985              1.0000000
+Ne    P
+     52.9038080              0.0187911
+     12.1233610              0.1157605
+      3.5859225              0.3342627
+      1.0921634              0.4778038
+Ne    P
+      0.2994419              1.0000000
+Ne    D
+      1.2000000              1.0000000
+end
+
+tddft
+  cis
+  nroots 1
+end
+
+# LDA exchange
+
+set "dft:weight derivatives" T
+dft
+  vectors input atomic
+  xc new maxima slater
+end
+task tddft energy
+
+# GGA exchange
+
+#dft
+#  vectors input atomic
+#  xc new maxima becke86b
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima becke88
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima xbecke97
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima xbecke97-1
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xbecke97-2
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xbecke97-3
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xbecke97-d
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xbecke97gga1
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xbecke98
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima mpw91
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima optx
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima xperdew91
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xpw6b95
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xpwb6k
+#end
+#task tddft energy
+
+dft
+  direct
+  vectors input atomic
+  xc new maxima xbnl07
+# xc new maxima xbnl07 hfexch 1.00
+# cam 0.5 cam_alpha 0.0 cam_beta 1.0
+end
+task tddft energy
+
+dft
+  direct
+  vectors input atomic
+  xc new maxima xcamb88
+# xc new maxima xcamb88 hfexch 1.00
+# cam 0.33 cam_alpha 0.19 cam_beta 0.46
+end
+task tddft energy
+
+dft 
+  direct
+  vectors input atomic
+  xc new maxima xcamlsd
+# xc new maxima xcamlsd hfexch 1.00
+# cam 0.3 cam_alpha 0.5 cam_beta 0.5
+end
+task tddft energy
+
+#set dft:cam_exch F
+set dft:direct   F
+#unset int:cando_txs
+
+#dft
+#  vectors input atomic
+#  xc new maxima xft97
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima gill96
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima xpbe96
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xsogga
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xsogga11
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xsogga11-x
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima xrevpbe
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima xrpbe
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xpkzb99
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xtpss03
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm05
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm05-2x
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm06
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm06-l
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm06-2x
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm06-hf
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm08-hx
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm08-so
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xm11-l
+#end
+#task tddft energy
+
+#dft
+#  direct
+#  vectors input atomic
+#  xc new maxima xm11 hfexch
+#  cam 0.25 cam_alpha 0.428 cam_beta 0.572
+#end
+#task tddft energy
+
+dft
+  direct
+  vectors input atomic
+  xc new maxima xwpbe 1.00 hfexch 1.00
+# cam 0.3 cam_alpha 0.00 cam_beta 1.00
+end
+task tddft energy
+
+#set dft:cam_exch F
+set dft:direct   F
+#unset int:cando_txs
+
+# meta-GGA exchange
+
+#dft
+#  vectors input atomic
+#  xc new maxima xvs98
+#end
+#task tddft energy
+
+# Hartree-Fock exchange + VNW_X correlation 
+
+dft
+  vectors input atomic
+  xc new maxima hfexch vwn_1
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch vwn_1_rpa
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch vwn_2
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch vwn_3
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch vwn_4
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch vwn_5
+end
+task tddft energy
+
+# Hartree-Fock exchange + LDA(PW91) correlation 
+
+dft
+  vectors input atomic
+  xc new maxima hfexch pw91lda
+end
+task tddft energy
+
+# Hartree-Fock exchange + GGA correlation 
+
+dft
+  vectors input atomic
+  xc new maxima hfexch cbecke97
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch cbecke97-1
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cbecke97-2
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cbecke97-3
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cbecke97-d
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cbecke97gga1
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cbecke98
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch lyp
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch perdew81
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch perdew86
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch perdew91
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch op
+#end
+#task tddft energy
+
+#dft
+#  odft
+#  vectors input atomic
+#  xc new maxima hfexch optc
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cft97
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hfexch cpbe96
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cpkzb99
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch csogga11
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch csogga11-x
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch ctpss03
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm05
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm05-2x
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm06
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm06-l
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm06-2x
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm06-hf
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm08-hx
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm08-so
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm11
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cm11-l
+#end
+#task tddft energy
+
+# Hartree-Fock exchange + meta-GGA correlation 
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch bc95
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cpw6b95
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cpwb6k
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima hfexch cvs98
+#end
+#task tddft energy
+
+# GGA exchange + GGA correlation 
+
+# GGA exchange-correlation
+
+dft
+  vectors input atomic
+  xc new maxima acm
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima b1b95
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima b2plyp
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima b3lyp
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima b3p86
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima b3pw91
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima becke97
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima becke97-1
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima becke97-2
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima becke97-3
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima becke97-d
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima becke97gga1
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima becke98
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima bb1k
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima beckehandh
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima bhlyp
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima bop
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima mpw1k
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima mpw1b95
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima mpwb1k
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima optx optc
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima pbe96
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima revpbe
+# xc new maxima revpbe cpbe96
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima rpbe
+# xc new maxima rpbe cpbe96
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima pbeop
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima pw6b95
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima pwb6k
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima dldf
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima ft97
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hcth
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hcth120
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hcth147
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hcth407
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hcth407p
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima hcthp14
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xpkzb99 cpkzb99
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xtpss03 ctpss03
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima xctpssh
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima kt1
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima kt2
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m05
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m05-2x
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m06
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m06-l
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m06-2x
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m06-hf
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m08-hx
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m08-so
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima m11-l
+#end
+#task tddft energy
+
+#dft
+#  direct
+#  vectors input atomic
+#  xc new maxima m11
+#end
+#task tddft energy
+
+#set dft:cam_exch F
+set dft:direct   F
+#unset int:cando_txs
+
+dft
+  vectors input atomic
+  xc new maxima s12g
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima s12h
+end
+task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima sogga
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima sogga11
+#end
+#task tddft energy
+
+#dft
+#  vectors input atomic
+#  xc new maxima sogga11-x
+#end
+#task tddft energy
+
+dft
+  vectors input atomic
+  xc new maxima ssb-d
+end
+task tddft energy
+
+dft
+  direct
+  vectors input atomic
+  xc new maxima hse03
+end
+task tddft energy
+
+dft
+  direct
+  vectors input atomic
+  xc new maxima cam-s12g
+end
+task tddft energy
+
+dft
+  direct
+  vectors input atomic
+  xc new maxima cam-s12h
+end
+task tddft energy
+
+#set dft:cam_exch F
+set dft:direct   F
+#unset int:cando_txs
