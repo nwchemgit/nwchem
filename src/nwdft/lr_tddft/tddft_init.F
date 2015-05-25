@@ -27,6 +27,8 @@ c
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#include "case.fh"
+#include "nwxc.fh"
 c
       integer rtdb             ! Runtime database handle
       integer geom             ! Geometry handle
@@ -102,9 +104,9 @@ c
       integer owstart(2)
       integer owend(2)
       integer itmp, owtmp
-c
-      logical cam_exch
-      double precision cam_alpha, cam_beta, cam_omega
+      logical use_nwxc
+      logical dftmp2
+      double precision mp2fac
 c
       logical int_normalize
       external int_normalize
@@ -112,8 +114,8 @@ c
       external movecs_read,movecs_read_header
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical xc_got2nd
-      external xc_got2nd
+      logical xc_got2nd, xc_gotxc
+      external xc_got2nd, xc_gotxc
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -127,7 +129,7 @@ c ---------------------
       if (.not.sym_abelian_group(geom))
      1  call errquit('tddft_init: non-Abelian symmetry not permitted',0,
      2  GEOM_ERR)
-        if(.not.xc_got2nd()) call errquit(
+      if(.not.xc_got2nd()) call errquit(
      A        'analytic 2nds not ready for these XC functionals',0,
      &       CAPMIS_ERR)
 
@@ -566,6 +568,39 @@ c -------------
         endif
       endif
 c
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) then
+        use_nwxc = nwxc_rtdb_load(rtdb,"dft")
+      endif
+      if (use_nwxc) then
+        if (nwxc_has_hfx()) then
+          xfac(1) = nwxc_wght_hfx()
+        endif
+        dftmp2 = nwxc_has_mp2c()
+        mp2fac = nwxc_wght_mp2c()
+        if (dftmp2) then
+          if (.not.rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
+     &      call errquit('dft_inpana: rtdb_put failed', 2902, RTDB_ERR)
+        endif
+        if (nwxc_has_cam()) then
+          cam_exch = .true.
+          call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
+        else 
+          cam_exch  = .false.
+          cam_alpha = 0.0d0
+          cam_beta  = 0.0d0
+          cam_omega = 0.0d0
+        endif
+        call nwxc_print()
+        if (cam_exch.and.(ga_nodeid().eq.0)) then
+            write(LuOut,*)
+            write(LuOut,8202) 
+     &         'Range-Separation Parameters        '
+            write(LuOut,8203) 
+            write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
+        end if ! cam_exch
+      endif
+c
       if (nodezero.and.util_print('xc information',print_default)) then
         write(LuOut,*)
         call util_print_centered
@@ -667,6 +702,12 @@ c
 c
       if (nodezero) call util_flush(LuOut)
 c
+ 8201 format(10x,' Alpha           :',f6.2,/,
+     &       10x,' Beta            :',f6.2,/,
+     &       10x,' Gamma           :',f6.2,/,
+     &       10x,' Short-Range HF  :',l6)
+ 8202 format(2x,a44)
+ 8203 format(11x,'---------------------------')
  9000 format(3x,'       Calculation type : ',a18)
  9080 format(3x,'      Wavefunction type : Restricted singlets')
  9090 format(3x,'      Wavefunction type : Restricted triplets')
