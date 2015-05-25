@@ -40,6 +40,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
+#include "nwxc.fh"
 c     
       Logical movecs_write, movecs_converged, movecs_read
       External movecs_write, movecs_converged, movecs_read
@@ -49,6 +50,7 @@ c
 c
       integer g_s ! [in]
 c
+      logical use_nwxc
       logical lvan, do_ddl, lbrak, check
       double precision dl_conv, dl2, ddl2, x1, x2, fddl, dlold
       logical lcdft
@@ -427,6 +429,10 @@ c    Jorge Garza/Begin
       call xc_sicinit(rtdb, test_sic, condfukui, exact_pot,
      &                l_degen, i_degen, noc, act_levels)
 c     Jorge Garza/End
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) then
+        use_nwxc = nwxc_is_on()
+      endif
 c
 c     Set aside some memory for reduced density matrix
 c
@@ -887,9 +893,11 @@ c
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
          iswitc = 2
+         if (use_nwxc) call nwxc_reset_rho_tolerance(tol_rho)
       else
          iAOacc = iAOacc_min
          tol_rho = max(tol_rho_min,tol_rho_max)
+         if (use_nwxc) call nwxc_reset_rho_tolerance(tol_rho)
       endif
       if (ltight.or.(.not.direct))then
          itol2e = itol_max

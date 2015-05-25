@@ -119,6 +119,7 @@ c
          nbases = 1
          bases(1) = AO_bas_han
       endif
+      call dft_inpana(rtdb)
 c
 c     initialize for schwarz screening
 c

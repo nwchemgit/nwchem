@@ -40,6 +40,8 @@ c !!! BGJ test !!!
 c !!! temporary !!!
 #include "rtdb.fh"
 #include "dftps.fh"
+#include "nwxc.fh"
+#include "util.fh"
 
       logical ldbw
       integer ispin, i, ii, nconstr
@@ -98,11 +100,6 @@ c
       double precision rq(n_per_rec,natoms)
       double precision rq0(natoms)
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*)
-c     
-c     external
-c
-      double precision ddot
-      External ddot
 c
 c---> Matrix Elements of the XC Potential & Energy
 c
@@ -158,6 +155,7 @@ c Daniel (2-7-13): Logical variable storing if we're calculating the
 c dVxc*P contribution.
       logical do_tddftvxc
       logical ldew2 ! Prevent weighting of derivative matrices
+      logical use_nwxc
 c     
 c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients
@@ -165,6 +163,8 @@ c           within int_eval_gbsets mbf is # of orbs with nonzero
 c           points in sampling set.  iniz is a mapping array.
 c           currently set up only for cartesian (6d) sets
 c         
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) use_nwxc = nwxc_is_on()
 c Daniel (2-14-13): Fixed the indentation in this routine.
       iDmat = 0
       ichi_ao = 0
@@ -396,6 +396,11 @@ c
             if (.not. MA_Push_Get(MT_Dbl, nqpts*mbf_ao*ipol, 
      &           'gradchi_ao2', l_ccdel,i_ccdel))call errquit
      &           (' exit dftggridv0b: insuff stack',9, 0)
+         endif
+         if (use_nwxc) then
+           if (nwxc_is_mgga()) then
+             call dscal(2*nqpts,0.5d0,Mmat,1)
+           endif
          endif
 
          if (odftps) call pstat_on(ps_qv0b)
