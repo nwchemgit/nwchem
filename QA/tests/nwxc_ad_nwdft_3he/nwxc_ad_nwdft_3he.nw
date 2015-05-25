@@ -1,0 +1,1184 @@
+# $Id: nwxc_nwdft_3he.nw 25441 2014-04-04 04:43:37Z d3y133 $
+echo
+start nwxc_dat
+
+geometry
+  He 0.0 0.0 0.0
+end
+
+# Basis set by N Godbout, DR Salahub, J Andzelm, E Wimmer,
+# Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
+# Uncontracted the 2 outer S-functions from the core shell.
+basis
+  He    S
+    221.3880300              0.0027491        
+     33.2619660              0.0208658        
+      7.5616549              0.0970588        
+  He    S
+      2.0855990              0.2807289        
+  He    S
+      0.6143392              0.4742218        
+  He    S
+      0.1829212              1.0000000        
+end
+
+# LDA exchange
+
+#set "dft:pstat"              T
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff slater
+end
+task dft energy
+
+# GGA exchange
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke86b
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke88
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xbecke97
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xbecke97-1
+end
+task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff xbecke97-2
+#end
+#task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff xbecke97-3
+#end
+#task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff xbecke97-d
+#end
+#task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff xbecke97gga1
+#end
+#task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff xbecke98
+#end
+#task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff mpw91
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff optx
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xperdew91
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xpw6b95
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xpwb6k
+end
+task dft energy
+
+dft
+  direct
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xbnl07
+# cam 0.5 cam_alpha 0.0 cam_beta 1.0
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  direct
+  vectors input atomic
+  xc new autodiff xcamb88
+# cam 0.33 cam_alpha 0.19 cam_beta 0.46
+end
+task dft energy
+
+dft 
+  mult 3
+  odft
+  direct
+  vectors input atomic
+  xc new autodiff xcamlsd
+# cam 0.3 cam_alpha 0.5 cam_beta 0.5
+end
+task dft energy
+
+#set dft:cam_exch F
+set dft:direct   F
+#unset int:cando_txs
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xft97
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff gill96
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xpbe96
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xsogga
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xsogga11
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xsogga11-x
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xrevpbe
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xrpbe
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xpkzb99
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xtpss03
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm05
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm05-2x
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm06
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm06-l
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm06-2x
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm06-hf
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm08-hx
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm08-so
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm11-l
+end
+task dft energy
+
+dft
+  direct
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xm11
+end
+task dft energy
+
+dft
+  direct
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xwpbe 1.00 hfexch 1.00
+# cam 0.3 cam_alpha 0.00 cam_beta 1.00
+end
+task dft energy
+
+#set dft:cam_exch F
+set dft:direct   F
+#unset int:cando_txs
+
+# meta-GGA exchange
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xvs98
+end
+task dft energy
+
+# Hartree-Fock exchange + VNW_X correlation 
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch vwn_1
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch vwn_1_rpa
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch vwn_2
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch vwn_3
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch vwn_4
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch vwn_5
+end
+task dft energy
+
+# Hartree-Fock exchange + LDA(PW91) correlation 
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch pw91lda
+end
+task dft energy
+
+# Hartree-Fock exchange + GGA correlation 
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cbecke97
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cbecke97-1
+end
+task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff hfexch cbecke97-2
+#end
+#task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff hfexch cbecke97-3
+#end
+#task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff hfexch cbecke97-d
+#end
+#task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff hfexch cbecke97gga1
+#end
+#task dft energy
+
+#dft
+#  mult 3
+#  odft
+#  vectors input atomic
+#  xc new autodiff hfexch cbecke98
+#end
+#task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch lyp
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch perdew81
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch perdew86
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch perdew91
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch op
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch optc
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cft97
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cpbe96
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cpkzb99
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch csogga11
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch csogga11-x
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch ctpss03
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm05
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm05-2x
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm06
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm06-l
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm06-2x
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm06-hf
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm08-hx
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm08-so
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm11
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cm11-l
+end
+task dft energy
+
+
+# Hartree-Fock exchange + meta-GGA correlation 
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch bc95
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cpw6b95
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cpwb6k
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hfexch cvs98
+end
+task dft energy
+
+# GGA exchange + GGA correlation 
+
+# GGA exchange-correlation
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff acm
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff b1b95
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff b2plyp
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff b3lyp
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff b3p86
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff b3pw91
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke97
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke97-1
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke97-2
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke97-3
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke97-d
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke97gga1
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff becke98
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff bb1k
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff beckehandh
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff bhlyp
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff bop
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff mpw1k
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff mpw1b95
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff mpwb1k
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff optx optc
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff pbe96
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff revpbe
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff rpbe
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff pbeop
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff pw6b95
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff pwb6k
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff dldf
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff ft97
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hcth
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hcth120
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hcth147
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hcth407
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hcth407p
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hcthp14
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff pkzb99
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff tpss03
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff xctpssh
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff kt1
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff kt2
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m05
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m05-2x
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m06
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m06-l
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m06-2x
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m06-hf
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m08-hx
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m08-so
+end
+task dft energy
+
+dft
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m11-l
+end
+task dft energy
+
+dft
+  direct
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff m11
+end
+task dft energy
+
+#set dft:cam_exch F
+set dft:direct   F
+#unset int:cando_txs
+
+dft 
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff s12g
+end
+task dft energy
+
+dft 
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff s12h
+end
+task dft energy
+
+dft 
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff sogga
+end
+task dft energy
+
+dft 
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff sogga11
+end
+task dft energy
+
+dft 
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff sogga11-x
+end
+task dft energy
+
+dft 
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff ssb-d
+end
+task dft energy
+
+dft
+  direct
+  mult 3
+  odft
+  vectors input atomic
+  xc new autodiff hse03
+end
+task dft energy
+
+dft 
+  mult 3
+  odft
+  direct
+  vectors input atomic
+  xc new autodiff cam-s12g
+end
+task dft energy
+
+dft 
+  mult 3
+  odft
+  direct
+  vectors input atomic
+  xc new autodiff cam-s12h
+end
+task dft energy
+
+#set dft:cam_exch F
+set dft:direct   F
+#unset int:cando_txs
