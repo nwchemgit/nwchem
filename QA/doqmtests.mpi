@@ -262,17 +262,47 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
 #
 #--- test the new density functional library
-./runtests.mpi.unix procs $np nwxc_nwdft_1he nwxc_nwdft_3he
-./runtests.mpi.unix procs $np nwxc_nwdft_1ne nwxc_nwdft_4n
-./runtests.mpi.unix procs $np nwxc_nwdft_1ar nwxc_nwdft_4p
-./runtests.mpi.unix procs $np nwxc_nwdft_1kr nwxc_nwdft_4as
-./runtests.mpi.unix procs $np nwxc_nwdft_1xe nwxc_nwdft_4sb
+./runtests.mpi.unix procs $np nwxc_nwdft_1he    nwxc_nwdft_3he
+./runtests.mpi.unix procs $np nwxc_nwdft_1ne    nwxc_nwdft_4n
+./runtests.mpi.unix procs $np nwxc_nwdft_1ar    nwxc_nwdft_4p
+./runtests.mpi.unix procs $np nwxc_nwdft_1kr    nwxc_nwdft_4as
+./runtests.mpi.unix procs $np nwxc_nwdft_1xe    nwxc_nwdft_4sb
+#
+./runtests.mpi.unix procs $np nwxc_ad_nwdft_1he nwxc_ad_nwdft_3he
+./runtests.mpi.unix procs $np nwxc_ad_nwdft_1ne nwxc_ad_nwdft_4n
+./runtests.mpi.unix procs $np nwxc_ad_nwdft_1ar nwxc_ad_nwdft_4p
+./runtests.mpi.unix procs $np nwxc_ad_nwdft_1kr nwxc_ad_nwdft_4as
+./runtests.mpi.unix procs $np nwxc_ad_nwdft_1xe nwxc_ad_nwdft_4sb
+#
+./runtests.mpi.unix procs $np nwxc_mx_nwdft_1he nwxc_mx_nwdft_3he
+./runtests.mpi.unix procs $np nwxc_mx_nwdft_1ne nwxc_mx_nwdft_4n
+./runtests.mpi.unix procs $np nwxc_mx_nwdft_1ar nwxc_mx_nwdft_4p
+./runtests.mpi.unix procs $np nwxc_mx_nwdft_1kr nwxc_mx_nwdft_4as
+./runtests.mpi.unix procs $np nwxc_mx_nwdft_1xe nwxc_mx_nwdft_4sb
 #
 ./runtests.mpi.unix procs $np nwxc_pspw_1xe  nwxc_pspw_4sb
 ./runtests.mpi.unix procs $np nwxc_pspw_1he  nwxc_pspw_3he
 ./runtests.mpi.unix procs $np nwxc_pspw_1ne  nwxc_pspw_4n
 ./runtests.mpi.unix procs $np nwxc_pspw_1ar  nwxc_pspw_4p
 ./runtests.mpi.unix procs $np nwxc_pspw_1kr  nwxc_pspw_4as
+#
+./runtests.mpi.unix procs $np nwxc_tddft_1he    nwxc_tddft_3he
+./runtests.mpi.unix procs $np nwxc_tddft_1ne    nwxc_tddft_4n
+./runtests.mpi.unix procs $np nwxc_tddft_1ar    nwxc_tddft_4p
+./runtests.mpi.unix procs $np nwxc_tddft_1kr    nwxc_tddft_4as
+./runtests.mpi.unix procs $np nwxc_tddft_1xe    nwxc_tddft_4sb
+#
+./runtests.mpi.unix procs $np nwxc_ad_tddft_1he nwxc_ad_tddft_3he
+./runtests.mpi.unix procs $np nwxc_ad_tddft_1ne nwxc_ad_tddft_4n
+./runtests.mpi.unix procs $np nwxc_ad_tddft_1ar nwxc_ad_tddft_4p
+./runtests.mpi.unix procs $np nwxc_ad_tddft_1kr nwxc_ad_tddft_4as
+./runtests.mpi.unix procs $np nwxc_ad_tddft_1xe nwxc_ad_tddft_4sb
+#
+./runtests.mpi.unix procs $np nwxc_mx_tddft_1he nwxc_mx_tddft_3he
+./runtests.mpi.unix procs $np nwxc_mx_tddft_1ne nwxc_mx_tddft_4n
+./runtests.mpi.unix procs $np nwxc_mx_tddft_1ar nwxc_mx_tddft_4p
+./runtests.mpi.unix procs $np nwxc_mx_tddft_1kr nwxc_mx_tddft_4as
+./runtests.mpi.unix procs $np nwxc_mx_tddft_1xe nwxc_mx_tddft_4sb
 #
 #--- if we only want quick tests get out now!
 if ($what == "xfast") then
