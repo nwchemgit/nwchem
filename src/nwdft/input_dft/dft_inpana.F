@@ -21,6 +21,7 @@ c
 #include "bas.fh"
 #include "cdft.fh"
 #include "util.fh"
+#include "nwxc.fh"
 c
       double precision AUTOANG, ANGTOAU
       Parameter (AUTOANG = 0.529177249d0, ANGTOAU = 1.d0/AUTOANG)
@@ -57,6 +58,9 @@ c
      ,     'Lindh','Chebyshev','Legendre'/
 c
       logical status  ! FA
+      logical use_nwxc 
+      logical dftmp2
+      double precision mp2fac
 c     
       me=ga_nodeid()
 c     
@@ -524,9 +528,9 @@ c
 c           Print range-separation parameters
             if (cam_exch) then
               write(LuOut,*)
-               write(LuOut,8202) 
+              write(LuOut,8202) 
      &         'Range-Separation Parameters        '
-               write(LuOut,8203) 
+              write(LuOut,8203) 
               write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
             end if ! cam_exch
 c
@@ -678,6 +682,42 @@ c     &                    r1
             call util_flush(LuOut)
          endif
       endif
+cHvD
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) then
+        use_nwxc = nwxc_rtdb_load(rtdb,"dft")
+      endif
+      if (use_nwxc) then
+        if (nwxc_has_hfx()) then
+          xfac(1) = nwxc_wght_hfx()
+        endif
+        dftmp2 = nwxc_has_mp2c()
+        mp2fac = nwxc_wght_mp2c()
+        if (dftmp2) then
+          if (.not.rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
+     &      call errquit('dft_inpana: rtdb_put failed', 2902, RTDB_ERR)
+        endif
+        if (nwxc_has_cam()) then
+          cam_exch = .true.
+          call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
+        else 
+          cam_exch  = .false.
+          cam_alpha = 0.0d0
+          cam_beta  = 0.0d0
+          cam_omega = 0.0d0
+        endif
+        call nwxc_print()
+        if (cam_exch.and.(ga_nodeid().eq.0)) then
+            write(LuOut,*)
+            write(LuOut,8202) 
+     &         'Range-Separation Parameters        '
+            write(LuOut,8203) 
+            write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
+        end if ! cam_exch
+        call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &       cam_beta)
+      endif
+cHvD
 c
       return
  3231 format(10x,'Convergence aids based upon iterative change in ',/,
