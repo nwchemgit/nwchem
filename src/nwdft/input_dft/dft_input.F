@@ -18,6 +18,8 @@ c
 #include "stdio.fh"
 #include "cdft.fh"
 #include "case.fh"
+#include "nwxc.fh"
+#include "util.fh"
 c
 c     read input for DFT calculation.  All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
@@ -115,6 +117,9 @@ c
       owend(1) = 0
       owstart(2) = 0
       owend(2) = 0
+cHvD
+      if (util_module_avail("nwxc")) call nwxc_init()
+cHvD
       nexcite_win = 0
 c
 c     Lebedev on by default
@@ -318,7 +323,42 @@ c
 c
 c     xc;
 c             
- 1800 call xc_input(rtdb, 'dft')
+ 1800 continue
+      if (.not.inp_a(test)) then
+        call errquit("dft_input: xc huh?",0,UERR)
+      endif
+      if (test(1:3).eq."old") then
+        call xc_input(rtdb, 'dft')
+      else if (test(1:3).eq."new") then
+        if (.not.nwxc_input()) then
+          call errquit("dft_input: nwxc_input failed",0,UERR)
+        endif
+        if (.not.nwxc_rtdb_store(rtdb,"dft")) then
+          call errquit("dft_input: nwxc_rtdb_store failed",0,UERR)
+        endif
+        if (nwxc_has_cam()) then
+          cam_exch = .true.
+          call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
+        else
+          cam_exch  = .false.
+          cam_alpha = 0.0d0
+          cam_beta  = 0.0d0
+          cam_omega = 0.0d0
+        endif
+        if (.not.rtdb_put(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch))
+     &     cam_exch=.false.
+        if (.not.rtdb_put(rtdb, 'dft:cam_srhf', mt_log, 1, cam_srhf))
+     &     cam_srhf=.false.
+        if (.not.rtdb_put(rtdb, 'dft:cam_omega', mt_dbl, 1,cam_omega))
+     &     cam_omega=0.d0
+        if (.not.rtdb_put(rtdb, 'dft:cam_alpha', mt_dbl, 1,cam_alpha))
+     &     cam_alpha=0.d0
+        if (.not.rtdb_put(rtdb, 'dft:cam_beta', mt_dbl, 1, cam_beta))
+     &     cam_beta=0.d0
+      else
+        call inp_prev_field()
+        call xc_input(rtdb, 'dft')
+      endif
 c
       goto 10
 c
