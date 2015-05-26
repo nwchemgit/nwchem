@@ -367,7 +367,7 @@ c
       integer row,n_rows
       parameter(n_rows=7)
       integer z_value,z_row(n_rows)
-#ifdef DEBUB
+#ifdef DEBUG
       integer atom_c,atom_c_in
 #endif
       data (z_row(row),row=1,n_rows)/
@@ -399,12 +399,12 @@ c
          call util_sillysort(z_value,
      R        int_mb(k_z),klist,natoms,found)
       enddo
-      call util_sillysort(0,
+      call util_sillysort(-1,
      R        int_mb(k_z),klist,natoms,found)
       if(natoms.ne.found) then
          write(6,*) ' sorting failed: natoms ',natoms,
      R        ' sorted  ',found
-         call errquit('neworder error ',0,0)
+c        call errquit('neworder error ',0,0)
       endif
 #ifdef DEBUG
       do atom_c_in = 1,natoms
