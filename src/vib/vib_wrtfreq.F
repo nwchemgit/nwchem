@@ -235,6 +235,7 @@ c     &      555, RTDB_ERR)
            Cv_rot = 0.0d0
            Srot = 0.0d0
         else
+           inertprod=inertia_A*inertia_B*inertia_C
            if (dabs(inertprod).lt.1.0d-9) then
               Cv_rot = (2.0d0/2.0d0)*Rgas
               Srot=0.0d0
