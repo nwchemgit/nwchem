@@ -563,6 +563,10 @@ ifeq ($(TARGET),IBM)
     FOPTIONS += -pg
     LDOPTIONS += -pg
   endif
+  ifdef  USE_DEBUG
+    FOPTIONS += -g
+    LDOPTIONS += -g
+  endif
 
     DEFINES = -DIBM -DAIX -DEXTNAME
    CORE_LIBS +=  $(BLASOPT) 
@@ -692,6 +696,10 @@ endif
     FOPTIONS += -pg
     LDOPTIONS += -pg
   endif
+  ifdef  USE_DEBUG
+    FOPTIONS += -g
+    LDOPTIONS += -g
+  endif
   LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc # bigtoc requires bmaxdata
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x200000000 # this limits MA to 8GB
   ifeq ($(LAPACK_LIB),)
@@ -731,6 +739,10 @@ LARGE_FILES = YES
   ifdef  USE_GPROF
     FOPTIONS += -pg
     LDOPTIONS += -pg
+  endif
+  ifdef  USE_DEBUG
+    FOPTIONS += -g
+    LDOPTIONS += -g
   endif
 # -qinitauto=7F # note that grad_force breaks with this option
    COPTIONS = 
@@ -950,6 +962,9 @@ endif
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
+  ifdef  USE_DEBUG
+    FOPTIONS += -g
+  endif
     FOPTIMIZE = -O3 -prefetch  -unroll 
     FDEBUG=-O0 -g
     DEFINES   += -DIFCLINUX
@@ -964,6 +979,11 @@ endif
       FOPTIONS += -pg
       LDOPTIONS += -pg
       COPTIONS += -pg
+    endif
+    ifdef  USE_DEBUG
+      FOPTIONS += -g
+      LDOPTIONS += -g
+      COPTIONS += -g
     endif
 ifdef USE_VECLIB
              CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lblas
@@ -1061,6 +1081,11 @@ endif
       FOPTIONS += -pg
       LDOPTIONS += -pg
       COPTIONS += -pg
+    endif
+    ifdef  USE_DEBUG
+      FOPTIONS += -g
+      LDOPTIONS += -g
+      COPTIONS += -g
     endif
 ifdef USE_VECLIB
              CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lblas
@@ -1283,6 +1308,9 @@ endif
   FOPTIONS   =  -align    -mp1 -w -g -vec-report1
   ifdef  USE_GPROF
     FOPTIONS += -qp
+  endif
+  ifdef  USE_DEBUG
+    FOPTIONS += -g
   endif
     _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/7./ {print "Y"; exit}')
     _IFCV10= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/10./ {print "Y"; exit}')
@@ -1597,6 +1625,9 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
         ifdef  USE_GPROF
           FOPTIONS += -qp
         endif
+        ifdef  USE_DEBUG
+          FOPTIONS += -g
+        endif
        ifeq ($(_IFCV8),Y)
          FOPTIONS+= -check nobounds -align dcommons -fpe1
          FOPTIONS+= -warn truncated_source
@@ -1856,6 +1887,12 @@ $(error )
           LDFLAGS += -pg
         endif
      endif
+     ifdef  USE_DEBUG
+        FOPTIONS += -g
+        COPTIONS += -g
+        LDOPTIONS += -g
+        LDFLAGS += -g
+     endif
 
       ifeq ($(_FC),gfortran)
      _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -n 1 | awk ' /3dnowext/  {print "Y"}')
@@ -1865,6 +1902,12 @@ $(error )
           COPTIONS += -pg
           LDOPTIONS += -pg
           LDFLAGS += -pg
+        endif
+       ifdef  USE_DEBUG
+          FOPTIONS += -g
+          COPTIONS += -g
+          LDOPTIONS += -g
+          LDFLAGS += -g
         endif
 	    LINK.f = $(FC)  $(LDFLAGS) 
         FOPTIMIZE  += -O3 
@@ -1937,6 +1980,10 @@ endif
         ifdef  USE_GPROF
           FOPTIONS += -pg
           LDOPTIONS += -pg
+        endif
+        ifdef  USE_DEBUG
+          FOPTIONS += -g
+          LDOPTIONS += -g
         endif
         FOPTIMIZE= -O3 -qstrict -qarch=auto -qtune=auto -qcache=auto -qfloat=fltint 
         FDEBUG= -O2 -g
