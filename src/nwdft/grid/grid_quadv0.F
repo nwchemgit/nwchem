@@ -59,6 +59,7 @@ c
 #include "dft2drv.fh"
 #include "steric.fh"
 #include "dft3drv.fh"
+#include "nwxc.fh"
 c
       logical rtdb_status       
       logical grid_reopen
@@ -94,6 +95,7 @@ c
      , laqbuf, iaqbuf,lRij,iRij,ndbl,l_qat,k_qat,irqlen
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, l_Mmat2, k_Mmat2
       integer len_rho, len_delrho, len_Amat2, len_Cmat2, len_Mmat2
+      integer len_Amat
       integer len_mmat, len_ttau
       logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm
       integer max_elem_ang_scr, max_component
@@ -102,6 +104,7 @@ c
       integer ii,isp
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
 c
+      logical use_nwxc
       logical fon ! fractional occupancy
       double precision pstrace  ! a measure of the total charge
 c
@@ -180,6 +183,15 @@ c
       len_Mmat2 = 1
       len_Amat3 = 1
       len_Cmat3 = 1 
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) use_nwxc = nwxc_is_on()
+      if (use_nwxc) then
+c       the Automatic Differentiation code uses the unrestricted open-
+c       shell approach for 2nd and higher order derivatives.
+        len_Amat  = 2*n_per_rec
+      else
+        len_Amat  = ipol*n_per_rec
+      endif
 c
       if (do_scf .or. do_nmrks_r. or. do_xdm) then
          len_rho = npol*n_per_rec
@@ -339,7 +351,7 @@ c
       if (.not.ma_pop_stack(lscr))
      &     call errquit('grid_den: cannot pop stack',0, MA_ERR)
 c
-      if (.not.MA_Push_Get(mt_dbl,ipol*n_per_rec,'Amat',lamat,iamat))
+      if (.not.MA_Push_Get(mt_dbl,len_Amat,'Amat',lamat,iamat))
      &   call errquit('grid_quadv0: cannot allocate Amat',0, MA_ERR)
 c
       if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',l_Amat2,k_Amat2))
