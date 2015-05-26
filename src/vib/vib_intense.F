@@ -7,6 +7,7 @@
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "util_params.fh"
       integer nat
       integer rtdb
       double precision eigvec(3,nat,3,nat)  ! (cart,q)
@@ -91,9 +92,9 @@ c
         do iqatom = 1,nat
           do iqxyz = 1,3
             iq = iq + 1
-            dpdq1 = ddpolq(1,iqxyz,iqatom)*2.5417478d00/0.529177249d00
-            dpdq2 = ddpolq(2,iqxyz,iqatom)*2.5417478d00/0.529177249d00
-            dpdq3 = ddpolq(3,iqxyz,iqatom)*2.5417478d00/0.529177249d00
+            dpdq1 = ddpolq(1,iqxyz,iqatom)*2.5417478d00/cau2ang
+            dpdq2 = ddpolq(2,iqxyz,iqatom)*2.5417478d00/cau2ang
+            dpdq3 = ddpolq(3,iqxyz,iqatom)*2.5417478d00/cau2ang
             write(luout,10003)
      &          iq,eigval(iqxyz,iqatom),dpdq1,dpdq2,dpdq3
           enddo

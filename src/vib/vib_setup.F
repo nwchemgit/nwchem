@@ -2,6 +2,7 @@
 * $Id$
       IMPLICIT NONE! REAL*8 (A-H,O-Z)
 c
+#include "util_params.fh"
       double precision ams, wave
       integer numans
       COMMON /cvib_SETCON/ AMS(36),WAVE,NUMANS      ! setup parameters
@@ -17,7 +18,7 @@ C
 C Set up constants
 C
       E   =   1.6021892D00         ! unit charge
-      A0  =   0.5291771D00         ! bohr radius
+      A0  =   cau2ang              ! bohr radius
       C   =   2.9979245D00         ! speed of light
       E0  =   8.85418782D00        ! permittivity of vacuum
       XL  =   6.022045D00          ! Avagadro's number
