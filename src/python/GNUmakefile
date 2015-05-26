@@ -20,7 +20,7 @@ error1:
 endif
 
 
-LIB_INCLUDES = -I$(PYTHONHOME)/include/python$(PYTHONVERSION) -I$(PYTHONHOME)/include -I$(PYTHONHOME)/Include -I$(PYTHONHOME)
+LIB_INCLUDES = -I$(PYTHONHOME)/include/python$(PYTHONVERSION)$(PYTHONABIFLAGS) -I$(PYTHONHOME)/include -I$(PYTHONHOME)/Include -I$(PYTHONHOME)
 
 
 include ../config/makefile.h
