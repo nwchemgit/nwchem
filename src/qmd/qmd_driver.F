@@ -42,10 +42,12 @@ c
       double precision esys         ! system energy (from task_gradient)
       double precision ekin         ! kinetic energy from the md part
       double precision etotal       ! total energy: esys + ekin
+      double precision dipole(3)    ! electric dipole moment
 c
       logical status
       logical rst_exists
       logical do_none
+      logical dip_exists
 c
       character*32 pname
       integer xyzfileunit
@@ -58,10 +60,14 @@ c
 c
 c     preliminaries
       status = .true.
+      dip_exists=.true.
       pname = "qmd_driver: "
       esys = 0.d0
       ekin = 0.d0
       etotal = 0.d0
+      dipole(1) = 0.d0
+      dipole(2) = 0.d0
+      dipole(3) = 0.d0
 c
 c     get xyzfileunit
       if(.not.util_get_io_unit(xyzfileunit))
@@ -196,6 +202,10 @@ c
 c       calculate energy and gradient
         call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
 c
+c       pull dipole from RTDB
+        if(.not.rtdb_get(rtdb,'task:dipole',mt_dbl,3,dipole))
+     &     dip_exists=.false.
+c
 c       update velocity at half step (dt/2)
         call qmd_nucl_vel(nat,0.5d0*dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
      &         dbl_mb(k_g))
@@ -223,28 +233,38 @@ c
          write(luout,*)
          write(luout,*)
          call util_print_centered(LuOut,'QMD Run Information',20,.true.)
-         write(luout,110) "Current time step:",istep_nucl
+c         write(luout,110) "Current time step:",istep_nucl
          eltime=dble(istep_nucl)*dt_nucl*au2fs
-         write(luout,130) "Time elapsed (fs):",eltime
-         write(luout,130) "Kinetic energy (a.u.):",ekin
-         write(luout,130) "Potential energy (a.u.):",esys
-         write(luout,130) "Total energy (a.u.):",etotal
-         write(luout,120) "Target temp. (K):",targ_temp
-         write(luout,120) "Current temp. (K):",final_temp
+         write(luout,130) "Time elapsed (fs) :",eltime
+         write(luout,135) "Kin. energy (a.u.):",istep_nucl,ekin
+         write(luout,135) "Pot. energy (a.u.):",istep_nucl,esys
+         write(luout,135) "Tot. energy (a.u.):",istep_nucl,etotal
+         write(luout,125) "Target temp. (K)  :",istep_nucl,targ_temp
+         write(luout,125) "Current temp. (K) :",istep_nucl,final_temp
+         if (dip_exists) then
+           write(luout,140) "Dipole (a.u.)     :",istep_nucl,dipole(:)
+         else
+           write(luout,'(A21)') "No dipole on RTDB"
+         end if
+         write(luout,*)
+         write(luout,*)
 
 c
 c        write trajectory
          call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
-     &          istep_nucl,etotal,geom)
+     &          istep_nucl,etotal,geom,dipole)
 c
          call qmd_write_rst(rstfilename,rstfileunit,
      &             nat,istep_nucl,ekin,geom)
         end if  ! ga_nodeid()
 c
       end do  ! istep_nucl
-  110 format(A25,I20)
+  110 format(A20,I20)
   120 format(A25,F20.2)
-  130 format(A25,F20.6)
+  125 format(A21,I9,F20.2)
+  130 format(A21,F29.6)
+  135 format(A21,I9,F20.6)
+  140 format(A21,I9,3ES15.6)
 c
 c     clear memory
       if(.not.ma_pop_stack(l_act))! active

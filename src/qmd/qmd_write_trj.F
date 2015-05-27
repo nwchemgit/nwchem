@@ -2,7 +2,7 @@ c
 c     qmd_write_trj: write trajectory: xyz file in angstroms
 c
       subroutine qmd_write_trj(xyzfilename,xyzfileunit,
-     &           mode_append,n,iframe,etotal,geom)
+     &           mode_append,n,iframe,etotal,geom,dipole)
 c
       implicit none
 c
@@ -27,6 +27,7 @@ c
       double precision r(3,n)
       double precision v(3,n)
       double precision q(n)
+      double precision dipole(3)
 c
       character*32 pname
 c
@@ -43,7 +44,7 @@ c     open file
 c
 c     write number of atoms, frame number and energy
       write(xyzfileunit,110) n
-      write(xyzfileunit,111) iframe,etotal
+      write(xyzfileunit,111) iframe,etotal,dipole(:)
 c
 c     get number of centers, tags, coordinates, and charges
       if (.not.geom_cart_get(geom,i,t,r,q))
@@ -53,14 +54,14 @@ c     get velocities
      $   call errquit(pname//'geom_vel_set',0,GEOM_ERR)
 c
       do i=1,n
-       write(xyzfileunit,4) t(i),r(:,i)*au2ang,v(:,i)
+       write(xyzfileunit,4) t(i),r(:,i)*au2ang,v(:,i)*au2ang/au2fs
       end do
 c
       if (xyzfileunit.ne.0) close(unit=xyzfileunit)
 c
  4    format(1x,a12,3f15.8,2x,3f15.8)
  110  format(I5)
- 111  format(I10,f22.12)
+ 111  format(I10,f20.10,3es15.6)
 c
       return
       end
