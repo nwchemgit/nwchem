@@ -43,7 +43,7 @@ c
      ,     iERI,lERI,lscr,iscr
       double precision THRESHOLD,CD_coef_max,shmax,
      ,     Vcoul_est,ERI_est
-      double precision q1,kp_max
+      double precision qsym,qscale,q1,kp_max
       integer nxtask
       logical dowork,doshell
       logical oprint_ioinfo,use_nxtask
@@ -222,15 +222,18 @@ c
 c     Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
 c     
 c     check for use of symmetry
-                                 q1=1d0
+                                 qsym=1d0
                                  doshell=.true.
                                  if(oskel) doshell =
-     Z                                sym_shell(cd_bas_han,ishp,q1)
+     Z                                sym_shell(cd_bas_han,ishp,qsym)
 
                                  if(doshell) then
+                                    qscale=1d0
+                                    if(ishc.ne.ishd) qscale=2d0
 c read incore ints
                                     if(incore) then
-                                       call dgemv('N',Nao2,nshbf_cd,1D0,
+                                       q1=qscale
+                                       call dgemv('N',Nao2,nshbf_cd,q1,
      &                                      i3c_eri(ipoint),Nao2,
      C                                      CD_coef(1+nfunz,1),1,
      D                                      1.D0,Dbl_MB(isvec),1)
@@ -242,6 +245,7 @@ c read incore ints
 c     
 c     Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c     
+                                       q1=qscale*qsym
                                        call dgemv('N',Nao2,nshbf_cd,q1,
      &                                      Dbl_MB(iERI),Nao2,
      C                                      CD_coef(1+nfunz,1),
@@ -258,8 +262,6 @@ c
 c     Scatter the computed values of Vcoul.
 c           
 
-                           if(ishc.ne.ishd) call dscal(
-     N                          nshbfd*nshbfc,2d0,dbl_mb(isvec),1)
                            call dft_copyto(
      I                          nbf_at_d,nshbfd,nshbfc,
      I                          dbl_mb(k_p),dbl_mb(isvec),

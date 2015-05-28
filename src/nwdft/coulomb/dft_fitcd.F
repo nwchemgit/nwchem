@@ -494,8 +494,8 @@ c
       implicit none
       integer ld_dm                      ! [in]
       integer row_ld, col_ld             ! [in]
-      double precision dm(ld_dm,*)       ! [in]
-      double precision dmsub(1:row_ld,1:col_ld) ! [out]
+      double precision dm(ld_dm,*)       ! [out]
+      double precision dmsub(1:row_ld,1:col_ld) ! [in]
       integer row_ptr,col_ptr            ! [in]
 c
       integer j
