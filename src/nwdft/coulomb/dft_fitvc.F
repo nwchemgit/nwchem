@@ -219,18 +219,18 @@ c     schwartz with CDmax=1 for incore ints reading
      D                          0.D0,Dbl_MB(isvec),1)
                            ipoint = ipoint + nao2*nbf_cd
                         else
-                           Ninteg_api=maxg
                            call dcopy(Nao2*nmat,0.D0,0,dbl_mb(isvec),1)
                            nfunz=0
                            do ishp = 1,nshells_cd
 c     
-                              if( .not.bas_cn2bfr(CD_bas_han, ishp, 
-     I                             ifirstp, ilastp))
-     &                             call errquit('fitvcoul',0,BASIS_ERR)
-                              nshbf_cd=ilastp-ifirstp+1
-                              Nintegrals=nshbf_cd*Nao2
                               Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
                               if( Vcoul_est.gt.THRESHOLD )then
+                                 if( .not.bas_cn2bfr(CD_bas_han, ishp, 
+     I                                ifirstp, ilastp))
+     &                                call errquit('fitvc',0,BASIS_ERR)
+                                 nshbf_cd=ilastp-ifirstp+1
+                                 Nintegrals=nshbf_cd*Nao2
+                                 Ninteg_api=maxg
 c                  
 c     Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
 c     
@@ -241,25 +241,25 @@ c     check for use of symmetry
      Z                                sym_shell(cd_bas_han,ishp,qsym)
 
                                  if(doshell) then
-                                       call int_2e3c(CD_bas_han,ishp,
-     A                                      AO_bas_han,ishc,ishd,nscr,
-     D                                      Dbl_MB(iscr),Ninteg_api,
-     &                                      Dbl_MB(iERI))
+                                    call int_2e3c(CD_bas_han,ishp,
+     A                                   AO_bas_han,ishc,ishd,nscr,
+     D                                   Dbl_MB(iscr),Ninteg_api,
+     &                                   Dbl_MB(iERI))
 c     
 c     Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c     
-                                       q1=qscale*qsym
-                                       call dgemv('N',Nao2,nshbf_cd,q1,
-     &                                      Dbl_MB(iERI),Nao2,
-     C                                      CD_coef(1+nfunz,1),
-     &                                      1,1.D0,Dbl_MB(isvec),1)
-                                    endif
-                                 endif ! schw on VCoul_est
+                                    q1=qscale*qsym
+                                    call dgemv('N',Nao2,nshbf_cd,q1,
+     &                                   Dbl_MB(iERI),Nao2,
+     C                                   CD_coef(1+nfunz,1),
+     &                                   1,1.D0,Dbl_MB(isvec),1)
+                                 endif
+                              endif ! schw on VCoul_est
 c
-                                 nfunz=nfunz+nshbf_cd
+                              nfunz=nfunz+nshbf_cd
 c               
-                              enddo ! ishp
-                           endif ! incore vs direct
+                           enddo ! ishp
+                        endif   ! incore vs direct
 c
 c     Scatter the computed values of Vcoul.
 c           
