@@ -37,7 +37,7 @@ c
       integer me,nproc,i1,ishp,ishbf,lshbf,lmiss,ischw1,
      ,     icount,Nao2,i,nERI,maxg,mscratch_2e3c,nscr,
      ,     n1,ishc,ifirstc,ilastc,nshbfc,ishd,ifirstd,ilastd,
-     ,     nshbfd,nfunz,ifirstp,ilastp,Nintegrals,
+     ,     nshbfd,nfunz,ifirstp,ilastp,
      ,     nshbf_cd,imat,ninteg_api
       integer lcd_shell,icd_shell,lsvec,isvec,
      ,     iERI,lERI,lscr,iscr
@@ -203,7 +203,6 @@ c
                      if(incore) CD_coef_max=1d0
 c     schwartz with CDmax=1 for incore ints reading
                      if( ERI_est*CD_coef_max.gt.THRESHOLD )then
-c                     if( ERI_est*CD_coef.gt.THRESHOLD )then
 
                         v_nonzero=.true.
                         qscale=1d0
@@ -224,13 +223,12 @@ c                     if( ERI_est*CD_coef.gt.THRESHOLD )then
                            nfunz=0
                            do ishp = 1,nshells_cd
 c     
-                                 if( .not.bas_cn2bfr(CD_bas_han, ishp, 
-     I                                ifirstp, ilastp))
-     &                                call errquit('fitvc',0,BASIS_ERR)
-                                 nshbf_cd=ilastp-ifirstp+1
+                              if( .not.bas_cn2bfr(CD_bas_han, ishp, 
+     I                             ifirstp, ilastp))
+     &                             call errquit('fitvc',0,BASIS_ERR)
+                              nshbf_cd=ilastp-ifirstp+1
                               Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
                               if( Vcoul_est.gt.THRESHOLD )then
-                                 Nintegrals=nshbf_cd*Nao2
                                  Ninteg_api=maxg
 c                  
 c     Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
@@ -275,6 +273,7 @@ c
                   enddo         ! ishd
 c     add extra bit to ipoint if ishd_1 is truncated
                   if (atom_c.eq.atom_d.and.ishd_1.ne.sh_hi_d) then
+
                      do ishd=ishd_1+1,sh_hi_d
                         if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, 
      I                       ilastd))
@@ -347,7 +346,6 @@ c
       Ecoul2=Ecoul2*0.5D0
 c
 c         write(*,*)'*** After destroy g_2ceri'
-      call ga_sync
       call ga_mask_sync(.false.,.true.)
       call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
       if (IOLGC)then

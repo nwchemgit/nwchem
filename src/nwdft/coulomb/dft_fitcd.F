@@ -15,7 +15,6 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "util.fh"
-#include "schwarz.fh"
 #include "msgids.fh"
 #include "eaf.fh"
 #include "sym.fh"
@@ -89,7 +88,7 @@ c
       if (have_Tvec) then
          call dcopy(nbf_cd*nfit, Tvec, 1, dbl_mb(iTvec), 1)
       else
-         call dfill(nbf_cd*nfit, 0.D0, Dbl_MB(iTvec), 1)
+         call dcopy(nbf_cd*nfit, 0.D0, 0, Dbl_MB(iTvec), 1)
       endif
 c
 c     If we already have the right side vectors for the fit, skip right
@@ -205,14 +204,11 @@ c
           enddo
        enddo
       call ga_release(g_cdinv, ilo, ihi, jlo, jhi)
-      endif
-cedo      call ga_sync
+      endif! own patch
       call ga_mask_sync(.true.,.false.)
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd*nfit,'+')
-c!!! What Msg should be here? !!!
       call ga_mask_sync(.false.,.true.)
       call ga_dgop(Msg_Tcgtf,dbl_mb(iTcgtf),nbf_cd,'+')
-cedo      call ga_sync
 c
 c     Apply constraint correction to fits
 c
@@ -283,6 +279,8 @@ c
          rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
          if (dabs(rho_int-Q).gt.0.001d0)then
             write(*,*)' rho_int check 1, density',ifit,' = ',rho_int
+            write(*,*)' CD cgtf',dabsmax(nbf_cd,cd_coef),
+     D           dabsmax(nbf_cd,Dbl_MB(icgtf))
             call errquit('dft_fitcd: problem w/fitted density',911,
      &       UNKNOWN_ERR)
 c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)

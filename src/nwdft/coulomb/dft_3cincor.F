@@ -213,9 +213,11 @@ c
                  Pmat_max = dabsmax(Nao2*nfit,DBL_MB(igvec))
               endif 
 c            
-              if( Pmat_max*ERI_est.gt.THRESHOLD )then
+c introduce more screening to avoid instability
+              if( Pmat_max*ERI_est.gt.THRESHOLD*1d-3 )then
 c              
                  istart = iERI
+                 call dcopy(nao2*nbf_cd,0d0,0,dbl_mb(istart), 1)
 
                  fac = 2.0d0
 
@@ -244,14 +246,14 @@ c
                        if(oskel) doshell=sym_shell(cd_bas_han,ishp,q1)
 
                        if (doshell) then
+                          if(istart+Ninteg_api-ieri.gt.maxg*nshells_cd)
+     c    write(*,*)ga_nodeid(),'dlb_mb ieri small ',
+     c                         istart+Ninteg_api-ieri,maxg*nshells_cd
 
                           call int_2e3c(CD_bas_han,ishp,AO_bas_han,
      I                         ishc,ishd,nscr,Dbl_MB(iscr),
      N                         Ninteg_api,Dbl_MB(istart))
                           call dscal(nintegrals,q1,dbl_mb(istart),1)
-                       else
-                          call dcopy(nintegrals,0d0,0,
-     D                         dbl_mb(istart),1)
                        endif
                        istart = istart+nintegrals
 c     
@@ -379,7 +381,7 @@ c
      6     86,
      7     103/     
 
-      
+
       if (.not.MA_Push_Get(MT_int,natoms,'atomic nos',l_z,k_z))
      &   call errquit('xcvdw: cannot allocate atns',0, MA_ERR)
       if (.not.MA_push_get(MT_Dbl,natoms*3,'xyz',l_xyz,k_xyz))
