@@ -200,9 +200,10 @@ c
 c     Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
 c           
                      ERI_est=schwarz_shell(ishc,ishd)
-                     if(.not.incore) ERI_est=CD_coef_max*ERI_est
+                     if(incore) CD_coef_max=1d0
 c     schwartz with CDmax=1 for incore ints reading
-                     if( ERI_est.gt.THRESHOLD )then
+                     if( ERI_est*CD_coef_max.gt.THRESHOLD )then
+c                     if( ERI_est*CD_coef.gt.THRESHOLD )then
 
                         v_nonzero=.true.
                         qscale=1d0
@@ -223,12 +224,12 @@ c     schwartz with CDmax=1 for incore ints reading
                            nfunz=0
                            do ishp = 1,nshells_cd
 c     
-                              Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
-                              if( Vcoul_est.gt.THRESHOLD )then
                                  if( .not.bas_cn2bfr(CD_bas_han, ishp, 
      I                                ifirstp, ilastp))
      &                                call errquit('fitvc',0,BASIS_ERR)
                                  nshbf_cd=ilastp-ifirstp+1
+                              Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
+                              if( Vcoul_est.gt.THRESHOLD )then
                                  Nintegrals=nshbf_cd*Nao2
                                  Ninteg_api=maxg
 c                  
