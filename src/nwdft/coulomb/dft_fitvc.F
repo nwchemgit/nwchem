@@ -200,22 +200,35 @@ c
 c     Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
 c           
                      ERI_est=schwarz_shell(ishc,ishd)
+                     if(.not.incore) ERI_est=CD_coef_max*ERI_est
 c     schwartz with CDmax=1 for incore ints reading
                      if( ERI_est.gt.THRESHOLD )then
 
-                        if( abs(CD_coef_max*ERI_est).gt.THRESHOLD )then
-c              
-                           v_nonzero=.true.
+                        v_nonzero=.true.
+                        qscale=1d0
+                        if(ishc.ne.ishd) qscale=2d0
+                        if(incore) then
+                           if(ipoint+nao2*nbf_cd-1.gt.n3c_dbl) then
+                              write(6,*) ' ip n3c ',
+     A                             ipoint+nao2*nbf_cd-1,n3c_dbl
+                              call errquit('dft_fitvc: out of i3c ',0,0)
+                           endif
+                           call dgemv('N',Nao2,nbf_cd,qscale,
+     &                          i3c_eri(ipoint),Nao2,
+     C                          CD_coef,1,
+     D                          0.D0,Dbl_MB(isvec),1)
+                           ipoint = ipoint + nao2*nbf_cd
+                        else
+                           Ninteg_api=maxg
                            call dcopy(Nao2*nmat,0.D0,0,dbl_mb(isvec),1)
                            nfunz=0
                            do ishp = 1,nshells_cd
-c                
-                              if( .not.bas_cn2bfr(CD_bas_han, ishp, i
-     I                             firstp, ilastp))
+c     
+                              if( .not.bas_cn2bfr(CD_bas_han, ishp, 
+     I                             ifirstp, ilastp))
      &                             call errquit('fitvcoul',0,BASIS_ERR)
                               nshbf_cd=ilastp-ifirstp+1
                               Nintegrals=nshbf_cd*Nao2
-                              Ninteg_api=maxg
                               Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
                               if( Vcoul_est.gt.THRESHOLD )then
 c                  
@@ -228,16 +241,6 @@ c     check for use of symmetry
      Z                                sym_shell(cd_bas_han,ishp,qsym)
 
                                  if(doshell) then
-                                    qscale=1d0
-                                    if(ishc.ne.ishd) qscale=2d0
-c read incore ints
-                                    if(incore) then
-                                       q1=qscale
-                                       call dgemv('N',Nao2,nshbf_cd,q1,
-     &                                      i3c_eri(ipoint),Nao2,
-     C                                      CD_coef(1+nfunz,1),1,
-     D                                      1.D0,Dbl_MB(isvec),1)
-                                    else
                                        call int_2e3c(CD_bas_han,ishp,
      A                                      AO_bas_han,ishc,ishd,nscr,
      D                                      Dbl_MB(iscr),Ninteg_api,
@@ -251,13 +254,12 @@ c
      C                                      CD_coef(1+nfunz,1),
      &                                      1,1.D0,Dbl_MB(isvec),1)
                                     endif
-                                 endif
-                              endif ! schw on VCoul_est
+                                 endif ! schw on VCoul_est
 c
-                              nfunz=nfunz+nshbf_cd
+                                 nfunz=nfunz+nshbf_cd
 c               
-                              ipoint = ipoint + nintegrals
-                           enddo ! ishp
+                              enddo ! ishp
+                           endif ! incore vs direct
 c
 c     Scatter the computed values of Vcoul.
 c           
@@ -266,12 +268,7 @@ c
      I                          nbf_at_d,nshbfd,nshbfc,
      I                          dbl_mb(k_p),dbl_mb(isvec),
      A                          icount_d,icount_c)
-                        else
-
-                           ipoint=ipoint + nao2*nbf_cd
-                           
                         endif   ! schwartz with cdmax
-                     endif      ! schwartz with cdmax=1 (incore)
 
                      icount_d=icount_d+nshbfd
                   enddo         ! ishd
