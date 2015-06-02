@@ -35,6 +35,7 @@
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "nwchem_data.inc"
 *. Some indirect transfer - for communicating with EMCSCF_FROM_KAPPA
       COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI, IREFSPC_MCSCFL,
      &               IPRDIALL,IIUSEH0PL,MPORENP_EL,
@@ -98,7 +99,9 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
 *
 *. Eliminate restart of CI (put a zero..)
       I_RESTART_OF_CI = 1
-
+CVOG  WRITE(*,*) 'MCSCF starts here'
+CVOG  KINT2_V = KINT2_A(6) ! VOG DEBUG BEWARE!!!
+CVOG  CALL WRTMATV(dbl_mb(KINT2_V),1,NINT2,1,1) ! VOG
 *
       if (ga_nodeid().eq.0) then
       WRITE(6,*) ' **************************************'
@@ -1113,6 +1116,17 @@ C?        WRITE(6,*) '  KMOAO_ACT = ', KMOAO_ACT
           END  IF
           CALL MEMCHK2('AF_NWM')
 *
+          WRITE(6,*) ' Integral transformation:'
+cVOG      write(*,*) 'I am in the loops: KINT2'
+cVOG      CALL WRTMAT(dbl_mb(KINT2),1,100,1,100)
+cVOG      write(*,*) 'I am in the loops: KINT2_INI'
+cVOG      CALL WRTMAT(dbl_mb(KINT2_INI),1,100,1,100)
+          KINT2 = KINT2_INI
+          IE2LIST_AL = IE2LIST_4F
+          CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
+          call ga_copy(KINT1,KH)
+          call ga_copy(KFI,KINT1)
+*
 *
 *  ===========================================================
 *. CI in inner its- should probably be moved (but not removed)
@@ -1208,12 +1222,21 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
 *. Finalize: Transform integrals to final MO's, obtain
 *  norm of CI- and orbital gradient
 *
-*
 *. Expansion of final orbitals in AO basis, pt in KLMO2
+*
+*. Transform virtual orbitals
+*
+      IF(NCISPC.EQ.2.AND.NOMOFL.EQ.0.AND.IFINMO.NE.0) THEN
+       CALL MOROT_GS(4)
+       call copvec(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),len_cmo)
+       call copvec(dbl_mb(KMOAOUT),dbl_mb(KLMO2),len_cmo)
+       IFINMO = 0
+      ELSE
       CALL MULT_BLOC_MAT(dbl_mb(KLMO2),dbl_mb(KMOAOIN),dbl_mb(KMOMO),
      &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
       CALL COPVEC(dbl_mb(KLMO2),dbl_mb(KMOAO_ACT),LEN_CMO)
       CALL COPVEC(dbl_mb(KLMO2),dbl_mb(KMOAOUT),LEN_CMO)
+      END IF
       if(ga_nodeid().eq.0) WRITE(6,*) 
      &' Final MO-AO transformation stored in MOAOIN, MOAO_ACT, MOAOUT'
 *. Integral transformation
@@ -1225,6 +1248,20 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
       INTSM_AL = 1
 *. Integral transf and FI 
       CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
+CBERTVOG Store transformed MOs for use in the AKBK
+!      WRITE(*,*) 'Store transformed MOs for use in the AKBK'
+!      KINT2_V = KINT2_A(6) ! VOG DEBUG BEWARE!!!
+!      CALL WRTMAT(dbl_mb(KINT2_V),1,NINT2,1,1) ! VOG
+!      CALL COPVEC(dbl_mb(KINT2_INI),dbl_mb(KINT2_V),NINT2)
+!      KINT2_A(6) = KINT2_V 
+          WRITE(6,*) 'VOG 2e-int list'
+          WRITE(6,*) ' NINT2     ', NINT2
+          WRITE(6,*) ' INT_2EINI ', KINT_2EINI
+          WRITE(6,*) ' INT2_F    ', KINT2_F
+          WRITE(6,*) ' INT2_FSAVE', KINT2_FSAVE
+          WRITE(6,*) ' INT_2EMO  ', KINT_2EMO
+          WRITE(6,*) ' INT2_INI  ', KINT2_INI
+          WRITE(6,*) ' INT2      ', KINT2
 CNW   CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
 CNW   CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
 CBERT depending on what happens above we could just switch pointers
@@ -1316,7 +1353,7 @@ C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
 C?    WRITE(6,*) ' E1NRM_ORB, ERROR_NORM_FINAL_CI = ',
 C?   &             E1NRM_ORB, ERROR_NORM_FINAL_CI
 C?    WRITE(6,*) ' Final energy = ', EFINAL
-
+*
       CALL MEMMAN(IDUMMY, IDUMMY, 'FLUSM', IDUMMY,'MCSCF ') 
       if(.not.ga_destroy(KINT1_INI))
      &   call errquit('cannot destroy: kint1_ini',0,GA_ERR)
@@ -1336,7 +1373,7 @@ C?    WRITE(6,*) ' Final energy = ', EFINAL
 *. Output
       DIMENSION B(*)
 *
-      NTEST = 00
+      NTEST = 00 
 *
       IOFF = -1
       DO IBLK = 1, NBLK
@@ -1885,7 +1922,11 @@ C?    WRITE(6,*) ' PREPARE.. IH1FORM, IH2FORM = ', IH1FORM, IH2FORM
       END IF
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Modified integral pointers '
-        CALL IWRTMA(KINT2_A,1,NE2ARR,1,NE2ARR)
+cVOG Print 2-e int for comparison with original LUCIA
+c        do i = 1, NE2ARR
+c         write(*,*) i, KINT2_A(i)
+c        end do
+cVOG    CALL IWRTMA(KINT2_A,1,NE2ARR,1,NE2ARR)
       END IF
 *
       RETURN

@@ -4035,7 +4035,8 @@ C     PRINT_2EBLK_G(XINT,NI,NJ,NK,NL,IJPSM,KLPSM,IJKLPSM)
         WRITE(6,*) ' Integral array not found '
         WRITE(6,'(A,4I3)') ' IGAS, JGAS, KGAS, LGAS = ',
      &               IGAS,JGAS,KGAS,LGAS
-        WRITE(6,'(A,10(2X,I9))') ' KINT2_A(*): ', 
+cVOG    WRITE(6,'(A,10(2X,I9))') ' KINT2_A(*): ',
+        WRITE(6,'(A,10(2X,I17))') ' KINT2_A(*): ', 
      &  (KINT2_A(IARR),IARR=1,NE2ARR)
         STOP ' Problem in GET_ANTARR_F4TP'
       END IF

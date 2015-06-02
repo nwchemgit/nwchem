@@ -714,7 +714,7 @@ c      INCLUDE 'mxpdim.inc'
         WRITE(6,*) 'No ENVIRO parameter defined '
       END IF
 *
-      NTEST = 00
+      NTEST = 00 
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' From GET_ORB_FROM_ENV: '
         WRITE(6,*) ' ======================='
@@ -1950,7 +1950,6 @@ c      INCLUDE 'mxpdim.inc'
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       NTEST = 00
       NTEST = MAX(NTEST,IPRNT)
-      IPRNT=2 !VOG
       MXACJ = 0
       MXACIJ = 0
       MXAADST = 0
@@ -6375,7 +6374,7 @@ C?        WRITE(6,*) ' GETH1E, old route '
      &      GTH1ES(IREOTS,dbl_mb(KPGINT1A(IJSM)),KINT1,IBSO,
      &         MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,0,
      &         NINOB)
-          ELSE IF (I_UNRORB.EQ.1.AND.ISPCAS.EQ.2) THEN
+          ELSE IF (I_UNRORB.EQ.1.AND.ISP5AS.EQ.2) THEN
             GETH1E =
      &      GTH1ES(IREOTS,dbl_mb(KPGINT1A(IJSM)),WORK(KINT1B),IBSO,
      &           MXPNGAS,IOBPTS_GN,NTOOBS,IORB,ITP,ISM,JORB,JTP,JSM,0,
@@ -9299,6 +9298,7 @@ CNW   DIMENSION DIAG(*)
         write(6,*) ' IOCTPA IOCTPB = ', IOCTPA,IOCTPB
         WRITE(6,*) ' IEXP_PH = ', IEXP_PH
         WRITE(6,*) ' Output to unit: ', LUDIA
+        call ga_print(DIAG)
       END IF
 *
 **. Local memory
@@ -9354,7 +9354,11 @@ CNW   DIMENSION DIAG(*)
      &       int_mb(KLPHSTR),NPHELFSPGP,IOCTPA,IOCTPB,NINOB,
      &       int_mb(KLISCR))
       END IF
-
+*
+      IF(NTEST.GE.10) THEN
+       write(*,*) 'Diagonal elements'
+       call ga_print(DIAG)
+      END IF
 *.Flush local memory
       CALL MEMMAN(IDUM,  IDUM,    'FLUSM ',IDUM,'GASDIA')
       CALL LUCIAQEXIT('CIDIA')
@@ -9960,6 +9964,7 @@ c
 c..  2-e integrals
       noper = norbt*(norbt+1)/2
       g_coul = ga_create_JKblocked(noper,norbt,norbt,'Coulomb Oper')
+      call ga_zero(g_coul) !VOG
 c
 c Get Block-length
 c
@@ -9985,6 +9990,7 @@ c     if (ihi.gt.0.and.jhi.gt.0) then
 c     call ga_access(g_coul,ilo,ihi,jlo,jhi,1,kint2_l,ilda)
 c.. 2e ints
 
+c      call ga_print(g_coul)  !VOG
       if (ga_nodeid().eq.0) then
       do ism_lu=1,nirrep
          do jsm_lu=1,ism_lu
@@ -10043,6 +10049,11 @@ c.. add on the offset for each irep
 c.. look for index in ga_coul
                         ij = (j-1)*norbt+i 
                         kl = k*(k-1)/2 + l
+c!                        write(*,*) 'VOG: KATALAVE 2-e int'
+c              write(*,'(i4,a8,6i4)') ind2e, 'ij,kl', i, j, k, l, ij,kl
+c                        istart = ind2e-1
+c                        if (istart.eq.0) istart = 1
+c!                     CALL WRTMATV(dbl_mb(KINT2),1,ind2e,1,1)
                         call ga_get(g_coul,ij,ij,kl,kl,
      &                       dbl_mb(KINT2+ind2e-1),1)
                      end do
@@ -10055,6 +10066,7 @@ c
       endif
       call ga_sync()
       call ga_dgop(1,dbl_mb(KINT2),NINT2,'+')
+c      CALL WRTMATV(dbl_mb(KINT2),1,NINT2,1,1) !VOG
       CALL LUCIAQEXIT('MO2GA')
 c
       if(.not.ga_destroy(g_coul)) call 
@@ -10850,9 +10862,14 @@ c
      $       'intim: failed to read movecs file', 1, INPUT_ERR)
       if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciaao,
      &                 kirs_nw))
-     &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
+     &  call errquit('LUCIA: failed to read irreps in rtdb',0,RTDB_ERR)
       call ifill(nirrep,0,ipnt_nw,1)
+      luciasymname = trim(luciasymname)
       call sym_mol(luciasymname,ipnt_nw)
+      if (luciasymname.eq.'C2') then
+       ipnt_nw(1) = 1
+       ipnt_nw(2) = 2
+      end if
       call sym_bas_irrep_id(luciabasis,.false.,mxporb,mxpirr,
      &                      nwchem_id,nwchem_sc)
 * ======================================================
@@ -11167,6 +11184,7 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
 *. And as long as nothing else has happened, it is also
 *. the output MO's
         CALL COPVEC(dbl_mb(KMOAOIN),dbl_mb(KMOAOUT),LMOMO)
+        CALL APRBLM2(dbl_mb(KMOAOIN),NTOOBS,NTOOBS,NSMOB,0) !VOG
       END IF
 * Part 2
 * The set of starting MOs: MO-AO expansion and MOMO expansion.
@@ -11222,6 +11240,13 @@ C       BLK_CHECK_UNI_MAT(UNI,NBLK,LBLK,XMAX_DIFF_DIAG,XMAX_DIFF_OFFD)
         call int_terminate()
 *. copy to list of initial 2 e integrals
         CALL COPVEC(dbl_mb(KINT_2EMO),dbl_mb(KINT_2EINI),NINT2)
+c        write(*,*) 'VOG; so far...'
+c        write(*,*) 'NINT2   =', NINT2
+c        call ga_print(KH)
+c        call ga_print(KINT1)
+c        call ga_print(KINT1O)
+c        call ga_print(KHINA)
+c        call ga_print(KFI)
       ELSE
         if (ga_nodeid().eq.0) WRITE(6,*) ' No integrals imported '
       END IF
@@ -11466,13 +11491,12 @@ C    &                              IALIGN)
         NINT2_F = NINT2_G(IE2ARR_F)
         KINT2_F = KINT2_A(IE2ARR_F)
         CALL COPVEC(dbl_mb(KINT_2EINI),dbl_mb(KINT2_F),NINT2_F)
-        IF(NTEST.GE.1000) THEN
+!        IF(NTEST.GE.1000) THEN
           WRITE(6,*) 
      &    ' Full integral list copied to WORK(KINT2(IE2ARR_F))'
-          WRITE(6,*) ' TEST: KINT2_F, NINT2_F = ', KINT2_F, NINT2_F
-          WRITE(6,*) ' WORK(KINT_2EINI),WORK(KINT2_F)',
-     &                 WORK(KINT_2EINI),WORK(KINT2_F)
-        END IF
+cVOG      WRITE(6,*) ' WORK(KINT_2EINI),WORK(KINT2_F)',
+cVOG &                 WORK(KINT_2EINI),WORK(KINT2_F)
+!        END IF
 * Tell program to work with full two-electron integral list (until further notice)
         IE2LIST_A = IE2LIST_FULL
         IOCOBTP_A = 1
@@ -11518,7 +11542,8 @@ C     IF(I_DO_NORTCI.EQ.0.AND.INI_MO_TP.NE.3) THEN
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' NINT2_F = ', NINT2_F
           WRITE(6,*) ' Integrals transformed to KINT_2EMO'
-          CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
+          CALL WRTMAT(dbl_mb(KINT_2EMO),1,NINT2_F,1,NINT2_F)
+cVOG      CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
         END IF
 *. one-electron integrals to KINT1O
 CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
@@ -11580,6 +11605,10 @@ CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
       IF(IRESTR.EQ.1) ISTOSPC = 1
       IRESTR_ORIG=IRESTR
 *
+*. AKBK will be followed
+*      
+      I_AM_AT_AKBK = 0
+*
 * =======================================================
 *. Restarted Lambda calculations need special attention
 * =======================================================
@@ -11624,6 +11653,12 @@ CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
 * ==============================================================
 * ==============================================================
 *
+c      write(*,*) 'What we have so far'
+c      call ga_summarize(.true.) !VOG
+c      call ga_print(KH)
+c      call ga_print(KHINA)
+c      call ga_print(KINT1)
+c      call ga_print(KINT1O)
       ISKIPEI_INI = ISKIPEI
       I_HAVE_DONE_CC = 0
       I_HAVE_DONE_GAS = 0
@@ -11923,12 +11958,22 @@ CBERT           CALL SCLH2(XLAMBDA)
 * AKBKCI calculation
 * ================
 *
-             write(6,'(15X,A)') '********************'
-             write(6,'(15X,A)') 'SplitGAS Initialized'
-             write(6,'(15X,A)') '********************'
+             write(6,'(13X,A)') '************************************'
+             write(6,'(13X,A)') '* NWChem AkBkCI (NACI) Initialized *'
+             write(6,'(13X,A)') '************************************'
+             write(6,*)
+*
+             I_AM_AT_AKBK = 1
+c             IF(NOMOFL.EQ.0.AND.IFINMO.NE.0) THEN
+c*. Create final set of mo's
+c        if (ga_nodeid().eq.0) WRITE(6,*) ' I am going to call MOROT '
+c        KMOAO = KLMO2 !KMOAOUT
+c        CALL MOROT_GS(IFINMO)
+c      END IF
              EREF = EFINAL
+             I_AM_AT_AKBK = 1
              CALL AKBKCI(JCMBSPC,IPRDIA,
-     &                   EREF,ERROR_NORM_FINAL,CONV_F)
+     &                  EREF,ERROR_NORM_FINAL,CONV_F,dbl_mb(INT2_FSAVE))
              E_FINAL_T(JSEQ,JCMBSPC) = EREF
              ERROR_NORM_FINAL_T(JSEQ,JCMBSPC) =
      &       ERROR_NORM_FINAL
@@ -13208,7 +13253,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 1000 !000 VOG
+      NTEST = 000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
@@ -13419,7 +13464,6 @@ C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
           CALL WRTVCD(dbl_mb(CB),LUHC,1,-1)
         ELSE 
           call ga_print(HCB)
-          call ga_print(CB) !VOG
 CNW       CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
         END IF
       END IF
@@ -15247,7 +15291,7 @@ CNW   DIMENSION SV(*),CV(*)
       CHARACTER*6 ITASK
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 1000 !VOG 000
+      NTEST = 000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -17388,7 +17432,7 @@ cnw         GOTO 999
 cnw       IF(CARD(2:7).EQ.'FINORB') THEN
        if(rtdb_cget(rtdb,'lucia:finorb',1,card1))then
 *. Type of final orbitals
-         READ(LUIN,'(A)') CARD1
+cVOG     READ(LUIN,'(A)') CARD1
          CALL LFTPOS(CARD1,MXPLNC)
 *. Change to upper case
          CALL UPPCAS(CARD1,MXPLNC)
@@ -17409,7 +17453,7 @@ C?   &   ' Type of final orbitals ',CARD1
          ELSE IF ( CARD1(1:6) .EQ. 'PS_CAN') THEN
 *. Pseudo canonical orbitals
            IFINMO = 4
-          ELSE IF (CARD1(1:5) .EQ. 'PS_NC') THEN
+         ELSE IF (CARD1(1:5) .EQ. 'PS_NC') THEN
 *. Pseudo natural-canonical orbitals
            IFINMO = 5
 *. requires input of subshells in which to define 
@@ -35143,6 +35187,11 @@ C?   &               ISM, NMOS, NAOS, NBLOCK
         IOFF_AO = IOFF_AO + NAOS
         IOFF_MOAO = IOFF_MOAO + NMOS*NAOS
       END DO
+c      write(*,*) 'VOG IS HERE 4 THE MOs'
+c      do i=1, 100
+c       write(*,*) CMOAO(i) !VOG
+c      end do
+
 *
       RETURN
       END
@@ -35367,8 +35416,8 @@ C         WRITE(6,*) ' IOCTP_L = ', IOCTP_L
             INTSM_L = INTSM_G(IIARR)
             IOCOBTP_L = IOCOBTP_G(IIARR)
             NINT2_L = NINT2_G(IIARR)
-            KINT2_L = KINT2_A(IIARR)
-            WRITE(6,'(3X,I2,2X,I8,4X,I2,4X,I1,2X,I9)')
+            KINT2_L = IABS(KINT2_A(IIARR))
+            WRITE(6,'(3X,I2,2X,I8,4X,I2,4X,I1,2X,I15)')
      &      IIARR, NINT2_L, INTSM_L, IOCOBTP_L, KINT2_L
          END DO
         END DO
@@ -36153,7 +36202,7 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
 *. Local scratch
       INTEGER NACOB_GS(MXP_NSUPSYM),NTOOB_GS(MXP_NSUPSYM)
 *
-      NTEST = 10
+      NTEST = 1000 !VOG 10
       IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='

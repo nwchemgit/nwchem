@@ -4375,6 +4375,7 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 *
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
+         call ga_zero(VEC2) !VOG
          CALL MV7(VEC1,VEC2,0,0,0,0)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,

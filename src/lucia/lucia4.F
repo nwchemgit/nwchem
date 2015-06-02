@@ -5675,7 +5675,7 @@ CNW   DIMENSION FA(*)
 *. Local scratch
       DIMENSION NOBPTS_L(0:6+MXPR4T,MXPOBS)
 *
-      NTEST = 000
+      NTEST = 00
       IF(IPRINTEGRAL.GE.100) NTEST = 100
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info form FA_FROM_INI'

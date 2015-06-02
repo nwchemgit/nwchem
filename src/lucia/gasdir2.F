@@ -295,7 +295,8 @@ C?      WRITE(6,*) ' IA IB LBLOCK_AS', IA,IB, LBLOCK_AS
           LBLOCKP = NSTA*(NSTA+1)/2
         END IF
         IF(NTEST.GE.1000) THEN
-          WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,    
+cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,    
+          WRITE(6,'(a,6I5)') ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
      &                 IASM,IBSM,IA,IB,LBLOCKP,LBLOCK
         END IF
 *
@@ -4786,7 +4787,7 @@ CNW   DIMENSION CV(*)
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
 *
       CALL LUCIAQENTER('SBLOK')
-      NTEST = 1000 !VOG 000
+      NTEST = 000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Output from SBLOCK '
@@ -5014,7 +5015,7 @@ c     END IF
 c..
 *
       I_PRINT_MEM_MAP = 0
-      IF(I_PRINT_MEM_MAP.EQ.1) THEN
+      IF(ga_nodeid().eq.0.and.I_PRINT_MEM_MAP.EQ.1) THEN
        WRITE(6,*) ' Memory map in SBLOCK '
        IDUM = 0
        CALL MEMMAN(IDUM,IDUM,'PRINT', IDUM, 'SBLOCK')

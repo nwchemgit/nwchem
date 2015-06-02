@@ -28,6 +28,7 @@
       INCLUDE 'cecore.inc'
       INCLUDE 'cprnt.inc'
       include 'cicisp.inc'
+      include 'cintfo.inc'
 *
       LOGICAL CONV_F, CONV_LOCAL
       EXTERNAL AKBKSIGMA, AKBKSIGMA2
@@ -42,14 +43,47 @@
       WRITE(6,*) ' * AKBK optimization control entered  *'
       WRITE(6,*) ' *                                    *'
       WRITE(6,*) ' * Version +0.1, Jeppe Olsen, July. 13*'
+      WRITE(6,*) ' *         +0.2, BERT + VOG , May.  15*'
       WRITE(6,*) ' **************************************'
 *
-      NTEST = 1000
-      NTEST = MAX(NTEST,IPRINT)
+      NTEST = 000
+c!      if (ga_nodeid().eq.0) CALL MEMMAN(IDUM,IDUM,'PRINT', IDUM, 'AKBK')
+c!      CALL flush(6)
+c      NTEST = MAX(NTEST,IPRINT)
+c!      KINT2_F     = KINT_2EMO
+c!      KINT_2EMO = KINT_2EINI
+c!      IE2AKBK = 5
+c!      CALL FLAG_ACT_INTLIST(IE2AKBK)
+c!      KINT2_A(6) = KINT_2EINI
+c      write(*,*) 'NINT2 =', NINT2
+c          WRITE(6,*) 'VOG 2e-int list'
+c          WRITE(6,*) ' INT_2EINI ', KINT_2EINI
+c          WRITE(6,*) ' INT2_F    ', KINT2_F
+c          WRITE(6,*) ' INT_2EMO  ', KINT_2EMO
+c          WRITE(6,*) ' INT2      ', KINT2  
+c      ZERO = 0.0d0
+c       ONE = 1.0d0
+c      kidx = 6
+c      KINT2_V = ABS(KINT2_A(kidx))
+c!!      CALL SETVEC(dbl_mb(KINT2_V), ZERO, NINT2_G(kidx))
+c      CALL COPVEC(dbl_mb(KINT2_V),dbl_mb(KINT2_INI),NINT2)
+c!      KINT2_A(kidx) = KINT2_V
+c      write(*,*) 'PAME0!'
+c      CALL WRTMATV(dbl_mb(KINT2_INI),1,NINT2,1,1)
+c      write(*,*) 'PAME1!'
+c          CALL WRTMAT(dbl_mb(KINT_2EMO),1,100,1,1)
+c      write(*,*) 'PAME2'
+c          CALL WRTMAT(dbl_mb(KINT2),1,100,1,1)
+c      write(*,*) 'PAME3'
+c      do i=1, NE2ARR
+c       KKINT2 = IABS(KINT2_A(i))
+c       write(*,*) 'MOUNI', i, KKINT2, NINT2_G(i)
+c       CALL WRTMAT(dbl_mb(KKINT2),1,NINT2_G(i),1,1)
+c      end do
 *
 * Test that CSFs are in use
       IF(NOCSF.EQ.1) THEN
-       WRITE(6,*) ' AKBK calculation with SD is under construction'
+       WRITE(6,*) ' AKBK calculation with SDs is under construction'
 cVOG        WRITE(6,*) ' AKBK calculation with determinants is not enabled'
 cVOG        WRITE(6,*) ' Please remove NOCSF keyword '
 cVOG        STOP       ' AKBK calculation with determinants is not enabled'
@@ -79,7 +113,8 @@ cVOG  All are written in GAs
 *
       NITEM = 2
       LEN_SUMMARY = NITEM*(MAXITM+1)
-      CALL MEMMAN(KL_SUMMARY,LEN_SUMMARY,'ADDL  ',2,'SUMMRY')
+cVOG  Important for AKBKMCSCF
+cVOG  CALL MEMMAN(KL_SUMMARY,LEN_SUMMARY,'ADDL  ',2,'SUMMRY')
       IPSPC = JCMBSPC - 1
       IQSPC = JCMBSPC
       WRITE(6,*) ' P-space for expansion ', IPSPC
@@ -102,7 +137,13 @@ cVOG    WRITE(6,*) ' Number of CSFs in PQ-space = ', NQCSF
 *. The occupation classes of the P-space are those with basespace IPSPC
 *. identify and save thise
 *
+      write(*,*) 'ICMBSPC', ICMBSPC(1,1), ICMBSPC(1,2)
+      write(*,*) 'LCMBSPC', LCMBSPC(1), LCMBSPC(2)
+      write(*,*) 'KIOCCLS', KIOCCLS, int_mb(KIOCCLS)
+      write(*,*) 'NOCCLS_MAX', NOCCLS_MAX
       CALL MEMMAN(KLOCCLS_P,NOCCLS_MAX,'ADDL  ',1,'POCCLS')
+      write(*,*) 'KLOCCLS_P', KLOCCLS_P, int_mb(KLOCCLS_P)
+      write(*,*) 'NOCCLS_P', NOCCLS_P
       CALL OCCLS_IN_CISPACE(NOCCLS_P,int_mb(KLOCCLS_P),
      &       NOCCLS_MAX,int_mb(KIOCCLS),NGAS,
      &       LCMBSPC(IPSPC),ICMBSPC(1,IPSPC),IGSOCCX,IPSPC)
@@ -181,6 +222,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
      & ' Number of blocks and batches in P  ',NBLOCK_P, NBATCH_P
       WRITE(6,'(a,2I9)')  
      & ' Number of blocks and batches in PQ ',NBLOCK_Q, NBATCH_Q
+      write(*,*) 'NCBLK, NSBLK', NCBLK, NSBLK
 *
       IF (NOCSF.EQ.1) THEN
 *
@@ -211,9 +253,11 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
 *       CALL ga_zero(KVEC3)
 *
 *LOCAL
-*      CALL MEMMAN(KVEC1P, NSDP,'ADDS  ',2,'VEC1P ')
-*      CALL MEMMAN(KVEC2P, NSDP,'ADDS  ',2,'VEC2P ')
-      CALL MEMMAN(KC2,    NSDQ,'ADDS  ',2,'VEC3  ')
+*
+      CALL GET_3BLKS(KVEC1,KVEC2,KC2)
+      KVEC3 = KC2
+      KVEC1P = KVEC1
+      KVEC2P = KVEC2
 *
 * Analyze P-space expansion (Do I need it?)
 *
@@ -246,6 +290,7 @@ cVOG   CALL GASANA(dbl_mb(KVEC1P),NBLOCK,NSDP,NSDP,LUC,ICISTR)
         WRITE(6,'(a,i12)') ' Max Num of Occ. Classes', NOCCLS_MAX
         WRITE(6,'(a)')     ' Print initial vector:'
         CALL ga_print(KCOMVEC1)
+!        CALL ga_print(KINT1) 
         WRITE(6,'(a)')     ' ================================= '
        END IF
 *
@@ -398,7 +443,6 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
        write(*,*) 'int_mb(KCIBT)', int_mb(KCIBT)
        write(*,*) 'int(KSLBT),int(KSLEBT),int_mb(KSLBLK),int(KSI1BT)',
      &     int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT)
-       write(*,*) 'int_mb(ISPC)', int_mb(ISPC)
        write(*,*) 'KCOMVEC1', KCOMVEC1
        write(*,*) 'KCOMVEC2', KCOMVEC2
 ** VOG: Force CI-vector of Original Lucia (MOLCAS) as starting vector
@@ -616,7 +660,7 @@ C?    END IF
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
       CALL LUCIAQENTER('AKBKSI')
-      NTEST = 1000
+      NTEST = 000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Information from AKBKSIGMA'
         WRITE(6,*) ' =========================='
@@ -692,23 +736,19 @@ cVOG  &             int_mb(KLLOCCLS_SM))
 cVOG  IF(NTEST.GE.1000) THEN
 cVOG    WRITE(6,*) ' Number of CSF of right sym per occls'
 cVOG    CALL IWRTMA(int_mb(KLLOCCLS_SM),1,NOCCLS_MAX,1,NOCCLS_MAX)
-cVOG    write(*,*) 'NOCCLS_P, int_mb(KLOCCLS_P)',
-cVOG &              NOCCLS_P, int_mb(KLOCCLS_P)
-cVOG    write(*,*) 'NOCCLS_Q, int_mb(KLOCCLS_Q)',
-cVOG &              NOCCLS_Q, int_mb(KLOCCLS_Q)
 cVOG  END IF
 * Be careful, it's working as SplitCAS at the moment      
       CALL ga_copy_patch('N', KLU_Q2, 1, NSDP, 1, 1,
      &                        KLU_Q1, 1, NSDP, 1, 1)
-      write(*,*) 'Copy P space terms to LU_Q1'
-      call util_flush(6)
-      CALL ga_print(KLU_Q1)
-      CALL ga_print(KLU_Q2)
-      call util_flush(6)
+      IF(NTEST.GE.1000) THEN 
+       WRITE(*,*) 'Copy P space terms to LU_Q1'
+       CALL ga_print(KLU_Q1)
+       CALL ga_print(KLU_Q2)
+      END IF
 cVOG  CALL EXP_BLKVEC(LU_Q2,NOCCLS_P,int_mb(KLOCCLS_P),
 cVOG &                LU_Q1,NOCCLS_Q,int_mb(KLOCCLS_Q),
 cVOG &                int_mb(KLLOCCLS_SM),2,CB,XDUM,1,ICISTR,0)
-!*
+*
 C     EXP_BLKVEC(LU_IN,NBLK_IN, IBLK_IN,
 C    &                      LU_OUT,NBLK_OUT,IBLK_OUT,
 C    &                      LBLK,ITASK,VEC,VEC_OUT,IREW,ICISTR,
@@ -782,7 +822,6 @@ cVOG    CALL WRTVCD(CB,LU_Q3,1,LBLK)
       ICSPC = IPSPC
 cVOG  CALL REWINO(LU_Q1)
 cVOG  CALL MV7(CB,HCB,LUC,LU_Q1,XDUM,XDUM)
-      call ga_print(CB)
       CALL MV7(CB,KLU_Q1,0,0,0,0)
       IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' HPP CP: '
@@ -822,16 +861,17 @@ cVOG  CALL FILEMAN_MINI(LU_Q3,'FREE  ')
       IF(NTEST.GE.10) WRITE(6,*) ' Leaving AKBKSIGMA'
 C?    WRITE(6,*) ' Jeppe forced me to stop.... '
 C?    STOP ' Jeppe forced me to stop.... '
-      write(*,*) ' *** VOGs REGROUP ***'
-      call ga_summarize(.true.)
-      write(*,*) 'CB    ', CB
-      write(*,*) 'HCB   ', HCB
-      write(*,*) 'KVEC3 ', KVEC3
-      CALL ga_print(CB)
-      CALL ga_print(HCB)
-!      CALL ga_print(KVEC3)
-      write(*,*) ' DeBuG!!! '
-!      STOP ' VOGs REGROUP'
+      IF(NTEST.GE.1000) THEN
+       write(*,*) ' *** VOGs REGROUP ***'
+       call ga_summarize(.true.)
+       write(*,*) 'CB    ', CB
+       write(*,*) 'HCB   ', HCB
+       write(*,*) 'KVEC3 ', KVEC3
+       CALL ga_print(CB)
+       CALL ga_print(HCB)
+       write(*,*) ' DeBuG!!! '
+c      STOP ' VOGs REGROUP'
+      END IF
 *
       if (.not. ga_destroy(KLU_Q1)) call
      &     errquit('AKBK: ga_destroy KLU_Q1 failed', 0 , GA_ERR)
@@ -874,7 +914,7 @@ C?    STOP ' Jeppe forced me to stop.... '
 *
       CALL LUCIAQENTER('CSDIAM')
 *
-      NTEST = 1000 !VOG 000
+      NTEST = 000
       IF(NTEST.GE.100) THEN 
         WRITE(6,*) ' Entering CSDIAGM '
         WRITE(6,*) ' ================='
@@ -897,6 +937,11 @@ C?    STOP ' Jeppe forced me to stop.... '
        KXBLTP = KSBLTP
        KXIBT  = KSIBT
        NXBLOCK = NSBLK
+*.    REORDER KSIBT
+*       KSIBTNEW = KSIBT
+*       write(*,*) 'REORDERING'
+*       CALL REORDER(int_mb(KSIBTNEW))
+*       KXIBT = KSIBTNEW
        CALL GASDIAT(VECSCR,LUSC,SHIFT,ICISTR,I12,
      &              int_mb(KXBLTP),NXBLOCK,int_mb(KXIBT),IUSE_EXP)
 *
@@ -1023,7 +1068,7 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'GET_CQ')
       CALL LUCIAQENTER('GET_CQ')
-      NTEST = 10000
+      NTEST = 0000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Information from GET_CQ'
         WRITE(6,*) ' =========================='
@@ -1279,7 +1324,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
       CALL LUCIAQENTER('DIARHO')
       CALL MEMMAN(IDUM,  IDUM,    'MARK  ',IDUM,'DIARHO')
 *
-      NTEST = 1000
+      NTEST = 000
 *
 ** Specifications of alpha - and beta types
 *
@@ -1341,7 +1386,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *. Output
       DIMENSION RHO1D(*), RHO2D(*) 
 *
-      NTEST = 1000
+      NTEST = 000
 *
       IF( NTEST .GE. 100) THEN
 *
@@ -1547,7 +1592,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 *. Two scratch blocks
       REAL*8 L(*), R(*)
 *
-      NTEST = 1000
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' AKBK_DENSITY at your service '
         WRITE(6,*) ' ============================='
@@ -1644,7 +1689,7 @@ C     GET_APPROX_DEN_AKBK_QQ(RHO1_QQ, RHO2_QQ,LUP,E,CB,HCB,I12)
 *. Output 
       DIMENSION  RHO2_UT(*)
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from CONJ_RHO2'
         WRITE(6,*) ' ==================='
@@ -1718,7 +1763,7 @@ C     GET_APPROX_DEN_AKBK_QQ(RHO1_QQ, RHO2_QQ,LUP,E,CB,HCB,I12)
       DIMENSION F2(*)
       INTEGER IFIA2_OFFSS(NSMOB,NSMOB)
 *
-      NTEST = 100
+      NTEST = 00
       IF(NTEST.GE.100) THEN
        WRITE(6,*)
        WRITE(6,*) ' Info from  GET_FIA2 '
@@ -2073,7 +2118,7 @@ C     REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
        END DO ! Loop over IPQSM
       END DO ! Loop over IMNSM
 *
-      NTEST = 1000
+      NTEST = 000
       IF(NTEST.GE.1000) THEN
         WRITE(6,*)
         WRITE(6,*) ' ============='
@@ -2116,7 +2161,7 @@ C     REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
       DIMENSION F2CC(NCEXC*NCEXC),F2CE(NCEXC*NEEXC) 
       DIMENSION F2EE(NEEXC*NEEXC),F2EC(NEEXC*NCEXC)
 *
-      NTEST = 1000
+      NTEST = 000
 *
 *=====
 *F2CC
@@ -2298,7 +2343,7 @@ C     REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
       DIMENSION E1C(NC),E1E(NE)
       DIMENSION E2CC(NC,NC),E2CE(NC,NE),E2EC(NE,NC),E2EE(NE,NE)
 *
-      NTEST = 1000
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' GET_E1_E2_EFF speaking '
         WRITE(6,*) ' ====================== '
@@ -2575,7 +2620,7 @@ C MATVCC(A,VIN,VOUT,NROW,NCOL,ITRNS)
       STEP_MAX = 0.75D0
 C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
       TOLER = 1.1D0
-      NTEST = 1000
+      NTEST = 000
       IPRNT= MAX(NTEST,IPRMCSCF)
 *
       I_DO_NEWTON = 0
@@ -3701,7 +3746,7 @@ cVOG  DIMENSION CB(*), HCB(*)
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
       CALL LUCIAQENTER('AKBKSI')
 *
-      NTEST = 10000
+      NTEST = 0000
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Information from AKBKSIGMA2'
         WRITE(6,*) ' ==========================='
@@ -4185,13 +4230,190 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
 *
       RETURN
       END
-
-
-      
-
-      
-       
-
-
-
+      subroutine intim_akbk()
+*
+c      INCLUDE 'implicit.inc'
+c      INCLUDE 'mxpdim.inc'
+      INCLUDE 'wrkspc.inc'
+      INCLUDE 'crun.inc'
+      INCLUDE 'glbbas.inc'
+      INCLUDE 'clunit.inc'
+      INCLUDE 'lucinp.inc'
+      INCLUDE 'csm.inc'
+      INCLUDE 'orbinp.inc'
+      INCLUDE 'cintfo.inc'
+      INCLUDE 'oper.inc'
+      INCLUDE 'cecore.inc'
+      INCLUDE 'cstate.inc'
+      INCLUDE 'intform.inc'
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "sym.fh"
+#include "rtdb.fh"
+#include "nwchem_data.inc"
+*
+      integer g_moreo, g_hcore, g_coul, g_exch
+      integer ga_create_atom_blocked, ga_create_JKblocked
+      external ga_create_atom_blocked, ga_create_JKblocked
+      logical geom_nuc_rep_energy
+      external geom_nuc_rep_energy
+      logical movecs_read, movecs_gather
+      external movecs_read, movecs_gather
+      integer blen
+      double precision occ(mxporb),evals(mxporb)
+      double precision ctmp(mxporb)
+      integer imysym(16),smij,smkl
+*
+      ntest = 00
+      g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
+     &                                 'LUCIA movecs')
+      g_hcore = ga_create_atom_blocked(luciageom,luciabasis,
+     $                                 'rohf  hcore')
+      norbt = luciamo(1)
+cVOG  Obtain occupation numbers and MO eigenvalues
+      if(.not.movecs_gather(luciascfmo,1,norbt,reord_nw,occ,evals,
+     &     g_moreo)) call errquit('intim: read rtdb failed',0,DISK_ERR)
+      write(*,*) 'occ', occ
+      write(*,*) 'evals', evals
+c       call util_flush(6)
+c..  1-e integrals
+      CALL LUCIAQENTER('MO1')
+      call moints_1e(norbt, luciabasis, g_moreo, g_hcore)
+      CALL LUCIAQEXIT('MO1')
+c.. To write in LUCIA format
+      CALL LUCIAQENTER('MO1GA')
+      call ga_zero(KINT1)
+      if(ga_nodeid().eq.0)then
+c.. 1e ints
+        ind1e=0
+        ind2e=0
+        do ism_lu=1,nirrep
+         ni = ntoobs(ism_lu)
+         nij = ni*(ni+1)/2
+         do ij = 1,nij
+          ind1e = ind1e + 1
+          i = int(dsqrt(2.0d0*dble(ij))+0.5d0)
+          j = ij - i*(i-1)/2
+c.. add offset
+          i = i + ioff_nw(ism_lu) -1
+          j = j + ioff_nw(ism_lu) -1
+          call ga_get(g_hcore,i,i,j,j,int1e,1)
+          call ga_put(KINT1,ind1e,ind1e,1,1,int1e,1)
+         end do
+        end do
+      endif
+      if(.not.ga_destroy(g_hcore)) call
+     &  errquit('intim: ga_destroy failed', g_hcore, GA_ERR)
+*
+      if (ntest.ge.10) then
+       write(*,*) '1e int before AkBk'
+       call ga_print(KINT1)
+      end if 
+      call ga_copy(KINT1,KINT1O)
+*
+      CALL LUCIAQEXIT('MO1GA')
+*
+c
+c..  2-e integrals
+      noper = norbt*(norbt+1)/2
+      g_coul = ga_create_JKblocked(noper,norbt,norbt,'Coulomb Oper')
+c
+c Get Block-length
+c
+      if (.not. bas_nbf_cn_max(luciabasis,maxbfsh))
+     $   call errquit('intim: cannot get basis info',0,BASIS_ERR)
+      nwblen = 25
+      nwblen = max(nwblen,maxbfsh)
+c
+c Do four-index
+c
+      CALL LUCIAQENTER('MO2')
+      call moints_build_2x(luciabasis,.true.,.false.,1,1,norbt,1,
+     $     norbt,g_moreo,g_coul,.true.,g_exch,.false.,nwblen,.true.)
+      CALL LUCIAQEXIT('MO2')
+c.. To write in LUCIA format
+      CALL LUCIAQENTER('MO2GA')
+      ZERO = 0.0d0
+      CALL SETVEC(dbl_mb(KINT2), ZERO, NINT2)
+cVOG  I have the feeling that the 2-e INT are not needed for the AkbkCI
+cVOG  I should fix them later
+*
+      CALL COPVEC(dbl_mb(KINT2),dbl_mb(KINT_2EMO),NINT2)
+      if (ntest.ge.10) then
+       write(*,*) '2e int before AkBk'
+       CALL WRTMAT(dbl_mb(KINT2_2EMO),1,100,1,100)
+      end if
+      CALL LUCIAQEXIT('MO2GA')
+c
+      if(.not.ga_destroy(g_coul)) call
+     &  errquit('intim: ga_destroy failed', g_coul, GA_ERR)
+      if(.not.ga_destroy(g_moreo)) call
+     &  errquit('intim: ga_destroy failed', g_moreo, GA_ERR)
+      RETURN
+      END
+      SUBROUTINE WRTMATV(A,NROW,NCOL,NMROW,NMCOL)
+C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      DIMENSION A(NMROW,NMCOL)
+C
+      do i = 1, ncol
+       if (abs(A(1,i)).lt.1.0d-10) A(1,i) = 0.0d0
+       write(6,*) i, A(1,i)
+      end do
+!      DO 100 I=1,NROW
+!      WRITE(6,1010) I,(A(I,J),J=1,NCOL)
+! 1010 FORMAT(1H0,I3,2X,4(1X,E24.16),/,(1H ,5X,4(1X,E24.16)))
+  100 CONTINUE
+      RETURN
+      END
+      SUBROUTINE REORDER(KERATO)
+*
+      INTEGER KERATO(8,*)
+      INTEGER SCR(8,12)
+*
+      WRITE(*,*) 
+      WRITE(*,*) 'INITIAL'
+      DO i = 1, 40
+       WRITE(6,'(10X,I5,2X,4I3)') i,(KERATO(II,i),II=1,4)
+      END DO
+*
+      DO II = 1, 8
+       SCR(II,1) = KERATO(II,25)
+       SCR(II,2) = KERATO(II,26)
+       SCR(II,3) = KERATO(II,27)
+       SCR(II,4) = KERATO(II,28)
+       SCR(II,5) = KERATO(II,29)
+       SCR(II,6) = KERATO(II,30)
+       SCR(II,7) = KERATO(II,31)
+       SCR(II,8) = KERATO(II,32)
+       SCR(II,9) = KERATO(II,21)
+       SCR(II,10) = KERATO(II,22)
+       SCR(II,11) = KERATO(II,23)
+       SCR(II,12) = KERATO(II,24)
+      END DO
+*
+      DO II = 1, 8
+       KERATO(II,21) = SCR(II,1)
+       KERATO(II,22) = SCR(II,2)
+       KERATO(II,23) = SCR(II,3)
+       KERATO(II,24) = SCR(II,4)
+       KERATO(II,25) = SCR(II,5)
+       KERATO(II,26) = SCR(II,6)
+       KERATO(II,27) = SCR(II,7)
+       KERATO(II,28) = SCR(II,8)
+       KERATO(II,29) = SCR(II,9)
+       KERATO(II,30) = SCR(II,10)
+       KERATO(II,31) = SCR(II,11)
+       KERATO(II,32) = SCR(II,12)
+      END DO
+*
+      WRITE(*,*)
+      WRITE(*,*) 'FINAL'
+      DO i = 1, 40
+       WRITE(6,'(10X,I5,2X,4I3)') i,(KERATO(II,i),II=1,4)
+      END DO
+      RETURN
+      END
 c $Id$
