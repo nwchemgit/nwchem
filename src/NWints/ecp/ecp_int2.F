@@ -303,6 +303,13 @@ C $Id$
             i_z = ind_z(l_c,1,i_t)
             i_co = ind_c(l_c,1,i_t)
             n_co = n_coef_c(l_c,1,i_t)
+#if 1
+      call ecp_int2_k(
+     R     r_bc,r_ac,tmp(i_pre),
+     G     tmp(i_gam),zeta_c,zeta_b,zeta_a,
+     B     tmp(i_bet),tmp(i_alp),tmp(i_bi),tmp(i_ai),
+     I     n_co,n_prim_b,n_prim_a,i_z)
+#else
 *
 *   Set up argument values etc
 *
@@ -320,6 +327,7 @@ C $Id$
      &                -zeta_a(i_a)*R_ac**2
      &                -zeta_b(i_b)*R_bc**2
                   tmp(i_pre+i) = exp(log_prefactor)
+#ifdef DEBUG
                   if (debug_arrays) then
                     write (LuOut,'(3i5,1p3e20.10)') i_a,i_b,i_c,
      &                  zeta_a(i_a),zeta_b(i_b),zeta_c(i_z+i_c)
@@ -330,18 +338,22 @@ C $Id$
                     write (LuOut,'(15x,1p2e20.10)') log_prefactor,
      &                  tmp(i_pre+i)
                   end if
+#endif
                   i = i+1
                 end do
               end do
             end do
+#endif
 *
             n_abc = n_ab*n_co
             call dcopy (n_co,coef_c(i_co),1,tmp(i_coef),1)
             if (n_cont_c .eq. 2) call dcopy 
      &          (n_co,coef_c(ind_c(l_c,1,2)),1,tmp(i_coef+n_co),1)
+#ifdef DEBUG
             if (debug_addresses) write (LuOut,*) 
      &          'n_ab,n_abc,n_Q,m_count',
      &          n_ab,n_abc,n_Q,m_count
+#endif 
 *
 *   Calculate radial integrals
 *
@@ -427,6 +439,7 @@ C $Id$
           if (n_x .ne. 3) then
             call dgemm ('T','N',n_ang_a,n_ang_b,n_l_c,fac,tmp(i_ang_a),
      &          n_l_c,tmp(i_ang_b),n_l_c,zero,tmp(i_ang),n_ang_a)
+#ifdef DEBUG
             if (debug_arrays) then
               call ecp_matpr (tmp(i_ang_a),-l_c,l_c,1,n_ang_a,-l_c,l_c,
      &            1,n_ang_a,'Modified scalar A Angular integrals','F',
@@ -435,6 +448,7 @@ C $Id$
      &            1,n_ang_b,'Combined scalar angular integrals','F',78,
      &            4)
             end if
+#endif
           end if
 *
 *       Sum over m for spin-orbit integrals [factor 4\pi]
@@ -493,12 +507,14 @@ C $Id$
                   call dgemm ('N','T',n_ang_a,n_nb,n_lam_b,fac,
      &                tmp(i_ang_b),n_ang_a,tmp(i_b),n_nb,zero,
      &                tmp(i_wa),n_ang_a)
+#ifdef DEBUG
                   if (debug_gen) write (LuOut,*) 'nu_b,lam_b,k_b',
      &                nu_b,lam_b,k_b
                   if (debug_arrays) call ecp_matpr (tmp(i_wa),
      &                1,n_ang_a,1,n_nb,1,n_ang_a,1,n_nb,
      &                'Angular integrals contracted with b expansion',
      &                'E',78,4)
+#endif
                   i_ang_b = i_ang_b+n_lam_b*n_ang_a
 *
                   i_a = i_ca
@@ -518,8 +534,10 @@ C $Id$
                       i_int_a = i_Qa
                       do k_a = lam_a+l_c,abs(lam_a-l_c),-2
                         fac = 2*k_a+1
+#ifdef DEBUG
                         if (debug_gen) write (LuOut,*) 'nu_a,lam_a,k_a',
      &                      nu_a,lam_a,k_a
+#endif
                         call dgemm ('N','N',n_na,n_nb,n_lam_a,fac,
      &                      tmp(i_a),n_na,tmp(i_ang_a),n_ang_a,zero,
      &                      tmp(i_wb),n_na)
@@ -570,12 +588,14 @@ C $Id$
    10   continue
 *
       end do
+#ifdef DEBUG      
       do i = 1,n_blk
         if (debug_arrays) call ecp_matpr (ecp_ints(1,i),1,n_nb*n_cont_b,
      &      1,n_na*n_cont_a,1,n_nb*n_cont_b,1,n_na*n_cont_a,
      &      'ECP integrals','E',78,4)
       end do
       if (debug_gen) write (LuOut,*) 'Exiting ecp_int2'
+#endif
 *
       return
       end

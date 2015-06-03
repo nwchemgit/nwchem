@@ -74,7 +74,7 @@ OBJ_ENERGY = \
 
 OBJ  = ecp_sph_tens.o 
 OBJ +=  int_ecp.o
-OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD) $(OBJ_HESS)
+OBJ_OPTIMIZE = $(OBJ_ENERGY) $(OBJ_GRAD) $(OBJ_HESS) ecp_int2_k.o ecp_local2_k.o
 
 HEADERS = ecp_nwc.fh
 

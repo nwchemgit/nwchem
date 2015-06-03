@@ -201,11 +201,22 @@ C $Id$
      &      ' Insufficient memory in ecp_local2',99, MEM_ERR)
         fourpi = pi+pi
         fourpi = fourpi+fourpi
+#if 1
+      call ecp_local2_k(
+     A       tmp(i_ab),tmp(i_xpc),tmp(i_ypc),tmp(i_zpc),
+     Z       zeta_a,zeta_b,zeta_c,
+     b       tmp(i_prod),tmp(i_gam),tmp(i_alp),tmp(i_ai),
+     R       tmp(i_rpc),tmp(i_pre),
+     X       x_ac,x_bc,y_ac,y_bc,z_ac,z_bc,
+     I       n_prim_a,n_prim_b,n_coef_c,n_ab
+     S       )
+
+#else
 *
 *     Loop over primitives on A and B and do Gaussian product
 *
-        i = 0
         Rsq = (X_AC-X_BC)**2+(Y_AC-Y_BC)**2+(Z_AC-Z_BC)**2
+        i = 0
         do i_b = 1,n_prim_b
           do i_a = 1,n_prim_a
             ab = zeta_b(i_b)+zeta_a(i_a)
@@ -240,6 +251,7 @@ C $Id$
             i = i+1
           end do
         end do
+#endif
         if (debug_arrays) then
           call ecp_matpr(tmp(i_gam),1,n_ab,1,n_coef_c,
      &          1,n_ab,1,n_coef_c,'gam','E',78,4)
@@ -309,14 +321,18 @@ C $Id$
                   i_s = i_Ga+l**2
                   call dgemv ('N',n_n,ll1,tmp(i_q),tmp(i_c),n_n,
      &                tmp(i_s),1,one,tmp(i_p),1)
+#ifdef DEBUG
                   if (debug_arrays) call ecp_matpr(tmp(i_p),1,1,1,n_n,
      &                1,1,1,n_n,'intermediate sum','E',78,4)
+#endif
                   i_c = i_c+n_n*ll1
                   i_q = i_q+n_ab
                 end do
               end do
+#ifdef DEBUG
               if (debug_arrays) call ecp_matpr(tmp(i_p),1,1,1,n_n,
      &            1,1,1,n_n,'Cartesian integrals on GP centre','E',78,4)
+#endif
               i_p = i_p+n_n
             end do
 *
@@ -366,10 +382,12 @@ C $Id$
                     j = j+n_nb
                   end do
                 end do
+#ifdef DEBUG
                 if (debug_arrays) call ecp_matpr(tmp(i_m),
      &              1,n_pbas_a,1,n_nb,1,n_na,1,n_nb,
      &              'intermediate integrals',
      &              'E',78,4)
+#endif
                 i_r = i_r+n_na*(ll_a+1)*(ll_a+2)/2
               end do
               i_s = i_s+n_nb*(ll_b+1)*(ll_b+2)/2
