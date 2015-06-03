@@ -48,7 +48,7 @@ set lucia:ciconv 1.0d-8
 set lucia:inideg 1
 set lucia:inactive 0
 set lucia:ngas 2
-set lucia:gassh 2  0  #0 0 1 0
+set lucia:gassh 2  1  #0 0 1 0
 set lucia:second "REST"
 set lucia:machine "CRAY"
 set lucia:ncispc 2
