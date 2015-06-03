@@ -1320,7 +1320,6 @@ C     CSUB_FROM_C(C,CSUB,LENSUBS,LENSUBTS,NSUBTP,ISUBTP,IONLY_DIM)
       WRITE(6,*)
 C     PROJ_ORBSPC_ON_ORBSPC(CMOAO1,CMOAO2,NMO1PSM,NMO2PSM)
 *. Print summary
-      print*,'nouit',noutit
       CALL PRINT_MCSCF_CONV_SUMMARY(dbl_mb(KL_SUMMARY),NOUTIT)
       WRITE(6,'(A,F20.12)') ' Final energy = ', EFINAL
       WRITE(6,'(A,F20.12)') ' Final norm of orbital gradient = ', 
