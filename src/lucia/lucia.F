@@ -11929,10 +11929,12 @@ CBERT           CALL SCLH2(XLAMBDA)
 * ================
 *
 *
+             if (ga_nodeid().eq.0) then
              write(6,'(13X,A)') '************************************'
              write(6,'(13X,A)') '* NWChem AkBkCI (NACI) Initialized *'
              write(6,'(13X,A)') '************************************'
              write(6,*)
+              endif
              EREF = EFINAL
              I_AM_AT_AKBK = 1
              CALL AKBKCI(JCMBSPC,IPRDIA,
