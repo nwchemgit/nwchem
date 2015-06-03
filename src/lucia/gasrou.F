@@ -807,7 +807,7 @@ C?     WRITE(6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
 *. MINOP - from MS2 and multiplicity if relevant
       MINOP = ABS(MS2)
       IF(NOCSF.EQ.0) MINOP =  MULTS - 1
-      if (ga_nodeid().eq.0) WRITE(6,*) ' MINOP == ', MINOP
+      if (ga_nodeid().eq.0.and.NTEST.ge.5) WRITE(6,*) ' MINOP == ', MINOP
 *
 *. Find min and max number of elecs in each subspace
 *

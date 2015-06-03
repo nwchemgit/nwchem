@@ -12473,7 +12473,7 @@ C                  MERGE_CLOP_CONF(IOP,NOP,ICL,NCL,ICONF)
         NOCSBSLS(IGAS) = MXGSOC(IGAS) - MNGSOC(IGAS) + 1
         NSBCLS = NSBCLS + NOCSBSLS(IGAS)
       END DO
-      if (ga_nodeid().eq.0) WRITE(6,*) ' NSBCLS == ', NSBCLS
+      if (ga_nodeid().eq.0.and.NTEST.GE.100) WRITE(6,*) ' NSBCLS == ', NSBCLS
 *
 *. The actual occupation subclasses
 *

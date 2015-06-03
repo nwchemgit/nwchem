@@ -7888,6 +7888,7 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
      &                                 'LUCIA movecs')
       if(.not.movecs_gather(luciascfmo,1,luciamo(1),reord_nw,ctmp,ctmp,
      &     g_moreo)) call errquit('get_cmoao_nwchem failed',0,DISK_ERR)
+c     call ga_clean(g_moreo,1.0d-12)
       icounter=1
       do i = 1, luciamo(1)
          call ga_get(g_moreo, 1, luciaao, i, i, ctmp, 1)
@@ -7911,6 +7912,23 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
 *
       RETURN
       END 
+      subroutine ga_clean(g_input,clean_thresh)
+      implicit real*8(a-h,o-z)
+      integer g_input
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      call ga_distribution(g_input,ga_nodeid(),ilo,ihi,jlo,jhi)
+      call ga_access(g_input, ilo, ihi, jlo, jhi, iarray, idum)
+      ilen = (ihi-ilo+1)*(jhi-jlo+1)-1
+      do i = 0, ilen
+         if (dabs(dbl_mb(iarray+i)).le.clean_thresh)
+     &      dbl_mb(iarray+i) = 0.0d0
+      enddo
+      call ga_release(g_input,ilo,ihi,jlo,jhi)
+*
+      return
+      end
       FUNCTION NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
 *
 * Length of one-electron matrix with symmetry IHSM

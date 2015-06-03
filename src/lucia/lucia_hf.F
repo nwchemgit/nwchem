@@ -6171,8 +6171,6 @@ c      INCLUDE 'implicit.inc'
       LEN_E =  NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)     
       CALL MEMMAN(KLKAPPAE,LEN_E,'ADDL  ',2,'KAPPAE')
       CALL REF_AS_KAPPA(KAPPAP,dbl_mb(KLKAPPAE),1,1,IOOEXC,NOOEXC)
-C?    WRITE(6,*) ' Kappa in expanded form '
-C?    CALL APRBLM2(WORK(KLKAPPAE),NTOOBS,NTOOBS,NSMOB,0)
 *
 *. And obtain the exponential of -Kappa - done in symmetryblocks
       NOBBLK_MAX = IMNMX(NTOOBS,NSMOB,2)
