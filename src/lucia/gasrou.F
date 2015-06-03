@@ -9460,8 +9460,9 @@ C?   &         WORK(KLFBLK-1+(I-1)*NJ+J)
              END DO
             call ga_release(FI, ilo, ihi, 1, 1)
             call ga_release(FA, ilo, ihi, 1, 1)
-            call ga_dgop(1,dbl_mb(KLFBLK),ni*nj,'+')
             endif
+            call ga_sync()
+            call ga_dgop(1,dbl_mb(KLFBLK),ni*nj,'+')
             ELSE IF(JGAS.LE.NGAS) THEN
 *
 *. Active part

@@ -7919,6 +7919,7 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
 #include "mafdecls.fh"
 #include "global.fh"
       call ga_distribution(g_input,ga_nodeid(),ilo,ihi,jlo,jhi)
+      if (ihi.gt.0) then
       call ga_access(g_input, ilo, ihi, jlo, jhi, iarray, idum)
       ilen = (ihi-ilo+1)*(jhi-jlo+1)-1
       do i = 0, ilen
@@ -7926,6 +7927,7 @@ C            PRHONE(C,NFUNC,M,NSM,IPACK)
      &      dbl_mb(iarray+i) = 0.0d0
       enddo
       call ga_release(g_input,ilo,ihi,jlo,jhi)
+      endif
 *
       return
       end

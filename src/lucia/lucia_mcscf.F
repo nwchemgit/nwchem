@@ -4163,6 +4163,7 @@ CNW   DIMENSION F(*)
       call luciaqenter('gbrtf')
       IOFF = 1
       call ga_distribution(F,ga_nodeid(),ilo,ihi,idum,idum)
+      if (ihi.gt.0) then
       call ga_access(F, ilo, ihi, 1, 1, ikf, idum)
       DO ISM = 1, NSMOB
         IF(ISM.EQ.1) THEN
@@ -4192,6 +4193,8 @@ CNW     END DO
       END DO
       IOFF = IOFF + NOB*NOB - 1
       call ga_release(F,ilo,ihi,1,1)
+      endif
+      call ga_sync()
       call ga_dgop(1, BRT, IOFF, '+')
 *
       NTEST = 00

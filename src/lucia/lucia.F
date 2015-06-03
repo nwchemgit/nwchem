@@ -7987,6 +7987,7 @@ C?      write(6,*) ' LBL = ', LBL
       ELSE
         XNORM = 0.0d0
         call ga_distribution(C, ga_nodeid(),ilo,ihi,idum,idum)
+        if (ihi.gt.0) then
         call ga_access(C,ilo,ihi,1,1,ivecin,idum)
         if (ilo.le.ICOFF+NCMB_IN.and.ihi.ge.ICOFF) then
            mylow  = max(ilo,ICOFF) - ilo
@@ -7996,6 +7997,8 @@ C?      write(6,*) ' LBL = ', LBL
            enddo
         endif
         call ga_release(C,ilo,ihi,1,1)
+        endif
+        call ga_sync()
         if(ga_nnodes().gt.1) call ga_dgop(1,XNORM,1,'+')
         
 *. It is assumed pt that vector is nonvanising
@@ -10880,7 +10883,6 @@ CNW   CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY ')
 *. Symmetry of reference (pt not active)
       IF(PNTGRP.GT.1) CALL MLSM(IREFSM,IREFPA,IREFSM,'CI',1)
 *. Number of string types
-      IPRSTR = 0  
       CALL STRTYP_GAS(IPRSTR)
 *
 *. Allocate some inital memory - pointers to construct pointers
@@ -31832,7 +31834,7 @@ C          NO DEGENERACIES OCCUR AMONG THE HIGHEST ELEMENTS
 * STVAL : STVAL(I) IS VALUES OF SORTED ELEMENT I
 * ISTART: SCATTER POINTER ISTART(I) IS ADRESS IN FULL LIST OF
 *          SORTED ELEMENT I
-* KZVAR: LENGTH OG WRK
+* KZVAR: LENGTH OF WRK
 * JEXSTV: NUMBER OF ELEMENTS RETURNED , CAN BE LESS THAN
 *          KEXSTV-1 IF DEGENERNCIES OCCURS  AMONG THE LAST ELEMENTS
 *
@@ -31849,8 +31851,6 @@ C
       PARAMETER ( D0=0.0D0 , D1=1.0D0 , DM1 = -1.0D0 )
       LOGICAL FULL
 C
-      call ga_distribution(WRK,ga_nodeid(),ilo,ihi,idum,idum)
-      call ga_access(WRK, ilo, ihi, 1, 1, ikf, idum)
       IF(KEXST2.GE.KZVAR) THEN
          FULL = .TRUE.
          KEXSTV = KZVAR
@@ -31858,9 +31858,19 @@ C
          FULL = .FALSE.
          KEXSTV = KEXST2
       END IF
-C     write(6,*) ' SORLOW: KZVAR KEXST2 KEXSTV ',
-C    &                      KZVAR,KEXST2,KEXSTV
-*
+      if (KZVAR.lt.KEXSTV*ga_nnodes()) then
+c
+      if (.not.ma_push_get(mt_dbl,kzvar,'temp',lwork,kwork)) call
+     $   errquit('sorlowg:push_get failed', kzvar, MA_ERR)
+      call ga_get(WRK,1,KZVAR,1,1,dbl_mb(iwork),1)
+      call sorlow(dbl_mb(iwork),STVAL,ISTART,KZVAR,KEXST2,JEXSTV,0)  
+      if (.not.ma_pop_stack(lwork)) call
+     $   errquit('sorlowg:pop_stack failed', kzvar, MA_ERR)
+c
+      else
+c
+      call ga_distribution(WRK,ga_nodeid(),ilo,ihi,idum,idum)
+      call ga_access(WRK, ilo, ihi, 1, 1, ikf, idum)
       ioff = ga_nodeid()*KEXSTV
       CALL SETVEC(STVAL,0.0D0,KEXSTV*ga_nnodes())
       CALL SETVECI(ISTART,0,KEXSTV*ga_nnodes())
@@ -31947,6 +31957,8 @@ C
      *  (ABS(STVAL(JEXSTV+1)-STVAL(JEXSTV))).LE.TOLEQL) GO TO 160
       END IF
       END IF! degeneracies should be checked
+c
+      endif! Doing this in serial or parallel
 *
       IF((IPRT.GT.8).AND.(KEXST2.NE.JEXSTV)
      &   .and.ga_nodeid().eq.0) WRITE(6,1600)KEXST2,JEXSTV

@@ -1358,6 +1358,7 @@ c
       call ga_release(DIAG,ilo,ihi,1,1)
       call ga_release(VECIN,ilo,ihi,1,1)
       endif
+      call ga_sync()
       call ga_dgop(1,VDSV,1,'+')
       RETURN
       END

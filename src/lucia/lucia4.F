@@ -1791,6 +1791,7 @@ CNW  &    ECC = ECC + 2*FI(II)
       END DO
       call ga_release(FI,ilo,ihi,1,1)
       endif
+      call ga_sync()
       call ga_dgop(1, ECC, 1, '+')
       if (ga_nodeid().eq.0) WRITE(6,*) ' one-electron part to ECC ', ECC
 *. Two-electron part
@@ -1956,6 +1957,7 @@ C?          WRITE(6,*) ' Updated ECC = ', ECC
       END DO
       call ga_release(FI,ilo,ihi,1,1)
       endif
+      call ga_sync()
       call ga_dgop(1, ECC, 1, '+')
       IF(NTEST.GE.0000.and.ga_nodeid().eq.0) 
      & WRITE(6,*) ' one-electron term to Ecore ', ECC
@@ -5675,7 +5677,7 @@ CNW   DIMENSION FA(*)
 *. Local scratch
       DIMENSION NOBPTS_L(0:6+MXPR4T,MXPOBS)
 *
-      NTEST = 00
+      NTEST = 000
       IF(IPRINTEGRAL.GE.100) NTEST = 100
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info form FA_FROM_INI'
