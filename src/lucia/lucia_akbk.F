@@ -37,43 +37,47 @@
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'AKBKCT')
       CALL LUCIAQENTER('AKBKCT')
  
+      if (ga_nodeid().eq.0) then
       WRITE(6,*) ' **************************************'
       WRITE(6,*) ' *                                    *'
       WRITE(6,*) ' * AKBK optimization control entered  *'
       WRITE(6,*) ' *                                    *'
       WRITE(6,*) ' * Version +0.1, Jeppe Olsen, July. 13*'
       WRITE(6,*) ' **************************************'
+      endif
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRINT)
 *
 * Test that CSFs are in use
-      IF(NOCSF.EQ.1) THEN
+      IF((NOCSF.EQ.1).and.(ga_nodeid().eq.0)) THEN
        WRITE(6,*) ' AKBK calculation with SD is under construction'
 cVOG        WRITE(6,*) ' AKBK calculation with determinants is not enabled'
 cVOG        WRITE(6,*) ' Please remove NOCSF keyword '
 cVOG        STOP       ' AKBK calculation with determinants is not enabled'
       END IF
-      IF(ICNFBAT.EQ.1.OR.ICISTR.EQ.1) THEN
+      IF((ICNFBAT.EQ.1.OR.ICISTR.EQ.1).and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' AKBK calculation with GAs is under construction'
 cVOG        WRITE(6,*) ' AKBK calculation does not work with incore options'
 cVOG        WRITE(6,*) ' Please make sure ICNFBAT .ge. 2 and ICISTR .ge. 2 '
 cVOG        STOP       ' AKBK calculation does not work with incore options'
       END IF
 *
+      IAKBK_MET = 1 
+      if (ga_nodeid().eq.0) then
       WRITE(6,*) ' Allowed number of outer iterations ', MAXITM
       WRITE(6,*) ' Allowed number of inner iterations ', MAXIT 
 *
 cVOG  All are written in GAs
-      IAKBK_MET = 1 
-      IF(IAKBK_MET.EQ.1) THEN
-        WRITE(6,*) ' Procedure with Q-vectors on DISC '
-      ELSE
-        WRITE(6,*) ' Procedure without Q-vectors on DISC '
-      END IF
+c     IF(IAKBK_MET.EQ.1) THEN
+c       WRITE(6,*) ' Procedure with Q-vectors on DISC '
+c     ELSE
+c       WRITE(6,*) ' Procedure without Q-vectors on DISC '
+c     END IF
 *
       WRITE(6,*) 
      &' Convergence threshold for macroiterations: ', THRES_E
+      endif
 *
 *. Memory for summarizer of information
 *
@@ -82,12 +86,14 @@ cVOG  All are written in GAs
       CALL MEMMAN(KL_SUMMARY,LEN_SUMMARY,'ADDL  ',2,'SUMMRY')
       IPSPC = JCMBSPC - 1
       IQSPC = JCMBSPC
+      if (ga_nodeid().eq.0) then
       WRITE(6,*) ' P-space for expansion ', IPSPC
       WRITE(6,*) ' Q-space for expansion ', IQSPC
+      endif
 *. Number of CSFs in P and Q
       NPCSF = NCSF_PER_SYM_GN(IREFSM,IPSPC)
       NQCSF = NCSF_PER_SYM_GN(IREFSM,IQSPC)
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Initial energy = ', EREF
 cVOG    WRITE(6,*) ' Number of CSFs in P-space = ', NPCSF
 cVOG    WRITE(6,*) ' Number of CSFs in PQ-space = ', NQCSF
@@ -122,15 +128,18 @@ cVOG    WRITE(6,*) ' Number of CSFs in PQ-space = ', NQCSF
 C     EXCIT_OCCLS_TO_OCCLS(NOCC_L,IOCC_L,NOCC_R,IOCC_R,
 C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       MAX_EXCIT = 117
-      WRITE(6,*) ' Max excitation level beween P and Q set to',
+      if (ga_nodeid().eq.0)
+     &WRITE(6,*) ' Max excitation level beween P and Q set to',
      &            MAX_EXCIT
       CALL EXCIT_OCCLS_TO_OCCLS(NOCCLS_P,int_mb(KLOCCLS_P),
      &    NOCCLS_Q,int_mb(KLOCCLS_Q),int_mb(KIOCCLS),NGAS,MAX_EXCIT,
      &    NRCONNECT,int_mb(KLRCONNECT))
       IF(NRCONNECT.LT.NOCCLS_Q) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Q-space reduced to interacting occlasses'
         WRITE(6,*) ' Original and new number of Q occlasses ',
      &               NOCCLS_Q, NRCONNECT
+        endif
         CALL ICOPVE(int_mb(KLRCONNECT),int_mb(KLOCCLS_P),NRCONNECT)
 *. Should also be copied to Sigma occ classes?
       END IF
@@ -173,7 +182,7 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       NBLOCK_Q = NSBLOCK
       NBATCH_Q = NSBATCH
       NSBLK = NSBLOCK
-      if (IPRINT.ge.10) then
+      if (IPRINT.ge.10.and.ga_nodeid().eq.0) then
       WRITE(6,'(a,2I9)')  
      & ' Number of blocks and batches in P  ',NBLOCK_P, NBATCH_P
       WRITE(6,'(a,2I9)')  
@@ -233,7 +242,7 @@ cVOG   CALL GASANA(dbl_mb(KVEC1P),NBLOCK,NSDP,NSDP,LUC,ICISTR)
         LCSBLK = LENP
       END IF
 *
-       IF (NTEST.GE.1000) THEN
+       IF (NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,'(a)')     ' ================================= '
         WRITE(6,'(a)')     '  Dimensions for AKBK Calculation  '
         WRITE(6,'(a)')     ' ================================= '
@@ -293,7 +302,7 @@ C             COMHAM(H,NVAR,NBLOCK,LBLOCK,VEC1,VEC2)
 *
       LBLK = - 1
 *. Obtain Preconditioner in CSF-basis: form determined by IH0_CSF
-      WRITE(6,*) ' IH0_CSF = ', IH0_CSF
+c     WRITE(6,*) ' IH0_CSF = ', IH0_CSF
       IF(IH0_CSF.EQ.1) THEN
 *
 *  ================
@@ -376,8 +385,10 @@ C    &   IFORM)
       EREF_OLD = 3006.56
       CONV_F = .FALSE.
       DO IMAC = 1, MAXITM 
+       if (ga_nodeid().eq.0) then
        WRITE(6,*) ' Info from macroiteration ', IMAC
        WRITE(6,*) ' ================================'
+       endif
        IF(IMAC.GT.1) EREF_OLD = EREF
        SHIFT = - EREF
        IIUSEH0P = 0
@@ -434,11 +445,11 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
 *
       CALL FILEMAN_MINI(LU8,'FREE  ')
        EREF = EROOT(NROOT)
-       WRITE(6,'(A,F22.12)') '   Energy: ', EREF
+       if (ga_nodeid().eq.0) WRITE(6,'(A,F22.12)') '   Energy: ', EREF
        ERROR_NORM_FINAL = RNRM(NROOT)
        dbl_mb(KL_SUMMARY-1+(IMAC-1)*NITEM+1) = ERROR_NORM_FINAL
        dbl_mb(KL_SUMMARY-1+(IMAC-1)*NITEM+2) = EREF
-       WRITE(6,'(A,E8.3)') '   Residual norm ',
+       if (ga_nodeid().eq.0) WRITE(6,'(A,E8.3)') '   Residual norm ',
      & ERROR_NORM_FINAL
 *
        DELTA_E = EREF-EREF_OLD
@@ -450,13 +461,16 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
  1001 CONTINUE
 *
       IF(CONV_F) THEN
-        WRITE(6,*) ' AKBK procedure converged '
+        if (ga_nodeid().eq.0) 
+     &     WRITE(6,*) ' AKBK procedure converged '
         NIT = IMAC
       ELSE
-        WRITE(6,*) ' AKBK procedure not converged '
+        if (ga_nodeid().eq.0) 
+     &     WRITE(6,*) ' AKBK procedure not converged '
         NIT = IMAC - 1
       END IF
 *
+      if (ga_nodeid().eq.0) then
       WRITE(6,*)
       WRITE(6,*)
      & ' Iter Residual norm        Energy '
@@ -467,6 +481,7 @@ C?     WRITE(6,*) ' ICISTR, LBLK = ', ICISTR, LBLK
         RNRMI =  dbl_mb(KL_SUMMARY-1+(IT-1)*NITEM+1) 
         WRITE(6,'(1X,I3,4X,E8.3,F20.12)') IT, RNRMI, ENER
       END DO
+      endif
 *
 *. Calculate density matrices
 *
@@ -504,7 +519,7 @@ C?    END IF
       INTEGER IRCONNECT(*)
 *
       NTEST = 000
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' Output from EXCIT_OCCLS_TO_OCCLS '
         WRITE(6,*) ' ================================='
@@ -532,10 +547,10 @@ C?    END IF
        END IF
       END DO
 *
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' Number of connected R-classes = ', NRCONNECT
       END IF
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' The connected classes '  
        CALL IWRTMA(IRCONNECT,1,NRCONNECT,1,NRCONNECT)
       END IF
@@ -589,16 +604,16 @@ C?    END IF
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
       CALL LUCIAQENTER('AKBKSI')
       NTEST = 000
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Information from AKBKSIGMA'
         WRITE(6,*) ' =========================='
         WRITE(6,*)
       END IF 
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' LUC,  LUHC = ', LUC, LUHC
         WRITE(6,*) ' NSDP, NSDQ = ', NSDP, NSDQ
       END IF
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Input vector to AKBKSIGMA '
         CALL ga_print(CB)
 !        KATI = 0.0d0
@@ -646,7 +661,8 @@ cVOG  CALL REWINO(LUC)
 cVOG  CALL REWINO(LU_Q2)
 cVOG  CALL MV7(CB,HCB,LUC,LU_Q2,XDUM,XDUM)
       CALL MV7(CB,KLU_Q2,0,0,0,0)
-      IF(NTEST.GE.1000) WRITE(6,*) ' H(QP)P CP accomplished'
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
+     &  WRITE(6,*) ' H(QP)P CP accomplished'
       IF(NTEST.GE.1000) THEN
        CALL ga_print(CB)
        CALL ga_print(KLU_Q2)
@@ -686,7 +702,7 @@ C    &                      INCORE)
 *
 cVOG CALL CSDIAGM(IREFSM,2,LU_Q3,CB,HCB)
       CALL CSDIAGM(IREFSM,2,0,CB,KLU_Q3)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
        write(6,*) 'Diagonal HQQ is here'
        call ga_print(KLU_Q3)
       END IF
@@ -699,7 +715,8 @@ cVOG CALL CSDIAGM(IREFSM,2,LU_Q3,CB,HCB)
       H0 = 3006.56
       H0SCR = 3006.56
       IZERO = 0
-      IF(NTEST.GE.1000) WRITE(6,*) ' Shift :', SHIFT 
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
+     &  WRITE(6,*) ' Shift :', SHIFT 
 cVOG  CALL H0M1TD(KLU_Q2,KLU_Q3,KLU_Q1,LBLK,IZERO,IPNTR,
 cVOG &     H0,SHIFT,H0SCR,XH0IX,
 cVOG &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
@@ -736,7 +753,7 @@ cVOG    CALL WRTVCD(CB,LU_Q2,1,LBLK)
 cVOG  CALL REWINO(LU_Q3)
 cVOG  CALL MV7(CB,HCB,LU_Q2,LU_Q3,XDUM,XDUM)
       CALL MV7(KLU_Q2,KLU_Q3,0,0,0,0)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' HPQ (HQQ - E)**-1 HQP CP  '
 cVOG    CALL WRTVCD(CB,LU_Q3,1,LBLK)
         call ga_print(KLU_Q2)
@@ -750,7 +767,7 @@ cVOG    CALL WRTVCD(CB,LU_Q3,1,LBLK)
 cVOG  CALL REWINO(LU_Q1)
 cVOG  CALL MV7(CB,HCB,LUC,LU_Q1,XDUM,XDUM)
       CALL MV7(CB,KLU_Q1,0,0,0,0)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' HPP CP: '
 cVOG    CALL WRTVCD(CB,LU_Q1,1,LBLK)
         call ga_print(KLU_Q1)
@@ -773,7 +790,7 @@ cVOG  CALL VECSMD(CB,HCB,ONE,ONEM,LU_Q1,LU_Q3,LUHC,1,LBLK)
      &                  ONEM, KLU_Q3, 1, NSDP, 1, 1,
      &                           HCB, 1, NSDP, 1, 1)
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' Sigma vector from AKBKSIGMA:'
 cVOG   CALL WRTVCD(CB,LUHC,1,LBLK)
        call ga_print(HCB)
@@ -785,7 +802,8 @@ cVOG  CALL FILEMAN_MINI(LU_Q1,'FREE  ')
 cVOG  CALL FILEMAN_MINI(LU_Q2,'FREE  ')
 cVOG  CALL FILEMAN_MINI(LU_Q3,'FREE  ')
 *
-      IF(NTEST.GE.10) WRITE(6,*) ' Leaving AKBKSIGMA'
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) 
+     &  WRITE(6,*) ' Leaving AKBKSIGMA'
 C?    WRITE(6,*) ' Jeppe forced me to stop.... '
 C?    STOP ' Jeppe forced me to stop.... '
 *
@@ -832,7 +850,7 @@ C?    STOP ' Jeppe forced me to stop.... '
       CALL LUCIAQENTER('CSDIAM')
 *
       NTEST = 000
-      IF(NTEST.GE.100) THEN 
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN 
         WRITE(6,*) ' Entering CSDIAGM '
         WRITE(6,*) ' ================='
         WRITE(6,*) ' IH0_CSF, ICS = ', IH0_CSF, ICS
@@ -980,15 +998,15 @@ C?      WRITE(6,*) ' Ecore before GET_CSF.... ', ECORE
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'GET_CQ')
       CALL LUCIAQENTER('GET_CQ')
-      NTEST = 10000
-      IF(NTEST.GE.10) THEN
+      NTEST = 0000
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Information from GET_CQ'
         WRITE(6,*) ' =========================='
         WRITE(6,*)
         WRITE(6,*) ' LUCP, LUCQ = ', LUCP, LUCQ
         WRITE(6,*) ' IPSPC, IQSPC = ', IPSPC, IQSPC
       END IF
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Input vector to GET_CQ_FROM_CP '
         CALL WRTVCD(CB,LUCP,1,LBLK)
       END IF
