@@ -1499,7 +1499,8 @@ c      INCLUDE 'mxpdim.inc'
         WRITE(6,*) ' PUTMOAO: MOLCAS environment'
         CALL PUTMOAO_MOLCAS(CMOAO,LUMOUT)
       ELSE
-        WRITE(6,*) ' MOs will not be written to file in PUTMOAO'
+        if (ga_nodeid().eq.0) 
+     &  WRITE(6,*) ' MOs will not be written to file in PUTMOAO'
       END IF
 *
       RETURN
@@ -9357,7 +9358,11 @@ CNW   DIMENSION DIAG(*)
      &       int_mb(KLPHSTR),NPHELFSPGP,IOCTPA,IOCTPB,NINOB,
      &       int_mb(KLISCR))
       END IF
-
+*
+      IF(NTEST.GE.10) THEN
+       write(*,*) 'Diagonal elements'
+       call ga_print(DIAG)
+      END IF
 *.Flush local memory
       CALL MEMMAN(IDUM,  IDUM,    'FLUSM ',IDUM,'GASDIA')
       CALL LUCIAQEXIT('CIDIA')
@@ -10855,9 +10860,14 @@ c
      $       'intim: failed to read movecs file', 1, INPUT_ERR)
       if(.not.rtdb_get(rtdb,'scf:alpha irreps',MT_INT,luciaao,
      &                 kirs_nw))
-     &  call errquit('LUCIA: falied to read irreps in rtdb',0,RTDB_ERR)
+     &  call errquit('LUCIA: failed to read irreps in rtdb',0,RTDB_ERR)
       call ifill(nirrep,0,ipnt_nw,1)
+      luciasymname = trim(luciasymname)
       call sym_mol(luciasymname,ipnt_nw)
+      if (luciasymname.eq.'C2') then
+       ipnt_nw(1) = 1
+       ipnt_nw(2) = 2
+      end if
       call sym_bas_irrep_id(luciabasis,.false.,mxporb,mxpirr,
      &                      nwchem_id,nwchem_sc)
 * ======================================================
@@ -11523,7 +11533,8 @@ C     IF(I_DO_NORTCI.EQ.0.AND.INI_MO_TP.NE.3) THEN
         IF(NTEST.GE.10000) THEN
           WRITE(6,*) ' NINT2_F = ', NINT2_F
           WRITE(6,*) ' Integrals transformed to KINT_2EMO'
-          CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
+          CALL WRTMAT(dbl_mb(KINT_2EMO),1,NINT2_F,1,NINT2_F)
+cVOG      CALL WRTMAT(WORK(KINT_2EMO),1,NINT2_F,1,NINT2_F)
         END IF
 *. one-electron integrals to KINT1O
 CNW     CALL COPVEC(WORK(KINT1),WORK(KINT1O),NINT1)
@@ -11934,7 +11945,7 @@ CBERT           CALL SCLH2(XLAMBDA)
              write(6,'(13X,A)') '* NWChem AkBkCI (NACI) Initialized *'
              write(6,'(13X,A)') '************************************'
              write(6,*)
-              endif
+             endif
              EREF = EFINAL
              I_AM_AT_AKBK = 1
              CALL AKBKCI(JCMBSPC,IPRDIA,
@@ -17424,7 +17435,7 @@ C?   &   ' Type of final orbitals ',CARD1
          ELSE IF ( CARD1(1:6) .EQ. 'PS_CAN') THEN
 *. Pseudo canonical orbitals
            IFINMO = 4
-          ELSE IF (CARD1(1:5) .EQ. 'PS_NC') THEN
+         ELSE IF (CARD1(1:5) .EQ. 'PS_NC') THEN
 *. Pseudo natural-canonical orbitals
            IFINMO = 5
 *. requires input of subshells in which to define 
@@ -35393,7 +35404,7 @@ C         WRITE(6,*) ' IOCTP_L = ', IOCTP_L
             IOCOBTP_L = IOCOBTP_G(IIARR)
             NINT2_L = NINT2_G(IIARR)
             KINT2_L = KINT2_A(IIARR)
-            WRITE(6,'(3X,I2,2X,I8,4X,I2,4X,I1,2X,I9)')
+            WRITE(6,'(3X,I2,2X,I8,4X,I2,4X,I1,2X,I15)')
      &      IIARR, NINT2_L, INTSM_L, IOCOBTP_L, KINT2_L
          END DO
         END DO
@@ -36190,7 +36201,7 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
         WRITE(6,*) ' IMO parameter ', IMO
         WRITE(6,*) ' INTIMP = ', INTIMP
       END IF
-      IF(NTEST.GE.1) THEN
+      IF(NTEST.GE.1.and.ga_nodeid().eq.0) THEN
         IF(IMO.EQ.1) THEN
           WRITE(6,*) ' Final orbitals: natural orbitals '
         ELSE IF (IMO.EQ.2) THEN
