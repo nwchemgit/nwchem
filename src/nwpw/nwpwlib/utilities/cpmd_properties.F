@@ -214,6 +214,7 @@ c
       value = value.and.
      >        btdb_put(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy)
 
+      task_aimd_properties = value
       return
       end 
 
