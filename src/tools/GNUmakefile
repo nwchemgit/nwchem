@@ -316,6 +316,13 @@ ifdef USE_MPI
         else
             MAYBE_MPICC = MPICC="$(strip $(MPICC))"
         endif
+        ifeq ($(MPICXX),)
+            ifneq ($(CXX),)
+                MAYBE_MPICXX = MPICXX="$(strip $(CXX))"
+            endif
+        else
+            MAYBE_MPICXX = MPICXX="$(strip $(MPICXX))"
+        endif
         ifeq ($(MPIF77),)
             ifneq ($(FC),)
                 MAYBE_MPIF77 = MPIF77="$(strip $(FC))"
@@ -346,6 +353,10 @@ endif # USE_MPI
 
 ifneq ($(CC),)
     MAYBE_CC = CC="$(strip $(CC))"
+endif
+
+ifneq ($(CXX),)
+    MAYBE_CXX = CXX="$(strip $(CXX))"
 endif
 
 ifneq ($(FC),)
@@ -505,7 +516,7 @@ BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
 TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_ELPA) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_ELPA) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_CXX) $(MAYBE_MPICXX) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS) $(MAYBE_OFFLOAD) $(MAYBE_SYSVSHMEM)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst /,-,$(subst $(SPACE),-,$(strip $(FC))).FC.stamp)
