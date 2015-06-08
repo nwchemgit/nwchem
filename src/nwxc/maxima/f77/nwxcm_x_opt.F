@@ -15,9 +15,16 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {{1}\over{\rho_\alpha^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_2} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_3} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
-C>   f &=& -3.599999999999999 \times 10^{-5}\,\rho_\beta^{{{4}\over{3}}}\,\left({{{\it t_2}\,\sigma_{\beta\beta}}\over{0.006\,{\it t_2}\,\sigma_{\beta\beta}+1.0}}\right)^{2.0}-3.599999999999999 \times 10^{-5}\,\rho_\alpha^{{{4}\over{3}}}\,\left({{{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.006\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}\right)^{2.0}\\\\ 
+C>   f &=& -3.599999999999999 \times 10^{-5}\,\rho_\beta^{{{4}
+C>    \over{3}}}\,\left({{{\it t_2}\,\sigma_{\beta\beta}}\over{0.006
+C>    \,{\it t_2}\,\sigma_{\beta\beta}+1.0}}\right)^{2.0}
+C>    -3.599999999999999 \times 10^{-5}\,\rho_\alpha^{{{4}\over{3}}}
+C>    \,\left({{{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.006\,{
+C>    \it t_1}\,\sigma_{\alpha\alpha}+1.0}}\right)^{2.0}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}\,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}\,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
+C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}
+C>    \,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}
+C>    \,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -175,9 +182,16 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {{1}\over{\rho_\alpha^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_2} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_3} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
-C>   f &=& -3.599999999999999 \times 10^{-5}\,\rho_\beta^{{{4}\over{3}}}\,\left({{{\it t_2}\,\sigma_{\beta\beta}}\over{0.006\,{\it t_2}\,\sigma_{\beta\beta}+1.0}}\right)^{2.0}-3.599999999999999 \times 10^{-5}\,\rho_\alpha^{{{4}\over{3}}}\,\left({{{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.006\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}\right)^{2.0}\\\\ 
+C>   f &=& -3.599999999999999 \times 10^{-5}\,\rho_\beta^{{{4}
+C>    \over{3}}}\,\left({{{\it t_2}\,\sigma_{\beta\beta}}\over{0.006
+C>    \,{\it t_2}\,\sigma_{\beta\beta}+1.0}}\right)^{2.0}
+C>    -3.599999999999999 \times 10^{-5}\,\rho_\alpha^{{{4}\over{3}}}
+C>    \,\left({{{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.006\,{
+C>    \it t_1}\,\sigma_{\alpha\alpha}+1.0}}\right)^{2.0}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}\,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}\,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
+C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}
+C>    \,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}
+C>    \,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -457,9 +471,16 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {{1}\over{\rho_\alpha^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_2} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_3} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
-C>   f &=& -3.599999999999999 \times 10^{-5}\,\rho_\beta^{{{4}\over{3}}}\,\left({{{\it t_2}\,\sigma_{\beta\beta}}\over{0.006\,{\it t_2}\,\sigma_{\beta\beta}+1.0}}\right)^{2.0}-3.599999999999999 \times 10^{-5}\,\rho_\alpha^{{{4}\over{3}}}\,\left({{{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.006\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}\right)^{2.0}\\\\ 
+C>   f &=& -3.599999999999999 \times 10^{-5}\,\rho_\beta^{{{4}
+C>    \over{3}}}\,\left({{{\it t_2}\,\sigma_{\beta\beta}}\over{0.006
+C>    \,{\it t_2}\,\sigma_{\beta\beta}+1.0}}\right)^{2.0}
+C>    -3.599999999999999 \times 10^{-5}\,\rho_\alpha^{{{4}\over{3}}}
+C>    \,\left({{{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.006\,{
+C>    \it t_1}\,\sigma_{\alpha\alpha}+1.0}}\right)^{2.0}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}\,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}\,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
+C>   G &=& -3.599999999999999 \times 10^{-5}\,\rho_s^{{{4}\over{3}}}
+C>    \,\left({{{\it t_3}\,\sigma_{ss}}\over{0.006\,{\it t_3}
+C>    \,\sigma_{ss}+1.0}}\right)^{2.0}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 

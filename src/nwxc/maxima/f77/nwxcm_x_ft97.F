@@ -14,16 +14,35 @@ C>
 C> \f{eqnarray*}{ 
 C>   {\it t_1} &=& \left| \rho_\alpha\right| \\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}^{2.666666666666667}}}\\\\ 
-C>   {\it t_3} &=& {{9.474169 \times 10^{-4}\,\sigma_{\alpha\alpha}}\over{\sigma_{\alpha\alpha}+6255746.320201}}+0.002913644\\\\ 
+C>   {\it t_3} &=& {{9.474169 \times 10^{-4}\,
+C>    \sigma_{\alpha\alpha}}\over{\sigma_{\alpha\alpha}
+C>    +6255746.320201}}+0.002913644\\\\ 
 C>   {\it t_4} &=& \left| \rho_\beta\right| \\\\ 
 C>   {\it t_5} &=& {{1}\over{{\it t_4}^{2.666666666666667}}}\\\\ 
-C>   {\it t_6} &=& {{9.474169 \times 10^{-4}\,\sigma_{\beta\beta}}\over{\sigma_{\beta\beta}+6255746.320201}}+0.002913644\\\\ 
+C>   {\it t_6} &=& {{9.474169 \times 10^{-4}\,
+C>    \sigma_{\beta\beta}}\over{\sigma_{\beta\beta}+6255746.320201}}
+C>    +0.002913644\\\\ 
 C>   {\it t_7} &=& \left| \rho_s\right| \\\\ 
 C>   {\it t_8} &=& {{1}\over{{\it t_7}^{2.666666666666667}}}\\\\ 
-C>   {\it t_9} &=& {{9.474169 \times 10^{-4}\,\sigma_{ss}}\over{\sigma_{ss}+6255746.320201}}+0.002913644\\\\ 
-C>   f &=& 1.0\,\left(-{{\rho_\beta^{{{4}\over{3}}}\,{\it t_5}\,\sigma_{\beta\beta}\,{\it t_6}}\over{\sqrt{9.0\,{\it t_5}\,\sigma_{\beta\beta}\,{\it t_6}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{\beta\beta}^2}\over{{\it t_4}^{5.333333333333333}}}+1.0}+{\it t_5}\,\sigma_{\beta\beta}\right)+1.0}}}-{{\rho_\alpha^{{{4}\over{3}}}\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}}\over{\sqrt{9.0\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{\alpha\alpha}^2}\over{{\it t_1}^{5.333333333333333}}}+1.0}+{\it t_2}\,\sigma_{\alpha\alpha}\right)+1.0}}}\right)\\\\ 
+C>   {\it t_9} &=& {{9.474169 \times 10^{-4}\,\sigma_{ss}}
+C>    \over{\sigma_{ss}+6255746.320201}}+0.002913644\\\\ 
+C>   f &=& 1.0\,\left(-{{\rho_\beta^{{{4}\over{3}}}\,{\it t_5}
+C>    \,\sigma_{\beta\beta}\,{\it t_6}}\over{\sqrt{9.0\,{\it t_5}
+C>    \,\sigma_{\beta\beta}\,{\it t_6}^{2.0}\,\log ^{2.0}
+C>    \left(\sqrt{{{\sigma_{\beta\beta}^2}\over{{
+C>    \it t_4}^{5.333333333333333}}}+1.0}+{\it t_5}\,
+C>    \sigma_{\beta\beta}\right)+1.0}}}-{{\rho_\alpha^{{{4}
+C>    \over{3}}}\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}}
+C>    \over{\sqrt{9.0\,{\it t_2}\,\sigma_{\alpha\alpha}\,{
+C>    \it t_3}^{2.0}\,\log ^{2.0}\left(\sqrt{{{
+C>    \sigma_{\alpha\alpha}^2}\over{{\it t_1}^{5.333333333333333}}}
+C>    +1.0}+{\it t_2}\,\sigma_{\alpha\alpha}\right)+1.0}}}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}\,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{\it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}\over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,\sigma_{ss}\right)+1.0}}}\\\\ 
+C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}
+C>    \,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{
+C>    \it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}
+C>    \over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,
+C>    \sigma_{ss}\right)+1.0}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -260,16 +279,35 @@ C>
 C> \f{eqnarray*}{ 
 C>   {\it t_1} &=& \left| \rho_\alpha\right| \\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}^{2.666666666666667}}}\\\\ 
-C>   {\it t_3} &=& {{9.474169 \times 10^{-4}\,\sigma_{\alpha\alpha}}\over{\sigma_{\alpha\alpha}+6255746.320201}}+0.002913644\\\\ 
+C>   {\it t_3} &=& {{9.474169 \times 10^{-4}\,
+C>    \sigma_{\alpha\alpha}}\over{\sigma_{\alpha\alpha}
+C>    +6255746.320201}}+0.002913644\\\\ 
 C>   {\it t_4} &=& \left| \rho_\beta\right| \\\\ 
 C>   {\it t_5} &=& {{1}\over{{\it t_4}^{2.666666666666667}}}\\\\ 
-C>   {\it t_6} &=& {{9.474169 \times 10^{-4}\,\sigma_{\beta\beta}}\over{\sigma_{\beta\beta}+6255746.320201}}+0.002913644\\\\ 
+C>   {\it t_6} &=& {{9.474169 \times 10^{-4}\,
+C>    \sigma_{\beta\beta}}\over{\sigma_{\beta\beta}+6255746.320201}}
+C>    +0.002913644\\\\ 
 C>   {\it t_7} &=& \left| \rho_s\right| \\\\ 
 C>   {\it t_8} &=& {{1}\over{{\it t_7}^{2.666666666666667}}}\\\\ 
-C>   {\it t_9} &=& {{9.474169 \times 10^{-4}\,\sigma_{ss}}\over{\sigma_{ss}+6255746.320201}}+0.002913644\\\\ 
-C>   f &=& 1.0\,\left(-{{\rho_\beta^{{{4}\over{3}}}\,{\it t_5}\,\sigma_{\beta\beta}\,{\it t_6}}\over{\sqrt{9.0\,{\it t_5}\,\sigma_{\beta\beta}\,{\it t_6}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{\beta\beta}^2}\over{{\it t_4}^{5.333333333333333}}}+1.0}+{\it t_5}\,\sigma_{\beta\beta}\right)+1.0}}}-{{\rho_\alpha^{{{4}\over{3}}}\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}}\over{\sqrt{9.0\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{\alpha\alpha}^2}\over{{\it t_1}^{5.333333333333333}}}+1.0}+{\it t_2}\,\sigma_{\alpha\alpha}\right)+1.0}}}\right)\\\\ 
+C>   {\it t_9} &=& {{9.474169 \times 10^{-4}\,\sigma_{ss}}
+C>    \over{\sigma_{ss}+6255746.320201}}+0.002913644\\\\ 
+C>   f &=& 1.0\,\left(-{{\rho_\beta^{{{4}\over{3}}}\,{\it t_5}
+C>    \,\sigma_{\beta\beta}\,{\it t_6}}\over{\sqrt{9.0\,{\it t_5}
+C>    \,\sigma_{\beta\beta}\,{\it t_6}^{2.0}\,\log ^{2.0}
+C>    \left(\sqrt{{{\sigma_{\beta\beta}^2}\over{{
+C>    \it t_4}^{5.333333333333333}}}+1.0}+{\it t_5}\,
+C>    \sigma_{\beta\beta}\right)+1.0}}}-{{\rho_\alpha^{{{4}
+C>    \over{3}}}\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}}
+C>    \over{\sqrt{9.0\,{\it t_2}\,\sigma_{\alpha\alpha}\,{
+C>    \it t_3}^{2.0}\,\log ^{2.0}\left(\sqrt{{{
+C>    \sigma_{\alpha\alpha}^2}\over{{\it t_1}^{5.333333333333333}}}
+C>    +1.0}+{\it t_2}\,\sigma_{\alpha\alpha}\right)+1.0}}}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}\,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{\it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}\over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,\sigma_{ss}\right)+1.0}}}\\\\ 
+C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}
+C>    \,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{
+C>    \it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}
+C>    \over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,
+C>    \sigma_{ss}\right)+1.0}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -797,16 +835,35 @@ C>
 C> \f{eqnarray*}{ 
 C>   {\it t_1} &=& \left| \rho_\alpha\right| \\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}^{2.666666666666667}}}\\\\ 
-C>   {\it t_3} &=& {{9.474169 \times 10^{-4}\,\sigma_{\alpha\alpha}}\over{\sigma_{\alpha\alpha}+6255746.320201}}+0.002913644\\\\ 
+C>   {\it t_3} &=& {{9.474169 \times 10^{-4}\,
+C>    \sigma_{\alpha\alpha}}\over{\sigma_{\alpha\alpha}
+C>    +6255746.320201}}+0.002913644\\\\ 
 C>   {\it t_4} &=& \left| \rho_\beta\right| \\\\ 
 C>   {\it t_5} &=& {{1}\over{{\it t_4}^{2.666666666666667}}}\\\\ 
-C>   {\it t_6} &=& {{9.474169 \times 10^{-4}\,\sigma_{\beta\beta}}\over{\sigma_{\beta\beta}+6255746.320201}}+0.002913644\\\\ 
+C>   {\it t_6} &=& {{9.474169 \times 10^{-4}\,
+C>    \sigma_{\beta\beta}}\over{\sigma_{\beta\beta}+6255746.320201}}
+C>    +0.002913644\\\\ 
 C>   {\it t_7} &=& \left| \rho_s\right| \\\\ 
 C>   {\it t_8} &=& {{1}\over{{\it t_7}^{2.666666666666667}}}\\\\ 
-C>   {\it t_9} &=& {{9.474169 \times 10^{-4}\,\sigma_{ss}}\over{\sigma_{ss}+6255746.320201}}+0.002913644\\\\ 
-C>   f &=& 1.0\,\left(-{{\rho_\beta^{{{4}\over{3}}}\,{\it t_5}\,\sigma_{\beta\beta}\,{\it t_6}}\over{\sqrt{9.0\,{\it t_5}\,\sigma_{\beta\beta}\,{\it t_6}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{\beta\beta}^2}\over{{\it t_4}^{5.333333333333333}}}+1.0}+{\it t_5}\,\sigma_{\beta\beta}\right)+1.0}}}-{{\rho_\alpha^{{{4}\over{3}}}\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}}\over{\sqrt{9.0\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{\alpha\alpha}^2}\over{{\it t_1}^{5.333333333333333}}}+1.0}+{\it t_2}\,\sigma_{\alpha\alpha}\right)+1.0}}}\right)\\\\ 
+C>   {\it t_9} &=& {{9.474169 \times 10^{-4}\,\sigma_{ss}}
+C>    \over{\sigma_{ss}+6255746.320201}}+0.002913644\\\\ 
+C>   f &=& 1.0\,\left(-{{\rho_\beta^{{{4}\over{3}}}\,{\it t_5}
+C>    \,\sigma_{\beta\beta}\,{\it t_6}}\over{\sqrt{9.0\,{\it t_5}
+C>    \,\sigma_{\beta\beta}\,{\it t_6}^{2.0}\,\log ^{2.0}
+C>    \left(\sqrt{{{\sigma_{\beta\beta}^2}\over{{
+C>    \it t_4}^{5.333333333333333}}}+1.0}+{\it t_5}\,
+C>    \sigma_{\beta\beta}\right)+1.0}}}-{{\rho_\alpha^{{{4}
+C>    \over{3}}}\,{\it t_2}\,\sigma_{\alpha\alpha}\,{\it t_3}}
+C>    \over{\sqrt{9.0\,{\it t_2}\,\sigma_{\alpha\alpha}\,{
+C>    \it t_3}^{2.0}\,\log ^{2.0}\left(\sqrt{{{
+C>    \sigma_{\alpha\alpha}^2}\over{{\it t_1}^{5.333333333333333}}}
+C>    +1.0}+{\it t_2}\,\sigma_{\alpha\alpha}\right)+1.0}}}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}\,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{\it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}\over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,\sigma_{ss}\right)+1.0}}}\\\\ 
+C>   G &=& -{{1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_8}\,\sigma_{ss}
+C>    \,{\it t_9}}\over{\sqrt{9.0\,{\it t_8}\,\sigma_{ss}\,{
+C>    \it t_9}^{2.0}\,\log ^{2.0}\left(\sqrt{{{\sigma_{ss}^2}
+C>    \over{{\it t_7}^{5.333333333333333}}}+1.0}+{\it t_8}\,
+C>    \sigma_{ss}\right)+1.0}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 

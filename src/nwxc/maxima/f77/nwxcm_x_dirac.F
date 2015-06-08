@@ -12,7 +12,8 @@ C>
 C> \brief Evaluate the nwxcm_x_dirac functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -0.9305257363491\,\rho_\beta^{{{4}\over{3}}}-0.9305257363491\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
+C>   f &=& -0.9305257363491\,\rho_\beta^{{{4}\over{3}}}
+C>    -0.9305257363491\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& -0.9305257363491\,\rho_s^{{{4}\over{3}}}\\\\ 
 C> \f} 
@@ -98,7 +99,8 @@ C>
 C> \brief Evaluate the nwxcm_x_dirac functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -0.9305257363491\,\rho_\beta^{{{4}\over{3}}}-0.9305257363491\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
+C>   f &=& -0.9305257363491\,\rho_\beta^{{{4}\over{3}}}
+C>    -0.9305257363491\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& -0.9305257363491\,\rho_s^{{{4}\over{3}}}\\\\ 
 C> \f} 
@@ -201,7 +203,8 @@ C>
 C> \brief Evaluate the nwxcm_x_dirac functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -0.9305257363491\,\rho_\beta^{{{4}\over{3}}}-0.9305257363491\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
+C>   f &=& -0.9305257363491\,\rho_\beta^{{{4}\over{3}}}
+C>    -0.9305257363491\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& -0.9305257363491\,\rho_s^{{{4}\over{3}}}\\\\ 
 C> \f} 

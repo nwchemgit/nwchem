@@ -37,9 +37,30 @@ C>   {\it t_{22}} &=& \sqrt{\sigma_{ss}}\\\\
 C>   {\it t_{23}} &=& {{1}\over{{\it t_{20}}^{{\it t_8}}}}\\\\ 
 C>   {\it t_{24}} &=& \sigma_{ss}^{{\it t_{10}}}\\\\ 
 C>   {\it t_{25}} &=& {{1}\over{{\it t_{19}}^{8.0}}}\\\\ 
-C>   f &=& {{1.0\,{\it t_4}\,\left({{{\it t_{13}}\,{\it t_{18}}\,\sigma_{\beta\beta}}\over{e^{1.6455\,{\it t_{18}}\,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{16}}\,{\it t_{17}}-{\it t_5}\,{\it t_{18}}\,\sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{16}}\,{\it t_{17}}+6.0\,{\it t_5}\,{\it t_{14}}\,{\rm asinh}\; \left({\it t_{14}}\,{\it t_{15}}\right)\,{\it t_{15}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{13}}\,{\it t_{12}}\,\sigma_{\alpha\alpha}}\over{e^{1.6455\,{\it t_{12}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{\it t_9}\,{\it t_{11}}-{\it t_5}\,{\it t_{12}}\,\sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_9}\,{\it t_{11}}+6.0\,{\it t_5}\,{\it t_6}\,{\rm asinh}\; \left({\it t_6}\,{\it t_7}\right)\,{\it t_7}+1.0}}-0.9305257363491\,{\it t_4}-0.9305257363491\,{\it t_2}\\\\ 
+C>   f &=& {{1.0\,{\it t_4}\,\left({{{\it t_{13}}\,{\it t_{18}}
+C>    \,\sigma_{\beta\beta}}\over{e^{1.6455\,{\it t_{18}}\,
+C>    \sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{16}}\,{
+C>    \it t_{17}}-{\it t_5}\,{\it t_{18}}\,
+C>    \sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_{16}}\,{\it t_{17}}+6.0\,{\it t_5}\,{\it t_{14}}
+C>    \,{\rm asinh}\; \left({\it t_{14}}\,{\it t_{15}}\right)\,{
+C>    \it t_{15}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{13}}\,{
+C>    \it t_{12}}\,\sigma_{\alpha\alpha}}\over{e^{1.6455\,{
+C>    \it t_{12}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{
+C>    \it t_9}\,{\it t_{11}}-{\it t_5}\,{\it t_{12}}\,
+C>    \sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_9}\,{\it t_{11}}+6.0\,{\it t_5}\,{\it t_6}
+C>    \,{\rm asinh}\; \left({\it t_6}\,{\it t_7}\right)\,{\it t_7}
+C>    +1.0}}-0.9305257363491\,{\it t_4}-0.9305257363491\,{\it t_2}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}\,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{\it t_{25}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}-0.9305257363491\,{\it t_{20}}\\\\ 
+C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}
+C>    \,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}
+C>    +1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{
+C>    \it t_{25}}\,\sigma_{ss}\right)}
+C>    \over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{
+C>    \it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; 
+C>    \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}
+C>    -0.9305257363491\,{\it t_{20}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -47,7 +68,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
+C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson
+C>    , DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
 C> 
@@ -327,9 +349,30 @@ C>   {\it t_{22}} &=& \sqrt{\sigma_{ss}}\\\\
 C>   {\it t_{23}} &=& {{1}\over{{\it t_{20}}^{{\it t_8}}}}\\\\ 
 C>   {\it t_{24}} &=& \sigma_{ss}^{{\it t_{10}}}\\\\ 
 C>   {\it t_{25}} &=& {{1}\over{{\it t_{19}}^{8.0}}}\\\\ 
-C>   f &=& {{1.0\,{\it t_4}\,\left({{{\it t_{13}}\,{\it t_{18}}\,\sigma_{\beta\beta}}\over{e^{1.6455\,{\it t_{18}}\,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{16}}\,{\it t_{17}}-{\it t_5}\,{\it t_{18}}\,\sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{16}}\,{\it t_{17}}+6.0\,{\it t_5}\,{\it t_{14}}\,{\rm asinh}\; \left({\it t_{14}}\,{\it t_{15}}\right)\,{\it t_{15}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{13}}\,{\it t_{12}}\,\sigma_{\alpha\alpha}}\over{e^{1.6455\,{\it t_{12}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{\it t_9}\,{\it t_{11}}-{\it t_5}\,{\it t_{12}}\,\sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_9}\,{\it t_{11}}+6.0\,{\it t_5}\,{\it t_6}\,{\rm asinh}\; \left({\it t_6}\,{\it t_7}\right)\,{\it t_7}+1.0}}-0.9305257363491\,{\it t_4}-0.9305257363491\,{\it t_2}\\\\ 
+C>   f &=& {{1.0\,{\it t_4}\,\left({{{\it t_{13}}\,{\it t_{18}}
+C>    \,\sigma_{\beta\beta}}\over{e^{1.6455\,{\it t_{18}}\,
+C>    \sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{16}}\,{
+C>    \it t_{17}}-{\it t_5}\,{\it t_{18}}\,
+C>    \sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_{16}}\,{\it t_{17}}+6.0\,{\it t_5}\,{\it t_{14}}
+C>    \,{\rm asinh}\; \left({\it t_{14}}\,{\it t_{15}}\right)\,{
+C>    \it t_{15}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{13}}\,{
+C>    \it t_{12}}\,\sigma_{\alpha\alpha}}\over{e^{1.6455\,{
+C>    \it t_{12}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{
+C>    \it t_9}\,{\it t_{11}}-{\it t_5}\,{\it t_{12}}\,
+C>    \sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_9}\,{\it t_{11}}+6.0\,{\it t_5}\,{\it t_6}
+C>    \,{\rm asinh}\; \left({\it t_6}\,{\it t_7}\right)\,{\it t_7}
+C>    +1.0}}-0.9305257363491\,{\it t_4}-0.9305257363491\,{\it t_2}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}\,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{\it t_{25}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}-0.9305257363491\,{\it t_{20}}\\\\ 
+C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}
+C>    \,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}
+C>    +1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{
+C>    \it t_{25}}\,\sigma_{ss}\right)}
+C>    \over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{
+C>    \it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; 
+C>    \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}
+C>    -0.9305257363491\,{\it t_{20}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -337,7 +380,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
+C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson
+C>    , DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
 C> 
@@ -926,9 +970,30 @@ C>   {\it t_{22}} &=& \sqrt{\sigma_{ss}}\\\\
 C>   {\it t_{23}} &=& {{1}\over{{\it t_{20}}^{{\it t_8}}}}\\\\ 
 C>   {\it t_{24}} &=& \sigma_{ss}^{{\it t_{10}}}\\\\ 
 C>   {\it t_{25}} &=& {{1}\over{{\it t_{19}}^{8.0}}}\\\\ 
-C>   f &=& {{1.0\,{\it t_4}\,\left({{{\it t_{13}}\,{\it t_{18}}\,\sigma_{\beta\beta}}\over{e^{1.6455\,{\it t_{18}}\,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{16}}\,{\it t_{17}}-{\it t_5}\,{\it t_{18}}\,\sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{16}}\,{\it t_{17}}+6.0\,{\it t_5}\,{\it t_{14}}\,{\rm asinh}\; \left({\it t_{14}}\,{\it t_{15}}\right)\,{\it t_{15}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{13}}\,{\it t_{12}}\,\sigma_{\alpha\alpha}}\over{e^{1.6455\,{\it t_{12}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{\it t_9}\,{\it t_{11}}-{\it t_5}\,{\it t_{12}}\,\sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_9}\,{\it t_{11}}+6.0\,{\it t_5}\,{\it t_6}\,{\rm asinh}\; \left({\it t_6}\,{\it t_7}\right)\,{\it t_7}+1.0}}-0.9305257363491\,{\it t_4}-0.9305257363491\,{\it t_2}\\\\ 
+C>   f &=& {{1.0\,{\it t_4}\,\left({{{\it t_{13}}\,{\it t_{18}}
+C>    \,\sigma_{\beta\beta}}\over{e^{1.6455\,{\it t_{18}}\,
+C>    \sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{16}}\,{
+C>    \it t_{17}}-{\it t_5}\,{\it t_{18}}\,
+C>    \sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_{16}}\,{\it t_{17}}+6.0\,{\it t_5}\,{\it t_{14}}
+C>    \,{\rm asinh}\; \left({\it t_{14}}\,{\it t_{15}}\right)\,{
+C>    \it t_{15}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{13}}\,{
+C>    \it t_{12}}\,\sigma_{\alpha\alpha}}\over{e^{1.6455\,{
+C>    \it t_{12}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{
+C>    \it t_9}\,{\it t_{11}}-{\it t_5}\,{\it t_{12}}\,
+C>    \sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_9}\,{\it t_{11}}+6.0\,{\it t_5}\,{\it t_6}
+C>    \,{\rm asinh}\; \left({\it t_6}\,{\it t_7}\right)\,{\it t_7}
+C>    +1.0}}-0.9305257363491\,{\it t_4}-0.9305257363491\,{\it t_2}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}\,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{\it t_{25}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}-0.9305257363491\,{\it t_{20}}\\\\ 
+C>   G &=& {{1.0\,{\it t_{20}}\,\left({{{\it t_{13}}\,{\it t_{25}}
+C>    \,\sigma_{ss}}\over{e^{1.6455\,{\it t_{25}}\,\sigma_{ss}}}}
+C>    +1.0 \times 10^{-6}\,{\it t_{23}}\,{\it t_{24}}-{\it t_5}\,{
+C>    \it t_{25}}\,\sigma_{ss}\right)}
+C>    \over{1.074661302677647 \times 10^{-6}\,{\it t_{23}}\,{
+C>    \it t_{24}}+6.0\,{\it t_5}\,{\it t_{21}}\,{\rm asinh}\; 
+C>    \left({\it t_{21}}\,{\it t_{22}}\right)\,{\it t_{22}}+1.0}}
+C>    -0.9305257363491\,{\it t_{20}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -936,7 +1001,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson, DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
+C> [1] JP Perdew, JA Chevary, SH Vosko, KA Jackson, MR Pederson
+C>    , DJ Singh, C. Fiolhais, Phys.Rev. B 46, 6671 (1992)  , DOI: 
 C> <a href="http://dx.doi.org/10.1021/jp050536c "> 
 C> 10.1021/jp050536c </a> 
 C> 

@@ -15,39 +15,76 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& \rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}}}\\\\ 
 C>   {\it t_3} &=& \sqrt{\sigma_{\alpha\alpha}}\\\\ 
-C>   {\it t_4} &=& {{1}\over{0.0252\,{\it t_2}\,{\rm asinh}\; \left({\it t_2}\,{\it t_3}\right)\,{\it t_3}+1.0}}\\\\ 
+C>   {\it t_4} &=& {{1}\over{0.0252\,{\it t_2}\,{\rm asinh}\; 
+C>    \left({\it t_2}\,{\it t_3}\right)\,{\it t_3}+1.0}}\\\\ 
 C>   {\it t_5} &=& -{\it param}\left(1\right)\\\\ 
 C>   {\it t_6} &=& {\it param}\left(2\right)\\\\ 
 C>   {\it t_7} &=& {\it param}\left(3\right)\\\\ 
 C>   {\it t_8} &=& {{1}\over{\rho_\alpha}}\\\\ 
-C>   {\it t_9} &=& 0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}+0.9305257363491002\,{\it t_1}\\\\ 
+C>   {\it t_9} &=& 0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}
+C>    +0.9305257363491002\,{\it t_1}\\\\ 
 C>   {\it t_{10}} &=& \sqrt{{\it t_9}}\\\\ 
 C>   {\it t_{11}} &=& {\it t_7}^2\\\\ 
 C>   {\it t_{12}} &=& \rho_\alpha^2\\\\ 
 C>   {\it t_{13}} &=& {{1}\over{{\it t_{11}}}}\\\\ 
-C>   {\it t_{14}} &=& e^ {- {{14.13716694115413\,{\it t_{12}}\,{\it t_{13}}}\over{{\it t_9}}} }\\\\ 
+C>   {\it t_{14}} &=& e^ {- {{14.13716694115413\,{\it t_{12}}\,{
+C>    \it t_{13}}}\over{{\it t_9}}} }\\\\ 
 C>   {\it t_{15}} &=& {{1}\over{{\it t_7}}}\\\\ 
 C>   {\it t_{16}} &=& \rho_\beta^{{{4}\over{3}}}\\\\ 
 C>   {\it t_{17}} &=& {{1}\over{{\it t_{16}}}}\\\\ 
 C>   {\it t_{18}} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
-C>   {\it t_{19}} &=& {{1}\over{0.0252\,{\it t_{17}}\,{\rm asinh}\; \left({\it t_{17}}\,{\it t_{18}}\right)\,{\it t_{18}}+1.0}}\\\\ 
+C>   {\it t_{19}} &=& {{1}\over{0.0252\,{\it t_{17}}
+C>    \,{\rm asinh}\; \left({\it t_{17}}\,{\it t_{18}}\right)\,{
+C>    \it t_{18}}+1.0}}\\\\ 
 C>   {\it t_{20}} &=& {{1}\over{\rho_\beta}}\\\\ 
-C>   {\it t_{21}} &=& 0.0042\,{\it t_{17}}\,{\it t_{19}}\,\sigma_{\beta\beta}+0.9305257363491002\,{\it t_{16}}\\\\ 
+C>   {\it t_{21}} &=& 0.0042\,{\it t_{17}}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}+0.9305257363491002\,{\it t_{16}}\\\\ 
 C>   {\it t_{22}} &=& \sqrt{{\it t_{21}}}\\\\ 
 C>   {\it t_{23}} &=& \rho_\beta^2\\\\ 
-C>   {\it t_{24}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{\it t_{23}}}\over{{\it t_{21}}}} }\\\\ 
+C>   {\it t_{24}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{
+C>    \it t_{23}}}\over{{\it t_{21}}}} }\\\\ 
 C>   {\it t_{25}} &=& \rho_s^{{{4}\over{3}}}\\\\ 
 C>   {\it t_{26}} &=& {{1}\over{{\it t_{25}}}}\\\\ 
 C>   {\it t_{27}} &=& \sqrt{\sigma_{ss}}\\\\ 
-C>   {\it t_{28}} &=& {{1}\over{0.0252\,{\it t_{26}}\,{\rm asinh}\; \left({\it t_{26}}\,{\it t_{27}}\right)\,{\it t_{27}}+1.0}}\\\\ 
+C>   {\it t_{28}} &=& {{1}\over{0.0252\,{\it t_{26}}
+C>    \,{\rm asinh}\; \left({\it t_{26}}\,{\it t_{27}}\right)\,{
+C>    \it t_{27}}+1.0}}\\\\ 
 C>   {\it t_{29}} &=& {{1}\over{\rho_s}}\\\\ 
-C>   {\it t_{30}} &=& 0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}+0.9305257363491002\,{\it t_{25}}\\\\ 
+C>   {\it t_{30}} &=& 0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}
+C>    +0.9305257363491002\,{\it t_{25}}\\\\ 
 C>   {\it t_{31}} &=& \sqrt{{\it t_{30}}}\\\\ 
 C>   {\it t_{32}} &=& \rho_s^2\\\\ 
-C>   {\it t_{33}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{\it t_{32}}}\over{{\it t_{30}}}} }\\\\ 
-C>   f &=& \left(-0.0042\,{\it t_{17}}\,{\it t_{19}}\,\sigma_{\beta\beta}-0.9305257363491002\,{\it t_{16}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_\beta}\over{{\it t_{22}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left({\it t_{24}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{21}}\,\left({\it t_{24}}-1.0\right)}\over{{\it t_{23}}}}-1.5\right)\right)+{\it t_5}+1.0\right)+\left(-0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}-0.9305257363491002\,{\it t_1}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_8}\,{\it t_{10}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_\alpha}\over{{\it t_{10}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_8}\,{\it t_{10}}\,\left({\it t_{14}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_9}\,\left({\it t_{14}}-1.0\right)}\over{{\it t_{12}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
+C>   {\it t_{33}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{
+C>    \it t_{32}}}\over{{\it t_{30}}}} }\\\\ 
+C>   f &=& \left(-0.0042\,{\it t_{17}}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}-0.9305257363491002\,{\it t_{16}}\right)
+C>    \,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{
+C>    \it t_{20}}\,{\it t_{22}}\,\left(1.77245385090552
+C>    \,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}
+C>    \,\rho_\beta}\over{{\it t_{22}}}}\right)+0.2659615202676212
+C>    \,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left({\it t_{24}}
+C>    -{{0.03536776513153214\,{\it t_{11}}\,{\it t_{21}}\,\left({
+C>    \it t_{24}}-1.0\right)}\over{{\it t_{23}}}}-1.5\right)\right)
+C>    +{\it t_5}+1.0\right)+\left(-0.0042\,{\it t_2}\,{\it t_4}
+C>    \,\sigma_{\alpha\alpha}-0.9305257363491002\,{\it t_1}\right)
+C>    \,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_8}
+C>    \,{\it t_{10}}\,\left(1.77245385090552\,\mathrm{erf}
+C>    \left({{3.759942411946509\,{\it t_{15}}\,\rho_\alpha}\over{{
+C>    \it t_{10}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_8}
+C>    \,{\it t_{10}}\,\left({\it t_{14}}-{{0.03536776513153214\,{
+C>    \it t_{11}}\,{\it t_9}\,\left({\it t_{14}}-1.0\right)}
+C>    \over{{\it t_{12}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}-0.9305257363491002\,{\it t_{25}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{\it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({\it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
+C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}
+C>    -0.9305257363491002\,{\it t_{25}}\right)\,\left(
+C>    -0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{
+C>    \it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}
+C>    \left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{
+C>    \it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{
+C>    \it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}
+C>    -{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({
+C>    \it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)
+C>    +{\it t_5}+1.0\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -55,7 +92,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
+C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  
+C>    , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
 C> 
@@ -422,39 +460,76 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& \rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}}}\\\\ 
 C>   {\it t_3} &=& \sqrt{\sigma_{\alpha\alpha}}\\\\ 
-C>   {\it t_4} &=& {{1}\over{0.0252\,{\it t_2}\,{\rm asinh}\; \left({\it t_2}\,{\it t_3}\right)\,{\it t_3}+1.0}}\\\\ 
+C>   {\it t_4} &=& {{1}\over{0.0252\,{\it t_2}\,{\rm asinh}\; 
+C>    \left({\it t_2}\,{\it t_3}\right)\,{\it t_3}+1.0}}\\\\ 
 C>   {\it t_5} &=& -{\it param}\left(1\right)\\\\ 
 C>   {\it t_6} &=& {\it param}\left(2\right)\\\\ 
 C>   {\it t_7} &=& {\it param}\left(3\right)\\\\ 
 C>   {\it t_8} &=& {{1}\over{\rho_\alpha}}\\\\ 
-C>   {\it t_9} &=& 0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}+0.9305257363491002\,{\it t_1}\\\\ 
+C>   {\it t_9} &=& 0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}
+C>    +0.9305257363491002\,{\it t_1}\\\\ 
 C>   {\it t_{10}} &=& \sqrt{{\it t_9}}\\\\ 
 C>   {\it t_{11}} &=& {\it t_7}^2\\\\ 
 C>   {\it t_{12}} &=& \rho_\alpha^2\\\\ 
 C>   {\it t_{13}} &=& {{1}\over{{\it t_{11}}}}\\\\ 
-C>   {\it t_{14}} &=& e^ {- {{14.13716694115413\,{\it t_{12}}\,{\it t_{13}}}\over{{\it t_9}}} }\\\\ 
+C>   {\it t_{14}} &=& e^ {- {{14.13716694115413\,{\it t_{12}}\,{
+C>    \it t_{13}}}\over{{\it t_9}}} }\\\\ 
 C>   {\it t_{15}} &=& {{1}\over{{\it t_7}}}\\\\ 
 C>   {\it t_{16}} &=& \rho_\beta^{{{4}\over{3}}}\\\\ 
 C>   {\it t_{17}} &=& {{1}\over{{\it t_{16}}}}\\\\ 
 C>   {\it t_{18}} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
-C>   {\it t_{19}} &=& {{1}\over{0.0252\,{\it t_{17}}\,{\rm asinh}\; \left({\it t_{17}}\,{\it t_{18}}\right)\,{\it t_{18}}+1.0}}\\\\ 
+C>   {\it t_{19}} &=& {{1}\over{0.0252\,{\it t_{17}}
+C>    \,{\rm asinh}\; \left({\it t_{17}}\,{\it t_{18}}\right)\,{
+C>    \it t_{18}}+1.0}}\\\\ 
 C>   {\it t_{20}} &=& {{1}\over{\rho_\beta}}\\\\ 
-C>   {\it t_{21}} &=& 0.0042\,{\it t_{17}}\,{\it t_{19}}\,\sigma_{\beta\beta}+0.9305257363491002\,{\it t_{16}}\\\\ 
+C>   {\it t_{21}} &=& 0.0042\,{\it t_{17}}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}+0.9305257363491002\,{\it t_{16}}\\\\ 
 C>   {\it t_{22}} &=& \sqrt{{\it t_{21}}}\\\\ 
 C>   {\it t_{23}} &=& \rho_\beta^2\\\\ 
-C>   {\it t_{24}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{\it t_{23}}}\over{{\it t_{21}}}} }\\\\ 
+C>   {\it t_{24}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{
+C>    \it t_{23}}}\over{{\it t_{21}}}} }\\\\ 
 C>   {\it t_{25}} &=& \rho_s^{{{4}\over{3}}}\\\\ 
 C>   {\it t_{26}} &=& {{1}\over{{\it t_{25}}}}\\\\ 
 C>   {\it t_{27}} &=& \sqrt{\sigma_{ss}}\\\\ 
-C>   {\it t_{28}} &=& {{1}\over{0.0252\,{\it t_{26}}\,{\rm asinh}\; \left({\it t_{26}}\,{\it t_{27}}\right)\,{\it t_{27}}+1.0}}\\\\ 
+C>   {\it t_{28}} &=& {{1}\over{0.0252\,{\it t_{26}}
+C>    \,{\rm asinh}\; \left({\it t_{26}}\,{\it t_{27}}\right)\,{
+C>    \it t_{27}}+1.0}}\\\\ 
 C>   {\it t_{29}} &=& {{1}\over{\rho_s}}\\\\ 
-C>   {\it t_{30}} &=& 0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}+0.9305257363491002\,{\it t_{25}}\\\\ 
+C>   {\it t_{30}} &=& 0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}
+C>    +0.9305257363491002\,{\it t_{25}}\\\\ 
 C>   {\it t_{31}} &=& \sqrt{{\it t_{30}}}\\\\ 
 C>   {\it t_{32}} &=& \rho_s^2\\\\ 
-C>   {\it t_{33}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{\it t_{32}}}\over{{\it t_{30}}}} }\\\\ 
-C>   f &=& \left(-0.0042\,{\it t_{17}}\,{\it t_{19}}\,\sigma_{\beta\beta}-0.9305257363491002\,{\it t_{16}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_\beta}\over{{\it t_{22}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left({\it t_{24}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{21}}\,\left({\it t_{24}}-1.0\right)}\over{{\it t_{23}}}}-1.5\right)\right)+{\it t_5}+1.0\right)+\left(-0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}-0.9305257363491002\,{\it t_1}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_8}\,{\it t_{10}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_\alpha}\over{{\it t_{10}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_8}\,{\it t_{10}}\,\left({\it t_{14}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_9}\,\left({\it t_{14}}-1.0\right)}\over{{\it t_{12}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
+C>   {\it t_{33}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{
+C>    \it t_{32}}}\over{{\it t_{30}}}} }\\\\ 
+C>   f &=& \left(-0.0042\,{\it t_{17}}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}-0.9305257363491002\,{\it t_{16}}\right)
+C>    \,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{
+C>    \it t_{20}}\,{\it t_{22}}\,\left(1.77245385090552
+C>    \,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}
+C>    \,\rho_\beta}\over{{\it t_{22}}}}\right)+0.2659615202676212
+C>    \,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left({\it t_{24}}
+C>    -{{0.03536776513153214\,{\it t_{11}}\,{\it t_{21}}\,\left({
+C>    \it t_{24}}-1.0\right)}\over{{\it t_{23}}}}-1.5\right)\right)
+C>    +{\it t_5}+1.0\right)+\left(-0.0042\,{\it t_2}\,{\it t_4}
+C>    \,\sigma_{\alpha\alpha}-0.9305257363491002\,{\it t_1}\right)
+C>    \,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_8}
+C>    \,{\it t_{10}}\,\left(1.77245385090552\,\mathrm{erf}
+C>    \left({{3.759942411946509\,{\it t_{15}}\,\rho_\alpha}\over{{
+C>    \it t_{10}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_8}
+C>    \,{\it t_{10}}\,\left({\it t_{14}}-{{0.03536776513153214\,{
+C>    \it t_{11}}\,{\it t_9}\,\left({\it t_{14}}-1.0\right)}
+C>    \over{{\it t_{12}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}-0.9305257363491002\,{\it t_{25}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{\it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({\it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
+C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}
+C>    -0.9305257363491002\,{\it t_{25}}\right)\,\left(
+C>    -0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{
+C>    \it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}
+C>    \left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{
+C>    \it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{
+C>    \it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}
+C>    -{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({
+C>    \it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)
+C>    +{\it t_5}+1.0\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -462,7 +537,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
+C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  
+C>    , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
 C> 
@@ -1373,39 +1449,76 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& \rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}}}\\\\ 
 C>   {\it t_3} &=& \sqrt{\sigma_{\alpha\alpha}}\\\\ 
-C>   {\it t_4} &=& {{1}\over{0.0252\,{\it t_2}\,{\rm asinh}\; \left({\it t_2}\,{\it t_3}\right)\,{\it t_3}+1.0}}\\\\ 
+C>   {\it t_4} &=& {{1}\over{0.0252\,{\it t_2}\,{\rm asinh}\; 
+C>    \left({\it t_2}\,{\it t_3}\right)\,{\it t_3}+1.0}}\\\\ 
 C>   {\it t_5} &=& -{\it param}\left(1\right)\\\\ 
 C>   {\it t_6} &=& {\it param}\left(2\right)\\\\ 
 C>   {\it t_7} &=& {\it param}\left(3\right)\\\\ 
 C>   {\it t_8} &=& {{1}\over{\rho_\alpha}}\\\\ 
-C>   {\it t_9} &=& 0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}+0.9305257363491002\,{\it t_1}\\\\ 
+C>   {\it t_9} &=& 0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}
+C>    +0.9305257363491002\,{\it t_1}\\\\ 
 C>   {\it t_{10}} &=& \sqrt{{\it t_9}}\\\\ 
 C>   {\it t_{11}} &=& {\it t_7}^2\\\\ 
 C>   {\it t_{12}} &=& \rho_\alpha^2\\\\ 
 C>   {\it t_{13}} &=& {{1}\over{{\it t_{11}}}}\\\\ 
-C>   {\it t_{14}} &=& e^ {- {{14.13716694115413\,{\it t_{12}}\,{\it t_{13}}}\over{{\it t_9}}} }\\\\ 
+C>   {\it t_{14}} &=& e^ {- {{14.13716694115413\,{\it t_{12}}\,{
+C>    \it t_{13}}}\over{{\it t_9}}} }\\\\ 
 C>   {\it t_{15}} &=& {{1}\over{{\it t_7}}}\\\\ 
 C>   {\it t_{16}} &=& \rho_\beta^{{{4}\over{3}}}\\\\ 
 C>   {\it t_{17}} &=& {{1}\over{{\it t_{16}}}}\\\\ 
 C>   {\it t_{18}} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
-C>   {\it t_{19}} &=& {{1}\over{0.0252\,{\it t_{17}}\,{\rm asinh}\; \left({\it t_{17}}\,{\it t_{18}}\right)\,{\it t_{18}}+1.0}}\\\\ 
+C>   {\it t_{19}} &=& {{1}\over{0.0252\,{\it t_{17}}
+C>    \,{\rm asinh}\; \left({\it t_{17}}\,{\it t_{18}}\right)\,{
+C>    \it t_{18}}+1.0}}\\\\ 
 C>   {\it t_{20}} &=& {{1}\over{\rho_\beta}}\\\\ 
-C>   {\it t_{21}} &=& 0.0042\,{\it t_{17}}\,{\it t_{19}}\,\sigma_{\beta\beta}+0.9305257363491002\,{\it t_{16}}\\\\ 
+C>   {\it t_{21}} &=& 0.0042\,{\it t_{17}}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}+0.9305257363491002\,{\it t_{16}}\\\\ 
 C>   {\it t_{22}} &=& \sqrt{{\it t_{21}}}\\\\ 
 C>   {\it t_{23}} &=& \rho_\beta^2\\\\ 
-C>   {\it t_{24}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{\it t_{23}}}\over{{\it t_{21}}}} }\\\\ 
+C>   {\it t_{24}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{
+C>    \it t_{23}}}\over{{\it t_{21}}}} }\\\\ 
 C>   {\it t_{25}} &=& \rho_s^{{{4}\over{3}}}\\\\ 
 C>   {\it t_{26}} &=& {{1}\over{{\it t_{25}}}}\\\\ 
 C>   {\it t_{27}} &=& \sqrt{\sigma_{ss}}\\\\ 
-C>   {\it t_{28}} &=& {{1}\over{0.0252\,{\it t_{26}}\,{\rm asinh}\; \left({\it t_{26}}\,{\it t_{27}}\right)\,{\it t_{27}}+1.0}}\\\\ 
+C>   {\it t_{28}} &=& {{1}\over{0.0252\,{\it t_{26}}
+C>    \,{\rm asinh}\; \left({\it t_{26}}\,{\it t_{27}}\right)\,{
+C>    \it t_{27}}+1.0}}\\\\ 
 C>   {\it t_{29}} &=& {{1}\over{\rho_s}}\\\\ 
-C>   {\it t_{30}} &=& 0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}+0.9305257363491002\,{\it t_{25}}\\\\ 
+C>   {\it t_{30}} &=& 0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}
+C>    +0.9305257363491002\,{\it t_{25}}\\\\ 
 C>   {\it t_{31}} &=& \sqrt{{\it t_{30}}}\\\\ 
 C>   {\it t_{32}} &=& \rho_s^2\\\\ 
-C>   {\it t_{33}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{\it t_{32}}}\over{{\it t_{30}}}} }\\\\ 
-C>   f &=& \left(-0.0042\,{\it t_{17}}\,{\it t_{19}}\,\sigma_{\beta\beta}-0.9305257363491002\,{\it t_{16}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_\beta}\over{{\it t_{22}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left({\it t_{24}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{21}}\,\left({\it t_{24}}-1.0\right)}\over{{\it t_{23}}}}-1.5\right)\right)+{\it t_5}+1.0\right)+\left(-0.0042\,{\it t_2}\,{\it t_4}\,\sigma_{\alpha\alpha}-0.9305257363491002\,{\it t_1}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_8}\,{\it t_{10}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_\alpha}\over{{\it t_{10}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_8}\,{\it t_{10}}\,\left({\it t_{14}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_9}\,\left({\it t_{14}}-1.0\right)}\over{{\it t_{12}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
+C>   {\it t_{33}} &=& e^ {- {{14.13716694115413\,{\it t_{13}}\,{
+C>    \it t_{32}}}\over{{\it t_{30}}}} }\\\\ 
+C>   f &=& \left(-0.0042\,{\it t_{17}}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}-0.9305257363491002\,{\it t_{16}}\right)
+C>    \,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{
+C>    \it t_{20}}\,{\it t_{22}}\,\left(1.77245385090552
+C>    \,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}
+C>    \,\rho_\beta}\over{{\it t_{22}}}}\right)+0.2659615202676212
+C>    \,{\it t_7}\,{\it t_{20}}\,{\it t_{22}}\,\left({\it t_{24}}
+C>    -{{0.03536776513153214\,{\it t_{11}}\,{\it t_{21}}\,\left({
+C>    \it t_{24}}-1.0\right)}\over{{\it t_{23}}}}-1.5\right)\right)
+C>    +{\it t_5}+1.0\right)+\left(-0.0042\,{\it t_2}\,{\it t_4}
+C>    \,\sigma_{\alpha\alpha}-0.9305257363491002\,{\it t_1}\right)
+C>    \,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_8}
+C>    \,{\it t_{10}}\,\left(1.77245385090552\,\mathrm{erf}
+C>    \left({{3.759942411946509\,{\it t_{15}}\,\rho_\alpha}\over{{
+C>    \it t_{10}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_8}
+C>    \,{\it t_{10}}\,\left({\it t_{14}}-{{0.03536776513153214\,{
+C>    \it t_{11}}\,{\it t_9}\,\left({\it t_{14}}-1.0\right)}
+C>    \over{{\it t_{12}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}-0.9305257363491002\,{\it t_{25}}\right)\,\left(-0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}\left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{\it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{\it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}-{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({\it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)+{\it t_5}+1.0\right)\\\\ 
+C>   G &=& \left(-0.0042\,{\it t_{26}}\,{\it t_{28}}\,\sigma_{ss}
+C>    -0.9305257363491002\,{\it t_{25}}\right)\,\left(
+C>    -0.3546153603568283\,{\it t_6}\,{\it t_7}\,{\it t_{29}}\,{
+C>    \it t_{31}}\,\left(1.77245385090552\,\mathrm{erf}
+C>    \left({{3.759942411946509\,{\it t_{15}}\,\rho_s}\over{{
+C>    \it t_{31}}}}\right)+0.2659615202676212\,{\it t_7}\,{
+C>    \it t_{29}}\,{\it t_{31}}\,\left({\it t_{33}}
+C>    -{{0.03536776513153214\,{\it t_{11}}\,{\it t_{30}}\,\left({
+C>    \it t_{33}}-1.0\right)}\over{{\it t_{32}}}}-1.5\right)\right)
+C>    +{\it t_5}+1.0\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -1413,7 +1526,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  , DOI: 
+C> [1] T Yanai, DP Tew, NC Handy, Chem.Phys.Lett. 393, 51 (2004)  
+C>    , DOI: 
 C> <a href="http://dx.doi.org/10.1016/j.cplett.2004.06.011 "> 
 C> 10.1016/j.cplett.2004.06.011 </a> 
 C> 

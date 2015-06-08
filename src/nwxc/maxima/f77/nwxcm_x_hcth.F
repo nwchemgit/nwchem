@@ -23,9 +23,34 @@ C>   {\it t_8} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\
 C>   {\it t_9} &=& 0.004\,{\it t_8}\,\sigma_{\beta\beta}+1.0\\\\ 
 C>   {\it t_{10}} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_{11}} &=& 0.004\,{\it t_{10}}\,\sigma_{ss}+1.0\\\\ 
-C>   f &=& 1.0\,\left(-0.9305257363490993\,\rho_\beta^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_8}\,\sigma_{\beta\beta}}\over{{\it t_9}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{\beta\beta}^2}\over{\rho_\beta^{{{16}\over{3}}}\,{\it t_9}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\beta\beta}^3}\over{\rho_\beta^8\,{\it t_9}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{\beta\beta}^4}\over{\rho_\beta^{{{32}\over{3}}}\,{\it t_9}^4}}+{\it t_1}\right)-0.9305257363490993\,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_3}\,\sigma_{\alpha\alpha}}\over{{\it t_4}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{\alpha\alpha}^2}\over{\rho_\alpha^{{{16}\over{3}}}\,{\it t_4}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\alpha\alpha}^3}\over{\rho_\alpha^8\,{\it t_4}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{\alpha\alpha}^4}\over{\rho_\alpha^{{{32}\over{3}}}\,{\it t_4}^4}}+{\it t_1}\right)\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.9305257363490993\,\rho_\beta^{{{4}
+C>    \over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_8}\,
+C>    \sigma_{\beta\beta}}\over{{\it t_9}}}+{{1.6 \times 10^{-5}
+C>    \,{\it t_6}\,\sigma_{\beta\beta}^2}
+C>    \over{\rho_\beta^{{{16}\over{3}}}\,{\it t_9}^2}}
+C>    +{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\beta\beta}^3}
+C>    \over{\rho_\beta^8\,{\it t_9}^3}}
+C>    +{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,
+C>    \sigma_{\beta\beta}^4}\over{\rho_\beta^{{{32}\over{3}}}\,{
+C>    \it t_9}^4}}+{\it t_1}\right)-0.9305257363490993
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{
+C>    \it t_3}\,\sigma_{\alpha\alpha}}\over{{\it t_4}}}
+C>    +{{1.6 \times 10^{-5}\,{\it t_6}\,
+C>    \sigma_{\alpha\alpha}^2}\over{\rho_\alpha^{{{16}\over{3}}}
+C>    \,{\it t_4}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,
+C>    \sigma_{\alpha\alpha}^3}\over{\rho_\alpha^8\,{\it t_4}^3}}
+C>    +{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,
+C>    \sigma_{\alpha\alpha}^4}\over{\rho_\alpha^{{{32}\over{3}}}
+C>    \,{\it t_4}^4}}+{\it t_1}\right)\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{\it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{11}}^4}}+{\it t_1}\right)\\\\ 
+C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,
+C>    \left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{
+C>    \it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,
+C>    \sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}
+C>    +{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8
+C>    \,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{
+C>    \it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{
+C>    \it t_{11}}^4}}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -33,7 +58,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
+C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109
+C>    , 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
 C> 
@@ -305,9 +331,34 @@ C>   {\it t_8} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\
 C>   {\it t_9} &=& 0.004\,{\it t_8}\,\sigma_{\beta\beta}+1.0\\\\ 
 C>   {\it t_{10}} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_{11}} &=& 0.004\,{\it t_{10}}\,\sigma_{ss}+1.0\\\\ 
-C>   f &=& 1.0\,\left(-0.9305257363490993\,\rho_\beta^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_8}\,\sigma_{\beta\beta}}\over{{\it t_9}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{\beta\beta}^2}\over{\rho_\beta^{{{16}\over{3}}}\,{\it t_9}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\beta\beta}^3}\over{\rho_\beta^8\,{\it t_9}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{\beta\beta}^4}\over{\rho_\beta^{{{32}\over{3}}}\,{\it t_9}^4}}+{\it t_1}\right)-0.9305257363490993\,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_3}\,\sigma_{\alpha\alpha}}\over{{\it t_4}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{\alpha\alpha}^2}\over{\rho_\alpha^{{{16}\over{3}}}\,{\it t_4}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\alpha\alpha}^3}\over{\rho_\alpha^8\,{\it t_4}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{\alpha\alpha}^4}\over{\rho_\alpha^{{{32}\over{3}}}\,{\it t_4}^4}}+{\it t_1}\right)\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.9305257363490993\,\rho_\beta^{{{4}
+C>    \over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_8}\,
+C>    \sigma_{\beta\beta}}\over{{\it t_9}}}+{{1.6 \times 10^{-5}
+C>    \,{\it t_6}\,\sigma_{\beta\beta}^2}
+C>    \over{\rho_\beta^{{{16}\over{3}}}\,{\it t_9}^2}}
+C>    +{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\beta\beta}^3}
+C>    \over{\rho_\beta^8\,{\it t_9}^3}}
+C>    +{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,
+C>    \sigma_{\beta\beta}^4}\over{\rho_\beta^{{{32}\over{3}}}\,{
+C>    \it t_9}^4}}+{\it t_1}\right)-0.9305257363490993
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{
+C>    \it t_3}\,\sigma_{\alpha\alpha}}\over{{\it t_4}}}
+C>    +{{1.6 \times 10^{-5}\,{\it t_6}\,
+C>    \sigma_{\alpha\alpha}^2}\over{\rho_\alpha^{{{16}\over{3}}}
+C>    \,{\it t_4}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,
+C>    \sigma_{\alpha\alpha}^3}\over{\rho_\alpha^8\,{\it t_4}^3}}
+C>    +{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,
+C>    \sigma_{\alpha\alpha}^4}\over{\rho_\alpha^{{{32}\over{3}}}
+C>    \,{\it t_4}^4}}+{\it t_1}\right)\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{\it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{11}}^4}}+{\it t_1}\right)\\\\ 
+C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,
+C>    \left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{
+C>    \it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,
+C>    \sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}
+C>    +{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8
+C>    \,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{
+C>    \it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{
+C>    \it t_{11}}^4}}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -315,7 +366,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
+C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109
+C>    , 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
 C> 
@@ -812,9 +864,34 @@ C>   {\it t_8} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\
 C>   {\it t_9} &=& 0.004\,{\it t_8}\,\sigma_{\beta\beta}+1.0\\\\ 
 C>   {\it t_{10}} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
 C>   {\it t_{11}} &=& 0.004\,{\it t_{10}}\,\sigma_{ss}+1.0\\\\ 
-C>   f &=& 1.0\,\left(-0.9305257363490993\,\rho_\beta^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_8}\,\sigma_{\beta\beta}}\over{{\it t_9}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{\beta\beta}^2}\over{\rho_\beta^{{{16}\over{3}}}\,{\it t_9}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\beta\beta}^3}\over{\rho_\beta^8\,{\it t_9}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{\beta\beta}^4}\over{\rho_\beta^{{{32}\over{3}}}\,{\it t_9}^4}}+{\it t_1}\right)-0.9305257363490993\,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_3}\,\sigma_{\alpha\alpha}}\over{{\it t_4}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{\alpha\alpha}^2}\over{\rho_\alpha^{{{16}\over{3}}}\,{\it t_4}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\alpha\alpha}^3}\over{\rho_\alpha^8\,{\it t_4}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{\alpha\alpha}^4}\over{\rho_\alpha^{{{32}\over{3}}}\,{\it t_4}^4}}+{\it t_1}\right)\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.9305257363490993\,\rho_\beta^{{{4}
+C>    \over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_8}\,
+C>    \sigma_{\beta\beta}}\over{{\it t_9}}}+{{1.6 \times 10^{-5}
+C>    \,{\it t_6}\,\sigma_{\beta\beta}^2}
+C>    \over{\rho_\beta^{{{16}\over{3}}}\,{\it t_9}^2}}
+C>    +{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{\beta\beta}^3}
+C>    \over{\rho_\beta^8\,{\it t_9}^3}}
+C>    +{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,
+C>    \sigma_{\beta\beta}^4}\over{\rho_\beta^{{{32}\over{3}}}\,{
+C>    \it t_9}^4}}+{\it t_1}\right)-0.9305257363490993
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{
+C>    \it t_3}\,\sigma_{\alpha\alpha}}\over{{\it t_4}}}
+C>    +{{1.6 \times 10^{-5}\,{\it t_6}\,
+C>    \sigma_{\alpha\alpha}^2}\over{\rho_\alpha^{{{16}\over{3}}}
+C>    \,{\it t_4}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,
+C>    \sigma_{\alpha\alpha}^3}\over{\rho_\alpha^8\,{\it t_4}^3}}
+C>    +{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,
+C>    \sigma_{\alpha\alpha}^4}\over{\rho_\alpha^{{{32}\over{3}}}
+C>    \,{\it t_4}^4}}+{\it t_1}\right)\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,\left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{\it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,\sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}+{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8\,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{\it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{\it t_{11}}^4}}+{\it t_1}\right)\\\\ 
+C>   G &=& -0.9305257363490993\,\rho_s^{{{4}\over{3}}}\,
+C>    \left({{0.004\,{\it t_7}\,{\it t_{10}}\,\sigma_{ss}}\over{{
+C>    \it t_{11}}}}+{{1.6 \times 10^{-5}\,{\it t_6}\,
+C>    \sigma_{ss}^2}\over{\rho_s^{{{16}\over{3}}}\,{\it t_{11}}^2}}
+C>    +{{6.4 \times 10^{-8}\,{\it t_5}\,\sigma_{ss}^3}\over{\rho_s^8
+C>    \,{\it t_{11}}^3}}+{{2.560000000000001 \times 10^{-10}\,{
+C>    \it t_2}\,\sigma_{ss}^4}\over{\rho_s^{{{32}\over{3}}}\,{
+C>    \it t_{11}}^4}}+{\it t_1}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -822,7 +899,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109, 6264 (1998)  , DOI: 
+C> [1] FA Hamprecht, A Cohen, DJ Tozer, NC Handy, J.Chem.Phys. 109
+C>    , 6264 (1998)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.477267 "> 
 C> 10.1063/1.477267 </a> 
 C> 

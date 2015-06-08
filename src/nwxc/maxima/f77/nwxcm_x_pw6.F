@@ -38,9 +38,29 @@ C>   {\it t_{23}} &=& \sqrt{\sigma_{ss}}\\\\
 C>   {\it t_{24}} &=& {{1}\over{{\it t_{21}}^{{\it t_6}}}}\\\\ 
 C>   {\it t_{25}} &=& \sigma_{ss}^{{\it t_8}}\\\\ 
 C>   {\it t_{26}} &=& {{1}\over{{\it t_{20}}^{8.0}}}\\\\ 
-C>   f &=& {{1.0\,{\it t_{14}}\,\left({{{\it t_{11}}\,{\it t_{19}}\,\sigma_{\beta\beta}}\over{e^{{\it t_{12}}\,{\it t_{19}}\,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{17}}\,{\it t_{18}}-{\it t_3}\,{\it t_{19}}\,\sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{17}}\,{\it t_{18}}+6.0\,{\it t_3}\,{\it t_{15}}\,{\rm asinh}\; \left({\it t_{15}}\,{\it t_{16}}\right)\,{\it t_{16}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{11}}\,{\it t_{10}}\,\sigma_{\alpha\alpha}}\over{e^{{\it t_{12}}\,{\it t_{10}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{\it t_7}\,{\it t_9}-{\it t_3}\,{\it t_{10}}\,\sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_7}\,{\it t_9}+6.0\,{\it t_3}\,{\it t_4}\,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}+1.0}}\\\\ 
+C>   f &=& {{1.0\,{\it t_{14}}\,\left({{{\it t_{11}}\,{\it t_{19}}
+C>    \,\sigma_{\beta\beta}}\over{e^{{\it t_{12}}\,{\it t_{19}}
+C>    \,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{17}}\,{
+C>    \it t_{18}}-{\it t_3}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_{17}}\,{\it t_{18}}+6.0\,{\it t_3}\,{\it t_{15}}
+C>    \,{\rm asinh}\; \left({\it t_{15}}\,{\it t_{16}}\right)\,{
+C>    \it t_{16}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{11}}\,{
+C>    \it t_{10}}\,\sigma_{\alpha\alpha}}\over{e^{{\it t_{12}}\,{
+C>    \it t_{10}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{
+C>    \it t_7}\,{\it t_9}-{\it t_3}\,{\it t_{10}}\,
+C>    \sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_7}\,{\it t_9}+6.0\,{\it t_3}\,{\it t_4}
+C>    \,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}
+C>    +1.0}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}\,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}-{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
+C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}
+C>    \,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,
+C>    \sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}
+C>    -{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}
+C>    \over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{
+C>    \it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; 
+C>    \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -324,9 +344,29 @@ C>   {\it t_{23}} &=& \sqrt{\sigma_{ss}}\\\\
 C>   {\it t_{24}} &=& {{1}\over{{\it t_{21}}^{{\it t_6}}}}\\\\ 
 C>   {\it t_{25}} &=& \sigma_{ss}^{{\it t_8}}\\\\ 
 C>   {\it t_{26}} &=& {{1}\over{{\it t_{20}}^{8.0}}}\\\\ 
-C>   f &=& {{1.0\,{\it t_{14}}\,\left({{{\it t_{11}}\,{\it t_{19}}\,\sigma_{\beta\beta}}\over{e^{{\it t_{12}}\,{\it t_{19}}\,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{17}}\,{\it t_{18}}-{\it t_3}\,{\it t_{19}}\,\sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{17}}\,{\it t_{18}}+6.0\,{\it t_3}\,{\it t_{15}}\,{\rm asinh}\; \left({\it t_{15}}\,{\it t_{16}}\right)\,{\it t_{16}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{11}}\,{\it t_{10}}\,\sigma_{\alpha\alpha}}\over{e^{{\it t_{12}}\,{\it t_{10}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{\it t_7}\,{\it t_9}-{\it t_3}\,{\it t_{10}}\,\sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_7}\,{\it t_9}+6.0\,{\it t_3}\,{\it t_4}\,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}+1.0}}\\\\ 
+C>   f &=& {{1.0\,{\it t_{14}}\,\left({{{\it t_{11}}\,{\it t_{19}}
+C>    \,\sigma_{\beta\beta}}\over{e^{{\it t_{12}}\,{\it t_{19}}
+C>    \,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{17}}\,{
+C>    \it t_{18}}-{\it t_3}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_{17}}\,{\it t_{18}}+6.0\,{\it t_3}\,{\it t_{15}}
+C>    \,{\rm asinh}\; \left({\it t_{15}}\,{\it t_{16}}\right)\,{
+C>    \it t_{16}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{11}}\,{
+C>    \it t_{10}}\,\sigma_{\alpha\alpha}}\over{e^{{\it t_{12}}\,{
+C>    \it t_{10}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{
+C>    \it t_7}\,{\it t_9}-{\it t_3}\,{\it t_{10}}\,
+C>    \sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_7}\,{\it t_9}+6.0\,{\it t_3}\,{\it t_4}
+C>    \,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}
+C>    +1.0}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}\,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}-{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
+C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}
+C>    \,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,
+C>    \sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}
+C>    -{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}
+C>    \over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{
+C>    \it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; 
+C>    \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -920,9 +960,29 @@ C>   {\it t_{23}} &=& \sqrt{\sigma_{ss}}\\\\
 C>   {\it t_{24}} &=& {{1}\over{{\it t_{21}}^{{\it t_6}}}}\\\\ 
 C>   {\it t_{25}} &=& \sigma_{ss}^{{\it t_8}}\\\\ 
 C>   {\it t_{26}} &=& {{1}\over{{\it t_{20}}^{8.0}}}\\\\ 
-C>   f &=& {{1.0\,{\it t_{14}}\,\left({{{\it t_{11}}\,{\it t_{19}}\,\sigma_{\beta\beta}}\over{e^{{\it t_{12}}\,{\it t_{19}}\,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{17}}\,{\it t_{18}}-{\it t_3}\,{\it t_{19}}\,\sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{17}}\,{\it t_{18}}+6.0\,{\it t_3}\,{\it t_{15}}\,{\rm asinh}\; \left({\it t_{15}}\,{\it t_{16}}\right)\,{\it t_{16}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{11}}\,{\it t_{10}}\,\sigma_{\alpha\alpha}}\over{e^{{\it t_{12}}\,{\it t_{10}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{\it t_7}\,{\it t_9}-{\it t_3}\,{\it t_{10}}\,\sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_7}\,{\it t_9}+6.0\,{\it t_3}\,{\it t_4}\,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}+1.0}}\\\\ 
+C>   f &=& {{1.0\,{\it t_{14}}\,\left({{{\it t_{11}}\,{\it t_{19}}
+C>    \,\sigma_{\beta\beta}}\over{e^{{\it t_{12}}\,{\it t_{19}}
+C>    \,\sigma_{\beta\beta}}}}+1.0 \times 10^{-6}\,{\it t_{17}}\,{
+C>    \it t_{18}}-{\it t_3}\,{\it t_{19}}\,
+C>    \sigma_{\beta\beta}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_{17}}\,{\it t_{18}}+6.0\,{\it t_3}\,{\it t_{15}}
+C>    \,{\rm asinh}\; \left({\it t_{15}}\,{\it t_{16}}\right)\,{
+C>    \it t_{16}}+1.0}}+{{1.0\,{\it t_2}\,\left({{{\it t_{11}}\,{
+C>    \it t_{10}}\,\sigma_{\alpha\alpha}}\over{e^{{\it t_{12}}\,{
+C>    \it t_{10}}\,\sigma_{\alpha\alpha}}}}+1.0 \times 10^{-6}\,{
+C>    \it t_7}\,{\it t_9}-{\it t_3}\,{\it t_{10}}\,
+C>    \sigma_{\alpha\alpha}\right)}\over{1.074661302677647 \times 10^{
+C>    -6}\,{\it t_7}\,{\it t_9}+6.0\,{\it t_3}\,{\it t_4}
+C>    \,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}
+C>    +1.0}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}\,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,\sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}-{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}\over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
+C>   G &=& {{1.0\,{\it t_{21}}\,\left({{{\it t_{11}}\,{\it t_{26}}
+C>    \,\sigma_{ss}}\over{e^{{\it t_{12}}\,{\it t_{26}}\,
+C>    \sigma_{ss}}}}+1.0 \times 10^{-6}\,{\it t_{24}}\,{\it t_{25}}
+C>    -{\it t_3}\,{\it t_{26}}\,\sigma_{ss}\right)}
+C>    \over{1.074661302677647 \times 10^{-6}\,{\it t_{24}}\,{
+C>    \it t_{25}}+6.0\,{\it t_3}\,{\it t_{22}}\,{\rm asinh}\; 
+C>    \left({\it t_{22}}\,{\it t_{23}}\right)\,{\it t_{23}}+1.0}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 

@@ -12,9 +12,17 @@ C>
 C> \brief Evaluate the nwxcm_x_b86b functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.00375\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}-{{0.00375\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}\\\\ 
+C>   f &=& -{{0.00375\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{4}\over{3}}}\,\left({{0.007\,
+C>    \sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}-{{0.00375\,\sigma_{\alpha\alpha}}
+C>    \over{\rho_\alpha^{{{4}\over{3}}}\,\left({{0.007\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.00375\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}\\\\ 
+C>   G &=& -{{0.00375\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}
+C>    \,\left({{0.007\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -144,9 +152,17 @@ C>
 C> \brief Evaluate the nwxcm_x_b86b functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.00375\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}-{{0.00375\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}\\\\ 
+C>   f &=& -{{0.00375\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{4}\over{3}}}\,\left({{0.007\,
+C>    \sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}-{{0.00375\,\sigma_{\alpha\alpha}}
+C>    \over{\rho_\alpha^{{{4}\over{3}}}\,\left({{0.007\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.00375\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}\\\\ 
+C>   G &=& -{{0.00375\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}
+C>    \,\left({{0.007\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -367,9 +383,17 @@ C>
 C> \brief Evaluate the nwxcm_x_b86b functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.00375\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}-{{0.00375\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}\\\\ 
+C>   f &=& -{{0.00375\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{4}\over{3}}}\,\left({{0.007\,
+C>    \sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}-{{0.00375\,\sigma_{\alpha\alpha}}
+C>    \over{\rho_\alpha^{{{4}\over{3}}}\,\left({{0.007\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.00375\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}\,\left({{0.007\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}+1.0\right)^{0.8}}}\\\\ 
+C>   G &=& -{{0.00375\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}
+C>    \,\left({{0.007\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}
+C>    +1.0\right)^{0.8}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 

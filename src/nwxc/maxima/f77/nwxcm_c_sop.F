@@ -15,9 +15,15 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_2} &=& \rho_\alpha^{{{1}\over{3}}}\\\\ 
 C>   {\it t_3} &=& \rho_\beta^{{{1}\over{3}}}\\\\ 
-C>   {\it t_4} &=& {{1}\over{1.8610514726982\,{\it t_3}+1.8610514726982\,{\it t_2}}}\\\\ 
-C>   {\it t_5} &=& \left({\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}\right)^{2.0}\\\\ 
-C>   f &=& -{{0.08336168033553906\,\rho_\alpha\,\left(5.269388045346497\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}+0.5764\right)\,\rho_\beta}\over{{\it t_5}\,\left(3.908227599821866\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}+11.99591941974898\,{\it t_5}+0.3183\right)}}\\\\ 
+C>   {\it t_4} &=& {{1}\over{1.8610514726982\,{\it t_3}
+C>    +1.8610514726982\,{\it t_2}}}\\\\ 
+C>   {\it t_5} &=& \left({\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}\right)^{2.0}\\\\ 
+C>   f &=& -{{0.08336168033553906\,\rho_\alpha\,
+C>    \left(5.269388045346497\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}+0.5764\right)\,\rho_\beta}\over{{\it t_5}\,
+C>    \left(3.908227599821866\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}+11.99591941974898\,{\it t_5}+0.3183\right)}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 
@@ -27,7 +33,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 111, 5656 (1999)  , DOI: 
+C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 111
+C>    , 5656 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.479954 "> 
 C> 10.1063/1.479954 </a> 
 C> 
@@ -150,9 +157,15 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_2} &=& \rho_\alpha^{{{1}\over{3}}}\\\\ 
 C>   {\it t_3} &=& \rho_\beta^{{{1}\over{3}}}\\\\ 
-C>   {\it t_4} &=& {{1}\over{1.8610514726982\,{\it t_3}+1.8610514726982\,{\it t_2}}}\\\\ 
-C>   {\it t_5} &=& \left({\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}\right)^{2.0}\\\\ 
-C>   f &=& -{{0.08336168033553906\,\rho_\alpha\,\left(5.269388045346497\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}+0.5764\right)\,\rho_\beta}\over{{\it t_5}\,\left(3.908227599821866\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}+11.99591941974898\,{\it t_5}+0.3183\right)}}\\\\ 
+C>   {\it t_4} &=& {{1}\over{1.8610514726982\,{\it t_3}
+C>    +1.8610514726982\,{\it t_2}}}\\\\ 
+C>   {\it t_5} &=& \left({\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}\right)^{2.0}\\\\ 
+C>   f &=& -{{0.08336168033553906\,\rho_\alpha\,
+C>    \left(5.269388045346497\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}+0.5764\right)\,\rho_\beta}\over{{\it t_5}\,
+C>    \left(3.908227599821866\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}+11.99591941974898\,{\it t_5}+0.3183\right)}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 
@@ -162,7 +175,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 111, 5656 (1999)  , DOI: 
+C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 111
+C>    , 5656 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.479954 "> 
 C> 10.1063/1.479954 </a> 
 C> 
@@ -395,9 +409,15 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_2} &=& \rho_\alpha^{{{1}\over{3}}}\\\\ 
 C>   {\it t_3} &=& \rho_\beta^{{{1}\over{3}}}\\\\ 
-C>   {\it t_4} &=& {{1}\over{1.8610514726982\,{\it t_3}+1.8610514726982\,{\it t_2}}}\\\\ 
-C>   {\it t_5} &=& \left({\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}\right)^{2.0}\\\\ 
-C>   f &=& -{{0.08336168033553906\,\rho_\alpha\,\left(5.269388045346497\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}+0.5764\right)\,\rho_\beta}\over{{\it t_5}\,\left(3.908227599821866\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{\it t_3}+11.99591941974898\,{\it t_5}+0.3183\right)}}\\\\ 
+C>   {\it t_4} &=& {{1}\over{1.8610514726982\,{\it t_3}
+C>    +1.8610514726982\,{\it t_2}}}\\\\ 
+C>   {\it t_5} &=& \left({\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}\right)^{2.0}\\\\ 
+C>   f &=& -{{0.08336168033553906\,\rho_\alpha\,
+C>    \left(5.269388045346497\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}+0.5764\right)\,\rho_\beta}\over{{\it t_5}\,
+C>    \left(3.908227599821866\,{\it t_1}\,{\it t_2}\,{\it t_4}\,{
+C>    \it t_3}+11.99591941974898\,{\it t_5}+0.3183\right)}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 
@@ -407,7 +427,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 111, 5656 (1999)  , DOI: 
+C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 111
+C>    , 5656 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.479954 "> 
 C> 10.1063/1.479954 </a> 
 C> 

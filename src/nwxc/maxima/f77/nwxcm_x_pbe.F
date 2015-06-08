@@ -15,9 +15,19 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}}}\\\\ 
 C>   {\it t_3} &=& {\it param}\left(2\right)\\\\ 
-C>   f &=& -0.9305257363491\,{\it t_1}\,\rho_\beta^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}+1.0}}\right)-0.9305257363491\,{\it t_1}\,\rho_\alpha^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}+1.0}}\right)\\\\ 
+C>   f &=& -0.9305257363491\,{\it t_1}\,\rho_\beta^{{{4}\over{3}}}
+C>    \,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{
+C>    \it t_3}\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}
+C>    +1.0}}\right)-0.9305257363491\,{\it t_1}
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left(1.0-{{1.0}
+C>    \over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}
+C>    +1.0}}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363491\,{\it t_1}\,\rho_s^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}+1.0}}\right)\\\\ 
+C>   G &=& -0.9305257363491\,{\it t_1}\,\rho_s^{{{4}\over{3}}}
+C>    \,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{
+C>    \it t_3}\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}
+C>    +1.0}}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -25,7 +35,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996)  , DOI: 
+C> [1] JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77
+C>    , 3865 (1996)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.77.3865 "> 
 C> 10.1103/PhysRevLett.77.3865 </a> 
 C> 
@@ -159,9 +170,19 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}}}\\\\ 
 C>   {\it t_3} &=& {\it param}\left(2\right)\\\\ 
-C>   f &=& -0.9305257363491\,{\it t_1}\,\rho_\beta^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}+1.0}}\right)-0.9305257363491\,{\it t_1}\,\rho_\alpha^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}+1.0}}\right)\\\\ 
+C>   f &=& -0.9305257363491\,{\it t_1}\,\rho_\beta^{{{4}\over{3}}}
+C>    \,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{
+C>    \it t_3}\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}
+C>    +1.0}}\right)-0.9305257363491\,{\it t_1}
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left(1.0-{{1.0}
+C>    \over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}
+C>    +1.0}}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363491\,{\it t_1}\,\rho_s^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}+1.0}}\right)\\\\ 
+C>   G &=& -0.9305257363491\,{\it t_1}\,\rho_s^{{{4}\over{3}}}
+C>    \,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{
+C>    \it t_3}\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}
+C>    +1.0}}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -169,7 +190,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996)  , DOI: 
+C> [1] JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77
+C>    , 3865 (1996)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.77.3865 "> 
 C> 10.1103/PhysRevLett.77.3865 </a> 
 C> 
@@ -386,9 +408,19 @@ C> \f{eqnarray*}{
 C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_2} &=& {{1}\over{{\it t_1}}}\\\\ 
 C>   {\it t_3} &=& {\it param}\left(2\right)\\\\ 
-C>   f &=& -0.9305257363491\,{\it t_1}\,\rho_\beta^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}+1.0}}\right)-0.9305257363491\,{\it t_1}\,\rho_\alpha^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}+1.0}}\right)\\\\ 
+C>   f &=& -0.9305257363491\,{\it t_1}\,\rho_\beta^{{{4}\over{3}}}
+C>    \,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{
+C>    \it t_3}\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}}}
+C>    +1.0}}\right)-0.9305257363491\,{\it t_1}
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left(1.0-{{1.0}
+C>    \over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}}}
+C>    +1.0}}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363491\,{\it t_1}\,\rho_s^{{{4}\over{3}}}\,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{\it t_3}\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}+1.0}}\right)\\\\ 
+C>   G &=& -0.9305257363491\,{\it t_1}\,\rho_s^{{{4}\over{3}}}
+C>    \,\left(1.0-{{1.0}\over{{{0.01645530784602056\,{\it t_2}\,{
+C>    \it t_3}\,\sigma_{ss}}\over{\rho_s^{{{8}\over{3}}}}}
+C>    +1.0}}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -396,7 +428,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996)  , DOI: 
+C> [1] JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77
+C>    , 3865 (1996)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.77.3865 "> 
 C> 10.1103/PhysRevLett.77.3865 </a> 
 C> 

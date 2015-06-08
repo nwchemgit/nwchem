@@ -12,9 +12,16 @@ C>
 C> \brief Evaluate the nwxcm_x_gill functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.0072992700729927\,\sigma_{\beta\beta}^{{{3}\over{4}}}}\over{\rho_\beta^{{{2}\over{3}}}}}-{{0.0072992700729927\,\sigma_{\alpha\alpha}^{{{3}\over{4}}}}\over{\rho_\alpha^{{{2}\over{3}}}}}-0.9305257363491002\,\rho_\beta^{{{4}\over{3}}}-0.9305257363491002\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
+C>   f &=& -{{0.0072992700729927\,\sigma_{\beta\beta}^{{{3}
+C>    \over{4}}}}\over{\rho_\beta^{{{2}\over{3}}}}}
+C>    -{{0.0072992700729927\,\sigma_{\alpha\alpha}^{{{3}
+C>    \over{4}}}}\over{\rho_\alpha^{{{2}\over{3}}}}}
+C>    -0.9305257363491002\,\rho_\beta^{{{4}\over{3}}}
+C>    -0.9305257363491002\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.0072992700729927\,\sigma_{ss}^{{{3}\over{4}}}}\over{\rho_s^{{{2}\over{3}}}}}-0.9305257363491002\,\rho_s^{{{4}\over{3}}}\\\\ 
+C>   G &=& -{{0.0072992700729927\,\sigma_{ss}^{{{3}\over{4}}}}
+C>    \over{\rho_s^{{{2}\over{3}}}}}-0.9305257363491002
+C>    \,\rho_s^{{{4}\over{3}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -133,9 +140,16 @@ C>
 C> \brief Evaluate the nwxcm_x_gill functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.0072992700729927\,\sigma_{\beta\beta}^{{{3}\over{4}}}}\over{\rho_\beta^{{{2}\over{3}}}}}-{{0.0072992700729927\,\sigma_{\alpha\alpha}^{{{3}\over{4}}}}\over{\rho_\alpha^{{{2}\over{3}}}}}-0.9305257363491002\,\rho_\beta^{{{4}\over{3}}}-0.9305257363491002\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
+C>   f &=& -{{0.0072992700729927\,\sigma_{\beta\beta}^{{{3}
+C>    \over{4}}}}\over{\rho_\beta^{{{2}\over{3}}}}}
+C>    -{{0.0072992700729927\,\sigma_{\alpha\alpha}^{{{3}
+C>    \over{4}}}}\over{\rho_\alpha^{{{2}\over{3}}}}}
+C>    -0.9305257363491002\,\rho_\beta^{{{4}\over{3}}}
+C>    -0.9305257363491002\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.0072992700729927\,\sigma_{ss}^{{{3}\over{4}}}}\over{\rho_s^{{{2}\over{3}}}}}-0.9305257363491002\,\rho_s^{{{4}\over{3}}}\\\\ 
+C>   G &=& -{{0.0072992700729927\,\sigma_{ss}^{{{3}\over{4}}}}
+C>    \over{\rho_s^{{{2}\over{3}}}}}-0.9305257363491002
+C>    \,\rho_s^{{{4}\over{3}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -315,9 +329,16 @@ C>
 C> \brief Evaluate the nwxcm_x_gill functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.0072992700729927\,\sigma_{\beta\beta}^{{{3}\over{4}}}}\over{\rho_\beta^{{{2}\over{3}}}}}-{{0.0072992700729927\,\sigma_{\alpha\alpha}^{{{3}\over{4}}}}\over{\rho_\alpha^{{{2}\over{3}}}}}-0.9305257363491002\,\rho_\beta^{{{4}\over{3}}}-0.9305257363491002\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
+C>   f &=& -{{0.0072992700729927\,\sigma_{\beta\beta}^{{{3}
+C>    \over{4}}}}\over{\rho_\beta^{{{2}\over{3}}}}}
+C>    -{{0.0072992700729927\,\sigma_{\alpha\alpha}^{{{3}
+C>    \over{4}}}}\over{\rho_\alpha^{{{2}\over{3}}}}}
+C>    -0.9305257363491002\,\rho_\beta^{{{4}\over{3}}}
+C>    -0.9305257363491002\,\rho_\alpha^{{{4}\over{3}}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.0072992700729927\,\sigma_{ss}^{{{3}\over{4}}}}\over{\rho_s^{{{2}\over{3}}}}}-0.9305257363491002\,\rho_s^{{{4}\over{3}}}\\\\ 
+C>   G &=& -{{0.0072992700729927\,\sigma_{ss}^{{{3}\over{4}}}}
+C>    \over{\rho_s^{{{2}\over{3}}}}}-0.9305257363491002
+C>    \,\rho_s^{{{4}\over{3}}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 

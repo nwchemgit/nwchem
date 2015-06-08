@@ -24,9 +24,30 @@ C>   {\it t_9} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\
 C>   {\it t_{10}} &=& 9.115599744691192\,\rho_s^{{{5}\over{3}}}\\\\ 
 C>   {\it t_{11}} &=& {\it t_{10}}-2.0\,\tau_s\\\\ 
 C>   {\it t_{12}} &=& 2.0\,\tau_s+{\it t_{10}}\\\\ 
-C>   f &=& -0.9305257363490997\,\rho_\beta^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_5}\,\sigma_{\beta\beta}}\over{0.001183286090183205\,{\it t_5}\,\sigma_{\beta\beta}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_7}}\over{{\it t_8}}}-{{0.1880028\,{\it t_7}^2}\over{{\it t_8}^2}}-{{0.4490609\,{\it t_7}^3}\over{{\it t_8}^3}}-{{0.0082359\,{\it t_7}^4}\over{{\it t_8}^4}}\right)+1.0\right)-0.9305257363490997\,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.001183286090183205\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_3}}\over{{\it t_4}}}-{{0.1880028\,{\it t_3}^2}\over{{\it t_4}^2}}-{{0.4490609\,{\it t_3}^3}\over{{\it t_4}^3}}-{{0.0082359\,{\it t_3}^4}\over{{\it t_4}^4}}\right)+1.0\right)\\\\ 
+C>   f &=& -0.9305257363490997\,\rho_\beta^{{{4}\over{3}}}\,
+C>    \left({{0.005777669212678249\,{\it t_5}\,
+C>    \sigma_{\beta\beta}}\over{0.001183286090183205\,{\it t_5}
+C>    \,\sigma_{\beta\beta}+1.0}}+1.0\right)\,\left(1.0\,\left(
+C>    -{{0.1637571\,{\it t_7}}\over{{\it t_8}}}-{{0.1880028\,{
+C>    \it t_7}^2}\over{{\it t_8}^2}}-{{0.4490609\,{\it t_7}^3}
+C>    \over{{\it t_8}^3}}-{{0.0082359\,{\it t_7}^4}\over{{
+C>    \it t_8}^4}}\right)+1.0\right)-0.9305257363490997
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.005777669212678249
+C>    \,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.001183286090183205
+C>    \,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}+1.0\right)\,\left(1.0
+C>    \,\left(-{{0.1637571\,{\it t_3}}\over{{\it t_4}}}-{{0.1880028
+C>    \,{\it t_3}^2}\over{{\it t_4}^2}}-{{0.4490609\,{
+C>    \it t_3}^3}\over{{\it t_4}^3}}-{{0.0082359\,{\it t_3}^4}
+C>    \over{{\it t_4}^4}}\right)+1.0\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363490997\,\rho_s^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_9}\,\sigma_{ss}}\over{0.001183286090183205\,{\it t_9}\,\sigma_{ss}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_{11}}}\over{{\it t_{12}}}}-{{0.1880028\,{\it t_{11}}^2}\over{{\it t_{12}}^2}}-{{0.4490609\,{\it t_{11}}^3}\over{{\it t_{12}}^3}}-{{0.0082359\,{\it t_{11}}^4}\over{{\it t_{12}}^4}}\right)+1.0\right)\\\\ 
+C>   G &=& -0.9305257363490997\,\rho_s^{{{4}\over{3}}}\,
+C>    \left({{0.005777669212678249\,{\it t_9}\,\sigma_{ss}}
+C>    \over{0.001183286090183205\,{\it t_9}\,\sigma_{ss}+1.0}}
+C>    +1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{
+C>    \it t_{11}}}\over{{\it t_{12}}}}-{{0.1880028\,{
+C>    \it t_{11}}^2}\over{{\it t_{12}}^2}}-{{0.4490609\,{
+C>    \it t_{11}}^3}\over{{\it t_{12}}^3}}-{{0.0082359\,{
+C>    \it t_{11}}^4}\over{{\it t_{12}}^4}}\right)+1.0\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -34,7 +55,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
+C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz
+C>    , Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.103.263201 "> 
 C> 10.1103/PhysRevLett.103.263201 </a> 
 C> 
@@ -300,9 +322,30 @@ C>   {\it t_9} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\
 C>   {\it t_{10}} &=& 9.115599744691192\,\rho_s^{{{5}\over{3}}}\\\\ 
 C>   {\it t_{11}} &=& {\it t_{10}}-2.0\,\tau_s\\\\ 
 C>   {\it t_{12}} &=& 2.0\,\tau_s+{\it t_{10}}\\\\ 
-C>   f &=& -0.9305257363490997\,\rho_\beta^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_5}\,\sigma_{\beta\beta}}\over{0.001183286090183205\,{\it t_5}\,\sigma_{\beta\beta}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_7}}\over{{\it t_8}}}-{{0.1880028\,{\it t_7}^2}\over{{\it t_8}^2}}-{{0.4490609\,{\it t_7}^3}\over{{\it t_8}^3}}-{{0.0082359\,{\it t_7}^4}\over{{\it t_8}^4}}\right)+1.0\right)-0.9305257363490997\,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.001183286090183205\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_3}}\over{{\it t_4}}}-{{0.1880028\,{\it t_3}^2}\over{{\it t_4}^2}}-{{0.4490609\,{\it t_3}^3}\over{{\it t_4}^3}}-{{0.0082359\,{\it t_3}^4}\over{{\it t_4}^4}}\right)+1.0\right)\\\\ 
+C>   f &=& -0.9305257363490997\,\rho_\beta^{{{4}\over{3}}}\,
+C>    \left({{0.005777669212678249\,{\it t_5}\,
+C>    \sigma_{\beta\beta}}\over{0.001183286090183205\,{\it t_5}
+C>    \,\sigma_{\beta\beta}+1.0}}+1.0\right)\,\left(1.0\,\left(
+C>    -{{0.1637571\,{\it t_7}}\over{{\it t_8}}}-{{0.1880028\,{
+C>    \it t_7}^2}\over{{\it t_8}^2}}-{{0.4490609\,{\it t_7}^3}
+C>    \over{{\it t_8}^3}}-{{0.0082359\,{\it t_7}^4}\over{{
+C>    \it t_8}^4}}\right)+1.0\right)-0.9305257363490997
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.005777669212678249
+C>    \,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.001183286090183205
+C>    \,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}+1.0\right)\,\left(1.0
+C>    \,\left(-{{0.1637571\,{\it t_3}}\over{{\it t_4}}}-{{0.1880028
+C>    \,{\it t_3}^2}\over{{\it t_4}^2}}-{{0.4490609\,{
+C>    \it t_3}^3}\over{{\it t_4}^3}}-{{0.0082359\,{\it t_3}^4}
+C>    \over{{\it t_4}^4}}\right)+1.0\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363490997\,\rho_s^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_9}\,\sigma_{ss}}\over{0.001183286090183205\,{\it t_9}\,\sigma_{ss}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_{11}}}\over{{\it t_{12}}}}-{{0.1880028\,{\it t_{11}}^2}\over{{\it t_{12}}^2}}-{{0.4490609\,{\it t_{11}}^3}\over{{\it t_{12}}^3}}-{{0.0082359\,{\it t_{11}}^4}\over{{\it t_{12}}^4}}\right)+1.0\right)\\\\ 
+C>   G &=& -0.9305257363490997\,\rho_s^{{{4}\over{3}}}\,
+C>    \left({{0.005777669212678249\,{\it t_9}\,\sigma_{ss}}
+C>    \over{0.001183286090183205\,{\it t_9}\,\sigma_{ss}+1.0}}
+C>    +1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{
+C>    \it t_{11}}}\over{{\it t_{12}}}}-{{0.1880028\,{
+C>    \it t_{11}}^2}\over{{\it t_{12}}^2}}-{{0.4490609\,{
+C>    \it t_{11}}^3}\over{{\it t_{12}}^3}}-{{0.0082359\,{
+C>    \it t_{11}}^4}\over{{\it t_{12}}^4}}\right)+1.0\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -310,7 +353,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
+C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz
+C>    , Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.103.263201 "> 
 C> 10.1103/PhysRevLett.103.263201 </a> 
 C> 
@@ -833,9 +877,30 @@ C>   {\it t_9} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\
 C>   {\it t_{10}} &=& 9.115599744691192\,\rho_s^{{{5}\over{3}}}\\\\ 
 C>   {\it t_{11}} &=& {\it t_{10}}-2.0\,\tau_s\\\\ 
 C>   {\it t_{12}} &=& 2.0\,\tau_s+{\it t_{10}}\\\\ 
-C>   f &=& -0.9305257363490997\,\rho_\beta^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_5}\,\sigma_{\beta\beta}}\over{0.001183286090183205\,{\it t_5}\,\sigma_{\beta\beta}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_7}}\over{{\it t_8}}}-{{0.1880028\,{\it t_7}^2}\over{{\it t_8}^2}}-{{0.4490609\,{\it t_7}^3}\over{{\it t_8}^3}}-{{0.0082359\,{\it t_7}^4}\over{{\it t_8}^4}}\right)+1.0\right)-0.9305257363490997\,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.001183286090183205\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_3}}\over{{\it t_4}}}-{{0.1880028\,{\it t_3}^2}\over{{\it t_4}^2}}-{{0.4490609\,{\it t_3}^3}\over{{\it t_4}^3}}-{{0.0082359\,{\it t_3}^4}\over{{\it t_4}^4}}\right)+1.0\right)\\\\ 
+C>   f &=& -0.9305257363490997\,\rho_\beta^{{{4}\over{3}}}\,
+C>    \left({{0.005777669212678249\,{\it t_5}\,
+C>    \sigma_{\beta\beta}}\over{0.001183286090183205\,{\it t_5}
+C>    \,\sigma_{\beta\beta}+1.0}}+1.0\right)\,\left(1.0\,\left(
+C>    -{{0.1637571\,{\it t_7}}\over{{\it t_8}}}-{{0.1880028\,{
+C>    \it t_7}^2}\over{{\it t_8}^2}}-{{0.4490609\,{\it t_7}^3}
+C>    \over{{\it t_8}^3}}-{{0.0082359\,{\it t_7}^4}\over{{
+C>    \it t_8}^4}}\right)+1.0\right)-0.9305257363490997
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,\left({{0.005777669212678249
+C>    \,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.001183286090183205
+C>    \,{\it t_1}\,\sigma_{\alpha\alpha}+1.0}}+1.0\right)\,\left(1.0
+C>    \,\left(-{{0.1637571\,{\it t_3}}\over{{\it t_4}}}-{{0.1880028
+C>    \,{\it t_3}^2}\over{{\it t_4}^2}}-{{0.4490609\,{
+C>    \it t_3}^3}\over{{\it t_4}^3}}-{{0.0082359\,{\it t_3}^4}
+C>    \over{{\it t_4}^4}}\right)+1.0\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -0.9305257363490997\,\rho_s^{{{4}\over{3}}}\,\left({{0.005777669212678249\,{\it t_9}\,\sigma_{ss}}\over{0.001183286090183205\,{\it t_9}\,\sigma_{ss}+1.0}}+1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{\it t_{11}}}\over{{\it t_{12}}}}-{{0.1880028\,{\it t_{11}}^2}\over{{\it t_{12}}^2}}-{{0.4490609\,{\it t_{11}}^3}\over{{\it t_{12}}^3}}-{{0.0082359\,{\it t_{11}}^4}\over{{\it t_{12}}^4}}\right)+1.0\right)\\\\ 
+C>   G &=& -0.9305257363490997\,\rho_s^{{{4}\over{3}}}\,
+C>    \left({{0.005777669212678249\,{\it t_9}\,\sigma_{ss}}
+C>    \over{0.001183286090183205\,{\it t_9}\,\sigma_{ss}+1.0}}
+C>    +1.0\right)\,\left(1.0\,\left(-{{0.1637571\,{
+C>    \it t_{11}}}\over{{\it t_{12}}}}-{{0.1880028\,{
+C>    \it t_{11}}^2}\over{{\it t_{12}}^2}}-{{0.4490609\,{
+C>    \it t_{11}}^3}\over{{\it t_{12}}^3}}-{{0.0082359\,{
+C>    \it t_{11}}^4}\over{{\it t_{12}}^4}}\right)+1.0\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -843,7 +908,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz, Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
+C> [1] K Pernal, R Podeszwa, K Patkowski, K Szalewicz
+C>    , Phys.Rev.Lett. 103, 263201 (2009)  , DOI: 
 C> <a href="http://dx.doi.org/10.1103/PhysRevLett.103.263201 "> 
 C> 10.1103/PhysRevLett.103.263201 </a> 
 C> 

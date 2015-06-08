@@ -12,7 +12,9 @@ C>
 C> \brief Evaluate the nwxcm_xc_kt1 functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.006\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{4}\over{3}}}+0.1}}-{{0.006\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}+0.1}}\\\\ 
+C>   f &=& -{{0.006\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{4}\over{3}}}+0.1}}-{{0.006\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}+0.1}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& -{{0.006\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}+0.1}}\\\\ 
 C> \f} 
@@ -119,7 +121,9 @@ C>
 C> \brief Evaluate the nwxcm_xc_kt1 functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.006\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{4}\over{3}}}+0.1}}-{{0.006\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}+0.1}}\\\\ 
+C>   f &=& -{{0.006\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{4}\over{3}}}+0.1}}-{{0.006\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}+0.1}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& -{{0.006\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}+0.1}}\\\\ 
 C> \f} 
@@ -282,7 +286,9 @@ C>
 C> \brief Evaluate the nwxcm_xc_kt1 functional [1] 
 C> 
 C> \f{eqnarray*}{ 
-C>   f &=& -{{0.006\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{4}\over{3}}}+0.1}}-{{0.006\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}+0.1}}\\\\ 
+C>   f &=& -{{0.006\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{4}\over{3}}}+0.1}}-{{0.006\,
+C>    \sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{4}\over{3}}}+0.1}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& -{{0.006\,\sigma_{ss}}\over{\rho_s^{{{4}\over{3}}}+0.1}}\\\\ 
 C> \f} 

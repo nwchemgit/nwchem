@@ -13,8 +13,10 @@ C> \brief Evaluate the nwxcm_x_vs98 functional [1]
 C> 
 C> \f{eqnarray*}{ 
 C>   {\it t_1} &=& {{1}\over{\rho_\alpha^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_2} &=& {{2.0\,\tau_\alpha}\over{\rho_\alpha^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_3} &=& 0.00186726\,{\it t_2}+0.00186726\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0\\\\ 
+C>   {\it t_2} &=& {{2.0\,\tau_\alpha}\over{\rho_\alpha^{{{5}
+C>    \over{3}}}}}-9.11559972\\\\ 
+C>   {\it t_3} &=& 0.00186726\,{\it t_2}+0.00186726\,{\it t_1}
+C>    \,\sigma_{\alpha\alpha}+1.0\\\\ 
 C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\ 
 C>   {\it t_5} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_6} &=& {\it param}\left(4\right)\\\\ 
@@ -24,18 +26,41 @@ C>   {\it t_9} &=& {\it param}\left(6\right)\\\\
 C>   {\it t_{10}} &=& {\it param}\left(2\right)\\\\ 
 C>   {\it t_{11}} &=& {\it param}\left(3\right)\\\\ 
 C>   {\it t_{12}} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_{13}} &=& {{2.0\,\tau_\beta}\over{\rho_\beta^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_{14}} &=& 0.00186726\,{\it t_{13}}+0.00186726\,{\it t_{12}}\,\sigma_{\beta\beta}+1.0\\\\ 
+C>   {\it t_{13}} &=& {{2.0\,\tau_\beta}\over{\rho_\beta^{{{5}
+C>    \over{3}}}}}-9.11559972\\\\ 
+C>   {\it t_{14}} &=& 0.00186726\,{\it t_{13}}+0.00186726\,{
+C>    \it t_{12}}\,\sigma_{\beta\beta}+1.0\\\\ 
 C>   {\it t_{15}} &=& {{1}\over{{\it t_{14}}}}\\\\ 
 C>   {\it t_{16}} &=& {{1}\over{{\it t_{14}}^2}}\\\\ 
 C>   {\it t_{17}} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_{18}} &=& {{2.0\,\tau_s}\over{\rho_s^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_{19}} &=& 0.00186726\,{\it t_{18}}+0.00186726\,{\it t_{17}}\,\sigma_{ss}+1.0\\\\ 
+C>   {\it t_{18}} &=& {{2.0\,\tau_s}\over{\rho_s^{{{5}\over{3}}}}}
+C>    -9.11559972\\\\ 
+C>   {\it t_{19}} &=& 0.00186726\,{\it t_{18}}+0.00186726\,{
+C>    \it t_{17}}\,\sigma_{ss}+1.0\\\\ 
 C>   {\it t_{20}} &=& {{1}\over{{\it t_{19}}}}\\\\ 
 C>   {\it t_{21}} &=& {{1}\over{{\it t_{19}}^2}}\\\\ 
-C>   f &=& 1.0\,\rho_\beta^{{{4}\over{3}}}\,{\it t_{15}}\,\left({\it t_{11}}\,{\it t_{13}}\,{\it t_{15}}+{\it t_{10}}\,{\it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{15}}+{\it t_9}\,{\it t_{13}}^2\,{\it t_{16}}+{\it t_8}\,{\it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{13}}\,{\it t_{16}}+{{{\it t_6}\,\sigma_{\beta\beta}^2\,{\it t_{16}}}\over{\rho_\beta^{{{16}\over{3}}}}}+{\it t_5}\right)+1.0\,\rho_\alpha^{{{4}\over{3}}}\,{\it t_4}\,\left({\it t_{11}}\,{\it t_2}\,{\it t_4}+{\it t_{10}}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{\it t_4}+{\it t_9}\,{\it t_2}^2\,{\it t_7}+{\it t_8}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{\it t_2}\,{\it t_7}+{{{\it t_6}\,\sigma_{\alpha\alpha}^2\,{\it t_7}}\over{\rho_\alpha^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
+C>   f &=& 1.0\,\rho_\beta^{{{4}\over{3}}}\,{\it t_{15}}\,\left({
+C>    \it t_{11}}\,{\it t_{13}}\,{\it t_{15}}+{\it t_{10}}\,{
+C>    \it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{15}}+{\it t_9}\,{
+C>    \it t_{13}}^2\,{\it t_{16}}+{\it t_8}\,{\it t_{12}}\,
+C>    \sigma_{\beta\beta}\,{\it t_{13}}\,{\it t_{16}}+{{{\it t_6}
+C>    \,\sigma_{\beta\beta}^2\,{\it t_{16}}}
+C>    \over{\rho_\beta^{{{16}\over{3}}}}}+{\it t_5}\right)+1.0
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,{\it t_4}\,\left({\it t_{11}}
+C>    \,{\it t_2}\,{\it t_4}+{\it t_{10}}\,{\it t_1}\,
+C>    \sigma_{\alpha\alpha}\,{\it t_4}+{\it t_9}\,{\it t_2}^2\,{
+C>    \it t_7}+{\it t_8}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{
+C>    \it t_2}\,{\it t_7}+{{{\it t_6}\,\sigma_{\alpha\alpha}^2\,{
+C>    \it t_7}}\over{\rho_\alpha^{{{16}\over{3}}}}}+{
+C>    \it t_5}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({\it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{\it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,\sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
+C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({
+C>    \it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{
+C>    \it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{
+C>    \it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,
+C>    \sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,
+C>    \sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}
+C>    +{\it t_5}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -326,8 +351,10 @@ C> \brief Evaluate the nwxcm_x_vs98 functional [1]
 C> 
 C> \f{eqnarray*}{ 
 C>   {\it t_1} &=& {{1}\over{\rho_\alpha^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_2} &=& {{2.0\,\tau_\alpha}\over{\rho_\alpha^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_3} &=& 0.00186726\,{\it t_2}+0.00186726\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0\\\\ 
+C>   {\it t_2} &=& {{2.0\,\tau_\alpha}\over{\rho_\alpha^{{{5}
+C>    \over{3}}}}}-9.11559972\\\\ 
+C>   {\it t_3} &=& 0.00186726\,{\it t_2}+0.00186726\,{\it t_1}
+C>    \,\sigma_{\alpha\alpha}+1.0\\\\ 
 C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\ 
 C>   {\it t_5} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_6} &=& {\it param}\left(4\right)\\\\ 
@@ -337,18 +364,41 @@ C>   {\it t_9} &=& {\it param}\left(6\right)\\\\
 C>   {\it t_{10}} &=& {\it param}\left(2\right)\\\\ 
 C>   {\it t_{11}} &=& {\it param}\left(3\right)\\\\ 
 C>   {\it t_{12}} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_{13}} &=& {{2.0\,\tau_\beta}\over{\rho_\beta^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_{14}} &=& 0.00186726\,{\it t_{13}}+0.00186726\,{\it t_{12}}\,\sigma_{\beta\beta}+1.0\\\\ 
+C>   {\it t_{13}} &=& {{2.0\,\tau_\beta}\over{\rho_\beta^{{{5}
+C>    \over{3}}}}}-9.11559972\\\\ 
+C>   {\it t_{14}} &=& 0.00186726\,{\it t_{13}}+0.00186726\,{
+C>    \it t_{12}}\,\sigma_{\beta\beta}+1.0\\\\ 
 C>   {\it t_{15}} &=& {{1}\over{{\it t_{14}}}}\\\\ 
 C>   {\it t_{16}} &=& {{1}\over{{\it t_{14}}^2}}\\\\ 
 C>   {\it t_{17}} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_{18}} &=& {{2.0\,\tau_s}\over{\rho_s^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_{19}} &=& 0.00186726\,{\it t_{18}}+0.00186726\,{\it t_{17}}\,\sigma_{ss}+1.0\\\\ 
+C>   {\it t_{18}} &=& {{2.0\,\tau_s}\over{\rho_s^{{{5}\over{3}}}}}
+C>    -9.11559972\\\\ 
+C>   {\it t_{19}} &=& 0.00186726\,{\it t_{18}}+0.00186726\,{
+C>    \it t_{17}}\,\sigma_{ss}+1.0\\\\ 
 C>   {\it t_{20}} &=& {{1}\over{{\it t_{19}}}}\\\\ 
 C>   {\it t_{21}} &=& {{1}\over{{\it t_{19}}^2}}\\\\ 
-C>   f &=& 1.0\,\rho_\beta^{{{4}\over{3}}}\,{\it t_{15}}\,\left({\it t_{11}}\,{\it t_{13}}\,{\it t_{15}}+{\it t_{10}}\,{\it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{15}}+{\it t_9}\,{\it t_{13}}^2\,{\it t_{16}}+{\it t_8}\,{\it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{13}}\,{\it t_{16}}+{{{\it t_6}\,\sigma_{\beta\beta}^2\,{\it t_{16}}}\over{\rho_\beta^{{{16}\over{3}}}}}+{\it t_5}\right)+1.0\,\rho_\alpha^{{{4}\over{3}}}\,{\it t_4}\,\left({\it t_{11}}\,{\it t_2}\,{\it t_4}+{\it t_{10}}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{\it t_4}+{\it t_9}\,{\it t_2}^2\,{\it t_7}+{\it t_8}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{\it t_2}\,{\it t_7}+{{{\it t_6}\,\sigma_{\alpha\alpha}^2\,{\it t_7}}\over{\rho_\alpha^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
+C>   f &=& 1.0\,\rho_\beta^{{{4}\over{3}}}\,{\it t_{15}}\,\left({
+C>    \it t_{11}}\,{\it t_{13}}\,{\it t_{15}}+{\it t_{10}}\,{
+C>    \it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{15}}+{\it t_9}\,{
+C>    \it t_{13}}^2\,{\it t_{16}}+{\it t_8}\,{\it t_{12}}\,
+C>    \sigma_{\beta\beta}\,{\it t_{13}}\,{\it t_{16}}+{{{\it t_6}
+C>    \,\sigma_{\beta\beta}^2\,{\it t_{16}}}
+C>    \over{\rho_\beta^{{{16}\over{3}}}}}+{\it t_5}\right)+1.0
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,{\it t_4}\,\left({\it t_{11}}
+C>    \,{\it t_2}\,{\it t_4}+{\it t_{10}}\,{\it t_1}\,
+C>    \sigma_{\alpha\alpha}\,{\it t_4}+{\it t_9}\,{\it t_2}^2\,{
+C>    \it t_7}+{\it t_8}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{
+C>    \it t_2}\,{\it t_7}+{{{\it t_6}\,\sigma_{\alpha\alpha}^2\,{
+C>    \it t_7}}\over{\rho_\alpha^{{{16}\over{3}}}}}+{
+C>    \it t_5}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({\it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{\it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,\sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
+C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({
+C>    \it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{
+C>    \it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{
+C>    \it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,
+C>    \sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,
+C>    \sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}
+C>    +{\it t_5}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -1141,8 +1191,10 @@ C> \brief Evaluate the nwxcm_x_vs98 functional [1]
 C> 
 C> \f{eqnarray*}{ 
 C>   {\it t_1} &=& {{1}\over{\rho_\alpha^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_2} &=& {{2.0\,\tau_\alpha}\over{\rho_\alpha^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_3} &=& 0.00186726\,{\it t_2}+0.00186726\,{\it t_1}\,\sigma_{\alpha\alpha}+1.0\\\\ 
+C>   {\it t_2} &=& {{2.0\,\tau_\alpha}\over{\rho_\alpha^{{{5}
+C>    \over{3}}}}}-9.11559972\\\\ 
+C>   {\it t_3} &=& 0.00186726\,{\it t_2}+0.00186726\,{\it t_1}
+C>    \,\sigma_{\alpha\alpha}+1.0\\\\ 
 C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\ 
 C>   {\it t_5} &=& {\it param}\left(1\right)\\\\ 
 C>   {\it t_6} &=& {\it param}\left(4\right)\\\\ 
@@ -1152,18 +1204,41 @@ C>   {\it t_9} &=& {\it param}\left(6\right)\\\\
 C>   {\it t_{10}} &=& {\it param}\left(2\right)\\\\ 
 C>   {\it t_{11}} &=& {\it param}\left(3\right)\\\\ 
 C>   {\it t_{12}} &=& {{1}\over{\rho_\beta^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_{13}} &=& {{2.0\,\tau_\beta}\over{\rho_\beta^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_{14}} &=& 0.00186726\,{\it t_{13}}+0.00186726\,{\it t_{12}}\,\sigma_{\beta\beta}+1.0\\\\ 
+C>   {\it t_{13}} &=& {{2.0\,\tau_\beta}\over{\rho_\beta^{{{5}
+C>    \over{3}}}}}-9.11559972\\\\ 
+C>   {\it t_{14}} &=& 0.00186726\,{\it t_{13}}+0.00186726\,{
+C>    \it t_{12}}\,\sigma_{\beta\beta}+1.0\\\\ 
 C>   {\it t_{15}} &=& {{1}\over{{\it t_{14}}}}\\\\ 
 C>   {\it t_{16}} &=& {{1}\over{{\it t_{14}}^2}}\\\\ 
 C>   {\it t_{17}} &=& {{1}\over{\rho_s^{{{8}\over{3}}}}}\\\\ 
-C>   {\it t_{18}} &=& {{2.0\,\tau_s}\over{\rho_s^{{{5}\over{3}}}}}-9.11559972\\\\ 
-C>   {\it t_{19}} &=& 0.00186726\,{\it t_{18}}+0.00186726\,{\it t_{17}}\,\sigma_{ss}+1.0\\\\ 
+C>   {\it t_{18}} &=& {{2.0\,\tau_s}\over{\rho_s^{{{5}\over{3}}}}}
+C>    -9.11559972\\\\ 
+C>   {\it t_{19}} &=& 0.00186726\,{\it t_{18}}+0.00186726\,{
+C>    \it t_{17}}\,\sigma_{ss}+1.0\\\\ 
 C>   {\it t_{20}} &=& {{1}\over{{\it t_{19}}}}\\\\ 
 C>   {\it t_{21}} &=& {{1}\over{{\it t_{19}}^2}}\\\\ 
-C>   f &=& 1.0\,\rho_\beta^{{{4}\over{3}}}\,{\it t_{15}}\,\left({\it t_{11}}\,{\it t_{13}}\,{\it t_{15}}+{\it t_{10}}\,{\it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{15}}+{\it t_9}\,{\it t_{13}}^2\,{\it t_{16}}+{\it t_8}\,{\it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{13}}\,{\it t_{16}}+{{{\it t_6}\,\sigma_{\beta\beta}^2\,{\it t_{16}}}\over{\rho_\beta^{{{16}\over{3}}}}}+{\it t_5}\right)+1.0\,\rho_\alpha^{{{4}\over{3}}}\,{\it t_4}\,\left({\it t_{11}}\,{\it t_2}\,{\it t_4}+{\it t_{10}}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{\it t_4}+{\it t_9}\,{\it t_2}^2\,{\it t_7}+{\it t_8}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{\it t_2}\,{\it t_7}+{{{\it t_6}\,\sigma_{\alpha\alpha}^2\,{\it t_7}}\over{\rho_\alpha^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
+C>   f &=& 1.0\,\rho_\beta^{{{4}\over{3}}}\,{\it t_{15}}\,\left({
+C>    \it t_{11}}\,{\it t_{13}}\,{\it t_{15}}+{\it t_{10}}\,{
+C>    \it t_{12}}\,\sigma_{\beta\beta}\,{\it t_{15}}+{\it t_9}\,{
+C>    \it t_{13}}^2\,{\it t_{16}}+{\it t_8}\,{\it t_{12}}\,
+C>    \sigma_{\beta\beta}\,{\it t_{13}}\,{\it t_{16}}+{{{\it t_6}
+C>    \,\sigma_{\beta\beta}^2\,{\it t_{16}}}
+C>    \over{\rho_\beta^{{{16}\over{3}}}}}+{\it t_5}\right)+1.0
+C>    \,\rho_\alpha^{{{4}\over{3}}}\,{\it t_4}\,\left({\it t_{11}}
+C>    \,{\it t_2}\,{\it t_4}+{\it t_{10}}\,{\it t_1}\,
+C>    \sigma_{\alpha\alpha}\,{\it t_4}+{\it t_9}\,{\it t_2}^2\,{
+C>    \it t_7}+{\it t_8}\,{\it t_1}\,\sigma_{\alpha\alpha}\,{
+C>    \it t_2}\,{\it t_7}+{{{\it t_6}\,\sigma_{\alpha\alpha}^2\,{
+C>    \it t_7}}\over{\rho_\alpha^{{{16}\over{3}}}}}+{
+C>    \it t_5}\right)\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({\it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{\it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,\sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,\sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}+{\it t_5}\right)\\\\ 
+C>   G &=& 1.0\,\rho_s^{{{4}\over{3}}}\,{\it t_{20}}\,\left({
+C>    \it t_{11}}\,{\it t_{18}}\,{\it t_{20}}+{\it t_{10}}\,{
+C>    \it t_{17}}\,\sigma_{ss}\,{\it t_{20}}+{\it t_9}\,{
+C>    \it t_{18}}^2\,{\it t_{21}}+{\it t_8}\,{\it t_{17}}\,
+C>    \sigma_{ss}\,{\it t_{18}}\,{\it t_{21}}+{{{\it t_6}\,
+C>    \sigma_{ss}^2\,{\it t_{21}}}\over{\rho_s^{{{16}\over{3}}}}}
+C>    +{\it t_5}\right)\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 

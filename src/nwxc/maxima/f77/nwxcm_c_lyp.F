@@ -23,7 +23,22 @@ C>   {\it t_8} &=& 0.349\,{\it t_3}\,{\it t_4}\\\\
 C>   {\it t_9} &=& {\it t_8}+{\it t_6}-11.0\\\\ 
 C>   {\it t_{10}} &=& {\it t_8}+{\it t_6}\\\\ 
 C>   {\it t_{11}} &=& -3.0\,{\it t_{10}}\\\\ 
-C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{11}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_9}+1.0\right)-\rho_\alpha^2\right)\,{\it t_7}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{10}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_7}\,\sigma_{\alpha\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{11}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_9}+1.0\right)-\rho_\beta^2\right)\,{\it t_7}\,\sigma_{\alpha\alpha}-0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left(\rho_\beta^{{{8}\over{3}}}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_7}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}
+C>    \,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({
+C>    \it t_{11}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_9}+1.0\right)
+C>    -\rho_\alpha^2\right)\,{\it t_7}\,\sigma_{\beta\beta}
+C>    -0.006491760000000001\,{\it t_5}\,{\it t_4}\,
+C>    \left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0
+C>    -7.0\,{\it t_{10}}\right)-1.333333333333333\,{
+C>    \it t_1}^2\right)\,{\it t_7}\,\sigma_{\alpha\beta}
+C>    -0.006491760000000001\,{\it t_5}\,{\it t_4}\,
+C>    \left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({
+C>    \it t_{11}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_9}+1.0\right)
+C>    -\rho_\beta^2\right)\,{\it t_7}\,\sigma_{\alpha\alpha}
+C>    -0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}
+C>    \,\left(\rho_\beta^{{{8}\over{3}}}+\rho_\alpha^{{{8}
+C>    \over{3}}}\right)\,{\it t_4}\,{\it t_7}-0.19672\,\rho_\alpha
+C>    \,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 
@@ -251,7 +266,22 @@ C>   {\it t_8} &=& 0.349\,{\it t_3}\,{\it t_4}\\\\
 C>   {\it t_9} &=& {\it t_8}+{\it t_6}-11.0\\\\ 
 C>   {\it t_{10}} &=& {\it t_8}+{\it t_6}\\\\ 
 C>   {\it t_{11}} &=& -3.0\,{\it t_{10}}\\\\ 
-C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{11}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_9}+1.0\right)-\rho_\alpha^2\right)\,{\it t_7}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{10}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_7}\,\sigma_{\alpha\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{11}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_9}+1.0\right)-\rho_\beta^2\right)\,{\it t_7}\,\sigma_{\alpha\alpha}-0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left(\rho_\beta^{{{8}\over{3}}}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_7}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}
+C>    \,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({
+C>    \it t_{11}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_9}+1.0\right)
+C>    -\rho_\alpha^2\right)\,{\it t_7}\,\sigma_{\beta\beta}
+C>    -0.006491760000000001\,{\it t_5}\,{\it t_4}\,
+C>    \left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0
+C>    -7.0\,{\it t_{10}}\right)-1.333333333333333\,{
+C>    \it t_1}^2\right)\,{\it t_7}\,\sigma_{\alpha\beta}
+C>    -0.006491760000000001\,{\it t_5}\,{\it t_4}\,
+C>    \left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({
+C>    \it t_{11}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_9}+1.0\right)
+C>    -\rho_\beta^2\right)\,{\it t_7}\,\sigma_{\alpha\alpha}
+C>    -0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}
+C>    \,\left(\rho_\beta^{{{8}\over{3}}}+\rho_\alpha^{{{8}
+C>    \over{3}}}\right)\,{\it t_4}\,{\it t_7}-0.19672\,\rho_\alpha
+C>    \,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 
@@ -727,7 +757,22 @@ C>   {\it t_8} &=& 0.349\,{\it t_3}\,{\it t_4}\\\\
 C>   {\it t_9} &=& {\it t_8}+{\it t_6}-11.0\\\\ 
 C>   {\it t_{10}} &=& {\it t_8}+{\it t_6}\\\\ 
 C>   {\it t_{11}} &=& -3.0\,{\it t_{10}}\\\\ 
-C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{11}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_9}+1.0\right)-\rho_\alpha^2\right)\,{\it t_7}\,\sigma_{\beta\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0-7.0\,{\it t_{10}}\right)-1.333333333333333\,{\it t_1}^2\right)\,{\it t_7}\,\sigma_{\alpha\beta}-0.006491760000000001\,{\it t_5}\,{\it t_4}\,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({\it t_{11}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_9}+1.0\right)-\rho_\beta^2\right)\,{\it t_7}\,\sigma_{\alpha\alpha}-0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}\,\left(\rho_\beta^{{{8}\over{3}}}+\rho_\alpha^{{{8}\over{3}}}\right)\,{\it t_4}\,{\it t_7}-0.19672\,\rho_\alpha\,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
+C>   f &=& 1.0\,\left(-0.006491760000000001\,{\it t_5}\,{\it t_4}
+C>    \,\left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({
+C>    \it t_{11}}-1.0\,\rho_\beta\,{\it t_2}\,{\it t_9}+1.0\right)
+C>    -\rho_\alpha^2\right)\,{\it t_7}\,\sigma_{\beta\beta}
+C>    -0.006491760000000001\,{\it t_5}\,{\it t_4}\,
+C>    \left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left(47.0
+C>    -7.0\,{\it t_{10}}\right)-1.333333333333333\,{
+C>    \it t_1}^2\right)\,{\it t_7}\,\sigma_{\alpha\beta}
+C>    -0.006491760000000001\,{\it t_5}\,{\it t_4}\,
+C>    \left(0.1111111111111111\,\rho_\alpha\,\rho_\beta\,\left({
+C>    \it t_{11}}-1.0\,\rho_\alpha\,{\it t_2}\,{\it t_9}+1.0\right)
+C>    -\rho_\beta^2\right)\,{\it t_7}\,\sigma_{\alpha\alpha}
+C>    -0.2367051431943866\,\rho_\alpha\,\rho_\beta\,{\it t_5}
+C>    \,\left(\rho_\beta^{{{8}\over{3}}}+\rho_\alpha^{{{8}
+C>    \over{3}}}\right)\,{\it t_4}\,{\it t_7}-0.19672\,\rho_\alpha
+C>    \,\rho_\beta\,{\it t_2}\,{\it t_4}\right)\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 

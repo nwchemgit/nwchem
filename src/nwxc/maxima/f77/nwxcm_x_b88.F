@@ -18,9 +18,16 @@ C>   {\it t_3} &=& {{1}\over{\rho_\beta^{{{4}\over{3}}}}}\\\\
 C>   {\it t_4} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
 C>   {\it t_5} &=& {{1}\over{\rho_s^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_6} &=& \sqrt{\sigma_{ss}}\\\\ 
-C>   f &=& -{{0.0042\,{\it t_3}\,\sigma_{\beta\beta}}\over{0.0252\,{\it t_3}\,{\rm asinh}\; \left({\it t_3}\,{\it t_4}\right)\,{\it t_4}+1.0}}-{{0.0042\,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.0252\,{\it t_1}\,{\rm asinh}\; \left({\it t_1}\,{\it t_2}\right)\,{\it t_2}+1.0}}\\\\ 
+C>   f &=& -{{0.0042\,{\it t_3}\,\sigma_{\beta\beta}}\over{0.0252
+C>    \,{\it t_3}\,{\rm asinh}\; \left({\it t_3}\,{\it t_4}\right)
+C>    \,{\it t_4}+1.0}}-{{0.0042\,{\it t_1}\,
+C>    \sigma_{\alpha\alpha}}\over{0.0252\,{\it t_1}
+C>    \,{\rm asinh}\; \left({\it t_1}\,{\it t_2}\right)\,{\it t_2}
+C>    +1.0}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}\,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}+1.0}}\\\\ 
+C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}
+C>    \,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}
+C>    +1.0}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -181,9 +188,16 @@ C>   {\it t_3} &=& {{1}\over{\rho_\beta^{{{4}\over{3}}}}}\\\\
 C>   {\it t_4} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
 C>   {\it t_5} &=& {{1}\over{\rho_s^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_6} &=& \sqrt{\sigma_{ss}}\\\\ 
-C>   f &=& -{{0.0042\,{\it t_3}\,\sigma_{\beta\beta}}\over{0.0252\,{\it t_3}\,{\rm asinh}\; \left({\it t_3}\,{\it t_4}\right)\,{\it t_4}+1.0}}-{{0.0042\,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.0252\,{\it t_1}\,{\rm asinh}\; \left({\it t_1}\,{\it t_2}\right)\,{\it t_2}+1.0}}\\\\ 
+C>   f &=& -{{0.0042\,{\it t_3}\,\sigma_{\beta\beta}}\over{0.0252
+C>    \,{\it t_3}\,{\rm asinh}\; \left({\it t_3}\,{\it t_4}\right)
+C>    \,{\it t_4}+1.0}}-{{0.0042\,{\it t_1}\,
+C>    \sigma_{\alpha\alpha}}\over{0.0252\,{\it t_1}
+C>    \,{\rm asinh}\; \left({\it t_1}\,{\it t_2}\right)\,{\it t_2}
+C>    +1.0}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}\,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}+1.0}}\\\\ 
+C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}
+C>    \,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}
+C>    +1.0}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 
@@ -480,9 +494,16 @@ C>   {\it t_3} &=& {{1}\over{\rho_\beta^{{{4}\over{3}}}}}\\\\
 C>   {\it t_4} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
 C>   {\it t_5} &=& {{1}\over{\rho_s^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_6} &=& \sqrt{\sigma_{ss}}\\\\ 
-C>   f &=& -{{0.0042\,{\it t_3}\,\sigma_{\beta\beta}}\over{0.0252\,{\it t_3}\,{\rm asinh}\; \left({\it t_3}\,{\it t_4}\right)\,{\it t_4}+1.0}}-{{0.0042\,{\it t_1}\,\sigma_{\alpha\alpha}}\over{0.0252\,{\it t_1}\,{\rm asinh}\; \left({\it t_1}\,{\it t_2}\right)\,{\it t_2}+1.0}}\\\\ 
+C>   f &=& -{{0.0042\,{\it t_3}\,\sigma_{\beta\beta}}\over{0.0252
+C>    \,{\it t_3}\,{\rm asinh}\; \left({\it t_3}\,{\it t_4}\right)
+C>    \,{\it t_4}+1.0}}-{{0.0042\,{\it t_1}\,
+C>    \sigma_{\alpha\alpha}}\over{0.0252\,{\it t_1}
+C>    \,{\rm asinh}\; \left({\it t_1}\,{\it t_2}\right)\,{\it t_2}
+C>    +1.0}}\\\\ 
 C>   g &=& 0\\\\ 
-C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}\,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}+1.0}}\\\\ 
+C>   G &=& -{{0.0042\,{\it t_5}\,\sigma_{ss}}\over{0.0252\,{\it t_5}
+C>    \,{\rm asinh}\; \left({\it t_5}\,{\it t_6}\right)\,{\it t_6}
+C>    +1.0}}\\\\ 
 C> \f} 
 C> 
 C> Code generated with Maxima 5.34.0 [2] 

@@ -17,13 +17,25 @@ C>   {\it t_2} &=& \rho_\alpha^{{{1}\over{3}}}\\\\
 C>   {\it t_3} &=& \rho_\beta^{{{1}\over{3}}}\\\\ 
 C>   {\it t_4} &=& {{1}\over{\rho_\alpha^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_5} &=& \sqrt{\sigma_{\alpha\alpha}}\\\\ 
-C>   {\it t_6} &=& {{0.0084\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}\,\left(0.0252\,{\it t_4}\,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}+1.0\right)}}+1.8610514726982\\\\ 
+C>   {\it t_6} &=& {{0.0084\,\sigma_{\alpha\alpha}}
+C>    \over{\rho_\alpha^{{{8}\over{3}}}\,\left(0.0252\,{\it t_4}
+C>    \,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}
+C>    +1.0\right)}}+1.8610514726982\\\\ 
 C>   {\it t_7} &=& {{1}\over{\rho_\beta^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_8} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
-C>   {\it t_9} &=& {{0.0084\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}\,\left(0.0252\,{\it t_7}\,{\rm asinh}\; \left({\it t_7}\,{\it t_8}\right)\,{\it t_8}+1.0\right)}}+1.8610514726982\\\\ 
-C>   {\it t_{10}} &=& {{1}\over{{\it t_3}\,{\it t_9}+{\it t_2}\,{\it t_6}}}\\\\ 
-C>   {\it t_{11}} &=& \left({\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}\right)^{2.0}\\\\ 
-C>   f &=& -{{1.0\,\rho_\alpha\,\rho_\beta\,\left(1.5214\,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}+0.5764\right)}\over{{\it t_{11}}\,\left({\it t_{11}}+1.1284\,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}+0.3183\right)}}\\\\ 
+C>   {\it t_9} &=& {{0.0084\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{8}\over{3}}}\,\left(0.0252\,{\it t_7}
+C>    \,{\rm asinh}\; \left({\it t_7}\,{\it t_8}\right)\,{\it t_8}
+C>    +1.0\right)}}+1.8610514726982\\\\ 
+C>   {\it t_{10}} &=& {{1}\over{{\it t_3}\,{\it t_9}+{\it t_2}\,{
+C>    \it t_6}}}\\\\ 
+C>   {\it t_{11}} &=& \left({\it t_1}\,{\it t_2}\,{\it t_3}\,{
+C>    \it t_6}\,{\it t_9}\,{\it t_{10}}\right)^{2.0}\\\\ 
+C>   f &=& -{{1.0\,\rho_\alpha\,\rho_\beta\,\left(1.5214\,{\it t_1}
+C>    \,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}
+C>    +0.5764\right)}\over{{\it t_{11}}\,\left({\it t_{11}}+1.1284
+C>    \,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{
+C>    \it t_{10}}+0.3183\right)}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 
@@ -33,7 +45,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110, 10664 (1999)  , DOI: 
+C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110
+C>    , 10664 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.479012 "> 
 C> 10.1063/1.479012 </a> 
 C> 
@@ -240,13 +253,25 @@ C>   {\it t_2} &=& \rho_\alpha^{{{1}\over{3}}}\\\\
 C>   {\it t_3} &=& \rho_\beta^{{{1}\over{3}}}\\\\ 
 C>   {\it t_4} &=& {{1}\over{\rho_\alpha^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_5} &=& \sqrt{\sigma_{\alpha\alpha}}\\\\ 
-C>   {\it t_6} &=& {{0.0084\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}\,\left(0.0252\,{\it t_4}\,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}+1.0\right)}}+1.8610514726982\\\\ 
+C>   {\it t_6} &=& {{0.0084\,\sigma_{\alpha\alpha}}
+C>    \over{\rho_\alpha^{{{8}\over{3}}}\,\left(0.0252\,{\it t_4}
+C>    \,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}
+C>    +1.0\right)}}+1.8610514726982\\\\ 
 C>   {\it t_7} &=& {{1}\over{\rho_\beta^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_8} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
-C>   {\it t_9} &=& {{0.0084\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}\,\left(0.0252\,{\it t_7}\,{\rm asinh}\; \left({\it t_7}\,{\it t_8}\right)\,{\it t_8}+1.0\right)}}+1.8610514726982\\\\ 
-C>   {\it t_{10}} &=& {{1}\over{{\it t_3}\,{\it t_9}+{\it t_2}\,{\it t_6}}}\\\\ 
-C>   {\it t_{11}} &=& \left({\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}\right)^{2.0}\\\\ 
-C>   f &=& -{{1.0\,\rho_\alpha\,\rho_\beta\,\left(1.5214\,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}+0.5764\right)}\over{{\it t_{11}}\,\left({\it t_{11}}+1.1284\,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}+0.3183\right)}}\\\\ 
+C>   {\it t_9} &=& {{0.0084\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{8}\over{3}}}\,\left(0.0252\,{\it t_7}
+C>    \,{\rm asinh}\; \left({\it t_7}\,{\it t_8}\right)\,{\it t_8}
+C>    +1.0\right)}}+1.8610514726982\\\\ 
+C>   {\it t_{10}} &=& {{1}\over{{\it t_3}\,{\it t_9}+{\it t_2}\,{
+C>    \it t_6}}}\\\\ 
+C>   {\it t_{11}} &=& \left({\it t_1}\,{\it t_2}\,{\it t_3}\,{
+C>    \it t_6}\,{\it t_9}\,{\it t_{10}}\right)^{2.0}\\\\ 
+C>   f &=& -{{1.0\,\rho_\alpha\,\rho_\beta\,\left(1.5214\,{\it t_1}
+C>    \,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}
+C>    +0.5764\right)}\over{{\it t_{11}}\,\left({\it t_{11}}+1.1284
+C>    \,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{
+C>    \it t_{10}}+0.3183\right)}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 
@@ -256,7 +281,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110, 10664 (1999)  , DOI: 
+C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110
+C>    , 10664 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.479012 "> 
 C> 10.1063/1.479012 </a> 
 C> 
@@ -904,13 +930,25 @@ C>   {\it t_2} &=& \rho_\alpha^{{{1}\over{3}}}\\\\
 C>   {\it t_3} &=& \rho_\beta^{{{1}\over{3}}}\\\\ 
 C>   {\it t_4} &=& {{1}\over{\rho_\alpha^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_5} &=& \sqrt{\sigma_{\alpha\alpha}}\\\\ 
-C>   {\it t_6} &=& {{0.0084\,\sigma_{\alpha\alpha}}\over{\rho_\alpha^{{{8}\over{3}}}\,\left(0.0252\,{\it t_4}\,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}+1.0\right)}}+1.8610514726982\\\\ 
+C>   {\it t_6} &=& {{0.0084\,\sigma_{\alpha\alpha}}
+C>    \over{\rho_\alpha^{{{8}\over{3}}}\,\left(0.0252\,{\it t_4}
+C>    \,{\rm asinh}\; \left({\it t_4}\,{\it t_5}\right)\,{\it t_5}
+C>    +1.0\right)}}+1.8610514726982\\\\ 
 C>   {\it t_7} &=& {{1}\over{\rho_\beta^{{{4}\over{3}}}}}\\\\ 
 C>   {\it t_8} &=& \sqrt{\sigma_{\beta\beta}}\\\\ 
-C>   {\it t_9} &=& {{0.0084\,\sigma_{\beta\beta}}\over{\rho_\beta^{{{8}\over{3}}}\,\left(0.0252\,{\it t_7}\,{\rm asinh}\; \left({\it t_7}\,{\it t_8}\right)\,{\it t_8}+1.0\right)}}+1.8610514726982\\\\ 
-C>   {\it t_{10}} &=& {{1}\over{{\it t_3}\,{\it t_9}+{\it t_2}\,{\it t_6}}}\\\\ 
-C>   {\it t_{11}} &=& \left({\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}\right)^{2.0}\\\\ 
-C>   f &=& -{{1.0\,\rho_\alpha\,\rho_\beta\,\left(1.5214\,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}+0.5764\right)}\over{{\it t_{11}}\,\left({\it t_{11}}+1.1284\,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}+0.3183\right)}}\\\\ 
+C>   {\it t_9} &=& {{0.0084\,\sigma_{\beta\beta}}
+C>    \over{\rho_\beta^{{{8}\over{3}}}\,\left(0.0252\,{\it t_7}
+C>    \,{\rm asinh}\; \left({\it t_7}\,{\it t_8}\right)\,{\it t_8}
+C>    +1.0\right)}}+1.8610514726982\\\\ 
+C>   {\it t_{10}} &=& {{1}\over{{\it t_3}\,{\it t_9}+{\it t_2}\,{
+C>    \it t_6}}}\\\\ 
+C>   {\it t_{11}} &=& \left({\it t_1}\,{\it t_2}\,{\it t_3}\,{
+C>    \it t_6}\,{\it t_9}\,{\it t_{10}}\right)^{2.0}\\\\ 
+C>   f &=& -{{1.0\,\rho_\alpha\,\rho_\beta\,\left(1.5214\,{\it t_1}
+C>    \,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{\it t_{10}}
+C>    +0.5764\right)}\over{{\it t_{11}}\,\left({\it t_{11}}+1.1284
+C>    \,{\it t_1}\,{\it t_2}\,{\it t_3}\,{\it t_6}\,{\it t_9}\,{
+C>    \it t_{10}}+0.3183\right)}}\\\\ 
 C>   g &=& 0\\\\ 
 C>   G &=& 0.0\\\\ 
 C> \f} 
@@ -920,7 +958,8 @@ C> driven by autoxc [3].
 C> 
 C> ### References ### 
 C> 
-C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110, 10664 (1999)  , DOI: 
+C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110
+C>    , 10664 (1999)  , DOI: 
 C> <a href="http://dx.doi.org/10.1063/1.479012 "> 
 C> 10.1063/1.479012 </a> 
 C> 
