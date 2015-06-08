@@ -34,16 +34,23 @@ def rewrap_line(longline):
     i = max(i,rfind(longline,"/",0,71))
     i = max(i,rfind(longline,"\,",0,70))
     i = max(i,rfind(longline,", ",0,70))
+    i = max(i,rfind(longline,"\it",0,69))
+    i = max(i,rfind(longline,"\rho",0,68))
+    i = max(i,rfind(longline,"\sigma",0,66))
+    i = max(i,rfind(longline,"\tau",0,68))
     i = max(i,rfind(longline,"\left",0,67))
+    i = max(i,rfind(longline,"\over",0,67))
     i = max(i,rfind(longline,"\right",0,66))
     if i == -1:
       sys.stderr.write("No sensible break point found in:\n")
       sys.stderr.write(longline)
       exit(1)
-    tmpline = longline[:i]+"\n"
-    sys.stdout.write(tmpline)
-    tmpline  = "C>    " + longline[i:]
-    longline = tmpline
+    elif i == 6:
+      sys.stderr.write("Same break point found repeatedly in:\n")
+      sys.stderr.write(longline)
+      exit(1)
+    sys.stdout.write(longline[:i]+"\n")
+    longline = "C>    " + longline[i:]
   sys.stdout.write(longline)
 
 longline = ""
