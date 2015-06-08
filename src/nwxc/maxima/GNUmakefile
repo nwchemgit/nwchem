@@ -1,4 +1,5 @@
 FNCPRINT  = ../nwxc_fnc_print
+REWRAP    = ./bin/rewrap.py
 AUTOXC    = echo
 AUTOXC_DS = echo
 # 
@@ -254,42 +255,50 @@ f77/nwxcm_c_vs98.F: max/nwxcm_c_vs98.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
+	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_dldf.F: max/nwxcm_c_dldf.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
+	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_m05.F: max/nwxcm_c_m05.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
+	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_m06.F: max/nwxcm_c_m06.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
+	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_pkzb99.F: max/nwxcm_c_pkzb99.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
+	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_tpss03.F: max/nwxcm_c_tpss03.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
+	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_x_tpss03.F: max/nwxcm_x_tpss03.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
+	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 %.o: f77/%.F
 	$(FC) $(FFLAGS) $(LIB_DEFINES) -I./f77 -c $< 
 
 f77/%.F: max/%.max
 	$(AUTOXC) -o $@ $<
+	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 max/%.max: input/%.nw
 	$(FNCPRINT) $<
