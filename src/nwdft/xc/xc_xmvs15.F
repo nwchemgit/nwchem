@@ -132,12 +132,13 @@ c     functional derivatives above FFFFFFFFFFFF
       parameter (F18=1.d0/8.d0, F53=5.d0/3.d0)
       parameter (rK0=0.174d0, rB=0.0233d0,
      &           rE1=-1.66651d0, uge=10.d0/81.d0)
-      parameter (rC1=(20.d0*rK0/(27.d0*uge))**(4d0)-(1.d0+rE1)**(2d0))
 c
       pi=acos(-1d0)
       Ax = (-0.75d0)*(3d0/pi)**F13
       Pconst = (3.d0*pi**2)**F23
       afact2=1d0/facttwo
+c
+      rC1=(20.d0*rK0/(27.d0*uge))**(4d0)-(1.d0+rE1)**(2d0) ! gfortran error if this is defined as a parameter
 c
       do n = 1, nq
          if (rho(n).ge.tol_rho) then

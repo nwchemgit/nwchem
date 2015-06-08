@@ -37,7 +37,6 @@ c
       parameter (epsMS=1.e-8)
       parameter (p14a=0.1d0)
       parameter (p14b=0.1778d0)
-      parameter (p14f=(3d0/(4d0*acos(-1d0)))**(1d0/3d0))
 c
 c     Constants in PBE functional
 c
@@ -253,6 +252,9 @@ c
 c  Derivatives of these are named like d...dna, d2...dnadnb,
 c  d2...dna2, etc.
 c
+c
+      p14f=(3d0/(4d0*acos(-1d0)))**(1d0/3d0)  ! gfortran error if this is defined as a parameter
+
       if (abs(cfac(12)).gt.epsMS) then
 c       original PBE correlation functional
         id_cpbe = 1
