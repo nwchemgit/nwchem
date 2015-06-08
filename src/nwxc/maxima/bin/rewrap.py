@@ -40,8 +40,10 @@ def rewrap_line(longline):
       sys.stderr.write("No sensible break point found in:\n")
       sys.stderr.write(longline)
       exit(1)
-    sys.stdout.write(longline[:i]+"\n")
-    longline = "C>    " + longline[i:]
+    tmpline = longline[:i]+"\n"
+    sys.stdout.write(tmpline)
+    tmpline  = "C>    " + longline[i:]
+    longline = tmpline
   sys.stdout.write(longline)
 
 longline = ""
