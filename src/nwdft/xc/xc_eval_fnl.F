@@ -512,8 +512,10 @@ c
 c     
 c     PBE96 is special in that the GGA part is dependent on
 c     the E(LDA) ... so more info has to be passed in.
-c     
-      if (abs(cfac(12)).gt.eps)then
+c
+c     same is true for revTPSS-variant of it
+c
+      if (abs(cfac(12)).gt.eps.or.abs(cfac(64)).gt.eps)then
          if (.not. do_2nd .and..not. do_3rd) then
             call xc_cpbe96(tol_rho, cfac, lcfac, nlcfac, rho, 
      &           delrho, Amat, Cmat, nq, ipol, 
@@ -815,6 +817,18 @@ c
      &           Ex, qwght,ldew,func,ttau,Mmat)
          else
             call xc_xtpss03_d2()
+         endif
+      endif
+c
+c   MVS  meta GGA
+c
+      if (abs(xfac(64)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xmvs15(tol_rho, xfac(64),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew,func,ttau,Mmat)
+         else
+            call xc_xmvs15_d2()
          endif
       endif
 c     

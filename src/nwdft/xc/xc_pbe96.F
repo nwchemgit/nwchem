@@ -21,7 +21,7 @@ c
 c     Input and other parameters
 c
       integer lnq
-      integer ipol, nq
+      integer ipol, nq, id_cpbe
       double precision dummy(1)
       double precision cfac(*)
       logical lcfac(*), nlcfac(*), ldew
@@ -31,11 +31,19 @@ c
       double precision lqwght
       double precision tol_rho
 c
+      double precision epsMS, p14f, p14a, p14b
+      double precision rho13, rho23, rho43, rho53
+      double precision BETA, dBETAdr, d2BETAdr2, d3BETAdr3
+      parameter (epsMS=1.e-8)
+      parameter (p14a=0.1d0)
+      parameter (p14b=0.1778d0)
+      parameter (p14f=(3d0/(4d0*acos(-1d0)))**(1d0/3d0))
+c
 c     Constants in PBE functional
 c
-      double precision GAMMA, BETA, PI
+      double precision GAMMA, BETAzero, PI
       parameter (GAMMA = 0.03109069086965489503494086371273d0)
-      parameter (BETA = 0.06672455060314922d0)
+      parameter (BETAzero = 0.06672455060314922d0)
       parameter (PI = 3.1415926535897932385d0)
 c
 c     Threshold parameters
@@ -245,9 +253,25 @@ c
 c  Derivatives of these are named like d...dna, d2...dnadnb,
 c  d2...dna2, etc.
 c
-      fac = cfac(12)
-      lfac = lcfac(12)
-      nlfac = nlcfac(12)
+      if (abs(cfac(12)).gt.epsMS) then
+c       original PBE correlation functional
+        id_cpbe = 1
+        fac = cfac(12)
+        lfac = lcfac(12)
+        nlfac = nlcfac(12)
+      elseif (abs(cfac(46)).gt.epsMS) then
+c       simplified PBE correlation functional
+        id_cpbe = 2
+        fac = cfac(46)
+        lfac = lcfac(46)
+        nlfac = nlcfac(46)
+      elseif (abs(cfac(64)).gt.epsMS) then
+c       simplified PBE correlation functional
+        id_cpbe = 3
+        fac = cfac(64)
+        lfac = lcfac(64)
+        nlfac = nlcfac(64)
+      endif
 c
 c     ======> BOTH SPIN-RESTRICTED AND UNRESTRICTED <======
 c
@@ -897,9 +921,40 @@ c Daniel (7-24-12): "A" function
          expmone = expinA - 1.0d0
          expmone2 = expmone*expmone
 c
+c        revTPSS variant of cPBE functional
+c
+         if (id_cpbe.eq.3) then
+c
+           rho13 = rhoval**(1d0/3d0)
+           rho23 = rho13*rho13
+           rho43 = rho23*rho23
+           rho53 = rho43*rho13
+c
+           BETA = BETAzero*(rho13+p14a*p14f)/(rho13+p14b*p14f)
+           dBETAdr = BETAzero*(1d0/3d0)*(p14b*p14f-p14a*p14f) /
+     &                      (rho23*(rho13+p14b*p14f)**2)
+           d2BETAdr2 = BETAzero*(-2d0/9d0)*(p14b*p14f-p14a*p14f)*
+     &         (2d0/rho43 + p14b*p14f/rho53) / (rho13+p14b*p14f)**3
+#ifdef THIRD_DERIV
+           stop 'not yet implemented 3rd derivative of BETA vs r'
+#endif
+c
+         else
+           BETA = BETAzero
+           dBETAdr = 0.0d0
+           d2BETAdr2 = 0.0d0
+           d3BETAdr3 = 0.0d0
+         endif
+c
          A = BETA/GAMMA/expmone
          dAdna = -BETA/GAMMA*dargexpdna*expinA/expmone2
          dAdnb = -BETA/GAMMA*dargexpdnb*expinA/expmone2
+c
+         if (id_cpbe.eq.3) then
+           dAdna = dAdna + dBETAdr/GAMMA/expmone
+           dAdnb = dAdnb + dBETAdr/GAMMA/expmone
+         endif
+c
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
          expmone3 = expmone2*expmone
 c
@@ -921,6 +976,17 @@ c
      &               *dargexpdnb*expinA/expmone2
      &             + 2.0d0*BETA/GAMMA*dargexpdnb*dargexpdnb
      &               *expinA*expinA/expmone3
+c
+         if (id_cpbe.eq.3) then
+           d2Adna2 = d2Adna2 + d2BETAdr2/GAMMA/expmone
+     &             - dBETAdr/GAMMA*dargexpdna*expinA/expmone2
+           d2Adnadnb = d2Adnadnb + d2BETAdr2/GAMMA/expmone
+     &             - dBETAdr/GAMMA*dargexpdna*expinA/expmone2
+     &             - dBETAdr/GAMMA*dargexpdnb*expinA/expmone2
+           d2Adnb2 = d2Adnb2 + d2BETAdr2/GAMMA/expmone
+     &             - dBETAdr/GAMMA*dargexpdnb*expinA/expmone2
+         endif
+c
 #endif
 #ifdef THIRD_DERIV
          expmone4 = expmone3*expmone
@@ -985,40 +1051,69 @@ c
          t3 = t2*t
          t4 = t3*t
 c
-         fAtnum = 1.0d0+A*t2
-         fAtden = 1.0d0+A*t2+A*A*t4
-         fAtden2 = fAtden*fAtden
-         fAt = fAtnum/fAtden
-         dfAtnumdt = 2.0d0*A*t
-         dfAtnumdA = t2
-         dfAtdendt = 2.0d0*A*t+4.0d0*A*A*t3
-         dfAtdendA = t2+2.0d0*A*t4
-         dfAtdt = (dfAtnumdt*fAtden-fAtnum*dfAtdendt)/fAtden2
-         dfAtdA = (dfAtnumdA*fAtden-fAtnum*dfAtdendA)/fAtden2
+         if (id_cpbe.eq.1.or.id_cpbe.eq.3) then
+           fAtnum = 1.0d0+A*t2
+           fAtden = 1.0d0+A*t2+A*A*t4
+           fAtden2 = fAtden*fAtden
+           fAt = fAtnum/fAtden
+           dfAtnumdt = 2.0d0*A*t
+           dfAtnumdA = t2
+           dfAtdendt = 2.0d0*A*t+4.0d0*A*A*t3
+           dfAtdendA = t2+2.0d0*A*t4
+           dfAtdt = (dfAtnumdt*fAtden-fAtnum*dfAtdendt)/fAtden2
+           dfAtdA = (dfAtnumdA*fAtden-fAtnum*dfAtdendA)/fAtden2
+         else
+           fAtnum = 1.0d0
+           fAtden = 1.0d0+A*t**2
+           fAt = fAtnum/fAtden
+           dfAtdendt = 2.0d0*A*t
+           dfAtdendA = t**2
+           dfAtdt = (-fAtnum*dfAtdendt)/(fAtden**2)
+           dfAtdA = (-fAtnum*dfAtdendA)/(fAtden**2)
+         endif
          dfAtdna = dfAtdt * dtdna + dfAtdA * dAdna
          dfAtdnb = dfAtdt * dtdnb + dfAtdA * dAdnb
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
          fAtden3 = fAtden2*fAtden
 c
-         d2fAtnumdt2 = 2.0d0*A
-         d2fAtdendt2 = 2.0d0*A+12.0d0*A**2*t2
-         d2fAtnumdtdA = 2.0d0*t
-         d2fAtdendtdA = 2.0d0*t+8.0d0*A*t3
-         d2fAtnumdA2 = 0.0d0
-         d2fAtdendA2 = 2.0d0*t4
-         d2fAtdt2  = (d2fAtnumdt2*fAtden-fAtnum*d2fAtdendt2)
-     &               /(fAtden2)
-     &               -2.0d0*(dfAtnumdt*fAtden-fAtnum*dfAtdendt)
-     &               /(fAtden3)*dfAtdendt
-         d2fAtdtdA = (d2fAtnumdtdA*fAtden+dfAtnumdt*dfAtdendA
-     &               -dfAtnumdA*dfAtdendt-fAtnum*d2fAtdendtdA)
-     &               /(fAtden2)
-     &               -2.0d0*(dfAtnumdt*fAtden-fAtnum*dfAtdendt)
-     &               /(fAtden3)*dfAtdendA
-         d2fAtdA2  = (d2fAtnumdA2*fAtden-fAtnum*d2fAtdendA2)
-     &               /(fAtden2)
-     &               -2.0d0*(dfAtnumdA*fAtden-fAtnum*dfAtdendA)
-     &               /(fAtden3)*dfAtdendA
+         if (id_cpbe.eq.1.or.id_cpbe.eq.3) then
+           d2fAtnumdt2 = 2.0d0*A
+           d2fAtdendt2 = 2.0d0*A+12.0d0*A**2*t2
+           d2fAtnumdtdA = 2.0d0*t
+           d2fAtdendtdA = 2.0d0*t+8.0d0*A*t3
+           d2fAtnumdA2 = 0.0d0
+           d2fAtdendA2 = 2.0d0*t4
+           d2fAtdt2  = (d2fAtnumdt2*fAtden-fAtnum*d2fAtdendt2)
+     &                 /(fAtden2)
+     &                 -2.0d0*(dfAtnumdt*fAtden-fAtnum*dfAtdendt)
+     &                 /(fAtden3)*dfAtdendt
+           d2fAtdtdA = (d2fAtnumdtdA*fAtden+dfAtnumdt*dfAtdendA
+     &                 -dfAtnumdA*dfAtdendt-fAtnum*d2fAtdendtdA)
+     &                 /(fAtden2)
+     &                 -2.0d0*(dfAtnumdt*fAtden-fAtnum*dfAtdendt)
+     &                 /(fAtden3)*dfAtdendA
+           d2fAtdA2  = (d2fAtnumdA2*fAtden-fAtnum*d2fAtdendA2)
+     &                 /(fAtden2)
+     &                 -2.0d0*(dfAtnumdA*fAtden-fAtnum*dfAtdendA)
+     &                 /(fAtden3)*dfAtdendA
+         else
+           d2fAtdendt2 = 2.0d0*A
+           d2fAtdendtdA = 2.0d0*t
+           d2fAtdendA2 = 0.0d0
+           d2fAtdt2  = (-fAtnum*d2fAtdendt2)
+     &                 /(fAtden**2)
+     &                 -2.0d0*(-fAtnum*dfAtdendt)
+     &                 /(fAtden**3)*dfAtdendt
+           d2fAtdtdA = (-fAtnum*d2fAtdendtdA)
+     &                 /(fAtden**2)
+     &                 -2.0d0*(-fAtnum*dfAtdendt)
+     &                 /(fAtden**3)*dfAtdendA
+           d2fAtdA2  = (-fAtnum*d2fAtdendA2)
+     &                 /(fAtden**2)
+     &                 -2.0d0*(-fAtnum*dfAtdendA)
+     &                 /(fAtden**3)*dfAtdendA
+         endif
+c
          d2fAtdna2 = d2fAtdt2*dtdna*dtdna + d2fAtdtdA*dtdna*dAdna
      &             + dfAtdt*d2tdna2 + d2fAtdtdA*dAdna*dtdna
      &             + d2fAtdA2*dAdna*dAdna + dfAtdA*d2Adna2
@@ -1137,6 +1232,12 @@ c
      &                            +t2*dfAtdna)
          darglogdnb = BETA/GAMMA*(2.0d0*t*dtdnb*fAt
      &                            +t2*dfAtdnb)
+c
+         if (id_cpbe.eq.3) then
+           darglogdna = darglogdna + dBETAdr/GAMMA*t**2*fAt
+           darglogdnb = darglogdnb + dBETAdr/GAMMA*t**2*fAt
+         endif
+c
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
          d2arglogdna2 = BETA/GAMMA*(2.0d0*dtdna*dtdna*fAt
      &                             +2.0d0*t*d2tdna2*fAt
@@ -1153,6 +1254,20 @@ c
      &                             +2.0d0*t*dtdna*dfAtdnb
      &                             +2.0d0*t*dtdnb*dfAtdna
      &                             +t2*d2fAtdnadnb)
+c
+         if (id_cpbe.eq.3) then
+           d2arglogdna2 = d2arglogdna2
+     &      + d2BETAdr2/GAMMA*t**2*fAt
+     &      + dBETAdr/GAMMA*(2.0d0*t*dtdna*fAt+t*t*dfAtdna)
+           d2arglogdnb2 = d2arglogdnb2
+     &      + d2BETAdr2/GAMMA*t**2*fAt
+     &      + dBETAdr/GAMMA*(2.0d0*t*dtdnb*fAt+t*t*dfAtdnb)
+           d2arglogdnadnb = d2arglogdnadnb
+     &      + d2BETAdr2/GAMMA*t**2*fAt
+     &      + dBETAdr/GAMMA*(2.0d0*t*dtdna*fAt+t*t*dfAtdna)
+     &      + dBETAdr/GAMMA*(2.0d0*t*dtdnb*fAt+t*t*dfAtdnb)
+         endif
+c
 #endif
 #ifdef THIRD_DERIV
          d3arglogdna3    = BETA/GAMMA*(6.0d0*dfAtdna*dtdna*dtdna
@@ -1397,6 +1512,14 @@ c
      &                                 +2.0d0*t*dtdg*dfAtdnb
      &                                 +2.0d0*t*dtdnb*dfAtdg
      &                                 +t2*d2fAtdnbdg)
+c
+            if (id_cpbe.eq.3) then
+              d2arglogdnadg = d2arglogdnadg
+     &          + dBETAdr/GAMMA*(2.0d0*t*dtdg*fAt+t*t*dfAtdg)
+              d2arglogdnbdg = d2arglogdnbdg
+     &          + dBETAdr/GAMMA*(2.0d0*t*dtdg*fAt+t*t*dfAtdg)
+            endif
+c
             d2arglogdg2 = BETA/GAMMA*(2.0d0*dtdg*dtdg*fAt
      &                               +2.0d0*t*d2tdg2*fAt
      &                               +2.0d0*t*dtdg*dfAtdg

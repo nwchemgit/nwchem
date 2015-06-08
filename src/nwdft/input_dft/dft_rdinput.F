@@ -567,6 +567,7 @@ c
       cname(52)='             SOGGA Correlation Potential'
       cname(53)='           SOGGA11 Correlation Potential'
       cname(54)='         SOGGA11-X Correlation Potential'
+      cname(64)='revTPSSvariant PBE Correlation Potential'
 c
 c     Exchange functional name defaults.
 c
@@ -626,6 +627,7 @@ c
       xname(61)='      S12h(GGA-part) Exchange Functional'
       xname(62)='  CAM-S12g(GGA-part) Exchange Functional'
       xname(63)='  CAM-S12h(GGA-part) Exchange Functional'
+      xname(64)='         MVS metaGGA Exchange Functional'
 
 c
 c     Exchange-Correlation combination functional name defaults.
@@ -685,6 +687,7 @@ c
       xcname(61)='               S12h Method XC Functional'
       xcname(62)='           CAM-S12g Method XC Functional'
       xcname(63)='           CAM-S12h Method XC Functional'
+      xcname(64)=' MadeVerySimple MVS Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

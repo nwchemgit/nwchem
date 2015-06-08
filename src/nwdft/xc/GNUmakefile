@@ -47,7 +47,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_spbe96.o xc_kt1.o xc_ssbD_1.o xc_s12x.o xc_cams12x.o \
 	xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o xc_xwpbe.o hse08fx.o \
 	xc_vdw_main.o xc_vdw_util.o \
-	xc_xsogga.o \
+	xc_xsogga.o xc_xmvs15.o \
 	xc_xm11.o \
 	xc_csogga.o\
 	xc_cm11.o \

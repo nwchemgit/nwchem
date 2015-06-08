@@ -38,12 +38,14 @@ c     hcth
 c     becke97
 c     becke97-1
 c     cpbe96 => 2100
+c     cvpbe09 => 2109
 c     xpbe96
 c     xmpw91
 c     ft97
 c     xpkzb99 => 3600
 c     cpkzb99 => 3650
 c     xtpss03 => 4100
+c     xmvs15  => 4115
 c     ctpss03 => 4150
 c     xctpssh => 4175
 c     becke97-3 => 4500
@@ -128,7 +130,7 @@ c     xperde86 ==> 9520
 c
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=134)
+      parameter (num_dirs=137)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -175,7 +177,7 @@ c
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
      &     'b3pw91','pbe96','dldf','srhfexch','hse03',
      &     's12g','s12h','cam-s12g','cam-s12h',
-     &     'becke86b','xperdew86'/
+     &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs'/
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -220,7 +222,7 @@ c
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
-     &  9510,9520,1999) ind
+     &  9510,9520,4115,2109,4124,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -1286,6 +1288,44 @@ c
       endif            
 c
       goto 10
+
+c
+c     cvpbe09 Perdew-Burke-Ernzerhof functional for correlation
+c     but then the revTPSS variant version of it
+c     default local functional (PW91 LDA) is set later in this file
+c
+ 2109 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' cvpbe09 is a nonlocal functional;',
+     &                ' "local" descriptor is ignored. '
+c
+c           This is also done by default inside xc_pbe96.F
+c           when lcfac(64) is .true.
+c
+            lcfac(64) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            nlcfac(64) = .true.
+         else
+c
+c           assume total wanted (but total here = nonlocal)
+c
+            lcfac(64) = .false.
+            nlcfac(64) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lcfac(64) = .false.
+         nlcfac(64) = .true.
+      endif
+      if (.not. inp_f(cfac(64))) then
+         cfac(64) = 1.0d0
+      endif
+c
+      goto 10
+
 c     
 c     xpbe96; Perdew-Burke-Ernzerhof functional for exchange
 c     
@@ -1483,7 +1523,61 @@ c
        goto 10
 
 
+c
+c     xmvs15  metaGGA functional for EXCHANGE
+c
+ 4115 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xmvs15 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using only slater exchange. '
+            call errquit(' xc_inp - functional description ',0,0)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            write(LuOut,*)' xmvs15 "nonlocal" is not defined',
+     &                ' for the metaGGA '
+            write(LuOut,*)' Resubmit without nonlocal descriptor. '
+            call errquit(' xc_inp - functional description ',0,0)
 
+
+
+c            nlxfac(64) = .true.
+
+
+         else
+c
+c  assume total wanted but total is all that is allowed for metaGGAs
+c
+            lxfac(64) = .true.
+            nlxfac(64) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(64) = .true.
+         nlxfac(64) = .true.
+      endif
+      if (.not. inp_f(xfac(64))) then
+         xfac(64) = 1.0d0
+      endif
+       goto 10
+
+c     MVS (Made Very Simple) metagga functional
+c     Sun, Perdew, Ruzsinszky, PNAS 2015, 112, 685-689
+
+ 4124 xccomb(64) = .true.
+       lcfac(64) = .false.
+      nlcfac(64) = .true.
+        cfac(64) = 1.0d0
+       lcfac(6)  = .true.
+      nlcfac(6)  = .false.
+        cfac(6)  = 1.0d0
+       lxfac(64) = .true.
+      nlxfac(64) = .true.
+        xfac(64) = 1.0d0
+
+      goto 10
 
 c     TPSS  metaGGA functional for CORRELATION
 c     default local functional (PW91 LDA) 
@@ -3812,12 +3906,13 @@ c
       goto 10
  1999 continue
 c
-c     Check nonlocal COR functionals: perdew86, perdew91, pbe96 to
-c     see if user has specified an accompanying local
+c     Check nonlocal COR functionals:
+c     perdew86, perdew91, pbe96, cvpbe96
+c     to see if user has specified an accompanying local
 c     functional.  If not, set appropriately.
 c
       ck_local = .false.
-      if(nlcfac(4).or.nlcfac(5).or.nlcfac(12))then
+      if(nlcfac(4).or.nlcfac(5).or.nlcfac(12).or.nlcfac(64))then
         do n = 1, numfunc
            if(lcfac(n))ck_local = .true.
         enddo
@@ -3850,6 +3945,14 @@ c           when lcfac(5) is .true.
 c
             lcfac(6) = .true.
             cfac(6) = 1.0d0
+
+          elseif(nlcfac(64))then
+            write(LuOut,*)' cvpbe09 is a nonlocal functional;',
+     &                ' adding pw91lda local functional. '
+c
+            lcfac(6) = .true.
+            cfac(6) = 1.0d0
+
           endif
         endif
       endif
