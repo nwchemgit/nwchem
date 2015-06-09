@@ -186,7 +186,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
      >   BA_alloc_get(mt_dbl,nion,'pspspin_upscale',
      >                pspspin_upscale(2),pspspin_upscale(1))
          value = value.and.
-     >   BA_alloc_get(mt_dbl,nion,'pspspin_downm',
+     >   BA_alloc_get(mt_dbl,nion,'pspspin_downscale',
      >                pspspin_downscale(2),pspspin_downscale(1))
          if (.not. value) 
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
@@ -2209,13 +2209,13 @@ c           end do
      >           ((m_prj.ne.int_mb(pspspin_upm(1)+ii-1)).or.
      >            (int_mb(pspspin_upm(1)+ii-1).gt.999))) 
      >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
-     >                       dbl_mb(sw2a(1)+(l-1)*nn),1)
+     >                       dbl_mb(sw2a(1)+(swstart+l1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
      >           ((m_prj.ne.int_mb(pspspin_downm(1)+ii-1)).or.
      >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
-     >                       dbl_mb(sw2a(1)+(l-1)*nn+ne(1)),1)
+     >                       dbl_mb(sw2a(1)+(swstart+l1)*nn+ne(1)),1)
                end if
 
                l1 = l1 + 1
@@ -2781,13 +2781,13 @@ c           end do
      >           ((m_prj.ne.int_mb(pspspin_upm(1)+ii-1)).or.
      >            (int_mb(pspspin_upm(1)+ii-1).gt.999))) 
      >            call dscal(ne(1),dbl_mb(pspspin_upscale(1)+ii-1),
-     >                       dbl_mb(sw2a(1)+(l-1)*nn),1)
+     >                       dbl_mb(sw2a(1)+(swstart+l1)*nn),1)
                if (log_mb(pspspin_downions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_downl(1)+ii-1)).and.
      >           ((m_prj.ne.int_mb(pspspin_downm(1)+ii-1)).or.
      >            (int_mb(pspspin_downm(1)+ii-1).gt.999)))
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
-     >                       dbl_mb(sw2a(1)+(l-1)*nn+ne(1)),1)
+     >                       dbl_mb(sw2a(1)+(swstart+l1)*nn+ne(1)),1)
                end if
 
                l1 = l1 + 1
