@@ -1,5 +1,5 @@
 FNCPRINT  = ../nwxc_fnc_print
-REWRAP    = ./bin/rewrap.py
+REWRAP    = cat
 AUTOXC    = echo
 AUTOXC_DS = echo
 # 
@@ -28,6 +28,7 @@ AUTOXC_DS = echo
 #
 #AUTOXC    = ./bin/autoxc
 #AUTOXC_DS = ./bin/autoxc-Ds
+#REWRAP    = ./bin/rewrap.py
 
 LIBRARY = libnwxc.a
 
