@@ -642,7 +642,7 @@ c B3LYP
            scales8  = 1.703d0
         else if (xccomb(10)) then
 c PBE0
-           scalesr6 = 1.278d0
+           scalesr6 = 1.287d0
            scales8  = 0.928d0
 c revPBE38
 c          scalesr6 = 1.021d0
