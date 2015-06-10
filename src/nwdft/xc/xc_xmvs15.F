@@ -138,7 +138,7 @@ c
       Pconst = (3.d0*pi**2)**F23
       afact2=1d0/facttwo
 c
-      rC1=(20.d0*rK0/(27.d0*uge))**(4d0)-(1.d0+rE1)**(2d0) ! gfortran error if this is defined as a parameter
+      rC1=(20.d0*rK0/(27.d0*uge))**(4d0)-(1.d0+rE1)*(1.d0+rE1) ! gfortran error if this is defined as a parameter
 c
       do n = 1, nq
          if (rho(n).ge.tol_rho) then
