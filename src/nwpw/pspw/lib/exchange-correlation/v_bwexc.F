@@ -55,7 +55,10 @@ c     **** local variables ****
       call D3dB_nz(1,nz)
       scal1 = 1.0d0/dble(nx*ny*nz)
 
-
+      use_nwxc = .false.
+      if (util_module_avail("nwxc")) then
+         use_nwxc = nwxc_is_on()
+      endif
                 
 *     **********************************
 *     ***** restricted calculation *****
@@ -129,10 +132,10 @@ c     >                      dbl_mb(agr(1)),
 c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-         use_nwxc = .false.
-         if (util_module_avail("nwxc")) then
-           use_nwxc = nwxc_is_on()
-         endif
+c         use_nwxc = .false.
+c         if (util_module_avail("nwxc")) then
+c           use_nwxc = nwxc_is_on()
+c         endif
          if (use_nwxc) then
            call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
