@@ -13,6 +13,7 @@ c                              tauU - uniform-gas KE density
 c     References:
 c     J. Sun, J.P. Perdew, A. Ruzsinszky
 c     PNAS 2015, 112, 685-689
+c     DOI: 10.1073/pnas.1423145112 
 
       Subroutine xc_xmvs15(tol_rho, fac,  rho, delrho, 
      &                     Amat, Cmat, nq, ipol, Ex, 
