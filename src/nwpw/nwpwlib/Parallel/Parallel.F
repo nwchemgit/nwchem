@@ -554,4 +554,94 @@
       end
 
 
+*     *************************************
+*     *                                   *
+*     *    Parallel_shared_vector_copy    *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_vector_copy(barrier,n,a,b)
+      implicit none
+      logical barrier
+      integer n
+      real*8 a(*),b(*)
+      if (barrier) then
+!$OMP MASTER
+         call dcopy(n,a,1,b,1)
+!$OMP END MASTER
+!$OMP BARRIER
+      else
+!$OMP MASTER
+         call dcopy(n,a,1,b,1)
+!$OMP END MASTER
+      end if
+      return
+      end 
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_shared_copy       *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_copy(barrier,a,b)
+      implicit none
+      logical barrier
+      real*8 a,b
+      if (barrier) then
+!$OMP MASTER
+         b = a
+!$OMP END MASTER
+!$OMP BARRIER
+      else
+!$OMP MASTER
+         b = a
+!$OMP END MASTER
+      end if
+      return
+      end
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_shared_icopy      *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_icopy(barrier,a,b)
+      implicit none
+      logical barrier
+      integer a,b
+      if (barrier) then
+!$OMP MASTER
+         b = a
+!$OMP END MASTER
+!$OMP BARRIER
+      else
+!$OMP MASTER
+         b = a
+!$OMP END MASTER
+      end if
+      return
+      end 
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_shared_iinc       *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_iinc(barrier,i,a)
+      implicit none
+      logical barrier
+      integer i,a
+      if (barrier) then
+!$OMP MASTER
+         a = a + i
+!$OMP END MASTER
+!$OMP BARRIER
+      else
+!$OMP MASTER
+         a = a + i
+!$OMP END MASTER
+      end if
+      return
+      end
 
