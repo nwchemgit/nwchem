@@ -55,7 +55,7 @@
       Character*1 Buf(lBuf_)
 *      Include 'fnc.inc'
 
-      If ( Query ) Call qEnter('cDaFile')
+      If ( Query ) Call LUCIAqEnter('cDaFile')
       min_Block_Length=MBL(Lu)
       lBuf=lBuf_/ItoB
       If ( Trace ) then
@@ -69,7 +69,7 @@
       Call iDaFile_(Lu,iOpt,Buf,lBuf,iDisk)
 
       If ( Trace ) Write (6,*) ' >>> Exit cDaFile <<<'
-      If ( Query ) Call qExit('cDaFile')
+      If ( Query ) Call LUCIAqExit('cDaFile')
       Return
       End
 c $Id$

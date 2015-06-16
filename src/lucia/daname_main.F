@@ -12,7 +12,7 @@
       Character*16 TheName
       Data TheName/'DaName_Main'/
 
-      If ( Query ) Call qEnter(TheName)
+      If ( Query ) Call LUCIAqEnter(TheName)
 
       If ( Trace ) then
         Write (6,*) ' >>> Enter DaName_Main <<<'
@@ -63,7 +63,7 @@
         Write (6,*) ' >>> Exit DaName_Main <<<'
       End If
 
-      If ( Query ) Call qExit(TheName)
+      If ( Query ) Call LUCIAqExit(TheName)
 
       Return
       End

@@ -60,7 +60,7 @@
 
 *      Include 'fnc.inc'
       NTEST = 0 
-      If ( Query ) Call qEnter('iDaFile')
+      If ( Query ) Call LUCIAqEnter('iDaFile')
       min_Block_Length=MBL(Lu)
       ItoB = ItoBsize
 
@@ -93,7 +93,7 @@
 *      End If
 
       If (NTEST.ge.10 ) Write (6,*) ' >>> Exit iDaFile <<<'
-      If ( Query ) Call qExit('iDaFile')
+      If ( Query ) Call LUCIAqExit('iDaFile')
       Return
       End
 c $Id$

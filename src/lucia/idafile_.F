@@ -33,7 +33,7 @@
       iU=6
 
       NTEST = 0
-      If ( Query ) Call qEnter(TheName)
+      If ( Query ) Call LUCIAqEnter(TheName)
 
       If (NTEST.ge.10) then
         write(6,*) ' ********************** ' 
@@ -147,7 +147,7 @@ cGLM    iDisk       = Addr(Lu)
       End If
 
       If ( Trace ) Write (6,*) ' >>> Exit DaFile_ <<<'
-      If ( Query ) Call qExit(TheName)
+      If ( Query ) Call LUCIAqExit(TheName)
 
       Return
 1000  write (6,*) 'I/O error in ',TheName
