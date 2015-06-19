@@ -269,12 +269,9 @@ c
 !$omp master
                         if (occsdps) then
                            call pstat_off(ps_doxxx)
-                        else
-                           call qexit('doxxx',0)
-                        endif
-                        if (occsdps) then
                            call pstat_on(ps_tengy)
                         else
+                           call qexit('doxxx',0)
                            call qenter('tengy',0)
                         endif
 !$omp end master
