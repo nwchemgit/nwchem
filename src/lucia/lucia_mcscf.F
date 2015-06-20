@@ -430,12 +430,17 @@ C    &               I_DO_CI_IN_INNER_ACT
         END IF
         NOUTIT = IOUT
 *
-* Save initial integrals 
+* Save initial integrals
 *
 CNW     CALL COPVEC(WORK(KINT1_INI),WORK(KINT1O),NINT1)
+*
+* Bert: Not for first iteration, as these should be the same
+*
+        if (IOUT.GT.1) then
         CALL COPVEC(dbl_mb(KINT2_INI),dbl_mb(KINT_2EMO),NINT2)
         call ga_copy_patch('N',KINT1_INI,1,nint1,1,1,
      &                   KINT1O,1,nint1,1,1)
+        endif
 *
 *. Transform integrals to current set of MO's
 *
@@ -1211,7 +1216,7 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
 *
 *. Expansion of final orbitals in AO basis, pt in KLMO2
       IF(NCISPC.EQ.2.AND.NOMOFL.EQ.0.AND.IFINMO.NE.0) THEN
-       CALL MOROT_GS(4)
+       CALL MOROT_GS(IFINMO)
        call copvec(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),len_cmo)
        call copvec(dbl_mb(KMOAOUT),dbl_mb(KLMO2),len_cmo)
        IFINMO = 0
@@ -1225,8 +1230,6 @@ c     CALL MULT_BLOC_MAT(dbl_mb(KLMO2),dbl_mb(KMOAOIN),dbl_mb(KMOMO),
 c    &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
 c     CALL COPVEC(dbl_mb(KLMO2),dbl_mb(KMOAO_ACT),LEN_CMO)
 c     CALL COPVEC(dbl_mb(KLMO2),dbl_mb(KMOAOUT),LEN_CMO)
-      call copvec(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),len_cmo)
-      call copvec(dbl_mb(KMOAOUT),dbl_mb(KLMO2),len_cmo)
       if(ga_nodeid().eq.0) WRITE(6,*) 
      &' Final MO-AO transformation stored in MOAOIN, MOAO_ACT, MOAOUT'
 *. Integral transformation
