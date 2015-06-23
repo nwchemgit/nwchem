@@ -355,32 +355,32 @@ c
         module procedure nwad_dble_powx
         module procedure nwad_dble_powy
       end interface
-      interface operator (.eq.)
+      interface operator (==) ! .eq.
         module procedure nwad_dble_equal
         module procedure nwad_dble_equalx
         module procedure nwad_dble_equaly
       end interface operator (==)
-      interface operator (.ne.)
+      interface operator (/=) ! .ne.
         module procedure nwad_dble_notequal
         module procedure nwad_dble_notequalx
         module procedure nwad_dble_notequaly
       end interface operator (/=)
-      interface operator (.lt.)
+      interface operator (<) ! .lt.
         module procedure nwad_dble_lessthan
         module procedure nwad_dble_lessthanx
         module procedure nwad_dble_lessthany
       end interface operator (<)
-      interface operator (.le.)
+      interface operator (<=) ! .le.
         module procedure nwad_dble_lessequal
         module procedure nwad_dble_lessequalx
         module procedure nwad_dble_lessequaly
       end interface operator (<=)
-      interface operator (.gt.)
+      interface operator (>) ! .gt.
         module procedure nwad_dble_greaterthan
         module procedure nwad_dble_greaterthanx
         module procedure nwad_dble_greaterthany
       end interface operator (>)
-      interface operator (.ge.)
+      interface operator (>=) ! .ge.
         module procedure nwad_dble_greaterequal
         module procedure nwad_dble_greaterequalx
         module procedure nwad_dble_greaterequaly
