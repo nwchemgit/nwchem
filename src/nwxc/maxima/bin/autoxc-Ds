@@ -667,9 +667,9 @@ df2rbgbb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b)
 :=Diff(df1rb(rho_a,rho_b,sigma_aa,sigma_ab,sigma_bb,tau_a,tau_b),sigma_bb)$
 
 dfla2ragbb(rho_a,rho_b,sigma_bb,tau_b)
-:=Diff(dfla1ra(rho_a,rho_b,sigma_bb,tau_a),sigma_bb)$
+:=Diff(dfla1ra(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
 dfla2rbgbb(rho_a,rho_b,sigma_bb,tau_b)
-:=Diff(dfla1rb(rho_a,rho_b,sigma_bb,tau_a),sigma_bb)$
+:=Diff(dfla1rb(rho_a,rho_b,sigma_bb,tau_b),sigma_bb)$
 
 dflb2ragaa(rho_a,rho_b,sigma_aa,tau_a)
 :=Diff(dflb1ra(rho_a,rho_b,sigma_aa,tau_a),sigma_aa)$
