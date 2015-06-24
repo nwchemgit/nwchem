@@ -3034,6 +3034,8 @@ c     &                  WORK(KVEC1),WORK(KVEC2),EREF)
 C?      WRITE(6,*) ' Home from CI_RESPONS'
       END DO
 *
+      write(*,*) 'VOG, CI vector'
+      call ga_print(KCOMVEC1)
       if (.not. ga_destroy(KCOMVEC2)) call 
      &     errquit('GASCI: ga_destroy kcomvec2 failed', 0 , GA_ERR)
       if (.not. ga_destroy(KCOMVEC1)) call 
@@ -4843,7 +4845,7 @@ C?    WRITE(6,*) ' ISBSPPR_ACT = ', ISBSPPR_ACT
 C?    WRITE(6,*) ' ICISTR,LBLK = ', ICISTR,LBLK
 C?    WRITE(6,*) ' IPRT = ', IPRT
 C?    WRITE(6,*) ' ILAST in CIEIG5 ', ILAST 
-      NTEST=0000
+      NTEST=10000!VOG 0000
       IPRT= 1
 *
 *               ====================================
@@ -5014,6 +5016,8 @@ CBERT  IOLSEN = 1
          END DO
        END IF
 *
+       write(*,*) 'VOG, CI Vector in CIEIG5'
+       call ga_print(VEC1)
        ENOT = SCR1(KFIN)
        CALL LUCIAQEXIT('CIEIG')
 *
@@ -13229,7 +13233,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 000
+      NTEST = 1000 !VOG 000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
@@ -32728,7 +32732,7 @@ CNW   CALL PRINTVERSION()
       DIMENSION X(NDIM,NDIM),DIA(NDIM)
       DIMENSION SCR(*)
 *
-      NTEST = 00
+      NTEST = 100 !VOG 00
       IF(NTEST.GE.100) THEN
        WRITE(6,*) ' INFO FROM XDXTV '
        WRITE(6,*) '================='
@@ -32746,7 +32750,8 @@ CNW   CALL PRINTVERSION()
         CALL VVTOV(VECUT,DIA,SCR,NDIM)
         CALL VECSUM(SCR,VECUT,SCR,SHIFT,1.0D0,NDIM)
       ELSE
-        CALL DIAVC3(SCR,VECUT,DIA,SHIFT,NDIM,VDSV)
+        CALL DIAVC3G(SCR,VECUT,DIA,SHIFT,NDIM,VDSV)
+cVOG    CALL DIAVC3(SCR,VECUT,DIA,SHIFT,NDIM,VDSV)
       END IF
 *. MULTIPLY WITH X
       CALL MATVCB(X,SCR,VECUT,NDIM,NDIM,0)
@@ -36187,17 +36192,21 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
       INCLUDE 'cgas.inc'
       INCLUDE 'cintfo.inc'
 *. Local scratch
-      INTEGER NACOB_GS(MXP_NSUPSYM),NTOOB_GS(MXP_NSUPSYM)
+      INTEGER NACOB_GS(MXP_NSUPSYM),NTOOB_GS(MXP_NSUPSYM),ntrgas,
+     &        ngas_bu,nacob_bu
+      integer trgas(ngas+2),ngas_gnsym_bu(ngensmob,ngas+2),
+     &        nacobs_bu(ngensmob),nobpts_gn_bu(0:6+MXPR4T,MXPOBS)
+      real(8) densi_bu(nacob**2)
 *
-      NTEST = 1
-      IF(NTEST.GE.10) THEN
+      NTEST = 10 !VOG 1
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='
         WRITE(6,*) ' MOROT_GS in action '
         WRITE(6,*) ' =================='
         WRITE(6,*)
       END IF
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' IMO parameter ', IMO
         WRITE(6,*) ' INTIMP = ', INTIMP
       END IF
@@ -36214,6 +36223,46 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
           WRITE(6,*) 
      &    ' Final orbitals: pseudo-natural-canonical orbitals'
         END IF
+      END IF
+*
+*. Backup some variables
+*
+      ngas_gnsym_bu = 0
+      nacobs_bu = 0
+      do igensm = 1, ngensmob
+       do igas= 1, ngas+2
+        ngas_gnsym_bu(igensm,igas) = ngas_gnsym(igensm,igas-1)
+       end do
+       nacobs_bu(igensm) = nacobs(igensm)
+      end do
+      nacob_bu = nacob
+      ngas_bu = ngas
+*
+      nobpts_gn_bu = 0
+      do irrep = 1, nirrep
+       nobpts_gn_bu(0,irrep) = nobpts_gn(0,irrep)
+       nobpts_gn_bu(ngas+1,irrep) = nobpts_gn(ngas+1,irrep)
+       do igas = 1, ngas
+        nobpts_gn_bu(igas,irrep) = nobpts_gn(igas,irrep)
+       end do
+      end do
+*
+*. Distinguish between GAS spaces that should be transformed, i.e. if
+*. each GAS space belongs to P or Q space - VOG
+*
+      ntrgas = 0
+      CALL TRANS_GAS(TRGAS,ntrgas,dbl_mb(KRHO1),densi_bu)
+      ngas = ntrgas
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+       WRITE(6,'(A)')
+       WRITE(6,'(A)') '         Transform? '
+       WRITE(6,'(A)') '         ========== '
+       DO igas = 1, ngas_bu
+        yesno = 'YES'
+        if (trgas(igas).eq.0) yesno = ' NO'
+        WRITE(6,'(A,I2,5X,3A)') '   GAS',IGAS,yesno
+       END DO
+       WRITE(6,'(A)')
       END IF
 *
 *. Number of orbitals and active orbitals per standard symmetry
@@ -36354,7 +36403,7 @@ CNW   CALL VECSUM(WORK(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
 * Reform FIFA to general symmetry
 C          REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
       CALL REFORM_MAT_STA_GEN(dbl_mb(KLMAT1),dbl_mb(KLFIFA_GS),1,1)
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.1000) THEN
         WRITE(6,*) ' FIFA matrix in general symmetry '
         CALL APRBLM2(dbl_mb(KLFIFA_GS),NTOOB_GS,NTOOB_GS,NGENSMOB,1)
       END IF
@@ -36383,11 +36432,11 @@ C           EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *  IMO = 2 => Complete symmetry blocks
 *  else    => Symmetry-type blocks
 *
-      IF(NTEST.GE.56) THEN
+      IF(NTEST.GE.1000) THEN
          WRITE(6,*) ' Canonical orbital energies'
          CALL PRINT_SCALAR_PER_ORB2(dbl_mb(KLMAT1),NTOOB_GS,NGENSMOB)
       END IF
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.1000) THEN
         WRITE(6,*)  ' Expansion of final orbitals, canonical part'
         IF(IMO.EQ.2) THEN
           IS_OR_SG = 1
@@ -36417,6 +36466,8 @@ C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *. Obtain and diagonalize symmetry ordered density matrix 
 *. over active orbitals
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
+        CALL REO_ACT_ORB_TO_GNSM(
+     &     int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB)) !VOG
         CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),dbl_mb(KLMAT2),1,
      &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
         IF(NTEST.GE.1000) THEN
@@ -36555,6 +36606,31 @@ C              PRINT_CMO_AS_SHELLS(CMO,IFORM)
         CALL PUTMOAO(dbl_mb(KMOAOUT))
       END IF
 *     ^ End if MOAO file is present 
+*
+*. Restore initial arrays and pointers - VOG
+*
+      ngas = ngas_bu
+      nacob = nacob_bu
+      do igensm = 1, ngensmob
+       do igas= 1, ngas+2
+        ngas_gnsym(igensm,igas-1) = ngas_gnsym_bu(igensm,igas)
+       end do
+       nacobs(igensm) = nacobs_bu(igensm)
+      end do
+*
+      do irrep = 1, nirrep
+       nobpts_gn(0,irrep) = nobpts_gn_bu(0,irrep)
+       nobpts_gn(ngas+1,irrep) = nobpts_gn_bu(ngas+1,irrep)
+       do igas = 1, ngas
+        nobpts_gn(igas,irrep) = nobpts_gn_bu(igas,irrep)
+       end do
+      end do
+*
+      ! Reorder based on the original GAS scheme
+      CALL REO_ACT_ORB_TO_GNSM(
+     &     int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
+*
+      call cp_dens_back(dbl_mb(KRHO1),densi_bu)
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'MOROT ')
       RETURN

@@ -603,7 +603,7 @@ C?    END IF
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
       CALL LUCIAQENTER('AKBKSI')
-      NTEST = 000
+      NTEST = 1000 !VOG 000
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Information from AKBKSIGMA'
         WRITE(6,*) ' =========================='
@@ -615,7 +615,7 @@ C?    END IF
       END IF
       IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Input vector to AKBKSIGMA '
-        CALL ga_print(CB)
+!        CALL ga_print(CB)
 !        KATI = 0.0d0
 !        KATI(1) = -0.44231
 !        KATI(2) =  0.89488
@@ -624,9 +624,10 @@ C?    END IF
 !        WRITE(*,*) (KATI(I), I = 1, 4)
 !        WRITE(*,*) KATI
 !        CALL ga_put(CB,1,4,1,1,KATI,1)
-!         if (dra_write_section(.false.,CB,1,4,1,1,
-!     &                         LUDIA,1,4,1,1,itask).ne.0)
-!     &        call errquit('dra error',itask,911)
+!!         if (dra_write_section(.false.,CB,1,4,1,1,
+!!     &                         LUDIA,1,4,1,1,itask).ne.0)
+!!     &        call errquit('dra error',itask,911)
+!        WRITE(6,*) ' Input vector to AKBKSIGMA from MOLCAS'
 !        CALL ga_print(CB)
 cVOG    CALL WRTVCD(CB,LUC,1,LBLK)
       END IF
@@ -715,9 +716,13 @@ cVOG CALL CSDIAGM(IREFSM,2,LU_Q3,CB,HCB)
       H0 = 3006.56
       H0SCR = 3006.56
       IZERO = 0
+!      NPQDM = NSDPQ
       IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
      &  WRITE(6,*) ' Shift :', SHIFT 
-cVOG  CALL H0M1TD(KLU_Q2,KLU_Q3,KLU_Q1,LBLK,IZERO,IPNTR,
+!      CALL H0M1TD(KLU_Q2,KLU_Q3,KLU_Q1,LBLK,IZERO,IPNTR,
+!     &     H0,SHIFT,H0SCR,XH0IX,
+!     &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
+cVOG  CALL H0M1TD(LU_Q2,LU_Q3,LU_Q1,LBLK,IZERO,IPNTR,
 cVOG &     H0,SHIFT,H0SCR,XH0IX,
 cVOG &     IZERO,IZERO,IZERO,CB,HCB,NTEST,IPRECOND)
 *      H0M1TD(LUOUT,LUDIA,LUIN,LBLK,NPQDM,IPNTR,
@@ -849,7 +854,7 @@ C?    STOP ' Jeppe forced me to stop.... '
 *
       CALL LUCIAQENTER('CSDIAM')
 *
-      NTEST = 000
+      NTEST = 1000 !VOG 000
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN 
         WRITE(6,*) ' Entering CSDIAGM '
         WRITE(6,*) ' ================='
@@ -4160,13 +4165,245 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
 *
       RETURN
       END
+      subroutine TRANS_GAS(TRGAS,ntrgas,densi,densi_bu)
+*
+* Subroutine that defines which GAS spaces are part of the MCSCF and
+* should be transformed by MOROT_GS
+*
+      include 'implicit.inc'
+      include 'mxpdim.inc'
+      include 'glbbas.inc'
+      include 'clunit.inc'
+      include 'cgas.inc' 
+      include 'orbinp.inc'
+      include 'lucinp.inc'
+#include "global.fh"
+*
+*. Input
+      real(8) densi_bu(nacob**2)
+*. Input/Output
+      dimension densi(*)
+*. Output
+      integer trgas(ngas+2)
+      integer ntrgas       !Modified num of GAS spaces which will be transformed
+*. Scratch
+      integer          gasocc(ngas,2)
+      integer          ntotmos(ngas)
+      integer          maxocc(ngas)
+      integer          ntest, nchk, nacob_bu
+      character(len=3) yesno
+*
+*. Initializations
+*
+      icispc = 1
+      ntrgas = ngas
+      nacob_bu = nacob
+*
+      NTEST = 100
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+       write(luout,*) ' Initial Density '
+       call  wrtmat(densi,nacob,nacob,nacob,nacob)
+!       write(luout,*) (densi(i), i = 1, nacob**2)
+      end if
+*
+*. Store old density
+*
+      densi_bu = 0.0d0
+      do i = 1, nacob**2
+       densi_bu(i) = densi(i)
+      end do
+*
+*. Calculate min and max occupation numbers of each GAS space from the
+*. accumulated occupations of CI space 1
+*
+      gasocc(1,1) = igsoccx(1,1,icispc)
+      gasocc(1,2) = igsoccx(1,2,icispc)
+      if (ngas.gt.1) then
+       do igas = 1, ngas-1
+        gasocc(igas+1,1) = igsoccx(igas+1,1,icispc) - gasocc(igas,2)
+        gasocc(igas+1,2) = igsoccx(igas+1,2,icispc) - gasocc(igas,1)
+       end do
+      end if
+*
+*. Identify non-filled GAS spaces
+*
+      ntotmos = 0
+      do igas = 1, ngas
+       do igensm = 1, ngensmob
+        ntotmos(igas) = ntotmos(igas) + ngssh(igensm,igas)
+       end do
+       maxocc(igas) = ntotmos(igas) * 2
+      end do
+*
+      trgas = 1
+      do igas = 1, ngas
+       ! Empty GAS space belonging to Q-space
+       if (gasocc(igas,2).eq.0) then
+        trgas(igas) = 0
+        ntrgas = ntrgas - 1
+        ! Add it to secondary space
+        do igensm = 1, ngensmob
+         nacobs(igensm) = nacobs(igensm) - ngas_gnsym(igensm,igas)
+         nacob = nacob - ngas_gnsym(igensm,igas)
+*
+        !TODO These should be rewritten for more GAS spaces in Q
+         ngas_gnsym(igensm,igas) =
+     &   ngas_gnsym(igensm,igas) + ngas_gnsym(igensm,ngas+1)
+         ngas_gnsym(igensm,ngas+1) = 0
+        end do
+*
+        do irrep = 1, nirrep
+        !TODO These should be rewritten for more GAS spaces in Q
+         nobpts_gn(igas,irrep) = 
+     &   nobpts_gn(igas,irrep) + nobpts_gn(ngas+1,irrep)
+         nobpts_gn(ngas+1,irrep) = 0
+        end do
+       end if
+       ! Fully occupied GAS space belonging to Q-space
+       if (gasocc(igas,1).eq.maxocc(igas)) then
+        trgas(igas) = 0
+        ntrgas = ntrgas - 1
+        ! Add it to the inactive space 
+        ! TODO
+       end if
+      end do
+!*
+!*. Reduce pointers of nobpts_gn
+!*
+!      do igas = 1, ngas
+!       if (trgas(igas).eq.0) then
+!        do irrep = 1, nirrep
+!        end do
+!       end if
+!      end do
+*
+*. Reduce pointers of itpfso
+*
+      do igas = 1, ngas+1
+       if (trgas(igas).eq.0.or.igas.eq.(ngas+1)) then
+        do i = 1, ntoob
+         if (itpfso(i).eq.igas) itpfso(i) = ntrgas + 1
+        end do
+       end if
+      end do
+*
+*. Reduce the density of active orbitals
+*
+      !TODO Check for more complicated cases (more GAS spaces)
+      irow = 1
+      icol = 1
+      l = 0
+      do i = 1, nacob_bu**2
+       if (icol.le.nacob) then
+        if (irow.le.nacob) then
+         l = l + 1
+         densi(l) = densi_bu(i)
+        else
+         if (irow.eq.nacob_bu) then
+          irow = 0
+          icol = icol + 1
+         end if
+        end if
+        irow = irow + 1
+       end if
+      end do
+*
+*. Print some output
+*
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
+       WRITE(LUOUT,'(A)')
+       WRITE(LUOUT,'(A)') '         Min. occ    Max. occ    Transform? '
+       WRITE(LUOUT,'(A)') '         ================================== '
+       DO IGAS = 1, NGAS
+        yesno = 'YES'
+        if (trgas(igas).eq.0) yesno = ' NO'
+        WRITE(LUOUT,'(A,I2,3X,I3,9X,I3,10X,3A)')
+     &   '   GAS',IGAS,gasocc(IGAS,1),gasocc(IGAS,2),yesno
+       END DO
+       WRITE(LUOUT,'(A)')
+       WRITE(LUOUT,'(A)')
+       WRITE(LUOUT,'(A)') '         Modified GAS Spaces '
+       WRITE(LUOUT,'(A)') '         =================== '
+       WRITE(LUOUT,'(A)')
+       WRITE(LUOUT,'(A)') '         Min. occ    Max. occ  '
+       WRITE(LUOUT,'(A)') '         ===================== '
+       DO IGAS = 1, ntrgas
+        WRITE(LUOUT,'(A,I2,3X,I3,9X,I3)')
+     &   '   GAS',IGAS,gasocc(IGAS,1),gasocc(IGAS,2)
+       END DO
+       WRITE(LUOUT,'(A)')
+       WRITE(LUOUT,'(A)') '         Modified Orbital subspaces:'
+       WRITE(LUOUT,'(A)') '         ========================== '
+       WRITE(LUOUT,*)
+       WRITE(LUOUT,'(1H ,A,10I4,A)')
+     &  '        Irrep ',(I,I = 1,ngensmob)
+       WRITE(LUOUT,'(1H ,A,2X,10A,A)')
+     &  '        ===== ',('====',I = 1,ngensmob)
+       WRITE(LUOUT,'(A,10I4)')
+     &  '  Inactive     ',
+     &   (ngas_gnsym(igensm,0),igensm = 1, ngensmob)
 
-
-      
-
-      
-       
-
+       DO IGAS = 1, ntrgas
+        WRITE(LUOUT,'(A,I2,A,10I4,6X,2I6)')
+     &  '  GAS',IGAS,'        ',
+     &  (ngas_gnsym(igensm,IGAS), igensm = 1, ngensmob)
+       END DO
+       WRITE(LUOUT,'(A,10I4)')
+     &  '  Secondary    ',
+     &   (ngas_gnsym(igensm,ntrgas+1),igensm = 1, ngensmob)
+       WRITE(6,*)
+       if(ntest.ge.100) then
+        write(luout,*) ' Modified ITPFSO string: '
+        call iwrtma3(itpfso,1,ntoob,1,1)
+        write(luout,*)
+        write(luout,*) ' Modified Density '
+        call wrtmat(densi,nacob,nacob,nacob,nacob)
+!        write(luout,*) (densi(i), i = 1, nacob**2)
+        write(luout,*)
+       end if
+      END IF
+*
+*. Final check
+*
+      do igensm = i, ngensmob
+       nchk = 0
+       do igas = 1, ntrgas
+        nchk = nchk + ngas_gnsym(igensm,igas)
+       end do
+       nchk = nchk + ngas_gnsym(igensm,0) + ngas_gnsym(igensm,ntrgas+1)
+       if (ntoobs(igensm).ne.nchk.and.ga_nodeid().eq.0) then
+        write(*,'(a,i3)') 'Inconsistent number of MOs in IRREP', igensm
+        CALL ERRQUIT('TRANS_GAS: wrong number of MOs ', nchk, 667)
+       end if
+      end do
+*
+      return
+      end 
+      subroutine cp_dens_back(densi,densi_bu)
+*
+      include 'implicit.inc'
+      include 'mxpdim.inc'
+      include 'orbinp.inc'
+#include "global.fh"
+*
+*. Input
+      real(8) densi_bu(nacob**2)
+*. Input/Output
+      dimension densi(*)
+*
+      do i = 1, nacob**2
+       densi(i) = densi_bu(i)
+      end do
+*
+      NTEST = 100
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+       write(6,*) ' Initial Density (restored) '
+       call wrtmat(densi,nacob,nacob,nacob,nacob)
+!       write(6,*) (densi(i), i = 1, nacob**2)
+      end if
+*
+      return
+      end
 
 
 c $Id$
