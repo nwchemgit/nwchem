@@ -36197,6 +36197,7 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
       integer trgas(ngas+2),ngas_gnsym_bu(ngensmob,ngas+2),
      &        nacobs_bu(ngensmob),nobpts_gn_bu(0:6+MXPR4T,MXPOBS)
       real(8) densi_bu(nacob**2)
+      character*3 yesno
 *
       NTEST = 10 !VOG 1
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
