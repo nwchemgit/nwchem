@@ -24,7 +24,7 @@ c      -----------------------------
 #endif       
        call rism_print_params(rtdb)
        call rism_print_solute_configuration(rtdb)
-       stop
+c       stop
 c       
 c      main rism routine call
 c      ----------------------
@@ -528,6 +528,7 @@ cc     initial value of c_short(r)
 c      starting counts for diis (kd) and for iterations k1
        k1=1
        kd=1
+       write(*,*) "starting iterations"
 1      continue 
 c      calculating c_new(r) and h_new(r) from closure
        call clos(nvv,nu,ngr,t,plj,cnew,gold,icl)
@@ -615,7 +616,7 @@ c      old functions as new functions for new cycle
         enddo
        enddo 
        k1=k1+1 
-       print*, k1,kd,del0       
+       write(*,*) k1,kd,del0       
        if(k1.ge.500) goto 2         
         if(del0.ge.tol) goto 1
  2     continue  
@@ -716,6 +717,7 @@ c
        subroutine thermo(nu,nv,nvv,ngr,icl,ims,den,t,rgrid,qqu,qvv,
      * hnew,cnew,solperm,tau,muh,mugf) 
        implicit none
+#include "stdio.fh"
        real*8 muh, mugf, muuh(1:nu,1:nvv),muugf(1:nu,1:nvv)        
        integer  nu, nv,nvv, ngr, i,j1,j,icl,nd        
        real*8 rgrid(1:ngr),dentv(1:nvv),cu(1:nu*nvv,1:ngr) 
@@ -811,10 +813,9 @@ c      calculations of partial contibutions
       
 c      mugf chem.potential in gaussian approximation
 c      muh   chem.potential in hnc approximation         
-       open(3, file='tout.data', status='unknown')         
-        write(3,108) muh,mugf
-       close(3)
-  108  format(2(2x,e10.4))
+       write(luout,108) "(hnc approximation)",muh
+       write(luout,108) "(gaussian approximation)",mugf
+  108  format("Chemical potential",A,T43,F10.4)
        return 
        end subroutine
 
