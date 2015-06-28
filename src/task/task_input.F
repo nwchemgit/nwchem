@@ -164,6 +164,9 @@ c            oembed = .true.
      >                        'aimd_properties')) then
             operation='aimd_properties'
          else if (inp_compare(.false.,test,
+     >                        'exafs')) then
+            operation='exafs'
+         else if (inp_compare(.false.,test,
      >                        'conjugate_gradient')) then
             operation='conjugate_gradient'
          else if (inp_compare(.false.,test,
