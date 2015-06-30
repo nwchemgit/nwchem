@@ -181,9 +181,31 @@ c
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
+      integer ip
 c
       logical cam_exch,cam_srhf
       double precision cam_omega,cam_alpha,cam_beta
+c
+c     Grab the current input line and dump the functional specification
+c     onto the RTDB. This way external programs can pick the actual
+c     functional definition up as it was entered.
+c
+      if (.not.inp_line(test)) then
+         write(*,*)'xc_input: Could not read functional specification'
+      endif
+      if (.not.inp_contains(.false.,"xc",test,ip)) then
+         call errquit("xc_input: Not a functional specification",0,
+     +                INPUT_ERR)
+      else
+         ip = ip + 2
+         do while (test(ip:ip).eq." ")
+            ip = ip + 1
+         enddo
+         if (.not.rtdb_cput(rtdb,"dft:xc_spec",1,
+     +            test(ip:inp_strlen(test)))) then
+            call errquit("xc_input: rtdb_cput failed",0,RTDB_ERR)
+         endif
+      endif
 c
 c     Only these few arrays are initialized (not defaults).
 c
