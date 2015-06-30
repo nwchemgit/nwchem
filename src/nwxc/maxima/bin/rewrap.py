@@ -1,4 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/python -E
+#
+# -E  Suppresses all PYTHON* environment variables. In particular
+#     PYTHONHOME is a source of disaster.
+#
+#
+# === README ===
 #
 # This is a little program to rewrap comments that Maxima has generated for
 # the NWXC library.
