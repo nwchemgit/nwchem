@@ -1502,10 +1502,10 @@ c
 c     /jochen
           endif
         endif
-        write(tag,'("tddft:oscilator_strength:",i6.6)')n
+        write(tag,'("tddft:oscillator_strength:",i6.6)')n
         if (.not.rtdb_put(rtdb,tag(1:inp_strlen(tag)),mt_dbl,
      +                    1,osc_str)) then
-           call errquit("tddft_analysis: rtdb_put oscilator "//
+           call errquit("tddft_analysis: rtdb_put oscillator "//
      +                  "strength failed",8,RTDB_ERR)
         endif
         write(tag,'("tddft:transition_moments:",i6.6)')n
