@@ -170,6 +170,7 @@ c     are hardwired here:
       double precision ga_trace_diag
       external ga_trace_diag
       character*32 pname
+      character*64 tag
       character*6,word
       character*3 theory
       double precision origin(3)
@@ -217,6 +218,9 @@ c     Preliminaries
 c
       if (ipol.lt.1 .or. ipol.gt.2) call errquit(
      &   pname//'ipol out of range',0,CALC_ERR)
+c
+      osc_str = 0.0d0
+      call dcopy(20,0.0d0,0,tmom,1)
 c
 c     MN solvation models
       if(cosmo_on.and.cosmo_phase.eq.2) then
@@ -1498,7 +1502,18 @@ c
 c     /jochen
           endif
         endif
-
+        write(tag,'("tddft:oscilator_strength:",i6.6)')n
+        if (.not.rtdb_put(rtdb,tag(1:inp_strlen(tag)),mt_dbl,
+     +                    1,osc_str)) then
+           call errquit("tddft_analysis: rtdb_put oscilator "//
+     +                  "strength failed",8,RTDB_ERR)
+        endif
+        write(tag,'("tddft:transition_moments:",i6.6)')n
+        if (.not.rtdb_put(rtdb,tag(1:inp_strlen(tag)),mt_dbl,
+     +                    20,tmom)) then
+           call errquit("tddft_analysis: rtdb_put transition "//
+     +                  "moments failed",160,RTDB_ERR)
+        endif
 c
 c ----------------------------------
 c Print dominant components of X & Y
