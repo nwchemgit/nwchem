@@ -75,7 +75,7 @@ c
 c
        integer nbh_exch1,nbh_exch2,nbh_coul1,nbh_coul2
 c
-#ifdef _OPENMP
+#ifdef USE_OPENMP
       integer  omp_get_thread_num
       external omp_get_thread_num
       integer  omp_get_num_threads
