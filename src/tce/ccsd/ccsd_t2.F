@@ -6038,11 +6038,17 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       INTEGER k_a_offset,k_b_offset,k_c_offset
       INTEGER maxh,maxp,dimhhpp,dimpppp,dimtemp
       INTEGER next,nprocs,count
-      INTEGER p5b,p6b,p3b,p4b,h1b,h2b 
+      INTEGER p5b,p6b,p3b,p4b,h1b,h2b
       INTEGER p5b_1,p6b_1,h1b_1,h2b_1
       INTEGER p3b_2,p4b_2,p5b_2,p6b_2
       INTEGER dima,dimb,dimc,dim_common,dima_sort,dimb_sort
+#ifdef USE_F90_ALLOCATABLE
+      double precision, allocatable :: f_a(:),f_b(:),f_c(:),f_t(:)
+      !dec$ attributes, fastmem :: f_a,f_b,f_c,f_t
+      integer alloc_error
+#else
       INTEGER k_a,l_a,k_b,l_b,k_c,l_c,k_t,l_t
+#endif
       double precision alpha
       INTEGER NXTASK
       EXTERNAL NXTASK
@@ -6054,19 +6060,44 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       dimpppp = maxp*maxp*maxp*maxp
       dimtemp = max(dimpppp,dimhhpp)
 
+#ifdef USE_F90_ALLOCATABLE
+      allocate( f_a(1:dimhhpp), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t2_8',0,MA_ERR)
+      endif
+      allocate( f_b(1:dimpppp), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t2_8',1,MA_ERR)
+      endif
+      allocate( f_c(1:dimhhpp), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t2_8',2,MA_ERR)
+      endif
+      allocate( f_t(1:dimtemp), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t2_8',3,MA_ERR)
+      endif
+#else
 c the A tile is pphh
-      IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'a',l_a,k_a)) 
+      IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'a',l_a,k_a))
      &  CALL ERRQUIT('ccsd_t2_8',0,MA_ERR)
 c the B tile is pppp
-      IF (.not.MA_PUSH_GET(mt_dbl,dimpppp,'b',l_b,k_b)) 
+      IF (.not.MA_PUSH_GET(mt_dbl,dimpppp,'b',l_b,k_b))
      &  CALL ERRQUIT('ccsd_t2_8',1,MA_ERR)
 c the C tile is pphh
-      IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'c',l_c,k_c)) 
+      IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'c',l_c,k_c))
      &  CALL ERRQUIT('ccsd_t2_8',2,MA_ERR)
 c the temporary must be the larger of B and A/C
-      IF (.not.MA_PUSH_GET(mt_dbl,dimtemp,'t',l_t,k_t)) 
+      IF (.not.MA_PUSH_GET(mt_dbl,dimtemp,'t',l_t,k_t))
      &  CALL ERRQUIT('ccsd_t2_8',3,MA_ERR)
+#endif
 
+!
+! Jeff: The preprocessor mess inside of the loop body is
+!       not ideal.  Best solution is to hoist out the loop
+!       body into a function that takes arrays so that the
+!       MA stuff can be hidden in the subsequent calls.
+!
       DO p3b = noab+1,noab+nvab
        DO p4b = p3b,noab+nvab
         DO h1b = 1,noab
@@ -6074,35 +6105,48 @@ c the temporary must be the larger of B and A/C
           IF ((.not.restricted).or.
      &        ( int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1)
      &         +int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1).ne.8)) THEN
-           IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq. 
+           IF (int_mb(k_spin+p3b-1)+int_mb(k_spin+p4b-1) .eq.
      &         int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
             IF (ieor(int_mb(k_sym+p3b-1),ieor(int_mb(k_sym+p4b-1),
-     &          ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
+     &          ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1))))
      &                 .eq. ieor(irrep_v,irrep_t)) THEN
              IF (next.eq.count) THEN
-              dima_sort = int_mb(k_range+h1b-1) 
+              dima_sort = int_mb(k_range+h1b-1)
      &                  * int_mb(k_range+h2b-1)
-              dimb_sort = int_mb(k_range+p3b-1) 
+              dimb_sort = int_mb(k_range+p3b-1)
      &                  * int_mb(k_range+p4b-1)
-              dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1) 
+              dimc = int_mb(k_range+p3b-1) * int_mb(k_range+p4b-1)
      &             * int_mb(k_range+h1b-1) * int_mb(k_range+h2b-1)
+#ifdef USE_F90_ALLOCATABLE
+              CALL DFILL(dimc,0.0d0,f_c,1)
+#else
               CALL DFILL(dimc,0.0d0,dbl_mb(k_c),1)
+#endif
               DO p5b = noab+1,noab+nvab
                DO p6b = p5b,noab+nvab
                 IF (int_mb(k_spin+p5b-1)+int_mb(k_spin+p6b-1) .eq.
      &              int_mb(k_spin+h1b-1)+int_mb(k_spin+h2b-1)) THEN
                  IF (ieor(int_mb(k_sym+p5b-1),ieor(int_mb(k_sym+p6b-1),
-     &               ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1)))) 
+     &               ieor(int_mb(k_sym+h1b-1),int_mb(k_sym+h2b-1))))
      &                      .eq. irrep_t) THEN
                   CALL TCE_RESTRICTED_4(p5b,p6b,h1b,h2b,
      &                                  p5b_1,p6b_1,h1b_1,h2b_1)
                   CALL TCE_RESTRICTED_4(p3b,p4b,p5b,p6b,
      &                                  p3b_2,p4b_2,p5b_2,p6b_2)
-                  dim_common = int_mb(k_range+p5b-1) 
+                  dim_common = int_mb(k_range+p5b-1)
      &                       * int_mb(k_range+p6b-1)
                   dima = dim_common * dima_sort
                   dimb = dim_common * dimb_sort
                   IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
+#ifdef USE_F90_ALLOCATABLE
+                   CALL GET_HASH_BLOCK(d_a,f_t,dima,
+     &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
+     &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
+                   CALL TCE_SORT_4(f_t,f_a,
+     &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
+     &                  int_mb(k_range+h1b-1),int_mb(k_range+h2b-1),
+     &                  4,3,2,1,1.0d0)
+#else
                    CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
@@ -6110,34 +6154,71 @@ c the temporary must be the larger of B and A/C
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
      &                  int_mb(k_range+h1b-1),int_mb(k_range+h2b-1),
      &                  4,3,2,1,1.0d0)
+#endif
                    if(.not.intorb) then
+#ifdef USE_F90_ALLOCATABLE
+                    CALL GET_HASH_BLOCK(d_b,f_t,dimb,
+     &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
+     &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
+     &                   (p3b_2-1)))))
+#else
                     CALL GET_HASH_BLOCK(d_b,dbl_mb(k_t),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))))
+#endif
                    else
+#ifdef USE_F90_ALLOCATABLE
+                    CALL GET_HASH_BLOCK_I(d_b,f_t,dimb,
+     &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
+     &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
+     &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
+#else
                     CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_t),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
+#endif
                    end if
+#ifdef USE_F90_ALLOCATABLE
+                   CALL TCE_SORT_4(f_t,f_b,
+     &                  int_mb(k_range+p3b-1),int_mb(k_range+p4b-1),
+     &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
+     &                  2,1,4,3,1.0d0)
+#else
                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_b),
      &                  int_mb(k_range+p3b-1),int_mb(k_range+p4b-1),
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
      &                  2,1,4,3,1.0d0)
+#endif
                    if (p5b .eq. p6b) then
                     alpha = 1.0d0
                    else
                     alpha = 2.0d0
                    end if
+#ifdef USE_F90_ALLOCATABLE
+                   CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
+     &                  alpha,f_a,dim_common,f_b,
+     &                  dim_common,1.0d0,f_c,dima_sort)
+#else
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
      &                  alpha,dbl_mb(k_a),dim_common,dbl_mb(k_b),
      &                  dim_common,1.0d0,dbl_mb(k_c),dima_sort)
+#endif
                   END IF
                  END IF
                 END IF
                END DO
               END DO
+#ifdef USE_F90_ALLOCATABLE
+              CALL TCE_SORT_4(f_c,f_t,
+     &             int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
+     &             int_mb(k_range+h2b-1),int_mb(k_range+h1b-1),
+     &             2,1,4,3,0.5d0)
+              CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
+     &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
+     &             (p4b-noab-1+nvab*(p3b-noab-1)))))
+#else
               CALL TCE_SORT_4(dbl_mb(k_c),dbl_mb(k_t),
      &             int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
      &             int_mb(k_range+h2b-1),int_mb(k_range+h1b-1),
@@ -6145,6 +6226,7 @@ c the temporary must be the larger of B and A/C
               CALL ADD_HASH_BLOCK(d_c,dbl_mb(k_t),dimc,
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
+#endif
               next = NXTASK(nprocs, 1)
              END IF
              count = count + 1
@@ -6158,8 +6240,28 @@ c the temporary must be the larger of B and A/C
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
 
-      if (.not.ma_chop_stack(l_a)) 
+#ifdef USE_F90_ALLOCATABLE
+! Should be freed automatically but explicit is better.
+      deallocate( f_a, stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t2_8',5,MA_ERR)
+      endif
+      deallocate( f_b, stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t2_8',6,MA_ERR)
+      endif
+      deallocate( f_c, stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t2_8',7,MA_ERR)
+      endif
+      deallocate( f_t, stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t2_8',8,MA_ERR)
+      endif
+#else
+      if (.not.ma_chop_stack(l_a))
      1         call errquit('ccsd_t2_8',5,MA_ERR)
+#endif
 
       RETURN
       END
