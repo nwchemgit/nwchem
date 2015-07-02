@@ -6044,7 +6044,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       INTEGER dima,dimb,dimc,dim_common,dima_sort,dimb_sort
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: f_a(:),f_b(:),f_c(:),f_t(:)
-      !dec$ attributes, fastmem :: f_a,f_b,f_c,f_t
+      !dec$ attributes fastmem :: f_a,f_b,f_c,f_t
       integer alloc_error
 #else
       INTEGER k_a,l_a,k_b,l_b,k_c,l_c,k_t,l_t
