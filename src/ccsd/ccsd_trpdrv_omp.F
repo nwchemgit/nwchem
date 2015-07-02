@@ -11,7 +11,7 @@ c
 #include "global.fh"
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
-c     
+c
       integer ncor,nocc,nvir
       double precision t1(*)
       double precision f1n(nvir,nvir),f1t(nvir,nvir)
@@ -39,7 +39,7 @@ c
       integer nxtask
       external nxtask
 c
-c  Dependencies (global array, local array, handle): 
+c  Dependencies (global array, local array, handle):
 c
 c  These are waited on first
 c
@@ -177,9 +177,9 @@ c
                            call qenter('doxxx',0)
                         endif
 !
-!  These are the input dependencies for the DGEMM calls below.  
+!  These are the input dependencies for the DGEMM calls below.
 !  We wait on all of them here because GA is not even remotely thread-safe.
-!  All of these are independent of k, so we wait on them only 
+!  All of these are independent of k, so we wait on them only
 !  at the first trip of the loop.
 !
                         if (k.eq.klo) then
@@ -198,7 +198,6 @@ c
                             call ga_nbwait(nbh_coul1)
                             call ga_nbwait(nbh_coul2)
                         endif
-
 !$omp parallel
 !$omp& shared(eorb)
 !$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t)
