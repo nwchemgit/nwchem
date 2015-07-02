@@ -50,4 +50,10 @@
      &      IPA_FOR_STASYM(MXPOBS), IFRZ_ORB(MXPORB), NFRZ_ORB,
      &      NFRZ_ORB_ACT,IACT_TO_GENSM_REO(MXPORB), NTOSH,
      &      IREO_MNMX_OB_NO(MXPORB), IREO_MNMX_OB_ON(MXPORB),
-     &      IREO_SPCP_OB_NO(MXPORB), IREO_SPCP_OB_ON(MXPORB)
+     &      IREO_SPCP_OB_NO(MXPORB), IREO_SPCP_OB_ON(MXPORB),
+     &      nacob_bu,ninob_bu,nocob_bu,nscob_bu,
+     &      nacobs_bu(MXPOBS),ninobs_bu(MXPOBS),nocobs_bu(MXPOBS),
+     &      nscobs_bu(MXPOBS),
+     &      nobpt_bu(6+MXPR4T),ireost_bu(MXPORB),
+     &      ngas_gnsym_bu(MXP_NSUPSYM,0:MXPNGAS),
+     &      nobpts_gn_bu(0:6+MXPR4T,MXPOBS),last_ci

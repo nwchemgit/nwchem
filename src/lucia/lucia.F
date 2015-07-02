@@ -1947,6 +1947,7 @@ c      INCLUDE 'mxpdim.inc'
       COMMON/H_OCC_CONS/IH_OCC_CONS
 *
       character*100 nam,fil
+      integer only_dens
       call luciaqenter('gasci')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       NTEST = 00
@@ -2658,6 +2659,13 @@ CNW       CALL COPVEC(KPVEC1,KPVEC2,NVAR)
 C?      WRITE(6,*) ' Testing: CI vector read in '
 C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
 *
+*. VOG 4 Density
+!          if (last_ci.eq.1) then
+!          write(*,*) 'VOG, last CI iteration - Density)', last_ci
+!          only_dens = 1
+!          CALL MEMMAN(KRHO1_BU,NACOB ** 2,'ADDL  ',2,'RHO1_BU  ')
+!          call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1_bu),
+!     &                           only_dens)
           IF(IDENSI.EQ.1) THEN
             KRHO2 = 1
           END IF
@@ -2672,6 +2680,10 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
             if (ga_nodeid().eq.0)
      &      WRITE(6,*) ' Energy from density ', ENERGY
           END IF
+!          call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1_bu),
+!     &                            only_dens)
+!          end if
+*. VOG 4 Destiny End
 *
 C?      IF(I_DO_LZ2.EQ.1) THEN
 C?          CALL EXP_LZ2(KPVEC1,KPVEC2,RLZEFF,RL2EFF,0)
@@ -3034,8 +3046,6 @@ c     &                  WORK(KVEC1),WORK(KVEC2),EREF)
 C?      WRITE(6,*) ' Home from CI_RESPONS'
       END DO
 *
-      write(*,*) 'VOG, CI vector'
-      call ga_print(KCOMVEC1)
       if (.not. ga_destroy(KCOMVEC2)) call 
      &     errquit('GASCI: ga_destroy kcomvec2 failed', 0 , GA_ERR)
       if (.not. ga_destroy(KCOMVEC1)) call 
@@ -4845,7 +4855,7 @@ C?    WRITE(6,*) ' ISBSPPR_ACT = ', ISBSPPR_ACT
 C?    WRITE(6,*) ' ICISTR,LBLK = ', ICISTR,LBLK
 C?    WRITE(6,*) ' IPRT = ', IPRT
 C?    WRITE(6,*) ' ILAST in CIEIG5 ', ILAST 
-      NTEST=10000!VOG 0000
+      NTEST=0000
       IPRT= 1
 *
 *               ====================================
@@ -5016,8 +5026,6 @@ CBERT  IOLSEN = 1
          END DO
        END IF
 *
-       write(*,*) 'VOG, CI Vector in CIEIG5'
-       call ga_print(VEC1)
        ENOT = SCR1(KFIN)
        CALL LUCIAQEXIT('CIEIG')
 *
@@ -13233,7 +13241,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 1000 !VOG 000
+      NTEST = 000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
@@ -16676,7 +16684,7 @@ cnw          GOTO 999
          END IF
 *
 c..dongxia: keyword combspc not finish yet. skip it for now.
-      if (inw_lucia .eq. 0) then
+cVOG  if (inw_lucia .eq. 0) then
 cnw       IF(CARD(2:7).EQ.'CMBSPC') THEN
       if(rtdb_get(rtdb,'lucia:ncmbspc',mt_int,1,ncmbspc))then
 *. Calculations will be performed in combination of different GAS spaces
@@ -16702,7 +16710,7 @@ cnw         DO JCMBSPC  = 1, NCMBSPC
 cnw           READ(LUIN,*) LLCMBSPC
 cnw           LCMBSPC(JCMBSPC) = LLCMBSPC
       if(.not.rtdb_get(rtdb,'lucia:lcmbspc',mt_int,ncmbspc,lcmbspc))
-     & call errquit('lucia input: lcmbspc (combination spaces',911)
+     & call errquit('lucia input: lcmbspc (combination spaces)',911)
 *. Gasspaces included
 cnw           READ(LUIN,*) (ICMBSPC(IGASSPC,JCMBSPC),IGASSPC=1,LLCMBSPC)
       isize = 0
@@ -16711,9 +16719,16 @@ cnw           READ(LUIN,*) (ICMBSPC(IGASSPC,JCMBSPC),IGASSPC=1,LLCMBSPC)
       end do
       if(.not.rtdb_get(rtdb,'lucia:icmbspc',mt_int,isize,itmp))
      & call errquit('lucia input: icmbspc wrong',911)
+      ioff = 0
+      do i = 1, ncmbspc
+       do j = 1, lcmbspc(i)
+        icmbspc(j,i) = itmp(ioff+j)
+       end do
+       ioff = ioff + lcmbspc(i)
+      end do
 cnw      END DO
 cnw         GOTO 999
-       END IF
+cVOG   END IF
       end if
 *
        if(rtdb_get(rtdb,'lucia:ciconv',mt_dbl,1,thres_e))then
@@ -19882,11 +19897,11 @@ C?    WRITE(6,* ) ' TEST readin IDC = ', IDC
 * 34: CI storage mode
 *
       ICISTR = 1
-      IF(ISETKW(34).EQ.0) THEN
+cVOG  IF(ISETKW(34).EQ.0) THEN
 *. Default is three type-type-symmetry blocks
-        ICISTR = 3
-        ISETKW(34) = 2
-      END IF
+cVOG    ICISTR = 3
+cVOG    ISETKW(34) = 2
+cVOG  END IF
       IF(ICISTR.EQ.1.AND.ISETKW(183).EQ.1) THEN
 *. Batching of CSF's in use, batch therefore also SD's
        IF(ICNFBAT.EQ.2) THEN
@@ -21211,7 +21226,8 @@ c      END IF
 *. 169: Default print level for MCSCF
 *
       IF(ISETKW(169).EQ.0) THEN
-        IPRMCSCF = 2
+cVOG    IPRMCSCF = 2
+        IPRMCSCF = 1
         ISETKW(169) = 2
       END IF
 * 
@@ -32732,7 +32748,7 @@ CNW   CALL PRINTVERSION()
       DIMENSION X(NDIM,NDIM),DIA(NDIM)
       DIMENSION SCR(*)
 *
-      NTEST = 100 !VOG 00
+      NTEST = 00
       IF(NTEST.GE.100) THEN
        WRITE(6,*) ' INFO FROM XDXTV '
        WRITE(6,*) '================='
@@ -36192,14 +36208,12 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
       INCLUDE 'cgas.inc'
       INCLUDE 'cintfo.inc'
 *. Local scratch
-      INTEGER NACOB_GS(MXP_NSUPSYM),NTOOB_GS(MXP_NSUPSYM),ntrgas,
-     &        ngas_bu,nacob_bu
-      integer trgas(ngas+2),ngas_gnsym_bu(ngensmob,ngas+2),
-     &        nacobs_bu(ngensmob),nobpts_gn_bu(0:6+MXPR4T,MXPOBS)
-      real(8) densi_bu(nacob**2)
+      INTEGER NACOB_GS(MXP_NSUPSYM),NTOOB_GS(MXP_NSUPSYM),only_dens
+      integer trgas(ngas+2)
+!      real(8) densi_bu(nacob**2)
       character*3 yesno
 *
-      NTEST = 10 !VOG 1
+      NTEST = 1
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='
@@ -36226,34 +36240,15 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
         END IF
       END IF
 *
-*. Backup some variables
-*
-      ngas_gnsym_bu = 0
-      nacobs_bu = 0
-      do igensm = 1, ngensmob
-       do igas= 1, ngas+2
-        ngas_gnsym_bu(igensm,igas) = ngas_gnsym(igensm,igas-1)
-       end do
-       nacobs_bu(igensm) = nacobs(igensm)
-      end do
-      nacob_bu = nacob
-      ngas_bu = ngas
-*
-      nobpts_gn_bu = 0
-      do irrep = 1, nirrep
-       nobpts_gn_bu(0,irrep) = nobpts_gn(0,irrep)
-       nobpts_gn_bu(ngas+1,irrep) = nobpts_gn(ngas+1,irrep)
-       do igas = 1, ngas
-        nobpts_gn_bu(igas,irrep) = nobpts_gn(igas,irrep)
-       end do
-      end do
-*
 *. Distinguish between GAS spaces that should be transformed, i.e. if
 *. each GAS space belongs to P or Q space - VOG
 *
-      ntrgas = 0
-      CALL TRANS_GAS(TRGAS,ntrgas,dbl_mb(KRHO1),densi_bu)
-      ngas = ntrgas
+      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
+      CALL MEMMAN(KRHO1_BU,NACOB ** 2,'ADDL  ',2,'RHO1_BU  ')
+      CALL MEMMAN(KRHO2_BU,dummy,'ADDL  ',2,'RHO2_BU  ')
+      only_dens = 0
+      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(KRHO1_BU),
+     &                       dbl_mb(KRHO1),dbl_mb(KRHO1_BU),only_dens)
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
        WRITE(6,'(A)')
        WRITE(6,'(A)') '         Transform? '
@@ -36292,7 +36287,7 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
        CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
+cVOG  CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
       CALL MEMMAN(KLMAT1,NTOOB**2,'ADDL  ',2,'MAT1  ')
       CALL MEMMAN(KLMAT2,NTOOB**2,'ADDL  ',2,'MAT2  ')
       CALL MEMMAN(KLMAT2C,NTOOB**2,'ADDL  ',2,'MAT2C ')
@@ -36608,30 +36603,15 @@ C              PRINT_CMO_AS_SHELLS(CMO,IFORM)
       END IF
 *     ^ End if MOAO file is present 
 *
-*. Restore initial arrays and pointers - VOG
+*. Reorder based on the original GAS scheme - VOG
 *
-      ngas = ngas_bu
-      nacob = nacob_bu
-      do igensm = 1, ngensmob
-       do igas= 1, ngas+2
-        ngas_gnsym(igensm,igas-1) = ngas_gnsym_bu(igensm,igas)
-       end do
-       nacobs(igensm) = nacobs_bu(igensm)
-      end do
-*
-      do irrep = 1, nirrep
-       nobpts_gn(0,irrep) = nobpts_gn_bu(0,irrep)
-       nobpts_gn(ngas+1,irrep) = nobpts_gn_bu(ngas+1,irrep)
-       do igas = 1, ngas
-        nobpts_gn(igas,irrep) = nobpts_gn_bu(igas,irrep)
-       end do
-      end do
-*
-      ! Reorder based on the original GAS scheme
       CALL REO_ACT_ORB_TO_GNSM(
      &     int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
 *
-      call cp_dens_back(dbl_mb(KRHO1),densi_bu)
+*. Restore initial arrays and pointers - VOG
+*
+      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(KRHO1_BU),
+     &                        dbl_mb(KRHO2),dbl_mb(KRHO2_BU),only_dens)
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'MOROT ')
       RETURN

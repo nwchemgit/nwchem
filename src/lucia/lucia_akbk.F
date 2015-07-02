@@ -603,7 +603,7 @@ C?    END IF
       IDUM = 1
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
       CALL LUCIAQENTER('AKBKSI')
-      NTEST = 1000 !VOG 000
+      NTEST = 000
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Information from AKBKSIGMA'
         WRITE(6,*) ' =========================='
@@ -854,7 +854,7 @@ C?    STOP ' Jeppe forced me to stop.... '
 *
       CALL LUCIAQENTER('CSDIAM')
 *
-      NTEST = 1000 !VOG 000
+      NTEST = 000
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN 
         WRITE(6,*) ' Entering CSDIAGM '
         WRITE(6,*) ' ================='
@@ -4165,10 +4165,23 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
 *
       RETURN
       END
-      subroutine TRANS_GAS(TRGAS,ntrgas,densi,densi_bu)
+*======================================================================*
+      subroutine reduce_gas_spaces(trgas,densi1,densi1_bu,
+     &                                   densi2,densi2_bu,only_dens)
+*======================================================================*
 *
-* Subroutine that defines which GAS spaces are part of the MCSCF and
-* should be transformed by MOROT_GS
+*. Subroutine that defines which GAS spaces are part of the MCSCF.
+*. It is used (1) for the MO transformation in MOROT_GS
+*.        and (2) for the reordering of DENSI2 after MOROT_GS
+*
+*. The algorithm checks which GAS spaces should be transformed, and
+*. changes MO and occupation pointers for the GAS spaces that will not
+*. be transformed.
+*. These GAS spaces will become either Inactive or Secondary
+*
+*  Konstantinos D. Vogiatzis, June 2015, Berkeley
+*
+*======================================================================*
 *
       include 'implicit.inc'
       include 'mxpdim.inc'
@@ -4176,52 +4189,115 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
       include 'clunit.inc'
       include 'cgas.inc' 
       include 'orbinp.inc'
+      include 'strinp.inc'
+      include 'strbas.inc'
+      include 'gasstr.inc'
       include 'lucinp.inc'
 #include "global.fh"
+#include "mafdecls.fh"
 *
-*. Input
-      real(8) densi_bu(nacob**2)
 *. Input/Output
-      dimension densi(*)
+      integer   only_dens
+      dimension densi1(*), densi1_bu(*)
+      dimension densi2(*), densi2_bu(*)
 *. Output
       integer trgas(ngas+2)
-      integer ntrgas       !Modified num of GAS spaces which will be transformed
 *. Scratch
-      integer          gasocc(ngas,2)
+      integer          gasocc(ngas,2), sumocc(2)
+      integer          ioffden(3)
       integer          ntotmos(ngas)
       integer          maxocc(ngas)
-      integer          ntest, nchk, nacob_bu
+      integer          ntest, ntrgas, nchk
       character(len=3) yesno
 *
 *. Initializations
 *
-      icispc = 1
-      ntrgas = ngas
-      nacob_bu = nacob
+      ! Get dimensions for RHO2
+      call getnddens2(ndactorb,nddensi2,only_dens)
 *
-      NTEST = 100
+      NTEST = 0
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+       write(luout,*) ' Only_dens? ', only_dens
        write(luout,*) ' Initial Density '
-       call  wrtmat(densi,nacob,nacob,nacob,nacob)
-!       write(luout,*) (densi(i), i = 1, nacob**2)
+       call  wrtmat(densi1,nacob,nacob,nacob,nacob)
+       write(luout,*)
+       if (only_dens.eq.1) call prsym(densi2,ndactorb*ndactorb)
+      end if
+*
+*. Keep backups for pointers and vectors that you will mofify
+*
+      ntrgas   = ngas
+      ngas_bu  = ngas
+*
+      nocob_bu = nocob
+      nacob_bu = nacob
+      ninob_bu = ninob
+      nscob_bu = nscob
+*
+      ngas_gnsym_bu = 0
+      nocobs_bu = 0
+      nacobs_bu = 0
+      ninobs_bu = 0
+      nscobs_bu = 0
+      do igensm = 1, ngensmob
+       do igas= 1, ngas+2
+        ngas_gnsym_bu(igensm,igas) = ngas_gnsym(igensm,igas-1)
+       end do
+       nocobs_bu(igensm) = nocobs(igensm)
+       nacobs_bu(igensm) = nacobs(igensm)
+       ninobs_bu(igensm) = ninobs(igensm)
+       nscobs_bu(igensm) = nscobs(igensm)
+      end do
+*
+      nobpts_gn_bu = 0
+      do igensm = 1, ngensmob
+       nobpts_gn_bu(0,igensm) = nobpts_gn(0,igensm)
+       nobpts_gn_bu(ngas+1,igensm) = nobpts_gn(ngas+1,igensm)
+       do igas = 1, ngas
+        nobpts_gn_bu(igas,igensm) = nobpts_gn(igas,igensm)
+       end do
+      end do
+*
+      ! Symmetry => type reordering array
+      do i = 1, ntoob
+       ireost_bu(i) = ireost(i)
+      end do
+*
+      ! For DENSI2
+      if (only_dens.eq.1) then
+       do igas= 1, ngas+2
+        nobpt_bu(igas)   = nobpt(igas)
+        ihpvgas_bu(igas) = ihpvgas(igas)
+       end do
       end if
 *
 *. Store old density
 *
-      densi_bu = 0.0d0
       do i = 1, nacob**2
-       densi_bu(i) = densi(i)
+       densi1_bu(i) = densi1(i)
       end do
+*
+      if (only_dens.eq.1) then
+       do i = 1, nddensi2
+        densi2_bu(i) = densi2(i) !TODO PROSOXI!!!
+       end do 
+      end if
 *
 *. Calculate min and max occupation numbers of each GAS space from the
 *. accumulated occupations of CI space 1
 *
+      icispc = 1
+*
+      sumocc(1) = 0
+      sumocc(2) = 0
       gasocc(1,1) = igsoccx(1,1,icispc)
       gasocc(1,2) = igsoccx(1,2,icispc)
       if (ngas.gt.1) then
        do igas = 1, ngas-1
-        gasocc(igas+1,1) = igsoccx(igas+1,1,icispc) - gasocc(igas,2)
-        gasocc(igas+1,2) = igsoccx(igas+1,2,icispc) - gasocc(igas,1)
+        sumocc(1) = sumocc(1) + gasocc(igas,1)
+        sumocc(2) = sumocc(2) + gasocc(igas,2)
+        gasocc(igas+1,1) = igsoccx(igas+1,1,icispc) - sumocc(2)
+        gasocc(igas+1,2) = igsoccx(igas+1,2,icispc) - sumocc(1)
        end do
       end if
 *
@@ -4236,101 +4312,234 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
       end do
 *
       trgas = 1
+      ioffden(1) = 0
+      ioffden(3) = 0
+      ioffden(2) = 0
+*
       do igas = 1, ngas
-       ! Empty GAS space belonging to Q-space
+*
+       !
+       ! CASE 1: Empty GAS space belonging to Q-space
+       !         Construct offsets for density resize ioffden(3)
+       !
        if (gasocc(igas,2).eq.0) then
         trgas(igas) = 0
         ntrgas = ntrgas - 1
-        ! Add it to secondary space
+        ! Add MOs to secondary space
         do igensm = 1, ngensmob
+         nocobs(igensm) = nocobs(igensm) - ngas_gnsym(igensm,igas)
          nacobs(igensm) = nacobs(igensm) - ngas_gnsym(igensm,igas)
+         nscobs(igensm) = nscobs(igensm) + ngas_gnsym(igensm,igas)
+         nocob = nocob - ngas_gnsym(igensm,igas)
          nacob = nacob - ngas_gnsym(igensm,igas)
+         nscob = nscob + ngas_gnsym(igensm,igas)
+         ioffden(3) = ioffden(3) + ngas_gnsym(igensm,igas)
 *
         !TODO These should be rewritten for more GAS spaces in Q
-         ngas_gnsym(igensm,igas) =
-     &   ngas_gnsym(igensm,igas) + ngas_gnsym(igensm,ngas+1)
-         ngas_gnsym(igensm,ngas+1) = 0
+         ngas_gnsym(igensm,ngas+1) = ngas_gnsym(igensm,ngas+1) +
+     &                               ngas_gnsym(igensm,igas)
+         ngas_gnsym(igensm,igas) = 0
         end do
 *
-        do irrep = 1, nirrep
+        do igensm = 1, ngensmob
         !TODO These should be rewritten for more GAS spaces in Q
-         nobpts_gn(igas,irrep) = 
-     &   nobpts_gn(igas,irrep) + nobpts_gn(ngas+1,irrep)
-         nobpts_gn(ngas+1,irrep) = 0
+         nobpts_gn(ngas+1,igensm) = nobpts_gn(igas,igensm) +
+     &                              nobpts_gn(ngas+1,igensm)
+         nobpts_gn(igas,igensm) = 0
         end do
+*
+        if (only_dens.eq.0) then
+        !Change MO pointer of itpfso to ngas+1 (Secondary)
+         do i = 1, ntoob
+          if (itpfso(i).eq.igas) itpfso(i) = ngas + 1
+         end do
+        end if
+*
        end if
-       ! Fully occupied GAS space belonging to Q-space
+*
+       !
+       ! CASE 2: Fully occupied GAS space belonging to Q-space
+       !         Construct offsets for density resize ioffden(1)
+       !
        if (gasocc(igas,1).eq.maxocc(igas)) then
         trgas(igas) = 0
         ntrgas = ntrgas - 1
-        ! Add it to the inactive space 
-        ! TODO
+        ! Add MOs to the inactive space 
+        do igensm = 1, ngensmob
+         nacobs(igensm) = nacobs(igensm) - ngas_gnsym(igensm,igas)
+         ninobs(igensm) = ninobs(igensm) + ngas_gnsym(igensm,igas)
+         ninob  = ninob  + ngas_gnsym(igensm,igas)
+         nacob  = nacob  - ngas_gnsym(igensm,igas)
+         ioffden(1) = ioffden(1) + ngas_gnsym(igensm,igas)
+*
+        !TODO These should be rewritten for more GAS spaces in Q
+         ngas_gnsym(igensm,0) = ngas_gnsym(igensm,igas) +
+     &                          ngas_gnsym(igensm,0)
+         ngas_gnsym(igensm,igas) = 0
+        end do
+*
+        do igensm = 1, ngensmob
+         nobpts_gn(0,igensm) = nobpts_gn(igas,igensm) +
+     &                         nobpts_gn(0,igensm)
+         nobpts_gn(igas,igensm) = 0
+        end do
+*
+        if (only_dens.eq.0) then
+        !Change MO pointer of itpfso to 0 (Inactive)
+         do i = 1, ntoob
+          if (itpfso(i).eq.igas) itpfso(i) = 0
+         end do
+        end if
+*
        end if
-      end do
-!*
-!*. Reduce pointers of nobpts_gn
-!*
-!      do igas = 1, ngas
-!       if (trgas(igas).eq.0) then
-!        do irrep = 1, nirrep
-!        end do
-!       end if
-!      end do
 *
-*. Reduce pointers of itpfso
-*
-      do igas = 1, ngas+1
-       if (trgas(igas).eq.0.or.igas.eq.(ngas+1)) then
-        do i = 1, ntoob
-         if (itpfso(i).eq.igas) itpfso(i) = ntrgas + 1
+       !
+       ! CASE 3: GAS space that is treated as part of the active space
+       !         for MCSCF and P-Space for AKBK
+       !         The number of MOs are stored in ioffden(2)
+       !
+       if (gasocc(igas,2).ne.0.and.gasocc(igas,1).ne.maxocc(igas)) then
+        do igensm = 1, ngensmob
+         ioffden(2) = ioffden(2) + ngas_gnsym(igensm,igas)
         end do
        end if
       end do
 *
-*. Reduce the density of active orbitals
+*. Rearrange GAS spaces
 *
-      !TODO Check for more complicated cases (more GAS spaces)
-      irow = 1
-      icol = 1
-      l = 0
-      do i = 1, nacob_bu**2
-       if (icol.le.nacob) then
-        if (irow.le.nacob) then
-         l = l + 1
-         densi(l) = densi_bu(i)
-        else
-         if (irow.eq.nacob_bu) then
-          irow = 0
-          icol = icol + 1
-         end if
-        end if
-        irow = irow + 1
+      itrgas = 0
+      do igas = 1, ngas
+       !Check if the GAS is empty
+       mosum = 0
+       do igensm = 1, ngensmob
+        mosum = mosum + ngas_gnsym(igensm,igas)
+       end do
+       if (mosum.ne.0) then
+        itrgas = itrgas + 1
+        do igensm = 1, ngensmob
+         ngas_gnsym(igensm,itrgas) = ngas_gnsym(igensm,igas)
+         nobpts_gn(itrgas,igensm)  = nobpts_gn(igas,igensm) 
+        end do
        end if
       end do
+*
+      if (itrgas.ne.ntrgas.and.ga_nodeid().eq.0) then
+       write(*,'(a,i3)') 'Inconsistent number of transformed GAS',
+     &                    itrgas
+       CALL ERRQUIT('reduce_gas_spaces: wrong number tranformed GAS',
+     &              itrgas, 667)
+      end if
+*
+*. Put the correct pointers for the secondary space
+*
+      do igensm = 1, ngensmob
+       ngas_gnsym(igensm,itrgas+1) = ngas_gnsym(igensm,ngas+1)
+       nobpts_gn(itrgas+1,igensm)  = nobpts_gn(ngas+1,igensm)
+      end do
+*
+*. New number of GAS in reduced space
+*
+      ngas = ntrgas
+*
+*. Change MO pointer of itpfso for Active and Secondary 
+*
+      if (only_dens.eq.0) then
+       ! GAS spaces that will be transformed (Active)
+       itrgas = 0
+       do igas = 1, ngas_bu
+        if (trgas(igas).eq.1) then
+         itrgas = itrgas + 1
+         do i = 1, ntoob
+          if (itpfso(i).eq.igas) itpfso(i) = itrgas
+         end do
+        end if
+       end do
+*
+       ! Secondary space
+       do i = 1, ntoob
+        if (itpfso(i).eq.(ngas_bu + 1)) itpfso(i) = ngas + 1
+       end do
+*
+      end if
+*
+*. Nulify array IOBPTS_SEL, it will be updated in DENSI2 for the proper
+*. GAS spaces from IB_FOR_SEL_ORBSPC
+*
+      do igas = 1, ngas_bu
+       do igensm = 1, ngensmob
+        IOBPTS_SEL(igas,igensm) = 0
+       end do
+      end do
+*
+*. Reorder the "Symmetry => type reordering array"
+*
+      iorb = 0
+      do igensm = 1, ngensmob
+       do igas = 0, ngas+1
+        ! Offset
+        ioff = 0
+        do ioffgas = 0, igas-1
+         do ioffgensm = 1, ngensmob
+          ioff = ioff + ngas_gnsym(ioffgensm,ioffgas)
+         end do
+        end do
+        do ioffgensm = 1, igensm - 1
+         ioff = ioff + ngas_gnsym(ioffgensm,igas)
+        end do
+        ! Add values
+        do i = 1, ngas_gnsym(igensm,igas)
+         iorb = iorb + 1
+         ientry = i + ioff
+         ireost(iorb) = ientry
+        end do
+       end do
+      end do
+*
+*. Resize the density
+*
+      ioffden(2) = ioffden(2) + ioffden(1)
+      ioffden(3) = ioffden(3) + ioffden(2)
+      if (ioffden(3).ne.nacob_bu.and.ga_nodeid().eq.0) then
+       write(*,'(a)') 'Inconsistent number of MOs and ioffden(3)'
+       CALL ERRQUIT('reduce_gas_spaces: wrong number of MOs',ioffden(3),
+     &              667)
+      end if
+*
+      call resize_dens(densi1,densi1_bu,densi2,densi2_bu,ioffden,
+     &                 only_dens)
+*
+*. Modify NOBPT and IHPVGAS, important for DENSI2
+*
+      if (only_dens.eq.1) then
+       nobpt   = 0
+       ihpvgas = 0
+       itrgas  = 0
+       do igas = 1, ngas_bu
+        if (trgas(igas).eq.1) then
+         itrgas = itrgas + 1
+         nobpt(itrgas)   = nobpt_bu(igas)
+         ihpvgas(itrgas) = ihpvgas_bu(igas)
+        end if
+       end do
+      end if
 *
 *. Print some output
 *
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
        WRITE(LUOUT,'(A)')
+       WRITE(LUOUT,'(A)')
+       WRITE(LUOUT,'(A)') '         Modified GAS Spaces '
+       WRITE(LUOUT,'(A)') '         =================== '
+       WRITE(LUOUT,'(A)')
        WRITE(LUOUT,'(A)') '         Min. occ    Max. occ    Transform? '
        WRITE(LUOUT,'(A)') '         ================================== '
-       DO IGAS = 1, NGAS
+       DO igas = 1, ngas_bu
         yesno = 'YES'
         if (trgas(igas).eq.0) yesno = ' NO'
         WRITE(LUOUT,'(A,I2,3X,I3,9X,I3,10X,3A)')
      &   '   GAS',IGAS,gasocc(IGAS,1),gasocc(IGAS,2),yesno
        END DO
-       WRITE(LUOUT,'(A)')
-       WRITE(LUOUT,'(A)')
-       WRITE(LUOUT,'(A)') '         Modified GAS Spaces '
-       WRITE(LUOUT,'(A)') '         =================== '
-       WRITE(LUOUT,'(A)')
-       WRITE(LUOUT,'(A)') '         Min. occ    Max. occ  '
-       WRITE(LUOUT,'(A)') '         ===================== '
-       DO IGAS = 1, ntrgas
-        WRITE(LUOUT,'(A,I2,3X,I3,9X,I3)')
-     &   '   GAS',IGAS,gasocc(IGAS,1),gasocc(IGAS,2)
-       END DO
+*
        WRITE(LUOUT,'(A)')
        WRITE(LUOUT,'(A)') '         Modified Orbital subspaces:'
        WRITE(LUOUT,'(A)') '         ========================== '
@@ -4342,24 +4551,51 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
        WRITE(LUOUT,'(A,10I4)')
      &  '  Inactive     ',
      &   (ngas_gnsym(igensm,0),igensm = 1, ngensmob)
-
+C      WRITE(LUOUT,'(A,10I4)')
+C    &  '  Inactive     ',
+C    &   (nobpts_gn(0,igensm),igensm = 1, ngensmob)
+*
        DO IGAS = 1, ntrgas
         WRITE(LUOUT,'(A,I2,A,10I4,6X,2I6)')
      &  '  GAS',IGAS,'        ',
      &  (ngas_gnsym(igensm,IGAS), igensm = 1, ngensmob)
+C       WRITE(LUOUT,'(A,I2,A,10I4,6X,2I6)')
+C    &  '  GAS',IGAS,'        ',
+C    &   (nobpts_gn(igas,igensm),igensm = 1, ngensmob)
        END DO
        WRITE(LUOUT,'(A,10I4)')
      &  '  Secondary    ',
      &   (ngas_gnsym(igensm,ntrgas+1),igensm = 1, ngensmob)
+C      WRITE(LUOUT,'(A,10I4)')
+C    &  '  Secondary    ',
+C    &   (nobpts_gn(ntrgas+1,igensm),igensm = 1, ngensmob)
        WRITE(6,*)
        if(ntest.ge.100) then
-        write(luout,*) ' Modified ITPFSO string: '
-        call iwrtma3(itpfso,1,ntoob,1,1)
-        write(luout,*)
-        write(luout,*) ' Modified Density '
-        call wrtmat(densi,nacob,nacob,nacob,nacob)
-!        write(luout,*) (densi(i), i = 1, nacob**2)
-        write(luout,*)
+*
+        if (only_dens.eq.0) then
+         write(luout,*) ' Modified ITPFSO string: '
+         call iwrtma3(itpfso,1,ntoob,1,1)
+         write(luout,*)
+*
+        else
+         write(luout,*) ' Modified Density '
+         call wrtmat(densi1,nacob,nacob,nacob,nacob)
+         write(luout,*)
+         if (only_dens.eq.1) then
+          ! Get reduced dimensions for RHO2
+          call getnddens2(ndactorb,nddensi2,only_dens)
+          call prsym(densi2,ndactorb*ndactorb)
+         end if
+         write(luout,*)
+        end if
+       write(*,'(a,10i4)') 'INACTIVE ',
+     &          (ninobs(isym), isym = 1, ngensmob), ninob
+       write(*,'(a,10i4)') 'ACTIVE   ',
+     &          (nacobs(isym), isym = 1, ngensmob), nacob
+       write(*,'(a,10i4)') 'OCCUPIED ',
+     &          (nocobs(isym), isym = 1, ngensmob), nocob
+       write(*,'(a,10i4)') 'SECONDARY',
+     &          (nscobs(isym), isym = 1, ngensmob), nscob
        end if
       END IF
 *
@@ -4373,37 +4609,352 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
        nchk = nchk + ngas_gnsym(igensm,0) + ngas_gnsym(igensm,ntrgas+1)
        if (ntoobs(igensm).ne.nchk.and.ga_nodeid().eq.0) then
         write(*,'(a,i3)') 'Inconsistent number of MOs in IRREP', igensm
-        CALL ERRQUIT('TRANS_GAS: wrong number of MOs ', nchk, 667)
+        CALL ERRQUIT('reduce_gas_spaces: wrong number of MOs', nchk,667)
        end if
       end do
 *
       return
       end 
-      subroutine cp_dens_back(densi,densi_bu)
+*======================================================================*
+*======================================================================*
+      subroutine resize_dens(densi1,densi1_bu,densi2,densi2_bu,ioffden,
+     &                       only_dens)
+*======================================================================*
 *
+*  Konstantinos D. Vogiatzis, June 2015, Berkeley
+*
+*======================================================================*
       include 'implicit.inc'
       include 'mxpdim.inc'
+      include 'glbbas.inc'
+      include 'cgas.inc'
       include 'orbinp.inc'
-#include "global.fh"
+      include 'lucinp.inc'
+      include 'multd2h.inc'
 *
 *. Input
-      real(8) densi_bu(nacob**2)
-*. Input/Output
-      dimension densi(*)
+      integer   only_dens
+      integer   nddensi2
+      integer   ioffden(3)
+      dimension densi1_bu(*)
+      dimension densi2_bu(*)
 *
-      do i = 1, nacob**2
-       densi(i) = densi_bu(i)
+*. Output
+      dimension densi1(*)
+      dimension densi2(*)
+*
+*. Local
+      integer   ipqden(3)
+*
+*.
+*
+      ntest = 0
+*
+*. Modify RHO1
+*
+      ! Nulify initial densi (RHO1) matrix
+      do i = 1, nacob_bu**2
+       densi1(i) = 0.0d0
+      end do
+      !
+      ! Divide all MOs in the original GAS scheme into three groups:
+      ! (1) MOs in GAS --> Now Inactive
+      ! (2) MOs in GAS --> Still in GAS (transformed)
+      ! (3) MOs in GAS --> Now Secondary
+      !
+      !TODO Check for more complicated cases (more GAS spaces)
+      irow = 1
+      icol = 1
+      iadd = 0
+*
+      do i = 1, nacob_bu**2
+       if (icol.gt.ioffden(1).and.icol.le.ioffden(2)  .and.
+     &     irow.gt.ioffden(1).and.irow.le.ioffden(2)) then
+        iadd = iadd + 1
+        densi1(iadd) = densi1_bu(i)
+       end if
+       ! Change row
+       if (icol.eq.nacob_bu) then
+        icol = 0
+        irow = irow + 1
+       end if
+       icol = icol + 1
       end do
 *
-      NTEST = 100
-      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
-       write(6,*) ' Initial Density (restored) '
-       call wrtmat(densi,nacob,nacob,nacob,nacob)
-!       write(6,*) (densi(i), i = 1, nacob**2)
+*. Modify RHO2
+*
+      idorho2 = 0
+      if (only_dens.eq.1.and.idorho2.eq.1) then
+!      if (only_dens.eq.1) then
+*
+       ! Switch back to the original, large 2-e density matrix
+       ngas_scr = ngas
+       ngas = ngas_bu
+       call getnddens2(ndactorb,nddensi2,only_dens)
+       ngas = ngas_scr
+*
+       ! Nulify initial densi2 (RHO2) matrix
+       do i = 1, nddensi2
+        densi2(i) = 0.0d0
+       end do
+*
+       do i = 1, 3
+        ipqden(i) = ioffden(i)**2 + (ioffden(i)**2 +1)/2
+       write(*,'(i1,a,i4,i5)') i,' ioffden, ipqden',ioffden(i),ipqden(i)
+       end do
+*      
+*. Initialize pointers
+*
+       ioff = 0
+       iadd = 0
+       ij   = 1
+*
+*. Get diamensions
+*
+       nrow = ndactorb**2
+*
+*. Loop the low diagonal
+*
+      write(*,*) '   i,   j,imin,imax,jmin,jmax,istp,jstp,  ij'
+       do i = 1, nrow
+*
+        write(*,*) i
+        imin  = ioff + ioffden(1)
+        imax  = ioff + ioffden(2)
+        istop = ioff + ioffden(3)
+*
+        write(*,*) 'TI SKATA EXW', imin, imax
+        if (i.le.imin) then
+        write(*,'(9i5,a)') i, j, imin, imax, jmin, jmax,
+     &                     istop,jstop,ij,' a'
+         ij = ij + 1
+         cycle
+        else if (i.gt.imin.and.i.le.imax) then
+*
+         joff  = 0
+         jstop = 0
+*
+         do j = 1, i
+*
+          jmin  = joff + ioffden(1)
+          jmax  = joff + ioffden(2)
+          jstop = joff + ioffden(3)
+        write(*,'(9i5,a)') i, j, imin, imax, jmin, jmax,
+     &                     istop,jstop,ij,' b'
+*
+          if (j.le.jmin) then
+           ij = ij + 1
+           cycle
+          else if (j.gt.jmin.and.j.le.jmax) then
+*
+           ! Collect the RHO2 elements of the small matrix
+           iadd = iadd + 1
+           densi2(iadd) = densi2_bu(ij)
+           if (ntest.ge.100) 
+     &      write(*,'(a,2i4,e20.8)') 'Collect ',iadd,ij,densi2(iadd)
+*
+           if (j.eq.jstop) joff = joff + ioffden(3)
+          else if (j.eq.jstop) then
+*
+           joff = joff + ioffden(3)
+*
+          end if ! Check colunm j
+*
+          if (i.ne.j) ij = ij +1
+         end do ! End columns (j)
+*
+         if (i.eq.istop) ioff = ioff + ioffden(3)
+        else if (i.le.istop) then
+* 
+         ioff = ioff + ioffden(3)
+         if (i.eq.istop) ij = ij + ioff - 1 !ioffden(3) - 1
+         write(*,'(9i5,a)') i, j, imin, imax, jmin, jmax,
+     &                     istop,jstop,ij,' c'
+*
+        end if ! Check row i
+*
+        ij = ij + 1
+       end do ! End rows (i)
+*
       end if
 *
       return
       end
-
+*======================================================================*
+*======================================================================*
+      subroutine restore_gas_spaces(densi1,densi1_bu,densi2,densi2_bu,
+     &                              only_dens)
+*======================================================================*
+*
+*  Konstantinos D. Vogiatzis, June 2015, Berkeley
+*
+*======================================================================*
+*
+      include 'implicit.inc'
+      include 'mxpdim.inc'
+      include 'orbinp.inc'
+      include 'cgas.inc'
+      include 'glbbas.inc'
+      include 'lucinp.inc'
+#include "global.fh"
+*
+*. Input
+      integer   only_dens
+      dimension densi1_bu(*)
+      dimension densi2_bu(*)
+*
+*. Output
+      dimension densi1(*)
+      dimension densi2(*)
+*
+*. Initializations
+*
+      ! Get dimensions for RHO2
+      call getnddens2(ndactorb,nddensi2,only_dens)
+*
+      ngas  = ngas_bu
+*
+      nocob = nocob_bu
+      nacob = nacob_bu
+      ninob = ninob_bu
+      nscob = nscob_bu
+*
+      do igensm = 1, ngensmob
+       do igas= 1, ngas+2
+        ngas_gnsym(igensm,igas-1) = ngas_gnsym_bu(igensm,igas)
+       end do
+       nocobs(igensm) = nocobs_bu(igensm)
+       nacobs(igensm) = nacobs_bu(igensm)
+       ninobs(igensm) = ninobs_bu(igensm)
+       nscobs(igensm) = nscobs_bu(igensm)
+      end do
+*
+      do igensm = 1, ngensmob
+       nobpts_gn(0,igensm) = nobpts_gn_bu(0,igensm)
+       nobpts_gn(ngas+1,igensm) = nobpts_gn_bu(ngas+1,igensm)
+       do igas = 1, ngas
+        nobpts_gn(igas,igensm) = nobpts_gn_bu(igas,igensm)
+       end do
+      end do
+*
+      ! Symmetry => type reordering array
+      do i = 1, ntoob
+       ireost(i) = ireost_bu(i)
+      end do
+*
+*. RHO1
+*
+      do i = 1, nacob**2
+       densi1(i) = densi1_bu(i)
+      end do
+*
+*. RHO2
+*
+      if (only_dens.eq.1) then
+       do i = 1, nddensi2
+        densi2_bu(i) = densi2(i) !TODO PROSOXI!!!
+       end do
+*
+      ! For DENSI2
+       do igas= 1, ngas+2
+        nobpt(igas)   = nobpt_bu(igas)
+        ihpvgas(igas) = ihpvgas_bu(igas)
+       end do
+      end if
+*
+      NTEST = 0
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+       write(*,*) ' Initial Density (restored) '
+       call wrtmat(densi1,nacob,nacob,nacob,nacob)
+       write(*,*)
+       if (only_dens.eq.1) call prsym(densi2,ndactorb*ndactorb)
+       write(*,*)
+       write(*,'(a,10i4)') 'INACTIVE ',
+     &          (ninobs(isym), isym = 1, ngensmob), ninob
+       write(*,'(a,10i4)') 'ACTIVE   ',
+     &          (nacobs(isym), isym = 1, ngensmob), nacob
+       write(*,'(a,10i4)') 'OCCUPIED ',
+     &          (nocobs(isym), isym = 1, ngensmob), nocob
+       write(*,'(a,10i4)') 'SECONDARY',
+     &          (nscobs(isym), isym = 1, ngensmob), nscob
+      end if
+*
+      return
+      end
+*======================================================================*
+*======================================================================*
+      subroutine getnddens2(ndactorb,nddensi2,only_dens)
+*======================================================================*
+*
+*  Konstantinos D. Vogiatzis, June 2015, back from Berkeley
+*
+*======================================================================*
+*
+      include 'implicit.inc'
+      include 'mxpdim.inc'
+      include 'orbinp.inc'
+      include 'cgas.inc' 
+      include 'crun.inc'
+#include "global.fh"
+*
+*. Input
+      integer only_dens
+*
+*. Output
+      integer ndactorb
+      integer nddensi2
+*
+*. Local
+      dimension idactspc(mxpngas)
+*
+      ntest = 0
+*
+      ndactorb = 0
+      if (only_dens.eq.1) then
+       DO IGAS = 1, NGAS
+        ITYP = IHPVGAS(IGAS)
+        IDACTSPC(IGAS) = 0
+        IF(ITYP.EQ.1.AND.IDENS_IN.EQ.1) IDACTSPC(IGAS) = 1
+        IF(ITYP.EQ.2.AND.IDENS_SEC.EQ.1) IDACTSPC(IGAS) = 1
+        IF(ITYP.EQ.3.AND.IDENS_AC.EQ.1) IDACTSPC(IGAS) = 1
+       END DO
+       if(ntest.ge.10.and.ga_nodeid().eq.0) then
+        WRITE(6,*) ' Active orbital spaces in getnddens2 '
+        CALL IWRTMA(IDACTSPC,1,NGAS,1,NGAS)
+       end if
+*
+       do igas = 1, ngas
+        if(idactspc(igas).eq.1) ndactorb = ndactorb + nobpt(igas)
+       end do
+      end if
+*
+      nddensi2 = ndactorb**2 *(ndactorb**2 + 1)/2
+*
+      if(ntest.ge.10.and.ga_nodeid().eq.0) then
+       write(6,*) ' Number of active orbitals for densities',ndactorb
+       write(6,*) ' Number of elements in RHO2             ',nddensi2
+      end if
+*
+      return
+      end
+*======================================================================*
+*======================================================================*
+      integer function ipq(i)
+*======================================================================*
+*
+*. Input
+      integer i
+*
+      if (i.le.0) then
+       x = 0
+      else
+       x = i * (i + 1)/2
+      end if
+*
+      ipq = int(x)
+*
+      return
+      end
+*======================================================================*
 
 c $Id$

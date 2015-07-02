@@ -43,7 +43,7 @@
 C           GASCI(IREFSM,IREFSPC_MCSCF,IPRDIAL,IIUSEH0P,
 C    &           MPORENP_E,EREF,ERROR_NORM_FINAL,CONV_F)  
 * A bit of local scratch
-      INTEGER ISCR(2), ISCR_NTS((7+MXPR4T)*MXPOBS)
+      INTEGER ISCR(2), ISCR_NTS((7+MXPR4T)*MXPOBS),only_dens
 *
       REAL*8
      &INPROD
@@ -229,6 +229,7 @@ C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
       NTEST = 1
       IPRNT= MAX(NTEST,IPRMCSCF)
 *
+      last_ci = 0
       I_DO_NEWTON = 0
       I_DO_UPDATE = 0
       I_UPDATE_MET = 0
@@ -1215,6 +1216,7 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
 *
 *
 *. Expansion of final orbitals in AO basis, pt in KLMO2
+      MAXIT_SAVE = MAXIT
       IF(NCISPC.EQ.2.AND.NOMOFL.EQ.0.AND.IFINMO.NE.0) THEN
        CALL MOROT_GS(IFINMO)
        call copvec(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),len_cmo)
@@ -1225,6 +1227,8 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
      &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
       CALL COPVEC(dbl_mb(KLMO2),dbl_mb(KMOAO_ACT),LEN_CMO)
       CALL COPVEC(dbl_mb(KLMO2),dbl_mb(KMOAOUT),LEN_CMO)
+*. And 0 CI iterations with new integrals
+      MAXIT = 1
       END IF
 c     CALL MULT_BLOC_MAT(dbl_mb(KLMO2),dbl_mb(KMOAOIN),dbl_mb(KMOMO),
 c    &       NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
@@ -1246,23 +1250,37 @@ CNW   CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
 CBERT depending on what happens above we could just switch pointers
       call ga_copy(KINT1,KH)
       call ga_copy(KFI,KINT1)
-*. And 0 CI iterations with new integrals
-      MAXIT_SAVE = MAXIT
-      MAXIT = 1
       IRESTR = 1
 *. and normal density print
       IPRDEN = IPRDEN_SAVE 
+      last_ci = 1
+!*. VOG 4 Density
+!      only_dens = 1
+!      CALL MEMMAN(KRHO1_BU,NACOB ** 2,'ADDL  ',2,'RHO1_BU  ')
+!      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1_bu))
       CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIAL,IIUSEH0P,
      &            MPORENP_E,EREF,ERROR_NORM_FINAL_CI,CONV_F)
       EFINAL = EREF
       MAXIT = MAXIT_SAVE
 *. Current orbital gradient
+*. VOG 4 Density
+      only_dens = 1
+      LRHO2 = NACOB**2*(NACOB**2+1)/2
+      CALL MEMMAN(KRHO1_BU,NACOB**2,'ADDL  ',2,'RHO1_BU  ')
+      CALL MEMMAN(KRHO2_BU,LRHO2   ,'ADDL  ',2,'RHO2_BU  ')
+      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1_bu),
+     &                       dbl_mb(KRHO2),dbl_mb(krho2_bu),only_dens)
       CALL DO_ORBTRA(0,0,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
+      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1_bu),
+     &                        dbl_mb(KRHO2),dbl_mb(krho2_bu),only_dens)
       CALL FOCK_MAT_STANDARD(KF,2,KINT1,KFA)
       IF(IPRNT.GE.100.and.ga_nodeid().eq.0) WRITE(6,*) ' F constructed '
       CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
      &               int_mb(KLOOEXCC),
      &               NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
+!      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1_bu),
+!     &                        dbl_mb(KRHO2),dbl_mb(krho2_bu),only_dens)
+*. VOG 4 Destiny End
       IF(I_AVERAGE_ORBEXC.EQ.1) THEN
 *. Average over orbital excitations belonging to a given shell excitation
         CALL SHELL_AVERAGE_ORBEXC(dbl_mb(KLE1),NSSEX,int_mb(KNOOFSS),
