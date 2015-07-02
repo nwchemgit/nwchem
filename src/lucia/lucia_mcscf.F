@@ -1254,10 +1254,6 @@ CBERT depending on what happens above we could just switch pointers
 *. and normal density print
       IPRDEN = IPRDEN_SAVE 
       last_ci = 1
-!*. VOG 4 Density
-!      only_dens = 1
-!      CALL MEMMAN(KRHO1_BU,NACOB ** 2,'ADDL  ',2,'RHO1_BU  ')
-!      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1_bu))
       CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIAL,IIUSEH0P,
      &            MPORENP_E,EREF,ERROR_NORM_FINAL_CI,CONV_F)
       EFINAL = EREF
@@ -1266,20 +1262,20 @@ CBERT depending on what happens above we could just switch pointers
 *. VOG 4 Density
       only_dens = 1
       LRHO2 = NACOB**2*(NACOB**2+1)/2
-      CALL MEMMAN(KRHO1_BU,NACOB**2,'ADDL  ',2,'RHO1_BU  ')
-      CALL MEMMAN(KRHO2_BU,LRHO2   ,'ADDL  ',2,'RHO2_BU  ')
-      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1_bu),
-     &                       dbl_mb(KRHO2),dbl_mb(krho2_bu),only_dens)
+      CALL MEMMAN(KRHO1BU,NACOB**2,'ADDL  ',2,'RHO1BU  ')
+      CALL MEMMAN(KRHO2BU,LRHO2   ,'ADDL  ',2,'RHO2BU  ')
+      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1bu),
+     &                       dbl_mb(KRHO2),dbl_mb(krho2bu),only_dens)
       CALL DO_ORBTRA(0,0,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
-      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1_bu),
-     &                        dbl_mb(KRHO2),dbl_mb(krho2_bu),only_dens)
+      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1bu),
+     &                        dbl_mb(KRHO2),dbl_mb(krho2bu),only_dens)
       CALL FOCK_MAT_STANDARD(KF,2,KINT1,KFA)
       IF(IPRNT.GE.100.and.ga_nodeid().eq.0) WRITE(6,*) ' F constructed '
       CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
      &               int_mb(KLOOEXCC),
      &               NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
-!      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1_bu),
-!     &                        dbl_mb(KRHO2),dbl_mb(krho2_bu),only_dens)
+!      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1bu),
+!     &                        dbl_mb(KRHO2),dbl_mb(krho2bu),only_dens)
 *. VOG 4 Destiny End
       IF(I_AVERAGE_ORBEXC.EQ.1) THEN
 *. Average over orbital excitations belonging to a given shell excitation

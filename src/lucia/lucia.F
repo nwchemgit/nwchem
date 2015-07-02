@@ -2663,8 +2663,8 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
 !          if (last_ci.eq.1) then
 !          write(*,*) 'VOG, last CI iteration - Density)', last_ci
 !          only_dens = 1
-!          CALL MEMMAN(KRHO1_BU,NACOB ** 2,'ADDL  ',2,'RHO1_BU  ')
-!          call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1_bu),
+!          CALL MEMMAN(KRHO1BU,NACOB ** 2,'ADDL  ',2,'RHO1BU  ')
+!          call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1bu),
 !     &                           only_dens)
           IF(IDENSI.EQ.1) THEN
             KRHO2 = 1
@@ -2680,7 +2680,7 @@ C?      CALL WRTMAT(WORK(KPVEC1),1,NVAR,1,NVAR)
             if (ga_nodeid().eq.0)
      &      WRITE(6,*) ' Energy from density ', ENERGY
           END IF
-!          call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1_bu),
+!          call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1bu),
 !     &                            only_dens)
 !          end if
 *. VOG 4 Destiny End
@@ -36243,12 +36243,13 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
 *. Distinguish between GAS spaces that should be transformed, i.e. if
 *. each GAS space belongs to P or Q space - VOG
 *
+      idummy = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
-      CALL MEMMAN(KRHO1_BU,NACOB ** 2,'ADDL  ',2,'RHO1_BU  ')
-      CALL MEMMAN(KRHO2_BU,dummy,'ADDL  ',2,'RHO2_BU  ')
+      CALL MEMMAN(KRHO1BU,NACOB ** 2,'ADDL  ',2,'RHO1BU  ')
+      CALL MEMMAN(KRHO2BU,idummy,'ADDL  ',2,'RHO2BU  ')
       only_dens = 0
-      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(KRHO1_BU),
-     &                       dbl_mb(KRHO1),dbl_mb(KRHO1_BU),only_dens)
+      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(KRHO1BU),
+     &                       dbl_mb(KRHO2),dbl_mb(KRHO2_BU),only_dens)
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
        WRITE(6,'(A)')
        WRITE(6,'(A)') '         Transform? '
@@ -36610,8 +36611,8 @@ C              PRINT_CMO_AS_SHELLS(CMO,IFORM)
 *
 *. Restore initial arrays and pointers - VOG
 *
-      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(KRHO1_BU),
-     &                        dbl_mb(KRHO2),dbl_mb(KRHO2_BU),only_dens)
+      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(KRHO1BU),
+     &                        dbl_mb(KRHO2),dbl_mb(KRHO2BU),only_dens)
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'MOROT ')
       RETURN

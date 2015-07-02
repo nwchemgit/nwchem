@@ -4215,7 +4215,7 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
       ! Get dimensions for RHO2
       call getnddens2(ndactorb,nddensi2,only_dens)
 *
-      NTEST = 0
+      NTEST = 00
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
        write(luout,*) ' Only_dens? ', only_dens
        write(luout,*) ' Initial Density '
@@ -4335,14 +4335,12 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
          nscob = nscob + ngas_gnsym(igensm,igas)
          ioffden(3) = ioffden(3) + ngas_gnsym(igensm,igas)
 *
-        !TODO These should be rewritten for more GAS spaces in Q
          ngas_gnsym(igensm,ngas+1) = ngas_gnsym(igensm,ngas+1) +
      &                               ngas_gnsym(igensm,igas)
          ngas_gnsym(igensm,igas) = 0
         end do
 *
         do igensm = 1, ngensmob
-        !TODO These should be rewritten for more GAS spaces in Q
          nobpts_gn(ngas+1,igensm) = nobpts_gn(igas,igensm) +
      &                              nobpts_gn(ngas+1,igensm)
          nobpts_gn(igas,igensm) = 0
@@ -4364,6 +4362,8 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
        if (gasocc(igas,1).eq.maxocc(igas)) then
         trgas(igas) = 0
         ntrgas = ntrgas - 1
+       if (ga_nodeid().eq.0)
+     &   write(*,*) 'VOG, get rid of occup GAS of Q-Space', ntrgas
         ! Add MOs to the inactive space 
         do igensm = 1, ngensmob
          nacobs(igensm) = nacobs(igensm) - ngas_gnsym(igensm,igas)
@@ -4372,7 +4372,7 @@ C KCLBT,KCLEBT,KCI1BT,KCIBT,KC2B,KCIOIO,KCBLTP,KCLBLK,
          nacob  = nacob  - ngas_gnsym(igensm,igas)
          ioffden(1) = ioffden(1) + ngas_gnsym(igensm,igas)
 *
-        !TODO These should be rewritten for more GAS spaces in Q
+        !TODO These should be checked for more GAS spaces in Q
          ngas_gnsym(igensm,0) = ngas_gnsym(igensm,igas) +
      &                          ngas_gnsym(igensm,0)
          ngas_gnsym(igensm,igas) = 0
