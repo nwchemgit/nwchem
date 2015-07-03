@@ -293,7 +293,7 @@ c
 c
       if (.not.rtdb_get(rtdb,'tce:ccsd_t2_8_alg',mt_int,1,
      1                  ccsd_t2_8_alg)) then
-        ccsd_t2_8_alg = 1
+        ccsd_t2_8_alg = 2
       endif
       if (ccsd_t2_8_alg.eq.1) then
         CALL ccsd_t2_8(d_t2,k_t2_offset,d_v2,k_v2_offset,
@@ -6073,10 +6073,12 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       if (alloc_error.ne.0) then
         call errquit('ccsd_t2_8',2,MA_ERR)
       endif
+#ifndef USE_LOOPS_NOT_DGEMM
       allocate( f_t(1:dimtemp), stat=alloc_error)
       if (alloc_error.ne.0) then
         call errquit('ccsd_t2_8',3,MA_ERR)
       endif
+#endif
 #else
 c the A tile is pphh
       IF (.not.MA_PUSH_GET(mt_dbl,dimhhpp,'a',l_a,k_a))
@@ -6139,6 +6141,11 @@ c the temporary must be the larger of B and A/C
                   dimb = dim_common * dimb_sort
                   IF ((dima .gt. 0) .and. (dimb .gt. 0)) THEN
 #ifdef USE_F90_ALLOCATABLE
+#ifdef USE_LOOPS_NOT_DGEMM
+                   CALL GET_HASH_BLOCK(d_a,f_a,dima,
+     &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
+     &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
+#else
                    CALL GET_HASH_BLOCK(d_a,f_t,dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
      &                  (p6b_1-noab-1+nvab*(p5b_1-noab-1)))))
@@ -6146,6 +6153,7 @@ c the temporary must be the larger of B and A/C
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
      &                  int_mb(k_range+h1b-1),int_mb(k_range+h2b-1),
      &                  4,3,2,1,1.0d0)
+#endif
 #else
                    CALL GET_HASH_BLOCK(d_a,dbl_mb(k_t),dima,
      &                  int_mb(k_a_offset),(h2b_1-1+noab*(h1b_1-1+noab*
@@ -6157,10 +6165,17 @@ c the temporary must be the larger of B and A/C
 #endif
                    if(.not.intorb) then
 #ifdef USE_F90_ALLOCATABLE
+#ifdef USE_LOOPS_NOT_DGEMM
+                    CALL GET_HASH_BLOCK(d_b,f_b,dimb,
+     &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
+     &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
+     &                   (p3b_2-1)))))
+#else
                     CALL GET_HASH_BLOCK(d_b,f_t,dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))))
+#endif
 #else
                     CALL GET_HASH_BLOCK(d_b,dbl_mb(k_t),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
@@ -6169,10 +6184,17 @@ c the temporary must be the larger of B and A/C
 #endif
                    else
 #ifdef USE_F90_ALLOCATABLE
+#ifdef USE_LOOPS_NOT_DGEMM
+                    CALL GET_HASH_BLOCK_I(d_b,f_b,dimb,
+     &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
+     &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
+     &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
+#else
                     CALL GET_HASH_BLOCK_I(d_b,f_t,dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
      &                   (p5b_2-1+(noab+nvab)*(p4b_2-1+(noab+nvab)*
      &                   (p3b_2-1)))),p6b_2,p5b_2,p4b_2,p3b_2)
+#endif
 #else
                     CALL GET_HASH_BLOCK_I(d_b,dbl_mb(k_t),dimb,
      &                   int_mb(k_b_offset),(p6b_2-1+(noab+nvab)*
@@ -6181,10 +6203,12 @@ c the temporary must be the larger of B and A/C
 #endif
                    end if
 #ifdef USE_F90_ALLOCATABLE
+#ifndef USE_LOOPS_NOT_DGEMM
                    CALL TCE_SORT_4(f_t,f_b,
      &                  int_mb(k_range+p3b-1),int_mb(k_range+p4b-1),
      &                  int_mb(k_range+p5b-1),int_mb(k_range+p6b-1),
      &                  2,1,4,3,1.0d0)
+#endif
 #else
                    CALL TCE_SORT_4(dbl_mb(k_t),dbl_mb(k_b),
      &                  int_mb(k_range+p3b-1),int_mb(k_range+p4b-1),
@@ -6197,9 +6221,19 @@ c the temporary must be the larger of B and A/C
                     alpha = 2.0d0
                    end if
 #ifdef USE_F90_ALLOCATABLE
+#ifdef USE_LOOPS_NOT_DGEMM
+                   call t2_p8(int_mb(k_range+h1b-1),
+     &                        int_mb(k_range+h2b-1),
+     &                        int_mb(k_range+p3b-1),
+     &                        int_mb(k_range+p4b-1),
+     &                        int_mb(k_range+p5b-1),
+     &                        int_mb(k_range+p6b-1),
+     &                        f_a,f_b,f_c,0.5d0*alpha)
+#else
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
      &                  alpha,f_a,dim_common,f_b,
      &                  dim_common,1.0d0,f_c,dima_sort)
+#endif
 #else
                    CALL DGEMM('T','N',dima_sort,dimb_sort,dim_common,
      &                  alpha,dbl_mb(k_a),dim_common,dbl_mb(k_b),
@@ -6211,6 +6245,11 @@ c the temporary must be the larger of B and A/C
                END DO
               END DO
 #ifdef USE_F90_ALLOCATABLE
+#ifdef USE_LOOPS_NOT_DGEMM
+              CALL ADD_HASH_BLOCK(d_c,f_c,dimc,
+     &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
+     &             (p4b-noab-1+nvab*(p3b-noab-1)))))
+#else
               CALL TCE_SORT_4(f_c,f_t,
      &             int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
      &             int_mb(k_range+h2b-1),int_mb(k_range+h1b-1),
@@ -6218,6 +6257,7 @@ c the temporary must be the larger of B and A/C
               CALL ADD_HASH_BLOCK(d_c,f_t,dimc,
      &             int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      &             (p4b-noab-1+nvab*(p3b-noab-1)))))
+#endif
 #else
               CALL TCE_SORT_4(dbl_mb(k_c),dbl_mb(k_t),
      &             int_mb(k_range+p4b-1),int_mb(k_range+p3b-1),
@@ -6254,10 +6294,12 @@ c the temporary must be the larger of B and A/C
       if (alloc_error.ne.0) then
         call errquit('ccsd_t2_8',7,MA_ERR)
       endif
+#ifndef USE_LOOPS_NOT_DGEMM
       deallocate( f_t, stat=alloc_error)
       if (alloc_error.ne.0) then
         call errquit('ccsd_t2_8',8,MA_ERR)
       endif
+#endif
 #else
       if (.not.ma_chop_stack(l_a))
      1         call errquit('ccsd_t2_8',5,MA_ERR)
@@ -6265,17 +6307,6 @@ c the temporary must be the larger of B and A/C
 
       RETURN
       END
-
-
-
-
-
-
-
-
-
-
-
 
 
 
