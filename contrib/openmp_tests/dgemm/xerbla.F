@@ -1,4 +1,5 @@
       SUBROUTINE XERBLA( SRNAME, INFO )
+#include "mpif.h"
 *
 *  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,
@@ -8,6 +9,7 @@
 *     .. Scalar Arguments ..
       CHARACTER*6        SRNAME
       INTEGER            INFO
+      INTEGER            IERR
 *     ..
 *
 c
@@ -40,7 +42,7 @@ c
       WRITE( *, FMT = 9999 )SRNAME, INFO
 *
 *      STOP
-      call MPI_Abort()
+      call MPI_Abort(MPI_COMM_WORLD,INFO,IERR)
 c     call errquit('xerbla:double: lapack error',911, BASIS_ERR)
 *
  9999 FORMAT( ' ** On entry to ', A6, ' parameter number ', I2, ' had ',
