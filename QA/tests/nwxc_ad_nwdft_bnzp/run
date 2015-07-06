@@ -1,0 +1,12 @@
+#!/bin/bash
+exec=/home/d3y133/nwchem-dev/nwchem-trunk/bin/LINUX64/nwchem
+$exec 4n_b1b95.nw 2>&1 | tee 4n_b1b95.out
+$exec 4n_b97-3.nw 2>&1 | tee 4n_b97-3.out
+$exec 4n_b97-d.nw 2>&1 | tee 4n_b97-d.out
+$exec 4n_b97-gga1.nw 2>&1 | tee 4n_b97-gga1.out
+$exec 4n_b97.nw 2>&1 | tee 4n_b97.out
+$exec 4n_bb1k.nw 2>&1 | tee 4n_bb1k.out
+$exec 4n_mpw1b95.nw 2>&1 | tee 4n_mpw1b95.out
+$exec 4n_mpwb1k.nw 2>&1 | tee 4n_mpwb1k.out
+$exec 4n_pw6b95.nw 2>&1 | tee 4n_pw6b95.out
+$exec 4n_xb97.nw 2>&1 | tee 4n_xb97.out

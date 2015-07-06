@@ -1,0 +1,114 @@
+# $Id: nwxc_nwdft_1ar.nw 25441 2014-04-04 04:43:37Z d3y133 $
+echo
+start nwxc_dat
+
+geometry
+symmetry c1
+C   0.98348719 0.98348719 0.00000000
+C  -1.34346849 0.35998130 0.00000000
+C   0.35998130 -1.34346849 0.00000000
+C  -0.98348719 -0.98348719 0.00000000
+C   1.34346849 -0.35998130 0.00000000
+C  -0.35998130 1.34346849 0.00000000
+H   1.74853940 1.74853940 0.00000000
+H  -2.38854924 0.64000984 0.00000000
+H   0.64000984 -2.38854924 0.00000000
+H  -1.74853940 -1.74853940 0.00000000
+H   2.38854924 -0.64000984 0.00000000
+H  -0.64000984 2.38854924 0.00000000
+end
+charge +1
+
+# Basis set by N Godbout, DR Salahub, J Andzelm, E Wimmer,
+# Can J Chem 70, 560 (1992), DOI: 10.1139/v92-079.
+# DZVP (DFT orbital)
+basis
+  * library "DZVP (DFT orbital)"
+end
+
+# LDA
+
+set "dft:weight derivatives" T
+set "dft:pstat"              T
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff slater vwn_5
+end
+task dft energy
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff pw91lda
+end
+task dft energy
+
+# GGA exchange
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff b3lyp
+end
+task dft energy
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff xpbe96 cpbe96
+end
+task dft energy
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff becke97
+end
+task dft energy
+
+dft
+  mult 2
+  vectors input atomic
+  # cam-b3lyp
+  xc new autodiff cam-b3lyp
+end
+task dft energy
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff hse03
+end
+task dft energy
+
+# meta-GGA
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff b1b95
+end
+task dft energy
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff vs98
+end
+task dft energy
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff xtpss03 ctpss03
+end
+task dft energy
+
+dft
+  mult 2
+  vectors input atomic
+  xc new autodiff m11
+end
+task dft energy
+

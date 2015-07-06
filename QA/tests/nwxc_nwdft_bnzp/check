@@ -1,0 +1,12 @@
+#!/bin/bash
+exec=/home/d3y133/nwchem-dev/nwchem-ref/QA/tests/nwxc_nwdft_4n
+tkdiff $exec/4n_b1b95.out  4n_b1b95.out
+tkdiff $exec/4n_b97-3.out  4n_b97-3.out
+tkdiff $exec/4n_b97-d.out  4n_b97-d.out
+tkdiff $exec/4n_b97-gga1.out  4n_b97-gga1.out
+tkdiff $exec/4n_b97.out  4n_b97.out
+tkdiff $exec/4n_bb1k.out  4n_bb1k.out
+tkdiff $exec/4n_mpw1b95.out  4n_mpw1b95.out
+tkdiff $exec/4n_mpwb1k.out  4n_mpwb1k.out
+tkdiff $exec/4n_pw6b95.out  4n_pw6b95.out
+tkdiff $exec/4n_xb97.out  4n_xb97.out
