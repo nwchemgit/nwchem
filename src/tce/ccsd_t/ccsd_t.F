@@ -23,8 +23,14 @@ C
       integer t_p4b, t_p4
       integer t_p5b, t_p5
       integer t_p6b, t_p6
+#ifdef USE_F90_ALLOCATABLE
+      double precision, allocatable :: f_singles(:),f_doubles(:)
+      !dec$ attributes fastmem :: f_singles, f_doubles
+      integer alloc_error
+#else
       integer k_singles,l_singles
       integer k_doubles,l_doubles
+#endif
       integer size,i
       integer nxtask
       integer next
@@ -91,6 +97,22 @@ c     estimate triplesx size
       triplesx_copyback=.false.
 c      call util_align64(size)
       triplesx_mxlgth=size
+#ifdef USE_F90_ALLOCATABLE
+      allocate( f_singles(1:size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t: MA error sgl',0,MA_ERR)
+      endif
+      allocate( f_doubles(1:size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t: MA error dbl',0,MA_ERR)
+      endif
+#ifdef USE_OFFLOAD
+      call offl_alloc(f_singles,size)
+      triplesx1_alloced=.true.
+      call offl_alloc(f_doubles,size)
+      triplesx_alloced=.true.
+#endif
+#else
       if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
      1     k_singles)) call errquit('ccsd_t: MA error sgl',
      2     size,MA_ERR)
@@ -102,6 +124,7 @@ c      call util_align64(size)
       triplesx1_alloced=.true.
       call offl_alloc(dbl_mb(k_doubles),size)
       triplesx_alloced=.true.
+#endif
 #endif
       wall=-util_wallsec()
       tot_task= ccsd_t_6tasks(
@@ -145,12 +168,21 @@ c     stagger start of loop
       do k=1,task_thresh-1
 c
          if (next.eq.count) then
+#ifdef USE_F90_ALLOCATABLE
+            call ccsd_t_loop(k,energy1,energy2,
+     &              int_mb(k_list),int_mb(k_range),int_mb(k_offset),
+     &              f_singles,f_doubles,
+     &              k_t1_local,k_t1_offset,
+     &              d_t2,d_v2,k_t2_offset,k_v2_offset,
+     &              restricted,k_evl_sorted,size)
+#else
             call ccsd_t_loop(k,energy1,energy2,
      &              int_mb(k_list),int_mb(k_range),int_mb(k_offset),
      &              dbl_mb(k_singles),dbl_mb(k_doubles),
      &              k_t1_local,k_t1_offset,
      &              d_t2,d_v2,k_t2_offset,k_v2_offset,
      &              restricted,k_evl_sorted,size)
+#endif
 c
             if(ga_nodeid().eq.2) then
                pct_progr=(k*n_progr)/tot_task
@@ -176,12 +208,21 @@ c
          count=0
          do k=task_thresh,tot_task
             if (next.eq.count) then
+#ifdef USE_F90_ALLOCATABLE
+               call ccsd_t_loop(k,energy1,energy2,
+     &                 int_mb(k_list),int_mb(k_range),int_mb(k_offset),
+     &                 f_singles,f_doubles,
+     &                 k_t1_local,k_t1_offset,
+     &                 d_t2,d_v2,k_t2_offset,k_v2_offset,
+     &                 restricted,k_evl_sorted,size)
+#else
                call ccsd_t_loop(k,energy1,energy2,
      &                 int_mb(k_list),int_mb(k_range),int_mb(k_offset),
      &                 dbl_mb(k_singles),dbl_mb(k_doubles),
      &                 k_t1_local,k_t1_offset,
      &                 d_t2,d_v2,k_t2_offset,k_v2_offset,
      &                 restricted,k_evl_sorted,size)
+#endif
 c
                next = nxtask(nprocs,k_grain)
                if(ga_nodeid().eq.2) then
@@ -201,20 +242,36 @@ c
          enddo
       endif
       endif
+
+      if (.not.MA_POP_STACK(l_list))
+     1     call errquit('ordering',3,MA_ERR)
+#ifdef USE_F90_ALLOCATABLE
 #ifdef USE_OFFLOAD
-c  dealloc
+      call offl_free(f_doubles,size)
+      triplesx_alloced=.false.
+      call offl_free(f_singles,size)
+      triplesx1_alloced=.false.
+#endif
+      deallocate( f_doubles, stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t doubles',3,MA_ERR)
+      endif
+      deallocate( f_singles, stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t singles',4,MA_ERR)
+      endif
+#else
+#ifdef USE_OFFLOAD
       call offl_free(dbl_mb(k_doubles),size)
       triplesx_alloced=.false.
       call offl_free(dbl_mb(k_singles),size)
       triplesx1_alloced=.false.
 #endif
-
-      if (.not.MA_POP_STACK(l_list))
-     1     call errquit('ordering',3,MA_ERR)
       if (.not.MA_POP_STACK(l_doubles))
      1     call errquit('ccsd_t doubles',3,MA_ERR)
       if (.not.MA_POP_STACK(l_singles))
      1     call errquit('ccsd_t singles',4,MA_ERR)
+#endif
       next = nxtask(-nprocs,k_grain)
 c      call ga_sync()
       energy(1) = energy1
