@@ -34,11 +34,10 @@ ifdef TCE_CUDA
 endif
 
 LIB_DEFINES += -DDEBUG_PRINT
+
 ifdef OPENMP_OFFLOAD
-LIB_DEFINES += -DOPENMP_OFFLOAD
+ LIB_DEFINES += -DOPENMP_OFFLOAD
 endif
-# This uses Fortran memory allocation, which is necessary on KNL.
-# #LIB_DEFINES += -DUSE_F90_ALLOCATABLE
 
 #
 # Possible #defines

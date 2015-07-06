@@ -18,9 +18,6 @@ USES_BLAS = ccsd_e.F ccsd_t1.F ccsd_t2.F cc2_t1.F cc2_t2.F \
 
 LIB_DEFINES = -DDEBUG_PRINT
 
-# This uses Fortran memory allocation, which is necessary on KNL.
-#LIB_DEFINES += -DUSE_F90_ALLOCATABLE
-
 # This replaces 3*TCE_SORT4+DGEMM with 6D loops (ccsd_kernels.F).
 #LIB_DEFINES += -DUSE_LOOPS_NOT_DGEMM
 

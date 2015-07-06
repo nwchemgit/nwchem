@@ -2382,6 +2382,10 @@ ifdef TCE_CUDA
  CORE_LIBS += $(CUDA_LIBS)
 endif
 
+ifdef USE_F90_ALLOCATABLE
+ DEFINES += -DUSE_F90_ALLOCATABLE
+endif
+
 # lower level libs used by communication libraries 
  
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
