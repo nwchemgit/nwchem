@@ -1,3 +1,11 @@
+!
+! History: At one point, all the sortacc4 routines were explicit loops.
+!          These were carefully eliminated in favor of calls to the
+!          potentially optimized subroutine.  The loops remain in the
+!          comments since back-translating - if ever necessary - would
+!          be tedious otherwise.
+!                                   - Jeff Hammond, 2015
+!
       subroutine get_block_ind(d_file,array,size,key_ix,indexc)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
@@ -922,195 +930,154 @@ c
 c
 c --- ( g3 g1 | g4 g2 )
         if((.not.lp31p42).and.(.not.l31s).and.(.not.l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size1+g1-1)*size3+g3-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 3142000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size1+g1-1)*size3+g3-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 3142000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,4,2,3,1,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
-c#endif
          go to 200
         end if
 c --- ( g3 g1 | g2 g4 )
         if((.not.lp31p42).and.(.not.l31s).and.(l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size1+g1-1)*size3+g3-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 3124000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size1+g1-1)*size3+g3-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 3124000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size4,size2,size1,size3,4,1,3,2,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 200
         end if
 c --- ( g1 g3 | g4 g2 )
         if((.not.lp31p42).and.(l31s).and.(.not.l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size3+g3-1)*size1+g1-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 1342000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size3+g3-1)*size1+g1-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 1342000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size4,size3,size1,3,2,4,1,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 200
         end if
 c --- ( g1 g3 | g2 g4 )
         if((.not.lp31p42).and.(l31s).and.(l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size3+g3-1)*size1+g1-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 1324000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size3+g3-1)*size1+g1-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 1324000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size4,size2,size3,size1,3,1,4,2,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 200
         end if
 c --- ( g4 g2 | g3 g1 )
         if((lp31p42).and.(.not.l31s).and.(.not.l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size2+g2-1)*size4+g4-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 4231000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size2+g2-1)*size4+g4-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 4231000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size3,size2,size4,2,4,1,3,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 200
         end if
 c --- ( g4 g2 | g1 g3 )
         if((lp31p42).and.(l31s).and.(.not.l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size2+g2-1)*size4+g4-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 4213000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size2+g2-1)*size4+g4-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 4213000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size1,size2,size4,1,4,2,3,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 200
         end if
 c --- ( g2 g4 | g3 g1 )
         if((lp31p42).and.(.not.l31s).and.(l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size4+g4-1)*size2+g2-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 2431000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size4+g4-1)*size2+g2-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 2431000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size3,size4,size2,2,3,1,4,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 200
         end if
 c --- ( g2 g4 | g1 g3 )
         if((lp31p42).and.(l31s).and.(l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size4+g4-1)*size2+g2-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 2413000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size4+g4-1)*size2+g2-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 2413000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size1,size4,size2,1,3,2,4,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 200
         end if
 c
@@ -1190,196 +1157,154 @@ c
 c
 c --- ( g3 g2 | g4 g1 )
         if((.not.lp32p41).and.(.not.l32s).and.(.not.l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size2+g2-1)*size3+g3-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 3241001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size2+g2-1)*size3+g3-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 3241001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size2,size3,4,2,1,3,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 300
         end if
 c --- ( g3 g2 | g1 g4 )
         if((.not.lp32p41).and.(.not.l32s).and.(l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size2+g2-1)*size3+g3-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 3214001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size2+g2-1)*size3+g3-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 3214001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,4,1,2,3,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 300
         end if
 c --- ( g2 g3 | g4 g1 )
         if((.not.lp32p41).and.(l32s).and.(.not.l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size3+g3-1)*size2+g2-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 2341001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size3+g3-1)*size2+g2-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 2341001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size3,size2,3,2,1,4,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 300
         end if
 c --- ( g2 g3 | g1 g4 )
         if((.not.lp32p41).and.(l32s).and.(l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-c         call zero_array(array,size,size1,size2,size3,size4)
-c         call zero_array(array2,size,size1,size2,size3,size4)
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size3+g3-1)*size2+g2-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 2314001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size3+g3-1)*size2+g2-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 2314001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size3,size2,3,1,2,4,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 300
         end if
 c --- ( g4 g1 | g3 g2 )
         if((lp32p41).and.(.not.l32s).and.(.not.l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size1+g1-1)*size4+g4-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 4132001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size1+g1-1)*size4+g4-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 4132001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size3,size1,size4,2,4,3,1,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 300
         end if
 c --- ( g4 g1 | g2 g3 )
         if((lp32p41).and.(l32s).and.(.not.l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size1+g1-1)*size4+g4-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 4123001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size1+g1-1)*size4+g4-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 4123001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size2,size1,size4,1,4,3,2,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 300
         end if
 c --- ( g1 g4 | g3 g2 )
         if((lp32p41).and.(.not.l32s).and.(l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size4+g4-1)*size1+g1-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 1432001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size4+g4-1)*size1+g1-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 1432001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,2,3,4,1,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 300
         end if
 c --- ( g1 g4 | g2 g3 )
         if((lp32p41).and.(l32s).and.(l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size4+g4-1)*size1+g1-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 1423001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size4+g4-1)*size1+g1-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 1423001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size2,size1,size4,1,3,4,2,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)                    dummy)
          go to 300
         end if
 c
@@ -1669,195 +1594,154 @@ c
 c
 c --- ( g3 g1 | g4 g2 )
         if((.not.lp31p42).and.(.not.l31s).and.(.not.l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size1+g1-1)*size3+g3-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 3142000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size1+g1-1)*size3+g3-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 3142000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,4,2,3,1,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
-c#endif
          go to 200
         end if
 c --- ( g3 g1 | g2 g4 )
         if((.not.lp31p42).and.(.not.l31s).and.(l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size1+g1-1)*size3+g3-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 3124000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size1+g1-1)*size3+g3-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 3124000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size4,size2,size1,size3,4,1,3,2,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 200
         end if
 c --- ( g1 g3 | g4 g2 )
         if((.not.lp31p42).and.(l31s).and.(.not.l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size3+g3-1)*size1+g1-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 1342000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g2-1)*size4+g4-1)*size3+g3-1)*size1+g1-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 1342000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size4,size3,size1,3,2,4,1,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 200
         end if
 c --- ( g1 g3 | g2 g4 )
         if((.not.lp31p42).and.(l31s).and.(l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size3+g3-1)*size1+g1-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 1324000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g4-1)*size2+g2-1)*size3+g3-1)*size1+g1-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 1324000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size4,size2,size3,size1,3,1,4,2,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 200
         end if
 c --- ( g4 g2 | g3 g1 )
         if((lp31p42).and.(.not.l31s).and.(.not.l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size2+g2-1)*size4+g4-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 4231000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size2+g2-1)*size4+g4-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 4231000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size3,size2,size4,2,4,1,3,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 200
         end if
 c --- ( g4 g2 | g1 g3 )
         if((lp31p42).and.(l31s).and.(.not.l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size2+g2-1)*size4+g4-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 4213000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size2+g2-1)*size4+g4-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 4213000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size1,size2,size4,1,4,2,3,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 200
         end if
 c --- ( g2 g4 | g3 g1 )
         if((lp31p42).and.(.not.l31s).and.(l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size4+g4-1)*size2+g2-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 2431000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g1-1)*size3+g3-1)*size4+g4-1)*size2+g2-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 2431000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size3,size4,size2,2,3,1,4,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 200
         end if
 c --- ( g2 g4 | g1 g3 )
         if((lp31p42).and.(l31s).and.(l42s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) +
-     1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size4+g4-1)*size2+g2-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 2413000
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) +
+c     1    dbl_mb(k_a+(((g3-1)*size1+g1-1)*size4+g4-1)*size2+g2-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 2413000
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size1,size4,size2,1,3,2,4,1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 200
         end if
 c
@@ -1946,196 +1830,154 @@ c
 c
 c --- ( g3 g2 | g4 g1 )
         if((.not.lp32p41).and.(.not.l32s).and.(.not.l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size2+g2-1)*size3+g3-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 3241001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size2+g2-1)*size3+g3-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 3241001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size2,size3,4,2,1,3,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 300
         end if
 c --- ( g3 g2 | g1 g4 )
         if((.not.lp32p41).and.(.not.l32s).and.(l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size2+g2-1)*size3+g3-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 3214001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size2+g2-1)*size3+g3-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 3214001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,4,1,2,3,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 300
         end if
 c --- ( g2 g3 | g4 g1 )
         if((.not.lp32p41).and.(l32s).and.(.not.l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size3+g3-1)*size2+g2-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 2341001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g1-1)*size4+g4-1)*size3+g3-1)*size2+g2-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 2341001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size3,size2,3,2,1,4,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 300
         end if
 c --- ( g2 g3 | g1 g4 )
         if((.not.lp32p41).and.(l32s).and.(l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-c         call zero_array(array,size,size1,size2,size3,size4)
-c         call zero_array(array2,size,size1,size2,size3,size4)
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size3+g3-1)*size2+g2-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 2314001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g4-1)*size1+g1-1)*size3+g3-1)*size2+g2-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 2314001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size1,size4,size3,size2,3,1,2,4,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 300
         end if
 c --- ( g4 g1 | g3 g2 )
         if((lp32p41).and.(.not.l32s).and.(.not.l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size1+g1-1)*size4+g4-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 4132001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size1+g1-1)*size4+g4-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 4132001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size3,size1,size4,2,4,3,1,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 300
         end if
 c --- ( g4 g1 | g2 g3 )
         if((lp32p41).and.(l32s).and.(.not.l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size1+g1-1)*size4+g4-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 4123001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size1+g1-1)*size4+g4-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 4123001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size2,size1,size4,1,4,3,2,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 300
         end if
 c --- ( g1 g4 | g3 g2 )
         if((lp32p41).and.(.not.l32s).and.(l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size4+g4-1)*size1+g1-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 1432001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g2-1)*size3+g3-1)*size4+g4-1)*size1+g1-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 1432001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size2,size1,size4,size3,2,3,4,1,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 300
         end if
 c --- ( g1 g4 | g2 g3 )
         if((lp32p41).and.(l32s).and.(l41s)) then
-c         call copy_array(array2,array,size,size1,size2,size3,size4)
-#ifdef LOOPS
-         i = 0
-         do g3 = 1,int_mb(k_range+g3b-1)
-         do g4 = 1,int_mb(k_range+g4b-1)
-         do g1 = 1,int_mb(k_range+g1b-1)
-         do g2 = 1,int_mb(k_range+g2b-1)
-         i=i+1
-          array(i) = array(i) -
-     1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size4+g4-1)*size1+g1-1)
-         enddo
-         enddo
-         enddo
-         enddo
-         dummy = 1423001
-#endif
+c         i = 0
+c         do g3 = 1,int_mb(k_range+g3b-1)
+c         do g4 = 1,int_mb(k_range+g4b-1)
+c         do g1 = 1,int_mb(k_range+g1b-1)
+c         do g2 = 1,int_mb(k_range+g2b-1)
+c         i=i+1
+c          array(i) = array(i) -
+c     1    dbl_mb(k_a+(((g3-1)*size2+g2-1)*size4+g4-1)*size1+g1-1)
+c         enddo
+c         enddo
+c         enddo
+c         enddo
+c         dummy = 1423001
          call tce_sortacc_4(dbl_mb(k_a),array,
      &                      size3,size2,size1,size4,1,3,4,2,-1.0d0)
-c         call test_array(array2,array,size,size1,size2,size3,size4,
-c          &                    dummy)
          go to 300
         end if
 c
@@ -2156,15 +1998,11 @@ c      cpusecs(55) = cpusecs(55) + util_wallsec()
       return
       end
 
-#ifdef LOOPS
+#if 0
 
       subroutine copy_array(array2,array,size,size1,size2,size3,size4)
       implicit none
-c#include "util.fh"
-c#include "stdio.fh"
 #include "errquit.fh"
-c#include "tce.fh"
-c#include "tce_main.fh"
       integer size,i
       double precision array(size)
       double precision array2(size)
@@ -2189,11 +2027,7 @@ c#include "tce_main.fh"
       subroutine test_array(array2,array,size,size1,size2,size3,size4,
      &                      dummy)
       implicit none
-c#include "util.fh"
-c#include "stdio.fh"
 #include "errquit.fh"
-c#include "tce.fh"
-c#include "tce_main.fh"
       integer size,dummy,i
       double precision array(size)
       double precision array2(size)
@@ -2227,11 +2061,7 @@ c#include "tce_main.fh"
 
       subroutine zero_array(array,size,size1,size2,size3,size4)
       implicit none
-c#include "util.fh"
-c#include "stdio.fh"
 #include "errquit.fh"
-c#include "tce.fh"
-c#include "tce_main.fh"
       integer size,i
       double precision array(size)
       integer g1,g2,g3,g4
