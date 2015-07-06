@@ -6348,7 +6348,7 @@ c
       count = 0
       next = nxtask(nprocs, 1)
 c
-      if (.not.ma_push_get(mt_dbl,tile_dim**4,'c',l_c,k_c)) 
+      if (.not.ma_push_get(mt_dbl,tile_dim**4,'c',l_c,k_c))
      1     call errquit('ccsd_t2_8',9,MA_ERR)
 c
       do p3b = noab+1,noab+nvab
@@ -6377,7 +6377,7 @@ c
           spn56 = spn5 + spn6
           sym56 = ieor(sym5,sym6)
 c
-          dimb  = dim34 * dim56 
+          dimb  = dim34 * dim56
 c
           if ( (dimb.gt.0) .and. (ieor(sym34,sym56).eq.0)
      1         .and. (spn34.eq.spn56) ) then
@@ -6387,29 +6387,29 @@ c
            call tce_restricted_4(p3b,p4b,p5b,p6b,
      1                           p3b_2,p4b_2,p5b_2,p6b_2)
 c
-           if (.not.ma_push_get(mt_dbl,dimb,'bs',l_bs,k_bs)) 
+           if (.not.ma_push_get(mt_dbl,dimb,'bs',l_bs,k_bs))
      1              call errquit('ccsd_t2_8',4,MA_ERR)
-           if (.not.ma_push_get(mt_dbl,dimb,'b',l_b,k_b)) 
+           if (.not.ma_push_get(mt_dbl,dimb,'b',l_b,k_b))
      1              call errquit('ccsd_t2_8',5,MA_ERR)
 c
            if(.not.intorb) then
             call get_hash_block(d_b,dbl_mb(k_b),dimb,
      1           int_mb(k_b_offset),
-     2           (p6b_2 - 1 + (noab+nvab) * (p5b_2 - 1 + 
-     3           (noab+nvab) * (p4b_2 - 1 + (noab+nvab) * 
+     2           (p6b_2 - 1 + (noab+nvab) * (p5b_2 - 1 +
+     3           (noab+nvab) * (p4b_2 - 1 + (noab+nvab) *
      4           (p3b_2 - 1)))))
            else
             call get_hash_block_i(d_b,dbl_mb(k_b),dimb,
      1           int_mb(k_b_offset),
-     2           (p6b_2 - 1 + (noab+nvab) * (p5b_2 - 1 + 
-     3           (noab+nvab) * (p4b_2 - 1 + (noab+nvab) * 
+     2           (p6b_2 - 1 + (noab+nvab) * (p5b_2 - 1 +
+     3           (noab+nvab) * (p4b_2 - 1 + (noab+nvab) *
      4           (p3b_2 - 1)))),p6b_2,p5b_2,p4b_2,p3b_2)
            end if
 c
            call tce_sort_4(dbl_mb(k_b),dbl_mb(k_bs),
      1          dim3,dim4,dim5,dim6,2,1,4,3,1.0d0)
 c
-           if (.not.ma_pop_stack(l_b)) 
+           if (.not.ma_pop_stack(l_b))
      1              call errquit('ccsd_t2_8',6,MA_ERR)
 c
            do h1b = 1,noab
@@ -6437,29 +6437,29 @@ c
                 if ((.not.restricted).or.((spn34+spn12).ne.8)) then
                  if (ieor(sym34,sym12).eq.0) then
                   if (ieor(sym56,sym12).eq.0) then
-c 
+c
                    dimc  = dim12 * dim34
-c 
-                   if (.not.ma_push_get(mt_dbl,dimc,'cs',l_cs,k_cs)) 
+c
+                   if (.not.ma_push_get(mt_dbl,dimc,'cs',l_cs,k_cs))
      1                 call errquit('ccsd_t2_8',0,MA_ERR)
-c 
+c
                    call dfill(dimc,0.0d0,dbl_mb(k_cs),1)
-c 
-                   if (.not.ma_push_get(mt_dbl,dima,'as',l_as,k_as)) 
+c
+                   if (.not.ma_push_get(mt_dbl,dima,'as',l_as,k_as))
      1                 call errquit('ccsd_t2_8',1,MA_ERR)
-                   if (.not.ma_push_get(mt_dbl,dima,'a',l_a,k_a)) 
+                   if (.not.ma_push_get(mt_dbl,dima,'a',l_a,k_a))
      1                 call errquit('ccsd_t2_8',2,MA_ERR)
-c 
+c
                    call get_hash_block(d_a,dbl_mb(k_a),dima,
      1                  int_mb(k_a_offset),
-     2                  (h2b_1 - 1 + noab * (h1b_1 - 1 + noab * 
-     3                  (p6b_1 - noab - 1 + nvab * 
+     2                  (h2b_1 - 1 + noab * (h1b_1 - 1 + noab *
+     3                  (p6b_1 - noab - 1 + nvab *
      4                  (p5b_1 - noab - 1)))))
-c 
+c
                    call tce_sort_4(dbl_mb(k_a),dbl_mb(k_as),
      1                  dim5,dim6,dim1,dim2,4,3,2,1,1.0d0)
 c
-                   if (.not.ma_pop_stack(l_a)) 
+                   if (.not.ma_pop_stack(l_a))
      1                 call errquit('ccsd_t2_8',3,MA_ERR)
 c
                    if (p5b .eq. p6b) then
@@ -6471,19 +6471,19 @@ c
      2                  dbl_mb(k_as),dim56,dbl_mb(k_bs),dim56,
      3                  1.0d0,dbl_mb(k_cs),dim12)
 c
-                   if (.not.ma_pop_stack(l_as)) 
+                   if (.not.ma_pop_stack(l_as))
      1                 call errquit('ccsd_t2_8',8,MA_ERR)
 c
                    call ga_nbwait(nbh) ! wait until previous put of c is gone before overwriting buffer
 c
                    call tce_sort_4(dbl_mb(k_cs),dbl_mb(k_c),
-     1                  dim4,dim3,dim2,dim1,2,1,4,3,0.5d0) 
-c 
+     1                  dim4,dim3,dim2,dim1,2,1,4,3,0.5d0)
+c
                    call add_hash_block_nb(d_c,dbl_mb(k_c),dimc,
      1                  int_mb(k_c_offset),(h2b-1+noab*(h1b-1+noab*
      2                  (p4b-noab-1+nvab*(p3b-noab-1)))),nbh)
-c 
-                   if (.not.ma_pop_stack(l_cs)) 
+c
+                   if (.not.ma_pop_stack(l_cs))
      1                 call errquit('ccsd_t2_8',11,MA_ERR)
 c
                   end if
@@ -6497,7 +6497,7 @@ c
             end do
            end do
 c
-           if (.not.ma_pop_stack(l_bs)) 
+           if (.not.ma_pop_stack(l_bs))
      1              call errquit('ccsd_t2_8',7,MA_ERR)
 c
             next = NXTASK(nprocs, 1)
@@ -6511,7 +6511,7 @@ c
        end do
       end do
 c
-      if (.not.ma_pop_stack(l_c)) 
+      if (.not.ma_pop_stack(l_c))
      1    call errquit('ccsd_t2_8',10,MA_ERR)
 c
       next = NXTASK(-nprocs, 1)
