@@ -152,7 +152,7 @@ c         can be replaced by go to 360 if you do not have "error"
       do 10 j=1,i
    10 x(i,j)=a(i,j)
 c
-c     householder's reduction
+c     householder reduction
 c     simulation of loop do 150 i=n,2,(-1)
 c
       do 150 ni=2,n
@@ -421,7 +421,7 @@ c
       do 10 j=1,i
    10 x(i,j)=a(i,j)
 c
-c     householder's reduction
+c     householder reduction
 c     simulation of loop do 150 i=n,2,(-1)
 c
       do 150 ni=2,n
@@ -618,7 +618,7 @@ c     call vec_$dzero (a,n)
       dimension tmat(1)
 c
 c     this subroutine multiplies an array by a constant
-c     this is  jmb's invention; it is the same as dscal
+c     this is jmb invention; it is the same as dscal
       call  dscal(num,con,tmat,1)
 c
       end
@@ -627,7 +627,7 @@ c
       dimension amat(1),vold(1),vnew(1)
 c
 c     this subroutine multiplies a triangular matrix by a column vector
-c     and returns a new column vector.  vnew can't be same place as vold
+c     and returns a new column vector.  vnew cannot be same place as vold
 c
       n=num
       do 13 i=1,n
@@ -706,7 +706,7 @@ c
       dimension amat(1), vecin(1), vecout(1)
 c
 c     multiplies amat(t) times a vector starting from stcol to stcol+ind
-c     looks like josep bofill's creation
+c     looks like josep bofill creation
       ist=istcol
       ic=icol
       id=idime
@@ -804,7 +804,7 @@ c main interpretative problem is that mamu performs b*a matrix multiplication
 c whereas mxma performs a*b.
 c mamu works with either square or triangular matrices according to
 c arguments k,l,m, whereas mxma requires squares only.
-c n.b. in pulay's group mxma may not take the same array address twice.
+c n.b. in pulay group mxma may not take the same array address twice.
 c
 c     subroutine mamu (b,a,c,k,l,m,n,w)
 c     implicit double precision (a-h,o-z)
@@ -894,40 +894,40 @@ c     code is widely used on the crays
 c     the buffer size has been roughly optimized for the apollo dn10k
       ir=1
       do 3 j=1,nrow
-      irr=ir
-       do 2 i=1,ncol
-c       ncol is the number of rows. the dutch mind is perplexing
-         r(irr)=0.0d0
-         irr=irr+mcolr
- 2     continue
-       ir=ir+mrowr
- 3     continue
+        irr=ir
+        do 2 i=1,ncol
+c        ncol is the number of rows. the dutch mind is perplexing
+          r(irr)=0.0d0
+          irr=irr+mcolr
+ 2      continue
+        ir=ir+mrowr
+ 3    continue
       do 1400 ii=1,ncol,nb
-        ie=min0(ii+nb-1,ncol)
-        ie1=ie-ii+1
-        ie2=3*(ie1/3)
-c       write(*,*) ie,ie1
+          ie=min0(ii+nb-1,ncol)
+          ie1=ie-ii+1
+          ie2=3*(ie1/3)
+c         write(*,*) ie,ie1
           do 1300 jj=1,nrow,nb
-		je=min0(jj+nb-1,nrow)
-		je1=je-jj+1
+            je=min0(jj+nb-1,nrow)
+            je1=je-jj+1
             je2=3*(je1/3)
 c      make sure that ie2 and je2 are divisible by 3 for the
 c      loop unrolling
-		ir=(ii-1)*mcolr+(jj-1)*mrowr+1
-		do 200 i=1,ie1
-	            irr=ir
+            ir=(ii-1)*mcolr+(jj-1)*mrowr+1
+            do 200 i=1,ie1
+              irr=ir
               do 100 j=1,je1
 c               rr(i,j)=r(irr)
                 rr(i,j)=0.0d0
                 irr=irr+mrowr
  100          continue
-	            ir=ir+mcolr
+              ir=ir+mcolr
  200        continue
-    	  do 1000 kk=1,nlink,nb
-		  ke=min0(kk+nb-1,nlink)
-		  ke1=ke-kk+1
-		  ia=(ii-1)*mcola+(kk-1)*mrowa+1
-		  do 400 i=1,ie1
+            do 1000 kk=1,nlink,nb
+              ke=min0(kk+nb-1,nlink)
+              ke1=ke-kk+1
+              ia=(ii-1)*mcola+(kk-1)*mrowa+1
+              do 400 i=1,ie1
                 iaa=ia
                 do 300 k=1,ke1
                   aa(k,i)=a(iaa)
@@ -935,81 +935,81 @@ c               rr(i,j)=r(irr)
  300            continue
                 ia=ia+mcola
  400          continue
-    	    ib=(kk-1)*mcolb+(jj-1)*mrowb+1
-		    do 600 j=1,je1
-		      ibb=ib
-		      do 500 k=1,ke1
-		        bb(k,j)=b(ibb)
-		        ibb=ibb+mcolb
- 500              continue
-                  ib=ib+mrowb
- 600            continue
-    	      do 900 i=1,ie2,3
-		        do 800 j=1,je2,3
-		        s00=rr(i,j)
-		        s10=rr(i+1,j)
-                    s20=rr(i+2,j)
-		        s01=rr(i,j+1)
-		        s11=rr(i+1,j+1)
-                    s21=rr(i+2,j+1)
-                    s02=rr(i,j+2)
-                    s12=rr(i+1,j+2)
-                    s22=rr(i+2,j+2)
-		        do 700 k=1,ke1
-			s00=s00+aa(k,i)*bb(k,j)
-			s01=s01+aa(k,i)*bb(k,j+1)
-                      s02=s02+aa(k,i)*bb(k,j+2)
-			s10=s10+aa(k,i+1)*bb(k,j)
-			s11=s11+aa(k,i+1)*bb(k,j+1)
-                      s12=s12+aa(k,i+1)*bb(k,j+2)
-                      s20=s20+aa(k,i+2)*bb(k,j)
-                      s21=s21+aa(k,i+2)*bb(k,j+1)
-                      s22=s22+aa(k,i+2)*bb(k,j+2)
- 700                continue
-                    rr(i,j)=s00
-	       	        rr(i+1,j)=s10
-                    rr(i+2,j)=s20
-  	        rr(i,j+1)=s01
-		        rr(i+1,j+1)=s11
-                    rr(i+2,j+1)=s21
-                    rr(i,j+2)=s02
-                    rr(i+1,j+2)=s12
-                    rr(i+2,j+2)=s22
- 800              continue
-                  do 820 j=je2+1,je1
-                    s00=rr(i,j)
-                    s10=rr(i+1,j)
-                    s20=rr(i+2,j)
-                    do 810 k=1,ke1
-			s00=s00+aa(k,i)*bb(k,j)
-			s10=s10+aa(k,i+1)*bb(k,j)
-                      s20=s20+aa(k,i+2)*bb(k,j)
- 810             continue
-                    rr(i,j)=s00
-	       	        rr(i+1,j)=s10
-                    rr(i+2,j)=s20
- 820             continue
- 900             continue
-                 do 950 i=ie2+1,ie1
-                  do 940 j=1,je1
-                   do 930 k=1,ke1
-                    rr(i,j)=rr(i,j)+aa(k,i)*bb(k,j)
- 930               continue
- 940              continue
- 950             continue
- 1000           continue
-	              ir=(ii-1)*mcolr+(jj-1)*mrowr+1
-		    do 1200 i=1,ie1
-		      irr=ir
-		      do 1100 j=1,je1
-		        r(irr)=r(irr)+rr(i,j)
-                    irr=irr+mrowr
- 1100             continue
-                 ir=ir+mcolr
- 1200            continue
- 1300           continue
- 1400          continue
-	        end
+              ib=(kk-1)*mcolb+(jj-1)*mrowb+1
+              do 600 j=1,je1
+                ibb=ib
+                do 500 k=1,ke1
+                  bb(k,j)=b(ibb)
+                  ibb=ibb+mcolb
+ 500            continue
+                ib=ib+mrowb
+ 600          continue
+              do 900 i=1,ie2,3
+                do 800 j=1,je2,3
+                  s00=rr(i,j)
+                  s10=rr(i+1,j)
+                  s20=rr(i+2,j)
+                  s01=rr(i,j+1)
+                  s11=rr(i+1,j+1)
+                  s21=rr(i+2,j+1)
+                  s02=rr(i,j+2)
+                  s12=rr(i+1,j+2)
+                  s22=rr(i+2,j+2)
+                  do 700 k=1,ke1
+                    s00=s00+aa(k,i)*bb(k,j)
+                    s01=s01+aa(k,i)*bb(k,j+1)
+                    s02=s02+aa(k,i)*bb(k,j+2)
+                    s10=s10+aa(k,i+1)*bb(k,j)
+                    s11=s11+aa(k,i+1)*bb(k,j+1)
+                    s12=s12+aa(k,i+1)*bb(k,j+2)
+                    s20=s20+aa(k,i+2)*bb(k,j)
+                    s21=s21+aa(k,i+2)*bb(k,j+1)
+                    s22=s22+aa(k,i+2)*bb(k,j+2)
+ 700              continue
+                  rr(i,j)=s00
+                  rr(i+1,j)=s10
+                  rr(i+2,j)=s20
+                  rr(i,j+1)=s01
+                  rr(i+1,j+1)=s11
+                  rr(i+2,j+1)=s21
+                  rr(i,j+2)=s02
+                  rr(i+1,j+2)=s12
+                  rr(i+2,j+2)=s22
+ 800            continue
+                do 820 j=je2+1,je1
+                  s00=rr(i,j)
+                  s10=rr(i+1,j)
+                  s20=rr(i+2,j)
+                  do 810 k=1,ke1
+                    s00=s00+aa(k,i)*bb(k,j)
+                    s10=s10+aa(k,i+1)*bb(k,j)
+                    s20=s20+aa(k,i+2)*bb(k,j)
+ 810              continue
+                  rr(i,j)=s00
+                  rr(i+1,j)=s10
+                  rr(i+2,j)=s20
+ 820            continue
+ 900          continue
+              do 950 i=ie2+1,ie1
+               do 940 j=1,je1
+                do 930 k=1,ke1
+                 rr(i,j)=rr(i,j)+aa(k,i)*bb(k,j)
+ 930            continue
+ 940           continue
+ 950          continue
+ 1000       continue
+            ir=(ii-1)*mcolr+(jj-1)*mrowr+1
+            do 1200 i=1,ie1
+              irr=ir
+              do 1100 j=1,je1
+                r(irr)=r(irr)+rr(i,j)
+                irr=irr+mrowr
+ 1100         continue
+              ir=ir+mcolr
+ 1200       continue
+ 1300     continue
+ 1400 continue
+      end
       subroutine nerror(noer,routine,message,n1,n2)
 #include "errquit.fh"
       character*(*) routine
