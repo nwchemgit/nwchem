@@ -102,7 +102,7 @@ c      call util_align64(size)
       triplesx1_alloced=.true.
       call offl_alloc(dbl_mb(k_doubles),size)
       triplesx_alloced=.true.
-#endif    
+#endif
       wall=-util_wallsec()
       tot_task= ccsd_t_6tasks(
      R     restricted,noab,nvab,
@@ -146,21 +146,21 @@ c     stagger start of loop
 c
          if (next.eq.count) then
             call ccsd_t_loop(k,energy1,energy2,
-     L         int_mb(k_list),int_mb(k_range),int_mb(k_offset),
-     D         dbl_mb(k_singles),dbl_mb(k_doubles),
-     i         k_t1_local,k_t1_offset,d_t2,d_v2,k_t2_offset,k_v2_offset,
-     C         restricted,k_evl_sorted,size)
+     &              int_mb(k_list),int_mb(k_range),int_mb(k_offset),
+     &              dbl_mb(k_singles),dbl_mb(k_doubles),
+     &              k_t1_local,k_t1_offset,
+     &              d_t2,d_v2,k_t2_offset,k_v2_offset,
+     &              restricted,k_evl_sorted,size)
 c
-
             if(ga_nodeid().eq.2) then
                pct_progr=(k*n_progr)/tot_task
                if(i_progr(pct_progr)) then
                   i_progr(pct_progr)=.false.
-                  write(6,'(a,i5,a,i4,a,f15.1,a,f9.1)') 
-     T           '0task ',k,'  done ',
-     K                 int((k*100d0)/tot_task),'%  at',
-     W                 wall+util_wallsec(),' sec, (size)^1/6= ',
-     W                 (size)**(1d0/6d0)
+                  write(6,'(a,i5,a,i4,a,f15.1,a,f9.1)')
+     &                  '0task ',k,'  done ',
+     &                  int((k*100d0)/tot_task),'%  at',
+     &                  wall+util_wallsec(),' sec, (size)^1/6= ',
+     &                  (size)**(1d0/6d0)
                   call util_flush(6)
                endif
             endif
@@ -177,21 +177,22 @@ c
          do k=task_thresh,tot_task
             if (next.eq.count) then
                call ccsd_t_loop(k,energy1,energy2,
-     L         int_mb(k_list),int_mb(k_range),int_mb(k_offset),
-     D         dbl_mb(k_singles),dbl_mb(k_doubles),
-     i         k_t1_local,k_t1_offset,d_t2,d_v2,k_t2_offset,k_v2_offset,
-     C              restricted,k_evl_sorted,size)
-c     
+     &                 int_mb(k_list),int_mb(k_range),int_mb(k_offset),
+     &                 dbl_mb(k_singles),dbl_mb(k_doubles),
+     &                 k_t1_local,k_t1_offset,
+     &                 d_t2,d_v2,k_t2_offset,k_v2_offset,
+     &                 restricted,k_evl_sorted,size)
+c
                next = nxtask(nprocs,k_grain)
                if(ga_nodeid().eq.2) then
                   pct_progr=(k*n_progr)/tot_task
                   if(i_progr(pct_progr)) then
                      i_progr(pct_progr)=.false.
-                     write(6,'(a,i8,a,i4,a,f15.1,a,f9.1)') 
-     T                 ' task',k,'  done ',
-     K                    int((k*100d0)/tot_task),'%  at',
-     W                    wall+util_wallsec(),' sec, (size)^1/6= ',
-     W                    (size)**(1d0/6d0)
+                     write(6,'(a,i8,a,i4,a,f15.1,a,f9.1)')
+     &                     ' task',k,'  done ',
+     &                     int((k*100d0)/tot_task),'%  at',
+     &                     wall+util_wallsec(),' sec, (size)^1/6= ',
+     &                     (size)**(1d0/6d0)
                      call util_flush(6)
                   endif
                endif
@@ -210,9 +211,9 @@ c  dealloc
 
       if (.not.MA_POP_STACK(l_list))
      1     call errquit('ordering',3,MA_ERR)
-      if (.not.MA_POP_STACK(l_doubles)) 
+      if (.not.MA_POP_STACK(l_doubles))
      1     call errquit('ccsd_t doubles',3,MA_ERR)
-      if (.not.MA_POP_STACK(l_singles)) 
+      if (.not.MA_POP_STACK(l_singles))
      1     call errquit('ccsd_t singles',4,MA_ERR)
       next = nxtask(-nprocs,k_grain)
 c      call ga_sync()
@@ -228,16 +229,19 @@ c - T1/X1 LOCALIZATION ------
 c ---------------------------
       return
       end
-c     wrapper to ccsd_t_dot because of offload ugliness
-      subroutine ccsd_t_esum(
-     A     a_singles, a_doubles,
-     C     restricted,
-     &                      h1b,h2b,h3b,p4b,p5b,p6b,
-     &                      o_h1,o_h2,o_h3,
-     &                      o_p4,o_p5,o_p6,
-     &                      r_h1,r_h2,r_h3,
-     &                      r_p4,r_p5,r_p6,
-     &                      energy1,energy2)
+
+
+
+
+
+!     wrapper to ccsd_t_dot because of offload ugliness
+      subroutine ccsd_t_esum(a_singles, a_doubles, restricted,
+     &                       h1b,h2b,h3b,p4b,p5b,p6b,
+     &                       o_h1,o_h2,o_h3,
+     &                       o_p4,o_p5,o_p6,
+     &                       r_h1,r_h2,r_h3,
+     &                       r_p4,r_p5,r_p6,
+     &                       energy1,energy2)
       implicit none
 #ifdef OFFLOAD_CODE
 #ifdef OPENMP_OFFLOAD
@@ -263,30 +267,26 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_dot
       if(offload_master()) then
          mic_device=util_micdev()
 CDIR$ OFFLOAD TARGET(mic:mic_device)
-     N  IN(a_singles:length(0) REUSE)  
-     N  IN(a_doubles:length(0) REUSE)  
+     N  IN(a_singles:length(0) REUSE)
+     N  IN(a_doubles:length(0) REUSE)
      N  IN(restricted)
      I  IN(h1b,h2b,h3b,p4b,p5b,p6b)
      I  IN(r_h1,r_h2,r_h3,r_p4,r_p5,r_p6)
-     N  IN(o_h1:length(r_h1))  
-     N  IN(o_h2:length(r_h2))  
-     N  IN(o_h3:length(r_h3))  
-     N  IN(o_p4:length(r_p4))  
-     N  IN(o_p5:length(r_p5))  
-     N  IN(o_p6:length(r_p6))  
+     N  IN(o_h1:length(r_h1))
+     N  IN(o_h2:length(r_h2))
+     N  IN(o_h3:length(r_h3))
+     N  IN(o_p4:length(r_p4))
+     N  IN(o_p5:length(r_p5))
+     N  IN(o_p6:length(r_p6))
      I  INOUT(energy1,energy2)
-         call offl_ccsd_t_dot(
-     C        a_singles,a_doubles,
-     R        restricted,
+         call offl_ccsd_t_dot(a_singles,a_doubles,restricted,
      &        h1b,h2b,h3b,p4b,p5b,p6b,
      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
      &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
      &        energy1,energy2)
          else
 #endif
-            call ccsd_t_dot(
-     C        a_singles,a_doubles,
-     R        restricted,
+            call ccsd_t_dot(a_singles,a_doubles, restricted,
      &        h1b,h2b,h3b,p4b,p5b,p6b,
      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
      &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
@@ -297,28 +297,88 @@ CDIR$ OFFLOAD TARGET(mic:mic_device)
 
       return
       end
-      subroutine offl_free(ttt,l_ttt)
+
+
+
+      subroutine ccsd_t_loop(k,energy1,energy2,
+     &     k_list,k_range,k_offset,a_singles,a_doubles,
+     &     k_t1_local,k_t1_offset,d_t2,d_v2,k_t2_offset,k_v2_offset,
+     &     restricted,k_evl_sorted,size)
       implicit none
-      double precision ttt(*)
-      integer l_ttt
+#include "mafdecls.fh"
+      integer k
+      double precision energy1,energy2
+      integer k_list(7,*)
+      integer k_range(*),k_offset(*)
+      double precision a_singles(*),a_doubles(*)
+      logical restricted
+      integer k_evl_sorted
+      integer k_t1_local,k_t1_offset
+      integer d_t2,d_v2
+      integer k_t2_offset,k_v2_offset
+      integer size
 c
-      integer util_micdev
-      external util_micdev
-      logical offload_master
-      external offload_master
-      integer mic_device
+      integer t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b
+      integer range_p4,range_p5,range_p6
+      integer range_h1,range_h2,range_h3
+      integer offset_p4,offset_p5,offset_p6
+      integer offset_h1,offset_h2,offset_h3
 c
+      t_p4b=k_list(1,k)
+      t_p5b=k_list(2,k)
+      t_p6b=k_list(3,k)
+      t_h1b=k_list(4,k)
+      t_h2b=k_list(5,k)
+      t_h3b=k_list(6,k)
+      range_p4 = k_range(t_p4b)
+      range_p5 = k_range(t_p5b)
+      range_p6 = k_range(t_p6b)
+      range_h1 = k_range(t_h1b)
+      range_h2 = k_range(t_h2b)
+      range_h3 = k_range(t_h3b)
+      offset_p4 = k_evl_sorted+k_offset(t_p4b)-1
+      offset_p5 = k_evl_sorted+k_offset(t_p5b)-1
+      offset_p6 = k_evl_sorted+k_offset(t_p6b)-1
+      offset_h1 = k_evl_sorted+k_offset(t_h1b)-1
+      offset_h2 = k_evl_sorted+k_offset(t_h2b)-1
+      offset_h3 = k_evl_sorted+k_offset(t_h3b)-1
+c
+      size = range_p4 * range_p5 * range_p6
+     &     * range_h1 * range_h2 * range_h3
+c zeroing ---
+      call dcopy(size, 0.0d0, 0, a_singles, 1)
+      call dcopy(size, 0.0d0, 0, a_doubles, 1)
+      call offl_zerofill(a_singles,size)
+      call offl_zerofill(a_doubles,size)
+c -----------
 #ifdef USE_OFFLOAD
-      if(offload_master()) then
-        mic_device=util_micdev()
-cc Free memory on MIC 
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     O     NOCOPY(ttt:length(0) 
-     &   FREE)
-      endif
+      call offl_ccsd_t_singles_l(a_singles,
+     1                 k_t1_local,d_v2,k_t1_offset,k_v2_offset,
+     1                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+#else
+      call ccsd_t_singles_l(a_singles,
+     1                 k_t1_local,d_v2,k_t1_offset,k_v2_offset,
+     1                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
 #endif
+      call ccsd_t_doubles_l(a_doubles,
+     1                 d_t2,d_v2,k_t2_offset,k_v2_offset,
+     1                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
+      call ccsd_t_esum(a_singles,a_doubles,restricted,
+     &                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
+     &                 dbl_mb(offset_h1+1),dbl_mb(offset_h2+1),
+     &                 dbl_mb(offset_h3+1),dbl_mb(offset_p4+1),
+     &                 dbl_mb(offset_p5+1),dbl_mb(offset_p6+1),
+     &                 range_h1,range_h2,range_h3,
+     &                 range_p4,range_p5,range_p6,
+     &                 energy1,energy2)
       return
       end
+
+
+
+!
+! MIC UTILITY CODE (probably belongs in another file)
+!
       subroutine offl_alloc(ttt,l_ttt)
       implicit none
       double precision ttt(*)
@@ -333,13 +393,41 @@ c
 #ifdef USE_OFFLOAD
       if(offload_master()) then
         mic_device=util_micdev()
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device) 
-     N  NOCOPY(ttt:length(l_ttt) 
-     &  ALLOC) 
+!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device)
+     &  NOCOPY(ttt:length(l_ttt)
+     &  ALLOC)
       endif
 #endif
       return
       end
+
+
+
+      subroutine offl_free(ttt,l_ttt)
+      implicit none
+      double precision ttt(*)
+      integer l_ttt
+c
+      integer util_micdev
+      external util_micdev
+      logical offload_master
+      external offload_master
+      integer mic_device
+c
+#ifdef USE_OFFLOAD
+      if(offload_master()) then
+        mic_device=util_micdev()
+cc Free memory on MIC
+!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device)
+     &     NOCOPY(ttt:length(0)
+     &   FREE)
+      endif
+#endif
+      return
+      end
+
+
+
       subroutine offl_zerofill(ttt,l_ttt)
       implicit none
       double precision ttt(*)
@@ -355,89 +443,14 @@ c
 #ifdef USE_OFFLOAD
       if(offload_master()) then
         mic_device=util_micdev()
-!DIR$ OFFLOAD TARGET(mic:mic_device) 
-     N  IN(ttt:length(0) REUSE) 
-     I  IN(l_ttt)
+!DIR$ OFFLOAD TARGET(mic:mic_device)
+     &  IN(ttt:length(0) REUSE)
+     &  IN(l_ttt)
       call offl_zero(ttt,l_ttt)
       endif
 #endif
       return
       end
-      subroutine ccsd_t_loop(k,energy1,energy2,
-     L     k_list,k_range,k_offset,k_singles,k_doubles,
-     i     k_t1_local,k_t1_offset,d_t2,d_v2,k_t2_offset,k_v2_offset,
-     C     restricted,k_evl_sorted,size)
-      implicit none
-#include "mafdecls.fh"
-      integer k
-      double precision energy1,energy2
-      integer k_list(7,*)
-      integer k_range(*),k_offset(*)
-      double precision k_singles(*),k_doubles(*)
-      logical restricted
-      integer k_evl_sorted
-      integer k_t1_local,k_t1_offset
-      integer d_t2,d_v2
-      integer k_t2_offset,k_v2_offset
-      integer size
-c
-      integer t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b
-      integer range_p4,range_p5,range_p6,
-     R     range_h1,range_h2,range_h3
-      integer offset_p4,offset_p5,offset_p6,
-     O     offset_h1,offset_h2,offset_h3
 
-c
-            t_p4b=k_list(1,k)
-            range_p4 = k_range(t_p4b)
-            offset_p4 = k_evl_sorted+k_offset(t_p4b)-1
-            t_p5b=k_list(2,k)
-            range_p5 = k_range(t_p5b)
-            offset_p5 = k_evl_sorted+k_offset(t_p5b)-1
-            t_p6b=k_list(3,k)
-            range_p6 = k_range(t_p6b)
-            offset_p6 = k_evl_sorted+k_offset(t_p6b)-1
-            t_h1b=k_list(4,k)
-            range_h1 = k_range(t_h1b)
-            offset_h1 = k_evl_sorted+k_offset(t_h1b)-1
-            t_h2b=k_list(5,k)
-            range_h2 = k_range(t_h2b)
-            offset_h2 = k_evl_sorted+k_offset(t_h2b)-1
-            t_h3b=k_list(6,k)
-            range_h3 = k_range(t_h3b)
-            offset_h3 = k_evl_sorted+k_offset(t_h3b)-1
-c
-            size = range_p4 * range_p5 * range_p6
-     3           * range_h1 * range_h2 * range_h3
-c zeroing ---
-        call dcopy(size, 0.0d0, 0, k_singles, 1)
-        call offl_zerofill(k_singles,size)
-        call dcopy(size, 0.00, 0, k_doubles, 1)
-        call offl_zerofill(k_doubles,size)
-c -----------
-#ifdef USE_OFFLOAD
-            call offl_ccsd_t_singles_l(k_singles,
-     1        k_t1_local,d_v2,k_t1_offset,
-     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-#else
-            call ccsd_t_singles_l(k_singles,
-     1        k_t1_local,d_v2,k_t1_offset,
-     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-#endif
-            call ccsd_t_doubles_l(k_doubles,
-     1        d_t2,d_v2,k_t2_offset,
-     1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
-            call ccsd_t_esum(
-     C           k_singles,k_doubles,
-     R           restricted,
-     &                      t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,
-     &                      dbl_mb(offset_h1+1),dbl_mb(offset_h2+1),
-     D           dbl_mb(offset_h3+1),
-     &                      dbl_mb(offset_p4+1),dbl_mb(offset_p5+1),
-     D           dbl_mb(offset_p6+1),
-     &                      range_h1,range_h2,range_h3,
-     &                      range_p4,range_p5,range_p6,
-     &                      energy1,energy2)
 
-      return
-      end
+
