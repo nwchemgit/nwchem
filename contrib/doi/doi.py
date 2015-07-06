@@ -31,7 +31,8 @@ def parse_files(filenames):
             file = open(filename)
             lines = file.readlines()
             #lines.sort()
-            doi_table += lines
+            for line in lines:
+                doi_table += line.rsplit()
             #doi_table.sort()
             file.close()
         except:
@@ -52,12 +53,15 @@ def lookup_dois(doi_table):
     c = pycurl.Curl()
     for doi in doi_table:
         buffer = BytesIO()
-        c.setopt(c.URL, 'http://dx.doi.org/'+doi)
+        str_url = 'http://dx.doi.org/'+doi
+        #sys.stderr.write("DOI:%s:"%str_url)
+        c.setopt(c.URL, str_url)
         c.setopt(c.HTTPHEADER, ['Accept: text/bibliography; style=bibtex'])
         c.setopt(c.WRITEDATA, buffer)
         # For older PycURL versions:
         #c.setopt(c.WRITEFUNCTION, buffer.write)
         c.setopt(c.FOLLOWLOCATION, True)
+        #c.setopt(c.VERBOSE, True)
         c.perform()
         stat = c.getinfo(c.RESPONSE_CODE)
         if stat != 200:
