@@ -83,4 +83,4 @@ c
        return
        end      
 c
-c $Id$
+c $Id: rism_thermo.F 21176 2011-10-10 06:35:49Z d3y133 $
