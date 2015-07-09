@@ -1,0 +1,37 @@
+! ================================================
+! Documentation of TCE memory management macros
+! ================================================
+!
+! Jeff Hammond and Karol Kowalski, July 2015
+!
+! To address the situation where we will allocate either
+! in F90 allocatable or MA stack, we use the following
+! macros:
+!
+!  DECLMEM(a)   - declare memory with name "a"
+!  ALLOMEM(a,s) - allocate memory with name "a" and count "s"
+!  FREEMEM(a)   - free memory with name "a"
+!  REF2MEM(a)   - refer to memory with name "a"
+!
+#ifdef USE_F90_ALLOCATABLE
+#define DECLMEM(a) \
+        integer :: error_##a; \
+        double precision, allocatable :: f_##a(:) \
+        !dec$ attributes fastmem :: f_##a
+#define ALLOMEM(a,s) \
+        allocate(f_##a(1:##s),stat=error_##a); \
+        if (error_##a.ne.0) call errquit('falloc',0,MA_ERR);
+#define FREEMEM(a) \
+        deallocate(f_##a,stat=error_##a); \
+        if (error_##a.ne.0) call errquit('fdalloc',0,MA_ERR);
+#define REF2MEM(a) f_##a
+#else
+#define DECLMEM(a) integer k_##a, l_##a, err_##a;
+#define ALLOMEM(a,s) \
+        err_##a=MA_PUSH_GET(mt_dbl,##s,'#a',l_##a,k_##a); \
+        if (err_##a.ne.0) call errquit('PUSH ##a',0,MA_ERR);
+#define FREEMEM(a) \
+        err_##a=MA_POP_STACK(l_##a); \
+        if (err_##a.ne.0) call errquit('POP',0,MA_ERR);
+#define REF2MEM(a) dbl_mb(k_##a)
+#endif
