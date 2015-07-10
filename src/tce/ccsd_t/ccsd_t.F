@@ -134,9 +134,9 @@ c      call util_align64(size)
 #ifdef USE_OFFLOAD
       call offl_alloc(REF2MEM(singles),size)
       call offl_alloc(REF2MEM(doubles),size)
-#endif
       triplesx1_alloced=.true.
       triplesx_alloced=.true.
+#endif
 
       wall=-util_wallsec()
       tot_task= ccsd_t_6tasks(
