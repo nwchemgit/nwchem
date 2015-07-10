@@ -26,7 +26,8 @@
         if (error_##a.ne.0) call errquit('fdalloc',0,MA_ERR);
 #define REF2MEM(a) f_##a
 #else
-#define DECLMEM(a) integer k_##a, l_##a, err_##a;
+#define DECLMEM(a) integer k_##a, l_##a; \
+                   logical  err_##a;
 #define ALLOMEM(a,s) \
         err_##a=MA_PUSH_GET(mt_dbl,##s,'#a',l_##a,k_##a); \
         if (err_##a.ne.0) call errquit('PUSH ##a',0,MA_ERR);
