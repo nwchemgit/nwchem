@@ -1104,7 +1104,7 @@ endif
        _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
         DEFINES  += -DIFCV8 -DIFCLINUX
-        FOPTIONS += -i8
+        FOPTIONS += -i8 -fpp
         FOPTIONS +=  -g -no-save-temps
         FDEBUG    = -O2 -g
         FOPTIMIZE = -O3 -xHost
@@ -1711,7 +1711,7 @@ endif
        endif
        FDEBUG= -O2 -g
        FOPTIMIZE = -O3  -unroll  -ip
-       FOPTIONS += -align
+       FOPTIONS += -align -fpp
            ifdef USE_OFFLOAD
                EXPLICITF = TRUE
            endif
