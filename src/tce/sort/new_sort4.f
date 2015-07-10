@@ -16,6 +16,8 @@ c
       jd(3) = c
       jd(4) = d
       if (l.eq.4) then
+!$omp  parallel do private(j1,j2,j3,j4,iax,ibx,ia,ib,id) shared(s,u)
+!$omp& firstprivate(a,b,c,d,i,j,k,l,f,jd)
        do j1 = 1,a
         do j2 = 1,b
          do j3 = 1,c
@@ -25,6 +27,8 @@ c
           !id(4) = j4 ! 1234 are only used once and we know l=4, hence ijk must not be 4
           iax = d*(j3-1+c*(j2-1+b*(j1-1)))
           ibx = d*(id(k)-1+jd(k)*(id(j)-1+jd(j)*(id(i)-1)))
+!dec$ vector always nontemporal
+!dir$ simd
           do j4 = 1,d
            ia = j4+iax
            ib = j4+ibx
@@ -33,7 +37,10 @@ c
          enddo
         enddo
        enddo
+!$omp end parallel do
       else if (l.eq.3) then
+!$omp  parallel do private(j1,j2,j3,j4,iax,ibx,ia,ib,id) shared(s,u)
+!$omp& firstprivate(a,b,c,d,i,j,k,l,f,jd)
        do j1 = 1,a
         do j2 = 1,b
          do j4 = 1,d
@@ -43,6 +50,8 @@ c
           id(4) = j4
           iax = -1+c*(j2-1+b*(j1-1))
           ibx = c*(id(k)-1+jd(k)*(id(j)-1+jd(j)*(id(i)-1)))
+!dec$ vector always nontemporal
+!dir$ simd
           do j3 = 1,c
            ia = j4+d*(j3+iax)
            ib = j3+ibx
@@ -51,7 +60,10 @@ c
          enddo
         enddo
        enddo
+!$omp end parallel do
       else if (l.eq.2) then
+!$omp  parallel do private(j1,j2,j3,j4,iax,ibx,ia,ib,id) shared(s,u)
+!$omp& firstprivate(a,b,c,d,i,j,k,l,f,jd)
        do j1 = 1,a
         do j3 = 1,c
          do j4 = 1,d
@@ -61,6 +73,8 @@ c
           id(4) = j4
           iax = -1+b*(j1-1)
           ibx = b*(id(k)-1+jd(k)*(id(j)-1+jd(j)*(id(i)-1)))
+!dec$ vector always nontemporal
+!dir$ simd
           do j2 = 1,b
            ia = j4+d*(j3-1+c*(j2+iax))
            ib = j2+ibx
@@ -69,7 +83,10 @@ c
          enddo
         enddo
        enddo
+!$omp end parallel do
       else ! l.eq.1
+!$omp  parallel do private(j1,j2,j3,j4,iax,ibx,ia,ib,id) shared(s,u)
+!$omp& firstprivate(a,b,c,d,i,j,k,l,f,jd)
        do j2 = 1,b
         do j3 = 1,c
          do j4 = 1,d
@@ -78,6 +95,8 @@ c
           id(3) = j3
           id(4) = j4
           ibx = a*(id(k)-1+jd(k)*(id(j)-1+jd(j)*(id(i)-1)))
+!dec$ vector always nontemporal
+!dir$ simd
           do j1 = 1,a
            ia = j4+d*(j3-1+c*(j2-1+b*(j1-1)))
            ib = j1+ibx
@@ -86,6 +105,7 @@ c
          enddo
         enddo
        enddo
+!$omp end parallel do
       endif
       return
       end
@@ -104,6 +124,8 @@ c
       jd(3) = c
       jd(4) = d
       if (l.eq.4) then
+!$omp  parallel do private(j1,j2,j3,j4,iax,ibx,ia,ib,id) shared(s,u)
+!$omp& firstprivate(a,b,c,d,i,j,k,l,f,jd)
        do j1 = 1,a
         do j2 = 1,b
          do j3 = 1,c
@@ -113,6 +135,8 @@ c
           !id(4) = j4 ! 1234 are only used once and we know l=4, hence ijk must not be 4
           iax = d*(j3-1+c*(j2-1+b*(j1-1)))
           ibx = d*(id(k)-1+jd(k)*(id(j)-1+jd(j)*(id(i)-1)))
+!dec$ vector always nontemporal
+!dir$ simd
           do j4 = 1,d
            ia = j4+iax
            ib = j4+ibx
@@ -121,7 +145,10 @@ c
          enddo
         enddo
        enddo
+!$omp end parallel do
       else if (l.eq.3) then
+!$omp  parallel do private(j1,j2,j3,j4,iax,ibx,ia,ib,id) shared(s,u)
+!$omp& firstprivate(a,b,c,d,i,j,k,l,f,jd)
        do j1 = 1,a
         do j2 = 1,b
          do j4 = 1,d
@@ -131,6 +158,8 @@ c
           id(4) = j4
           iax = -1+c*(j2-1+b*(j1-1))
           ibx = c*(id(k)-1+jd(k)*(id(j)-1+jd(j)*(id(i)-1)))
+!dec$ vector always nontemporal
+!dir$ simd
           do j3 = 1,c
            ia = j4+d*(j3+iax)
            ib = j3+ibx
@@ -139,7 +168,10 @@ c
          enddo
         enddo
        enddo
+!$omp end parallel do
       else if (l.eq.2) then
+!$omp  parallel do private(j1,j2,j3,j4,iax,ibx,ia,ib,id) shared(s,u)
+!$omp& firstprivate(a,b,c,d,i,j,k,l,f,jd)
        do j1 = 1,a
         do j3 = 1,c
          do j4 = 1,d
@@ -149,6 +181,8 @@ c
           id(4) = j4
           iax = -1+b*(j1-1)
           ibx = b*(id(k)-1+jd(k)*(id(j)-1+jd(j)*(id(i)-1)))
+!dec$ vector always nontemporal
+!dir$ simd
           do j2 = 1,b
            ia = j4+d*(j3-1+c*(j2+iax))
            ib = j2+ibx
@@ -157,7 +191,10 @@ c
          enddo
         enddo
        enddo
+!$omp end parallel do
       else ! l.eq.1
+!$omp  parallel do private(j1,j2,j3,j4,iax,ibx,ia,ib,id) shared(s,u)
+!$omp& firstprivate(a,b,c,d,i,j,k,l,f,jd)
        do j2 = 1,b
         do j3 = 1,c
          do j4 = 1,d
@@ -166,6 +203,8 @@ c
           id(3) = j3
           id(4) = j4
           ibx = a*(id(k)-1+jd(k)*(id(j)-1+jd(j)*(id(i)-1)))
+!dec$ vector always nontemporal
+!dir$ simd
           do j1 = 1,a
            ia = j4+d*(j3-1+c*(j2-1+b*(j1-1)))
            ib = j1+ibx
@@ -174,6 +213,7 @@ c
          enddo
         enddo
        enddo
+!$omp end parallel do
       endif
       return
       end
