@@ -1,4 +1,4 @@
-      subroutine dft_symbr(geom,basis,
+      subroutine dft_symbr(geom,basis,ipol,
      .     g_a_dens,g_b_dens, g_tmpa)
 c     
 c     $Id$
@@ -8,6 +8,7 @@ c
 #include "stdio.fh"
       integer geom,basis
       integer  g_a_dens,g_b_dens, g_tmpa
+      integer ipol
 c
 c     This routine is stolen from uhf.F
 c     Since UHF can break spatial symmetry by localizing the orbitals
@@ -29,6 +30,7 @@ c
             call util_flush(luout)
          endif
       endif
+      if(ipol.eq.1) return
       call ga_copy(g_b_dens,g_tmpa)
       call sym_symmetrize(geom, basis, .true., g_b_dens)
       call ga_dadd(1d0, g_b_dens, -1d0, g_tmpa, g_tmpa)
@@ -39,7 +41,7 @@ c
             call util_flush(luout)
          endif
       endif
- 77         format(' Warning: spatial symmetry breaking in UKS: ',
+ 77         format(' Warning: spatial symmetry breaking: ',
      $           1p,A5,' = ',1d9.2)
       return
       end

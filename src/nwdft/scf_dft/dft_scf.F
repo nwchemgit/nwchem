@@ -1459,7 +1459,7 @@ c
      ,        dbl_mb(k_eval(1)),dbl_mb(k_occ),g_tmp,dbl_mb(k_tmp))
          if (.not.ma_pop_stack(l_tmp))
      &        call errquit('dft_scf: cannot pop stack',33, MA_ERR)
-         if(diising) diisreset=.true.
+         if(diising.and.ndisrst.gt.0) diisreset=.true.
       endif
 c
 c     reset diis when smearing is on to avoid noise accumulation
@@ -1485,8 +1485,8 @@ c
 c
 c     check for symmetry breaking
 c
-      if(oskel.and.ipol.eq.2) then
-          call dft_symbr(geom,ao_bas_han,
+      if(oskel) then
+          call dft_symbr(geom,ao_bas_han,ipol,
      .     g_dens(1),g_dens(2), g_tmp)
        endif
 c
