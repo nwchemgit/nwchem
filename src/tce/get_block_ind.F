@@ -28,7 +28,6 @@ cccx      integer d_f
       integer size
 cccx      integer offset
       double precision array(size)
-      integer request
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: f_a(:)
       !dec$ attributes fastmem :: f_a
@@ -45,7 +44,6 @@ cccx      integer offset
       integer length
       integer off_a,key_alpha ! off_a was formerly offset_alpha
       logical used
-c--      logical parallel
       character*255 filename
 c --- controls the logic of orbital integrals --
       logical l31s,l42s,lp31p42
@@ -65,7 +63,6 @@ c         print*,'tce_sort version get_block_ind'
 c
       cpusecs(5) = cpusecs(5) - util_cpusec()
       cpusecs(55) = cpusecs(55) - util_wallsec()
-c--      parallel = (ga_nnodes().gt.1)
 cccx      if (util_print('get_block',print_debug)) then
 cccx         write(LuOut,9000) ga_nodeid(),d_file,size,offset
 cccx      endif
@@ -843,7 +840,6 @@ cccx      integer offset
 c#ifdef TCESORT
 c      double precision array2(size)
 c#endif
-      integer request
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: f_a(:)
       !dec$ attributes fastmem :: f_a
@@ -861,7 +857,6 @@ c#endif
       integer length
       integer off_a,key_alpha ! off_a was formerly offset_alpha
       logical used
-c--      logical parallel
       character*255 filename
 c --- controls the logic of orbital integrals --
       logical l31s,l42s,lp31p42
@@ -1595,7 +1590,6 @@ cccx      integer offset
 c#ifdef TCESORT
 c      double precision array2(size)
 c#endif
-      integer request
 #ifdef USE_F90_ALLOCATABLE
       double precision, allocatable :: f_a(:)
       !dec$ attributes fastmem :: f_a
@@ -1613,7 +1607,6 @@ c#endif
       integer length
       integer off_a,key_alpha
       logical used
-c--      logical parallel
       character*255 filename
 c --- controls the logic of orbital integrals --
       logical l31s,l42s,lp31p42
