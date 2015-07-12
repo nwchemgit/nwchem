@@ -1,6 +1,6 @@
-c
-c These are just matrix transposes.  The code should be much simpler.
-c
+!
+! These are just matrix transposes.  The code should be much simpler.
+!
       subroutine tce_sort_2(u,s,a,b,i,j,f)
       implicit none
       integer a,b
