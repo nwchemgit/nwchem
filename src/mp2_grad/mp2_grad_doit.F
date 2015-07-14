@@ -303,6 +303,11 @@ c
          call moints_getscattv(kunit,nnbf,int_mb(k_v))
 c     
          if(task.eq.'gradient')then
+#ifdef NOIO
+         eaftype=mp2_eaftype(rtdb,t_file_size)
+#else
+         eaftype=EAF_RW
+#endif
             call util_file_name('ta',.true.,.true.,fnameta)
             call util_file_name('tb',.true.,.true.,fnametb)
             if (eaf_open(fnameta,eaftype,tunita) .ne. 0)
