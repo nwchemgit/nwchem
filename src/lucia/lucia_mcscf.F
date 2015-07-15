@@ -1217,7 +1217,8 @@ CBERT INCORRECT DIMENSIONALITY OF KLMO1 VS FKI/KFA!!!!
 *
 *. Expansion of final orbitals in AO basis, pt in KLMO2
       MAXIT_SAVE = MAXIT
-      IF(NCISPC.EQ.2.AND.NOMOFL.EQ.0.AND.IFINMO.NE.0) THEN
+cVOG  IF(NCISPC.EQ.2.AND.NOMOFL.EQ.0.AND.IFINMO.NE.0) THEN
+      IF(NOMOFL.EQ.0.AND.IFINMO.NE.0) THEN
        CALL MOROT_GS(IFINMO)
        call copvec(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),len_cmo)
        call copvec(dbl_mb(KMOAOUT),dbl_mb(KLMO2),len_cmo)
@@ -1259,23 +1260,21 @@ CBERT depending on what happens above we could just switch pointers
       EFINAL = EREF
       MAXIT = MAXIT_SAVE
 *. Current orbital gradient
-*. VOG 4 Density
-      only_dens = 1
-      LRHO2 = NACOB**2*(NACOB**2+1)/2
-      CALL MEMMAN(KRHO1BU,NACOB**2,'ADDL  ',2,'RHO1BU  ')
-      CALL MEMMAN(KRHO2BU,LRHO2   ,'ADDL  ',2,'RHO2BU  ')
-      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1bu),
-     &                       dbl_mb(KRHO2),dbl_mb(krho2bu),only_dens)
+!*. VOG 4 Density
+!      only_dens = 1
+!      LRHO2 = NACOB**2*(NACOB**2+1)/2
+!      CALL MEMMAN(KRHO1BU,NACOB**2,'ADDL  ',2,'RHO1BU  ')
+!      CALL MEMMAN(KRHO2BU,LRHO2   ,'ADDL  ',2,'RHO2BU  ')
+!      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(krho1bu),
+!     &                       dbl_mb(KRHO2),dbl_mb(krho2bu),only_dens)
       CALL DO_ORBTRA(0,0,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
-      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1bu),
-     &                        dbl_mb(KRHO2),dbl_mb(krho2bu),only_dens)
+!      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1bu),
+!     &                        dbl_mb(KRHO2),dbl_mb(krho2bu),only_dens)
       CALL FOCK_MAT_STANDARD(KF,2,KINT1,KFA)
       IF(IPRNT.GE.100.and.ga_nodeid().eq.0) WRITE(6,*) ' F constructed '
       CALL E1_FROM_F(dbl_mb(KLE1),KF,1,int_mb(KLOOEXC),
      &               int_mb(KLOOEXCC),
      &               NOOEXC,NTOOB,NTOOBS,NSMOB,IBSO,IREOST)
-!      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(krho1bu),
-!     &                        dbl_mb(KRHO2),dbl_mb(krho2bu),only_dens)
 *. VOG 4 Destiny End
       IF(I_AVERAGE_ORBEXC.EQ.1) THEN
 *. Average over orbital excitations belonging to a given shell excitation
@@ -1347,6 +1346,23 @@ C?    WRITE(6,*) ' E1NRM_ORB, ERROR_NORM_FINAL_CI = ',
 C?   &             E1NRM_ORB, ERROR_NORM_FINAL_CI
 C?    WRITE(6,*) ' Final energy = ', EFINAL
 
+cVOG  Open file where backup information will be stored for the second
+cVOG  LUCIA call for AkBk
+      IF(ga_nodeid().eq.0) THEN
+       iunit = 668
+       open(iunit,name='ecore_bu',status='unknown')
+       write(iunit,*) ECORE
+       write(iunit,*) ECORE_ORIG
+       write(iunit,*) ECORE_H
+       write(iunit,*) ECORE_HEX
+       write(iunit,*) ECORE_AB
+       write(iunit,*) ECORE_INI
+       write(iunit,*) ECORE_EXT
+       write(iunit,*) ECORE_INA
+       write(iunit,*) ECORE_FI
+       close(iunit)
+      end if
+cVOG
       CALL MEMMAN(IDUMMY, IDUMMY, 'FLUSM', IDUMMY,'MCSCF ') 
       if(.not.ga_destroy(KINT1_INI))
      &   call errquit('cannot destroy: kint1_ini',0,GA_ERR)

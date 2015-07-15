@@ -44,7 +44,7 @@
       WRITE(6,*) ' *                                    *'
       WRITE(6,*) ' * Version +0.1, Jeppe Olsen, July. 13*'
       WRITE(6,*) ' **************************************'
-      endif
+      end if
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRINT)
@@ -63,7 +63,7 @@ cVOG        WRITE(6,*) ' Please make sure ICNFBAT .ge. 2 and ICISTR .ge. 2 '
 cVOG        STOP       ' AKBK calculation does not work with incore options'
       END IF
 *
-      IAKBK_MET = 1 
+      IAKBK_MET = 1
       if (ga_nodeid().eq.0) then
       WRITE(6,*) ' Allowed number of outer iterations ', MAXITM
       WRITE(6,*) ' Allowed number of inner iterations ', MAXIT 
@@ -77,19 +77,20 @@ c     END IF
 *
       WRITE(6,*) 
      &' Convergence threshold for macroiterations: ', THRES_E
-      endif
+      end if
 *
 *. Memory for summarizer of information
 *
       NITEM = 2
       LEN_SUMMARY = NITEM*(MAXITM+1)
-      CALL MEMMAN(KL_SUMMARY,LEN_SUMMARY,'ADDL  ',2,'SUMMRY')
+cVOG  Important for AKBKMCSCF
+cVOG  CALL MEMMAN(KL_SUMMARY,LEN_SUMMARY,'ADDL  ',2,'SUMMRY')
       IPSPC = JCMBSPC - 1
       IQSPC = JCMBSPC
       if (ga_nodeid().eq.0) then
       WRITE(6,*) ' P-space for expansion ', IPSPC
       WRITE(6,*) ' Q-space for expansion ', IQSPC
-      endif
+      end if
 *. Number of CSFs in P and Q
       NPCSF = NCSF_PER_SYM_GN(IREFSM,IPSPC)
       NQCSF = NCSF_PER_SYM_GN(IREFSM,IQSPC)
@@ -218,9 +219,14 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
 *       CALL ga_zero(KVEC3)
 *
 *LOCAL
+*
+      CALL GET_3BLKS(KVEC1,KVEC2,KC2)
+      KVEC3 = KC2
+      KVEC1P = KVEC1
+      KVEC2P = KVEC2
 *      CALL MEMMAN(KVEC1P, NSDP,'ADDS  ',2,'VEC1P ')
 *      CALL MEMMAN(KVEC2P, NSDP,'ADDS  ',2,'VEC2P ')
-      CALL MEMMAN(KC2,    NSDQ,'ADDS  ',2,'VEC3  ')
+*      CALL MEMMAN(KC2,    NSDQ,'ADDS  ',2,'VEC3  ') !!!ACHTUNG!!!!
 *
 * Analyze P-space expansion (Do I need it?)
 *
@@ -615,7 +621,7 @@ C?    END IF
       END IF
       IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Input vector to AKBKSIGMA '
-!        CALL ga_print(CB)
+        CALL ga_print(CB)
 !        KATI = 0.0d0
 !        KATI(1) = -0.44231
 !        KATI(2) =  0.89488
@@ -664,7 +670,7 @@ cVOG  CALL MV7(CB,HCB,LUC,LU_Q2,XDUM,XDUM)
       CALL MV7(CB,KLU_Q2,0,0,0,0)
       IF(NTEST.GE.1000.and.ga_nodeid().eq.0) 
      &  WRITE(6,*) ' H(QP)P CP accomplished'
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
        CALL ga_print(CB)
        CALL ga_print(KLU_Q2)
 cVOG   CALL WRTVCD(CB,LU_Q2,1,LBLK)
@@ -4577,10 +4583,11 @@ C    &   (nobpts_gn(ntrgas+1,igensm),igensm = 1, ngensmob)
          call iwrtma3(itpfso,1,ntoob,1,1)
          write(luout,*)
 *
-        else
+cVOG    else
          write(luout,*) ' Modified Density '
          call wrtmat(densi1,nacob,nacob,nacob,nacob)
          write(luout,*)
+        else
          if (only_dens.eq.1) then
           ! Get reduced dimensions for RHO2
           call getnddens2(ndactorb,nddensi2,only_dens)
@@ -4648,7 +4655,7 @@ C    &   (nobpts_gn(ntrgas+1,igensm),igensm = 1, ngensmob)
 *
 *.
 *
-      ntest = 0
+      ntest = 10 !VOG 0
 *
 *. Modify RHO1
 *
@@ -4907,7 +4914,7 @@ C    &   (nobpts_gn(ntrgas+1,igensm),igensm = 1, ngensmob)
 *. Local
       dimension idactspc(mxpngas)
 *
-      ntest = 0
+      ntest = 10 !VOG 0
 *
       ndactorb = 0
       if (only_dens.eq.1) then

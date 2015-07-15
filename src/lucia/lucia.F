@@ -9940,6 +9940,35 @@ c..
 c.. get reordered movecs and save to g_moreo
 c..
 c
+      if (CSEQCI(1,2).eq.'AKBKCI') then
+        iunit = 669
+        open(iunit,name='ga_bu',status='unknown')
+        read(iunit,*) KINT1BU
+        read(iunit,*) KINT2BU
+        read(iunit,*) KHBU
+        read(iunit,*) KFIBU
+        read(iunit,*) movecbu
+       if (ga_nodeid().eq.0) then
+        write(*,*)
+        write(*,*) ' I will copy INT1/INT2 from backup GAs '
+        write(*,*) ' ===================================== '
+        write(*,*)
+       end if
+        call ga_copy(KINT1BU, KINT1)
+        call ga_copy(KHBU,    KH)
+        call ga_copy(KFIBU,   KFI)
+        call ga_get(KINT2BU, 1, NINT2, 1, 1, dbl_mb(KINT2), NINT2)
+        if(.not.ga_destroy(KINT1BU)) call
+     &    errquit('intim: ga_destroy failed', KINT1BU, GA_ERR)
+        if(.not.ga_destroy(KINT2BU)) call
+     &    errquit('intim: ga_destroy failed', KINT2BU, GA_ERR)
+        if(.not.ga_destroy(KHBU   )) call
+     &    errquit('intim: ga_destroy failed', KHBU   , GA_ERR)
+        if(.not.ga_destroy(KFIBU  )) call
+     &    errquit('intim: ga_destroy failed', KFIBU  , GA_ERR)
+        if(.not.ga_destroy(movecbu)) call
+     &    errquit('intim: ga_destroy failed', movecbu, GA_ERR)
+      else
       g_moreo = ga_create_atom_blocked(luciageom,luciabasis,
      &                                 'LUCIA movecs')
       g_hcore = ga_create_atom_blocked(luciageom,luciabasis, 
@@ -10077,6 +10106,7 @@ c
       endif
       call ga_sync()
       call ga_dgop(1,dbl_mb(KINT2),NINT2,'+')
+c
       CALL LUCIAQEXIT('MO2GA')
 c
       if(.not.ga_destroy(g_coul)) call 
@@ -10085,6 +10115,7 @@ c
      &  errquit('intim: ga_destroy failed', g_moreo, GA_ERR)
       if (.not. geom_nuc_rep_energy(luciageom, ecore)) call
      $  errquit('unable to get nuclear rep energy',luciageom, GEOM_ERR)
+      end if !VOG effort to call LUCIA twice
 c.. Now that the integrals are in KINT1 and KINT2, fully packed. 
 
        ELSE IF (INTIMP .EQ. 5) THEN
@@ -10131,6 +10162,7 @@ c.. Now that the integrals are in KINT1 and KINT2, fully packed.
 *.Well, one-electron integrals were read in in KINT1, whereas a 
 * recent board meeting of the board for LUCIA has decided that
 * KH is the right place for the MO 1 electron integrals
+      if (CSEQCI(1,2).ne.'AKBKCI') then !VOG
       IF(NOINT.EQ.0) THEN 
 CNW     CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
         call ga_copy(KINT1,KH)
@@ -10158,6 +10190,8 @@ C?          WRITE(6,*) ' First element in FI and H in INTIM=',
 C?   &      WORK(KFI), WORK(KINT1O)
         END IF
 *. Calculate the FI-alpha and FI-beta matrices
+!       if (CSEQCI(1,2).ne.'AKBKCI') !VOG
+!     &  CALL FI_HS(KINT1O,KFI_AL,KFI_BE,ECORE_AB,1)
         CALL FI_HS(KINT1O,KFI_AL,KFI_BE,ECORE_AB,1)
 *
         ECORE_INI = ECORE
@@ -10167,6 +10201,28 @@ C?   &      WORK(KFI), WORK(KINT1O)
         if (ga_nodeid().eq.0) WRITE(6,*) 
      &  ' Core energy: updated and read in ',ECORE, ECORE_ORIG
       END IF
+      else
+       iunit = 668
+       if (ga_nodeid().eq.0) then
+        open(iunit,name='ecore_bu',status='unknown')
+        read(iunit,*) ECORE
+        read(iunit,*) ECORE_ORIG
+        read(iunit,*) ECORE_H
+        read(iunit,*) ECORE_HEX
+        read(iunit,*) ECORE_AB
+        read(iunit,*) ECORE_INI
+        read(iunit,*) ECORE_EXT
+        read(iunit,*) ECORE_INA
+        read(iunit,*) ECORE_FI
+        close(iunit,status='delete')
+       end if
+*
+        call ga_copy(KH,KINT1O)
+        call ga_copy(KH,KHINA)
+        call ga_copy(KFI,KFI_BE)
+        if (ga_nodeid().eq.0) WRITE(6,*)
+     &  ' Core energy: updated and read in ',ECORE, ECORE_ORIG
+      end if !LUCIA restart for AkBk
 *
 C?    WRITE(6,*) ' IDMPIN ', IDMPIN
 c.. dongxia: let's assume we would not dump integrals
@@ -10195,6 +10251,7 @@ C       REWIND LU90
         DUMP1E = 0
         IF(DUMP1E.EQ.1) CALL DUMP_1EL_INFO(LU91)
       END IF
+
 *
 C?    WRITE(6,*) ' INTIM: First integrals in WORK(KINT1) '
 C?    LLL = MIN(10,NINT1)
@@ -10833,6 +10890,7 @@ c      INCLUDE 'mxpdim.inc'
       integer g_moreo, g_hcore, g_coul, g_exch
       integer ga_create_atom_blocked, ga_create_JKblocked
       external ga_create_atom_blocked, ga_create_JKblocked
+!      double precision task_cpu, task_wall !VOG
 *
       NTEST = 0
 *
@@ -10841,6 +10899,10 @@ c      INCLUDE 'mxpdim.inc'
 * 2 => RSBB2BN2 
 * 3 => RSBB2A 
 *.
+cVOG Timings
+!      oprint_task_times = util_print('task time',print_default)
+!      task_wall = -util_wallsec()
+!      task_cpu  = -util_cpusec()
 C     CALL TEST_DEC15 
       CALL LUCIAQENTER('REST ')
 *. Initialize counters for kernel routines 
@@ -11188,6 +11250,25 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
       end do
 *
       LMOMO = NDIM_1EL_MAT(1,NTOOBS,NTOOBS,NSMOB,0)
+      if (CSEQCI(1,2).eq.'AKBKCI') then
+        LMOAO = 0
+        DO ISM = 1, NSMOB
+          LMOAO = LMOAO + NMOS_ENV(ISM)*NAOS_ENV(ISM)
+        END DO
+        iunit = 669
+        if (ga_nodeid().eq.0) then
+         open(iunit,name='ga_bu',status='unknown')
+         read(iunit,*) KINT1BU
+         read(iunit,*) KINT2BU
+         read(iunit,*) KHBU
+         read(iunit,*) KFIBU
+         read(iunit,*) movecbu
+         close(iunit,status='keep')
+         call ga_get(movecbu, 1, LMOAO, 1, 1, dbl_mb(KMOAOIN), NINT2)
+        end if
+        CALL COPVEC(dbl_mb(KMOAOIN),dbl_mb(KMOAO_ACT),LMOMO)
+        CALL COPVEC(dbl_mb(KMOAOIN),dbl_mb(KMOAOUT),LMOMO)
+      else
       IF(NOMOFL.EQ.0) THEN
         CALL GET_CMOAO_ENV(dbl_mb(KMOAOIN))
         CALL COPVEC(dbl_mb(KMOAOIN),dbl_mb(KMOAO_ACT),LMOMO)
@@ -11195,6 +11276,7 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
 *. the output MO's
         CALL COPVEC(dbl_mb(KMOAOIN),dbl_mb(KMOAOUT),LMOMO)
       END IF
+      end if !LUCIA restart for AkBk
 * Part 2
 * The set of starting MOs: MO-AO expansion and MOMO expansion.
 *.Again, the starting MOs are those in which integrals are imported,
@@ -11952,7 +12034,12 @@ CBERT           CALL SCLH2(XLAMBDA)
 * ================
 *
 *
+!      task_wall = task_wall + util_wallsec()
+!      task_cpu  = task_cpu  + util_cpusec()
              if (ga_nodeid().eq.0) then
+!         write(LuOut,00001) task_cpu, task_wall
+!00001     format(/' Task  times  cpu:',f11.1,'s     wall:',f11.1,'s')
+          call util_flush(6)
              write(6,'(13X,A)') '************************************'
              write(6,'(13X,A)') '* NWChem AkBkCI (NACI) Initialized *'
              write(6,'(13X,A)') '************************************'
@@ -12094,6 +12181,42 @@ C?   &               WORK(KINT1), WORK(KINT2)
         CALL PRINT_CMOAO(dbl_mb(KMOAOUT))
       END IF
 *
+cVOG
+cVOG Store stuff for restart AkBk
+      if (CSEQCI(1,2).ne.'AKBKCI') then
+       NINT1 = ntoob**2
+       KKINT2 = IABS(KINT2_A(6))
+       LMOAO = 0
+       DO ISM = 1, NSMOB
+         LMOAO = LMOAO + NMOS_ENV(ISM)*NAOS_ENV(ISM)
+       END DO
+       IF ( .not. ga_create( mt_dbl, NINT1, 1, 'INT1BU', 0, 0, KINT1BU))
+     $    CALL ERRQUIT('BACKUP: ga_create INT1BU failed', NINT1, GA_ERR)
+       IF ( .not. ga_create( mt_dbl, NINT2, 1, 'INT2BU', 0, 0, KINT2BU))
+     $    CALL ERRQUIT('BACKUP: ga_create INT2BU failed', NINT2, GA_ERR)
+       IF ( .not. ga_create( mt_dbl, NINT1, 1, 'H1',     0, 0, KHBU   ))
+     $    CALL ERRQUIT('BACKUP: ga_create H1     failed', NINT1, GA_ERR)
+       IF ( .not. ga_create( mt_dbl, NINT1, 1, 'FIBU',   0, 0,   KFIBU))
+     $    CALL ERRQUIT('BACKUP: ga_create FIBU failed',   NINT1, GA_ERR)
+       IF ( .not. ga_create( mt_dbl, NINT1, 1, 'movecbu', 0, 0,movecbu))
+     $    CALL ERRQUIT('BACKUP: ga_create movecbu failed',NINT1, GA_ERR)
+       call ga_copy(KINT1, KINT1BU)
+       call ga_copy(KH,    KHBU)
+       call ga_copy(KFI,   KFIBU)
+       call ga_put(KINT2BU, 1, NINT2, 1, 1, dbl_mb(KKINT2), NINT2)
+       call ga_put(movecbu, 1, LMOAO, 1, 1, dbl_mb(KMOAOUT), NINT2)
+       iunit = 669
+       if (ga_nodeid().eq.0) then
+        open(iunit,name='ga_bu',status='unknown')
+        write(iunit,*) KINT1BU
+        write(iunit,*) KINT2BU
+        write(iunit,*) KHBU
+        write(iunit,*) KFIBU
+        write(iunit,*) movecbu
+        close(iunit,status='keep')
+       end if
+      end if
+cVOG
       DUMP1E = 0
       if(DUMP1E.eq.1) CALL DUMP_1EL_INFO(LU91)
 *. Print info on the results(energies of the various calculations
@@ -13241,7 +13364,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 000
+      NTEST = 00
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
@@ -36210,7 +36333,6 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
 *. Local scratch
       INTEGER NACOB_GS(MXP_NSUPSYM),NTOOB_GS(MXP_NSUPSYM),only_dens
       integer trgas(ngas+2)
-!      real(8) densi_bu(nacob**2)
       character*3 yesno
 *
       NTEST = 1
@@ -36243,24 +36365,24 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
 *. Distinguish between GAS spaces that should be transformed, i.e. if
 *. each GAS space belongs to P or Q space - VOG
 *
-      idummy = 0
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
-      CALL MEMMAN(KRHO1BU,NACOB ** 2,'ADDL  ',2,'RHO1BU  ')
-      CALL MEMMAN(KRHO2BU,idummy,'ADDL  ',2,'RHO2BU  ')
-      only_dens = 0
-      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(KRHO1BU),
-     &                       dbl_mb(KRHO2),dbl_mb(KRHO2_BU),only_dens)
-      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
-       WRITE(6,'(A)')
-       WRITE(6,'(A)') '         Transform? '
-       WRITE(6,'(A)') '         ========== '
-       DO igas = 1, ngas_bu
-        yesno = 'YES'
-        if (trgas(igas).eq.0) yesno = ' NO'
-        WRITE(6,'(A,I2,5X,3A)') '   GAS',IGAS,yesno
-       END DO
-       WRITE(6,'(A)')
-      END IF
+!      idummy = 0
+!      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
+!      CALL MEMMAN(KRHO1BU,NACOB ** 2,'ADDL  ',2,'RHO1BU  ')
+!      CALL MEMMAN(KRHO2BU,idummy,'ADDL  ',2,'RHO2BU  ')
+!      only_dens = 0
+!      call reduce_gas_spaces(trgas,dbl_mb(KRHO1),dbl_mb(KRHO1BU),
+!     &                       dbl_mb(KRHO2),dbl_mb(KRHO2BU),only_dens)
+!      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+!       WRITE(6,'(A)')
+!       WRITE(6,'(A)') '         Transform? '
+!       WRITE(6,'(A)') '         ========== '
+!       DO igas = 1, ngas_bu
+!        yesno = 'YES'
+!        if (trgas(igas).eq.0) yesno = ' NO'
+!        WRITE(6,'(A,I2,5X,3A)') '   GAS',IGAS,yesno
+!       END DO
+!       WRITE(6,'(A)')
+!      END IF
 *
 *. Number of orbitals and active orbitals per standard symmetry
 *
@@ -36274,7 +36396,7 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
      &  N + NGAS_GNSYM(IGENSM,0) + NGAS_GNSYM(IGENSM,NGAS+1)
       END DO
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' NGENSMOB== ', NGENSMOB
         WRITE(6,*) ' NTOOB_GS=='
         CALL IWRTMA3(NTOOB_GS,1,NGENSMOB,1,NGENSMOB)
@@ -36282,13 +36404,13 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
         CALL IWRTMA3(NACOB_GS,1,NGENSMOB,1,NGENSMOB)
       END IF
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) 
      & ' Initial MOMO matrix over blocks of standard symmetry'
        CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
       END IF
 *
-cVOG  CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
+      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MOROT ')
       CALL MEMMAN(KLMAT1,NTOOB**2,'ADDL  ',2,'MAT1  ')
       CALL MEMMAN(KLMAT2,NTOOB**2,'ADDL  ',2,'MAT2  ')
       CALL MEMMAN(KLMAT2C,NTOOB**2,'ADDL  ',2,'MAT2C ')
@@ -36323,7 +36445,7 @@ C     NDIM_1EL_MAT(IHSM,NRPSM,NCPSM,NSM,IPACK)
 * Obtain MOMO over general symmetry
 C     REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
       CALL REFORM_MAT_STA_GEN(dbl_mb(KMOMO),dbl_mb(KLMOMO_GN),0,1)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Initial MOMO over general symmetry '
         CALL APRBLM2(dbl_mb(KLMOMO_GN),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
       END IF
@@ -36336,7 +36458,7 @@ C     REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
         CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),dbl_mb(KLMAT2),1,
      &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
-        IF(NTEST.GE.1000) THEN
+        IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Reformed density matrix '
           CALL APRBLM2(dbl_mb(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
         END IF
@@ -36348,7 +36470,7 @@ C       AVE_SUPSYM_MAT(ASUP,NOBPSPSM,IPACK)
         CALL SETVEC(dbl_mb(KRHO1),ZERO,NACOB**2)
         CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),dbl_mb(KLMAT2),2,
      &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
-        IF(NTEST.GE.0000) THEN
+        IF(NTEST.GE.0000.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' Supersymmetry averaged density '
          CALL  WRTMAT(dbl_mb(KRHO1),NACOB,NACOB,NACOB,NACOB)
         END IF
@@ -36365,7 +36487,7 @@ C       AVE_SUPSYM_MAT(ASUP,NOBPSPSM,IPACK)
 *
       CALL FI_FROM_INIINT(KFI,dbl_mb(KMOMO),KH,
      &                      ECORE_HEX,1)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Inactive Fock matrix '
 CNW     CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,1)
         call ga_print(KFI)
@@ -36393,14 +36515,14 @@ CNW   CALL VECSUM(WORK(KLMAT1),KFI,KFA,ONE,ONE,NINT1)
 *
       IF(IMO.EQ.5) CALL COPVEC(dbl_mb(KLMAT1),dbl_mb(KLMAT5),NINT1)
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' FIFA matrix in standard symmetry'
         CALL APRBLM2(dbl_mb(KLMAT1),NTOOBS,NTOOBS,NSMOB,1)
       END IF
 * Reform FIFA to general symmetry
 C          REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
       CALL REFORM_MAT_STA_GEN(dbl_mb(KLMAT1),dbl_mb(KLFIFA_GS),1,1)
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' FIFA matrix in general symmetry '
         CALL APRBLM2(dbl_mb(KLFIFA_GS),NTOOB_GS,NTOOB_GS,NGENSMOB,1)
       END IF
@@ -36429,11 +36551,11 @@ C           EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *  IMO = 2 => Complete symmetry blocks
 *  else    => Symmetry-type blocks
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' Canonical orbital energies'
          CALL PRINT_SCALAR_PER_ORB2(dbl_mb(KLMAT1),NTOOB_GS,NGENSMOB)
       END IF
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)  ' Expansion of final orbitals, canonical part'
         IF(IMO.EQ.2) THEN
           IS_OR_SG = 1
@@ -36463,11 +36585,11 @@ C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
 *. Obtain and diagonalize symmetry ordered density matrix 
 *. over active orbitals
 C            REFORM_RHO1_TO_GNSM(RHO1_ST,RHO1_GNSM_ST,IWAY,IREO_GNSYM_TO_TS)
-        CALL REO_ACT_ORB_TO_GNSM(
-     &     int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB)) !VOG
+!        CALL REO_ACT_ORB_TO_GNSM(
+!     &     int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB)) !VOG
         CALL REFORM_RHO1_TO_GNSM(dbl_mb(KRHO1),dbl_mb(KLMAT2),1,
      &       int_mb(KIREO_GNSYM_TO_TS_ACOB))
-        IF(NTEST.GE.1000) THEN
+        IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Reformed density matrix '
           CALL APRBLM2(dbl_mb(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
         END IF
@@ -36477,7 +36599,7 @@ C            TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
      &       NACOB_GS,NGENSMOB)
         ONEM = -1.0D0
         CALL SCALVE(dbl_mb(KLMAT1),ONEM,LACAC_GS)
-        IF(NTEST.GE.1000) THEN
+        IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' Packed density matrix ( times - 1 )'
           CALL APRBLM2(dbl_mb(KLMAT1),NACOB_GS,NACOB_GS,NGENSMOB,1)
         END IF
@@ -36488,7 +36610,7 @@ C            TRIPAK_BLKM(AUTPAK,APAK,IWAY,LBLOCK,NBLOCK)
 C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
          CALL DIAG_BLK_SYMMAT(dbl_mb(KLMAT1),NGENSMOB,NACOB_GS,
      &        dbl_mb(KLMAT2),dbl_mb(KLMAT3),dbl_mb(KLMAT4),1)
-         IF(NTEST.GE.100) THEN
+         IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
            WRITE(6,*)  ' Expansion of (pseudo-natural) orbitals'
            CALL APRBLM2(dbl_mb(KLMAT2),NACOB_GS,NACOB_GS,NGENSMOB,0)
          END IF
@@ -36503,7 +36625,7 @@ C             DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
      &        int_mb(KLLEN_GASGS_AC_BLK),dbl_mb(KLMAT2),dbl_mb(KLMAT3),
      &        dbl_mb(KLMAT5),1)
 *. WORK(KLMAT2) contains eigenvector expansions
-         IF(NTEST.GE.100) THEN
+         IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
            WRITE(6,*)  ' Expansion of (pseudo-natural) orbitals'
            CALL APRBLM2(dbl_mb(KLMAT2),int_mb(KLLEN_GASGS_AC_BLK),
      &          int_mb(KLLEN_GASGS_AC_BLK),NGAS*NGENSMOB,0)
@@ -36556,7 +36678,7 @@ C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
         CALL COPVEC(dbl_mb(KLMAT4),dbl_mb(KLMAT2C),LMOMO_GS)
       END IF
 *
-       IF(NTEST.GE.1000) THEN
+       IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' Final transformation of MO-coefficients'
          CALL APRBLM2(dbl_mb(KLMAT2C),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
        END IF
@@ -36565,7 +36687,7 @@ C       EXTR_CP_GASBLKS_FROM_GENSYM_MAT(AS,ASG,IEORC,IGAS_F,IGAS_L,IPAK)
      &     dbl_mb(KLMAT2C),
      &     NGENSMOB,NTOOB_GS,NTOOB_GS,NTOOB_GS,NTOOB_GS,NTOOB_GS,
      &     NTOOB_GS,0)
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Updated MO-MO matrix(general symmetry) '
         CALL APRBLM2(dbl_mb(KLMAT2),NTOOB_GS,NTOOB_GS,NGENSMOB,0)
       END IF
@@ -36575,7 +36697,7 @@ C     REFORM_MAT_STA_GEN(ASTA,AGEN,IPACK,IWAY)
 *. Clean up
       CALL ISWPVE(IACT_TO_GENSM_REO, ISTA_TO_GENSM_REO, NTOOB)
 
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' MO-MO transformation matrix MOMO(standard sym) '
         CALL APRBLM2(dbl_mb(KMOMO),NTOOBS,NTOOBS,NSMOB,0)
       END IF
@@ -36589,7 +36711,7 @@ C?      CALL GET_CMOAO_ENV(WORK(KMOAOIN))
      &         NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,0)
 *
         CALL COPVEC(dbl_mb(KMOAOUT),dbl_mb(KMOAO_ACT),LMOMO)
-        IF(NTEST.GE.10) THEN
+        IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
            WRITE(6,*) ' Output set of MO''s in required form'
            CALL PRINT_CMOAO(dbl_mb(KMOAOUT))
         END IF
@@ -36604,15 +36726,15 @@ C              PRINT_CMO_AS_SHELLS(CMO,IFORM)
       END IF
 *     ^ End if MOAO file is present 
 *
-*. Reorder based on the original GAS scheme - VOG
-*
-      CALL REO_ACT_ORB_TO_GNSM(
-     &     int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
-*
-*. Restore initial arrays and pointers - VOG
-*
-      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(KRHO1BU),
-     &                        dbl_mb(KRHO2),dbl_mb(KRHO2BU),only_dens)
+!*. Reorder based on the original GAS scheme - VOG
+!*
+!      CALL REO_ACT_ORB_TO_GNSM(
+!     &     int_mb(KMO_GNSYM),int_mb(KIREO_GNSYM_TO_TS_ACOB))
+!*
+!*. Restore initial arrays and pointers - VOG
+!*
+!      call restore_gas_spaces(dbl_mb(KRHO1),dbl_mb(KRHO1BU),
+!     &                        dbl_mb(KRHO2),dbl_mb(KRHO2BU),only_dens)
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'MOROT ')
       RETURN
