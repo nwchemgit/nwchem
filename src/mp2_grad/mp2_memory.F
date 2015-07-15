@@ -84,6 +84,7 @@ c
 #ifndef EXT_INT
       if (k_file_size .gt. 2.4d8) k_file_size = 1d99
 #endif
+cfudge
       k_file_size = k_file_size*1.2d0
 *      if (task .eq. 'gradient') then
          call mp2_backt_info(basis,tol2e,oskel,
@@ -222,7 +223,8 @@ c
       max_file = max(k_file_size+2*t_file_size,
      2     2*t_file_size+p_file_size)
 #else     
-      max_file = k_file_size+2*t_file_size+p_file_size
+      max_file = max(2*k_file_size,
+     K     k_file_size+2*t_file_size+p_file_size)
 #endif
 
       call ga_igop(542, max_file, 1, 'max')
