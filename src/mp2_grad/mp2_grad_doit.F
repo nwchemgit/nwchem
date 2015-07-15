@@ -549,6 +549,8 @@ c
       if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
      $     MT_INT, 1, mp2_eaftype)) mp2_eaftype=
      E     inntsize*file_size/1024/1024
+c     make it at least 10
+      mp2_eaftype=max(10,mp2_eaftype)
 c
 c     check if mem  is enough
 c

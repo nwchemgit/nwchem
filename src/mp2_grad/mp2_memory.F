@@ -84,6 +84,7 @@ c
 #ifndef EXT_INT
       if (k_file_size .gt. 2.4d8) k_file_size = 1d99
 #endif
+      k_file_size = k_file_size*1.2d0
 *      if (task .eq. 'gradient') then
          call mp2_backt_info(basis,tol2e,oskel,
      $        .false.,nshpair,nshpairlocal,
