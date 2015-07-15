@@ -259,6 +259,7 @@ c
        call util_file_name('kh', .true.,.true., fnamek)
 #ifdef NOIO
        eaftype=mp2_eaftype(rtdb,k_file_size)
+       if(ga_nodeid().eq.0) write(6,*) ' mp2_eaf for mointskh  ',eaftype
 #else
        eaftype=EAF_RW
 #endif

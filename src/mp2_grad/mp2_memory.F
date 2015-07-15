@@ -96,6 +96,7 @@ c
          if (t_file_size .gt. 2.4d8) t_file_size = 1d99
          if (p_file_size .gt. 2.4d8) p_file_size = 1d99
 #endif
+         p_file_size = p_file_size*1.2d0
       endif
 *      endif
 c
@@ -216,9 +217,14 @@ c
 c
  1111 max_ga = max(ga_1,ga_2,ga_3,ga_4,ga_5,ga_6,ga_7) * 1.02d0
       max_ma = max(ma_1,ma_2,ma_3,ma_4,ma_5,ma_6,ma_7) * 1.02d0
-      max_file = max(k_file_size+t_file_size,t_file_size+p_file_size)
-     $     * 1.02d0
-      call ga_igop(542, max_file, 1, 'min')
+#if 0
+      max_file = max(k_file_size+2*t_file_size,
+     2     2*t_file_size+p_file_size)
+#else     
+      max_file = k_file_size+2*t_file_size+p_file_size
+#endif
+
+      call ga_igop(542, max_file, 1, 'max')
 c
       if (ga_nodeid().eq.0 .and. 
      $     util_print('mpass debug',print_debug)) then

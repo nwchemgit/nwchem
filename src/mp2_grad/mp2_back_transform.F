@@ -145,6 +145,7 @@ c
       call util_file_name('2pdm', .true., .true., fname)
 #ifdef NOIO
        eaftype=mp2_eaftype(rtdb,p_file_size)
+      if(ga_nodeid().eq.0) write(6,*) ' mp2_eaf for 2pdm  ',eaftype
 #else
        eaftype=eaf_rw
 #endif

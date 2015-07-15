@@ -288,6 +288,7 @@ c
 c     
 #ifdef NOIO
          eaftype=mp2_eaftype(rtdb,k_file_size)
+         if(ga_nodeid().eq.0) write(6,*) ' mp2_eaf for kh ',eaftype
 #else
          eaftype=EAF_RW
 #endif
@@ -305,14 +306,17 @@ c
          if(task.eq.'gradient')then
 #ifdef NOIO
          eaftype=mp2_eaftype(rtdb,t_file_size)
+         if(ga_nodeid().eq.0) write(6,*) ' mp2_eaf for ta tb ',eaftype
 #else
          eaftype=EAF_RW
 #endif
             call util_file_name('ta',.true.,.true.,fnameta)
             call util_file_name('tb',.true.,.true.,fnametb)
+         if(ga_nodeid().eq.0) write(6,*) ' mp2_eaf for ta  ',eaftype
             if (eaf_open(fnameta,eaftype,tunita) .ne. 0)
      $           call errquit('mp2_grad: eaf open of ta failed',0,
      &       DISK_ERR)
+         if(ga_nodeid().eq.0) write(6,*) ' mp2_eaf for tb  ',eaftype
             if (eaf_open(fnametb,eaftype,tunitb) .ne. 0)
      $           call errquit('mp2_grad: eaf open of tb failed',0,
      &       DISK_ERR)
@@ -534,18 +538,31 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "errquit.fh"
       integer rtdb
       double precision file_size
 c
-      integer eaf_size_in_mb
+      integer eaf_size_in_mb,avail_ma_in_mb
       integer inntsize
 c     
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
      $     MT_INT, 1, mp2_eaftype)) mp2_eaftype=
      E     inntsize*file_size/1024/1024
-c     extra factor for load imbalance
-      mp2_eaftype=mp2_eaftype*12/10
+c
+c     check if mem  is enough
+c
+      avail_ma_in_mb = MA_inquire_avail(mt_byte)/1024/1024
+      if(mp2_eaftype.gt.avail_ma_in_mb) then
+         write(6,*) ga_nodeid(),' mp2_eaftype ',mp2_eaftype,
+     M ' avail_ma_in_mb ',avail_ma_in_mb
+         call errquit(
+     M        'mp2_eaftype gt avail_ma by',avail_ma_in_mb-mp2_eaftype,
+     M        MA_ERR)
+      endif
+      if(ga_nodeid().eq.0) write(6,*) ' mp2_eaftype ',mp2_eaftype,
+     M ' avail_ma_in_mb ',avail_ma_in_mb
+
       if(ga_nodeid().eq.0) then
          write(luout,'(A,I12,F12.0)')
      I        ' EAF : mp2_eaftype filesize',
