@@ -131,6 +131,7 @@ int util_cgetppn(){
   int ppn;
   util_getppn_(ppn_out);
   ppn = (int ) *ppn_out;
+  free(ppn_out);
   fflush(stdout);
   return ppn;
 }

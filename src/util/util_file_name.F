@@ -780,7 +780,7 @@ c
       nattpt=0
       avail0=0
       avail1=0
-#ifdef NOFSCHECK
+#ifdef NOIO
       avail0=10**8
       nuse=ga_nnodes()
       avail1=-16d0*nuse+avail0

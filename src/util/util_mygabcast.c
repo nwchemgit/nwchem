@@ -1,14 +1,16 @@
-/* $Id: util_mygabcast.c 26851 2015-02-17 23:33:54Z edo $ */
+/* $Id$ */
 /* routine to avoid 32-bit integer overflow present both in GA and MPI collectives*/
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <mpi.h>
 #include "ga.h"
 #include "macdecls.h"
 #include "typesf2c.h"
 extern MPI_Comm GA_MPI_Comm_pgroup_default();
+
 void FATR
-util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Integer *ld) {
+util_mygabcast2_(Integer *g_a, Integer *mlo, Integer *mhi, Integer *nlo, Integer *nhi, DoublePrecision *a, Integer *ld) {
   int i;
   int ierr, len,  resultlen;
   int nsteps;
@@ -22,13 +24,13 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
 #ifdef DEBUG   
     if(GA_Nodeid() == 0) printf(" bcast: bigint8 %11ld bigint %11d\n", bigint8, bigint);
 #endif
-  lo[0]=0;
-  lo[1]=0;
+  lo[1]=*mlo - 1;
+  lo[0]=*nlo - 1;
   /* swap column & rows when going from fortran to c */
-  hi[1]=*m - 1;
-  hi[0]=*n - 1;
+  hi[1]=*mhi - 1;
+  hi[0]=*nhi - 1;
 
-  long len8 = (*m) * (*n);
+  long len8 = (hi[1] - lo[1] +1) * (hi[0] - lo[0] +1);
 
   nsteps = (int) ceil(((double)len8)/((double)bigint));
 
@@ -61,3 +63,21 @@ util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Intege
 
 
 }
+#if 1
+void FATR
+util_mygabcast_(Integer *g_a, Integer *m, Integer *n, DoublePrecision *a, Integer *ld) {
+  Integer* mlo = malloc(sizeof(Integer));
+  Integer* mhi = malloc(sizeof(Integer));
+  Integer* nlo = malloc(sizeof(Integer));
+  Integer* nhi = malloc(sizeof(Integer));
+  *mlo = 1;
+  *mhi = *m;
+  *nlo = 1;
+  *nhi = *n;
+  util_mygabcast2_(g_a, mlo,  mhi,  nlo, nhi, a, ld);
+  free(mlo);
+  free(mhi);
+  free(nlo);
+  free(nhi);
+ }
+#endif
