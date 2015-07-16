@@ -277,6 +277,7 @@ c
      $        call errquit('mp2_grad_doit: could not alloc toff_b',1,
      &       MA_ERR)
 c
+#if 0
          if (ga_nodeid() .eq. 0) then
             call ga_get(g_vecs_a,1,nbf,1,nmo,dbl_mb(k_amos),nbf)
             if (scftype .eq. 'UHF') 
@@ -285,11 +286,17 @@ c
          call ga_brdcst(134, dbl_mb(k_amos), nbf*nmo*8, 0)
          if (scftype .eq. 'UHF') 
      $        call ga_brdcst(135, dbl_mb(k_bmos), nbf*nmo*8, 0)
+#else
+         call util_mygabcast2(g_vecs_a,1,nbf,1,nmo,dbl_mb(k_amos),nbf)
+         if (scftype .eq. 'UHF') call util_mygabcast2(
+     G        g_vecs_b,1,nbf,1,nmo,dbl_mb(k_bmos),nbf)
+#endif
 c     
 #ifdef NOIO
          eaftype=mp2_eaftype(rtdb,k_file_size)
          if(ga_nodeid().eq.0) write(6,*) ' mp2_eaf for kh ',eaftype
 #else
+
          eaftype=EAF_RW
 #endif
          call util_file_name('kh',.true.,.true.,fnamek)
