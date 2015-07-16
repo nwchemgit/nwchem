@@ -469,6 +469,7 @@ c
 #else
        call util_mygabcast2(g_movecs,1, nbf, qlo, qhi, 
      D      dbl_mb(k_xmo_t), nbf )
+#endif
        call row_exch( nbf, nmo, rbfmap, dbl_mb(k_xmo_t), dbl_mb(k_xmo) )
        call moints_xmot(nbf,qhi-qlo+1,dbl_mb(k_xmo),dbl_mb(k_xmo_t))
 
