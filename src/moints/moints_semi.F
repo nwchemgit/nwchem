@@ -67,7 +67,7 @@ c
        integer lmemreq, nvir_node
        double precision gmem, gmem_agg
        double precision iotmpptr
-       integer g_kbuf
+       integer g_kbuf,g_kbuf_trans
        logical status
        logical osym
        character*256 fnameK
@@ -201,6 +201,10 @@ c
         pvlo = vlo + clo - 1
         pvhi = vlo + chi - 1
       endif
+      if (.not.(ga_create( MT_DBL, mxrlen*nseg, nvir, ' Kbuf',
+     $                     0, nvir, g_kbuf_trans )))
+     $   call errquit('moints_semi: cannot allocate K buffer',0,
+     &       GA_ERR)
 c
 c  Reorder shells by descending shell-length
 c  and group shells by blocksize
@@ -287,7 +291,7 @@ c
      $                   int_mb(k_bfmap), int_mb(k_rbfmap),
      $                   blen, int_mb(k_gloc), 
      $                   nnbf, niofl, int_mb(k_ionext),
-     $                   int_mb(k_rlen), g_movecs, g_kbuf )
+     $                   int_mb(k_rlen), g_movecs, g_kbuf,g_kbuf_trans)
 c
 c  Clean up
 c
@@ -308,6 +312,9 @@ c
        if (.not. ma_pop_stack(l_shmap))
      $     call errquit('moints_semi: failed to pop', 10, MA_ERR)
        if (.not. ga_destroy(g_kbuf))
+     $      call errquit('moints_semi: failed to destroy g_kbuf',g_kbuf,
+     &       GA_ERR)
+       if (.not. ga_destroy(g_kbuf_trans))
      $      call errquit('moints_semi: failed to destroy g_kbuf',g_kbuf,
      &       GA_ERR)
 c
@@ -342,7 +349,8 @@ c
      $                           pvlo, pvhi, mxrlen, osym, oblk, 
      $                           kunit, shmap, ngrp, glo, ghi, bfmap, 
      $                           rbfmap, blen, gloc, nnbf, 
-     $                           niofl, ionext, rlen, g_movecs, g_kbuf)
+     $                           niofl, ionext, rlen, g_movecs, g_kbuf,
+     G     g_kbuf_trans)
        implicit none
 #include "errquit.fh"
 #include "tcgmsg.fh"
@@ -385,6 +393,7 @@ c
        integer rlen(niofl)                    ! [input] Record lengths for IO writes
        integer g_movecs                       ! [input] MO coefficients
        integer g_kbuf                         ! [scratch] Buffer for half-trans exchange
+       integer g_kbuf_trans                         ! [scratch] Buffer for half-trans exchange
 c
 c   Local variables
 c
@@ -422,6 +431,7 @@ c
        external gr_len, nxtask
 c
        call ga_zero(g_kbuf)
+       call ga_zero(g_kbuf_trans)
        num_nodes = ga_nnodes()
        nmo1 = oseghi - oseglo + 1
        nmo2 = vhi - vlo + 1
@@ -620,7 +630,7 @@ c
      $                               jbflo, jbfhi, rlen(iiofl), 
      $                               gloc, dbl_mb(k_ssni),
      $                               dbl_mb(k_hlp), dbl_mb(k_hlp2),
-     $                               dbl_mb(k_xmo_t), g_kbuf )
+     $                               dbl_mb(k_xmo_t), g_kbuf_trans)
 
                if (.not. ma_pop_stack(l_hlp)) 
      $                 call errquit('moints_semi: pop failed ',18,
@@ -649,7 +659,7 @@ c
      $              jbflo, jbfhi, rlen(iiofl), gloc, 
      $              dbl_mb(k_ssni),
      $              dbl_mb(k_hlp3), dbl_mb(k_hlp2),
-     $              dbl_mb(k_xmo), g_kbuf )
+     $              dbl_mb(k_xmo), g_kbuf_trans)
 
                if (.not. ma_pop_stack(l_xmo)) 
      $                 call errquit('moints_semi: pop failed ',180,
@@ -688,12 +698,14 @@ c
                mi_nsynchs = mi_nsynchs + 1
                call summaxmin(t1, mi_aggsynch, mi_maxsynch, mi_minsynch)
                t0 = util_cpusec()
+               call ga_copy(g_kbuf_trans,g_kbuf)
                call moints_wrbuf( kunit, oseglo, oseghi,
      $                            vlo, pvlo, pvhi, nnbf, iocnt,
-     $                            rlen(iiofl), g_kbuf )
+     $                            rlen(iiofl), g_kbuf)
                mi_tio = mi_tio + util_cpusec() - t0
                nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(iiofl)
                call ga_zero(g_kbuf)
+               call ga_zero(g_kbuf_trans)
                iocnt = iocnt + ma_sizeof(MT_DBL,rlen(iiofl),MT_BYTE)
                iiofl = iiofl + 1
              endif
@@ -765,7 +777,6 @@ c
       glo = gloc(ilo,jlo)
       ghi = gloc(ihi,jhi)
       nvir = vhi - vlo + 1
-
       do o=oseglo,oseghi
         call dgemm('t', 'n', ijlen, nvir, nbf, 1.d0, ssni(1,jlo,ilo,o),
      $              nbf, c(1,vlo), nbf, 0.d0, h(jlo,ilo,vlo), ijlen)
