@@ -178,6 +178,8 @@ c Use intblk variable to define multiple blocks
 c
       intblk=(ma_inquire_avail(MT_DBL)-2*ma_sizeof_overhead(MT_DBL))/
      &       (2*max2e)
+c     leave 10 pct available
+      intblk=intblk*9/10
       intblk=max(1,intblk)
       nrints=max2e*intblk
       stat=stat.and.ma_push_get(MT_DBL,nrints,'eri1',l_eri1,k_eri1)
