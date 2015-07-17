@@ -1,6 +1,7 @@
 #ifdef SOLARIS
 #define NEW_SPARSE
 #endif
+#define GAADD 1
 c
 c  $Id$
 c
@@ -201,10 +202,14 @@ c
         pvlo = vlo + clo - 1
         pvhi = vlo + chi - 1
       endif
+#ifdef GAADD
       if (.not.(ga_create( MT_DBL, mxrlen*nseg, nvir, ' Kbuf',
      $                     0, nvir, g_kbuf_trans )))
      $   call errquit('moints_semi: cannot allocate K buffer',0,
      &       GA_ERR)
+#else
+      g_kbuf_trans=g_kbuf
+#endif
 c
 c  Reorder shells by descending shell-length
 c  and group shells by blocksize
@@ -314,9 +319,11 @@ c
        if (.not. ga_destroy(g_kbuf))
      $      call errquit('moints_semi: failed to destroy g_kbuf',g_kbuf,
      &       GA_ERR)
+#ifdef GAADD
        if (.not. ga_destroy(g_kbuf_trans))
      $      call errquit('moints_semi: failed to destroy g_kbuf',g_kbuf,
      &       GA_ERR)
+#endif
 c
        if (eaf_close(kunit).ne.0)
      $   call errquit('moints_semi: failed to close file',kunit,
@@ -698,7 +705,10 @@ c
                mi_nsynchs = mi_nsynchs + 1
                call summaxmin(t1, mi_aggsynch, mi_maxsynch, mi_minsynch)
                t0 = util_cpusec()
-               call ga_copy(g_kbuf_trans,g_kbuf)
+#ifdef GAADD
+C               call ga_copy(g_kbuf_trans,g_kbuf)
+               call ga_add(1d0,g_kbuf_trans,1d0,g_kbuf,g_kbuf)
+#endif
                call moints_wrbuf( kunit, oseglo, oseghi,
      $                            vlo, pvlo, pvhi, nnbf, iocnt,
      $                            rlen(iiofl), g_kbuf)
