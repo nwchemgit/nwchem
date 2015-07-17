@@ -4670,7 +4670,11 @@ c
       external geom_check_handle
 c
       geom_atomct_set = geom_check_handle(geom, 'geom_atomct_set')
-      if (.not. geom_atomct_set) return
+      do i = 1, ncent
+         geom_atomct(i,geom) = -99d0
+         atomct(i) = -99d0
+      enddo
+      if (.not. geom_atomct_set)  return
 c
       if (ncent.le.0) then
          write(LuOut,*) ' geom_atomct_set: too few centers ',ncent,
