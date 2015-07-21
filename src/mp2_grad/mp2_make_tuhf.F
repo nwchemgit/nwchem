@@ -45,6 +45,8 @@ c
       integer nnbf,ioff,kunit
       integer nva_lo_local,nva_hi_local,jb
       double precision eval_a(*),eval_b(*)
+      double precision eps
+      parameter (eps=1d-14)
 c
       logical otdebug
 c
@@ -126,8 +128,23 @@ c
      $                 nbf,1.0d0,dbl_mb(k_tmp),nbf,
      $                 c_a(1,sym_lo_va(symb)),
      $                 nbf,0.0d0,dbl_mb(k_ia_jb),num_oa(symj))
+#if 1
+                  call ga_acc(g_t_a,toff_a(sym_lo_va(symb),syma)+1,
+     $                    toff_a(sym_hi_va(symb),syma)+num_oa(symj),
+     $                    a_a-nva_lo+1,a_a-nva_lo+1,
+     $                    dbl_mb(k_ia_jb),1,1.0d0)
                   jb=1
                   do b=sym_lo_va(symb),sym_hi_va(symb)
+                     call ga_acc(g_t_a,toff_a(a_a,symb)+1,
+     $                    toff_a(a_a,symb)+num_oa(symj),
+     $                    b-nva_lo+1,b-nva_lo+1,
+     $                    dbl_mb(k_ia_jb-1+jb),1,minusone)
+                     jb=jb+num_oa(symj)
+                  enddo
+#else
+                  jb=1
+                  do b=sym_lo_va(symb),sym_hi_va(symb)
+                     if(a_a.ne.b) then
                      call ga_acc(g_t_a,toff_a(b,syma)+1,
      $                    toff_a(b,syma)+num_oa(symj),
      $                    a_a-nva_lo+1,a_a-nva_lo+1,
@@ -136,8 +153,10 @@ c
      $                    toff_a(a_a,symb)+num_oa(symj),
      $                    b-nva_lo+1,b-nva_lo+1,
      $                    dbl_mb(k_ia_jb-1+jb),1,minusone)
+                     endif
                      jb=jb+num_oa(symj)
                   enddo
+#endif
                endif
                if(num_ob(symj).gt.0.and.num_vb(symb).gt.0)then
                   call dgemm('n','n',nbf,num_ob(symj),nbf,1.0d0,
@@ -147,6 +166,12 @@ c
      $                 nbf,1.0d0,dbl_mb(k_tmp),nbf,
      $                 c_b(1,sym_lo_vb(symb)),
      $                 nbf,0.0d0,dbl_mb(k_ia_jb),num_ob(symj))
+#if 1
+                     call ga_put(g_t_b,toff_b(sym_lo_vb(symb),syma)+1,
+     $                    toff_b(sym_hi_vb(symb),syma)+num_ob(symj),
+     $                    a_a-nva_lo+1,a_a-nva_lo+1,
+     $                    dbl_mb(k_ia_jb),1)
+#else
                   jb=1
                   do b=sym_lo_vb(symb),sym_hi_vb(symb)
                      call ga_put(g_t_b,toff_b(b,syma)+1,
@@ -155,6 +180,7 @@ c
      $                    dbl_mb(k_ia_jb-1+jb),1)
                      jb=jb+num_ob(symj)
                   enddo
+#endif
                endif
             enddo
          enddo
@@ -174,7 +200,7 @@ c
                      denom=eval_a(a_a)+eval_a(b)
      $                    -eval_a(i)-eval_a(j)
                      t=dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))/denom
-                     if(abs(t).lt.1d-12)t=0.0d0
+                     if(abs(t).lt.eps)t=0.0d0
 c
                      eaa=eaa+t*t*denom
                      dbl_mb(counta+k_ia_jb+j-sym_lo_oa(symj))=t
@@ -208,7 +234,7 @@ c
                      denom=eval_a(a_a)+eval_b(b)
      $                    -eval_a(i)-eval_b(j)
                      t=dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))/denom
-                     if(abs(t).lt.1d-12)t=0.0d0
+                     if(abs(t).lt.eps)t=0.0d0
                      eab=eab+t*t*denom
                      dbl_mb(countb+k_ia_jb+j-sym_lo_ob(symj))=t
                   enddo
