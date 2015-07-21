@@ -121,7 +121,7 @@
      >                      mt_log,1,localize_on)) 
      >       localize_on = .false.
 
-         write(*,*) "localize_on=",localize_on
+         !write(*,*) "localize_on=",localize_on
  
 
 *        **** initialize coulomb_screened ****
