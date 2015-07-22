@@ -194,6 +194,9 @@ c
 #ifdef NOIO
 cold         avail_file=(avail_ma-max_ma)/2
                   avail_file=(avail_ma-max_ma)
+      if(avail_file.lt.0) call errquit(
+     C     'grad_doit: increase MA memory by at least',int(-avail_file),
+     M     MA_err)
          if(oprint_mem) then
             write(6,222) npasses, num_i_perseg, avail_ma, avail_ga, 
      C           dble(avail_file)

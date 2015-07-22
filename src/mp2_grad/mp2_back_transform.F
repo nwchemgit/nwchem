@@ -375,7 +375,7 @@ c     flag and scaling factors for SCS-MP2
       endif
 c     
       do i=oseg_lo,oseg_hi 
-	 call ga_fill_patch(g_buf,1,nva,1,nbfpair,99.0d0) ! For debug
+cedo	 call ga_fill_patch(g_buf,1,nva,1,nbfpair,99.0d0) ! For debug
          symi=irs_a(i)
          do a=nva_lo_local,nva_hi_local
             syma=irs_a(a)
@@ -457,6 +457,7 @@ c
      $           1, nbfpair, tmp, 1)
 c     
          end do                 ! End of a
+         call ga_mask_sync(.true.,.false.)
          call ga_sync
 c     
 c     Now have locally (a,1:nbfpairlocal).  Loop thru local shell pairs
@@ -495,6 +496,7 @@ c
             ptr = ptr + count*(oseg_hi-oseg_lo+1)
          end do
 c     
+cedo         call ga_mask_sync(.true.,.false.)
          call ga_sync
 c     
       end do                    ! End of i

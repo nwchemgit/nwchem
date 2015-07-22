@@ -402,6 +402,7 @@ C        iopass(ntask+i) = ipass + 1
 C      enddo		
 
       IF (GA_NODEID().EQ.0) THEN
+         write(6,*) ' vrange nnbf ',nnbf
 c$$$      WRITE(6,901)
 c$$$ 901  FORMAT(/,' LOCATION MAP: ',/)
 c$$$      DO I=1,NBF

@@ -12,6 +12,7 @@
 #include "bas.fh"
 #include "schwarz.fh"
 #include "util.fh"
+#include "geom.fh"
 c     
 c     Return the maximum local memory, global memory per node and 
 c     file space per node required by any algorithm step for the 
@@ -46,6 +47,7 @@ c
       integer ga_1,ga_2,ga_3,ga_4,ga_5,ga_6,ga_7
       integer ma_1,ma_2,ma_3,ma_4,ma_5,ma_6,ma_7,ma_1a,ma_6a
       integer max2e, mem2
+      integer noa_lo,lenscr,leneri
       logical oga_uses_ma
 c     
       nnbf=nbf*(nbf+1)/2
@@ -78,7 +80,13 @@ c
       if (nnbf_sparse .gt. nnbf) call errquit('mp2mem: confused',0,
      &       MEM_ERR)
 c     
+      if(ga_nodeid().eq.0) write(6,*) ' mp2_memr nvloc ',nva_local
+      call mp2_memory_nvloc(nva_local,basis, nva, batch_size)
       k_file_size=dble(nnbf_sparse)*batch_size*nva_local + nnbf + 2
+      if(.not. geom_freeze(rtdb,geom,'mp2',noa_lo)) 
+     E     call errquit('mp2_memory: unable to get frozen core',0,
+     &       GEOM_ERR)
+      noa_lo=noa_lo+1
       t_file_size = 0
       p_file_size = 0
 #ifndef EXT_INT
@@ -113,7 +121,7 @@ c
          call intb_mem_2e4c(lengd, lenscrd) ! blocking algorithm
          lengd = lengd/12
          lengd = max(lengd,15**4)          ! MUST MATCH MP_NONSEP
-         call int_terminate
+         call intd_terminate
       endif
 c
       oga_uses_ma = ga_uses_ma() .and. (.not. ga_memory_limited())
@@ -219,6 +227,10 @@ c
 c
  1111 max_ga = max(ga_1,ga_2,ga_3,ga_4,ga_5,ga_6,ga_7) * 1.02d0
       max_ma = max(ma_1,ma_2,ma_3,ma_4,ma_5,ma_6,ma_7) * 1.02d0
+#ifdef NOIO
+c to avoid rounding problems with eaf hack in mbytes
+      max_ma=nint(max_ma/1024d0/1024d0+2d0)*1024*1024
+#endif
 #if 0
       max_file = max(k_file_size+2*t_file_size,
      2     2*t_file_size+p_file_size)
@@ -259,4 +271,53 @@ c
          call util_flush(6)
       endif
 c     
+      end
+      subroutine mp2_memory_nvloc(nvloc,
+     c     basis, nva, num_i_perseg)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "bas.fh"
+c     guess more accurately k_file size
+c     source stolen from moints_rdhfint and higher
+c
+      integer nvloc ! [in]
+      integer  nva,num_i_perseg,basis ! [out]
+c
+      integer nseg, nvir,nvir_node,gmem
+      integer g_kbuf,  rlo, rhi, clo, chi 
+      integer mxrlen,nbf
+      integer maxbfsh,nnbf
+      logical status
+c
+c
+      status = bas_numbf(basis,nbf)
+      status = status.and.bas_nbf_cn_max(basis,maxbfsh)
+      nseg = num_i_perseg
+      nvir=nva
+       nvir_node = int(nvir/ga_nnodes())
+       if (mod(nvir,ga_nnodes()).ne.0) nvir_node=nvir_node+1
+       gmem = ga_memory_avail() / 8 ! Want amount in doubles
+       mxrlen = int(gmem/(nseg*nvir_node))
+       mxrlen = min(mxrlen, 
+     $      min(nbf*nbf,maxbfsh*maxbfsh*ga_nnodes()))
+c     make it at least 1k
+       mxrlen = max(mxrlen,1024)
+      if (.not.(ga_create( MT_DBL, mxrlen*nseg, nvir, 'transp Kbuf',
+     $                     (mxrlen*nseg), 0, g_kbuf )))
+     $   call errquit('moints_semi: cannot allocate K buffer',0,
+     &       GA_ERR)
+      call ga_distribution(g_kbuf, ga_nodeid(), rlo, rhi, clo, chi )
+      if ((clo.eq.0).and.(chi.eq.-1)) then
+        nvloc=0
+      else
+         nvloc= chi - clo +1
+      endif
+      if (.not. ga_destroy(g_kbuf))
+     $     call errquit('moints_semi: failed to destroy g_kbuf',g_kbuf,
+     &     GA_ERR)
+
+      if(ga_nodeid().eq.0)write(6,*) ' nvloc new ',nvloc
+      return
       end

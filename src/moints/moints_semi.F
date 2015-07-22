@@ -150,10 +150,13 @@ c
 c
        nvir_node = int(nvir/numnodes)
        if (mod(nvir,numnodes).ne.0) nvir_node=nvir_node+1
+c     we have g_kbuf and g_kbuf trans plus ga_add duplicates .. /3
+       gmem=gmem/3
        mxrlen = int(gmem/(nseg*nvir_node))
        mxrlen = min(
      $      mxrlen, 
-     $      min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
+     $      nbf*(nbf+1)/2)
+C     $      min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
        if (rtdb_get(rtdb, 'mp2:mxrlen', mt_int, 1, mxrlen_in)) 
      c      mxrlen=max(mxrlen_in*1024,mxrlen)
 c
