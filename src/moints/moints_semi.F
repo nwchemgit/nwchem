@@ -151,7 +151,8 @@ c
        nvir_node = int(nvir/numnodes)
        if (mod(nvir,numnodes).ne.0) nvir_node=nvir_node+1
 c     we have g_kbuf and g_kbuf trans plus ga_add duplicates .. /3
-       gmem=gmem/3
+c     we have g_kbuf and g_kbuf trans 
+       gmem=gmem/2
        mxrlen = int(gmem/(nseg*nvir_node))
        mxrlen = min(
      $      mxrlen, 
@@ -709,8 +710,10 @@ c
                call summaxmin(t1, mi_aggsynch, mi_maxsynch, mi_minsynch)
                t0 = util_cpusec()
 #ifdef GAADD
-C               call ga_copy(g_kbuf_trans,g_kbuf)
-               call ga_add(1d0,g_kbuf_trans,1d0,g_kbuf,g_kbuf)
+               call ga_copy(g_kbuf_trans,g_kbuf)
+               call ga_sync()
+c               call ga_add(1d0,g_kbuf_trans,1d0,g_kbuf,g_kbuf)
+
 #endif
                call moints_wrbuf( kunit, oseglo, oseghi,
      $                            vlo, pvlo, pvhi, nnbf, iocnt,
