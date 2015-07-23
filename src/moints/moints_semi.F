@@ -158,8 +158,10 @@ c     we have g_kbuf and g_kbuf trans
      $      mxrlen, 
      $      nbf*(nbf+1)/2)
 C     $      min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
+
        if (rtdb_get(rtdb, 'mp2:mxrlen', mt_int, 1, mxrlen_in)) 
      c      mxrlen=max(mxrlen_in*1024,mxrlen)
+ 1964  continue
 c
        if (oprint_mem) then
           write(6,720) mxrlen, nseg, nvir, nbf, maxbfsh, numnodes
@@ -193,11 +195,21 @@ c  Create GA exchange buffer
 c
 c
       itmp = nvir/numnodes + min(mod(nvir,numnodes),1)
+      gmem=0
 *ga:1:0
       if (.not.(ga_create( MT_DBL, mxrlen*nseg, nvir, 'transp Kbuf',
-     $                     (mxrlen*nseg), 0, g_kbuf )))
-     $   call errquit('moints_semi: cannot allocate K buffer',0,
-     &       GA_ERR)
+     $                     (mxrlen*nseg), 0, g_kbuf ))) gmem=-1
+       call ga_dgop(319, gmem, 1, 'min')
+       call ga_sync()
+       if(gmem.lt.0) then
+c     cant alloc ga .. reduce mxrlen
+         mxrlen=mxrlen/2
+         if(ga_nodeid().eq.0) write(6,1962)
+ 1962    format(//,5x,' Halved record length',//)
+         goto 1964
+cold    call errquit('moints_semi: cannot allocate K buffer',0,
+cold     &       GA_ERR)
+         endif
       call ga_distribution(g_kbuf, myid, rlo, rhi, clo, chi )
       if ((clo.eq.0).and.(chi.eq.-1)) then
         pvlo = 0
@@ -207,10 +219,22 @@ c
         pvhi = vlo + chi - 1
       endif
 #ifdef GAADD
+      gmem=0
       if (.not.(ga_create( MT_DBL, mxrlen*nseg, nvir, ' Kbuf',
-     $                     0, nvir, g_kbuf_trans )))
-     $   call errquit('moints_semi: cannot allocate K buffer',0,
-     &       GA_ERR)
+     $                     0, nvir, g_kbuf_trans ))) gmem=-1
+       call ga_dgop(321, gmem, 1, 'min')
+       call ga_sync()
+       if(gmem.lt.0) then
+c     cant alloc ga .. reduce mxrlen
+         mxrlen=mxrlen/2
+         if (.not. ga_destroy(g_kbuf))
+     $        call errquit('moints_semi: failed to destroy g_kbuf',
+     G        g_kbuf,   GA_ERR)
+         if(ga_nodeid().eq.0) write(6,1962) 
+         goto 1964
+cold     $   call errquit('moints_semi: cannot allocate K buffer',0,
+cold     &       GA_ERR)
+      endif
 #else
       g_kbuf_trans=g_kbuf
 #endif
@@ -711,6 +735,7 @@ c
                t0 = util_cpusec()
 #ifdef GAADD
                call ga_copy(g_kbuf_trans,g_kbuf)
+               call ga_mask_sync(.true.,.false.)
                call ga_sync()
 c               call ga_add(1d0,g_kbuf_trans,1d0,g_kbuf,g_kbuf)
 
@@ -720,7 +745,9 @@ c               call ga_add(1d0,g_kbuf_trans,1d0,g_kbuf,g_kbuf)
      $                            rlen(iiofl), g_kbuf)
                mi_tio = mi_tio + util_cpusec() - t0
                nwrbytes = nwrbytes + nmo1*(pvhi-pvlo+1)*rlen(iiofl)
+               call ga_mask_sync(.false.,.false.)
                call ga_zero(g_kbuf)
+               call ga_mask_sync(.false.,.true.)
                call ga_zero(g_kbuf_trans)
                iocnt = iocnt + ma_sizeof(MT_DBL,rlen(iiofl),MT_BYTE)
                iiofl = iiofl + 1
