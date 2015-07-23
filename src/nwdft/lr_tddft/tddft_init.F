@@ -575,9 +575,16 @@ c
       if (use_nwxc) then
         if (nwxc_has_hfx()) then
           xfac(1) = nwxc_wght_hfx()
+          lhashf = .true.
+        else
+          lhashf = .false.
         endif
-        dftmp2 = nwxc_has_mp2c()
-        mp2fac = nwxc_wght_mp2c()
+        lhasdft = nwxc_has_xc()
+        ldft    = lhasdft.and.(.not.lhashf)
+        lhf     = (.not.lhasdft).and.lhashf
+        lhybrid = lhasdft.and.lhashf
+        dftmp2  = nwxc_has_mp2c()
+        mp2fac  = nwxc_wght_mp2c()
         if (dftmp2) then
           if (.not.rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
      &      call errquit('dft_inpana: rtdb_put failed', 2902, RTDB_ERR)
