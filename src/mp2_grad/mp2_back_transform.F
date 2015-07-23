@@ -47,7 +47,7 @@
 c
 c     Allocate memory for back transformation routine
 c
-      integer g_buf
+      integer g_buf,g_buf_trans
       integer nshpair, nshpairlocal, nbfpair, nbfpairlocal
       integer l_shpairs, k_shpairs, l_shpairslocal, k_shpairslocal
       integer l_shdim, k_shdim, l_shlo, k_shlo
@@ -141,6 +141,10 @@ c
      $     'mp2: backt', 1, 1, int_mb(k_map), nblock, g_buf))
      $     call errquit('mp2: backt: ga_create failed', nva*nbfpair,
      &       GA_ERR)
+      if (.not.(ga_create( mt_dbl, nva, nbfpair,'mp2: backt2',
+     $                     0, nbfpair, g_buf_trans )))
+     $   call errquit('mp2:backt: ga_create2 failed', nva*nbfpair,
+     &       GA_ERR)
 c     
       call util_file_name('2pdm', .true., .true., fname)
 #ifdef NOIO
@@ -173,7 +177,7 @@ c
      $     nshpairlocal, nbfpairlocal, int_mb(k_shpairslocal),
      $     int_mb(k_shdim), int_mb(k_shlo),
      $     dbl_mb(k_t), dbl_mb(k_iauv), dbl_mb(k_tmp),
-     $     int_mb(k_map), g_buf)
+     $     int_mb(k_map), g_buf, g_buf_trans)
       call pstat_off(ps_backt)
       call ga_sync()
 c
@@ -181,6 +185,8 @@ c     Free up some memory and then contract with gradient integrals.
 c
       if (.not. ga_destroy(g_buf)) call errquit
      $     ('mp2: backt: ga destroy failed', 0, GA_ERR)
+      if (.not. ga_destroy(g_buf_trans)) call errquit
+     $     ('mp2: backt: ga destroy failed', 1, GA_ERR)
       if (.not. ma_chop_stack(l_t)) call errquit
      $     ('mp2:backt: first chop stack failed', 0, MA_ERR)
 c
@@ -301,7 +307,7 @@ c
      $     nshpairlocal, nbfpairlocal, shpairslocal,
      $     shdim, shlo,
      $     t, ia_uv, tmp,
-     $     map, g_buf)
+     $     map, g_buf, g_buf_trans)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -339,6 +345,7 @@ c
       integer twopdmunit        ! Unit no. for part transformed two-PDM
       integer map(0:*)          ! First index of g_buf on each node
       integer g_buf             ! Global array handle for transpose buffer
+      integer g_buf_trans       ! Global array handle for tr-transpose buffer
 c     
 *     double precision tsum
 
@@ -453,12 +460,15 @@ c     nshpairlocal              no. of shellpairs assigned to this processor
 c     nbfpairlocal              no. of bfpairs assigned to this processor
 c     shpairslocal(1:2,1:nshpairlocal) (u>=v) local shell pair indices
 c     
-            call ga_put(g_buf, a-nva_lo+1, a-nva_lo+1,
+            call ga_put(g_buf_trans, a-nva_lo+1, a-nva_lo+1,
      $           1, nbfpair, tmp, 1)
 c     
          end do                 ! End of a
-         call ga_mask_sync(.true.,.false.)
-         call ga_sync
+         call ga_sync()
+         call ga_copy(g_buf_trans,g_buf)
+c               call ga_sync()
+c         call ga_mask_sync(.true.,.false.)
+         call ga_sync()
 c     
 c     Now have locally (a,1:nbfpairlocal).  Loop thru local shell pairs
 c     transform the a index and write to disk.
