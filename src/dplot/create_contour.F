@@ -43,7 +43,7 @@
 *---- Used by Int_Eval_GBSets
       Integer lth1
       Integer l_Scr1,k_Scr1
-*---- Used by xc_rhogen
+*---- Used by td_rhogen
       Integer   lthB
       Integer l_FMat,k_FMat,l_PMat,k_PMat,l_BMat,k_BMat,
      &        l_MOVec,k_MOVec
@@ -242,7 +242,7 @@ C
 *     moleculat orbitals.
 *
       If (What.eq.'DENSITY') Then
-*------- Get the values of the density at the grid points (use xc_rhogen
+*------- Get the values of the density at the grid points (use td_rhogen
 *        from the NWDFT module)
 *
          call dcopy(nbf_ao_mxnbf_ce2, 0.0d0,0,dbl_mb(k_Fmat), 1)
@@ -254,7 +254,7 @@ c
      .        int_mb(k_iniz),int_mb(k_ifin),
      ,        dbl_mb(k_scr1),dbl_mb(irchi_atom))
 c
-         call xc_rhogen(0,
+         call td_rhogen(0,
      T         tol_rho,
      &         AO_Bas_Han,
      &         g_Dns,
@@ -269,7 +269,7 @@ c
      &         dbl_mb(k_rdat),int_mb(k_cetobfr),100.d0,
      &         0, .false., .false. )
 c
-*------- Deallocate Scratch memory needed by xc_rhogen
+*------- Deallocate Scratch memory needed by td_rhogen
       Else
 *------- Get the values of the orbital at the grid points
 *
