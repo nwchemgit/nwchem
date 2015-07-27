@@ -465,7 +465,13 @@ c
 c     
          end do                 ! End of a
          call ga_sync()
+#if 0
          call ga_copy(g_buf_trans,g_buf)
+#else
+      call mp2_copyback(g_buf,g_buf_trans)
+#endif
+cc      call ga_print(g_buf_trans)
+cc      call ga_print(g_buf)
 c               call ga_sync()
 c         call ga_mask_sync(.true.,.false.)
          call ga_sync()
@@ -1050,3 +1056,100 @@ c
 c
       end
 c--------------------------------------------------
+      subroutine mp2_copyback(g_a,g_a_trans)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "errquit.fh"
+c
+c     re-arrange (a la transponse) from one GA distrib. to the opposite
+c
+      integer g_a,g_a_trans
+c
+      integer dim1,dim2,type
+      integer ilo,ihi,jlo,jhi
+      integer i_length,j_length
+      integer k_buff,l_buff
+      integer i_chunk
+      logical dowork
+c
+      call ga_distribution(g_a, ga_nodeid(), ilo, ihi, jlo, jhi)
+      dowork=.true.
+      if ((ilo.eq.0).and.(ihi.eq.-1))  dowork=.false.
+      if(dowork) then
+         i_length=ihi-ilo+1
+         j_length=jhi-jlo+1
+         if (.not. ma_push_get(mt_dbl,i_length*j_length,
+     M        'mp2 copyb',l_buff,k_buff))
+     $        call errquit('mp2:copyb could not allocate buff',
+     L        i_length*j_length,MA_ERR)
+      endif
+      call mp2_copyback0(dowork,g_a,g_a_trans,
+     C     dbl_mb(k_buff),ilo,ihi,jlo,jhi)
+      if(dowork) then
+         if (.not. ma_chop_stack(l_buff)) call errquit
+     $        ('mp2: backt: failed chopping stack',0, MA_ERR)
+      endif
+
+      return
+      end
+      subroutine mp2_copyback0(dowork,g_a,g_a_trans,
+     B     buff,ilo,ihi,jlo,jhi)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "errquit.fh"
+      logical dowork
+      integer g_a,g_a_trans
+      integer ilo,ihi,jlo,jhi
+      double precision buff(ilo:ihi,jlo:jhi)
+c
+      integer dim1,dim2,type
+      integer i_length,j_length
+      integer i_chunk,iseg,i_ld,i_0,i_1
+      integer t_ilo, t_ihi, t_jlo, t_jhi
+      integer nsegs,iseg_in
+      double precision tr,tr_tr
+c
+      call ga_distribution(g_a_trans, ga_nodeid(), 
+     T     t_ilo, t_ihi, t_jlo, t_jhi)
+      i_chunk=t_ihi-t_ilo+1
+ 123  format(i4,a,2i9)
+      call ga_igop(123,i_chunk,1,'max')
+      if(i_chunk.lt.1) then
+         write(6,123) ga_nodeid(),'1trans ilo ihi ',t_ilo, t_ihi
+         call errquit(' mp2_copyback: bad i_chunk',i_chunk,0)
+      endif
+
+      if(dowork) then
+         call ga_inquire(g_a, type, dim1, dim2)
+c     scatter first value
+c     check for remainder
+         nsegs=dim1/i_chunk
+         if(mod(dim1,i_chunk).ne.0) nsegs=nsegs+1
+cstaggered
+         do iseg_in=ga_nodeid()+1,ga_nodeid()+nsegs
+            iseg=mod(iseg_in,nsegs)+1
+c            i_ld=i_chunk
+            i_ld=ihi-ilo+1
+c     check for remainder
+            i_0=(iseg-1)*i_chunk+1
+            i_1=iseg*i_chunk
+            if(iseg.eq.nsegs) i_1=dim1
+            call ga_get(g_a_trans,i_0,i_1,
+     A           jlo,jhi,buff(i_0,jlo),i_ld)
+         enddo
+      endif
+c     everybody needs to have the buffer filled
+      call ga_sync()
+      if(dowork) call ga_put(g_a, ilo, ihi, jlo, jhi, buff, ihi-ilo+1)
+#if 0
+      call ga_sync()
+      tr=ga_ddot(g_a,g_a)
+      tr_tr=ga_ddot(g_a_trans,g_a_trans)
+      if(abs(tr-tr_tr).gt.1d-6)then
+         if(ga_nodeid().eq.0)write(6,*) 'tr ',tr,' tr_tr ',tr_tr
+      endif
+#endif
+      return
+      end

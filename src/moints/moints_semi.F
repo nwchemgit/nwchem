@@ -734,8 +734,12 @@ c
                call summaxmin(t1, mi_aggsynch, mi_maxsynch, mi_minsynch)
                t0 = util_cpusec()
 #ifdef GAADD
+#if 1
+               call mp2_copyback(g_kbuf,g_kbuf_trans)
+#else
                call ga_copy(g_kbuf_trans,g_kbuf)
-               call ga_mask_sync(.true.,.false.)
+#endif
+C               call ga_mask_sync(.true.,.false.)
                call ga_sync()
 c               call ga_add(1d0,g_kbuf_trans,1d0,g_kbuf,g_kbuf)
 
