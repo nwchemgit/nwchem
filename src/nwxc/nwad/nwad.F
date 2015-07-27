@@ -305,19 +305,21 @@ c     and even then only for debugging.
         integer(kind=8)    :: var_fid  = 0
         character(len=16)  :: var_name = ""
 #endif
+#if NWAD_DEG >= 1
         integer            :: nvar
         integer            :: ivar
+#endif
 c
         real(kind=rk) :: d0
-#  if NWAD_DEG >= 1
+#if NWAD_DEG >= 1
         real(kind=rk) :: d1(mxvar)
-#  endif
-#  if NWAD_DEG >= 2
+#endif
+#if NWAD_DEG >= 2
         real(kind=rk) :: d2(mxvar*(mxvar+1)/2)
-#  endif
-#  if NWAD_DEG >= 3
+#endif
+#if NWAD_DEG >= 3
         real(kind=rk) :: d3(mxvar*(mxvar+1)*(mxvar+2)/6)
-#  endif
+#endif
       end type nwad_dble
       interface assignment (=)
         module procedure nwad_dble_assignx
@@ -544,6 +546,7 @@ c
         ! The result of the addition depends on the union of the sets of 
         ! variables that X and Y depend on. Here we construct this union as
         ! an ordered list.
+#if NWAD_DEG >= 1
         ix = 1
         iy = 1
         is = 1
@@ -565,6 +568,7 @@ c
             is = is + 1
           endif
         enddo
+#endif
       end subroutine nwad_merge_dependencies
       !>
       !> \brief Copy the dependencies
@@ -575,8 +579,10 @@ c
       subroutine nwad_copy_dependencies(s,x)
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble), intent(inout) :: s
+#if NWAD_DEG >= 1
         s%ivar = x%ivar
         s%nvar = x%nvar
+#endif
       end subroutine nwad_copy_dependencies
 #ifdef NWAD_PRINT
       !>
@@ -4338,7 +4344,11 @@ C>
       function nwad_dble_get_nvar(x) result (s)
         type(nwad_dble), intent(in) :: x
         integer                     :: s
+#if NWAD_DEG >= 1
         s = x%nvar
+#else
+        s = 0
+#endif
       end function nwad_dble_get_nvar
       !>
       !> \brief Initialize an active variable to \f$\rho_\alpha\f$
@@ -4358,8 +4368,10 @@ C>
       function nwad_dble_rho_a(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,0)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4393,8 +4405,10 @@ c       s%var_name = "rhoa"
       function nwad_dble_rho_b(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,1)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4428,8 +4442,10 @@ c       s%var_name = "rhob"
       function nwad_dble_rho_t(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,0)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4463,8 +4479,10 @@ c       s%var_name = "rho"
       function nwad_dble_gamma_aa(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,2)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4498,8 +4516,10 @@ c       s%var_name = "sigmaaa"
       function nwad_dble_gamma_ab(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,3)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4533,8 +4553,10 @@ c       s%var_name = "sigmaab"
       function nwad_dble_gamma_bb(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,4)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4568,8 +4590,10 @@ c       s%var_name = "sigmabb"
       function nwad_dble_gamma_tt(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,2)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4603,8 +4627,10 @@ c       s%var_name = "sigma"
       function nwad_dble_tau_a(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,5)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4638,8 +4664,10 @@ c       s%var_name = "taua"
       function nwad_dble_tau_b(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,6)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4673,8 +4701,10 @@ c       s%var_name = "taub"
       function nwad_dble_tau_t(x) result (s)
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
         s%nvar = 1
         s%ivar = ibset(0,5)
+#endif
         s%d0 = x
 #if NWAD_DEG >= 1
         s%d1(1) = 1.0d0
@@ -4722,9 +4752,11 @@ c       s%var_name = "tau"
         external util_popcnt,util_leadz,util_trailz
 
 #ifndef NODEBUG
+#if NWAD_DEG >= 1
         if (ix.lt.1.or.ix.gt.x%nvar) then
           call errquit("nwad_dble_get_d1: ix out of range",ix,UERR)
         endif
+#endif
 #endif
 #if NWAD_DEG >= 1
         s  = x%d1(ix)
@@ -4776,12 +4808,14 @@ c       s%var_name = "tau"
         external util_popcnt,util_leadz,util_trailz
 
 #ifndef NODEBUG
+#if NWAD_DEG >= 1
         if (ix.lt.1.or.ix.gt.x%nvar) then
           call errquit("nwad_dble_get_d2: ix out of range",ix,UERR)
         endif
         if (ix2.lt.1.or.ix2.gt.x%nvar) then
           call errquit("nwad_dble_get_d2: ix2 out of range",ix2,UERR)
         endif
+#endif
         if (ix2.gt.ix) then
           call errquit("nwad_dble_get_d2: ix2 greater than ix",ix2,UERR)
         endif
@@ -4847,6 +4881,7 @@ c       s%var_name = "tau"
         external util_popcnt,util_leadz,util_trailz
 
 #ifndef NODEBUG
+#if NWAD_DEG >= 1
         if (ix.lt.1.or.ix.gt.x%nvar) then
           call errquit("nwad_dble_get_d3: ix out of range",ix,UERR)
         endif
@@ -4856,6 +4891,7 @@ c       s%var_name = "tau"
         if (ix3.lt.1.or.ix3.gt.x%nvar) then
           call errquit("nwad_dble_get_d3: ix3 out of range",ix3,UERR)
         endif
+#endif
         if (ix2.gt.ix) then
           call errquit("nwad_dble_get_d3: ix2 greater than ix",ix2,UERR)
         endif
@@ -4925,6 +4961,7 @@ c       s     = x%d2(ix*(ix-1)/2+ix2)
         write(iunit,'(" ",a,i6.6)')x%var_name,x%var_fid
 #endif
         write(iunit,'(" ",$)')
+#if NWAD_DEG >= 1
         do i = 1, x%nvar
           do while(.not.btest(x%ivar,j))
             j = j + 1
@@ -4947,6 +4984,7 @@ c       s     = x%d2(ix*(ix-1)/2+ix2)
           end select
           j = j + 1
         enddo
+#endif
         write(*,*)
         write(iunit,'(" d0 = ",e14.6)')x%d0
 #if NWAD_DEG >= 1

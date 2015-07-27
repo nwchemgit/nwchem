@@ -2,7 +2,8 @@
 
          LIBRARY = libnwxc.a
 
-    OBJ_OPTIMIZE = nwxc.o nwxcm_eval.o \
+    OBJ_OPTIMIZE = nwxc.o nwxc_add.o nwxc_block.o nwxc_query.o nwxc_nwchem.o \
+		   nwxcm_eval.o \
                    nwxc_vdw_main.o nwxc_vdw_e.o nwxc_vdw_der.o nwxc_vdw_hess.o \
                    nwxc_vdw_util.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o \
                    nwxcm_heaviside.o

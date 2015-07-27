@@ -1,6 +1,4 @@
 #include "./nwad/nwad.F"
-#include "nwxc_add.F"
-#include "nwxc_block.F"
 #include "nwxc_c_b95.F"
 #undef SECOND_DERIV
 #undef THIRD_DERIV
@@ -137,11 +135,11 @@
 #undef SECOND_DERIV
 #undef THIRD_DERIV
 #include "nwxc_eval.F"
-#include "nwxc_nwchem.F"
+!include "nwxc_nwchem.F"
 #include "nwxcP_xc_b97.F"
 #undef SECOND_DERIV
 #undef THIRD_DERIV
-#include "nwxc_query.F"
+!include "nwxc_query.F"
 !include "nwxc_vdw3a.F"
 !include "nwxc_vdw3b.F"
 !include "nwxc_vdw3c.F"
