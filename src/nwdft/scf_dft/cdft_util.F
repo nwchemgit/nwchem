@@ -662,7 +662,8 @@ c      double precision constr(nconstr)
       integer ioc, iuoc, nuoc, i, j
       double precision temp
       double precision zero, onem, one
-      parameter(zero = 0.d0, one = 1.d0, onem = -one)
+      double precision delta_e,eps
+      parameter(zero = 0.d0, one = 1.d0, onem = -one, eps=1d-9)
 
       integer g_t
       logical status
@@ -676,28 +677,48 @@ c      double precision constr(nconstr)
       if(.not.MA_Push_Get(MT_Dbl,ngtia,'gtia',lgtia,igtia))
      $       call errquit('derivatives: cannot allocate gtia)',0)
 c
-      status=ga_create(mt_dbl, nmo, nmo, 'ttmp', 1, 1, g_t)
+      call dfill(ngtia, 0.0d0, dbl_mb(igtia), 1)
+c
+      status=ga_create(mt_dbl, nmo, nmo, 'ttmp', 0, nmo, g_t)
       do i = 1, nconstr
         call ga_dgemm('t', 'n', nmo, nmo,
      $      nmo, one, g_movecs, g_constr(i), zero, g_tmp)
         call ga_dgemm('n', 'n', nmo, nmo,
      $      nmo, one, g_tmp, g_movecs, zero, g_t)
-c     
-        if(ga_nodeid().eq.0)
-     D       call ga_get(g_t,1,noc,noc+1,nmo,
-     D       dbl_mb(igtia+(i-1)*noc*nuoc),noc)
+        do ioc = 1+ga_nodeid(), noc,ga_nnodes()
+#if 0
+           do iuoc = noc+1, nmo
+              call ga_get(g_t,ioc,ioc,iuoc,iuoc,temp,1)
+              j = (iuoc-noc) + (ioc-1)*nuoc
+     $                + (i-1)*noc*nuoc
+              dbl_mb(igtia+j-1) = temp
+              enddo
+#else
+              j = igtia+
+     P              (ioc-1)*nuoc
+     $                + (i-1)*noc*nuoc
+              call ga_get(g_t,ioc,ioc,noc+1,nmo,dbl_mb(j),1)
+#endif
+        enddo
       enddo
-      call ga_brdcst(65537, dbl_mb(igtia), 
-     G     MA_sizeof(MT_DBL,1,MT_BYTE)*ngtia, 0)
-      
       status=ga_destroy(g_t)
+      call ga_dgop(2015,dbl_mb(igtia),ngtia,'+')
 
       do i = 1, nconstr
         do ioc = 1, noc
            do 10 iuoc = noc+1, nmo
               iigtia = (iuoc-noc) + (ioc-1)*nuoc
      $                       +(i-1)*noc*nuoc
-              temp=dbl_mb(igtia+iigtia-1)/(evals(ioc)-evals(iuoc))
+              delta_e=evals(ioc)-evals(iuoc)
+              if(abs(delta_e).lt.eps) then
+                 if(ga_nodeid().eq.0) then
+                    write(6,*) ' degenerate evals ',ioc,iuoc,
+     C                   evals(ioc),evals(iuoc),dbl_mb(igtia+iigtia-1)
+                 endif
+                 temp=0d0
+              else
+                 temp=dbl_mb(igtia+iigtia-1)/(evals(ioc)-evals(iuoc))
+              endif
               do j = 1, nconstr
                 jjgtia = (iuoc-noc) + (ioc-1)*nuoc
      $                       +(j-1)*noc*nuoc
