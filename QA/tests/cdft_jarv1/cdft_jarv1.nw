@@ -1,0 +1,105 @@
+title "C2F4 C2H4 with displacement: 04.00 Angstroms"
+start cdft456
+
+#adapted from https://gist.github.com/jarvist/4673243
+
+
+
+geometry molA  units angstroms noautoz noautosym
+#First our Ethylene... B3lyp/6-311g* optimisation, Gaussian, using symmetry. JMF 2013-01-28
+C 0.000000 0.000000 0.663493
+C 0.000000 0.000000 -0.663493
+H 0.000000 0.922503 1.236446
+H 0.000000 -0.922503 1.236446
+H 0.000000 -0.922503 -1.236446
+H 0.000000 0.922503 -1.236446
+end
+
+geometry molB
+#Now our C2F2...  B3lyp/6-311g* optimisation, Gaussian, using symmetry. JMF 2013-01-28
+C 04.00 0.000000 0.660905
+C 04.00 0.000000 -0.660905
+F 04.00 1.103866 1.386732
+F 04.00 -1.103866 1.386732
+F 04.00 -1.103866 -1.386732
+F 04.00 1.103866 -1.386732
+end
+
+geometry molAB units angstroms noautoz noautosym
+#First our Ethylene... B3lyp/6-311g* optimisation, Gaussian, using symmetry. JMF 2013-01-28
+C 0.000000 0.000000 0.663493
+C 0.000000 0.000000 -0.663493
+H 0.000000 0.922503 1.236446
+H 0.000000 -0.922503 1.236446
+H 0.000000 -0.922503 -1.236446
+H 0.000000 0.922503 -1.236446
+
+#Now our C2F2...  B3lyp/6-311g* optimisation, Gaussian, using symmetry. JMF 2013-01-28
+C 04.00 0.000000 0.660905
+C 04.00 0.000000 -0.660905
+F 04.00 1.103866 1.386732
+F 04.00 -1.103866 1.386732
+F 04.00 -1.103866 -1.386732
+F 04.00 1.103866 -1.386732
+end
+
+basis
+ * library 6-31++G*
+end
+
+#Fragments for molA
+set geometry molA
+dft
+ xc b3lyp
+ odft
+ vectors input atomic output molA.mos
+end
+task dft ignore
+
+#Fragments for molB
+set geometry molB
+dft
+ xc b3lyp
+ odft
+ vectors input atomic output molB.mos
+end
+task dft ignore
+
+#Ground state DFT please, for the dimer
+set geometry molAB
+dft
+ mult 1
+ vectors input fragment molA.mos molB.mos output molAB.mos #Fragment guess
+ xc b3lyp
+end
+task dft energy
+
+#Now do a TDDFT calculation based on this, solving for first singlet (~CT state)
+tddft
+ nroots 1
+ singlet
+end
+#task tddft energy
+
+#OK; now let's try the big constrained calculation
+set geometry molAB
+dft
+ vectors input fragment molA.mos molB.mos output molABcdft.mos #Fragment guess...
+
+ iterations 50
+ print  kinetic_energy
+ direct
+ xc b3lyp
+ convergence nolevelshifting
+#code for Constrained DFT - see http://www.nwchem-sw.org/index.php/Density_Functional_Theory_for_Molecules#CDFT_--_Constrained_DFT
+ odft
+ mult 1
+# vectors swap beta 128 127  #unsure how to calculate this for PCBM... 231 alpha electrons      231 beta electrons <- mono PCBM
+ cdft 1 6   charge +1.0 #Ethylene
+ cdft 1 6   spin   +1.0
+
+ cdft 7 12  charge -1.0 #C2F4
+ cdft 7 12  spin   -1.0
+end
+set dft:cdft_maxiter 1000
+task dft energy
