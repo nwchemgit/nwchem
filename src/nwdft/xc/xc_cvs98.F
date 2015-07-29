@@ -213,6 +213,7 @@ c
 c  In the bc95css subroutine, we use 2*TA as the tau 
 c
          TA = tau(n,1)*2.0d0
+         if(ta.lt.dtol) goto 25
 
          Call vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
      &                ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,ijzy)
@@ -241,6 +242,7 @@ c
 
          TB = tau(n,2)*2.0d0
 
+         if(tb.lt.dtol) goto 30
          Call vs98ss(tol_rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
      &                ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,ijzy)
          Ec = Ec + FB*qwght(n)          
