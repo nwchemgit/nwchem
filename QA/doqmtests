@@ -120,6 +120,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $1 h2o-lcpbe
 ./runtests.mpi.unix procs $1 o2_bnl
 ./runtests.mpi.unix procs $1 o2_hfattn
+./runtests.mpi.unix procs $1 cdft_jarv1
 #
 #--- dft + dispersion tests
 ./runtests.mpi.unix procs $1 disp_dimer_ch4

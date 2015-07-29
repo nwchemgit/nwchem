@@ -152,6 +152,7 @@ fi
 ./runtests.mpi.unix procs $np o2_hfattn
 ./runtests.mpi.unix procs $np n2_rodft_lrc
 ./runtests.mpi.unix procs $np h2o-hse
+./runtests.mpi.unix procs $np cdft_jarv1
 #
 #--- minnesota functionals
 ./runtests.mpi.unix procs $np m11_ch3
