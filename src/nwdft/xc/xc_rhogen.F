@@ -1,3 +1,4 @@
+#define STAG 1
 * $Id$
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
@@ -29,6 +30,7 @@ C>
      &     rdelchi_atom, rdens_atom, cetobfr, wmax, 
      &     ttau, kske, dolap)
       implicit none
+#include "global.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "dftpara.fh"
@@ -93,7 +95,7 @@ c     local declarations
 c
       integer i0, ii, mu, n, npol
       integer ipert        ! perturbation loop index
-      integer iat, inizia, ifirst, ilast, nbfia, nnia
+      integer iat, inizia, ifirst, ilast, nbfia, nnia, iat_in
       integer ifinia, ifinja
       integer jat, inizja, jfirst, jlast, nbfja, nnja
       integer iatcur, jatcur
@@ -195,7 +197,13 @@ c
      A        Pmat,nbhandl)
       endif
 
+#ifdef STAG
+      do 230 iat_in = 1+ga_nodeid(), natoms+ga_nodeid()
+         iat=mod(iat_in,natoms)
+         if(iat.eq.0) iat=natoms
+#else
       do 230 iat = 1, natoms
+#endif
          inizia = iniz(iat)
          if (inizia.eq.0)goto 230
          if(what.eq.2) then
@@ -637,6 +645,7 @@ c@@@@@@@@@@@@@@@@@
      O     nz,
      R     rchi_atom,rdelchi_atom,rdens_atom)
       implicit none
+#include "global.fh"
       logical grad
       integer ipol,natoms,npert
       integer iniz(natoms) ! mapping of nbf_ao -> mbf
@@ -649,7 +658,7 @@ c      output
 c
       integer nz(*)
 c
-      integer iat,jat,inizia,inizja
+      integer iat,jat,inizia,inizja,iat_in
       integer ipert
       double precision FUNC_MAXI,FUNC_MAXJ,DELFUNC_MAX,FUNC_MAX,
      ,     P_MAXJ,P_MAXJ_A,P_MAXJ_B,P_MAXIJ
@@ -662,8 +671,14 @@ c
       if(grad) DELFUNC_MAX = dabsmax(natoms,rdelchi_atom)
       
       nonzero=0
-
+cscat
+#ifdef STAG
+      do iat_in = 1+ga_nodeid(), natoms+ga_nodeid()
+         iat=mod(iat_in,natoms)
+         if(iat.eq.0) iat=natoms
+#else
       do iat = 1, natoms
+#endif
          inizia = iniz(iat)
          if (inizia.ne.0) then
 c     
