@@ -134,7 +134,7 @@ c
 c
       if (.not. rtdb_get(irtdb,'driver:trust',mt_dbl,1,trust)) 
      $   trust = 0.5d0
-      trust = 1.0d3
+C      trust = 1.0d3
 
 c
       if (.not. rtdb_get(irtdb,'driver:nptopt',mt_int,1,maxiter))
