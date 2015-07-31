@@ -254,6 +254,9 @@ c
      I                         ishc,ishd,nscr,Dbl_MB(iscr),
      N                         Ninteg_api,Dbl_MB(istart))
                           call dscal(nintegrals,q1,dbl_mb(istart),1)
+                       else
+                          call dcopy(nintegrals,0d0,0,
+     D                         dbl_mb(istart),1)
                        endif
                        istart = istart+nintegrals
 c     
