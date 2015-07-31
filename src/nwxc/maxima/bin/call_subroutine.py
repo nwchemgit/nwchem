@@ -90,6 +90,11 @@ import string
 type_autoxc   = 1
 type_autoxcDs = 2
 
+func_invalid  = -1
+func_lda      = 1
+func_gga      = 2
+func_mgga     = 3
+
 def usage(code):
    """
    Print usage information
@@ -103,6 +108,12 @@ def usage(code):
    sys.stderr.write("<fileout>  Fortran from Maxima with subroutine calls")
    sys.stderr.write("           for functionals")
    exit(code)
+
+def var_to_int(var):
+   """
+   Convert a variable name (such as "t5") to an integer (in this case 5).
+   """
+   return int(var[1:])
 
 def unwrap_lines(lines_in):
    """
@@ -142,14 +153,14 @@ def find_subroutine(lines,lineno):
    lineno_start = -1
    lineno_end   = -1
    pattern = re.compile("      subroutine")
-   while !pattern.match(lines[line]):
+   while not pattern.match(lines[line]):
       line += 1
       if line > length:
          break
    if line <= length:
       lineno_start = line
    pattern = re.compile("      end subroutine")
-   while !pattern.match(lines[line]):
+   while not pattern.match(lines[line]):
       line += 1
       if line > length:
          break
@@ -163,11 +174,11 @@ def find_code_skeleton_type(lines,subr_lines):
    autoxc-Ds generated subroutine.
    """
    (lineno_start,lineno_end) = subr_lines
-   pattern = re.compile("if (taua.gt.tol_rho) then")
+   pattern = re.compile("if \(taua\.gt\.tol_rho\) then")
    subr_type = type_autoxc
    line = lineno_start
    while line <= lineno_end:
-      if pattern.match(lines[line]):
+      if pattern.search(lines[line]):
          subr_type = type_autoxcDs
          break
       line += 1
@@ -184,16 +195,16 @@ def find_autoxc_code_skeleton(lines,subr_lines):
    ifstart = -1
    ifend   = -1
    #
-   pattern = re.compile("if (rhoa.gt.tol_rho) then")
+   pattern = re.compile("if \(rhoa\.gt\.tol_rho\) then")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifstart = line+1
          break
       line += 1
    #
-   pattern = re.compile("endif ! rhoa.gt.tol_rho")
+   pattern = re.compile("endif ! rhoa\.gt\.tol_rho")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifend   = line-1
          break
       line += 1
@@ -206,32 +217,32 @@ def find_autoxc_code_skeleton(lines,subr_lines):
    ifendb   = -1
    ifstartc = -1
    ifendc   = -1
-   pattern = re.compile("if (rhoa.gt.tol_rho.and.rhob.gt.tol_rho) then")
+   pattern = re.compile("if \(rhoa\.gt\.tol_rho\.and\.rhob\.gt\.tol_rho\) then")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifstarta = line+1
          break
       line += 1
    #
-   pattern = re.compile("elseif (rhoa.gt.tol_rho.and.rhob.le.tol_rho) then")
+   pattern = re.compile("elseif \(rhoa\.gt\.tol_rho\.and\.rhob\.le\.tol_rho\) then")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifenda   = line-1
          ifstartb = line+1
          break
       line += 1
    #
-   pattern = re.compile("elseif (rhoa.le.tol_rho.and.rhob.gt.tol_rho) then")
+   pattern = re.compile("elseif \(rhoa\.le\.tol_rho\.and\.rhob\.gt\.tol_rho\) then")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifendb   = line-1
          ifstartc = line+1
          break
       line += 1
    #
-   pattern = re.compile("endif ! rhoa.gt.tol_rho.and.rhob.gt.tol_rho")
+   pattern = re.compile("endif ! rhoa\.gt\.tol_rho\.and\.rhob\.gt\.tol_rho")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifendc   = line-1
          break
       line += 1
@@ -255,16 +266,16 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
    ifstartb = -1
    ifendb   = -1
    #
-   pattern = re.compile("if (taua.gt.tol_rho) then")
+   pattern = re.compile("if \(taua\.gt\.tol_rho\) then")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifstarta = line+1
          break
       line += 1
    #
    pattern = re.compile("else")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifenda   = line-1
          ifstartb = line+1
          break
@@ -272,7 +283,7 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
    #
    pattern = re.compile("endif")
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.search(lines[line]):
          ifendb  = line-1
          break
       line += 1
@@ -289,24 +300,24 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
       ifendc   = -1
       ifstartd = -1
       ifendd   = -1
-      pattern = re.compile("if (taua.gt.tol_rho.and.taub.gt.tol_rho) then")
+      pattern = re.compile("if \(taua\.gt\.tol_rho\.and\.taub\.gt\.tol_rho\) then")
       while line <= lineno_end:
-         if pattern.match(lines[line])
+         if pattern.search(lines[line]):
             ifstarta = line+1
             break
          line += 1
       #
-      pattern = re.compile("elseif (taua.gt.tol_rho.and.taub.le.tol_rho) then")
+      pattern = re.compile("elseif \(taua\.gt\.tol_rho\.and\.taub\.le\.tol_rho\) then")
       while line <= lineno_end:
-         if pattern.match(lines[line])
+         if pattern.search(lines[line]):
             ifenda   = line-1
             ifstartb = line+1
             break
          line += 1
       #
-      pattern = re.compile("elseif (taua.le.tol_rho.and.taub.gt.tol_rho) then")
+      pattern = re.compile("elseif \(taua\.le\.tol_rho\.and\.taub\.gt\.tol_rho\) then")
       while line <= lineno_end:
-         if pattern.match(lines[line])
+         if pattern.search(lines[line]):
             ifendb   = line-1
             ifstartc = line+1
             break
@@ -314,7 +325,7 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
       #
       pattern = re.compile("else")
       while line <= lineno_end:
-         if pattern.match(lines[line])
+         if pattern.search(lines[line]):
             ifendc   = line-1
             ifstartd = line+1
             break
@@ -322,7 +333,7 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
       #
       pattern = re.compile("endif")
       while line <= lineno_end:
-         if pattern.match(lines[line])
+         if pattern.search(lines[line]):
             ifendd   = line-1
             break
          line += 1
@@ -344,11 +355,32 @@ def find_type_declaration_insertion_point(lines,subr_lines):
    line_insert = -1
    line = lineno_start
    while line <= lineno_end:
-      if pattern.match(lines[line])
+      if pattern.match(lines[line]):
          line_insert = line
          break
       line += 1
    return line_insert
+
+def find_subroutine_call_insertion_point(lines,ifbranch,varname):
+   """
+   The assumption is that the symbolic algebra optimization will always break
+   out the function evaluation. Therefore there always is a line where the
+   functional value is assigned to a variable. The actual functional 
+   subroutine call, at the latest, has to happen on the line before.
+   This routine returns the line where the variable first appears.
+   """
+   (lineno_start,lineno_end) = ifbranch
+   line = lineno_start
+   insert_point = -1
+   while line <= lineno_end:
+      aline = lines[line]
+      aline = aline.split(" = ")
+      key = aline[0].lstrip()
+      if key == varname:
+         insert_point = line
+         break
+      line += 1
+   return insert_point
 
 def collect_subroutine_calls(lines,ifbranch_lines):
    """
@@ -365,10 +397,11 @@ def collect_subroutine_calls(lines,ifbranch_lines):
    pattern = re.compile("nwxc")
    line = lineno_start
    while line <= lineno_end:
-      if pattern.match(lines[line]):
+      if pattern.search(lines[line]):
          aline = lines[line]
-         aline.split(" = ")
-         dict[aline[0]] = aline[1]
+         aline = aline.split(" = ")
+         key   = aline[0].lstrip()
+         dict[key] = aline[1]
       line += 1
    return dict
 
@@ -387,13 +420,12 @@ def delete_lines(lines,ifbranches):
    The list of line numbers is returned.
    """
    dlist = []
-   pattern = re.compile("nwxc")
    for ifbranch in ifbranches:
       (lineno_start,lineno_end) = ifbranch
       line = lineno_start
       while line <= lineno_end:
          aline = lines[line]
-         aline.split(" = ")
+         aline = aline.split(" = ")
          if len(aline) == 3:
             # line: t10(2) = (gammaab = gammaaa)
             dlist.append(line)
@@ -453,6 +485,91 @@ def append_declarations(olines,varsets,orderdiff):
          olines.append(line)
    return olines
 
+def append_subroutine_call(olines,subrname,arglist,orderdiff,funckind,num,indent):
+   """
+   Given the list of output lines so far, the subroutine name, the input
+   argument list, the order of differentiation, the functional kind as well as
+   the number of the output variable set, generate the subroutine call code.
+   The subroutine call code involves initializing the input and output 
+   arguments, and constructing the actual call itself.
+   The list of output lines is returned.
+   """
+   line = indent+"sr(R_A) = "+arglist[0]
+   olines.append(line)
+   line = indent+"sr(R_B) = "+arglist[1]
+   olines.append(line)
+   if funckind >= func_gga:
+      line = indent+"sg(G_AA) = "+arglist[2]
+      olines.append(line)
+      line = indent+"sg(G_AB) = "+arglist[3]
+      olines.append(line)
+      line = indent+"sg(G_BB) = "+arglist[4]
+      olines.append(line)
+   if funckind >= func_mgga:
+      line = indent+"st(T_A) = "+arglist[5]
+      olines.append(line)
+      line = indent+"st(T_B) = "+arglist[6]
+      olines.append(line)
+   line = indent+"s"+str(num)+"f = 0.0d0"
+   olines.append(line)
+   line = indent+"call dcopy(NCOL_AMAT,0.0d0,0,s"+str(num)+"a,1)"
+   olines.append(line)
+   if orderdiff >= 2:
+      line = indent+"call dcopy(NCOL_AMAT2,0.0d0,0,s"+str(num)+"a2,1)"
+      olines.append(line)
+   if orderdiff >= 3:
+      line = indent+"call dcopy(NCOL_AMAT3,0.0d0,0,s"+str(num)+"a3,1)"
+      olines.append(line)
+   if funckind >= func_gga:
+      line = indent+"call dcopy(NCOL_CMAT,0.0d0,0,s"+str(num)+"c,1)"
+      olines.append(line)
+      if orderdiff >= 2:
+         line = indent+"call dcopy(NCOL_CMAT2,0.0d0,0,s"+str(num)+"c2,1)"
+         olines.append(line)
+      if orderdiff >= 3:
+         line = indent+"call dcopy(NCOL_CMAT3,0.0d0,0,s"+str(num)+"c3,1)"
+         olines.append(line)
+   if funckind >= func_mgga:
+      line = indent+"call dcopy(NCOL_MMAT,0.0d0,0,s"+str(num)+"m,1)"
+      olines.append(line)
+      if orderdiff >= 2:
+         line = indent+"call dcopy(NCOL_MMAT2,0.0d0,0,s"+str(num)+"m2,1)"
+         olines.append(line)
+      if orderdiff >= 3:
+         line = indent+"call dcopy(NCOL_MMAT3,0.0d0,0,s"+str(num)+"m3,1)"
+         olines.append(line)
+   line = indent+"call "+subrname
+   if orderdiff == 2:
+      line = line+"_d2"
+   elif orderdiff == 3:
+      line = line+"_d3"
+   line = line+"(param,tol_rho,ipol,1,1.0d0,sr"
+   if funckind >= func_gga:
+      line = line+",sg"
+   if funckind >= func_mgga:
+      line = line+",st"
+   line = line+",s"+str(num)+"f,s"+str(num)+"a"
+   if orderdiff >= 2:
+      line = line+",s"+str(num)+"a2"
+   if orderdiff >= 3:
+      line = line+",s"+str(num)+"a3"
+   if funckind >= func_gga:
+      line = line+",s"+str(num)+"c"
+      if orderdiff >= 2:
+         line = line+",s"+str(num)+"c2"
+      if orderdiff >= 3:
+         line = line+",s"+str(num)+"c3"
+   if funckind >= func_mgga:
+      line = line+",s"+str(num)+"m"
+      if orderdiff >= 2:
+         line = line+",s"+str(num)+"m2"
+      if orderdiff >= 3:
+         line = line+",s"+str(num)+"m3"
+   line = line+")"
+   olines.append(line)
+   return olines
+   
+
 def find_max_order_diff(lines,subr_lines):
    """
    Work out the maximum order of differentiation for a given subroutine.
@@ -461,8 +578,8 @@ def find_max_order_diff(lines,subr_lines):
    (lineno_start,lineno_end) = subr_lines
    aline = lines[lineno_start]
    orderdiff = 0
-   pattern_d2 = re.compile("_d2(")
-   pattern_d3 = re.compile("_d3(")
+   pattern_d2 = re.compile("_d2")
+   pattern_d3 = re.compile("_d3")
    if pattern_d2.match(aline):
       orderdiff = 2
    elif pattern_d3.match(aline):
@@ -471,8 +588,343 @@ def find_max_order_diff(lines,subr_lines):
       orderdiff = 1
    return orderdiff
 
+def find_functional_kind(funccall):
+   """
+   Given the way the functional was invoked as a function work out whether
+   the functional is an LDA, GGA or Meta-GGA functional. We establish this
+   by counting the number of arguments which is 2 for LDA, 5 for GGA and 
+   7 for a Meta-GGA functional.
+   The functional kind is returned.
+   """
+   data = funccall
+   data = data.split(",")
+   length = len(data)
+   funckind = func_invalid
+   if   length == 2:
+      funckind = func_lda
+   elif length == 5:
+      funckind = func_gga
+   elif length == 7:
+      funckind = func_mgga
+   return funckind
 
-   
+def make_functional_name(funccall):
+   """
+   Given the way the functional was invoked as a function work out what the
+   name of the subroutine to call is.
+   The subroutine name is returned.
+   """
+   data = funccall
+   data = data.split("(")
+   data = data[0]
+   data = data.replace("nwxc_","nwxcm_")
+   return data
+
+def make_input_args_list(funccall):
+   """
+   Given the way the functional was invoked as a function work out what the
+   argument list is. This list will be used to initialize the input data to
+   the actual subroutine call.
+   The list of arguments is returned.
+   """
+   data = funccall.split("(")
+   data = data[1].split(")")
+   data = data[0].split(",")
+   return data
+
+def find_varname(dict,diffstr):
+   """
+   Given the subroutine call dictionary and the diffstr representing the
+   "'diff(...)" command work out which variable is indicated. If
+   diffstr is e.g. 'diff(t5,gammaa,2,rhob,1) then we return e.g. 
+   s3c3(D3_RB_GAA_GAA).
+   If diffstr is just a variable name, e.g. t5. then it represents the
+   functional value rather than a derivative and we return e.g. s3f.
+   The indicated variable is returned as a string.
+   """
+   data = diffstr
+   #DEBUG
+   #print "find_varname: data:",data
+   #DEBUG
+   if "%at(" == data[:4]:
+      data = data[4:-1]
+      iend = data.rfind(",")
+      data = data[:iend]
+      #DEBUG
+      #print "find_varname: at:",data
+      #DEBUG
+   if "'diff(" == data[:6]:
+      data = data[6:-1]
+      #DEBUG
+      #print "find_varname: diff:",data
+      #DEBUG
+   data = data.split(",")
+   callref = data[0]
+   list = dict.keys()
+   list = sorted(list,key=var_to_int)
+   num = -1
+   if len(list) > 0:
+      num = 0
+      #DEBUG
+      #print "find_varname:",callref,list
+      #DEBUG
+      while callref != list[num]:
+         num += 1
+      #DEBUG
+      #print "find_varname: num:",num
+      #DEBUG
+   lengthl = len(list)
+   if num == lengthl:
+      sys.stdout.write("entity %s not found\n"%callref)
+      for jj in range(0,length):
+         sys.stdout.write("list %d: %s\n"%(jj,list[jj]))
+      exit(10)
+   # num is now the variable set number
+   lengthd = len(data)
+   #DEBUG
+   #print "find_varname: lengthd:",lengthd
+   #DEBUG
+   if lengthd == 1:
+      # this is the energy functional value
+      var_name = "s"+str(num+1)+"f"
+      return var_name
+   orderdiff = 0
+   if lengthd >= 3:
+      orderdiff += int(data[2])
+   if lengthd >= 5:
+      orderdiff += int(data[4])
+   if lengthd >= 7:
+      orderdiff += int(data[6])
+   #DEBUG
+   #print "find_varname: orderdiff:",orderdiff
+   #DEBUG
+   # orderdiff is now the order of differentiation
+   patternc = re.compile("gamma")
+   patternt = re.compile("tau")
+   var_func = func_lda
+   if lengthd >= 3:
+      if patternc.match(data[1]):
+         var_func = func_gga
+      if patternt.match(data[1]):
+         var_func = func_mgga
+   if lengthd >= 5:
+      if var_func < func_gga and patternc.match(data[3]):
+         var_func = func_gga
+      if var_func < func_mgga and patternt.match(data[3]):
+         var_func = func_mgga
+   if lengthd >= 7:
+      if var_func < func_gga and patternc.match(data[5]):
+         var_func = func_gga
+      if var_func < func_mgga and patternt.match(data[5]):
+         var_func = func_mgga
+   #DEBUG
+   #print "find_varname: var_func:",var_func
+   #DEBUG
+   var_char = "invalid"
+   if var_func == func_lda:
+      var_char = "a"
+   elif var_func == func_gga:
+      var_char = "c"
+   elif var_func == func_mgga:
+      var_char = "m"
+   # var_char is now the character representing the output matrix, 
+   # a for Amat, c for Cmat, and m for Mmat
+   var_field = "D"+str(orderdiff)
+   if lengthd >= 3:
+      if "rhoa" == data[1]:
+         for ii in range(0,int(data[2])):
+            var_field = var_field + "_RA"
+   if lengthd >= 5:
+      if "rhoa" == data[3]:
+         for ii in range(0,int(data[4])):
+            var_field = var_field + "_RA"
+   if lengthd >= 7:
+      if "rhoa" == data[5]:
+         for ii in range(0,int(data[6])):
+            var_field = var_field + "_RA"
+   #
+   if lengthd >= 3:
+      if "rhob" == data[1]:
+         for ii in range(0,int(data[2])):
+            var_field = var_field + "_RB"
+   if lengthd >= 5:
+      if "rhob" == data[3]:
+         for ii in range(0,int(data[4])):
+            var_field = var_field + "_RB"
+   if lengthd >= 7:
+      if "rhob" == data[5]:
+         for ii in range(0,int(data[6])):
+            var_field = var_field + "_RB"
+   #
+   if lengthd >= 3:
+      if "gammaaa" == data[1]:
+         for ii in range(0,int(data[2])):
+            var_field = var_field + "_GAA"
+   if lengthd >= 5:
+      if "gammaaa" == data[3]:
+         for ii in range(0,int(data[4])):
+            var_field = var_field + "_GAA"
+   if lengthd >= 7:
+      if "gammaaa" == data[5]:
+         for ii in range(0,int(data[6])):
+            var_field = var_field + "_GAA"
+   #
+   if lengthd >= 3:
+      if "gammaab" == data[1]:
+         for ii in range(0,int(data[2])):
+            var_field = var_field + "_GAB"
+   if lengthd >= 5:
+      if "gammaab" == data[3]:
+         for ii in range(0,int(data[4])):
+            var_field = var_field + "_GAB"
+   if lengthd >= 7:
+      if "gammaab" == data[5]:
+         for ii in range(0,int(data[6])):
+            var_field = var_field + "_GAB"
+   #
+   if lengthd >= 3:
+      if "gammabb" == data[1]:
+         for ii in range(0,int(data[2])):
+            var_field = var_field + "_GBB"
+   if lengthd >= 5:
+      if "gammabb" == data[3]:
+         for ii in range(0,int(data[4])):
+            var_field = var_field + "_GBB"
+   if lengthd >= 7:
+      if "gammabb" == data[5]:
+         for ii in range(0,int(data[6])):
+            var_field = var_field + "_GBB"
+   #
+   if lengthd >= 3:
+      if "taua" == data[1]:
+         for ii in range(0,int(data[2])):
+            var_field = var_field + "_TA"
+   if lengthd >= 5:
+      if "taua" == data[3]:
+         for ii in range(0,int(data[4])):
+            var_field = var_field + "_TA"
+   if lengthd >= 7:
+      if "taua" == data[5]:
+         for ii in range(0,int(data[6])):
+            var_field = var_field + "_TA"
+   #
+   if lengthd >= 3:
+      if "taub" == data[1]:
+         for ii in range(0,int(data[2])):
+            var_field = var_field + "_TB"
+   if lengthd >= 5:
+      if "taub" == data[3]:
+         for ii in range(0,int(data[4])):
+            var_field = var_field + "_TB"
+   if lengthd >= 7:
+      if "taub" == data[5]:
+         for ii in range(0,int(data[6])):
+            var_field = var_field + "_TB"
+   # var_field now contains the array field, e.g. D1_RA, D3_GAA_TB_TB, etc.
+   var_name = "s"+str(num)+var_char
+   if orderdiff >= 2:
+      var_name = var_name+str(orderdiff)
+   var_name = var_name+"("+var_field+")"
+   return var_name
+
+def line_contains_var(line,var):
+   """
+   Check whether a variable specified by "var" is contained within the line
+   specified by "line". E.g. var="t2" and line="a=b+t2*t4" should return
+   True whereas line="a=b+t21" should return False.
+   """
+   regular  = var+"[^0-9]"
+   pattern  = re.compile(regular)
+   longline = line+" "
+   result   = pattern.match(longline)
+   return (result != None)
+
+def find_indent(line):
+   """
+   Given a line of source code work the indentation out and return a string
+   containing as many spaces as the indentation.
+   """
+   pattern = re.compile("\s*")
+   obj     = pattern.match(line)
+   indent  = obj.group()
+   return indent
+
+def find_var_in_line(line,var_name):
+   """
+   Find all locations where the variable given by "var_name" is used.
+   The locations are stored in a list which is returned.
+   """
+   patterne = re.compile(" = ")
+   patternv = re.compile(var_name+"[^0-9]")
+   aline = line+" "
+   found = patterne.search(aline)
+   list = []
+   if found:
+      pos = found.end(0)
+      obj = patternv.search(aline,pos)
+      while obj:
+         list.append((obj.start(0),obj.end(0)-1))
+         pos = obj.end(0)
+         obj = patternv.search(aline,pos)
+   return list
+
+def expand_var_in_line(line,list):
+   """
+   The variable references are given in list in the form of tuples so that
+   line(begin:end) matches the variable exactly. However, the string we need
+   to replace might be larger, e.g. in the case we have an entity such as
+   'diff(t5,rhoa,1,gammaaa,2), or worse %at('diff(t5,rhoa,1),t10). 
+   Here we expand the tuples in the list to cover these strings in full.
+   The list with updated tuples is returned.
+   """
+   pattern = re.compile("\)")
+   item = 0
+   length = len(list)
+   while item < length:
+      (ibegin,iend) = list[item]
+      iibegin = ibegin-6
+      if line[iibegin:ibegin] == "'diff(":
+         iiend = pattern.search(line,iend).end(0)
+         list[item] = (iibegin,iiend)
+      (ibegin,iend) = list[item]
+      iibegin = ibegin-4
+      if line[iibegin:ibegin] == "%at(":
+         iiend = pattern.search(line,iend).end(0)
+         list[item] = (iibegin,iiend)
+      item += 1
+   return list
+
+def find_replace_var_in_range(lines,iline_begin,iline_end,dict,var):
+   """
+   Find all locations in the range of lines (ibegin,iend) where the variable
+   "var" is referenced and replace those references with the proper functional
+   output variable.
+   The updated list of lines "lines" is returned.
+   """
+   iline = iline_begin
+   while iline <= iline_end:
+      list = find_var_in_line(lines[iline],var)
+      list = expand_var_in_line(lines[iline],list)
+      aline = lines[iline]
+      bline = ""
+      oend = 0
+      for tuple in list:
+         (ibegin,iend) = tuple
+         diffstr = aline[ibegin:iend]
+         #DEBUG
+         print "diffstr:",diffstr
+         #DEBUG
+         var_name = find_varname(dict,diffstr)
+         #DEBUG
+         print "var_name:",var_name
+         #DEBUG
+         bline = bline+aline[oend:ibegin]+var_name
+         oend = iend
+      bline = bline+aline[oend:]
+      lines[iline] = bline
+      iline += 1
+   return lines
+
 
 if len(sys.argv) == 2:
    if sys.argv[1] == "-h":
@@ -482,7 +934,112 @@ if len(sys.argv) == 2:
 elif len(sys.argv) > 2:
    usage(1)
 
-lines = sys.stdin.readlines()
-lines = unwrap_lines(lines)
-for line in lines:
+ilines = sys.stdin.readlines()
+ilines = unwrap_lines(ilines)
+#DEBUG
+file = open("junkjunk",'w')
+for line in ilines:
+   file.write("%s\n"%line)
+file.close()
+#DEBUG
+olines = []
+line_start = 0
+subr_lines = find_subroutine(ilines,line_start)
+(subr_lines_start,subr_lines_end)=subr_lines
+while subr_lines_start != -1 and subr_lines_end != -1:
+   #
+   # Roll forward to the beginning of the subroutine
+   #
+   while line_start < subr_lines_start:
+      olines.append(ilines[line_start])
+      line_start += 1
+   #
+   # Work the subroutine type out and then work the if-branches out
+   #
+   code_skel_type = find_code_skeleton_type(ilines,subr_lines)
+   if   code_skel_type == type_autoxc:
+      ifbranches = find_autoxc_code_skeleton(ilines,subr_lines)
+   elif code_skel_type == type_autoxcDs:
+      ifbranches = find_autoxcDs_code_skeleton(ilines,subr_lines)
+   else:
+      sys.stderr.write("Unexpected code_type\n")
+      exit(20)
+   #
+   # Work the order of differentiation out
+   #
+   orderdiff = find_max_order_diff(ilines,subr_lines)
+   #
+   # Work the declaration insertion point out
+   #
+   type_decl_insertion_point = find_type_declaration_insertion_point(ilines,subr_lines)
+   #
+   # How many additional variables do we need?
+   #
+   max_calls = find_maxno_calls(ilines,ifbranches)
+   #
+   # Which lines do we need to drop?
+   #
+   delete_lines_list = delete_lines(ilines,ifbranches)
+   #DEBUG
+   print "delete_list: ",delete_lines_list
+   #DEBUG
+   #
+   # We know what additional variables we need to declare. 
+   # So copy more lines from the input file to the output until we reach
+   # the declaration insertion point. Then call the function to the inject
+   # the additional declarations in the output routine.
+   #
+   while line_start <= type_decl_insertion_point:
+      olines.append(ilines[line_start])
+      line_start += 1
+   olines = append_declarations(olines,max_calls,orderdiff)
+   #
+   # Go through branches and mess with subroutine calls
+   #
+   for ifbranch in ifbranches:
+      (line_if_start,line_if_end) = ifbranch
+      call_lines = collect_subroutine_calls(ilines,ifbranch)
+      #DEBUG
+      print "calls: ",call_lines
+      #DEBUG
+      call_vars = call_lines.keys()
+      call_vars = sorted(call_vars,key=var_to_int)
+      #DEBUG
+      print "calls: ",call_vars
+      #DEBUG
+      num = 0
+      for var in call_vars:
+         num += 1
+         call_insert = find_subroutine_call_insertion_point(ilines,ifbranch,var)
+         indent = find_indent(ilines[call_insert])
+         ilines = find_replace_var_in_range(ilines,call_insert,line_if_end,call_lines,var)
+         # var_name = find_varname()
+         #DEBUG
+         #print "ilines:",call_insert,":",ilines[call_insert]
+         #DEBUG
+         ilines[call_insert] = indent+var+" = s"+str(num)+"f"
+         # Roll forward to just before the insertion point
+         while line_start < call_insert:
+            if not (line_start in delete_lines_list):
+               olines.append(ilines[line_start])
+            line_start += 1
+         funckind = find_functional_kind(call_lines[var])
+         funcname = make_functional_name(call_lines[var])
+         arglist  = make_input_args_list(call_lines[var])
+         #DEBUG
+         print "funckind: ",funckind
+         print "funcname: ",funcname
+         print "arglist : ",arglist
+         #DEBUG
+         olines = append_subroutine_call(olines,funcname,arglist,orderdiff,funckind,num,indent)
+         #DEBUG
+         print "var: ",var,call_insert
+         #DEBUG
+      break
+      #while line_start <= line_if_end:
+      #   if not (line_start in delete_lines_list):
+      #      olines.append(ilines[line_start])
+      #   line_start += 1
+   break
+for line in olines:
    sys.stdout.write("%s\n"%line)
