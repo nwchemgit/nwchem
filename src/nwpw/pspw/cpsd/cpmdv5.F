@@ -53,7 +53,7 @@ cccc#include "frac_occ.fh"
       real*8 icharge
       integer ispin
       integer ne(2),n1(2),n2(2),nemax,neall,neq(2),nemaxq
-      real*8  en(2)
+      real*8  en(2),en1(2),en2(2)
       real*8 dipole(3)
 
 *     complex*16 psi1(nfft3d,nemax)
@@ -68,12 +68,12 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(40),eke,eave,evar,cv,have,hvar
+      real*8  E(50),eke,eave,evar,cv,have,hvar
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
 *     real*8  lmd(2*nemax*nemax)
-      integer eig(2),hml(2),lmd(2)
+      integer eig(2),hml(2),lmd(2),lmd1(2)
 
 *     **** psi smearing block ****
       logical fractional
@@ -102,6 +102,7 @@ cccc#include "frac_occ.fh"
       integer mapping,mapping1d
       character*50 filename
       character*255 full_filename,full_bak
+      integer tmp1(2)
   
 
 
@@ -192,6 +193,9 @@ cccc#include "frac_occ.fh"
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
 
+      logical  psp_pawexist
+      external psp_pawexist
+
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -201,7 +205,7 @@ cccc#include "frac_occ.fh"
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(30,0.0d0,0,E,1)
+      call dcopy(50,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -329,6 +333,7 @@ cccc#include "frac_occ.fh"
       value = BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
       value = value.and.Dneall_m_allocate(0,hml)
       value = value.and.Dneall_m_allocate(0,lmd)
+      value = value.and.Dneall_m_allocate(0,lmd1)
 
       value = value.and.
      >        BA_alloc_get(mt_dbl,(4*nfft3d),
@@ -426,6 +431,13 @@ cccc#include "frac_occ.fh"
       end if
 
 
+*     **** initialize two-electron Gaussian integrals ****
+*     **** initialize paw ncmp*Vloc ****
+      if (psp_pawexist()) then
+         call nwpw_gintegrals_init()
+         call nwpw_gintegrals_set(.true.)
+         call psp_dE_ncmp_vloc_Qlm(ispin,.false.,dipole)
+      end if
 
 *     **** initialize metadynamics and tamd ****
       call meta_initialize(rtdb)
@@ -458,11 +470,6 @@ c      call frac_occ_init(rtdb,ispin,ne)
          call psp_stress_init()
          call psp_stress_readall()
       end if
-
-
-
-
-
 
 
 
@@ -664,7 +671,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 *     ************************************
 *     **** open up other MOTION files ****
 *     ************************************
-
+      icount_shift = 0
 
 *     **** open EMOTION file ****
       if (.not.btdb_cget(rtdb,'cpmd:emotion_filename',1,filename))
@@ -754,7 +761,7 @@ c      call xyz_write()
      >             dcpl_mb(psi2(1)),
      >             dbl_mb(dn(1)),
      >             1,0,E,
-     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
+     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),dbl_mb(lmd1(1)),
      >             dcpl_mb(Hpsi(1)),dcpl_mb(psir(1)),
      >             calc_pressure,pressure,p1,p2,
      >             fractional,
@@ -772,11 +779,9 @@ c      call xyz_write()
       icount = 0
       verlet = .true.
       eke    = 0.0d0
-      if (it_out.lt.1) goto 102
-
-
-
       dt = control_time_step()
+
+      if (it_out.lt.1) goto 102
 
       Te_new = Te_init
       Tr_new = Tr_init
@@ -790,7 +795,7 @@ c      call xyz_write()
      >             dbl_mb(dn(1)),
      >             it_in,((icount-1)*it_in),
      >             E,
-     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
+     >             dbl_mb(hml(1)),dbl_mb(lmd(1)),dbl_mb(lmd1(1)),
      >             dcpl_mb(Hpsi(1)), dcpl_mb(psir(1)),
      >             calc_pressure,pressure,p1,p2,
      >             fractional,
@@ -962,11 +967,41 @@ c      call xyz_write()
 *     **** check total number of electrons ****
       do ms =1,ispin
          call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
-         en(ms) = sumall*lattice_omega()
+         en1(ms) = sumall*lattice_omega()
      >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
       end do
+
+      if (psp_pawexist()) then
+         if (.not.BA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
+     >   call errquit(
+     >        'cpmdv5: out of stack memory',0,MA_ERR)
+
+         call psp_qlm_atom(ispin,neq,dcpl_mb(psi1(1)))
+         do ms=1,ispin
+           call nwpw_compcharge_gen_dn_cmp_smooth_ms(ms,dbl_mb(tmp1(1)))
+           call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+           call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+           call D3dB_r_dsum(1,dbl_mb(tmp1(1)),sumall)
+           en2(ms) = sumall*lattice_omega()
+     >              /dble(ngrid(1)*ngrid(2)*ngrid(3))
+         end do
+         if (.not.BA_pop_stack(tmp1(2)))
+     >   call errquit(
+     >        'cpmdv5: popping stack memory',0,MA_ERR)
+      else
+         en2(1) = 0.0d0
+         en2(2) = 0.0d0
+      end if
+      en(1) = en1(1)+en2(1)
+      en(2) = en1(2)+en2(2)
+
       if (taskid.eq.MASTER) then
          write(17,1320) (en(ms),ms=1,ispin)
+         if (psp_pawexist()) then
+            write(17,1322) (en1(ms),ms=1,ispin)
+            write(17,1323) (en2(ms),ms=1,ispin)
+         end if
       end if
 
 *     **** comparison between hamiltonian an lambda matrix ****
@@ -1091,6 +1126,16 @@ c         end if
 
          write(luout,*)
          write(luout,1320) en(1),en(ispin),' (real space)'
+         if (psp_pawexist()) then
+            write(luout,1322) en1(1),en1(ispin),' (real space)'
+            write(luout,1323) en2(1),en2(ispin),' (real space)'
+         end if
+
+         if (psp_pawexist()) then
+            write(luout,1434) (E(1)+E(36)+E(45)),
+     >                        (E(1)+E(36)+E(45))/ion_nion()
+         end if
+
          write(luout,1430) E(2),E(2)/ion_nion()
          write(luout,1440) E(5),E(5)/n2(ispin)
          write(luout,1450) E(6),E(6)/n2(ispin)
@@ -1259,6 +1304,7 @@ c         end if
       call dplot_iteration_end()
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
+      if (psp_pawexist()) call nwpw_gintegrals_end()
 
       value = BA_free_heap(psir(2))
       value = BA_free_heap(Hpsi(2))
@@ -1266,6 +1312,7 @@ c      call frac_occ_end()
       value = BA_free_heap(eig(2))
       value = Dneall_m_free(hml)
       value = Dneall_m_free(lmd)
+      value = Dneall_m_free(lmd1)
       value = BA_free_heap(psi0(2))
       value = BA_free_heap(psi1(2))
       value = BA_free_heap(psi2(2))
@@ -1430,6 +1477,9 @@ c      call frac_occ_end()
  1312 format(e14.6,i3)
  1313 format(3i4)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
+ 1321 FORMAT(' total charge of system:',F11.5,A)
+ 1322 FORMAT('     plane-wave part:         ',F11.5,'       ',F11.5,A)
+ 1323 FORMAT('      augmented part:         ',F11.5,'       ',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
@@ -1445,6 +1495,7 @@ c      call frac_occ_end()
  1420 FORMAT(/' final position of ions:')
  1421 FORMAT(/' final velocity of ions:')
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1434 FORMAT(//' total paw energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')

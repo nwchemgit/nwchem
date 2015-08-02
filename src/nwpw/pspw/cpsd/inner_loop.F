@@ -1,4 +1,3 @@
-
 *
 * $Id$
 *
@@ -129,21 +128,15 @@ c     real*8     fion(3,natmx)
       external psp_ncmp_vloc,psp_vloc_atom,psp_ion_core
       external psp_hartree_atom,psp_hartree_cmp_cmp,psp_hartree_cmp_pw
 
-      integer tid, Parallel_threadid
-      external Parallel_threadid
+      integer tid,nthreads
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
 
-#ifdef USE_OPENMP
-      logical is_par
-      common    / Debug_openmp / is_par
-#endif
 
 
       call nwpw_timing_start(42)
 
-#ifdef USE_OPENMP
-      is_par = .true.
-#endif
 
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
@@ -238,19 +231,14 @@ c     real*8     fion(3,natmx)
 *     ******************************************
       do it=1,it_in
 
-#ifdef USE_OPENMP
-!$OMP PARALLEL private(tid)  
-      tid = Parallel_threadid()
-#endif
 
-
-
-!$OMP SINGLE
         !call dcopy(2*npack1*nemax,psi2,1,psi1,1)
         call Pack_c_nCopy(1,nemax,psi2,psi1)
 
-        if (move) call ion_shift()
-!$OMP END SINGLE
+        if (move) then
+           call ion_shift()
+           if (psp_pawexist()) call nwpw_gintegrals_set(.true.)
+        end if
 
 *       ********************************
 *       **** generate phaze factors ****
@@ -274,27 +262,36 @@ c           call Pack_c_unpack(1,psi_r(1,n))
 c           call D3dB_cr_fft3b(1,psi_r(1,n))
 c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
 c        end do
-#ifdef USE_OPENMP 
-!$OMP END PARALLEL
-#endif
 
         call nwpw_timing_start(44)
-!$OMP SINGLE
-        do n=n1(1),n2(ispin)
+
+        write(*,*) "hera"
+#ifdef USE_OPENMP 
+!$OMP PARALLEL private(tid,nthreads)  
+#endif
+!$OMP BARRIER
+        tid      = Parallel_threadid()
+        nthreads = Parallel_nthreads()
+
+        do n=n1(1)+tid,n2(ispin),nthreads
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
         end do
-!$OMP END SINGLE
-
-!$OMP MASTER
-        call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
-!$OMP END MASTER
 !$OMP BARRIER
-!$OMP SINGLE
+
+        call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
+
+
+#ifdef USE_OPENMP 
+!$OMP BARRIER
+!$OMP END PARALLEL
+#endif
+        write(*,*) "herb"
+        call nwpw_timing_end(44)
+
+
         do n=n1(1),n2(ispin)
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
-!$OMP END SINGLE
-        call nwpw_timing_end(44)
 
 c       this function calls non pipelined 3d fft
         call nwpw_meta_gga_gen_tau(ispin,ne,psi1)
@@ -334,7 +331,6 @@ c       this function calls non pipelined 3d fft
 *       **********************
         call D3dB_rr_Sum(1,dn(1,1),dn(1,ispin),dbl_mb(rho(1)))
         call D3dB_r_SMul(1,scal1,dbl_mb(rho(1)),dcpl_mb(tmp1(1)))
-!MATHIAS This one is done in parallel because is_par is true
         call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
 c        call mask_C(0,dcpl_mb(dng(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
@@ -523,6 +519,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *       *****************************************        
         if (psp_pawexist()) then
            call psp_overlap_S(ispin,ne,psi1,psi_r)
+           if (move) call phafac2()
            call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
      >                     dte,
      >                     lmd,dbl_mb(tmp_L(1)),ierr)
@@ -549,6 +546,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
       call Parallel_np(np)
       call Parallel2d_np_i(np_i)
       call Parallel2d_np_j(np_j)
+      if ((move).and.(psp_pawexist())) call phafac() !*** reset phase factors to r1 ***
 
 *     *** get orbital energies ****
       call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
@@ -653,6 +651,7 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
       E(9) = 2.0d0*ehartr
       E(10) = pxc
 
+*     **** QM/MM terms ****
       if (pspw_qmmm_found()) then
          e_lj     = pspw_qmmm_LJ_E()
          e_q      = pspw_qmmm_Q_E()
@@ -812,7 +811,6 @@ c     end do
       call nwpw_timing_end(12)
 
 #ifdef USE_OPENMP
-        is_par = .false.
 #endif
 
       call nwpw_timing_end(42)

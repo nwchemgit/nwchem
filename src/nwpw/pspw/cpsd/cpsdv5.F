@@ -177,8 +177,8 @@ cccc#include "frac_occ.fh"
       logical  control_print
       external control_print
 c#include "Parallel.fh"
-      integer  Parallel_threadid,Parallel_nthreads
-      external Parallel_threadid,Parallel_nthreads
+      integer  Parallel_threadid,Parallel_nthreads,Parallel_maxthreads
+      external Parallel_threadid,Parallel_nthreads,Parallel_maxthreads
       integer tid
 
 *                            |************|
@@ -486,7 +486,7 @@ c      call frac_occ_init(rtdb,ispin,ne)
          else
            write(luout,1122)
          end if
-         write(luout,1123) Parallel_nthreads()
+         write(luout,1123) Parallel_maxthreads()
 
 
          write(luout,1115)
