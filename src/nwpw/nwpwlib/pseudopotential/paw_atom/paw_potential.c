@@ -625,7 +625,7 @@ void paw_print_paw_potential_to_file(char* atom_name)
 
         fp = fopen(script_filename,"w+");
 
-        fprintf(fp,"set data style lines \n");
+        fprintf(fp,"set style data lines \n");
         fprintf(fp,"set nolabel \n");
         fprintf(fp,"set autoscale \n");
         fprintf(fp,"set xr[0:%f] \n",2*r_ref);
@@ -647,7 +647,7 @@ void paw_print_paw_potential_to_file(char* atom_name)
 
         fp = fopen(script_filename,"w+");
 
-        fprintf(fp,"set data style lines \n");
+        fprintf(fp,"set style data lines \n");
         fprintf(fp,"set nolabel \n");
         fprintf(fp,"set autoscale \n");
         fprintf(fp,"set xr[0:%f] \n",2*r_ref);
@@ -675,7 +675,7 @@ void paw_print_paw_potential_to_file(char* atom_name)
 
             fp = fopen(script_filename,"w+");
 
-            fprintf(fp,"set data style lines \n");
+            fprintf(fp,"set style data lines \n");
             fprintf(fp,"set nolabel \n");
             fprintf(fp,"set autoscale \n");
             fprintf(fp,"set xr[0:%f] \n",1.5*r_potential[i]);

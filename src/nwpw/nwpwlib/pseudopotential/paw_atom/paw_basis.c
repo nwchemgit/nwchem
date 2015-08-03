@@ -1202,7 +1202,7 @@ void paw_print_basis_to_file(char* atom_name)
             sprintf(script_filename,"%s%s_%s_paw.plt",paw_sdir(),atom_name,nl_name);
             fp = fopen(script_filename,"w+");
 
-            fprintf(fp,"set data style lines \n");
+            fprintf(fp,"set style data lines \n");
             fprintf(fp,"set nolabel \n");
             fprintf(fp,"set autoscale \n");
             fprintf(fp,"set xr[0:%f] \n",1.5*r_orbital[i]);
@@ -1284,7 +1284,7 @@ void paw_print_basis_test_to_file(char* atom_name)
             printf("script_filename: %s \n",script_filename);
             fp = fopen(script_filename,"w+");
 
-            fprintf(fp,"set data style lines \n");
+            fprintf(fp,"set style data lines \n");
             fprintf(fp,"set nolabel \n");
             fprintf(fp,"set autoscale \n");
             fprintf(fp,"set xr[0:%f] \n",1.5*r_orbital[i]);
@@ -1534,7 +1534,7 @@ void paw_scattering_test(double e1,double e2,int number_points ,int l, double r 
         printf("script_filename: %s\n",script_filename);
         fp = fopen(script_filename,"w+");
 
-        fprintf(fp,"set data style lines \n");
+        fprintf(fp,"set style data lines \n");
         fprintf(fp,"set nolabel \n");
         fprintf(fp,"set autoscale \n");
         fprintf(fp,"set xr[%f:%f] \n",e1,e2);

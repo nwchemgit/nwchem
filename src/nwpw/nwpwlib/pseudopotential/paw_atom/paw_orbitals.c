@@ -672,7 +672,7 @@ void paw_print_orbitals_to_file(char* atom_name)
 
         fprintf(fp,"set xlabel \"r (a0)\" \n");
 
-        fprintf(fp,"set data style lines \n");
+        fprintf(fp,"set style data lines \n");
 
         fprintf(fp,"set autoscale \n");
 
@@ -709,7 +709,7 @@ void paw_print_orbitals_to_file(char* atom_name)
 
             fp = fopen(script_filename,"w+");
 
-            fprintf(fp,"set data style lines \n");
+            fprintf(fp,"set style data lines \n");
 
             fprintf(fp,"set nolabel \n");
 
