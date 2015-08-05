@@ -94,12 +94,12 @@ c         write(LuOut,*)'xc_dirac called: restricted'
                rho13=rho(n,1)**one_third
                Amat(n,1) = Amat(n,1) + rho13
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
-               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + rho13/rho(n,1)
+               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + 
+     R              1d0/rho(n,1)**(2d0/3d0)
 #endif
 #ifdef THIRD_DERIV
-               rhom23 = rho13/rho(n,1) 
                Amat3(n,D3_RA_RA_RA) = Amat3(n,D3_RA_RA_RA) + 
-     1           rhom23/rho(n,1)
+     1              1d0/rho(n,1)**(5d0/3d0)
 #endif
                term = term + rho(n,1)*rho13*qwght(n)
                if(ldew) func(n) = func(n) + rho(n,1)*rho13*fac*P2
@@ -137,12 +137,12 @@ c         write(LuOut,*)'xc_dirac called: unrestricted'
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
                if (rho(n,2).gt.tol_rho) then
                   Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &                              + one_third*P3*rho32/rho(n,2)*fac
+     &                 + one_third*P3*fac*(1d0/rho(n,2)**(2d0/3d0))
                endif
 c              Guard against case of no beta electrons, e.g. H atom
                if (rho(n,3).gt.tol_rho) then
                   Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
-     &                              + one_third*P3*rho33/rho(n,3)*fac
+     &                 + one_third*P3*fac*(1d0/rho(n,3)**(2d0/3d0))
                endif
 #endif
 #ifdef THIRD_DERIV
