@@ -103,12 +103,14 @@ c
      $        call errquit('hessinit:rtdbcput failed',0, RTDB_ERR)
 c
 c     set grid_acc consistent with fine (at least), ie 1d-7
+c     make it even tighter for cases with diffuse basis sets and
+c     low frequencies ... > 1d-14. (Edo 04/08/2015)
 c
       if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc)) then
-          job_grid_acc = 1d-7
+          job_grid_acc = 1d-14
       else
-         job_grid_acc = min(job_grid_acc,1d-7)
+         job_grid_acc = min(job_grid_acc,1d-14)
       endif
       if (.not. rtdb_put(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc))call errquit('hessint:rtdbput failed',1,
