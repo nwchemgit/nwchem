@@ -95,19 +95,26 @@ func_lda      = 1
 func_gga      = 2
 func_mgga     = 3
 
+version = "$Id$"
+version = version.split()
+revision = version[1]+" "+version[2]+" "+version[3]
+
 def usage(code):
    """
    Print usage information
    """
    sys.stderr.write("Insert subroutine calls to functionals in Maxima generated code.")
    sys.stderr.write("")
-   sys.stderr.write("  %s [-h] < <filein> > <fileout>"%sys.argv[0])
+   sys.stderr.write("  %s [-h] [-v|--version] < <filein> > <fileout>"%sys.argv[0])
    sys.stderr.write("")
-   sys.stderr.write("-h         Print this information")
-   sys.stderr.write("<filein>   Raw Fortran from Maxima")
-   sys.stderr.write("<fileout>  Fortran from Maxima with subroutine calls")
-   sys.stderr.write("           for functionals")
-   exit(code)
+   sys.stderr.write("-h            Print this information")
+   sys.stderr.write("-v|--version  Print the version data")
+   sys.stderr.write("<filein>      Raw Fortran from Maxima")
+   sys.stderr.write("<fileout>     Fortran from Maxima with subroutine calls")
+   sys.stderr.write("              for functionals")
+   sys.stderr.write("")
+   sys.stderr.write("$Id$")
+   sys.exit(code)
 
 def var_to_int(var):
    """
@@ -693,7 +700,7 @@ def find_varname(dict,diffstr):
       sys.stdout.write("entity %s not found\n"%callref)
       for jj in range(0,length):
          sys.stdout.write("list %d: %s\n"%(jj,list[jj]))
-      exit(10)
+      sys.exit(10)
    # num is now the variable set number
    lengthd = len(data)
    #DEBUG
@@ -973,11 +980,11 @@ def rewrap_line(longline):
     if i == -1:
       sys.stderr.write("No sensible break point found in:\n")
       sys.stderr.write(longline)
-      exit(1)
+      sys.exit(1)
     elif i == 6:
       sys.stderr.write("Same break point found repeatedly in:\n")
       sys.stderr.write(longline)
-      exit(1)
+      sys.exit(1)
     sys.stdout.write(longline[:i]+"\n")
     longline = indent + longline[i:]
   sys.stdout.write(longline+"\n")
@@ -986,6 +993,9 @@ def rewrap_line(longline):
 if len(sys.argv) == 2:
    if sys.argv[1] == "-h":
       usage(0)
+   elif sys.argv[1] == "-v" or sys.argv[1] == "--version":
+      sys.stdout.write("%s\n"%revision)
+      sys.exit(0)
    else:
       usage(1)
 elif len(sys.argv) > 2:
@@ -995,10 +1005,10 @@ ilines = sys.stdin.readlines()
 ilines = unwrap_lines(ilines)
 nlines = len(ilines)
 #DEBUG
-file = open("junkjunk",'w')
-for line in ilines:
-   file.write("%s\n"%line)
-file.close()
+#file = open("junkjunk",'w')
+#for line in ilines:
+#   file.write("%s\n"%line)
+#file.close()
 #DEBUG
 olines = []
 line_start = 0

@@ -28,6 +28,10 @@
 import sys
 from string import rfind
 
+version = "$Id$"
+version = version.split()
+revision = version[1]+" "+version[2]+" "+version[3]
+
 def rewrap_line(longline):
   # note: longline has a newline character at the end which is counted by 
   #       len as well but is not included in the 72 characters that are allowed
@@ -58,6 +62,11 @@ def rewrap_line(longline):
     sys.stdout.write(longline[:i]+"\n")
     longline = "C>    " + longline[i:]
   sys.stdout.write(longline)
+
+if len(sys.argv) == 2:
+   if sys.argv[1] == "-v" or sys.argv[1] == "--version":
+      sys.stdout.write("%s\n"%revision)
+      sys.exit(0)
 
 longline = ""
 line = sys.stdin.readline()
