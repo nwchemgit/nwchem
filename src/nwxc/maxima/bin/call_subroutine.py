@@ -112,6 +112,7 @@ def usage(code):
 def var_to_int(var):
    """
    Convert a variable name (such as "t5") to an integer (in this case 5).
+   Variables like "Amat(iq,D1_RA)" should never show up here.
    """
    return int(var[1:])
 
@@ -155,16 +156,19 @@ def find_subroutine(lines,lineno):
    pattern = re.compile("      subroutine")
    while not pattern.match(lines[line]):
       line += 1
-      if line > length:
+      if line >= length:
          break
-   if line <= length:
+   if line < length:
       lineno_start = line
+   # next statement needed to guarantee that line is in the valid range
+   if line >= length:
+      line = length-1
    pattern = re.compile("      end subroutine")
    while not pattern.match(lines[line]):
       line += 1
-      if line > length:
+      if line >= length:
          break
-   if line <= length:
+   if line < length:
       lineno_end = line
    return (lineno_start,lineno_end)
 
@@ -323,6 +327,8 @@ def find_autoxcDs_code_skeleton(lines,subr_lines):
             break
          line += 1
       #
+      # needed because "else" is a substring of "elseif ..."
+      line = ifstartc
       pattern = re.compile("else")
       while line <= lineno_end:
          if pattern.search(lines[line]):
@@ -390,7 +396,8 @@ def collect_subroutine_calls(lines,ifbranch_lines):
    we need to know the "nwxc_c_Mpbe(rhoa,0.0d+0,gammaaa,0.0d+0,0.0d+0)" part.
    The key in the dictionary is going to be the variable name (i.e. "t5") as we
    will have to replace those variable instances with an array element 
-   reference. The resulting dictionary is returned.
+   reference.
+   The resulting dictionary is returned.
    """
    (lineno_start,lineno_end) = ifbranch_lines
    dict = {}
@@ -494,6 +501,9 @@ def append_subroutine_call(olines,subrname,arglist,orderdiff,funckind,num,indent
    arguments, and constructing the actual call itself.
    The list of output lines is returned.
    """
+   #DEBUG
+   #print "append_subroutine_call: arglist:",arglist
+   #DEBUG
    line = indent+"sr(R_A) = "+arglist[0]
    olines.append(line)
    line = indent+"sr(R_B) = "+arglist[1]
@@ -543,7 +553,12 @@ def append_subroutine_call(olines,subrname,arglist,orderdiff,funckind,num,indent
       line = line+"_d2"
    elif orderdiff == 3:
       line = line+"_d3"
-   line = line+"(param,tol_rho,ipol,1,1.0d0,sr"
+   line = line+"(param,tol_rho,"
+   if arglist[0] == '0.0d+0' or arglist[1] == '0.0d+0':
+      line = line+"2"
+   else:
+      line = line+"ipol"
+   line = line+",1,1.0d0,sr"
    if funckind >= func_gga:
       line = line+",sg"
    if funckind >= func_mgga:
@@ -578,11 +593,11 @@ def find_max_order_diff(lines,subr_lines):
    (lineno_start,lineno_end) = subr_lines
    aline = lines[lineno_start]
    orderdiff = 0
-   pattern_d2 = re.compile("_d2")
-   pattern_d3 = re.compile("_d3")
-   if pattern_d2.match(aline):
+   pattern_d2 = re.compile("_d2\(")
+   pattern_d3 = re.compile("_d3\(")
+   if pattern_d2.search(aline):
       orderdiff = 2
-   elif pattern_d3.match(aline):
+   elif pattern_d3.search(aline):
       orderdiff = 3
    else:
       orderdiff = 1
@@ -821,7 +836,7 @@ def find_varname(dict,diffstr):
          for ii in range(0,int(data[6])):
             var_field = var_field + "_TB"
    # var_field now contains the array field, e.g. D1_RA, D3_GAA_TB_TB, etc.
-   var_name = "s"+str(num)+var_char
+   var_name = "s"+str(num+1)+var_char
    if orderdiff >= 2:
       var_name = var_name+str(orderdiff)
    var_name = var_name+"("+var_field+")"
@@ -912,11 +927,11 @@ def find_replace_var_in_range(lines,iline_begin,iline_end,dict,var):
          (ibegin,iend) = tuple
          diffstr = aline[ibegin:iend]
          #DEBUG
-         print "diffstr:",diffstr
+         #print "diffstr:",diffstr
          #DEBUG
          var_name = find_varname(dict,diffstr)
          #DEBUG
-         print "var_name:",var_name
+         #print "var_name:",var_name
          #DEBUG
          bline = bline+aline[oend:ibegin]+var_name
          oend = iend
@@ -924,6 +939,48 @@ def find_replace_var_in_range(lines,iline_begin,iline_end,dict,var):
       lines[iline] = bline
       iline += 1
    return lines
+
+def rewrap_line(longline):
+  """
+  Break a given long line "longline" up into 72 character long chunks that
+  conform the Fortran77 standard. The chunks are written to standard output.
+  In addition we do not want to break the line in the middle of numbers.
+  """
+  pattern = re.compile("\S")
+  i = (pattern.search(longline)).start()
+  indent = longline[:i]
+  indent = indent[:5]+"+"+indent[7:]+"   "
+  while len(longline) > 72:
+    i = -1
+    # wrap before * / ( ) + or -
+    i = max(i,string.rfind(longline,",",0,70)+1)
+    i = max(i,string.rfind(longline,"*",0,71))
+    i = max(i,string.rfind(longline,"/",0,71))
+    i = max(i,string.rfind(longline,"(",0,71))
+    i = max(i,string.rfind(longline,")",0,71))
+    # wrap before + but not in the middle of a numerical constant...
+    j = string.rfind(longline,"+",0,71)
+    k = string.rfind(longline,"d+",0,71)
+    if j-1 == k:
+      j = string.rfind(longline,"+",0,k)
+    i = max(i,j)
+    # wrap before - but not in the middle of a numerical constant...
+    j = string.rfind(longline,"-",0,71)
+    k = string.rfind(longline,"d-",0,71)
+    if j-1 == k:
+      j = string.rfind(longline,"-",0,k)
+    i = max(i,j)
+    if i == -1:
+      sys.stderr.write("No sensible break point found in:\n")
+      sys.stderr.write(longline)
+      exit(1)
+    elif i == 6:
+      sys.stderr.write("Same break point found repeatedly in:\n")
+      sys.stderr.write(longline)
+      exit(1)
+    sys.stdout.write(longline[:i]+"\n")
+    longline = indent + longline[i:]
+  sys.stdout.write(longline+"\n")
 
 
 if len(sys.argv) == 2:
@@ -936,6 +993,7 @@ elif len(sys.argv) > 2:
 
 ilines = sys.stdin.readlines()
 ilines = unwrap_lines(ilines)
+nlines = len(ilines)
 #DEBUG
 file = open("junkjunk",'w')
 for line in ilines:
@@ -946,6 +1004,9 @@ olines = []
 line_start = 0
 subr_lines = find_subroutine(ilines,line_start)
 (subr_lines_start,subr_lines_end)=subr_lines
+#DEBUG
+#print "subrs: start,end:",subr_lines_start,subr_lines_end
+#DEBUG
 while subr_lines_start != -1 and subr_lines_end != -1:
    #
    # Roll forward to the beginning of the subroutine
@@ -968,6 +1029,9 @@ while subr_lines_start != -1 and subr_lines_end != -1:
    # Work the order of differentiation out
    #
    orderdiff = find_max_order_diff(ilines,subr_lines)
+   #DEBUG
+   #print "orderdiff:",orderdiff
+   #DEBUG
    #
    # Work the declaration insertion point out
    #
@@ -976,12 +1040,15 @@ while subr_lines_start != -1 and subr_lines_end != -1:
    # How many additional variables do we need?
    #
    max_calls = find_maxno_calls(ilines,ifbranches)
+   #DEBUG
+   #print "max_calls:",max_calls
+   #DEBUG
    #
    # Which lines do we need to drop?
    #
    delete_lines_list = delete_lines(ilines,ifbranches)
    #DEBUG
-   print "delete_list: ",delete_lines_list
+   #print "delete_list: ",delete_lines_list
    #DEBUG
    #
    # We know what additional variables we need to declare. 
@@ -1000,16 +1067,20 @@ while subr_lines_start != -1 and subr_lines_end != -1:
       (line_if_start,line_if_end) = ifbranch
       call_lines = collect_subroutine_calls(ilines,ifbranch)
       #DEBUG
-      print "calls: ",call_lines
+      #print "calls: start,end:",line_if_start,line_if_end
+      #print "calls: call_lines:",call_lines
       #DEBUG
       call_vars = call_lines.keys()
+      #DEBUG
+      #print "calls: call_vars :",call_vars
+      #DEBUG
       call_vars = sorted(call_vars,key=var_to_int)
-      #DEBUG
-      print "calls: ",call_vars
-      #DEBUG
       num = 0
       for var in call_vars:
          num += 1
+         #DEBUG
+         #print "looping over vars:",num,var
+         #DEBUG
          call_insert = find_subroutine_call_insertion_point(ilines,ifbranch,var)
          indent = find_indent(ilines[call_insert])
          ilines = find_replace_var_in_range(ilines,call_insert,line_if_end,call_lines,var)
@@ -1027,19 +1098,31 @@ while subr_lines_start != -1 and subr_lines_end != -1:
          funcname = make_functional_name(call_lines[var])
          arglist  = make_input_args_list(call_lines[var])
          #DEBUG
-         print "funckind: ",funckind
-         print "funcname: ",funcname
-         print "arglist : ",arglist
+         #print "funckind: ",funckind
+         #print "funcname: ",funcname
+         #print "arglist : ",arglist
          #DEBUG
          olines = append_subroutine_call(olines,funcname,arglist,orderdiff,funckind,num,indent)
          #DEBUG
-         print "var: ",var,call_insert
+         #print "var: ",var,call_insert
          #DEBUG
-      break
-      #while line_start <= line_if_end:
-      #   if not (line_start in delete_lines_list):
-      #      olines.append(ilines[line_start])
-      #   line_start += 1
-   break
+      #break
+      while line_start <= line_if_end:
+         if not (line_start in delete_lines_list):
+            olines.append(ilines[line_start])
+         line_start += 1
+   #break
+   while line_start <= subr_lines_end:
+      olines.append(ilines[line_start])
+      line_start += 1
+   subr_lines = find_subroutine(ilines,line_start)
+   (subr_lines_start,subr_lines_end)=subr_lines
+   #DEBUG
+   #print "subrt: start,end:",subr_lines_start,subr_lines_end
+   #DEBUG
+while line_start < nlines:
+    olines.append(ilines[line_start])
+    line_start += 1
 for line in olines:
-   sys.stdout.write("%s\n"%line)
+   rewrap_line(line)
+   #sys.stdout.write("%s\n"%line)
