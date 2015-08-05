@@ -877,7 +877,12 @@ def find_var_in_line(line,var_name):
    The locations are stored in a list which is returned.
    """
    patterne = re.compile(" = ")
+   # If var_name = t2 we need to make sure we do not replace
+   # cmat2 as well. Patternw is needed to achieve that. So we look for
+   # t2 as well at2, if the end-points are equal the string found does
+   # not match the variable t2.
    patternv = re.compile(var_name+"[^0-9]")
+   patternw = re.compile("a"+var_name+"[^0-9]")
    aline = line+" "
    found = patterne.search(aline)
    list = []
@@ -885,7 +890,12 @@ def find_var_in_line(line,var_name):
       pos = found.end(0)
       obj = patternv.search(aline,pos)
       while obj:
-         list.append((obj.start(0),obj.end(0)-1))
+         objw = patternw.search(aline,pos)
+         if objw:
+            if objw.end(0) != obj.end(0):
+               list.append((obj.start(0),obj.end(0)-1))
+         else:
+            list.append((obj.start(0),obj.end(0)-1))
          pos = obj.end(0)
          obj = patternv.search(aline,pos)
    return list
