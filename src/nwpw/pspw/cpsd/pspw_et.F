@@ -55,6 +55,7 @@
 
 *     **** local variables ****
       real*8 H1aa,H1bb,H1ab,H2aa,H2bb,H2ab,Vab,Haa,Hbb,Hab,Sab,S12(2)
+      real*8 Vabtmp
       integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2,Eion
@@ -490,9 +491,9 @@
       if (taskid.eq.MASTER) call current_second(cpu2)
 
 
-*     **** calculate SVD of <psi1(ms)|psi2(ms)> ****
-      call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
-     >                           dcpl_mb(psi2(1)),npack1,
+*     **** calculate SVD of <psi2(ms)|psi1(ms)> ****
+      call Dneall_ffm_Multiply(0,dcpl_mb(psi2(1)),
+     >                           dcpl_mb(psi1(1)),npack1,
      >                           dbl_mb(itmp(1)))
       call Dneall_m_SVD(0,dbl_mb(itmp(1)),dbl_mb(U_ab(1)),
      >                    dbl_mb(Sigma_ab(1)), dbl_mb(V_ab(1)))
@@ -631,7 +632,11 @@
       Hbb = H1bb + H2bb + Eion + EVQ
       Hab = H1ab + H2ab + Sab*(Eion+EVQ)
 
-      Vab = (Hab-Sab*(Haa+Hbb)/2.0d0)/(1.0d0-Sab*Sab);
+      Vab = (Hab-Sab*(Haa+Hbb)/2.0d0)/(1.0d0-Sab*Sab)
+
+
+c      Vabtmp = ((H1ab+H2aB)-Sab*(H1aa+H2aa+H1bb+H2bb)/2.0d0)
+c     >        /(1.0d0-Sab*Sab)
 
       
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
@@ -680,6 +685,12 @@ c         write(luout,1812) Sbb
      >                     dabs(Vab)*27.2116d0,
      >                     dabs(Vab)*27.2116d0*23.06d0
 
+c         write(*,*)
+c         write(*,*)  "Eion not included in Vab calculation:"
+c         write(luout,1851) dabs(Vabtmp),dabs(Vabtmp)*219474.63d0,
+c     >                     dabs(Vabtmp)*27.2116d0,
+c     >                     dabs(Vabtmp)*27.2116d0*23.06d0
+
 
 *        **** write out diagonal <psi1|H|psi2> matrix ****
 c          n = ne(1)
@@ -700,387 +711,387 @@ c           end do
 ******************  Electron Tranfer Path    **********************
 *                |***************************|
 
-      npath = 21
+c      npath = 21
+c
+c*     **** define |u> = |psi2f> ****
+c      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+c     >                           dbl_mb(U_ab(1)),1.0d0,
+c     >                           dcpl_mb(psi1f(1)),0.0d0)
+c
+c      call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
+c     >                           dbl_mb(V_ab(1)),1.0d0,
+c     >                           dcpl_mb(psi2f(1)),0.0d0)
+c      do q=1,neq(1)+neq(2)
+c         call Dneall_qton(q,n)
+c         w = dbl_mb(Sigma_ab(1)+n-1)
+c         call Pack_c_SMul1(1,w,dcpl_mb(psi1f(1)+(q-1)*npack1))
+c
+c         call Pack_cc_Sub2(1,dcpl_mb(psi1f(1)+(q-1)*npack1),
+c     >                       dcpl_mb(psi2f(1)+(q-1)*npack1))
+c
+c         w = 1.0d0/dsin(dbl_mb(Cigma_ab(1)+n-1))
+c         call Pack_c_SMul1(1,w,dcpl_mb(psi2f(1)+(q-1)*npack1))
+c
+c      end do
+c      call dcopy(2*(neq(1)+neq(2))*npack1,
+c     >           dcpl_mb(psi2f(1)),1,
+c     >           dcpl_mb(psi2(1)), 1)
+c
+c
+c*     *********************************
+c*     **** epath at ion_1 geometry ****
+c*     *********************************
+c      call ion_morph_extra(1,1)
+c      call phafac()
+c      if (control_version().eq.3) call ewald_phafac()
+c      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+c      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+c
+c      if (taskid.eq.MASTER) then
+c         write(luout,1900) ion_1
+c         write(luout,1905) 't','Eground(t)','Eexcited(t)'
+c         write(luout,1906)
+c      end if
+c      do i=1,npath
+c         t = (i-1)/dble(npath-1)
+c
+c*        *** generate y(t) and yexcited(t) ***
+c         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
+c     >                                 dcpl_mb(psi1(1)),
+c     >                                 dcpl_mb(psi2(1)),
+c     >                                 dbl_mb(U_ab(1)),
+c     >                                 dbl_mb(Vt(1)),
+c     >                                 dbl_mb(Cigma_ab(1)),
+c     >                                 t,
+c     >                                 dcpl_mb(psi1f(1)),
+c     >                                 dcpl_mb(psi2f(1)))
+c         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
+c     >                         dcpl_mb(psi1f(1)),
+c     >                         dbl_mb(psi1f_r(1)))
+c         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
+c     >                         dcpl_mb(psi2f(1)),
+c     >                         dbl_mb(psi2f_r(1)))
+c
+c*        *** calculate E(y(t)) and E(yexcited(t)) ***
+c         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                   dcpl_mb(psi1f(1)),dcpl_mb(psi1f(1)),
+c     >                   dbl_mb(psi1f_r(1)),
+c     >                   H1aa)
+c         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                   dcpl_mb(psi2f(1)),dcpl_mb(psi2f(1)),
+c     >                   dbl_mb(psi2f_r(1)),
+c     >                   H1bb)
+c          H2aa = 0.0d0
+c          H2bb = 0.0d0
+c
+c*         **** coulomb part ****
+c          call pspw_et_gen_rho(ispin,neq,n2ft3d,
+c     >                     dbl_mb(psi1f_r(1)),dbl_mb(rho(1)))
+c          if (control_version().eq.4) then
+c             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+c             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+c             H2aa = 0.5d0*ehartr*dv
+c          else
+c            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+c            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+c            call Pack_c_pack(0,dbl_mb(rho(1)))
+c            H2aa = coulomb_e(dbl_mb(rho(1)))
+c          end if
+c          call pspw_et_gen_rho(ispin,neq,n2ft3d,
+c     >                     dbl_mb(psi2f_r(1)),dbl_mb(rho(1)))
+c          if (control_version().eq.4) then
+c             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+c             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+c             H2bb = 0.5d0*ehartr*dv
+c          else
+c            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+c            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+c            call Pack_c_pack(0,dbl_mb(rho(1)))
+c            H2bb = coulomb_e(dbl_mb(rho(1)))
+c         end if
+c
+c*        **** exchange part ****
+c         call pspw_energy_HFX(ispin,dbl_mb(psi1f_r(1)),ehfx,phfx)
+c         H2aa = H2aa + ehfx
+c         call pspw_energy_HFX(ispin,dbl_mb(psi2f_r(1)),ehfx,phfx)
+c         H2bb = H2bb + ehfx
+c
+c         Eground  = H1aa + H2aa + Eion + EVQ
+c         Eexcited = H1bb + H2bb + Eion + EVQ
+c         if (taskid.eq.MASTER) then
+c            write(luout,1910) t,Eground,Eexcited
+c         end if
+c      end do
+c
+c*     *********************************
+c*     **** epath at ion_2 geometry ****
+c*     *********************************
+c      call ion_morph_extra(2,2)
+c      call phafac()
+c      if (control_version().eq.3) call ewald_phafac()
+c      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+c      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+c
+c      if (taskid.eq.MASTER) then
+c         write(luout,1900) ion_2
+c         write(luout,1905) 't','Eground(t)','Eexcited(t)'
+c         write(luout,1906)
+c      end if
+c      do i=1,npath
+c         t = (i-1)/dble(npath-1)
+c
+c*        *** generate y(t) and yexcited(t) ***
+c         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
+c     >                                 dcpl_mb(psi1(1)),
+c     >                                 dcpl_mb(psi2(1)),
+c     >                                 dbl_mb(U_ab(1)),
+c     >                                 dbl_mb(Vt(1)),
+c     >                                 dbl_mb(Cigma_ab(1)),
+c     >                                 t,
+c     >                                 dcpl_mb(psi1f(1)),
+c     >                                 dcpl_mb(psi2f(1)))
+c         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
+c     >                         dcpl_mb(psi1f(1)),
+c     >                         dbl_mb(psi1f_r(1)))
+c         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
+c     >                         dcpl_mb(psi2f(1)),
+c     >                         dbl_mb(psi2f_r(1)))
+c
+c*        *** calculate E(y(t)) and E(yexcited(t)) ***
+c         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                   dcpl_mb(psi1f(1)),dcpl_mb(psi1f(1)),
+c     >                   dbl_mb(psi1f_r(1)),
+c     >                   H1aa)
+c         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                   dcpl_mb(psi2f(1)),dcpl_mb(psi2f(1)),
+c     >                   dbl_mb(psi2f_r(1)),
+c     >                   H1bb)
+c          H2aa = 0.0d0
+c          H2bb = 0.0d0
+c
+c*         **** coulomb part ****
+c          call pspw_et_gen_rho(ispin,neq,n2ft3d,
+c     >                     dbl_mb(psi1f_r(1)),dbl_mb(rho(1)))
+c          if (control_version().eq.4) then
+c             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+c             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+c             H2aa = 0.5d0*ehartr*dv
+c          else
+c            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+c            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+c            call Pack_c_pack(0,dbl_mb(rho(1)))
+c            H2aa = coulomb_e(dbl_mb(rho(1)))
+c          end if
+c          call pspw_et_gen_rho(ispin,neq,n2ft3d,
+c     >                     dbl_mb(psi2f_r(1)),dbl_mb(rho(1)))
+c          if (control_version().eq.4) then
+c             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+c             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+c             H2bb = 0.5d0*ehartr*dv
+c          else
+c            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+c            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+c            call Pack_c_pack(0,dbl_mb(rho(1)))
+c            H2bb = coulomb_e(dbl_mb(rho(1)))
+c         end if
+c
+c*        **** exchange part ****
+c         call pspw_energy_HFX(ispin,dbl_mb(psi1f_r(1)),ehfx,phfx)
+c         H2aa = H2aa + ehfx
+c         call pspw_energy_HFX(ispin,dbl_mb(psi2f_r(1)),ehfx,phfx)
+c         H2bb = H2bb + ehfx
+c
+c         Eground  = H1aa + H2aa + Eion + EVQ
+c         Eexcited = H1bb + H2bb + Eion + EVQ
+c         if (taskid.eq.MASTER) then
+c            write(luout,1910) t,Eground,Eexcited
+c         end if
+c      end do
 
-*     **** define |u> = |psi2f> ****
-      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
-     >                           dbl_mb(U_ab(1)),1.0d0,
-     >                           dcpl_mb(psi1f(1)),0.0d0)
-
-      call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
-     >                           dbl_mb(V_ab(1)),1.0d0,
-     >                           dcpl_mb(psi2f(1)),0.0d0)
-      do q=1,neq(1)+neq(2)
-         call Dneall_qton(q,n)
-         w = dbl_mb(Sigma_ab(1)+n-1)
-         call Pack_c_SMul1(1,w,dcpl_mb(psi1f(1)+(q-1)*npack1))
-
-         call Pack_cc_Sub2(1,dcpl_mb(psi1f(1)+(q-1)*npack1),
-     >                       dcpl_mb(psi2f(1)+(q-1)*npack1))
-
-         w = 1.0d0/dsin(dbl_mb(Cigma_ab(1)+n-1))
-         call Pack_c_SMul1(1,w,dcpl_mb(psi2f(1)+(q-1)*npack1))
-
-      end do
-      call dcopy(2*(neq(1)+neq(2))*npack1,
-     >           dcpl_mb(psi2f(1)),1,
-     >           dcpl_mb(psi2(1)), 1)
-
-
-*     *********************************
-*     **** epath at ion_1 geometry ****
-*     *********************************
-      call ion_morph_extra(1,1)
-      call phafac()
-      if (control_version().eq.3) call ewald_phafac()
-      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
-      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
-
-      if (taskid.eq.MASTER) then
-         write(luout,1900) ion_1
-         write(luout,1905) 't','Eground(t)','Eexcited(t)'
-         write(luout,1906)
-      end if
-      do i=1,npath
-         t = (i-1)/dble(npath-1)
-
-*        *** generate y(t) and yexcited(t) ***
-         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
-     >                                 dcpl_mb(psi1(1)),
-     >                                 dcpl_mb(psi2(1)),
-     >                                 dbl_mb(U_ab(1)),
-     >                                 dbl_mb(Vt(1)),
-     >                                 dbl_mb(Cigma_ab(1)),
-     >                                 t,
-     >                                 dcpl_mb(psi1f(1)),
-     >                                 dcpl_mb(psi2f(1)))
-         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
-     >                         dcpl_mb(psi1f(1)),
-     >                         dbl_mb(psi1f_r(1)))
-         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
-     >                         dcpl_mb(psi2f(1)),
-     >                         dbl_mb(psi2f_r(1)))
-
-*        *** calculate E(y(t)) and E(yexcited(t)) ***
-         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
-     >                   dcpl_mb(psi1f(1)),dcpl_mb(psi1f(1)),
-     >                   dbl_mb(psi1f_r(1)),
-     >                   H1aa)
-         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
-     >                   dcpl_mb(psi2f(1)),dcpl_mb(psi2f(1)),
-     >                   dbl_mb(psi2f_r(1)),
-     >                   H1bb)
-          H2aa = 0.0d0
-          H2bb = 0.0d0
-
-*         **** coulomb part ****
-          call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psi1f_r(1)),dbl_mb(rho(1)))
-          if (control_version().eq.4) then
-             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
-             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-             H2aa = 0.5d0*ehartr*dv
-          else
-            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
-            call Pack_c_pack(0,dbl_mb(rho(1)))
-            H2aa = coulomb_e(dbl_mb(rho(1)))
-          end if
-          call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psi2f_r(1)),dbl_mb(rho(1)))
-          if (control_version().eq.4) then
-             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
-             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-             H2bb = 0.5d0*ehartr*dv
-          else
-            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
-            call Pack_c_pack(0,dbl_mb(rho(1)))
-            H2bb = coulomb_e(dbl_mb(rho(1)))
-         end if
-
-*        **** exchange part ****
-         call pspw_energy_HFX(ispin,dbl_mb(psi1f_r(1)),ehfx,phfx)
-         H2aa = H2aa + ehfx
-         call pspw_energy_HFX(ispin,dbl_mb(psi2f_r(1)),ehfx,phfx)
-         H2bb = H2bb + ehfx
-
-         Eground  = H1aa + H2aa + Eion + EVQ
-         Eexcited = H1bb + H2bb + Eion + EVQ
-         if (taskid.eq.MASTER) then
-            write(luout,1910) t,Eground,Eexcited
-         end if
-      end do
-
-*     *********************************
-*     **** epath at ion_2 geometry ****
-*     *********************************
-      call ion_morph_extra(2,2)
-      call phafac()
-      if (control_version().eq.3) call ewald_phafac()
-      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
-      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
-
-      if (taskid.eq.MASTER) then
-         write(luout,1900) ion_2
-         write(luout,1905) 't','Eground(t)','Eexcited(t)'
-         write(luout,1906)
-      end if
-      do i=1,npath
-         t = (i-1)/dble(npath-1)
-
-*        *** generate y(t) and yexcited(t) ***
-         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
-     >                                 dcpl_mb(psi1(1)),
-     >                                 dcpl_mb(psi2(1)),
-     >                                 dbl_mb(U_ab(1)),
-     >                                 dbl_mb(Vt(1)),
-     >                                 dbl_mb(Cigma_ab(1)),
-     >                                 t,
-     >                                 dcpl_mb(psi1f(1)),
-     >                                 dcpl_mb(psi2f(1)))
-         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
-     >                         dcpl_mb(psi1f(1)),
-     >                         dbl_mb(psi1f_r(1)))
-         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
-     >                         dcpl_mb(psi2f(1)),
-     >                         dbl_mb(psi2f_r(1)))
-
-*        *** calculate E(y(t)) and E(yexcited(t)) ***
-         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
-     >                   dcpl_mb(psi1f(1)),dcpl_mb(psi1f(1)),
-     >                   dbl_mb(psi1f_r(1)),
-     >                   H1aa)
-         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
-     >                   dcpl_mb(psi2f(1)),dcpl_mb(psi2f(1)),
-     >                   dbl_mb(psi2f_r(1)),
-     >                   H1bb)
-          H2aa = 0.0d0
-          H2bb = 0.0d0
-
-*         **** coulomb part ****
-          call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psi1f_r(1)),dbl_mb(rho(1)))
-          if (control_version().eq.4) then
-             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
-             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-             H2aa = 0.5d0*ehartr*dv
-          else
-            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
-            call Pack_c_pack(0,dbl_mb(rho(1)))
-            H2aa = coulomb_e(dbl_mb(rho(1)))
-          end if
-          call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psi2f_r(1)),dbl_mb(rho(1)))
-          if (control_version().eq.4) then
-             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
-             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-             H2bb = 0.5d0*ehartr*dv
-          else
-            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
-            call Pack_c_pack(0,dbl_mb(rho(1)))
-            H2bb = coulomb_e(dbl_mb(rho(1)))
-         end if
-
-*        **** exchange part ****
-         call pspw_energy_HFX(ispin,dbl_mb(psi1f_r(1)),ehfx,phfx)
-         H2aa = H2aa + ehfx
-         call pspw_energy_HFX(ispin,dbl_mb(psi2f_r(1)),ehfx,phfx)
-         H2bb = H2bb + ehfx
-
-         Eground  = H1aa + H2aa + Eion + EVQ
-         Eexcited = H1bb + H2bb + Eion + EVQ
-         if (taskid.eq.MASTER) then
-            write(luout,1910) t,Eground,Eexcited
-         end if
-      end do
-
-*     ************************************
-*     **** epath at midpoint geometry ****
-*     ************************************
-      call ion_morph_extra(1,2)
-      call phafac()
-      if (control_version().eq.3) call ewald_phafac()
-      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
-      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
-
-      if (taskid.eq.MASTER) then
-         write(luout,1900) "midpoint"
-         write(luout,1905) 't','Eground(t)','Eexcited(t)'
-         write(luout,1906)
-      end if
-      do i=1,npath
-         t = (i-1)/dble(npath-1)
-
-*        *** generate y(t) and yexcited(t) ***
-         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
-     >                                 dcpl_mb(psi1(1)),
-     >                                 dcpl_mb(psi2(1)),
-     >                                 dbl_mb(U_ab(1)),
-     >                                 dbl_mb(Vt(1)),
-     >                                 dbl_mb(Cigma_ab(1)),
-     >                                 t,
-     >                                 dcpl_mb(psi1f(1)),
-     >                                 dcpl_mb(psi2f(1)))
-         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
-     >                         dcpl_mb(psi1f(1)),
-     >                         dbl_mb(psi1f_r(1)))
-         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
-     >                         dcpl_mb(psi2f(1)),
-     >                         dbl_mb(psi2f_r(1)))
-
-*        *** calculate E(y(t)) and E(yexcited(t)) ***
-         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
-     >                   dcpl_mb(psi1f(1)),dcpl_mb(psi1f(1)),
-     >                   dbl_mb(psi1f_r(1)),
-     >                   H1aa)
-         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
-     >                   dcpl_mb(psi2f(1)),dcpl_mb(psi2f(1)),
-     >                   dbl_mb(psi2f_r(1)),
-     >                   H1bb)
-          H2aa = 0.0d0
-          H2bb = 0.0d0
-
-*         **** coulomb part ****
-          call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psi1f_r(1)),dbl_mb(rho(1)))
-          if (control_version().eq.4) then
-             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
-             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-             H2aa = 0.5d0*ehartr*dv
-          else
-            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
-            call Pack_c_pack(0,dbl_mb(rho(1)))
-            H2aa = coulomb_e(dbl_mb(rho(1)))
-          end if
-          call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psi2f_r(1)),dbl_mb(rho(1)))
-          if (control_version().eq.4) then
-             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
-             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-             H2bb = 0.5d0*ehartr*dv
-          else
-            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
-            call Pack_c_pack(0,dbl_mb(rho(1)))
-            H2bb = coulomb_e(dbl_mb(rho(1)))
-         end if
-
-*        **** exchange part ****
-         call pspw_energy_HFX(ispin,dbl_mb(psi1f_r(1)),ehfx,phfx)
-         H2aa = H2aa + ehfx
-         call pspw_energy_HFX(ispin,dbl_mb(psi2f_r(1)),ehfx,phfx)
-         H2bb = H2bb + ehfx
-
-         Eground  = H1aa + H2aa + Eion + EVQ
-         Eexcited = H1bb + H2bb + Eion + EVQ
-         if (taskid.eq.MASTER) then
-            write(luout,1910) t,Eground,Eexcited
-         end if
-      end do
-
-*     ***********************************
-*     **** epath at morph geometries ****
-*     ***********************************
-      if (taskid.eq.MASTER) then
-         write(luout,1900) "geometry morphing"
-         write(luout,1905) 't','Eground(t)','Eexcited(t)'
-         write(luout,1906)
-      end if
-      do i=1,npath
-         t = (i-1)/dble(npath-1)
-
-         call ion_t_morph_extra(t,1,2)
-         call phafac()
-         if (control_version().eq.3) call ewald_phafac()
-         if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
-         if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
-
-*        *** generate y(t) and yexcited(t) ***
-         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
-     >                                 dcpl_mb(psi1(1)),
-     >                                 dcpl_mb(psi2(1)),
-     >                                 dbl_mb(U_ab(1)),
-     >                                 dbl_mb(Vt(1)),
-     >                                 dbl_mb(Cigma_ab(1)),
-     >                                 t,
-     >                                 dcpl_mb(psi1f(1)),
-     >                                 dcpl_mb(psi2f(1)))
-         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
-     >                         dcpl_mb(psi1f(1)),
-     >                         dbl_mb(psi1f_r(1)))
-         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
-     >                         dcpl_mb(psi2f(1)),
-     >                         dbl_mb(psi2f_r(1)))
-
-*        *** calculate E(y(t)) and E(yexcited(t)) ***
-         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
-     >                   dcpl_mb(psi1f(1)),dcpl_mb(psi1f(1)),
-     >                   dbl_mb(psi1f_r(1)),
-     >                   H1aa)
-         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
-     >                   dcpl_mb(psi2f(1)),dcpl_mb(psi2f(1)),
-     >                   dbl_mb(psi2f_r(1)),
-     >                   H1bb)
-          H2aa = 0.0d0
-          H2bb = 0.0d0
-
-*         **** coulomb part ****
-          call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psi1f_r(1)),dbl_mb(rho(1)))
-          if (control_version().eq.4) then
-             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
-             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-             H2aa = 0.5d0*ehartr*dv
-          else
-            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
-            call Pack_c_pack(0,dbl_mb(rho(1)))
-            H2aa = coulomb_e(dbl_mb(rho(1)))
-          end if
-          call pspw_et_gen_rho(ispin,neq,n2ft3d,
-     >                     dbl_mb(psi2f_r(1)),dbl_mb(rho(1)))
-          if (control_version().eq.4) then
-             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
-             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
-             H2bb = 0.5d0*ehartr*dv
-          else
-            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
-            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
-            call Pack_c_pack(0,dbl_mb(rho(1)))
-            H2bb = coulomb_e(dbl_mb(rho(1)))
-         end if
-
-*        **** exchange part ****
-         call pspw_energy_HFX(ispin,dbl_mb(psi1f_r(1)),ehfx,phfx)
-         H2aa = H2aa + ehfx
-         call pspw_energy_HFX(ispin,dbl_mb(psi2f_r(1)),ehfx,phfx)
-         H2bb = H2bb + ehfx
-
-         Eground  = H1aa + H2aa + Eion + EVQ
-         Eexcited = H1bb + H2bb + Eion + EVQ
-         if (taskid.eq.MASTER) then
-            write(luout,1910) t,Eground,Eexcited
-         end if
-      end do
-
-
-
-      call Dneall_ffm_Multiply(0,dcpl_mb(psi1f(1)),
-     >                           dcpl_mb(psi2f(1)),npack1,
-     >                           dbl_mb(itmp(1)))
-
-      write(*,*) "<psi1f|psi2f>="
-      do ms=1,ispin
-         do nn=1,ne(ms)
-            nx = (nn-1)*ne(ms)+(ms-1)*ne(1)*ne(1)
-            write(*,*) (dbl_mb(itmp(1)+nx+n-1),n=1,ne(ms))
-         end do
-      end do
-
+c*     ************************************
+c*     **** epath at midpoint geometry ****
+c*     ************************************
+c      call ion_morph_extra(1,2)
+c      call phafac()
+c      if (control_version().eq.3) call ewald_phafac()
+c      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+c      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+c
+c      if (taskid.eq.MASTER) then
+c         write(luout,1900) "midpoint"
+c         write(luout,1905) 't','Eground(t)','Eexcited(t)'
+c         write(luout,1906)
+c      end if
+c      do i=1,npath
+c         t = (i-1)/dble(npath-1)
+c
+c*        *** generate y(t) and yexcited(t) ***
+c         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
+c     >                                 dcpl_mb(psi1(1)),
+c     >                                 dcpl_mb(psi2(1)),
+c     >                                 dbl_mb(U_ab(1)),
+c     >                                 dbl_mb(Vt(1)),
+c     >                                 dbl_mb(Cigma_ab(1)),
+c     >                                 t,
+c     >                                 dcpl_mb(psi1f(1)),
+c     >                                 dcpl_mb(psi2f(1)))
+c         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
+c     >                         dcpl_mb(psi1f(1)),
+c     >                         dbl_mb(psi1f_r(1)))
+c         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
+c     >                         dcpl_mb(psi2f(1)),
+c     >                         dbl_mb(psi2f_r(1)))
+c
+c*        *** calculate E(y(t)) and E(yexcited(t)) ***
+c         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                   dcpl_mb(psi1f(1)),dcpl_mb(psi1f(1)),
+c     >                   dbl_mb(psi1f_r(1)),
+c     >                   H1aa)
+c         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                   dcpl_mb(psi2f(1)),dcpl_mb(psi2f(1)),
+c     >                   dbl_mb(psi2f_r(1)),
+c     >                   H1bb)
+c          H2aa = 0.0d0
+c          H2bb = 0.0d0
+c
+c*         **** coulomb part ****
+c          call pspw_et_gen_rho(ispin,neq,n2ft3d,
+c     >                     dbl_mb(psi1f_r(1)),dbl_mb(rho(1)))
+c          if (control_version().eq.4) then
+c             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+c             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+c             H2aa = 0.5d0*ehartr*dv
+c          else
+c            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+c            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+c            call Pack_c_pack(0,dbl_mb(rho(1)))
+c            H2aa = coulomb_e(dbl_mb(rho(1)))
+c          end if
+c          call pspw_et_gen_rho(ispin,neq,n2ft3d,
+c     >                     dbl_mb(psi2f_r(1)),dbl_mb(rho(1)))
+c          if (control_version().eq.4) then
+c             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+c             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+c             H2bb = 0.5d0*ehartr*dv
+c          else
+c            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+c            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+c            call Pack_c_pack(0,dbl_mb(rho(1)))
+c            H2bb = coulomb_e(dbl_mb(rho(1)))
+c         end if
+c
+c*        **** exchange part ****
+c         call pspw_energy_HFX(ispin,dbl_mb(psi1f_r(1)),ehfx,phfx)
+c         H2aa = H2aa + ehfx
+c         call pspw_energy_HFX(ispin,dbl_mb(psi2f_r(1)),ehfx,phfx)
+c         H2bb = H2bb + ehfx
+c
+c         Eground  = H1aa + H2aa + Eion + EVQ
+c         Eexcited = H1bb + H2bb + Eion + EVQ
+c         if (taskid.eq.MASTER) then
+c            write(luout,1910) t,Eground,Eexcited
+c         end if
+c      end do
+c
+c*     ***********************************
+c*     **** epath at morph geometries ****
+c*     ***********************************
+c      if (taskid.eq.MASTER) then
+c         write(luout,1900) "geometry morphing"
+c         write(luout,1905) 't','Eground(t)','Eexcited(t)'
+c         write(luout,1906)
+c      end if
+c      do i=1,npath
+c         t = (i-1)/dble(npath-1)
+c
+c         call ion_t_morph_extra(t,1,2)
+c         call phafac()
+c         if (control_version().eq.3) call ewald_phafac()
+c         if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+c         if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+c
+c*        *** generate y(t) and yexcited(t) ***
+c         call pspw_et_get_yandyexcited(ispin,neq,npack1,ne(1)+ne(2),
+c     >                                 dcpl_mb(psi1(1)),
+c     >                                 dcpl_mb(psi2(1)),
+c     >                                 dbl_mb(U_ab(1)),
+c     >                                 dbl_mb(Vt(1)),
+c     >                                 dbl_mb(Cigma_ab(1)),
+c     >                                 t,
+c     >                                 dcpl_mb(psi1f(1)),
+c     >                                 dcpl_mb(psi2f(1)))
+c         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
+c     >                         dcpl_mb(psi1f(1)),
+c     >                         dbl_mb(psi1f_r(1)))
+c         call pspw_et_gen_psir(ispin,neq,npack1,n2ft3d,
+c     >                         dcpl_mb(psi2f(1)),
+c     >                         dbl_mb(psi2f_r(1)))
+c
+c*        *** calculate E(y(t)) and E(yexcited(t)) ***
+c         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                   dcpl_mb(psi1f(1)),dcpl_mb(psi1f(1)),
+c     >                   dbl_mb(psi1f_r(1)),
+c     >                   H1aa)
+c         call pspw_et_H1(ispin,neq,npack1,n2ft3d,
+c     >                   dcpl_mb(psi2f(1)),dcpl_mb(psi2f(1)),
+c     >                   dbl_mb(psi2f_r(1)),
+c     >                   H1bb)
+c          H2aa = 0.0d0
+c          H2bb = 0.0d0
+c
+c*         **** coulomb part ****
+c          call pspw_et_gen_rho(ispin,neq,n2ft3d,
+c     >                     dbl_mb(psi1f_r(1)),dbl_mb(rho(1)))
+c          if (control_version().eq.4) then
+c             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+c             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+c             H2aa = 0.5d0*ehartr*dv
+c          else
+c            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+c            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+c            call Pack_c_pack(0,dbl_mb(rho(1)))
+c            H2aa = coulomb_e(dbl_mb(rho(1)))
+c          end if
+c          call pspw_et_gen_rho(ispin,neq,n2ft3d,
+c     >                     dbl_mb(psi2f_r(1)),dbl_mb(rho(1)))
+c          if (control_version().eq.4) then
+c             call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+c             call D3dB_rr_dot(1,dbl_mb(rho(1)),dbl_mb(vc(1)),ehartr)
+c             H2bb = 0.5d0*ehartr*dv
+c          else
+c            call D3dB_r_SMul1(1,scal1,dbl_mb(rho(1)))
+c            call D3dB_rc_fft3f(1,dbl_mb(rho(1)))
+c            call Pack_c_pack(0,dbl_mb(rho(1)))
+c            H2bb = coulomb_e(dbl_mb(rho(1)))
+c         end if
+c
+c*        **** exchange part ****
+c         call pspw_energy_HFX(ispin,dbl_mb(psi1f_r(1)),ehfx,phfx)
+c         H2aa = H2aa + ehfx
+c         call pspw_energy_HFX(ispin,dbl_mb(psi2f_r(1)),ehfx,phfx)
+c         H2bb = H2bb + ehfx
+c
+c         Eground  = H1aa + H2aa + Eion + EVQ
+c         Eexcited = H1bb + H2bb + Eion + EVQ
+c         if (taskid.eq.MASTER) then
+c            write(luout,1910) t,Eground,Eexcited
+c         end if
+c      end do
+c
+c
+c
+c      call Dneall_ffm_Multiply(0,dcpl_mb(psi1f(1)),
+c     >                           dcpl_mb(psi2f(1)),npack1,
+c     >                           dbl_mb(itmp(1)))
+c
+c      write(*,*) "<psi1f|psi2f>="
+c      do ms=1,ispin
+c         do nn=1,ne(ms)
+c            nx = (nn-1)*ne(ms)+(ms-1)*ne(1)*ne(1)
+c            write(*,*) (dbl_mb(itmp(1)+nx+n-1),n=1,ne(ms))
+c         end do
+c      end do
+c
 
 *                |***************************|
 ******************         Prologue          **********************
