@@ -168,7 +168,7 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
           ks(3) = i3*zzz
           kq(1) = unitg(1,1)*ks(1)+unitg(1,2)*ks(2)+unitg(1,3)*ks(3)
           kq(2) = unitg(2,1)*ks(1)+unitg(2,2)*ks(2)+unitg(2,3)*ks(3)
-          kq(3) = unitg(2,1)*ks(1)+unitg(2,2)*ks(2)+unitg(2,3)*ks(3)
+          kq(3) = unitg(3,1)*ks(1)+unitg(3,2)*ks(2)+unitg(3,3)*ks(3)
 
           call vib_gendynamicmatrix(unita,kq,nion,rion,
      >                          nion3,dbl_mb(hessadjust(1)),
@@ -261,7 +261,7 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
            ks(3) = dbl_mb(kvs(1)+4*(i-1)+2)
            kq(1) = unitg(1,1)*ks(1)+unitg(1,2)*ks(2)+unitg(1,3)*ks(3)
            kq(2) = unitg(2,1)*ks(1)+unitg(2,2)*ks(2)+unitg(2,3)*ks(3)
-           kq(3) = unitg(2,1)*ks(1)+unitg(2,2)*ks(2)+unitg(2,3)*ks(3)
+           kq(3) = unitg(3,1)*ks(1)+unitg(3,2)*ks(2)+unitg(3,3)*ks(3)
 
            call vib_gendynamicmatrix(unita,kq,nion,rion,
      >                          nion3,dbl_mb(hessadjust(1)),

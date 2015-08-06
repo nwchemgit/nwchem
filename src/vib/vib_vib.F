@@ -159,7 +159,7 @@ c
           dbl_mb(ihesst+iii) = dbl_tmp
         enddo
         close(unit=69,status='keep')
-        call vib_dsquar(dbl_mb(ihesst),dbl_mb(ihess),nat3,nat3)
+        call vib_DSQUAR(dbl_mb(ihesst),dbl_mb(ihess),nat3,nat3)
       endif
       call util_file_name('fd_ddipole',.false., .false.,dipole_file)
       dipole_file_exists = .false.
