@@ -147,6 +147,14 @@
         gga = 200
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
         value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+      else if (inp_compare(.false.,exchange_correlation,'uhf')) then
+        gga = 200
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+      else if (inp_compare(.false.,exchange_correlation,'rhf')) then
+        gga = 200
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
       else if (inp_compare(.false.,exchange_correlation,
      >                     'hartree-fock')) then
         gga = 200
