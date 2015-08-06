@@ -492,6 +492,9 @@
 
 
 *     **** calculate SVD of <psi2(ms)|psi1(ms)> ****
+c      call Dneall_ffm_Multiply(0,dcpl_mb(psi1(1)),
+c     >                           dcpl_mb(psi2(1)),npack1,
+c     >                           dbl_mb(itmp(1)))
       call Dneall_ffm_Multiply(0,dcpl_mb(psi2(1)),
      >                           dcpl_mb(psi1(1)),npack1,
      >                           dbl_mb(itmp(1)))
