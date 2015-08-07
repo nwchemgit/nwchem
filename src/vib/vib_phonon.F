@@ -36,7 +36,7 @@ c      COMMON /cvib_SETCON/ AMS(36),wave,numans      ! setup parameters
       character*255 full_filename
 
       integer efn_dos(2),eigs_dos(2),dmat(2),wp(2),hessadjust(2)
-      integer ierr,lwork,work(2),rwork(2),w2(1),kvs(2)
+      integer ierr,lwork,work(2),rwork(2),w2(2),kvs(2)
 
 
       oprint = util_print('phonon',print_medium)
