@@ -911,8 +911,8 @@ c      end do
 
          do ii=jj+1,nion
             dx = rion(1,jj)-rion(1,ii)
-            dy = rion(1,jj)-rion(1,ii)
-            dz = rion(1,jj)-rion(1,ii)
+            dy = rion(2,jj)-rion(2,ii)
+            dz = rion(3,jj)-rion(3,ii)
 
             d2min=9.99d12
             do i3=-1,1
