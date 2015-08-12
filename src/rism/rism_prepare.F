@@ -282,10 +282,10 @@ c     -------------------------------
       pi=2*asin(1.0)
       if(okspace) then
          dk = d
-         dr = pi/(ngrid+1)/dk
+         dr = pi/ngrid/dk
       else
          dr = d
-         dk = pi/(ngrid+1)/dr
+         dk = pi/ngrid/dr
       end if
       tag = "dr"
       call db_data_put_dbl(sname,tag,1,dr)

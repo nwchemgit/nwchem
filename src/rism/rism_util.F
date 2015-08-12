@@ -23,93 +23,20 @@ c
        if(.not.util_get_io_unit(fn))
      >   call errquit("cannot get file number",0,0)
        open(unit=fn,status="old",form="formatted",file=rdffile)
-       if(okspace) go to 1
 c      reading of solvent rdfs 
 
         do i=1,ngr
          read(fn,*) rr(i), (hsol(j,i), j=1,nd)        
         enddo
-       dr=rr(2)-rr(1) 
-c      sin fft transform of rdfs with proper arrangement in array
-       do j=1,nvv
-        do j1=j,nvv
-         h2(1)=0
-         if(rr(1).le.0.00001) then
-          ngt=ngr
-          i1=0           
-          else
-          ngt=ngr-1
-          i1=1
-         endif 
-         do i=2,ngt 
-           h1(j,j1,i)=(hsol(nvv*(j-1)-j*(j-1)/2+j1,i-i1)-1)*rr(i-i1) 
-           h2(i)=h1(j,j1,i)
-         enddo
-         call sinft(h2,ngr)
-c        normalization of sin-fft with excluding the zeropoint (x=0)
-         do i=1,ngr-1
-          h3(j,j1,i)=h2(i+1)/kgrid(i)
-         enddo
-         h3(j,j1,ngr)=h3(j,j1,ngr-1)
-        enddo
-       enddo
-c      symmetric indeces
+c      reading and then symmetric indeces
        do j=1,nvv
         do j1=j,nvv
          do i=1,ngr 
+          h3(j,j1,i)=hsol(nvv*(j-1)-j*(j-1)/2+j1,i)   
           h3(j1,j,i)=h3(j,j1,i)
          enddo           
         enddo
        enddo
-c     improving at small k to provide electroneutrality
-       do j=1,nv
-        dentv(ims(j))=den(ims(j))
-        mvt(ims(j))=mv(ims(j))
-       enddo 
-      qm(1)=0     
-      do j=1,nvv
-        sqm=0 
-      do i=1,nvv
-       qo(i)=abs(qvv(i)*dentv(i))
-       sqm=sqm+qvv(i)*4*pi*dr*mvt(i)*mvt(j)*dentv(i)*h3(i,j,1)
-        if(qo(i).ge.qm(i)) then 
-         qm(i+1)=qo(i)
-         iq=i
-        else
-        qm(i+1)=qm(i)
-       endif
-      enddo 
-      del(j)=sqm/(qvv(iq)*4*pi*dr*mvt(iq)*mvt(j)*dentv(iq))
-      enddo
-      print*,(del(j), j=1,nvv)
-      do i=1,ngr
-        do j=1,nvv
-         h3(iq,j,i)=h3(iq,j,i)-del(j)*exp(-8*kgrid(i)**2/tau**2)
-        enddo
-      enddo
-c     normalization
-       do j=1,nvv
-        do j1=1,nvv
-         do i=1,ngr 
-          h3(j,j1,i)=h3(j,j1,i)*4*pi*dr
-         enddo
-        enddo
-       enddo
-1      continue
-c      reading of solvent rdfs in fft
-        if(.not.okspace) go to 2
-        do i=1,ngr
-         read(fn,*) kgrid(i), (huk(j,i), j=1,nd)        
-        enddo
-       close(fn)
-       do j=1,nvv
-        do j1=1,nvv
-         do i=1,ngr 
-          h3(j,j1,i)=huk(nvv*(j-1)-j*(j-1)/2+j1,i)
-         enddo
-        enddo
-       enddo
-2      continue
 c      wv(i,j,k) intramolecular solvent function
        call wcreat(nv,ngr,nvv,ims,kgrid,isv,xv,yv,zv,wv) 
 c      chi(i,j,k) solvent susceptibility 
@@ -117,7 +44,7 @@ c      chi(i,j,k) solvent susceptibility
         do j1=1,nv
          do j2=1,nv
           chi(ims(j1),ims(j2),i)=wv(ims(j1),ims(j2),i)
-     *    +mv(j1)*mv(j2)*den(j1)*h3(ims(j1),ims(j2),i)
+     *    +mv(j1)*mv(j2)*h3(ims(j1),ims(j2),i)
          enddo
         enddo      
        enddo
