@@ -316,6 +316,9 @@ ifdef USE_MPI
         else
             MAYBE_MPICC = MPICC="$(strip $(MPICC))"
         endif
+        ifeq ($(FC),ftn)
+            CXX=CC
+        endif
         ifeq ($(MPICXX),)
             ifneq ($(CXX),)
                 MAYBE_MPICXX = MPICXX="$(strip $(CXX))"
