@@ -116,7 +116,7 @@ c
       double precision EPS
       parameter (TOLL = 1.0D-40, EXPTOL = 40.0d0)
       parameter (EPS = 1.0e-8)
-      type(nwad_dble)::rho_t(1,2),gamma_t(1,3),tau_t(1,2)
+      type(nwad_dble)::rho_t(1,2),rgamma_t(1,3),tau_t(1,2)
 c     type(nwad_dble)::dsqgamma
 c
 c     Intermediate derivative results, etc.
