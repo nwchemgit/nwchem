@@ -1,0 +1,33 @@
+ NAMESPACEparameters                      
+ DATA NAME closure                                                                 
+ DATA TYPE integer
+ DATA SIZE                    1
+                    2
+ DATA NAME vdw_rule                                                                
+ DATA TYPE integer
+ DATA SIZE                    1
+                    1
+ DATA NAME solvent_permittivity                                                    
+ DATA TYPE double
+ DATA SIZE                    1
+   1.0000000000000000     
+ DATA NAME tau                                                                     
+ DATA TYPE double
+ DATA SIZE                    1
+   1.0000000000000000     
+ DATA NAME tolerance                                                               
+ DATA TYPE double
+ DATA SIZE                    1
+   1.0000000000000007E-007
+ DATA NAME mixing                                                                  
+ DATA TYPE double
+ DATA SIZE                    1
+   0.0000000000000000     
+ DATA NAME temperature                                                             
+ DATA TYPE double
+ DATA SIZE                    1
+   298.00000000000000     
+ DATA NAME diis                                                                    
+ DATA TYPE integer
+ DATA SIZE                    1
+                    9

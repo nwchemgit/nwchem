@@ -1,0 +1,36 @@
+echo
+start h2o
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+permanent_dir ./perm
+scratch_dir ./data
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+scf
+ rohf
+ singlet
+end
+
+rism
+ closure kh
+ tol 0.1e-6
+ temp 298
+ vdw rule arithmetic parameters vdw.par
+ solute configuration solute2.data
+ solvent model solvent3.data rdf full.data
+#solvent permittivity 3.0
+ ngrid 4096
+end
+task dft  energy rism
+
