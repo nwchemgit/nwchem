@@ -90,6 +90,9 @@ import string
 type_autoxc   = 1
 type_autoxcDs = 2
 
+ifbranch_closedshell = 1
+ifbranch_openshell   = 2
+
 func_invalid  = -1
 func_lda      = 1
 func_gga      = 2
@@ -499,7 +502,7 @@ def append_declarations(olines,varsets,orderdiff):
          olines.append(line)
    return olines
 
-def append_subroutine_call(olines,subrname,arglist,orderdiff,funckind,num,indent):
+def append_subroutine_call(olines,subrname,arglist,orderdiff,ifbranch_kind,funckind,num,indent):
    """
    Given the list of output lines so far, the subroutine name, the input
    argument list, the order of differentiation, the functional kind as well as
@@ -511,22 +514,57 @@ def append_subroutine_call(olines,subrname,arglist,orderdiff,funckind,num,indent
    #DEBUG
    #print "append_subroutine_call: arglist:",arglist
    #DEBUG
-   line = indent+"sr(R_A) = "+arglist[0]
-   olines.append(line)
-   line = indent+"sr(R_B) = "+arglist[1]
-   olines.append(line)
-   if funckind >= func_gga:
-      line = indent+"sg(G_AA) = "+arglist[2]
+   if ifbranch_kind == ifbranch_closedshell:
+      if arglist[1] == '0.0d+0' or arglist[2] == '0.0d+0':
+         # We are dealing with the open shell term of the Stoll partitioning
+         # of the correlation energy
+         line = indent+"sr(R_A) = "+arglist[1]
+         olines.append(line)
+         line = indent+"sr(R_B) = "+arglist[2]
+         olines.append(line)
+         if funckind >= func_gga:
+            line = indent+"sg(G_AA) = "+arglist[3]
+            olines.append(line)
+            line = indent+"sg(G_AB) = "+arglist[4]
+            olines.append(line)
+            line = indent+"sg(G_BB) = "+arglist[5]
+            olines.append(line)
+         if funckind >= func_mgga:
+            line = indent+"st(T_A) = "+arglist[6]
+            olines.append(line)
+            line = indent+"st(T_B) = "+arglist[7]
+            olines.append(line)
+      else:
+         # We are dealing with a regular closed shell call
+         line = indent+"sr(R_T) = 2.0d0*"+arglist[1]
+         olines.append(line)
+         if funckind >= func_gga:
+            line = indent+"sg(G_TT) = 4.0d0*"+arglist[3]
+            olines.append(line)
+         if funckind >= func_mgga:
+            line = indent+"st(T_T) = 2.0d0*"+arglist[6]
+            olines.append(line)
+   elif ifbranch_kind == ifbranch_openshell:
+      # We are dealing with a regular open shell call
+      line = indent+"sr(R_A) = "+arglist[1]
       olines.append(line)
-      line = indent+"sg(G_AB) = "+arglist[3]
+      line = indent+"sr(R_B) = "+arglist[2]
       olines.append(line)
-      line = indent+"sg(G_BB) = "+arglist[4]
-      olines.append(line)
-   if funckind >= func_mgga:
-      line = indent+"st(T_A) = "+arglist[5]
-      olines.append(line)
-      line = indent+"st(T_B) = "+arglist[6]
-      olines.append(line)
+      if funckind >= func_gga:
+         line = indent+"sg(G_AA) = "+arglist[3]
+         olines.append(line)
+         line = indent+"sg(G_AB) = "+arglist[4]
+         olines.append(line)
+         line = indent+"sg(G_BB) = "+arglist[5]
+         olines.append(line)
+      if funckind >= func_mgga:
+         line = indent+"st(T_A) = "+arglist[6]
+         olines.append(line)
+         line = indent+"st(T_B) = "+arglist[7]
+         olines.append(line)
+   else:
+      sys.stderr.write("append_subroutine_call: invalid ifbranch_kind: %d\n"%ifbranch_kind)
+      sys.exit(20)
    line = indent+"s"+str(num)+"f = 0.0d0"
    olines.append(line)
    line = indent+"call dcopy(NCOL_AMAT,0.0d0,0,s"+str(num)+"a,1)"
@@ -560,8 +598,9 @@ def append_subroutine_call(olines,subrname,arglist,orderdiff,funckind,num,indent
       line = line+"_d2"
    elif orderdiff == 3:
       line = line+"_d3"
-   line = line+"(param,tol_rho,"
-   if arglist[0] == '0.0d+0' or arglist[1] == '0.0d+0':
+   line = line+"("+arglist[0]+",tol_rho,"
+   if arglist[1] == '0.0d+0' or arglist[2] == '0.0d+0':
+      # We are dealing with the Stoll partitioning of the correlation energy
       line = line+"2"
    else:
       line = line+"ipol"
@@ -614,19 +653,21 @@ def find_functional_kind(funccall):
    """
    Given the way the functional was invoked as a function work out whether
    the functional is an LDA, GGA or Meta-GGA functional. We establish this
-   by counting the number of arguments which is 2 for LDA, 5 for GGA and 
-   7 for a Meta-GGA functional.
+   by counting the number of arguments which is 3 for LDA, 6 for GGA and 
+   8 for a Meta-GGA functional. The numbers include the "param" argument
+   as well as the density dependent quantities, i.e. for LDA we have 3
+   arguments: param + rhoa + rhob.
    The functional kind is returned.
    """
    data = funccall
    data = data.split(",")
    length = len(data)
    funckind = func_invalid
-   if   length == 2:
+   if   length == 3:
       funckind = func_lda
-   elif length == 5:
+   elif length == 6:
       funckind = func_gga
-   elif length == 7:
+   elif length == 8:
       funckind = func_mgga
    return funckind
 
@@ -1083,7 +1124,15 @@ while subr_lines_start != -1 and subr_lines_end != -1:
    #
    # Go through branches and mess with subroutine calls
    #
+   i_ifbranch = 0
    for ifbranch in ifbranches:
+      i_ifbranch += 1
+      if   code_skel_type == type_autoxc and i_ifbranch <= 1:
+         ifbranch_kind = ifbranch_closedshell
+      elif code_skel_type == type_autoxcDs and i_ifbranch <= 2:
+         ifbranch_kind = ifbranch_closedshell
+      else:
+         ifbranch_kind = ifbranch_openshell
       (line_if_start,line_if_end) = ifbranch
       call_lines = collect_subroutine_calls(ilines,ifbranch)
       #DEBUG
@@ -1122,7 +1171,7 @@ while subr_lines_start != -1 and subr_lines_end != -1:
          #print "funcname: ",funcname
          #print "arglist : ",arglist
          #DEBUG
-         olines = append_subroutine_call(olines,funcname,arglist,orderdiff,funckind,num,indent)
+         olines = append_subroutine_call(olines,funcname,arglist,orderdiff,ifbranch_kind,funckind,num,indent)
          #DEBUG
          #print "var: ",var,call_insert
          #DEBUG
