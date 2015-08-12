@@ -48,17 +48,17 @@ C>     10.1063/1.2800011</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-      Subroutine nwxc_c_pkzb99_p(tol_rho, ipol, nq, wght, rho,
+      Subroutine nwxc_c_pkzb99_p(param,tol_rho, ipol, nq, wght, rho,
      &                           rgamma, tau, func)
 #else
-      Subroutine nwxc_c_pkzb99(tol_rho, ipol, nq, wght, rho,
+      Subroutine nwxc_c_pkzb99(param,tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-      Subroutine nwxc_c_pkzb99_d2(tol_rho, ipol, nq, wght, rho,
+      Subroutine nwxc_c_pkzb99_d2(param,tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
 #else
-      Subroutine nwxc_c_pkzb99_d3(tol_rho, ipol, nq, wght, rho,
+      Subroutine nwxc_c_pkzb99_d3(param,tol_rho, ipol, nq, wght, rho,
      &                         rgamma, tau, func)
 #endif
 c
@@ -79,6 +79,16 @@ c
 c
 c     Input and other parameters
 c
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+#if defined(NWAD_PRINT)
+      type(nwad_dble)::param(*)!< [Input] Parameters of functional
+#else
+      double precision param(*)!< [Input] Parameters of functional
+#endif
+#else
+      double precision param(*)!< [Input] Parameters of functional
+                               !< - param(1): \f$ \beta \f$
+#endif
       double precision tol_rho !< [Input] The lower limit on the density
       integer nq               !< [Input] The number of points
       integer ipol             !< [Input] The number of spin channels
@@ -116,8 +126,8 @@ c    first sigma term
 
 c   Second call to the cPBE subroutine
 
-      type(nwad_dble):: neGGA, dneGGAdn(2), dneGGAdg(3)
-      type(nwad_dble)::rho_t(3), rgamma_t(3)
+      type(nwad_dble):: neGGA(1), dneGGAdn(2), dneGGAdg(3)
+      type(nwad_dble):: rho_t(1,3), rgamma_t(1,3), tau_t(1,2)
       type(nwad_dble):: tauNA,tauNB
 c    
       type(nwad_dble)::pbe,tauw,xx2,en,
@@ -128,7 +138,7 @@ c
      ,     dpbeupdn,dpbeupdg,atermn,btermn,atermg,btermg,
      ,     erevc,finaln,apartg,finalg,apartt,finalt
 c
-      type(nwad_dble):: neFSP, dneFSPdn(2), dneFSPdg(3)
+      type(nwad_dble):: neFSP(1), dneFSPdn(2), dneFSPdg(3)
 c
       double precision drevdna,drevdnb,drevdgaa,drevdgbb,
      A     drevdta,drevdtb,finalgbb
@@ -138,7 +148,7 @@ c
       type(nwad_dble)::etildea,etildeb,gaa,gbb,gab
       type(nwad_dble)::fabup,fabdown
 c     double precision delrho_A(3,2)
-      type(nwad_dble)::rho_A(3)
+      type(nwad_dble)::rho_A(1,3)
 c
       type(nwad_dble)::xx1,xx1a,xx1b,pbedown
       type(nwad_dble)::tauwplus,taunplus,rhoval2
@@ -154,7 +164,7 @@ c
       type(nwad_dble)::rhoa2,rhob2
       type(nwad_dble)::detiladgaa,detiladgbb
       type(nwad_dble)::detilbdgaa,detilbdgbb
-      type(nwad_dble)::gammaval, rgamma_A(3)
+      type(nwad_dble)::gammaval, rgamma_A(1,3)
 c
       if (ipol.eq.1 )then
 c        ======> SPIN-RESTRICTED <======
@@ -164,11 +174,11 @@ c        ======> SPIN-RESTRICTED <======
          rhoval = rho(n,R_T)
 
 C   set up values to call PBE subroutine
-         rho_t(1) = rho(n,R_T)
+         rho_t(1,1) = rho(n,R_T)
 c do delrho
-         rgamma_t(1) = rgamma(n,G_TT)
-         rgamma_t(2) = 0.0d0
-         rgamma_t(3) = 0.0d0
+         rgamma_t(1,1) = rgamma(n,G_TT)
+         rgamma_t(1,2) = 0.0d0
+         rgamma_t(1,3) = 0.0d0
 c        delrho_t(1,1) = delrho(n,1,1)
 c        delrho_t(2,1) = delrho(n,2,1)
 c        delrho_t(3,1) = delrho(n,3,1)
@@ -180,22 +190,30 @@ c        gam12=sqrt(gammaval)
 c
 c     get E_GGA[rho,gamma]
 c
-         neGGA = 0.0d0  !Ec in PBE
+         neGGA(1) = 0.0d0  !Ec in PBE
          dneGGAdn(1) = 0.0d0   !Amat in PBE
          dneGGAdg(1) = 0.0d0  !Cmat in PBE
          dneGGAdg(2) = 0.0d0  !Cmat in PBE
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-         call nwxc_c_Mpbe_p(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+         call enter_subr("nwxc_c_mpbe",func_gga,param(1),ipol,1,
+     +                   rho_t,rgamma_t,tau_t,neGGA)
+         call nwxc_c_Mpbe_p(param,tol_rho,ipol,1,1.0d0,rho_t,rgamma_t,
+     +                      neGGA)
+         call leave_subr("nwxc_c_mpbe",func_gga,param(1),ipol,1,
+     +                   rho_t,rgamma_t,tau_t,neGGA)
 #else
-         call nwxc_c_Mpbe(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+         call nwxc_c_Mpbe(param,tol_rho,ipol,1,1.0d0,rho_t,rgamma_t,
+     +                    neGGA)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-         call nwxc_c_Mpbe_d2(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+         call nwxc_c_Mpbe_d2(param,tol_rho,ipol,1,1.0d0,rho_t,rgamma_t,
+     +                       neGGA)
 #else
-         call nwxc_c_Mpbe_d3(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+         call nwxc_c_Mpbe_d3(param,tol_rho,ipol,1,1.0d0,rho_t,rgamma_t,
+     +                       neGGA)
 #endif
-         pbe = neGGA
+         pbe = neGGA(1)
 
          tauN = tau(n,T_T)
          if (tauN.lt.tol_rho) then
@@ -211,21 +229,21 @@ c    set up values to call PBE subroutine as
 c     Fully SpinPolarized system
 c
          if (ipol.eq.1) then
-           rho_A(1) = (0.5d0)*rho(n,R_T)   ! total   equals (1/2)n_tot
+           rho_A(1,1) = (0.5d0)*rho(n,R_T)   ! total   equals (1/2)n_tot
 c          rho_A(2) = (0.5d0)*rho(n,R_T)   ! alpha   equals (1/2)n_tot
-           rho_A(2) = 0.d0               ! beta  equals zero
-           rho_A(3) = 0.d0               ! beta  equals zero
-           rgamma_A(1) = 0.25d0*rgamma(n,G_TT)
-           rgamma_A(2) = 0.0d0
-           rgamma_A(3) = 0.0d0
+           rho_A(1,2) = 0.d0               ! beta  equals zero
+           rho_A(1,3) = 0.d0               ! beta  equals zero
+           rgamma_A(1,1) = 0.25d0*rgamma(n,G_TT)
+           rgamma_A(1,2) = 0.0d0
+           rgamma_A(1,3) = 0.0d0
          else
-           rho_A(1) = rho(n,R_A)   ! total   equals (1/2)n_tot
+           rho_A(1,1) = rho(n,R_A)   ! total   equals (1/2)n_tot
 c          rho_A(2) = rho(n,R_B)   ! alpha   equals (1/2)n_tot
-           rho_A(2) = 0.d0         ! beta  equals zero
-           rho_A(3) = 0.d0         ! beta  equals zero
-           rgamma_A(1) = rgamma(n,G_AA)
-           rgamma_A(2) = 0.0d0
-           rgamma_A(3) = 0.0d0
+           rho_A(1,2) = 0.d0         ! beta  equals zero
+           rho_A(1,3) = 0.d0         ! beta  equals zero
+           rgamma_A(1,1) = rgamma(n,G_AA)
+           rgamma_A(1,2) = 0.0d0
+           rgamma_A(1,3) = 0.0d0
          endif
 c        delrho_A(1,1) = (0.5d0)*delrho_t(1,1) ! nabla n_up x  
 c        delrho_A(2,1) = (0.5d0)*delrho_t(2,1) ! nabla n_up y
@@ -235,7 +253,7 @@ c        delrho_A(1,2) = 0.d0   ! set beta gradient to zero
 c        delrho_A(2,2) = 0.d0   ! set beta gradient to zero
 c        delrho_A(3,2) = 0.d0   ! set beta gradient to zero
 
-         neFSP = 0.0d0  !Ec in PBE
+         neFSP(1) = 0.0d0  !Ec in PBE
          dneFSPdn(1) = 0.0d0   !Amat in PBE
          dneFSPdn(2) = 0.0d0   !Amat in PBE
 
@@ -248,16 +266,24 @@ c     get E_GGA[rho_alpha,0,gamma_alpha,0]
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-         call nwxc_c_Mpbe_p(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call enter_subr("nwxc_c_mpbe",func_gga,param(1),2,1,
+     +                   rho_A,rgamma_A,tau_t,neFSP)
+         call nwxc_c_Mpbe_p(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                      neFSP)
+         call leave_subr("nwxc_c_mpbe",func_gga,param(1),2,1,
+     +                   rho_A,rgamma_A,tau_t,neFSP)
 #else
-         call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                    neFSP)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-         call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe_d2(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                       neFSP)
 #else
-         call nwxc_c_Mpbe_d3(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe_d3(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                       neFSP)
 #endif
-         pbeup = neFSP
+         pbeup = neFSP(1)
 
 c        functional deriv info below fffffffffffff
 c        dtwt2dn = -2.d0*xx2/rhoval
@@ -317,19 +343,19 @@ c
          rhoval2 = rhoval*rhoval
 c
 c        rho_t(1) = rho(n,R_A)+rho(n,R_B)
-         rho_t(1) = rho(n,R_A)
-         rho_t(2) = rho(n,R_B)
+         rho_t(1,1) = rho(n,R_A)
+         rho_t(1,2) = rho(n,R_B)
 c        delrho_t(1,1) = delrho(n,1,1)
 c        delrho_t(2,1) = delrho(n,2,1)
 c        delrho_t(3,1) = delrho(n,3,1)
 c        delrho_t(1,2) = delrho(n,1,2)
 c        delrho_t(2,2) = delrho(n,2,2)
 c        delrho_t(3,2) = delrho(n,3,2)
-         rgamma_t(1) = rgamma(n,G_AA)
-         rgamma_t(2) = rgamma(n,G_AB)
-         rgamma_t(3) = rgamma(n,G_BB)
+         rgamma_t(1,1) = rgamma(n,G_AA)
+         rgamma_t(1,2) = rgamma(n,G_AB)
+         rgamma_t(1,3) = rgamma(n,G_BB)
          
-         neGGA = 0.0d0  !Ec in PBE
+         neGGA(1) = 0.0d0  !Ec in PBE
          dneGGAdn(1) = 0.0d0   !Amat in PBE (n,1)
          dneGGAdn(2) = 0.0d0   !Amat in PBE (n,2)
          dneGGAdg(1) = 0.0d0  !Cmat in PBE--aa
@@ -340,16 +366,24 @@ c     get E_GGA[rho,gamma]
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-         call nwxc_c_Mpbe_p(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+         call enter_subr("nwxc_c_mpbe",func_gga,param(1),ipol,1,
+     +                   rho_t,rgamma_t,tau_t,neGGA)
+         call nwxc_c_Mpbe_p(param,tol_rho,ipol,1,1.0d0,rho_t,rgamma_t,
+     +                      neGGA)
+         call leave_subr("nwxc_c_mpbe",func_gga,param(1),ipol,1,
+     +                   rho_t,rgamma_t,tau_t,neGGA)
 #else
-         call nwxc_c_Mpbe(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+         call nwxc_c_Mpbe(param,tol_rho,ipol,1,1.0d0,rho_t,rgamma_t,
+     +                    neGGA)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-         call nwxc_c_Mpbe_d2(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+         call nwxc_c_Mpbe_d2(param,tol_rho,ipol,1,1.0d0,rho_t,rgamma_t,
+     +                       neGGA)
 #else
-         call nwxc_c_Mpbe_d3(tol_rho, ipol, rho_t, rgamma_t, neGGA)
+         call nwxc_c_Mpbe_d3(param,tol_rho,ipol,1,1.0d0,rho_t,rgamma_t,
+     +                       neGGA)
 #endif
-         pbe = neGGA
+         pbe = neGGA(1)
 c
 c        epGGA = (epsilon_c^GGA)  =cor. energy per electron
 c        epGGA= ec^LDA +H  = pbe
@@ -420,19 +454,19 @@ c    set up values to call PBE subroutine as
 c     Fully SpinPolarized system for alpha spin
 c     to get E_GGA[rho_alpha,0,gamma_alpha,0]
 c
-         rho_A(1) = rhoa
-         rho_A(2) = 0.d0               ! beta  equals zero
+         rho_A(1,1) = rhoa
+         rho_A(1,2) = 0.d0               ! beta  equals zero
 c        delrho_A(1,1) = delrho_t(1,1) ! nabla n_up x  
 c        delrho_A(2,1) = delrho_t(2,1) ! nabla n_up y
 c        delrho_A(3,1) = delrho_t(3,1) ! nabla n_up z
 c        delrho_A(1,2) = 0.d0   ! set beta gradient to zero
 c        delrho_A(2,2) = 0.d0   ! set beta gradient to zero
 c        delrho_A(3,2) = 0.d0   ! set beta gradient to zero
-         rgamma_A(1) = rgamma(n,G_AA)
-         rgamma_A(2) = 0.0d0
-         rgamma_A(3) = 0.0d0
+         rgamma_A(1,1) = rgamma(n,G_AA)
+         rgamma_A(1,2) = 0.0d0
+         rgamma_A(1,3) = 0.0d0
 
-         neFSP = 0.0d0  !Ec in PBE
+         neFSP(1) = 0.0d0  !Ec in PBE
          dneFSPdn(1) = 0.0d0   !Amat in PBE
          dneFSPdn(2) = 0.0d0   !Amat in PBE
 
@@ -442,16 +476,24 @@ c        delrho_A(3,2) = 0.d0   ! set beta gradient to zero
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-         call nwxc_c_Mpbe_p(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call enter_subr("nwxc_c_mpbe",func_gga,param(1),ipol,1,
+     +                   rho_A,rgamma_A,tau_t,neFSP)
+         call nwxc_c_Mpbe_p(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                      neFSP)
+         call leave_subr("nwxc_c_mpbe",func_gga,param(1),ipol,1,
+     +                   rho_A,rgamma_A,tau_t,neFSP)
 #else
-         call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                    neFSP)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-         call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe_d2(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                       neFSP)
 #else
-         call nwxc_c_Mpbe_d3(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe_d3(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                       neFSP)
 #endif
-         pbeup = neFSP
+         pbeup = neFSP(1)
 c
 c        functional deriv info below fffffffffffff
          etildea= pbeup
@@ -461,46 +503,54 @@ c        detiladgaa = dneFSPdg(D1_GAA)
 c        detiladgbb = 0d0
 c
 c     n_sigma/n_total factor
-       fabup=rhoa/rhoval
-       delca = -(1.d0 + ccc)*fabup*xx2a*etildea
-       erevc = en + delca
+         fabup=rhoa/rhoval
+         delca = -(1.d0 + ccc)*fabup*xx2a*etildea
+         erevc = en + delca
 c
 c     Beta bit
 c    set up values to call PBE subroutine as 
 c     Fully SpinPolarized system for beta spin
 c     to get E_GGA[rho_beta,0,gamma_beta,0]
 c
-       rho_A(1) = 0.0d0         ! alpha equals zero
-       rho_A(2) = rhob
-c      delrho_A(1,1) = delrho_t(1,2) ! nabla n_up x  
-c      delrho_A(2,1) = delrho_t(2,2) ! nabla n_up y
-c      delrho_A(3,1) = delrho_t(3,2) ! nabla n_up z
-c      delrho_A(1,2) = 0.d0     ! set beta gradient to zero
-c      delrho_A(2,2) = 0.d0     ! set beta gradient to zero
-c      delrho_A(3,2) = 0.d0     ! set beta gradient to zero
-       rgamma_A(1) = 0.0d0
-       rgamma_A(2) = 0.0d0
-       rgamma_A(3) = rgamma(n,G_BB)
+         rho_A(1,1) = 0.0d0         ! alpha equals zero
+         rho_A(1,2) = rhob
+c        delrho_A(1,1) = delrho_t(1,2) ! nabla n_up x  
+c        delrho_A(2,1) = delrho_t(2,2) ! nabla n_up y
+c        delrho_A(3,1) = delrho_t(3,2) ! nabla n_up z
+c        delrho_A(1,2) = 0.d0     ! set beta gradient to zero
+c        delrho_A(2,2) = 0.d0     ! set beta gradient to zero
+c        delrho_A(3,2) = 0.d0     ! set beta gradient to zero
+         rgamma_A(1,1) = 0.0d0
+         rgamma_A(1,2) = 0.0d0
+         rgamma_A(1,3) = rgamma(n,G_BB)
        
-       neFSP = 0.0d0            !Ec in PBE
-       dneFSPdn(1) = 0.0d0      !Amat in PBE
-       dneFSPdn(2) = 0.0d0      !Amat in PBE
-       dneFSPdg(1) = 0.0d0      !Cmat in PBE
-       dneFSPdg(2) = 0.0d0      !Cmat in PBE
-       dneFSPdg(3) = 0.0d0      !Cmat in PBE
+         neFSP(1) = 0.0d0            !Ec in PBE
+         dneFSPdn(1) = 0.0d0      !Amat in PBE
+         dneFSPdn(2) = 0.0d0      !Amat in PBE
+         dneFSPdg(1) = 0.0d0      !Cmat in PBE
+         dneFSPdg(2) = 0.0d0      !Cmat in PBE
+         dneFSPdg(3) = 0.0d0      !Cmat in PBE
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-         call nwxc_c_Mpbe_p(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call enter_subr("nwxc_c_mpbe",func_gga,param(1),ipol,1,
+     +                   rho_A,rgamma_A,tau_t,neFSP)
+         call nwxc_c_Mpbe_p(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                      neFSP)
+         call leave_subr("nwxc_c_mpbe",func_gga,param(1),ipol,1,
+     +                   rho_A,rgamma_A,tau_t,neFSP)
 #else
-         call nwxc_c_Mpbe(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                    neFSP)
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-         call nwxc_c_Mpbe_d2(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe_d2(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                       neFSP)
 #else
-         call nwxc_c_Mpbe_d3(tol_rho, 2, rho_A, rgamma_A, neFSP)
+         call nwxc_c_Mpbe_d3(param,tol_rho,2,1,1.0d0,rho_A,rgamma_A,
+     +                       neFSP)
 #endif
-       pbedown = neFSP
+       pbedown = neFSP(1)
 c
 c      functional deriv info below fffffffffffff
        etildeb= pbedown

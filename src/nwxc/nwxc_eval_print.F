@@ -438,7 +438,11 @@ c
           nwad_rho(iq,R_A) = set_rho_a(rho(iq,R_A))
         enddo
         do iq = 1, nq
-          nwad_rho(iq,R_B) = set_rho_b(rho(iq,R_B))
+          if (rho(iq,R_B).gt.0.0d0) then
+            nwad_rho(iq,R_B) = set_rho_b(rho(iq,R_B))
+          else
+            nwad_rho(iq,R_B) = 0.0d0
+          endif
         enddo
       endif ! ipol.eq.1
       if (nwxc_is_gga().or.nwxc_is_mgga()) then
@@ -451,10 +455,18 @@ c
             nwad_gam(iq,G_AA) = set_gamma_aa(gamma(iq,G_AA))
           enddo
           do iq = 1, nq
-            nwad_gam(iq,G_AB) = set_gamma_ab(gamma(iq,G_AB))
+            if (gamma(iq,G_AB).gt.0.0d0) then
+              nwad_gam(iq,G_AB) = set_gamma_ab(gamma(iq,G_AB))
+            else
+              nwad_gam(iq,G_AB) = 0.0d0
+            endif
           enddo
           do iq = 1, nq
-            nwad_gam(iq,G_BB) = set_gamma_bb(gamma(iq,G_BB))
+            if (gamma(iq,G_AB).gt.0.0d0) then
+               nwad_gam(iq,G_BB) = set_gamma_bb(gamma(iq,G_BB))
+            else
+              nwad_gam(iq,G_BB) = 0.0d0
+            endif
           enddo
         endif ! ipol.eq.1
       endif
@@ -1758,6 +1770,11 @@ c           parameters B
             weight    = nwxc_wghts(it)
             call nwxc_c_m11_p(param,nwxc_rho_tol,ipol,nq,
      +           weight,rho,gamma,tau,f)
+          case (NWXCP_C_MPBE)
+            param(1) = 0.066724550603149d0
+            weight   = nwxc_wghts(it)
+            call nwxc_c_mpbe_p(param,nwxc_rho_tol,ipol,nq,
+     +           weight,rho,gamma,f)
           case (NWXCP_C_OP)
             param(1) = 2.3670d0
             weight    = nwxc_wghts(it)
@@ -1814,8 +1831,9 @@ c           parameters B
             call nwxc_c_pbe_p(param,nwxc_rho_tol,ipol,nq,weight,
      +                        rho,gamma,f)
           case (NWXCP_C_PKZB)
+            param(1) = 0.066724550603149d0
             weight    = nwxc_wghts(it)
-            call nwxc_c_pkzb99_p(nwxc_rho_tol,ipol,nq,weight,
+            call nwxc_c_pkzb99_p(param,nwxc_rho_tol,ipol,nq,weight,
      +                           rho,gamma,tau,f)
           case (NWXCP_C_SPBE)
             weight    = nwxc_wghts(it)

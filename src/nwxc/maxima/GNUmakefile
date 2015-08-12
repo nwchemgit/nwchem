@@ -1,5 +1,4 @@
 FNCPRINT  = ../nwxc_fnc_print
-REWRAP    = cat
 AUTOXC    = echo
 AUTOXC_DS = echo
 # 
@@ -28,7 +27,6 @@ AUTOXC_DS = echo
 #
 #AUTOXC    = ./bin/autoxc
 #AUTOXC_DS = ./bin/autoxc-Ds
-#REWRAP    = ./bin/rewrap.py
 
 LIBRARY = libnwxc.a
 
@@ -43,6 +41,7 @@ OBJ =  \
 	nwxcm_c_m05.o \
 	nwxcm_c_m06.o \
 	nwxcm_c_m11.o \
+	nwxcm_c_mpbe.o \
 	nwxcm_c_opt.o \
 	nwxcm_c_p91.o \
 	nwxcm_c_p91_vwn5.o \
@@ -95,6 +94,7 @@ OBJ =  \
 	nwxcm_x_vs98.o \
 	nwxcm_x_wpbe.o
 
+
 #f77/nwxcm_c_ft97.o \
 #	nwxcm_x_camrpbe.o \
 
@@ -122,6 +122,7 @@ include ../../config/makelib.h
 	max/nwxcm_c_m05.max \
 	max/nwxcm_c_m06.max \
 	max/nwxcm_c_m11.max \
+	max/nwxcm_c_mpbe.max \
 	max/nwxcm_c_opt.max \
 	max/nwxcm_c_p91.max \
 	max/nwxcm_c_p91_vwn5.max \
@@ -184,6 +185,7 @@ include ../../config/makelib.h
 	f77/nwxcm_c_m05.F \
 	f77/nwxcm_c_m06.F \
 	f77/nwxcm_c_m11.F \
+	f77/nwxcm_c_mpbe.F \
 	f77/nwxcm_c_opt.F \
 	f77/nwxcm_c_p91.F \
 	f77/nwxcm_c_p91_vwn5.F \
@@ -252,54 +254,47 @@ include ../../config/makelib.h
 	f77/nwxcm_x_tpss03.F.finished
 
 
+
 f77/nwxcm_c_vs98.F: max/nwxcm_c_vs98.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
-	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_dldf.F: max/nwxcm_c_dldf.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
-	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_m05.F: max/nwxcm_c_m05.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
-	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_m06.F: max/nwxcm_c_m06.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
-	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_pkzb99.F: max/nwxcm_c_pkzb99.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
-	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_c_tpss03.F: max/nwxcm_c_tpss03.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
-	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 f77/nwxcm_x_tpss03.F: max/nwxcm_x_tpss03.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
 	date > $@.finished
-	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 %.o: f77/%.F
 	$(FC) $(FFLAGS) $(LIB_DEFINES) -I./f77 -c $< 
 
 f77/%.F: max/%.max
 	$(AUTOXC) -o $@ $<
-	$(REWRAP) < $@ > $@.tmp; mv $@.tmp $@
 
 max/%.max: input/%.nw
 	$(FNCPRINT) $<

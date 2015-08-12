@@ -524,6 +524,8 @@ c       nwxc_add_df = nwxc_all_add_func(NWXCP_C_HCTH_A,dfweight)
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_M11,dfweight)
       else if (dfname.eq."cm11-l") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_M11_L,dfweight)
+      else if (dfname.eq."cmpbe") then
+        nwxc_add_df = nwxc_all_add_func(NWXCP_C_MPBE,dfweight)
       else if (dfname.eq."cop".or.dfname.eq."op") then
         nwxc_add_df = nwxc_all_add_func(NWXCP_C_OP,dfweight)
       else if (dfname.eq."optc") then

@@ -294,8 +294,11 @@ c
       integer NWXCP_C_M11_L      !< The M11-L correlation functional
       parameter (NWXCP_C_M11_L = NWXCP_C_M11 + 1)
 c
+      integer NWXCP_C_MPBE       !< The MPBE correlation functional
+      parameter (NWXCP_C_MPBE  = NWXCP_C_M11_L + 1)
+c
       integer NWXCP_C_OP         !< The OP correlation functional
-      parameter (NWXCP_C_OP = NWXCP_C_M11_L + 1)
+      parameter (NWXCP_C_OP = NWXCP_C_MPBE + 1)
 c
       integer NWXCP_C_OPT        !< The OPT correlation functional
       parameter (NWXCP_C_OPT = NWXCP_C_OP + 1)

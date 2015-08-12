@@ -1,25 +1,40 @@
       interface
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
-        Subroutine nwxc_c_Mpbe_p(tol_rho, ipol, rho, rgamma, Ec)
+        Subroutine nwxc_c_Mpbe_p(param,tol_rho,ipol,nq,wght,rho,rgamma,
+     +                           Ec)
           use nwadp1
 #else
-        Subroutine nwxc_c_Mpbe(tol_rho, ipol, rho, rgamma, Ec)
+        Subroutine nwxc_c_Mpbe(param,tol_rho,ipol,nq,wght,rho,rgamma,
+     +                         Ec)
           use nwad1
 #endif
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)
-        Subroutine nwxc_c_Mpbe_d2(tol_rho, ipol, rho, rgamma, Ec)
+        Subroutine nwxc_c_Mpbe_d2(param,tol_rho,ipol,nq,wght,rho,rgamma,
+     +                            Ec)
           use nwad2
 #else
-        Subroutine nwxc_c_Mpbe_d3(tol_rho, ipol, rho, rgamma, Ec)
+        Subroutine nwxc_c_Mpbe_d3(param,tol_rho,ipol,nq,wght,rho,rgamma,
+     +                            Ec)
           use nwad3
 #endif
           implicit none
+#if defined(NWAD_PRINT)
+#if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
+          type(nwad_dble)::param(*)
+#else
+          double precision param(*)
+#endif
+#else
+          double precision param(*)
+#endif
           double precision tol_rho
           integer ipol
-          type(nwad_dble)::rho(ipol)
-          type(nwad_dble)::rgamma(ipol+1)
-          type(nwad_dble)::Ec
+          integer nq
+          double precision wght
+          type(nwad_dble)::rho(nq,*)
+          type(nwad_dble)::rgamma(nq,*)
+          type(nwad_dble)::Ec(nq)
         end subroutine
       end interface
 c $Id$
