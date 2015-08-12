@@ -392,6 +392,10 @@ c     flag and scaling factors for SCS-MP2
          write(6,'(''  SCS-MP2               = '', l1)') scs
          call util_flush(6)
       endif
+c
+c     this protect against cases where a single electron is present
+c
+      if(noa_active+nob_active.lt.2) goto 1984
 c     
 c...  A note on notation: arrays for four index quantities of pure spin
 c...  denoted with a _a on the end. Mixed spin case with a _b. On first
@@ -553,6 +557,7 @@ c
             endif
          end if
       end if
+ 1984 continue
 c     
 c     Tally up the total energy
 c
