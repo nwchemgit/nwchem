@@ -1,4 +1,24 @@
+c
+c Deal with conditional compilation of nwad.F here to maintain sanity
+c
+#define NWAD_DEG 0
 #include "./nwad/nwad.F"
+#undef  NWAD_DEG
+#define NWAD_DEG 1
+#include "./nwad/nwad.F"
+#define NWAD_PRINT y
+#include "./nwad/nwad.F"
+#undef  NWAD_DEG
+#undef  NWAD_PRINT
+#define NWAD_DEG 2
+#include "./nwad/nwad.F"
+#undef  NWAD_DEG
+#define NWAD_DEG 3
+#include "./nwad/nwad.F"
+#undef  NWAD_DEG
+c
+c Now the real code
+c
 #include "nwxc_c_b95.F"
 #undef SECOND_DERIV
 #undef THIRD_DERIV

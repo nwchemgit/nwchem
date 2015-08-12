@@ -1,4 +1,4 @@
-#if !defined(NWAD_DEG)
+#if NWAD_DEG == 0
 !> @defgroup nwad NW Automatic Differentiation
 !>   @ingroup nwxc_priv
 !>
@@ -251,6 +251,9 @@
 #define NWAD_DEG 0
 #endif
 #ifdef NWAD_PRINT
+#if NWAD_DEG != 1
+error: conditional compilation catastrophy NWAD_DEG
+#endif
       module nwadp1
 #else
 #if NWAD_DEG <= 0
@@ -267,6 +270,12 @@
       !> the data arrays. 
       integer mxvar
       parameter (mxvar = 7)
+      integer func_lda  !< This is an LDA functional
+      parameter (func_lda = -15)
+      integer func_gga  !< This is a GGA functional
+      parameter (func_gga = func_lda+1)
+      integer func_mgga !< This is a meta-GGA functional
+      parameter (func_mgga = func_gga+1)
       !> The real kind to use
       integer, private :: rk
 #ifdef NWAD_QUAD_PREC
@@ -277,15 +286,6 @@ c     and even then only for debugging.
       parameter (rk=selected_real_kind(30))
 #else
       parameter (rk=selected_real_kind(15))
-#endif
-#ifdef NWAD_PRINT
-      !> This option adds the capability to write a Maxima definition of the
-      !> functional being executed.
-      !>
-      integer nwad_iunit !< The file unit number
-      integer nwad_fid   !< The function ID counter
-      data nwad_iunit/6/
-      data nwad_fid/0/
 #endif
       !>
       !> The data type to hold a double precision value and the derivatives of this
@@ -321,6 +321,21 @@ c
         real(kind=rk) :: d3(mxvar*(mxvar+1)*(mxvar+2)/6)
 #endif
       end type nwad_dble
+#ifdef NWAD_PRINT
+      !> This option adds the capability to write a Maxima definition of the
+      !> functional being executed.
+      !>
+      integer nwad_iunit !< The file unit number
+      integer nwad_fid   !< The function ID counter
+      integer nwad_depth !< The subroutine call depth
+      integer mxdepth
+      parameter (mxdepth = 30)
+      character*32 nwad_subrname(mxdepth) !< Subroutine names
+      type(nwad_dble), save :: nwad_func_in(mxdepth) !< The functional variable on input
+      data nwad_iunit/6/
+      data nwad_fid/0/
+      data nwad_depth/0/
+#endif
       interface assignment (=)
         module procedure nwad_dble_assignx
         module procedure nwad_dble_assign
@@ -512,6 +527,12 @@ c
       interface set_name
         module procedure nwad_set_name
       end interface
+      interface enter_subr
+        module procedure nwad_enter_subr
+      end interface
+      interface leave_subr
+        module procedure nwad_leave_subr
+      end interface
       contains
       !>
       !> \brief Merge two sets of variables into one
@@ -526,6 +547,7 @@ c
       !> rank of input dependency where this contributes to in the result.
       !>
       subroutine nwad_merge_dependencies(s,x,y,ixto,iyto)
+        implicit none
         type(nwad_dble), intent(in)  :: x !< [Input] Variable X
         type(nwad_dble), intent(in)  :: y !< [Input] Variable Y
         type(nwad_dble), intent(inout) :: s !< [Output] Variable S, the result
@@ -577,6 +599,7 @@ c
       !> nwad variables.
       !>
       subroutine nwad_copy_dependencies(s,x)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble), intent(inout) :: s
 #if NWAD_DEG >= 1
@@ -601,10 +624,12 @@ c
       !> the dependencies of a NWAD_DBLE variable.
       !>
       subroutine nwad_print_args(x)
+        implicit none
         type(nwad_dble), intent(in) :: x
         integer                     :: i,j
         j = 0
         if (x%nvar.eq.0) return
+        if (nwad_depth.ne.0) return
         write(nwad_iunit,'("(",$)')
         do i = 1, x%nvar
           do while(.not.btest(x%ivar,j))
@@ -641,9 +666,11 @@ c
       !> variables.
       !>
       subroutine nwad_print_independent(x)
+        implicit none
         type(nwad_dble), intent(in) :: x
         integer                     :: i,j
         j = 0
+        if (nwad_depth.ne.0) return
         if (x%nvar.ne.1) then
            write(nwad_iunit,'("error not independent nvar")')
            call nwad_dble_print(nwad_iunit,x)
@@ -686,6 +713,7 @@ c
       subroutine nwad_print_entity(x)
         implicit none
         type(nwad_dble), intent(in) :: x
+        if (nwad_depth.ne.0) return
         if (nwad_strlen(x%var_name).eq.0) then
           if (x%var_fid.eq.0) then
             if (x%nvar.eq.0) then
@@ -734,6 +762,7 @@ c
         type(nwad_dble), intent(in) :: s
         character*(*),   intent(in) :: op
         integer                        ilen
+        if (nwad_depth.ne.0) return
         call nwad_print_entity(s)
         if (get_nvar(s).eq.0) then
           ! s is a constant and not a function
@@ -762,6 +791,7 @@ c
         f53  =  5.0d0/3.0d0
         f83  =  8.0d0/3.0d0
         f113 = 11.0d0/3.0d0
+        if (nwad_depth.ne.0) return
         call nwad_print_entity(s)
         if (get_nvar(s).eq.0) then
           ! s is a constant and not a function
@@ -801,6 +831,7 @@ c
         type(nwad_dble),  intent(in) :: s
         character*(*),    intent(in) :: op
         integer                         ilen
+        if (nwad_depth.ne.0) return
         call nwad_print_entity(s)
         if (get_nvar(s).eq.0) then
           ! s is a constant and not a function
@@ -827,6 +858,7 @@ c
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: s
         character*(*),   intent(in) :: fnc
+        if (nwad_depth.ne.0) return
         call nwad_print_entity(s)
         if (get_nvar(s).eq.0) then
           write(nwad_iunit,'(": ",$)')
@@ -842,6 +874,7 @@ c
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: s
         character*(*),    intent(in) :: fnc
+        if (nwad_depth.ne.0) return
         call nwad_print_entity(s)
         write(nwad_iunit,'(":= ",$)')
         write(nwad_iunit,'(a,"(",e24.16,");")')fnc,x
@@ -858,6 +891,7 @@ c
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         character*(*),   intent(in) :: comp
+        if (nwad_depth.ne.0) return
         write(nwad_iunit,'("/* comp: ",$)')
         call nwad_print_entity(x)
         write(nwad_iunit,'(a,$)')comp
@@ -869,6 +903,7 @@ c
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         character*(*),    intent(in) :: comp
+        if (nwad_depth.ne.0) return
         write(nwad_iunit,'("/* comp: ",$)')
         call nwad_print_entity(x)
         write(nwad_iunit,'(a,$)')comp
@@ -884,6 +919,7 @@ c
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         character*(*),    intent(in) :: comp
+        if (nwad_depth.ne.0) return
         write(nwad_iunit,'("/* comp: ",$)')
         if (x.ge.0.0d0) then
           write(nwad_iunit,'(e22.16)')x
@@ -910,15 +946,18 @@ c
       !> As this variable does not depend on any other variables \f$nvar = 0\f$.
       !>
       subroutine nwad_dble_assignx(s,x)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble), intent(inout) :: s
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        if (nwad_strlen(s%var_name).eq.0) then
-          write(nwad_iunit,'("F",i6.6,": ",e24.16,";")')s%var_fid,x
-        else
-          ! Named constant. Print only its name where the constant is used.
+        if (nwad_depth.eq.0) then
+          if (nwad_strlen(s%var_name).eq.0) then
+            write(nwad_iunit,'("F",i6.6,": ",e24.16,";")')s%var_fid,x
+          else
+            ! Named constant. Print only its name where the constant is used.
+          endif
         endif
 #endif
         s%d0   = x
@@ -942,6 +981,7 @@ c
       !> the amount of data moved.
       !>
       subroutine nwad_dble_assign(s,x)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble), intent(inout) :: s
         integer i
@@ -971,12 +1011,14 @@ c
           ! s is named already so do not overwrite the name
           if (s%var_name(1:nwad_strlen(s%var_name)).ne.
      +        x%var_name(1:nwad_strlen(x%var_name))) then
-            call nwad_print_int_func(s,x,"")
+            if (nwad_depth.eq.0) then
+              call nwad_print_int_func(s,x,"")
+            endif
           else
             ! We are assigning a named variable to itself, 
             ! and there is no need to print that.
-          endif
         endif
+      endif
 #endif
       end subroutine nwad_dble_assign
       !>
@@ -992,6 +1034,7 @@ c
       !> is left out!
       !>
       function nwad_dble_max(a,b,c,d,e) result (s)
+        implicit none
         type(nwad_dble), intent(in)           :: a
         type(nwad_dble), intent(in)           :: b
         type(nwad_dble), intent(in), optional :: c
@@ -1018,11 +1061,13 @@ c       is garbage)
         call nwad_copy_dependencies(s,t1)
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_entity(s)
-        write(nwad_iunit,'(":= max(",$)')
-        call nwad_print_entity(a)
-        write(nwad_iunit,'(",",$)')
-        call nwad_print_entity(b)
+        if (nwad_depth.eq.0) then
+          call nwad_print_entity(s)
+          write(nwad_iunit,'(":= max(",$)')
+          call nwad_print_entity(a)
+          write(nwad_iunit,'(",",$)')
+          call nwad_print_entity(b)
+        endif
 #endif
         if (.not.present(c)) then
           if (a%d0 .ge. b%d0 ) then
@@ -1031,7 +1076,9 @@ c       is garbage)
             s = b
           endif
 #ifdef NWAD_PRINT
-          write(nwad_iunit,'(");")')
+          if (nwad_depth.eq.0) then
+            write(nwad_iunit,'(");")')
+          endif
 #endif
         else
           if (a%d0 .ge. b%d0) then
@@ -1040,8 +1087,10 @@ c       is garbage)
             t1 = b
           endif
 #ifdef NWAD_PRINT
-          write(nwad_iunit,'(",",$)')
-          call nwad_print_entity(c)
+          if (nwad_depth.eq.0) then
+            write(nwad_iunit,'(",",$)')
+            call nwad_print_entity(c)
+          endif
 #endif
           if (.not.present(d)) then
             if (t1%d0 .ge. c%d0) then
@@ -1050,7 +1099,9 @@ c       is garbage)
               s = c
             endif
 #ifdef NWAD_PRINT
-            write(nwad_iunit,'(");")')
+            if (nwad_depth.eq.0) then
+              write(nwad_iunit,'(");")')
+            endif
 #endif
           else
             if (t1%d0 .ge. c%d0) then
@@ -1059,8 +1110,10 @@ c       is garbage)
               t2 = c
             endif
 #ifdef NWAD_PRINT
-            write(nwad_iunit,'(",",$)')
-            call nwad_print_entity(d)
+            if (nwad_depth.eq.0) then
+              write(nwad_iunit,'(",",$)')
+              call nwad_print_entity(d)
+            endif
 #endif
             if (.not.present(e)) then
               if (t2%d0 .ge. d%d0) then
@@ -1069,7 +1122,9 @@ c       is garbage)
                 s = d
               endif
 #ifdef NWAD_PRINT
-              write(nwad_iunit,'(");")')
+              if (nwad_depth.eq.0) then
+                write(nwad_iunit,'(");")')
+              endif
 #endif
             else
               if (t2%d0 .ge. d%d0) then
@@ -1078,9 +1133,11 @@ c       is garbage)
                 t1 = d
               endif
 #ifdef NWAD_PRINT
-              write(nwad_iunit,'(",",$)')
-              call nwad_print_entity(e)
-              write(nwad_iunit,'(");")')
+              if (nwad_depth.eq.0) then
+                write(nwad_iunit,'(",",$)')
+                call nwad_print_entity(e)
+                write(nwad_iunit,'(");")')
+              endif
 #endif
               if (t1%d0 .ge. e%d0) then
                 s = t1
@@ -1104,6 +1161,7 @@ c       is garbage)
       !> is left out!
       !>
       function nwad_dble_min(a,b,c,d,e) result (s)
+        implicit none
         type(nwad_dble), intent(in)           :: a
         type(nwad_dble), intent(in)           :: b
         type(nwad_dble), intent(in), optional :: c
@@ -1113,13 +1171,28 @@ c       is garbage)
         type(nwad_dble)                       :: t1
         type(nwad_dble)                       :: t2
 #ifdef NWAD_PRINT
+c       The result depends on the largest set of variables of all 
+c       inputs. So first we need to work out those dependencies.
+        t1 = a + b
+        if (present(c)) then
+          t1 = t1 + c
+          if (present(d)) then
+            t1 = t1 + d
+            if (present(e)) then
+              t1 = t1 + e
+            endif
+          endif
+        endif
+        call nwad_copy_dependencies(s,t1)
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_entity(s)
-        write(nwad_iunit,'(":= min(",$)')
-        call nwad_print_entity(a)
-        write(nwad_iunit,'(",",$)')
-        call nwad_print_entity(b)
+        if (nwad_depth.eq.0) then
+          call nwad_print_entity(s)
+          write(nwad_iunit,'(":= min(",$)')
+          call nwad_print_entity(a)
+          write(nwad_iunit,'(",",$)')
+          call nwad_print_entity(b)
+        endif
 #endif
         if (.not.present(c)) then
           if (a%d0 .lt. b%d0 ) then
@@ -1128,7 +1201,9 @@ c       is garbage)
             s = b
           endif
 #ifdef NWAD_PRINT
-          write(nwad_iunit,'(");")')
+          if (nwad_depth.eq.0) then
+            write(nwad_iunit,'(");")')
+          endif
 #endif
         else
           if (a%d0 .lt. b%d0) then
@@ -1137,8 +1212,10 @@ c       is garbage)
             t1 = b
           endif
 #ifdef NWAD_PRINT
-          write(nwad_iunit,'(",",$)')
-          call nwad_print_entity(c)
+          if (nwad_depth.eq.0) then
+            write(nwad_iunit,'(",",$)')
+            call nwad_print_entity(c)
+          endif
 #endif
           if (.not.present(d)) then
             if (t1%d0 .lt. c%d0) then
@@ -1147,7 +1224,9 @@ c       is garbage)
               s = c
             endif
 #ifdef NWAD_PRINT
-            write(nwad_iunit,'(");")')
+            if (nwad_depth.eq.0) then
+              write(nwad_iunit,'(");")')
+            endif
 #endif
           else
             if (t1%d0 .lt. c%d0) then
@@ -1156,8 +1235,10 @@ c       is garbage)
               t2 = c
             endif
 #ifdef NWAD_PRINT
-            write(nwad_iunit,'(",",$)')
-            call nwad_print_entity(d)
+            if (nwad_depth.eq.0) then
+              write(nwad_iunit,'(",",$)')
+              call nwad_print_entity(d)
+            endif
 #endif
             if (.not.present(e)) then
               if (t2%d0 .lt. d%d0) then
@@ -1166,7 +1247,9 @@ c       is garbage)
                 s = d
               endif
 #ifdef NWAD_PRINT
-              write(nwad_iunit,'(");")')
+              if (nwad_depth.eq.0) then
+                write(nwad_iunit,'(");")')
+              endif
 #endif
             else
               if (t2%d0 .lt. d%d0) then
@@ -1175,9 +1258,11 @@ c       is garbage)
                 t1 = d
               endif
 #ifdef NWAD_PRINT
-              write(nwad_iunit,'(",",$)')
-              call nwad_print_entity(e)
-              write(nwad_iunit,'(");")')
+              if (nwad_depth.eq.0) then
+                write(nwad_iunit,'(",",$)')
+                call nwad_print_entity(e)
+                write(nwad_iunit,'(");")')
+              endif
 #endif
               if (t1%d0 .lt. e%d0) then
                 s = t1
@@ -1210,6 +1295,7 @@ c       is garbage)
       !> \f}
       !>
       function nwad_dble_add(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         type(nwad_dble)             :: s
@@ -1302,7 +1388,9 @@ c       is garbage)
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_op(s,x,y,"+")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_op(s,x,y,"+")
+        endif
 #endif
       end function nwad_dble_add
       !>
@@ -1312,6 +1400,7 @@ c       is garbage)
       !> and therefore all its derivatives are 0.
       !>
       function nwad_dble_addx(x,y) result (s)
+        implicit none
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
@@ -1336,7 +1425,9 @@ c       is garbage)
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opx(s,x,y,"+")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opx(s,x,y,"+")
+        endif
 #endif
       end function nwad_dble_addx
       !>
@@ -1346,9 +1437,11 @@ c       is garbage)
       !> and therefore all its derivatives are 0.
       !>
       function nwad_dble_addy(x,y) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         type(nwad_dble)              :: s
+        integer                      :: i
         s%d0 = x + y%d0
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,y)
@@ -1369,7 +1462,9 @@ c       is garbage)
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opy(s,x,y,"+")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opy(s,x,y,"+")
+        endif
 #endif
       end function nwad_dble_addy
       !>
@@ -1380,6 +1475,7 @@ c       is garbage)
       !> addition operator apart from the minus sign.
       !>
       function nwad_dble_sub(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         type(nwad_dble)             :: s
@@ -1472,7 +1568,9 @@ c       is garbage)
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_op(s,x,y,"-")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_op(s,x,y,"-")
+        endif
 #endif
       end function nwad_dble_sub
       !>
@@ -1482,6 +1580,7 @@ c       is garbage)
       !> inactive all derivatives of \f$y\f$ vanish.
       !>
       function nwad_dble_subx(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
@@ -1506,7 +1605,9 @@ c       is garbage)
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opx(s,x,y,"-")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opx(s,x,y,"-")
+        endif
 #endif
       end function nwad_dble_subx
       !>
@@ -1516,6 +1617,7 @@ c       is garbage)
       !> inactive all derivatives of \f$x\f$ vanish.
       !>
       function nwad_dble_suby(x,y) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble), intent(in)  :: y
         type(nwad_dble)              :: s
@@ -1540,7 +1642,9 @@ c       is garbage)
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opy(s,x,y,"-")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opy(s,x,y,"-")
+        endif
 #endif
       end function nwad_dble_suby
       !>
@@ -1577,6 +1681,7 @@ c       is garbage)
       !> \f}
       !>
       function nwad_dble_mult(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         type(nwad_dble)             :: s
@@ -1799,7 +1904,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_op(s,x,y,"*")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_op(s,x,y,"*")
+        endif
 #endif
       end function nwad_dble_mult
       !>
@@ -1809,9 +1916,11 @@ c
       !> derivative of \f$y\f$ are zero.
       !>
       function nwad_dble_multx(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
+        integer                      :: i
         s%d0 = x%d0 * y
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
@@ -1832,7 +1941,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opx(s,x,y,"*")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opx(s,x,y,"*")
+        endif
 #endif
       end function nwad_dble_multx
       !>
@@ -1842,9 +1953,11 @@ c
       !> derivative of \f$x\f$ are zero.
       !>
       function nwad_dble_multy(x,y) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble), intent(in)  :: y
         type(nwad_dble)              :: s
+        integer                      :: i
         s%d0 = x * y%d0
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,y)
@@ -1865,7 +1978,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opy(s,x,y,"*")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opy(s,x,y,"*")
+        endif
 #endif
       end function nwad_dble_multy
       !>
@@ -1916,6 +2031,7 @@ c
       !> \f}
       !>
       function nwad_dble_div(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         type(nwad_dble)             :: s
@@ -2182,7 +2298,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_op(s,x,y,"/")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_op(s,x,y,"/")
+        endif
 #endif
       end function nwad_dble_div
       !>
@@ -2192,9 +2310,11 @@ c
       !> multiplying with \f$1/y\f$ while \f$y\f$ is inactive.
       !>
       function nwad_dble_divx(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
+        integer                      :: i
         s%d0 = x%d0 / y
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
@@ -2215,7 +2335,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opx(s,x,y,"/")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opx(s,x,y,"/")
+        endif
 #endif
       end function nwad_dble_divx
       !>
@@ -2244,6 +2366,7 @@ c
       !> \f}
       !>
       function nwad_dble_divy(x,y) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble), intent(in)  :: y
         type(nwad_dble)              :: s
@@ -2282,7 +2405,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opy(s,x,y,"/")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opy(s,x,y,"/")
+        endif
 #endif
       end function nwad_dble_divy
       !>
@@ -2343,6 +2468,7 @@ c
       !> \f}
       !>
       function nwad_dble_pow(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         type(nwad_dble)             :: s
@@ -2631,7 +2757,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_op(s,x,y,"^")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_op(s,x,y,"^")
+        endif
 #endif
       end function nwad_dble_pow
       !>
@@ -2660,6 +2788,7 @@ c
       !> \f}
       !>
       function nwad_dble_powx(x,y) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
@@ -2706,7 +2835,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opx(s,x,y,"^")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opx(s,x,y,"^")
+        endif
 #endif
       end function nwad_dble_powx
       !>
@@ -2731,6 +2862,7 @@ c
       !> \f}
       !>
       function nwad_dble_powy(x,y) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble), intent(in)  :: y
         type(nwad_dble)              :: s
@@ -2773,7 +2905,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_opy(s,x,y,"^")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opy(s,x,y,"^")
+        endif
 #endif
       end function nwad_dble_powy
       !>
@@ -2784,12 +2918,15 @@ c
       !> the values and not to any of the derivatives.
       !>
       function nwad_dble_equal(x,y) result(s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .eq. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_comp(x,y,".eq.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_comp(x,y,".eq.")
+        endif
 #endif
       end function nwad_dble_equal
       !>
@@ -2801,12 +2938,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_equalx(x,y) result(s)
+        implicit none
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .eq. y
 #ifdef NWAD_PRINT
-        call nwad_print_int_compx(x,y,".eq.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compx(x,y,".eq.")
+        endif
 #endif
       end function nwad_dble_equalx
       !>
@@ -2818,12 +2958,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_equaly(x,y) result(s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .eq. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_compy(x,y,".eq.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compy(x,y,".eq.")
+        endif
 #endif
       end function nwad_dble_equaly
       !>
@@ -2834,12 +2977,15 @@ c
       !> the values and not to any of the derivatives.
       !>
       function nwad_dble_notequal(x,y) result(s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = .not. (x .eq. y)
 #ifdef NWAD_PRINT
-        call nwad_print_int_comp(x,y,".ne.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_comp(x,y,".ne.")
+        endif
 #endif
       end function nwad_dble_notequal
       !>
@@ -2852,12 +2998,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_notequalx(x,y) result(s)
+        implicit none
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         logical                      :: s
         s = .not. (x .eq. y)
 #ifdef NWAD_PRINT
-        call nwad_print_int_compx(x,y,".ne.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compx(x,y,".ne.")
+        endif
 #endif
       end function nwad_dble_notequalx
       !>
@@ -2870,12 +3019,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_notequaly(x,y) result(s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = .not. (x .eq. y)
 #ifdef NWAD_PRINT
-        call nwad_print_int_compy(x,y,".ne.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compy(x,y,".ne.")
+        endif
 #endif
       end function nwad_dble_notequaly
       !>
@@ -2886,12 +3038,15 @@ c
       !> the values and not to any of the derivatives.
       !>
       function nwad_dble_lessthan(x,y) result(s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .lt. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_comp(x,y,".lt.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_comp(x,y,".lt.")
+        endif
 #endif
       end function nwad_dble_lessthan
       !>
@@ -2904,12 +3059,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_lessthanx(x,y) result(s)
+        implicit none
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .lt. y
 #ifdef NWAD_PRINT
-        call nwad_print_int_compx(x,y,".lt.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compx(x,y,".lt.")
+        endif
 #endif
       end function nwad_dble_lessthanx
       !>
@@ -2922,12 +3080,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_lessthany(x,y) result(s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .lt. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_compy(x,y,".lt.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compy(x,y,".lt.")
+        endif
 #endif
       end function nwad_dble_lessthany
       !>
@@ -2939,12 +3100,15 @@ c
       !> the values and not to any of the derivatives.
       !>
       function nwad_dble_lessequal(x,y) result(s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .le. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_comp(x,y,".le.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_comp(x,y,".le.")
+        endif
 #endif
       end function nwad_dble_lessequal
       !>
@@ -2958,12 +3122,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_lessequalx(x,y) result(s)
+        implicit none
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .le. y
 #ifdef NWAD_PRINT
-        call nwad_print_int_compx(x,y,".le.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compx(x,y,".le.")
+        endif
 #endif
       end function nwad_dble_lessequalx
       !>
@@ -2977,12 +3144,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_lessequaly(x,y) result(s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .le. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_compy(x,y,".le.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compy(x,y,".le.")
+        endif
 #endif
       end function nwad_dble_lessequaly
       !>
@@ -2993,12 +3163,15 @@ c
       !> the values and not to any of the derivatives.
       !>
       function nwad_dble_greaterthan(x,y) result(s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .gt. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_comp(x,y,".gt.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_comp(x,y,".gt.")
+        endif
 #endif
       end function nwad_dble_greaterthan
       !>
@@ -3011,12 +3184,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_greaterthanx(x,y) result(s)
+        implicit none
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .gt. y
 #ifdef NWAD_PRINT
-        call nwad_print_int_compx(x,y,".gt.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compx(x,y,".gt.")
+        endif
 #endif
       end function nwad_dble_greaterthanx
       !>
@@ -3029,12 +3205,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_greaterthany(x,y) result(s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .gt. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_compy(x,y,".gt.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compy(x,y,".gt.")
+        endif
 #endif
       end function nwad_dble_greaterthany
       !>
@@ -3046,12 +3225,15 @@ c
       !> the values and not to any of the derivatives.
       !>
       function nwad_dble_greaterequal(x,y) result(s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         logical                     :: s
         s = x%d0 .ge. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_comp(x,y,".ge.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_comp(x,y,".ge.")
+        endif
 #endif
       end function nwad_dble_greaterequal
       !>
@@ -3065,12 +3247,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_greaterequalx(x,y) result(s)
+        implicit none
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         logical                      :: s
         s = x%d0 .ge. y
 #ifdef NWAD_PRINT
-        call nwad_print_int_compx(x,y,".ge.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compx(x,y,".ge.")
+        endif
 #endif
       end function nwad_dble_greaterequalx
       !>
@@ -3084,12 +3269,15 @@ c
       !> is an inactive variable.
       !>
       function nwad_dble_greaterequaly(x,y) result(s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         logical                      :: s
         s = x .ge. y%d0
 #ifdef NWAD_PRINT
-        call nwad_print_int_compy(x,y,".ge.")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_compy(x,y,".ge.")
+        endif
 #endif
       end function nwad_dble_greaterequaly
       !>
@@ -3100,12 +3288,15 @@ c
       !> where both \f$x\f$ and \f$y\f$ are active variables.
       !>
       function nwad_dble_sign(x,y) result(s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         type(nwad_dble), intent(in) :: y
         type(nwad_dble)             :: s
         s = abs(x) * dble(sign(1.0_rk,y%d0))
 #ifdef NWAD_PRINT
-        call errquit("sign function",0,0)
+        if (nwad_depth.eq.0) then
+          call errquit("sign function",0,0)
+        endif
 #endif
       end function nwad_dble_sign
       !>
@@ -3116,6 +3307,7 @@ c
       !> where \f$x\f$ is an active and \f$y\f$ is an inactive variable.
       !>
       function nwad_dble_signx(x,y) result(s)
+        implicit none
         type(nwad_dble),  intent(in) :: x
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
@@ -3132,6 +3324,7 @@ c
       !> where \f$x\f$ is an inactive and \f$y\f$ is an active variable.
       !>
       function nwad_dble_signy(x,y) result(s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble),  intent(in) :: y
         double precision             :: s
@@ -3159,6 +3352,7 @@ c
       !> \f}
       !>
       function nwad_dble_abs(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix
@@ -3212,7 +3406,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"abs")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"abs")
+        endif
 #endif
       end function nwad_dble_abs
       !>
@@ -3222,6 +3418,7 @@ c
       !> derivatives with the same with the opposite sign.
       !>
       function nwad_dble_minus(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix
@@ -3245,7 +3442,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"-")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"-")
+        endif
 #endif
       end function nwad_dble_minus
       !>
@@ -3272,6 +3471,7 @@ c
       !> \f}
       !>
       function nwad_dble_sqrt(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3317,7 +3517,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"sqrt")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"sqrt")
+        endif
 #endif
       end function nwad_dble_sqrt
       !>
@@ -3327,6 +3529,7 @@ c
       !> to evaluate the derivatives. I.e. we consider \f$s(r) = \exp(x(r))\f$.
       !>
       function nwad_dble_exp(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3367,7 +3570,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"exp")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"exp")
+        endif
 #endif
       end function nwad_dble_exp
       !>
@@ -3392,6 +3597,7 @@ c
       !> \f}
       !>
       function nwad_dble_log(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3432,7 +3638,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"log")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"log")
+        endif
 #endif
       end function nwad_dble_log
       !>
@@ -3454,6 +3662,7 @@ c
       !>     -\cos{x(r)}\left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
       !> \f}
       function nwad_dble_sin(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3494,7 +3703,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"sin")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"sin")
+        endif
 #endif
       end function nwad_dble_sin
       !>
@@ -3516,6 +3727,7 @@ c
       !>     +\sin{x(r)}\left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
       !> \f}
       function nwad_dble_cos(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3556,7 +3768,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"cos")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"cos")
+        endif
 #endif
       end function nwad_dble_cos
       !>
@@ -3582,6 +3796,7 @@ c
       !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
       !> \f}
       function nwad_dble_tan(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3626,7 +3841,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"tan")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"tan")
+        endif
 #endif
       end function nwad_dble_tan
       !>
@@ -3648,6 +3865,7 @@ c
       !>     +\cosh{x(r)}\left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
       !> \f}
       function nwad_dble_sinh(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3688,7 +3906,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"sinh")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"sinh")
+        endif
 #endif
       end function nwad_dble_sinh
       !>
@@ -3710,6 +3930,7 @@ c
       !>     +\sinh{x(r)}\left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
       !> \f}
       function nwad_dble_cosh(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3750,7 +3971,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"cosh")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"cosh")
+        endif
 #endif
       end function nwad_dble_cosh
       !>
@@ -3776,6 +3999,7 @@ c
       !>            \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3 \\\\
       !> \f}
       function nwad_dble_tanh(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3821,7 +4045,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"tanh")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"tanh")
+        endif
 #endif
       end function nwad_dble_tanh
       !>
@@ -3850,6 +4076,7 @@ c
       !> \f}
       !>
       function nwad_dble_asin(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3897,7 +4124,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"asin")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"asin")
+        endif
 #endif
       end function nwad_dble_asin
       !>
@@ -3926,6 +4155,7 @@ c
       !> \f}
       !>
       function nwad_dble_acos(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -3973,7 +4203,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"acos")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"acos")
+        endif
 #endif
       end function nwad_dble_acos
       !>
@@ -4002,6 +4234,7 @@ c
       !> \f}
       !>
       function nwad_dble_atan(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         integer                      :: ix, ix2, ix3
@@ -4049,7 +4282,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"atan")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"atan")
+        endif
 #endif
       end function nwad_dble_atan
       !>
@@ -4080,6 +4315,7 @@ c
       !> \f}
       !>
       function nwad_dble_asinh(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         double precision             :: t1, t12
@@ -4124,7 +4360,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"asinh")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"asinh")
+        endif
 #endif
       end function nwad_dble_asinh
       !>
@@ -4158,6 +4396,7 @@ c
       !> \f}
       !>
       function nwad_dble_erf(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         double precision             :: t1
@@ -4207,7 +4446,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"erf")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"erf")
+        endif
 #endif
       end function nwad_dble_erf
       !>
@@ -4241,6 +4482,7 @@ c
       !> \f}
       !>
       function nwad_dble_erfc(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         double precision             :: t1
@@ -4290,7 +4532,9 @@ c
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"erfc")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"erfc")
+        endif
 #endif
       end function nwad_dble_erfc
 C>
@@ -4317,6 +4561,7 @@ C>     model the current in an electric circuit, exact reference
 C>     unknown.
 C>
       function nwad_dble_heaviside(x) result (s)
+        implicit none
         type(nwad_dble), intent(in)  :: x
         type(nwad_dble)              :: s
         if (x%d0.lt.0.0d0) then
@@ -4332,7 +4577,9 @@ C>
 #ifdef NWAD_PRINT
         nwad_fid  = nwad_fid + 1
         s%var_fid = nwad_fid
-        call nwad_print_int_func(s,x,"nwxcm_heaviside")
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_func(s,x,"nwxcm_heaviside")
+        endif
 #endif
       end function nwad_dble_heaviside
       !>
@@ -4342,6 +4589,7 @@ C>
       !> active variable depends on.
       !>
       function nwad_dble_get_nvar(x) result (s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         integer                     :: s
 #if NWAD_DEG >= 1
@@ -4366,6 +4614,7 @@ C>
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_rho_a(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4403,6 +4652,7 @@ c       s%var_name = "rhoa"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_rho_b(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4440,6 +4690,7 @@ c       s%var_name = "rhob"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_rho_t(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4477,6 +4728,7 @@ c       s%var_name = "rho"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_gamma_aa(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4514,6 +4766,7 @@ c       s%var_name = "sigmaaa"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_gamma_ab(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4551,6 +4804,7 @@ c       s%var_name = "sigmaab"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_gamma_bb(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4588,6 +4842,7 @@ c       s%var_name = "sigmabb"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_gamma_tt(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4625,6 +4880,7 @@ c       s%var_name = "sigma"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_tau_a(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4662,6 +4918,7 @@ c       s%var_name = "taua"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_tau_b(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4699,6 +4956,7 @@ c       s%var_name = "taub"
       !> where there variable set only contains the current variable.
       !>
       function nwad_dble_tau_t(x) result (s)
+        implicit none
         double precision, intent(in) :: x
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
@@ -4726,6 +4984,7 @@ c       s%var_name = "tau"
       !> Simply return the value, i.e. 0th order derivative, of the quantity
       !>
       function nwad_dble_get_val(x) result (s)
+        implicit none
         type(nwad_dble), intent(in) :: x
         double precision            :: s
         s = x%d0
@@ -4739,6 +4998,7 @@ c       s%var_name = "tau"
       !> 'iv' contains the number of the variable, i.e. x%ivar(ix).
       !>
       subroutine nwad_dble_get_d1(x,ix,s,iv)
+        implicit none
         type(nwad_dble),  intent(in)  :: x
         integer,          intent(in)  :: ix
         integer,          intent(out) :: iv
@@ -4754,7 +5014,7 @@ c       s%var_name = "tau"
 #ifndef NODEBUG
 #if NWAD_DEG >= 1
         if (ix.lt.1.or.ix.gt.x%nvar) then
-          call errquit("nwad_dble_get_d1: ix out of range",ix,UERR)
+          call errquit("nwad_dble_get_d1: ix out of range",ix,0)
         endif
 #endif
 #endif
@@ -4783,7 +5043,7 @@ c       s%var_name = "tau"
         s  = 0.0d0
         iv = -1
         call errquit("nwad_dble_get_d1: 1st order derivatives not "//
-     +               "supported",NWAD_DEG,UERR)
+     +               "supported",NWAD_DEG,0)
 #endif
       end subroutine nwad_dble_get_d1
       !>
@@ -4797,6 +5057,7 @@ c       s%var_name = "tau"
       !> i.e. 'iv' contains 'x%ivar(ix)' and 'iv2' contains 'x%ivar(ix2)'.
       !>
       subroutine nwad_dble_get_d2(x,ix,ix2,s,iv,iv2)
+        implicit none
         type(nwad_dble),  intent(in)  :: x
         integer,          intent(in)  :: ix
         integer,          intent(in)  :: ix2
@@ -4804,20 +5065,21 @@ c       s%var_name = "tau"
         integer,          intent(out) :: iv
         integer,          intent(out) :: iv2
 
+        integer  ihbit,ilbit,nb,ib
         integer  util_popcnt,util_leadz,util_trailz
         external util_popcnt,util_leadz,util_trailz
 
 #ifndef NODEBUG
 #if NWAD_DEG >= 1
         if (ix.lt.1.or.ix.gt.x%nvar) then
-          call errquit("nwad_dble_get_d2: ix out of range",ix,UERR)
+          call errquit("nwad_dble_get_d2: ix out of range",ix,0)
         endif
         if (ix2.lt.1.or.ix2.gt.x%nvar) then
-          call errquit("nwad_dble_get_d2: ix2 out of range",ix2,UERR)
+          call errquit("nwad_dble_get_d2: ix2 out of range",ix2,0)
         endif
 #endif
         if (ix2.gt.ix) then
-          call errquit("nwad_dble_get_d2: ix2 greater than ix",ix2,UERR)
+          call errquit("nwad_dble_get_d2: ix2 greater than ix",ix2,0)
         endif
 #endif
 #if NWAD_DEG >= 2
@@ -4852,7 +5114,7 @@ c       s%var_name = "tau"
         iv  = -1
         iv2 = -1
         call errquit("nwad_dble_get_d2: 2nd order derivatives not "//
-     +               "supported",NWAD_DEG,UERR)
+     +               "supported",NWAD_DEG,0)
 #endif
       end subroutine nwad_dble_get_d2
       !>
@@ -4868,6 +5130,7 @@ c       s%var_name = "tau"
       !> 'iv3' contains 'x%ivar(ix3)'.
       !>
       subroutine nwad_dble_get_d3(x,ix,ix2,ix3,s,iv,iv2,iv3)
+        implicit none
         type(nwad_dble),  intent(in)  :: x
         integer,          intent(in)  :: ix
         integer,          intent(in)  :: ix2
@@ -4877,27 +5140,28 @@ c       s%var_name = "tau"
         integer,          intent(out) :: iv2
         integer,          intent(out) :: iv3
 
+        integer  ihbit,ilbit,nb,ib
         integer  util_popcnt,util_leadz,util_trailz
         external util_popcnt,util_leadz,util_trailz
 
 #ifndef NODEBUG
 #if NWAD_DEG >= 1
         if (ix.lt.1.or.ix.gt.x%nvar) then
-          call errquit("nwad_dble_get_d3: ix out of range",ix,UERR)
+          call errquit("nwad_dble_get_d3: ix out of range",ix,0)
         endif
         if (ix2.lt.1.or.ix2.gt.x%nvar) then
-          call errquit("nwad_dble_get_d3: ix2 out of range",ix2,UERR)
+          call errquit("nwad_dble_get_d3: ix2 out of range",ix2,0)
         endif
         if (ix3.lt.1.or.ix3.gt.x%nvar) then
-          call errquit("nwad_dble_get_d3: ix3 out of range",ix3,UERR)
+          call errquit("nwad_dble_get_d3: ix3 out of range",ix3,0)
         endif
 #endif
         if (ix2.gt.ix) then
-          call errquit("nwad_dble_get_d3: ix2 greater than ix",ix2,UERR)
+          call errquit("nwad_dble_get_d3: ix2 greater than ix",ix2,0)
         endif
         if (ix3.gt.ix2) then
           call errquit("nwad_dble_get_d3: ix3 greater than ix2",
-     &                 ix3,UERR)
+     &                 ix3,0)
         endif
 #endif
 #if NWAD_DEG >= 3
@@ -4943,7 +5207,7 @@ c       s     = x%d2(ix*(ix-1)/2+ix2)
         iv2 = -1
         iv3 = -1
         call errquit("nwad_dble_get_d3: 3rd order derivatives not "//
-     +               "supported",NWAD_DEG,UERR)
+     +               "supported",NWAD_DEG,0)
 #endif
       end subroutine nwad_dble_get_d3
       !>
@@ -4953,6 +5217,7 @@ c       s     = x%d2(ix*(ix-1)/2+ix2)
       !> the contents of a NWAD_DBLE variable.
       !>
       subroutine nwad_dble_print(iunit,x)
+        implicit none
         integer,         intent(in) :: iunit
         type(nwad_dble), intent(in) :: x
         integer                     :: i,j
@@ -5041,11 +5306,123 @@ c         initialize the counter
         s%var_name = name
 #endif
       end subroutine nwad_set_name
+      !>
+      !> \brief Save the start of a new subroutine
+      !>
+      !> If the new subroutine is the top layer then initiate printing
+      !> the operations. If the new subroutine is one level deeper
+      !> than the top level then print only the subroutine as if it is
+      !> a function call. If the new subroutine is a any deeper levels
+      !> then print nothing.
+      !>
+      subroutine nwad_enter_subr(sname,level,param,ipol,nq,
+     +                           rho,gamma,tau,ee)
+        implicit none
+        character*(*), intent(in)   :: sname    !> Subroutine name
+        integer, intent(in)         :: level    !> The functional level LDA, GGA, mGGA
+        type(nwad_dble), intent(in) :: param    !> The functional 
+                                                !> parameters
+        integer, intent(in)         :: ipol     !> The number of spin channels
+        integer, intent(in)         :: nq       !> The of grid points
+        type(nwad_dble), intent(in) :: rho(nq,*)   !> The rho variables
+        type(nwad_dble), intent(in) :: gamma(nq,*) !> The gamma variables
+        type(nwad_dble), intent(in) :: tau(nq,*)   !> The rho variables
+        type(nwad_dble), intent(in) :: ee(nq)      !> The functional value
+#ifdef NWAD_PRINT
+        nwad_depth = nwad_depth + 1
+        if (nwad_depth.le.mxdepth) then
+          nwad_subrname(nwad_depth) = sname
+          nwad_func_in(nwad_depth)  = ee(1)
+        endif
+#endif
+      end subroutine nwad_enter_subr
+      !>
+      !> \brief Record the end of a new subroutine
+      !>
+      !> This routine checks whether the call stack is unwound
+      !> properly. If not it throws an error.
+      !>
+      subroutine nwad_leave_subr(sname,level,param,ipol,nq,
+     +                           rho,gamma,tau,ee)
+        implicit none
+        character*(*), intent(in)   :: sname    !> Subroutine name
+        integer, intent(in)         :: level    !> The functional level LDA, GGA, mGGA
+        type(nwad_dble), intent(in) :: param    !> The functional 
+                                                !> parameters
+        integer, intent(in)         :: ipol     !> The number of spin channels
+        integer, intent(in)         :: nq       !> The of grid points
+        type(nwad_dble), intent(in) :: rho(nq,*)   !> The rho variables
+        type(nwad_dble), intent(in) :: gamma(nq,*) !> The gamma variables
+        type(nwad_dble), intent(in) :: tau(nq,*)   !> The rho variables
+        type(nwad_dble), intent(inout) :: ee(nq)   !> The functional value
+#ifdef NWAD_PRINT
+        type(nwad_dble) :: ei 
+        ei = nwad_func_in(nwad_depth)
+        if (sname(1:min(32,nwad_strlen(sname))).ne.
+     +      nwad_subrname(nwad_depth)(1:nwad_strlen(
+     +          nwad_subrname(nwad_depth)))) then
+          call errquit("nwad: invalid nesting",0,0)
+        endif
+        nwad_depth = nwad_depth - 1
+        if (ee(1)%var_fid.gt.2) then
+          ee(1)%var_fid = ee(1)%var_fid-0
+          nwad_fid = nwad_fid-0 ! Dangerous because this is supposed
+                                ! to generate unique identifiers, but
+                                ! in this case I think it is OK (we 
+                                ! skip a lot of identifiers by replacing
+                                ! a subroutine call). 
+        endif
+        if (nwad_depth.eq.0) then
+          call nwad_print_entity(ee(1))
+          write(nwad_iunit,'(" := ",$)')
+          call nwad_print_entity(ei)
+          write(nwad_iunit,'(" + ",$)')
+          write(nwad_iunit,'(a,"(",$)')sname(1:nwad_strlen(sname))
+          call nwad_print_entity(param)
+          write(nwad_iunit,'(",",$)')
+          if (ipol.eq.1) then
+            if (level.ge.func_lda) then
+              call nwad_print_entity(rho(1,1))
+              if (level.ge.func_gga) then
+                write(nwad_iunit,'(",",$)')
+                call nwad_print_entity(gamma(1,1))
+                if (level.ge.func_mgga) then
+                  write(nwad_iunit,'(",",$)')
+                  call nwad_print_entity(tau(1,1))
+                endif
+              endif
+            endif
+            write(nwad_iunit,'(");")')
+          else
+            if (level.ge.func_lda) then
+              call nwad_print_entity(rho(1,1))
+              write(nwad_iunit,'(",",$)')
+              call nwad_print_entity(rho(1,2))
+              if (level.ge.func_gga) then
+                write(nwad_iunit,'(",",$)')
+                call nwad_print_entity(gamma(1,1))
+                write(nwad_iunit,'(",",$)')
+                call nwad_print_entity(gamma(1,2))
+                write(nwad_iunit,'(",",$)')
+                call nwad_print_entity(gamma(1,3))
+                if (level.ge.func_mgga) then
+                  write(nwad_iunit,'(",",$)')
+                  call nwad_print_entity(tau(1,1))
+                  write(nwad_iunit,'(",",$)')
+                  call nwad_print_entity(tau(1,2))
+                endif
+              endif
+            endif
+            write(nwad_iunit,'(");")')
+          endif
+        endif
+#endif
+      end subroutine nwad_leave_subr
       !
 #ifdef NWAD_PRINT
       end module nwadp1
 #else
-#if NWAD_DEG <= 0
+#if   NWAD_DEG <= 0
       end module nwad0
 #elif NWAD_DEG <= 1
       end module nwad1
@@ -5054,26 +5431,5 @@ c         initialize the counter
 #else
       end module nwad3
 #endif
-#endif
-#if NWAD_DEG < 1
-#undef NWAD_DEG
-#undef NWAD_PRINT
-#define NWAD_DEG 1
-#include "nwad.F"
-#define NWAD_PRINT y
-#include "nwad.F"
-#undef NWAD_PRINT
-#endif
-#if NWAD_DEG < 2
-#undef NWAD_DEG
-#undef NWAD_PRINT
-#define NWAD_DEG 2
-#include "nwad.F"
-#endif
-#if NWAD_DEG < 3
-#undef NWAD_DEG
-#undef NWAD_PRINT
-#define NWAD_DEG 3
-#include "nwad.F"
 #endif
 !> @}
