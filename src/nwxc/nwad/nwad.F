@@ -784,9 +784,10 @@ c
         type(nwad_dble),  intent(in) :: s
         character*(*),    intent(in) :: op
         integer                         ilen
-        double precision f13, f23, f43, f53, f83, f113
+        double precision f13, f23, f2, f43, f53, f83, f113
         f13  =  1.0d0/3.0d0
         f23  =  2.0d0/3.0d0
+        f2   =  2.0d0
         f43  =  4.0d0/3.0d0
         f53  =  5.0d0/3.0d0
         f83  =  8.0d0/3.0d0
@@ -807,6 +808,8 @@ c
           write(nwad_iunit,'("(1/3)",$)')
         else if (abs(y-f23).lt.1.0d-14) then
           write(nwad_iunit,'("(2/3)",$)')
+        else if (abs(y-f2).lt.1.0d-14) then
+          write(nwad_iunit,'("2",$)')
         else if (abs(y-f43).lt.1.0d-14) then
           write(nwad_iunit,'("(4/3)",$)')
         else if (abs(y-f53).lt.1.0d-14) then
