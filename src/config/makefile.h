@@ -2378,8 +2378,14 @@ endif
 
 # CUDA
 #ckbn gpu
+ifndef CUDA
+ CUDA = nvcc
+endif
 ifdef TCE_CUDA
  CORE_LIBS += $(CUDA_LIBS)
+ ifeq ($(_CC),pgcc)
+  COPTIONS += -acc
+ endif
 endif
 
 ifdef USE_F90_ALLOCATABLE
