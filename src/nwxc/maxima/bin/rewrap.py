@@ -30,7 +30,7 @@ from string import rfind
 
 version = "$Id$"
 version = version.split()
-revision = version[1]+" "+version[2]+" "+version[3]
+revision = version[1]+" revision "+version[2]+" "+version[3]
 
 def rewrap_line(longline):
   # note: longline has a newline character at the end which is counted by 
