@@ -10,7 +10,8 @@
 		nwpw_gga.o\
 		nwpw_SpecialKummer.o \
 		nwpw_GaussBessel.o \
-		nwpw_WGaussian.o
+		nwpw_WGaussian.o \
+		nwpw_gauss_weights.o
 
 	  OBJ = 
 

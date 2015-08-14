@@ -1,5 +1,163 @@
 c $Id$
 
+c*     ***********************************
+c*     *                                 *
+c*     *          nwpw_gaunt_init        *
+c*     *                                 *
+c*     ***********************************
+c      subroutine nwpw_gaunt_init(iscmplx,lmax0)
+c      implicit none
+c      logical iscmplx
+c      integer lmax0
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt_common / nwpw_gaunt_coeff,
+c     >                             nwpw_gaunt_lmax,
+c     >                             nwpw_gaunt_sizel2,
+c     >                             nwpw_gaunt_iscmplx
+c
+c*     **** local variables ****
+c      integer sizel,i,j,k,indx
+c      integer l1,l2,l3
+c      integer m1,m2,m3
+c
+c*     **** external functions ****
+c      real*8   nwpw_gaunt_sub
+c      external nwpw_gaunt_sub
+c
+c      nwpw_gaunt_iscmplx = iscmplx
+c      nwpw_gaunt_lmax    = lmax0
+c      sizel              = (nwpw_gaunt_lmax+1)
+c      nwpw_gaunt_sizel2  = sizel**2
+c
+c      if (.not.BA_alloc_get(mt_dbl,
+c     >      nwpw_gaunt_sizel2*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2,
+c     >                    'nwpw_gaunt_coeff',
+c     >                     nwpw_gaunt_coeff(2),
+c     >                     nwpw_gaunt_coeff(1)))
+c     >   call errquit('nwpw_gaunt_init:out of heap memory',0,MA_ERR)
+c
+c      write(*,*) "nwpw_gaunt_lmax   =",nwpw_gaunt_lmax
+c      write(*,*) "nwpw_gaunt_iscmplx=",nwpw_gaunt_iscmplx
+c
+c      do l1=0,nwpw_gaunt_lmax
+c      do l2=0,nwpw_gaunt_lmax
+c      do l3=0,nwpw_gaunt_lmax
+c
+c        do m1=-l1,l1
+c        do m2=-l2,l2
+c        do m3=-l3,l3
+c           i = l1**2 + (l1+m1)
+c           j = l2**2 + (l2+m2)
+c           k = l3**2 + (l3+m3)
+c           indx = i
+c     >          + j*nwpw_gaunt_sizel2 
+c     >          + k*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2
+c
+c           dbl_mb(nwpw_gaunt_coeff(1)+indx) 
+c     >     = nwpw_gaunt_sub(iscmplx,l1,m1,l2,m2,l3,m3)
+c
+c        end do
+c        end do
+c        end do
+c
+c      end do
+c      end do
+c      end do
+c
+c      return
+c      end
+c
+c*     ***********************************
+c*     *                                 *
+c*     *          nwpw_gaunt_end         *
+c*     *                                 *
+c*     ***********************************
+c      subroutine nwpw_gaunt_end()
+c      implicit none
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt_common / nwpw_gaunt_coeff,
+c     >                             nwpw_gaunt_lmax,
+c     >                             nwpw_gaunt_sizel2,
+c     >                             nwpw_gaunt_iscmplx
+c
+c
+c      if (.not.BA_free_heap(nwpw_gaunt_coeff(2)))
+c     >   call errquit('nwpw_gaunt_end:freeing heap memory',0,MA_ERR)
+c
+c      return
+c      end
+c
+c*     ***********************************
+c*     *                                 *
+c*     *          nwpw_gaunt             *
+c*     *                                 *
+c*     ***********************************
+c      real*8 function nwpw_gaunt(iscmplx,
+c     >                           l1,m1,l2,m2,l3,m3)
+c      implicit none
+c      logical iscmplx
+c      integer l1,l2,l3
+c      integer m1,m2,m3
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt_common / nwpw_gaunt_coeff,
+c     >                             nwpw_gaunt_lmax,
+c     >                             nwpw_gaunt_sizel2,
+c     >                             nwpw_gaunt_iscmplx
+c
+c*     **** local variables ****
+c      integer i,j,k,indx
+c      real*8  gg
+c
+c*     **** external functions ****
+c      real*8   nwpw_gaunt_sub
+c      external nwpw_gaunt_sub
+c
+c      if ((l1.gt.nwpw_gaunt_lmax).or.
+c     >    (l2.gt.nwpw_gaunt_lmax).or.
+c     >    (l3.gt.nwpw_gaunt_lmax).or.
+c     >    (iscmplx.neqv.nwpw_gaunt_iscmplx)) then
+c        write(*,*) "calling gaunt_sub=",l1,m1,l2,m2,l3,m3
+c        gg = nwpw_gaunt_sub(iscmplx,l1,m1,l2,m2,l3,m3)
+c      else
+c         i = l1**2 + (l1+m1)
+c         j = l2**2 + (l2+m2)
+c         k = l3**2 + (l3+m3)
+c         indx = i
+c     >        + j*nwpw_gaunt_sizel2
+c     >        + k*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2
+c         gg = dbl_mb(nwpw_gaunt_coeff(1)+indx)
+c
+c      end if
+c      nwpw_gaunt = gg
+c
+c      return
+c      end
+c
+
 *     ***********************************
 *     *                                 *
 *     *          nwpw_gaunt             *
@@ -146,7 +304,7 @@ c     work arrays for integration
       order = l1 + l2 + l3
 
       !**** Generate weights and coordinates for Gauss-Legendre integration ****
-      CALL gauss_weights(x1,x2,x,w,order)
+      CALL nwpw_gauss_weights(x1,x2,x,w,order)
       nwpw_gaunt = 0.0d0
       if (iscmplx) then
          do i = 1, order
@@ -169,6 +327,158 @@ c     work arrays for integration
       return
       end 
 
+
+c*     ***********************************
+c*     *                                 *
+c*     *          nwpw_gaunt2_init       *
+c*     *                                 *
+c*     ***********************************
+c      subroutine nwpw_gaunt2_init(iscmplx,lmax0)
+c      implicit none
+c      logical iscmplx
+c      integer lmax0
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt2_common / nwpw_gaunt_coeff,
+c     >                             nwpw_gaunt_lmax,
+c     >                             nwpw_gaunt_sizel2,
+c     >                             nwpw_gaunt_iscmplx
+c
+c*     **** local variables ****
+c      integer sizel,i,j,k,indx
+c      integer l1,l2,l3
+c      integer m1,m2,m3
+c
+c*     **** external functions ****
+c      real*8   nwpw_gaunt2_sub
+c      external nwpw_gaunt2_sub
+c
+c      nwpw_gaunt_iscmplx = iscmplx
+c      nwpw_gaunt_lmax    = lmax0
+c      sizel              = (nwpw_gaunt_lmax+1)
+c      nwpw_gaunt_sizel2  = sizel**2
+c
+c      if (.not.BA_alloc_get(mt_dbl,
+c     >      nwpw_gaunt_sizel2*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2,
+c     >                    'nwpw_gaunt2_coeff',
+c     >                     nwpw_gaunt_coeff(2),
+c     >                     nwpw_gaunt_coeff(1)))
+c     >   call errquit('nwpw_gaunt2_init:out of heap memory',0,MA_ERR)
+c
+c      do l1=0,nwpw_gaunt_lmax
+c      do l2=0,nwpw_gaunt_lmax
+c      do l3=0,nwpw_gaunt_lmax
+c
+c        do m1=-l1,l1
+c        do m2=-l2,l2
+c        do m3=-l3,l3
+c           i = l1**2 + (l1+m1)
+c           j = l2**2 + (l2+m2)
+c           k = l3**2 + (l3+m3)
+c           indx = i
+c     >          + j*nwpw_gaunt_sizel2 
+c     >          + k*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2
+c
+c           dbl_mb(nwpw_gaunt_coeff(1)+indx) 
+c     >     = nwpw_gaunt2_sub(iscmplx,l1,m1,l2,m2,l3,m3)
+c
+c        end do
+c        end do
+c        end do
+c
+c      end do
+c      end do
+c      end do
+c
+c      return
+c      end
+c
+c*     ***********************************
+c*     *                                 *
+c*     *          nwpw_gaunt2_end        *
+c*     *                                 *
+c*     ***********************************
+c      subroutine nwpw_gaunt2_end()
+c      implicit none
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt2_common / nwpw_gaunt_coeff,
+c     >                              nwpw_gaunt_lmax,
+c     >                              nwpw_gaunt_sizel2,
+c     >                              nwpw_gaunt_iscmplx
+c
+c      if (.not.BA_free_heap(nwpw_gaunt_coeff(2)))
+c     >   call errquit('nwpw_gaunt2_end:freeing heap memory',0,MA_ERR)
+c
+c      return
+c      end
+c
+c*     ***********************************
+c*     *                                 *
+c*     *          nwpw_gaunt2            *
+c*     *                                 *
+c*     ***********************************
+c      real*8 function nwpw_gaunt2(iscmplx,
+c     >                           l1,m1,l2,m2,l3,m3)
+c      implicit none
+c      logical iscmplx
+c      integer l1,l2,l3
+c      integer m1,m2,m3
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt2_common / nwpw_gaunt_coeff,
+c     >                             nwpw_gaunt_lmax,
+c     >                             nwpw_gaunt_sizel2,
+c     >                             nwpw_gaunt_iscmplx
+c
+c*     **** local variables ****
+c      integer i,j,k,indx
+c      real*8  gg
+c
+c*     **** external functions ****
+c      real*8   nwpw_gaunt2_sub
+c      external nwpw_gaunt2_sub
+c
+c      if ((l1.gt.nwpw_gaunt_lmax).or.
+c     >    (l2.gt.nwpw_gaunt_lmax).or.
+c     >    (l3.gt.nwpw_gaunt_lmax).or.
+c     >    (iscmplx.neqv.nwpw_gaunt_iscmplx)) then
+c        gg = nwpw_gaunt2_sub(iscmplx,l1,m1,l2,m2,l3,m3)
+c      else
+c         i = l1**2 + (l1+m1)
+c         j = l2**2 + (l2+m2)
+c         k = l3**2 + (l3+m3)
+c         indx = i
+c     >        + j*nwpw_gaunt_sizel2
+c     >        + k*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2
+c         gg = dbl_mb(nwpw_gaunt_coeff(1)+indx)
+c
+c      end if
+c      nwpw_gaunt2 = gg
+c
+c      return
+c      end
 
 *     ***********************************
 *     *                                 *
@@ -317,7 +627,7 @@ c     work arrays for integration
       order = l1 + l2 + l3
 
       !**** Generate weights and coordinates for Gauss-Legendre integration ****
-      CALL gauss_weights(x1,x2,x,w,order)
+      CALL nwpw_gauss_weights(x1,x2,x,w,order)
       nwpw_gaunt2 = 0.0d0
       if (iscmplx) then
          do i = 1, order
@@ -339,6 +649,160 @@ c     work arrays for integration
 
       return
       end 
+
+
+*     ***********************************
+*     *                                 *
+*     *          nwpw_gaunt3_init       *
+*     *                                 *
+*     ***********************************
+c      subroutine nwpw_gaunt3_init(iscmplx,lmax0)
+c      implicit none
+c      logical iscmplx
+c      integer lmax0
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt3_common / nwpw_gaunt_coeff,
+c     >                             nwpw_gaunt_lmax,
+c     >                             nwpw_gaunt_sizel2,
+c     >                             nwpw_gaunt_iscmplx
+c
+c*     **** local variables ****
+c      integer sizel,i,j,k,indx
+c      integer l1,l2,l3
+c      integer m1,m2,m3
+c
+c*     **** external functions ****
+c      real*8   nwpw_gaunt3_sub
+c      external nwpw_gaunt3_sub
+c
+c      nwpw_gaunt_iscmplx = iscmplx
+c      nwpw_gaunt_lmax    = lmax0
+c      sizel              = (nwpw_gaunt_lmax+1)
+c      nwpw_gaunt_sizel2  = sizel**2
+c
+c      if (.not.BA_alloc_get(mt_dbl,
+c     >      nwpw_gaunt_sizel2*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2,
+c     >                    'nwpw_gaunt3_coeff',
+c     >                     nwpw_gaunt_coeff(2),
+c     >                     nwpw_gaunt_coeff(1)))
+c     >   call errquit('nwpw_gaunt3_init:out of heap memory',0,MA_ERR)
+c
+c      do l1=0,nwpw_gaunt_lmax
+c      do l2=0,nwpw_gaunt_lmax
+c      do l3=0,nwpw_gaunt_lmax
+c
+c        do m1=-l1,l1
+c        do m2=-l2,l2
+c        do m3=-l3,l3
+c           i = l1**2 + (l1+m1)
+c           j = l2**2 + (l2+m2)
+c           k = l3**2 + (l3+m3)
+c           indx = i
+c     >          + j*nwpw_gaunt_sizel2 
+c     >          + k*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2
+c
+c           dbl_mb(nwpw_gaunt_coeff(1)+indx) 
+c     >     = nwpw_gaunt3_sub(iscmplx,l1,m1,l2,m2,l3,m3)
+c
+c        end do
+c        end do
+c        end do
+c
+c      end do
+c      end do
+c      end do
+c
+c      return
+c      end
+c
+c*     ***********************************
+c*     *                                 *
+c*     *          nwpw_gaunt3_end        *
+c*     *                                 *
+c*     ***********************************
+c      subroutine nwpw_gaunt3_end()
+c      implicit none
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt3_common / nwpw_gaunt_coeff,
+c     >                              nwpw_gaunt_lmax,
+c     >                              nwpw_gaunt_sizel2,
+c     >                              nwpw_gaunt_iscmplx
+c
+c
+c      if (.not.BA_free_heap(nwpw_gaunt_coeff(2)))
+c     >   call errquit('nwpw_gaunt3_end:freeing heap memory',0,MA_ERR)
+c
+c      return
+c      end
+c
+c*     ***********************************
+c*     *                                 *
+c*     *          nwpw_gaunt3             *
+c*     *                                 *
+c*     ***********************************
+c      real*8 function nwpw_gaunt3(iscmplx,
+c     >                           l1,m1,l2,m2,l3,m3)
+c      implicit none
+c      logical iscmplx
+c      integer l1,l2,l3
+c      integer m1,m2,m3
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c*     **** nwpw_gaunt common block ****
+c      integer nwpw_gaunt_lmax,
+c     >        nwpw_gaunt_sizel2,
+c     >        nwpw_gaunt_coeff(2)
+c      logical nwpw_gaunt_iscmplx
+c      common / nwpw_gaunt3_common / nwpw_gaunt_coeff,
+c     >                             nwpw_gaunt_lmax,
+c     >                             nwpw_gaunt_sizel2,
+c     >                             nwpw_gaunt_iscmplx
+c
+c*     **** local variables ****
+c      integer i,j,k,indx
+c      real*8  gg
+c
+c*     **** external functions ****
+c      real*8   nwpw_gaunt3_sub
+c      external nwpw_gaunt3_sub
+c
+c      if ((l1.gt.nwpw_gaunt_lmax).or.
+c     >    (l2.gt.nwpw_gaunt_lmax).or.
+c     >    (l3.gt.nwpw_gaunt_lmax).or.
+c     >    (iscmplx.neqv.nwpw_gaunt_iscmplx)) then
+c        gg = nwpw_gaunt3_sub(iscmplx,l1,m1,l2,m2,l3,m3)
+c      else
+c         i = l1**2 + (l1+m1)
+c         j = l2**2 + (l2+m2)
+c         k = l3**2 + (l3+m3)
+c         indx = i
+c     >        + j*nwpw_gaunt_sizel2
+c     >        + k*nwpw_gaunt_sizel2*nwpw_gaunt_sizel2
+c         gg = dbl_mb(nwpw_gaunt_coeff(1)+indx)
+c
+c      end if
+c      nwpw_gaunt3 = gg
+c
+c      return
+c      end
 
 
 *     ***********************************
@@ -487,7 +951,7 @@ c      endif
       order = l1 + l2 + l3
 
       !**** Generate weights and coordinates for Gauss-Legendre integration ****
-      CALL gauss_weights(x1,x2,x,w,order)
+      CALL nwpw_gauss_weights(x1,x2,x,w,order)
       nwpw_gaunt3 = 0.0d0
       if (iscmplx) then
          do i = 1, order

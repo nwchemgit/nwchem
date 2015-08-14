@@ -178,6 +178,7 @@
          int_mb(lm_size(1)+iia-1) = (2*lmax0(ia)+1)**2
          if (mult_l_max.lt.(2*lmax0(ia))) mult_l_max = 2*lmax0(ia)
       end do
+      !call nwpw_gaunt_init(.false.,2*mult_l_max)
 
       !*** allocate gk_smooth, gk,and glm ***
       lm_size_max = (mult_l_max+1)**2
@@ -569,6 +570,9 @@
 #include "nwpw_compcharge.fh"
 
       logical value
+
+      !call nwpw_gaunt_end()
+
       value =           BA_free_heap(ion_iontopaw(2))
       value = value.and.BA_free_heap(ion_pawtoion(2))
       value = value.and.BA_free_heap(katm_iontopaw(2))
