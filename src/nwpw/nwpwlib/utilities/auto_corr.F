@@ -213,13 +213,27 @@ c
       call dscal(4*nframes,x,dcpl_mb(vt(1)),1)
       call dcfftb(2*nframes,dcpl_mb(vt(1)),dcpl_mb(tfft(1)))
 
+      !**** average changes because there are less number of samples for higher t ****
+      do k=1,nframes
+         x = 1.0d0/dble(nframes-(k-1))
+         dcpl_mb(vt(1)+k-1) = dcpl_mb(vt(1)+k-1)*x
+      end do
+
+      !**** normalize the velocity autocorrelation function by <v(0)*v(0)> ****
+      x =  dble(dcpl_mb(vt(1)))
+      x = 1.0d0/x
+      do k=1,nframes
+         dcpl_mb(vt(1)+k-1) = dcpl_mb(vt(1)+k-1)*x
+      end do
+
+      
 
 *     ***** write out velocity autocorrelation ****
       open(unit=19,file=full_filename1,form='formatted')
       do k=1,nframes
          t = dt*(k-1)
-         x = 1.0d0/dble(nframes-(k-1))
-         dcpl_mb(vt(1)+k-1) = dcpl_mb(vt(1)+k-1)*x
+c         x = 1.0d0/dble(nframes-(k-1))
+c         dcpl_mb(vt(1)+k-1) = dcpl_mb(vt(1)+k-1)*x
          write(19,*) t,dble(dcpl_mb(vt(1)+k-1)),
      >                dimag(dcpl_mb(vt(1)+k-1))
       end do
@@ -250,11 +264,15 @@ c
       do k=0,nframes/2
         x = x + dble(dcpl_mb(vk(1)+k))
       end do
-      if (x.gt.1.0d-12) then
-         x = 1.0d0/x 
-      else 
-         x = 1.0d0
-      end if
+      write(*,*) "powernorm=",x,x/(dt*nframes),
+     >           " dw=",1.0d0/(dt*nframes*auTOsec*c)
+
+c      if (x.gt.1.0d-12) then
+c         x = 1.0d0/x 
+c      else 
+c         x = 1.0d0
+c      end if
+      x = auTOsec*c
       call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
 
       open(unit=19,file=full_filename2,form='formatted')
@@ -269,6 +287,7 @@ c
      >                    dimag(dcpl_mb(vk(1)+k))
       end do
       close(unit=19)
+
 
       value =           BA_pop_stack(tfft(2))
       value = value.and.BA_pop_stack(vk(2))
@@ -610,6 +629,265 @@ c
       end do
  30   continue
       close(unit=36)
+
+      return
+      end
+
+
+
+
+*     *********************************
+*     *                               *
+*     *       velocity_spectrum       *
+*     *                               *
+*     *********************************
+*
+*   This routine calculated the velocity spectrum         
+* using the MOTION file.  
+*
+*  - This routine needs to be rewritten so that it
+*    doesn't use so much memory
+*
+
+      subroutine velocity_spectrum(filename)
+      implicit none
+      character*(*) filename
+
+#include "bafdecls.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+
+
+      real*8 c,auTOsec
+      parameter (c=2.996d+10,auTOsec=2.41889d-17)
+ 
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+*     **** local variables ****
+      logical value
+      integer i,k,natoms,natoms1,nframes,iii
+      integer vx(2),vy(2),vz(2)
+      integer vt(2),vk(2)
+      integer tfft(2)
+      real*8  time1,time2,t,freq,dt,volume,volume1
+      real*8  tmax,mass
+      real*8  x,y,z
+      real*8  v1,v2,v3
+      real*8  unita(3,3)
+      character*255 full_filename1
+      character*255 full_filename2
+      character*2 tag2
+      character*4 tag4
+
+*     **** external functions ****
+      integer  ion_katm
+      external ion_katm
+      real*8   ion_amass
+      external ion_amass
+
+
+*     *** synchronization ***
+      call ga_sync()
+
+      call util_file_name_noprefix('VEL_CORRELATION',.false.,
+     >                             .false.,
+     >                             full_filename1)
+      call util_file_name_noprefix('VELOCITY_SPECTRUM',.false.,
+     >                             .false.,
+     >                             full_filename2)
+
+      call Parallel_taskid(taskid)
+     
+*     ***************************************
+*     ****** Velocity spectrum routine ******
+*     ***************************************
+      if (taskid.eq.MASTER) then
+     
+      write(*,*)
+      write(*,*) '===== Calculating velocity spectrum ====='
+      write(*,*)    
+      call MOTION_nframes(filename,nframes,natoms,volume,unita)
+
+      open(unit=19,file=filename,form='formatted')
+
+*     **** try to exit in a nice way if too not enough memory available ****
+      if (.not.BA_push_get(mt_dcpl,2*natoms*nframes,'vx',vx(2),vx(1))) 
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         close(unit=19)
+         goto 999
+      end if
+      if (.not.BA_push_get(mt_dcpl,2*natoms*nframes,'vy',vy(2),vy(1)))
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value = BA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',1,
+     >                 MA_ERR)
+         close(unit=19)
+         goto 999
+      end if
+      if (.not.BA_push_get(mt_dcpl,2*natoms*nframes,'vz',vz(2),vz(1)))
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value =           BA_pop_stack(vy(2))
+         value = value.and.BA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',2,
+     >                 MA_ERR)
+         close(unit=19)
+         goto 999
+      end if
+      if (.not.BA_push_get(mt_dcpl,2*nframes,'vt',vt(2),vt(1)))
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value =           BA_pop_stack(vz(2))
+         value = value.and.BA_pop_stack(vy(2))
+         value = value.and.BA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',3,
+     >                 MA_ERR)
+         close(unit=19)
+         goto 999
+      end if
+      if (.not.BA_push_get(mt_dcpl,2*nframes,'vk',vk(2),vk(1)))
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value =           BA_pop_stack(vt(2))
+         value = value.and.BA_pop_stack(vz(2))
+         value = value.and.BA_pop_stack(vy(2))
+         value = value.and.BA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',4,
+     >                 MA_ERR)
+         close(unit=19)
+         goto 999
+      end if
+       if (.not.BA_push_get(mt_dcpl,(8*nframes+15),
+     >    'tfft',tfft(2),tfft(1))) then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value =           BA_pop_stack(vk(2))
+         value = value.and.BA_pop_stack(vt(2))
+         value = value.and.BA_pop_stack(vz(2))
+         value = value.and.BA_pop_stack(vy(2))
+         value = value.and.BA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',5,
+     >                 MA_ERR)
+         close(unit=19)
+         goto 999
+      end if
+      
+
+      call dcopy(4*natoms*nframes,0.0d0,0,dcpl_mb(vx(1)),1)
+      call dcopy(4*natoms*nframes,0.0d0,0,dcpl_mb(vy(1)),1)
+      call dcopy(4*natoms*nframes,0.0d0,0,dcpl_mb(vz(1)),1)
+      call dcopy(4*nframes,       0.0d0,0,dcpl_mb(vt(1)),1)
+      call dcopy(4*nframes,        0.0d0,0,dcpl_mb(vk(1)),1)
+     
+      time1   = 0.0d0
+      time2   = 0.0d0
+      do k=1,nframes
+        
+         time1    = time2
+         read(19,*) time2,natoms1,volume1,unita
+         do i=1,natoms
+            read(19,*) iii,tag2,tag4,x,y,z,v1,v2,v3
+            dcpl_mb(vx(1)+(k-1) + (i-1)*2*nframes) = v1
+            dcpl_mb(vy(1)+(k-1) + (i-1)*2*nframes) = v2
+            dcpl_mb(vz(1)+(k-1) + (i-1)*2*nframes) = v3        
+         end do
+
+      end do
+      close(unit=19)
+
+      dt   = time2-time1
+      write(luout,*)
+      write(luout,*) 'frames used: ',nframes
+      write(luout,*) 'natoms:      ',natoms
+      write(luout,*) 'volume:      ',volume
+      write(luout,*) 'time interval (au)       : ', dt
+      write(luout,*) 'Max time      (au)       : ', dt*(nframes-1)
+      write(luout,*) 'frequency interval (cm-1): ', 
+     >           1.0d0/(dt*nframes*auTOsec*c)
+      write(luout,*) 'Max frequency (cm-1)     : ', 
+     >           1.0d0/(2*dt*auTOsec*c)
+      write(luout,*) 'MOTION filename: ',filename
+      write(luout,*) 'S(k)   filename: ',full_filename2
+      write(luout,*)
+
+      dt   = time2-time1
+      tmax = dt*(nframes-1)
+      call dcffti(2*nframes,dcpl_mb(tfft(1)))
+      do i=1,natoms
+         call dcfftf(2*nframes,dcpl_mb(vx(1)+ (i-1)*2*nframes),
+     >                         dcpl_mb(tfft(1)))
+         call dcfftf(2*nframes,dcpl_mb(vy(1)+ (i-1)*2*nframes),
+     >                         dcpl_mb(tfft(1)))
+         call dcfftf(2*nframes,dcpl_mb(vz(1)+ (i-1)*2*nframes),
+     >                         dcpl_mb(tfft(1)))
+      end do
+
+      do k=1,(2*nframes)
+         dcpl_mb(vt(1)+(k-1)) = dcmplx(0.0d0,0.0d0)
+         do i=1,natoms
+           mass = ion_amass(ion_katm(i))
+           dcpl_mb(vt(1)+(k-1)) = dcpl_mb(vt(1)+(k-1)) +
+     >           mass*(
+     >           + dconjg(dcpl_mb(vx(1)+(k-1)+(i-1)*2*nframes))
+     >                   *dcpl_mb(vx(1)+(k-1)+(i-1)*2*nframes)
+     >           + dconjg(dcpl_mb(vy(1)+(k-1)+(i-1)*2*nframes))
+     >                   *dcpl_mb(vy(1)+(k-1)+(i-1)*2*nframes)
+     >           + dconjg(dcpl_mb(vz(1)+(k-1)+(i-1)*2*nframes))
+     >                   *dcpl_mb(vz(1)+(k-1)+(i-1)*2*nframes))
+
+         end do
+      end do
+      x = 1.0d0/dble(2*nframes)
+      call dscal(4*nframes,x,dcpl_mb(vt(1)),1)
+
+
+*     ************************************************
+*     ****                                        ****
+*     ****    generate the velocity spectrum      ****
+*     ****                                        ****
+*     ************************************************
+      open(unit=19,file=full_filename2,form='formatted')
+      !do k=0,nframes/2
+      do k=0,nframes
+         if(k.ne.0) then
+            t = 2*nframes*dt/dble(k)
+            freq = 1.0d0/(t*auTOsec*c)
+         else
+            freq=0.0d0
+         endif
+         write(19,*) freq, dble(dcpl_mb(vt(1)+k))
+      end do
+      close(unit=19)
+
+
+      value =           BA_pop_stack(tfft(2))
+      value = value.and.BA_pop_stack(vk(2))
+      value = value.and.BA_pop_stack(vt(2))
+      value = value.and.BA_pop_stack(vz(2))
+      value = value.and.BA_pop_stack(vy(2))
+      value = value.and.BA_pop_stack(vx(2))
+      if (.not. value) 
+     >    call errquit('cpmd_properties: cant release stack memory',0,
+     >       MA_ERR)
+     
+      end if
+
+*     *** synchronization ***
+  999 continue
+      call ga_sync()
 
       return
       end
