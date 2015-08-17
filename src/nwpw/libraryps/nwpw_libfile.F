@@ -168,8 +168,12 @@ c
         l = index(element,' ')  -1
         if (l.lt.1) l = 2
         rtdb_name = element(1:l)//':paw_library'
-        if (.not.btdb_cget(rtdb,rtdb_name,1,library_name))
-     >    library_name = 'paw_default'
+        if (.not.btdb_cget(rtdb,rtdb_name,1,library_name)) then
+           rtdb_name = '*'//':paw_library'
+           if (.not.btdb_cget(rtdb,rtdb_name,1,library_name)) then
+              library_name = 'paw_default'
+           end if
+         end if
 
         ind = index(library_name,' ')  -1
         library = library_name(1:ind)//'/'
@@ -195,12 +199,18 @@ c     >   //'_basis'
         l = index(element,' ')  -1
         if (l.lt.1) l = 2
         rtdb_name = element(1:l)//':pspw_library'
-        if (.not.btdb_cget(rtdb,rtdb_name,1,library_name))
-     >    library_name = 'pspw_default'
+        if (.not.btdb_cget(rtdb,rtdb_name,1,library_name)) then
+           rtdb_name = '*'//':pspw_library'
+           if (.not.btdb_cget(rtdb,rtdb_name,1,library_name))
+     >       library_name = 'pspw_default'
+        end if
 
         rtdb_name = element(1:l)//':pspw_library_type'
-        if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,library_type))
-     >    library_type = 0
+        if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,library_type)) then
+           rtdb_name = '*'//':pspw_library_type'
+           if (.not.btdb_get(rtdb,rtdb_name,mt_int,1,library_type))
+     >        library_type = 0
+        end if
 
 
         !*** library directory ***

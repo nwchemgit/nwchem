@@ -6,6 +6,13 @@ Comment: Fitted 12-28-04
 Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
 Comment: relativistic TM, quadratic semicore
 
+Comment: Results for Simple Molecules
+Comment: Cmpnd          Unit Cell   xc  Cutoff  r0 (Ang)  w0(cm-1)        Energy
+Comment: CuH     periodic SC 20.0  lda    20.0   1.42590  2203.337  -53.24614656
+Comment: CuH     periodic SC 20.0  lda    30.0   1.46106  2137.899  -54.72744951
+Comment: CuH     periodic SC 20.0  lda    50.0   1.46137  2154.862  -54.78802985
+Comment: CuH    aperiodic SC 20.0  lda    50.0   1.46128  2156.280  -54.78787570
+
 
 [lmax] 2
 [locp] 0
