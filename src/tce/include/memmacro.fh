@@ -29,7 +29,7 @@
 #define DECLMEM(a) integer k_##a, l_##a; \
                    logical  err_##a;
 #define ALLOMEM(a,s) \
-        err_##a=MA_PUSH_GET(mt_dbl,##s,#a,l_##a,k_##a); \
+        err_##a=MA_PUSH_GET(mt_dbl,s,#a,l_##a,k_##a); \
         if (.not.err_##a) call errquit("PUSH"#a,#s,MA_ERR);
 #define FREEMEM(a) \
         err_##a=MA_POP_STACK(l_##a); \
