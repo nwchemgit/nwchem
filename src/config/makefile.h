@@ -1015,6 +1015,9 @@ ifeq ($(TARGET),MACX64)
      FC = gfortran
      _FC = gfortran
    endif
+   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5))
+     _FC = gfortran
+   endif
 #
 # MacOSX 64bit
 #
@@ -1042,13 +1045,13 @@ endif
              DEFINES   = -DMACX
              DEFINES  += -DEXT_INT
 
-      ifeq ($(FC),gfortran)
+      ifeq ($(_FC),gfortran)
 #gcc version 
-        LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = #-Wextra #-Wunused #-ffast-math
+        LINK.f    = $(FC) $(LDFLAGS) 
+        FOPTIONS  = -cpp #-Wextra #-Wunused #-ffast-math
         FOPTIONS += -fdefault-integer-8
-        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
-       DEFINES  += -DGFORTRAN -DGCC4
+        FOPTIMIZE = -O2 -ffast-math -Wuninitialized 
+       DEFINES   += -DGFORTRAN -DGCC4
 #
          FOPTIMIZE+= -funroll-all-loops -mtune=native 
          FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
