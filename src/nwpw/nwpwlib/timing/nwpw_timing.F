@@ -74,7 +74,7 @@
 
 #include "nwpw_timing_common.fh"
 !$OMP MASTER
-	  call current_second(nwpw_tim1(counter))
+      call current_second(nwpw_tim1(counter))
 !$OMP END MASTER
       return
       end
@@ -87,7 +87,7 @@
 
       
 !$OMP MASTER
-	  call current_second(nwpw_tim2(counter))
+      call current_second(nwpw_tim2(counter))
      
       times(counter) = times(counter) 
      >               + (nwpw_tim2(counter)-nwpw_tim1(counter))
@@ -152,6 +152,9 @@ c     **** external functions ****
          call nwpw_timing_print(
      >                 '  geodesic                   : ',
      >                 nwpw_timing(10),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  two-electron Gaussian      : ',
+     >                 nwpw_timing(13),counter,ttime)
          call nwpw_timing_print(
      >                 '  ffm_dgemm                  : ',
      >                 nwpw_timing(15),counter,ttime)
