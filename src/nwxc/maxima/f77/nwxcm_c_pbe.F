@@ -70,11 +70,11 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 27097 2015-05-08 
+C> [3] autoxc, revision 27333 2015-08-12 
 C> 
 C> [4] rewrap.py 27318 2015-08-05 
 C> 
-C> [5] call_subroutine.py 27320 2015-08-05 
+C> [5] call_subroutine.py 27333 2015-08-12 
 C> 
       subroutine nwxcm_c_pbe(param,tol_rho,ipol,nq,wght, rho,rgamma,
      +   fnc,Amat,Cmat) 
@@ -450,11 +450,11 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 27097 2015-05-08 
+C> [3] autoxc, revision 27333 2015-08-12 
 C> 
 C> [4] rewrap.py 27318 2015-08-05 
 C> 
-C> [5] call_subroutine.py 27320 2015-08-05 
+C> [5] call_subroutine.py 27333 2015-08-12 
 C> 
       subroutine nwxcm_c_pbe_d2(param,tol_rho,ipol,nq,wght, rho,
      +   rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
@@ -1422,11 +1422,11 @@ C> [2] Maxima, a computer algebra system,
 C> <a href="http://maxima.sourceforge.net/"> 
 C> http://maxima.sourceforge.net/</a> 
 C> 
-C> [3] autoxc, revision 27097 2015-05-08 
+C> [3] autoxc, revision 27333 2015-08-12 
 C> 
 C> [4] rewrap.py 27318 2015-08-05 
 C> 
-C> [5] call_subroutine.py 27320 2015-08-05 
+C> [5] call_subroutine.py 27333 2015-08-12 
 C> 
       subroutine nwxcm_c_pbe_d3(param,tol_rho,ipol,nq,wght, rho,
      +   rgamma,fnc,Amat,Amat2,Amat3, Cmat,Cmat2,Cmat3) 

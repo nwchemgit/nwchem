@@ -246,8 +246,14 @@ include ../../config/makelib.h
 	f77/nwxcm_c_m05.F.finished \
 	f77/nwxcm_c_m06.F.start \
 	f77/nwxcm_c_m06.F.finished \
+	f77/nwxcm_c_mpbe.F.start \
+	f77/nwxcm_c_mpbe.F.finished \
+	f77/nwxcm_c_pbe.F.start \
+	f77/nwxcm_c_pbe.F.finished \
 	f77/nwxcm_c_pkzb99.F.start \
 	f77/nwxcm_c_pkzb99.F.finished \
+	f77/nwxcm_c_pw91lda.F.start \
+	f77/nwxcm_c_pw91lda.F.finished \
 	f77/nwxcm_c_tpss03.F.start \
 	f77/nwxcm_c_tpss03.F.finished \
 	f77/nwxcm_x_tpss03.F.start \
@@ -273,6 +279,16 @@ f77/nwxcm_c_m05.F: max/nwxcm_c_m05.max
 f77/nwxcm_c_m06.F: max/nwxcm_c_m06.max
 	date > $@.start
 	$(AUTOXC_DS) -o $@ $<
+	date > $@.finished
+
+f77/nwxcm_c_mpbe.F: max/nwxcm_c_mpbe.max
+	date > $@.start
+	$(AUTOXC) -o $@ $<
+	date > $@.finished
+
+f77/nwxcm_c_pbe.F: max/nwxcm_c_pbe.max
+	date > $@.start
+	$(AUTOXC) -o $@ $<
 	date > $@.finished
 
 f77/nwxcm_c_pkzb99.F: max/nwxcm_c_pkzb99.max

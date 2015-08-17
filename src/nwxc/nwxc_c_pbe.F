@@ -147,8 +147,9 @@ c
       double precision EPS
       parameter (TOLL = 1.0D-40, EXPTOL = 40.0d0)
       parameter (EPS = 1.0e-8)
-      type(nwad_dble)::rho_t(2)
-c     type(nwad_dble)::dsqgamma
+      type(nwad_dble)::rho_t(1,2)
+      type(nwad_dble)::rgamma_t(1,3)
+      type(nwad_dble)::tau_t(1,2)
 c
 c     Intermediate derivative results, etc.
 c
@@ -325,17 +326,22 @@ c        n and zeta = (na - nb)/n
 c
          if (ipol.eq.2) then
            rhoval   = 0.0d0
-           rho_t(1) = 0.0d0
-           rho_t(2) = 0.0d0
+           rho_t(1,1) = 0.0d0
+           rho_t(1,2) = 0.0d0
+c          rgamma_t(1) = 0.0d0 ! dummy, not used
+c          rgamma_t(2) = 0.0d0 ! dummy, not used
+c          rgamma_t(3) = 0.0d0 ! dummy, not used
+c          tau_t(1) = 0.0d0 ! dummy, not used
+c          tau_t(2) = 0.0d0 ! dummy, not used
            gammaval = 0.0d0
            if (rho(n,R_A).gt.0.5d0*tol_rho) then
               rhoval = rhoval + rho(n,R_A)
-              rho_t(1) = rho(n,R_A)
+              rho_t(1,1) = rho(n,R_A)
               gammaval = gammaval + rgamma(n,G_AA)
            endif
            if (rho(n,R_B).gt.0.5d0*tol_rho) then
               rhoval = rhoval + rho(n,R_B)
-              rho_t(2) = rho(n,R_B)
+              rho_t(1,2) = rho(n,R_B)
               gammaval = gammaval + rgamma(n,G_BB)
               if (rho(n,R_A).gt.0.5d0*tol_rho) then
                 gammaval = gammaval + 2.0d0*rgamma(n,G_AB)
@@ -343,7 +349,9 @@ c
            endif
          else
            rhoval = rho(n,R_T)
-           rho_t(1) = rhoval
+           rho_t(1,1) = rhoval
+c          rgamma_t(1) = 0.0d0 ! dummy, not used
+c          tau_t(1) = 0.0d0 ! dummy, not used
            gammaval = rgamma(n,G_TT)
          endif
          if (rhoval.le.tol_rho) goto 20
@@ -374,8 +382,12 @@ c        ========
 c
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
+         call enter_subr("nwxc_c_pw91lda",func_lda,param(1),ipol,1,
+     +                   rho_t,rgamma_t,tau_t,nepsc)
          call nwxc_c_pw91lda_p(tol_rho, ipol, 1, 1.0d0, rho_t,
      &                         nepsc) 
+         call leave_subr("nwxc_c_pw91lda",func_lda,param(1),ipol,1,
+     +                   rho_t,rgamma_t,tau_t,nepsc)
 #else
          call nwxc_c_pw91lda(tol_rho, ipol, 1, 1.0d0, rho_t,
      &                       nepsc) 
