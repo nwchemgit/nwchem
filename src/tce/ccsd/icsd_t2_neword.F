@@ -139,8 +139,8 @@ c
      c        tot_task/ga_nnodes()
          write(6,33) ' wl_min ',wl_min,nint((wl_min)**(1d0/4d0))
          write(6,33) ' wl_max ',wl_max,nint((wl_max)**(1d0/4d0))
-      endif
- 33   format(a32,2i12)
+      endif 
+   33 format(a32,2i12)
       nsplits=16
       do ii=nsplits,1,-1
          w_in=wl_min+((wl_max-wl_min)*(ii-1))/nsplits
