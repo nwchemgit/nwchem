@@ -169,10 +169,10 @@ c       call util_flush(6)
       end if
       end if
 c
- 100  format('SEMI-SERIAL EXECUTION OF T1')
- 101  format(2x,a12,3x,i12)
- 102  format('TASK POOL FOR VARIOUS T1 LAYERS')
- 103  format('CCSD_T1_NTS --- OK')
+  100 format('SEMI-SERIAL EXECUTION OF T1')
+  101 format(2x,a12,3x,i12)
+  102 format('TASK POOL FOR VARIOUS T1 LAYERS')
+  103 format('CCSD_T1_NTS --- OK')
 c
 c counters are opened here
 c

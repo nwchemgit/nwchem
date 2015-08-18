@@ -291,10 +291,10 @@ c       write(6,101)'layer 4',layer4
       end if
       end if
 c
- 100  format('SEMI-SERIAL EXECUTION OF T2')
- 101  format(2x,a12,3x,i12)
- 102  format('TASK POOL FOR VARIOUS T2 LAYERS')
- 103  format('CCSD_T2_NTS --- OK')
+  100 format('SEMI-SERIAL EXECUTION OF T2')
+  101 format(2x,a12,3x,i12)
+  102 format('TASK POOL FOR VARIOUS T2 LAYERS')
+  103 format('CCSD_T2_NTS --- OK')
 c
 
 c
