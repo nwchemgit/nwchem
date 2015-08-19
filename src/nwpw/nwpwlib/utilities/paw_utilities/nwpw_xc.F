@@ -71,6 +71,7 @@ c     **** external functions ****
       
 *     ***paw_xc energies ***
       ok = BA_alloc_get(mt_dbl,nion,"paw_xc_e",paw_xc_e(2),paw_xc_e(1))
+      call dcopy(nion,0.0d0,0,dbl_mb(paw_xc_e(1)),1)
 
       
 *     *** xc matrix arrays - nbasis_max**2 * (mult_l_max+1)**2 ***
