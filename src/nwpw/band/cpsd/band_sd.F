@@ -1094,7 +1094,7 @@ c     >        A)
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
  1258 FORMAT(5x,' number of k-point is very large or distributed')
 
- 1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
+ 1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1271 FORMAT(5x, ' translation constrained')

@@ -1168,7 +1168,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
  1258 FORMAT(5x,' number of k-points is very large')
 
- 1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
+ 1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  
  1270 FORMAT(/' technical parameters:')
