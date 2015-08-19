@@ -3921,7 +3921,11 @@ c     >                                   dbl_mb(wtmp(1)))
 
 *     **** local variables ****
       integer i,j,ms,n,n1(2),n2(2)
-      real*8  tmp
+      real*8  tmp,taskid_i,np_i,icount
+
+      call Parallel2d_taskid_i(taskid_i)
+      call Parallel2d_np_i(np_i)
+      icount = 0
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -3930,25 +3934,32 @@ c     >                                   dbl_mb(wtmp(1)))
 
       call dcopy(ispin*nprj*nprj,0.0d0,0,wmatrix,1)
       do j=1,nprj
-         do ms=1,ispin
-         do n=n1(ms),n2(ms)
-            wmatrix(j,j,ms) = wmatrix(j,j,ms) + sw1(n,j)*sw1(n,j)
-         end do
-         end do
+         if (mod(icount,np_i).eq.taskid_i) then
+            do ms=1,ispin
+            do n=n1(ms),n2(ms)
+               wmatrix(j,j,ms) = wmatrix(j,j,ms) + sw1(n,j)*sw1(n,j)
+            end do
+            end do
+         end if
+         icount = icount + 1
       end do
 
       do j=1,nprj
          do i=j+1,nprj
-            do ms=1,ispin
-            do n=n1(ms),n2(ms)
-               tmp = sw1(n,i)*sw1(n,j)
-               wmatrix(i,j,ms) = wmatrix(i,j,ms) + tmp
-               wmatrix(j,i,ms) = wmatrix(j,i,ms) + tmp
-            end do
-            end do
+            if (mod(icount,np_i).eq.taskid_i) then
+               do ms=1,ispin
+               do n=n1(ms),n2(ms)
+                  tmp = sw1(n,i)*sw1(n,j)
+                  wmatrix(i,j,ms) = wmatrix(i,j,ms) + tmp
+                  wmatrix(j,i,ms) = wmatrix(j,i,ms) + tmp
+               end do
+               end do
+            end if
+            icount = icount + 1
          end do
       end do
-      call D1dB_Vector_SumAll(ispin*nprj*nprj,wmatrix)
+      !call D1dB_Vector_SumAll(ispin*nprj*nprj,wmatrix)
+      call Parallel_Vector_SumAll(ispin*nprj*nprj,wmatrix)
 
       return
       end
