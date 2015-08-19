@@ -3898,7 +3898,7 @@ c     >                                   dbl_mb(wtmp(1)))
      >  call errquit('psp_hartree_atom:popping stack',1,MA_ERR)
 
       end if
-      call D1dB_SumAll(Watom)
+      !call D1dB_SumAll(Watom)
 
 
       psp_hartree_atom = Watom
