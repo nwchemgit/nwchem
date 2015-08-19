@@ -146,10 +146,8 @@
       integer  psp_paw_mult_l_max
       external psp_paw_mult_l_max
 
-#ifdef USE_OPENMP
-      integer  omp_get_max_threads
-      external omp_get_max_threads
-#endif
+      integer  Parallel_maxthreads
+      external Parallel_maxthreads
 
 
       logical pspw_bqext,control_fast_erf
@@ -353,9 +351,8 @@
          else
            write(luout,1116)
          end if
-#ifdef USE_OPENMP
-         write(luout,1119)  omp_get_max_threads()
-#endif
+         write(luout,1119)  Parallel_maxthreads()
+
          if (control_parallel_io()) then
            write(luout,1123)
          else
@@ -796,7 +793,7 @@ c      call frac_occ_end()
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
  1252 FORMAT(5X,' smooth wavefnc cutoff:  A=',F7.3,' sigma = ',F7.3)
- 1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
+ 1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                  Madelung Wigner-Seitz=',f11.8,
      >                              ' (alpha=',f11.8,' rs=',f11.8,')')
  1262 FORMAT(5X,' paw integration: xc lmax=',I3,

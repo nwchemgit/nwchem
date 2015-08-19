@@ -662,7 +662,7 @@ c         write(luout,1394)
            E26 = E26 + EV*EV
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
            backspace 31
 #endif
          else
@@ -990,7 +990,8 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
 
 
 *       **** write out Temperatures ****
-         cv = (evar)/(kb*ion_Temperature()**2)
+         !cv = (evar)/(kb*ion_Temperature()**2)
+         cv = (evar)/(kb*mc_temperature**2)
          cv = cv/dble(ion_nion())
          write(luout,1492) eave
          write(luout,1493) evar
@@ -1065,7 +1066,6 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
 
 *     **** calculate Mulliken Populations ***
       if (control_Mulliken()) call psi_Mulliken(rtdb)
-
 
 
 *     **** deallocate memory and data structures ****
@@ -1206,7 +1206,7 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
   
- 1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
+ 1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters for minimizer:')
  1271 FORMAT(5x, ' translation constrained')

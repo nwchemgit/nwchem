@@ -60,7 +60,15 @@ c     $Id$
       external psp_pawexist,ion_disp_on
       real*8   psi_smearfermi,psi_smearcorrection,lattice_omega
       external psi_smearfermi,psi_smearcorrection,lattice_omega
+      logical  control_hess_model
+      external control_hess_model
+      real*8   ion_hess_energy
+      external ion_hess_energy
 
+      if (control_hess_model()) then
+         cgsd_noit_energy = ion_hess_energy()
+         return
+      end if
 
 
       call Parallel_taskid(taskid)

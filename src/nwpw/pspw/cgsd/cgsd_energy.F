@@ -64,6 +64,16 @@ c#include "global.fh"
       logical  ion_disp_on
       external ion_disp_on
 
+      logical  control_hess_model
+      external control_hess_model
+      real*8   ion_hess_energy
+      external ion_hess_energy
+
+      !**** hack for implementing hessian energy model ****
+      if (control_hess_model()) then
+         cgsd_energy = ion_hess_energy()
+         return
+      end if
 
       call Parallel_taskid(taskid)
       oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
@@ -748,7 +758,14 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       external pspw_charge_charge
       logical  pspw_bqext,ion_disp_on
       external pspw_bqext,ion_disp_on
+      logical  control_hess_model
+      external control_hess_model
 
+      !**** hack for implementing hessian model ****
+      if (control_hess_model()) then
+         call ion_hess_force(G1)
+         return
+      end if
 
       allow_translation = control_allow_translation()
       nion = ion_nion()
@@ -1425,6 +1442,14 @@ c      write(*,*) "ewald p=",p1
       external pspw_charge_charge
       logical  pspw_bqext,ion_disp_on
       external pspw_bqext,ion_disp_on
+      logical  control_hess_model
+      external control_hess_model
+
+      !**** hack for implementing hessian model ****
+      if (control_hess_model()) then
+         call ion_hess_force(G1)
+         return
+      end if
 
       nion = ion_nion()
       if (pspw_charge_found().and.
