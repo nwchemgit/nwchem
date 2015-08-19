@@ -710,20 +710,20 @@ c           end do
 
       end if
 
-*                |***************************|
-******************  Electron Tranfer Path    **********************
-*                |***************************|
-
+c*                |***************************|
+c******************  Electron Tranfer Path    **********************
+c*                |***************************|
+c
 c      npath = 21
 c
 c*     **** define |u> = |psi2f> ****
-c      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
-c     >                           dbl_mb(U_ab(1)),1.0d0,
-c     >                           dcpl_mb(psi1f(1)),0.0d0)
-c
 c      call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
-c     >                           dbl_mb(V_ab(1)),1.0d0,
+c     >                           dbl_mb(U_ab(1)),1.0d0,
 c     >                           dcpl_mb(psi2f(1)),0.0d0)
+c
+c      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+c     >                           dbl_mb(V_ab(1)),1.0d0,
+c     >                           dcpl_mb(psi1f(1)),0.0d0)
 c      do q=1,neq(1)+neq(2)
 c         call Dneall_qton(q,n)
 c         w = dbl_mb(Sigma_ab(1)+n-1)
@@ -910,7 +910,7 @@ c         if (taskid.eq.MASTER) then
 c            write(luout,1910) t,Eground,Eexcited
 c         end if
 c      end do
-
+c
 c*     ************************************
 c*     **** epath at midpoint geometry ****
 c*     ************************************
@@ -1082,7 +1082,7 @@ c         end if
 c      end do
 c
 c
-c
+
 c      call Dneall_ffm_Multiply(0,dcpl_mb(psi1f(1)),
 c     >                           dcpl_mb(psi2f(1)),npack1,
 c     >                           dbl_mb(itmp(1)))
@@ -1243,7 +1243,7 @@ c
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
- 1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
+ 1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1271 FORMAT(5x, ' translation constrained')
