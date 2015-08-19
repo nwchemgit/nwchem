@@ -1522,6 +1522,7 @@ c   overlap coefficients.
                do n=n1(ms),n2(ms)
                   w = w + sw1(n,iprj)*sw1(n,jprj)
                end do
+               call D1dB_SumAll(w)
                tmp_ms = w*coeff
                call nwpw_xc_density_gen_rho(n1dgrid,tmp_ms,
      >                  rgrid,phi_ae(1,bi),phi_ae(1,bj),
@@ -1621,6 +1622,7 @@ c   overlap coefficients.
                do n=n1(ms),n2(ms)
                   w = w + sw1(n,iprj)*sw1(n,jprj)
                end do
+               call D1dB_SumAll(w)
                tmp_ms = w*coeff
                call nwpw_xc_density_gen_drho(n1dgrid,tmp_ms,
      >                  rgrid,
