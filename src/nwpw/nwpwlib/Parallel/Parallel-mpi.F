@@ -1042,11 +1042,13 @@ c     implicit none
 #else
       integer status(2),mpierr
 #endif
+
+!$OMP MASTER
      
       if (nreq.gt.0) then
 
 *     **** allocate status memory ****
-      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*nreq*4,
+      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*nreq*4,
      >                     'status',status(2),status(1)))
      > call errquit('Parallel_mpiWaitAll:out of stack',0,MA_ERR)
 
@@ -1056,7 +1058,7 @@ c     implicit none
 
 #ifdef MPI4
 
-      if (.not.BA_push_get(mt_int,nreq,'rqst2',request2(2),request2(1)))
+      if (.not.MA_push_get(mt_int,nreq,'rqst2',request2(2),request2(1)))
      > call errquit(' Parallel_mpiWaitAll:out of stack',1,MA_ERR)
       call stupid_icopy8to4(nreq,req,int_mb(request2(1)))
       stupid_msglen = nreq
@@ -1066,7 +1068,7 @@ c     implicit none
 c       call MPI_WAITALL(stupid_msglen,
 c     >                 int_mb(request2(1)),
 c     >                 MPI_STATUSES_IGNORE,stupid_ierr)
-      if (.not.BA_pop_stack(request2(2)))
+      if (.not.MA_pop_stack(request2(2)))
      > call errquit(' Parallel_mpiWaitAll:popping stack',1,MA_ERR)
 
 c     *** danger! ***
@@ -1084,10 +1086,11 @@ c      call MPI_WAITALL(nreq,req,MPI_STATUSES_IGNORE,mpierr)
 *     *** may need to check status here??? ***
 
       !*** deallocate status memory ***
-      if (.not.BA_pop_stack(status(2)))
+      if (.not.MA_pop_stack(status(2)))
      > call errquit(' Parallel_mpiWaitAll:popping stack',0,MA_ERR)
 
       end if
+!$OMP END MASTER
       return
       end
 

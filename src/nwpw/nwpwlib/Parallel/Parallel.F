@@ -503,6 +503,12 @@
       return
       end
 
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_threadid          *
+*     *                                   *
+*     *************************************
       integer function Parallel_threadid()
       implicit none
 #include "Parallel.fh"
@@ -519,6 +525,11 @@
       return
       end
 
+*     *************************************
+*     *                                   *
+*     *        Parallel_nthreads          *
+*     *                                   *
+*     *************************************
       integer function Parallel_nthreads()
       implicit none
 #include "Parallel.fh"
@@ -536,6 +547,11 @@
       return
       end
 
+*     *************************************
+*     *                                   *
+*     *        Parallel_maxthreads        *
+*     *                                   *
+*     *************************************
       integer function Parallel_maxthreads()
       implicit none
 #include "Parallel.fh"
@@ -564,18 +580,118 @@
       logical barrier
       integer n
       real*8 a(*),b(*)
-      if (barrier) then
-!$OMP MASTER
+
+#ifdef USE_OPENMP
+      integer nbig,tid,nthr,nsz,istart
+      parameter (nbig=1000)
+
+c     **** external functions ****
+      integer  Parallel_nthreads,Parallel_threadid
+      external Parallel_nthreads,Parallel_threadid
+
+      nthr = Parallel_nthreads()
+      if (nthr.eq.1) then
          call dcopy(n,a,1,b,1)
+      else
+
+         if (n.gt.nbig) then
+            tid    = Parallel_threadid()
+            istart = 1 + tid*(n/nthr)
+            if (tid.eq.(nthr-1)) then
+               nsz = n/nthr + mod(n,nthr)
+            else
+               nsz = n/nthr
+            end if
+            if (barrier) then
+c               write(*,*) "shared_copy, tid,nthr,istart,nsz,n=",
+c     >                    tid,nthr,istart,nsz,n
+               call dcopy(nsz,a(istart),1,b(istart),1)
+!$OMP BARRIER
+            else
+               call dcopy(nsz,a(istart),1,b(istart),1)
+            end if
+
+         else
+            if (barrier) then
+!$OMP MASTER
+               call dcopy(n,a,1,b,1)
 !$OMP END MASTER
 !$OMP BARRIER
-      else
+            else
 !$OMP MASTER
-         call dcopy(n,a,1,b,1)
+               call dcopy(n,a,1,b,1)
 !$OMP END MASTER
+            end if
+         end if
       end if
+#else
+      call dcopy(n,a,1,b,1)
+#endif
       return
       end 
+
+
+
+*     *************************************
+*     *                                   *
+*     *    Parallel_shared_vector_zero    *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_vector_zero(barrier,n,b)
+      implicit none
+      logical barrier
+      integer n
+      real*8 b(*)
+
+#ifdef USE_OPENMP
+      integer nbig,tid,nthr,nsz,istart
+      parameter (nbig=1000)
+
+c     **** external functions ****
+      integer  Parallel_nthreads,Parallel_threadid
+      external Parallel_nthreads,Parallel_threadid
+
+      nthr = Parallel_nthreads()
+      if (nthr.eq.1) then
+         call dcopy(n,0.0d0,0,b,1)
+      else
+
+         if (n.gt.nbig) then
+            tid    = Parallel_threadid()
+            istart = 1 + tid*(n/nthr)
+            if (tid.eq.(nthr-1)) then
+               nsz = n/nthr + mod(n,nthr)
+            else
+               nsz = n/nthr
+            end if
+            if (barrier) then
+               call dcopy(nsz,0.0d0,0,b(istart),1)
+!$OMP BARRIER
+            else
+               call dcopy(nsz,0.0d0,0,b(istart),1)
+            end if
+
+         else
+            if (barrier) then
+!$OMP MASTER
+               call dcopy(n,0.0d0,0,b,1)
+!$OMP END MASTER
+!$OMP BARRIER
+            else
+!$OMP MASTER
+               call dcopy(n,0.0d0,0,b,1)
+!$OMP END MASTER
+            end if
+         end if
+      end if
+#else
+      call dcopy(n,0.0d0,0,b,1)
+#endif
+      return
+      end 
+
+
+
 
 
 *     *************************************
@@ -587,16 +703,29 @@
       implicit none
       logical barrier
       real*8 a,b
-      if (barrier) then
-!$OMP MASTER
+
+#ifdef USE_OPENMP
+c     **** external functions ****
+      integer  Parallel_nthreads
+      external Parallel_nthreads
+
+      if (Parallel_nthreads().eq.1) then
          b = a
+      else
+         if (barrier) then
+!$OMP MASTER
+            b = a
 !$OMP END MASTER
 !$OMP BARRIER
-      else
+         else
 !$OMP MASTER
-         b = a
+            b = a
 !$OMP END MASTER
+         end if
       end if
+#else
+      b = a
+#endif
       return
       end
 
@@ -610,16 +739,29 @@
       implicit none
       logical barrier
       integer a,b
-      if (barrier) then
-!$OMP MASTER
+
+#ifdef USE_OPENMP
+c     **** external functions ****
+      integer  Parallel_nthreads
+      external Parallel_nthreads
+
+      if (Parallel_nthreads().eq.1) then
          b = a
+      else
+         if (barrier) then
+!$OMP MASTER
+            b = a
 !$OMP END MASTER
 !$OMP BARRIER
-      else
+         else
 !$OMP MASTER
-         b = a
+            b = a
 !$OMP END MASTER
+         end if
       end if
+#else
+      b = a
+#endif
       return
       end 
 
@@ -632,16 +774,120 @@
       implicit none
       logical barrier
       integer i,a
-      if (barrier) then
-!$OMP MASTER
+
+#ifdef USE_OPENMP
+c     **** external functions ****
+      integer  Parallel_nthreads
+      external Parallel_nthreads
+
+
+      if (Parallel_nthreads().eq.1) then
          a = a + i
+      else
+         if (barrier) then
+!$OMP MASTER
+            a = a + i
 !$OMP END MASTER
 !$OMP BARRIER
-      else
+         else
 !$OMP MASTER
-         a = a + i
+            a = a + i
 !$OMP END MASTER
+         end if
       end if
+#else
+      a = a + i
+#endif
       return
       end
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_shared_irot       *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_irot(barrier,imax,a)
+      implicit none
+      logical barrier
+      integer imax,a
+
+#ifdef USE_OPENMP
+c     **** external functions ****
+      integer  Parallel_nthreads
+      external Parallel_nthreads
+
+      !write(*,*) "irot nthreads = ",Parallel_nthreads()
+
+      if (Parallel_nthreads().eq.1) then
+         a = a + 1
+         if (a.gt.imax) a = 1
+      else
+         if (barrier) then
+!$OMP MASTER
+            a = a + 1
+            if (a.gt.imax) a = 1
+!$OMP END MASTER
+!$OMP BARRIER
+         else
+!$OMP MASTER
+            a = a + 1
+            if (a.gt.imax) a = 1
+!$OMP END MASTER
+         end if
+      end if
+#else
+      a = a + 1
+      if (a.gt.imax) a = 1
+#endif
+      return
+      end
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_shared_lshift     *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_lshift(barrier,n,a)
+      implicit none
+      logical barrier
+      integer n,a(*)
+      integer i
+
+#ifdef USE_OPENMP
+c     **** external functions ****
+      integer  Parallel_nthreads
+      external Parallel_nthreads
+
+      if (Parallel_nthreads().eq.1) then
+         do i=1,n
+           a(i) = a(i+1)
+         end do
+      else
+         if (barrier) then
+!$OMP MASTER
+            do i=1,n
+              a(i) = a(i+1)
+            end do
+!$OMP END MASTER
+!$OMP BARRIER
+         else
+!$OMP MASTER
+            do i=1,n
+              a(i) = a(i+1)
+            end do
+!$OMP END MASTER
+         end if
+      end if
+#else
+      do i=1,n
+        a(i) = a(i+1)
+      end do
+#endif
+      return
+      end 
+
+
+
 
