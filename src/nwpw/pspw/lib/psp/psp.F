@@ -2144,13 +2144,15 @@ c           end do
          call nwpw_compcharge_add_dElocal_Qlm(ispin)
 
          do ip=1,nion_prj_indx
-            ii          = int_mb(ii_prj_indx(1)+ip-1)
-            ia          = int_mb(ia_prj_indx(1)+ip-1)
-            nproj       = int_mb(nproj_prj_indx(1)+ip-1)
-            swstart     = int_mb(swstart_prj_indx(1)+ip-1)
-            call nwpw_compcharge_gen_sw2(ii,ia,ispin,ne,nproj,
+            ia = int_mb(ia_prj_indx(1)+ip-1)
+            if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+               ii          = int_mb(ii_prj_indx(1)+ip-1)
+               nproj       = int_mb(nproj_prj_indx(1)+ip-1)
+               swstart     = int_mb(swstart_prj_indx(1)+ip-1)
+               call nwpw_compcharge_gen_sw2(ii,ia,ispin,ne,nproj,
      >                                   dbl_mb(sw1a(1)+swstart*nn),
      >                                   dbl_mb(sw2a(1)+swstart*nn))
+            end if
          end do
 
          call nwpw_timing_end(39)
@@ -2716,13 +2718,15 @@ c           end do
          call nwpw_compcharge_add_dElocal_Qlm(ispin)
 
          do ip=1,nion_prj_indx
-            ii          = int_mb(ii_prj_indx(1)+ip-1)
-            ia          = int_mb(ia_prj_indx(1)+ip-1)
-            nproj       = int_mb(nproj_prj_indx(1)+ip-1)
-            swstart     = int_mb(swstart_prj_indx(1)+ip-1)
-            call nwpw_compcharge_gen_sw2(ii,ia,ispin,ne,nproj,
+            ia = int_mb(ia_prj_indx(1)+ip-1)
+            if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+               ii      = int_mb(ii_prj_indx(1)+ip-1)
+               nproj   = int_mb(nproj_prj_indx(1)+ip-1)
+               swstart = int_mb(swstart_prj_indx(1)+ip-1)
+               call nwpw_compcharge_gen_sw2(ii,ia,ispin,ne,nproj,
      >                                   dbl_mb(sw1a(1)+swstart*nn),
      >                                   dbl_mb(sw2a(1)+swstart*nn))
+            end if
          end do
      
          call nwpw_timing_end(39)
