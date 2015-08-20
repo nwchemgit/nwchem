@@ -3874,7 +3874,7 @@ c     ****************************************
 *     **** local variables ****
       logical value
       integer ms,q,n,nn,nnq,shift1,shift2,ishift1,ishift2
-      integer i,j,ii,jj,pto,taskid,ms1,ms2
+      integer i,j,ii,jj,pto,taskid,ms1,ms2,mshiftp,mshiftm
       integer sw1b(2),sw2b(2)
       real*8  w
 
@@ -3887,9 +3887,13 @@ c     ****************************************
          if (mb.eq.0) then
             nn  = ne(1)  + ne(2)
             nnq = neq(1) + neq(2)
+            mshiftp = 0
+            mshiftm = 0
          else
             nn  = ne(mb)
             nnq = neq(mb)
+            mshiftp = (mb-1)*neq(1)
+            mshiftm = (mb-1)*ne(1)
          end if
          value = BA_push_get(mt_dbl,nn*nprj,'sw1b',sw1b(2),sw1b(1))
          value = value.and.
@@ -3900,7 +3904,8 @@ c     ****************************************
          call dcopy(nn*nprj,0.0d0,0,dbl_mb(sw1b(1)),1)
          call dcopy(nn*nprj,0.0d0,0,dbl_mb(sw2b(1)),1)
          do q=1,nnq
-            call Dneall_qton(q,n)
+            call Dneall_qton(q+mshiftp,n)
+            n = n-mshiftm
             !do prj = 1,nprj
             !   sw1b(n,prj) = sw1(q,prj)
             !   sw2b(n,prj) = sw2(q,prj)
