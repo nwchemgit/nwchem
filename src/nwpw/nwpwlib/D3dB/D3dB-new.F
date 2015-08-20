@@ -228,7 +228,6 @@ c           k_map(q_map(k)) = k
       !**** makes expand and contract routines trivial parallel ****
 
 !MATHIAS
-!$OMP SINGLE
       if (mapping2d.eq.1) then
          if (nb.eq.1) then
            call hilbert2d_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
@@ -243,7 +242,6 @@ c           k_map(q_map(k)) = k
          call hcurve_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
          call hcurve_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
       end if
-!$OMP END SINGLE
 
 
 
@@ -1129,8 +1127,6 @@ c      end
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
 #ifdef USE_OPENMP
-      logical is_par
-      common    / Debug_openmp / is_par
 #endif
 
 #ifdef FFTW3
@@ -1144,9 +1140,6 @@ c      end
 
       mthr = Parallel_maxthreads()
       
-#ifdef USE_OPENMP
-      is_par = .false.
-#endif
 
       !call D3dB_nfft3d(nb,nfft3d)
 
@@ -1179,19 +1172,12 @@ c     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
      >            dcpl_mb(tmpz(1,nb)),-3,ierr)
 
 #else
-#ifdef USE_OPENMP
-!!$OMP DO
-!! schedule(static)
-#endif
       do i=1,mthr
         !write(*,*) "DEBUG init fft arrays of thread ", i-1
         call drffti(nx(nb),dcpl_mb(tmpx(1,nb)+(i-1)*(2*nx(nb)+15)))
         call dcffti(ny(nb),dcpl_mb(tmpy(1,nb)+(i-1)*(2*ny(nb)+15)))
         call dcffti(nz(nb),dcpl_mb(tmpz(1,nb)+(i-1)*(2*nz(nb)+15)))
       end do
-#ifdef USE_OPENMP
-!!$OMP END DO
-#endif
 #endif
 
 #ifdef FFTW3
@@ -1483,18 +1469,14 @@ c      end
       integer tid,nthr,offset
       integer Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
+
 #ifdef USE_OPENMP
-      logical omp_in_parallel
-      external omp_in_parallel
 #endif
 
 #ifdef USE_OPENMP
-      logical is_par
-      common    / Debug_openmp / is_par
 #endif
 
 #ifdef USE_OPENMP
-!$OMP PARALLEL if(is_par) private(tid,nthr,offset) 
 #endif
 
       tid  = Parallel_threadid()
@@ -1807,7 +1789,6 @@ c      end do
       call nwpw_timing_end(1)
 
 #ifdef USE_OPENMP
-!$OMP END PARALLEL
 #endif
       return
       end
@@ -1818,14 +1799,14 @@ c      end do
       real*8     tmpx(2*nx+15)
       complex*16 A(nxh,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i) 
-!$omp& firstprivate(nx,tmpx)
-!$omp do schedule(static)
+
+
+
       do i=1,n
          call drfftb(nx,A(1,i),tmpx)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
       return
       end
 
@@ -1835,14 +1816,14 @@ c      end do
       real*8     tmpy(4*ny+15)
       complex*16 A(ny,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(ny,tmpy)
-!$omp do schedule(static)
+
+
+
       do i=1,n
          call dcfftb(ny,A(1,i),tmpy)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
       return
       end
 
@@ -1852,14 +1833,14 @@ c      end do
       real*8     tmpz(4*nz+15)
       complex*16 A(nz,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(nz,tmpz)
-!$omp do schedule(static)
+
+
+
       do i=1,n
          call dcfftb(nz,A(1,i),tmpz)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
       return
       end
 
@@ -1868,13 +1849,14 @@ c      end do
       integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,j,indx
-c     do n=1,ne
-c     do q=1,nq
+      integer i,j,indx,tid,nthr
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
-!$OMP BARRIER
-!$OMP DO
-      do j=1,(ny*nq*ne)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
+      do j=1+tid,(ny*nq*ne),nthr
         indx = 1+(j-1)*(nx+2)
 c        indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
 c    >            + (n-1)*(nx+2)*ny*nq
@@ -1882,27 +1864,50 @@ c    >            + (n-1)*(nx+2)*ny*nq
             A(indx+i-1) = A(indx+i)
          end do
       end do
-!$OMP END DO
 
 c     end do
 c     end do
       return
       end 
 
+      subroutine cshift1_fftb1(nx,A)
+      implicit none
+      integer nx
+      real*8 A(*)
+      integer i
+      do i=2,nx
+         A(i) = A(i+1)
+      end do 
+      return
+      end
+
+      subroutine zeroend_fftb1(nx,A)
+      implicit none
+      integer nx
+      real*8 A(*)
+      integer i
+      A(nx+1) = 0.0d0
+      A(nx+2) = 0.0d0
+      return
+      end
+
+
       subroutine zeroend_fftb(nx,ny,nq,ne,A)
       implicit none
       integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,indx
-!$OMP BARRIER
-!$OMP DO
-      do i=1,(ny*nq*ne)
+      integer i,indx,tid,nthr
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+      do i=1+tid,(ny*nq*ne),nthr
          indx = nx+1+(i-1)*(nx+2)
          A(indx)   = 0.0d0
          A(indx+1) = 0.0d0
       end do
-!$OMP END DO
 
       return
       end 
@@ -2148,9 +2153,8 @@ c      end
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
+
 #ifdef USE_OPENMP
-      logical is_par
-      common    / Debug_openmp / is_par
 #endif
 
 
@@ -2168,12 +2172,9 @@ c      end
       integer Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 #ifdef USE_OPENMP
-      logical omp_in_parallel
-      external omp_in_parallel
 #endif
 
 #ifdef USE_OPENMP
-!$OMP PARALLEL if(is_par) private(tid,nthr,offset) 
 #endif
       tid = Parallel_threadid()
       nthr = Parallel_nthreads()
@@ -2399,11 +2400,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
       offset=tid*(2*nx(nb)+15)
-!$OMP DO 
       do i=1,nq1(nb)
         call drfftf(nx(nb),A(1+(i-1)*nxh),dcpl_mb(tmpx(1,nb)+offset))
       end do
-!$OMP END DO
 
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
 #endif
@@ -2432,11 +2431,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call D3dB_fftfy_sub2(nq2(nb),ny(nb),dcpl_mb(tmpy(1,nb)),A)
 #else
       offset=tid*(2*ny(nb)+15)
-!$OMP DO 
       do i=1,nq2(nb)
         call dcfftf(ny(nb),A(1+(i-1)*ny(nb)),dcpl_mb(tmpy(1,nb)+offset))
       end do
-!$OMP END DO
 #endif
 #endif
 #endif
@@ -2463,11 +2460,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call D3dB_fftfz_sub2(nq3(nb),nz(nb),dcpl_mb(tmpz(1,nb)),A)
 #else
       offset=tid*(2*nz(nb)+15)
-!$OMP DO 
       do i=1,nq3(nb)
         call dcfftf(nz(nb),A(1+(i-1)*nz(nb)),dcpl_mb(tmpz(1,nb)+offset))
       end do
-!$OMP END DO
 
 #endif
 #endif
@@ -2483,7 +2478,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call nwpw_timing_end(1)
 
 #ifdef USE_OPENMP
-!$OMP END PARALLEL
 #endif
       return
       end
@@ -2494,14 +2488,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpx(2*nx+15)
       complex*16 A(nxh,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(nx,tmpx)
-!$omp do schedule(static)
+
+
+
       do i=1,n
          call drfftf(nx,A(1,i),tmpx)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
       return
       end
 
@@ -2511,14 +2505,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpy(4*ny+15)
       complex*16 A(ny,n)
       integer i,indx
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(ny,tmpy)
-!$omp do schedule(static)
+
+
+
       do i=1,n
          call dcfftf(ny,A(1,i),tmpy)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
       return
       end
 
@@ -2528,14 +2522,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpz(4*nz+15)
       complex*16 A(nz,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(nz,tmpz)
-!$omp do schedule(static)
+
+
+
       do i=1,n
          call dcfftf(nz,A(1,i),tmpz)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
       return
       end
 
@@ -2550,8 +2544,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i,j,indx
 
-!$OMP BARRIER
-!$OMP DO
       do j=1,(ny*nq*ne)
         indx = 1+(j-1)*(nx+2)
 c        indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
@@ -2564,7 +2556,6 @@ c     >        + (n-1)*(nx+2)*ny*nq
          A(indx+nx+1) = 0.0d0
 !         indx = indx + (nx+2)
       end do
-!$OMP END DO
 
       return
       end 
@@ -3179,7 +3170,6 @@ c     integer i2_start(NFFT3+1)
       call Parallel2d_np_i(np)
 
 !MATHIAS
-!$OMP SINGLE
       index1 = 1 
       index2 = 1
       do it=0,np-1
@@ -3225,7 +3215,6 @@ c     i1_start(np+1) = index1
 c     i2_start(np+1) = index2
       int_mb(i1_start(1,nb)+np) = index1
       int_mb(i2_start(1,nb)+np) = index2
-!$OMP END SINGLE
 
 
       return
@@ -3844,13 +3833,13 @@ c      call Parallel2d_np_i(np)
 
 #ifdef NUSE_OPENMP
       n = n2ft3d_map(nb)
-!$omp parallel shared(A,B,C,n) private(i)
-!$omp do schedule(static)
+
+
       do i=1,n
             C(i) = A(i) * B(i)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
 #else
       do i=1,n2ft3d_map(nb)
             C(i) = A(i) * B(i)
@@ -4025,13 +4014,13 @@ c      call Parallel2d_np_i(np)
 
 #ifdef NUSE_OPENMP
       n = n2ft3d_map(nb)
-!$omp parallel shared(A,B,C,n) private(i)
-!$omp do
+
+
       do i=1,n
          C(i) = A(i) - B(i)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
 
 #else
       do i=1,n2ft3d_map(nb)
@@ -4063,13 +4052,13 @@ c      call Parallel2d_np_i(np)
 
 #ifdef NUSE_OPENMP
       n = n2ft3d_map(nb)
-!$omp parallel shared(A,B,n) private(i) 
-!$omp do
+
+
       do i=1,n
          B(i) = B(i) - A(i)
       end do
-!$omp end do nowait
-!$omp end parallel
+
+
 #else
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) - A(i)
@@ -5306,7 +5295,6 @@ c     integer i2_start(NFFT3+1)
 
   
 !MATHIAS
-!$OMP SINGLE
       index1 = 1 
       index2 = 1
       do it=0,np-1
@@ -5405,7 +5393,6 @@ c     i1_start(np+1) = index1
 c     i2_start(np+1) = index2
       int_mb(i1_start(1,nb)+np) = index1
       int_mb(i2_start(1,nb)+np) = index2
-!$OMP END SINGLE
 
       return
       end
@@ -5456,27 +5443,12 @@ c     integer i2_start(NFFT3+1)
       complex*16  a(*),b(*)
       integer i
 
-#ifdef NUSE_OPENMP100
-!$omp parallel default(private) shared(a,b,index,n)
-!$omp do
 #ifndef CRAY
 !DIR$ ivdep
 #endif
       do i=1,n
         b(i) = a(index(i))
       end do
-!$omp end do nowait
-!$omp end parallel
-
-#else
-
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-      do i=1,n
-        b(i) = a(index(i))
-      end do
-#endif
 
       return
       end

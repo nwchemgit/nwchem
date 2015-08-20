@@ -410,7 +410,6 @@ c     integer i2_start(NFFT3+1)
      >                         h_i2_start
 
 #ifdef USE_OPENMP
-!!$OMP THREADPRIVATE(/ trans_blk_ijk /)
 #endif
 
 
@@ -452,11 +451,6 @@ c     integer i2_start(NFFT3+1)
 !DIR$ ivdep
 #endif
 
-!!!!#ifdef USE_OPENMP
-!!!!!MATHIAS int_mb has to be declared in shared or it fails !
-!!!!!$OMP PARALLEL private(tid,nthr,offset,chunklen)  firstprivate(nnfft3d)
-!!!!!!$OMP PARALLEL default(firstprivate) shared(/mbc_int/) 
-!!!!#endif
       tid = Parallel_threadid()
       nthr = Parallel_nthreads()
 
@@ -464,20 +458,16 @@ c     integer i2_start(NFFT3+1)
 
 
  
-!MATHIAS split this across threads
-      chunklen = nnfft3d / nthr
-      offset = 1+tid*chunklen 
-      if(tid.eq.nthr-1) chunklen = nnfft3d - offset +1
-      chunklen = offset+chunklen-1
-      do i=offset,chunklen
+c      chunklen = nnfft3d / nthr
+c      offset = 1+tid*chunklen 
+c      if(tid.eq.nthr-1) chunklen = nnfft3d - offset +1
+c      chunklen = offset+chunklen-1
+c      do i=offset,chunklen
+
+      do i=1,nnfft3d
         tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
       end do
 
-!$OMP BARRIER
-!#ifdef USE_OPENMP
-!!$OMP END PARALLEL
-!#endif
-!$OMP MASTER
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
@@ -550,13 +540,9 @@ c     integer i2_start(NFFT3+1)
 
       end do
 
-   
 *     **** wait for completion of mp_send, also do a sync ****
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
-!      write(*,*) "DEBUG Thread ",tid," done with the seq. work"
-!$OMP END MASTER
-!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -567,27 +553,16 @@ c     integer i2_start(NFFT3+1)
 !DIR$ ivdep
 #endif
 
-!#ifdef USE_OPENMP
-!!MATHIAS int_mb has to be declared in shared or it fails !
-!!$OMP PARALLEL private(tid,nthr,offset,chunklen) firstprivate(nnfft3d) 
-!#endif
-!      tid = Parallel_threadid()
-!      nthr = Parallel_nthreads()
-
 !MATHIAS split this across threads
-      chunklen = nnfft3d / nthr
-      offset = 1+tid*chunklen 
-      if(tid.eq.nthr-1) chunklen = nnfft3d - offset +1
-      chunklen = offset+chunklen-1
-      do i=offset,chunklen
-!      do i=1,nnfft3d
+c      chunklen = nnfft3d / nthr
+c      offset = 1+tid*chunklen 
+c      if(tid.eq.nthr-1) chunklen = nnfft3d - offset +1
+c      chunklen = offset+chunklen-1
+c      do i=offset,chunklen
+      do i=1,nnfft3d
          A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
       end do
-!$OMP BARRIER
 
-!!!!#ifdef USE_OPENMP
-!!!!!$OMP END PARALLEL
-!!!!#endif
 
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
@@ -1745,6 +1720,7 @@ c            send data....
          end do
       end if
 
+
       return
       end
 
@@ -2550,6 +2526,7 @@ c         msgtype   = 1
          end if
 
       end do
+
 
       return
       end
