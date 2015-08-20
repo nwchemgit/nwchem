@@ -2434,6 +2434,8 @@ c      end do
       return
       end
 
+! (a+ib)*(c-id) = ac+bd + i*(bc-ad)
+! (a(1)+i*a(2))*(b(1)-i*b(2)) = ... + i*(a(2)*b(1) - a(1)*b(2))
 
 
 
