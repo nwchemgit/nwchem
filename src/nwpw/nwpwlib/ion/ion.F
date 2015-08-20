@@ -34,6 +34,8 @@
       value = value.and.BA_free_heap(amass(2))
       if (.not. value) call errquit('ion_end:free heap ',0, MA_ERR)
 
+      call ion_hess_end()
+
       return
       end
 
@@ -379,6 +381,7 @@ c         eki1=0.5d0*eki1
 
       call FMM_start()
       call ion_scaling_atoms_start(rtdb)
+      call ion_hess_init(rtdb)
 
       call nwpw_timing_end(50)
       ion_init = value
@@ -3656,3 +3659,572 @@ c autoang=0.52917726d0
       !ion_check_distances = (.not.tooshort)
       return
       end
+
+
+*     *****************************************
+*     *                                       *
+*     *         ion_hess_init                 *
+*     *                                       *
+*     *****************************************
+*
+*  The ion_hess routines are used to model springs.
+*
+      subroutine ion_hess_init(rtdb)
+      implicit none
+      integer rtdb
+
+#include "bafdecls.fh"
+#include "ion.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "stdio.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer taskid,np,MASTER
+      parameter (MASTER=0)
+
+      logical oprint,value,notperiodic
+      integer iii,nat3,nhess,nhesst,i,k
+      integer vcq(2),w1q(2),w2q(2)
+      real*8  x
+      character*(nw_max_path_len) filehess 
+
+*     **** ion_hess_model common block ****
+      logical found_hess
+      common /ion_hess_model/ found_hess
+
+*     **** external functions ****
+      integer  control_version
+      external control_version
+      logical  control_hess_model
+      external control_hess_model
+      real*8   ion_amass
+      external ion_amass
+      character*4 ion_aname,ion_atom
+      external    ion_aname,ion_atom
+      character*9 ion_amm
+      external    ion_amm
+
+
+
+      call Parallel_taskid(taskid)
+      oprint = taskid.eq.MASTER
+
+      call control_hess_filename(filehess)
+      if (taskid.eq.MASTER) then
+        inquire(file=filehess,exist=found_hess)
+        if (found_hess) then
+           iii = 1
+        else
+           iii = 0
+        end if
+      end if
+      call Parallel_Brdcst_ivalue(MASTER,iii)
+      found_hess  = (iii.eq.1).and.control_hess_model()
+      if (.not.found_hess) return
+
+      notperiodic = (control_version().eq.4)
+
+      if (oprint) then
+         if (notperiodic) then
+            write(luout,100) filehess(1:inp_strlen(filehess)),nion
+         else
+            write(luout,101) filehess(1:inp_strlen(filehess)),nion
+         end if
+      end if
+
+      nat3   =  nion*3          ! 3-N (as in degrees of freedom)
+      nhess  =  nat3*nat3       ! dimension of hessian
+      nhesst =  nat3*(nat3+1)/2 ! dimension of lower triangular hessian
+
+      !**** allocate ihesst, ihess, and ihessp ****
+      value =  BA_alloc_get(mt_dbl,nhesst,'ihess',ihesst(2),ihesst(1))
+      value = value.and.
+     >     BA_alloc_get(mt_dbl,nhess,'ihess',ihess(2),ihess(1))
+      value = value.and.
+     >     BA_alloc_get(mt_dbl,nhess,'ihessp',ihessp(2),ihessp(1))
+      value = value.and.
+     >     BA_alloc_get(mt_dbl,nat3,'dq',dq(2),dq(1))
+      value = value.and.
+     >     BA_alloc_get(mt_dbl,nat3,'rrq0',rrq0(2),rrq0(1))
+      if (.not.value)
+     >   call errquit("ion_hess_energy_init: out of heap",1,MA_ERR)
+
+
+      !**** read model from rtdb ****
+      if (btdb_get(rtdb,"nwpw:ion_hess:ihess",mt_dbl,
+     >                      nhess,dbl_mb(ihess(1))) .and.
+     >    btdb_get(rtdb,"nwpw:ion_hess:rrq0",mt_dbl,
+     >                       nat3,dbl_mb(rrq0(1)))) then
+         if (oprint) write(luout,102)
+
+      !**** read and set model from filehess and geom ****
+      else
+         !**** allocate tempory data for Eckart ****
+         value = value.and.
+     >        BA_push_get(mt_dbl,nat3*6,'vcq',vcq(2),vcq(1))
+         value = value.and.
+     >     BA_push_get(mt_dbl,nhess,'w1q',w1q(2),w1q(1))
+         value = value.and.
+     >     BA_push_get(mt_dbl,nhess,'w2q',w2q(2),w2q(1))
+         if (.not.value)
+     >      call errquit("ion_hess_init:out of stack",1,MA_ERR)
+
+         if (taskid.eq.MASTER) then
+            open(unit=69,file=filehess,form='formatted',status='old',
+     >      err=99900,access='sequential')
+            do iii = 0,(nhesst-1)
+               read(69,*,err=99901,end=99902) x
+               dbl_mb(ihesst(1)+iii) = x
+            end do
+            close(unit=69,status='keep')
+         end if
+         call Parallel_Brdcst_values(MASTER,nhesst,dbl_mb(ihesst(1)))
+         call ion_dsquar(dbl_mb(ihesst(1)),dbl_mb(ihess(1)),nat3,nat3)
+         call ion_eckart(oprint,nion,nat3,notperiodic,
+     >                dbl_mb(ihess(1)),dbl_mb(ihessp(1)),
+     >                dbl_mb(ihesst(1)),dbl_mb(r1(1)),
+     >                dbl_mb(vcq(1)),dbl_mb(w1q(1)),dbl_mb(w2q(1)))
+
+         call dcopy(nat3,dbl_mb(r1(1)),1,dbl_mb(rrq0(1)),1)
+
+         !**** write hess model to rtdb ****
+         if (.not.btdb_put(rtdb,"nwpw:ion_hess:ihess",mt_dbl,
+     >                    nhess,dbl_mb(ihess(1))))
+     >     call errquit("ion_hess_init:failed writing ihess",1,RTDB_ERR)
+
+         if (.not.btdb_put(rtdb,"nwpw:ion_hess:rrq0",mt_dbl,
+     >                     nat3,dbl_mb(rrq0(1))))
+     >     call errquit("ion_hess_init:failed writing rrq0",1,RTDB_ERR)
+
+         value =           MA_pop_stack(w2q(2))
+         value = value.and.MA_pop_stack(w1q(2))
+         value = value.and.MA_pop_stack(vcq(2))
+         if (.not.value)
+     >      call errquit("ion_hess_init:popping stack",1,MA_ERR)
+
+      end if
+      if (oprint) then
+         write(luout,180)
+         do i=1,nion
+           write(luout,190) i,ion_aname(i),
+     >            (dbl_mb(rrq0(1)+k-1+(i-1)*3),k=1,3),
+     >                   ion_amass(i)/1822.89d0,ion_amm(i)
+         end do
+      end if
+
+
+      return
+  100 format(/" Hessian - Spring Algorithm",
+     >    /"     - hessian filename = ",A,
+     >    /"     - number of atoms = ",i8,
+     >    /"     - aperiodic boundary conditions "/)
+  101 format(/" Hessian - Spring Algorithm",
+     >    /"     - hessian filename = ",A,
+     >    /"     - number of atoms = ",i8,
+     >    /"     - periodic boundary conditions "/)
+  102 format("     - loading data from rtdb "/)
+  180 FORMAT(/' zero position of ions (Bohrs):')
+  190 FORMAT(5X, I4, A5, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ',A)
+
+99900 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit('ion_hess_init: error opening file: "hess_file"',911,
+     >       DISK_ERR)
+99901 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit('ion_hess_init: error reading file: "hess_file"',911,
+     >       DISK_ERR)
+99902 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit
+     > ('ion_hess_init: unexpected EOF when reading file: "hess_file"',
+     >  911,DISK_ERR)
+      end
+
+*     *****************************************
+*     *                                       *
+*     *         ion_hess_end                  *
+*     *                                       *
+*     *****************************************
+      subroutine ion_hess_end()
+      implicit none
+
+#include "bafdecls.fh"
+#include "ion.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+
+*     **** ion_hess_model common block ****
+      logical found_hess
+      common /ion_hess_model/ found_hess
+
+      !**** deallocate ihesst, ihess, and ihessp ****
+      if (found_hess) then
+         value =           BA_free_heap(ihesst(2))
+         value = value.and.BA_free_heap(ihess(2))
+         value = value.and.BA_free_heap(ihessp(2))
+         value = value.and.BA_free_heap(dq(2))
+         value = value.and.BA_free_heap(rrq0(2))
+         if (.not.value)
+     >      call errquit("ion_hess_end:freeing heap",1,MA_ERR)
+
+      end if
+
+      return
+      end
+
+*     *****************************************
+*     *                                       *
+*     *             ion_hess_energy           *
+*     *                                       *
+*     *****************************************
+      real*8 function ion_hess_energy()
+      implicit none
+
+***** ion common block ****
+#include "bafdecls.fh"
+#include "ion.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer taskid,np
+
+*     **** ion_hess_model common block ****
+      logical found_hess
+      common /ion_hess_model/ found_hess
+
+c     **** external functions ****
+      real*8   ion_hess_energy_sub
+      external ion_hess_energy_sub
+
+      if (found_hess) then
+         call Parallel_taskid(taskid)
+         call Parallel_np(np)
+         call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(dq(1)),1)
+         call daxpy(3*nion,-1.0d0,dbl_mb(rrq0(1)),1,dbl_mb(dq(1)),1)
+
+         ion_hess_energy = ion_hess_energy_sub(taskid,np,3*nion,
+     >                                         dbl_mb(ihess(1)),
+     >                                         dbl_mb(dq(1)))
+      else
+         ion_hess_energy = 0.0d0
+      end if
+      return
+      end
+
+      real*8 function ion_hess_energy_sub(taskid,np,N,A,dq)
+      implicit none
+      integer taskid,np,N
+      real*8 A(N,N),dq(N)
+
+*     **** local variables ****
+      integer i,j,icount
+      real*8 energy
+
+      icount = 0
+      energy = 0.0d0
+      do j=1,N
+         if (mod(icount,np).eq.taskid) then
+            do i=1,N
+               energy = energy + dq(i)*A(i,j)*dq(j)
+            end do
+         end if
+         icount = icount + 1
+      end do
+      call Parallel_SumAll(energy)
+      ion_hess_energy_sub = 0.5d0*energy
+      return
+      end
+
+*     *****************************************
+*     *                                       *
+*     *             ion_hess_force            *
+*     *                                       *
+*     *****************************************
+      subroutine ion_hess_force(G1)
+      implicit none
+      real*8 G1(*)
+
+***** ion common block ****
+#include "bafdecls.fh"
+#include "ion.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer taskid,np
+
+*     **** ion_hess_model common block ****
+      logical found_hess
+      common /ion_hess_model/ found_hess
+
+      if (found_hess) then
+         call Parallel_taskid(taskid)
+         call Parallel_np(np)
+         call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(dq(1)),1)
+         call daxpy(3*nion,-1.0d0,dbl_mb(rrq0(1)),1,dbl_mb(dq(1)),1)
+
+         call ion_hess_force_sub(taskid,np,3*nion,
+     >                           dbl_mb(ihess(1)),
+     >                           dbl_mb(dq(1)),G1)
+
+      end if
+      return
+      end
+
+      subroutine ion_hess_force_sub(taskid,np,N,A,dq,G1)
+      implicit none
+      integer taskid,np,N
+      real*8 A(N,N),dq(N)
+      real*8 G1(N)
+
+*     **** local variables ****
+      integer i,j,icount
+
+      icount = 0
+      call dcopy(N,0.0d0,0,G1,1)
+      do j=1,N
+         if (mod(icount,np).eq.taskid) then
+            do i=1,N
+               G1(i) = G1(i) - A(i,j)*dq(j)
+               G1(j) = G1(j) - dq(i)*A(i,j)
+            end do
+         end if
+         icount = icount + 1
+      end do
+      call Parallel_Vector_SumAll(N,G1)
+      return
+      end
+
+
+
+
+*     *********************************************
+*     *                                           *
+*     *               ion_dsquar                  *
+*     *                                           *
+*     *********************************************
+      subroutine ion_dsquar(A,S,N,MS)
+C     
+C EXPANSION OF LOWER TRIANGULAR PACKED ARRAY TO FULL SQUARE
+C INPUT:
+C     A   LOWER TRIANGULAR PACKED ARRAY
+C     N   ROW ORDER OF A
+C     MS  ROW DIMENSION OF S IN CALLING ROUTINE
+C OUTPUT:
+C     S  SQUARE PACKED ARRAY CORRESPONDING TO A
+C
+      implicit none
+      integer n,ms
+      double precision S(*),A(*),VAL
+c       
+      integer ij,ni,nj,ijs,jis,i,j
+c     
+      IJ=0
+      NI=0
+      DO 11 I=1,N
+        NJ=0
+        DO 10 J=1,I
+          IJ=IJ+1
+          VAL=A(IJ)
+          IJS=I+NJ
+          JIS=J+NI
+          S(IJS)=VAL
+          S(JIS)=VAL
+          NJ=NJ+MS
+   10   CONTINUE
+        NI=NI+MS
+   11 CONTINUE
+      RETURN
+      END
+
+*     *********************************************
+*     *                                           *
+*     *               ion_eckart                  *
+*     *                                           *
+*     *********************************************
+      subroutine ion_eckart(oprint,NAT,NAT3,removerotation,
+     >                      HESS,HESSP,HESST,COORD,VC,
+     >                      w1,w2)
+      implicit none 
+      logical          oprint
+      integer          NAT,NAT3
+      logical          removerotation
+      double precision HESS(NAT3,NAT3)
+      double precision HESSP(NAT3,NAT3)
+      double precision HESST(NAT3*(NAT3+1)/2)
+      double precision COORD(3,NAT)
+      double precision VC(NAT3,6)
+      double precision w1(nat3,*),w2(nat3,*)
+c
+#include "util.fh"
+#include "stdio.fh"
+
+*     **** local variables ****
+      double precision zero, one
+      PARAMETER( ZERO=0.D0, ONE=1.D0 )
+
+      DOUBLE PRECISION UNIVEC(3), TEST(6,6), VNORM, temp, dotval, rnorm
+      double precision test_norm
+      integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
+      integer nhess, nhesst,IMAX
+C****
+      nhess = nat3*nat3
+      nhesst =  nat3*(nat3+1)/2 ! dimension of lower triangular hessian
+
+C****
+C**** construct translation unit vectors;  these are stored in the
+C**** first three columns of array VC, the rotation vectors will
+C**** be stored in the other 3 columns
+C****
+      IMAX=3
+      if (removerotation) IMAX=6
+
+      CALL Dfill (IMAX*NAT3,0.0d00,VC,1)
+      VNORM = ONE/SQRT(dble(NAT))
+      DO 10 I=1,3 ! unit translation vector for x-, y-, and z-directions
+        DO 20 IATOM=1,NAT
+           VC(3*(IATOM-1)+I,I) = VNORM
+   20   CONTINUE
+   10 CONTINUE
+C****
+C**** construct rotation unit vectors; store in last 3 columns of VC
+C****
+      if (removerotation) then
+      DO 40 IAXIS=1,3         ! loop over rotation axes
+        DO 50 J=1,3
+          IF (J.EQ.IAXIS) THEN
+            UNIVEC(J) = ONE
+          ELSE
+            UNIVEC(J) = ZERO
+          END IF
+   50   CONTINUE
+        DO 60 IATOM=1,NAT       ! loop over atoms
+          call vib_CROSS(COORD(1,IATOM),UNIVEC,
+     &      VC(3*(IATOM-1)+1,IAXIS+3))
+   60   CONTINUE
+   40 CONTINUE
+      end if
+C****
+C****   Schmidt orthogonalize the constraint vectors
+C****
+      DO 70 I=2,IMAX     ! orthogonalize vector I to each of vectors J
+        DO 80 J=1,I-1
+           dotval=ddot(nat3,vc(1,J),1,vc(1,i),1)
+          DO 100 K=1,NAT3
+             VC(K,I) = VC(K,I)-dotval*VC(K,J)
+  100     CONTINUE
+   80   CONTINUE
+        RNORM = ddot(nat3,vc(1,I),1,vc(1,I),1)
+        IF ( RNORM.GT.1.D-8 ) THEN
+          RNORM = ONE/SQRT(RNORM)
+          call dscal(nat3,rnorm,vc(1,I),1)
+        ELSE ! dependent constraint vector (linear molecule; set to zero)
+          DO 125 K=1,NAT3
+            VC(K,I) = ZERO
+  125     CONTINUE
+          ITEMP = I-3
+          if (oprint) then
+          write(luout,*)'Dependent rotation vector no.',ITEMP
+          write(luout,*)' found in ECKART; assuming linear geometry'
+          end if
+        END IF
+   70 CONTINUE
+C****
+C**** remove rotations and translations from the Hessian matrix
+C****
+      call dcopy(nat3*nat3,hess,1,hessp,1)
+      call dgemm('n','t',nat3,nat3,IMAX,1d0,vc,nat3,vc,nat3,
+     .     0d0,w1,nat3)
+      call dgemm('n','n',nat3,nat3,nat3,1d0,w1,nat3,hess,nat3,
+     .     0d0,w2,nat3)
+      call dgemm('n','n',nat3,nat3,nat3,1d0,w2,nat3,w1,nat3,
+     .     1d0,hessp,nat3)
+      call dgemm('n','n',nat3,nat3,nat3,-1d0,w1,nat3,hess,nat3,
+     .     1d0,hessp,nat3)
+      call dgemm('n','n',nat3,nat3,nat3,-1d0,hess,nat3,w1,nat3,
+     .     1d0,hessp,nat3)
+
+C****
+C**** update triangular hessian to agree with HESS
+C****
+      DO 190 I=1,NAT3
+        DO 200 J=1,I
+          indx = i*(i-1)/2 + j
+          HESST(indx) = HESSP(I,J)
+  200   CONTINUE
+  190 CONTINUE
+C****
+C**** place the projected Hessian in array HESS, and the difference
+C**** between projected and unprojected in HESSP
+C****
+      DO 210 I=1,NAT3
+        DO 220 J=1,I
+          TEMP = HESS(I,J)
+          HESS(I,J) = HESSP(I,J)
+          HESSP(I,J) = HESS(I,J)-TEMP
+          IF (DABS(HESSP(I,J)).LT.1.D-9) HESSP(I,J) = ZERO
+          IF(J.NE.I) then
+             HESSP(J,I)=HESSP(I,J)
+             HESS(J,I)=HESS(I,J)
+          endif
+  220   CONTINUE
+  210 CONTINUE
+C****
+C**** output projected Hessian
+C****
+      if (oprint) then
+      if (util_print('eckart',print_debug)) then
+        write(luout,*)
+     >      'Hessian after projecting out external modes:'
+        write(luout,*)HESS
+        write(luout,*)
+     >      'difference of Hessian with projected hessian:'
+        write(luout,*)HESSP
+      endif
+      endif
+C****
+C**** construct Hessian in trans-rot subspace (should be zeroes)
+C****
+      DO 230 MU=1,IMAX
+        DO 240 NU=1,IMAX
+          TEST(MU,NU) = ZERO
+          DO 250 K=1,NAT3
+            DO 260 L=1,NAT3
+              TEST(MU,NU) = TEST(MU,NU)+VC(K,MU)*HESS(K,L)*VC(L,NU)
+  260       CONTINUE
+  250     CONTINUE
+  240   CONTINUE
+  230 CONTINUE
+      if (oprint) then
+      if (util_print('eckart',print_medium)) then
+        test_norm = ddot((IMAX*IMAX),test,1,test,1)
+        write(luout,'(a,1pd10.4)')
+     >      ' Projected Nuclear Hessian trans-rot subspace norm:',
+     >      test_norm
+        write(luout,*)
+     >      '                        (should be close to zero!) '
+      endif
+      if (util_print('eckart',print_debug)) then
+        write(luout,*)'Hessian projected into trans-rot subspace ',
+     >      '(should be zeros):'
+        write(luout,*)TEST
+      endif
+      end if
+
+      return
+      end
+
+
+
+
+      
+
+
+
+
+

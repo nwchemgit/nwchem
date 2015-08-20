@@ -1,4 +1,6 @@
-
+c
+c $Id$
+c
 *     **** ion common block ****
       logical     sym_inversion,periodic,disp_on
       integer     nion,nion_qm,nion_mm
@@ -28,4 +30,5 @@
      >              periodic,         !true if periodic
      >              disp_on           !true if has dispersion corrections
 
-c $Id$
+      integer ihesst(2),ihess(2),ihessp(2),rrq0(2),dq(2)
+      common / ION_HESS / ihesst,ihess,ihessp,rrq0,dq
