@@ -351,3 +351,98 @@ c      call D3dB_rr_Sum(1,dbl_mb(fz(1)),df,df)
 
       return
       end
+
+
+
+
+*     **********************************
+*     *                                *
+*     *      generate_dmatrix_column   *
+*     *                                *
+*     **********************************
+
+      subroutine generate_dmatrix_column(ms,xyz,
+     >                                   ispin,ne,n2ft3d,psi_r,rho)
+      implicit none
+      integer    ms
+      real*8     xyz(3)
+      integer    ispin,ne(2),n2ft3d
+      real*8     psi_r(n2ft3d,ne(1)+ne(2))
+      real*8     rho(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,k,jj,jjindex(100),rgrid(2),nx,ny,nz
+      real*8 summ(100),tsum,msum,x,y,z,dv,dx,dy,dz,rr,rrmin
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      if (.not.BA_push_get(mt_dbl,3*n2ft3d,'rgrd',rgrid(2),rgrid(1)))
+     > call errquit('pspw_dplot_loop:push stack',0,MA_ERR)
+      call lattice_r_grid(dbl_mb(rgrid(1)))
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+c     *** find nearest i ***
+      rrmin = 9.9d99
+      jj = 0
+      do i=1,n2ft3d
+         x = dbl_mb(rgrid(1)+3*(i-1))
+         y = dbl_mb(rgrid(1)+3*(i-1)+1)
+         z = dbl_mb(rgrid(1)+3*(i-1)+2)
+         dx = x-xyz(1)
+         dy = y-xyz(2)
+         dz = z-xyz(3)
+         rr = dx**2 + dy**2 + dz**2
+         if (rr.lt.rrmin) then
+            rrmin = rr
+            jj = i
+         end if
+      end do
+
+c      jj = j
+c      msum = 0.0d0
+c      do i=1,n2ft3d
+c         tsum = 0.0d0
+c         do k=1,ne(ms)
+c            tsum = tsum + psi_r(i,k+(ms-1)*ne(1))**2
+c         end do
+c         if (tsum.gt.msum) then
+c            jj = i
+c            msum = tsum
+c         end if
+c      end do
+      write(*,*) "jj=",jj,rrmin
+      x = dbl_mb(rgrid(1)+3*(jj-1))
+      y = dbl_mb(rgrid(1)+3*(jj-1)+1)
+      z = dbl_mb(rgrid(1)+3*(jj-1)+2)
+
+      do k=1,ne(ms)
+         summ(k) = psi_r(jj,k+(ms-1)*ne(1))
+      end do
+      call dcopy(n2ft3d,0.0d0,0,rho,1)
+      do i=1,n2ft3d
+         do k=1,ne(ms)
+            rho(i) = rho(i) + psi_r(i,k+(ms-1)*ne(1))*summ(k)
+         end do
+      end do
+      do i=1,n2ft3d
+         tsum = tsum + rho(i)
+      end do
+      tsum = tsum * dv
+      write(*,*) "<rho(:,j)> = ",jj,x,y,z,tsum
+
+      if (.not.BA_pop_stack(rgrid(2)))
+     > call errquit('pspw_dplot_loop:pop stack',0,MA_ERR)
+      return
+      end
+
+

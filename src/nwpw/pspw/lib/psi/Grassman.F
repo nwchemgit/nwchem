@@ -522,7 +522,10 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
 *     **** external functions ****
       logical  D3dB_cr_pfft3_queue_filled
       external D3dB_cr_pfft3_queue_filled
+      integer tid,Parallel_threadid
+      external    Parallel_threadid
 
+      tid = Parallel_threadid()
 c      do k=1,n
 c        call Pack_c_unpack(1,A(1,k))
 c        !call D3dB_cr_fft3b(1,A(1,k))
@@ -539,11 +542,18 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
            indx1 = indx1 + 1
         end if
 
+        !write(*,*) "tid=",tid,"  indx1=",indx1,indx2
         if ((D3dB_cr_pfft3_queue_filled()).or.(indx1.gt.n)) then
            call D3dB_cr_pfft3b_queueout(1,A(1,indx2))
            indx2 = indx2 + 1
         end if
         done = ((indx1.gt.n).and.(indx2.gt.n))
+!!$OMP BARRIER
+        !write(*,*) "tid=",tid,"  done=",done,indx1,indx2
+!!$OMP BARRIER
+        !write(*,*)
+        !call util_flush(6)
+!!$OMP BARRIER
       end do
 
       return

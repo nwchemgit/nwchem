@@ -20,7 +20,7 @@ c
 #include "nwc_const.fh"
 c
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 14)
+      parameter (num_dirs = 15)
       character*22 dirs(num_dirs)
       data dirs / 'vectors',
      >            'density',
@@ -35,6 +35,7 @@ c
      >            'atom_truncate',
      >            '1d_grid',
      >            'orbital2',
+     >            'density_matrix',
      >            'end'/
 
       integer num_dnames          ! No. of density directives
@@ -60,8 +61,8 @@ c
       logical value
       integer ind               ! Index of matched directive
       integer       number,number2,count,ia
-      integer       name1_len,name2_len,name3_len
-      character*50  name1,name2,name3
+      integer       name1_len,name2_len,name3_len,name4_len
+      character*50  name1,name2,name3,name4
       character*50  filename
       character*50  wavefunction_filename
       character*255 test
@@ -96,7 +97,7 @@ c
 
 
       goto ( 100,  200, 300, 400, 500, 600,700,800,900,1000,1100,1200,
-     >       350,
+     >       350, 360,
      >      9999) ind
       call errquit(
      >      'pspw_dplot_input: unimplemented directive', ind, INPUT_ERR)
@@ -241,6 +242,64 @@ c
      >     'pspw_dplot_input:rtdb_put failed for orbital2',0,RTDB_ERR)
 
       goto 10
+
+c     
+c  density_matrix ms x,y,z
+c     
+*     *** read ms,x,y,z ****
+ 360  if (.not. inp_i(number2))
+     >   call errquit(
+     >       'pspw_dplot_input: failed to read density_matrix ms',
+     >       0,INPUT_ERR)
+      if (.not. inp_f(x(1)))
+     >  call errquit('pspw_dplot_input:failed to read density_matrix x',
+     >               0,INPUT_ERR)
+      if (.not. inp_f(x(2)))
+     >  call errquit('pspw_dplot_input:failed to read density_matrix y',
+     >               0,INPUT_ERR)
+      if (.not. inp_f(x(3)))
+     >  call errquit('pspw_dplot_input:failed to read density_matrix z',
+     >                0,INPUT_ERR)
+
+*     *** read filename ****
+      if (.not. inp_a(filename))
+     >    call errquit(
+     >       'pspw_dplot_input: failed to read density_matrix filename',
+     >       0,INPUT_ERR)
+
+*     **** define name  - not very elegent and could break if ****
+*     ****                      count becomes very large      ****
+      count = count + 1
+      name1 = 'pspw_dplot:filename'//CHAR(count-1+ia)
+      name2 = 'pspw_dplot:number'//CHAR(count-1+ia)
+      name3 = 'pspw_dplot:dmatrix_ms'//CHAR(count-1+ia)
+      name4 = 'pspw_dplot:dmatrix_xyz'//CHAR(count-1+ia)
+      name1_len = index(name1,' ') - 1
+      name2_len = index(name2,' ') - 1
+      name3_len = index(name3,' ') - 1
+      name4_len = index(name4,' ') - 1
+
+      number = -9
+      ind = index(filename,' ') - 1
+      value = rtdb_cput(rtdb,name1(1:name1_len),1,filename(1:ind))
+      value = value.and.rtdb_put(rtdb,name2(1:name2_len),
+     >                           mt_int,1,number)
+      value = value.and.rtdb_put(rtdb,name3(1:name3_len),
+     >                           mt_int,1,number2)
+      value = value.and.rtdb_put(rtdb,name4(1:name4_len),
+     >                           mt_dbl,3,x)
+      value = value.and.rtdb_put(rtdb,'pspw_dplot:count',
+     >                           mt_int,1,count)
+      if (.not.value)
+     >  call errquit(
+     >  'pspw_dplot_input:rtdb_put failed for densty_dmatix',0,RTDB_ERR)
+
+      goto 10
+
+
+
+
+
 
 c     
 c position_tolerance

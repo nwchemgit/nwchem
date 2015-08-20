@@ -33,6 +33,7 @@
       real*8  cpu1,cpu2
       real*8  position_tolerance,origin(3)
       character*8 tag
+      integer psir2(2)
 
 *     **** external functions ****
       logical      control_read,ion_init,control_balance
@@ -163,6 +164,9 @@
       value = value.and.
      >        BA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
+     >                     'psir2',psir2(2),psir2(1))
 
       if (.not. value) call errquit('pspw_dplot:out of heap memory',0,
      &       MA_ERR)
@@ -254,6 +258,10 @@
      >                dcpl_mb(psi2(1)),
      >                dbl_mb(dn(1)),
      >                dcpl_mb(psir(1)))
+
+      call psi_dmatrix_localize(ispin,ne,ne,n2ft3d,
+     >                          dcpl_mb(psir(1)),dcpl_mb(psir2(1)))
+
       call dplot_loop(rtdb,
      >                ispin,ne,
      >                npack1,nfft3d,nemax,
@@ -278,7 +286,8 @@
       call Pack_end()
       call G_end()
 
-      value = BA_free_heap(psir(2))
+      value = BA_free_heap(psir2(2))
+      value = value.and.BA_free_heap(psir(2))
       value = value.and.BA_free_heap(dn(2))
       value = value.and.BA_free_heap(psi2(2))
       if (fractional) then
@@ -462,11 +471,11 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       parameter (MASTER=0)
 
       integer n2ft3d
-      integer i,count,number,ia,number1,number2
+      integer i,count,number,ia,number1,number2,ms
       integer n1(2),n2(2),nn(2)
       integer nx,ny,nz
       integer rho(2)
-      real*8  scal1,scal2
+      real*8  scal1,scal2,x(3)
 
       character*72 cube_comment
       character*50 name1,name2
@@ -581,7 +590,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
         if (number.lt.0) then
            number = -number
 
-          goto ( 710, 720, 730, 740, 750, 760, 770, 780 ) number
+          goto ( 710, 720, 730, 740, 750, 760, 770, 780, 785 ) number
           call errquit(
      >      'dplot_loop: unimplemented directive', number, INPUT_ERR)
        
@@ -712,6 +721,34 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
            end if
            end if
            cube_comment = "SCF ELF"
+           goto 790
+
+*          ***************************
+*          ***      density matrix ***
+*          ***************************
+ 785       name1 = 'pspw_dplot:dmatrix_ms'//CHAR(i-1+ia)
+           name2 = 'pspw_dplot:dmatrix_xyz'//CHAR(i-1+ia)
+           name1_len = index(name1,' ') - 1
+           name2_len = index(name2,' ') - 1
+           if (.not.btdb_get(rtdb,name1(1:name1_len),mt_int,1,ms))
+     >        ms = 1
+           if (.not.btdb_get(rtdb,name2(1:name2_len),mt_dbl,3,x)) then
+              x(1) = 0.0d0
+              x(2) = 0.0d0
+              x(3) = 0.0d0
+           end if
+           if (.not.add_tag) then
+           if (taskid.eq.MASTER) then
+             write(*,*) '   writing density_matrix(ms,:,(x,y,z)',
+     >                  ' to filename: ',filename(1:ind)
+             write(*,*) "ms   =",ms
+             write(*,'(A,3F10.3)') "x,y,z=",x
+           end if
+           end if
+           call  generate_dmatrix_column(ms,x,
+     >                                   ispin,ne,n2ft3d,
+     >                                   psi_r,dbl_mb(rho(1)))
+           cube_comment = 'SCF density matrix'
            goto 790
 
 
