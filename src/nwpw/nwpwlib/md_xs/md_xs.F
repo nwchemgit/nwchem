@@ -2,6 +2,382 @@ c $Id: md_xs.F 25353 2014-03-17 14:12:25Z jhammond $
 
 c     **********************************************
 c     *                                            *
+c     *                task_md_xs                  *
+c     *                                            *
+c     **********************************************
+      logical function task_md_xs(rtdb)
+      implicit none
+      integer rtdb
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "inp.fh"
+#include "util.fh"
+
+*     **** local variables ****
+      double precision kb
+      parameter (kb=3.16679d-6)
+      real*8 autoatm
+      parameter (autoatm =290.360032539d6)
+
+      integer taskid_i,taskid_j,npi,npj
+      integer taskid,np,MASTER
+      parameter (MASTER=0)
+
+      character*(nw_max_path_len) filehess         ! name of file storing lower triangular packed hessian
+      character*(nw_max_path_len) motion_filename  ! name of motion filename
+      logical oprint,value,DW_modeling,ignore,found_hess
+      integer nframes,natoms,stride,natoms1,center,nkf,nr,nat3,nhess
+      integer iii,i,k,icount,icpu,pto,pfrom,iw,steps(2),nhesst
+      real*8  rmax,rcut,x,y,z,vx,vy,vz,time1,volume,unita(3,3),ft(3)
+      real*8  xmin,xmax,ymin,ymax,temperature,cx,cy,cz,gx,gy,gz
+      real*8  v0,v1,v2,mc_dr,mc_dV,mc_temperature,mc_beta,mc_pressure
+      real*8  c0,c1,c2,dA,ddx,ddv,mc_atom_direction(3),aratio
+
+      integer seed,mc_napply,mc_ngroups,mc_group_size,mc_algorithm
+      integer ihesst(2),ihess(2),ihessp(2),dq0(2),dq1(2)
+      integer mc_group_start(2),mc_group_end(2),mc_group(2)
+
+
+*     **** external functions ****
+      logical  ion_init,ion_q_FixIon,ion_q_zFixIon
+      external ion_init,ion_q_FixIon,ion_q_zFixIon
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+      integer  ion_nion,ion_natm,ion_katm,ion_nkatm
+      external ion_nion,ion_natm,ion_katm,ion_nkatm
+      integer  control_mc_seed,control_mc_algorithm
+      external control_mc_seed,control_mc_algorithm
+      real*8   control_mc_step_size,control_mc_Temperature
+      external control_mc_step_size,control_mc_Temperature
+      real*8   control_mc_ddx,control_mc_aratio,control_mc_ddv
+      external control_mc_ddx,control_mc_aratio,control_mc_ddv
+      real*8   control_mc_pressure,control_mc_volume_step
+      external control_mc_pressure,control_mc_volume_step
+      logical  control_rotation,control_translation
+      external control_rotation,control_translation
+      integer  control_bo_steps_in,control_bo_steps_out
+      external control_bo_steps_in,control_bo_steps_out
+
+      real*8   ion_amass,ion_rion
+      external ion_amass,ion_rion
+      character*4 ion_aname,ion_atom
+      external    ion_aname,ion_atom
+      character*9 ion_amm
+      external    ion_amm
+
+
+      task_md_xs = .false.
+      value = .true.
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
+
+      call Parallel2d_np_i(npi)
+      call Parallel2d_np_j(npj)
+      call Parallel2d_taskid_i(taskid_i)
+      call Parallel2d_taskid_j(taskid_j)
+
+      DW_modeling = .false.
+
+*     **** initialize Ion ****
+      if (.not.ion_init(rtdb)) then
+         write(luout,*) 'task_md_xs: error reading geometry'
+         task_md_xs = .false.
+         return
+      end if
+      call center_geom(cx,cy,cz)
+      call center_mass(gx,gy,gz)
+
+*     **** initialize FixIon constraint ****
+      call ion_init_FixIon(rtdb)
+
+
+      natoms = ion_nion()
+      nat3   =  natoms*3        ! 3-N (as in degrees of freedom)
+      nhess  =  nat3*nat3       ! dimension of hessian
+      nhesst =  nat3*(nat3+1)/2 ! dimension of lower triangular hessian
+
+      call util_file_name('DW_motion',.false.,.false.,motion_filename)
+      call util_file_name('hess',  .false., .false.,filehess)
+      if (taskid.eq.MASTER) then
+        inquire(file=filehess,exist=found_hess)
+        if (found_hess) then
+           iii = 1
+        else
+           iii = 0
+        end if
+      end if
+      call Parallel_Brdcst_ivalue(MASTER,iii)
+      found_hess  = (iii.eq.1)
+      DW_modeling = found_hess
+
+      if (DW_modeling) then
+
+         if (.not.rtdb_get(rtdb,'md_xs:DW_Harmonic_Temperature',
+     >                     mt_dbl,1,temperature)) then
+            temperature = 298.15d0
+         end if
+         if (.not.rtdb_get(rtdb,'md_xs:DW_Harmonic_steps',
+     >                     mt_int,2,steps)) then
+            steps(1) = 500
+            steps(2) = 500
+         end if
+
+
+         !**** allocate ihesst, ihess, and ihessp ****
+         value =  BA_push_get(mt_dbl,nhesst,'ihess',ihesst(2),ihesst(1))
+         value = value.and.
+     >        BA_push_get(mt_dbl,nhess,'ihess',ihess(2),ihess(1))
+         value = value.and.
+     >        BA_push_get(mt_dbl,nhess,'ihessp',ihessp(2),ihessp(1))
+         value = value.and.
+     >        BA_push_get(mt_dbl,nhess,'nat3',dq0(2),dq0(1))
+         value = value.and.
+     >        BA_push_get(mt_dbl,nhess,'nat3',dq1(2),dq1(1))
+
+         if (.not.value)
+     >      call errquit("task_md_xs: out of stack",1,MA_ERR)
+
+         if (taskid.eq.MASTER) then
+            open(unit=69,file=filehess,form='formatted',status='old',
+     >      err=99900,access='sequential')
+            do iii = 0,(nhesst-1)
+               read(69,*,err=99901,end=99902) x
+               dbl_mb(ihesst(1)+iii) = x
+            end do
+            close(unit=69,status='keep')
+         end if
+         call Parallel_Brdcst_values(MASTER,nhesst,dbl_mb(ihesst(1)))
+         call md_xs_dsquar(dbl_mb(ihesst(1)),dbl_mb(ihess(1)),nat3,nat3)
+
+
+*        **** Initialize Monte-Carlo Parameters ****
+         mc_dr  = control_mc_step_size()
+         mc_dV  = control_mc_volume_step()
+         mc_algorithm  = control_mc_algorithm()
+         call control_mc_atom_direction(mc_atom_direction)
+         call control_mc_ngroups(mc_napply,mc_ngroups,mc_group_size)
+         if (mc_ngroups.lt.1) then
+
+            value = BA_alloc_get(mt_int,1,
+     >                       'mc_group_start',
+     >                        mc_group_start(2),
+     >                        mc_group_start(1))
+            value = value.and.BA_alloc_get(mt_int,1,
+     >                       'mc_group_end',
+     >                        mc_group_end(2),
+     >                        mc_group_end(1))
+            value = value.and.BA_alloc_get(mt_int,1,
+     >                       'mc_group',
+     >                        mc_group(2),
+     >                        mc_group(1))
+            if (.not.value)
+     >        call errquit('cgmontecarlov1:out of heap memory',0,MA_ERR)
+         else
+            value = BA_alloc_get(mt_int,mc_ngroups,
+     >                       'mc_group_start',
+     >                        mc_group_start(2),
+     >                        mc_group_start(1))
+            value = value.and.BA_alloc_get(mt_int,mc_ngroups,
+     >                       'mc_group_end',
+     >                        mc_group_end(2),
+     >                        mc_group_end(1))
+            value = value.and.BA_alloc_get(mt_int,mc_group_size,
+     >                       'mc_group',
+     >                        mc_group(2),
+     >                        mc_group(1))
+            if (.not.value)
+     >        call errquit('cgmontecarlov1:out of heap memory',1,MA_ERR)
+            call control_mc_groups(int_mb(mc_group_start(1)),
+     >                             int_mb(mc_group_end(1)),
+     >                             int_mb(mc_group(1)))
+         end if
+
+         seed           = control_mc_seed()
+         mc_temperature = control_mc_Temperature()
+         mc_pressure    = control_mc_pressure()
+         mc_beta = util_random(control_mc_seed()) !**seed the random number generator
+         mc_beta = 1.0d0/(kb*mc_temperature)
+
+         aratio      = control_mc_aratio()
+
+         ddx = control_mc_ddx()
+         dA  = 1.0d0/(aratio*aratio-aratio)
+         c0  = 1.0d0-ddx
+         c1  = (aratio*aratio*(2*ddx) - (ddx))*dA
+         c2  = (-aratio      *(2*ddx) + (ddx))*dA
+
+         if (mc_algorithm.eq.2) then
+            ddv = control_mc_ddv()
+            v0  = 1.0d0-ddv
+            v1  = (aratio*aratio*(2*ddv) - (ddv))*dA
+            v2  = (-aratio      *(2*ddv) + (ddv))*dA
+         end if
+
+      end if
+
+      if (oprint) then
+         write(luout,*)
+         write(luout,100)
+         write(luout,110)
+         write(luout,120)
+         write(luout,110)
+         write(luout,130)
+         write(luout,140)
+         write(luout,110)
+         write(luout,100)
+         write(luout,*)
+         if (DW_modeling) then
+            write(luout,*) 'Debye-Waller Harmonic Modeling'
+            write(luout,*) '   - hessian filename:    ',
+     >                     filehess(1:inp_strlen(filehess))
+            write(luout,*) '   - DW motion filename:  ',
+     >                  motion_filename(1:inp_strlen(motion_filename))
+            write(luout,'(A,F8.3)') '    - temperature:         ',
+     >                            temperature
+            write(luout,'(A,I8)') '    - equilibration steps: ',steps(1)
+            write(luout,'(A,I8)') '    - averaging steps:     ',steps(2)
+         else
+            write(luout,*) 'No Debye-Waller Factors'
+            write(luout,*) '   - need to calculate frequencies'
+         end if
+         write(luout,160)
+         write(luout,170) (ion_atom(K),ion_natm(K),K=1,ion_nkatm())
+         write(luout,180)
+         do I=1,ion_nion()
+           if (ion_q_FixIon(I)) then
+           write(luout,191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+           else if (ion_q_zFixIon(I)) then
+           write(luout,193) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0
+           else
+           write(luout,190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+     >                   ion_amass(I)/1822.89d0,ion_amm(i)
+           end if
+         end do
+         write(luout,200) cx,cy,cz
+         write(luout,210) gx,gy,gz
+         write(luout,1310)
+
+         if (.not.control_translation()) write(luout,1271)
+         if (.not.control_rotation())    write(luout,1272)
+         if (mc_algorithm.eq.0) then
+            write(luout,1311) 'NVE Microcanonical Ensemble - ',
+     >                        'HyperVolume Monte Carlo Algorithm'
+         else if (mc_algorithm.eq.1) then
+            write(luout,1311) 'NVT Canonical Ensemble - ',
+     >                        'Metropolis Algorithm'
+         else if (mc_algorithm.eq.2) then
+            write(luout,1311) 'NPT Canonical Ensemble - ',
+     >                        'Metropolis Algorithm'
+         end if
+
+         write(luout,1320) mc_dr,
+     >    control_bo_steps_in()*control_bo_steps_out(),
+     >    control_bo_steps_in(),control_bo_steps_out()
+
+         write(luout,1322) mc_temperature,mc_beta,seed
+         if (mc_algorithm.eq.2)
+     >      write(luout,1326) mc_pressure,mc_pressure*autoatm,
+     >                        ddv,v0,v1,v2
+         write(luout,1323) aratio,ddx,c0,c1,c2
+         write(luout,1324) mc_napply,mc_atom_direction
+         write(luout,1325) mc_ngroups
+
+      end if
+
+*                |***************************|
+******************  simple Monte-Carlo loop  **********************
+*                |***************************|
+      call dcopy(nat3,0.0d0,0,dbl_mb(dq0(1)),1)
+      call dcopy(nat3,0.0d0,0,dbl_mb(dq1(1)),1)
+
+
+
+
+      if (DW_modeling) then
+c        **** deallocate stack ****
+         value =           BA_pop_stack(dq1(2))
+         value = value.and.BA_pop_stack(dq0(2))
+         value = value.and.BA_pop_stack(ihessp(2))
+         value = value.and.BA_pop_stack(ihess(2))
+         value = value.and.BA_pop_stack(ihesst(2))
+         if (.not.value)
+     >      call errquit("task_md_xs: popping stack",2,MA_ERR)
+
+      end if
+      call ion_end()
+      call ion_end_FixIon()
+
+      !call md_xs_analysis(rtdb,motion_filename)
+
+
+      task_md_xs = value
+      return
+
+  100 FORMAT(10x,' ************************************************')
+  110 FORMAT(10x,' *                                              *')
+  120 FORMAT(10x,' *           FEFF6L EXAFS Calculation           *')
+  130 FORMAT(10x,' *  This interface to FEFF6L was developed by   *')
+  140 FORMAT(10x,' *  by Eric J. Bylaska.                         *')
+
+  160 FORMAT(/' atomic composition:')
+  170 FORMAT(7(5X,A2,':',I5))
+  180 FORMAT(/' initial position of ions (Bohrs):')
+  190 FORMAT(5X, I4, A5, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ',A)
+  191 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,' - fixed ',A)
+  193 FORMAT(5X, I4, A5, ' (',3F11.5,
+     >       ' ) - atomic mass= ',F7.3,' - z fixed')
+  200 FORMAT(5X,'   G.C.  ',' (',3F11.5,' )')
+  210 FORMAT(5X,'   C.O.M.',' (',3F11.5,' )')
+ 1130 FORMAT(/' supercell:')
+ 1131 FORMAT(5x,' volume : ',F12.1)
+ 1141 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
+ 1142 FORMAT(5x,'             a2=<',3f8.3,' >')
+ 1143 FORMAT(5x,'             a3=<',3f8.3,' >')
+ 1270 FORMAT(/' technical parameters for minimizer:')
+ 1271 FORMAT(5x, ' translation constrained')
+ 1272 FORMAT(5x, ' rotation constrained')
+ 1310 FORMAT(/' Monte-Carlo parameters:')
+ 1311 FORMAT(5X, ' MC Algorithm= ',A,A)
+ 1320 FORMAT(5X, ' MC displacement=',F10.2,5X,' iterations=',I10,
+     >           ' ( ',I4,' inner ',I6,' outer )')
+ 1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
+     >       /5X,' iterations=',I10,
+     >           ' ( ',I4,' inner ',I6,' outer )')
+ 1322 FORMAT(5X, ' temperature='F10.3,5x,' beta=',E10.3,' seed=',I10)
+ 1323 FORMAT(5X, ' targeted accept.=',F10.3,5X,
+     >           ' ddx=',F10.3,' c0=',F10.3,' c1=',F10.3,' c2=',F10.3)
+ 1324 FORMAT(5X, ' number atom changes = 'I10,
+     >           ' change vector = <',3F10.3'>')
+ 1325 FORMAT(5X, ' number of groups = 'I10)
+ 1326 FORMAT(5X, ' pressure='E10.3,' (',F10.3,' atm)',
+     >           ' ddv=',F10.3,' v0=',F10.3,' v1=',F10.3,' v2=',F10.3)
+99900 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit('vib_vib: error opening file: "hess_file"',911,
+     &       DISK_ERR)
+99901 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit('vib_vib: error reading file: "hess_file"',911,
+     &       DISK_ERR)
+99902 continue
+      write(luout,*)'hess_file => ',filehess
+      call errquit
+     & ('vib_vib: unexpected EOF when reading file: "hess_file"',911,
+     &       DISK_ERR)
+
+      end
+
+
+c     **********************************************
+c     *                                            *
 c     *                md_xs_analysis              *
 c     *                                            *
 c     **********************************************
@@ -1056,4 +1432,167 @@ c      end
       end
 
 #endif
+
+      subroutine feff_copyright(luout,codeversion)
+      implicit none
+      integer luout
+      character*(*) codeversion
+
+      write(luout,*)
+     >"==== ","MD XS analysis - Distribution: ",codeversion," ===="
+      write(luout,*)
+      write(luout,*) "Copyright (c) [2002] University of Washington"
+      write(luout,*) "see ./nwchem/src/nwpw/nwpwlib/md_xs/FEFF6L",
+     >                  " LICENSE file for copying details"
+      write(luout,*)
+      write(luout,*)
+      write(luout,*)
+     >"************************************************************",
+     >"**********"
+      write(luout,*) "Distribution:  FEFF6L"
+      write(luout,*)
+     >"This software was prepared in part with US Government Funding",
+     >" under"
+      write(luout,*)
+     >"DOE contract DE-FG03-97ER45623."
+      write(luout,*)
+     >"Redistribution and use of this Distribution in source and binary"
+      write(luout,*)
+     >"formats, with or without modification is permitted, provided the"
+      write(luout,*)
+     >"following conditions are met:"
+      write(luout,*)
+      write(luout,*)
+     >"Redistributions must retain the above notices and the following",
+     >" list"
+      write(luout,*)
+     >"of conditions and disclaimer "
+      write(luout,*)
+      write(luout,*)
+     >"Modified versions carry the marking"
+      write(luout,*)
+     >"     Based on or developed using Distribution: FEFF6L"
+      write(luout,*)
+     >"     Copyright (c) [2002] University of Washington"
+      write(luout,*)
+      write(luout,*)
+     >"Recipient acknowledges the right of the University of",
+     >" Washington to"
+      write(luout,*)
+     >"prepare uses of this Distribution and its modifications that",
+     >" may be"
+      write(luout,*)
+     >"substantially similar or functionally equivalent to"
+      write(luout,*)
+     >"Recipient-prepared modifications."
+      write(luout,*)
+      write(luout,*)
+     >"Recipient and anyone obtaining access to the Distribution",
+     >" through"
+      write(luout,*)
+     >"recipient's actions accept all risk associated with possession",
+     >" and"
+      write(luout,*)
+     >"use of the Distribution."
+      write(luout,*)
+      write(luout,*)
+     >"THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED"
+      write(luout,*)
+     >"WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED",
+     >" WARRANTIES OF"
+      write(luout,*)
+     >"MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE",
+     >" DISCLAIMED."
+      write(luout,*)
+     >"IN NO EVENT SHALL THE UNIVERSITY OF WASHINGTON OR CONTRIBUTORS",
+     >" TO THE"
+      write(luout,*)
+     >"DISTRIBUTION BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,",
+     >" SPECIAL,"
+      write(luout,*)
+     >"EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED",
+     >" TO,"
+      write(luout,*)
+     >"PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,",
+     >" OR"
+      write(luout,*)
+     >"REVENUE; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY",
+     >" THEORY OF"
+      write(luout,*)
+     >"LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT",
+     >"  (INCLUDING"
+      write(luout,*)
+     >"NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE",
+     >" OF THIS"
+      write(luout,*)
+     >"SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+      write(luout,*)
+     >"************************************************************",
+     >"**********"
+      write(luout,*)
+      write(luout,*)
+
+      return
+      end
+
+
+*     *****************************************
+*     *                                       *
+*     *             md_xd_hess_energy         *
+*     *                                       *
+*     *****************************************
+
+      real*8 function md_xs_hess_energy(N,A,dq)
+      implicit none
+      integer N
+      real*8 A(N,N),dq(N)
+
+*     **** local variables ****
+      integer i,j
+      real*8 energy
+
+      energy = 0.0d0
+      do j=1,N
+         do i=1,N
+            energy = energy + dq(i)*A(i,j)*dq(j)
+         end do
+      end do
+      md_xs_hess_energy = 0.5d0*energy
+      return
+      end
+
+
+      subroutine md_xs_dsquar(A,S,N,MS)
+C     
+C EXPANSION OF LOWER TRIANGULAR PACKED ARRAY TO FULL SQUARE
+C INPUT:
+C     A   LOWER TRIANGULAR PACKED ARRAY
+C     N   ROW ORDER OF A
+C     MS  ROW DIMENSION OF S IN CALLING ROUTINE
+C OUTPUT:
+C     S  SQUARE PACKED ARRAY CORRESPONDING TO A
+C
+      implicit none
+      integer n,ms
+      double precision S(*),A(*),VAL
+c       
+      integer ij,ni,nj,ijs,jis,i,j
+c     
+      IJ=0
+      NI=0  
+      DO 11 I=1,N
+        NJ=0
+        DO 10 J=1,I
+          IJ=IJ+1
+          VAL=A(IJ)
+          IJS=I+NJ
+          JIS=J+NI
+          S(IJS)=VAL
+          S(JIS)=VAL
+          NJ=NJ+MS
+   10   CONTINUE
+        NI=NI+MS
+   11 CONTINUE
+      RETURN
+      END 
 
