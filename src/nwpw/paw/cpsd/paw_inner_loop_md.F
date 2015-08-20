@@ -135,6 +135,7 @@
       double precision ecore_self_atom
       double precision ehartree_atom
       double precision exc_atom
+      double precision cpu1,cpu2
 
 
 *     **** MA local variables ****
