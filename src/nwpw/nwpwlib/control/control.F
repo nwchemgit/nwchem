@@ -169,6 +169,13 @@
          smooth_cutoff_values(2) = 4.0d0
       end if
 
+*     **** get hess_model mapping ****
+      if (.not.btdb_get(rtdb,'nwpw:hess_model',mt_log,
+     >                  1,hess_model)) then
+         hess_model = .false.
+      end if
+
+
 
 *     *********************************
 *     **** cpsd and band_sd: stuff ****
@@ -5885,4 +5892,47 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       return
       end
+
+
+*     ************************************
+*     *                                  *
+*     *         control_hess_model       *
+*     *                                  *
+*     ************************************
+      logical function control_hess_model()
+      implicit none
+
+#include "control.fh"
+
+      control_hess_model = hess_model
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *      control_hess_filename       *
+*     *                                  *
+*     ************************************
+      subroutine control_hess_filename(filehess)
+      implicit none
+      character*(*) filehess
+
+#include "control.fh"
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "util.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if (.not.btdb_cget(rtdb,'nwpw:hess_model:filename',
+     >                   1,filehess)) then
+         call util_file_name('hess',.false.,.false.,filehess)
+      end if
+      return
+      end
+      
+
+
 
