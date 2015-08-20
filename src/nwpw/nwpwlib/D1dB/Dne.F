@@ -1711,6 +1711,138 @@ c     ****************************************
       return
       end
 
+c     ****************************************
+c     *                                      *
+c     *        Dneall_m_cholesky             *
+c     *                                      *
+c     ****************************************
+
+*   This routine computes teh cholesky decomposition of a postitive definate
+*  matrix A = L*L'   On exit A is replaced by L.
+      subroutine Dneall_m_cholesky(mb,A)
+      implicit none
+      integer mb
+      real*8 A(*)
+
+#include "bafdecls.fh"           
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer i,j,ms,ms1,ms2,nj,nn,ishift1,ishift2,shift1,shift2,indx
+      integer S(2)
+
+      if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+         nj  = ne(1)+ne(2)
+         ishift1 = ne(1)
+         ishift2 = ne(1)*ne(1)
+      else
+         ms1 = mb
+         ms2 = mb
+         nj  = ne(mb)
+         ishift1 = 0
+         ishift2 = 0
+      end if
+
+      if (.not.BA_push_get(mt_dbl,nj,'Swork',S(2),S(1)))
+     >      call errquit('Dneall_m_cholesky:out of stack',
+     >                    0,MA_ERR)
+
+*     **** generate V and Sigma^2 ****
+      call Dneall_m_diagonalize(mb,A,dbl_mb(S(1)),.false.)
+      do j=1,nj
+         if (dbl_mb(S(1)+j-1).lt.0.0d0)
+     >       dbl_mb(S(1)+j-1) = dabs(dbl_mb(S(1)+j-1))
+         dbl_mb(S(1)+j-1) = dsqrt(dbl_mb(S(1)+j-1))
+      end do
+
+*     ***** WARNING : NEEDS to fixed for distributed m ****
+      if (mparallelized) then
+         write(*,*) " WARNING : NEEDS to fixed for distributed m"
+         call errquit('WARNING Dneall_m_cholesky failed',0,MA_ERR)
+      else
+         do ms=ms1,ms2
+            shift1 = (ms-1)*ishift1
+            shift2 = (ms-1)*ishift2
+            do j=1,ne(ms)
+               do i=1,ne(ms)
+                  indx = i+(j-1)*ne(ms) + shift2
+                  A(indx) = A(indx) * dbl_mb(S(1)+i-1+shift1)
+               end do
+            end do
+         end do
+      end if
+      if (.not.BA_pop_stack(S(2)))
+     >   call errquit('error popping stack in Dneall_m_cholesky',
+     >                0,MA_ERR)
+
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_mf_forwardsolve        *
+c     *                                      *
+c     ****************************************
+
+*   This routine computes transpose(B) =  inv(L)*transpose(A)
+*  On exit A is replaced by B.
+      subroutine Dneall_mf_forwardsolve(mb,L,n2ft3d,A)
+      implicit none
+      integer mb,n2ft3d
+      real*8 L(*),A(n2ft3d,*)
+
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      real*8 tmp
+      integer i,j,k,ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,indx0
+      integer p,q
+
+      if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+         ishift1 = ne(1)
+         ishift2 = ne(1)*ne(1)
+      else
+         ms1 = mb
+         ms2 = mb
+         ishift1 = 0
+         ishift2 = 0
+      end if
+
+      if (mparallelized) then
+         write(*,*) " WARNING : NEEDS to fixed for distributed m"
+         call errquit('WARNING Dneall_mf_forwardsolve failed',0,MA_ERR)
+      else
+      do k=1,n2ft3d
+         do ms=ms1,ms2
+            shift1 = (ms-1)*ishift1
+            shift2 = (ms-1)*ishift2
+            do j=1,ne(ms)
+               indx0 = j+(j-1)*ne(ms)+shift2
+               tmp = 0.0d0
+               do i=1,j-1
+                  call Dneall_ntoqp(i,q,p)
+                  if (p.eq.taskid_j) then
+                     indx = i+(j-1)*ne(ms)+shift2
+                     tmp = tmp + L(indx)*A(k,q+shift1)
+                  end if
+               end do
+               call D1dB_SumAll(tmp)
+               A(k,j) = (A(k,j)-tmp)/L(indx0)
+            end do
+         end do
+      end do
+      end if
+
+      return
+      end 
+
 
 c     ****************************************
 c     *                                      *
@@ -4426,83 +4558,81 @@ c     ****************************************
 
 *     **** local variables ****
       integer taskid
-      integer ms,ms1,ms2,n,shift,asize,j,k,indxk,indxj
+      integer ms,ms1,ms2,n,shift,j,k,indxk,indxj
       integer V(2),tmp2(2),S(2),A(2)
-      real*8 sum1
+      integer jj,kk,jcur,kcur
+      real*8 sum1,w
 
-      logical  Dneall_m_allocate,Dneall_m_free
-      external Dneall_m_allocate,Dneall_m_free
  
-
-      
       if (parallelized) then
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
-            asize = (neq(1)+neq(2))*npack1
          else
             ms1 = mb
             ms2 = mb
-            asize = neq(mb)*npack1
          end if
+         shift = neq(1)*npack1
 
-      
-         if (.not.BA_push_get(mt_dcpl,asize,'A',A(2),A(1)))
-     >   call errquit('Dneall_f_ortho:out of stack memory',0,MA_ERR)
-         if (.not.Dneall_m_allocate(mb,V))
-     >   call errquit('Dneall_f_ortho:out of stack memory',1,MA_ERR)
-         if (.not.BA_push_get(mt_dbl,(ne(1)+ne(2)),'S',S(2),S(1)))
-     >   call errquit('Dneall_f_ortho:out of stack memory',2,MA_ERR)
-
-
-*        **** generate V and Sigma^2 ****
-         call Dneall_ffm_sym_Multiply(mb,U,SU,npack1,dbl_mb(V(1)))
-         call Dneall_m_diagonalize(mb,dbl_mb(V(1)),dbl_mb(S(1)),.false.)
-         if (.not.BA_pop_stack(S(2)))
-     >   call errquit('Dneall_f_ortho: popping stack memory',2,MA_ERR)
-
-*        **** generate U*Sigma ****
-         call dcopy(2*asize,U,1,dcpl_mb(A(1)),1)
-         call Dneall_fmf_Multiply(mb,dcpl_mb(A(1)),npack1,
-     >                         dbl_mb(V(1)),1.0d0,U,0.0d0)
-
-*        **** deallocate tmp space ****
-         if (.not.Dneall_m_free(V))
-     >     call errquit('Dneall_f_ortho: popping stack memory',0,MA_ERR)
-         if (.not.Ma_pop_stack(A(2)))
-     >     call errquit('Dneall_f_ortho: popping stack memory',1,MA_ERR)
-
-
-*        **** normalize U*sigma ****
-         if (.not. BA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
-     >      call errquit('Dneall_f_ortho:out of stack memory',3,MA_ERR)
+         if (.not.BA_push_get(mt_dcpl,npack1,'A',A(2),A(1)))
+     >   call errquit('Dneall_f_Sortho:out of stack memory',0,MA_ERR)
 
          do ms=ms1,ms2
-            if (neq(ms).le.0) go to 30
-            shift = 1+(ms-1)*neq(1)*npack1
-            do n=1,neq(ms)
-             call Pack_cc_idot(1,U(shift),SU(shift),dbl_mb(tmp2(1)+n-1))
-             shift = shift + npack1
-            end do
-            call D3dB_Vector_SumAll(neq(ms),dbl_mb(tmp2(1)))
 
-            do n=1,neq(ms)
-               dbl_mb(tmp2(1)+n-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+n-1))
-            end do
+            kcur = np_j-1
+            kk   = int_mb(na(1,ms)+kcur) - 1
 
-            shift = 1+(ms-1)*neq(1)*npack1
-            do n=1,neq(ms)
-               call dscal(2*npack1,dbl_mb(tmp2(1)+n-1),U(shift),1)
-               shift = shift + npack1
-            end do
+            do k =ne(ms),1,-1
+               if (kcur.eq.taskid_j) then
+                 indxk = 1 + kk*npack1    + (ms-1)*shift
+                  call Pack_cc_dot(1,U(indxk),SU(indxk),w)
+                  w        = 1.0d0/dsqrt(w)
+                  call Pack_c_SMul1(1,w,U(indxk))
+                  call dcopy(2*npack1,U(indxk),1,dcpl_mb(A(1)),1)
+               end if
+               if (kcur.gt.0) 
+     >            call D1dB_Brdcst_values(kcur,2*npack1,dcpl_mb(A(1)))
 
- 30        continue
+c              *** set j = k+1 ***
+               jj   = kk
+               jcur = kcur
+
+               jj = jj - 1
+               if (jj.lt.0) then
+                  jcur = jcur - 1
+                  jj = int_mb(na(1,ms) + jcur) - 1
+               end if
+
+               do j=k-1,1,-1
+                  if (jcur.eq.taskid_j) then
+                     indxj = 1 + jj*npack1    + (ms-1)*shift
+                     call Pack_cc_dot(1,dcpl_mb(A(1)),SU(indxj),w)
+                     w = -w
+                     call Pack_cc_daxpy(1,w,dcpl_mb(A(1)),U(indxj))
+                  end if
+
+                  jj = jj - 1
+                  if (jj.lt.0) then
+                     jcur = jcur - 1
+                     jj = int_mb(na(1,ms) + jcur) - 1
+                  end if
+
+               end do
+
+               kk = kk - 1
+               if (kk.lt.0) then
+                  kcur = kcur - 1
+                  kk = int_mb(na(1,ms) + kcur) - 1
+               end if
+
+            end do
          end do
-         if (.not.BA_pop_stack(tmp2(2)))
-     >    call errquit('Dneall_f_Sortho: popping stack memory',3,MA_ERR)
 
-
-
+c        **** deallocate local memory ****
+         if (.not.Ma_pop_stack(A(2)))
+     >    call errquit('Dneall_f_Sortho: popping stack memory',1,MA_ERR)
+     
+          
 c     **** not parallized ****
       else
          if (mb.eq.0) then
