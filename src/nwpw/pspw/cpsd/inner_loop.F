@@ -265,25 +265,25 @@ c        end do
 
         call nwpw_timing_start(44)
 
-#ifdef USE_OPENMP 
-!$OMP PARALLEL private(tid,nthreads)  
-#endif
-!$OMP BARRIER
+c#ifdef USE_OPENMP 
+c!$OMP PARALLEL private(tid,nthreads)  
+c#endif
+c!$OMP BARRIER
         tid      = Parallel_threadid()
         nthreads = Parallel_nthreads()
 
         do n=n1(1)+tid,n2(ispin),nthreads
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
         end do
-!$OMP BARRIER
+c!$OMP BARRIER
 
         call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
 
 
-#ifdef USE_OPENMP 
-!$OMP BARRIER
-!$OMP END PARALLEL
-#endif
+c#ifdef USE_OPENMP 
+c!$OMP BARRIER
+c!$OMP END PARALLEL
+c#endif
         call nwpw_timing_end(44)
 
 
