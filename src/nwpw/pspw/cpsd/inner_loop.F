@@ -324,6 +324,13 @@ c       this function calls non pipelined 3d fft
           end do
         end if
 
+        exc = 0.0d0
+        do i=1,n2ft3d
+          exc = exc + dn(i,2)
+        end do
+        call D3dB_SumAll(exc)
+        write(*,*) "dnall=",exc*dv
+
 *       **********************
 *       **** generate dng ****
 *       **********************
