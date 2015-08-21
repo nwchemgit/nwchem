@@ -9,7 +9,6 @@ c $Id$
      >                   rho,agr,
      >                   xce,fn,fdn,tmp)
       implicit none
-#include "nwxc.fh"
       integer gga,ic,ispin
       double precision rho(ic,ispin)
       double precision agr(ic,*)
@@ -18,13 +17,24 @@ c $Id$
       double precision fn(ic,ispin)
       double precision fdn(ic,*)
       double precision tmp(ic)
+
+#include "nwxc.fh"
+#include "util.fh"
+
+*     **** local variables ****
       double precision grad(ispin+1)
       double precision dtmp
       double precision dncut
       parameter(dncut = 1.0d-30)
       
-*     **** local variables ****
       integer i
+      logical use_nwxc
+
+      if (util_module_avail("nwxc")) then
+         use_nwxc = nwxc_is_on()
+      else
+         use_nwxc = .false.
+      end if
 
 c     **** restricted calculations ****
       if (ispin.eq.1) then
@@ -32,7 +42,7 @@ c     **** restricted calculations ****
          do i=1,ic
            tmp(i) = (rho(i,1)+rho(i,1))
          end do
-         if (nwxc_is_on()) then
+         if (use_nwxc) then
            call D3db_rr_Sqr1(1,agr)
            call nwxc_eval_df(1,ic,tmp,agr,
      >                       dtmp,xce,
@@ -84,7 +94,7 @@ c
 c     **** unrestricted calculations ****
       else if (ispin.eq.2) then
 
-         if (nwxc_is_on()) then
+         if (use_nwxc) then
            do i = 1, ic
              grad(1) = agr(i,1)**2
              grad(2) = agr(i,3)**2
