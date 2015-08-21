@@ -265,7 +265,6 @@ c        end do
 
         call nwpw_timing_start(44)
 
-        write(*,*) "hera"
 #ifdef USE_OPENMP 
 !$OMP PARALLEL private(tid,nthreads)  
 #endif
@@ -285,7 +284,6 @@ c        end do
 !$OMP BARRIER
 !$OMP END PARALLEL
 #endif
-        write(*,*) "herb"
         call nwpw_timing_end(44)
 
 
