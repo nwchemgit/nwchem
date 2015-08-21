@@ -3668,6 +3668,7 @@ c     logocal semicore(0:nkatmx)
      >                          psp_eig(i,ia),
      >                          2*psp_lps(i,ia)+1
             end do
+            write(luout,*)
          end if
       end if
 
