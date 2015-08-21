@@ -5,7 +5,6 @@
      >                                    vhxcmatrix,phi1,phi2,
      >                                    ehartr,exc,pxc)
       implicit none
-#include "errquit.fh"
       integer ispin,n2ft3d
       real*8  dn(n2ft3d,2)
       integer vhxcmatrix(2)
@@ -17,6 +16,7 @@
 #include "global.fh"
 #include "nwxc.fh"
 #include "util.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value, use_lda
