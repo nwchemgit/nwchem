@@ -860,6 +860,7 @@ c     end do
            call D3dB_r_Zero_Ends(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d))
         end do
 
+         call D3dB_r_nZero(1,ispin,dbl_mb(dn(1)))
          do ms=1,ispin
              do n=n1(ms),n2(ms)
                 do i=1,n2ft3d
