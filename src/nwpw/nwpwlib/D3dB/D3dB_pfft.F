@@ -3050,7 +3050,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >                     log_mb(zero_row3(1,nbb)),
      >                     dcpl_mb(tmpz(1,1)),tmp1)
 #else
-!$OMP BARRIER
       indx = 1
       do q=1+tid,nq3(1),nthr
          indx = 1 + (q-1)*nz(1)
@@ -3066,11 +3065,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-!$OMP BARRIER
-!$OMP MASTER
       call D3dB_c_ptranspose_ijk_start(nbb,3,tmp1,tmp2,tmp1,
      >                                 request,reqcnt,45)
-!$OMP END MASTER
       call nwpw_timing_end(32)
 
       end if
@@ -3220,11 +3216,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       else
 
       call nwpw_timing_start(32)
-!$OMP BARRIER
-!$OMP MASTER
       call D3dB_c_ptranspose_ijk_end(nbb,3,tmp2,tmp1,request,reqcnt)
-!$OMP END MASTER
-!$OMP BARRIER
 
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
@@ -3270,11 +3262,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-!$OMP BARRIER
-!$OMP MASTER
       call D3dB_c_ptranspose_ijk_start(nbb,4,tmp2,tmp1,tmp2,
      >                                 request,reqcnt,46)
-!$OMP END MASTER
       call nwpw_timing_end(32)
 
 
@@ -3396,11 +3385,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
       call nwpw_timing_start(32)
-!$OMP BARRIER
-!$OMP MASTER
       call D3dB_c_ptranspose_ijk_end(nbb,4,tmp1,tmp2,request,reqcnt)
-!$OMP END MASTER
-!$OMP BARRIER
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -3492,25 +3477,19 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       if (step.eq.1) then
          call nwpw_timing_start(32)
-!$OMP MASTER
          call Pack_c_unpack_start(nbb,A,tmp1,request,reqcnt,47)
-!$OMP END MASTER
          call nwpw_timing_end(32)
       else if (step.eq.2) then
          call nwpw_timing_start(32)
-!$OMP MASTER
          call Pack_c_unpack_mid(nbb,tmp1,tmp2,
      >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
      >                          request,reqcnt,48)
-!$OMP END MASTER
          call nwpw_timing_end(32)
       else if (step.eq.3) then
          call nwpw_timing_start(32)
-!$OMP MASTER
          call Pack_c_unpack_end(nbb,tmp1,
      >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
      >                          request,reqcnt)
-!$OMP END MASTER
          call nwpw_timing_end(32)
       else if (step.eq.4) then
          call D3dB_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
@@ -3520,7 +3499,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
       end if
 
-!$OMP BARRIER
       return
       end
 
@@ -3581,9 +3559,7 @@ c     **** allocate aqueue ****
      >        BA_alloc_get(mt_int,size,'areqcnt',areqcnt(2),areqcnt(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-!$OMP SINGLE
       call dcopy(4*nfft3d(1)*aqmax,0.0d0,0,dcpl_mb(atmp(1)),1)
-!$OMP END SINGLE
 
 
 c     **** allocate bqueue ****
@@ -3603,9 +3579,7 @@ c     **** allocate bqueue ****
       value = value.and.
      >        BA_alloc_get(mt_int,size,'breqcnt',breqcnt(2),breqcnt(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
-!$OMP SINGLE
       call dcopy(4*nfft3d(1)*bqmax,0.0d0,0,dcpl_mb(btmp(1)),1)
-!$OMP END SINGLE
 
 
 
@@ -3937,7 +3911,6 @@ c      call nwpw_timing_start(1)
       call Parallel2d_np_i(np)
 
       !tid = Parallel_taskid()
-!$OMP BARRIER
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
          !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
@@ -3979,8 +3952,6 @@ c      int_mb(qstatus(1)+last_index-1) = 1
      >                     int_mb(reqcnt(1)+last_index-1))
 
 c      call nwpw_timing_end(1)
-!$OMP BARRIER
-!$OMP FLUSH
       call nwpw_timing_end(30)
       return
       end
@@ -4020,7 +3991,6 @@ c      call nwpw_timing_end(1)
       integer  Parallel_threadid,tid
       external Parallel_threadid
 
-!$OMP BARRIER
 
       tid = Parallel_threadid()
 
@@ -4058,9 +4028,6 @@ c      end do
      >                        dcpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),
      >                        int_mb(reqcnt(1)+indx-1))
-!$OMP MASTER
-      !write(*,*) "GERC"
-!$OMP END MASTER
 
             call Parallel_shared_iinc(.true.,1,
      >                                int_mb(qstatus(1)+indx-1))
@@ -4081,9 +4048,6 @@ c      call dcopy(2*nfft3d(1),dcpl_mb(tmp(1)+shift1),1,A,1)
       call Parallel_shared_vector_copy(.true.,2*nfft3d(1),
      >                                 dcpl_mb(tmp(1)+shift1),
      >                                 A)
-!$OMP BARRIER
-!$OMP FLUSH
-      !write(*,*) "after vcopy, tid=",tid
 
 c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
