@@ -824,17 +824,20 @@ c     end do
       end
  
 
-      subroutine nwpw_baddn_dum(ispin,ne,npack1,nfft3d,psi1,psi_r,dn)
+      subroutine nwpw_baddn_dum(ispin,ne,npack1,nfft3d,psi1)
       implicit none
       integer ispin,ne(2),npack1,nfft3d
       complex*16 psi1(npack1,*)
-      real*8  psi_r(2*nfft3d,*)
-      real*8     dn(2*nfft3d,2)
 
+      logical value
+      integer psi_r(2),dn(2)
       integer ms,n,i,n1(2),n2(2),nx,ny,nz,n2ft3d
       real*8   exc,scal1,dv,scal2
       real*8   lattice_omega
       external lattice_omega
+
+#include "bafdecls.fh"
+#include "errquit.fh"
 
 
       n2ft3d = 2*nfft3d
@@ -851,33 +854,43 @@ c     end do
       scal2 = 1.0d0/lattice_omega()
       dv    = scal1*lattice_omega()
 
+      value = BA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,'psi_rrr',
+     >                    psi_r(2),psi_r(1))
+      value = BA_push_get(mt_dbl,2*n2ft3d,'dnnn',dn(2),dn(1))
+
+
         do n=n1(1),n2(ispin)
-           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+           call Pack_c_Copy(1,psi1(1,n),dbl_mb(psi_r(1)+(n-1)*n2ft3d))
         end do
 
-        call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
-
+        call Grsm_gh_fftb(nfft3d,n2(ispin),dbl_mb(psi_r(1)))
 
         do n=n1(1),n2(ispin)
-           call D3dB_r_Zero_Ends(1,psi_r(1,n))
+           call D3dB_r_Zero_Ends(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d))
         end do
 
          do ms=1,ispin
              do n=n1(ms),n2(ms)
                 do i=1,n2ft3d
-                   dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
+                   dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d) 
+     >             = dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d)
+     >              + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
                 end do
              end do
-             call D3dB_r_Zero_Ends(1,dn(1,ms))
-             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
+             call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)+(ms-1)*n2ft3d))
+             call D1dB_Vector_SumAll(n2ft3d,dbl_mb(dn(1)+(ms-1)*n2ft3d))
           end do
 
         exc = 0.0d0
         do i=1,n2ft3d
-          exc = exc + dn(i,2)
+          exc = exc + dbl_mb(dn(1)+i-1+n2ft3d)
         end do
         call D3dB_SumAll(exc)
         write(*,*) "DNALL=",exc*dv
+
+      value = BA_pop_stack(dn(2))
+      value = BA_pop_stack(psi_r(2))
+
 
       return
       end

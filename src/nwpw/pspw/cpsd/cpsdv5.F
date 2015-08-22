@@ -374,6 +374,11 @@ c#include "Parallel.fh"
 *     *****  read psi2 wavefunctions ****
       call psi_read(ispin,ne,dcpl_mb(psi2(1)),
      >              smearoccupation,dbl_mb(occ2(1)))
+
+      write(*,*) "hera,ispin,ne",ispin,ne
+      call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,dcpl_mb(psi2(1)))
+      write(*,*) "herb"
+
       n1(1) = 1
       n2(1) = ne(1)
       n1(2) = ne(1)+1
@@ -433,10 +438,6 @@ c         end if
       if (.not. value) 
      >   call errquit('cpsdv5:out of heap memory',0,MA_ERR)
 
-      write(*,*) "hera,ispin,ne",ispin,ne
-      call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,dcpl_mb(psi2(1)),
-     >                    dcpl_mb(psir(1)),dbl_mb(dn(1)))
-      write(*,*) "herb"
 
 
 *     **** initialize two-electron Gaussian integrals ****
