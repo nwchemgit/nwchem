@@ -850,7 +850,7 @@ c     end do
       value = BA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,'psi_rrr',
      >                    psi_r(2),psi_r(1))
       value = BA_push_get(mt_dbl,2*n2ft3d,'dnnn',dn(2),dn(1))
-      call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,dbl_mb(psi_r(1)),1)
+      call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(psi_r(1)),1)
 
 
         do n=n1(1),n2(ispin)
