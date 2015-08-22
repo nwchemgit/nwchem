@@ -831,7 +831,8 @@ c     end do
 #include "errquit.fh"
 
 
-      n2ft3d = 2*nfft3d
+      call D3dB_n2ft3d(1,n2ft3d)
+      write(*,*) "n2ft3d,nfft3d*2=",n2ft3d,2*nfft3d
 
       n1(1) = 1
       n2(1) = ne(1)
