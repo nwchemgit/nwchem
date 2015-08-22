@@ -822,7 +822,8 @@ c     end do
       logical value
       integer psi_r(2),dn(2)
       integer ms,n,i,n1(2),n2(2),nx,ny,nz,n2ft3d
-      real*8   exc,scal1,dv,scal2
+      real*8   exc(2),scal1,dv,scal2
+
       real*8   lattice_omega
       external lattice_omega
 
@@ -863,20 +864,23 @@ c     end do
              do n=n1(ms),n2(ms)
                 do i=1,n2ft3d
                    dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d) 
-     >             = dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d)
-     >              + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
+     >           = dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d)
+     >              + scal2*((dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d))**2)
                 end do
              end do
              call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)+(ms-1)*n2ft3d))
              call D1dB_Vector_SumAll(n2ft3d,dbl_mb(dn(1)+(ms-1)*n2ft3d))
           end do
 
-        exc = 0.0d0
-        do i=1,n2ft3d
-          exc = exc + dbl_mb(dn(1)+i-1+n2ft3d)
+        exc(1) = 0.0d0
+        exc(2) = 0.0d0
+        do ms=1,ispin
+           do i=1,n2ft3d
+             exc(ms) = exc(ms) + dbl_mb(dn(1)+i-1+n2ft3d)
+           end do
+           call D3dB_SumAll(exc(ms))
         end do
-        call D3dB_SumAll(exc)
-        write(*,*) "DNALL=",exc*dv
+        write(*,*) "DNALL=",exc(1)*dv,exc(2)*dv,exc,dv
 
       value = BA_pop_stack(dn(2))
       value = BA_pop_stack(psi_r(2))
