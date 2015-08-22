@@ -434,7 +434,7 @@ c         end if
      >   call errquit('cpsdv5:out of heap memory',0,MA_ERR)
 
       write(*,*) "hera,ispin,ne",ispin,ne
-      call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,dcpl_mb(psi1(1)),
+      call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,dcpl_mb(psi2(1)),
      >                    dcpl_mb(psir(1)),dbl_mb(dn(1)))
       write(*,*) "herb"
 
