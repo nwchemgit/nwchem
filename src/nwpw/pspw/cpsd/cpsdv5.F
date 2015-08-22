@@ -394,6 +394,7 @@ c#include "Parallel.fh"
      >                        sum2)
       end if
       call D1dB_SumAll(sum2)
+      write(*,*) "SUM2=",sum2
 
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then
@@ -432,7 +433,7 @@ c         end if
       if (.not. value) 
      >   call errquit('cpsdv5:out of heap memory',0,MA_ERR)
 
-      write(*,*) "hera"
+      write(*,*) "hera,ispin,ne",ispin,ne
       call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,dcpl_mb(psi1(1)),
      >                    dcpl_mb(psir(1)),dbl_mb(dn(1)))
       write(*,*) "herb"

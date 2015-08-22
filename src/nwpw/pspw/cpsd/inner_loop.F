@@ -836,6 +836,7 @@ c     end do
       real*8   lattice_omega
       external lattice_omega
 
+
       n2ft3d = 2*nfft3d
       n1(1) = 1
       n1(2) = ne(1) + 1
@@ -876,7 +877,7 @@ c     end do
           exc = exc + dn(i,2)
         end do
         call D3dB_SumAll(exc)
-        write(*,*) "dnall=",exc*dv
+        write(*,*) "DNALL=",exc*dv
 
       return
       end
