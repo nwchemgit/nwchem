@@ -876,11 +876,11 @@ c     end do
         exc(2) = 0.0d0
         do ms=1,ispin
            do i=1,n2ft3d
-             exc(ms) = exc(ms) + dbl_mb(dn(1)+i-1+n2ft3d)
+             exc(ms) = exc(ms) + dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d)
            end do
            call D3dB_SumAll(exc(ms))
         end do
-        write(*,*) "DNALL=",exc(1)*dv,exc(2)*dv,exc,dv
+        write(*,*) "DNALL=",exc(1)*dv,exc(2)*dv,exc,dv,ne,n2ft3d,npack1
 
       value = BA_pop_stack(dn(2))
       value = BA_pop_stack(psi_r(2))
