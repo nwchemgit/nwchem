@@ -134,6 +134,7 @@ c     real*8     fion(3,natmx)
 
 
 
+      call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,psi2)
 
       call nwpw_timing_start(42)
 
