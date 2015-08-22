@@ -64,6 +64,9 @@ C------------------------------------------------------------------------------
 #include "inp.fh"
 #include "xc.fh"
 #include "case.fh"
+#include "nwxc.fh"
+c
+      logical use_nwxc
 c
       integer rtdb, basis, geom
       double precision cpu_tim(2), wall_tim(2)
@@ -253,6 +256,14 @@ C     get SCF MO vectors for density
          if (scftype.eq.'ROHF') lscftype = 'UHF'
          jfac = 1.0d0
          if (ocdfit) jfac = 0.0d0
+         use_nwxc = util_module_avail("nwxc")
+         if (use_nwxc) then
+           if (nwxc_is_on()) then
+             if (nwxc_has_hfx()) then
+               xfac(1) = nwxc_wght_hfx()
+             endif
+           endif
+         endif
          kfac = xfac(1)
       else
          if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
