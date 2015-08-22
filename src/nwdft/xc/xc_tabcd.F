@@ -187,7 +187,6 @@ c
 cnmr
       double precision Rij(3) ! vector R(jat) - R(iat)
       integer inia, iq, ix, ix1, ix2
-      logical use_nwxc
 c
 c     Indexing array for basis function hessian columns as if
 c     it were a 3x3 matrix
@@ -238,12 +237,6 @@ c
       nbfirst1=.true.
       nbfirst2=.true.
       call endtimer(monitor_screen0)
-c
-      use_nwxc = util_module_avail("nwxc")
-      if (use_nwxc) then
-        use_nwxc = nwxc_is_on()
-      endif
-c
 c
 c     Beginning of loop over multiple XC matrices
 c
@@ -310,21 +303,12 @@ c
                     Dmat(n,3,mu) = Cmat(n,3,ii,imat)*chi1
                     
                     if(kske) then 
-                      if (use_nwxc) then
-                        Dmat(n,1,mu) = Dmat(n,1,mu) +
-     &                       Mmat(n,ii,imat)*delchi(n,1,mu1)*0.5d0
-                        Dmat(n,2,mu) = Dmat(n,2,mu) +
-     &                       Mmat(n,ii,imat)*delchi(n,2,mu1)*0.5d0
-                        Dmat(n,3,mu) = Dmat(n,3,mu) +
-     &                       Mmat(n,ii,imat)*delchi(n,3,mu1)*0.5d0
-                      else
-                        Dmat(n,1,mu) = Dmat(n,1,mu) +
-     &                       Mmat(n,ii,imat)*delchi(n,1,mu1)
-                        Dmat(n,2,mu) = Dmat(n,2,mu) +
-     &                       Mmat(n,ii,imat)*delchi(n,2,mu1)
-                        Dmat(n,3,mu) = Dmat(n,3,mu) +
-     &                       Mmat(n,ii,imat)*delchi(n,3,mu1)
-                      endif
+                      Dmat(n,1,mu) = Dmat(n,1,mu) +
+     &                     Mmat(n,ii,imat)*delchi(n,1,mu1)
+                      Dmat(n,2,mu) = Dmat(n,2,mu) +
+     &                     Mmat(n,ii,imat)*delchi(n,2,mu1)
+                      Dmat(n,3,mu) = Dmat(n,3,mu) +
+     &                     Mmat(n,ii,imat)*delchi(n,3,mu1)
                     endif
                     
                   enddo

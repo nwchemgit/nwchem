@@ -73,20 +73,20 @@ c      double precision delrho(n_per_rec,3,ipol)
       double precision delrho(*)
 c
       double precision dttau(*)
-      double precision Mmat(*)
+      double precision Mmat(nqpts,ipol)
 c
-      double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
-     &                 Bmat(n_per_rec,*)
+      double precision Amat(nqpts,ipol), Cmat(nqpts,3,ipol),
+     &                 Bmat(nqpts,*)
 c
-      double precision Amat2(n_per_rec,NCOL_AMAT2)
-      double precision Cmat2(n_per_rec,NCOL_CMAT2)
-      double precision Mmat2(n_per_rec,NCOL_MMAT2)
+      double precision Amat2(nqpts,NCOL_AMAT2)
+      double precision Cmat2(nqpts,NCOL_CMAT2)
+      double precision Mmat2(nqpts,NCOL_MMAT2)
 c
       double precision Pmat(max_at_bf*max_at_bf),
      &                 Fmat(max_at_bf*max_at_bf)
 c
-      double precision func(n_per_rec)
-      double precision d_qwght(3,n_per_rec,*)
+      double precision func(nqpts)
+      double precision d_qwght(3,nqpts,*)
       double precision qwght(*), qxyz(3,*)
       double precision xyz(3,natoms),xyzm(3,natoms)
       integer iandex(natoms)
@@ -97,7 +97,7 @@ c
       double precision rchi_atom(natoms),rdelchi_atom(natoms)
       double precision ppp(*),ff(*),zzz(*)
       double precision expo(*)
-      double precision rq(n_per_rec,natoms)
+      double precision rq(nqpts,natoms)
       double precision rq0(natoms)
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*)
 c
@@ -133,8 +133,8 @@ c
 c Daniel (1-14-13): Define XC-third derivatives for evaluating the 
 c XC-kernel gradients.
       logical do_gxc, do_3rd
-      double precision Amat3(n_per_rec,NCOL_AMAT3)
-      double precision Cmat3(n_per_rec,NCOL_CMAT3)
+      double precision Amat3(nqpts,NCOL_AMAT3)
+      double precision Cmat3(nqpts,NCOL_CMAT3)
 c Daniel (1-17-13): Other required stuff for the current implementation
 c of the TDDFT gradients.  The "coefficient rho" and "coefficient
 c delrho" are created because we can't overwrite the perturbed density
@@ -396,11 +396,6 @@ c
             if (.not. MA_Push_Get(MT_Dbl, nqpts*mbf_ao*ipol, 
      &           'gradchi_ao2', l_ccdel,i_ccdel))call errquit
      &           (' exit dftggridv0b: insuff stack',9, 0)
-         endif
-         if (use_nwxc) then
-           if (nwxc_is_mgga()) then
-             call dscal(2*nqpts,0.5d0,Mmat,1)
-           endif
          endif
 
          if (odftps) call pstat_on(ps_qv0b)

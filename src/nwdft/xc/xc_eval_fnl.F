@@ -168,7 +168,17 @@ c
      +                        Amat,Cmat,Mmat)
           endif
         endif
-
+c
+c       The NWXC module calculates derivatives wrt the proper 
+c       kinetic energy density. It seems that the original subroutines
+c       calculate derivatives wrt. twice the kinetic energy density
+c       (in many cases people choose to absorb the factor half in the
+c       kinetic energy density in the functional expression). As a
+c       result there is factor half between what NWXC calculates and
+c       what NWChem expects. Hence we need to scale Mmat here.
+c
+        call dscal(nq*ipol,0.5d0,mmat,1)
+c
         Ex = Ex + ddot(nq,dbl_mb(k_f),1,qwght,1)
         if (ldew) then
           call dcopy(nq,dbl_mb(k_f),1,func,1)
