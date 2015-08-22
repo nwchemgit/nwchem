@@ -432,6 +432,11 @@ c         end if
       if (.not. value) 
      >   call errquit('cpsdv5:out of heap memory',0,MA_ERR)
 
+      write(*,*) "hera"
+      call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,dcpl_mb(psi1(1)),
+     >                    dcpl_mb(psir(1)),dbl_mb(dn(1)))
+      write(*,*) "herb"
+
 
 *     **** initialize two-electron Gaussian integrals ****
 *     **** initialize paw ncmp*Vloc ****

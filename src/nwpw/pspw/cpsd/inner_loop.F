@@ -269,10 +269,10 @@ c#ifdef USE_OPENMP
 c!$OMP PARALLEL private(tid,nthreads)  
 c#endif
 c!$OMP BARRIER
-        tid      = Parallel_threadid()
-        nthreads = Parallel_nthreads()
+c        tid      = Parallel_threadid()
+c        nthreads = Parallel_nthreads()
 
-        do n=n1(1)+tid,n2(ispin),nthreads
+        do n=n1(1),n2(ispin)
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
         end do
 c!$OMP BARRIER
@@ -823,3 +823,61 @@ c     end do
       return
       end
  
+
+      subroutine nwpw_baddn_dum(ispin,ne,npack1,nfft3d,psi1,psi_r,dn)
+      implicit none
+      integer ispin,ne(2),npack1,nfft3d
+      complex*16 psi1(npack1,*)
+      real*8  psi_r(2*nfft3d,*)
+      real*8     dn(2*nfft3d,2)
+
+      integer ms,n,i,n1(2),n2(2),nx,ny,nz,n2ft3d
+      real*8   exc,scal1,dv,scal2
+      real*8   lattice_omega
+      external lattice_omega
+
+      n2ft3d = 2*nfft3d
+      n1(1) = 1
+      n1(2) = ne(1) + 1
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv    = scal1*lattice_omega()
+
+        do n=n1(1),n2(ispin)
+           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+        end do
+
+        call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
+
+
+        do n=n1(1),n2(ispin)
+           call D3dB_r_Zero_Ends(1,psi_r(1,n))
+        end do
+
+         do ms=1,ispin
+             do n=n1(ms),n2(ms)
+                do i=1,n2ft3d
+                   dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
+                end do
+             end do
+             call D3dB_r_Zero_Ends(1,dn(1,ms))
+             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
+          end do
+
+        exc = 0.0d0
+        do i=1,n2ft3d
+          exc = exc + dn(i,2)
+        end do
+        call D3dB_SumAll(exc)
+        write(*,*) "dnall=",exc*dv
+
+      return
+      end
+
