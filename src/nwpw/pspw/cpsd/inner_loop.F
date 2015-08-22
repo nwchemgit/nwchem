@@ -832,10 +832,12 @@ c     end do
 
 
       n2ft3d = 2*nfft3d
+
       n1(1) = 1
       n2(1) = ne(1)
       n1(2) = ne(1) + 1
-      n2(2) = ne(1)+ne(2)
+      n2(2) = ne(1) + ne(2)
+
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -848,6 +850,7 @@ c     end do
       value = BA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,'psi_rrr',
      >                    psi_r(2),psi_r(1))
       value = BA_push_get(mt_dbl,2*n2ft3d,'dnnn',dn(2),dn(1))
+      call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,dbl_mb(psi_r(1)),1)
 
 
         do n=n1(1),n2(ispin)
@@ -881,7 +884,8 @@ c     end do
            end do
            call D3dB_SumAll(exc(ms))
         end do
-        write(*,*) "DNALL=",exc(1)*dv,exc(2)*dv,exc,dv,ne,n2ft3d,npack1
+        write(*,*) "DNALL=",exc(1)*dv,exc(2)*dv,exc,dv,
+     >              ispin,ne,n2ft3d,npack1
 
       value = BA_pop_stack(dn(2))
       value = BA_pop_stack(psi_r(2))
