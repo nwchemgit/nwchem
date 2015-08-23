@@ -375,9 +375,10 @@ c#include "Parallel.fh"
       call psi_read(ispin,ne,dcpl_mb(psi2(1)),
      >              smearoccupation,dbl_mb(occ2(1)))
 
-      write(*,*) "hera,ispin,ne",ispin,ne
-      call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,dcpl_mb(psi2(1)))
-      write(*,*) "herb"
+      call nwpw_baddn_dum("psiread",ispin,ne,npack1,nfft3d,
+     >                    dcpl_mb(psi2(1)))
+      call nwpw_baddn_dum("psiread2",ispin,ne,npack1,nfft3d,
+     >                    dcpl_mb(psi2(1)))
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -399,7 +400,6 @@ c#include "Parallel.fh"
      >                        sum2)
       end if
       call D1dB_SumAll(sum2)
-      write(*,*) "SUM2=",sum2
 
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then
@@ -418,6 +418,8 @@ c           call Grsm_g_MakeOrtho(npack1,ne(2),
 c     >                           dcpl_mb(psi2(1) + ne(1)*npack1))
 c         end if
       end if
+      call nwpw_baddn_dum("after gs check",ispin,ne,npack1,nfft3d,
+     >                    dcpl_mb(psi2(1)))
 
 *     **** allocate other variables *****
       value = BA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
@@ -439,6 +441,8 @@ c         end if
      >   call errquit('cpsdv5:out of heap memory',0,MA_ERR)
 
 
+      call nwpw_baddn_dum("after memory alloc",ispin,ne,npack1,nfft3d,
+     >                    dcpl_mb(psi2(1)))
 
 *     **** initialize two-electron Gaussian integrals ****
 *     **** initialize paw ncmp*Vloc ****
@@ -447,6 +451,9 @@ c         end if
          call nwpw_gintegrals_set(control_move())
          call psp_dE_ncmp_vloc_Qlm(ispin,.false.,hunita)
       end if
+
+      call nwpw_baddn_dum("after paw init",ispin,ne,npack1,nfft3d,
+     >                    dcpl_mb(psi2(1)))
 
 *     **** initialize SIC and HFX  ****
       call pspw_init_SIC(rtdb,ne)

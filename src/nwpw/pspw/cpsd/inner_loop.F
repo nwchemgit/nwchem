@@ -134,7 +134,7 @@ c     real*8     fion(3,natmx)
 
 
 
-      call nwpw_baddn_dum(ispin,ne,npack1,nfft3d,psi2)
+      call nwpw_baddn_dum("start inner",ispin,ne,npack1,nfft3d,psi2)
 
       call nwpw_timing_start(42)
 
@@ -196,12 +196,12 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      !call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
-      !call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      !call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
-      call D3dB_r_nZero(1,2,dbl_mb(dnall(1)))
-      call D3dB_r_nZero(1,2,dbl_mb(xcp(1)))
-      call D3dB_r_nZero(1,2,dbl_mb(xce(1)))
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+      !call D3dB_r_nZero(1,2,dbl_mb(dnall(1)))
+      !call D3dB_r_nZero(1,2,dbl_mb(xcp(1)))
+      !call D3dB_r_nZero(1,2,dbl_mb(xce(1)))
 
       call nwpw_timing_end(12)
      
@@ -288,8 +288,8 @@ c       this function calls non pipelined 3d fft
 *       *********************
 *       **** generate dn ****
 *       *********************
-        !call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
-        call D3dB_r_nZero(1,ispin,dn)
+        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
+        !call D3dB_r_nZero(1,ispin,dn)
         if (fractional) then
           do ms=1,ispin
              do n=n1(ms),n2(ms)
@@ -314,12 +314,12 @@ c       this function calls non pipelined 3d fft
           end do
         end if
 
-        exc = 0.0d0
-        do i=1,n2ft3d
-          exc = exc + dn(i,2)
-        end do
-        call D3dB_SumAll(exc)
-        write(*,*) "dnall=",exc*dv
+        !exc = 0.0d0
+        !do i=1,n2ft3d
+        !  exc = exc + dn(i,2)
+        !end do
+        !call D3dB_SumAll(exc)
+        !write(*,*) "dnall=",exc*dv
 
 *       **********************
 *       **** generate dng ****
@@ -814,12 +814,15 @@ c     end do
       end
  
 
-      subroutine nwpw_baddn_dum(ispin,ne,npack1,nfft3d,psi1)
+      subroutine nwpw_baddn_dum(tag,ispin,ne,npack1,nfft3d,psi1)
       implicit none
+      character*(*) tag
       integer ispin,ne(2),npack1,nfft3d
       complex*16 psi1(npack1,*)
 
-      logical value
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      logical value,oprint
       integer psi_r(2),dn(2)
       integer ms,n,i,n1(2),n2(2),nx,ny,nz,n2ft3d
       real*8   exc(2),scal1,dv,scal2
@@ -830,9 +833,10 @@ c     end do
 #include "bafdecls.fh"
 #include "errquit.fh"
 
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
 
       call D3dB_n2ft3d(1,n2ft3d)
-      write(*,*) "n2ft3d,nfft3d*2=",n2ft3d,2*nfft3d
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -851,7 +855,10 @@ c     end do
       value = BA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,'psi_rrr',
      >                    psi_r(2),psi_r(1))
       value = BA_push_get(mt_dbl,2*n2ft3d,'dnnn',dn(2),dn(1))
+      if (.not.value) write(*,*) "Crap"
+
       call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(psi_r(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
 
 
         do n=n1(1),n2(ispin)
@@ -864,7 +871,8 @@ c     end do
            call D3dB_r_Zero_Ends(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d))
         end do
 
-         call D3dB_r_nZero(1,ispin,dbl_mb(dn(1)))
+         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+         !call D3dB_r_nZero(1,ispin,dbl_mb(dn(1)))
          do ms=1,ispin
              do n=n1(ms),n2(ms)
                 do i=1,n2ft3d
@@ -885,7 +893,8 @@ c     end do
            end do
            call D3dB_SumAll(exc(ms))
         end do
-        write(*,*) "DNALL=",exc(1)*dv,exc(2)*dv,exc,dv,
+        if (oprint) write(*,*) tag//" DNALL=",
+     >              exc(1)*dv,exc(2)*dv,exc,dv,
      >              ispin,ne,n2ft3d,npack1
 
       value = BA_pop_stack(dn(2))
