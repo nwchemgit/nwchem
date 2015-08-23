@@ -134,7 +134,6 @@ c     real*8     fion(3,natmx)
 
 
 
-      call nwpw_baddn_dum("start inner",ispin,ne,npack1,nfft3d,psi2)
 
       call nwpw_timing_start(42)
 
@@ -814,93 +813,93 @@ c     end do
       end
  
 
-      subroutine nwpw_baddn_dum(tag,ispin,ne,npack1,nfft3d,psi1)
-      implicit none
-      character*(*) tag
-      integer ispin,ne(2),npack1,nfft3d
-      complex*16 psi1(npack1,*)
-
-      integer MASTER,taskid
-      parameter (MASTER=0)
-      logical value,oprint
-      integer psi_r(2),dn(2)
-      integer ms,n,i,n1(2),n2(2),nx,ny,nz,n2ft3d
-      real*8   exc(2),scal1,dv,scal2
-
-      real*8   lattice_omega
-      external lattice_omega
-
-#include "bafdecls.fh"
-#include "errquit.fh"
-
-      call Parallel_taskid(taskid)
-      oprint = (taskid.eq.MASTER)
-
-      call D3dB_n2ft3d(1,n2ft3d)
-
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
-
-
-      call D3dB_nx(1,nx)
-      call D3dB_ny(1,ny)
-      call D3dB_nz(1,nz)
-
-      scal1 = 1.0d0/dble(nx*ny*nz)
-      scal2 = 1.0d0/lattice_omega()
-      dv    = scal1*lattice_omega()
-
-      value = BA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,'psi_rrr',
-     >                    psi_r(2),psi_r(1))
-      value = BA_push_get(mt_dbl,2*n2ft3d,'dnnn',dn(2),dn(1))
-      if (.not.value) write(*,*) "Crap"
-
-      call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(psi_r(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
-
-
-        do n=n1(1),n2(ispin)
-           call Pack_c_Copy(1,psi1(1,n),dbl_mb(psi_r(1)+(n-1)*n2ft3d))
-        end do
-
-        call Grsm_gh_fftb(nfft3d,n2(ispin),dbl_mb(psi_r(1)))
-
-        do n=n1(1),n2(ispin)
-           call D3dB_r_Zero_Ends(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d))
-        end do
-
-         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
-         !call D3dB_r_nZero(1,ispin,dbl_mb(dn(1)))
-         do ms=1,ispin
-             do n=n1(ms),n2(ms)
-                do i=1,n2ft3d
-                   dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d) 
-     >           = dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d)
-     >              + scal2*((dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d))**2)
-                end do
-             end do
-             call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)+(ms-1)*n2ft3d))
-             call D1dB_Vector_SumAll(n2ft3d,dbl_mb(dn(1)+(ms-1)*n2ft3d))
-          end do
-
-        exc(1) = 0.0d0
-        exc(2) = 0.0d0
-        do ms=1,ispin
-           do i=1,n2ft3d
-             exc(ms) = exc(ms) + dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d)
-           end do
-           call D3dB_SumAll(exc(ms))
-        end do
-        if (oprint) write(*,*) tag//" DNALL=",
-     >              exc(1)*dv,exc(2)*dv,exc,dv,
-     >              ispin,ne,n2ft3d,npack1
-
-      value = BA_pop_stack(dn(2))
-      value = BA_pop_stack(psi_r(2))
-
-
-      return
-      end
+c      subroutine nwpw_baddn_dum(tag,ispin,ne,npack1,nfft3d,psi1)
+c      implicit none
+c      character*(*) tag
+c      integer ispin,ne(2),npack1,nfft3d
+c      complex*16 psi1(npack1,*)
+c
+c      integer MASTER,taskid
+c      parameter (MASTER=0)
+c      logical value,oprint
+c      integer psi_r(2),dn(2)
+c      integer ms,n,i,n1(2),n2(2),nx,ny,nz,n2ft3d
+c      real*8   exc(2),scal1,dv,scal2
+c
+c      real*8   lattice_omega
+c      external lattice_omega
+c
+c#include "bafdecls.fh"
+c#include "errquit.fh"
+c
+c      call Parallel_taskid(taskid)
+c      oprint = (taskid.eq.MASTER)
+c
+c      call D3dB_n2ft3d(1,n2ft3d)
+c
+c      n1(1) = 1
+c      n2(1) = ne(1)
+c      n1(2) = ne(1) + 1
+c      n2(2) = ne(1) + ne(2)
+c
+c
+c      call D3dB_nx(1,nx)
+c      call D3dB_ny(1,ny)
+c      call D3dB_nz(1,nz)
+c
+c      scal1 = 1.0d0/dble(nx*ny*nz)
+c      scal2 = 1.0d0/lattice_omega()
+c      dv    = scal1*lattice_omega()
+c
+c      value = BA_push_get(mt_dbl,(ne(1)+ne(2))*n2ft3d,'psi_rrr',
+c     >                    psi_r(2),psi_r(1))
+c      value = BA_push_get(mt_dbl,2*n2ft3d,'dnnn',dn(2),dn(1))
+c      if (.not.value) write(*,*) "Crap"
+c
+c      call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(psi_r(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+c
+c
+c        do n=n1(1),n2(ispin)
+c           call Pack_c_Copy(1,psi1(1,n),dbl_mb(psi_r(1)+(n-1)*n2ft3d))
+c        end do
+c
+c        call Grsm_gh_fftb(nfft3d,n2(ispin),dbl_mb(psi_r(1)))
+c
+c        do n=n1(1),n2(ispin)
+c           call D3dB_r_Zero_Ends(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d))
+c        end do
+c
+c         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+c         !call D3dB_r_nZero(1,ispin,dbl_mb(dn(1)))
+c         do ms=1,ispin
+c             do n=n1(ms),n2(ms)
+c                do i=1,n2ft3d
+c                   dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d) 
+c     >           = dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d)
+c     >              + scal2*((dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d))**2)
+c                end do
+c             end do
+c             call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)+(ms-1)*n2ft3d))
+c             call D1dB_Vector_SumAll(n2ft3d,dbl_mb(dn(1)+(ms-1)*n2ft3d))
+c          end do
+c
+c        exc(1) = 0.0d0
+c        exc(2) = 0.0d0
+c        do ms=1,ispin
+c           do i=1,n2ft3d
+c             exc(ms) = exc(ms) + dbl_mb(dn(1)+i-1+(ms-1)*n2ft3d)
+c           end do
+c           call D3dB_SumAll(exc(ms))
+c        end do
+c        if (oprint) write(*,*) tag//" DNALL=",
+c     >              exc(1)*dv,exc(2)*dv,exc,dv,
+c     >              ispin,ne,n2ft3d,npack1
+c
+c      value = BA_pop_stack(dn(2))
+c      value = BA_pop_stack(psi_r(2))
+c
+c
+c      return
+c      end
 
