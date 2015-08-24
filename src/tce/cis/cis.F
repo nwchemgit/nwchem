@@ -118,7 +118,7 @@ ccx            call cis_xtidy
       enddo
 ccx      call errquit('cis.F: maxiter exceeded',iter,CALC_ERR)
       write(6,*)'CIS maxiter exceeded'
-200   continue
+  200 continue
 ccx
             call cis_xtidy
 ccx
