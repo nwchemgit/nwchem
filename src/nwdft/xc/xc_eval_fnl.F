@@ -177,7 +177,9 @@ c       kinetic energy density in the functional expression). As a
 c       result there is factor half between what NWXC calculates and
 c       what NWChem expects. Hence we need to scale Mmat here.
 c
-        call dscal(nq*ipol,0.5d0,mmat,1)
+        if (kske) then
+          call dscal(nq*ipol,0.5d0,mmat,1)
+        endif
 c
         Ex = Ex + ddot(nq,dbl_mb(k_f),1,qwght,1)
         if (ldew) then
