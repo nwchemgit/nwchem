@@ -421,8 +421,8 @@ C
             param(1) = nwxc_cam_alpha
             param(2) = nwxc_cam_beta
             param(3) = nwxc_cam_gamma
-c           call nwxcm_x_camrpbe(param,nwxc_rho_tol,ipol,nq,
-c    +                          nwxc_wghts(it),rho,gamma,f,amat,cmat)
+            call nwxcm_x_camrpbe(param,nwxc_rho_tol,ipol,nq,
+     +                          nwxc_wghts(it),rho,gamma,f,amat,cmat)
           case (NWXCP_X_CAMS12G)
             param(1) = 1.03323556d0
             param(2) = 0.757d0
@@ -1641,8 +1641,8 @@ c
             param(1) = nwxc_cam_alpha
             param(2) = nwxc_cam_beta
             param(3) = nwxc_cam_gamma
-c           call nwxcm_x_camrpbe_d2(param,nwxc_rho_tol,ipol,nq,
-c    +           nwxc_wghts(it),rho,gamma,f,amat,amat2,cmat,cmat2)
+            call nwxcm_x_camrpbe_d2(param,nwxc_rho_tol,ipol,nq,
+     +           nwxc_wghts(it),rho,gamma,f,amat,amat2,cmat,cmat2)
           case (NWXCP_X_CAMS12G)
             param(1) = 1.03323556d0
             param(2) = 0.757d0
@@ -2908,12 +2908,12 @@ C
             call nwxcm_x_campbe_d3(param,nwxc_rho_tol,ipol,nq,
      +           nwxc_wghts(it),rho,gamma,f,amat,amat2,amat3,
      +           cmat,cmat2,cmat3)
-c         case (NWXCP_X_CAMRPBE)
-c           param(1) = nwxc_cam_alpha
-c           param(2) = nwxc_cam_beta
-c           param(3) = nwxc_cam_gamma
-c           call nwxcm_x_camrpbe_d3(param,nwxc_rho_tol,ipol,nq,
-c    +                             nwxc_wghts(it),rho,gamma,f)
+          case (NWXCP_X_CAMRPBE)
+            param(1) = nwxc_cam_alpha
+            param(2) = nwxc_cam_beta
+            param(3) = nwxc_cam_gamma
+            call nwxcm_x_camrpbe_d3(param,nwxc_rho_tol,ipol,nq,
+     +                             nwxc_wghts(it),rho,gamma,f)
           case (NWXCP_X_CAMS12G)
             param(1) = 1.03323556d0
             param(2) = 0.757d0

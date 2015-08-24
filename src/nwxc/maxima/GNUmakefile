@@ -69,6 +69,7 @@ OBJ =  \
 	nwxcm_x_camb88.o \
 	nwxcm_x_camlsd.o \
 	nwxcm_x_campbe.o \
+	nwxcm_x_camrpbe.o \
 	nwxcm_x_cams12.o \
 	nwxcm_xc_kt1.o \
 	nwxcm_x_dirac.o \
