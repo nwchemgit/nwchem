@@ -433,7 +433,7 @@ c         dummy = 2413
          go to 200
         end if
 c
- 200     continue
+  200    continue
 c
          FREEMEM(a)
          end if !spin cases
@@ -674,7 +674,7 @@ c         dummy = 1423
 c
 c
 c
- 300    continue
+  300   continue
 c
          FREEMEM(a)
          end if !spin cases
@@ -1080,7 +1080,7 @@ c         dummy = 2413000
          go to 200
         end if
 c
- 200     continue
+  200    continue
 c
          FREEMEM(a)
          end if !spin cases
@@ -1301,7 +1301,7 @@ c         dummy = 1423001
 c
 c
 c
- 300    continue
+  300    continue
 c
          FREEMEM(a)
          end if !spin cases
@@ -1734,7 +1734,7 @@ c         dummy = 2413000
          go to 200
         end if
 c
- 200     continue
+  200    continue
 c
          FREEMEM(a)
          end if !spin cases
@@ -1973,7 +1973,7 @@ c         dummy = 1423001
 c
 c
 c
- 300    continue
+  300   continue
 c
          FREEMEM(a)
          end if !spin cases

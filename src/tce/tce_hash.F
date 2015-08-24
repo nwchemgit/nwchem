@@ -69,7 +69,7 @@ c
         end if
        end if
 c
- 100   continue 
+  100  continue
 c
           IF (int_mb(k_spin_alpha+i-1)+int_mb(k_spin_alpha+j-1).eq.
      &    int_mb(k_spin_alpha+k-1)+int_mb(k_spin_alpha+l-1)) THEN
@@ -100,16 +100,16 @@ c if i eq j eq k eq l eq - wyskok
           end if
           go to 100
 c 
- 200  continue
+  200 continue
       k=1
       l=1
       enddo                 !---- pos1 -------------------------------
 c
 c
- 102  continue
+  102 continue
       write(*,*)'key=',key
       call errquit('hashv2: key not found 2',0,UNKNOWN_ERR)
- 103  continue
+  103 continue
       return
       end
 c
@@ -190,7 +190,7 @@ c
         end if
        end if
 c
- 100   continue 
+  100  continue
 c
 c - exascale ---
       IF(.not.((i.gt.noa).and.(j.gt.noa).and.(k.gt.noa).and.
@@ -227,8 +227,8 @@ c if i eq j eq k eq l eq - wyskok
             l=l+1
           end if
           go to 100
-c 
- 200  continue
+c
+  200 continue
       k=1
       l=1
       enddo                 !---- pos1 -------------------------------
@@ -236,10 +236,10 @@ c
 c
 c
 c
- 102  continue
+  102 continue
       write(*,*)'key=',key
       call errquit('hashv2act: key not found 2',0,UNKNOWN_ERR)
- 103  continue
+  103 continue
       return
       end
 c
@@ -323,7 +323,7 @@ c
          goto 10
         end if
        end do
- 10    continue
+   10  continue
        if(offset.eq.-1) then
          call errquit('tce_hash_n: key not found',0,UNKNOWN_ERR)
        end if

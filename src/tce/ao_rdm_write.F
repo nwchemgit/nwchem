@@ -138,7 +138,7 @@ c     $        call errquit('movecs_write: ma pop failed', l_vecs,
 c     &       MA_ERR)
 c
 c Write scf energy at the end of the movecs file. If energy
-c is not in rtdb, it's given a value of zero.
+c is not in rtdb, it is given a value of zero.
 c
 c         write(unitno, err=1001) energy, enrep
 c         
@@ -146,13 +146,13 @@ c
          ok = 1
       endif
 c
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+   10 call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
 c
       ao_rdm_write = ok .eq. 1
 c      if (ga_nodeid() .eq. 0 .and.
 c     $     util_print('vectors i/o', print_high)) then
 c         write(6,22) filename(1:inp_strlen(filename))
-c 22      format(/' Wrote molecular orbitals to ',a/)
+c  22     format(/' Wrote molecular orbitals to ',a/)
 c         call util_flush(luout)
 c      endif
       call ga_sync()

@@ -418,7 +418,7 @@ c --- ( g2 g4 | g1 g3 )
          go to 200
         end if
 c
- 200     continue
+  200    continue
 c
          IF(.not.MA_POP_STACK(l_a)) 
      1            CALL ERRQUIT('get-block-ind2',3,MA_ERR)
@@ -656,7 +656,7 @@ c --- ( g1 g4 | g2 g3 )
 c
 c
 c
- 300    continue
+  300   continue
 c
          IF(.not.MA_POP_STACK(l_a)) 
      1            CALL ERRQUIT('get-block-ind2',3,MA_ERR)
@@ -1084,7 +1084,7 @@ c --- ( g2 g4 | g1 g3 )
          go to 200
         end if
 c
- 200     continue
+  200    continue
 c
          IF(.not.MA_POP_STACK(l_a)) 
      1            CALL ERRQUIT('get-block-ind2',3,MA_ERR)
@@ -1322,7 +1322,7 @@ c --- ( g1 g4 | g2 g3 )
 c
 c
 c
- 300    continue
+  300   continue
 c
          IF(.not.MA_POP_STACK(l_a)) 
      1            CALL ERRQUIT('get-block-ind2',3,MA_ERR)
