@@ -2,76 +2,76 @@
 #define __LINE__ 0
 #endif
       subroutine tce_input(rtdb)
-c
-c $Id$
-c
-c Input parser for TCE module for various many-electron theories.
-c Also sets default values for input parameters.
-c Modified from tddft/tddft_input.F by So Hirata Oct, 2002.
-c
-c     TCE
-c        [(DFT||HF||SCF) default HF]
-c        [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
-c                 [virtual <integer nfzv default 0>]]
-c        [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ|| \ 
-c          CCSD(T)||CCSD[T]||QCISD||CISD||CISDT||CISDTQ|| \
-c          MBPT2||MBPT3||MBPT4||MP2||MP3||MP4|| \
-c          CR-CCSD(T)||CR-CCSD[T]||LR-CCSD(T)||LR-CCSD(TQ)||CCSD(2)_T||CCSD(2)||
-c          CCSDT(2)_Q) default CCSD]
-c        [THRESH <double thresh default 1e-6>]
-c        [MAXITER <integer maxiter default 100>]
-c        [PRINT (none||low||medium||high||debug)]
-c        [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
-c        [DIIS <integer diis default 5>]
-c        [EOMSOL <integer default 1 >]
-c        [DIIS2 <integer diis default 5>]
-c        [DIIS3 <integer diis default 5>]
-c        [NROOTS <integer nroots default 0>]
-c        [TARGET <integer target default 1>]
-c        [TARGETSYM <character targetsym default 'none'>]
-c        [SYMMETRY]
-c        [DIPOLE]
-c        [TILESIZE <no default (automatically adjusted)>]
-c        [FRAGMENT <default -1 (off)>]
-c        [(NO)FOCK <logical recompf default .true.>]
-c        [ACTIVE_OA <default 0>]
-c        [ACTIVE_OB <default 0>]
-c        [ACTIVE_VA <default 0>]
-c        [ACTIVE_VB <default 0>]
-c        [T3A_LVL   <default 0>]
-c     END
-c
-c     TASK TCE ENERGY
-c
-c     ... or ...
-c
-c     UCCSDT or UCC or UCCSD(T) etc.
-c        [(DFT||HF||SCF) default HF]
-c        [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
-c                 [virtual <integer nfzv default 0>]]
-c        [THRESH <double thresh default 1e-6>]
-c        [MAXITER <integer maxiter default 100>]
-c        [PRINT (none||low||medium||high||debug)]
-c        [IO (fortran||c||ga||sf||replicated) default ga]
-c        [DIIS <integer diis default 5>]
-c        [NROOTS <integer nroots default 0>]
-c        [TARGET <integer target default 1>]
-c        [TARGETSYM <character targetsym default 'none'>]
-c        [SYMMETRY]
-c        [DIPOLE]
-c        [TILESIZE <no default (automatically adjusted)>]
-c        [FRAGMENT <default -1 (off)>]
-c        [(NO)FOCK <logical recompf default .true.>]
-c        [ACTIVE_OA <default 0>]
-c        [ACTIVE_OB <default 0>]
-c        [ACTIVE_VA <default 0>]
-c        [ACTIVE_VB <default 0>]
-c     END
-c
-c     TASK UCCSDT ENERGY
-c
-c     ... etc.
-c     
+!
+! $Id$
+!
+! Input parser for TCE module for various many-electron theories.
+! Also sets default values for input parameters.
+! Modified from tddft/tddft_input.F by So Hirata Oct, 2002.
+!
+!     TCE
+!        [(DFT||HF||SCF) default HF]
+!        [FREEZE [[core] (atomic || <integer nfzc default 0>)]
+!                 [virtual <integer nfzv default 0>]]
+!        [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ||
+!          CCSD(T)||CCSD[T]||QCISD||CISD||CISDT||CISDTQ||
+!          MBPT2||MBPT3||MBPT4||MP2||MP3||MP4|| \
+!          CR-CCSD(T)||CR-CCSD[T]||LR-CCSD(T)||LR-CCSD(TQ)||CCSD(2)_T||CCSD(2)||
+!          CCSDT(2)_Q) default CCSD]
+!        [THRESH <double thresh default 1e-6>]
+!        [MAXITER <integer maxiter default 100>]
+!        [PRINT (none||low||medium||high||debug)]
+!        [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
+!        [DIIS <integer diis default 5>]
+!        [EOMSOL <integer default 1 >]
+!        [DIIS2 <integer diis default 5>]
+!        [DIIS3 <integer diis default 5>]
+!        [NROOTS <integer nroots default 0>]
+!        [TARGET <integer target default 1>]
+!        [TARGETSYM <character targetsym default 'none'>]
+!        [SYMMETRY]
+!        [DIPOLE]
+!        [TILESIZE <no default (automatically adjusted)>]
+!        [FRAGMENT <default -1 (off)>]
+!        [(NO)FOCK <logical recompf default .true.>]
+!        [ACTIVE_OA <default 0>]
+!        [ACTIVE_OB <default 0>]
+!        [ACTIVE_VA <default 0>]
+!        [ACTIVE_VB <default 0>]
+!        [T3A_LVL   <default 0>]
+!     END
+!
+!     TASK TCE ENERGY
+!
+!     ... or ...
+!
+!     UCCSDT or UCC or UCCSD(T) etc.
+!        [(DFT||HF||SCF) default HF]
+!        [FREEZE [[core] (atomic || <integer nfzc default 0>)]
+!                 [virtual <integer nfzv default 0>]]
+!        [THRESH <double thresh default 1e-6>]
+!        [MAXITER <integer maxiter default 100>]
+!        [PRINT (none||low||medium||high||debug)]
+!        [IO (fortran||c||ga||sf||replicated) default ga]
+!        [DIIS <integer diis default 5>]
+!        [NROOTS <integer nroots default 0>]
+!        [TARGET <integer target default 1>]
+!        [TARGETSYM <character targetsym default 'none'>]
+!        [SYMMETRY]
+!        [DIPOLE]
+!        [TILESIZE <no default (automatically adjusted)>]
+!        [FRAGMENT <default -1 (off)>]
+!        [(NO)FOCK <logical recompf default .true.>]
+!        [ACTIVE_OA <default 0>]
+!        [ACTIVE_OB <default 0>]
+!        [ACTIVE_VA <default 0>]
+!        [ACTIVE_VB <default 0>]
+!     END
+!
+!     TASK UCCSDT ENERGY
+!
+!     ... etc.
+!     
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -91,9 +91,9 @@ c
       integer reference
       integer diis,diis2,diis3
       integer eomsol
-c --- level shift --
+! --- level shift --
       double precision zlshift,zlshiftl,zlshift2(2),zlshift3(2)
-c ------------------
+! ------------------
       integer nroots
       integer target
       integer tilesize
@@ -101,10 +101,10 @@ c ------------------
       character*4 targetsym
       logical symmetry
       logical left
-c --- density matrix    
+! --- density matrix    
       logical idens
       character*256 file_densmat
-c<-d3p975
+!<-d3p975
       integer multipole
       logical recompf
       character*10 perturbative
@@ -112,17 +112,17 @@ c<-d3p975
       integer oactive(2)
       integer vactive(2)
       integer numact
-c --- ccsd_act/eomccsd_act ---
+! --- ccsd_act/eomccsd_act ---
       integer uact,oact
       double precision emin_act,emax_act
-c --- 4 index transform. ---
+! --- 4 index transform. ---
       integer maxs,ichopx,i4im,idiskx
-c --- EOM solver
+! --- EOM solver
       integer hbard
 
-c --- TCE_CUDA
+! --- TCE_CUDA
       integer icuda
-ckbn --- EA/IPCCSD
+!kbn --- EA/IPCCSD
 #ifdef EACCSD
       logical eaccsd
 #endif
@@ -130,43 +130,43 @@ ckbn --- EA/IPCCSD
       logical ipccsd
 #endif
 
-c
-c -------------------------------------
-c What input block are we dealing with?
-c -------------------------------------
-c
+!
+! -------------------------------------
+! What input block are we dealing with?
+! -------------------------------------
+!
       if (.not.rtdb_cget(rtdb,'tce:module',1,module))
      1  call errquit('tce_input: failed reading from rtdb',0,
      2  RTDB_ERR)
-c
-c ------------------
-c Set default values
-c ------------------
-c
-c     DFT, HF, or SCF (reference wavefunction)
-c
+!
+! ------------------
+! Set default values
+! ------------------
+!
+!     DFT, HF, or SCF (reference wavefunction)
+!
       reference=1
       if (.not.rtdb_put(rtdb,'tce:reference',mt_int,1,reference))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     FREEZE (frozen cores/virtuals)
-c
-c     no action is taken
-c
-c     MODEL (the name of CC model requested)
-c
-c     no action is taken
-c
-c     THRESH (convergence threshold for Davidson iteration)
-c
+!
+!     FREEZE (frozen cores/virtuals)
+!
+!     no action is taken
+!
+!     MODEL (the name of CC model requested)
+!
+!     no action is taken
+!
+!     THRESH (convergence threshold for Davidson iteration)
+!
       thresh=1.0d-7
       if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     LEVEL SHIFT (for singles and doubles)
-c
+!
+!     LEVEL SHIFT (for singles and doubles)
+!
       zlshift=0.0d0
       if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
      1  call errquit('tce_input: failed writing to rtdb',0,
@@ -185,27 +185,27 @@ c
       if (.not.rtdb_put(rtdb,'tce:zlshift3',mt_dbl,2,zlshift3))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     MAXITER (the maximum number of Davidson iterations)
-c
+!
+!     MAXITER (the maximum number of Davidson iterations)
+!
       maxiter=100
       if (.not.rtdb_put(rtdb,'tce:maxiter',mt_int,1,maxiter))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     IO (I/O method, 0 = Fortran Direct Access, 
-c                     1 = C Low-Level I/O,
-c                     2 = GA Library,
-c                     3 = SF library,
-c                     4 = Replicated C Low-Level I/O)
-c
+!
+!     IO (I/O method, 0 = Fortran Direct Access, 
+!                     1 = C Low-Level I/O,
+!                     2 = GA Library,
+!                     3 = SF library,
+!                     4 = Replicated C Low-Level I/O)
+!
       ioalg=2
       if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     DIIS (the vector space size in DIIS)
-c
+!
+!     DIIS (the vector space size in DIIS)
+!
       diis=5
       if (.not.rtdb_put(rtdb,'tce:diis',mt_int,1,diis))
      1  call errquit('tce_input: failed writing to rtdb',0,
@@ -218,115 +218,115 @@ c
       if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     EOMCC SOLVER
-c
+!
+!     EOMCC SOLVER
+!
       eomsol=1
       if (.not.rtdb_put(rtdb,'tce:eoms',mt_int,1,eomsol))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     DIMENSION OF THE EOM ITERATIVE SPACE
-c
+!
+!     DIMENSION OF THE EOM ITERATIVE SPACE
+!
       hbard=500
       if (.not.rtdb_put(rtdb,'tce:hbard',mt_int,1,hbard))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     NROOTS (the number of excited state roots)
-c
+!
+!     NROOTS (the number of excited state roots)
+!
       nroots=0
       if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     2e STORAGE
-c
+!
+!     2e STORAGE
+!
         model2e='2espin'
       if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c 4ind. transfromation
-c
+!
+! 4ind. transfromation
+!
        maxs=30
       if (.not.rtdb_put(rtdb,'tce:maxs',mt_int,1,maxs))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR) 
-c
+!
        ichopx=1
       if (.not.rtdb_put(rtdb,'tce:ichopx',mt_int,1,ichopx))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
+!
        i4im=1
       if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,i4im))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
+!
       idiskx=0
       if (.not.rtdb_put(rtdb,'tce:idiskx',mt_int,1,idiskx))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     TARGET (the target excited state for, e.g., geometry optimization)
-c
+!
+!     TARGET (the target excited state for, e.g., geometry optimization)
+!
       target=1
       if (.not.rtdb_put(rtdb,'tce:target',mt_int,1,target))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     TARGETSYM (the irrep of the target excited state)
-c
+!
+!     TARGETSYM (the irrep of the target excited state)
+!
       targetsym='none'
       if (.not.rtdb_cput(rtdb,'tce:targetsym',1,targetsym))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
-c
+!
+!     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
+!
       symmetry=.false.
       if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     IDENS (one particle reduced density matrix)
-c
+!
+!     IDENS (one particle reduced density matrix)
+!
       idens=.false.
       if (.not.rtdb_put(rtdb,'tce:densmat',mt_log,1,idens))
      1   call errquit('tce_input: failed writing to rtdb',0,
      1   rtdb_err)
-c
-c     DIPOLE (dipole moments & dipole transition moments)
-c
+!
+!     DIPOLE (dipole moments & dipole transition moments)
+!
       left=.false.
       if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     MULTIPOLE LMAX (multipole moments highest angular momentum)
-c
+!
+!     MULTIPOLE LMAX (multipole moments highest angular momentum)
+!
       multipole=0
       if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     FRAGMENT (fragment MO calculations)
-c
+!
+!     FRAGMENT (fragment MO calculations)
+!
       fragment=-1
       if (.not.rtdb_put(rtdb,'tce:fragment',mt_int,1,fragment))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     (NO)FOCK (recompute fock for, e.g., DFT, ROHF refs)
-c
+!
+!     (NO)FOCK (recompute fock for, e.g., DFT, ROHF refs)
+!
       recompf=.true.
       if (.not.rtdb_put(rtdb,'tce:recompf',mt_log,1,recompf))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     ACTIVE_OA,OB (Number of active occupied orbitals)
-c
+!
+!     ACTIVE_OA,OB (Number of active occupied orbitals)
+!
       oactive(1)=0
       if (.not.rtdb_put(rtdb,'tce:active_oa',mt_int,1,oactive(1)))
      1  call errquit('tce_input: failed writing to rtdb',0,
@@ -335,9 +335,9 @@ c
       if (.not.rtdb_put(rtdb,'tce:active_ob',mt_int,1,oactive(2)))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c     ccsd_act/eomccsd_act
-c
+!
+!     ccsd_act/eomccsd_act
+!
       oact=0
       if (.not.rtdb_put(rtdb,'tce:oact',mt_int,1,oact))
      1  call errquit('tce_input: failed writing to rtdb',0,
@@ -346,7 +346,7 @@ c
       if (.not.rtdb_put(rtdb,'tce:uact',mt_int,1,uact))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
+!
       emin_act=0.0d0
       if (.not.rtdb_put(rtdb,'tce:eactmin',mt_dbl,1,emin_act))
      1  call errquit('tce_input: rtdb eactmin problem',0,
@@ -355,9 +355,9 @@ c
       if (.not.rtdb_put(rtdb,'tce:eactmax',mt_dbl,1,emax_act))
      1  call errquit('tce_input: rtdb eactmax problem',0,
      2  RTDB_ERR)
-c
-c     ACTIVE_VA,VB (Number of active virtual orbitals)
-c
+!
+!     ACTIVE_VA,VB (Number of active virtual orbitals)
+!
       vactive(1)=0
       if (.not.rtdb_put(rtdb,'tce:active_va',mt_int,1,vactive(1)))
      1  call errquit('tce_input: failed writing to rtdb',0,
@@ -366,27 +366,27 @@ c
       if (.not.rtdb_put(rtdb,'tce:active_vb',mt_int,1,vactive(2)))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c    ACTIVE EXCITATION LEVEL (number of active orbitals in T3)
-c
+!
+!    ACTIVE EXCITATION LEVEL (number of active orbitals in T3)
+!
       numact=0
       if (.not.rtdb_put(rtdb,'tce:act_excit_lvl',mt_int,1,numact))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
-c
-c ----------
-c Read input
-c ----------
-c
+!
+! ----------
+! Read input
+! ----------
+!
    10 if (.not. inp_read()) 
      1  call errquit('tce_input: failed reading input',0,
      2  RTDB_ERR)
       if (.not. inp_a(test)) 
      1  call errquit('tce_input: failed reading keyword',0,
      2  RTDB_ERR)
-c
-c     DFT, HF, or SCF (reference wavefunction)
-c
+!
+!     DFT, HF, or SCF (reference wavefunction)
+!
       if (inp_compare(.false.,test,'dft')) then
         reference=0
         if (.not.rtdb_put(rtdb,'tce:reference',mt_int,1,reference))
@@ -402,14 +402,14 @@ c
         if (.not.rtdb_put(rtdb,'tce:reference',mt_int,1,reference))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     FREEZE (frozen cores/virtuals)
-c
+!
+!     FREEZE (frozen cores/virtuals)
+!
       else if (inp_compare(.false.,test,'freeze')) then
         call freeze_input(rtdb,'tce')
-c
-c     STORAGE OF 2-e INTEGRALS
-c
+!
+!     STORAGE OF 2-e INTEGRALS
+!
       else if (inp_compare(.false.,test,'2eorb')) then
         if (module.eq.'tce') then
         model2e='2eorb'
@@ -420,9 +420,9 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-c
-c     MODEL (the name of theory requested)
-c
+!
+!     MODEL (the name of theory requested)
+!
       else if (inp_compare(.false.,test,'multi')) then
         if (module.eq.'tce') then
         model='multi'
@@ -473,7 +473,7 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
       else if (inp_compare(.false.,test,'ccsd_act')) then
         if (module.eq.'tce') then
         model='ccsd_act'
@@ -522,7 +522,7 @@ c ccsd_act/eomccsd_act
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
       else if (inp_compare(.false.,test,'crsd(t)ac')) then
         if (module.eq.'tce') then
         model='ccsd_act'
@@ -651,9 +651,9 @@ c ccsd_act/eomccsd_act
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-c
-c
-c
+!
+!
+!
       else if (inp_compare(.false.,test,'lambda-ccsd(t)')) then
         if (module.eq.'tce') then
         model='ccsd'
@@ -672,27 +672,27 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-c      else if (inp_compare(.false.,test,'lambda-ccsd[t]')) then
-c        if (module.eq.'tce') then
-c        model='ccsd'
-c        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
-c     1    call errquit('tce_input: failed writing to rtdb',0,
-c     2    RTDB_ERR)
-c        perturbative='lambda[t]'
-c        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
-c     1    call errquit('tce_input: failed writing to rtdb',0,
-c     2    RTDB_ERR)
-c        left=.true.
-c        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
-c     1    call errquit('tce_input: failed writing to rtdb',0,
-c     2    RTDB_ERR)
-c        else
-c        call errquit('tce_input: multiple theory inputs',0,
-c     1    INPUT_ERR)
-c        endif
-c
-c
-c
+!      else if (inp_compare(.false.,test,'lambda-ccsd[t]')) then
+!        if (module.eq.'tce') then
+!        model='ccsd'
+!        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+!     1    call errquit('tce_input: failed writing to rtdb',0,
+!     2    RTDB_ERR)
+!        perturbative='lambda[t]'
+!        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+!     1    call errquit('tce_input: failed writing to rtdb',0,
+!     2    RTDB_ERR)
+!        left=.true.
+!        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+!     1    call errquit('tce_input: failed writing to rtdb',0,
+!     2    RTDB_ERR)
+!        else
+!        call errquit('tce_input: multiple theory inputs',0,
+!     1    INPUT_ERR)
+!        endif
+!
+!
+!
       else if (inp_compare(.false.,test,'cr-ccsd(t)')) then
         if (module.eq.'tce') then
         model='ccsd'
@@ -735,7 +735,7 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
-c ccsd_act/eomccsd-act
+! ccsd_act/eomccsd-act
       else if (inp_compare(.false.,test,'creom(t)ac')) then
         if (module.eq.'tce') then
         model='ccsd_act'
@@ -1026,8 +1026,8 @@ c ccsd_act/eomccsd-act
         endif
 
 #ifdef MRCC_METHODS
-ckbn mrcc-r-1 -3
-c     BWCCSD
+!kbn mrcc-r-1 -3
+!     BWCCSD
       else if (inp_compare(.false.,test,'bwccsd')) then
         if (module.eq.'tce') then
         model='bwccsd'
@@ -1042,7 +1042,7 @@ c     BWCCSD
      1    INPUT_ERR)
         endif
       else if (inp_compare(.false.,test,'mkccsd')) then
-c     MkCCSD
+!     MkCCSD
         if (module.eq.'tce') then
         model='mkccsd'
         if (.not.rtdb_cput(rtdb,'tce:model',1,model))
@@ -1057,9 +1057,9 @@ c     MkCCSD
         endif
 #endif
 
-c
-c     THRESH (convergence threshold for Davidson iteration)
-c
+!
+!     THRESH (convergence threshold for Davidson iteration)
+!
       else if (inp_compare(.false.,test,'thresh')) then
         if (.not.inp_f(thresh)) then
           write(LuOut,*) 'tce_input: thresh value not found; ',
@@ -1069,9 +1069,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     LEVEL SHIFT
-c
+!
+!     LEVEL SHIFT
+!
       else if (inp_compare(.false.,test,'lshift')) then
         if (.not.inp_f(zlshift)) then
           write(LuOut,*) 'tce_input: lshift value not found; ',
@@ -1119,9 +1119,9 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 
-c
-c      TCE_CUDA Number of CUDA devices per node
-c
+!
+!      TCE_CUDA Number of CUDA devices per node
+!
       else if (inp_compare(.false.,test,'cuda')) then
         if (.not.inp_i(icuda))
      1    call errquit('tce_input: no icuda',0,INPUT_ERR)
@@ -1129,9 +1129,9 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 
-c
-c     MAXITER (the maximum number of Davidson iterations)
-c
+!
+!     MAXITER (the maximum number of Davidson iterations)
+!
       else if (inp_compare(.false.,test,'maxiter')) then
         if (.not.inp_i(maxiter)) then
           write(LuOut,*) 'tce_input: maxiter value not found; ',
@@ -1141,9 +1141,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:maxiter',mt_int,1,maxiter))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     IOALGORITHM (I/O method)
-c
+!
+!     IOALGORITHM (I/O method)
+!
       else if (inp_compare(.false.,test,'io')) then
         if (.not.inp_a(ioalgchar)) then
           write(LuOut,*) 'tce_input: ioalgorithm value not found; ',
@@ -1169,9 +1169,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:ioalg',mt_int,1,ioalg))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c EOMCC SOLVER
-c
+!
+! EOMCC SOLVER
+!
       else if (inp_compare(.false.,test,'eomsol')) then
         if (.not.inp_i(eomsol)) then
           write(LuOut,*) 'tce_input: eomsol value not found; ',
@@ -1181,9 +1181,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:eoms',mt_int,1,eomsol))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     DIIS (the vector space size in DIIS)
-c
+!
+!     DIIS (the vector space size in DIIS)
+!
       else if (inp_compare(.false.,test,'diis')) then
         if (.not.inp_i(diis)) then
           write(LuOut,*) 'tce_input: diis value not found; ',
@@ -1211,9 +1211,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:diis3',mt_int,1,diis3))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c DIMENSION OF EOMCC ITERATIVE SPACE
-c
+!
+! DIMENSION OF EOMCC ITERATIVE SPACE
+!
       else if (inp_compare(.false.,test,'hbard')) then
         if (.not.inp_i(hbard)) then
           write(LuOut,*) 'tce_input: hbard value not found; ',
@@ -1223,9 +1223,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:hbard',mt_int,1,hbard))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     NROOTS (the number of excited state root)
-c
+!
+!     NROOTS (the number of excited state root)
+!
       else if (inp_compare(.false.,test,'nroots')) then
         if (.not.inp_i(nroots)) then
           write(LuOut,*) 'tce_input: nroots value not found; ',
@@ -1235,8 +1235,8 @@ c
         if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-ckbn EACCSD
+!
+!kbn EACCSD
 #ifdef EACCSD
       else if (inp_compare(.false.,test,'eaccsd')) then
         eaccsd=.true.
@@ -1244,8 +1244,8 @@ ckbn EACCSD
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 #endif
-c
-ckbn IPCCSD
+!
+!kbn IPCCSD
 #ifdef IPCCSD
       else if (inp_compare(.false.,test,'ipccsd')) then
         ipccsd=.true.
@@ -1253,21 +1253,21 @@ ckbn IPCCSD
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 #endif
-c
-c     MAXDIFF (for EOM codes)
-c
+!
+!     MAXDIFF (for EOM codes)
+!
       else if (inp_compare(.false.,test,'maxdiff')) then
         if (.not.inp_f(maxdiff)) then
-c          write(LuOut,*) 'tce_input: maxdiff value not found; ',
-c     1      'default value of 1e-6 will be used'
+!          write(LuOut,*) 'tce_input: maxdiff value not found; ',
+!     1      'default value of 1e-6 will be used'
           maxdiff=0.5d0
         endif
         if (.not.rtdb_put(rtdb,'tce:maxdiff',mt_dbl,1,maxdiff))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     2e STORAGE
-c
+!
+!     2e STORAGE
+!
       else if (inp_compare(.false.,test,'attilesize')) then
         if (.not.inp_i(maxs)) then
           write(LuOut,*) 'tce_input: attilesize value not found; ',
@@ -1277,7 +1277,7 @@ c
         if (.not.rtdb_put(rtdb,'tce:maxs',mt_int,1,maxs))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
+!
       else if (inp_compare(.false.,test,'split')) then
         if (.not.inp_i(ichopx)) then
           write(LuOut,*) 'tce_input: split value not found; ',
@@ -1287,7 +1287,7 @@ c
         if (.not.rtdb_put(rtdb,'tce:ichopx',mt_int,1,ichopx))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
+!
       else if (inp_compare(.false.,test,'2emet')) then
         if (.not.inp_i(i4im)) then
           write(LuOut,*) 'tce_input: 2emet value not found; ',
@@ -1297,7 +1297,7 @@ c
         if (.not.rtdb_put(rtdb,'tce:i4im',mt_int,1,i4im))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
+!
       else if (inp_compare(.false.,test,'idiskx')) then
         if (.not.inp_i(idiskx)) then
           write(LuOut,*) 'tce_input: idiskx value not found; ',
@@ -1307,9 +1307,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:idiskx',mt_int,1,idiskx))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     TARGET (the target excited state for, e.g., geometry optimization)
-c
+!
+!     TARGET (the target excited state for, e.g., geometry optimization)
+!
       else if (inp_compare(.false.,test,'target')) then
         if (.not.inp_i(target)) then
           write(LuOut,*) 'tce_input: target value not found; ',
@@ -1321,9 +1321,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:target',mt_int,1,target))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     TARGETSYM (the symmetry of the target excited state)
-c
+!
+!     TARGETSYM (the symmetry of the target excited state)
+!
       else if (inp_compare(.false.,test,'targetsym')) then
         if (.not.inp_a(targetsym)) then
           write(LuOut,*) 'tce_input: targetsym value not found; ',
@@ -1333,17 +1333,17 @@ c
         if (.not.rtdb_cput(rtdb,'tce:targetsym',1,targetsym))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
-c
+!
+!     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
+!
       else if (inp_compare(.false.,test,'symmetry')) then
         symmetry=.true.
         if (.not.rtdb_put(rtdb,'tce:symmetry',mt_log,1,symmetry))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     IDENS (one particle reduced density matrix)
-c
+!
+!     IDENS (one particle reduced density matrix)
+!
       else if (inp_compare(.false.,test,'densmat')) then
          idens=.true.
          left =.true.
@@ -1359,9 +1359,9 @@ c
          if (.not.rtdb_cput(rtdb,'tce:file_densmat',1,file_densmat))
      1      call errquit('tce_input: rtdb_cput failed - file_densmat',0,
      1      RTDB_ERR)
-c
-c     MULTIPOLE (multipole moments)
-c
+!
+!     MULTIPOLE (multipole moments)
+!
       else if (inp_compare(.false.,test,'multipole')) then
         left=.true.
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
@@ -1375,11 +1375,11 @@ c
         if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     DIPOLE (dipole moments & dipole transition moments)
-c     QUADRUPOLE (quadrupole moments & quadrupole transition moments)
-c     OCTUPOLE (octupole moments & octupole transition moments)
-c
+!
+!     DIPOLE (dipole moments & dipole transition moments)
+!     QUADRUPOLE (quadrupole moments & quadrupole transition moments)
+!     OCTUPOLE (octupole moments & octupole transition moments)
+!
       else if (inp_compare(.false.,test,'dipole')) then
         left=.true.
         if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
@@ -1407,23 +1407,23 @@ c
         if (.not.rtdb_put(rtdb,'tce:multipole',mt_int,1,multipole))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     PROPERTY INPUT SUB-BLOCK
-c
+!
+!     PROPERTY INPUT SUB-BLOCK
+!
       else if (inp_compare(.false.,test,'tceprop')) then
         call tce_prop_input(rtdb)
-c
-c     TILESIZE (the maximum tile size)
-c
+!
+!     TILESIZE (the maximum tile size)
+!
       else if (inp_compare(.false.,test,'tilesize')) then
         if (.not.inp_i(tilesize))
      1    call errquit('tce_input: no tilesize given',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:tilesize',mt_int,1,tilesize))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     FRAGMENT (if excited state calc, give an atom in an excited fragment)
-c
+!
+!     FRAGMENT (if excited state calc, give an atom in an excited fragment)
+!
       else if (inp_compare(.false.,test,'fragment')) then
         if (.not.inp_i(fragment)) then
           write(LuOut,*) 'tce_input: fragment value not found; ',
@@ -1433,9 +1433,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:fragment',mt_int,1,fragment))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     (NO)FOCK (recompute fock for, e.g., DFT, ROHF refs)
-c
+!
+!     (NO)FOCK (recompute fock for, e.g., DFT, ROHF refs)
+!
       else if (inp_compare(.false.,test,'fock')) then
         recompf=.true.
         if (.not.rtdb_put(rtdb,'tce:recompf',mt_log,1,recompf))
@@ -1446,9 +1446,9 @@ c
         if (.not.rtdb_put(rtdb,'tce:recompf',mt_log,1,recompf))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c    ccsd_act/eomccsd_act
-c
+!
+!    ccsd_act/eomccsd_act
+!
       else if (inp_compare(.false.,test,'oact')) then
         if (.not.inp_i(oact))
      1    call errquit('tce_input: no oact given',0,INPUT_ERR)
@@ -1461,7 +1461,7 @@ c
         if (.not.rtdb_put(rtdb,'tce:uact',mt_int,1,uact))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
+!
       else if (inp_compare(.false.,test,'emin_act')) then
         if (.not.inp_f(emin_act))
      1    call errquit('tce_input: no emin_act given',0,INPUT_ERR)
@@ -1474,45 +1474,45 @@ c
         if (.not.rtdb_put(rtdb,'tce:eactmax',mt_dbl,1,emax_act))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     ACTIVE_OA (Number of active occupied orbitals)
-c
+!
+!     ACTIVE_OA (Number of active occupied orbitals)
+!
       else if (inp_compare(.false.,test,'active_oa')) then
         if (.not.inp_i(oactive(1)))
      1    call errquit('tce_input: no active_oa given',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:active_oa',mt_int,1,oactive(1)))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     ACTIVE_OB (Number of active occupied orbitals)
-c
+!
+!     ACTIVE_OB (Number of active occupied orbitals)
+!
       else if (inp_compare(.false.,test,'active_ob')) then
         if (.not.inp_i(oactive(2)))
      1    call errquit('tce_input: no active_ob given',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:active_ob',mt_int,1,oactive(2)))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     ACTIVE_VA (Number of active virtual orbitals)
-c
+!
+!     ACTIVE_VA (Number of active virtual orbitals)
+!
       else if (inp_compare(.false.,test,'active_va')) then
         if (.not.inp_i(vactive(1)))
      1    call errquit('tce_input: no active_va given',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:active_va',mt_int,1,vactive(1)))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     ACTIVE_VB (Number of active virtual orbitals)
-c
+!
+!     ACTIVE_VB (Number of active virtual orbitals)
+!
       else if (inp_compare(.false.,test,'active_vb')) then
         if (.not.inp_i(vactive(2)))
      1    call errquit('tce_input: no active_vb given',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:active_vb',mt_int,1,vactive(2)))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
-c
-c     ACTIVE_EXCIT_LVL (T3 active excitation level)
-c
+!
+!     ACTIVE_EXCIT_LVL (T3 active excitation level)
+!
       else if (inp_compare(.false.,test,'t3a_lvl')) then
         if (.not.inp_i(numact))
      1    call errquit('tce_input: no t3a_lvl given',0,INPUT_ERR)
@@ -1520,32 +1520,32 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 
-c
-c     PRINT
-c
+!
+!     PRINT
+!
       else if (inp_compare(.false.,test,'print')) then
         call util_print_input(rtdb,'tce')
-c
-c     END
-c
+!
+!     END
+!
       else if (inp_compare(.false.,test,'end')) then
         goto 20
       else
         call errquit('tce_input: unknown directive',0,INPUT_ERR)
       endif
       goto 10
-c
-c ------
-c Return
-c ------
-c
+!
+! ------
+! Return
+! ------
+!
    20 return
       end
-c
-c     This is the TCE property input block ("tceprop")
-c
+!
+!     This is the TCE property input block ("tceprop")
+!
       subroutine tce_prop_input(rtdb)
-c
+!
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
@@ -1571,40 +1571,40 @@ c
       logical quadresp ! T(2) response equations
       logical imagresp ! T(1) response equatiosn - imaginary frequency
       logical status
-c
+!
       lineresp = .false.
       leftresp = .false.
       quadresp = .false.
       imagresp = .false.
-c
-c -------------------------------------
-c What input block are we dealing with?
-c -------------------------------------
-c
+!
+! -------------------------------------
+! What input block are we dealing with?
+! -------------------------------------
+!
       if (.not.rtdb_cget(rtdb,'tce:module',1,module)) then
         call errquit('tce_prop_input: line ',__LINE__,RTDB_ERR)
       endif
-c
-c ----------
-c Read input
-c ----------
-c
- 100  if (.not. inp_read()) then
+!
+! ----------
+! Read input
+! ----------
+!
+  100 if (.not. inp_read()) then
         call errquit('tce_prop_input: line ',__LINE__,RTDB_ERR)
       endif
       if (.not. inp_a(test)) then
         call errquit('tce_prop_input: line ',__LINE__,RTDB_ERR)
       endif
-c
-c     POLARIZABILITY
-c
+!
+!     POLARIZABILITY
+!
       if (inp_compare(.false.,test,'polarizability').or.
      1    inp_compare(.false.,test,'polar').or.
      2    inp_compare(.false.,test,'alpha')) then
         lineresp = .true.
-c
-c     HYPERPOLARIZABILITY
-c
+!
+!     HYPERPOLARIZABILITY
+!
       elseif (inp_compare(.false.,test,'hyperpolarizability').or.
      1    inp_compare(.false.,test,'hyperpolar').or.
      2    inp_compare(.false.,test,'beta')) then
@@ -1624,9 +1624,9 @@ c
      1                   __LINE__,RTDB_ERR)
           endif
         endif
-c
-c     SECOND HYPERPOLARIZABILITY
-c
+!
+!     SECOND HYPERPOLARIZABILITY
+!
       elseif (inp_compare(.false.,test,'cubicpolarizability').or.
      1        inp_compare(.false.,test,'cubicpolar').or.
      2        inp_compare(.false.,test,'gamma')) then
@@ -1651,9 +1651,9 @@ c
      1                   __LINE__,RTDB_ERR)
           endif
         endif
-c
-c     DISPERSION
-c
+!
+!     DISPERSION
+!
       elseif (inp_compare(.false.,test,'dispersion').or.
      1        inp_compare(.false.,test,'disp').or.
      2        inp_compare(.false.,test,'c6')) then
@@ -1672,9 +1672,9 @@ c
      1                   __LINE__,RTDB_ERR)
           endif
         endif
-c
-c     AFREQ (omega for polarizability)
-c
+!
+!     AFREQ (omega for polarizability)
+!
       elseif (inp_compare(.false.,test,'afreq')) then
         lineresp = .true.
         if (inp_i(n_a)) then
@@ -1709,10 +1709,10 @@ c
           endif
           dbl_mb(k_a) = 0.0d0
         endif
- 300    continue
-c
-c     BFREQ (omega for first hyperpolarizability)
-c
+  300   continue
+!
+!     BFREQ (omega for first hyperpolarizability)
+!
       elseif (inp_compare(.false.,test,'bfreq')) then
         lineresp = .true.
         leftresp = .true.
@@ -1748,10 +1748,10 @@ c
           endif
           dbl_mb(k_b) = 0.0d0
         endif
- 400    continue
-c
-c     CFREQ (omega for second hyperpolarizability)
-c
+  400   continue
+!
+!     CFREQ (omega for second hyperpolarizability)
+!
       elseif (inp_compare(.false.,test,'cfreq')) then
         lineresp = .true.
         leftresp = .true.
@@ -1788,10 +1788,10 @@ c
           endif
           dbl_mb(k_c) = 0.0d0
         endif
- 500    continue
-c
-c     IFREQ (omega for imaginary polarizability)
-c
+  500   continue
+!
+!     IFREQ (omega for imaginary polarizability)
+!
       elseif (inp_compare(.false.,test,'ifreq')) then
         imagresp = .true.
         if (inp_i(n_i)) then
@@ -1826,32 +1826,32 @@ c
           endif
           dbl_mb(k_i) = 0.0d0
         endif
- 600    continue
-c
-c     END
-c
+  600   continue
+!
+!     END
+!
       else if (inp_compare(.false.,test,'end')) then
         goto 200
       else
         call errquit('tce_prop_input: unknown directive',0,INPUT_ERR)
       endif
       goto 100
- 200  return
-c
-c -------------------
-c Push values to RTDB
-c -------------------
-c
+  200 return
+!
+! -------------------
+! Push values to RTDB
+! -------------------
+!
       if (.not.rtdb_put(rtdb,'tce:lineresp',mt_log,1,lineresp)) then
         call errquit('tce_prop_input: rtdb_put',__LINE__,RTDB_ERR)
       endif
       if (.not.rtdb_put(rtdb,'tce:leftresp',mt_log,1,leftresp)) then
         call errquit('tce_prop_input: rtdb_put',__LINE__,RTDB_ERR)
       endif
-c
-c ------
-c Return
-c ------
-c
+!
+! ------
+! Return
+! ------
+!
       end
 
