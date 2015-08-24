@@ -10,6 +10,7 @@ c
 c
       character*3 test1,test2
       character*7 test
+      character*20 msg
 
       test1 = unitin
       test2 = unitout
@@ -41,7 +42,8 @@ c
       case('au_kca')
         scale = cau2kcal
       case default
-        call errquit("unknown units: "//test,0,-1)
+        msg = "unknown units: "//trim(test)
+        call errquit(msg,0,-1)
       end select
    
 
