@@ -18,7 +18,7 @@
 #include <pmi.h>
 #endif
 
-static inline util_mpi_check(int rc, char * name)
+static inline int util_mpi_check(int rc, char * name)
 {
   if (rc != MPI_SUCCESS) {
     fprintf(stdout,"util_getppn: %s failed\n",name);
