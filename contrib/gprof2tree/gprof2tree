@@ -350,7 +350,6 @@ def usage_gprof2tree(fp):
 
     --version     Print the version number of gprof2tree.
 
-    Copyright 2004-2006, Huub van Dam, CCLRC Daresbury Laboratory
     \n""")
     sys.exit(1)
 
