@@ -124,7 +124,7 @@ c
         call util_flush(6)
        end if
       end if
- 103  format('EOMCCSD_X1_NTS --- OK')
+  103 format('EOMCCSD_X1_NTS --- OK')
 c
 c --------------------------------
 c ALL OFFSET OPENINGS HERE
