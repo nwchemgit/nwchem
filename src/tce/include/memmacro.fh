@@ -15,24 +15,24 @@
 !
 #ifdef USE_F90_ALLOCATABLE
 #define DECLMEM(a) \
-        integer :: error_##a; \
+        integer :: error_##a \
         double precision, allocatable :: f_##a(:) \
         !dec$ attributes fastmem :: f_##a
 #define ALLOMEM(a,s) \
-        allocate(f_##a(1:##s),stat=error_##a); \
-        if (error_##a.ne.0) call errquit("falloc #a",0,MA_ERR);
+        allocate(f_##a(1:##s),stat=error_##a)
 #define FREEMEM(a) \
-        deallocate(f_##a,stat=error_##a); \
-        if (error_##a.ne.0) call errquit("fdalloc #a",0,MA_ERR);
+        deallocate(f_##a,stat=error_##a)
+#define CHECKMEM(a) \
+        if (error_##a.ne.0) call errquit("falloc #a",0,MA_ERR)
 #define REF2MEM(a) f_##a
 #else
 #define DECLMEM(a) integer k_##a, l_##a; \
-                   logical  err_##a;
+        logical e_##a
 #define ALLOMEM(a,s) \
-        err_##a=MA_PUSH_GET(mt_dbl,s,#a,l_##a,k_##a); \
-        if (.not.err_##a) call errquit("PUSH"#a,#s,MA_ERR);
+        e_##a=MA_PUSH_GET(mt_dbl,s,#a,l_##a,k_##a)
 #define FREEMEM(a) \
-        err_##a=MA_POP_STACK(l_##a); \
-        if (.not.err_##a) call errquit("POP"#a,0,MA_ERR);
+        e_##a=MA_POP_STACK(l_##a)
+#define CHECKMEM(a) \
+        if (e_##a) call errquit("MA #a",0,MA_ERR)
 #define REF2MEM(a) dbl_mb(k_##a)
 #endif

@@ -131,6 +131,8 @@ c      call util_align64(size)
 !#endif
       ALLOMEM(singles,size)
       ALLOMEM(doubles,size)
+      CHECKMEM(singles)
+      CHECKMEM(doubles)
 #ifdef USE_OFFLOAD
       call offl_alloc(REF2MEM(singles),size)
       call offl_alloc(REF2MEM(doubles),size)

@@ -6068,6 +6068,9 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       ALLOMEM(a,dimhhpp)
       ALLOMEM(b,dimpppp)
       ALLOMEM(c,dimhhpp)
+      CHECKMEM(a)
+      CHECKMEM(b)
+      CHECKMEM(c)
 #ifndef USE_LOOPS_NOT_DGEMM
       ALLOMEM(t,dimtemp)
 #endif
@@ -6204,6 +6207,9 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       FREEMEM(a)
       FREEMEM(b)
       FREEMEM(c)
+      CHECKMEM(a)
+      CHECKMEM(b)
+      CHECKMEM(c)
 #ifndef USE_LOOPS_NOT_DGEMM
       FREEMEM(t)
 #endif

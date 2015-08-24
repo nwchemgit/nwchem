@@ -258,6 +258,7 @@ c
 c
 c
          ALLOMEM(a,size)
+         CHECKMEM(a)
 ! Jeff: FIX THIS w/ DCOPY
 #ifdef USE_F90_ALLOCATABLE
          do i = 1, size
@@ -499,6 +500,7 @@ ccx         if(check_key.ne.key_alpha)
 ccx     1   call errquit('get_block_ind:check_key2',0,UNKNOWN_ERR)
 c -------------
          ALLOMEM(a,size)
+         CHECKMEM(a)
 #ifdef USE_F90_ALLOCATABLE
          do i = 1, size
            f_a(i) = 0.0d0
@@ -907,6 +909,7 @@ c
 c
 c
          ALLOMEM(a,size)
+         CHECKMEM(a)
 #ifdef USE_F90_ALLOCATABLE
          do i = 1, size
            array(i) = 0.0d0
@@ -1133,6 +1136,7 @@ c - exascale ---
        end if
 c ---
          ALLOMEM(a,size)
+         CHECKMEM(a)
          call ga_get(d_v2orb,off_a+1,off_a+size,1,1,REF2MEM(a),1)
 c
 c
@@ -1556,6 +1560,7 @@ c
 c
 c
          ALLOMEM(a,size)
+         CHECKMEM(a)
 #ifdef USE_F90_ALLOCATABLE
          do i = 1, size
            f_a(i) = 0.0d0
@@ -1794,6 +1799,7 @@ ccx         if(check_key.ne.key_alpha)
 ccx     1   call errquit('get_block_ind:check_key2',0,UNKNOWN_ERR)
 c -------------
          ALLOMEM(a,size)
+         CHECKMEM(a)
 #ifdef USE_F90_ALLOCATABLE
          do i = 1, size
            f_a(i) = 0.0d0
