@@ -378,7 +378,7 @@ c ----------
 c Read input
 c ----------
 c
- 10   if (.not. inp_read()) 
+   10 if (.not. inp_read()) 
      1  call errquit('tce_input: failed reading input',0,
      2  RTDB_ERR)
       if (.not. inp_a(test)) 
@@ -1539,7 +1539,7 @@ c ------
 c Return
 c ------
 c
- 20   return
+   20 return
       end
 c
 c     This is the TCE property input block ("tceprop")
