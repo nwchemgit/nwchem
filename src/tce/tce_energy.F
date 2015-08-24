@@ -1,7 +1,7 @@
       logical function tce_energy(rtdb,excitedfragment)
-c
-c $Id$
-c 
+!
+! $Id$
+! 
       implicit none
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -22,10 +22,10 @@ c
 #include "tce_diis.fh"
 #include "tce_prop.fh"
 #include "tce_restart.fh"
-c#include "paw_params.fh"
-c
-c     CI, CC, & MBPT
-c
+!#include "paw_params.fh"
+!
+!     CI, CC, & MBPT
+!
       integer rtdb             ! Run-time database
       logical nodezero         ! True if node 0
       logical recompf          ! True if recompute Fock
@@ -43,23 +43,23 @@ c
       integer k_v2_offset      ! Offset for 2e integral file
       integer size_2e          ! File size in doubles
       integer size_2e_ga,size_2e_sf
-c --- relevant if intorb = .true. ----
+! --- relevant if intorb = .true. ----
       integer lax_v2_alpha_offset     ! Offset for 2e integrals if intorb=.true.
       integer kax_v2_alpha_offset     ! Offset for 2e integrals if intorb=.true.
       integer lax_v2_alpha_offset_ga  ! Offset for 2e integrals if intorb=.true.
       integer kax_v2_alpha_offset_ga  ! Offset for 2e integrals if intorb=.true.
       integer lax_v2_alpha_offset_sf  ! Offset for 2e integrals if intorb=.true.
       integer kax_v2_alpha_offset_sf  ! Offset for 2e integrals if intorb=.true.
-c      integer l_o2o_offset       ! Offset for offset to offset table
-c      integer k_o2o_offset       ! Offset for offset to offset table
-c      integer l_o2ot_offset      ! orbitals for offset to offset tables
-c      integer k_o2ot_offset      ! orbitals for offset to offset tables
+!      integer l_o2o_offset       ! Offset for offset to offset table
+!      integer k_o2o_offset       ! Offset for offset to offset table
+!      integer l_o2ot_offset      ! orbitals for offset to offset tables
+!      integer k_o2ot_offset      ! orbitals for offset to offset tables
       integer lx_o2o_offset,kx_o2o_offset
       integer lx_o2ot_offset,kx_o2ot_offset
       integer lx_v2spin_offset,kx_v2spin_offset
       integer length
-c      integer d_v2orb
-c ------------------------------------
+!      integer d_v2orb
+! ------------------------------------
       integer d_t1             ! SF handle for t1 amplitudes
       integer l_t1_offset      ! Offset for t1 file
       integer k_t1_offset      ! Offset for t1 file
@@ -135,12 +135,12 @@ c ------------------------------------
       double precision r4      ! Residual t4
       double precision residual! Largest residual
       integer dummy            ! Dummy argument for DIIS
-c FOR LRH-SD
+! FOR LRH-SD
       integer d_j1,d_j2
       integer l_j1_offset,l_j2_offset
       integer k_j1_offset,k_j2_offset
       integer size_j1,size_j2
-c FOR CR-EOMCCSD(T) ---------------------
+! FOR CR-EOMCCSD(T) ---------------------
       integer d_ex1,d_ex2
       integer l_ex1_offset,l_ex2_offset
       integer k_ex1_offset,k_ex2_offset
@@ -151,22 +151,22 @@ c FOR CR-EOMCCSD(T) ---------------------
       integer size_c1,size_c2
       double precision excit
       double precision energy_grcr
-c  NEW SOLVER ---------------------------
+!  NEW SOLVER ---------------------------
       integer l_hbar,k_hbar,ihbar
       integer imicro,xdiis,iroot
       integer l_c_eff,k_c_eff
       integer l_h_eff,k_h_eff
       integer ipos,ipos1,ipos2
-c - T1/X1 LOCALIZATION -------------------
+! - T1/X1 LOCALIZATION -------------------
       integer l_t1_local,k_t1_local
       integer l_x1_local,k_x1_local
-c ---------------------------------------
-c - intermediates reuse --
+! ---------------------------------------
+! - intermediates reuse --
       integer l_aux_off,k_aux_off,size_aux
       integer ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5
       integer rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,rec_d_6
       integer rec_d_7,rec_d_8,rec_d_9
-c - new restarts and eom iter.control ---------
+! - new restarts and eom iter.control ---------
       integer unitn,recforio
       integer xmem
       logical res_log
@@ -178,7 +178,7 @@ c - new restarts and eom iter.control ---------
       double precision eom_excit(4),eom_r0(4)
       double precision thresh_l,aux_x
       double precision thresh_eom
-c ---------------------------------------------
+! ---------------------------------------------
       logical needt1
       logical needt2
       logical needt3
@@ -203,19 +203,19 @@ c ---------------------------------------------
 #ifdef TCE_CUDA
       integer icuda
 #endif
-c#ifdef EACCSD
+!#ifdef EACCSD
       logical eaccsd
-c#endif
-c#ifdef IPCCSD
+!#endif
+!#ifdef IPCCSD
       logical ipccsd
-c#endif
+!#endif
 
-c --- debug ---
-c      integer dup1,dup2,dup3,dup4,dup5,dup6
-c -------------
-c
-c     CC Lambda equation
-c
+! --- debug ---
+!      integer dup1,dup2,dup3,dup4,dup5,dup6
+! -------------
+!
+!     CC Lambda equation
+!
 #if !defined(NEWDIPOLE)
       integer g_aod1(3)         ! GA handle for AO dipole matrices
       integer g_aoq1(6)         ! GA handle for AO quadrupole matrices
@@ -298,9 +298,9 @@ c
       external ddotfile
       integer sym_abelian_axis ! Move this and the following to "sym.fh"
       external sym_abelian_axis
-c
-c     CC Response
-c
+!
+!     CC Response
+!
       character*5 rr1filename(3) ! File name stub
       data rr1filename/'rr1x ','rr1y ','rr1z '/
       character*5 rr2filename(3) ! File name stub
@@ -325,7 +325,7 @@ c
       data tr4filename/'tr4x ','tr4y ','tr4z ',
      1                 'tr4x-','tr4y-','tr4z-',
      2                 'tr4xi','tr4yi','tr4zi'/
-c
+!
       character*5 yrr1filename(3) ! File name stub
       data yrr1filename/'yrr1x','yrr1y','yrr1z'/
       character*5 yrr2filename(3) ! File name stub
@@ -342,7 +342,7 @@ c
       data yr3filename/'yr3x+','yr3y+','yr3z+','yr3x-','yr3y-','yr3z-'/
       character*5 yr4filename(6) ! File name stub
       data yr4filename/'yr4x+','yr4y+','yr4z+','yr4x-','yr4y-','yr4z-'/
-c     RESPONSE AMPLITUDES
+!     RESPONSE AMPLITUDES
       integer d_tr1(9)             ! SF handle for tr1 amplitudes
       integer l_tr1_offset(3)      ! Offset for tr1 file
       integer k_tr1_offset(3)      ! Offset for tr1 file
@@ -359,15 +359,15 @@ c     RESPONSE AMPLITUDES
       integer l_tr4_offset(3)      ! Offset for tr4 file
       integer k_tr4_offset(3)      ! Offset for tr4 file
       integer size_tr4(3)          ! File size in doubles
-c     RESPONSE RESIDUALS
+!     RESPONSE RESIDUALS
       integer d_rr1(3)             ! SF handle for rr1 amplitudes
       integer d_rr2(3)             ! SF handle for rr2 amplitudes
       integer d_rr3(3)             ! SF handle for rr3 amplitudes
       integer d_rr4(3)             ! SF handle for rr4 amplitudes
-c     =====================================================
-c               CC-T(1) Imaginary Auxilary Amplitudes
-c               Use: ir = A*x, rr = A*ir (rr=A*A*x)
-c     =====================================================
+!     =====================================================
+!               CC-T(1) Imaginary Auxilary Amplitudes
+!               Use: ir = A*x, rr = A*ir (rr=A*A*x)
+!     =====================================================
       integer d_denom1,d_denom2
       integer d_ir1(3)             ! SF handle for ir1 amplitudes
       integer d_ir2(3)             ! SF handle for ir2 amplitudes
@@ -381,7 +381,7 @@ c     =====================================================
       data ir3filename/'ir3x','ir3y','ir3z'/
       character*4 ir4filename(3) ! File name stub
       data ir4filename/'ir4x','ir4y','ir4z'/
-c     LAMBDA RESPONSE AMPLITUDES
+!     LAMBDA RESPONSE AMPLITUDES
       integer d_yr1(6)             ! SF handle for yr1 amplitudes
       integer l_yr1_offset(3)      ! Offset for yr1 file
       integer k_yr1_offset(3)      ! Offset for yr1 file
@@ -398,16 +398,16 @@ c     LAMBDA RESPONSE AMPLITUDES
       integer l_yr4_offset(3)      ! Offset for yr4 file
       integer k_yr4_offset(3)      ! Offset for yr4 file
       integer size_yr4(3)          ! File size in doubles
-c     LAMBDA RESPONSE RESIDUALS
+!     LAMBDA RESPONSE RESIDUALS
       integer d_yrr1(3)             ! SF handle for yrr1 amplitudes
       integer d_yrr2(3)             ! SF handle for yrr2 amplitudes
       integer d_yrr3(3)             ! SF handle for yrr3 amplitudes
       integer d_yrr4(3)             ! SF handle for yrr4 amplitudes
-c     OTHER RESPONSE STUFF
-c      double precision rr1        ! Residual tr1
-c      double precision rr2        ! Residual tr2
-c      double precision rr3        ! Residual tr3
-c      double precision rr4        ! Residual tr4
+!     OTHER RESPONSE STUFF
+!      double precision rr1        ! Residual tr1
+!      double precision rr2        ! Residual tr2
+!      double precision rr3        ! Residual tr3
+!      double precision rr4        ! Residual tr4
       double precision omega       ! The frequency used in (A-Iw)x=b
       double precision lambda      ! The damping of Ab in (A^2-Iw^2)+lambda*Ab=0
       double precision omega1     ! The frequency used in (A-Iw)x=b
@@ -443,11 +443,11 @@ c      double precision rr4        ! Residual tr4
       integer l_g0_offset         ! Offset for g0 file
       integer k_g0_offset         ! Offset for g0 file
       integer size_g0             ! File size in doubles
-c      double precision gamm(3,3,3,3)! Dipole second hyperpolarizability tensor (gamma not safe variable name)
-c      double precision gamm1        ! Dipole second hyperpolarizability term 1
-c      double precision gamm2        ! Dipole second hyperpolarizability term 2
-c      double precision gamm3        ! Dipole second hyperpolarizability term 3
-c      double precision gamm4        ! Dipole second hyperpolarizability term 4
+!      double precision gamm(3,3,3,3)! Dipole second hyperpolarizability tensor (gamma not safe variable name)
+!      double precision gamm1        ! Dipole second hyperpolarizability term 1
+!      double precision gamm2        ! Dipole second hyperpolarizability term 2
+!      double precision gamm3        ! Dipole second hyperpolarizability term 3
+!      double precision gamm4        ! Dipole second hyperpolarizability term 4
       double precision rr1,rr2,rr3,rr4
       double precision t1diagn ! T1 diagnostic
       double precision alphacopy(3,3)   ! Dipole polarizability tensor copy
@@ -456,10 +456,10 @@ c      double precision gamm4        ! Dipole second hyperpolarizability term 4
       double precision alphaevr(3)      ! Dipole polarizability tensor eigenvalues (real)
       double precision alphaevi(3)      ! Dipole polarizability tensor eigenvalues (imag)
       double precision aeigvec(3,3)     ! dummy ygeev eigenvectors
-c      integer iter             ! Iteration counter
-c
-c     Excited-state CI, CC, & MBPT
-c
+!      integer iter             ! Iteration counter
+!
+!     Excited-state CI, CC, & MBPT
+!
       integer irrep            ! Symmetry loop index
       integer irrep_g          ! Ground state symmetry
       integer d_rx1            ! RHS residual file
@@ -513,13 +513,13 @@ c
       logical converged
       double precision pt3_1   ! [T] energy
       double precision pt3_2   ! (T)-[T] energy
-c LR-CCSD(T) method
+! LR-CCSD(T) method
       double precision pt3_3,pt3_4,pt3_5,pt3_6
-c --------------------------------------------
-c LR-CCSD(TQ) method
+! --------------------------------------------
+! LR-CCSD(TQ) method
       double precision pt4_lr
-c --------------------------------------------
-c
+! --------------------------------------------
+!
       double precision au2ev    ! Conversion factor from a.u. to eV
       double precision au2ang   ! Conversion factor from bohr to Angstrom
       double precision au2ang3  ! Conversion factor from bohr^3 to Angstrom^3
@@ -536,21 +536,21 @@ c
       character*255 modelname
       logical do_ccd, do_lccd, do_ccsd, do_lccsd, do_qcisd
       logical do_pt, do_lam_pt, do_cr_pt, do_lcr_pt, do_2t_pt
-c
-c     Fragment extension
-c
+!
+!     Fragment extension
+!
       logical excitedfragment
-c
+!
       logical ccsdtleft
       logical tce_skip_scf
       nodezero=(ga_nodeid().eq.0)
       ccsdtleft=.false.
       do_mbpt = .false.
-c
-c     =========================
-c     Ground-state HF/DFT first
-c     =========================
-c
+!
+!     =========================
+!     Ground-state HF/DFT first
+!     =========================
+!
       tce_energy = .false.
       if (.not.rtdb_get(rtdb,'tce:reference',mt_int,1,reference)) then
         reference = 1
@@ -558,9 +558,9 @@ c
      1    call errquit('tce_energy: failed to write reference',0,
      2    RTDB_ERR)
       endif
-c
-c     TCE restart precludes SCF calculation
-c
+!
+!     TCE restart precludes SCF calculation
+!
       tce_skip_scf = .false.
       if (.not.rtdb_get(rtdb,'tce:read_integrals',mt_log,5,
      1         read_integrals)) then
@@ -591,51 +591,51 @@ c
      1      UNKNOWN_ERR)
         endif
       endif
-c
-c     ===================
-c     Print utility start
-c     ===================
-c
+!
+!     ===================
+!     Print utility start
+!     ===================
+!
       call util_print_push
       call util_print_rtdb_load(rtdb,'tce')
-c
-c     ==========
-c     Initialize
-c     ==========
-c
+!
+!     ==========
+!     Initialize
+!     ==========
+!
       call tce_init(rtdb)
       if (.not.rtdb_get(rtdb,'tce:densmat',mt_log,1,idens))
      1   call errquit('tce_energy:rtdb_get densmat failed',0, RTDB_ERR)
       if (nodezero) call util_flush(LuOut)
-c      if (lineresp) left=.true.
-c      if (imagresp) lineresp=.false.
-c
-c      if (nodezero) then
-c        write(LuOut,*) "lineresp = ",lineresp
-c        write(LuOut,*) "leftresp = ",leftresp
-c        write(LuOut,*) "quadresp = ",quadresp
-c        write(LuOut,*) "anumfreq = ",anumfreq
-c        do i=1,anumfreq
-c          write(LuOut,*) "afreq(",i,") = ",afreq(i)
-c        enddo
-c        write(LuOut,*) "respaxis(1) = ",respaxis(1)
-c        write(LuOut,*) "respaxis(2) = ",respaxis(2)
-c        write(LuOut,*) "respaxis(3) = ",respaxis(3)
-c        print*,"respaxis ",respaxis(1),respaxis(2),respaxis(3)
-c        call util_flush(LuOut)
-c      endif
-c
-c     =================
-c     Totally symmetric  RESPONSE WILL CHANGE THESE - BE CAREFUL
-c     =================
-c
+!      if (lineresp) left=.true.
+!      if (imagresp) lineresp=.false.
+!
+!      if (nodezero) then
+!        write(LuOut,*) "lineresp = ",lineresp
+!        write(LuOut,*) "leftresp = ",leftresp
+!        write(LuOut,*) "quadresp = ",quadresp
+!        write(LuOut,*) "anumfreq = ",anumfreq
+!        do i=1,anumfreq
+!          write(LuOut,*) "afreq(",i,") = ",afreq(i)
+!        enddo
+!        write(LuOut,*) "respaxis(1) = ",respaxis(1)
+!        write(LuOut,*) "respaxis(2) = ",respaxis(2)
+!        write(LuOut,*) "respaxis(3) = ",respaxis(3)
+!        print*,"respaxis ",respaxis(1),respaxis(2),respaxis(3)
+!        call util_flush(LuOut)
+!      endif
+!
+!     =================
+!     Totally symmetric  RESPONSE WILL CHANGE THESE - BE CAREFUL
+!     =================
+!
       irrep_x = 0
       irrep_y = 0
       irrep_c = 0
       irrep_g = 0
-c
+!
       idiv2e  = 2
-c
+!
        thresh_l=thresh
        if (.not.rtdb_get(rtdb,'tce:threshl',mt_dbl,1,aux_x)) then
          if(nodezero) then
@@ -647,7 +647,7 @@ c
            write(LuOut,9520)thresh_l
           end if
        end if
-c
+!
        thresh_eom=thresh
        if (.not.rtdb_get(rtdb,'tce:thresheom',mt_dbl,1,aux_x)) then
          if(nodezero) then
@@ -659,7 +659,7 @@ c
            write(LuOut,9521)thresh_eom
           end if
        end if
-c
+!
        eom_start=.false.
        if (.not.rtdb_get(rtdb,'tce:eomstart',mt_log,1,eom_start)) then
          if(nodezero) then
@@ -670,7 +670,7 @@ c
           write(LuOut,*)'EOMCCSD initial starts read in)'
          end if
        end if
-c restart files
+! restart files
        if (.not.rtdb_get(rtdb,'tce:tceiop',mt_int,1,recforio)) then
         rec_mem=1
        else
@@ -679,84 +679,84 @@ c restart files
 
        if (.not.rtdb_get(rtdb,'tce:maxioprocs',mt_int,1,max_ioprocs_in)) 
      4      max_ioprocs_in=4
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:readint',mt_log,1,res_log)) then
         read_int=.false.
        else
         read_int=res_log
        end if
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:writeint',mt_log,1,res_log)) then
         write_int=.false.
        else
         write_int=res_log
        end if
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:readt',mt_log,1,res_log)) then
         read_ta=.false.
        else
         read_ta=res_log
        end if
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:writet',mt_log,1,res_log)) then
         write_ta=.false.
        else
         write_ta=res_log
        end if
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:readx',mt_log,1,res_log)) then
         read_xa=.false.
        else
         read_xa=res_log
        end if
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:writex',mt_log,1,res_log)) then
         write_xa=.false.
        else
         write_xa=res_log
        end if
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:readi3',mt_log,1,res_log)) then
         read_in3=.false.
        else
         read_in3=res_log
        end if
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:writei3',mt_log,1,res_log)) then
         write_in3=.false.
        else
         write_in3=res_log
        end if
-c
+!
        res_log=.false.
        if (.not.rtdb_get(rtdb,'tce:nts',mt_log,1,res_log)) then
          continue 
        else
          ccsd_var='ic'
        end if
-c
+!
        slice=.false.
        if (.not.rtdb_get(rtdb,'tce:xmem',mt_int,1,xmem)) then
          continue
        else
          slice=.true. 
        end if
-c
+!
        d4d5=.false.
        if (.not.rtdb_get(rtdb,'tce:d4d5',mt_log,1,d4d5)) then
          continue
        else
          d4d5=.true.
        end if
-c
+!
        if(nodezero) then
         write(LuOut,*)'TCE RESTART OPTIONS'
         write(LuOut,*)'READ_INT:  ',read_int
@@ -768,38 +768,38 @@ c
         write(LuOut,*)'READ_IN3:  ',read_in3
         write(LuOut,*)'WRITE_IN3: ',write_in3
         write(LuOut,*)'SLICE:     ',slice
-ccx        write(LuOut,*)'XMEM:      ',xmem
+!cx        write(LuOut,*)'XMEM:      ',xmem
         write(LuOut,*)'D4D5:      ',d4d5
         call util_flush(6)
        end if
 
 
-c
-c     ==============
-c     Create a mutex
-c     ==============
-c
+!
+!     ==============
+!     Create a mutex
+!     ==============
+!
       if (.not.ga_create_mutexes(1))
      1  call errquit('tce_energy: GA problem',0,GA_ERR)
-c
-c     =========================
-c     Reorder and tile orbitals
-c     =========================
-c
+!
+!     =========================
+!     Reorder and tile orbitals
+!     =========================
+!
       call tce_tile(rtdb)
       call sf_test
-c
-c     ================================
-c     Parallel integral transformation
-c     ================================
-c
+!
+!     ================================
+!     Parallel integral transformation
+!     ================================
+!
       if (left) then
 #if !defined(NEWDIPOLE)
         cpu = - util_cpusec()
         wall = - util_wallsec()
         call tce_nud1(dipole_scf)
         call tce_aod1(rtdb,g_aod1,dipole_scf)
-        quadrupole_scf = 0.0 ! don't need this
+        quadrupole_scf = 0.0 ! do not need this
         if (nodezero) write(LuOut,*) 'before tce_aoq1'
         call tce_aoq1(rtdb,g_aoq1,quadrupole_scf)
         if (nodezero) write(LuOut,*) 'after tce_aoq1'
@@ -887,9 +887,9 @@ c
           call gatoeaf(d_q1(axis))
         enddo
 #endif
-c
-c       new dipole integrals
-c
+!
+!       new dipole integrals
+!
 #if defined(NEWDIPOLE)
         if (multipole.ge.1) then
           do i = 1, multipole
@@ -900,10 +900,10 @@ c
             elseif (i.eq.3) then
               call hnd_mtpole2(rtdb,ao_bas_han,geom,3,octupole_scf)
             endif
-c
-c            print*,'multipole = ', multipole
-c            print*,'dipole_scf = ',dipole_scf
-c
+!
+!            print*,'multipole = ', multipole
+!            print*,'dipole_scf = ',dipole_scf
+!
             j = (i+1)*(i+2)/2 ! 3, 6, 10
             do axis = 1, j
               irrep_d=sym_abelian_axis(geom,axis)
@@ -1029,12 +1029,12 @@ c
         endif !(multipole.ge.1)
 #endif
       endif
-c
-c     1-e integrals
-c
-c === jaguar ===
+!
+!     1-e integrals
+!
+! === jaguar ===
       if(.not.read_in3) then ! --- read_in3 ---
-c ===============
+! ===============
       cpu = - util_cpusec()
       wall = - util_wallsec()
       if (.not.rtdb_get(rtdb,'tce:recompf',mt_log,1,recompf))
@@ -1043,26 +1043,26 @@ c ===============
       if (recompf.and.(.not.read_integrals(1))) then
         call tce_ao1e_fock2e(rtdb,g_ao1e)
       endif
-c
-c->d3p975
-c      do i = 1, ipol
-c        if (.not.ga_destroy(g_movecs(i)))
-c     1    call errquit('tce_energy: GA problem',0,GA_ERR)
-c      enddo
-c<-d3p975
-c
+!
+!->d3p975
+!      do i = 1, ipol
+!        if (.not.ga_destroy(g_movecs(i)))
+!     1    call errquit('tce_energy: GA problem',0,GA_ERR)
+!      enddo
+!<-d3p975
+!
       call tce_filename('f1',filename)
       call tce_mo1e_offset(l_f1_offset,k_f1_offset,size_1e)
       call createfile(filename,d_f1,size_1e)
       if (.not.read_integrals(1)) then
         if (recompf) then
-c === jaguar ===
+! === jaguar ===
       if(read_int)  then
       call util_file_name('f1int',.false.,.true.,filename)
       unitn=77
       if(nodezero) write(6,*)'size_1e',size_1e
        call read_tensor(filename,d_f1,size_1e,unitn)
-c     re-split the int files?
+!     re-split the int files?
        if (rtdb_get(rtdb,'tce:maxioprocs_new',
      M      mt_int,1,max_ioprocs_in_new))  then
           max_ioprocs_in_org=max_ioprocs_in
@@ -1073,9 +1073,9 @@ c     re-split the int files?
        call ga_sync()
        go to 2002
       end if
-c ==============
+! ==============
           call tce_mo1e(g_ao1e,d_f1,k_f1_offset)
-c === jaguar ===
+! === jaguar ===
       if(write_int)  then
       call util_file_name('f1int',.false.,.true.,filename)
       unitn=77
@@ -1083,7 +1083,7 @@ c === jaguar ===
       call write_tensor(filename,d_f1,size_1e,unitn)
       call ga_sync()
       end if
-c ==============
+! ==============
  2002     continue
         else
           call tce_mo1e_epsilon(d_f1)
@@ -1112,53 +1112,53 @@ c ==============
         endif
         write(LuOut,9000) '1-e',size_1e
         write(LuOut,9010) '1-e',filename(1:20)
-c       write(LuOut,9090) '1-e',d_f1
+!       write(LuOut,9090) '1-e',d_f1
         write(LuOut,9020) cpu, wall
         call util_flush(LuOut)
       endif
 #ifdef MIRROR_FOCK
       if (nodezero) write(LuOut,*) 'Mirroring Fock matrix'
-c
-c     allocate space for local copy
-c
+!
+!     allocate space for local copy
+!
       if (.not.ma_push_get(mt_dbl,size_1e,'f1temp',l_f1temp,k_f1temp))
      1    call errquit('tce_energy: MA problem',3737,MA_ERR)
-c
-c     make a mirror GA for Fock matrix
-c
+!
+!     make a mirror GA for Fock matrix
+!
       call tce_filename('f1temp',filename)
       call createfile_mirror(filename,d_f1temp,size_1e)
-c
-c     copy the entire distributed GA to local buffer
-c
+!
+!     copy the entire distributed GA to local buffer
+!
       call ga_get(d_f1,1,size_1e,1,1,dbl_mb(k_f1temp),1)
       call ga_sync()
-c
-c     put it back in the mirrored GA
-c
+!
+!     put it back in the mirrored GA
+!
       call ga_put(d_f1temp,1,size_1e,1,1,dbl_mb(k_f1temp),1)
       call ga_sync() ! no need to merge_mirrored since copying entire array
-c
-c     delete the distributed version
-c
+!
+!     delete the distributed version
+!
       if (.not.ga_destroy(d_f1))
      1    call errquit('tce_energy: GA problem',3737,GA_ERR)
-c
-c     delete local temporary space
-c
+!
+!     delete local temporary space
+!
       if (.not.ma_pop_stack(l_f1temp))
      1  call errquit('tce_energy: MA problem',3737,MA_ERR)
-c
-c     reassign the handle so that it points to the mirrored GA
-c
+!
+!     reassign the handle so that it points to the mirrored GA
+!
       d_f1 = d_f1temp
 #endif
-c === jaguar ===
+! === jaguar ===
       end if ! --- read_in3 ---
-c ==============
-c
+! ==============
+!
       io_v2=IOGA
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
       if((model.eq.'ccsd_act').and.(.not.intorb)) then
        call errquit('tce_energy: ccsd_act with 2eorb only (RHF,ROHF)',
      1               911,GA_ERR)
@@ -1168,15 +1168,15 @@ c ccsd_act/eomccsd_act
        call errquit('tce_energy: ccsd_act 2emet 13 or 14 only',
      1               911,GA_ERR)
       end if
-c
+!
       if(.not.intorb) THEN  !--------------
         if (read_integrals(2)) then
           call errquit('tce_energy: cannot restart without 2eorb',
      1                  911,GA_ERR)
         endif
-c
-c       2-e integrals first half
-c
+!
+!       2-e integrals first half
+!
         cpu = - util_cpusec()
         wall = - util_wallsec()
         if(fast2e.eq.1) then
@@ -1199,24 +1199,24 @@ c
           write(LuOut,9123)fast2e
           call errquit('tce_energy: invalid 2emet: ',fast2e,CALC_ERR)
         end if
-c        elseif(fast2e.eq.4) then
-c          if (nodezero) then
-c            write(LuOut,*)
-c            write(LuOut,*) 'tce_ao2e: fast2e=4'
-c            write(LuOut,*) 'half-transformed integrals in memory'
-c            call util_flush(LuOut)
-c          endif
-c!           call tce_ao2e_new(rtdb,geom,ao_bas_han,tol2e,ipol,d_ao2e)
-c          call tce_ao2e_new(rtdb,ao_bas_han,d_ao2e)
-c        endif
+!        elseif(fast2e.eq.4) then
+!          if (nodezero) then
+!            write(LuOut,*)
+!            write(LuOut,*) 'tce_ao2e: fast2e=4'
+!            write(LuOut,*) 'half-transformed integrals in memory'
+!            call util_flush(LuOut)
+!          endif
+!!           call tce_ao2e_new(rtdb,geom,ao_bas_han,tol2e,ipol,d_ao2e)
+!          call tce_ao2e_new(rtdb,ao_bas_han,d_ao2e)
+!        endif
         cpu = cpu + util_cpusec()
         wall = wall + util_wallsec()
         if (nodezero.and.util_print('time',print_default))
      1    write(LuOut,9020) cpu, wall
         if (nodezero) call util_flush(LuOut)
-c
-c       2-e integrals second half
-c
+!
+!       2-e integrals second half
+!
         cpu = - util_cpusec()
         wall = - util_wallsec()
         call tce_mo2e_offset(l_v2_offset,k_v2_offset,size_2e)
@@ -1272,14 +1272,14 @@ c
           write(LuOut,*)
           write(LuOut,9000) '2-e',size_2e
           write(LuOut,9010) '2-e',filename(1:20)
-c          write(LuOut,9090) '2-e',d_v2
+!          write(LuOut,9090) '2-e',d_v2
           write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
         endif
       elseif(intorb) THEN !----------------------
-c === jaguar ===
+! === jaguar ===
         if(.not.read_in3) then ! -- read_in3 ---
-c ==============
+! ==============
         if(nodezero) then
           write(6,*)'4-electron integrals stored in orbital form'
         end if
@@ -1296,10 +1296,10 @@ c ==============
           call tce_mo2e_offset_intorb(lax_v2_alpha_offset,
      &         kax_v2_alpha_offset,size_2e)
          else
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
           call tce_mo2e_offset_intorb_act(lax_v2_alpha_offset,
      &         kax_v2_alpha_offset,size_2e)
-c --------------------
+! --------------------
          end if
         endif
         l_v2_alpha_offset=lax_v2_alpha_offset
@@ -1312,12 +1312,12 @@ c --------------------
            call tce_zero_sf(d_v2,size_2e)
         elseif (fast2e.eq.12) then
            io_v2 = IOHYBRID
-c          The GA copy of 2-e integrals
+!          The GA copy of 2-e integrals
            call tce_filename('v2ga',filename)
            call createfile(filename,d_v2ga,size_2e_ga)
            call ga_zero(d_v2ga)
            d_v2 = d_v2ga
-c          The SF copy of 2-e integrals
+!          The SF copy of 2-e integrals
            call tce_filename_sf('v2sf',filename)
            call createfile_sf_suffix(filename,d_v2sf,size_2e_sf,
      1                               V2_SUFFIX)
@@ -1356,11 +1356,11 @@ c          The SF copy of 2-e integrals
           write(LuOut,9125)idisk
         end if
         if(fast2e.ge.2) call atpart_nalength
-c
-c       ============================================================
-c
+!
+!       ============================================================
+!
         if((.not.read_integrals(2)).or.(fast2e.eq.9)) then
-c
+!
         if(fast2e.eq.1) then
           call tce_mo2e_trans(rtdb,d_v2,kax_v2_alpha_offset,size_2e)
         elseif(fast2e.eq.2) then
@@ -1388,20 +1388,20 @@ c
           endif
           call tce_mo2e_zones_4a_disk_4s_new_patch_m2(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-c        elseif(fast2e.eq.7) then
-c          if(idisk.ne.1) then
-c            call errquit('tce_energy: 2emet 7 with idiskx=1 only',
-c     2                                             idisk,CALC_ERR)
-c          endif
-c          call tce_mo2e_zones_4a_disk_4s_new_patch_m3(rtdb,d_v2,
-c     1                                  kax_v2_alpha_offset,size_2e)
-c        elseif(fast2e.eq.8) then
-c          if(idisk.ne.1) then
-c            call errquit('tce_energy: 2emet 8 with idiskx=1 only',
-c     2                                             idisk,CALC_ERR)
-c          endif
-c          call tce_mo2e_zones_4a_disk_4s_new_patch_m4(rtdb,d_v2,
-c     1                                  kax_v2_alpha_offset,size_2e)
+!        elseif(fast2e.eq.7) then
+!          if(idisk.ne.1) then
+!            call errquit('tce_energy: 2emet 7 with idiskx=1 only',
+!     2                                             idisk,CALC_ERR)
+!          endif
+!          call tce_mo2e_zones_4a_disk_4s_new_patch_m3(rtdb,d_v2,
+!     1                                  kax_v2_alpha_offset,size_2e)
+!        elseif(fast2e.eq.8) then
+!          if(idisk.ne.1) then
+!            call errquit('tce_energy: 2emet 8 with idiskx=1 only',
+!     2                                             idisk,CALC_ERR)
+!          endif
+!          call tce_mo2e_zones_4a_disk_4s_new_patch_m4(rtdb,d_v2,
+!     1                                  kax_v2_alpha_offset,size_2e)
         elseif ((fast2e.eq.9).and.(.not.(read_integrals(2)))) then
           if (nodezero) then
             write(LuOut,*)
@@ -1441,29 +1441,29 @@ c     1                                  kax_v2_alpha_offset,size_2e)
             write(LuOut,*)
             call util_flush(LuOut)
           endif
-c          if (nodezero) write(LuOut,*) 'tce_mo2e_incore_2eorb'
-c          call tce_mo2e_incore_2eorb(rtdb,d_v2ga,kax_v2_alpha_offset,
-c     1                               size_2e)
-c          if (nodezero) then
-c            write(LuOut,*) 'tce_mo2e_zones_4a_disk_4s_new_patch'
-c          endif
-c          call tce_mo2e_zones_4a_disk_4s_new_patch(rtdb,d_v2ga,
-c     1                                  kax_v2_alpha_offset,size_2e)
-c          if (nodezero) write(LuOut,*) 'tce_mo2e_disk_2eorb'
-c          idisk=.true.
-c          call tce_mo2e_disk_2eorb(rtdb,d_v2sf,kax_v2_alpha_offset,
-c     1                             size_2e)
+!          if (nodezero) write(LuOut,*) 'tce_mo2e_incore_2eorb'
+!          call tce_mo2e_incore_2eorb(rtdb,d_v2ga,kax_v2_alpha_offset,
+!     1                               size_2e)
+!          if (nodezero) then
+!            write(LuOut,*) 'tce_mo2e_zones_4a_disk_4s_new_patch'
+!          endif
+!          call tce_mo2e_zones_4a_disk_4s_new_patch(rtdb,d_v2ga,
+!     1                                  kax_v2_alpha_offset,size_2e)
+!          if (nodezero) write(LuOut,*) 'tce_mo2e_disk_2eorb'
+!          idisk=.true.
+!          call tce_mo2e_disk_2eorb(rtdb,d_v2sf,kax_v2_alpha_offset,
+!     1                             size_2e)
           if (nodezero) write(LuOut,*) 'tce_mo2e_hybrid_2eorb_split'
           idisk=1
           call tce_mo2e_hybrid_2eorb_split(d_v2ga,d_v2sf,
      1         kax_v2_alpha_offset)
         elseif(fast2e.eq.13) then
-c === jaguar ===
+! === jaguar ===
          if(read_int)  then
           call util_file_name('v2int',.false.,.true.,filename)
           unitn=78
           call read_tensor(filename,d_v2,size_2e,unitn)
-c     re-split the int files?
+!     re-split the int files?
           if (rtdb_get(rtdb,'tce:maxioprocs_new',
      M         mt_int,1,max_ioprocs_in_new))  then
              max_ioprocs_in=max_ioprocs_in_new
@@ -1472,28 +1472,28 @@ c     re-split the int files?
           call ga_sync()
           go to 3003
          end if
-c ==============
+! ==============
          if(model.ne.'ccsd_act') then
           call tce_mo2e_zones_4a_disk_ga_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
          else
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
           call tce_mo2e_zones_4a_disk_ga_act(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-c --------------------
+! --------------------
          end if
-c === jaguar ===
+! === jaguar ===
          if(write_int)  then
           call util_file_name('v2int',.false.,.true.,filename)
           unitn=78
           call write_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
          end if
-c ==============
+! ==============
  3003    continue
-c
+!
         elseif(fast2e.eq.14) then
-c === jaguar ===
+! === jaguar ===
          if(read_int)  then
           call util_file_name('v2int',.false.,.true.,filename)
           unitn=78
@@ -1501,34 +1501,34 @@ c === jaguar ===
           call ga_sync()
           go to 3004
          end if
-c ==============
+! ==============
          if(model.ne.'ccsd_act') then
           call  tce_mo2e_zones_4a_disk_ga_chop_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
          else 
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
           call  tce_mo2e_zones_4a_disk_ga_chop_act(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
-c --------------------
+! --------------------
          end if
-c === jaguar ===
+! === jaguar ===
          if(write_int)  then
           call util_file_name('v2int',.false.,.true.,filename)
           unitn=78
           call write_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
          end if
-c ==============
+! ==============
  3004    continue
-c
+!
         elseif(fast2e.eq.15) then
-c === jaguar ===
+! === jaguar ===
          if(read_int)  then
           call util_file_name('v2int',.false.,.true.,filename)
           unitn=178
           call read_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
-c     re-split the int files?
+!     re-split the int files?
           if (rtdb_get(rtdb,'tce:maxioprocs_new',
      M         mt_int,1,max_ioprocs_in_new))  then
              max_ioprocs_in=max_ioprocs_in_new
@@ -1536,18 +1536,18 @@ c     re-split the int files?
           endif
           go to 3095
          end if
-c ==============
+! ==============
           call  new_ga4ind_N5(rtdb,d_v2,
      1                        kax_v2_alpha_offset,
      1                        size_2e)
-c === jaguar ===
+! === jaguar ===
          if(write_int)  then
           call util_file_name('v2int',.false.,.true.,filename)
           unitn=178
           call write_tensor(filename,d_v2,size_2e,unitn)
           call ga_sync()
          end if
-c ==============
+! ==============
  3095    continue
         else
           write(LuOut,9123)fast2e
@@ -1571,9 +1571,9 @@ c ==============
             write(LuOut,*) 'assuming the file is still available'
           endif
         endif
-c
-c       ============================================================
-c
+!
+!       ============================================================
+!
         elseif (read_integrals(2).and.(.not.(fast2e.eq.9))) then
           if(nodezero) then
             write(LuOut,*) 'Reading in 2-electron integrals now...'
@@ -1581,9 +1581,9 @@ c
           call v2_restart_read(d_v2,k_v2_alpha_offset,size_2e,
      &                         handle_v2)
         endif
-c
-c       ============================================================
-c
+!
+!       ============================================================
+!
         call tce_mo2e_offset_size(length)
         call e2_offset_2_offset(lx_o2o_offset,kx_o2o_offset,
      &       lx_o2ot_offset,kx_o2ot_offset,
@@ -1595,15 +1595,15 @@ c
         l_v2spin_offset = lx_v2spin_offset
         k_v2spin_offset = kx_v2spin_offset
         k_v2_offset = k_v2spin_offset
-c === jaguar ===
+! === jaguar ===
         end if  ! read_in3
-c ==============
+! ==============
       end if ! intorb -----------------------
-c
-c     ====================
-c     Initial t amplitudes
-c     ====================
-c
+!
+!     ====================
+!     Initial t amplitudes
+!     ====================
+!
       needt1 = .false.
       needt2 = .false.
       needt3 = .false.
@@ -1622,7 +1622,7 @@ c
      1        ((model.eq.'qcisd').or.(model.eq.'cisd'))) then
         needt1 = .true.
         needt2 = .true.
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
       elseif(model.eq.'ccsd_act') then
         needt1 = .true.
         needt2 = .true.
@@ -1696,37 +1696,37 @@ c ccsd_act/eomccsd_act
       if (.not.rtdb_get(rtdb,'tce:do_2t_pt',mt_log,1,do_2t_pt)) then
         do_2t_pt = .false.
       endif
-c
-c     t1 amplitudes
-c
+!
+!     t1 amplitudes
+!
       if (needt1) then
         cpu = - util_cpusec()
         call tce_filename('t1',filename)
         call tce_t1_offset(l_t1_offset,k_t1_offset,size_t1)
-c -------
+! -------
         if(nodezero) then
          write(LuOut,*)'T1-number-of-tasks',int_mb(k_t1_offset)
          call util_flush(LuOut)
         end if
-c -------------
+! -------------
 #ifdef MIRROR_SING
         call createfile_mirror(filename,d_t1,size_t1)
 #else
         call createfile(filename,d_t1,size_t1)
 #endif
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
         if(model.eq.'ccsd_act') then
           call ga_zero(d_t1)
           go to 8711
         end if
-c === jaguar ===
+! === jaguar ===
         if(.not.read_in3) then !---
-c ==============
+! ==============
         if (.not.read_t(1)) then
           call tce_guess_t1(d_t1,k_t1_offset)
-c === jaguar ===
+! === jaguar ===
         end if !---
-c ==============
+! ==============
 #ifdef MIRROR_SING
           call reconcilefile(d_t1)
 #endif
@@ -1734,8 +1734,8 @@ c ==============
           call x1_restart_read(d_t1,k_t1_offset,size_t1,0,
      1                         handle_t1,irrep_t)
         endif
-cc        call tce_guess_t1_zero(d_t1,k_t1_offset)
-c ccsd_act/eomccsd_act
+!c        call tce_guess_t1_zero(d_t1,k_t1_offset)
+! ccsd_act/eomccsd_act
  8711   continue
         call reconcilefile(d_t1,size_t1)
         cpu = cpu + util_cpusec()
@@ -1744,7 +1744,7 @@ c ccsd_act/eomccsd_act
           write(LuOut,9000) 't1',size_t1
           write(LuOut,9010) 't1',filename(1:20)
           write(LuOut,9090) 't1',d_t1
-c         write(LuOut,9020) cpu
+!         write(LuOut,9020) cpu
           call util_flush(LuOut)
         endif
         if (left) then
@@ -1841,36 +1841,36 @@ c         write(LuOut,9020) cpu
           enddo ! axis
         endif ! leftresp
       endif
-c
-c     t2 amplitudes
-c
+!
+!     t2 amplitudes
+!
       if (needt2) then
-c--       if(.not.intorb) then ! ----------
+!--       if(.not.intorb) then ! ----------
         cpu = - util_cpusec()
         call tce_filename('t2',filename)
         if(model.ne.'ccsd_act') then
         call tce_t2_offset(l_t2_offset,k_t2_offset,size_t2)
         else
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
          call tce_t2a_offset(l_t2_offset,k_t2_offset,size_t2)
-c --------------------
+! --------------------
         end if
-c ------------
+! ------------
         if(nodezero) then
          write(LuOut,*)'T2-number-of-boxes',int_mb(k_t2_offset)
          call util_flush(LuOut)
         end if
-c -------------
+! -------------
         call createfile(filename,d_t2,size_t2)
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
         if(model.eq.'ccsd_act') go to 8712
         if (.not.read_t(2)) then
-c === jaguar ===
+! === jaguar ===
         if(.not.read_in3) then ! --- read_in3
-c ==============
+! ==============
           call tce_guess_t2(d_v2,k_v2_offset,d_t2,k_t2_offset)
           call reconcilefile(d_t2,size_t2)
-c starts for t1 amplitudes t1(in the second order of MBPT)
+! starts for t1 amplitudes t1(in the second order of MBPT)
           if(needt1.and.((model.eq.'ccsd').or.(model.eq.'multi'))) then
             if ((ioalg.eq.2).and.(io_v2.eq.IOGA)) then
               call t1mp2(d_f1,d_t1,d_t2,d_v2,k_f1_offset,k_t1_offset,
@@ -1880,9 +1880,9 @@ c starts for t1 amplitudes t1(in the second order of MBPT)
               call reconcilefile(d_t1,size_t1)
             end if
           end if
-c === jaguar ===
+! === jaguar ===
         end if ! --- read_in3
-c ==============
+! ==============
         elseif (read_t(2)) then
           call x2_restart_read(d_t2,k_t2_offset,size_t2,0,
      1                         handle_t2,irrep_t)
@@ -1901,7 +1901,7 @@ c ==============
           write(LuOut,9000) 't2',size_t2
           write(LuOut,9010) 't2',filename(1:20)
           write(LuOut,9090) 't2',d_t2
-c         write(LuOut,9020) cpu
+!         write(LuOut,9020) cpu
           call util_flush(LuOut)
         endif
         if (left) then
@@ -1921,36 +1921,36 @@ c         write(LuOut,9020) cpu
             call util_flush(LuOut)
           endif
         endif
-c--       else  ! ----
-c--        cpu = - util_cpusec()
-c--        call tce_filename('t2',filename)
-c--        call tce_t2_offset(l_t2_offset,k_t2_offset,size_t2)
-c--        call createfile(filename,d_t2,size_t2)
-c--        if(nodezero) then
-c--          write(LuOut,*)'before tce_guess_t2'
-c--          call util_flush(LuOut)
-c--        end if
-c--        call ga_zero(d_t2)
-c--       if(nodezero) then
-c--         write(LuOut,*)'after tce_guess_t2'
-c--         call util_flush(LuOut)
-c--       end if
-c--        cpu = cpu + util_cpusec()
-c--        if (nodezero.and.util_print('t2',print_default)) then
-c--          write(LuOut,*)
-c--          write(LuOut,9000) 't2',size_t2
-c--          write(LuOut,9010) 't2',filename(1:20)
-c--c         write(LuOut,9090) 't2',d_t2
-c--c         write(LuOut,9020) cpu
-c--          call util_flush(LuOut)
-c--        endif
-c--        if (left) then
-c--          call tce_y2_offset(l_l2_offset,k_l2_offset,size_l2)
-c--          call tce_filename('lambda2',filename)
-c--          call createfile(filename,d_lambda2,size_l2)
-c--          call gatoeaf(d_lambda2)
-c--        endif
-c--       endif !---
+!--       else  ! ----
+!--        cpu = - util_cpusec()
+!--        call tce_filename('t2',filename)
+!--        call tce_t2_offset(l_t2_offset,k_t2_offset,size_t2)
+!--        call createfile(filename,d_t2,size_t2)
+!--        if(nodezero) then
+!--          write(LuOut,*)'before tce_guess_t2'
+!--          call util_flush(LuOut)
+!--        end if
+!--        call ga_zero(d_t2)
+!--       if(nodezero) then
+!--         write(LuOut,*)'after tce_guess_t2'
+!--         call util_flush(LuOut)
+!--       end if
+!--        cpu = cpu + util_cpusec()
+!--        if (nodezero.and.util_print('t2',print_default)) then
+!--          write(LuOut,*)
+!--          write(LuOut,9000) 't2',size_t2
+!--          write(LuOut,9010) 't2',filename(1:20)
+!--c         write(LuOut,9090) 't2',d_t2
+!--c         write(LuOut,9020) cpu
+!--          call util_flush(LuOut)
+!--        endif
+!--        if (left) then
+!--          call tce_y2_offset(l_l2_offset,k_l2_offset,size_l2)
+!--          call tce_filename('lambda2',filename)
+!--          call createfile(filename,d_lambda2,size_l2)
+!--          call gatoeaf(d_lambda2)
+!--        endif
+!--       endif !---
         if (lineresp.or.imagresp) then
           do axis = 1, 3
           if (respaxis(axis)) then
@@ -2028,9 +2028,9 @@ c--       endif !---
           enddo ! axis
         endif ! leftresp
       endif
-c
-c     t3 amplitudes
-c
+!
+!     t3 amplitudes
+!
       if (needt3) then
         cpu = - util_cpusec()
         call tce_filename('t3',filename)
@@ -2046,8 +2046,8 @@ c
           write(LuOut,*)
           write(LuOut,9000) 't3',size_t3
           write(LuOut,9010) 't3',filename(1:20)
-c         write(LuOut,9090) 't3',d_t3
-c         write(LuOut,9020) cpu
+!         write(LuOut,9090) 't3',d_t3
+!         write(LuOut,9020) cpu
           call util_flush(LuOut)
         endif
         if (left) then
@@ -2118,9 +2118,9 @@ c         write(LuOut,9020) cpu
           enddo ! axis
         endif ! leftresp
       endif
-c
-c     t3a amplitudes
-c
+!
+!     t3a amplitudes
+!
       if (needt3a) then
         cpu = - util_cpusec()
         call tce_filename('t3',filename)
@@ -2136,14 +2136,14 @@ c
           write(LuOut,*)
           write(LuOut,9000) 't3a',size_t3
           write(LuOut,9010) 't3a',filename(1:20)
-c         write(LuOut,9090) 't3a',d_t3
-c         write(LuOut,9020) cpu
+!         write(LuOut,9090) 't3a',d_t3
+!         write(LuOut,9020) cpu
           call util_flush(LuOut)
         endif
       endif
-c
-c     t4 amplitudes
-c
+!
+!     t4 amplitudes
+!
       if (needt4) then
         cpu = - util_cpusec()
         call tce_filename('t4',filename)
@@ -2159,8 +2159,8 @@ c
           write(LuOut,*)
           write(LuOut,9000) 't4',size_t4
           write(LuOut,9010) 't4',filename(1:20)
-c         write(LuOut,9090) 't4',d_t4
-c         write(LuOut,9020) cpu
+!         write(LuOut,9090) 't4',d_t4
+!         write(LuOut,9020) cpu
           call util_flush(LuOut)
         endif
         if (left) then
@@ -2231,11 +2231,11 @@ c         write(LuOut,9020) cpu
           enddo ! axis
         endif ! leftresp
       endif
-c
-c     =======================
-c     Create residual offsets
-c     =======================
-c
+!
+!     =======================
+!     Create residual offsets
+!     =======================
+!
       call tce_e_offset(l_e_offset,k_e_offset,size_e)
       if (left) then
         call tce_e_offset(l_d0_offset,k_d0_offset,size_d0)
@@ -2268,17 +2268,17 @@ c
        if (needt3a) call tce_t3a_offset(l_r3_offset,k_r3_offset,size_r3)
        if (needt4) call tce_t4_offset(l_r4_offset,k_r4_offset,size_r4)
       endif
-c
-c     ======================
-c     Create auxiliary files
-c     ======================
-c
+!
+!     ======================
+!     Create auxiliary files
+!     ======================
+!
       if (neede2) then
         call tce_filename('e2',filename)
         call tce_e_offset(l_e2_offset,k_e2_offset,size_e2)
         call createfile(filename,d_e2,size_e2)
         call gatoeaf(d_e2)
-c       write(LuOut,9090) 'e2',d_e2
+!       write(LuOut,9090) 'e2',d_e2
       endif
       if (needu1) then
         call tce_filename('u1',filename)
@@ -2286,59 +2286,59 @@ c       write(LuOut,9090) 'e2',d_e2
         call createfile(filename,d_u1,size_u1)
         call tce_guess_t1(d_u1,k_u1_offset)
         call reconcilefile(d_u1,size_u1)
-c       write(LuOut,9090) 'u2',d_u1
+!       write(LuOut,9090) 'u2',d_u1
       endif
       if (needu2) then
-c--       if(.not.intorb) then
+!--       if(.not.intorb) then
         call tce_filename('u2',filename)
         call tce_t2_offset(l_u2_offset,k_u2_offset,size_u2)
         call createfile(filename,d_u2,size_u2)
         call tce_guess_t2(d_v2,k_v2_offset,d_u2,k_u2_offset)
         call reconcilefile(d_u2,size_u2)
-c       write(LuOut,9090) 'u2',d_u2
-c--       else
-c--        call tce_filename('u2',filename)
-c--        call tce_t2_offset(l_u2_offset,k_u2_offset,size_u2)
-c--        call createfile(filename,d_u2,size_u2)
-c--c        call tce_guess_t2(d_v2,k_v2_offset,d_u2,k_u2_offset)
-c--        call ga_zero(d_u2)
-c--        call reconcilefile(d_u2,size_u2)
-c--c       write(LuOut,9090) 'u2',d_u2
-c--       endif
+!       write(LuOut,9090) 'u2',d_u2
+!--       else
+!--        call tce_filename('u2',filename)
+!--        call tce_t2_offset(l_u2_offset,k_u2_offset,size_u2)
+!--        call createfile(filename,d_u2,size_u2)
+!--c        call tce_guess_t2(d_v2,k_v2_offset,d_u2,k_u2_offset)
+!--        call ga_zero(d_u2)
+!--        call reconcilefile(d_u2,size_u2)
+!--c       write(LuOut,9090) 'u2',d_u2
+!--       endif
       endif
       if (needw1) then
         call tce_filename('w1',filename)
         call tce_t1_offset(l_w1_offset,k_w1_offset,size_w1)
         call createfile(filename,d_w1,size_w1)
         call gatoeaf(d_w1)
-c       write(LuOut,9090) 'w1',d_w1
+!       write(LuOut,9090) 'w1',d_w1
       endif
       if (needw2) then
         call tce_filename('w2',filename)
         call tce_t2_offset(l_w2_offset,k_w2_offset,size_w2)
         call createfile(filename,d_w2,size_w2)
         call gatoeaf(d_w2)
-c       write(LuOut,9090) 'w2',d_w2
+!       write(LuOut,9090) 'w2',d_w2
       endif
       if (needw3) then
         call tce_filename('w3',filename)
         call tce_t3_offset(l_w3_offset,k_w3_offset,size_w3)
         call createfile(filename,d_w3,size_w3)
         call gatoeaf(d_w3)
-c       write(LuOut,9090) 'w3',d_w3
+!       write(LuOut,9090) 'w3',d_w3
       endif
       if (needw4) then
         call tce_filename('w4',filename)
         call tce_t4_offset(l_w4_offset,k_w4_offset,size_w4)
         call createfile(filename,d_w4,size_w4)
         call gatoeaf(d_w4)
-c       write(LuOut,9090) 'w4',d_w4
+!       write(LuOut,9090) 'w4',d_w4
       endif
-c
-c     =========================
-c     CC / CI / MBPT iterations
-c     =========================
-c
+!
+!     =========================
+!     CC / CI / MBPT iterations
+!     =========================
+!
       if (model.eq.'eionly') then
         if (nodezero) then
           write(LuOut,9120) 'BEGIN PRINT'
@@ -2368,9 +2368,9 @@ c
         if (nodezero) call util_flush(LuOut)
       endif
       if ((model.eq.'ccd').or.do_ccd) then
-c -------------
-c CCD     right
-c -------------
+! -------------
+! CCD     right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -2437,9 +2437,9 @@ c -------------
   101 continue
       endif
       if ((model.eq.'lccd').or.do_lccd) then
-c -------------
-c LCCD    right
-c -------------
+! -------------
+! LCCD    right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -2505,13 +2505,13 @@ c -------------
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
   102 continue
       endif
-c
-c
+!
+!
        if (model.eq.'ccsd_act') then
-c ------------------------
-c  ccsd_act/eomccsd_act
-c ------------------------
-c === jaguar ===
+! ------------------------
+!  ccsd_act/eomccsd_act
+! ------------------------
+! === jaguar ===
       if(read_ta)  then
        call tce_zero(d_t1,size_t1)
        call tce_zero(d_t2,size_t2)
@@ -2524,59 +2524,59 @@ c === jaguar ===
        call ga_sync()
        go to 3203
       end if
-c ==============
+! ==============
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
           wall=-util_wallsec()
           if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "CCSD-act"
-c - T1/X1 LOCALIZATION ----------
+! - T1/X1 LOCALIZATION ----------
        if(ccsd_var.ne.'cc2') then
-c    opening l_t1_local
+!    opening l_t1_local
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
      1      call errquit('t1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
-c    copy d_t1 ==> l_t1_local
+!    copy d_t1 ==> l_t1_local
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
        end if
-c -------------------------------
+! -------------------------------
           call tce_filename('e',filename)
           call createfile(filename,d_e,size_e)
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
           call ccsd_ea(d_f1,d_e,k_t1_local,d_t2,d_v2,
      1                k_f1_offset,k_e_offset,
      2                k_t1_offset,k_t2_offset,k_v2_offset)
-c -----------------------
+! -----------------------
           call reconcilefile(d_e,size_e)
           call tce_filename('r1',filename)
           size_r1=size_t1
           call createfile(filename,d_r1,size_r1)
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
           call ccsd_t1a(d_f1,d_r1,k_t1_local,d_t2,d_v2,
      1                 k_f1_offset,k_t1_offset,
      2                 k_t1_offset,k_t2_offset,k_v2_offset)
-c -----------------------
+! -----------------------
           call reconcilefile(d_r1,size_r1)
           size_r2=size_t2
           call tce_filename('r2',filename)
           call createfile(filename,d_r2,size_r2)
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
           call ccsd_t2a(d_f1,d_r2,k_t1_local,d_t2,d_v2,
      1                 k_f1_offset,k_t2_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset)!,size_t2)
-c -----------------------
+! -----------------------
           call reconcilefile(d_r2,size_r2)
           call tce_residual_t1(d_r1,k_t1_offset,r1)
           call tce_residual_t2a(d_r2,k_t2_offset,r2)
           residual = max(r1,r2)
           call get_block(d_e,corr,1,0)
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
        if(ccsd_var.ne.'cc2') then
          if(.not.MA_POP_STACK(l_t1_local))
      &      call errquit('l_t1_local',2,MA_ERR)
        end if
-c -----------------------
+! -----------------------
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
           if (nodezero) write(LuOut,9100) iter,residual,corr,cpu,wall
@@ -2593,7 +2593,7 @@ c -----------------------
             call tce_print_x1(d_t1,k_t1_offset,printtol,irrep_t)
             call tce_print_x2a(d_t2,k_t2_offset,printtol,irrep_t)
             call tce_diis_tidy()
-c === jaguar ===
+! === jaguar ===
       if(write_ta)  then
        call util_file_name('t1amp',.false.,.true.,filename)
        unitn=79
@@ -2603,7 +2603,7 @@ c === jaguar ===
        call write_tensor(filename,d_t2,size_t2,unitn)
        call ga_sync()
       end if
-c ==============
+! ==============
             goto 3203
           endif
           call tce_diis_act(.false.,iter,.true.,.true.,.false.,.false.,
@@ -2618,14 +2618,14 @@ c ==============
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  3203   continue
-c
+!
         end if ! ccsd_act/eomccsd_act
-c
+!
       if ((model.eq.'ccsd').or.do_ccsd) then
-c -------------
-c CCSD    right
-c -------------
-c === jaguar ===
+! -------------
+! CCSD    right
+! -------------
+! === jaguar ===
           if(read_ta)  then
            call tce_zero(d_t1,size_t1)
            call tce_zero(d_t2,size_t2)
@@ -2636,9 +2636,9 @@ c === jaguar ===
            unitn=80
            call read_tensor(filename,d_t2,size_t2,unitn)
            call ga_sync()
-ccx           go to 320
+!cx           go to 320
           end if
-c ==============
+! ==============
 #ifdef MIRROR_SING
           call ccsd_energy_noloc(d_e,d_f1,d_v2,d_t1,d_t2,
      1         k_e_offset,k_f1_offset,k_v2_offset,
@@ -2650,7 +2650,7 @@ c ==============
      2         k_t1_offset,k_t2_offset,
      3         size_t1,size_t2,ref,corr,rtdb)
 #endif
-c === jaguar ===
+! === jaguar ===
          if(write_ta)  then
           call util_file_name('t1amp',.false.,.true.,filename)
           unitn=79
@@ -2660,35 +2660,35 @@ c === jaguar ===
           call write_tensor(filename,d_t2,size_t2,unitn)
           call ga_sync()
          end if
-c ==============
+! ==============
   320    continue
-c -------------
-c CCSD    left
-c -------------
+! -------------
+! CCSD    left
+! -------------
         if (left) then
           call ccsd_lambda(d_d0,d_f1,d_v2,d_d1,d_t1,d_t2,
      1         d_lambda1,d_lambda2,
      2         k_d0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      3         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
      4         size_l1,size_l2,dipole_scf,dipole_cor)
-c
-c->d3p975
-c
-c calculated ccsd 1-particle reduced density matrix/ces
-c
+!
+!->d3p975
+!
+! calculated ccsd 1-particle reduced density matrix/ces
+!
             if (nroots.eq.0.and.idens) then
                if (.not.intorb)
      1            call ccsd_1prdm(rtdb,d_t1,d_t2,d_lambda1,d_lambda2,
      1                            k_t1_offset,k_t2_offset,
      2                            k_l1_offset,k_l2_offset)
             endif
-c
-c<-d3p975
-c
+!
+!<-d3p975
+!
         endif ! left
-c -------------
-c CCSD-IR
-c -------------
+! -------------
+! CCSD-IR
+! -------------
  2234   continue
         if (imagresp) then
           if(nodezero) write(6,*) 'YOU WILL GET WRONG RESULTS'
@@ -2708,15 +2708,15 @@ c -------------
             call util_flush(LuOut)
           endif
   999 format(3x,'ifreq(',i3,') = ',f14.8)
-c
-c         REAL COMPONENT
-c
+!
+!         REAL COMPONENT
+!
           do omegacount=inumfreq,1,-1
             omega = ifreq(omegacount)
-c            if (omega.eq.(0.0d0)) then
-c              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
-c            endif
-c
+!            if (omega.eq.(0.0d0)) then
+!              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
+!            endif
+!
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_d=sym_abelian_axis(geom,axis)
@@ -2727,26 +2727,26 @@ c
             endif
             irrep_o=irrep_d
             irrep_x=irrep_d
-c
-c           offset to the third set of response for real component
+!
+!           offset to the third set of response for real component
             dynaxis = 6
-c
+!
             if (nodezero) write(LuOut,9431) omega
-c
+!
             if (guess_ir_real.and.(omegacount.eq.1)) then
-c
+!
             if (nodezero) write(6,9121) 'Initial guess x = b/Adiag'
-c
-c           0. Create dummies
-c
+!
+!           0. Create dummies
+!
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
               call tce_zero(d_rr1(axis),size_tr1(axis))
-c
+!
               call tce_filename(rr2filename(axis),filename)
               call createfile(filename,d_rr2(axis),size_tr2(axis))
               call tce_zero(d_rr2(axis),size_tr2(axis))
-c
+!
               if (nodezero.and.(util_print('rr1',print_debug)
      1                      .or.util_print('rr2',print_debug))) then
                 write(LuOut,*)
@@ -2757,53 +2757,53 @@ c
                 write(LuOut,9090) 'rr2',d_rr2(axis)
                 call util_flush(LuOut)
               endif
-c
-c           1. Form b
-c
+!
+!           1. Form b
+!
               call ccsd_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
      1             k_tr1_offset(axis),k_d1_offset(axis),
      2             k_t1_offset,k_t2_offset)
               call ccsd_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,
      1             k_tr2_offset(axis),k_d1_offset(axis),
      2             k_t1_offset,k_t2_offset)
-c
-c           2. Hit with preconditioner
-c
+!
+!           2. Hit with preconditioner
+!
               call tce_jacobi_tr1(d_rr1(axis),d_tr1(axis+6),
      1                            k_tr1_offset(axis),0.0d0,0.0d0)
               call tce_jacobi_tr2(d_rr2(axis),d_tr2(axis+6),
      1                            k_tr2_offset(axis),0.0d0,0.0d0)
-c
-c           4. Delete dummies
-c
+!
+!           4. Delete dummies
+!
               call deletefile(d_rr1(axis))
               call deletefile(d_rr2(axis))
-c
+!
             endif ! guess_ir_real
-c
+!
             call tce_diis_init()
             do iter=1,maxiter
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &        write(LuOut,9400) "CCSD-IR (real component) - squared"
-c
+!
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
               call tce_zero(d_rr1(axis),size_tr1(axis))
-c
+!
               call tce_filename(ir1filename(axis),filename)
               call createfile(filename,d_ir1(axis),size_tr1(axis))
               call tce_zero(d_ir1(axis),size_tr1(axis))
-c
+!
               call tce_filename(rr2filename(axis),filename)
               call createfile(filename,d_rr2(axis),size_tr2(axis))
               call tce_zero(d_rr2(axis),size_tr2(axis))
-c
+!
               call tce_filename(ir2filename(axis),filename)
               call createfile(filename,d_ir2(axis),size_tr2(axis))
               call tce_zero(d_ir2(axis),size_tr2(axis))
-c
+!
               if (nodezero.and.(util_print('rr1',print_debug)
      1                      .or.util_print('rr2',print_debug))) then
                 write(LuOut,*)
@@ -2816,7 +2816,7 @@ c
                 write(LuOut,9090) 'ir2',d_ir2(axis)
                 call util_flush(LuOut)
               endif
-c
+!
               call ccsd_o1(d_ir1(axis),d_d1(axis),d_t1,d_t2,
      1             k_tr1_offset(axis),k_d1_offset(axis),
      2             k_t1_offset,k_t2_offset)
@@ -2825,7 +2825,7 @@ c
      2             k_tr1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis))
-c
+!
               call ccsd_o2(d_ir2(axis),d_d1(axis),d_t1,d_t2,
      1             k_tr2_offset(axis),k_d1_offset(axis),
      2             k_t1_offset,k_t2_offset)
@@ -2835,39 +2835,39 @@ c
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             size_tr1(axis),size_tr2(axis))
-c
+!
               call reconcilefile(d_ir1(axis),size_tr1(axis))
               call reconcilefile(d_ir2(axis),size_tr2(axis))
-c
+!
               call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
      1             d_ir1(axis),d_ir2(axis),k_f1_offset,
      2             k_tr1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis))
-c
+!
               call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
      1             d_ir1(axis),d_ir2(axis),
      2             k_f1_offset,k_tr2_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             size_tr1(axis),size_tr2(axis))
-c
+!
               call reconcilefile(d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
-c
+!
               call deletefile(d_ir1(axis))
               call deletefile(d_ir2(axis))
-c
+!
               call daxpyfile(1,omega*omega,d_tr1(axis+dynaxis),
      1             d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr1(axis),size_tr1(axis))
               call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-c
+!
               call daxpyfile(1,omega*omega,d_tr2(axis+dynaxis),
      1             d_rr2(axis),size_tr2(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
               call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
-c
+!
               residual = max(rr1,rr2)
               cpu=cpu+util_cpusec()
               wall=wall+util_wallsec()
@@ -2936,12 +2936,12 @@ c
             enddo ! iter loop
           call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  2235 continue
-c
+!
           endif ! respaxis(axis)
           enddo ! axis loop
-c
-c         IMAGINARY COMPONENT
-c
+!
+!         IMAGINARY COMPONENT
+!
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_d=sym_abelian_axis(geom,axis)
@@ -2952,7 +2952,7 @@ c
             endif
             irrep_o=irrep_d
             irrep_x=irrep_d
-c
+!
           do omegasign=1,1 ! temporary 2
             if (omegasign.eq.1) then
               omega = (1.0d0)*ifreq(omegacount)
@@ -2966,55 +2966,55 @@ c
      1             d_tr2(axis+3),size_tr2(axis))
             endif
             if (nodezero) write(LuOut,9431) omega
-c
+!
             call tce_diis_init()
-c
+!
             if (guess_ir_imag.and.(omegacount.eq.1)) then
-c
-c           Initial guess x_I = omega*x_R/(Adiag-omega)
+!
+!           Initial guess x_I = omega*x_R/(Adiag-omega)
            if (nodezero) write(6,9121) 
      1        'Initial guess x_I = omega*x_R/Adiag'
-c
-c           0. Create dummies
-c
+!
+!           0. Create dummies
+!
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
               call tce_zero(d_rr1(axis),size_tr1(axis))
-c
+!
               call tce_filename(rr2filename(axis),filename)
               call createfile(filename,d_rr2(axis),size_tr2(axis))
               call tce_zero(d_rr2(axis),size_tr2(axis))
-c
-c           1. Form w_I = omega*x_R
-c
+!
+!           1. Form w_I = omega*x_R
+!
               call daxfile(1,omega,d_tr1(axis+6),d_rr1(axis),
      1             size_tr1(axis))
               call daxfile(1,omega,d_tr2(axis+6),d_rr2(axis),
      1             size_tr2(axis))
-c
-c           3. Hit with preconditioner
-c
+!
+!           3. Hit with preconditioner
+!
               call tce_jacobi_tr1(d_rr1(axis),d_tr1(axis+dynaxis),
      1             k_tr1_offset(axis),0.0d0,0.0d0)
               call tce_jacobi_tr2(d_rr2(axis),d_tr2(axis+dynaxis),
      1             k_tr2_offset(axis),0.0d0,0.0d0)
-c
-c           4. Delete dummies
-c
+!
+!           4. Delete dummies
+!
               call deletefile(d_rr1(axis))
               call deletefile(d_rr2(axis))
-c
+!
             endif ! guess_ir_imag
-c
+!
             do iter=1,maxiter
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &        write(LuOut,9400) "CCSD-IR (imaginary component) - linear"
-c
+!
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
-c              call tce_zero(d_rr1(axis),size_tr1(axis))
+!              call tce_zero(d_rr1(axis),size_tr1(axis))
               call daxfile(1,(-1.0d0)*omega,d_tr1(axis+6),
      1             d_rr1(axis),size_tr1(axis))
               call eomccsd_x1_old(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
@@ -3024,10 +3024,10 @@ c              call tce_zero(d_rr1(axis),size_tr1(axis))
      4             k_tr1_offset(axis),k_tr2_offset(axis))
               call reconcilefile(d_rr1(axis),size_tr1(axis))
               call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-c
+!
               call tce_filename(rr2filename(axis),filename)
               call createfile(filename,d_rr2(axis),size_tr2(axis))
-c              call tce_zero(d_rr2(axis),size_tr2(axis))
+!              call tce_zero(d_rr2(axis),size_tr2(axis))
               call daxfile(1,(-1.0d0)*omega,d_tr2(axis+6),
      1             d_rr2(axis),size_tr2(axis))
               call eomccsd_x2_old(d_f1,d_rr2(axis),d_t1,d_t2,d_v2,
@@ -3106,14 +3106,14 @@ c              call tce_zero(d_rr2(axis),size_tr2(axis))
             enddo ! iter loop
           call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  2236 continue
-c
+!
           enddo ! omegasign loop
-c
+!
           endif ! respaxis(axis)
           enddo ! axis loop
-c
-c CCSD-IR evaluation step
-c
+!
+! CCSD-IR evaluation step
+!
           cpu=-util_cpusec()
           wall=-util_wallsec()
           do axisA = 1, 3
@@ -3123,21 +3123,21 @@ c
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-c
+!
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
-c
+!
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "axisA = ",axisA
             if (nodezero) write(LuOut,*) "axisB = ",axisB
 #endif
-c
+!
             alpha1=0.0d0
             alpha2=0.0d0
-c
+!
             irrep_d=irrep_a
             irrep_tr=irrep_b
-c
+!
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha_1 AB"
 #endif
@@ -3148,14 +3148,14 @@ c
      4           k_t1_offset,k_t2_offset,
      5           k_tr1_offset(axisB),k_tr2_offset(axisB),
      6           k_l1_offset,k_l2_offset)
-c
+!
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,size_a0)
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha_1 AB = ",alpha1
 #endif
-c
+!
             if (axisA.eq.axisB) then
               alpha2=alpha1
             else
@@ -3171,7 +3171,7 @@ c
      4             k_t1_offset,k_t2_offset,
      5             k_tr1_offset(axisA),k_tr2_offset(axisA),
      6             k_l1_offset,k_l2_offset)
-c
+!
               call reconcilefile(d_a0,size_a0)
               call get_block(d_a0,alpha2,1,0)
               call tce_zero(d_a0,size_a0)
@@ -3179,22 +3179,22 @@ c
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha_1 BA = ",alpha2
 #endif
-c
+!
             alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
-c
+!
             alpha1=0.0d0
             alpha2=0.0d0
             alpha3=0.0d0
-c
+!
             irrep_tra=irrep_a
             irrep_trb=irrep_b
-c
+!
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha_2 A(+i) B(-i)"
 #endif
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
      1           d_tr1(axisA),d_tr2(axisA),
-c     2           d_tr1(axisB+3),d_tr2(axisB+3), ! temporary
+!     2           d_tr1(axisB+3),d_tr2(axisB+3), ! temporary
      2           d_tr1(axisB),d_tr2(axisB),
      3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
      4           k_t1_offset,k_t2_offset,
@@ -3208,12 +3208,12 @@ c     2           d_tr1(axisB+3),d_tr2(axisB+3), ! temporary
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
 #endif
-c
+!
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha_2 A(-i) B(+i)"
 #endif
             call alpha_2(d_f1,d_a0,d_t1,d_t2,
-c     1           d_tr1(axisA+3),d_tr2(axisA+3), ! temporary
+!     1           d_tr1(axisA+3),d_tr2(axisA+3), ! temporary
      1           d_tr1(axisA),d_tr2(axisA),
      2           d_tr1(axisB),d_tr2(axisB),
      3           d_v2,d_lambda1,d_lambda2,k_f1_offset,k_a0_offset,
@@ -3228,7 +3228,7 @@ c     1           d_tr1(axisA+3),d_tr2(axisA+3), ! temporary
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
 #endif
-c
+!
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha_2 A(r) B(r)"
 #endif
@@ -3246,40 +3246,40 @@ c
             if (nodezero) write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
 #endif
             call deletefile(d_a0)
-c
+!
             alpha(axisA,axisB)=alpha(axisA,axisB)-alpha1-alpha2+alpha3
             alpha(axisA,axisB)=-1.0d0*alpha(axisA,axisB)
-c
+!
 #ifdef DEBUG_PRINT
             if (nodezero) write(LuOut,*) "alpha(axisA,axisB) = ",
      1                                    alpha(axisA,axisB)
             call util_flush(LuOut)
 #endif
-c
+!
           endif ! respaxis(axis)
           enddo ! axisB loop
           enddo ! axisA loop
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
-c
+!
           do i = 1, 3
             do j = 1, i
               alphacopy(i,j)=alpha(i,j)
               alphacopy(j,i)=alpha(i,j)
             enddo
           enddo
-c
+!
           call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
-c
+!
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
-c
+!
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
      1        .and.nodezero) write(LuOut,9911)
-c
+!
           if (nodezero) write(LuOut,9434) "CCSD Imaginary Response",
      1      ifreq(omegacount),auXnm/ifreq(omegacount),
      2      alpha(1,1),alpha(2,1),alpha(3,1),
@@ -3294,7 +3294,7 @@ c
      2      alphaani,au2ang3*alphaani
           if (nodezero) write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
-c
+!
           ifreqval(omegacount,1) = alpha(1,1)
           ifreqval(omegacount,2) = alpha(2,2)
           ifreqval(omegacount,3) = alpha(3,3)
@@ -3303,11 +3303,11 @@ c
           ifreqval(omegacount,6) = alpha(3,2)
           ifreqval(omegacount,7) = alphaiso
           ifreqval(omegacount,8) = alphaani
-c
+!
           enddo ! omegacount loop
-c
-c       Casimir-Polder integration for determination of C6 coefficient
-c
+!
+!       Casimir-Polder integration for determination of C6 coefficient
+!
           do i = 1, 8
             integral(i) = 0.0d0
             do omegacount = 1,inumfreq-1
@@ -3328,12 +3328,12 @@ c
      &       integral(4),integral(5),integral(6),
      &       integral(7),integral(8)
           call util_flush(LuOut)
-c
+!
         endif ! imagresp
  2237   continue
-c -------------
-c CCSD-LR
-c -------------
+! -------------
+! CCSD-LR
+! -------------
         if (lineresp) then
           call ccsd_lr_alpha(rtdb,d_d0,d_a0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
@@ -3342,11 +3342,11 @@ c -------------
      4         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
      5         k_tr1_offset,k_tr2_offset,
      6         size_tr1,size_tr2,dipole_scf,dipole_cor)
-c
+!
         endif ! lineresp
-c -------------
-c CCSD-YR
-c -------------
+! -------------
+! CCSD-YR
+! -------------
         if (leftresp) then
           call ccsd_qr_beta(rtdb,d_a0,d_b0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_yr1,d_yr2,d_tr1,d_tr2,
@@ -3355,18 +3355,18 @@ c -------------
      4         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
      5         k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset,
      6         size_yr1,size_yr2)
-c
+!
         endif ! leftresp
       endif ! (model.eq.'ccsd').or.do_ccsd
-c -------------------
-c CCSD(T) and CCSD[T]
-c -------------------
+! -------------------
+! CCSD(T) and CCSD[T]
+! -------------------
         if (do_pt.or.((perturbative.eq.'(t)').or.
      1                (perturbative.eq.'[t]'))) then
-c
+!
           if (nodezero) write(LuOut,*) 'CCSD(T)'
           if (do_pt) perturbative='(t)'
-c
+!
           cpu = - util_cpusec()
           wall = - util_wallsec()
           if (restart_ccsd_t.eq.0) then
@@ -3378,7 +3378,7 @@ c
      1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
               else
                if (nodezero) write(LuOut,*) 'Using CUDA CCSD(T) code'
-ckbn           call errquit('tce_energy: reading cuda',icuda,CALC_ERR) 
+!kbn           call errquit('tce_energy: reading cuda',icuda,CALC_ERR) 
                if (nodezero) call util_flush(LuOut)
                call ccsd_t_gpu(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                    d_v2,k_v2_offset,pt3_1,pt3_2,size_t1,icuda)
@@ -3421,15 +3421,15 @@ ckbn           call errquit('tce_energy: reading cuda',icuda,CALC_ERR)
             corr = corr + pt3_2
           endif
         endif
-c ---------------------------------
-c Lambda-CCSD(T) and Lambda-CCSD[T]
-c ---------------------------------
+! ---------------------------------
+! Lambda-CCSD(T) and Lambda-CCSD[T]
+! ---------------------------------
         if (do_lam_pt.or.((perturbative.eq.'lambda(t)').or.
      &                    (perturbative.eq.'lambda[t]'))) then
-c
+!
           if (nodezero) write(LuOut,*) 'Lambda-CCSD(T)'
           if (do_lam_pt) perturbative='lambda(t)'
-c
+!
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call lambda_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
@@ -3453,15 +3453,15 @@ c
             corr = corr + pt3_2
           endif
         endif
-c -------------------------
-c CR-CCSD(T) and CR-CCSD[T]
-c -------------------------
+! -------------------------
+! CR-CCSD(T) and CR-CCSD[T]
+! -------------------------
         if(do_cr_pt.or.((perturbative.eq.'cr_(t)')
      1             .or. (perturbative.eq.'cr_[t]'))) then
-c
+!
           if (nodezero) write(LuOut,*) 'CR-CCSD(T)'
           if (do_cr_pt) perturbative='cr_(t)'
-c
+!
           if ((model.eq.'ccsd').or.(model.eq.'multi')) then
             cpu = - util_cpusec()
             wall = - util_wallsec()
@@ -3490,16 +3490,16 @@ c
             endif
           endif
         endif
-c ----------------------------------------------------
-c LR-CCSD(T) and/or LR-CCSD(T)-1 and/or LR-CCSD(TQ)-1p
-c ----------------------------------------------------
+! ----------------------------------------------------
+! LR-CCSD(T) and/or LR-CCSD(T)-1 and/or LR-CCSD(TQ)-1p
+! ----------------------------------------------------
         if (do_lcr_pt.or.((perturbative.eq.'lr_(t)').or.
      &                    (perturbative.eq.'lr_(tq1p)').or.
      &                    (perturbative.eq.'lr_(tq1)'))) then
-c
+!
           if (nodezero) write(LuOut,*) 'LR-CCSD(T)'
           if (do_lcr_pt) perturbative='lr_(t)'
-c
+!
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call tce_filename('e',filename)
@@ -3510,7 +3510,7 @@ c
      3                   pt3_1,pt3_2,pt3_3,pt3_4,pt3_5,pt3_6,
      4                   size_t1)
           call deletefile(d_e)
-c
+!
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
           if (nodezero) then
@@ -3538,9 +3538,9 @@ c
           if (perturbative.eq.'lr_(t)') then
             corr = corr + pt3_2
           endif
-c --------------------------------------
-c LR-CCSD(TQ)-1p
-c --------------------------------------
+! --------------------------------------
+! LR-CCSD(TQ)-1p
+! --------------------------------------
           if(perturbative.eq.'lr_(tq1p)') then
             cpu = - util_cpusec()
             wall = - util_wallsec()
@@ -3563,9 +3563,9 @@ c --------------------------------------
               corr = corr + pt3_2 + pt4_lr
             end if
           end if
-c --------------------------------------------------------
-c LR-CCSD(TQ)-1
-c --------------------------------------------------------
+! --------------------------------------------------------
+! LR-CCSD(TQ)-1
+! --------------------------------------------------------
           if(perturbative.eq.'lr_(tq1)') then
             cpu = - util_cpusec()
             wall = - util_wallsec()
@@ -3589,16 +3589,16 @@ c --------------------------------------------------------
             end if
           end if
         end if
-c ---------------------
-c CCSD(2)_T and CCSD(2)
-c ---------------------
+! ---------------------
+! CCSD(2)_T and CCSD(2)
+! ---------------------
         if (do_2t_pt.or.((perturbative.eq.'2_t').or.
      1                   (perturbative.eq.'2_tq').or.
      2                   (perturbative.eq.'2_tqf'))) then
-c
+!
           if (nodezero) write(LuOut,*) 'CCSD(2)_T'
           if (do_2t_pt) perturbative='2_t'
-c
+!
           cpu = - util_cpusec()
           wall = - util_wallsec()
           call tce_filename('e',filename)
@@ -3628,12 +3628,12 @@ c
           endif
           corr = corr + pt3_1
         endif
-ccx       endif
+!cx       endif
       !JEFFendif
       if ((model.eq.'lccsd').or.do_lccsd) then
-c -------------
-c LCCSD   right
-c -------------
+! -------------
+! LCCSD   right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -3728,9 +3728,9 @@ c -------------
   104 continue
       endif
       if (model.eq.'ccsdt') then
-c -------------
-c CCSDT   right
-c -------------
+! -------------
+! CCSDT   right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -3814,9 +3814,9 @@ c -------------
      1                             handle_t3,irrep_t)
             endif
             goto 2327
-cccc            ccsdtleft=.true.
-cccc            goto 100
-cedo            goto 330
+!ccc            ccsdtleft=.true.
+!ccc            goto 100
+!edo            goto 330
           endif
           if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
             if(nodezero) then
@@ -3853,9 +3853,9 @@ cedo            goto 330
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
 
  2327 continue
-c -------------
-c CCSDT   left
-c -------------
+! -------------
+! CCSDT   left
+! -------------
         if (left) then
         irrep_y=0
         call tce_diis_init()
@@ -3951,7 +3951,7 @@ c -------------
      2                    dipole_cor(2),dipole_cor(2)*debye,
      3                    dipole_cor(3),dipole_cor(3)*debye,
      4                    dipole_cor_t ,dipole_cor_t*debye
-ccc            goto 2010
+!cc            goto 2010
             goto 2337
           endif
           if (save_l(1).and.(mod(iter,save_interval).eq.0)) then
@@ -3988,9 +3988,9 @@ ccc            goto 2010
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
         endif ! (left)
  2337   continue
-c ----------
-c CCSDT(2)_Q
-c ----------
+! ----------
+! CCSDT(2)_Q
+! ----------
         if (perturbative.eq.'2_q') then
           cpu = - util_cpusec()
           wall = - util_wallsec()
@@ -4012,22 +4012,22 @@ c ----------
           endif
           corr = corr + pt3_1
         endif
-c -------------
-c CCSDT-IR
-c -------------
+! -------------
+! CCSDT-IR
+! -------------
         if (imagresp) then
 #if !defined(CCSDTLR)
       CALL ERRQUIT('CCSDTLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
-c
-c         REAL COMPONENT
-c
+!
+!         REAL COMPONENT
+!
           do omegacount=1,inumfreq
             omega = ifreq(omegacount)
-c            if (omega.eq.(0.0d0)) then
-c              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
-c            endif
-c
+!            if (omega.eq.(0.0d0)) then
+!              call errquit('tce_energy: imag(omega) is zero',0,CALC_ERR)
+!            endif
+!
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_d=sym_abelian_axis(geom,axis)
@@ -4038,117 +4038,117 @@ c
             endif
             irrep_o=irrep_d
             irrep_x=irrep_d
-c
-c           offset to the third set of response for real component
+!
+!           offset to the third set of response for real component
             dynaxis = 6
-c
+!
             if (nodezero) write(LuOut,9431) omega
-c
+!
             call tce_diis_init()
             do iter=1,maxiter
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &          write(LuOut,9400) "CCSDT-IR (real component)"
-c        write(LuOut,*) "singles initialization"
+!        write(LuOut,*) "singles initialization"
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
               call tce_zero(d_rr1(axis),size_tr1(axis))
               call tce_filename(ir1filename(axis),filename)
               call createfile(filename,d_ir1(axis),size_tr1(axis))
               call tce_zero(d_ir1(axis),size_tr1(axis))
-c        write(LuOut,*) "doubles initialization"
+!        write(LuOut,*) "doubles initialization"
               call tce_filename(rr2filename(axis),filename)
               call createfile(filename,d_rr2(axis),size_tr2(axis))
               call tce_zero(d_rr2(axis),size_tr2(axis))
               call tce_filename(ir2filename(axis),filename)
               call createfile(filename,d_ir2(axis),size_tr2(axis))
               call tce_zero(d_ir2(axis),size_tr2(axis))
-c        write(LuOut,*) "triples initialization"
+!        write(LuOut,*) "triples initialization"
               call tce_filename(rr3filename(axis),filename)
               call createfile(filename,d_rr3(axis),size_tr3(axis))
               call tce_zero(d_rr3(axis),size_tr3(axis))
               call tce_filename(ir3filename(axis),filename)
               call createfile(filename,d_ir3(axis),size_tr3(axis))
               call tce_zero(d_ir3(axis),size_tr3(axis))
-c        write(LuOut,*) "ccsdt_o1"
+!        write(LuOut,*) "ccsdt_o1"
               call ccsdt_o1(d_ir1(axis),d_d1(axis),d_t1,d_t2,
      &             k_tr1_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset)
-c        write(LuOut,*) "ccsdt_o2"
+!        write(LuOut,*) "ccsdt_o2"
               call ccsdt_o2(d_ir2(axis),d_d1(axis),d_t1,d_t2,d_t3,
      &             k_tr2_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset,k_t3_offset)
-c        write(LuOut,*) "ccsdt_o3"
+!        write(LuOut,*) "ccsdt_o3"
               call ccsdt_o3(d_ir3(axis),d_d1(axis),d_t1,d_t2,d_t3,
      &             k_tr3_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset,k_t3_offset)
-c        write(LuOut,*) "eomccsdt_x1"
+!        write(LuOut,*) "eomccsdt_x1"
               call eomccsdt_x1(d_f1,d_ir1(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),k_f1_offset,k_tr1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "eomccsdt_x2"
+!        write(LuOut,*) "eomccsdt_x2"
               call eomccsdt_x2(d_f1,d_ir2(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),k_f1_offset,k_tr2_offset(axis),
      3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "eomccsdt_x3"
+!        write(LuOut,*) "eomccsdt_x3"
               call eomccsdt_x3(d_f1,d_ir3(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),k_f1_offset,k_tr3_offset(axis),
      3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "reconcilefile"
+!        write(LuOut,*) "reconcilefile"
               call reconcilefile(d_ir1(axis),size_tr1(axis))
               call reconcilefile(d_ir2(axis),size_tr2(axis))
               call reconcilefile(d_ir3(axis),size_tr3(axis))
-c        write(LuOut,*) "eomccsdt_x1"
+!        write(LuOut,*) "eomccsdt_x1"
               call eomccsdt_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
      1             d_ir1(axis),d_ir2(axis),d_ir3(axis),
      2             k_f1_offset,k_tr1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "eomccsdt_x2"
+!        write(LuOut,*) "eomccsdt_x2"
               call eomccsdt_x2(d_f1,d_rr2(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_ir1(axis),d_ir2(axis),d_ir3(axis),
      2             k_f1_offset,k_tr2_offset(axis),
      3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "eomccsdt_x3"
+!        write(LuOut,*) "eomccsdt_x3"
               call eomccsdt_x3(d_f1,d_rr3(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_ir1(axis),d_ir2(axis),d_ir3(axis),
      2             k_f1_offset,k_tr3_offset(axis),
      3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "deletefile"
+!        write(LuOut,*) "deletefile"
               call deletefile(d_ir1(axis))
               call deletefile(d_ir2(axis))
               call deletefile(d_ir3(axis))
-c        write(LuOut,*) "daxpyfile"
+!        write(LuOut,*) "daxpyfile"
               call daxpyfile(1,omega*omega,d_tr1(axis+dynaxis),
      1             d_rr1(axis),size_tr1(axis))
               call daxpyfile(1,omega*omega,d_tr2(axis+dynaxis),
      1             d_rr2(axis),size_tr2(axis))
               call daxpyfile(1,omega*omega,d_tr3(axis+dynaxis),
      1             d_rr3(axis),size_tr3(axis))
-c        write(LuOut,*) "reconcilefile"
+!        write(LuOut,*) "reconcilefile"
               call reconcilefile(d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
               call reconcilefile(d_rr3(axis),size_tr3(axis))
-c        write(LuOut,*) "tce_residual_tr1"
+!        write(LuOut,*) "tce_residual_tr1"
               call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-c        write(LuOut,*) "tce_residual_tr2"
+!        write(LuOut,*) "tce_residual_tr2"
               call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
-c        write(LuOut,*) "tce_residual_tr3"
+!        write(LuOut,*) "tce_residual_tr3"
               call tce_residual_tr3(d_rr3(axis),k_tr3_offset(axis),rr3)
               residual = max(rr1,rr2,rr3)
               cpu=cpu+util_cpusec()
@@ -4238,12 +4238,12 @@ c        write(LuOut,*) "tce_residual_tr3"
             enddo ! iter loop
           call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  2335 continue
-c
+!
           endif ! respaxis(axis)
           enddo ! axis loop
-c
-c         IMAGINARY COMPONENT
-c
+!
+!         IMAGINARY COMPONENT
+!
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_d=sym_abelian_axis(geom,axis)
@@ -4254,7 +4254,7 @@ c
             endif
             irrep_o=irrep_d
             irrep_x=irrep_d
-c
+!
           do omegasign=1,2
             if (omegasign.eq.1) then
               omega = (1.0d0)*ifreq(omegacount)
@@ -4264,22 +4264,22 @@ c
               dynaxis = 3
             endif
             if (nodezero) write(LuOut,9431) omega
-c
+!
             call tce_diis_init()
             do iter=1,maxiter
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &          write(LuOut,9400) "CCSDT-IR (imaginary component)"
-c        write(LuOut,*) "singles initialization"
+!        write(LuOut,*) "singles initialization"
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
               call tce_zero(d_rr1(axis),size_tr1(axis))
-c        write(LuOut,*) "doubles initialization"
+!        write(LuOut,*) "doubles initialization"
               call tce_filename(rr2filename(axis),filename)
               call createfile(filename,d_rr2(axis),size_tr2(axis))
               call tce_zero(d_rr2(axis),size_tr2(axis))
-c        write(LuOut,*) "triples initialization"
+!        write(LuOut,*) "triples initialization"
               call tce_filename(rr3filename(axis),filename)
               call createfile(filename,d_rr3(axis),size_tr3(axis))
               call tce_zero(d_rr3(axis),size_tr3(axis))
@@ -4411,14 +4411,14 @@ c        write(LuOut,*) "triples initialization"
             enddo ! iter loop
           call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  2336 continue
-c
+!
           enddo ! omegasign loop
-c
+!
           endif ! respaxis(axis)
           enddo ! axis loop
-c
-c CCSDT-IR evaluation step
-c
+!
+! CCSDT-IR evaluation step
+!
           cpu=-util_cpusec()
           wall=-util_wallsec()
           do axisA = 1, 3
@@ -4428,20 +4428,20 @@ c
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-c
+!
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
-c
-c            if (nodezero) write(LuOut,*) "axisA = ",axisA
-c            if (nodezero) write(LuOut,*) "axisB = ",axisB
-c
+!
+!            if (nodezero) write(LuOut,*) "axisA = ",axisA
+!            if (nodezero) write(LuOut,*) "axisB = ",axisB
+!
             alpha1=0.0d0
             alpha2=0.0d0
-c
+!
             irrep_d=irrep_a
             irrep_tr=irrep_b
-c
-c            write(LuOut,*) "alpha_1 AB"
+!
+!            write(LuOut,*) "alpha_1 AB"
             call ccsdt_lr_alpha1(d_a0,d_d1(axisA),d_t1,d_t2,d_t3,
      1           d_tr1(axisB+6),d_tr2(axisB+6),d_tr3(axisB+6),
      2           d_lambda1,d_lambda2,d_lambda3,k_a0_offset,
@@ -4449,18 +4449,18 @@ c            write(LuOut,*) "alpha_1 AB"
      4           k_t3_offset,k_tr1_offset(axisB),
      5           k_tr2_offset(axisB),k_tr3_offset(axisB),
      6           k_l1_offset,k_l2_offset,k_l3_offset)
-c
+!
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,size_a0)
-c            write(LuOut,*) "alpha_1 AB = ",alpha1
-c
+!            write(LuOut,*) "alpha_1 AB = ",alpha1
+!
             if (axisA.eq.axisB) then
               alpha2=alpha1
             else
               irrep_d=irrep_b
               irrep_tr=irrep_a
-c              write(LuOut,*) "alpha_1 BA"
+!              write(LuOut,*) "alpha_1 BA"
             call ccsdt_lr_alpha1(d_a0,d_d1(axisB),d_t1,d_t2,d_t3,
      1           d_tr1(axisA+6),d_tr2(axisA+6),d_tr3(axisA+6),
      2           d_lambda1,d_lambda2,d_lambda3,k_a0_offset,
@@ -4468,23 +4468,23 @@ c              write(LuOut,*) "alpha_1 BA"
      4           k_t3_offset,k_tr1_offset(axisA),
      5           k_tr2_offset(axisA),k_tr3_offset(axisA),
      6           k_l1_offset,k_l2_offset,k_l3_offset)
-c
+!
               call reconcilefile(d_a0,size_a0)
               call get_block(d_a0,alpha2,1,0)
               call tce_zero(d_a0,size_a0)
             endif ! axisA.eq.axisB
-c            write(LuOut,*) "alpha_1 BA = ",alpha2
-c
+!            write(LuOut,*) "alpha_1 BA = ",alpha2
+!
             alpha(axisA,axisB)=alpha(axisA,axisB)+alpha1+alpha2
-c
+!
             alpha1=0.0d0
             alpha2=0.0d0
             alpha3=0.0d0
-c
+!
             irrep_tra=irrep_a
             irrep_trb=irrep_b
-c
-c            write(LuOut,*) "alpha_2 A(+i) B(-i)"
+!
+!            write(LuOut,*) "alpha_2 A(+i) B(-i)"
             call ccsdt_lr_alpha2(d_f1,d_a0,d_t1,d_t2,d_t3,
      1           d_tr1(axisA),d_tr2(axisA),d_tr3(axisA),
      2           d_tr1(axisB+3),d_tr2(axisB+3),d_tr3(axisB+3),
@@ -4498,9 +4498,9 @@ c            write(LuOut,*) "alpha_2 A(+i) B(-i)"
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,size_a0)
-c            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
-c
-c            write(LuOut,*) "alpha_2 A(-i) B(+i)"
+!            write(LuOut,*) "alpha_2 A(+i) B(-i) = ",alpha1
+!
+!            write(LuOut,*) "alpha_2 A(-i) B(+i)"
             call ccsdt_lr_alpha2(d_f1,d_a0,d_t1,d_t2,d_t3,
      1           d_tr1(axisA+3),d_tr2(axisA+3),d_tr3(axisA+3),
      2           d_tr1(axisB),d_tr2(axisB),d_tr3(axisB),
@@ -4514,9 +4514,9 @@ c            write(LuOut,*) "alpha_2 A(-i) B(+i)"
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha2,1,0)
             call tce_zero(d_a0,size_a0)
-c            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
-c
-c            write(LuOut,*) "alpha_2 A(r) B(r)"
+!            write(LuOut,*) "alpha_2 A(-i) B(+i) = ",alpha2
+!
+!            write(LuOut,*) "alpha_2 A(r) B(r)"
             call ccsdt_lr_alpha2(d_f1,d_a0,d_t1,d_t2,d_t3,
      1           d_tr1(axisA+6),d_tr2(axisA+6),d_tr3(axisA+6),
      2           d_tr1(axisB+6),d_tr2(axisB+6),d_tr3(axisB+6),
@@ -4529,39 +4529,39 @@ c            write(LuOut,*) "alpha_2 A(r) B(r)"
      9           k_v2_offset,k_l1_offset,k_l2_offset,k_l3_offset)
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha3,1,0)
-c            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
+!            write(LuOut,*) "alpha_2 A(r) B(r) = ",alpha3
             call deletefile(d_a0)
-c
+!
             alpha(axisA,axisB)=alpha(axisA,axisB)-alpha1-alpha2+alpha3
             alpha(axisA,axisB)=-1.0d0*alpha(axisA,axisB)
-c
-c            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
-c            if (nodezero) write(LuOut,9020) cpu, wall
-c
+!
+!            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
+!            if (nodezero) write(LuOut,9020) cpu, wall
+!
           endif ! respaxis(axis)
           enddo ! axisB loop
           enddo ! axisA loop
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
-c
+!
           do i = 1, 3
             do j = 1, i
               alphacopy(i,j)=alpha(i,j)
               alphacopy(j,i)=alpha(i,j)
             enddo
           enddo
-c
+!
           call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
-c
+!
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
-c
+!
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
      1        .and.nodezero) write(LuOut,9911)
-c
+!
           if (nodezero) write(LuOut,9434) "CCSDT Imaginary Response",
      1      ifreq(omegacount),auXnm/ifreq(omegacount),
      2      alpha(1,1),alpha(2,1),alpha(3,1),
@@ -4576,33 +4576,33 @@ c
      2      alphaani,au2ang3*alphaani
           if (nodezero) write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
-c
+!
           enddo ! omegacount loop
-c
+!
 #endif
         endif ! imagresp
-c
-c -------------
-c CCSDT-LR
-c -------------
+!
+! -------------
+! CCSDT-LR
+! -------------
         if (lineresp) then
 #if !defined(CCSDTLR)
       CALL ERRQUIT('CCSDTLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
-c          if (nodezero) write(LuOut,*) "lineresp is go"
+!          if (nodezero) write(LuOut,*) "lineresp is go"
           do omegacount=1,anumfreq
-c            if (nodezero) write(LuOut,*) "omegacount is go"
+!            if (nodezero) write(LuOut,*) "omegacount is go"
             omega = afreq(omegacount)
             if (omega.eq.(0.0d0)) then
               dynfreq = 1
             else
               dynfreq = 2
             endif
-c
+!
           do axis = 1, 3
-c            if (nodezero) write(LuOut,*) "axis is go"
+!            if (nodezero) write(LuOut,*) "axis is go"
           if (respaxis(axis)) then
-c            if (nodezero) write(LuOut,*) "respaxis(axis) is go"
+!            if (nodezero) write(LuOut,*) "respaxis(axis) is go"
             irrep_d=sym_abelian_axis(geom,axis)
             call sym_irrepname(geom,irrep_d+1,irrepname)
             if (nodezero.and.util_print('mod1',print_default)) then
@@ -4611,9 +4611,9 @@ c            if (nodezero) write(LuOut,*) "respaxis(axis) is go"
             endif
             irrep_o=irrep_d
             irrep_x=irrep_d
-c
+!
           do omegasign=1,dynfreq
-c            if (nodezero) write(LuOut,*) "omegasign is go"
+!            if (nodezero) write(LuOut,*) "omegasign is go"
             if (omegasign.eq.1) then
               omega = (1.0d0)*afreq(omegacount)
               dynaxis = 0
@@ -4622,79 +4622,79 @@ c            if (nodezero) write(LuOut,*) "omegasign is go"
               dynaxis = 3
             endif
             if (nodezero) write(LuOut,9431) omega
-c            if (nodezero) write(LuOut,*) "omega = ",omega
-c            if (nodezero) write(LuOut,*) "dynaxis = ",dynaxis
-c
+!            if (nodezero) write(LuOut,*) "omega = ",omega
+!            if (nodezero) write(LuOut,*) "dynaxis = ",dynaxis
+!
             call tce_diis_init()
             do iter=1,maxiter
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &          write(LuOut,9400) "CCSDT-LR"
-c
+!
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
               call tce_zero(d_rr1(axis),size_tr1(axis))
-c        write(LuOut,*) "daxpyfile"
+!        write(LuOut,*) "daxpyfile"
               call daxpyfile(1,(-1.0d0)*omega,d_tr1(axis+dynaxis),
      1             d_rr1(axis),size_tr1(axis))
-c        write(LuOut,*) "eomccsdt_x1"
+!        write(LuOut,*) "eomccsdt_x1"
               call eomccsdt_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),k_f1_offset,k_tr1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "ccsdt_o1"
+!        write(LuOut,*) "ccsdt_o1"
               call ccsdt_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
      &             k_tr1_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset)
-c
+!
               call tce_filename(rr2filename(axis),filename)
               call createfile(filename,d_rr2(axis),size_tr2(axis))
               call tce_zero(d_rr2(axis),size_tr2(axis))
-c        write(LuOut,*) "daxpyfile"
+!        write(LuOut,*) "daxpyfile"
               call daxpyfile(1,(-1.0d0)*omega,d_tr2(axis+dynaxis),
      1             d_rr2(axis),size_tr2(axis))
-c        write(LuOut,*) "eomccsdt_x2"
+!        write(LuOut,*) "eomccsdt_x2"
               call eomccsdt_x2(d_f1,d_rr2(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),k_f1_offset,k_tr2_offset(axis),
      3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "ccsdt_o2"
+!        write(LuOut,*) "ccsdt_o2"
               call ccsdt_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,d_t3,
      &             k_tr2_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset,k_t3_offset)
-c
+!
               call tce_filename(rr3filename(axis),filename)
               call createfile(filename,d_rr3(axis),size_tr3(axis))
               call tce_zero(d_rr3(axis),size_tr3(axis))
-c        write(LuOut,*) "daxpyfile"
+!        write(LuOut,*) "daxpyfile"
               call daxpyfile(1,(-1.0d0)*omega,d_tr3(axis+dynaxis),
      1             d_rr3(axis),size_tr3(axis))
-c        write(LuOut,*) "eomccsdt_x3"
+!        write(LuOut,*) "eomccsdt_x3"
               call eomccsdt_x3(d_f1,d_rr3(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),k_f1_offset,k_tr3_offset(axis),
      3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis))
-c        write(LuOut,*) "ccsdt_o3"
+!        write(LuOut,*) "ccsdt_o3"
               call ccsdt_o3(d_rr3(axis),d_d1(axis),d_t1,d_t2,d_t3,
      &             k_tr3_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset,k_t3_offset)
-c
-c        write(LuOut,*) "reconcilefile"
+!
+!        write(LuOut,*) "reconcilefile"
               call reconcilefile(d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
               call reconcilefile(d_rr3(axis),size_tr3(axis))
-c        write(LuOut,*) "tce_residual_tr1"
+!        write(LuOut,*) "tce_residual_tr1"
               call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-c        write(LuOut,*) "tce_residual_tr2"
+!        write(LuOut,*) "tce_residual_tr2"
               call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
-c        write(LuOut,*) "tce_residual_tr3"
+!        write(LuOut,*) "tce_residual_tr3"
               call tce_residual_tr3(d_rr3(axis),k_tr3_offset(axis),rr3)
               residual = max(rr1,rr2,rr3)
               cpu=cpu+util_cpusec()
@@ -4784,13 +4784,13 @@ c        write(LuOut,*) "tce_residual_tr3"
             enddo ! iter loop
           call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  2338 continue
-c
+!
           enddo ! omegasign loop
           endif ! respaxis(axis)
           enddo ! axis loop
-c
-c         Evaluate Dipole Polarizability
-c
+!
+!         Evaluate Dipole Polarizability
+!
           do axisA = 1, 3
           do axisB = 1, axisA
           alpha(axisA,axisB)=0.0d0
@@ -4798,26 +4798,26 @@ c
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-c
-c            if (nodezero) write(LuOut,*) "axisA = ",axisA
-c            if (nodezero) write(LuOut,*) "axisB = ",axisB
-c
+!
+!            if (nodezero) write(LuOut,*) "axisA = ",axisA
+!            if (nodezero) write(LuOut,*) "axisB = ",axisB
+!
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
-c
+!
               alpha1=0.0d0
               alpha2=0.0d0
-c
+!
               if (omega.ne.0.0d0) then
                 dynaxis = 3
               else
                 dynaxis = 0
               endif
-c
+!
               irrep_c=irrep_a
               irrep_oa=irrep_a
               irrep_ob=irrep_b
-c              if (nodezero) write(LuOut,*) "ccsdt_lr_alpha_offdiag #1"
+!              if (nodezero) write(LuOut,*) "ccsdt_lr_alpha_offdiag #1"
               call ccsdt_lr_alpha_offdiag(d_tr1(axisA),
      1             d_tr2(axisA),d_tr3(axisA),
      2             d_tr1(axisB+dynaxis),d_tr2(axisB+dynaxis),
@@ -4833,16 +4833,16 @@ c              if (nodezero) write(LuOut,*) "ccsdt_lr_alpha_offdiag #1"
      3             k_d1_offset(axisA),k_d1_offset(axisB),
      4             k_t1_offset,k_t2_offset,k_t3_offset,
      5             k_v2_offset,k_l1_offset,k_l2_offset,k_l3_offset)
-c
+!
               call reconcilefile(d_a0,size_a0)
               call get_block(d_a0,alpha1,1,0)
               call tce_zero(d_a0,size_a0)
-c              write(LuOut,*) "alpha1 = ",alpha1
-c
+!              write(LuOut,*) "alpha1 = ",alpha1
+!
               if ((omega.eq.0.0d0).or.(axisA.eq.axisB)) then
                 alpha2=alpha1
               else
-c                if (nodezero) write(LuOut,*) "ccsdt_lr_alpha_offdiag #2"
+!                if (nodezero) write(LuOut,*) "ccsdt_lr_alpha_offdiag #2"
                 call ccsdt_lr_alpha_offdiag(d_tr1(axisA+dynaxis),
      1               d_tr2(axisA+dynaxis),d_tr3(axisA+dynaxis),
      2               d_tr1(axisB),d_tr2(axisB),
@@ -4858,44 +4858,44 @@ c                if (nodezero) write(LuOut,*) "ccsdt_lr_alpha_offdiag #2"
      3               k_d1_offset(axisA),k_d1_offset(axisB),
      4               k_t1_offset,k_t2_offset,k_t3_offset,
      5               k_v2_offset,k_l1_offset,k_l2_offset,k_l3_offset)
-c
+!
                 call reconcilefile(d_a0,size_a0)
                 call get_block(d_a0,alpha2,1,0)
                 call tce_zero(d_a0,size_a0)
               endif ! axisA.eq.axisB
-c              write(LuOut,*) "alpha2 = ",alpha2
-c
+!              write(LuOut,*) "alpha2 = ",alpha2
+!
               alpha(axisA,axisB)=(-0.5d0)*(alpha1+alpha2)
-c
+!
             call deletefile(d_a0)
-c
-c            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
-c            if (nodezero) write(LuOut,9020) cpu, wall
-c
+!
+!            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
+!            if (nodezero) write(LuOut,9020) cpu, wall
+!
           endif ! respaxis(axis)
           enddo ! axisB loop
           enddo ! axisA loop
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
-c
+!
           do i = 1, 3
             do j = 1, i
               alphacopy(i,j)=alpha(i,j)
               alphacopy(j,i)=alpha(i,j)
             enddo
           enddo
-c
+!
           call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
-c
+!
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
-c
+!
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
      1        .and.nodezero) write(LuOut,9911)
-c
+!
           if (nodezero) write(LuOut,9434) "CCSDT Linear Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
      2      alpha(1,1),alpha(2,1),alpha(3,1),
@@ -4910,20 +4910,20 @@ c
      2      alphaani,au2ang3*alphaani
           if (nodezero) write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
-c
+!
           enddo ! omegacount loop
-c
+!
 #endif
         endif ! lineresp
-c
-c -------------
-c CCSDT-YR
-c -------------
+!
+! -------------
+! CCSDT-YR
+! -------------
         if (leftresp) then
 #if !defined(CCSDTLR)
       CALL ERRQUIT('CCSDTLR not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
-c
+!
           do omegacount=1,anumfreq
             omega1 = afreq(omegacount)
             if (omega1.eq.(0.0d0)) then
@@ -4931,7 +4931,7 @@ c
             else
               dynfreq = 2
             endif
-c
+!
           do axis = 1, 3
           if (respaxis(axis)) then
             irrep_d=sym_abelian_axis(geom,axis)
@@ -4942,7 +4942,7 @@ c
             endif
             irrep_o=irrep_d
             irrep_x=irrep_d
-c
+!
           do omegasign=1,dynfreq
             if (omegasign.eq.1) then
               omega1 = (1.0d0)*afreq(omegacount)
@@ -4952,32 +4952,32 @@ c
               dynaxis = 3
             endif
             if (nodezero) write(LuOut,9431) omega1
-c            if (nodezero) write(LuOut,*) "omega1 = ",omega1
-c            if (nodezero) write(LuOut,*) "dynaxis = ",dynaxis
-c
+!            if (nodezero) write(LuOut,*) "omega1 = ",omega1
+!            if (nodezero) write(LuOut,*) "dynaxis = ",dynaxis
+!
             call tce_diis_init()
             do iter=1,maxiter
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &          write(LuOut,9400) "CCSDT-YR (Static)"
-c        write(LuOut,*) "tce_filename"
+!        write(LuOut,*) "tce_filename"
               call tce_filename(yrr1filename(axis),filename)
-c        write(LuOut,*) "createfile"
+!        write(LuOut,*) "createfile"
               call createfile(filename,d_yrr1(axis),size_yr1(axis))
-c        write(LuOut,*) "tce_zero"
+!        write(LuOut,*) "tce_zero"
               call tce_zero(d_yrr1(axis),size_yr1(axis))
               call daxpyfile(1,(1.0d0)*omega1,d_yr1(axis+dynaxis),
      1             d_yrr1(axis),size_yr1(axis))
-c        write(LuOut,*) "ccsdt_y_o1"
+!        write(LuOut,*) "ccsdt_y_o1"
               irrep_y=irrep_g ! using Lambda(0) amplitudes
               call ccsdt_lambda_o1(d_yrr1(axis),d_d1(axis),d_t1,d_t2,
      1             d_t3,d_lambda1,d_lambda2,d_lambda3,
      2             k_yr1_offset(axis),k_d1_offset(axis),
      3             k_t1_offset,k_t2_offset,k_t3_offset,
      3             k_l1_offset,k_l2_offset,k_l3_offset)
-c              call ga_print(d_yrr1(axis))
-c        write(LuOut,*) "ccsdt_y_tr1"
+!              call ga_print(d_yrr1(axis))
+!        write(LuOut,*) "ccsdt_y_tr1"
               irrep_y=irrep_g ! using Lambda(0) amplitudes
               call ccsdt_y_tr1(d_f1,d_yrr1(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
@@ -4986,8 +4986,8 @@ c        write(LuOut,*) "ccsdt_y_tr1"
      3             k_t2_offset,k_v2_offset,k_tr1_offset(axis),
      4             k_tr2_offset(axis),k_tr3_offset(axis),
      5             k_l1_offset,k_l2_offset,k_l3_offset)
-c              call ga_print(d_yrr1(axis))
-c        write(LuOut,*) "eomccsdt_y1"
+!              call ga_print(d_yrr1(axis))
+!        write(LuOut,*) "eomccsdt_y1"
               irrep_y=irrep_d ! using Lambda(1) amplitudes
               call eomccsdt_y1(d_f1,d_yrr1(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),
@@ -4995,22 +4995,22 @@ c        write(LuOut,*) "eomccsdt_y1"
      3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      4             k_yr1_offset(axis),k_yr2_offset(axis),
      5             k_yr3_offset(axis))
-c              call ga_print(d_yrr1(axis))
-c        write(LuOut,*) "tce_filename"
+!              call ga_print(d_yrr1(axis))
+!        write(LuOut,*) "tce_filename"
               call tce_filename(yrr2filename(axis),filename)
-c        write(LuOut,*) "createfile"
+!        write(LuOut,*) "createfile"
               call createfile(filename,d_yrr2(axis),size_yr2(axis))
-c        write(LuOut,*) "tce_zero"
+!        write(LuOut,*) "tce_zero"
               call tce_zero(d_yrr2(axis),size_yr2(axis))
               call daxpyfile(1,(1.0d0)*omega1,d_yr2(axis+dynaxis),
      1             d_yrr2(axis),size_yr2(axis))
-c        write(LuOut,*) "ccsdt_y_o2"
+!        write(LuOut,*) "ccsdt_y_o2"
               irrep_y=irrep_g ! using Lambda(0) amplitudes
               call ccsdt_lambda_o2(d_yrr2(axis),d_d1(axis),d_t1,d_t2,
      1             d_lambda1,d_lambda2,d_lambda3,k_yr2_offset(axis),
      2             k_d1_offset(axis),k_t1_offset,k_t2_offset,
      3             k_l1_offset,k_l2_offset,k_l3_offset)
-c        write(LuOut,*) "ccsdt_y_tr2"
+!        write(LuOut,*) "ccsdt_y_tr2"
               irrep_y=irrep_g ! using Lambda(0) amplitudes
               call ccsdt_y_tr2(d_f1,d_yrr2(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
@@ -5020,7 +5020,7 @@ c        write(LuOut,*) "ccsdt_y_tr2"
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_tr3_offset(axis),k_l1_offset,k_l2_offset,
      6             k_l3_offset)
-c        write(LuOut,*) "eomccsdt_y2"
+!        write(LuOut,*) "eomccsdt_y2"
               irrep_y=irrep_d ! using Lambda(1) amplitudes
               call eomccsdt_y2(d_f1,d_yrr2(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),
@@ -5028,21 +5028,21 @@ c        write(LuOut,*) "eomccsdt_y2"
      3             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      4             k_yr1_offset(axis),k_yr2_offset(axis),
      5             k_yr3_offset(axis))
-c        write(LuOut,*) "tce_filename"
+!        write(LuOut,*) "tce_filename"
               call tce_filename(yrr3filename(axis),filename)
-c        write(LuOut,*) "createfile"
+!        write(LuOut,*) "createfile"
               call createfile(filename,d_yrr3(axis),size_yr3(axis))
-c        write(LuOut,*) "tce_zero"
+!        write(LuOut,*) "tce_zero"
               call tce_zero(d_yrr2(axis),size_yr2(axis))
               call daxpyfile(1,(1.0d0)*omega1,d_yr2(axis+dynaxis),
      1             d_yrr2(axis),size_yr2(axis))
-c        write(LuOut,*) "ccsdt_y_o3"
+!        write(LuOut,*) "ccsdt_y_o3"
               irrep_y=irrep_g ! using Lambda(0) amplitudes
               call ccsdt_lambda_o3(d_yrr3(axis),d_d1(axis),d_t1,
      1             d_lambda2,d_lambda3,k_yr3_offset(axis),
      2             k_d1_offset(axis),k_t1_offset,
      3             k_l2_offset,k_l3_offset)
-c        write(LuOut,*) "ccsdt_y_tr3"
+!        write(LuOut,*) "ccsdt_y_tr3"
               irrep_y=irrep_g ! using Lambda(0) amplitudes
               call ccsdt_y_tr3(d_f1,d_yrr3(axis),d_t1,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),d_lambda2,
@@ -5050,7 +5050,7 @@ c        write(LuOut,*) "ccsdt_y_tr3"
      3             k_t1_offset,k_v2_offset,
      4             k_tr1_offset(axis),k_tr2_offset(axis),
      5             k_l2_offset,k_l3_offset)
-c        write(LuOut,*) "eomccsdt_y3"
+!        write(LuOut,*) "eomccsdt_y3"
               irrep_y=irrep_d ! using Lambda(1) amplitudes
               call eomccsdt_y3(d_f1,d_yrr3(axis),d_t1,d_t2,d_v2,
      1             d_yr1(axis+dynaxis),d_yr2(axis+dynaxis),
@@ -5058,11 +5058,11 @@ c        write(LuOut,*) "eomccsdt_y3"
      3             k_t1_offset,k_t2_offset,k_v2_offset,
      4             k_yr1_offset(axis),k_yr2_offset(axis),
      5             k_yr3_offset(axis))
-c        write(LuOut,*) "reconcilefile"
+!        write(LuOut,*) "reconcilefile"
               call reconcilefile(d_yrr1(axis),size_yr1(axis))
               call reconcilefile(d_yrr2(axis),size_yr2(axis))
               call reconcilefile(d_yrr3(axis),size_yr3(axis))
-c        write(LuOut,*) "ddotfile"
+!        write(LuOut,*) "ddotfile"
               rr1 = ddotfile(d_yrr1(axis),d_yrr1(axis),size_yr1(axis))
               rr2 = ddotfile(d_yrr2(axis),d_yrr2(axis),size_yr2(axis))
               rr3 = ddotfile(d_yrr3(axis),d_yrr3(axis),size_yr3(axis))
@@ -5087,11 +5087,11 @@ c        write(LuOut,*) "ddotfile"
                     write(LuOut,9082) "Lambda(1) triples",r3
                   endif
                 endif
-c
-c                call ga_print(d_yrr1(axis))
-c                call ga_print(d_yrr2(axis))
-c                call ga_print(d_yrr3(axis))
-c
+!
+!                call ga_print(d_yrr1(axis))
+!                call ga_print(d_yrr2(axis))
+!                call ga_print(d_yrr3(axis))
+!
                 call deletefile(d_yrr3(axis))
                 call deletefile(d_yrr2(axis))
                 call deletefile(d_yrr1(axis))
@@ -5140,7 +5140,7 @@ c
                 call yr3_restart_save(d_yr3(axis),k_yr3_offset(axis),
      1               size_yr3(axis),axis,handle_yr3(axis),irrep_d)
               endif
-c       write(LuOut,*) "before tce_diis2"
+!       write(LuOut,*) "before tce_diis2"
               irrep_y=irrep_d
               call tce_diis2(.true.,iter,.true.,.true.,.false.,.false.,
      1             d_yrr1(axis),d_yr1(axis+dynaxis),k_yr1_offset(axis),
@@ -5150,7 +5150,7 @@ c       write(LuOut,*) "before tce_diis2"
      5             d_yrr3(axis),d_yr3(axis+dynaxis),k_yr3_offset(axis),
      6             size_yr3(axis),
      6             dummy,dummy,dummy,dummy,omega)
-c       write(LuOut,*) "after tce_diis2"
+!       write(LuOut,*) "after tce_diis2"
               call deletefile(d_yrr3(axis))
               call deletefile(d_yrr2(axis))
               call deletefile(d_yrr1(axis))
@@ -5158,15 +5158,15 @@ c       write(LuOut,*) "after tce_diis2"
             enddo ! iter loop
           call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  2339 continue
-c
+!
           enddo ! omegasign loop
-c
+!
           endif ! respaxis(axis)
           enddo ! axis loop
           call errquit('tce_energy: manual stop',911,CALC_ERR)
-c
-c         EVALUATE POLARIZABILITY
-c
+!
+!         EVALUATE POLARIZABILITY
+!
           cpu=-util_cpusec()
           wall=-util_wallsec()
           do axisA = 1, 3
@@ -5175,18 +5175,18 @@ c
           irrep_b=sym_abelian_axis(geom,axisB)
           alpha(axisA,axisB)=0.0d0
           if ( respaxis(axisA).and.respaxis(axisB) ) then
-c
+!
             alpha1=0.0d0
             alpha2=0.0d0
             alpha3=0.0d0
             alpha4=0.0d0
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
-c
+!
             irrep_y=irrep_g
             irrep_d=irrep_a
             irrep_tr=irrep_b
-c
+!
             call alpha_1(d_d1(axisA),d_a0,d_t1,d_t2,
      1           d_tr1(axisB),d_tr2(axisB),
      2           d_lambda1,d_lambda2,k_d1_offset(axisA),k_a0_offset,
@@ -5195,7 +5195,7 @@ c
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha1,1,0)
             call tce_zero(d_a0,size_a0)
-c
+!
             if (omega1.eq.0.0d0) then
               alpha2=alpha1
             else
@@ -5208,10 +5208,10 @@ c
               call get_block(d_a0,alpha2,1,0)
               call tce_zero(d_a0,size_a0)
             endif
-c
+!
             irrep_o=irrep_a
             irrep_y=irrep_b
-c
+!
             call alpha_2_yr(d_a0,d_d1(axisA),d_t1,d_t2,
      1           d_yr1(axisB),d_yr2(axisB),
      2           k_a0_offset,k_d1_offset(axisA),k_t1_offset,
@@ -5219,7 +5219,7 @@ c
             call reconcilefile(d_a0,size_a0)
             call get_block(d_a0,alpha3,1,0)
             call tce_zero(d_a0,size_a0)
-c
+!
             if (omega1.eq.0.0d0) then
               alpha4=alpha3
             else
@@ -5231,37 +5231,37 @@ c
               call get_block(d_a0,alpha4,1,0)
               call tce_zero(d_a0,size_a0)
             endif
-c
-c            write(LuOut,*) "alpha1 = ",alpha1
-c            write(LuOut,*) "alpha2 = ",alpha2
-c            write(LuOut,*) "alpha3 = ",alpha3
-c            write(LuOut,*) "alpha4 = ",alpha4
+!
+!            write(LuOut,*) "alpha1 = ",alpha1
+!            write(LuOut,*) "alpha2 = ",alpha2
+!            write(LuOut,*) "alpha3 = ",alpha3
+!            write(LuOut,*) "alpha4 = ",alpha4
             alpha(axisA,axisB)=(-0.5d0)*(alpha1+alpha2+alpha3+alpha4)
             call deletefile(d_a0)
-c
+!
           endif ! respaxis(axisA,axisB)
           enddo ! axisB loop
           enddo ! axisA loop
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
-c
+!
           do j = 1, 3
             do i = 1, 3
               alphacopy(i,j)=alpha(i,j)
             enddo
           enddo
-c
+!
           call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
-c
+!
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
-c
+!
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
      1        .and.nodezero) write(LuOut,9911)
-c
+!
           if (nodezero) write(LuOut,9434) "CCSDT Lambda Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
      2      alpha(1,1),alpha(2,1),alpha(3,1),
@@ -5276,10 +5276,10 @@ c
      2      alphaani,au2ang3*alphaani
           if (nodezero) write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
-c
-c
-c         EVALUATE HYPERPOLARIZABILITY
-c
+!
+!
+!         EVALUATE HYPERPOLARIZABILITY
+!
           cpu=-util_cpusec()
           wall=-util_wallsec()
           do axisA = 1, 3
@@ -5289,7 +5289,7 @@ c
           enddo
           enddo
           enddo
-c
+!
           do axisA = 1, 3
             irrep_a=sym_abelian_axis(geom,axisA)
           do axisB = 1, 3
@@ -5298,24 +5298,24 @@ c
             irrep_c=sym_abelian_axis(geom,axisC)
           if ( ( respaxis(axisA).and.respaxis(axisB) )
      &                          .and.respaxis(axisC) ) then
-c
-c            write(LuOut,*) "axisA = ",axisA
-c            write(LuOut,*) "axisB = ",axisB
-c            write(LuOut,*) "axisC = ",axisC
-c            call util_flush(LuOut)
-c
+!
+!            write(LuOut,*) "axisA = ",axisA
+!            write(LuOut,*) "axisB = ",axisB
+!            write(LuOut,*) "axisC = ",axisC
+!            call util_flush(LuOut)
+!
             beta1=0.0d0
             beta2=0.0d0
             beta3=0.0d0
             beta4=0.0d0
             call tce_filename('b0',filename)
             call createfile(filename,d_b0,size_b0)
-c
+!
             irrep_y=irrep_g
             irrep_tra=irrep_a
             irrep_trb=irrep_b
             irrep_trc=irrep_c
-c            write(LuOut,*) "beta_1"
+!            write(LuOut,*) "beta_1"
             call beta_1(d_b0,d_t1,d_tr1(axisA),d_tr2(axisA),
      1           d_tr1(axisB),d_tr2(axisB),d_tr1(axisC),d_tr2(axisC),
      2           d_v2,d_lambda1,d_lambda2,k_b0_offset,k_t1_offset,
@@ -5326,12 +5326,12 @@ c            write(LuOut,*) "beta_1"
             call reconcilefile(d_b0,size_b0)
             call get_block(d_b0,beta1,1,0)
             call tce_zero(d_b0,size_b0)
-c
+!
             irrep_y=irrep_g
             irrep_d=irrep_a
             irrep_tra=irrep_b
             irrep_trb=irrep_c
-c            write(LuOut,*) "beta_2"
+!            write(LuOut,*) "beta_2"
             call beta_2(d_d1(axisA),d_b0,d_tr1(axisB),d_tr2(axisB),
      1           d_tr1(axisC),d_tr2(axisC),d_lambda1,d_lambda2,
      2           k_d1_offset(axisA),k_b0_offset,
@@ -5341,11 +5341,11 @@ c            write(LuOut,*) "beta_2"
             call reconcilefile(d_b0,size_b0)
             call get_block(d_b0,beta2,1,0)
             call tce_zero(d_b0,size_b0)
-c
+!
             irrep_y=irrep_a
             irrep_tra=irrep_b
             irrep_trb=irrep_c
-c            write(LuOut,*) "beta_3"
+!            write(LuOut,*) "beta_3"
             call beta_3(d_f1,d_b0,d_t1,d_t2,d_tr1(axisB),d_tr2(axisB),
      1           d_tr1(axisC),d_tr2(axisC),d_v2,
      2           d_yr1(axisA),d_yr2(axisA),
@@ -5356,11 +5356,11 @@ c            write(LuOut,*) "beta_3"
             call reconcilefile(d_b0,size_b0)
             call get_block(d_b0,beta3,1,0)
             call tce_zero(d_b0,size_b0)
-c
+!
             irrep_y=irrep_a
             irrep_d=irrep_b
             irrep_tr=irrep_c
-c            write(LuOut,*) "beta_4"
+!            write(LuOut,*) "beta_4"
             call beta_4(d_d1(axisB),d_b0,d_t1,d_t2,
      1           d_tr1(axisC),d_tr2(axisC),d_yr1(axisA),d_yr2(axisA),
      2           k_d1_offset(axisB),k_b0_offset,k_t1_offset,k_t2_offset,
@@ -5369,42 +5369,42 @@ c            write(LuOut,*) "beta_4"
             call reconcilefile(d_b0,size_b0)
             call get_block(d_b0,beta4,1,0)
             call tce_zero(d_b0,size_b0)
-c
-c            write(LuOut,*) "beta1 = ",beta1
-c            write(LuOut,*) "beta2 = ",beta2
-c            write(LuOut,*) "beta3 = ",beta3
-c            write(LuOut,*) "beta4 = ",beta4
-c
-c           This term contributes to only one component
-c
+!
+!            write(LuOut,*) "beta1 = ",beta1
+!            write(LuOut,*) "beta2 = ",beta2
+!            write(LuOut,*) "beta3 = ",beta3
+!            write(LuOut,*) "beta4 = ",beta4
+!
+!           This term contributes to only one component
+!
             beta(axisA,axisB,axisC)=beta(axisA,axisB,axisC)-beta1
-c
-c           These terms both contribute to three components
-c
+!
+!           These terms both contribute to three components
+!
             beta(axisA,axisB,axisC)=beta(axisA,axisB,axisC)-beta2
             beta(axisB,axisC,axisA)=beta(axisB,axisC,axisA)-beta2
             beta(axisC,axisA,axisB)=beta(axisC,axisA,axisB)-beta2
-c
+!
             beta(axisA,axisB,axisC)=beta(axisA,axisB,axisC)-beta3
             beta(axisB,axisC,axisA)=beta(axisB,axisC,axisA)-beta3
             beta(axisC,axisA,axisB)=beta(axisC,axisA,axisB)-beta3
-c
-c           This term contributes to six components
-c
+!
+!           This term contributes to six components
+!
             beta(axisA,axisB,axisC)=beta(axisA,axisB,axisC)-beta4
             beta(axisA,axisC,axisB)=beta(axisA,axisC,axisB)-beta4
             beta(axisB,axisA,axisC)=beta(axisB,axisA,axisC)-beta4
             beta(axisB,axisC,axisA)=beta(axisB,axisC,axisA)-beta4
             beta(axisC,axisA,axisB)=beta(axisC,axisA,axisB)-beta4
             beta(axisC,axisB,axisA)=beta(axisC,axisB,axisA)-beta4
-c
+!
             call deletefile(d_b0)
-c
+!
           endif ! respaxis(axisA,axisB,axisC)
           enddo ! axisB loop
           enddo ! axisB loop
           enddo ! axisA loop
-c
+!
           if (nodezero) then
             write(LuOut,*)
             write(LuOut,9120) "CCSDT Quadratic Response"
@@ -5426,17 +5426,17 @@ c
           wall=wall+util_wallsec()
           if (nodezero) write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
-c
+!
           enddo ! omegacount loop
-c
+!
 #endif
         endif ! leftresp
-c
+!
       endif
       if (model.eq.'ccsdta') then
-c -----------------------------
-c CCSDt (CCSDT-active)   right
-c -----------------------------
+! -----------------------------
+! CCSDt (CCSDT-active)   right
+! -----------------------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -5508,7 +5508,7 @@ c -----------------------------
             endif
             ccsdtleft=.true.
             goto 100
-cedo            goto 330
+!edo            goto 330
           endif
           if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
             if(nodezero) then
@@ -5548,9 +5548,9 @@ cedo            goto 330
 #if !defined(CCSDTQ)
       CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
-c -------------
-c CCSDTQ  right
-c -------------
+! -------------
+! CCSDTQ  right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -5696,9 +5696,9 @@ c -------------
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-c -------------
-c CCSDTQ  left
-c -------------
+! -------------
+! CCSDTQ  left
+! -------------
   340   continue
         if (left) then
         irrep_y=0
@@ -5818,7 +5818,7 @@ c -------------
      2                    dipole_cor(2),dipole_cor(2)*debye,
      3                    dipole_cor(3),dipole_cor(3)*debye,
      4                    dipole_cor_t ,dipole_cor_t*debye
-c            goto 100
+!            goto 100
             goto 2437
           endif
           if (save_l(1).and.(mod(iter,save_interval).eq.0)) then
@@ -5862,26 +5862,26 @@ c            goto 100
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
         endif
-c -------------
-c CCSDTQ-LR
-c -------------
+! -------------
+! CCSDTQ-LR
+! -------------
  2437   continue
         if (lineresp) then
-c
-c          if (nodezero) write(LuOut,*) "lineresp is go"
+!
+!          if (nodezero) write(LuOut,*) "lineresp is go"
           do omegacount=1,anumfreq
-c            if (nodezero) write(LuOut,*) "omegacount is go"
+!            if (nodezero) write(LuOut,*) "omegacount is go"
             omega1 = afreq(omegacount)
             if (omega1.eq.(0.0d0)) then
               dynfreq = 1
             else
               dynfreq = 2
             endif
-c
+!
           do axis = 1, 3
-c            if (nodezero) write(LuOut,*) "axis is go"
+!            if (nodezero) write(LuOut,*) "axis is go"
           if (respaxis(axis)) then
-c            if (nodezero) write(LuOut,*) "respaxis(axis) is go"
+!            if (nodezero) write(LuOut,*) "respaxis(axis) is go"
             irrep_d=sym_abelian_axis(geom,axis)
             call sym_irrepname(geom,irrep_d+1,irrepname)
             if (nodezero.and.util_print('mod1',print_default)) then
@@ -5890,9 +5890,9 @@ c            if (nodezero) write(LuOut,*) "respaxis(axis) is go"
             endif
             irrep_o=irrep_d
             irrep_x=irrep_d
-c
+!
           do omegasign=1,dynfreq
-c            if (nodezero) write(LuOut,*) "omegasign is go"
+!            if (nodezero) write(LuOut,*) "omegasign is go"
             if (omegasign.eq.1) then
               omega1 = (1.0d0)*afreq(omegacount)
               dynaxis = 0
@@ -5901,23 +5901,23 @@ c            if (nodezero) write(LuOut,*) "omegasign is go"
               dynaxis = 3
             endif
             if (nodezero) write(LuOut,9431) omega1
-c            if (nodezero) write(LuOut,*) "omega1 = ",omega1
-c            if (nodezero) write(LuOut,*) "dynaxis = ",dynaxis
-c
+!            if (nodezero) write(LuOut,*) "omega1 = ",omega1
+!            if (nodezero) write(LuOut,*) "dynaxis = ",dynaxis
+!
             call tce_diis_init()
             do iter=1,maxiter
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
      &          write(LuOut,9400) "CCSDTQ-LR"
-c
+!
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
               call tce_zero(d_rr1(axis),size_tr1(axis))
-c        write(LuOut,*) "daxpyfile"
+!        write(LuOut,*) "daxpyfile"
               call daxpyfile(1,(-1.0d0)*omega1,d_tr1(axis+dynaxis),
      1             d_rr1(axis),size_tr1(axis))
-c        write(LuOut,*) "eomccsdtq_x1"
+!        write(LuOut,*) "eomccsdtq_x1"
               call eomccsdtq_x1(d_f1,d_rr1(axis),d_t1,d_t2,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),k_f1_offset,
@@ -5925,18 +5925,18 @@ c        write(LuOut,*) "eomccsdtq_x1"
      4             k_t1_offset,k_t2_offset,k_v2_offset,
      5             k_tr1_offset(axis),k_tr2_offset(axis),
      6             k_tr3_offset(axis))
-c        write(LuOut,*) "ccsdtq1_o1"
+!        write(LuOut,*) "ccsdtq1_o1"
               call ccsdtq_o1(d_rr1(axis),d_d1(axis),d_t1,d_t2,
      &             k_tr1_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset)
-c
+!
               call tce_filename(rr2filename(axis),filename)
               call createfile(filename,d_rr2(axis),size_tr2(axis))
               call tce_zero(d_rr2(axis),size_tr2(axis))
-c        write(LuOut,*) "daxpyfile"
+!        write(LuOut,*) "daxpyfile"
               call daxpyfile(1,(-1.0d0)*omega1,d_tr2(axis+dynaxis),
      1             d_rr2(axis),size_tr2(axis))
-c        write(LuOut,*) "eomccsdtq_x2"
+!        write(LuOut,*) "eomccsdtq_x2"
               call eomccsdtq_x2(d_f1,d_rr2(axis),d_t1,d_t2,d_t3,d_v2,
      1             d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),d_tr4(axis+dynaxis),
@@ -5944,18 +5944,18 @@ c        write(LuOut,*) "eomccsdtq_x2"
      4             k_t1_offset,k_t2_offset,k_t3_offset,k_v2_offset,
      5             k_tr1_offset(axis),k_tr2_offset(axis),
      6             k_tr3_offset(axis),k_tr4_offset(axis))
-c        write(LuOut,*) "ccsdtq_o2"
+!        write(LuOut,*) "ccsdtq_o2"
               call ccsdtq_o2(d_rr2(axis),d_d1(axis),d_t1,d_t2,d_t3,
      &             k_tr2_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset,k_t3_offset)
-c
+!
               call tce_filename(rr3filename(axis),filename)
               call createfile(filename,d_rr3(axis),size_tr3(axis))
               call tce_zero(d_rr3(axis),size_tr3(axis))
-c        write(LuOut,*) "daxpyfile"
+!        write(LuOut,*) "daxpyfile"
               call daxpyfile(1,(-1.0d0)*omega1,d_tr3(axis+dynaxis),
      1             d_rr3(axis),size_tr3(axis))
-c        write(LuOut,*) "eomccsdtq_x3"
+!        write(LuOut,*) "eomccsdtq_x3"
               call eomccsdtq_x3(d_f1,d_rr3(axis),d_t1,d_t2,d_t3,d_t4,
      1             d_v2,d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),d_tr4(axis+dynaxis),
@@ -5964,18 +5964,18 @@ c        write(LuOut,*) "eomccsdtq_x3"
      5             k_v2_offset,
      6             k_tr1_offset(axis),k_tr2_offset(axis),
      7             k_tr3_offset(axis),k_tr4_offset(axis))
-c        write(LuOut,*) "ccsdtq_o3"
+!        write(LuOut,*) "ccsdtq_o3"
               call ccsdtq_o3(d_rr3(axis),d_d1(axis),d_t1,d_t2,d_t3,d_t4,
      &             k_tr3_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset,k_t3_offset,k_t4_offset)
-c
+!
               call tce_filename(rr4filename(axis),filename)
               call createfile(filename,d_rr4(axis),size_tr4(axis))
               call tce_zero(d_rr4(axis),size_tr4(axis))
-c        write(LuOut,*) "daxpyfile"
+!        write(LuOut,*) "daxpyfile"
               call daxpyfile(1,(-1.0d0)*omega1,d_tr4(axis+dynaxis),
      1             d_rr4(axis),size_tr4(axis))
-c        write(LuOut,*) "eomccsdtq_x4"
+!        write(LuOut,*) "eomccsdtq_x4"
               call eomccsdtq_x4(d_f1,d_rr4(axis),d_t1,d_t2,d_t3,d_t4,
      1             d_v2,d_tr1(axis+dynaxis),d_tr2(axis+dynaxis),
      2             d_tr3(axis+dynaxis),d_tr4(axis+dynaxis),
@@ -5984,23 +5984,23 @@ c        write(LuOut,*) "eomccsdtq_x4"
      5             k_v2_offset,
      6             k_tr1_offset(axis),k_tr2_offset(axis),
      7             k_tr3_offset(axis),k_tr4_offset(axis))
-c        write(LuOut,*) "ccsdtq_o4"
+!        write(LuOut,*) "ccsdtq_o4"
               call ccsdtq_o4(d_rr4(axis),d_d1(axis),d_t1,d_t2,d_t3,d_t4,
      &             k_tr4_offset(axis),k_d1_offset(axis),
      &             k_t1_offset,k_t2_offset,k_t3_offset,k_t4_offset)
-c
-c        write(LuOut,*) "reconcilefile"
+!
+!        write(LuOut,*) "reconcilefile"
               call reconcilefile(d_rr1(axis),size_tr1(axis))
               call reconcilefile(d_rr2(axis),size_tr2(axis))
               call reconcilefile(d_rr3(axis),size_tr3(axis))
               call reconcilefile(d_rr4(axis),size_tr4(axis))
-c        write(LuOut,*) "tce_residual_tr1"
+!        write(LuOut,*) "tce_residual_tr1"
               call tce_residual_tr1(d_rr1(axis),k_tr1_offset(axis),rr1)
-c        write(LuOut,*) "tce_residual_tr2"
+!        write(LuOut,*) "tce_residual_tr2"
               call tce_residual_tr2(d_rr2(axis),k_tr2_offset(axis),rr2)
-c        write(LuOut,*) "tce_residual_tr3"
+!        write(LuOut,*) "tce_residual_tr3"
               call tce_residual_tr3(d_rr3(axis),k_tr3_offset(axis),rr3)
-c        write(LuOut,*) "tce_residual_tr4"
+!        write(LuOut,*) "tce_residual_tr4"
               call tce_residual_tr4(d_rr4(axis),k_tr4_offset(axis),rr4)
               residual = max(rr1,rr2,rr3,rr4)
               cpu=cpu+util_cpusec()
@@ -6111,13 +6111,13 @@ c        write(LuOut,*) "tce_residual_tr4"
             enddo ! iter loop
           call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  2438 continue
-c
+!
           enddo ! omegasign loop
           endif ! respaxis(axis)
           enddo ! axis loop
-c
-c         Evaluate Dipole Polarizability
-c
+!
+!         Evaluate Dipole Polarizability
+!
           do axisA = 1, 3
           do axisB = 1, axisA
           alpha(axisA,axisB)=0.0d0
@@ -6125,28 +6125,28 @@ c
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-c
-c            if (nodezero) write(LuOut,*) "axisA = ",axisA
-c            if (nodezero) write(LuOut,*) "axisB = ",axisB
-c
+!
+!            if (nodezero) write(LuOut,*) "axisA = ",axisA
+!            if (nodezero) write(LuOut,*) "axisB = ",axisB
+!
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
-c
+!
               alpha1=0.0d0
               alpha2=0.0d0
-c
+!
               if (omega1.ne.0.0d0) then
                 dynaxis = 3
               else
                 dynaxis = 0
               endif
-c
+!
               irrep_c=irrep_a
               irrep_oa=irrep_a
               irrep_ob=irrep_b
               irrep_tra=irrep_a
               irrep_trb=irrep_b
-c              if (nodezero) write(LuOut,*) "ccsdtq_lr_alpha"
+!              if (nodezero) write(LuOut,*) "ccsdtq_lr_alpha"
               call ccsdtq_lr_alpha(d_f1,d_a0,d_d1(axisA),d_d1(axisB),
      1             d_t1,d_t2,d_t3,d_t4,
      2             d_tr1(axisA+dynaxis),d_tr2(axisA+dynaxis),
@@ -6161,16 +6161,16 @@ c              if (nodezero) write(LuOut,*) "ccsdtq_lr_alpha"
      2             k_tr2_offset(axisB),k_tr3_offset(axisB),
      3             k_tr4_offset(axisB),k_v2_offset,k_l1_offset,
      4             k_l2_offset,k_l3_offset,k_l4_offset)
-c
+!
               call reconcilefile(d_a0,size_a0)
               call get_block(d_a0,alpha1,1,0)
               call tce_zero(d_a0,size_a0)
-c              write(LuOut,*) "alpha1 = ",alpha1
-c
+!              write(LuOut,*) "alpha1 = ",alpha1
+!
               if (omega1.eq.0.0d0) then
                 alpha2=alpha1
               else
-c                if (nodezero) write(LuOut,*) "ccsdtq_lr_alpha"
+!                if (nodezero) write(LuOut,*) "ccsdtq_lr_alpha"
                 call ccsdtq_lr_alpha(d_f1,d_a0,d_d1(axisA),d_d1(axisB),
      1             d_t1,d_t2,d_t3,d_t4,
      2             d_tr1(axisA),d_tr2(axisA),d_tr3(axisA),d_tr4(axisA),
@@ -6185,44 +6185,44 @@ c                if (nodezero) write(LuOut,*) "ccsdtq_lr_alpha"
      2             k_tr2_offset(axisB),k_tr3_offset(axisB),
      3             k_tr4_offset(axisB),k_v2_offset,k_l1_offset,
      4             k_l2_offset,k_l3_offset,k_l4_offset)
-c
+!
                 call reconcilefile(d_a0,size_a0)
                 call get_block(d_a0,alpha2,1,0)
                 call tce_zero(d_a0,size_a0)
               endif ! axisA.eq.axisB
-c              write(LuOut,*) "alpha2 = ",alpha2
-c
+!              write(LuOut,*) "alpha2 = ",alpha2
+!
               alpha(axisA,axisB)=(-0.5d0)*(alpha1+alpha2)
-c
+!
             call deletefile(d_a0)
-c
-c            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
-c            if (nodezero) write(LuOut,9020) cpu, wall
-c
+!
+!            write(LuOut,*) "alpha(axisA,axisB) = ",alpha(axisA,axisB)
+!            if (nodezero) write(LuOut,9020) cpu, wall
+!
           endif ! respaxis(axis)
           enddo ! axisB loop
           enddo ! axisA loop
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
-c
+!
           do i = 1, 3
             do j = 1, i
               alphacopy(i,j)=alpha(i,j)
               alphacopy(j,i)=alpha(i,j)
             enddo
           enddo
-c
+!
           call hnd_diag(alphacopy,alphaevr,3,.false.,.false.)
-c
+!
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
-c
+!
           if ((.not.(respaxis(1).and.respaxis(2).and.respaxis(3)))
      1        .and.nodezero) write(LuOut,9911)
-c
+!
           if (nodezero) write(LuOut,9434) "CCSDTQ Linear Response",
      1      afreq(omegacount),auXnm/afreq(omegacount),
      2      alpha(1,1),alpha(2,1),alpha(3,1),
@@ -6237,17 +6237,17 @@ c
      2      alphaani,au2ang3*alphaani
           if (nodezero) write(LuOut,9020) cpu, wall
           call util_flush(LuOut)
-c
+!
           enddo ! omegacount loop
-c
+!
         endif ! lineresp
-c
+!
 #endif
       endif
       if ((model.eq.'qcisd').or.do_qcisd) then
-c -------------
-c QCISD   right
-c -------------
+! -------------
+! QCISD   right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -6311,7 +6311,7 @@ c -------------
               call x2_restart_save(d_t2,k_t2_offset,size_t2,0,
      1                             handle_t2,irrep_t)
             endif
-c            goto 100
+!            goto 100
             goto 3990
           endif
           if (save_t(1).and.(mod(iter,save_interval).eq.0)) then
@@ -6340,9 +6340,9 @@ c            goto 100
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
  3990 continue
-c -------------------
-c QCISD(T) and QCISD[T]
-c -------------------
+! -------------------
+! QCISD(T) and QCISD[T]
+! -------------------
         if (do_pt.or.((perturbative.eq.'(t)').or.
      1                (perturbative.eq.'[t]'))) then
           cpu = - util_cpusec()
@@ -6367,13 +6367,13 @@ c -------------------
             corr = corr + pt3_2
           endif
         endif
-c -------------------------
-c CR-QCISD(T)
-c -------------------------
+! -------------------------
+! CR-QCISD(T)
+! -------------------------
         if (do_cr_pt.or.(perturbative.eq.'cr_(t)')) then
           cpu = - util_cpusec()
           wall = - util_wallsec()
-c          write(LuOut,*) 'tce_energy: cr_qcisd_t'
+!          write(LuOut,*) 'tce_energy: cr_qcisd_t'
           call cr_qcisd_t(d_t1,k_t1_offset,size_t1,
      1                    d_t2,k_t2_offset,size_t2,
      2                    d_f1,k_f1_offset,d_v2,k_v2_offset,pt3_2)
@@ -6390,9 +6390,9 @@ c          write(LuOut,*) 'tce_energy: cr_qcisd_t'
         endif
       endif
       if (model.eq.'cisd') then
-c -------------
-c CISD    right
-c -------------
+! -------------
+! CISD    right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -6486,9 +6486,9 @@ c -------------
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
       endif
       if (model.eq.'cisdt') then
-c -------------
-c CISDT   right
-c -------------
+! -------------
+! CISDT   right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -6607,9 +6607,9 @@ c -------------
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
       endif
       if (model.eq.'cisdtq') then
-c -------------
-c CISDTQ  right
-c -------------
+! -------------
+! CISDTQ  right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -6746,9 +6746,9 @@ c -------------
      2         (model.eq.'mbpt4').or.
      3         (model.eq.'mbpt4sdq_t').or.
      3         (model.eq.'mbpt4sdq')) then
-c -------------
-c MBPT(2) right
-c -------------
+! -------------
+! MBPT(2) right
+! -------------
         call tce_diis_init()
         do iter=1,maxiter
           cpu=-util_cpusec()
@@ -6803,9 +6803,9 @@ c -------------
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-c -------------
-c MBPT(3) right
-c -------------
+! -------------
+! MBPT(3) right
+! -------------
   120   continue
         call tce_zero(d_w1,size_w1)
         call tce_zero(d_w2,size_w2)
@@ -6840,23 +6840,23 @@ c -------------
           elseif (model.eq.'mbpt4') then
             call tce_filename('r2',filename)
             call createfile(filename,d_r2,size_r2)
-c->d3p975
+!->d3p975
             call mbpt2_t2(d_f1,d_r2,d_u1,d_u2,d_w2,d_w3,d_v2,
      1                    k_f1_offset,k_r2_offset,k_u1_offset,
      2                    k_u2_offset,k_w2_offset,
      3                    k_w3_offset,k_v2_offset)
-c<-d3p975
+!<-d3p975
             call reconcilefile(d_r2,size_r2)
             call tce_filename('r3',filename)
             call createfile(filename,d_r3,size_r3)
-c->d3p975
+!->d3p975
             call mbpt2_t3(d_f1,d_r3,d_u1,d_u2,d_w2,d_w3,d_v2,
      1                    k_f1_offset,k_r3_offset,k_u1_offset,
      2                    k_u2_offset,k_w2_offset,k_w3_offset,
      3                    k_v2_offset)
-c<-d3p975
+!<-d3p975
             call reconcilefile(d_r3,size_r3)
-c->d3p975
+!->d3p975
           elseif ((model.eq.'mbpt4sdq').or.
      1             (model.eq.'mbpt4sdq_t')) then
             call tce_filename('r2',filename)
@@ -6864,9 +6864,9 @@ c->d3p975
             call mbpt2_t2_sd(d_f1,d_r2,d_u1,d_u2,d_w2,d_v2,
      1                       k_f1_offset,k_r2_offset,k_u1_offset,
      1                       k_u2_offset,k_w2_offset,k_v2_offset)
-c
+!
             call reconcilefile(d_r2,size_r2)
-c<-d3p975
+!<-d3p975
           endif
           call tce_residual_t1(d_r1,k_r1_offset,r1)
           call tce_residual_t2(d_r2,k_r2_offset,r2)
@@ -6902,13 +6902,13 @@ c<-d3p975
             goto 130
           endif
           if (model.eq.'mbpt4') then
-c->d3p975
+!->d3p975
             call tce_diis(.false.,iter,.true.,.true.,.true.,.false.,
      1                    d_r1,d_w1,k_w1_offset,size_w1,
      2                    d_r2,d_w2,k_w2_offset,size_w2,
      3                    d_r3,d_w3,k_w3_offset,size_w3,
      4                    dummy,dummy,dummy,dummy)
-c<-d3p975
+!<-d3p975
           else
             call tce_diis(.false.,iter,.true.,.true.,.false.,.false.,
      1                    d_r1,d_w1,k_w1_offset,size_w1,
@@ -6925,9 +6925,9 @@ c<-d3p975
           if (nodezero) call util_flush(LuOut)
         enddo
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-c -------------
-c MBPT(4) right
-c -------------
+! -------------
+! MBPT(4) right
+! -------------
   130   continue
         call put_block(d_e2,mbpt2,1,0)
         call tce_zero(d_t1,size_t1)
@@ -6985,7 +6985,7 @@ c -------------
           if (nodezero) write(LuOut,9100) iter,residual,mbpt4,cpu,wall
           call util_flush(LuOut)
           if (residual .lt. thresh) then
-c
+!
             if (model.eq.'mbpt4sdq_t') then
               cpu=-util_cpusec()
               wall=-util_wallsec()
@@ -6994,20 +6994,20 @@ c
               cpu=cpu+util_cpusec()
               wall=wall+util_wallsec()
             endif
-c
+!
             if (nodezero) then
               if(model.eq.'mbpt4') then
                 write(LuOut,9060)
                 write(LuOut,9070) "MBPT(4)",mbpt4
                 write(LuOut,9080) "MBPT(4)",ref + corr
               endif
-c
+!
               if (model.eq.'mbpt4sdq') then
                 write(LuOut,9060)
                 write(LuOut,9070) "MBPT(4)(SDQ)",mbpt4
                 write(LuOut,9080) "MBPT(4)(SDQ)",ref + corr
               endif
-c
+!
               if (model.eq.'mbpt4sdq_t') then
                 write(LuOut,9060)
                 write(LuOut,9070) "MBPT(4)(SDQ)",mbpt4
@@ -7023,7 +7023,7 @@ c
             call deletefile(d_e)
             call tce_diis_tidy()
             goto 100
-c            goto 2010
+!            goto 2010
           endif
           call tce_diis(.false.,iter,.true.,.true.,.false.,.false.,
      1                  d_r1,d_t1,k_t1_offset,size_t1,
@@ -7038,11 +7038,11 @@ c            goto 2010
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
       endif ! model
   100 continue
-c
+!
       if (nodezero) call util_flush(LuOut)
-c
-c     Delete files for energy calculation
-c
+!
+!     Delete files for energy calculation
+!
       if (needw4) then
         call deletefile(d_w4)
         if (.not.ma_pop_stack(l_w4_offset))
@@ -7129,20 +7129,20 @@ c
       if ((nroots.eq.0).or.(.not.excitedfragment)) then
         if (.not.rtdb_put(rtdb,'tce:energy',mt_dbl,1,ref+corr))
      1  call errquit('tce_energy: RTDB problem',0,MA_ERR)
-c link to QM/MM
+! link to QM/MM
         if (.not.rtdb_put(rtdb,'tce:enegr',mt_dbl,1,ref+corr))
      1  call errquit('tce_energy: RTDB problem',0,MA_ERR)
-c
+!
         tce_energy=.true.
       else
-c
-c     ============================
-c     Excited-state CI, CC, & MBPT
-c     ============================
-c
+!
+!     ============================
+!     Excited-state CI, CC, & MBPT
+!     ============================
+!
         irrep_g = 0
 
-c#ifdef EACCSD
+!#ifdef EACCSD
       if (.not.rtdb_get(rtdb,'tce:eaccsd',mt_log,1,eaccsd))
      +  eaccsd = .false.
       if(eaccsd) then
@@ -7152,8 +7152,8 @@ c#ifdef EACCSD
        if(nodezero) write(LuOut,*) "EACCSD calculation"
        if(nodezero) call util_flush(LuOut)
       endif
-c#endif
-c#ifdef IPCCSD
+!#endif
+!#ifdef IPCCSD
       if (.not.rtdb_get(rtdb,'tce:ipccsd',mt_log,1,ipccsd))
      +  ipccsd = .false.
       if(ipccsd) then
@@ -7163,21 +7163,21 @@ c#ifdef IPCCSD
        if(nodezero) write(LuOut,*) "IPCCSD calculation"
        if(nodezero) call util_flush(LuOut)
       endif
-c#endif
-c
-c
+!#endif
+!
+!
            if (ipccsd.and.(eom_solver.eq.2)) eom_solver=1
            if (eaccsd.and.(eom_solver.eq.2)) eom_solver=1
            if (ipccsd.and.(ccsd_var.eq.'ic')) ccsd_var='xx'
            if (eaccsd.and.(ccsd_var.eq.'ic')) ccsd_var='xx'
-c
+!
            if((ipccsd.or.eaccsd).and.(.not.restricted))
      1      call errquit("EA-IP-CCSD requires RHF reference",24,MA_ERR) 
-c
-c
-c
-c       Restricted closed shell: irrep_g is always zero.
-c
+!
+!
+!
+!       Restricted closed shell: irrep_g is always zero.
+!
         if (ipol.eq.2) then
           do i = 1,2
             do j = 1,nocc(i)
@@ -7200,16 +7200,16 @@ c
             write(LuOut,*)
             write(LuOut,9200) irrepname
           endif
-c
+!
           if(nodezero) then
            write(LuOut,9251) hbard
           end if
-c
-ccx          if(ccsd_var.eq.'ic') eom_solver=2
-c
-c new EOMCC solver
+!
+!cx          if(ccsd_var.eq.'ic') eom_solver=2
+!
+! new EOMCC solver
        if(.not.((model.ne.'ccsd').and.(eom_solver.eq.2))) then
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
        if(.not.(model.eq.'ccsd_act')) then
        if (.not.ma_push_get(mt_dbl,hbard*hbard,'hbar',
      1  l_hbar,k_hbar)) call errquit('tce_eom_xdiagon: MA problem',0,
@@ -7217,8 +7217,8 @@ c ccsd_act/eomccsd_act
        call tce_hbarinit(dbl_mb(k_hbar),hbard)
         end if
         end if
-c
-c
+!
+!
           if (.not.ma_push_get(mt_dbl,maxtrials,'omegax',
      1      l_omegax,k_omegax))
      2      call errquit('tce_energy: MA problem',1000,MA_ERR)
@@ -7230,7 +7230,7 @@ c
             call tce_e_offset(l_x0_offset,k_x0_offset,size_x0)
             call tce_e_offset(l_y0_offset,k_y0_offset,size_y0)
           endif
-c
+!
           if (needt1) then
            if((.not. eaccsd) .and. (.not. ipccsd)) then
             call tce_x1_offset(l_x1_offset,k_x1_offset,size_x1)
@@ -7272,7 +7272,7 @@ c
 #endif
             endif
            else 
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
             call tce_x2a_offset(l_x2_offset,k_x2_offset,size_x2)
            end if 
             call tce_filename('rx2',filename)
@@ -7295,12 +7295,12 @@ c ccsd_act/eomccsd_act
             call tce_filename('rx3',filename)
             call createfile(filename,d_rx3,size_x3)
             call gatoeaf(d_rx3)
-cccx            if (left) then
-cccx              call tce_y3_offset(l_y3_offset,k_y3_offset,size_y3)
-cccx              call tce_filename('ry3',filename)
-cccx              call createfile(filename,d_ry3,size_y3)
-cccx              call gatoeaf(d_ry3)
-cccx            endif
+!ccx            if (left) then
+!ccx              call tce_y3_offset(l_y3_offset,k_y3_offset,size_y3)
+!ccx              call tce_filename('ry3',filename)
+!ccx              call createfile(filename,d_ry3,size_y3)
+!ccx              call gatoeaf(d_ry3)
+!ccx            endif
             if (nodezero.and.util_print('x3',print_default)) then
               write(LuOut,*)
               write(LuOut,9000) 'x3',size_x3
@@ -7341,148 +7341,148 @@ cccx            endif
               call util_flush(LuOut)
             endif
           endif
-c
-c         ------------------------------
-c         Generate initial trial vectors
-c         ------------------------------
-c
+!
+!         ------------------------------
+!         Generate initial trial vectors
+!         ------------------------------
+!
           cpu=-util_cpusec()
           wall=-util_wallsec()
           if (model.eq.'ccsd') then
 
 
       if(eom_solver.eq.1) then !  ------- EOM-SOLVER ----- (solver 1)
-c
-c
+!
+!
       if(nodezero) then
        write(LuOut,9510) eom_solver
        call util_flush(LuOut)
       end if
-c
+!
       if(ccsd_var.ne.'cc2') then
       ister=0
-c rec_s_1
+! rec_s_1
        CALL OFFSET_eomccsd_x1_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_1_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_1,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs1',-1,MA_ERR)
-c rec_s_2
+! rec_s_2
        CALL OFFSET_eomccsd_x1_2_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_2_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_2,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs2',-1,MA_ERR)
-c rec_s_3
+! rec_s_3
        CALL OFFSET_eomccsd_x1_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_4_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_3,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs3',-1,MA_ERR)
-c rec_s_4
+! rec_s_4
        CALL OFFSET_eomccsd_x1_5_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_5_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_4,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs4',-1,MA_ERR)
-c rec_s_5
+! rec_s_5
        CALL OFFSET_eomccsd_x1_7_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_7_1_1_i2',filename)
        CALL CREATEFILE(filename,rec_s_5,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs5',-1,MA_ERR)
-c rec_d_1
+! rec_d_1
        CALL OFFSET_eomccsd_x2_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_1_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_1,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd1',-1,MA_ERR)
-c rec_d_2
+! rec_d_2
        CALL OFFSET_eomccsd_x2_3_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_3_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_2,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd2',-1,MA_ERR)
-c rec_d_3
+! rec_d_3
        CALL OFFSET_eomccsd_x2_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_4_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_3,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd3',-1,MA_ERR)
-c rec_d_4
+! rec_d_4
        CALL OFFSET_eomccsd_x2_5_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_5_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_4,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd4',-1,MA_ERR)
-c rec_d_5
+! rec_d_5
        CALL OFFSET_eomccsd_x2_6_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_6_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_5,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd5',-1,MA_ERR)
-c rec_d_6
+! rec_d_6
        CALL OFFSET_eomccsd_x2_8_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_1_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_6,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd6',-1,MA_ERR)
-c rec_d_7
+! rec_d_7
        CALL OFFSET_eomccsd_x2_8_3_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_3_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_7,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd7',-1,MA_ERR)
-c rec_d_8
+! rec_d_8
        CALL OFFSET_eomccsd_x2_8_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_4_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_8,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd8',-1,MA_ERR)
-c rec_d_9
+! rec_d_9
       CALL OFFSET_eomccsd_x2_10_1_1(l_aux_off,k_aux_off,size_aux)
       CALL TCE_FILENAME('eomccsd_x2_10_1_1_i2',filename)
       CALL CREATEFILE(filename,rec_d_9,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd9',-1,MA_ERR)
       end if 
-c
+!
       if(ccsd_var.eq.'lr-ccsd') then
             call tce_x1_offset(l_j1_offset,k_j1_offset,size_j1)
             call tce_filename('j1',filename)
             call createfile(filename,d_j1,size_j1)
-cc            call gatoeaf(d_j1)
+!c            call gatoeaf(d_j1)
             call tce_zero(d_j1,size_j1)
-c
+!
             call tce_x2_offset(l_j2_offset,k_j2_offset,size_j2)
             call tce_filename('j2',filename)
             call createfile(filename,d_j2,size_j2)
-cc            call gatoeaf(d_j2)
+!c            call gatoeaf(d_j2)
             call tce_zero(d_j2,size_j2)
-c
+!
             call tce_loc_j1_one(d_j1,k_j1_offset)
             call tce_loc_j2_one(d_j2,k_j2_offset)
-c
+!
             call tce_loc_j1(d_j1,k_j1_offset,d_t1,k_t1_offset)
             call tce_loc_j2(d_j2,k_j2_offset,d_t2,k_t2_offset)
-c
+!
             call tce_loc_j1_inv(d_j1,k_j1_offset)
             call tce_loc_j2_inv(d_j2,k_j2_offset)
       end if
-c
+!
            if((.not. eaccsd) .and. (.not. ipccsd)) then
             call tce_eom_xguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 #ifdef IPCCSD
            else if(ipccsd) then 
-c             if(nodezero) write(LuOut,*) "I am here 2"
-c             if(nodezero) call util_flush(LuOut)
+!             if(nodezero) write(LuOut,*) "I am here 2"
+!             if(nodezero) call util_flush(LuOut)
             call tce_eom_ipxguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 #endif
 #ifdef EACCSD
            else if(eaccsd) then
-ckbn              write(LuOut,*) "I am here 1.2"
-ckbn              call util_flush(LuOut)
+!kbn              write(LuOut,*) "I am here 1.2"
+!kbn              call util_flush(LuOut)
             call tce_eom_eaxguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
-ckbn              write(LuOut,*) "I am here 1.3"
-ckbn              call util_flush(LuOut)
+!kbn              write(LuOut,*) "I am here 1.3"
+!kbn              call util_flush(LuOut)
 #endif
            endif
 
 
             if (nxtrials.eq.0) goto 200
-ccxsg
+!cxsg
           do ivec=1,nroots_reduced
             call tce_filenameindexed(ivec,'xc1',filename)
             call createfile(filename,xc1(ivec),size_x1)
@@ -7495,7 +7495,7 @@ ccxsg
             call gatodra(xc2(ivec))
             xc2_exist(ivec) = .true.
           enddo
-ccxsg
+!cxsg
           if(ccsd_var.eq.'lr-ccsd') then
             modelname = "LR-EOMCCSD right-hand side"
             if (nodezero) write(LuOut,9220)
@@ -7509,8 +7509,8 @@ ccxsg
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
           end if
-c
-c           call hbar_init
+!
+!           call hbar_init
             do iter=1,maxiter
               if (nodezero.and.util_print('eom',print_default))
      1          write(LuOut,9210) iter,nxtrials
@@ -7523,12 +7523,12 @@ c           call hbar_init
                   call dratoga(x2(ivec))
 #if defined(EACCSD) || defined(IPCCSD)
         if(eaccsd .or. ipccsd) then
-ckbn         if((nodezero) .and. (iter .eq. 1)) 
-ckbn     +    write(LuOut,*) "No local T1 and X1 for EACCSD and IPCCSD"
-ckbn         if((nodezero) .and. (iter .eq. 1) ) call util_flush(LuOut) 
+!kbn         if((nodezero) .and. (iter .eq. 1)) 
+!kbn     +    write(LuOut,*) "No local T1 and X1 for EACCSD and IPCCSD"
+!kbn         if((nodezero) .and. (iter .eq. 1) ) call util_flush(LuOut) 
         else
 #endif
-c - T1/X1 LOCALIZATION ----------
+! - T1/X1 LOCALIZATION ----------
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
      1      call errquit('t1_local',1,MA_ERR)
@@ -7537,14 +7537,14 @@ c - T1/X1 LOCALIZATION ----------
      1      call errquit('x1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
         call ma_zero(dbl_mb(k_x1_local),size_x1)
-c    copy d_t1 ==> l_t1_local
-c    copy x1(ivec) ==> l_x1_local
-cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
-cc        call ga_get(x1(ivec),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+!    copy d_t1 ==> l_t1_local
+!    copy x1(ivec) ==> l_x1_local
+!c        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+!c        call ga_get(x1(ivec),1,size_x1,1,1,dbl_mb(k_x1_local),1)
       call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
       call get_block(x1(ivec),dbl_mb(k_x1_local),size_x1,0)
-ccx       end if
-c -------------------------------
+!cx       end if
+! -------------------------------
 #if defined(EACCSD) || defined(IPCCSD)
         endif ! if(eaccsd .or. ipccsd)
 #endif
@@ -7567,43 +7567,43 @@ c -------------------------------
            if(eaccsd) then
 #endif
 #ifdef EACCSD
-ccx             if(nodezero) write(LuOut,*) "I am here eaccsd_x1"
-ccx             if(nodezero) call util_flush(LuOut)
-ckbn      SUBROUTINE eaccsd_x1(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
-ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
-ckbn     &_offset)
+!cx             if(nodezero) write(LuOut,*) "I am here eaccsd_x1"
+!cx             if(nodezero) call util_flush(LuOut)
+!kbn      SUBROUTINE eaccsd_x1(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
+!kbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
+!kbn     &_offset)
              call eaccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,x1(ivec),
      +                      x2(ivec),
      +                      k_f1_offset,k_x1_offset,k_t1_offset,
      +                      k_t2_offset,k_v2_offset,k_x1_offset,
      +                      k_x2_offset)
-ccx             if(nodezero) write(LuOut,*) "I am here eaccsd_x1 1"
-ccx             if(nodezero) call util_flush(LuOut)
+!cx             if(nodezero) write(LuOut,*) "I am here eaccsd_x1 1"
+!cx             if(nodezero) call util_flush(LuOut)
 #endif
 #if defined(EACCSD) || defined(IPCCSD)
            elseif(ipccsd) then
 #endif
-ckbn             if(nodezero) write(LuOut,*) "I am here ipccsd_x1"
-ckbn             if(nodezero) call util_flush(LuOut)
-ckbn      SUBROUTINE ipccsd_x1(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
-ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
-ckbn     &_offset)
+!kbn             if(nodezero) write(LuOut,*) "I am here ipccsd_x1"
+!kbn             if(nodezero) call util_flush(LuOut)
+!kbn      SUBROUTINE ipccsd_x1(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
+!kbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
+!kbn     &_offset)
 #ifdef IPCCSD
-ccx             if(nodezero) write(LuOut,*) "I am here ipccsd_x1"
-ccx             if(nodezero) call util_flush(LuOut)
+!cx             if(nodezero) write(LuOut,*) "I am here ipccsd_x1"
+!cx             if(nodezero) call util_flush(LuOut)
              call ipccsd_x1(d_f1,xp1(ivec),d_t1,d_t2,d_v2,x1(ivec),
      +                      x2(ivec),
      +                      k_f1_offset,k_x1_offset,k_t1_offset,
      +                      k_t2_offset,k_v2_offset,k_x1_offset,
      +                      k_x2_offset)
-ccx             if(nodezero) write(LuOut,*) "I am here ipccsd_x1 1"
-ccx             if(nodezero) call util_flush(LuOut)
+!cx             if(nodezero) write(LuOut,*) "I am here ipccsd_x1 1"
+!cx             if(nodezero) call util_flush(LuOut)
 #endif
 #if defined(EACCSD) || defined(IPCCSD)
            else
 #endif
-c             if(nodezero) write(LuOut,*) "I am here eomccsd x1"
-c             if(nodezero) call util_flush(LuOut)
+!             if(nodezero) write(LuOut,*) "I am here eomccsd x1"
+!             if(nodezero) call util_flush(LuOut)
                   call eomccsd_x1_n(d_f1,xp1(ivec),k_t1_local,d_t2,d_v2,
      1              k_x1_local,x2(ivec),k_f1_offset,k_x1_offset,
      2              k_t1_offset,k_t2_offset,k_v2_offset,
@@ -7658,35 +7658,35 @@ c             if(nodezero) call util_flush(LuOut)
             if(eaccsd) then
 #endif
 #ifdef EACCSD
-ccx             if(nodezero) write(LuOut,*) "I am here eaccsd_x2"
-ccx             if(nodezero) call util_flush(LuOut)
-ckbn      SUBROUTINE eaccsd_x2(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
-ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
-ckbn     &_offset)
+!cx             if(nodezero) write(LuOut,*) "I am here eaccsd_x2"
+!cx             if(nodezero) call util_flush(LuOut)
+!kbn      SUBROUTINE eaccsd_x2(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
+!kbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
+!kbn     &_offset)
           call eaccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,x1(ivec),
      +                      x2(ivec),
      +                      k_f1_offset,k_x2_offset,k_t1_offset,
      +                      k_t2_offset,k_v2_offset,k_x1_offset,
      +                      k_x2_offset)
-ccx             if(nodezero) write(LuOut,*) "I am here eaccsd_x2 2"
-ccx             if(nodezero) call util_flush(LuOut)
+!cx             if(nodezero) write(LuOut,*) "I am here eaccsd_x2 2"
+!cx             if(nodezero) call util_flush(LuOut)
 #endif
 #ifdef EACCSD
             elseif(ipccsd) then
-ckbn             if(nodezero) write(LuOut,*) "I am here ipccsd_x2"
-ckbn             if(nodezero) call util_flush(LuOut)
-ckbn      SUBROUTINE ipccsd_x2(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
-ckbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
-ckbn     &_offset)
-ccx             if(nodezero) write(LuOut,*) "I am here ipccsd_x2"
-ccx             if(nodezero) call util_flush(LuOut)
+!kbn             if(nodezero) write(LuOut,*) "I am here ipccsd_x2"
+!kbn             if(nodezero) call util_flush(LuOut)
+!kbn      SUBROUTINE ipccsd_x2(d_f1,d_i0,d_t1,d_t2,d_v2,d_x1,d_x2,k_f1_offse
+!kbn     &t,k_i0_offset,k_t1_offset,k_t2_offset,k_v2_offset,k_x1_offset,k_x2
+!kbn     &_offset)
+!cx             if(nodezero) write(LuOut,*) "I am here ipccsd_x2"
+!cx             if(nodezero) call util_flush(LuOut)
                   call ipccsd_x2(d_f1,xp2(ivec),d_t1,d_t2,d_v2,x1(ivec),
      +                           x2(ivec),
      +                           k_f1_offset,k_x2_offset,k_t1_offset,
      +                           k_t2_offset,k_v2_offset,k_x1_offset,
      +                           k_x2_offset)
-ccx             if(nodezero) write(LuOut,*) "I am here ipccsd_x2 2"
-ccx             if(nodezero) call util_flush(LuOut)
+!cx             if(nodezero) write(LuOut,*) "I am here ipccsd_x2 2"
+!cx             if(nodezero) call util_flush(LuOut)
 #endif
 #if defined(EACCSD) || defined(IPCCSD)
             else
@@ -7703,22 +7703,22 @@ ccx             if(nodezero) call util_flush(LuOut)
 #endif
            end if
            ister=1
-c
+!
          end if
                   call reconcilefile(xp2(ivec),size_x2)
 #if defined(EACCSD) || defined(IPCCSD)
         if(eaccsd .or. ipccsd) then
-ckbn         if(nodezero) 
-ckbn     +    write(LuOut,*) "No local T1 and X1 for EACCSD and IPCCSD"
-ckbn         if(nodezero) call util_flush(LuOut) 
+!kbn         if(nodezero) 
+!kbn     +    write(LuOut,*) "No local T1 and X1 for EACCSD and IPCCSD"
+!kbn         if(nodezero) call util_flush(LuOut) 
         else
 #endif
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
          if(.not.MA_POP_STACK(l_x1_local))
      &      call errquit('l_x1_local',4,MA_ERR)
          if(.not.MA_POP_STACK(l_t1_local))
      &      call errquit('l_t1_local',4,MA_ERR)
-c -----------------------
+! -----------------------
 #if defined(EACCSD) || defined(IPCCSD)
         endif
 #endif
@@ -7772,7 +7772,7 @@ c -----------------------
      1          call errquit("tce_energy: MA problem",102,MA_ERR)
               if (converged) then
                 call tce_eom_xtidy
-c               call hbar_tidy
+!               call hbar_tidy
                 if (save_t(1)) then
                   if(nodezero) then
                     write(LuOut,*) 'Saving X1 now...'
@@ -7795,7 +7795,7 @@ c               call hbar_tidy
                   write(LuOut,9240)
                   call util_flush(LuOut)
                 endif
-c ---
+! ---
             if(nodezero) then
              write(6,*)'largest EOMCCSD amplitudes: R1 and R2'
              call util_flush(6)
@@ -7806,14 +7806,14 @@ c ---
                call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
 #ifdef IPCCSD
               else if(ipccsd) then
-c              write(LuOut,*) "I am here 3.2"
-c              call util_flush(LuOut)
+!              write(LuOut,*) "I am here 3.2"
+!              call util_flush(LuOut)
                call tce_print_ipx1(xc1(jvec),k_x1_offset,0.10d0,irrep_x)
-c              write(LuOut,*) "I am here 3.3"
-c              call util_flush(LuOut)
+!              write(LuOut,*) "I am here 3.3"
+!              call util_flush(LuOut)
                call tce_print_ipx2(xc2(jvec),k_x2_offset,0.10d0,irrep_x)
-c              write(LuOut,*) "I am here 3.4"
-c              call util_flush(LuOut)
+!              write(LuOut,*) "I am here 3.4"
+!              call util_flush(LuOut)
 #endif
 #ifdef EACCSD
               else if(eaccsd) then
@@ -7823,11 +7823,11 @@ c              call util_flush(LuOut)
               endif
               call util_flush(LuOut)
              enddo
-c ---
+! ---
                 goto 200
               endif
             enddo
-c
+!
            if(ccsd_var.eq.'lr-ccsd')then
             call deletefile(d_j2)
             if (.not.ma_pop_stack(l_j2_offset))
@@ -7836,7 +7836,7 @@ c
             if (.not.ma_pop_stack(l_j1_offset))
      1        call errquit("tce_energy: MA problem",37,MA_ERR)
            end if
-c
+!
          if(ccsd_var.ne.'cc2') then ! ----
           call deletefile(rec_d_9)
           call deletefile(rec_d_8)
@@ -7853,19 +7853,19 @@ c
           call deletefile(rec_s_2)
           call deletefile(rec_s_1)
          end if !---------
-c
+!
          call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-c
-c
-c
+!
+!
+!
       else !  ------- EOM-SOLVER --------------- (solver 2)
-c
-c 
+!
+! 
       if(nodezero) then
        write(LuOut,9510) eom_solver
        call util_flush(LuOut)
       end if
-c === jaguar ===
+! === jaguar ===
       if(read_xa)  then
         nroots_reduced=nroots
         if(nodezero) then
@@ -7893,7 +7893,7 @@ c === jaguar ===
          call util_flush(6)
         end if
         enddo
-c
+!
        if(nroots_reduced.ge.1) then
         unitn=81
         ivec=1
@@ -7912,7 +7912,7 @@ c
      &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
                 call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
                 call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
-c
+!
         if(nroots_reduced.ge.2) then
          unitn=83
          ivec=2
@@ -7931,7 +7931,7 @@ c
      &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
                 call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
                 call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
-c
+!
          if(nroots_reduced.ge.3) then
           unitn=85
           ivec=3
@@ -7950,7 +7950,7 @@ c
      &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
                 call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
                 call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
-c
+!
           if(nroots_reduced.ge.4) then
            unitn=87
            ivec=4
@@ -7973,28 +7973,28 @@ c
          end if
         end if
        end if
-c
+!
         go to 200
       end if
-c ==============
-c
+! ==============
+!
        modelname = "CIS-like initial guess for EOM-CCSD"
         if (nodezero) write(LuOut,9220)
      1  modelname(1:inp_strlen(modelname))
-c == jaguar ===
+! == jaguar ===
       if(.not.eom_start) then
-c =============
+! =============
         call cis(LuOut,size_x1,k_x1_offset,d_f1,k_f1_offset,d_v2,
      1           k_v2_offset,k_omegax,l_omegax,d_rx1)
       else 
         nroots_reduced=nroots
         nxtrials=nroots
       end if
-c
-c
-c == jaguar ===
+!
+!
+! == jaguar ===
         if(.not.eom_start) then
-c =============
+! =============
             if(nodezero) then
              write(LuOut,*)'INITIAL STARTS -----'
              call util_flush(6)
@@ -8008,109 +8008,109 @@ c =============
              call util_flush(6)
             end if
         end if
-c
-c
+!
+!
             if (nxtrials.eq.0) goto 200
             call tce_eom_init
-c
+!
       if(ccsd_var.ne.'cc2') then
       ister=0
-c rec_s_1
+! rec_s_1
        CALL OFFSET_eomccsd_x1_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_1_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_1,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs1',-1,MA_ERR)
-c rec_s_2
+! rec_s_2
        CALL OFFSET_eomccsd_x1_2_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_2_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_2,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs2',-1,MA_ERR)
-c rec_s_3
+! rec_s_3
        CALL OFFSET_eomccsd_x1_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_4_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_3,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs3',-1,MA_ERR)
-c rec_s_4
+! rec_s_4
        CALL OFFSET_eomccsd_x1_5_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_5_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_4,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs4',-1,MA_ERR)
-c rec_s_5
+! rec_s_5
        CALL OFFSET_eomccsd_x1_7_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_7_1_1_i2',filename)
        CALL CREATEFILE(filename,rec_s_5,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs5',-1,MA_ERR)
-c rec_d_1
+! rec_d_1
        CALL OFFSET_eomccsd_x2_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_1_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_1,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd1',-1,MA_ERR)
-c rec_d_2
+! rec_d_2
        CALL OFFSET_eomccsd_x2_3_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_3_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_2,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd2',-1,MA_ERR)
-c rec_d_3
+! rec_d_3
        CALL OFFSET_eomccsd_x2_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_4_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_3,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd3',-1,MA_ERR)
-c rec_d_4
+! rec_d_4
        CALL OFFSET_eomccsd_x2_5_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_5_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_4,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd4',-1,MA_ERR)
-c rec_d_5
+! rec_d_5
        CALL OFFSET_eomccsd_x2_6_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_6_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_5,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd5',-1,MA_ERR)
-c rec_d_6
+! rec_d_6
        CALL OFFSET_eomccsd_x2_8_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_1_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_6,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd6',-1,MA_ERR)
-c rec_d_7
+! rec_d_7
        CALL OFFSET_eomccsd_x2_8_3_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_3_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_7,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd7',-1,MA_ERR)
-c rec_d_8
+! rec_d_8
        CALL OFFSET_eomccsd_x2_8_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_4_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_8,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd8',-1,MA_ERR)
-c rec_d_9
+! rec_d_9
       CALL OFFSET_eomccsd_x2_10_1_1(l_aux_off,k_aux_off,size_aux)
       CALL TCE_FILENAME('eomccsd_x2_10_1_1_i2',filename)
       CALL CREATEFILE(filename,rec_d_9,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd9',-1,MA_ERR)
       end if 
-c
+!
       if(ccsd_var.eq.'lr-ccsd') then
             call tce_x1_offset(l_j1_offset,k_j1_offset,size_j1)
             call tce_filename('j1',filename)
             call createfile(filename,d_j1,size_j1)
-cc            call gatoeaf(d_j1)
+!c            call gatoeaf(d_j1)
             call tce_zero(d_j1,size_j1)
-c
+!
             call tce_x2_offset(l_j2_offset,k_j2_offset,size_j2)
             call tce_filename('j2',filename)
             call createfile(filename,d_j2,size_j2)
-cc            call gatoeaf(d_j2)
+!c            call gatoeaf(d_j2)
             call tce_zero(d_j2,size_j2)
-c
+!
             call tce_loc_j1_one(d_j1,k_j1_offset)
             call tce_loc_j2_one(d_j2,k_j2_offset)
-c
+!
             call tce_loc_j1(d_j1,k_j1_offset,d_t1,k_t1_offset)
             call tce_loc_j2(d_j2,k_j2_offset,d_t2,k_t2_offset)
-c
+!
             call tce_loc_j1_inv(d_j1,k_j1_offset)
             call tce_loc_j2_inv(d_j2,k_j2_offset)
       end if
-c
-c
+!
+!
             xdiis=diis
             do imicro=1,xdiis*nroots_reduced
               call tce_filenameindexed(imicro,'xp1',filename)
@@ -8132,7 +8132,7 @@ c
               call gatodra(x2(imicro))
               x2_exist(imicro)=.true.
             enddo
-c
+!
           do ivec=1,nroots_reduced
             call tce_filenameindexed(ivec,'xc1',filename)
             call createfile(filename,xc1(ivec),size_x1)
@@ -8145,7 +8145,7 @@ c
             call gatodra(xc2(ivec))
             xc2_exist(ivec) = .true.
           enddo
-c === jaguar ===
+! === jaguar ===
         if(eom_start) then
         if(nodezero) then
          write(LuOut,*)'IN.EOMSD READ IN nroot_reduced=',nroots_reduced
@@ -8205,8 +8205,8 @@ c === jaguar ===
         end if
        end if
        end if ! if eom_start
-c ====================
-c
+! ====================
+!
           if(ccsd_var.eq.'lr-ccsd') then
             modelname = "LR-EOMCCSD right-hand side"
             if (nodezero) write(LuOut,9220)
@@ -8220,9 +8220,9 @@ c
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
           end if
-c
-c open k_h_eff  and k_c_eff
-c
+!
+! open k_h_eff  and k_c_eff
+!
         if (.not.MA_PUSH_GET(mt_dbl,
      1      xdiis*xdiis*nroots_reduced*nroots_reduced,'h_eff',
      1      l_h_eff,k_h_eff)) call errquit('h_eff',1,MA_ERR)
@@ -8231,16 +8231,16 @@ c
      1      l_c_eff,k_c_eff)) call errquit('c_eff',1,MA_ERR)
         if (.not.MA_PUSH_GET(mt_dbl,nroots_reduced,'residual',
      1          l_residual,k_residual)) call errquit('l_res',1,MA_ERR)
-c
+!
             iter=1
-c
-ccx             if(iter.eq.1) then
-ccx              do iroot=1,nroots_reduced
-ccx               call copyfile(x1_ini(iroot),xc1(iroot),size_x1)
-ccx               call tce_zero(xc2(iroot),size_x2)
-ccx              enddo
-ccx             endif 
-c
+!
+!cx             if(iter.eq.1) then
+!cx              do iroot=1,nroots_reduced
+!cx               call copyfile(x1_ini(iroot),xc1(iroot),size_x1)
+!cx               call tce_zero(xc2(iroot),size_x2)
+!cx              enddo
+!cx             endif 
+!
        if(.not.eom_start) then
              if(iter.eq.1) then
               do iroot=1,nroots_reduced
@@ -8249,28 +8249,28 @@ c
               enddo
              endif
        end if
-c
-c
- 111         continue  !iter continuation
-c
+!
+!
+  111        continue  !iter continuation
+!
              imicro = 1
-c
-c
+!
+!
             do iroot=1,nroots_reduced
              call copyfile(xc1(iroot),x1(iroot),size_x1)
              call copyfile(xc2(iroot),x2(iroot),size_x2)
             enddo
-c
+!
             call norm_x_vector_mr(k_x1_offset,k_x2_offset,
      1                            size_x1,size_x2,nroots_reduced)
-c
+!
             do iroot=1,nroots_reduced
              call tce_zero(xp1(iroot),size_x1)
              call tce_zero(xp2(iroot),size_x2)
             enddo
-c
+!
              imicro = 1
-c
+!
              do i=1,xdiis*nroots_reduced*nroots_reduced
               dbl_mb(k_c_eff+i-1)=0.0d0
              enddo
@@ -8280,15 +8280,15 @@ c
              do i=1,xdiis*xdiis*nroots_reduced*nroots_reduced
                dbl_mb(k_h_eff+i-1)=0.0d0
              enddo
-c
-c    declare h_eff c_eff - MA 
-c
+!
+!    declare h_eff c_eff - MA 
+!
       cpu=-util_cpusec()
       wall=-util_wallsec()
-c
+!
       do iroot=1,nroots_reduced ! x-x-x-x-x-x-x-x-x
-c
-c - T1/X1 LOCALIZATION ----------
+!
+! - T1/X1 LOCALIZATION ----------
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
      1      call errquit('t1_local',1,MA_ERR)
@@ -8297,11 +8297,11 @@ c - T1/X1 LOCALIZATION ----------
      1      call errquit('x1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
         call ma_zero(dbl_mb(k_x1_local),size_x1)
-cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
-cc        call ga_get(x1(iroot),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+!c        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+!c        call ga_get(x1(iroot),1,size_x1,1,1,dbl_mb(k_x1_local),1)
         call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
         call get_block(x1(iroot),dbl_mb(k_x1_local),size_x1,0)
-c -------------------------------
+! -------------------------------
          if(ccsd_var.eq.'cc2') then
           call cc2_x1(d_f1,xp1(iroot),k_t1_local,d_t2,d_v2,
      &      k_x1_local,x2(iroot),
@@ -8366,24 +8366,24 @@ c -------------------------------
            call tce_j1_x1_scaling(xp1(iroot),k_x1_offset,
      1          d_j1,k_j1_offset)
          end if
-c
+!
          ister=1
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
          if(.not.MA_POP_STACK(l_x1_local))
      &      call errquit('l_x1_local',4,MA_ERR)
          if(.not.MA_POP_STACK(l_t1_local))
      &      call errquit('l_t1_local',4,MA_ERR)
-c -----------------------------
+! -----------------------------
          enddo ! x-x-x-x-x-x-x-x-x
-c   calculate  H-bar delta x
-c
+!   calculate  H-bar delta x
+!
            call form_heff_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
      &        dbl_mb(k_c_eff),dbl_mb(k_h_eff),dbl_mb(k_omegax),
      &        imicro,xdiis,iter)
-c
-c
+!
+!
           do imicro=2,xdiis !microloop(imicro)
-c
+!
           do iroot=1,nroots_reduced
            ipos=(imicro-1)*nroots_reduced+iroot
            call tce_zero(x1(ipos),size_x1)
@@ -8391,11 +8391,11 @@ c
            call tce_zero(xp1(ipos),size_x1)
            call tce_zero(xp2(ipos),size_x2)
           enddo
-c
+!
           do iroot=1,nroots_reduced
            dbl_mb(k_residual+iroot-1)=0.0d0
           enddo
-c
+!
           do iroot=1,nroots_reduced
            call form_correction_mr(k_x1_offset,k_x2_offset,
      1                  size_x1,size_x2,
@@ -8403,7 +8403,7 @@ c
      1                  dbl_mb(k_omegax+iroot-1),
      1                  imicro,xdiis,dbl_mb(k_residual+iroot-1),iroot)
           enddo
-c
+!
       cpu=cpu+util_cpusec()
       wall=wall+util_wallsec()
       if(nodezero) then
@@ -8423,12 +8423,12 @@ c
       call util_flush(LuOut)
       cpu=-util_cpusec()
       wall=-util_wallsec()
-c
+!
            converged=.true.
-ccx           do iroot=1,nroots_reduced
-ccx             if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh) 
-ccx     &             converged=.false. 
-ccx           enddo 
+!cx           do iroot=1,nroots_reduced
+!cx             if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh) 
+!cx     &             converged=.false. 
+!cx           enddo 
 
          if(nroots_reduced.gt.1) then 
            do iroot=1,nroots_reduced-1
@@ -8441,7 +8441,7 @@ ccx           enddo
            if(dabs(dbl_mb(k_residual+nroots_reduced-1)).gt.thresh_eom)
      7             converged=.false.
          end if
-c
+!
             if(converged) then
              do iroot=1,nroots_reduced
               call form_best_guess_mr(k_x1_offset,k_x2_offset,
@@ -8450,7 +8450,7 @@ c
      &                imicro-1,
      &                xdiis,iroot)
              enddo
-c
+!
                do iroot=1,nroots_reduced
                 if(nodezero)
      &                  write(LuOut,*)'EOMCCSD root nr. ',iroot
@@ -8459,18 +8459,18 @@ c
                enddo
               go to 112
             end if
-c all together
+! all together
             call deltax_ort_norm_mr(k_x1_offset,k_x2_offset,
      1                              size_x1,size_x2,
      1                              imicro,xdiis)
-c
-c
-c
+!
+!
+!
          do iroot=1,nroots_reduced ! --- iroot
-c
+!
           ipos=(imicro-1)*nroots_reduced+iroot
-c
-c - T1/X1 LOCALIZATION ----------
+!
+! - T1/X1 LOCALIZATION ----------
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
      1      call errquit('t1_local',1,MA_ERR)
@@ -8479,11 +8479,11 @@ c - T1/X1 LOCALIZATION ----------
      1      call errquit('x1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
         call ma_zero(dbl_mb(k_x1_local),size_x1)
-cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
-cc        call ga_get(x1(ipos),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+!c        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+!c        call ga_get(x1(ipos),1,size_x1,1,1,dbl_mb(k_x1_local),1)
         call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
         call get_block(x1(ipos),dbl_mb(k_x1_local),size_x1,0)
-c -------------------------------
+! -------------------------------
          if(ccsd_var.eq.'cc2') then
           call cc2_x1(d_f1,xp1(ipos),k_t1_local,d_t2,d_v2,
      &      k_x1_local,x2(ipos),
@@ -8548,23 +8548,23 @@ c -------------------------------
            call tce_j1_x1_scaling(xp1(ipos),k_x1_offset,
      1          d_j1,k_j1_offset)
          end if
-c
+!
          ister=1
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
          if(.not.MA_POP_STACK(l_x1_local))
      &      call errquit('l_x1_local',4,MA_ERR)
          if(.not.MA_POP_STACK(l_t1_local))
      &      call errquit('l_t1_local',4,MA_ERR)
-c -----------------------
-c
+! -----------------------
+!
         enddo ! --- iroot 
-c
-c             calculate  H-bar delta x
-c
+!
+!             calculate  H-bar delta x
+!
            call form_heff_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
      &        dbl_mb(k_c_eff),dbl_mb(k_h_eff),dbl_mb(k_omegax),
      &        imicro,xdiis,iter)
-c
+!
            iter=iter+1                              
              if(iter.gt.maxiter) then
               if(nodezero) then
@@ -8581,9 +8581,9 @@ c
              enddo
               go to 112
              end if
-c
+!
           enddo   !microloop(imicro)
-c
+!
              do iroot=1,nroots_reduced
               call form_best_guess_mr(k_x1_offset,k_x2_offset,
      &                size_x1,size_x2,
@@ -8591,11 +8591,11 @@ c
      &                xdiis,
      &                xdiis,iroot)
              enddo
-c
+!
                go to 111
-c
- 112          continue !from converged
-c === jaguar ===
+!
+  112         continue !from converged
+! === jaguar ===
       if(write_xa)  then
        if(nroots_reduced.ge.1) then
         unitn=81
@@ -8630,14 +8630,14 @@ c === jaguar ===
         end if
        end if
       end if
-c
+!
          if(.not.MA_POP_STACK(l_residual))
      &      call errquit('l_residual',4,MA_ERR)
          if(.not.MA_POP_STACK(l_c_eff))
      &      call errquit('l_c_eff',4,MA_ERR)
          if(.not.MA_POP_STACK(l_h_eff))
      &      call errquit('l_h_eff',4,MA_ERR)
-c
+!
             do imicro=1,xdiis
               call deletefile(xp1(imicro))
               xp1_exist(imicro)=.false.
@@ -8648,12 +8648,12 @@ c
               call deletefile(x2(imicro))
               x2_exist(imicro)=.false.
             enddo
-c
-c
-c
-c xc1 xc2 are deleted by tce_eom_tidy (later on)
-c
-c
+!
+!
+!
+! xc1 xc2 are deleted by tce_eom_tidy (later on)
+!
+!
            if(ccsd_var.eq.'lr-ccsd')then
             call deletefile(d_j2)
             if (.not.ma_pop_stack(l_j2_offset))
@@ -8662,8 +8662,8 @@ c
             if (.not.ma_pop_stack(l_j1_offset))
      1        call errquit("tce_energy: MA problem",37,MA_ERR)
            end if
-c
-c
+!
+!
          if(ccsd_var.ne.'cc2') then ! ----
           call deletefile(rec_d_9)
           call deletefile(rec_d_8)
@@ -8680,25 +8680,25 @@ c
           call deletefile(rec_s_2)
           call deletefile(rec_s_1)
          end if !---------
-c
+!
          do ivec=1,maxtrials
            if(x1_ini_exist(ivec))  then
             call deletefile(x1_ini(ivec))
             x1_ini_exist(ivec) = .false.
            end if
          enddo
-c
-c
-c
+!
+!
+!
          end if ! ------- EOM-SOLVER ---------------
-c
-c
-c
-c -------------
-c EOM-CCSD    left
-c -------------
+!
+!
+!
+! -------------
+! EOM-CCSD    left
+! -------------
   200       continue
-c
+!
          if(eom_solver.eq.1) then
            if(ccsd_var.eq.'lr-ccsd')then
             call deletefile(d_j2)
@@ -8725,7 +8725,7 @@ c
             call deletefile(rec_s_1)
            end if !---------
          end if
-c
+!
             if (left) then
             call tce_eom_yguess(needt1,needt2,needt3,needt4,
      1        size_y1,size_y2,size_y3,size_y4,
@@ -8734,7 +8734,7 @@ c
             modelname = "EOM-CCSD left-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-c           call hbar_init
+!           call hbar_init
             do iter=1,maxiter
               if (nodezero.and.util_print('eom',print_default))
      1          write(LuOut,9210) iter,nytrials
@@ -8801,7 +8801,7 @@ c           call hbar_init
               if (converged) then
                 if (nodezero) write(LuOut,9240)
                 call tce_eom_ytidy
-c               call hbar_tidy
+!               call hbar_tidy
                 do ivec = 1,nroots_reduced
                   if (nodezero) write(LuOut,9460)
      1              ivec,dbl_mb(k_omegax+ivec-1),
@@ -8925,9 +8925,9 @@ c               call hbar_tidy
      3                      dipole_exc(3),dipole_exc(3)*debye
                     call dratoga(xc1(ivec))
                     call dratoga(xc2(ivec))
-c                    irrep_x = irrep   !! Caution !!
-c                    call tce_print_x1(xc1(ivec),k_x1_offset,printtol)
-c                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
+!                    irrep_x = irrep   !! Caution !!
+!                    call tce_print_x1(xc1(ivec),k_x1_offset,printtol)
+!                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
                     call tce_print_x1(xc1(ivec),k_x1_offset,printtol,
      1                                irrep)
                     call tce_print_x2(xc2(ivec),k_x2_offset,printtol,
@@ -8938,11 +8938,11 @@ c                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
                     endif
                   endif
                   enddo
-c
-c->d3p975
-c
-c   eom-ccsd 1-particle reduced density matrix/ces
-c
+!
+!->d3p975
+!
+!   eom-ccsd 1-particle reduced density matrix/ces
+!
                   if (idens) then
                      if (.not.intorb)
      1                  call eomccsd_1prdm(rtdb,dbl_mb(k_omegax+ivec-1),
@@ -8954,9 +8954,9 @@ c
      3                               k_x1_offset,k_x2_offset,
      4                               k_y1_offset,k_y2_offset)
                   endif
-c 
-c<-d3p975
-c
+! 
+!<-d3p975
+!
                 enddo
                 modelname = "EOM-CCSD"
                 goto 400
@@ -8966,85 +8966,85 @@ c
             endif
 
 
-c -------------------------
-c CR-EOMCCSD(T)
-c -------------------------
+! -------------------------
+! CR-EOMCCSD(T)
+! -------------------------
         if ((perturbative.eq.'creom_(t)').or.
      &      (perturbative.eq.'emb1').or.(perturbative.eq.'emb2')) then
         irrep_c = irrep_x  !important
         go to 8922
-ccccx      if(irrep_x.eq.irrep_g) then !ground-state calculations
-c      if(irrep_x.eq.irrep_t) then !ground-state calculations
-c            call tce_x2_offset(l_c2_offset,k_c2_offset,size_c2)
-c            call tce_filename('c2',filename)
-c            call createfile(filename,d_c2,size_c2)
-ccc            call gatoeaf(d_c2)
-c            call tce_zero(d_c2,size_c2)
-c       call tce_e_offset(l_e_offset,k_e_offset,size_e)
-c       call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
-c       call tce_e_offset(l_ex2_offset,k_ex2_offset,size_ex2)
-c          call tce_filename('e',filename)
-c          call createfile(filename,d_e,size_e)
-c          call tce_zero(d_e,size_e)
-c          call tce_filename('ex1',filename)
-c          call createfile(filename,d_ex1,size_ex1)
-c          call tce_zero(d_ex1,size_ex1)
-c          call tce_filename('ex2',filename)
-c          call createfile(filename,d_ex2,size_ex2)
-c          call tce_zero(d_ex2,size_ex2)
-c      pt3_6=0.0d0
-c      call cr_eomccsd_t_gr(d_t1,k_t1_offset,d_t2,k_t2_offset,
-c     2                     d_f1,k_f1_offset,d_v2,k_v2_offset,
-c     3                     d_e,k_e_offset,
-c     4                     d_ex1,k_ex1_offset,size_ex1,
-c     5                     d_ex2,k_ex2_offset,size_ex2,
-c     7                     d_c2,k_c2_offset,size_c2,
-c     8                     pt3_6)
-c       energy_grcr=ref+corr+pt3_6
-c       if (nodezero) then
-c       write(LuOut,9080) "ground-state CR-CCSD(T)IA",ref+corr+pt3_6
-c       write(LuOut,*)
-c       call util_flush(LuOut)
-c       end if
-cc
-c          call deletefile(d_ex2)
-c          call deletefile(d_ex1)
-c          call deletefile(d_e)
-c          if (.not.ma_pop_stack(l_ex2_offset))
-c     1     call errquit("tce_energy: MA problem",24,MA_ERR)
-c          if (.not.ma_pop_stack(l_ex1_offset))
-c     1     call errquit("tce_energy: MA problem",24,MA_ERR)
-c          if (.not.ma_pop_stack(l_e_offset))
-c     1     call errquit("tce_energy: MA problem",24,MA_ERR)
-cc
-c            call deletefile(d_c2)
-c            if (.not.ma_pop_stack(l_c2_offset))
-c     1        call errquit("tce_energy: MA problem",36,MA_ERR)
-cc
-c      end if
-c UWAGA
-c ACHTUNG
-c BHUMAHE
-c ATTENTION
+!cccx      if(irrep_x.eq.irrep_g) then !ground-state calculations
+!      if(irrep_x.eq.irrep_t) then !ground-state calculations
+!            call tce_x2_offset(l_c2_offset,k_c2_offset,size_c2)
+!            call tce_filename('c2',filename)
+!            call createfile(filename,d_c2,size_c2)
+!cc            call gatoeaf(d_c2)
+!            call tce_zero(d_c2,size_c2)
+!       call tce_e_offset(l_e_offset,k_e_offset,size_e)
+!       call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+!       call tce_e_offset(l_ex2_offset,k_ex2_offset,size_ex2)
+!          call tce_filename('e',filename)
+!          call createfile(filename,d_e,size_e)
+!          call tce_zero(d_e,size_e)
+!          call tce_filename('ex1',filename)
+!          call createfile(filename,d_ex1,size_ex1)
+!          call tce_zero(d_ex1,size_ex1)
+!          call tce_filename('ex2',filename)
+!          call createfile(filename,d_ex2,size_ex2)
+!          call tce_zero(d_ex2,size_ex2)
+!      pt3_6=0.0d0
+!      call cr_eomccsd_t_gr(d_t1,k_t1_offset,d_t2,k_t2_offset,
+!     2                     d_f1,k_f1_offset,d_v2,k_v2_offset,
+!     3                     d_e,k_e_offset,
+!     4                     d_ex1,k_ex1_offset,size_ex1,
+!     5                     d_ex2,k_ex2_offset,size_ex2,
+!     7                     d_c2,k_c2_offset,size_c2,
+!     8                     pt3_6)
+!       energy_grcr=ref+corr+pt3_6
+!       if (nodezero) then
+!       write(LuOut,9080) "ground-state CR-CCSD(T)IA",ref+corr+pt3_6
+!       write(LuOut,*)
+!       call util_flush(LuOut)
+!       end if
+!c
+!          call deletefile(d_ex2)
+!          call deletefile(d_ex1)
+!          call deletefile(d_e)
+!          if (.not.ma_pop_stack(l_ex2_offset))
+!     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+!          if (.not.ma_pop_stack(l_ex1_offset))
+!     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+!          if (.not.ma_pop_stack(l_e_offset))
+!     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+!c
+!            call deletefile(d_c2)
+!            if (.not.ma_pop_stack(l_c2_offset))
+!     1        call errquit("tce_energy: MA problem",36,MA_ERR)
+!c
+!      end if
+! UWAGA
+! ACHTUNG
+! BHUMAHE
+! ATTENTION
  8922  continue
-c
+!
         DO 3443,ivec = 1,nroots_reduced
           cpu = - util_cpusec()
           wall = - util_wallsec()
-c d_e,d_ex1,d_ex2 global arrays
-c
+! d_e,d_ex1,d_ex2 global arrays
+!
             call tce_x1_offset(l_c1_offset,k_c1_offset,size_c1)
             call tce_filename('c1',filename)
             call createfile(filename,d_c1,size_c1)
-cc            call gatoeaf(d_c1)
+!c            call gatoeaf(d_c1)
             call tce_zero(d_c1,size_c1)
-c
+!
             call tce_x2_offset(l_c2_offset,k_c2_offset,size_c2)
             call tce_filename('c2',filename)
             call createfile(filename,d_c2,size_c2)
-cc            call gatoeaf(d_c2)
+!c            call gatoeaf(d_c2)
             call tce_zero(d_c2,size_c2)
-c
+!
       pt3_5 = 0.0d0
       pt3_6 = 0.0d0
       excit = dbl_mb(k_omegax+ivec-1)
@@ -9123,7 +9123,7 @@ c
      7                        d_c2,k_c2_offset,size_c2,
      8                        excit,pt3_6,pt3_5,size_t1,size_x1)
       end if
-c
+!
           call deletefile(d_ex2)
           call deletefile(d_ex1)
           call deletefile(d_e)
@@ -9133,18 +9133,18 @@ c
      1     call errquit("tce_energy: MA problem",24,MA_ERR)
           if (.not.ma_pop_stack(l_e_offset))
      1     call errquit("tce_energy: MA problem",24,MA_ERR)
-c
+!
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
        if(perturbative.eq.'creom_(t)') then
           if (nodezero) then
            write(LuOut,9080)"CR-EOMCCSD(T) ",ref+corr+excit+pt3_6
-c UWAGA
-c ACHTUNG
-c BHUMAHE
-c ATTENTION
-c           write(LuOut,9085)"CR-EOMCCSD(T)IA - CR-CCSD(T)IA",
-c     &                      (ref+corr+excit+pt3_6-energy_grcr)*au2ev
+! UWAGA
+! ACHTUNG
+! BHUMAHE
+! ATTENTION
+!           write(LuOut,9085)"CR-EOMCCSD(T)IA - CR-CCSD(T)IA",
+!     &                      (ref+corr+excit+pt3_6-energy_grcr)*au2ev
            write(LuOut,9085)"CR-EOMCCSD(T) ",
      &                      (excit+pt3_6)*au2ev
            write(LuOut,*)
@@ -9154,10 +9154,10 @@ c     &                      (ref+corr+excit+pt3_6-energy_grcr)*au2ev
        if(perturbative.eq.'emb1') then
           if (nodezero) then
            write(LuOut,9080)"r-CR-EOMCCSD(T)-I",ref+corr+excit+pt3_6
-c UWAGA
-c ACHTUNG
-c BHUMAHE
-c ATTENTION
+! UWAGA
+! ACHTUNG
+! BHUMAHE
+! ATTENTION
            write(LuOut,9085)"delta-r-CR-EOMCCSD(T)-I        ",
      &                      (excit+pt3_6)*au2ev
            write(LuOut,*)
@@ -9167,10 +9167,10 @@ c ATTENTION
        if(perturbative.eq.'emb2') then
           if (nodezero) then
            write(LuOut,9080)"r-CR-EOMCCSD(T)-II",ref+corr+excit+pt3_6
-c UWAGA
-c ACHTUNG
-c BHUMAHE
-c ATTENTION
+! UWAGA
+! ACHTUNG
+! BHUMAHE
+! ATTENTION
            write(LuOut,9085)"delta-r-CR-EOMCCSD(T)-II        ",
      &                      (excit+pt3_6)*au2ev
            write(LuOut,*)
@@ -9178,25 +9178,25 @@ c ATTENTION
           endif
          end if
 
-c redefining the vector with excitation energies
+! redefining the vector with excitation energies
           dbl_mb(k_omegax+ivec-1)=dbl_mb(k_omegax+ivec-1)+pt3_6
-c
+!
             call deletefile(d_c2)
             if (.not.ma_pop_stack(l_c2_offset))
      1        call errquit("tce_energy: MA problem",36,MA_ERR)
             call deletefile(d_c1)
             if (.not.ma_pop_stack(l_c1_offset))
      1        call errquit("tce_energy: MA problem",37,MA_ERR)
-c
+!
  3443   CONTINUE
         end if !cr-eom
-c
-c
-c
-c
-c
+!
+!
+!
+!
+!
         else if (model.eq.'ccsd_act') then
-c == jaguar ====
+! == jaguar ====
       if(read_xa)  then
         nroots_reduced=nroots
         if(nodezero) then
@@ -9224,7 +9224,7 @@ c == jaguar ====
          call util_flush(6)
         end if
         enddo
-c
+!
        if(nroots_reduced.ge.1) then
         unitn=81
         ivec=1
@@ -9243,7 +9243,7 @@ c
      &            write(LuOut,*)'EOMCCSD root nr. ',ivec
           call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
           call tce_print_x2a(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
-c
+!
         if(nroots_reduced.ge.2) then
          unitn=83
          ivec=2
@@ -9262,7 +9262,7 @@ c
      &         write(LuOut,*)'EOMCCSD root nr. ',ivec
            call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
            call tce_print_x2a(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
-c
+!
          if(nroots_reduced.ge.3) then
           unitn=85
           ivec=3
@@ -9281,7 +9281,7 @@ c
      &              write(LuOut,*)'EOMCCSD root nr. ',ivec
             call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
             call tce_print_x2a(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
-c
+!
           if(nroots_reduced.ge.4) then
            unitn=87
            ivec=4
@@ -9304,24 +9304,24 @@ c
          end if
         end if
        end if
-c
+!
         go to 2001
       end if
-c ==============
+! ==============
 
-c -------------------------------------
-c    ccsd_act/eomccsd_act
-c -------------------------------------
-c
+! -------------------------------------
+!    ccsd_act/eomccsd_act
+! -------------------------------------
+!
        modelname = "CIS ini. guess for act-EOM-CCSD"
         if (nodezero) write(LuOut,9220)
      1  modelname(1:inp_strlen(modelname))
-c
+!
         call cis(LuOut,size_x1,k_x1_offset,d_f1,k_f1_offset,d_v2,
      1           k_v2_offset,k_omegax,l_omegax,d_rx1)
-c
-c
-c
+!
+!
+!
            if(nodezero) then
             write(6,*)'INITIAL STARTS -----'
             call util_flush(6)
@@ -9334,84 +9334,84 @@ c
             write(6,*)'INITIAL STARTS -----'
             call util_flush(6)
            end if
-c
-c
-c
+!
+!
+!
             if (nxtrials.eq.0) goto 2001
             call tce_eom_init
-c
+!
       ister=0
-c rec_s_1
+! rec_s_1
        CALL OFFSET_eomccsd_x1a_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_1_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_1,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs1',-1,MA_ERR)
-c rec_s_2
+! rec_s_2
        CALL OFFSET_eomccsd_x1a_2_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_2_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_2,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs2',-1,MA_ERR)
-c rec_s_3
+! rec_s_3
        CALL OFFSET_eomccsd_x1a_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_4_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_3,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs3',-1,MA_ERR)
-c rec_s_4
+! rec_s_4
        CALL OFFSET_eomccsd_x1a_5_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_5_1_i1',filename)
        CALL CREATEFILE(filename,rec_s_4,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs4',-1,MA_ERR)
-c rec_s_5
+! rec_s_5
        CALL OFFSET_eomccsd_x1a_7_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x1_7_1_1_i2',filename)
        CALL CREATEFILE(filename,rec_s_5,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs5',-1,MA_ERR)
-c rec_d_1
+! rec_d_1
        CALL OFFSET_eomccsd_x2a_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_1_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_1,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd1',-1,MA_ERR)
-c rec_d_2
+! rec_d_2
        CALL OFFSET_eomccsd_x2a_3_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_3_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_2,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd2',-1,MA_ERR)
-c rec_d_3
+! rec_d_3
        CALL OFFSET_eomccsd_x2a_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_4_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_3,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd3',-1,MA_ERR)
-c rec_d_4
+! rec_d_4
        CALL OFFSET_eomccsd_x2a_5_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_5_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_4,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd4',-1,MA_ERR)
-c rec_d_5
+! rec_d_5
        CALL OFFSET_eomccsd_x2a_6_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_6_1_i1',filename)
        CALL CREATEFILE(filename,rec_d_5,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd5',-1,MA_ERR)
-c rec_d_6
+! rec_d_6
        CALL OFFSET_eomccsd_x2a_8_1_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_1_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_6,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd6',-1,MA_ERR)
-c rec_d_7
+! rec_d_7
        CALL OFFSET_eomccsd_x2a_8_3_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_3_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_7,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd7',-1,MA_ERR)
-c rec_d_8
+! rec_d_8
        CALL OFFSET_eomccsd_x2a_8_4_1(l_aux_off,k_aux_off,size_aux)
        CALL TCE_FILENAME('eomccsd_x2_8_4_1_i2',filename)
        CALL CREATEFILE(filename,rec_d_8,size_aux)
        IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd8',-1,MA_ERR)
-c rec_d_9
+! rec_d_9
       CALL OFFSET_eomccsd_x2a_10_1_1(l_aux_off,k_aux_off,size_aux)
       CALL TCE_FILENAME('eomccsd_x2_10_1_1_i2',filename)
       CALL CREATEFILE(filename,rec_d_9,size_aux)
       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd9',-1,MA_ERR)
-c
+!
             xdiis=diis
             do imicro=1,xdiis*nroots_reduced
               call tce_filenameindexed(imicro,'xp1',filename)
@@ -9433,7 +9433,7 @@ c
               call gatodra(x2(imicro))
               x2_exist(imicro)=.true.
             enddo
-c
+!
           do ivec=1,nroots_reduced
             call tce_filenameindexed(ivec,'xc1',filename)
             call createfile(filename,xc1(ivec),size_x1)
@@ -9446,13 +9446,13 @@ c
             call gatodra(xc2(ivec))
             xc2_exist(ivec) = .true.
           enddo
-c
+!
             modelname = "EOM-CCSD-act"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-c
-c open k_h_eff  and k_c_eff
-c
+!
+! open k_h_eff  and k_c_eff
+!
         if (.not.MA_PUSH_GET(mt_dbl,
      1      xdiis*xdiis*nroots_reduced*nroots_reduced,'h_eff',
      1      l_h_eff,k_h_eff)) call errquit('h_eff',1,MA_ERR)
@@ -9461,39 +9461,39 @@ c
      1      l_c_eff,k_c_eff)) call errquit('c_eff',1,MA_ERR)
         if (.not.MA_PUSH_GET(mt_dbl,nroots_reduced,'residual',
      1          l_residual,k_residual)) call errquit('l_res',1,MA_ERR)
-c
-cmmm          do iroot=1,nroots_reduced  ! ---- main loop over the roots
-c
+!
+!mmm          do iroot=1,nroots_reduced  ! ---- main loop over the roots
+!
             iter=1
-c
-c
+!
+!
              if(iter.eq.1) then
               do iroot=1,nroots_reduced
                call copyfile(x1_ini(iroot),xc1(iroot),size_x1)
                call tce_zero(xc2(iroot),size_x2)
               enddo
              endif 
-c
-c
+!
+!
  4111         continue  !iter continuation
-c
+!
              imicro = 1
-c
+!
             do iroot=1,nroots_reduced
              call copyfile(xc1(iroot),x1(iroot),size_x1)
              call copyfile(xc2(iroot),x2(iroot),size_x2)
             enddo
-c
+!
             call norm_x_vector_act_mr(k_x1_offset,k_x2_offset,
      1                            size_x1,size_x2,nroots_reduced)
-c
+!
             do iroot=1,nroots_reduced
              call tce_zero(xp1(iroot),size_x1)
              call tce_zero(xp2(iroot),size_x2)
             enddo
-c
+!
              imicro = 1
-c
+!
              do i=1,xdiis*nroots_reduced*nroots_reduced
               dbl_mb(k_c_eff+i-1)=0.0d0
              enddo
@@ -9503,13 +9503,13 @@ c
              do i=1,xdiis*xdiis*nroots_reduced*nroots_reduced
                dbl_mb(k_h_eff+i-1)=0.0d0
              enddo
-c
+!
       cpu=-util_cpusec()
       wall=-util_wallsec()
-c
+!
       do iroot=1,nroots_reduced ! x-x-x-x-x-x-x-x-x
-c
-c - T1/X1 LOCALIZATION ----------
+!
+! - T1/X1 LOCALIZATION ----------
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
      1      call errquit('t1_local',1,MA_ERR)
@@ -9520,7 +9520,7 @@ c - T1/X1 LOCALIZATION ----------
         call ma_zero(dbl_mb(k_x1_local),size_x1)
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
         call ga_get(x1(iroot),1,size_x1,1,1,dbl_mb(k_x1_local),1)
-c -------------------------------
+! -------------------------------
           call eomccsd_x1a(d_f1,xp1(iroot),k_t1_local,d_t2,d_v2,
      1      k_x1_local,x2(iroot),k_f1_offset,k_x1_offset,
      2      k_t1_offset,k_t2_offset,k_v2_offset,
@@ -9535,23 +9535,23 @@ c -------------------------------
      4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
      5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
-c
+!
          ister=1
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
          if(.not.MA_POP_STACK(l_x1_local))
      &      call errquit('l_x1_local',4,MA_ERR)
          if(.not.MA_POP_STACK(l_t1_local))
      &      call errquit('l_t1_local',4,MA_ERR)
-c -----------------------------
+! -----------------------------
          enddo ! x-x-x-x-x-x-x-x-x
-c   calculate  H-bar delta x
-c
+!   calculate  H-bar delta x
+!
          call form_heff_act_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
      &        dbl_mb(k_c_eff),dbl_mb(k_h_eff),dbl_mb(k_omegax),
      &        imicro,xdiis,iter)
-c
+!
           do imicro=2,xdiis !microloop(imicro)
-c
+!
           do iroot=1,nroots_reduced
            ipos=(imicro-1)*nroots_reduced+iroot
            call tce_zero(x1(ipos),size_x1)
@@ -9559,11 +9559,11 @@ c
            call tce_zero(xp1(ipos),size_x1)
            call tce_zero(xp2(ipos),size_x2)
           enddo
-c
+!
           do iroot=1,nroots_reduced
            dbl_mb(k_residual+iroot-1)=0.0d0
           enddo
-c
+!
           do iroot=1,nroots_reduced
            call form_correction_act_mr(k_x1_offset,k_x2_offset,
      1                  size_x1,size_x2,
@@ -9571,7 +9571,7 @@ c
      1                  dbl_mb(k_omegax+iroot-1),
      1                  imicro,xdiis,dbl_mb(k_residual+iroot-1),iroot)
           enddo
-c
+!
       cpu=cpu+util_cpusec()
       wall=wall+util_wallsec()
       if(nodezero) then
@@ -9585,7 +9585,7 @@ c
       call util_flush(LuOut)
       cpu=-util_cpusec()
       wall=-util_wallsec()
-c
+!
            converged=.true.
            do iroot=1,nroots_reduced-1
              if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh_eom)
@@ -9593,7 +9593,7 @@ c
            enddo
            if(dabs(dbl_mb(k_residual+nroots_reduced-1)).gt.thresh_l)
      7             converged=.false.
-c
+!
             if(converged) then
              do iroot=1,nroots_reduced
               call form_best_guess_act_mr(k_x1_offset,k_x2_offset,
@@ -9602,7 +9602,7 @@ c
      &                imicro-1,
      &                xdiis,iroot)
              enddo
-c
+!
              do iroot=1,nroots_reduced
               if(nodezero)
      &                write(LuOut,*)'EOMCCSD root nr. ',iroot
@@ -9611,16 +9611,16 @@ c
              enddo
              go to 4112
             end if
-c all together
+! all together
             call deltax_ort_norm_act_mr(k_x1_offset,k_x2_offset,
      1                              size_x1,size_x2,
      1                              imicro,xdiis)
-c
+!
          do iroot=1,nroots_reduced ! --- iroot
-c
+!
           ipos=(imicro-1)*nroots_reduced+iroot
-c
-c - T1/X1 LOCALIZATION ----------
+!
+! - T1/X1 LOCALIZATION ----------
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
      1      l_t1_local,k_t1_local))
      1      call errquit('t1_local',1,MA_ERR)
@@ -9631,7 +9631,7 @@ c - T1/X1 LOCALIZATION ----------
         call ma_zero(dbl_mb(k_x1_local),size_x1)
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
         call ga_get(x1(ipos),1,size_x1,1,1,dbl_mb(k_x1_local),1)
-c -------------------------------
+! -------------------------------
           call eomccsd_x1a(d_f1,xp1(ipos),k_t1_local,d_t2,d_v2,
      1      k_x1_local,x2(ipos),k_f1_offset,k_x1_offset,
      2      k_t1_offset,k_t2_offset,k_v2_offset,
@@ -9646,29 +9646,29 @@ c -------------------------------
      4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
      5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
-c
+!
          ister=1
-c - T1/X1 LOCALIZATION --
+! - T1/X1 LOCALIZATION --
          if(.not.MA_POP_STACK(l_x1_local))
      &      call errquit('l_x1_local',4,MA_ERR)
          if(.not.MA_POP_STACK(l_t1_local))
      &      call errquit('l_t1_local',4,MA_ERR)
-c -----------------------
-c
+! -----------------------
+!
         enddo ! --- iroot 
-c
-c             calculate  H-bar delta x
-c
+!
+!             calculate  H-bar delta x
+!
          call form_heff_act_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
      &        dbl_mb(k_c_eff),dbl_mb(k_h_eff),dbl_mb(k_omegax),
      &        imicro,xdiis,iter)
-c
+!
            iter=iter+1                              
              if(iter.gt.maxiter) then
               if(nodezero) then
                  write(LuOut,9233) iroot
               end if
-c
+!
              do iroot=1,nroots_reduced
               call form_best_guess_act_mr(k_x1_offset,k_x2_offset,
      &                size_x1,size_x2,
@@ -9678,12 +9678,12 @@ c
               call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0,irrep_x)
               call tce_print_x2a(xc2(iroot),k_x2_offset,0.10d0,irrep_x)
              enddo
-c
+!
               go to 4112
              end if
-c
+!
           enddo   !microloop(imicro)
-c
+!
              do iroot=1,nroots_reduced
               call form_best_guess_act_mr(k_x1_offset,k_x2_offset,
      &                size_x1,size_x2,
@@ -9691,13 +9691,13 @@ c
      &                xdiis,
      &                xdiis,iroot)
              enddo
-c
+!
                go to 4111
-c
+!
  4112          continue !from converged
-cmmm            enddo ! ---- main loop over the roots (iroot)
-c
-c === jaguar ===
+!mmm            enddo ! ---- main loop over the roots (iroot)
+!
+! === jaguar ===
       if(write_xa)  then
        if(nroots_reduced.ge.1) then
         unitn=81
@@ -9732,15 +9732,15 @@ c === jaguar ===
         end if
        end if
       end if
-c ==============
-c
+! ==============
+!
          if(.not.MA_POP_STACK(l_residual))
      &      call errquit('l_residual',4,MA_ERR)
          if(.not.MA_POP_STACK(l_c_eff))
      &      call errquit('l_c_eff',4,MA_ERR)
          if(.not.MA_POP_STACK(l_h_eff))
      &      call errquit('l_h_eff',4,MA_ERR)
-c
+!
             do imicro=1,xdiis
               call deletefile(xp1(imicro))
               xp1_exist(imicro)=.false.
@@ -9751,13 +9751,13 @@ c
               call deletefile(x2(imicro))
               x2_exist(imicro)=.false.
             enddo
-c
-c
-c
-c xc1 xc2 are deleted by tce_eom_tidy (later on)
-c
-c
-c
+!
+!
+!
+! xc1 xc2 are deleted by tce_eom_tidy (later on)
+!
+!
+!
           call deletefile(rec_d_9)
           call deletefile(rec_d_8)
           call deletefile(rec_d_7)
@@ -9772,41 +9772,41 @@ c
           call deletefile(rec_s_3)
           call deletefile(rec_s_2)
           call deletefile(rec_s_1)
-c
+!
          do ivec=1,maxtrials
            if(x1_ini_exist(ivec))  then
             call deletefile(x1_ini(ivec))
             x1_ini_exist(ivec) = .false.
            end if
          enddo
-c
-c
-c --------------------------------------
-c
+!
+!
+! --------------------------------------
+!
  2001   continue
-c -------------------------
-c CR-EOMCCSD(T)-ACT
-c -------------------------
+! -------------------------
+! CR-EOMCCSD(T)-ACT
+! -------------------------
         if ((perturbative.eq.'creom(t)a').or.
      &      (perturbative.eq.'creom(t)asim')) THEN
         irrep_c = irrep_x  !important
         DO 3449,ivec = 1,nroots_reduced
           cpu = - util_cpusec()
           wall = - util_wallsec()
-c d_e,d_ex1,d_ex2 global arrays
-c
+! d_e,d_ex1,d_ex2 global arrays
+!
             call tce_x1_offset(l_c1_offset,k_c1_offset,size_c1)
             call tce_filename('c1',filename)
             call createfile(filename,d_c1,size_c1)
-cc            call gatoeaf(d_c1)
+!c            call gatoeaf(d_c1)
             call tce_zero(d_c1,size_c1)
-c
+!
             call tce_x2a_offset(l_c2_offset,k_c2_offset,size_c2)
             call tce_filename('c2',filename)
             call createfile(filename,d_c2,size_c2)
-cc            call gatoeaf(d_c2)
+!c            call gatoeaf(d_c2)
             call tce_zero(d_c2,size_c2)
-c
+!
       pt3_5 = 0.0d0
       pt3_6 = 0.0d0
       excit = dbl_mb(k_omegax+ivec-1)
@@ -9852,7 +9852,7 @@ c
                     call gatodra(xc2(ivec))
                     call gatodra(xc1(ivec))
       end if
-c
+!
           call deletefile(d_ex2)
           call deletefile(d_ex1)
           call deletefile(d_e)
@@ -9862,7 +9862,7 @@ c
      1     call errquit("tce_energy: MA problem",24,MA_ERR)
           if (.not.ma_pop_stack(l_e_offset))
      1     call errquit("tce_energy: MA problem",24,MA_ERR)
-c
+!
           cpu = cpu + util_cpusec()
           wall = wall + util_wallsec()
          if(perturbative.eq.'creom(t)a') then
@@ -9883,36 +9883,36 @@ c
            call util_flush(LuOut)
           endif
          end if
-c redefining the vector with excitation energies
+! redefining the vector with excitation energies
           dbl_mb(k_omegax+ivec-1)=dbl_mb(k_omegax+ivec-1)+pt3_6
-c
+!
             call deletefile(d_c2)
             if (.not.ma_pop_stack(l_c2_offset))
      1        call errquit("tce_energy: MA problem",36,MA_ERR)
             call deletefile(d_c1)
             if (.not.ma_pop_stack(l_c1_offset))
      1        call errquit("tce_energy: MA problem",37,MA_ERR)
-c
+!
  3449   CONTINUE
         end if !triples corr. to EOMCCSd
-c
-c
-c
-c
-c
+!
+!
+!
+!
+!
           elseif (model.eq.'ccsdt') then
-c -------------
-c EOM-CCSDT   right
-c -------------
+! -------------
+! EOM-CCSDT   right
+! -------------
             call tce_eom_xguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
-cedo            if (nxtrials.eq.0) goto 210
+!edo            if (nxtrials.eq.0) goto 210
             if (nxtrials.eq.0) then
                ccsdtleft=.true.
                goto 400
             endif
-ccxsg
+!cxsg
           do ivec=1,nroots_reduced
             call tce_filenameindexed(ivec,'xc1',filename)
             call createfile(filename,xc1(ivec),size_x1)
@@ -9930,11 +9930,11 @@ ccxsg
             call gatodra(xc3(ivec))
             xc3_exist(ivec) = .true.
           enddo
-ccxsg
+!cxsg
             modelname = "EOM-CCSDT right-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-c           call hbar_init
+!           call hbar_init
             do iter=1,maxiter
               if (nodezero.and.util_print('eom',print_default))
      1          write(LuOut,9210) iter,nxtrials
@@ -10022,43 +10022,43 @@ c           call hbar_init
      1          call errquit("tce_energy: MA problem",102,MA_ERR)
               if (converged) then
                 call tce_eom_xtidy
-c               call hbar_tidy
+!               call hbar_tidy
                 if (nodezero) then
                   write(LuOut,9240)
                   call util_flush(LuOut)
                 endif
-c ---
+! ---
             if(nodezero) then
              write(6,*)'largest EOMCCSDT amplitudes: R1 and R2'
              call util_flush(6)
             end if
              do jvec=1,nroots_reduced
-c              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0)
-c              call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0)
+!              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0)
+!              call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0)
               call tce_print_x1(xc1(jvec),k_x1_offset,printtol,irrep_x)
               call tce_print_x2(xc2(jvec),k_x2_offset,printtol,irrep_x)
               call util_flush(LuOut)
              enddo
-c ---
+! ---
                 ccsdtleft=.true.
                 goto 400
-cedo                goto 210
+!edo                goto 210
               endif
             enddo
             call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-c
-c
-c
-c
+!
+!
+!
+!
           elseif (model.eq.'ccsdta') then
-c -----------------------
-c EOM-CCSDt  right
-c -----------------------
+! -----------------------
+! EOM-CCSDt  right
+! -----------------------
             call tce_eom_xguess(rtdb,needt1,needt2,needt3a,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
-cccx            if (nxtrials.eq.0) goto 210
-ccxsg
+!ccx            if (nxtrials.eq.0) goto 210
+!cxsg
           do ivec=1,nroots_reduced
             call tce_filenameindexed(ivec,'xc1',filename)
             call createfile(filename,xc1(ivec),size_x1)
@@ -10076,11 +10076,11 @@ ccxsg
             call gatodra(xc3(ivec))
             xc3_exist(ivec) = .true.
           enddo
-ccxsg
+!cxsg
             modelname = "EOM-CCSDt right-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-c           call hbar_init
+!           call hbar_init
             do iter=1,maxiter
               if (nodezero.and.util_print('eom',print_default))
      1          write(LuOut,9210) iter,nxtrials
@@ -10168,46 +10168,46 @@ c           call hbar_init
      1          call errquit("tce_energy: MA problem",102,MA_ERR)
               if (converged) then
                 call tce_eom_xtidy
-c               call hbar_tidy
+!               call hbar_tidy
                 if (nodezero) then
                   write(LuOut,9240)
                   call util_flush(LuOut)
                 endif
-c ---
+! ---
             if(nodezero) then
              write(6,*)'largest EOMCCSDt amplitudes: R1 and R2 '
              call util_flush(6)
             end if
              do jvec=1,nroots_reduced
-c              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0)
-c              call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0)
+!              call tce_print_x1(xc1(jvec),k_x1_offset,0.10d0)
+!              call tce_print_x2(xc2(jvec),k_x2_offset,0.10d0)
               call tce_print_x1(xc1(jvec),k_x1_offset,printtol,irrep_x)
               call tce_print_x2(xc2(jvec),k_x2_offset,printtol,irrep_x)
               call util_flush(LuOut)
              enddo
-c ---
+! ---
                 ccsdtleft=.true.
                 goto 400
-cedo                goto 210
+!edo                goto 210
               endif
             enddo
             call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-c
-c
-c
-c
+!
+!
+!
+!
           elseif (model.eq.'ccsdtq') then
 #if !defined(CCSDTQ)
       CALL ERRQUIT('CCSDTQ not compiled (tce_energy.F)',0,CAPMIS_ERR)
 #else
-c -------------
-c EOM-CCSDTQ  right
-c -------------
+! -------------
+! EOM-CCSDTQ  right
+! -------------
             call tce_eom_xguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
             if (nxtrials.eq.0) goto 220
-ccxsg
+!cxsg
           do ivec=1,nroots_reduced
             call tce_filenameindexed(ivec,'xc1',filename)
             call createfile(filename,xc1(ivec),size_x1)
@@ -10230,11 +10230,11 @@ ccxsg
             call gatodra(xc4(ivec))
             xc4_exist(ivec) = .true.
           enddo
-ccxsg
+!cxsg
             modelname = "EOM-CCSDTQ right-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-c           call hbar_init
+!           call hbar_init
             do iter=1,maxiter
               if (nodezero.and.util_print('eom',print_default))
      1          write(LuOut,9210) iter,nxtrials
@@ -10350,7 +10350,7 @@ c           call hbar_init
      1          call errquit("tce_energy: MA problem",102,MA_ERR)
 	      if (converged) then
 		call tce_eom_xtidy
-c               call hbar_tidy
+!               call hbar_tidy
 		if (nodezero) then
 		  write(LuOut,9240)
 		  call util_flush(LuOut)
@@ -10359,9 +10359,9 @@ c               call hbar_tidy
 	      endif
 	    enddo
 	    call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
-c -------------
-c EOM-CCSDTQ  left
-c -------------
+! -------------
+! EOM-CCSDTQ  left
+! -------------
   220       continue
 	    if (left) then
 	    call tce_eom_yguess(needt1,needt2,needt3,needt4,
@@ -10371,7 +10371,7 @@ c -------------
 	    modelname = "EOM-CCSDTQ left-hand side"
 	    if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-c           call hbar_init
+!           call hbar_init
 	    do iter=1,maxiter
 	      if (nodezero.and.util_print('eom',print_default))
      1          write(LuOut,9210) iter,nytrials
@@ -10384,11 +10384,11 @@ c           call hbar_init
 		  call dratoga(y2(ivec))
 		  call dratoga(y3(ivec))
 		  call dratoga(y4(ivec))
-cccx                  call eomccsdtq_y1(d_f1,yp1(ivec),d_t1,d_t2,d_t3,d_t4,
-cccx     1              d_v2,y1(ivec),y2(ivec),y3(ivec),y4(ivec),
-cccx     2              k_f1_offset,k_y1_offset,k_t1_offset,k_t2_offset,
-cccx     3              k_t3_offset,k_t4_offset,k_v2_offset,k_y1_offset,
-cccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
+!ccx                  call eomccsdtq_y1(d_f1,yp1(ivec),d_t1,d_t2,d_t3,d_t4,
+!ccx     1              d_v2,y1(ivec),y2(ivec),y3(ivec),y4(ivec),
+!ccx     2              k_f1_offset,k_y1_offset,k_t1_offset,k_t2_offset,
+!ccx     3              k_t3_offset,k_t4_offset,k_v2_offset,k_y1_offset,
+!ccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
 		  call reconcilefile(yp1(ivec),size_y1)
 		  call gatodra(y4(ivec))
 		  call gatodra(y3(ivec))
@@ -10404,11 +10404,11 @@ cccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
 		  call dratoga(y2(ivec))
 		  call dratoga(y3(ivec))
 		  call dratoga(y4(ivec))
-cccx                  call eomccsdtq_y2(d_f1,yp2(ivec),d_t1,d_t2,d_t3,d_t4,
-cccx     1              d_v2,y1(ivec),y2(ivec),y3(ivec),y4(ivec),
-cccx     2              k_f1_offset,k_y2_offset,k_t1_offset,k_t2_offset,
-cccx     3              k_t3_offset,k_t4_offset,k_v2_offset,k_y1_offset,
-cccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
+!ccx                  call eomccsdtq_y2(d_f1,yp2(ivec),d_t1,d_t2,d_t3,d_t4,
+!ccx     1              d_v2,y1(ivec),y2(ivec),y3(ivec),y4(ivec),
+!ccx     2              k_f1_offset,k_y2_offset,k_t1_offset,k_t2_offset,
+!ccx     3              k_t3_offset,k_t4_offset,k_v2_offset,k_y1_offset,
+!ccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
 		  call reconcilefile(yp2(ivec),size_y2)
 		  call gatodra(y4(ivec))
 		  call gatodra(y3(ivec))
@@ -10424,11 +10424,11 @@ cccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
 		  call dratoga(y2(ivec))
 		  call dratoga(y3(ivec))
 		  call dratoga(y4(ivec))
-cccx                    call eomccsdtq_y3(d_f1,yp3(ivec),d_t1,d_t2,d_t3,
-cccx     1              d_v2,y1(ivec),y2(ivec),y3(ivec),y4(ivec),
-cccx     2              k_f1_offset,k_y3_offset,k_t1_offset,k_t2_offset,
-cccx     3              k_t3_offset,k_v2_offset,k_y1_offset,
-cccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
+!ccx                    call eomccsdtq_y3(d_f1,yp3(ivec),d_t1,d_t2,d_t3,
+!ccx     1              d_v2,y1(ivec),y2(ivec),y3(ivec),y4(ivec),
+!ccx     2              k_f1_offset,k_y3_offset,k_t1_offset,k_t2_offset,
+!ccx     3              k_t3_offset,k_v2_offset,k_y1_offset,
+!ccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
 		  call reconcilefile(yp3(ivec),size_y3)
 		  call gatodra(y4(ivec))
 		  call gatodra(y3(ivec))
@@ -10444,10 +10444,10 @@ cccx     4              k_y2_offset,k_y3_offset,k_y4_offset)
 		  call dratoga(y2(ivec))
 		  call dratoga(y3(ivec))
 		  call dratoga(y4(ivec))
-cccx                  call eomccsdtq_y4(d_f1,yp4(ivec),d_t1,d_t2,
-cccx     1              d_v2,y2(ivec),y3(ivec),y4(ivec),
-cccx     2              k_f1_offset,k_y4_offset,k_t1_offset,k_t2_offset,
-cccx     3              k_v2_offset,k_y2_offset,k_y3_offset,k_y4_offset)
+!ccx                  call eomccsdtq_y4(d_f1,yp4(ivec),d_t1,d_t2,
+!ccx     1              d_v2,y2(ivec),y3(ivec),y4(ivec),
+!ccx     2              k_f1_offset,k_y4_offset,k_t1_offset,k_t2_offset,
+!ccx     3              k_v2_offset,k_y2_offset,k_y3_offset,k_y4_offset)
 		  call reconcilefile(yp4(ivec),size_y4)
 		  call gatodra(y4(ivec))
 		  call gatodra(y3(ivec))
@@ -10487,7 +10487,7 @@ cccx     3              k_v2_offset,k_y2_offset,k_y3_offset,k_y4_offset)
 	      if (converged) then
 		if (nodezero) write(LuOut,9240)
 		call tce_eom_ytidy
-c               call hbar_tidy
+!               call hbar_tidy
 		do ivec = 1,nroots_reduced
 		  if (nodezero) write(LuOut,9460)
      1              ivec,dbl_mb(k_omegax+ivec-1),
@@ -10505,11 +10505,11 @@ c               call hbar_tidy
 		    call dratoga(yc2(jvec))
 		    call dratoga(yc3(jvec))
 		    call dratoga(yc4(jvec))
-cccx                    call eomccsdtq_denominator(d_d0,xc1(ivec),xc2(ivec),
-cccx     1                xc3(ivec),xc4(ivec),yc1(jvec),yc2(jvec),yc3(jvec),
-cccx     2                yc4(jvec),k_d0_offset,k_x1_offset,k_x2_offset,
-cccx     3                k_x3_offset,k_x4_offset,k_y1_offset,k_y2_offset,
-cccx     4                k_y3_offset,k_y4_offset)
+!ccx                    call eomccsdtq_denominator(d_d0,xc1(ivec),xc2(ivec),
+!ccx     1                xc3(ivec),xc4(ivec),yc1(jvec),yc2(jvec),yc3(jvec),
+!ccx     2                yc4(jvec),k_d0_offset,k_x1_offset,k_x2_offset,
+!ccx     3                k_x3_offset,k_x4_offset,k_y1_offset,k_y2_offset,
+!ccx     4                k_y3_offset,k_y4_offset)
 		    call reconcilefile(d_d0,size_d0)
 		    call gatodra(yc4(jvec))
 		    call gatodra(yc3(jvec))
@@ -10540,14 +10540,14 @@ cccx     4                k_y3_offset,k_y4_offset)
 		      call dratoga(yc2(jvec))
 		      call dratoga(yc3(jvec))
 		      call dratoga(yc4(jvec))
-cccx                      call eomccsdtq_density1(d_d1(axis),d_d0,d_t1,d_t2,
-cccx     1                  d_t3,d_t4,d_x0,xc1(ivec),xc2(ivec),xc3(ivec),
-cccx     2                  xc4(ivec),d_y0,yc1(jvec),yc2(jvec),yc3(jvec),
-cccx     3                  yc4(jvec),k_d1_offset(axis),k_d0_offset,
-cccx     4                  k_t1_offset,k_t2_offset,k_t3_offset,k_t4_offset,
-cccx     5                  k_x0_offset,k_x1_offset,k_x2_offset,k_x3_offset,
-cccx     6                  k_x4_offset,k_y0_offset,k_y1_offset,k_y2_offset,
-cccx     7                  k_y3_offset,k_y4_offset)
+!ccx                      call eomccsdtq_density1(d_d1(axis),d_d0,d_t1,d_t2,
+!ccx     1                  d_t3,d_t4,d_x0,xc1(ivec),xc2(ivec),xc3(ivec),
+!ccx     2                  xc4(ivec),d_y0,yc1(jvec),yc2(jvec),yc3(jvec),
+!ccx     3                  yc4(jvec),k_d1_offset(axis),k_d0_offset,
+!ccx     4                  k_t1_offset,k_t2_offset,k_t3_offset,k_t4_offset,
+!ccx     5                  k_x0_offset,k_x1_offset,k_x2_offset,k_x3_offset,
+!ccx     6                  k_x4_offset,k_y0_offset,k_y1_offset,k_y2_offset,
+!ccx     7                  k_y3_offset,k_y4_offset)
 		      call reconcilefile(d_d0,size_d0)
 		      call gatodra(yc4(jvec))
 		      call gatodra(yc3(jvec))
@@ -10572,14 +10572,14 @@ cccx     7                  k_y3_offset,k_y4_offset)
 		      call dratoga(xc2(ivec))
 		      call dratoga(xc3(ivec))
 		      call dratoga(xc4(ivec))
-cccx                      call eomccsdtq_density1(d_d1(axis),d_d0,d_t1,d_t2,
-cccx     1                  d_t3,d_t4,d_x0,xc1(ivec),xc2(ivec),xc3(ivec),
-cccx     2                  xc4(ivec),d_y0,d_lambda1,d_lambda2,d_lambda3,
-cccx     3                  d_lambda4,k_d1_offset(axis),k_d0_offset,
-cccx     4                  k_t1_offset,k_t2_offset,k_t3_offset,k_t4_offset,
-cccx     5                  k_x0_offset,k_x1_offset,k_x2_offset,k_x3_offset,
-cccx     6                  k_x4_offset,k_y0_offset,k_l1_offset,k_l2_offset,
-cccx     7                  k_l3_offset,k_l4_offset)
+!ccx                      call eomccsdtq_density1(d_d1(axis),d_d0,d_t1,d_t2,
+!ccx     1                  d_t3,d_t4,d_x0,xc1(ivec),xc2(ivec),xc3(ivec),
+!ccx     2                  xc4(ivec),d_y0,d_lambda1,d_lambda2,d_lambda3,
+!ccx     3                  d_lambda4,k_d1_offset(axis),k_d0_offset,
+!ccx     4                  k_t1_offset,k_t2_offset,k_t3_offset,k_t4_offset,
+!ccx     5                  k_x0_offset,k_x1_offset,k_x2_offset,k_x3_offset,
+!ccx     6                  k_x4_offset,k_y0_offset,k_l1_offset,k_l2_offset,
+!ccx     7                  k_l3_offset,k_l4_offset)
 		      call reconcilefile(d_d0,size_d0)
 		      call gatodra(xc4(ivec))
 		      call gatodra(xc3(ivec))
@@ -10614,14 +10614,14 @@ cccx     7                  k_l3_offset,k_l4_offset)
                       call dratoga(yc2(jvec))
                       call dratoga(yc3(jvec))
                       call dratoga(yc4(jvec))
-cccx                      call eomccsdtq_density1(d_d1(axis),d_d0,d_t1,d_t2,
-cccx     1                  d_t3,d_t4,d_x0,d_r1,d_r2,d_r3,
-cccx     2                  d_r4,d_y0,yc1(jvec),yc2(jvec),yc3(jvec),
-cccx     3                  yc4(jvec),k_d1_offset(axis),k_d0_offset,
-cccx     4                  k_t1_offset,k_t2_offset,k_t3_offset,k_t4_offset,
-cccx     5                  k_x0_offset,k_r1_offset,k_r2_offset,k_r3_offset,
-cccx     6                  k_r4_offset,k_y0_offset,k_y1_offset,k_y2_offset,
-cccx     7                  k_y3_offset,k_y4_offset)
+!ccx                      call eomccsdtq_density1(d_d1(axis),d_d0,d_t1,d_t2,
+!ccx     1                  d_t3,d_t4,d_x0,d_r1,d_r2,d_r3,
+!ccx     2                  d_r4,d_y0,yc1(jvec),yc2(jvec),yc3(jvec),
+!ccx     3                  yc4(jvec),k_d1_offset(axis),k_d0_offset,
+!ccx     4                  k_t1_offset,k_t2_offset,k_t3_offset,k_t4_offset,
+!ccx     5                  k_x0_offset,k_r1_offset,k_r2_offset,k_r3_offset,
+!ccx     6                  k_r4_offset,k_y0_offset,k_y1_offset,k_y2_offset,
+!ccx     7                  k_y3_offset,k_y4_offset)
                       call reconcilefile(d_d0,size_d0)
                       call gatodra(yc4(jvec))
                       call gatodra(yc3(jvec))
@@ -10663,8 +10663,8 @@ cccx     7                  k_y3_offset,k_y4_offset)
                     call dratoga(xc1(ivec))
                     call dratoga(xc2(ivec))
                     irrep_x = irrep   !! Caution !!
-c                    call tce_print_x1(xc1(ivec),k_x1_offset,printtol)
-c                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
+!                    call tce_print_x1(xc1(ivec),k_x1_offset,printtol)
+!                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
               call tce_print_x1(xc1(ivec),k_x1_offset,printtol,irrep_x)
               call tce_print_x2(xc2(ivec),k_x2_offset,printtol,irrep_x)
                     call gatodra(xc2(ivec))
@@ -10684,15 +10684,15 @@ c                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
           else
             call errquit("Not yet implemented",0,CAPMIS_ERR)
           endif
-c
-c         --------------------
-c         Write energy to RTDB
-c         --------------------
-c
+!
+!         --------------------
+!         Write energy to RTDB
+!         --------------------
+!
   400     continue
-c -------------
-c EOM-CCSDT   left
-c -------------
+! -------------
+! EOM-CCSDT   left
+! -------------
           if(ccsdtleft) then
             if (left) then
             call tce_eom_yguess(needt1,needt2,needt3,needt4,
@@ -10702,7 +10702,7 @@ c -------------
             modelname = "EOM-CCSDT left-hand side"
             if (nodezero) write(LuOut,9220)
      1        modelname(1:inp_strlen(modelname))
-c           call hbar_init
+!           call hbar_init
             do iter=1,maxiter
               if (nodezero.and.util_print('eom',print_default))
      1          write(LuOut,9210) iter,nytrials
@@ -10790,7 +10790,7 @@ c           call hbar_init
               if (converged) then
                 if (nodezero) write(LuOut,9240)
                 call tce_eom_ytidy
-c               call hbar_tidy
+!               call hbar_tidy
                 do ivec = 1,nroots_reduced
                   if (nodezero) write(LuOut,9460)
      1              ivec,dbl_mb(k_omegax+ivec-1),
@@ -10942,8 +10942,8 @@ c               call hbar_tidy
                     call dratoga(xc1(ivec))
                     call dratoga(xc2(ivec))
                     irrep_x = irrep   !! Caution !!
-c                    call tce_print_x1(xc1(ivec),k_x1_offset,printtol)
-c                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
+!                    call tce_print_x1(xc1(ivec),k_x1_offset,printtol)
+!                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
               call tce_print_x1(xc1(ivec),k_x1_offset,printtol,irrep_x)
               call tce_print_x2(xc2(ivec),k_x2_offset,printtol,irrep_x)
                     call gatodra(xc2(ivec))
@@ -10960,7 +10960,7 @@ c                    call tce_print_x2(xc2(ivec),k_x2_offset,printtol)
             call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
             endif
          endif
-c     done with 2nd ccsdtleft
+!     done with 2nd ccsdtleft
  4400    ccsdtleft=.false.
           call tce_eom_tidy
           if ((targetsym.eq.irrepname)
@@ -10970,9 +10970,9 @@ c     done with 2nd ccsdtleft
               write(LuOut,9300) target
               write(LuOut,9340) targetsym
               write(LuOut,*)
-c === jaguar ===
+! === jaguar ===
               if(.not.(read_ta.or.read_xa.or.read_in3)) then 
-c ==============
+! ==============
                write(LuOut,9310) modelname(1:inp_strlen(modelname)),
      1           ref+corr
                write(LuOut,9320) modelname(1:inp_strlen(modelname)),
@@ -10988,13 +10988,13 @@ c ==============
           elseif ((targetsym.eq.'none').and.(irrep_x.eq.0)
      1      .and.(target.le.nroots_reduced)) then
             if (nodezero.and.util_print('excited state',print_low)) then
-ccx              write(LuOut,*)
-ccx              write(LuOut,9310) modelname(1:inp_strlen(modelname)),
-ccx     1          ref+corr
-ccx              write(LuOut,9320) modelname(1:inp_strlen(modelname)),
-ccx     1          dbl_mb(k_omegax+target-1)
-ccx              write(LuOut,9330) modelname(1:inp_strlen(modelname)),
-ccx     1          ref+corr+dbl_mb(k_omegax+target-1)
+!cx              write(LuOut,*)
+!cx              write(LuOut,9310) modelname(1:inp_strlen(modelname)),
+!cx     1          ref+corr
+!cx              write(LuOut,9320) modelname(1:inp_strlen(modelname)),
+!cx     1          dbl_mb(k_omegax+target-1)
+!cx              write(LuOut,9330) modelname(1:inp_strlen(modelname)),
+!cx     1          ref+corr+dbl_mb(k_omegax+target-1)
             endif
             if (.not.rtdb_put(rtdb,'tce:omega',mt_dbl,1,
      1        dbl_mb(k_omegax+target-1)*au2ev))
@@ -11004,18 +11004,18 @@ ccx     1          ref+corr+dbl_mb(k_omegax+target-1)
      2        call errquit('tce_energy: RTDB problem',0,RTDB_ERR)
             tce_energy=.true.
           endif
-c link to QM/MM (no symmetry OR a-symmetry) -------
+! link to QM/MM (no symmetry OR a-symmetry) -------
           if(irrep.eq.0) then
             if (.not.rtdb_put(rtdb,'tce:eneex',mt_dbl,nroots_reduced,
      1        dbl_mb(k_omegax)))
      2        call errquit('tce_energy: RTDB problem',0,RTDB_ERR)
           end if
-c -------------------------------------------------
-c
-c         ------------------------------------
-c         Terminate excited state calculations
-c         ------------------------------------
-c
+! -------------------------------------------------
+!
+!         ------------------------------------
+!         Terminate excited state calculations
+!         ------------------------------------
+!
           if (needt4) then
             if (left) then
               call deletefile(d_ry4)
@@ -11036,18 +11036,18 @@ c
             if (.not.ma_pop_stack(l_x3_offset))
      1        call errquit("tce_energy: MA problem",35,MA_ERR)
           endif
-ccc
+!cc
           if (needt3a) then
-cccx           if (left) then
-cccx              call deletefile(d_ry3)
-cccx              if (.not.ma_pop_stack(l_y3_offset))
-cccx     1          call errquit("tce_energy: MA problem",35,MA_ERR)
-cccx            endif
+!ccx           if (left) then
+!ccx              call deletefile(d_ry3)
+!ccx              if (.not.ma_pop_stack(l_y3_offset))
+!ccx     1          call errquit("tce_energy: MA problem",35,MA_ERR)
+!ccx            endif
             call deletefile(d_rx3)
             if (.not.ma_pop_stack(l_x3_offset))
      1        call errquit("tce_energy: MA problem",35,MA_ERR)
           endif
-ccc
+!cc
           if (needt2) then
             if (left) then
               call deletefile(d_ry2)
@@ -11080,9 +11080,9 @@ ccc
           endif
           if (.not.ma_pop_stack(l_omegax))
      1      call errquit("tce_energy: MA problem",1002,MA_ERR)
-c new EOMCC solver
+! new EOMCC solver
        if(.not.((model.ne.'ccsd').and.(eom_solver.eq.2))) then
-c ccsd_act/eomccsd_act
+! ccsd_act/eomccsd_act
        if(.not.(model.eq.'ccsd_act')) then
        if (.not.ma_pop_stack(l_hbar))
      1  call errquit('tce_eom_xdiagon: MA problem',12,MA_ERR)
@@ -11091,26 +11091,26 @@ c ccsd_act/eomccsd_act
           endif
         enddo
       endif
-c
-c     ===========================
-c     End of all TCE calculations
-c     ===========================
-c
-c->d3p975
+!
+!     ===========================
+!     End of all TCE calculations
+!     ===========================
+!
+!->d3p975
       do i = 1, ipol
         if (.not.ga_destroy(g_movecs(i)))
      1    call errquit('tce_energy: GA problem',0,GA_ERR)
       enddo
-c<-d3p975
-c
+!<-d3p975
+!
       if (io_v2.eq.IOSF) then
         call deletefile_sf(d_v2)
       else
-c === jaguar ===
+! === jaguar ===
         if(.not.read_in3) then
          call deletefile(d_v2)
         end if
-c ==============
+! ==============
       endif
       if (left) then
         if (multipole.ge.3) then
@@ -11127,11 +11127,11 @@ c ==============
           call deletefile(d_d1(axis))
         enddo
       endif
-c === jaguar ===
+! === jaguar ===
       if(.not.read_in3) then
       call deletefile(d_f1)
       end if
-c ==============
+! ==============
       if (needt4) then
         if (leftresp) then
           do axis = 3, 1, -1
@@ -11195,11 +11195,11 @@ c ==============
      1    call errquit("tce_energy: MA problem",25,MA_ERR)
       endif
       if (needt3a) then
-cccx        if (left) then
-cccx          call deletefile(d_lambda3)
-cccx          if (.not.ma_pop_stack(l_l3_offset))
-cccx     1      call errquit("tce_energy: MA problem",25,MA_ERR)
-cccx        endif
+!ccx        if (left) then
+!ccx          call deletefile(d_lambda3)
+!ccx          if (.not.ma_pop_stack(l_l3_offset))
+!ccx     1      call errquit("tce_energy: MA problem",25,MA_ERR)
+!ccx        endif
         call deletefile(d_t3)
         if (.not.ma_pop_stack(l_t3_offset))
      1    call errquit("tce_energy: MA problem",25,MA_ERR)
@@ -11267,15 +11267,15 @@ cccx        endif
      1    call errquit("tce_energy: MA problem",1,MA_ERR)
       endif
       if(intorb) then
-c === jaguar ===
+! === jaguar ===
        if(.not.read_in3) then ! --- read_in3
-c ==============
+! ==============
        if (.not.ma_pop_stack(l_v2spin_offset))
      1  call errquit("tce_energy: MA problem",59,MA_ERR)
-c--       if (.not.ma_pop_stack(l_o2ot_offset))
-c--     1  call errquit("tce_energy: MA problem",58,MA_ERR)
-c--       if (.not.ma_pop_stack(l_o2o_offset))
-c--     1  call errquit("tce_energy: MA problem",57,MA_ERR)
+!--       if (.not.ma_pop_stack(l_o2ot_offset))
+!--     1  call errquit("tce_energy: MA problem",58,MA_ERR)
+!--       if (.not.ma_pop_stack(l_o2o_offset))
+!--     1  call errquit("tce_energy: MA problem",57,MA_ERR)
        if (.not.ma_pop_stack(l_v2_alpha_offset))
      1  call errquit("tce_energy: MA problem",56,MA_ERR)
        end if ! read_in3
@@ -11284,12 +11284,12 @@ c--     1  call errquit("tce_energy: MA problem",57,MA_ERR)
       if (.not.ma_pop_stack(l_v2_offset))
      1  call errquit("tce_energy: MA problem",2,MA_ERR)
       end if
-c === jaguar ===
+! === jaguar ===
       if(.not.read_in3) then ! --- read_in3 ---
       if (.not.ma_pop_stack(l_f1_offset))
      1  call errquit("tce_energy: MA problem",3,MA_ERR)
       end if
-c ==============
+! ==============
       if (left) then
         if (multipole.ge.3) then
           do axis=10,1,-1
@@ -11313,9 +11313,9 @@ c ==============
         enddo
       endif
       if(intorb) then
-c === jaguar ===
+! === jaguar ===
        if(.not.read_in3) then ! ---
-c ==============
+! ==============
        if (.not.ma_pop_stack(l_offset_alpha))
      1  call errquit("tce_energy: MA problem",55,MA_ERR)
        if (.not.ma_pop_stack(l_range_alpha))
@@ -11328,9 +11328,9 @@ c ==============
      1  call errquit("tce_energy: MA problem",51,MA_ERR)
        end if ! --- read_in3
       end if
-c ---
-c check if read_in3 is needed here
-c ---
+! ---
+! check if read_in3 is needed here
+! ---
       if(model.eq."ccsd_act") THEN
       if (.not.ma_pop_stack(l_active_o))
      1  call errquit("tce_energy: MA problem",35,MA_ERR)
@@ -11339,9 +11339,9 @@ c ---
       if (.not.ma_pop_stack(l_active))
      1  call errquit("tce_energy: MA problem",34,MA_ERR)
       end if
-c === jaguar ===
+! === jaguar ===
       if(.not.read_in3) then !---
-c ==============
+! ==============
       if (.not.ma_pop_stack(l_alpha))
      1  call errquit("tce_energy: MA problem",4,MA_ERR)
       if (.not.ma_pop_stack(l_offset))
@@ -11362,31 +11362,31 @@ c ==============
      1  call errquit("tce_energy: MA problem",11,MA_ERR)
       if (.not.ma_pop_stack(l_movecs_sorted))
      1  call errquit("tce_energy: MA problem",12,MA_ERR)
-c ====
+! ====
       end if
-c ====
-c
-c     ===============
-c     Destroy a mutex
-c     ===============
-c
+! ====
+!
+!     ===============
+!     Destroy a mutex
+!     ===============
+!
       if (.not.ga_destroy_mutexes())
      1  call errquit('tce_energy: GA problem',1,GA_ERR)
-c
-c     =========
-c     Terminate
-c     =========
-c
+!
+!     =========
+!     Terminate
+!     =========
+!
       if(.not.read_in3) then
        call tce_tidy(rtdb)
        call util_print_pop
       end if
       return
-c
-c     ======
-c     Format
-c     ======
-c
+!
+!     ======
+!     Format
+!     ======
+!
  9000 format(1x,A,' file size   = ',i16)
  9010 format(1x,A,' file name   = ',A)
  9090 format(1x,A,' file handle = ',i10)
@@ -11415,7 +11415,7 @@ c
  9123 format(1x,'4-index algorithm nr.',i4,1x,'is used')
  9124 format(1x,'imaxsize = ',2x,i6)
  9125 format(1x,'imaxsize ichop = ',2x,2i6)
-c 9126 format(1x,'imaxsize = ',2x,i6)
+! 9126 format(1x,'imaxsize = ',2x,i6)
  9250 format(1x,'Ground-state symmetry is ',A4)
  9251 format(1x,'Dim. of EOMCC iter. space ',2x,i6)
  9200 format(1x,'=========================================',/,
@@ -11455,9 +11455,9 @@ c 9126 format(1x,'imaxsize = ',2x,i6)
      5  1x,'Total ',2f15.7,/
      5  1x,'------------------------------------')
  9431 format(/,1x,'Frequency = ',f15.7,' / au')
-c
-c     Ordering in mptval (from defNxyz):
-c     xx, xy, xz, yy, yz, zz
+!
+!     Ordering in mptval (from defNxyz):
+!     xx, xy, xz, yy, yz, zz
  9432 format(/,1x,A,' quadrupole moments / hartree & Buckingham',/,
      1  1x,'--------------------------------',/
      2  1x,'XX ',2f15.7,/
@@ -11467,9 +11467,9 @@ c     xx, xy, xz, yy, yz, zz
      6  1x,'YZ ',2f15.7,/
      7  1x,'ZZ ',2f15.7,/
      8  1x,'--------------------------------')
-c
-c     Ordering in mptval (from defNxyz):
-c     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
+!
+!     Ordering in mptval (from defNxyz):
+!     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
  9433 format(/,1x,A,' octupole moments / hartree & Octos',/,
      1  1x,'--------------------------------',/
      2  1x,'XXX ',2f15.7,/
@@ -11532,7 +11532,7 @@ c     xxx, xxy, xxz, yyx, xyz, zzx, yyy, zzy, zzz
      3  1x,'Oscillator Strength            ',f13.7,/
      4  1x,'--------------------------------------------')
  9501 format(/,1x,A,' hyperpolarizability / au ')
-c Use 9431 for frequency
+! Use 9431 for frequency
  9502 format(1x,'-----------------------------------------------')
  9503 format(1x,'beta(',a1,',',a1,',',a1,') = ',f18.9,a)
  9504 format(1x,'Static Hyperpolarizability')
@@ -11551,9 +11551,9 @@ c Use 9431 for frequency
       implicit none
       integer hbard
       double precision hbar(hbard,hbard)
-c
+!
       integer i,j
-c
+!
       do i=1,hbard
          do j=1,hbard
             hbar(j,i)=0d0
