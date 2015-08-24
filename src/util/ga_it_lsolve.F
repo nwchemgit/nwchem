@@ -105,10 +105,10 @@ cold      prod_acc = prod_acc * tol * 0.001d0
 c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,1) tol, prod_acc
- 1       format(/,12x,'----- linear solve (tol:',1p,e8.1,' prod-acc:',
+    1    format(/,12x,'----- linear solve (tol:',1p,e8.1,' prod-acc:',
      $        e8.1,') -----'/)
          write(6,2) 
- 2       format(14x, ' iter nbas    rnorm     rnorm-scal   ratio',
+    2    format(14x, ' iter nbas    rnorm     rnorm-scal   ratio',
      $        '     time'/
      $        14x, ' ---- ---- ----------- ----------- ---------',
      $        ' -------')
@@ -239,7 +239,7 @@ c
          rnorm_prev = rnorm
          if (oprint .and. ga_nodeid().eq.0) then
             write(6,3) iter,nsub,rnorm,acc,convg_ratio,util_cpusec()
- 3          format(14x,2i5,1p,2e12.4,0p,f10.4,f8.1)
+    3       format(14x,2i5,1p,2e12.4,0p,f10.4,f8.1)
             call util_flush(6)
          end if
          if (converged) goto 1000

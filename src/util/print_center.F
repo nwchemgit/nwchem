@@ -19,7 +19,7 @@ c
       if (empty .lt. 0) empty = 0
       if (empty .gt. 80) empty = 80
       write(unit, 1) blank(1:empty), string(1:length)
- 1    format(1x,a,a)
+    1 format(1x,a,a)
       if (ounder) then
          length = min(80,length)
          do i = 1, length

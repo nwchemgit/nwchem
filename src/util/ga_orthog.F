@@ -111,7 +111,7 @@ c     each process has vecs(ulo:uhi,1:ni) ... uses global sums only.
 c     
       do i = 1, ni
          npass = 0
- 10      npass = npass + 1
+   10    npass = npass + 1
 c     
 c     If have a metric then first form overlap*vec(i)
 c     

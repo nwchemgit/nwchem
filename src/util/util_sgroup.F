@@ -195,7 +195,7 @@ C       Work around the 36 char cutoff for fname
         if(.not. rtdb_cget(rtdb,'file_prefix',1,fprefix))
      &     call errquit('rtdb get file_prefix failed',0,0)
         idum = 1
- 747    if(permdir(idum:idum).eq. ' ' .and. idum.lt.inp_strlen(permdir))
+  747   if(permdir(idum:idum).eq. ' ' .and. idum.lt.inp_strlen(permdir))
      &                then
           idum = idum + 1
           goto 747
