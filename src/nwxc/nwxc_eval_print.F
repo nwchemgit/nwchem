@@ -1873,7 +1873,8 @@ c           parameters B
      +                          weight,rho,gamma,f)
           case (NWXCP_C_TPSS)
             weight    = nwxc_wghts(it)
-            call nwxc_c_tpss03_p(nwxc_rho_tol,ipol,nq,weight,
+            param(1) = 0.066724550603149d0
+            call nwxc_c_tpss03_p(param,nwxc_rho_tol,ipol,nq,weight,
      +                           rho,gamma,tau,f)
           case (NWXCP_C_VS98)
             param(1)  =  7.035010d-01
