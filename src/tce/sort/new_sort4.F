@@ -4,7 +4,7 @@
 !
 ! There is currently no difference between the OpenMP and non-OpenMP versions
 ! except for the directives, but preprocessing at fine granularity leads to ugly
-! code because Fortran does not have anything like C99/C++11 _Pragma.
+! code because Fortran does not have anything like C99/C++11 Pragma.
 !
 #ifdef USE_OPENMP
       subroutine tce_sort_4(u,s,a,b,c,d,i,j,k,l,f)
