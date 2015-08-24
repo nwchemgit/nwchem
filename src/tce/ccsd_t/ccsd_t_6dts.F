@@ -111,7 +111,7 @@ c
 c -- 6DTS --
             dp4=1
             dp5=1
- 300        continue
+  300       continue
             if(dp4.eq.int_mb(k_range+t_p4b-1).and.
      1         dp5.eq.int_mb(k_range+t_p5b-1))
      2      call errquit('6DTS error',3,MA_ERR)
@@ -170,6 +170,7 @@ c zeroing ---
         call dfill(size, 0.0d0, dbl_mb(k_singles), 1)
         call dfill(size, 0.0d0, dbl_mb(k_doubles), 1)
 c -----------
+cjeff            print*,'#DTS#',istart,istop,jstart,jstop,maxp4,maxp5
             call ccsd_t_singles_l_6dts(dbl_mb(k_singles),
      1        k_t1_local,d_v2,k_t1_offset,
      1        k_v2_offset,t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2,

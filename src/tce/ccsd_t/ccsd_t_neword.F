@@ -158,7 +158,7 @@ c
          write(6,33) ' wl_min ',wl_min,(wl_min)**(1d0/6d0)
          write(6,33) ' wl_max ',wl_max,(wl_max)**(1d0/6d0)
       endif
- 33   format(a32,i12,f14.1)
+   33 format(a32,i12,f14.1)
 
 #ifdef DEBUG
       write(6,*) ' sort1 '

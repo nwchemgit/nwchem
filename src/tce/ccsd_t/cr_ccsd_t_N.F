@@ -192,7 +192,7 @@ c ==============
       END IF
       IF (toggle .eq. 1) CALL cr_ccsd_t_N_1_6(d_t2,k_t2_offset,d_v2,k_v2
      &_offset,d_i1_1,k_i1_offset_1)
- 101  continue
+  101 continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_1,size_i1_1)
 c === jaguar ===
       if(write_in3.and.(toggle.eq.1))  then
@@ -278,7 +278,7 @@ c ==============
       END IF
       IF (toggle .eq. 1) CALL cr_ccsd_t_N_2_5(d_t2,k_t2_offset,d_v2,k_v2
      &_offset,d_i1_2,k_i1_offset_2)
- 102  continue
+  102 continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_2,size_i1_2)
 c === jaguar ===
       if(write_in3.and.(toggle.eq.1))  then

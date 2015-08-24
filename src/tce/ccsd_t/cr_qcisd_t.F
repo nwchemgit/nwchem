@@ -155,8 +155,8 @@ c
       write(6,11) 'singles: < T_1 | T_1 >',den_sing
       write(6,11) 'doubles: < C_2 | C_2 >',den_doub
       write(6,11) 'triples:   CR-CCSD(T) ',den_trip
- 10   format(1x,'energy contribution from',1x,a,1x,f25.15)
- 11   format(1x,'denominator from',1x,a,1x,f25.15)
+   10 format(1x,'energy contribution from',1x,a,1x,f25.15)
+   11 format(1x,'denominator from',1x,a,1x,f25.15)
 #endif
       delta = ( e_singles + e_doubles + e_trip_u + e_trip_c )
      1      / (   1.0d0   + den_sing  + den_doub + den_trip )
