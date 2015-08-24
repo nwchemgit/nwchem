@@ -1039,7 +1039,7 @@ cccx     1   call errquit('tcc_mo2e_trans_zones: l_2g2z',15,MA_ERR)
       ENDDO  ! i = 1,imaxp12 
 c
 c - exascale ---
- 300   continue
+  300  continue
 c ---
 c
 

@@ -306,7 +306,7 @@ c
       enddo
       endif
 c
- 300  continue
+  300 continue
 c
       if (nxtrials.lt.nroots_reduced)
      1  call errquit('there is a bug in the program',0,UNKNOWN_ERR)

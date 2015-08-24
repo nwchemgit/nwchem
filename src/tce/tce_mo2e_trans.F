@@ -778,10 +778,10 @@ c
 c closing d_v2int ga
       call deletefile(d_v2int) 
 c
- 900  format('first half mu nu CPU   ',3i7)
- 901  format('second half g3b g4b CPU',3i7)
- 902  format('second half after all mu-nu: g3b g4b CPU',3i7)
- 903  format('second half after g1-g2:     g3b g4b CPU',3i7)
+  900 format('first half mu nu CPU   ',3i7)
+  901 format('second half g3b g4b CPU',3i7)
+  902 format('second half after all mu-nu: g3b g4b CPU',3i7)
+  903 format('second half after g1-g2:     g3b g4b CPU',3i7)
 c
       return
       end

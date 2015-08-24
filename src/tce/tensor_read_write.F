@@ -151,7 +151,7 @@ c
        call util_flush(6)
        go to 200
 c close file
- 200   continue
+  200  continue
 #ifdef USE_EAF
        k=eaf_close(unitn)
         if (k .ne. 0) then
@@ -331,7 +331,7 @@ c
        call util_flush(6)
        go to 200
 c close file
- 200   continue
+  200  continue
 c close file
 #ifdef USE_EAF
        k=eaf_close(unitn)

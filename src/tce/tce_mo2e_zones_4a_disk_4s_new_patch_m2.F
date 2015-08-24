@@ -612,7 +612,7 @@ c
          write(6,301) i,size_4a_m(i)
         enddo 
         write(6,*)'-----------------'
- 301    format('size_4a_m(i)',2x,i4,2x,i10)
+  301   format('size_4a_m(i)',2x,i4,2x,i10)
         call util_flush(6)
       end if
 c

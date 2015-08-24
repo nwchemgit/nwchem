@@ -247,7 +247,7 @@ c
          ip_max2=i
          chunk_max2=imaxch(i)
         end if
- 771   continue
+  771  continue
        enddo
 c
 c CHUNK_SIZE IS PROPERLY DEFINED HERE
