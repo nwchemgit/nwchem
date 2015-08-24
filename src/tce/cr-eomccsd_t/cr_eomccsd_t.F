@@ -168,7 +168,7 @@ c
          call reconcilefile(d_ex2,1)
          d2xxt = 0.0d0
          call get_block(d_ex2,d2xxt,1,0)
-c forming vector R1T1+R2, d_d2's irrep corresponds to irrep_x
+c forming vector R1T1+R2, the d_d2 irrep corresponds to irrep_x
 c (in this case this is fully symmetric situation)
 c on d_c2 we have (T2+1/2T1*T1)|Phi\rangle
             irrep_d=irrep_c
@@ -186,7 +186,7 @@ c <C2+ D2>  here
          call get_block(d_ex1,d2xxtr,1,0)
             call deletefile(d_d2)
             if (.not.ma_pop_stack(l_d2_offset))
-     1        call errquit("tce_energy: MA problem",36,MA_ERR)
+     1        call errquit('cr_eomccsd_t: MA problem',36,MA_ERR)
 c
          call tce_zero(d_ex1,size_ex1)
          call tce_zero(d_ex2,size_ex2)
@@ -246,7 +246,7 @@ c    copy x1(ivec) ==> l_x1_local
 c -------------------------------
 c
 c     Caution! k_right & k_den are not even allocated yet
-c     but they won't be used.
+c     but they will not be used.
 c --------------- initialization -----------------------------------
       cpu=-util_cpusec()
       wall=-util_wallsec()
@@ -295,7 +295,7 @@ c
        write(6,*)'         '
        call util_flush(6)
       end if
- 111  format('CR-EOMCCSD(T) Intermediates cpu wall time ',2f15.1)
+  111 format('CR-EOMCCSD(T) Intermediates cpu wall time ',2f15.1)
 c ------------------------------------------------------------------
 c
 c     Get the numerator
@@ -491,7 +491,7 @@ c
        write(6,*)'         '
        call util_flush(6)
       end if
- 112  format('CR-EOMCCSD(T) triples loop cpu wall ',2f15.1)
+  112 format('CR-EOMCCSD(T) triples loop cpu wall ',2f15.1)
 c --- toggle = 3 ---
       if(lr0) then
       call q3rexpt2(dbl_mb(k_left),d_i3_1,k_t1_local,d_t2,

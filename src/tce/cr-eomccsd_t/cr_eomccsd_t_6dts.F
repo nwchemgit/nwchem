@@ -264,7 +264,7 @@ c    copy x1(ivec) ==> l_x1_local
 c -------------------------------
 c
 c     Caution! k_right & k_den are not even allocated yet
-c     but they won't be used.
+c     but they will not be used.
 c --------------- initialization -----------------------------------
       cpu=-util_cpusec()
       wall=-util_wallsec()
@@ -313,7 +313,7 @@ c
        write(6,*)'         '
        call util_flush(6)
       end if
- 111  format('CR-EOMCCSD(T) Intermediates cpu wall time ',2f15.1)
+  111 format('CR-EOMCCSD(T) Intermediates cpu wall time ',2f15.1)
 c ------------------------------------------------------------------
 c
 c     Get the numerator
@@ -364,7 +364,7 @@ c Symmetry control (above)
 c -- 6DTS --
             dp4=1
             dp5=1 
- 300        continue
+  300       continue
             if(dp4.eq.int_mb(k_range+t_p4b-1).and.
      1         dp5.eq.int_mb(k_range+t_p5b-1)) 
      2      call errquit('6DTS error',3,MA_ERR)
@@ -565,7 +565,7 @@ c
        write(6,*)'         '
        call util_flush(6)
       end if
- 112  format('CR-EOMCCSD(T) triples loop cpu wall ',2f15.1)
+  112 format('CR-EOMCCSD(T) triples loop cpu wall ',2f15.1)
 c --- toggle = 3 ---
       if(lr0) then
       call q3rexpt2(dbl_mb(k_left),d_i3_1,k_t1_local,d_t2,
