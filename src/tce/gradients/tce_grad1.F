@@ -131,8 +131,8 @@ C               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
                       do 20, ip2 = if2, il2
                         dE = dE + wdens(ip1,ip2) * H(ic)
                         ic = ic + 1
- 20                   continue
- 22                 continue
+   20                 continue
+   22               continue
                     dE = dE * qfac
                     frc_wgh(icart,idatom(1)) = frc_wgh(icart,idatom(1)) 
      $                                      - dE - dE
@@ -143,7 +143,7 @@ c     1                 idatom(1), frc_wgh(icart,idatom(1))
 c                    write(6,'(a,i4,i4,f20.16)') 'icart,idatom',icart,
 c     1                 idatom(2), frc_wgh(icart,idatom(2))
 
- 28               continue
+   28             continue
                 endif
 
 C               1el. derivatives
@@ -169,18 +169,18 @@ c                        write(6,'(a,i4,i4,f20.16)') 'dens',ip1,ip2,
 c     1                        dens(ip1,ip2)
 c                        write(6,'(a,i4,f20.16)') 'H',ic,H(ic)
                         ic = ic + 1
- 30                   continue
- 31                 continue
+   30                 continue
+   31               continue
                     if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
                     dE = dE * qfac
                     frc_kin(icart,iat3) = frc_kin(icart,iat3) + dE
 c                    write(6,'(a,i4,i4,f20.16)') 'icart,iat3',icart,iat3,
 c     1                   frc_kin(icart,iat3)
- 40               continue
- 50             continue
+   40             continue
+   50           continue
 
- 60           continue
- 70         continue
+   60         continue
+   70       continue
 
  1010       continue
 
@@ -222,8 +222,8 @@ c     1                frc_nuc(3,iat2)
             next = nxtask(nproc,task_size)
           endif
 
- 80     continue
- 90   continue
+   80   continue
+   90 continue
       next = nxtask(-nproc,task_size)
 
 c     
@@ -262,8 +262,8 @@ c     --------------------------------------------------
 
             next = nxtask(nproc,task_size)
           endif
- 81     continue
- 91   continue
+   81   continue
+   91 continue
       next = nxtask(-nproc,task_size)
 
 
@@ -409,24 +409,24 @@ c                    do 31, ip1 = if1, il1
 c                      do 30, ip2 = if2, il2
 c                        dE = dE + dens(ip1,ip2) * H(ic)
 c                        ic = ic + 1
-c 30                   continue
-c 31                 continue
+c   30                 continue
+c   31               continue
 c                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
 c                    dE = dE * qfac
 c                    frc_kin(icart,iat3) = frc_kin(icart,iat3) + dE
-c 40               continue
-c 50             continue
+c   40             continue
+c   50           continue
 c
-c 60           continue
-c 70         continue
+c   60         continue
+c   70       continue
 c
 c 1010       continue
 c
 c            next = nxtask(nproc,task_size)
 c          endif
 c
-c 80     continue
-c 90   continue
+c   80   continue
+c   90 continue
 c      next = nxtask(-nproc,task_size)
 c
 c      return

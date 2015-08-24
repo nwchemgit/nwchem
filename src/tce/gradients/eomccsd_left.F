@@ -121,7 +121,7 @@ c
          endif
       enddo
       call errquit('eomccsd_left: maxiter exceeded',iter,CALC_ERR)
- 400  continue
+  400 continue
  9210 format(/,1x,'Iteration ',i3,' using ',i4,' trial vectors')
  9220 format(/,1x,A,' iterations',/,1x,
      1'--------------------------------------------------------------'

@@ -83,7 +83,7 @@ c
          if (nodezero) call util_flush(LuOut)
       enddo
       call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
- 320  continue
+  320 continue
  9050 format(/,1x,A,' iterations',/,
      1  1x,'--------------------------------------------------------',/
      2  1x,'Iter          Residuum       Correlation     Cpu    Wall',/

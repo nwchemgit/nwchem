@@ -371,9 +371,9 @@ c                                    write(6,*) 'scale=',scale
                                     list(nq,4) = lsh
                                  endif
 c     
- 200                          end do ! next llsh
+  200                         end do ! next llsh
                            end do
- 100                    end do  ! next jjsh
+  100                   end do  ! next jjsh
                      end do
 
 *                     numq = numq + nq
@@ -388,7 +388,7 @@ c
      $                    block_eff)) call errquit('grad2:txs init?',nq,
      &       INT_ERR)
 c     
- 10                  omore = intbd_2e4c(
+   10                omore = intbd_2e4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
      $                    nq, q4, .true., tol2e, .false.,

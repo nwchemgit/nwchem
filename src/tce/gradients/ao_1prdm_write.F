@@ -48,13 +48,13 @@ c
          ok = 1
       endif
 c
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
+   10 call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)
 c
       ao_1prdm_write = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
      $     util_print('vectors i/o', print_high)) then
          write(6,22) 'ao_1prdm'
- 22      format(/' Wrote one-particle reduced density matrix to ',a/)
+   22    format(/' Wrote one-particle reduced density matrix to ',a/)
          call util_flush(luout)
       endif
       call ga_sync()

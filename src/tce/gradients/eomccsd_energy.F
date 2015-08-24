@@ -123,7 +123,7 @@ c
          endif
       enddo
       call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
- 200  continue
+  200 continue
  9210 format(/,1x,'Iteration ',i3,' using ',i4,' trial vectors')
  9220 format(/,1x,A,' iterations',/,1x,
      1'--------------------------------------------------------------'

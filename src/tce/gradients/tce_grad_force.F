@@ -272,10 +272,10 @@ c         if (.not. omp2) then
                if (util_print('information', print_medium)) then
                   if (odft) then
                      write(luout,101) ' dft ', ipol
- 101                 format(/'  wavefunction    =   ', a, ' ipol =',i2/)
+  101                format(/'  wavefunction    =   ', a, ' ipol =',i2/)
                   else
                      write(luout,1) scftype
- 1                   format(/'  wavefunction    =   ', a/)
+    1                format(/'  wavefunction    =   ', a/)
                   endif
                   call util_flush(luout)
                end if
@@ -291,7 +291,7 @@ c tce
             if (util_print('information',print_medium)) then
                if (model.eq.'ccsd') then
                    write(luout,11) scftype,'CCSD'
-11                 format(/'  wavefunction    =   TCE ', a,a/)
+   11              format(/'  wavefunction    =   TCE ', a,a/)
                else if(model.eq.'ccsdt') then
                    write(luout,11) scftype,'CCSDT'
                else if(model.eq.'ccsdtq') then
@@ -655,14 +655,14 @@ c
          if (ga_nodeid() .eq. 0) then
             call util_print_centered(luout,'Douglas-Kroll gradients',
      $                               40,.true.)
-            write(luout,105) 
+            write(luout,105)
   105       format(/
      $           12x,
      $           'The Douglas-Kroll correction to the gradient is '/
      $           12x,
      $           'computed numerically and added to the analytical '/
      $           12x,
-     $           'non-relativistic gradients.'//)
+     $           'non-relativistic gradients.'/)
          endif
          mytheory = 'Douglas-Kroll correction to'
          if (.not. num_grad(rtdb,dkdiv_energy,'grad_dk:dkdiv_energy',
@@ -1419,7 +1419,7 @@ c
      $           ('tce_grad_force: geometry corrupt?',0, GEOM_ERR)
             write(luout,2000) i, tag,(crd(j),j=1,3),
      $           (dbl_mb(k_force+3*(i-1)+j),j=0,2)
- 30      continue
+   30    continue
          write(luout,*)
  1000    format(/,/,25X,A,' ENERGY GRADIENTS',/,/,4X,'atom',15X,
      $        'coordinates',

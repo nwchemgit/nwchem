@@ -635,7 +635,7 @@ c     ==========================================================================
       enddo
       call errquit('ccsd_gradients: maxiter exceeded',iter,CALC_ERR)
 c
- 320   continue
+  320  continue
       if(.not.ma_pop_stack(l_r1_offset))
      1  call errquit('ccsd_gradients: ma problem',120,ma_err)
 c     =====================
