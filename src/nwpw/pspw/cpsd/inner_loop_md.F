@@ -223,6 +223,7 @@ c     real*8     fion(3,natmx)
       fmass = control_fake_mass()
       dte   = dt*dt/fmass
       if (.not. verlet) dte=0.5d0*dte
+      h = 1.0d0/(2.0d0*dt)
 
       sa1 = 1.0d0
       sa2 = 1.0d0
@@ -569,15 +570,28 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *       **************************
         if (nose) then
           if (verlet) then
-             eke = 0.0d0
-             do i=1,n2(ispin)
-                call Pack_cc_idot(1,psi2(1,i),psi0(1,i),sum)
-                eke = eke+sum
-             end do
-             if (np.gt.1) call Parallel_SumAll(eke)
-             eke = (ne(1)+ne(2) - eke)
-             if (ispin.eq.1) eke = 2.0d0*eke
-             eke = 0.5d0*(fmass/(dt*dt))*eke
+             if (psp_pawexist()) then
+                eke = 0.0d0
+                do i=1,n2(ispin)
+                   call Pack_c_SMul1(1,-h,psi0(1,i))
+                   call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
+                   call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
+                   eke = eke+sum
+                end do
+                if (np.gt.1) call Parallel_SumAll(eke)
+                if (ispin.eq.1) eke = 2.0d0*eke
+                eke = eke*fmass
+             else
+                eke = 0.0d0
+                do i=1,n2(ispin)
+                   call Pack_cc_idot(1,psi2(1,i),psi0(1,i),sum)
+                   eke = eke+sum
+                end do
+                if (np.gt.1) call Parallel_SumAll(eke)
+                eke = (ne(1)+ne(2) - eke)
+                if (ispin.eq.1) eke = 2.0d0*eke
+                eke = 0.5d0*(fmass/(dt*dt))*eke
+             end if
              eki = ion_ke()
              call Nose_Verlet_Step(eke,eki)
           else
@@ -674,18 +688,18 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
         
 *     **** velocity and kinetic energy of psi ****
-      h = 1.0d0/(2.0d0*dt)
-      eke = 0.0d0
-      do i=1,n2(ispin)
-c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
-         call Pack_c_SMul1(1,-h,psi0(1,i))
-         call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
-         call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
-         eke = eke+sum
-      end do
-      if (np.gt.1) call Parallel_SumAll(eke)
-      eke = eke*fmass
-      if (ispin.eq.1) eke = 2.0d0*eke
+      if ((.not.psp_pawexist()).or.(.not.nose)) then
+         eke = 0.0d0
+         do i=1,n2(ispin)
+            call Pack_c_SMul1(1,-h,psi0(1,i))
+            call Pack_cc_daxpy(1,h,psi2(1,i),psi0(1,i))
+            call Pack_cc_idot(1,psi0(1,i),psi0(1,i),sum)
+            eke = eke+sum
+         end do
+         if (np.gt.1) call Parallel_SumAll(eke)
+         eke = eke*fmass
+         if (ispin.eq.1) eke = 2.0d0*eke
+      end if
 
  
 
