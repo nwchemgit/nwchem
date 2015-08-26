@@ -96,8 +96,6 @@ c     1  call errquit('ccsd_t: GA problem',0,GA_ERR)
 c      if (.not.ga_create(mt_dbl,1,1,'total_s',1,1,g_total_s))
 c     1  call errquit('ccsd_t: GA problem',0,GA_ERR)
 
-      if (.not.ga_create(mt_dbl,1,1,'perturbative',1,1,g_energy))
-     1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       nprocs = GA_NNODES()
       count = 0
       next = nxtask(nprocs,1)
@@ -320,6 +318,9 @@ ccx            count = count + 1
        enddo
       enddo
       next = nxtask(-nprocs,1)
+#if 0
+      if (.not.ga_create(mt_dbl,1,1,'perturbative',1,1,g_energy))
+     1  call errquit('ccsd_t: GA problem',0,GA_ERR)
       call ga_zero(g_energy)
       call ga_acc(g_energy,1,1,1,1,energy1,1,1.0d0)
       call ga_sync()
@@ -328,27 +329,14 @@ ccx            count = count + 1
       call ga_acc(g_energy,1,1,1,1,energy2,1,1.0d0)
       call ga_sync()
       call ga_get(g_energy,1,1,1,1,energy2,1)
-
-ckbn      call ga_zero(g_total_d)
-ckbn      call ga_acc(g_total_d,1,1,1,1,total_all_d,1,1.0d0)
-ckbn      call ga_sync()
-ckbn      call ga_get(g_total_d,1,1,1,1,total_all_d,1)
-ckbn
-ckbn      call ga_zero(g_total_s)
-ckbn      call ga_acc(g_total_s,1,1,1,1,total_all_s,1,1.0d0)
-ckbn      call ga_sync()
-ckbn      call ga_get(g_total_s,1,1,1,1,total_all_s,1)
-
-ckbn      write (*,'(A,2F17.10)') "Total s d ", sum_s,sum_d
-ckbn      write (*,'(A,4F25.10)') "Total d s e1 e2 ", 
-ckbn     +  total_all_d, total_all_s, energy1, energy2
-
       if (.not.ga_destroy(g_energy))
      1  call errquit('ccsd_t: GA problem',1,GA_ERR)
-ckbn      if (.not.ga_destroy(g_total_s))
-ckbn     1  call errquit('ccsd_t: GA problem',1,GA_ERR)
-ckbn      if (.not.ga_destroy(g_total_d))
-ckbn     1  call errquit('ccsd_t: GA problem',1,GA_ERR)
+#else
+      call ga_dgop(1975,energy1,1,'+')
+      call ga_dgop(1976,energy2,1,'+')
+#endif
+
+
 
 c - T1/X1 LOCALIZATION ------
          if(.not.MA_POP_STACK(l_t1_local))
