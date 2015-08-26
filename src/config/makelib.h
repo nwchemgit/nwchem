@@ -210,7 +210,7 @@ endif
 ####################################################################
 
 
-MAKESUBDIRS = @for dir in $(SUBDIRS); do \
+MAKESUBDIRS = +@for dir in $(SUBDIRS); do \
 			echo Making $@ in $$dir; \
 			$(MAKE)	-C $$dir $@ || exit 1 ; done
 
