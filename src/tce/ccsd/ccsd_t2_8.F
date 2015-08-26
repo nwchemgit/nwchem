@@ -225,11 +225,14 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       allocate(f_t(1:dimtemp),stat=e_t)
 # endif
 #else
-      e_a=MA_PUSH_GET(mt_dbl,dimhhpp,"a",l_a,k_a)
-      e_b=MA_PUSH_GET(mt_dbl,dimpppp,"b",l_b,k_b)
-      e_c=MA_PUSH_GET(mt_dbl,dimhhpp,"c",l_c,k_c)
+      e_a=.not.MA_PUSH_GET(mt_dbl,dimhhpp,"a",l_a,k_a)
+      e_b=.not.MA_PUSH_GET(mt_dbl,dimpppp,"b",l_b,k_b)
+      e_c=.not.MA_PUSH_GET(mt_dbl,dimhhpp,"c",l_c,k_c)
 # ifndef USE_LOOPS_NOT_DGEMM
-      e_t=MA_PUSH_GET(mt_dbl,dimtemp,"t",l_t,k_t)
+      e_t=.not.MA_PUSH_GET(mt_dbl,dimtemp,"t",l_t,k_t)
+# else
+      dimtemp=-12345
+      e_t=.false.
 # endif
 #endif
       if (e_a) call errquit("MA a",dimhhpp,MA_ERR)
@@ -475,17 +478,16 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
       deallocate(f_t,stat=e_t)
 # endif
 #else
-      e_a=MA_POP_STACK(l_a)
-      e_b=MA_POP_STACK(l_b)
-      e_c=MA_POP_STACK(l_c)
 # ifndef USE_LOOPS_NOT_DGEMM
-      e_t=MA_POP_STACK(l_t)
+      e_t=.not.MA_POP_STACK(l_t)
+# else
+      l_t=-12345
+      e_t=.false.
 # endif
+      e_a=.not.MA_chOP_STACK(l_a)
 #endif
-      if (e_a) call errquit("MA a",0,MA_ERR)
-      if (e_b) call errquit("MA b",0,MA_ERR)
-      if (e_c) call errquit("MA c",0,MA_ERR)
-      if (e_t) call errquit("MA t",0,MA_ERR)
+      if (e_a) call errquit("MA pops a",l_a,MA_ERR)
+      if (e_t) call errquit("MA pops t",l_t,MA_ERR)
       RETURN
       END
 
