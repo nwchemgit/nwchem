@@ -209,6 +209,7 @@
 !#ifdef IPCCSD
       logical ipccsd
 !#endif
+      logical need_mutex
 
 ! --- debug ---
 !      integer dup1,dup2,dup3,dup4,dup5,dup6
@@ -543,10 +544,10 @@
 !
       logical ccsdtleft
       logical tce_skip_scf
-      nodezero=(ga_nodeid().eq.0)
+      nodezero=ga_nodeid().eq.0
       ccsdtleft=.false.
-      do_mbpt = .false.
-!
+      do_mbpt=.false.
+!     
 !     =========================
 !     Ground-state HF/DFT first
 !     =========================
@@ -779,8 +780,17 @@
 !     Create a mutex
 !     ==============
 !
-      if (.not.ga_create_mutexes(1))
-     1  call errquit('tce_energy: GA problem',0,GA_ERR)
+      need_mutex=ioalg.ne.2
+#if 0
+       if(ga_nodeid().eq.0) then
+          write(6,*)' value of need_mutex ',need_mutex
+          write(6,*)' value of ioalg ',ioalg
+       endif
+#endif
+      if(need_mutex) then
+         if (.not.ga_create_mutexes(1))
+     1        call errquit('tce_energy: GA problem',0,GA_ERR)
+      endif
 !
 !     =========================
 !     Reorder and tile orbitals
@@ -11370,9 +11380,11 @@
 !     Destroy a mutex
 !     ===============
 !
-      if (.not.ga_destroy_mutexes())
-     1  call errquit('tce_energy: GA problem',1,GA_ERR)
-!
+      if(need_mutex) then
+         if (.not.ga_destroy_mutexes())
+     1        call errquit('tce_energy: GA problem',1,GA_ERR)
+      endif
+!     
 !     =========
 !     Terminate
 !     =========
