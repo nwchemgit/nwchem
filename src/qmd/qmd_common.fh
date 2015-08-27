@@ -31,14 +31,14 @@ c
 c     velocity rescaling
       logical do_rescale
 c
-c     BDP rescaling
-      logical do_BDP
+c     stochastic velocity rescaling
+      logical do_svr
 c     
       common/qmd_thermostats/do_berendsen,tau,
      &                       do_nosehoover,r_nh,v_nh,m_nh,g_nh,
      &                       do_langevin,friction,
      &                       do_rescale,idum,
-     &                       do_BDP
+     &                       do_svr
 c
 c     temperature
       double precision targ_temp

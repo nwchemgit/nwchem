@@ -1,7 +1,7 @@
 c
 c     qmd_fix_momentum: remove global translations and rotations
 c
-      subroutine qmd_fix_momentum(n,m,v,r,ekin,pres_ekin)
+      subroutine qmd_fix_momentum(n,m,v,r,KE_in)
 c
       implicit none
 c
@@ -16,8 +16,8 @@ c
       double precision m(n)      ! atomic masses
       double precision v(3,n)    ! atomic velocities
       double precision r(3,n)    ! atomic position
-      double precision ekin      ! kinetic energy, entry
-      double precision ekin2     ! kinetic energy, after removal
+      double precision KE_in     ! kinetic energy, entry
+      double precision KE_after  ! kinetic energy, after removal
       double precision mit(3,3)  ! inertia tensor
       double precision imit(3,3) ! inverse of inertia tensor
       double precision comr(3)   ! center of mass position
@@ -26,7 +26,6 @@ c
       double precision omega(3)  ! angular velocity correction
       double precision deter, deteri ! interia tensor determinant
       double precision tm        ! total mass
-      logical pres_ekin          ! preserve kinetic energy on exit
 c
       integer i,j, d1, d2
 c
@@ -34,7 +33,7 @@ c
       pname='qmd_fix_momentum: '
 c
 c     calculate current kinetic energy
-      call qmd_kinetic(n,m,v,ekin)
+      call qmd_kinetic(n,m,v,KE_in)
 c     find center of mass
       comr=0.d0
       comv=0.d0
@@ -156,14 +155,9 @@ c     make sure center of mass velocity is still zero
        end do
       end do
 c     calculate current kinetic energy
-      call qmd_kinetic(n,m,v,ekin2)
-      if (pres_ekin) then
-c       rescale velocities to match kinetic energy on entry
-        call qmd_rescale(n,m,v,ekin,ekin2)
-      else
-c       pass new kinetic energy to driver
-        ekin=ekin2
-      end if
+      call qmd_kinetic(n,m,v,KE_after)
+c     rescale velocities to match kinetic energy on entry
+      call qmd_rescale(n,m,v,KE_after,KE_in)
 c
       return
       end

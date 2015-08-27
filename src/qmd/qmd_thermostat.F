@@ -1,7 +1,7 @@
 c
 c     qmd_thermostat: apply thermostat
 c
-      subroutine qmd_thermostat(n,dt,m,v,ekin)
+      subroutine qmd_thermostat(n,dt,m,v,KE_in,KE_targ)
 c
       implicit none
 c
@@ -16,8 +16,8 @@ c
       double precision dt      ! step size
       double precision m(n)    ! mass
       double precision v(3,n)  ! velocities
-      double precision ekin    ! instantaneous kinetic energy
-      double precision ekin2
+      double precision KE_in   ! instantaneous kinetic energy
+      double precision KE_targ ! target kinetic energy(only for rescale)
 c
       character*30 pname
 c
@@ -25,19 +25,19 @@ c     preliminaries
       pname='qmd_thermostat: '
 c
 c     calculate kinetic energy
-      call qmd_kinetic(n,m,v,ekin)
+      call qmd_kinetic(n,m,v,KE_in)
 c
 c     apply thermostat
       if (do_nosehoover) then
-         call qmd_nosehoover(n,dt,m,v,ekin)
+         call qmd_nosehoover(n,dt,m,v,KE_in)
       else if (do_berendsen) then
-         call qmd_berendsen(n,dt,m,v,ekin)
+         call qmd_berendsen(n,dt,m,v,KE_in)
       else if (do_langevin) then
-         call qmd_langevin(n,dt,m,v,ekin)
+         call qmd_langevin(n,dt,m,v,KE_in)
       else if (do_rescale) then
-         call qmd_rescale(n,m,v,ekin,ekin2)
-      else if (do_BDP) then
-         call qmd_BDP(n,dt,m,v,ekin)
+         call qmd_rescale(n,m,v,KE_in,KE_targ)
+      else if (do_svr) then
+         call qmd_svr(n,dt,m,v,KE_in)
       else
          call errquit(pname//'unknown thermostat',0,RTDB_ERR)
       end if
@@ -47,7 +47,7 @@ c
 c
 c     qmd_nosehoover: nose-hoover thermostat
 c
-      subroutine qmd_nosehoover(n,dt,m,v,ekin)
+      subroutine qmd_nosehoover(n,dt,m,v,KE_in)
 c
       implicit none
 c
@@ -62,7 +62,7 @@ c
       double precision dt
       double precision m(n)    ! mass
       double precision v(3,n)
-      double precision ekin
+      double precision KE_in
 c
       double precision dt2,dt4,dt8
 c
@@ -85,7 +85,7 @@ c
       v_nh(2) = v_nh(2) + g_nh(2)*dt4
       v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
 c
-      g_nh(1) = (2.0d0*ekin - ndeg*kbt)/m_nh(1)
+      g_nh(1) = (2.0d0*KE_in - ndeg*kbt)/m_nh(1)
 c
       v_nh(1) = v_nh(1) + g_nh(1)*dt4
       v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
@@ -96,10 +96,10 @@ c
       scalefac = dexp(-v_nh(1)*dt2)
 c
 c     scale kinetic energy
-      ekin = ekin*scalefac*scalefac
+      KE_in = KE_in*scalefac*scalefac
 c
 c     nose-hoover 2 chain formula: Frenkel & Smit
-      g_nh(1) = (2.0d0*ekin - ndeg*kbt)/m_nh(1)
+      g_nh(1) = (2.0d0*KE_in - ndeg*kbt)/m_nh(1)
 c
       v_nh(1) = v_nh(1) * dexp(-v_nh(2)*dt8)
       v_nh(1) = v_nh(1) + g_nh(1)*dt4
@@ -121,7 +121,7 @@ c
 c
 c     qmd_berendsen: berendsen thermostat
 c
-      subroutine qmd_berendsen(n,dt,m,v,ekin)
+      subroutine qmd_berendsen(n,dt,m,v,KE_in)
 c
       implicit none
 c
@@ -136,7 +136,7 @@ c
       double precision dt
       double precision m(n)    ! mass
       double precision v(3,n)
-      double precision ekin
+      double precision KE_in
 c
       integer i,j
       double precision inst_temp
@@ -147,7 +147,7 @@ c
       pname='qmd_berendsen: '
 c
 c     instantaneous temperature
-      inst_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
+      inst_temp = 2.0d0*KE_in/kb/(1.d0*ndeg)
 c
 c     velocity scaling factor: Berendsen scaling
       ratio_temp = targ_temp/inst_temp
@@ -165,7 +165,7 @@ c
 c     qmd_langevin: Langevin thermostat: 
 c     Bussi and Parrinello, Phys. Rev. E (2007)
 c
-      subroutine qmd_langevin(n,dt,m,v,ekin)
+      subroutine qmd_langevin(n,dt,m,v,KE_in)
 c
       implicit none
 c
@@ -180,7 +180,7 @@ c
       double precision dt
       double precision m(n)    ! mass
       double precision v(3,n)
-      double precision ekin
+      double precision KE_in
 c
       integer i,j
       double precision inst_temp
@@ -208,7 +208,7 @@ c
 c
 c     qmd_rescale: velocity rescaling
 c
-      subroutine qmd_rescale(n,m,v,ekin,ekin2)
+      subroutine qmd_rescale(n,m,v,KE_in,KE_targ)
 c
       implicit none
 c
@@ -222,24 +222,19 @@ c
       integer n
       double precision m(n)
       double precision v(3,n)
-      double precision ekin
-      double precision ekin2
+      double precision KE_in
+      double precision KE_targ
 c
       integer i
-      double precision inst_temp
-      double precision ratio_temp
+      double precision ratio_KE
       double precision scalefac
 c
       character*32 pname
       pname='qmd_rescale: '
 c
-c     instantaneous temperature
-      inst_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
-c
 c     velocity rescaling
-c      ratio_temp = targ_temp/inst_temp
-      ratio_temp = ekin/ekin2
-      scalefac = dsqrt(ratio_temp)
+      ratio_KE = KE_targ/KE_in
+      scalefac = dsqrt(ratio_KE)
 c
       do i = 1,n
         v(1,i) = scalefac*v(1,i)
@@ -251,11 +246,11 @@ c
       end
 c
 c
-c     qmd_BDP: canonical velocity rescaling
+c     qmd_svr: stochastic velocity rescaling
 c     Bussi, Donadio, and Parrinello
 c     J. Chem. Phys. 126, 014101 (2007)
 c
-      subroutine qmd_BDP(n,dt,m,v,ekin)
+      subroutine qmd_svr(n,dt,m,v,KE_in)
 c
       implicit none
 c
@@ -270,7 +265,7 @@ c
       double precision dt
       double precision m(n)
       double precision v(3,n)
-      double precision ekin
+      double precision KE_in
 c
       integer i
       double precision scheck
@@ -284,7 +279,7 @@ c
       double precision qmd_sumno
 c
       character*32 pname
-      pname='qmd_BDP: '
+      pname='qmd_svr: '
 c
 c     idum, tau, ndeg, targ_temp in common block
 c
@@ -297,10 +292,10 @@ c
       rr = qmd_gasdev(idum)
       sigma = dble(ndeg)*kb*targ_temp/2.d0
       ss = qmd_sumno(ndeg-1,idum)
-      scheck = rr + dsqrt(cc*dble(ndeg)*ekin/((1.d0-cc)*sigma))
+      scheck = rr + dsqrt(cc*dble(ndeg)*KE_in/((1.d0-cc)*sigma))
 c
-      scalefac = cc + (sigma/(dble(ndeg)*ekin))*(1.d0-cc)*(ss+rr**2) 
-     $          + 2.d0*rr*dsqrt(cc*(1.d0-cc)*sigma/(dble(ndeg)*ekin))
+      scalefac = cc + (sigma/(dble(ndeg)*KE_in))*(1.d0-cc)*(ss+rr**2) 
+     $          + 2.d0*rr*dsqrt(cc*(1.d0-cc)*sigma/(dble(ndeg)*KE_in))
 c
       scalefac = dsign(dsqrt(scalefac),scheck)
 c

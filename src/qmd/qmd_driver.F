@@ -36,12 +36,14 @@ c
       integer nstep_nucl           ! total nuclear steps
       integer sstep_nucl           ! first nuclear step
       integer istep_nucl           ! nuclear md step
-      integer fstep                 ! how often to remove trans/rot
+      integer com_step              ! how often to remove trans/rot
+      integer print_xyz             ! how often to print trajectory
       double precision dt_nucl      ! nuclear md time step
       double precision eltime       ! elapsed time (in fs)
       double precision esys         ! system energy (from task_gradient)
       double precision ekin         ! kinetic energy from the md part
       double precision etotal       ! total energy: esys + ekin
+      double precision ekin_targ    ! target kinetic energy
       double precision dipole(3)    ! electric dipole moment
 c
       logical status
@@ -84,7 +86,8 @@ c     get rstfilename
       call util_file_name('qmdrst',.false.,.false.,rstfilename)
 c
 c     initialize parameters
-      call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,fstep)
+      call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,
+     &       print_xyz)
 c
 c     create geometry object 
       if (.not. geom_create(geom,'geometry'))
@@ -134,6 +137,8 @@ c     get the masses, initial coordinates
       if (.not.geom_cart_coords_get(geom,dbl_mb(k_r)))
      $   call errquit(pname//'geom_cart_coords_get',0,GEOM_ERR)
 c
+c     check for restart file in directory
+c      if it exists, read data from that and start trajectory from there
       inquire(file=rstfilename,exist=rst_exists)
       if (rst_exists) then
         if (ga_nodeid().eq.0) then
@@ -147,7 +152,7 @@ c       read velocities from file
 c       remove global translations and rotations
 c       kinetic energy is the same on exit as was on entry
         call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
-     $         ekin,.true.)
+     $         ekin)
 c       update geom and store in rtdb
         call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
       else
@@ -159,9 +164,9 @@ c       randomize velocities for the given temperature
         call qmd_randomize(nat,dbl_mb(k_m),dbl_mb(k_v))
         sstep_nucl=1
 c       remove global translations and rotations
-c       kinetic energy is NOT the same on exit as was on entry
+c       kinetic energy is the same on exit as was on entry
         call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
-     $         ekin,.false.)
+     $         ekin)
       end if
 c
       call ga_sync()
@@ -171,21 +176,40 @@ c
         write(luout,120) "Current temp. (K):",final_temp
       end if
 c
+c     target kinetic energy (only used if thermostat is rescale)
+      ekin_targ=(1.d0*ndeg)*kb*targ_temp/2.d0
+c
 c     perform energy gradient calculation on initial coordinates
       call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+c
+c     if starting fresh write initial structure to xyz
+      if (.not.rst_exists) then
+c
+c       pull dipole from RTDB
+        if(.not.rtdb_get(rtdb,'task:dipole',mt_dbl,3,dipole))
+     &     dip_exists=.false.
+c
+c       instantaneous total energy: instantaneous kinetic energy + system energy
+        etotal = ekin + esys
+c
+c       write trajectory
+        call qmd_write_trj(xyzfilename,xyzfileunit,.false.,nat,
+     &         0,etotal,geom,dipole)
+      end if
 c
 c     start nuclear molecular dynamics loop
       do istep_nucl = sstep_nucl,nstep_nucl
 c
-        if (mod(istep_nucl,fstep).eq.0) then
+        if (mod(istep_nucl,com_step).eq.0) then
 c         remove global translations and rotations
 c         kinetic energy is the same on exit as was on entry
           call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
-     $           ekin,.true.)
+     $           ekin)
         end if
         if (.not.do_none) then
 c         apply thermostat to velocities
-          call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+          call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
+     &           ekin,ekin_targ)
         end if
 c
 c       update velocity at half step (dt/2)
@@ -212,7 +236,8 @@ c       update velocity at half step (dt/2)
 c
         if (.not.do_none) then
 c         apply thermostat to velocities
-          call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),ekin)
+          call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
+     &           ekin,ekin_targ)
         end if
 c
 c       persist updated velocity in geom
@@ -250,9 +275,11 @@ c         write(luout,110) "Current time step:",istep_nucl
          write(luout,*)
 
 c
-c        write trajectory
-         call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
-     &          istep_nucl,etotal,geom,dipole)
+         if (mod(istep_nucl,print_xyz).eq.0) then
+c          write trajectory
+           call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
+     &            istep_nucl,etotal,geom,dipole)
+         end if
 c
          call qmd_write_rst(rstfilename,rstfileunit,
      &             nat,istep_nucl,ekin,geom)

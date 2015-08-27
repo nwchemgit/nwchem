@@ -1,7 +1,8 @@
 c
 c     qmd_init: initialize parameters
 c     
-      subroutine qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,fstep)
+      subroutine qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,
+     $                    print_xyz)
 c
       implicit none
 c
@@ -22,9 +23,8 @@ c
       integer ao_bas_han            ! AO basis set handle
       integer nstep_nucl            ! nuclear steps
       integer nstep_elec            ! total electronic steps
-      integer states                ! number of electronic states
-      integer init_st               ! initially populated state
-      integer fstep                 ! how often to remove trans/rot
+      integer com_step              ! how often to remove trans/rot
+      integer print_xyz             ! how often to print xyz trajectory
       integer tvals(8)
       integer svals
       double precision dt_nucl      ! nuclear md time step
@@ -102,7 +102,7 @@ c     thermostat
       do_berendsen = .false.
       do_nosehoover = .false.
       do_langevin = .false.
-      do_BDP = .false.
+      do_svr = .false.
       do_rescale = .false.
       do_none = .false.
       if (.not. rtdb_cget(rtdb,'qmd:thermostat',1,thermostat))
@@ -123,8 +123,8 @@ c     thermostat
          do_langevin = .true.
        else if (thermostat.eq.'rescale') then
          do_rescale = .true.
-       else if (thermostat.eq.'BDP') then
-         do_BDP = .true.
+       else if (thermostat.eq.'svr') then
+         do_svr = .true.
        else if (thermostat.eq.'none') then
          do_none = .true.
       else
@@ -153,10 +153,10 @@ c     langevin friction parameter
        if (ga_nodeid().eq.0) write(luout,130) "Friction:",friction
       end if
 c
-c     berendsen tau parameter, also used for BDP
+c     berendsen tau parameter, also used for svr
       if (.not.rtdb_get(rtdb,'qmd:tau',mt_dbl,1,tau))
      & call errquit(pname//'failed to read tau',0,RTDB_ERR)
-      if (do_berendsen.or.do_BDP) then
+      if (do_berendsen.or.do_svr) then
        if (ga_nodeid().eq.0) write(luout,120) "Tau:",tau
       end if
 c
@@ -174,9 +174,9 @@ c     random number seed
       call date_and_time(values=tvals)
 c     current seconds x milliseconds + minutes
       svals = tvals(7)*tvals(8)+tvals(6)
-      idum = -svals
       if (.not.rtdb_get(rtdb,'qmd:rand_seed',mt_int,1,idum))
-     & idum = -svals ! default
+     & idum = svals ! default
+      idum = sign(idum,-1)   ! seed needs to be negative
       if (ga_nodeid().eq.0) write(luout,110) "Random seed:",idum
 c
 c     nuclear md integrator
@@ -190,9 +190,13 @@ c     is linear molecule ?
       if (.not.rtdb_get(rtdb,'qmd:linear',mt_log,1,do_linear))
      &     do_linear = .false.
 c
-c     remove translations and rotations every fsteps
-      if (.not.rtdb_get(rtdb,'qmd:fstep',mt_int,1,fstep))
-     $     fstep = 1000
+c     remove translations and rotations every com_step steps
+      if (.not.rtdb_get(rtdb,'qmd:com_step',mt_int,1,com_step))
+     $     com_step = 100
+c
+c     print xyz trajectory every print_xyz steps
+      if (.not.rtdb_get(rtdb,'qmd:print_xyz',mt_int,1,print_xyz))
+     $     print_xyz = 1
       if (ga_nodeid().eq.0) call util_flush(LuOut)
 c
   110 format(A25,I20)

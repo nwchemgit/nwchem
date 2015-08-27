@@ -24,7 +24,9 @@ c
       integer nstep_nucl
       double precision dt_elec
       integer nstep_elec
-      integer fstep
+      integer com_step
+      integer print_xyz
+      integer tvals(8)
       double precision targ_temp
       double precision friction
       integer idum
@@ -65,7 +67,7 @@ c     Total number of electronic time steps: nstep_elec
      & call errquit(pname//'failed to write nstep_elec',0,RTDB_ERR)
 c
 c     Target nuclear MD temperature: targ_temp (Kelvin)
-      targ_temp = 298.d0  ! Kelvin
+      targ_temp = 298.15d0  ! Kelvin
       if (.not.rtdb_put(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
      & call errquit(pname//'failed to write targ_temp',0,RTDB_ERR)
 c
@@ -74,7 +76,7 @@ c     Nuclear thermostat
       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
      & call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c
-c     Berendsen tau parameter, also used for BDP
+c     Berendsen tau parameter, also used for svr
       tau=1.d3
       if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
@@ -96,10 +98,15 @@ c     Is linear molecule ?
       if (.not.rtdb_put(rtdb,'qmd:linear',mt_log,1,do_linear))
      & call errquit(pname//'failed to write do_linear',0,RTDB_ERR)
 c
-c     Remove translations/rotations every fsteps
-      fstep=1000
-      if (.not.rtdb_put(rtdb,'qmd:fstep',mt_int,1,fstep))
-     & call errquit(pname//'failed to write fstep',0,RTDB_ERR)
+c     Remove translations/rotations every com_step steps
+      com_step=100
+      if (.not.rtdb_put(rtdb,'qmd:com_step',mt_int,1,com_step))
+     & call errquit(pname//'failed to write com_step',0,RTDB_ERR)
+c
+c     Print xyz trajectory every print_xyz steps
+      print_xyz=1
+      if (.not.rtdb_put(rtdb,'qmd:print_xyz',mt_int,1,print_xyz))
+     & call errquit(pname//'failed to write print_xyz',0,RTDB_ERR)
 c
 c     ----------
 c     Read input
@@ -155,63 +162,44 @@ c     Target nuclear MD temperature: targ_temp (Kelvin)
       else if (inp_compare(.false.,test,'targ_temp')) then
        if (.not.inp_f(targ_temp)) then
           write(luOut,*) 'targ_temp: value not found; ',
-     1      'default value of 298.d0 will be used'
-          targ_temp = 298.d0  ! Kelvin
+     1      'default value of 298.15 will be used'
+          targ_temp = 298.15d0  ! Kelvin
        endif
        if (.not.rtdb_put(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
      &  call errquit(pname//'failed to write targ_temp',0,
      &     RTDB_ERR)
 c
-c     Nuclear thermostat: Nose-Hoover
-      else if (inp_compare(.false.,test,'nose-hoover')) then
-          thermostat='nose-hoover'
-       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
-     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
-       if (.not.inp_f(nh_mass(1))) nh_mass(1) = 0.1d0
-       if (.not.inp_f(nh_mass(2))) nh_mass(2) = 0.1d0
-       if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
-     &  call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
-c
-c     Nuclear thermostat: Berendsen
-      else if (inp_compare(.false.,test,'berendsen')) then
-          thermostat='berendsen'
-       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
-     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
-       if (.not.inp_f(tau)) tau = 1.d3
-       if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
-     &  call errquit(pname//'failed to write tau',0,RTDB_ERR)
-c
-c     Nuclear thermostat: BDP (Bussi, Donadio, Parrinello 2007)
-      else if (inp_compare(.false.,test,'BDP')) then
-          thermostat='BDP'
-       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
-     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
-       if (.not.inp_f(tau)) tau = 1.d2
-       if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
-     &  call errquit(pname//'failed to write tau',0,RTDB_ERR)
-c
-c     Nuclear thermostat: Langevin (Bussi, Parrinello 2007))
-      else if (inp_compare(.false.,test,'langevin')) then
-          thermostat='langevin'
-       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
-     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
-c
-c     Nuclear thermostat: Velocity rescaling
-      else if (inp_compare(.false.,test,'rescale')) then
-          thermostat='rescale'
-       if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
-     1  call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
-c
-c     Friction
-      else if (inp_compare(.false.,test,'friction')) then
-       if (.not.inp_f(friction)) friction = 0.1d0
-       if (.not.rtdb_put(rtdb,'qmd:friction',mt_dbl,1,friction))
-     &  call errquit(pname//'failed to write friction',0,
-     &     RTDB_ERR)
+c     Nuclear thermostat
+      else if (inp_compare(.false.,test,'thermostat')) then
+        if (.not.inp_a(thermostat)) thermostat='none'
+        if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
+     1   call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
+c       Nose-Hoover: get masses
+        if (thermostat.eq.'nose-hoover') then
+          if (.not.inp_f(nh_mass(1))) nh_mass(1) = 0.1d0
+          if (.not.inp_f(nh_mass(2))) nh_mass(2) = 0.1d0
+          if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
+     &     call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
+c       Berendsen or svr (Bussi, Donadio, Parrinello 2007): get tau
+        else if (thermostat.eq.'berendsen'.or.thermostat.eq.'svr') then
+          if (.not.inp_f(tau)) tau = 1.d3
+          if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
+     &     call errquit(pname//'failed to write tau',0,RTDB_ERR)
+c       Langevin (Bussi, Parrinello 2007): get friction
+        else if (thermostat.eq.'langevin') then
+          if (.not.inp_f(friction)) friction = 0.1d0
+          if (.not.rtdb_put(rtdb,'qmd:friction',mt_dbl,1,friction))
+     &     call errquit(pname//'failed to write friction',0,RTDB_ERR)
+c       Rescale doesn't have any parameters
+        end if
 c
 c     Random number seed
       else if (inp_compare(.false.,test,'rand_seed')) then
-       if (.not.inp_i(idum)) idum = 3989
+       if (.not.inp_i(idum)) then
+        call date_and_time(values=tvals)
+c       current seconds x milliseconds + minutes
+        idum = tvals(7)*tvals(8)+tvals(6)
+       end if
        idum = sign(idum,-1)   ! seed needs to be negative
        if (.not.rtdb_put(rtdb,'qmd:rand_seed',mt_int,1,idum))
      &  call errquit(pname//'failed to write rand_seed',0,
@@ -229,11 +217,17 @@ c     Is linear molecule ?
       if (.not.rtdb_put(rtdb,'qmd:linear',mt_log,1,do_linear))
      &  call errquit(pname//'failed to write do_linear',0,RTDB_ERR)
 c
-c     Remove translations and rotations every fsteps
-      else if (inp_compare(.false.,test,'fstep')) then
-       if (.not.inp_i(fstep)) fstep=1000
-       if (.not.rtdb_put(rtdb,'qmd:fstep',mt_int,1,fstep))
-     &  call errquit(pname//'failed to write fstep',0,RTDB_ERR)
+c     Remove translations and rotations every com_step steps
+      else if (inp_compare(.false.,test,'com_step')) then
+       if (.not.inp_i(com_step)) com_step=100
+       if (.not.rtdb_put(rtdb,'qmd:com_step',mt_int,1,com_step))
+     &  call errquit(pname//'failed to write com_step',0,RTDB_ERR)
+c
+c     Print xyz trajectory every print_xyz steps
+      else if (inp_compare(.false.,test,'print_xyz')) then
+       if (.not.inp_i(print_xyz)) print_xyz=1
+       if (.not.rtdb_put(rtdb,'qmd:print_xyz',mt_int,1,print_xyz))
+     &  call errquit(pname//'failed to write print_xyz',0,RTDB_ERR)
 c
 c     Print
       else if (inp_compare(.false.,test,'print')) then
