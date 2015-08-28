@@ -67,7 +67,12 @@ c     **** local variables ****
       end do
       end do
 
+      use_nwxc = .false.
+      if (util_module_avail("nwxc")) then
+        use_nwxc = nwxc_is_on()
+      endif
                 
+
 *     **********************************
 *     ***** restricted calculation *****
 *     **********************************
@@ -139,10 +144,6 @@ c     >                      dbl_mb(agr(1)),
 c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-         use_nwxc = .false.
-         if (util_module_avail("nwxc")) then
-           use_nwxc = nwxc_is_on()
-         endif
          if (use_nwxc) then
 c
 c          Evaluate the functional
