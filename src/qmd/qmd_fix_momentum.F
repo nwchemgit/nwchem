@@ -1,7 +1,7 @@
 c
 c     qmd_fix_momentum: remove global translations and rotations
 c
-      subroutine qmd_fix_momentum(n,m,v,r,KE_in)
+      subroutine qmd_fix_momentum(n,m,v,r)
 c
       implicit none
 c
@@ -21,37 +21,32 @@ c
       double precision mit(3,3)  ! inertia tensor
       double precision imit(3,3) ! inverse of inertia tensor
       double precision comr(3)   ! center of mass position
-      double precision comv(3)   ! center of mass velocity
       double precision sam(3)    ! angular momentum to be removed
       double precision omega(3)  ! angular velocity correction
       double precision deter, deteri ! interia tensor determinant
       double precision tm        ! total mass
 c
-      integer i,j, d1, d2
+      integer i,j, lz1, lz2
 c
       character*32 pname
       pname='qmd_fix_momentum: '
 c
 c     calculate current kinetic energy
       call qmd_kinetic(n,m,v,KE_in)
+      lz1=0
+      lz2=0
 c     find center of mass
       comr=0.d0
-      comv=0.d0
       tm=0.d0
       do i = 1,n
        tm = tm + m(i)
        do j = 1,3
         comr(j) = comr(j) + m(i)*r(j,i)
-        comv(j) = comv(j) + m(i)*v(j,i)
        end do
       end do
       comr=comr/tm
-      comv=comv/tm
-      do i = 1,n
-       do j = 1,3
-        v(j,i) = v(j,i) - comv(j)
-       end do
-      end do
+c     remove center-of-mass velocity
+      call qmd_remove_comv(n,m,v,lz1,lz2)
 c     construct inertia tensor
       mit=0.d0
       do i = 1,n
@@ -110,40 +105,68 @@ c      remove angular velocity from total velocity
         v(3,i) = v(3,i) - (omega(1)*(r(2,i)-comr(2))
      $           - omega(2)*(r(1,i)-comr(1)))
        end do
+c      make sure center-of-mass velocity is still zero
+       call qmd_remove_comv(n,m,v,lz1,lz2)
       else if (do_linear) then
-       d1=0
-       d2=0
+       lz1=0
+       lz2=0
        if (maxval(abs(r(1,:))).gt.1.d-6 .and.
      $     maxval(abs(r(2,:))).lt.1.d-6 .and.
      $     maxval(abs(r(3,:))).lt.1.d-6) then
-        d1 = 2
-        d2 = 3
+        lz1 = 2
+        lz2 = 3
        else if (maxval(abs(r(2,:))).gt.1.d-6 .and.
      $          maxval(abs(r(1,:))).lt.1.d-6 .and.
      $          maxval(abs(r(3,:))).lt.1.d-6) then
-        d1 = 1
-        d2 = 3
+        lz1 = 1
+        lz2 = 3
        else if (maxval(abs(r(3,:))).gt.1.d-6 .and.
      $          maxval(abs(r(1,:))).lt.1.d-6 .and.
      $          maxval(abs(r(2,:))).lt.1.d-6) then
-        d1 = 1
-        d2 = 2
+        lz1 = 1
+        lz2 = 2
        else
         call errquit('could not remove rotations from linear molecule',
      $               911,GEOM_ERR)
        end if
-       if (d1.eq.0 .or. d2.eq.0) 
+       if (lz1.eq.0 .or. lz2.eq.0) 
      $   call errquit('error with linear molecule',911,GEOM_ERR)
        do i = 1,n
-        v(d1,i) = 0.d0
-        v(d2,i) = 0.d0
+        v(lz1,i) = 0.d0
+        v(lz2,i) = 0.d0
        end do
+c      make sure center-of-mass velocity is still zero
+       call qmd_remove_comv(n,m,v,lz1,lz2)
       else
        call errquit('inertia tensor could not be inverted',911,GEOM_ERR)
       end if
-c     make sure center of mass velocity is still zero
+c     calculate current kinetic energy
+      call qmd_kinetic(n,m,v,KE_after)
+c     rescale velocities to match kinetic energy on entry
+      call qmd_rescale(n,m,v,KE_after,KE_in)
+c
+      return
+      end
+c
+c     qmd_remove_comv: remove center-of-mass velocity
+c
+      subroutine qmd_remove_comv(n,m,v,lz1,lz2)
+c
+      implicit none
+c
+      integer n                  ! number of atoms
+      integer lz1, lz2
+      double precision m(n)      ! atomic masses
+      double precision v(3,n)    ! atomic velocities
+c
+      integer i, j
+      double precision tm        ! total mass
+      double precision comv(3)   ! center-of-mass velocity
+c
+      tm=0.d0
       comv=0.d0
       do i = 1,n
+       tm = tm + m(i)
        do j = 1,3
         comv(j) = comv(j) + m(i)*v(j,i)
        end do
@@ -151,13 +174,11 @@ c     make sure center of mass velocity is still zero
       comv=comv/tm
       do i = 1,n
        do j = 1,3
-        v(j,i) = v(j,i) - comv(j)
+        if (j.ne.lz1.and.j.ne.lz2) then
+         v(j,i) = v(j,i) - comv(j)
+        end if
        end do
       end do
-c     calculate current kinetic energy
-      call qmd_kinetic(n,m,v,KE_after)
-c     rescale velocities to match kinetic energy on entry
-      call qmd_rescale(n,m,v,KE_after,KE_in)
 c
       return
       end

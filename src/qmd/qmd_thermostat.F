@@ -1,7 +1,7 @@
 c
 c     qmd_thermostat: apply thermostat
 c
-      subroutine qmd_thermostat(n,dt,m,v,KE_in,KE_targ)
+      subroutine qmd_thermostat(n,dt,m,v,KE_in,KE_targ,act_at)
 c
       implicit none
 c
@@ -13,6 +13,7 @@ c
 #include "qmd_common.fh"
 c
       integer n                ! number of atoms
+      logical act_at(n)        ! active atoms
       double precision dt      ! step size
       double precision m(n)    ! mass
       double precision v(3,n)  ! velocities
@@ -33,7 +34,7 @@ c     apply thermostat
       else if (do_berendsen) then
          call qmd_berendsen(n,dt,m,v,KE_in)
       else if (do_langevin) then
-         call qmd_langevin(n,dt,m,v,KE_in)
+         call qmd_langevin(n,dt,m,v,KE_in,act_at)
       else if (do_rescale) then
          call qmd_rescale(n,m,v,KE_in,KE_targ)
       else if (do_svr) then
@@ -165,7 +166,7 @@ c
 c     qmd_langevin: Langevin thermostat: 
 c     Bussi and Parrinello, Phys. Rev. E (2007)
 c
-      subroutine qmd_langevin(n,dt,m,v,KE_in)
+      subroutine qmd_langevin(n,dt,m,v,KE_in,act_at)
 c
       implicit none
 c
@@ -177,6 +178,7 @@ c
 #include "qmd_common.fh"
 c
       integer n
+      logical act_at(n)
       double precision dt
       double precision m(n)    ! mass
       double precision v(3,n)
@@ -196,10 +198,12 @@ c
 c     calculate c1
       c1 = exp(-friction*dt/2.d0)   
       do i = 1,n
-        c2=sqrt((1.d0-c1**2)*(kb*targ_temp)/(m(i)*amu2au)) 
-        do j = 1,3
-         v(j,i) = c1*v(j,i)+c2*qmd_gasdev(idum)
-        end do
+        if (act_at(i)) then
+          c2=sqrt((1.d0-c1**2)*(kb*targ_temp)/(m(i)*amu2au)) 
+          do j = 1,3
+           v(j,i) = c1*v(j,i)+c2*qmd_gasdev(idum)
+          end do
+        end if
       end do
 c
       return

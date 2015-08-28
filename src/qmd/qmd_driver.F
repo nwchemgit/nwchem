@@ -130,6 +130,8 @@ c     need to implement constraints
       else
         ndeg = 3*nactive-6   ! 3N-6 (general)
       end if
+      if (ndeg.le.0)
+     $   call errquit(pname//'ndeg<=0',geom,GEOM_ERR)
 c
 c     get the masses, initial coordinates
       if (.not.geom_masses_get(geom,nat,dbl_mb(k_m)))  ! masses
@@ -151,8 +153,9 @@ c       read velocities from file
      $         dbl_mb(k_r),ekin,sstep_nucl)
 c       remove global translations and rotations
 c       kinetic energy is the same on exit as was on entry
-        call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
-     $         ekin)
+        call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r))
+        call qmd_freeze_inactive(nat,dbl_mb(k_m),dbl_mb(k_v),
+     $         log_mb(k_act))
 c       update geom and store in rtdb
         call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
       else
@@ -165,12 +168,14 @@ c       randomize velocities for the given temperature
         sstep_nucl=1
 c       remove global translations and rotations
 c       kinetic energy is the same on exit as was on entry
-        call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
-     $         ekin)
+        call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r))
+        call qmd_freeze_inactive(nat,dbl_mb(k_m),dbl_mb(k_v),
+     $         log_mb(k_act))
       end if
 c
       call ga_sync()
 c
+      call qmd_kinetic(nat,dbl_mb(k_m),dbl_mb(k_v),ekin)
       if (ga_nodeid().eq.0) then
         final_temp = 2.0d0*ekin/kb/(1.d0*ndeg)
         write(luout,120) "Current temp. (K):",final_temp
@@ -200,16 +205,16 @@ c
 c     start nuclear molecular dynamics loop
       do istep_nucl = sstep_nucl,nstep_nucl
 c
-        if (mod(istep_nucl,com_step).eq.0) then
+c       don't attempt to remove COM rot/tran if we have inactive atoms
+        if (mod(istep_nucl,com_step).eq.0.and.nat.eq.nactive) then
 c         remove global translations and rotations
 c         kinetic energy is the same on exit as was on entry
-          call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r),
-     $           ekin)
+          call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r))
         end if
         if (.not.do_none) then
 c         apply thermostat to velocities
           call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
-     &           ekin,ekin_targ)
+     &           ekin,ekin_targ,log_mb(k_act))
         end if
 c
 c       update velocity at half step (dt/2)
@@ -237,7 +242,7 @@ c
         if (.not.do_none) then
 c         apply thermostat to velocities
           call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
-     &           ekin,ekin_targ)
+     &           ekin,ekin_targ,log_mb(k_act))
         end if
 c
 c       persist updated velocity in geom
