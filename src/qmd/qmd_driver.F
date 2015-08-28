@@ -172,6 +172,9 @@ c       kinetic energy is the same on exit as was on entry
         call qmd_freeze_inactive(nat,dbl_mb(k_m),dbl_mb(k_v),
      $         log_mb(k_act))
       end if
+c     persist updated velocity in geom
+      if (.not.geom_vel_set(geom,dbl_mb(k_v)))
+     $ call errquit(pname//'geom_vel_set',0,GEOM_ERR)
 c
       call ga_sync()
 c
