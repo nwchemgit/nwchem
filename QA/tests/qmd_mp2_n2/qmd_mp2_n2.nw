@@ -1,0 +1,32 @@
+#
+# N2 - S0 MP2/6-31G* geometry
+# ground state MP2/6-31G* MD
+# time step = 10 a.u.
+# number of steps = 20
+# NVE ensemble
+# linear molecule
+# default temperature (298.15 K) for initial velocities
+# translations and rotations at default interval (100 steps)
+# random seed set to 12345
+#
+start qmd_mp2_n2
+echo
+
+print low
+geometry noautosym noautoz
+ N    0.0000     0.0000    -0.5653
+ N    0.0000     0.0000     0.5653
+end
+
+basis
+  * library 6-31G*
+end
+
+qmd
+ nstep_nucl  20
+ dt_nucl     5.0
+ rand_seed   12345
+ thermostat  none
+ linear
+end
+task mp2 qmd

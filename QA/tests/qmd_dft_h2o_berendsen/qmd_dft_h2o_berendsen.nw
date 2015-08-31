@@ -1,0 +1,37 @@
+#
+# water - S0 HF/6-31G* geometry
+# ground state HF/6-31G* MD
+# time step = 10 a.u.
+# number of steps = 200
+# Berendsen thermostat, default tau
+# 200 K
+# translations and rotations every 10 steps
+# random seed set to 12345
+#
+start qmd_dft_h2o_berendsen
+echo
+
+print low
+geometry noautosym noautoz
+ O   0.00000000    -0.01681748     0.11334792
+ H   0.00000000     0.81325914    -0.34310308
+ H   0.00000000    -0.67863597    -0.56441201
+end
+
+basis
+  * library 6-31G*
+end
+
+dft
+ xc hfexch 1.0
+end
+
+qmd
+ nstep_nucl  200
+ dt_nucl     10.d0
+ targ_temp   200.d0
+ com_step    10
+ rand_seed   12345
+ thermostat  berendsen
+end
+task dft qmd
