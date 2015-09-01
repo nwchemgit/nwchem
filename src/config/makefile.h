@@ -2174,6 +2174,9 @@ errorpython2:
 	@exit 1
 endif
 #
+ifdef USE_PYTHONCONFIG
+EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --ldflags)
+else
 ifndef PYTHONLIBTYPE
 	PYTHONLIBTYPE=a
 endif
@@ -2188,6 +2191,7 @@ else
   else
   CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/$(PYTHONCONFIGDIR)/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
   endif
+endif
 endif
 endif
 #
