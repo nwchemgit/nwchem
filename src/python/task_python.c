@@ -34,7 +34,7 @@ int FATR task_python_(Integer *rtdb_ptr)
      return 0;
    }
    pbuf = buf;			/* pass the rtdb_handle to  */
-   sprintf(pbuf, "pass_handle(%d)\n", *rtdb_ptr); /* the python warping mod */
+   sprintf(pbuf, "pass_handle(%d)\n", (int) *rtdb_ptr); /* the python warping mod */
    if (PyRun_SimpleString(pbuf)) {
        fprintf(stderr,"task_python: failed to pass rtdb handle\n");
        return 0;
