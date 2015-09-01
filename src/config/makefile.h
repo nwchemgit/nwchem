@@ -2005,7 +2005,7 @@ endif
 
      ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
-   EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python-config --libs) -lz
+   EXTRA_LIBS += -lnwcutil $(shell $(PYTHONHOME)/bin/python-config --libs) #-lz
   LDOPTIONS += -Wl,--export-dynamic 
      endif
 ifeq ($(NWCHEM_TARGET),CATAMOUNT)
