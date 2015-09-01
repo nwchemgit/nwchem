@@ -191,10 +191,10 @@ c          write(LuOut,9101) cpusecs(37),cpusecs(38)
         if (nodezero) call util_flush(LuOut)
       enddo
 c
-          call util_file_name('t1amp',.false.,.false.,filename)
+          call util_file_name('t1amp',.false.,.true.,filename)
           unitn=79
           call write_tensor(filename,d_t1,size_t1,unitn)
-          call util_file_name('t2amp',.false.,.false.,filename)
+          call util_file_name('t2amp',.false.,.true.,filename)
           unitn=80
           call write_tensor(filename,d_t2,size_t2,unitn)
           call ga_sync()
