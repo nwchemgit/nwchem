@@ -780,6 +780,8 @@ c m06hf
 c dftb
 c          scalesr6 = 1.699d0
 c          scales8  = 1.504d0
+        else
+           call errquit(' vdw 3: scaling factors not available',0,0)
         endif
       else if (ivdw.eq.4) then
 c
