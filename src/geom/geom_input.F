@@ -167,6 +167,12 @@ c
 c   default inverse of nuclear exponent is zero, i.e. point nucleus.
 c
       call dfill(max_center, 0.0d0, invnucexp, 1)
+#if 1
+c
+c     initialize atomct
+c
+      call dfill(max_center, 0d0, atomct, 1)
+#endif
 c     
  10   if (inp_a(field)) then
          if (inp_compare(.false.,'bqbq',field)) then
