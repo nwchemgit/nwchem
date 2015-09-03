@@ -1,5 +1,4 @@
 OBJ = \
-rt_tddft_input.o \
 rt_tddft_init_coulcdfit.o \
 rt_tddft_init_zora.o \
 rt_tddft_init_dip_quad_ints.o \
