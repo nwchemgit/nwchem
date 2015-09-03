@@ -530,7 +530,7 @@ c BLYP
         if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
           scales6 = 1.40d0
 c PBE / PBE96
-        else if(xccomb(58)) then
+        else if(xccomb(58).or.(xfac(7).eq.1d0.and.cfac(12).eq.1d0)) then
          scales6 = 0.70d0
 c BP86
          else if(xfac(3).eq.1.0d0.and.cfac(4).eq.1.d0) then
@@ -555,7 +555,7 @@ c BLYP
         if(xfac(3).eq.1.0d0.and.cfac(2).eq.1.0d0) then
            scales6 = 1.20d0
 c PBE / PBE96
-        else if(xccomb(58)) then
+        else if(xccomb(58).or.(xfac(7).eq.1d0.and.cfac(12).eq.1d0)) then
            scales6 = 0.75d0
 c TPSS
         else if(xfac(21).eq.1.0d0.and.cfac(27).eq.1.0d0) then
@@ -564,7 +564,8 @@ c B3LYP
         else if (xccomb(2)) then
            scales6 = 1.05d0
 c B97-D
-        else if (xccomb(37)) then
+        else if (xccomb(37).or.
+     X          (xfac(39).eq.1.0d0.and.cfac(41).eq.1.d0)) then
            scales6 = 1.25d0
 c SSB-D
         else if (xccomb(46)) then
@@ -607,14 +608,15 @@ c BP86
            scalesr6 = 1.139d0
            scales8  = 1.683d0
 c B97-D
-        else if (xccomb(37)) then
+        else if (xccomb(37).or.
+     X          (xfac(39).eq.1.0d0.and.cfac(41).eq.1.d0)) then
            scalesr6 = 0.892d0
            scales8  = 0.909d0
 c revPBE
 c          scalesr6 = 0.923d0
 c          scales8  = 1.010d0
 c PBE/PBE96
-        else if(xccomb(58)) then
+        else if(xccomb(58).or.(xfac(7).eq.1d0.and.cfac(12).eq.1d0)) then
            scalesr6 = 1.217d0
            scales8  = 0.722d0
 c PBESOL
