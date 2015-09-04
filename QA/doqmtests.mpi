@@ -32,6 +32,7 @@ endif
 ./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf
 ./runtests.mpi.unix procs $np dft_bsse dft_bsse_d3 dft_bsse_d3_opt bsse_dft_trimer bsse_tce_mult
 ./runtests.mpi.unix procs $np c4h4_wfn
+./runtests.mpi.unix procs $np disp_dimer_ch4 disp_dimer_ch4_cgmin h2o-b3lyp-disp
 ./runtests.mpi.unix procs $np cosmo_h2cco2 cosmo_h2cco2mg cosmo_h2cco2mg_ecp
 ./runtests.mpi.unix procs $np cosmo_h3co cosmo_h3co_ecp cosmo_h2cco2na cosmo_h3co_gp
 ./runtests.mpi.unix procs $np dplot dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
