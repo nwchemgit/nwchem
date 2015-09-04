@@ -22,7 +22,8 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
-#include "constants.fh"
+c#include "constants.fh"
+#include "util_params.fh"
 c
       real*8 c(3),q,b
       character*16 tag
@@ -75,7 +76,8 @@ c
 #include "rtdb.fh"
 #include "geom.fh"
 #include "bas.fh"
-#include "constants.fh"
+c#include "constants.fh"
+#include "util_params.fh"
 c
       logical task_energy, int_normalize
       external task_energy, int_normalize

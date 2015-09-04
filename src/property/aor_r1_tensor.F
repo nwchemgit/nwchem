@@ -100,7 +100,7 @@ c  ====================================================================
 
 c      debug=.true.
 
-      if (debug) write (luout,*) 'hello from aor_r1_beta'
+      if (debug) write (luout,*) 'hello from aor_r1_tensor'
 c     the main results are collected in alfare/in, betare/im.
 c     initialize with zeros:
       do idir=1,ndir

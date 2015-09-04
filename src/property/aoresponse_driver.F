@@ -51,6 +51,7 @@ c     ==================================================================
 #include "prop.fh"
 #include "bgj.fh"
 #include "util.fh"
+#include "dimqm.fh"
 
 
       integer rtdb    ! [input] rtdb handle
@@ -502,6 +503,17 @@ c       w/ dipole-length optical rotation
         call int_mpole_1ega(basis,basis,g_dipel,'dipole',origin,
      &     oskel)
       endif
+c
+c     DIM/QM JEM
+c     Add in local field perturbations to the dipole matrix
+      write(luout,*) "OMEGA: ", dbl_mb(k_fr+response_order-1)
+      write(luout,*) "DIMQM: ", ldimqm
+      if (ldimqm) then
+        call dimqm_prep(rtdb, dbl_mb(k_fr+response_order-1))
+        if (lclfld) then
+          call dimqm_lclfld(g_dipel, dbl_mb(k_fr+response_order-1))
+        end if
+      end if
 
 c     magnetic dipole moment integrals (r x nabla), times 0.5:
       
@@ -883,6 +895,13 @@ c
         write(luout,*) 'average: ',sum/3d0, ' + I ',sumim/3d0
         write (LuOut,*)
       endif
+c
+c     DIM/QM JEM
+c     Calculate the DIM polarizability
+      if(ldimqm) then
+        call dimqm_polarizability(rtdb, dbl_mb(k_fr))
+      endif
+
 c
 c     == Raman bits ==
 c

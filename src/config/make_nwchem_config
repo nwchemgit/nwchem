@@ -20,7 +20,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         esp hessian selci dplot mp2_grad qhop \
         property solvation nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq mm cons\
-        perfm dntmc smd nbo dangchang leps ccca lucia
+        perfm dntmc smd nbo dangchang leps ccca lucia dimqm
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -35,7 +35,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -lnwpython -ldrdy -lvscf -lqmmm -lrism -lqmd -letrans\
                     -lpspw -ltce  -lgeninterface -lbq -lmm  -lcons -lperfm -lnbo -ldntmc -lccca\
-                    -llucia
+                    -llucia -ldimqm
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -73,13 +73,13 @@ EXP_pnnl = $(EXP_all) python dntmc
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          optim stepper driver ccsd vib mcscf property solvation selci dplot mp2_grad esp etrans tce vscf 
+          optim stepper driver ccsd vib mcscf property solvation selci dplot mp2_grad esp etrans tce vscf dimqm
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian bq cons \
-          optim stepper driver vib qmd mcscf property solvation selci dplot \
-           mp2_grad esp etrans vscf nwmd
+          optim stepper driver vib mcscf property solvation selci dplot \
+           mp2_grad esp etrans vscf dimqm
 EXP_smallqmmm  = NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian bq cons \
           optim stepper driver vib qmd mcscf property solvation selci dplot \
-           mp2_grad esp etrans vscf nwmd qmmm prepar analyz
+           mp2_grad esp etrans vscf nwmd qmmm prepar analyz dimqm
 EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
            optim driver analyz diana
 #plane_wave ... broken? RJH
@@ -130,7 +130,7 @@ endif
 # will be hard to generate automatically.
 
 MODULES := $(patsubst geninterface,geninterface,$(MODULES) )
-
+MODULES := $(patsubst dimqm,dimqm ddscf atomscf nwdft property,$(MODULES) )
 MODULES := $(patsubst property,property ddscf solvation,$(MODULES) )
 
 #MODULES := $(patsubst plane_wave,plane_wave nwdft,$(MODULES) )
@@ -249,6 +249,7 @@ MOD_LIBS := $(patsubst ccca,-lccca,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst lucia,-llucia,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst solvation,-lsolvation,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwxc,-lnwxc,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst dimqm,-ldimqm,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
@@ -307,6 +308,7 @@ STUBROUTINES := $(patsubst ccca,task_ccca task_ccca_energy ccca_input,$(STUBROUT
 STUBROUTINES := $(patsubst optim,tropt neb neb_input task_mepgs mepgs_input task_string string_input tropt_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst lucia, lucia,$(STUBROUTINES))
 STUBROUTINES := $(patsubst solvation, solvation,$(STUBROUTINES))
+STUBROUTINES := $(patsubst dimqm, dimqm_input dimpar_input dimqm_main fock_dim dimqm_prep dim_grid_quadv0 dimqm_lclfld dimqm_polarizability dimqm_broadcast dimqm_Dens2Dipoles,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst cons, cons_end cons_input cons_add_egrad cons_add_energy cons_init cons_print_summary cons_active,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))

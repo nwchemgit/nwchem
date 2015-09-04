@@ -652,6 +652,7 @@ c
 #include "zora.fh"
 #include "frozemb.fh"
 #include "cosmo.fh"
+#include "dimqm.fh"
 c     
 c     $Id$
 c
@@ -679,6 +680,8 @@ c
       double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_dens(2),i
       character*255 cosmo_file
+      integer dims(3), chunk(3), g_vdim ! DIM/QM JEM
+      double precision Edim
 c     
 c     Check
 c     
@@ -921,6 +924,31 @@ c
         enddo
       endif  ! cosmo check
 c
+c     DIM/QM JEM
+c     
+      if (ldimqm) then
+        lfirst = .true.
+c       We need to combine the alpha and beta densities to calculate the total DIM dipoles
+        g_dens(1) = ga_create_atom_blocked(geom,
+     $                                     basis, 'dim density matrix')
+        call ga_copy(g_a_dens, g_dens(1))
+        call ga_dadd(one, g_dens(1), one, g_b_dens, g_dens(1))
+        call dimqm_main(rtdb, basis, geom, g_dens(1), .true.)
+        dims(1) = nbf
+        dims(2) = nbf
+        chunk(1) = dims(1)
+        chunk(2) = -1
+        if (.not. nga_create (MT_DBL, 2, dims, 'DIM FOCK',chunk,
+     &                        g_vdim))
+     &    call errquit('rohf_fock: could not allocate g_vdim',
+     $                 555, GA_ERR)
+        call ga_zero(g_vdim)
+        Edim = 0.0d0
+        call dim_grid_quadv0(rtdb, g_vdim, 1, Edim)
+        if(.not.ga_destroy(g_dens(1)))
+     $    call errquit('uhf_energy: ga_destroy failed DIM den',0,GA_ERR)
+      end if
+c
 c     add in frozen embedding
       if (frozemb) then
         call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
@@ -933,6 +961,12 @@ c
       call ga_dadd(one, g_hcore, one, g_a_coul, g_a_coul)
       call ga_dadd(one, g_hcore, one, g_b_coul, g_b_coul)
 c
+c     DIM/QM JEM
+c     Add DIM potential
+      if (ldimqm) then
+        call ga_dadd(one, g_vdim, one, g_a_coul, g_a_coul)
+        call ga_dadd(one, g_vdim, one, g_b_coul, g_b_coul)
+      end if
       if (oskel) then
          if (oscfps) call pstat_on(ps_sym_sym)
          call sym_symmetrize(geom, basis, .false., g_a_coul)
@@ -998,6 +1032,12 @@ c
      &       RTDB_ERR)
          energy=energy+ecosmo
       endif  ! cosmo check
+c
+c     DIM/QM JEM
+c     DIM energy term
+      if (ldimqm) then
+        energy = energy + edimqm
+      end if
 c
       if (odebug .and. ga_nodeid().eq.0) then
          write(6,*) ' eone, etwo, enrep, energy ',

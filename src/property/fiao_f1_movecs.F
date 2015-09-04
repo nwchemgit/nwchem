@@ -34,6 +34,7 @@ c --> Experimental (not published yet)
 #include "apiP.fh"
 #include "prop.fh"
 #include "bgj.fh"
+#include "dimqm.fh"
 c     ---------------------
 c     subroutine arguments:
 c     ---------------------
@@ -200,9 +201,11 @@ c     So, lets define them once and for all in blo and bhi
 c      if (ga_nodeid().eq.0)
 c     & write(*,*) 'FA-BEF-update_rhs_dipole'
 c      debug=.true.
-
+c
+c     JEM: Updated to include imaginary portion of rhs
       call update_rhs_dipole(
-     &                     g_rhs,    ! in/out: 
+     &                     g_rhs,    ! in/out:
+     &                     g_rhs_im, ! in/out:
      &                     vectors,  ! in : MO vectors
      &                     rtdb,     ! in : rtdb  handle
      &                     basis,    ! in : basis handle
@@ -249,6 +252,10 @@ c     get the correct magnitude of the result back
       bhi(2) = ndir  
       do ipm = 1,ncomp
         call nga_scale_patch(g_rhs(ipm),blo,bhi,-4.0d0)
+c       DIM/QM JEM
+        if (ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+          call nga_scale_patch(g_rhs_im(ipm),blo,bhi,-4.0d0)
+        end if
       end do
 
 c --> Put in rtdb to be read in ga_lkain_2cpl3_damp_cmplx_redmem()

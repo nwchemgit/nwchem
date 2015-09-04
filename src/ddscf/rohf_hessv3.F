@@ -15,6 +15,7 @@ c     have an imaginary part, too
 #include "stdio.fh"
 #include "util.fh"
 #include "global.fh"
+#include "dimqm.fh"
 c     
 c     $Id$
 c
@@ -71,6 +72,11 @@ c
      $     acc, lshift, g_x, g_ax, g_x_im, g_Ax_im, omega, limag,
      &   lifetime, gamwidth, ncomp)
       if (debug) write (6,*) 'back from rohf_hessv_xx3'
+c   DIM/QM JEM
+      if(ldimqm .and. lrsp .and. dimqm_on) then
+        call dimqm_addop(g_x, g_x_im, g_ax, g_ax_im, ncomp, 
+     $                   limag, lifetime)
+      end if
 c
 c     Zap numbers much smaller than acc to ensure hard zeroes 
 c     remain unpolluted ... cannot use a threshold larger than the

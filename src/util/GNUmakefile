@@ -150,7 +150,7 @@ endif
 
 
 
-       BLAS = dfill.o ifill.o  mabyte_fill.o 
+       BLAS = dfill.o ifill.o  mabyte_fill.o zfill.o
 
    LIB_TARGETS = testsolve testecce
 
@@ -211,9 +211,10 @@ endif
 	      ga_lkain_2cpl3_ext.o  util_dgeev.o util_nwsort.o \
 	      util_mygabcast.o util_getppn.o util_units.o \
               util_intrsc2008.o util_fadvise.o  \
+              ga_conjg.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
-              OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o
+              OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o zsum.o
 endif
 #nxtval_ga.o 
 

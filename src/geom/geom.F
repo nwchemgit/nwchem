@@ -2853,7 +2853,8 @@ c
 c     
       if (zmt_source(geom) .ne. ' ' .and. 
      $     util_print('geomzmat',print_none)) then
-         geom_print = geom_print_zmatrix(geom,0.d0,' ',.false.)
+c        JEM: Must pass an array, not a scalar
+         geom_print = geom_print_zmatrix(geom,(/0.d0/),' ',.false.)
       else
          geom_print = .true.
       endif

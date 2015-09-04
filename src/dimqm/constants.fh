@@ -1,0 +1,155 @@
+      integer KINDR 
+      parameter(KINDR=KIND(0d0))
+c     Double Integers and Fractions
+      double precision ZERO        
+      parameter(ZERO=0.0d0)
+      double precision ONE         
+      parameter(ONE=1.0d0)
+      double precision TWO         
+      parameter(TWO=2.0d0)
+      double precision THREE       
+      parameter(THREE=3.0d0)
+      double precision FOUR        
+      parameter(FOUR=4.0d0)
+      double precision FIVE        
+      parameter(FIVE=5.0d0)
+      double precision SIX         
+      parameter(SIX=6.0d0)
+      double precision SEVEN       
+      parameter(SEVEN=7.0d0)
+      double precision EIGHT       
+      parameter(EIGHT=8.0d0)
+      double precision NINE        
+      parameter(NINE=9.0d0)
+      double precision TEN         
+      parameter(TEN=10.0d0)
+      double precision ELEVEN      
+      parameter(ELEVEN=11.0d0)
+      double precision TWELVE      
+      parameter(TWELVE=12.0d0)
+      double precision THIRTEEN    
+      parameter(THIRTEEN=13.0d0)
+      double precision FOURTEEN    
+      parameter(FOURTEEN=14.0d0)
+      double precision FIFTEEN     
+      parameter(FIFTEEN=15.0d0)
+      double precision SIXTEEN     
+      parameter(SIXTEEN=16.0d0)
+      double precision SEVENTEEN   
+      parameter(SEVENTEEN=17.0d0)
+      double precision EIGHTEEN    
+      parameter(EIGHTEEN=18.0d0)
+      double precision NINETEEN    
+      parameter(NINETEEN=19.0d0)
+      double precision TWENTY      
+      parameter(TWENTY=20.0d0)
+      double precision TWENTYTWO   
+      parameter(TWENTYTWO=22.0d0)
+      double precision TWENTYFOUR  
+      parameter(TWENTYFOUR=24.0d0)
+      double precision THIRTYTWO   
+      parameter(THIRTYTWO=32.0d0)
+      double precision THIRTYSIX   
+      parameter(THIRTYSIX=36.0d0)
+      double precision FORTYEIGHT  
+      parameter(FORTYEIGHT=48.0d0)
+      double precision SEVENTYTWO  
+      parameter(SEVENTYTWO=72.0d0)
+      double precision HUNDRED     
+      parameter(HUNDRED=1.0e2)
+      double precision FOURTH      
+      parameter(FOURTH=0.25d0)
+      double precision HALF        
+      parameter(HALF=0.5d0)
+      double precision THREEFOURTH 
+      parameter(THREEFOURTH=0.75d0)
+      double precision THIRD       
+      parameter(THIRD=1.0d0 / 3.0d0)
+      double precision TWOTHIRD    
+      parameter(TWOTHIRD=2.0d0 / 3.0d0)
+      double precision SIXTH       
+      parameter(SIXTH=1.0d0 / 6.0d0)
+      double precision THREESECOND 
+      parameter(THREESECOND=3.0d0 / 2.0d0)
+      double precision FOURTHIRD   
+      parameter(FOURTHIRD=4.0d0 / 3.0d0)
+c     Constants and Conversions
+      double precision PI            
+      parameter(PI=3.14159265358979323846)
+      double precision SQRTPI        
+      parameter(SQRTPI=1.7724538509055159)
+      double precision TWOINVPI      
+      parameter(TWOINVPI=TWO / PI)
+      double precision SQRTTWOINVPI  
+      parameter(SQRTTWOINVPI=0.79788456080286541)
+      double precision TWOINVSQRTPI  
+      parameter(TWOINVSQRTPI=TWO / SQRTPI)
+      double precision HART2NM       
+      parameter(HART2NM=45.56335)
+      double precision HART2WAVENUM  
+      parameter(HART2WAVENUM=219474.629)
+      double precision HART2EV       
+      parameter(HART2EV=27.2113961)
+      double precision HART2HZ       
+      parameter(HART2HZ=6.579683920729E15)
+      double precision EV2HART       
+      parameter(EV2HART=0.0367493088)
+      double precision WAVENUM2HART  
+      parameter(WAVENUM2HART=4.5563353E-6)
+      double precision NM2HART       
+      parameter(NM2HART=45.56335)
+      double precision NM2EV         
+      parameter(NM2EV=1239.0)
+      double precision HBAR
+      parameter(HBAR=6.5821189916e-16) !units = eV s
+      double precision BOHR2ANGSTROM 
+      parameter(BOHR2ANGSTROM=0.52917720859)
+      double precision ANGSTROM2BOHR 
+      parameter(ANGSTROM2BOHR=1.0E0 / BOHR2ANGSTROM)
+      double precision ANGSTROM2NM   
+      parameter(ANGSTROM2NM=1.0E-1)
+      double precision NM2ANGSTROM   
+      parameter(NM2ANGSTROM=1.0E0 / ANGSTROM2NM)
+      double precision NM2M          
+      parameter(NM2M=1.0E-9)
+      double precision BOHR2NM       
+      parameter(BOHR2NM=BOHR2ANGSTROM * ANGSTROM2NM)
+      double precision NM2BOHR       
+      parameter(NM2BOHR=1.0E0 / BOHR2NM)
+      double precision AU2DEBYE
+      parameter(AU2DEBYE=2.5417463)
+c     Complex Integers
+      complex*16 I_C
+      Parameter(I_C=(ZERO, ONE))
+      complex*16 ZERO_C
+      Parameter(ZERO_C=(ZERO,ZERO))
+      complex*16 ONE_C
+      Parameter(ONE_C=(ONE, ZERO))
+      complex*16 TWO_C
+      Parameter(TWO_C=(TWO, ZERO))
+      complex*16 THREE_C
+      Parameter(THREE_C=(THREE, ZERO))
+      complex*16 FOUR_C
+      Parameter(FOUR_C=(FOUR, ZERO))
+      complex*16 FIVE_C
+      Parameter(FIVE_C=(FIVE, ZERO))
+      complex*16 SIX_C
+      Parameter(SIX_C=(SIX, ZERO))
+      complex*16 HALF_C
+      Parameter(HALF_C=(HALF, ZERO))
+      complex*16 HUNDRED_C
+      Parameter(HUNDRED_C=(HUNDRED, ZERO))
+c     DIM/QM Constants
+c       screening
+      integer NOSCRN
+      Parameter(NOSCRN=0)
+      integer ERFSCRN
+      Parameter(ERFSCRN=1)
+      integer EXPSCRN
+      Parameter(EXPSCRN=2)
+c       math
+      integer REALMATH
+      Parameter(REALMATH = 1)
+      integer COMPLEXMATH
+      Parameter(COMPLEXMATH = 2)
+ 

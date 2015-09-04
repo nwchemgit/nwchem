@@ -59,6 +59,7 @@ c --> Experimental (not published yet)
 #include "prop.fh"
 #include "bgj.fh"
 #include "util.fh"
+#include "dimqm.fh"
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
@@ -560,6 +561,7 @@ c     determine frequency and number of components
  100   format('(lstatic,omega,ncomp)=(',L1,',',f15.8,',',i3,')')
       endif
 
+
       call fiao_f1_movecs(
      &      rtdb,basis,geom,    ! in : handles
      &      omega,              ! in :
@@ -635,7 +637,6 @@ c ========= FA-Added-03-13-12 ========= START
       endif                    ! lvelocity  
  
  107  continue
-
 c      if (ga_nodeid().eq.0)
 c     & write(*,*) 'FA-BEF get_allAOints'
 c     --------------------------------------------
@@ -656,7 +657,16 @@ c     computations of the response tensors
      &        lbeta,    ! in : beta     flag
      &        lgiao,    ! in : giao     flag
      &        lquad,    ! in : quad     flag
-     &        nbf)      ! in : nr. basis functions             
+     &        nbf)      ! in : nr. basis functions
+c
+c     DIM/QM JEM
+c     Initialize DIM and add in local field contributions
+      if (ldimqm) then
+        call dimqm_prep(rtdb, omega)
+      end if
+      if (ldimqm .and. lclfld) then
+        call dimqm_lclfld(g_dipel, omega)
+      end if
 
 c      if (ga_nodeid().eq.0)
 c     & write(*,*) 'FA-AFT get_allAOints' 
@@ -982,6 +992,12 @@ c         chiral response tensor. use array axs and eig for temp space
         end if                  ! sum > 1d-5
 
       endif ! oprint
+c
+c     DIM/QM JEM
+c     Calculate the DIM polarizability
+      if (ldimqm) then
+        call dimqm_polarizability(rtdb, omega)
+      end if
 c
 c     == Raman bits ==
       if (.not. rtdb_put(rtdb, 'raman:alfare ', mt_dbl, 9, alfare))   ! real alpha

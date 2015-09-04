@@ -103,11 +103,12 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 #include "cosmo.fh"
+#include "dimqm.fh" !JEM
 c     
 c     $Id$
 c
       integer rtdb
-
+!
       integer g_vecs
       double precision energy
       integer g_grad
@@ -199,6 +200,18 @@ c
              call util_flush(6)
          endif
       endif
+c     
+c     DIM/QM JEM
+c     DIM/QM energy term
+      if (ldimqm) then
+        energy = energy + edimqm
+        if(ga_nodeid() .eq. 0) then
+          write(6,9998) (energy-edimqm), edimqm, energy
+ 9998 format(' energ0 = ',f20.10,/,' edimqm = ',f20.10,/,
+     $       ' energy = ',f20.10)
+          call util_flush(6)
+        end if
+      end if
       if(ga_nodeid().eq.0) call util_flush(6)
       call ga_sync()
 c

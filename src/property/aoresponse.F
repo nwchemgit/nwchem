@@ -39,6 +39,7 @@ c     =================================================================
 #include "prop.fh"
 #include "bgj.fh"
 #include "util.fh"
+#include "dimqm.fh"
 
 c     ---------------------
 c     subroutine arguments:
@@ -69,7 +70,7 @@ c     global array handles:
       
       integer g_amat(2), g_pmats(2),
      &   g_pmata(2), g_work, g_occ, g_rhs(2), g_rhs_zero, 
-     &   g_amat_zero, g_pmat_zero
+     &   g_amat_zero, g_pmat_zero, g_work_im ! DIM/QM JEM
 
 c     GA arrays for treating imaginary parts of response
 c     (only used if lifetime.eq.true.):
@@ -286,6 +287,20 @@ c       ------------------------------
      &     errquit('aoresponse: nga_create failed: '//cstemp(1:4),
      &     0,GA_ERR)     
         call ga_zero (g_work)
+c
+c      DIM/QM JEM
+c      Allocate imaginary array for DIM with local fields
+c      Normally, the imaginary part of the A matrix is zero, but
+c      this is not true when working with local fields
+        if(ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+          if (.not.nga_create(MT_DBL,3,dims,'g_work_im',chunk,
+     &     g_work_im)) call
+     &     errquit('aoresponse: nga_create failed: g_work_im',
+     &     0,GA_ERR)
+          call ga_zero (g_work_im)
+
+        end if
+
         
 c       -----------------------------------------------------
 c       GA-allocate components of A-matrices (+/-, Re and Im)
@@ -365,6 +380,11 @@ c       fill perturbing field integrals into work array
           call nga_copy_patch('n',g_dipmag,blo,bhi,g_work,alo,ahi)
         else
           call nga_copy_patch('n',g_dipel,blo,bhi,g_work,alo,ahi)
+c       DIM/QM JEM
+          if(ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+           write(luout,*) "Copy g_dipel_i"
+           call nga_copy_patch('n',g_dipel_i,blo,bhi,g_work_im,alo,ahi)
+          end if
         endif
         
 c       ------------------------------------------------
@@ -374,6 +394,12 @@ c       ------------------------------------------------
         
         call giao_aotomo(g_work,g_vectors(1),nocct(1),
      &     nvirt(1),1,3,nbf)   
+c   DIM/QM JEM
+        if(ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+          call giao_aotomo(g_work_im,g_vectors(1),nocct(1),
+     &       nvirt(1),1,3,nbf)
+        end if
+
         
         alo(1) = nocc+1
         ahi(1) = nmo
@@ -392,6 +418,12 @@ c       ------------------------------------------------
           
           call nga_copy_patch('n',g_work,alo, ahi,
      &       g_amat(ipm),blo,bhi)
+c         DIM/QM JEM
+          if(ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+            call nga_copy_patch('n',g_work_im,alo, ahi,
+     &         g_amat_im(ipm),blo,bhi)
+          end if
+
           
         enddo                   ! ipm = 1,ncomp
 
@@ -408,6 +440,14 @@ c       we don't need this work array for a while
      &     call 
      &     errquit('aoresponse: ga_destroy failed g_work',
      &     0,GA_ERR)
+c       DIM/QM JEM
+        if(ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+          if (.not.ga_destroy(g_work_im))
+     &       call
+     &       errquit('aoresponse: ga_destroy failed g_work_im',
+     &       0,GA_ERR)
+        end if
+
         
 c       Create CPHF rhs arrays of proper dimension : (nocc*nvirt,3)
 c       
@@ -482,7 +522,13 @@ c       add amat vir-occ block to CPKF rhs
         do ipm = 1,ncomp
           call nga_add_patch(1d0,g_amat(ipm),alo,ahi,
      &       1d0, g_rhs(ipm),blo,bhi, g_rhs(ipm), blo, bhi)
+c   DIM/QM JEM
+          if(ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+          call nga_add_patch(1d0,g_amat_im(ipm),alo,ahi,
+     &       1d0, g_rhs_im(ipm),blo,bhi, g_rhs_im(ipm), blo, bhi)
+          end if
         end do
+
         if (lzero) then
           call nga_add_patch(1d0,g_amat_zero,alo,ahi,
      &       1d0, g_rhs_zero,blo,bhi, g_rhs_zero, blo, bhi)
@@ -494,6 +540,10 @@ c       get the correct magnitude of the result back
         
         do ipm = 1,ncomp
           call ga_scale (g_rhs(ipm), -4.0d0)
+c   DIM/QM JEM
+          if(ldimqm .and. lrsp .and. lclfld .and. lifetime) then
+            call ga_scale (g_rhs_im(ipm), -4.0d0)
+          end if
         enddo
         if (lzero) call ga_scale (g_rhs_zero, -4.0d0)
  

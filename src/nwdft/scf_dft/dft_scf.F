@@ -40,6 +40,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
+#include "dimqm.fh"
 #include "nwxc.fh"
 c     
       Logical movecs_write, movecs_converged, movecs_read
@@ -1081,6 +1082,15 @@ c
      &    call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
       end if ! cosmo check
 c
+c     DIM/QM JEM
+c     Calculate DIM/QM dipoles
+c     We use the total density to calculate the dipoles.
+c
+      if(ldimqm .and. dimqm_go) then
+        call dimqm_main(rtdb, ao_bas_han, geom, g_dens, .false.)
+      end if
+
+c
 c     Determine HOMO energy (for Zhan-Nichols-Dixon AC)
 c
       e_homo = dbl_mb(k_eval(1)+noc(1)-1)
@@ -1152,6 +1162,11 @@ c
              etnew = etnew + ecosmo
         end if
       end if
+c
+c     DIM/QM JEM
+c     Add DIM energy
+      if (ldimqm .and. dimqm_go) Etnew = Etnew + Edimqm
+c
 c     
 c     == is this a oneshot "noscf" type calculation, no diagonalization ==
       noscf = .false.
@@ -1596,6 +1611,8 @@ c
 c     
 c     Check for SCF convergence.
 c     
+c     DIM/QM JEM
+      dimqm_go = .true.
       call ga_sync
       if (oprint_time)
      &     call dft_tstamp(' calling scfcvg ')
@@ -1683,6 +1700,11 @@ c
              etnew = etnew + ecosmo
            end if
       end if
+c
+c     DIM/QM JEM
+c     Add DIM energy
+      if(ldimqm .and. dimqm_go) Etnew = Etnew + Edimqm
+c
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
      &   ('dft_scf: could not destroy g_denso', 0, GA_ERR)
@@ -1737,6 +1759,7 @@ c     or include dispersion if this a functional that includes dispersion
 c
       if(disp.or.xc_chkdispauto())
      &      call xc_vdw(rtdb,geom,Etnew,dum,'energy')
+c
 c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
 c
@@ -1867,6 +1890,13 @@ c
            end if
          end if
 c
+c        DIM/QM JEM
+c        Add DIM energy
+c        NOTE: Why are we redoing this energy sum?
+         if(ldimqm .and. dimqm_go) Etnew = Etnew + Edimqm
+
+c        DIM/QM JEM
+        
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
           write(LuOut,222)etnew+enuc, 
@@ -2050,6 +2080,14 @@ c
         if (ipol.eq.2) ! reinstate total in g_dens(1)
      &    call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
       end if ! cosmo_esp
+c
+c     DIM/QM JEM
+c     Final DIM dipoles
+c
+      if (ldimqm) then
+        call dimqm_main(rtdb, ao_bas_han, geom, g_dens, .true.)
+      end if
+
 c
 c     Print all the eigenvalues
 c

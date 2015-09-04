@@ -24,6 +24,7 @@ c
 #include "cosmo.fh"
 #include "zora.fh"
 #include "case.fh"
+#include "dimqm.fh"
 c
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
       integer g_focks(2)
@@ -78,6 +79,11 @@ c
       double precision gcds
       integer do_cosmo_vem
       logical do_cosmo_smd
+c
+c DIM/QM variables
+c
+      double precision g_vdim
+      double precision Edim
 c
       do_cosmo_smd = .false.
       do_cosmo_vem = 0
@@ -281,6 +287,24 @@ c
          if (.not.ma_pop_stack(lscr))
      &      call errquit('dft_scf: cannot pop stack',0, MA_ERR)
       endif
+c
+c     DIM/QM JEM
+c     Calculate DIM potential and energy
+c     We calculate the DIM potential at each point from the total density
+c     This potential is used to perturb both alpha and beta spins, so only
+c     one call to dim_grid_quadv0 is needed
+      if (ldimqm .and. dimqm_go) then
+        if(.not.ga_duplicate(g_vxc(1), g_vdim, 'dim:1'))
+     $    call errquit("dft_fockbld: can't create dim:1", 99, GA_ERR)
+        call ga_zero(g_vdim)
+        call dim_grid_quadv0(rtdb, g_vdim)
+c        call ga_dadd(1.d0, g_vxc(1), 1.d0, g_fock, g_fock)
+        Edim = ga_ddot(g_dens(1), g_vdim)
+        if(ipol > 1) then
+          Edim = Edim + ga_ddot(g_dens(2), g_vdim)
+        end if
+        call ga_sync()
+      end if
 c     
 c     == Compute the XC potential and energy ==
       g_vxc(1) = g_tmp
@@ -363,7 +387,17 @@ c     == Add exchange-correlation to the Fock matrix ==
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_focks(1), g_focks(1))
       if (ipol.gt.1) 
      &     call ga_dadd(1.d0, g_vxc(2), 1.d0, g_focks(2), g_focks(2))
-c     
+c
+c     DIM/QM JEM
+c     Add DIM potential to the Fock matrix
+      if (ldimqm .and. dimqm_go) then
+        call ga_dadd(1.d0, g_vdim, 1.d0, g_focks(1), g_focks(1))
+c       DIM potential is from total density, so same for both alpha and beta
+        if (ipol.gt.1)
+     &    call ga_dadd(1.d0, g_vdim, 1.d0, g_focks(2), g_focks(2))
+        if (.not. ga_destroy(g_vdim))
+     &    call errquit("destroy vdim failed", 9, GA_ERR)
+      end if
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
 c     

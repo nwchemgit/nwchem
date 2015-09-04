@@ -14,6 +14,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \
                $(OBJDIR)\dgetf2.obj \
                $(OBJDIR)\dgetrf.obj \
                $(OBJDIR)\dgetrs.obj \
+               $(OBJDIR)\dgtsv.obj \
                $(OBJDIR)\dlabrd.obj \
                $(OBJDIR)\dlacon.obj \
                $(OBJDIR)\dlacpy.obj \

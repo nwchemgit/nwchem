@@ -71,6 +71,7 @@ c --> Experimental (not published yet)
           write(*,11) idir,iresp
  11       format('---- g_vecE1-re(',i3,',',i3,')-------- END')
          endif
+         if (lifetime) then
          if (ga_nodeid().eq.0) then
           write(*,12) idir,iresp
  12       format('---- g_vecE1-im(',i3,',',i3,')-------- START')
@@ -80,6 +81,7 @@ c --> Experimental (not published yet)
           write(*,13) idir,iresp
  13       format('---- g_vecE1-im(',i3,',',i3,')-------- END')
          endif
+         endif ! end-if-lifetime
 c         if (ga_nodeid().eq.0) then
 c          write(*,14) idir,iresp
 c 14       format('---- g_dipEM(',i3,',',i3,')-------- START')

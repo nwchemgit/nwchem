@@ -18,6 +18,7 @@
 #include "cuhf.fh"
 #include "stdio.fh"
 #include "cosmo.fh"
+#include "dimqm.fh"
 c!!! BGJ
 #include "bgj.fh"
 c!!! BGJ
@@ -236,7 +237,11 @@ c !!! BGJ
          cosmo_on = .true.
          cosmo_phase = 2
       endif
-c
+c     DIM/QM JEM
+      if (ldimqm .and. lrsp) then
+        lfirst = .true.
+        dimqm_go = .false.
+      end if
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
          call uhf_energy(rtdb,g_movecs,eone,etwo,enrep,ecosmo,energy,
@@ -301,6 +306,11 @@ c HvD: prepare_guess must always be called as it initializes g_work
      &               rtdb)        ! in : rtdb handle
 c Note.- en-scl*g_b is unpropertly called "preconditioning"
 c 000000000000000 prepare guess 000000000000 END
+c     DIM/QM JEM
+      if (ldimqm .and. lrsp) then
+        call dimqm_prep(rtdb, -1)
+      end if
+
       if (scftype .eq. 'UHF') then
 c
 c        For property related CPHF. NMR has imaginary perturbation
@@ -314,16 +324,16 @@ c        enforces that.
 c        Call the solver
          if (ndata.eq.2) then
 
-c          if (ga_nodeid().eq.0)
-c     &      write(*,*) 'BEF ga_lkain_ext-uhf'
+          if (ga_nodeid().eq.0)
+     &      write(*,*) 'BEF ga_lkain_ext-uhf'
 
           call ga_lkain_ext(rtdb,g_work,g_grad,uhf_hessv2,uhf_precond,
      $        precond_tol, max_precond_sub, maxiter, .false., 
      &        oprint_solve)
          else 
 
-c          if (ga_nodeid().eq.0)
-c     &      write(*,*) 'BEF ga_lkain-uhf'
+          if (ga_nodeid().eq.0)
+     &      write(*,*) 'BEF ga_lkain-uhf'
 
           call ga_lkain(rtdb,g_work, g_grad, uhf_hessv2, uhf_precond,
      $        precond_tol, max_precond_sub, maxiter, .false., 
@@ -342,8 +352,8 @@ c        enforces that.
 c        Call the solver
          if (ndata.eq.2) then
 
-c          if (ga_nodeid().eq.0)
-c     &      write(*,*) 'BEF ga_lkain_ext-rhf'
+          if (ga_nodeid().eq.0)
+     &      write(*,*) 'BEF ga_lkain_ext-rhf'
 
           call ga_lkain_ext(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,
@@ -351,8 +361,8 @@ c     &      write(*,*) 'BEF ga_lkain_ext-rhf'
      &         oprint_solve)
          else
 
-c          if (ga_nodeid().eq.0)
-c     &      write(*,*) 'BEF ga_lkain-rhf'
+          if (ga_nodeid().eq.0)
+     &      write(*,*) 'BEF ga_lkain-rhf'
 
           call ga_lkain(rtdb,g_work, g_grad, rohf_hessv2,
      R         rohf_hessv_precond,
@@ -423,6 +433,9 @@ c == copy solution (g_work) --> g_grad 2nd subspace===END
          call rohf_tidy
       endif
       call scf_tidy(rtdb)
+      if (ldimqm .and. lrsp) then
+        call dimqm_tidy()
+      endif
 
       return
       end

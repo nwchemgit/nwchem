@@ -31,6 +31,7 @@ c         parts have been added, indicated by suffix "_im"
 #include "cuhf.fh"
 #include "stdio.fh"
 #include "cosmo.fh"
+#include "dimqm.fh"
 c!!! BGJ
 #include "bgj.fh"
 c!!! BGJ
@@ -362,6 +363,11 @@ c     Get the cosmo contribution
          cosmo_on = .true.
          cosmo_phase = 2
       endif
+c     DIM/QM JEM
+      if (ldimqm .and. lrsp) then
+        lfirst = .true.
+        dimqm_go = .false.
+      end if
 
       if(scftype .eq. 'UHF')then
         call uhf_init(rtdb)
@@ -522,8 +528,8 @@ c         debug=.false. ! to see entering vectors
          if (.not.lifetime) then
            if (debug) write (6,*) 'calling ga_lkain_2cpl3_ext'
 
-c          if (ga_nodeid().eq.0)
-c    &      write(*,*) 'FA-BEF-uhf-ga_lkain_2cpl3_ext'
+          if (ga_nodeid().eq.0)
+     &      write(*,*) 'FA-BEF-uhf-ga_lkain_2cpl3_ext'
 c
            call ga_lkain_2cpl3_ext(
      &                      rtdb,
@@ -542,8 +548,8 @@ c
      &                      gamwidth, 
      &                      ncomp)
 
-c          if (ga_nodeid().eq.0)
-c    &      write(*,*) 'FA-AFT-uhf-ga_lkain_2cpl3_ext'
+          if (ga_nodeid().eq.0)
+     &      write(*,*) 'FA-AFT-uhf-ga_lkain_2cpl3_ext'
 
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3_ext'
          else
@@ -590,8 +596,8 @@ c ----- Create complex GA arrays ----------- END
             enddo ! end-loop-ipm
            endif ! end-if-debug
 
-c           if (ga_nodeid().eq.0)  
-c     &       write (*,*) 'FA BEF ga_lkain_2cpl3_damp_cmplx_redmem1'
+           if (ga_nodeid().eq.0)  
+     &       write (*,*) 'FA BEF ga_lkain_2cpl3_damp_cmplx_redmem1'
 
            nocc1(1)=nalpha
            nocc1(2)=nbeta
@@ -618,8 +624,8 @@ c     &       write (*,*) 'FA BEF ga_lkain_2cpl3_damp_cmplx_redmem1'
      &              nvir1, 
      &              nocc1)
 
-c           if (ga_nodeid().eq.0)  
-c     &       write (*,*) 'FA AFT ga_lkain_2cpl3_damp_cmplx_redmem1'
+           if (ga_nodeid().eq.0)  
+     &       write (*,*) 'FA AFT ga_lkain_2cpl3_damp_cmplx_redmem1'
 
            call conv2reim(g_work,      ! out : real      arr
      &                    g_work_im,   ! out : imaginary arr
@@ -784,12 +790,15 @@ c        in the following call, g_work is the initial guess, that
 c        is why we have already divided by the energy denominators
 c        in the preconditioner.
 c        g_grad is the constant rhs vector
+c
+c       DIM/QM JEM
+         if (ldimqm .and. lrsp) call dimqm_prep(rtdb, omega)
 
          if (.not.lifetime) then
            if (debug) write (6,*) 'calling ga_lkain_2cpl3'
 
-c          if (ga_nodeid().eq.0)
-c    &      write(*,*) 'FA-BEF-rhf-ga_lkain_2cpl3_ext'
+          if (ga_nodeid().eq.0)
+     &      write(*,*) 'FA-BEF-rhf-ga_lkain_2cpl3_ext'
 
 c           call ga_lkain_2cpl3(rtdb,
            call ga_lkain_2cpl3_ext(rtdb,
@@ -802,15 +811,15 @@ c           call ga_lkain_2cpl3(rtdb,
      &                         limag, lifetime, 
      &                         gamwidth, ncomp)
 
-c          if (ga_nodeid().eq.0)
-c    &      write(*,*) 'FA-AFT-rhf-ga_lkain_2cpl3_ext'
+          if (ga_nodeid().eq.0)
+     &      write(*,*) 'FA-AFT-rhf-ga_lkain_2cpl3_ext'
      
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3'
 
          else
 
-c          if (ga_nodeid().eq.0)  
-c    &       write (*,*) 'FA BEF ga_lkain_2cpl3_damp_cmplx_redmem'
+          if (ga_nodeid().eq.0)  
+     &       write (*,*) 'FA BEF ga_lkain_2cpl3_damp_cmplx_redmem'
 c --- Transfer (g_work,g_work_im) --> g_work_cmplx
 c              (g_grad,g_grad_im) --> g_grad_cmplx
 c ----- Create complex GA arrays ----------- START
@@ -911,8 +920,8 @@ c ----- Create complex GA arrays ----------- END
             if(.not.ga_destroy(g_grad_cmplx(ipm))) call errquit(
      $     'cphf_solve3: could not destroy grad_cmplx',ipm, GA_ERR)
            enddo ! end-loop-ipm
-c          if (ga_nodeid().eq.0)  
-c    &       write (*,*) 'FA AFT ga_lkain_2cpl3_damp_cmplx_redmem'
+          if (ga_nodeid().eq.0)  
+     &       write (*,*) 'FA AFT ga_lkain_2cpl3_damp_cmplx_redmem'
  201       continue
 
            if (debug) write (6,*) 'exiting ga_lkain_2cpl3_damp'
@@ -986,6 +995,9 @@ c ======== writing (g_b,g_rhs_sol) ======== END
          call rohf_tidy
       endif
       call scf_tidy(rtdb)
+      if (ldimqm .and. lrsp) then
+        call dimqm_tidy()
+      endif
       return
       end
 

@@ -136,6 +136,7 @@ C     $Id$
 #include "bgj.fh"
 #include "stdio.fh"
 #include "case.fh"
+#include "dimqm.fh"
 c     
 c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
@@ -167,6 +168,8 @@ c
       logical noskew
 c
       integer g_work
+c
+      integer g_dim
 c
       integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
       integer ga_create_atom_blocked
@@ -417,6 +420,29 @@ c
          g_dpv = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dpv')
       endif
 c
+c     DIM/QM JEM
+c     Calculate DIM dipoles and DIM potential
+      if(ldimqm .and. lrsp) then
+        if(dimqm_on) then
+          call dimqm_indDipoles(dimqm_rtdb, nbf, geom, basis,
+     $                          g_dens)
+        end if
+        dims(1) = nfock
+        dims(2) = nbf
+        dims(3) = nbf
+        chunk(1) = dims(1)
+        chunk(2) = -1
+        chunk(3) = -1
+        if (.not. nga_create (MT_DBL, 3, dims, 'nfockdim:3ddim',chunk,
+     &                        g_dim))
+     &    call errquit('hessv_2e2: could not allocate g_dim',555,
+     &                 GA_ERR)
+        call ga_zero(g_dim)
+        call fock_dim(geom, nbf, basis, nfock, g_dim, 0, 1)
+        call ga_symmetrize(g_dim)
+        call ga_sync()
+      end if
+
       ifock = 0
       do ivec = 1, nvec
          ifock = ifock + 1      ! History ... copy into tmp arrays
@@ -480,6 +506,25 @@ c
 *         call ga_dadd_patch( four, g_tmp2, 1, nvir, 1, nclosed,
 *     $        one, g_ax, xoff, xend, ivec, ivec,
 *     $        g_ax, xoff, xend, ivec, ivec )
+c
+c     DIM/QM JEM
+c     Add DIM potential to the Fock Matrix
+         if(ldimqm .and. lrsp) then
+           call nga_copy_patch('N',g_dim,alo,ahi,g_dcv,blo,bhi)
+           call ga_scale(g_dcv, TWO)
+           call ga_matmul_patch('n', 'n', TWO, zero,
+     $                           g_dcv,   1, nbf, 1, nbf,
+     $                           g_movec, 1, nbf, 1, nclosed,
+     $                           g_tmp1,  1, nbf, 1, nclosed)
+           call ga_matmul_patch('t', 'n', one, zero,
+     $                           g_movec, voff, nmo, 1, nbf,
+     $                           g_tmp1, 1, nbf,  1, nclosed,
+     $                           g_tmp2, 1, nvir, 1, nclosed)
+           call ga_sync()
+           call ga_mat_to_vec(g_tmp2, 1, nvir, 1, nclosed, g_ax,
+     $                         xoff, ivec, four, '+')
+         end if
+c
 c     
          if (nopen .gt. 0) then
 c     
@@ -521,6 +566,12 @@ c
 *     $           g_ax, xoff, xend, ivec, ivec)
          endif
       enddo
+c    DIM/QM JEM
+      if(ldimqm .and. lrsp) then
+        if (.not.ga_destroy(g_dim))
+     &    call errquit('hessv_2e2: problem destroying g_dim array',1,
+     &                 GA_ERR)
+      end if
       if (.not.ma_chop_stack(l_jfac))
      &   call errquit('hessv2: cannot chop stack',0, MA_ERR)
 c

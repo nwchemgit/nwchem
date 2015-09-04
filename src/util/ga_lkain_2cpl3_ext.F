@@ -21,6 +21,7 @@ c --> Experimental (not published yet)
 #include "util.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
+#include "dimqm.fh"
       integer ncomp             ! [input] no. of components to treat
       integer rtdb              ! [input] database handle
       integer g_x(ncomp)        ! [input/output] Initial guess/solution
@@ -197,9 +198,12 @@ c
      $     '   iter   nsub   residual    time ',/,
      $     '   ----  ------  --------  --------- ')
       end if
-c     
+c
       nsub = 0
       converged = .false.
+c     DIM/QM JEM
+      dimqm_on =.true.
+      lfirst = .true.
 c     
 c     ---------------------
 c     start interation loop
@@ -296,6 +300,17 @@ c     &   write(*,*) 'FA AFT get_precond_rmax'
           write(6,3) iter, nsub+nvec, rmax, util_wallsec()
           call util_flush(6)
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
+        end if
+c       DIM/QM JEM
+c       DIM seeding
+        if(rmax < 1.0d0 .and. ldimqm .and. .not. dimqm_noseed) then
+          if(ga_nodeid().eq.0) then
+            write(6,*) "SCF error below 1."
+            write(6,*) "Resetting DIM tolerance to", dimtol0
+            write(6,*) "Using last iteration as seed"
+          end if
+          dimtol = dimtol0
+          dimqm_seeded = .true.
         end if
 
 c       stop iterations if residual is smaller than criterion
@@ -1272,6 +1287,7 @@ c --> Experimental (not published yet)
 #include "stdio.fh"
 #include "inp.fh"
 #include "rtdb.fh"
+#include "dimqm.fh"
       integer ncomp       ! [input] no. of components to treat
       integer g_z(ncomp)  ! [input/output] Initial guess/solution (Re,Im)      
       integer g_zb(ncomp),! [input] b of Ax=b
@@ -1388,7 +1404,7 @@ c     that might be changed later if memory becomes an issue
       maxsub = mmaxsub          ! So don't modify input scalar arg
       if (maxsub .lt. 3*nvec) maxsub = 3*nvec
       maxsub = (maxsub/nvec)*nvec 
-      debug1 = .false. ! no printouts
+c      debug1 = .true. ! no printouts
 c
 c     =================================================================
 
@@ -1490,9 +1506,11 @@ c ------- create (zre,zim) ---------- END
      $     '   iter   nsub   residual    time ',/,
      $     '   ----  ------  --------  --------- ')
       end if
-c     
       nsub = 0
       converged = .false.
+c     DIM/QM JEM
+      dimqm_on = .true.
+      lfirst = .true.
 c     
 c     ---------------------
 c     start interation loop
@@ -1773,6 +1791,18 @@ c -------- printout per iteration -------------- START
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
 c -------- printout per iteration -------------- END
+c       DIM/QM JEM
+c       DIM seeding
+        if(rmax < 1.0d0 .and. ldimqm .and. .not. dimqm_noseed) then
+          if(ga_nodeid().eq.0) then
+            write(6,*) "SCF error below 1."
+            write(6,*) "Resetting DIM tolerance to", dimtol0
+            write(6,*) "Using last iteration as seed"
+          end if
+          dimtol = dimtol0
+          dimqm_seeded = .true.
+        end if
+
 c       stop iterations if residual is smaller than criterion
         if (rmax .lt. tol) then
           converged = .true.

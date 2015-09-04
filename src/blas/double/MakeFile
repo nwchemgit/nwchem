@@ -13,6 +13,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\dasum.obj \
                $(OBJDIR)\dger.obj \
                $(OBJDIR)\dnrm2.obj \
                $(OBJDIR)\drot.obj \
+               $(OBJDIR)\drotg.obj \
                $(OBJDIR)\dscal.obj \
                $(OBJDIR)\dspmv.obj \
                $(OBJDIR)\dspr.obj \
@@ -44,6 +45,7 @@ OBJ_OPTIMIZE = $(OBJDIR)\dasum.obj \
                $(OBJDIR)\zher2.obj \
                $(OBJDIR)\zher2k.obj \
                $(OBJDIR)\zherk.obj \
+               $(OBJDIR)\zrotg.obj \
                $(OBJDIR)\zscal.obj \
                $(OBJDIR)\zswap.obj \
                $(OBJDIR)\ztrmm.obj \

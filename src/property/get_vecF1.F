@@ -136,9 +136,11 @@ c ======== Including g_u_ov_im (g_rhs_im --> g_u_im) == END
       enddo ! end-loop-ispin
       return
       end
-
+c
+c     JEM: Updated to include imaginary part of rhs
       subroutine update_rhs_dipole(
      &                     g_rhs,    ! in/out: 
+     &                     g_rhs_im, ! in/out:
      &                     vectors,  ! in : MO vectors
      &                     rtdb,     ! in : rtdb  handle
      &                     basis,    ! in : basis handle
@@ -171,8 +173,9 @@ c --> Experimental (not published yet)
 #include "rtdb.fh"
 #include "bas.fh"
 #include "prop.fh"
+#include "dimqm.fh"
       integer npol,ncomp
-      integer g_dipole,g_dipole1,g_rhs(ncomp)
+      integer g_dipole,g_dipole1,g_rhs(2),g_rhs_im(2)
       integer rtdb,basis
       integer vectors(npol)
       integer ifld,ndir,nbf,nmo,ipm,nat,

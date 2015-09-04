@@ -19,6 +19,7 @@
 #include "zora.fh"
 #include "crohf.fh"
 #include "frozemb.fh"
+#include "dimqm.fh"
 c     
 c     Build fock matrices and energies for ROHF wavefunction
 c     
@@ -64,6 +65,10 @@ c
       logical odebug
       integer itype_wfn
       character*255 cosmo_file
+c     JEM DIM/QM
+      integer dims(3), chunk(3), g_vdim
+      double precision Edim
+
 c
 c     Initialise
 c     
@@ -181,6 +186,23 @@ c
       eone_open = 0.0d0
       if (nopen .gt. 0) eone_open = ga_ddot(g_hcore, g_odens)
       eone = eone_closed + eone_open
+c
+c     DIM/QM JEM
+      if (ldimqm) then
+        lfirst = .true.
+        call dimqm_main(rtdb, basis, geom, g_cdens, .true.)
+        dims(1) = nbf
+        dims(2) = nbf
+        chunk(1) = dims(1)
+        chunk(2) = -1
+        if (.not. nga_create (MT_DBL, 2, dims, 'DIM FOCK',chunk,
+     &                        g_vdim))
+     &    call errquit('rohf_fock: could not allocate g_vdim',
+     &                 555, GA_ERR)
+        call ga_zero(g_vdim)
+        Edim = 0.0d0
+        call dim_grid_quadv0(rtdb, g_vdim, 1, Edim)
+      end if
 c     
 c     Generate two-electron closed- and open-shell Fock components
 c     
@@ -265,6 +287,12 @@ c
       etwo = etwo_closed + etwo_open
 c     
       call ga_dadd(One, g_hcore, One, g_cfock, g_cfock)
+c
+c     DIM/QM JEM
+c     Add DIM potential
+      if (ldimqm) then
+        call ga_dadd(one, g_vdim, one, g_cfock, g_cfock)
+      end if
 c     
 c     Assemble Fock components
 c     F(closed-open)    = F(closed) + Fcoul(open)                   (fcp)
@@ -339,6 +367,11 @@ c
       call rohf_dumpfock(nopen,g_oexch,g_cfock)
       if (.not. ga_destroy(g_cfock)) call errquit
      $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
+c     DIM/QM JEM
+      if (ldimqm) then
+        if(.not. ga_destroy(g_vdim))
+     $    call errquit('rohf_fock: destroy vdim failed',0,GA_ERR)
+      end if
       if (nopen .gt. 0) then
          if (.not. ga_destroy(g_ocoul)) call errquit
      $        ('rohf_fock: ga_destroy failed',0, GA_ERR)

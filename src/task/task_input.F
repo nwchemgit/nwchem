@@ -371,9 +371,10 @@ c     THIS IS NEVER EXECUTED.  IT IS HERE BEACUSE -ltask IS AT
 c     THE FRONT OF THE LINK PATH AND THE STATE ROUTINES ARE NOT
 c     REFERENCED UNTIL LATER.
 c
-      call task_save_state(0,'a')
-      call task_restore_state(0,'a')
-      call task_delete_state(0,'a')
+c     JEM: Using a logical from above as dummy return
+c      omm = task_save_state(0,'a')
+c      omm = task_restore_state(0,'a')
+c      omm = task_delete_state(0,'a')
 c
       end
 C> @}

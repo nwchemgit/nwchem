@@ -70,6 +70,10 @@ c
                call python_input(rtdb)
             else if (inp_compare(.false.,test,'cosmo')) then
                call cosmo_input(rtdb)
+            else if (inp_compare(.false.,test,'dimqm')) then ! DIM/QM JEM
+               call dimqm_input(rtdb)
+            else if (inp_compare(.false.,test,'dimpar')) then ! DIM/QM JEM
+               call dimpar_input(rtdb)
             else if (inp_compare(.false.,test,'ecp')) then
                call bas_input(rtdb)
             else if (inp_compare(.false.,test,'so')) then

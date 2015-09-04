@@ -44,9 +44,9 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 dswap.o      dsymm.o      dsymv.o      dsyr2.o        \
                 dsyr2k.o     dsyrk.o      dtrmm.o      dtrmv.o        \
                 dtrsm.o      dtrsv.o      dznrm2.o     idamax.o       \
-		izamax.o \
+		izamax.o     drotg.o \
                 lsame.o      zaxpy.o      dcabs1.o     zcopy.o        \
-                zdrot.o \
+                zdrot.o      zrotg.o \
                 zdotc.o      zdscal.o     zgemm.o      zgemv.o        \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
                 zher2k.o     zherk.o      zscal.o      zswap.o        \
