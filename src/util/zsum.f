@@ -1,4 +1,4 @@
-      complex precision function zsum(n,sx,incx)
+      double complex function zsum(n,sx,incx)
 *
 * $Id: zsum.f 19707 2010-10-29 17:59:36Z d3y133 $
 *
@@ -8,11 +8,11 @@ c     uses unrolled loops for increment equal to one.
 c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
 c
-      complex precision sx(*),stemp
+      double complex  sx(*),stemp
       integer i,incx,m,mp1,n,nincx
 c
-      zsum = 0.0d0
-      stemp = 0.0d0
+      zsum = cmplx(0.0d0,0.0d0)
+      stemp = zsum
       if( n.le.0 .or. incx.le.0 )return
       if(incx.eq.1)go to 20
 c
