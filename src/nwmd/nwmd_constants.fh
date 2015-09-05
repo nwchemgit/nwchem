@@ -1,5 +1,5 @@
 c
-c $Id$
+c $Id: constants.fh 19708 2010-10-29 18:04:21Z d3y133 $
 c
       real*8 cnm2au,cau2kj,cau2nm,cau2N
 c

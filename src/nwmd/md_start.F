@@ -334,7 +334,7 @@ c
 #include "msgids.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-#include "constants.fh"
+#include "nwmd_constants.fh"
 #if defined(NEED_LOC)
       external loc
       integer loc

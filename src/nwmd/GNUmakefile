@@ -8,7 +8,7 @@
 
 LIBRARY=libnwmd.a
 
-HEADERS=constants.fh md_common.fh
+HEADERS=nwmd_constants.fh md_common.fh
 
 USES_BLAS=
 
