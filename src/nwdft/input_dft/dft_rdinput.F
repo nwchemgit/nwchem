@@ -46,6 +46,7 @@ c
       Logical int_norm_2c
       Logical atom_tag_check
       logical qmmm_init
+      double precision tol2e
       integer me
 c
       External int_normalize
@@ -306,6 +307,13 @@ c
          if (.not. rtdb_put(rtdb, 'dft:itol2e',
      &      mt_int, 1, itol2e))
      &      call errquit('dft_rdinput: rtdb_put failed', 127, RTDB_ERR)
+c check if dbl tol2e is there, if not present, dump itol2e
+         if (.not. rtdb_get(rtdb, 'dft:tol2e',
+     &      mt_dbl, 1, tol2e)) then
+         if (.not. rtdb_put(rtdb, 'dft:tol2e',
+     &      mt_dbl, 1, 10d0**(-itol2e)))
+     &      call errquit('dft_rdinput: rtdb_put failed', 128, RTDB_ERR)
+      endif
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:imull', mt_int, 1,

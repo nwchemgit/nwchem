@@ -856,6 +856,8 @@ c
      &      mt_int, 1, iAOacc))
      &      call errquit('dft_inpanae: rtdb_put failed', 124, RTDB_ERR)
       tol2e = 10.d0**(-itol2e)
+      if (.not. rtdb_put(rtdb, 'dft:tol2e', MT_DBL, 1, tol2e)) 
+     .     call errquit('dftinpanae:rtdbput failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
      .     call errquit('dftinpanae:rtdbput failed',0, RTDB_ERR)
       if(oprint_tolgr.and.ga_nodeid().eq.0) then
