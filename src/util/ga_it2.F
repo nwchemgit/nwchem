@@ -412,7 +412,6 @@ C>
 #include "global.fh"
 #include "util.fh"
 #include "rtdb.fh"
-#include "dimqm.fh"
 c
       integer g_x          !< [Input/Output] Initial guess/solution
       integer g_b          !< [Input] Right-hand side vectors
@@ -536,8 +535,6 @@ c
       end if
       nsub = 0
       converged = .false.
-c     DIM/QM JEM
-      dimqm_on = .true.
       do iter = 1, maxiter
          if (odiff) then
             call ga_add(one, g_x, mone, g_xold,  g_x)
@@ -1076,25 +1073,28 @@ c     V*(1/values)*UT*B
 c
 c     where the reciprocal of values less than tol are neglected.
 c     
-      integer m,n,nn,typex,nvec,nsing,l_val, k_val,g_u,g_vt,i,g_tmp
+      integer m,n,nn,type,nvec,nsing,l_val, k_val,g_u,g_vt,i,g_tmp
+      double complex one, zero
       logical oprint
 c
       oprint = util_print('debug svdsolve', print_high) .and.
      $     ga_nodeid().eq.0
 c
+      one  = cmplx(1.0d0,0.0d0)
+      zero = cmplx(0.0d0,0.0d0)
 c
-      call ga_inquire(g_a, typex, m, n)
-      call ga_inquire(g_b, typex, nn, nvec)
+      call ga_inquire(g_a, type, m, n)
+      call ga_inquire(g_b, type, nn, nvec)
       if (nn .ne. n) call errquit('gasvdsol: b does not conform',nn,
      &       GA_ERR)
       nsing = min(m,n)
       if (.not. ma_push_get(MT_DBL, nsing, 'gasvdsol', l_val, k_val))
      $     call errquit('gasvdsol: val',nsing, MA_ERR)
-      if (.not. ga_create(typex,m,nsing,'gasvd',0,0,g_u))
+      if (.not. ga_create(type,m,nsing,'gasvd',0,0,g_u))
      $     call errquit('gasvdsol: u',m*nsing, GA_ERR)
-      if (.not. ga_create(typex,nsing,n,'gasvd',0,0,g_vt))
+      if (.not. ga_create(type,nsing,n,'gasvd',0,0,g_vt))
      $     call errquit('gasvdsol: u',nsing*n, GA_ERR)
-      if (.not. ga_create(typex,nsing,nvec,'gasvd',0,0,g_tmp))
+      if (.not. ga_create(type,nsing,nvec,'gasvd',0,0,g_tmp))
      $     call errquit('gasvdsol: tmp',nsing*nvec, GA_ERR)
       call ga_zero(g_tmp)
 c
@@ -1111,10 +1111,10 @@ c
         end if
       end do
 c
-      call ga_dgemm('c','n',nsing,nvec,m,1.0d0,g_u,g_b,0.0d0,g_tmp)
+      call ga_dgemm('c','n',nsing,nvec,m,one,g_u,g_b,zero,g_tmp)
       call ga_scale_lh(g_tmp,dbl_mb(k_val))
       call ga_zero(g_x)
-      call ga_dgemm('c','n',n,nvec,nsing,1.0d0,g_vt,g_tmp,0.0d0,g_x)
+      call ga_dgemm('c','n',n,nvec,nsing,one,g_vt,g_tmp,zero,g_x)
 c
       if (.not. ga_destroy(g_tmp)) call errquit('gasvdsol: des',1,
      &       GA_ERR)
@@ -1150,29 +1150,29 @@ c
 c     A possible parallel algorithm is to diagonalize ATA to get
 c     V and AAT to get U --- both have values**2 as eigenvalues.
 c
-      integer n, m, typex, l_a, k_a, l_u, k_u, l_vt, k_vt, 
+      integer n, m, type, l_a, k_a, l_u, k_u, l_vt, k_vt, 
      $     l_work, k_work, lwork, info, nsing
       integer l_rwork, k_rwork
 c     
-      call ga_inquire(g_a, typex, m, n)
+      call ga_inquire(g_a, type, m, n)
       nsing = min(m,n)
       if (ga_nodeid() .eq. 0) then
          lwork = 10*max(m,n)
-         if (.not. ma_push_get(typex, m*n, 'gasvd', l_a, k_a))
+         if (.not. ma_push_get(type, m*n, 'gasvd', l_a, k_a))
      $        call errquit('gasvd: a',m*n, MA_ERR)
-         if (.not. ma_push_get(typex, m*nsing, 'gasvd', l_u, k_u))
+         if (.not. ma_push_get(type, m*nsing, 'gasvd', l_u, k_u))
      $        call errquit('gasvd: u',m*nsing, MA_ERR)
-         if (.not. ma_push_get(typex, nsing*n, 'gasvd', l_vt, k_vt))
+         if (.not. ma_push_get(type, nsing*n, 'gasvd', l_vt, k_vt))
      $        call errquit('gasvd: vt',nsing*n, MA_ERR)
-         if (.not. ma_push_get(typex, lwork, 'gasvd', l_work, k_work))
+         if (.not. ma_push_get(type, lwork, 'gasvd', l_work, k_work))
      $        call errquit('gasvd: work',lwork, MA_ERR)
-         if (typex.eq.MT_DCPL) then
+         if (type.eq.MT_DCPL) then
             if (.not. ma_push_get(MT_DBL, lwork, 'gasvd',
      $                            l_rwork, k_rwork))
      $           call errquit('gasvd: work',lwork, MA_ERR)
          endif
 c
-         if (typex.eq.MT_DBL) then
+         if (type.eq.MT_DBL) then
 c
            call ga_get(g_a, 1, m, 1, n, dbl_mb(k_a), m)
 c
@@ -1184,7 +1184,7 @@ c
            call ga_put(g_u,  1, n,     1, nsing, dbl_mb(k_u),  n)
            call ga_put(g_vt, 1, nsing, 1, m,     dbl_mb(k_vt), n)
 c
-         else if (typex.eq.MT_DCPL) then
+         else if (type.eq.MT_DCPL) then
 c
            call ga_get(g_a, 1, m, 1, n, dcpl_mb(k_a), m)
 c
@@ -1198,7 +1198,7 @@ c
 c
          else
 c
-           call errquit('gasvd: illegal data type',typex,UERR)
+           call errquit('gasvd: illegal data type',type,UERR)
 c
          endif
 c
