@@ -21,7 +21,7 @@ c
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 c   
 c     Input Variables
@@ -232,7 +232,7 @@ c
 
       function dime(eqme, eqmn, muind, nAtoms)
       implicit none
-#include "constants.fh"
+#include "dimqm_constants.fh"
       integer nAtoms
       double precision eqme(3,nAtoms)
       double precision eqmn(3,nAtoms)

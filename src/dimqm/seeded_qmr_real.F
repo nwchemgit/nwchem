@@ -12,7 +12,7 @@ c      use constants
 #include "mafdecls.fh"
 #include "global.fh"
 #include "testutil.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "tcgmsg.fh"
 #include "msgids.fh"
 c

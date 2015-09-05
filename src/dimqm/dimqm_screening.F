@@ -99,7 +99,7 @@ c      write(luout,*) erfc(overlap)
 #include "stdio.fh"
 #include "hnd_tol.fh"
 #include "dimqm.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 
       double precision xyzi(3)
       double precision expi(i_nprim)
@@ -226,7 +226,7 @@ c      write(luout,*) s
      $                         ni, nj, t, xint, yint, zint)
       implicit none
 #include "hnd_whermt.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "stdio.fh"
       double precision x0, y0, z0
       double precision xi, yi, zi

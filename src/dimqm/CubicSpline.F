@@ -1,6 +1,6 @@
       Subroutine spline_real (n, x, y, r)
       implicit none
-#include "constants.fh"
+#include "dimqm_constants.fh"
 !  ============================================================================
 !  Given arrays x(1:n) and y(1:n) containing a tabulated function,
 !  i.e. y_i = f(x_i), with x_1 < x_2 ... < x_n, and given values yp1 and ypn
@@ -79,7 +79,7 @@
 
       Function interpolate_real (n, xa, ya, y2a, x) Result(y)
       implicit none
-#include "constants.fh"
+#include "dimqm_constants.fh"
 
 !  =============================================================================
 !  Given the arrays xa(1:n) and ya(1:n) of length n, which tabulates a function
@@ -134,7 +134,7 @@
       Function interpolate_complex1 (n, xa, yar, yai, y2ar, y2ai, x) 
      $         Result(y)
       implicit none
-#include "constants.fh"
+#include "dimqm_constants.fh"
 
 !  ===============================================================
 !  Extention of interpolate_real to interpolate a complex function
@@ -190,7 +190,7 @@
 
       Function interpolate_complex2 (n, xa, ya, y2a, x) Result(y)
       implicit none
-#include "constants.fh"      
+#include "dimqm_constants.fh"
 
 !  ===============================================================
 !  Extention of interpolate_real to interpolate a complex function
@@ -238,7 +238,7 @@
 
       Function locate (n, xx, x) Result(i)
       implicit none
-#include "constants.fh"
+#include "dimqm_constants.fh"      
 
 !  ==========================================================================
 !  Given an array xx(1:n), and given a value x, returns a value j such that

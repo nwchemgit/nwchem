@@ -10,7 +10,7 @@ c
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 c
 c     Input variables
@@ -178,7 +178,7 @@ c      Exact Solver
 
       function Drude (omega, plasma, damp) result (drd)
       implicit none
-#include "constants.fh"
+#include "dimqm_constants.fh"
 c
 c   =====================================
 c   Calculates the complex Drude function
@@ -199,7 +199,7 @@ c
 #include "stdio.fh"
 #include "dimqm.fh"
 #include "mafdecls.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "errquit.fh"
 
       integer rtdb

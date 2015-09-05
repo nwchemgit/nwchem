@@ -8,7 +8,7 @@ c
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 #include "errquit.fh"
 #include "global.fh"

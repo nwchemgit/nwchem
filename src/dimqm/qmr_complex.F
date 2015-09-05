@@ -11,7 +11,7 @@ c     Fancy QMR algorithm.  Will document later.
 #include "mafdecls.fh"
 #include "global.fh"
 #include "testutil.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 c
 c     Input Variables
       integer rtdb

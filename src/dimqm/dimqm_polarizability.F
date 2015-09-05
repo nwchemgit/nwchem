@@ -16,7 +16,7 @@ c  ==================================================================
 #include "global.fh"
 #include "testutil.fh"
 #include "util.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 c
 c     Input variables

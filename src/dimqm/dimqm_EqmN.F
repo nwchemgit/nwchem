@@ -10,7 +10,7 @@ c      use constants
 #include "global.fh"
 #include "testutil.fh"
 #include "geom.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 #include "msgids.fh"
 c

@@ -7,7 +7,7 @@
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 c
 c     Input variables
       integer, intent(in) ::  a1, a2
@@ -76,7 +76,7 @@ c     Fill the temp array
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 c
 c     Input variables
       integer, intent(in) ::  a1, a2

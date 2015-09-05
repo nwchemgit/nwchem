@@ -2,7 +2,7 @@
 c      use err_func
       implicit none
 #include "stdio.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 c
 c      Input Variables

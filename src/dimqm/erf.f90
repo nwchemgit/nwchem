@@ -14,7 +14,7 @@ Pure Function erf(x) Result(fn_val)
 !-----------------------------------------------------------------------
 !    use constants
     Implicit None
-#include "constants.fh"
+#include "dimqm_constants.fh"
     Real (KINDR), Intent(In) :: x
     Real (KINDR)             :: fn_val
 

@@ -5,7 +5,7 @@
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 #include "global.fh"
 c

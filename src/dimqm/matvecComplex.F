@@ -18,7 +18,7 @@ c   =====================================================================
 #include "mafdecls.fh"
 #include "global.fh"
 #include "testutil.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 c
 c     Input Variables
@@ -106,7 +106,7 @@ c
 
       implicit none
 #include "stdio.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
       integer, intent(in) :: m, n
       double precision, intent(in) :: mxyz(3), nxyz(3)
       double precision, intent(in) :: mpol, npol

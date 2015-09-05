@@ -32,7 +32,7 @@
 
 USES_BLAS = qmr_real.F dimqm_main.F 
 
-HEADERS = dimqm.fh constants.fh
+HEADERS = dimqm.fh dimqm_constants.fh
 
 include ../config/makefile.h
 include ../config/makelib.h

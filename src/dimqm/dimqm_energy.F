@@ -2,7 +2,7 @@
       implicit none
 #include "stdio.fh"
 #include "util.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "global.fh"
       integer nAtoms
       double precision muind(3,nAtoms)

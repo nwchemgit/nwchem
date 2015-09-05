@@ -14,7 +14,7 @@ c      use constants
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "constants.fh"
+#include "dimqm_constants.fh"
 #include "dimqm.fh"
 #include "geom.fh"
 c    Input Variables
