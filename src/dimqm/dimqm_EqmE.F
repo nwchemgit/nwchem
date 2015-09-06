@@ -1,11 +1,16 @@
       subroutine dimqm_EqmE(rtdb, g_dens, geom, basis,
      $                      fld, xyz)
+c  
+c      Author: Justin Moore
+c 
+c      Called from: dimqm_main.F dimqm_addop.F dimqm_indDipoles.F
+c                   dimqm_Dens2Dipoles.F
 c
-c   Subroutine to calculate the electric field due to the QM electrons
-c   
-c   Called from dimqm_main.F
-
-c      use constants
+c      Calls: hnd_elfcon.F
+c
+c      Subroutine to calculate the electric field due to the QM
+c      electrons
+c
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

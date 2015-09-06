@@ -2,7 +2,7 @@
 c
 c     Author: Justin Moore
 c
-c     Called from: dft_scf.F, rohf_fock.F
+c     Called from: dft_scf.F, rohf_fock.F 
 c
 c     Subroutines called: dimqm_prep, dimqm_EqmE, dimqm_EqmN, dimqm_f2d
 c                         dimqm_seed_init_tolerance, dimqm_check_dipoles,

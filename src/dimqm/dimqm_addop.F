@@ -1,14 +1,18 @@
       subroutine dimqm_addop(g_x_r, g_x_i, g_Ax_r, g_Ax_i,
      $                       ncomp, limag, lifetime)
-c  ==================================================================
-c  Calculates and adds the frequency-dependent DIM potential to the 
-c  response Fock matricies (real and imaginary).  Requires knowledge
-c  of both the real and imaginary vectors simultaneously which is
-c  why this has to be located here, unlike the static routine.
 c
-c  Called from: ddscf/rohf_hessv3.F
+c     Author: Justin Moore
 c
-c  ==================================================================
+c     Called from: rohf_hessv3.F rohf_hessv3_ext.F 
+c
+c     Subroutines called from: CalcPerturbedTDPmat1_opt.F, dimqm_EqmE.F
+c                              dimqm_f2d.F dim_fock_xc.F
+c   
+c     Calculates and adds the frequency-dependent DIM potential to the 
+c     response Fock matricies (real and imaginary).  Requires knowledge
+c     of both the real and imaginary vectors simultaneously which is
+c     why this has to be located here, unlike the static routine.
+c
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -52,7 +56,7 @@ c      integer l_muind, k_muind
       
       double precision dx_r, dy_r, dz_r
       double precision dx_i, dy_i, dz_i
-      double precision dsum
+      double precision dsum, rmax
       external dsum
       integer i3, ivec, n
 c      integer l_fld, k_fld
@@ -147,6 +151,15 @@ c     &     0,GA_ERR)
         write(luout,*) "End allocation"
       end if
 c
+c     Pull in residual and check seeding status
+      if (.not.lfirst) then
+        if (.not.rtdb_get(dimqm_rtdb, 'lkain:rmax', mt_dbl, 1, rmax))
+     $    call errquit('dimqm_addop: rmax get failed', 1, RTDB_ERR)
+      
+        call dimqm_check_dipoles(1.0d0, rmax)
+      end if
+
+c
       do ivec = 1, 3
 c
 c     ==========================
@@ -225,7 +238,7 @@ c
           call ga_sync()
 c         note: the last argument tells it not to use an occ-occ
 c               block to build the density marix.
-          call CalcPerturbedTDPmat1
+          call CalcPerturbedTDPmat1_opt
      &       (ncomp, g_pmats, g_pmata, g_h1mat, g_movecs, nbf,
      &        nclosed, nvir, nmo, .false., .false.,
      &       limag, .false.)  ! density matrix -> pmats

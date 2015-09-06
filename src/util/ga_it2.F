@@ -551,6 +551,11 @@ c
          call ga_add(one, g_b, mone, g_Ax, g_r) ! The residual
          call ga_sync()
          call ga_maxelt(g_r, rmax)
+
+c        JEM: Putting rmax into rtdb
+         if (.not. rtdb_put(rtdb, 'lkain:rmax', mt_dbl, 1, rmax))
+     $     call errquit('ga_lkain: rmax put failed', 1, RTDB_ERR)
+
          if (oprint .and. ga_nodeid().eq.0) then
             write(6,3) iter, nsub+nvec, rmax, util_wallsec()
             call util_flush(6)

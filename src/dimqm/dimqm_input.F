@@ -14,9 +14,9 @@ c
 c     Input module for DIM/QM control parameters
 c     ------------------------------------------
 c          
-c     Called from:
+c     Called from: input_parse.F
 c
-c     Calls:
+c     Calls: None
 c
 c     This subroutine reads the user defined parameters from the
 c     dimqm block of the input file.  Defaults are set for

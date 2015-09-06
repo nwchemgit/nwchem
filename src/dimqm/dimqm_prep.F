@@ -1,6 +1,16 @@
       subroutine dimqm_prep(rtdb, om)
 c
+c     Author: Justin Moore
 c
+c     Called from: dimqm_main.F cphf_solve2.F cphf_solve3.F 
+c                  aoresponse_driver.F aoresponse_driver_new.F
+c                  dimqm_polarizability.F
+c                  
+c
+c     Subroutines called: None
+c
+c     Builds the interaction matrix for the DIM system.   Called
+c     at the start of every DIM/QM calculation.
 c
       implicit none
 #include "errquit.fh"
@@ -16,7 +26,7 @@ c
 c     Input variables
 c
       integer rtdb        ! RTDB handle
-      double precision om ! Frequency, negative means static calculation
+      double precision om ! Frequency, zero or negative means static
 c
 c     Local variables
       integer stat
@@ -174,6 +184,8 @@ c      Exact Solver
         call errquit("dimqm direct solver not implemented", 1,
      $               INPUT_ERR)
       end if
+      dimqm_on = .true.
+      lfirst   = .true.
       end subroutine dimqm_prep
 
       function Drude (omega, plasma, damp) result (drd)

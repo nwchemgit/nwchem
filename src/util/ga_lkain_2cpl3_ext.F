@@ -291,7 +291,12 @@ c     &   write(*,*) 'FA BEF get_precond_rmax'
 
 c        if (ga_nodeid().eq.0)
 c     &   write(*,*) 'FA AFT get_precond_rmax'
-    
+
+c       JEM: Putting rmax into rtdb
+        if (.not. rtdb_put(rtdb, 'lkain:rmax', mt_dbl, 1, rmax))
+     $    call errquit('ga_lkain_2cpl3_ext: rmax put failed', 1,
+     $                 RTDB_ERR) 
+
         if (oprint .and. ga_nodeid().eq.0) then
           write(6,3) iter, nsub+nvec, rmax, util_wallsec()
           call util_flush(6)
@@ -1759,6 +1764,13 @@ c ========= get new (r,r_im) ======== END
           nsub_file=nsub_file+nvec
         endif ! end-if-write-block
 
+c       JEM: Putting rmax into rtdb
+        if (.not. rtdb_put(rtdb, 'lkain:rmax', mt_dbl, 1, rmax))
+     $    call errquit(
+     $           'ga_lkain_2cpl3_damp_cmplx_redmem: rmax put failed',
+     $                 1, RTDB_ERR) 
+
+
 c -------- printout per iteration -------------- START
         if (oprint .and. ga_nodeid().eq.0) then
 
@@ -1773,6 +1785,7 @@ c -------- printout per iteration -------------- START
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
 c -------- printout per iteration -------------- END
+
 c       stop iterations if residual is smaller than criterion
         if (rmax .lt. tol) then
           converged = .true.

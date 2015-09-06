@@ -170,6 +170,7 @@ c
       integer g_work
 c
       integer g_dim
+      double precision rmax
 c
       integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
       integer ga_create_atom_blocked
@@ -423,6 +424,15 @@ c
 c     DIM/QM JEM
 c     Calculate DIM dipoles and DIM potential
       if(ldimqm .and. lrsp) then
+c
+c       Pull in residual and check seeding status
+        if (.not.lfirst) then
+          if (.not.rtdb_get(dimqm_rtdb, 'lkain:rmax', mt_dbl, 1, rmax))
+     $      call errquit('dimqm_addop: rmax get failed', 1, RTDB_ERR)
+
+          call dimqm_check_dipoles(1.0d0, rmax)
+        end if
+
         if(dimqm_on) then
           call dimqm_indDipoles(dimqm_rtdb, nbf, geom, basis,
      $                          g_dens)

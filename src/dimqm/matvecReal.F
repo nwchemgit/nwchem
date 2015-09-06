@@ -58,7 +58,6 @@ c      Pull values from RTDB and GAs
       stat = rtdb_get(rtdb, 'dimpar:sPol', mt_dbl, nDIMTypes, sPol)
       stat = rtdb_get(rtdb, 'dimpar:typeindex', mt_int, nDIM, tx)
       call ga_get(g_DIM_diag, 1, nOrder, 1, 1, diagS, 1)
-      call ga_print(g_vec)
       call ga_get(g_vec, 1, nOrder, 1, 1, vec, 1)
       call ga_init_fence()
 c

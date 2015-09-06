@@ -5,7 +5,7 @@ c  response Fock matricies (real and imaginary).  Requires knowledge
 c  of both the real and imaginary vectors simultaneously which is
 c  why this has to be located here, unlike the static routine.
 c
-c  Called from: ddscf/rohf_hessv3.F
+c   THIS ROUTINE IS CURRENTLY NOT USED
 c
 c  ==================================================================
       implicit none

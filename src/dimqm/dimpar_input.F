@@ -14,9 +14,9 @@ c
 c     Input module for DIM parameters
 c     -------------------------------
 c
-c     Called from:
+c     Called from: input_parse.F
 c
-c     Calls:
+c     Calls: CubicSpline.F
 c
 c     This subroutine parses and stores all the parameteres for
 c     each element within the DIM system.  All global variables
