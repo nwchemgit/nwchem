@@ -364,7 +364,6 @@ c --> Experimental (not published yet)
 #include "util.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "dimqm.fh"
 c     
 c     $Id$
       integer ncomp
@@ -378,11 +377,6 @@ c     $Id$
      &        growp,gcolp,ipm,iter_cphf
       logical oprint, debug
       external rohf_hessv_xx3_cmplx
-c     DIM/QM Variables
-      integer nvir
-      integer n, nvec
-      integer g_x(ncomp), g_x_im(ncomp)
-      integer g_Ax(ncomp), g_Ax_im(ncomp)
       
 
       debug = (.false. .and. ga_nodeid().eq.0) ! for code development
@@ -448,79 +442,6 @@ c
      &     iter_cphf)  ! in : iteration nr. in cphf cycle
 
       if (debug) write (6,*) 'back from rohf_hessv_xx3_cmplx'
-c   DIM/QM JEM
-      if(ldimqm .and. lrsp .and. dimqm_on) then
-c       Transforming complex arrays to 2 real arrays to fit old DIM structure
-c       We will address this later
-        call ga_inquire(g_z(1),gtype,n,nvec) ! get (n,nvec)
-        nvir = nmo - nclosed - nopen
-        do ipm = 1, ncomp
-          if (.not. ga_create(MT_DBL,n,nvec,'dimqm: g_x',
-     $                        0,0,g_x(ipm)))
-     $      call errquit('dimqm: failed allocating g_x',n,GA_ERR)
-          if (.not. ga_create(MT_DBL,n,nvec,'dimqm: g_x',
-     $                        0,0,g_x_im(ipm)))
-     $      call errquit('dimqm: failed allocating g_x_im',n,GA_ERR)
-          if (.not. ga_create(MT_DBL,n,nvec,'dimqm: g_Ax',
-     $                        0,0,g_Ax(ipm)))
-     $      call errquit('dimqm: failed allocating g_Ax',n,GA_ERR)
-          if (.not. ga_create(MT_DBL,n,nvec,'dimqm: g_Ax_im',
-     $                        0,0,g_Ax_im(ipm)))
-     $      call errquit('dimqm: failed allocating g_Ax_im',n,GA_ERR)
-          call getreorim(g_x(ipm), ! out : real or im arr
-     &                   g_z(ipm), ! in  : = complx(g_xre,g_xim)
-     &                   nvir,     ! in  : nr. virtual  MOs
-     &                   nclosed,  ! in  : nr. occupied MOs
-     &                   1)        ! in  : =1 -> re =2 -> im
-          call getreorim(g_x_im(ipm), ! out : real or im arr
-     &                   g_z(ipm),    ! in  : = complx(g_xre,g_xim)
-     &                   nvir,        ! in  : nr. virtual  MOs
-     &                   nclosed,     ! in  : nr. occupied MOs
-     &                   2)           ! in  : =1 -> re =2 -> im
-          call getreorim1(g_Ax(ipm),  ! out : real or im arr
-     &                    g_Az1,      ! in  : = complx(g_xre,g_xim)
-     &                    nsub,       ! in  : subblock index
-     &                    ipm,        ! in  : = 1,2 to access slctd component
-     &                    nvir,       ! in  : nr. virtual  MOs
-     &                    nclosed,    ! in  : nr. occupied MOs
-     &                    1)          ! in  : =1 -> re =2 -> im
-          call getreorim1(g_Ax_im(ipm), ! out : real or im arr
-     &                    g_Az1,        ! in  : = complx(g_xre,g_xim)
-     &                    nsub,         ! in  : subblock index
-     &                    ipm,          ! in  : = 1,2 to access slctd component
-     &                    nvir,         ! in  : nr. virtual  MOs
-     &                    nclosed,      ! in  : nr. occupied MOs
-     &                    2)   ! in  : =1 -> re =2 -> im
-        end do
-        call dimqm_addop(g_x, g_x_im, g_Ax, g_Ax_im,
-     &                   ncomp, limag, lifetime)
-        do ipm = 1,ncomp
-          call conv2complex4(g_Az1,     ! out: = history matrix complex
-     &                       g_Ax(ipm), ! in : real      arr
-     &                       nsub,      ! in  : subblock index
-     &                       ipm,       ! in  : = 1,2 to access slctd component
-     &                       nvir,      ! in  : nr. virtual  MOs
-     &                       nclosed,   ! in  : nr. occupied MOs
-     &                       1)         ! in  : =1 -> re =2 -> im
-          call conv2complex4(g_Az1,        ! out: = history matrix complex
-     &                       g_Ax_im(ipm), ! in : real      arr
-     &                       nsub,         ! in  : subblock index
-     &                       ipm,          ! in  : = 1,2 to access slctd component
-     &                       nvir,         ! in  : nr. virtual  MOs
-     &                       nclosed,      ! in  : nr. occupied MOs
-     &                       2)            ! in  : =1 -> re =2 -> im
-          if (.not. ga_destroy(g_x(ipm)))  call errquit
-     &      ('dimqm: failed destroying g_x',ipm, GA_ERR)
-          if (.not. ga_destroy(g_x_im(ipm)))  call errquit
-     &      ('dimqm: failed destroying g_x_im',ipm, GA_ERR)
-          if (.not. ga_destroy(g_Ax(ipm)))  call errquit
-     &      ('dimqm: failed destroying g_Ax',ipm, GA_ERR)
-          if (.not. ga_destroy(g_Ax_im(ipm)))  call errquit
-     &      ('dimqm: failed destroying g_Ax_im',ipm, GA_ERR)
-
-        end do
-        
-      end if
 
 c
 c     Zap numbers much smaller than acc to ensure hard zeroes 
@@ -610,6 +531,11 @@ c --> Experimental (not published yet)
       logical oskel, noskew
       logical limag,lifetime
       logical debug
+c     DIM/QM JEM
+      integer g_x(ncomp), g_x_im(ncomp)
+      integer g_Ax(ncomp), g_Ax_im(ncomp)
+      logical ldimqm
+c
       external rohf_hessv_2e3_opt_cmplx,
      &         rohf_hessv_2e2_opt_cmplx,
      &         getreorim,getreorim1,
@@ -791,6 +717,80 @@ c       separately here
         endif                   ! ncomp
         
       endif                     ! pflg.gt.1
+c
+c   DIM/QM JEM
+      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', MT_LOG,
+     $                  1, ldimqm)) ldimqm = .false.
+      if(ldimqm) then
+c       Transforming complex arrays to 2 real arrays to fit DIM structure
+c       This could be cleaned up with a substantial rework of dimqm_addop
+        do ipm = 1, ncomp
+          if (.not. ga_create(MT_DBL,n,nvec,'dimqm: g_x',
+     $                        0,0,g_x(ipm)))
+     $      call errquit('dimqm: failed allocating g_x',n,GA_ERR)
+          if (.not. ga_create(MT_DBL,n,nvec,'dimqm: g_x',
+     $                        0,0,g_x_im(ipm)))
+     $      call errquit('dimqm: failed allocating g_x_im',n,GA_ERR)
+          if (.not. ga_create(MT_DBL,n,nvec,'dimqm: g_Ax',
+     $                        0,0,g_Ax(ipm)))
+     $      call errquit('dimqm: failed allocating g_Ax',n,GA_ERR)
+          if (.not. ga_create(MT_DBL,n,nvec,'dimqm: g_Ax_im',
+     $                        0,0,g_Ax_im(ipm)))
+     $      call errquit('dimqm: failed allocating g_Ax_im',n,GA_ERR)
+          call getreorim(g_x(ipm), ! out : real or im arr
+     &                   g_z(ipm), ! in  : = complx(g_xre,g_xim)
+     &                   nvir,     ! in  : nr. virtual  MOs
+     &                   nclosed,  ! in  : nr. occupied MOs
+     &                   1)        ! in  : =1 -> re =2 -> im
+          call getreorim(g_x_im(ipm), ! out : real or im arr
+     &                   g_z(ipm),    ! in  : = complx(g_xre,g_xim)
+     &                   nvir,        ! in  : nr. virtual  MOs
+     &                   nclosed,     ! in  : nr. occupied MOs
+     &                   2)           ! in  : =1 -> re =2 -> im
+          call getreorim1(g_Ax(ipm),  ! out : real or im arr
+     &                    g_Az1,      ! in  : = complx(g_xre,g_xim)
+     &                    nsub,       ! in  : subblock index
+     &                    ipm,        ! in  : = 1,2 to access slctd component
+     &                    nvir,       ! in  : nr. virtual  MOs
+     &                    nclosed,    ! in  : nr. occupied MOs
+     &                    1)          ! in  : =1 -> re =2 -> im
+          call getreorim1(g_Ax_im(ipm), ! out : real or im arr
+     &                    g_Az1,        ! in  : = complx(g_xre,g_xim)
+     &                    nsub,         ! in  : subblock index
+     &                    ipm,          ! in  : = 1,2 to access slctd component
+     &                    nvir,         ! in  : nr. virtual  MOs
+     &                    nclosed,      ! in  : nr. occupied MOs
+     &                    2)   ! in  : =1 -> re =2 -> im
+        end do
+        call dimqm_addop(g_x, g_x_im, g_Ax, g_Ax_im,
+     &                   ncomp, limag, lifetime)
+        do ipm = 1,ncomp
+          call conv2complex4(g_Az1,     ! out: = history matrix complex
+     &                       g_Ax(ipm), ! in : real      arr
+     &                       nsub,      ! in  : subblock index
+     &                       ipm,       ! in  : = 1,2 to access slctd component
+     &                       nvir,      ! in  : nr. virtual  MOs
+     &                       nclosed,   ! in  : nr. occupied MOs
+     &                       1)         ! in  : =1 -> re =2 -> im
+          call conv2complex4(g_Az1,        ! out: = history matrix complex
+     &                       g_Ax_im(ipm), ! in : real      arr
+     &                       nsub,         ! in  : subblock index
+     &                       ipm,          ! in  : = 1,2 to access slctd component
+     &                       nvir,         ! in  : nr. virtual  MOs
+     &                       nclosed,      ! in  : nr. occupied MOs
+     &                       2)            ! in  : =1 -> re =2 -> im
+          if (.not. ga_destroy(g_x(ipm)))  call errquit
+     &      ('dimqm: failed destroying g_x',ipm, GA_ERR)
+          if (.not. ga_destroy(g_x_im(ipm)))  call errquit
+     &      ('dimqm: failed destroying g_x_im',ipm, GA_ERR)
+          if (.not. ga_destroy(g_Ax(ipm)))  call errquit
+     &      ('dimqm: failed destroying g_Ax',ipm, GA_ERR)
+          if (.not. ga_destroy(g_Ax_im(ipm)))  call errquit
+     &      ('dimqm: failed destroying g_Ax_im',ipm, GA_ERR)
+
+        end do
+        
+      end if
 c     
       end
 

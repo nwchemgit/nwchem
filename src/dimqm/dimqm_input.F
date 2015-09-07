@@ -147,5 +147,11 @@ c
          write(luout,*) 'Invalid choise for ALGORITHM : ', alg
          call errquit('dimqm_input: alg',911, INPUT_ERR)
       end if
+c     Some DIM/QM global variables are needed in the rtdb to
+c     reduce module dependency contamination
+      if (.not. rtdb_put(rtdb, 'dimqm:ldimqm', mt_log, 1, ldimqm))
+     $  call errquit('dimqm_input: ldimqm put failed', 1, RTDB_ERR)         
+      if (.not. rtdb_put(rtdb, 'dimqm:lrsp', mt_log, 1, lrsp))
+     $  call errquit('dimqm_input: lrsp put failed', 1, RTDB_ERR)         
       return
       end subroutine dimqm_input

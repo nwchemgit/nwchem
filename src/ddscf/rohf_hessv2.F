@@ -136,7 +136,6 @@ C     $Id$
 #include "bgj.fh"
 #include "stdio.fh"
 #include "case.fh"
-#include "dimqm.fh"
 c     
 c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
@@ -169,8 +168,8 @@ c
 c
       integer g_work
 c
+      logical ldimqm
       integer g_dim
-      double precision rmax
 c
       integer dims(3), chunk(3), alo(3), ahi(3), blo(2), bhi(2)
       integer ga_create_atom_blocked
@@ -422,35 +421,12 @@ c
       endif
 c
 c     DIM/QM JEM
+      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', mt_log,
+     $                  1, ldimqm)) ldimqm = .false.
 c     Calculate DIM dipoles and DIM potential
-      if(ldimqm .and. lrsp) then
-c
-c       Pull in residual and check seeding status
-        if (.not.lfirst) then
-          if (.not.rtdb_get(dimqm_rtdb, 'lkain:rmax', mt_dbl, 1, rmax))
-     $      call errquit('dimqm_addop: rmax get failed', 1, RTDB_ERR)
-
-          call dimqm_check_dipoles(1.0d0, rmax)
-        end if
-
-        if(dimqm_on) then
-          call dimqm_indDipoles(dimqm_rtdb, nbf, geom, basis,
-     $                          g_dens)
-        end if
-        dims(1) = nfock
-        dims(2) = nbf
-        dims(3) = nbf
-        chunk(1) = dims(1)
-        chunk(2) = -1
-        chunk(3) = -1
-        if (.not. nga_create (MT_DBL, 3, dims, 'nfockdim:3ddim',chunk,
-     &                        g_dim))
-     &    call errquit('hessv_2e2: could not allocate g_dim',555,
-     &                 GA_ERR)
-        call ga_zero(g_dim)
-        call fock_dim(geom, nbf, basis, nfock, g_dim, 0, 1)
-        call ga_symmetrize(g_dim)
-        call ga_sync()
+      if (ldimqm) then
+        call dimqm_rohf_calcDIM(bgj_get_rtdb_handle(), geom, basis,
+     $                          nbf, nfock, g_dens, g_dim)
       end if
 
       ifock = 0
@@ -519,7 +495,13 @@ c
 c
 c     DIM/QM JEM
 c     Add DIM potential to the Fock Matrix
-         if(ldimqm .and. lrsp) then
+c        if (ldimqm) then
+c          call dimqm_rohf_addDIM(rtdb, g_ax, ivec, xoff, voff,
+c     $                           nclosed, nvir, nmo, nbf, 
+c     $                           g_dcv, g_movec, g_tmp1, g_tmp2,
+c     $                           alo, ahi, blo, bhi)
+c        end if
+         if(ldimqm) then
            call nga_copy_patch('N',g_dim,alo,ahi,g_dcv,blo,bhi)
            call ga_scale(g_dcv, TWO)
            call ga_matmul_patch('n', 'n', TWO, zero,
@@ -577,7 +559,7 @@ c
          endif
       enddo
 c    DIM/QM JEM
-      if(ldimqm .and. lrsp) then
+      if (ldimqm) then
         if (.not.ga_destroy(g_dim))
      &    call errquit('hessv_2e2: problem destroying g_dim array',1,
      &                 GA_ERR)

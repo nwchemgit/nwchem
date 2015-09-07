@@ -19,7 +19,6 @@
 #include "zora.fh"
 #include "crohf.fh"
 #include "frozemb.fh"
-#include "dimqm.fh"
 c     
 c     Build fock matrices and energies for ROHF wavefunction
 c     
@@ -66,8 +65,8 @@ c
       integer itype_wfn
       character*255 cosmo_file
 c     JEM DIM/QM
-      integer dims(3), chunk(3), g_vdim
-      double precision Edim
+      integer g_vdim
+      logical ldimqm
 
 c
 c     Initialise
@@ -180,29 +179,21 @@ c
         call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
       end if
 c
+c     DIM/QM JEM
+c     Add DIM potential
+      if (.not.rtdb_get(rtdb, 'dimqm:ldimqm', mt_log, 1, ldimqm))
+     $  ldimqm = .false.
+      if (ldimqm) then
+        call dimqm_rohf_wrap(rtdb, geom, basis, nbf, g_cdens, g_vdim)
+        call ga_dadd(one, g_hcore, one, g_vdim, g_hcore)
+      end if
+c
       call ga_sync()
 c
       eone_closed = ga_ddot(g_hcore, g_cdens)
       eone_open = 0.0d0
       if (nopen .gt. 0) eone_open = ga_ddot(g_hcore, g_odens)
       eone = eone_closed + eone_open
-c
-c     DIM/QM JEM
-      if (ldimqm) then
-        lfirst = .true.
-        call dimqm_main(rtdb, basis, geom, g_cdens, .true.)
-        dims(1) = nbf
-        dims(2) = nbf
-        chunk(1) = dims(1)
-        chunk(2) = -1
-        if (.not. nga_create (MT_DBL, 2, dims, 'DIM FOCK',chunk,
-     &                        g_vdim))
-     &    call errquit('rohf_fock: could not allocate g_vdim',
-     &                 555, GA_ERR)
-        call ga_zero(g_vdim)
-        Edim = 0.0d0
-        call dim_grid_quadv0(rtdb, g_vdim, 1, Edim)
-      end if
 c     
 c     Generate two-electron closed- and open-shell Fock components
 c     
@@ -287,12 +278,6 @@ c
       etwo = etwo_closed + etwo_open
 c     
       call ga_dadd(One, g_hcore, One, g_cfock, g_cfock)
-c
-c     DIM/QM JEM
-c     Add DIM potential
-      if (ldimqm) then
-        call ga_dadd(one, g_vdim, one, g_cfock, g_cfock)
-      end if
 c     
 c     Assemble Fock components
 c     F(closed-open)    = F(closed) + Fcoul(open)                   (fcp)

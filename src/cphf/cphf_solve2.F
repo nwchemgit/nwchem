@@ -306,7 +306,9 @@ c HvD: prepare_guess must always be called as it initializes g_work
      &               rtdb)        ! in : rtdb handle
 c Note.- en-scl*g_b is unpropertly called "preconditioning"
 c 000000000000000 prepare guess 000000000000 END
+
 c     DIM/QM JEM
+c     Prep DIM/QM for response      
       if (ldimqm .and. lrsp) then
         call dimqm_prep(rtdb, -1)
       end if

@@ -98,7 +98,6 @@ c
 #include "rtdb.fh"
 #include "bgj.fh"
 #include "case.fh"
-#include "dimqm.fh"
 c     
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
@@ -139,6 +138,7 @@ c      logical ga_create_atom_blocked
       parameter (zero=0.0d0, one=1.0d0, mone=-1.0d0, four=4.0d0)
 c     DIM/QM
       integer g_dens, g_dim
+      logical ldimqm
 c
 c     First allocated arrays and build the AO densities.
 c     This will be cleaner when we restructure the fock build to take
@@ -250,17 +250,19 @@ c
 c
 c     DIM/QM JEM
 c     Calculate DIM dipoles and DIM potential from TOTAL density
-      if (ldimqm .and. lrsp) then
+      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', mt_log,
+     $                  1, ldimqm)) ldimqm = .false.
+      if (ldimqm) then
         dims(1) = nvec
         chunk(1) = dims(1)
         if (.not. nga_create(MT_DBL, 3, dims, 'tdens', chunk, g_dens))
      $    call errquit('uhf_hessv2: DIM dens create', 0, GA_ERR)
-        if (.not. nga_create(MT_DBL, 3, dims, 'g_dim', chunk, g_dim))
-     $    call errquit('uhf_hessv2: DIM pot create', 0, GA_ERR)
+c        if (.not. nga_create(MT_DBL, 3, dims, 'g_dim', chunk, g_dim))
+c     $    call errquit('uhf_hessv2: DIM pot create', 0, GA_ERR)
         alo(1) = 1
         ahi(1) = nvec
+c       Copy Alpha
         call nga_copy_patch('n', g_dens2, alo, ahi, g_dens, alo, ahi)
-        write(*,*) "Copied Alpha"
         alo(1) = nvec+1
         ahi(1) = 2*nvec
         blo(1) = 1
@@ -269,21 +271,19 @@ c     Calculate DIM dipoles and DIM potential from TOTAL density
         bhi(2) = nbf
         blo(3) = 1
         bhi(3) = nbf
+c       Add Beta
 c       Seems like we need to divide both alpha and beta by 4
 c       to match closed shell routine?
         call nga_add_patch(0.25d0, g_dens2, alo, ahi,
      $                     0.25d0, g_dens,  blo, bhi,
      $                             g_dens,  blo, bhi)
-        write(*,*) "Added Beta"
-        call ga_print(g_dens)
-        if(dimqm_on) then
-          call dimqm_indDipoles(dimqm_rtdb, nbf, geom, basis,
-     $                          g_dens)
-        end if
-        call ga_zero(g_dim)
-        call fock_dim(geom, nbf, basis, nvec, g_dim, 0, 1)
-        call ga_symmetrize(g_dim)
-        call ga_sync()
+        call dimqm_rohf_calcDIM(bgj_get_rtdb_handle(), geom, basis,
+     $                          nbf, nvec, g_dens, g_dim)
+c        call dimqm_indDipoles(bgj_get_rtdb_handle(), nbf, geom,
+c     $                          basis, g_dens)
+c        call ga_zero(g_dim)
+c        call fock_dim(geom, nbf, basis, nvec, g_dim, 0, 1)
+c        call ga_symmetrize(g_dim)
         if(.not. ga_destroy(g_dens))
      $    call errquit('uhf_hessv2: DIM destroy dens', 0, GA_ERR)
 c       Reset dimensions for the rest of the subroutine
@@ -443,11 +443,11 @@ c
 c
 c     DIM/QM JEM
 c
-           if (ldimqm .and. lrsp) then
+           if (ldimqm) then
              alo(1) = ivec
              ahi(1) = alo(1)
              call nga_copy_patch('N', g_dim, alo, ahi, g_k, blo, bhi)
-c            Mulitply DIM potential by 4?
+c            Mulitply DIM potential by 4 due to earlier divide.
              call ga_matmul_patch('n', 'n', 4.0d0, zero,
      $             g_k, 1, nbf, 1, nbf,
      $             g_vecs, 1, nbf, 1, nocc,
@@ -480,5 +480,9 @@ c
      &       GA_ERR)
       if (.not. ga_destroy(g_fock2)) call errquit('uhf_hessv: GA?',0,
      &       GA_ERR)
+      if (ldimqm) then
+        if (.not. ga_destroy(g_dim))
+     $    call errquit('uhf_hessv2 destroy g_dim failed', 1, GA_ERR)
+      end if
 c
       end

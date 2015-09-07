@@ -15,7 +15,6 @@ c     have an imaginary part, too
 #include "stdio.fh"
 #include "util.fh"
 #include "global.fh"
-#include "dimqm.fh"
 c     
 c     $Id$
 c
@@ -73,10 +72,10 @@ c
      &   lifetime, gamwidth, ncomp)
       if (debug) write (6,*) 'back from rohf_hessv_xx3'
 c   DIM/QM JEM
-      if(ldimqm .and. lrsp .and. dimqm_on) then
-        call dimqm_addop(g_x, g_x_im, g_ax, g_ax_im, ncomp, 
-     $                   limag, lifetime)
-      end if
+c      if(ldimqm .and. lrsp .and. dimqm_on) then
+c        call dimqm_addop(g_x, g_x_im, g_ax, g_ax_im, ncomp, 
+c     $                   limag, lifetime)
+c      end if
 c
 c     Zap numbers much smaller than acc to ensure hard zeroes 
 c     remain unpolluted ... cannot use a threshold larger than the
@@ -128,6 +127,8 @@ c ... jochen: input arrays g_x and g_Ax have two components here
       integer ncomp
       double precision omg(ncomp),gam(ncomp)
       logical debug
+c     DIM/QM JEM
+      logical ldimqm
 c
 c     =================================================================
 c
@@ -250,6 +251,15 @@ c
         endif                   ! ncomp
         
       endif                     ! pflg.gt.1
+c   DIM/QM JEM
+c   This call is placed differently than in rohf_hessv2 because we
+c   require knowledge of the real and imaginary simultaneously.
+      if (.not.rtdb_get(bgj_get_rtdb_handle(),'dimqm:lrsp',MT_LOG, 1,
+     $                  ldimqm)) ldimqm = .false.
+      if(ldimqm) then
+        call dimqm_addop(g_x, g_x_im, g_ax, g_ax_im, ncomp, 
+     $                   limag, lifetime)
+      end if
 c     
       end
       

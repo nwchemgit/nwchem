@@ -652,7 +652,6 @@ c
 #include "zora.fh"
 #include "frozemb.fh"
 #include "cosmo.fh"
-#include "dimqm.fh"
 c     
 c     $Id$
 c
@@ -680,8 +679,10 @@ c
       double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_dens(2),i
       character*255 cosmo_file
-      integer dims(3), chunk(3), g_vdim ! DIM/QM JEM
-      double precision Edim
+c     DIM/QM JEM
+      logical ldimqm
+      integer g_vdim
+      double precision edimqm
 c     
 c     Check
 c     
@@ -925,26 +926,16 @@ c
       endif  ! cosmo check
 c
 c     DIM/QM JEM
-c     
+c     Calculate DIM potential
+      if (.not. rtdb_get(rtdb, 'dimqm:lrsp', mt_log, 1, ldimqm))
+     $  ldimqm = .false.
       if (ldimqm) then
-        lfirst = .true.
 c       We need to combine the alpha and beta densities to calculate the total DIM dipoles
         g_dens(1) = ga_create_atom_blocked(geom,
      $                                     basis, 'dim density matrix')
         call ga_copy(g_a_dens, g_dens(1))
         call ga_dadd(one, g_dens(1), one, g_b_dens, g_dens(1))
-        call dimqm_main(rtdb, basis, geom, g_dens(1), .true.)
-        dims(1) = nbf
-        dims(2) = nbf
-        chunk(1) = dims(1)
-        chunk(2) = -1
-        if (.not. nga_create (MT_DBL, 2, dims, 'DIM FOCK',chunk,
-     &                        g_vdim))
-     &    call errquit('rohf_fock: could not allocate g_vdim',
-     $                 555, GA_ERR)
-        call ga_zero(g_vdim)
-        Edim = 0.0d0
-        call dim_grid_quadv0(rtdb, g_vdim, 1, Edim)
+        call dimqm_rohf_wrap(rtdb, geom, basis, nbf, g_dens(1), g_vdim)
         if(.not.ga_destroy(g_dens(1)))
      $    call errquit('uhf_energy: ga_destroy failed DIM den',0,GA_ERR)
       end if
@@ -1013,6 +1004,11 @@ c
      &       GA_ERR)
       if (.not. ga_destroy(g_b_coul)) call errquit('uhf_e: destroy',0,
      &       GA_ERR)
+c      DIM/QM JEM
+      if (ldimqm) then
+        if(.not.ga_destroy(g_vdim))
+     $    call errquit('uhf_energy: destroy vdim failed',0,GA_ERR)
+      end if
 c
 c     extract the gradient
 c
@@ -1036,6 +1032,8 @@ c
 c     DIM/QM JEM
 c     DIM energy term
       if (ldimqm) then
+        if (.not.rtdb_get(rtdb, 'dimqm:edimqm', mt_dbl, 1, edimqm))
+     $    call errquit('uhf_energy get edimqm failed', 1, RTDB_ERR)
         energy = energy + edimqm
       end if
 c

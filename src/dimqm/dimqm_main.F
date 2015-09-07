@@ -152,16 +152,20 @@ c      Write induced dipoles and charges to disk
      $  call errquit('dimqm_main muind put failed', 1, RTDB_ERR)
 c
 c      Calculate DIM/QM interaction energy
+c      This is needed in the RTDBdd
       edimqm = dime(EqmE, dbl_mb(k_eqmn), muind, nDIM)
+      if (.not. rtdb_put(rtdb, 'dimqm:edimqm', MT_DBL, 1, edimqm))
+     $  call errquit('dimqm_main edimqm put failed', 1, RTDB_ERR)
 c
-       dx = SUM(muind(1,:))
-       dy = SUM(muind(2,:))
-       dz = SUM(muind(3,:))
-       if(id.eq.0 .and. .not. lastcy) then
-         write(luout,*) "Induced dipoles:"
-         write(luout,*) dx, dy, dz
-         write(luout,*) ''
-       end if
+c
+      dx = SUM(muind(1,:))
+      dy = SUM(muind(2,:))
+      dz = SUM(muind(3,:))
+      if(id.eq.0 .and. .not. lastcy) then
+        write(luout,*) "Induced dipoles:"
+        write(luout,*) dx, dy, dz
+        write(luout,*) ''
+      end if
 c
 c      Determine error in dipoles
       max_err = calcErr(i3, dbl_mb(k_muold), muind)

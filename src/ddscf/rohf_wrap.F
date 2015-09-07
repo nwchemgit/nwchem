@@ -103,7 +103,6 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 #include "cosmo.fh"
-#include "dimqm.fh" !JEM
 c     
 c     $Id$
 c
@@ -119,6 +118,10 @@ c
       logical odbug
       logical osome
       double precision ecosmo !< [Output] The COSMO solvation energy
+c     DIM/QM JEM
+      logical ldimqm
+      double precision edimqm
+
 
       odbug=.false.
       osome=.false.
@@ -203,9 +206,13 @@ c
 c     
 c     DIM/QM JEM
 c     DIM/QM energy term
+      if (.not. rtdb_get(rtdb, 'dimqm:ldimqm', MT_LOG, 1, ldimqm))
+     $  ldimqm = .false. 
       if (ldimqm) then
+        if (.not. rtdb_get(rtdb, 'dimqm:edimqm', MT_DBL, 1, edimqm))
+     $    call errquit('rohf_energy: dimqm energy', 1, RTDB_ERR)
         energy = energy + edimqm
-        if(ga_nodeid() .eq. 0) then
+        if(ga_nodeid().eq.0.and.osome) then
           write(6,9998) (energy-edimqm), edimqm, energy
  9998 format(' energ0 = ',f20.10,/,' edimqm = ',f20.10,/,
      $       ' energy = ',f20.10)

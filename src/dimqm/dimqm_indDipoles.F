@@ -3,7 +3,7 @@
 c
 c     Determines the induced dipoles for the given density matrix 
 c    
-c     Called from aoresponse.F
+c     Called from: dimqm_rohf.F
 c
       implicit none
 #include "errquit.fh"
