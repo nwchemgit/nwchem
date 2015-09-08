@@ -1,10 +1,10 @@
 #!/bin/bash
 # 
 declare -a LIST_MPIFWRAP
-LIST_MPIFWRAP=( 'mpiifort' 'mpifc' 'mpixlf_r' 'mpixlf' 'mpif90' 'mpif77' )
+LIST_MPIFWRAP=( 'mpif90' 'mpiifort' 'mpifc' 'mpixlf_r' 'mpixlf' 'mpif77' )
 export LIST_MPIFWRAP
 declare -a LIST_MPICWRAP
-LIST_MPICWRAP=( 'mpiicc' 'mpixlc_r' 'mpixlc' 'mpigcc' 'mpicc' )
+LIST_MPICWRAP=( 'mpicc' 'mpixlc_r' 'mpixlc' 'mpigcc' 'mpiicc' )
 export LIST_MPICWRAP
 function usage()
 {
