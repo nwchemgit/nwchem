@@ -210,10 +210,9 @@
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        if (nwxc_rtdb_load(rtdb,"dft")) then
+        call nwxc_rtdb_load(rtdb,"dft")
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
-        endif
 !$OMP end single
       endif
 
@@ -318,10 +317,9 @@ c         call nwxc_print()
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        if (nwxc_rtdb_load(rtdb,"dft")) then
+        call nwxc_rtdb_load(rtdb,"dft")
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
-        endif
 !$OMP end single
       endif
 
@@ -467,10 +465,9 @@ c
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        if (nwxc_rtdb_load(rtdb,"dft")) then
+        call nwxc_rtdb_load(rtdb,"dft")
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
-        endif
 !$OMP end single
       endif
 
@@ -673,10 +670,9 @@ c
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        if (nwxc_rtdb_load(rtdb,"dft")) then
+        call nwxc_rtdb_load(rtdb,"dft")
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
-        endif
 !$OMP end single
       endif
 
@@ -782,10 +778,9 @@ c         call nwxc_print()
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        if (nwxc_rtdb_load(rtdb,"dft")) then
+        call nwxc_rtdb_load(rtdb,"dft")
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
-        endif
 !$OMP end single
       endif
 
@@ -871,10 +866,9 @@ c         call nwxc_print()
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        if (nwxc_rtdb_load(rtdb,"dft")) then
+        call nwxc_rtdb_load(rtdb,"dft")
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
-        endif
 !$OMP end single
       endif
 

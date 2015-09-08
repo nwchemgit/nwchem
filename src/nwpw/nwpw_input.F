@@ -154,6 +154,7 @@ chvd
       double precision a,b,c
       logical hfsr
       integer flag
+      logical lstat
 chvd
        
 *     **** external functions ****
@@ -631,7 +632,9 @@ c
       ind = index(exchange_correlation,' ') - 1
       if (exchange_correlation(1:ind).eq.'new') then
 c       call inp_prev_field()
-        if (.not.nwxc_input()) then
+cold        if (.not.nwxc_input()) then
+        call nwxc_input(lstat)
+        if(.not.lstat) then
           call errquit("nwpw_input: not a functional",
      +                 0,UERR)
         endif

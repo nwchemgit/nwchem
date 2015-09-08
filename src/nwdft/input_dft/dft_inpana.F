@@ -21,7 +21,6 @@ c
 #include "bas.fh"
 #include "cdft.fh"
 #include "util.fh"
-#include "nwxc.fh"
 c
       double precision AUTOANG, ANGTOAU
       Parameter (AUTOANG = 0.529177249d0, ANGTOAU = 1.d0/AUTOANG)
@@ -59,7 +58,7 @@ c
 c
       logical status  ! FA
       logical use_nwxc 
-      logical dftmp2
+      logical dftmp2,out1
       double precision mp2fac
 c     
       me=ga_nodeid()
@@ -685,23 +684,23 @@ c     &                    r1
 cHvD
       use_nwxc = util_module_avail("nwxc")
       if (use_nwxc) then
-        use_nwxc = nwxc_rtdb_load(rtdb,"dft")
+        call nwxc_rtdb_load(rtdb,"dft")
       endif
       if (use_nwxc) then
-        if (nwxc_has_hfx()) then
-          xfac(1) = nwxc_wght_hfx()
+         call nwxc_getvals("nwxc_has_hfx",out1)
+        if (out1) then
+           call nwxc_getwght("nwxc_wght_hfx",xfac(1))
         endif
-        dftmp2 = nwxc_has_mp2c()
-        mp2fac = nwxc_wght_mp2c()
+         call nwxc_getvals("nwxc_has_mp2c",dftmp2)
         if (dftmp2) then
+           call nwxc_getwght("nwxc_wght_mp2c",mp2fac)
           if (.not.rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
      &      call errquit('dft_inpana: rtdb_put failed', 2902, RTDB_ERR)
         endif
-        if (nwxc_has_cam()) then
-          cam_exch = .true.
+        call nwxc_getvals("nwxc_has_cam",cam_exch)
+        if (cam_exch) then
           call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
-        else 
-          cam_exch  = .false.
+       else
           cam_alpha = 0.0d0
           cam_beta  = 0.0d0
           cam_omega = 0.0d0

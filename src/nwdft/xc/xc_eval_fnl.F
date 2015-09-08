@@ -41,7 +41,6 @@ c xc-third derivative header file
 cHvD
 #include "errquit.fh"
 #include "mafdecls.fh"
-#include "nwxc.fh"
 #include "util.fh"
       integer l_f, k_f
       integer l_g, k_g
@@ -89,6 +88,7 @@ c
 
       logical do_2nd, do_3rd
       logical ldew, ldew2, ldew3
+      logical out1
 c
       double precision eps,dumd
       integer nx,nc,dumi
@@ -126,7 +126,7 @@ c
 c
       use_nwxc = util_module_avail("nwxc")
       if (use_nwxc) then
-        use_nwxc = nwxc_is_on()
+         call nwxc_getvals("nwxc_is_on",out1)
       endif
       if (use_nwxc) then
 c

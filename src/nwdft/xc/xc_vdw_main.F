@@ -556,8 +556,6 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
-#include "nwxc.fh"
-#include "xc_vdw.fh"
 c
       integer n
       integer itags,ltags,i_xyz,l_xyz,icharge,lcharge,
@@ -569,12 +567,14 @@ c
       external xc_vdw_init
       logical oprint,oprinth
       logical stat
-      logical use_nwxc_disp
+      logical use_nwxc_disp,out1
 c
       logical geom_cart_get2 
       external geom_cart_get2 
 c
       double precision delta,delta_default
+      double precision alpha
+      integer ivdw
 c
       oprint = util_print('vdw', print_high)
       oprinth = util_print('vdw high', print_high)
@@ -603,13 +603,15 @@ c     Which Grimme dispersion version
 c
       if (.not.rtdb_get(rtdb,'dft:ivdw',MT_INT,1,ivdw))
      &      ivdw = 2
-      use_nwxc_disp = util_module_avail("nwxc")
-      if (use_nwxc_disp) then
-        use_nwxc_disp = use_nwxc_disp .and. nwxc_has_disp()
-      endif
-      if (use_nwxc_disp) then
+      
+      use_nwxc_disp = .false.
+      if(util_module_avail("nwxc")) then
+         call nwxc_getvals("nwxc_has_disp",out1)
+         use_nwxc_disp = out1
+         if (use_nwxc_disp) then
 c       get ivdw here as this data is needed for xc_vdw_init
-        call nwxc_get_disp(ivdw,s6,s8,sr6,sr8,a1,a2,alpha)
+            call nwxc_get_disp(ivdw,s6,s8,sr6,sr8,a1,a2,alpha)
+         endif
       endif
 c
 c     conversion factor angs 2 au
@@ -650,9 +652,6 @@ c
            write(luout,*) ' sr8 =',sr8
            write(luout,*) ' alpha  =',alpha
            write(luout,*) ' ivdw  =',ivdw
-           write(luout,*) ' k1 = ',k1
-           write(luout,*) ' k2 = ',k2
-           write(luout,*) ' k3 = ',k3
          endif
 c
          evdw=xc_vdw_e(s6,s8,sr6,sr8,a1,a2,n,dbl_mb(i_xyz),int_mb(iz))

@@ -33,7 +33,7 @@ C>
 C> \return Return .true. if the functional was successfully parsed,
 C> and .false. otherwise.
 C>
-      logical function nwxc_input()
+      subroutine nwxc_input(stat)
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"
@@ -106,7 +106,6 @@ c                               ! cursor if failed
         end select
       enddo
       call nwxc_detect_dependencies()
-      nwxc_input = stat
       return
       end
 C>
@@ -235,12 +234,13 @@ C>
 C> \return Return .true. if the data was successfully stored, and
 C> .false. otherwise.
 C> 
-      logical function nwxc_rtdb_store(rtdb,name)
+      subroutine nwxc_rtdb_store(rtdb,name)
       implicit none
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "nwxcP.fh"
 #include "inp.fh"
+#include "errquit.fh"
       integer rtdb       !< [Input] The RTDB handle
       character*(*) name !< [Input] The name under which the current
                          !< functional will be stored
@@ -336,7 +336,9 @@ c     This stuff is to be removed when the integration is finalized
         endif
       endif
 cHACK
-      nwxc_rtdb_store = status
+      if (.not.status) then
+        call errquit("nwxc_rtdb_store failed",0,UERR)
+      endif
 c
       return
       end
@@ -357,7 +359,7 @@ C> \return Return .true. if the data was successfully loaded, and
 C> .false. if no functional with the specified name was found, abort 
 C> if only partial information on a particular functional is found.
 C> 
-      logical function nwxc_rtdb_load(rtdb,name)
+      subroutine nwxc_rtdb_load(rtdb,name)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -380,7 +382,6 @@ c
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_num"
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,nwxc_usr_num)
 c
-      nwxc_rtdb_load = status
       nwxc_on = status
       if (.not. status) then
 c
@@ -456,7 +457,6 @@ c
       status=status.and.rtdb_get(rtdb,rtdb_key,MT_INT,1,
      +                           nwxc_eval_method)
 c
-      nwxc_rtdb_load = status
       if (.not.status) then
 c
 c       We found nwxc_num_f and nwxc_usr_num so the functional must have

@@ -18,7 +18,6 @@ c
 #include "stdio.fh"
 #include "cdft.fh"
 #include "case.fh"
-#include "nwxc.fh"
 #include "util.fh"
 c
 c     read input for DFT calculation.  All input is of the form:
@@ -71,12 +70,13 @@ c
 c     xdm variables
       double precision xdm_a1, xdm_a2
       logical xdm_onlyc, xdm_varc
+      logical out1
 c
 c     xps variables
       logical lxps
       integer lenstr
       character*255 inp_vecs
-c
+
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $         'ecp','grid','vectors','incore','iterations', 
      $         'max_ovl','mulliken','mult','noio','noprint','odft', 
@@ -330,13 +330,13 @@ c
       if (test(1:3).eq."old") then
         call xc_input(rtdb, 'dft')
       else if (test(1:3).eq."new") then
-        if (.not.nwxc_input()) then
+         call nwxc_input(out1)
+        if (.not.out1) then
           call errquit("dft_input: nwxc_input failed",0,UERR)
         endif
-        if (.not.nwxc_rtdb_store(rtdb,"dft")) then
-          call errquit("dft_input: nwxc_rtdb_store failed",0,UERR)
-        endif
-        if (nwxc_has_cam()) then
+        call nwxc_rtdb_store(rtdb,"dft")
+        call nwxc_getvals("nwxc_has_cam",out1)
+        if (out1) then
           cam_exch = .true.
           call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
         else
