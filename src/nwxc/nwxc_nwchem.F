@@ -484,10 +484,11 @@ C>
 C> \return Return .true. if the functional was successfully
 C> deleted, and .false. otherwise.
 C> 
-      logical function nwxc_rtdb_delete(rtdb,name)
+      subroutine nwxc_rtdb_delete(rtdb,name)
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
       integer rtdb       !< [Input] The RTDB handle
       character*(*) name !< [Input] The name under which the functional
                          !< is stored
@@ -503,8 +504,11 @@ c
       status=status.and.rtdb_delete(rtdb,rtdb_key)
       rtdb_key="dft:xc:"//name(1:lenname)//":nwxc_usr_num"
       status=status.and.rtdb_delete(rtdb,rtdb_key)
-
-      nwxc_rtdb_delete = status
+#if 0
+      if (.not.status) then
+        call errquit("nwxc_rtdb_delete failed",0,UERR)
+      endif
+#endif
       return
       end
 C> @}
