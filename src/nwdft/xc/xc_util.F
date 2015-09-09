@@ -9,11 +9,11 @@ c
 c
 #include "cdft.fh"
 #include "steric.fh"
-#include "nwxc.fh"
 #include "util.fh"
 c
 c     see if any Gradient Corrected Functional is not null
 c
+      logical out1,out2
       double precision tot,eps
       parameter(eps=1.d-10)
 c
@@ -46,7 +46,9 @@ c
          xc_chkgrad = .false.
       end if
       if (util_module_avail("nwxc")) then
-         xc_chkgrad = xc_chkgrad .or. nwxc_is_gga().or.nwxc_is_mgga()
+         call nwxc_getvals("nwxc_is_gga",out1)
+         call nwxc_getvals("nwxc_is_mgga",out2)
+         xc_chkgrad = xc_chkgrad .or. out1.or.out2
       endif
 c
       return
@@ -55,10 +57,10 @@ c
       logical function xc_gotxc()
       implicit none
 #include "cdft.fh"
-#include "nwxc.fh"
 #include "util.fh"
       double precision tot
       integer i
+      logical out1
 c
 c     return true if there is any XC functional to compute 
 c     (other than HF Exch)
@@ -69,7 +71,8 @@ c
       enddo
       xc_gotxc = tot.gt.1d-8.or.lb94.or.cs00
       if (util_module_avail("nwxc")) then
-        xc_gotxc = xc_gotxc.or.nwxc_has_xc()
+         call nwxc_getvals("nwxc_has_xc",out1)
+        xc_gotxc = xc_gotxc.or.out1
       endif
       return
       end
@@ -94,8 +97,8 @@ c
       implicit none
 c
 #include "cdft.fh"
-#include "nwxc.fh"
 #include "util.fh"
+      logical out1
 c
       xc_got2nd=.not.(
 c
@@ -164,7 +167,8 @@ chp414     .     cfac(21).ne.0d0.or.
      .     cfac(54).ne.0d0.or.
      .     cfac(36).ne.0d0)
       if (util_module_avail("nwxc")) then
-        xc_got2nd = xc_got2nd .or. nwxc_has_2nd()
+         call nwxc_getvals("nwxc_has_2nd",out1)
+        xc_got2nd = xc_got2nd .or. out1
       endif
 c
       return
@@ -180,10 +184,10 @@ c
 c     see if any metaGGA Functional using TAU is not null
 c
 #include "cdft.fh"
-#include "nwxc.fh"
 #include "util.fh"
 C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
 c 
+      logical out1
       double precision tot,eps
       parameter(eps=1.d-10)
       tot = xfac(18) + cfac(25) + xfac(21) + cfac(27) +
@@ -201,7 +205,8 @@ c
          xc_chktau = .false.
       endif
       if (util_module_avail("nwxc")) then
-         xc_chktau = xc_chktau .or. nwxc_is_mgga()
+         call nwxc_getvals("nwxc_is_mgga",out1)
+         xc_chktau = xc_chktau .or. out1
       endif
       return
       end
@@ -229,7 +234,7 @@ c
 #include "cdft.fh"
 #include "case.fh"
 #include "util.fh"
-#include "nwxc.fh"
+      logical out1
 c
       xc_hascam=(
      .     xfac(38).ne.0d0.or.
@@ -242,7 +247,8 @@ c
 c
       xc_hascam = xc_hascam.or.cam_exch
       if (util_module_avail("nwxc")) then
-        xc_hascam = xc_hascam.or.nwxc_has_cam()
+         call nwxc_getvals("nwxc_has_cam",out1)
+        xc_hascam = xc_hascam.or.out1
       endif
 c
       return

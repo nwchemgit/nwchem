@@ -28,8 +28,6 @@ C>
       logical nwxc_has_2nd  !< Does this functional support 2nd order
                             !< partial derivatives?
 C>
-      logical nwxc_rtdb_load   !< Load the functional from the RTDB
-      logical nwxc_rtdb_store  !< Store the functional on the RTDB
       logical nwxc_rtdb_delete !< Delete the functional from the RTDB
 C>
       logical nwxc_set_rho_tolerance !< Set the density tolerance

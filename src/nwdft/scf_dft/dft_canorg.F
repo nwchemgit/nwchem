@@ -256,7 +256,6 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "dft_conv.fh"
-#include "nwxc.fh"
 #include "util.fh"
 c
       logical oprint
@@ -279,7 +278,9 @@ c
          iAOacc = iAOacc_max
          tol_rho = tol_rho_max
          use_nwxc = util_module_avail("nwxc")
-         if (use_nwxc) use_nwxc = nwxc_is_on()
+         if (use_nwxc) then
+            call nwxc_getvals("nwxc_is_on",use_nwxc)
+         endif
          if (use_nwxc) call nwxc_reset_rho_tolerance(tol_rho)
          if(iter.ge.nfock/2) iswitc = iswitc+1
          if(abs(delta).lt.1d-6) iswitc = iswitc+2

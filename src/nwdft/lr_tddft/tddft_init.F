@@ -28,7 +28,6 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "case.fh"
-#include "nwxc.fh"
 c
       integer rtdb             ! Runtime database handle
       integer geom             ! Geometry handle
@@ -570,30 +569,27 @@ c -------------
 c
       use_nwxc = util_module_avail("nwxc")
       if (use_nwxc) then
-        use_nwxc = nwxc_rtdb_load(rtdb,"dft")
+        call nwxc_rtdb_load(rtdb,"dft")
       endif
       if (use_nwxc) then
-        if (nwxc_has_hfx()) then
-          xfac(1) = nwxc_wght_hfx()
-          lhashf = .true.
-        else
-          lhashf = .false.
+         call nwxc_getvals("nwxc_has_hf",lhashf)
+        if (lhashf) then
+          call nwxc_getwght("nwxc_wght_hfx",xfac(1))
         endif
-        lhasdft = nwxc_has_xc()
+        call  nwxc_getvals("nwxc_has_xc",lhasdft)
         ldft    = lhasdft.and.(.not.lhashf)
         lhf     = (.not.lhasdft).and.lhashf
         lhybrid = lhasdft.and.lhashf
-        dftmp2  = nwxc_has_mp2c()
-        mp2fac  = nwxc_wght_mp2c()
+        call nwxc_getvals("nwxc_has_mp2c",dftmp2)
         if (dftmp2) then
+           call nwxc_getwght("nwxc_wght_mp2c",mp2fac)
           if (.not.rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
      &      call errquit('dft_inpana: rtdb_put failed', 2902, RTDB_ERR)
         endif
-        if (nwxc_has_cam()) then
-          cam_exch = .true.
+        call nwxc_getvals("nwxc_has_cam",cam_exch)
+        if (cam_exch) then
           call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
         else 
-          cam_exch  = .false.
           cam_alpha = 0.0d0
           cam_beta  = 0.0d0
           cam_omega = 0.0d0

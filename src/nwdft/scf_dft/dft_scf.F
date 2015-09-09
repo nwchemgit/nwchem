@@ -431,7 +431,7 @@ c    Jorge Garza/Begin
 c     Jorge Garza/End
       use_nwxc = util_module_avail("nwxc")
       if (use_nwxc) then
-        use_nwxc = nwxc_is_on()
+         call nwxc_getvals("nwxc_is_on",use_nwxc)
       endif
 c
 c     Set aside some memory for reduced density matrix

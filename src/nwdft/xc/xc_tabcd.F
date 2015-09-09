@@ -72,7 +72,6 @@ c
 #include "dft2drv.fh"
 #include "dist.fh"
 #include "dft_fdist.fh"
-#include "nwxc.fh"
 #include "util.fh"
 c
       Logical GRAD !< [Input] .True. if functional depends on density

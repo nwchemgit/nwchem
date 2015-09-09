@@ -11,7 +11,6 @@ c
 #include "rtdb.fh"
 #include "nwc_const.fh"
 #include "errquit.fh"
-#include "nwxc.fh"
 #include "util.fh"
 c
       integer ind               ! Index of matched directive
@@ -154,6 +153,8 @@ chvd
       double precision a,b,c
       logical hfsr
       integer flag
+      logical lstat,out1
+      double precision xfac
 chvd
        
 *     **** external functions ****
@@ -631,33 +632,35 @@ c
       ind = index(exchange_correlation,' ') - 1
       if (exchange_correlation(1:ind).eq.'new') then
 c       call inp_prev_field()
-        if (.not.nwxc_input()) then
+cold        if (.not.nwxc_input()) then
+        call nwxc_input(lstat)
+        if(.not.lstat) then
           call errquit("nwpw_input: not a functional",
      +                 0,UERR)
         endif
-        if (.not.nwxc_rtdb_store(rtdb,"dft")) then
-          call errquit("nwpw_input: store functional failed",
-     +                 0,UERR)
-        endif
+        call nwxc_rtdb_store(rtdb,"dft")
         value = .true.
-        if (nwxc_has_hfx()) then
+        call nwxc_getvals("nwxc_has_hfx",out1)
+        if (out1) then
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,
-     +                     nwxc_wght_hfx())
+     +                     out1)
+           call nwxc_getwght("nwxc_wght_hfx",xfac)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,
-     +                     nwxc_wght_hfx())
+     +                     xfac)
         else
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.false.)
         endif
-        if (nwxc_has_cam()) then
+        call nwxc_getvals("nwxc_has_cam",out1)
+        if (out1) then
           call nwxc_get_cam(a,b,c,hfsr)
           if (hfsr) then
             flag = 4
@@ -679,7 +682,7 @@ c       call inp_prev_field()
       endif
 
       if (util_module_avail("nwxc")) then
-        value = nwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
+        call nwxc_rtdb_delete(rtdb,"dft") !*** don't need to check return value ****
       endif
 
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
