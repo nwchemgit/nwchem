@@ -40,7 +40,6 @@ c !!! BGJ test !!!
 c !!! temporary !!!
 #include "rtdb.fh"
 #include "dftps.fh"
-#include "nwxc.fh"
 #include "util.fh"
 
       logical ldbw
@@ -155,7 +154,6 @@ c Daniel (2-7-13): Logical variable storing if we're calculating the
 c dVxc*P contribution.
       logical do_tddftvxc
       logical ldew2 ! Prevent weighting of derivative matrices
-      logical use_nwxc
 c     
 c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients
@@ -163,8 +161,6 @@ c           within int_eval_gbsets mbf is # of orbs with nonzero
 c           points in sampling set.  iniz is a mapping array.
 c           currently set up only for cartesian (6d) sets
 c         
-      use_nwxc = util_module_avail("nwxc")
-      if (use_nwxc) use_nwxc = nwxc_is_on()
 c Daniel (2-14-13): Fixed the indentation in this routine.
       iDmat = 0
       ichi_ao = 0
