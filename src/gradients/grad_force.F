@@ -64,7 +64,6 @@ C------------------------------------------------------------------------------
 #include "inp.fh"
 #include "xc.fh"
 #include "case.fh"
-#include "nwxc.fh"
 c
       logical use_nwxc
 c
@@ -175,6 +174,7 @@ c
 c
       logical lcdft  ! Qin
       integer ipop
+      logical out1
 c
       nproc = ga_nnodes()
 c
@@ -258,11 +258,13 @@ C     get SCF MO vectors for density
          if (ocdfit) jfac = 0.0d0
          use_nwxc = util_module_avail("nwxc")
          if (use_nwxc) then
-           if (nwxc_is_on()) then
-             if (nwxc_has_hfx()) then
-               xfac(1) = nwxc_wght_hfx()
-             endif
-           endif
+            call nwxc_getvals("nwxc_is_on",out1)
+            if (out1) then
+               call nwxc_getvals("nwxc_has_hfx",out1)
+               if (out1) then
+                  call nwxc_getwght("nwxc_wght_hfx",xfac(1))
+               endif
+            endif
          endif
          kfac = xfac(1)
       else
