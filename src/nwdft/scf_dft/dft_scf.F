@@ -40,7 +40,6 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
-#include "nwxc.fh"
 c     
       Logical movecs_write, movecs_converged, movecs_read
       External movecs_write, movecs_converged, movecs_read

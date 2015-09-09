@@ -59,7 +59,6 @@ c
 #include "dft2drv.fh"
 #include "steric.fh"
 #include "dft3drv.fh"
-#include "nwxc.fh"
 c
       logical rtdb_status       
       logical grid_reopen
@@ -184,7 +183,9 @@ c
       len_Amat3 = 1
       len_Cmat3 = 1 
       use_nwxc = util_module_avail("nwxc")
-      if (use_nwxc) use_nwxc = nwxc_is_on()
+      if (use_nwxc) then 
+         call nwxc_getvals("nwxc_is_on",use_nwxc)
+      endif
       if (use_nwxc) then
 c       the Automatic Differentiation code uses the unrestricted open-
 c       shell approach for 2nd and higher order derivatives.
