@@ -1318,7 +1318,7 @@ c      end
             d = dsqrt((x-xc)**2 + (y-yc)**2 + (z-zc)**2)
 
             !*** d < rcut and ignore center ***
-            if ((d.le.rcut).and.(d.gt.1.0d-6)) then
+            if ((d.le.rcut).and.(d.gt.1.0d-3)) then
                nion2 = nion2 + 1
                rion2(1,nion2) = x-xc
                rion2(2,nion2) = y-yc
