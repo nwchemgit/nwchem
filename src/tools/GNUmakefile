@@ -470,6 +470,7 @@ endif
     MAYBE_SYSVSHMEM= "ARMCI_DEFAULT_SHMMAX_UBOUND=131072"
 GOTCGWIN32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep CYGWIN32|cut -c22)
 GOTMINGW32= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW32|cut -c21)
+GOTMINGW64= $(shell gcc -dM -E -   </dev/null 2> /dev/null |grep MINGW64|cut -c21)
 ifeq ($(GOTCGWIN32),1)
 # weak pragmas not working with cygwin
    MAYBE_OFFLOAD += --disable-weak
@@ -477,6 +478,12 @@ endif
 ifeq ($(GOTMINGW32),1)
 # weak pragmas not working with cygwin
    MAYBE_OFFLOAD += --disable-weak
+endif
+ifeq ($(GOTMINGW64),1)
+#MSMPI madness
+   FFLAGS_FORGA += -fno-range-check -m64
+   CFLAGS_FORGA +=  -m64
+   CC = gcc
 endif
 
 ifdef FFLAGS_FORGA
