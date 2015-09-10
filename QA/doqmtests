@@ -108,36 +108,38 @@ echo "qmmm frequency  test  may  fail"
 
 #
 #--- range-separated functionals tests
-./runtests.mpi.unix procs $1 acr-camb3lyp-cdfit
-./runtests.mpi.unix procs $1 acr-camb3lyp-direct
-./runtests.mpi.unix procs $1 acr_lcblyp
-./runtests.mpi.unix procs $1 h2_bnl
-./runtests.mpi.unix procs $1 h2o_bnl
-./runtests.mpi.unix procs $1 h2o-camb3lyp-pol-cdfit
-./runtests.mpi.unix procs $1 h2o-camb3lyp-pol
-./runtests.mpi.unix procs $1 h2o-cambeckehh
-./runtests.mpi.unix procs $1 h2o-campbe0
-./runtests.mpi.unix procs $1 h2o-lcpbe
-./runtests.mpi.unix procs $1 o2_bnl
-./runtests.mpi.unix procs $1 o2_hfattn
-./runtests.mpi.unix procs $1 cdft_jarv1
+./runtests.mpi.unix procs $np acr-camb3lyp-cdfit
+./runtests.mpi.unix procs $np acr-camb3lyp-direct
+./runtests.mpi.unix procs $np acr_lcblyp
+./runtests.mpi.unix procs $np h2_bnl
+./runtests.mpi.unix procs $np h2o_bnl
+./runtests.mpi.unix procs $np h2o-camb3lyp-pol-cdfit
+./runtests.mpi.unix procs $np h2o-camb3lyp-pol
+./runtests.mpi.unix procs $np h2o-cambeckehh
+./runtests.mpi.unix procs $np h2o-campbe0
+./runtests.mpi.unix procs $np h2o-lcpbe
+./runtests.mpi.unix procs $np o2_bnl
+./runtests.mpi.unix procs $np o2_hfattn
+./runtests.mpi.unix procs $np cdft_jarv1
 #
 #--- dft + dispersion tests
-./runtests.mpi.unix procs $1 disp_dimer_ch4
+./runtests.mpi.unix procs $np disp_dimer_ch4
 #
 #--- double hybrid tests
-./runtests.mpi.unix procs $1 Ne_scf-mp2_cc-vqz
-./runtests.mpi.unix procs $1 Ne_b2plyp_cc-vqz
-./runtests.mpi.unix procs $1 He_scf-mp2_cc-vqz
-./runtests.mpi.unix procs $1 He_b2plyp_cc-vqz
-./runtests.mpi.unix procs $1 Ar_scf-mp2_cc-vqz
-./runtests.mpi.unix procs $1 Ar_b2plyp_cc-vqz
+./runtests.mpi.unix procs $np Ne_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $np Ne_b2plyp_cc-vqz
+./runtests.mpi.unix procs $np He_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $np He_b2plyp_cc-vqz
+./runtests.mpi.unix procs $np Ar_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $np Ar_b2plyp_cc-vqz
 #
 #--- cdspectrum tests
-./runtests.mpi.unix procs $1 dmo_tddft_cd
+./runtests.mpi.unix procs $np dmo_tddft_cd
 #
 #--- spherical atom symmetry test
-./runtests.mpi.unix procs $1 ptatom
-
+./runtests.mpi.unix procs $np ptatom
+#
+#--- spin-polarised ECPs test
+./runtests.mpi.unix procs $np spin_ecps_heh_grad
 
 
