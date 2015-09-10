@@ -6,6 +6,42 @@
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     rex, expnt, coeffs, ldc, stdtag, oshell_is_rel)
+cc AJL/Begin: This is a wrapper call to the updated version of this function
+cc SPIN-POLARISED ECPS
+      implicit none
+c#include "errquit.fh"
+c#include "mafdecls.fh"
+c#include "basdeclsP.fh"
+c#include "nwc_const.fh"
+c#include "basP.fh"
+c#include "bas_exndcf_dec.fh"
+c#include "ecpso_decP.fh"
+c#include "stdio.fh"
+      integer basis ! [input] basis handle
+      character*(*) tag ! [input] tag on which to add contraction
+      character*(*) stdtag ! [input] standard basis set name associated
+*                                    with the tag     
+      integer l_value ! [input] type of contraction (s, p, ..., sp)
+      integer ngen ! [input] no. of contractions
+      integer nprim ! [input] no. of primitives
+      integer ldc ! [input] leading dimension of coeffs
+      double precision expnt(nprim) ! [input] exponents
+      double precision coeffs(ldc, 1:*) ! [input] coefficients
+      double precision rex(nprim) ! [input] gaussian R exponents 
+*. . . . . . . . . . . . . . . . .          (offset by 2)
+      logical oshell_is_rel ! [input] flag for relativistic shell
+
+      logical  bas_add_ucnt0
+      external bas_add_ucnt0
+
+      bas_add_ucnt =  bas_add_ucnt0(basis, tag, l_value,ngen, nprim, 
+     &                rex, expnt, coeffs, ldc, stdtag, oshell_is_rel, 0)
+
+      end
+c
+      logical function bas_add_ucnt0(basis, tag, l_value, ngen, nprim, 
+     $     rex, expnt, coeffs, ldc, stdtag, oshell_is_rel, channel)
+cc AJL/End
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -43,6 +79,9 @@ c
 c
       logical bas_check_handle
       external bas_check_handle
+cc AJL/Begin/SPIN-POLARISED ECPS
+      integer channel           ! [input] ecp channel [both/alpha/beta]
+cc AJL/End
 c
 #include "bas_exndcf_sfn.fh"
 #include "ecpso_sfnP.fh"
@@ -67,14 +106,20 @@ c
 c     adds a new general contraction on the specified tag.  If the
 c     tag is not present it will also add that by calling bas_add_utag
 c      
-      bas_add_ucnt = bas_check_handle(basis,'bas_add_ucnt')
-      if (.not. bas_add_ucnt) return
+CC AJL/Begin/SPIN POLARISED ECPS
+c      bas_add_ucnt = bas_check_handle(basis,'bas_add_ucnt')
+c      if (.not. bas_add_ucnt) return
+      bas_add_ucnt0 = bas_check_handle(basis,'bas_add_ucnt0')
+      if (.not. bas_add_ucnt0) return
       ind = basis + BASIS_HANDLE_OFFSET
 c
 c     Make sure that the tag is in the list
 c
-      bas_add_ucnt = bas_add_utag(basis, tag, stdtag, itag)
-      if (.not. bas_add_ucnt) return
+c      bas_add_ucnt = bas_add_utag(basis, tag, stdtag, itag)
+c      if (.not. bas_add_ucnt) return
+      bas_add_ucnt0 = bas_add_utag(basis, tag, stdtag, itag)
+      if (.not. bas_add_ucnt0) return
+CC AJL/End
 c
 c     Update header information about all unique contractions on all 
 c     tags.  Free points to next free word in the exndcf
@@ -91,12 +136,12 @@ c
         if (.not.ma_alloc_get(
      &      mt_dbl,s_new,' input for basis heap ',
      &      h_new, k_new)) then
-          write(LuOut,*)'bas_add_ucnt: too many prims/coeffs'
+          write(LuOut,*)'bas_add_ucnt0: too many prims/coeffs'
           write(LuOut,*)' allocated size for input is :',
      &        exndcf(SZ_exndcf,ind)
           write(LuOut,*)' size requested here         :',
      &        (free+size_add-1)
-          bas_add_ucnt = .false.
+          bas_add_ucnt0 = .false.
           return
         endif
         call dfill(s_new,0.0d00,dbl_mb(k_new),1)
@@ -110,8 +155,8 @@ c
       endif
 *      if (infbs_head(HEAD_NCONT,ind)+1 .gt. nucont_bsmx) then
       if (infbs_head(HEAD_NCONT,ind) .gt. nucont_bsmx) then
-         write(LuOut,*) 'bas_add_ucnt: too many contractions '
-         bas_add_ucnt = .false.
+         write(LuOut,*) 'bas_add_ucnt0: too many contractions '
+         bas_add_ucnt0 = .false.
          return
       endif
 c         
@@ -157,7 +202,7 @@ c
      $     + nprim*ngen
       if (infbs_tags(TAG_FCONT,itag,ind).eq.0) then
          if (itag .ne. ntags) call errquit
-     $        ('bas_add_ucnt: tag error', itag, BASIS_ERR)
+     $        ('bas_add_ucnt0: tag error', itag, BASIS_ERR)
          infbs_tags(TAG_FCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
          infbs_tags(TAG_LCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
       else
@@ -173,11 +218,14 @@ c
       infbs_cont(CONT_NGEN, iu_cont,ind) = ngen
       infbs_cont(CONT_IEXP, iu_cont,ind) = free
       infbs_cont(CONT_ICFP, iu_cont,ind) = free + nprim
+cc AJL/Begin/SPIN-POLARISED ECPs
+      infbs_cont(CONT_CHANNEL, iu_cont, ind) = channel
+cc AJL/End
       if (oIs_ecp.or.oIs_so) then
         infbs_cont(Cont_Irexp, iu_cont, ind) =
      &      free + nprim + nprim*ngen
       else
-*. . . . . . . . . . . . . . . . . . ! point to exponents for saftey?
+*. . . . . . . . . . . . . . . . . . ! point to exponents for safety?
         infbs_cont(Cont_Irexp, iu_cont,ind) = free 
       endif
       if (oshell_is_rel) then

@@ -85,6 +85,10 @@ c
       double precision g_vdim
       double precision Edim
 c
+cc AJL/Begin/SPIN ECPs
+      integer ecp_channels
+cc AJL/End
+c
       do_cosmo_smd = .false.
       do_cosmo_vem = 0
       gcds = 0.D0
@@ -165,25 +169,63 @@ c
      &     '           Kinetic energy =', f20.12/)
          endif
       endif
-     
+c
+cc AJL/Begin/SPIN ECPs
+cc    Read this value from rtdb vvvv
+      if (.not.rtdb_get(rtdb, 'dft:spin_polarised_ecps',
+     &  mt_int, 1, ecp_channels)) then
+        ecp_channels = 1
+      endif
+
+      if (ecp_channels.eq.2.and.ipol.eq.1)
+     & call errquit('dft_fockbld: spin_polarised_ecps with mult = 1', 
+     &               0, BASIS_ERR)
+
+c     == Copy Fock matrix to individual components for spin ECPs ==
+      call ga_copy(g_fock, g_focks(1))
+c Is this redundant? Need to test
+      if (ecp_channels.gt.1) call ga_copy(g_fock, g_focks(2))
 c
 c     if requested separate calculation of bq-electron energy (MV)
 c     ----------------------------------------------------------- 
       if (rtdb_get(rtdb, 'dft:bq_energy', mt_dbl, 1,Ebq)) then
-        Ecore = ga_ddot(g_dens(1), g_fock)
-        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 
+c        Ecore = ga_ddot(g_dens(1), g_fock)
+c        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 
+c     &                 'bq_pot', oskel)
+
+        Ecore = ga_ddot(g_dens(1), g_focks(1))
+        call int_1e_ga(ao_bas_han, ao_bas_han, g_focks(1),
      &                 'bq_pot', oskel)
-        Ebq = ga_ddot(g_dens(1), g_fock)-Ecore
-        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock,
+c Copy to g_focks(2), as this is identical for both channels
+        if (ecp_channels.gt.1) call ga_copy(g_focks(1), g_focks(2))
+c
+c        Ebq = ga_ddot(g_dens(1), g_fock)-Ecore
+c        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock,
+c     &                 'potential0', oskel)
+
+        Ebq = ga_ddot(g_dens(1), g_focks(1))-Ecore
+        call int_1e_ga(ao_bas_han, ao_bas_han, g_focks(1),
      &                 'potential0', oskel)
+c Calculate Beta channel 1e potential
+        if (ecp_channels.gt.1)
+     &    call int_1e_ga(ao_bas_han, ao_bas_han, g_focks(2),
+     &                   'potential_beta0', oskel)
+cc AJL/End
+c
         if (.not. rtdb_put(rtdb,'dft:bq_energy',mt_dbl,1,Ebq)) 
      $     call errquit('dft: writing bq_energy failed', 
      $     0, RTDB_ERR)
       else
         if(util_print('dft timings', print_high))
      &        time1_pot=util_cpusec()   ! start time
-        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 
+cc AJL/Begin/SPIN ECPs
+c        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock,
+        call int_1e_ga(ao_bas_han, ao_bas_han, g_focks(1), 
      &                 'potential', oskel)
+        if (ecp_channels.gt.1)
+     &    call int_1e_ga(ao_bas_han, ao_bas_han, g_focks(2),
+     &                   'potential_beta', oskel)
+cc AJL/End
         if(util_print('dft timings', print_high))
      &        time2_pot=util_cpusec()   ! end time
 c
@@ -198,13 +240,50 @@ c     print potential matrix time
 c
 c     ----- Add cosmo potential when needed -----
 c
+cc AJL/Begin/SPIN ECPs
       if(cosmo_on.and.cosmo_phase.eq.2) then
-         call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
+c         call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
+         call int_1e_ga(ao_bas_han,ao_bas_han,g_focks(1),
      &                  'cos_chg_pot',.false.)
+         if (ecp_channels.gt.1)
+     &     call int_1e_ga(ao_bas_han,ao_bas_han,g_focks(2),
+     &                    'cos_chg_pot',.false.)
       endif
+
+c     == Copy Fock matrix to individual components for normal calcs ==
+      if (ecp_channels.eq.1.and.ipol.gt.1) 
+     &  call ga_copy(g_focks(1), g_focks(2))
+
       call ga_sync()
 c
-      Ecore = ga_ddot(g_dens(1), g_fock)
+cc      Ecore = ga_ddot(g_dens(1), g_fock)
+cc AJL: Ecore = ga_ddot(g_dens(1), g_focks(1))
+cc      write(6,*)'Ecore(1:T):',ga_ddot(g_dens(1), g_focks(1))
+
+cc    With spin-polarised ECPs Ecore will be spin dependent
+cc    See Szabo and Ostlund pg. 215
+cc        
+      if (ecp_channels.gt.1) then
+c     
+c       Restore alpha and beta densities to calculate energy
+        call ga_dadd(1d0, g_dens(1), -1d0, g_dens(2), g_dens(1))
+
+        Ecore = ga_ddot(g_dens(1), g_focks(1))
+c        write(6,*)'Ecore(1:A):',Ecore
+        Ecore = Ecore + ga_ddot(g_dens(2), g_focks(2))
+c        write(6,*)'Ecore(2:B):',ga_ddot(g_dens(2), g_focks(2))
+c
+c       And then recombine the densities for now. 
+        call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
+c
+c       call ga_sync()   
+      else
+
+        Ecore = ga_ddot(g_dens(1), g_focks(1))
+c        write(6,*)'Ecore(1:T):',ga_ddot(g_dens(1), g_focks(1)) 
+ 
+      endif
+cc AJL/End
 c
 c     add Bonacic-Fantucci repulsive term
 c
@@ -258,7 +337,13 @@ c
 c     
 c     Add V coul to Fock Matrix
 c     
-      call ga_dadd(1d0, g_tmp, 1d0, g_fock, g_fock)
+cc AJL/Begin/SPIN ECPs
+c      call ga_dadd(1d0, g_tmp, 1d0, g_fock, g_fock)
+      call ga_dadd(1d0, g_tmp, 1d0, g_focks(1), g_focks(1))
+      if (ipol.gt.1) 
+     &  call ga_dadd(1d0, g_tmp, 1d0, g_focks(2), g_focks(2))
+cc AJL/End
+c
       if (CDFIT)then
          if (.not.ma_pop_stack(lcd_coef))
      &        call errquit('dft_scf: cannot pop stack',0, MA_ERR)
@@ -310,7 +395,11 @@ c     == Compute the XC potential and energy ==
       g_vxc(1) = g_tmp
       call ga_zero(g_vxc(1))
       rho_n = 0.0d0
-      if (ipol.eq.2)call ga_zero(g_vxc(2))
+cc AJL/Begin/FDE
+cc Can't remember why I implemented this? To be tested.
+cc      if (ipol.eq.2)call ga_zero(g_vxc(2))
+      if (ipol.gt.1) call ga_copy(g_vxc(1), g_vxc(2))
+cc AJL/End
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
 c
       if (odftps) call pstat_on(ps_xc)
@@ -378,10 +467,12 @@ c  Jorge Garza/Begin
       end if
 c  Jorge Garza/End
 c
-c     == Copy Fock matrix to individual components ==
-      call ga_copy(g_fock, g_focks(1))
-      if (ipol.gt.1) 
-     &     call ga_copy(g_fock, g_focks(2))
+cc AJL/Begin/SPIN ECPs
+cc     == Copy Fock matrix to individual components ==
+c      call ga_copy(g_fock, g_focks(1))
+c      if (ipol.gt.1) 
+c     &     call ga_copy(g_fock, g_focks(2))
+cc AJL/End
 c
 c     == Add exchange-correlation to the Fock matrix ==       
       call ga_dadd(1.d0, g_vxc(1), 1.d0, g_focks(1), g_focks(1))
@@ -403,6 +494,18 @@ c       DIM potential is from total density, so same for both alpha and beta
 c     
       if (odftps) call pstat_off(ps_fockb)
 c
+cc AJL/Begin/SPIN ECPs (Debug)
+c      if(util_print('Intermediate Fock Matrix', print_debug)) then
+c        if (ga_nodeid() .eq. 0) then
+c          write(6,*)
+c          call util_print_centered(6,
+c     $         'Intermediate Fock Matrix',40,.true.)
+c          write(6,*)
+c          call util_flush(6)
+c        end if
+c        call ga_print(g_focks(1))
+c        if (ipol.eq.2) call ga_print(g_focks(2))
+cc AJL/End
 c
 c MN solvation models -->
 c

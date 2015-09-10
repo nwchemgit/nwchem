@@ -27,7 +27,7 @@ c       [spherical|cartesian] [segment||nosegment] [print] [noprint]
 c
 c     tag nelec <integer>
 c     tag library [tag in library] <standard set> [file <filename>]
-c     tag <shell type>
+c     tag <shell type> <channel>
 c       <r-exponent> <exponent> <contraction coefficients>
 c       ...
 c     end ecp
@@ -343,7 +343,7 @@ c
 c for ecp or so 
 c     tag nelec <integer>      ! only for ecp
 c     tag library [<tag in library>] <standard set> [file <filename>]
-c     tag <contraction type>
+c     tag <contraction type> <channel>
 c       <r-exponent> <exponent> <contraction coefficients>
 c       ...
 c     end ecp
@@ -369,6 +369,9 @@ c
       integer spvalues(nsptypes)
       integer num_elec
       integer l_value, ind, icount
+cc AJL/Begin/SPIN-POLARISED ECPs
+      integer channel           ! Both (Default)=0; Alpha=1; Beta=2
+cc AJL/End
       data ltypes /'s','p','d','f','g','h','i'/
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1 ,   -1 /
@@ -430,6 +433,26 @@ c
         if (oIs_star) goto 10000
 c
         l_value = ind - 1
+
+CC AJL/Begin/SPIN-POLARISED ECPs
+c
+c     Check if it has a channel specified for spin-polarised ECPs
+c     This is only implemented for user-defined values, not Library
+c
+        if (oIs_ecp) then
+          if (.not.inp_i(channel)) then
+            channel = 0 
+          else if (channel.lt.0.or.channel.gt.2) then
+            call errquit('bas_input_body: channel choice for ECP 
+     &        must be either 0: Both; 1: Alpha (default); 2: Beta',
+     &        99, INPUT_ERR)
+          end if
+        else
+          channel = 0
+        end if
+c
+CC AJL/End
+
 c
 c     check if it is a relativistic shell
 c
@@ -445,6 +468,25 @@ c
 c  The contraction is an sp-type shell or an ecp Ulocal shell
 c     
         l_value = spvalues(ind)
+
+CC AJL/Begin
+c
+c     check if it has a channel specified for spin-polarised ECPs
+c
+        if (oIs_ecp) then
+          if (.not.inp_i(channel)) then
+            channel = 0 
+          else if (channel.lt.0.or.channel.gt.2) then 
+            call errquit('bas_input_body: channel choice for ECP 
+     &        must be either 0: Both; 1: Alpha (default); 2: Beta',
+     &        99, INPUT_ERR)
+          end if
+        else
+          channel = 0
+        end if
+c
+CC AJL/End
+
 c
 c     check for relativistic shell - this is illegal.
 c
@@ -559,7 +601,7 @@ c
 c     Fall thru to here to read in a set of contraction coefficients
 c
       call bas_input_cont(basis, osegment, tag, l_value,
-     &    'user specified', oshell_is_rel)
+     &    'user specified', oshell_is_rel, channel)
 c
 c     Have already read in the next line ... parse it
 c
@@ -582,7 +624,7 @@ c
      $       '                   [except <exceptions list>] [rel]',/,
      $       '       tag nelec <number of electrons ',
      &            'replaced on tag>',/,
-     $       '       tag <contraction type>',/,
+     $       '       tag <contraction type> <channel>',/,
      $       '           <exponent> <contraction coefficients>',/,
      $       '           ... ',/,
      $       ' end ecp',/,/,/,'or',/,
@@ -599,7 +641,7 @@ c
       end
 *.....................................................................
       subroutine bas_input_cont(basis, osegment, tag, l_value, stdtag,
-     &    oshell_is_rel)
+     &    oshell_is_rel, channel)
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -612,8 +654,8 @@ c
 #include "ecpso_decP.fh"
 #include "util.fh"
 c::functions
-      logical bas_add_ucnt
-      external bas_add_ucnt
+      logical bas_add_ucnt0
+      external bas_add_ucnt0
 c
       integer basis             ! [input] basis set handle
       logical osegment          ! [input] segment the basis set?
@@ -621,6 +663,9 @@ c
       integer l_value           ! [input] l value of contraction
       character*(*) stdtag      ! [input] standard name
       logical oshell_is_rel     ! [input] flag for relativistic shell
+cc AJL/Begin/SPIN-POLARISED-ECPs
+      integer channel           ! [input] ecp channel [both/alpha/beta]
+cc AJL/End
 c
       integer ngen, iprim, nprim, i, j, nptmp
       integer cont_max          ! Max. no. of contractions
@@ -733,6 +778,8 @@ c
 c
 c   bas_add_ucnt -> adds a new general contraction on the specified 
 c                   tag.
+c AJL/SPIN-POLARISED ECPs
+c   bas_add_ucnt0 -> adds the contraction to a specified channel
 c
 c   If the tag is not present it will also add that.
 c
@@ -772,39 +819,59 @@ c     simple shell or all ecp/so shells
                 endif
               endif
             enddo
+cc AJL/Begin/SPIN-POLARISED ECPs
+c            status = status .and.
+c     $          bas_add_ucnt(basis, tag, l_value, 1, nptmp, 
+c     $          rex_tmp, etmp, ctmp, prim_max,
+c     $          stdtag, oshell_is_rel)
             status = status .and.
-     $          bas_add_ucnt(basis, tag, l_value, 1, nptmp, 
+     $          bas_add_ucnt0(basis, tag, l_value, 1, nptmp, 
      $          rex_tmp, etmp, ctmp, prim_max,
-     $          stdtag, oshell_is_rel)
+     $          stdtag, oshell_is_rel, channel)
+cc AJL/End
           enddo
         else
 c     sp shell
+cc AJL/Begin
+c          status = status .and.
+c     $        bas_add_ucnt(basis, tag, 0, 1, nprim, 
+c     $        rex, expnt, coeff(1,1), prim_max,
+c     &        stdtag, oshell_is_rel)
+c          status = status .and.
+c     $        bas_add_ucnt(basis, tag, 1, 1, nprim, 
+c     $        rex, expnt, coeff(1,2), prim_max,
+c     &        stdtag, oshell_is_rel)
           status = status .and.
-     $        bas_add_ucnt(basis, tag, 0, 1, nprim, 
+     $        bas_add_ucnt0(basis, tag, 0, 1, nprim, 
      $        rex, expnt, coeff(1,1), prim_max,
-     &        stdtag, oshell_is_rel)
+     &        stdtag, oshell_is_rel,channel) ! Added Channel
           status = status .and.
-     $        bas_add_ucnt(basis, tag, 1, 1, nprim, 
+     $        bas_add_ucnt0(basis, tag, 1, 1, nprim, 
      $        rex, expnt, coeff(1,2), prim_max,
-     &        stdtag, oshell_is_rel)
+     &        stdtag, oshell_is_rel,channel) ! Added Channel
         endif
       else
 c     
 c     Add as a single general contraction or sp shell
 c     
+c        status = status .and.
+c     $      bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
+c     $      rex, expnt, coeff, prim_max,
+c     &      stdtag, oshell_is_rel)
         status = status .and.
-     $      bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
+     $      bas_add_ucnt0(basis, tag, l_value, ngen, nprim, 
      $      rex, expnt, coeff, prim_max,
-     &      stdtag, oshell_is_rel)
+     &      stdtag, oshell_is_rel, channel)
       endif
+cc AJL/End
       if (.not. status) call errquit
-     $        ('bas_input_cont: bas_add_ucnt failed!!', 0, BASIS_ERR)
+     $        ('bas_input_cont: bas_add_ucnt0 failed!!', 0, BASIS_ERR)
 c
       return
 c
 10000 write(LuOut,1)
  1    format(' basis/ecp contraction format is:',/,
-     $       '       tag <contraction type> [rel]',/,
+     $       '       tag <contraction type> [rel] [channel]',/,
      $       '           <exponent> <contraction coefficients>',/,
      $       '           ... ',/,
      $       ' end basis/ecp')
@@ -1085,7 +1152,13 @@ c
 c     Have tag and l_value ... read in the contraction coeffcients
 c
       call bas_input_cont(basis, osegment, tag, l_value,
-     &    standard, oshell_is_rel)
+cc AJL/Begin/SPIN ECPs
+c     &    standard, oshell_is_rel)
+     &    standard, oshell_is_rel, 0)
+c                                  ^ Indicates that this applies to both
+c                                    channels i.e. no spin-polarised ecps
+c                                    when reading from libraries
+cc AJL/End
       goto 20
 c
  9000 close(33)

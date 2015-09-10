@@ -3,7 +3,8 @@ c $Id$
 c
       subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,doECP,
-     *      g_wdens,g_dens,geom,basis,nat,ndens,dens,wdens,matb)
+     *      g_wdens,g_dens,geom,basis,nat,ndens,dens,wdens,matb,
+     *      ecp_channels)
 c
       implicit none
 c
@@ -44,6 +45,12 @@ c
       integer nxtask
       external nxtask
 c
+cc AJL/Begin/SPIN ECPs
+      integer ecp_channels
+cc Buffer for Beta Channel ECP integrals
+      double precision Ibuf_beta(lbuf)
+cc AJL/End
+c
       nproc = ga_nnodes()
       task_size = 1
       ijatom = -1
@@ -80,7 +87,15 @@ c
             if (ndens.eq.2) then
                call ga_get (g_dens(2), iab1f,iab1l,iab2f,iab2l,
      *                      dens(1,1,2),matb)
-               call daxpy(matb*matb,1.0d+00,dens(1,1,2),1,dens,1)
+c
+cc AJL/Begin/SPIN ECPs
+cc We only want to sum this if ecp_channels are one
+cc Otherwise we are going to apply different ddH to each density channel
+               if (ecp_channels.eq.1) then
+                 call daxpy(matb*matb,1.0d+00,dens(1,1,2),1,dens,1)
+               endif
+cc AJL/End
+c
             endif
             call ga_get(g_wdens,iab1f,iab1l,iab2f,iab2l,wdens,matb)
 
@@ -154,6 +169,14 @@ c
                       do ip1 = if1, il1
                         do ip2 = if2, il2
                           dE = dE + dens(ip1,ip2,1)*Ibuf(ic)
+c
+cc AJL/Begin/SPIN ECPs
+cc We haven't summed the local density so need to add this
+                          if (ecp_channels.gt.1) then
+                            dE = dE + dens(ip1,ip2,2)*Ibuf(ic)
+                          end if
+cc AJL/End
+c
                           ic = ic + 1
                         enddo
                       enddo
@@ -180,6 +203,14 @@ c
                     do 31 ip1 = if1, il1
                       do 30 ip2 = if2, il2
                         dE = dE + dens(ip1,ip2,1) * Ibuf(ic)
+c
+cc AJL/Begin/SPIN ECPs
+cc We haven't summed the local density so need to add this
+                        if (ecp_channels.gt.1) then
+                          dE = dE + dens(ip1,ip2,2)*Ibuf(ic)
+                        end if
+cc AJL/End
+c
 c                       write(6,*) 'dens and int ',dens(ip1,ip2,1),
 c    *                     Ibuf(ic)
                         ic = ic + 1
@@ -216,6 +247,14 @@ c
                     do ip1 = if1, il1
                       do ip2 = if2, il2
                         dE = dE + dens(ip1,ip2,1) * Ibuf(ic)
+c
+cc AJL/Begin/SPIN ECPs
+cc We haven't summed the local density so need to add this
+                        if (ecp_channels.gt.1) then
+                          dE = dE + dens(ip1,ip2,2)*Ibuf(ic)
+                        end if
+cc AJL/End
+c
                         ic = ic + 1
                       enddo
                     enddo
@@ -242,6 +281,15 @@ c
                 call intdd_1eecp1(basis,ish1,basis,ish2,
      &               lscr,Iscr,
      &               lbuf,Ibuf)
+c
+cc AJL/Begin/SPIN ECPs
+                if (ecp_channels.gt.1) then
+                  call intdd_1eecp1_beta(basis,ish1,basis,ish2,
+     &                 lscr,Iscr,
+     &                 lbuf,Ibuf_beta)
+                end if
+cc AJL/End
+c
                 ic = 0
                 do at2 = 1, nat
                 do at1 = 1, at2
@@ -254,6 +302,14 @@ c                     do ip1 = if1, il1
                       do ip2 = if2, il2
                         ic = ic + 1
                         dE = dE + dens(ip1,ip2,1) * Ibuf(ic)
+c
+cc AJL/Begin/SPIN ECPs
+cc Now we compute the Hecp_beta x Dens_beta
+                        if (ecp_channels.gt.1) then
+                          dE = dE + dens(ip1,ip2,2) * Ibuf_beta(ic)
+                        end if
+cc AJL/End
+c
                       enddo
                     enddo
                     if (iat1.ne.iat2 .or. ish1.ne.ish2) dE = dE + dE

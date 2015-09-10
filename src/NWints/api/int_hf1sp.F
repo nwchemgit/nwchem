@@ -294,11 +294,25 @@ c::local
      &        'int_hf1sp: unknown center for ECPs',
      &        911, INT_ERR)
         endif
-        call int_ecp_hf1(
-     &      xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
-     &      xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
-     &      scr,nintV,scr(offset),(lscr-nintV),
-     &      dryrun)
+c
+cc AJL/Begin/SPIN ECPs
+        if (msg.eq.'int_1epe_beta') then
+cc Call to spin polarised ecp calculation for Beta channel
+          call int_ecp_hf1_beta(
+     &         xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
+     &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
+     &         scr,nintV,scr(offset),(lscr-nintV),
+     &         dryrun)
+        else
+cc Original call to spin independent ECP
+          call int_ecp_hf1(
+     &         xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,
+     &         xyzj,expj,coefj,j_nprim,j_ngen,Lj,ictrj,
+     &         scr,nintV,scr(offset),(lscr-nintV),
+     &         dryrun)
+        endif
+cc AJL/End
+c
 *... sum ecp into V block
         call daxpy(nintV, 1.0d00, scr,1,V,1)
       endif

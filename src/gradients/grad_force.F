@@ -176,6 +176,11 @@ c
       integer ipop
       logical out1
 c
+cc AJL/Begin/SPIN ECPs
+      integer ecp_channels
+      logical osep
+cc AJL/End
+c
       nproc = ga_nnodes()
 c
       ld_ij2 = 0
@@ -524,11 +529,38 @@ c
       frac_occ = .false.
       if (has_frac_occ(rtdb)) frac_occ = .true.
 c
+cc AJL/Begin/SPIN ECPs     
+cc These need separating in the case of the spin-polarised calculation 
+      if (.not.rtdb_get(rtdb, 'dft:spin_polarised_ecps',
+     &  mt_int, 1, ecp_channels)) then
+        ecp_channels = 1
+      endif
+
+      if (ecp_channels.eq.1) then
+        osep = .false.
+      else
+c Split density between alpha and beta.
+        osep = .true.
+      endif
+
+c      call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag, 
+c     $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
+c     $     nopen, nclosed, scftype, movecs_in, omp2, odft,
+c     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,.false.)
+
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
      $     nopen, nclosed, scftype, movecs_in, omp2, odft,
-     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,.false.)
+     $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,osep)
 
+c We will combine these, and then separate them when we need them
+c This is what is expected in all subroutines except the spin-polarised
+c ECPs, within grad1, and must be adhered to.
+
+      if (osep) call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
+
+cc AJL/End
+c
 C     free temporary arrays
       if (.not. ga_destroy(g_eigen_diag))
      $     call errquit('grad: could not destroy g_eigen_diag',1,
@@ -602,11 +634,27 @@ c Qin
 c Qin / end
       cpu_tim(1)  = util_cpusec()
       wall_tim(1) = util_wallsec()
+c
+cc AJL/Begin
+cc Added ndens to grad1
+c
+      if (ecp_channels.gt.1) then
+        call ga_dadd(1d0, g_dens(1), -1d0, g_dens(2), g_dens(1))
+      end if
+
       call grad1( dbl_mb(k_buf), lbuf, dbl_mb(k_scr), lscratch,
      $     dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_frc_nuc),
      $     dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
      $     g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
-     $     rtdb, oskel)
+     $     rtdb, oskel, ndens)
+
+cc Recombine g_dens, as it is not used again
+       if (ecp_channels.gt.1) then
+         call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
+       end if
+c
+cc AJL/End
+c
 c
 c     ----- cosmo contribution -----
 c

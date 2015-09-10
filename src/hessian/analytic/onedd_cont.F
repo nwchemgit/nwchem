@@ -34,6 +34,16 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
+cc AJL/Begin/SPIN ECPs
+      integer ecp_channels
+cc    Read this value from rtdb vvvv
+      if (.not.rtdb_get(rtdb, 'dft:spin_polarised_ecps',
+     &  mt_int, 1, ecp_channels)) then
+        ecp_channels = 1
+      endif
+cc AJL/End
+c
+c
 c Set up print info
 c
       oprint = util_print('hess_follow',print_high)
@@ -107,7 +117,10 @@ c
       call onedd_calc(dbl_mb(k_exy),n3xyz,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
      *  doS,doT,doV,doECP,g_wdens,g_dens,geom,basis,ncent,ndens,
-     *  dbl_mb(k_dens),dbl_mb(k_wdens),matb)
+cc AJL/Begin/SPIN ECPs
+c     *  dbl_mb(k_dens),dbl_mb(k_wdens),matb)
+     *  dbl_mb(k_dens),dbl_mb(k_wdens),matb,ecp_channels)
+cc AJL/End
 c
       if(skelsym)call sym_hess_symmetrize(geom,dbl_mb(k_exy))
       if (oneprint.and.(ga_nodeid().eq.0)) then
@@ -170,11 +183,31 @@ c
       doS = .false.
       doV = .true.
       doT = .true.
+c
+cc AJL/Begin/SPIN ECPs
+      if (ndens.gt.1.and.ecp_channels.gt.1) then
+        call oned_calc(n3xyz,g_rhs,dbl_mb(k_buf),
+     *       max1e,dbl_mb(k_scr),mscratch_1e,.false.,
+     *       doS,doT,doV,geom,basis,ncent,2)
+C                                         ^ ECP Channel, Beta
+cc We should be OK just copying, as the commands in oned_calc are puts
+cc Is this necessary at all? To be tested.
+        call nga_copy_patch('N', g_rhs, alo, ahi, g_rhs, blo, bhi)
+      end if
+c
       call oned_calc(n3xyz,g_rhs,dbl_mb(k_buf),
-     *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
-     *  doS,doT,doV,geom,basis,ncent)
-      if (ndens.gt.1) call nga_copy_patch('N', g_rhs, 
-     *  alo, ahi, g_rhs, blo, bhi)
+     *     max1e,dbl_mb(k_scr),mscratch_1e,.false.,
+     *     doS,doT,doV,geom,basis,ncent,1)
+C                                       ^ ECP Channel, Alpha
+c
+c      if (ndens.gt.1) call nga_copy_patch('N', g_rhs, 
+c     *  alo, ahi, g_rhs, blo, bhi)
+c
+      if (ndens.gt.1.and.ecp_channels.eq.1) then
+        call nga_copy_patch('N', g_rhs, alo, ahi, g_rhs, blo, bhi)
+      end if
+cc AJL/End
+c
 c
 c  Print out the rhs values if requested
 c

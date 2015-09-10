@@ -2,7 +2,7 @@ c
 c $Id$
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
-     *      skelsym,doS,doT,doV,geom,basis,nat)
+     *      skelsym,doS,doT,doV,geom,basis,nat,ecp_channel)
 c
       implicit none
 c
@@ -35,6 +35,9 @@ c
 c
       integer nxtask
       external nxtask
+cc AJL/Begin/SPIN ECPs
+      integer ecp_channel
+cc AJL/End
 c
       nproc = ga_nnodes()
       task_size = 1
@@ -114,8 +117,19 @@ c
 C     dH
 c
                 if (doV.and.doT) then
-                 call intd_1eh1(basis,ish1,basis,ish2,lscr,Iscr,
-     *                lbuf,Ibuf)
+c
+cc AJL/Begin/SPIN ECPs
+c
+                 if (ecp_channel.eq.1) then
+                   call intd_1eh1(basis,ish1,basis,ish2,lscr,Iscr,
+     *                  lbuf,Ibuf)
+                 else
+                   call intd_1eh1_beta(basis,ish1,basis,ish2,lscr,Iscr,
+     *                  lbuf,Ibuf)
+                 end if
+c
+cc AJL/End
+c
                  ic = 1
                  do atx = 1, nxyz
                    lo(1) = atx

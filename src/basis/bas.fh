@@ -61,6 +61,10 @@ c
       logical ecp_get_num_elec
       logical ecp_set_parent_handle
       logical ecp_get_parent_handle
+cc AJL/Begin/SPIN-POLARISED ECPs
+      logical ecp_set_high_chan
+      logical ecp_get_high_chan
+cc AJL/End
 c
       logical bas_set_so_name
       logical bas_get_so_name
@@ -151,6 +155,9 @@ c
       external ecp_get_num_elec
       external ecp_set_parent_handle
       external ecp_get_parent_handle
+cc AJL/Begin/SPIN-POLARISED ECPs
+      external ecp_get_high_chan
+cc AJL/End
 c
       external bas_set_so_name
       external bas_get_so_name

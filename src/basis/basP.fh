@@ -143,7 +143,7 @@ c           ! 5 = icoeffpt ! pointer into linearized real*8
 c                          ! array for first coefficient of 
 c                          ! each cont. on each tag
 c           ! 6 = itag     ! cunique tag number
-c           ! 7 = irexp      ! pointer to R exponents for ECP functions
+c           ! 7 = irexp    ! pointer to R exponents for ECP functions
 c  Real*8 exndcf(3)        ! linearized real*8 array of 
 c                          ! exponents and coefficients
 c                          ! allocated on heap; exndcf now
@@ -174,7 +174,7 @@ c           ! 4 = first cont           ! first contraction on tag
 c           ! 5 = last cont            ! last contraction on tag
 c           ! 6 = nelec                ! number of elecs removed by ECP
 c           ! 7 = high ang   ! highest angular momentum on tag
-c  Integer infbs_cont(7,num_cont_total,nbasis) 
+c  Integer infbs_cont(9,num_cont_total,nbasis) 
 c           ! 1 = itype      ! type of contraction 0=s,1=p,2=d...
 c                            ! later -1=sp,-2=spd etc.
 c           ! 2 = nprim      ! num of prims in each cont. on tag
@@ -191,6 +191,10 @@ c           ! 6 = tag number ! unique center lexical index
 c           ! 7 = irexp      ! pointer to R exponents for ECP functions
 c           ! 8 = rel flag   ! flag for relativistic shell. 
 c                            ! 0 = nonrelativistic, 1 = relativistic.
+cc AJL/Begin/SPIN ECPs
+c           ! 9 = channel    ! Channel for ECP implementation
+c                            ! 0 = default; 1 = alpha; 2 = beta
+cc AJL/End
 c  Real*8 exndcf(3,nbasis)   ! linearized real*8 array of 
 c                            ! exponents and coefficients
 c                            ! allocated on heap; exndcf now
@@ -214,7 +218,7 @@ c.. static dimension information for common blocks
 c
 c leading dimensions of compressed arrays
       integer ndbs_tags, ndbs_ucont, ndbs_head
-      parameter(ndbs_tags=7, ndbs_ucont=8, ndbs_head=7)
+      parameter(ndbs_tags=7, ndbs_ucont=9, ndbs_head=7)
 c.. stored structures
       character*256 bs_name
       character*16  bs_tags

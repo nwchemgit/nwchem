@@ -569,11 +569,20 @@ c     $     dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_frc_nuc),
 c     $     dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
 c     $     g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
 c     $     rtdb, oskel)
+c
+cc AJL/Begin/SPIN ECPs
+cc Added ndens to grad1
+cc Work is still needed to separate g_dens for alpha and beta
+cc so spin-polarised will not work at this time. It throws
+cc an error in tce_grad1. To be looked at later...
+c
       call tce_grad1(dbl_mb(k_buf),lbuf,dbl_mb(k_scr),lscratch,
      $     dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_frc_nuc),
      $     dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
      $     g_1pdm, g_1pwdm, basis, geom, nproc, nat, max_at_bf,
-     $     rtdb, oskel)
+     $     rtdb, oskel, ndens)
+c
+cc AJL/End
 c
 c
 c     ----- cosmo contribution -----

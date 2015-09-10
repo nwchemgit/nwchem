@@ -1,7 +1,7 @@
       subroutine tce_grad1 ( H, lbuf, scr, lscr, dens, wdens, frc_nuc,
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
-     $                   max_at_bf, rtdb, oskel )
+     $                   max_at_bf, rtdb, oskel, ndens )
 c$Id$
 
 C     one electron contribution to RHF, ROHF and UHF gradients
@@ -15,13 +15,17 @@ C     now also UMP2
 #include "bas.fh"
 #include "rtdb.fh"
 #include "sym.fh"
+#include "stdio.fh"
 
 C-------------------------parameters--------------------------------
       integer lbuf, lscr,
      $     g_dens,        ! density matrix (summed if ROHF, UHF)
      $     g_wdens,       ! weighted density (Lagrangian)
      $     g_force,       ! global force array
-     $     basis, geom, nproc, nat, max_at_bf, rtdb
+     $     basis, geom, nproc, nat, max_at_bf, rtdb,
+cc AJL/Begin/SPIN ECPs
+     $     ndens          ! Number of density matrices in g_dens
+cc AJL/End
 
       double precision H, ! integral derivatives
      $     scr, 
@@ -31,7 +35,10 @@ C-------------------------parameters--------------------------------
 
       dimension H ( lbuf ), frc_nuc(3, nat), frc_kin(3, nat),
      $          frc_wgh(3, nat), scr(lscr),
-     $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf)
+     $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf),
+cc AJL/Begin/SPIN ECPs
+     $          g_dens(ndens)
+cc AJL/End
 
       logical oskel   ! symmetry?
 
@@ -59,6 +66,50 @@ C-------------------------local variables--------------------------
 
       integer nxtask, task_size
       external nxtask
+
+cc AJL/Begin/SPIN ECPs
+      integer ecp_channels
+      integer iecp
+      double precision H_beta (lbuf)
+      double precision dens_beta (max_at_bf,max_at_bf)
+
+cc    Read this value from rtdb vvvv
+      if (.not.rtdb_get(rtdb, 'dft:spin_polarised_ecps',
+     &  mt_int, 1, ecp_channels)) then
+        ecp_channels = 1
+        H_beta = 0
+      endif
+cc AJL: With spin-polarised ECPs Hcore will be spin dependent
+cc            See Szabo and Ostlund pg. 215
+cc      So we need to separate out the densities
+cc        
+      if (ecp_channels.gt.1) then
+c     
+c       Restore alpha and beta densities to calculate spin-polarised
+c       derivatives 
+c
+cc Currently, this will not work, as g_dens is formulated only in the spin-paired
+cc manner, and not separable. Therefore, for now I will just put an
+cc an error. In the long term we need to be able to supply the separable
+cc alpha and beta densities             
+      
+        write(LuOut,*)'-------------- WARNING ---------------'
+        write(LuOut,*)'Spin-polarised ECPs have not been implemented'
+        write(LuOut,*)'for TCE gradients. Any results received will be'
+        write(LuOut,*)'calculated assuming all density is in the alpha'
+        write(LuOut,*)'channel, and therefore must be assumed INCORRECT'
+        write(LuOut,*)''
+        
+        stop
+
+c Note: all of the framework is already in place, for future reference
+c we just need to pass in the alpha and beta densities combined in
+c g_dens(1), and the beta densities in g_dens(2), and comment out
+c the above error.
+c
+        call ga_dadd(1d0, g_dens(1), -1d0, g_dens(2), g_dens(1))
+      end if
+cc AJL/End
 
       task_size = 1
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
@@ -95,9 +146,22 @@ c
 
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
             status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
-
-            call ga_get(g_dens, iab1f,iab1l,iab2f,iab2l,dens,max_at_bf)
+c
+cc AJL/Begin/SPIN ECPs
+cc            call ga_get(g_dens,iab1f,iab1l,iab2f,iab2l,dens,max_at_bf)
+            do 75, iecp = 1, ecp_channels
+              if (iecp.eq.1) then
+                call ga_get(g_dens(iecp), iab1f,iab1l,
+     $               iab2f,iab2l,dens,max_at_bf)
+              else
+                call ga_get(g_dens(iecp), iab1f,iab1l,
+     $               iab2f,iab2l,dens_beta,max_at_bf)
+              endif
+ 75         continue
+cc g_wdens is not dependent on spin, so can leave this
             call ga_get(g_wdens,iab1f,iab1l,iab2f,iab2l,wdens,max_at_bf)
+cc AJL/End
+c
 c->debug
 c            call ga_print(g_dens)
 c             call ga_print(g_wdens)
@@ -154,8 +218,23 @@ C               1el. derivatives
                 call intd_1epot(basis,ish1,basis,ish2,lscr,scr,
      &               lbuf,H)
                 end if
-                  
-
+c
+cc AJL/Begin/SPIN ECPs
+cc AJL: With spin-polarised ECPs Hcore will be spin dependent
+cc            See Szabo and Ostlund pg. 215
+                if (ecp_channels.gt.1) then
+C               1el. derivatives
+                  if(.not.dobq) then
+cc For now this will do, but this could be more efficiently done
+                    call intd_1eh1_beta(basis,ish1,basis,ish2,lscr,scr,
+     &                   lbuf,H_beta)
+                  else
+                    call intd_1epot_beta(basis,ish1,basis,ish2,lscr,scr,
+     &                   lbuf,H_beta)
+                  end if
+                end if
+cc AJL/End                  
+c
 C     D x H
 c                write(6,*) 'D x H'
                 ic=1
@@ -165,6 +244,11 @@ c                write(6,*) 'D x H'
                     do 31, ip1 = if1, il1
                       do 30, ip2 = if2, il2
                         dE = dE + dens(ip1,ip2) * H(ic)
+cc AJL/Begin
+                        if (ecp_channels.gt.1) then
+                          dE = dE + dens_beta(ip1,ip2) * H_beta(ic)
+                        end if
+cc AJL/End
 c                        write(6,'(a,i4,i4,f20.16)') 'dens',ip1,ip2,
 c     1                        dens(ip1,ip2)
 c                        write(6,'(a,i4,f20.16)') 'H',ic,H(ic)

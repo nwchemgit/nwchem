@@ -3,5 +3,8 @@
 *
       logical ocache
       integer bas1
-      integer g_cache(3)
-      common / cint1ecache / ocache, bas1, g_cache
+      integer g_cache(4)
+c
+      integer channels ! AJL: For the alpha/beta ECP channels
+c
+      common / cint1ecache / ocache, bas1, g_cache, channels

@@ -25,6 +25,11 @@ C> * "cos_chg_pot": the integrals with the COSMO charges
 C>
 C> * "bq_pot": the integrals with BQ-charges
 C>
+cc AJL/Begin
+C> * "potential_beta": the nuclear attraction with ECPs for the
+C>                     beta channel
+cc AJL/End
+C>
 C> The routine can exploit symmetry. If oskel is true then the 
 C> "petite-list" symmetry will be used, although this requires both
 C> basis sets to be the same.
@@ -74,6 +79,11 @@ c
       if (inp_compare(.false., integ_type1, 'potential0')) then
         integ_type1='potential'
         dobq=.false.
+cc AJL/Begin/SPIN-POLARISED ECPs
+      elseif (inp_compare(.false., integ_type1, 'potential_beta0')) then
+        integ_type1='potential_beta'
+        dobq=.false.
+cc AJL/End
       end if
 c     
       if (oskel) then
@@ -96,7 +106,11 @@ c
          type = 6 
       else if (inp_compare(.false., integ_type1, 'bq_pot'))then 
          if(.not.dobq) return
-      else
+cc AJL/Begin/SPIN-POLARISED ECPs
+      else if (inp_compare(.false., integ_type1, 'potential_beta')) then
+         type = 8
+cc AJL/End
+      else 
          write(6,*) ' integ_type1 = ', integ_type1
          call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
       end if
@@ -105,7 +119,10 @@ c     Check if Douglas-Kroll is required, if so:
 c     getting the Douglas-Kroll kinetic and potential energy 
 c     integrals
 c
-      if (doug_kroll .and. (type.le.2)) then
+cc AJL/Begin/SPIN-POLARISED ECPs
+c      if (doug_kroll .and. (type.le.2)) then
+      if (doug_kroll .and. ((type.le.2) .or. (type.eq.8))) then
+cc AJL/End
          if (ibas.ne.jbas) call errquit
      $        ('int_1e_ga: Douglas-Kroll requires ibas=jbas', ibas,
      &       BASIS_ERR)
@@ -127,8 +144,12 @@ c
 c
       if (dobq) then
          call int_1e_ooldga(ibas, jbas, g, integ_type1, oskel)
-         if(inp_compare(.false., integ_type1, 'potential'))
+cc AJL/Begin/SPIN-POLARISED ECPs
+cc         if(inp_compare(.false., integ_type1, 'potential'))
+cc     &      call int_1e_ooldga(ibas, jbas, g, 'bq_pot', oskel)
+         if (type.eq.2.or.type.eq.8) ! potential or potential_beta
      &      call int_1e_ooldga(ibas, jbas, g, 'bq_pot', oskel)
+cc AJL/End
       else
          call int_1e_oldga(ibas, jbas, g, integ_type1, oskel)
       end if
@@ -219,7 +240,11 @@ c
       else if (inp_compare(.false., integ_type, 'cos_chg_pot'))then 
          type = 6 
       else if (inp_compare(.false., integ_type, 'bq_pot'))then 
-         type = 7 
+         type = 7
+cc AJL/Begin/SPIN ECPs 
+      else if (inp_compare(.false., integ_type, 'potential_beta')) then
+         type = 8
+cc AJL/End
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
          call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
@@ -245,7 +270,15 @@ c      ocache = .false.
 *           call util_flush(6)
 *         endif
 *         call ga_sync()
-         call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
+c
+cc AJL/Begin/SPIN-POLARISED ECPs
+         if (type.ne.8) then
+           call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
+         else ! accomodate for potential_beta, stored in g_cache(4)
+           call ga_dadd(1.0d0, g_cache(4), 1.0d0, g, g)
+         endif
+cc AJL/End
+c
          if (oscfps) call pstat_off(ps_int_1e)
 	 return
       endif
@@ -335,6 +368,11 @@ c
                   else if (type .eq. 7) then 
                      call int_1epot1 (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
+cc AJL/Begin/SPIN ECPs
+                 else if (type .eq. 8) then
+                     call int_1epe_beta (jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
+cc AJL/End
                   else
                      call errquit('int_1e_ga: invalid type?', type,
      &       GA_ERR)
@@ -404,6 +442,11 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c
+cc AJL/Begin/SPIN ECPs
+#include "global.fh"
+      integer ecp_handle
+cc AJL/End
+c
       if (ocache) call int_1e_uncache_ga()
 c
       if (.not. bas_geom(basis, geom)) call errquit
@@ -423,6 +466,24 @@ c
       call int_1e_ga(basis, basis, g_cache(1), 'kinetic', oskel)
       call int_1e_ga(basis, basis, g_cache(2), 'potential0', oskel)
       call int_1e_ga(basis, basis, g_cache(3), 'overlap', .false.)
+c
+cc AJL/Begin/SPIN ECPs
+      if (bas_get_ecp_handle(basis,ecp_handle)) then
+        if (.not.ecp_get_high_chan(ecp_handle,channels)) channels = 1
+        if (channels.gt.1) then
+          if (ga_nodeid().eq.0) then
+            write(6,*) 'ECP Channels : ', channels
+            call util_flush(6)
+          endif
+          g_cache(4) = 
+     &            ga_create_atom_blocked(geom, basis,'int1e: v_beta')
+          call ga_zero(g_cache(4))
+          call int_1e_ga(basis, basis, g_cache(4),
+     &                   'potential_beta0', oskel)
+        end if
+      end if
+cc AJL/End
+c
       bas1 = basis
       ocache = .true.
 c
@@ -442,6 +503,14 @@ c
      &       BASIS_ERR)
       if (.not. ga_destroy(g_cache(3))) call errquit('i1ega: gad?',0,
      &       BASIS_ERR)
+c
+cc AJL/Begin/SPIN ECPs
+      if (channels.gt.1) then
+        if (.not. ga_destroy(g_cache(4))) call errquit('i1ega: gad?',0,
+     &                       BASIS_ERR)
+      end if
+cc AJL/End
+c
       bas1 = -1
       ocache = .false.
       end
@@ -458,7 +527,10 @@ c
       logical oskel             ! [input] If true generate symmetry unique list
 c
       external int_1eke,int_1epe,int_1eov,int_1epvpe,
-     I     int_1epot,int_1epot1
+     I     int_1epot,int_1epot1,
+cc AJL/Begin/SPIN ECPs
+     I     int_1epe_beta
+cc AJL/End
       integer type
 c
 
@@ -489,6 +561,11 @@ cso
       else if (inp_compare(.false., integ_type, 'bq_pot'))then 
          type = 7 
          call int_1e_oldga0(ibas, g, type,oskel,int_1epot1)
+cc AJL/Begin/SPIN ECPs
+      else if (inp_compare(.false., integ_type, 'potential_beta')) then
+         type = 8
+         call int_1e_oldga0(ibas, g, type, oskel, int_1epe_beta)
+cc AJL/End/SPIN ECPs
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
          call errquit('int_1e_oldga: unknown integ_type', 0, INT_ERR)
@@ -578,7 +655,13 @@ c      ocache = .false.
          call util_flush(6)
       endif
       if (ocache .and. (ibas.eq.bas1)) then
-         call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
+cc AJL/Begin/SPIN ECPs
+         if (type.ne.8) then ! everything except potential_beta
+           call ga_dadd(1.0d0, g_cache(type), 1.0d0, g, g)
+         else
+           call ga_dadd(1.0d0, g_cache(4), 1.0d0, g, g)
+         end if
+cc AJL/End
          if (oscfps) call pstat_off(ps_int_1e)
          return
       endif

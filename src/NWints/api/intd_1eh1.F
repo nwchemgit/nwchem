@@ -108,11 +108,14 @@ c
       offset = offset + 1     ! increment for passing to intd_1eh1P
 c
       call intd_1eh1P(i_basis,ish,j_basis,jsh,
-     &       scrsize,scr(offset),nint,H1a,scr)
+cc AJL/Begin/SPIN ECPs
+     &       scrsize,scr(offset),nint,H1a,scr,1)
+c                                             ^ ECP Integral (ALPHA)
 c
       end
       subroutine intd_1eh1P(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       nint,H1a,Ta)
+     &       nint,H1a,Ta,ecp_channel)
+cc AJL/End
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"
@@ -146,6 +149,9 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
       double precision scr(lscr) ! [input] scratch array
       double precision H1a(nint,3,*)    ! [output] derivative integrals (nint,3,n_atoms)
       double precision Ta(nint,3,2)     ! [scratch] space for kinetic integrals
+cc AJL/Begin/SPIN ECPs
+      integer ecp_channel !< [Input] ECP Channel (1 = Alpha, 2 = Beta)
+cc AJL/End
 c::local
       logical doT
       integer ucont,uconts
@@ -347,23 +353,45 @@ c
         offset = nintV*3*nat + 1
 *       write(luout,*)' lscr to ecp_hf1:',(lscr-nintV)
 *       call dcopy(nintV*3*nat,0.0d00,0,scr,1) ! buffer zeroed in ecp_gradient
-        call intd_ecp_hf1(
-     &      coords(1,iatom,igeom),
-     &      dbl_mb(mb_exndcf(iexp,ibas)),
-     &      dbl_mb(mb_exndcf(icf,ibas)),
-     &      inp,igen,itype,iatom,
 c
-     &      coords(1,jatom,jgeom),
-     &      dbl_mb(mb_exndcf(jexp,jbas)),
-     &      dbl_mb(mb_exndcf(jcf,jbas)),
-     &      jnp,jgen,jtype,jatom,
+cc AJL/Begin/SPIN ECPs
+        if (ecp_channel.eq.1) then
+          call intd_ecp_hf1(
+     &        coords(1,iatom,igeom),
+     &        dbl_mb(mb_exndcf(iexp,ibas)),
+     &        dbl_mb(mb_exndcf(icf,ibas)),
+     &        inp,igen,itype,iatom,
 c
-     &      scr,nintV,nat,
-     &      scr(offset),(lscr-offset-1),
-     &      .false.)
-c 
-*... sum ecp into derivative H1 block
+     &        coords(1,jatom,jgeom),
+     &        dbl_mb(mb_exndcf(jexp,jbas)),
+     &        dbl_mb(mb_exndcf(jcf,jbas)),
+     &        jnp,jgen,jtype,jatom,
+c
+     &        scr,nintV,nat,
+     &        scr(offset),(lscr-offset-1),
+     &        .false.)
+c
+        else
+          call intd_ecp_hf1_beta(
+     &        coords(1,iatom,igeom),
+     &        dbl_mb(mb_exndcf(iexp,ibas)),
+     &        dbl_mb(mb_exndcf(icf,ibas)),
+     &        inp,igen,itype,iatom,
+c
+     &        coords(1,jatom,jgeom),
+     &        dbl_mb(mb_exndcf(jexp,jbas)),
+     &        dbl_mb(mb_exndcf(jcf,jbas)),
+     &        jnp,jgen,jtype,jatom,
+c
+     &        scr,nintV,nat,
+     &        scr(offset),(lscr-offset-1),
+     &        .false.) 
+c
+        endif
+c*... sum ecp into derivative H1 block
         call daxpy(nintV*3*nat,1.0d00,scr,1,H1a,1)
+cc AJL/End
+c 
       endif
 c
 *     H1a now has the cartesian integral block  (jlo:jhi,ilo:ihi)
@@ -443,4 +471,52 @@ c
 c
 
       end
+cc AJL/Begin/SPIN ECPs
+cc This is a wrapper, identical to intd_1epot except we have 
+cc separated out for alpha and beta channels
+      subroutine intd_1eh1_beta(i_basis,ish,j_basis,jsh,lscr,scr,
+     &       lH1a,H1a)
+      implicit none
+#include "stdio.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+c::functions
+      integer int_nint_cart
+      external int_nint_cart
+c::passed
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] ``i'' contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] ``j'' contraction index
+      integer lscr      !< [Input] length of scratch space
+      integer lH1a      !< [Input] number of h1 integral derivatives in shells ish and jsh
+c                       ! NOTE: nint*3 integral derivatives returned per unique center
+      double precision scr(lscr) !< [Input] scratch array
+      double precision H1a(*)    !< [Output] derivative integrals
+c
+c::local
+      integer nint, offset, scrsize, nat
+c
+      nat = ncenter(ibs_geom((i_basis + Basis_Handle_Offset)))
+c
+      nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
+      if (nint*3*nat.gt.lH1a) then
+        write(luout,*) 'nint*3*nat = ',nint*3*nat
+        write(luout,*) 'lH1a       = ',lH1a
+        call errquit('intd_1eh1: nint>lH1a error',911, INT_ERR)
+      endif
+c
+      offset = nint*3*2       ! scratch for Ta array in intd_1eh1P routine
+      scrsize = lscr - offset ! new scratch array size
+      offset = offset + 1     ! increment for passing to intd_1eh1P
+c
+      call intd_1eh1P(i_basis,ish,j_basis,jsh,
+     &       scrsize,scr(offset),nint,H1a,scr,2)
+c                                             ^ ECP Integral (BETA)
+      end 
+cc AJL/End
 C> @}

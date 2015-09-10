@@ -1906,9 +1906,21 @@ c
 c::local
       integer basis               ! Actual index into basis set arrays
       integer size_ex
+c
+cc AJL/Begin/SPIN-POLARISED ECPs
+      integer channels
+      logical ecp_get_high_chan
+      external ecp_get_high_chan
+cc AJL/End
+c
 c:: statement functions
+#include "errquit.fh"
 #include "bas_exndcf.fh"      
 #include "ecpso_sfnP.fh"
+c
+cc AJL/Begin/SPIN-POLARISED ECPs
+      channels = 1
+cc AJL/End
 c
       bas_rtdb_store = bas_check_handle(basisin,'bas_rtdb_store')
       if (.not. bas_rtdb_store) return
@@ -1917,6 +1929,21 @@ c
       if (Is_ECP(basis).or.Is_SO(basis)) then
         size_ex = (2*infbs_head(HEAD_NPRIM,basis))+
      &      infbs_head(HEAD_NCOEF,basis)
+c
+cc AJL/Begin/SPIN-POLARISED ECPs
+cc Use this to put a note of spin_polarised_ecps in rtdb
+cc For use in nwdft/dft_fockbld.F
+cc
+cc By using this function we deal with anomalies for all
+cc applications of the spin-polarised ECPs being for both channels,
+cc as ecp_get_high_chan will treat that as spin-independent
+cc calculation of the fock matrices
+        if (Is_ECP(basis)) then
+          if (.not.ecp_get_high_chan(basisin,channels))
+     &      call errquit('bas_rtdb_store error',911, BASIS_ERR)
+        endif
+cc AJL/End
+c
       else
         size_ex = infbs_head(HEAD_NPRIM,basis)+
      &      infbs_head(HEAD_NCOEF,basis)
@@ -1931,6 +1958,7 @@ c
      $    size_ex,
      &    bs_stdname(1,basis),
      &    name_assoc(1,basis),
+     &    channels,  ! AJL/SPIN-POLARISED ECPs
      &    star_nr_tags, star_tag, star_in_lib, star_bas_typ,
      &    star_file, star_nr_excpt, star_excpt, star_tot_excpt,
      &    star_rel, star_segment)
@@ -1940,7 +1968,7 @@ C> @}
 *.....................................................................
       logical function bas_rtdb_do_store(rtdb, name, tagsin, 
      &       head_array, tags_array, ucont_array, excfin, ntagsin, 
-     &       nucontin, nexcf, stdnamein, ecp_name,
+     &       nucontin, nexcf, stdnamein, ecp_name, ecp_channels,
      &       star_nr_tags, star_tag, star_in_lib, star_bas_typ,
      &       star_file, star_nr_excpt, star_excpt, star_tot_excpt,
      &       star_rel, star_segment)
@@ -1995,6 +2023,12 @@ c. . . . . . . . . . . . . . . . . . .         contractions coeffs.
       integer star_tot_excpt ! [input] star total number of except tags
       integer star_nr_excpt(star_nr_tags) ! [input] number of except per tag
       character*16 star_excpt(star_nr_tags) ! [input] except tag list
+c
+cc AJL/Begin/SPIN-POLARISED ECPs
+      integer ecp_channels ! [input] number of channels for ECP (1 or 2).
+c............................        *Should* be 1 in all other scenarios
+cc AJL/End
+c
 c::: local
       character*256 tmp
       integer len_name, lentmp
@@ -2108,6 +2142,15 @@ c reset the stag tag data array for reuse
 c
       star_nr_tags = 0
 c
+cc AJL/Begin/SPIN-POLARISED ECPs
+cc Add if we are using spin_polarised_ecps
+cc There may be a better place for this information
+      if (ecp_channels.gt.1) then
+        status = status .and.  rtdb_put(
+     &    rtdb,'dft:spin_polarised_ecps',mt_int,1,ecp_channels)
+      endif
+cc AJL/End
+c
 c read the basis now get check status of read operations
 c
       if (.not.status) then
@@ -2173,6 +2216,67 @@ c
       return
       end
 C> @}
+*.....................................................................
+cc AJL/Begin
+C> \ingroup ecp
+C> @{
+c
+C> \brief Retrieve the number of channels in the ecp basis
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
+      logical function ecp_get_high_chan(ecpidin,channels)
+      implicit none
+c
+c  calculate and return high channel for given ecp. 
+c
+#include "nwc_const.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "stdio.fh"
+c::functions
+      logical ecp_check_handle
+      external ecp_check_handle
+c:: passed
+      integer ecpidin      !< [Input] the ECP set handle
+      integer channels     !< [Output] the number of channels
+c:local
+      integer ecpid, i, j, mychannel
+      integer myucont, mytags
+c 
+      ecpid = ecpidin + Basis_Handle_Offset
+c
+      ecp_get_high_chan = ecp_check_handle(ecpidin,'ecp_get_high_chan')
+      if (.not. ecp_get_high_chan) then
+        write (6,*) 'This is not an ECP Basis'
+        return
+      endif
+c
+      mytags  = infbs_head(HEAD_NTAGS,ecpid)
+      if (mytags.le.0) return 
+c
+      channels = 0
+      do i=1,mytags
+        myucont = infbs_tags(TAG_NCONT,i,ecpid)
+        do j = 1,myucont
+          mychannel = infbs_cont(CONT_CHANNEL,j,ecpid) 
+          channels = max(channels,mychannel)
+        enddo
+      enddo
+c If all values are 0 we have a spin independent calculation 
+      if (channels.eq.0) then
+        channels = 1
+c Somewhere we have initialised spin in the alpha of beta channels
+      else if (channels.gt.0) then 
+        channels = 2
+      end if
+
+c Save value process to be added
+c
+      return
+      end
+C> @}
+cc AJL/End
 *.....................................................................
       logical function gbs_map_clear(basisin)
       implicit none
@@ -3663,17 +3767,31 @@ c
 #include "geom.fh"
 #include "stdio.fh"
 #include "bas_starP.fh"
+#include "errquit.fh"
 c
 c function declarations
 c      
       logical ecp_check_handle
       external ecp_check_handle
+c
+cc AJL/Begin/SPIN-POLARISED ECPs
+      logical ecp_get_high_chan
+      external ecp_get_high_chan
+cc AJL/End
+c
 c:: passed
       integer ecpidin !< [Input] the basis set handle
 c:: local
       integer mytags, myucont, myprim, mycoef, ecpid
       integer i,j,k,l, ifcont, mygen, mytype, irexptr, iexptr, icfptr
       integer atn, len_tag, len_ele
+c
+cc AJL/Begin/SPIN-POLARISED ECPs
+      integer mychannel
+      integer channels
+      character*5 channel_type(0:2)
+cc AJL/End
+c
       character*2 symbol
       character*16 element
       character*9 cartorsph
@@ -3691,6 +3809,25 @@ c
       ctype(4) ='U-g'
       ctype(5) ='U-h'
       ctype(6) ='U-i'
+c
+cc AJL/Begin/SPIN-POLARISED ECPs
+cc Aesthetic clean up for print. Is this necessary?
+C Can I just set the array without the if statement? To test.
+      channels = 1
+      if (.not.ecp_get_high_chan(ecpidin,channels))
+     &      call errquit('ecp_print error',911, BASIS_ERR)
+
+      if (channels.eq.1) then
+        channel_type(0) = 'Both'
+        channel_type(1) = ''
+        channel_type(2) = ''
+      else
+        channel_type(0) = 'Both'
+        channel_type(1) = 'Alpha'
+        channel_type(2) = 'Beta'
+      endif
+cc AJL/End
+c
       ecp_print = .true.
       ecpid = ecpidin + Basis_Handle_Offset
 c
@@ -3743,8 +3880,12 @@ c
         ifcont = infbs_tags(TAG_FCONT,i,ecpid)
 c     
         write(LuOut,6)
- 6      format(
-     $      '          R-exponent    Exponent     Coefficients '/
+cc AJL/Begin/SPIN-POLARISED ECPs
+c 6      format(
+c     $      '          R-exponent    Exponent     Coefficients '/
+ 6      format(13(' '),
+     $      'Channel    R-exponent     Exponent     Coefficients'/
+cc AJL/End
      $      '         ------------ ',57('-'))
         do 00200 j=1,myucont
           myprim = infbs_cont(CONT_NPRIM,ifcont,ecpid)
@@ -3755,8 +3896,11 @@ c
           iexptr  = infbs_cont(CONT_IEXP, ifcont,ecpid) - 1
           icfptr  = infbs_cont(CONT_ICFP, ifcont,ecpid) - 1
           irexptr = infbs_cont(CONT_IREXP,ifcont,ecpid) - 1
+          mychannel = infbs_cont(CONT_CHANNEL,ifcont,ecpid)
+c
           do 00300 k=1,myprim
             write(LuOut,7) j, shell_type,
+     &          channel_type(mychannel),
      &          sf_exndcf((irexptr+k),ecpid),
      &          sf_exndcf((iexptr+k),ecpid),
      &          (sf_exndcf((icfptr+k+(l-1)*myprim),ecpid),l=1,mygen)
@@ -3794,7 +3938,10 @@ c
 c  ... not done yet
 c
       return
- 7          format(1x,i2,1x,a3,1x,f9.2,2x,f14.6,20f15.6)
+cc AJL/Begin/SPIN-POLARISED ECPs
+c 7          format(1x,i2,1x,a3,1x,f9.2,2x,f14.6,20f15.6)
+ 7          format(1x,i2,1x,a3,7x,a5,3x,f9.2,2x,f14.6,20f15.6)
+cc AJL/End
       end
 *.....................................................................
 C>

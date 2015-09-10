@@ -220,6 +220,19 @@ c
       endif
       n_zeta_c = n_zeta_c_e ! use e one
 c
+cc AJL/Begin/SPIN ECPs
+c
+c... determine the number of channels needed (Spin-polarised ECPs)
+      ecp_channels = 1 
+      if (o_ecp) then
+        if (.not.ecp_get_high_chan(ecpidin,ecp_channels))
+     &    call errquit('int_ecp_init error',911, INT_ERR)
+      end if
+cc AJL/Debug
+c      write(6,*) 'Number of ECP Channels: ', ecp_channels
+c      write(6,*) '(1 = Spin Independent, Default; 2 = Spin Polarised)'
+cc AJL/End
+c
 c.. allocate space for ecp/so exponents and ecp/so coefficients
       if (.not.ma_alloc_get(mt_dbl,
      &    n_zeta_c,
@@ -233,6 +246,25 @@ c.. allocate space for ecp/so exponents and ecp/so coefficients
      &    h_ecp_c, k_ecp_c)) call errquit
      &    (' int_ecp_init: ecp coefficients ma failed ',911, BASIS_ERR)
       call dfill(n_zeta_c,0.0d00,dbl_mb(k_ecp_c),1)
+c
+cc AJL/Begin/SPIN ECPs
+      if (ecp_channels.gt.1) then
+        if (.not.ma_alloc_get(mt_dbl,
+     &      n_zeta_c,
+     &      'beta ecp exponents',
+     &      h_ecp_e_beta, k_ecp_e_beta)) call errquit
+     &      (' int_ecp_init: beta ecp exponent ma failed ',
+     &       911, BASIS_ERR)
+        call dfill(n_zeta_c,0.0d00,dbl_mb(k_ecp_e_beta),1)
+        if (.not.ma_alloc_get(mt_dbl,
+     &      n_zeta_c,
+     &      'beta ecp coefficients',
+     &      h_ecp_c_beta, k_ecp_c_beta)) call errquit
+     &      (' int_ecp_init: beta ecp coefficients ma failed ',
+     &      911, BASIS_ERR)
+        call dfill(n_zeta_c,0.0d00,dbl_mb(k_ecp_c_beta),1)      
+      end if
+cc AJL/End
 c
 c... determine maximum angular momentum of ecp basis
       l_ecp = 0
@@ -291,12 +323,65 @@ c... allocate space for ecp center pointer list
      &    (' int_ecp: ecp_lip ma failed',911, BASIS_ERR)
       call ifill(n_ecp,0,int_mb(k_ecp_lip),1)
 c
+cc AJL/Begin/SPIN ECPs
+c... allocate space for n_prim_C(0:4,-1:l_ecp_max,n_C*2),
+      if (ecp_channels.gt.1) then
+        if (.not.ma_alloc_get(mt_int,
+     &      (5*l_ecp_sz*n_ecp*2),
+     &      'beta ecp n_prim_C',
+     &      h_ecp_nprim_c_beta, k_ecp_nprim_c_beta)) call errquit
+     &      (' int_ecp: beta ecp nprim_c ma failed ',911, BASIS_ERR)
+        call ifill((5*l_ecp_sz*n_ecp*2),
+     &    0,int_mb(k_ecp_nprim_c_beta),1)
+c... allocate space for n_coef_C(-1:l_ecp_max,n_C*2)
+        if (.not.ma_alloc_get(mt_int,
+     &      (l_ecp_sz*n_ecp*2),
+     &      'beta ecp n_coef_C',
+     &      h_ecp_ncoef_c_beta, k_ecp_ncoef_c_beta)) call errquit
+     &      (' int_ecp: beta ecp ncoef_c ma failed ',911, BASIS_ERR)
+        call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ncoef_c_beta),1)
+c... allocate space for ind_C      
+        if (.not.ma_alloc_get(mt_int,
+     &      (l_ecp_sz*n_ecp*2),
+     &      'beta ecp ind_C',
+     &      h_ecp_ind_c_beta, k_ecp_ind_c_beta)) call errquit
+     &      (' int_ecp: beta ecp ind_c ma failed ',911, BASIS_ERR)
+        call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ind_c_beta),1)
+c... allocate space for ind_z      
+        if (.not.ma_alloc_get(mt_int,
+     &      (l_ecp_sz*n_ecp*2),
+     &      'beta ecp ind_z',
+     &      h_ecp_ind_z_beta, k_ecp_ind_z_beta)) call errquit
+     &      (' int_ecp: beta ecp ind_z ma failed ',911, BASIS_ERR)
+        call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ind_z_beta),1)
+c... allocate space for l_C      
+        if (.not.ma_alloc_get(mt_int,
+     &      n_ecp,
+     &      'beta ecp l_C',
+     &      h_ecp_l_c_beta, k_ecp_l_c_beta)) call errquit
+     &      (' int_ecp: beta ecp l_c ma failed ',911, BASIS_ERR)
+        call ifill(n_ecp,0,int_mb(k_ecp_l_c_beta),1)
+c... allocate space for ecp center pointer list
+        if (.not.ma_alloc_get(mt_int,
+     &      n_ecp,
+     &      'beta ecp lexical indices for ecp centers',
+     &      h_ecp_lip_beta, k_ecp_lip_beta)) call errquit
+     &      (' int_ecp: beta ecp_lip ma failed',911, BASIS_ERR)
+        call ifill(n_ecp,0,int_mb(k_ecp_lip_beta),1)
+      endif
+cc AJL/End
+c
+c
       call int_ecp_build_ecp_ptrs(ecpidin,soidin,geom,
      &    o_both,o_ecp,o_so,
      &    ncenters,
      &    n_ecp,
      &    l_ecp,
      &    n_zeta_c,
+cc AJL/Begin/SPIN ECPs
+     &    1, ! Channel to be filled. Would be 2 for beta channel
+     &    ecp_channels, ! Total no. of channels, for print_ptrs
+cc AJL/End
      &    int_mb(k_ecp_nprim_c),
      &    int_mb(k_ecp_ncoef_c),
      &    int_mb(k_ecp_ind_c),
@@ -305,6 +390,26 @@ c
      &    int_mb(k_ecp_lip),
      &    dbl_mb(k_ecp_e),
      &    dbl_mb(k_ecp_c) )
+c
+cc AJL/Begin/SPIN ECPs
+      if (ecp_channels.gt.1) ! Setup beta options
+     &    call int_ecp_build_ecp_ptrs(ecpidin,soidin,geom,
+     &    o_both,o_ecp,o_so,
+     &    ncenters,
+     &    n_ecp,
+     &    l_ecp,
+     &    n_zeta_c,
+     &    2, ! Beta channel
+     &    ecp_channels, ! Total no. of channels, for print_ptrs
+     &    int_mb(k_ecp_nprim_c_beta),
+     &    int_mb(k_ecp_ncoef_c_beta),
+     &    int_mb(k_ecp_ind_c_beta),
+     &    int_mb(k_ecp_ind_z_beta),
+     &    int_mb(k_ecp_l_c_beta),
+     &    int_mb(k_ecp_lip_beta),
+     &    dbl_mb(k_ecp_e_beta),
+     &    dbl_mb(k_ecp_c_beta))
+cc AJL/End
 c
 *...   allocate space for c2s and s2c internal ecp transformation routines
 c
@@ -464,6 +569,50 @@ c
                         endif
 c     ! nint block used in api routine int_hf1sp                  
                         lecp_mem = lecp_mem + nV 
+c
+cc AJL/Begin/SPIN ECPs
+cc Need to account for scenario where we have two channels so
+cc double the number of ECPs could be generated
+                        if (o_ecp.and.ecp_channels.gt.1) then
+                          if (indx_grad.eq.0) then
+                            call int_ecp_hf1_beta(
+     &                          coords(1,ic,ig),
+     &                          dbl_mb(mb_exndcf(ie,bas_id)),
+     &                          dbl_mb(mb_exndcf(icf,bas_id)),
+     &                          inp,ing,il,ic,
+     &                          coords(1,jc,jg),
+     &                          dbl_mb(mb_exndcf(je,bas_id)),
+     &                          dbl_mb(mb_exndcf(jcf,bas_id)),
+     &                          jnp,jng,jl,jc,
+     &                          dpdum,nV,dpdum,lecp_mem,.true.)
+                          elseif (indx_grad.eq.1) then
+                            call intd_ecp_hf1_beta(
+     &                          coords(1,ic,ig),
+     &                          dbl_mb(mb_exndcf(ie,bas_id)),
+     &                          dbl_mb(mb_exndcf(icf,bas_id)),
+     &                          inp,ing,il,ic,
+     &                          coords(1,jc,jg),
+     &                          dbl_mb(mb_exndcf(je,bas_id)),
+     &                          dbl_mb(mb_exndcf(jcf,bas_id)),
+     &                          jnp,jng,jl,jc,
+     &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
+                          elseif (indx_grad.eq.2) then
+                            call intdd_ecp_hf1_beta(
+     &                          coords(1,ic,ig),
+     &                          dbl_mb(mb_exndcf(ie,bas_id)),
+     &                          dbl_mb(mb_exndcf(icf,bas_id)),
+     &                          inp,ing,il,ic,
+     &                          coords(1,jc,jg),
+     &                          dbl_mb(mb_exndcf(je,bas_id)),
+     &                          dbl_mb(mb_exndcf(jcf,bas_id)),
+     &                          jnp,jng,jl,jc,
+     &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
+                          endif
+c Add data storage space to lecp_mem
+                          lecp_mem = lecp_mem + nV
+                        endif
+cc AJL/End
+c
 *                        write(6,*)' i_cont ',i_cont
 *                        write(6,*)' j_cont ',j_cont
                         mem_ecp = max(mem_ecp,lecp_mem)
@@ -537,6 +686,38 @@ c
       l_ecp         = 0
       n_ecp         = 0
       init_ecp_init = .false.
+c
+cc AJL/Begin
+      if (ecp_channels.gt.1) then
+        status = status .and. MA_free_heap(h_ecp_e_beta)
+        status = status .and. MA_free_heap(h_ecp_c_beta)
+        status = status .and. MA_free_heap(h_ecp_nprim_c_beta)
+        status = status .and. MA_free_heap(h_ecp_ncoef_c_beta)
+        status = status .and. MA_free_heap(h_ecp_ind_c_beta)
+        status = status .and. MA_free_heap(h_ecp_ind_z_beta)
+        status = status .and. MA_free_heap(h_ecp_l_c_beta)
+        status = status .and. MA_free_heap(h_ecp_lip_beta)
+
+        h_ecp_e_beta       = 0
+        k_ecp_e_beta       = 0
+        h_ecp_c_beta       = 0
+        k_ecp_c_beta       = 0
+        h_ecp_nprim_c_beta = 0
+        k_ecp_nprim_c_beta = 0
+        h_ecp_ncoef_c_beta = 0
+        k_ecp_ncoef_c_beta = 0
+        h_ecp_ind_c_beta   = 0
+        k_ecp_ind_c_beta   = 0
+        h_ecp_ind_z_beta   = 0
+        k_ecp_ind_z_beta   = 0
+        h_ecp_l_c_beta     = 0
+        k_ecp_l_c_beta     = 0
+        h_ecp_lip_beta     = 0
+        k_ecp_lip_beta     = 0
+        ecp_channels       = 0 ! Clear out ECP channels and we are done
+      end if
+cc AJL/End
+c
       if (status) return
       call errquit
      &    ('int_ecp_terminate: error freeing heap',911, MEM_ERR)
@@ -547,6 +728,10 @@ c
      &    n_ecp,
      &    l_ecp,
      &    nz_ecp,
+cc AJL/Begin/SPIN ECPs
+     &    channel, ! spin channel
+     &    channels, ! total number of channels
+cc AJL/End
      &    n_prim_C,
      &    n_coef_C,
      &    ind_C,
@@ -574,6 +759,10 @@ c
       integer n_ecp    ! [input] number of ecp centers
       integer l_ecp    ! [input] maximum angular momentum in ecp basis
       integer nz_ecp   ! [input] number of prims/coeffs in stored data structure. 
+cc AJL/Begin/SPIN ECPs
+      integer channel  ! [input] Current spin channel used for ECPs
+      integer channels ! [input] Total channels, used for print
+cc AJL/End
       integer n_prim_C(0:4,-1:l_ecp,n_ecp,2) ! [output] 
       integer n_coef_C(-1:l_ecp,n_ecp,2)     ! [output] 
       integer ind_C(-1:l_ecp,n_ecp,2)        ! [output] 
@@ -603,6 +792,9 @@ c
       integer n0,n1,n2    ! r-exponent count 
       integer n3,n4       ! r-exponent count 
       integer ie          ! ecp/so counter
+cc AJL/Begin/SPIN ECPs
+      integer mychan      ! channel of contracted ECP
+cc AJL/End
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -666,26 +858,32 @@ c
             iexp  = infbs_cont(CONT_IEXP,iucont,ecpid)
             icfp  = infbs_cont(CONT_ICFP,iucont,ecpid)
             irexp = infbs_cont(CONT_IREXP,iucont,ecpid)
-            if ((p_nprim+nprim).gt.nz_ecp) call errquit
-     &          ('int_ecp_build_ecp_ptrs:too many coefficients',911,
-     &       BASIS_ERR)
-            call ecp_get_n3(
-     &          c_exp((p_nprim+1)),
-     &          dbl_mb(mb_exndcf(iexp,ecpid)),
-     &          c_coef((p_nprim+1)),
-     &          dbl_mb(mb_exndcf(icfp,ecpid)),
-     &          dbl_mb(mb_exndcf(irexp,ecpid)),
-     &          nprim,n0,n1,n2,n3,n4)
-            n_prim_C(0,type,ie,1) = n0
-            n_prim_C(1,type,ie,1) = n1
-            n_prim_C(2,type,ie,1) = n2
-            n_prim_C(3,type,ie,1) = n3
-            n_prim_C(4,type,ie,1) = n4
-            ind_C(type,ie,1)      = p_nprim+1
-            ind_Z(type,ie,1)      = p_nprim+1
-            n_coef_c(type,ie,1)   = nprim
-            l_C(ie)               = max(type,l_C(ie))
-            p_nprim = p_nprim+nprim
+cc AJL/Begin/SPIN ECPs
+            mychan = infbs_cont(CONT_CHANNEL,iucont,ecpid)
+            if (mychan.eq.channel.or.mychan.eq.0) then
+cc AJL: If mychan = 0, applies the ECP to all channels
+              if ((p_nprim+nprim).gt.nz_ecp) call errquit
+     &            ('int_ecp_build_ecp_ptrs:too many coefficients',911,
+     &             BASIS_ERR)
+              call ecp_get_n3(
+     &            c_exp((p_nprim+1)),
+     &            dbl_mb(mb_exndcf(iexp,ecpid)),
+     &            c_coef((p_nprim+1)),
+     &            dbl_mb(mb_exndcf(icfp,ecpid)),
+     &            dbl_mb(mb_exndcf(irexp,ecpid)),
+     &            nprim,n0,n1,n2,n3,n4)
+              n_prim_C(0,type,ie,1) = n0
+              n_prim_C(1,type,ie,1) = n1
+              n_prim_C(2,type,ie,1) = n2
+              n_prim_C(3,type,ie,1) = n3
+              n_prim_C(4,type,ie,1) = n4
+              ind_C(type,ie,1)      = p_nprim+1
+              ind_Z(type,ie,1)      = p_nprim+1
+              n_coef_c(type,ie,1)   = nprim
+              l_C(ie)               = max(type,l_C(ie))
+              p_nprim = p_nprim+nprim
+            endif
+cc AJL/End
           enddo
         endif
         if (on_so) then
@@ -706,7 +904,7 @@ c
             irexp = infbs_cont(CONT_IREXP,iucont,soid)
             if ((p_nprim+nprim).gt.nz_ecp) call errquit
      &          ('int_ecp_build_ecp_ptrs:too many coefficients',911,
-     &       BASIS_ERR)
+     &          BASIS_ERR)
             call ecp_get_n3(
      &          c_exp((p_nprim+1)),
      &          dbl_mb(mb_exndcf(iexp,soid)),
@@ -728,19 +926,27 @@ c
         endif
       enddo
 c
-*debug:      call print_ecp_ptrs(n_ecp,
-*debug:     &    l_ecp,nz_ecp,
-*debug:     &    n_prim_C,
-*debug:     &    n_coef_C,
-*debug:     &    ind_C,
-*debug:     &    ind_Z,
-*debug:     &    l_C,
-*debug:     &    c_exp,
-*debug:     &    c_coef)
+cc AJL/Begin/SPIN ECPS (Debug)
+c      call print_ecp_ptrs(n_ecp,
+c     &    l_ecp,nz_ecp,
+c     &    channel, ! current channel [alpha/beta]
+c     &    channels, ! total number of channels
+c     &    n_prim_C,
+c     &    n_coef_C,
+c     &    ind_C,
+c     &    ind_Z,
+c     &    l_C,
+c     &    c_exp,
+c     &    c_coef)
+cc AJL/End
 c
       end
       subroutine print_ecp_ptrs(n_ecp,
      &    l_ecp,nz_ecp,
+cc AJL/Begin/SPIN ECPs
+     &    channel, ! current channel [alpha/beta]
+     &    channels, ! total number of channels
+cc AJL/End
      &    n_prim_C,
      &    n_coef_C,
      &    ind_C,
@@ -753,13 +959,17 @@ c
       integer n_ecp    ! [input] number of ecp centers
       integer l_ecp    ! [input] maximum angular momentum in ecp basis
       integer nz_ecp   ! [input] number of prims/coeffs in stored data structure. 
+cc AJL/Begin/SPIN ECPs
+      integer channel  ! [input] Current spin channel used for ECPs 
+      integer channels ! [input] Total number of spin channels used
+cc AJL/End
       integer n_prim_C(0:4,-1:l_ecp,n_ecp,2) ! [output] 
       integer n_coef_C(-1:l_ecp,n_ecp,2)     ! [output] 
       integer ind_C(-1:l_ecp,n_ecp,2)        ! [output] 
       integer ind_Z(-1:l_ecp,n_ecp,2)        ! [output] 
-      integer l_C(n_ecp)                      ! [output] 
-      double precision c_exp(nz_ecp)          ! [output] 
-      double precision c_coef(nz_ecp)         ! [output] 
+      integer l_C(n_ecp)                     ! [output] 
+      double precision c_exp(nz_ecp)         ! [output] 
+      double precision c_coef(nz_ecp)        ! [output] 
 *
       integer i, j, k, l
 *      integer low0, high0, low1, high1, low2, high2
@@ -767,6 +977,17 @@ c
       integer pe, pek
 *
       write(6,*)' print_ecp_ptrs: start'
+c
+cc AJL/Begin/SPIN ECPs
+      if (channels.eq.1) then ! ECP variable for number of channels
+        write(6,*) 'Both Channels'
+      else if (channel.eq.1) then ! Spin-polarised check?
+        write(6,*) 'Alpha Channel'
+      else if (channel.eq.2) then
+        write(6,*) 'Beta Channel'
+      endif
+cc AJL/End
+c
       write(6,*)' exponents and coefficients array'
       do i = 1,nz_ecp
         write(6,10000)i,c_exp(i),i,c_coef(i)
@@ -930,9 +1151,30 @@ c
       data k_ecp_c2s     /0/       ! MA index  for c2s routines
       data h_ecp_lip     /0/       ! MA handle for ecp center index
       data k_ecp_lip     /0/       ! MA index for ecp center index
+cc AJL/Begin/SPIN ECPs
+      data h_ecp_e_beta  /0/        ! MA handle for ecp exponents
+      data k_ecp_e_beta  /0/        ! MA index  for ecp exponents
+      data h_ecp_c_beta  /0/        ! MA handle for ecp coefficients
+      data k_ecp_c_beta  /0/        ! MA index  for ecp coefficients
+      data h_ecp_nprim_c_beta /0/   ! MA handle for n_prim_C (see ecp_integral)
+      data k_ecp_nprim_c_beta /0/   ! MA index  for n_prim_C (see ecp_integral)
+      data h_ecp_ncoef_c_beta /0/   ! MA handle for n_coef_C (see ecp_integral)
+      data k_ecp_ncoef_c_beta /0/   ! MA index  for n_coef_C (see ecp_integral)
+      data h_ecp_ind_c_beta   /0/   ! MA handle for ind_C (see ecp_integral)
+      data k_ecp_ind_c_beta   /0/   ! MA index  for ind_C (see ecp_integral)
+      data h_ecp_ind_z_beta   /0/   ! MA handle for ind_Z (see ecp_integral)
+      data k_ecp_ind_z_beta   /0/   ! MA index  for ind_Z (see ecp_integral)
+      data h_ecp_l_c_beta     /0/   ! MA handle for l_C (see ecp_integral)
+      data k_ecp_l_c_beta     /0/   ! MA index  for l_C (see ecp_integral)
+      data h_ecp_lip_beta     /0/   ! MA handle for ecp center index
+      data k_ecp_lip_beta     /0/   ! MA index for ecp center index
+cc AJL/End
       data n_zeta_c      /0/       ! length of ecp exp/coef array
       data l_ecp         /0/       ! high ang for ecp basis
       data n_ecp         /0/       ! number of ecp centers (from API)
+cc AJL/Begin/SPIN ECPs
+      data ecp_channels  /0/       ! number of ecp channels [Alpha/Beta]
+cc AJL/End
       data init_ecp_init /.false./ ! logical saying if ecp is init-ed
       end
       subroutine int_ecp_hf1(
@@ -1247,3 +1489,170 @@ c
      &      0)  ! ibug
 *
       end
+c
+cc AJL/Begin/SPIN ECPs
+cc All the subroutines designed for use with the beta ECPs
+
+      subroutine int_ecp_hf1_beta(
+     &    xyza,expa,coefa,a_nprim,a_ngen,La,ictra,
+     &    xyzb,expb,coefb,b_nprim,b_ngen,Lb,ictrb,
+     &    ecp_ints,sz_ints,scr,lscr,dryrun)
+      implicit none
+#include "mafdecls.fh"
+#include "ecp_nwc.fh"
+*
+      integer a_nprim, a_ngen, La, ictra
+      integer b_nprim, b_ngen, Lb, ictrb
+      double precision expa(a_nprim), expb(b_nprim)
+      double precision coefa(a_nprim,a_ngen), coefb(b_nprim,b_ngen)
+      integer sz_ints  ! [input] buffer size for ecp_ints
+      integer lscr     ! [input] length of scratch array
+      double precision xyza(3), xyzb(3)  ! [input] a and b center coords.
+      double precision ecp_ints(sz_ints) ! [output] ecp integrals
+      double precision scr(lscr)         ! [scratch] array
+      logical dryrun   ! [input] compute vs calculate memory requirements.
+*
+*      write(6,*)' lscr IN ecp_hf1:',lscr
+*      if (.not.dryrun) then
+*        write(6,*)' int_ecp_hf1: coords a ',xyza
+*        write(6,*)' int_ecp_hf1: coords b ',xyzb
+*      endif
+c
+      call ecp_integral(
+     &      xyza,
+     &      expa,
+     &      coefa,
+     &      a_nprim,a_ngen,La,ictra,
+     &      xyzb,
+     &      expb,
+     &      coefb,
+     &      b_nprim,b_ngen,Lb,ictrb,
+     &      dbl_mb(k_xyzecp),
+     &      dbl_mb(k_ecp_e_beta),
+     &      dbl_mb(k_ecp_c_beta),
+     &      int_mb(k_ecp_nprim_c_beta),
+     &      int_mb(k_ecp_ncoef_c_beta),  ! new name is n_colc_C
+     &      int_mb(k_ecp_ind_z_beta),
+     &      int_mb(k_ecp_ind_c_beta),
+     &      n_zeta_c,
+     &      n_zeta_c,
+     &      int_mb(k_ecp_l_c_beta),
+     &      int_mb(k_ecp_lip_beta), 
+     &      n_ecp,l_ecp,
+     &      0,
+     &      dbl_mb(k_ecp_c2s),mem_c2s,
+     &      ecp_ints,sz_ints,1,   ! nblk 1 for ecp integrals only 
+     &      dryrun,scr,lscr,
+     &      0)  ! ibug
+*
+      end
+      subroutine intdd_ecp_hf1_beta(
+     &    xyza,expa,coefa,a_nprim,a_ngen,La,ictra,
+     &    xyzb,expb,coefb,b_nprim,b_ngen,Lb,ictrb,
+     &    ecp_grad,sz_grad,nat,scr,lscr,dryrun)
+      implicit none
+#include "mafdecls.fh"
+#include "ecp_nwc.fh"
+*
+      integer a_nprim, a_ngen, La, ictra
+      integer b_nprim, b_ngen, Lb, ictrb
+      integer nat
+      double precision expa(a_nprim), expb(b_nprim)
+      double precision coefa(a_nprim,a_ngen), coefb(b_nprim,b_ngen)
+      integer sz_grad  ! [input] buffer size for ecp_grad
+      integer lscr     ! [input] length of scratch array
+      double precision xyza(3), xyzb(3)  ! [input] a and b center coords.
+      double precision ecp_grad(sz_grad,3,3,(nat*(nat-1)/2+nat)) 
+                                         ! [output] ecp integrals
+      double precision scr(lscr)         ! [scratch] array
+      logical dryrun   ! [input] compute vs calculate memory requirements.
+*
+*      write(6,*)' lscr IN d_ecp_hf1:',lscr
+*      if (.not.dryrun) then
+*        write(6,*)' intd_ecp_hf1: coords a ',xyza
+*        write(6,*)' intd_ecp_hf1: coords b ',xyzb
+*      endif
+c
+      call ecp_hessian(
+     &      xyza,
+     &      expa,
+     &      coefa,
+     &      a_nprim,a_ngen,La,ictra,
+     &      xyzb,
+     &      expb,
+     &      coefb,
+     &      b_nprim,b_ngen,Lb,ictrb,
+     &      dbl_mb(k_xyzecp),
+     &      dbl_mb(k_ecp_e_beta),
+     &      dbl_mb(k_ecp_c_beta),
+     &      int_mb(k_ecp_nprim_c_beta),
+     &      int_mb(k_ecp_ncoef_c_beta),
+     &      int_mb(k_ecp_ind_z_beta),
+     &      int_mb(k_ecp_ind_c_beta),
+     &      n_zeta_c,
+     &      n_zeta_c,
+     &      int_mb(k_ecp_l_c_beta),
+     &      int_mb(k_ecp_lip_beta), 
+     &      n_ecp,l_ecp,
+     &      0,
+     &      dbl_mb(k_ecp_c2s),mem_c2s,
+     &      ecp_grad,sz_grad,1,nat,          ! nblock = 1 for ECP only 
+     &      dryrun,scr,lscr,
+     &      0)  ! ibug
+*
+      end
+      subroutine intd_ecp_hf1_beta(
+     &    xyza,expa,coefa,a_nprim,a_ngen,La,ictra,
+     &    xyzb,expb,coefb,b_nprim,b_ngen,Lb,ictrb,
+     &    ecp_grad,sz_grad,nat,scr,lscr,dryrun)
+      implicit none
+#include "mafdecls.fh"
+#include "ecp_nwc.fh"
+*
+      integer a_nprim, a_ngen, La, ictra
+      integer b_nprim, b_ngen, Lb, ictrb
+      integer nat
+      double precision expa(a_nprim), expb(b_nprim)
+      double precision coefa(a_nprim,a_ngen), coefb(b_nprim,b_ngen)
+      integer sz_grad  ! [input] buffer size for ecp_grad
+      integer lscr     ! [input] length of scratch array
+      double precision xyza(3), xyzb(3)  ! [input] a and b center coords.
+      double precision ecp_grad(sz_grad,3,nat) ! [output] ecp integrals
+      double precision scr(lscr)         ! [scratch] array
+      logical dryrun   ! [input] compute vs calculate memory requirements.
+*
+*      write(6,*)' lscr IN d_ecp_hf1:',lscr
+*      if (.not.dryrun) then
+*        write(6,*)' intd_ecp_hf1: coords a ',xyza
+*        write(6,*)' intd_ecp_hf1: coords b ',xyzb
+*      endif
+c
+      call ecp_gradient(
+     &      xyza,
+     &      expa,
+     &      coefa,
+     &      a_nprim,a_ngen,La,ictra,
+     &      xyzb,
+     &      expb,
+     &      coefb,
+     &      b_nprim,b_ngen,Lb,ictrb,
+     &      dbl_mb(k_xyzecp),
+     &      dbl_mb(k_ecp_e_beta),
+     &      dbl_mb(k_ecp_c_beta),
+     &      int_mb(k_ecp_nprim_c_beta),
+     &      int_mb(k_ecp_ncoef_c_beta),
+     &      int_mb(k_ecp_ind_z_beta),
+     &      int_mb(k_ecp_ind_c_beta),
+     &      n_zeta_c,
+     &      n_zeta_c,
+     &      int_mb(k_ecp_l_c_beta),
+     &      int_mb(k_ecp_lip_beta), 
+     &      n_ecp,l_ecp,
+     &      0,
+     &      dbl_mb(k_ecp_c2s),mem_c2s,
+     &      ecp_grad,sz_grad,1,nat,          ! nblock = 1 for ECP only 
+     &      dryrun,scr,lscr,
+     &      0)  ! ibug
+*
+      end
+cc AJL/End
