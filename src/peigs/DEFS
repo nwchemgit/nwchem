@@ -525,6 +525,10 @@ endif
 ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX64 CYGWIN64 CATAMOUNT))
 #alpha with /tcgmsg
 _CPU = $(shell uname -m  )
+#hack for mingw64
+ifeq ($(_CPU),i686)
+_CPU = x86_64
+endif
 	peigs_COMM = TCGMSG
 	peigs_CODEOBJ = DBLE
 	peigs_CPP = $(CPP) -D${CPU} -DSTD_DBL 
