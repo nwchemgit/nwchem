@@ -1,0 +1,80 @@
+start nw
+
+print medium 
+
+geometry print units angstrom noautoz nocenter
+symmetry c1 tol 0.0
+  O      1.00      0.00      0.00 
+  # Introduce dummy centre for ECP
+  bq_H    0.00      0.00      0.00    charge 1.0d-20 
+end
+
+bq
+  0.00    0.00      0.00      1.00
+end
+
+basis
+O library STO-3G 
+end
+
+# Initial Calculation has no ECP, as a benchmark
+
+charge 0 
+ 
+scf
+  singlet
+  uhf
+end
+
+task scf freq
+
+# Original ECP configuration, for testing
+# Note: This ECP is a made-up example to illustrate/test functionality
+ecp
+bq_H nelec 0
+bq_H ul
+2               50.0000         1000.0
+end
+
+set scf:converged false
+task scf freq
+
+# New ECP configuration with spin-polarised choices
+# Output for this should match old implementation *exactly*
+ecp
+bq_H nelec 0
+# Here the ECP channel is defined as the 3rd parameter, with the options being:
+#  0: Both Channels
+#  1: Alpha Channel
+#  2: Beta Channel
+bq_H ul 1
+2               50.0000         1000.0
+bq_H ul 2
+2               50.0000         1000.0
+end
+
+set scf:converged false
+task scf freq
+
+# Finally, we illustrate the symmetry of the implementation
+# by firstly applying the ECP only on the alpha channel.... 
+ecp
+bq_H nelec 0
+bq_H ul 1
+2               50.0000         1000.0
+end
+
+set scf:converged false
+task scf freq
+
+# ....and now on the beta channel. Due to the symmetry of the ECP 
+# the results for these alpha and beta implementations should match *exactly*
+ecp
+bq_H nelec 0
+bq_H ul 2
+2               50.0000         1000.0
+end
+
+set scf:converged false
+task scf freq
+
