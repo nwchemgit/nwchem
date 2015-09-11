@@ -1468,7 +1468,13 @@ endif
 
 ifneq ($(TARGET),LINUX)
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
+     GOTMINGW64=$(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
+ifeq ($(GOTMINGW64),1)
+     _CPU = x86_64
+else
      _CPU = $(shell uname -m  )
+     _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -n 1 | awk ' /3dnowext/  {print "Y"}')
+endif
 #ifeq ($(NWCHEM_TARGET),LINUX64)
    ifeq ($(FC),g77)
       g7764:
@@ -1679,7 +1685,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
 endif # end of ia32 bit
     ifeq ($(_CPU),x86_64)
 #
-      MAKEFLAGS = -j 2 --no-print-directory
+#edo      MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
       ifeq ($(NWCHEM_TARGET),CYGWIN64)
         DEFINES += -DCYGWIN -DCYGNUS
@@ -1898,7 +1904,6 @@ $(error )
      endif
 
       ifeq ($(_FC),gfortran)
-     _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -n 1 | awk ' /3dnowext/  {print "Y"}')
 #gcc version 4.1.0 20050525 (experimental)
        ifdef  USE_GPROF
           FOPTIONS += -pg
@@ -1939,6 +1944,13 @@ $(error )
         endif
         endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
+       ifdef  USE_FPE
+         FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+       endif
+        ifeq ($(GOTMINGW64),1)
+          EXTRA_LIBS += -lwsock32
+        endif
+  else
       endif
       ifeq ($(_FC),crayftn)
 	# Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
