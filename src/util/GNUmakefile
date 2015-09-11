@@ -114,8 +114,13 @@ ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LINUX64 CATAMOUNT))
   ifeq ($(_CPU),ia64)
     EXTRA_OBJ += win32_cpu.o linux_setfpucw.o 
   endif
+  ifeq ($(GOTMINGW64),1)
+    EXTRA_OBJ += util_mingw.o
+  endif
   ifeq ($(_CPU),x86_64)
+  ifneq ($(GOTMINGW64),1)
     EXTRA_OBJ  += linux_setfpucw.o
+  endif
   endif
   ifeq ($(FC),pathf90)
     EXTRA_OBJ += util_cflush.o
