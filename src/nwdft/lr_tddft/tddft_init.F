@@ -572,7 +572,7 @@ c
         call nwxc_rtdb_load(rtdb,"dft")
       endif
       if (use_nwxc) then
-         call nwxc_getvals("nwxc_has_hf",lhashf)
+         call nwxc_getvals("nwxc_has_hfx",lhashf)
         if (lhashf) then
           call nwxc_getwght("nwxc_wght_hfx",xfac(1))
         endif
