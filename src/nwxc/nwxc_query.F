@@ -1145,6 +1145,7 @@ c $Id$
       elseif(argin.eq.'nwxc_has_mp2c') then
          argout=nwxc_has_mp2c()
       else
+         write(6,*) ' argin = ',argin
          call errquit('nwxcgetvls: wrong argin ',0,0)
       endif
       return
