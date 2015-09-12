@@ -46,6 +46,7 @@
       integer i,l,np
 !      integer ind ! unused
 
+      logical use_nwxc
       integer  control_num_kvectors
       external control_num_kvectors
       logical  control_allow_translation
@@ -210,9 +211,11 @@
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft")
+         call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+         if (use_nwxc)  then
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
+        endif
 !$OMP end single
       endif
 
@@ -317,9 +320,11 @@ c         call nwxc_print()
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft")
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+        if (use_nwxc)  then
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
+        endif
 !$OMP end single
       endif
 
@@ -465,9 +470,11 @@ c
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft")
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+        if (use_nwxc)  then
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
+        endif
 !$OMP end single
       endif
 
@@ -670,9 +677,11 @@ c
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft")
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+        if (use_nwxc)  then
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
+        endif   
 !$OMP end single
       endif
 
@@ -778,9 +787,11 @@ c         call nwxc_print()
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft")
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+        if (use_nwxc)  then
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
+        endif   
 !$OMP end single
       endif
 
@@ -866,9 +877,11 @@ c         call nwxc_print()
 
       if (util_module_avail("nwxc")) then
 !$OMP single
-        call nwxc_rtdb_load(rtdb,"dft")
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+        if (use_nwxc)  then
 c         call nwxc_print()
           has_disp = nwxc_has_disp()
+        endif   
 !$OMP end single
       endif
 

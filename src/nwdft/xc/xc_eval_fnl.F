@@ -126,7 +126,7 @@ c
 c
       use_nwxc = util_module_avail("nwxc")
       if (use_nwxc) then
-         call nwxc_getvals("nwxc_is_on",out1)
+         call nwxc_getvals("nwxc_is_on",use_nwxc)
       endif
       if (use_nwxc) then
 c

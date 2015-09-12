@@ -684,7 +684,7 @@ c     &                    r1
 cHvD
       use_nwxc = util_module_avail("nwxc")
       if (use_nwxc) then
-        call nwxc_rtdb_load(rtdb,"dft")
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
       endif
       if (use_nwxc) then
          call nwxc_getvals("nwxc_has_hfx",out1)
