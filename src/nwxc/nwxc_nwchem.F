@@ -359,13 +359,14 @@ C> \return Return .true. if the data was successfully loaded, and
 C> .false. if no functional with the specified name was found, abort 
 C> if only partial information on a particular functional is found.
 C> 
-      subroutine nwxc_rtdb_load(rtdb,name)
+      subroutine nwxc_rtdb_load(rtdb,name,use_nwxc)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "nwxcP.fh"
+      logical use_nwxc    !< [output] true if we do use nwxc
       integer rtdb       !< [Input] The RTDB handle
       character*(*) name !< [Input] The name under which the functional
                          !< is stored
@@ -387,7 +388,10 @@ c
 c
 c       The specified functional was not found so return .false.
 c
-        return
+         use_nwxc=.false.
+         return
+      else
+         use_nwxc=.true.
       endif
 c
       if (nwxc_num_f.gt.NWXC_MAX_F.or.nwxc_usr_num.gt.NWXC_MAX_F) then
