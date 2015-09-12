@@ -24,9 +24,14 @@ C>
 c
       integer rtdb
       character*255 field
+      character*50  f2
       double precision ascale, bscale, tscale, hscale
-      logical ignore
+      logical ignore,diagh
       integer mh
+
+*     **** external functions ****
+      logical  driver_parse_boolean
+      external driver_parse_boolean
 c
 c     So that task knows that driver is in control
 c
@@ -83,6 +88,13 @@ c
 c
       else if (inp_compare(.false.,'lbfgs', field)) then
          if (.not. rtdb_put(rtdb,'driver:lbfgs',mt_log,1,.true.))
+     $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
+
+      else if (inp_compare(.false.,'diagonal_hessian', field)) then
+         diagh = .true.
+         if (inp_a(f2)) diagh = driver_parse_boolean(f2,.true.)
+         if (.not. rtdb_put(rtdb,'driver:diagonal_hessian',
+     $                      mt_log,1,diagh))
      $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
 c
       else if (inp_compare(.false.,'deloc', field)) then
@@ -271,3 +283,35 @@ c
       end
 C>
 C> @}
+
+*     *********************************************
+*     *                                           *
+*     *         driver_parse_boolean              *
+*     *                                           *
+*     *********************************************
+      logical function driver_parse_boolean(word,default)
+      implicit none
+      character*(*) word
+      logical default
+
+#include "inp.fh"
+#include "errquit.fh"
+
+      logical value
+      value = default
+      if (inp_compare(.false.,word,'on'))      value = .true.
+      if (inp_compare(.false.,word,'yes'))     value = .true.
+      if (inp_compare(.false.,word,'.true.'))  value = .true.
+      if (inp_compare(.false.,word,'True'))    value = .true.
+      if (inp_compare(.false.,word,'T'))       value = .true.
+      if (inp_compare(.false.,word,'off'))     value = .false.
+      if (inp_compare(.false.,word,'no'))      value = .false.
+      if (inp_compare(.false.,word,'.false.')) value = .false.
+      if (inp_compare(.false.,word,'False'))   value = .false.
+      if (inp_compare(.false.,word,'F'))       value = .false.
+      if (inp_compare(.false.,word,'fix'))     value = .false.
+
+      driver_parse_boolean = value
+      return
+      end
+

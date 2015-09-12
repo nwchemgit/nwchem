@@ -43,6 +43,7 @@ c
 c     Read input, load /coptopt/, get geometry
 c
       call driver_initialize(rtdb, geom)
+
 c
 c     Optionally check the gradient by finite difference
 c
@@ -1129,6 +1130,10 @@ c
       end if
       if ((.not.ostress).and.(ostress2)) ostress2 = .false.
       if ((ostress)     .and.(ostress2)) ostress  = .false.
+
+      if (.not.rtdb_get(rtdb,'driver:diagonal_hessian',
+     $                   mt_log,1,diagonal_hessian))
+     $   diagonal_hessian = .false.
       
 c
 c     Force sensible options
@@ -1237,6 +1242,10 @@ c
             if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0,
      &       GEOM_ERR)
          endif
+
+         if (diagonal_hessian) then
+            write(6,*) ' USING A DIAGONAL HESSIAN !!!!!!!!!!!!!!!!'
+         end if
 
          call util_flush(6)
       endif
@@ -1389,6 +1398,7 @@ c
       end
       subroutine driver_hessian_update()
       implicit none
+
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
@@ -1550,6 +1560,26 @@ c
             endif
          enddo
       endif
+
+
+
+*     ************************************************
+*     *** making the hessian diagonal all the time ***
+*     *** This option is used to try to avoid      ***
+*     *** (higher-order) saddle points             ***
+*     ************************************************
+      if (diagonal_hessian) then
+         do i=1,nvar
+            do j=1,nvar
+               if (i.ne.j) then
+                  dbl_mb(ind(i,j))  = 0.0d0  ! Diagonal only
+               else
+                  dbl_mb(ind(i,j)) = abs(dbl_mb(ind(i,j)))
+               end if
+            end do
+         end do
+      end if
+
 c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
