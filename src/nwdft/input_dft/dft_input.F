@@ -28,7 +28,10 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 48)
+cc AJL/Begin/FDE
+c      parameter (num_dirs = 48)
+      parameter (num_dirs = 50)
+cc AJL/End
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -55,7 +58,11 @@ c
       logical steric
       logical efield
       logical swapab
-      logical frozemb
+cc AJL/Begin/FDE
+c  Is this variable necessary here? Or have we defined it elsewhere?
+c  I can't remember but this variable isn't in my version so will check
+c      logical frozemb
+cc AJL/End
       logical cgmin
       double precision efield_x
       double precision efield_y
@@ -83,7 +90,11 @@ c     xps variables
      $         'print','tolerances', 'xc','sym','adapt','sic', 
      $         'smear','fon','lb94','cs00','cdft','cam','disp',
      $         'dftmp2','molden','noscf','steric','efield','swapab',
-     $         'frozemb','cgmin','nocgmin','tol2e','ri-scf','lock',
+cc AJL/Begin/FDE
+c     $         'frozemb',
+     $         'frozemb', 'frozemb_xc', 'frozemb_ts',
+cc AJL/End
+     $         'cgmin','nocgmin','tol2e','ri-scf','lock',
      $         'rodft','fukui','maxiter','vspec','xps','xdm','end'/
 c
 c Qin / cdft
@@ -137,6 +148,10 @@ c
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
+cc AJL/Begin/FDE
+     $     3520, 3530,
+c    frozemb_xc, frozemb_ts
+cc AJL/End
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
      $     4400, 4500, 9999) ind
 
@@ -694,7 +709,48 @@ c
       if (.not.rtdb_put(rtdb,'dft:frozemb', mt_log, 1, frozemb))
      &   call errquit('dft_input: rtdb_put failed', 3500, RTDB_ERR)
 c
+cc AJL/Begin/FDE
+c      goto 10
+c
+ 3510 if (.not. inp_a(test)) goto 10
+c frozemb environment
+      if (inp_compare(.false.,'geometry', test)) then
+        if (.not. inp_a(test))
+     &     call errquit('dft_input: frozemb geometry failed', 0, 
+     &     INPUT_ERR)
+        if (.not. rtdb_cput(rtdb, 'dft:frozemb:geometry', 1, test))
+     &    call errquit('dft_input: rtdb_put failed frozemb geometry', 
+     &    3510, RTDB_ERR)
+        goto 3510
+      else if (inp_compare(.false.,'vectors', test)) then
+        if (.not. inp_a(test))
+     &     call errquit('dft_input: frozemb movecs failed', 0, 
+     &     INPUT_ERR)
+        if (.not. rtdb_cput(rtdb, 'dft:frozemb:movecs', 1, test))
+     &    call errquit('dft_input: rtdb_put failed frozemb movecs',
+     &    3510, RTDB_ERR)
+        goto 3510
+      else
+        call errquit('dft_input: frozemb unrecognised command: '//test,
+     &     0, INPUT_ERR)
+      endif
+c
+c
       goto 10
+c
+c     FDE xc;
+c             
+ 3520 call xc_input(rtdb, 'dft:frozemb')
+c
+      goto 10
+c
+c     FDE Ts;
+c             
+ 3530 call ts_input(rtdb, 'dft:frozemb')
+c
+      goto 10
+c
+cc AJL/End
 c
 c     conjugate-gradient direct minimization 
 c

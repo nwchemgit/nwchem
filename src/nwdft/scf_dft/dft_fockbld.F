@@ -8,7 +8,10 @@
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
-     ,     g_zora_sf,g_frozemb )
+cc AJL/Begin/FDE
+c     ,     g_zora_sf,g_frozemb)
+     ,     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde )
+cc AJL/End
 c     
 c     $Id$
 c     
@@ -66,7 +69,9 @@ c
       double precision Ezora_sf  ! spin-free zora energy
 c
       integer g_frozemb(*)       ! frozen embedding ga
-      logical frozemb            ! frozen embedding flag
+cc AJL/Begin/FDE
+c      logical frozemb            ! frozen embedding flag
+cc AJL/End
       double precision Efrozemb  ! energy
 c
 c     timings
@@ -87,6 +92,13 @@ c
 c
 cc AJL/Begin/SPIN ECPs
       integer ecp_channels
+cc AJL/Begin/FDE 
+      integer i
+      double precision Exc_fde(2)
+      integer g_xcinv_fde
+      integer g_vxc_fde(4)
+      double precision rho_n_fde ![out]
+      integer g_dens_fde(2)
 cc AJL/End
 c
       do_cosmo_smd = .false.
@@ -122,7 +134,7 @@ c     =========================================================================
 
 c
       Ecoul  = 0d0
-      Exc(1)= 0d0
+      Exc(1) = 0d0
       Exc(2) = 0d0
 
       icd_coef = 1
@@ -407,7 +419,10 @@ c
 c     == Calculate the HF exchange (exact Coulomb), DFT exchange-correlation ==
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &             rdens_atom, cetobfr, natoms) 
+cc AJL/Begin/FDE
+c     &             rdens_atom, cetobfr, natoms) 
+     &             rdens_atom, cetobfr, natoms, frozemb)
+cc AJL/End
 c
       if (odftps) call pstat_off(ps_xc)
 c
@@ -442,6 +457,163 @@ c     == frozen density is restricted at the moment ==
          Efrozemb = Efrozemb + ga_ddot(g_dens(2),g_frozemb(1))
         end if
         Ecore = Ecore + Efrozemb   ! add in linearized frozen embedding energy to core
+c
+cc AJL/Begin/FDE
+        if (FD_bas_han .ne. -99999) then
+! Add in contributions for Non additive potential here.
+! This will be for XC:  Vxc(P_tot) - Vxc(P_qm)
+! And the same for Ts:  Ts(P_tot)  - Ts(P_qm)
+! First lets calculate the parts dependent on P_qm...
+! As the grid is already setup and ready to go - hopefully. Order:
+! -> Call grid_quadv0 equivalent, but with XC set to FDE option
+! -> Then recalculate values for P_tot
+! -> And then finally subtract P_qm from P_tot values.. et voila.
+! This is all done in grid_quadv0b, except for the final manipulation of
+! the Hamiltonian contributions as we cannot manipulate GAs at this
+! lower level (I think. I haven't tried. So subtraction is below)
+
+          if (ipol.gt.1)then
+c     
+c        Restore alpha and beta densities.
+c     
+           call ga_dadd(1d0, g_dens_fde(1), -1d0, 
+     &                       g_dens_fde(2), g_dens_fde(1))
+          endif
+
+cc DEBUG
+c        call ga_zero(g_vxc_fde(1))
+c        rho_n_fde = 0.0d0
+c        Exc_fde(1) = 0.0d0
+c        Exc_fde(2) = 0.0d0
+c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+c
+c        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+c     &                   2, g_dens_fde)
+cc
+c        write(*,*) 'EXC(QM) = ', Exc_fde
+c        call util_flush(luout)
+c
+cc        call ga_print(g_vxc_fde(1))
+cc        if (ipol.gt.1)  call ga_print(g_vxc_fde(2))
+cc        call util_flush(luout)
+c
+cc DEBUG
+c        call ga_zero(g_vxc_fde(1))
+c        rho_n_fde = 0.0d0
+c        Exc_fde(1) = 0.0d0
+c        Exc_fde(2) = 0.0d0
+c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+c
+c        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+c     &                   3, g_dens_fde)
+c
+c        write(*,*) 'EXC(FDE) = ', Exc_fde
+c        call util_flush(luout)
+c
+        call ga_zero(g_vxc_fde(1))
+        rho_n_fde = 0.0d0
+        Exc_fde(1) = 0.0d0
+        Exc_fde(2) = 0.0d0
+        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+
+cc AJL_FDE_TESTING        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+cc     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+cc     &                   4, g_dens_fde)
+
+        if(util_print('frozemb nadd', print_debug)) then
+           write(luout,*)
+           write(luout,*) 'EXC(NADD) = ', Exc_fde
+c
+           call ga_print(g_vxc_fde(1))
+           if (ipol.gt.1)  call ga_print(g_vxc_fde(2))
+           write(luout,*)
+           call util_flush(luout)
+        endif
+c     == Add FDE non-additive Exc to the original matrix ==       
+        call ga_dadd(1.d0, g_vxc(1), 1.d0, g_vxc_fde(1), g_vxc(1))
+        if (ipol.gt.1)
+     &     call ga_dadd(1.d0, g_vxc(2), 1.d0, g_vxc_fde(2), g_vxc(2))
+c     == Add FDE non-additive Exc in to the Exc ==
+        do i=1,nExc 
+          Exc(i) = Exc(i) + Exc_fde(i)
+        enddo
+c
+c Repeat for Non-additive Ts
+cc DEBUG
+c        call ga_zero(g_vxc_fde(1))
+c        rho_n_fde = 0.0d0
+c        Exc_fde(1) = 0.0d0
+c        Exc_fde(2) = 0.0d0
+c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+c
+c        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+c     &                   5, g_dens_fde)
+cc
+c        write(*,*) 'TS(QM) = ', Exc_fde
+c        call util_flush(luout)
+c        call ga_print(g_vxc_fde(1))
+cc        if (ipol.gt.1)  call ga_print(g_vxc_fde(2))
+c        call util_flush(luout)
+cc DEBUG
+c        call ga_zero(g_vxc_fde(1))
+c        rho_n_fde = 0.0d0
+c        Exc_fde(1) = 0.0d0
+c        Exc_fde(2) = 0.0d0
+c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+cc
+c        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+c     &                   6, g_dens_fde)
+cc
+c        write(*,*) 'TS(FDE) = ', Exc_fde
+c        call util_flush(luout)
+cc        call ga_print(g_vxc_fde(1))
+cc        if (ipol.gt.1)  call ga_print(g_vxc_fde(2))
+c        call util_flush(luout)
+cc
+        call ga_zero(g_vxc_fde(1))
+        rho_n_fde = 0.0d0
+        Exc_fde(1) = 0.0d0
+        Exc_fde(2) = 0.0d0
+        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+
+c Set nExc explicitly to 1 for next call
+
+cc AJL_FDE_TESTING        call xc_getxc(rtdb, Exc_fde, 1, iVxc_opt, g_xcinv_fde,
+cc     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+cc     &                   7, g_dens_fde)
+
+        if(util_print('frozemb nadd', print_debug)) then
+           write(luout,*)
+           write(luout,*) 'TS(NADD) = ', Exc_fde
+c
+           call ga_print(g_vxc_fde(1))
+           if (ipol.gt.1)  call ga_print(g_vxc_fde(2))
+           write(luout,*)
+           call util_flush(luout)
+        endif
+c     == Add FDE non-additive Ts to the original matrix ==       
+        call ga_dadd(1.d0, g_vxc(1), 1.d0, g_vxc_fde(1), g_vxc(1))
+        if (ipol.gt.1)
+     &     call ga_dadd(1.d0, g_vxc(2), 1.d0, g_vxc_fde(2), g_vxc(2))
+c     == Add FDE non-additive Ts energy in to the 1e energy ==
+         Ecore = Ecore + Exc_fde(1)
+c        do i=1,nExc
+c          Ecore = Ecore + Exc_fde(i)
+c        enddo
+c
+          if (ipol.gt.1) then
+c       And then recombine the FDE densities for now. 
+            call ga_dadd(1d0, g_dens_fde(1), 1d0, 
+     &                        g_dens_fde(2), g_dens_fde(1))
+          endif
+
+        end if ! FD_bas_han
+cc AJL/End
+c
       end if
 c
 c     == Add exact pot contributions ==

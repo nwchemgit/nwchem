@@ -4001,23 +4001,56 @@ c     with type of XC into rtdb (whether specified or not).
 c     
 c>>>  place logical XC parameters in rtdb
 c
-      if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, numfunc, lcfac))
+cc AJL/Begin/FDE
+c
+c    This has been made slightly more dynamic so we can get information
+c    in to the RTDB for e.g. frozen density embedding
+c
+c      if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, numfunc, lcfac))
+c     &   call errquit('xc_inp: rtdb_put failed', 1, RTDB_ERR)
+c      if (.not. rtdb_put(rtdb, 'dft:nlcfac', mt_log, numfunc, nlcfac))
+c     &   call errquit('xc_inp: rtdb_put failed', 2, RTDB_ERR)
+c      if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, numfunc, lxfac))
+c     &   call errquit('xc_inp: rtdb_put failed', 3, RTDB_ERR)
+c      if (.not. rtdb_put(rtdb, 'dft:nlxfac', mt_log, numfunc, nlxfac))
+c     &   call errquit('xc_inp: rtdb_put failed', 4, RTDB_ERR)
+c      if (.not. rtdb_put(rtdb, 'dft:xccomb', mt_log, numfunc, xccomb))
+c     &   call errquit('xc_inp: rtdb_put failed', 5, RTDB_ERR)
+c     
+c>>>  place real XC parameters in rtdb
+c     
+c      if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, numfunc, cfac))
+c     &   call errquit('xc_inp: rtdb_put failed', 6, RTDB_ERR)
+c      if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
+c     &   call errquit('xc_inp: rtdb_put failed', 7, RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb, module(1:mlen)//':lcfac', 
+     &                   mt_log, numfunc, lcfac))
      &   call errquit('xc_inp: rtdb_put failed', 1, RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'dft:nlcfac', mt_log, numfunc, nlcfac))
+      if (.not. rtdb_put(rtdb, module(1:mlen)//':nlcfac', 
+     &                   mt_log, numfunc, nlcfac))
      &   call errquit('xc_inp: rtdb_put failed', 2, RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, numfunc, lxfac))
+      if (.not. rtdb_put(rtdb, module(1:mlen)//':lxfac', 
+     &                   mt_log, numfunc, lxfac))
      &   call errquit('xc_inp: rtdb_put failed', 3, RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'dft:nlxfac', mt_log, numfunc, nlxfac))
+      if (.not. rtdb_put(rtdb, module(1:mlen)//':nlxfac', 
+     &                   mt_log, numfunc, nlxfac))
      &   call errquit('xc_inp: rtdb_put failed', 4, RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'dft:xccomb', mt_log, numfunc, xccomb))
+      if (.not. rtdb_put(rtdb, module(1:mlen)//':xccomb', 
+     &                   mt_log, numfunc, xccomb))
      &   call errquit('xc_inp: rtdb_put failed', 5, RTDB_ERR)
 c     
 c>>>  place real XC parameters in rtdb
 c     
-      if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, numfunc, cfac))
+      if (.not. rtdb_put(rtdb, module(1:mlen)//':cfac', 
+     &                   mt_dbl, numfunc, cfac))
      &   call errquit('xc_inp: rtdb_put failed', 6, RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
+      if (.not. rtdb_put(rtdb, module(1:mlen)//':xfac',
+     &                   mt_dbl, numfunc, xfac))
      &   call errquit('xc_inp: rtdb_put failed', 7, RTDB_ERR)
+
+cc AJL/End
+c
       return
 c     
 10000 write(luout,777)
@@ -4137,5 +4170,84 @@ c
      $     call errquit('cam-s12h: failed to store filesize',402,
      &                  RTDB_ERR)
       end
+c
+      subroutine ts_input(rtdb, module)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+      integer rtdb
+      character*(*) module
+c     
+c     Parse the kinetic energy directive which specifies how to deal 
+c     with kinetic energy for frozen-density embedding calculations
+c     
+c     Possible variables are currently:
+c
+c     lda:
+c     Thomas-Fermi (tf) (-> 100)
+c     General Expansion Approx., 2nd Order (gea0) (-> 100)
+c     pbe:
+c     von-Weizsacker (vw) (-> 200)
+c     General Expansion Approx., 2nd Order (gea2) (->300)
+c     
+      integer num_dirs, ind, mlen
+      parameter (num_dirs = 2)
+      double precision tsfac(num_dirs)
+      character*12 dirs(2*num_dirs)
+      character*255 test
+c
+c
+      data dirs /'tf', 'vw', 'gea0', 'gea2'/
+c     
+      mlen = inp_strlen(module)
+      do ind=1,num_dirs
+        tsfac(ind) = 0.0d0
+      enddo
+c     
+ 10   if (.not.inp_a(test)) goto 1999
+c     
+      if (.not. inp_match(2*num_dirs, .false., test, dirs, ind)) then
+c     
+c        Does not match a keyword ... 
+c     
+         goto 10000
+      endif
+c
+      goto (100, 200, 100, 300, 1999) ind
+      call errquit('ts_input: unimplemented directive', ind, INPUT_ERR)
+c     
+  100 if (.not. inp_f(tsfac(1))) then
+        tsfac(1) = 1.0d0
+      endif
+c
+      goto 10
+  200 if (.not. inp_f(tsfac(2))) then
+        tsfac(2) = 1.d0
+      end if
+c
+      goto 10
+c
+  300 continue
+      tsfac(1) = 1.d0
+      tsfac(2) = 1.d0/9.d0
+c
+      goto 10
+c             
+ 1999 continue
+c
+      if (.not. rtdb_put(rtdb, module(1:mlen)//':ts', mt_dbl, num_dirs,
+     &          tsfac))
+     &     call errquit('ts_input: rtdb_put failed', 1, RTDB_ERR)
+c     
+      return
+c     
+10000 write(LuOut,10001)
 
-
+10001 format(/,' frozemb_ts [[tf], [vw], [gea0], [gea2]]')
+      call util_flush(LuOut)
+      call errquit('ts_input: invalid format', 0, INPUT_ERR)
+c     
+      end

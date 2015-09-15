@@ -242,6 +242,74 @@ c
      $        call errquit('dft_input: rtdb_put failed', 11, RTDB_ERR)
       endif
 c
+cc AJL/Begin/FDE
+c Repeat for FDE XC. Is this a safe way to check we are using FDE?
+      if (FD_bas_han .ne. -99999) then
+c    
+c     Analyze any user specified XC functionals ... set if none
+c     
+        cksetd = .true.
+c     
+c     Check if user has specified some type of functional,
+c     if so, do not set defaults.
+c     
+        do n = 1, numfunc
+           if (lcfac_fde(n).or.nlcfac_fde(n).or.
+     &         lxfac_fde(n).or.nlxfac_fde(n))
+     &          cksetd = .false.
+        enddo
+        if (cksetd)then
+c     
+c        Set functional defaults.
+c     
+           cfac_fde(1) = 1.0d0
+           lcfac_fde(1) = .true.
+           xfac_fde(2) = 1.0d0
+           lxfac_fde(2) = .true.
+c     
+c        Update rtdb.
+c     
+           if (.not. rtdb_put(rtdb, 
+     &             'dft:frozemb:cfac', mt_dbl, numfunc, cfac_fde))
+     $        call errquit('dft_input: rtdb_put failed', 210, RTDB_ERR)
+           if (.not. rtdb_put(rtdb, 
+     &             'dft:frozemb:xfac', mt_dbl, numfunc, xfac_fde))
+     $        call errquit('dft_input: rtdb_put failed', 211, RTDB_ERR)
+           if (.not. rtdb_put(rtdb, 
+     &             'dft:frozemb:lcfac', mt_log, numfunc, lcfac_fde))
+     $        call errquit('dft_input: rtdb_put failed', 9, RTDB_ERR)
+           if (.not. rtdb_put(rtdb,
+     &             'dft:frozemb:lxfac', mt_log, numfunc, lxfac_fde))
+     $        call errquit('dft_input: rtdb_put failed', 11, RTDB_ERR)
+        endif
+c
+c Repeat something similar for KE functionals.
+c I'm going to set this up so it can be expanded.        
+c
+        cksetd = .true.
+c     
+c     Check if user has specified some type of functional,
+c     if so, do not set defaults.
+c     
+        do n = 1, numfunc_fde
+           if (tsfac(n).gt.1.d-8) cksetd = .false.
+        enddo
+        if (cksetd)then
+c     
+c        Set functional defaults.
+c 
+          tsfac(1) = 1.d0
+c     
+c        Update rtdb.
+c
+          if (.not. rtdb_put(rtdb,
+     &              'dft:frozemb:ts', mt_dbl, numfunc_fde, tsfac))
+     $        call errquit('dft_input: rtdb_put failed', 210, RTDB_ERR)
+        end if ! tsfac default
+c
+      endif ! FD_bas_han .ne. -99999
+c AJL/End
+c
 c     Check/set defaults for convergence schemes
 c     
 c     Three types of convergence speedup schemes:
@@ -532,6 +600,98 @@ c           Print range-separation parameters
               write(LuOut,8203) 
               write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
             end if ! cam_exch
+c
+cc AJL/Begin/FDE
+            if (FD_bas_han .ne. -99999) then
+              write(LuOut,*)
+              call util_print_centered
+     &           (LuOut,'XC Information (FDE)',23,.true.)
+c     
+c           Write out XC info. Combo info first, than X components,
+c           than C components.
+c     
+              do n = 1, numfunc
+                 if (xccomb_fde(n))write(LuOut,9223) xcname(n)
+              enddo
+c     
+c           Do exact exchange differently.
+c AJL: Hybrids will give you linear dependencies in the fde/qm combined 
+c wavefunction. Therefore, we should never have non-local contributions
+c from exact exchange. I have left the functionality here, as it is
+c lifted from L510 above, but it should never be used.
+c
+c An error message is implemented in dft_rdinput.F
+c If someone thinks it is sensible to re-enable this they can do so themselves.
+c
+              if (lxfac_fde(1).or.nlxfac_fde(1))
+     &            write(LuOut,9224) xname(1), xfac_fde(1), nineb_c
+c
+              do n = 2, numfunc
+                 if (lxfac_fde(n).and.nlxfac_fde(n))then
+                    write(LuOut,9224) xname(n), xfac_fde(n), nineb_c
+                 elseif (lxfac_fde(n).and.(.not.nlxfac_fde(n)))then
+                    write(LuOut,9224) xname(n), xfac_fde(n), local_c
+                 elseif ((.not.lxfac_fde(n)).and.nlxfac_fde(n))then
+                    write(LuOut,9224) xname(n), xfac_fde(n), nonlocal_c
+                 endif
+              enddo
+              do n = 1, numfunc
+                 if (lcfac_fde(n).and.nlcfac_fde(n))then
+                    write(LuOut,9224) cname(n), cfac_fde(n), nineb_c
+                 elseif (lcfac_fde(n).and.(.not.nlcfac_fde(n)))then
+                    write(LuOut,9224) cname(n), cfac_fde(n), local_c
+                 elseif ((.not.lcfac_fde(n)).and.nlcfac_fde(n))then
+                    write(LuOut,9224) cname(n), cfac_fde(n), nonlocal_c
+                 endif
+              enddo
+c
+c AJL: Again, do I need range separated inputs?! This needs to be tidied in to
+c separate variables if used. I think it probably should be disabled...
+c
+c The most sensible thing is again to do the error checks in dft_rdinput
+c
+c Lifted from above:
+c           Check if asymptotic correction will be added to potential
+c           If both LB94 and CS00 are .true., it is assumed that the 
+c           user meant to use CS00 (since CS00 uses LB94)
+c
+              if (cs00) then
+                 if (delta_ac.gt.1.0d90) then
+                 write(LuOut,*)
+                 write(LuOut,9226)
+     &           '  CS with a Zhan-Nichols-Dixon shift        '
+                 else
+                 write(LuOut,*)
+                 write(LuOut,9227)
+     &           '  Casida-Salahub correction with a shift    ',
+     &           delta_ac,'au'
+                 endif
+              else if (lb94) then
+                 write(LuOut,*)
+                 write(LuOut,9226)
+     &           '         van Leeuwen-Baerends correction    '
+              endif
+c
+c           Print range-separation parameters
+              if (cam_exch) then
+                write(LuOut,*)
+                 write(LuOut,8202)
+     &           'Range-Separation Parameters        '
+                 write(LuOut,8203)
+                write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
+              end if ! cam_exch
+c
+c Kinetic Energy Functional
+c
+              write(LuOut,*)
+              call util_print_centered
+     &           (LuOut,'KE Information (FDE)',23,.true.)
+              do n = 1, numfunc_fde
+                 if (tsfac(n).gt.0)
+     &             write(LuOut,9224) tsname(n), tsfac(n), local_c
+              enddo
+            endif ! FD_bas_han .ne. -99999
+cc AJL/End
 c
             call util_flush(LuOut)
 c

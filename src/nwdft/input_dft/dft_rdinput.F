@@ -48,13 +48,20 @@ c
       logical qmmm_init
       double precision tol2e
       integer me
+C AJL/Begin/FDE
+      character*80 frozemb_name
+      character*32 pname
+      Logical cam_exch
+C AJL/End
 c
       External int_normalize
       External int_norm_2c
       External atom_tag_check
 c
       me=ga_nodeid()
-
+c
+      pname = 'dft_rdinput: '
+c
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
      $     call errquit('dft_rdinput: failed getting theory',0,
      &       RTDB_ERR)
@@ -76,6 +83,13 @@ c
          lxfac(iline)=.false.
         nlxfac(iline)=.false.
         xccomb(iline)=.false.
+          xfac_fde(iline)=0.d0
+          cfac_fde(iline)=0.d0
+         lcfac_fde(iline)=.false.
+        nlcfac_fde(iline)=.false.
+         lxfac_fde(iline)=.false.
+        nlxfac_fde(iline)=.false.
+        xccomb_fde(iline)=.false.
       enddo
 c
 c     recover charge from rtdb.
@@ -722,26 +736,165 @@ c
          oadapt = sym_number_ops(geom) .gt. 0
       endif
 c
+cc AJL/BEGIN
+c  Lifted partly from dft_scf.F; Duplicated partly from above
+c  == if frozen embedding ==
+c
+      frozemb = .false.
+      if (.not.rtdb_get(rtdb, 'dft:frozemb', mt_log, 1, frozemb))
+     &  frozemb=.false.
+      if (frozemb) then
+        if (rtdb_cget(rtdb, 'dft:frozemb:geometry', 1, 
+     &    frozemb_name)) then
+          if (.not. geom_create(geom_fde, frozemb_name))
+     &      call errquit(pname//'geom_create?',70, GEOM_ERR)
+          if (.not. geom_rtdb_load(rtdb, geom_fde, frozemb_name))
+     &      call errquit(pname//'no geometry',72, RTDB_ERR)
+        else
+          geom_fde=-99999
+        endif
+
+        if (geom_fde .ne. -99999) then
+c
+c     Get/set/put XC info.
+c     (Duplicated from above, but now for FDE)
+c
+          if (.not. rtdb_get(rtdb,'dft:frozemb:cfac', mt_dbl, numfunc,
+     &        cfac_fde))then
+            if (.not. rtdb_put(rtdb,'dft:frozemb:cfac',
+     &          mt_dbl, numfunc, cfac_fde))
+     &      call errquit(pname//'rtdb_put failed', 210, RTDB_ERR)
+          endif
+c
+          if (.not. rtdb_get(rtdb,'dft:frozemb:xfac', mt_dbl, numfunc,
+     &        xfac_fde))then
+            if (.not. rtdb_put(rtdb,'dft:frozemb:xfac',
+     &          mt_dbl, numfunc, xfac_fde))
+     &      call errquit(pname//'rtdb_put failed', 211, RTDB_ERR)
+          endif
+c
+          if (.not. rtdb_get(rtdb,'dft:frozemb:lcfac', mt_log, numfunc,
+     &        lcfac_fde))then
+            if (.not. rtdb_put(rtdb,'dft:frozemb:lcfac',
+     &          mt_log, numfunc, lcfac_fde))
+     &      call errquit(pname//'rtdb_put failed', 9, RTDB_ERR)
+          endif
+c
+          if (.not. rtdb_get(rtdb,'dft:frozemb:nlcfac', mt_log, numfunc,
+     &        nlcfac_fde))then
+            if (.not. rtdb_put(rtdb,'dft:frozemb:nlcfac',
+     &          mt_log, numfunc, nlcfac_fde))
+     &      call errquit(pname//'rtdb_put failed', 10, RTDB_ERR)
+          else
+c Check to see if we are using non-local functionals
+c If so we are going to throw an error as these create linear dependences
+c if we use them for FDE. If you are feeling brave then comment out.
+            do iline=1,numfunc
+              if (nlcfac_fde(iline)) 
+     &        call errquit(pname//'non-local functionals are not
+     &        permitted for frozen density embedding', 10, INPUT_ERR)
+            enddo
+          endif
+c
+          if (.not. rtdb_get(rtdb,'dft:frozemb:lxfac', mt_log, numfunc,
+     &        lxfac_fde))then
+            if (.not. rtdb_put(rtdb,'dft:frozemb:lxfac',
+     &          mt_log, numfunc, lxfac_fde))
+     &      call errquit(pname//'rtdb_put failed', 11, RTDB_ERR)
+          endif
+c
+          if (.not. rtdb_get(rtdb,'dft:frozemb:nlxfac', mt_log, numfunc,
+     &        nlxfac_fde))then
+            if (.not. rtdb_put(rtdb,'dft:frozemb:nlxfac',
+     &          mt_log, numfunc, nlxfac_fde))
+     &      call errquit(pname//'rtdb_put failed', 12, RTDB_ERR)
+          else
+c Check to see if we are using non-local functionals
+c If so we are going to throw an error as these create linear dependences
+c if we use them for FDE. If you are feeling brave then comment out.
+            do iline=1,numfunc
+              if (nlxfac_fde(iline))
+     &        call errquit(pname//'non-local functionals are not
+     &        permitted for frozen density embedding', 10, INPUT_ERR)
+            enddo
+          endif
+c
+          if (.not. rtdb_get(rtdb,'dft:frozemb:xccomb', mt_log, numfunc,
+     &        xccomb_fde))then
+            if (.not. rtdb_put(rtdb,'dft:frozemb:xccomb',
+     &          mt_log, numfunc, xccomb_fde))
+     &      call errquit(pname//'rtdb_put failed', 13, RTDB_ERR)
+          endif
+c Check to see if asymptotic corrections are in use. 
+c I assume they are not compatiblefor FDE, so disabling them 
+c is the safest thing. Re-enable at your own wish/bravery
+          if (cs00.or.lb94)
+     &        call errquit(pname//'asymptotic corrections are not
+     &        permitted for frozen density embedding', 10, INPUT_ERR)
+c Check to see if range-separated functionals are in use.
+c Same as above - assumed non-functioning but the infrastructure would
+c work if there use is physically meaningful
+          if (rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) then 
+            if (cam_exch) 
+     &        call errquit(pname//'range-separated functionals are not
+     &        permitted for frozen density embedding', 10, INPUT_ERR)
+          endif
+c
+          if (.not.rtdb_get(rtdb, 'dft:frozemb:ts', mt_dbl, numfunc_fde,
+     &       tsfac)) then
+c
+             do iline=1,numfunc_fde
+               tsfac(iline) = 0.d0
+             enddo
+c
+             if (.not. rtdb_put(rtdb,'dft:frozemb:ts',
+     &          mt_dbl, numfunc_fde, tsfac))
+     &       call errquit(pname//'rtdb_put failed', 13, RTDB_ERR) 
+          endif
+c
+c Input Kinetic Energy Functionals
+c
+c      blank_40c = '                                        '
+          do iline=1,numfunc_fde
+            tsname(iline)=blank_40c
+          enddo
+c
+c     Kinetic energy functional name defaults.
+c
+          tsname(1)='         Thomas-Fermi Kinetic Functional'
+          tsname(2)='       Von Weizsacker Kinetic Functional'
+c
+          if (.not. rtdb_cput(rtdb, 'dft:frozemb:tsname',
+     &              numfunc_fde, tsname))
+     &    call errquit(pname//'rtdb_put failed', 302, RTDB_ERR)
+        endif ! geom_fde is active
+c
+      else ! Not frozemb
+        geom_fde=-99999
+      endif
+C
+C AJL/END
+c
 c     get number of atomic centers from geometry object
 c
       if (.not. geom_ncent(geom, ncenters))
-     &     call errquit('rdinput: geom_ncent failed',73, GEOM_ERR)
+     &     call errquit(pname//' geom_ncent failed',73, GEOM_ERR)
 c
 c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
      &   icoord))call errquit(
-     .     'dft_rdinput: failed to alloc coordinates',0, MA_ERR)
+     .     pname//'failed to alloc coordinates',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
      &   icharge))call errquit(
-     .     'dft_rdinput: failed to alloc charges',0, MA_ERR)
+     .     pname//'failed to alloc charges',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &   ltags, itags))call errquit(
-     .     'dft_rdinput: failed to alloc center tags',0, MA_ERR)
+     .     pname//'failed to alloc center tags',0, MA_ERR)
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
-     &     call errquit('rdinput: geom_cart_get failed',74, GEOM_ERR)
+     &     call errquit(pname//'geom_cart_get failed',74, GEOM_ERR)
 c
 c     Extract high level info from the data-base setting defaults
 c
@@ -751,31 +904,64 @@ c
 c     Define the contracted Gaussian functions for the AO basis set.
 c
       if (.not. bas_create(AO_bas_han, 'ao basis'))
-     &   call errquit('rdinput: bas_create?', 86, BASIS_ERR)
+     &   call errquit(pname//'bas_create?', 86, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, AO_bas_han, 'ao basis'))
-     &   call errquit('rdinput: no ao basis ', 86, BASIS_ERR)
+     &   call errquit(pname//'no ao basis ', 86, BASIS_ERR)
       if (.not. int_normalize(rtdb,AO_bas_han))
-     &   call errquit('rdinput: int_normalize failed', 86, INT_ERR)
+     &   call errquit(pname//'int_normalize failed', 86, INT_ERR)
       if (.not. bas_numbf(AO_bas_han, nbf))
-     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
+     &   call errquit(pname//'basis set error:', 86, BASIS_ERR)
       nbf_ao = nbf
       if (.not. bas_nprim_cn_max(AO_bas_han,nbf_ao_mxprim))
-     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
+     &   call errquit(pname//'basis set error:', 86, BASIS_ERR)
       if (.not. bas_high_angular(AO_bas_han,nbf_ao_mxang))
-     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
+     &   call errquit(pname//'basis set error:', 86, BASIS_ERR)
       if (.not. bas_ncontr_cn_max(AO_bas_han,nbf_ao_mxcont))
-     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
+     &   call errquit(pname//'basis set error:', 86, BASIS_ERR)
       if (.not. bas_nbf_cn_max(AO_bas_han,nbf_ao_mxnbf_cn))
-     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
+     &   call errquit(pname//'basis set error:', 86, BASIS_ERR)
       if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
-     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
+     &   call errquit(pname//'basis set error:', 86, BASIS_ERR)
       if (.not. bas_numcont(AO_bas_han,nshells_ao))
-     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
+     &   call errquit(pname//'basis set error:', 86, BASIS_ERR)
+c
+C AJL/Begin/FDE
+c
+c     Define the contracted Gaussian functions for the Frozen Density AO basis set.
+c
+      if (frozemb .and. (geom_fde .ne. -99999)) then
+        if (.not. bas_create(FD_bas_han, 'ao basis'))
+     &     call errquit(pname//'bas_create?', 86, BASIS_ERR)
+        if (.not. bas_rtdb_load(rtdb, geom_fde, FD_bas_han,
+     &     'ao basis'))
+     &     call errquit(pname//'no fd basis ', 86, BASIS_ERR)
+        if (.not. int_normalize(rtdb,FD_bas_han))
+     &     call errquit(pname//'int_normalize failed', 86, INT_ERR)
+        if (.not. bas_numbf(FD_bas_han, nbf_fde))
+     &     call errquit(pname//'basis set error:', 86, BASIS_ERR)
+        if (.not. bas_nprim_cn_max(FD_bas_han,nbf_fde_mxprim))
+     &     call errquit(pname//'basis set error:', 86, BASIS_ERR)
+        if (.not. bas_high_angular(FD_bas_han,nbf_fde_mxang))
+     &     call errquit(pname//'basis set error:', 86, BASIS_ERR)
+        if (.not. bas_ncontr_cn_max(FD_bas_han,nbf_fde_mxcont))
+     &     call errquit(pname//'basis set error:', 86, BASIS_ERR)
+        if (.not. bas_nbf_cn_max(FD_bas_han,nbf_fde_mxnbf_cn))
+     &     call errquit(pname//'basis set error:', 86, BASIS_ERR)
+        if (.not. bas_nbf_ce_max(FD_bas_han,nbf_fde_mxnbf_ce))
+     &     call errquit(pname//'basis set error:', 86, BASIS_ERR)
+        if (.not. bas_numcont(FD_bas_han,nshells_fde))
+     &     call errquit(pname//'basis set error:', 86, BASIS_ERR)
+      else
+         FD_bas_han=-99999
+         nbf_fde = 0
+      endif
+c
+C AJL/END
 c
 c     Define the contracted Gaussian functions for the CD basis set.
 c
       if (.not. bas_create(CD_bas_han, 'cd basis'))
-     &   call errquit('rdinput: bas_create?',102, BASIS_ERR)
+     &   call errquit(pname//'bas_create?',102, BASIS_ERR)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
       if(theory.eq.'sodft') then
          if (me.eq.0) then

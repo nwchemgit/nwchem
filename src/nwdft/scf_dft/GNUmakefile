@@ -39,7 +39,8 @@
 	dft_dump_info.o \
 	dft_fant.o\
 	dft_printinfo.o\
-        dft_frac_mo.o
+	dft_frac_mo.o \
+	int_1e_fde.o
 
      LIBRARY = libnwdft.a
 ifndef OLD_GA

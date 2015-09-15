@@ -127,7 +127,10 @@ c
 c     == Local declarations ==
       double precision energy
       integer iproc,itype
-      integer bases(3), i3
+cc AJL/Begin/FDE
+c      integer bases(3), i3
+      integer bases(4), i3
+cc AJL/End
       logical LResult, oprint, converged
       logical dyall_mod_dir  ! do modified Dirac calculation
 c
@@ -139,6 +142,10 @@ c
       logical lrt_tddft
       character*32 pname
       integer nclosed, nopen
+
+cc AJL/Begin/FDE
+      logical frozemb_fde
+cc AJL/End
 
       logical rt_tddft
       external rt_tddft
@@ -271,23 +278,53 @@ c
      &     '         Total DFT energy =', f20.12/)
 c     
 c     == Initialize the integral object ==
-      if(XCFIT.and.CDFIT) then
+c 
+cc AJL/Begin/FDE
+c
+      frozemb_fde = .true.
+      if( FD_bas_han.eq.-99999 ) frozemb_fde = .false.
+
+c      if(XCFIT.and.CDFIT) then
+      if(XCFIT.and.CDFIT.and.frozemb_fde) then
+        i3 = 4
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
+        bases(3) = XC_bas_han
+        bases(4) = FD_bas_han
+      elseif((.not.XCFIT).and.CDFIT.and.frozemb_fde) then
+        i3 = 3
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
+        bases(3) = FD_bas_han
+      elseif((.not.CDFIT).and.XCFIT.and.frozemb_fde) then
+        i3 = 3
+        bases(1) = AO_bas_han
+        bases(2) = XC_bas_han
+        bases(3) = FD_bas_han
+      elseif((.not.frozemb_fde).and.XCFIT.and.CDFIT) then
         i3 = 3
         bases(1) = AO_bas_han
         bases(2) = CD_bas_han
         bases(3) = XC_bas_han
-      elseif((.not.XCFIT).and.CDFIT) then
+      elseif((.not.XCFIT).and.(.not.CDFIT).and.frozemb_fde) then
         i3 = 2
         bases(1) = AO_bas_han
-        bases(2) = CD_bas_han
-      elseif((.not.CDFIT).and.XCFIT) then
+        bases(2) = FD_bas_han
+      elseif((.not.CDFIT).and.XCFIT.and.(.not.frozemb_fde)) then
         i3 = 2
         bases(1) = AO_bas_han
         bases(2) = XC_bas_han
+      elseif((.not.frozemb_fde).and.(.not.XCFIT).and.CDFIT) then
+        i3 = 2
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
       else
         i3 = 1
         bases(1) = AO_bas_han
       endif
+c
+cc AJL/End
+c
       call int_init(rtdb, i3, bases)
 c
       call print_integrals(bases, oskel) ! print integrals, if needed
@@ -372,7 +409,27 @@ c     == Destroy basis set handles and geom object ==
       if( XC_bas_han.eq.-99999 ) XCFIT = .FALSE.
       CDFIT    = .TRUE.
       if( CD_bas_han.eq.-99999 ) CDFIT = .FALSE.
+c
+cc AJL/BEGIN
+      frozemb_fde  = .true.
+      if( FD_bas_han.eq.-99999 ) frozemb_fde = .false.
 
+      if (frozemb_fde) then
+        if (.not. bas_destroy(FD_bas_han))
+     &    call errquit (pname//'Destroying FD basis handles',0,
+     &         BASIS_ERR)
+      endif
+c
+c Reuse frozemb_fde as we don't use this again
+      if( geom_fde.eq.-99999 ) frozemb_fde = .false.
+
+      if (frozemb_fde) then
+        if (.not. geom_destroy(geom_fde))
+     &    call errquit (pname//'Destroying FD geom handles',0,
+     &         BASIS_ERR)
+      endif
+cc AJL/END
+c
       if(XCFIT)then
        if(.not.bas_destroy(XC_bas_han))
      &   call errquit(pname//'Destroying XC basis handle',0, BASIS_ERR)

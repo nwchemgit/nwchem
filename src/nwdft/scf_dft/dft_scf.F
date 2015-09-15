@@ -135,7 +135,10 @@ c
       double precision dft_dencvg, dft_time
       external dft_dencvg
       integer l_ir, k_ir
-      logical last_time_energy,noscf,frozemb
+cc AJL/Begin/FDE
+c      logical last_time_energy,noscf,frozemb
+      logical last_time_energy,noscf
+cc AJL/End
       logical fon, reorth
       character*7 name
       character*4 scftype
@@ -212,7 +215,11 @@ c -----FA: 04-21-11: for Gaussian Nuclear Model --- END
 
 c ... jochen: MO analysis print threshold
       double precision tanalyze
-
+cc     AJL/Begin/FDE
+      integer g_vxc_fde(4)
+      integer g_xcinv_fde
+      integer g_dens_fde(2)
+cc     AJL/End
 c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
@@ -928,15 +935,58 @@ c
 c     
 c     Top of infinite SCF iteration loop
 c
+cc AJL/Begin/FDE
+c
 c     == if frozen embedding ==
-      frozemb = .false.
-      if (.not.rtdb_get(rtdb, 'dft:frozemb', mt_log, 1, frozemb))
-     &    frozemb=.false.
+c     AJL: This is already stored in commons
+c      frozemb = .false.
+c      if (.not.rtdb_get(rtdb, 'dft:frozemb', mt_log, 1, frozemb))
+c     &    frozemb=.false.
       if (frozemb) then ! get the frozen density embedding potential
         if (.not. ga_duplicate(g_fock, g_frozemb, 'froz matrix'))
      &     call errquit('dft_scf:failed duplicate',g_frozemb, GA_ERR)
         call ga_zero(g_frozemb)
-        call dft_frozemb(rtdb,g_frozemb)
+        if (FD_bas_han.eq.-99999) then
+c     Old embedding method, read from file
+          call dft_frozemb(rtdb,g_frozemb)
+        else
+c     Couple of error checks not present in dft_rdinput
+c     Ideally these would be grouped with the dft_rdinput errors
+          if (lxdm.eq.1)
+     &      call errquit('dft_scf: XDM is not compatible with FDE',1,
+     &      INPUT_ERR)   
+          if (test_sic.ne.0)
+     &      call errquit('dft_scf: SIC is not compatible with FDE',1,
+     &      INPUT_ERR)
+
+c Initialise frozen density embedding
+cc AJL_FDE_TESTING          call dft_frozemb_fde(rtdb,g_frozemb,g_dens_fde)          
+
+c Create the Vxc matrix for FDE and zero 
+          if (.not. ga_duplicate(g_vxc(1), g_vxc_fde(1), 'VXC FDE'))
+     &      call errquit('dft_scf:failed duplicate',g_vxc_fde(1), 
+     &                   GA_ERR)
+          call ga_zero(g_vxc_fde(1))
+
+          if (ipol.eq.2) then
+            if (.not. ga_duplicate(g_vxc(2), g_vxc_fde(2), 'VXC FDE'))
+     &        call errquit('dft_scf:failed duplicate',g_vxc_fde(2), 
+     &                     GA_ERR)
+            call ga_zero(g_vxc_fde(2))
+          endif
+
+c Is this necessary? 
+c We'll generate it just in case but this needs testing
+          if (XCFIT) then
+            if (.not. ga_duplicate(g_xcinv, g_xcinv_fde, 'VXCINV FDE'))
+     &        call errquit('dft_scf:failed duplicate',g_xcinv_fde, 
+     &                     GA_ERR)
+            call ga_zero(g_xcinv_fde)
+          endif
+
+        endif ! FD_bas_han active?
+cc AJL/End
+c
 c      call ga_print(g_frozemb)
 c      call ga_print(g_s)
       end if
@@ -1127,7 +1177,10 @@ c
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
-     &     g_zora_sf,g_frozemb)
+cc AJL/Begin/FDE
+c     &     g_zora_sf,g_frozemb)
+     &     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde)
+cc AJL/End
       if(util_print('dft timings', print_high))
      &      time2=util_cpusec()  ! end fock matrix build time
 c
@@ -1291,6 +1344,20 @@ c Constrained DFT: label 2004 is associated with optimization of cdft.
      $           cdft_maxiter,RTDB_ERR)
         endif
       endif
+
+cc AJL/Begin/FDE
+      if(util_print('Intermediate Fock Matrix', print_debug)) then
+        if (ga_nodeid() .eq. 0) then
+          write(6,*)
+          call util_print_centered(6,
+     $         'Intermediate Fock Matrix',40,.true.)
+          write(6,*)
+          call util_flush(6)
+        end if
+        call ga_print(g_focks(1))
+        if (ipol.eq.2) call ga_print(g_focks(2))
+      endif
+cc AJL/End
 
       do ispin = 1, ipol
          if(lcdft) then
@@ -2422,9 +2489,27 @@ C---------------------------------------------------------------------------
 c
 c     == if frozen embedding ==
       if (frozemb) then
-       if (.not. ga_destroy(g_frozemb)) call errquit
-     &   ('dft_scf: could not destroy g_frozemb', 0, GA_ERR)
-      end if
+        if (.not. ga_destroy(g_frozemb)) call errquit
+     &     ('dft_scf: could not destroy g_frozemb', 0, GA_ERR)
+cc AJL/Begin/FDE
+        if (FD_bas_han .ne. -99999) then
+          if (.not. ga_destroy(g_vxc_fde(1))) call errquit
+     &       ('dft_scf: could not destroy g_vxc_fde1', 0, GA_ERR)
+          if (.not. ga_destroy(g_dens_fde(1))) call errquit
+     &       ('dft_scf: could not destroy g_dens_fde1', 0, GA_ERR)
+          if (ipol.gt.1) then
+             if (.not. ga_destroy(g_dens_fde(2))) call errquit
+     &          ('dft_scf: could not destroy g_dens_fde2', 0, GA_ERR)
+             if (.not. ga_destroy(g_vxc_fde(2))) call errquit
+     &          ('dft_scf: could not destroy g_vxc_fde2', 0, GA_ERR)
+          endif !ipol
+          if (XCFIT) then
+            if (.not. ga_destroy(g_xcinv_fde)) call errquit
+     &         ('dft_scf: could not destroy g_xcinv_fde', 0, GA_ERR)
+          endif !xcfit
+        endif !fd_bas_han
+      end if !frozemb
+cc AJL/End
 c
 cdft...Deallocate cdft arrays
       if(lcdft) then
