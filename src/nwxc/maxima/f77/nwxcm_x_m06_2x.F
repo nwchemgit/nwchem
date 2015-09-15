@@ -133,6 +133,7 @@ c
       double precision taua,taub 
       double precision nwxcm_heaviside 
       external         nwxcm_heaviside 
+CDIR$ NOVECTOR
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -677,6 +678,7 @@ c
       double precision taua,taub 
       double precision nwxcm_heaviside 
       external         nwxcm_heaviside 
+CDIR$ NOVECTOR
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -1779,6 +1781,7 @@ c
       double precision taua,taub 
       double precision nwxcm_heaviside 
       external         nwxcm_heaviside 
+CDIR$ NOVECTOR
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 

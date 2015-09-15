@@ -1594,7 +1594,7 @@ endif
         endif
       endif
       DEFINES  += -DEXT_INT
-      MAKEFLAGS = -j 1 --no-print-directory
+#      MAKEFLAGS = -j 1 --no-print-directory
      ifeq ($(BLAS_LIB),)
        CORE_SUBDIRS_EXTRA += blas
      endif
@@ -1789,13 +1789,13 @@ $(error )
          endif
        else
           ifdef USE_OPENMP
-          ifeq ($(_IFCV15ORNEWER), Y)
-             FOPTIONS += -qno-openmp-offload
-          else
-          ifeq ($(_IFCV14), Y)
-             FOPTIONS += -no-openmp-offload
-          endif
-          endif
+            ifeq ($(_IFCV15ORNEWER), Y)
+              FOPTIONS += -qno-openmp-offload
+            else
+              ifeq ($(_IFCV14), Y)
+                FOPTIONS += -no-openmp-offload
+              endif
+            endif
           endif
        endif
        DEFINES+= -DIFCV8 -DIFCLINUX
@@ -1812,6 +1812,7 @@ $(error )
         FOPTIONS += -fimf-arch-consistency=true
         endif
         FOPTIMIZE += -xHost
+        FOPTIONS += -finline-limit=250
        else
         ifeq ($(_GOTSSE3),Y) 
          FOPTIMIZE += -xP -no-prec-div
