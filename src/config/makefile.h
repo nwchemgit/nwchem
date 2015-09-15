@@ -1738,6 +1738,9 @@ endif
            FOPTIONS += -qopt-report-phase=openmp
            COPTIONS += -qopenmp
            DEFINES+= -DUSE_OPENMP 
+         else
+           FOPTIONS += -qno-openmp
+           COPTIONS += -qno-openmp
          endif		   
 	   else
          FOPTIONS += -vec-report6
