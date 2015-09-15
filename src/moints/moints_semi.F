@@ -156,7 +156,7 @@ c     we have g_kbuf and g_kbuf trans
        mxrlen = int(gmem/(nseg*nvir_node))
        mxrlen = min(
      $      mxrlen, 
-     $      nbf*(nbf+1)/2)
+     $      nbf*nbf)
 C     $      min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
 
        if (rtdb_get(rtdb, 'mp2:mxrlen', mt_int, 1, mxrlen_in)) 
