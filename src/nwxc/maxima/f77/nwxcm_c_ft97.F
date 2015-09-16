@@ -108,6 +108,7 @@ c
       double precision taua,taub 
       call errquit('nwxcm_c_ft97: not implemented, use "xc autodiff cft9
      +7" instead',0,0)
+CDIR$ NOVECTOR
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -175,6 +176,7 @@ c
       double precision taua,taub 
       call errquit('nwxcm_c_ft97: not implemented, use "xc autodiff cft9
      +7" instead',0,0)
+CDIR$ NOVECTOR
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 

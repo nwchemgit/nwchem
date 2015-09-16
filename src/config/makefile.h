@@ -1594,7 +1594,7 @@ endif
         endif
       endif
       DEFINES  += -DEXT_INT
-      MAKEFLAGS = -j 1 --no-print-directory
+#      MAKEFLAGS = -j 1 --no-print-directory
      ifeq ($(BLAS_LIB),)
        CORE_SUBDIRS_EXTRA += blas
      endif
@@ -1703,6 +1703,7 @@ endif
        _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
        _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+       _IFCV16=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 16) {print "Y";exit}}')
 # Intel EM64T is required
       ifneq ($(_IFCE),Y)
         defineFCE: 
@@ -1739,8 +1740,11 @@ endif
            COPTIONS += -qopenmp
            DEFINES+= -DUSE_OPENMP 
          else
+	   ifeq ($(_IFCV15ORNEWER), Y)
+           else
            FOPTIONS += -qno-openmp
            COPTIONS += -qno-openmp
+           endif
          endif		   
 	   else
          FOPTIONS += -vec-report6
@@ -1789,13 +1793,13 @@ $(error )
          endif
        else
           ifdef USE_OPENMP
-          ifeq ($(_IFCV15ORNEWER), Y)
-             FOPTIONS += -qno-openmp-offload
-          else
-          ifeq ($(_IFCV14), Y)
-             FOPTIONS += -no-openmp-offload
-          endif
-          endif
+            ifeq ($(_IFCV15ORNEWER), Y)
+              FOPTIONS += -qno-openmp-offload
+            else
+              ifeq ($(_IFCV14), Y)
+                FOPTIONS += -no-openmp-offload
+              endif
+            endif
           endif
        endif
        DEFINES+= -DIFCV8 -DIFCLINUX
@@ -1812,6 +1816,7 @@ $(error )
         FOPTIONS += -fimf-arch-consistency=true
         endif
         FOPTIMIZE += -xHost
+        FOPTIONS += -finline-limit=250
        else
         ifeq ($(_GOTSSE3),Y) 
          FOPTIMIZE += -xP -no-prec-div
