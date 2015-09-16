@@ -3,6 +3,7 @@
 HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 
 	OBJ = xc_getv.o \
+	xc_getvxc.o \
 	xc_exact_pot.o \
 	xc_sicutil.o \
 	chk_dens.o \

@@ -487,7 +487,7 @@ c        Exc_fde(1) = 0.0d0
 c        Exc_fde(2) = 0.0d0
 c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
 c
-c        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c        call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
 c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
 c     &                   2, g_dens_fde)
 cc
@@ -505,7 +505,7 @@ c        Exc_fde(1) = 0.0d0
 c        Exc_fde(2) = 0.0d0
 c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
 c
-c        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c        call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
 c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
 c     &                   3, g_dens_fde)
 c
@@ -518,9 +518,9 @@ c
         Exc_fde(2) = 0.0d0
         if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
 
-cc AJL_FDE_TESTING        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
-cc     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
-cc     &                   4, g_dens_fde)
+        call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+     &                   4, g_dens_fde)
 
         if(util_print('frozemb nadd', print_debug)) then
            write(luout,*)
@@ -548,7 +548,7 @@ c        Exc_fde(1) = 0.0d0
 c        Exc_fde(2) = 0.0d0
 c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
 c
-c        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c        call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
 c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
 c     &                   5, g_dens_fde)
 cc
@@ -564,7 +564,7 @@ c        Exc_fde(1) = 0.0d0
 c        Exc_fde(2) = 0.0d0
 c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
 cc
-c        call xc_getxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c        call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
 c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
 c     &                   6, g_dens_fde)
 cc
@@ -582,9 +582,9 @@ cc
 
 c Set nExc explicitly to 1 for next call
 
-cc AJL_FDE_TESTING        call xc_getxc(rtdb, Exc_fde, 1, iVxc_opt, g_xcinv_fde,
-cc     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
-cc     &                   7, g_dens_fde)
+        call xc_getvxc(rtdb, Exc_fde, 1, iVxc_opt, g_xcinv_fde,
+     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+     &                   7, g_dens_fde)
 
         if(util_print('frozemb nadd', print_debug)) then
            write(luout,*)

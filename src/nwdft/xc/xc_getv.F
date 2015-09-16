@@ -73,8 +73,11 @@ c
       logical havehfxc
 c     
       integer  ga_create_atom_blocked
-      logical xc_gotxc
-      external ga_create_atom_blocked,xc_gotxc
+cc AJL/Begin/FDE
+c      logical xc_gotxc
+c      external ga_create_atom_blocked,xc_gotxc
+      external ga_create_atom_blocked
+cc AJL/End
 c
 c--> XC Energy
 c
@@ -105,19 +108,26 @@ c              2        2   |   Vxc^up   Vxc^dw
 c
 c           nTcols = ipol 
 c
-      integer me,nTrows,nTcols
-      integer lTmat,iTmat,g_truevxc(2)
-      double precision zero,one,onem
-      logical oprint_intermediate_xc, oprint_time, 
-     ,     oprint_oep
-      parameter(zero=0.d0,one=1.d0,onem=-1.d0)
+cc AJL/Begin/FDE
+c      integer me,nTrows,nTcols
+      integer me
+c      integer lTmat,iTmat,g_truevxc(2)
+c AJL: These parameters are unused?
+c      double precision zero,one,onem
+      logical oprint_intermediate_xc, oprint_time 
+cc AJL/Unused
+c     ,     oprint_oep
+c      parameter(zero=0.d0,one=1.d0,onem=-1.d0)
+cc AJL/End
       double precision tol2e
       integer g_tmp(2)
 c
 c     timings
 c
       double precision time1_2e,time2_2e
-      double precision time1_xc,time2_xc
+cc AJL/Begin/FDE
+c      double precision time1_xc,time2_xc
+cc AJL/End
 c
 c******************************************************************************
 c
@@ -126,27 +136,30 @@ c
       oprint_intermediate_xc = util_print('intermediate XC matrix',
      $     print_debug)
       oprint_time = util_print('dft timings', print_high)
-      oprint_oep = util_print('oep', print_high)
+cc AJL/Unused
+c      oprint_oep = util_print('oep', print_high) 
       Exc(1)=0.d0
       Exc(2)=0.d0
-      iTmat=0
+cc AJL/Begin/FDE
+c      iTmat=0
+cc AJL/End
 c
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
 c
       if (oprint_intermediate_xc)then
-         write(luout,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',
-     &               rtdb, Exc, nExc, iVxc_opt, g_xcinv
-         write(luout,*)'g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA:',
-     &               g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA
+c         write(luout,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',
+c     &               rtdb, Exc, nExc, iVxc_opt, g_xcinv
+c         write(luout,*)'g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA:',
+c     &               g_dens(1),g_vxc(1),IOLGC,g_wght,g_xyz,wght_GA
          write(luout,*)' Fock XC matrix entering xc_getv: '
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
-         call ga_print(g_dens(1))
-         if(ipol.eq.2)call ga_print(g_dens(2))
+c         call ga_print(g_dens(1))
+c         if(ipol.eq.2)call ga_print(g_dens(2))
       endif
 c
-      if(util_print('dft timings', print_high))
+      if(oprint_time)
      &      time1_2e=util_cpusec()   ! start 2e build time
       if (havehfxc .or. (.not. CDFIT))then
 c       
@@ -361,92 +374,104 @@ c
          if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
          call ga_sync
       endif
-      if(util_print('dft timings', print_high))
+      if(oprint_time)
      &      time2_2e=util_cpusec()   ! end 2e build time
 c
 c     print fock_2e build time
 c
-      if(util_print('dft timings', print_high)) then
+      if(oprint_time) then
        if (me.eq.0) then
-         write(*,"(4x,'Fock_2e Build Time:',F13.1,'s')") 
+         write(luout,"(4x,'Fock_2e Build Time:',F13.1,'s')") 
      &              time2_2e-time1_2e
        endif
       end if
 c
 c     Get the DFT exchange-correlation contribution
-      if(util_print('dft timings', print_high)) 
-     &      time1_xc=util_cpusec()   ! start xc build time
-      if (xc_gotxc()) then  
-         if(xcfit) then       
-            nTrows = nbf_xc
-            nTcols = ipol
-            if (.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,
-     &           iTmat))call errquit('xc_getv: cannot allocate Tmat',0,
-     &       MA_ERR)
-            call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
-         endif
-         
-         if(havehfxc.or.(.not.cdfit)) then
-               if(.not.ga_duplicate(g_vxc(1),g_truevxc(1),'g vxc 1'))
-     .         call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
-               call ga_zero(g_truevxc(1))
-               if(ipol.eq.2) then
-                  if(.not.ga_duplicate(g_vxc(2),g_truevxc(2),'gv21'))
-     .         call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
-                  call ga_zero(g_truevxc(2))
-               endif
-         else
-               g_truevxc(1)=g_vxc(1)
-               g_truevxc(2)=g_vxc(2)
-         endif
 c
-         call grid_quadv0(rtdb, g_dens, g_truevxc, 
-     &                    nexc,rho_n,  Exc, dbl_mb(itmat))
+cc AJl/Begin/FDE
+c  I have moved this to a new subroutine so the XC evaluation can be
+c  called multiple times, as is needed for the FDE evaluation of the
+c  non-additive XC energy
 c
-         if(havehfxc.or.(.not.cdfit)) then
-             call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
-             if (.not. ga_destroy(g_truevxc(1))) call errquit(
-     &           ' xc_getv: ga_destroy failed ',0, GA_ERR)
-             if(ipol.eq.2) then
-                 call ga_dadd(1d0,g_vxc(2),1d0,g_truevxc(2),g_vxc(2))
-                 if (.not. ga_destroy(g_truevxc(2))) call errquit(
-     &               ' xc_getv: ga_destroy failed ',0, GA_ERR)
-             endif
-         endif
-         if(util_print('dft timings', print_high)) 
-     &         time2_xc=util_cpusec()   ! end xc build time
+c      if(util_print('dft timings', print_high)) 
+c     &      time1_xc=util_cpusec()   ! start xc build time
+c      if (xc_gotxc()) then  
+c         if(xcfit) then       
+c            nTrows = nbf_xc
+c            nTcols = ipol
+c            if (.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,
+c     &           iTmat))call errquit('xc_getv: cannot allocate Tmat',0,
+c     &       MA_ERR)
+c            call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
+c         endif
+c         
+c         if(havehfxc.or.(.not.cdfit)) then
+c               if(.not.ga_duplicate(g_vxc(1),g_truevxc(1),'g vxc 1'))
+c     .         call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
+c               call ga_zero(g_truevxc(1))
+c               if(ipol.eq.2) then
+c                  if(.not.ga_duplicate(g_vxc(2),g_truevxc(2),'gv21'))
+c     .         call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
+c                  call ga_zero(g_truevxc(2))
+c               endif
+c         else
+c               g_truevxc(1)=g_vxc(1)
+c               g_truevxc(2)=g_vxc(2)
+c         endif
+cc
+c         call grid_quadv0(rtdb, g_dens, g_truevxc, 
+c     &                    nexc,rho_n,  Exc, dbl_mb(itmat))
+cc
+c         if(havehfxc.or.(.not.cdfit)) then
+c             call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
+c             if (.not. ga_destroy(g_truevxc(1))) call errquit(
+c     &           ' xc_getv: ga_destroy failed ',0, GA_ERR)
+c             if(ipol.eq.2) then
+c                 call ga_dadd(1d0,g_vxc(2),1d0,g_truevxc(2),g_vxc(2))
+c                 if (.not. ga_destroy(g_truevxc(2))) call errquit(
+c     &               ' xc_getv: ga_destroy failed ',0, GA_ERR)
+c             endif
+c         endif
+c         if(util_print('dft timings', print_high)) 
+c     &         time2_xc=util_cpusec()   ! end xc build time
+cc
+cc        print fock_xc build time
+c         if(util_print('dft timings', print_high)) then
+c          if (me.eq.0) then
+c           write(*,"(4x,'Fock_xc Build Time:',F13.1,'s')") 
+c     &                 time2_xc-time1_xc
+c          endif
+c         end if
+cc
+cc        In case we are performing an xc fit calculation
+c         if(xcfit) then
+cc     
+cc     symmetrize the "T" vector
+cc     
+c            if (oskel)then
+c               call sym_vec_symmetrize(
+c     .              geom,xc_bas_han,Dbl_MB(iTmat))
+c               if (ipol.gt.1)then
+c                  call sym_vec_symmetrize(geom, xc_bas_han, 
+c     &                    Dbl_MB(iTmat+nbf_xc))
+c               endif
+c            endif
+c            call xc_fitv(rtdb,Dbl_MB(iTmat), nTrows, nTcols,
+c     &           g_vxc, g_xcinv, IOLGC)  
+c            if (.not.ma_pop_stack(lTmat))
+c     &           call errquit('xc_getv: cannot pop stack',0, MA_ERR)
+cc     
+c         endif
+c      endif
+cc
+      call xc_getvxc(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
+     &                   g_dens, g_vxc, IOLGC, rho_n, 0, 0)
+c last two inputs -------------------------------->.fde_option., g_dens_fde
 c
-c        print fock_xc build time
-         if(util_print('dft timings', print_high)) then
-          if (me.eq.0) then
-           write(*,"(4x,'Fock_xc Build Time:',F13.1,'s')") 
-     &                 time2_xc-time1_xc
-          endif
-         end if
-c
-c        In case we are performing an xc fit calculation
-         if(xcfit) then
-c     
-c     symmetrize the "T" vector
-c     
-            if (oskel)then
-               call sym_vec_symmetrize(
-     .              geom,xc_bas_han,Dbl_MB(iTmat))
-               if (ipol.gt.1)then
-                  call sym_vec_symmetrize(geom, xc_bas_han, 
-     &                    Dbl_MB(iTmat+nbf_xc))
-               endif
-            endif
-            call xc_fitv(rtdb,Dbl_MB(iTmat), nTrows, nTcols,
-     &           g_vxc, g_xcinv, IOLGC)  
-            if (.not.ma_pop_stack(lTmat))
-     &           call errquit('xc_getv: cannot pop stack',0, MA_ERR)
-c     
-         endif
-      endif
+cc AJL/End
 c
       if (oprint_intermediate_xc)then
-         write(*,*)' Fock XC matrix leaving xc_getv: '
+         write(luout,*)' Fock XC matrix leaving xc_getv: '
          call util_flush(6)
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
