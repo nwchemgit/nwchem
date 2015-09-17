@@ -14,7 +14,6 @@ ifeq ($(XLFMAC),y)
   FOPTIONS +=  -WF,-DCOMPILATION_DATE="'`date +%a_%b_%d_%H:%M:%S_%Y`'" \
                  -WF,-DCOMPILATION_DIR="'$(TOPDIR)'" \
                  -WF,-DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
-  FOPTIONS += -WF,"$(DEFINES)" 
   LIB_DEFINES= 
   DEFINES= 
 endif

@@ -140,7 +140,7 @@ c              eatom       total energy in rydbergs
 c
 c     All data is on a grid r(i) = exp (-8.8 + (i-1)*0.05)
 
-      subroutine atom (title, ifr, iz, ihole, rws, ionin, vcoul, srho,
+      subroutine feff_atom (title, ifr, iz, ihole, rws, ionin, vcoul, srho,
      1                 ispinr, dgc0, dpc0, eatom)
 
       implicit double precision (a-h,o-z)
@@ -218,7 +218,8 @@ c        call head (16)
 c resolution of the dirac equation for each orbital
       do 150 j=1,norb
          de=den(j)
-   80    call dirac (nqn(j),nql(j),nk(j),imax,den(j),dfl(j),dq1(j),j)
+   80    call feff_dirac (nqn(j),nql(j),nk(j),imax,den(j),
+     D        dfl(j),dq1(j),j)
             if (nstop.eq.0) go to 110
             if (nstop.ne.362.or.iter.ge.10.or.tets.gt.test) go to 90
             tets=testv
@@ -1254,7 +1255,7 @@ c **********************************************************************
    30 dalp=d
       return
       end
-      subroutine diff (v, dx, n, vm)
+      subroutine feff_diff (v, dx, n, vm)
       implicit double precision (a-h,o-z)
       complex*16 v(n), vm(n)
       vm(1)=((6.0*v(2)+6.66666666667*v(4)+1.2*v(6))-(2.45*v(1)+7.
@@ -1268,7 +1269,7 @@ c **********************************************************************
       vm(n)=(v(n-2)*.5-2.0*v(n-1)+1.5*v(n))/dx
       return
       end
-      subroutine dirac (nqn,nql,nk,imax,de,dfl,dq1,jc)
+      subroutine feff_dirac (nqn,nql,nk,imax,de,dfl,dq1,jc)
 c
 c solution of the dirac equation
 c nqn=principal quantum number; nql=orbital quantum number
@@ -1466,15 +1467,15 @@ c **********************************************************************
   300 nstop=0
   310 return
       end
-      double precision function dist (r0, r1)
+      double precision function feff_dist (r0, r1)
 c     find distance between cartesian points r0 and r1
       implicit double precision (a-h, o-z)
       dimension r0(3), r1(3)
       dist = 0
       do 10  i = 1, 3
-         dist = dist + (r0(i) - r1(i))**2
+         feff_dist = feff_dist + (r0(i) - r1(i))**2
    10 continue
-      dist = sqrt (dist)
+      feff_dist = sqrt (feff_dist)
       return
       end
 c***********************************************************************
@@ -2486,7 +2487,7 @@ c     test=1.e+04 value in loucks
       a4=dx*14.0/45.0
       a5=dx*64.0/45.0
       a6=dx*24.0/45.0
-      call diff (v,dx,jri,vm)
+      call feff_diff (v,dx,jri,vm)
       twoz=-dble (v(1))/ri(1)
       l=il-1
       lp1=l+1.0
@@ -3117,7 +3118,7 @@ c        xport   importance factor
 
 c        integrate from edge (ik0) to ne
          nemax = ne - ik0 + 1
-         call trap (ckmag(ik0), ffmag(ik0), nemax, xport)
+         call feff_trap (ckmag(ik0), ffmag(ik0), nemax, xport)
          xport = abs(deg*xport)
          if (xport .gt. xportx)  xportx = xport
          crit = 100 * xport / xportx
@@ -4528,7 +4529,7 @@ c              Don't avg if norman spheres don't overlap
             iat = iatph(iph)
             do 130  inat = 1, nat
                if (inat .eq. iat)  goto 130
-               rnn = dist (rat(1,inat), rat(1,iat))
+               rnn = feff_dist (rat(1,inat), rat(1,iat))
                inph = iphat(inat)
 c              Don't avg if norman spheres don't overlap
                if (rnrm(iph)+rnrm(inph) .lt. rnn)  goto 130
@@ -6061,7 +6062,7 @@ c           don't overlap atom with itself
             if (inat .eq. iat)  goto 110
 
 c           if neighbor is too far away, don't overlap it
-            rnn = dist (rat(1,inat), rat(1,iat))
+            rnn = feff_dist (rat(1,inat), rat(1,iat))
             if (rnn .gt. rlapx)  goto 110
 
             infr = ifrph(iphat(inat))
@@ -7508,7 +7509,7 @@ c     do not save spinors
          itmp = 0
          if (ifr .eq. 0)  itmp = ihole
          write(77,10) 'free atom potential and density for atom type', ifr
-         call atom (head0(1)(1:40), ifr, iz(ifr), itmp, wsatom,
+         call feff_atom (head0(1)(1:40), ifr, iz(ifr), itmp, wsatom,
      1              ion(ifr), vcoul(1,ifr), rho(1,ifr),
      2              ispinr, dgc0, dpc0, et)
 c        etfin is absorbing atom final state total energy
@@ -7522,7 +7523,7 @@ c        save spinor for core hole orbital
 c        if no hole, use orbital from isporb
          if (ihole .eq. 0)  ispinr = isporb
          itmp = 0
-         call atom (head0(1)(1:40), 0, iz(0), itmp, wsatom,
+         call feff_atom (head0(1)(1:40), 0, iz(0), itmp, wsatom,
      1              ion(0), vcoul(1,nfr+1), rho(1,nfr+1),
      2              ispinr, dgc0, dpc0, etinit)
       endif
@@ -7531,7 +7532,7 @@ c     Need etfin if xanes and no hole, use K shell for this
 c        K hole
          itmp = 1
          ispinr = 0
-         call atom (head0(1)(1:40), 0, iz(0), itmp, wsatom,
+         call feff_atom (head0(1)(1:40), 0, iz(0), itmp, wsatom,
      1              ion(0), vcoul(1,nfr+1), rho(1,nfr+1),
      2              ispinr, dgc0, dpc0, etfin)
       endif
@@ -8669,7 +8670,7 @@ c     if no atoms specified.)
          do 412  iat = 1, nat
 c           skip absorbing atom
             if (iat .eq. iatabs)  goto 412
-            tmp = dist (rat(1,iat), rat(1,iatabs))
+            tmp = feff_dist (rat(1,iat), rat(1,iatabs))
             if (tmp .gt. ratmax)  ratmax = tmp
             if (tmp .lt. ratmin)  ratmin = tmp
   412    continue
@@ -8716,7 +8717,7 @@ c     Check if 2 atoms are closer together than 1.75 ryd (~.93 Ang)
       ratmin = 1.0e20
       do 480  iat = 1, nat
          do 470  jat = iat+1, nat
-            rtmp = dist(rat(1,iat),rat(1,jat))
+            rtmp = feff_dist(rat(1,iat),rat(1,jat))
             if (rtmp .lt. ratmin)  ratmin = rtmp
             if (rtmp .lt. 1.75)  then
 c           if (dist(rat(1,iat),rat(1,jat)) .lt. 1.5)  then
@@ -9239,9 +9240,9 @@ c        watch out for roundoff errors
          if (beta(j) .lt. -1) beta(j) = -1
          if (beta(j) .gt.  1) beta(j) =  1
          gamm = -(st*ctp*cppp - ct*stp + coni*st*sppp)
-         call arg(alph,phip-phi,alpha(j))
+         call feff_arg(alph,phip-phi,alpha(j))
          beta(j) = acos(beta(j))
-         call arg(gamm,phi-phi,gamma(j))
+         call feff_arg(gamm,phi-phi,gamma(j))
 c       Convert from the rotation of FRAME used before to the rotation 
 c       of VECTORS used in ref.
          dumm = alpha(j)
@@ -9249,7 +9250,7 @@ c       of VECTORS used in ref.
          gamma(j) =  pi- dumm
 
          if (j .le. nleg)  then
-            ri(j) = dist (rat(1,i), rat(1,im1))
+            ri(j) = feff_dist (rat(1,i), rat(1,im1))
          endif
   100 continue
 
@@ -9304,7 +9305,7 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       endif
       return
       end
-      subroutine arg(c,fi,th)
+      subroutine feff_arg(c,fi,th)
       implicit double precision (a-h, o-z)
       complex*16  c
       parameter (eps = 1.0e-6)
@@ -10469,24 +10470,24 @@ c            which makes special code unnecessary later.
 
 c        calculate r_i-r_i-1 and r_j-r_j-1
 
-         rij = dist (rat(1,il), rat(1,jl))
+         rij = feff_dist (rat(1,il), rat(1,jl))
          call corrfn (rij, cij, thetad, tk, iz(il), iz(jl), rs)
          sig2ij=cij
 
-         rimjm = dist (rat(1,il-1), rat(1,jl-1))
+         rimjm = feff_dist (rat(1,il-1), rat(1,jl-1))
          call corrfn (rimjm, cimjm, thetad, tk, iz(il-1), iz(jl-1), rs)
          sig2ij=sig2ij+cimjm
 
-         rijm = dist (rat(1,il), rat(1,jl-1))
+         rijm = feff_dist (rat(1,il), rat(1,jl-1))
          call corrfn (rijm, cijm, thetad, tk, iz(il), iz(jl-1), rs)
          sig2ij=sig2ij-cijm
 
-         rimj = dist (rat(1,il-1), rat(1,jl))
+         rimj = feff_dist (rat(1,il-1), rat(1,jl))
          call corrfn (rimj, cimj, thetad, tk, iz(il-1), iz(jl), rs)
          sig2ij=sig2ij-cimj
 
-         riim = dist (rat(1,il), rat(1,il-1))
-         rjjm = dist (rat(1,jl), rat(1,jl-1))
+         riim = feff_dist (rat(1,il), rat(1,il-1))
+         rjjm = feff_dist (rat(1,jl), rat(1,jl-1))
 
          ridotj=(rat(1,il)-rat(1,il-1))*(rat(1,jl)-rat(1,jl-1))+
      1          (rat(2,il)-rat(2,il-1))*(rat(2,jl)-rat(2,jl-1))+
@@ -11396,7 +11397,7 @@ c        that version of the path
      1 'ex=',1pe14.7,5x,'en=',1pe14.7)
       return
       end
-      subroutine trap (x, y, n, sum)
+      subroutine feff_trap (x, y, n, sum)
       implicit double precision (a-h, o-z)
 
 c     Trapeziodal integration of y(x), result in sum
@@ -12159,19 +12160,19 @@ c        Dump out fbetac for central atom and first pot
 
 
 c     **** parse "scratch_dir": json item****
-      header = ''
+      header = ' '
       ind = index(dict_in,"""scratch_dir"":")
       if (ind.gt.0) then
          ind2 = ind+16
          ind3 = ind+14+index(dict_in(ind+16:),"""")
          header = dict_in(ind2:ind3)
       else
-         header = ''
+         header = ' '
       end if
 
 
 c     **** parse "spectroscopy": json item ****
-      spectroscopy = ''
+      spectroscopy = ' '
       ind = index(dict_in,"""spectroscopy"":")
       if (ind.gt.0) then
          ind2 = ind+17
@@ -12183,7 +12184,7 @@ c     **** parse "spectroscopy": json item ****
 
 
 c     **** parse "edge": json item ****
-      edge = ''
+      edge = ' '
       ind = index(dict_in,"""edge"":")
       if (ind.gt.0) then
          ind2 = ind+9
@@ -12260,7 +12261,7 @@ c     **** parse "center": json item ****
                done = .true.
             end if
             ncenter = ncenter + 1
-            read(cnum,'(I12)'), center(ncenter)
+            read(cnum,'(I12)') center(ncenter)
          end do
       end if
       if (ncenter.lt.1) then
@@ -12408,7 +12409,7 @@ c     **** parse "geometry": json item ****
 
 *     **** just cat "chi.dat" to dict_out ****
       if (outtype.eq.1) then
-         dict_out  = ""
+         dict_out  = " "
          open(15,file=trim(header)//'chi.dat')
          do
             read(15,'(A)',end=311,err=311) buf

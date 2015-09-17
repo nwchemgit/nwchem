@@ -301,9 +301,12 @@ c     and even then only for debugging.
       !> ordered in increasing order.
       !>
       type :: nwad_dble
+#ifdef XLFLINUX
+      sequence
+#endif
 #ifdef NWAD_PRINT
         integer(kind=8)    :: var_fid  = 0
-        character(len=16)  :: var_name = ""
+        character(len=16)  :: var_name = " "
 #endif
 #if NWAD_DEG >= 1
         integer            :: nvar
@@ -1015,7 +1018,7 @@ c
           if (s%var_name(1:nwad_strlen(s%var_name)).ne.
      +        x%var_name(1:nwad_strlen(x%var_name))) then
             if (nwad_depth.eq.0) then
-              call nwad_print_int_func(s,x,"")
+              call nwad_print_int_func(s,x," ")
             endif
           else
             ! We are assigning a named variable to itself, 

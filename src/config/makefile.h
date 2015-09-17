@@ -1529,6 +1529,12 @@ endif
       ifeq ($(FC),gfortran)
        _FC=gfortran
       endif
+         ifeq ($(FC),xlf_r)
+           _FC=xlf
+         endif
+         ifeq ($(FC),xlf)
+           _FC=xlf
+         endif
       ifndef _FC
       FC=gfortran
       _FC=gfortran
@@ -1986,13 +1992,7 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 # gcc-3.2.3-42 
 
 #gfortran become default      FC=xlf
-         ifeq ($(FC),xlf_r)
-           _FC=xlf
-         endif
-         ifeq ($(FC),xlf)
-           _FC=xlf
-         endif
-      CC=gcc
+#      CC=gcc
       ifeq ($(CC),xlc)
         COPTIONS  +=  -q64 -qlanglvl=extended
       else
@@ -2011,7 +2011,7 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
           FOPTIONS += -g
           LDOPTIONS += -g
         endif
-        FOPTIMIZE= -O3 -qstrict -qcacje=auto  
+        FOPTIMIZE= -O3 -qstrict -qcache=auto  
 #qarch and qtune break trobsa.F with xlf 15.1.2
 #        FOPTIMIZE+= -qarch=auto -qtune=auto 
         FDEBUG= -O2 -g
