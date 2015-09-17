@@ -1977,7 +1977,7 @@ $(error )
       endif
 endif
 
-    ifeq ($(_CPU),ppc64)
+ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 # Tested on Red Hat Enterprise Linux AS release 3 (Taroon Update 3)
 # Tested on SLES 9
 # Feb 5th 2005
@@ -1986,6 +1986,9 @@ endif
 # gcc-3.2.3-42 
 
 #gfortran become default      FC=xlf
+         ifeq ($(FC),xlf_r)
+           _FC=xlf
+         endif
          ifeq ($(FC),xlf)
            _FC=xlf
          endif
@@ -2008,11 +2011,12 @@ endif
           FOPTIONS += -g
           LDOPTIONS += -g
         endif
-        FOPTIMIZE= -O3 -qstrict -qarch=auto -qtune=auto -qcache=auto -qfloat=fltint 
+        FOPTIMIZE= -O3 -qstrict -qcacje=auto  
+#qarch and qtune break trobsa.F with xlf 15.1.2
+#        FOPTIMIZE+= -qarch=auto -qtune=auto 
         FDEBUG= -O2 -g
-        EXPLICITF = TRUE
+        XLFMAC=y
         DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
-        CPP=/usr/bin/cpp  -P -C -traditional
         ifdef USE_I4FLAGS
           FOPTIONS += -qintsize=4
         else
@@ -2331,7 +2335,8 @@ endif
 # MPI version requires tcgmsg-mpi library
 
 ifdef USE_MPI 
-ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn))
+#ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn))
+ifeq ($(FC),$(findstring $(FC), ftn))
   LIBMPI =
   MPI_INCLUDE =
   MPI_LIB =
@@ -2503,9 +2508,9 @@ ifndef NWCHEM_KEEPF
 endif
 else
 ifeq ($(XLFMAC),y)
-	$(FC) -c $(FFLAGS)     $<
+	$(FC)  -c $(FFLAGS) $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g" | sed -e 's/\"/\\"/g')  $<
 else
-	$(FC) -c $(FFLAGS) $(CPPFLAGS)  $<
+	$(FC)  -c $(FFLAGS) $(CPPFLAGS)  $<
 endif
 endif
 

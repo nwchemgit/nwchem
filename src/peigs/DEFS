@@ -569,14 +569,14 @@ ifeq ($(FC),pgf90)
 	peigs_FC  +=  -Kieee
 	endif
 	endif
-ifeq ($(_CPU),ppc64)
+ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #ppc64 with /tcgmsg
 	peigs_CPU = RS6000
 ifeq ($(FC),xlf)
 	peigs_FC  = xlf -O3 -qstrict -qextname -q64 -I$(peigs_HDIR)
 	peigs_FC += -WF,-Iinclude,-DIBM,-DSTD_DBL,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM)
 	peigs_FC += -qtune=auto -qarch=auto -qcache=auto 
-	peigs_FC += -qnosave -qfloat=fltint
+	peigs_FC += -qnosave 
 	ifdef USE_GPROF
 	  peigs_FC += -pg
 	endif

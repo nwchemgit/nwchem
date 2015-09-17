@@ -80,7 +80,7 @@
       write(lunit,*) "          ",
      >               "|....................................|",
      >               "....................................|"
-      write(lunit,900) ,XL,(XL+XR)/2.0d0,XR
+      write(lunit,900) XL,(XL+XR)/2.0d0,XR
       write(lunit,MyformatX) Xlabel
   900 format(5x,E10.3,27x,E10.3,27x,E10.3)
 
