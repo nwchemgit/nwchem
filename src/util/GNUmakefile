@@ -5,7 +5,11 @@ include ../config/makefile.h
 ifdef JOBTIME_PATH
    LIB_DEFINES += -DJOBTIMEPATH=\"$(JOBTIME_PATH)\"
 else
+ifdef XLFMAC
+   LIB_DEFINES += -DJOBTIMEPATH="$(BINDIR)"
+else
    LIB_DEFINES += -DJOBTIMEPATH=\"$(BINDIR)\"
+endif
 endif
 
 ifeq ($(TARGET),MACX)
