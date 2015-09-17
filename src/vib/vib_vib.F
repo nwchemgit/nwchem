@@ -252,6 +252,9 @@ C
      &               dbl_mb(iscr),dbl_mb(iscr+nat3),DBL_MB(IEGVAL),
      &               DBL_MB(IEGVEC), NAT3,NAT3)
          call vib_vecphase(dbl_mb(icoord),dbl_mb(iegvec),nat3)
+      else
+         call dcopy(3,0.0d0,0,dbl_mb(IEGVAL),1)
+         call dcopy(3*3,0.0d0,0,dbl_mb(IEGVEC),1)
       end if
       call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
 C
