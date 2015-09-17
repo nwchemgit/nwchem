@@ -22,6 +22,9 @@ c
       double precision r, r_max
 c
       integer lexpo, iexpo
+cc AJL/Begin
+      integer nexpo
+cc AJL/End
 c
       integer n1,ninf,ndivide,mxnrad,znint,me,
      .     k_2l,l_2l,k_2ex,l_2ex,k_2g,l_2g
@@ -83,7 +86,12 @@ c
          k_2g=0
       endif
 
-      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
+cc AJL/Begin/FDE
+      nexpo = nbf_ao_mxprim
+      if (FD_bas_han .ne. -99999) nexpo = max(nexpo, nbf_fde_mxprim)
+c      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
+      if (.not.MA_Push_Get(MT_Dbl,nexpo,'expo',lexpo,iexpo))
+cc AJL/End
      &   call errquit('grid_setrad: cannot allocate expo',0, MA_ERR)
 
       if(tol_reset) call grid_rtrunc(rtdb, dbl_mb(iexpo), 

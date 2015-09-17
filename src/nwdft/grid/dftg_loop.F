@@ -25,7 +25,22 @@
      I     nbf_ao_mxnbf_ce2,nactive,
      1     do_gxc, Amat3, Cmat3, ngxc,
      2     rhosave, delrhosave, triplet,
-     3     do_tddftvxc)
+cc AJL/Begin/FDE
+c     3     do_tddftvxc)
+     &     do_tddftvxc, fde_option,
+     &     g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &     Fmat_fde, Pmat_fde, Bmat_fde,
+     &     ttau_fde, rho_fde, delrho_fde,
+     &     cetobfr_fde,
+     &     Amat_fde, Amat2_fde, Amat3_fde,
+     &     Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &     Mmat_fde, Mmat2_fde,
+     &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
+     &     iniz_fde, ifin_fde, ibf_fde,
+     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
+     &     rho_int_fde)
+c
+cc AJL/End
 c
 c$Id$
 c

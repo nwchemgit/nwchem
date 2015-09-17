@@ -960,7 +960,7 @@ c     Ideally these would be grouped with the dft_rdinput errors
      &      INPUT_ERR)
 
 c Initialise frozen density embedding
-cc AJL_FDE_TESTING          call dft_frozemb_fde(rtdb,g_frozemb,g_dens_fde)          
+          call dft_frozemb_fde(rtdb,g_frozemb,g_dens_fde)          
 
 c Create the Vxc matrix for FDE and zero 
           if (.not. ga_duplicate(g_vxc(1), g_vxc_fde(1), 'VXC FDE'))

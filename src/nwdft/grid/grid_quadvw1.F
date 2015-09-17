@@ -15,7 +15,21 @@
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm, tmat,
      ,     l3d, triplet, ttau, kske, Mmat, Mmat2,
-     1     do_gxc, Amat3, Cmat3)
+     1     do_gxc, Amat3, Cmat3,
+cc AJL/Begin/FDE
+     &     fde_option,
+     &     g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &     Fmat_fde, Pmat_fde, Bmat_fde,
+     &     ttau_fde, rho_fde, delrho_fde,
+     &     cetobfr_fde,
+     &     Amat_fde, Amat2_fde, Amat3_fde,
+     &     Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &     Mmat_fde, Mmat2_fde,
+     &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
+     &     iniz_fde, ifin_fde, ibf_fde, xyz_fde, 
+     &     rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
+     &     rho_int_fde)
+cc AJL/End
 c
       implicit none
 c
@@ -98,7 +112,21 @@ c
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, do_xdm,
      T        tmat, l3d, triplet,
      &        ttau, kske, Mmat, Mmat2,
-     1        do_gxc, Amat3, Cmat3)
+     1        do_gxc, Amat3, Cmat3,
+cc AJL/Begin
+     &        fde_option,
+     &        g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &        Fmat_fde, Pmat_fde, Bmat_fde,
+     &        ttau_fde, rho_fde, delrho_fde,
+     &        cetobfr_fde,
+     &        Amat_fde, Amat2_fde, Amat3_fde,
+     &        Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &        Mmat_fde, Mmat2_fde,
+     &        ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
+     &        iniz_fde, ifin_fde, ibf_fde, xyz_fde, 
+     &        rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
+     &        rho_int_fde)
+cc AJL/FDE
 c     
 c     now pack this aqbuf into the write buffer 
 c     (write and update task counter as needed)

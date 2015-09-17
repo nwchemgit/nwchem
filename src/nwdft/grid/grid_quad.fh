@@ -49,4 +49,36 @@ c
       logical do_gxc
       double precision Amat3(*)
       double precision Cmat3(*)
-c $Id$
+c AJL/Begin/FDE
+      integer fde_option
+      integer ncenters_fde
+      double precision rdens_atom_fde(ipol*ncenters_fde*ncenters_fde)
+      integer g_dens_fde(2)
+      double precision Fmat_fde(*)
+      double precision Pmat_fde(*)
+      double precision Bmat_fde(*)
+      double precision ttau_fde(*)
+      double precision rho_fde(*)
+      double precision delrho_fde(*)
+      integer cetobfr_fde(2,ncenters_fde)
+      double precision Amat_fde(*)
+      double precision Cmat_fde(*)
+      double precision Mmat_fde(*)
+      double precision Amat2_fde(*)
+      double precision Cmat2_fde(*)
+      double precision Mmat2_fde(*)
+      double precision Amat3_fde(*)
+      double precision Cmat3_fde(*)
+
+      double precision ttau_qmfde(*)
+      double precision rho_qmfde(*)
+      double precision delrho_qmfde(*)
+      integer len_ttau
+      integer g_fde(*)
+
+      integer iniz_fde(*), ifin_fde(*), ibf_fde(*)
+      double precision xyz_fde(*), rq_fde(*)
+      double precision rchi_atom_fde(*),rdelchi_atom_fde(*)
+      logical lap_fde
+      double precision rho_int_fde
+cc AJL/End

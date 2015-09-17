@@ -26,7 +26,22 @@ c
      I     nbf_ao_mxnbf_ce2,nactive,
      1     do_gxc, Amat3, Cmat3, ngxc,
      2     rhosave, delrhosave,
-     3     do_tddftvxc)
+cc AJL/Begin/FDE
+c     3     do_tddftvxc)
+     &     do_tddftvxc, fde_option,
+     &     g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &     Fmat_fde, Pmat_fde, Bmat_fde,
+     &     ttau_fde, rho_fde, delrho_fde,
+     &     cetobfr_fde,
+     &     Amat_fde, Amat2_fde, Amat3_fde,
+     &     Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &     Mmat_fde, Mmat2_fde,
+     &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
+     &     iniz_fde, ifin_fde, ibf_fde,
+     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
+     &     rho_int_fde)
+c
+cc AJL/End
      
       implicit none
 #include "global.fh"
@@ -92,6 +107,36 @@ c
       double precision rhosave(*)
       double precision delrhosave(*)
       logical do_tddftvxc  !dVxc*P contribution to TDDFT grads
+cc AJL/Begin/FDE
+      integer fde_option
+      integer ncenters_fde
+      integer g_dens_fde(*)
+      double precision rdens_atom_fde(*)
+      double precision Fmat_fde(*)
+      double precision Pmat_fde(*)
+      double precision Bmat_fde(*)
+      double precision ttau_fde(*)
+      double precision rho_fde(*)
+      double precision delrho_fde(*)
+      integer cetobfr_fde(*) 
+      double precision Amat_fde(*), Amat2_fde(*), Amat3_fde(*)
+      double precision Cmat_fde(*), Cmat2_fde(*), Cmat3_fde(*)
+      double precision Mmat_fde(*), Mmat2_fde(*)
+      double precision rho_int_fde
+ 
+      double precision ttau_qmfde(*)
+      double precision rho_qmfde(*)
+      double precision delrho_qmfde(*)
+      integer len_ttau
+      integer g_fde(*)
+
+      integer iniz_fde(*), ifin_fde(*), ibf_fde(*)
+      double precision xyz_fde(*), rq_fde(*)
+      double precision rchi_atom_fde(*),rdelchi_atom_fde(*)
+      logical lap_fde ! Need to get rid of this!
+c local
+      integer i
+cc AJL/End
 c
       logical  grid_file_write
       external grid_file_write
@@ -195,7 +240,21 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      I                    nbf_ao_mxnbf_ce2,nactive,
      1                    do_gxc, Amat3, Cmat3, ngxc,
      2                    rhosave, delrhosave, triplet,
-     3                    do_tddftvxc)
+cc AJL/Begin/FDE
+     &                    do_tddftvxc, fde_option,
+     &                    g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &                    Fmat_fde, Pmat_fde, Bmat_fde,
+     &                    ttau_fde, rho_fde, delrho_fde,
+     &                    cetobfr_fde,
+     &                    Amat_fde, Amat2_fde, Amat3_fde,
+     &                    Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &                    Mmat_fde, Mmat2_fde,
+     &                    ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau,
+     &                    g_fde, iniz_fde, ifin_fde, ibf_fde, xyz_fde, 
+     &                    rchi_atom_fde, rdelchi_atom_fde, rq_fde,
+     &                    lap_fde, rho_int_fde)
+c
+cc AJL/End
 c
                         nqtot=nqtotc
                      else
@@ -223,7 +282,20 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      ,                    do_nmrks_r, do_xdm, tmat,
      ,                    l3d,triplet,
      &                    ttau, kske, Mmat, Mmat2,
-     1                    do_gxc, Amat3, Cmat3)
+     1                    do_gxc, Amat3, Cmat3, fde_option,
+cc AJL/Begin/FDE
+     &                    g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &                    Fmat_fde, Pmat_fde, Bmat_fde,
+     &                    ttau_fde, rho_fde, delrho_fde,
+     &                    cetobfr_fde,
+     &                    Amat_fde, Amat2_fde, Amat3_fde,
+     &                    Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &                    Mmat_fde, Mmat2_fde,
+     &                    ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau,
+     &                    g_fde, iniz_fde, ifin_fde, ibf_fde, xyz_fde, 
+     &                    rchi_atom_fde, rdelchi_atom_fde, rq_fde,
+     &                    lap_fde, rho_int_fde) 
+cc AJL/End
                      endif
                   endif
                enddo            ! end loop over angular shells
@@ -251,7 +323,20 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      ,                 do_nmrks_r, do_xdm, tmat,l3d,
      ,                 triplet,
      &                 ttau, kske,Mmat, Mmat2,
-     1                 do_gxc, Amat3, Cmat3)
+cc AJL/Begin/FDE
+     &                 do_gxc, Amat3, Cmat3, fde_option,
+     &                 g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &                 Fmat_fde, Pmat_fde, Bmat_fde,
+     &                 ttau_fde, rho_fde, delrho_fde,
+     &                 cetobfr_fde,
+     &                 Amat_fde, Amat2_fde, Amat3_fde,
+     &                 Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &                 Mmat_fde, Mmat2_fde,
+     &                 ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau,
+     &                 g_fde, iniz_fde, ifin_fde, ibf_fde, xyz_fde, 
+     &                 rchi_atom_fde, rdelchi_atom_fde, rq_fde,
+     &                 lap_fde, rho_int_fde)
+cc AJL/End
                    endif
                   ncubenz=ncubenz+1
                endif

@@ -172,9 +172,9 @@ c
            call grid_quadv0(rtdb, g_dens, g_truevxc,
      &                    nexc,rho_n,  Exc, dbl_mb(itmat))
          else
-cc AJL_FDE_TESTING           call grid_quadv0_fde(rtdb, g_dens, g_truevxc,
-cc     &                    nexc,rho_n,  Exc, dbl_mb(itmat),fde_option,
-cc     &                    g_dens_fde)
+           call grid_quadv0_fde(rtdb, g_dens, g_truevxc,
+     &          nexc,rho_n,  Exc, dbl_mb(itmat),fde_option,
+     &          g_dens_fde)
          endif
 c
          if (oprint_intermediate_vxc) then

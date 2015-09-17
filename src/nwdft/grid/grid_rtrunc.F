@@ -69,8 +69,11 @@ c   accuracy must be at least 10-7
 c
 c      job_grid_acc=min(job_grid_acc,1d-7)
       
-      call grid_rtrunc0(zprim,job_grid_acc,
-     ,     int_mb(k_ics))
+      call grid_rtrunc0(zprim,job_grid_acc,int_mb(k_ics))
+cc AJL/Begin/FDE
+      if (FD_bas_han.ne.-99999)
+     &   call grid_rtrunc0_fde(zprim, job_grid_acc, int_mb(k_ics))
+cc AJL/End
       range_max=0d0
       
 c
@@ -385,20 +388,20 @@ c
             minexp(iat)=.075d0
             ldiff(iat)=2
          else
-         if(ic2.lt.0) then
-            if (.not. geom_cent_get(geom, iat, tag, 
-     &           ictr_coord, ictr_chg))call errquit
-     &           ('grid_atom_type_info: geom_cent_get failed', 0,
-     &       GEOM_ERR)
-            write(0,*) ' atom   ',iat
-            write(0,*) ' tag    ',tag
-            write(0,'(A,3F12.6)') ' coord  ',ictr_coord
-            write(0,*) ' charge ',ictr_chg
-            write(0,*) ' ic1 ic2 ',ic1,ic2
-            call errquit(
-     .        'gridrtunc: no basis on ghost atom?',iat, BASIS_ERR)
-         endif
-         endif
+            if(ic2.lt.0) then
+               if (.not. geom_cent_get(geom, iat, tag, 
+     &              ictr_coord, ictr_chg))call errquit
+     &              ('grid_atom_type_info: geom_cent_get failed', 0,
+     &              GEOM_ERR)
+               write(0,*) ' atom   ',iat
+               write(0,*) ' tag    ',tag
+               write(0,'(A,3F12.6)') ' coord  ',ictr_coord
+               write(0,*) ' charge ',ictr_chg
+               write(0,*) ' ic1 ic2 ',ic1,ic2
+               call errquit(
+     .         'gridrtunc: no basis on ghost atom?',iat, BASIS_ERR)
+            endif
+         endif ! geom_isbq
          range_max=0d0
          do icset = ic1,ic2
             min_exp=1d20
@@ -425,6 +428,93 @@ c
       enddo
       return
       end
+cc AJL/Begin/FDE
+      subroutine grid_rtrunc0_fde(zprim,job_grid_acc,cs)
+      implicit none
+#include "errquit.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "cdft.fh"
+c
+      double precision zprim(nbf_ao_mxprim)! [local]
+      integer cs(ncenters)! [out]
+      double precision job_grid_acc ! [in]
+c
+      integer iat,ic1,ic2,l,nprimo,ncontr,isphere,iprimo,
+     .     icset,ncontrset
+      double precision min_exp,range_max,range
+      double precision grid_rnegl
+      character*16 tag
+      double precision ictr_coord(3), ictr_chg
+      external grid_rnegl
+c
+      integer ncenters_fde
+c
+      if (.not.bas_numcont(FD_bas_han, ncontrset))
+     &  call errquit('Exiting in grid_rtrunc0_fde',1, BASIS_ERR)
+c
+c Get the number of FDE centers
+c
+      if (.not. geom_ncent(geom_fde, ncenters_fde))
+     &        call errquit('grid_rtrunc0_fde: 
+     &                      geom_ncent failed',73, GEOM_ERR)
+c
+c     loop over atoms to get min exp for each atom
+c
+      do iat=1,ncenters_fde
+         if(.not.iatype_pt_chg_fde(iat))then
+
+c
+c     get minimum exponent of all basis functions
+c
+         if (.not.bas_ce2cnr(FD_bas_han,iat,ic1,ic2))
+     &        call errquit('Exiting in radtur.',11, BASIS_ERR)
+         if(geom_isbq(geom_fde,iat).and.bqdontcare) then
+            range_max=10d0
+            minexp_fde(iat)=.075d0
+            ldiff_fde(iat)=2
+         else
+           if(ic2.lt.0) then
+              if (.not. geom_cent_get(geom_fde, iat, tag,
+     &             ictr_coord, ictr_chg))call errquit
+     &             ('grid_rtrunc0_fde: geom_cent_get failed', 0,
+     &         GEOM_ERR)
+              write(0,*) ' atom   ',iat
+              write(0,*) ' tag    ',tag
+              write(0,'(A,3F12.6)') ' coord  ',ictr_coord
+              write(0,*) ' charge ',ictr_chg
+              write(0,*) ' ic1 ic2 ',ic1,ic2
+              call errquit(
+     .        'grid_rtunc_fde: no basis on ghost atom?',iat, BASIS_ERR)
+           endif
+         endif ! geom_isbq
+         range_max=0d0
+         do icset = ic1,ic2
+            min_exp=1d20
+            if (.not.bas_continfo(FD_bas_han, icset,
+     &           l, nprimo, ncontr, isphere))
+     &           call errquit('Exiting in rad_trunc.',3, BASIS_ERR)
+            if(nprimo.gt.nbf_fde_mxprim) call errquit(
+     .           'grid_rtrunc0_fde: incorrect dimens for zprim',nprimo,
+     &       UNKNOWN_ERR)
+            if (.not.bas_get_exponent(FD_bas_han, icset, zprim))
+     &           call errquit('Exiting in rad_trunc.',7, BASIS_ERR)
+            do  iprimo = 1,nprimo
+               min_exp = min(zprim(iprimo),min_exp)
+            enddo
+            range = grid_rnegl(l+l+2, min_exp+min_exp, job_grid_acc)
+            if(range.gt.range_max) then
+               range_max =  range
+c               cs(iat)=icset
+               minexp_fde(iat)=min_exp
+               ldiff_fde(iat)=l
+            endif
+         enddo
+      endif
+      enddo
+      return
+      end
+cc AJL/End
       subroutine grid_rtinit(rtdb,k_coord,l_coord,
      .     ipmat, lpmat,l_ics,k_ics,g_s)
       implicit none

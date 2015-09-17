@@ -17,7 +17,23 @@
      &     ttau, kske, Mmat, Mmat2,
      &     StericEnergy,
      &     do_gxc, Amat3, Cmat3,
-     Q     qbecke)
+     Q     qbecke,
+cc AJL/Begin/FDE
+     &     fde_option,
+     &     g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &     Fmat_fde, Pmat_fde, Bmat_fde,
+     &     ttau_fde, rho_fde, delrho_fde,
+     &     cetobfr_fde,
+     &     Amat_fde, Amat2_fde, Amat3_fde,
+     &     Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &     Mmat_fde, Mmat2_fde,
+     &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
+     &     iniz_fde, ifin_fde, ibf_fde, xyz_fde,
+     &     rchi_atom_fde, rdelchi_atom_fde, rq_fde,
+     &     bas_cent_info_fde, bas_cset_info_fde, docset_fde, lap_fde,
+     &     rho_int_fde)
+
+cc AJL/End
 c
       implicit none
 #include "errquit.fh"
@@ -67,21 +83,73 @@ c     AOR begin
       common /xdmd/ nxdm, ixdm_v, lxdm_v, ixdm_ml, lxdm_ml
 c     AOR end
       logical oprint_qbecke
+cc AJL/Begin/FDE
+c
+      logical docset_fde(*)
+      double precision bas_cent_info_fde(3,ncenters_fde)
+      double precision bas_cset_info_fde(6,*)
+      logical need_lap_for_fde
+
+      integer l_ovlp, k_ovlp
+      integer l_fock_fde, k_fock_fde
+      integer l_epot, k_epot
+      integer lchi_fde, ichi_fde
+      integer ldelchi_fde, idelchi_fde
+      integer lheschi_fde, iheschi_fde
+
+      integer llap_fde, ilap_fde
+      integer lDmat_fde, iDmat_fde
+
+      character*32 pname
+      integer mbf_fde
+      integer ncontrset_fde 
+
+      double precision Ex_qm, Ex_fde, Ex_tot
+      double precision Ec_qm, Ec_fde, Ec_tot
+      double precision StericEnergy_qm, StericEnergy_fde
+      double precision StericEnergy_tot
+
+      pname = 'grid_quadv0b: '
+      mbf_fde = 0
+!      npol = 0
+      Ex_qm = 0.0d0
+      Ex_fde = 0.0d0
+      Ex_tot = 0.0d0
+      Ec_qm = 0.0d0
+      Ec_fde = 0.0d0
+      Ec_tot = 0.0d0
+      StericEnergy_qm = 0.0d0
+      StericEnergy_fde = 0.0d0
+      StericEnergy_tot = 0.0d0
+C I implemented this before I saw the CPL of Pople, Gill and Johnson
+C (1992). Essentially I need to reformulate the Ts terms without the
+C need for the Laplacian of rho. But for now, it works.
+C TO DO: Remove Laplacian requirement. Should be easy to do -
+C we just need to set lap_fde to false to get it working
+      need_lap_for_fde = (lap_fde .and. fde_option.gt.4)
+c
+CC AJL/End
 
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
-      if (do_xdm) then
+cc AJL/Begin/FDE
+c      if (do_xdm) then
+      if (do_xdm.or.need_lap_for_fde) then
          maxdbas = 2
       elseif (grad) then
          maxdbas = 1
          iheschi_ao = 0
+         iheschi_fde = 0
       else
          maxdbas = 0
          idelchi_ao = 0
          iheschi_ao = 0
+         idelchi_fde = 0
+         iheschi_fde = 0
       endif
+cc AJL/End
 c
 c     becke charges
 c
@@ -96,11 +164,31 @@ c
       mbf_ao=nbf_ao
       if(natoms.gt.1) then
          call icopy(mbf_ao, 0,0, ibf_ao, 1)  
-
-         mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
-     &        ictr_buf,rad,xyz,qxyz,nqpts,
-     &        ibf_ao, docset, iniz, ifin, expo, 
-     &        minexp,ldiff,acc_ao_gauss,iatype_pt_chg)
+cc AJL/Begin/FDE
+c         if (fde_option.lt.1) then
+c No need to pre-screen if we are just calculating ESP
+         if (fde_option.ne.1) then
+           mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
+     &            ictr_buf,rad,xyz,qxyz,nqpts,
+     &            ibf_ao, docset, iniz, ifin, expo, 
+     &            minexp,ldiff,acc_ao_gauss,iatype_pt_chg)
+c         else if (fde_option.eq.1) then
+         else
+c Calculating just the ESP over the grid:
+           if (.not.bas_numcont(AO_bas_han, ncontrset))
+     &       call errquit('Exiting in grid_quadv0b',0, BASIS_ERR)
+           do i=1,natoms
+             iniz(i)=1
+           enddo
+c           ifin(1)=nbf_ao
+           do i=1,ncontrset
+             docset(i)=.true.
+           enddo
+c           do i=1,nbf_ao
+c              ibf_ao(i)=i
+c           enddo
+         endif
+cc AJL/End
          if (mbf_ao.eq.0) return
       else
       if (.not.bas_numcont(AO_bas_han, ncontrset))
@@ -115,26 +203,75 @@ c
          enddo
       endif
 
+cc AJL/Begin/FDE
+      if (fde_option.eq.3.or.fde_option.eq.4.or.
+     &    fde_option.eq.6.or.fde_option.eq.7) then
+        mbf_fde=nbf_fde
+
+        if (ncenters_fde.gt.1) then
+          call icopy(mbf_fde, 0,0, ibf_fde, 1)
+          mbf_fde=grid_nbfm(FD_bas_han,ncenters_fde,
+     &            ictr_buf,rad,xyz_fde,qxyz,nqpts,
+     &            ibf_fde, docset_fde, 
+     &            iniz_fde, ifin_fde, expo,
+     &        minexp_fde,ldiff_fde,
+     &        acc_ao_gauss,iatype_pt_chg_fde)
+        else
+          if (.not.bas_numcont(FD_bas_han, ncontrset_fde))
+     &      call errquit('Exiting in grid_quadv0b',0, BASIS_ERR)
+          iniz_fde(1)=1
+          ifin_fde(1)=nbf_fde
+          do i=1,ncontrset_fde
+             docset_fde(i)=.true.
+          enddo
+          do i=1,nbf_fde
+             ibf_fde(i)=i
+          enddo
+        endif
+
+        if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_fde, 'chi_fde',
+     &           lchi_fde, ichi_fde))
+     &           call errquit(pname//'chi_fde',0, MA_ERR)
+        if( grad ) then
+           if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_fde,
+     &        'delchi_fde', ldelchi_fde, idelchi_fde)) then
+           call errquit(pname//'cant alloc delchi_fde',0,0)
+           endif
+        endif
+c To do: xdm and sic
+c For now I think they are disabled.... to test.
+        if (do_xdm.or.need_lap_for_fde) then
+           if (.not.MA_Push_Get(mt_dbl, 6*nqpts*mbf_fde,
+     &           'heschi_fde', lheschi_fde, iheschi_fde)) then
+               call errquit(pname//'cant alloc heschi_fde',0,0)
+           endif
+        endif
+      endif
+cc AJL/End
+
       if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
      &     lchi_ao, ichi_ao))
-     &     call errquit('grid_quadv0b: cannot allocate chi_ao',0,
+     &     call errquit(pname//'cannot allocate chi_ao',0,
      &       MA_ERR)
       if( grad.or.do_xdm ) then
          if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
      &      'delchi_ao', ldelchi_ao, idelchi_ao)) then
-           call errquit('gridquadv0b: cant alloc delchi_ao',0,0)
+           call errquit(pname//'cant alloc delchi_ao',0,0)
         endif
       endif
-      if (do_xdm) then
+cc AJL/Begin/FDE
+c      if (do_xdm) then
+      if (do_xdm.or.need_lap_for_fde) then
+cc AJL/End
          if (.not.MA_Push_Get(mt_dbl, 6*nqpts*mbf_ao,
      &        'heschi_ao', lheschi_ao, iheschi_ao)) then
-            call errquit('gridquadv0b: cant alloc heschi_ao',0,0)
+            call errquit(pname//'cant alloc heschi_ao',0,0)
          endif
       endif
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicinit(nqpts,
      &        l_vect1,i_vect1, ldelrho_sig,idelrho_sig))
-     &        call errquit(' grid_quadv0b: grid_sicinit failed',0,
+     &        call errquit(pname//'grid_sicinit failed',0,
      &       CALC_ERR)
       endif
 
@@ -144,7 +281,64 @@ c
      &     dbl_mb(idelchi_ao), dbl_mb(iheschi_ao), 0d0, rq, 
      Q     qxyz, xyz, nqpts, natoms,
      &     iniz, docset, bas_cent_info, bas_cset_info)
+
+cc AJL/BEGIN/FDE
+      if (fde_option.eq.3.or.fde_option.eq.4.or.
+     &    fde_option.eq.6.or.fde_option.eq.7) then
+c
+        call qdist(rchi_atom_fde, rq_fde,
+     &           qxyz, xyz_fde, nqpts, ncenters_fde)
+        call xc_eval_basis(FD_bas_han, maxdbas, dbl_mb(ichi_fde),
+     &     dbl_mb(idelchi_fde), dbl_mb(iheschi_fde), 0d0, 
+     &     rq_fde, qxyz, xyz_fde, nqpts, 
+     &     ncenters_fde, iniz_fde, docset_fde, 
+     &     bas_cent_info_fde, bas_cset_info_fde)
+c
+      endif !fde_option
+cc AJL/End
+c
       if (odftps) call pstat_off(ps_ebf)
+c
+C AJL/BEGIN/FDE
+c  -> Calculate potential at each point, embedding potential, 
+c     from FDE_bas_han (pass the xyz to hnd_elf_con w/ nder =0)
+c  -> Use acc_fock to accumulate this per basis (acc_fock, dft_frozemb)
+c  -> Then put this into a ga (ga_put/ga_acc, dft_frozemb)
+c In the long term it would be good if we could use the grid
+c pre-screening for points with zero potential, and to use mbf != nbf,
+c but for now I have used the simplest implementation possible
+
+      if (fde_option.eq.1) then
+        if (.not. ma_push_get(mt_dbl,nqpts,'epot pnt',l_epot,k_epot))
+     &     call errquit(pname//'ma failed',911,MA_ERR)
+c        call dfill(nqpts,0,dbl_mb(k_epot),1)
+        call hnd_elfcon(FD_bas_han, geom_fde, g_dens(1), qxyz, nqpts,
+     &                  dbl_mb(k_epot), 0)
+
+c Copied from dft_frozemb.F
+        if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,
+     &     'fock_fde', l_fock_fde, k_fock_fde))
+     &     call errquit(pname//'fock_fde ma failed',911,MA_ERR)
+        call dfill(mbf_ao*mbf_ao,0,dbl_mb(k_fock_fde),1)
+        if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,
+     &     'ovlp', l_ovlp, k_ovlp))
+     &     call errquit(pname//'ovlp ma failed',911,MA_ERR)
+        call dfill(mbf_ao*mbf_ao,0,dbl_mb(k_ovlp),1)
+c       calculate fock and overlap
+        call acc_fock(dbl_mb(ichi_ao), qwght, mbf_ao, nqpts, 
+     &               dbl_mb(k_epot), dbl_mb(k_fock_fde), dbl_mb(k_ovlp))
+c
+c       this is sequential, so lets accummumlate - not just put.
+        call ga_acc(g_vxc(1),1,mbf_ao,1,mbf_ao,dbl_mb(k_fock_fde),
+     &       mbf_ao, 1d0) 
+c
+        if (.not.ma_chop_stack(l_epot))
+     &     call errquit(pname//'cannot chop stack', 1, MA_ERR)
+
+c We're finished so lets jump to the final deallocates
+        goto 2020
+      endif ! fde_option = 1
+c AJL/END
 c
 c     get reduced Xi(r) and dXi(r) over atoms
 c
@@ -153,18 +347,53 @@ c
       if( grad ) 
      .     call util_rmsatbf(3*nqpts, natoms,iniz,ifin,
      ,     dbl_mb(idelchi_ao),rdelchi_atom)
-      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
+cc AJL/Begin/FDE
+      if (fde_option.eq.0.or.fde_option.eq.2.or.fde_option.eq.5)
+c      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
+     ,     call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
+cc AJL/End
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
      ,     ipol,iscratch)
       if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &     'Dmat', lDmat,iDmat))
-     &     call errquit('grid_quadv0b: cannot allocate Dmat',0,
+     &     call errquit(pname//'cannot allocate Dmat',0,
      &    MA_ERR)
+
+c AJL/Begin
+      if (fde_option.eq.3.or.fde_option.eq.4.or.
+     &    fde_option.eq.6.or.fde_option.eq.7) then
+c
+c     get reduced Xi(r) and dXi(r) over atoms
+c
+        call util_rmsatbf(nqpts, ncenters_fde,iniz_fde,
+     &       ifin_fde, dbl_mb(ichi_fde),rchi_atom_fde)
+        if( grad )
+     .       call util_rmsatbf(3*nqpts,ncenters_fde,iniz_fde,
+     .       ifin_fde, dbl_mb(idelchi_fde), rdelchi_atom_fde)
+c Not sure if want to pre-screen with the FDE basis - otherwise might lose
+c valuable points from the QM environment. Only applied for FDE calcs.
+        if (fde_option.eq.3.or.fde_option.eq.6)
+     ,       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,ncenters_fde,
+     ,       rchi_atom_fde,rdelchi_atom_fde,
+     ,       rdens_atom_fde,iniz_fde,
+     ,       dbl_mb(ichi_fde),dbl_mb(idelchi_fde),mbf_fde,grad,
+     ,       ipol,iscratch)
+
+        if (.not.MA_Push_Get(mt_dbl,nbf_fde_mxnbf_ce*nqpts*3,
+     &       'Dmat_fde', lDmat_fde,iDmat_fde))
+     &       call errquit(pname//'cannot allocate Dmat',0,
+     &       MA_ERR)
+       endif !fde_option
+c AJL/End
+
       if(nqpts.eq.0) goto 2010
 
 c     allocate space for laplacian
-      if (do_xdm) then
+cc AJL/Begin/FDE
+c      if (do_xdm) then
+      if (do_xdm.or.need_lap_for_fde) then
+cc AJL/End
          if (.not.MA_Push_Get(mt_dbl,nqpts*ipol*(ipol+1)/2,
      &        'lap', llap,ilap))
      &        call errquit('grid_quadv0b: cannot allocate lap',0,
@@ -183,7 +412,10 @@ c     allocate space for laplacian
      &        ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap),
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax, 
-     &        ttau, kske, do_xdm)
+cc AJL/Begin/FDE
+c     &        ttau, kske, do_xdm)
+     &        ttau, kske, (do_xdm.or.need_lap_for_fde))
+cc AJL/End
          if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
@@ -207,8 +439,78 @@ c     allocate space for laplacian
      &        rdens_atom, cetobfr,wmax, 
      &        ttau, kske, .false.)
       else if (do_cpks_r) then
-       call errquit('gridquadv0b: what do do for cpks rhs?',0, CALC_ERR)
+       call errquit(pname//'what do do for cpks rhs?',0, CALC_ERR)
       endif
+
+cc AJL/Debug
+c      if (do_xdm.or.need_lap_for_fde)
+c     &    call output(dbl_mb(ilap),1,nqpts,1,
+c     &               ipol*(ipol+1)/2,nqpts,ipol*(ipol+1)/2,1)
+
+c AJL/Begin
+      if (fde_option.eq.3.or.fde_option.eq.4.or.
+     &    fde_option.eq.6.or.fde_option.eq.7) then
+c Need this for the potential of the VW functional it seems
+
+        if (do_xdm.or.need_lap_for_fde) then
+          if (.not.MA_Push_Get(mt_dbl,nqpts*ipol*(ipol+1)/2,
+     &        'lap', llap_fde, ilap_fde))
+     &        call errquit(pname//'cannot allocate lap',0,
+     &        MA_ERR)
+cc AJL/Debug
+c          call output(dbl_mb(ilap_fde),1,nqpts,1,
+c     &               ipol*(ipol+1)/2,nqpts,ipol*(ipol+1)/2,1)
+        endif
+
+        wmax= dabsmax(nqpts,qwght)
+        if(do_scf.or.do_xdm.or.do_nmrks_r) then
+           if (odftps) call pstat_on(ps_xcrho)
+              call xc_rhogen(0,
+     T          tol_rho,FD_bas_han,g_dens_fde,nbf_fde_mxnbf_ce,
+     N          ncenters_fde, 1,1,1,
+     I          ipol, nqpts, nbf_fde, mbf_fde, grad, (ipol*(ipol+1))/2,
+     F          Fmat_fde, Pmat_fde, Bmat_fde, dbl_mb(iDmat_fde),
+     &        dbl_mb(ichi_fde), dbl_mb(idelchi_fde),dbl_mb(iheschi_fde),
+c     &          dbl_mb(ichi_fde), dbl_mb(idelchi_fde), 0d0,
+     &          ibf_fde, iniz_fde, ifin_fde,
+     &          rho_fde, delrho_fde, dbl_mb(ilap_fde),
+     &          rchi_atom_fde, rdelchi_atom_fde,
+     &          rdens_atom_fde, cetobfr_fde, wmax,
+     &          ttau_fde, kske, (do_xdm.or.need_lap_for_fde))
+           if (odftps) call pstat_off(ps_xcrho)
+c To do: SIC
+c           if (sic_orb_index.eq.1) then
+c              call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
+c     ,          rho,delrho,grad,ibf_ao, iniz, ifin,
+c     ,          dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
+c     ,          rchi_atom, rdelchi_atom,
+c     ,          rdens_atom,
+c     ,          Fmat, Pmat, Bmat,
+c     ,          dbl_mb(i_vect1),dbl_mb(idelrho_sig),
+c     &          ttau, kske)
+c           endif
+c      else  if (do_cpks_l.or.do_gxc) then
+c             call xc_rhogen(1,
+c    T          tol_rho, FD_bas_han, g_dens_fde, nbf_fde_mxnbf_ce,
+c    N          ncenters_fde, 1,1, nmat+1,
+c    I          ipol, nqpts, nbf_fde, mbf_fde, grad, ipol,
+c    F          Fmat_fde, Pmat_fde, Bmat_fde, dbl_mb(iDmat_fde),
+c    &          dbl_mb(ichi_fde), dbl_mb(idelchi_fde), 0d0,
+c    &          ibf_fde, iniz_fde, ifin_fde, 
+c    &          rho_fde, delrho_fde, lapdum,
+c    &          rchi_atom_fde, rdelchi_atom_fde,
+c    &          rdens_atom_fde, cetobfr_fde, wmax,
+c   &          ttau_fde, kske, .false.)
+        else  if (do_cpks_l.or.do_cpks_r.or.do_gxc) then
+c        else if (do_cpks_r) then
+         call 
+     &   errquit(pname//'what do do for cpks in fde? Not
+     &            implemented',0, CALC_ERR)
+        endif !do_scf
+c
+      endif !fde_option
+c
+cc AJL/End
 c     
 c     Evaluate the integrated charge density.
 c   
@@ -250,6 +552,9 @@ c
       if (odftps) call pstat_on(ps_excf)
       do_2nd = (do_cpks_l .or. do_cpks_r)
 
+cc AJL/Comment
+c Ignoring xdm for FDE. Need to catch this error earlier 
+c Update: Added a catch for XDM and SIC in dft_scf
       if (do_xdm) then
          call xc_eval_xdm(rho,delrho,dbl_mb(ilap),nqpts,
      &        qxyz,qwght,ttau,
@@ -257,17 +562,144 @@ c
      &        dbl_mb(ixdm_v),dbl_mb(ixdm_ml))
       else
 
-      do_3rd = do_gxc  ! need 3rd derivatives ?
+        do_3rd = do_gxc  ! need 3rd derivatives ?
 c Daniel (2-7-13): The last false in this call is used to initiallize
 c ldew2, which is used for TDDFT gradients to prevent weighting of the
 c XC-derivative matrices.
-      call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), 
-     &     Amat, Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
-     &     grad, .false., 0d0, do_2nd, 
-     &     ttau, kske, Mmat, Mmat2,
-     &     StericEnergy,
-     &     do_3rd, Amat3, Cmat3, .false.)
-      endif
+c
+cc AJL/Begin/FDE
+c
+        if (fde_option.eq.0) then
+          call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), 
+     &         Amat, Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
+     &         grad, .false., 0d0, do_2nd, 
+     &         ttau, kske, Mmat, Mmat2,
+     &         StericEnergy,
+     &         do_3rd, Amat3, Cmat3, .false.)
+        elseif (fde_option.eq.2.or.fde_option.eq.4) then
+c Assessment of QM contribution for non-Additive exchange-correlation
+          call xc_eval_fnl_fde(rho(iscf_rho), delrho(iscf_delrho),
+     &       Amat, Amat2, Cmat, Cmat2, nqpts, Ex_qm, Ec_qm, qwght,
+     &       grad, .false., 0d0, do_2nd,
+     &       ttau, kske, Mmat, Mmat2,
+     &       StericEnergy_qm,
+     &       do_3rd, Amat3, Cmat3, .false.)
+        elseif (fde_option.eq.5.or.fde_option.eq.7) then
+c Kinetic Energy for QM contribution (FDE)
+          call ts_eval_fnl(rho(iscf_rho), delrho(iscf_delrho),
+     &       dbl_mb(ilap),
+     &       Amat, Amat2, Cmat, Cmat2, nqpts, Ex_qm, qwght,
+     &       grad, .false., 0d0, do_2nd,
+     &       ttau, kske, Mmat, Mmat2,
+     &       do_3rd, Amat3, Cmat3, .false.)
+        endif !fde_option
+
+        if (fde_option.eq.3.or.fde_option.eq.4) then
+cc Assessment of MM contribution for non-Additive exchange-correlation
+          call xc_eval_fnl_fde(rho_fde(iscf_rho), 
+     &       delrho_fde(iscf_delrho),
+     &       Amat_fde, Amat2_fde, Cmat_fde, Cmat2_fde, nqpts, Ex_fde,
+     &       Ec_fde, qwght,
+     &       grad, .false., 0d0, do_2nd,
+     &       ttau_fde, kske, Mmat_fde, Mmat2_fde,
+     &       StericEnergy_fde,
+     &       do_3rd, Amat3_fde, Cmat3_fde, .false.)
+        elseif (fde_option.eq.6.or.fde_option.eq.7) then
+c Kinetic Energy
+          call ts_eval_fnl(rho_fde(iscf_rho), delrho_fde(iscf_delrho),
+     &       dbl_mb(ilap_fde),
+     &       Amat_fde, Amat2_fde, Cmat_fde, Cmat2_fde, nqpts, Ex_fde,
+     &       qwght,
+     &       grad, .false., 0d0, do_2nd,
+     &       ttau_fde, kske, Mmat_fde, Mmat2_fde,
+     &       do_3rd, Amat3_fde, Cmat3_fde, .false.)
+        endif !fde_option
+
+        if (fde_option.eq.4.or.fde_option.eq.7) then
+c Copy QM values in to the QM/FDE arrays
+          call dcopy(npol*nqpts, rho(iscf_rho), 1,
+     &               rho_qmfde(iscf_rho), 1)
+          call daxpy(npol*nqpts, 1.d0, rho_fde(iscf_rho), 1,
+     &                rho_qmfde(iscf_rho), 1)
+c
+          if (grad) then
+            call dcopy(3*ipol*nqpts, delrho(iscf_delrho), 1, 
+     &                 delrho_qmfde(iscf_delrho), 1)
+            call daxpy(3*ipol*nqpts, 1.d0, delrho_fde(iscf_delrho), 1,
+     &                delrho_qmfde(iscf_delrho), 1)
+          endif
+c
+          if (kske) then
+            call dcopy(len_ttau, ttau, 1, ttau_qmfde, 1)
+            call daxpy(len_ttau, 1.d0, ttau_fde, 1, ttau_qmfde, 1)
+          endif
+c
+          if (need_lap_for_fde) 
+     &       call daxpy(nqpts*ipol*(ipol+1)/2, 1.d0,
+     &                  dbl_mb(ilap), 1, dbl_mb(ilap_fde), 1)
+
+cc Assessment of QM/FDE contribution for non-Additive exchange-correlation
+          if (fde_option.eq.4) then
+          call xc_eval_fnl_fde(rho_qmfde(iscf_rho), 
+     &       delrho_qmfde(iscf_delrho),
+     &       Amat_fde, Amat2_fde, Cmat_fde, Cmat2_fde, nqpts, 
+     &       Ex_tot, Ec_tot, qwght,
+     &       grad, .false., 0d0, do_2nd,
+     &       ttau_qmfde, kske, Mmat_fde, Mmat2_fde,
+     &       StericEnergy_tot,
+     &       do_3rd, Amat3_fde, Cmat3_fde, .false.)
+          elseif (fde_option.eq.7) then
+c Kinetic Energy of combined system
+          call ts_eval_fnl(rho_qmfde(iscf_rho), 
+     &       delrho_qmfde(iscf_delrho), dbl_mb(ilap_fde),
+     &       Amat_fde, Amat2_fde, Cmat_fde, Cmat2_fde, nqpts, 
+     &       Ex_tot, qwght,
+     &       grad, .false., 0d0, do_2nd,
+     &       ttau_qmfde, kske, Mmat_fde, Mmat2_fde,
+     &       do_3rd, Amat3_fde, Cmat3_fde, .false.)
+          endif !fnl_eval
+        endif !fde_option
+
+c Collect all the energies correctly.
+        if (fde_option.le.1) then
+c For normal calculations continue, and ESP calculation as well
+          continue
+        else if (fde_option.eq.2.or.fde_option.eq.5) then
+c QM contributions using FDE variables
+          Ex = Ex + Ex_qm
+          Ec = Ec + Ec_qm
+          StericEnergy = StericEnergy + StericEnergy_qm
+        else if (fde_option.eq.3.or.fde_option.eq.6) then
+c FDE contributions using FDE variables
+          Ex = Ex + Ex_fde
+          Ec = Ec + Ec_fde
+          StericEnergy = StericEnergy + StericEnergy_fde
+          rho_int_fde = rho_int_fde + ddot(nqpts, qwght, 1, rho_fde, 1)
+        else if (fde_option.eq.4.or.fde_option.eq.7) then
+c Non-additive contributions using FDE variables
+!          write(*,*) 'BEFORE: Ex, Ex_tot, Ex_qm, Ex_fde', 
+!     &                Ex, Ex_tot, Ex_qm, Ex_fde
+          Ex = Ex + (Ex_tot - Ex_qm - Ex_fde)
+          Ec = Ec + (Ec_tot - Ec_qm - Ec_fde)
+          StericEnergy = StericEnergy + (StericEnergy_tot -
+     &                   StericEnergy_qm - StericEnergy_fde)
+c          write(*,*) 'AFTER: Ex, Ex_tot, Ex_qm, Ex_fde',
+c     &                Ex, Ex_tot, Ex_qm, Ex_fde
+c          call util_flush(luout)
+         rho_int_fde = rho_int_fde + ddot(nqpts, qwght, 1, rho_qmfde, 1)
+        endif
+
+c        if (fde_option.gt.4) then
+c          write(luout,*) 'Ts = ', Ex
+c          call util_flush(luout)
+c        endif 
+
+! Fortunately, for the potentials the derivative of fde with respect to
+! qm is 0, and so we only need the V_xc(p_tot) and V_xc(p_qm) terms
+
+      endif !do_xdm
+cc AJL/End
+
       if (odftps) call pstat_off(ps_excf)
 c
       if (sic_orb_index.eq.1) then
@@ -288,7 +720,11 @@ c
 c
             if (odftps) call pstat_on(ps_tabcd)
 
-            call xc_tabcd(0,l3d,
+cc AJL/Begin/FDE
+            if (fde_option.eq.0
+     &          .or.fde_option.eq.2.or.fde_option.eq.4.
+     &          .or.fde_option.eq.5.or.fde_option.eq.7) then
+              call xc_tabcd(0,l3d,
      &        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
      &        0d0,0d0,0d0,0d0,
      &        Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
@@ -299,21 +735,49 @@ c
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,
      &        kske,Mmat,0d0)
+            endif
+
+c The derivative of FDE Energy with repsect to QM density is zero, so we
+c only need to do anything here for fde if we have the qm/fde system
+            if (fde_option.eq.3.or.fde_option.eq.6) then
+c By definition the below value should be zero - this is just a test to see if things work
+            else if (fde_option.eq.4.or.fde_option.eq.7) then
+c            if (fde_option.eq.4.or.fde_option.eq.7) then
+
+c We will use the _fde arrays where possible, as well as the already
+c declared _qmfde array structures
+
+              call xc_tabcd(0,l3d,
+     &          tol_rho, Fmat_fde, Pmat_fde, Amat_fde, Bmat_fde,
+     &          Cmat_fde, Dbl_MB(iDmat), 0d0,0d0,0d0,0d0,
+     &          Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+     &          0d0,0,1,
+     &          ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2,
+     &          grad, AO_bas_han,
+     &          natoms, iniz, ifin, g_fde, ibf_ao,
+     &          rchi_atom, rdelchi_atom,
+     &          rdens_atom, cetobfr,
+     &          kske,Mmat_fde,0d0)
+
+c To get the non-additive potential one needs to subtract G_fde from G_vxc,
+c this is currently included in dft_scf as we can't manipulate GAs here.
+            endif
+c AJL/End
 
             if (odftps) call pstat_off(ps_tabcd)
 c
          else if (do_nmrks_r) then
             if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts,
      &           'iEmat', lEmat,iEmat))
-     &           call errquit('grid_quadv0b: cannot allocate iEmat',0,
+     &           call errquit(pname//'cannot allocate iEmat',0,
      &          MA_ERR)
             if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &           'iFmat', lFmat,iFmat))
-     &           call errquit('grid_quadv0b: cannot allocate iFmat',0,
+     &           call errquit(pname//'cannot allocate iFmat',0,
      &          MA_ERR)
             if (.not.MA_Push_Get(mt_dbl,nqpts,
      &           'iFmat', l_scr,k_scr))
-     &           call errquit('grid_quadv0b: cannot allocate iFmat',0,
+     &           call errquit(pname//'cannot allocate iFmat',0,
      &          MA_ERR)        
 
             call xc_tabcd(3,.true.,
@@ -329,7 +793,7 @@ c
 
 c
             if (.not.ma_chop_stack(lEmat))
-     &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
+     &         call errquit(pname//'cannot chop Emat', 1, MA_ERR)
          else if (do_cpks_l) then
 c
 c     Combine derivs of functional with deriv densities to get coeffs
@@ -373,7 +837,7 @@ c with perturbed densities).
      8        rdens_atom, cetobfr,
      9        kske, ttau, 0d0)
          else if (do_cpks_r) then
-            call errquit('gridquadv0b: what do do for cpks rhs?',0,
+            call errquit(pname//'what do do for cpks rhs?',0,
      &       CALC_ERR)
          endif
 c
@@ -382,21 +846,34 @@ c
  2010 continue
 
       if (.not.ma_chop_stack(lDmat))
-     &      call errquit('grid_quadv0b: cannot chop stack', 1, MA_ERR)
+     &      call errquit(pname//'cannot chop Dmat', 1, MA_ERR)
+
+ 2020 continue
 
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicend(l_vect1,ldelrho_sig))
-     ,        call errquit(' grid_quadv0b: grid_sicend failed',0,
+     ,        call errquit(pname//'grid_sicend failed',0,
      &       CALC_ERR)
       endif
 
       if(grad)then
          if (.not.ma_chop_stack(ldelchi_ao))
-     &        call errquit('grid_quadv0b: cannot chop stack', 2, MA_ERR)
+     &        call errquit(pname//'cannot chop delchi_ao', 2, MA_ERR)
       endif
 
       if (.not.ma_pop_stack(lchi_ao))
-     &     call errquit('grid_quadv0b: cannot pop stack', 3, MA_ERR)
+     &     call errquit(pname//'cannot pop chi_ao', 3, MA_ERR)
+
+CC AJL/BEGIN/FDE
+c
+c     clear memory of FDE allocations
+      if (fde_option.eq.3.or.fde_option.eq.4.or.
+     &    fde_option.eq.6.or.fde_option.eq.7) then
+        if(.not.MA_chop_stack(lchi_fde))
+     &     call errquit(pname//"chop lchi_fde", 100, MA_ERR)
+      endif
+C
+cC AJL/End
 
       return
       end

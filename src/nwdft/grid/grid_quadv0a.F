@@ -10,7 +10,22 @@
      ,nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r,do_xdm, tmat, l3d,
      &triplet,ttau,Mmat,Mmat2,
      & StericEnergyTotal,
-     1 do_gxc, Amat3, Cmat3)
+cc AJL/Begin/FDE
+c
+     & do_gxc, Amat3, Cmat3, fde_option,
+     & g_dens_fde, ncenters_fde, rdens_atom_fde,
+     & Fmat_fde, Pmat_fde, Bmat_fde,
+     & ttau_fde, rho_fde, delrho_fde,
+     & cetobfr_fde,
+     & Amat_fde, Amat2_fde, Amat3_fde,
+     & Cmat_fde, Cmat2_fde, Cmat3_fde,
+     & Mmat_fde, Mmat2_fde,
+     & ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
+     & iniz_fde, ifin_fde, ibf_fde,
+     & xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
+     & rho_int_fde)
+c
+cc AJL/End
 c
       implicit none
 #include "errquit.fh"
@@ -49,7 +64,19 @@ c
       integer l_becke
       logical oprint_qbecke
       double precision StericEnergyTotal, StericEnergy
+c
+c AJL/Begin/FDE
+      integer ncontrset_fde
+      integer lbas_cset_info_fde, ibas_cset_info_fde
+      integer lbas_cent_info_fde, ibas_cent_info_fde
+      integer ldocset_fde, idocset_fde
+      character*32 pname
 
+      pname = 'grid_quadv0a: '
+      ibas_cset_info_fde = 0
+      ibas_cent_info_fde = 0
+      idocset_fde = 0
+c AJL/End
 c
 c     see if any Gradient Corrected Functional is not null
 c
@@ -71,7 +98,7 @@ c
 c     rewind grid pts file
 c
       if (.not. grid_file_rewind())
-     $   call errquit('grid_quadv0a: rewinding gridpts?', 0,
+     $   call errquit(pname//'rewinding gridpts?', 0,
      &       UNKNOWN_ERR)
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('Exiting in grid_quadv0a',0, BASIS_ERR)
@@ -80,40 +107,61 @@ c     Allocate and create info for new basis function evaluator
 c
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cent_info',0,
+     &     call errquit(pname//'cannot allocate bas_cent_info',0,
      &       MA_ERR)
       if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
      &     lbas_cset_info, ibas_cset_info))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,
+     &     call errquit(pname//'cannot allocate bas_cset_info',0,
      &       MA_ERR)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
       if (xcfit) then
          if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_xinfo',
      &        lbas_cent_xinfo, ibas_cent_xinfo))
-     &        call errquit('grid_quadv0a: cant alloca bas_cent_info',0,
+     &        call errquit(pname//'cant alloca bas_cent_info',0,
      &       MA_ERR)
       if (.not.bas_numcont(xc_bas_han, ncontrsetx))
      &     call errquit('Exiting in grid_quadv0a',0, BASIS_ERR)
       if (.not.MA_Push_Get(mt_int, 6*ncontrsetx, 'bas_cset_xinfo',
      &     lbas_cset_xinfo, ibas_cset_xinfo))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,
+     &     call errquit(pname//'cannot allocate bas_cset_info',0,
      &       MA_ERR)
       if (.not.MA_Push_Get(mt_log, ncontrsetx, 'docsetx',
      &     ldocsetx, idocsetx))
-     &     call errquit('grid_quadv0a: cannot allocate docset',
+     &     call errquit(pname//'cannot allocate docset',
      .     ncontrset, MA_ERR)
       call xc_make_basis_info(xc_bas_han, int_mb(ibas_cent_xinfo),
      &     int_mb(ibas_cset_xinfo), natoms)
       endif
       if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
      &     l_iscratch, i_iscratch))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,
+     &     call errquit(pname//'cannot allocate bas_cset_info',0,
      &       MA_ERR)
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
      &     ldocset, idocset))
-     &     call errquit('grid_quadv0a: cannot allocate docset',
+     &     call errquit(pname//'cannot allocate docset',
      .     ncontrset, MA_ERR)
+c AJL/Begin/FDE
+      if (fde_option.eq.3.or.fde_option.eq.4.or.
+     &    fde_option.eq.6.or.fde_option.eq.7) then
+       if (.not.bas_numcont(FD_bas_han, ncontrset_fde))
+     &     call errquit(pname//'bas_numcont',0, BASIS_ERR)
+       if (.not.MA_Push_Get(mt_int, 3*ncenters_fde, 'bas_cent_info_fde',
+     &   lbas_cent_info_fde, ibas_cent_info_fde))
+     &   call errquit(pname//'cannot allocate bas_cent_info_fde',0,
+     &       MA_ERR)
+       if (.not.MA_Push_Get(mt_int, 6*ncontrset_fde,'bas_cset_info_fde',
+     &   lbas_cset_info_fde, ibas_cset_info_fde))
+     &   call errquit(pname//'cannot allocate bas_cset_info_fde',0,
+     &       MA_ERR)
+       call xc_make_basis_info(FD_bas_han, int_mb(ibas_cent_info_fde),
+     &     int_mb(ibas_cset_info_fde), ncenters_fde)
+       if (.not.MA_Push_Get(mt_log, ncontrset_fde, 'docset_fde',
+     &     ldocset_fde, idocset_fde))
+     &     call errquit(pname//'cannot allocate docset_fde',
+     .     ncontrset_fde, MA_ERR)
+      endif
+c AJL/End
 c
       ntot_cube=0
       StericEnergyTotal = 0.d0 ! steric energy
@@ -158,7 +206,22 @@ c
      &       log_mb(idocsetx),
      &       ttau, kske, Mmat, Mmat2, StericEnergy,
      1       do_gxc, Amat3, Cmat3,
-     Q           dbl_mb(k_becke))
+     Q       dbl_mb(k_becke),
+cc AJL/Begin/FDE
+     &       fde_option,
+     &       g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &       Fmat_fde, Pmat_fde, Bmat_fde,
+     &       ttau_fde, rho_fde, delrho_fde,
+     &       cetobfr_fde,
+     &       Amat_fde, Amat2_fde, Amat3_fde,
+     &       Cmat_fde, Cmat2_fde, Cmat3_fde,
+     &       Mmat_fde, Mmat2_fde,
+     &       ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
+     &       iniz_fde, ifin_fde, ibf_fde,
+     &       xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde,
+     &       int_mb(ibas_cent_info_fde), int_mb(ibas_cset_info_fde),
+     &       log_mb(idocset_fde), lap_fde, rho_int_fde)
+cc AJL/End
 c
              ntot_cube=ntot_cube+1
 c
