@@ -60,7 +60,7 @@ c
             write(luout,*)
           endif
         else
-          write(luout,*)'No roots whatsoever???'
+          write(luout,*)'No roots whatsoever ...'
         endif
 c
       endif  ! ga_nodeid()
