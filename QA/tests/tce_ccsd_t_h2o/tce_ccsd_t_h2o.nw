@@ -35,6 +35,7 @@ end
 tce
 ccsd(t)
 io ga
+tilesize 20
 end
 
 task tce energy
