@@ -314,6 +314,7 @@ endif
 #---   long  may not run on workstations
 ./runtests.mpi.unix procs $np aump2 
 ./runtests.mpi.unix procs $np n2_ccsd 
+./runtests.mpi.unix procs $np benzene_ccsd 
 ./runtests.mpi.unix procs $np uoverlap
 ./runtests.mpi.unix procs $np grad_nh3_trimer 
 ./runtests.mpi.unix procs $np hess_nh3
