@@ -456,6 +456,7 @@ c     == frozen density is restricted at the moment ==
          call ga_dadd(1.d0,g_vxc(2),1.d0,g_frozemb(1),g_vxc(2))
          Efrozemb = Efrozemb + ga_ddot(g_dens(2),g_frozemb(1))
         end if
+
         Ecore = Ecore + Efrozemb   ! add in linearized frozen embedding energy to core
 c
 cc AJL/Begin/FDE
@@ -499,15 +500,15 @@ cc        if (ipol.gt.1)  call ga_print(g_vxc_fde(2))
 cc        call util_flush(luout)
 c
 cc DEBUG
-c        call ga_zero(g_vxc_fde(1))
-c        rho_n_fde = 0.0d0
-c        Exc_fde(1) = 0.0d0
-c        Exc_fde(2) = 0.0d0
-c        if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
-c
-c        call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
-c     &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
-c     &                   3, g_dens_fde)
+c         call ga_zero(g_vxc_fde(1))
+c         rho_n_fde = 0.0d0
+c         Exc_fde(1) = 0.0d0
+c         Exc_fde(2) = 0.0d0
+c         if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+cc
+c         call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+c      &                   g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+c      &                   3, g_dens_fde)
 c
 c        write(*,*) 'EXC(FDE) = ', Exc_fde
 c        call util_flush(luout)
@@ -531,7 +532,7 @@ c
            write(luout,*)
            call util_flush(luout)
         endif
-c     == Add FDE non-additive Exc to the original matrix ==       
+c     == Add FDE non-additive Vxc to the original matrix ==       
         call ga_dadd(1.d0, g_vxc(1), 1.d0, g_vxc_fde(1), g_vxc(1))
         if (ipol.gt.1)
      &     call ga_dadd(1.d0, g_vxc(2), 1.d0, g_vxc_fde(2), g_vxc(2))
@@ -595,7 +596,7 @@ c
            write(luout,*)
            call util_flush(luout)
         endif
-c     == Add FDE non-additive Ts to the original matrix ==       
+c     == Add FDE non-additive VTs to the original matrix ==       
         call ga_dadd(1.d0, g_vxc(1), 1.d0, g_vxc_fde(1), g_vxc(1))
         if (ipol.gt.1)
      &     call ga_dadd(1.d0, g_vxc(2), 1.d0, g_vxc_fde(2), g_vxc(2))

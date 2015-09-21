@@ -90,10 +90,7 @@ c     xps variables
      $         'print','tolerances', 'xc','sym','adapt','sic', 
      $         'smear','fon','lb94','cs00','cdft','cam','disp',
      $         'dftmp2','molden','noscf','steric','efield','swapab',
-cc AJL/Begin/FDE
-c     $         'frozemb',
      $         'frozemb', 'frozemb_xc', 'frozemb_ts',
-cc AJL/End
      $         'cgmin','nocgmin','tol2e','ri-scf','lock',
      $         'rodft','fukui','maxiter','vspec','xps','xdm','end'/
 c
@@ -147,11 +144,8 @@ c
       goto (100,  200,  300,  400,  450,  500,  600,  700,  800,
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
-     $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
-cc AJL/Begin/FDE
-     $     3520, 3530,
-c    frozemb_xc, frozemb_ts
-cc AJL/End
+     $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 
+     $     3500, 3520, 3530,
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
      $     4400, 4500, 9999) ind
 

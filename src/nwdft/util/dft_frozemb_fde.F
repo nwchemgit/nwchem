@@ -233,29 +233,31 @@ c Recombine for now, as that is how we will use them in the ESP
      &                  g_gmovecs_fde, g_movecs_fde, ipol)
 c
 c g_vxc_fde -- to be added to g_frozemb once calculated
-       if (.not. ga_duplicate(g_frozemb, g_vxc_fde(1), 'V_FDE'))
-     &   call errquit(pname//'Error creating g_vxc_fde1',0,GA_ERR)
-       call ga_zero(g_vxc_fde(1))
+      if (.not. ga_duplicate(g_frozemb, g_vxc_fde(1), 'V_FDE'))
+     &  call errquit(pname//'Error creating g_vxc_fde1',0,GA_ERR)
+      call ga_zero(g_vxc_fde(1))
+c second spin channels are not used as electrostatic embedding is
+c independent. This needs to be tidied up once checked through.
 c       if (ipol.gt.1) then
 c         if (.not. ga_duplicate(g_frozemb, g_vxc_fde(2), 'Vcoul,FDE(B)'))
 c     &     call errquit(pname//'Error creating g_vxc_fde2',0,GA_ERR)
 c         call ga_zero(g_vxc_fde(2))     
 c       endif
 
-       call grid_quadv0_fde(rtdb, g_dens_fde, g_vxc_fde,
+      call grid_quadv0_fde(rtdb, g_dens_fde, g_vxc_fde,
      &                  nExc_fde, rho_n, Exc_fde,
      &                  dbl_mb(itmat),1,g_dens_fde)
 
-       call ga_dadd(1d0, g_vxc_fde(1), 1d0, g_frozemb, g_frozemb)
+      call ga_dadd(1d0, g_vxc_fde(1), 1d0, g_frozemb, g_frozemb)
 
-       write(luout,*) '-> Electronic contributions complete'
+      write(luout,*) '-> Electronic contributions complete'
 c
 c Deallocate arrays we aren't using
 c
 c      if (.not. ga_destroy(g_xcinv_fde)) call errquit
 c     &   (pname//' could not destroy g_xcinv_fde', 0, GA_ERR)
-c      if (.not. ga_destroy(g_vxc_fde(1))) call errquit
-c     &   (pname//' could not destroy g_vxc_fde1', 0, GA_ERR)
+      if (.not. ga_destroy(g_vxc_fde(1))) call errquit
+     &   (pname//' could not destroy g_vxc_fde1', 0, GA_ERR)
       if (.not. ga_destroy(g_movecs_fde(1))) call errquit
      &   (pname//' could not destroy g_movecs_fde1', 0, GA_ERR)
 c      if (.not. ga_destroy(g_dens_fde(1))) call errquit

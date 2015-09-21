@@ -7,7 +7,7 @@ C$Id$
 C  This is needed so that subgroups work, GA has MPI_COMM_WORLD in it
 C  But, it does not work on all platforms
 #define GANXTVAL 1
-#define SKIPFIRST_ 1
+#define SKIPFIRST_ 1 
       integer rtdb
 c
 c     load dlb info
@@ -126,7 +126,7 @@ c
       endif
 c     
 *      write(6,*) ga_nodeid(), ' got task ', nxtask
-*      call forflush(6)
+*      call util_flush(6)
 c     
       end
       logical function util_statldb(lstatic,rtdb)

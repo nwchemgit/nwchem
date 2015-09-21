@@ -18,7 +18,7 @@ c
       double precision points(*) ! [input] coordinates for points
       double precision elfval(*)     ! [output] efg values for each coord
       call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     .false.)
+     D     .false.,.false.)
       return
       end 
       subroutine hnd_elfcon_schw(basis,geom,g_dens,points,npt,elfval,
@@ -36,11 +36,32 @@ c
       double precision points(*) ! [input] coordinates for points
       double precision elfval(*)     ! [output] efg values for each coord
       call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     .true.)
+     D     .true.,.false.)
       return
-      end 
+      end
+cc AJL/Begin/FDE 
+      subroutine hnd_elfcon_fde(basis,geom,g_dens,points,npt,elfval,
+     N     nder)
+c
+c     modified hnd_elfcon: Schwarz screening is used
+c     more details below
+c
+      implicit none
+      integer basis    ! [input] basis set
+      integer geom     ! [input] geometry
+      integer g_dens   ! [input] GA with density
+      integer npt      ! [input] number of coord points
+      integer nder     ! [input] electronic integral type
+      double precision points(*) ! [input] coordinates for points
+      double precision elfval(*)     ! [output] efg values for each
+coord
+      call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
+     D     .false.,.true.)
+      return
+      end
+cc AJL/End
       subroutine hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     doschwarz)
+     D     doschwarz,dofde)
 c
 c     kernel routine for hnd_elfcon
 c     can do schwarz screening if needed
@@ -67,6 +88,11 @@ c
       double precision points(3,npt) ! [input] coordinates for points
       double precision elfval(*)     ! [output] efg values for each coord
       logical doschwarz ! [input] use and init schwarz screening
+cc AJL/Begin/FDE
+      logical dofde ! [input] we are working out FDE potential so turn
+                    ! parallel off as we are already working with 
+                    !nxtask for grid points
+cc AJL/End
 c
       integer ishell, jshell, ijshell, nshell, nbf_max, me, nproc
       integer ilo, ihi, jlo, jhi, idim, jdim, nint
@@ -110,7 +136,13 @@ c
       if (doschwarz) call schwarz_init(geom, basis)
       ijshell = 0
       task_size = 1
-      next = nxtask(nproc,task_size)+1
+cc AJL/Begin/FDE
+      if (dofde) then
+        next = task_size
+      else
+        next = nxtask(nproc,task_size)+1
+      endif
+cc AJL/End
       do ishell = 1, nshell
 c
 c     get basis info
@@ -151,7 +183,7 @@ c
                   pmat_max=1d0
                endif
 c
-           if(schw_ij*pmat_max.gt.thresh) then
+               if(schw_ij*pmat_max.gt.thresh) then
 c
                call int_1eelec(basis,ishell,basis,jshell,maxscr,
      &                         dbl_mb(k_scr),nint,dbl_mb(k_buf),
@@ -164,15 +196,24 @@ c
                call multi_reduce(dbl_mb(k_buf),dbl_mb(k_dens),
      &                           elfval,idim,jdim,npt*(max(nder*3,1)))
                endif
-               next = nxtask(nproc,task_size)+1
+cc AJL/Begin/FDE
+               if (dofde) then
+                 next = next + 1
+               else 
+                 next = nxtask(nproc,task_size)+1
                endif
+            end if
+cc AJL/End
             end if  ! mod parallel loop
          end do   ! jshell
       end do    ! ishell
       if(doschwarz) call schwarz_tidy()
 c     Collect components from all the nodes for all points
 c
-      next = nxtask(-nproc,task_size)
+cc AJL/Begin/FDE
+      if (.not.dofde)
+     &  next = nxtask(-nproc,task_size)
+cc AJL/End
 
       call ga_mask_sync(.false.,.true.)
       call ga_dgop(msg_efgs_col,elfval,npt*(max(nder*3,1)),'+')

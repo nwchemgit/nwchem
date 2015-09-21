@@ -312,8 +312,8 @@ c but for now I have used the simplest implementation possible
         if (.not. ma_push_get(mt_dbl,nqpts,'epot pnt',l_epot,k_epot))
      &     call errquit(pname//'ma failed',911,MA_ERR)
 c        call dfill(nqpts,0,dbl_mb(k_epot),1)
-        call hnd_elfcon(FD_bas_han, geom_fde, g_dens(1), qxyz, nqpts,
-     &                  dbl_mb(k_epot), 0)
+        call hnd_elfcon_fde(FD_bas_han, geom_fde, g_dens(1), qxyz,
+     &                  nqpts, dbl_mb(k_epot), 0)
 
 c Copied from dft_frozemb.F
         if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,
@@ -462,7 +462,7 @@ c          call output(dbl_mb(ilap_fde),1,nqpts,1,
 c     &               ipol*(ipol+1)/2,nqpts,ipol*(ipol+1)/2,1)
         endif
 
-        wmax= dabsmax(nqpts,qwght)
+c        wmax= dabsmax(nqpts,qwght)
         if(do_scf.or.do_xdm.or.do_nmrks_r) then
            if (odftps) call pstat_on(ps_xcrho)
               call xc_rhogen(0,
@@ -519,10 +519,10 @@ c
 c     
       rho0=rho_int
       rho_int = rho_int + ddot(nqpts, qwght, 1, rho, 1)
-         if(oprint_qbecke) then
-            qbecke(ictr_buf)=qbecke(ictr_buf)+(rho_int-rho0)
-         endif
 
+      if(oprint_qbecke) then
+          qbecke(ictr_buf)=qbecke(ictr_buf)+(rho_int-rho0)
+      endif
 
       if(do_scf.and.abs(rho0-rho_int).lt.tol_rho) goto 2010
 c     
@@ -874,7 +874,6 @@ c     clear memory of FDE allocations
       endif
 C
 cC AJL/End
-
       return
       end
 c

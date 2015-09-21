@@ -224,11 +224,11 @@ cc AJL/End
 !      write(0,*) ' endc ',nwrbuf+1,nq,nq_out
  100  continue
       if (.not.MA_chop_Stack(lbas_cent_info))
-     &     call errquit('grid_quadvc: pop stack failed.',1, MA_ERR)
+     &     call errquit(pname//'pop stack failed.',1, MA_ERR)
       if(oprint_qbecke) then
 ctoomanyprints         call dft_printqbecke(geom,ao_bas_han,ncenters,dbl_mb(k_becke))
          if (.not.ma_pop_stack(l_becke)) 
-     Z        call errquit('grid_loop: pop stack failed.',0, MA_ERR)
+     Z        call errquit(pname//'pop stack failed.',0, MA_ERR)
       endif
 c
       return

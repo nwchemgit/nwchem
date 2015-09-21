@@ -134,8 +134,6 @@ cc AJL/Begin/FDE
       double precision xyz_fde(*), rq_fde(*)
       double precision rchi_atom_fde(*),rdelchi_atom_fde(*)
       logical lap_fde ! Need to get rid of this!
-c local
-      integer i
 cc AJL/End
 c
       logical  grid_file_write
@@ -299,7 +297,6 @@ cc AJL/End
                      endif
                   endif
                enddo            ! end loop over angular shells
-
                if(nq_cube.ne.0) then
                   cube_done=.true.
                   ictr = qsh(2,iqsh)
@@ -347,7 +344,7 @@ cc AJL/End
             endif
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
-      if (.not.MA_chop_stack(l_at))
+       if (.not.MA_chop_stack(l_at))
      &     call errquit('grid_loop: cannot pop l_at',1, MA_ERR)
       
       n1 = nxtask(-nproc,icount)
