@@ -286,6 +286,7 @@ c
                  do c=1,nvir
                    denom=-1.0d0/( eorb(ncor+nocc+b)
      &                           +eorb(ncor+nocc+c)+eaijk )
+! fusing emp[45][ki] accumulates may help vectorization...
                    emp4i=emp4i+denom*
      &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*
      &                  (f1t(b,c)-2*f2t(b,c)-2*f3t(b,c)+f4t(b,c))
