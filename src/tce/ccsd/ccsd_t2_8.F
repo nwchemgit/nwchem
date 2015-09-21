@@ -486,8 +486,8 @@ C     i0 ( p3 p4 h1 h2 )_vt + = 1/2 * Sum ( p5 p6 ) * t ( p5 p6 h1 h2 )_t * v ( 
 # endif
       e_a=.not.MA_chOP_STACK(l_a)
 #endif
-      if (e_a) call errquit("MA pops a",l_a,MA_ERR)
-      if (e_t) call errquit("MA pops t",l_t,MA_ERR)
+      if (e_a) call errquit("MA pops a",0,MA_ERR)
+      if (e_t) call errquit("MA pops t",1,MA_ERR)
       RETURN
       END
 
