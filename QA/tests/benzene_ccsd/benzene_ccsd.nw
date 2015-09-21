@@ -1,0 +1,44 @@
+echo
+
+start benzene_ccsd
+
+memory stack 1000 mb heap 200 mb global 1000 mb noverify
+
+geometry units angstrom
+ symmetry d2h
+ C               0.000    1.390    0.000
+ H               0.000    2.470    0.000
+ C               1.204    0.695    0.000
+ H               2.139    1.235    0.000
+ C               0.000   -1.390    0.000
+ H               0.000   -2.470    0.000
+ C              -1.204   -0.695    0.000
+ H              -2.139   -1.235    0.000
+ C               1.204   -0.695    0.000
+ H               2.139   -1.235    0.000
+ C              -1.204    0.695    0.000
+ H              -2.139    1.235    0.000
+end
+
+basis spherical
+  * library cc-pvdz
+end
+
+scf
+  singlet
+  rhf
+  thresh 1e-8
+end
+
+ccsd
+  freeze core atomic
+  thresh 1e-8
+end
+
+set ccsd:use_trpdrv_omp F
+
+task ccsd(t) energy
+
+set ccsd:use_trpdrv_omp T
+
+task ccsd(t) energy
