@@ -253,6 +253,8 @@ c
 c     qmd_svr: stochastic velocity rescaling
 c     Bussi, Donadio, and Parrinello
 c     J. Chem. Phys. 126, 014101 (2007)
+c     see also
+c     Comp. Phys. Comm. 179, 26 (2008)
 c
       subroutine qmd_svr(n,dt,m,v,KE_in)
 c
@@ -296,7 +298,14 @@ c
       rr = qmd_gasdev(idum)
       sigma = dble(ndeg)*kb*targ_temp/2.d0
       ss = qmd_sumno(ndeg-1,idum)
-      scheck = rr + dsqrt(cc*dble(ndeg)*KE_in/((1.d0-cc)*sigma))
+c     If temperature set to zero, then sigma=0 and scheck would diverge
+c      to positive infinity. Instead just set the value to 1 since we
+c      only need the sign
+      if (sigma.gt.1.d-8) then
+        scheck = rr + dsqrt(cc*dble(ndeg)*KE_in/((1.d0-cc)*sigma))
+      else
+        scheck = 1.d0
+      end if
 c
       scalefac = cc + (sigma/(dble(ndeg)*KE_in))*(1.d0-cc)*(ss+rr**2) 
      $          + 2.d0*rr*dsqrt(cc*(1.d0-cc)*sigma/(dble(ndeg)*KE_in))
