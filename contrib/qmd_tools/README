@@ -1,0 +1,13 @@
+Linking to a LAPACK library is required for compilation
+
+Code for computing the IR spectrum and vibrational density of states from the 
+time correlation functions of the dipole moment and atomic momenta, respectively.
+The code has been written specifically for the xyz trajectory that is output from the
+Gaussian basis set qmd module. The harmonic approximation quantum correction (see
+J. Chem. Phys. 121, 3973 (2004)) is applied to the IR spectrum (the spectrum is also
+ouput without the correction). If option -align is specified, every frame in the trajectory
+will be aligned with the first frame and a new trajectory will be output containing 
+the aligned frames.
+
+Running the code without supplying any command line options or with option -help
+will cause it to output a message giving all possible options.
