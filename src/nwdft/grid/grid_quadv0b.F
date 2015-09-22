@@ -314,7 +314,6 @@ c but for now I have used the simplest implementation possible
 c        call dfill(nqpts,0,dbl_mb(k_epot),1)
         call hnd_elfcon_fde(FD_bas_han, geom_fde, g_dens(1), qxyz,
      &                  nqpts, dbl_mb(k_epot), 0)
-
 c Copied from dft_frozemb.F
         if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,
      &     'fock_fde', l_fock_fde, k_fock_fde))
@@ -741,6 +740,7 @@ c The derivative of FDE Energy with repsect to QM density is zero, so we
 c only need to do anything here for fde if we have the qm/fde system
             if (fde_option.eq.3.or.fde_option.eq.6) then
 c By definition the below value should be zero - this is just a test to see if things work
+              continue
             else if (fde_option.eq.4.or.fde_option.eq.7) then
 c            if (fde_option.eq.4.or.fde_option.eq.7) then
 

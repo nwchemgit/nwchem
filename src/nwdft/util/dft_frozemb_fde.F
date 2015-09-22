@@ -71,14 +71,19 @@ c      double precision Ecoul_fde
       integer inp_strlen
       external inp_strlen
 
+      integer me
+      me = ga_nodeid()
+
       Exc_fde(1) = 0d0
       Exc_fde(2) = 0d0
       rho_n = 0d0
       nExc_fde = idecomp + 1
       itmat = 0
 
-      write(luout,*) ''
-      write(luout,*) '== Preparing Frozen Embedding Matrix =='
+      if (me.eq.0) then
+        write(luout,*) ''
+        write(luout,*) '== Preparing Frozen Density Embedding Matrix =='
+      endif
 
       pname = 'dft_frozemb_fde:'
 c
@@ -87,7 +92,8 @@ c
       call int_1e_fde(AO_bas_han, AO_bas_han, g_frozemb,
      &               'fde_pot', oskel, FD_bas_han)
 
-      write(luout,*) '-> Nuclear contributions complete'
+      if (me.eq.0)
+     &  write(luout,*) '(*) Nuclear contributions complete'
 c
 c Setup up some empty arrays for the xc_getv.
 c Whilst this functionality is not strictly functional right not,
@@ -215,18 +221,17 @@ c Lifted from scf_dft/dft_scf.F
 
 C Is everything scaled automatically inside scf_vectors_guess for UHF?
       if (ipol.gt.1) then
-c           call ga_copy(g_dens_fde(1),g_dens_fde(2))
+           call ga_copy(g_dens_fde(1),g_dens_fde(2))
 c Load the extra electron in the alpha channel
-c           call ga_dscal(g_dens_fde(1),
-c     &                   dble(nelectrons_fde-
-c     &                   nclosed_fde)/dble(nelectrons_fde))
-c           call ga_dscal(g_dens_fde(2),dble(nclosed_fde)/
-c     &                   dble(nelectrons_fde))
-c           if(oskel) call ga_symmetrize(g_dens_fde(2))
+           call ga_dscal(g_dens_fde(1),
+     &                   dble(nelectrons_fde-
+     &                   nclosed_fde)/dble(nelectrons_fde))
+           call ga_dscal(g_dens_fde(2),dble(nclosed_fde)/
+     &                   dble(nelectrons_fde))
+           if(oskel) call ga_symmetrize(g_dens_fde(2))
 c Recombine for now, as that is how we will use them in the ESP
            call ga_dadd(1d0, g_dens_fde(1), 1d0, g_dens_fde(2), 
-     &                  g_dens_fde(1))
-        call ga_sync()
+     &                   g_dens_fde(1))
       endif
 
       call dft_guessout(nmo_fde, nbf_fde, 
@@ -238,11 +243,11 @@ c g_vxc_fde -- to be added to g_frozemb once calculated
       call ga_zero(g_vxc_fde(1))
 c second spin channels are not used as electrostatic embedding is
 c independent. This needs to be tidied up once checked through.
-c       if (ipol.gt.1) then
-c         if (.not. ga_duplicate(g_frozemb, g_vxc_fde(2), 'Vcoul,FDE(B)'))
-c     &     call errquit(pname//'Error creating g_vxc_fde2',0,GA_ERR)
-c         call ga_zero(g_vxc_fde(2))     
-c       endif
+       if (ipol.gt.1) then
+         if (.not. ga_duplicate(g_frozemb, g_vxc_fde(2), 'V_FDE(B)'))
+     &     call errquit(pname//'Error creating g_vxc_fde2',0,GA_ERR)
+         call ga_zero(g_vxc_fde(2))     
+       endif
 
       call grid_quadv0_fde(rtdb, g_dens_fde, g_vxc_fde,
      &                  nExc_fde, rho_n, Exc_fde,
@@ -250,7 +255,8 @@ c       endif
 
       call ga_dadd(1d0, g_vxc_fde(1), 1d0, g_frozemb, g_frozemb)
 
-      write(luout,*) '-> Electronic contributions complete'
+      if (me.eq.0) 
+     &  write(luout,*) '(*) Electronic contributions complete'
 c
 c Deallocate arrays we aren't using
 c
@@ -263,8 +269,8 @@ c     &   (pname//' could not destroy g_xcinv_fde', 0, GA_ERR)
 c      if (.not. ga_destroy(g_dens_fde(1))) call errquit
 c     &   (pname//' could not destroy g_dens_fde1', 0, GA_ERR)
       if (ipol.gt.1) then
-c        if (.not. ga_destroy(g_vxc_fde(2))) call errquit
-c     &   (pname//' could not destroy g_vxc_fde2', 0, GA_ERR)
+        if (.not. ga_destroy(g_vxc_fde(2))) call errquit
+     &   (pname//' could not destroy g_vxc_fde2', 0, GA_ERR)
         if (.not. ga_destroy(g_movecs_fde(2))) call errquit
      &   (pname//' could not destroy g_movecs_fde2', 0, GA_ERR)
 c        if (.not. ga_destroy(g_dens_fde(2))) call errquit
@@ -279,12 +285,15 @@ c     &   (pname//' could not destroy g_dens_fde2', 0, GA_ERR)
       if (.not.ma_pop_stack(l_svals))
      & call errquit(pname//'Cannot pop stack l_svals', 12, MA_ERR)
 
-C Just to test this doesn't alter the code at all in terms of parameters      
-c      call ga_zero(g_frozemb)
+C Just to test this doesn't alter the code at all in terms of parameters     
+c      call ga_zero(g_frozemb) 
+c      call ga_print(g_frozemb)
 
-      write(luout,*) '== Created Frozen Embedding Matrix =='
-      write(luout,*) ''
-      call util_flush(luout)
+      if (me.eq.0) then
+        write(luout,*) '== Created Frozen Density Embedding Matrix =='
+        write(luout,*) ''
+        call util_flush(luout)
+      endif
 
       return
       end

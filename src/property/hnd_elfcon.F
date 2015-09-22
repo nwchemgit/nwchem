@@ -211,12 +211,12 @@ cc AJL/End
 c     Collect components from all the nodes for all points
 c
 cc AJL/Begin/FDE
-      if (.not.dofde)
-     &  next = nxtask(-nproc,task_size)
+      if (.not.dofde) then
+        next = nxtask(-nproc,task_size)
+        call ga_mask_sync(.false.,.true.)
+        call ga_dgop(msg_efgs_col,elfval,npt*(max(nder*3,1)),'+')
+      end if
 cc AJL/End
-
-      call ga_mask_sync(.false.,.true.)
-      call ga_dgop(msg_efgs_col,elfval,npt*(max(nder*3,1)),'+')
 c
 c     Clean up MA data blocks
 c

@@ -344,7 +344,8 @@ cc AJL/End
             endif
          enddo                  ! end loop over cubes
  111  continue                  ! end loop over atoms
-       if (.not.MA_chop_stack(l_at))
+
+      if (.not.MA_chop_stack(l_at))
      &     call errquit('grid_loop: cannot pop l_at',1, MA_ERR)
       
       n1 = nxtask(-nproc,icount)

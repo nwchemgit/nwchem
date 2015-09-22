@@ -958,6 +958,9 @@ c     Ideally these would be grouped with the dft_rdinput errors
           if (test_sic.ne.0)
      &      call errquit('dft_scf: SIC is not compatible with FDE',1,
      &      INPUT_ERR)
+c     Disable XC replica so parallelisation works
+      if (.not.rtdb_put(rtdb, 'dft:xcreplicated', mt_log, 1, .false.))
+     &   call errquit('dft_scf: rtdb_put failed', 0, RTDB_ERR)
 
 c Initialise frozen density embedding
           call dft_frozemb_fde(rtdb,g_frozemb,g_dens_fde)          

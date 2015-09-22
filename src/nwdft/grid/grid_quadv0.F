@@ -728,8 +728,8 @@ c
       call ga_sync()
 c
       if(.not.do_cpks_l.or..not.do_gxc)
-     *  call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,g_vxc,
-     &     nbf_ao,ipol,(do_scf.or.do_xdm).and.(.not.l3d),.false.)
+     &  call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,g_vxc,
+     &  nbf_ao,ipol,(do_scf.or.do_xdm).and.(.not.l3d),.false.)
 c      
 c     Grid quadrature
 c
@@ -853,21 +853,21 @@ c Qin
 c end Qin
 
       endif  ! grid_written
+
+      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) 
+     &   call errquit(pname//'xcrepclose failed ',0, DISK_ERR)
+
 c     
 C AJL/Begin/FDE
       if (fde_option.eq.4.or.fde_option.eq.7) then
         do i=1,ipol
-          call ga_dadd(1d0, g_vxc(i), -1d0, g_fde(i), g_vxc(i)) 
+          call ga_dadd(1d0, g_vxc(i), -1d0, g_fde(i), g_vxc(i))
           if (.not. ga_destroy(g_fde(i)))
      &    call errquit(pname//'failed destroy',g_fde, GA_ERR)
         enddo
       endif
 c AJL/End
 c
-      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) call
-     .     errquit(pname//'xcrepclose failed ',0, DISK_ERR)
-!      call ga_print(g_vxc(1))
-      
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit(pname//'cannot pop stack',0, MA_ERR)
       call ga_sync()
@@ -879,8 +879,6 @@ c         call ga_print(g_vxc(1))
 c
           call ga_symmetrize(g_vxc(1))
           if(ipol.gt.1) call ga_symmetrize(g_vxc(2))
-c
-c         call ga_print(g_vxc(1))
       endif
 c
       call ga_igop(Msg_nqtot,nqtot,1,'+')

@@ -473,12 +473,13 @@ cc AJL/Begin/FDE
 ! the Hamiltonian contributions as we cannot manipulate GAs at this
 ! lower level (I think. I haven't tried. So subtraction is below)
 
-          if (ipol.gt.1)then
+          if (ipol.gt.1) then
 c     
 c        Restore alpha and beta densities.
 c     
            call ga_dadd(1d0, g_dens_fde(1), -1d0, 
      &                       g_dens_fde(2), g_dens_fde(1))
+
           endif
 
 cc DEBUG
