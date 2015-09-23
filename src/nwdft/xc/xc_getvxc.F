@@ -107,7 +107,6 @@ c
 c
       double precision time1_xc,time2_xc
 C AJL/BEGIN
-      logical oprint_intermediate_vxc
       integer g_dens_fde(2)
 C AJL/END
 c
@@ -116,8 +115,6 @@ c
 c Compute the matrix elements for the XC potential and energy.
 c
       oprint_intermediate_xc = util_print('intermediate XC matrix',
-     $     print_debug)
-      oprint_intermediate_vxc = util_print('intermediate VXC matrix',
      $     print_debug)
       oprint_time = util_print('dft timings', print_high)
 c      Exc(1)=0.d0
@@ -132,13 +129,12 @@ c        write(luout,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',
 c    &               rtdb, Exc, nExc, iVxc_opt, g_xcinv
 c        write(luout,*)'g_dens(1),g_vxc(1),IOLGC:',
 c    &               g_dens(1),g_vxc(1),IOLGC
-         write(luout,*)' Fock XC matrix entering xc_getvxc: '
-         call util_flush(6)
+         if (me.eq.0) write(luout,*)'Fock XC matrix entering xc_getvxc:'
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
 c        call ga_print(g_dens(1))
 c        if(ipol.eq.2)call ga_print(g_dens(2))
-c        call util_flush(6)
+         call util_flush(luout)
       endif
 c
 c     Get the DFT exchange-correlation contribution
@@ -176,19 +172,7 @@ c
      &          nexc,rho_n,  Exc, dbl_mb(itmat),fde_option,
      &          g_dens_fde)
          endif
-c
-         if (oprint_intermediate_vxc) then
-           if (ga_nodeid() .eq. 0) then
-              write(luout,*)
-              call util_print_centered(6,
-     $             'Intermediate Vxc Matrix',40,.true.)
-              write(luout,*)
-              call util_flush(6)
-           end if
-           call ga_print(g_truevxc(1))
-           if (ipol.eq.2) call ga_print(g_truevxc(2))
-         endif
-c
+
          if(havehfxc.or.(.not.cdfit)) then
              call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
              if (.not. ga_destroy(g_truevxc(1))) call errquit(
@@ -231,11 +215,10 @@ c
       endif
 c
       if (oprint_intermediate_xc)then
-         write(luout,*)' Fock XC matrix leaving xc_getvxc: '
-         call util_flush(6)
+         if (me.eq.0) write(luout,*)'Fock XC matrix leaving xc_getvxc:'
          call ga_print(g_vxc(1))
          if(ipol.eq.2)call ga_print(g_vxc(2))
-         call util_flush(6)
+         call util_flush(luout)
       endif
 
       return

@@ -144,7 +144,7 @@ c
       integer nclosed, nopen
 
 cc AJL/Begin/FDE
-      logical frozemb_fde
+c      logical frozemb_fde
 cc AJL/End
 
       logical rt_tddft
@@ -281,8 +281,8 @@ c     == Initialize the integral object ==
 c 
 cc AJL/Begin/FDE
 c
-      frozemb_fde = .true.
-      if( FD_bas_han.eq.-99999 ) frozemb_fde = .false.
+c      frozemb_fde = .true.
+c      if( FD_bas_han.eq.-99999 ) frozemb_fde = .false.
 
 c      if(XCFIT.and.CDFIT) then
       if(XCFIT.and.CDFIT.and.frozemb_fde) then
@@ -411,19 +411,19 @@ c     == Destroy basis set handles and geom object ==
       if( CD_bas_han.eq.-99999 ) CDFIT = .FALSE.
 c
 cc AJL/BEGIN
-      frozemb_fde  = .true.
-      if( FD_bas_han.eq.-99999 ) frozemb_fde = .false.
+c      frozemb_fde  = .true.
+c      if( FD_bas_han.eq.-99999 ) frozemb_fde = .false.
 
       if (frozemb_fde) then
         if (.not. bas_destroy(FD_bas_han))
      &    call errquit (pname//'Destroying FD basis handles',0,
      &         BASIS_ERR)
-      endif
+c      endif
 c
 c Reuse frozemb_fde as we don't use this again
-      if( geom_fde.eq.-99999 ) frozemb_fde = .false.
-
-      if (frozemb_fde) then
+c      if( geom_fde.eq.-99999 ) frozemb_fde = .false.
+c
+c      if (frozemb_fde) then
         if (.not. geom_destroy(geom_fde))
      &    call errquit (pname//'Destroying FD geom handles',0,
      &         BASIS_ERR)

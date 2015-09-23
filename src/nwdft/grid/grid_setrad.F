@@ -88,7 +88,7 @@ c
 
 cc AJL/Begin/FDE
       nexpo = nbf_ao_mxprim
-      if (FD_bas_han .ne. -99999) nexpo = max(nexpo, nbf_fde_mxprim)
+      if (frozemb_fde) nexpo = max(nexpo, nbf_fde_mxprim)
 c      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
       if (.not.MA_Push_Get(MT_Dbl,nexpo,'expo',lexpo,iexpo))
 cc AJL/End

@@ -71,7 +71,7 @@ c      job_grid_acc=min(job_grid_acc,1d-7)
       
       call grid_rtrunc0(zprim,job_grid_acc,int_mb(k_ics))
 cc AJL/Begin/FDE
-      if (FD_bas_han.ne.-99999)
+      if (frozemb_fde)
      &   call grid_rtrunc0_fde(zprim, job_grid_acc, int_mb(k_ics))
 cc AJL/End
       range_max=0d0

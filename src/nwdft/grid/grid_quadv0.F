@@ -8,19 +8,17 @@ c
       double precision Exc(2)
       double precision tmat(*)  ! XC fit
 cc AJL/Begin/FDE
-      integer g_dens_fde(2) ! Acts as a dummy variable in this case
+      integer g_dens_fde_dummy(2) ! Acts as a dummy variable
 
       call grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
-c     ,     1,1,tmat,.false.,.false.)
-     ,     1,1,tmat,.false.,.false.,g_dens_fde)
+     ,     1,1,tmat,.false.,.false.,g_dens_fde_dummy)
 cc AJL/End
 
       return
       end
 c
       subroutine grid_quadv0_gen(rtdb, g_dens, g_vxc,
-     &      nexc, rho_n, Exc,
-     &      nmat,  calc_type ,tmat,l3d_dum,triplet,
+     &      nexc, rho_n, Exc, nmat, calc_type ,tmat,l3d_dum,triplet,
 cc AJL/Begin/FDE
      &      g_dens_fde)
 cc AJL/End
@@ -230,13 +228,7 @@ c             6 = FDE with Ts FDE
 c             7 = QM/MM with Ts TDE
       if (calc_type .gt. 6) then
         fde_option = calc_type - 6
-        if (fde_option .gt. 1) then
-          do_scf = .true.
-c          call ga_print(g_dens(1))
-c          if (ipol.eq.2) call ga_print(g_dens(2))
-c          call ga_print(g_dens_fde(1))
-c          if (ipol.eq.2) call ga_print(g_dens_fde(2))
-        endif
+        if (fde_option .gt. 1) do_scf = .true.
       else 
         fde_option = 0
       endif
@@ -253,9 +245,7 @@ cc AJL/End
 c
       if (oprint) then
         write(*,*) " *** "//pname//"do_scf:",do_scf 
-cc AJL/Begin/FDE
         write(*,*) " *** "//pname//"fde_option:",fde_option
-cc AJL/End
         write(*,*) " *** "//pname//"n_per_rec:",n_per_rec
       end if
 c
@@ -714,7 +704,7 @@ c
      &     max(3*n_per_rec*nbf_xc_mxprim,
      &     n_per_rec*max_elem_ang_scr) + 1)
 cc AJL/Begin/FDE
-      if (FD_bas_han.ne.-99999) 
+      if (frozemb_fde) 
      &     nscr=max(nscr, 3*n_per_rec*nbf_fde_mxcont +
      &     max(3*n_per_rec*nbf_fde_mxprim,
      &     n_per_rec*max_elem_ang_scr) + 1)

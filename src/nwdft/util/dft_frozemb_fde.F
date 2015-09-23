@@ -1,6 +1,104 @@
 cc AJL/Begin/FDE
-      subroutine dft_frozemb_fde(rtdb, g_frozemb, g_dens_fde) 
 
+      subroutine dft_frozemb_fde_init(rtdb,test_sic,g_vxc,g_vxc_fde,
+     &                                g_xcinv_fde)
+c First subroutine to do all the checks and make sure we can run the
+c calculation. In an ideal world we'd slowly reduce this list of
+c limitations, but it is necessary for now to ensure the results are
+c physically meaningful and the calculations will run efficiently.
+      implicit none
+
+#include "rtdb.fh"
+#include "cdft.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
+      integer rtdb
+      integer test_sic
+      integer g_vxc(*)
+      integer g_vxc_fde(*)
+      integer g_xcinv_fde
+c local
+      integer i
+      logical xcreplicated_l
+      logical cam_exch
+      character*32 pname
+      pname = 'dft_frozemb_fde_init: '
+
+c Incompatible errors. With testing and/or editing these could be removed
+      if (lxdm.eq.1)
+     & call errquit(pname//'XDM is not compatible with FDE',1,INPUT_ERR)
+      if (test_sic.ne.0)
+     & call errquit(pname//'SIC is not compatible with FDE',1,INPUT_ERR)
+      if (cs00.or.lb94)
+     & call errquit(pname//'asymptotic corrections are not
+     &      compatible with FDE', 10, INPUT_ERR)
+      if (rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) then
+        if (cam_exch)
+     &     call errquit(pname//'range-separated functionals are not
+     &     compatible with FDE', 10, INPUT_ERR)
+        endif
+
+c Disable XC replica so parallelisation works
+c Firstly we'll check if XC replication is specifically turned on and
+c make a note of this under dft:frozemb for our further use later
+      if (rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
+     &  xcreplicated_l)) then
+c Store old value for xcreplicated
+        if (.not.rtdb_put(rtdb, 'dft:frozemb:xcreplicated', mt_log, 1, 
+     &    xcreplicated_l)) 
+     &    call errquit(pname//'rtdb_put failed', 0, RTDB_ERR) 
+      endif
+c And now actually disable XC replication
+      if (.not.rtdb_put(rtdb, 'dft:xcreplicated', mt_log, 1, .false.))
+     &  call errquit(pname//'rtdb_put failed', 0, RTDB_ERR)
+
+c Create the FDE Vxc matrix, as needed for non-additive terms
+      do i=1,ipol 
+        if (.not. ga_duplicate(g_vxc(i), g_vxc_fde(i), 'FDE VXC'))
+     &    call errquit(pname//'failed duplicate',g_vxc_fde(i),GA_ERR)
+        call ga_zero(g_vxc_fde(i))
+      enddo 
+
+c Is this necessary? It might make more sense just to throw an error if
+c XCFIT is being used, as we do not know what the outcome is.
+      if (XCFIT)
+     &   call errquit(pname//'XCFIT is not compatible with FDE',1,
+     &   INPUT_ERR)
+c Duplicate error for Charge Density Fitting. To be tested out.
+      if (CDFIT)
+     &   call errquit(pname//'CDFIT is not compatible with FDE',1,
+     &   INPUT_ERR)
+c We'll include the functionality for XCFIT just in case it works in
+c the future, but for now I'd rather prevent it running in case there
+c are problems rather than getting it to work without testing it.
+c NOTE: If re-enabled, remember to also edit fde_end where gxcinv_fde is
+c destroyed at the end of the calculation
+c
+c      if (XCFIT) then
+c        if (.not. ga_duplicate(g_xcinv, g_xcinv_fde, 'VXCINV FDE'))
+c     &    call errquit(pname//'failed duplicate',g_xcinv_fde, GA_ERR)
+c        call ga_zero(g_xcinv_fde)
+c      endif
+
+      end
+
+      subroutine dft_frozemb_fde(rtdb, g_frozemb, g_dens_fde) 
+c Calcule the electrostatic frozen density embedding matrix, due to both
+c the nuclear and electronic contributions. This is done sequentially as
+c -> Work out nuclear contribution from FDE geometry
+c -> Work out electronic from previous wavefunction or linear
+c    combination of atomic orbitals - former is preferable
+c These are then summed up and added in, unchanged to the Fock matrix 
+c when constructed at each iteration of the self-consistent cycle therein
+c
+c Other things to note, and for the to do list:
+c - currently this only deals with singlet or doublet electronic
+c systems. For singlet the unpaired electron should be in the alpha
+c channel. It would be nice to make this more dynamic but I'm not sure how
+c this can be achieved as I'm not very familiar with the movecs structure
+c - it also will not work with charged frozen density environments
       implicit none
 
 #include "rtdb.fh"
@@ -10,12 +108,7 @@ cc AJL/Begin/FDE
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
-#include "msgtypesf.h"
-#include "msgids.fh"
 #include "stdio.fh"
-#include "tcgmsg.fh"
-c
-c #include "dft_conv.fh"
 
       integer rtdb
       integer g_frozemb
@@ -29,7 +122,8 @@ c #include "dft_conv.fh"
       character*3 scftype
 
       integer nExc_fde
-      integer g_vxc_fde(4)
+c      integer g_electronic_fde(4)
+      integer g_electronic_fde
       integer itmat
       integer natoms
 
@@ -42,7 +136,6 @@ c #include "dft_conv.fh"
       integer g_dens_fde(2)
 
       double precision nucl_charge_fde
-c      double precision Ecoul_fde
       double precision Exc_fde(2)
       double precision rho_n
 
@@ -85,7 +178,7 @@ c      double precision Ecoul_fde
         write(luout,*) '== Preparing Frozen Density Embedding Matrix =='
       endif
 
-      pname = 'dft_frozemb_fde:'
+      pname = 'dft_frozemb_fde: '
 c
 c Nuclear component; easy part
 c
@@ -110,19 +203,25 @@ c Create the GA to hold the FDE density matrix
       if (.not. ga_create(mt_dbl, nbf_fde, nbf_fde, 'FDE Alpha Dens',
      &        0, 0, g_dens_fde(1)))
      &        call errquit(pname//'Error creating ga',0,GA_ERR)
-      call ga_zero(g_dens_fde(1))
       if (.not. ga_duplicate(g_dens_fde(1),
      &                       g_movecs_fde(1), 'FDE Alpha Movecs'))
      &     call errquit(pname//'Error creating ga',0,GA_ERR)
+c
+      call ga_zero(g_dens_fde(1))
       call ga_zero(g_movecs_fde(1))
+c
       if (ipol.gt.1) then
-      if(.not.ga_duplicate(g_dens_fde(1),g_dens_fde(2),'FDE Beta Dens'))
+c Beta Density
+        if(.not.ga_duplicate(g_dens_fde(1),
+     &                       g_dens_fde(2),'FDE Beta Dens'))
      &     call errquit(pname//'ga_duplicate failed',1, GA_ERR)
-        call ga_zero(g_dens_fde(2))
-      if (.not. ga_duplicate(g_dens_fde(2),
+        if (.not. ga_duplicate(g_dens_fde(2),
      &                       g_movecs_fde(2), 'FDE Beta Movecs'))
      &     call errquit(pname//'Error creating ga',0,GA_ERR)
-      call ga_zero(g_movecs_fde(2))
+c
+        call ga_zero(g_dens_fde(2))
+        call ga_zero(g_movecs_fde(2))
+c
       endif
 
 c Lifted from dft_scf.F
@@ -164,7 +263,9 @@ c
       nelectrons_fde = nint(nucl_charge_fde)
       even_fde=mod(nelectrons_fde,2).eq.0
 
-c We should soft code this at some point.
+c We should soft code this so we can deal with different multiplicity
+c and charge. Currently we are restricted to neutral systems with
+c multiplicity of 1 or 2
       if (even_fde) then
         mult_fde = 1
       else
@@ -220,6 +321,7 @@ c Lifted from scf_dft/dft_scf.F
      &  .true.)
 
 C Is everything scaled automatically inside scf_vectors_guess for UHF?
+C Doesn't look so, thus we do it manually here.
       if (ipol.gt.1) then
            call ga_copy(g_dens_fde(1),g_dens_fde(2))
 c Load the extra electron in the alpha channel
@@ -238,44 +340,42 @@ c Recombine for now, as that is how we will use them in the ESP
      &                  g_gmovecs_fde, g_movecs_fde, ipol)
 c
 c g_vxc_fde -- to be added to g_frozemb once calculated
-      if (.not. ga_duplicate(g_frozemb, g_vxc_fde(1), 'V_FDE'))
-     &  call errquit(pname//'Error creating g_vxc_fde1',0,GA_ERR)
-      call ga_zero(g_vxc_fde(1))
+      if (.not. ga_duplicate(g_frozemb, g_electronic_fde, 'V_FDE'))
+     &  call errquit(pname//'Error creating g_electronic_fde',0,GA_ERR)
+      call ga_zero(g_electronic_fde)
 c second spin channels are not used as electrostatic embedding is
 c independent. This needs to be tidied up once checked through.
-       if (ipol.gt.1) then
-         if (.not. ga_duplicate(g_frozemb, g_vxc_fde(2), 'V_FDE(B)'))
-     &     call errquit(pname//'Error creating g_vxc_fde2',0,GA_ERR)
-         call ga_zero(g_vxc_fde(2))     
-       endif
+c       if (ipol.gt.1) then
+c         if (.not. ga_duplicate(g_frozemb, g_electronic_fde(2), 'V_FDE(B)'))
+c     &     call errquit(pname//'Error creating g_electronic_fde2',0,GA_ERR)
+c         call ga_zero(g_electronic_fde(2))     
+c       endif
 
-      call grid_quadv0_fde(rtdb, g_dens_fde, g_vxc_fde,
+      call grid_quadv0_fde(rtdb, g_dens_fde, g_electronic_fde,
      &                  nExc_fde, rho_n, Exc_fde,
      &                  dbl_mb(itmat),1,g_dens_fde)
 
-      call ga_dadd(1d0, g_vxc_fde(1), 1d0, g_frozemb, g_frozemb)
+      call ga_dadd(1d0, g_electronic_fde, 1d0, g_frozemb, g_frozemb)
 
       if (me.eq.0) 
      &  write(luout,*) '(*) Electronic contributions complete'
 c
-c Deallocate arrays we aren't using
+c Deallocate arrays 
 c
-c      if (.not. ga_destroy(g_xcinv_fde)) call errquit
-c     &   (pname//' could not destroy g_xcinv_fde', 0, GA_ERR)
-      if (.not. ga_destroy(g_vxc_fde(1))) call errquit
-     &   (pname//' could not destroy g_vxc_fde1', 0, GA_ERR)
+      if (.not. ga_destroy(g_electronic_fde)) call errquit
+     &   (pname//' could not destroy g_electronic_fde', 0, GA_ERR)
       if (.not. ga_destroy(g_movecs_fde(1))) call errquit
      &   (pname//' could not destroy g_movecs_fde1', 0, GA_ERR)
-c      if (.not. ga_destroy(g_dens_fde(1))) call errquit
-c     &   (pname//' could not destroy g_dens_fde1', 0, GA_ERR)
+c
       if (ipol.gt.1) then
-        if (.not. ga_destroy(g_vxc_fde(2))) call errquit
-     &   (pname//' could not destroy g_vxc_fde2', 0, GA_ERR)
+c        if (.not. ga_destroy(g_electronic_fde(2))) call errquit
+c     &   (pname//' could not destroy g_electronic_fde2', 0, GA_ERR)
         if (.not. ga_destroy(g_movecs_fde(2))) call errquit
      &   (pname//' could not destroy g_movecs_fde2', 0, GA_ERR)
-c        if (.not. ga_destroy(g_dens_fde(2))) call errquit
-c     &   (pname//' could not destroy g_dens_fde2', 0, GA_ERR)
       endif
+c
+c Pop off arrays used for allocated the density of the system
+c
       if (.not.ma_pop_stack(l_occ))
      & call errquit(pname//'Cannot pop stack l_occ', 12, MA_ERR)
       if (.not.ma_pop_stack(l_ir))
@@ -297,10 +397,12 @@ c      call ga_print(g_frozemb)
 
       return
       end
-c Lifted and edited from grid_quadv0
+
       subroutine grid_quadv0_fde(rtdb, g_dens, g_vxc, nexc, rho_n,
      &                           Exc,tmat,fde_option,g_dens_fde)
-c
+
+      implicit none
+c Lifted and edited from grid_quadv0
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
       integer g_dens_fde(2)
@@ -327,6 +429,146 @@ c Set nExc to 1 as we are only collecting Ts/ESP
         call grid_quadv0_gen(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      &       1,calc_type,tmat,.false.,.false.,g_dens_fde)
       endif
+
       return
       end
+
+      subroutine dft_frozemb_fde_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, 
+     &                   g_xcinv_fde, g_dens, g_vxc_fde, IOLGC, 
+     &                   fde_option, g_dens_fde)
+c Designed to make the content in dft_fockbld a bit clearer
+c This will manage all the pre- and post-processing when calculating
+c the non-additive terms in xc energy calculations
+
+      implicit none
+#include "global.fh"
+#include "cdft.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "util.fh"
+      integer rtdb
+      double precision Exc_fde(2)
+      integer nExc
+      integer iVxc_opt
+      integer g_xcinv_fde
+      integer g_dens
+      integer g_vxc_fde(*)
+      logical IOLGC
+      integer fde_option
+c fde_option: 1 = ESP
+c             2 = QM with Exc FDE
+c             3 = FDE with Exc FDE
+c             4 = QM/MM with Exc FDE
+c             5 = QM with Ts FDE
+c             6 = FDE with Ts FDE
+c             7 = QM/MM with Ts TDE
+      integer g_dens_fde(*)
+c local
+      double precision rho_n_fde
+      character*32 output_string
+
+      if (ipol.gt.1)
+c     Restore alpha and beta densities.
+     &  call ga_dadd(1d0, g_dens_fde(1), -1d0,
+     &                    g_dens_fde(2), g_dens_fde(1))
+
+      call ga_zero(g_vxc_fde(1))
+      rho_n_fde = 0.0d0
+      Exc_fde(1) = 0.0d0
+      Exc_fde(2) = 0.0d0
+      if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+
+      call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
+     &               g_dens, g_vxc_fde, IOLGC, rho_n_fde,
+     &               fde_option, g_dens_fde)
+
+      if(util_print('frozemb nadd', print_debug)) then
+        write(luout,*)
+        if (fde_option.eq.2) then
+          output_string = 'Exc(QM)'
+        elseif (fde_option.eq.3) then
+          output_string = 'Exc(FDE)'
+        elseif (fde_option.eq.4) then
+          output_string = 'Exc(Non-add)'
+        elseif (fde_option.eq.5) then
+          output_string = 'Ts(QM)'
+        elseif (fde_option.eq.6) then
+          output_string = 'Ts(FDE)'
+        elseif (fde_option.eq.7) then
+          output_string = 'Ts(Non-add)'
+        else 
+          call errquit('Invalid value for FDE_option?',1,INPUT_ERR)
+        endif
+
+        write(luout,*) output_string//' = ', Exc_fde
+c
+        call ga_print(g_vxc_fde(1))
+        if (ipol.gt.1)  call ga_print(g_vxc_fde(2))
+        write(luout,*)
+        call util_flush(luout)
+      endif
+
+      if (ipol.gt.1)
+c     Recombine the FDE densities
+     &  call ga_dadd(1d0, g_dens_fde(1), 1d0,
+     &                    g_dens_fde(2), g_dens_fde(1))
+
+      end
+
+      subroutine dft_frozemb_fde_end(rtdb,g_vxc_fde,g_dens_fde,
+     &                               g_xcinv_fde)
+c Subroutine to just deallocate all the FDE arrays when we are done.
+c We'll also use this as an opportunity to remove the value of
+c xcreplicated from the rtdb, which we put there to get parallelisation
+c working in fde_init
+      implicit none
+
+#include "cdft.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
+      integer rtdb
+      integer g_vxc_fde(*)
+      integer g_dens_fde(*)
+      integer g_xcinv_fde
+c local
+      integer i
+      logical xcreplicated_l
+      character*32 pname
+      pname = 'dft_frozemb_fde_end: '
+
+c We'll check if XC replication is stored and restore this
+      if (rtdb_get(rtdb, 'dft:frozemb:xcreplicated', mt_log, 1, 
+     &  xcreplicated_l)) then
+c Restore old value for xcreplicated
+        if (.not.rtdb_put(rtdb, 'dft:xcreplicated', mt_log, 1, 
+     &    xcreplicated_l)) 
+     &    call errquit(pname//'rtdb_put failed', 0, RTDB_ERR)
+c Remove the stored value from the frozemb database
+        if (.not.rtdb_delete(rtdb, 'dft:frozemb:xcreplicated')) 
+     &     call errquit(pname//'rtdb_delete failed', 0, RTDB_ERR)
+      else
+c Remove any trace of xcreplication if we manually altered the setting
+        if (.not.rtdb_delete(rtdb, 'dft:xcreplicated')) 
+     &     call errquit(pname//'rtdb_delete failed', 0, RTDB_ERR)
+      endif
+
+      do i=1,ipol
+        if (.not. ga_destroy(g_vxc_fde(i))) call errquit
+     &     (pname//'could not destroy g_vxc_fde', 0, GA_ERR)
+        if (.not. ga_destroy(g_dens_fde(i))) call errquit
+     &     (pname//'could not destroy g_dens_fde', 0, GA_ERR)
+      enddo
+
+c This is currently disabled in fde_init. To be reinstated if XCFIT
+c works correctly with FDE
+c      if (XCFIT) then
+c        if (.not. ga_destroy(g_xcinv_fde)) call errquit
+c     &     (pname//'could not destroy g_xcinv_fde', 0, GA_ERR)
+c      endif !xcfit
+
+      end
+
 cc AJL/End

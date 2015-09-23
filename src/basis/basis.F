@@ -3817,15 +3817,9 @@ C Can I just set the array without the if statement? To test.
       if (.not.ecp_get_high_chan(ecpidin,channels))
      &      call errquit('ecp_print error',911, BASIS_ERR)
 
-      if (channels.eq.1) then
-        channel_type(0) = 'Both'
-        channel_type(1) = ''
-        channel_type(2) = ''
-      else
-        channel_type(0) = 'Both'
-        channel_type(1) = 'Alpha'
-        channel_type(2) = 'Beta'
-      endif
+      channel_type(0) = 'Both'
+      channel_type(1) = 'Alpha'
+      channel_type(2) = 'Beta'
 cc AJL/End
 c
       ecp_print = .true.

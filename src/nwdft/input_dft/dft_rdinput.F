@@ -741,6 +741,9 @@ c  Lifted partly from dft_scf.F; Duplicated partly from above
 c  == if frozen embedding ==
 c
       frozemb = .false.
+      frozemb_fde = .false.
+      geom_fde = -99999
+c
       if (.not.rtdb_get(rtdb, 'dft:frozemb', mt_log, 1, frozemb))
      &  frozemb=.false.
       if (frozemb) then
@@ -750,11 +753,12 @@ c
      &      call errquit(pname//'geom_create?',70, GEOM_ERR)
           if (.not. geom_rtdb_load(rtdb, geom_fde, frozemb_name))
      &      call errquit(pname//'no geometry',72, RTDB_ERR)
-        else
-          geom_fde=-99999
+c Seems everything works, so lets enable frozemb_fde
+          frozemb_fde=.true.
         endif
 
-        if (geom_fde .ne. -99999) then
+c        if (geom_fde .ne. -99999) then
+        if (frozemb_fde) then
 c
 c     Get/set/put XC info.
 c     (Duplicated from above, but now for FDE)
@@ -825,21 +829,24 @@ c
      &          mt_log, numfunc, xccomb_fde))
      &      call errquit(pname//'rtdb_put failed', 13, RTDB_ERR)
           endif
+
+c vvv Moved to fromzeb_fde_init for consistency vvv
 c Check to see if asymptotic corrections are in use. 
 c I assume they are not compatiblefor FDE, so disabling them 
 c is the safest thing. Re-enable at your own wish/bravery
-          if (cs00.or.lb94)
-     &        call errquit(pname//'asymptotic corrections are not
-     &        permitted for frozen density embedding', 10, INPUT_ERR)
+c          if (cs00.or.lb94)
+c     &        call errquit(pname//'asymptotic corrections are not
+c     &        permitted for frozen density embedding', 10, INPUT_ERR)
 c Check to see if range-separated functionals are in use.
 c Same as above - assumed non-functioning but the infrastructure would
 c work if there use is physically meaningful
-          if (rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) then 
-            if (cam_exch) 
-     &        call errquit(pname//'range-separated functionals are not
-     &        permitted for frozen density embedding', 10, INPUT_ERR)
-          endif
-c
+c          if (rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) then 
+c            if (cam_exch) 
+c     &        call errquit(pname//'range-separated functionals are not
+c     &        permitted for frozen density embedding', 10, INPUT_ERR)
+c          endif
+c ^^^ Moved to fromzeb_fde_init for consistency ^^^
+
           if (.not.rtdb_get(rtdb, 'dft:frozemb:ts', mt_dbl, numfunc_fde,
      &       tsfac)) then
 c
@@ -869,8 +876,6 @@ c
      &    call errquit(pname//'rtdb_put failed', 302, RTDB_ERR)
         endif ! geom_fde is active
 c
-      else ! Not frozemb
-        geom_fde=-99999
       endif
 C
 C AJL/END
@@ -929,7 +934,8 @@ C AJL/Begin/FDE
 c
 c     Define the contracted Gaussian functions for the Frozen Density AO basis set.
 c
-      if (frozemb .and. (geom_fde .ne. -99999)) then
+c      if (frozemb .and. (geom_fde .ne. -99999)) then
+      if (frozemb_fde) then
         if (.not. bas_create(FD_bas_han, 'ao basis'))
      &     call errquit(pname//'bas_create?', 86, BASIS_ERR)
         if (.not. bas_rtdb_load(rtdb, geom_fde, FD_bas_han,

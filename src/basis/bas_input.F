@@ -444,7 +444,7 @@ c
             channel = 0 
           else if (channel.lt.0.or.channel.gt.2) then
             call errquit('bas_input_body: channel choice for ECP 
-     &        must be either 0: Both; 1: Alpha (default); 2: Beta',
+     &        must be either 0: Both (default); 1: Alpha; 2: Beta',
      &        99, INPUT_ERR)
           end if
         else
@@ -478,7 +478,7 @@ c
             channel = 0 
           else if (channel.lt.0.or.channel.gt.2) then 
             call errquit('bas_input_body: channel choice for ECP 
-     &        must be either 0: Both; 1: Alpha (default); 2: Beta',
+     &        must be either 0: Both (default); 1: Alpha; 2: Beta',
      &        99, INPUT_ERR)
           end if
         else

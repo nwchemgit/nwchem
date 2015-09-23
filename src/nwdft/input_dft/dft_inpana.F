@@ -244,7 +244,7 @@ c
 c
 cc AJL/Begin/FDE
 c Repeat for FDE XC. Is this a safe way to check we are using FDE?
-      if (FD_bas_han .ne. -99999) then
+      if (frozemb_fde) then
 c    
 c     Analyze any user specified XC functionals ... set if none
 c     
@@ -307,7 +307,7 @@ c
      $        call errquit('dft_input: rtdb_put failed', 210, RTDB_ERR)
         end if ! tsfac default
 c
-      endif ! FD_bas_han .ne. -99999
+      endif ! frozemb_fde
 c AJL/End
 c
 c     Check/set defaults for convergence schemes
@@ -602,7 +602,7 @@ c           Print range-separation parameters
             end if ! cam_exch
 c
 cc AJL/Begin/FDE
-            if (FD_bas_han .ne. -99999) then
+            if (frozemb_fde) then
               write(LuOut,*)
               call util_print_centered
      &           (LuOut,'XC Information (FDE)',23,.true.)
@@ -645,41 +645,45 @@ c
                  endif
               enddo
 c
-c AJL: Again, do I need range separated inputs?! This needs to be tidied in to
-c separate variables if used. I think it probably should be disabled...
+c The most sensible thing is again to do the error checks for
+c range-separated and self-interaction corrected setups. Due to the
+c complexity of implementation I'm just going to disable this for FDE, but
+c they could in theory be checked and implemented.
+c The error check is in frozemb_fde_init, which is called from dft_scf.
 c
-c The most sensible thing is again to do the error checks in dft_rdinput
+ccc DISABLED ccc 
 c
-c Lifted from above:
-c           Check if asymptotic correction will be added to potential
-c           If both LB94 and CS00 are .true., it is assumed that the 
-c           user meant to use CS00 (since CS00 uses LB94)
-c
-              if (cs00) then
-                 if (delta_ac.gt.1.0d90) then
-                 write(LuOut,*)
-                 write(LuOut,9226)
-     &           '  CS with a Zhan-Nichols-Dixon shift        '
-                 else
-                 write(LuOut,*)
-                 write(LuOut,9227)
-     &           '  Casida-Salahub correction with a shift    ',
-     &           delta_ac,'au'
-                 endif
-              else if (lb94) then
-                 write(LuOut,*)
-                 write(LuOut,9226)
-     &           '         van Leeuwen-Baerends correction    '
-              endif
+cc Lifted from above:
+cc           Check if asymptotic correction will be added to potential
+cc           If both LB94 and CS00 are .true., it is assumed that the 
+cc           user meant to use CS00 (since CS00 uses LB94)
+cc
+c              if (cs00) then
+c                 if (delta_ac.gt.1.0d90) then
+c                 write(LuOut,*)
+c                 write(LuOut,9226)
+c     &           '  CS with a Zhan-Nichols-Dixon shift        '
+c                 else
+c                 write(LuOut,*)
+c                 write(LuOut,9227)
+c     &           '  Casida-Salahub correction with a shift    ',
+c     &           delta_ac,'au'
+c                 endif
+c              else if (lb94) then
+c                 write(LuOut,*)
+c                 write(LuOut,9226)
+c     &           '         van Leeuwen-Baerends correction    '
+c              endif
 c
 c           Print range-separation parameters
-              if (cam_exch) then
-                write(LuOut,*)
-                 write(LuOut,8202)
-     &           'Range-Separation Parameters        '
-                 write(LuOut,8203)
-                write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
-              end if ! cam_exch
+c              if (cam_exch) then
+c                write(LuOut,*)
+c                 write(LuOut,8202)
+c     &           'Range-Separation Parameters        '
+c                 write(LuOut,8203)
+c                write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
+c              end if ! cam_exch
+ccc END DISABLED ccc
 c
 c Kinetic Energy Functional
 c
@@ -690,7 +694,7 @@ c
                  if (tsfac(n).gt.0)
      &             write(LuOut,9224) tsname(n), tsfac(n), local_c
               enddo
-            endif ! FD_bas_han .ne. -99999
+            endif ! frozemb_fde 
 cc AJL/End
 c
             call util_flush(LuOut)

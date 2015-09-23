@@ -18,7 +18,7 @@ c
       double precision points(*) ! [input] coordinates for points
       double precision elfval(*)     ! [output] efg values for each coord
       call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     .false.,.false.)
+     D     .false.,.true.)
       return
       end 
       subroutine hnd_elfcon_schw(basis,geom,g_dens,points,npt,elfval,
@@ -36,7 +36,7 @@ c
       double precision points(*) ! [input] coordinates for points
       double precision elfval(*)     ! [output] efg values for each coord
       call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     .true.,.false.)
+     D     .true.,.true.)
       return
       end
 cc AJL/Begin/FDE 
@@ -56,12 +56,12 @@ c
       double precision elfval(*)     ! [output] efg values for each
 coord
       call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     .false.,.true.)
+     D     .false.,.false.)
       return
       end
 cc AJL/End
       subroutine hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     doschwarz,dofde)
+     D     doschwarz,do_parallel)
 c
 c     kernel routine for hnd_elfcon
 c     can do schwarz screening if needed
@@ -89,9 +89,9 @@ c
       double precision elfval(*)     ! [output] efg values for each coord
       logical doschwarz ! [input] use and init schwarz screening
 cc AJL/Begin/FDE
-      logical dofde ! [input] we are working out FDE potential so turn
-                    ! parallel off as we are already working with 
-                    !nxtask for grid points
+      logical do_parallel ! [input] for calculating FDE potential we turn
+                          ! parallel off as we are already working with 
+                          ! nxtask for grid points
 cc AJL/End
 c
       integer ishell, jshell, ijshell, nshell, nbf_max, me, nproc
@@ -137,10 +137,10 @@ c
       ijshell = 0
       task_size = 1
 cc AJL/Begin/FDE
-      if (dofde) then
-        next = task_size
-      else
+      if (do_parallel) then
         next = nxtask(nproc,task_size)+1
+      else
+        next = task_size
       endif
 cc AJL/End
       do ishell = 1, nshell
@@ -197,10 +197,10 @@ c
      &                           elfval,idim,jdim,npt*(max(nder*3,1)))
                endif
 cc AJL/Begin/FDE
-               if (dofde) then
-                 next = next + 1
-               else 
+               if (do_parallel) then
                  next = nxtask(nproc,task_size)+1
+               else 
+                 next = next + 1
                endif
             end if
 cc AJL/End
@@ -211,7 +211,7 @@ cc AJL/End
 c     Collect components from all the nodes for all points
 c
 cc AJL/Begin/FDE
-      if (.not.dofde) then
+      if (do_parallel) then
         next = nxtask(-nproc,task_size)
         call ga_mask_sync(.false.,.true.)
         call ga_dgop(msg_efgs_col,elfval,npt*(max(nder*3,1)),'+')

@@ -946,48 +946,16 @@ c     &    frozemb=.false.
         if (.not. ga_duplicate(g_fock, g_frozemb, 'froz matrix'))
      &     call errquit('dft_scf:failed duplicate',g_frozemb, GA_ERR)
         call ga_zero(g_frozemb)
-        if (FD_bas_han.eq.-99999) then
+        if (frozemb_fde) then
+c Initialise frozen density embedding
+          call dft_frozemb_fde_init(rtdb,test_sic,g_vxc,g_vxc_fde,
+     &                              g_xcinv_fde)
+c Calculate the frozen density embedding contributions to fock matrix
+          call dft_frozemb_fde(rtdb,g_frozemb,g_dens_fde)
+        else
 c     Old embedding method, read from file
           call dft_frozemb(rtdb,g_frozemb)
-        else
-c     Couple of error checks not present in dft_rdinput
-c     Ideally these would be grouped with the dft_rdinput errors
-          if (lxdm.eq.1)
-     &      call errquit('dft_scf: XDM is not compatible with FDE',1,
-     &      INPUT_ERR)   
-          if (test_sic.ne.0)
-     &      call errquit('dft_scf: SIC is not compatible with FDE',1,
-     &      INPUT_ERR)
-c     Disable XC replica so parallelisation works
-      if (.not.rtdb_put(rtdb, 'dft:xcreplicated', mt_log, 1, .false.))
-     &   call errquit('dft_scf: rtdb_put failed', 0, RTDB_ERR)
-
-c Initialise frozen density embedding
-          call dft_frozemb_fde(rtdb,g_frozemb,g_dens_fde)          
-
-c Create the Vxc matrix for FDE and zero 
-          if (.not. ga_duplicate(g_vxc(1), g_vxc_fde(1), 'VXC FDE'))
-     &      call errquit('dft_scf:failed duplicate',g_vxc_fde(1), 
-     &                   GA_ERR)
-          call ga_zero(g_vxc_fde(1))
-
-          if (ipol.eq.2) then
-            if (.not. ga_duplicate(g_vxc(2), g_vxc_fde(2), 'VXC FDE'))
-     &        call errquit('dft_scf:failed duplicate',g_vxc_fde(2), 
-     &                     GA_ERR)
-            call ga_zero(g_vxc_fde(2))
-          endif
-
-c Is this necessary? 
-c We'll generate it just in case but this needs testing
-          if (XCFIT) then
-            if (.not. ga_duplicate(g_xcinv, g_xcinv_fde, 'VXCINV FDE'))
-     &        call errquit('dft_scf:failed duplicate',g_xcinv_fde, 
-     &                     GA_ERR)
-            call ga_zero(g_xcinv_fde)
-          endif
-
-        endif ! FD_bas_han active?
+        endif 
 cc AJL/End
 c
 c      call ga_print(g_frozemb)
@@ -2495,22 +2463,9 @@ c     == if frozen embedding ==
         if (.not. ga_destroy(g_frozemb)) call errquit
      &     ('dft_scf: could not destroy g_frozemb', 0, GA_ERR)
 cc AJL/Begin/FDE
-        if (FD_bas_han .ne. -99999) then
-          if (.not. ga_destroy(g_vxc_fde(1))) call errquit
-     &       ('dft_scf: could not destroy g_vxc_fde1', 0, GA_ERR)
-          if (.not. ga_destroy(g_dens_fde(1))) call errquit
-     &       ('dft_scf: could not destroy g_dens_fde1', 0, GA_ERR)
-          if (ipol.gt.1) then
-             if (.not. ga_destroy(g_dens_fde(2))) call errquit
-     &          ('dft_scf: could not destroy g_dens_fde2', 0, GA_ERR)
-             if (.not. ga_destroy(g_vxc_fde(2))) call errquit
-     &          ('dft_scf: could not destroy g_vxc_fde2', 0, GA_ERR)
-          endif !ipol
-          if (XCFIT) then
-            if (.not. ga_destroy(g_xcinv_fde)) call errquit
-     &         ('dft_scf: could not destroy g_xcinv_fde', 0, GA_ERR)
-          endif !xcfit
-        endif !fd_bas_han
+        if (frozemb_fde) 
+c Destroy all allocations and reset variables that have been altered
+     &  call dft_frozemb_fde_end(rtdb,g_vxc_fde,g_dens_fde, g_xcinv_fde)
       end if !frozemb
 cc AJL/End
 c
