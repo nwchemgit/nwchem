@@ -159,6 +159,7 @@ c
       call ecce_print1('wall time', mt_dbl, wall, 1)
       if (theory .eq. 'md')  oecce=.false.
       if (theory .eq. 'smd') oecce=.false.
+      if (orism) oecce=.false.
       if (status) then
          if (oecce) call geom_print_rtdb_ecce(rtdb)
          call ecce_print1('total energy', mt_dbl, energy, 1)
