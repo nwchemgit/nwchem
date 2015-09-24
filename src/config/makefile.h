@@ -2301,12 +2301,14 @@ ifeq ($(BLAS_LIB),)
 endif
 
 ifndef BLASOPT
+ifndef USE_INTERNALBLAS
 errordgemm:
-	@echo "You did not define BLASOPT.  Performance may suffer greatly."
+	@echo "NWChem's Performance is degraded by not setting BLASOPT"
 	@echo "Please consider using ATLAS, GotoBLAS2, OpenBLAS, Intel MKL,"
 	@echo "IBM ESSL, AMD ACML, etc. to improve performance."
-	@echo "If you insist on not using a fast implementation of BLAS/LAPACK,"
-	@echo "define BLASOPT=\"-llapack -lblas\" and the internal Netlib will be used."
+	@echo "If you decide to not use a fast implementation of BLAS/LAPACK,"
+	@echo "please define USE_INTERNALBLAS=y and the internal Netlib will be used."
+endif
 endif
 
 ifdef USE_NOIO
