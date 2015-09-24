@@ -1116,6 +1116,9 @@ endif
            LDOPTIONS += -openmp
            DEFINES   += -DUSE_OPENMP
         endif
+        ifdef USE_NOSIMD
+          FOPTIONS  += -no-simd
+        endif
         ifeq ($(_IFCV11),Y) 
             # The MKL option is available since Intel 11.1.
             # TODO: Test minor version number above when major=11.
@@ -1740,6 +1743,10 @@ endif
           ifdef USE_OPTREPORT
 	  FOPTIONS += -qopt-report=1 -qopt-report-phase=vec 
           endif
+#to avoid compiler crashes on simd directive. e.g .Version 15.0.2.164 Build 20150121
+        ifdef USE_NOSIMD
+          FOPTIONS  += -no-simd
+        endif
          ifdef USE_OPENMP
            FOPTIONS += -qopenmp
            FOPTIONS += -qopt-report-phase=openmp
