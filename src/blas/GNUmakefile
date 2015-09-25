@@ -4,7 +4,7 @@ USE_I4FLAGS=y
 endif
 include ../config/makefile.h
 
-       LIBRARY = libblas.a
+       LIBRARY = libnwcblas.a
 
 #
 # USE both double and single now (short term solution for added single precision

@@ -316,7 +316,7 @@ endif
      CORE_LIBS +=  -SSL2
   else
     LDOPTIONS = -xildoff
-    CORE_LIBS +=  -llapack $(BLASOPT) -lblas  -lmvec
+    CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas  -lmvec
   endif
 
 
@@ -395,13 +395,13 @@ ifeq ($(TARGET),SOLARIS64)
   LINK.f = $(FC) $(LDFLAGS) $(FOPTIONS)
   ifeq ($(FC),frt)
     LDOPTIONS = -SSL2
-    CORE_LIBS +=  -llapack -lblas
+    CORE_LIBS +=  -lnwclapack -lnwcblas
   else
     LDOPTIONS = -xs -xildoff
 ifdef BLASOPT
     CORE_LIBS +=   $(BLASOPT)   -lmvec
 else
-    CORE_LIBS +=  -llapack -lblas  -lmvec
+    CORE_LIBS +=  -lnwclapack -lnwcblas  -lmvec
 endif
     CORE_LIBS += -lsocket -lrpcsvc -lnsl
     EXTRA_LIBS =  -ldl -lfsu
@@ -466,7 +466,7 @@ ifeq ($(TARGET),HPUX)
   LDOPTIONS +=  +DA2.0 +DS2.0 +O2
   LDOPTIONS +=   +O2
   LINK.f = f90   $(LDFLAGS) 
-  CORE_LIBS +=  $(BLASOPT) -llapack -lblas   -lm
+  CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas   -lm
   FDEBUG = -g
   FOPTIONS =  +ppu -Wl,-a,archive
   COPTIONS = -Aa -D_HPUX_SOURCE +e 
@@ -497,7 +497,7 @@ ifeq ($(TARGET),HPUX64)
   CC = cc
   FC = f90
   LDOPTIONS = -Wl,+vallcompatwarnings  +U77   
-  CORE_LIBS +=  -llapack $(BLASOPT) -lblas  -lm
+  CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas  -lm
   CDEBUG =
   FDEBUG = -g
   FOPTIONS =  +ppu  #+U77  
@@ -578,7 +578,7 @@ endif
        LIBPATH += -L/usr/lib 
 
   LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 -bloadmap:nwchem.lapi_map
-       CORE_LIBS +=  -llapack $(BLASOPT) -lblas \
+       CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas \
 	      -brename:.daxpy_,.daxpy \
 	      -brename:.dcopy_,.dcopy \
 	      -brename:.ddot_,.ddot \
@@ -703,11 +703,11 @@ endif
   LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc # bigtoc requires bmaxdata
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x200000000 # this limits MA to 8GB
   ifeq ($(LAPACK_LIB),)
-     CORE_LIBS += -llapack
+     CORE_LIBS += -lnwclapack
   endif
   CORE_LIBS += $(BLASOPT)
   ifeq ($(BLAS_LIB),)
-     CORE_LIBS += -lblas
+     CORE_LIBS += -lnwcblas
   endif
   XLFBREN = y
 
@@ -769,7 +769,7 @@ endif
 # Need ESSL before our own BLAS library but still need our
 # own stuff for misc. missing routines
 
-CORE_LIBS +=  -llapack -lblas
+CORE_LIBS +=  -lnwclapack -lnwcblas
 
   LDOPTIONS += -bloadmap:nwchem.lapimap -bbigtoc
   LDOPTIONS += -bmaxstack:0x60000000 -bmaxdata:0x60000000 # needed because of bigtoc
@@ -823,7 +823,7 @@ else
    FOPTIONS += -qintsize=8
 endif
   DEFINES += -DEXT_INT
-  CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+  CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
   LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
 #  LDOPTIONS += -bmaxstack:0xe0000000 -bmaxdata:0xe0000000 # this for large memory
@@ -986,9 +986,9 @@ endif
       COPTIONS += -g
     endif
 ifdef USE_VECLIB
-             CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lblas
+             CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lnwcblas
 else
-             CORE_LIBS +=   -llapack $(BLASOPT)  -lblas
+             CORE_LIBS +=   -lnwclapack $(BLASOPT)  -lnwcblas
 endif
   ifeq ($(FC),xlf) 
      LDOPTIONS = -Wl,-multiply_defined -Wl,warning
@@ -1041,7 +1041,7 @@ endif
                _CPU = $(shell machine  )
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
-             MAKEFLAGS = -j 1 --no-print-directory
+#             MAKEFLAGS = -j 1 --no-print-directory
              DEFINES   = -DMACX
              DEFINES  += -DEXT_INT
 
@@ -1091,14 +1091,14 @@ endif
       COPTIONS += -g
     endif
 ifdef USE_VECLIB
-             CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lblas
+             CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lnwcblas
 else
    ifeq ($(LAPACK_LIB),)
-      CORE_LIBS += -llapack
+      CORE_LIBS += -lnwclapack
    endif
    CORE_LIBS +=    $(BLASOPT)
    ifeq ($(BLAS_LIB),)
-      CORE_LIBS += -lblas
+      CORE_LIBS += -lnwcblas
    endif
 endif
       ifeq ($(FC),ifort)
@@ -1116,6 +1116,9 @@ endif
            LDOPTIONS += -openmp
            DEFINES   += -DUSE_OPENMP
         endif
+       ifdef  USE_FPE
+         FOPTIONS += -fpe0 -traceback #-fp-model  precise
+       endif
         ifdef USE_NOSIMD
           FOPTIONS  += -no-simd
         endif
@@ -1464,7 +1467,7 @@ ifeq ($(LINUXCPU),x86)
 endif
 #EXTRA_LIBS +=-lefence # link against Electricfence
 
-CORE_LIBS += -llapack $(BLASOPT) -lblas
+CORE_LIBS += -lnwclapack $(BLASOPT) -lnwcblas
 
 # end of Linux, Cygnus
 endif
@@ -1690,7 +1693,7 @@ endif
         COPTIONS += -fPIC
       endif
 
-#     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+#     CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
 endif # end of ia32 bit
     ifeq ($(_CPU),x86_64)
 #
@@ -1904,7 +1907,7 @@ $(error )
       ifdef USE_GCC34
         COPTIONS  +=   -march=k8 -mtune=k8
       endif
-#     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+#     CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
      ifdef  USE_GPROF
         ifeq ($(NWCHEM_TARGET),CATAMOUNT)
           FOPTIONS   += -Mprof=func#,lines
@@ -2030,7 +2033,7 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
           FOPTIONS += -qintsize=8
         endif
       endif
-#     CORE_LIBS +=  $(BLASOPT) -llapack -lblas
+#     CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
 #     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
     endif
 
@@ -2118,7 +2121,7 @@ ifndef USE_I4FLAGS
 endif
 
         # linking ESSL is painful with gfortran
-        CORE_LIBS +=  -llapack $(BLASOPT) -lblas
+        CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas
 
         # Here is an example for ALCF:
         # IBMCMP_ROOT=${IBM_MAIN_DIR}
@@ -2128,7 +2131,7 @@ endif
         # XLF_LIB=${IBMCMP_ROOT}/xlf/bg/14.1/bglib64
         # XLSMP_LIB=${IBMCMP_ROOT}/xlsmp/bg/3.1/bglib64
         # XLMASS_LIB=${IBMCMP_ROOT}/xlmass/bg/7.3/bglib64
-        # MATH_LIBS="-L${XLMASS_LIB} -lmass -L${LAPACK_LIB} -llapack \
+        # MATH_LIBS="-L${XLMASS_LIB} -lmass -L${LAPACK_LIB} -lnwclapack \
                      -L${ESSL_LIB} -lesslsmpbg -L${XLF_LIB} -lxlf90_r \
                      -L${XLSMP_LIB} -lxlsmp -lxlopt -lxlfmath -lxl \
                      -Wl,--allow-multiple-definition"
@@ -2172,7 +2175,7 @@ endif
         FOPTIMIZE += -qreport -qsource -qlistopt -qlist # verbose compiler output
 
         # ESSL dependencies should be provided by XLF linker
-        CORE_LIBS +=  -llapack $(BLASOPT) -lblas
+        CORE_LIBS +=  -lnwclapack $(BLASOPT) -lnwcblas
     endif
 
    endif # end BGQ
@@ -2294,10 +2297,10 @@ ifdef BLASOPT
        CORE_LIBS +=  $(BLASOPT) 
 endif
 ifeq ($(LAPACK_LIB),)
-      CORE_LIBS +=  -llapack 
+      CORE_LIBS +=  -lnwclapack 
 endif
 ifeq ($(BLAS_LIB),)
-      CORE_LIBS +=  -lblas 
+      CORE_LIBS +=  -lnwcblas 
 endif
 
 ifndef BLASOPT
