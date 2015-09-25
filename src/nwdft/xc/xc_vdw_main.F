@@ -556,6 +556,7 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "xc_vdw.fh"
 c
       integer n
       integer itags,ltags,i_xyz,l_xyz,icharge,lcharge,
@@ -573,8 +574,6 @@ c
       external geom_cart_get2 
 c
       double precision delta,delta_default
-      double precision alpha
-      integer ivdw
 c
       oprint = util_print('vdw', print_high)
       oprinth = util_print('vdw high', print_high)
