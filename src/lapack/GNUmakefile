@@ -4,7 +4,7 @@ USE_I4FLAGS=y
 endif
 include ../config/makefile.h
 
-       LIBRARY = liblapack.a
+       LIBRARY = libnwclapack.a
        PRECISION = double
 
 #
