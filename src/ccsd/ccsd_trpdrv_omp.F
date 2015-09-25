@@ -75,7 +75,7 @@ c
 c
        integer nbh_exch1,nbh_exch2,nbh_coul1,nbh_coul2
 c
-#ifdef USE_OPENMP
+#if defined(USE_OPENMP)
       integer  omp_get_thread_num
       external omp_get_thread_num
       integer  omp_get_num_threads
@@ -278,10 +278,16 @@ c
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
+#if _OPENMP >= 201307
+!$omp do simd collapse(2)
+#else
 !$omp do collapse(2)
+#endif
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
 !$omp& reduction(+:emp5k,emp4k)
+! WARNING: Do not add IVDEP here, at least with Intel 16.
+!dir$ loop count max=5000, min=16, avg=500
                do b=1,nvir
                  do c=1,nvir
                    denom=-1.0d0/( eorb(ncor+nocc+b)
@@ -323,7 +329,11 @@ c
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
                  enddo
                enddo
+#if _OPENMP >= 201307
+!$omp end do simd
+#else
 !$omp end do
+#endif
 !$omp end parallel
                          if (occsdps) then
                             call pstat_off(ps_tengy)
