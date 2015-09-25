@@ -285,16 +285,11 @@
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
-#if _OPENMP >= 201307
-!$omp do simd collapse(2)
-#else
 !$omp do collapse(2)
-#endif
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
 !$omp& reduction(+:emp5k,emp4k)
-! WARNING: Do not add IVDEP here, at least with Intel 16.
-!dir$ loop count max=5000, min=16, avg=500
+! WARNING: Do not add IVDEP here.  Code will be incorrect.
                do b=1,nvir
                  do c=1,nvir
                    denom=-1.0d0/( eorb(ncor+nocc+b)
@@ -336,11 +331,7 @@
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
                  enddo
                enddo
-#if _OPENMP >= 201307
-!$omp end do simd
-#else
 !$omp end do
-#endif
 !$omp end parallel
                          if (occsdps) then
                             call pstat_off(ps_tengy)
