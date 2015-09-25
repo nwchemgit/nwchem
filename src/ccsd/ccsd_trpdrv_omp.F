@@ -290,19 +290,19 @@ c
                    emp4i=emp4i+denom*
      &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3n(b,c)+f4n(c,b))*
      &                  (f1t(b,c)-2*f2t(b,c)-2*f3t(b,c)+f4t(b,c))
-                   emp4i=emp4i-denom*
+     &                        -denom*
      &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3n(c,b))*
      &                  (2*f1t(b,c)-f2t(b,c)-f3t(b,c)+2*f4t(b,c))
-                   emp4i=emp4i+3*denom*(
+     &                        +3*denom*(
      &                  f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
      &                  f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
                    emp4k=emp4k+denom*
      &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3t(b,c)+f4t(c,b))*
      &                  (f1n(b,c)-2*f2n(b,c)-2*f3n(b,c)+f4n(b,c))
-                   emp4k=emp4k-denom*
+     &                        -denom*
      &                  (f1t(b,c)+f1n(c,b)+f2t(c,b)+f3t(c,b))*
      &                  (2*f1n(b,c)-f2n(b,c)-f3n(b,c)+2*f4n(b,c))
-                   emp4k=emp4k+3*denom*(
+     &                        +3*denom*(
      &                  f1t(b,c)*(f1t(b,c)+f3t(c,b)+2*f4n(c,b))+
      &                  f2t(b,c)*f2n(c,b)+f3t(b,c)*f4n(b,c))
                    emp5i=emp5i+denom*t1v1(b)*dintx1(c)*
@@ -310,7 +310,7 @@ c
      &                  -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
      &                      f1n(b,c)+f2t(b,c)+f3n(c,b))
      &                  +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
-                   emp5i=emp5i+denom*t1v1(b)*dintc1(c)*
+     &                        +denom*t1v1(b)*dintc1(c)*
      &                 (     f1n(b,c)+f4n(b,c)+f1t(c,b)
      &                   -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
                    emp5k=emp5k+denom*t1v2(b)*dintx2(c)*
@@ -318,7 +318,7 @@ c
      &                  -2*(f3n(b,c)+f4t(b,c)+f2t(c,b)+
      &                      f1t(b,c)+f2n(b,c)+f3t(c,b))
      &                  +4*(f3t(b,c)+f4n(b,c)+f1t(c,b)))
-                   emp5k=emp5k+denom*t1v2(b)*dintc2(c)*
+     &                        +denom*t1v2(b)*dintc2(c)*
      &                 (     f1t(b,c)+f4t(b,c)+f1n(c,b)
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
                  enddo
