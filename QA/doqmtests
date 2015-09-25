@@ -141,5 +141,7 @@ echo "qmmm frequency  test  may  fail"
 #
 #--- spin-polarised ECPs test
 ./runtests.mpi.unix procs $np spin_ecps_heh_grad spin_ecps_o_hess
-
+#
+#--- frozen density embedding and kinetic-energy functionals
+./runtests.mpi.unix procs $np h2o2_fde
 

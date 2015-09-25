@@ -1,0 +1,76 @@
+start dimer
+  title "Water dimer DFT using fragment initial guess"
+  geometry print nocenter noautoz dimer
+  symmetry c1 tol 0.0
+    O   -0.595   1.165  -0.048 
+    H    0.110   1.812  -0.170 
+    H   -1.452   1.598  -0.154 
+    O    0.724  -1.284   0.034
+    H    0.175  -2.013   0.348
+    H    0.177  -0.480   0.010
+  end
+  geometry print nocenter noautoz h2o1 
+  symmetry c1 tol 0.0
+    O   -0.595   1.165  -0.048
+    H    0.110   1.812  -0.170
+    H   -1.452   1.598  -0.154
+  end
+  geometry print nocenter noautoz h2o2 
+  symmetry c1 tol 0.0
+    O    0.724  -1.284   0.034
+    H    0.175  -2.013   0.348
+    H    0.177  -0.480   0.010
+  end
+  basis
+    o library 3-21g
+    h library 3-21g
+  end
+
+  set dft:no_prune true
+
+  set geometry h2o1
+  dft; vectors input atomic output h2o1.movecs; grid xfine; tolerances tight; end
+  task dft
+
+  set geometry h2o2
+  dft; vectors input atomic output h2o2.movecs; grid xfine; tolerances tight; end
+  task dft
+
+  set geometry dimer
+  dft
+  vectors input fragment h2o1.movecs h2o2.movecs \
+          output dimer.movecs; tolerances tight; grid xfine;
+  end
+  task dft
+
+  ## Note to reader: If you want to fully test the FDE for yourself, one needs to perform
+  ## sequentially perform the FDE calculations for h2o1 and h2o2, embedded in the environment
+  ## of the other molecule, until the energies are self-consistent i.e. converged. Then one 
+  ## should look to compare the eigen values from the dimer calculation with those of the 
+  ## FDE calculations, and hopefully you will get good agreement.
+
+  # For QA, we just test consistency of the functionality
+  # Spin-paired Thomas Fermi
+  set geometry h2o1
+  dft; frozemb geometry h2o2 vectors h2o2.movecs; frozemb_ts tf; \
+  vectors input h2o1.movecs output h2o1.fde.movecs; odft; grid xfine; tolerances tight; end
+  task dft
+
+  # Spin-unpaired 
+  dft; frozemb geometry h2o2 vectors h2o2.movecs; frozemb_ts tf; \
+  vectors input h2o1.movecs output h2o1.fde.movecs; odft; grid xfine; tolerances tight; end
+  task dft
+
+  # Spin-paired von Weisacker
+  set geometry h2o1
+  dft; frozemb geometry h2o2 vectors h2o2.movecs; frozemb_ts vw; \
+  vectors input h2o1.movecs output h2o1.fde.movecs; odft; grid xfine; tolerances tight; end
+  task dft
+
+  # Spin-unpaired 
+  dft; frozemb geometry h2o2 vectors h2o2.movecs; frozemb_ts vw; \
+  vectors input h2o1.movecs output h2o1.fde.movecs; odft; grid xfine; tolerances tight; end
+  task dft
+
+  unset dft:frozemb
+  unset dft:frozemb:geometry
