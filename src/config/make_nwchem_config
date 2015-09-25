@@ -75,7 +75,7 @@ EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property solvation selci dplot mp2_grad esp etrans tce vscf dimqm
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian bq cons \
-          optim stepper driver vib mcscf property solvation selci dplot \
+          optim stepper driver vib qmd mcscf property solvation selci dplot \
            mp2_grad esp etrans vscf dimqm
 EXP_smallqmmm  = NWints atomscf ddscf gradients moints nwdft nwxc rimp2 hessian bq cons \
           optim stepper driver vib qmd mcscf property solvation selci dplot \
