@@ -115,7 +115,7 @@ c
 c     
 c     Update the Hessian
 c     
-         if (istep .gt. 1) call driver_hessian_update()
+         if (istep .gt. 1) call driver_hessian_update(geom,rtdb)
 c
 c     Compute step/gradient info and print for user
 c     (for current energy & gradient, and the previous alpha*step).
@@ -1396,7 +1396,7 @@ c     FRACTIONAL?
       endif
 c     
       end
-      subroutine driver_hessian_update()
+      subroutine driver_hessian_update(geom,rtdb)
       implicit none
 
 #include "errquit.fh"
@@ -1413,12 +1413,15 @@ c     .  alpha - the step in the previous search direction
 c     
 c     Only the Hessian is modified.
 c     
+      integer geom, rtdb
       double precision hds(max_nvar)
       double precision dsds, dshds, dsdg
       integer l_hess, k_hess, i, j, l_dstmp, k_dstmp
       integer ind, iend, iat
       integer istrss
       double precision strss1,strss2,dum1,dum2,dum3,dum4
+      logical redo_hessian
+
 ! This is a statement function
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c save ds
@@ -1562,6 +1565,16 @@ c
       endif
 
 
+*     ************************************************
+*     *** reinitialize the hessian all the time    ***
+*     *** This option is used to try to avoid      ***
+*     *** hessians that update poorly and thus     ***
+*     *** avoid (higher-order) saddle points       ***
+*     ************************************************
+      redo_hessian = .false.
+      if (redo_hessian) then
+        call driver_hss_reinit(rtdb,geom,l_hess, k_hess)
+      endif
 
 *     ************************************************
 *     *** making the hessian diagonal all the time ***
@@ -4615,3 +4628,231 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       end
 C>
 C> @}
+      subroutine driver_hss_reinit(rtdb,geom,l_hess, k_hess)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "nwc_const.fh"
+#include "coptopt.fh"
+c
+      integer rtdb, geom
+
+c
+      logical geom_zmt_get_izmat, geom_zmt_get_nizmat, 
+     $     geom_compute_zmatrix
+      external geom_zmt_get_izmat, geom_zmt_get_nizmat,
+     $     geom_compute_zmatrix
+c
+      double precision zero
+      parameter (zero=0.0d+00)
+      integer mxatom, mxcart, mxzmat, mxcoor
+      parameter (mxatom=nw_max_atom)
+      parameter (mxcart=3*mxatom)
+      parameter (mxzmat=nw_max_zmat)     
+      parameter (mxcoor=nw_max_coor)
+c
+c     These commons are used in the internal coordinate guess
+c
+      integer nuc
+      COMMON/HND_MOLNUC/NUC(MXATOM)
+      double precision c, zan
+      integer natom
+      common/hnd_molxyz/c(3,mxatom),zan(mxatom),natom
+      integer nnzmat, nnzvar, nnvar
+      common/hnd_zmtpar/nnzmat,nnzvar,nnvar
+      double precision hscale, ascale, bscale, tscale, amat(3,3)
+c
+      integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i, j, k
+      integer l_c, k_c, l_t, k_t, iat, jat, kat, lat, l, l_kurt, k_kurt
+      integer l_shrhess, k_shrhess
+      character*16 atom_tags(mxatom)
+c
+      nnzmat = nzmat
+      nnzvar = nzvar
+      nnvar  = nzvar
+      if (.not. geom_ncent(geom,natom))
+     1       call errquit('hnd_opt: geom_ncent?',911, GEOM_ERR)
+c     create a chop point
+      if (.not. ma_push_get(mt_dbl, 1, 'kurt',
+     $     l_kurt, k_kurt)) call errquit
+     $     ('driver_hss_reinit: failed allocating ',1,
+     &       MA_ERR)
+
+c
+      if (.not. zcoord) then
+c
+c     Cartesians are easy
+c
+         call dfill(nvar**2, 0.0d0, dbl_mb(k_hess), 1)
+         call hnd_opt_hss_init_cart(dbl_mb(k_hess),
+     &                     odebug,isystype,geom,nvar)
+!    Now the lattice hessian, if any
+         if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
+            call HND_OPT_HSS_INIT_LATTICE(dbl_mb(k_hess),nvar,isystype,
+     $           ostress,ostress2,geom)
+            if (oprint) then 
+               write(6,*) ' The initial hessian '
+               call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+            end if
+         end if
+!        Symmetry
+         if (nvar .eq. 3*natom) then
+           call sym_hess_symmetrize(geom,dbl_mb(k_hess))
+         else
+           if (.not. ma_push_get(mt_dbl, (natom*3)**2, 'shrhess',
+     $        l_shrhess, k_shrhess)) call errquit
+     $        ('driver_hss_reinit: failed allocating shrunk hessian ',
+     $        (natom*3)**2, MA_ERR)
+           do i = 1, 3*natom
+             do j = 1, 3*natom
+               dbl_mb(k_shrhess+j-1 + (i-1)*(3*natom)) = 
+     $         dbl_mb(k_hess   +j-1 + (i-1)*(nvar    ))
+             end do
+           end do
+           call sym_hess_symmetrize(geom,dbl_mb(k_shrhess))
+           do i = 1, 3*natom
+             do j = 1, 3*natom
+               dbl_mb(k_hess   +j-1 + (i-1)*(nvar    )) =
+     $         dbl_mb(k_shrhess+j-1 + (i-1)*(3*natom))
+             end do
+           end do
+         endif
+      else
+c
+c     Internals.
+c
+         if (.not. ma_push_get(mt_dbl, nzvar, 'zmat',
+     $        l_zmat, k_zmat)) call errquit
+     $        ('driver_hss_reinit: failed allocating zmat ', nzvar,
+     &       MA_ERR)
+         if (.not. ma_push_get(mt_int, nzmat, 'izmat',
+     $        l_izmat, k_izmat)) call errquit
+     $        ('driver_hss_reinit: failed allocating izmat ', nzmat,
+     &       MA_ERR)
+         if (.not. geom_compute_zmatrix(geom, dbl_mb(k_zmat)))
+     $        call errquit('driver_hss_reinit: zmatrix?',0, GEOM_ERR)
+         if (.not. geom_zmt_get_izmat(geom,int_mb(k_izmat),nzmat))
+     $        call errquit('driver_hss_reinit: izmat?',0, GEOM_ERR)
+C  The code assume Cartesians in many places:
+         if (ostress .or. ostress2) call errquit(
+     $     'driver: lattice optimization does not work with a zmatrix',
+     $     0,GEOM_ERR)
+c
+         if (.not. ma_verify_allocator_stuff()) call errquit('h',0,
+     &       MA_ERR)
+c
+C     ----- INTERNALLY GENERATED (DIAGONAL) INITIAL HESSIAN -----
+C
+c     this routine uses /molnuc/, /zmtpar/, /molxyz/ which 
+c     must be initialized before calling
+c
+         if (.not. geom_cart_get(geom, nat, atom_tags, 
+     $        c, zan)) call errquit('driver_hss_reinit: geom?',geom,
+     &       GEOM_ERR)
+         do i = 1, nat
+            nuc(i) = nint(zan(i))
+         enddo
+         nvar = nzvar
+c
+c     The angle scaling factors are responsible for a factor of two
+c     speedup in most organics.  Clearly we need a better force field.
+c
+c     The chosen values have been tested on a large no. of 3-21g* SCF
+c     optimizations, and a smaller no. of 6-31g* SCF calculations.
+c
+         if (.not. rtdb_get(rtdb,'driver:bscale',mt_dbl,1,bscale))
+     $        bscale = 1d0
+         if (.not. rtdb_get(rtdb,'driver:ascale',mt_dbl,1,ascale))
+     $        ascale = 0.25d0
+         if (.not. rtdb_get(rtdb,'driver:tscale',mt_dbl,1,tscale))
+     $        tscale = 0.1d0
+         if (oprint) then
+            write(6,789) bscale, ascale, tscale
+ 789        format(' Scaling for Hessian diagonals: bonds =',f5.2,
+     $           '  angles =',f5.2,'  torsions =',f5.2)
+         endif
+         call hnd_opt_hss_init_zmt(dbl_mb(k_hess),
+     $        nzvar, dbl_mb(k_zmat), int_mb(k_izmat), .false.,
+     $        bscale, ascale, tscale,odebug)
+         if (odebug) then
+            write(6,*) ' The initial hessian '
+            call output(dbl_mb(k_hess),1,nzvar,1,nzvar,nzvar,nzvar,1)
+         endif
+      endif
+c
+c     Artificially break degeneracies so that accidentally degenerate
+c     modes are split and therefore step restriction along modes
+c     is well defined
+c
+      do i = 1, nvar
+         dbl_mb(k_hess+i-1 + (i-1)*nvar) = 
+     $        dbl_mb(k_hess+i-1 + (i-1)*nvar) + dble(i-1)*1e-7
+      end do
+c
+      call geom_hnd_put_data('drv.hess', dbl_mb(k_hess), nvar*nvar)
+c
+c     Apply constants, constraints and overall scaling
+c
+ 999  if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
+     $     l_c, k_c)) call errquit
+     $     ('driver_hss_reinit: failed allocating hessian',nvar**2,
+     &       MA_ERR)
+      if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
+     $     l_t, k_t)) call errquit
+     $     ('driver_hss_reinit: failed allocating hessian',nvar**2,
+     &       MA_ERR)
+c
+      call geom_hnd_get_data('drv.hess', dbl_mb(k_hess), nvar*nvar)
+c
+c     Used to use c here ... now use p
+c
+      call geom_hnd_get_data('p',dbl_mb(k_c), nvar*nvar)
+c
+      if (odebug) then
+         write(6,*) ' Initial Hessian before P'
+         call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+      endif
+      call dgemm('n','n',nvar,nvar,nvar,1d0,dbl_mb(k_c),nvar,
+     $     dbl_mb(k_hess),nvar,0d0,dbl_mb(k_t),nvar)
+      call dgemm('n','t',nvar,nvar,nvar,1d0,dbl_mb(k_t),nvar,
+     $     dbl_mb(k_c),nvar,0d0,dbl_mb(k_hess),nvar)
+      if (odebug) then
+         write(6,*) ' Initial Hessian after P'
+         call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
+      endif
+c
+      if (nactive .ne. nat_real) then
+c     
+c     We are in cartesian coordinates and some have been frozen.
+c     Since there is no redundancy or coupling we just need
+c     to make sure that the initial Hessian does not couple
+c     frozen with unfrozen variables and we are OK.
+c
+         do iat = 1, nat_real
+            if (.not. oactive(iat)) then
+               do i = 1+(iat-1)*3, iat*3
+                  do j = 1, nvar
+                     dbl_mb(k_hess+j-1+(i-1)*nvar) = 0d0
+                     dbl_mb(k_hess+i-1+(j-1)*nvar) = 0d0
+                  enddo
+                  dbl_mb(k_hess+i-1+(i-1)*nvar) = 1d0
+               enddo
+            endif
+         enddo
+      endif
+c
+      if (.not. rtdb_get(rtdb,'driver:hscale',mt_dbl,1,hscale))
+     $     hscale = 1d0
+      call dscal(nvar*nvar, hscale, dbl_mb(k_hess), 1)
+      if (oprint .and. hscale.ne.1d0) write(6,78) hscale
+ 78   format(' Scaling initial hessian by ',f6.2)
+c
+      call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar*nvar)
+c
+      if (.not. ma_chop_stack(l_kurt)) call errquit
+     $     ('driver_hss_reinit ma corrupt',0, MA_ERR)
+c
+      END
