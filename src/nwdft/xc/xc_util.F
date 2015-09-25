@@ -474,32 +474,3 @@ c
       return
       end
 
-cc AJL/Begin
-c I really need to remove a need for this subroutine by redefining
-c the potential for the vw kinetic functional so it doesn't need
-c the laplacian to work out the potential i.e. using the method from 
-c the CPL of Pople, Gill and Johnson 
-c
-      logical function xc_chklap()
-*
-      implicit none
-c
-#include "cdft.fh"
-c
-c     see if any Gradient Corrected Functional is not null
-c
-      double precision tot,eps
-      parameter(eps=1.d-10)
-c
-      tot = tsfac(2)
-c
-      if (abs(tot).gt.eps)then
-         xc_chklap = .true.
-      else
-         xc_chklap = .false.
-      end if
-c
-      return
-      end
-c
-cc AJL/End

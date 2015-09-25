@@ -79,6 +79,5 @@ c AJL/Begin/FDE
       integer iniz_fde(*), ifin_fde(*), ibf_fde(*)
       double precision xyz_fde(*), rq_fde(*)
       double precision rchi_atom_fde(*),rdelchi_atom_fde(*)
-      logical lap_fde
       double precision rho_int_fde
 cc AJL/End

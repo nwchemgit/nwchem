@@ -4191,16 +4191,31 @@ c     Thomas-Fermi (tf) (-> 100)
 c     General Expansion Approx., 2nd Order (gea0) (-> 100)
 c     pbe:
 c     von-Weizsacker (vw) (-> 200)
-c     General Expansion Approx., 2nd Order (gea2) (->300)
+c     General Expansion Approx., 2nd Order (gea2) (-> 300)
+c     Thomas-Fermi plus von Weisacker (tfw) (-> 400)
 c     
       integer num_dirs, ind, mlen
       parameter (num_dirs = 2)
       double precision tsfac(num_dirs)
-      character*12 dirs(2*num_dirs)
+      character*12 dirs(5)
       character*255 test
 c
 c
-      data dirs /'tf', 'vw', 'gea0', 'gea2'/
+      data dirs /'tf', 'vw', 'gea0', 'gea2', 'tfw'/
+c
+c Benchmarking of combinatorial functionals: Ts atomic energies
+c Previous results in brackets, our results following.
+c See the TF subroutine for more detailed discussion of test settings.
+c
+c - spin-paired: Jones and Gunnarsson, 10.1103/RevModPhys.61.689
+c --> He : GEA2 (2.8785), 2.8778 
+c --> Ne : GEA2 (127.79), 127.7898
+c
+c - spin-unpaired: Iyrngar et al., 10.1103/PhysRevA.63.052508,
+c --> H: GEA2 (0.511) , 0.512
+c        TFW  (0.956) , 0.972
+c --> C: GEA2 (37.56) , 37.639
+c        TFW  (66.179), 66.276
 c     
       mlen = inp_strlen(module)
       do ind=1,num_dirs
@@ -4209,14 +4224,14 @@ c
 c     
  10   if (.not.inp_a(test)) goto 1999
 c     
-      if (.not. inp_match(2*num_dirs, .false., test, dirs, ind)) then
+      if (.not. inp_match(5, .false., test, dirs, ind)) then
 c     
 c        Does not match a keyword ... 
 c     
          goto 10000
       endif
 c
-      goto (100, 200, 100, 300, 1999) ind
+      goto (100, 200, 100, 300, 400, 1999) ind
       call errquit('ts_input: unimplemented directive', ind, INPUT_ERR)
 c     
   100 if (.not. inp_f(tsfac(1))) then
@@ -4235,6 +4250,12 @@ c
       tsfac(2) = 1.d0/9.d0
 c
       goto 10
+c
+  400 continue
+      tsfac(1) = 1.d0
+      tsfac(2) = 1.d0
+c
+      goto 10
 c             
  1999 continue
 c
@@ -4246,7 +4267,7 @@ c
 c     
 10000 write(LuOut,10001)
 
-10001 format(/,' frozemb_ts [[tf], [vw], [gea0], [gea2]]')
+10001 format(/,' frozemb_ts [[tf], [vw], [gea0], [gea2], [tfw]]')
       call util_flush(LuOut)
       call errquit('ts_input: invalid format', 0, INPUT_ERR)
 c     

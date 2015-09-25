@@ -25,7 +25,7 @@ cc AJL/Begin/FDE
      &     Mmat_fde, Mmat2_fde,
      &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
      &     iniz_fde, ifin_fde, ibf_fde,
-     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
+     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, 
      &     rho_int_fde)
 cc AJL/End
 c
@@ -118,18 +118,14 @@ c     I     idum1,idum1,idum1,
      2     td_idum, td_ddum, td_ddum1,
      3     .false.,   !  false is for the dVxc*P contribution to the TDDFT grads
 cc AJL/Begin/FDE
-     &     fde_option,
-     &     g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &     fde_option, g_dens_fde, ncenters_fde, rdens_atom_fde,
      &     Fmat_fde, Pmat_fde, Bmat_fde,
-     &     ttau_fde, rho_fde, delrho_fde,
-     &     cetobfr_fde,
+     &     ttau_fde, rho_fde, delrho_fde, cetobfr_fde,
      &     Amat_fde, Amat2_fde, Amat3_fde,
-     &     Cmat_fde, Cmat2_fde, Cmat3_fde,
-     &     Mmat_fde, Mmat2_fde,
+     &     Cmat_fde, Cmat2_fde, Cmat3_fde, Mmat_fde, Mmat2_fde,
      &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
      &     iniz_fde, ifin_fde, ibf_fde,
-     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
-     &     rho_int_fde)
+     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde,rho_int_fde)
 cc AJL/End
 c
       return

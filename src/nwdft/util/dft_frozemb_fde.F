@@ -82,6 +82,8 @@ c     &    call errquit(pname//'failed duplicate',g_xcinv_fde, GA_ERR)
 c        call ga_zero(g_xcinv_fde)
 c      endif
 
+      return
+
       end
 
       subroutine dft_frozemb_fde(rtdb, g_frozemb, g_dens_fde) 
@@ -432,7 +434,76 @@ c Set nExc to 1 as we are only collecting Ts/ESP
 
       return
       end
+c
+      subroutine dft_frozemb_fde_esp(nqpts,qxyz,qwght,
+     &           mbf_ao,chi_ao,g_dens,g_vxc)
+c Works out the potential for the FDE over the QM density grid
+      implicit none
 
+c Called from grid_quadv0b to:
+c  -> Calculate potential at each point, embedding potential, 
+c     from FDE_bas_han (pass the xyz to hnd_elf_con w/ nder =0)
+c  -> Use acc_fock to accumulate this per basis (acc_fock, dft_frozemb)
+c  -> Then put this into a ga (ga_put/ga_acc, dft_frozemb)
+c In the long term it would be good if we could use the grid
+c pre-screening for points with zero potential, and to use mbf != nbf,
+c but for now I have used the simplest implementation possible
+
+#include "cdft.fh"
+#include "errquit.fh"
+c#include "grid_quad.fh"
+c#include "cgridfile.fh"
+#include "stdio.fh"
+c#include "bas.fh"
+#include "mafdecls.fh"
+c#include "global.fh"
+c#include "util.fh"
+c#include "grid_sic.fh"
+c#include "dftps.fh"
+c#include "geom.fh"
+
+      integer nqpts
+      double precision qxyz(3,nqpts), qwght(nqpts) ! Copied from grid_quad.fh
+      integer mbf_ao
+      double precision chi_ao(nqpts,mbf_ao)
+      integer g_dens(2),g_vxc(*) ! Copied from grid_quad.fh
+c local
+      integer l_epot, k_epot
+      integer l_fock_fde, k_fock_fde
+      integer l_ovlp, k_ovlp
+      character*32 pname
+      
+      pname = 'dft_frozemb_fde_esp'
+
+      if (.not. ma_push_get(mt_dbl,nqpts,'epot pnt',l_epot,k_epot))
+     &     call errquit(pname//'ma failed',911,MA_ERR)
+c      call dfill(nqpts,0,dbl_mb(k_epot),1)
+      call hnd_elfcon_fde(FD_bas_han, geom_fde, g_dens(1), qxyz,
+     &                    nqpts, dbl_mb(k_epot), 0)
+c Copied from dft_frozemb.F
+      if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,
+     &     'fock_fde', l_fock_fde, k_fock_fde))
+     &     call errquit(pname//'fock_fde ma failed',911,MA_ERR)
+      call dfill(mbf_ao*mbf_ao,0,dbl_mb(k_fock_fde),1)
+      if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,
+     &     'ovlp', l_ovlp, k_ovlp))
+     &     call errquit(pname//'ovlp ma failed',911,MA_ERR)
+      call dfill(mbf_ao*mbf_ao,0,dbl_mb(k_ovlp),1)
+c       calculate fock and overlap
+      call acc_fock(chi_ao, qwght, mbf_ao, nqpts,
+     &              dbl_mb(k_epot), dbl_mb(k_fock_fde), dbl_mb(k_ovlp))
+c       this is sequential, so lets accummumlate - not just put.
+      call ga_acc(g_vxc(1),1,mbf_ao,1,mbf_ao,dbl_mb(k_fock_fde),
+     &            mbf_ao, 1d0)
+
+      if (.not.ma_chop_stack(l_epot))
+     &     call errquit(pname//'cannot chop stack', 1, MA_ERR)
+
+
+      return
+
+      end
+c
       subroutine dft_frozemb_fde_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, 
      &                   g_xcinv_fde, g_dens, g_vxc_fde, IOLGC, 
      &                   fde_option, g_dens_fde)
@@ -467,44 +538,52 @@ c local
       double precision rho_n_fde
       character*32 output_string
 
+      integer me
+      me = ga_nodeid()
+
       if (ipol.gt.1)
 c     Restore alpha and beta densities.
      &  call ga_dadd(1d0, g_dens_fde(1), -1d0,
      &                    g_dens_fde(2), g_dens_fde(1))
 
       call ga_zero(g_vxc_fde(1))
+      if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
+
       rho_n_fde = 0.0d0
       Exc_fde(1) = 0.0d0
       Exc_fde(2) = 0.0d0
-      if (ipol.gt.1) call ga_zero(g_vxc_fde(2))
 
       call xc_getvxc(rtdb, Exc_fde, nExc, iVxc_opt, g_xcinv_fde,
      &               g_dens, g_vxc_fde, IOLGC, rho_n_fde,
      &               fde_option, g_dens_fde)
 
       if(util_print('frozemb nadd', print_debug)) then
-        write(luout,*)
-        if (fde_option.eq.2) then
-          output_string = 'Exc(QM)'
-        elseif (fde_option.eq.3) then
-          output_string = 'Exc(FDE)'
-        elseif (fde_option.eq.4) then
-          output_string = 'Exc(Non-add)'
-        elseif (fde_option.eq.5) then
-          output_string = 'Ts(QM)'
-        elseif (fde_option.eq.6) then
-          output_string = 'Ts(FDE)'
-        elseif (fde_option.eq.7) then
-          output_string = 'Ts(Non-add)'
-        else 
-          call errquit('Invalid value for FDE_option?',1,INPUT_ERR)
-        endif
+        if (me.eq.0) then
+          write(luout,*)
+          if (fde_option.eq.2) then
+            output_string = 'Exc(QM)'
+          elseif (fde_option.eq.3) then
+            output_string = 'Exc(FDE)'
+          elseif (fde_option.eq.4) then
+            output_string = 'Exc(Non-add)'
+          elseif (fde_option.eq.5) then
+            output_string = 'Ts(QM)'
+          elseif (fde_option.eq.6) then
+            output_string = 'Ts(FDE)'
+          elseif (fde_option.eq.7) then
+            output_string = 'Ts(Non-add)'
+          else 
+            call errquit('Invalid value for FDE_option?',1,INPUT_ERR)
+          endif
 
-        write(luout,*) output_string//' = ', Exc_fde
+          write(luout,*) output_string//' = ', Exc_fde
+          write(luout,*)
+        endif
 c
         call ga_print(g_vxc_fde(1))
         if (ipol.gt.1)  call ga_print(g_vxc_fde(2))
-        write(luout,*)
+c
+        if (me.eq.0) write(luout,*)
         call util_flush(luout)
       endif
 
@@ -512,6 +591,10 @@ c
 c     Recombine the FDE densities
      &  call ga_dadd(1d0, g_dens_fde(1), 1d0,
      &                    g_dens_fde(2), g_dens_fde(1))
+
+c Make sure we are all together.
+c      call ga_sync()
+      return
 
       end
 
@@ -568,6 +651,8 @@ c      if (XCFIT) then
 c        if (.not. ga_destroy(g_xcinv_fde)) call errquit
 c     &     (pname//'could not destroy g_xcinv_fde', 0, GA_ERR)
 c      endif !xcfit
+ 
+      return
 
       end
 

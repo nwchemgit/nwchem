@@ -28,18 +28,14 @@ c
      2     rhosave, delrhosave,
 cc AJL/Begin/FDE
 c     3     do_tddftvxc)
-     &     do_tddftvxc, fde_option,
-     &     g_dens_fde, ncenters_fde, rdens_atom_fde,
-     &     Fmat_fde, Pmat_fde, Bmat_fde,
-     &     ttau_fde, rho_fde, delrho_fde,
-     &     cetobfr_fde,
+     &     do_tddftvxc, fde_option, g_dens_fde, ncenters_fde, 
+     &     rdens_atom_fde, Fmat_fde, Pmat_fde, Bmat_fde,
+     &     ttau_fde, rho_fde, delrho_fde, cetobfr_fde,
      &     Amat_fde, Amat2_fde, Amat3_fde,
-     &     Cmat_fde, Cmat2_fde, Cmat3_fde,
-     &     Mmat_fde, Mmat2_fde,
+     &     Cmat_fde, Cmat2_fde, Cmat3_fde, Mmat_fde, Mmat2_fde,
      &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
-     &     iniz_fde, ifin_fde, ibf_fde,
-     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
-     &     rho_int_fde)
+     &     iniz_fde, ifin_fde, ibf_fde, xyz_fde, rchi_atom_fde, 
+     &     rdelchi_atom_fde, rq_fde, rho_int_fde)
 c
 cc AJL/End
      
@@ -133,7 +129,6 @@ cc AJL/Begin/FDE
       integer iniz_fde(*), ifin_fde(*), ibf_fde(*)
       double precision xyz_fde(*), rq_fde(*)
       double precision rchi_atom_fde(*),rdelchi_atom_fde(*)
-      logical lap_fde ! Need to get rid of this!
 cc AJL/End
 c
       logical  grid_file_write
@@ -239,18 +234,16 @@ c Daniel (1-11-13): Added XC-third derivative stuff
      1                    do_gxc, Amat3, Cmat3, ngxc,
      2                    rhosave, delrhosave, triplet,
 cc AJL/Begin/FDE
-     &                    do_tddftvxc, fde_option,
-     &                    g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &                    do_tddftvxc, fde_option, g_dens_fde, 
+     &                    ncenters_fde, rdens_atom_fde,
      &                    Fmat_fde, Pmat_fde, Bmat_fde,
-     &                    ttau_fde, rho_fde, delrho_fde,
-     &                    cetobfr_fde,
+     &                    ttau_fde, rho_fde, delrho_fde, cetobfr_fde,
      &                    Amat_fde, Amat2_fde, Amat3_fde,
-     &                    Cmat_fde, Cmat2_fde, Cmat3_fde,
-     &                    Mmat_fde, Mmat2_fde,
-     &                    ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau,
-     &                    g_fde, iniz_fde, ifin_fde, ibf_fde, xyz_fde, 
-     &                    rchi_atom_fde, rdelchi_atom_fde, rq_fde,
-     &                    lap_fde, rho_int_fde)
+     &                    Cmat_fde, Cmat2_fde, Cmat3_fde, Mmat_fde, 
+     &                    Mmat2_fde, ttau_qmfde, rho_qmfde,delrho_qmfde,
+     &                    len_ttau, g_fde, iniz_fde, ifin_fde, ibf_fde, 
+     &                    xyz_fde, rchi_atom_fde, rdelchi_atom_fde, 
+     &                    rq_fde, rho_int_fde)
 c
 cc AJL/End
 c
@@ -284,15 +277,13 @@ c Daniel (1-11-13): Added XC-third derivative stuff
 cc AJL/Begin/FDE
      &                    g_dens_fde, ncenters_fde, rdens_atom_fde,
      &                    Fmat_fde, Pmat_fde, Bmat_fde,
-     &                    ttau_fde, rho_fde, delrho_fde,
-     &                    cetobfr_fde,
+     &                    ttau_fde, rho_fde, delrho_fde, cetobfr_fde,
      &                    Amat_fde, Amat2_fde, Amat3_fde,
-     &                    Cmat_fde, Cmat2_fde, Cmat3_fde,
-     &                    Mmat_fde, Mmat2_fde,
-     &                    ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau,
-     &                    g_fde, iniz_fde, ifin_fde, ibf_fde, xyz_fde, 
-     &                    rchi_atom_fde, rdelchi_atom_fde, rq_fde,
-     &                    lap_fde, rho_int_fde) 
+     &                    Cmat_fde, Cmat2_fde, Cmat3_fde, Mmat_fde, 
+     &                    Mmat2_fde, ttau_qmfde, rho_qmfde,delrho_qmfde,
+     &                    len_ttau, g_fde, iniz_fde, ifin_fde, ibf_fde, 
+     &                    xyz_fde, rchi_atom_fde, rdelchi_atom_fde, 
+     &                    rq_fde, rho_int_fde) 
 cc AJL/End
                      endif
                   endif
@@ -325,14 +316,12 @@ cc AJL/Begin/FDE
      &                 g_dens_fde, ncenters_fde, rdens_atom_fde,
      &                 Fmat_fde, Pmat_fde, Bmat_fde,
      &                 ttau_fde, rho_fde, delrho_fde,
-     &                 cetobfr_fde,
-     &                 Amat_fde, Amat2_fde, Amat3_fde,
-     &                 Cmat_fde, Cmat2_fde, Cmat3_fde,
-     &                 Mmat_fde, Mmat2_fde,
-     &                 ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau,
-     &                 g_fde, iniz_fde, ifin_fde, ibf_fde, xyz_fde, 
-     &                 rchi_atom_fde, rdelchi_atom_fde, rq_fde,
-     &                 lap_fde, rho_int_fde)
+     &                 cetobfr_fde, Amat_fde, Amat2_fde, Amat3_fde,
+     &                 Cmat_fde, Cmat2_fde, Cmat3_fde, Mmat_fde, 
+     &                 Mmat2_fde, ttau_qmfde, rho_qmfde, delrho_qmfde, 
+     &                 len_ttau, g_fde, iniz_fde, ifin_fde, ibf_fde, 
+     &                 xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde,
+     &                 rho_int_fde)
 cc AJL/End
                    endif
                   ncubenz=ncubenz+1

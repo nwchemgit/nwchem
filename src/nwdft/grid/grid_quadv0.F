@@ -118,6 +118,10 @@ c
       logical lcpksl_gxc
 
 C AJL/BEGIN/FDE
+c It seems a bit excessive to have to declare all these extra variables
+c and pass them through the subroutines, but without some serious
+c re-writing of quadv0b there is no real alternative, as we need to
+c generate the density of both the QM and FDE systems where applicable
       integer ncenters_fde
       integer icetobfr_fde, lcetobfr_fde
       integer irdens_atom_fde, lrdens_atom_fde
@@ -157,9 +161,6 @@ c
       character*32 pname
       integer g_fde(4)
       integer i
-      logical lap_fde
-      logical xc_chklap
-      external xc_chklap
       double precision rho_int_fde
       integer fde_option
 
@@ -169,7 +170,6 @@ c     needed for -stackvar option
 #endif
 c    
       pname = 'grid_quadv0: '
-      lap_fde = xc_chklap()  
 cc AJL/End
 c
       me = ga_nodeid()
@@ -219,6 +219,7 @@ c
       do_gxc = calc_type .eq. 5 ! for 3rd derivatives
       do_xdm = calc_type .eq. 6
 C AJL/Begin/FDE
+c Defined options for FDE:
 c fde_option: 1 = ESP
 c             2 = QM with Exc FDE
 c             3 = FDE with Exc FDE
@@ -236,9 +237,7 @@ C AJL/End
 
       if (.not. (do_scf .or. do_cpks_l .or. do_cpks_r .or. 
      &    do_nmrks_r .or. do_gxc. or. do_xdm .or.
-cc AJL/Begin/FDE
      &    (fde_option .eq. 1))) then
-cc AJL/End
          call errquit(pname//'illegal calculation type',1,
      &       INPUT_ERR)
       endif
@@ -250,6 +249,8 @@ c
       end if
 c
 cc AJL/Begin/FDE
+c These need defining else it causes confusion when calculating the ESP
+c for frozen density embedding (fde_option.eq.1)
       len_rho = 1
       len_delrho = 1
 cc AJL/End
@@ -355,13 +356,15 @@ c
      &   call errquit(pname//'cannot allocate atom list',0, MA_ERR)
       if (.not.MA_Push_get(MT_int,nctrs,'atom nbf',lfin,ifin))
      &   call errquit(pname//'cannot allocate atom nbf',0, MA_ERR)
-      nexpo=nbf_ao_mxprim
 cc AJL/Begin/FDE
+c Check for largest value of nbf
+      nexpo=nbf_ao_mxprim
       if(xcfit)nexpo=max(nexpo,nbf_xc_mxprim)
       if(fde_option.gt.0)nexpo=max(nexpo,nbf_fde_mxprim)
-cc AJL/End
-      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
+c      if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
+      if (.not.MA_Push_Get(MT_Dbl,nexpo,'expo',lexpo,iexpo))
      &   call errquit(pname//'cannot allocate expo',0, MA_ERR)
+cc AJL/End
 c
       ncoef_max = nbf_ao_mxnbf_cn * nbf_ao_mxprim
       if(xcfit) ncoef_max=max(ncoef_max,nbf_xc_mxnbf_cn * nbf_xc_mxprim)
@@ -440,6 +443,7 @@ c
 c
 c
 cc AJL/BEGIN/FDE
+c Duplicates of the above allocations but for the FDE environment
       if (fde_option.eq.3.or.fde_option.eq.4.or.
      &    fde_option.eq.6.or.fde_option.eq.7) then
 c
@@ -764,8 +768,7 @@ cc AJL/Begin/FDE
      &        dbl_mb(idelrho_qmfde), len_ttau, g_fde,
      &        int_mb(iniz_fde), int_mb(ifin_fde), int_mb(i_ibf_fde), 
      &        dbl_mb(ixyz_fde), dbl_mb(i_rchi_atom_fde),
-     &        dbl_mb(irdelchi_atom_fde), dbl_mb(i_rq_fde), lap_fde,
-     &        rho_int_fde)
+     &        dbl_mb(irdelchi_atom_fde), dbl_mb(i_rq_fde), rho_int_fde)
 cc AJL/End
       else
 c
@@ -825,8 +828,7 @@ cc AJL/Begin/FDE
      &        dbl_mb(idelrho_qmfde), len_ttau, g_fde,
      &        int_mb(iniz_fde), int_mb(ifin_fde), int_mb(i_ibf_fde),
      &        dbl_mb(ixyz_fde), dbl_mb(i_rchi_atom_fde),
-     &        dbl_mb(irdelchi_atom_fde), dbl_mb(i_rq_fde), lap_fde,
-     &        rho_int_fde)
+     &        dbl_mb(irdelchi_atom_fde), dbl_mb(i_rq_fde), rho_int_fde)
 cc AJL/End
 c
          if (.not. MA_chop_Stack(lqs))
@@ -849,6 +851,10 @@ c end Qin
 
 c     
 C AJL/Begin/FDE
+c Calculate the non-additive potential by removing the potential for the
+c FDE from the potential for the combined system. This cannot be
+c achieved at a deeper level because the global arrays are only available
+c here upwards
       if (fde_option.eq.4.or.fde_option.eq.7) then
         do i=1,ipol
           call ga_dadd(1d0, g_vxc(i), -1d0, g_fde(i), g_vxc(i))
@@ -876,6 +882,7 @@ c
 c
 cc AJL/Begin/FDE
       if (fde_option.eq.1) then
+c Skip through as we are calculating ESP on the grid
         continue
       else
         if(xcfit) call ga_dgop(Msg_Tmat,Tmat,nbf_xc*ipol,'+')

@@ -484,7 +484,7 @@ c     == Add FDE non-additive Exc in to the Exc ==
           enddo
 c
 c Repeat for Non-additive Ts; set nExc explicitly to 1 as not
-c spin-polarised in definition
+c interested in separating our exchange and correlation!
 c
 cc Ts(QM)
 c        call dft_frozemb_fde_getvxc(rtdb, Exc_fde, 1, iVxc_opt,

@@ -37,7 +37,7 @@ c     3     do_tddftvxc)
      &     Mmat_fde, Mmat2_fde,
      &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
      &     iniz_fde, ifin_fde, ibf_fde,
-     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
+     &     xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, 
      &     rho_int_fde)
 c
 cc AJL/End

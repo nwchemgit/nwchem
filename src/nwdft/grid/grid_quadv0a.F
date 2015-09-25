@@ -12,18 +12,14 @@
      & StericEnergyTotal,
 cc AJL/Begin/FDE
 c
-     & do_gxc, Amat3, Cmat3, fde_option,
-     & g_dens_fde, ncenters_fde, rdens_atom_fde,
-     & Fmat_fde, Pmat_fde, Bmat_fde,
-     & ttau_fde, rho_fde, delrho_fde,
-     & cetobfr_fde,
+     & do_gxc, Amat3, Cmat3, fde_option, g_dens_fde, ncenters_fde, 
+     & rdens_atom_fde, Fmat_fde, Pmat_fde, Bmat_fde,
+     & ttau_fde, rho_fde, delrho_fde, cetobfr_fde,
      & Amat_fde, Amat2_fde, Amat3_fde,
-     & Cmat_fde, Cmat2_fde, Cmat3_fde,
-     & Mmat_fde, Mmat2_fde,
+     & Cmat_fde, Cmat2_fde, Cmat3_fde, Mmat_fde, Mmat2_fde,
      & ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
      & iniz_fde, ifin_fde, ibf_fde,
-     & xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, lap_fde,
-     & rho_int_fde)
+     & xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde, rho_int_fde)
 c
 cc AJL/End
 c
@@ -208,19 +204,14 @@ c
      1       do_gxc, Amat3, Cmat3,
      Q       dbl_mb(k_becke),
 cc AJL/Begin/FDE
-     &       fde_option,
-     &       g_dens_fde, ncenters_fde, rdens_atom_fde,
-     &       Fmat_fde, Pmat_fde, Bmat_fde,
-     &       ttau_fde, rho_fde, delrho_fde,
-     &       cetobfr_fde,
-     &       Amat_fde, Amat2_fde, Amat3_fde,
-     &       Cmat_fde, Cmat2_fde, Cmat3_fde,
-     &       Mmat_fde, Mmat2_fde,
+     &       fde_option, g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &       Fmat_fde, Pmat_fde, Bmat_fde,ttau_fde, rho_fde, delrho_fde,
+     &       cetobfr_fde, Amat_fde, Amat2_fde, Amat3_fde,
+     &       Cmat_fde, Cmat2_fde, Cmat3_fde, Mmat_fde, Mmat2_fde,
      &       ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
-     &       iniz_fde, ifin_fde, ibf_fde,
-     &       xyz_fde, rchi_atom_fde, rdelchi_atom_fde, rq_fde,
-     &       int_mb(ibas_cent_info_fde), int_mb(ibas_cset_info_fde),
-     &       log_mb(idocset_fde), lap_fde, rho_int_fde)
+     &       iniz_fde, ifin_fde, ibf_fde, xyz_fde, rchi_atom_fde, 
+     &       rdelchi_atom_fde, rq_fde, int_mb(ibas_cent_info_fde), 
+     &       int_mb(ibas_cset_info_fde),log_mb(idocset_fde),rho_int_fde)
 cc AJL/End
 c
              ntot_cube=ntot_cube+1

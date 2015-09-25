@@ -19,20 +19,14 @@
      &     do_gxc, Amat3, Cmat3,
      Q     qbecke,
 cc AJL/Begin/FDE
-     &     fde_option,
-     &     g_dens_fde, ncenters_fde, rdens_atom_fde,
-     &     Fmat_fde, Pmat_fde, Bmat_fde,
-     &     ttau_fde, rho_fde, delrho_fde,
-     &     cetobfr_fde,
-     &     Amat_fde, Amat2_fde, Amat3_fde,
-     &     Cmat_fde, Cmat2_fde, Cmat3_fde,
-     &     Mmat_fde, Mmat2_fde,
+     &     fde_option, g_dens_fde, ncenters_fde, rdens_atom_fde,
+     &     Fmat_fde, Pmat_fde, Bmat_fde, ttau_fde, rho_fde, delrho_fde,
+     &     cetobfr_fde, Amat_fde, Amat2_fde, Amat3_fde,
+     &     Cmat_fde, Cmat2_fde, Cmat3_fde, Mmat_fde, Mmat2_fde,
      &     ttau_qmfde, rho_qmfde, delrho_qmfde, len_ttau, g_fde,
      &     iniz_fde, ifin_fde, ibf_fde, xyz_fde,
      &     rchi_atom_fde, rdelchi_atom_fde, rq_fde,
-     &     bas_cent_info_fde, bas_cset_info_fde, docset_fde, lap_fde,
-     &     rho_int_fde)
-
+     &     bas_cent_info_fde, bas_cset_info_fde, docset_fde,rho_int_fde)
 cc AJL/End
 c
       implicit none
@@ -88,11 +82,7 @@ c
       logical docset_fde(*)
       double precision bas_cent_info_fde(3,ncenters_fde)
       double precision bas_cset_info_fde(6,*)
-      logical need_lap_for_fde
 
-      integer l_ovlp, k_ovlp
-      integer l_fock_fde, k_fock_fde
-      integer l_epot, k_epot
       integer lchi_fde, ichi_fde
       integer ldelchi_fde, idelchi_fde
       integer lheschi_fde, iheschi_fde
@@ -121,22 +111,13 @@ c
       StericEnergy_qm = 0.0d0
       StericEnergy_fde = 0.0d0
       StericEnergy_tot = 0.0d0
-C I implemented this before I saw the CPL of Pople, Gill and Johnson
-C (1992). Essentially I need to reformulate the Ts terms without the
-C need for the Laplacian of rho. But for now, it works.
-C TO DO: Remove Laplacian requirement. Should be easy to do -
-C we just need to set lap_fde to false to get it working
-      need_lap_for_fde = (lap_fde .and. fde_option.gt.4)
-c
-CC AJL/End
 
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(nqpts.eq.0) return
 cc AJL/Begin/FDE
-c      if (do_xdm) then
-      if (do_xdm.or.need_lap_for_fde) then
+      if (do_xdm) then
          maxdbas = 2
       elseif (grad) then
          maxdbas = 1
@@ -166,7 +147,7 @@ c
          call icopy(mbf_ao, 0,0, ibf_ao, 1)  
 cc AJL/Begin/FDE
 c         if (fde_option.lt.1) then
-c No need to pre-screen if we are just calculating ESP
+c No need to pre-screen basis functions if we are calculating ESP
          if (fde_option.ne.1) then
            mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
      &            ictr_buf,rad,xyz,qxyz,nqpts,
@@ -174,7 +155,7 @@ c No need to pre-screen if we are just calculating ESP
      &            minexp,ldiff,acc_ao_gauss,iatype_pt_chg)
 c         else if (fde_option.eq.1) then
          else
-c Calculating just the ESP over the grid:
+c Calculating the ESP over the grid:
            if (.not.bas_numcont(AO_bas_han, ncontrset))
      &       call errquit('Exiting in grid_quadv0b',0, BASIS_ERR)
            do i=1,natoms
@@ -191,6 +172,7 @@ c           enddo
 cc AJL/End
          if (mbf_ao.eq.0) return
       else
+c We've only got one atom
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('Exiting in grid_quadv0b',0, BASIS_ERR)
          iniz(1)=1
@@ -204,6 +186,7 @@ cc AJL/End
       endif
 
 cc AJL/Begin/FDE
+c Perform the same process of screening relevant basis functions 
       if (fde_option.eq.3.or.fde_option.eq.4.or.
      &    fde_option.eq.6.or.fde_option.eq.7) then
         mbf_fde=nbf_fde
@@ -238,15 +221,14 @@ cc AJL/Begin/FDE
            call errquit(pname//'cant alloc delchi_fde',0,0)
            endif
         endif
-c To do: xdm and sic
-c For now I think they are disabled.... to test.
-        if (do_xdm.or.need_lap_for_fde) then
-           if (.not.MA_Push_Get(mt_dbl, 6*nqpts*mbf_fde,
-     &           'heschi_fde', lheschi_fde, iheschi_fde)) then
-               call errquit(pname//'cant alloc heschi_fde',0,0)
-           endif
-        endif
-      endif
+c XDM and SIC are disabled for FDE.... needs further testing
+c        if (do_xdm) then
+c           if (.not.MA_Push_Get(mt_dbl, 6*nqpts*mbf_fde,
+c     &           'heschi_fde', lheschi_fde, iheschi_fde)) then
+c               call errquit(pname//'cant alloc heschi_fde',0,0)
+c           endif
+c        endif
+      endif ! fde_option.eq.(3 or 4 or 6 or 7)
 cc AJL/End
 
       if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
@@ -259,10 +241,7 @@ cc AJL/End
            call errquit(pname//'cant alloc delchi_ao',0,0)
         endif
       endif
-cc AJL/Begin/FDE
-c      if (do_xdm) then
-      if (do_xdm.or.need_lap_for_fde) then
-cc AJL/End
+      if (do_xdm) then
          if (.not.MA_Push_Get(mt_dbl, 6*nqpts*mbf_ao,
      &        'heschi_ao', lheschi_ao, iheschi_ao)) then
             call errquit(pname//'cant alloc heschi_ao',0,0)
@@ -283,6 +262,7 @@ cc AJL/End
      &     iniz, docset, bas_cent_info, bas_cset_info)
 
 cc AJL/BEGIN/FDE
+c Evaluate the basis over the grid for FDE
       if (fde_option.eq.3.or.fde_option.eq.4.or.
      &    fde_option.eq.6.or.fde_option.eq.7) then
 c
@@ -300,40 +280,11 @@ c
       if (odftps) call pstat_off(ps_ebf)
 c
 C AJL/BEGIN/FDE
-c  -> Calculate potential at each point, embedding potential, 
-c     from FDE_bas_han (pass the xyz to hnd_elf_con w/ nder =0)
-c  -> Use acc_fock to accumulate this per basis (acc_fock, dft_frozemb)
-c  -> Then put this into a ga (ga_put/ga_acc, dft_frozemb)
-c In the long term it would be good if we could use the grid
-c pre-screening for points with zero potential, and to use mbf != nbf,
-c but for now I have used the simplest implementation possible
-
       if (fde_option.eq.1) then
-        if (.not. ma_push_get(mt_dbl,nqpts,'epot pnt',l_epot,k_epot))
-     &     call errquit(pname//'ma failed',911,MA_ERR)
-c        call dfill(nqpts,0,dbl_mb(k_epot),1)
-        call hnd_elfcon_fde(FD_bas_han, geom_fde, g_dens(1), qxyz,
-     &                  nqpts, dbl_mb(k_epot), 0)
-c Copied from dft_frozemb.F
-        if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,
-     &     'fock_fde', l_fock_fde, k_fock_fde))
-     &     call errquit(pname//'fock_fde ma failed',911,MA_ERR)
-        call dfill(mbf_ao*mbf_ao,0,dbl_mb(k_fock_fde),1)
-        if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,
-     &     'ovlp', l_ovlp, k_ovlp))
-     &     call errquit(pname//'ovlp ma failed',911,MA_ERR)
-        call dfill(mbf_ao*mbf_ao,0,dbl_mb(k_ovlp),1)
-c       calculate fock and overlap
-        call acc_fock(dbl_mb(ichi_ao), qwght, mbf_ao, nqpts, 
-     &               dbl_mb(k_epot), dbl_mb(k_fock_fde), dbl_mb(k_ovlp))
-c
-c       this is sequential, so lets accummumlate - not just put.
-        call ga_acc(g_vxc(1),1,mbf_ao,1,mbf_ao,dbl_mb(k_fock_fde),
-     &       mbf_ao, 1d0) 
-c
-        if (.not.ma_chop_stack(l_epot))
-     &     call errquit(pname//'cannot chop stack', 1, MA_ERR)
-
+c Calculate potential at each point, embedding potential.
+c Outsourced this to a subroutine: 
+        call dft_frozemb_fde_esp(nqpts,qxyz,qwght,
+     &       mbf_ao,dbl_mb(ichi_ao),g_dens,g_vxc)
 c We're finished so lets jump to the final deallocates
         goto 2020
       endif ! fde_option = 1
@@ -347,10 +298,13 @@ c
      .     call util_rmsatbf(3*nqpts, natoms,iniz,ifin,
      ,     dbl_mb(idelchi_ao),rdelchi_atom)
 cc AJL/Begin/FDE
+c We pre-screen grid points to see if they meet a threshold only if the
+c calculation involves addressing the QM density only. For the FDE and
+c combined systems we cannot screen in this same way as it will results in
+c losing useful grid points
       if (fde_option.eq.0.or.fde_option.eq.2.or.fde_option.eq.5)
 c      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
-cc AJL/End
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
      ,     ipol,iscratch)
@@ -358,8 +312,7 @@ cc AJL/End
      &     'Dmat', lDmat,iDmat))
      &     call errquit(pname//'cannot allocate Dmat',0,
      &    MA_ERR)
-
-c AJL/Begin
+c This could probably be turned in to an "else" without harm
       if (fde_option.eq.3.or.fde_option.eq.4.or.
      &    fde_option.eq.6.or.fde_option.eq.7) then
 c
@@ -372,6 +325,7 @@ c
      .       ifin_fde, dbl_mb(idelchi_fde), rdelchi_atom_fde)
 c Not sure if want to pre-screen with the FDE basis - otherwise might lose
 c valuable points from the QM environment. Only applied for FDE calcs.
+c For combined systems we cannot use this method of removing grid points
         if (fde_option.eq.3.or.fde_option.eq.6)
      ,       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,ncenters_fde,
      ,       rchi_atom_fde,rdelchi_atom_fde,
@@ -388,11 +342,7 @@ c AJL/End
 
       if(nqpts.eq.0) goto 2010
 
-c     allocate space for laplacian
-cc AJL/Begin/FDE
-c      if (do_xdm) then
-      if (do_xdm.or.need_lap_for_fde) then
-cc AJL/End
+      if (do_xdm) then
          if (.not.MA_Push_Get(mt_dbl,nqpts*ipol*(ipol+1)/2,
      &        'lap', llap,ilap))
      &        call errquit('grid_quadv0b: cannot allocate lap',0,
@@ -411,10 +361,7 @@ cc AJL/End
      &        ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap),
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax, 
-cc AJL/Begin/FDE
-c     &        ttau, kske, do_xdm)
-     &        ttau, kske, (do_xdm.or.need_lap_for_fde))
-cc AJL/End
+     &        ttau, kske, do_xdm)
          if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
@@ -441,26 +388,20 @@ cc AJL/End
        call errquit(pname//'what do do for cpks rhs?',0, CALC_ERR)
       endif
 
-cc AJL/Debug
-c      if (do_xdm.or.need_lap_for_fde)
-c     &    call output(dbl_mb(ilap),1,nqpts,1,
-c     &               ipol*(ipol+1)/2,nqpts,ipol*(ipol+1)/2,1)
-
 c AJL/Begin
+c Generate density for FDE on QM grid
       if (fde_option.eq.3.or.fde_option.eq.4.or.
      &    fde_option.eq.6.or.fde_option.eq.7) then
-c Need this for the potential of the VW functional it seems
 
-        if (do_xdm.or.need_lap_for_fde) then
-          if (.not.MA_Push_Get(mt_dbl,nqpts*ipol*(ipol+1)/2,
-     &        'lap', llap_fde, ilap_fde))
-     &        call errquit(pname//'cannot allocate lap',0,
-     &        MA_ERR)
-cc AJL/Debug
-c          call output(dbl_mb(ilap_fde),1,nqpts,1,
-c     &               ipol*(ipol+1)/2,nqpts,ipol*(ipol+1)/2,1)
-        endif
+c Currently disabled. To be tested
+c        if (do_xdm) then
+c          if (.not.MA_Push_Get(mt_dbl,nqpts*ipol*(ipol+1)/2,
+c     &        'lap', llap_fde, ilap_fde))
+c     &        call errquit(pname//'cannot allocate lap',0,
+c     &        MA_ERR)
+c        endif
 
+c wmax is already defined further above
 c        wmax= dabsmax(nqpts,qwght)
         if(do_scf.or.do_xdm.or.do_nmrks_r) then
            if (odftps) call pstat_on(ps_xcrho)
@@ -475,9 +416,9 @@ c     &          dbl_mb(ichi_fde), dbl_mb(idelchi_fde), 0d0,
      &          rho_fde, delrho_fde, dbl_mb(ilap_fde),
      &          rchi_atom_fde, rdelchi_atom_fde,
      &          rdens_atom_fde, cetobfr_fde, wmax,
-     &          ttau_fde, kske, (do_xdm.or.need_lap_for_fde))
+     &          ttau_fde, kske, do_xdm)
            if (odftps) call pstat_off(ps_xcrho)
-c To do: SIC
+c Also currently disabled. To be tested 
 c           if (sic_orb_index.eq.1) then
 c              call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
 c     ,          rho,delrho,grad,ibf_ao, iniz, ifin,
@@ -524,7 +465,6 @@ c
       endif
 
       if(do_scf.and.abs(rho0-rho_int).lt.tol_rho) goto 2010
-c     
 c
 c     Evaluate the XC potential and energy sampling matrices.
 c     Set up pointer to the SCF density for the CPS LHS case.
@@ -552,12 +492,10 @@ c
       do_2nd = (do_cpks_l .or. do_cpks_r)
 
 cc AJL/Comment
-c Ignoring xdm for FDE. Need to catch this error earlier 
-c Update: Added a catch for XDM and SIC in dft_scf
+c XDM is disabled for FDE
       if (do_xdm) then
          call xc_eval_xdm(rho,delrho,dbl_mb(ilap),nqpts,
-     &        qxyz,qwght,ttau,
-     &        natoms,xyz,
+     &        qxyz,qwght,ttau, natoms,xyz,
      &        dbl_mb(ixdm_v),dbl_mb(ixdm_ml))
       else
 
@@ -567,8 +505,9 @@ c ldew2, which is used for TDDFT gradients to prevent weighting of the
 c XC-derivative matrices.
 c
 cc AJL/Begin/FDE
-c
+c Evaluate the energy from the specific functional/density
         if (fde_option.eq.0) then
+c Standard assessment of QM density using QM settings
           call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), 
      &         Amat, Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &         grad, .false., 0d0, do_2nd, 
@@ -586,10 +525,8 @@ c Assessment of QM contribution for non-Additive exchange-correlation
         elseif (fde_option.eq.5.or.fde_option.eq.7) then
 c Kinetic Energy for QM contribution (FDE)
           call ts_eval_fnl(rho(iscf_rho), delrho(iscf_delrho),
-     &       dbl_mb(ilap),
      &       Amat, Amat2, Cmat, Cmat2, nqpts, Ex_qm, qwght,
-     &       grad, .false., 0d0, do_2nd,
-     &       ttau, kske, Mmat, Mmat2,
+     &       grad, .false., 0d0, do_2nd, ttau, kske, Mmat, Mmat2,
      &       do_3rd, Amat3, Cmat3, .false.)
         endif !fde_option
 
@@ -604,12 +541,10 @@ cc Assessment of MM contribution for non-Additive exchange-correlation
      &       StericEnergy_fde,
      &       do_3rd, Amat3_fde, Cmat3_fde, .false.)
         elseif (fde_option.eq.6.or.fde_option.eq.7) then
-c Kinetic Energy
+c Assessment of MM contribution for non-Additive Kinetic Energy 
           call ts_eval_fnl(rho_fde(iscf_rho), delrho_fde(iscf_delrho),
-     &       dbl_mb(ilap_fde),
      &       Amat_fde, Amat2_fde, Cmat_fde, Cmat2_fde, nqpts, Ex_fde,
-     &       qwght,
-     &       grad, .false., 0d0, do_2nd,
+     &       qwght, grad, .false., 0d0, do_2nd,
      &       ttau_fde, kske, Mmat_fde, Mmat2_fde,
      &       do_3rd, Amat3_fde, Cmat3_fde, .false.)
         endif !fde_option
@@ -633,10 +568,6 @@ c
             call daxpy(len_ttau, 1.d0, ttau_fde, 1, ttau_qmfde, 1)
           endif
 c
-          if (need_lap_for_fde) 
-     &       call daxpy(nqpts*ipol*(ipol+1)/2, 1.d0,
-     &                  dbl_mb(ilap), 1, dbl_mb(ilap_fde), 1)
-
 cc Assessment of QM/FDE contribution for non-Additive exchange-correlation
           if (fde_option.eq.4) then
           call xc_eval_fnl_fde(rho_qmfde(iscf_rho), 
@@ -650,10 +581,9 @@ cc Assessment of QM/FDE contribution for non-Additive exchange-correlation
           elseif (fde_option.eq.7) then
 c Kinetic Energy of combined system
           call ts_eval_fnl(rho_qmfde(iscf_rho), 
-     &       delrho_qmfde(iscf_delrho), dbl_mb(ilap_fde),
+     &       delrho_qmfde(iscf_delrho), 
      &       Amat_fde, Amat2_fde, Cmat_fde, Cmat2_fde, nqpts, 
-     &       Ex_tot, qwght,
-     &       grad, .false., 0d0, do_2nd,
+     &       Ex_tot, qwght, grad, .false., 0d0, do_2nd,
      &       ttau_qmfde, kske, Mmat_fde, Mmat2_fde,
      &       do_3rd, Amat3_fde, Cmat3_fde, .false.)
           endif !fnl_eval
@@ -720,6 +650,7 @@ c
             if (odftps) call pstat_on(ps_tabcd)
 
 cc AJL/Begin/FDE
+c Evaluate potentials for QM contributions on QM grid
             if (fde_option.eq.0
      &          .or.fde_option.eq.2.or.fde_option.eq.4.
      &          .or.fde_option.eq.5.or.fde_option.eq.7) then

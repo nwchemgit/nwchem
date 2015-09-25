@@ -22,8 +22,7 @@ C> - the kinetic energy 1st order partial derivatives wrt density
 C>
 C> as desired.
 C>
-      Subroutine ts_eval_fnl(rho, delrho, del2rho, 
-     &                       Amat, Amat2, Cmat, Cmat2,
+      Subroutine ts_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ts, qwght, grad, ldew, func,
      &                       do_2nd, ttau, kske, Mmat, Mmat2,
      &                       do_3rd, Amat3, Cmat3, ldew2)
@@ -48,7 +47,6 @@ c      integer nq, is12x
                                  !< \f$\partial\rho^\alpha/\partial r\f$
                                  !< and
                                  !< \f$\partial\rho^\beta/\partial r\f$
-      double precision del2rho(*)!< [Input] 2nd derivative of rho
 c
       double precision Amat(*), Cmat(*)    
       double precision Amat2(*),Cmat2(*)
@@ -120,7 +118,7 @@ c     &           .false., func)
       if(tsfac(2).gt.eps) then 
          if (.not. do_2nd .and. .not. do_3rd) then
             call ts_vw(tol_rho, tsfac(2), 0.0d0, 0.0d0, rho,
-     &           delrho, del2rho, Amat, Cmat, nq, ipol, 
+     &           delrho, Amat, Cmat, nq, ipol, 
      &           Ts, qwght, ldew, func)
 !         else if (.not. do_3rd) then
 !            call ts_vw_d2(tol_rho, 1.d0, 0.d0, 0.d0, rho,
