@@ -84,6 +84,9 @@ c
       external omp_get_max_threads
       if (ga_nodeid().eq.0) write(6,99) omp_get_max_threads()
    99 format(2x,'Using ',i2,' OpenMP threads in CCSD(T)')
+#else
+      if (ga_nodeid().eq.0) write(6,99)
+   99 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD(T)')
 #endif
 c
       nodes = ga_nnodes()
