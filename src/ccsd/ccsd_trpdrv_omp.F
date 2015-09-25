@@ -5,29 +5,33 @@
      &     oseg_lo,oseg_hi,
      &     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
      &     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
-C     $Id$
+!     $Id$
       implicit none
-c
+!
 #include "global.fh"
 #include "ccsd_len.fh"
 #include "ccsdps.fh"
-c
+!
       integer ncor,nocc,nvir
       double precision t1(*)
+! TODO: f[1234][nt] should be allocated on the heap and with fastmem on KNL
       double precision f1n(nvir,nvir),f1t(nvir,nvir)
       double precision f2n(nvir,nvir),f2t(nvir,nvir)
       double precision f3n(nvir,nvir),f3t(nvir,nvir)
       double precision f4n(nvir,nvir),f4t(nvir,nvir)
+! TODO: allocate a copy of eorb on heap with fastmem for KNL
       double precision eorb(*)
+! TODO: determine if these should be allocated w/ fastmem in parent subroutine
       double precision Tij(*), Tkj(*), Tia(*), Tka(*)
       double precision Xia(*), Xka(*)
       double precision Jia(*), Jka(*), Jij(*), Jkj(*)
       double precision Kia(*), Kka(*), Kij(*), Kkj(*)
       double precision Dja(*), Djka(*), Djia(*)
 ! used to make inline threaded tengy correct - for now
+! TODO: allocate these on the heap and with fastmem on KNL
       double precision dintc1(nvir),dintx1(nvir),t1v1(nvir)
       double precision dintc2(nvir),dintx2(nvir),t1v2(nvir)
-c
+!
       double precision emp4,emp5,denom
       double precision emp4i,emp5i,emp4k,emp5k
       double precision eaijk
@@ -38,43 +42,43 @@ c
       integer klo, khi, kchunk
       integer nxtask
       external nxtask
-c
-c  Dependencies (global array, local array, handle):
-c
-c  These are waited on first
-c
-c      g_objv, Dja,  nbh_objv1
-c      g_objv, Djka(1+(k-klo)*nvir), nbh_objv4(k)
-c      g_objv, Djia, nbh_objv5
-c
-c  These are waited on later
-c
-c      g_objv, Tka,  nbh_objv2
-c      g_objv, Xka,  nbh_objv3
-c      g_objv, Tia,  nbh_objv6
-c      g_objv, Xia,  nbh_objv7
-c      g_objo, Tkj,  nbh_objo1
-c      g_objo, Jkj,  nbh_objo2
-c      g_objo, Kkj,  nbh_objo3
-c      g_objo, Tij,  nbh_objo4
-c      g_objo, Jij,  nbh_objo5
-c      g_objo, Kij,  nbh_objo6
-c      g_exch, Kka,  nbh_exch1
-c      g_exch, Kia,  nbh_exch2
-c      g_coul, Jka,  nbh_coul1
-c      g_coul, Jia,  nbh_coul2
-c
-c  non-blocking handles
-c
+!
+!  Dependencies (global array, local array, handle):
+!
+!  These are waited on first
+!
+!      g_objv, Dja,  nbh_objv1
+!      g_objv, Djka(1+(k-klo)*nvir), nbh_objv4(k)
+!      g_objv, Djia, nbh_objv5
+!
+!  These are waited on later
+!
+!      g_objv, Tka,  nbh_objv2
+!      g_objv, Xka,  nbh_objv3
+!      g_objv, Tia,  nbh_objv6
+!      g_objv, Xia,  nbh_objv7
+!      g_objo, Tkj,  nbh_objo1
+!      g_objo, Jkj,  nbh_objo2
+!      g_objo, Kkj,  nbh_objo3
+!      g_objo, Tij,  nbh_objo4
+!      g_objo, Jij,  nbh_objo5
+!      g_objo, Kij,  nbh_objo6
+!      g_exch, Kka,  nbh_exch1
+!      g_exch, Kia,  nbh_exch2
+!      g_coul, Jka,  nbh_coul1
+!      g_coul, Jia,  nbh_coul2
+!
+!  non-blocking handles
+!
        integer nbh_objv1,nbh_objv2,nbh_objv3
        integer nbh_objv5,nbh_objv6,nbh_objv7
        integer nbh_objv4(nocc)
-c
+!
        integer nbh_objo1,nbh_objo2,nbh_objo3
        integer nbh_objo4,nbh_objo5,nbh_objo6
-c
+!
        integer nbh_exch1,nbh_exch2,nbh_coul1,nbh_coul2
-c
+!
 #if defined(USE_OPENMP)
       integer  omp_get_thread_num
       external omp_get_thread_num
@@ -88,12 +92,12 @@ c
       if (ga_nodeid().eq.0) write(6,99)
    99 format(2x,'Recompile w/ USE_OPENMP=1 to use threads in CCSD(T)')
 #endif
-c
+!
       nodes = ga_nnodes()
       iam = ga_nodeid()
-c
-c      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
-c
+!
+!      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
+!
       if (occsdps) then
          call pstat_on(ps_trpdrv)
       else
@@ -352,10 +356,10 @@ c
                          end if ! (i.ne.k)
                      end do    ! k
                   end do       ! i
-c                  if (iprt.gt.50)then
-c                     write(6,1234)iam,a,j,emp4,emp5
-c 1234                format(' iam aijk',3i5,2e15.5)
-c                  end if
+!                  if (iprt.gt.50)then
+!                     write(6,1234)iam,a,j,emp4,emp5
+! 1234                format(' iam aijk',3i5,2e15.5)
+!                  end if
                   next=nxtask(nodes, 1)
                end if
             end do
@@ -379,5 +383,5 @@ c                  end if
       else
          call qexit('trpdrv',0)
       endif
-c
+!
       end
