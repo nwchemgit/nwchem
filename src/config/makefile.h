@@ -19,7 +19,7 @@
 # For development tree 
 RELEASE := 
 # For current release tree
-#RELEASE := 6.5
+#RELEASE := 6.6
 
 #
 
@@ -1188,7 +1188,7 @@ ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -L/home/edo/tcltk/lib/LINUX -ltk8.3 -ltcl8.3 -L/usr/X11R6/lib -lX11 -ldl
 # needed if python was built with pthread support
   ifneq ($(GOTMINGW32),1)
-   EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --libs) -lz -lnwcutil
+   EXTRA_LIBS += $(shell $(PYTHONHOME)/bin/python-config --libs)  -lnwcutil
   endif
 endif
 
@@ -2440,6 +2440,8 @@ endif
  
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 COMM_LIBS +=  $(shell grep ARMCI_NETWORK_LDFLAGS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 24-)
+#comex bit
+COMM_LIBS +=  $(shell grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-)
 
 ifdef COMM_LIBS 
  CORE_LIBS += $(COMM_LIBS) 
