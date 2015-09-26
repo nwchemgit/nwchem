@@ -183,7 +183,7 @@ c
       endif
 c
       call ga_brdcst(Msg_dftg_cdf,CD_coef,
-     M     ma_sizeof(MT_LOG,nbf_cd,MT_BYTE),0)
+     M     ma_sizeof(MT_DBL,nbf_cd,MT_BYTE),0)
 c      
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
