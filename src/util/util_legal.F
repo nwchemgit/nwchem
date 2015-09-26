@@ -40,15 +40,15 @@ c
       integer  ibegin,iend,ilen,i
       character*4096 newchr
       integer maxno_authors,len_newchr
-      parameter(maxno_authors=95)
+      parameter(maxno_authors=96)
       character*64 name_author(maxno_authors)
       data name_author/
      +     'E. Apra', 'E. J. Bylaska', 'W. A. de Jong', 
      +     'N. Govind', 'K. Kowalski','T. P. Straatsma', 
      +     'M. Valiev', 'H. J. J. van Dam', 'D. Wang', 'T. L. Windus',
      +     'J. Hammond', 'J. Autschbach', 'K. Bhaskaran-Nair', 
-     +     'J. Brabec','K. Lopata', 'S. Krishnamoorthy', 'W. Ma',
-     +     'M. Klemm', 'O. Villa', 'Y. Chen', 'V. Anisimov',
+     +     'J. Brabec','K. Lopata', 'S. Fischer', 'S. Krishnamoorthy', 
+     +     'W. Ma', 'M. Klemm', 'O. Villa', 'Y. Chen', 'V. Anisimov',
      +     'F. Aquino', 'S. Hirata', 'M. T. Hackler', 'T. Risthaus', 
      +     'M. Malagoli', 'A. Marenich', 'A. Otero-de-la-Roza', 
      +     'J. Mullin', 'P. Nichols', 'R. Peverati', 'J. Pittner', 
