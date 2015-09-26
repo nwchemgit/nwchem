@@ -306,6 +306,12 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np nwxc_mx_tddft_1kr nwxc_mx_tddft_4as
 ./runtests.mpi.unix procs $np nwxc_mx_tddft_1xe nwxc_mx_tddft_4sb
 #
+##--- spin-polarised ECPs test
+./runtests.mpi.unix procs $np spin_ecps_heh_grad spin_ecps_o_hess
+#
+##--- frozen density embedding and kinetic-energy functionals
+./runtests.mpi.unix procs $np h2o2_fde
+#
 #--- if we only want quick tests get out now!
 if ($what == "xfast") then
   exit
