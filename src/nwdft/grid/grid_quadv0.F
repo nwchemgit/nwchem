@@ -447,26 +447,27 @@ c Duplicates of the above allocations but for the FDE environment
       if (fde_option.eq.3.or.fde_option.eq.4.or.
      &    fde_option.eq.6.or.fde_option.eq.7) then
 c
-        if (.not.MA_Push_Get(MT_dbl,nbf_fde_mxnbf_ce2,'DENSF',
+        if (.not.MA_Push_Get(MT_dbl,nbf_fde_mxnbf_ce2,'DENSF_fde',
      &     lFmat_fde,iFmat_fde))
-     &     call errquit(pname//'cannot allocate DENSF',0, MA_ERR)
-        if (.not.MA_Push_Get(MT_dbl,nbf_fde_mxnbf_ce2,'DENS',
+     &     call errquit(pname//'cannot allocate DENSF_fde',0, MA_ERR)
+        if (.not.MA_Push_Get(MT_dbl,nbf_fde_mxnbf_ce2,'DENS_fde',
      &     lPmat_fde,iPmat_fde))
-     &     call errquit(pname//'cannot allocate DENS',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate DENS_fde',0, MA_ERR)
 c
-        if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho',lrho_fde,irho_fde))
-     &     call errquit(pname//'cannot allocate rho',0, MA_ERR)
-        if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',
+        if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho_fde',lrho_fde,
+     &     irho_fde))
+     &     call errquit(pname//'cannot allocate rho_fde',0, MA_ERR)
+        if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho_fde',
      &     ldelrho_fde, idelrho_fde))
-     &     call errquit(pname//'cannot allocate delrho',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate delrho_fde',0, MA_ERR)
 c
-        if (.not.MA_Push_Get(MT_Dbl,len_ttau,'ttau',
+        if (.not.MA_Push_Get(MT_Dbl,len_ttau,'ttau_fde',
      &     lttau_fde, ittau_fde))
-     &     call errquit(pname//'cannot allocate ttau',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate ttau_fde',0, MA_ERR)
 c
-        if (.not.MA_Push_Get(mt_dbl,nbf_fde_mxnbf_ce*n_per_rec,'Bmat',
-     &     lBmat_fde,iBmat_fde))
-     &     call errquit(pname//'cannot allocate Bmat',0, MA_ERR)
+        if (.not.MA_Push_Get(mt_dbl,nbf_fde_mxnbf_ce*n_per_rec,
+     &     'Bmat_fde',lBmat_fde,iBmat_fde))
+     &     call errquit(pname//'cannot allocate Bmat_fde',0, MA_ERR)
 c
 c Reduce density matrix for FDE
 c
@@ -506,78 +507,79 @@ c Daniel (1-11-13): I think we can stay similar to calc_type = 2 for
 c XC-third derivatives in this portion of the code, since this part
 c doesn't depend on having 3-dimensional GAs.
 c
-        if (calc_type.eq.2.or.calc_type.eq.5) then
-           do isp=1,ipol
-              call util_ga_mat_reduce(nbf_fde, ncenters_fde,
-     &             int_mb(icetobfr_fde),
-     &             g_dens_fde(1+(isp-1)*(nmat+1)),  1,
-     &             dbl_mb(irdens_atom_fde+(isp-1)*
-     &                              ncenters_fde*ncenters_fde), 'rms',
-     &             dbl_mb(iscr), nbf_fde_mxnbf_ce,.true.)
-              do ii=2,(nmat+1)
-                 call util_ga_mat_reduce(nbf_fde,ncenters_fde,
-     &                int_mb(icetobfr_fde),
-     &                g_dens_fde(ii+(isp-1)*(nmat+1)),  1,
-     &                dbl_mb(irdens_atom_fde+(isp-1)*
-     &                              ncenters_fde*ncenters_fde), 'rms',
-     &                dbl_mb(iscr), nbf_fde_mxnbf_ce,.false.)
-              enddo
-           enddo
-        else
+c AJL: Not possible inside this if statement
+c        if (calc_type.eq.2.or.calc_type.eq.5) then
+c           do isp=1,ipol
+c              call util_ga_mat_reduce(nbf_fde, ncenters_fde,
+c     &             int_mb(icetobfr_fde),
+c     &             g_dens_fde(1+(isp-1)*(nmat+1)),  1,
+c     &             dbl_mb(irdens_atom_fde+(isp-1)*
+c     &                              ncenters_fde*ncenters_fde), 'rms',
+c     &             dbl_mb(iscr), nbf_fde_mxnbf_ce,.true.)
+c              do ii=2,(nmat+1)
+c                 call util_ga_mat_reduce(nbf_fde,ncenters_fde,
+c     &                int_mb(icetobfr_fde),
+c     &                g_dens_fde(ii+(isp-1)*(nmat+1)),  1,
+c     &                dbl_mb(irdens_atom_fde+(isp-1)*
+c     &                              ncenters_fde*ncenters_fde), 'rms',
+c     &                dbl_mb(iscr), nbf_fde_mxnbf_ce,.false.)
+c              enddo
+c           enddo
+c        else
           call util_ga_mat_reduce(nbf_fde, ncenters_fde, 
      &                          int_mb(icetobfr_fde), g_dens_fde,
      &                          ipol, dbl_mb(irdens_atom_fde), 'rms',
      &                          dbl_mb(iscr), nbf_fde_mxnbf_ce,.true.)
-        endif ! calc_type
+c        endif ! calc_type
 c
         if (.not.ma_pop_stack(lscr))
      &       call errquit(pname//'cannot pop stack',0, MA_ERR)
 
-        if (.not.MA_Push_Get(mt_dbl,ipol*n_per_rec,'Amat',
+        if (.not.MA_Push_Get(mt_dbl,ipol*n_per_rec,'Amat_fde',
      &                       lAmat_fde,iAmat_fde))
-     &     call errquit(pname//'cannot allocate Amat',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate Amat_fde',0, MA_ERR)
 c
-        if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2',
+        if (.not.MA_Push_Get(mt_dbl,len_Amat2,'Amat2_fde',
      &                       lAmat2_fde,iAmat2_fde))
-     &     call errquit(pname//'cannot allocate Amat2',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate Amat2_fde',0, MA_ERR)
         call dfill(len_Amat2, 0.0d0, dbl_mb(iAmat2_fde), 1)
-        if (.not.MA_Push_Get(mt_dbl,len_Amat3,'Amat3',
+        if (.not.MA_Push_Get(mt_dbl,len_Amat3,'Amat3_fde',
      &                       lAmat3_fde,iAmat3_fde))
-     &    call errquit(pname//'cannot allocate Amat3', 0, MA_ERR)
+     &    call errquit(pname//'cannot allocate Amat3_fde', 0, MA_ERR)
         call dfill(len_Amat3, 0.0d0, dbl_mb(iAmat3_fde), 1)
 c
         if (.not.MA_Push_Get(
-     &       mt_dbl,3*n_per_rec*ipol,'Cmat',lCmat_fde,iCmat_fde))
-     &     call errquit(pname//'cannot allocate Cmat',0, MA_ERR)
+     &       mt_dbl,3*n_per_rec*ipol,'Cmat_fde',lCmat_fde,iCmat_fde))
+     &     call errquit(pname//'cannot allocate Cmat_fde',0, MA_ERR)
 c
-        if (.not.MA_Push_Get(mt_dbl,len_Cmat2,'Cmat2',
+        if (.not.MA_Push_Get(mt_dbl,len_Cmat2,'Cmat2_fde',
      &                       lCmat2_fde,iCmat2_fde))
-     &     call errquit(pname//'cannot allocate Cmat2',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate Cmat2_fde',0, MA_ERR)
         call dfill(len_Cmat2, 0.0d0, dbl_mb(iCmat2_fde), 1)
-        if (.not.MA_Push_Get(mt_dbl,len_Cmat3,'Cmat3',
+        if (.not.MA_Push_Get(mt_dbl,len_Cmat3,'Cmat3_fde',
      &                       lCmat3_fde,iCmat3_fde))
-     &    call errquit(pname//'cannot allocate Cmat3', 0, MA_ERR)
+     &    call errquit(pname//'cannot allocate Cmat3_fde', 0, MA_ERR)
         call dfill(len_Cmat3, 0.0d0, dbl_mb(iCmat3_fde), 1)
 c
         if (.not.MA_Push_Get(
      &       mt_dbl,len_mmat,'Mmat',lMmat_fde,iMmat_fde))
      &     call errquit(pname//'cannot allocate Mmat',0, MA_ERR)
 c
-        if (.not.MA_Push_Get(mt_dbl,len_Mmat2,'Mmat2',
+        if (.not.MA_Push_Get(mt_dbl,len_Mmat2,'Mmat2_fde',
      &                       lMmat2_fde,iMmat2_fde))
      &     call errquit(pname//'cannot allocate Mmat2',0, MA_ERR)
 c QM/FDE
-        if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho',
+        if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho_qmfde',
      &     lrho_qmfde,irho_qmfde))
-     &     call errquit(pname//'cannot allocate rho',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate rho_qmfde',0, MA_ERR)
 c
-        if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',
+        if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho_qmfde',
      &     ldelrho_qmfde, idelrho_qmfde))
-     &     call errquit(pname//'cannot allocate delrho',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate delrho_qmfde',0, MA_ERR)
 c
-        if (.not.MA_Push_Get(MT_Dbl,len_ttau,'ttau',
+        if (.not.MA_Push_Get(MT_Dbl,len_ttau,'ttau_qmfde',
      &     lttau_qmfde, ittau_qmfde))
-     &     call errquit(pname//'cannot allocate ttau',0, MA_ERR)
+     &     call errquit(pname//'cannot allocate ttau_qmfde',0, MA_ERR)
 c
         if (fde_option.eq.4.or.fde_option.eq.7) then
           do i=1,ipol

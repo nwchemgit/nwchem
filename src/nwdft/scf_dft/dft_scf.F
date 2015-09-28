@@ -951,7 +951,7 @@ c Initialise frozen density embedding
           call dft_frozemb_fde_init(rtdb,test_sic,g_vxc,g_vxc_fde,
      &                              g_xcinv_fde)
 c Calculate the frozen density embedding contributions to fock matrix
-          call dft_frozemb_fde(rtdb,g_frozemb,g_dens_fde)
+          call dft_frozemb_fde(rtdb,g_frozemb,g_dens,g_dens_fde)
         else
 c     Old embedding method, read from file
           call dft_frozemb(rtdb,g_frozemb)

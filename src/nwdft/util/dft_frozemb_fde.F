@@ -86,7 +86,7 @@ c      endif
 
       end
 
-      subroutine dft_frozemb_fde(rtdb, g_frozemb, g_dens_fde) 
+      subroutine dft_frozemb_fde(rtdb, g_frozemb, g_dens, g_dens_fde) 
 c Calcule the electrostatic frozen density embedding matrix, due to both
 c the nuclear and electronic contributions. This is done sequentially as
 c -> Work out nuclear contribution from FDE geometry
@@ -135,6 +135,7 @@ c      integer g_electronic_fde(4)
       integer mult_fde
       logical even_fde
 
+      integer g_dens(2)
       integer g_dens_fde(2)
 
       double precision nucl_charge_fde
@@ -353,9 +354,9 @@ c     &     call errquit(pname//'Error creating g_electronic_fde2',0,GA_ERR)
 c         call ga_zero(g_electronic_fde(2))     
 c       endif
 
-      call grid_quadv0_fde(rtdb, g_dens_fde, g_electronic_fde,
+      call grid_quadv0_fde(rtdb, g_dens, g_electronic_fde,
      &                  nExc_fde, rho_n, Exc_fde,
-     &                  dbl_mb(itmat),1,g_dens_fde)
+     &                  dbl_mb(itmat), 1, g_dens_fde)
 
       call ga_dadd(1d0, g_electronic_fde, 1d0, g_frozemb, g_frozemb)
 
@@ -436,7 +437,7 @@ c Set nExc to 1 as we are only collecting Ts/ESP
       end
 c
       subroutine dft_frozemb_fde_esp(nqpts,qxyz,qwght,
-     &           mbf_ao,chi_ao,g_dens,g_vxc)
+     &           mbf_ao,chi_ao,g_dens_fde,g_vxc)
 c Works out the potential for the FDE over the QM density grid
       implicit none
 
@@ -466,7 +467,7 @@ c#include "geom.fh"
       double precision qxyz(3,nqpts), qwght(nqpts) ! Copied from grid_quad.fh
       integer mbf_ao
       double precision chi_ao(nqpts,mbf_ao)
-      integer g_dens(2),g_vxc(*) ! Copied from grid_quad.fh
+      integer g_dens_fde(2),g_vxc(*) ! Copied from grid_quad.fh
 c local
       integer l_epot, k_epot
       integer l_fock_fde, k_fock_fde
@@ -478,7 +479,8 @@ c local
       if (.not. ma_push_get(mt_dbl,nqpts,'epot pnt',l_epot,k_epot))
      &     call errquit(pname//'ma failed',911,MA_ERR)
 c      call dfill(nqpts,0,dbl_mb(k_epot),1)
-      call hnd_elfcon_fde(FD_bas_han, geom_fde, g_dens(1), qxyz,
+
+      call hnd_elfcon_fde(FD_bas_han, geom_fde, g_dens_fde(1), qxyz,
      &                    nqpts, dbl_mb(k_epot), 0)
 c Copied from dft_frozemb.F
       if (.not.MA_Push_Get(mt_dbl, mbf_ao*mbf_ao,

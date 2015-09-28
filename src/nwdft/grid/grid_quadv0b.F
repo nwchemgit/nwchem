@@ -92,7 +92,7 @@ c
 
       character*32 pname
       integer mbf_fde
-      integer ncontrset_fde 
+      integer ncontrset_fde
 
       double precision Ex_qm, Ex_fde, Ex_tot
       double precision Ec_qm, Ec_fde, Ec_tot
@@ -284,7 +284,7 @@ C AJL/BEGIN/FDE
 c Calculate potential at each point, embedding potential.
 c Outsourced this to a subroutine: 
         call dft_frozemb_fde_esp(nqpts,qxyz,qwght,
-     &       mbf_ao,dbl_mb(ichi_ao),g_dens,g_vxc)
+     &       mbf_ao,dbl_mb(ichi_ao),g_dens_fde,g_vxc)
 c We're finished so lets jump to the final deallocates
         goto 2020
       endif ! fde_option = 1
@@ -618,11 +618,6 @@ c          call util_flush(luout)
          rho_int_fde = rho_int_fde + ddot(nqpts, qwght, 1, rho_qmfde, 1)
         endif
 
-c        if (fde_option.gt.4) then
-c          write(luout,*) 'Ts = ', Ex
-c          call util_flush(luout)
-c        endif 
-
 ! Fortunately, for the potentials the derivative of fde with respect to
 ! qm is 0, and so we only need the V_xc(p_tot) and V_xc(p_qm) terms
 
@@ -679,7 +674,7 @@ c We will use the _fde arrays where possible, as well as the already
 c declared _qmfde array structures
 
               call xc_tabcd(0,l3d,
-     &          tol_rho, Fmat_fde, Pmat_fde, Amat_fde, Bmat_fde,
+     &          tol_rho, Fmat, Pmat, Amat_fde, Bmat,
      &          Cmat_fde, Dbl_MB(iDmat), 0d0,0d0,0d0,0d0,
      &          Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
      &          0d0,0,1,
@@ -800,8 +795,12 @@ c
 c     clear memory of FDE allocations
       if (fde_option.eq.3.or.fde_option.eq.4.or.
      &    fde_option.eq.6.or.fde_option.eq.7) then
+c        if (grad) then
+c           if(.not.MA_pop_stack(ldelchi_fde))
+c     &        call errquit(pname//"pop ldelchi_fde", 1, MA_ERR)
+c        endif
         if(.not.MA_chop_stack(lchi_fde))
-     &     call errquit(pname//"chop lchi_fde", 100, MA_ERR)
+     &     call errquit(pname//"chop lchi_fde", 1, MA_ERR)
       endif
 C
 cC AJL/End
