@@ -28,12 +28,12 @@ Here are some steps and notes on running the QA tests:
       % setenv PARALLEL_PATH \
         $NWCHEM_TOP/bin/${NWCHEM_TARGET}_${NWCHEM_TARGET_CPU}/parallel
 
-   b) Run the QM tests sequentially using the doqmtests script.  Note
+   b) Run the QM tests sequentially using the doqmtests.mpi script.  Note
       that you may want to comment out the largest tests at the bottom
-      of the doqmtests file on slower machines or machines without much
+      of the doqmtests.mpi file on slower machines or machines without much
       memory.
 
-      % doqmtests >& doqmtests.log &
+      % doqmtests.mpi >& doqmtests.log &
 
    c) Check the doqmtests.log file for potential problems.  While running,
       the test scripts place files in the $NWCHEM_TOP/QA/testoutputs
@@ -47,7 +47,7 @@ Here are some steps and notes on running the QA tests:
       set when you compiled NWChem, and the output of the calculation that
       you are concerned about.
 
-   d) Run the QM tests in parallel by editing the doqmtests script so that
+   d) Run the QM tests in parallel by editing the doqmtests.mpi script so that
       "procs #" is placed after the runtests.unix commands (substituting
       in the number of processors that you want to use for #). E.g.
 
@@ -76,7 +76,7 @@ Here are some steps and notes on running the QA tests:
 
       % setenv MPIRUN_NPOPT -n
 
-   c) Run the doqmtests and runtest.md scripts as described above, but first
+   c) Run the doqmtests.mpi and runtest.md scripts as described above, but first
       edit those files to substitute "runtests.mpi.unix" for "runtests.unix"
       and "runtest.unix"
 
