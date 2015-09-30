@@ -234,6 +234,7 @@ c
       character*80 pname
 c
       logical okspace
+      character*256 compiled_name
       logical rism_util_power_2
       external rism_util_power_2
 c 
@@ -241,6 +242,10 @@ c
 #ifdef RISM_PREP_DEBUG      
       call rism_message("in "//pname)
 #endif      
+      call util_nwchem_srcdir(compiled_name)
+      compiled_name=compiled_name(1:inp_strlen(compiled_name))
+     $     //"/rism/data/"
+
       sname = "grid"
       call db_namespace_create(sname)
 c      
@@ -253,8 +258,14 @@ c
 c     get filename for solvent g(r)
 c     -----------------------------
       tag = "rism:solvent:rdf"
-      if(.not.rtdb_cget(rtdb,tag,1,filename)) 
-     >  call errquit("cannot get "//tag,0,0)
+      if(.not.rtdb_cget(rtdb,tag,1,filename)) then
+C     >  call errquit("cannot get "//tag,0,0)
+        filename=compiled_name(1:inp_strlen(compiled_name))//"water.rdf"
+        if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,filename)) 
+     >  call errquit("cannot put "//tag,0,0)
+      end if
+
+      write(*,*) "filename=",filename
       call rism_grid_parse(filename,ngrid,d)
 c     
 c     check if grid size is power of 2
@@ -340,6 +351,7 @@ c
       integer  i_epsvv
       integer  i_qvv
       character*80 pname 
+      character*256 compiled_name
 c
       pname = "rism_prepare_solvent"
 #ifdef RISM_PREP_DEBUG      
@@ -351,11 +363,20 @@ c     ---------------------------------
       sname = "solvent"
       call db_namespace_create(sname)
 c      
+      call util_nwchem_srcdir(compiled_name)
+      compiled_name=compiled_name(1:inp_strlen(compiled_name))
+     $     //"/rism/data/"
+c      
 c     get solvent filename
 c     --------------------
       tag = "rism:solvent:model"
-      if(.not.rtdb_cget(rtdb,tag,1,filename)) 
-     >  call errquit("cannot get "//tag,0,0)
+      if(.not.rtdb_cget(rtdb,tag,1,filename)) then
+c     >  call errquit("cannot get "//tag,0,0)
+        filename=compiled_name(1:inp_strlen(compiled_name))
+     $//"water.conf"
+        if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,filename)) 
+     >  call errquit("cannot put "//tag,0,0)
+      end if
 c      
 c     get number of solvent atoms
 c     ---------------------------
