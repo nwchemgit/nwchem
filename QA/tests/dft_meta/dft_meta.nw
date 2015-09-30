@@ -16,6 +16,7 @@ end
 driver;clear ;end 
  
 dft
+ grid xfine
  xc xtpss03 ctpss03
  decomp
  print low

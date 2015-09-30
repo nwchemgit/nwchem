@@ -1,0 +1,52 @@
+title "C6H6 optimization"
+
+memory 2950 mb
+
+
+start c6h6.paw
+
+charge 0
+
+geometry
+C         -0.79090        2.25426        0.00000
+C         -1.93118        1.44365        0.00000
+C          0.48124        1.67205        0.00000
+C          0.61311        0.27923        0.00000
+C         -0.52717       -0.53137        0.00000
+C         -1.79932        0.05084        0.00000
+H         -0.89292        3.33178        0.00000
+H         -2.91535        1.89407        0.00000
+H          1.36340        2.29916        0.00000
+H          1.59728       -0.17118        0.00000
+H         -0.42516       -1.60889        0.00000
+H         -2.68147       -0.57627        0.00000
+end
+
+nwpw
+   simulation_cell
+      #FCC 38.0
+      SC 20.0
+   end
+   pseudopotentials
+      C library paw_default
+      H library paw_default
+   end
+   xc pbe
+   lmbfgs
+   cutoff 20.0
+end
+driver; clear; end; task pspw optimize ignore
+
+nwpw
+   simulation_cell
+      FCC 38.0
+   end
+   cutoff 50.0
+end
+driver; clear; end; task pspw optimize ignore
+
+nwpw; cutoff 40.0; end;   driver; clear; end; task pspw optimize ignore
+nwpw; cutoff 30.0; end;   driver; clear; end; task pspw optimize ignore
+nwpw; cutoff 20.0; end;   driver; clear; end; task pspw optimize ignore
+nwpw; cutoff 10.0; end;   driver; clear; end; task pspw optimize ignore
+
