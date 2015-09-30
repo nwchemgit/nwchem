@@ -211,6 +211,7 @@ PSPW
       xyz_filename: sic2.hoover.xyz
       Mulliken
       Nose-Hoover:
+      #Nose-Hoover: 100.0 298.15 100.0 298.15
       omotion_filename: sic2.hoover.omov
    END 
 END
