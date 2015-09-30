@@ -130,6 +130,7 @@ c            operation = 'prepare'
             ignore = .true.
          else if (inp_compare(.false.,test,'rism')) then
             orism = .true.
+            theory="dft"
          else if (inp_compare(.false.,test,'mm')) then
             omm = .true.
          else if (inp_compare(.false.,test,'qmmm')) then
