@@ -25,6 +25,7 @@ N    0.00000000d0   -0.33333330d0    0.37700000d0
 N    0.00000000d0    0.00000000d0   -0.12300000d0
 end
 
+set nwpw:cutoff_boot_psi .false.
 #***** setup the nwpw gamma point code ****
 nwpw
    simulation_cell
