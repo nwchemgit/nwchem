@@ -1602,6 +1602,8 @@ c         mtensor(3,3) = z
            if ((frac(3)-delta).lt.(-0.5*L1)) L1 = 2.0d0*(frac(3)+delta)
         end if
       end do
+      !*** put threshold on smallest box ***
+      if (L1.lt.24.0d0) L1=24.0d0
 
 *     **** define unit cell ****
       unita(1,1) = L1*mtensor(1,1)
