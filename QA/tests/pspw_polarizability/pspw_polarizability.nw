@@ -37,6 +37,7 @@ title "Be polarizability using PSPW"
 start Be
 
 set nwpw:minimizer 2
+set nwpw:cutoff_boot_psi .false.
 
 #**** Get polarizability using a periodic cell ****
 PSPW

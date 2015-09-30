@@ -19,6 +19,7 @@ end
 ############################################################
 ######### Grid expansion and cell change testing ###########
 ############################################################
+set nwpw:cutoff_boot_psi .false.
 set nwpw:minimizer 2
 
 nwpw 

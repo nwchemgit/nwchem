@@ -13,6 +13,7 @@ end
 
 
 
+set nwpw:cutoff_boot_psi .false.
 PSPW 
    #******* Generate a Pseudopotential for Carbon **********************
    PSP_GENERATOR                       
