@@ -16,6 +16,7 @@ end
 
 
 ################ set old defaults ##################
+set nwpw:cutoff_boot_psi .false.
 
 nwpw
 
