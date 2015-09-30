@@ -243,36 +243,37 @@ ifeq ($(ARMCI_NETWORK),MPI-SPAWN)
     MAYBE_ARMCI = --with-mpi-spawn
 endif # MPI-SPAWN
 
-# ARMCI with progress rrrrrrrrr
-ifeq ($(ARMCI_NETWORK),MPI-PR) 
-    MAYBE_ARMCI = --with-mpi-pr
-endif # MPI-PR
-
 # ARMCI with progress thread
 ifeq ($(ARMCI_NETWORK),MPI-PT) 
+    MAYBE_ARMCI = --with-mpi-pt
+endif
+ifeq ($(ARMCI_NETWORK),MPI_PT) 
     MAYBE_ARMCI = --with-mpi-pt
 endif # MPI-PT
 
 # ARMCI over Multi-threaded MPI
 ifeq ($(ARMCI_NETWORK),MPI-MT) 
     MAYBE_ARMCI = --with-mpi-mt
+endif
+ifeq ($(ARMCI_NETWORK),MPI_MT) 
+    MAYBE_ARMCI = --with-mpi-mt
 endif # MPI-MT
 
 # ARMCI over MPI-1 with progress rank
 ifeq ($(ARMCI_NETWORK),MPI-PR) 
     MAYBE_ARMCI = --with-mpi-pr
+endif
+ifeq ($(ARMCI_NETWORK),MPI_PR) 
+    MAYBE_ARMCI = --with-mpi-pr
 endif # MPI-PR
 
 # ARMCI over MPI without data server
-#ifeq ($(ARMCI_NETWORK),$(findstring $(ARMCI_NETWORK),MPI_TS MPI-TS))
-# my mac barf's on this for some reason...removing findstring...EJB
+ifeq ($(ARMCI_NETWORK),MPI-TS) 
+        MAYBE_ARMCI = --with-mpi-ts
+endif
 ifeq ($(ARMCI_NETWORK),MPI_TS) 
         MAYBE_ARMCI = --with-mpi-ts
 endif # MPI_TS
-
-ifeq ($(ARMCI_NETWORK),MPI-TS) 
-        MAYBE_ARMCI = --with-mpi-ts
-endif # MPI-TS
 
 ifeq ($(ARMCI_NETWORK),ARMCI) 
     ifdef EXTERNAL_ARMCI_PATH
