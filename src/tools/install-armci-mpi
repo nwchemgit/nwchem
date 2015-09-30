@@ -1,0 +1,69 @@
+#!/bin/bash
+
+export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
+if test "x$NWCHEM_TOP" = x
+then
+    echo You must set NWCHEM_TOP to use this script.
+    exit 1
+fi
+
+if [ -d ./armci-mpi ] ; then
+  echo "Existing ARMCI-MPI source directory found!"
+  cd armci-mpi && git checkout mpi3rma >& git.log
+  if [ $stat -ne 0 ] ; then
+    echo "git checkout failed"
+    exit 1
+  else
+    echo "Step 1 of 4 succeeded."
+  fi
+else
+  #svn co https://github.com/jeffhammond/armci-mpi/branches/mpi3rma armci-mpi3rma
+  git clone -b mpi3rma  http://git.mpich.org/armci-mpi.git >& git.log
+  stat=$?
+  if [ $stat -ne 0 ] ; then
+    echo "git clone failed"
+    exit 1
+  else
+    echo "Step 1 of 4 succeeded."
+  fi
+fi
+
+cd armci-mpi
+
+./autogen.sh >& autogen.log
+stat=$?
+if [ $stat -ne 0 ] ; then
+  echo "Autotools failed, likely because the versions your system has are too old."
+  echo "See https://github.com/jeffhammond/HPCInfo/wiki/Autotools."
+  exit 1
+else
+  echo "Step 2 of 4 succeeded."
+fi
+
+mkdir build && cd build
+
+../configure CC=mpicc --prefix=${NWCHEM_TOP}/external-armci >& c.log
+stat=$?
+if [ $stat -ne 0 ] ; then
+  echo "configure failed."
+  echo "Please email config.log and system details to armci-discuss@lists.mpich.org."
+  exit 1
+else
+  echo "Step 3 of 4 succeeded."
+fi
+
+make install >& m.log
+stat=$?
+if [ $stat -ne 0 ] ; then
+  echo "configure failed."
+  echo "Please email config.log and system details to armci-discuss@lists.mpich.org."
+  exit 1
+else
+  echo "Step 4 of 4 succeeded."
+fi
+
+echo "Congratulations! ARMCI-MPI was built successfully."
+echo "Please set the following environment variables when you build NWChem:"
+echo "ARMCI_NETWORK=ARMCI"
+echo "EXTERNAL_ARMCI_PATH=${NWCHEM_TOP}/external-armci"
+
