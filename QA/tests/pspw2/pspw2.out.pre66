@@ -1,0 +1,776 @@
+ 
+Processor list
+ 
+cu03n193,cu10n182
+ 
+ARMCI configured for 2 cluster nodes. Network protocol is 'OpenIB Verbs API'.
+All connections between all procs tested: SUCCESS
+ argument  1 = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/pspw2/pspw2.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+title "GGA testing - fails on Bassi"
+
+
+#memory 950 mb
+
+start ch3cl.pspw
+
+charge 0
+
+geometry
+C             1.141270   -0.000034    0.000004
+Cl           -0.664540    0.000021   -0.000006
+H             1.483169   -0.877342   -0.547984
+H             1.483210    0.913220   -0.485690
+H             1.483190   -0.036019    1.033759
+end
+
+set nwpw:minimizer 2
+############################################
+############## PBE96 testing ###############
+############################################
+
+nwpw
+   simulation_cell
+     ngrid 32 32 32
+   end
+   xc pbe96
+   lcao #old default
+end
+task pspw energy
+
+
+
+############################################
+####### steepest descent testing ###########
+############################################
+nwpw
+  steepest_descent
+    fake_mass 400000.0d0
+    time_step 15.8d0
+    loop 10 10
+    xc pbe96
+   end
+end
+task pspw steepest_descent
+
+
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.0
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname      = cu3n193
+    program       = /scratch/nwchem
+    date          = Fri Oct 29 11:39:54 2010
+
+    compiled      = Thu_Oct_28_07:10:53_2010
+    source        = /home/scicons/user/kurt/nwchem-6.0-release-pgf90-final/
+    nwchem branch = 6.0
+    input         = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/pspw2/pspw2.nw
+    prefix        = ch3cl.pspw.
+    data base     = ./ch3cl.pspw.db
+    status        = startup
+    nproc         =        8
+    time left     =   1763s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =  104857601 doubles =    800.0 Mbytes
+    stack    =  104857601 doubles =    800.0 Mbytes
+    global   =  209715200 doubles =   1600.0 Mbytes (distinct from heap & stack)
+    total    =  419430402 doubles =   3200.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                           GGA testing - fails on Bassi
+                           ----------------------------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ C3  symmetry detected
+
+          ------
+          auto-z
+          ------
+  Looking for out-of-plane bends
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 C                    6.0000     0.00000000     0.00000000     1.14126965
+    2 Cl                  17.0000     0.00000000     0.00000000    -0.66454035
+    3 H                    1.0000    -0.58835670     0.85075363     1.48318932
+    4 H                    1.0000    -0.44259590    -0.93490866     1.48318932
+    5 H                    1.0000     1.03095260     0.08415503     1.48318932
+
+      Atomic Mass 
+      ----------- 
+
+      C                 12.000000
+      Cl                34.968850
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)      50.8408707965
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             C3        
+ Group number              5
+ Group order               3
+ No. of unique centers     3
+
+      Symmetry unique atoms
+
+     1    2    3
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       1.80581
+    2 Stretch                  1     3                       1.08943
+    3 Stretch                  1     4                       1.08943
+    4 Stretch                  1     5                       1.08943
+    5 Bend                     2     1     3               108.29154
+    6 Bend                     2     1     4               108.29154
+    7 Bend                     2     1     5               108.29154
+    8 Bend                     3     1     4               110.62470
+    9 Bend                     3     1     5               110.62470
+   10 Bend                     4     1     5               110.62470
+
+
+            XYZ format geometry
+            -------------------
+     5
+ geometry
+ C                     0.00000000     0.00000000     1.14126965
+ Cl                    0.00000000     0.00000000    -0.66454035
+ H                    -0.58835670     0.85075363     1.48318932
+ H                    -0.44259590    -0.93490866     1.48318932
+ H                     1.03095260     0.08415503     1.48318932
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 Cl               |   1 C                |     3.41249  |     1.80581
+    3 H                |   1 C                |     2.05872  |     1.08943
+    4 H                |   1 C                |     2.05872  |     1.08943
+    5 H                |   1 C                |     2.05872  |     1.08943
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          4
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 Cl               |   1 C                |   3 H                |   108.29
+    2 Cl               |   1 C                |   4 H                |   108.29
+    2 Cl               |   1 C                |   5 H                |   108.29
+    3 H                |   1 C                |   4 H                |   110.62
+    3 H                |   1 C                |   5 H                |   110.62
+    4 H                |   1 C                |   5 H                |   110.62
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          6
+ ==============================================================================
+
+
+
+          ****************************************************
+          *                                                  *
+          *               NWPW PSPW Calculation              *
+          *                                                  *
+          *  [ (Grassman/Stiefel manifold implementation) ]  *
+          *                                                  *
+          *      [ NorthWest Chemistry implementation ]      *
+          *                                                  *
+          *            version #5.10   06/12/02              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Fri Oct 29 11:39:54 2010  <<<
+          ================ input data ========================
+  library name resolved from: environment
+  NWCHEM_NWPW_LIBRARY set to: <
+ /mscf/scicons/apps/nwchem-6.0.oct19//src/nwpw/libraryps/>
+ Generating 1d pseudopotential for C   
+
+ Generated formatted_filename: ./C.vpp
+  library name resolved from: environment
+  NWCHEM_NWPW_LIBRARY set to: <
+ /mscf/scicons/apps/nwchem-6.0.oct19//src/nwpw/libraryps/>
+ Generating 1d pseudopotential for Cl  
+
+ Generated formatted_filename: ./Cl.vpp
+  library name resolved from: environment
+  NWCHEM_NWPW_LIBRARY set to: <
+ /mscf/scicons/apps/nwchem-6.0.oct19//src/nwpw/libraryps/>
+ Generating 1d pseudopotential for H   
+
+ Generated formatted_filename: ./H.vpp
+  library name resolved from: environment
+  NWCHEM_NWPW_LIBRARY set to: <
+ /mscf/scicons/apps/nwchem-6.0.oct19//src/nwpw/libraryps/>
+
+ Generated formatted atomic orbitals, filename: ./C.aorb
+  library name resolved from: environment
+  NWCHEM_NWPW_LIBRARY set to: <
+ /mscf/scicons/apps/nwchem-6.0.oct19//src/nwpw/libraryps/>
+
+ Generated formatted atomic orbitals, filename: ./Cl.aorb
+  library name resolved from: environment
+  NWCHEM_NWPW_LIBRARY set to: <
+ /mscf/scicons/apps/nwchem-6.0.oct19//src/nwpw/libraryps/>
+
+ Generated formatted atomic orbitals, filename: ./H.aorb
+
+ lcao guess, initial psi:ch3cl.pspw.movecs             
+ -   spin, nalpha, nbeta:                        1                        7 
+                        0
+
+ input psi filename:./ch3cl.pspw.movecs
+
+ number of processors used:         8
+ processor grid           :   8 x   1
+ parallel mapping         :      slab
+ parallel mapping         :  balanced
+
+ options:
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = PBE96 (White and Bird) parameterization
+
+ elements involved in the cluster:
+      1: C     core charge:  4.0000  lmax=  2
+             comment    : Parameterized (J.Phys.Chem., vol 100, page 6966) Hamman psp
+             pseudpotential type            :   0
+             highest angular component      :   2
+             local potential used           :   2
+             number of non-local projections:   4
+             cutoff =   0.800   0.850   0.850
+
+      2: Cl    core charge:  7.0000  lmax=  2
+             comment    : Troullier-Martins pseudopotential
+             pseudpotential type            :   0
+             highest angular component      :   2
+             local potential used           :   2
+             number of non-local projections:   4
+             semicore corrections included  :  1.300 (radius)  0.279 (charge)
+             cutoff =   1.340   1.450   1.450
+
+      3: H     core charge:  1.0000  lmax=  1
+             comment    : Parameterized (Chem.Phys.Lett., vol 322, page 447) Hamman psp
+             pseudpotential type            :   0
+             highest angular component      :   1
+             local potential used           :   1
+             number of non-local projections:   1
+             cutoff =   0.800   0.800
+
+
+ total charge:   0.000
+
+ atomic composition:
+     C   :  1     Cl  :  1     H   :  3
+
+ number of electrons: spin up=     7 (   7 per task)  down=     7 (   7 per task) (fourier space)
+ number of orbitals : spin up=     7 (   7 per task)  down=     7 (   7 per task) (fourier space)
+
+ supercell:
+      cell_name:  cell_default                  
+      lattice:    a1=<  15.606   0.000   0.000 >
+                  a2=<   0.000  15.606   0.000 >
+                  a3=<   0.000   0.000  15.606 >
+      reciprocal: b1=<   0.403   0.000   0.000 >
+                  b2=<   0.000   0.403   0.000 >
+                  b3=<   0.000   0.000   0.403 >
+      lattice:    a=      15.606 b=     15.606 c=      15.606
+                  alpha=  90.000 beta=  90.000 gamma=  90.000
+                  omega=      3800.5
+
+      density cutoff= 20.749  fft= 32x 32x 32(     8536 waves     1067 per task)
+      wavefnc cutoff= 20.749  fft= 32x 32x 32(     8536 waves     1067 per task)
+      ewald summation: cut radius=    4.97  and  1
+                        madelung= 1.76011888
+
+ technical parameters:
+      time step=      5.80     ficticious mass=  400000.0
+      tolerance=.100E-06 (energy)   0.100E-06 (density)
+      maximum iterations =    1000 (   10 inner  100 outer )
+
+
+
+
+
+== Energy Calculation ==
+
+
+          ============ Grassmann lmbfgs iteration ============
+     >>>  ITERATION STARTED AT Fri Oct 29 11:39:58 2010  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+     -  15 steepest descent iterations performed
+      10   -0.2263435282E+02   -0.37845E-03    0.24872E-01
+      20   -0.2263492032E+02   -0.32310E-05    0.16463E-04
+      30   -0.2263492580E+02   -0.99772E-07    0.24803E-07
+  *** tolerance ok. iteration terminated
+     >>>  ITERATION ENDED   AT Fri Oct 29 11:40:00 2010  <<<
+
+
+==  Summary Of Results  ==
+
+ number of electrons: spin up=    7.00000  down=    7.00000 (real space)
+
+ total     energy    :  -0.2263492580E+02 (   -0.45270E+01/ion)
+ total orbital energy:  -0.5898319505E+01 (   -0.84262E+00/electron)
+ hartree   energy    :   0.2053786156E+02 (    0.29340E+01/electron)
+ exc-corr  energy    :  -0.5886061802E+01 (   -0.84087E+00/electron)
+ ion-ion   energy    :   0.2245153749E+01 (    0.44903E+00/ion)
+
+ kinetic (planewave) :   0.1119024906E+02 (    0.15986E+01/electron)
+ V_local (planewave) :  -0.5352028953E+02 (   -0.76458E+01/electron)
+ V_nl    (planewave) :   0.2798161162E+01 (    0.39974E+00/electron)
+ V_Coul  (planewave) :   0.4107572311E+02 (    0.58680E+01/electron)
+ V_xc.   (planewave) :  -0.7442163309E+01 (   -0.10632E+01/electron)
+ Virial Coefficient  :  -0.1527094569E+01
+
+ orbital energies:
+    -0.2385784E+00 (  -6.492eV)
+    -0.2385871E+00 (  -6.492eV)
+    -0.3541508E+00 (  -9.637eV)
+    -0.3822575E+00 ( -10.402eV)
+    -0.3823050E+00 ( -10.403eV)
+    -0.5957632E+00 ( -16.212eV)
+    -0.7575177E+00 ( -20.613eV)
+
+ Total PSPW energy   :  -0.2263492580E+02
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =     0.000000000000000     
+ <S^2>      =     0.000000000000000     
+
+
+
+== Center of Charge ==
+
+spin up     (   -0.0001,    0.0000,    0.5326 )
+spin down   (   -0.0001,    0.0000,    0.5326 )
+     total  (   -0.0001,    0.0000,    0.5326 )
+ionic       (    0.0000,    0.0000,    0.5889 )
+crystal     (    0.0007,   -0.0026,   -0.0006 )
+
+
+== Crystal Dipole ==
+
+mu   =  (    0.0119,   -0.0365,   -7.4651 ) au
+|mu| =     7.4652 au,      18.9736 Debye
+
+
+== Molecular Dipole wrt Center of Mass ==
+
+mu   =  (    0.0016,   -0.0007,    0.7880 ) au
+|mu| =     0.7880 au,       2.0027 Debye
+
+ output psi filename:./ch3cl.pspw.movecs
+
+
+== Timing ==
+
+cputime in seconds
+  prologue    :   0.478380E+01
+  main loop   :   0.149125E+01
+  epilogue    :   0.153470E-01
+  total       :   0.629039E+01
+  cputime/step:   0.191186E-01       (      78 evalulations,      28 linesearches)
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.408857E+00  0.524175E-02
+  dot products               :   0.241516E+00  0.309636E-02
+  geodesic                   :   0.151303E+00  0.193978E-02
+  ffm_dgemm                  :   0.286572E-01  0.367400E-03
+  fmf_dgemm                  :   0.435824E-01  0.558749E-03
+  m_diagonalize              :   0.733352E-02  0.940194E-04
+    - m_tredq                :   0.000000E+00  0.000000E+00
+    - m_getdiags             :   0.000000E+00  0.000000E+00
+    - m_tqliq                :   0.000000E+00  0.000000E+00
+    - m_eigsrt               :   0.000000E+00  0.000000E+00
+  exchange correlation       :   0.652606E+00  0.836674E-02
+  local pseudopotentials     :   0.271082E-03  0.347541E-05
+  non-local pseudopotentials :   0.119973E+00  0.153811E-02
+  hartree potentials         :   0.102260E-01  0.131103E-03
+  ion-ion interaction        :   0.165391E-02  0.212040E-04
+  structure factors          :   0.527603E+00  0.676415E-02
+  phase factors              :   0.371933E-04  0.476837E-06
+  masking and packing        :   0.529532E+00  0.678887E-02
+  queue fft                  :   0.393708E+00  0.504754E-02
+  queue fft (serial)         :   0.143523E+00  0.184004E-02
+  queue fft (message passing):   0.224009E+00  0.287191E-02
+  HFX potential              :   0.000000E+00  0.000000E+00
+  qmmm LJ                    :   0.000000E+00  0.000000E+00
+  qmmm residual Q            :   0.000000E+00  0.000000E+00
+
+     >>>  JOB COMPLETED     AT Fri Oct 29 11:40:00 2010  <<<
+
+ Task  times  cpu:        5.8s     wall:        6.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ >>>> PSPW Parallel Module - steepest_descent <<<<
+          ****************************************************
+          *                                                  *
+          *     Car-Parrinello microcluster calculation      *
+          *                                                  *
+          *     [     steepest descent minimization   ]      *
+          *                                                  *
+          *     [ NorthWest Chemistry implementation ]       *
+          *                                                  *
+          *            version #5.00   06/01/99              *
+          *                                                  *
+          *    This code was developed by Eric J. Bylaska,   *
+          *    and was based upon algorithms and code        *
+          *    developed by the group of Prof. John H. Weare *
+          *                                                  *
+          ****************************************************
+     >>>  JOB STARTED       AT Fri Oct 29 11:40:00 2010  <<<
+          ================ PSPW input data ===================
+
+ input psi filename:./ch3cl.pspw.movecs
+
+ number of processors used:         8
+ processor grid           :   8 x   1
+ parallel mapping         : slab
+ parallel mapping         : balanced
+
+ options:
+      ionic motion         = no
+      boundary conditions  = periodic    (version3)
+      electron spin        = restricted
+      exchange-correlation = PBE96 (White and Bird) parameterization
+
+ elements involved in the cluster:
+      1: C     core charge: 4.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             cutoff =   0.800   0.850   0.850
+      2: Cl    core charge: 7.0  lmax=2
+             highest angular component      :  2
+             local potential used           :  2
+             number of non-local projections:  4
+             semicore corrections included  :  1.300 (radius)  0.279 (charge)
+             cutoff =   1.340   1.450   1.450
+      3: H     core charge: 1.0  lmax=1
+             highest angular component      :  1
+             local potential used           :  1
+             number of non-local projections:  1
+             cutoff =   0.800   0.800
+
+ total charge=   0.000
+
+ atomic composition:
+     C :  1     Cl:  1     H :  3
+
+ initial position of ions:
+        1 C    (    0.00000    0.00000    2.15669 ) - atomic mass=  12.000          
+        2 Cl   (    0.00000    0.00000   -1.25580 ) - atomic mass=  34.969          
+        3 H    (   -1.11183    1.60769    2.80282 ) - atomic mass=   1.008          
+        4 H    (   -0.83638   -1.76672    2.80282 ) - atomic mass=   1.008          
+        5 H    (    1.94822    0.15903    2.80282 ) - atomic mass=   1.008          
+        G.C.   (    0.00000    0.00000    1.86187 )
+        C.O.M. (    0.00000    0.00000   -0.19122 )
+
+ number of electrons: spin up=     7 (   7 per task)  down=     7 (   7 per task) (fourier space)
+ number of orbitals : spin up=     7 (   7 per task)  down=     7 (   7 per task) (fourier space)
+
+ supercell:
+      lattice:    a1=<  15.606   0.000   0.000 >
+                  a2=<   0.000  15.606   0.000 >
+                  a3=<   0.000   0.000  15.606 >
+      reciprocal: b1=<   0.403   0.000   0.000 >
+                  b2=<   0.000   0.403   0.000 >
+                  b3=<   0.000   0.000   0.403 >
+      volume :       3800.5
+      density cutoff= 20.749  fft= 32x 32x 32(     8536 waves     1067 per task)
+      wavefnc cutoff= 20.749  fft= 32x 32x 32(     8536 waves     1067 per task)
+      ewald summation: cut radius=    4.97  and  1
+                        madelung= 1.76011888
+
+ technical parameters:
+      translation contrained
+      time step=     15.80     ficticious mass=  400000.0
+      tolerance=.100E-08 (energy)   0.100E-08 (electron)   0.100E-03 (ion)
+      maximum iterations =     100 (   10 inner   10 outer )
+
+
+
+          ================ iteration =========================
+     >>>  ITERATION STARTED AT Fri Oct 29 11:40:00 2010  <<<
+    iter.           Energy         DeltaE       DeltaRho 
+    ------------------------------------------------------
+      10   -0.2263492587E+02   -0.14326E+00    0.16623E-09    0.00000E+00
+      20   -0.2263492590E+02   -0.16590E-09    0.10335E-09    0.00000E+00
+  *** tolerance ok.     iteration terminated.
+     >>>  ITERATION ENDED   AT Fri Oct 29 11:40:01 2010  <<<
+
+
+
+          =============  summary of results  =================
+ final position of ions:
+        1 C    (    0.00000    0.00000    2.15669 ) - atomic mass=  12.000          
+        2 Cl   (    0.00000    0.00000   -1.25580 ) - atomic mass=  34.969          
+        3 H    (   -1.11183    1.60769    2.80282 ) - atomic mass=   1.008          
+        4 H    (   -0.83638   -1.76672    2.80282 ) - atomic mass=   1.008          
+        5 H    (    1.94822    0.15903    2.80282 ) - atomic mass=   1.008          
+        G.C.   (    0.00000    0.00000    1.86187 )
+        C.O.M. (    0.00000    0.00000   -0.19122 )
+
+ number of electrons: spin up=    7.00000  down=    7.00000 (real space)
+
+
+ total     energy    :  -0.2263492590E+02 (   -0.45270E+01/ion)
+ total orbital energy:  -0.5898317799E+01 (   -0.84262E+00/electron)
+ hartree   energy    :   0.2053786350E+02 (    0.29340E+01/electron)
+ exc-corr  energy    :  -0.5886062607E+01 (   -0.84087E+00/electron)
+ ion-ion   energy    :   0.2245153749E+01 (    0.44903E+00/ion)
+
+ K.S. kinetic energy :   0.1119025792E+02 (    0.15986E+01/electron)
+ K.S. V_l  energy    :  -0.5352030187E+02 (   -0.76458E+01/electron)
+ K.S. V_nl energy    :   0.2798163407E+01 (    0.39974E+00/electron)
+ K.S. V_Hart energy  :   0.4107572701E+02 (    0.58680E+01/electron)
+ K.S. V_xc energy    :  -0.7442164264E+01 (   -0.10632E+01/electron)
+ Virial Coefficient  :  -0.1527093999E+01
+
+ orbital energies:
+    -0.2385787E+00 (  -6.492eV)
+    -0.2385875E+00 (  -6.492eV)
+    -0.3541508E+00 (  -9.637eV)
+    -0.3822568E+00 ( -10.402eV)
+    -0.3823043E+00 ( -10.403eV)
+    -0.5957623E+00 ( -16.212eV)
+    -0.7575185E+00 ( -20.613eV)
+
+ Total PSPW energy   :  -0.2263492590E+02
+
+
+=== Spin Contamination ===
+
+ <Sexact^2> =     0.000000000000000     
+ <S^2>      =     0.000000000000000     
+
+
+
+== Center of Charge ==
+
+spin up     (   -0.0001,    0.0000,    0.5326 )
+spin down   (   -0.0001,    0.0000,    0.5326 )
+     total  (   -0.0001,    0.0000,    0.5326 )
+ionic       (    0.0000,    0.0000,    0.5889 )
+crystal     (    0.0007,   -0.0026,   -0.0006 )
+
+
+== Crystal Dipole ==
+
+mu   =  (    0.0119,   -0.0365,   -7.4651 ) au
+|mu| =     7.4652 au,      18.9735 Debye
+
+
+== Molecular Dipole wrt Center of Mass ==
+
+mu   =  (    0.0015,   -0.0007,    0.7880 ) au
+|mu| =     0.7880 au,       2.0028 Debye
+
+ output psi filename:./ch3cl.pspw.movecs
+
+ -----------------
+ cputime in seconds
+ prologue    :    0.3888950347900391     
+ main loop   :    0.3302409648895264     
+ epilogue    :    5.6558132171630859E-002
+ total       :    0.7756941318511963     
+ cputime/step:    1.6512048244476319E-002
+
+
+
+Time spent doing                        total          step
+  FFTs                       :   0.674508E-01  0.337254E-02
+  dot products               :   0.324736E-01  0.162368E-02
+  geodesic                   :   0.454497E-02  0.227249E-03
+  ffm_dgemm                  :   0.129364E-01  0.646818E-03
+  fmf_dgemm                  :   0.179148E-02  0.895739E-04
+  m_diagonalize              :   0.200033E-03  0.100017E-04
+    - m_tredq                :   0.000000E+00  0.000000E+00
+    - m_getdiags             :   0.000000E+00  0.000000E+00
+    - m_tqliq                :   0.000000E+00  0.000000E+00
+    - m_eigsrt               :   0.000000E+00  0.000000E+00
+  exchange correlation       :   0.144036E+00  0.720180E-02
+  local pseudopotentials     :   0.276756E-02  0.138378E-03
+  non-local pseudopotentials :   0.260932E-01  0.130466E-02
+  hartree potentials         :   0.409126E-03  0.204563E-04
+  ion-ion interaction        :   0.583172E-03  0.291586E-04
+  structure factors          :   0.255132E-02  0.127566E-03
+  phase factors              :   0.282049E-03  0.141025E-04
+  masking and packing        :   0.206656E+00  0.103328E-01
+  queue fft                  :   0.100501E+00  0.502503E-02
+  queue fft (serial)         :   0.368311E-01  0.184156E-02
+  queue fft (message passing):   0.568278E-01  0.284139E-02
+  HFX potential              :   0.000000E+00  0.000000E+00
+  qmmm LJ                    :   0.000000E+00  0.000000E+00
+  qmmm residual Q            :   0.000000E+00  0.000000E+00
+     >>>  JOB COMPLETED     AT Fri Oct 29 11:40:01 2010  <<<
+
+ Task  times  cpu:        0.7s     wall:        0.8s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    8        8       97       10        0        0        0        0     
+number of processes/call 2.44e+00 8.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes total:             2.61e+04 9.68e+03 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            2.07e+04 7.92e+03 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 1408 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	       172	        26
+	current total bytes		         0	         0
+	maximum total bytes		   3138240	    800096
+	maximum total K-bytes		      3139	       801
+	maximum total M-bytes		         4	         1
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+
+ Total times  cpu:        6.7s     wall:        8.9s
