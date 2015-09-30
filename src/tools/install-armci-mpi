@@ -1,5 +1,7 @@
 #!/bin/bash
 
+ARMCI_MPI_TARBALL=TODO
+
 export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
 if test "x$NWCHEM_TOP" = x
 then
@@ -7,19 +9,23 @@ then
     exit 1
 fi
 
-if [ -d ./armci-mpi ] ; then
+ARMCI_MPI_DIR=${NWCHEM_TOP}/src/tools/armci-mpi
+
+if [ -d ${ARMCI_MPI_DIR} ] ; then
+  # Assume that it is the right one, created previously by this script.
   echo "Existing ARMCI-MPI source directory found!"
-  cd armci-mpi && git checkout mpi3rma >& git.log
+  echo "Step 1 of 4 succeeded."
+elif [ -x "$(command -v git)" ]; then
+  git clone -b mpi3rma http://git.mpich.org/armci-mpi.git ${ARMCI_MPI_DIR} >& git.log
+  stat=$?
   if [ $stat -ne 0 ] ; then
-    echo "git checkout failed"
+    echo "git clone failed"
     exit 1
   else
     echo "Step 1 of 4 succeeded."
   fi
 else
-  #svn co https://github.com/jeffhammond/armci-mpi/branches/mpi3rma armci-mpi3rma
-  git clone -b mpi3rma  http://git.mpich.org/armci-mpi.git >& git.log
-  stat=$?
+  wget ${ARMCI_MPI_TARBALL}
   if [ $stat -ne 0 ] ; then
     echo "git clone failed"
     exit 1
@@ -28,21 +34,28 @@ else
   fi
 fi
 
-cd armci-mpi
+cd ${ARMCI_MPI_DIR}
 
-./autogen.sh >& autogen.log
-stat=$?
-if [ $stat -ne 0 ] ; then
-  echo "Autotools failed, likely because the versions your system has are too old."
-  echo "See https://github.com/jeffhammond/HPCInfo/wiki/Autotools."
-  exit 1
+if ! [ -f ${ARMCI_MPI_DIR}/configure ] ; then
+  ./autogen.sh >& autogen.log
+  stat=$?
+  if [ $stat -ne 0 ] ; then
+    echo "Autotools failed, likely because the versions your system has are too old."
+    echo "See https://github.com/jeffhammond/HPCInfo/wiki/Autotools."
+    exit 1
+  else
+    echo "Step 2 of 4 succeeded."
+  fi
 else
   echo "Step 2 of 4 succeeded."
 fi
 
-mkdir build && cd build
+if ! [ -d ${ARMCI_MPI_DIR}/build ] ; then
+  mkdir ${ARMCI_MPI_DIR}/build
+fi
+cd ${ARMCI_MPI_DIR}/build
 
-../configure CC=mpicc --prefix=${NWCHEM_TOP}/external-armci >& c.log
+${ARMCI_MPI_DIR}/configure CC=mpicc --prefix=${NWCHEM_TOP}/external-armci >& c.log
 stat=$?
 if [ $stat -ne 0 ] ; then
   echo "configure failed."
