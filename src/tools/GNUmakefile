@@ -564,6 +564,7 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@(../util/util_ga_version.bash $(GA_DIR))
 	@(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
+ifdef IAMADEVELOPER
 $(GA_DIR)/Makefile.in:
 	@echo "No Global Arrays found: Attempting running ./get-tools"
 	./get-tools
@@ -581,6 +582,7 @@ $(GA_DIR)/armci/configure: $(GA_DIR)/armci/Makefile.in
 	./get-tools
 	touch $(GA_DIR)/armci/configure
 endif # DONTCARE
+endif # IAMADEVELOPER
 $(STAMP_FC): 
 	rm -f ./*.FC.stamp
 	echo "" > $(STAMP_FC)
