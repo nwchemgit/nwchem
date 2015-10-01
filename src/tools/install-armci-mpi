@@ -1,6 +1,6 @@
 #!/bin/bash
 
-ARMCI_MPI_TARBALL=TODO
+ARMCI_MPI_TARBALL=$1
 
 export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
 if test "x$NWCHEM_TOP" = x
@@ -25,12 +25,17 @@ elif [ -x "$(command -v git)" ]; then
     echo "Step 1 of 4 succeeded."
   fi
 else
-  wget ${ARMCI_MPI_TARBALL}
-  if [ $stat -ne 0 ] ; then
-    echo "git clone failed"
+  if test "x${ARMCI_MPI_TARBALL}" = x ; then
+    echo "You have not provided a download location for the ARMCI-MPI tarball!"
     exit 1
   else
-    echo "Step 1 of 4 succeeded."
+    wget ${ARMCI_MPI_TARBALL}
+    if [ $stat -ne 0 ] ; then
+      echo "wget failed"
+      exit 1
+    else
+      echo "Step 1 of 4 succeeded."
+    fi
   fi
 fi
 
