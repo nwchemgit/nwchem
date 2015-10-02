@@ -174,10 +174,10 @@ c
       double precision dMzdna, dMzdnb 
       double precision dNzrtdna, dNzrtdnb
       double precision dNzrtdg
-      type(nwad_dble)::rrho, rrho2
+      type(nwad_dble)::rrho
       type(nwad_dble)::opz, omz
       type(nwad_dble)::rks
-      type(nwad_dble)::rphi, rphi2, rphi3, rphi4
+      type(nwad_dble)::rphi, rphi3
       type(nwad_dble)::expmone, expmone2
 c     type(nwad_dble)::t, t2, t3, t4
       type(nwad_dble)::t2, t4
@@ -415,7 +415,7 @@ c epsilon and its derivatives are multiplied by the density in the
 c routines above, we end up taking derivatives of n*epsilon_c / n.
 c
          rrho = 1.0d0/rhoval
-         rrho2 = rrho*rrho
+c        rrho2 = rrho*rrho
 c
          epsc = nepsc(1)*rrho
 c        if (ipol.eq.1) then
@@ -643,8 +643,8 @@ c        t = |Nabla n|/(2*phi*ks*n) and its derivs
 c
          rks = 1.0d0/ks
          rphi = 1.0d0/phi
-         rphi2 = rphi*rphi
-         rphi3 = rphi2*rphi
+c        rphi2 = rphi*rphi
+         rphi3 = rphi**3
 c
 c        t = dsqgamma*rphi*rks*rrho/2.0d0
 c        dtdna = -t*rrho-t*rphi*dphidna-t*rks*dksdna
@@ -756,7 +756,7 @@ c    D                + rrho)*d2tdnb2
 c
 c        { ... } in A (see below) and its derivs
 c
-         rphi4 = rphi3*rphi
+c        rphi4 = rphi3*rphi
 c
          argexp = -epsc*rphi3/GAMMA
 c        dargexpdna = -depscdna*rphi3/GAMMA

@@ -170,7 +170,7 @@ c     parameter (F10d3=10.0d0/3.0d0)
 c
       integer n
 c     type(nwad_dble)::rrho, rho43, rho13, gamma, gam12, s, g
-      type(nwad_dble)::rrho, rho43, rho13, gamma, s, g
+      type(nwad_dble)::rho43, gamma, s, g
       double precision d1s(2), d, gp, d1g(2)
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c     double precision rhom23, d2s(3), gpp, d2g(3)
@@ -245,8 +245,8 @@ CDEC$ NOSWP
          do 10 n = 1, nq
             if (rho(n,R_T).lt.tol_rho) goto 10
             rho43 = C*rho(n,R_T)**F43
-            rrho = 1.0d0/rho(n,R_T)
-            rho13 = F43*rho43*rrho
+c           rrho = 1.0d0/rho(n,R_T)
+c           rho13 = F43*rho43*rrho
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c           rhom23 = F13*rho13*rrho
 #endif
@@ -388,8 +388,8 @@ c       case
 c
             if (rho(n,R_A).lt.0.5d0*tol_rho) goto 25
             rho43 = C*(2d0*rho(n,R_A))**F43
-            rrho = 0.5d0/rho(n,R_A)
-            rho13 = F43*rho43*rrho
+c           rrho = 0.5d0/rho(n,R_A)
+c           rho13 = F43*rho43*rrho
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c           rhom23 = F13*rho13*rrho
 #endif
@@ -489,8 +489,8 @@ c
  25         continue
             if (rho(n,R_B).lt.0.5d0*tol_rho) goto 20
             rho43 = C*(2.0d0*rho(n,R_B))**F43
-            rrho = 0.5d0/rho(n,R_B)
-            rho13 = F43*rho43*rrho
+c           rrho = 0.5d0/rho(n,R_B)
+c           rho13 = F43*rho43*rrho
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 c           rhom23 = F13*rho13*rrho
 #endif
