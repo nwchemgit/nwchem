@@ -225,7 +225,7 @@ c     double precision Mmat(nq) !< [Output] The derivative wrt tau
 c
       double precision pi
       integer n
-      type(nwad_dble)::rrho, rho43, rho13, gamma
+      type(nwad_dble)::rrho, rho43, gamma
       type(nwad_dble)::tauN, tauW, tauU
 
       type(nwad_dble):: p, qtil, x,  al, mt, z
@@ -290,7 +290,7 @@ c     = n* Ax*n^(1/3)   or n*C*n^(1/3)
          
             rho43 = Ax*rhoval**F43 ! Ax*n^4/3
             rrho = 1d0/rhoval   ! reciprocal of rho
-            rho13 = rho43*rrho 
+c           rho13 = rho43*rrho 
             
 C     Below we just sum up the LDA contribution to the functional
             func(n)= func(n) + rho43*wght*afact2
@@ -303,8 +303,8 @@ c    &           delrho(n,3)*delrho(n,3)
             gamma=rgamma(n)
             gamma=gamma*facttwo*facttwo
             tauN = tau(n)*facttwo
-              tauW=0.125d0*gamma*rrho
-              tauU=0.3d0*P32*rhoval**F53
+            tauW=0.125d0*gamma*rrho
+            tauU=0.3d0*P32*rhoval**F53
 c     
 c     Evaluate the Fx, i.e. mt(x) = Fx - 1 (LDA bit already there)
 c     
@@ -321,20 +321,20 @@ c     al=dabs(al)
               qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0)) +
      +             F23*p
             
-              xb=(c*z**2.0d0)/( (1.0d0+z**2.0d0)**2.0d0 )
+              xb=(c*z**2)/( (1.0d0+z**2)**2)
               x1=(C1 + xb)*p
               x2=C2*qtil*qtil
               xc=C3*qtil
               if (gamma.lt.tol_rho) then
                 xd = 0.0d0
               else
-                xd=(0.5d0*(.6d0*z)**2.0d0  + .5d0*p*p)**.5d0
+                xd=(0.5d0*(.6d0*z)**2 + .5d0*p**2)**.5d0
               endif
               x3=xc*xd
-              x4=C1*C1*p*p/kap
-              x5=2.d0*es*C1*(.6d0*z)**2.0d0
-              x6= e*mu*p*p*p
-              x7 = (1.d0+es*p)**(-2.d0)
+              x4=C1*C1*p**2/kap
+              x5=2.d0*es*C1*(.6d0*z)**2
+              x6= e*mu*p**3
+              x7 = (1.d0+es*p)**(-2)
               
               x=(x1+x2+x3 +x4 +x5+x6)*x7
          

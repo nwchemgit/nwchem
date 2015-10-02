@@ -200,7 +200,7 @@ c     type(nwad_dble)::denccc,onemzeta,onepzeta
       type(nwad_dble)::onemzeta,onepzeta
       type(nwad_dble)::rhoval2
       double precision rhoval3
-      type(nwad_dble)::denxi2,denxi22
+      type(nwad_dble)::denxi22
       double precision term1,term2
       double precision ddelzeta2dna,ddelzeta2dnb
       double precision ddelzeta2dgaa,ddelzeta2dgbb,ddelzeta2dgab
@@ -277,8 +277,8 @@ c        epGGA= ec^LDA +H  = pbe
          tauN = tau(n,T_T)
          if (tauN.ge.tol_rho) then
 
-           xx2 = (tauw/tauN)**2.d0
-           xx3 = (tauw/tauN)**3.d0
+           xx2 = (tauw/tauN)**2
+           xx3 = (tauw/tauN)**3
 
          else
 
@@ -508,11 +508,12 @@ c    &            delrho(n,3,1)*delrho(n,3,2)
             gbb = rgamma_t(1,G_BB)
             gab = rgamma_t(1,G_AB)
 c
-            rhoval2 = rhoval*rhoval
+            rhoval2 = rhoval**2
 c           rhoval3 = rhoval*rhoval*rhoval
-            denxi2 = 2.d0*(3.d0*pi*pi*rhoval)**(1.d0/3.d0)
-            denxi22 = denxi2*denxi2
-            delzeta2 = (gaa*onemzeta*onemzeta + gbb*onepzeta*onepzeta
+c           denxi2 = 2.d0*(3.d0*pi*pi*rhoval)**(1.d0/3.d0)
+c           denxi22 = denxi2**2
+            denxi22 = 4.d0*(3.d0*pi*pi*rhoval)**(2.d0/3.d0)
+            delzeta2 = (gaa*onemzeta**2 + gbb*onepzeta**2
      &                  -2.d0*gab*onemzeta*onepzeta)/rhoval2
 c
 c           dzetadna =  onemzeta/rhoval
@@ -545,7 +546,7 @@ c
             else if (1.0d0+zeta.le.tol_rho) then
               ccc=0.0d0 ! limit established by Maxima
             else
-              ccc=czeta0(zeta)/(denccc(zeta,xi2)**4.0d0)
+              ccc=czeta0(zeta)/(denccc(zeta,xi2)**4)
             endif
 c           ddencccdna=2.d0*(denccc(zeta,xi2)**3)*
 c    &       (dxi2dna*(onepzeta**(-F43) + onemzeta**(-F43)) 
@@ -573,8 +574,8 @@ c
          tauw = 0.125d0*gammaval/rhoval
 c
          if (tauN.ge.tol_rho) then
-           xx2 = (tauw/tauN)**2.d0
-           xx3 = (tauw/tauN)**3.d0
+           xx2 = (tauw/tauN)**2
+           xx3 = (tauw/tauN)**3
          else
            xx2 = 0.0d0
            xx3 = 0.0d0
@@ -843,8 +844,8 @@ c
         implicit none
         type(nwad_dble), intent(in) :: zeta
         type(nwad_dble)             :: s
-        s = 0.53d0 + 0.87d0*zeta**2.0d0 
-     &    + 0.5d0*zeta**4.0d0 + 2.26d0*zeta**6.0d0
+        s = 0.53d0 + 0.87d0*zeta**2
+     &    + 0.5d0*zeta**4 + 2.26d0*zeta**6
       end function
 c
       function denccc(zeta,xi2) result(s)
