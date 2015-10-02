@@ -481,9 +481,9 @@ c Delta[epsilon]
 c Delta[espilon](rs,1) in Eq. [4.8] in VWN and its derivative
          beta_rs1 = e(BETA_SET_RS1+1)-e(BETA_SET_RS1)
 c        d1beta_rs1 = d1e(BETA_SET_RS1+1)-d1e(BETA_SET_RS1)
-         zeta2 = zeta*zeta
-         zeta3 = zeta2*zeta
-         zeta4 = zeta3*zeta
+c        zeta2 = zeta*zeta
+c        zeta3 = zeta2*zeta
+         zeta4 = zeta**4
 c Eq. [4.8] in VWN and its derivative with respect to rs
          t_vwn = d2fz0*beta_rs1-e(3)
 c        d1t_vwn = d2fz0*d1beta_rs1-d1e(3)
