@@ -89,7 +89,7 @@
 
       u=alpha*s2/s2p1
 
-      f=a(1) + a(2)*u + a(3)*u*u
+      f=a(1) + a(2)*u + a(3)*u**2
 
       end
 
@@ -133,7 +133,7 @@
 
       u=alpha*s2/s2p1
 
-      f=a(1) + a(2)*u + a(3)*u*u + a(4)*u*u*u + a(5)*u*u*u*u
+      f=a(1) + a(2)*u + a(3)*(u**2) + a(4)*(u**3) + a(5)*(u**4)
 
       end
 
@@ -182,7 +182,7 @@
       sv2p1=1.0d0+alpha*sv2
 
       u=alpha*sv2/sv2p1
-      f=a(1) + a(2)*u + a(3)*u*u
+      f=a(1) + a(2)*u + a(3)*u**2
 
       end
 
@@ -231,7 +231,7 @@
       sv2p1=1.0d0+alpha*sv2
 
       u=alpha*sv2/sv2p1
-      f=a(1) + a(2)*u + a(3)*u*u + a(4)*u*u*u + a(5)*u*u*u*u
+      f=a(1) + a(2)*u + a(3)*u**2 + a(4)*u**3 + a(5)*u**4
 
       end
 
