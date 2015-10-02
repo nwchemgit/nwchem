@@ -54,7 +54,7 @@ c
       double precision dLdS, dLdZ, d2dSS, d2dSZ, d2dZZ
       double precision eps0c(6), eps1c(6), epsc(6)
       double precision F1, F2, F3, F4, F6, F8, F9, F12, F24, F36
-      type(nwad_dble)::Zeta,FZeta,z2,z3,z4,GZ,HZ
+      type(nwad_dble)::Zeta,FZeta,z4,GZ,HZ
       double precision GammaI,dfZdz,d2fZdz 
       type(nwad_dble)::EU,EP
       double precision dEUdRS,d2UdRS
@@ -117,9 +117,9 @@ c
       Call nwxc_EvPWLC_d3(epsc(1),epsc(2),epsc(3),epsc(4),epsc(5),
      &    epsc(6),RS,AlphaM,dAMdRS,d2AdRS)
 #endif
-      Z2 = Zeta*Zeta
-      Z3 = Zeta*Z2
-      Z4 = Zeta*Z3
+c     Z2 = Zeta*Zeta
+c     Z3 = Zeta*Z2
+      Z4 = Zeta**4
       GZ = FZeta*Z4
       HZ = FZZI*(FZeta-GZ)
       PotLC = EU*(F1-GZ) + EP*GZ - AlphaM*HZ
@@ -159,7 +159,7 @@ c
       type(nwad_dble)::Zeta, FZeta
       double precision S, dfZdz,d2fZdz
       double precision Zero, One, Two, Three, Four, Nine, F8, F27
-      type(nwad_dble)::OMZ, OPZ, OMZ2, OPZ2, OMZ3, OPZ3
+      type(nwad_dble)::OMZ, OPZ
       double precision F13, F43, F49, F827
       data Zero/0.0d0/, One/1.0d0/, Two/2.0d0/, Three/3.0d0/,
      $  Four/4.0d0/, Nine/9.0d0/, F8/8.0D0/, F27/27.0D0/
@@ -171,21 +171,21 @@ c      Small = 1.0d-14
       d2fZdz = Zero
       OMZ = One - Zeta
       OPZ = One + Zeta
-      OMZ2 = OMZ**2.0d0
-      OPZ2 = OPZ**2.0d0
+c     OMZ2 = OMZ**2.0d0
+c     OPZ2 = OPZ**2.0d0
       F13 = One / Three
       F43 = Four / Three
       F49 = Four / Nine
       F827 = F8 / F27
       If(OMZ.gt.Small) then
-        OMZ3 = OMZ ** F13
-        fZeta = fZeta + OMZ*OMZ3
+c       OMZ3 = OMZ ** F13
+        fZeta = fZeta + OMZ**F43
 c       dfZdz = dfZdz - OMZ3
 c       d2fZdz = d2fZdz + OMZ3/OMZ
       endIf
       If(OPZ.gt.Small) then
-        OPZ3 = OPZ ** F13
-        fZeta = fZeta + OPZ*OPZ3
+c       OPZ3 = OPZ ** F13
+        fZeta = fZeta + OPZ**F43
 c       dfZdz = dfZdz + OPZ3
 c       d2fZdz = d2fZdz + OPZ3/OPZ
       endIf
@@ -225,7 +225,7 @@ C
       Q0 = -F2*A*(F1+A1*RS)
       RS12 = Sqrt(RS)
       RS32 = RS*RS12
-      Q1 = F2*A*(B1*RS12+B2*RS+B3*RS32+B4*RS*RS)
+      Q1 = F2*A*(B1*RS12+B2*RS+B3*RS32+B4*RS**2)
       Q2 = Log(F1+F1/Q1)
       V = Q0*Q2
 C
