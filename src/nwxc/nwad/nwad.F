@@ -374,6 +374,7 @@ c
         module procedure nwad_dble_pow
         module procedure nwad_dble_powx
         module procedure nwad_dble_powy
+        module procedure nwad_dble_powix
       end interface
       interface operator (==) ! .eq.
         module procedure nwad_dble_equal
@@ -576,10 +577,19 @@ c
         iy = 1
         is = 1
         s%ivar = ior(x%ivar,y%ivar)
+#if defined(USE_FORTRAN2008)
+        s%nvar = popcnt(s%ivar)
+#else
         s%nvar = util_popcnt(s%ivar)
+#endif
         ivsize = bit_size(s%ivar)
+#if defined(USE_FORTRAN2008)
+        ihbit  = ivsize - leadz(s%ivar) - 1
+        ilbit  = trailz(s%ivar)
+#else
         ihbit  = ivsize - util_leadz(s%ivar) - 1
         ilbit  = util_trailz(s%ivar)
+#endif
         do ib = ilbit, ihbit
           if (btest(s%ivar,ib)) then
             if (btest(x%ivar,ib)) then
@@ -787,14 +797,15 @@ c
         type(nwad_dble),  intent(in) :: s
         character*(*),    intent(in) :: op
         integer                         ilen
-        double precision f13, f23, f2, f43, f53, f83, f113
+        integer                         iy
+        double precision f13, f23, f43, f53, f83, f113
         f13  =  1.0d0/3.0d0
         f23  =  2.0d0/3.0d0
-        f2   =  2.0d0
         f43  =  4.0d0/3.0d0
         f53  =  5.0d0/3.0d0
         f83  =  8.0d0/3.0d0
         f113 = 11.0d0/3.0d0
+        iy   = y+0.5d0
         if (nwad_depth.ne.0) return
         call nwad_print_entity(s)
         if (get_nvar(s).eq.0) then
@@ -811,8 +822,6 @@ c
           write(nwad_iunit,'("(1/3)",$)')
         else if (abs(y-f23).lt.1.0d-14) then
           write(nwad_iunit,'("(2/3)",$)')
-        else if (abs(y-f2).lt.1.0d-14) then
-          write(nwad_iunit,'("2",$)')
         else if (abs(y-f43).lt.1.0d-14) then
           write(nwad_iunit,'("(4/3)",$)')
         else if (abs(y-f53).lt.1.0d-14) then
@@ -821,6 +830,8 @@ c
           write(nwad_iunit,'("(8/3)",$)')
         else if (abs(y-f113).lt.1.0d-14) then
           write(nwad_iunit,'("(11/3)",$)')
+        else if (abs(y-iy).lt.1.0d-14) then
+          write(nwad_iunit,'(i,$)')iy
         else
           if (y.ge.0.0d0) then
             write(nwad_iunit,'(e22.16,$)')y
@@ -2798,20 +2809,46 @@ c
         type(nwad_dble), intent(in)  :: x
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
+        double precision             :: p1
+#endif
+#if NWAD_DEG >= 2
+        double precision             :: p2
+#endif
+#if NWAD_DEG >= 3
+        double precision             :: p3
+#endif
         integer                      :: ix, ix2, ix3
+#if NWAD_DEG >= 3
+        p3 = x%d0**(y-3.0d0)
+#endif
+#if NWAD_DEG > 2
+        p2 = x%d0*p3
+#elif NWAD_DEG == 2
+        p2 = x%d0**(y-2.0d0)
+#endif
+#if NWAD_DEG > 1
+        p1 = x%d0*p2
+#elif NWAD_DEG == 1
+        p1 = x%d0**(y-1.0d0)
+#endif
+#if NWAD_DEG > 0
+        s%d0 = x%d0*p1
+#elif NWAD_DEG == 0
         s%d0 = x%d0**y
+#endif
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
         do ix = 1, x%nvar
-          s%d1(ix) = x%d1(ix)*y*x%d0**(y - 1.0d0)
+          s%d1(ix) = x%d1(ix)*y*p1
         enddo
 #endif
 #if NWAD_DEG >= 2
         do ix = 1, x%nvar
           do ix2 = 1, ix
             s%d2(ix*(ix-1)/2+ix2) 
-     &      = x%d1(ix)*x%d1(ix2)*y*(y-1.0d0)*x%d0**(y-2.0d0)
-     &      + x%d2(ix*(ix-1)/2+ix2)*y*x%d0**(y-1.0d0)
+     &      = x%d1(ix)*x%d1(ix2)*y*(y-1.0d0)*p2
+     &      + x%d2(ix*(ix-1)/2+ix2)*y*p1
           enddo
         enddo
 #endif
@@ -2821,19 +2858,19 @@ c
             do ix3 = 1, ix2
               s%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)
      &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*y*(y-1.0d0)*(y-2.0d0)
-     &          *x%d0**(y-3.0d0)
+     &          *p3
 c
 c             d1*d2 needs permutation of arguments here
 c
      &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*y*(y-1.0d0)
-     &          *x%d0**(y - 2.0d0)
+     &          *p2
      &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*y*(y-1.0d0)
-     &          *x%d0**(y - 2.0d0)
+     &          *p2
      &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*y*(y-1.0d0)
-     &          *x%d0**(y - 2.0d0)
+     &          *p2
 c
      &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*y
-     &          *x%d0**(y-1.0d0)
+     &          *p1
             enddo
           enddo
         enddo
@@ -2916,6 +2953,111 @@ c
         endif
 #endif
       end function nwad_dble_powy
+      !>
+      !> \brief Evaluate the exponentiation operator where \f$y\f$ is inactive
+      !> and integer
+      !> 
+      !> We consider \f$s(r) = x(r)^y\f$.
+      !> \f{eqnarray*}{
+      !>   \frac{\mathrm{d}^0s(r)}{\mathrm{d}r^0} &=& 
+      !>       \left(\frac{\mathrm{d}^0x(r)}{\mathrm{d}r^0}\right)^{y} \\\\
+      !>   \frac{\mathrm{d}^1s(r)}{\mathrm{d}r^1} &=& 
+      !>      y \left(\frac{\mathrm{d}^0x(r)}{\mathrm{d}r^0}\right)^{y-1}
+      !>              \frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1} \\\\
+      !>   \frac{\mathrm{d}^2s(r)}{\mathrm{d}r^2} &=& 
+      !>      y (y-1) \left(\frac{\mathrm{d}^0x(r)}{\mathrm{d}r^0}\right)^{y-2}
+      !>              \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^2
+      !>    + y       \left(\frac{\mathrm{d}^0x(r)}{\mathrm{d}r^0}\right)^{y-1}
+      !>                    \frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2} \\\\
+      !>    \frac{\mathrm{d}^3s(r)}{\mathrm{d}r^3} &=& 
+      !>      y(y-1)(y-2) \left(\frac{\mathrm{d}^0x(r)}{\mathrm{d}r^0}\right)^{y-3}
+      !>                  \left(\frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}\right)^3
+      !>    +3y(y-1)      \left(\frac{\mathrm{d}^0x(r)}{\mathrm{d}r^0}\right)^{y-2}
+      !>                        \frac{\mathrm{d}^1x(r)}{\mathrm{d}r^1}
+      !>                        \frac{\mathrm{d}^2x(r)}{\mathrm{d}r^2}
+      !>    + y           \left(\frac{\mathrm{d}^0x(r)}{\mathrm{d}r^0}\right)^{y-1}
+      !>                        \frac{\mathrm{d}^3x(r)}{\mathrm{d}r^3}
+      !> \f}
+      !>
+      function nwad_dble_powix(x,y) result (s)
+        implicit none
+        type(nwad_dble), intent(in)  :: x
+        integer        , intent(in)  :: y
+        type(nwad_dble)              :: s
+#if NWAD_DEG >= 1
+        double precision             :: p1
+#endif
+#if NWAD_DEG >= 2
+        double precision             :: p2
+#endif
+#if NWAD_DEG >= 3
+        double precision             :: p3
+#endif
+        integer                      :: ix, ix2, ix3
+#if NWAD_DEG >= 3
+        p3 = x%d0**(y-3)
+#endif
+#if NWAD_DEG > 2
+        p2 = x%d0*p3
+#elif NWAD_DEG == 2
+        p2 = x%d0**(y-2)
+#endif
+#if NWAD_DEG > 1
+        p1 = x%d0*p2
+#elif NWAD_DEG == 1
+        p1 = x%d0**(y-1)
+#endif
+#if NWAD_DEG > 0
+        s%d0 = x%d0*p1
+#elif NWAD_DEG == 0
+        s%d0 = x%d0**y
+#endif
+#if NWAD_DEG >= 1
+        call nwad_copy_dependencies(s,x)
+        do ix = 1, x%nvar
+          s%d1(ix) = x%d1(ix)*y*p1
+        enddo
+#endif
+#if NWAD_DEG >= 2
+        do ix = 1, x%nvar
+          do ix2 = 1, ix
+            s%d2(ix*(ix-1)/2+ix2) 
+     &      = x%d1(ix)*x%d1(ix2)*y*(y-1)*p2
+     &      + x%d2(ix*(ix-1)/2+ix2)*y*p1
+          enddo
+        enddo
+#endif
+#if NWAD_DEG >= 3
+        do ix = 1, x%nvar
+          do ix2 = 1, ix
+            do ix3 = 1, ix2
+              s%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)
+     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*y*(y-1)*(y-2)
+     &          *p3
+c
+c             d1*d2 needs permutation of arguments here
+c
+     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*y*(y-1)
+     &          *p2
+     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*y*(y-1)
+     &          *p2
+     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*y*(y-1)
+     &          *p2
+c
+     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*y
+     &          *p1
+            enddo
+          enddo
+        enddo
+#endif
+#ifdef NWAD_PRINT
+        nwad_fid  = nwad_fid + 1
+        s%var_fid = nwad_fid
+        if (nwad_depth.eq.0) then
+          call nwad_print_int_opx(s,x,1.0d0*y,"^")
+        endif
+#endif
+      end function nwad_dble_powix
       !>
       !> \brief Return whether \f$x\f$ equals \f$y\f$
       !>
@@ -5026,8 +5168,13 @@ c       s%var_name = "tau"
 #endif
 #if NWAD_DEG >= 1
         s  = x%d1(ix)
+#if defined(USE_FORTRAN2008)
+        ihbit = bit_size(x%ivar)-leadz(x%ivar)
+        ilbit = trailz(x%ivar)
+#else
         ihbit = bit_size(x%ivar)-util_leadz(x%ivar)
         ilbit = util_trailz(x%ivar)
+#endif
         nb = ihbit-ilbit
         if (nb.eq.x%nvar) then
           !
@@ -5090,8 +5237,13 @@ c       s%var_name = "tau"
 #endif
 #if NWAD_DEG >= 2
         s     = x%d2(ix*(ix-1)/2+ix2)
+#if defined(USE_FORTRAN2008)
+        ihbit = bit_size(x%ivar)-leadz(x%ivar)
+        ilbit = trailz(x%ivar)
+#else
         ihbit = bit_size(x%ivar)-util_leadz(x%ivar)
         ilbit = util_trailz(x%ivar)
+#endif
         nb = ihbit-ilbit
         if (nb.eq.x%nvar) then
           !
@@ -5176,8 +5328,13 @@ c       iv  = x%ivar(ix)
 c       iv2 = x%ivar(ix2)
 c       iv3 = x%ivar(ix3)
 c       s     = x%d2(ix*(ix-1)/2+ix2)
+#if defined(USE_FORTRAN2008)
+        ihbit = bit_size(x%ivar)-leadz(x%ivar)
+        ilbit = trailz(x%ivar)
+#else
         ihbit = bit_size(x%ivar)-util_leadz(x%ivar)
         ilbit = util_trailz(x%ivar)
+#endif
         nb = ihbit-ilbit
         if (nb.eq.x%nvar) then
           !
