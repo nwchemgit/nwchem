@@ -481,7 +481,7 @@ C
       double precision r13, r14, r15, r16, r17, r18
 #endif
       type(nwad_dble)::PX, GX, TX, F, EUEG, Chi, RS, Z, P, E, PotLC
-      type(nwad_dble)::rrho, rho13, rhoo, rho43, rho53, rho83
+      type(nwad_dble)::rhoo, rho53, rho83
       type(nwad_dble)::kc,xk,zk,d,gc, Zeta
       double precision FP, FG, FT, DTol, ZP, ZT
       double precision EUEGP, ChiP, ChiG, cf, gcc
@@ -525,9 +525,9 @@ C
         F83 = F8 / F3
         F113 = F11 / F3
         rhoo = PX 
-        rrho = 1.0d0/rhoo
-        rho43 = rhoo**F4o3
-        rho13 = rho43*rrho
+c       rrho = 1.0d0/rhoo
+c       rho43 = rhoo**F4o3
+c       rho13 = rho43*rrho
         rho53 = rhoo**F53
         rho83 = rho53*rhoo
         

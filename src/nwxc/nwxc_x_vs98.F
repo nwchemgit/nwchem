@@ -124,7 +124,7 @@ c     Local
 c
       integer n
       double precision pi
-      type(nwad_dble)::rrho, rho43, rho13, rhoo, rho53, rho83
+      type(nwad_dble):: rho43, rhoo, rho53, rho83
       type(nwad_dble):: Gamma
 c
       type(nwad_dble)::tauN,tauu
@@ -183,8 +183,8 @@ c
             rhoo = rho(n,R_T)/Two   ! rho_sigma
             if (rhoo.lt.DTol) goto 10
             rho43 = rhoo**f43  
-            rrho = 1d0/rhoo       ! reciprocal of rho
-            rho13 = rho43*rrho
+c           rrho = 1d0/rhoo       ! reciprocal of rho
+c           rho13 = rho43*rrho
             rho53 = rhoo**f53
             rho83 = rho53*rhoo 
 c
@@ -244,8 +244,8 @@ c
            if (rho(n,R_A).lt.DTol) goto 25
            rhoo = rho(n,R_A)
            rho43 = rhoo**f43
-           rrho = 1.0d0/rhoo       ! reciprocal of rho
-           rho13 = rho43*rrho
+c          rrho = 1.0d0/rhoo       ! reciprocal of rho
+c          rho13 = rho43*rrho
            rho53 = rhoo**f53
            rho83 = rho53*rhoo
 
@@ -299,8 +299,8 @@ c
            if (rho(n,R_B).lt.DTol) goto 20
            rhoo = rho(n,R_B)
            rho43 = rhoo**f43
-           rrho = 1.0d0/rhoo       ! reciprocal of rho
-           rho13 = rho43*rrho
+c          rrho = 1.0d0/rhoo       ! reciprocal of rho
+c          rho13 = rho43*rrho
            rho53 = rhoo**f53
            rho83 = rho53*rhoo
 c
@@ -403,7 +403,7 @@ C
       sr6 = r6
 c     sk2 = sk*sk
       g =  (sr1 + sr2*sxk + sr3*szk
-     $  +sr4*sxk*sxk + sr5*szk*sxk + sr6*szk*szk)/sk
+     $  +sr4*sxk**2 + sr5*szk*sxk + sr6*szk**2)/sk
 c     dgdx =   (-sr1*sc
 c    $  +sr2*(One-Two*sc*sxk)
 c    $  -Two*sr3*szk*sc
