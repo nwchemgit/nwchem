@@ -238,8 +238,8 @@ c
          kf = (six*pi2*rho)**f13 
       endif
       nu = cam_omega/kf
-      chi = nu/sqrt(lambda+nu**two)
-      lambda2 = (one+chi)*(lambda+nu**two)
+      chi = nu/sqrt(lambda+nu**2)
+      lambda2 = (one+chi)*(lambda+nu**2)
 
 c
 c     Calculate F(H(s)) for the model exhange hole
@@ -249,8 +249,8 @@ c
 c
 c     Calculate EG(s) 
 c
-      EGs = -(two/five)*C*Fs*lambda - (four/r15)*B*lambda**two -
-     &      (six/five)*A*lambda**three - 
+      EGs = -(two/five)*C*Fs*lambda - (four/r15)*B*lambda**2 -
+     &      (six/five)*A*lambda**3 - 
      &      (four/five)*srpi*lambda**(seven/two) -
      &      (r12/five)*(lambda**(seven/two))*(sqrt(zeta)-sqrt(eta))
  
@@ -268,11 +268,11 @@ c
 c       The final value for the enhancement factor is
 c
       tmp1 = one + f12*chi
-      tmp2 = one + (nine/eight)*chi + (three/eight)*chi**two 
+      tmp2 = one + (nine/eight)*chi + (three/eight)*chi**2 
       Fxhse1  = A*(zeta/Js + eta/Ks) 
       Fxhse2  = -(four/nine)*B/lambda2
-      Fxhse3  = -(four/nine)*C*Fs*tmp1/lambda2**two
-      Fxhse4  = -(eight/nine)*EGs*tmp2/lambda2**three
+      Fxhse3  = -(four/nine)*C*Fs*tmp1/lambda2**2
+      Fxhse4  = -(eight/nine)*EGs*tmp2/lambda2**3
       Fxhse5  = two*zeta*log(one -D/Ms)
       Fxhse6  = -two*eta*log(one -(D-A)/Ns)
 c
