@@ -134,10 +134,10 @@ c
       integer n
       double precision c1, c2, ab, ratcd
       type(nwad_dble)::rrho, rhoa, rhob, d1t(2)
-      type(nwad_dble)::rhoa53, rhoa83, rhob53, rhob83
+      type(nwad_dble)::rhoa83, rhob83
       type(nwad_dble)::rrho2, rhoa2, rhob2, rhoab, rho2
-      type(nwad_dble)::h1, h2, h3, d1h1, d1h2, d1h3, om, d1om, t, tm_in
-      type(nwad_dble)::de, de11, de47, d1de
+      type(nwad_dble)::h1, h2, h3, om, t, tm_in
+      type(nwad_dble)::de, de11, de47
       type(nwad_dble)::zero
       type(nwad_dble)::xrarb
 c
@@ -169,24 +169,24 @@ c
             rho2 = 1.0d0/rrho2
             rhoa2 = rhoa*rhoa
             rhoab = rhoa2
-            rhoa53 = rhoa**F53
+c           rhoa53 = rhoa**F53
             rhoa83 = rhoa**F83
 c
             h2 = d*rrho**F13
-            d1h2 = -F13*h2*rrho
+c           d1h2 = -F13*h2*rrho
 c
             h3 = ratcd*h2
-            d1h3 = ratcd*d1h2
+c           d1h3 = ratcd*d1h2
 c
             h1 = 1d0/(1d0+h2)
-            d1h1 = -h1*h1*d1h2
+c           d1h1 = -h1*h1*d1h2
 c
             om = exp(-h3)*h1*rrho**F113
-            t = d1h3+h1*d1h2+F113*rrho
-            d1om = -om*t
+c           t = d1h3+h1*d1h2+F113*rrho
+c           d1om = -om*t
 c
             de = h3+h1*h2
-            d1de = d1h3 + d1h1*h2 + h1*d1h2
+c           d1de = d1h3 + d1h1*h2 + h1*d1h2
 c
             f1 = h1*rhoab*rrho
 c           d1f1(1) = d1h1*rhoab*rrho - h1*rhoab*rrho2
@@ -267,26 +267,26 @@ c           rhob = max(zero,rho(n,R_B))
             rhoa2 = rhoa*rhoa
             rhob2 = rhob*rhob
             rhoab = rhoa*rhob
-            rhoa53 = rhoa**F53
-            rhob53 = rhob**F53
-            rhoa83 = rhoa*rhoa53
-            rhob83 = rhob*rhob53
+c           rhoa53 = rhoa**F53
+c           rhob53 = rhob**F53
+            rhoa83 = rhoa**F83
+            rhob83 = rhob**F83
 c
             h2 = d*rrho**F13
-            d1h2 = -F13*h2*rrho
+c           d1h2 = -F13*h2*rrho
 c
             h3 = ratcd*h2
-            d1h3 = ratcd*d1h2
+c           d1h3 = ratcd*d1h2
 c
             h1 = 1d0/(1d0+h2)
-            d1h1 = -h1*h1*d1h2
+c           d1h1 = -h1*h1*d1h2
 c
             om = exp(-h3)*h1*rrho**F113
-            t = d1h3+h1*d1h2+F113*rrho
-            d1om = -om*t
+c           t = d1h3+h1*d1h2+F113*rrho
+c           d1om = -om*t
 c
             de = h3+h1*h2
-            d1de = d1h3 + d1h1*h2 + h1*d1h2
+c           d1de = d1h3 + d1h1*h2 + h1*d1h2
 c
 c Daniel (3-21-13): f1 is J/(-4*a) in my notes.
             f1 = h1*rhoab*rrho

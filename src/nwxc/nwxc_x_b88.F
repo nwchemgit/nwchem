@@ -99,7 +99,7 @@ c
 c***************************************************************************
 c
       integer n
-      type(nwad_dble)::rho13, rho43, gamma, x, g, dg
+      type(nwad_dble)::rho43, gamma, x, g, dg
 c     type(nwad_dble)::arcsinh, darcsinh, d2arcsinh
       type(nwad_dble)::gdenom, gdenom2, dgdenom
       double precision C
@@ -128,10 +128,11 @@ c
 c
 c           Spin alpha:
 c
-            rho13 = (0.5d0*rho(n,R_T))**(1.d0/3.d0)
-            rho43 = rho13**4.0d0
+c           rho13 = (0.5d0*rho(n,R_T))**(1.d0/3.d0)
+c           rho43 = rho13**4.0d0
+            rho43 = (0.5d0*rho(n,R_T))**(4.d0/3.d0)
             gamma = rgamma(n,G_TT)
-            if (sqrt(gamma).gt.tol_rho)then
+            if (gamma.gt.tol_rho*tol_rho)then
                gamma = 0.25d0 * gamma
                x = sqrt(gamma) / rho43
             else
@@ -229,10 +230,11 @@ c           if (rho(n,1).lt.tol_rho) goto 20
 c
 c           Spin alpha:
 c
-            rho13 = rho(n,R_A)**(1.d0/3.d0)
-            rho43 = rho13*rho(n,R_A)
+c           rho13 = rho(n,R_A)**(1.d0/3.d0)
+c           rho43 = rho13*rho(n,R_A)
+            rho43 = rho(n,R_A)**(4.d0/3.d0)
             gamma = rgamma(n,G_AA)
-            if (sqrt(gamma).gt.tol_rho)then
+            if (gamma.gt.tol_rho*tol_rho)then
                x = sqrt(gamma) / rho43
             else
                x = 0d0
@@ -323,10 +325,11 @@ c           Spin beta:
 c
             if (rho(n,R_B).lt.0.5d0*tol_rho) goto 20
 c
-            rho13 = rho(n,R_B)**(1.d0/3.d0)
-            rho43 = rho13*rho(n,R_B)
+c           rho13 = rho(n,R_B)**(1.d0/3.d0)
+c           rho43 = rho13*rho(n,R_B)
+            rho43 = rho(n,R_B)**(4.d0/3.d0)
             gamma = rgamma(n,G_BB)
-            if (sqrt(gamma).gt.tol_rho)then
+            if (gamma.gt.tol_rho*tol_rho)then
                x = sqrt(gamma) / rho43
             else
                x = 0d0

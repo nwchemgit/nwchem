@@ -125,7 +125,7 @@ c
 c     type(nwad_dble)::arcsinh, darcsinh, d2arcsinh
       double precision C, dg,
      &     dgdenom, t, Atmp, Ctmp
-      type(nwad_dble)::rho13, rho43, gamma, x
+      type(nwad_dble)::rho43, gamma, x
       type(nwad_dble)::Etmp, g, gdenom
       double precision gdenom2
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
@@ -156,13 +156,14 @@ c
 c
 c           Spin alpha:
 c
-            rho13 = (0.5d0*rho(n,R_T))**(1.d0/3.d0)
-            rho43 = rho13**4.0d0
+c           rho13 = (0.5d0*rho(n,R_T))**(1.d0/3.d0)
+c           rho43 = rho13**4.0d0
+            rho43 = (0.5d0*rho(n,R_T))**(4.d0/3.d0)
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_TT)
-            if (dsqrt(value(gamma)).gt.tol_rho)then
+            if (gamma.gt.tol_rho*tol_rho)then
                gamma = 0.25d0 * gamma
                x = sqrt(gamma) / rho43
             else
@@ -290,13 +291,14 @@ c
 c
 c           Spin alpha:
 c
-            rho13 = rho(n,R_A)**(1.d0/3.d0)
-            rho43 = rho13*rho(n,R_A)
+c           rho13 = rho(n,R_A)**(1.d0/3.d0)
+c           rho43 = rho13*rho(n,R_A)
+            rho43 = rho(n,R_A)**(4.d0/3.d0)
 c           gamma = delrho(n,1,1)*delrho(n,1,1) +
 c    &              delrho(n,2,1)*delrho(n,2,1) +
 c    &              delrho(n,3,1)*delrho(n,3,1)
             gamma = rgamma(n,G_AA)
-            if (dsqrt(value(gamma)).gt.tol_rho)then
+            if (gamma.gt.tol_rho*tol_rho)then
                x = sqrt(gamma) / rho43
             else
                x = 0d0
@@ -406,13 +408,14 @@ c           Spin beta:
 c
             if (rho(n,R_B).lt.0.5d0*tol_rho) goto 20
 c
-            rho13 = rho(n,R_B)**(1.d0/3.d0)
-            rho43 = rho13*rho(n,R_B)
+c           rho13 = rho(n,R_B)**(1.d0/3.d0)
+c           rho43 = rho13*rho(n,R_B)
+            rho43 = rho(n,R_B)**(4.d0/3.d0)
 c           gamma = delrho(n,1,2)*delrho(n,1,2) +
 c    &              delrho(n,2,2)*delrho(n,2,2) +
 c    &              delrho(n,3,2)*delrho(n,3,2)
             gamma = rgamma(n,G_BB)
-            if (dsqrt(value(gamma)).gt.tol_rho)then
+            if (gamma.gt.tol_rho*tol_rho)then
                x = sqrt(gamma) / rho43
             else
                x = 0d0
