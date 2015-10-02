@@ -312,7 +312,7 @@ c***************************************************************************
 
       integer n
       type(nwad_dble)::x, sinhm1,dsinhm1
-      type(nwad_dble)::rho13, rho43,  Xa,  Ha, denom, num,  
+      type(nwad_dble)::rho43,  Xa,  Ha, denom, num,  
      &        fx,x2a,ten6xd,expo,bbx2
       double precision  fprimex, d1num,d1den
       integer D0R,D1G,D2RR,D2RG,D2GG
@@ -337,8 +337,9 @@ c     dsinhm1(x)=1d0/dsqrt(1d0+x*x)
          D2GG=D2_GBB_GBB
       endif
 
-      rho13 = (rho*(ipol/2d0))**(1.d0/3.d0)
-      rho43 = rho13**4.0d0
+c     rho13 = (rho*(ipol/2d0))**(1.d0/3.d0)
+c     rho43 = rho13**4.0d0
+      rho43 = (rho*(ipol/2d0))**(4.d0/3.d0)
       if (gamma.gt.tol_rho**2)then
          xa = sqrt(gamma)/rho43
          x2a=xa*xa

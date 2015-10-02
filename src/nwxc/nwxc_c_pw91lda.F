@@ -89,7 +89,7 @@ c
       type(nwad_dble):: rhoval, rs, x, fz, h1, h2, e(3)
       type(nwad_dble):: devwn_rsz, dec_rsz, eps, t_vwn
       type(nwad_dble):: beta_rs1, dec_rs1
-      type(nwad_dble):: zeta, zeta2, zeta3, zeta4
+      type(nwad_dble):: zeta, zeta4
 #if defined(SECOND_DERIV) || defined(THIRD_DERIV)
 !     double precision d2beta_rs1, d2t_vwn, d2devwn_rsz(3)
 !     double precision d2rs, d2x, d2h1, d2h2,
@@ -296,9 +296,9 @@ c
 c
          beta_rs1 = e(2)-e(1)
 !        d1beta_rs1 = d1e(2)-d1e(1)
-         zeta2 = zeta*zeta
-         zeta3 = zeta2*zeta
-         zeta4 = zeta3*zeta
+c        zeta2 = zeta*zeta
+c        zeta3 = zeta2*zeta
+         zeta4 = zeta**4
          t_vwn = d2fz0*beta_rs1-e(3)
 !        d1t_vwn = d2fz0*d1beta_rs1-d1e(3)
          devwn_rsz = fz/d2fz0*(e(3)+t_vwn*zeta4)
