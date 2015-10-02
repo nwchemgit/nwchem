@@ -6,8 +6,8 @@ c
 #undef  NWAD_DEG
 #define NWAD_DEG 1
 #include "./nwad/nwad.F"
-#define NWAD_PRINT y
-#include "./nwad/nwad.F"
+cdefine NWAD_PRINT y
+cinclude "./nwad/nwad.F"
 #undef  NWAD_DEG
 #undef  NWAD_PRINT
 #define NWAD_DEG 2

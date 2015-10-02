@@ -2,8 +2,8 @@
 
          LIBRARY = libnwxc.a
 
-    OBJ_OPTIMIZE = nwxc.o nwxc_add.o nwxc_block.o nwxc_query.o nwxc_nwchem.o \
-		   nwxcm_eval.o \
+    OBJ_OPTIMIZE = nwxc_print.o nwxc.o nwxc_add.o nwxc_block.o nwxc_query.o \
+		   nwxc_nwchem.o nwxcm_eval.o \
                    nwxc_vdw_main.o nwxc_vdw_e.o nwxc_vdw_der.o nwxc_vdw_hess.o \
                    nwxc_vdw_util.o nwxc_vdw3a.o nwxc_vdw3b.o nwxc_vdw3c.o \
                    nwxcm_heaviside.o
@@ -37,7 +37,10 @@
     LIB_INCLUDES = -I./nwad
 
 ifdef NWCHEM_NWXC_QUAD_PREC
-     LIB_DEFINES = -DNWAD_QUAD_PREC -DNWXC_QUAD_PREC
+     LIB_DEFINES += -DNWAD_QUAD_PREC -DNWXC_QUAD_PREC
+endif
+ifdef USE_FORTRAN2008
+     LIB_DEFINES += -DUSE_FORTRAN2008
 endif
 
      LIB_TARGETS = 
@@ -89,3 +92,4 @@ nwxc_fnc_print: nwxc_fnc_print.F nwxc_eval_print.F stubs.F ../../lib/$(NWCHEM_TA
 #	$(FC) -c $(FFLAGS) ./nwad/nwad.F90
 #	touch nwad.fh
 
+nwxc.o:	nwxc_print.o
