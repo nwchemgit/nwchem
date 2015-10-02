@@ -218,7 +218,7 @@ c     double precision PDUM
       double precision df3dr, df3dtau, df4dr, df4dtau
       double precision dgga1dg, dgga2dg, dgga3dg, dgga4dg
 c
-      type(nwad_dble)::rho43, rho13, rhoo, rho53
+      type(nwad_dble)::rho43, rhoo, rho53
 c     type(nwad_dble)::Gamma2, Gamma
       type(nwad_dble)::Gamma2
       type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
@@ -463,7 +463,7 @@ c
             if (rho(n,R_T).lt.DTol) goto 10
             rhoo = rho(n,R_T)/F2
             rho43 = rhoo**F4o3  
-            rho13 = rho43/rhoo
+c           rho13 = rho43/rhoo
             rho53 = rhoo**F5o3
 c            
             tauN = tau(n,T_T)
@@ -631,7 +631,7 @@ c
            if (rho(n,R_A).lt.0.5d0*DTol) goto 25           
             rhoo  = rho(n,R_A)
             rho43 = rhoo**F4o3  
-            rho13 = rho43/rhoo
+c           rho13 = rho43/rhoo
             rho53 = rhoo**F5o3
 c       
             tauN = tau(n,T_A)*F2
@@ -788,7 +788,7 @@ c
             if (rho(n,R_B).lt.0.5d0*DTol) goto 20
             rhoo  = rho(n,R_B)
             rho43 = rhoo**F4o3  
-            rho13 = rho43/rhoo
+c           rho13 = rho43/rhoo
             rho53 = rhoo**F5o3
 c
              
@@ -1161,7 +1161,7 @@ c
       double precision df3dr, df3dtau, df4dr, df4dtau
       double precision dgga1dg, dgga2dg, dgga3dg, dgga4dg
 c
-      type(nwad_dble)::rho43, rho13, rhoo, rho53
+      type(nwad_dble)::rho43, rhoo, rho53
       type(nwad_dble)::Gamma2, Gamma
       type(nwad_dble)::TauUEG, Tsig, Wsig, W1, W2, W3, W4, W5, W6
       type(nwad_dble)::W7, W8, W9, W10, W11
@@ -1405,7 +1405,7 @@ c
             if (rho(n,R_T).lt.DTol) goto 10
             rhoo = rho(n,R_T)/F2
             rho43 = rhoo**F4o3  
-            rho13 = rhoo**F1o3
+c           rho13 = rhoo**F1o3
             rho53 = rhoo**F5o3
 c            
             tauN = tau(n,T_T)
@@ -1573,7 +1573,7 @@ c
            if (rho(n,R_A).lt.0.5d0*DTol) goto 25           
             rhoo  = rho(n,R_A)
             rho43 = rhoo**F4o3  
-            rho13 = rhoo**F1o3
+c           rho13 = rhoo**F1o3
             rho53 = rhoo**F5o3
 c       
             tauN = tau(n,T_A)*F2
@@ -1730,7 +1730,7 @@ c
             if (rho(n,R_B).lt.0.5d0*DTol) goto 20
             rhoo  = rho(n,R_B)
             rho43 = rhoo**F4o3  
-            rho13 = rhoo**F1o3
+c           rho13 = rhoo**F1o3
             rho53 = rhoo**F5o3
 c
              

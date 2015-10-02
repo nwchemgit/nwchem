@@ -530,11 +530,11 @@ c        dphidna = dphidzeta*dzetadna
 c        dphidnb = dphidzeta*dzetadnb
 c
 c        t = dsqgamma/(2.0d0*phi*ks*rhoval)
-         t2 = gammaval/((2.0d0*phi*ks*rhoval)**2.0d0)
+         t2 = gammaval/((2.0d0*phi*ks*rhoval)**2)
 c        dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
 c        dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
 c
-         argexp = -epsc/GAMMA/(phi**3.0d0)
+         argexp = -epsc/GAMMA/(phi**3)
 c        dargexpdna = -depscdna/GAMMA/(phi**3)
 c    &                +3.0d0*epsc/GAMMA/(phi**4)*dphidna
 c        dargexpdnb = -depscdnb/GAMMA/(phi**3)
@@ -552,7 +552,7 @@ c
 c        fAtnum = 1.0d0+A*t**2.0d0
 c        fAtden = 1.0d0+A*t**2.0d0+A**2.0d0*t**4.0d0
          fAtnum = 1.0d0+A*t2
-         fAtden = 1.0d0+A*t2+A**2.0d0*t2**2.0d0
+         fAtden = 1.0d0+A*t2+A**2*t2**2
          fAt = fAtnum/fAtden
 c        dfAtnumdt = 2.0d0*A*t
 c        dfAtnumdA = t**2
@@ -570,7 +570,7 @@ c    &                            +t*t*dfAtdna)
 c        darglogdnb = BETA/GAMMA*(2.0d0*t*dtdnb*fAt
 c    &                            +t*t*dfAtdnb)
 c
-         H0 = GAMMA*(phi**3.0d0)*log(arglog)
+         H0 = GAMMA*(phi**3)*log(arglog)
 c        dH0dna = GAMMA*(3.0d0*(phi**2)*dphidna*dlog(arglog)
 c    &                  +(phi**3)*darglogdna/arglog)
 c        dH0dnb = GAMMA*(3.0d0*(phi**2)*dphidnb*dlog(arglog)
