@@ -272,13 +272,13 @@ c
 c        t = |Nabla n|/(2*phi*ks*n) and its derivs
 c
 c        t = dsqgamma/(2.0d0*phi*ks*rhoval)
-         t2 = gammaval/((2.0d0*phi*ks*rhoval)**2.0d0)
+         t2 = gammaval/((2.0d0*phi*ks*rhoval)**2)
 c        dtdna = -t/rhoval-t/phi*dphidna-t/ks*dksdna
 c        dtdnb = -t/rhoval-t/phi*dphidnb-t/ks*dksdnb
 c
 c        { ... } in A (see below) and its derivs
 c
-         argexp = -epsc/GAMMA/(phi**3.0d0)
+         argexp = -epsc/GAMMA/(phi**3)
 c        dargexpdna = -depscdna/GAMMA/(phi**3.0d0)
 c    &                +3.0d0*epsc/GAMMA/(phi**4.0d0)*dphidna
 c        dargexpdnb = -depscdnb/GAMMA/(phi**3.0d0)
@@ -300,7 +300,7 @@ c
 c        fAtnum = 1.0d0+A*t**2.0d0
 c        fAtden = 1.0d0+A*t**2.0d0+A**2.0d0*t**4.0d0
          fAtnum = 1.0d0+A*t2
-         fAtden = 1.0d0+A*t2+A**2.0d0*t2**2.0d0
+         fAtden = 1.0d0+A*t2+A**2*t2**2
          fAt = fAtnum/fAtden
 c        dfAtnumdt = 2.0d0*A*t
 c        dfAtnumdA = t**2.0d0
@@ -322,7 +322,7 @@ c    &                            +t*t*dfAtdnb)
 c
 c        H0 = GAMMA * phi**3 * log{arglog} and its derivs
 c
-         H0 = GAMMA*(phi**3.0d0)*log(arglog)
+         H0 = GAMMA*(phi**3)*log(arglog)
 c        dH0dna = GAMMA*(3.0d0*(phi**2.0d0)*dphidna*log(arglog)
 c    &                  +(phi**3.0d0)*darglogdna/arglog)
 c        dH0dnb = GAMMA*(3.0d0*(phi**2.0d0)*dphidnb*log(arglog)
