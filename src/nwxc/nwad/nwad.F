@@ -4549,13 +4549,19 @@ c
         type(nwad_dble)              :: s
         double precision             :: t1
         integer                      :: ix, ix2, ix3
+#ifndef USE_FORTRAN2008
         real*8 util_erf
         external util_erf
+#endif
         t1 = exp(-(x%d0**2))/sqrt(acos(-1.0_rk))
 #ifdef NWAD_QUAD_PREC
         s%d0 = erf(x%d0)
 #else
+#ifdef USE_FORTRAN2008
+        s%d0 = erf(x%d0)
+#else
         s%d0 = util_erf(x%d0)
+#endif
 #endif
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
@@ -4635,13 +4641,19 @@ c
         type(nwad_dble)              :: s
         double precision             :: t1
         integer                      :: ix, ix2, ix3
+#ifndef USE_FORTRAN2008
         real*8 util_erf
         external util_erf
+#endif
         t1 = exp(-(x%d0**2))/sqrt(acos(-1.0_rk))
 #ifdef NWAD_QUAD_PREC
         s%d0 = 1.0_rk-erf(x%d0)
 #else
+#ifdef USE_FORTRAN2008
+        s%d0 = 1.0d0-erf(x%d0)
+#else
         s%d0 = 1.0d0-util_erf(x%d0)
+#endif
 #endif
 #if NWAD_DEG >= 1
         call nwad_copy_dependencies(s,x)
