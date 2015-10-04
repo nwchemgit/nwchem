@@ -558,6 +558,9 @@ util_intrsc2008.o: ../../../util/util_intrsc2008.F
 util_erf.o: ../../../util/util_erf.F
 	$(FC) -c ../../../util/util_erf.F
 
+opt_powx: opt_powx.F ../nwad.F
+	$(FC) -DUSE_FORTRAN2008 -DNWAD_DEG=3 opt_powx.F -o opt_powx
+
 # NWAD_DEG not used yet, but planned as a way to generate modules for different
 # degrees of differentiation
 nwad3.mod: ../nwad.F

@@ -1,0 +1,12 @@
+#if   NWAD_DEG >= 3
+      use nwad3
+#elif NWAD_DEG >= 2
+      use nwad2
+#elif NWAD_DEG >= 1
+      use nwad1
+#elif NWAD_DEG >= 0
+      use nwad0
+#else
+Huh??
+#endif
+c $Id: nwad.fh 26393 2014-11-16 09:22:44Z d3y133 $
