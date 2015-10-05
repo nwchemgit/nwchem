@@ -2811,6 +2811,7 @@ c
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
         double precision             :: p1
+        double precision             :: q
 #endif
 #if NWAD_DEG >= 2
         double precision             :: p2
@@ -2838,39 +2839,40 @@ c
         s%d0 = x%d0**y
 #endif
 #if NWAD_DEG >= 1
+        q  = y
+        p1 = p1*q
         call nwad_copy_dependencies(s,x)
         do ix = 1, x%nvar
-          s%d1(ix) = x%d1(ix)*y*p1
+          s%d1(ix) = x%d1(ix)*p1
         enddo
 #endif
 #if NWAD_DEG >= 2
+        q  = q*(y-1.0d0)
+        p2 = p2*q
         do ix = 1, x%nvar
           do ix2 = 1, ix
             s%d2(ix*(ix-1)/2+ix2) 
-     &      = x%d1(ix)*x%d1(ix2)*y*(y-1.0d0)*p2
-     &      + x%d2(ix*(ix-1)/2+ix2)*y*p1
+     &      = x%d1(ix)*x%d1(ix2)*p2
+     &      + x%d2(ix*(ix-1)/2+ix2)*p1
           enddo
         enddo
 #endif
 #if NWAD_DEG >= 3
+        q  = q*(y-2.0d0)
+        p3 = p3*q
         do ix = 1, x%nvar
           do ix2 = 1, ix
             do ix3 = 1, ix2
               s%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)
-     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*y*(y-1.0d0)*(y-2.0d0)
-     &          *p3
+     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*p3
 c
 c             d1*d2 needs permutation of arguments here
 c
-     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*y*(y-1.0d0)
-     &          *p2
-     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*y*(y-1.0d0)
-     &          *p2
-     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*y*(y-1.0d0)
-     &          *p2
+     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*p2
+     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*p2
+     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*p2
 c
-     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*y
-     &          *p1
+     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*p1
             enddo
           enddo
         enddo
@@ -2986,6 +2988,7 @@ c
         type(nwad_dble)              :: s
 #if NWAD_DEG >= 1
         double precision             :: p1
+        integer                      :: iq
 #endif
 #if NWAD_DEG >= 2
         double precision             :: p2
@@ -3013,39 +3016,40 @@ c
         s%d0 = x%d0**y
 #endif
 #if NWAD_DEG >= 1
+        iq = y
+        p1 = p1*iq
         call nwad_copy_dependencies(s,x)
         do ix = 1, x%nvar
-          s%d1(ix) = x%d1(ix)*y*p1
+          s%d1(ix) = x%d1(ix)*p1
         enddo
 #endif
 #if NWAD_DEG >= 2
+        iq = iq*(y-1)
+        p2 = p2*iq
         do ix = 1, x%nvar
           do ix2 = 1, ix
             s%d2(ix*(ix-1)/2+ix2) 
-     &      = x%d1(ix)*x%d1(ix2)*y*(y-1)*p2
-     &      + x%d2(ix*(ix-1)/2+ix2)*y*p1
+     &      = x%d1(ix)*x%d1(ix2)*p2
+     &      + x%d2(ix*(ix-1)/2+ix2)*p1
           enddo
         enddo
 #endif
 #if NWAD_DEG >= 3
+        iq = iq*(y-2)
+        p3 = p3*iq
         do ix = 1, x%nvar
           do ix2 = 1, ix
             do ix3 = 1, ix2
               s%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)
-     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*y*(y-1)*(y-2)
-     &          *p3
+     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*p3
 c
 c             d1*d2 needs permutation of arguments here
 c
-     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*y*(y-1)
-     &          *p2
-     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*y*(y-1)
-     &          *p2
-     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*y*(y-1)
-     &          *p2
+     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*p2
+     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*p2
+     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*p2
 c
-     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*y
-     &          *p1
+     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*p1
             enddo
           enddo
         enddo
