@@ -2912,37 +2912,43 @@ c
         type(nwad_dble), intent(in)  :: y
         type(nwad_dble)              :: s
         integer                      :: iy, iy2, iy3
-        s%d0 = x**y%d0
+        double precision             :: p0, p1, p2, p3
+        double precision             :: ql
+        p0   = x**y%d0
+        s%d0 = p0
 #if NWAD_DEG >= 1
+        ql   = log(x)
+        p1   = p0*ql
         call nwad_copy_dependencies(s,y)
         do iy = 1, y%nvar
-          s%d1(iy) = x**y%d0*log(x)*y%d1(iy)
+          s%d1(iy) = p1*y%d1(iy)
         enddo
 #endif
 #if NWAD_DEG >= 2
+        p2   = p1*ql
         do iy = 1, y%nvar
           do iy2 = 1, iy
             s%d2(iy*(iy-1)/2+iy2)
-     &      = x**y%d0*(log(x)*y%d2(iy*(iy-1)/2+iy2) 
-     &      + log(x)**2*y%d1(iy)*y%d1(iy2))
+     &      = p1*y%d2(iy*(iy-1)/2+iy2) 
+     &      + p2*y%d1(iy)*y%d1(iy2)
           enddo
         enddo
 #endif
 #if NWAD_DEG >= 3
+        p3   = p2*ql
         do iy = 1, y%nvar
           do iy2 = 1, iy
             do iy3 = 1, iy2
               s%d3((iy-1)*iy*(iy+1)/6+iy2*(iy2-1)/2+iy3)
-     &        = x**y%d0*(
-     &          log(x)*y%d3((iy-1)*iy*(iy+1)/6+iy2*(iy2-1)/2+iy3)
+     &        = p1*y%d3((iy-1)*iy*(iy+1)/6+iy2*(iy2-1)/2+iy3)
 c
 c             d1*d2 needs permutation of arguments here
 c
-     &        + log(x)**2*y%d1(iy)*y%d2(iy2*(iy2-1)/2+iy3)
-     &        + log(x)**2*y%d1(iy2)*y%d2(iy*(iy-1)/2+iy3)
-     &        + log(x)**2*y%d1(iy3)*y%d2(iy*(iy-1)/2+iy2)
+     &        + p2*y%d1(iy)*y%d2(iy2*(iy2-1)/2+iy3)
+     &        + p2*y%d1(iy2)*y%d2(iy*(iy-1)/2+iy3)
+     &        + p2*y%d1(iy3)*y%d2(iy*(iy-1)/2+iy2)
 c
-     &        + log(x)**3*y%d1(iy)*y%d1(iy2)*y%d1(iy3))
+     &        + p3*y%d1(iy)*y%d1(iy2)*y%d1(iy3)
             enddo
           enddo
         enddo
