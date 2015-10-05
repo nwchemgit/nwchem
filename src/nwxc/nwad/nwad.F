@@ -831,7 +831,7 @@ c
         else if (abs(y-f113).lt.1.0d-14) then
           write(nwad_iunit,'("(11/3)",$)')
         else if (abs(y-iy).lt.1.0d-14) then
-          write(nwad_iunit,'(i,$)')iy
+          write(nwad_iunit,'(i1,$)')iy
         else
           if (y.ge.0.0d0) then
             write(nwad_iunit,'(e22.16,$)')y
