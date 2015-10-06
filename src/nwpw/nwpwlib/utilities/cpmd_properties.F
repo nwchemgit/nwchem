@@ -115,7 +115,7 @@ c
 
 *     *********************************
 *     *                               *
-*     *      task_aimd_roperties      *
+*     *      task_aimd_properties     *
 *     *                               *
 *     *********************************
 *
@@ -131,7 +131,7 @@ c
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical value,dummy,hasbak,hasxyz
+      logical value,dummy,hasbak,hasxyz,mdxs,mdxsonly
       real*8 unita(3,3)
       character*80 filename,filenamexyz,filenamebak
       character*255 full_filename,full_filenamexyz
@@ -191,8 +191,18 @@ c
       call Parallel_Init()
       value = value.and.control_read(999,rtdb)
       call Parallel2d_Init(control_np_orbital())
+  
+*     **** MD XS analysis only ****
+      if (.not.btdb_get(rtdb,'nwpw:cpmd_properties:md_xs_only',
+     >                  mt_log,1,mdxsonly)) mdxsonly=.false.
+      if (.not.btdb_get(rtdb,'nwpw:md_xs',mt_log,1,mdxs)) mdxs=.false.
+      if (mdxsonly) then
+         if (mdxs) call md_xs_analysis(rtdb,filename)
 
-      call cpmd_properties(rtdb)
+*     **** do all cpmd analysisl ****
+      else
+         call cpmd_properties(rtdb)
+      end if
 
       call ga_sync()
       call Parallel2d_Finalize()
