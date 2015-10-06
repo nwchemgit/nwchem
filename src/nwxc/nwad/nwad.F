@@ -577,16 +577,13 @@ c
         iy = 1
         is = 1
         s%ivar = ior(x%ivar,y%ivar)
-#if defined(USE_FORTRAN2008)
-        s%nvar = popcnt(s%ivar)
-#else
-        s%nvar = util_popcnt(s%ivar)
-#endif
         ivsize = bit_size(s%ivar)
-#if defined(USE_FORTRAN2008)
+#ifdef USE_FORTRAN2008
+        s%nvar = popcnt(s%ivar)
         ihbit  = ivsize - leadz(s%ivar) - 1
         ilbit  = trailz(s%ivar)
 #else
+        s%nvar = util_popcnt(s%ivar)
         ihbit  = ivsize - util_leadz(s%ivar) - 1
         ilbit  = util_trailz(s%ivar)
 #endif
@@ -831,7 +828,7 @@ c
         else if (abs(y-f113).lt.1.0d-14) then
           write(nwad_iunit,'("(11/3)",$)')
         else if (abs(y-iy).lt.1.0d-14) then
-          write(nwad_iunit,'(i1,$)')iy
+          write(nwad_iunit,'(i2,$)')iy
         else
           if (y.ge.0.0d0) then
             write(nwad_iunit,'(e22.16,$)')y
@@ -2058,32 +2055,24 @@ c
                                                    ! S element IXTO
         integer                     :: iyto(mxvar) ! contribution from Y goes
                                                    ! S element IYTO
-        double precision            :: oy,  oy2,  oy3
-        double precision            :: xoy, xoy2, xoy3, xoy4
-        oy   = 1.0d0/y%d0
-        xoy  = x%d0*oy
-        s%d0 = xoy
+        s%d0 = x%d0/y%d0
 #if NWAD_DEG >= 1
         if (x%ivar.ne.y%ivar) then
-          xoy2 = xoy*oy
           call nwad_merge_dependencies(s,x,y,ixto,iyto)
 !         s%d1 = x%d1/y%d0               -     x%d0 * y%d1 / (y%d0 ** 2)
           do ix = 1, s%nvar
             s%d1(ix) = 0.0d0
           enddo
           do ix = 1, x%nvar
-            s%d1(ixto(ix)) = s%d1(ixto(ix)) + x%d1(ix) * oy
+            s%d1(ixto(ix)) = s%d1(ixto(ix)) + x%d1(ix) / y%d0
           enddo
           do iy = 1, y%nvar
-            s%d1(iyto(iy)) = s%d1(iyto(iy)) - xoy2 * y%d1(iy)
+            s%d1(iyto(iy)) = s%d1(iyto(iy)) - x%d0 * y%d1(iy)/(y%d0**2)
           enddo
 #endif
 #if NWAD_DEG >= 2
 !         s%d2 = x%d2/y%d0             - 2*x%d1*y%d1/(y%d0 ** 2)
 !    &         - x%d0*y%d2/(y%d0 ** 2) + 2*x%d0*y%d1**2/(y%d0 ** 3)
-          oy2  = oy*oy
-          xoy2 = xoy*oy
-          xoy3 = xoy2*oy
           do ix = 1, s%nvar*(s%nvar+1)/2
             s%d2(ix) = 0.0d0
           enddo
@@ -2091,7 +2080,7 @@ c
             do ix2 = 1, ix
               s%d2(ixto(ix)*(ixto(ix)-1)/2+ixto(ix2))
      +        = s%d2(ixto(ix)*(ixto(ix)-1)/2+ixto(ix2))
-     +        + x%d2(ix*(ix-1)/2+ix2) * oy
+     +        + x%d2(ix*(ix-1)/2+ix2) / y%d0
             enddo
           enddo
           do ix = 1, x%nvar
@@ -2099,7 +2088,7 @@ c
             do while(iyto(iy).le.ixto(ix).and.iy.le.y%nvar)
               s%d2(ixto(ix)*(ixto(ix)-1)/2+iyto(iy))
      +        = s%d2(ixto(ix)*(ixto(ix)-1)/2+iyto(iy))
-     +        - x%d1(ix) * y%d1(iy) * oy2
+     +        - x%d1(ix) * y%d1(iy) / (y%d0 ** 2)
               iy = iy + 1
             enddo
           enddo
@@ -2108,7 +2097,7 @@ c
             do while(ixto(ix).le.iyto(iy).and.ix.le.x%nvar)
               s%d2(iyto(iy)*(iyto(iy)-1)/2+ixto(ix))
      +        = s%d2(iyto(iy)*(iyto(iy)-1)/2+ixto(ix))
-     +        - x%d1(ix) * y%d1(iy) * oy2
+     +        - x%d1(ix) * y%d1(iy) / (y%d0 ** 2)
               ix = ix + 1
             enddo
           enddo
@@ -2116,8 +2105,8 @@ c
             do iy2 = 1, iy
               s%d2(iyto(iy)*(iyto(iy)-1)/2+iyto(iy2))
      +        = s%d2(iyto(iy)*(iyto(iy)-1)/2+iyto(iy2))
-     +        - xoy2 * y%d2(iy*(iy-1)/2+iy2)
-     +        + 2 * xoy3 * y%d1(iy) * y%d1(iy2)
+     +        - x%d0 * y%d2(iy*(iy-1)/2+iy2) / (y%d0 ** 2)
+     +        + 2 * x%d0 * y%d1(iy) * y%d1(iy2) / (y%d0 ** 3)
             enddo
           enddo
 #endif
@@ -2132,8 +2121,6 @@ c
           do ix = 1, s%nvar*(s%nvar+1)*(s%nvar+2)/6
             s%d3(ix) = 0.0d0
           enddo
-          oy3  = oy2*oy
-          xoy4 = xoy3*oy
 c
 c         Dxxx
 c
@@ -2144,7 +2131,7 @@ c
      +               ixto(ix2)*(ixto(ix2)-1)/2+ixto(ix3))
      +          = s%d3((ixto(ix)+1)*ixto(ix)*(ixto(ix)-1)/6+
      +                 ixto(ix2)*(ixto(ix2)-1)/2+ixto(ix3))
-     +          + oy * x%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
+     +          + x%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3) / y%d0
               enddo
             enddo
           enddo
@@ -2159,7 +2146,7 @@ c
      +               ixto(ix2)*(ixto(ix2)-1)/2+iyto(iy))
      +          = s%d3((ixto(ix)+1)*ixto(ix)*(ixto(ix)-1)/6+
      +                 ixto(ix2)*(ixto(ix2)-1)/2+iyto(iy))
-     +          - oy2 * x%d2(ix*(ix-1)/2+ix2) * y%d1(iy)
+     +          - x%d2(ix*(ix-1)/2+ix2) * y%d1(iy) / (y%d0 ** 2)
                 iy = iy + 1
               enddo
             enddo
@@ -2173,7 +2160,7 @@ c
      +               iyto(iy)*(iyto(iy)-1)/2+ixto(ix2))
      +          = s%d3((ixto(ix)+1)*ixto(ix)*(ixto(ix)-1)/6+
      +                 iyto(iy)*(iyto(iy)-1)/2+ixto(ix2))
-     +          - oy2 * x%d2(ix*(ix-1)/2+ix2) * y%d1(iy)
+     +          - x%d2(ix*(ix-1)/2+ix2) * y%d1(iy) / (y%d0 ** 2)
                 ix2 = ix2 + 1
               enddo
               iy = iy + 1
@@ -2187,7 +2174,7 @@ c
      +               ixto(ix)*(ixto(ix)-1)/2+ixto(ix2))
      +          = s%d3((iyto(iy)+1)*iyto(iy)*(iyto(iy)-1)/6+
      +                 ixto(ix)*(ixto(ix)-1)/2+ixto(ix2))
-     +          - oy2 * x%d2(ix*(ix-1)/2+ix2) * y%d1(iy)
+     +          - x%d2(ix*(ix-1)/2+ix2) * y%d1(iy) / (y%d0 ** 2)
               enddo
               ix = ix + 1
             enddo
@@ -2203,8 +2190,8 @@ c
      +               iyto(iy)*(iyto(iy)-1)/2+iyto(iy2))
      +          = s%d3((ixto(ix)+1)*ixto(ix)*(ixto(ix)-1)/6+
      +                 iyto(iy)*(iyto(iy)-1)/2+iyto(iy2))
-     +          + 2 * oy3 * x%d1(ix) * y%d1(iy) * y%d1(iy2)
-     +          -     oy2 * x%d1(ix) * y%d2(iy*(iy-1)/2+iy2)
+     +          + 2 * x%d1(ix) * y%d1(iy) * y%d1(iy2) / (y%d0 ** 3)
+     +          -     x%d1(ix) * y%d2(iy*(iy-1)/2+iy2) / (y%d0 ** 2)
               enddo
               iy = iy + 1
             enddo
@@ -2218,8 +2205,8 @@ c
      +               ixto(ix)*(ixto(ix)-1)/2+iyto(iy2))
      +          = s%d3((iyto(iy)+1)*iyto(iy)*(iyto(iy)-1)/6+
      +                 ixto(ix)*(ixto(ix)-1)/2+iyto(iy2))
-     +          + 2 * oy3 * x%d1(ix) * y%d1(iy) * y%d1(iy2)
-     +          -     oy2 * x%d1(ix) * y%d2(iy*(iy-1)/2+iy2)
+     +          + 2 * x%d1(ix) * y%d1(iy) * y%d1(iy2) / (y%d0 ** 3)
+     +          -     x%d1(ix) * y%d2(iy*(iy-1)/2+iy2) / (y%d0 ** 2)
                 iy2 = iy2 + 1
               enddo
               ix = ix + 1
@@ -2233,8 +2220,8 @@ c
      +               iyto(iy2)*(iyto(iy2)-1)/2+ixto(ix))
      +          = s%d3((iyto(iy)+1)*iyto(iy)*(iyto(iy)-1)/6+
      +                 iyto(iy2)*(iyto(iy2)-1)/2+ixto(ix))
-     +          + 2 * oy3 * x%d1(ix) * y%d1(iy) * y%d1(iy2)
-     +          -     oy2 * x%d1(ix) * y%d2(iy*(iy-1)/2+iy2)
+     +          + 2 * x%d1(ix) * y%d1(iy) * y%d1(iy2) / (y%d0 ** 3)
+     +          -     x%d1(ix) * y%d2(iy*(iy-1)/2+iy2) / (y%d0 ** 2)
                 ix = ix + 1
               enddo
             enddo
@@ -2249,39 +2236,40 @@ c
      +               iyto(iy2)*(iyto(iy2)-1)/2+iyto(iy3))
      +          = s%d3((iyto(iy)+1)*iyto(iy)*(iyto(iy)-1)/6+
      +                 iyto(iy2)*(iyto(iy2)-1)/2+iyto(iy3))
-     +          - 6 * xoy4 * y%d1(iy) * y%d1(iy2) * y%d1(iy3) 
-     +          + 2 * xoy3 * y%d1(iy) * y%d2(iy2*(iy2-1)/2+iy3)
-     +          + 2 * xoy3 * y%d1(iy2) * y%d2(iy*(iy-1)/2+iy3)
-     +          + 2 * xoy3 * y%d1(iy3) * y%d2(iy*(iy-1)/2+iy2)
-     +          -     xoy2 * y%d3((iy+1)*iy*(iy-1)/6+iy2*(iy2-1)/2+iy3) 
+     +          - 6 * x%d0 * y%d1(iy) * y%d1(iy2) * y%d1(iy3) 
+     +            / (y%d0 ** 4)
+     +          + 2 * x%d0 * y%d1(iy) * y%d2(iy2*(iy2-1)/2+iy3)
+     +            / (y%d0 ** 3)
+     +          + 2 * x%d0 * y%d1(iy2) * y%d2(iy*(iy-1)/2+iy3)
+     +            / (y%d0 ** 3)
+     +          + 2 * x%d0 * y%d1(iy3) * y%d2(iy*(iy-1)/2+iy2)
+     +            / (y%d0 ** 3)
+     +          - x%d0 * y%d3((iy+1)*iy*(iy-1)/6+iy2*(iy2-1)/2+iy3) 
+     +            / (y%d0 ** 2)
               enddo
             enddo
           enddo
 #endif
 #if NWAD_DEG >= 1
         else
-          xoy2 = xoy*oy
           call nwad_copy_dependencies(s,x)
 !         s%d1 = x%d1/y%d0               -     x%d0 * y%d1 / (y%d0 ** 2)
           do ix = 1, x%nvar
-            s%d1(ix) = oy * x%d1(ix)
-     +               - xoy2 * y%d1(ix)
+            s%d1(ix) = x%d1(ix) / y%d0
+     +               - x%d0 * y%d1(ix) / (y%d0**2)
           enddo
 #endif
 #if NWAD_DEG >= 2
 !         s%d2 = x%d2/y%d0             - 2*x%d1*y%d1/(y%d0 ** 2)
 !    &         - x%d0*y%d2/(y%d0 ** 2) + 2*x%d0*y%d1**2/(y%d0 ** 3)
-          oy2  = oy*oy
-          xoy2 = xoy*oy
-          xoy3 = xoy2*oy
           do ix = 1, x%nvar
             do ix2 = 1, ix
               s%d2(ix*(ix-1)/2+ix2)
-     +        =     oy   * x%d2(ix*(ix-1)/2+ix2)
-     +        -     oy2  * x%d1(ix) * y%d1(ix2)
-     +        -     oy2  * x%d1(ix2) * y%d1(ix)
-     +        -     xoy2 * y%d2(ix*(ix-1)/2+ix2)
-     +        + 2 * xoy3 * y%d1(ix) * y%d1(ix2)
+     +        = x%d2(ix*(ix-1)/2+ix2) / y%d0
+     +        - x%d1(ix) * y%d1(ix2) / (y%d0 ** 2)
+     +        - x%d1(ix2) * y%d1(ix) / (y%d0 ** 2)
+     +        - x%d0 * y%d2(ix*(ix-1)/2+ix2) / (y%d0 ** 2)
+     +        + 2 * x%d0 * y%d1(ix) * y%d1(ix2) / (y%d0 ** 3)
             enddo
           enddo
 #endif
@@ -2294,27 +2282,26 @@ c
 !    &         + 6 * x%d0 * y%d1 * y%d2 / (y%d0 ** 3)  
 !    &         -     x%d0 * y%d3        / (y%d0 ** 2)
 !
-          oy3  = oy2*oy
-          xoy4 = xoy3*oy
           do ix = 1, x%nvar
             do ix2 = 1, ix
               do ix3 = 1, ix2
                 s%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
-     +          =     oy * x%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
-     +          -     oy2 * x%d2(ix2*(ix2-1)/2+ix3) * y%d1(ix)
-     +          -     oy2 * x%d2(ix*(ix-1)/2+ix3) * y%d1(ix2)
-     +          -     oy2 * x%d2(ix*(ix-1)/2+ix2) * y%d1(ix3)
-     +          + 2 * oy3 * x%d1(ix) * y%d1(ix2) * y%d1(ix3)
-     +          + 2 * oy3 * x%d1(ix2) * y%d1(ix) * y%d1(ix3)
-     +          + 2 * oy3 * x%d1(ix3) * y%d1(ix) * y%d1(ix2)
-     +          -     oy2 * x%d1(ix) * y%d2(ix2*(ix2-1)/2+ix3)
-     +          -     oy2 * x%d1(ix2) * y%d2(ix*(ix-1)/2+ix3)
-     +          -     oy2 * x%d1(ix3) * y%d2(ix*(ix-1)/2+ix2)
-     +          - 6 * xoy4 * y%d1(ix)*y%d1(ix2)*y%d1(ix3)
-     +          + 2 * xoy3 * y%d1(ix)*y%d2(ix2*(ix2-1)/2+ix3)
-     +          + 2 * xoy3 * y%d1(ix2)*y%d2(ix*(ix-1)/2+ix3)
-     +          + 2 * xoy3 * y%d1(ix3)*y%d2(ix*(ix-1)/2+ix2)
-     +          -     xoy2 * y%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
+     +          = x%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3) / y%d0
+     +          - x%d2(ix2*(ix2-1)/2+ix3) * y%d1(ix) / (y%d0 ** 2)
+     +          - x%d2(ix*(ix-1)/2+ix3) * y%d1(ix2) / (y%d0 ** 2)
+     +          - x%d2(ix*(ix-1)/2+ix2) * y%d1(ix3) / (y%d0 ** 2)
+     +          + 2 * x%d1(ix) * y%d1(ix2) * y%d1(ix3) / (y%d0 ** 3)
+     +          + 2 * x%d1(ix2) * y%d1(ix) * y%d1(ix3) / (y%d0 ** 3)
+     +          + 2 * x%d1(ix3) * y%d1(ix) * y%d1(ix2) / (y%d0 ** 3)
+     +          -     x%d1(ix) * y%d2(ix2*(ix2-1)/2+ix3) / (y%d0 ** 2)
+     +          -     x%d1(ix2) * y%d2(ix*(ix-1)/2+ix3) / (y%d0 ** 2)
+     +          -     x%d1(ix3) * y%d2(ix*(ix-1)/2+ix2) / (y%d0 ** 2)
+     +          - 6 * x%d0*y%d1(ix)*y%d1(ix2)*y%d1(ix3) / (y%d0 ** 4)
+     +          + 2 * x%d0*y%d1(ix)*y%d2(ix2*(ix2-1)/2+ix3)/ (y%d0 ** 3)
+     +          + 2 * x%d0*y%d1(ix2)*y%d2(ix*(ix-1)/2+ix3)/ (y%d0 ** 3)
+     +          + 2 * x%d0*y%d1(ix3)*y%d2(ix*(ix-1)/2+ix2)/ (y%d0 ** 3)
+     +          -     x%d0*y%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
+     +              / (y%d0 ** 2)
               enddo
             enddo
           enddo
@@ -2505,31 +2492,20 @@ c
                                                    ! S element IXTO
         integer                     :: iyto(mxvar) ! contribution from Y goes
                                                    ! S element IYTO
-        double precision            :: xey
-        double precision            :: ox, yox
-        double precision            :: xl, xl2, xl3
-        double precision            :: ex, eyx, eyx2, eyx3
-        double precision            :: ey2x2, ey2x3, ey3x3
-        double precision            :: el, el2, el3
-        double precision            :: elyx
-        xey  = x%d0**y%d0
-        s%d0 = xey
+        s%d0 = x%d0**y%d0
 #if NWAD_DEG >= 1
         call nwad_merge_dependencies(s,x,y,ixto,iyto)
 !       s%d1 = x%d0**y%d0*(log(x%d0)*y%d1 + (y%d0/x%d0)*x%d1)
-        ox  = 1.0d0/x%d0
-        yox = y%d0*ox
-        xl  = log(x%d0)
-        eyx = xey*yox
-        el  = xey*xl
         do ix = 1, s%nvar
           s%d1(ix) = 0.0d0
         enddo
         do ix = 1, x%nvar
-          s%d1(ixto(ix)) = s%d1(ixto(ix)) + eyx*x%d1(ix)
+          s%d1(ixto(ix)) = s%d1(ixto(ix))
+     +                   + (x%d0**y%d0)*(y%d0/x%d0)*x%d1(ix)
         enddo
         do iy = 1, y%nvar
-          s%d1(iyto(iy)) = s%d1(iyto(iy)) + el*y%d1(iy)
+          s%d1(iyto(iy)) = s%d1(iyto(iy))
+     +                   + (x%d0**y%d0)*log(x%d0)*y%d1(iy)
         enddo
 #endif
 #if NWAD_DEG >= 2
@@ -2539,18 +2515,13 @@ c
         do ix = 1, s%nvar*(s%nvar+1)/2
           s%d2(ix) = 0.0d0
         enddo
-        eyx2  = eyx*ox
-        ey2x2 = eyx*yox
-        ex    = xey*ox
-        elyx  = eyx*xl
-        el2   = el*xl
         do ix = 1, x%nvar
           do ix2 = 1, ix
             s%d2(ixto(ix)*(ixto(ix)-1)/2+ixto(ix2))
      +      = s%d2(ixto(ix)*(ixto(ix)-1)/2+ixto(ix2))
-     +      + eyx*x%d2(ix*(ix-1)/2+ix2)
-     +      - eyx2*x%d1(ix)*x%d1(ix2)
-     +      + ey2x2*x%d1(ix)*x%d1(ix2)
+     +      + (x%d0**y%d0)*(y%d0/x%d0)*x%d2(ix*(ix-1)/2+ix2)
+     +      - (x%d0**y%d0)*(y%d0/(x%d0**2))*x%d1(ix)*x%d1(ix2)
+     +      + (x%d0**y%d0)*((y%d0/x%d0)**2)*x%d1(ix)*x%d1(ix2)
           enddo
         enddo
         do ix = 1, x%nvar
@@ -2558,8 +2529,8 @@ c
           do while(iyto(iy).le.ixto(ix).and.iy.le.y%nvar)
             s%d2(ixto(ix)*(ixto(ix)-1)/2+iyto(iy))
      +      = s%d2(ixto(ix)*(ixto(ix)-1)/2+iyto(iy))
-     +      + ex*x%d1(ix)*y%d1(iy)
-     +      + elyx*x%d1(ix)*y%d1(iy)
+     +      + (x%d0**y%d0)/x%d0*x%d1(ix)*y%d1(iy)
+     +      + (x%d0**y%d0)*log(x%d0)*(y%d0/x%d0)*x%d1(ix)*y%d1(iy)
             iy = iy + 1
           enddo
         enddo
@@ -2568,8 +2539,8 @@ c
           do while(ixto(ix).le.iyto(iy).and.ix.le.x%nvar)
             s%d2(iyto(iy)*(iyto(iy)-1)/2+ixto(ix))
      +      = s%d2(iyto(iy)*(iyto(iy)-1)/2+ixto(ix))
-     +      + ex*x%d1(ix)*y%d1(iy)
-     +      + elyx*x%d1(ix)*y%d1(iy)
+     +      + (x%d0**y%d0)/x%d0*x%d1(ix)*y%d1(iy)
+     +      + (x%d0**y%d0)*log(x%d0)*(y%d0/x%d0)*x%d1(ix)*y%d1(iy)
             ix = ix + 1
           enddo
         enddo
@@ -2577,8 +2548,8 @@ c
           do iy2 = 1, iy
             s%d2(iyto(iy)*(iyto(iy)-1)/2+iyto(iy2))
      +      = s%d2(iyto(iy)*(iyto(iy)-1)/2+iyto(iy2))
-     +      + el*y%d2(iy*(iy-1)/2+iy2)
-     +      + el2*y%d1(iy)*y%d1(iy2)
+     +      + (x%d0**y%d0)*log(x%d0)*y%d2(iy*(iy-1)/2+iy2)
+     +      + (x%d0**y%d0)*(log(x%d0)**2)*y%d1(iy)*y%d1(iy2)
           enddo
         enddo
 #endif
@@ -2599,9 +2570,6 @@ c
 c
 c       Dxxx
 c
-        eyx3  = eyx2*ox
-        ey2x3 = ey2x2*ox
-        ey3x3 = ey2x2*yox
         do ix = 1, x%nvar
           do ix2 = 1, ix
             do ix3 = 1, ix2
@@ -2609,23 +2577,33 @@ c
      +             ixto(ix2)*(ixto(ix2)-1)/2+ixto(ix3))
      +        = s%d3((ixto(ix)+1)*ixto(ix)*(ixto(ix)-1)/6+
      +               ixto(ix2)*(ixto(ix2)-1)/2+ixto(ix3))
-     +        + eyx*x%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
+     +        + (x%d0**y%d0)*(y%d0/x%d0)*
+     +          x%d3((ix+1)*ix*(ix-1)/6+ix2*(ix2-1)/2+ix3)
 c
 c             d1*d2 needs permutation of arguments here
 c
-     +        - eyx2*x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)
-     +        - eyx2*x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)
-     +        - eyx2*x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)
+     +        - (x%d0**y%d0)*(y%d0/(x%d0**2))*x%d1(ix)*
+     +          x%d2(ix2*(ix2-1)/2+ix3)
+     +        - (x%d0**y%d0)*(y%d0/(x%d0**2))*x%d1(ix2)*
+     +          x%d2(ix*(ix-1)/2+ix3)
+     +        - (x%d0**y%d0)*(y%d0/(x%d0**2))*x%d1(ix3)*
+     +          x%d2(ix*(ix-1)/2+ix2)
 c
 c             d1*d2 needs permutation of arguments here
 c
-     +        + ey2x2*x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)
-     +        + ey2x2*x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)
-     +        + ey2x2*x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)
+     +        + (x%d0**y%d0)*((y%d0/x%d0)**2)*x%d1(ix)*
+     +          x%d2(ix2*(ix2-1)/2+ix3)
+     +        + (x%d0**y%d0)*((y%d0/x%d0)**2)*x%d1(ix2)*
+     +          x%d2(ix*(ix-1)/2+ix3)
+     +        + (x%d0**y%d0)*((y%d0/x%d0)**2)*x%d1(ix3)*
+     +          x%d2(ix*(ix-1)/2+ix2)
 c
-     +        + 2*eyx3*x%d1(ix)*x%d1(ix2)*x%d1(ix3)
-     +        - 3*ey2x3*x%d1(ix)*x%d1(ix2)*x%d1(ix3)
-     +        + ey3x3*x%d1(ix)*x%d1(ix2)*x%d1(ix3)
+     +        + 2*(x%d0**y%d0)*(y%d0/(x%d0**3))*x%d1(ix)*x%d1(ix2)*
+     +          x%d1(ix3)
+     +        - 3*(x%d0**y%d0)*(y%d0/x%d0)*(y%d0/x%d0**2)*x%d1(ix)*
+     +          x%d1(ix2)*x%d1(ix3)
+     +        + (x%d0**y%d0)*((y%d0/x%d0)**3)*x%d1(ix)*
+     +          x%d1(ix2)*x%d1(ix3)
             enddo
           enddo
         enddo
@@ -2828,70 +2806,42 @@ c
         type(nwad_dble), intent(in)  :: x
         double precision, intent(in) :: y
         type(nwad_dble)              :: s
-#if NWAD_DEG >= 1
-        double precision             :: p1
-        double precision             :: q
-#endif
-#if NWAD_DEG >= 2
-        double precision             :: p2
-#endif
-#if NWAD_DEG >= 3
-        double precision             :: p3
-#endif
         integer                      :: ix, ix2, ix3
-#if NWAD_DEG >= 3
-        p3 = x%d0**(y-3.0d0)
-#endif
-#if NWAD_DEG > 2
-        p2 = x%d0*p3
-#elif NWAD_DEG == 2
-        p2 = x%d0**(y-2.0d0)
-#endif
-#if NWAD_DEG > 1
-        p1 = x%d0*p2
-#elif NWAD_DEG == 1
-        p1 = x%d0**(y-1.0d0)
-#endif
-#if NWAD_DEG > 0
-        s%d0 = x%d0*p1
-#elif NWAD_DEG == 0
         s%d0 = x%d0**y
-#endif
 #if NWAD_DEG >= 1
-        q  = y
-        p1 = p1*q
         call nwad_copy_dependencies(s,x)
         do ix = 1, x%nvar
-          s%d1(ix) = x%d1(ix)*p1
+          s%d1(ix) = x%d1(ix)*y*x%d0**(y - 1.0d0)
         enddo
 #endif
 #if NWAD_DEG >= 2
-        q  = q*(y-1.0d0)
-        p2 = p2*q
         do ix = 1, x%nvar
           do ix2 = 1, ix
             s%d2(ix*(ix-1)/2+ix2) 
-     &      = x%d1(ix)*x%d1(ix2)*p2
-     &      + x%d2(ix*(ix-1)/2+ix2)*p1
+     &      = x%d1(ix)*x%d1(ix2)*y*(y-1.0d0)*x%d0**(y-2.0d0)
+     &      + x%d2(ix*(ix-1)/2+ix2)*y*x%d0**(y-1.0d0)
           enddo
         enddo
 #endif
 #if NWAD_DEG >= 3
-        q  = q*(y-2.0d0)
-        p3 = p3*q
         do ix = 1, x%nvar
           do ix2 = 1, ix
             do ix3 = 1, ix2
               s%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)
-     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*p3
+     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*y*(y-1.0d0)*(y-2.0d0)
+     &          *x%d0**(y-3.0d0)
 c
 c             d1*d2 needs permutation of arguments here
 c
-     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*p2
-     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*p2
-     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*p2
+     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*y*(y-1.0d0)
+     &          *x%d0**(y - 2.0d0)
+     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*y*(y-1.0d0)
+     &          *x%d0**(y - 2.0d0)
+     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*y*(y-1.0d0)
+     &          *x%d0**(y - 2.0d0)
 c
-     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*p1
+     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*y
+     &          *x%d0**(y-1.0d0)
             enddo
           enddo
         enddo
@@ -2931,43 +2881,37 @@ c
         type(nwad_dble), intent(in)  :: y
         type(nwad_dble)              :: s
         integer                      :: iy, iy2, iy3
-        double precision             :: p0, p1, p2, p3
-        double precision             :: ql
-        p0   = x**y%d0
-        s%d0 = p0
+        s%d0 = x**y%d0
 #if NWAD_DEG >= 1
-        ql   = log(x)
-        p1   = p0*ql
         call nwad_copy_dependencies(s,y)
         do iy = 1, y%nvar
-          s%d1(iy) = p1*y%d1(iy)
+          s%d1(iy) = x**y%d0*log(x)*y%d1(iy)
         enddo
 #endif
 #if NWAD_DEG >= 2
-        p2   = p1*ql
         do iy = 1, y%nvar
           do iy2 = 1, iy
             s%d2(iy*(iy-1)/2+iy2)
-     &      = p1*y%d2(iy*(iy-1)/2+iy2) 
-     &      + p2*y%d1(iy)*y%d1(iy2)
+     &      = x**y%d0*(log(x)*y%d2(iy*(iy-1)/2+iy2) 
+     &      + log(x)**2*y%d1(iy)*y%d1(iy2))
           enddo
         enddo
 #endif
 #if NWAD_DEG >= 3
-        p3   = p2*ql
         do iy = 1, y%nvar
           do iy2 = 1, iy
             do iy3 = 1, iy2
               s%d3((iy-1)*iy*(iy+1)/6+iy2*(iy2-1)/2+iy3)
-     &        = p1*y%d3((iy-1)*iy*(iy+1)/6+iy2*(iy2-1)/2+iy3)
+     &        = x**y%d0*(
+     &          log(x)*y%d3((iy-1)*iy*(iy+1)/6+iy2*(iy2-1)/2+iy3)
 c
 c             d1*d2 needs permutation of arguments here
 c
-     &        + p2*y%d1(iy)*y%d2(iy2*(iy2-1)/2+iy3)
-     &        + p2*y%d1(iy2)*y%d2(iy*(iy-1)/2+iy3)
-     &        + p2*y%d1(iy3)*y%d2(iy*(iy-1)/2+iy2)
+     &        + log(x)**2*y%d1(iy)*y%d2(iy2*(iy2-1)/2+iy3)
+     &        + log(x)**2*y%d1(iy2)*y%d2(iy*(iy-1)/2+iy3)
+     &        + log(x)**2*y%d1(iy3)*y%d2(iy*(iy-1)/2+iy2)
 c
-     &        + p3*y%d1(iy)*y%d1(iy2)*y%d1(iy3)
+     &        + log(x)**3*y%d1(iy)*y%d1(iy2)*y%d1(iy3))
             enddo
           enddo
         enddo
@@ -2982,7 +2926,6 @@ c
       end function nwad_dble_powy
       !>
       !> \brief Evaluate the exponentiation operator where \f$y\f$ is inactive
-      !> and integer
       !> 
       !> We consider \f$s(r) = x(r)^y\f$.
       !> \f{eqnarray*}{
@@ -3008,73 +2951,45 @@ c
       !>
       function nwad_dble_powix(x,y) result (s)
         implicit none
-        type(nwad_dble), intent(in)  :: x
-        integer        , intent(in)  :: y
-        type(nwad_dble)              :: s
-#if NWAD_DEG >= 1
-        double precision             :: p1
-        integer                      :: iq
-#endif
-#if NWAD_DEG >= 2
-        double precision             :: p2
-#endif
-#if NWAD_DEG >= 3
-        double precision             :: p3
-#endif
-        integer                      :: ix, ix2, ix3
-#if NWAD_DEG >= 3
-        p3 = x%d0**(y-3)
-#endif
-#if NWAD_DEG > 2
-        p2 = x%d0*p3
-#elif NWAD_DEG == 2
-        p2 = x%d0**(y-2)
-#endif
-#if NWAD_DEG > 1
-        p1 = x%d0*p2
-#elif NWAD_DEG == 1
-        p1 = x%d0**(y-1)
-#endif
-#if NWAD_DEG > 0
-        s%d0 = x%d0*p1
-#elif NWAD_DEG == 0
+        type(nwad_dble), intent(in) :: x
+        integer        , intent(in) :: y
+        type(nwad_dble)             :: s
+        integer                     :: ix, ix2, ix3
         s%d0 = x%d0**y
-#endif
 #if NWAD_DEG >= 1
-        iq = y
-        p1 = p1*iq
         call nwad_copy_dependencies(s,x)
         do ix = 1, x%nvar
-          s%d1(ix) = x%d1(ix)*p1
+          s%d1(ix) = x%d1(ix)*y*x%d0**(y - 1)
         enddo
 #endif
 #if NWAD_DEG >= 2
-        iq = iq*(y-1)
-        p2 = p2*iq
         do ix = 1, x%nvar
           do ix2 = 1, ix
             s%d2(ix*(ix-1)/2+ix2) 
-     &      = x%d1(ix)*x%d1(ix2)*p2
-     &      + x%d2(ix*(ix-1)/2+ix2)*p1
+     &      = x%d1(ix)*x%d1(ix2)*y*(y-1)*x%d0**(y-2)
+     &      + x%d2(ix*(ix-1)/2+ix2)*y*x%d0**(y-1)
           enddo
         enddo
 #endif
 #if NWAD_DEG >= 3
-        iq = iq*(y-2)
-        p3 = p3*iq
         do ix = 1, x%nvar
           do ix2 = 1, ix
             do ix3 = 1, ix2
               s%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)
-     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*p3
+     &        = x%d1(ix)*x%d1(ix2)*x%d1(ix3)*y*(y-1)*(y-2)
+     &          *x%d0**(y-3)
 c
 c             d1*d2 needs permutation of arguments here
 c
-     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*p2
-     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*p2
-     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*p2
+     &        + x%d1(ix)*x%d2(ix2*(ix2-1)/2+ix3)*y*(y-1)
+     &          *x%d0**(y - 2)
+     &        + x%d1(ix2)*x%d2(ix*(ix-1)/2+ix3)*y*(y-1)
+     &          *x%d0**(y - 2)
+     &        + x%d1(ix3)*x%d2(ix*(ix-1)/2+ix2)*y*(y-1)
+     &          *x%d0**(y - 2)
 c
-     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*p1
+     &        + x%d3((ix-1)*ix*(ix+1)/6+ix2*(ix2-1)/2+ix3)*y
+     &          *x%d0**(y-1)
             enddo
           enddo
         enddo
@@ -4578,10 +4493,8 @@ c
         type(nwad_dble)              :: s
         double precision             :: t1
         integer                      :: ix, ix2, ix3
-#ifndef USE_FORTRAN2008
         real*8 util_erf
         external util_erf
-#endif
         t1 = exp(-(x%d0**2))/sqrt(acos(-1.0_rk))
 #ifdef NWAD_QUAD_PREC
         s%d0 = erf(x%d0)
@@ -4670,10 +4583,8 @@ c
         type(nwad_dble)              :: s
         double precision             :: t1
         integer                      :: ix, ix2, ix3
-#ifndef USE_FORTRAN2008
         real*8 util_erf
         external util_erf
-#endif
         t1 = exp(-(x%d0**2))/sqrt(acos(-1.0_rk))
 #ifdef NWAD_QUAD_PREC
         s%d0 = 1.0_rk-erf(x%d0)
@@ -5209,7 +5120,7 @@ c       s%var_name = "tau"
 #endif
 #if NWAD_DEG >= 1
         s  = x%d1(ix)
-#if defined(USE_FORTRAN2008)
+#ifdef USE_FORTRAN2008
         ihbit = bit_size(x%ivar)-leadz(x%ivar)
         ilbit = trailz(x%ivar)
 #else
@@ -5278,7 +5189,7 @@ c       s%var_name = "tau"
 #endif
 #if NWAD_DEG >= 2
         s     = x%d2(ix*(ix-1)/2+ix2)
-#if defined(USE_FORTRAN2008)
+#ifdef USE_FORTRAN2008
         ihbit = bit_size(x%ivar)-leadz(x%ivar)
         ilbit = trailz(x%ivar)
 #else
@@ -5369,7 +5280,7 @@ c       iv  = x%ivar(ix)
 c       iv2 = x%ivar(ix2)
 c       iv3 = x%ivar(ix3)
 c       s     = x%d2(ix*(ix-1)/2+ix2)
-#if defined(USE_FORTRAN2008)
+#ifdef USE_FORTRAN2008
         ihbit = bit_size(x%ivar)-leadz(x%ivar)
         ilbit = trailz(x%ivar)
 #else
