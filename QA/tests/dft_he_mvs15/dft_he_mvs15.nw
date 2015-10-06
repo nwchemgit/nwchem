@@ -1,0 +1,16 @@
+start dft_he_mvs15
+
+geometry 
+ he 0 0 0
+ symmetry oh
+end
+
+basis
+ * library cc-pvtz
+end
+
+dft
+ xc xmvs15
+end
+
+task dft
