@@ -1,0 +1,45 @@
+# $Id: nwxc_nwdft_1he.nw 25106 2014-01-11 01:54:38Z d3y133 $
+echo
+start tddft_he
+
+geometry
+  symmetry d2h
+  He 0.0 0.0 0.0
+end
+
+basis
+  He    S
+    221.3880300              0.0027491        
+     33.2619660              0.0208658        
+      7.5616549              0.0970588        
+  He    S
+      2.0855990              0.2807289        
+  He    S
+      0.6143392              0.4742218        
+  He    S
+      0.1829212              1.0000000        
+end
+
+tddft
+  cis
+  nroots 1
+end
+
+dft
+  vectors input atomic
+  xc  hfexch cpbe96
+end
+task tddft energy
+
+dft
+  vectors input atomic
+  xc new autodiff hfexch cpbe96
+end
+task tddft energy
+
+
+dft
+  vectors input atomic
+  xc new maxima hfexch cpbe96
+end
+task tddft energy
