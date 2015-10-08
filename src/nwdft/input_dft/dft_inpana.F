@@ -207,6 +207,42 @@ c     write noc (consistent with definition in ddscf) to rtdb
 c     
       if (.not. rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
      &   call errquit('inpana: rtdb_put of noc failed', 0, RTDB_ERR)
+cHvD
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) then
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+      endif
+      if (use_nwxc) then
+         call nwxc_getvals("nwxc_has_hfx",out1)
+        if (out1) then
+           call nwxc_getwght("nwxc_wght_hfx",xfac(1))
+        endif
+         call nwxc_getvals("nwxc_has_mp2c",dftmp2)
+        if (dftmp2) then
+           call nwxc_getwght("nwxc_wght_mp2c",mp2fac)
+          if (.not.rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
+     &      call errquit('dft_inpana: rtdb_put failed', 2902, RTDB_ERR)
+        endif
+        call nwxc_getvals("nwxc_has_cam",cam_exch)
+        if (cam_exch) then
+          call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
+       else
+          cam_alpha = 0.0d0
+          cam_beta  = 0.0d0
+          cam_omega = 0.0d0
+        endif
+        call nwxc_print()
+        if (cam_exch.and.(ga_nodeid().eq.0)) then
+            write(LuOut,*)
+            write(LuOut,8202) 
+     &         'Range-Separation Parameters        '
+            write(LuOut,8203) 
+            write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
+        end if ! cam_exch
+        call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &       cam_beta)
+      endif
+cHvD
 c     
 c     Write new data to checkpoint file.
 c     
@@ -845,42 +881,6 @@ c     &                    r1
             call util_flush(LuOut)
          endif
       endif
-cHvD
-      use_nwxc = util_module_avail("nwxc")
-      if (use_nwxc) then
-        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
-      endif
-      if (use_nwxc) then
-         call nwxc_getvals("nwxc_has_hfx",out1)
-        if (out1) then
-           call nwxc_getwght("nwxc_wght_hfx",xfac(1))
-        endif
-         call nwxc_getvals("nwxc_has_mp2c",dftmp2)
-        if (dftmp2) then
-           call nwxc_getwght("nwxc_wght_mp2c",mp2fac)
-          if (.not.rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
-     &      call errquit('dft_inpana: rtdb_put failed', 2902, RTDB_ERR)
-        endif
-        call nwxc_getvals("nwxc_has_cam",cam_exch)
-        if (cam_exch) then
-          call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
-       else
-          cam_alpha = 0.0d0
-          cam_beta  = 0.0d0
-          cam_omega = 0.0d0
-        endif
-        call nwxc_print()
-        if (cam_exch.and.(ga_nodeid().eq.0)) then
-            write(LuOut,*)
-            write(LuOut,8202) 
-     &         'Range-Separation Parameters        '
-            write(LuOut,8203) 
-            write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
-        end if ! cam_exch
-        call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
-     &       cam_beta)
-      endif
-cHvD
 c
       return
  3231 format(10x,'Convergence aids based upon iterative change in ',/,
