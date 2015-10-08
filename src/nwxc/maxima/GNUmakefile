@@ -106,10 +106,18 @@ endif
 include ../../config/makefile.h
 include ../../config/makelib.h
 
+  ifeq ($(_FC),gfortran)
+  FDEBUG +=  -fno-gcse  -fno-tree-dominator-opts
+  FDEBUG +=  --param ggc-min-expand=20 --param ggc-min-heapsize=65536
+  endif
+
+
 # This Makefile should not be executed in parallel as the compilers
 # will run out of memory in that case.
 #
+ifndef  USE_PARALLELMAKE
 .NOTPARALLEL:
+endif
 
 .SECONDARY:
 .SECONDARY: \
