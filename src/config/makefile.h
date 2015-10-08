@@ -1215,6 +1215,9 @@ endif
           GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
           GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
           ifeq ($(GNU_GE_4_6),true)
+       ifdef  USE_FPE
+         FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+       endif
             DEFINES  += -DGCC46
           endif
           ifeq ($(GNU_GE_4_8),true)
@@ -2447,7 +2450,12 @@ endif
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 COMM_LIBS +=  $(shell grep ARMCI_NETWORK_LDFLAGS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 24-)
 #comex bit
+HAVE_COMEX = $(shell cat /home/edo/nwchem-6.6/src/tools/build/comex/config.h| grep COMEX_NETWORK| awk ' / 1/ {print "Y"}')
+ifeq ($(HAVE_COMEX),Y)
 COMM_LIBS +=  $(shell grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-)
+#we often need pthread, let's add it
+COMM_LIBS += -lpthread
+endif
 
 ifdef COMM_LIBS 
  CORE_LIBS += $(COMM_LIBS) 
