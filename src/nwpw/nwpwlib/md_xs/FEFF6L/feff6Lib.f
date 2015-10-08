@@ -140,7 +140,7 @@ c              eatom       total energy in rydbergs
 c
 c     All data is on a grid r(i) = exp (-8.8 + (i-1)*0.05)
 
-      subroutine feff_atom (title, ifr, iz, ihole, rws, ionin, vcoul, srho,
+      subroutine feff_atom(title,ifr,iz,ihole,rws,ionin,vcoul,srho,
      1                 ispinr, dgc0, dpc0, eatom)
 
       implicit double precision (a-h,o-z)
@@ -236,13 +236,13 @@ c resolution of the dirac equation for each orbital
          nmax(j)=imax
          do 140 i=1,np
             val=dgc(i,j)-dp(i)
-            if (abs(dp(i)).gt.1.0) val=val/dp(i)
+            if (abs(dp(i)).gt.1.0d0) val=val/dp(i)
             if (abs(val).lt.abs(ymax)) go to 120
                ymax=val
                y=dp(i)
                yn=dgc(i,j)
   120       val=dpc(i,j)-dq(i)
-            if (abs(dq(i)).gt.1.0) val=val/dq(i)
+            if (abs(dq(i)).gt.1.0d0) val=val/dq(i)
             if (abs(val).lt.abs(ymax)) go to 130
                ymax=val
                y=dq(i)
@@ -290,7 +290,7 @@ c  d is the core electron density resulting from the renormalized pot.
 c  next write renormalized electron density for each shell
       do 270 j=1,norb
          do 240 i=1,np
-            d(i)=dgc(i,j)*sqrt(12.56637062)
+            d(i)=dgc(i,j)*sqrt(12.56637062d0)
   240    continue
   270 continue
       go to 750
@@ -301,7 +301,7 @@ c     mark .eq. 0 case
       call potsl (dc,d,dp,dr,dpas,dexv,z,np,ion,icut,dvn)
       if (nuc.le.0) go to 300
          do 290 i=1,nuc
-            dc(i)=dc(i)+z/dr(i)+z*((dr(i)/dr(nuc))**2-3.0) /
+            dc(i)=dc(i)+z/dr(i)+z*((dr(i)/dr(nuc))**2-3.0d0) /
      1            (dr(nuc)+dr(nuc))
   290    continue
   300 continue
@@ -346,7 +346,7 @@ c potential for the following iteration
       dval=dalp(dvn(i),dvf(i),dv(i),dc(i))
       dvn(i)=dv(i)
       dvf(i)=dc(i)
-  400 dv(i)=dval*dv(i)+(1.0-dval)*dc(i)
+  400 dv(i)=dval*dv(i)+(1.0d0-dval)*dc(i)
       go to 60
 
   430 if (iprint .ge. 3)  write(16,40) ttl
@@ -388,30 +388,30 @@ c valeurs moyennes de r
 
 c energie totale en moyenne spherique
       do 580 i=1,norb
-  580 tden(i)=-2.0*den(i)
+  580 tden(i)=-2.0d0*den(i)
 
       dc(1)=1
       do 600 i=1,np
   600 dp(i)=d(i)/dr(i)
       if (nuc.le.0) go to 620
       do 610 i=1,nuc
-  610 dp(i)=d(i)*(3.0-dr(i)*dr(i)/(dr(nuc)*dr(nuc)))/(dr(nuc)+dr(nuc))
+  610 dp(i)=d(i)*(3.0d0-dr(i)*dr(i)/(dr(nuc)*dr(nuc)))/(dr(nuc)+dr(nuc))
       dc(1)=4
   620 call somm (dr,dp,dq,dpas,dc(1),0,np)
       do 630 i=1,np
       dp(i)=d(i)*dvf(i)
-  630 d(i)=d(i)*((d(i)*dr(i))**(1.0/3.0))
+  630 d(i)=d(i)*((d(i)*dr(i))**(1.0d0/3.0d0))
       dc(2)=3
       dc(3)=1
       if (nuc.ne.0) dc(3)=4
       call somm (dr,dp,dq,dpas,dc(3),0,np)
       call somm (dr,d,dq,dpas,dc(2),-1,np)
-      dc(2)=-3.0*dc(2)/(105.27578**(1.0/3.0))
+      dc(2)=-3.0d0*dc(2)/(105.27578d0**(1.0d0/3.0d0))
       dc(1)=-z*dc(1)
       dc(4)=dval-dc(3)
-      dval=dval+(dc(1)-dc(3)+(dexe-dexv)*dc(2))/2.0
-      dc(3)=(dc(3)-dc(1)-dexv*dc(2))/2.0
-      dc(2)=dc(2)*dexe/2.0
+      dval=dval+(dc(1)-dc(3)+(dexe-dexv)*dc(2))/2.0d0
+      dc(3)=(dc(3)-dc(1)-dexv*dc(2))/2.0d0
+      dc(2)=dc(2)*dexe/2.0d0
       if (iprint .ge. 3)  write(16,640) dval,dc(4),dc(3),dc(2),dc(1)
   640 format (1h0,5x,'et=',1pe14.7,5x,'ec=',1pe14.7,5x,'ee=',1pe14.7,5x,
      1 'ex=',1pe14.7,5x,'en=',1pe14.7)
@@ -532,7 +532,7 @@ c-----------------------------------------------------------------------
       complex*16 xjl,xnl,asx,acx
       complex*16 xi,xi2,xi3,xi4,xi5,xi6,xi7,xi8,xi9,xi10,xi11
 
-      parameter (xcut = 1, xcut1 = 7.51, xcut2 = 5.01)
+      parameter (xcut = 1.0d0, xcut1 = 7.51d0, xcut2 = 5.01d0)
 
       if (dble(x) .le. 0)  stop 'Re(x) is .le. zero in besjn'
 
@@ -568,7 +568,7 @@ c           Re(x) < 5
 c           Re(x) >= 5
             asx = sin(x)
             acx = cos(x)
-            xi = 1 / x
+            xi = 1.0d0 / x
             xi2 = xi**2
             nl(1) = -acx*xi
             nl(2) = -acx*xi2 - asx*xi
@@ -594,7 +594,7 @@ c        Use AS 10.1.8 and 10.1.9, sjl=P, qjl=Q, note that AS formulae
 c        use cos (z - n*pi/2), etc., so cos and sin terms get a bit
 c        scrambled (mod 4) here, since n is integer.  These are hard-
 c        coded into the terms below.
-         xi = 1 / x
+         xi = 1.0d0 / x
          xi2  = xi*xi
          xi3  = xi*xi2
          xi4  = xi*xi3
@@ -608,38 +608,42 @@ c        coded into the terms below.
 
          sjl(1) = xi
          sjl(2) = xi2
-         sjl(3) = 3.*xi3 - xi
-         sjl(4) = 15.*xi4 - 6.*xi2
-         sjl(5) = 105.*xi5 - 45.*xi3 + xi
-         sjl(6) = 945.*xi6 - 420.*xi4 + 15.*xi2
-         sjl(7) = 10395.*xi7 - 4725.*xi5 + 210.*xi3 - xi
-         sjl(8) = 135135.*xi8 - 62370.*xi6 + 3150.*xi4 - 28.*xi2
-         sjl(9) = 2027025.*xi9 - 945945.*xi7 + 51975.*xi5 
-     1            - 630.*xi3 + xi
-         sjl(10) = 34459425.*xi10 - 16216200.*xi8 + 945945.*xi6 
-     1            - 13860.*xi4 + 45.*xi2
-         sjl(11) = 654729075.*xi11 - 310134825.*xi9 + 18918900.*xi7 
-     1            - 315315.*xi5 + 1485.*xi3 - xi
-         cjl(1) = 0
+         sjl(3) = 3.0d0*xi3 - xi
+         sjl(4) = 15.0d0*xi4 - 6.0d0*xi2
+         sjl(5) = 105.0d0*xi5 - 45.0d0*xi3 + xi
+         sjl(6) = 945.0d0*xi6 - 420.0d0*xi4 + 15.0d0*xi2
+         sjl(7) = 10395.0d0*xi7 - 4725.0d0*xi5 + 210.0d0*xi3 - xi
+         sjl(8) = 135135.0d0*xi8 - 62370.0d0*xi6 + 3150.0d0*xi4 
+     >             - 28.0d0*xi2
+         sjl(9) = 2027025.0d0*xi9 - 945945.0d0*xi7 + 51975.0d0*xi5 
+     1            - 630.0d0*xi3 + xi
+         sjl(10) = 34459425.0d0*xi10 - 16216200.0d0*xi8 +945945.0d0*xi6
+     1            - 13860.0d0*xi4 + 45.0d0*xi2
+         sjl(11) = 654729075.0d0*xi11 - 310134825.0d0*xi9 
+     >            + 18918900.0d0*xi7 
+     1            - 315315.0d0*xi5 + 1485.0d0*xi3 - xi
+         cjl(1) = 0.0d0
          cjl(2) = -xi
-         cjl(3) = -3.*xi2
-         cjl(4) = -15.*xi3 + xi
-         cjl(5) = -105.*xi4 + 10.*xi2
-         cjl(6) = -945.*xi5 + 105.*xi3 - xi
-         cjl(7) = -10395.*xi6 + 1260.*xi4 - 21.*xi2
-         cjl(8) = -135135.*xi7 + 17325.*xi5 - 378.*xi3 + xi
-         cjl(9) = -2027025.*xi8 + 270270.*xi6 - 6930.*xi4 + 36.*xi2
-         cjl(10) = -34459425.*xi9 + 4729725.*xi7 - 135135.*xi5 
-     1             + 990.*xi3 - xi
-         cjl(11) = -654729075.*xi10 + 91891800.*xi8 - 2837835.*xi6 
-     1             + 25740.*xi4 - 55.*xi2
+         cjl(3) = -3.0d0*xi2
+         cjl(4) = -15.0d0*xi3 + xi
+         cjl(5) = -105.0d0*xi4 + 10.0d0*xi2
+         cjl(6) = -945.0d0*xi5 + 105.0d0*xi3 - xi
+         cjl(7) = -10395.0d0*xi6 + 1260.0d0*xi4 - 21.0d0*xi2
+         cjl(8) = -135135.0d0*xi7 + 17325.0d0*xi5 - 378.0d0*xi3 + xi
+         cjl(9) = -2027025.0d0*xi8 + 270270.0d0*xi6 - 6930.0d0*xi4 
+     >            + 36.0d0*xi2
+         cjl(10) = -34459425.0d0*xi9 + 4729725.0d0*xi7 - 135135.0d0*xi5 
+     1             + 990.0d0*xi3 - xi
+         cjl(11) = -654729075.0d0*xi10 + 91891800.0d0*xi8 
+     >             - 2837835.0d0*xi6 
+     1             + 25740.0d0*xi4 - 55.0d0*xi2
          do 80 ie = 1,11
             snl(ie) = cjl(ie)
             cnl(ie) = -sjl(ie)
    80    continue
          do 90 lp1 = 12,lmaxp1
             l = lp1-2
-            tlxp1 = float(2*l+1)
+            tlxp1 = dble(2*l+1)
             sjl(lp1) = tlxp1*xi*sjl(lp1-1)-sjl(lp1-2)
             cjl(lp1) = tlxp1*xi*cjl(lp1-1)-cjl(lp1-2)
             snl(lp1) = tlxp1*xi*snl(lp1-1)-snl(lp1-2)
@@ -692,20 +696,20 @@ c-----------------------------------------------------------------------
       complex*16 x,u,ux,del,pj,pn
       complex*16 jl,nl
 
-      parameter (niter = 20, tol = 1.e-15)
+      parameter (niter = 20, tol = 1.d-15)
 
       if (l .lt. 0) then
          write(77,*) 'l .lt. 0 in bjnser'
          stop 'bjnser 1'
       endif
-   20 if (dble(x).lt. 0.) then
+   20 if (dble(x).lt. 0.0d0) then
          write(77,30) x
    30    format (/, ' x = ', 1p, 2e14.6, ' is .le. 0 in bjnser')
          stop 'bjnser 2'
       endif
 
       lp1 = l+1
-      u = x**2 / 2
+      u = x**2 / 2.0d0
 
 c     make djl = 1 * 3 * 5 * ... * (2*l+1),
 c          dnl = 1 * 3 * 5 * ... * (2*l-1)
@@ -768,28 +772,29 @@ c     convergence test is (last factor)/(total term) <= tol
 
       return
       end
-      subroutine ccrit (npat, ipat, ckspc,
+      subroutine ccrit(npat, ipat, ckspc,
      1    fbetac, rmax, pcrith, pcritk, nncrit, ipotnn, ipot,
      2    rpath, lheap, lkeep, xcalcx)
+      implicit double precision (a-h, o-z)
 
 c     lheap to add to heap, lkeep if keep path at output.
 c     NB, if lheap is false, lkeep is not used (since path
 c     won't be in the heap).
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -823,7 +828,7 @@ c     mrb is efficient way to get only ri and beta
 c     note that beta is cos(beta)
       call mrb (npat, ipat, ri, beta)
 
-      rpath = 0
+      rpath = 0.0d0
       do 300  i = 1, npat+1
          rpath = rpath + ri(i)
   300 continue
@@ -847,10 +852,10 @@ c     Make index into fbetac array (this is nearest cos(beta) grid
 c     point, code is a bit cute [sorry!], see prcrit for grid).
       do 290  i = 1, npat+1
          tmp = abs(beta(i))
-         n = tmp / 0.025
-         del = tmp - n*0.025
-         if (del .gt. 0.0125)  n = n+1
-         if (beta(i) .lt. 0)  n = -n
+         n = tmp / 0.025d0
+         del = tmp - n*0.025d0
+         if (del .gt. 0.0125d0)  n = n+1
+         if (beta(i) .lt. 0.0d0)  n = -n
          indbet(i) = n
   290 continue
 
@@ -858,7 +863,7 @@ c     Decide if we want the path added to the heap if necessary.
 c     (Not necessary if no pcrith in use.)
       if (pcrith .gt. 0)  then
 
-         call mcrith (npat, ipat, ri, indbet,
+         call mcrith(npat, ipat, ri, indbet,
      1                ipot, nncrit, fbetac, ckspc, xheap)
 
 c        xheap = -1 if not defined for this path (too few legs, etc.)
@@ -1099,6 +1104,7 @@ c     write(8,290) (dp(i),i=1,np)
   530 return
       end
       subroutine chopen (ios, fname, mod)
+      implicit double precision (a-h, o-z)
 c     Writes error msg and stops if error in ios flag from open
 c     statement.  fname is filename, mod is module with failed open.
       character*(*) fname, mod
@@ -1137,7 +1143,7 @@ c-----------------------------------------------------------------------
       lmax = lmaxp1-1
 
 c     calculate legendre polynomials p_l0(x) up to l=lmax
-      pl0(1) = 1
+      pl0(1) = 1.0d0
       pl0(2) = x
       do 10  il = 2, lmax
          l = il-1
@@ -1182,8 +1188,8 @@ c **********************************************************************
       complex*16  dp(*),dq(*),da,dc
       mm=m+1
       d1=da+mm
-      da=0.0
-      db=0.0
+      da=0.0d0
+      db=0.0d0
       do 70 i=1,np
       dl=dr(i)**mm
       if (i.eq.1.or.i.eq.np) go to 10
@@ -1194,11 +1200,11 @@ c **********************************************************************
       dc=dq(i)*dl
       da=da+dc
    70 continue
-      da=dpas*da/3
-      dd=exp(dpas)-1.0
-      db=d1*(d1+1.0)*dd*exp((d1-1.0)*dpas)
+      da=dpas*da/3.0d0
+      dd=exp(dpas)-1.0d0
+      db=d1*(d1+1.0d0)*dd*exp((d1-1.0d0)*dpas)
       db=dr(1)*(dr(2)**m)/db
-      dd=(dr(1)**mm)*(1.0+1.0/(dd*(d1+1.0)))/d1
+      dd=(dr(1)**mm)*(1.0d0+1.0d0/(dd*(d1+1.0d0)))/d1
       da=da+dd*(dp(1)+dq(1))-db*(dp(2)+dq(2))
       return
       end
@@ -1209,30 +1215,30 @@ c     output: rad, qplus, qminus
 
       implicit double precision (a-h, o-z)
       complex*16 s1,s13
-      parameter (three = 3)
-      parameter (third = 1/three)
+      parameter (three = 3.0d0)
+      parameter (third = 1.0d0/three)
 
 c     this subroutine finds the roots of the equation
 c     4xk0 * q^3  +  (alph-4xk0^2) * q^2  +  wp^2 = 0
 c     see abramowitz and stegun pg 17 for formulae.
 
-      a2 = (alph / (4*xk0**2)  -  1) * xk0
-      a0 = wp**2 / (4*xk0)
-      a1 = 0
-      q = a1/3 - a2**2/9
-      r = (a1*a2 - 3*a0)/6  -  a2**3/27
+      a2 = (alph / (4.0d0*xk0**2)  -  1.0d0) * xk0
+      a0 = wp**2 / (4.0d0*xk0)
+      a1 = 0.0d0
+      q = a1/3.0d0 - a2**2/9.0d0
+      r = (a1*a2 - 3.0d0*a0)/6.0d0  -  a2**3/27.0d0
       rad = q**3 + r**2
-      if (rad .gt. 0) then
-         qplus = 0
-         qminus = 0
+      if (rad .gt. 0.0d0) then
+         qplus = 0.0d0
+         qminus = 0.0d0
          return
       endif
 
       s13 = dcmplx (r, sqrt(-rad))
       s1 = s13 ** third
-      qz1 = 2*s1 - a2/3
-      qz2 = -(s1 + sqrt(three)*dimag(s1) + a2/3)
-      qz3 = -(s1 - sqrt(three)*dimag(s1) + a2/3)
+      qz1 = 2.0d0*s1 - a2/3.0d0
+      qz2 = -(s1 + sqrt(three)*dimag(s1) + a2/3.0d0)
+      qz3 = -(s1 - sqrt(three)*dimag(s1) + a2/3.0d0)
       qplus = qz1
       qminus = qz3
 
@@ -1247,26 +1253,28 @@ c d1=initial (n-1);   d2=final (n-1);   d3=initial (n);   d4=final (n);
 c **********************************************************************
       if ((d1+d4).eq.(d2+d3)) go to 10
       d=(d4-d2)/((d1+d4)-(d2+d3))
-      if (d.lt.0.0) go to 20
-      if (d.lt.0.5) go to 30
-   10 d=0.5
+      if (d.lt.0.0d0) go to 20
+      if (d.lt.0.5d0) go to 30
+   10 d=0.5d0
       go to 30
-   20 d=0.0
+   20 d=0.0d0
    30 dalp=d
       return
       end
-      subroutine feff_diff (v, dx, n, vm)
+      subroutine feff_diff(v, dx, n, vm)
       implicit double precision (a-h,o-z)
       complex*16 v(n), vm(n)
-      vm(1)=((6.0*v(2)+6.66666666667*v(4)+1.2*v(6))-(2.45*v(1)+7.
-     1 5*v(3)+3.75*v(5)+.166666666667*v(7)))/dx
-      vm(2)=((6.0*v(3)+6.66666666667*v(5)+1.2*v(7))-(2.45*v(2)+7.
-     1 5*v(4)+3.75*v(6)+.166666666667*v(8)))/dx
+      vm(1)=((6.0d0*v(2)+6.66666666667d0*v(4)+1.2d0*v(6))-(2.45d0*v(1)
+     > +7.0d0
+     1 5*v(3)+3.75d0*v(5)+.166666666667d0*v(7)))/dx
+      vm(2)=((6.0d0*v(3)+6.66666666667d0*v(5)+1.2d0*v(7))-(2.45d0*v(2)
+     > +7.0d0
+     1 5*v(4)+3.75d0*v(6)+.166666666667d0*v(8)))/dx
       nm2=n-2
       do 10 i=3,nm2
-   10 vm(i)=((v(i-2)+8.0*v(i+1))-(8.0*v(i-1)+v(i+2)))/12.0/dx
-      vm(n-1)=(v(n)-v(n-2))/(2.0*dx)
-      vm(n)=(v(n-2)*.5-2.0*v(n-1)+1.5*v(n))/dx
+   10 vm(i)=((v(i-2)+8.0d0*v(i+1))-(8.0d0*v(i-1)+v(i+2)))/12.0d0/dx
+      vm(n-1)=(v(n)-v(n-2))/(2.0d0*dx)
+      vm(n)=(v(n-2)*0.5d0-2.0d0*v(n-1)+1.5d0*v(n))/dx
       return
       end
       subroutine feff_dirac (nqn,nql,nk,imax,de,dfl,dq1,jc)
@@ -1296,9 +1304,9 @@ c dvc=speed of light in a.u.; dsal=2.*dvc;  dk=kappa quantum number
 c dm=exponential step/720., dkoef=1./720.
 c **********************************************************************
       common /trois/ dpno(4,30), dqno(4,30)
-      data dkoef /.1388888888888888e-2/
+      data dkoef /0.1388888888888888d-2/
       nstop=0
-      dvc=137.0373
+      dvc=137.0373d0
       dsal=dvc+dvc
       imm=0
       ies=0
@@ -1307,7 +1315,7 @@ c **********************************************************************
       nd=0
       noeud=nqn-nql
       if (lll.ne.0) go to 10
-      elim=-z*z/(1.5*nqn*nqn)
+      elim=-z*z/(1.5d0*nqn*nqn)
       go to 40
    10 elim=dv(1)+lll/(dr(1)*dr(1))
       do 20 i=2,np
@@ -1319,14 +1327,14 @@ c **********************************************************************
 c 2*v+l*(l+1)/r**2 is everywhere positive
 c **********************************************************************
       return
-   40 if (de.le.elim) de=elim*0.5
+   40 if (de.le.elim) de=elim*0.5d0
    50 if (imm.eq.1) go to 80
       do 60 i=7,np,2
       imat=np+1-i
-      if ((dv(imat)+lll/(dr(imat)*dr(imat))-de).le.0.0) go to 70
+      if ((dv(imat)+lll/(dr(imat)*dr(imat))-de).le.0.0d0) go to 70
    60 continue
    70 if (imat.gt.5) go to 80
-      de=de*0.5
+      de=de*0.5d0
       if (de.lt.-test.and.nd.le.noeud) go to 50
       nstop=28
 c 2*v+l*(l+1)/r**2-2*e is everywhere positive
@@ -1344,20 +1352,20 @@ c **********************************************************************
       do 110 i=1,5
       dval=dr(i)**dfl
       if (i.eq.1) go to 100
-      if (dp(i-1).eq.0.0) go to 100
-      if ((dp(i)/dp(i-1)).gt.0.0) go to 100
+      if (dp(i-1).eq.0.0d0) go to 100
+      if ((dp(i)/dp(i-1)).gt.0.0d0) go to 100
       nd=nd+1
   100 dp(i)=dp(i)*dval
       dq(i)=dq(i)*dval
       dep(i)=dep(i)*dval
   110 deq(i)=deq(i)*dval
       k=-1+2*(noeud-2*(noeud/2))
-      if ((dp(1)*k).gt.0.0) go to 130
+      if ((dp(1)*k).gt.0.0d0) go to 130
   120 nstop=53
 c error in the expansion at the origin
 c **********************************************************************
       return
-  130 if ((k*nk*dq(1)).lt.0.0) go to 120
+  130 if ((k*nk*dq(1)).lt.0.0d0) go to 120
       dm=dpas*dkoef
 c outward integration
 c **********************************************************************
@@ -1365,19 +1373,19 @@ c **********************************************************************
       dp(i)=dp(i-1)
       dq(i)=dq(i-1)
       call inth (dp(i),dq(i),dv(i),dr(i))
-      if (dp(i-1).eq.0.0) go to 140
-      if ((dp(i)/dp(i-1)).gt.0.0) go to 140
+      if (dp(i-1).eq.0.0d0) go to 140
+      if ((dp(i)/dp(i-1)).gt.0.0d0) go to 140
       nd=nd+1
       if (nd.gt.noeud) go to 150
   140 continue
       if (nd.eq.noeud) go to 160
-      de=0.8*de
+      de=0.8d0*de
       if (de.lt.-test) go to 50
       nstop=206
 c the number of nodes is too small
 c **********************************************************************
       return
-  150 de=1.2*de
+  150 de=1.2d0*de
       if (de.gt.elim) go to 50
       nstop=210
 c the number of nodes is too big
@@ -1390,9 +1398,9 @@ c **********************************************************************
       if (imm.eq.1) go to 180
       do 170 i=1,np,2
       imax=np+1-i
-      if(((dv(imax)-de)*dr(imax)*dr(imax)).le.300.0) go to 180
+      if(((dv(imax)-de)*dr(imax)*dr(imax)).le.300.0d0) go to 180
   170 continue
-  180 dd=sqrt(-de*(2.0+db/dvc))
+  180 dd=sqrt(-de*(2.0d0+db/dvc))
       dpq=-dd/(dsal+db)
       dm=-dm
       do 190 i=1,5
@@ -1412,7 +1420,7 @@ c***********************************************************************
 c joining of the large components
 c **********************************************************************
       dval=dpm/dp(imat)
-      if (dval.gt.0.0) go to 210
+      if (dval.gt.0.0d0) go to 210
       nstop=312
 c error in the sign of the large component
 c **********************************************************************
@@ -1422,12 +1430,13 @@ c **********************************************************************
   220 dq(i)=dq(i)*dval
 c calculation of the norm
 c **********************************************************************
-      dsum=3.0*dr(1)*(dp(1)**2+dq(1)**2)/(dpas*(dfl+dfl+1.0))
+      dsum=3.0d0*dr(1)*(dp(1)**2+dq(1)**2)/(dpas*(dfl+dfl+1.0d0))
       do 230 i=3,imax,2
-  230 dsum=dsum+dr(i)*(dp(i)**2+dq(i)**2)+4.0*dr(i-1)*(dp(i-1)**2+dq(i-
+  230 dsum=dsum+dr(i)*(dp(i)**2+dq(i)**2)
+     > +4.0d0*dr(i-1)*(dp(i-1)**2+dq(i-
      1 1)**2)+dr(i-2)*(dp(i-2)**2+dq(i-2)**2)
       dsum=dpas*(dsum+dr(imat)*(dqm*dqm-dq(imat)*dq(imat)))*0.3333333333
-     1 333333
+     1 333333d0
 c modification of the energy
 c **********************************************************************
       dbe=dp(imat)*(dqm-dq(imat))*dvc/dsum
@@ -1435,16 +1444,16 @@ c **********************************************************************
       val=abs(dbe/de)
       if (val.le.test) go to 260
   240 dval=de+dbe
-      if (dval.lt.0.0) go to 250
-      dbe=dbe*0.5
-      val=val*0.5
+      if (dval.lt.0.0d0) go to 250
+      dbe=dbe*0.5d0
+      val=val*0.5d0
       if (val.gt.test) go to 240
       nstop=345
 c energie nulle
 c **********************************************************************
       return
   250 de=dval
-      if (val.le.0.1) imm=1
+      if (val.le.0.1d0) imm=1
       ies=ies+1
       if (ies.le.nes) go to 50
       nstop=362
@@ -1462,20 +1471,20 @@ c **********************************************************************
       if (imax.eq.np) go to 300
       j=imax+1
       do 290 i=j,np
-      dp(i)=0.0
-  290 dq(i)=0.0
+      dp(i)=0.0d0
+  290 dq(i)=0.0d0
   300 nstop=0
   310 return
       end
-      double precision function feff_dist (r0, r1)
+      double precision function feff_dist(r0, r1)
 c     find distance between cartesian points r0 and r1
       implicit double precision (a-h, o-z)
       dimension r0(3), r1(3)
-      dist = 0
+      feff_dist = 0.0d0
       do 10  i = 1, 3
          feff_dist = feff_dist + (r0(i) - r1(i))**2
    10 continue
-      feff_dist = sqrt (feff_dist)
+      feff_dist = dsqrt(feff_dist)
       return
       end
 c***********************************************************************
@@ -1495,19 +1504,19 @@ c**********************************************************************
       subroutine edp (rs, xk, vi0, vr, vi)
       implicit double precision (a-h, o-z)
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -1520,16 +1529,16 @@ c     by Rehr and Chou. EXAFS1 conference editted by Bianconi.
 c     x is local momentum in units of fermi momentum
 
       x = xk / xf
-      x = x + 1.0e-5
+      x = x + 1.0d-5
 c     set to fermi level if below fermi level
-      if (x .lt. 1.00001) x = 1.00001
+      if (x .lt. 1.00001d0) x = 1.00001d0
       c = abs( (1+x) / (1-x) )
       c = log(c)
-      vr = - (xf/pi) * (1 + c * (1-x**2) / (2*x))
+      vr = - (xf/pi) * (1.0d0 + c * (1.0d0-x**2) / (2*x))
 
 c     Note vi=vi0/2 to have both real and imaginary part in hartrees
 c     to be consistent with  other subroutines.
-      vi = vi0 / 2
+      vi = vi0 / 2.0d0
       return
       end
       double precision function exchan (d,dr,dexv)
@@ -1541,24 +1550,26 @@ c  d=4pi*rho*r^2 , radial density for r=dr
 c  this function calculates exch=-r*Vexch
 c  105.27578=32*(pi^2)/3
 c  comments added by j. mustre 8/27/87
-      if (dexv.eq.0.0) go to 10
-      exchan=3.0*dexv*((dr*d/105.27578)**(1.0/3.0))
+      if (dexv.eq.0.0d0) go to 10
+      exchan=3.0d0*dexv*((dr*d/105.27578d0)**(1.0d0/3.0d0))
       return
    10 continue
-      rrs=(d/(3.0*dr**2))**.33333333333
-      exchan=+0.5*(1.22177412*rrs+.0504*log(30.0*rrs+1.0))*dr
+      rrs=(d/(3.0d0*dr**2))**0.33333333333d0
+      exchan=+0.5d0*(1.22177412d0*rrs
+     >        +0.0504d0*log(30.0d0*rrs+1.0d0))*dr
       return
       end
       double precision function exchee (d,dr)
       implicit double precision (a-h,o-z)
       save
 c jm if density= 0,make exchange energy equal to zero
-      if (d .eq. 0.0) then
-      exchee=0.0
+      if (d .eq. 0.0d0) then
+      exchee=0.0d0
       else
-      x=(3.0*dr**2/d)**.333333333333/30.0
-      rx=1.0/x
-      exchee=.02520*(x**3*log(1.0+rx)+x*.50-x**2-1.0/3.0-0.2020129
+      x=(3.0d0*dr**2/d)**0.333333333333d0/30.0d0
+      rx=1.0d0/x
+      exchee=0.02520d0*(x**3*log(1.0d0+rx)+x*0.50d0
+     > -x**2-1.0d0/3.0d0-0.2020129d0
      1 2*rx)
       endif
       return
@@ -1586,7 +1597,7 @@ c       recurrence relation to get analytic j4,n4  eqns 10.1.19-22
 
 c     Exact formulae unstable for very small z, so use series
 c     expansion there.  Limit of .3 chosen for 9 digit agreement.
-      if (abs(z) .lt. 0.3)  then
+      if (abs(z) .lt. 0.3d0)  then
          call bjnser (z, l, jl, nl, 0)
       else
 c        use analytic formulae
@@ -1602,12 +1613,14 @@ c        use analytic formulae
             nl = -cosz/z**2 - sinz/z
 
          elseif (l .eq. 2)  then
-            jl = ( 3/z**3 - 1/z)*sinz - 3*cosz/z**2
-            nl = (-3/z**3 + 1/z)*cosz - 3*sinz/z**2
+            jl = ( 3.0d0/z**3 - 1.0d0/z)*sinz - 3.0d0*cosz/z**2
+            nl = (-3.0d0/z**3 + 1.0d0/z)*cosz - 3.0d0*sinz/z**2
 
          elseif (l .eq. 3)  then
-            jl = ( 15/z**4 - 6/z**2)*sinz + (-15/z**3 + 1/z)*cosz
-            nl = (-15/z**4 + 6/z**2)*cosz + (-15/z**3 + 1/z)*sinz
+            jl = ( 15.0d0/z**4 - 6.0d0/z**2)*sinz 
+     >          + (-15.0d0/z**3 + 1.0d0/z)*cosz
+            nl = (-15.0d0/z**4 + 6.0d0/z**2)*cosz 
+     >          + (-15.0d0/z**3 + 1.0d0/z)*sinz
 
          else
             stop 'exjlnl, l out of range'
@@ -1622,19 +1635,19 @@ c        use analytic formulae
       implicit double precision (a-h, o-z)
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -1651,8 +1664,8 @@ c     rs is the density parameter
 c     xf is the interstital fermi momentum
 c     xmu is the fermi level in rydbergs
 
-      den = rhoint / (4*pi)
-      rs = (3 / (4*pi*den)) ** third
+      den = rhoint / (4.0d0*pi)
+      rs = (3.0d0 / (4.0d0*pi*den)) ** third
       xf = fa / rs
       xmu = vint + xf**2
 
@@ -1668,26 +1681,26 @@ c     modified for feff6l by jjr
       common /vers/ vfeff, vpotph, vpaths, vgenfm, vff2ch
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
 
-      parameter (delk = 0.05)
-      parameter (eps = 1.0e-10)
-      parameter (eps4 = 1.0e-4)
+      parameter (delk = 0.05d0)
+      parameter (eps = 1.0d-10)
+      parameter (eps4 = 1.0d-4)
 c     e (eV) = bohr**2 * ryd * k**2 (k in invA), b2r ~=3.81
       parameter (b2r = bohr**2 * ryd)
 
@@ -1753,7 +1766,7 @@ c     skip a label line
       read(2,*)
 
       dwcorr = .false.
-      if (tk .gt. 1.0e-1)  dwcorr = .true.
+      if (tk .gt. 1.0d-1)  dwcorr = .true.
 
 c     Open chi.dat and xmu.dat (output) and start header
       open (unit=3, file=trim(header)//'chi.dat',
@@ -1930,7 +1943,7 @@ c           extrapolate chi when k=0, otherwise calculate it
 c           achi has no 2kr term
             dw = exp(-2*sig2*ck(i)**2)
             phdw = atan2 (dimag(dw), dble(dw))
-            if (abs(xk(i)) .lt. 0.01)  then
+            if (abs(xk(i)) .lt. 0.01d0)  then
                iextr = i
             else
                achi(i) = afeff(i) * deg * abs(dw) *
@@ -1954,7 +1967,7 @@ c        Decide on fine grid -- need k' if vrcorr /= 0
             xkpmin = xk2xkp (xk(1), vrcorr)
             n = xkpmin / delk
 c           need 1st int ABOVE xkpmin/delk
-            if (xkpmin .gt. 0)  n = n+1
+            if (xkpmin .gt. 0.0d0)  n = n+1
 c           First k grid point moved by vrcorr
             xkmin = n * delk
          else
@@ -2062,19 +2075,19 @@ c     internal workings in atomic units
       double precision function xk2xkp (xk, vrcorr)
       implicit double precision (a-h, o-z)
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -2089,19 +2102,19 @@ c     speed of light in louck's units (rydbergs?)
       double precision function xkp2xk (xkp, vrcorr)
       implicit double precision (a-h, o-z)
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -2112,7 +2125,7 @@ c     speed of light in louck's units (rydbergs?)
       xkp2xk = getxk(e) / bohr
       return
       end
-      double precision function ffq (q, ef, xk, wp, alph)
+      double precision function ffq(q, ef, xk, wp, alph)
       implicit double precision (a-h,o-z)
 
 c     input:  q, wp, alph, ef, xk
@@ -2121,8 +2134,8 @@ c             xk is momentum in invBohrs
 c     output: ffq only
 
       wq = sqrt (wp**2 + alph*q**2 + q**4)
-      ffq = (wp+wq)/(q**2) + alph/(2*wp)
-      ffq = ((ef*wp) / (4*xk))  * log(ffq)
+      ffq = (wp+wq)/(q**2) + alph/(2.0d0*wp)
+      ffq = ((ef*wp) / (4.0d0*xk))  * log(ffq)
 
       return
       end
@@ -2154,19 +2167,19 @@ c     output: ffq only
 				!finder, NOT in genfmt
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -2193,11 +2206,11 @@ c     interstitial values...
 
       do 190  i = 1, imt
          vtotph(i) = vtot(i)
-         rhoph(i) = edens(i)/(4*pi)
+         rhoph(i) = edens(i)/(4.0d0*pi)
   190 continue
       do 200  i = imt+1, nrptx
          vtotph(i) = vint
-         rhoph(i) = rhoint/(4*pi)
+         rhoph(i) = rhoint/(4.0d0*pi)
   200 continue
 
       return
@@ -2237,19 +2250,19 @@ c     gam = (-)**m c_l,n+m*xnlm, gamt = (2l+1)*c_ln/xnlm,
 c     gamtl = gamt*tl
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -2345,9 +2358,10 @@ c     calculate factors gam and gamtl
          ilx = il0
       endif
       do 30  il = iln, ilx
-         tltl = 2*il - 1
+         tltl = 2.0d0*il - 1.0d0
          if (iterm .lt. 0)  then
-            tl = (exp(2*coni*ph(ie,il,ipot(ilegp))) - 1) / (2*coni)
+            tl = (exp(2.0d0*coni*ph(ie,il,ipot(ilegp))) - 1.0d0)
+     >           / (2.0d0*coni)
             tltl = tltl * tl
          endif
          lam12x = max (lam1x, lam2x)
@@ -2377,7 +2391,7 @@ c     calculate factors gam and gamtl
             in2 = nlam(lam2) + 1
             iam2 = iabs(m2) + 1
             imn1 = iam1 + in1 - 1
-            cterm = 0
+            cterm = 0.0d0
             ilmin = max (iam1, iam2, imn1, in2, iln)
             do 40  il = ilmin, ilx
 c              skip terms with mu > l (NB il=l+1, so mu=il is mu>l)
@@ -2389,7 +2403,7 @@ c              skip terms with mu > l (NB il=l+1, so mu=il is mu>l)
      1                         *dri(il,m1d,m2d,ilegp)
 
    40       continue
-            if (eta(ileg) .ne. 0.0) then
+            if (eta(ileg) .ne. 0.0d0) then
                m1 = mlam(lam1)
                cterm = cterm * exp(-coni*eta(ileg)*m1)
             endif
@@ -2448,19 +2462,19 @@ c        q and q arrays  upper and lower components (see comments)
       complex*16 p(nr), q(nr), ps(nr), qs(nr), vm(nr)
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -2475,48 +2489,50 @@ c     speed of light in louck's units (rydbergs?)
       complex*16 vn,vmn
 
 c     test=1.e+04 value in loucks
-      test=1.e+05
+      test=1.d+05
       nrk=6
 
-      expdxh=exp(dx/2.0)
-      dxd4=dx/4.0
-      dxd8=dx/8.0
-      a1=dx*3.30
-      a2=-dx*4.20
-      a3=dx*7.80
-      a4=dx*14.0/45.0
-      a5=dx*64.0/45.0
-      a6=dx*24.0/45.0
+      expdxh=exp(dx/2.0d0)
+      dxd4=dx/4.0d0
+      dxd8=dx/8.0d0
+      a1=dx*3.30d0
+      a2=-dx*4.20d0
+      a3=dx*7.80d0
+      a4=dx*14.0d0/45.0d0
+      a5=dx*64.0d0/45.0d0
+      a6=dx*24.0d0/45.0d0
       call feff_diff (v,dx,jri,vm)
       twoz=-dble (v(1))/ri(1)
       l=il-1
-      lp1=l+1.0
+      lp1=l+1.0d0
       ldcsq=l/csq
       ie=1
       r=ri(1)
       vn=v(1)
       vmn=vm(1)
 cv    p(1)=1.0
-      p(1)=1.e-20
-      q(1)=-e/(2.0*l+3.0)*r*p(1)
+      p(1)=1.d-20
+      q(1)=-e/(2.0d0*l+3.0d0)*r*p(1)
       beta=lp1
-      if (twoz.eq.0.0) go to 10
-      beta=sqrt(lp1*l+1.0-(twoz/c)**2)
+      if (twoz.eq.0.0d0) go to 10
+      beta=sqrt(lp1*l+1.0d0-(twoz/c)**2)
       sb0=(beta-lp1)*csq/twoz
-      sa1=(3.0*beta-(twoz/c)**2)/(2.0*beta+1.0)
+      sa1=(3.0d0*beta-(twoz/c)**2)/(2.0d0*beta+1.0d0)
       sb1=csq/twoz*((beta-l)*sa1-1.0)-sb0
-      sa2=((beta+3.0*lp1)*sa1-3.0*l+twoz/csq*(beta+lp1+3.0)*sb1)/
-     1 (beta+1.0)/4.0
-      sb2=(csq/twoz*(2.0*l*(beta+2.0-lp1)-l-(twoz/c)**2)*sa1-3.0*l
-     1 *csq/twoz*(beta+2.0-lp1)+(beta+3.0-2.0*lp1-(twoz/c)**2)*sb1)/
-     2 (beta+1.0)/4.0
+      sa2=((beta+3.0*lp1)*sa1-3.0d0*l+twoz/csq*(beta+lp1+3.0d0)*sb1)/
+     1 (beta+1.0d0)/4.0d0
+      sb2=(csq/twoz*(2.0d0*l*(beta+2.0d0-lp1)-l-(twoz/c)**2)*sa1-3.0d0*l
+     1 *csq/twoz*(beta+2.0d0-lp1)
+     > +(beta+3.0d0-2.0d0*lp1-(twoz/c)**2)*sb1)/
+     2 (beta+1.0)/4.0d0
       delta=r*csq/twoz
-      q(1)=(sb0+delta*(sb1+delta*sb2))/(1.0+delta*(sa1+delta*sa2))*p(1)
+      q(1)=(sb0+delta*(sb1+delta*sb2))/
+     >     (1.0d0+delta*(sa1+delta*sa2))*p(1)
    10 continue
 c     runge kutta method  (see loucks)
       c1=vn/r**2-e
-      c2=1.0-c1/csq
-      c3=(vmn-2.0*vn)/c2/c2*ldcsq
+      c2=1.0d0-c1/csq
+      c3=(vmn-2.0d0*vn)/c2/c2*ldcsq
       ps(1)=r*c2*q(1)+lp1*p(1)
       qs(1)=-lp1*q(1)+(r*c1-c3/r**3)*p(1)
       n=1
@@ -2525,33 +2541,33 @@ c     runge kutta method  (see loucks)
       qc=q(n)
       dp1=dx*(r*c2*qc+lp1*pc)
       dq1=dx*(-lp1*qc+(r*c1-c3/r**3)*pc)
-      pc=pc+0.50*dp1
-      qc=qc+0.50*dq1
+      pc=pc+0.50d0*dp1
+      qc=qc+0.50d0*dq1
       r=r*expdxh
       vnp1=v(n+1)
       vmnp1=vm(n+1)
-      vh=(vn+vnp1)*.50+(vmn-vmnp1)*dxd8
-      vmh=(1.50*(vnp1-vn)-(vmn+vmnp1)*dxd4)/dx
+      vh=(vn+vnp1)*0.50d0+(vmn-vmnp1)*dxd8
+      vmh=(1.50d0*(vnp1-vn)-(vmn+vmnp1)*dxd4)/dx
       c1=vh/r/r-e
-      c2=1.0-c1/csq
-      c3=(vmh-2.0*vh)/c2/c2*ldcsq
+      c2=1.0d0-c1/csq
+      c3=(vmh-2.0d0*vh)/c2/c2*ldcsq
       dp2=dx*(r*c2*qc+lp1*pc)
       dq2=dx*(-lp1*qc+(r*c1-c3/r**3)*pc)
-      pc=pc+0.50*(dp2-dp1)
-      qc=qc+0.50*(dq2-dq1)
+      pc=pc+0.50d0*(dp2-dp1)
+      qc=qc+0.50d0*(dq2-dq1)
       dp3=dx*(r*c2*qc+lp1*pc)
       dq3=dx*(-lp1*qc+(r*c1-c3/r**3)*pc)
-      pc=pc+dp3-0.50*dp2
-      qc=qc+dq3-0.50*dq2
+      pc=pc+dp3-0.50d0*dp2
+      qc=qc+dq3-0.50d0*dq2
       n=n+1
       r=ri(n)
       c1=vnp1/r/r-e
-      c2=1.0-c1/csq
-      c3=(vmnp1-2.0*vnp1)/c2/c2*ldcsq
+      c2=1.0d0-c1/csq
+      c3=(vmnp1-2.0d0*vnp1)/c2/c2*ldcsq
       dp4=dx*(r*c2*qc+lp1*pc)
       dq4=dx*(-lp1*qc+(r*c1-c3/r**3)*pc)
-      p(n)=p(n-1)+(dp1+2.0*(dp2+dp3)+dp4)/6.0
-      q(n)=q(n-1)+(dq1+2.0*(dq2+dq3)+dq4)/6.0
+      p(n)=p(n-1)+(dp1+2.0d0*(dp2+dp3)+dp4)/6.0d0
+      q(n)=q(n-1)+(dq1+2.0d0*(dq2+dq3)+dq4)/6.0d0
       ps(n)=r*c2*q(n)+lp1*p(n)
       qs(n)=-lp1*q(n)+(r*c1-c3/r**3)*p(n)
       vn=vnp1
@@ -2571,8 +2587,8 @@ c     runge kutta method  (see loucks)
 c     milne method
    40 r=ri(n+1)
       c1=v(n+1)/r/r-e
-      c2=1.0-c1/csq
-      c3=(vm(n+1)-2.0*v(n+1))/c2/c2*ldcsq
+      c2=1.0d0-c1/csq
+      c3=(vm(n+1)-2.0d0*v(n+1))/c2/c2*ldcsq
       pp=p(n-5)+a1*(psn+psnm4)+a2*(psnm1+psnm3)+a3*psnm2
       qp=q(n-5)+a1*(qsn+qsnm4)+a2*(qsnm1+qsnm3)+a3*qsnm2
       nit=0
@@ -2612,8 +2628,8 @@ c     print90, il,ie,n,prel,qrel
       qsnm1=qsn
       qsn=qsnp1
 c     introduce scale factor to prevent overflow on vax jjr
-      if(abs(pc).lt.1.e+20) go to 119
-      scale=1.e-20
+      if(abs(pc).lt.1.d+20) go to 119
+      scale=1.d-20
       do 112 mm=1,6
       nm=n-mm+1
       p(nm)=scale*p(nm)
@@ -2642,17 +2658,17 @@ c dny is r*g'/g, see loucks (4-85), q/p = cf/g (eq 4-86)
 c (watch for factors of rmt)
       return
       end
-      double precision function fpot (r,z,wa)
+      double precision function fpot(r,z,wa)
       implicit double precision (a-h,o-z)
       save
 c
 c thomas fermi potential at the point r; z=atomic number
 c wa=number of electrons-z-1
 c **********************************************************************
-      wc=sqrt((r*(z+wa)**(1.0/3.0))/0.88530)
-      wd=wc*(0.601120*wc+1.810610)+1.0
-      we=wc*(wc*(wc*(wc*(0.04793*wc+0.21465)+0.77112)+1.39515)+1
-     1 .81061)+1.0
+      wc=sqrt((r*(z+wa)**(1.0d0/3.0d0))/0.88530d0)
+      wd=wc*(0.601120d0*wc+1.810610d0)+1.0d0
+      we=wc*(wc*(wc*(wc*(0.04793d0*wc+0.21465d0)+0.77112d0)+1.39515d0)
+     > +1.81061d0)+1.0d0
       wc=(z+wa)*(wd/we)**2-wa
       fpot=-wc/r
       return
@@ -2681,6 +2697,8 @@ c **********************************************************************
 
       dimension rho(nrptx)
 
+      real*8 sum,fr,fl
+
 c     finds norman radius
 
 c     Need overlapped densities.  We'll get them in the form
@@ -2688,12 +2706,12 @@ c     4*pi*density = rho.  Also need z of atom
 
 c     Then integrate out to the point where the integral of
 c     4*pi*density*r**2 is equal to iz
-      sum = 0.0
+      sum = 0.0d0
       do 10  i = 1, nrptx-1
          fr = rho(i+1) * rr(i+1)**3
          fl = rho(i)   * rr(i)**3
          sumsav = sum
-         sum = sum + 0.025*(fr+fl)
+         sum = sum + 0.025d0*(fr+fl)
          if (sum .ge. iz)  then
             inrm = i+1
             goto 20
@@ -2701,6 +2719,7 @@ c     4*pi*density*r**2 is equal to iz
    10 continue
       write(77,*) ' FRNRM Could not integrate enough charge to reach'
       write(77,*) '       required z.'
+      write(77,*) "error sum,iz=",sum,iz
       stop 'FRNRM-1'
    20 continue
 c     inrm is too big, subtract one from irnm and interpolate
@@ -2711,7 +2730,7 @@ c     to get correct value
       fl = rho(inrm)   * rr(inrm)**3
 c     dipas is delta i * 0.05
       dipas = 2*deltaq / (fl + fr)
-      rnrm = rr(inrm)*(1 + dipas)
+      rnrm = rr(inrm)*(1.0d0 + dipas)
 
       return
       end
@@ -2722,19 +2741,19 @@ c     dipas is delta i * 0.05
       common /header_common/ header
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -2848,7 +2867,7 @@ c     iorder, order of approx in f-matrix expansion (see setlam)
 c             (normal use, 2.  Do ss exactly regardless of iorder)
 
 c     used for divide-by-zero and trig tests
-      parameter (eps = 1.0e-16)
+      parameter (eps = 1.0d-16)
 
 c     Read phase calculation input, data returned via commons
       open (unit=1, file=trim(header)//'phase.bin', status='old',
@@ -3161,16 +3180,17 @@ c           put header on feff.dat
 c           Make the feff.dat stuff and write it to feff.dat
             do 900  ie = 1, ne
 c              Consider chi in the standard XAFS form.  Use R = rtot/2.
-               xlam = 1.0e10
-               if (abs(dimag(ck(ie))) .gt. eps) xlam = 1/dimag(ck(ie))
-               redfac = exp (-2 * dimag (ph(ie,il0,ipot(nleg))))
+               xlam = 1.0d10
+               if (dabs(dimag(ck(ie))) .gt. eps) 
+     >            xlam = 1.0d0/dimag(ck(ie))
+               redfac = exp(-2 * dimag (ph(ie,il0,ipot(nleg))))
                cdelt = 2*dble(ph(ie,il0,ipot(nleg)))
                cfms = cchi(ie) * xk(ie) * reff**2 *
      1              exp(2*reff/xlam) / redfac
                if (abs(cchi(ie)) .lt. eps)  then
                   phff = 0
                else
-                  phff = atan2 (dimag(cchi(ie)), dble(cchi(ie)))
+                  phff = atan2(dimag(cchi(ie)), dble(cchi(ie)))
                endif
 c              remove 2 pi jumps in phases
                if (ie .gt. 1)  then
@@ -3525,7 +3545,7 @@ c        remove an electron from the level specified by ihole
             nqn(norb) = nnum(i)
             nk(norb)  = kappa(i)
             nel(norb) = iocc(index,i)
-            den(norb) = 0.0
+            den(norb) = 0.0d0
          endif
    10 continue
 
@@ -3538,7 +3558,7 @@ c     restore iocc array for neatness
 
       return
       end
-      double precision function getxk (e)
+      double precision function getxk(e)
       implicit double precision (a-h, o-z)
 
 c     Make xk from energy as
@@ -3546,7 +3566,7 @@ c          k =  sqrt( e)  for e > 0  (above the edge)
 c          k = -sqrt(-e)  for e < 0  (below the edge)
 
       getxk = sqrt(abs(e))
-      if (e .lt. 0)  getxk = - getxk
+      if (e .lt. 0.0d0)  getxk = - getxk
       return
       end
       subroutine sthead (ntitle, title, ltitle, nph, iz, rmt, rnrm,
@@ -3568,19 +3588,19 @@ c     they were read from potph.dat
       common /header_common/ header
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -3672,7 +3692,7 @@ c     Does not include line of dashes at the end.
   150 continue
   160 format('Pot',i2,' Z=',i2,' Rmt=',f6.3,' Rnm=',f6.3,' Ion=',i2)
   170 format('Pot',i2,' Z=',i2,' Rmt=',f6.3,' Rnm=',f6.3)
-      if (abs(vi0) .gt. 1.0e-8 .or. abs(vr0) .gt. 1.0e-8)  then
+      if (abs(vi0) .gt. 1.0d-8 .or. abs(vr0) .gt. 1.0d-8)  then
          nhead = nhead+1
          write(head(nhead),180)  gamach*ryd, sout(ixc), vi0*ryd,
      1                           vr0*ryd
@@ -3715,6 +3735,7 @@ c     array (array ih) used to keep other data associated with the heap
 c     elements.
 
       subroutine hup (h, ih, n)
+      implicit double precision (a-h, o-z)
 c     heap is in order except for last element, which is new and must
 c     be bubbled through to its proper location
 c     new element is at i, j = index of parent
@@ -3738,6 +3759,7 @@ c     if no parent, we're at the top of the heap, and done
       end
 
       subroutine hdown (h, ih, n)
+      implicit double precision (a-h, o-z)
 c     h is in order, except that 1st element has been replaced.
 c     Bubble it down to its proper location.  New element is i,
 c     children are j and k.
@@ -3771,6 +3793,7 @@ c     j is now index of smallest of children
       end
 
       subroutine swapfeff (a, b)
+      implicit double precision (a-h, o-z)
       t = a
       a = b
       b = t
@@ -3778,6 +3801,7 @@ c     j is now index of smallest of children
       end
 
       subroutine iswapfeff (i, j)
+      implicit double precision (a-h, o-z)
       integer  i,j,k
       k = i
       i = j
@@ -3799,24 +3823,24 @@ c see new subroutine quinn.f, which incorporates r. albers coding of
 c j.j. quinn's approximations for details.
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
 c     alph is Hedin-Lundquist parameter
-      parameter (alph = 4.0 / 3.0)
+      parameter (alph = 4.0d0 / 3.0d0)
       external ffq
 
       integer icount
@@ -3830,8 +3854,8 @@ c     alph is Hedin-Lundquist parameter
 c     xk0 is xk normalized by k fermi.
       xk0 = xk/xf
 c     set to fermi level if below fermi level
-      if (xk0 .lt. 1.00001) then
-         xk0 = 1.00001
+      if (xk0 .lt. 1.00001d0) then
+         xk0 = 1.00001d0
       endif
 
 c     wp is given in units of the fermi energy in the formula below.
@@ -3839,7 +3863,7 @@ c     wp is given in units of the fermi energy in the formula below.
       xs = wp**2 - (xk0**2 - 1)**2
 
       eim = 0
-      if (xs .lt. 0.)  then
+      if (xs .lt. 0.0d0)  then
          q2 = sqrt ( (sqrt(alph**2-4*xs) - alph) / 2 )
          qu = min (q2, (1+xk0))
          d1 = qu - (xk0 - 1)
@@ -3920,13 +3944,13 @@ c l=0 standard option for the bloc ofs points and their precision
 c finite nuclear size option if nuc is positive
 c if irnorm=1 renormalize potential to wigner-seitz radius
 
-      dvc=137.0373
+      dvc=137.0373d0
       dsal=dvc+dvc
       iz1=0
       ion1=0
       nuc1=-1
-      dpas=0.05
-      dr1=0.01
+      dpas=0.05d0
+      dr1=0.01d0
       nes=15
 
       niter=50
@@ -3936,19 +3960,19 @@ c     JM used teste 5.0e-5 to treat negative ion,
 c     SZ changed teste to 1.0e-4 for selenium only to avoid convergence
 c     problems with this particular atom.
 c     teste set to 1.0e-4 to reduce run time (sz and jjr)
-      teste = 1.0e-4
-      testy=1.e-04
-      testv=1.e-04
-      test=1.e-07
+      teste = 1.0d-4
+      testy=1.d-04
+      testv=1.d-04
+      test=1.d-07
 
       np=251
       nstop=30
 
 c     Set dexv to zero for use with exafs model
-      dexv = 0.0
+      dexv = 0.0d0
 
-      dexe=1.5
-      dcop=0.3
+      dexe=1.5d0
+      dcop=0.3d0
 
 c     i, j, k set to zero when old read statements removed
       i=0
@@ -3997,12 +4021,12 @@ c testv = self-consistency criteria for the potential
          read (linp,*,end=900) dval
 c        dval = atomic mass if nuc positive
 
-         dval=z*(dval**(1.0/3.0))*2.267700e-05/exp(4.0*dpas)
+         dval=z*(dval**(1.0d0/3.0d0))*2.267700d-05/exp(4.0d0*dpas)
          if (dval .le. dr1)  then
             dr1=dval
             nuc=5
          else
-            dval=dval*exp(4.0*dpas)
+            dval=dval*exp(4.0d0*dpas)
             do 170 i=6,np
                d1=dr1*exp((i-1)*dpas)
                if (d1.ge.dval) goto 190
@@ -4023,7 +4047,7 @@ c        dval = atomic mass if nuc positive
      2        23x,'wave functions  ',1pe9.2,//,
      3        23x,'potential',1pe9.2,/)
 
-      xtmp = 8.8
+      xtmp = 8.8d0
       dr1=z*exp(-xtmp)
 
       if (iprint .ge. 5)  write(16,220) np,dr1,iz,dpas
@@ -4131,7 +4155,7 @@ c        read in starting potential (in a.u. and negative) if idep=1
      1           5x, 'starting potential multiplied by r ' /,
      2           10(2x, f9.4))
          dval = -z/dv(1)
-         if (nuc.gt.0)  dval = 1.0
+         if (nuc.gt.0)  dval = 1.0d0
          do 500 i=1,np
             dv(i)=dv(i)*dval/dr(i)
   500    continue
@@ -4166,7 +4190,7 @@ c        read in starting potential (in a.u. and negative) if idep=1
       endif
       val=z+dv(1)*dr(1)
       if (nuc.gt.0)  val=z+dv(nuc)*dr(nuc)
-      if (abs(val) .ge. 0.1)  then
+      if (abs(val) .ge. 0.1d0)  then
          write(77,550)
          if (iprint .ge. 5)  write(16,550)
   550    format (' error for the potential ')
@@ -4256,9 +4280,9 @@ c **********************************************************************
    50 dq(10)=dq1
       dp(10)=dbe*dq1
       go to 90
-   60 dval=dv+z*(3.0-dr(1)*dr(1)/(dr(nuc)*dr(nuc)))/(dr(nuc)+dr(nuc))
-      deva1=0.0
-      deva2=(dval-3.0*z/(dr(nuc)+dr(nuc)))/dvc-dd
+   60 dval=dv+z*(3.0d0-dr(1)*dr(1)/(dr(nuc)*dr(nuc)))/(dr(nuc)+dr(nuc))
+      deva1=0.0d0
+      deva2=(dval-3.0d0*z/(dr(nuc)+dr(nuc)))/dvc-dd
       deva3=z/(dr(nuc)*dr(nuc)*dr(nuc)*dsal)
       if (dk) 70,70,80
    70 dp(10)=dq1
@@ -4313,21 +4337,25 @@ c dvc=speed of light in atomic units; dsal=2.*dvc; dk=kappa quantum numb
 c dm=exponential step/720.
 c dkoef1=405./502., dkoef2=27./502.
 c **********************************************************************
-      data dkoef1 /.9462151394422310/, dkoef2 /.5378486055776890d-1/
-      dpr=dp+dm*((251.0*dep(1)+2616.0*dep(3)+1901.0*dep(5))-(1274.0
-     1 *dep(2)+2774.0*dep(4)))
-      dqr=dq+dm*((251.0*deq(1)+2616.0*deq(3)+1901.0*deq(5))-(1274.0
-     1 *deq(2)+2774.0*deq(4)))
+      data dkoef1 /0.9462151394422310d0/, dkoef2 /0.5378486055776890d-1/
+      dpr=dp+dm*((251.0d0*dep(1)+2616.0d0*dep(3)
+     > +1901.0d0*dep(5))-(1274.0d0
+     1 *dep(2)+2774.0d0*dep(4)))
+      dqr=dq+dm*((251.0d0*deq(1)+2616.0d0*deq(3)
+     >   +1901.0d0*deq(5))-(1274.0d0
+     1 *deq(2)+2774.0d0*deq(4)))
       do 10 i=2,5
       dep(i-1)=dep(i)
    10 deq(i-1)=deq(i)
       dsum=(db-dv/dvc)*dr
       dep(5)=-dk*dpr+(dsal*dr+dsum)*dqr
       deq(5)=dk*dqr-dsum*dpr
-      dp=dp+dm*((106.0*dep(2)+646.0*dep(4)+251.0*dep(5))-(19.0*dep(1
-     1 )+264.0*dep(3)))
-      dq=dq+dm*((106.0*deq(2)+646.0*deq(4)+251.0*deq(5))-(19.0*deq(1
-     1 )+264.0*deq(3)))
+      dp=dp+dm*((106.0d0*dep(2)+646.0d0*dep(4)
+     >   +251.0d0*dep(5))-(19.0d0*dep(1
+     1 )+264.0d0*dep(3)))
+      dq=dq+dm*((106.0d0*deq(2)+646.0d0*deq(4)
+     >  +251.0d0*deq(5))-(19.0d0*deq(1
+     1 )+264.0d0*deq(3)))
       dp=dkoef1*dp+dkoef2*dpr
       dq=dkoef1*dq+dkoef2*dqr
       dep(5)=-dk*dp+(dsal*dr+dsum)*dq
@@ -4341,7 +4369,7 @@ c     Only output is fx, fmx
       dx=b-a
       d=(x-a)/dx
 c     if (d*(1.0-d).lt.0.0) stop 'Died in intpol'
-      if (d*(1.0-d).lt.0.0) then
+      if (d*(1.0d0-d).lt.0.0d0) then
          write(77,*) 'a, b, dx'
          write(77,*) a, b, dx
          write(77,*) 'x, x-a'
@@ -4350,13 +4378,14 @@ c     if (d*(1.0-d).lt.0.0) stop 'Died in intpol'
          write(77,*) d, d*(1-d)
          stop 'Died in intpol'
       endif
-      c2=3.0*(fb-fa)-(fmb+2.0*fma)*dx
-      c3=2.0*(fa-fb)+(fma+fmb)*dx
+      c2=3.0d0*(fb-fa)-(fmb+2.0d0*fma)*dx
+      c3=2.0d0*(fa-fb)+(fma+fmb)*dx
       fx=fa+d*(dx*fma+d*(c2+d*c3))
-      fmx=fma+d*(2.0*c2+3.0*c3*d)/dx
+      fmx=fma+d*(2.0d0*c2+3.0d0*c3*d)/dx
       return
       end
       subroutine ipack (iout, n, ipat)
+      implicit double precision (a-h, o-z)
 
 c     Input:  n          number of things to pack, nmax=8
 c             ipat(1:n)  integers to pack
@@ -4390,6 +4419,7 @@ c     degeneracy checker.
       return
       end
       subroutine upack (iout, n, ipat)
+      implicit double precision (a-h, o-z)
 
 c     retrieve n and ipat from iout
 c     Input:  iout(3)  packed integers
@@ -4422,7 +4452,7 @@ c             ipat(1:n) unpacked integers
 
       return
       end
-      subroutine istprm (nph, nat, iphat, rat, iatph, xnatph,
+      subroutine istprm(nph, nat, iphat, rat, iatph, xnatph,
      1                   novr, iphovr, nnovr, rovr, folp, edens,
      2                   vclap, vtot, imt, inrm, rmt, rnrm, 
      2                   rhoint,
@@ -4432,19 +4462,19 @@ c     Finds interstitial parameters, rmt, vint, etc.
       implicit double precision (a-h, o-z)
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -4529,7 +4559,7 @@ c              Don't avg if norman spheres don't overlap
             iat = iatph(iph)
             do 130  inat = 1, nat
                if (inat .eq. iat)  goto 130
-               rnn = feff_dist (rat(1,inat), rat(1,iat))
+               rnn = feff_dist(rat(1,inat), rat(1,iat))
                inph = iphat(inat)
 c              Don't avg if norman spheres don't overlap
                if (rnrm(iph)+rnrm(inph) .lt. rnn)  goto 130
@@ -4541,7 +4571,7 @@ c              Don't avg if norman spheres don't overlap
                voltot = voltot + voltmp
   130       continue
          endif
-         if (rmtavg .le. 0)  then
+         if (rmtavg .le. 0.0d0)  then
             write(77,132) iat, iph
   132       format (' WARNING: NO ATOMS CLOSE ENOUGH TO OVERLAP ATOM',
      1              i5, ',  UNIQUE POT', i5, '!!', /,
@@ -4560,7 +4590,7 @@ c     Need potential with ground state xc, put it into vtot
          do 150  i = 1, imax
             rs = (edens(i,iph)/3)**(-third)
 c           vhedbr from Von Barth Hedin paper, 1971
-            vhedbr = -1.22177412/rs - 0.0504*log(30/rs + 1)
+            vhedbr = -1.22177412d0/rs - 0.0504d0*log(30.0d0/rs + 1)
             vtot(i,iph) = vclap(i,iph) + vhedbr
   150    continue
   160 continue
@@ -4573,17 +4603,17 @@ c     Interstitial values will be average over all atoms in problem.
 c     rnrmav is averge norman radius,
 c     (4pi/3)rnrmav**3 = (sum((4pi/3)rnrm(i)**3)/n, sum over all atoms
 c     in problem
-      rnrmav = 0
-      xn = 0
-      rs = 0
-      vint   = 0
-      rhoint = 0
+      rnrmav = 0.0d0
+      xn = 0.0d0
+      rs = 0.0d0
+      vint   = 0.0d0
+      rhoint = 0.0d0
 c     volint is total interstitial volume
       volint = 0
 
       do 170  iph = 0, nph
 c        Use all atoms
-         call istval (vtot(1,iph), edens(1,iph), rmt(iph), imt(iph),
+         call istval(vtot(1,iph), edens(1,iph), rmt(iph), imt(iph),
      2                rnrm(iph), inrm(iph), vintx, rhintx, ierr)
 c        if no contribution to interstitial region, skip this unique pot
          if (ierr .ne. 0)  goto 170
@@ -4613,22 +4643,22 @@ c     If no contribution to interstitial from any atom, die.
       return
       end
 
-      double precision function calcvl (r1, r2, r)
+      double precision function calcvl(r1, r2, r)
       implicit double precision (a-h, o-z)
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -4667,7 +4697,7 @@ c          =-1, rmt=rws, no calculation possible
       parameter (npatx = 8)	!max number of path atoms, used in path
 				!finder, NOT in genfmt
 
-      parameter (delta = 0.050 000 000 000 000)
+      parameter (delta = 0.050000000000000d0)
 
       dimension vtot (nrptx)
       dimension rholap (nrptx)
@@ -4681,8 +4711,8 @@ c     similarly leave out 4pi in integration.
 
 c     If rmt and rws are the same, cannot contribute to interstitial
 c     stuff, set error flag
-      vol = (rws**3 - rmt**3) / 3
-      if (vol .le. 0)  then
+      vol = (rws**3 - rmt**3) / 3.0d0
+      if (vol .le. 0.0d0)  then
          ierr = -1
          return
       endif
@@ -4690,11 +4720,11 @@ c     stuff, set error flag
 
 c     Calculation of vint including exchange correlation
 c     Trapezoidal rule from imt+1 to iws
-      vint = 0
+      vint = 0.0d0
       do 100  i = imt, iws-1
          fr = rr(i+1)**3 * vtot(i+1)
          fl = rr(i)**3   * vtot(i)
-         vint = vint + (fr+fl)*delta/2
+         vint = vint + (fr+fl)*delta/2.0d0
   100 continue
 c     End cap at rws (rr(iws) to rws)
       xws = log (rws)
@@ -4702,14 +4732,14 @@ c     End cap at rws (rr(iws) to rws)
       g = xws - xiws
       fr = rr(iws+1)**3 * vtot(iws+1)
       fl = rr(iws)**3   * vtot(iws)
-      vint = vint + (g/2) * ( (2-(g/delta))*fl + (g/delta)*fr)
+      vint = vint + (g/2.0d0) * ( (2.0d0-(g/delta))*fl + (g/delta)*fr)
 c     End cap at rmt (rmt to rr(imt+1))
       xmt = log (rmt)
       ximt = xx(imt)
       g = xmt - ximt
       fr = rr(imt+1)**3 * vtot(imt+1)
       fl = rr(imt)**3   * vtot(imt)
-      vint = vint - (g/2) * ( (2-(g/delta))*fl + (g/delta)*fr)
+      vint = vint - (g/2.0d0) * ( (2.0d0-(g/delta))*fl + (g/delta)*fr)
       vint = vint / vol
 
 c     Calculation of rhoint
@@ -4718,7 +4748,7 @@ c     Trapezoidal rule from imt+1 to iws
       do 200  i = imt, iws-1
          fr = rr(i+1)**3 * rholap(i+1)
          fl = rr(i)**3   * rholap(i)
-         rhoint = rhoint + (fr+fl)*delta/2
+         rhoint = rhoint + (fr+fl)*delta/2.0d0
   200 continue
 c     End cap at rws (rr(iws) to rws)
       xws = log (rws)
@@ -4726,35 +4756,38 @@ c     End cap at rws (rr(iws) to rws)
       g = xws - xiws
       fr = rr(iws+1)**3 * rholap(iws+1)
       fl = rr(iws)**3   * rholap(iws)
-      rhoint = rhoint + (g/2) * ( (2-(g/delta))*fl + (g/delta)*fr)
+      rhoint = rhoint + (g/2.0d0) 
+     >       * ( (2.0d0-(g/delta))*fl + (g/delta)*fr)
 c     End cap at rmt (rmt to rr(imt+1))
       xmt = log (rmt)
       ximt = xx(imt)
       g = xmt - ximt
       fr = rr(imt+1)**3 * rholap(imt+1)
       fl = rr(imt)**3   * rholap(imt)
-      rhoint = rhoint - (g/2) * ( (2-(g/delta))*fl + (g/delta)*fr)
+      rhoint = rhoint - (g/2.0d0) 
+     >   * ( (2.0d0-(g/delta))*fl + (g/delta)*fr)
       rhoint = rhoint / vol
 
       return
       end
       subroutine mcrith (npat, ipat, ri, indbet,
      1                   ipot, nncrit, fbetac, ckspc, xheap)
+      implicit double precision (a-h, o-z)
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -4842,21 +4875,22 @@ c        1/(rho1+rho2+..+rho npat-1).
       end
       subroutine mcritk (npat, ipat, ri, beta, indbet,
      1                   ipot, nncrit, fbetac, ckspc, xout, xcalcx)
+      implicit double precision (a-h, o-z)
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -4933,43 +4967,43 @@ c     global polarization data
       common /pol/ evec(3), ivec(3), elpty, ptz(-1:1,-1:1), pola
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
 
 c     addittonal local stuff to create polarization tensor ptz(i,j)
-      real e2(3)
+      real*8 e2(3)
       complex*16  e(3),eps,epc
       dimension eps(-1:1),epc(-1:1)
 
 
 c     Begin to make polarization tensor
 c     Normalize polarization vector
-      x = sqrt (evec(1)**2 + evec(2)**2 + evec(3)**2)
-      if (x .eq. 0.0) then
+      x = sqrt(evec(1)**2 + evec(2)**2 + evec(3)**2)
+      if (x .eq. 0.0d0) then
          write(77,*) 'STOP  Polarization vector of zero length'
          stop
       endif
       do 290  i = 1, 3
          evec(i) = evec(i) / x
   290 continue
-      if (elpty .eq. 0.0) then
+      if (elpty .eq. 0.0d0) then
 c        run linear polarization code
          do 291 i = 1, 3
-            ivec(i) = 0.0
+            ivec(i) = 0.0d0
   291    continue
       endif
       x = sqrt (ivec(1)**2 + ivec(2)**2 + ivec(3)**2)
@@ -4979,7 +5013,7 @@ c        run elliptical polarization code
             ivec(i) = ivec(i) / x
   293    continue
          x = evec(1)*ivec(1)+evec(2)*ivec(2)+evec(3)*ivec(3)
-         if (abs(x) .gt. 0.9) then
+         if (abs(x) .gt. 0.9d0) then
             write(77,*) 
      1         'STOP polarization almost parallel to the incidence'
             write(77,*) ' polarization',(evec(i), i=1,3)
@@ -4987,7 +5021,7 @@ c        run elliptical polarization code
             write(77,*) ' dot product ', x
             stop
          endif
-         if (x .ne. 0.0) then
+         if (x .ne. 0.0d0) then
 c          if ivec not normal to evec then make in normal, keeping the
 c          plane based on two vectors
            do 294 i = 1,3
@@ -5023,8 +5057,8 @@ c        ptz(i,j) = ((-1.0)**i)*epc(-i)*eps(j)/(1+elpty**2)
 c       above - true polarization tensor for given ellipticity, 
 c       below - average over left and right in order to have
 c       path reversal simmetry
-        ptz(i,j) = ((-1.0)**i)*(epc(-i)*eps(j)+eps(-i)*epc(j))
-     1               /(1+elpty**2)/2.0
+        ptz(i,j) = ((-1.0d0)**i)*(epc(-i)*eps(j)+eps(-i)*epc(j))
+     1               /(1+elpty**2)/2.0d0
   298 continue
 c     end of making polarization tensor
 
@@ -5046,19 +5080,19 @@ c        mtot,l0
 c     Output:  mmati(...) 
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -5201,19 +5235,19 @@ c     gam = (-)**m c_l,n+m*xnlm, gamt = (2l+1)*c_ln/xnlm,
 c     gamtl = gamt*tl
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -5348,6 +5382,7 @@ c     calculate factors gam and gamtl
       return
       end
       subroutine mpprmd (npat, ipat, ri, beta, eta)
+      implicit double precision (a-h, o-z)
 c     double precision version so angles come out right
 c     for output...
 
@@ -5484,7 +5519,7 @@ c     We'll need gamm(N+1)=gamm(npat+2)=gamm(1)
       gamm(npat+2) = gamm(1)
       do 150  j = 1, npat+1
          eieta = alph(j) * gamm(j+1)
-         call sargd (eieta, eta(j))
+         call sargd(eieta, eta(j))
   150 continue
 
 c     Return beta as an angle, ie, acos(beta).  Check for beta >1 or
@@ -5492,17 +5527,18 @@ c     beta <1 (roundoff nasties)
       do 160  j = 1, npat+1
          if (beta(j) .gt.  1)  beta(j) =  1
          if (beta(j) .lt. -1)  beta(j) = -1
-         beta(j) = acos(beta(j))
+         beta(j) = dacos(beta(j))
   160 continue
 
       return
       end
       subroutine strigd (x, y, z, ct, st, cp, sp)
+      implicit double precision (a-h, o-z)
       double precision x, y, z, ct, st, cp, sp, r, rxy
 c     returns cos(theta), sin(theta), cos(phi), sin(ph) for (x,y,z)
 c     convention - if x=y=0, phi=0, cp=1, sp=0
 c                - if x=y=z=0, theta=0, ct=1, st=0
-      parameter (eps = 1.0e-6)
+      parameter (eps = 1.0d-6)
       r = sqrt (x**2 + y**2 + z**2)
       rxy = sqrt (x**2 + y**2)
       if (r .lt. eps)  then
@@ -5523,10 +5559,11 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       return
       end
       subroutine sargd (c, th)
+      implicit double precision (a-h, o-z)
 
       double precision x, y, th
       complex*16  c
-      parameter (eps = 1.0e-6)
+      parameter (eps = 1.0d-6)
       x = dble(c)
       y = dimag(c)
       if (abs(x) .lt. eps)  x = 0
@@ -5539,6 +5576,7 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       return
       end
       subroutine mpprmp (npat, ipat, xp, yp, zp)
+      implicit double precision (a-h, o-z)
 
 c     make path parameters,  xp, yp,zp for each atom for a given
 c     path.
@@ -5745,6 +5783,7 @@ c     now xp,yp,zp represent the path in standard order
       return
       end
       subroutine mrb (npat, ipat, ri, beta)
+      implicit double precision (a-h, o-z)
 
 c     Make ri, beta and rpath path parameters for crit calculations.
 
@@ -5811,7 +5850,7 @@ c        also handle ss and triangular cases).
          ri(ileg) = sdist (rat(1,jat), rat(1,jm1at))
 
 c        Make cos(beta) from dot product
-         call dotcos (rat(1,jm1at), rat(1,jat), rat(1,jp1at),
+         call dotcos(rat(1,jm1at), rat(1,jat), rat(1,jp1at),
      1               beta(ileg))
    30 continue
 
@@ -5823,9 +5862,10 @@ c        Make cos(beta) from dot product
       return
       end
       subroutine dotcos (rm1, r, rp1, cosb)
+      implicit double precision (a-h, o-z)
       dimension rm1(3), r(3), rp1(3)
 
-      parameter (eps = 1.0e-8)
+      parameter (eps = 1.0d-8)
 
       cosb = 0
       do 100  i = 1, 3
@@ -5848,6 +5888,7 @@ c     cosb = 0, so it won't be undefined.
      1    nncrit, fbetac, ne, ik0, cksp, fbeta, ipotnn, ipot,
      1    xport, xheap, xheapr,
      1    xout, xcalcx)
+      implicit double precision (a-h, o-z)
 
 c     This make pw importance factor for pathsd, also recalculates
 c     pathfinder criteria for output.  Pathfinder recalculation
@@ -5855,19 +5896,19 @@ c     is hacked from ccrit, so be sure to update this if ccrit
 c     is changed.
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -5897,7 +5938,7 @@ c     speed of light in louck's units (rydbergs?)
 c     local variables
       dimension ri(npatx+1), beta(npatx+1), indbet(npatx+1)
       dimension xporti(nex)
-      parameter (eps = 1.0e-6)
+      parameter (eps = 1.0d-6)
 
 c     Space for variables for time reversed path (used in xheapr
 c     calculation below)
@@ -5912,9 +5953,9 @@ c     Make index into fbeta array (this is nearest cos(beta) grid point,
 c     code is a bit cute [sorry!], see prcrit for grid).
       do 290  i = 1, npat+1
          tmp = abs(beta(i))
-         n = tmp / 0.025
-         del = tmp - n*0.025
-         if (del .gt. 0.0125)  n = n+1
+         n = tmp / 0.025d0
+         del = tmp - n*0.025d0
+         if (del .gt. 0.0125d0)  n = n+1
          if (beta(i) .lt. 0)  n = -n
          indbet(i) = n
   290 continue
@@ -5964,7 +6005,7 @@ c     indbet  and ipat
          ipat0(i) = ipat(nleg-i)
   210 continue
 
-      call mcrith (npat, ipat0, ri0, indbe0,
+      call mcrith(npat, ipat0, ri0, indbe0,
      1             ipot, nncrit, fbetac, ckspc, xheapr)
 
 c     Keep crit thing (see mcritk for comments)
@@ -5983,19 +6024,19 @@ c     unique potential
       implicit double precision (a-h, o-z)
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
       parameter (coni = (0,1))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -6062,7 +6103,7 @@ c           don't overlap atom with itself
             if (inat .eq. iat)  goto 110
 
 c           if neighbor is too far away, don't overlap it
-            rnn = feff_dist (rat(1,inat), rat(1,iat))
+            rnn = feff_dist(rat(1,inat), rat(1,iat))
             if (rnn .gt. rlapx)  goto 110
 
             infr = ifrph(iphat(inat))
@@ -6076,8 +6117,10 @@ c     set norman radius
 
       return
       end
-      subroutine paths (ckspc, fbetac, pcritk, pcrith, nncrit,
+      subroutine paths(ckspc, fbetac, pcritk, pcrith, nncrit,
      1                  rmax, nlegxx, ipotnn)
+ 
+      implicit double precision (a-h, o-z)
 
 c     finds multiple scattering paths
 c     This is single precision, units are Angstroms.  BE CAREFUL!
@@ -6145,12 +6188,12 @@ c     If an element is freed, npat is the index of the free element
 c     to use after using current next element.
 c     nx is max number in heap
       integer    nx
-      parameter (nx = 10 000)
+      parameter (nx = 10000)
 c     parameter (nx = 60 000)
 c     r also used in making m matrix, must have nx >= natx+1
       integer   index(nx), npx, np, n, ip, i
 c     parameter (npx = 100 000)
-      parameter (npx = 4 000 000)
+      parameter (npx = 4000000)
       dimension r(nx), mi(nx), mj(nx)
       dimension npat(nx)
       dimension ipat (npatx,nx)
@@ -6161,7 +6204,7 @@ c     Used with ipack, so need ipat(8)
       dimension ipat0(8)
 
 c     paths are typically about 10 or 20 Ang
-      parameter (big = 1.0e3)
+      parameter (big = 1.0d3)
 
       parameter (nheadx = 30)
       character*80  head(nheadx)
@@ -6202,7 +6245,7 @@ c     ratx is distance to most distant atom, used to check rmax
       close (unit=1)
 
 c     Warn user if rmax > dist to most distant atom
-      if (rmax/2 .gt. ratx+.02)  then
+      if (rmax/2.0d0 .gt. ratx+0.02d0)  then
         write(77,*) '   WARNING:  rmax > distance to most distant atom.'
         write(77,*) '             Some paths may be missing.'
         write(77,*) '             rmax, ratx ', rmax/2, ratx
@@ -6302,7 +6345,7 @@ c     Someday change keep and keep1 to lkeep and lheap to match
 c     ccrit variable names.
 c     Initialize keep criterion
       xcalcx = -1
-      call ccrit (npat(ip), ipat(1,ip), ckspc,
+      call ccrit(npat(ip), ipat(1,ip), ckspc,
      1    fbetac, rmax, pcrith, pcritk, nncrit, ipotnn, ipot,
      2    r(n), keep, keep1(ip), xcalcx)
 
@@ -6476,10 +6519,11 @@ c     end of 'while not done' loop
      1        '(nheapx, nbx', i8, i4, ')')
 
       end
-      subroutine pathsd (ckspc, fbetac, ne, ik0, cksp, fbeta,
+      subroutine pathsd(ckspc, fbetac, ne, ik0, cksp, fbeta,
      1                   critpw, ipotnn, ipr2, 
      1                   pcritk, pcrith, nncrit, potlbl)
 
+      implicit double precision (a-h, o-z)
 c     New degeneracy checker, cute and hopefully fast for large
 c     problems
 
@@ -6489,19 +6533,19 @@ c     pcritk and pcrith used only for analysis after outcrt
       common /header_common/ header
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
       parameter (fa = 1.919 158 292 677 512 811)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -6551,13 +6595,13 @@ c     parameter (np1x = 60 000)
 c     eps5 for rtotal range, eps3 for individual leg parameters.
 c     eps3 large since code single precision and don't want round-off
 c     error to reduce degeneracy.
-      parameter (eps5 = 2.0e-5)
-      parameter (eps3 = 2.0e-3)
+      parameter (eps5 = 2.0d-5)
+      parameter (eps3 = 2.0d-3)
 
       logical ldiff, last
       parameter (necrit=9, nbeta=40)
-      real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
-      real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
+      real*8 fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
+      real*8 fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
 
       write(77,30) critpw
    30 format ('    Plane wave chi amplitude filter', f7.2, '%')
@@ -6586,8 +6630,8 @@ c     ngs    number of generalized shells (unique distances)
       ngs = 0
       xportx = eps5
       ndegx = 1
-      c0lim = 1.0e10
-      c1lim = 1.0e10
+      c0lim = 1.0d10
+      c1lim = 1.0d10
 c     Initialize keep criterion
       xcalcx = -1
 
@@ -6815,14 +6859,14 @@ c           Write to crit.dat here (unit 4, opened above)
 c           cmpk is degeneracy corrected xkeep, should equal frac
             cmpk = xkeep*ndeg/ndegx
 c           cmpk is accuracy of xkeep, 100 is perfect
-            cmpk = 100 - 100*(abs(frac-cmpk)/frac)
+            cmpk = 100.0d0 - 100.0d0*(abs(frac-cmpk)/frac)
 
 c           cmph is same thing for xheap
-            if (xheap .lt. 0)  then
-               cmph = 100
+            if (xheap .lt. 0.0d0)  then
+               cmph = 100.0d0
             else
                cmph = xheap*ndeg/ndegx
-               cmph = 100 - 100*(abs(frac-cmph)/frac)
+               cmph = 100.0d0 - 100.0d0*(abs(frac-cmph)/frac)
             endif
 
             if (ipr2 .ge. 1)  then
@@ -6854,7 +6898,7 @@ c     delete paths.bin when done...
   620 format ('    Unique paths', i7, ',  total paths', i8)
 
 c     Do not let user accidently fill up their disk
-      if (nuptot .gt. 1200)  then
+      if (nuptot .gt. 3200)  then
       write(77,*) 'You have found more than 1200 paths.  Genfmt'
       write(77,*) 'could require a lot of time and more than 6 meg of'
       write(77,*) 'storage.  Suggest a larger critpw to reduce number'
@@ -6873,7 +6917,8 @@ c     atwts(iz)  single precision fn, returns atomic weight
 c     atwtd(iz)  double precision fn, returns atomic weight
 c     atsym(iz)  character*2 fn, returns atomic symbol
 
-      double precision function atwtd (iz)
+      double precision function atwtd(iz)
+      implicit double precision (a-h, o-z)
       double precision weight
       save /atwtco/
       common /atwtco/ weight(103)
@@ -6881,7 +6926,8 @@ c     atsym(iz)  character*2 fn, returns atomic symbol
       return
       end
 
-      real function atwts (iz)
+      real*8 function atwts(iz)
+      implicit double precision (a-h, o-z)
       double precision weight
       save /atwtco/
       common /atwtco/ weight(103)
@@ -6890,6 +6936,7 @@ c     atsym(iz)  character*2 fn, returns atomic symbol
       end
 
       character*2 function atsym (iz)
+      implicit double precision (a-h, o-z)
       character*2 sym
       save /atsyco/
       common /atsyco/ sym(103)
@@ -6911,24 +6958,24 @@ c     Atomic weights from inside front cover of Ashcroft and Mermin.
       common /atsyco/ sym(103)
 
       data weight /
-     1   1.0079, 4.0026, 6.941,  9.0122, 10.81,   12.01,
-     2   14.007, 15.999, 18.998, 20.18,  22.9898, 24.305,
-     3   26.982, 28.086, 30.974, 32.064, 35.453,  39.948,
-     4   39.09,  40.08,  44.956, 47.90,  50.942,  52.00,
-     5   54.938, 55.85,  58.93,  58.71,  63.55,   65.38,
-     6   69.72,  72.59,  74.922, 78.96,  79.91,   83.80,
-     7   85.47,  87.62,  88.91,  91.22,  92.91,   95.94,
-     8   98.91,  101.07, 102.90, 106.40, 107.87,  112.40,
-     9   114.82, 118.69, 121.75, 127.60, 126.90,  131.30,
-     x   132.91, 137.34, 138.91, 140.12, 140.91,  144.24,
-     1   145,    150.35, 151.96, 157.25, 158.92,  162.50,
-     2   164.93, 167.26, 168.93, 173.04, 174.97,  178.49,
-     3   180.95, 183.85, 186.2,  190.20, 192.22,  195.09,
-     4   196.97, 200.59, 204.37, 207.19, 208.98,  210,
-     5   210,    222,    223,    226,    227,     232.04,
-     6   231,    238.03, 237.05, 244,    243,     247,
-     7   247,    251,    254,    257,    256,     254,
-     8   257/
+     1   1.0079d0, 4.0026d0, 6.941d0,  9.0122d0, 10.81d0,  12.01d0,
+     2   14.007d0, 15.999d0, 18.998d0, 20.18d0,  22.9898d0, 24.305d0,
+     3   26.982d0, 28.086d0, 30.974d0, 32.064d0, 35.453d0, 39.948d0,
+     4   39.09d0,  40.08d0,  44.956d0, 47.90d0,  50.942d0, 52.00d0,
+     5   54.938d0, 55.85d0,  58.93d0,  58.71d0,  63.55d0,  65.38d0,
+     6   69.72d0,  72.59d0,  74.922d0, 78.96d0,  79.91d0,  83.80d0,
+     7   85.47d0,  87.62d0,  88.91d0,  91.22d0,  92.91d0,  95.94d0,
+     8   98.91d0,  101.07d0, 102.90d0, 106.40d0, 107.87d0, 112.40d0,
+     9   114.82d0, 118.69d0, 121.75d0, 127.60d0, 126.90d0, 131.30d0,
+     x   132.91d0, 137.34d0, 138.91d0, 140.12d0, 140.91d0, 144.24d0,
+     1   145.0d0,  150.35d0, 151.96d0, 157.25d0, 158.92d0, 162.50d0,
+     2   164.93d0, 167.26d0, 168.93d0, 173.04d0, 174.97d0, 178.49d0,
+     3   180.95d0, 183.85d0, 186.2d0,  190.20d0, 192.22d0, 195.09d0,
+     4   196.97d0, 200.59d0, 204.37d0, 207.19d0, 208.98d0, 210.0d0,
+     5   210.0d0,  222.0d0,  223.0d0,  226.0d0, 227.0d0,   232.04d0,
+     6   231.0d0,  238.03d0, 237.05d0, 244.0d0, 243.0d0,   247.0d0,
+     7   247.0d0,  251.0d0,  254.0d0, 257.0d0, 256.0d0,    254.0d0,
+     8   257.0d0/
 
       data sym /  'H', 'He','Li','Be','B', 'C', 'N', 'O', 'F', 'Ne',
      1            'Na','Mg','Al','Si','P', 'S', 'Cl','Ar','K', 'Ca',
@@ -6995,7 +7042,7 @@ c     lmax         max l (lmax = kmax*rmt)
       parameter (npatx = 8)	!max number of path atoms, used in path
 				!finder, NOT in genfmt
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
 
       dimension   ri(nr), em(nex), vtot(nr), edens(nr)
       complex*16  eref(nex)
@@ -7011,10 +7058,11 @@ c     work space for fovrg
       complex*16 v(nrptx)
       external besjn
 
+      ihard = 0
 c     zero phase shifts (some may not be set below)
       do 100  ie = 1, ne
          do 90  il = 1, ltot+1
-            ph(ie,il) = 0
+            ph(ie,il) = dcmplx(0.0d0,0.0d0)
    90    continue
   100 continue
 
@@ -7056,7 +7104,7 @@ c        p2 is (complex momentum)**2 referenced to energy dep xc
          do 210  il = 1, lmax+1
             l = il - 1
 
-            call fovrg (il, ihard, rmt, xmt, jri, p2, 
+            call fovrg(il, ihard, rmt, xmt, jri, p2, 
      1                  nr, dx, ri, v, dny,
      1                  pu, qu, p, q, ps, qs, vm)
 
@@ -7080,7 +7128,7 @@ c        p2 is (complex momentum)**2 referenced to energy dep xc
             ph(ie,il) = dcmplx (alph, beta)
 
 c           cut phaseshift calculation if they become too small
-            if (abs(ph(ie,il)) .lt. 1.0e-6)  goto 220
+            if (abs(ph(ie,il)) .lt. 1.0d-6)  goto 220
 
   210    continue
 
@@ -7098,6 +7146,7 @@ c     Warn user if fovrg failed ihard test.
       end
       subroutine phash (npat, ipat, rx, ry, rz, dhash)
 c     hashes a path into double precision real dhash
+      implicit double precision (a-h, o-z)
 
 
       character*72 header
@@ -7128,7 +7177,7 @@ c     hashes a path into double precision real dhash
       double precision xx
 
       parameter (iscale = 1000)
-      parameter (factor = 16.12345678)
+      parameter (factor = 16.12345678d0)
 
 c     Hashing scheme: Assume about 15 significant digits in a double 
 c     precision number.  This is 53 bit mantissa and 11 bits for sign 
@@ -7176,17 +7225,17 @@ c     set nemax = nex (from dim.h) for max number of points
       common /header_common/ header
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
       parameter (third = one/3)
       parameter (raddeg = 180 / pi)
       complex*16 coni
       parameter (coni = (0,1))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
       parameter (alphfs = 1 / alpinv)
 c     speed of light in louck's units (rydbergs?)
@@ -7242,11 +7291,11 @@ c        min rho
             stop 'bad vr0 in phmesh'
          endif
 
-         delk = bohr/5
+         delk = bohr/5.0d0
          xkmin = sqrt (xkmin2)
          n = int(xkmin/delk) - 1
       else
-         xkmin = 0
+         xkmin = 0.0d0
          n = 0
       endif
 
@@ -7256,7 +7305,7 @@ c     30 pts (0 le k le 5.8, delk=0.2 ang(-1) )
 c      9 pts (6 le k le 10., delk=0.5 ang(-1) )
 c     10 pts (11 le k le 20.0, delk=1.0 ang(-1) )
       ne = 0
-      delk = bohr/5
+      delk = bohr/5.0d0
       if (ixanes .gt. 0)  then
          xkmin = n*delk
          do 110 i=1,n
@@ -7280,7 +7329,7 @@ c     10 pts (11 le k le 20.0, delk=1.0 ang(-1) )
   113 continue
       delk=bohr
       do 114 i=1,10
-         tempk=11.*bohr + (i-1)*delk
+         tempk=11.0d0*bohr + (i-1)*delk
          ne = ne+1
          em(ne)=tempk**2+edge
   114 continue
@@ -7321,19 +7370,19 @@ c          only by multiples of 2*pi)
 c     old = previous value of phase
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
       parameter (third = one/3)
       parameter (raddeg = 180 / pi)
       complex*16 coni
       parameter (coni = (0,1))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -7380,19 +7429,19 @@ c                   xxx.dat      various diagnostics
       common /header_common/ header
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
       parameter (third = one/3)
       parameter (raddeg = 180 / pi)
       complex*16 coni
       parameter (coni = (0,1))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -7509,7 +7558,7 @@ c     do not save spinors
          itmp = 0
          if (ifr .eq. 0)  itmp = ihole
          write(77,10) 'free atom potential and density for atom type', ifr
-         call feff_atom (head0(1)(1:40), ifr, iz(ifr), itmp, wsatom,
+         call feff_atom(head0(1)(1:40), ifr, iz(ifr), itmp, wsatom,
      1              ion(ifr), vcoul(1,ifr), rho(1,ifr),
      2              ispinr, dgc0, dpc0, et)
 c        etfin is absorbing atom final state total energy
@@ -7652,7 +7701,7 @@ c **********************************************************************
       implicit double precision (a-h,o-z)
       save
       dimension dv(251), d(251), dp(251), dr(251), dvn(251)
-      das=dpas/24.0
+      das=dpas/24.0d0
       do 10 i=1,np
    10 dv(i)=d(i)*dr(i)
       dlo=exp(dpas)
@@ -7691,25 +7740,25 @@ c **********************************************************************
       implicit double precision (a-h,o-z)
       save
       dimension dv(251), d(251), dp(251), dr(251)
-      das=dpas/24.0
+      das=dpas/24.0d0
       do 10 i=1,np
    10 dv(i)=d(i)*dr(i)
       dlo=exp(dpas)
       dlo2=dlo*dlo
       dp(2)=dr(1)*(d(2)-d(1)*dlo2)/(12.0*(dlo-1.0))
-      dp(1)=dv(1)/3.0-dp(2)/dlo2
-      dp(2)=dv(2)/3.0-dp(2)*dlo2
+      dp(1)=dv(1)/3.0d0-dp(2)/dlo2
+      dp(2)=dv(2)/3.0d0-dp(2)*dlo2
       j=np-1
       do 20 i=3,j
-   20 dp(i)=dp(i-1)+das*(13.0*(dv(i)+dv(i-1))-(dv(i-2)+dv(i+1)))
+   20 dp(i)=dp(i-1)+das*(13.0d0*(dv(i)+dv(i-1))-(dv(i-2)+dv(i+1)))
       dp(np)=dp(j)
       dv(j)=dp(j)
       dv(np)=dp(j)
       do 30 i=3,j
       k=np+1-i
-   30 dv(k)=dv(k+1)/dlo+das*(13.0*(dp(k+1)/dlo+dp(k))-(dp(k+2)/dlo2+dp
+   30 dv(k)=dv(k+1)/dlo+das*(13.0d0*(dp(k+1)/dlo+dp(k))-(dp(k+2)/dlo2+dp
      1 (k-1)*dlo))
-      dv(1)=dv(3)/dlo2+dpas*(dp(1)+4.0*dp(2)/dlo+dp(3)/dlo2)/3.0
+      dv(1)=dv(3)/dlo2+dpas*(dp(1)+4.0d0*dp(2)/dlo+dp(3)/dlo2)/3.0d0
       do 40 i=1,np
    40 dv(i)=dv(i)/dr(i)
       return
@@ -7738,19 +7787,19 @@ c              fbetac  |f(beta)| for each angle, npot, nncrit point, sp
 c              potlb0  unique potential labels
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
       parameter (coni = (0,1))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -7812,8 +7861,8 @@ c     text and title arrays include carriage control
 c     Output variables SINGLE PRECISION for use with path finder.
 c     BE CAREFUL!!
       parameter (necrit=9, nbeta=40)
-      real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
-      real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
+      real*8 fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
+      real*8 fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
       character*6  potlb0(0:npotx)
 
 c     Local variables
@@ -7845,7 +7894,7 @@ c     |p| at each energy point (path finder uses invA, convert here)
 c     Make the cos(beta)'s
 c     Grid is from -40 to 40, 81 points from -1 to 1, spaced .025
       do 200  ibeta = -nbeta, nbeta
-         dcosb(ibeta) = 0.025 * ibeta
+         dcosb(ibeta) = 0.025d0 * ibeta
   200 continue
 c     watch out for round-off error
       dcosb(-nbeta) = -1
@@ -7858,7 +7907,7 @@ c     make fbeta (f(beta) for all energy points
             do 250  ie = 1, ne
                cfbeta = 0
                do 245  il = 1, lmax(ie,iii)+1
-                  tl = (exp (2*coni*ph(ie,il,iii)) - 1) / (2*coni)
+                  tl = (exp(2.0d0*coni*ph(ie,il,iii)) - 1.0d0)/(2*coni)
                   cfbeta = cfbeta + tl*pl(il)*(2*il-1)
   245          continue
                fbeta(ibeta,iii,ie) = abs(cfbeta)
@@ -7938,28 +7987,28 @@ c***********************************************************************
       common /header_common/ header
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
 
-      parameter (alphaq = 1/ fa)
+      parameter (alphaq = 1.0d0/ fa)
 
 c     calculate quinn prefactor in atomin Hartree units
       pisqrt = sqrt(pi)
-      pfq = pisqrt / (32 * (alphaq*rs)**1.5)
+      pfq = pisqrt / (32.0d0 * (alphaq*rs)**1.5d0)
       temp1 = atan (sqrt (pi / (alphaq*rs)))
       temp2 = sqrt(alphaq*rs/pi) / (1 + alphaq*rs/pi)
       pfq = pfq * (temp1 + temp2)
@@ -7969,7 +8018,7 @@ c     wkc = quinn's plasmon threshold
 c     wkc is cut-off of quinn, pr126, 1453, 1962, eq. (11)
 c     in formulae below wp=omegap/ef
       wkc = (sqrt(1+wp) - 1)**2
-      wkc = (1 + (6./5.) * wkc / wp**2) * wp * ef
+      wkc = (1 + (6.0d0/5.0d0) * wkc / wp**2) * wp * ef
 
 c     we add fermi energy to get correct energy for
 c     plasma excitations to turn on
@@ -7981,11 +8030,11 @@ c     gamryd = 2 * (pfqryd/x) * (x**2-1)**2
 
 c     put in fermi function cutoff
       eabs = ef * x**2
-      arg = (eabs-ekc) / (0.3*ekc)
+      arg = (eabs-ekc) / (0.3d0*ekc)
       f = 0
-      if (arg .lt. 80)  f = 1 / (1 + exp(arg))
+      if (arg .lt. 80)  f = 1.0d0 / (1.0d0 + exp(arg))
 
-      ei = -gam * f / 2
+      ei = -gam * f / 2.0d0
 
       return
       end
@@ -8023,7 +8072,7 @@ c     carriage control
   100 continue
       return
       end
-      subroutine rdinp (mphase, mpath, mfeff, mchi, ms,
+      subroutine rdinp(mphase, mpath, mfeff, mchi, ms,
      1                  ntitle, title, ltit,
      2                  critcw,
      1                  ipr2, ipr3, ipr4,
@@ -8039,19 +8088,19 @@ c     Read input for multiple scattering feff
       common /header_common/ header
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -8082,7 +8131,7 @@ c     global polarization data
 
 c     Following passed to pathfinder, which is single precision.
 c     Be careful to always declare these!
-      real rmax, critpw, pcritk, pcrith
+      real*8 rmax, critpw, pcritk, pcrith
 
 c     Data for potph (see arrays.h for comments)
       dimension iphat(natx)
@@ -8145,8 +8194,8 @@ c     initialize things
       nlegxx = 10
       xkmin = 0
       xkmax = 20
-      critcw = 4.0
-      critpw = 2.5
+      critcw = 4.0d0
+      critpw = 2.5d0
       pcritk = 0
       pcrith = 0
       nogeom = .false.
@@ -8345,7 +8394,8 @@ c              rmult (default 1).  DOES NOT modify sig2g
 c              SS index ipot deg rss
                nss = nss + 1
                if (nss .gt. nssx)  then
-                  write(77,*) 'Too many ss paths requested, max is ', nssx
+                  write(77,*)
+     >             'Too many ss paths requested, max is ', nssx
                   stop 'RDINP'
                endif
                read(words(2),20,err=900)  indss(nss)
@@ -8666,11 +8716,11 @@ c     if no atoms specified.)
          ratmax = rovr(novr(0),0)
       else
          ratmax = 0
-         ratmin = 1.0e10
+         ratmin = 1.0d10
          do 412  iat = 1, nat
 c           skip absorbing atom
             if (iat .eq. iatabs)  goto 412
-            tmp = feff_dist (rat(1,iat), rat(1,iatabs))
+            tmp = feff_dist(rat(1,iat), rat(1,iatabs))
             if (tmp .gt. ratmax)  ratmax = tmp
             if (tmp .lt. ratmin)  ratmin = tmp
   412    continue
@@ -8687,7 +8737,7 @@ c     Set core hole lifetime (central atom quantity)
       call setgam (iz(ifr), ihole, gamach)
 
 c     Set s02 if necessary
-      if (s02 .le. 1.0e-10)  s02 = 1
+      if (s02 .le. 1.0d-10)  s02 = 1
 
 c     Convert everything to code units, and use rmult factor
 c     rmax is for pathfinder, so leave it in Ang.
@@ -8714,12 +8764,12 @@ c        rss used only to make paths.dat, so leave it in Angstroms.
   462 continue
 
 c     Check if 2 atoms are closer together than 1.75 ryd (~.93 Ang)
-      ratmin = 1.0e20
+      ratmin = 1.0d20
       do 480  iat = 1, nat
          do 470  jat = iat+1, nat
             rtmp = feff_dist(rat(1,iat),rat(1,jat))
             if (rtmp .lt. ratmin)  ratmin = rtmp
-            if (rtmp .lt. 1.75)  then
+            if (rtmp .lt. 1.75d0)  then
 c           if (dist(rat(1,iat),rat(1,jat)) .lt. 1.5)  then
                write(77,*) 'WARNING:  TWO ATOMS VERY CLOSE TOGETHER.',
      1                 '  CHECK INPUT.'
@@ -8872,6 +8922,7 @@ c        Rest of the atoms (skip central atom)
       end
 
       function itoken (word)
+      implicit double precision (a-h, o-z)
 c     chars in word assumed upper case, left justified
 c     returns 0 if not a token, otherwise returns token
 
@@ -8949,6 +9000,7 @@ c     returns 0 if not a token, otherwise returns token
       return
       end
       logical function iscomm (line)
+      implicit double precision (a-h, o-z)
 c     returns true if line is a comment or blank line, false otherwise
       character*(*) line
       iscomm = .false.
@@ -9022,19 +9074,19 @@ c     message max of 22 characters to keep warning on 80 char line.
       logical done, pol
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -9133,7 +9185,7 @@ c     place to put it.
       if (pol) then
          rat(1,nleg+1) = rat(1,nleg)
          rat(2,nleg+1) = rat(2,nleg)
-         rat(3,nleg+1) = rat(3,nleg) + 1.0
+         rat(3,nleg+1) = rat(3,nleg) + 1.0d0
       endif
 
 c     add rat(0) and ipot(0) (makes writing output easier)
@@ -9250,7 +9302,7 @@ c       of VECTORS used in ref.
          gamma(j) =  pi- dumm
 
          if (j .le. nleg)  then
-            ri(j) = feff_dist (rat(1,i), rat(1,im1))
+            ri(j) = feff_dist(rat(1,i), rat(1,im1))
          endif
   100 continue
 
@@ -9285,7 +9337,7 @@ c     returns cos(theta), sin(theta), cos(phi), sin(ph) for (x,y,z)
 c     convention - if x=y=0 and z>0, phi=0, cp=1, sp=0
 c                  if x=y=0 and z<0, phi=180, cp=-1,sp=0
 c                - if x=y=z=0, theta=0, ct=1, st=0
-      parameter (eps = 1.0e-6)
+      parameter (eps = 1.0d-6)
       r = sqrt (x**2 + y**2 + z**2)
       rxy = sqrt (x**2 + y**2)
       if (r .lt. eps)  then
@@ -9308,7 +9360,7 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       subroutine feff_arg(c,fi,th)
       implicit double precision (a-h, o-z)
       complex*16  c
-      parameter (eps = 1.0e-6)
+      parameter (eps = 1.0d-6)
       x = dble(c)
       y = dimag(c)
       if (abs(x) .lt. eps) x = 0
@@ -9482,19 +9534,19 @@ c     nright=number of coefficients for x>x0
 
       parameter (lrs=4, nrs=3, nleft=4, nright=2)
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -9826,7 +9878,7 @@ c     text and title arrays include carriage control
      1 ntext, ntitle	!number of text and title lines
 
 
-      parameter (phmin = 1.0e-8)
+      parameter (phmin = 1.0d-8)
 
 c     These header lines do not include carriage control
       read(in) ntext
@@ -9982,19 +10034,19 @@ c
 c     To test pw approx, set z = 0
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -10051,7 +10103,8 @@ c     speed of light in louck's units (rydbergs?)
 
       return
       end
-      function sdist (r0, r1)
+      double precision function sdist(r0, r1)
+      implicit double precision (a-h, o-z)
 c     find distance squared between cartesian points r0 and r1
 c     single precision
       dimension r0(3), r1(3)
@@ -10083,17 +10136,17 @@ c     Gam arrays contain the gamma values.
 c     We will take log10 of the gamma values so we can do linear
 c     interpolation from a log plot.
 
-      data  zk   / 0.99,  10.0, 20.0,  40.0,  60.0,   95.1/
+      data  zk   / 0.99d0,  10.0d0, 20.0d0,  40.0d0,  60.0d0,   95.1d0/
 c      data  gamk / 0.07,   0.3,  0.75,  5.0,  20.0,  100.0/
-      data  famk / 0.07,   0.3,  0.75,  5.0,  20.0,  100.0/
+      data  famk / 0.07d0,   0.3d0,  0.75d0,  5.0d0,  20.0d0,  100.0d0/
 
-      data  zl1   / 0.99,  20.0, 35.0, 50.0,  75.0,  95.1/
+      data  zl1   / 0.99d0,  20.0d0, 35.0d0, 50.0d0,  75.0d0,  95.1d0/
 c      data  gaml1 / 0.07,   4.0,  7.0,  4.0,   8.0,  19.0/
-      data  faml1 / 0.07,   4.0,  7.0,  4.0,   8.0,  19.0/
+      data  faml1 / 0.07d0,   4.0d0,  7.0d0,  4.0d0,   8.0d0,  19.0d0/
 
-      data  zl2   / 0.99,  26.0, 31.0, 60.0,  80.0,  95.1/
+      data  zl2   / 0.99d0,  26.0d0, 31.0d0, 60.0d0,  80.0d0,  95.1d0/
 c      data  gaml2 / 0.001,  1.7,  0.8,  3.5,   5.0,  10.0/
-      data  faml2 / 0.001,  1.7,  0.8,  3.5,   5.0,  10.0/
+      data  faml2 / 0.001d0,  1.7d0,  0.8d0,  3.5d0,   5.0d0,  10.0d0/
 
       data ienter /0/
 
@@ -10170,19 +10223,19 @@ c             nsc used from /pdata/ to recognize ss paths
 c     output: variables in /lambda/ set
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -10251,7 +10304,7 @@ c     text and title arrays include carriage control
       dimension mlam0(lamtot), nlam0(lamtot)
 
 c     one degree in radians
-      parameter (onedeg = .01745329252)
+      parameter (onedeg = .01745329252d0)
 
 c     Set iord, nmax and mmax based on icalc
       if (icalc .lt. 0)  then
@@ -10359,7 +10412,6 @@ c     Sort mlam0 and nlam0 to use min possible laml0x
       return
       end
       subroutine sidx (rholap, npts, rmt, rnrm, imax, imt, inrm)
-
       implicit double precision (a-h, o-z)
       dimension rholap (npts)
 
@@ -10368,7 +10420,7 @@ c     Sort mlam0 and nlam0 to use min possible laml0x
 
 c     Set imax (last non-zero rholap data)
       do 220  i = 1, npts
-         if (rholap(i) .le. 1.0e-5)  goto 230
+         if (rholap(i) .le. 1.0d-5)  goto 230
          imax = i
   220 continue
   230 continue
@@ -10425,19 +10477,19 @@ c               sig2 is output, debye waller factor in bohr**-2
       implicit double precision (a-h,o-z)
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -10461,7 +10513,7 @@ c               I = int_0^1 (y/x) dw sin(wx)coth(wy/2)
 c     Note:  There are nleg atoms including the central atom
 c            index 0 and index nleg both refer to central atom,
 c            which makes special code unnecessary later.
-      sum = 0
+      sum = 0.0d0
       ntot = 0
 
       sigtot=0
@@ -10500,7 +10552,7 @@ c        double count i .ne. j  terms
          sigtot=sigtot+sig2ij
 
   800 continue
-      sig2=sigtot/4
+      sig2=sigtot/4.0d0
 
 c     sig2 is in bohr**2, just as we wanted for ff2chi
       return
@@ -10534,19 +10586,19 @@ c
       common /xy/ x, yinv
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -10554,7 +10606,7 @@ c     speed of light in louck's units (rydbergs?)
 c     con=hbar**2/kB*amu)*10**20   in ang**2 units
 c     hbar = 1.054 572 666 e-34, amu = 1.660 540 e-27, 
 c     kB = 1.380 6581 d-23
-      parameter (con = 48.508 459 393 094)
+      parameter (con = 48.508459393094d0)
 
 c     external fn
 c     rij=2.55
@@ -10569,8 +10621,8 @@ c     rs=2.7
 c     thetad in degrees K, t temperature in degrees K
 c     y=thetad/tk
       yinv=tk/thetad
-      xkd=(9*pi/2)**(third)/(rs*bohr)
-      fac=(3/2.)*con/(thetad*sqrt(ami*amj))
+      xkd=(9.0d0*pi/2.0d0)**(third)/(rs*bohr)
+      fac=(3.0d0/2.0d0)*con/(thetad*sqrt(ami*amj))
       rj=rij
       x=xkd*rj
 c     call numerical integration
@@ -10584,14 +10636,14 @@ c     call numerical integration
 c     fn=(sin(wx)/x)*coth(wy/2)
 c     change code to allow t=0 without bombing
 c     fn=2/y
-      fn=2*yinv
-      if(w.lt.1.e-20) return
+      fn=2.0d0*yinv
+      if(w.lt.1.d-20) return
       fac=w
-      if(x.gt.0.) fac=sin(w*x)/x
-      emwy=0.
-      if(yinv.gt.0.0125) emwy=exp(-w/yinv)
+      if(x.gt.0.0d0) fac=sin(w*x)/x
+      emwy=0.0d0
+      if(yinv.gt.0.0125d0) emwy=exp(-w/yinv)
       emwy=exp(-w/yinv)
-      fn=fac*(1+emwy)/(1-emwy)
+      fn=fac*(1.0d0+emwy)/(1.0d0-emwy)
       return
       end
 c-----------------------------------------------
@@ -10611,30 +10663,30 @@ c     starting values
 c     external fn
 c     error is approximately 2**(-2n) ~ 10**(-.6n)
 c     so nmax=10 implies an error of 1.e-6
-      parameter(nmax = 10, tol = 1.e-5)
+      parameter(nmax = 10, tol = 1.d-5)
       parameter(zero=0, one=1)
       n=0
       itn=1
-      del=1.
-      bn=(fn(zero)+fn(one))/2
+      del=1.0d0
+      bn=(fn(zero)+fn(one))/2.0d0
       bo=bn
  10   continue
 c     nth iteration
 c     b_n+1=(b_n)/2+deln*sum_0^2**n f([2n-1]deln)
       n=n+1
       if(n.gt.nmax) go to 40
-      del=del/2
-      sum=0.
+      del=del/2.0d0
+      sum=0.0d0
       do 20 i=1, itn
       zi=(2*i-1)*del
  20   sum=sum+fn(zi)
 c     bnp1=b_n+1 is current value of integral
-      bnp1=bn/2+del*sum
+      bnp1=bn/2.0d0+del*sum
 c     cancel leading error terms b=[4b-bn]/3
 c     note: this is the first term in the
 c     neville table - remaining errors were
 c     found too small to justify the added code
-      b=(4*bnp1-bn)/3
+      b=(4*bnp1-bn)/3.0d0
       eps=abs((b-bo)/b)
       if(eps.lt.tol) goto 60
       bn=bnp1
@@ -10709,7 +10761,7 @@ c     FACTorial SeT, flg(i) = i! * afac**i
       dimension flg(0:210)
 
 c     afac = 1/64 works with double precision on a VAX
-      afac = 1./64.
+      afac = 1.0d0/64.0d0
 
       flzero = 1
       flg(0) = 1
@@ -10732,8 +10784,8 @@ c **********************************************************************
       dimension dr(251), dp(251), dq(251)
       mm=m+1
       d1=da+mm
-      da=0.0
-      db=0.0
+      da=0.0d0
+      db=0.0d0
       do 70 i=1,np
       dl=dr(i)**mm
       if (i.eq.1.or.i.eq.np) go to 10
@@ -10750,15 +10802,16 @@ c **********************************************************************
       go to 70
    60 da=da+dc
    70 continue
-      da=dpas*(da+db)/3.0
-      dc=exp(dpas)-1.0
-      db=d1*(d1+1.0)*dc*exp((d1-1.0)*dpas)
+      da=dpas*(da+db)/3.0d0
+      dc=exp(dpas)-1.0d0
+      db=d1*(d1+1.0d0)*dc*exp((d1-1.0d0)*dpas)
       db=dr(1)*(dr(2)**m)/db
-      dc=(dr(1)**mm)*(1.0+1.0/(dc*(d1+1.0)))/d1
+      dc=(dr(1)**mm)*(1.0d0+1.0d0/(dc*(d1+1.0d0)))/d1
       da=da+dc*(dp(1)+dq(1))-db*(dp(2)+dq(2))
       return
       end
       subroutine sortir (n, index, r)
+      implicit double precision (a-h, o-z)
 
 c     SORT by rearranges Indices, keys are Real numbers
 c     Heap sort, following algorithm in Knuth using r as key
@@ -10826,6 +10879,7 @@ c     H8: Store rr in it's proper place
 
       end
       subroutine sortii (n, index, k)
+      implicit double precision (a-h, o-z)
 
 c     SORT by rearranges Indices, keys are Integers
 c     Heap sort, following algorithm in Knuth using r as key
@@ -11096,6 +11150,7 @@ C  -- BEGC is beginning character of a word
       RETURN
       END
       subroutine strap (x, y, n, sum)
+      implicit double precision (a-h, o-z)
 
 c     Trapeziodal integration of y(x), result in sum
 c     SINGLE PRECISION
@@ -11107,7 +11162,7 @@ c     SINGLE PRECISION
          sum = sum + y(i) * (x(i+1) - x(i-1))
    10 continue
       sum = sum + y(n) * (x(n) - x(n-1))
-      sum = sum/2
+      sum = sum/2.0d0
 
       return
       end
@@ -11152,7 +11207,7 @@ c     jtop      index just below distance to neighbor
 c               aasum is calculated only up to index jtop
 
 c     Wigner-Seitz radius is set to 15 in ATOM.
-      rws = 15
+      rws = 15.0d0
       jjchi = ii(rws)
       jtop  = ii(rn)
 
@@ -11160,52 +11215,52 @@ c     Wigner-Seitz radius is set to 15 in ATOM.
 
       do 120  i = 1, jtop
          x = xx(i)
-         xint = 0.0
+         xint = 0.0d0
          et = exp(x)
          blx = log(rn-et)
          if (blx .ge. topx)  goto 119
-         jbl = 2.0+20.0*(blx+8.8)
+         jbl = 2.0d0+20.0d0*(blx+8.8d0)
          if (jbl .lt. 1)  jbl=1
          if (jbl .ge. 2)  then
 c           use linear interp to make end cap near center of neighbor
             xjbl = jbl
-            xbl = 0.05 * (xjbl-1.0) - 8.8
+            xbl = 0.05d0 * (xjbl-1.0d0) - 8.8d0
             g = xbl-blx
-            xint = xint+0.5*g*(aa2(jbl)*(2.0-20.0*g)*exp(2.0*xbl)
-     1             +20.0*g*aa2(jbl-1)*exp(2.0*(xbl-0.05)))
+            xint =xint+0.5d0*g*(aa2(jbl)*(2.0d0-20.0d0*g)*exp(2.0d0*xbl)
+     1             +20.0d0*g*aa2(jbl-1)*exp(2.0d0*(xbl-0.05d0)))
          endif
          tlx = log(rn+et)
          if (tlx .ge. topx)  then
             jtl = jjchi
             go to 90
          endif
-         jtl = 1.0 + 20.0*(tlx+8.8)
+         jtl = 1.0d0 + 20.0d0*(tlx+8.8d0)
          if (jtl .lt. jbl)  then
 c           handle peculiar special case at center of atom 1
-            fzn = aa2(jtl)*exp(2.0*(xbl-0.05))
-            fz3 = aa2(jbl)*exp(2.0*xbl)
-            fz2 = fzn+20.0*(fz3-fzn)*(tlx-xbl+0.05)
-            fz1 = fzn+20.0*(fz3-fzn)*(blx-xbl+0.05)
-            xint = 0.5*(fz1+fz2)*(tlx-blx)
+            fzn = aa2(jtl)*exp(2.0d0*(xbl-0.05d0))
+            fz3 = aa2(jbl)*exp(2.0d0*xbl)
+            fz2 = fzn+20.0d0*(fz3-fzn)*(tlx-xbl+0.05d0)
+            fz1 = fzn+20.0d0*(fz3-fzn)*(blx-xbl+0.05d0)
+            xint = 0.5d0*(fz1+fz2)*(tlx-blx)
             go to 119
          endif
          xjtl = jtl
-         xtl = 0.05*(xjtl-1.0)-8.8
+         xtl = 0.05d0*(xjtl-1.0d0)-8.8d0
          c = tlx-xtl
-         xint = xint+0.5*c*(aa2(jtl)*(2.0-20.0*c)
-     1         *exp(2.0*xtl)+aa2(jtl+1)*20.0*c
-     2         *exp(2.0*(xtl+0.05)))
+         xint = xint+0.5d0*c*(aa2(jtl)*(2.0d0-20.0d0*c)
+     1         *exp(2.0d0*xtl)+aa2(jtl+1)*20.0d0*c
+     2         *exp(2.0d0*(xtl+0.05d0)))
 
    90    if (jtl .gt. jbl)  then
-  100       xint = xint+0.5*(aa2(jbl)*exp(2.0*xbl)+aa2(jbl+1)
-     1             *exp(2.0*(xbl+0.05)))*0.05
+  100       xint = xint+0.5d0*(aa2(jbl)*exp(2.0d0*xbl)+aa2(jbl+1)
+     1             *exp(2.0d0*(xbl+0.05d0)))*0.05d0
             jbl = jbl+1
             if (jbl .lt. jtl) then
-               xbl = xbl+0.05
+               xbl = xbl+0.05d0
                go to 100
             endif
          endif
-  119    stor(i) = 0.5*xint*ann/(rn*et)
+  119    stor(i) = 0.5d0*xint*ann/(rn*et)
   120 continue
 
       do 190  i = 1, jtop
@@ -11236,7 +11291,8 @@ c     if i < 1, set i=1, if i > n-1, set i=n-1
       return
       end
 
-      function locat (x, n, xx)
+      integer function locat(x, n, xx)
+      implicit double precision (a-h, o-z)
       double precision x, xx(n)
       integer  u, m, n
 
@@ -11264,6 +11320,7 @@ c     n            x >= xx(n)
       return
       end
       subroutine timrep (npat, ipat, rx, ry, rz, dhash)
+      implicit double precision (a-h, o-z)
 
 c     subroutine timrev(...) is modified for polarization case 
 c     Time-orders path and returns path in standard order,
@@ -11321,12 +11378,12 @@ c     and return.  No timrev needed if 2 leg path (symmetrical).
       nleg = npat + 1
       ipat(nleg) = 0
       do 10 i = 1, npatx
-         rx(i)   = 0
-         ry(i)   = 0
-         rz(i)   = 0
-         rx0(i)   = 0
-         ry0(i)   = 0
-         rz0(i)   = 0
+         rx(i)   = 0.0d0
+         ry(i)   = 0.0d0
+         rz(i)   = 0.0d0
+         rx0(i)   = 0.0d0
+         ry0(i)   = 0.0d0
+         rz0(i)   = 0.0d0
    10 continue
       call mpprmp(npat, ipat, rx, ry, rz)
       call phash (npat, ipat, rx, ry, rz, dhash)
@@ -11368,30 +11425,30 @@ c        that version of the path
      1              z, nstop, nes, np, nuc
       common /deux/ dvn(251), dvf(251), d(251), dc(251), dgc(251,30),
      1 dpc(251,30)
-      dc(1)=1
+      dc(1)=1.0d0
       do 10 i=1,np
    10 dp(i)=d(i)/dr(i)
       if (nuc.le.0) go to 30
       do 20 i=1,nuc
-   20 dp(i)=d(i)*(3.0-dr(i)*dr(i)/(dr(nuc)*dr(nuc)))/(dr(nuc)+dr(nuc))
-      dc(1)=4
+   20 dp(i)=d(i)*(3.0d0-dr(i)*dr(i)/(dr(nuc)*dr(nuc)))/(dr(nuc)+dr(nuc))
+      dc(1)=4.0d0
    30 call somm (dr,dp,dq,dpas,dc(1),0,np)
       dc(1)=-z*dc(1)
       do 40 i=1,np
       dp(i)=d(i)*dvf(i)
       dvn(i)=d(i)*dvn(i)
    40 d(i)=d(i)*exchee(d(i),dr(i))
-      dc(2)=2
-      dc(3)=1
-      dc(5)=2
-      if (nuc.ne.0) dc(3)=4
+      dc(2)=2.0d0
+      dc(3)=1.0d0
+      dc(5)=2.0d0
+      if (nuc.ne.0) dc(3)=4.0d0
       call somm (dr,dp,dq,dpas,dc(3),0,np)
       call somm (dr,dvn,dq,dpas,dc(5),0,np)
       call somm (dr,d,dq,dpas,dc(2),0,np)
       dc(4)=dval-dc(3)
-      dval=dval-.50*dc(5)-dc(2)
+      dval=dval-0.50d0*dc(5)-dc(2)
       dc(2)=dc(3)-dc(1)-dc(5)-dc(2)
-      dc(3)=.50*dc(5)
+      dc(3)=0.50d0*dc(5)
       if (iprint .ge. 5)  write(16,50) dval,dc(4),dc(3),dc(2),dc(1)
    50 format (1h0,5x,'et=',1pe14.7,5x,'ec=',1pe14.7,5x,'ee=',1pe14.7,5x,
      1 'ex=',1pe14.7,5x,'en=',1pe14.7)
@@ -11487,19 +11544,19 @@ c     Writes potentials to file name POTxx.DAT for each unique pot.
       common /header_common/ header
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -11610,19 +11667,19 @@ c     in rydbergs.  (Factor of 2 to convert from one to the other.)
 
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -11692,7 +11749,7 @@ c           terms neglected.  (complete reference?)
                call edp(rs,xk,vi0,vxcr,vxci)
                call imhl(rs,xk,vxci,icusp)
             elseif (index .eq. 4)  then
-               rstmp = (1/rs**3 - 1/rs0**3) ** (-third)
+               rstmp = (1.0d0/rs**3 - 1.0d0/rs0**3) ** (-third)
                call edp(rstmp,xk,vi0,vxcr1,vxci1)
                call rhl(rs0,xk,vxcr2,vxci2)
                vxcr = vxcr1 + vxcr2
@@ -11702,14 +11759,14 @@ c           terms neglected.  (complete reference?)
             if (ifirst .eq. 0)  then
 c              vxc_mu indep of energy, calc only once
 c              Calculate vxc at fermi level e = mu, j.m. 1/12/89
-               xk = xf * 1.00001
+               xk = xf * 1.00001d0
                if (index .eq. 0) call rhl(rs,xk,vxcrmu(i),vxcimu(i))
                if (index .eq. 1) call edp(rs,xk,vi0,vxcrmu(i),vxcimu(i))
                if (index .eq. 3) then
                   call edp(rs,xk,vi0,vxcrmu(i),vxcimu(i))
                   call imhl (rs,xk,vxcimu(i),icusp)
                elseif (index .eq. 4)  then
-                  rstmp = (1/rs**3 - 1/rs0**3) ** (-third)
+                  rstmp = (1.0d0/rs**3 - 1.0d0/rs0**3) ** (-third)
                   call edp(rstmp,xk,vi0,vxcr1,vxci1)
                   call rhl(rs0,xk,vxcr2,vxci2)
                   vxcrmu(i) = vxcr1 + vxcr2
@@ -11739,7 +11796,7 @@ c           local momentum
                call edp(rs,xk,vi0,vxcr,vxci)
                call imhl (rs,xk,vxci,icusp)
             elseif (index .eq. 4)  then
-               rstmp = (1/rs**3 - 1/rs0**3) ** (-third)
+               rstmp = (1.0d0/rs**3 - 1.0d0/rs0**3) ** (-third)
                call edp(rstmp,xk,vi0,vxcr1,vxci1)
                call rhl(rs0,xk,vxcr2,vxci2)
                vxcr = vxcr1 + vxcr2
@@ -11783,8 +11840,8 @@ c     Add const imag part
       double precision function xx (j)
       implicit double precision (a-h, o-z)
 c     x grid point at index j, x = log(r), r=exp(x)
-      parameter (delta = 0.050 000 000 000 000)
-      parameter (c88   = 8.800 000 000 000 000)
+      parameter (delta = 0.050000000000000d0)
+      parameter (c88   = 8.800000000000000d0)
 c     xx = -8.8 + (j-1)*0.05
       xx = -c88 + (j-1)*delta
       return
@@ -11797,11 +11854,11 @@ c     r grid point at index j
       return
       end
 
-      function ii(r)
+      integer function ii(r)
       implicit double precision (a-h, o-z)
 c     index of grid point immediately below postion r
-      parameter (delta = 0.050 000 000 000 000)
-      parameter (c88   = 8.800 000 000 000 000)
+      parameter (delta = 0.050000000000000d0)
+      parameter (c88   = 8.800000000000000d0)
 c     ii = (log(r) + 8.8) / 0.05 + 1
       ii = (log(r) + c88) / delta + 1
       return
@@ -11819,14 +11876,14 @@ c     ii = (log(r) + 8.8) / 0.05 + 1
       common /trois/ dpno(4,30), dqno(4,30)
       dimension dpn1(4)
       dpah=exp(dpas)
-      dpyk=dpas/24.0
+      dpyk=dpas/24.0d0
       id=min0(nmax(ia)+2,nmax(ib)+2,np)
       idm1=id-1
       if (nag.ne.0) go to 30
       do 10 i=1,id
    10 dq(i)=dr(i)*(dgc(i,ia)*dgc(i,ib)+dpc(i,ia)*dpc(i,ib))
       do 20 i=1,4
-      dpn1(i)=0.0
+      dpn1(i)=0.0d0
       do 20 j=1,i
    20 dpn1(i)=dpn1(i)+dpno(j,ia)*dpno(i+1-j,ib)+dqno(j,ia)*dqno(i+1-j,ib
      1 )
@@ -11834,20 +11891,20 @@ c     ii = (log(r) + 8.8) / 0.05 + 1
    30 do 40 i=1,id
    40 dq(i)=dr(i)*dgc(i,ia)*dpc(i,ib)
       do 50 i=1,4
-      dpn1(i)=0.0
+      dpn1(i)=0.0d0
       do 50 j=1,i
    50 dpn1(i)=dpn1(i)+dpno(j,ia)*dqno(i+1-j,ib)
    60 di=dfl(ia)+dfl(ib)+nk1
-      dp(1)=0.0
-      dp(2)=0.0
+      dp(1)=0.0d0
+      dp(2)=0.0d0
       do 70 i=1,4
-      di=di+1.0
+      di=di+1.0d0
       dp(1)=dp(1)+(dr(1)**di)*dpn1(i)/di
    70 dp(2)=dp(2)+(dr(2)**di)*dpn1(i)/di
       dm=dpah**(-nk1)
       dim2=-dpyk*dm*dm
-      dim1=13.0*dpyk*dm
-      di=13.0*dpyk
+      dim1=13.0d0*dpyk*dm
+      di=13.0d0*dpyk
       dip1=-dpyk/dm
       do 80 i=3,idm1
    80 dp(i)=dp(i-1)*dm+dim2*dq(i-2)+dip1*dq(i+1)+dim1*dq(i-1)+di*dq(i)
@@ -11864,8 +11921,8 @@ c     ii = (log(r) + 8.8) / 0.05 + 1
   100 dq(i)=dq(i+1)*dm+dim2*dp(i+2)+dip1*dp(i-1)+dim1*dp(i+1)+di*dp(i)
       i=i-1
       if (i-1) 110,110,100
-  110 dq(1)=dq(3)*dm*dm+8.0*((di*dp(1)+4.0*dim1*dp(2))/13.0-dim2*dp(3
-     1 ))
+  110 dq(1)=dq(3)*dm*dm+8.0d0*((di*dp(1)
+     >  +4.0d0*dim1*dp(2))/13.0d0-dim2*dp(3))
       return
       end
 
@@ -11898,19 +11955,19 @@ c     see LICENSE for copying details
 				!finder, NOT in genfmt
 
 
-      parameter (pi = 3.14159 26535 89793 23846 26433)
+      parameter (pi = 3.1415926535897932384626433d0)
       parameter (one = 1, zero = 0)
-      parameter (third = one/3)
-      parameter (raddeg = 180 / pi)
+      parameter (third = 1.0d0/3.0d0)
+      parameter (raddeg = 180.0d0 / pi)
       complex*16 coni
-      parameter (coni = (0,1))
+      parameter (coni = (0.0d0,1.0d0))
 c     kf = fa/rs with fa = (9*pi/4)**third, see Ash&Merm, pg 37
-      parameter (fa = 1.919 158 292 677 512 811)
+      parameter (fa = 1.919158292677512811d0)
 
-      parameter (bohr = 0.529 177 249, ryd  = 13.605 698)
-      parameter (alpinv = 137.035 989 56)
+      parameter (bohr = 0.529177249d0, ryd  = 13.605698d0)
+      parameter (alpinv = 137.03598956d0)
 c     fine structure alpha
-      parameter (alphfs = 1 / alpinv)
+      parameter (alphfs = 1.0d0 / alpinv)
 c     speed of light in louck's units (rydbergs?)
       parameter (clight = 2 * alpinv)
 
@@ -11924,9 +11981,9 @@ c     speed of light in louck's units (rydbergs?)
 c     Following passed to pathfinder, which is single precision.
 c     Be careful to always declare these!
       parameter (necrit=9, nbeta=40)
-      real fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
-      real fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
-      real rmax, critpw, pcritk, pcrith
+      real*8 fbetac(-nbeta:nbeta,0:npotx,necrit), ckspc(necrit)
+      real*8 fbeta(-nbeta:nbeta,0:npotx,nex), cksp(nex)
+      real*8 rmax, critpw, pcritk, pcrith
       character*6  potlbl(0:npotx)
 
       character*72 header
@@ -11941,7 +11998,7 @@ c     Be careful to always declare these!
       tmpstr = vfeff
       call triml (tmpstr)
       write(77,10) tmpstr
-      call rdinp (mphase, mpath, mfeff, mchi, ms,
+      call rdinp(mphase, mpath, mfeff, mchi, ms,
      1            ntitle, title, ltit,
      2            critcw, 
      1            ipr2, ipr3, ipr4,
@@ -11966,7 +12023,7 @@ c     Be careful to always declare these!
       if (ms.eq.1  .and.  mpath.eq.1)  then
 
          write(77,10) 'Preparing plane wave scattering amplitudes...'
-         call prcrit (ne, nncrit, ik0, cksp, fbeta, ckspc, 
+         call prcrit(ne, nncrit, ik0, cksp, fbeta, ckspc, 
      1                fbetac, potlbl)
 
 c        Dump out fbetac for central atom and first pot
@@ -11995,11 +12052,11 @@ c        Dump out fbetac for central atom and first pot
          endif
 
          write(77,10) 'Searching for paths...'
-         call paths (ckspc, fbetac, pcritk, pcrith, nncrit,
+         call paths(ckspc, fbetac, pcritk, pcrith, nncrit,
      1               rmax, nlegxx, ipotnn)
 
          write(77,10) 'Eliminating path degeneracies...'
-         call pathsd (ckspc, fbetac, ne, ik0, cksp, fbeta,
+         call pathsd(ckspc, fbetac, ne, ik0, cksp, fbeta,
      1                critpw, ipotnn, ipr2, 
      1                pcritk, pcrith, nncrit, potlbl)
 
@@ -12395,7 +12452,7 @@ c     **** parse "geometry": json item ****
             x = rion(1,ii)-rion(1,center(1))
             y = rion(2,ii)-rion(2,center(1))
             z = rion(3,ii)-rion(3,center(1))
-            dist = dsqrt(x**2 + y**2 + z**2)
+            dist = sqrt(x**2 + y**2 + z**2)
             write(76,201) rion(1,ii),rion(2,ii),rion(3,ii),
      >                   ip,symbols(zion(ii)),dist
          end do
@@ -12438,6 +12495,7 @@ c     **** parse "geometry": json item ****
       subroutine feff_fortran(header,spectroscopy,absorption,edge,
      >                        center,rmax,
      >                        nkatm,katm,zkatm,nion,zion,rion,
+     >                        nohydrogen,
      >                        nkf,kf,chi)
       implicit none
       character*(*) header
@@ -12452,6 +12510,7 @@ c     **** parse "geometry": json item ****
       integer nion
       integer zion(*)
       real*8  rion(3,*)
+      logical nohydrogen
 
       integer nkf
       real*8 kf(*),chi(*)
@@ -12505,6 +12564,13 @@ c     **** parse "geometry": json item ****
       do ia=1,nkatm
          ipot(ia) = -1
       end do
+
+      if (nohydrogen) then
+         do ia=1,nkatm
+            if (zkatm(ia).eq.1) ipot(ia) = -2
+         end do 
+      end if
+
       ip = 1
       do ii=1,nion
          if (ii.ne.center) then
@@ -12532,7 +12598,7 @@ c     **** parse "geometry": json item ****
          write(76,*) "*  ipot       Z    element"
          write(76,100) 0,zion(center),symbols(zion(center))
          do ia=1,nkatm
-            if (ipot(ia).ne.-1)
+            if (ipot(ia).gt.-1)
      >         write(76,100) ipot(ia), zkatm(ia),symbols(zkatm(ia))
          end do
   100 format(I8,I8,9x,A2)
@@ -12548,11 +12614,13 @@ c     **** parse "geometry": json item ****
             x = rion(1,ii)-rion(1,center)
             y = rion(2,ii)-rion(2,center)
             z = rion(3,ii)-rion(3,center)
-            dist = dsqrt(x**2 + y**2 + z**2)
-            write(76,201) rion(1,ii)*autoang,
-     >                    rion(2,ii)*autoang,
-     >                    rion(3,ii)*autoang,
-     >                    ip,symbols(zion(ii)),dist*autoang
+            dist = sqrt(x**2 + y**2 + z**2)
+            if (ip.gt.-1) then
+               write(76,201) rion(1,ii)*autoang,
+     >                       rion(2,ii)*autoang,
+     >                       rion(3,ii)*autoang,
+     >                       ip,symbols(zion(ii)),dist*autoang
+            end if
          end do
  200  format('*',A19,2A20,A5,2x,A4,A20)
  201  format(3F20.9,I5,2x,A4,E20.9)

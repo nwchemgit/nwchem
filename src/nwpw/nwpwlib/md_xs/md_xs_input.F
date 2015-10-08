@@ -16,7 +16,7 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
 
 *     **** local variables ****
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 10)
+      parameter (num_dirs = 13)
       character*18 dirs(num_dirs)
       data dirs / 'spectroscopy',
      >            'absorber',
@@ -27,10 +27,13 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
      >            'rcut',
      >            'Fourier',
      >            'DW_Harmonic', 
+     >            'first',
+     >            'last',
+     >            'hydrogen',
      >            'end'/
 
 c
-      logical       value,md_xs
+      logical       value,md_xs,hydrogen,nohydrogen
       character*80  rtdb_name
       character*255 test,test2
       real*8 rmax,rcut,ft(3)
@@ -59,6 +62,7 @@ c
      >  'md_xs_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 200,300, 400, 500, 600, 700,800,900,
+     >      1000, 1100,1200,
      >      9999) ind
       call errquit(
      >     'md_xs_input: unimplemented directive',ind,INPUT_ERR)
@@ -179,6 +183,45 @@ c
      >   'md_xs_input:failed writing update',900, RTDB_ERR)
 
       goto 10
+
+c
+c  first
+c
+ 1000 if (inp_i(istride)) then
+         rtdb_name = 'md_xs:first'
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,istride)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',1000, RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c  last
+c
+ 1100 if (inp_i(istride)) then
+         rtdb_name = 'md_xs:last'
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,istride)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',1100, RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c  hydrogen
+c
+ 1200 if (inp_a(test2)) then
+         hydrogen = nwpw_parse_boolean(test2,.true.)
+         rtdb_name = 'md_xs:nohydrogen'
+         nohydrogen = .not.hydrogen
+         value = rtdb_put(rtdb,rtdb_name,mt_log,1,nohydrogen)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',1200, RTDB_ERR)
+      end if
+
+      goto 10
+
 
  9999 continue
 

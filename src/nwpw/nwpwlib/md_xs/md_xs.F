@@ -392,18 +392,21 @@ c     **********************************************
 #include "stdio.fh"
 
 *     **** local variables ****
+      real*8  FEFF_RMIN
+      parameter (FEFF_RMIN=1.50d0)
+
       integer taskid_i,taskid_j,npi,npj
       integer taskid,np,MASTER
       parameter (MASTER=0)
 
-      logical oprint,value
+      logical oprint,value,runfeff,nohydrogen
       character*20 codeversion
       character*2 tag2
       character*4 tag4
       integer nframes,natoms,stride,natoms1,center,nkf,nr
-      integer iii,i,k,icount,icpu,pto,pfrom,iw
+      integer iii,i,k,icount,icpu,pto,pfrom,iw,first,last
       real*8  rmax,rcut,x,y,z,vx,vy,vz,time1,volume,unita(3,3),ft(3)
-      real*8  xmin,xmax,ymin,ymax
+      real*8  xmin,xmax,ymin,ymax,rmin
       complex*16 zz
 
       integer nkf0
@@ -417,6 +420,8 @@ c     **********************************************
 *     **** external functions ****
       integer  Parallel2d_convert_taskid_i
       external Parallel2d_convert_taskid_i
+      real*8   md_xs_find_rmin
+      external md_xs_find_rmin
        
 
       call Parallel_np(np)
@@ -450,6 +455,15 @@ c     **********************************************
 
       if (.not.btdb_get(rtdb,'md_xs:stride',mt_int,1,stride))
      >   stride = 1
+
+      if (.not.btdb_get(rtdb,'md_xs:first',mt_int,1,first))
+     >   first = 1
+
+      if (.not.btdb_get(rtdb,'md_xs:last',mt_int,1,last))
+     >   last = -1
+
+      if (.not.btdb_get(rtdb,'md_xs:nohydrogen',mt_log,1,nohydrogen))
+     >   nohydrogen = .true.
 
       if (.not.btdb_get(rtdb,'md_xs:Fourier',mt_dbl,3,ft)) then
          ft(1) = 2.3d0
@@ -571,11 +585,19 @@ c     **********************************************
       call Parallel_Brdcst_ivalue(0,natoms)
       call Parallel_Brdcst_value(0,volume)
       call Parallel_Brdcst_values(0,9,unita)
+      if (last.eq.(-1)) last = nframes
 
       if (oprint) then
          write(luout,*) 'number of frames: ',nframes
+         write(luout,*) 'first:            ',first
+         write(luout,*) 'last:             ',last
          write(luout,*) 'stride:           ',stride
          write(luout,*) 'natoms:           ',natoms
+         if (nohydrogen) then
+            write(luout,*) 'No Hydrogens included.'
+         else
+            write(luout,*) 'Hydrogens included.'
+         end if
          write(luout,1230) 
          write(luout,1241) unita(1,1),unita(2,1),unita(3,1)
          write(luout,1241) unita(1,2),unita(2,2),unita(3,2)
@@ -615,7 +637,8 @@ c     **********************************************
       call dcopy(nkf0,0.0d0,0,dbl_mb(chif(1)),1)
       icount = 0
       icpu   = 0
-      do k=1,nframes
+      !do k=1,nframes
+      do k=1,last
          if (taskid_i.eq.MASTER) then
             read(19,*) time1,natoms1,volume,unita
             do i=1,natoms1
@@ -627,9 +650,17 @@ c     **********************************************
                dbl_mb(rion(1)+3*(i-1)+1) = y
                dbl_mb(rion(1)+3*(i-1)+2) = z
             end do
+            rmin = md_xs_find_rmin(unita,natoms1,dbl_mb(rion(1)))
          end if
+         call Parallela_Brdcst_value(1,MASTER,rmin)
 
-         if (mod(k,stride).eq.0) then
+         runfeff = ((k-first).ge.0)
+         runfeff = runfeff.and.(mod(k-first,stride).eq.0)
+         runfeff = runfeff.and.(rmin.gt.FEFF_RMIN)
+
+         !if ((mod(k,stride).eq.0).and.(rmin.gt.FEFF_RMIN)) then
+         if (runfeff) then
+            if (taskid_i.eq.MASTER) write(*,*) "running feff, k=",k
             if (mod(icount,npj).eq.taskid_j) then
                  if (taskid_i.eq.MASTER) then
                     if (icpu.eq.MASTER) then
@@ -637,6 +668,7 @@ c     **********************************************
                        call md_xs(header,spectroscopy,absorber,edge,
      >                         rmax,center,rcut,unita,
      >                         natoms1,byte_mb(tag(1)),dbl_mb(rion(1)),
+     >                         nohydrogen,
      >                         nkf,nkf0,dbl_mb(kf(1)),dbl_mb(chif(1)))
                     else
                        !*** send natoms1,tag,rion to icpu ***
@@ -663,6 +695,7 @@ c     **********************************************
                        call md_xs(header,spectroscopy,absorber,edge,
      >                          rmax,center,rcut,unita,
      >                          natoms1,byte_mb(tag(1)),dbl_mb(rion(1)),
+     >                          nohydrogen,
      >                          nkf,nkf0,dbl_mb(kf(1)),dbl_mb(chif(1)))
                     end if
                  end if
@@ -673,7 +706,11 @@ c     **********************************************
       end do
       if (taskid_i.eq.MASTER) close(19)
 
-      x = 1.0d0/dble(icount)
+      if (icount.gt.0) then
+         x = 1.0d0/dble(icount)
+      else
+         x = 1.0d0
+      end if
       call Parallel_Vector_SumAll(nkf0,dbl_mb(chif(1)))
       call dscal(nkf0,x,dbl_mb(chif(1)),1)
 
@@ -984,6 +1021,7 @@ c     *                                            *
 c     **********************************************
       subroutine md_xs(header,spectroscopy,absorber,edge,
      >                 rmax,center,rcut,unita,nion,symb,rion,
+     >                 nohydrogen,
      >                 nkf,nkf0,kf,chi)
       implicit none
       character*(*) header,spectroscopy,absorber,edge
@@ -994,6 +1032,7 @@ c     **********************************************
       integer nion
       character*2 symb(*)
       real*8      rion(3,*)
+      logical nohydrogen
       integer nkf,nkf0
       real*8 kf(*)
       real*8 chi(*)
@@ -1031,6 +1070,7 @@ c     **********************************************
 *     **** external functions ****
       integer  md_xs_size_cluster
       external md_xs_size_cluster
+
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
@@ -1109,6 +1149,7 @@ c     **********************************************
      >                  center2,rmax,
      >                  nkatm,int_mb(katm4(1)),int_mb(zkatm4(1)),
      >                  nion2,int_mb(zion4(1)),dbl_mb(rion2(1)),
+     >                  nohydrogen,
      >                  nkf4,kf,dbl_mb(tchi(1)))
 #ifdef FEFF8
       nkf = nkf4
@@ -1595,4 +1636,49 @@ c
    11 CONTINUE
       RETURN
       END 
+
+
+*     *****************************************
+*     *                                       *
+*     *             md_xs_find_rmin           *
+*     *                                       *
+*     *****************************************
+      real*8 function md_xs_find_rmin(unita,nion,rion)
+      implicit none
+      real*8  unita(3,3)
+      integer nion
+      real*8  rion(3,nion)
+
+*     **** local variables ****
+      integer ii,jj,i,j,k,n1,n2
+      real*8  dx,dy,dz,x,y,z,d
+      real*8  rmin
+
+      rmin = 999.999d9
+      n1 = -1
+      n2 =  1
+
+      do jj=1,nion-1
+         do ii=jj+1,nion
+            dx = rion(1,ii)-rion(1,jj)
+            dy = rion(2,ii)-rion(2,jj)
+            dz = rion(3,ii)-rion(3,jj)
+            do k=n1,n2
+            do j=n1,n2
+            do i=n1,n2
+               x = dx + i*unita(1,1) + j*unita(1,2) + k*unita(1,3)
+               y = dy + i*unita(2,1) + j*unita(2,2) + k*unita(2,3)
+               z = dz + i*unita(3,1) + j*unita(3,2) + k*unita(3,3)
+               d = dsqrt(x**2 + y**2 + z**2)
+               if (d.lt.rmin) rmin = d
+            end do
+            end do
+            end do
+         end do
+      end do
+
+      md_xs_find_rmin = rmin
+      return
+      end
+
 
