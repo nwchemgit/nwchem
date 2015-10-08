@@ -80,7 +80,7 @@ include ../config/makelib.h
 
 nwxc_fnc_print: nwxc_fnc_print.F nwxc_eval_print.F stubs.F ../../lib/$(NWCHEM_TARGET)/$(LIBRARY)
 	@(env | sort)
-	$(FC) $(FFLAGS) $(INCLUDES) -o nwxc_fnc_print nwxc_fnc_print.F nwxc_eval_print.F stubs.F $(LDFLAGS) -lnwctask -lnwxc -lcons -lnwcutil -lga -larmci -lperfm -lcons -lnwcutil -llapack -lblas $(MPI_LIB) $(LIBMPI) 
+	$(FC) $(FFLAGS) $(INCLUDES) $(DEFINES) -o nwxc_fnc_print nwxc_fnc_print.F nwxc_eval_print.F stubs.F $(LDFLAGS) -lnwctask -lnwxc -lcons -lnwcutil -lga -larmci -lperfm -lcons -lnwcutil -llapack -lblas -L$(MPI_LIB) $(LIBMPI) $(COMM_LIBS)
 #	$(LINK.f) -o nwxc_fnc_print nwxc_fnc_print.o -lnwctask -lnwxc -lcons -lnwcutil -lga -larmci -lperfm -lcons -lnwcutil -llapack -lblas $(MPI_LIB) $(LIBMPI) 
 
 #nwad.fh: nwad0.mod nwad1.mod nwad2.mod nwad3.mod
