@@ -10,5 +10,28 @@ C>
       entry fmemreq
       entry pdspev
       entry pdspgv
-      call errquit("nwxc_fnc_print stub",0,UERR)
+#ifdef SCALAPACK
+      entry numroc
+      entry blacs_gridexit
+      entry blacs_gridinfo
+      entry blacs_gridinit
+      entry descinit
+      entry iceil
+      entry indxg2p
+      entry pdgetrf
+      entry pdgetrs
+      entry pdlamch
+      entry pdpotrf
+      entry pdpotri
+      entry pdpotrs
+      entry pdsyev
+      entry pdsyevd
+      entry pdsyevr
+      entry pdsyevx
+      entry pdsygvx
+      entry pzheevd
+      entry pzheevr
+#endif
+      call errquit
       end
+

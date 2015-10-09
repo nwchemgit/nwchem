@@ -165,7 +165,7 @@ c
 C>
 C> \brief Parse the local mini input
 C>
-      logical function nwxc_fnc_print_input_parse
+      logical function nwxc_fnc_print_input_parse()
       use nwadp1
       implicit none
 #include "stdio.fh"
