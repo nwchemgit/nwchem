@@ -25,7 +25,7 @@
 # goes through the splitting procedure again until the whole line has been
 # written out.
 #
-import sys
+import sys,re
 from string import rfind
 
 version = "$Id$"
@@ -61,7 +61,8 @@ def rewrap_line(longline):
       exit(1)
     sys.stdout.write(longline[:i]+"\n")
     longline = "C>    " + longline[i:]
-  sys.stdout.write(longline)
+  sys.stdout.write(re.sub(r'\\ ', "", longline))
+#  sys.stdout.write(longline)
 
 if len(sys.argv) == 2:
    if sys.argv[1] == "-v" or sys.argv[1] == "--version":
