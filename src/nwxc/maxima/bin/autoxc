@@ -461,6 +461,13 @@ The important pieces of information in the offending entity are:
    - specifies the order of differentiation and the parameters with respect to
      which the functional is differentiated, and by extension the variables
      returned from the subroutine call that hold the relevant data.
+   - beware though that the cross derivative
+     diff(lda(rhoa,rhob)*gga(rhoa,rhob,gammaaa,gammaab,gammabb),rhoa,rhob)
+     leads to terms involving diff(lda(rhoa,rhob),rhob) which is not computed
+     in the closed shell lda implementation, instead diff(lda(rhoa,rhob),rhoa)
+     is calculated and has the same value. Hence additional translations are
+     needed to ensure we pick the right results from the subroutines we
+     invoke.
 Hence we can replace the entity given above by diff(densfunc(rhoa,rhoa),rhoa,1)
 without losing the three crucial bits of information but at the same time
 eliminating the troublesome "at" function.
@@ -510,12 +517,55 @@ processAt(expression) :=
                       arg: first(args),
                       result: endcons(processFunc(arg),result),
                       args: rest(args),
+                      args: canonicalArgs(args),
                       for arg in args do (
                          result: endcons(arg,result)
                       ),
                       apply(ops,result)
                     )
                )
+        )$
+
+/* canonicalArgs
+
+This function takes the argument list of the diff-construct (i.e. for
+diff(densfunc(rhoa,rhob),rhoa,1,rhob,2) it takes [rhoa,1,rhob,2]) and,
+if needed, replaces it with the derivative that the closed shell codes
+calculate (i.e. [rhoa,2,rhob,1] in the previous example).
+The implementation of this function is mind-bogglingly dumb. I just go 
+through all possible cases and check whether the list of arguments matches
+one. If so I return the canonical list of arguments for that case.
+*/
+canonicalArgs(args) :=
+   block( [],
+          if (args = [rhob,1]) then
+             return([rhoa,1])
+          elseif (args = [gammabb,1]) then
+             return([gammaaa,1])
+          elseif (args = [taub,1]) then
+             return([taua,1])
+          elseif (args = [rhob,1,taua,1]) then
+             return([rhoa,1,taub,1])
+          elseif (args = [rhob,1,taub,1]) then
+             return([rhoa,1,taua,1])
+          elseif (args = [rhob,1,gammaaa,1]) then
+             return([rhoa,1,gammabb,1])
+          elseif (args = [rhob,1,gammaab,1]) then
+             return([rhoa,1,gammaab,1])
+          elseif (args = [gammaab,1,gammabb,1]) then
+             return([gammaaa,1,gammaab,1])
+          elseif (args = [gammabb,2]) then
+             return([gammaaa,2])
+          elseif (args = [gammaab,1,taub,1]) then
+             return([gammaab,1,taua,1])
+          elseif (args = [gammabb,1,taua,1]) then
+             return([gammaaa,1,taub,1])
+          elseif (args = [gammabb,1,taub,1]) then
+             return([gammaaa,1,taua,1])
+          elseif (args = [taub,2]) then
+             return([taua,2])
+          else
+             return(args)
         )$
 
 /* processFunc
