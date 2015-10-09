@@ -1,6 +1,8 @@
 FNCPRINT  = ../nwxc_fnc_print
+ifndef DO_MAXIMA
 AUTOXC    = echo
 AUTOXC_DS = echo
+else
 # 
 # To run MAXIMA uncomment these lines
 # -----------------------------------
@@ -25,8 +27,9 @@ AUTOXC_DS = echo
 # occassionally needed so the inconvience of having to do this manually should
 # be insignificant (famous last words...).
 #
-#AUTOXC    = ./bin/autoxc
-#AUTOXC_DS = ./bin/autoxc-Ds
+AUTOXC    = ./bin/autoxc
+AUTOXC_DS = ./bin/autoxc-Ds
+endif
 
 LIBRARY = libnwxc.a
 
