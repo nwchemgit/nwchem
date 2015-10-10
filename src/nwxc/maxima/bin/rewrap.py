@@ -61,7 +61,7 @@ def rewrap_line(longline):
       exit(1)
     sys.stdout.write(longline[:i]+"\n")
     longline = "C>    " + longline[i:]
-  sys.stdout.write(re.sub(r'\\ ', "", longline))
+  sys.stdout.write(re.sub(r' \n', "\n", longline))
 #  sys.stdout.write(longline)
 
 if len(sys.argv) == 2:
