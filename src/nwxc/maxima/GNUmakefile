@@ -99,9 +99,6 @@ OBJ =  \
 	nwxcm_x_wpbe.o
 
 
-#f77/nwxcm_c_ft97.o \
-#	nwxcm_x_camrpbe.o \
-
 ifdef NWCHEM_NWXC_QUAD_PREC
      LIB_DEFINES = -DNWAD_QUAD_PREC -DNWXC_QUAD_PREC
 endif
@@ -109,10 +106,10 @@ endif
 include ../../config/makefile.h
 include ../../config/makelib.h
 
-  ifeq ($(_FC),gfortran)
+ifeq ($(_FC),gfortran)
   FDEBUG +=  -fno-gcse  -fno-tree-dominator-opts
   FDEBUG +=  --param ggc-min-expand=20 --param ggc-min-heapsize=65536
-  endif
+endif
 
 
 # This Makefile should not be executed in parallel as the compilers
