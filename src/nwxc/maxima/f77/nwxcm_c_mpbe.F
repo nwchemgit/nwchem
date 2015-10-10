@@ -1,80 +1,82 @@
-C> \ingroup nwxc 
-C> @{ 
-C> 
-C> \file nwxcm_c_mpbe.F 
-C> The nwxcm_c_mpbe functional 
-C> 
-C> @} 
-C> 
-C> \ingroup nwxc_priv 
-C> @{ 
-C> 
-C> \brief Evaluate the nwxcm_c_mpbe functional [1] 
-C> 
-C> \f{eqnarray*}{ 
-C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
+C> \ingroup nwxc
+C> @{
+C>
+C> \file nwxcm_c_mpbe.F
+C> The nwxcm_c_mpbe functional
+C>
+C> @}
+C>
+C> \ingroup nwxc_priv
+C> @{
+C>
+C> \brief Evaluate the nwxcm_c_mpbe functional [1]
+C>
+C> \f{eqnarray*}{
+C>   {\it t_1} &=& {\it param}\left(1\right)\\\\
 C>   {\it t_2} &=& {\it nwxc\_c\_pw91lda}\left({\it t_1} 
-C>    , \rho_\alpha , \rho_\beta\right)\\\\ 
-C>   {\it t_3} &=& \rho_\beta+\rho_\alpha\\\\ 
-C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\ 
-C>   {\it t_5} &=& \rho_\alpha-\rho_\beta\\\\ 
+C>    , \rho_\alpha , \rho_\beta\right)\\\\
+C>   {\it t_3} &=& \rho_\beta+\rho_\alpha\\\\
+C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\
+C>   {\it t_5} &=& \rho_\alpha-\rho_\beta\\\\
 C>   {\it t_6} &=& 0.5\,\left({\it t_5}\,{\it t_4}
 C>    +1.0\right)^{{{2}\over{3}}}+0.5\,\left(1.0-{\it t_5}\,{
-C>    \it t_4}\right)^{{{2}\over{3}}}\\\\ 
-C>   {\it t_7} &=& {\it t_6}^{3.0}\\\\ 
-C>   {\it t_8} &=& {{1}\over{{\it t_3}^{2.333333333333333}}}\\\\ 
-C>   {\it t_9} &=& {{1}\over{{\it t_6}^2}}\\\\ 
+C>    \it t_4}\right)^{{{2}\over{3}}}\\\\
+C>   {\it t_7} &=& {\it t_6}^{3.0}\\\\
+C>   {\it t_8} &=& {{1}\over{{\it t_3}^{2.333333333333333}}}\\\\
+C>   {\it t_9} &=& {{1}\over{{\it t_6}^2}}\\\\
 C>   {\it t_{10}} &=& \sigma_{\beta\beta}+2.0\,\sigma_{\alpha\beta}
-C>    +\sigma_{\alpha\alpha}\\\\ 
+C>    +\sigma_{\alpha\alpha}\\\\
 C>   {\it t_{11}} &=& {{1}\over{e^{{{32.16396844291483\,{\it t_2}
-C>    \,{\it t_4}}\over{{\it t_7}}}}}}-1.0\\\\ 
+C>    \,{\it t_4}}\over{{\it t_7}}}}}}-1.0\\\\
 C>   {\it t_{12}} &=& {{2.041389378054956\,{\it t_1}\,{\it t_8}\,{
-C>    \it t_9}\,{\it t_{10}}}\over{{\it t_{11}}}}\\\\ 
-C>   {\it t_{13}} &=& {\it t_1}^2\\\\ 
+C>    \it t_9}\,{\it t_{10}}}\over{{\it t_{11}}}}\\\\
+C>   {\it t_{13}} &=& {\it t_1}^2\\\\
 C>   {\it t_{14}} &=& {\it nwxc\_c\_pw91lda}\left({\it t_1} 
-C>    , \rho_s , 0.0\right)\\\\ 
-C>   {\it t_{15}} &=& {{1}\over{\rho_s}}\\\\ 
-C>   {\it t_{16}} &=& {{1}\over{\rho_s^{2.333333333333333}}}\\\\ 
+C>    , \rho_s , 0.0\right)\\\\
+C>   {\it t_{15}} &=& {{1}\over{\rho_s}}\\\\
+C>   {\it t_{16}} &=& {{1}\over{\rho_s^{2.333333333333333}}}\\\\
 C>   {\it t_{17}} &=& {{1}\over{e^{64.32793688582967\,{\it t_{14}}
-C>    \,{\it t_{15}}}}}-1.0\\\\ 
+C>    \,{\it t_{15}}}}}-1.0\\\\
 C>   {\it t_{18}} &=& {{3.240503646201146\,{\it t_1}\,{\it t_{16}}
-C>    \,\sigma_{ss}}\over{{\it t_{17}}}}\\\\ 
+C>    \,\sigma_{ss}}\over{{\it t_{17}}}}\\\\
 C>   f &=& 0.03109069086965489\,{\it t_7}\,\log 
 C>    \left({{2.041389378054956\,{\it t_1}\,{\it t_8}\,{\it t_9}
 C>    \,{\it t_{10}}\,\left({\it t_{12}}+1.0\right)}
 C>    \over{{{4.1672705928356\,{\it t_{13}}\,{\it t_{10}}^2}
 C>    \over{{\it t_3}^{4.666666666666667}\,{\it t_6}^4\,{
 C>    \it t_{11}}^2}}+{\it t_{12}}+1.0}}+1.0\right)+1.0\,{\it t_2}
-C>    \,{\it t_4}\\\\ 
-C>   g &=& 0\\\\ 
+C>    \,{\it t_4}\\\\
+C>   g &=& 0\\\\
 C>   G &=& 0.01554534543482744\,\log \left({{3.240503646201146\,{
 C>    \it t_1}\,{\it t_{16}}\,\sigma_{ss}\,\left({\it t_{18}}
 C>    +1.0\right)}\over{{{10.50086388104292\,{\it t_{13}}\,
 C>    \sigma_{ss}^2}\over{\rho_s^{4.666666666666667}\,{\it t_{17}}^2}}
 C>    +{\it t_{18}}+1.0}}+1.0\right)+1.0\,{\it t_{14}}\,{
-C>    \it t_{15}}\\\\ 
-C> \f} 
-C> 
-C> Code generated with Maxima 5.34.0 [2] 
-C> driven by autoxc [3,4,5]. 
-C> 
-C> ### References ### 
-C> 
+C>    \it t_{15}}\\\\
+C> \f}
+C>
+C> Code generated with Maxima 5.34.0 [2,3]
+C> driven by autoxc [4,5,6].
+C>
+C> ### References ###
+C>
 C> [1] JP Perdew, S Kurth, A Zupan, P Blaha, Phys.Rev.Lett. 82
-C>    , 2544 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 "> 
-C> 10.1103/PhysRevLett.82.2544 </a> 
-C> 
-C> [2] Maxima, a computer algebra system, 
-C> <a href="http://maxima.sourceforge.net/"> 
-C> http://maxima.sourceforge.net/</a> 
-C> 
-C> [3] autoxc, revision 27333 2015-08-12 
-C> 
-C> [4] rewrap.py revision 27339 2015-08-13 
-C> 
-C> [5] call_subroutine.py revision 27339 2015-08-13 
-C> 
+C>    , 2544 (1999)  , DOI:
+C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 ">
+C> 10.1103/PhysRevLett.82.2544 </a>
+C>
+C> [2] Maxima, a computer algebra system,
+C> <a href="http://maxima.sourceforge.net/">
+C> http://maxima.sourceforge.net/</a>
+C>
+C> [3] CLISP 2.49 (2010-07-07)
+C>
+C> [4] autoxc, revision 27694 2015-10-10
+C>
+C> [5] rewrap.py revision 27697 2015-10-10
+C>
+C> [6] call_subroutine.py revision 27339 2015-08-13
+C>
       subroutine nwxcm_c_mpbe(param,tol_rho,ipol,nq,wght, rho,rgamma,
      +   fnc,Amat,Cmat) 
 c $Id: $ 
@@ -120,7 +122,7 @@ c
       double precision taua,taub 
       double precision nwxcm_heaviside 
       external         nwxcm_heaviside 
-CDIR$ NOVECTOR
+CDIR$ NOVECTOR 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -384,73 +386,75 @@ CDIR$ NOVECTOR
         endif ! ipol.eq.1 
       enddo ! iq 
       end subroutine nwxcm_c_mpbe 
-C> 
-C> \brief Evaluate the nwxcm_c_mpbe functional [1] 
-C> 
-C> \f{eqnarray*}{ 
-C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
+C>
+C> \brief Evaluate the nwxcm_c_mpbe functional [1]
+C>
+C> \f{eqnarray*}{
+C>   {\it t_1} &=& {\it param}\left(1\right)\\\\
 C>   {\it t_2} &=& {\it nwxc\_c\_pw91lda}\left({\it t_1} 
-C>    , \rho_\alpha , \rho_\beta\right)\\\\ 
-C>   {\it t_3} &=& \rho_\beta+\rho_\alpha\\\\ 
-C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\ 
-C>   {\it t_5} &=& \rho_\alpha-\rho_\beta\\\\ 
+C>    , \rho_\alpha , \rho_\beta\right)\\\\
+C>   {\it t_3} &=& \rho_\beta+\rho_\alpha\\\\
+C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\
+C>   {\it t_5} &=& \rho_\alpha-\rho_\beta\\\\
 C>   {\it t_6} &=& 0.5\,\left({\it t_5}\,{\it t_4}
 C>    +1.0\right)^{{{2}\over{3}}}+0.5\,\left(1.0-{\it t_5}\,{
-C>    \it t_4}\right)^{{{2}\over{3}}}\\\\ 
-C>   {\it t_7} &=& {\it t_6}^{3.0}\\\\ 
-C>   {\it t_8} &=& {{1}\over{{\it t_3}^{2.333333333333333}}}\\\\ 
-C>   {\it t_9} &=& {{1}\over{{\it t_6}^2}}\\\\ 
+C>    \it t_4}\right)^{{{2}\over{3}}}\\\\
+C>   {\it t_7} &=& {\it t_6}^{3.0}\\\\
+C>   {\it t_8} &=& {{1}\over{{\it t_3}^{2.333333333333333}}}\\\\
+C>   {\it t_9} &=& {{1}\over{{\it t_6}^2}}\\\\
 C>   {\it t_{10}} &=& \sigma_{\beta\beta}+2.0\,\sigma_{\alpha\beta}
-C>    +\sigma_{\alpha\alpha}\\\\ 
+C>    +\sigma_{\alpha\alpha}\\\\
 C>   {\it t_{11}} &=& {{1}\over{e^{{{32.16396844291483\,{\it t_2}
-C>    \,{\it t_4}}\over{{\it t_7}}}}}}-1.0\\\\ 
+C>    \,{\it t_4}}\over{{\it t_7}}}}}}-1.0\\\\
 C>   {\it t_{12}} &=& {{2.041389378054956\,{\it t_1}\,{\it t_8}\,{
-C>    \it t_9}\,{\it t_{10}}}\over{{\it t_{11}}}}\\\\ 
-C>   {\it t_{13}} &=& {\it t_1}^2\\\\ 
+C>    \it t_9}\,{\it t_{10}}}\over{{\it t_{11}}}}\\\\
+C>   {\it t_{13}} &=& {\it t_1}^2\\\\
 C>   {\it t_{14}} &=& {\it nwxc\_c\_pw91lda}\left({\it t_1} 
-C>    , \rho_s , 0.0\right)\\\\ 
-C>   {\it t_{15}} &=& {{1}\over{\rho_s}}\\\\ 
-C>   {\it t_{16}} &=& {{1}\over{\rho_s^{2.333333333333333}}}\\\\ 
+C>    , \rho_s , 0.0\right)\\\\
+C>   {\it t_{15}} &=& {{1}\over{\rho_s}}\\\\
+C>   {\it t_{16}} &=& {{1}\over{\rho_s^{2.333333333333333}}}\\\\
 C>   {\it t_{17}} &=& {{1}\over{e^{64.32793688582967\,{\it t_{14}}
-C>    \,{\it t_{15}}}}}-1.0\\\\ 
+C>    \,{\it t_{15}}}}}-1.0\\\\
 C>   {\it t_{18}} &=& {{3.240503646201146\,{\it t_1}\,{\it t_{16}}
-C>    \,\sigma_{ss}}\over{{\it t_{17}}}}\\\\ 
+C>    \,\sigma_{ss}}\over{{\it t_{17}}}}\\\\
 C>   f &=& 0.03109069086965489\,{\it t_7}\,\log 
 C>    \left({{2.041389378054956\,{\it t_1}\,{\it t_8}\,{\it t_9}
 C>    \,{\it t_{10}}\,\left({\it t_{12}}+1.0\right)}
 C>    \over{{{4.1672705928356\,{\it t_{13}}\,{\it t_{10}}^2}
 C>    \over{{\it t_3}^{4.666666666666667}\,{\it t_6}^4\,{
 C>    \it t_{11}}^2}}+{\it t_{12}}+1.0}}+1.0\right)+1.0\,{\it t_2}
-C>    \,{\it t_4}\\\\ 
-C>   g &=& 0\\\\ 
+C>    \,{\it t_4}\\\\
+C>   g &=& 0\\\\
 C>   G &=& 0.01554534543482744\,\log \left({{3.240503646201146\,{
 C>    \it t_1}\,{\it t_{16}}\,\sigma_{ss}\,\left({\it t_{18}}
 C>    +1.0\right)}\over{{{10.50086388104292\,{\it t_{13}}\,
 C>    \sigma_{ss}^2}\over{\rho_s^{4.666666666666667}\,{\it t_{17}}^2}}
 C>    +{\it t_{18}}+1.0}}+1.0\right)+1.0\,{\it t_{14}}\,{
-C>    \it t_{15}}\\\\ 
-C> \f} 
-C> 
-C> Code generated with Maxima 5.34.0 [2] 
-C> driven by autoxc [3,4,5]. 
-C> 
-C> ### References ### 
-C> 
+C>    \it t_{15}}\\\\
+C> \f}
+C>
+C> Code generated with Maxima 5.34.0 [2,3]
+C> driven by autoxc [4,5,6].
+C>
+C> ### References ###
+C>
 C> [1] JP Perdew, S Kurth, A Zupan, P Blaha, Phys.Rev.Lett. 82
-C>    , 2544 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 "> 
-C> 10.1103/PhysRevLett.82.2544 </a> 
-C> 
-C> [2] Maxima, a computer algebra system, 
-C> <a href="http://maxima.sourceforge.net/"> 
-C> http://maxima.sourceforge.net/</a> 
-C> 
-C> [3] autoxc, revision 27333 2015-08-12 
-C> 
-C> [4] rewrap.py revision 27339 2015-08-13 
-C> 
-C> [5] call_subroutine.py revision 27339 2015-08-13 
-C> 
+C>    , 2544 (1999)  , DOI:
+C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 ">
+C> 10.1103/PhysRevLett.82.2544 </a>
+C>
+C> [2] Maxima, a computer algebra system,
+C> <a href="http://maxima.sourceforge.net/">
+C> http://maxima.sourceforge.net/</a>
+C>
+C> [3] CLISP 2.49 (2010-07-07)
+C>
+C> [4] autoxc, revision 27694 2015-10-10
+C>
+C> [5] rewrap.py revision 27697 2015-10-10
+C>
+C> [6] call_subroutine.py revision 27339 2015-08-13
+C>
       subroutine nwxcm_c_mpbe_d2(param,tol_rho,ipol,nq,wght, rho,
      +   rgamma,fnc,Amat,Amat2,Cmat,Cmat2) 
 c $Id: $ 
@@ -507,7 +511,7 @@ c
       double precision taua,taub 
       double precision nwxcm_heaviside 
       external         nwxcm_heaviside 
-CDIR$ NOVECTOR
+CDIR$ NOVECTOR 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -541,170 +545,147 @@ CDIR$ NOVECTOR
             t20 = 1.6202518231005728d+0*gammaaa*t1*t17*t19*t4+1.0d+0
             t21 = 1/t20
             t22 = 1/rhoa**3.3333333333333337d+0
-            t23 = -1.8902937936173353d+0*gammaaa*t1*t17*t19*t22
-            t24 = -1.8902937936173353d+0*gammaaa*t1*t22*t7
-            t25 = 8.040992110728707d+0*t14*s1f
-            t26 = t25-1.6081984221457415d+1*t15*t3
-            t27 = -1.6202518231005728d+0*gammaaa*t1*t12*t26*t4*t5
-            t28 = t27+t24
-            t29 = 1/t18**2
-            t30 = 1/rhoa**5.666666666666667d+0
-            t31 = -6.12550393060837d+0*t10*t12*t30*t9
-            t32 = 1/t6**3
-            t33 = -5.250431940521457d+0*t10*t11*t26*t32*t5*t9+t31+t27
-     +        +t24
-            t34 = -1.6202518231005728d+0*gammaaa*t1*t17*t29*t33*t4
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t28*t4+t23
-            t35 = 1.3126079851303643d+0*gammaaa*t11*t12*t9
+            t23 = -1.8902937936173353d+0*gammaaa*t1*t22*t7
+            t24 = 8.040992110728707d+0*t14*s1f-1.6081984221457415d+1
+     +        *t15*t3
+            t25 = -1.6202518231005728d+0*gammaaa*t1*t12*t24*t4*t5
+            t26 = t25+t23
+            t27 = 1/t18**2
+            t28 = 1/rhoa**5.666666666666667d+0
+            t29 = 1/t6**3
+            t30 = -5.250431940521457d+0*t10*t11*t24*t29*t5*t9
+     +        -6.12550393060837d+0*t10*t12*t28*t9+t25+t23
+            t31 = -1.6202518231005728d+0*gammaaa*t1*t17*t27*t30*t4
+     +        +1.6202518231005728d+0*gammaaa*t1*t19*t26*t4
+     +        -1.8902937936173353d+0*gammaaa*t1*t17*t19*t22
+            t32 = 1.3126079851303643d+0*gammaaa*t11*t12*t9
      +        +4.050629557751432d-1*t1*t4*t7
-            t36 = 6.563039925651821d-1*gammaaa*t11*t19*t7*t9
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t35*t4
+            t33 = 6.563039925651821d-1*gammaaa*t11*t19*t7*t9
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t32*t4
      +        +4.050629557751432d-1*t1*t17*t19*t4
-            t37 = 2.6252159702607286d+0*gammaaa*t11*t12*t9
+            t34 = 2.6252159702607286d+0*gammaaa*t11*t12*t9
      +        +8.101259115502863d-1*t1*t4*t7
-            t38 = 1.3126079851303643d+0*gammaaa*t11*t19*t7*t9
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t37*t4
+            t35 = 1.3126079851303643d+0*gammaaa*t11*t19*t7*t9
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t34*t4
      +        +8.101259115502863d-1*t1*t17*t19*t4
-            t39 = 1/rhoa**3
-            t40 = 2.5d-1*s1f*t39
-            t41 = s1a2(D2_RA_RA)
-            t42 = 1/rhoa**4.333333333333334d+0
-            t43 = t26**2
-            t44 = exp(-3.216396844291483d+1*s1f*t3)
-            t45 = 3.2405036462011455d+0*gammaaa*t1*t32*t4*t43*t44
-            t46 = 3.3305176363733985d+0*gammaaa*t1*t42*t7
-            t47 = 3.7805875872346706d+0*gammaaa*t1*t12*t22*t26*t5
-            t48 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t43*t5
-            t49 = -1.6081984221457415d+1*t3*t41-1.0721322814304943d+1
-     +        *s1f*t39+1.6081984221457415d+1*t14*t15
-            t50 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t49*t5
-            t51 = 1/t6**4
-            t52 = 1/rhoa**6.666666666666667d+0
-            t53 = 1/t18**3
-            t54 = 1/t20**2
-            t55 = log(t20)
-            t56 = s1a(D1_RB)
-            t57 = s1a2(D2_RA_RB)
-            t58 = t25-1.6081984221457415d+1*t3*t56
-            t59 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t5*t58
-            t60 = t59+t24
-            t61 = -5.250431940521457d+0*t10*t11*t32*t5*t58*t9+t59+t31
-     +        +t24
-            t62 = 3.2405036462011455d+0*gammaaa*t1*t26*t32*t4*t44*t58
-            t63 = 2.970461675684382d+0*gammaaa*t1*t42*t7
-            t64 = 1.8902937936173353d+0*gammaaa*t1*t12*t22*t26*t5
-            t65 = 1.8902937936173353d+0*gammaaa*t1*t12*t22*t5*t58
-            t66 = -1.6081984221457415d+1*t3*t57+8.040992110728707d+0
-     +        *t14*t56-5.360661407152472d+0*s1f*t39
-     +        +8.040992110728707d+0*t14*t15
-            t67 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t5*t66
-            t68 = -1.6202518231005728d+0*gammaaa*t1*t12*t26*t4*t5*t58
-            t69 = -4.725734484043338d-1*t1*t22*t7
-            t70 = -4.050629557751432d-1*t1*t12*t26*t4*t5
-            t71 = (3.109069086965489d-2*t21*(-1.6202518231005728d+0
-     +        *gammaaa*t1*t17*t29*t4*(-2.6252159702607286d+0*gammaaa
-     +        *t11*t26*t32*t5*t9-3.062751965304185d+0*gammaaa*t12*t30
-     +        *t9+t70+t69)-6.563039925651821d-1*gammaaa*t11*t29*t33*t7
-     +        *t9-7.656879913260463d-1*gammaaa*t19*t30*t7*t9
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*(t70+t69)
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t33*t35*t4*t53
-     +        -1.6202518231005728d+0*gammaaa*t1*t28*t29*t35*t4
-     +        -4.050629557751432d-1*t1*t17*t29*t33*t4
-     +        +4.050629557751432d-1*t1*t19*t28*t4
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t35
+            t36 = 1/rhoa**3
+            t37 = 2.5d-1*s1f*t36
+            t38 = -5.0d-1*t14*t15
+            t39 = s1a2(D2_RA_RA)
+            t40 = 1/rhoa**4.333333333333334d+0
+            t41 = -3.7805875872346706d+0*gammaaa*t1*t19*t22*t26
+            t42 = 3.7805875872346706d+0*gammaaa*t1*t17*t22*t27*t30
+            t43 = -3.2405036462011455d+0*gammaaa*t1*t26*t27*t30*t4
+            t44 = t24**2
+            t45 = exp(-3.216396844291483d+1*s1f*t3)
+            t46 = 3.2405036462011455d+0*gammaaa*t1*t29*t4*t44*t45
+            t47 = 3.3305176363733985d+0*gammaaa*t1*t40*t7
+            t48 = 3.7805875872346706d+0*gammaaa*t1*t12*t22*t24*t5
+            t49 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t44*t5
+            t50 = 1.6081984221457415d+1*t14*t15
+            t51 = t50-1.6081984221457415d+1*t3*t39
+     +        -1.0721322814304943d+1*s1f*t36
+            t52 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t5*t51
+            t53 = 1.5751295821564373d+1*t10*t11*t44*t45*t9/t6**4
+            t54 = 1/rhoa**6.666666666666667d+0
+            t55 = 2.450201572243348d+1*t10*t24*t28*t29*t5*t9
+            t56 = -5.250431940521457d+0*t10*t11*t29*t44*t5*t9
+            t57 = 1/t18**3
+            t58 = 3.2405036462011455d+0*gammaaa*t1*t17*t30**2*t4*t57
+            t59 = 1/t20**2
+            t60 = -3.109069086965489d-2*t31**2*t59
+            t61 = log(t20)
+            t62 = s1a2(D2_RA_RB)
+            t63 = 2.970461675684382d+0*gammaaa*t1*t40*t7
+            t64 = -1.6081984221457415d+1*t3*t62+t50
+     +        -5.360661407152472d+0*s1f*t36
+            t65 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t5*t64
+            t66 = -4.725734484043338d-1*t1*t22*t7
+            t67 = -4.050629557751432d-1*t1*t12*t24*t4*t5
+            t68 = (3.109069086965489d-2*t21*(-1.6202518231005728d+0
+     +        *gammaaa*t1*t17*t27*t4*(-2.6252159702607286d+0*gammaaa
+     +        *t11*t24*t29*t5*t9-3.062751965304185d+0*gammaaa*t12*t28
+     +        *t9+t67+t66)-6.563039925651821d-1*gammaaa*t11*t27*t30*t7
+     +        *t9-7.656879913260463d-1*gammaaa*t19*t28*t7*t9
+     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*(t67+t66)
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t30*t32*t4*t57
+     +        -1.6202518231005728d+0*gammaaa*t1*t26*t27*t32*t4
+     +        -4.050629557751432d-1*t1*t17*t27*t30*t4
+     +        +4.050629557751432d-1*t1*t19*t26*t4
+     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t27*t32
      +        -4.725734484043338d-1*t1*t17*t19*t22)
-     +        -3.109069086965489d-2*t34*t36*t54)*wght
-            t72 = -9.451468968086676d-1*t1*t22*t7
-            t73 = -8.101259115502863d-1*t1*t12*t26*t4*t5
-            t74 = -8.101259115502863d-1*t1*t17*t29*t35*t4
-            t75 = t1**3
-            t76 = 1/rhoa**7.0d+0
-            t77 = -1.3126079851303643d+0*gammaaa*t11*t29*t35*t7*t9
-            t78 = 3.109069086965489d-2*t21*(3.2815199628259106d-1*t11
-     +        *t19*t7*t9+t77-5.316888702309608d-1*gammaaa*t12*t17*t29
-     +        *t75*t76+t74+3.2405036462011455d+0*gammaaa*t1*t17*t35**2
-     +        *t4*t53)*wght-3.109069086965489d-2*t36**2*t54*wght
+     +        -3.109069086965489d-2*t31*t33*t59)*wght
+            t69 = -9.451468968086676d-1*t1*t22*t7
+            t70 = -8.101259115502863d-1*t1*t12*t24*t4*t5
+            t71 = -8.101259115502863d-1*t1*t17*t27*t32*t4
+            t72 = t1**3
+            t73 = 1/rhoa**7.0d+0
+            t74 = -1.3126079851303643d+0*gammaaa*t11*t27*t32*t7*t9
+            t75 = 3.109069086965489d-2*t21*(3.2815199628259106d-1*t11
+     +        *t19*t7*t9+t74-5.316888702309608d-1*gammaaa*t12*t17*t27
+     +        *t72*t73+t71+3.2405036462011455d+0*gammaaa*t1*t17*t32**2
+     +        *t4*t57)*wght-3.109069086965489d-2*t33**2*t59*wght
             fnc(iq) = (3.109069086965489d-2*log(1.6202518231005725d+0
      +        *gammaaa*t1*t4*(t8+1.0d+0)/(t8+t13+1.0d+0)+1.0d+0)
      +        +5.0d-1*s1f*t3)*wght+fnc(iq)
-            Amat(iq,D1_RA) = (3.109069086965489d-2*t21*t34+5.0d-1*t15
+            Amat(iq,D1_RA) = (3.109069086965489d-2*t21*t31+5.0d-1*t15
      +        *t3-2.5d-1*t14*s1f)*wght+Amat(iq,D1_RA)
-            Cmat(iq,D1_GAA) = 3.109069086965489d-2*t21*t36*wght+Cmat
+            Cmat(iq,D1_GAA) = 3.109069086965489d-2*t21*t33*wght+Cmat
      +        (iq,D1_GAA)
-            Cmat(iq,D1_GAB) = 3.109069086965489d-2*t21*t38*wght+Cmat
+            Cmat(iq,D1_GAB) = 3.109069086965489d-2*t21*t35*wght+Cmat
      +        (iq,D1_GAB)
             Amat2(iq,D2_RA_RA) = (3.109069086965489d-2*t21*(
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*
-     +        (1.7938975796781656d+1*t10*t12*t52*t9
-     +        +1.5751295821564373d+1*t10*t11*t43*t44*t51*t9
-     +        -5.250431940521457d+0*t10*t11*t32*t49*t5*t9
-     +        -5.250431940521457d+0*t10*t11*t32*t43*t5*t9
-     +        +2.450201572243348d+1*t10*t26*t30*t32*t5*t9+t50+t48+t47
-     +        +t46+t45)+3.2405036462011455d+0*gammaaa*t1*t17*t33**2*t4
-     +        *t53+1.6202518231005728d+0*gammaaa*t1*t19*t4*(t50+t48
-     +        +t47+t46+t45)+3.3305176363733985d+0*gammaaa*t1*t17*t19
-     +        *t42-3.2405036462011455d+0*gammaaa*t1*t28*t29*t33*t4
-     +        +3.7805875872346706d+0*gammaaa*t1*t17*t22*t29*t33
-     +        -3.7805875872346706d+0*gammaaa*t1*t19*t22*t28)
-     +        -5.181781811609147d-3*t14*t55-3.109069086965489d-2*t34*
-     +        *2*t54+5.0d-1*t3*t41+t40-5.0d-1*t14*t15)*wght+Amat2(iq,
-     +        D2_RA_RA)
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*
+     +        (1.7938975796781656d+1*t10*t12*t54*t9
+     +        -5.250431940521457d+0*t10*t11*t29*t5*t51*t9+t56+t55+t53
+     +        +t52+t49+t48+t47+t46)+t58+1.6202518231005728d+0*gammaaa
+     +        *t1*t19*t4*(t52+t49+t48+t47+t46)+t43+t42+t41
+     +        +3.3305176363733985d+0*gammaaa*t1*t17*t19*t40)
+     +        -5.181781811609147d-3*t14*t61+t60+5.0d-1*t3*t39+t38+t37)
+     +        *wght+Amat2(iq,D2_RA_RA)
             Amat2(iq,D2_RA_RB) = (3.109069086965489d-2*t21*(
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*(
-     +        -5.250431940521457d+0*t10*t11*t32*t5*t66*t9
-     +        +1.5751295821564373d+1*t10*t11*t26*t44*t51*t58*t9
-     +        +1.225100786121674d+1*t10*t30*t32*t5*t58*t9
-     +        -5.250431940521457d+0*t10*t11*t26*t32*t5*t58*t9
-     +        +1.6772213143332443d+1*t10*t12*t52*t9
-     +        +1.225100786121674d+1*t10*t26*t30*t32*t5*t9+t68+t67+t65
-     +        +t64+t63+t62)+1.6202518231005728d+0*gammaaa*t1*t19*t4*
-     +        (t68+t67+t65+t64+t63+t62)+3.2405036462011455d+0*gammaaa
-     +        *t1*t17*t33*t4*t53*t61-1.6202518231005728d+0*gammaaa*t1
-     +        *t28*t29*t4*t61+1.8902937936173353d+0*gammaaa*t1*t17*t22
-     +        *t29*t61-1.6202518231005728d+0*gammaaa*t1*t29*t33*t4*t60
-     +        -1.8902937936173353d+0*gammaaa*t1*t19*t22*t60
-     +        +2.970461675684382d+0*gammaaa*t1*t17*t19*t42
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t33
-     +        -1.8902937936173353d+0*gammaaa*t1*t19*t22*t28)
-     +        -3.109069086965489d-2*t34*t54*(-1.6202518231005728d+0
-     +        *gammaaa*t1*t17*t29*t4*t61+1.6202518231005728d+0*gammaaa
-     +        *t1*t19*t4*t60+t23)+5.0d-1*t3*t57+2.5d-1*t14*(-1.0d+0
-     +        *t56-1.0d+0*t15)+5.181781811609147d-3*t14*t55+t40)*wght
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*(
+     +        -5.250431940521457d+0*t10*t11*t29*t5*t64*t9
+     +        +1.6772213143332443d+1*t10*t12*t54*t9+t65+t63+t56+t55
+     +        +t53+t49+t48+t46)+1.6202518231005728d+0*gammaaa*t1*t19
+     +        *t4*(t65+t63+t49+t48+t46)+t58+t43+t42+t41
+     +        +2.970461675684382d+0*gammaaa*t1*t17*t19*t40)+5.0d-1*t3
+     +        *t62+5.181781811609147d-3*t14*t61+t60+t38+t37)*wght
      +        +Amat2(iq,D2_RA_RB)
-            Cmat2(iq,D2_RA_GAA) = t71+Cmat2(iq,D2_RA_GAA)
+            Cmat2(iq,D2_RA_GAA) = t68+Cmat2(iq,D2_RA_GAA)
             Cmat2(iq,D2_RA_GAB) = (3.109069086965489d-2*t21*(
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*(
-     +        -5.250431940521457d+0*gammaaa*t11*t26*t32*t5*t9
-     +        -6.12550393060837d+0*gammaaa*t12*t30*t9+t73+t72)
-     +        -1.3126079851303643d+0*gammaaa*t11*t29*t33*t7*t9
-     +        -1.5313759826520926d+0*gammaaa*t19*t30*t7*t9
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*(t73+t72)
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t33*t37*t4*t53
-     +        -1.6202518231005728d+0*gammaaa*t1*t28*t29*t37*t4
-     +        -8.101259115502863d-1*t1*t17*t29*t33*t4
-     +        +8.101259115502863d-1*t1*t19*t28*t4
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t37
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*(
+     +        -5.250431940521457d+0*gammaaa*t11*t24*t29*t5*t9
+     +        -6.12550393060837d+0*gammaaa*t12*t28*t9+t70+t69)
+     +        -1.3126079851303643d+0*gammaaa*t11*t27*t30*t7*t9
+     +        -1.5313759826520926d+0*gammaaa*t19*t28*t7*t9
+     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*(t70+t69)
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t30*t34*t4*t57
+     +        -1.6202518231005728d+0*gammaaa*t1*t26*t27*t34*t4
+     +        -8.101259115502863d-1*t1*t17*t27*t30*t4
+     +        +8.101259115502863d-1*t1*t19*t26*t4
+     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t27*t34
      +        -9.451468968086676d-1*t1*t17*t19*t22)
-     +        -3.109069086965489d-2*t34*t38*t54)*wght+Cmat2(iq,
+     +        -3.109069086965489d-2*t31*t35*t59)*wght+Cmat2(iq,
      +        D2_RA_GAB)
-            Cmat2(iq,D2_RA_GBB) = t71+Cmat2(iq,D2_RA_GBB)
-            Cmat2(iq,D2_GAA_GAA) = t78+Cmat2(iq,D2_GAA_GAA)
+            Cmat2(iq,D2_RA_GBB) = t68+Cmat2(iq,D2_RA_GBB)
+            Cmat2(iq,D2_GAA_GAA) = t75+Cmat2(iq,D2_GAA_GAA)
             Cmat2(iq,D2_GAA_GAB) = 3.109069086965489d-2*t21*(
-     +        -6.563039925651821d-1*gammaaa*t11*t29*t37*t7*t9
-     +        +6.563039925651821d-1*t11*t19*t7*t9+t77
-     +        -1.0633777404619216d+0*gammaaa*t12*t17*t29*t75*t76+t74
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t35*t37*t4*t53
-     +        -4.050629557751432d-1*t1*t17*t29*t37*t4)*wght
-     +        -3.109069086965489d-2*t36*t38*t54*wght+Cmat2(iq,
+     +        -6.563039925651821d-1*gammaaa*t11*t27*t34*t7*t9
+     +        +6.563039925651821d-1*t11*t19*t7*t9+t74
+     +        -1.0633777404619216d+0*gammaaa*t12*t17*t27*t72*t73+t71
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t32*t34*t4*t57
+     +        -4.050629557751432d-1*t1*t17*t27*t34*t4)*wght
+     +        -3.109069086965489d-2*t33*t35*t59*wght+Cmat2(iq,
      +        D2_GAA_GAB)
-            Cmat2(iq,D2_GAA_GBB) = t78+Cmat2(iq,D2_GAA_GBB)
+            Cmat2(iq,D2_GAA_GBB) = t75+Cmat2(iq,D2_GAA_GBB)
             Cmat2(iq,D2_GAB_GAB) = 3.109069086965489d-2*t21*(
-     +        -2.6252159702607286d+0*gammaaa*t11*t29*t37*t7*t9
+     +        -2.6252159702607286d+0*gammaaa*t11*t27*t34*t7*t9
      +        +1.3126079851303643d+0*t11*t19*t7*t9
-     +        -2.1267554809238431d+0*gammaaa*t12*t17*t29*t75*t76
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t37**2*t4*t53
-     +        -1.6202518231005728d+0*t1*t17*t29*t37*t4)*wght
-     +        -3.109069086965489d-2*t38**2*t54*wght+Cmat2(iq,D2_GAB_GAB)
+     +        -2.1267554809238431d+0*gammaaa*t12*t17*t27*t72*t73
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t34**2*t4*t57
+     +        -1.6202518231005728d+0*t1*t17*t27*t34*t4)*wght
+     +        -3.109069086965489d-2*t35**2*t59*wght+Cmat2(iq,D2_GAB_GAB)
           endif ! rhoa.gt.tol_rho 
         else  ! ipol.eq.1 
           rhoa    = rho(iq,R_A) 
@@ -1315,73 +1296,75 @@ CDIR$ NOVECTOR
         endif ! ipol.eq.1 
       enddo ! iq 
       end subroutine nwxcm_c_mpbe_d2 
-C> 
-C> \brief Evaluate the nwxcm_c_mpbe functional [1] 
-C> 
-C> \f{eqnarray*}{ 
-C>   {\it t_1} &=& {\it param}\left(1\right)\\\\ 
+C>
+C> \brief Evaluate the nwxcm_c_mpbe functional [1]
+C>
+C> \f{eqnarray*}{
+C>   {\it t_1} &=& {\it param}\left(1\right)\\\\
 C>   {\it t_2} &=& {\it nwxc\_c\_pw91lda}\left({\it t_1} 
-C>    , \rho_\alpha , \rho_\beta\right)\\\\ 
-C>   {\it t_3} &=& \rho_\beta+\rho_\alpha\\\\ 
-C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\ 
-C>   {\it t_5} &=& \rho_\alpha-\rho_\beta\\\\ 
+C>    , \rho_\alpha , \rho_\beta\right)\\\\
+C>   {\it t_3} &=& \rho_\beta+\rho_\alpha\\\\
+C>   {\it t_4} &=& {{1}\over{{\it t_3}}}\\\\
+C>   {\it t_5} &=& \rho_\alpha-\rho_\beta\\\\
 C>   {\it t_6} &=& 0.5\,\left({\it t_5}\,{\it t_4}
 C>    +1.0\right)^{{{2}\over{3}}}+0.5\,\left(1.0-{\it t_5}\,{
-C>    \it t_4}\right)^{{{2}\over{3}}}\\\\ 
-C>   {\it t_7} &=& {\it t_6}^{3.0}\\\\ 
-C>   {\it t_8} &=& {{1}\over{{\it t_3}^{2.333333333333333}}}\\\\ 
-C>   {\it t_9} &=& {{1}\over{{\it t_6}^2}}\\\\ 
+C>    \it t_4}\right)^{{{2}\over{3}}}\\\\
+C>   {\it t_7} &=& {\it t_6}^{3.0}\\\\
+C>   {\it t_8} &=& {{1}\over{{\it t_3}^{2.333333333333333}}}\\\\
+C>   {\it t_9} &=& {{1}\over{{\it t_6}^2}}\\\\
 C>   {\it t_{10}} &=& \sigma_{\beta\beta}+2.0\,\sigma_{\alpha\beta}
-C>    +\sigma_{\alpha\alpha}\\\\ 
+C>    +\sigma_{\alpha\alpha}\\\\
 C>   {\it t_{11}} &=& {{1}\over{e^{{{32.16396844291483\,{\it t_2}
-C>    \,{\it t_4}}\over{{\it t_7}}}}}}-1.0\\\\ 
+C>    \,{\it t_4}}\over{{\it t_7}}}}}}-1.0\\\\
 C>   {\it t_{12}} &=& {{2.041389378054956\,{\it t_1}\,{\it t_8}\,{
-C>    \it t_9}\,{\it t_{10}}}\over{{\it t_{11}}}}\\\\ 
-C>   {\it t_{13}} &=& {\it t_1}^2\\\\ 
+C>    \it t_9}\,{\it t_{10}}}\over{{\it t_{11}}}}\\\\
+C>   {\it t_{13}} &=& {\it t_1}^2\\\\
 C>   {\it t_{14}} &=& {\it nwxc\_c\_pw91lda}\left({\it t_1} 
-C>    , \rho_s , 0.0\right)\\\\ 
-C>   {\it t_{15}} &=& {{1}\over{\rho_s}}\\\\ 
-C>   {\it t_{16}} &=& {{1}\over{\rho_s^{2.333333333333333}}}\\\\ 
+C>    , \rho_s , 0.0\right)\\\\
+C>   {\it t_{15}} &=& {{1}\over{\rho_s}}\\\\
+C>   {\it t_{16}} &=& {{1}\over{\rho_s^{2.333333333333333}}}\\\\
 C>   {\it t_{17}} &=& {{1}\over{e^{64.32793688582967\,{\it t_{14}}
-C>    \,{\it t_{15}}}}}-1.0\\\\ 
+C>    \,{\it t_{15}}}}}-1.0\\\\
 C>   {\it t_{18}} &=& {{3.240503646201146\,{\it t_1}\,{\it t_{16}}
-C>    \,\sigma_{ss}}\over{{\it t_{17}}}}\\\\ 
+C>    \,\sigma_{ss}}\over{{\it t_{17}}}}\\\\
 C>   f &=& 0.03109069086965489\,{\it t_7}\,\log 
 C>    \left({{2.041389378054956\,{\it t_1}\,{\it t_8}\,{\it t_9}
 C>    \,{\it t_{10}}\,\left({\it t_{12}}+1.0\right)}
 C>    \over{{{4.1672705928356\,{\it t_{13}}\,{\it t_{10}}^2}
 C>    \over{{\it t_3}^{4.666666666666667}\,{\it t_6}^4\,{
 C>    \it t_{11}}^2}}+{\it t_{12}}+1.0}}+1.0\right)+1.0\,{\it t_2}
-C>    \,{\it t_4}\\\\ 
-C>   g &=& 0\\\\ 
+C>    \,{\it t_4}\\\\
+C>   g &=& 0\\\\
 C>   G &=& 0.01554534543482744\,\log \left({{3.240503646201146\,{
 C>    \it t_1}\,{\it t_{16}}\,\sigma_{ss}\,\left({\it t_{18}}
 C>    +1.0\right)}\over{{{10.50086388104292\,{\it t_{13}}\,
 C>    \sigma_{ss}^2}\over{\rho_s^{4.666666666666667}\,{\it t_{17}}^2}}
 C>    +{\it t_{18}}+1.0}}+1.0\right)+1.0\,{\it t_{14}}\,{
-C>    \it t_{15}}\\\\ 
-C> \f} 
-C> 
-C> Code generated with Maxima 5.34.0 [2] 
-C> driven by autoxc [3,4,5]. 
-C> 
-C> ### References ### 
-C> 
+C>    \it t_{15}}\\\\
+C> \f}
+C>
+C> Code generated with Maxima 5.34.0 [2,3]
+C> driven by autoxc [4,5,6].
+C>
+C> ### References ###
+C>
 C> [1] JP Perdew, S Kurth, A Zupan, P Blaha, Phys.Rev.Lett. 82
-C>    , 2544 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 "> 
-C> 10.1103/PhysRevLett.82.2544 </a> 
-C> 
-C> [2] Maxima, a computer algebra system, 
-C> <a href="http://maxima.sourceforge.net/"> 
-C> http://maxima.sourceforge.net/</a> 
-C> 
-C> [3] autoxc, revision 27333 2015-08-12 
-C> 
-C> [4] rewrap.py revision 27339 2015-08-13 
-C> 
-C> [5] call_subroutine.py revision 27339 2015-08-13 
-C> 
+C>    , 2544 (1999)  , DOI:
+C> <a href="http://dx.doi.org/10.1103/PhysRevLett.82.2544 ">
+C> 10.1103/PhysRevLett.82.2544 </a>
+C>
+C> [2] Maxima, a computer algebra system,
+C> <a href="http://maxima.sourceforge.net/">
+C> http://maxima.sourceforge.net/</a>
+C>
+C> [3] CLISP 2.49 (2010-07-07)
+C>
+C> [4] autoxc, revision 27694 2015-10-10
+C>
+C> [5] rewrap.py revision 27697 2015-10-10
+C>
+C> [6] call_subroutine.py revision 27339 2015-08-13
+C>
       subroutine nwxcm_c_mpbe_d3(param,tol_rho,ipol,nq,wght, rho,
      +   rgamma,fnc,Amat,Amat2,Amat3, Cmat,Cmat2,Cmat3) 
 c $Id: $ 
@@ -1449,7 +1432,7 @@ c
       double precision taua,taub 
       double precision nwxcm_heaviside 
       external         nwxcm_heaviside 
-CDIR$ NOVECTOR
+CDIR$ NOVECTOR 
       do iq = 1, nq 
         if (ipol.eq.1) then 
           rhoa    = 0.5d0*rho(iq,R_T) 
@@ -1484,670 +1467,535 @@ CDIR$ NOVECTOR
             t20 = 1.6202518231005728d+0*gammaaa*t1*t17*t19*t4+1.0d+0
             t21 = 1/t20
             t22 = 1/rhoa**3.3333333333333337d+0
-            t23 = -1.8902937936173353d+0*gammaaa*t1*t17*t19*t22
-            t24 = -1.8902937936173353d+0*gammaaa*t1*t22*t7
-            t25 = 8.040992110728707d+0*t14*s1f
-            t26 = t25-1.6081984221457415d+1*t15*t3
-            t27 = -1.6202518231005728d+0*gammaaa*t1*t12*t26*t4*t5
-            t28 = t27+t24
-            t29 = 1/t18**2
-            t30 = 1/rhoa**5.666666666666667d+0
-            t31 = -6.12550393060837d+0*t10*t12*t30*t9
-            t32 = 1/t6**3
-            t33 = -5.250431940521457d+0*t10*t11*t26*t32*t5*t9+t31+t27
-     +        +t24
-            t34 = -1.6202518231005728d+0*gammaaa*t1*t17*t29*t33*t4
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t28*t4+t23
-            t35 = 1.3126079851303643d+0*gammaaa*t11*t12*t9
+            t23 = -1.8902937936173353d+0*gammaaa*t1*t22*t7
+            t24 = 8.040992110728707d+0*t14*s1f-1.6081984221457415d+1
+     +        *t15*t3
+            t25 = -1.6202518231005728d+0*gammaaa*t1*t12*t24*t4*t5
+            t26 = t25+t23
+            t27 = 1/t18**2
+            t28 = 1/rhoa**5.666666666666667d+0
+            t29 = 1/t6**3
+            t30 = -5.250431940521457d+0*t10*t11*t24*t29*t5*t9
+     +        -6.12550393060837d+0*t10*t12*t28*t9+t25+t23
+            t31 = -1.6202518231005728d+0*gammaaa*t1*t17*t27*t30*t4
+     +        +1.6202518231005728d+0*gammaaa*t1*t19*t26*t4
+     +        -1.8902937936173353d+0*gammaaa*t1*t17*t19*t22
+            t32 = 1.3126079851303643d+0*gammaaa*t11*t12*t9
      +        +4.050629557751432d-1*t1*t4*t7
-            t36 = 6.563039925651821d-1*gammaaa*t11*t19*t7*t9
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t35*t4
+            t33 = 6.563039925651821d-1*gammaaa*t11*t19*t7*t9
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t32*t4
      +        +4.050629557751432d-1*t1*t17*t19*t4
-            t37 = 2.6252159702607286d+0*gammaaa*t11*t12*t9
+            t34 = 2.6252159702607286d+0*gammaaa*t11*t12*t9
      +        +8.101259115502863d-1*t1*t4*t7
-            t38 = 1.3126079851303643d+0*gammaaa*t11*t19*t7*t9
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t37*t4
+            t35 = 1.3126079851303643d+0*gammaaa*t11*t19*t7*t9
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t34*t4
      +        +8.101259115502863d-1*t1*t17*t19*t4
-            t39 = 1/rhoa**3
-            t40 = 2.5d-1*s1f*t39
-            t41 = s1a2(D2_RA_RA)
-            t42 = 1/rhoa**4.333333333333334d+0
-            t43 = t26**2
-            t44 = exp(-3.216396844291483d+1*s1f*t3)
-            t45 = 3.2405036462011455d+0*gammaaa*t1*t32*t4*t43*t44
-            t46 = 3.3305176363733985d+0*gammaaa*t1*t42*t7
-            t47 = 3.7805875872346706d+0*gammaaa*t1*t12*t22*t26*t5
-            t48 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t43*t5
-            t49 = -1.6081984221457415d+1*t3*t41-1.0721322814304943d+1
-     +        *s1f*t39+1.6081984221457415d+1*t14*t15
-            t50 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t49*t5
-            t51 = t50+t48+t47+t46+t45
-            t52 = 1/t6**4
-            t53 = 1/rhoa**6.666666666666667d+0
-            t54 = 1.7938975796781656d+1*t10*t12*t53*t9
-     +        +1.5751295821564373d+1*t10*t11*t43*t44*t52*t9
-     +        -5.250431940521457d+0*t10*t11*t32*t49*t5*t9
-     +        -5.250431940521457d+0*t10*t11*t32*t43*t5*t9
-     +        +2.450201572243348d+1*t10*t26*t30*t32*t5*t9+t50+t48+t47
-     +        +t46+t45
-            t55 = 1/t18**3
-            t56 = t33**2
-            t57 = 3.2405036462011455d+0*gammaaa*t1*t17*t4*t55*t56
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*t54
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t51
-     +        +3.3305176363733985d+0*gammaaa*t1*t17*t19*t42
-     +        -3.2405036462011455d+0*gammaaa*t1*t28*t29*t33*t4
-     +        +3.7805875872346706d+0*gammaaa*t1*t17*t22*t29*t33
-     +        -3.7805875872346706d+0*gammaaa*t1*t19*t22*t28
-            t58 = 1/t20**2
-            t59 = t34**2
-            t60 = log(t20)
-            t61 = s1a(D1_RB)
-            t62 = s1a2(D2_RA_RB)
-            t63 = t25-1.6081984221457415d+1*t3*t61
-            t64 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t5*t63
-            t65 = t64+t24
-            t66 = -5.250431940521457d+0*t10*t11*t32*t5*t63*t9+t64+t31
-     +        +t24
-            t67 = -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*t66
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t65+t23
-            t68 = 3.2405036462011455d+0*gammaaa*t1*t26*t32*t4*t44*t63
-            t69 = 2.970461675684382d+0*gammaaa*t1*t42*t7
-            t70 = 1.8902937936173353d+0*gammaaa*t1*t12*t22*t26*t5
-            t71 = 1.8902937936173353d+0*gammaaa*t1*t12*t22*t5*t63
-            t72 = -1.6081984221457415d+1*t3*t62+8.040992110728707d+0
-     +        *t14*t61-5.360661407152472d+0*s1f*t39
-     +        +8.040992110728707d+0*t14*t15
-            t73 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t5*t72
-            t74 = -1.6202518231005728d+0*gammaaa*t1*t12*t26*t4*t5*t63
-            t75 = t74+t73+t71+t70+t69+t68
-            t76 = -5.250431940521457d+0*t10*t11*t32*t5*t72*t9
-     +        +1.5751295821564373d+1*t10*t11*t26*t44*t52*t63*t9
-     +        +1.225100786121674d+1*t10*t30*t32*t5*t63*t9
-     +        -5.250431940521457d+0*t10*t11*t26*t32*t5*t63*t9
-     +        +1.6772213143332443d+1*t10*t12*t53*t9
-     +        +1.225100786121674d+1*t10*t26*t30*t32*t5*t9+t74+t73+t71
-     +        +t70+t69+t68
-            t77 = -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*t76
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t75
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t33*t4*t55*t66
-     +        -1.6202518231005728d+0*gammaaa*t1*t28*t29*t4*t66
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t66
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t33*t4*t65
-     +        -1.8902937936173353d+0*gammaaa*t1*t19*t22*t65
-     +        +2.970461675684382d+0*gammaaa*t1*t17*t19*t42
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t33
-     +        -1.8902937936173353d+0*gammaaa*t1*t19*t22*t28
-            t78 = 1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t35
-            t79 = -4.725734484043338d-1*t1*t17*t19*t22
-            t80 = -7.656879913260463d-1*gammaaa*t19*t30*t7*t9
-            t81 = -4.725734484043338d-1*t1*t22*t7
-            t82 = -4.050629557751432d-1*t1*t12*t26*t4*t5
+            t36 = 1/rhoa**3
+            t37 = 2.5d-1*s1f*t36
+            t38 = -5.0d-1*t14*t15
+            t39 = s1a2(D2_RA_RA)
+            t40 = 1/rhoa**4.333333333333334d+0
+            t41 = -3.7805875872346706d+0*gammaaa*t1*t19*t22*t26
+            t42 = 3.7805875872346706d+0*gammaaa*t1*t17*t22*t27*t30
+            t43 = -3.2405036462011455d+0*gammaaa*t1*t26*t27*t30*t4
+            t44 = t24**2
+            t45 = exp(-3.216396844291483d+1*s1f*t3)
+            t46 = 3.2405036462011455d+0*gammaaa*t1*t29*t4*t44*t45
+            t47 = 3.3305176363733985d+0*gammaaa*t1*t40*t7
+            t48 = 3.7805875872346706d+0*gammaaa*t1*t12*t22*t24*t5
+            t49 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t44*t5
+            t50 = 1.6081984221457415d+1*t14*t15
+            t51 = t50-1.6081984221457415d+1*t3*t39
+     +        -1.0721322814304943d+1*s1f*t36
+            t52 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t5*t51
+            t53 = t52+t49+t48+t47+t46
+            t54 = 1/t6**4
+            t55 = 1.5751295821564373d+1*t10*t11*t44*t45*t54*t9
+            t56 = 1/rhoa**6.666666666666667d+0
+            t57 = 2.450201572243348d+1*t10*t24*t28*t29*t5*t9
+            t58 = -5.250431940521457d+0*t10*t11*t29*t44*t5*t9
+            t59 = 1.7938975796781656d+1*t10*t12*t56*t9
+     +        -5.250431940521457d+0*t10*t11*t29*t5*t51*t9+t58+t57+t55
+     +        +t52+t49+t48+t47+t46
+            t60 = 1/t18**3
+            t61 = t30**2
+            t62 = 3.2405036462011455d+0*gammaaa*t1*t17*t4*t60*t61
+            t63 = t62-1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*t59
+     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t53+t43+t42+t41
+     +        +3.3305176363733985d+0*gammaaa*t1*t17*t19*t40
+            t64 = 1/t20**2
+            t65 = t31**2
+            t66 = -3.109069086965489d-2*t64*t65
+            t67 = log(t20)
+            t68 = s1a2(D2_RA_RB)
+            t69 = 2.970461675684382d+0*gammaaa*t1*t40*t7
+            t70 = -1.6081984221457415d+1*t3*t68+t50
+     +        -5.360661407152472d+0*s1f*t36
+            t71 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t5*t70
+            t72 = t71+t69+t49+t48+t46
+            t73 = -5.250431940521457d+0*t10*t11*t29*t5*t70*t9
+     +        +1.6772213143332443d+1*t10*t12*t56*t9+t71+t69+t58+t57
+     +        +t55+t49+t48+t46
+            t74 = -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*t73
+     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t72+t62+t43+t42
+     +        +t41+2.970461675684382d+0*gammaaa*t1*t17*t19*t40
+            t75 = -4.725734484043338d-1*t1*t22*t7
+            t76 = -4.050629557751432d-1*t1*t12*t24*t4*t5
+            t77 = t76+t75
+            t78 = -2.6252159702607286d+0*gammaaa*t11*t24*t29*t5*t9
+     +        -3.062751965304185d+0*gammaaa*t12*t28*t9+t76+t75
+            t79 = -6.563039925651821d-1*gammaaa*t11*t27*t30*t7*t9
+     +        -7.656879913260463d-1*gammaaa*t19*t28*t7*t9
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*t78
+     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t77
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t30*t32*t4*t60
+     +        -1.6202518231005728d+0*gammaaa*t1*t26*t27*t32*t4
+     +        -4.050629557751432d-1*t1*t17*t27*t30*t4
+     +        +4.050629557751432d-1*t1*t19*t26*t4
+     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t27*t32
+     +        -4.725734484043338d-1*t1*t17*t19*t22
+            t80 = (3.109069086965489d-2*t21*t79-3.109069086965489d-2
+     +        *t31*t33*t64)*wght
+            t81 = -9.451468968086676d-1*t1*t22*t7
+            t82 = -8.101259115502863d-1*t1*t12*t24*t4*t5
             t83 = t82+t81
-            t84 = -3.062751965304185d+0*gammaaa*t12*t30*t9
-            t85 = -2.6252159702607286d+0*gammaaa*t11*t26*t32*t5*t9+t84
-     +        +t82+t81
-            t86 = -6.563039925651821d-1*gammaaa*t11*t29*t33*t7*t9
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*t85
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t83+t80+t79+t78
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t33*t35*t4*t55
-     +        -1.6202518231005728d+0*gammaaa*t1*t28*t29*t35*t4
-     +        -4.050629557751432d-1*t1*t17*t29*t33*t4
-     +        +4.050629557751432d-1*t1*t19*t28*t4
-            t87 = (3.109069086965489d-2*t21*t86-3.109069086965489d-2
-     +        *t34*t36*t58)*wght
-            t88 = 1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t37
-            t89 = -9.451468968086676d-1*t1*t17*t19*t22
-            t90 = -1.5313759826520926d+0*gammaaa*t19*t30*t7*t9
-            t91 = -9.451468968086676d-1*t1*t22*t7
-            t92 = -8.101259115502863d-1*t1*t12*t26*t4*t5
-            t93 = t92+t91
-            t94 = -6.12550393060837d+0*gammaaa*t12*t30*t9
-            t95 = t94+t92+t91-5.250431940521457d+0*gammaaa*t11*t26*t32
-     +        *t5*t9
-            t96 = -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*t95
-     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t93+t90
-     +        -1.3126079851303643d+0*gammaaa*t11*t29*t33*t7*t9+t89+t88
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t33*t37*t4*t55
-     +        -1.6202518231005728d+0*gammaaa*t1*t28*t29*t37*t4
-     +        -8.101259115502863d-1*t1*t17*t29*t33*t4
-     +        +8.101259115502863d-1*t1*t19*t28*t4
-            t97 = t36**2
-            t98 = t35**2
-            t99 = -8.101259115502863d-1*t1*t17*t29*t35*t4
-            t100 = t1**3
-            t101 = 1/rhoa**7.0d+0
-            t102 = -1.3126079851303643d+0*gammaaa*t11*t29*t35*t7*t9
-            t103 = t99+3.2405036462011455d+0*gammaaa*t1*t17*t4*t55*t98
-     +        +3.2815199628259106d-1*t11*t19*t7*t9
-     +        -5.316888702309608d-1*gammaaa*t100*t101*t12*t17*t29+t102
-            t104 = 3.109069086965489d-2*t103*t21*wght
-     +        -3.109069086965489d-2*t58*t97*wght
-            t105 = t99-6.563039925651821d-1*gammaaa*t11*t29*t37*t7*t9
-     +        +6.563039925651821d-1*t11*t19*t7*t9
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t35*t37*t4*t55
-     +        -4.050629557751432d-1*t1*t17*t29*t37*t4
-     +        -1.0633777404619216d+0*gammaaa*t100*t101*t12*t17*t29+t102
-            t106 = t38**2
-            t107 = t37**2
-            t108 = -2.6252159702607286d+0*gammaaa*t11*t29*t37*t7*t9
+            t84 = -5.250431940521457d+0*gammaaa*t11*t24*t29*t5*t9
+     +        -6.12550393060837d+0*gammaaa*t12*t28*t9+t82+t81
+            t85 = -1.3126079851303643d+0*gammaaa*t11*t27*t30*t7*t9
+     +        -1.5313759826520926d+0*gammaaa*t19*t28*t7*t9
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*t84
+     +        +1.6202518231005728d+0*gammaaa*t1*t19*t4*t83
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t30*t34*t4*t60
+     +        -1.6202518231005728d+0*gammaaa*t1*t26*t27*t34*t4
+     +        -8.101259115502863d-1*t1*t17*t27*t30*t4
+     +        +8.101259115502863d-1*t1*t19*t26*t4
+     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t27*t34
+     +        -9.451468968086676d-1*t1*t17*t19*t22
+            t86 = t33**2
+            t87 = t32**2
+            t88 = -8.101259115502863d-1*t1*t17*t27*t32*t4
+            t89 = t1**3
+            t90 = 1/rhoa**7.0d+0
+            t91 = -1.3126079851303643d+0*gammaaa*t11*t27*t32*t7*t9
+            t92 = t91-5.316888702309608d-1*gammaaa*t12*t17*t27*t89*t90
+     +        +3.2815199628259106d-1*t11*t19*t7*t9+t88
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t4*t60*t87
+            t93 = 3.109069086965489d-2*t21*t92*wght
+     +        -3.109069086965489d-2*t64*t86*wght
+            t94 = t91-1.0633777404619216d+0*gammaaa*t12*t17*t27*t89
+     +        *t90-6.563039925651821d-1*gammaaa*t11*t27*t34*t7*t9
+     +        +6.563039925651821d-1*t11*t19*t7*t9+t88
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t32*t34*t4*t60
+     +        -4.050629557751432d-1*t1*t17*t27*t34*t4
+            t95 = t35**2
+            t96 = t34**2
+            t97 = 3.2405036462011455d+0*gammaaa*t1*t17*t4*t60*t96
+     +        -2.1267554809238431d+0*gammaaa*t12*t17*t27*t89*t90
+     +        -2.6252159702607286d+0*gammaaa*t11*t27*t34*t7*t9
      +        +1.3126079851303643d+0*t11*t19*t7*t9
-     +        +3.2405036462011455d+0*gammaaa*t1*t107*t17*t4*t55
-     +        -1.6202518231005728d+0*t1*t17*t29*t37*t4
-     +        -2.1267554809238431d+0*gammaaa*t100*t101*t12*t17*t29
-            t109 = 1/rhoa**4
-            t110 = -3.75d-1*t109*s1f
-            t111 = s1a3(D3_RA_RA_RA)
-            t112 = 1/rhoa**5.333333333333334d+0
-            t113 = t26**3
-            t114 = exp(-4.824595266437224d+1*s1f*t3)
-            t115 = -9.721510938603435d+0*gammaaa*t1*t113*t114*t4*t52
-            t116 = -1.134176276170401d+1*gammaaa*t1*t22*t32*t43*t44
-            t117 = 1.6081984221457415d+1*t14*s1f
-            t118 = t117-3.216396844291483d+1*t15*t3
-            t119 = 3.2405036462011455d+0*gammaaa*t1*t118*t32*t4*t43*t44
-            t120 = 3.2405036462011455d+0*gammaaa*t1*t113*t32*t4*t44
-            t121 = 9.721510938603435d+0*gammaaa*t1*t26*t32*t4*t44*t49
-            t122 = -7.996242793635233d+0*gammaaa*t1*t112*t7
-            t123 = -9.991552909120195d+0*gammaaa*t1*t12*t26*t42*t5
-            t124 = 5.670881380852005d+0*gammaaa*t1*t12*t22*t43*t5
-            t125 = 5.670881380852005d+0*gammaaa*t1*t12*t22*t49*t5
-            t126 = -1.6202518231005728d+0*gammaaa*t1*t113*t12*t4*t5
-            t127 = -4.8607554693017174d+0*gammaaa*t1*t12*t26*t4*t49*t5
-            t128 = 2.412297633218612d+1*t14*t41-3.216396844291482d+1
-     +        *t15*t39-1.6081984221457415d+1*t111*t3
-     +        +2.412297633218612d+1*t109*s1f
-            t129 = -1.6202518231005728d+0*gammaaa*t1*t12*t128*t4*t5
-            t130 = 1/t6**5
-            t131 = 1/rhoa**7.666666666666667d+0
-            t132 = 1/t18**4
-            t133 = 1/t20**3
-            t134 = s1a3(D3_RA_RA_RB)
-            t135 = -9.721510938603435d+0*gammaaa*t1*t114*t4*t43*t52*t63
-            t136 = -3.7805875872346706d+0*gammaaa*t1*t22*t32*t43*t44
-            t137 = -7.561175174469341d+0*gammaaa*t1*t22*t26*t32*t44*t63
-            t138 = 6.481007292402291d+0*gammaaa*t1*t26*t32*t4*t44*t72
-            t139 = t117-3.216396844291483d+1*t3*t61
-            t140 = 3.2405036462011455d+0*gammaaa*t1*t139*t32*t4*t43*t44
-            t141 = 3.2405036462011455d+0*gammaaa*t1*t32*t4*t43*t44*t63
-            t142 = 3.2405036462011455d+0*gammaaa*t1*t32*t4*t44*t49*t63
-            t143 = -6.436000297316163d+0*gammaaa*t1*t112*t7
-            t144 = -5.940923351368764d+0*gammaaa*t1*t12*t26*t42*t5
-            t145 = -3.3305176363733985d+0*gammaaa*t1*t12*t42*t5*t63
-            t146 = 1.8902937936173353d+0*gammaaa*t1*t12*t22*t43*t5
-            t147 = 3.7805875872346706d+0*gammaaa*t1*t12*t22*t5*t72
-            t148 = 1.8902937936173353d+0*gammaaa*t1*t12*t22*t49*t5
-            t149 = 3.7805875872346706d+0*gammaaa*t1*t12*t22*t26*t5*t63
-            t150 = -3.2405036462011455d+0*gammaaa*t1*t12*t26*t4*t5*t72
-            t151 = 1.6081984221457415d+1*t14*t62-1.0721322814304943d+1
-     +        *t39*t61+8.040992110728707d+0*t14*t41
-     +        -1.0721322814304944d+1*t15*t39-1.6081984221457415d+1
-     +        *t134*t3+8.040992110728705d+0*t109*s1f
-            t152 = -1.6202518231005728d+0*gammaaa*t1*t12*t151*t4*t5
-            t153 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t43*t5*t63
-            t154 = -1.6202518231005728d+0*gammaaa*t1*t12*t4*t49*t5*t63
-            t155 = 1/rhoa**6.666666666666667d+0
-            t156 = 1.276146652210076d+0*gammaaa*t155*t19*t7*t9
-            t157 = -9.451468968086676d-1*t1*t19*t22*t28
-            t158 = 9.451468968086676d-1*t1*t17*t22*t29*t33
-            t159 = 1.5313759826520926d+0*gammaaa*t29*t30*t33*t7*t9
-            t160 = 8.101259115502863d-1*t1*t32*t4*t43*t44
-            t161 = 8.326294090933496d-1*t1*t42*t7
-            t162 = 9.451468968086676d-1*t1*t12*t22*t26*t5
-            t163 = -4.050629557751432d-1*t1*t12*t4*t43*t5
-            t164 = -4.050629557751432d-1*t1*t12*t4*t49*t5
-            t165 = 1.225100786121674d+1*gammaaa*t26*t30*t32*t5*t9
-            t166 = (t21*(3.109069086965489d-2*(-1.6202518231005728d+0
-     +        *gammaaa*t1*t17*t29*t4*(8.969487898390828d+0*gammaaa*t12
-     +        *t53*t9+7.875647910782186d+0*gammaaa*t11*t43*t44*t52*t9
-     +        -2.6252159702607286d+0*gammaaa*t11*t32*t49*t5*t9
-     +        -2.6252159702607286d+0*gammaaa*t11*t32*t43*t5*t9+t165
-     +        +t164+t163+t162+t161+t160)+1.3126079851303643d+0*gammaaa
-     +        *t11*t55*t56*t7*t9-6.563039925651821d-1*gammaaa*t11*t29
-     +        *t54*t7*t9+7.292266584057577d-2*gammaaa*t19*t53*t7*t9
-     +        +6.481007292402291d+0*gammaaa*t1*t17*t33*t4*t55*t85
-     +        -3.2405036462011455d+0*gammaaa*t1*t28*t29*t4*t85
-     +        +3.7805875872346706d+0*gammaaa*t1*t17*t22*t29*t85
-     +        -3.2405036462011455d+0*gammaaa*t1*t29*t33*t4*t83
-     +        -3.7805875872346706d+0*gammaaa*t1*t19*t22*t83
-     +        +8.101259115502863d-1*t1*t17*t4*t55*t56
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t35*t4*t56
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t35*t4*t54*t55
-     +        +6.481007292402291d+0*gammaaa*t1*t28*t33*t35*t4*t55
-     +        -7.561175174469341d+0*gammaaa*t1*t17*t22*t33*t35*t55
-     +        -4.050629557751432d-1*t1*t17*t29*t4*t54
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t35*t4*t51
-     +        +4.050629557751432d-1*t1*t19*t4*t51
-     +        -3.3305176363733985d+0*gammaaa*t1*t17*t29*t35*t42
-     +        +8.326294090933496d-1*t1*t17*t19*t42
-     +        -8.101259115502863d-1*t1*t28*t29*t33*t4
-     +        +1.6202518231005728d+0*gammaaa*t1*(t164+t163+t162+t161
-     +        +t160)*t19*t4+3.7805875872346706d+0*gammaaa*t1*t22*t28
-     +        *t29*t35+t159+t158+t157+t156)-5.181781811609147d-3*t14
-     +        *t36)+t58*(-6.218138173930978d-2*t34*t86
-     +        -3.109069086965489d-2*t36*t57)+6.218138173930978d-2*t133
-     +        *t36*t59)*wght
-            t167 = 2.552293304420152d+0*gammaaa*t155*t19*t7*t9
-            t168 = 1.6202518231005728d+0*t1*t32*t4*t43*t44
-            t169 = 1.6652588181866992d+0*t1*t42*t7
-            t170 = 1.8902937936173353d+0*t1*t12*t22*t26*t5
-            t171 = -8.101259115502863d-1*t1*t12*t4*t43*t5
-            t172 = -8.101259115502863d-1*t1*t12*t4*t49*t5
-            t173 = -4.050629557751432d-1*t1*t12*t4*t5*t63
-            t174 = t81+t173
-            t175 = -2.6252159702607286d+0*gammaaa*t11*t32*t5*t63*t9
-     +        +t84+t81+t173
-            t176 = 8.101259115502863d-1*t1*t26*t32*t4*t44*t63
-            t177 = 7.426154189210955d-1*t1*t42*t7
-            t178 = 4.725734484043338d-1*t1*t12*t22*t26*t5
-            t179 = 4.725734484043338d-1*t1*t12*t22*t5*t63
-            t180 = -4.050629557751432d-1*t1*t12*t4*t5*t72
-            t181 = -4.050629557751432d-1*t1*t12*t26*t4*t5*t63
-            t182 = -8.101259115502863d-1*t1*t12*t4*t5*t63
-            t183 = t91+t182
-            t184 = t94+t91-5.250431940521457d+0*gammaaa*t11*t32*t5*t63
-     +        *t9+t182
-            t185 = 1.6202518231005728d+0*t1*t26*t32*t4*t44*t63
-            t186 = 1.485230837842191d+0*t1*t42*t7
-            t187 = 9.451468968086676d-1*t1*t12*t22*t5*t63
-            t188 = -8.101259115502863d-1*t1*t12*t4*t5*t72
-            t189 = -8.101259115502863d-1*t1*t12*t26*t4*t5*t63
-            t190 = 9.451468968086676d-1*t1*t17*t22*t29*t35
-            t191 = 1/rhoa**8.0d+0
-            t192 = 1.5313759826520926d+0*gammaaa*t29*t30*t35*t7*t9
-            t193 = 8.101259115502863d-1*t1*t19*t4*t83
-            t194 = -8.101259115502863d-1*t1*t17*t29*t4*t85
-            t195 = -1.3126079851303643d+0*gammaaa*t11*t29*t7*t85*t9
-            t196 = -8.101259115502863d-1*t1*t28*t29*t35*t4
-            t197 = 1.6202518231005728d+0*t1*t17*t33*t35*t4*t55
-            t198 = 2.6252159702607286d+0*gammaaa*t11*t33*t35*t55*t7*t9
-            t199 = (3.109069086965489d-2*t21*(3.2405036462011455d+0
-     +        *gammaaa*t1*t28*t4*t55*t98-3.7805875872346706d+0*gammaaa
-     +        *t1*t17*t22*t55*t98-9.721510938603435d+0*gammaaa*t1*t132
-     +        *t17*t33*t4*t98-1.6202518231005728d+0*gammaaa*t1*t17*t29
-     +        *t4*(-6.563039925651821d-1*t11*t26*t32*t5*t9
-     +        -7.656879913260463d-1*t12*t30*t9)-3.2815199628259106d-1
-     +        *t11*t29*t33*t7*t9-3.8284399566302313d-1*t19*t30*t7*t9
-     +        +6.481007292402291d+0*gammaaa*t1*t17*t35*t4*t55*t85
-     +        -3.2405036462011455d+0*gammaaa*t1*t29*t35*t4*t83
-     +        +1.0633777404619216d+0*gammaaa*t100*t101*t12*t17*t33*t55
-     +        -5.316888702309608d-1*gammaaa*t100*t101*t12*t28*t29
-     +        +6.20303681936121d-1*gammaaa*t100*t12*t17*t191*t29+t198
-     +        +t197+t196+t195+t194+t193+t192+t190)
-     +        +6.218138173930978d-2*t133*t34*t97+t58*(
-     +        -6.218138173930978d-2*t36*t86-3.109069086965489d-2*t103
-     +        *t34))*wght
-            t200 = (t58*(-3.109069086965489d-2*t36*t96
-     +        -3.109069086965489d-2*t38*t86-3.109069086965489d-2*t105
-     +        *t34)+3.109069086965489d-2*t21*(-6.563039925651821d-1
-     +        *gammaaa*t11*t29*t7*t9*t95+3.2405036462011455d+0*gammaaa
-     +        *t1*t17*t35*t4*t55*t95-4.050629557751432d-1*t1*t17*t29
-     +        *t4*t95-1.6202518231005728d+0*gammaaa*t1*t29*t35*t4*t93
-     +        +4.050629557751432d-1*t1*t19*t4*t93
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*(
-     +        -1.3126079851303643d+0*t11*t26*t32*t5*t9
-     +        -1.5313759826520926d+0*t12*t30*t9)+1.3126079851303643d+0
-     +        *gammaaa*t11*t33*t37*t55*t7*t9+7.656879913260463d-1
-     +        *gammaaa*t29*t30*t37*t7*t9-6.563039925651821d-1*t11*t29
-     +        *t33*t7*t9-7.656879913260463d-1*t19*t30*t7*t9
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t37*t4*t55*t85
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t37*t4*t83
-     +        +3.2405036462011455d+0*gammaaa*t1*t28*t35*t37*t4*t55
-     +        +8.101259115502863d-1*t1*t17*t33*t37*t4*t55
-     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t35*t37*t55
-     +        +2.1267554809238431d+0*gammaaa*t100*t101*t12*t17*t33*t55
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t33*t35*t37*t4
-     +        -4.050629557751432d-1*t1*t28*t29*t37*t4
-     +        +4.725734484043338d-1*t1*t17*t22*t29*t37
-     +        -1.0633777404619216d+0*gammaaa*t100*t101*t12*t28*t29
-     +        +1.2406073638722419d+0*gammaaa*t100*t12*t17*t191*t29
-     +        +t198+t197+t196+t195+t194+t193+t192+t190)
-     +        +6.218138173930978d-2*t133*t34*t36*t38)*wght
-            t201 = t1**4
-            t202 = 1/rhoa**9.333333333333333d+0
-            t203 = 3.109069086965489d-2*t21*(3.937823955391093d+0
-     +        *gammaaa*t11*t55*t7*t9*t98+2.4303777346508587d+0*t1*t17
-     +        *t4*t55*t98-9.844559888477733d-1*t11*t29*t35*t7*t9
-     +        +3.1901332213857647d+0*gammaaa*t100*t101*t12*t17*t35*t55
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t35**3*t4
-     +        -6.461023959854982d-1*gammaaa*t201*t202*t29*t32
-     +        -3.987666526732206d-1*t100*t101*t12*t17*t29)*wght
-     +        -9.327207260896466d-2*t103*t36*t58*wght
-     +        +6.218138173930978d-2*t133*t36**3*wght
-            t204 = -9.721510938603435d+0*gammaaa*t1*t132*t17*t37*t4*t98
-            t205 = 1.6202518231005728d+0*t1*t17*t4*t55*t98
-            t206 = 1.6202518231005728d+0*t1*t17*t35*t37*t4*t55
-            t207 = 4.2535109618476863d+0*gammaaa*t100*t101*t12*t17*t35
-     +        *t55
-            t208 = 1.0633777404619216d+0*gammaaa*t100*t101*t12*t17*t37
-     +        *t55
-            t209 = -7.975333053464412d-1*t100*t101*t12*t17*t29
-            t210 = 2.6252159702607286d+0*gammaaa*t11*t55*t7*t9*t98
-            t211 = 2.6252159702607286d+0*gammaaa*t11*t35*t37*t55*t7*t9
-            t212 = -1.3126079851303643d+0*t11*t29*t35*t7*t9
-            t213 = -3.2815199628259106d-1*t11*t29*t37*t7*t9
-            t214 = 6.218138173930978d-2*t133*t38*t97*wght
-            t215 = t58*(-3.109069086965489d-2*t103*t38*wght
-     +        -6.218138173930978d-2*t105*t36*wght)
+     +        -1.6202518231005728d+0*t1*t17*t27*t34*t4
+            t98 = 1/rhoa**4
+            t99 = -3.75d-1*s1f*t98
+            t100 = 7.5d-1*t15*t36
+            t101 = s1a3(D3_RA_RA_RA)
+            t102 = 1/rhoa**5.333333333333334d+0
+            t103 = 1.134176276170401d+1*gammaaa*t1*t22*t26*t27*t30
+            t104 = t24**3
+            t105 = exp(-4.824595266437224d+1*s1f*t3)
+            t106 = -9.721510938603435d+0*gammaaa*t1*t104*t105*t4*t54
+            t107 = -1.134176276170401d+1*gammaaa*t1*t22*t29*t44*t45
+            t108 = 1.6081984221457415d+1*t14*s1f-3.216396844291483d+1
+     +        *t15*t3
+            t109 = 3.2405036462011455d+0*gammaaa*t1*t108*t29*t4*t44*t45
+            t110 = 3.2405036462011455d+0*gammaaa*t1*t104*t29*t4*t45
+            t111 = 9.721510938603435d+0*gammaaa*t1*t24*t29*t4*t45*t51
+            t112 = -7.996242793635233d+0*gammaaa*t1*t102*t7
+            t113 = -9.991552909120195d+0*gammaaa*t1*t12*t24*t40*t5
+            t114 = 5.670881380852005d+0*gammaaa*t1*t12*t22*t44*t5
+            t115 = 5.670881380852005d+0*gammaaa*t1*t12*t22*t5*t51
+            t116 = -1.6202518231005728d+0*gammaaa*t1*t104*t12*t4*t5
+            t117 = -4.8607554693017174d+0*gammaaa*t1*t12*t24*t4*t5*t51
+            t118 = 2.412297633218612d+1*s1f*t98+2.412297633218612d+1
+     +        *t14*t39-3.216396844291482d+1*t15*t36
+     +        -1.6081984221457415d+1*t101*t3
+            t119 = -1.6202518231005728d+0*gammaaa*t1*t118*t12*t4*t5
+            t120 = -6.300518328625749d+1*t10*t104*t105*t11*t9/t6**5
+            t121 = -1.1025907075095065d+2*t10*t28*t44*t45*t54*t9
+            t122 = 1.5751295821564373d+1*t10*t108*t11*t44*t45*t54*t9
+            t123 = 1.5751295821564373d+1*t10*t104*t11*t45*t54*t9
+            t124 = 1/rhoa**7.666666666666667d+0
+            t125 = 3.675302358365022d+1*t10*t28*t29*t44*t5*t9
+            t126 = -5.250431940521457d+0*t10*t104*t11*t29*t5*t9
+            t127 = -1.134176276170401d+1*gammaaa*t1*t17*t22*t60*t61
+            t128 = 1/t18**4
+            t129 = -9.721510938603435d+0*gammaaa*t1*t128*t17*t30**3*t4
+            t130 = 1/t20**3
+            t131 = 6.218138173930978d-2*t130*t31**3
+            t132 = s1a3(D3_RA_RA_RB)
+            t133 = 6.481007292402291d+0*gammaaa*t1*t24*t29*t4*t45*t70
+            t134 = 3.2405036462011455d+0*gammaaa*t1*t24*t29*t4*t45*t51
+            t135 = -6.436000297316163d+0*gammaaa*t1*t102*t7
+            t136 = -9.271440987742162d+0*gammaaa*t1*t12*t24*t40*t5
+            t137 = 3.7805875872346706d+0*gammaaa*t1*t12*t22*t5*t70
+            t138 = 1.8902937936173353d+0*gammaaa*t1*t12*t22*t5*t51
+            t139 = -3.2405036462011455d+0*gammaaa*t1*t12*t24*t4*t5*t70
+            t140 = -1.6202518231005728d+0*gammaaa*t1*t12*t24*t4*t5*t51
+            t141 = 8.040992110728705d+0*s1f*t98+1.6081984221457415d+1
+     +        *t14*t68+8.040992110728707d+0*t14*t39
+     +        -2.1442645628609888d+1*t15*t36-1.6081984221457415d+1
+     +        *t132*t3
+            t142 = -1.6202518231005728d+0*gammaaa*t1*t12*t141*t4*t5
+            t143 = -6.218138173930978d-2*t31*t79
+            t144 = 1/rhoa**6.666666666666667d+0
+            t145 = 1.276146652210076d+0*gammaaa*t144*t19*t7*t9
+            t146 = -3.7805875872346706d+0*gammaaa*t1*t19*t22*t77
+            t147 = 3.7805875872346706d+0*gammaaa*t1*t17*t22*t27*t78
+            t148 = 3.7805875872346706d+0*gammaaa*t1*t22*t26*t27*t32
+            t149 = -9.451468968086676d-1*t1*t19*t22*t26
+            t150 = -3.2405036462011455d+0*gammaaa*t1*t26*t27*t4*t78
+            t151 = -7.561175174469341d+0*gammaaa*t1*t17*t22*t30*t32*t60
+            t152 = 9.451468968086676d-1*t1*t17*t22*t27*t30
+            t153 = 1.5313759826520926d+0*gammaaa*t27*t28*t30*t7*t9
+            t154 = -3.2405036462011455d+0*gammaaa*t1*t27*t30*t4*t77
+            t155 = 6.481007292402291d+0*gammaaa*t1*t17*t30*t4*t60*t78
+            t156 = 6.481007292402291d+0*gammaaa*t1*t26*t30*t32*t4*t60
+            t157 = -8.101259115502863d-1*t1*t26*t27*t30*t4
+            t158 = 8.101259115502863d-1*t1*t29*t4*t44*t45
+            t159 = 8.326294090933496d-1*t1*t40*t7
+            t160 = 9.451468968086676d-1*t1*t12*t22*t24*t5
+            t161 = -4.050629557751432d-1*t1*t12*t4*t44*t5
+            t162 = -4.050629557751432d-1*t1*t12*t4*t5*t51
+            t163 = 7.875647910782186d+0*gammaaa*t11*t44*t45*t54*t9
+            t164 = 1.225100786121674d+1*gammaaa*t24*t28*t29*t5*t9
+            t165 = -2.6252159702607286d+0*gammaaa*t11*t29*t44*t5*t9
+            t166 = -9.721510938603435d+0*gammaaa*t1*t128*t17*t32*t4*t61
+            t167 = 8.101259115502863d-1*t1*t17*t4*t60*t61
+            t168 = 1.3126079851303643d+0*gammaaa*t11*t60*t61*t7*t9
+            t169 = 6.218138173930978d-2*t130*t33*t65
+            t170 = (t21*(3.109069086965489d-2*(-1.6202518231005728d+0
+     +        *gammaaa*t1*t17*t27*t4*(8.969487898390828d+0*gammaaa*t12
+     +        *t56*t9-2.6252159702607286d+0*gammaaa*t11*t29*t5*t51*t9
+     +        +t165+t164+t163+t162+t161+t160+t159+t158)
+     +        -6.563039925651821d-1*gammaaa*t11*t27*t59*t7*t9
+     +        +7.292266584057577d-2*gammaaa*t19*t56*t7*t9
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t32*t4*t59*t60
+     +        -4.050629557751432d-1*t1*t17*t27*t4*t59
+     +        -1.6202518231005728d+0*gammaaa*t1*t27*t32*t4*t53
+     +        +4.050629557751432d-1*t1*t19*t4*t53
+     +        -3.3305176363733985d+0*gammaaa*t1*t17*t27*t32*t40
+     +        +8.326294090933496d-1*t1*t17*t19*t40
+     +        +1.6202518231005728d+0*gammaaa*t1*(t162+t161+t160+t159
+     +        +t158)*t19*t4+t168+t167+t166+t157+t156+t155+t154+t153
+     +        +t152+t151+t150+t149+t148+t147+t146+t145)
+     +        -5.181781811609147d-3*t14*t33)+(t143
+     +        -3.109069086965489d-2*t33*t63)*t64+t169)*wght
+            t171 = -6.218138173930978d-2*t31*t85
+            t172 = 2.552293304420152d+0*gammaaa*t144*t19*t7*t9
+            t173 = -3.7805875872346706d+0*gammaaa*t1*t19*t22*t83
+            t174 = 3.7805875872346706d+0*gammaaa*t1*t17*t22*t27*t84
+            t175 = 3.7805875872346706d+0*gammaaa*t1*t22*t26*t27*t34
+            t176 = -1.8902937936173353d+0*t1*t19*t22*t26
+            t177 = -3.2405036462011455d+0*gammaaa*t1*t26*t27*t4*t84
+            t178 = -7.561175174469341d+0*gammaaa*t1*t17*t22*t30*t34*t60
+            t179 = 1.8902937936173353d+0*t1*t17*t22*t27*t30
+            t180 = 3.062751965304185d+0*gammaaa*t27*t28*t30*t7*t9
+            t181 = -3.2405036462011455d+0*gammaaa*t1*t27*t30*t4*t83
+            t182 = 6.481007292402291d+0*gammaaa*t1*t17*t30*t4*t60*t84
+            t183 = 6.481007292402291d+0*gammaaa*t1*t26*t30*t34*t4*t60
+            t184 = -1.6202518231005728d+0*t1*t26*t27*t30*t4
+            t185 = 1.6202518231005728d+0*t1*t29*t4*t44*t45
+            t186 = 1.6652588181866992d+0*t1*t40*t7
+            t187 = 1.8902937936173353d+0*t1*t12*t22*t24*t5
+            t188 = -8.101259115502863d-1*t1*t12*t4*t44*t5
+            t189 = -8.101259115502863d-1*t1*t12*t4*t5*t51
+            t190 = 1.5751295821564373d+1*gammaaa*t11*t44*t45*t54*t9
+            t191 = 2.450201572243348d+1*gammaaa*t24*t28*t29*t5*t9
+            t192 = -5.250431940521457d+0*gammaaa*t11*t29*t44*t5*t9
+            t193 = -9.721510938603435d+0*gammaaa*t1*t128*t17*t34*t4*t61
+            t194 = 1.6202518231005728d+0*t1*t17*t4*t60*t61
+            t195 = 2.6252159702607286d+0*gammaaa*t11*t60*t61*t7*t9
+            t196 = 6.218138173930978d-2*t130*t35*t65
+            t197 = 7.426154189210955d-1*t1*t40*t7
+            t198 = -4.050629557751432d-1*t1*t12*t4*t5*t70
+            t199 = 1.485230837842191d+0*t1*t40*t7
+            t200 = -8.101259115502863d-1*t1*t12*t4*t5*t70
+            t201 = 9.451468968086676d-1*t1*t17*t22*t27*t32
+            t202 = 1/rhoa**8.0d+0
+            t203 = 1.5313759826520926d+0*gammaaa*t27*t28*t32*t7*t9
+            t204 = 8.101259115502863d-1*t1*t19*t4*t77
+            t205 = -8.101259115502863d-1*t1*t17*t27*t4*t78
+            t206 = -1.3126079851303643d+0*gammaaa*t11*t27*t7*t78*t9
+            t207 = -8.101259115502863d-1*t1*t26*t27*t32*t4
+            t208 = 1.6202518231005728d+0*t1*t17*t30*t32*t4*t60
+            t209 = 2.6252159702607286d+0*gammaaa*t11*t30*t32*t60*t7*t9
+            t210 = (t64*(-3.109069086965489d-2*t31*t92
+     +        -6.218138173930978d-2*t33*t79)+3.109069086965489d-2*t21*
+     +        (1.0633777404619216d+0*gammaaa*t12*t17*t30*t60*t89*t90
+     +        -5.316888702309608d-1*gammaaa*t12*t26*t27*t89*t90
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*(
+     +        -6.563039925651821d-1*t11*t24*t29*t5*t9
+     +        -7.656879913260463d-1*t12*t28*t9)-3.2815199628259106d-1
+     +        *t11*t27*t30*t7*t9-3.8284399566302313d-1*t19*t28*t7*t9
+     +        +6.20303681936121d-1*gammaaa*t12*t17*t202*t27*t89
+     +        +3.2405036462011455d+0*gammaaa*t1*t26*t4*t60*t87
+     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t60*t87
+     +        -9.721510938603435d+0*gammaaa*t1*t128*t17*t30*t4*t87
+     +        +6.481007292402291d+0*gammaaa*t1*t17*t32*t4*t60*t78
+     +        -3.2405036462011455d+0*gammaaa*t1*t27*t32*t4*t77+t209
+     +        +t208+t207+t206+t205+t204+t203+t201)
+     +        +6.218138173930978d-2*t130*t31*t86)*wght
+            t211 = (t64*(-3.109069086965489d-2*t31*t94
+     +        -3.109069086965489d-2*t33*t85-3.109069086965489d-2*t35
+     +        *t79)+3.109069086965489d-2*t21*(2.1267554809238431d+0
+     +        *gammaaa*t12*t17*t30*t60*t89*t90-1.0633777404619216d+0
+     +        *gammaaa*t12*t26*t27*t89*t90-1.6202518231005728d+0
+     +        *gammaaa*t1*t17*t27*t4*(-1.3126079851303643d+0*t11*t24
+     +        *t29*t5*t9-1.5313759826520926d+0*t12*t28*t9)
+     +        -6.563039925651821d-1*gammaaa*t11*t27*t7*t84*t9
+     +        +1.3126079851303643d+0*gammaaa*t11*t30*t34*t60*t7*t9
+     +        +7.656879913260463d-1*gammaaa*t27*t28*t34*t7*t9
+     +        -6.563039925651821d-1*t11*t27*t30*t7*t9
+     +        -7.656879913260463d-1*t19*t28*t7*t9
+     +        +1.2406073638722419d+0*gammaaa*t12*t17*t202*t27*t89
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t32*t4*t60*t84
+     +        -4.050629557751432d-1*t1*t17*t27*t4*t84
+     +        -1.6202518231005728d+0*gammaaa*t1*t27*t32*t4*t83
+     +        +4.050629557751432d-1*t1*t19*t4*t83
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t34*t4*t60*t78
+     +        -1.6202518231005728d+0*gammaaa*t1*t27*t34*t4*t77
+     +        +3.2405036462011455d+0*gammaaa*t1*t26*t32*t34*t4*t60
+     +        +8.101259115502863d-1*t1*t17*t30*t34*t4*t60
+     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t32*t34*t60
+     +        -9.721510938603435d+0*gammaaa*t1*t128*t17*t30*t32*t34*t4
+     +        -4.050629557751432d-1*t1*t26*t27*t34*t4
+     +        +4.725734484043338d-1*t1*t17*t22*t27*t34+t209+t208+t207
+     +        +t206+t205+t204+t203+t201)+6.218138173930978d-2*t130*t31
+     +        *t33*t35)*wght
+            t212 = t1**4
+            t213 = 1/rhoa**9.333333333333333d+0
+            t214 = -9.327207260896466d-2*t33*t64*t92*wght
+     +        +3.109069086965489d-2*t21*(3.1901332213857647d+0*gammaaa
+     +        *t12*t17*t32*t60*t89*t90-3.987666526732206d-1*t12*t17
+     +        *t27*t89*t90+3.937823955391093d+0*gammaaa*t11*t60*t7*t87
+     +        *t9-9.844559888477733d-1*t11*t27*t32*t7*t9
+     +        +2.4303777346508587d+0*t1*t17*t4*t60*t87
+     +        -9.721510938603435d+0*gammaaa*t1*t128*t17*t32**3*t4
+     +        -6.461023959854982d-1*gammaaa*t212*t213*t27*t29)*wght
+     +        +6.218138173930978d-2*t130*t33**3*wght
+            t215 = -9.721510938603435d+0*gammaaa*t1*t128*t17*t34*t4*t87
+            t216 = 1.6202518231005728d+0*t1*t17*t4*t60*t87
+            t217 = 1.6202518231005728d+0*t1*t17*t32*t34*t4*t60
+            t218 = 4.2535109618476863d+0*gammaaa*t12*t17*t32*t60*t89*t90
+            t219 = 1.0633777404619216d+0*gammaaa*t12*t17*t34*t60*t89*t90
+            t220 = -7.975333053464412d-1*t12*t17*t27*t89*t90
+            t221 = 2.6252159702607286d+0*gammaaa*t11*t60*t7*t87*t9
+            t222 = 2.6252159702607286d+0*gammaaa*t11*t32*t34*t60*t7*t9
+            t223 = -1.3126079851303643d+0*t11*t27*t32*t7*t9
+            t224 = -3.2815199628259106d-1*t11*t27*t34*t7*t9
+            t225 = 6.218138173930978d-2*t130*t35*t86*wght
+            t226 = t64*(-6.218138173930978d-2*t33*t94*wght
+     +        -3.109069086965489d-2*t35*t92*wght)
             fnc(iq) = (3.109069086965489d-2*log(1.6202518231005725d+0
      +        *gammaaa*t1*t4*(t8+1.0d+0)/(t8+t13+1.0d+0)+1.0d+0)
      +        +5.0d-1*s1f*t3)*wght+fnc(iq)
-            Amat(iq,D1_RA) = (3.109069086965489d-2*t21*t34+5.0d-1*t15
+            Amat(iq,D1_RA) = (3.109069086965489d-2*t21*t31+5.0d-1*t15
      +        *t3-2.5d-1*t14*s1f)*wght+Amat(iq,D1_RA)
-            Cmat(iq,D1_GAA) = 3.109069086965489d-2*t21*t36*wght+Cmat
+            Cmat(iq,D1_GAA) = 3.109069086965489d-2*t21*t33*wght+Cmat
      +        (iq,D1_GAA)
-            Cmat(iq,D1_GAB) = 3.109069086965489d-2*t21*t38*wght+Cmat
+            Cmat(iq,D1_GAB) = 3.109069086965489d-2*t21*t35*wght+Cmat
      +        (iq,D1_GAB)
-            Amat2(iq,D2_RA_RA) = (-5.181781811609147d-3*t14*t60
-     +        -3.109069086965489d-2*t58*t59+3.109069086965489d-2*t21
-     +        *t57+5.0d-1*t3*t41+t40-5.0d-1*t14*t15)*wght+Amat2(iq,
-     +        D2_RA_RA)
-            Amat2(iq,D2_RA_RB) = (3.109069086965489d-2*t21*t77
-     +        -3.109069086965489d-2*t34*t58*t67+5.0d-1*t3*t62+2.5d-1
-     +        *t14*(-1.0d+0*t61-1.0d+0*t15)+5.181781811609147d-3*t14
-     +        *t60+t40)*wght+Amat2(iq,D2_RA_RB)
-            Cmat2(iq,D2_RA_GAA) = t87+Cmat2(iq,D2_RA_GAA)
-            Cmat2(iq,D2_RA_GAB) = (3.109069086965489d-2*t21*t96
-     +        -3.109069086965489d-2*t34*t38*t58)*wght+Cmat2(iq,
+            Amat2(iq,D2_RA_RA) = (-5.181781811609147d-3*t14*t67+t66
+     +        +3.109069086965489d-2*t21*t63+5.0d-1*t3*t39+t38+t37)
+     +        *wght+Amat2(iq,D2_RA_RA)
+            Amat2(iq,D2_RA_RB) = (3.109069086965489d-2*t21*t74+5.0d-1
+     +        *t3*t68+5.181781811609147d-3*t14*t67+t66+t38+t37)*wght
+     +        +Amat2(iq,D2_RA_RB)
+            Cmat2(iq,D2_RA_GAA) = t80+Cmat2(iq,D2_RA_GAA)
+            Cmat2(iq,D2_RA_GAB) = (3.109069086965489d-2*t21*t85
+     +        -3.109069086965489d-2*t31*t35*t64)*wght+Cmat2(iq,
      +        D2_RA_GAB)
-            Cmat2(iq,D2_RA_GBB) = t87+Cmat2(iq,D2_RA_GBB)
-            Cmat2(iq,D2_GAA_GAA) = t104+Cmat2(iq,D2_GAA_GAA)
-            Cmat2(iq,D2_GAA_GAB) = -3.109069086965489d-2*t36*t38*t58
-     +        *wght+3.109069086965489d-2*t105*t21*wght+Cmat2(iq,
+            Cmat2(iq,D2_RA_GBB) = t80+Cmat2(iq,D2_RA_GBB)
+            Cmat2(iq,D2_GAA_GAA) = t93+Cmat2(iq,D2_GAA_GAA)
+            Cmat2(iq,D2_GAA_GAB) = 3.109069086965489d-2*t21*t94*wght
+     +        -3.109069086965489d-2*t33*t35*t64*wght+Cmat2(iq,
      +        D2_GAA_GAB)
-            Cmat2(iq,D2_GAA_GBB) = t104+Cmat2(iq,D2_GAA_GBB)
-            Cmat2(iq,D2_GAB_GAB) = -3.109069086965489d-2*t106*t58*wght
-     +        +3.109069086965489d-2*t108*t21*wght+Cmat2(iq,D2_GAB_GAB)
-            Amat3(iq,D3_RA_RA_RA) = (t21*(3.109069086965489d-2*(
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*(
-     +        -1.0763385478068993d+2*t10*t26*t32*t5*t53*t9
-     +        +4.725388746469312d+1*t10*t11*t26*t44*t49*t52*t9
-     +        -1.1025907075095065d+2*t10*t30*t43*t44*t52*t9
-     +        +1.5751295821564373d+1*t10*t11*t118*t43*t44*t52*t9
-     +        +1.5751295821564373d+1*t10*t11*t113*t44*t52*t9
-     +        +3.675302358365022d+1*t10*t30*t32*t49*t5*t9
-     +        -1.5751295821564373d+1*t10*t11*t26*t32*t49*t5*t9
-     +        +3.675302358365022d+1*t10*t30*t32*t43*t5*t9
-     +        -5.250431940521457d+0*t10*t11*t128*t32*t5*t9
-     +        -5.250431940521457d+0*t10*t11*t113*t32*t5*t9
-     +        -6.368579483410288d+1*t10*t12*t131*t9
-     +        -6.300518328625749d+1*t10*t11*t113*t114*t130*t9+t129
-     +        +t127+t126+t125+t124+t123+t122+t121+t120+t119+t116+t115)
-     +        +9.721510938603435d+0*gammaaa*t1*t28*t4*t55*t56
-     +        -1.134176276170401d+1*gammaaa*t1*t17*t22*t55*t56
-     +        +9.721510938603435d+0*gammaaa*t1*t17*t33*t4*t54*t55
-     +        -4.8607554693017174d+0*gammaaa*t1*t28*t29*t4*t54
-     +        +5.670881380852005d+0*gammaaa*t1*t17*t22*t29*t54
-     +        -4.8607554693017174d+0*gammaaa*t1*t29*t33*t4*t51
-     +        -5.670881380852005d+0*gammaaa*t1*t19*t22*t51
-     +        -9.991552909120195d+0*gammaaa*t1*t17*t29*t33*t42
-     +        +9.991552909120195d+0*gammaaa*t1*t19*t28*t42
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t33**3*t4
-     +        +1.6202518231005728d+0*gammaaa*t1*(t129+t127+t126+t125
-     +        +t124+t123+t122+t121+t120+t119+t116+t115)*t19*t4
-     +        +1.134176276170401d+1*gammaaa*t1*t22*t28*t29*t33
-     +        -7.996242793635233d+0*gammaaa*t1*t112*t17*t19)
-     +        -1.5545345434827443d-2*t14*t34)+1.5545345434827446d-2
-     +        *t39*t60-9.327207260896466d-2*t34*t57*t58-7.5d-1*t14*t41
-     +        +7.5d-1*t15*t39+6.218138173930978d-2*t133*t34**3+5.0d-1
-     +        *t111*t3+t110)*wght+Amat3(iq,D3_RA_RA_RA)
-            Amat3(iq,D3_RA_RA_RB) = (t21*(3.109069086965489d-2*(
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*
-     +        (3.1502591643128747d+1*t10*t11*t26*t44*t52*t72*t9
-     +        +2.450201572243348d+1*t10*t30*t32*t5*t72*t9
-     +        -1.0500863881042914d+1*t10*t11*t26*t32*t5*t72*t9
-     +        -3.587795159356331d+1*t10*t32*t5*t53*t63*t9
-     +        +1.5751295821564373d+1*t10*t11*t44*t49*t52*t63*t9
-     +        +1.5751295821564373d+1*t10*t11*t43*t44*t52*t63*t9
-     +        -7.350604716730044d+1*t10*t26*t30*t44*t52*t63*t9
-     +        -5.250431940521457d+0*t10*t11*t32*t49*t5*t63*t9
-     +        -5.250431940521457d+0*t10*t11*t32*t43*t5*t63*t9
-     +        +2.450201572243348d+1*t10*t26*t30*t32*t5*t63*t9
-     +        -6.300518328625749d+1*t10*t11*t114*t130*t43*t63*t9
-     +        -6.708885257332977d+1*t10*t26*t32*t5*t53*t9
-     +        -3.675302358365022d+1*t10*t30*t43*t44*t52*t9
-     +        +1.5751295821564373d+1*t10*t11*t139*t43*t44*t52*t9
-     +        +1.225100786121674d+1*t10*t30*t32*t49*t5*t9
-     +        +1.225100786121674d+1*t10*t30*t32*t43*t5*t9
-     +        -5.250431940521457d+0*t10*t11*t151*t32*t5*t9
-     +        -5.590737714444147d+1*t10*t12*t131*t9+t154+t153+t152
-     +        +t150+t149+t148+t147+t146+t145+t144+t143+t142+t141+t140
-     +        +t138+t137+t136+t135)+6.481007292402291d+0*gammaaa*t1
-     +        *t17*t33*t4*t55*t76-3.2405036462011455d+0*gammaaa*t1*t28
-     +        *t29*t4*t76+3.7805875872346706d+0*gammaaa*t1*t17*t22*t29
-     +        *t76-3.2405036462011455d+0*gammaaa*t1*t29*t33*t4*t75
-     +        -3.7805875872346706d+0*gammaaa*t1*t19*t22*t75
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t4*t56*t66
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t4*t54*t55*t66
-     +        +6.481007292402291d+0*gammaaa*t1*t28*t33*t4*t55*t66
-     +        -7.561175174469341d+0*gammaaa*t1*t17*t22*t33*t55*t66
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t4*t51*t66
-     +        -3.3305176363733985d+0*gammaaa*t1*t17*t29*t42*t66
-     +        +3.7805875872346706d+0*gammaaa*t1*t22*t28*t29*t66
-     +        +3.2405036462011455d+0*gammaaa*t1*t4*t55*t56*t65
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t4*t54*t65
-     +        +3.3305176363733985d+0*gammaaa*t1*t19*t42*t65
-     +        +3.7805875872346706d+0*gammaaa*t1*t22*t29*t33*t65
-     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t55*t56
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t54
-     +        -1.8902937936173353d+0*gammaaa*t1*t19*t22*t51
-     +        -5.940923351368764d+0*gammaaa*t1*t17*t29*t33*t42
-     +        +5.940923351368764d+0*gammaaa*t1*t19*t28*t42
-     +        +1.6202518231005728d+0*gammaaa*t1*(t154+t153+t152+t150
-     +        +t149+t148+t147+t146+t145+t144+t143+t142+t141+t140+t138
-     +        +t137+t136+t135)*t19*t4+3.7805875872346706d+0*gammaaa*t1
-     +        *t22*t28*t29*t33-6.436000297316163d+0*gammaaa*t1*t112
-     +        *t17*t19)-5.181781811609147d-3*t14*t67
-     +        +1.0363563623218296d-2*t14*t34)+t58*(
-     +        -6.218138173930978d-2*t34*t77-3.109069086965489d-2*t57
-     +        *t67)+6.218138173930978d-2*t133*t59*t67+2.5d-1*t14*(
-     +        -2.0d+0*t62-1.0d+0*t41)+1.25d-1*t39*(2.0d+0*t61+4.0d+0
-     +        *t15)-5.18178181160915d-3*t39*t60+5.0d-1*t134*t3+t110)
+            Cmat2(iq,D2_GAA_GBB) = t93+Cmat2(iq,D2_GAA_GBB)
+            Cmat2(iq,D2_GAB_GAB) = 3.109069086965489d-2*t21*t97*wght
+     +        -3.109069086965489d-2*t64*t95*wght+Cmat2(iq,D2_GAB_GAB)
+            Amat3(iq,D3_RA_RA_RA) = (t99+t21*(3.109069086965489d-2*(
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*(
+     +        -1.0763385478068993d+2*t10*t24*t29*t5*t56*t9
+     +        +4.725388746469312d+1*t10*t11*t24*t45*t51*t54*t9
+     +        +3.675302358365022d+1*t10*t28*t29*t5*t51*t9
+     +        -1.5751295821564373d+1*t10*t11*t24*t29*t5*t51*t9
+     +        -5.250431940521457d+0*t10*t11*t118*t29*t5*t9
+     +        -6.368579483410288d+1*t10*t12*t124*t9+t126+t125+t123
+     +        +t122+t121+t120+t119+t117+t116+t115+t114+t113+t112+t111
+     +        +t110+t109+t107+t106)+9.721510938603435d+0*gammaaa*t1
+     +        *t26*t4*t60*t61+9.721510938603435d+0*gammaaa*t1*t17*t30
+     +        *t4*t59*t60-4.8607554693017174d+0*gammaaa*t1*t26*t27*t4
+     +        *t59+5.670881380852005d+0*gammaaa*t1*t17*t22*t27*t59
+     +        -4.8607554693017174d+0*gammaaa*t1*t27*t30*t4*t53
+     +        -5.670881380852005d+0*gammaaa*t1*t19*t22*t53
+     +        -9.991552909120195d+0*gammaaa*t1*t17*t27*t30*t40
+     +        +9.991552909120195d+0*gammaaa*t1*t19*t26*t40
+     +        +1.6202518231005728d+0*gammaaa*t1*(t119+t117+t116+t115
+     +        +t114+t113+t112+t111+t110+t109+t107+t106)*t19*t4
+     +        -7.996242793635233d+0*gammaaa*t1*t102*t17*t19+t129+t127
+     +        +t103)-1.5545345434827443d-2*t14*t31)
+     +        +1.5545345434827446d-2*t36*t67-9.327207260896466d-2*t31
+     +        *t63*t64-7.5d-1*t14*t39+5.0d-1*t101*t3+t131+t100)*wght
+     +        +Amat3(iq,D3_RA_RA_RA)
+            Amat3(iq,D3_RA_RA_RB) = (t99+t21*(3.109069086965489d-2*(
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*
+     +        (3.1502591643128747d+1*t10*t11*t24*t45*t54*t70*t9
+     +        +2.450201572243348d+1*t10*t28*t29*t5*t70*t9
+     +        -1.0500863881042914d+1*t10*t11*t24*t29*t5*t70*t9
+     +        -1.0296680416689308d+2*t10*t24*t29*t5*t56*t9
+     +        +1.5751295821564373d+1*t10*t11*t24*t45*t51*t54*t9
+     +        +1.225100786121674d+1*t10*t28*t29*t5*t51*t9
+     +        -5.250431940521457d+0*t10*t11*t24*t29*t5*t51*t9
+     +        -5.250431940521457d+0*t10*t11*t141*t29*t5*t9
+     +        -5.590737714444147d+1*t10*t12*t124*t9+t142+t140+t139
+     +        +t138+t137+t136+t135+t134+t133+t126+t125+t123+t122+t121
+     +        +t120+t116+t114+t110+t109+t107+t106)
+     +        +6.481007292402291d+0*gammaaa*t1*t17*t30*t4*t60*t73
+     +        -3.2405036462011455d+0*gammaaa*t1*t26*t27*t4*t73
+     +        +3.7805875872346706d+0*gammaaa*t1*t17*t22*t27*t73
+     +        -3.2405036462011455d+0*gammaaa*t1*t27*t30*t4*t72
+     +        -3.7805875872346706d+0*gammaaa*t1*t19*t22*t72
+     +        +9.721510938603437d+0*gammaaa*t1*t26*t4*t60*t61
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t30*t4*t59*t60
+     +        -1.6202518231005728d+0*gammaaa*t1*t26*t27*t4*t59
+     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t27*t59
+     +        -1.6202518231005728d+0*gammaaa*t1*t27*t30*t4*t53
+     +        -1.8902937936173353d+0*gammaaa*t1*t19*t22*t53
+     +        -9.271440987742162d+0*gammaaa*t1*t17*t27*t30*t40
+     +        +9.271440987742162d+0*gammaaa*t1*t19*t26*t40
+     +        +1.6202518231005728d+0*gammaaa*t1*(t142+t140+t139+t138
+     +        +t137+t136+t135+t134+t133+t116+t114+t110+t109+t107+t106)
+     +        *t19*t4-6.436000297316163d+0*gammaaa*t1*t102*t17*t19
+     +        +t129+t127+t103)+5.181781811609149d-3*t14*t31)+t64*(
+     +        -6.218138173930978d-2*t31*t74-3.109069086965489d-2*t31
+     +        *t63)+2.5d-1*t14*(-2.0d+0*t68-1.0d+0*t39)
+     +        -5.18178181160915d-3*t36*t67+5.0d-1*t132*t3+t131+t100)
      +        *wght+Amat3(iq,D3_RA_RA_RB)
-            Cmat3(iq,D3_RA_RA_GAA) = t166+Cmat3(iq,D3_RA_RA_GAA)
-            Cmat3(iq,D3_RA_RA_GAB) = (t58*(-6.218138173930978d-2*t34
-     +        *t96-3.109069086965489d-2*t38*t57)+t21*
-     +        (3.109069086965489d-2*(6.481007292402291d+0*gammaaa*t1
-     +        *t17*t33*t4*t55*t95-3.2405036462011455d+0*gammaaa*t1*t28
-     +        *t29*t4*t95+3.7805875872346706d+0*gammaaa*t1*t17*t22*t29
-     +        *t95-3.2405036462011455d+0*gammaaa*t1*t29*t33*t4*t93
-     +        -3.7805875872346706d+0*gammaaa*t1*t19*t22*t93
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*
-     +        (1.7938975796781656d+1*gammaaa*t12*t53*t9
-     +        +1.5751295821564373d+1*gammaaa*t11*t43*t44*t52*t9
-     +        -5.250431940521457d+0*gammaaa*t11*t32*t49*t5*t9
-     +        -5.250431940521457d+0*gammaaa*t11*t32*t43*t5*t9
-     +        +2.450201572243348d+1*gammaaa*t26*t30*t32*t5*t9+t172
-     +        +t171+t170+t169+t168)+2.6252159702607286d+0*gammaaa*t11
-     +        *t55*t56*t7*t9-1.3126079851303643d+0*gammaaa*t11*t29*t54
-     +        *t7*t9+1.4584533168115155d-1*gammaaa*t19*t53*t7*t9
-     +        +3.062751965304185d+0*gammaaa*t29*t30*t33*t7*t9
-     +        +1.6202518231005728d+0*t1*t17*t4*t55*t56
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t37*t4*t56
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t37*t4*t54*t55
-     +        +6.481007292402291d+0*gammaaa*t1*t28*t33*t37*t4*t55
-     +        -7.561175174469341d+0*gammaaa*t1*t17*t22*t33*t37*t55
-     +        -8.101259115502863d-1*t1*t17*t29*t4*t54
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t37*t4*t51
-     +        +8.101259115502863d-1*t1*t19*t4*t51
-     +        -3.3305176363733985d+0*gammaaa*t1*t17*t29*t37*t42
-     +        +1.6652588181866992d+0*t1*t17*t19*t42
-     +        -1.6202518231005728d+0*t1*t28*t29*t33*t4
-     +        +1.6202518231005728d+0*gammaaa*t1*(t172+t171+t170+t169
-     +        +t168)*t19*t4+3.7805875872346706d+0*gammaaa*t1*t22*t28
-     +        *t29*t37+1.8902937936173353d+0*t1*t17*t22*t29*t33
-     +        -1.8902937936173353d+0*t1*t19*t22*t28+t167)
-     +        -5.181781811609147d-3*t14*t38)+6.218138173930978d-2*t133
-     +        *t38*t59)*wght+Cmat3(iq,D3_RA_RA_GAB)
-            Cmat3(iq,D3_RA_RA_GBB) = t166+Cmat3(iq,D3_RA_RA_GBB)
-            Cmat3(iq,D3_RA_RB_GAA) = (t21*(3.109069086965489d-2*(
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*(
-     +        -2.6252159702607286d+0*gammaaa*t11*t32*t5*t72*t9
-     +        +7.875647910782186d+0*gammaaa*t11*t26*t44*t52*t63*t9
-     +        +6.12550393060837d+0*gammaaa*t30*t32*t5*t63*t9
-     +        -2.6252159702607286d+0*gammaaa*t11*t26*t32*t5*t63*t9
-     +        +8.386106571666222d+0*gammaaa*t12*t53*t9
-     +        +6.12550393060837d+0*gammaaa*t26*t30*t32*t5*t9+t181+t180
-     +        +t179+t178+t177+t176)-6.563039925651821d-1*gammaaa*t11
-     +        *t29*t7*t76*t9+1.3126079851303643d+0*gammaaa*t11*t33*t55
-     +        *t66*t7*t9+7.656879913260463d-1*gammaaa*t29*t30*t66*t7
-     +        *t9-7.292266584057578d-2*gammaaa*t19*t53*t7*t9
-     +        +7.656879913260463d-1*gammaaa*t29*t30*t33*t7*t9
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t4*t55*t66*t85
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t4*t65*t85
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t85
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t4*t66*t83
-     +        -1.8902937936173353d+0*gammaaa*t1*t19*t22*t83
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t35*t4*t55*t76
-     +        -4.050629557751432d-1*t1*t17*t29*t4*t76
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t35*t4*t75
-     +        +4.050629557751432d-1*t1*t19*t4*t75
-     +        +3.2405036462011455d+0*gammaaa*t1*t28*t35*t4*t55*t66
-     +        +8.101259115502863d-1*t1*t17*t33*t4*t55*t66
-     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t35*t55*t66
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t33*t35*t4*t66
-     +        -4.050629557751432d-1*t1*t28*t29*t4*t66
-     +        +4.725734484043338d-1*t1*t17*t22*t29*t66
-     +        +3.2405036462011455d+0*gammaaa*t1*t33*t35*t4*t55*t65
-     +        -4.050629557751432d-1*t1*t29*t33*t4*t65
-     +        +1.8902937936173353d+0*gammaaa*t1*t22*t29*t35*t65
-     +        -4.725734484043338d-1*t1*t19*t22*t65
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t175*t33*t4*t55
-     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t33*t35*t55
-     +        -2.970461675684382d+0*gammaaa*t1*t17*t29*t35*t42
-     +        +7.426154189210955d-1*t1*t17*t19*t42
-     +        -1.6202518231005728d+0*gammaaa*t1*t174*t29*t33*t4
-     +        -1.6202518231005728d+0*gammaaa*t1*t175*t28*t29*t4
-     +        +1.6202518231005728d+0*gammaaa*t1*(t181+t180+t179+t178
-     +        +t177+t176)*t19*t4+1.8902937936173353d+0*gammaaa*t1*t22
-     +        *t28*t29*t35+4.725734484043338d-1*t1*t17*t22*t29*t33
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t175*t22*t29
-     +        -4.725734484043338d-1*t1*t19*t22*t28
-     +        -1.8902937936173353d+0*gammaaa*t1*t174*t19*t22+t156)
-     +        +5.181781811609147d-3*t14*t36)+t58*(
-     +        -3.109069086965489d-2*t34*(-6.563039925651821d-1*gammaaa
-     +        *t11*t29*t66*t7*t9+t80+t79+t78+3.2405036462011455d+0
-     +        *gammaaa*t1*t17*t35*t4*t55*t66-4.050629557751432d-1*t1
-     +        *t17*t29*t4*t66-1.6202518231005728d+0*gammaaa*t1*t29*t35
-     +        *t4*t65+4.050629557751432d-1*t1*t19*t4*t65
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t175*t29*t4
-     +        +1.6202518231005728d+0*gammaaa*t1*t174*t19*t4)
-     +        -3.109069086965489d-2*t67*t86-3.109069086965489d-2*t36
-     +        *t77)+6.218138173930978d-2*t133*t34*t36*t67)*wght+Cmat3
-     +        (iq,D3_RA_RB_GAA)
-            Cmat3(iq,D3_RA_RB_GAB) = (t58*(-3.109069086965489d-2*t67
-     +        *t96-3.109069086965489d-2*t34*(t90-1.3126079851303643d+0
-     +        *gammaaa*t11*t29*t66*t7*t9+t89+t88+3.2405036462011455d+0
-     +        *gammaaa*t1*t17*t37*t4*t55*t66-8.101259115502863d-1*t1
-     +        *t17*t29*t4*t66-1.6202518231005728d+0*gammaaa*t1*t29*t37
-     +        *t4*t65+8.101259115502863d-1*t1*t19*t4*t65
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t184*t29*t4
-     +        +1.6202518231005728d+0*gammaaa*t1*t183*t19*t4)
-     +        -3.109069086965489d-2*t38*t77)+t21*(3.109069086965489d-2
-     +        *(3.2405036462011455d+0*gammaaa*t1*t17*t4*t55*t66*t95
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t4*t65*t95
-     +        +1.8902937936173353d+0*gammaaa*t1*t17*t22*t29*t95
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t4*t66*t93
-     +        -1.8902937936173353d+0*gammaaa*t1*t19*t22*t93
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*(
-     +        -5.250431940521457d+0*gammaaa*t11*t32*t5*t72*t9
-     +        +1.5751295821564373d+1*gammaaa*t11*t26*t44*t52*t63*t9
-     +        +1.225100786121674d+1*gammaaa*t30*t32*t5*t63*t9
-     +        -5.250431940521457d+0*gammaaa*t11*t26*t32*t5*t63*t9
-     +        +1.6772213143332443d+1*gammaaa*t12*t53*t9+t189+t188+t187
-     +        +t186+t185+t165+t162)-1.3126079851303643d+0*gammaaa*t11
-     +        *t29*t7*t76*t9+2.6252159702607286d+0*gammaaa*t11*t33*t55
-     +        *t66*t7*t9+1.5313759826520926d+0*gammaaa*t29*t30*t66*t7
-     +        *t9-1.4584533168115157d-1*gammaaa*t19*t53*t7*t9
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t37*t4*t55*t76
-     +        -8.101259115502863d-1*t1*t17*t29*t4*t76
-     +        -1.6202518231005728d+0*gammaaa*t1*t29*t37*t4*t75
-     +        +8.101259115502863d-1*t1*t19*t4*t75
-     +        +3.2405036462011455d+0*gammaaa*t1*t28*t37*t4*t55*t66
-     +        +1.6202518231005728d+0*t1*t17*t33*t4*t55*t66
-     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t37*t55*t66
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t33*t37*t4*t66
-     +        -8.101259115502863d-1*t1*t28*t29*t4*t66
-     +        +9.451468968086676d-1*t1*t17*t22*t29*t66
-     +        +3.2405036462011455d+0*gammaaa*t1*t33*t37*t4*t55*t65
-     +        -8.101259115502863d-1*t1*t29*t33*t4*t65
-     +        +1.8902937936173353d+0*gammaaa*t1*t22*t29*t37*t65
-     +        -9.451468968086676d-1*t1*t19*t22*t65
-     +        +3.2405036462011455d+0*gammaaa*t1*t17*t184*t33*t4*t55
-     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t33*t37*t55
-     +        -2.970461675684382d+0*gammaaa*t1*t17*t29*t37*t42
-     +        +1.485230837842191d+0*t1*t17*t19*t42
-     +        -1.6202518231005728d+0*gammaaa*t1*t183*t29*t33*t4
-     +        -1.6202518231005728d+0*gammaaa*t1*t184*t28*t29*t4
+            Cmat3(iq,D3_RA_RA_GAA) = t170+Cmat3(iq,D3_RA_RA_GAA)
+            Cmat3(iq,D3_RA_RA_GAB) = (t21*(3.109069086965489d-2*(
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*
+     +        (1.7938975796781656d+1*gammaaa*t12*t56*t9
+     +        -5.250431940521457d+0*gammaaa*t11*t29*t5*t51*t9+t192
+     +        +t191+t190+t189+t188+t187+t186+t185)
+     +        -1.3126079851303643d+0*gammaaa*t11*t27*t59*t7*t9
+     +        +1.4584533168115155d-1*gammaaa*t19*t56*t7*t9
+     +        +3.2405036462011455d+0*gammaaa*t1*t17*t34*t4*t59*t60
+     +        -8.101259115502863d-1*t1*t17*t27*t4*t59
+     +        -1.6202518231005728d+0*gammaaa*t1*t27*t34*t4*t53
+     +        +8.101259115502863d-1*t1*t19*t4*t53
+     +        -3.3305176363733985d+0*gammaaa*t1*t17*t27*t34*t40
+     +        +1.6652588181866992d+0*t1*t17*t19*t40
      +        +1.6202518231005728d+0*gammaaa*t1*(t189+t188+t187+t186
-     +        +t185+t162)*t19*t4+1.8902937936173353d+0*gammaaa*t1*t22
-     +        *t28*t29*t37+1.8902937936173353d+0*gammaaa*t1*t17*t184
-     +        *t22*t29-1.8902937936173353d+0*gammaaa*t1*t183*t19*t22
-     +        +t167+t159+t158+t157)+5.181781811609147d-3*t14*t38)
-     +        +6.218138173930978d-2*t133*t34*t38*t67)*wght+Cmat3(iq,
+     +        +t185)*t19*t4+t195+t194+t193+t184+t183+t182+t181+t180
+     +        +t179+t178+t177+t176+t175+t174+t173+t172)
+     +        -5.181781811609147d-3*t14*t35)+(t171
+     +        -3.109069086965489d-2*t35*t63)*t64+t196)*wght+Cmat3(iq,
+     +        D3_RA_RA_GAB)
+            Cmat3(iq,D3_RA_RA_GBB) = t170+Cmat3(iq,D3_RA_RA_GBB)
+            Cmat3(iq,D3_RA_RB_GAA) = (t21*(3.109069086965489d-2*(
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*(
+     +        -2.6252159702607286d+0*gammaaa*t11*t29*t5*t70*t9
+     +        +8.386106571666222d+0*gammaaa*t12*t56*t9+t198+t197+t165
+     +        +t164+t163+t161+t160+t158)-6.563039925651821d-1*gammaaa
+     +        *t11*t27*t7*t73*t9-7.292266584057578d-2*gammaaa*t19*t56
+     +        *t7*t9+3.2405036462011455d+0*gammaaa*t1*t17*t32*t4*t60
+     +        *t73-4.050629557751432d-1*t1*t17*t27*t4*t73
+     +        -1.6202518231005728d+0*gammaaa*t1*t27*t32*t4*t72
+     +        +4.050629557751432d-1*t1*t19*t4*t72-2.970461675684382d+0
+     +        *gammaaa*t1*t17*t27*t32*t40+7.426154189210955d-1*t1*t17
+     +        *t19*t40+1.6202518231005728d+0*gammaaa*t1*t19*(t198+t197
+     +        +t161+t160+t158)*t4+t168+t167+t166+t157+t156+t155+t154
+     +        +t153+t152+t151+t150+t149+t148+t147+t146+t145)
+     +        +5.181781811609147d-3*t14*t33)+t64*(t143
+     +        -3.109069086965489d-2*t33*t74)+t169)*wght+Cmat3(iq,
+     +        D3_RA_RB_GAA)
+            Cmat3(iq,D3_RA_RB_GAB) = (t21*(3.109069086965489d-2*(
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*(
+     +        -5.250431940521457d+0*gammaaa*t11*t29*t5*t70*t9
+     +        +1.6772213143332443d+1*gammaaa*t12*t56*t9+t200+t199+t192
+     +        +t191+t190+t188+t187+t185)-1.3126079851303643d+0*gammaaa
+     +        *t11*t27*t7*t73*t9-1.4584533168115157d-1*gammaaa*t19*t56
+     +        *t7*t9+3.2405036462011455d+0*gammaaa*t1*t17*t34*t4*t60
+     +        *t73-8.101259115502863d-1*t1*t17*t27*t4*t73
+     +        -1.6202518231005728d+0*gammaaa*t1*t27*t34*t4*t72
+     +        +8.101259115502863d-1*t1*t19*t4*t72-2.970461675684382d+0
+     +        *gammaaa*t1*t17*t27*t34*t40+1.485230837842191d+0*t1*t17
+     +        *t19*t40+1.6202518231005728d+0*gammaaa*t1*t19*(t200+t199
+     +        +t188+t187+t185)*t4+t195+t194+t193+t184+t183+t182+t181
+     +        +t180+t179+t178+t177+t176+t175+t174+t173+t172)
+     +        +5.181781811609147d-3*t14*t35)+t64*(t171
+     +        -3.109069086965489d-2*t35*t74)+t196)*wght+Cmat3(iq,
      +        D3_RA_RB_GAB)
-            Cmat3(iq,D3_RA_GAA_GAA) = t199+Cmat3(iq,D3_RA_GAA_GAA)
-            Cmat3(iq,D3_RA_GAA_GAB) = t200+Cmat3(iq,D3_RA_GAA_GAB)
-            Cmat3(iq,D3_RA_GAA_GBB) = t199+Cmat3(iq,D3_RA_GAA_GBB)
-            Cmat3(iq,D3_RA_GAB_GAB) = (t58*(-6.218138173930978d-2*t38
-     +        *t96-3.109069086965489d-2*t108*t34)+3.109069086965489d-2
-     +        *t21*(-2.6252159702607286d+0*gammaaa*t11*t29*t7*t9*t95
-     +        +6.481007292402291d+0*gammaaa*t1*t17*t37*t4*t55*t95
-     +        -1.6202518231005728d+0*t1*t17*t29*t4*t95
-     +        -3.2405036462011455d+0*gammaaa*t1*t29*t37*t4*t93
-     +        +1.6202518231005728d+0*t1*t19*t4*t93
-     +        -1.6202518231005728d+0*gammaaa*t1*t17*t29*t4*(
-     +        -2.6252159702607286d+0*t11*t26*t32*t5*t9
-     +        -3.062751965304185d+0*t12*t30*t9)+5.250431940521457d+0
-     +        *gammaaa*t11*t33*t37*t55*t7*t9+3.062751965304185d+0
-     +        *gammaaa*t29*t30*t37*t7*t9-1.3126079851303643d+0*t11*t29
-     +        *t33*t7*t9-1.5313759826520926d+0*t19*t30*t7*t9
-     +        +3.2405036462011455d+0*t1*t17*t33*t37*t4*t55
-     +        +3.2405036462011455d+0*gammaaa*t1*t107*t28*t4*t55
-     +        +4.2535109618476863d+0*gammaaa*t100*t101*t12*t17*t33*t55
-     +        -3.7805875872346706d+0*gammaaa*t1*t107*t17*t22*t55
-     +        -1.6202518231005728d+0*t1*t28*t29*t37*t4
-     +        -9.721510938603435d+0*gammaaa*t1*t107*t132*t17*t33*t4
-     +        +1.8902937936173353d+0*t1*t17*t22*t29*t37
-     +        -2.1267554809238431d+0*gammaaa*t100*t101*t12*t28*t29
-     +        +2.4812147277444838d+0*gammaaa*t100*t12*t17*t191*t29)
-     +        +6.218138173930978d-2*t106*t133*t34)*wght+Cmat3(iq,
+            Cmat3(iq,D3_RA_GAA_GAA) = t210+Cmat3(iq,D3_RA_GAA_GAA)
+            Cmat3(iq,D3_RA_GAA_GAB) = t211+Cmat3(iq,D3_RA_GAA_GAB)
+            Cmat3(iq,D3_RA_GAA_GBB) = t210+Cmat3(iq,D3_RA_GAA_GBB)
+            Cmat3(iq,D3_RA_GAB_GAB) = (t64*(-3.109069086965489d-2*t31
+     +        *t97-6.218138173930978d-2*t35*t85)+3.109069086965489d-2
+     +        *t21*(3.2405036462011455d+0*gammaaa*t1*t26*t4*t60*t96
+     +        -3.7805875872346706d+0*gammaaa*t1*t17*t22*t60*t96
+     +        -9.721510938603435d+0*gammaaa*t1*t128*t17*t30*t4*t96
+     +        +4.2535109618476863d+0*gammaaa*t12*t17*t30*t60*t89*t90
+     +        -2.1267554809238431d+0*gammaaa*t12*t26*t27*t89*t90
+     +        -1.6202518231005728d+0*gammaaa*t1*t17*t27*t4*(
+     +        -2.6252159702607286d+0*t11*t24*t29*t5*t9
+     +        -3.062751965304185d+0*t12*t28*t9)-2.6252159702607286d+0
+     +        *gammaaa*t11*t27*t7*t84*t9+5.250431940521457d+0*gammaaa
+     +        *t11*t30*t34*t60*t7*t9+3.062751965304185d+0*gammaaa*t27
+     +        *t28*t34*t7*t9-1.3126079851303643d+0*t11*t27*t30*t7*t9
+     +        -1.5313759826520926d+0*t19*t28*t7*t9
+     +        +2.4812147277444838d+0*gammaaa*t12*t17*t202*t27*t89
+     +        +6.481007292402291d+0*gammaaa*t1*t17*t34*t4*t60*t84
+     +        -1.6202518231005728d+0*t1*t17*t27*t4*t84
+     +        -3.2405036462011455d+0*gammaaa*t1*t27*t34*t4*t83
+     +        +1.6202518231005728d+0*t1*t19*t4*t83
+     +        +3.2405036462011455d+0*t1*t17*t30*t34*t4*t60
+     +        -1.6202518231005728d+0*t1*t26*t27*t34*t4
+     +        +1.8902937936173353d+0*t1*t17*t22*t27*t34)
+     +        +6.218138173930978d-2*t130*t31*t95)*wght+Cmat3(iq,
      +        D3_RA_GAB_GAB)
-            Cmat3(iq,D3_RA_GAB_GBB) = t200+Cmat3(iq,D3_RA_GAB_GBB)
-            Cmat3(iq,D3_RA_GBB_GBB) = t199+Cmat3(iq,D3_RA_GBB_GBB)
-            Cmat3(iq,D3_GAA_GAA_GAA) = t203+Cmat3(iq,D3_GAA_GAA_GAA)
+            Cmat3(iq,D3_RA_GAB_GBB) = t211+Cmat3(iq,D3_RA_GAB_GBB)
+            Cmat3(iq,D3_RA_GBB_GBB) = t210+Cmat3(iq,D3_RA_GBB_GBB)
+            Cmat3(iq,D3_GAA_GAA_GAA) = t214+Cmat3(iq,D3_GAA_GAA_GAA)
             Cmat3(iq,D3_GAA_GAA_GAB) = 3.109069086965489d-2*t21*(
-     +        -1.2922047919709964d+0*gammaaa*t201*t202*t29*t32+t213
-     +        +t212+t211+t210+t209+t208+t207+t206+t205+t204)*wght+t215
-     +        +t214+Cmat3(iq,D3_GAA_GAA_GAB)
-            Cmat3(iq,D3_GAA_GAA_GBB) = t203+Cmat3(iq,D3_GAA_GAA_GBB)
-            Cmat3(iq,D3_GAA_GAB_GAB) = t58*(-6.218138173930978d-2*t105
-     +        *t38*wght-3.109069086965489d-2*t108*t36*wght)
-     +        +3.109069086965489d-2*t21*(5.250431940521457d+0*gammaaa
-     +        *t11*t35*t37*t55*t7*t9+1.3126079851303643d+0*gammaaa
-     +        *t107*t11*t55*t7*t9-1.3126079851303643d+0*t11*t29*t37*t7
-     +        *t9+3.2405036462011455d+0*t1*t17*t35*t37*t4*t55
-     +        +8.101259115502863d-1*t1*t107*t17*t4*t55
-     +        +4.2535109618476863d+0*gammaaa*t100*t101*t12*t17*t37*t55
-     +        -9.721510938603435d+0*gammaaa*t1*t107*t132*t17*t35*t4
-     +        -2.584409583941992d+0*gammaaa*t201*t202*t29*t32
-     +        -1.5950666106928824d+0*t100*t101*t12*t17*t29+t212+t207)
-     +        *wght+6.218138173930978d-2*t106*t133*t36*wght+Cmat3(iq,
-     +        D3_GAA_GAB_GAB)
+     +        -1.2922047919709964d+0*gammaaa*t212*t213*t27*t29+t224
+     +        +t223+t222+t221+t220+t219+t218+t217+t216+t215)*wght+t226
+     +        +t225+Cmat3(iq,D3_GAA_GAA_GAB)
+            Cmat3(iq,D3_GAA_GAA_GBB) = t214+Cmat3(iq,D3_GAA_GAA_GBB)
+            Cmat3(iq,D3_GAA_GAB_GAB) = t64*(-3.109069086965489d-2*t33
+     +        *t97*wght-6.218138173930978d-2*t35*t94*wght)
+     +        +3.109069086965489d-2*t21*(1.3126079851303643d+0*gammaaa
+     +        *t11*t60*t7*t9*t96+8.101259115502863d-1*t1*t17*t4*t60
+     +        *t96-9.721510938603435d+0*gammaaa*t1*t128*t17*t32*t4*t96
+     +        +4.2535109618476863d+0*gammaaa*t12*t17*t34*t60*t89*t90
+     +        -1.5950666106928824d+0*t12*t17*t27*t89*t90
+     +        +5.250431940521457d+0*gammaaa*t11*t32*t34*t60*t7*t9
+     +        -1.3126079851303643d+0*t11*t27*t34*t7*t9
+     +        +3.2405036462011455d+0*t1*t17*t32*t34*t4*t60
+     +        -2.584409583941992d+0*gammaaa*t212*t213*t27*t29+t223
+     +        +t218)*wght+6.218138173930978d-2*t130*t33*t95*wght+Cmat3
+     +        (iq,D3_GAA_GAB_GAB)
             Cmat3(iq,D3_GAA_GAB_GBB) = 3.109069086965489d-2*t21*(
-     +        -1.292204791970996d+0*gammaaa*t201*t202*t29*t32+t213
-     +        +t212+t211+t210+t209+t208+t207+t206+t205+t204)*wght+t215
-     +        +t214+Cmat3(iq,D3_GAA_GAB_GBB)
-            Cmat3(iq,D3_GAB_GAB_GAB) = 3.109069086965489d-2*t21*
-     +        (7.875647910782186d+0*gammaaa*t107*t11*t55*t7*t9
-     +        -3.937823955391093d+0*t11*t29*t37*t7*t9
-     +        +4.8607554693017174d+0*t1*t107*t17*t4*t55
-     +        +1.2760532885543058d+1*gammaaa*t100*t101*t12*t17*t37*t55
-     +        -9.721510938603435d+0*gammaaa*t1*t132*t17*t37**3*t4
-     +        -5.168819167883986d+0*gammaaa*t201*t202*t29*t32
-     +        -3.1901332213857647d+0*t100*t101*t12*t17*t29)*wght
-     +        -9.327207260896466d-2*t108*t38*t58*wght
-     +        +6.218138173930978d-2*t133*t38**3*wght+Cmat3(iq,
+     +        -1.292204791970996d+0*gammaaa*t212*t213*t27*t29+t224
+     +        +t223+t222+t221+t220+t219+t218+t217+t216+t215)*wght+t226
+     +        +t225+Cmat3(iq,D3_GAA_GAB_GBB)
+            Cmat3(iq,D3_GAB_GAB_GAB) = -9.327207260896466d-2*t35*t64
+     +        *t97*wght+3.109069086965489d-2*t21*(7.875647910782186d+0
+     +        *gammaaa*t11*t60*t7*t9*t96+4.8607554693017174d+0*t1*t17
+     +        *t4*t60*t96+1.2760532885543058d+1*gammaaa*t12*t17*t34
+     +        *t60*t89*t90-3.1901332213857647d+0*t12*t17*t27*t89*t90
+     +        -3.937823955391093d+0*t11*t27*t34*t7*t9
+     +        -9.721510938603435d+0*gammaaa*t1*t128*t17*t34**3*t4
+     +        -5.168819167883986d+0*gammaaa*t212*t213*t27*t29)*wght
+     +        +6.218138173930978d-2*t130*t35**3*wght+Cmat3(iq,
      +        D3_GAB_GAB_GAB)
           endif ! rhoa.gt.tol_rho 
         else  ! ipol.eq.1 
@@ -4391,4 +4239,4 @@ CDIR$ NOVECTOR
         endif ! ipol.eq.1 
       enddo ! iq 
       end subroutine nwxcm_c_mpbe_d3 
-C> @} 
+C> @}
