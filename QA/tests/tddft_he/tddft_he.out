@@ -1,4 +1,5 @@
  argument  1 = tddft_he.nw
+All connections between all procs tested: SUCCESS
  
 
 
@@ -88,20 +89,20 @@ task tddft energy
            Job information
            ---------------
 
-    hostname        = lagrange
-    program         = /home/edo/nwchem/bin/LINUX64/nwchem
-    date            = Wed Oct  7 17:36:34 2015
+    hostname        = glogin2
+    program         = ../../../bin/LINUX64/nwchem
+    date            = Fri Oct  9 20:04:55 2015
 
-    compiled        = Wed_Oct_07_17:24:37_2015
-    source          = /home/edo/nwchem
+    compiled        = Fri_Oct_09_20:03:51_2015
+    source          = /home/d3y133/nwchem-trunk
     nwchem branch   = Development
-    nwchem revision = 27531
-    ga revision     = 10586
+    nwchem revision = 27594
+    ga revision     = 10587
     input           = tddft_he.nw
     prefix          = tddft_he.
     data base       = ./tddft_he.db
     status          = startup
-    nproc           =        2
+    nproc           =        1
     time left       =     -1s
 
 
@@ -121,7 +122,7 @@ task tddft energy
            ---------------------
  
   0 permanent = .
-  0 scratch   = .
+  0 scratch   = /dev/shm
  
  
  
@@ -326,22 +327,19 @@ task tddft energy
  #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tddft_he.aoints.0
+ Integral file          = /dev/shm/tddft_he.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 184092
+ Max. records in memory =      2        Max. records in file   =  61168
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
-File balance: exchanges=     0  moved=     0  time=   0.0
-
-
- Grid_pts file          = ./tddft_he.gridpts.0
+ Grid_pts file          = /dev/shm/tddft_he.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      5        Max. recs in file   =    981749
+ Max. records in memory =      9        Max. recs in file   =    326206
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12913930
+           Heap Space remaining (MW):       12.86            12864778
           Stack Space remaining (MW):       13.11            13107060
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
@@ -350,349 +348,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  d= 0,ls=0.0,diis     2     -2.9032114005 -1.49D-04  1.33D-03  4.55D-05     0.1
  d= 0,ls=0.0,diis     3     -2.9032165141 -5.11D-06  1.74D-04  3.85D-07     0.1
  d= 0,ls=0.0,diis     4     -2.9032165757 -6.16D-08  5.52D-07  1.20D-11     0.1
-
-
-         Total DFT energy =       -2.903216575659
-      One electron energy =       -3.890360427793
-           Coulomb energy =        2.058930672866
-    Exchange-Corr. energy =       -1.071786820732
- Nuclear repulsion energy =        0.000000000000
-
- Numeric. integr. density =        1.999999954446
-
-     Total iterative time =      0.0s
-
-
- 
-                  Occupations of the irreducible representations
-                  ----------------------------------------------
- 
-                     irrep           alpha         beta
-                     --------     --------     --------
-                     ag                1.0          1.0
-                     au                0.0          0.0
-                     b1g               0.0          0.0
-                     b1u               0.0          0.0
-                     b2g               0.0          0.0
-                     b2u               0.0          0.0
-                     b3g               0.0          0.0
-                     b3u               0.0          0.0
- 
- 
-                       DFT Final Molecular Orbital Analysis
-                       ------------------------------------
- 
- Vector    1  Occ=2.000000D+00  E=-9.469294D-01  Symmetry=ag
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.3D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.514406  1 He s                  2      0.284611  1 He s          
-     4      0.253212  1 He s          
- 
- Vector    2  Occ=0.000000D+00  E= 5.266763D-01  Symmetry=ag
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.7D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     4      1.529683  1 He s                  3     -1.170390  1 He s          
- 
- Vector    3  Occ=0.000000D+00  E= 3.312960D+00  Symmetry=ag
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 5.9D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     3      2.192800  1 He s                  2     -1.632137  1 He s          
-     4     -0.875633  1 He s          
- 
- Vector    4  Occ=0.000000D+00  E= 1.775264D+01  Symmetry=ag
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.5D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     2      1.931110  1 He s                  1     -1.566620  1 He s          
-     3     -1.156181  1 He s                  4      0.375725  1 He s          
- 
-
- Parallel integral file used       2 records with       0 large values
-
-                                NWChem TDDFT Module
-                                -------------------
- 
- 
-            General Information
-            -------------------
-           No. of orbitals :     8
-            Alpha orbitals :     4
-             Beta orbitals :     4
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity :     1
-    Number of AO functions :     4
-        Use of symmetry is : off
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10D-07
- 
-              XC Information
-              --------------
-              Hartree-Fock (Exact) Exchange   1.00          
-     Perdew 1991 LDA Correlation Functional   1.00 local    
-    PerdewBurkeErnz. Correlation Functional   1.00 non-local
- 
-             TDDFT Information
-             -----------------
-          Calculation type : Tamm-Dancoff TDDFT
-         Wavefunction type : Restricted singlets & triplets
-          No. of electrons :     2
-           Alpha electrons :     1
-            Beta electrons :     1
-              No. of roots :     1
-          Max subspacesize :  4200
-            Max iterations :   100
-               Target root :     1
-           Target symmetry : none
-      Symmetry restriction : off
-                 Algorithm : Optimal
-        Davidson threshold : 0.10D-03
- 
-            Memory Information
-            ------------------
-          Available GA space size is          52428784 doubles
-          Available MA space size is          26213852 doubles
-          Length of a trial vector is            3
-          Algorithm : Incore multiple tensor contraction
-          Estimated peak GA usage is             37979 doubles
-          Estimated peak MA usage is               600 doubles
- 
-    1 smallest eigenvalue differences (eV) 
---------------------------------------------------------
-  No. Spin  Occ  Vir  Irrep   E(Occ)    E(Vir)   E(Diff)
---------------------------------------------------------
-    1    1    1    2 ag       -0.947     0.527    40.099
---------------------------------------------------------
-
-  Entering Davidson iterations
-  Restricted singlet excited states
-
-  Iter   NTrls   NConv    DeltaV     DeltaE      Time   
-  ----  ------  ------  ---------  ---------  --------- 
-    1      1       0     0.54E-01   0.10+100        0.0
-    2      2       0     0.75E-03   0.19E-03        0.0
-    3      3       1     0.54E-14   0.19E-06        0.0
-  ----  ------  ------  ---------  ---------  --------- 
-  Convergence criterion met
- 
-  Ground state ag         -2.903216575659 a.u.
- 
-  ----------------------------------------------------------------------------
-  Root   1 singlet ag             1.125174577 a.u.               30.6176 eV 
-  ----------------------------------------------------------------------------
-     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
-     Transition Moments   XX -0.71621  XY  0.00000  XZ  0.00000
-     Transition Moments   YY -0.71621  YZ  0.00000  ZZ -0.71621
-     Dipole Oscillator Strength                         0.00000
- 
-     Occ.    1  ag  ---  Virt.    2  ag     0.99999
- 
-              Target root =      1
-          Target symmetry = none
-      Ground state energy =     -2.903216575659
-        Excitation energy =      1.125174576959
-     Excited state energy =     -1.778041998701
- 
- 
-    1 smallest eigenvalue differences (eV) 
---------------------------------------------------------
-  No. Spin  Occ  Vir  Irrep   E(Occ)    E(Vir)   E(Diff)
---------------------------------------------------------
-    1    1    1    2 ag       -0.947     0.527    40.099
---------------------------------------------------------
-
-  Entering Davidson iterations
-  Restricted triplet excited states
-
-  Iter   NTrls   NConv    DeltaV     DeltaE      Time   
-  ----  ------  ------  ---------  ---------  --------- 
-    1      1       0     0.21E+00   0.10+100        0.0
-    2      2       0     0.14E-01   0.18E-01        0.0
-    3      3       1     0.23E-15   0.12E-04        0.0
-  ----  ------  ------  ---------  ---------  --------- 
-  Convergence criterion met
- 
-  Ground state ag         -2.903216575659 a.u.
- 
-  ----------------------------------------------------------------------------
-  Root   1 triplet ag             0.931684998 a.u.               25.3524 eV 
-  ----------------------------------------------------------------------------
-     Transition Moments                    Spin forbidden
-     Oscillator Strength                   Spin forbidden
- 
-     Occ.    1  ag  ---  Virt.    2  ag    -0.99634
-     Occ.    1  ag  ---  Virt.    3  ag    -0.08546
- 
-              Target root =      1
-          Target symmetry = none
-      Ground state energy =     -2.903216575659
-        Excitation energy =      0.931684998103
-     Excited state energy =     -1.971531577557
- 
-
- Task  times  cpu:        0.2s     wall:        0.2s
- 
- 
-                                NWChem Input Module
-                                -------------------
- 
- 
- 
-                                 NWChem DFT Module
-                                 -----------------
- 
- 
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- He                      user specified              4        4   4s
-
-
-      Symmetry analysis of basis
-      --------------------------
- 
-        ag          4
-        au          0
-        b1g         0
-        b1u         0
-        b2g         0
-        b2u         0
-        b3g         0
-        b3u         0
- 
-  Caching 1-el integrals 
-  ==================================
-  === Current Density Functional ===
-  ==================================
- 
-     1.00000000  Hartree-Fock Exchange
-     1.00000000  PBE Correlation (JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996) doi:10.1103/PhysRevLett.77.3865)
- 
-            General Information
-            -------------------
-          SCF calculation type: DFT
-          Wavefunction type:  closed shell.
-          No. of atoms     :     1
-          No. of electrons :     2
-           Alpha electrons :     1
-            Beta electrons :     1
-          Charge           :     0
-          Spin multiplicity:     1
-          Use of symmetry is: off; symmetry adaption is: on 
-          Maximum number of iterations:  30
-          AO basis - number of functions:     4
-                     number of shells:     4
-          Convergence on energy requested: 1.00D-06
-          Convergence on density requested: 1.00D-05
-          Convergence on gradient requested: 5.00D-04
- 
-              XC Information
-              --------------
-                     Hartree-Fock (Exact) Exchange  1.000          
-            Perdew 1991 LDA Correlation Functional  1.000 local    
-           PerdewBurkeErnz. Correlation Functional  1.000 non-local
- 
-             Grid Information
-             ----------------
-          Grid used for XC integration:  medium    
-          Radial quadrature: Mura-Knowles        
-          Angular quadrature: Lebedev. 
-          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
-          ---              ---------- --------- --------- ---------
-          He                  0.35       49           4.0       434
-          Grid pruning is: on 
-          Number of quadrature shells:    49
-          Spatial weights used:  Erf1
- 
-          Convergence Information
-          -----------------------
-          Convergence aids based upon iterative change in 
-          total energy or number of iterations. 
-          Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
-          DIIS, if invoked, will attempt to extrapolate 
-          using up to (NFOCK): 10 stored Fock matrices.
-
-                    Damping( 0%)  Levelshifting(0.5)       DIIS
-                  --------------- ------------------- ---------------
-          dE  on:    start            ASAP                start   
-          dE off:    2 iters         30 iters            30 iters 
-
- 
-      Screening Tolerance Information
-      -------------------------------
-          Density screening/tol_rho: 1.00D-10
-          AO Gaussian exp screening on grid/accAOfunc:  14
-          CD Gaussian exp screening on grid/accCDfunc:  20
-          XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul: 1.00D-08
-
- 
-      Superposition of Atomic Density Guess
-      -------------------------------------
- 
- Sum of atomic energies:          -2.86104912
- 
-      Non-variational initial energy
-      ------------------------------
-
- Total energy =      -2.861049
- 1-e energy   =      -3.886256
- 2-e energy   =       1.025207
- HOMO         =      -0.917921
- LUMO         =       0.533533
- 
- 
-      Symmetry analysis of molecular orbitals - initial
-      -------------------------------------------------
- 
-  Numbering of irreducible representations: 
- 
-     1 ag          2 au          3 b1g         4 b1u         5 b2g     
-     6 b2u         7 b3g         8 b3u     
- 
-  Orbital symmetries:
- 
-     1 ag          2 ag          3 ag          4 ag      
- 
-   Time after variat. SCF:      0.2
-   Time prior to 1st pass:      0.2
-
- #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tddft_he.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 184092
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
-
- Grid_pts file          = ./tddft_he.gridpts.0
- Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      5        Max. recs in file   =    981749
-
-
-           Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12913930
-          Stack Space remaining (MW):       13.11            13107060
-
-   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
- ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9030627567 -2.90D+00  5.51D-03  3.32D-03     0.2
- d= 0,ls=0.0,diis     2     -2.9032114005 -1.49D-04  1.33D-03  4.55D-05     0.3
- d= 0,ls=0.0,diis     3     -2.9032165141 -5.11D-06  1.74D-04  3.85D-07     0.3
- d= 0,ls=0.0,diis     4     -2.9032165757 -6.16D-08  5.52D-07  1.20D-11     0.3
 
 
          Total DFT energy =       -2.903216575659
@@ -753,7 +408,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      3     -1.156181  1 He s                  4      0.375725  1 He s          
  
 
- Parallel integral file used       2 records with       0 large values
+ Parallel integral file used       1 records with       0 large values
 
                                 NWChem TDDFT Module
                                 -------------------
@@ -773,12 +428,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
         Use of symmetry is : off
       Symmetry adaption is : on 
          Schwarz screening : 0.10D-07
-  ==================================
-  === Current Density Functional ===
-  ==================================
- 
-     1.00000000  Hartree-Fock Exchange
-     1.00000000  PBE Correlation (JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996) doi:10.1103/PhysRevLett.77.3865)
  
               XC Information
               --------------
@@ -804,7 +453,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
             Memory Information
             ------------------
-          Available GA space size is          52428784 doubles
+          Available GA space size is          26214384 doubles
           Available MA space size is          26213852 doubles
           Length of a trial vector is            3
           Algorithm : Incore multiple tensor contraction
@@ -823,9 +472,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      1       0     0.54E-01   0.10+100        0.2
-    2      2       0     0.75E-03   0.19E-03        0.2
-    3      3       1     0.56E-14   0.19E-06        0.2
+    1      1       0     0.54E-01   0.10+100        0.0
+    2      2       0     0.75E-03   0.19E-03        0.0
+    3      3       1     0.96E-15   0.19E-06        0.0
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
  
@@ -860,9 +509,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      1       0     0.21E+00   0.10+100        0.2
-    2      2       0     0.14E-01   0.18E-01        0.2
-    3      3       1     0.54E-15   0.12E-04        0.2
+    1      1       0     0.21E+00   0.10+100        0.0
+    2      2       0     0.14E-01   0.18E-01        0.0
+    3      3       1     0.84E-15   0.12E-04        0.0
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
  
@@ -884,7 +533,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      Excited state energy =     -1.971531577557
  
 
- Task  times  cpu:        1.6s     wall:        1.7s
+ Task  times  cpu:        0.3s     wall:        0.8s
  
  
                                 NWChem Input Module
@@ -918,12 +567,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
         b3u         0
  
   Caching 1-el integrals 
-  ==================================
-  === Current Density Functional ===
-  ==================================
- 
-     1.00000000  Hartree-Fock Exchange
-     1.00000000  PBE Correlation (JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996) doi:10.1103/PhysRevLett.77.3865)
  
             General Information
             -------------------
@@ -984,6 +627,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
 
+  ==================================
+  === Current Density Functional ===
+  ==================================
+ 
+     1.00000000  Hartree-Fock Exchange
+     1.00000000  PBE Correlation (JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996) doi:10.1103/PhysRevLett.77.3865)
  
       Superposition of Atomic Density Guess
       -------------------------------------
@@ -1012,36 +661,33 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
      1 ag          2 ag          3 ag          4 ag      
  
-   Time after variat. SCF:      1.8
-   Time prior to 1st pass:      1.8
+   Time after variat. SCF:      0.3
+   Time prior to 1st pass:      0.3
 
  #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tddft_he.aoints.0
+ Integral file          = /dev/shm/tddft_he.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 184092
+ Max. records in memory =      2        Max. records in file   =  61168
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
-File balance: exchanges=     0  moved=     0  time=   0.0
-
-
- Grid_pts file          = ./tddft_he.gridpts.0
+ Grid_pts file          = /dev/shm/tddft_he.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      5        Max. recs in file   =    981749
+ Max. records in memory =      9        Max. recs in file   =    326206
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12913930
+           Heap Space remaining (MW):       12.86            12864778
           Stack Space remaining (MW):       13.11            13107060
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.9030627567 -2.90D+00  5.51D-03  3.32D-03     1.8
- d= 0,ls=0.0,diis     2     -2.9032114005 -1.49D-04  1.33D-03  4.55D-05     1.8
- d= 0,ls=0.0,diis     3     -2.9032165141 -5.11D-06  1.74D-04  3.85D-07     1.8
- d= 0,ls=0.0,diis     4     -2.9032165757 -6.16D-08  5.52D-07  1.20D-11     1.8
+ d= 0,ls=0.0,diis     1     -2.9030627567 -2.90D+00  5.51D-03  3.32D-03     0.4
+ d= 0,ls=0.0,diis     2     -2.9032114005 -1.49D-04  1.33D-03  4.55D-05     0.4
+ d= 0,ls=0.0,diis     3     -2.9032165141 -5.11D-06  1.74D-04  3.85D-07     0.4
+ d= 0,ls=0.0,diis     4     -2.9032165757 -6.16D-08  5.52D-07  1.20D-11     0.4
 
 
          Total DFT energy =       -2.903216575659
@@ -1052,7 +698,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Numeric. integr. density =        1.999999954446
 
-     Total iterative time =      0.0s
+     Total iterative time =      0.1s
 
 
  
@@ -1102,7 +748,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      3     -1.156181  1 He s                  4      0.375725  1 He s          
  
 
- Parallel integral file used       2 records with       0 large values
+ Parallel integral file used       1 records with       0 large values
 
                                 NWChem TDDFT Module
                                 -------------------
@@ -1153,7 +799,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
             Memory Information
             ------------------
-          Available GA space size is          52428784 doubles
+          Available GA space size is          26214384 doubles
           Available MA space size is          26213852 doubles
           Length of a trial vector is            3
           Algorithm : Incore multiple tensor contraction
@@ -1172,20 +818,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1      1       0     0.51E-01   0.10+100        0.0
-    2      2       0     0.13E-02   0.18E-03        0.0
-    3      3       1     0.34E-14   0.43E-06        0.0
+    1      1       0     0.54E-01   0.10+100        0.2
+    2      2       0     0.75E-03   0.19E-03        0.2
+    3      3       1     0.81E-14   0.19E-06        0.2
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
  
   Ground state ag         -2.903216575659 a.u.
  
   ----------------------------------------------------------------------------
-  Root   1 singlet ag             1.130724083 a.u.               30.7686 eV 
+  Root   1 singlet ag             1.125174577 a.u.               30.6176 eV 
   ----------------------------------------------------------------------------
      Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
-     Transition Moments   XX -0.71611  XY  0.00000  XZ  0.00000
-     Transition Moments   YY -0.71611  YZ  0.00000  ZZ -0.71611
+     Transition Moments   XX -0.71621  XY  0.00000  XZ  0.00000
+     Transition Moments   YY -0.71621  YZ  0.00000  ZZ -0.71621
      Dipole Oscillator Strength                         0.00000
  
      Occ.    1  ag  ---  Virt.    2  ag     0.99999
@@ -1193,8 +839,354 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               Target root =      1
           Target symmetry = none
       Ground state energy =     -2.903216575659
-        Excitation energy =      1.130724083346
-     Excited state energy =     -1.772492492313
+        Excitation energy =      1.125174576959
+     Excited state energy =     -1.778041998701
+ 
+ 
+    1 smallest eigenvalue differences (eV) 
+--------------------------------------------------------
+  No. Spin  Occ  Vir  Irrep   E(Occ)    E(Vir)   E(Diff)
+--------------------------------------------------------
+    1    1    1    2 ag       -0.947     0.527    40.099
+--------------------------------------------------------
+
+  Entering Davidson iterations
+  Restricted triplet excited states
+
+  Iter   NTrls   NConv    DeltaV     DeltaE      Time   
+  ----  ------  ------  ---------  ---------  --------- 
+    1      1       0     0.21E+00   0.10+100        0.2
+    2      2       0     0.14E-01   0.18E-01        0.2
+    3      3       1     0.29E-15   0.12E-04        0.2
+  ----  ------  ------  ---------  ---------  --------- 
+  Convergence criterion met
+ 
+  Ground state ag         -2.903216575659 a.u.
+ 
+  ----------------------------------------------------------------------------
+  Root   1 triplet ag             0.931684998 a.u.               25.3524 eV 
+  ----------------------------------------------------------------------------
+     Transition Moments                    Spin forbidden
+     Oscillator Strength                   Spin forbidden
+ 
+     Occ.    1  ag  ---  Virt.    2  ag    -0.99634
+     Occ.    1  ag  ---  Virt.    3  ag    -0.08546
+ 
+              Target root =      1
+          Target symmetry = none
+      Ground state energy =     -2.903216575659
+        Excitation energy =      0.931684998103
+     Excited state energy =     -1.971531577557
+ 
+
+ Task  times  cpu:        1.3s     wall:        1.4s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ He                      user specified              4        4   4s
+
+
+      Symmetry analysis of basis
+      --------------------------
+ 
+        ag          4
+        au          0
+        b1g         0
+        b1u         0
+        b2g         0
+        b2u         0
+        b3g         0
+        b3u         0
+ 
+  Caching 1-el integrals 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     1
+          No. of electrons :     2
+           Alpha electrons :     1
+            Beta electrons :     1
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:     4
+                     number of shells:     4
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+            Perdew 1991 LDA Correlation Functional  1.000 local    
+           PerdewBurkeErnz. Correlation Functional  1.000 non-local
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          He                  0.35       49           4.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:    49
+          Spatial weights used:  Erf1
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+  ==================================
+  === Current Density Functional ===
+  ==================================
+ 
+     1.00000000  Hartree-Fock Exchange
+     1.00000000  PBE Correlation (JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996) doi:10.1103/PhysRevLett.77.3865)
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:          -2.86104912
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =      -2.861049
+ 1-e energy   =      -3.886256
+ 2-e energy   =       1.025207
+ HOMO         =      -0.917921
+ LUMO         =       0.533533
+ 
+ 
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+ 
+  Numbering of irreducible representations: 
+ 
+     1 ag          2 au          3 b1g         4 b1u         5 b2g     
+     6 b2u         7 b3g         8 b3u     
+ 
+  Orbital symmetries:
+ 
+     1 ag          2 ag          3 ag          4 ag      
+ 
+   Time after variat. SCF:      1.7
+   Time prior to 1st pass:      1.7
+
+ #quartets = 5.500D+01 #integrals = 5.500D+01 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /dev/shm/tddft_he.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  61168
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+ Grid_pts file          = /dev/shm/tddft_he.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =      9        Max. recs in file   =    326206
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.86            12864778
+          Stack Space remaining (MW):       13.11            13107060
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1     -2.9030627567 -2.90D+00  5.51D-03  3.32D-03     1.7
+ d= 0,ls=0.0,diis     2     -2.9032114005 -1.49D-04  1.33D-03  4.55D-05     1.7
+ d= 0,ls=0.0,diis     3     -2.9032165141 -5.11D-06  1.74D-04  3.85D-07     1.7
+ d= 0,ls=0.0,diis     4     -2.9032165757 -6.16D-08  5.52D-07  1.20D-11     1.7
+
+
+         Total DFT energy =       -2.903216575659
+      One electron energy =       -3.890360427793
+           Coulomb energy =        2.058930672866
+    Exchange-Corr. energy =       -1.071786820732
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        1.999999954446
+
+     Total iterative time =      0.1s
+
+
+ 
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+ 
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     ag                1.0          1.0
+                     au                0.0          0.0
+                     b1g               0.0          0.0
+                     b1u               0.0          0.0
+                     b2g               0.0          0.0
+                     b2u               0.0          0.0
+                     b3g               0.0          0.0
+                     b3u               0.0          0.0
+ 
+ 
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+ 
+ Vector    1  Occ=2.000000D+00  E=-9.469294D-01  Symmetry=ag
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 3.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.514406  1 He s                  2      0.284611  1 He s          
+     4      0.253212  1 He s          
+ 
+ Vector    2  Occ=0.000000D+00  E= 5.266763D-01  Symmetry=ag
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.529683  1 He s                  3     -1.170390  1 He s          
+ 
+ Vector    3  Occ=0.000000D+00  E= 3.312960D+00  Symmetry=ag
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 5.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      2.192800  1 He s                  2     -1.632137  1 He s          
+     4     -0.875633  1 He s          
+ 
+ Vector    4  Occ=0.000000D+00  E= 1.775264D+01  Symmetry=ag
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 1.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.931110  1 He s                  1     -1.566620  1 He s          
+     3     -1.156181  1 He s                  4      0.375725  1 He s          
+ 
+
+ Parallel integral file used       1 records with       0 large values
+
+                                NWChem TDDFT Module
+                                -------------------
+ 
+ 
+            General Information
+            -------------------
+           No. of orbitals :     8
+            Alpha orbitals :     4
+             Beta orbitals :     4
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity :     1
+    Number of AO functions :     4
+        Use of symmetry is : off
+      Symmetry adaption is : on 
+         Schwarz screening : 0.10D-07
+  ==================================
+  === Current Density Functional ===
+  ==================================
+ 
+     1.00000000  Hartree-Fock Exchange
+     1.00000000  PBE Correlation (JP Perdew, K Burke, M Ernzerhof, Phys.Rev.Lett. 77, 3865 (1996) doi:10.1103/PhysRevLett.77.3865)
+ 
+              XC Information
+              --------------
+              Hartree-Fock (Exact) Exchange   1.00          
+     Perdew 1991 LDA Correlation Functional   1.00 local    
+    PerdewBurkeErnz. Correlation Functional   1.00 non-local
+ 
+             TDDFT Information
+             -----------------
+          Calculation type : Tamm-Dancoff TDDFT
+         Wavefunction type : Restricted singlets & triplets
+          No. of electrons :     2
+           Alpha electrons :     1
+            Beta electrons :     1
+              No. of roots :     1
+          Max subspacesize :  4200
+            Max iterations :   100
+               Target root :     1
+           Target symmetry : none
+      Symmetry restriction : off
+                 Algorithm : Optimal
+        Davidson threshold : 0.10D-03
+ 
+            Memory Information
+            ------------------
+          Available GA space size is          26214384 doubles
+          Available MA space size is          26213852 doubles
+          Length of a trial vector is            3
+          Algorithm : Incore multiple tensor contraction
+          Estimated peak GA usage is             37979 doubles
+          Estimated peak MA usage is               600 doubles
+ 
+    1 smallest eigenvalue differences (eV) 
+--------------------------------------------------------
+  No. Spin  Occ  Vir  Irrep   E(Occ)    E(Vir)   E(Diff)
+--------------------------------------------------------
+    1    1    1    2 ag       -0.947     0.527    40.099
+--------------------------------------------------------
+
+  Entering Davidson iterations
+  Restricted singlet excited states
+
+  Iter   NTrls   NConv    DeltaV     DeltaE      Time   
+  ----  ------  ------  ---------  ---------  --------- 
+    1      1       0     0.54E-01   0.10+100        0.0
+    2      2       0     0.75E-03   0.19E-03        0.0
+    3      3       1     0.32E-15   0.19E-06        0.0
+  ----  ------  ------  ---------  ---------  --------- 
+  Convergence criterion met
+ 
+  Ground state ag         -2.903216575659 a.u.
+ 
+  ----------------------------------------------------------------------------
+  Root   1 singlet ag             1.125174577 a.u.               30.6176 eV 
+  ----------------------------------------------------------------------------
+     Transition Moments    X  0.00000   Y  0.00000   Z  0.00000
+     Transition Moments   XX -0.71621  XY  0.00000  XZ  0.00000
+     Transition Moments   YY -0.71621  YZ  0.00000  ZZ -0.71621
+     Dipole Oscillator Strength                         0.00000
+ 
+     Occ.    1  ag  ---  Virt.    2  ag     0.99999
+ 
+              Target root =      1
+          Target symmetry = none
+      Ground state energy =     -2.903216575659
+        Excitation energy =      1.125174576959
+     Excited state energy =     -1.778041998701
  
  
     1 smallest eigenvalue differences (eV) 
@@ -1210,30 +1202,30 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
     1      1       0     0.21E+00   0.10+100        0.0
-    2      2       0     0.15E-01   0.18E-01        0.0
-    3      3       1     0.39E-15   0.13E-04        0.0
+    2      2       0     0.14E-01   0.18E-01        0.0
+    3      3       1     0.37E-15   0.12E-04        0.0
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
  
   Ground state ag         -2.903216575659 a.u.
  
   ----------------------------------------------------------------------------
-  Root   1 triplet ag             0.925537649 a.u.               25.1852 eV 
+  Root   1 triplet ag             0.931684998 a.u.               25.3524 eV 
   ----------------------------------------------------------------------------
      Transition Moments                    Spin forbidden
      Oscillator Strength                   Spin forbidden
  
-     Occ.    1  ag  ---  Virt.    2  ag    -0.99619
-     Occ.    1  ag  ---  Virt.    3  ag    -0.08714
+     Occ.    1  ag  ---  Virt.    2  ag    -0.99634
+     Occ.    1  ag  ---  Virt.    3  ag    -0.08546
  
               Target root =      1
           Target symmetry = none
       Ground state energy =     -2.903216575659
-        Excitation energy =      0.925537649081
-     Excited state energy =     -1.977678926579
+        Excitation energy =      0.931684998103
+     Excited state energy =     -1.971531577557
  
 
- Task  times  cpu:        0.2s     wall:        0.2s
+ Task  times  cpu:        0.3s     wall:        0.4s
  
  
                                 NWChem Input Module
@@ -1250,11 +1242,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1140     1140     1.02e+04 1710     4690       72        0     1160     
-number of processes/call 1.05e+00 1.21e+00 1.09e+00 0.00e+00 0.00e+00
-bytes total:             4.03e+05 8.57e+04 1.28e+05 6.40e+01 0.00e+00 9.28e+03
-bytes remote:            3.08e+04 1.18e+04 2.67e+04 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 135696 bytes
+calls:  972      972     1.92e+04 2314     8970       72        0     1293     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             7.15e+05 1.15e+05 2.13e+05 1.28e+02 0.00e+00 1.03e+04
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 203160 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1266,8 +1258,8 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        24	        57
 	current total bytes		         0	         0
-	maximum total bytes		   1545776	  22509720
-	maximum total K-bytes		      1546	     22510
+	maximum total bytes		   1938992	  22509720
+	maximum total K-bytes		      1939	     22510
 	maximum total M-bytes		         2	        23
  
  
@@ -1304,4 +1296,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:        1.9s     wall:        2.1s
+ Total times  cpu:        2.0s     wall:        6.3s
