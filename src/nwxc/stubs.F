@@ -32,6 +32,6 @@ C>
       entry pzheevd
       entry pzheevr
 #endif
-      call errquit
+      call errquit("nwxc_fnc_print: stub",0,0)
       end
 
