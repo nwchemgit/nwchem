@@ -71,6 +71,7 @@ c
       logical lhybrid                   ! True if hybrid DFT and HF
       logical lhasdft                   ! True if it has DFT
       logical lhashf                    ! True if it has HF
+      logical use_nwxc                  ! True if using NWXC library
 c
       logical cs00
       logical lb94
@@ -281,6 +282,43 @@ c       Screened HF
         else
           ctype='Screened TDHF     '
         endif
+      endif
+c
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) then
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+      endif
+      if (use_nwxc) then
+         call nwxc_getvals("nwxc_has_hfx",lhashf)
+        if (lhashf) then
+          call nwxc_getwght("nwxc_wght_hfx",xfac(1))
+        endif
+        call  nwxc_getvals("nwxc_has_xc",lhasdft)
+        ldft    = lhasdft.and.(.not.lhashf)
+        lhf     = (.not.lhasdft).and.lhashf
+        lhybrid = lhasdft.and.lhashf
+c       call nwxc_getvals("nwxc_has_mp2c",dftmp2)
+c       if (dftmp2) then
+c          call nwxc_getwght("nwxc_wght_mp2c",mp2fac)
+c         if (.not.rtdb_put(rtdb,'dft:mp2fac', mt_dbl, 1, mp2fac))
+c    &      call errquit('dft_inpana: rtdb_put failed', 2902, RTDB_ERR)
+c       endif
+        call nwxc_getvals("nwxc_has_cam",cam_exch)
+        if (cam_exch) then
+          call nwxc_get_cam(cam_alpha,cam_beta,cam_omega,cam_srhf)
+        else
+          cam_alpha = 0.0d0
+          cam_beta  = 0.0d0
+          cam_omega = 0.0d0
+        endif
+        call nwxc_print()
+c       if (cam_exch.and.(ga_nodeid().eq.0)) then
+c           write(LuOut,*)
+c           write(LuOut,8202)
+c    &         'Range-Separation Parameters        '
+c           write(LuOut,8203)
+c           write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
+c       end if ! cam_exch
       endif
 c
       kfac   = xfac(1)
