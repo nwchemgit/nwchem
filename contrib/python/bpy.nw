@@ -1,0 +1,37 @@
+start bpy
+
+basis spherical
+  * library 6-311+g*
+  bqN library N 6-311+g*
+  bqH library H 6-311+g*
+  bqO library O 6-311+g*
+  bqC library C 6-311+g*
+end
+ 
+mp2; tight; freeze core atomic; end
+ 
+#print low
+ 
+python noprint
+supermolecule = 'geometry noprint;   N 13.356 -4.360 16.307;H 12.631 -4.575 16.716;N 11.384 -5.455 18.225;C 10.267 -4.749 18.620 ; end\n'
+fragment1     = 'geometry noprint;   N 13.356 -4.360 16.307;H 12.631 -4.575 16.716;bqN 11.384 -5.455 18.225;bqC 10.267 -4.749 18.620; end\n'
+fragment2     = 'geometry noprint; bqN 13.356 -4.360 16.307;bqH 12.631 -4.575 16.716;N 11.384 -5.455 18.225;C 10.267 -4.749 18.620; end\n'
+ 
+def energy_doublet(geometry):
+    input_parse(geometry + 'scf; vectors atomic; maxiter 999; uhf; doublet; end\n')
+    return task_energy('mp2')
+def energy_singlet(geometry):
+    input_parse(geometry + 'scf; vectors atomic; maxiter 999; uhf; singlet; end\n')
+    return task_energy('mp2')
+ 
+def bsse_energy():
+    return energy_doublet(supermolecule) - \
+        energy_singlet(fragment1) - \
+        energy_doublet(fragment2)
+        
+e = bsse_energy()
+if (ga_nodeid() == 0):
+    print '  BSSE energy (hartrees) = %10.7f ' % (e)
+end
+ 
+task python
