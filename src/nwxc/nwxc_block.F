@@ -34,7 +34,7 @@ C>
       data nwxc_cam_alpha  / 0.0d0 /
       data nwxc_cam_beta   / 0.0d0 /
       data nwxc_cam_gamma  / 0.0d0 /
-      data nwxc_rho_tol    / 1.0d-18 /
+      data nwxc_rho_tol    / 1.0d-10 /
       data nwxc_disp_id    / NWXC_DISP_NONE /
       data nwxc_disp_s6    / 0.0d0 /
       data nwxc_disp_s8    / 0.0d0 /
@@ -73,7 +73,7 @@ C>
       nwxc_cam_alpha  = 0.0d0
       nwxc_cam_beta   = 0.0d0
       nwxc_cam_gamma  = 0.0d0
-      nwxc_rho_tol    = 1.0d-18
+      nwxc_rho_tol    = 1.0d-10
       nwxc_disp_id    = NWXC_DISP_NONE
       nwxc_disp_s6    = 0.0d0
       nwxc_disp_s8    = 0.0d0
