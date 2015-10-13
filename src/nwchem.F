@@ -28,7 +28,7 @@ c
 c  $Id$
 c
 c  ======================================================================================================
-C> \mainpage Northwest Computational Chemistry Package (NWChem) 6.5
+C> \mainpage Northwest Computational Chemistry Package (NWChem) 6.6
 C>
 C> NWChem is an open-source computational chemistry package distributed under the terms of
 C> the Educational Community License (ECL) 2.0
@@ -59,7 +59,7 @@ C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a hr
 C>
 C> provides details on the codes capabilities.
 C>
-C> Copyright (c) 1994-2013 Pacific Northwest National Laboratory, Battelle Memorial Institute
+C> Copyright (c) 1994-2015 Pacific Northwest National Laboratory, Battelle Memorial Institute
 C>
 C> Environmental Molecular Sciences Laboratory (EMSL)<br>
 C> Pacific Northwest National Laboratory<br>
@@ -413,7 +413,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 6.5',
+     $     'Northwest Computational Chemistry Package (NWChem) 6.6',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
@@ -426,7 +426,7 @@ c
       call util_print_centered(LuOut,'Richland, WA 99352',
      $     40, .false.)
       write(LuOut,*)
-      call util_print_centered(LuOut,'Copyright (c) 1994-2013',
+      call util_print_centered(LuOut,'Copyright (c) 1994-2015',
      $     40, .false.)
       call util_print_centered(LuOut,
      $     'Pacific Northwest National Laboratory',
