@@ -6701,7 +6701,7 @@ C?          WRITE(6,*) ' IGAS, NEL, NORB = ', IGAS, NEL, NORB
       IF(NLOOP.EQ.MAXLOOP) THEN
         WRITE(6,*) ' Forced MAXLOOP exit in MAXOP...'
         WRITE(6,*) ' Bug or test to be removed, Jeppe!!! '
-        STOP ' Forced MAXLOOP exit in MAXOP... '
+cVOG    STOP ' Forced MAXLOOP exit in MAXOP... '
       END IF
 *
       IF(NTEST.GE.10) THEN

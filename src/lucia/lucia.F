@@ -2082,7 +2082,8 @@ C?      WRITE(6,*) ' NCONF, NCSF, NSD = ', NCONF, NCSF, NSD
       NCVAR = NVAR
       NSVAR = NVAR
 *
-      IF(IPRNT.GE.5) WRITE(6,*) '  NVAR in GASCI ', NVAR
+      IF(IPRNT.GE.5.and.ga_nodeid().eq.0)
+     &  WRITE(6,*) '  NVAR in GASCI ', NVAR
 *. Allocate memory for diagonalization
 *
 *. Block for storing complete or partial CI-vector
@@ -11935,7 +11936,8 @@ C           WRITE(6,*) ' Vectors will be expanded '
               MXCIV = MAX(3*NROOT,MXCIV_SAVE)
               NCNV_RT_SAVE = NCNV_RT
               NCNV_RT = INI_NROOT
-              WRITE(6,*) ' INI_*ROOT option in action '
+              if (ga_nodeid().eq.0)
+     &        WRITE(6,*) ' INI_*ROOT option in action '
             END IF ! special setting for initial CI
 *
             CALL GASCI(IREFSM,JCMBSPC,IPRDIA,IIUSEH0P,
@@ -12040,9 +12042,9 @@ CBERT           CALL SCLH2(XLAMBDA)
 !         write(LuOut,00001) task_cpu, task_wall
 !00001     format(/' Task  times  cpu:',f11.1,'s     wall:',f11.1,'s')
           call util_flush(6)
-             write(6,'(13X,A)') '************************************'
-             write(6,'(13X,A)') '* NWChem AkBkCI (NACI) Initialized *'
-             write(6,'(13X,A)') '************************************'
+             write(6,'(13X,A)') '************************'
+             write(6,'(13X,A)') '* SplitGAS Initialized *'
+             write(6,'(13X,A)') '************************'
              write(6,*)
              endif
              EREF = EFINAL
@@ -21851,7 +21853,14 @@ C?    WRITE(6,*) ' Check,  I_DO_NEWCCV = ',  I_DO_NEWCCV
   
    
 *. Check number of orbitals and insert occupations for ALL/REST
- 
+
+*
+*. VOG: Break GAS-spaces into smaller GAS spaces
+* 
+*      IF(CARDX(1:4).EQ.'AKBK') THEN 
+       write(*,*) 'Fragmeting the active spaces into smaller GAS spaces'
+       call akbkqspace
+*      END IF
 ************************************************************
 *                                                          *
 * Part 3: Print input                                     *
