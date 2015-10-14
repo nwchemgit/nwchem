@@ -2450,7 +2450,7 @@ endif
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 COMM_LIBS +=  $(shell grep ARMCI_NETWORK_LDFLAGS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 24-)
 #comex bit
-HAVE_COMEX = $(shell cat /home/edo/nwchem-6.6/src/tools/build/comex/config.h| grep COMEX_NETWORK| awk ' / 1/ {print "Y"}')
+HAVE_COMEX = $(shell [ -e ${NWCHEM_TOP}/src/tools/build/comex/config.h ] && cat ${NWCHEM_TOP}/src/tools/build/comex/config.h| grep COMEX_NETWORK| awk ' / 1/ {print "Y"}')
 ifeq ($(HAVE_COMEX),Y)
 COMM_LIBS +=  $(shell grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-)
 #we often need pthread, let's add it
