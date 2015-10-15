@@ -2270,7 +2270,11 @@ ifdef USE_FDIST
   DEFINES += -DFDIST
 endif
 
+_TOOLS_BUILD= $(shell [ -e ${NWCHEM_TOP}/src/tools/build/config.h ] && cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SQRT/ {print "Y"}')
+
+ifeq ($(_TOOLS_BUILD),Y)
 _USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
+endif
 
 ifeq ($(_USE_SCALAPACK),Y)
   DEFINES += -DSCALAPACK
@@ -2445,8 +2449,8 @@ ifdef USE_F90_ALLOCATABLE
  DEFINES += -DUSE_F90_ALLOCATABLE
 endif
 
+ifeq ($(_TOOLS_BUILD),Y)
 # lower level libs used by communication libraries 
- 
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 COMM_LIBS +=  $(shell grep ARMCI_NETWORK_LDFLAGS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 24-)
 #comex bit
@@ -2456,7 +2460,7 @@ COMM_LIBS +=  $(shell grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|
 #we often need pthread, let's add it
 COMM_LIBS += -lpthread
 endif
-
+endif
 ifdef COMM_LIBS 
  CORE_LIBS += $(COMM_LIBS) 
 endif 
