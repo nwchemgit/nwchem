@@ -153,6 +153,7 @@ c
 
       integer ipol, noc(2)
       logical oskel, omp2, odft, ocdfit, status, exso 
+      logical use_nwxc, lhashfxc
       double precision xfac(numfunc), jfac, kfac
 c
       nproc = ga_nnodes()
@@ -307,6 +308,20 @@ C     get SCF MO vectors for density
      $        call errquit('gradients: SCF MO vectors not defined',0,
      &       RTDB_ERR)
       end if
+      use_nwxc = util_module_avail("nwxc")
+      if (use_nwxc) then
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+      endif
+      if (use_nwxc) then
+        call nwxc_getvals("nwxc_is_on",use_nwxc)
+      endif
+      if (use_nwxc) then
+        call nwxc_getvals("nwxc_has_hfx",lhashfxc)
+        if (lhashfxc) then
+          call nwxc_getwght("nwxc_wght_hfx",xfac(1))
+          kfac = xfac(1)
+        endif
+      endif
 
 C     get information about type of calculation
 

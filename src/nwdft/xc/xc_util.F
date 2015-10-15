@@ -268,6 +268,24 @@ c     load cfac and xfac into cdft.fh
 #include "cdft.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "util.fh"
+      logical use_nwxc, lhashfxc
+      use_nwxc=util_module_avail("nwxc")
+      if (use_nwxc) then
+        call nwxc_rtdb_load(rtdb,"dft",use_nwxc)
+      endif
+      if (use_nwxc) then
+        call nwxc_getvals("nwxc_is_on",use_nwxc)
+      endif
+      if (use_nwxc) then
+        call nwxc_getvals("nwxc_has_hfx",lhashfxc)
+        if (lhashfxc) then
+          call nwxc_getwght("nwxc_wght_hfx",xfac(1))
+        endif
+      endif
+      xc_getxcfac=use_nwxc
+      if (use_nwxc) return
+c
       xc_getxcfac=rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc,
      &xfac)
       xc_getxcfac=xc_getxcfac.and.
