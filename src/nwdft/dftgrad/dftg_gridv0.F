@@ -235,8 +235,8 @@ c
       nqtot = 0
       rho_int = 0.D0
 c
-      len_Cmat = 3*n_per_rec*ipol
-      len_Amat = ipol*n_per_rec
+      len_Cmat  = 3*n_per_rec*ipol
+      len_Amat  = n_per_rec*2
       len_Amat2 = n_per_rec*NCOL_AMAT2
       len_Cmat2 = n_per_rec*NCOL_CMAT2
       len_Mmat2 = n_per_rec*NCOL_MMAT2
