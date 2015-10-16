@@ -56,4 +56,4 @@
      &      nscobs_bu(MXPOBS),
      &      nobpt_bu(6+MXPR4T),ireost_bu(MXPORB),
      &      ngas_gnsym_bu(MXP_NSUPSYM,0:MXPNGAS),
-     &      nobpts_gn_bu(0:6+MXPR4T,MXPOBS),last_ci
+     &      nobpts_gn_bu(0:6+MXPR4T,MXPOBS),last_ci,itpfso_bu(mxporb)

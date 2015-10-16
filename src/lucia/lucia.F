@@ -1493,6 +1493,7 @@ c      INCLUDE 'mxpdim.inc'
       INCLUDE 'glbbas.inc'
       INCLUDE 'clunit.inc'
       INCLUDE 'crun.inc'
+#include "global.fh"
 *
       IF(ENVIRO(1:6).EQ.'MOLCAS') THEN
 *. MOLCAS environment               
@@ -9269,6 +9270,7 @@ c      IMPLICIT REAL*8(A-H,O-Z)
 c      INCLUDE 'mxpdim.inc'
       INCLUDE 'wrkspc.inc'
 #include "mafdecls.fh"
+#include "global.fh"
       INCLUDE 'orbinp.inc'
       INCLUDE 'cicisp.inc'
       INCLUDE 'strbas.inc'
@@ -9372,7 +9374,7 @@ CNW   DIMENSION DIAG(*)
      &       int_mb(KLISCR))
       END IF
 *
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
        write(*,*) 'Diagonal elements'
        call ga_print(DIAG)
       END IF
@@ -13084,6 +13086,7 @@ c      INCLUDE 'mxpdim.inc'
            success=ma_push_get(mt_int,KADD,IDENT,LBASE,KBASE)
         else 
            success=ma_push_get(mt_dbl,KADD,IDENT,LBASE,KBASE)
+!           if (ga_nodeid().eq.0) write(*,*) 'I add', KADD !VOG
         endif
         if (.not. success) then
           WRITE(6,*) ' Error allocating: identifier,offset,  length'
@@ -36371,6 +36374,8 @@ C   DIAG_BLK_SYMMAT(A,NBLK,LBLK,X,EIGENLV,SCR,ISYM)
         END IF
       END IF
 *
+      call gather_mos_in_cas 
+*
 *. Distinguish between GAS spaces that should be transformed, i.e. if
 *. each GAS space belongs to P or Q space - VOG
 *
@@ -36735,6 +36740,9 @@ C              PRINT_CMO_AS_SHELLS(CMO,IFORM)
       END IF
 *     ^ End if MOAO file is present 
 *
+*. Return LUCIA back in order - VOG
+*
+      call return_values_after_morot
 !*. Reorder based on the original GAS scheme - VOG
 !*
 !      CALL REO_ACT_ORB_TO_GNSM(

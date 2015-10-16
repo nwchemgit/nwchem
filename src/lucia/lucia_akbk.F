@@ -5000,7 +5000,7 @@ cVOG    else
       if(ntest.ge.100.and.ga_nodeid().eq.0) then
       WRITE(*,*)
       WRITE(*,*) ' ***********************************'
-      WRITE(*,*) '   Input GAS Spaces for CI bitches  '
+      WRITE(*,*) '   Input GAS Spaces for CI batches  '
       WRITE(*,*) ' ***********************************'
       WRITE(*,*)
       WRITE(*,'(A)') ' Orbital subspaces:'
@@ -5049,34 +5049,6 @@ cVOG    else
 *
       ntogas = 100
       nmoqs  = 0
-* Count number of MOs in Q-space (last GAS)
-*      do irrep = 1, nirrep
-*       nmoqs = nmoqs + ngssh(irrep,ngas)
-*      end do
-* Calculate number of MOs per new GAS
-*      nmopergas = nmoqs / ntogas
-*      if (ntest.ge.10) then
-*       write(*,*) 'nmoqs     :', nmoqs
-*       write(*,*) 'nmopergas :', nmopergas
-*      end if
-*
-*. Calculate min and max occupation numbers of each GAS space from the
-*. accumulated occupations of CI space 1
-*
-*      icispc = 1
-**
-*      sumocc(1) = 0
-*      sumocc(2) = 0
-*      gasocc(1,1) = igsoccx(1,1,icispc)
-*      gasocc(1,2) = igsoccx(1,2,icispc)
-*      if (ngas.gt.1) then
-*       do igas = 1, ngas-1
-*        sumocc(1) = sumocc(1) + gasocc(igas,1)
-*        sumocc(2) = sumocc(2) + gasocc(igas,2)
-*        gasocc(igas+1,1) = igsoccx(igas+1,1,icispc) - sumocc(2)
-*        gasocc(igas+1,2) = igsoccx(igas+1,2,icispc) - sumocc(1)
-*       end do
-*      end if
 *
 *. Identify non-filled GAS spaces
 *
@@ -5391,7 +5363,7 @@ cVOG    else
           end if
          end do
         end do ! End Irrep loop
-       end do ! End GAS P-space loop
+       end do ! End GAS Q-space loop
 *
 *. Overwrite GAS information with updated values
 *
@@ -5654,6 +5626,266 @@ cVOG    else
       do i = 1, n
        vogfactorial = vogfactorial * i
       end do 
+*
+      return
+      end
+*======================================================================*
+*======================================================================*
+      subroutine gather_mos_in_cas
+*======================================================================*
+*
+*.  Gather all MOs of the active space distributed in various GAS 
+*.  spaces into one space
+*.
+*.  Konstantinos D. Vogiatzis, October 2015
+*
+*======================================================================*
+*
+      include 'implicit.inc'
+      include 'mxpdim.inc'
+      include 'orbinp.inc'
+      include 'cgas.inc'
+      include 'crun.inc'
+      include 'clunit.inc'
+      include 'lucinp.inc'
+#include "global.fh"
+#include "mafdecls.fh"
+*
+*. Scratch
+      integer ngsshupd(nirrep), ngas_gnsymupd(nirrep,2)
+*
+      ntest = 10
+*
+*. Gather
+*
+      ngsshupd = 0
+      ngas_gnsymupd = 0
+      do irrep = 1, nirrep
+       do igas =  1, ngas
+        ngsshupd(irrep) = ngsshupd(irrep) + ngssh(irrep,igas)
+        ngas_gnsymupd(irrep,1) =
+     &  ngas_gnsymupd(irrep,1) + ngas_gnsym(irrep,igas)
+       end do
+      end do
+      do irrep = 1, nirrep !Secondary MOs
+       ngas_gnsymupd(irrep,2) = ngas_gnsym(irrep,ngas+1)
+      end do
+*
+*. Backup
+*
+      ngas_bu = ngas
+      ngas_gnsym_bu = 0
+      ngssh_bu      = 0
+      do igensm = 1, ngensmob
+       do igas= 1, ngas+2
+        ngas_gnsym_bu(igensm,igas) = ngas_gnsym(igensm,igas-1)
+       end do
+      end do
+      do irrep = 1, nirrep
+       do igas =  1, ngas
+        ngssh_bu(irrep,igas) = ngssh(irrep,igas)
+       end do
+      end do
+*
+      nobpts_gn_bu = 0
+      do igensm = 1, ngensmob
+       nobpts_gn_bu(0,igensm) = nobpts_gn(0,igensm)
+       nobpts_gn_bu(ngas+1,igensm) = nobpts_gn(ngas+1,igensm)
+       do igas = 1, ngas
+        nobpts_gn_bu(igas,igensm) = nobpts_gn(igas,igensm)
+       end do
+      end do
+*
+      itpfso_bu = 0
+      do itoob = 1, ntoob
+       itpfso_bu(itoob) = itpfso(itoob)
+      end do
+*
+      icispc = 1
+      igsoccx_bu = 0
+      do igas =  1, ngas
+       igsoccx_bu(igas,1,icispc) = igsoccx(igas,1,icispc)
+       igsoccx_bu(igas,2,icispc) = igsoccx(igas,2,icispc)
+      end do
+*
+*. Nullify
+*
+      ngssh = 0
+      do irrep = 1, nirrep
+       do igas =  1, ngas+1
+        ngas_gnsym(irrep,ngas) = 0
+        if (igas.le.ngas) nobpts_gn(igas,irrep) = 0
+       end do
+      end do
+*
+*. Copy!
+*
+      ! Change MO pointer of itpfso for Active and Secondary
+      do itoob = 1, ntoob
+       if ((itpfso(itoob).gt.0).and.(itpfso(itoob).ne.ngas+1)) then
+        itpfso(itoob) = 1
+       else if (itpfso(itoob).eq.ngas+1) then
+        itpfso(itoob) = 2
+       end if
+      end do
+*
+      ! And the rest
+      ngas = 1
+      do irrep = 1, nirrep
+       ngssh(irrep,ngas) = ngsshupd(irrep)
+       ngas_gnsym(irrep,ngas)   = ngas_gnsymupd(irrep,1)
+       ngas_gnsym(irrep,ngas+1) = ngas_gnsymupd(irrep,2)
+       nobpts_gn(ngas,irrep) = ngsshupd(irrep)
+       nobpts_gn(ngas+1,irrep) = nobpts_gn(ngas+2,irrep)
+       nobpts_gn(ngas+2,irrep) = 0
+      end do
+*
+      ! ...and do not forget the occupation numbers
+      icispc = 1
+      igsoccx = 0
+      igsoccx(1,1,icispc) = nactel
+      igsoccx(1,2,icispc) = nactel
+*
+*. Print Output
+*
+      if(ntest.ge.10.and.ga_nodeid().eq.0) then
+      WRITE(*,*)
+      WRITE(*,*) ' ***********************************************'
+      WRITE(*,*) '  Gathered MOs in one GAS Space Before MOROT_GS '
+      WRITE(*,*) ' ***********************************************'
+      WRITE(*,*)
+      WRITE(*,'(A)') ' Orbital subspaces:'
+      WRITE(*,'(A)') ' ================== '
+      WRITE(*,*)
+      WRITE(*,'(1H ,A,10I4,A)')
+     &  '                Irrep ',(I,I = 1,NIRREP)
+      WRITE(*,'(1H ,A,2X,10A,A)')
+     &  '                ===== ',('====',I = 1,NIRREP)
+      WRITE(*,'(A,10I4)')
+     &  '        Inactive       ',
+     &   ( NINASH(IRREP),IRREP = 1, NIRREP)
+
+      DO IGAS = 1, NGAS
+        WRITE(*,'(A,I2,A,10I4,6X,2I6)')
+     &  '        GAS',IGAS,'          ',
+     &  (NGSSH(IRREP,IGAS),IRREP = 1, NIRREP)
+      END DO
+      WRITE(*,'(A,10I4)')
+     &  '        Secondary      ',
+     &   ( NSECSH(IRREP),IRREP = 1, NIRREP)
+      IF(ISECFILL.NE.0) WRITE(6,'(7X,A,I3)')
+     &' Secondary space provided by courtesy of LUCIA '
+*
+       WRITE(*,'(A,I3)')
+     &  ' Number of Occupation spaces: ',NCISPC
+       WRITE(*,*)
+       DO ICISPC = 1, NCISPC
+        WRITE(*,'(A,I3)')
+     &  ' Bounds on accumulated occupations for space: ',ICISPC
+        WRITE(*,'(A)')
+     &   ' ====================================================== '
+        WRITE(*,'(A)')
+        WRITE(*,'(A)') '         Min. occ    Max. occ '
+        WRITE(*,'(A)') '         ========    ======== '
+        DO IGAS = 1, NGAS
+          WRITE(*,'(A,I2,3X,I3,9X,I3)')
+     &    '   GAS',IGAS,IGSOCCX(IGAS,1,ICISPC),IGSOCCX(IGAS,2,ICISPC)
+        END DO
+       END DO
+       WRITE(*,*)
+      end if
+*
+      return
+      end
+*======================================================================*
+*======================================================================*
+      subroutine return_values_after_morot
+*======================================================================*
+*
+*.  After the successful transformation of the active MOs in MOROT_GS,
+*.  return pointers and dimensions of variables corresponding to
+*.  multiple GAS spaces
+*.
+*.  Konstantinos D. Vogiatzis, October 2015, after hitting the local
+*.  bookstore with Jeppe
+*
+*======================================================================*
+*
+      include 'implicit.inc'
+      include 'mxpdim.inc'
+      include 'orbinp.inc'
+      include 'cgas.inc'
+      include 'crun.inc'
+      include 'clunit.inc'
+      include 'lucinp.inc'
+#include "global.fh"
+#include "mafdecls.fh"
+*
+      ngas = ngas_bu
+*
+*. Backup
+*
+      ngssh = 0
+      do igensm = 1, ngensmob
+       do igas= 1, ngas+2
+        ngas_gnsym(igensm,igas-1) = ngas_gnsym_bu(igensm,igas)
+       end do
+      end do
+*
+      do irrep = 1, nirrep
+       do igas =  1, ngas
+        ngssh(irrep,igas) = ngssh_bu(irrep,igas)
+       end do
+      end do
+*
+      nobpts_gn = 0
+      do igensm = 1, ngensmob
+       nobpts_gn(0,igensm)      = nobpts_gn_bu(0,igensm)
+       nobpts_gn(ngas+1,igensm) = nobpts_gn_bu(ngas+1,igensm)
+       do igas = 1, ngas
+        nobpts_gn(igas,igensm)  = nobpts_gn_bu(igas,igensm)
+       end do
+      end do
+*
+      itpfso = 0
+      do itoob = 1, ntoob
+       itpfso(itoob) = itpfso_bu(itoob)
+      end do
+*
+      icispc = 1
+      igsoccx = 0
+      do igas =  1, ngas
+       igsoccx(igas,1,icispc) = igsoccx_bu(igas,1,icispc)
+       igsoccx(igas,2,icispc) = igsoccx_bu(igas,2,icispc)
+      end do
+*
+      ntest = 00
+*
+      if(ntest.ge.10.and.ga_nodeid().eq.0) then
+      WRITE(*,'(A)') ' Orbital subspaces:'
+      WRITE(*,'(A)') ' ================== '
+      WRITE(*,*)
+      WRITE(*,'(1H ,A,10I4,A)')
+     &  '                Irrep ',(I,I = 1,NIRREP)
+      WRITE(*,'(1H ,A,2X,10A,A)')
+     &  '                ===== ',('====',I = 1,NIRREP)
+      WRITE(*,'(A,10I4)')
+     &  '        Inactive       ',
+     &   ( NINASH(IRREP),IRREP = 1, NIRREP)
+
+      DO IGAS = 1, NGAS
+        WRITE(*,'(A,I2,A,10I4,6X,2I6)')
+     &  '        GAS',IGAS,'          ',
+     &  (NGSSH(IRREP,IGAS),IRREP = 1, NIRREP)
+      END DO
+      WRITE(*,'(A,10I4)')
+     &  '        Secondary      ',
+     &   ( NSECSH(IRREP),IRREP = 1, NIRREP)
+      WRITE(6,*)
+      IF(IGSFILL.NE.0) WRITE(6,'(7X,A,I3)')
+     &' Gas space provided by courtesy of LUCIA:',  IGSFILL
+      IF(ISECFILL.NE.0) WRITE(6,'(7X,A,I3)')
+      end if
 *
       return
       end

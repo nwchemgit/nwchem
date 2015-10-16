@@ -15,4 +15,5 @@
      &            NELVAL_IN_ENSGS_CMP,IEL_IN_ENSGS_CMP(MXPNEL),
      &            NOCSBCLST,IBOCSBCLS(MXPNGAS),
      &            NOCSBSLS(MXPNGAS),MINOPGAS(MXPNGAS),
-     &            ngas_bu,ihpvgas_bu(mxpngas)
+     &            ngas_bu,ihpvgas_bu(mxpngas),ngssh_bu(mxpirr,mxpngas),
+     &            igsoccx_bu(mxpngas,2,mxpici)
