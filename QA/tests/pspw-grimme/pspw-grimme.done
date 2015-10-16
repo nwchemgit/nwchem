@@ -1,0 +1,16 @@
+iamcompleted
+jobfiles:
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/pspw-grimme.nw
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/pspw-grimme.nw
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/pspw-grimme.out
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/pspw-grimme.done
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.xyz
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.ion_motion
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.emotion
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.fei
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.cif
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.hist
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.gr
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.dat
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.meta_gaussians
+/Users/bylaska/nwchem-releases/nwchem/QA/tests/pspw-grimme/*.cube

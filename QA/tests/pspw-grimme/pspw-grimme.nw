@@ -1,0 +1,55 @@
+#nwchem_input  pspw-grimme.nw
+#nwchem_output pspw-grimme.out
+#nwchem_done   pspw-grimme.done
+#
+#transfer_files *.xyz *.ion_motion *.emotion *.fei *.cif *.hist *.gr *.dat *.meta_gaussians *.cube
+#
+#permdir pspw_grimme_dir
+#deletescratch yes
+#queuesave no
+#
+#machine we18535
+#cputime 15:05:00
+#ncpus 24
+#queue regular
+#
+#
+title "2 water molecules using pbe-grimme2, pbe-grimme3"
+echo
+
+start pspw_grimme
+memory 1900 mb
+
+
+geometry nocenter noautosym noautoz print 
+O        -3.88253600     1.19097241    -0.06052968
+H        -2.95678034     1.34063943     0.13619208
+H        -4.32809046     1.96367283     0.25402886
+O        -1.07253056     1.44478596     0.42153338
+H        -0.63973632     1.34811920    -0.41571325
+H        -0.79513633     0.69904017     0.93593861
+end 
+
+#***** setup the nwpw gamma point code ****
+nwpw
+   lmbfgs
+   xc pbe96-grimme2
+end
+set nwpw:kbpp_ray    .true.
+set nwpw:kbpp_filter .true.
+set nwpw:cif_filename  pspw_grimme
+
+driver
+   clear
+end
+task pspw optimize
+
+nwpw
+   xc pbe96-grimme3
+end
+task pspw gradient
+
+nwpw
+   xc pbe96-grimme4
+end
+task pspw gradient
