@@ -71,17 +71,23 @@
         gga = 15
 
       else if (inp_compare(.false.,exchange_correlation,
-     >                     'pbe96-grimme2')) then
+     >                     'pbe96-grimme2') .or.
+     >         inp_compare(.false.,exchange_correlation,
+     >                     'pbe-grimme2')) then
         gga = 10
         options_disp  = '-func pbe -old -noprint'
         has_disp   = .true.
       else if (inp_compare(.false.,exchange_correlation,
-     >                     'pbe96-grimme3')) then
+     >                     'pbe96-grimme3').or.
+     >         inp_compare(.false.,exchange_correlation,
+     >                     'pbe-grimme3')) then
         gga = 10
         options_disp  = '-func pbe -zero -noprint'
         has_disp   = .true.
       else if (inp_compare(.false.,exchange_correlation,
-     >                     'pbe96-grimme4')) then
+     >                     'pbe96-grimme4').or.
+     >         inp_compare(.false.,exchange_correlation,
+     >                     'pbe-grimme4')) then
         gga = 10
         options_disp  = '-func pbe -bj -noprint'
         has_disp   = .true.
