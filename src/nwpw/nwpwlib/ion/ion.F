@@ -3355,7 +3355,7 @@ c
          options = options1(1:l)//' -pbc'
       end if
 
-      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
+      call nwxc_vdw3_dftd3_sh(options,nion,int_mb(iz(1)),
      >                     dbl_mb(r1(1)),lat,edisp,g,g_lat)
 
       if (.not.BA_pop_stack(iz(2)))
@@ -3420,7 +3420,7 @@ c
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
 
-      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
+      call nwxc_vdw3_dftd3_sh(options,nion,int_mb(iz(1)),
      >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),g_lat)
 
       call daxpy(3*nion,-1.0d0,dbl_mb(gtmp(1)),1,fion,1)
@@ -3489,7 +3489,7 @@ c
       call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
       call dcopy(9,0.0d0,0,stress,1)
 
-      call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
+      call nwxc_vdw3_dftd3_sh(options,nion,int_mb(iz(1)),
      >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),stress)
 
       !call dscal(9,-1.0d0,stress,1)

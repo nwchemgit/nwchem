@@ -1,7 +1,7 @@
 #
 # $Id$
 #
- SUBDIRS = shake
+ SUBDIRS = shake grimme_sh
 
  OBJ_OPTIMIZE = \
 		center.o \
