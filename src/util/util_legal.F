@@ -40,7 +40,7 @@ c
       integer  ibegin,iend,ilen,i
       character*4096 newchr
       integer maxno_authors,len_newchr
-      parameter(maxno_authors=96)
+      parameter(maxno_authors=97)
       character*64 name_author(maxno_authors)
       data name_author/
      +     'E. Apra', 'E. J. Bylaska', 'W. A. de Jong', 
@@ -53,7 +53,7 @@ c
      +     'M. Malagoli', 'A. Marenich', 'A. Otero-de-la-Roza', 
      +     'J. Mullin', 'P. Nichols', 'R. Peverati', 'J. Pittner', 
      +     'Y. Zhao', 'P.-D. Fan', 'A. Fonari', 'M. Williamson',
-     +     'R. J. Harrison', 
+     +     'R. J. Harrison', 'J. R. Rehr',
      +     'M. Dupuis', 'D. Silverstein', 'D. M. A. Smith', 
      +     'J. Nieplocha', 'V. Tipparaju', 'M. Krishnan', 
      +     'B. E. Van Kuiken', 'A. Vazquez-Mayagoitia', 'L. Jensen',
