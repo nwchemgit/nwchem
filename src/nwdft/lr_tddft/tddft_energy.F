@@ -130,6 +130,10 @@ c
       call util_print_push
       call util_print_rtdb_load(rtdb,'tddft')
 c
+c     == Init pstat ==
+c
+      call dft_pstat_init(rtdb)
+c
 c ---------------------
 c Initialize parameters
 c ---------------------
@@ -384,6 +388,7 @@ c -----------------
 c Print utility end
 c -----------------
 c
+      call dft_pstat_print
       call util_print_pop
 c
 c ------
