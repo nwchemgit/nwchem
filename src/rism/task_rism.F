@@ -28,11 +28,9 @@ c       stop
 c       
 c      main rism routine call
 c      ----------------------
-       call rism_message("calling rism wrapper")
        call rism_wrapper(rtdb)
        call rism_cleanup() 
        task_rism = .true.
-       call rism_message("completed task rism")
        return
       end 
 C> @}
@@ -59,9 +57,11 @@ c
       integer i_sgvv,i_epsvv,i_qvv
       integer i_sigu,i_epsiu,i_qqu,i_wu
       character*72 rdffile,tag
-      logical okspace
+      logical okspace, rtdb_status
 c       
       pname = "rism_wrapper"
+      if(ga_nodeid().ne.0) return
+      rtdb_status = rtdb_parallel(.false.)
 c      
 c
 c     solute data
@@ -183,7 +183,6 @@ c     --------------
       if(.not.result)
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
-      call rism_message("rism_wrapper 1")
 c
 c     grid data
 c     -------------- 
@@ -210,7 +209,6 @@ c     --------------
       if(.not.result)
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
-      call rism_message("rism_wrapper 2")
 c
 c     parameters
 c     -------------- 
@@ -269,10 +267,8 @@ c     -----------------------------
       tag = "rism:solvent:rdf"
       if(.not.rtdb_cget(rtdb,tag,1,rdffile)) 
      >  call errquit("cannot get "//tag,0,0)
-      call rism_message("rism_wrapper 3")
 
-       call rism_message("getting ready for main rism")
-
+    
        call rism(rtdb,rdffile,nu,nv,nvv,ngr,icl,
      +           dbl_mb(i_kgrid),dbl_mb(i_rgrid),
      +           byte_mb(i_tv),int_mb(i_isv),dbl_mb(i_den),
@@ -289,6 +285,7 @@ c       call rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,den,mv,xv,yv,zv,
 c     * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,lambd,
 c     * tol,wu,dd)          
 
+       rtdb_status = rtdb_parallel(rtdb_status)
        return
       end 
 
@@ -815,7 +812,7 @@ c      mugf chem.potential in gaussian approximation
 c      muh   chem.potential in hnc approximation         
        write(luout,108) "(hnc approximation)",muh
        write(luout,108) "(gaussian approximation)",mugf
-  108  format("Chemical potential",A,T43,F10.4)
+  108  format("Chemical potential",A,T43,F10.4," kcal/mol")
        return 
        end subroutine
 

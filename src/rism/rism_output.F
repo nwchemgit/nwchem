@@ -60,11 +60,12 @@ c
       integer i_sigu,i_epsiu,i_qqu,i_wu
       character*72 filename,tag
       character*16 aname
-      logical okspace
+      logical okspace,rtdb_status
 c       
       pname = "rism_wrapper"
 c      
       if(ga_nodeid().ne.0) return
+      rtdb_status = rtdb_parallel(.false.)
 c      
       call util_print_centered(luout,
      A     "1D-RISM Calculation Parameters",32,.true.)
@@ -232,6 +233,7 @@ c
 22    FORMAT(A,T33,A)
 
 
+       rtdb_status = rtdb_parallel(rtdb_status)
        return
       end 
 
@@ -271,8 +273,11 @@ c
       integer  i_wu
       integer  i_kgrid,ngrid
       character*80 pname 
+      logical rtdb_status
 c
       pname = "rism_print_solute_configuration"
+      if(ga_nodeid().ne.0) return
+      rtdb_status = rtdb_parallel(.false.)
 #ifdef RISM_DEBUG      
       call rism_message("in "//pname)
 #endif
@@ -331,6 +336,7 @@ c
       call rism_message("out "//pname)
 #endif
 
+      rtdb_status = rtdb_parallel(rtdb_status)
       return
       end
 

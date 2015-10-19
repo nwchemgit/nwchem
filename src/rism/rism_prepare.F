@@ -1,4 +1,4 @@
-#define RISM_PREP_DEBUG1
+#define NORISM_PREP_DEBUG
       subroutine rism_prepare(rtdb)
       implicit none
 #include "errquit.fh"
@@ -12,6 +12,7 @@
       integer rtdb
       logical omaster
       integer master
+      logical ignore
       character*80 pname
 
       master = 0
@@ -24,6 +25,10 @@
 c
 c     order may be important here
 c     ---------------------------
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("start 1 "//pname)
+#endif
+      ignore = rtdb_parallel(.false.)
       if(omaster) then
        call rism_prepare_params(rtdb)
        call rism_prepare_grid(rtdb)
@@ -31,8 +36,9 @@ c     ---------------------------
        call rism_prepare_solute(rtdb)
 c       call db_data_print(6)
       end if
+      ignore = rtdb_parallel(.true.)
 #ifdef RISM_PREP_DEBUG      
-      call rism_message("1 "//pname)
+      call rism_message("end 1 "//pname)
 #endif
 c
 c     send data to other processors
@@ -265,7 +271,6 @@ C     >  call errquit("cannot get "//tag,0,0)
      >  call errquit("cannot put "//tag,0,0)
       end if
 
-      write(*,*) "filename=",filename
       call rism_grid_parse(filename,ngrid,d)
 c     
 c     check if grid size is power of 2
