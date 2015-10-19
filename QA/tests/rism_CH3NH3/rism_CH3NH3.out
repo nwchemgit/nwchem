@@ -1,0 +1,404 @@
+ argument  1 = rism_CH3NH3.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+start rism
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+rism
+ closure kh
+ tol 0.1e-6
+ temp 298
+ vdw rule arithmetic parameters vdw.par
+ solute configuration solute2.data
+ ngrid 4096
+end
+task energy rism
+
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 6.6
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                              Copyright (c) 1994-2015
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+ 
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+ 
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = g0
+    program         = /home/marat/codes/nwchem-6.6-old/bin/LINUX64/nwchem
+    date            = Mon Oct 19 14:09:40 2015
+
+    compiled        = Mon_Oct_19_13:52:21_2015
+    source          = /home/marat/codes/nwchem-6.6
+    nwchem branch   = 6.6
+    nwchem revision = 27722
+    ga revision     = 10594
+    input           = rism_CH3NH3.nw
+    prefix          = rism.
+    data base       = ./rism.db
+    status          = startup
+    nproc           =        2
+    time left       =     67s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =     655360 doubles =      5.0 Mbytes
+    stack    =    3014653 doubles =     23.0 Mbytes
+    global   =    5242880 doubles =     40.0 Mbytes (distinct from heap & stack)
+    total    =    8912893 doubles =     68.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ ****************************************************
+ *   NWChem 1D-RISM Module                          *
+ *                                                  *
+ *   Marat Valiev and Gennady N. Chuev 2011         *
+ ****************************************************
+                  1D-RISM Calculation Parameters
+                  ------------------------------
+Number of grid points           4096
+Closure type                    kh              
+VDW combination rule            arithmetic      
+Solvent permittivity             1.000    
+Coulomb decay length             1.000    
+Convergence tolerance           0.1000E-06
+Mixing parameter                 0.000    
+Temperature                      298.0    
+Diis iterations                    9
+Solvent rdf file                /home/marat/codes/nwchem-6.6/src/rism/data/water.rdf                    
+Solute configuration file       solute2.data                                                            
+                       Solute configuration
+                       --------------------
+name type       x           y           z           sigma       eps         charge
+N1   N1         0.000000   -0.500000   -0.610000    3.250000    0.711800   -0.178415
+C1   C1         0.510000    0.190000    0.610000    3.400000    0.458000   -0.008424
+H1   H1         1.080000   -0.520000    1.220000    1.960000    0.065700    0.087229
+H2   H2         1.150000    1.020000    0.300000    1.960000    0.065700    0.082486
+H3   H3        -0.340000    0.570000    1.170000    1.960000    0.065700    0.066340
+H4   H4        -0.500000   -1.390000   -0.390000    1.069000    0.065700    0.323891
+H5   H5         0.730000   -0.780000   -1.280000    1.069000    0.065700    0.309036
+H6   H6         0.640000    1.200000    1.120000    1.069000    0.065700    0.317855
+ starting iterations
+                     2                     2  0.879372184407427     
+                     3                     3  0.462556115370042     
+                     4                     4  0.641334256537639     
+                     5                     5  0.797469227080724     
+                     6                     6   1.21291274269283     
+                     7                     7   1.93698243711011     
+                     8                     8   3.25770059225544     
+                     9                     9   5.93623533151259     
+                    10                     9   10.8925504514235     
+                    11                     9  0.191858772642482     
+                    12                     9  0.194648524797691     
+                    13                     9  0.153955991617490     
+                    14                     9  0.126111495188254     
+                    15                     9  9.622332286889211E-002
+                    16                     9  7.932782376547975E-002
+                    17                     9  9.002254163885044E-002
+                    18                     9  0.110431084617863     
+                    19                     9  4.185734023061882E-002
+                    20                     9  2.915731668345027E-002
+                    21                     9  2.010671632732599E-002
+                    22                     9  1.538118209914025E-002
+                    23                     9  1.094139273576128E-002
+                    24                     9  9.685088542667517E-003
+                    25                     9  8.809432697941589E-003
+                    26                     9  7.858558874313226E-003
+                    27                     9  7.206671698813355E-003
+                    28                     9  6.979045256707538E-003
+                    29                     9  6.954508162719969E-003
+                    30                     9  6.603356021036279E-003
+                    31                     9  6.022664047248700E-003
+                    32                     9  4.777233490491129E-003
+                    33                     9  3.985677861734488E-003
+                    34                     9  2.780835498907547E-003
+                    35                     9  2.139290827949060E-003
+                    36                     9  1.962926499932651E-003
+                    37                     9  1.634603420982571E-003
+                    38                     9  1.432917331869065E-003
+                    39                     9  1.208593502736000E-003
+                    40                     9  1.166960225117233E-003
+                    41                     9  1.152011429144061E-003
+                    42                     9  1.156005205107019E-003
+                    43                     9  1.160872267702011E-003
+                    44                     9  1.167167461320069E-003
+                    45                     9  1.195658380038842E-003
+                    46                     9  1.193666373099522E-003
+                    47                     9  1.167945848059022E-003
+                    48                     9  1.153750166914586E-003
+                    49                     9  1.085300024996948E-003
+                    50                     9  9.842926952685648E-004
+                    51                     9  8.313868116165525E-004
+                    52                     9  6.305543083027032E-004
+                    53                     9  4.072411893395533E-004
+                    54                     9  2.664254781171273E-004
+                    55                     9  2.251332765427818E-004
+                    56                     9  2.176020393303713E-004
+                    57                     9  2.113252649769483E-004
+                    58                     9  2.272135572181451E-004
+                    59                     9  2.352609393343996E-004
+                    60                     9  2.392714399277823E-004
+                    61                     9  2.484455911279706E-004
+                    62                     9  2.235475943302397E-004
+                    63                     9  2.172126672496344E-004
+                    64                     9  2.163194593576098E-004
+                    65                     9  2.290282688439547E-004
+                    66                     9  2.253694485987740E-004
+                    67                     9  2.245297135472128E-004
+                    68                     9  2.306796411168007E-004
+                    69                     9  2.138629360276908E-004
+                    70                     9  2.150944778415211E-004
+                    71                     9  2.132341053827667E-004
+                    72                     9  2.038201733336777E-004
+                    73                     9  2.045949554146858E-004
+                    74                     9  2.157918480883681E-004
+                    75                     9  2.046759650477260E-004
+                    76                     9  1.977388471598890E-004
+                    77                     9  1.946173442328099E-004
+                    78                     9  1.859511922767118E-004
+                    79                     9  1.738322203288310E-004
+                    80                     9  1.427084650570896E-004
+                    81                     9  1.573905629589127E-004
+                    82                     9  1.602022531211631E-004
+                    83                     9  1.669461611126539E-004
+                    84                     9  1.622892637580769E-004
+                    85                     9  1.490393659437262E-004
+                    86                     9  1.651778316127349E-004
+                    87                     9  1.667445199256804E-004
+                    88                     9  1.578662397677087E-004
+                    89                     9  1.517612668754821E-004
+                    90                     9  1.537939270974592E-004
+                    91                     9  1.326135635521118E-004
+                    92                     9  1.128880586865009E-004
+                    93                     9  1.126560721624921E-004
+                    94                     9  1.259113541821485E-004
+                    95                     9  1.073771994005297E-004
+                    96                     9  1.227035086006515E-004
+                    97                     9  1.235768130301529E-004
+                    98                     9  1.202158908742965E-004
+                    99                     9  1.202097231150621E-004
+                   100                     9  1.156229112760106E-004
+                   101                     9  1.102706022991707E-004
+                   102                     9  1.115104450196473E-004
+                   103                     9  1.095930277971307E-004
+                   104                     9  1.214135583765441E-004
+                   105                     9  1.040287104724320E-004
+                   106                     9  1.053220405092076E-004
+                   107                     9  1.073264244897298E-004
+                   108                     9  1.026770469836576E-004
+                   109                     9  1.019875341998525E-004
+                   110                     9  1.018375676023859E-004
+                   111                     9  1.022105476032856E-004
+                   112                     9  1.067559949634748E-004
+                   113                     9  1.028186273973298E-004
+                   114                     9  9.992857932891619E-005
+                   115                     9  1.223393604920313E-004
+                   116                     9  1.147868400856223E-004
+                   117                     9  1.113059699458259E-004
+                   118                     9  1.141982331670282E-004
+                   119                     9  1.141496719219241E-004
+                   120                     9  1.094914068197527E-004
+                   121                     9  1.098181312307785E-004
+                   122                     9  1.085989135312112E-004
+                   123                     9  1.047166417115936E-004
+                   124                     9  1.021086038264183E-004
+                   125                     9  1.018373522219762E-004
+                   126                     9  1.076215471680545E-004
+                   127                     9  1.061118632773334E-004
+                   128                     9  9.936941390096719E-005
+                   129                     9  1.052407002941739E-004
+                   130                     9  1.058612111381904E-004
+                   131                     9  1.098951759620110E-004
+                   132                     9  1.037787159001472E-004
+                   133                     9  1.043006576592308E-004
+                   134                     9  1.063512669585541E-004
+                   135                     9  1.135543536253810E-004
+                   136                     9  1.129736982685319E-004
+                   137                     9  1.122595227042141E-004
+                   138                     9  1.163019801764194E-004
+                   139                     9  1.054977613977062E-004
+                   140                     9  1.079794535538645E-004
+                   141                     9  1.135649175981002E-004
+                   142                     9  1.127562608438851E-004
+                   143                     9  1.087715534753619E-004
+                   144                     9  1.026889588781881E-004
+                   145                     9  9.937754973863303E-005
+                   146                     9  8.759277935062841E-005
+                   147                     9  8.471150334908619E-005
+                   148                     9  8.725133803717699E-005
+                   149                     9  8.605951755388081E-005
+                   150                     9  6.131705814261041E-005
+                   151                     9  5.241351766181263E-005
+                   152                     9  4.660057761776056E-005
+                   153                     9  4.280808075657724E-005
+                   154                     9  3.842318376701503E-005
+                   155                     9  2.968385686876682E-005
+                   156                     9  2.632387667815527E-005
+                   157                     9  2.080665841767378E-005
+                   158                     9  1.811608055156150E-005
+                   159                     9  1.744855902886022E-005
+                   160                     9  1.845683928781725E-005
+                   161                     9  1.767677692736176E-005
+                   162                     9  1.921689773920520E-005
+                   163                     9  1.761592643420503E-005
+                   164                     9  1.686334781542499E-005
+                   165                     9  1.691797275857172E-005
+                   166                     9  1.582632256749669E-005
+                   167                     9  1.651569056016337E-005
+                   168                     9  1.623506888807204E-005
+                   169                     9  1.754576788819553E-005
+                   170                     9  1.538992568715857E-005
+                   171                     9  1.491680360174739E-005
+                   172                     9  1.471993733425218E-005
+                   173                     9  1.493101337524469E-005
+                   174                     9  1.449001708866431E-005
+                   175                     9  1.379162987553608E-005
+                   176                     9  1.217861958260568E-005
+                   177                     9  1.201990841534768E-005
+                   178                     9  1.037365486647293E-005
+                   179                     9  9.409128793920012E-006
+                   180                     9  8.481317356671067E-006
+                   181                     9  6.391367840891396E-006
+                   182                     9  5.808187849305232E-006
+                   183                     9  5.133314694643846E-006
+                   184                     9  4.699191238055274E-006
+                   185                     9  4.058371476358413E-006
+                   186                     9  2.743510686074272E-006
+                   187                     9  2.318554027338242E-006
+                   188                     9  1.823616079550502E-006
+                   189                     9  1.573273577712216E-006
+                   190                     9  1.067767883976285E-006
+                   191                     9  8.846353316471890E-007
+                   192                     9  5.987880399918416E-007
+                   193                     9  5.530057037673805E-007
+                   194                     9  4.056876004174827E-007
+                   195                     9  3.474809401013634E-007
+                   196                     9  2.888601242391870E-007
+                   197                     9  1.572480743896726E-007
+                   198                     9  7.924240604395956E-008
+Chemical potential(hnc approximation)       -55.2934 kcal/mol
+Chemical potential(gaussian approximation)  -56.8300 kcal/mol
+
+ Task  times  cpu:        3.8s     wall:        4.4s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    0        0        0        0        0        0        0        0     
+number of processes/call 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes total:             0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 0 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        42	         0
+	current total bytes		         0	         0
+	maximum total bytes		   2169128	         0
+	maximum total K-bytes		      2170	         0
+	maximum total M-bytes		         3	         0
+ 
+ 
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+ 
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+ 
+                                      AUTHORS
+                                      -------
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
+        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
+       S. A. Fischer, S. Krishnamoorthy, W. Ma, M. Klemm, O. Villa, Y. Chen,
+    V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli,
+       A. Marenich, A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati,
+     J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari, M. Williamson, R. J. Harrison,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        3.8s     wall:        4.5s

@@ -1,0 +1,15 @@
+echo
+start rism
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+rism
+ closure kh
+ tol 0.1e-6
+ temp 298
+ vdw rule arithmetic parameters vdw.par
+ solute configuration solute2.data
+ ngrid 4096
+end
+task energy rism
+

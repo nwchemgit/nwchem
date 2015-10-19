@@ -1,0 +1,11 @@
+#Van der Waals parameters file for RISM 
+# name   sigma(Angstrom) epsilon (kj/mol)
+N1    3.250  0.7118 
+C1    3.400  0.4580 
+H1    1.960  0.0657  
+H2    1.960  0.0657  
+H3    1.960  0.0657  
+H4    1.069  0.0657  
+H5    1.069  0.0657  
+H6    1.069  0.0657  
+
