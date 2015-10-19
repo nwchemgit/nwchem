@@ -92,7 +92,7 @@ EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
           ccsd vib property solvation mp2_grad geninterface bq cons
 # Need bq in front of cons?
 EXP_qmmm_valiev = $(filter-out argos leps nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
-EXP_rism = $(filter-out argos leps nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
+EXP_rism = $(filter-out nwxc argos leps nbo tce uccsdt python diana develop scfaux rimp2_grad vscf geninterface dntmc lucia,$(KNOWN_MODULE_SUBDIRS) )
 
 # Check each expansion
 
