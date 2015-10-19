@@ -1,5 +1,4 @@
- argument  1 = rism_CH3CO2.nw
-All connections between all procs tested: SUCCESS
+ argument  1 = /home/marat/codes/nwchem-6.6-old/QA/tests/rism_CH3CO2/rism_CH3CO2.nw
  
 
 
@@ -60,21 +59,21 @@ task energy rism
            Job information
            ---------------
 
-    hostname        = glogin3
-    program         = ../../../bin/LINUX64/nwchem
-    date            = Mon Oct 19 11:14:24 2015
+    hostname        = g0
+    program         = /home/marat/codes/nwchem-6.6-old/bin/LINUX64/nwchem
+    date            = Mon Oct 19 13:56:49 2015
 
-    compiled        = Mon_Oct_19_11:06:56_2015
+    compiled        = Mon_Oct_19_13:52:21_2015
     source          = /home/marat/codes/nwchem-6.6
     nwchem branch   = 6.6
     nwchem revision = 27722
     ga revision     = 10594
-    input           = rism_CH3CO2.nw
+    input           = /home/marat/codes/nwchem-6.6-old/QA/tests/rism_CH3CO2/rism_CH3CO2.nw
     prefix          = h2o.
     data base       = ./h2o.db
     status          = startup
-    nproc           =        1
-    time left       =      0s
+    nproc           =        2
+    time left       =    838s
 
 
 
@@ -107,8 +106,6 @@ task energy rism
  *                                                  *
  *   Marat Valiev and Gennady N. Chuev 2011         *
  ****************************************************
- filename=
- /home/marat/codes/nwchem-6.6/src/rism/data/water.rdf                    
                   1D-RISM Calculation Parameters
                   ------------------------------
 Number of grid points           4096
@@ -132,11 +129,6 @@ C2   C2        -0.174205    0.630432    0.357135    3.400000    0.360100    1.27
 H1   H1         0.360636    1.160405   -1.668859    2.115000    0.065700    0.102898
 H2   H2         0.242419    2.521128   -0.531952    2.115000    0.065700    0.118979
 H3   H3        -1.243967    1.772778   -1.139547    2.115000    0.065700    0.123148
- node   0:   calling rism wrapper
- node   0:   rism_wrapper 1
- node   0:   rism_wrapper 2
- node   0:   rism_wrapper 3
- node   0:   getting ready for main rism
  starting iterations
                      2                     2   3.38479040277052     
                      3                     3   1.63741674940929     
@@ -327,11 +319,10 @@ H3   H3        -1.243967    1.772778   -1.139547    2.115000    0.065700    0.12
                    188                     9  1.894226270874158E-007
                    189                     9  1.288680748772362E-007
                    190                     9  9.082494325026304E-008
-Chemical potential(hnc approximation)      -116.0239
-Chemical potential(gaussian approximation) -123.2645
- node   0:   completed task rism
+Chemical potential(hnc approximation)      -116.0239 kcal/mol
+Chemical potential(gaussian approximation) -123.2645 kcal/mol
 
- Task  times  cpu:        4.1s     wall:        4.3s
+ Task  times  cpu:        3.1s     wall:        3.7s
  
  
                                 NWChem Input Module
@@ -402,4 +393,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:        4.1s     wall:        4.4s
+ Total times  cpu:        3.1s     wall:        3.7s
