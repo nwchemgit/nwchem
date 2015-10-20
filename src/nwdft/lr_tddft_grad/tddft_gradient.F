@@ -30,7 +30,6 @@ c
 #include "errquit.fh"
 #include "xc.fh"
 #include "rtdb.fh"
-#include "util.fh"
 #include "cosmo.fh"
 #include "tddft_grad_util.fh"
 c
