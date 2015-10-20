@@ -197,7 +197,7 @@ C?        write(6,*) ' Updated x', X
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 0000
+      NTEST = 0100
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='
@@ -289,6 +289,7 @@ C?      WRITE(6,*) ' IA IB LBLOCK_AS', IA,IB, LBLOCK_AS
         NSTA = NSSOA(ISM,IA)
         NSTB = NSSOB(IBSM,IB)
         LBLOCK= NSTA*NSTB
+        if (lblock.eq.0) goto 1000
         IF(IDC.EQ.1.OR.IA.GT.IB.OR.(IA.EQ.IB.AND.IASM.GT.IBSM)) THEN
           LBLOCKP = NSTA*NSTB
         ELSE IF(IDC.EQ.2.AND.IA.EQ.IB.AND.IASM.EQ.IBSM) THEN
@@ -4787,7 +4788,7 @@ CNW   DIMENSION CV(*)
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
 *
       CALL LUCIAQENTER('SBLOK')
-      NTEST = 000
+      NTEST = 1000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Output from SBLOCK '
@@ -5262,7 +5263,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
       IF(IH_OCC_CONS.EQ.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
       END IF
-      NTEST = 0000
+      NTEST = 1000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -5340,6 +5341,7 @@ CNW       CALL WRTMAT(CV,1,1,1,1)
       ELSE
 *. Active blocks in vectors CV 
 cVOG Old bug fixed
+CBERTWORK:Work so each processor does a part.
         CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,SCLFAC(ICBLK_INI),
      &       NCBLOCK_T,ICBLOCK(1,ICBLK_INI))
 cVOG &       NCBLOCK_T,ICBLOCK)

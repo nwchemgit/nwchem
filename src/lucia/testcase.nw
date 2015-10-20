@@ -66,8 +66,8 @@ end
 #scf; print low; end
 
 task scf ignore
-#set lucia:nactel 12
-set lucia:nactel 8
+set lucia:nactel 16
+#set lucia:nactel 8
 set lucia:ms2 0
 set lucia:sym 1    
 set lucia:nroot 1
@@ -79,17 +79,23 @@ set lucia:icnfbat 2
 set lucia:idensi 0
 set lucia:ciconv 1.0d-8
 set lucia:inideg 1
-#set lucia:inactive 1 0 0 0 1 0 0 0
-set lucia:inactive 2 0 0 0 2 0 0 0
+set lucia:inactive 0 0 0 0 0 0 0 0
+#set lucia:inactive 2 0 0 0 2 0 0 0
+#set lucia:ngas 4
+#set lucia:gassh 2 0 0 0 2 0 0 0  2 0 0 0 2 0 0 0  0 2 0 0 0 2 0 0  0 0 2 0 0 0 2 0
+#set lucia:ngas 2
+#set lucia:gassh 2 2 0 0 2 2 0 0  2 0 2 0 2 0 2 0 
 set lucia:ngas 1
-#set lucia:gassh 3 2 1 0 3 2 1 0
-set lucia:gassh 2 2 1 0 2 2 1 0
+set lucia:gassh 4 2 2 0 4 2 2 0 
+#set lucia:gassh 2 2 1 0 2 2 1 0
 set lucia:second "REST"
 set lucia:machine "CRAY"
 set lucia:ncispc 1
 set lucia:nirrep 8
-#set lucia:gsoccx 12 12
-set lucia:gsoccx 8 8
+#set lucia:gsoccx 0 8 0 16 0 16 8 16 
+#set lucia:gsoccx 0 16 16 16 
+set lucia:gsoccx 16 16
+#set lucia:gsoccx 8 8
 set lucia:nseqci 1
 set lucia:seq_1_1 "MCSCF,20,1"
 #set lucia:seq_1_1 "MCSCF,1,1"

@@ -9945,7 +9945,7 @@ c..
 c
       if (CSEQCI(1,2).eq.'AKBKCI') then
         iunit = 669
-        open(iunit,name='ga_bu',status='unknown')
+        open(iunit,file='ga_bu',status='unknown')
         read(iunit,*) KINT1BU
         read(iunit,*) KINT2BU
         read(iunit,*) KHBU
@@ -10207,7 +10207,7 @@ C?   &      WORK(KFI), WORK(KINT1O)
       else
        iunit = 668
        if (ga_nodeid().eq.0) then
-        open(iunit,name='ecore_bu',status='unknown')
+        open(iunit,file='ecore_bu',status='unknown')
         read(iunit,*) ECORE
         read(iunit,*) ECORE_ORIG
         read(iunit,*) ECORE_H
@@ -11260,7 +11260,7 @@ C    &                         IOGOCSBCLS,MINOPFSPCLS,KOCSBCNF)
         END DO
         iunit = 669
         if (ga_nodeid().eq.0) then
-         open(iunit,name='ga_bu',status='unknown')
+         open(iunit,file='ga_bu',status='unknown')
          read(iunit,*) KINT1BU
          read(iunit,*) KINT2BU
          read(iunit,*) KHBU
@@ -12211,7 +12211,7 @@ cVOG Store stuff for restart AkBk
        call ga_put(movecbu, 1, LMOAO, 1, 1, dbl_mb(KMOAOUT), NINT2)
        iunit = 669
        if (ga_nodeid().eq.0) then
-        open(iunit,name='ga_bu',status='unknown')
+        open(iunit,file='ga_bu',status='unknown')
         write(iunit,*) KINT1BU
         write(iunit,*) KINT2BU
         write(iunit,*) KHBU
@@ -15408,7 +15408,7 @@ CNW   DIMENSION SV(*),CV(*)
       CHARACTER*6 ITASK
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 000
+      NTEST = 10000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='

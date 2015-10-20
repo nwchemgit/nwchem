@@ -3414,7 +3414,7 @@ C     WRITE(6,*) ' MEMCHECK passed '
       IF(IDXSM.EQ.0)  GOTO 2001
 *. Connecting double excitations
       CALL DXTYP2_GAS(NDXTYP,ITP,JTP,KTP,LTP,NGAS,ISOC,ICOC,IPHGAS)
-      nproc = ga_nnodes()
+c     nproc = ga_nnodes()
       DO 2000 IDXTYP = 1, NDXTYP
         ITYP = ITP(IDXTYP)
         JTYP = JTP(IDXTYP)
@@ -3723,9 +3723,10 @@ C?                        WRITE(6,*) ' Check passes '
 c               if (npart.lt.nproc) then
 c                  npart = min(nrow,nproc)
 c               endif
-                IF(NTEST.GE.100)
+                IF(NTEST.GE.000)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
-                DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
+c               DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
+                DO 1801 IIPART = 1, NPART
                   IBOT = 1+(IIPART-1)*MAXI
                   ITOP = MIN(IBOT+MAXI-1,NROW)
                   NIBTC = ITOP-IBOT+1
@@ -4057,9 +4058,10 @@ C                            TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
 c               if (npart.lt.nproc) then
 c                  npart = min(nrow,nproc)
 c               endif
-                IF(NTEST.GE.100)
+                IF(NTEST.GE.000)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
-                DO 2801 IIPART = ga_nodeid()+1, NPART,nproc
+C               DO 2801 IIPART = ga_nodeid()+1, NPART,nproc
+                DO 2801 IIPART = 1, NPART
                   IBOT = 1+(IIPART-1)*MAXI
                   ITOP = MIN(IBOT+MAXI-1,NROW)
                   NIBTC = ITOP-IBOT+1
@@ -7398,6 +7400,8 @@ C     call iwrtma(icls,ngas,ncls,ngas,ncls)
 *
 *. Jeppe Olsen, June 2010
 *
+C BERT NEW: ONLY LOOK AT BLOCK NODE HAS, LOCAL OPERATION
+C           IF ACTIVE BLK_A = 1
       INCLUDE 'implicit.inc'
       REAL*8
      &INPROD
@@ -10929,7 +10933,7 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
       IF(IDXSM.EQ.0) GOTO 2001
       IF(NTEST.GE.1000)    
      &WRITE(6,*) ' ISCSM,ICCSM IDXSM ', ISCSM,ICCSM,IDXSM
-      nproc = ga_nnodes()
+c     nproc = ga_nnodes()
       DO 2000 IDXTP =  1, NDXTP
         ITYP = ITP(IDXTP)
         JTYP = JTP(IDXTP)
@@ -10977,10 +10981,11 @@ C     INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
 c             if (npart.lt.nproc) then
 c                npart = min(nrow,nproc)
 c             endif
-              IF(NTEST.GE.2000)
+              IF(NTEST.GE.0000)
      &        write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
-              if (ga_nodeid()+1.gt.npart) goto 1930
-              DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
+c             if (ga_nodeid()+1.gt.npart) goto 1930
+c             DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
+              DO 1801 IIPART = 1, NPART
 
                 IBOT = 1+(IIPART-1)*MAXI
                 ITOP = MIN(IBOT+MAXI-1,NROW)
@@ -11555,7 +11560,7 @@ C?            WRITE(6,*) ' LTYP, LSM, LOFF = ', LTYP, LSM, LOFF
 *
       IFRST = 1
       JFRST = 1
-      nproc = ga_nnodes()
+c     nproc = ga_nnodes()
 *. Number of partitionings over column strings
           NIPART = NROW/MAXI
           IF(NIPART*MAXI.NE.NROW) NIPART = NIPART + 1
@@ -11670,7 +11675,8 @@ C         WRITE(6,*) ' NKAEFF NKASTR', NKAEFF,NKASTR
               LKABTC = KTOP - KBOT +1
 
 *. This is the place to start over partitioning of I strings
-              DO 701 IIPART = ga_nodeid()+1, NIPART,nproc
+c             DO 701 IIPART = ga_nodeid()+1, NIPART,nproc
+              DO 701 IIPART = 1, NIPART
                 IBOT = (IIPART-1)*MAXI+1
                 ITOP = MIN(IBOT+MAXI-1,NROW)
                 NIBTC = ITOP - IBOT + 1
@@ -13126,7 +13132,7 @@ C     CALL GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
       JBFRST = 1
 *
       IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
-      nproc = ga_nnodes()
+c     nproc = ga_nnodes()
       DO 2001 IJTYP = 1, NIJTYP
 *
         IJFIRST = 1
@@ -13377,7 +13383,8 @@ C?              WRITE(6,*) ' I_USE_SIMTRH = ', I_USE_SIMTRH
 *
 C               IJKL_DIM = IJ_DIM(1)*IJ_DIM(2)*KL_DIM(1)*KL_DIM(2)
 C               IF(INPROD(XINT,XINT,IJKL_DIM).NE.0.0D0) THEN
-          DO 1801 IKABTC = ga_nodeid()+1, NKABTC, nproc
+c         DO 1801 IKABTC = ga_nodeid()+1, NKABTC, nproc
+          DO 1801 IKABTC = 1, NKABTC
             KABOT = (IKABTC-1)*MAXK + 1
             KATOP = MIN(KABOT+MAXK-1,NKAEFF)
             LKABTC = KATOP-KABOT+1
@@ -15478,7 +15485,7 @@ C?    WRITE(6,*) ' NSMOB = ', NSMOB
       CALL SXTYP_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC)
       CALL SXTYP_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC)           
       IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
-      nproc = ga_nnodes()
+c     nproc = ga_nnodes()
       DO 2001 IJTYP = 1, NIJTYP
         ITYP = ITP(IJTYP)
         JTYP = JTP(IJTYP)
@@ -15527,7 +15534,8 @@ C             COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
 c         if(nkabtc.lt.nproc) then
 c           nkabtc = min(nkaeff,nproc)
 c         endif
-          DO 1801 IKABTC = ga_nodeid()+1, NKABTC,nproc
+c         DO 1801 IKABTC = ga_nodeid()+1, NKABTC,nproc
+          DO 1801 IKABTC = 1, NKABTC
             KABOT = (IKABTC-1)*MAXK + 1
             KATOP = MIN(KABOT+MAXK-1,NKAEFF)
             LKABTC = KATOP-KABOT+1

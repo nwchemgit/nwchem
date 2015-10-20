@@ -4991,7 +4991,8 @@ cVOG    else
       integer gathermos(nirrep)
       integer ntotmos(ngas)
       integer maxocc(ngas)
-      integer totsds
+      integer totsds, ngastotmo, weyl, get_mo_occ_gas
+      external weyl, get_mo_occ_gas
 *
       ntest  = 100 !VOG 0
 *
@@ -5566,21 +5567,22 @@ cVOG    else
       integer nele, nmo, spin
 *
 *. Scratch
-      integer inter, inter2
-      real(8) one, two, three, nom, denom, rweyl, rnele, rnmo, rspin
+      integer inter, inter2, nom, fac1, fac2, denom, vogfactorial
+      double precision one, two, three, rweyl, rnele, rnmo, rspin
+      external vogfactorial
 *
       ntest = 10
 *
 **. Work
 *
       ! Transform integers to real
-      rnele = real(nele)
-      rnmo  = real(nmo)
-      rspin = real(spin)
+      rnele = dble(nele)
+      rnmo  = dble(nmo)
+      rspin = dble(spin)
 *
 *     First term = 2S + 1
 *
-      one = 2*spin + 1
+      one = 2*rspin + 1.0d0
 *
 *     Second term = N! / ( (n/2 - S)! * (N + 1 - n/2 + S)! )
 *
@@ -5590,7 +5592,7 @@ cVOG    else
       fac1 = vogfactorial(inter1)
       fac2 = vogfactorial(inter2)
       denom = fac1 * fac2
-      two = nom / denom
+      two = dble(nom) / dble(denom)
 *
 *     Third term = (N+1)! / ( (n/2 + S + 1)! * (N - n/2 - S)! )
 *
@@ -5600,7 +5602,7 @@ cVOG    else
       fac1 = vogfactorial(inter1)
       fac2 = vogfactorial(inter2)
       denom = fac1 * fac2
-      three = nom / denom
+      three = dble(nom) / dble(denom)
 *
 *     Multiply the three terms for the number of SDs
 *

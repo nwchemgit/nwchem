@@ -1350,7 +1350,7 @@ cVOG  Open file where backup information will be stored for the second
 cVOG  LUCIA call for AkBk
       IF(ga_nodeid().eq.0) THEN
        iunit = 668
-       open(iunit,name='ecore_bu',status='unknown')
+       open(iunit,file='ecore_bu',status='unknown')
        write(iunit,*) ECORE
        write(iunit,*) ECORE_ORIG
        write(iunit,*) ECORE_H
