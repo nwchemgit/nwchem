@@ -15445,7 +15445,11 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
             CALL ITODS(LEN,1,-1,LUHC)
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            call ga_acc(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
+C BERT NEW
+C Need to add logic for blocks that were not updated, and do not need to be accumulated
+C Add IBATS(9,ISBLK) as integer to identify if block needs updating
+            if (LEN.gt.0) 
+     &         call ga_acc(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             endif
             IOFF_S = IOFF_S + LEN
