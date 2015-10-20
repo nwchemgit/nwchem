@@ -15451,7 +15451,6 @@ C Add IBATS(9,ISBLK) as integer to identify if block needs updating
             if (LEN.gt.0) 
      &         call ga_acc(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
-            endif
             IOFF_S = IOFF_S + LEN
           END IF
         END DO
