@@ -15445,12 +15445,7 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
             CALL ITODS(LEN,1,-1,LUHC)
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            if (LEN.gt.0) then
-            call luciaqenter('gdgop')
-            call ga_dgop(1, SB(IOFF), LEN, '+')
-            call luciaqexit('gdgop')
-            if (ga_nodeid().eq.0) 
-     &      call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
+            call ga_acc(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             endif
             IOFF_S = IOFF_S + LEN
