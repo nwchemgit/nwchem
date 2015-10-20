@@ -1028,6 +1028,8 @@ c coversion factors
       logical, allocatable,dimension(:,:,:,:) ::  skip  !d(E)/d(r_ij) derivative wrt. dist. iat-jat
       integer linij,linik,linjk
       real*8 abc(3,n)
+      double precision expodc,expodc_eps
+      parameter (expodc_eps=1d-12)
 
       integer taskid,np,pcount,count
 
@@ -1511,9 +1513,13 @@ c precompute for analytical part
                drij(tauz,tauy,taux,lin_sh(iat,iat)) =
      >               drij(tauz,tauy,taux,lin_sh(iat,iat))
      >             + dc6_rest_sum(lin_sh(iat,jat))*dc6  
-
-               dc6= (dc6ij(jat,iat))*  
-     >             *dcn(tauz,tauy,taux,lin_sh(jat,jat))
+               expodc= dcn(tauz,tauy,taux,lin_sh(jat,jat))
+               if(expodc.gt.expodc_eps) then
+                  dc6= (dc6ij(jat,iat))**expodc 
+               else
+                  dc6= dc6ij(jat,iat)
+               endif
+                  
                drij(tauz,tauy,taux,lin_sh(jat,jat)) =
      >               drij(tauz,tauy,taux,lin_sh(jat,jat))
      >            +  dc6_rest_sum(lin_sh(jat,iat))*dc6    
