@@ -33,7 +33,7 @@ tddft
 cis
 nroots 10
 #print convergence
-maxvecs 20
+#maxvecs 20
 end
 
 task tddft energy
@@ -43,7 +43,7 @@ cis
 algorithm 3
 nroots 10
 #print convergence
-maxvecs 20
+#maxvecs 20
 end
 
 task tddft energy
@@ -51,7 +51,7 @@ task tddft energy
 tddft
 nroots 9
 #print convergence
-maxvecs 36
+#maxvecs 36
 end
 
 task tddft energy
@@ -60,7 +60,7 @@ tddft
 algorithm 3
 nroots 9
 #print convergence
-maxvecs 36
+#maxvecs 36
 end
 
 task tddft energy
