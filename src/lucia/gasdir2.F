@@ -5341,7 +5341,8 @@ CNW       CALL WRTMAT(CV,1,1,1,1)
       ELSE
 *. Active blocks in vectors CV 
 cVOG Old bug fixed
-CBERTWORK:Work so each processor does a part.
+C BERT NEW NEED TO SERIALIZE FIND_ACTIVE_BLOCKS_IN_VECTOR
+C ONLY NEED TO DO MY OWN BLOCK
         CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,SCLFAC(ICBLK_INI),
      &       NCBLOCK_T,ICBLOCK(1,ICBLK_INI))
 cVOG &       NCBLOCK_T,ICBLOCK)
@@ -5362,6 +5363,7 @@ C           ENFORCE_SIMSYM_ACT_BLK(NBLK,IBLK,XSCA)
 *
 * Initialize sigma blocks
 C?     CALL MEMCHK2('CHECAD')
+C BERT NEW NEED TO SET ISBLOCK(9,..) TO ZERO TO IDENTIFY SIGMA BLOCK AS NOT UPDATED
       DO JSBLOCK = 1, NSBLOCK
         IATP = ISBLOCK(1,JSBLOCK)
         IBTP = ISBLOCK(2,JSBLOCK)
@@ -5499,6 +5501,8 @@ CNW         CALL GSTTBL(CV(IOFF_C_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
 CNW  &                  ICOCOC,
 CNW  &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
 CNW  &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
+C
+C BERT NEW GSTTBL NEEDS TO BE SERIALIZED. LOCAL COPY ONLY
             CALL GSTTBL(CV,IOFF_C_BLOCK,CB(JOFF),JATP,JASM,JBTP,JBSM,
      &                  ICOCOC,
      &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
@@ -5665,6 +5669,7 @@ C    &          IOCTPA,IOCTPB,I_DO_EXACT_BLOCK)
                 END IF
 C
                 IF(INTERACT.EQ.0.OR.I_DO_EXACT_BLK.EQ.0) GOTO 10000
+C BERT NEW IDENTIFY SIGMA BLOCK AS BEING UPDATED in ISBLOCK(9,..)
 
                 IF(NTEST.GE.1000) THEN
                   WRITE(6,*) ' Next s block in batch : '
@@ -5804,6 +5809,7 @@ C    &                       JPERT)
         ISOFFP = ISBLOCK(6,ISBLK)
         NIA = NSSOA(IASM,IATP)
         NIB = NSSOB(IBSM,IBTP)
+C BERT NEW ONLY DO IF UPDATED!!!!
         IF(ICJKAIB.NE.0) THEN
 *. Tranpose sigma block was obtained, transpose to obtain correct block
            CALL TRPMT3(SB(ISOFF),NSSOB(IBSM,IBTP),
