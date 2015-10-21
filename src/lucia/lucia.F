@@ -15438,6 +15438,16 @@ CNW   DIMENSION SV(*),CV(*)
         WRITE(6,'(A,A6)') ' ITASK = ', ITASK
       END IF
 *
+*. For scaling for each TTS block
+*
+      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'RASSG3')
+      CALL MEMMAN(KLSCLFAC ,MXNTTS,'ADDL  ',2,'SCLFAC') 
+      NCBLOCK_T = IELSUM(int_mb(KCLBT), NCBATCH)
+      CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,dbl_mb(KLSCLFAC),
+     &     NCBLOCK_T,int_mb(KCIBT))
+      NBLOCK_C =  int_mb(KCI1BT+NCBATCH)-1+ int_mb(KCLBT+NCBATCH)
+      CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,dbl_mb(KLSCLFAC))
+*
       IF(LUHC.GT.0) CALL REWINO(LUHC)
 * Loop over batches over sigma blocks
       IOFF_S = 1
@@ -15451,7 +15461,7 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
           LEN = LEN + IBATS(8,ISBLK)
         ENDDO
         CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
-     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN)
+     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,dbl_mb(KLSCLFAC))
 *. Transfer S block to permanent storage
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           IATP = IBATS(1,ISBLK)
@@ -15488,6 +15498,7 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
       END IF
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving RASSG3'
 *
+      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'RASSG3')
       CALL LUCIAQEXIT('RASSG')
       RETURN
       END

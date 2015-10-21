@@ -4724,7 +4724,7 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       END
       SUBROUTINE SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
      &                  LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END,CV,
-     &                  ECORE,ITASK,ILEN) 
+     &                  ECORE,ITASK,ILEN,SCLFAC) 
 *
 * Generate a set of sigma blocks, 
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -4985,7 +4985,8 @@ C  I assume memory was allocated for blocks, so
       NOOS = NOCTPA*NOCTPB*NSMCI 
       NTTS = MXNTTS
 *. For scaling for each TTS block
-      CALL MEMMAN(KLSCLFAC ,NTTS,'ADDL  ',2,'SCLFAC')  !done
+*. Moved to RASSG3
+C     CALL MEMMAN(KLSCLFAC ,NTTS,'ADDL  ',2,'SCLFAC')  !done
 
 *. Space for four blocks of string occupations and arrays of 
 *. reordering arrays
@@ -5075,7 +5076,7 @@ C     IF(ISIMSYM.EQ.0) THEN
      &     int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &     MOCAA,MOCAB,IAPR,
      &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),int_mb(KCIBT),
-     &     IRESTRICT,int_mb(KCONSPA),int_mb(KCONSPB),dbl_mb(KLSCLFAC),
+     &     IRESTRICT,int_mb(KCONSPA),int_mb(KCONSPB),SCLFAC,
      &     LUCBLK,IPERTOP,IH0INSPC,dbl_mb(KLH0SPC),
      &     ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,
      &     IUSE_PA,int_mb(KCJPA),int_mb(KSIPA),ISIMSYM,dbl_mb(KINSCR2),
@@ -5335,10 +5336,10 @@ CNW       CALL WRTMAT(CV,1,1,1,1)
 * 1 : Arrays for accessing C 
 * ============================
 *. Find the active blocks on LUC, store info in SCLFAC
-      IF(ICISTR.NE.1) THEN
+C     IF(ICISTR.NE.1) THEN
 *. Active blocks on LUC
-        CALL FIND_ACTIVE_BLOCKS(LUC,-1,SCLFAC(ICBLK_INI),CB)
-      ELSE
+C       CALL FIND_ACTIVE_BLOCKS(LUC,-1,SCLFAC(ICBLK_INI),CB)
+C     ELSE
 *. Active blocks in vectors CV 
 cVOG Old bug fixed
 C BERT NEW NEED TO SERIALIZE FIND_ACTIVE_BLOCKS_IN_VECTOR
@@ -5346,24 +5347,24 @@ C ONLY NEED TO DO MY OWN BLOCK, ISSUE = FIRST ITERATION ONLY ONE BLOCK ACTIVE
 C INSTEAD OF ASSUME C LOCAL ASSUME SIGMA LOCAL, REQUIRES GETS INSTEAD OF ACC
 C WHICH IS MORE EFFICIENT, IN THAT CASE ROUTINE BELOW IS FINE MOSTLY
 C
-C PULL OUTSIDE BEFORE SBLOCK OR RASSG3 OVER BATCHES OF SIGMA
+C PULL OUTSIDE BEFORE RASSG3 OVER BATCHES OF SIGMA, SO WE DO IT ONLY ONCE
 C
-        CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,SCLFAC(ICBLK_INI),
-     &       NCBLOCK_T,ICBLOCK(1,ICBLK_INI))
+C       CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,SCLFAC(ICBLK_INI),
+C    &       NCBLOCK_T,ICBLOCK(1,ICBLK_INI))
 cVOG &       NCBLOCK_T,ICBLOCK)
-      END IF
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Array giving active blocks '
-        CALL WRTMAT(SCLFAC(ICBLK_INI),1,NCBLOCK_T,1,NCBLOCK_T)
-      END IF
+C     END IF
+C     IF(NTEST.GE.1000) THEN
+C       WRITE(6,*) ' Array giving active blocks '
+C       CALL WRTMAT(SCLFAC(ICBLK_INI),1,NCBLOCK_T,1,NCBLOCK_T)
+C     END IF
 *
 *. If ISIMSYM is active, enforce the same activity of all blocks 
 *. belonging to a TT block
 *. Number of BLOCKS in  C
-        NBLOCK_C =  I1CBLOCK(NCBATCH)-1+ LCBLOCK(NCBATCH)
+C       NBLOCK_C =  I1CBLOCK(NCBATCH)-1+ LCBLOCK(NCBATCH)
 C       WRITE(6,*) ' Number of blocks in C', NBLOCK_C
 *
-       CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,SCLFAC)
+C      CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,SCLFAC)
 C           ENFORCE_SIMSYM_ACT_BLK(NBLK,IBLK,XSCA)
 *
 * Initialize sigma blocks
