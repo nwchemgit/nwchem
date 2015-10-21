@@ -15426,6 +15426,7 @@ C
 CNW   DIMENSION SV(*),CV(*)
       integer SV,CV !,CB,SB
       CHARACTER*6 ITASK
+      LOGICAL ANYLOCAL
 *
       CALL LUCIAQENTER('RASSG')
       NTEST = 10000
@@ -15448,6 +15449,10 @@ CNW   DIMENSION SV(*),CV(*)
       NBLOCK_C =  int_mb(KCI1BT+NCBATCH)-1+ int_mb(KCLBT+NCBATCH)
       CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,dbl_mb(KLSCLFAC))
 *
+*. What is my local patch of Sigma Vector
+*
+      call ga_distribution(SV,ga_nodeid(),ilo,ihi,idum,idum)
+*
       IF(LUHC.GT.0) CALL REWINO(LUHC)
 * Loop over batches over sigma blocks
       IOFF_S = 1
@@ -15457,10 +15462,19 @@ CNW   DIMENSION SV(*),CV(*)
 *. Obtain sigma for batch of blocks
 C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK) 
         LEN = 0
+        IOFF_T = IOFF_S
+        ANYLOCAL = .FALSE.
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
+          IF ((IOFF_T.GE.ilo).AND.(IOFF_T+IBATS(8,ISBLK)-1.LE.ihi)) 
+     &       ANYLOCAL = .TRUE.
+          IOFF_T = IOFF_T + IBATS(8,ISBLK)
           LEN = LEN + IBATS(8,ISBLK)
         ENDDO
-        CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
+*
+*. Skip it all together if the SV range is outside local
+*
+        if (ANYLOCAL) 
+     &  CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
      &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,dbl_mb(KLSCLFAC))
 *. Transfer S block to permanent storage
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
@@ -15475,8 +15489,7 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
             CALL ITODS(LEN,1,-1,LUHC)
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-C BERT NEW: ONLY PUT BLOCKS THAT ARE LOCAL in IOFF_S - IOFF_S + LEN RANGE
-            if (LEN.gt.0) 
+            if (LEN.gt.0.AND.(IOFF_S.GE.ilo).AND.(IOFF_S+LEN-1.LE.ihi)) 
      &         call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
