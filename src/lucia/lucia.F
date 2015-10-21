@@ -15446,10 +15446,14 @@ C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
 C BERT NEW
-C Need to add logic for blocks that were not updated, and do not need to be accumulated
-C Add IBATS(9,ISBLK) as integer to identify if block needs updating
+C Sigma blocks are local. Hence, above in the loop run through batches
+C and within a batch shorten batch for blocks that are local to me, skip rest
+C Need a skip list for non local sigma blocks that goes into SBLOCK
+C Call SBLOCK only if there is any block to do in the batch, otherwise go to next
+C batch. In SBLOCK, only operate on blocks not in skip list, same for sblocks
+C Put below should be a local put!!!
             if (LEN.gt.0) 
-     &         call ga_acc(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
+     &         call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
           END IF
