@@ -7401,6 +7401,8 @@ C     call iwrtma(icls,ngas,ncls,ngas,ncls)
 *. Jeppe Olsen, June 2010
 *
 C BERT NEW: ONLY LOOK AT BLOCK NODE HAS, LOCAL OPERATION
+C ONLY DO LOCAL BLOCK BUT ACCUMULATE RESULT AND REPLICATE 
+C ACROSS NODES SO THEY KNOW
 C           IF ACTIVE BLK_A = 1
       INCLUDE 'implicit.inc'
       REAL*8
