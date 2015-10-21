@@ -21,8 +21,8 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   ifeq ($(FC),gfortran)
    FFLAGS = -fdefault-integer-8
   else
-#   FFLAGS = -i8
-   FFLAGS =
+   FFLAGS = -i8
+#   FFLAGS =
   endif	
 endif
 
