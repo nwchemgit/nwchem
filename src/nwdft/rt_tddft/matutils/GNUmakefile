@@ -25,7 +25,7 @@ OBJ_OPTIMIZE =
 
 LIBRARY = libnwdft.a
 
-USES_BLAS =
+USES_BLAS = zmat_diag.F zmat_inv.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 
