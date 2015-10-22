@@ -881,6 +881,7 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
            call xyz_write()
            call MOTION_write(dble((icount-1)*it_in+i)
      >                       +emotion_time_shift)
+           call CIF_write(rtdb) !*** write out CIF file ***
 
         end do
 
@@ -984,7 +985,10 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
          write(luout,1211) ion_nconstraints(),ion_ndof()
       end if
 
-      EV = cgsd_noit_energy()
+      call control_reduce_print()
+      EV0 = cgsd_energy(.false.)
+      call control_up_print()
+      EV  = cgsd_noit_energy()
 
       if (oprint) then
 
@@ -1232,7 +1236,7 @@ c     >                        ratio_v,wa,wr,wa_v,wr_v
      >       /5X,' iterations=',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
  1322 FORMAT(5X, ' temperature='F10.3,5x,' beta=',E10.3,' seed=',I10)
- 1323 FORMAT(5X, ' targeted accept.=',F10.3,5X,
+ 1323 FORMAT(5X, ' targeted accept.=',F10.3,9X,
      >           ' ddx=',F10.3,' c0=',F10.3,' c1=',F10.3,' c2=',F10.3)
  1324 FORMAT(5X, ' number atom changes = 'I10,
      >           ' change vector = <',3F10.3'>')

@@ -57,8 +57,8 @@ Vx[],
 
 
 
-    pi          = 4.0*atan(1.0);
-    c = pow(2.0,1.0/3.0);
+    pi = 4.0*atan(1.0);
+    c  = pow(2.0,1.0/3.0);
 
 
     /*Becke(beta) and lda (lda_c)  exchange parameter*/
@@ -94,8 +94,8 @@ Vx[],
 
     /*calculate derivatives******************************************/
 
-    for (i=0;i<Ngrid;++i)
-        rhoNRM[i] = rho[i]/(4.000000*pi);        /* normalize density     */
+    for (i=0; i<Ngrid; ++i)
+        rhoNRM[i] = rho[i]/(4.0*pi);        /* normalize density     */
 
 
     Derivative_LogGrid(rhoNRM,drho);           /* drho                  */
@@ -110,9 +110,6 @@ Vx[],
 
 
 
-
-
-
     /* calculate chi chidn, chiddn ****************************/
     for (i=0;i<Ngrid;++i)
     {
@@ -123,7 +120,7 @@ Vx[],
             chi[i] =  agr[i]/rho_fourthirds;
 
             chidn[i] = (-4.0/3.0)*chi[i]/rhoNRM[i];
-            chiddn[i] = 1/rho_fourthirds;
+            chiddn[i] = 1.0/rho_fourthirds;
         }
     }
 
@@ -143,7 +140,7 @@ Vx[],
     /* calculate F  and dF/dchi *************************************/
     for (i=0;i<Ngrid;++i)
     {
-        if (rhoNRM[i]>1.0e-18)
+        if ((rhoNRM[i]>1.0e-18) && (chi[i] > 1.0e-12))
         {
             F[i] = chi[i]*chi[i]/(1.0+6.0*beta*c*chi[i]*log(c*chi[i] + sqrt(1+c*c*chi[i]*chi[i])));
 
@@ -168,14 +165,13 @@ Vx[],
 
     /* calculate G ***************************************************/
     for (i=0;i<Ngrid;++i)
-        if (rhoNRM[i]>1.0e-18)
+        if ((rhoNRM[i]>1.0e-18) && (agr[i] > 1.0e-12))
         {
-            G[i] = fddn[i]/agr[i];
+           G[i] = fddn[i]/agr[i];
         }
     /* calculate dG/dr ***********************************************/
 
     Derivative_LogGrid(G,Gdr);
-
 
 
     /* calculate exchange potential and exchange energy density*******/
@@ -196,10 +192,6 @@ Vx[],
             ex = X1 - X2/X3;
 
 
-
-
-
-
             Vx[i] = ux;
             ex_density[i] = ex;/*energy density*/
 
@@ -215,6 +207,10 @@ Vx[],
     }/*for i*/
 
 
+    printf("------------------------------------\n");
+    for (i=0;i<Ngrid;++i)
+       printf("%le %le %le\n",rho[i],Vx[i],ex_density[i]);
+    printf("------------------------------------\n");
 
 
 

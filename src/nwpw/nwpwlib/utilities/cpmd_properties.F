@@ -144,6 +144,10 @@ c
 
       value = .true.
 
+      !call Parallel_Init()
+      !value = value.and.control_read(999,rtdb)
+      !call Parallel2d_Init(control_np_orbital())
+
 *     **** save nwpw:cpmd_properties and change it .true. ****
       if (.not.btdb_get(rtdb,'nwpw:cpmd_properties',mt_log,1,dummy))
      >   dummy = .false.
@@ -243,6 +247,7 @@ c
 
 #include "bafdecls.fh"
 #include "stdio.fh"
+#include "global.fh"
 #include "errquit.fh"
 
 c     **** parameters ****
@@ -252,6 +257,7 @@ c     **** parameters ****
       parameter (MASTER=0)
 
 *     **** local variables ****
+      logical found_motion
       integer i,natoms,nframes,t
       real*8  time1,volume
       real*8  x,y,z,v1,v2,v3
@@ -260,10 +266,25 @@ c     **** parameters ****
 *     *** synchronization ***
       call ga_sync()
 
-      call Parallel_taskid(taskid)
+      !call Parallel_taskid(taskid)
+      taskid = ga_nodeid()
 
       if (taskid.eq.MASTER) then
 
+      inquire(file=motionfilename,exist=found_motion)
+      if (found_motion) then
+
+         write(luout,*)
+         write(luout,*) 
+     >     '===== Generating MOTION file from xyz trajectory file ===='
+         write(luout,*) 
+         write(luout,*) "xyz filename         : ",xyzfilename
+         write(luout,*) "MOTION filename      : ",motionfilename
+         write(luout,*) "MOTION filename already exists. Not copying."
+         write(luout,*) "Delete this file if you want to regenerate it."
+         write(luout,*)
+
+      else
 
       volume = unita(1,1)*(unita(2,2)*unita(3,3)-unita(3,2)*unita(2,3))
      >       + unita(2,1)*(unita(3,2)*unita(1,3)-unita(1,2)*unita(3,3))
@@ -288,7 +309,7 @@ c     **** parameters ****
       open(unit=18,file=xyzfilename,form='formatted')
       open(unit=19,file=motionfilename,form='formatted')
 
-      time1 = 0.0
+      time1 = 0.0d0
       do t=1,nframes
         
          read(18,*,ERR=30,END=30) natoms
@@ -309,6 +330,7 @@ c     **** parameters ****
       close(unit=18)
       close(unit=19)
 
+      end if
       end if
 
 *     *** synchronization ***
