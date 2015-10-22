@@ -235,7 +235,7 @@ endif
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F \
-		util_test_cholesky.F
+		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH

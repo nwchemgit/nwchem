@@ -26,7 +26,7 @@ OBJ_OPTIMIZE =
 LIBRARY = libnwdft.a
 
 USES_BLAS = tddft_grad_gxc.F tddft_grad_compute_w.F tddft_grad_dxcdmat.F \
-            tddft_grad_dfxc.F tddft_grad_quadv0b.F tddft_grad_dvxc.F
+            tddft_grad_dfxc.F tddft_grad_quadv0b.F tddft_grad_dvxc.F tddft_grad_compute_g.F
 
 LIB_DEFINES  = -DDEBUG_PRINT
 LIB_INCLUDES = -I../include -I../grid 
