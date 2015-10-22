@@ -37,12 +37,14 @@ c
       do ispin=1,ipol
          ii=(ispin-1)*mxhist + irow(icall(1))
          call ga_copy(g_focks(ispin),g_diis(ii))
-
+cdft
+         if(nconstr.ne.0) then
          if(ispin.eq.1) then
            do kk = 1, nconstr
              mult_diis(kk,ii)=mult(kk)
              mult(kk)=0.d0
            enddo
+         endif
          endif
 
 c     
@@ -57,10 +59,13 @@ c
                if(jj.eq.1) anum=0.d0
                call ga_dadd(xwght,g_diis(ii),anum,
      .              g_focks(ispin),g_focks(ispin))
-               if(ispin.eq.1) then
-                 do kk = 1, nconstr
-                   mult(kk)=mult_diis(kk,ii)*xwght+mult(kk)
-                 enddo
+cdft
+               if(nconstr.ne.0) then
+                  if(ispin.eq.1) then
+                     do kk = 1, nconstr
+                        mult(kk)=mult_diis(kk,ii)*xwght+mult(kk)
+                     enddo
+                  endif
                endif
             enddo 
          endif
