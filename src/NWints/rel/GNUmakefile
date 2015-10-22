@@ -51,6 +51,7 @@ USES_BLAS = \
       rel_SSLLd.F \
       rel_SSSSd.F \
       rel_pot.F  \
+      rel_oneld_cosmo.F  \
       rel_pot2.F
 
 LIBRARY = libnwints.a
