@@ -261,7 +261,6 @@ c
       elseif(yev.eq.'d') then
          call ga_pdsyevd(g_s, g_svecs, evals,nb)
 #ifdef USE_PDSYEVR
-#warning YVRVRVR
       elseif(yev.eq.'r'.or.yev.eq.'m') then
          nmoout=0
          if(yev.eq.'m') nmoout=nocc
