@@ -254,6 +254,7 @@ endif
 ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 DEFINES += -DNEED_LOC
 LIB_DEFINES += -DNO_UTIL_TESTS
+LIB_DEFINES += -I/bgsys/drivers/ppcfloor/firmware/include -I/bgsys/drivers/ppcfloor/spi/include/kernel
 endif
 
 ifdef SLURM

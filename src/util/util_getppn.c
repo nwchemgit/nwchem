@@ -31,8 +31,10 @@ static short int ppn_initialized=0;
 static int ppn=0;
 void FATR util_getppn_(Integer *ppn_out){
 
-#if defined(__bgq__)
-    *ppn_out = Kernel_ProcessCount();
+#if defined(__bgqz__)
+  *ppn_out = (Integer) Kernel_ProcessCount();
+  return;
+  if(0) {
 #elif MPI_VERSION >= 3
 
     int err;
