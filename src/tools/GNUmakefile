@@ -446,6 +446,10 @@ ifeq ($(SCALAPACK_LIB),)
     endif
 endif
 
+ifeq ($(TARGET),BGQ)
+    FFLAGS_FORGA+=-qsmp
+endif
+
 ifeq ($(TARGET),BGP)
     MAYBE_HOST = --host=powerpc-bgp-linux 
     FFLAGS="-g"
