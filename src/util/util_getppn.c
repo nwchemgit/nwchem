@@ -31,7 +31,7 @@ static short int ppn_initialized=0;
 static int ppn=0;
 void FATR util_getppn_(Integer *ppn_out){
 
-#if defined(__bgqz__)
+#if defined(__bgq__)
   *ppn_out = (Integer) Kernel_ProcessCount();
   return;
   if(0) {
