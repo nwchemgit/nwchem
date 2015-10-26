@@ -5369,18 +5369,18 @@ C           ENFORCE_SIMSYM_ACT_BLK(NBLK,IBLK,XSCA)
 *
 * Initialize sigma blocks
 C?     CALL MEMCHK2('CHECAD')
-C BERT NEW: CHECK IF IOFF_S - IOFF_S + LEN - 1 RANGE IS LOCAL OTHERWISE
-C I.E. WE NEED TO IGNORE NON-LOCAL BLOCKS OF SIGMA AS ANOTHER NODE WILL COMPUTE THESE
+C
       DO JSBLOCK = 1, NSBLOCK
         IATP = ISBLOCK(1,JSBLOCK)
         IBTP = ISBLOCK(2,JSBLOCK)
         IASM = ISBLOCK(3,JSBLOCK)
         IBSM = ISBLOCK(4,JSBLOCK)
-        IOFF = ISBLOCK(5,JSBLOCK)
+        IOFF = ABS(ISBLOCK(5,JSBLOCK))
+        LOCAL= ISBLOCK(5,JSBLOCK).GT.0
         NASTR = NSSOA(IASM,IATP)
         NBSTR = NSSOB(IBSM,IBTP)
         ZERO = 0.0D0
-        IF(ISBLOCK(1,JSBLOCK).GT.0) 
+        IF((ISBLOCK(1,JSBLOCK).GT.0).AND.LOCAL)
      &  CALL SETVEC(SB(IOFF),ZERO,NASTR*NBSTR)
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Initializing sigma-block:'
@@ -5466,7 +5466,8 @@ C?     CALL MEMCHK2('CHECAE')
 *.Loop over Sigma blocks in batch
             DO JSBLOCK = 1, NSBLOCK
             IDENT = 0
-            IF(ISBLOCK(1,JSBLOCK).GT.0) THEN
+            LOCAL = ISBLOCK(5,JSBLOCK).GT.0
+            IF(ISBLOCK(1,JSBLOCK).GT.0.AND.LOCAL) THEN
               IATP = ISBLOCK(1,JSBLOCK)
               IBTP = ISBLOCK(2,JSBLOCK)
               IASM = ISBLOCK(3,JSBLOCK)
@@ -5629,7 +5630,8 @@ C?     CALL MEMCHK2('CHECKB')
      &              ISBLOCK(2,ISBLK).NE.IBTP_PR) INEW_STT = 1
               END IF
 
-              IF(ISBLOCK(1,ISBLK) .GT. 0 ) THEN
+              LOCAL = ISBLOCK(5,ISBLK).GT.0
+              IF(ISBLOCK(1,ISBLK) .GT. 0 .AND. LOCAL) THEN
                 IATP = ISBLOCK(1,ISBLK)
                 IBTP = ISBLOCK(2,ISBLK)
                 IASM = ISBLOCK(3,ISBLK)
@@ -5676,7 +5678,6 @@ C    &          IOCTPA,IOCTPB,I_DO_EXACT_BLOCK)
                 END IF
 C
                 IF(INTERACT.EQ.0.OR.I_DO_EXACT_BLK.EQ.0) GOTO 10000
-C BERT NEW IDENTIFY SIGMA BLOCK AS BEING UPDATED in ISBLOCK(9,..)
 
                 IF(NTEST.GE.1000) THEN
                   WRITE(6,*) ' Next s block in batch : '
@@ -5743,8 +5744,7 @@ C               END IF
                    ELSE
                      FACTOR = ECORE
                    END IF
-                   if (ga_nodeid().eq.0) 
-     &             CALL VECSUM(SB(ISOFF),SB(ISOFF),CB(ICOFF),
+                   CALL VECSUM(SB(ISOFF),SB(ISOFF),CB(ICOFF),
      &             1.0D0,FACTOR,NIA*NIB)
 C                  WRITE(6,*) ' Core energy added = ', ECORE
                 END IF
@@ -5807,7 +5807,8 @@ C    &                       JPERT)
 *
 * Order 
       DO  ISBLK = 1 , NSBLOCK
-      IF(ISBLOCK(1,ISBLK).GT.0) THEN
+      LOCAL = ISBLOCK(5,ISBLK).GT.0
+      IF(ISBLOCK(1,ISBLK).GT.0.AND.LOCAL) THEN
         IATP = ISBLOCK(1,ISBLK)
         IBTP = ISBLOCK(2,ISBLK)
         IASM = ISBLOCK(3,ISBLK)

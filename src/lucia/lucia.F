@@ -8021,6 +8021,7 @@ C?      write(6,*) ' LBL = ', LBL
         END IF
       ELSE
         XNORM = 0.0d0
+CNOW JUST GA_GET
         call ga_distribution(C, ga_nodeid(),ilo,ihi,idum,idum)
         if (ihi.gt.0) then
         call ga_access(C,ilo,ihi,1,1,ivecin,idum)
@@ -8059,6 +8060,7 @@ C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
             ISGVST = 1 
             IF(LUC.GT.0) THEN
               call errquit('sdcmrf using disk',911,GA_ERR)
+C UNDO PARALLEL SDCMRF
               CALL SDCMRF(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,
      &             IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
             ELSE
@@ -15465,10 +15467,16 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
         IOFF_T = IOFF_S
         ANYLOCAL = .FALSE.
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
-          IF ((IOFF_T.GE.ilo).AND.(IOFF_T+IBATS(8,ISBLK)-1.LE.ihi)) 
-     &       ANYLOCAL = .TRUE.
-          IOFF_T = IOFF_T + IBATS(8,ISBLK)
-          LEN = LEN + IBATS(8,ISBLK)
+          ILEN = IBATS(8,ISBLK)
+* Use minus sign to identify non-local blocks
+          IBATS(8,ISBLK) = -IBATS(8,ISBLK)
+          IF ((IOFF_T.GE.ilo).AND.(IOFF_T+ILEN-1.LE.ihi)) THEN
+             ANYLOCAL = .TRUE.
+* Set to positive for local blocks
+             IBATS(8,ISBLK) = -IBATS(8,ISBLK)
+          ENDIF
+          IOFF_T = IOFF_T + ILEN
+          LEN = LEN + ILEN
         ENDDO
 *
 *. Skip it all together if the SV range is outside local
@@ -15483,17 +15491,21 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
           IASM = IBATS(3,ISBLK)
           IBSM = IBATS(4,ISBLK)
           IOFF = IBATS(6,ISBLK)
-          LEN  = IBATS(8,ISBLK)
+          LEN  = ABS(IBATS(8,ISBLK))
 C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
           IF(ICISTR.NE.1) THEN
             CALL ITODS(LEN,1,-1,LUHC)
             CALL TODSC(SB(IOFF),LEN,-1,LUHC)
           ELSE
-            if (LEN.gt.0.AND.(IOFF_S.GE.ilo).AND.(IOFF_S+LEN-1.LE.ihi)) 
+            if (LEN.gt.0) 
      &         call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
             IOFF_S = IOFF_S + LEN
           END IF
+*
+*. Reset length to positive sign for non-local blocks
+*
+          IBATS(8,ISBLK) = ABS(IBATS(8,ISBLK))
         END DO
       END DO
 *
