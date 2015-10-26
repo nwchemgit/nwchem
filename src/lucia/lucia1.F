@@ -2773,10 +2773,9 @@ C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       IF(IWAY.EQ.2) THEN
         IF(IPACK.EQ.1) THEN
 *. Unpack from triangular form
-           CALL TRIPK3G(CSD,CCM,ICOFF,2,NA,NA,SIGN)
+           CALL TRIPK3(CSD,CCM,ICOFF,2,NA,NA,SIGN)
         ELSE
-CNW        CALL COPVEC(CCM,CSD,NA*NB)
-           call ga_get(CCM,ICOFF,ICOFF+NA*NB-1,1,1,CSD,NA*NB)
+           CALL COPVEC(CCM,CSD,NA*NB)
         ENDIF
 *. Scale
         IF(FACTOR.NE.1.0D0) THEN

@@ -8020,29 +8020,13 @@ C?      write(6,*) ' LBL = ', LBL
           CALL FRMDSC2(SCR,LBL,-1,LUC,IMZERO,IAMPACK,NO_ZEROING)
         END IF
       ELSE
-        XNORM = 0.0d0
-CNOW JUST GA_GET
-        call ga_distribution(C, ga_nodeid(),ilo,ihi,idum,idum)
-        if (ihi.gt.0) then
-        call ga_access(C,ilo,ihi,1,1,ivecin,idum)
-        if (ilo.le.ICOFF+NCMB_IN.and.ihi.ge.ICOFF) then
-           mylow  = max(ilo,ICOFF) - ilo
-           myhigh = min(ihi,ICOFF+NCMB_IN) - ilo
-           do i = mylow,myhigh
-              XNORM = XNORM + dbl_mb(ivecin+i)
-           enddo
-        endif
-        call ga_release(C,ilo,ihi,1,1)
-        endif
-        call ga_sync()
-        if(ga_nnodes().gt.1) call ga_dgop(1,XNORM,1,'+')
-        
+C BERT: SCLFAC COMING IN ALREADY HAS NORM OF BLOCK
 *. It is assumed pt that vector is nonvanising
 CNW     XNORM = INPROD(C,C,NCMB_IN)
 c       XNORM = ga_ddot_patch(C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1,
 c    &                        C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1) 
 C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
-        IF(XNORM.EQ.0.0D0) THEN
+        IF(SCLFAC.EQ.0.0D0) THEN
           IMZERO = 1
         ELSE 
           IMZERO = 0
@@ -8060,7 +8044,6 @@ C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
             ISGVST = 1 
             IF(LUC.GT.0) THEN
               call errquit('sdcmrf using disk',911,GA_ERR)
-C UNDO PARALLEL SDCMRF
               CALL SDCMRF(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,
      &             IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
             ELSE

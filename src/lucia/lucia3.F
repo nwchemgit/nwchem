@@ -1408,21 +1408,23 @@ C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 *. To get rid of annoying and incorrect compiler warnings
       IOFF = 0
       JOFF = 0
-      icast = 94568
+      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'TRIPK3')
+      CALL MEMMAN(KLMAT1,NDIM*(NDIM+1)/2,'ADDL  ',2,'ITEMP ')
 *
 *. Packing : No problem with cache misses    
 *
       IF( IWAY .EQ. 1 ) THEN
-      call luciaqenter('tr3g1')
-        IJ = ICOFF
+        call luciaqenter('tr3g1')
+        IJ = 0
         DO J = 1,NDIM
-CNW       DO I = J , NDIM
-CNW         APAK(IJ+I) = AUTPAK(I,J)
-CNW       END DO
-          call ga_put(APAK,IJ+J,IJ+NDIM,1,1,AUTPAK(J,J),1)
-          IJ = IJ +NDIM-J
+          DO I = J , NDIM
+            dbl_mb(ITEMP+IJ) = AUTPAK(I,J)
+            IJ = IJ + 1
+          END DO
         END DO   
-      call luciaqexit('tr3g1')
+        call ga_put(APAK,ICOFF,ICOFF+NDIM*(NDIM+1)/2-1,1,1,
+     &              dbl_mb(ITEMP),1)
+        call luciaqexit('tr3g1')
       END IF
 *
 * Unpacking : cache misses can occur so two routes
@@ -1430,15 +1432,15 @@ CNW       END DO
       IF( IWAY .EQ. 2 ) THEN
 *. No blocking
         call luciaqenter('tr3g2')
-        call ga_get(APAK,ICOFF,ICOFF+NDIM*NDIM-1,1,1,
-     &             AUTPAK(1,1),1)
+        call ga_get(APAK,ICOFF,ICOFF+NDIM*(NDIM+1)/2-1,1,1,
+     &             dbl_mb(ITEMP),1)
         IJ = 0
         DO J = 1,NDIM
           DO I = J,NDIM
-           AUTPAK(J,I) = SIGN*APAK(IJ+I)
-           AUTPAK(I,J) = APAK(IJ+I)
+           AUTPAK(J,I) = SIGN*dbl_mb(ITEMP+IJ)
+           AUTPAK(I,J) = dbl_mb(ITEMP+IJ)
+           IJ = IJ + 1
           END DO
-          IJ = IJ + NDIM-J
         END DO
         call luciaqexit('tr3g2')
       END IF
@@ -1450,6 +1452,7 @@ CNW       END DO
 CNW     CALL PRSM2(APAK,NDIM)
       END IF
 *
+      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'TRIPK3')
       RETURN
       END
       SUBROUTINE GATRMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,
