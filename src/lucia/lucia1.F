@@ -2776,11 +2776,7 @@ C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
            CALL TRIPK3G(CSD,CCM,ICOFF,2,NA,NA,SIGN)
         ELSE
 CNW        CALL COPVEC(CCM,CSD,NA*NB)
-           if (ga_nodeid().eq.0)
-     &     call ga_get(CCM,ICOFF,ICOFF+NA*NB-1,1,1,CSD,NA*NB)
-           call ga_sync()
-           mybyte = MA_sizeof(MT_DBL,1,MT_BYTE)*NA*NB
-           if (ga_nnodes().gt.1) call ga_brdcst(123456,CSD,mybyte,0)
+           call ga_get(CCM,ICOFF,ICOFF+NA*NB-1,1,1,CSD,NA*NB)
         ENDIF
 *. Scale
         IF(FACTOR.NE.1.0D0) THEN
