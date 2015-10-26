@@ -3615,6 +3615,38 @@ c
       geom_center_of_mass=.true.
       return
       end
+
+C> \brief Extracts the centroid from a geometry instance
+c
+C> \return Returns .true. if the centroid was successfully
+C> established, and .false. otherwise.
+c
+      logical function geom_centroid(geom, centroid)
+      implicit none
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+      integer geom               !< [Input] the geometry handle
+      double precision centroid(3) !< [Output] the centroid
+      logical geom_ncent
+      external geom_ncent
+c
+      integer i, iat, ncent
+c
+      if (.not. geom_ncent(geom, ncent))
+     &  call errquit('geom_centroid: unable to get ncent',555,
+     &       GEOM_ERR)
+c
+      call dfill(3, 0.0d0, centroid, 1)
+      do iat = 1, ncent
+        do i=1,3
+            centroid(i) = centroid(i) + coords(i,iat,geom)/ncent
+        enddo
+      enddo
+c
+      geom_centroid=.true.
+      return
+      end
 c
 C> \brief Extracts the nuclear repulsion energy from a geometry instance
 c
