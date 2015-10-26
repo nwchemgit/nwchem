@@ -6278,8 +6278,6 @@ c      INCLUDE 'mxpdim.inc'
           H(IJ) = GETH1E(I,ITP,ISM,J,JTP,JSM)
         END DO
       END DO
-      call ga_sync()
-      call ga_dgop(1, H , IJ, '+')
 *
       NTEST = 00
       IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
@@ -8193,10 +8191,7 @@ CNW   DIMENSION H(*)
       END IF
 *
 CNW   GTH1ES = H(IJ)
-      GTH1ES = 0.0d0
-      call ga_distribution(H,ga_nodeid(),ilo,ihi,idum,idum)
-      if (IJ.LE.ihi.and.IJ.GE.ilo) 
-     &   call ga_get(H,IJ,IJ,1,1,GTH1ES,1)
+      call ga_get(H,IJ,IJ,1,1,GTH1ES,1)
       
 *
       IF(NTEST.NE.0) THEN
