@@ -18,33 +18,38 @@ c
 c
       integer rtdb
 c
-      integer geom                  ! geometry object
+      integer geom                    ! geometry object
 c
-      integer l_r, k_r              ! coordinates
+      integer l_r, k_r                ! coordinates
       double precision r(3)
+      integer l_c, k_c                ! centroid of geometry
 c
-      integer l_v, k_v              ! velocities
+      integer l_v, k_v                ! velocities
       double precision v(3)
 c
-      integer l_g, k_g              ! gradients
-      integer l_m, k_m              ! masses
+      integer l_g, k_g                ! gradients
+      integer l_m, k_m                ! masses
 c
-      integer l_act, k_act          ! active atoms
+      integer l_act, k_act            ! active atoms
 c
-      integer nat                   ! number of atoms
-      integer nactive               ! number of active atoms
-      integer nstep_nucl           ! total nuclear steps
-      integer sstep_nucl           ! first nuclear step
-      integer istep_nucl           ! nuclear md step
-      integer com_step              ! how often to remove trans/rot
-      integer print_xyz             ! how often to print trajectory
-      double precision dt_nucl      ! nuclear md time step
-      double precision eltime       ! elapsed time (in fs)
-      double precision esys         ! system energy (from task_gradient)
-      double precision ekin         ! kinetic energy from the md part
-      double precision etotal       ! total energy: esys + ekin
-      double precision ekin_targ    ! target kinetic energy
-      double precision dipole(3)    ! electric dipole moment
+      integer nat                     ! number of atoms
+      integer nactive                 ! number of active atoms
+      integer nstep_nucl              ! total nuclear steps
+      integer sstep_nucl              ! first nuclear step
+      integer istep_nucl              ! nuclear md step
+      integer com_step                ! how often to remove trans/rot
+      integer print_xyz               ! how often to print trajectory
+      double precision dt_nucl        ! nuclear md time step
+      double precision eltime         ! elapsed time (in fs)
+      double precision esys           ! system energy (from task_gradient)
+      double precision ekin           ! kinetic energy from the md part
+      double precision etotal         ! total energy: esys + ekin
+      double precision ekin_targ      ! target kinetic energy
+      double precision dipole(3)      ! electric dipole moment
+c
+      logical do_cavity               ! include cavity constraints
+      double precision cavity_axis(3) ! cavity axes
+      double precision cavity_spring  ! cavity force spring constant
 c
       logical status
       logical rst_exists
@@ -60,6 +65,9 @@ c
       logical task_gradient
       external task_gradient
 c
+      logical geom_centroid
+      external geom_centroid
+c
 c     preliminaries
       status = .true.
       dip_exists=.true.
@@ -70,6 +78,16 @@ c     preliminaries
       dipole(1) = 0.d0
       dipole(2) = 0.d0
       dipole(3) = 0.d0
+c
+c     check if we need cavity constraints
+      if(.not.rtdb_get(rtdb,'qmd:cavity',mt_log,1,do_cavity))
+     &     do_cavity = .false.
+      if (do_cavity) then
+      if(.not.rtdb_get(rtdb,'qmd:cavity_axis',mt_dbl,3,cavity_axis))
+     &    call errquit("cannot get cavity axes",0,0)
+      if(.not.rtdb_get(rtdb,'qmd:cavity_spring',mt_dbl,1,cavity_spring))
+     &    call errquit("cannot get cavity spring constant",0,0)
+      end if ! do_cavity
 c
 c     get xyzfileunit
       if(.not.util_get_io_unit(xyzfileunit))
@@ -111,6 +129,10 @@ c
      $   call errquit(pname//'ma_push_get coords', 3*nat,MA_ERR)
       call dfill(3*nat, 0.0d0, dbl_mb(k_r), 1)
 c
+      if(.not.ma_push_get(mt_dbl,3,'centroid',l_c,k_c))  ! centroid
+     $   call errquit(pname//'ma_push_get centroid', 3,MA_ERR)
+      call dfill(3, 0.0d0, dbl_mb(k_c), 1)
+c
       if(.not.ma_push_get(mt_dbl,3*nat,'vels',l_v,k_v))  ! vels
      $   call errquit(pname//'ma_push_get vels', 3*nat,MA_ERR)
       call dfill(3*nat, 0.0d0, dbl_mb(k_v), 1)
@@ -129,7 +151,8 @@ c     need to implement constraints
         ndeg = 3*nactive-5   ! 3N-5 (linear)
       else
         ndeg = 3*nactive-6   ! 3N-6 (general)
-      end if
+      end if ! do_linear
+c
       if (ndeg.le.0)
      $   call errquit(pname//'ndeg<=0',geom,GEOM_ERR)
 c
@@ -140,7 +163,7 @@ c     get the masses, initial coordinates
      $   call errquit(pname//'geom_cart_coords_get',0,GEOM_ERR)
 c
 c     check for restart file in directory
-c      if it exists, read data from that and start trajectory from there
+c     if it exists, read data from that and start trajectory from there
       inquire(file=rstfilename,exist=rst_exists)
       if (rst_exists) then
         if (ga_nodeid().eq.0) then
@@ -148,14 +171,17 @@ c      if it exists, read data from that and start trajectory from there
           write(luout,*) 'Reading positions, velocities, KE,'
           write(luout,*) 'and last time step from file.'
         end if
+c
 c       read velocities from file
         call qmd_read_rst(rstfilename,rstfileunit,nat,dbl_mb(k_v),
      $         dbl_mb(k_r),ekin,sstep_nucl)
+c
 c       remove global translations and rotations
 c       kinetic energy is the same on exit as was on entry
         call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r))
         call qmd_freeze_inactive(nat,dbl_mb(k_m),dbl_mb(k_v),
      $         log_mb(k_act))
+c
 c       update geom and store in rtdb
         call qmd_geom_store(rtdb,geom,nat,dbl_mb(k_r))
       else
@@ -163,15 +189,18 @@ c       update geom and store in rtdb
           write(luout,*) 'No restart file found'
           write(luout,*) 'Beginning with random velocities'
         end if
+c
 c       randomize velocities for the given temperature
         call qmd_randomize(nat,dbl_mb(k_m),dbl_mb(k_v))
         sstep_nucl=1
+c
 c       remove global translations and rotations
 c       kinetic energy is the same on exit as was on entry
         call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r))
         call qmd_freeze_inactive(nat,dbl_mb(k_m),dbl_mb(k_v),
      $         log_mb(k_act))
-      end if
+      end if ! rst_exists
+c
 c     persist updated velocity in geom
       if (.not.geom_vel_set(geom,dbl_mb(k_v)))
      $ call errquit(pname//'geom_vel_set',0,GEOM_ERR)
@@ -190,6 +219,16 @@ c
 c     perform energy gradient calculation on initial coordinates
       call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
 c
+c     calculate the centroid of the structure
+      if (.not.geom_centroid(geom,dbl_mb(k_c)))
+     $      call errquit(pname//'geom_centroid',0,GEOM_ERR)
+c
+c     include cavity constraints, if requested
+      if (do_cavity) then
+       call qmd_cavity(nat,cavity_axis,cavity_spring,dbl_mb(k_c),
+     &       dbl_mb(k_r),dbl_mb(k_g))
+      end if ! do_cavity
+c
 c     if starting fresh write initial structure to xyz
       if (.not.rst_exists) then
 c
@@ -203,7 +242,7 @@ c
 c       write trajectory
         call qmd_write_trj(xyzfilename,xyzfileunit,.false.,nat,
      &         0,etotal,geom,dipole)
-      end if
+      end if  ! rst_exists
 c
 c     start nuclear molecular dynamics loop
       do istep_nucl = sstep_nucl,nstep_nucl
@@ -214,11 +253,13 @@ c         remove global translations and rotations
 c         kinetic energy is the same on exit as was on entry
           call qmd_fix_momentum(nat,dbl_mb(k_m),dbl_mb(k_v),dbl_mb(k_r))
         end if
+c
         if (.not.do_none) then
+c
 c         apply thermostat to velocities
           call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
      &           ekin,ekin_targ,log_mb(k_act))
-        end if
+        end if ! do_none
 c
 c       update velocity at half step (dt/2)
         call qmd_nucl_vel(nat,0.5d0*dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
@@ -234,6 +275,12 @@ c
 c       calculate energy and gradient
         call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
 c
+c       include cavity reflection if requested
+        if (do_cavity) then
+         call qmd_cavity(nat,cavity_axis,cavity_spring,dbl_mb(k_c),
+     &         dbl_mb(k_r),dbl_mb(k_g))
+        end if ! do_cavity
+c
 c       pull dipole from RTDB
         if(.not.rtdb_get(rtdb,'task:dipole',mt_dbl,3,dipole))
      &     dip_exists=.false.
@@ -246,7 +293,7 @@ c
 c         apply thermostat to velocities
           call qmd_thermostat(nat,dt_nucl,dbl_mb(k_m),dbl_mb(k_v),
      &           ekin,ekin_targ,log_mb(k_act))
-        end if
+        end if ! do_none
 c
 c       persist updated velocity in geom
         if (.not.geom_vel_set(geom,dbl_mb(k_v)))
@@ -282,15 +329,18 @@ c         write(luout,110) "Current time step:",istep_nucl
          write(luout,*)
          write(luout,*)
 
-c
+c        check how often to write out the tracjectory
          if (mod(istep_nucl,print_xyz).eq.0) then
+c
 c          write trajectory
            call qmd_write_trj(xyzfilename,xyzfileunit,.true.,nat,
      &            istep_nucl,etotal,geom,dipole)
          end if
 c
+c        write restart
          call qmd_write_rst(rstfilename,rstfileunit,
      &             nat,istep_nucl,ekin,geom)
+c
         end if  ! ga_nodeid()
 c
       end do  ! istep_nucl

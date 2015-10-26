@@ -8,7 +8,7 @@ OBJ_OPTIMIZE =  qmd_init.o qmd_driver.o qmd_main.o qmd_input.o\
 		qmd_ran1.o qmd_gasdev.o qmd_randomize.o\
                 qmd_nucl_pos.o qmd_nucl_vel.o qmd_read_rst.o\
                 qmd_gamdev.o qmd_sumno.o qmd_fix_momentum.o\
-                qmd_freeze_inactive.o
+                qmd_freeze_inactive.o qmd_cavity.o
 
 LIBRARY=libqmd.a
 

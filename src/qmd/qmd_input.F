@@ -37,6 +37,9 @@ c
       character*32 integrator_nucl
       character*32 integrator_elec
       logical do_linear
+      logical do_cavity
+      double precision cavity_axis(3)
+      double precision cavity_spring
 c
       character*30 pname
 c
@@ -107,6 +110,11 @@ c     Print xyz trajectory every print_xyz steps
       print_xyz=1
       if (.not.rtdb_put(rtdb,'qmd:print_xyz',mt_int,1,print_xyz))
      & call errquit(pname//'failed to write print_xyz',0,RTDB_ERR)
+c
+c     Do we need cavity constraints ?
+      do_cavity=.false.
+      if (.not.rtdb_put(rtdb,'qmd:cavity',mt_log,1,do_cavity))
+     & call errquit(pname//'failed to write do_cavity',0,RTDB_ERR)
 c
 c     ----------
 c     Read input
@@ -216,6 +224,24 @@ c     Is linear molecule ?
           do_linear=.true.
       if (.not.rtdb_put(rtdb,'qmd:linear',mt_log,1,do_linear))
      &  call errquit(pname//'failed to write do_linear',0,RTDB_ERR)
+c
+c     Do we need cavity constraints  ?
+      else if (inp_compare(.false.,test,'cavity')) then
+        do_cavity=.true.
+       if (.not.rtdb_put(rtdb,'qmd:cavity',mt_log,1,do_cavity))
+     &  call errquit(pname//'failed to write do_cavity',0,RTDB_ERR)
+       if (.not.inp_f(cavity_axis(1))) cavity_axis(1) = 10.d0
+       if (.not.inp_f(cavity_axis(2))) cavity_axis(2) = 10.d0
+       if (.not.inp_f(cavity_axis(3))) cavity_axis(3) = 10.d0
+       if (.not.rtdb_put(rtdb,'qmd:cavity_axis',mt_dbl,3,cavity_axis))
+     &  call errquit(pname//'failed to write cavity_axis',0,RTDB_ERR)
+c
+c     Cavity force
+      else if (inp_compare(.false.,test,'cavity_spring')) then
+       if (.not.inp_f(cavity_spring)) cavity_spring = 0.d0
+       if (.not.rtdb_put(rtdb,'qmd:cavity_spring',mt_dbl,
+     &    1,cavity_spring))
+     &  call errquit(pname//'failed to write cavity_spring',0,RTDB_ERR)
 c
 c     Remove translations and rotations every com_step steps
       else if (inp_compare(.false.,test,'com_step')) then
