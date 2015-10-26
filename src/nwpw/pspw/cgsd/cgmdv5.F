@@ -1079,7 +1079,7 @@ c      call control_up_print()
      >        btdb_put(rtdb,'pspw:lstress',mt_dbl,
      >                 6,lstress)
       end if
-      value = value.and.BA_pop_stack(fion1(2))
+      if (vverlet) value = value.and.BA_pop_stack(fion1(2))
       value = value.and.BA_pop_stack(fion(2))
       if (.not. value) call errquit('cgmdv5: error writing rtdb',0,
      &       RTDB_ERR)
