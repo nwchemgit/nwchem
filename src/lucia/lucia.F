@@ -1895,9 +1895,8 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
       END
 *
       INTEGER FUNCTION IDIST_CIVEC(NBLK,NBATS,LBATS,I1BATS,IBATS)
-      INCLUDE 'wrkspc.inc'
       INTEGER NBLK,NBATS,LBATS(*),I1BATS(*),IBATS(8,*)
-      INTEGER IBLK,JBATS,ISBLK,ILEN
+      INTEGER IBLK,JBATS,ISBLK,ILEN,IMAP
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -1912,10 +1911,13 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
             IBLK = IBLK + 1
          ENDDO
       ENDDO
-      call ga_create_irreg(mt_dbl, nvar_max, 'CONVC1', int_mb(IMAP), 
-     $                       IBLK, 1, 1, IDIST_CIVEC)
+      if ( .not. ga_create_irreg(mt_dbl, ILEN, 'CONVC1', 
+     $                           int_mb(IMAP), IBLK, 1, 1, IDIST_CIVEC))
+     $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
+
       CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUM,'IDIST ')
       RETURN
+      END
       SUBROUTINE GASCI(ISM,ISPC,IPRNT,IIUSEH0P,MPORENP_E,
      &                 EREF,ERROR_NORM_FINAL,CONV_F)
 *
@@ -2272,7 +2274,9 @@ C...dongxia  so KVEC1P and KVEC2P also local
 *. Allocate space for two complete vectors of variables
         KCOMVEC1 = IDIST_CIVEC(NBLOCK,NBATCH,int_mb(KSLBT),
      $                         int_mb(KSI1BT),int_mb(KSIBT))
-        call ga_duplicate(KCOMVEC1,KCOMVEC2,'CONVC2')
+        if ( .not. ga_duplicate(KCOMVEC1,KCOMVEC2,'CONVC2'))
+     $       call errquit(
+     $     'GASCI: ga_create kcomvec2 failed', KCOMVEC1 , GA_ERR)
 CNW    CALL MEMMAN(KCOMVEC1,NVAR_MAX,'ADDL  ',2,'COMVC1')
 CNW    CALL MEMMAN(KCOMVEC2,NVAR_MAX,'ADDL  ',2,'COMVC2')
       ENDIF
