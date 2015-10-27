@@ -4978,6 +4978,7 @@ cVOG    else
       include 'mxpdim.inc'
       include 'orbinp.inc'
       include 'cgas.inc'
+      include 'cstate.inc'
       include 'crun.inc'
       include 'clunit.inc'
       include 'lucinp.inc'
@@ -5120,7 +5121,7 @@ cVOG    else
 *
       totsds = weyl(nactel,nmogasp,ms2)
       totsds = totsds / nirrep
-      idigits = int(log10(real(totsds))+1)
+      idigits = int(log10(dble(totsds))+1)
       if ((ntest.ge.10).and.(ga_nodeid().eq.0))
      &  write(*,*) 'SDs from Weyl (per irrep)', totsds, idigits
 *
@@ -5567,9 +5568,10 @@ cVOG    else
       integer nele, nmo, spin
 *
 *. Scratch
-      integer inter, inter2, nom, fac1, fac2, denom, vogfactorial
+      integer inter, inter2, nom, fac1, fac2, denom
       double precision one, two, three, rweyl, rnele, rnmo, rspin
       external vogfactorial
+      integer vogfactorial
 *
       ntest = 10
 *
