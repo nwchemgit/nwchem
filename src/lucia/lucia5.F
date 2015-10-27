@@ -10253,7 +10253,25 @@ CNW  & LV(*), RV(*)
           CALL WRTVCD(CB,LUR,1,-1)
         END IF
       END IF
-* Loop over batches over L blocks
+C
+C BERT NEW
+C
+C SET SCLFAC_L and SCLFACE_R VALUES FOR BLOCKS.
+C GIVEN WE'RE DOING MCSCF THEY ARE THE SAME.
+C NOW WE KNOW IF BLOCKS ARE BIG ENOUGH TO USE
+C
+      NCBLOCK_T = IELSUM(LEBATL(1), NBATCHL)
+      CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(LV,SCLFAC_L,NCBLOCK_T,
+     &                                  IBLOCKL(1,1))
+      NBLOCK_C =  I1BATL(NBATCHL)-1+ LEBATL(NBATCHL)
+      CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,SCLFAC_L)
+C 
+C LET'S USE LV (LEFT SIDE AS LOCAL). SKIP WHEN BLOCK NOT LOCAL. 
+C SIMPLY SET SCLFAC_L TO ZERO FOR NON-LOCAL LV BLOCKS TO SKIP
+C
+C
+      call ga_distribution(LV,ga_nodeid(),ilo,ihi,idum,idum)
+C
       IF(ICISTR.GT.1) THEN
         CALL REWINO(LUL)
       ELSE
@@ -10269,7 +10287,6 @@ CNW  & LV(*), RV(*)
            IOFF_L_BATCH = IOFF_L_BATCH+LEBATL(IBATCHL-1)
           END IF
         END IF
-
         IF(NTEST.GE.200)
      &    WRITE(6,*) ' Left batch, number of blocks',IBATCHL,NBLKL
         DO IIL  = 1,NBLKL                
@@ -10288,7 +10305,12 @@ CNW  & LV(*), RV(*)
           ELSE
             IOFF_L_BLOCK = 1
           END IF
-
+C
+          IF (.NOT.(IOFF_L_BLOCK.GE.ilo.AND.
+     &              IOFF_L_BLOCK+IBLOCKL(8,IL)-1.LE.ihi))
+     &       SCLFAC_L(IL) = 0.0d0
+          
+C
           PLL = 1.0D0
 CNW       CALL GSTTBL(LV(IOFF_L_BLOCK),SB(IOFF),IATP,IASM,IBTP,IBSM,
           CALL GSTTBL(LV,IOFF_L_BLOCK,SB(IOFF),IATP,IASM,IBTP,IBSM,
