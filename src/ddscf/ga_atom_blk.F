@@ -27,16 +27,16 @@ c
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
      $     ('ga_create_atom_blocked: bas_nbf ?',0,BASIS_ERR)
-#ifdef DEBUG
-      if(ga_nodeid().eq.0) then
-      write(0,*) nblock(1),' m1 ',int_mb(k_map),int_mb(k_map+1)
-      write(0,*) nblock(2),' m2 ',int_mb(k_map+ga_nnodes()),
-     ,     int_mb(k_map+ga_nnodes()+1)
-      do g_a=1,2*ga_nnodes()
-      write(0,*) ' i m ',g_a,int_mb(k_map+g_a-1)
-      enddo
-      endif
-#endif
+c#ifdef DEBUG
+c      if(ga_nodeid().eq.0) then
+c      write(0,*) nblock(1),' m1 ',int_mb(k_map),int_mb(k_map+1)
+c      write(0,*) nblock(2),' m2 ',int_mb(k_map+ga_nnodes()),
+c     ,     int_mb(k_map+ga_nnodes()+1)
+c      do g_a=1,2*ga_nnodes()
+c      write(0,*) ' i m ',g_a,int_mb(k_map+g_a-1)
+c      enddo
+c      endif
+c#endif
       status =  ga_create_irreg(MT_DBL, nbf, nbf, name,
      $     int_mb(k_map), nblock(1), 
      $     int_mb(k_map+ga_nnodes()), nblock(2), g_a)
@@ -123,13 +123,15 @@ c
          endif
          goto 10
       endif
-#ifdef DEBUG
-      if(ga_nodeid().eq.0) then
-      write(0,*) ' nblock1 ',nblock(1)
-      write(0,*) ' map1 ',(map(iat,1),iat=1,nblock(1))
-      write(0,*) ' nblock2 ',nblock(2)
-      write(0,*) ' map2 ',(map(iat,2),iat=1,nblock(2))
-      endif
-#endif
+C#ifdef DEBUG
+C     if(ga_nodeid().eq.0) then
+C     write(0,*) ' nbf ',nbf
+C     write(0,*) ' nproc ',max_nproc
+C     write(0,*) ' nblock1 ',nblock(1)
+C     write(0,*) ' map1 ',(map(iat,1),iat=1,nblock(1))
+C     write(0,*) ' nblock2 ',nblock(2)
+C     write(0,*) ' map2 ',(map(iat,2),iat=1,nblock(2))
+C     endif
+C#endif
       return
       end
