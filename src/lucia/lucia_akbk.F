@@ -2409,7 +2409,10 @@ C MATVCC(A,VIN,VOUT,NROW,NCOL,ITRNS)
       INCLUDE 'akbk.inc'
       INCLUDE 'spinfo.inc'
 *. Some indirect transfer
-      COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI
+      COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI, IREFSPC_MCSCFL,
+     &               IPRDIALL,IIUSEH0PL,MPORENP_EL,
+     &               ERROR_NORM_FINALL,CONV_FL,
+     &               I_DO_CI_IN_INNER_ACT
 * A bit of local scratch
       INTEGER ISCR(2), ISCR_NTS((7+MXPR4T)*MXPOBS)
 *

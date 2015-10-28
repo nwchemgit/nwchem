@@ -1896,26 +1896,28 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
 *
       INTEGER FUNCTION IDIST_CIVEC(NBLK,NBATS,LBATS,I1BATS,IBATS)
       INTEGER NBLK,NBATS,LBATS(*),I1BATS(*),IBATS(8,*)
-      INTEGER IBLK,JBATS,ISBLK,ILEN,IMAP
+      INTEGER IBLK,JBATS,ISBLK,ILEN,IMAP(1000),IDUM
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       ILEN = 0
       IBLK = 0
-      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'IDIST ')
-      CALL MEMMAN(IMAP,NBLK,'ADDL  ',1,'MAP1  ')
+      IDUM = 0
+c     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'IDIST ')
+c     CALL MEMMAN(IMAP,NBLK,'ADDL  ',1,'MAP1  ')
       DO JBATS = 1, NBATS
          DO ISBLK = I1BATS(JBATS), I1BATS(JBATS)+LBATS(JBATS)-1
-            int_mb(IMAP+IBLK) = ILEN+1
+c           int_mb(IMAP+IBLK) = ILEN+1
+            IMAP(IBLK+1) = ILEN+1
             ILEN = ILEN + IBATS(8,ISBLK)
             IBLK = IBLK + 1
          ENDDO
       ENDDO
-      if ( .not. ga_create_irreg(mt_dbl, ILEN, 'CONVC1', 
-     $                           int_mb(IMAP), IBLK, 1, 1, IDIST_CIVEC))
+      if ( .not. ga_create_irreg(mt_dbl, ILEN, 1, 'CONVC1', 
+c    $                           int_mb(IMAP), IBLK, 1, 1, IDIST_CIVEC))
+     $                           IMAP, IBLK, 1, 1, IDIST_CIVEC))
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
-
-      CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUM,'IDIST ')
+c     CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUM,'IDIST ')
       RETURN
       END
       SUBROUTINE GASCI(ISM,ISPC,IPRNT,IIUSEH0P,MPORENP_E,
@@ -2160,6 +2162,7 @@ C?    CALL IWRTMA(WORK(KCI1BT),1,1,1,1)
 *. Number of BLOCKS
       NBLOCK = NCBLOCK
       NBATCH = NCBATCH
+      IPRINT = 10
       IF(IPRNT.GT.10.and.ga_nodeid().eq.0) THEN 
          WRITE(6,'(A,I9)') ' Number of blocks ', NBLOCK
          WRITE(6,'(A,I9)') ' Number of batches ', NBATCH
@@ -8128,7 +8131,7 @@ CNW     H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
      &  call ga_get(H,mypt,mypt,1,1,H1DIA(IIOB),1)
   100 CONTINUE
       call ga_sync()
-      call ga_dgop(1,H1DIA,NTOOB, '+')
+      call ga_dgop(mt_dbl,H1DIA,NTOOB, '+')
 *
       NTEST = 0
       IF(NTEST.NE.0.and.ga_nodeid().eq.0) THEN
@@ -8297,8 +8300,10 @@ cGLM         K(IORB,JORB) = GTIJKL(IORB,JORB,JORB,IORB)
   200 CONTINUE
       next = nxtask(-nproc, 1)
       call ga_sync()
-      call ga_dgop(1, J, NORB*NORB, '+')
-      call ga_dgop(1, K, NORB*NORB, '+')
+      if (nproc.gt.1) then
+        call ga_dgop(MT_DBL, J, NORB*NORB, '+')
+        call ga_dgop(MT_DBL, K, NORB*NORB, '+')
+      endif
 *
       NTEST = 0
       IF(NTEST.GT.10) THEN
@@ -21896,7 +21901,7 @@ C?    WRITE(6,*) ' Check,  I_DO_NEWCCV = ',  I_DO_NEWCCV
 * 
 *      IF(CARDX(1:4).EQ.'AKBK') THEN 
        write(*,*) 'Fragmeting the active spaces into smaller GAS spaces'
-       call akbkqspace
+c      call akbkqspace
 *      END IF
 ************************************************************
 *                                                          *
@@ -32064,7 +32069,7 @@ C
 c
       if (.not.ma_push_get(mt_dbl,kzvar,'temp',lwork,kwork)) call
      $   errquit('sorlowg:push_get failed', kzvar, MA_ERR)
-      call ga_get(WRK,1,KZVAR,1,1,dbl_mb(iwork),1)
+      call ga_get(WRK,1,KZVAR,1,1,dbl_mb(kwork),1)
       call sorlow(dbl_mb(iwork),STVAL,ISTART,KZVAR,KEXST2,JEXSTV,0)  
       if (.not.ma_pop_stack(lwork)) call
      $   errquit('sorlowg:pop_stack failed', kzvar, MA_ERR)
