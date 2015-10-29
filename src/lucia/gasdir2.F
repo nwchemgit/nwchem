@@ -5232,7 +5232,7 @@ CNW   DIMENSION CV(*)
       LOGICAL LOCAL
 *.Scratch
       DIMENSION SB(*),CB(*),C2(*)
-      DIMENSION XINT(*),XINT2(*),CSCR(*),SSCR(*),CNORM(*)
+      DIMENSION XINT(*),XINT2(*),CSCR(*),SSCR(*)
 *
       INTEGER   I1(MXADKBLK,*),I2(MXADKBLK,*)
       INTEGER   I3(MXADKBLK,*),I4(MXADKBLK,*) 
@@ -5362,7 +5362,7 @@ C     END IF
 *. If ISIMSYM is active, enforce the same activity of all blocks 
 *. belonging to a TT block
 *. Number of BLOCKS in  C
-C       NBLOCK_C =  I1CBLOCK(NCBATCH)-1+ LCBLOCK(NCBATCH)
+        NBLOCK_C =  I1CBLOCK(NCBATCH)-1+ LCBLOCK(NCBATCH)
 C       WRITE(6,*) ' Number of blocks in C', NBLOCK_C
 *
        CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,SCLFAC)

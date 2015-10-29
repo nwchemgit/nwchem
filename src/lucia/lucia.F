@@ -1912,11 +1912,17 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
             IBLK = IBLK + 1
          ENDDO
       ENDDO
-c     if ( .not. ga_create_irreg(mt_dbl, ILEN, 1, 'CONVC1', 
-c    $                           int_mb(IMAP), IBLK, 1, 1, IDIST_CIVEC))
-      if ( .not. ga_create(mt_dbl, ILEN, 1, 'CONVC1', 
+*
+      if (ga_nnodes().eq.1) then
+       if ( .not. ga_create(mt_dbl, ILEN, 1, 'CONVC1', 
      $                           1, 1, IDIST_CIVEC))
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
+      else
+C Now we have a list of block starts/ Now merge until we have the # of procs = # blocks
+        if ( .not. ga_create_irreg(mt_dbl,ILEN,1,'CONVC1',int_mb(IMAP), 
+     &                           2, JMAP, 1, IDIST_CIVEC))
+     $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
+      endif
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'IDIST ')
       RETURN
       END
@@ -7996,7 +8002,7 @@ CNW   DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       integer C, ICOFF
       DIMENSION CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
-      DIMENSION SCR(*),CNORM(*)
+      DIMENSION SCR(*)
       REAL*8 INPROD
 *
       CALL LUCIAQENTER('GSTBL')
@@ -15434,7 +15440,7 @@ CNW   DIMENSION SV(*),CV(*)
       NCBLOCK_T = IELSUM(LBATS(1), NBATS)
       CALL MEMMAN(KLCNORM ,NCBLOCK_T,'ADDL  ',2,'CNORM ') 
       CALL MEMMAN(KLSCLFAC ,NCBLOCK_T,'ADDL  ',2,'SCLFAC') 
-      CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,dbl_mb(KLSCLFAC),
+      CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,dbl_mb(KLCNORM),
      &     NCBLOCK_T,IBATS(1,1))
 *
 *. What is my local patch of Sigma Vector
@@ -15469,7 +15475,7 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
 *
         print*,'anylocal',anylocal
         do isblk = 0, ncblock_t-1
-           dbl_mb(KLCNORM+isblk) = dbl_mb(KLSCLFAC+isblk)
+           dbl_mb(KLSCLFAC+isblk) = dbl_mb(KLCNORM+isblk)
         enddo
         if (ANYLOCAL) 
      &  CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
