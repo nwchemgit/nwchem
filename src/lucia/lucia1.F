@@ -2705,7 +2705,7 @@ C    &              NP1,NP2,NQ)
 #include "global.fh"
 CNW   DIMENSION CSD(*),CCM(*),ISGVST(*)
       DIMENSION CSD(*),ISGVST(*)
-      integer CCM, ICOFF
+      integer ccm
 *
       CALL LUCIAQENTER('SDCMR')
       NTEST = 000
@@ -2749,7 +2749,7 @@ CNW   DIMENSION CSD(*),CCM(*),ISGVST(*)
       IF(IWAY .EQ. 1 ) THEN
         IF(IPACK.EQ.1) THEN                    
 *. Pack to triangular form
-CNW       CALL TRIPK3(CSD,CCM,1,NA,NA,SIGN)
+          CALL TRIPK3G(CSD,CCM,ICOFF,1,NA,NA,SIGN)
 C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
         ELSE
           CALL COPVEC(CSD,CCM,NA*NB)
@@ -2773,7 +2773,7 @@ C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       IF(IWAY.EQ.2) THEN
         IF(IPACK.EQ.1) THEN
 *. Unpack from triangular form
-           CALL TRIPK3(CSD,CCM,ICOFF,2,NA,NA,SIGN)
+           CALL TRIPK3G(CSD,CCM,ICOFF,IWAY,NA,NA,SIGN)
         ELSE
            CALL COPVEC(CCM,CSD,NA*NB)
         ENDIF

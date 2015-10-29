@@ -197,7 +197,7 @@ C?        write(6,*) ' Updated x', X
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 0100
+      NTEST = 0000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='
@@ -4724,7 +4724,7 @@ C TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
       END
       SUBROUTINE SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
      &                  LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END,CV,
-     &                  ECORE,ITASK,ILEN,SCLFAC) 
+     &                  ECORE,ITASK,ILEN,CNORM,SCLFAC) 
 *
 * Generate a set of sigma blocks, 
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -4788,7 +4788,7 @@ CNW   DIMENSION CV(*)
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
 *
       CALL LUCIAQENTER('SBLOK')
-      NTEST = 1000
+      NTEST = 000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' Output from SBLOCK '
@@ -5076,7 +5076,7 @@ C     IF(ISIMSYM.EQ.0) THEN
      &     int_mb(KI4),dbl_mb(KXI4S),MXSXST,MXSXBL,
      &     MOCAA,MOCAB,IAPR,
      &     int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),int_mb(KCIBT),
-     &     IRESTRICT,int_mb(KCONSPA),int_mb(KCONSPB),SCLFAC,
+     &     IRESTRICT,int_mb(KCONSPA),int_mb(KCONSPB),CNORM,SCLFAC,
      &     LUCBLK,IPERTOP,IH0INSPC,dbl_mb(KLH0SPC),
      &     ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,
      &     IUSE_PA,int_mb(KCJPA),int_mb(KSIPA),ISIMSYM,dbl_mb(KINSCR2),
@@ -5144,7 +5144,7 @@ C     END IF
      &           PS,IPRNT,LUC,ICJKAIB,CJRES,SIRES,I3,XI3S,
      &           I4,XI4S,MXSXST,MXSXBL,MOCAA,MOCAB,IAPR,
      &           LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,IRESTRICT,
-     &           ICONSPA,ICONSPB,SCLFAC,
+     &           ICONSPA,ICONSPB,CNORM,SCLFAC,
      &           LUCBLK,IPERTOP,IH0INSPC,IH0SPC,
      &           ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,
      &           I_RES_AB,IUSE_PA,CJPA,SIPA,ISIMSYM,XINT2,MXADKBLK,
@@ -5232,7 +5232,7 @@ CNW   DIMENSION CV(*)
       LOGICAL LOCAL
 *.Scratch
       DIMENSION SB(*),CB(*),C2(*)
-      DIMENSION XINT(*),XINT2(*),CSCR(*),SSCR(*)
+      DIMENSION XINT(*),XINT2(*),CSCR(*),SSCR(*),CNORM(*)
 *
       INTEGER   I1(MXADKBLK,*),I2(MXADKBLK,*)
       INTEGER   I3(MXADKBLK,*),I4(MXADKBLK,*) 
@@ -5247,7 +5247,7 @@ CNW   DIMENSION CV(*)
       DIMENSION CJRES(*),SIRES(*)
 *
       DIMENSION LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
-      DIMENSION SCLFAC(*)
+      DIMENSION SCLFAC(*),CNORM(*)
 *
       COMMON/H_OCC_CONS/IH_OCC_CONS
 * IH_OCC_CONS =1 implies that we should employ occupation conserving 
@@ -5265,7 +5265,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
       IF(IH_OCC_CONS.EQ.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
       END IF
-      NTEST = 1000
+      NTEST = 500
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -5356,7 +5356,7 @@ cVOG &       NCBLOCK_T,ICBLOCK)
 C     END IF
 C     IF(NTEST.GE.1000) THEN
 C       WRITE(6,*) ' Array giving active blocks '
-C       CALL WRTMAT(SCLFAC(ICBLK_INI),1,NCBLOCK_T,1,NCBLOCK_T)
+C       CALL WRTMAT(CNORM(ICBLK_INI),1,NCBLOCK_T,1,NCBLOCK_T)
 C     END IF
 *
 *. If ISIMSYM is active, enforce the same activity of all blocks 
@@ -5365,7 +5365,7 @@ C     END IF
 C       NBLOCK_C =  I1CBLOCK(NCBATCH)-1+ LCBLOCK(NCBATCH)
 C       WRITE(6,*) ' Number of blocks in C', NBLOCK_C
 *
-C      CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,SCLFAC)
+       CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,SCLFAC)
 C           ENFORCE_SIMSYM_ACT_BLK(NBLK,IBLK,XSCA)
 *
 * Initialize sigma blocks
@@ -5383,12 +5383,12 @@ C
         ZERO = 0.0D0
         IF((ISBLOCK(1,JSBLOCK).GT.0).AND.LOCAL)
      &  CALL SETVEC(SB(IOFF),ZERO,NASTR*NBSTR)
-        IF(NTEST.GE.1000) THEN
+c       IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Initializing sigma-block:'
           WRITE(6,*) 
      &    ' JSBLOCK, IATP, IASM, IBSM =', JSBLOCK, IATP,IASM,IBSM
           WRITE(6,*) ' IOFF, NASTR, NBSTR = ', IOFF, NASTR,NBSTR
-        END IF
+c       END IF
         
       END DO
 C?     CALL MEMCHK2('CHECAE')
@@ -5450,7 +5450,9 @@ C?     CALL MEMCHK2('CHECAE')
 *. Will this block be needed ??
           INTERACT = 0
           INTERACTL = 0
+          print*,'doing block',jblock,SCLFAC(JBLOCK)
           IF(SCLFAC(JBLOCK).EQ. 1.0D0) THEN
+          print*,'block',jblock,'moving'
           JATP = ICBLOCK(1,JBLOCK)
           JBTP = ICBLOCK(2,JBLOCK)
           JASM = ICBLOCK(3,JBLOCK)
@@ -5468,6 +5470,7 @@ C?     CALL MEMCHK2('CHECAE')
             DO JSBLOCK = 1, NSBLOCK
             IDENT = 0
             LOCAL = ISBLOCK(5,JSBLOCK).GT.0
+            print*,'sblock local',local,ISBLOCK(1,JSBLOCK)
             IF(ISBLOCK(1,JSBLOCK).GT.0.AND.LOCAL) THEN
               IATP = ISBLOCK(1,JSBLOCK)
               IBTP = ISBLOCK(2,JSBLOCK)
@@ -5499,11 +5502,12 @@ C?     CALL MEMCHK2('CHECAE')
 *
           ISCALE = 0
 CNW       IF(NTEST.GE.10000) WRITE(6,*) ' Interactl = ', INTERACTL
+          print*,'interact',interactl,ident
           IF(INTERACTL.EQ.1) THEN
 CNW         IF(NTEST.GE.1000) THEN
-CNW         WRITE(6,*) 
-CNW  &      ' GSTTBL will be called for JATP, JBTP, JASM, JBSM = ',
-CNW  &                                  JATP, JBTP, JASM, JBSM 
+            WRITE(6,*) 
+     &      ' GSTTBL will be called for JATP, JBTP, JASM, JBSM = ',
+     &                                  JATP, JBTP, JASM, JBSM 
 CNW         WRITE(6,*) ' IOFF_C_BLOCK = ', IOFF_C_BLOCK
 CNW         END IF
 CNW         CALL GSTTBL(CV(IOFF_C_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
@@ -5512,10 +5516,12 @@ CNW  &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
 CNW  &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
 C
 C BERT NEW GSTTBL NEEDS TO BE SERIALIZED. LOCAL COPY ONLY
-            CALL GSTTBL(CV,IOFF_C_BLOCK,CB(JOFF),JATP,JASM,JBTP,JBSM,
-     &                  ICOCOC,
+             print*,'sclfac prior',sclfac(jblock)
+            CALL GSTTBL(CV,CNORM(JBLOCK),IOFF_C_BLOCK,CB(JOFF),JATP,
+     &                  JASM,JBTP,JBSM,ICOCOC,
      &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
      &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
+             print*,'sclfac after',sclfac(jblock)
              IF(NTEST.GE.10000)  WRITE(6,*) ' GSTTBL was called '
 *. Note in GSTTBL : ICOOSC only used for CI vectors in core, 
           ELSE
@@ -5546,6 +5552,7 @@ C BERT NEW GSTTBL NEEDS TO BE SERIALIZED. LOCAL COPY ONLY
         ICOFF_TT = -0
         DO 9000 ICBLK = I1CBLOCK(JCBATCH), I1CBLOCK(JCBATCH)-1+NJBLOCK 
           IF(NTEST.GE.1000) WRITE(6,*) ' 9000, ICBLK = ', ICBLK
+          WRITE(6,*) ' 9000, ICBLK = ', ICBLK
 *. Is this a new TT block -or is it identical to the previous 
 *. TT block
           INEW_CTT = 0
@@ -5578,6 +5585,7 @@ C?   &                            ICBLK, INEW_CTT,SCLFAC(ICBLK)
           NJB = NSSOB(JBSM,JBTP)
 C?        WRITE(6,*) ' ICBLK, JATP, JBTP =', ICBLK,JATP,JBTP
 *
+          print*,'cblock',icblk,SCLFAC(ICBLK),ICOFF
           IF(SCLFAC(ICBLK).NE.0.0D0) THEN
 *. Other symmetry blocks that can be obtained from this block
             PL = 1.0D0
@@ -5632,15 +5640,17 @@ C?     CALL MEMCHK2('CHECKB')
               END IF
 
               LOCAL = ISBLOCK(5,ISBLK).GT.0
+              print*,'isblock',isblk,local
               IF(ISBLOCK(1,ISBLK) .GT. 0 .AND. LOCAL) THEN
                 IATP = ISBLOCK(1,ISBLK)
                 IBTP = ISBLOCK(2,ISBLK)
                 IASM = ISBLOCK(3,ISBLK)
                 IBSM = ISBLOCK(4,ISBLK)
-                ISOFF = ISBLOCK(5,ISBLK)
+                ISOFF = ABS(ISBLOCK(5,ISBLK))
                 NIA = NSSOA(IASM,IATP)
                 NIB = NSSOB(IBSM,IBTP)
 *
+                print*,'piece',isimsym,nia,nib
                 IF(ISIMSYM.EQ.0.AND.NIA*NIB.EQ.0) GOTO 10000
 C ISM,IB,IA
                 IF(IRESTRICT.EQ.1.AND.
@@ -5678,6 +5688,7 @@ C    &          IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,
 C    &          IOCTPA,IOCTPB,I_DO_EXACT_BLOCK)
                 END IF
 C
+                 print*,'now interact',INTERACT
                 IF(INTERACT.EQ.0.OR.I_DO_EXACT_BLK.EQ.0) GOTO 10000
 
                 IF(NTEST.GE.1000) THEN

@@ -3723,7 +3723,7 @@ C?                        WRITE(6,*) ' Check passes '
 c               if (npart.lt.nproc) then
 c                  npart = min(nrow,nproc)
 c               endif
-                IF(NTEST.GE.000)
+                IF(NTEST.GE.100)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
 c               DO 1801 IIPART = ga_nodeid()+1, NPART,nproc
                 DO 1801 IIPART = 1, NPART
@@ -4058,7 +4058,7 @@ C                            TRP_H2_BLK(XINT,I12_OR_34,NI,NJ,NK,NL,SCR)
 c               if (npart.lt.nproc) then
 c                  npart = min(nrow,nproc)
 c               endif
-                IF(NTEST.GE.000)
+                IF(NTEST.GE.100)
      &          write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
 C               DO 2801 IIPART = ga_nodeid()+1, NPART,nproc
                 DO 2801 IIPART = 1, NPART
@@ -7418,7 +7418,7 @@ C?    WRITE(6,*) ' FIND_ACTIVE... ', NBLOCK
       IOFF = 1
       DO IBLK = 1, NBLOCK
         LEN = IBLOCK(8,IBLK)
-C?      WRITE(6,*) ' IBLK, LEN = ', IBLK, LEN
+C?      WRITE(6,*) 'ACT  IBLK, LEN = ', IBLK,LEN,IOFF
         XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN-1,1,1,
      &                       VEC,'N',IOFF,IOFF+LEN-1,1,1)
 CNW     XBLK = INPROD(VEC(IOFF),VEC(IOFF),LEN)
@@ -10260,11 +10260,11 @@ C SET SCLFAC_L and SCLFACE_R VALUES FOR BLOCKS.
 C GIVEN WE'RE DOING MCSCF THEY ARE THE SAME.
 C NOW WE KNOW IF BLOCKS ARE BIG ENOUGH TO USE
 C
-      NCBLOCK_T = IELSUM(LEBATL(1), NBATCHL)
+      NCBLOCK_T = IELSUM(LBATL(1), NBATCHL)
       CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(LV,SCLFAC_L,NCBLOCK_T,
      &                                  IBLOCKL(1,1))
-      NBLOCK_C =  I1BATL(NBATCHL)-1+ LEBATL(NBATCHL)
-      CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,SCLFAC_L)
+      NBLOCK_C =  I1BATL(NBATCHL)-1+ LBATL(NBATCHL)
+      CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,IBLOCKL,SCLFAC_L)
 C 
 C LET'S USE LV (LEFT SIDE AS LOCAL). SKIP WHEN BLOCK NOT LOCAL. 
 C SIMPLY SET SCLFAC_L TO ZERO FOR NON-LOCAL LV BLOCKS TO SKIP
@@ -10313,8 +10313,9 @@ C
 C
           PLL = 1.0D0
 CNW       CALL GSTTBL(LV(IOFF_L_BLOCK),SB(IOFF),IATP,IASM,IBTP,IBSM,
-          CALL GSTTBL(LV,IOFF_L_BLOCK,SB(IOFF),IATP,IASM,IBTP,IBSM,
-     &         ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,
+CBERT: NEED LNORM
+          CALL GSTTBL(LV,LNORM,IOFF_L_BLOCK,SB(IOFF),IATP,IASM,IBTP,
+     &         IBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,
      &         PLL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
 C?        WRITE(6,*) ' IL, SCLFAC_L(IL) = ', IL, SCLFAC_L(IL)
         END DO
@@ -10397,8 +10398,9 @@ C?          WRITE(6,*) ' LUR before GSTTBL', LUR
      &                     PSR, PLR
             END IF
 CNW         CALL GSTTBL(RV(IOFF_R_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
-            CALL GSTTBL(RV,IOFF_R_BLOCK,CB(JOFF),JATP,JASM,JBTP,JBSM,
-     &           ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,
+CBERT: NEED RNORM
+            CALL GSTTBL(RV,RNORM,IOFF_R_BLOCK,CB(JOFF),JATP,JASM,JBTP,
+     &           JBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,
      &           PLR,LUR,C2,NSMST,ISCALE,SCLFAC_R(IR))
 C?        WRITE(6,*) ' IR, SCLFAC_R(IR) = ', IR, SCLFAC_R(IR)
           ELSE
@@ -11005,7 +11007,7 @@ c     nproc = ga_nnodes()
 c             if (npart.lt.nproc) then
 c                npart = min(nrow,nproc)
 c             endif
-              IF(NTEST.GE.0000)
+              IF(NTEST.GE.1000)
      &        write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
 c             if (ga_nodeid()+1.gt.npart) goto 1930
 c             DO 1801 IIPART = ga_nodeid()+1, NPART,nproc

@@ -11585,7 +11585,7 @@ C?       I1BATCH(NBATCH+1) = NBLK + 1
          NOCCLS_BAT(NBATCH) = NNOCCLS_BAT
       END IF
 *
-      IF(NTEST.NE.100) THEN
+      IF(NTEST.GE.100) THEN
 C?      WRITE(6,*) 'Output from PART_CIV'
 C?      WRITE(6,*) '====================='
         WRITE(6,*)

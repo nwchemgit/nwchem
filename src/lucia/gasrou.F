@@ -3672,7 +3672,6 @@ C?        WRITE(6,*) ' Number of elements readin ',IDET
           END IF
           DO IA = MINIA,IABAS+NIA-1
             IDET = IDET + 1
-            call ga_print(C)
             call ga_get(C,IDET,IDET,1,1,XVAL,1)
             DO IPOT = 1, 10
 CNW           IF(10.0D0 ** (-IPOT+1).GE.ABS(C(IDET)).AND.

@@ -1896,28 +1896,28 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
 *
       INTEGER FUNCTION IDIST_CIVEC(NBLK,NBATS,LBATS,I1BATS,IBATS)
       INTEGER NBLK,NBATS,LBATS(*),I1BATS(*),IBATS(8,*)
-      INTEGER IBLK,JBATS,ISBLK,ILEN,IMAP(1000),IDUM
+      INTEGER IBLK,JBATS,ISBLK,ILEN,IMAP,IDUM
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       ILEN = 0
       IBLK = 0
       IDUM = 0
-c     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'IDIST ')
-c     CALL MEMMAN(IMAP,NBLK,'ADDL  ',1,'MAP1  ')
+      CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'IDIST ')
+      CALL MEMMAN(IMAP,NBLK,'ADDL  ',1,'MAP1  ')
       DO JBATS = 1, NBATS
          DO ISBLK = I1BATS(JBATS), I1BATS(JBATS)+LBATS(JBATS)-1
-c           int_mb(IMAP+IBLK) = ILEN+1
-            IMAP(IBLK+1) = ILEN+1
+            int_mb(IMAP+IBLK) = ILEN+1
             ILEN = ILEN + IBATS(8,ISBLK)
             IBLK = IBLK + 1
          ENDDO
       ENDDO
-      if ( .not. ga_create_irreg(mt_dbl, ILEN, 1, 'CONVC1', 
+c     if ( .not. ga_create_irreg(mt_dbl, ILEN, 1, 'CONVC1', 
 c    $                           int_mb(IMAP), IBLK, 1, 1, IDIST_CIVEC))
-     $                           IMAP, IBLK, 1, 1, IDIST_CIVEC))
+      if ( .not. ga_create(mt_dbl, ILEN, 1, 'CONVC1', 
+     $                           1, 1, IDIST_CIVEC))
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
-c     CALL MEMMAN(IDUMMY,IDUMMY,'FLUSM ',IDUM,'IDIST ')
+      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'IDIST ')
       RETURN
       END
       SUBROUTINE GASCI(ISM,ISPC,IPRNT,IIUSEH0P,MPORENP_E,
@@ -7966,7 +7966,7 @@ C       CALL IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
 *
       RETURN
       END
-      SUBROUTINE GSTTBL(C,ICOFF,CTT,IATP,IASM,IBTP,IBSM,IOCOC,
+      SUBROUTINE GSTTBL(C,CNORM,ICOFF,CTT,IATP,IASM,IBTP,IBSM,IOCOC,
      &                  NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICOOSC,IDC,
      &                  PLSIGN,LUC,SCR,NSMST,ISCALE,SCLFAC)
 
@@ -7996,7 +7996,7 @@ CNW   DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       integer C, ICOFF
       DIMENSION CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
       DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
-      DIMENSION SCR(*)
+      DIMENSION SCR(*),CNORM(*)
       REAL*8 INPROD
 *
       CALL LUCIAQENTER('GSTBL')
@@ -8031,7 +8031,7 @@ CNW     XNORM = INPROD(C,C,NCMB_IN)
 c       XNORM = ga_ddot_patch(C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1,
 c    &                        C,'N',ICOFF,ICOFF+NCMB_IN-1,1,1) 
 C?      WRITE(6,*) ' XNORM in GSTT ', XNORM
-        IF(SCLFAC.EQ.0.0D0) THEN
+        IF(CNORM.EQ.0.0D0) THEN
           IMZERO = 1
         ELSE 
           IMZERO = 0
@@ -15408,7 +15408,7 @@ C
 #include "mafdecls.fh"
 #include "global.fh"
 *. Batches of sigma
-      INTEGER LBATS(*),LEBATS(*),I1BATS(*),IBATS(8,*)
+      INTEGER LBATS(*),LEBATS(*),I1BATS(*),IBATS(8,*),LEN
 *.Scratch
       DIMENSION SB(*),CB(*)
 *. Input/output if ICISTR = 1
@@ -15418,7 +15418,7 @@ CNW   DIMENSION SV(*),CV(*)
       LOGICAL ANYLOCAL
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 10000
+      NTEST = 0000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -15431,12 +15431,11 @@ CNW   DIMENSION SV(*),CV(*)
 *. For scaling for each TTS block
 *
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'RASSG3')
-      CALL MEMMAN(KLSCLFAC ,MXNTTS,'ADDL  ',2,'SCLFAC') 
-      NCBLOCK_T = IELSUM(int_mb(KCLBT), NCBATCH)
+      NCBLOCK_T = IELSUM(LBATS(1), NBATS)
+      CALL MEMMAN(KLCNORM ,NCBLOCK_T,'ADDL  ',2,'CNORM ') 
+      CALL MEMMAN(KLSCLFAC ,NCBLOCK_T,'ADDL  ',2,'SCLFAC') 
       CALL FIND_ACTIVE_BLOCKS_IN_VECTOR(CV,dbl_mb(KLSCLFAC),
-     &     NCBLOCK_T,int_mb(KCIBT))
-      NBLOCK_C =  int_mb(KCI1BT+NCBATCH)-1+ int_mb(KCLBT+NCBATCH)
-      CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,ICBLOCK,dbl_mb(KLSCLFAC))
+     &     NCBLOCK_T,IBATS(1,1))
 *
 *. What is my local patch of Sigma Vector
 *
@@ -15468,9 +15467,14 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
 *
 *. Skip it all together if the SV range is outside local
 *
+        print*,'anylocal',anylocal
+        do isblk = 0, ncblock_t-1
+           dbl_mb(KLCNORM+isblk) = dbl_mb(KLSCLFAC+isblk)
+        enddo
         if (ANYLOCAL) 
      &  CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
-     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,dbl_mb(KLSCLFAC))
+     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,
+     &       dbl_mb(KLCNORM),dbl_mb(KLSCLFAC))
 *. Transfer S block to permanent storage
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           IATP = IBATS(1,ISBLK)
