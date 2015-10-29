@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 118)
+      parameter (num_dirs = 119)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -90,6 +90,7 @@ c
      >            'balance',
      >            'nobalance',
      >            'bo_steps',
+     >            'mc_steps',
      >            'bo_time_step',
      >            'bo_algorithm',
      >            'bo_fake_mass',
@@ -200,7 +201,7 @@ c
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
-     >       5200,5300, 5400,5500,5600,5650,5700,
+     >       5200,5300,5400,5400,5500,5600,5650,5700,
      >       5800,5810,5820,5830,5840,5850,
      >       5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
