@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 113)
+      parameter (num_dirs = 118)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -95,6 +95,11 @@ c
      >            'bo_fake_mass',
      >            'scaling',
      >            'xyz_filename',
+     >            'ion_motion_filename',
+     >            'emotion_filename',
+     >            'hmotion_filename',
+     >            'omotion_filename',
+     >            'eigmotion_filename',
      >            'np_dimensions',
      >            'spin_orbit',
      >            'spin-orbit',
@@ -195,7 +200,9 @@ c
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
-     >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
+     >       5200,5300, 5400,5500,5600,5650,5700,
+     >       5800,5810,5820,5830,5840,5850,
+     >       5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,
@@ -1174,7 +1181,60 @@ c
      >   .and.rtdb_cput(rtdb,'nwpw:xyz_filename',1,cell_name(1:ind))
       if (.not.value)
      > call errquit('nwpw_input: writing ', 5800, RTDB_ERR)
-
+      goto 10
+c
+c  ion_motion_filename
+c
+ 5810 if (.not. inp_a(cell_name)) goto 10
+      ind = index(cell_name,' ') - 1
+      value = rtdb_cput(rtdb,'cpmd:ion_motion_filename',1,
+     >                  cell_name(1:ind))
+     >  .and. rtdb_cput(rtdb,'nwpw:ion_motion_filename',1,
+     >                  cell_name(1:ind))
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 5810, RTDB_ERR)
+      goto 10
+c
+c  emotion_filename
+c
+ 5820 if (.not. inp_a(cell_name)) goto 10
+      ind = index(cell_name,' ') - 1
+      value = rtdb_cput(rtdb,'cpmd:emotion_filename',1,cell_name(1:ind))
+     >  .and. rtdb_cput(rtdb,'nwpw:emotion_filename',1,cell_name(1:ind))
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 5820, RTDB_ERR)
+      goto 10
+c
+c  hmotion_filename
+c
+ 5830 if (.not. inp_a(cell_name)) goto 10
+      ind = index(cell_name,' ') - 1
+      value = rtdb_cput(rtdb,'cpmd:hmotion_filename',1,cell_name(1:ind))
+     >  .and. rtdb_cput(rtdb,'nwpw:hmotion_filename',1,cell_name(1:ind))
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 5830, RTDB_ERR)
+      goto 10
+c
+c  omotion_filename
+c
+ 5840 if (.not. inp_a(cell_name)) goto 10
+      ind = index(cell_name,' ') - 1
+      value = rtdb_cput(rtdb,'cpmd:omotion_filename',1,cell_name(1:ind))
+     >  .and. rtdb_cput(rtdb,'nwpw:omotion_filename',1,cell_name(1:ind))
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 5840, RTDB_ERR)
+      goto 10
+c
+c  eigmotion_filename
+c
+ 5850 if (.not. inp_a(cell_name)) goto 10
+      ind = index(cell_name,' ') - 1
+      value = rtdb_cput(rtdb,'cpmd:eigmotion_filename',1,
+     >                  cell_name(1:ind))
+     >  .and. rtdb_cput(rtdb,'nwpw:eigmotion_filename',1,
+     >                  cell_name(1:ind))
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 5850, RTDB_ERR)
       goto 10
 
 c
