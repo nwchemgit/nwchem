@@ -915,6 +915,9 @@ c
       integer ifock
       integer i
       logical oprint
+      integer ilo(3),ihi(3)
+      integer ga_create3d_atom_blocked
+      external ga_create3d_atom_blocked
 c
       oprint= util_print('fock_xc',print_debug) 
       if(oprint) then
@@ -922,6 +925,7 @@ c
      ,        ' ndens ',ndens
          call util_flush(luout)
       endif
+#if 1
       dims(1) = nfock
       dims(2) = nbf
       dims(3) = nbf
@@ -932,6 +936,15 @@ c
      &     g_xc))
      &        call errquit('xcnewfock: could not allocate g_xc',555,
      &       GA_ERR)
+#else
+      g_xc=ga_create3d_atom_blocked(geom, basis,'nfockxc:3dxc', nfock)
+      call nga_distribution(g_xc,
+     .     ga_nodeid(), ilo,ihi)
+      write(6,123) ga_nodeid(),' gxc distr ilo',ilo
+      write(6,123) ga_nodeid(),' gxc distr ihi',ihi
+ 123  format(i2,a,3i5)
+#endif
+
       call ga_zero(g_xc)
 
       Exc(1) = 0.0d0
