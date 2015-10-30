@@ -49,7 +49,7 @@
            ibx = f*(id(m)-1+jdm*(id(l)-1+jdl*(id(k)-1+jdk
      &                *(id(j)-1+jdj*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j6 = 1,f
             ia = j6+iax
             ib = j6+ibx
@@ -79,7 +79,7 @@
            ibx = e*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j5 = 1,e
             ia = j6+f*(j5+iax)
             ib = j5+ibx
@@ -109,7 +109,7 @@
            ibx = d*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j4 = 1,d
             ia = j6+f*(j5-1+e*(j4+iax))
             ib = j4+ibx
@@ -139,7 +139,7 @@
            ibx = c*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j3 = 1,c
             ia = j6+f*(j5-1+e*(j4-1+d*(j3+iax)))
             ib = j3+ibx
@@ -169,7 +169,7 @@
            ibx = b*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j2 = 1,b
             ia = j6+f*(j5-1+e*(j4-1+d*(j3-1+c*(j2+iax))))
             ib = j2+ibx
@@ -198,7 +198,7 @@
            ibx = a*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j1 = 1,a
             ia = j6+f*(j5-1+e*(j4-1+d*(j3-1+c*(j2-1+b*(j1-1)))))
             ib = j1+ibx
@@ -255,7 +255,7 @@
            ibx = f*(id(m)-1+jdm*(id(l)-1+jdl*(id(k)-1+jdk
      &                *(id(j)-1+jdj*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j6 = 1,f
             ia = j6+iax
             ib = j6+ibx
@@ -285,7 +285,7 @@
            ibx = e*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j5 = 1,e
             ia = j6+f*(j5+iax)
             ib = j5+ibx
@@ -315,7 +315,7 @@
            ibx = d*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j4 = 1,d
             ia = j6+f*(j5-1+e*(j4+iax))
             ib = j4+ibx
@@ -345,7 +345,7 @@
            ibx = c*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j3 = 1,c
             ia = j6+f*(j5-1+e*(j4-1+d*(j3+iax)))
             ib = j3+ibx
@@ -402,7 +402,7 @@
            ibx = a*(id(m)-1+jd(m)*(id(l)-1+jd(l)*(id(k)-1
      &           +jd(k)*(id(j)-1+jd(j)*(id(i)-1)))))
 !dec$ vector always nontemporal
-!dir$ simd
+!$omp simd
            do j1 = 1,a
             ia = j6+f*(j5-1+e*(j4-1+d*(j3-1+c*(j2-1+b*(j1-1)))))
             ib = j1+ibx
