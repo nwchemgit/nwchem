@@ -372,7 +372,7 @@ c
 c     turned off for nbf gt 500 since becomes a memory hog
 c
       dorepon=.true.
-      if(nbf.gt.500) dorepon=.false.
+      if(nbf.gt.3000) dorepon=.false.
       dorepl=.false.
       if(ga_cluster_nnodes().gt.1.and.dorepon) then
          docopy=.true.
