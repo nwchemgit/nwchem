@@ -259,8 +259,9 @@
      >                dbl_mb(dn(1)),
      >                dcpl_mb(psir(1)))
 
-      call psi_dmatrix_localize(ispin,ne,ne,n2ft3d,
-     >                          dcpl_mb(psir(1)),dcpl_mb(psir2(1)))
+c  used to localize psi....input needs to be generated for this capabilitiy
+c      call psi_dmatrix_localize(ispin,ne,ne,n2ft3d,
+c     >                          dcpl_mb(psir(1)),dcpl_mb(psir2(1)))
 
       call dplot_loop(rtdb,
      >                ispin,ne,
