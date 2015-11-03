@@ -58,12 +58,9 @@
             nn = (i-1)*2 + (ms-1)*2*(neq(1)+neq(2))
             int_mb(dm_indexs(1)+nn)   = taskid_i0
             int_mb(dm_indexs(1)+nn+1) = k0
-            write(*,*) "ms,n,taskid_i,k=",ms,i,taskid_i0,k0
             x = dbl_mb(rgrid(1)+3*(k0-1))
             y = dbl_mb(rgrid(1)+3*(k0-1)+1)
             z = dbl_mb(rgrid(1)+3*(k0-1)+2)
-            write(*,'(A,3F10.3)') "x,y,z=",x,y,z
-            write(*,*)
          end do
       end do
 
@@ -121,8 +118,6 @@
          end if
       end do
       dbl_mb(maxsum0(1)+taskid_i) = maxsum
-      write(*,*) "maxsum=",maxsum,kk,dbl_mb(maxsum0(1)+taskid_i)
-
       call D3dB_Vector_SumAll(np_i,dbl_mb(maxsum0(1)))
 
       tsum = -9.9d99
