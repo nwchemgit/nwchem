@@ -99,7 +99,8 @@ endif
 ifdef OLD_GA
     LIBPATH = -L$(SRCDIR)/tools/lib/$(TARGET)
 else
-    LIBPATH = -L$(SRCDIR)/tools/install/lib
+    TOOLSLIB =  $(shell grep libdir\ =  $(NWCHEM_TOP)/src/tools/build/Makefile |grep -v pkgl|cut -b 25-)
+    LIBPATH = -L$(SRCDIR)/tools/install/$(TOOLSLIB) 
 endif
 
 #
