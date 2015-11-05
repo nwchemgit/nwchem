@@ -154,8 +154,9 @@ C
 
       call nwpw_timing_start(20)
 
-      tid = Parallel_threadid()
+      tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
+
 
       pi = 4.0d0*datan(1.0d0)
 

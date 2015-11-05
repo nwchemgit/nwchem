@@ -1468,8 +1468,17 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
       integer pack(2,0:1)
       common / pack_blk / pack,nida,nidb
         
-
+#ifdef USE_OPENMP
+      integer i,indx
+!$OMP PARALLEL DO private(i,indx) shared(A,B,nida,nidb)
+      do i=1,n
+         indx = (i-1)*(nida(nb)+nidb(nb)) + 1
+         call dcopy(2*(nida(nb)+nidb(nb)),A(indx),1,B(indx),1)
+      end do
+!OMP END PARALLEL DO
+#else
       call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
+#endif
         
       return 
       end
@@ -2838,7 +2847,9 @@ c      end do
       external control_balance
 
       call nwpw_timing_start(9)
+!$OMP SINGLE
       call Pack_c_Copy(nb,A,tmp1)
+!$OMP END SINGLE
       if (control_balance())
      >   call Balance_c_unbalance_start(nb,tmp1,request,reqcnt,msgtype)
 
@@ -2894,11 +2905,13 @@ c      end do
       
       call D3dB_nfft3d(1,nfft3d)
 
+!$OMP SINGLE
       call dcopy(2*(nida(nb)+nidb(nb)),tmp1,1,tmp2,1)
       call dcopy(2*nfft3d,0.0d0,0,tmp1,1)
       do i=1,(nida(nb)+nidb(nb))
         tmp1(int_mb(pack(1,nb)+i-1)) = tmp2(i)
       end do
+!$OMP END SINGLE
 
 
 *     **** make the kx=0 plane complete **** 

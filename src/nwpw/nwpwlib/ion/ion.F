@@ -2534,8 +2534,10 @@ c      end do
 #include "bafdecls.fh"
 #include "ion.fh"
 
+!$OMP SINGLE
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
       call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
+!$OMP END SINGLE
       return
       end
 
