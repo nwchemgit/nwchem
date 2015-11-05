@@ -486,12 +486,12 @@
       implicit none
 #include "Parallel.fh"
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
       integer  omp_get_thread_num,omp_get_num_threads
       external omp_get_thread_num,omp_get_num_threads
 #endif
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
       threadid = omp_get_thread_num()
       nthreads = omp_get_num_threads()
 #else
@@ -512,12 +512,12 @@
       integer function Parallel_threadid()
       implicit none
 #include "Parallel.fh"
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
       integer  omp_get_thread_num
       external omp_get_thread_num
 #endif
 
-#ifdef USE_OPENMPPPP
+#ifdef USE_OPENMP
       Parallel_threadid = omp_get_thread_num()
 #else
       Parallel_threadid = 0
@@ -533,12 +533,12 @@
       integer function Parallel_nthreads()
       implicit none
 #include "Parallel.fh"
-#ifdef USE_OPENMPPPP
+#ifdef USE_OPENMP
       integer  omp_get_num_threads
       external omp_get_num_threads
 #endif
 
-#ifdef USE_OPENMPPPP
+#ifdef USE_OPENMP
       Parallel_nthreads = omp_get_num_threads()
 #else
       Parallel_nthreads = 1
@@ -555,12 +555,12 @@
       integer function Parallel_maxthreads()
       implicit none
 #include "Parallel.fh"
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
       integer  omp_get_max_threads
       external omp_get_max_threads
 #endif
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
       Parallel_maxthreads = omp_get_max_threads()
 #else
       Parallel_maxthreads = 1
@@ -581,7 +581,7 @@
       integer n
       real*8 a(*),b(*)
 
-#ifdef USE_OPENMPPPPPPPP
+#ifdef USE_OPENMP
       integer nbig,tid,nthr,nsz,istart
       parameter (nbig=1000)
 
@@ -637,7 +637,7 @@ c     >                    tid,nthr,istart,nsz,n
       integer n
       real*8 b(*)
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
       integer nbig,tid,nthr,nsz,istart
       parameter (nbig=1000)
 
@@ -698,7 +698,7 @@ c     **** external functions ****
       logical barrier
       real*8 a,b
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
 c     **** external functions ****
       integer  Parallel_nthreads
       external Parallel_nthreads
@@ -734,7 +734,7 @@ c     **** external functions ****
       logical barrier
       integer a,b
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
 c     **** external functions ****
       integer  Parallel_nthreads
       external Parallel_nthreads
@@ -769,7 +769,7 @@ c     **** external functions ****
       logical barrier
       integer i,a
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
 c     **** external functions ****
       integer  Parallel_nthreads
       external Parallel_nthreads
@@ -806,7 +806,7 @@ c     **** external functions ****
       logical barrier
       integer imax,a
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
 c     **** external functions ****
       integer  Parallel_nthreads
       external Parallel_nthreads
@@ -849,7 +849,7 @@ c     **** external functions ****
       integer n,a(*)
       integer i
 
-#ifdef USE_OPENMPPPPP
+#ifdef USE_OPENMP
 c     **** external functions ****
       integer  Parallel_nthreads
       external Parallel_nthreads

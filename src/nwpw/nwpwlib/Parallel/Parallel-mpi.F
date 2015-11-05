@@ -1091,6 +1091,7 @@ c      call MPI_WAITALL(nreq,req,MPI_STATUSES_IGNORE,mpierr)
 
       end if
 !$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
