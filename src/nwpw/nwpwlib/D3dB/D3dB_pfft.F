@@ -3470,10 +3470,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer tmp1z(2),tmp2z(2)
       common / pfft_queuez_common / tmp1z,tmp2z
 
-      integer  Parallel_threadid,tid
-      external Parallel_threadid
+c      integer  Parallel_threadid,tid
+c      external Parallel_threadid
 
-      tid = Parallel_threadid()
+c      tid = Parallel_threadid()
 
       if (step.eq.1) then
          call nwpw_timing_start(32)
@@ -3903,14 +3903,17 @@ c      call nwpw_timing_end(1)
       !*** local variables ***
       integer shift1,shift2,shift3
       integer q,indx,status,np
-      !integer  Parallel_taskid,tid
-      !external Parallel_taskid
+      integer  Parallel_threadid,Parallel_nthreads,tid,nthr
+      external Parallel_threadid,Parallel_nthreads
 
 c      call nwpw_timing_start(1)
       call nwpw_timing_start(30)
       call Parallel2d_np_i(np)
+c      tid  = Parallel_threadid()
+c      nthr = Parallel_nthreads()
 
-      !tid = Parallel_taskid()
+c      write(*,*) "hera tid,nthr,qsize = ",tid,nthr,qsize
+
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
          !int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
@@ -3933,11 +3936,11 @@ c      if (last_index.gt.qmax) last_index = 1
 c      int_mb(qindx(1)+qsize-1)        = last_index
 c      int_mb(qstatus(1)+last_index-1) = 1
 
-      call Parallel_shared_iinc(.true.,1,qsize)
       call Parallel_shared_irot(.true.,qmax,last_index)
-      call Parallel_shared_icopy(.true.,last_index,
+      call Parallel_shared_iinc(.false.,1,qsize)
+      call Parallel_shared_icopy(.false.,last_index,
      >                           int_mb(qindx(1)+qsize-1))
-      call Parallel_shared_icopy(.true.,1,
+      call Parallel_shared_icopy(.false.,1,
      >                           int_mb(qstatus(1)+last_index-1))
 
       status = 1
@@ -3951,8 +3954,16 @@ c      int_mb(qstatus(1)+last_index-1) = 1
      >                     int_mb(request(1)+shift3),
      >                     int_mb(reqcnt(1)+last_index-1))
 
+!$OMP BARRIER
 c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
+
+c      if (tid.eq.0) then
+c         call util_flush(6)
+c         write(*,*) "out queuein"
+c         write(*,*)
+c         call util_flush(6)
+c      end if
       return
       end
 
@@ -3988,11 +3999,11 @@ c      call nwpw_timing_end(1)
       !*** local variables ***
       integer shift1,shift2,shift3
       integer q,indx,indx1,status,np
-      integer  Parallel_threadid,tid
-      external Parallel_threadid
+c      integer  Parallel_threadid,tid
+c      external Parallel_threadid
 
 
-      tid = Parallel_threadid()
+c      tid = Parallel_threadid()
 
       call Parallel2d_np_i(np)
 
@@ -4033,25 +4044,21 @@ c      end do
      >                                int_mb(qstatus(1)+indx-1))
          end do
       end do
+!$OMP BARRIER
 
-      !write(*,*) "way before vcopy, tid=",tid
-c      qsize = qsize -1
-c      do q=1,qsize
-c        int_mb(qindx(1)+q-1) = int_mb(qindx(1)+q)
-c      end do
-      call Parallel_shared_iinc(.true.,-1,qsize)
-      call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
+c      call Parallel_shared_iinc(.true.,-1,qsize)
+c      call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
 
       shift1=nfft3d(1)*(2*(indx1-1))
-c      call dcopy(2*nfft3d(1),dcpl_mb(tmp(1)+shift1),1,A,1)
-      !write(*,*) "before vcopy, tid=",tid
       call Parallel_shared_vector_copy(.true.,2*nfft3d(1),
      >                                 dcpl_mb(tmp(1)+shift1),
      >                                 A)
 
+      call Parallel_shared_iinc(.true.,-1,qsize)
+      call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
+
 c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
-
       return
       end
 

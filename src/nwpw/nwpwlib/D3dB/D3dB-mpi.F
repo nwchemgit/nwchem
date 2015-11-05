@@ -1654,6 +1654,8 @@ c     **** external functions ****
       external Parallel2d_convert_taskid_i,Parallel_comm_world
 
 
+!$OMP BARRIER
+!$OMP MASTER
       reqcnt=0
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
@@ -1719,6 +1721,8 @@ c            send data....
 
          end do
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
 
       return
@@ -2223,6 +2227,8 @@ c     **** external functions ****
       call Parallel2d_np_i(np)
 
 
+!$OMP BARRIER
+!$OMP MASTER
 *     **** pack A(i) array ****
       n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
       call D3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),A,tmp1)
@@ -2306,6 +2312,8 @@ c         msgtype   = 1
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -2362,11 +2370,14 @@ c         msgtype   = 1
 
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
+!$OMP SINGLE
 *     **** unpack A(i) array ****
       n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
       n3 = h_iz_to_i2_count(op,nbb)
       call D3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
       call D3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
+!$OMP END SINGLE
+
       return
       end
 
@@ -2436,6 +2447,8 @@ c     **** external functions ****
 
 
 *     **** pack A(i) array ****
+!$OMP BARRIER
+!$OMP MASTER
 #ifndef CRAY
 !DIR$ ivdep
 #endif
@@ -2526,6 +2539,8 @@ c         msgtype   = 1
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
 
       return
@@ -2574,6 +2589,7 @@ c         msgtype   = 1
 
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
+!$OMP SINGLE
 *     **** unpack A(i) array ****
 #ifndef CRAY
 !DIR$ ivdep
@@ -2582,6 +2598,7 @@ c         msgtype   = 1
      >         (int_mb(i2_start(1,nb)+np+1-1)-1)
         A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
       end do
+!$OMP END SINGLE
 
       return
       end
