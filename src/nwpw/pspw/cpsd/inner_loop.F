@@ -1,4 +1,3 @@
-*
 * $Id$
 *
 
@@ -232,7 +231,8 @@ c     real*8     fion(3,natmx)
       do it=1,it_in
 
 
-        !call dcopy(2*npack1*nemax,psi2,1,psi1,1)
+!$OMP PARALLEL
+
         call Pack_c_nCopy(1,nemax,psi2,psi1)
 
         if (move) then
@@ -243,42 +243,39 @@ c     real*8     fion(3,natmx)
 *       ********************************
 *       **** generate phaze factors ****
 *       ********************************
+
         
         call nwpw_timing_start(43)
 c       these two functions are now threadsafe/multithreaded
         call phafac()
         if (control_version().eq.3) call ewald_phafac()
         call nwpw_timing_end(43)
-
-
         call nwpw_timing_start(11)
+
 
 *       *******************;
 *       **** get psi_r ****
 *       *******************
-c        do n=n1(1),n2(ispin)
-c           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
-c           call Pack_c_unpack(1,psi_r(1,n))
-c           call D3dB_cr_fft3b(1,psi_r(1,n))
-c           call D3dB_r_Zero_Ends(1,psi_r(1,n))
-c        end do
-
         call nwpw_timing_start(44)
 
-
+!$OMP DO private(n)
         do n=n1(1),n2(ispin)
            call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
         end do
+!$OMP END DO
+
 
         call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
 
 
         call nwpw_timing_end(44)
 
-
+!$OMP DO private(n)
         do n=n1(1),n2(ispin)
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
+!$OMP END DO
+!$OMP END PARALLEL
 
 c       this function calls non pipelined 3d fft
         call nwpw_meta_gga_gen_tau(ispin,ne,psi1)
@@ -312,6 +309,7 @@ c       this function calls non pipelined 3d fft
              call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         end if
+
 
         !exc = 0.0d0
         !do i=1,n2ft3d
