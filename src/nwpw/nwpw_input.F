@@ -1,6 +1,11 @@
 c
 c $Id$
 c
+*     ***********************************
+*     *                                 *
+*     *           nwpw_input            *
+*     *                                 *
+*     ***********************************
       subroutine nwpw_input(rtdb)
       implicit none
       integer rtdb
