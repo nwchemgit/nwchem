@@ -1644,12 +1644,13 @@ c
          nlnba=3*mxlnba
          if (.not. zdone) goto 55555 ! attempt to recover
 c
-         if (nzvar .gt. 10*(max(6,3*nat-6))) then
+cold         if (nzvar .gt. 10*(max(6,3*nat-6))) then
+         if (nzvar .gt. 42*nat) then
 c
 c     Made a z-matrix but it is asburdly big.  Nothing yet to fix this
 c
             write(LuOut,*) ' autoz: excessive number of variables ',
-     $           nzvar, 3*nat-6
+     $           nzvar, 42*nat
             zdone = .false.
             goto 66666          ! abandon autoz
          endif
