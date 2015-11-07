@@ -358,6 +358,8 @@ c     clear memory
      + call errquit(pname//'ma_pop_stack g',0,MA_ERR)
       if(.not.ma_pop_stack(l_v))  ! velocity
      + call errquit(pname//'ma_pop_stack v',0,MA_ERR)
+      if(.not.ma_pop_stack(l_c))  ! positions
+     + call errquit(pname//'ma_pop_stack c',0,MA_ERR)
       if(.not.ma_pop_stack(l_r))  ! positions
      + call errquit(pname//'ma_pop_stack r',0,MA_ERR)
       if(.not.ma_pop_stack(l_m))  ! masses
