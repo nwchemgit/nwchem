@@ -226,7 +226,7 @@ CNW  &             INCLUDE_ONLY_TOTSYM_SUPSYM
       STEP_MAX = 0.75D0
 C     WRITE(6,*) ' Jeppe has reduced step to ', STEP_MAX
       TOLER = 1.1D0
-      NTEST = 1
+      NTEST = 0000
       IPRNT= MAX(NTEST,IPRMCSCF)
 *
       last_ci = 0
@@ -422,6 +422,7 @@ C    &               I_DO_CI_IN_INNER_ACT
       N_INNER_TOT = 0
       DO IOUT = 1, MAXMAC
 *
+        call ga_sync()
         IF(IPRNT.GE.1.and.ga_nodeid().eq.0) THEN
           WRITE(6,*)
           WRITE(6,*) ' ----------------------------------'
@@ -457,12 +458,10 @@ CNW     CALL COPVEC(WORK(KINT1_INI),WORK(KINT1O),NINT1)
         INTSM_AL = 1
 *. Perform integral transformation and construct inactive Fock matrix
 C       DO_ORBTRA(IDOTRA,IDOFI,IDOFA,IE2LIST_IN,IOCOBTP_IN,INTSM_IN)
-        write(6,*) 'do orbtra',ga_nodeid()
         CALL DO_ORBTRA(1,1,0,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
+        call ga_sync()
 CNW     CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
-        write(6,*) 'do orbtra done',ga_nodeid()
         call ga_copy(KFI,KINT1)
-        write(6,*) 'doing the work', ga_nodeid()
         IF(NTEST.GE.100) THEN
           WRITE(6,*) ' MCSCF: ECORE_ORIG, ECORE_HEX, ECORE(2) ',
      &                 ECORE_ORIG, ECORE_HEX, ECORE
@@ -494,7 +493,7 @@ C       MAXIT = MAXMIC
         END IF
         IPRDIA_SAVE = IPRDIA
 C       IPRDIA = 1
-        write(6,*) 'do gasci',ga_nodeid()
+        call ga_sync()
         CALL GASCI(IREFSM,IREFSPC_MCSCF,IPRDIAL,IIUSEH0P,
      &             MPORENP_E,EREF,ERROR_NORM_FINAL,CONV_F)  
         IROOT_SEL = IROOT_SEL_SAVE
@@ -676,6 +675,7 @@ C              GENERIC_GRA_HES_FD(E0,E1,E2,X,NX,EFUNC)
            CALL DO_ORBTRA(1,1,1,IE2LIST_AL,IOCOBTP_AL,INTSM_AL)
 CNW        CALL COPVEC(WORK(KINT1),WORK(KH),NINT1)
 CNW        CALL COPVEC(WORK(KFI),WORK(KINT1),NINT1)
+           call ga_sync()
            call ga_copy(KINT1,KH)
            call ga_copy(KFI,KINT1)
 *
@@ -796,6 +796,7 @@ CM           CALL MEMCHK2('AFAVE2')
      &                           NOOEXC))
             if(ga_nodeid().eq.0)
      &      WRITE(6,*) ' Norm of updated kappa step =', XNORM2
+            call ga_sync()
             ENERGY1 = EMCSCF_FROM_KAPPA(dbl_mb(KLKAPPA))
             ENEW = ENERGY1
             if(ga_nodeid().eq.0)
@@ -860,6 +861,7 @@ C    &            XFINAL,FFINAL,IKNOW,F0,FXINI)
               CALL WRTMAT(dbl_mb(KLKAPPA),1,NOOEXC,1,NOOEXC)
             END IF
           END IF! Newton method
+          call ga_sync()
           CALL MEMCHK2('AF_NEW')
           IF(I_DO_UPDATE.EQ.1) THEN
 *
@@ -1456,7 +1458,7 @@ C APRBLM2(A,LROW,LCOL,NBLK,ISYM)
 *. Orbital rotations in compact form
       DIMENSION  XKAPPA(*)
 *
-      NTEST = 0
+      NTEST = 000
 *
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',ADDL,'GTEMC ')

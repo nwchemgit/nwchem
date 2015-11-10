@@ -5489,6 +5489,7 @@ C          DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
       IOCOBTP_A = IOCOBTP_IN
       INTSM_A = INTSM_IN
 *
+      call ga_sync()
       IF(IDOTRA.EQ.1) THEN
 *. Perform one- and two-electron transformations.
 * The pointers to the mo-ao transformation matrices KKCMO_X, X=I,J,K,L
@@ -5496,7 +5497,6 @@ C          DIAG_SYM_MAT(A,X,SCR,NDIM,ISYM)
         CALL PREPARE_2EI_LIST
         CALL TRAINT
 *
-        call ga_sync()
         IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' one-electron transformed integrals'
           WRITE(6,*) ' ================================='
@@ -5507,6 +5507,7 @@ CNW       CALL APRBLM2(WORK(KINT1),NTOOBS,NTOOBS,NSMOB,IPACK_H1)
 *
       END IF! Integral transformation should be performed
 *
+      call ga_sync()
       IF(IDOFI.EQ.1) THEN
 *
 *.      Calculate inactive Fock matrix in basis defined by  KKCMI, KKCMJ
@@ -5535,6 +5536,7 @@ CNW       CALL APRBLM2(WORK(KFI),NTOOBS,NTOOBS,NSMOB,IPACK_F)
         KINT2_A(IE2ARR_F) = KINT2_FSAVE
       END IF !  FI  should be calculated
 *
+      call ga_sync()
       IF(IDOFA.EQ.1) THEN
 *
 *.      Calculate active Fock matrix in basis defined by  KKCMI, KKCMJ
@@ -5596,6 +5598,7 @@ CNW       CALL APRBLM2(WORK(KFA),NTOOBS,NTOOBS,NSMOB,IPACK_F)
         END IF
       END IF ! Active Fock matrix should be calculated
 *
+      call ga_sync()
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving DO_ORBTRA '
 *
       CALL LUCIAQEXIT('ORBTR')

@@ -1921,7 +1921,7 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
 C Now we have a list of block starts/ Now merge until we have the # of procs = # blocks
 C if we set nblcok1 to number of procs, last one gets all remianing blocks and most of work
         if ( .not. ga_create_irreg(mt_dbl,ILEN,1,'CONVC1',int_mb(IMAP), 
-     &                           2, 1, 1, IDIST_CIVEC))
+     &                           IBLK, 1, 1, IDIST_CIVEC))
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
       endif
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'IDIST ')

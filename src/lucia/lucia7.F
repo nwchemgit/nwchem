@@ -1682,7 +1682,7 @@ c      INCLUDE 'mxpdim.inc'
 *. Output
       DIMENSION OOHES(*)
 *
-      NTEST = 00
+      NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
         WRITE(6,*) ' ------------------------'
