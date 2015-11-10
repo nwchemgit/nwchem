@@ -164,7 +164,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
 #        CPP = path to ANSI-like C preprocessor (cpp)
 #     RANLIB = path to ranlib or something harmless if not required
 #      SHELL = path to the Bourne Shell
-#       MAKE = DON'T define this ... it will break the passing of command
+#       MAKE = DON\'T define this ... it will break the passing of command
 #              arguments.  Simply use the correct path to GNU make on the 
 #              command line and all will work just dandy.
 #  MAKEFLAGS = options to GNU make ... -j controls no. of threads used
@@ -268,13 +268,13 @@ ifeq ($(TARGET),SOLARIS)
     INSTALL = echo $@ is built
 #
 # You can use either the f77 or f90 compiler BUT if using f90
-# you'll need to specify -DINTEGER_1='integer*1' in the selci
+# you\'ll need to specify -DINTEGER_1='integer*1' in the selci
 # and util makefiles.
 #
          CC = cc
          FC = f77
 
-# Don't need this if using the SUN performance library
+# Don\'t need this if using the SUN performance library
 #  need for BLASOPT business because of lapack and other possible missing entries
 ifndef BLASOPT
 CORE_SUBDIRS_EXTRA = blas lapack 
@@ -554,7 +554,7 @@ ifeq ($(TARGET),IBM)
 # -qstrict required with -O3 (according to Edo)
 # -qfloat=rsqrt gives faster square roots (off by -qstrict)
 # -qfloat=fltint gives faster real-integer conversion (off by -qstrict)
-# -qhot seems to break a lot of things so don't ever use it
+# -qhot seems to break a lot of things so don\'t ever use it
   FOPTIMIZE = -O3 -qstrict -NQ40000 -NT80000 -qarch=auto -qtune=auto -NS2048
   ifdef RSQRT
     FOPTIMIZE  += -qfloat=rsqrt:fltint
@@ -2271,16 +2271,9 @@ ifdef USE_FDIST
   DEFINES += -DFDIST
 endif
 
-_TOOLS_BUILD= $(shell [ -e ${NWCHEM_TOP}/src/tools/build/config.h ] && cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SQRT/ {print "Y"}')
-
-ifeq ($(_TOOLS_BUILD),Y)
 _USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
-endif
-ifeq ($(_USE_SCALAPACK),Y)
-USE_SCALAPACK=Y
-endif
 
-ifeq ($(USE_SCALAPACK),Y)
+ifeq ($(_USE_SCALAPACK),Y)
   DEFINES += -DSCALAPACK
 ifeq ($(XLFBREN),y) 
   CORE_LIBS +=  -brename:.iceil_,.iceil \
@@ -2303,8 +2296,8 @@ ifeq ($(XLFBREN),y)
 	      -brename:.pdgetrf_,.pdgetrf \
 	      -brename:.pdgetrs_,.pdgetrs 
 endif
-  CORE_LIBS += $(ELPA) $(SCALAPACK) $(PBLAS) $(BLACS)
 endif
+  CORE_LIBS += $(ELPA) $(SCALAPACK)
 
 ifdef USE_64TO32
       CORE_LIBS +=  -l64to32
@@ -2453,18 +2446,11 @@ ifdef USE_F90_ALLOCATABLE
  DEFINES += -DUSE_F90_ALLOCATABLE
 endif
 
-ifeq ($(_TOOLS_BUILD),Y)
 # lower level libs used by communication libraries 
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 COMM_LIBS +=  $(shell grep ARMCI_NETWORK_LDFLAGS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 24-)
 #comex bit
-HAVE_COMEX = $(shell [ -e ${NWCHEM_TOP}/src/tools/build/comex/config.h ] && cat ${NWCHEM_TOP}/src/tools/build/comex/config.h| grep COMEX_NETWORK| awk ' / 1/ {print "Y"}')
-ifeq ($(HAVE_COMEX),Y)
-COMM_LIBS +=  $(shell grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-)
-#we often need pthread, let's add it
-COMM_LIBS += -lpthread
-endif
-endif
+COMM_LIBS +=  $(shell [ -e ${NWCHEM_TOP}/src/tools/build/comex/config.h ] && grep LIBS\ = ${NWCHEM_TOP}/src/tools/build/comex/Makefile|grep -v _LIBS| cut -b 8-) -lpthread
 ifdef COMM_LIBS 
  CORE_LIBS += $(COMM_LIBS) 
 endif 
@@ -2499,7 +2485,7 @@ endif
 MKDIR = mkdir
 
 #
-# Define known suffixes mostly so that .p files don't cause pc to be invoked
+# Define known suffixes mostly so that .p files don\'t cause pc to be invoked
 #
 
 .SUFFIXES:	
