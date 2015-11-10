@@ -9487,7 +9487,7 @@ CNW   DIMENSION L(*),R(*)
 *
       DIMENSION RHO2AA(*),RHO2AB(*),RHO2BB(*)
 *
-      NTEST = 00
+      NTEST = 000
       NTEST = MAX(NTEST,IPRDEN)
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -9874,6 +9874,7 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
       NTTS = MXNTTS
       CALL MEMMAN(KLSCLFCL,NTTS, 'ADDL  ',2,'SCLF_L') !done
       CALL MEMMAN(KLSCLFCR,NTTS, 'ADDL  ',2,'SCLF_R') !done
+      CALL MEMMAN(KLSCLNRM,NTTS, 'ADDL  ',2,'NORM_R') !done
 
       NVARL = NSVAR
       NVARR = NCVAR
@@ -9917,7 +9918,8 @@ C?    WRITE(6,*) ' DENSI2 : MAXI MAXK ', MAXI,MAXK
      &       int_mb(KSIBT),
      &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
-     &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
+     &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),dbl_mb(KLSCLNRM),
+     &       S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
      &       NDACTORB,IDACTSPC,IDTFREORD,IFTDREORD,IOBPTS_SEL,
      &       NINOB,ICISTR,LV,RV,ICISTR,NVARL,NVARR,ILTEST)
@@ -9950,7 +9952,8 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       int_mb(KSIBT),
      &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
-     &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
+     &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),dbl_mb(KLSCLNRM),
+     &       S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
      &       NDACTORB,IDACTSPC,IDTFREORD,IFTDREORD,IOBPTS_SEL,
      &       NINOB,ICISTR,L,R,ICISTR,NVARL,NVARR,ILTEST)
@@ -9981,7 +9984,8 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
      &       int_mb(KSIBT),
      &       NBATCHR,int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCI1BT),
      &       int_mb(KCIBT),int_mb(KCONSPA),int_mb(KCONSPB),
-     &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),S2_TERM1,IUSE_PH,IPHGAS,
+     &       dbl_mb(KLSCLFCL),dbl_mb(KLSCLFCR),dbl_mb(KLSCLNRM),
+     &       S2_TERM1,IUSE_PH,IPHGAS,
      &       IDOSRHO1,SRHO1,IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
      &       NDACTORB,IDACTSPC,IDTFREORD,IFTDREORD,IOBPTS_SEL,NINOB,
      &       ICISTR,WORK(KCOMVEC1_SD),WORK(KCOMVEC2_SD),
@@ -9995,6 +9999,7 @@ C    &       WORK(KSNOCCLS_BAT),WORK(KSIBOCCLS_BAT),0,ILTEST)
       END IF! ICISTR switch
       call ga_sync()
       call ga_dgop(1,RHO1,NDACTORB ** 2,'+')
+      call ga_dgop(1,S2_TERM1,1,'+')
       if (I12.EQ.2) call ga_dgop(2,RHO2,
      &   (NDACTORB**2)*(NDACTORB**2+1)/2,'+')
 
@@ -10112,7 +10117,7 @@ C     WRITE(6,*) ' Leaving DENSI '
      &           MXPOBS,IPRNT,RHO1S,LUL,LUR,PSL,PSR,RHO1P,XNATO ,
      &           NBATCHL,LBATL,LEBATL,I1BATL,IBLOCKL,
      &           NBATCHR,LBATR,LEBATR,I1BATR,IBLOCKR,
-     &           ICONSPA,ICONSPB,SCLFAC_L,SCLFAC_R,S2_TERM1,
+     &           ICONSPA,ICONSPB,SCLFAC_L,SCLFAC_R,RNORM,S2_TERM1,
      &           IUSE_PH,IPHGAS,IDOSRHO1,SRHO1,
      &           IDOSRHO2,RHO2AA,RHO2AB,RHO2BB,
      &           NDACTORB,IDACTSPC,IDTFREORD,IFTDREORD,IOBPTS_SEL,
@@ -10208,10 +10213,11 @@ C     WRITE(6,*) ' Leaving DENSI '
       DIMENSION I1(*),I2(*),XI1S(*),XI2S(*),I3(*),XI3S(*),I4(*),XI4S(*)
       DIMENSION X(*)
       DIMENSION RHO1S(*)
-      DIMENSION SCLFAC_L(*),SCLFAC_R(*)
+      DIMENSION SCLFAC_L(*),SCLFAC_R(*),RNORM(*)
 *.
       INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
       INTEGER RASM(4),RBSM(4),RATP(4),RBTP(4),RSGN(5),RTRP(5)
+      LOGICAL ISLOCAL
       REAL * 8 INPROD
 *. Vectors holding L and R if ICISTR = 1
 CNW   REAL*8
@@ -10254,8 +10260,6 @@ CNW  & LV(*), RV(*)
         END IF
       END IF
 C
-C BERT NEW
-C
 C SET SCLFAC_L and SCLFACE_R VALUES FOR BLOCKS.
 C GIVEN WE'RE DOING MCSCF THEY ARE THE SAME.
 C NOW WE KNOW IF BLOCKS ARE BIG ENOUGH TO USE
@@ -10265,10 +10269,12 @@ C
      &                                  IBLOCKL(1,1))
       NBLOCK_C =  I1BATL(NBATCHL)-1+ LBATL(NBATCHL)
       CALL ENFORCE_SIMSYM_ACT_BLK(NBLOCK_C,IBLOCKL,SCLFAC_L)
+      DO IIL = 1, NCBLOCK_T
+        RNORM(IIL) = SCLFAC_L(IIL)
+      END DO 
 C 
 C LET'S USE LV (LEFT SIDE AS LOCAL). SKIP WHEN BLOCK NOT LOCAL. 
 C SIMPLY SET SCLFAC_L TO ZERO FOR NON-LOCAL LV BLOCKS TO SKIP
-C
 C
       call ga_distribution(LV,ga_nodeid(),ilo,ihi,idum,idum)
 C
@@ -10306,24 +10312,20 @@ C
             IOFF_L_BLOCK = 1
           END IF
 C
-          IF (.NOT.(IOFF_L_BLOCK.GE.ilo.AND.
-     &              IOFF_L_BLOCK+IBLOCKL(8,IL)-1.LE.ihi))
-     &       SCLFAC_L(IL) = 0.0d0
-          
-C
           PLL = 1.0D0
 CNW       CALL GSTTBL(LV(IOFF_L_BLOCK),SB(IOFF),IATP,IASM,IBTP,IBSM,
-CBERT: NEED LNORM
-          CALL GSTTBL(LV,LNORM,IOFF_L_BLOCK,SB(IOFF),IATP,IASM,IBTP,
-     &         IBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,
-     &         PLL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
-C?        WRITE(6,*) ' IL, SCLFAC_L(IL) = ', IL, SCLFAC_L(IL)
+          CALL GSTTBL(LV,SCLFAC_L(IL),IOFF_L_BLOCK,SB(IOFF),IATP,IASM,
+     &         IBTP,IBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,
+     &         IDC,PLL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
         END DO
 *. Loop over batches  of R vector
         IF(ICISTR.GT.1) THEN
           CALL REWINO(LUR)
         END IF
         IOFF_R_BATCH = 0
+        DO IR = 1, NCBLOCK_T
+          SCLFAC_R(IR) = RNORM(IR)                  
+        END DO 
         DO 9001 IBATCHR = 1, NBATCHR
 *. Address of start of batch of R
           IF(LUR.LE.0) THEN
@@ -10398,14 +10400,13 @@ C?          WRITE(6,*) ' LUR before GSTTBL', LUR
      &                     PSR, PLR
             END IF
 CNW         CALL GSTTBL(RV(IOFF_R_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
-CBERT: NEED RNORM
-            CALL GSTTBL(RV,RNORM,IOFF_R_BLOCK,CB(JOFF),JATP,JASM,JBTP,
-     &           JBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,
-     &           PLR,LUR,C2,NSMST,ISCALE,SCLFAC_R(IR))
+            CALL GSTTBL(RV,RNORM(IR),IOFF_R_BLOCK,CB(JOFF),JATP,JASM,
+     &           JBTP,JBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,
+     &           IDC,PLR,LUR,C2,NSMST,ISCALE,SCLFAC_R(IR))
 C?        WRITE(6,*) ' IR, SCLFAC_R(IR) = ', IR, SCLFAC_R(IR)
           ELSE
-C             WRITE(6,*) ' TTSS for C block skipped  '
-C             CALL IWRTMA(IBLOCKR(1,IR),4,1,4,1)
+              WRITE(6,*) ' TTSS for C block skipped  '
+              CALL IWRTMA(IBLOCKR(1,IR),4,1,4,1)
             IF(LUR.GT.0) THEN
               CALL IFRMDS(LBL,-1,1,LUR)
               CALL SKPRCD2(LBL,-1,LUR)
@@ -10431,7 +10432,14 @@ C             CALL IWRTMA(IBLOCKR(1,IR),4,1,4,1)
             IF(NTEST.GE.100) WRITE(6,'(A,2I4,E8.3)')
      &      '  IIL, IL, SCLFAC_L(IL) = ', 
      &         IIL, IL, SCLFAC_L(IL)
-          IF(SCLFAC_L(IL).NE.0.0D0) THEN
+            IF(ICISTR.LE.1) THEN
+              IOFF_L_BLOCK = IOFF_L_BATCH-1+IBLOCKL(6,IL)
+            ELSE
+              IOFF_L_BLOCK = 1
+            END IF
+            ISLOCAL = IOFF_L_BLOCK.GE.ilo.AND.
+     &              IOFF_L_BLOCK+IBLOCKL(8,IL)-1.LE.ihi
+          IF(SCLFAC_L(IL).NE.0.0D0.AND.ISLOCAL) THEN
             IATP = IBLOCKL(1,IL)
             IBTP = IBLOCKL(2,IL)
             IASM = IBLOCKL(3,IL)

@@ -1919,8 +1919,9 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
       else
 C Now we have a list of block starts/ Now merge until we have the # of procs = # blocks
+C if we set nblcok1 to number of procs, last one gets all remianing blocks and most of work
         if ( .not. ga_create_irreg(mt_dbl,ILEN,1,'CONVC1',int_mb(IMAP), 
-     &                           2, JMAP, 1, IDIST_CIVEC))
+     &                           2, 1, 1, IDIST_CIVEC))
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
       endif
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'IDIST ')
@@ -15460,11 +15461,10 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
         ANYLOCAL = .FALSE.
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           ILEN = IBATS(8,ISBLK)
-* Use minus sign to identify non-local blocks
-          IBATS(8,ISBLK) = -IBATS(8,ISBLK)
           IF ((IOFF_T.GE.ilo).AND.(IOFF_T+ILEN-1.LE.ihi)) THEN
              ANYLOCAL = .TRUE.
-* Set to positive for local blocks
+          ELSE
+* Use minus sign to identify non-local blocks
              IBATS(8,ISBLK) = -IBATS(8,ISBLK)
           ENDIF
           IOFF_T = IOFF_T + ILEN
@@ -15473,37 +15473,40 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
 *
 *. Skip it all together if the SV range is outside local
 *
-        print*,'anylocal',anylocal
-        do isblk = 0, ncblock_t-1
-           dbl_mb(KLSCLFAC+isblk) = dbl_mb(KLCNORM+isblk)
-        enddo
-        if (ANYLOCAL) 
-     &  CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
-     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,
-     &       dbl_mb(KLCNORM),dbl_mb(KLSCLFAC))
+        if (ANYLOCAL) THEN
+           do isblk = 0, ncblock_t-1
+              dbl_mb(KLSCLFAC+isblk) = dbl_mb(KLCNORM+isblk)
+           enddo
+          CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
+     &         CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,
+     &         dbl_mb(KLCNORM),dbl_mb(KLSCLFAC))
 *. Transfer S block to permanent storage
-        DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
-          IATP = IBATS(1,ISBLK)
-          IBTP = IBATS(2,ISBLK)
-          IASM = IBATS(3,ISBLK)
-          IBSM = IBATS(4,ISBLK)
-          IOFF = IBATS(6,ISBLK)
-          LEN  = ABS(IBATS(8,ISBLK))
-C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
-          IF(ICISTR.NE.1) THEN
-            CALL ITODS(LEN,1,-1,LUHC)
-            CALL TODSC(SB(IOFF),LEN,-1,LUHC)
-          ELSE
-            if (LEN.gt.0) 
-     &         call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
+          DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
+            IATP = IBATS(1,ISBLK)
+            IBTP = IBATS(2,ISBLK)
+            IASM = IBATS(3,ISBLK)
+            IBSM = IBATS(4,ISBLK)
+            IOFF = IBATS(6,ISBLK)
+            LEN  = IBATS(8,ISBLK)
+C?          write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
+            IF(ICISTR.NE.1) THEN
+              CALL ITODS(LEN,1,-1,LUHC)
+              CALL TODSC(SB(IOFF),LEN,-1,LUHC)
+            ELSE
+*
+*. Using negative length to ignore as it's a non-local block and no update
+*
+              if (LEN.gt.0)
+     &           call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
 CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
-            IOFF_S = IOFF_S + LEN
-          END IF
+              IOFF_S = IOFF_S + ABS(LEN)
+            END IF
 *
 *. Reset length to positive sign for non-local blocks
 *
-          IBATS(8,ISBLK) = ABS(IBATS(8,ISBLK))
-        END DO
+            IBATS(8,ISBLK) = ABS(IBATS(8,ISBLK))
+          END DO
+        endif
       END DO
 *
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)

@@ -102,6 +102,7 @@ set lucia:nirrep 8
 #16-16 set lucia:gsoccx 16 16
 set lucia:nseqci 1
 set lucia:seq_1_1 "MCSCF,20,1"
+#set lucia:seq_1_1 "CI,20"
 #set lucia:seq_1_1 "MCSCF,1,1"
 set lucia:mxciv 20
 set lucia:maxitm 100

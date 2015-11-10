@@ -4317,6 +4317,7 @@ C
        DIMENSION H0(*),IPNTR(1)
        DIMENSION H0SCR(*)
        DIMENSION RNRM_CNV(*)
+       character*100 myname,filename
 *
 * Dimensioning required of local vectors
 *      APROJ  : MAXVEC*(MAXVEC+1)/2
@@ -4330,7 +4331,7 @@ C
        EXTERNAL MV7
 *
        TEST = 1.0D-6
-       IPRT= 5 
+       IPRT= 2 
        IF(IPRT.GE.1.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' MINDV4 in action '
          WRITE(6,*) ' Convergence threshold for residual = ', TEST
@@ -4379,6 +4380,7 @@ C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
          call ga_zero(VEC2) !VOG
          CALL MV7(VEC1,VEC2,0,0,0,0)
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
+         status = dra_inquire(LU2,itype,idim1,idim2,myname,filename)
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
          if(dra_wait(itask).ne.0) call errquit('dra writ err',itask,911)

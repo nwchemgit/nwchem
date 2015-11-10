@@ -2354,7 +2354,7 @@ c     IF(IPERTOP.NE.0) CALL SWAPVE(WORK(KINT1),WORK(KFI),NINT1)
       REAL * 8 INPROD
 *
       CALL LUCIAQENTER('SBLO2')
-      NTEST = 00
+      NTEST =  00
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' ================='
@@ -5265,7 +5265,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
       IF(IH_OCC_CONS.EQ.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
       END IF
-      NTEST = 500
+      NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -5383,12 +5383,12 @@ C
         ZERO = 0.0D0
         IF((ISBLOCK(1,JSBLOCK).GT.0).AND.LOCAL)
      &  CALL SETVEC(SB(IOFF),ZERO,NASTR*NBSTR)
-c       IF(NTEST.GE.1000) THEN
+        IF(NTEST.GE.1000) THEN
           WRITE(6,*) ' Initializing sigma-block:'
           WRITE(6,*) 
      &    ' JSBLOCK, IATP, IASM, IBSM =', JSBLOCK, IATP,IASM,IBSM
           WRITE(6,*) ' IOFF, NASTR, NBSTR = ', IOFF, NASTR,NBSTR
-c       END IF
+        END IF
         
       END DO
 C?     CALL MEMCHK2('CHECAE')
@@ -5438,7 +5438,6 @@ C?     CALL MEMCHK2('CHECAE')
            WRITE(6,*) ' JJCBLOCK, JBLOCK  NJBLOCK = ',
      &                  JJCBLOCK, JBLOCK, NJBLOCK
            WRITE(6,*) ' I1CBLOCK(1) = ',  I1CBLOCK(1)
-           write(6,*) 'sclfac',sclfac(jblock)
           END IF
        CALL MEMCHK2('CHECKA')
 *. Offset for this block in complete vector
@@ -5450,9 +5449,7 @@ C?     CALL MEMCHK2('CHECAE')
 *. Will this block be needed ??
           INTERACT = 0
           INTERACTL = 0
-          print*,'doing block',jblock,SCLFAC(JBLOCK)
           IF(SCLFAC(JBLOCK).EQ. 1.0D0) THEN
-          print*,'block',jblock,'moving'
           JATP = ICBLOCK(1,JBLOCK)
           JBTP = ICBLOCK(2,JBLOCK)
           JASM = ICBLOCK(3,JBLOCK)
@@ -5470,7 +5467,6 @@ C?     CALL MEMCHK2('CHECAE')
             DO JSBLOCK = 1, NSBLOCK
             IDENT = 0
             LOCAL = ISBLOCK(5,JSBLOCK).GT.0
-            print*,'sblock local',local,ISBLOCK(1,JSBLOCK)
             IF(ISBLOCK(1,JSBLOCK).GT.0.AND.LOCAL) THEN
               IATP = ISBLOCK(1,JSBLOCK)
               IBTP = ISBLOCK(2,JSBLOCK)
@@ -5502,12 +5498,11 @@ C?     CALL MEMCHK2('CHECAE')
 *
           ISCALE = 0
 CNW       IF(NTEST.GE.10000) WRITE(6,*) ' Interactl = ', INTERACTL
-          print*,'interact',interactl,ident
           IF(INTERACTL.EQ.1) THEN
 CNW         IF(NTEST.GE.1000) THEN
-            WRITE(6,*) 
-     &      ' GSTTBL will be called for JATP, JBTP, JASM, JBSM = ',
-     &                                  JATP, JBTP, JASM, JBSM 
+CNW         WRITE(6,*) 
+CNW  &      ' GSTTBL will be called for JATP, JBTP, JASM, JBSM = ',
+CNW  &                                  JATP, JBTP, JASM, JBSM 
 CNW         WRITE(6,*) ' IOFF_C_BLOCK = ', IOFF_C_BLOCK
 CNW         END IF
 CNW         CALL GSTTBL(CV(IOFF_C_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
@@ -5515,13 +5510,10 @@ CNW  &                  ICOCOC,
 CNW  &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
 CNW  &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
 C
-C BERT NEW GSTTBL NEEDS TO BE SERIALIZED. LOCAL COPY ONLY
-             print*,'sclfac prior',sclfac(jblock)
             CALL GSTTBL(CV,CNORM(JBLOCK),IOFF_C_BLOCK,CB(JOFF),JATP,
      &                  JASM,JBTP,JBSM,ICOCOC,
      &                  NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,
      &                  PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
-             print*,'sclfac after',sclfac(jblock)
              IF(NTEST.GE.10000)  WRITE(6,*) ' GSTTBL was called '
 *. Note in GSTTBL : ICOOSC only used for CI vectors in core, 
           ELSE
@@ -5552,7 +5544,6 @@ C BERT NEW GSTTBL NEEDS TO BE SERIALIZED. LOCAL COPY ONLY
         ICOFF_TT = -0
         DO 9000 ICBLK = I1CBLOCK(JCBATCH), I1CBLOCK(JCBATCH)-1+NJBLOCK 
           IF(NTEST.GE.1000) WRITE(6,*) ' 9000, ICBLK = ', ICBLK
-          WRITE(6,*) ' 9000, ICBLK = ', ICBLK
 *. Is this a new TT block -or is it identical to the previous 
 *. TT block
           INEW_CTT = 0
@@ -5585,7 +5576,6 @@ C?   &                            ICBLK, INEW_CTT,SCLFAC(ICBLK)
           NJB = NSSOB(JBSM,JBTP)
 C?        WRITE(6,*) ' ICBLK, JATP, JBTP =', ICBLK,JATP,JBTP
 *
-          print*,'cblock',icblk,SCLFAC(ICBLK),ICOFF
           IF(SCLFAC(ICBLK).NE.0.0D0) THEN
 *. Other symmetry blocks that can be obtained from this block
             PL = 1.0D0
@@ -5640,7 +5630,6 @@ C?     CALL MEMCHK2('CHECKB')
               END IF
 
               LOCAL = ISBLOCK(5,ISBLK).GT.0
-              print*,'isblock',isblk,local
               IF(ISBLOCK(1,ISBLK) .GT. 0 .AND. LOCAL) THEN
                 IATP = ISBLOCK(1,ISBLK)
                 IBTP = ISBLOCK(2,ISBLK)
@@ -5650,7 +5639,6 @@ C?     CALL MEMCHK2('CHECKB')
                 NIA = NSSOA(IASM,IATP)
                 NIB = NSSOB(IBSM,IBTP)
 *
-                print*,'piece',isimsym,nia,nib
                 IF(ISIMSYM.EQ.0.AND.NIA*NIB.EQ.0) GOTO 10000
 C ISM,IB,IA
                 IF(IRESTRICT.EQ.1.AND.
@@ -5688,7 +5676,6 @@ C    &          IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,
 C    &          IOCTPA,IOCTPB,I_DO_EXACT_BLOCK)
                 END IF
 C
-                 print*,'now interact',INTERACT
                 IF(INTERACT.EQ.0.OR.I_DO_EXACT_BLK.EQ.0) GOTO 10000
 
                 IF(NTEST.GE.1000) THEN
@@ -5854,7 +5841,7 @@ C?   &          NSSOA(IASM,IATP)* NSSOB(IBSM,IBTP))
         CALL WRTTTS(SB,ISBLOCK,NSBLOCK,
      &              NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,1)
       END IF
-      IF(NTEST.GE.100) WRITE(6,*) ' Leaving SBLOCKS'
+      IF(NTEST.GE.20) WRITE(6,*) ' Leaving SBLOCKS'
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'SBLOCS')
       CALL LUCIAQEXIT('SBLOS')
@@ -8365,7 +8352,7 @@ CT    END IF
         WRITE(6,*) ' ================='
         WRITE(6,*) ' ITASK = ', ITASK
       END IF
-      IF(NTEST.GE.500.and.ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.500) THEN
         WRITE(6,*) ' ==============================='
         WRITE(6,*) ' RSSBCB2 :  C block (transposed)'
         WRITE(6,*) ' ================================'
@@ -8464,7 +8451,7 @@ CT    END IF
      &           NSMOB,NSMST,NSMSX,MXPOBS,MOCAA,
      &           NIB,MXSXST,CJRES(1),CJRES(1+MXSXBL),MOCAA,SCLFAC,
      &           IUSE_PH,IPHGAS,NTEST)
-            IF(NTEST.GE.101.and.ga_nodeid().eq.0) THEN
+            IF(NTEST.GE.101) THEN
               WRITE(6,*) ' SB after RSBB1E(beta)'
               call wrtmat(sb,nib,nia,nib,nia)
             END IF
@@ -8475,7 +8462,7 @@ CT    END IF
           END IF ! NBEL.GE.0
           IF(IDOH2.NE.0.AND.NBEL.GE.0) THEN
 *. Two electron part
-            IF(NTEST.GE.101.and.ga_nodeid().eq.0)
+            IF(NTEST.GE.101)
      &      WRITE(6,*) ' I am going to call RSBB2A(beta-beta)'
       CALL MEMCHK2('SIGBBI')
             CALL RSBB2A(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NIB,
@@ -8486,7 +8473,7 @@ CT    END IF
      &           NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,
      &           CJRES,SIRES,MXSXST,MXSXBL,MOCAA,SCLFAC,NTEST,0,0,
      &           IUSE_PH,IPHGAS,XINT2)
-             IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
+             IF(NTEST.GE.200) THEN
                WRITE(6,*) ' SB after RSBB2a(beta-beta)'
                call wrtmat(sb,nib,nia,nib,nia)
              END IF
@@ -8507,7 +8494,7 @@ CT    END IF
         ISPCAS=3 ! alpha beta
         IF(IDOH2.NE.0.AND.NAEL.GE.0.AND.NBEL.GE.0) THEN
 * 
-          IF(NTEST.GE.101.and.ga_nodeid().eq.0)  
+          IF(NTEST.GE.101)  
      &        WRITE(6,*) ' I am going to call RSBB2B'
           IIITRNS = 1
           IF(IIITRNS.EQ.1) THEN
@@ -8661,7 +8648,7 @@ C  TRP_TT_BLK(C,NA,NB,ISM,NSMST,IFB,SCR)
 *           ^ End of transpose switch 
           END IF
 *         ^ End of switch for call to RSBB2BN_MS 
-          IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
+          IF(NTEST.GE.200) THEN
             WRITE(6,*) ' SB after RSBB2b'
             call wrtmat(sb,nib,nia,nib,nia)
           END IF
@@ -8680,7 +8667,7 @@ C  TRP_TT_BLK(C,NA,NB,ISM,NSMST,IFB,SCR)
 *
 *. set common oper (just in case we have unrestricted orbitals)
           ISPCAS=1 ! alpha alpha
-          IF(NTEST.GE.101.and.ga_nodeid().eq.0)
+          IF(NTEST.GE.101)
      &    WRITE(6,*) ' I am going to call RSBB1E(alpha)'
           IF(NTEST.GE.100) THEN
             WRITE(6,*) ' SB transposed before RSBB1, first element '
@@ -8699,11 +8686,11 @@ C  TRP_TT_BLK(C,NA,NB,ISM,NSMST,IFB,SCR)
      &                     NIA,MXSXST,CJRES(1),CJRES(1+MXSXBL),
      &                     MOCAA,SCLFAC,IUSE_PH,IPHGAS,NTEST)
           CALL MEMCHK2('ASI1AF')
-          IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+          IF(NTEST.GE.100) THEN
             WRITE(6,*) ' SB transposed after RSBB1, first element '
             call wrtmat(sb,1,1    ,nia,nib)
           END IF
-          IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
+          IF(NTEST.GE.200) THEN
             WRITE(6,*) ' SB transposed  after RSBB1E(alpha)'
             call wrtmat(SB,nib,nia,nib,nia)
           END IF
@@ -8711,7 +8698,7 @@ C  TRP_TT_BLK(C,NA,NB,ISM,NSMST,IFB,SCR)
 * alpha double excitation
 *
           IF(IDOH2.NE.0.AND.NAEL.GE.0) THEN
-            IF(NTEST.GE.101.and.ga_nodeid().eq.0)
+            IF(NTEST.GE.101)
      &      WRITE(6,*) ' I am going to call RSBB2A (alpha-alpha )'
       CALL MEMCHK2('SIGAAI')
             CALL RSBB2A(IASM,IATP,JASM,JATP,IJAGRP,NIB,NIA,
@@ -8730,7 +8717,7 @@ C  TRP_TT_BLK(C,NA,NB,ISM,NSMST,IFB,SCR)
             WRITE(6,*) ' SB transposed after RSBB2A, first element '
             call wrtmat(sb,1,1    ,nia,nib)
           END IF
-          IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
+          IF(NTEST.GE.200) THEN
             WRITE(6,*) ' SB after RSBB2A(alpha-alpha)'
             call wrtmat(sb,nia,nib,nia,nib)
           END IF
@@ -8789,7 +8776,6 @@ C             MAT_P_MATT(A,B,NR,NC,COEF)
           CALL COPVEC(C2,CB,NJA*NJB)
         END IF
 *
-        call ga_sync()
 c       call luciaqenter('gdgop')
 c       call ga_dgop(1, SB, nia*nib, '+')
 c       call luciaqexit('gdgop')
@@ -8825,7 +8811,7 @@ C?      WRITE(6,*) ' Home from TRACI_FCIBLK for alpha'
         CALL COPVEC(C2,SB,NIA*NIB)
       END IF
 *
-      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.100) THEN
         WRITE(6,*) ' ==================================='
         WRITE(6,*) ' RSSBCB2 : Final S block (transposed)'
         WRITE(6,*) ' ==================================='
@@ -8951,7 +8937,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
       IF(IH_OCC_CONS.EQ.1) THEN
         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
       END IF
-      NTEST = 0
+      NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.10) THEN
         WRITE(6,*) ' ================='
