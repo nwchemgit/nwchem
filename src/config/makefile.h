@@ -2276,8 +2276,11 @@ _TOOLS_BUILD= $(shell [ -e ${NWCHEM_TOP}/src/tools/build/config.h ] && cat ${NWC
 ifeq ($(_TOOLS_BUILD),Y)
 _USE_SCALAPACK = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_SCALAPACK\ 1/ {print "Y"}')
 endif
-
 ifeq ($(_USE_SCALAPACK),Y)
+USE_SCALAPACK=Y
+endif
+
+ifeq ($(USE_SCALAPACK),Y)
   DEFINES += -DSCALAPACK
 ifeq ($(XLFBREN),y) 
   CORE_LIBS +=  -brename:.iceil_,.iceil \
