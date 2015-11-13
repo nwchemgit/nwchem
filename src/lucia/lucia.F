@@ -1920,11 +1920,12 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
       else
 C Now we have a list of block starts/ Now merge until we have the # of procs = # blocks
 C if we set nblcok1 to number of procs, last one gets all remianing blocks and most of work
+        if (iblk.gt.ga_nnodes()) iblk = ga_nnodes()
         if ( .not. ga_create_irreg(mt_dbl,ILEN,1,'CONVC1',int_mb(IMAP), 
      &                           IBLK, 1, 1, IDIST_CIVEC))
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
       endif
-      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'IDIST ')
+      CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'IDIST ')
       RETURN
       END
       SUBROUTINE GASCI(ISM,ISPC,IPRNT,IIUSEH0P,MPORENP_E,
@@ -15480,33 +15481,33 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
           CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
      &         CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,
      &         dbl_mb(KLCNORM),dbl_mb(KLSCLFAC))
+        endif
 *. Transfer S block to permanent storage
-          DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
-            IATP = IBATS(1,ISBLK)
-            IBTP = IBATS(2,ISBLK)
-            IASM = IBATS(3,ISBLK)
-            IBSM = IBATS(4,ISBLK)
-            IOFF = IBATS(6,ISBLK)
-            LEN  = IBATS(8,ISBLK)
-C?          write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
-            IF(ICISTR.NE.1) THEN
-              CALL ITODS(LEN,1,-1,LUHC)
-              CALL TODSC(SB(IOFF),LEN,-1,LUHC)
-            ELSE
+        DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
+          IATP = IBATS(1,ISBLK)
+          IBTP = IBATS(2,ISBLK)
+          IASM = IBATS(3,ISBLK)
+          IBSM = IBATS(4,ISBLK)
+          IOFF = IBATS(6,ISBLK)
+          LEN  = IBATS(8,ISBLK)
+C?        write(6,*) 'RASSG3: IOFF, SB(IOFF)',IOFF,SB(IOFF)
+          IF(ICISTR.NE.1) THEN
+            CALL ITODS(LEN,1,-1,LUHC)
+            CALL TODSC(SB(IOFF),LEN,-1,LUHC)
+          ELSE
 *
 *. Using negative length to ignore as it's a non-local block and no update
 *
-              if (LEN.gt.0)
-     &           call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
-CNW         CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
-              IOFF_S = IOFF_S + ABS(LEN)
-            END IF
+            if (LEN.gt.0)
+     &         call ga_put(SV,IOFF_S,IOFF_S+LEN-1,1,1,SB(IOFF),LEN)
+CNW       CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
+            IOFF_S = IOFF_S + ABS(LEN)
+          END IF
 *
 *. Reset length to positive sign for non-local blocks
 *
-            IBATS(8,ISBLK) = ABS(IBATS(8,ISBLK))
-          END DO
-        endif
+          IBATS(8,ISBLK) = ABS(IBATS(8,ISBLK))
+        END DO
       END DO
 *
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
@@ -15523,7 +15524,7 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
       END IF
       IF(NTEST.GE.100) WRITE(6,*) ' Leaving RASSG3'
 *
-      CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'RASSG3')
+      CALL MEMMAN(IDUM,IDUM,'FLUSM ',2,'RASSG3')
       CALL LUCIAQEXIT('RASSG')
       RETURN
       END
