@@ -37,7 +37,7 @@
       integer ishc,itype,nprimo,nshbfc,isphere
       integer deficit,atom_c,sh_lo_c,sh_hi_c
       logical spherical_ao
-      integer n3c_int_in
+      integer n3c_int_in,n3c_dbl_in
 c
       me=ga_nodeid()
       nproc=ga_nnodes()
@@ -54,6 +54,10 @@ c     either read no. of batches or make it at least 1000
       if(.not.rtdb_get(rtdb,'dft:n3c_int',mt_int,1,n3c_int_in))
      N     n3c_int_in=1000
       n3c_int=max(n3c_int,n3c_int_in)
+c     either read no. of batches or make it at least 1000
+      if(.not.rtdb_get(rtdb,'dft:n3c_dbl',mt_int,1,n3c_dbl_in))
+     N     n3c_dbl_in=1000
+      n3c_dbl_r=max(n3c_dbl_r,1d0*n3c_dbl_in)
 c     
 c     find - (minimum)amount local available memory on all nodes
 c     
