@@ -5265,7 +5265,7 @@ C?    WRITE(6,*) ' IPERTOP in SBLOCKS = ', IPERTOP
       IF(IH_OCC_CONS.EQ.1.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Occupation conserving part of Hamiltonian '
       END IF
-      NTEST = 000
+      NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -5675,7 +5675,7 @@ C     CHECK_BLOCKS_FOR_BK_APPROX(
 C    &          IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,
 C    &          IOCTPA,IOCTPB,I_DO_EXACT_BLOCK)
                 END IF
-C
+ 
                 IF(INTERACT.EQ.0.OR.I_DO_EXACT_BLK.EQ.0) GOTO 10000
 
                 IF(NTEST.GE.1000) THEN
@@ -5745,7 +5745,7 @@ C               END IF
                    END IF
                    CALL VECSUM(SB(ISOFF),SB(ISOFF),CB(ICOFF),
      &             1.0D0,FACTOR,NIA*NIB)
-C                  WRITE(6,*) ' Core energy added = ', ECORE
+c?                 WRITE(6,*) ' Core energy added = ', ECORE
                 END IF
      &             
        CALL MEMCHK2('CHECKC')

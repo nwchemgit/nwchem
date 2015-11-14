@@ -7411,7 +7411,7 @@ C           IF ACTIVE BLK_A = 1
       REAL*8
      &INPROD
 *. Input
-      integer VEC,ilo,ihi
+      integer VEC,ilo,ihi,idum,ivec,ii,len
       DIMENSION IBLOCK(8,NBLOCK)
 CNW   DIMENSION VEC(*), IBLOCK(8,NBLOCK)
 *. Output
@@ -7424,17 +7424,13 @@ C?    WRITE(6,*) ' FIND_ACTIVE... ', NBLOCK
         LEN = IBLOCK(8,IBLK)
 C?      WRITE(6,*) 'ACT  IBLK, LEN = ', IBLK,LEN,IOFF
         BLK_A(IBLK) = 0.0D0
-        if (IOFF.GE.ilo.AND.IOFF+LEN-1.LE.ihi) THEN
-          XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN-1,1,1,
+        XBLK = ga_ddot_patch(VEC,'N',IOFF,IOFF+LEN-1,1,1,
      &                       VEC,'N',IOFF,IOFF+LEN-1,1,1)
-          IF(XBLK.NE.0.0D0) BLK_A(IBLK) = 1.0D0
-        ENDIF
+        IF(XBLK.NE.0.0D0) BLK_A(IBLK) = 1.0D0
 CNW     XBLK = INPROD(VEC(IOFF),VEC(IOFF),LEN)
         IOFF = IOFF + LEN
       END DO
 *
-      call ga_sync()
-      call ga_dgop(mt_dbl, blk_a, nblock, '+')
       NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Array of active blocks: '
@@ -10410,8 +10406,8 @@ CNW         CALL GSTTBL(RV(IOFF_R_BLOCK),CB(JOFF),JATP,JASM,JBTP,JBSM,
      &           IDC,PLR,LUR,C2,NSMST,ISCALE,SCLFAC_R(IR))
 C?        WRITE(6,*) ' IR, SCLFAC_R(IR) = ', IR, SCLFAC_R(IR)
           ELSE
-              WRITE(6,*) ' TTSS for C block skipped  '
-              CALL IWRTMA(IBLOCKR(1,IR),4,1,4,1)
+c             WRITE(6,*) ' TTSS for C block skipped  '
+c             CALL IWRTMA(IBLOCKR(1,IR),4,1,4,1)
             IF(LUR.GT.0) THEN
               CALL IFRMDS(LBL,-1,1,LUR)
               CALL SKPRCD2(LBL,-1,LUR)

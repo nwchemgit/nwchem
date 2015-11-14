@@ -13386,7 +13386,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 00
+      NTEST = 000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '

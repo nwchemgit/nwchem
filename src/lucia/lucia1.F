@@ -2752,7 +2752,8 @@ CNW   DIMENSION CSD(*),CCM(*),ISGVST(*)
           CALL TRIPK3G(CSD,CCM,ICOFF,1,NA,NA,SIGN)
 C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
         ELSE
-          CALL COPVEC(CSD,CCM,NA*NB)
+          call ga_put(ccm,icoff,icoff+na*nb-1,1,1,csd,1)
+c         CALL COPVEC(CSD,CCM,NA*NB)
         END IF
 *. Scale
         IF(FACTOR.NE.1.0D0) THEN
@@ -2775,7 +2776,8 @@ C              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 *. Unpack from triangular form
            CALL TRIPK3G(CSD,CCM,ICOFF,IWAY,NA,NA,SIGN)
         ELSE
-           CALL COPVEC(CCM,CSD,NA*NB)
+           call ga_get(ccm,icoff,icoff+na*nb-1,1,1,csd,1)
+c          CALL COPVEC(CCM,CSD,NA*NB)
         ENDIF
 *. Scale
         IF(FACTOR.NE.1.0D0) THEN
