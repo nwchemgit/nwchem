@@ -1518,7 +1518,7 @@ c
       if(gotsmear(ssmear).and.mod(iter,ndisrst).eq.0) then
          if(iter.gt.1.and.diising) diisreset=.true.
       endif
-      if(diisreset.and.iswitc.gt.1) then
+      if(diisreset.and.iswitc.gt.1.and.iter.gt.0) then
          if(me.eq.0) write(LuOut,*) ' Resetting Diis'
          if(ndisrst.eq.9999) diisreset=.false.
          call diis_driver(toll_s, derr,  ipol, icall, nfock, 
