@@ -51,6 +51,7 @@ echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
 ./runtests.mpi.unix procs $np dft_feco5 
 ./runtests.mpi.unix procs $np dft_siosi3
 ./runtests.mpi.unix procs $np dft_cr2
+./runtests.mpi.unix procs $np dft_mo3co
 ./runtests.mpi.unix procs $np dft_x
 ./runtests.mpi.unix procs $np dft_mpw1k dft_li2freq
 echo 'The intermediate values for this test may cause some differences.'
