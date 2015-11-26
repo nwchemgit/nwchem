@@ -323,7 +323,7 @@ c
 cold  diisreset=.false.
       if(ndisrst.gt.0) diisreset=.true.
       if (.not.rtdb_get(rtdb, 'dft:spinset', mt_log, 1,
-     &   spinset))spinset=.false.
+     &   spinset))spinset=.true.
       if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear))then
          if (rtdb_get(rtdb, 'dft:n_rabuck', mt_int, 1,
