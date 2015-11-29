@@ -1,0 +1,10 @@
+      interface
+        subroutine wfn1_ad_dsygv(itype,jobz,uplo,n,a,lda,b,ldb,w,
+     +                           work,lwork,info)
+          use wfn1_ad1
+          implicit none
+          character             jobz,uplo
+          integer               itype,n,info,lda,ldb,lwork
+          type(wfn1_ad_dble) :: a(lda,*),b(ldb,*),w(*),work(*)
+        end subroutine
+      end interface

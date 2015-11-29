@@ -1,0 +1,274 @@
+C> \ingroup wfn1
+C> @{
+C>
+C> \brief Evaluate the energies and optionally gradients for a number
+C> of states
+C>
+C> Given the current values of the occupation functions, natural
+C> orbitals and the Lagrangians of a number of "states" evaluate
+C> the energy of each state. Here we define a state as a set of values
+C> of the variables that belong together. Different sets may represent
+C> different electronic states, or different points on the same
+C> electronic state. Nevertheless, each set defines a different 
+C> independent energy expression we refer to as a state. 
+C>
+C> Optionally, this routine also evaluates the gradients of these
+C> states. However, for most optimization schemes it is expected that
+C> an energy and a gradient will be requested for a single state or
+C> that only the energy is requested for multiple states.
+C>
+      subroutine wfn1_engrad(do_grad,nbf,nst,nea,neb,h1,eri,erix,ov,
+     +                       r_noa,r_nob,r_ofa,r_ofb,r_l1a,r_l1b,
+     +                       r_l2a,r_l2b,r_l3a,r_l3b,En,r_dnoa,r_dnob,
+     +                       r_dofa,r_dofb,r_dl1a,r_dl1b,r_dl2a,r_dl2b,
+     +                       r_dl3a,r_dl3b,l_occa,l_occb,tol_occ)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "global.fh"
+c
+      logical do_grad  !< [Input] Evaluate the gradient if .true., only
+                       !< evaluate the energy otherwise
+      integer nbf      !< [Input] The number of basis functions
+      integer nst      !< [Input] The number of states for which
+                       !< energies and gradients should be evaluated
+      integer nea(nst) !< [Input] The number of \f$\alpha\f$-spin
+                       !< electrons for each state
+      integer neb(nst) !< [Input] The number of \f$\beta\f$-spin
+                       !< electrons for each state
+      double precision h1(nbf,nbf) !< [Input] The 1-electron integrals
+      double precision eri(nbf,nbf,nbf,nbf) !< [Input] The 2-electron
+                                            !< integrals
+      double precision erix(nbf,nbf,nbf,nbf) !< [Input] The 2-electron
+                                             !< integrals for exchange
+      double precision ov(nbf,nbf) !< [Input] The overlap integrals
+      double precision r_noa(nbf,nbf,nst) !< [Input] The 
+      !< \f$\alpha\f$-spin natural orbitals. This is a 3D array with the
+      !< dimensions:
+      !< - 1. The basis functions
+      !< - 2. The natural orbitals
+      !< - 3. The states
+      double precision r_nob(nbf,nbf,nst) !< [Input] The 
+      !< \f$\beta\f$-spin natural orbitals. This is a 3D array with the
+      !< same dimensions as `r_noa`.
+      double precision r_ofa(nbf,nbf,nst) !< [Input] The
+      !< \f$\alpha\f$-spin occupation functions. This is a 3D array with
+      !< the dimension:
+      !< - 1. The natural orbitals
+      !< - 2. The occupation functions
+      !< - 3. The states
+      double precision r_ofb(nbf,nbf,nst) !< [Input] The 
+      !< \f$\beta\f$-spin occupation functions. This is a 3D array with
+      !< the same dimensions as `r_ofa`.
+      double precision r_l1a(nbf,nbf,nst) !< [Input] The Lagrangian
+      !< multipliers for the orthonormality of the \f$\alpha\f$-spin
+      !< natural orbitals. This is a 3D array with dimensions:
+      !< - 1. The natural orbitals
+      !< - 2. The natural orbitals
+      !< - 3. The states
+      double precision r_l1b(nbf,nbf,nst) !< [Input] The Lagrangian
+      !< multipliers for the orthonormality of the \f$\beta\f$-spin
+      !< natural orbitals. This is a 3D array with the same dimensions
+      !< as `r_l1a`.
+      double precision r_l2a(nbf,nbf,nst) !< [Input] The Lagrangian
+      !< multipliers for the \f$\alpha\f$-spin natural orbitals being
+      !< eigenfunctions of the density matrix. This is
+      !< a 3D GA with the dimensions:
+      !< - 1. The natural orbitals
+      !< - 2. The natural orbitals
+      !< - 3. The states
+      double precision r_l2b(nbf,nbf,nst) !< [Input] The Lagrangian
+      !< multipliers for the \f$\beta\f$-spin natural orbitals being
+      !< eigenfunctions of the density matrix. This is a 3D array with
+      !< the same dimensions as `r_l2a`.
+      double precision r_l3a(nbf,nbf,nst) !< [Input] The Lagrangian
+      !< multipliers for the orthonormality of the \f$\alpha\f$-spin
+      !< occupation functions. This is a 3D array with dimensions:
+      !< - 1. The occupation functions
+      !< - 2. The occupation functions
+      !< - 3. The states
+      double precision r_l3b(nbf,nbf,nst) !< [Input] The Lagrangian
+      !< multipliers for the orthonormality of the \f$\beta\f$-spin
+      !< natural orbitals. This is a 3D array with the same dimensions
+      !< as `r_l1a`.
+c
+      double precision En(nst) !< [Output] The total energies of all 
+                               !< states
+c
+      double precision r_dnoa(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_noa`. The array dimensions are defined
+      !< analogously to `r_noa`.
+      double precision r_dnob(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_nob`. The array dimensions are defined
+      !< analogously to `r_nob`.
+      double precision r_dofa(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_ofa`. The array dimensions are defined
+      !< analogously to `r_ofa`.
+      double precision r_dofb(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_ofb`. The array dimensions are defined
+      !< analogously to `r_ofb`.
+      double precision r_dl1a(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_l1a`. The array dimensions are defined
+      !< analogously to `r_l1a`.
+      double precision r_dl1b(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_l1b`. The array dimensions are defined
+      !< analogously to `r_l1b`.
+      double precision r_dl2a(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_l2a`. The array dimensions are defined
+      !< analogously to `r_l2a`.
+      double precision r_dl2b(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_l2b`. The array dimensions are defined
+      !< analogously to `r_l2b`.
+      double precision r_dl3a(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_l3a`. The array dimensions are defined
+      !< analogously to `r_l3a`.
+      double precision r_dl3b(nbf,nbf,nst) !< [Output] The energy
+      !< gradient wrt `r_l3b`. The array dimensions are defined
+      !< analogously to `r_l3b`.
+c
+      logical l_occa(nbf,nst) !< [Output] The of "active" 
+      !< \f$\alpha\f$-electron natural orbitals, i.e. natural orbitals
+      !< with non-zero occupation.
+      logical l_occb(nbf,nst) !< [Output] The of "active" 
+      !< \f$\beta\f$-electron natural orbitals, i.e. natural orbitals
+      !< with non-zero occupation.
+c
+      double precision tol_occ !< [Input] The threshold for an orbital
+      !< to be considered as occupied.
+C
+C     Local Variables
+C
+      double precision E1el(nst)
+      double precision E2elc(nst)
+      double precision E2elx(nst)
+      double precision E2elxhf(nst)
+      double precision El1(nst)
+      double precision El2(nst)
+      double precision El3(nst)
+c
+      integer len
+      integer l_m1, k_m1
+      integer l_m2, k_m2
+      integer l_m3, k_m3
+      integer l_m4, k_m4
+      integer l_m5, k_m5
+      integer l_v1, k_v1
+      integer l_v2, k_v2
+      integer l_v3, k_v3
+      integer ii
+C
+C     Code
+C
+      call dfill(nst,0.0d0,En,1)
+      call dfill(nst,0.0d0,E1el,1)
+      call dfill(nst,0.0d0,E2elc,1)
+      call dfill(nst,0.0d0,E2elx,1)
+      call dfill(nst,0.0d0,E2elxhf,1)
+      call dfill(nst,0.0d0,El1,1)
+      call dfill(nst,0.0d0,El2,1)
+      call dfill(nst,0.0d0,El3,1)
+c
+      len = nbf*nbf*nst
+      if (do_grad) then
+        call dfill(len,0.0d0,r_dnoa,1)
+        call dfill(len,0.0d0,r_dnob,1)
+        call dfill(len,0.0d0,r_dofa,1)
+        call dfill(len,0.0d0,r_dofb,1)
+        call dfill(len,0.0d0,r_dl1a,1)
+        call dfill(len,0.0d0,r_dl1b,1)
+        call dfill(len,0.0d0,r_dl2a,1)
+        call dfill(len,0.0d0,r_dl2b,1)
+        call dfill(len,0.0d0,r_dl3a,1)
+        call dfill(len,0.0d0,r_dl3b,1)
+      endif
+c
+      if (.not.ma_push_get(MT_DBL,nbf*nbf,"M1",l_m1,k_m1))
+     +   call errquit("wfn1_engrad: could not allocate M1",0,MA_ERR)
+      if (.not.ma_push_get(MT_DBL,nbf*nbf,"M2",l_m2,k_m2))
+     +   call errquit("wfn1_engrad: could not allocate M2",0,MA_ERR)
+      if (.not.ma_push_get(MT_DBL,nbf*nbf,"M3",l_m3,k_m3))
+     +   call errquit("wfn1_engrad: could not allocate M3",0,MA_ERR)
+      if (.not.ma_push_get(MT_DBL,nbf*nbf,"M4",l_m4,k_m4))
+     +   call errquit("wfn1_engrad: could not allocate M4",0,MA_ERR)
+      if (.not.ma_push_get(MT_DBL,nbf*nbf,"M5",l_m5,k_m5))
+     +   call errquit("wfn1_engrad: could not allocate M5",0,MA_ERR)
+c
+      if (.not.ma_push_get(MT_DBL,nbf*nbf,"V1",l_v1,k_v1))
+     +   call errquit("wfn1_engrad: could not allocate V1",0,MA_ERR)
+      if (.not.ma_push_get(MT_DBL,nbf*nbf,"V2",l_v2,k_v2))
+     +   call errquit("wfn1_engrad: could not allocate V2",0,MA_ERR)
+      if (.not.ma_push_get(MT_DBL,nbf*nbf,"V3",l_v3,k_v3))
+     +   call errquit("wfn1_engrad: could not allocate V3",0,MA_ERR)
+c
+      call wfn1_occ_natorb(nbf,nst,nea,neb,r_ofa,r_ofb,l_occa,l_occb,
+     +                     -1.0d0)
+c
+      call wfn1_1el(do_grad,nbf,nst,nea,neb,r_noa,r_nob,r_ofa,r_ofb,
+     +              h1,E1el,r_dnoa,r_dnob,r_dofa,r_dofb,
+     +              dbl_mb(k_m1),dbl_mb(k_m2),dbl_mb(k_v1),dbl_mb(k_v2),
+     +              dbl_mb(k_m3),dbl_mb(k_v3))
+      call wfn1_2el_c(do_grad,nbf,nst,nea,neb,r_noa,r_nob,r_ofa,r_ofb,
+     +              eri,E2elc,r_dnoa,r_dnob,r_dofa,r_dofb,
+     +              dbl_mb(k_m1),dbl_mb(k_m2),dbl_mb(k_m3),dbl_mb(k_m4),
+     +              dbl_mb(k_v1),dbl_mb(k_v2),dbl_mb(k_m5),dbl_mb(k_v3))
+cDEBUG
+      call wfn1_2el_hfx(do_grad,nbf,nst,nea,neb,r_noa,r_nob,r_ofa,r_ofb,
+     +              erix,E2elxhf,r_dnoa,r_dnob,r_dofa,r_dofb,
+     +              dbl_mb(k_m1),dbl_mb(k_m2),dbl_mb(k_m3),dbl_mb(k_m4),
+     +              dbl_mb(k_v1),dbl_mb(k_v2),dbl_mb(k_m5),dbl_mb(k_v3))
+      call dfill(len,0.0d0,dbl_mb(k_m1),1)
+      call dfill(len,0.0d0,dbl_mb(k_m2),1)
+      call dfill(len,0.0d0,dbl_mb(k_m3),1)
+      call dfill(len,0.0d0,dbl_mb(k_m4),1)
+      call dfill(len,0.0d0,dbl_mb(k_m5),1)
+      call dfill(nbf,0.0d0,dbl_mb(k_v1),1)
+      call dfill(nbf,0.0d0,dbl_mb(k_v2),1)
+      call dfill(nbf,0.0d0,dbl_mb(k_v3),1)
+cDEBUG
+      call wfn1_2el_x(do_grad,nbf,nst,nea,neb,r_noa,r_nob,r_ofa,r_ofb,
+     +              eri,E2elx,r_dnoa,r_dnob,r_dofa,r_dofb,
+     +              dbl_mb(k_m1),dbl_mb(k_m2),dbl_mb(k_m3),dbl_mb(k_m4),
+     +              dbl_mb(k_v1),dbl_mb(k_v2),dbl_mb(k_m5),dbl_mb(k_v3))
+c     call wfn1_l1(do_grad,nbf,nst,l_occa,l_occb,r_noa,r_nob,
+c    +             r_l1a,r_l1b,ov,El1,r_dnoa,r_dnob,r_dl1a,r_dl1b,
+c    +             dbl_mb(k_m1),dbl_mb(k_m2),dbl_mb(k_m3))
+c     call wfn1_l3(do_grad,nbf,nst,nea,neb,r_ofa,r_ofb,r_l3a,r_l3b,
+c    +             El3,r_dofa,r_dofb,r_dl3a,r_dl3b,dbl_mb(k_m1))
+c
+      do ii = 1, nst
+        En(ii) = E1el(ii)+E2elc(ii)+E2elx(ii)+El1(ii)+El2(ii)+El3(ii)
+cDEBUG
+        write(*,*)'The 1-electron energy     = ',E1el(ii)
+        write(*,*)'The Coulomb energy        = ',E2elc(ii)
+        write(*,*)'The exchange energy       = ',E2elx(ii)
+        write(*,*)'The HF exchange energy    = ',E2elxhf(ii)
+        write(*,*)'The 1st Lagrangian energy = ',El1(ii)
+        write(*,*)'The 2nd Lagrangian energy = ',El2(ii)
+        write(*,*)'The 3rd Lagrangian energy = ',El3(ii)
+        write(*,*)'The total wfn1 energy     = ',En(ii)
+        write(*,*)
+cDEBUG
+      enddo
+c
+      if (.not.ma_pop_stack(l_v3))
+     +   call errquit("wfn1_engrad: could not deallocate V3",0,MA_ERR)
+      if (.not.ma_pop_stack(l_v2))
+     +   call errquit("wfn1_engrad: could not deallocate V2",0,MA_ERR)
+      if (.not.ma_pop_stack(l_v1))
+     +   call errquit("wfn1_engrad: could not deallocate V1",0,MA_ERR)
+c
+      if (.not.ma_pop_stack(l_m5))
+     +   call errquit("wfn1_engrad: could not deallocate M5",0,MA_ERR)
+      if (.not.ma_pop_stack(l_m4))
+     +   call errquit("wfn1_engrad: could not deallocate M4",0,MA_ERR)
+      if (.not.ma_pop_stack(l_m3))
+     +   call errquit("wfn1_engrad: could not deallocate M3",0,MA_ERR)
+      if (.not.ma_pop_stack(l_m2))
+     +   call errquit("wfn1_engrad: could not deallocate M2",0,MA_ERR)
+      if (.not.ma_pop_stack(l_m1))
+     +   call errquit("wfn1_engrad: could not deallocate M1",0,MA_ERR)
+c
+      end
+C> @}
+

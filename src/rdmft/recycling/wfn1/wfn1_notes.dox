@@ -1,0 +1,739 @@
+/**
+
+\defgroup wfn1 The single configuration wavefunction module
+
+\file wfn1_notes.dox
+Notes on the single configuration wavefunction formalism
+
+\ingroup wfn1
+@{
+
+\brief The single configuration wavefunction module
+
+# Maybe there is a real 1-electron wavefunction #
+
+Contrary to the discussion in the summary above there may actually be a 
+way to write a single configuration 1-electron wavefunction that can
+generate the exact 1-electron density matrix. In this case we start
+by considering natural orbitals which are orthonormal functions that
+diagonalize the density matrix. We define these functions as
+\f{eqnarray*}{
+   \phi^{D\sigma}_i = \sum_a \chi_a C^{D\sigma}_{a i}
+\f}
+where the functions \f$\chi\f$ are the atomic basis function.
+
+We now express a single electron using an occupation function. This
+occupation function expresses a single electron in terms of the
+natural orbitals as
+\f{eqnarray*}{
+   \phi^{O\sigma}_p = \sum_i \phi^{D\sigma}_i C^{O\sigma}_{ip}
+\f}
+The occupation functions have the property that they are orthonormal
+\f{eqnarray*}{
+   (\phi^{O\sigma}_p|\phi^{O\sigma}_q) = \sum_{k=1}^{N_{basis}} C^{O\sigma}_{kp}C^{O\sigma}_{kq} = \delta_{pq}
+\f}
+In addition the occupation number contributions for a given electron
+are given by the square of the corresponding occupation function coefficient
+\f{eqnarray*}{
+   (\phi^{O\sigma}_p\phi^{O\sigma}_p)_i = \left(C^{O\sigma}_{ip}\right)^2
+\f}
+from this it follows that the occupation number of a particular natural 
+orbital is given by
+\f{eqnarray*}{
+   d^\sigma_{ii} = \sum_{p=1}^{n^\sigma} \left(C^{O\sigma}_{ip}\right)^2
+\f}
+where \f$ n^\sigma \f$ is the number of electrons in a particular spin-channel.
+The critical aspect here is that the occupation function expresses the charge
+distribution of a single electron as an ensemble of natural orbitals. This is
+an important difference from a representation in which the occupation functions
+generate a rotation amongst natural orbitals. The latter would simply result in
+Hartree-Fock theory.
+
+Formally we can consider this approach as generating an extended 1-electron vector
+in which we put all the natural orbitals under each other in a vector, but every
+vector is multiplied with an occupation function coefficient. I.e. we can express the
+electron orbitals as
+\f{eqnarray*}{
+  \{\phi_1|\phi_2|\ldots|\phi_{N_e}\}
+  &=& \left\{\begin{array}{c}
+         \phi^{D\sigma}_1 C^{O\sigma}_{11} \\\\
+         \phi^{D\sigma}_2 C^{O\sigma}_{21} \\\\
+         \ldots \\\\
+         \phi^{D\sigma}_N C^{O\sigma}_{N1}
+      \end{array}\right.
+      \left|\begin{array}{c}
+         \phi^{D\sigma}_1 C^{O\sigma}_{12} \\\\
+         \phi^{D\sigma}_2 C^{O\sigma}_{22} \\\\
+         \ldots \\\\
+         \phi^{D\sigma}_N C^{O\sigma}_{N2}
+      \end{array}\right.
+      \left|\begin{array}{c}
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+      \end{array}\right.
+      \left|\begin{array}{c}
+         \phi^{D\sigma}_1 C^{O\sigma}_{1{N_e}} \\\\
+         \phi^{D\sigma}_2 C^{O\sigma}_{2{N_e}} \\\\
+         \ldots \\\\
+         \phi^{D\sigma}_N C^{O\sigma}_{N{N_e}}
+      \end{array}\right\} \\\\
+  &=& \left\{\begin{array}{c}
+         \chi_1 C^{D\sigma}_{11} C^{O\sigma}_{11} \\\\
+         \chi_2 C^{D\sigma}_{21} C^{O\sigma}_{11} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{N1} C^{O\sigma}_{11} \\\\
+         \chi_1 C^{D\sigma}_{12} C^{O\sigma}_{21} \\\\
+         \chi_2 C^{D\sigma}_{22} C^{O\sigma}_{21} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{N2} C^{O\sigma}_{21} \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \chi_1 C^{D\sigma}_{1N} C^{O\sigma}_{N1} \\\\
+         \chi_2 C^{D\sigma}_{2N} C^{O\sigma}_{N1} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{NN} C^{O\sigma}_{N1} \\\\
+      \end{array}\right.
+      \left|\begin{array}{c}
+         \chi_1 C^{D\sigma}_{11} C^{O\sigma}_{12} \\\\
+         \chi_2 C^{D\sigma}_{21} C^{O\sigma}_{12} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{N1} C^{O\sigma}_{12} \\\\
+         \chi_1 C^{D\sigma}_{12} C^{O\sigma}_{22} \\\\
+         \chi_2 C^{D\sigma}_{22} C^{O\sigma}_{22} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{N2} C^{O\sigma}_{22} \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \chi_1 C^{D\sigma}_{1N} C^{O\sigma}_{N2} \\\\
+         \chi_2 C^{D\sigma}_{2N} C^{O\sigma}_{N2} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{NN} C^{O\sigma}_{N2} \\\\
+      \end{array}\right|
+      \left.\begin{array}{c}
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \ldots \\\\
+      \end{array}\right.
+      \left|\begin{array}{c}
+         \chi_1 C^{D\sigma}_{11} C^{O\sigma}_{1{N_e}} \\\\
+         \chi_2 C^{D\sigma}_{21} C^{O\sigma}_{1{N_e}} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{N1} C^{O\sigma}_{1{N_e}} \\\\
+         \chi_1 C^{D\sigma}_{12} C^{O\sigma}_{2{N_e}} \\\\
+         \chi_2 C^{D\sigma}_{22} C^{O\sigma}_{2{N_e}} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{N2} C^{O\sigma}_{2{N_e}} \\\\
+         \ldots \\\\
+         \ldots \\\\
+         \chi_1 C^{D\sigma}_{1N} C^{O\sigma}_{N{N_e}} \\\\
+         \chi_2 C^{D\sigma}_{2N} C^{O\sigma}_{N{N_e}} \\\\
+         \ldots \\\\
+         \chi_N C^{D\sigma}_{NN} C^{O\sigma}_{N{N_e}} \\\\
+      \end{array}\right\}
+\f}
+The total wavefunction can now be expressed using a Slater determinant of orbitals of the
+form given above. 
+
+In the following we will consider a few important aspects. First of all we need to verify
+that the mathematics involving orbitals of the form given above reproduces the expected
+results, such as orthonormality of the vectors, proper expectation values for physical 
+properties, and the construction of the proper 1-electron density matrix. The next thing
+to consider is whether a wavefunction of this form can be used to construct the correct
+exchange term. Here the correct exchange term is one that cancels all 1-electron
+self-interaction terms in the Coulomb repulsion as a minimum requirement.
+
+First we will consider evaluating matrix expressions. There are two important cases to
+consider. First we want to consider the orthonormality of the orbitals. Second in order to
+evaluate 1-electron properties we need to construct the proper 1-electron density 
+matrix. This matrix is relevant because it suffices to evaluate all 1-electron properties
+exactly.
+
+As far as the overlap matrix is concerned we need to show that 
+\f{eqnarray*}{
+  \left(\phi_p\left|\phi_q\right.\right)
+  &=&  \left(\phi_p\left|S\left|\phi_q\right.\right.\right) \\\\
+  &=&  \delta_{pq}
+\f}
+The overlap matrix \f$S\f$ represents the metric. In this case the basis functions are 
+replicated \f$ N \f$ times. As a result the formal structure of the overlap matrix is
+that of the traditional overlap matrix but replicated N times along the diagonal.
+The block diagonal representation matches the concept of the occupation functions specifying
+an ensemble of natural orbitals.
+The dot-product of interest becomes:
+\f{eqnarray*}{
+  \left(\phi_p\left|\phi_q\right.\right)
+  &=& \sum_{ij}\sum_{ab}
+      \left(C^{O\sigma}_{ip}\right)^T\left(C^{D\sigma}_{a i}\right)^T \delta_{ij}S_{ab}
+      C^{D\sigma}_{b j}C^{O\sigma}_{jq} \\\\
+  &=& \sum_{i}\sum_{ab}
+      \left(C^{O\sigma}_{ip}\right)^T\left(C^{D\sigma}_{a i}\right)^T S_{ab}
+      C^{D\sigma}_{b i}C^{O\sigma}_{iq} \\\\
+  &=& \sum_{i}
+      \left(C^{O\sigma}_{ip}\right)^T C^{O\sigma}_{iq} \\\\
+  &=& \delta_{pq}
+\f}
+The second equality holds because of the block diagonal nature of the metric. The third 
+equality follows from the orthonormality of the natural orbitals. The
+fourth equality then follows from the orthonormality of the occupation functions.
+
+The next thing to consider is the construction of the density matrix in the basis of
+atomic orbitals:
+\f{eqnarray*}{
+  \left|\chi_a\right\rangle\left\langle\chi_b\right|
+  &=& \sum_{i=1}^{N_{basis}}\sum_{p=1}^{n^\sigma_e}
+      C^{D\sigma}_{a i}C^{O\sigma}_{ip}
+      \left(C^{O\sigma}_{ip}\right)^T\left(C^{D\sigma}_{ib}\right)^T \\\\
+  &=& \sum_{i=1}^{N_{basis}}
+      C^{D\sigma}_{a i}d^{O\sigma}_{ii}
+      \left(C^{D\sigma}_{ib}\right)^T \\\\
+  &=& D^{\sigma}_{ab}
+\f}
+This expression is in direct analogy to the usual expression involving a sum
+over occupied orbitals. In this case that sum is generalized to allow every
+electron to contribute a fraction of any natural orbital. Whereas before this
+meant summing over products like \f$C_{a p}C_{b p}\f$ the index \f$p\f$ 
+can now be considered to be generalized to include natural orbital labels as
+well as electrons, i.e. \f$(ip)\f$.
+
+
+The final aspect to consider is the expression for the exchange. In Hartree-Fock theory
+we know the exchange can be evaluated exactly in the sense that the corresponding
+exchange term cancels the Coulomb self-repulsion exactly. When the Hartree-Fock energy
+is expressed in terms of density matrices this cancellation does not hold exactly except
+for idem-potent density matrices. The unrestricted Hartree-Fock energy expression is
+\f{eqnarray*}{
+  E 
+  &=& \sum_p^{N_\alpha}(p|h|p)+\frac{1}{2}\sum_p^{N_\alpha}\left\{
+      \sum_q^{N_\beta}(pp|qq)+\sum_q^{N_\alpha}(pp|qq)-\sum_q^{N_\alpha}(pq|pq)\right\} \\\\
+  &+& \sum_p^{N_\beta}(p|h|p)+\frac{1}{2}\sum_p^{N_\beta}\left\{
+      \sum_q^{N_\alpha}(pp|qq)+\sum_q^{N_\beta}(pp|qq)-\sum_j^{N_\beta}(pq|pq)\right\}
+\f}
+For the above expression it is known that if we have the exact 1-electron density matrix
+then only the 1-electron term \f$ h \f$ can be evaluated exactly. Both the Coulomb and the
+exchange term do not match the correct result. This is examplified by a calculation on the 
+Helium atom using the 6-31G basis set. In this calculation the exact results are obtained
+from a CASSCF calculation using a modified version of the NWChem MCSCF module. The modifications
+allow the 2-electron interaction term to be split into a Coulomb and exchange part which are
+reported separately. The results can be compared against numbers for the same quantities
+obtained by inserting the exact 1-electron density matrix from the CASSCF calculations
+into a Hartree-Fock code.
+
+Term       | CASSCF     | Hartree-Fock
+-----------|------------|-------------
+1-electron | -3.863582  | -3.863545
+Coulomb    |  2.244652  |  2.034177
+exchange   | -1.251232  | -1.017089
+Total      | -2.870162  | -2.846456
+
+The results above clearly show that both the Coulomb and exchange terms are significantly
+modified by interdeterminantal contributions that cannot be represented directly in terms
+of the 1-electron density matrix. With the appropriate density matrix functionals we might
+be able to formulate an energy expression in terms of the 1-electron density matrix that can
+closely represent the total energy.
+
+Considering the 2-electron terms in the Hartree-Fock equation we have
+\f{eqnarray*}{
+  \sum_{p,q=1}^{n^\sigma_e}(pp|qq)
+  &=& \sum_{p,q=1}^{n^\sigma_e}\sum_{i,j=1}^{N_{basis}}
+      \sum_{abcd}
+  C^{D}_{a i}C^{O}_{ip}C^{D}_{b i}C^{O}_{ip}(ab|cd)
+  C^{D}_{c j}C^{O}_{jq}C^{D}_{d j}C^{O}_{jq} \\\\
+  &=& \sum_{p,q=1}^{n^\sigma_e}\sum_{i,j=1}^{N_{basis}}
+      C^O_{ip}C^O_{ip}(ii|jj)C^O_{jq}C^O_{jq}
+\f}
+for the Coulomb term and for the exchange
+\f{eqnarray*}{
+  \sum_{p,q=1}^{n^\sigma_e}(pq|pq)
+  &=& \sum_{p,q=1}^{n^\sigma_e}\sum_{i,j=1}^{N_{basis}}
+      \sum_{abcd}
+  C^{D}_{a i}C^{O}_{ip}C^{D}_{b i}C^{O}_{iq}(ab|cd)
+  C^{D}_{c j}C^{O}_{jp}C^{D}_{d j}C^{O}_{jq} \\\\
+  &=& \sum_{pq}\sum_{ij}C^O_{ip}C^O_{iq}(ii|jj)C^O_{jp}C^O_{jq}
+\f}
+where we consider the orbital pair \f$\{pq\}\f$ as refering to a single 
+electron (either electron 1 or 2 of the electron pair for which we are
+calculating the interaction).
+Hence evaluating the corresponding density matrix has to follow the
+rule given above. This combination leads to a result that is different 
+from the single determinant Hartree-Fock exchange. In particular it is clear that
+if \f$ p = q \f$  the Coulomb and exchange expressions are the same and therefore
+the self repulsion included in the Coulomb interaction is exactly canceled by the
+exchange. 
+
+The reason this seems to be different from Hartree-Fock theory is that in the latter
+theory we always work from the total 1-electron density matrix. For the Coulomb term
+that poses no problems, but for the exchange term this results in something strange. 
+For the Coulomb term we evaluate a density matrix
+\f{eqnarray*}{
+   D &=& D(r,r')
+\f}
+and subsequently we evaluate the Coulomb resulsion as
+\f{eqnarray*}{
+  E &=& \int \frac{D(r_1,r_1)D(r_2,r_2)}{r_{12}} \mathrm{d}r_1\mathrm{d}r_2
+\f}
+which makes perfect sense from the perspective that the density matrix generates the
+electron charge distribution. However in the exchange term we end up with
+\f{eqnarray*}{
+  E &=& \int \frac{D(r_1,r_2)D(r_2,r_1)}{r_{12}} \mathrm{d}r_1\mathrm{d}r_2
+\f}
+The fact that the density matrix now refers to two different electron coordinates
+does not make any physical sense. In our approach the exchange turns out as of the form
+\f{eqnarray*}{
+  E &=& \int \frac{D'(r_1,r_1)D'(r_2,r_2)}{r_{12}} \mathrm{d}r_1\mathrm{d}r_2
+\f}
+I.e. the density matrices specify the electron charge distribution in a physically
+sensible way, the difference is just that the density matrices themselves represent
+different quantities. In our exchange formulation the density matrices in the exchange
+each represent a single electron, rather than all electrons as in traditional 
+Hartree-Fock theory.
+
+From the above argument we have that for two electron systems, such as the Helium atom
+and the Hydrogen molecule where we have only one electron per spin channel, the energy
+expressions as formulated should reproduce the FullCI energy. The reason simply being
+that in these systems there is only one occupied orbital and its Coulomb repulsion 
+within the spin channel is exactly canceled thereby correctly eliminating the intra
+spin channel electron repulsion. As a result only the inter spin channel repulsion 
+remains. For systems with more than one electron per spin channel the equations above
+are also easy to assess. In those case there appear to remain \f$\{pq\}\f$ terms
+However, we know that the occupation functions express the density of a single electron
+in terms of the orthogonal basis of natural orbitals. Hence the summations over \f$ p \f$
+and \f$ q \f$ constitute simple dot-products. In addition we stipulated that the occupation
+functions be orthonormal, from this it follows that if \f$ p \neq q \f$ then the result
+equals 0.
+
+
+
+Another thing that is easy to see is that if the occupation functions are simple unit
+vectors (i.e. one coefficient that equals 1.0 and all other coefficients equalling 0.0)
+then the above approach is identical to Hartree-Fock. This is important as it is known 
+that the exact energy for idem potent density matrices or equivalently traditional 
+single determinant wavefunctions is the Hartree-Fock energy. Only when we move away
+from idem potent density matrices is a different exchange energy obtained. The latter
+is what we hope as the Hartree-Fock exchange is under estimating the true exchange
+in that case. Of course comparing the exchange expression we obtained to Hartree-Fock
+it seems that there is a contradiction. In the new exchange expression it is easy to see
+that if \f$ p \neq q \f$ the exchange term is 0. In Hartree-Fock theory there still are
+the terms \f$ (pq|pq) \f$ which are not obviously 0. A simple way to show that these
+integrals are actually 0 is to consider the number of pair interactions included in the
+the law of Coulomb. The law of Coulomb states that the energy of a system of charged 
+particles is given by summing the interactions of any given particle with all other
+particles. This means that overall for a system of \f$ N \f$ electrons there are 
+\f$ N(N-1)/2 \f$ pair interactions. The Hartree-Fock Coulomb term represents the 
+interaction between two charge distributions that happen to be the same ones. That
+means that this term includes self interaction terms and the number of pair interactions
+included is \f$ N^2/2 \f$. Hence the Coulomb term over estimates the electron-electron
+repulsion. This spurious self interaction is canceled by the exchange term. It is clear
+from the form of the exchange expression that if we just take the \f$ p = q \f$ terms
+then we have \f$ N/2 \f$ pair terms. Subtracting that number of pairs from the Coulomb
+pairs we have \f$ N(N-1)/2 \f$ which is the correct number of pair interactions. We
+also know that Hartree-Fock theory is consistent with the law of Coulomb. This means that
+the remaining \f$ p \neq q \f$ terms in the exchange have to sum up to 0, otherwise the
+number of pair interactions would be violated. This proves that our exchange term is 
+identical to the Hartree-Fock exchange in the case of idem potent density matrices.
+
+A further comment is that all quantities in this theory, apart from the exchange, can
+be evaluated using only the total 1-electron density matrix. These quantities are therefore
+independent of the occupation functions. The exchange energy is different as this depends 
+explicitly on the charge distributions of single electrons. As a result the optimization
+of the wavefunction includes an optimization of the occupation functions at a fixed 
+density matrix to minimize the exchange term. This has obvious parallels with the
+Optimized Effective Potential (OEP) methods. The difference is that traditional 
+OEP methods considered electronic states that correspond to idem potent density matrices
+whereas in our model any N-representable density matrix may be used.
+
+## Optimization ##
+
+In the previous section we discussed the energy expression of interest. Here we consider
+how we can optimize the parameters in this expression. To arrive at an optimization scheme
+we propose a number of Lagrangians. First the natural orbitals are a set of orthonormal vectors
+\f{eqnarray*}{
+  L_1 &=& \sum_{ij} \lambda^{(1)}_{ij}\left(\sum_{ab}
+          C^D_{a i} S_{ab} C^D_{b j}-\delta_{ij}\right)
+\f}
+Just like the natural orbitals the occupation functions also are an orthonormal set
+\f{eqnarray*}{
+  L_2 &=& \sum_{pq\in \{occupied\}} \lambda^{(3)}_{pq}\left(\sum_{ij}
+          C^O_{ip} \delta_{ij} C^O_{jq}-\delta_{pq}\right) \\\\
+      &=& \sum_{pq\in \{occupied\}} \lambda^{(3)}_{pq}\left(\sum_{i}
+          C^O_{ip} C^O_{iq}-\delta_{pq}\right)
+\f}
+
+To optimize the energy expression given above we need the gradient of the energy with respect
+to the wavefunction coefficients. We'll discuss every different term in turn. First of all 
+the 1-electron contributions to the energy can be written as:
+\f{eqnarray*}{
+  E^{(1)}
+  &=& \sum_{\sigma ab}h_{ab}D^\sigma_{ab} \\\\
+  &=& \sum_{\sigma ab}h_{ab}\sum_{i=1}^{N_{basis}}\sum_{p=1}^{n^e}
+      C^{D\sigma}_{ai}C^{O\sigma}_{ip}
+      C^{O\sigma}_{ip}C^{D\sigma}_{bi}\\\\
+  &=& \sum_{\sigma ab}h_{ab}\sum_{i,j=1}^{N_{basis}}\sum_{p=1}^{n^e}\delta_{ij}
+      C^{D\sigma}_{ai}C^{O\sigma}_{ip}
+      C^{O\sigma}_{jp}C^{D\sigma}_{bj}\\\\
+\f}
+The derivatives of \f$ E^{(1)} \f$ are
+\f{eqnarray*}{
+  \frac{\mathrm{d}E^{(1)}}{\mathrm{d}C^{O\sigma"}_{mt}}
+  &=& \sum_{\sigma ab}h_{ab}\sum_{i,j=1}^{N_{basis}}\sum_{p=1}^{n^e}
+      2\delta_{\sigma\sigma"}\delta_{ij}\delta_{jm}\delta_{pt}
+      C^{D\sigma}_{ai}
+      C^{O\sigma}_{ip}C^{D\sigma}_{bj}\\\\
+  &=& 2\sum_{ab}\sum_i h_{ab}\delta_{mi}
+      C^{D\sigma"}_{ai} C^{O\sigma"}_{it}C^{D\sigma"}_{bm}, \; 
+      \forall t\in\{occupied\}\\\\
+
+  \frac{\mathrm{d}E^{(1)}}{\mathrm{d}C^{D\sigma"}_{em}}
+  &=& \sum_{\sigma ab}h_{ab}\sum_{i,j=1}^{N_{basis}}\sum_{p=1}^{n^e}\left(
+      \delta_{\sigma\sigma"}\delta_{ea}\delta_{im}\delta_{ij}
+         C^{O\sigma}_{ip}C^{O\sigma}_{jp}C^{D\sigma}_{bj}
+      +\delta_{\sigma\sigma"}\delta_{eb}\delta_{jm}\delta_{ij}
+         C^{D\sigma}_{ai}C^{O\sigma}_{ip}C^{O\sigma}_{jp}
+      \right) \\\\
+  &=& \sum_{ab}h_{ab}\sum_{i,j=1}^{n^e}\left(
+      \delta_{ea}\delta_{mj}C^{O\sigma"}_{mp}C^{O\sigma"}_{jp}C^{D\sigma"}_{bj}
+      +\delta_{eb}\delta_{im}C^{D\sigma"}_{ai}C^{O\sigma"}_{ip}C^{O\sigma"}_{mp}
+      \right) \\\\
+  &=& 2\sum_{b}h_{eb}\sum_{p=1}^{n^e}\sum_i\delta_{im}
+      C^{O\sigma"}_{ip}C^{O\sigma"}_{mp}C^{D\sigma"}_{bm}
+\f}
+The 2-electron Coulomb term can be written as
+\f{eqnarray*}{
+  E^{(2C\sigma\sigma')}
+  &=& \sum_{p,q=1}^{n^\sigma_e}\sum_{i,j=1}^{N_{basis}}
+      \sum_{abcd}
+  C^{D\sigma}_{a i}C^{O\sigma}_{ip}C^{D\sigma}_{b i}C^{O\sigma}_{ip}(ab|cd)
+  C^{D\sigma'}_{c j}C^{O\sigma'}_{jq}C^{D\sigma'}_{d j}C^{O\sigma'}_{jq} \\\\
+\f}
+The derivatives of \f$ E^{(2C)} \f$ are
+\f{eqnarray*}{
+  \frac{\mathrm{d}E^{(2C\sigma\sigma')}}{\mathrm{d}C^{O\sigma"}_{mt}}
+  &= \sum_{p,q}\sum_{i,j}\sum_{abcd}&\left(
+        2\delta_{\sigma\sigma"}\delta_{im}\delta_{pt}
+        C^{O\sigma}_{ip}C^{D\sigma}_{a i}C^{D\sigma}_{b i}
+        (ab|cd)
+        C^{D\sigma'}_{c j}C^{O\sigma'}_{jq}C^{D\sigma'}_{d j}C^{O\sigma'}_{jq}
+        \right. \\\\
+  &&+ \left.2\delta_{\sigma'\sigma"}\delta_{jm}\delta_{qt}
+        C^{O\sigma}_{ip}C^{O\sigma}_{ip}C^{D\sigma}_{a i}C^{D\sigma}_{b i}
+        (ab|cd)C^{D\sigma'}_{c j}C^{D\sigma'}_{d j}C^{O\sigma'}_{jq} 
+  \right) \\\\
+  &= \sum_{q}\sum_{j}\sum_{abcd}&\left(
+        2\delta_{\sigma\sigma"}C^{O\sigma}_{mt}C^{D\sigma}_{a m}C^{D\sigma}_{b m}
+        (ab|cd)
+        C^{D\sigma'}_{c j}C^{O\sigma'}_{jq}C^{D\sigma'}_{d j}C^{O\sigma'}_{jq}
+        \right. \\\\
+  &&+ \left.2\delta_{\sigma'\sigma"}
+        C^{O\sigma}_{jq}C^{O\sigma}_{jq}C^{D\sigma}_{a j}C^{D\sigma}_{b j}
+        (ab|cd)
+        C^{D\sigma'}_{c m}C^{D\sigma'}_{d m}C^{O\sigma'}_{mt} 
+  \right) \\\\
+  \frac{\mathrm{d}E^{(2C\sigma\sigma')}}{\mathrm{d}C^{D\sigma"}_{e m}}
+  &= \sum_{p,q}\sum_{i,j}\sum_{abcd}&\left(
+        2\delta_{\sigma\sigma"}\delta_{e a}\delta_{km}
+        C^{O\sigma}_{ip}C^{O\sigma}_{ip}C^{D\sigma}_{b i}
+        (ab|cd)
+        C^{D\sigma'}_{c j}C^{O\sigma'}_{jq}C^{D\sigma'}_{d j}C^{O\sigma'}_{jq}
+        \right. \\\\
+  &&+ \left.2\delta_{\sigma'\sigma"}\delta_{ce}\delta_{jm}
+        C^{O\sigma}_{kp}C^{O\sigma}_{kp}C^{D\sigma}_{a k}C^{D\sigma}_{b k}
+        (ab|cd)C^{O\sigma'}_{jq}C^{D\sigma'}_{c j}C^{O\sigma'}_{jq} 
+  \right) \\\\
+  &= \sum_{p,q=1}^{n^\sigma_e}\sum_{j=1}^{N_{basis}}
+     \sum_{abcd}&\left(
+        2\delta_{\sigma\sigma"}
+        C^{O\sigma}_{mp}C^{D\sigma}_{b m}C^{O\sigma}_{mp}
+        (e b|cd)
+        C^{D\sigma'}_{c j}C^{O\sigma'}_{jq}C^{D\sigma'}_{d j}C^{O\sigma'}_{jq}
+        \right. \\\\
+  &&+\left.
+        2\delta_{\sigma'\sigma"}
+        C^{D\sigma}_{cj}C^{O\sigma}_{jp}C^{D\sigma}_{d j}C^{O\sigma}_{jp}
+        (cd|eb)
+        C^{O\sigma'}_{mq}C^{D\sigma'}_{b m}C^{O\sigma'}_{mq}
+        \right) \\\\
+\f}
+The 2-electron exchange term can be written as
+\f{eqnarray*}{
+  E^{(2X\sigma\sigma)}
+  &=& \sum_{p,q=1}^{n^\sigma_e}\sum_{i,j=1}^{N_{basis}}
+      \sum_{abcd}
+  C^{D\sigma}_{a i}C^{O\sigma}_{ip}C^{D\sigma}_{b i}C^{O\sigma}_{iq}(ab|cd)
+  C^{D\sigma}_{c j}C^{O\sigma}_{jq}C^{D\sigma}_{d j}C^{O\sigma}_{jp} \\\\
+\f}
+The derivatives of \f$ E^{(2X)} \f$ are
+\f{eqnarray*}{
+  \frac{\mathrm{d}E^{(2X\sigma\sigma)}}{\mathrm{d}C^{O\sigma"}_{mt}}
+  &= \sum_{p,q=1}^{n^\sigma_e}\sum_{i,j=1}^{N_{basis}}
+     \sum_{abcd}&\left(
+        2\delta_{\sigma\sigma"}\delta_{im}\delta_{pt}
+        C^{D\sigma}_{a i}C^{D\sigma}_{b i}C^{O\sigma}_{iq}
+        (ab|cd)
+        C^{D\sigma}_{c j}C^{O\sigma}_{jq}C^{D\sigma}_{d j}C^{O\sigma}_{jp}\right. \\\\
+  &&+   2\delta_{\sigma\sigma"}\delta_{jm}\delta_{pt}
+        \left.C^{D\sigma}_{a i}C^{O\sigma}_{ip}C^{D\sigma}_{b i}C^{O\sigma}_{iq}
+        (ab|cd)
+        C^{D\sigma}_{c j}C^{O\sigma}_{jq}C^{D\sigma}_{d j}\right) \\\\
+  &= \sum_{p=1}^{n^\sigma_e}\sum_{j=1}^{N_{basis}}
+     \sum_{abcd}&\left(
+        2\delta_{\sigma\sigma"}
+        C^{D\sigma}_{a m}C^{D\sigma}_{b m}C^{O\sigma}_{mp}
+        (ab|cd)
+        C^{D\sigma}_{c j}C^{O\sigma}_{jp}C^{D\sigma}_{d j}C^{O\sigma}_{jt}\right. \\\\
+  &&+   2\delta_{\sigma\sigma"}
+        \left.C^{D\sigma}_{a j}C^{O\sigma}_{jt}C^{D\sigma}_{b j}C^{O\sigma}_{jp}
+        (ab|cd)
+        C^{D\sigma}_{c m}C^{O\sigma}_{mp}C^{D\sigma}_{d m}\right) \\\\
+  \frac{\mathrm{d}E^{(2X\sigma\sigma)}}{\mathrm{d}C^{D\sigma"}_{e m}}
+  &= \sum_{p,q=1}^{n^\sigma_e}\sum_{i,j=1}^{N_{basis}}
+     \sum_{abcd}&\left(
+        2\delta_{\sigma\sigma"}\delta_{e a}\delta_{im}
+        C^{O\sigma}_{ip}C^{D\sigma}_{b i}C^{O\sigma}_{iq}
+        (ab|cd)
+        C^{D\sigma}_{c j}C^{O\sigma}_{jq}C^{D\sigma}_{d j}C^{O\sigma}_{jp}\right. \\\\
+  &&+   2\delta_{\sigma\sigma"}\delta_{e d}\delta_{jm}
+        \left.C^{D\sigma}_{a i}C^{O\sigma}_{ip}C^{D\sigma}_{b i}C^{O\sigma}_{iq}
+        (ab|cd)
+        C^{D\sigma}_{c j}C^{O\sigma}_{jq}C^{O\sigma}_{jp}\right) \\\\
+  &= \sum_{p,q=1}^{n^\sigma_e}\sum_{j=1}^{N_{basis}}
+     \sum_{abcd}&\left(
+        2\delta_{\sigma\sigma"}
+        C^{O\sigma}_{mp}C^{D\sigma}_{b m}C^{O\sigma}_{mq}
+        (e b|cd)
+        C^{D\sigma}_{c j}C^{O\sigma}_{jq}C^{D\sigma}_{d j}C^{O\sigma}_{jp}\right. \\\\
+  &&+   2\delta_{\sigma\sigma"}
+        \left.C^{D\sigma}_{d j}C^{O\sigma}_{jp}C^{D\sigma}_{c j}C^{O\sigma}_{jq}
+        (cd|be)
+        C^{D\sigma}_{b m}C^{O\sigma}_{mq}C^{O\sigma}_{mp}\right) \\\\
+\f}
+Next we need the gradients of the Lagrangians, first up is \f$ L_1 \f$
+\f{eqnarray*}{
+  L_1 &=& \sum_\sigma\sum_{kl} \lambda^{(1\sigma)}_{kl}\left(\delta_{kl}-\sum_{\mu\nu}
+          C^{D\sigma}_{\mu k} S_{\mu\nu} C^{D\sigma}_{\nu l}\right)
+\f}
+which has two derivative components
+\f{eqnarray*}{
+  \frac{\mathrm{d}L_1}{\mathrm{d} \lambda^{(1\sigma")}_{nm}}
+  &=& \sum_{\sigma}\sum_{kl}\delta_{\sigma\sigma"}\delta_{kn}\delta_{lm}
+      \left(\delta_{kl}-\sum_{\mu\nu}C^{D\sigma}_{\mu k} S_{\mu\nu} C^{D\sigma}_{\nu l}\right)
+      \\\\
+  &=& \left(\delta_{nm}-
+            \sum_{\mu\nu}C^{D\sigma"}_{\mu n} S_{\mu\nu} C^{D\sigma"}_{\nu m}\right)
+      \\\\
+  \frac{\mathrm{d}L_1}{\mathrm{d} C^{D\sigma"}_{\tau m}}
+  &=& -\sum_{\sigma}\sum_{kl}\sum_{\mu\nu}2\delta_{\sigma\sigma"}\lambda^{(1\sigma)}_{kl}
+      \delta_{\tau\mu}\delta_{mk}S_{\mu\nu}C^{D\sigma}_{\nu l} \\\\
+  &=& -\sum_{l}\sum_{\nu}2\lambda^{(1\sigma")}_{ml}
+      S_{\tau\nu}C^{D\sigma"}_{\nu l} \\\\
+\f}
+Next consider \f$ L_2 \f$ which has three derivative components
+\f{eqnarray*}{
+  L_2 &=& \sum_\sigma\sum_{kl} \lambda^{(2\sigma)}_{kl}
+          \left(\left[1-\delta_{kl}\right]\sum_{\mu\nu\eta\zeta}
+          C^{D\sigma}_{\eta k} S_{\eta\mu}
+          \left\{
+          \sum_{m}\sum_{i}
+          C^{D\sigma}_{\mu m}C^{O\sigma}_{mi}
+          C^{O\sigma}_{mi}C^{D\sigma}_{m\nu}
+          \right\}
+          S_{\nu\zeta} C^{D\sigma}_{\zeta l}\right) \\\\
+\f}
+The derivatives are
+\f{eqnarray*}{
+  \frac{\mathrm{d}L_2}{\mathrm{d}\lambda^{(2\sigma")}_{pq}}
+  &=& \left(\left[1-\delta_{pq}\right]\sum_{\mu\nu\eta\zeta}
+      C^{D\sigma"}_{\eta p} S_{\eta\mu}
+      \left\{
+      \sum_{m}\sum_{i}
+      C^{D\sigma"}_{\mu m}C^{O\sigma"}_{mi}
+      C^{O\sigma"}_{mi}C^{D\sigma"}_{m\nu}
+      \right\}
+      S_{\nu\zeta} C^{D\sigma"}_{\zeta q}\right) \\\\
+  \frac{\mathrm{d}L_2}{\mathrm{d}C^{O\sigma"}_{pq}}
+  &=& \sum_\sigma\sum_{kl}2\delta_{\sigma\sigma"} \lambda^{(2\sigma)}_{kl}
+      \left(\left[1-\delta_{kl}\right]\sum_{\mu\nu\eta\zeta}
+      C^{D\sigma}_{\eta k} S_{\eta\mu}
+      \left\{
+      \sum_{m}\sum_{i}\delta_{mp}\delta_{iq}
+      C^{D\sigma}_{\mu m}
+      C^{O\sigma}_{mi}C^{D\sigma}_{m\nu}
+      \right\}
+      S_{\nu\zeta} C^{D\sigma}_{\zeta l}\right) \\\\
+  &=& \sum_{kl}2\lambda^{(2\sigma")}_{kl}
+      \left(\left[1-\delta_{kl}\right]\sum_{\mu\nu\eta\zeta}
+      C^{D\sigma"}_{\eta k} S_{\eta\mu}
+      \left\{
+      C^{D\sigma"}_{\mu p}
+      C^{O\sigma"}_{pq}C^{D\sigma"}_{p\nu}
+      \right\}
+      S_{\nu\zeta} C^{D\sigma"}_{\zeta l}\right) \\\\
+  \frac{\mathrm{d}L_2}{\mathrm{d}C^{D\sigma"}_{\tau p}}
+  &=& 2\sum_\sigma\sum_{kl}\delta_{\sigma\sigma"} \lambda^{(2\sigma)}_{kl}
+      \left(\left[1-\delta_{kl}\right]\sum_{\mu\nu\eta\zeta}
+      \delta_{\eta\tau}\delta_{pk} S_{\eta\mu}
+      \left\{
+      \sum_{m}\sum_{i}
+      C^{D\sigma}_{\mu m}C^{O\sigma}_{mi}
+      C^{O\sigma}_{mi}C^{D\sigma}_{m\nu}
+      \right\}
+      S_{\nu\zeta} C^{D\sigma}_{\zeta l}\right) \\\\
+  &&+ 2\sum_\sigma\sum_{kl}\delta_{\sigma\sigma"} \lambda^{(2\sigma)}_{kl}
+      \left(\left[1-\delta_{kl}\right]\sum_{\mu\nu\eta\zeta}
+      C^{D\sigma}_{\eta k} S_{\eta\mu}
+      \left\{
+      \sum_{m}\sum_{i}
+      \delta_{\tau\mu}\delta_{pm}C^{O\sigma}_{mi}
+      C^{O\sigma}_{mi}C^{D\sigma}_{m\nu}
+      \right\}
+      S_{\nu\zeta} C^{D\sigma}_{\zeta l}\right) \\\\
+  &=& 2\sum_{l} \lambda^{(2\sigma")}_{pl}
+      \left(\left[1-\delta_{pl}\right]\sum_{\mu\nu\zeta}
+      S_{\tau\mu}
+      \left\{
+      \sum_{m}\sum_{i}
+      C^{D\sigma"}_{\mu m}C^{O\sigma"}_{mi}
+      C^{O\sigma"}_{mi}C^{D\sigma"}_{m\nu}
+      \right\}
+      S_{\nu\zeta} C^{D\sigma"}_{\zeta l}\right) \\\\
+  &&+ 2\sum_{kl} \lambda^{(2\sigma")}_{kl}
+      \left(\left[1-\delta_{kl}\right]\sum_{\nu\eta\zeta}
+      C^{D\sigma"}_{\eta k} S_{\eta\tau}
+      \left\{
+      \sum_{i}
+      C^{O\sigma"}_{pi}
+      C^{O\sigma"}_{pi}C^{D\sigma"}_{p\nu}
+      \right\}
+      S_{\nu\zeta} C^{D\sigma"}_{\zeta l}\right) \\\\
+\f}
+Finally, for \f$ L_3 \f$ we have
+\f{eqnarray*}{
+  L_3 &=& \sum_\sigma\sum_{ij} \lambda^{(3\sigma)}_{ij}\left(\delta_{ij}-\sum_{k}
+          C^{O\sigma}_{ki} C^{O\sigma}_{kj}\right)
+\f}
+which has two derivative components
+\f{eqnarray*}{
+  \frac{\mathrm{d}L_3}{\mathrm{d} \lambda^{(3\sigma")}_{nm}}
+  &=& \sum_{\sigma}\sum_{ij}\delta_{\sigma\sigma"}\delta_{in}\delta_{jm}
+      \left(\delta_{ij}-\sum_{k}C^{O\sigma}_{ki} C^{O\sigma}_{kj}\right)
+      \\\\
+  &=& \left(\delta_{nm}-
+            \sum_{k}C^{O\sigma"}_{kn} C^{O\sigma"}_{k m}\right)
+      \\\\
+  \frac{\mathrm{d}L_3}{\mathrm{d} C^{O\sigma"}_{nm}}
+  &=& -2\sum_{\sigma}\sum_{ij}\delta_{\sigma\sigma"}\delta_{im}
+      \lambda^{(3\sigma)}_{ij}\left(\sum_{k}\delta_{kn} C^{O\sigma}_{kj}\right)
+      \\\\
+  &=& -2\sum_{j}
+      \lambda^{(3\sigma")}_{mj}\left(C^{O\sigma"}_{nj}\right)
+\f}
+
+Looking over the equations derived above we note a few things:
+- The form of the exchange equations ensure that for \f$ i \ne j \f$ the
+  energy term as well as the corresponding gradient term are 0.
+- The energy evaluation requires the 1-electron density matrices for single
+  electrons as well as the total 1-electron density matrices.
+- The gradient of the density matrices with respect to the natural orbital
+  coefficients can be calculated and stored straightforwardly. 
+- The gradient of the density matrices with respect to the occupation
+  function coefficients cannot be stored explicitly as this would require
+  \f$ O(N^4) \f$ storage. Hence the most efficient evaluation of the gradient
+  requires contracting the matrices of the variables with the operator early.
+
+The matrices we need are:
+- The natural orbital coefficients \f$ C^{D\sigma}_{\mu k} \f$ where 
+  \f$ \sigma \in \{\alpha,\beta\} \f$, \f$ \mu \f$ runs over all basis
+  functions, and \f$ k \f$ runs over all natural orbitals. I.e. the natural
+  orbitals are stored column-wise. Variables `g_noa` and `g_nob`.
+- The occupation function coefficients \f$ C^{O\sigma}_{ki} \f$ where
+  \f$ \sigma \f$, and \f$ k \f$ cover the same ranges as above. The index 
+  \f$ i \f$ only runs over the occupied extended orbitals in the energy 
+  expression and gradient. However, we expect some interesting features
+  involving these quantities, and for now, we want to calculate the whole
+  manyfold of occupation functions. The occupation functions are once again
+  stored column-wise. Variables `g_ofa` and `g_ofb`.
+- The Lagrangian multipliers \f$ \lambda^{(1\sigma)}_{kl} \f$ are the 
+  multipliers for the orthonormality condition of the natural orbitals. Hence
+  \f$ \sigma \f$ runs over the same range as above, and both \f$ k \f$ and
+  \f$ l \f$ run over all natural orbitals. Variables `g_l1a` and `g_l1b`.
+- The Lagrangian multipliers \f$ \lambda^{(2\sigma)}_{kl} \f$ are the
+  multipliers associated with the natural orbitals being eigenfunctions of the
+  density matrices. Strictly speaking we only need the Lagrangians for the
+  off-diagonal terms. (I suspect these multipliers not to have any physical
+  interpretation). Variables `g_l2a` and `g_l2b`.
+- Finally the Lagrangian multipliers associated with the occupation functions
+  come into play. Again we want to calculate all of them even though the 
+  lowest occupied extended orbitals are the only ones that contribute to the
+  energy expression. Variables `g_l3a` and `g_l3b`.
+
+We also have gradients to calculate. Ultimately we want to do something like
+a line search. To establish the search direction the gradient of the energy
+with respect to the variables is needed. The data structures needed to store
+the gradient have the same form as the variable they correspond to. E.g.
+the gradient of \f$ E(C^D,C^O,L^{(1)},L^{(2)},L^{(3)}) \f$ with respect to the
+variables \f$ L^{(1)}_{kl} \f$ is a quantity with the same form as
+\f$ L^{(1)} \f$ itself. At this moment in time we are interested in the 
+groundstate energies and its first order derivatives only. Hence we encode
+the derivative by inserting a "d" in the name. I.e.
+- The energy gradients with respect to `g_noa` and `g_nob` become `g_dnoa` and
+  `g_dnob` respectively. 
+- Likewise we get `g_dofa` and `g_dofb` with `g_ofa` and `g_ofb`.
+- Also `g_dl1a` and `g_dl1b`.
+- Also `g_dl2a` and `g_dl2b`.
+- Also `g_dl3a` and `g_dl3b`.
+This naming scheme can be extended to higher order derivatives, e.g. 
+`g_dnoa_dl2b`, but needs to be modified if ever multiple electronic states were
+to be considered simultaneously.
+
+In the equations formulated above there are also a few recurring themes. These
+are quantities that may be used to evaluate a number of expressions. The main
+quantities in this category are the single 1-electron density matrices and 
+the total 1-electron density matrices. These quantities are defined as
+\f{eqnarray*}{
+   D^{(1\sigma)}_{\mu\nu,i} &=& \sum_k 
+      C^{D\sigma}_{\mu k}C^{O\sigma}_{ki}C^{O\sigma}_{ki}C^{D\sigma}_{\nu k}
+      \\\\
+   D^{(T\sigma)}_{\mu\nu} &=& \sum_{i\in\{occ\}} D^{(1\sigma)}_{\mu\nu,i}
+\f}
+The variables for these quantities are `g_D1a` and `g_D1b` as well as
+`g_DTa` and `g_DTb`, where the `g_D1` matrices are 3D matrices with dimensions
+\f$ (N_{bf},N_{bf},N_{el}) \f$.
+
+One final quantity that recurs in a few places are the occupation numbers. The
+elements of this vector are defined as
+\f{eqnarray*}{
+  O^{(\sigma)}_k &=& \sum_{i\in\{occ\}} C^{O\sigma}_{ki}C^{O\sigma}_{ki}
+\f}
+As these items are just single vectors they are kept in local memory in a 
+buffer pointed to by `k_Oa` and `k_Ob`.
+### References ###
+
+* [1] A. Coleman, <i>"Structure of fermion density matrices"</i>
+  Rev. Mod. Phys. <b>35</b>, 668-686 (1963),
+  DOI: <a href="http://dx.doi.org/10.1103/RevModPhys.35.668">10.1103/RevModPhys.35.668</a>.
+
+* [2] P.-O. L&ouml;wdin, <i>"Quantum theory of many-particle systems. I. Physical
+  interpretations by means of density matrices, natural spin-orbitals, and
+  convergence problems in the method of configurational interaction"</i>,
+  Phys. Rev. <b>97</b>, 1474-1489 (1955),
+  DOI: <a href="http://dx.doi.org/10.1103/PhysRev.97.1474">10.1103/PhysRev.97.1474</a>.
+
+* [3] <a href="http://www.diss.fu-berlin.de/diss/receive/FUDISS_thesis_000000002262">
+  Nicole Helbig</a>, <i>"Orbital functionals in density matrix and current density
+  functional theory"</i>, Free University, Berlin, 2006.
+
+* [4] Elliott H. Lieb, (1981).
+
+@}
+*/
+

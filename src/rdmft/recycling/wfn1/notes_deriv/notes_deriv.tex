@@ -1,0 +1,120 @@
+\documentclass{article}
+\title{Notes on Derivatives of Matrix Valued Matrix Functions}
+\author{Hubertus van Dam}
+\date{December 14, 2014}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\begin{document}
+
+\maketitle
+
+This document is concerned with derivatives of matrix valued matrix functions.
+I.e. expressions of the kind
+\begin{eqnarray}
+\frac{\partial \mathbf{F}(\mathbf{X})}{\partial \mathbf{X}_{ij}}
+\label{Eq:deriv}
+\end{eqnarray}
+where \(\mathbf{X}\in \mathbb{R}^{N\times N}\) and 
+\(F: \mathbb{R}^{N\times N}\rightarrow \mathbb{R}^{N\times N}\).
+These kinds of expressions arise e.g. in density matrix functional theory,
+grid free density functional theory \cite{berghold98}, and continuum mechanics
+\cite{jog06,padovani00,hoger84,gurtin83}.
+
+In the field of continuum mechanics the emphasis seems to lie on deriving 
+analytical expressions for matrix function derivatives. In that domain this 
+approach is feasible as the matrices involved are rather small (typically 
+3x3). In density matrix functional theory the matrix function derivatives of
+interest deal with functions of the density matrix. The dimension of this 
+matrix depends on the number of atoms in the system of interest. For many 
+quantum mechanics applications today the dimensions range from hundreds to 
+tens of thousands. In these applications analytical expressions are of little
+interest but effective numerical methods are essential.
+
+The commonly used approach to derivatives of matrix functions is the Fr\'{e}chet
+derivative. This is essentially a directional derivative of a matrix function
+given by
+\begin{eqnarray}
+   \lim_{h\rightarrow 0}\frac{||F(X+hA) - f(X) - Ah||_W}{||h||_V} &=& 0
+\end{eqnarray}
+where $A$ is the Fr\'{e}chet derivative of $f$. This approach seems to rely
+on a change of the matrix in one particular direction (although this direction
+may be chosen arbitrarily). Also this approach can extended to higher order
+derivatives by recursively applying the same argument. Nevertheless the result
+is not so easily interpreted. 
+
+In this work we approach this problem in a way that is closer to regular
+function derivatives. Our approach is based on the consideration that
+Eq.\ref{Eq:deriv} is easily expressed for any matrix $\mathbf{X}$ in any basis
+if the matrix function is  $\mathrm{F}(\mathrm{X}) = \mathrm{X}$.
+In all cases the result is a fourth order identity matrix. 
+However this particular matrix function is an exceptionally simple 
+one. In the general case the result is not so easy to formulate.
+However, in one particular representation of the matrix the result is equally
+easily formulated. 
+
+In the case we represent the matrix $\mathbf{X}$ in its eigenvalue
+representation, when we will refer to $\mathbf{X}$ as $\mathbf{\Lambda}$ to
+highlight that this is a diagonal matrix, the first order derivative is
+\begin{eqnarray}
+   \frac{\mathbf{F}_{kl}(\mathbf{\Lambda})}{\mathrm{\Lambda}_{ij}}
+   &=& (1-\delta_{kl})\delta_{ki}\delta_{lj}
+    +  \delta_{kl}\delta_{ki}\delta_{lj}\frac{F(\lambda_{k})}{\lambda_{k}}
+\end{eqnarray}
+where $\lambda_k = \mathbf{\Lambda}_{kk}$. The first term stems from the fact
+that the off-diagonal elements have to be considered variables at the value
+zero, rather than zero constants.
+
+This result is also easily extended to higher order derivatives 
+\begin{eqnarray}
+  \frac{\partial^n \mathbf{F}(\mathbf{\Lambda})_{kl}}
+       {\partial\mathbf{\Lambda}_{i_1j_1}\ldots
+        \partial\mathbf{\Lambda}_{i_nj_n}}
+  &=& \delta_{kl}(\prod_{p=1}^{n}\delta_{ki_p}\delta_{lj_p})
+      F^{(n)}(\lambda_{k})
+\end{eqnarray}
+Of interest for applications is the fact that the resulting tensors are 
+sparse. The fourth order tensor that represents the first order derivative
+has only $O(N^2)$ non-zero elements out of a total of $O(N^4)$ tensor elements.
+In addition of these non-zero elements $N^2-N$ of them are one and only $N$ of
+them have a non-trivial value.
+Derivatives of orders higher than one are $2n+2$ order tensors with
+$O(N^{2n+2})$ elements of which only $O(N)$ are non-zero. This suggests that
+the diagonal representation of $\mathbf{X}$ is a particularly convenient basis
+to work with matrix function derivatives of $\mathbf{X}$ in.
+
+In density matrix functional theory we write the energy expression for the
+energy of the electrons as
+\begin{eqnarray}
+   E &=& E_1 + E_C + E_X
+\end{eqnarray}
+where \(E_1\) is the 1-electron energy which is the sum of the kinetic energy
+and the nuclear attraction energy (the positively charged nucleii are assumed
+stationary but they do attract the negatively charged and moving electrons).
+The term \(E_C\) represents the 2-electron repulsion and is referred to as
+the Coulomb energy. The term \(E_X\) is a negatively valued 2-electron 
+interaction that stems from a purely quantum mechanical effect due to the
+anti-symmetric nature of the wavefunction. This phenomenon says that the 
+wavefunction changes sign when two electrons are interchanged. The resulting
+energy term is correspondingly called the exchange term. 
+
+Given the 1-electron density matrix \(\mathbf{D}\) (a symmetric non-negative
+matrix for which we have that all \(\lambda_m \le 1\) and that
+\(\sum_m \lambda_m = N\) where \(N\) is the number of electrons the various
+terms are given by
+\begin{eqnarray}
+   E_1 &=& tr(h D) \\
+   E_C &=& \sum_{ijkl}D_{ij}(ij|kl)D_{kl} \\
+   E_X &=& \sum_{ijkl}F(D)_{ij}(ik|jl)F(D)_{kl} 
+\end{eqnarray}
+Here the expressions \((ij|kl)\) are 2-electron integrals which are given by
+\begin{eqnarray}
+  (ij|kl) &=& \int\int \chi_i(r_1)\chi_j(r_1)\frac{1}{r_{12}}\chi_k(r_2)\chi_l(r_2) \mathrm{d}r_1\mathrm{d}r_2
+\end{eqnarray}
+where the \(\chi(r)\) are normalized basis functions.
+As you can see the exchange term contains a matrix valued matrix function. 
+Typically \(F(X) = X^p\) where \(\frac{1}{2} \le p \le 1\)~\cite{lathiotakis09}.
+
+\bibliographystyle{plain}
+\bibliography{notes_deriv}
+
+\end{document}

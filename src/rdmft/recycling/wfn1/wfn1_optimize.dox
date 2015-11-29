@@ -1,0 +1,252 @@
+/**
+\ingroup wfn1
+@{
+
+\file wfn1_optimize.dox
+Optimizing the energy expression
+
+\brief The single configuration wavefunction differentiation for optimization purposes
+
+# Differentiate the Hartree-Fock like energy expression #
+
+The unrestricted Hartree-Fock energy expression is given by:
+\f{eqnarray*}{
+  E 
+  &=& \sum_p^{N_\alpha}(p|h|p)+\frac{1}{2}\sum_p^{N_\alpha}\left\{
+      \sum_q^{N_\beta}(pp|qq)+\sum_q^{N_\alpha}(pp|qq)-\sum_q^{N_\alpha}(pq|pq)\right\} \\\\
+  &+& \sum_p^{N_\beta}(p|h|p)+\frac{1}{2}\sum_p^{N_\beta}\left\{
+      \sum_q^{N_\alpha}(pp|qq)+\sum_q^{N_\beta}(pp|qq)-\sum_j^{N_\beta}(pq|pq)\right\}
+\f}
+The corresponding Lagrangian is
+\f{eqnarray*}{
+  L &=& E + \sum_\sigma\sum_{pq}\epsilon^{\sigma}_{pq}\left((p|q)-1\right)
+\f}
+In the method discussed here the orbitals are defined in terms of the natural orbitals
+as well as the occupation functions. Nevertheless the combination of these two
+quantities ultimately constitutes a single orbital. Hence the differentiation of
+the energy expression should reflect this. 
+
+An additional complication we have to consider is that the theory in the end
+will be a wavefunction based Density Matrix Functional Theory (DMFT). In 
+DMFT the electron densities that enter the energy expression are functions
+of the density matrix. In particular these functions are different for the Coulomb
+and the exchange terms. Here we should not make any assumptions about the form
+of these functions, instead we refer to them as \f$ f_C(P) \f$ for the Coulomb
+term and \f$ f_X(P) \f$ for the exchange term. The notation in the equations needs
+to change to incorporate these functions. Hence the Coulomb term becomes:
+\f{eqnarray*}{
+   (f_C(pp)|f_C(qq))
+\f}
+the exchange term becomes:
+\f{eqnarray*}{
+   P_{24}(f_X(pp)|f_X(qq))
+\f}
+Here the operator \f$P_{24}\f$ indicates the interchange of indeces 2 and 4 as 
+required for the regular exchange interaction.
+
+First, differentiate the energy expression with respect to an orbital, i.e.
+replace \f$ p \rightarrow p + \delta p \f$:
+\f{eqnarray*}{
+  \delta E^{(1\alpha)}
+  &=& \sum_{p^\alpha}(p^\alpha + \delta p^\alpha|h|p^\alpha + \delta p^\alpha) \\\\
+  &=& \sum_{p^\alpha}(p^\alpha|h|p^\alpha) + (\delta p^\alpha|h|p^\alpha) +
+      (p^\alpha|h|\delta p^\alpha) + (\delta p^\alpha|h|\delta p^\alpha) \\\\
+\f}
+In the Coulomb term we have
+\f{eqnarray*}{
+  \delta E^{(2C\sigma\sigma')}
+  &=& \frac{1}{2}\sum_{p^\sigma q^{\sigma'}}
+      (f_C([p^\sigma+\delta p^\sigma][p^\sigma+\delta p^\sigma])|
+       f_C([q^{\sigma'}+\delta q^{\sigma'}][q^{\sigma'}+\delta q^{\sigma'}]))
+      \\\\
+  &=& \frac{1}{2}\sum_{p^\sigma q^{\sigma'}}
+      (f'_C(p^\sigma p^\sigma)[p^\sigma+\delta p^\sigma][p^\sigma+\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}+\delta q^{\sigma'}][q^{\sigma'}+\delta q^{\sigma'}])
+      \\\\
+  &=& \frac{1}{2}\sum_{p^\sigma q^{\sigma'}}
+      (f'_C(p^\sigma p^\sigma)[p^\sigma][p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}][q^{\sigma'}]) +
+
+      (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}][q^{\sigma'}]) \\\\
+
+  &+& (f'_C(p^\sigma p^\sigma)[p^\sigma][\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}][q^{\sigma'}]) +
+
+      (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}][q^{\sigma'}]) \\\\
+
+  &+& (f'_C(p^\sigma p^\sigma)[p^\sigma][p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[\delta q^{\sigma'}][q^{\sigma'}]) +
+
+      (f'_C(p^\sigma p^\sigma)[p^\sigma][p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}][\delta q^{\sigma'}]) \\\\
+
+  &+& (f'_C(p^\sigma p^\sigma)[p^\sigma][p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[\delta q^{\sigma'}][\delta q^{\sigma'}]) +
+
+      (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[\delta q^{\sigma'}][q^{\sigma'}]) \\\\
+
+  &+& (f'_C(p^\sigma p^\sigma)[p^\sigma][\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[\delta q^{\sigma'}][q^{\sigma'}]) +
+
+      (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}][\delta q^{\sigma'}]) \\\\
+
+  &+& (f'_C(p^\sigma p^\sigma)[p^\sigma][\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}][\delta q^{\sigma'}]) +
+
+      (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[\delta q^{\sigma'}][q^{\sigma'}]) \\\\
+
+  &+& (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[q^{\sigma'}][\delta q^{\sigma'}]) +
+
+      (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[\delta q^{\sigma'}][\delta q^{\sigma'}]) \\\\
+
+  &+& (f'_C(p^\sigma p^\sigma)[p^\sigma][\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[\delta q^{\sigma'}][\delta q^{\sigma'}]) +
+
+      (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][\delta p^\sigma]|
+       f'_C(q^{\sigma'}q^{\sigma'})[\delta q^{\sigma'}][\delta q^{\sigma'}])
+      \\\\
+\f}
+In the exchange term we have
+\f{eqnarray*}{
+  \delta E^{(2X\sigma\sigma)}
+  &=& \frac{1}{2}\sum_{p^\sigma q^{\sigma}}
+      P_{24}(f_X([p^\sigma+\delta p^\sigma][p^\sigma+\delta p^\sigma])|
+       f_X([q^{\sigma}+\delta q^{\sigma}][q^{\sigma}+\delta q^{\sigma}]))
+      \\\\
+  &=& \frac{1}{2}\sum_{p^\sigma q^{\sigma}}
+      P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma+\delta p^\sigma][p^\sigma+\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}+\delta q^{\sigma}][q^{\sigma}+\delta q^{\sigma}])
+      \\\\
+  &=& \frac{1}{2}\sum_{p^\sigma q^{\sigma}}
+      P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma][p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}][q^{\sigma}]) +
+
+      P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}][q^{\sigma}]) \\\\
+
+  &+& P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma][\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}][q^{\sigma}]) +
+
+      P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}][q^{\sigma}]) \\\\
+
+  &+& P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma][p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[\delta q^{\sigma}][q^{\sigma}]) +
+
+      P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma][p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}][\delta q^{\sigma}]) \\\\
+
+  &+& P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma][p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[\delta q^{\sigma}][\delta q^{\sigma}]) +
+
+      P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[\delta q^{\sigma}][q^{\sigma}]) \\\\
+
+  &+& P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma][\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[\delta q^{\sigma}][q^{\sigma}]) +
+
+      P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}][\delta q^{\sigma}]) \\\\
+
+  &+& P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma][\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}][\delta q^{\sigma}]) +
+
+      P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[\delta q^{\sigma}][q^{\sigma}]) \\\\
+
+  &+& P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[q^{\sigma}][\delta q^{\sigma}]) +
+
+      P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[\delta q^{\sigma}][\delta q^{\sigma}]) \\\\
+
+  &+& P_{24}(f'_X(p^\sigma p^\sigma)[p^\sigma][\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[\delta q^{\sigma}][\delta q^{\sigma}]) +
+
+      P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][\delta p^\sigma]|
+       f'_X(q^{\sigma}q^{\sigma})[\delta q^{\sigma}][\delta q^{\sigma}])
+      \\\\
+\f}
+Collecting the first variation terms from the equations above we have
+\f{eqnarray*}{
+  \delta L &=&
+  \sum_\sigma\sum_{p=1}^{N^\sigma} (\delta p^\sigma|h|p^\sigma) + 
+  \sum_{\sigma\sigma'}\sum_{p=1}^{N^\sigma}\sum_{q=1}^{N^{\sigma'}}
+  (f'_C(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|f'_C(q^{\sigma'} q^{\sigma'})[q^{\sigma'}][q^{\sigma'}]) \\\\
+  &&-
+  \sum_{\sigma}\sum_{p=1}^{N^\sigma}\sum_{q=1}^{N^\sigma}
+  P_{24}(f'_X(p^\sigma p^\sigma)[\delta p^\sigma][p^\sigma]|f'_X(q^{\sigma} q^{\sigma})[q^{\sigma}][q^{\sigma}]) +
+  \sum_\sigma\sum_{p=1}^{N^\sigma}\sum_{q=1}^{N^\sigma}
+  \epsilon^\sigma_{pq}(\delta p^\sigma|q^\sigma) = 0
+\f}
+As this expression has to be zero for all \f$\delta p\f$ we arrive at the
+following matrix equation
+\f{eqnarray*}{
+   0 &=& \sum_\sigma\sum_{p=1}^{N^\sigma} F^\sigma_{rp}p^\sigma +
+   \sum_\sigma\sum_{p=1}^{N^\sigma} \epsilon^\sigma_{rp} S^\sigma_{rp}p^\sigma
+   \\\\
+   F^\sigma_{rp} &=& h^\sigma_{rp} +
+   \sum_{\sigma'}\sum_{q=1}^{N^{\sigma'}}
+   (f'_C(p^\sigma p^\sigma)|f'_C(q^{\sigma'} q^{\sigma'})[q^{\sigma'}][q^{\sigma'}]) \\\\
+   &&-
+   \sum_{\sigma}\sum_{q=1}^{N^\sigma}
+   P_{24}(f'_X(p^\sigma p^\sigma)|f'_X(q^{\sigma} q^{\sigma})[q^{\sigma}][q^{\sigma}]) 
+\f}
+This matrix equation involves the whole extended orbitals and ignores the 
+fact that these orbitals can be expressed in terms of the natural orbitals
+and occupation functions.
+
+# Alternative approach #
+
+The density matrices are given by
+\f{eqnarray*}{
+  D^\sigma_{ab} &=& \sum_{i=1}^{N_{basis}}\sum_{p=1}^{n_e^\sigma}
+     C^{D\sigma}_{ai}C^{O\sigma}_{ip}C^{O\sigma}_{ip}C^{D\sigma}_{ib}
+\f}
+The total energy can be expressed as
+\f{eqnarray*}{
+  E &=& E(D^\alpha,D^\beta)+
+  \lambda^{O\alpha}(\sum_i C^{O\alpha}_{ip}C^{O\alpha}_{iq}-\delta_{pq})+
+  \lambda^{O\beta}(\sum_i C^{O\beta}_{ip}C^{O\beta}_{iq}-\delta_{pq}) \\\\
+  &+&
+  \lambda^{D\alpha}(\sum_i C^{D\alpha}_{ai}S_{ab}C^{D\alpha}_{bj}-\delta_{ij})+
+  \lambda^{D\beta}(\sum_i C^{D\beta}_{ai}S_{ab}C^{D\beta}_{bj}-\delta_{ij})
+\f}
+We want to find expressions that allow the optimization of the 
+coefficients involved. We will consider this term-by-term.
+\f{eqnarray*}{
+  \frac{\partial E}{\partial C^{O\sigma}_{ip}} &=&
+  \sum_{ab}
+  \frac{\partial E}{\partial D^{\sigma}_{ab}}
+  \frac{\partial D^{\sigma}_{ab}}{\partial C^{O\sigma}_{ip}} \\\\
+  &=& 2\sum_{ab}\sum_i F^\sigma_{ab}C^{D\sigma}_{aj}C^{D\sigma}_{bi}
+      C^{O\sigma}_{ip}
+\f}
+\f{eqnarray*}{
+  \frac{\partial E}{\partial C^{D\sigma}_{cj}} &=&
+  \sum_{ab}
+  \frac{\partial E}{\partial D^{\sigma}_{ab}}
+  \frac{\partial D^{\sigma}_{ab}}{\partial C^{D\sigma}_{cj}} \\\\
+  &=& \sum_{ab} F^\sigma_{ab} \sum_{ip}\left(
+      \delta_{ca}\delta_{ij}C^{D\sigma}_{bi}
+      C^{O\sigma}_{ip}C^{O\sigma}_{ip}+
+      \delta_{cb}\delta_{ij}C^{D\sigma}_{ai}
+      C^{O\sigma}_{ip}C^{O\sigma}_{ip}\right) \\\\
+  &=& \sum_{ab} F^\sigma_{ab} \sum_{ip}
+      \delta_{ca}\delta_{ij}C^{D\sigma}_{bi}
+      C^{O\sigma}_{ip}C^{O\sigma}_{ip}+
+      \sum_{ab} F^\sigma_{ab} \sum_{ip}
+      \delta_{cb}\delta_{ij}C^{D\sigma}_{ai}
+      C^{O\sigma}_{ip}C^{O\sigma}_{ip} \\\\
+  &=& 2\sum_b F^\sigma_{ab}C^{D\sigma}_{bj}
+      \sum_p C^{O\sigma}_{jp}C^{O\sigma}_{jp}
+\f}
+@}
+*/

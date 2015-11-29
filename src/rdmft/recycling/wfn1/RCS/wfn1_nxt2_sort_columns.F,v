@@ -1,0 +1,157 @@
+head	1.2;
+access;
+symbols;
+locks
+	D3Y133:1.2; strict;
+comment	@c @;
+
+
+1.2
+date	2015.01.02.07.23.52;	author D3Y133;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2015.01.02.06.16.44;	author D3Y133;	state Exp;
+branches;
+next	;
+
+
+desc
+@Sort the columns in a matrix to get the maximum values on the 
+diagonal.
+@
+
+
+1.2
+log
+@Now sort only within degenerate sets of vectors. It still does not
+seem to help a lot though.
+@
+text
+@C> \ingroup wfn1_nxt2
+C> @@{
+C>
+C> \brief Sort the columns within a degenerate set of a unitary matrix
+C> so that the maximum values appear on the diagonal
+C>
+C> Dsyev sorted the eigenvalues and vector so we need to reorder
+C> them back into place. For every row find the absolute maximum
+C> value then permute the columns to put that maximum value on the
+C> diagonal.
+C>
+      subroutine wfn1_nxt2_sort_columns(nbf,u,e)
+      implicit none
+      integer nbf                 !< [Input] The number of basis
+                                  !< functions
+      double precision u(nbf,nbf) !< [In/Output] The (unitary) matrix
+      double precision e(nbf)     !< [In/Output] The eigenvalues
+c
+      integer ir  !< Counter over rows
+      integer ic  !< Counter over columns
+      integer icl !< Counter over columns local to a degenerate set
+      integer is  !< The selected columns
+      integer nd  !< The number of degenerate vectors
+      integer ii  !< Counter
+c
+      double precision ds !< The value of the selected element
+      double precision dt !< Temporary
+c
+      ii = 1
+      ic = 1
+      do while (ic.lt.nbf)
+        nd = 1
+        do while((ic+nd.lt.nbf).and.(abs(e(ic+nd)-e(ic)).lt.0.001d0))
+          nd = nd + 1
+        enddo
+        if (nd.gt.1) then
+
+          do ir = ic, ic+nd-1
+            is = ir
+            ds = abs(u(ir,is))
+            do icl = ir+1, nbf
+              if (abs(u(ir,icl)).gt.ds) then
+                is = icl
+                ds = abs(u(ir,icl))
+              endif
+            enddo
+            if (is.gt.ir) then
+c
+c             Swap the columns
+c
+              do ii = 1, nbf
+                dt       = u(ii,ir)
+                u(ii,ir) = u(ii,is)
+                u(ii,is) = dt
+              enddo
+              dt    = e(ir)
+              e(ir) = e(is)
+              e(is) = dt
+            endif
+          enddo
+
+        endif
+        ic = ic + nd
+      enddo
+cDEBUG
+c     write(*,*)'eigenvalues'
+c     do ii = 1, nbf
+c       write(*,*)ii,e(ii)
+c     enddo
+c     write(*,*)'eigenvectors'
+c     call hess_hssout(u,nbf,nbf,nbf)
+cDEBUG
+c
+      end
+           
+
+C>
+C> @@}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d4 2
+a5 2
+C> \brief Sort the columns of a unitary matrix so that the maximum
+C> values appear on the diagonal
+d19 6
+a24 4
+      integer ir !< Counter over rows
+      integer ic !< Counter over columns
+      integer is !< The selected columns
+      integer ii !< Counter
+d29 11
+a39 6
+      do ir = 1, nbf
+        is = ir
+        ds = abs(u(ir,is))
+        do ic = ir+1, nbf
+          if (abs(ir,ic).gt.ds) then
+            is = ic
+d41 7
+a47 3
+          endif
+        enddo
+        if (is.gt.ir) then
+d49 1
+a49 1
+c         Swap the columns
+d51 9
+a59 4
+          do ii = 1, nbf
+            dt       = u(ii,ir)
+            u(ii,ir) = u(ii,is)
+            u(ii,is) = dt
+d61 1
+a61 3
+          dt    = e(ir)
+          e(ir) = e(is)
+          e(is) = dt
+d63 1
+d65 8
+@

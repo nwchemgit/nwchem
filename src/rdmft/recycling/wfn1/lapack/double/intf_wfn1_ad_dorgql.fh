@@ -1,0 +1,8 @@
+      interface
+        subroutine wfn1_ad_dorgql(m,n,k,a,lda,tau,work,lwork,info)
+          use wfn1_ad1
+          implicit none
+          integer               m,n,k,lda,info,lwork
+          type(wfn1_ad_dble) :: a(lda,*),tau(*),work(*)
+        end subroutine
+      end interface

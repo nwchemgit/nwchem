@@ -1,0 +1,33 @@
+head	1.1;
+access;
+symbols;
+locks
+	D3Y133:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2015.03.16.07.08.22;	author D3Y133;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@      interface
+        subroutine wfn1_ad_dlascl(type,kl,ku,cfrom,cto,m,n,a,lda,info)
+          use wfn1_ad1
+          implicit none
+          character             type
+          integer               kl,ku,m,n,lda,info
+          type(wfn1_ad_dble) :: cfrom,cto,a(lda,*)
+        end subroutine
+      end interface
+@

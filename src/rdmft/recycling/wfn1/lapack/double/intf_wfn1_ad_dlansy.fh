@@ -1,0 +1,10 @@
+      interface
+        function wfn1_ad_dlansy(norm,uplo,n,a,lda,work)
+          use wfn1_ad1
+          implicit none
+          character             norm,uplo
+          type(wfn1_ad_dble) :: wfn1_ad_dlansy
+          integer               n,lda
+          type(wfn1_ad_dble) :: a(lda,*),work(*)
+        end function
+      end interface

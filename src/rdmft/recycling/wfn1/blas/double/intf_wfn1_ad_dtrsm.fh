@@ -1,0 +1,12 @@
+      interface
+        subroutine wfn1_ad_dtrsm(side,uplo,transa,diag,m,n,alpha,a,lda,
+     +                           b,ldb)
+          use wfn1_ad1
+          implicit none
+          character             side,uplo,transa,diag
+          integer               m,n,lda,ldb
+          type(wfn1_ad_dble) :: alpha
+          type(wfn1_ad_dble) :: a(lda,*)
+          type(wfn1_ad_dble) :: b(ldb,*)
+        end subroutine
+      end interface

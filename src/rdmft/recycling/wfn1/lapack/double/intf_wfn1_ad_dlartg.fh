@@ -1,0 +1,7 @@
+      interface
+        subroutine wfn1_ad_dlartg(f,g,cs,sn,r)
+          use wfn1_ad1
+          implicit none
+          type(wfn1_ad_dble) :: f,g,cs,sn,r
+        end subroutine
+      end interface

@@ -1,0 +1,10 @@
+      interface
+        function wfn1_ad_dlanst(norm,n,d,e)
+          use wfn1_ad1
+          implicit none
+          character             norm
+          type(wfn1_ad_dble) :: wfn1_ad_dlanst
+          integer               n
+          type(wfn1_ad_dble) :: d(*),e(*)
+        end function
+      end interface

@@ -1,0 +1,9 @@
+      interface
+        function wfn1_ad_iladlc(m,n,a,lda)
+          use wfn1_ad1
+          implicit none
+          integer wfn1_ad_iladlc
+          integer               m,n,lda
+          type(wfn1_ad_dble) :: a(lda,*)
+        end function
+      end interface

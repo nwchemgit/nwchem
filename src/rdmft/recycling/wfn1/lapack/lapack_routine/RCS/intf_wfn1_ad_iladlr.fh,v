@@ -1,0 +1,33 @@
+head	1.1;
+access;
+symbols;
+locks
+	D3Y133:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2015.03.16.07.08.15;	author D3Y133;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@      interface
+        function wfn1_ad_iladlr(m,n,a,lda)
+          use wfn1_ad1
+          implicit none
+          integer wfn1_ad_iladlr
+          integer               m,n,lda
+          type(wfn1_ad_dble) :: a(lda,*)
+        end function
+      end interface
+@

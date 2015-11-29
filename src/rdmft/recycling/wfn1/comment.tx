@@ -1,0 +1,8 @@
+Solve for lagrangian
+
+   Psi_1 = Psi_0 - alpha*dE/dPsi_0 - lambda*dConstraint/dPsi_0
+
+enforce <Psi_1|Psi_1> = 1 and solve for lambda. With lambda known evaluate
+Psi_1 for real.
+
+If lambda is a matrix solve for lambda using Ricatti equations.

@@ -1,0 +1,34 @@
+head	1.1;
+access;
+symbols;
+locks
+	D3Y133:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2015.03.16.07.08.36;	author D3Y133;	state Exp;
+branches;
+next	;
+
+
+desc
+@interface
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@      interface
+        subroutine wfn1_ad_dcopy(n,dx,incx,dy,incy)
+          use wfn1_ad1
+          implicit none
+          integer               n,incx,incy
+          type(wfn1_ad_dble) :: dx(*)
+          type(wfn1_ad_dble) :: dy(*)
+        end subroutine
+      end interface
+@

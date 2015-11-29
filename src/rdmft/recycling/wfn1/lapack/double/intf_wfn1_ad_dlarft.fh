@@ -1,0 +1,10 @@
+      interface
+        subroutine wfn1_ad_dlarft(direct,storev,n,k,v,ldv,tau,
+     +                            t,ldt)
+          use wfn1_ad1
+          implicit none
+          character             direct,storev
+          integer               n,k,ldv,ldt
+          type(wfn1_ad_dble) :: t(ldt,*),tau(*),v(ldv,*)
+        end subroutine
+      end interface

@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dlasr(side,pivot,direct,m,n,c,s,a,lda)
+          use wfn1_ad1
+          implicit none
+          character             side,pivot,direct
+          integer               m,n,lda
+          type(wfn1_ad_dble) :: c(*),s(*),a(lda,*)
+        end subroutine
+      end interface

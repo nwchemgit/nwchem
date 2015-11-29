@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dlascl(type,kl,ku,cfrom,cto,m,n,a,lda,info)
+          use wfn1_ad1
+          implicit none
+          character             type
+          integer               kl,ku,m,n,lda,info
+          type(wfn1_ad_dble) :: cfrom,cto,a(lda,*)
+        end subroutine
+      end interface

@@ -1,0 +1,392 @@
+/**
+\ingroup wfn1_nxt2
+@{
+\file wfn1_nxt2_diff.dox
+Derivatives of matrix valued matrix functions
+
+# Derivatives of matrix valued matrix functions #
+
+When doing density matrix functional theory one has to calculate derivatives
+of matrix valued matrix functions wrt. matrix elements of the input matrix.
+I.e. one needs to calculate expressions like
+\f{eqnarray*}{
+  \frac{\partial F(D)_{ij}}{\partial D_{ij}}
+\f}
+Apparently this is still a topic of mathematical debate and a variety of 
+different solutions have been proposed. However, most have inconvenient 
+properties such as different equations apply depending on the degeneracy of
+the eigenvalues of \f$D\f$. 
+
+Obviously the matrix valued matrix function \f$F\f$ can be expressed as
+\f{eqnarray*}{
+  F(D)_{ij} &=& \sum_m V_{im}F(\lambda_m) V_{jm}
+\f}
+where \f$\lambda_m\f$ are the eigenvalues and \f$V_{:m}\f$ are the eigenvectors
+of \f$D\f$. With this expression we can formulate the derivative of interest
+as
+\f{eqnarray*}{
+  \frac{\partial F(D)_{ij}}{\partial D_{ij}}
+  &=& \frac{\partial \sum_m V_{im}F(\lambda_m) V_{jm}}{\partial D_{ij}} \\\\
+  &=& \sum_m \frac{\partial V_{im}}{\partial D_{ij}}F(\lambda_m)V_{jm}
+   +  \sum_m V_{im}\frac{\partial F(\lambda_m)}{\partial D_{ij}}V_{jm}
+   +  \sum_m V_{im}F(\lambda_m)\frac{\partial V_{jm}}{\partial D_{ij}} \\\\
+  &=& \sum_m \frac{\partial V_{im}}{\partial D_{ij}}F(\lambda_m)V_{jm}
+   +  \sum_m V_{im}F'(\lambda_m)\frac{\partial \lambda_m}{\partial D_{ij}}V_{jm}
+   +  \sum_m V_{im}F(\lambda_m)\frac{\partial V_{jm}}{\partial D_{ij}} \\\\
+\f}
+In order to successfully evaluate this expression we need the quantities
+\f$\frac{\partial V_{im}}{\partial D_{ij}}\f$ and 
+\f$\frac{\partial \lambda_{m}}{\partial D_{ij}}\f$.
+We can attempt to get these expressions by considering
+\f{eqnarray*}{
+  \frac{\partial D_{ik}}{\partial D_{ij}} &=& \delta_{jk}
+\f}
+Expressing \f$D_{ik}\f$ as a matrix function we get
+\f{eqnarray*}{
+  \delta_{jk}
+  &=& \frac{\partial \sum_m V_{im}\lambda_m V_{km}}{\partial D_{ij}} \\\\
+  &=& \sum_m \frac{\partial V_{im}}{\partial D_{ij}}\lambda_m V_{km}
+   +  \sum_m V_{im}\frac{\partial \lambda_m}{\partial D_{ij}}V_{km}
+   +  \sum_m V_{im}\lambda_m\frac{\partial V_{km}}{\partial D_{ij}} \\\\
+\f}
+In addition the eigenvectors have to satisfy orthonormality conditions, i.e.
+\f{eqnarray*}{
+   I &=& V^T S V \\\\
+\f}
+where \f$S\f$ is a positive definite and symmetric matrix. When working in an
+orthogonal basis \f$S\f$ equals the one matrix \f$I\f$. In a non-orthogonal 
+(but normalized) basis the diagonal of \f$S\f$ will contain all ones, but the
+off-diagonal elements may be non-zero. The perturbation of the eigenvectors
+can be expressed in terms of the eigenvectors of the unperturbed system as
+\f{eqnarray*}{
+  \frac{\partial V_m}{\partial D_{ij}} &=& \sum_l V_l U_{lm}
+\f}
+Differentiating the orthonormality condition we have
+\f{eqnarray*}{
+   0 &=& \frac{\partial V^T}{\partial D_{ij}} S V
+      +  V^T \frac{\partial S}{\partial D_{ij}} V
+      +  V^T S \frac{\partial V}{\partial D_{ij}} \\\\
+\f}
+As the metric \f$S\f$ is independent of the matrix elements \f$D_{ij}\f$ this
+expression reduces to
+\f{eqnarray*}{
+   0 &=& \frac{\partial V^T}{\partial D_{ij}} S V
+      +  V^T S \frac{\partial V}{\partial D_{ij}} \\\\
+   0 &=& U^T V^T S V + V^T S V U \\\\
+   0 &=& U^T I + I U \\\\
+   0 &=& U^T + U
+\f}
+Applying the same approach to the identity function we have
+\f{eqnarray*}{
+  1 &=& V U \mathrm{diag}(\lambda) V^T 
+     +  V \mathrm{diag}\left(\frac{\partial \lambda}{\partial D_{ij}}\right) V^T
+     +  V \mathrm{diag}(\lambda) U^T V^T \\\\
+  V^T S &=& V^T S V U \mathrm{diag}(\lambda) V^T
+         +  V^T S V \mathrm{diag}\left(\frac{\partial \lambda}{\partial D_{ij}}\right) V^T
+         +  V^T S V \mathrm{diag}(\lambda) U^T V^T \\\\
+  V^T S &=& U \mathrm{diag}(\lambda) V^T
+         +  \mathrm{diag}\left(\frac{\partial \lambda}{\partial D_{ij}}\right) V^T
+         +  \mathrm{diag}(\lambda) U^T V^T \\\\
+  V^T SS V &=& U \mathrm{diag}(\lambda) V^T S V
+            +  \mathrm{diag}\left(\frac{\partial \lambda}{\partial D_{ij}}\right) V^T S V
+            +  \mathrm{diag}(\lambda) U^T V^T S V \\\\
+  V^T S S V &=& U \mathrm{diag}(\lambda)
+             +  \mathrm{diag}\left(\frac{\partial \lambda}{\partial D_{ij}}\right)
+             +  \mathrm{diag}(\lambda) U^T \\\\
+  V^T S S V &=& \mathrm{diag}\left(\frac{\partial \lambda}{\partial D_{ij}}\right)
+\f}
+Substituting the results obtained above into the original equation one has
+\f{eqnarray*}{
+  \frac{\partial F(D)_{ij}}{D_{ij}}
+  &=& V U F(\lambda) V^T
+   + V F'(\lambda) V^T S S V V^T
+   + V F(\lambda) U^T V^T \\\\
+   V^T S \frac{\partial F(D)_{ij}}{D_{ij}}
+  &=& V^T S V U F(\lambda) V^T
+   + V^T S V F'(\lambda) V^T S S V V^T
+   + V^T S V F(\lambda) U^T V^T \\\\
+   V^T S  \frac{\partial F(D)_{ij}}{D_{ij}} S V
+  &=& U F(\lambda)
+   +  F'(\lambda) V^T S S V
+   +  F(\lambda) U^T  \\\\
+   V^T S  \frac{\partial F(D)_{ij}}{D_{ij}} S V
+  &=& F'(\lambda) V^T S S V
+\f}
+
+# Version 2: Derivatives of matrix valued matrix functions #
+
+First of all we have learned that the derivative of a matrix valued matrix
+function generates a 4th order tensor. I.e.
+\f{eqnarray}{
+  H &=& \frac{\partial F(D)}{\partial D}
+\f}
+is a 4th order tensor. This is easy to see from the fact that \f$F(D)\f$ 
+generates a matrix that depends on all the elements of the matrix \f$D\f$.
+Hence when we compute
+\f{eqnarray}{
+   H_{ij} &=& \frac{\partial F(D)}{\partial D_{ij}}
+\f}
+then \f$F(D)\f$ in the general case will show non-zero responses in all its
+\f$N\times N\f$ matrix elements due to the change of element \f$D_{ij}\f$. 
+Repeating this calculation for all \f$N\times N\f$ elements \f$D_{ij}\f$
+generates \f$N\times N\times N \times N\f$ elements of \f$H\f$.
+
+In any case we can treat the problem for every perturbation
+\f$\partial D_{ij}\f$ separately.
+Thus we want to calculate a matrix \f$H_{ij}\f$ which is given by
+\f{eqnarray*}{
+   H_{ij} &=& \frac{\partial F(D)}{\partial D_{ij}}
+\f}
+where \f$D\f$ in our case is a non-negative symmetric matrix (maybe this 
+approach can be extended to non-symmetric cases as well but I don't need that
+right now), \f$F\f$ is a matrix valued function, i.e. \f$F: R^{N\times N} 
+\rightarrow R^{N\times N}\f$.
+
+The matrix valued function is evaluated as
+\f{eqnarray*}{
+   F(D) &=& VF(\Lambda)V^T \\\\
+   \Lambda &=& diag(\lambda_1, \ldots , \lambda_N) \\\\
+   F(\Lambda) &=& diag(F(\lambda_1), \ldots , F(\lambda_N)) \\\\
+\f}
+where \f$V\f$ are the eigenvectors of \f$D\f$ stored columnwise, the 
+\f$\lambda\f$ are the eigenvalues and the matrix \f$\Lambda\f$ is a diagonal
+matrix with the eigenvalues \f$\lambda\f$ on the diagonal.
+
+The matrix \f$H_{ij}\f$ can be written as
+\f{eqnarray*}{
+  H_{ij}
+  &=& \frac{\partial F(D)}{\partial D_{ij}} \\\\
+  &=& \frac{\partial [VF(\Lambda)V^T]}{\partial D_{ij}} \\\\
+  &=& \frac{\partial V}{\partial D_{ij}}F(\Lambda)V^T
+   +  V\frac{\partial F(\Lambda)}{\partial D_{ij}}V^T
+   +  V F(\Lambda)\frac{\partial V^T}{\partial D_{ij}} \\\\
+  &=& \frac{\partial V}{\partial D_{ij}}F(\Lambda)V^T
+   +  V F'(\Lambda)\frac{\partial\Lambda}{\partial D_{ij}}V^T
+   +  V F(\Lambda)\frac{\partial V^T}{\partial D_{ij}} \\\\
+\f}
+In this expression \f$F'(\Lambda)\frac{\partial\Lambda}{\partial D_{ij}}\f$
+has to be interpreted as an element-wise operation, i.e. as
+\f{eqnarray*}{
+  F'(\Lambda)\frac{\partial\Lambda}{\partial D_{ij}}
+  &=& \sum_k F'(\lambda_k)\frac{\partial \lambda_k}{\partial D_{ij}}
+\f}
+To make progress on this problem we note that the derivative of \f$V\f$ can
+be expressed in terms of \f$V\f$ as
+\f{eqnarray*}{
+  \frac{\partial V}{\partial D_{ij}} &=& VU^{(ij)}
+\f}
+(we will have a different \f$U\f$ for every pair \f$i,j\f$). 
+Substituting this equation gives
+\f{eqnarray*}{
+  \frac{\partial F(D)}{D_{ij}}
+  &=& V U^{(ij)} F(\Lambda)V^T
+   +  V F'(\Lambda)\frac{\partial\Lambda}{\partial D_{ij}}V^T
+   +  V F(\Lambda) \left(U^{(ij)}\right)^T V^T \\\\
+\f}
+
+We can also make use of the fact that the eigenvectors form an orthonormal
+basis
+\f{eqnarray*}{
+  I &=& V^T S V
+\f}
+where \f$I\f$ is the identity matrix and \f$S\f$ is the metric. In case of 
+an orthogonal basis \f$S\f$ equals the identity matrix, otherwise it is a
+positive definite and symmetric matrix the diagonal elements of which are all
+\f$1\f$.
+
+Differentiating the orthonormality condition we have
+\f{eqnarray*}{
+  0 &=& \left(U^{(ij)}\right)^T V^T S V
+     +  V^T \frac{\partial S}{\partial D_{ij}} V
+     +  V^T S V U^{(ij)}
+\f}
+As \f$S\f$ does not depend on the matrix \f$D\f$ the second term is zero
+leaving
+\f{eqnarray*}{
+  0 &=& \left(U^{(ij)}\right)^T V^T S V
+     +  V^T S V U^{(ij)}
+    &=& \left(U^{(ij)}\right)^T + U^{(ij)}
+\f}
+I.e. \f$U^{(ij)}\f$ is skew symmetric.
+
+The next we can use is that the matrix \f$D\f$ itself can be considered a
+function
+\f{eqnarray*}{
+   D &=& G(D) \\\\\
+   G(D) &=& D^{1}
+\f}
+From this we have on the one hand that
+\f{eqnarray*}{
+  \mathrm{\Delta^{(ij)}} &=& \frac{\partial D}{\partial D_{ij}} \\\\
+  &=& \frac{\partial G(D)}{\partial D_{ij}}
+  &=& V U^{(ij)} G(\Lambda)V^T
+   +  V G'(\Lambda)\frac{\partial\Lambda}{\partial D_{ij}}V^T
+   +  V G(\Lambda) \left(U^{(ij)}\right)^T V^T \\\\
+\f}
+Where \f$\mathrm{\Delta^{(ij)}}\f$ is a matrix for the which the elements
+\f$k, l\f$ are given by
+\f{eqnarray*}{
+  \mathrm{\Delta^{(ij)}_{kl}} &=& \delta_{ik}\delta_{jl}
+\f}
+However, as we make use of the fact that \f$D\f$ is symmetric we should build
+that into the definition of \f$\mathrm{\Delta^{(ij)}_{kl}}\f$ by setting
+\f{eqnarray*}{
+  \mathrm{\Delta^{(ij)}_{kl}} &=& \delta_{ik}\delta_{jl}+\delta_{jk}\delta_{il}
+\f}
+Of course \f$G'(x)=x^0=1\f$ which gives us
+\f{eqnarray*}{
+  \mathrm{\Delta^{(ij)}} &=& \frac{\partial D}{\partial D_{ij}} \\\\
+  &=& V U^{(ij)} G(\Lambda)V^T
+   +  V \frac{\partial\Lambda}{\partial D_{ij}}V^T
+   +  V G(\Lambda) \left(U^{(ij)}\right)^T V^T \\\\
+\f}
+Multiplying with \f$V^T S\f$ from the left and with \f$S V\f$ from the right
+we get
+\f{eqnarray*}{
+  V^T S \mathrm{\Delta^{(ij)}} S V 
+  &=& V^T S V U^{(ij)}G(\Lambda)V^T S V
+   +  V^T S V \frac{\partial\Lambda}{\partial D_{ij}} V^T S V
+   +  V^T S V G(\Lambda)\left(U^{(ij)}\right)^T V^T S V \\\\
+  &=& U^{(ij)} G(\Lambda) + \frac{\partial\Lambda}{\partial D_{ij}}
+   +  G(\Lambda)\left(U^{(ij)}\right)^T
+\f}
+For a given \f$\frac{\partial \Lambda}{\partial D_{ij}}\f$ we can rewrite
+this expression as
+\f{eqnarray*}{
+  V^T S \mathrm{\Delta^{(ij)}} S V  - \frac{\partial\Lambda}{\partial D_{ij}}
+  &=& 2 G(\Lambda)\left(U^{(ij)}\right)^T \\\\
+  1/2 G^{-1}(\Lambda)\left(V^T S \mathrm{\Delta^{(ij)}} S V  - \frac{\partial\Lambda}{\partial D_{ij}}\right)
+  &=& \left(U^{(ij)}\right)^T \;\;\;\;\;\;(A)\\\\
+\f}
+Alternatively we can write
+\f{eqnarray*}{
+  V^T S \mathrm{\Delta^{(ij)}} S V  - \frac{\partial\Lambda}{\partial D_{ij}}
+  &=& U^{(ij)}G(\Lambda) - G(\Lambda)U^{(ij)}  \;\;\;\;\;\;(B) \\\\
+\f}
+
+Whereas for a given \f$U^{(ij)}\f$ we have
+\f{eqnarray*}{
+  V^T S \mathrm{\Delta^{(ij)}} S V - U^{(ij)} G(\Lambda) - G(\Lambda)\left(U^{(ij)}\right)^T
+  &=& \frac{\partial\Lambda}{\partial D_{ij}}
+\f}
+
+Before we go into more detail note that there seem to be 2 interpretations here.
+Equation (A) seems to set \f$U^{(ij)}\f$ to some rather arbitrary value (I can
+see no reason why there would be any symmetry). However we must also have
+that \f$U^{(ij)}\f$ is skew symmetric. The only way we can have both is if
+\f$U^{(ij)}=0\f$. This then means that
+\f$\frac{\partial\Lambda}{\partial D_{ij}}\f$
+is a full matrix such that the left-hand-side of (A) evaluates to 0.
+
+Alternatively we can use equation (B) in which case (as we will see in a moment)
+\f$U^{(ij)}\f$ is non-zero and skew-symmetric. This then implies that 
+\f$\frac{\partial\Lambda}{\partial D_{ij}}\f$ is a diagonal matrix. 
+
+It would seem that both interpretations have to yield equivalent results.
+The main difference is that using interpretation (A) the eigenvalues of the
+density matrix become irrelevant. Whereas interpretation (B) leads to 
+divisions by 0 for degenerate eigenvalues. One then needs to use that the energy
+is (or should be) invariant for rotations among equally occupied natural
+orbitals to fix the corresponding matrix elements of \f$U^{(ij)}\f$.
+
+Having noted this we consider equation (B) and ask about the form of
+\f$\frac{\partial\Lambda}{\partial D_{ij}}\f$. First of all the right-hand-side
+involves matrix products between a diagonal and a skew-symmetric matrix leading
+to
+\f{eqnarray*}{
+  T^{rhs}_{km}
+  &=& \sum_l G_{kl}U_{lm} - \sum_l U_{kl}G_{lm} \\\\
+  &=& G_{kk}U_{km} - U_{km}G_{mm} \\\\
+  &=& (G_{kk}-G_{mm})U_{km}
+\f}
+Because \f$U\f$ is skew symmetric we have that the diagonal of \f$T^{rhs}\f$
+is 0. Hence
+\f{eqnarray*}{
+   \left(\frac{\partial\Lambda}{\partial D_{ij}}\right)_{kk}
+   &=& \left(V^T S \mathrm{\Delta^{(ij)}} S V\right)_{kk}
+\f}
+For \f$U^{(ij)}\f$ we have then that
+\f{eqnarray*}{
+  U^{(ij)}_{km}
+  &=& \left(V^T S \mathrm{\Delta^{(ij)}} S V 
+   -  \frac{\partial\Lambda}{\partial D_{ij}}\right)_{km}/(G_{kk}-G_{mm})
+\f}
+
+As far as the cost of calculating these derivatives is concerned we have to note
+that \f$V^TS\Delta^{(ij)}SV\f$ is a full matrix in the general case. Hence
+calculating these derivatives of matrix functions does cost \f$O(N^4)\f$.
+Likewise the contraction of a matrix with this derivative to produce a 
+Fock-matrix is also an \f$O(N^4)\f$ cost. The only way something can be gained
+here is if these matrices become sparse for large systems. If no sparcity can
+be obtained then this would become a serious bottleneck. The reason is that the
+only other \f$O(N^4)\f$ term, the 2-electron integral evaluation, is easily
+reduced to an \f$O(N^2)\f$ cost in the limit of large systems by using
+the Schwarz inequality. 
+
+# Version 3: Derivatives of matrix valued matrix functions exploiting the eigenvalue representation #
+
+As convention we will label the elements of the matrix function \f$ k \f$ and 
+\f$ l \f$, and the elements we will be differentiating with respect to will be
+labelled \f$ i \f$ and \f$ j \f$. 
+
+Further we note that irrespective of the basis a matrix is represented in we
+have
+\f{eqnarray*}{
+  \frac{\partial X_{kl}}{\partial X_{ij}} &=& \delta_{ki}\delta_{lj}
+  \;\;\;\;\;\;(10)
+\f}
+I.e. this is a sparse 4th order tensor with only \f$O(N^2)\f$ non-zero elements
+all of which are \f$1\f$.
+
+Obviously the function \f$F(X) = X\f$ is a rather trivial function. Non-trivial
+functions are most easily handled in the eigenvalue representation. We
+denote matrices in their eigenvalue representation as by \f$\Lambda\f$. The
+matrix valued matrix function then becomes
+\f{eqnarray*}{
+   F(\Lambda)_{kl} &=& (1-\delta_{kl})\Lambda_{kl}+\delta_{kl}F(\Lambda_{kl})
+\f}
+Incidentally \f$\Lambda_{kl,k\ne l} = 0\f$ but for the derivatives this is
+irrelevant. The derivative of this matrix function is simply
+\f{eqnarray*}{
+   \frac{\partial F(\Lambda)_{kl}}{\partial\Lambda_{ij}}
+   &=& (1-\delta_{kl})\delta_{ki}\delta_{lj}
+    +  \delta_{kl}\delta_{ki}\delta_{lj}F'(\Lambda_{kl})
+\f}
+Higher order derivatives can also easily be evaluated in this basis as
+\f{eqnarray*}{
+  \frac{\partial^n F(\Lambda)_{kl}}
+       {\partial\Lambda_{i_1j_1}\ldots\partial\Lambda_{i_nj_n}}
+  &=& \delta_{kl}(\prod_{p=1}^{n}\delta_{ki_p}\delta_{lj_p})
+      F^{(n)}(\Lambda_{kl})
+\f}
+Note that higher order derivatives become increasingly sparse as for the 
+\f$n\f$-order derivative the an \f$O(N^{(2n+2)})\f$ tensor is obtained with
+only \f$O(N)\f$ non-zero elements.
+
+The derivatives discussed can be transformed into any desirable basis. The
+transformation can obviously be obtained by starting with the matrix
+represented in the target basis, diagonalizing that matrix, calculating the
+matrix function derivatives in the diagonal basis, and subsequently transforming
+the derivatives back using the eigenvectors. Note that this approach is also
+the same for symmetric and non-symmetric matrices. The only difference between
+the two cases being in the eigenvectors and the associated back transformation.
+
+When this approach is applied to the first order derivatives this will generate
+a full 4th order tensor in the general case. For higher order derivatives 
+a blocked tensor will be obtained with \f$N\f$ non-zero blocks that each hold
+\f$N^2\f$ non-zero elements resulting in \f$O(N^3)\f$ non-zero elements.
+
+In practical applications, for example Density Matrix Functional Theory
+(DMFT), generating a full 4th order tensor and contracting this the partial
+Fock matrix to obtain a full Fock matrix would be a prohibitively expensive
+operation. In fact current Hartree-Fock and Kohn-Sham Density Functional 
+Theory codes implicitly exploit Eq.(10) and that way avoid the tensor 
+contraction (probably without anybody realizing that that is what they are 
+doing). In order to obtain a practical approach that is feasible we can
+calculate the partial Fock matrix, transform it into the diagonal basis
+of the density matrix, evaluate the Density Matrix Functional derivative in 
+eigenvalue representation, and contract the resulting tensor with the partial
+Fock matrix to obtain the full Fock matrix in the natural orbital basis.
+
+@}
+*/

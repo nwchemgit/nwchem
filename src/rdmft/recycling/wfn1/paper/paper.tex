@@ -1,0 +1,114 @@
+\documentclass{article}
+\usepackage{doi}
+\usepackage{natbib}
+
+\title{Notes on density matrix functional theory}
+\author{Hubertus J. J. van Dam}
+
+\begin{document}
+\maketitle
+
+Nguyen-Dang~\cite{Nguyen_Dang_1985} device a scheme to optimize the
+ensemble and pure-state density matrices. Lude\tilde{n}a uses this paper to
+attack the work by Gilbert claiming that his "proper use of N-representability
+conditions" does not lead to degeneracies of natural orbitals. However, in the
+paper they insist that the pure-state density matrix is idempotent which in
+my view is incorrect. Hence the results are most likely invalid.
+
+Yasuda~\cite{Yasuda_2001} discussed an approach involving density and hole
+density matrices. It is shown that the correlation energy for the hole density
+matrix and the density matrix have to be the same. He proposes a functional in
+Eq.(22). However when examining practical results he uses full-CI 1-electron
+density matrices and other full-CI derived quantities. It is not clear how
+much the results depend on using data from full-CI but this does not seem like
+a practical approach. The paper also points to the importance of Levy's
+homogeneous scaling condition.
+
+Nagy~\cite{Nagy_2002} discussed an approach based on disjoint electron pairs.
+The paper is purely theoretical without any results. Hence the quality of the
+approach is impossible to judge.
+
+Kollmar~\cite{Kollmar_2003} discussed an approach with disjoint electron pairs.
+This will not work in general as the real wavefunction should incorporate all
+electron pairs. It does contain the normalization condition of the electron
+pair functions.
+
+Ayers~\cite{Ayers_2007} discusses N-representability conditions of density
+functionals. The definition is essentially that an N-representable density
+functional cannot produce an energy that is below the true variational 
+minimum. This is obviously true but I am not sure how this can be enforced
+for that I would need to understand this work in more detail.
+
+Canc\`{e}s~\cite{Cance_s_2008} proposed a linesearch based algorithm to 
+optimize the solutions for DMFT. This is pretty similar to the linesearch 
+approach I tried except they don't use occupation functions of course. 
+They also claim that most of the Baerends density matrix functionals are not
+proper 1-matrix functionals as they are formulated in terms of occupation
+numbers and natural orbitals but not explicitly in terms of density matrices.
+I am a bit puzzled about this. If one puts the Hartree-Fock wavefunction into
+the Schr\"{o}dinger equation the exchange terms also does not have a density
+matrix in it. However we clearly manage to rearrange the definition to get it
+into such a form (although this may only be true for idempotent density
+matrices).
+
+Rohr~\cite{Rohr_2010} discussed a scheme where a density and a density matrix
+functional are combined. They use range separation whereby the density 
+functional can be applied for the short range part and the density matrix
+functional for the long range part. The reason for this approach is to avoid
+double counting of correlation effects and to account for the fact that
+the dynamic correlation is mostly short range and the static correlation long
+range. Nevertheless the accuracy does not seem to be great. Also they compare
+against semi-empirical results from 1974, how accurate can those be?
+
+Mazziotti~\cite{Mazziotti_2012,Mazziotti_2012_a} claims to have solved the
+density matrix N-representability conditions. He does so by building a 
+hierarchy of N-representability conditions which couple different orders
+of density matrices. The downside is that fullCI equivalent results can be
+obtained only at a fullCI equivalent cost. Polynomial cost results can be
+obtained only by introducing approximations that break the hierarchy.
+
+Baldsiefen~\cite{Baldsiefen_2013} deviced an optimization scheme where he 
+computes a matrix to diagonalize for the natural orbitals. However for the
+occupation numbers he uses a Fermi-smearing approach. This requires a
+temperature tensor which needs a sensible (but automated choice) of
+temperature to get it to work. This is weird and unnecesarrily complicated.
+
+Lude\tilde{n}a~\cite{Lude_a_2013} discusses at great length the
+N-representability of density functionals (which seems a bit of a strange
+concept). He also reiterates his objections against Gilbert's theorem although
+it still isn't clear to me why he gets different results.
+
+Lathiotakis~\cite{Lathiotakis_2014} claims that the orbital optimization does
+not reduce to an iterative eigenvalue problem (as in DFT) and hence is 
+expensive. This is a direct contradiction to my experience! Otherwise they 
+implement some OEP like approach. However, this introduces division by
+orbital energy differences which seems very dangerous to me as there are bound
+to be degeneracies.
+
+\section{Ideas}
+
+The one thing that still baffles me about density matrices is that somehow they
+have no knowledge of fundamental particles. Yes, there are occupation numbers
+and even limits on occupation numbers, but the density matrix gives no
+information about how those occupation numbers are added up from contributions
+of single particles. For the 1-matrix this is not such a problem as the
+occupation numbers are limited to \$0 \le n \le 1\$ but for 2-matrices the
+admissible range is (much) larger. I.e. a pair occupation number of \$1.2\$ 
+might consist of \$1\$ pair plus \$0.2\$ of another pair, or it might consist
+of two \$0.6\$ contributions from two pairs. Within a density matrix 
+formalism there is no way of knowing which one is right.
+
+In wavefunctions the number of elementary particles is obvious as each particle
+introduces a new set of coordinates. Hence I am thinking that maybe we need
+N-representability conditions based on orbitals and gemininals (orbitals have
+to be orthonormal due to the anti-symmetry, geminals have to be normalized). 
+The orbitals and geminals should consist of occupation functions and natural
+orbitals/geminals to be able to generate physically sensible electron
+distributions while at the same time being able to impose conditions on 
+individual 1-electron and electron pair states. Such an approach would
+eliminate the N-representability conditions that refer to occupation numbers
+and replace them with conditions on the wavefunctions.
+
+\bibliographystyle{plain}
+\bibliography{paper}
+\end{document}

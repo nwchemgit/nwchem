@@ -1,0 +1,10 @@
+      interface
+        function wfn1_ad_ddot(n,dx,incx,dy,incy)
+          use wfn1_ad1
+          implicit none
+          type(wfn1_ad_dble) :: wfn1_ad_ddot
+          integer               n,incx,incy
+          type(wfn1_ad_dble) :: dx(*)
+          type(wfn1_ad_dble) :: dy(*)
+        end function
+      end interface

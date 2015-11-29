@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dlarf(side,m,n,v,incv,tau,c,ldc,work)
+          use wfn1_ad1
+          implicit none
+          character             side
+          integer               m,n,incv,ldc
+          type(wfn1_ad_dble) :: tau,c(ldc,*),v(*),work(*)
+        end subroutine
+      end interface

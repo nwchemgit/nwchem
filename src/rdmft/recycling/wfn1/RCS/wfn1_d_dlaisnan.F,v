@@ -1,0 +1,26 @@
+head	1.1;
+access;
+symbols;
+locks
+	D3Y133:1.1; strict;
+comment	@c @;
+
+
+1.1
+date	2014.12.25.08.08.07;	author D3Y133;	state Exp;
+branches;
+next	;
+
+
+desc
+@Lapack routine (cannot be part of wfn1_d_matfunc.F).
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@#include "lapack/double/wfn1_ad_dlaisnan.f"
+@

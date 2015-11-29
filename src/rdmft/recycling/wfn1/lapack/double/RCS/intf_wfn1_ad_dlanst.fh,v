@@ -1,0 +1,34 @@
+head	1.1;
+access;
+symbols;
+locks
+	D3Y133:1.1; strict;
+comment	@# @;
+
+
+1.1
+date	2015.03.16.07.08.22;	author D3Y133;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@      interface
+        function wfn1_ad_dlanst(norm,n,d,e)
+          use wfn1_ad1
+          implicit none
+          character             norm
+          type(wfn1_ad_dble) :: wfn1_ad_dlanst
+          integer               n
+          type(wfn1_ad_dble) :: d(*),e(*)
+        end function
+      end interface
+@

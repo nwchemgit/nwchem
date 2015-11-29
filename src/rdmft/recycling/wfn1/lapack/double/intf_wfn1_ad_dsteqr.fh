@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dsteqr(compz,n,d,e,z,ldz,work,info)
+          use wfn1_ad1
+          implicit none
+          character             compz
+          integer               n,ldz,info
+          type(wfn1_ad_dble) :: z(ldz,*),d(*),e(*),work(*)
+        end subroutine
+      end interface

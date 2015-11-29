@@ -1,0 +1,8 @@
+      interface
+        subroutine wfn1_ad_dsterf(n,d,e,info)
+          use wfn1_ad1
+          implicit none
+          integer               n,info
+          type(wfn1_ad_dble) :: d(*),e(*)
+        end subroutine
+      end interface

@@ -1,0 +1,12 @@
+      interface
+        subroutine wfn1_ad_dsyrk(uplo,trans,n,k,alpha,a,lda,
+     +                           beta,c,ldc)
+          use wfn1_ad1
+          implicit none
+          character             uplo, trans
+          integer               n,k,lda,ldc
+          type(wfn1_ad_dble) :: alpha, beta
+          type(wfn1_ad_dble) :: a(lda,*)
+          type(wfn1_ad_dble) :: c(ldc,*)
+        end subroutine
+      end interface

@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dsyev(jobz,uplo,n,a,lda,w,work,lwork,info)
+          use wfn1_ad1
+          implicit none
+          character             jobz,uplo
+          integer               n,info,lda,lwork
+          type(wfn1_ad_dble) :: a(lda,*),w(*),work(*)
+        end subroutine
+      end interface

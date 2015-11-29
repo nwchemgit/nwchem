@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dsytrd(uplo,n,a,lda,d,e,tau,work,lwork,info)
+          use wfn1_ad1
+          implicit none
+          character             uplo
+          integer               n,info,lda,lwork
+          type(wfn1_ad_dble) :: a(lda,*),d(*),e(*),tau(*),work(*)
+        end subroutine
+      end interface

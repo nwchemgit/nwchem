@@ -1,0 +1,9 @@
+      interface
+        function wfn1_ad_dnrm2(n,x,incx)
+          use wfn1_ad1
+          implicit none
+          type(wfn1_ad_dble) :: wfn1_ad_dnrm2
+          integer               n,incx
+          type(wfn1_ad_dble) :: x(*)
+        end function
+      end interface

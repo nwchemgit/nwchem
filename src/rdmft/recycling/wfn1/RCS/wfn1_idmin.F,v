@@ -1,0 +1,74 @@
+head	1.2;
+access;
+symbols;
+locks
+	D3Y133:1.2; strict;
+comment	@c @;
+
+
+1.2
+date	2014.12.31.05.21.29;	author D3Y133;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2014.11.28.08.23.32;	author D3Y133;	state Exp;
+branches;
+next	;
+
+
+desc
+@WFN1: Find the minimum value in an array
+@
+
+
+1.2
+log
+@The lessthan requirement caused smaller steps in the optimization
+than when lessthanorequal is used. The result was that the 
+optimization would get stuck unnecesarrily.
+@
+text
+@C> \ingroup wfn1
+C> @@{
+C>
+C> \brief Find minimal value in a vector
+C>
+C> This routine is similar to idamax but for some reason does not seem
+C> to be part of BLAS. It is different in that it returns the index
+C> of the element with the smallest value.
+C>
+      integer function wfn1_idmin(n,d,inc)
+      implicit none
+      integer n !< [Input] The number of elements in the array
+      double precision d(*) !< [Input] The data array
+      integer inc !< [Input] The increment between values in the array
+c
+      integer indx
+      integer i
+c
+      indx = 1
+      do i = 2, n
+        if (d(1+(i-1)*inc).le.d(1+(indx-1)*inc)) then
+          indx = i
+        endif
+      enddo
+c
+      wfn1_idmin = indx
+c
+      return
+      end
+C>
+C> @@}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d21 1
+a21 1
+        if (d(1+(i-1)*inc).lt.d(1+(indx-1)*inc)) then
+@

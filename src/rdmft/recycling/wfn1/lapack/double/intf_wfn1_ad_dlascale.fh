@@ -1,0 +1,8 @@
+      interface
+        subroutine wfn1_ad_dlascale(n,x,incx,scale)
+          use wfn1_ad1
+          implicit none
+          integer               n,incx
+          type(wfn1_ad_dble) :: scale,x(*)
+        end subroutine
+      end interface

@@ -1,0 +1,40 @@
+\begin{thebibliography}{1}
+
+\bibitem{berghold98}
+Gerd Berghold, J{\"u}rg Hutter, and Michele Parrinello.
+\newblock Grid-free {DFT} implementation of local and gradient-corrected {XC}
+  functionals.
+\newblock {\em Theoretical Chemistry Accounts}, 99:344--346, 1998.
+
+\bibitem{gurtin83}
+Morton~E. Gurtin and Kathleen Spear.
+\newblock On the relationship between the logarithmic strain rate and the
+  stretching tensor.
+\newblock {\em International Journal of Solids and Structures}, 19:437--444,
+  1983.
+
+\bibitem{hoger84}
+Anne Hoger and Donald~E. Carlson.
+\newblock On the derivative of the square root of a tensor and guo's rate
+  theorems.
+\newblock {\em Journal of Elasticity}, 14:329--336, 1984.
+
+\bibitem{jog06}
+C.S. Jog.
+\newblock Derivatives of the stretch, rotation and exponential tensors in {\it
+  n}-dimensional vector spaces.
+\newblock {\em Journal of Elasticity}, 82:175--192, 2006.
+
+\bibitem{lathiotakis09}
+N.~N. Lathiotakis, S.~Sharma, J.~K. Dewhurst, F.~G. Eich, M.~A.~L. Marques, and
+  E.~K.~U. Gross.
+\newblock Density-matrix-power functional: performance for finite systems and
+  the homogeneous electron gas.
+\newblock {\em Physical Review A}, 79:040501(R), 2009.
+
+\bibitem{padovani00}
+Cristina Padovani.
+\newblock On the derivative of some tensor-valued functions.
+\newblock {\em Journal of Elasticity}, 58:257--268, 2000.
+
+\end{thebibliography}

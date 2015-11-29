@@ -1,0 +1,897 @@
+C> \ingroup wfn1
+C> @{
+C>
+C> \brief Calculate the Coulomb energy and optionally the gradient
+C> within the wfn1 formalism
+C> 
+C> This routine adds the Coulomb energy and optionally the corresponding
+C> gradient terms within the wfn1 formalism to its arguments. The
+C> current formulation assumes that all quantities are kept in memory
+C> and the implementation supports only serial execution.
+C>
+C> Within the wfn1 formalism the Coulomb energy is expressed in terms
+C> of the occupation functions and the natural orbitals as:
+C> \f{eqnarray*}{
+C>  E^{2C} &=& \sum_{\sigma,\sigma'}\sum_{ij}
+C>  \sum_{pq\in\{occ\}}\frac{1}{2}
+C>  C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>  (ab|cd)
+C>  C^{D\sigma'}_{cj}C^{D\sigma'}_{dj}C^{O\sigma'}_{jq}C^{O\sigma'}_{jq}
+C>  \;\;\;\;\;\;\;\;\;\;(1)
+C> \f}
+C> Obviously this energy expression can be summarized in terms of the
+C> total 1-electron density matrix as
+C> \f{eqnarray*}{
+C>    E^{2C} &=& \sum_{\sigma\sigma'}\sum_{abcd}\frac{1}{2}
+C>    D^{T\sigma}_{ab}(ab|cd)D^{T\sigma'}_{cd}
+C>    \;\;\;\;\;\;\;\;\;\;(2)
+C> \f}
+C> Although the energy can be summarized this way the gradient of the
+C> energy cannot. The gradient requires the derivatives with respect to
+C> the occupation functions as well as the natural orbitals. I.e.
+C> \f{eqnarray*}{
+C>    \frac{\mathrm{d}E^{2C}}{\mathrm{d}C^{O\sigma"}_{mt}}
+C>    &=& \sum_{\sigma\sigma'}\sum_{abcd}
+C>    \sum_{ij}\sum_{pq} \delta_{\sigma\sigma"}\delta_{im}\delta_{pt}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma'}_{cj}C^{D\sigma'}_{dj}
+C>    C^{O\sigma'}_{jq}C^{O\sigma'}_{jq}\\\\
+C>    &&+ 
+C>    \sum_{\sigma\sigma'}\sum_{abcd}
+C>    \sum_{ij}\sum_{pq} \delta_{\sigma'\sigma"}\delta_{jm}\delta_{qt}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}
+C>    C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma'}_{cj}C^{D\sigma'}_{dj}
+C>    C^{O\sigma'}_{jq}
+C>    \;\;\;\;\;\;\;\;\;\;(3)\\\\
+C>    &=& \sum_{\sigma'}\sum_{abcd}
+C>    \sum_{j}\sum_{q}
+C>    C^{D\sigma"}_{am}C^{D\sigma"}_{bm}C^{O\sigma"}_{mt}
+C>    (ab|cd)
+C>    C^{D\sigma'}_{cj}C^{D\sigma'}_{dj}
+C>    C^{O\sigma'}_{jq}C^{O\sigma'}_{jq}\\\\
+C>    &&+ 
+C>    \sum_{\sigma}\sum_{abcd}
+C>    \sum_{i}\sum_{p}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}
+C>    C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma"}_{cm}C^{D\sigma"}_{dm}
+C>    C^{O\sigma"}_{mt}
+C>    \;\;\;\;\;\;\;\;\;\;(4)\\\\
+C>    &=& \sum_{\sigma'}\sum_{abcd}
+C>    C^{D\sigma"}_{am}C^{D\sigma"}_{bm}C^{O\sigma"}_{mt}
+C>    (ab|cd)D^{T\sigma'}_{cd} \\\\
+C>    &&+ 
+C>    \sum_{\sigma}\sum_{abcd}
+C>    D^{T\sigma}_{ab}
+C>    (ab|cd)
+C>    C^{D\sigma"}_{cm}C^{D\sigma"}_{dm}
+C>    C^{O\sigma"}_{mt}
+C>    \;\;\;\;\;\;\;\;\;\;(5)\\\\
+C>    &=& \sum_{\sigma'}\sum_{ab}
+C>    C^{D\sigma"}_{am}C^{D\sigma"}_{bm}C^{O\sigma"}_{mt}
+C>    F^{\sigma'}_{ab} \\\\
+C>    &&+ 
+C>    \sum_{\sigma}\sum_{cd}
+C>    F^{\sigma}_{cd}
+C>    C^{D\sigma"}_{cm}C^{D\sigma"}_{dm}
+C>    C^{O\sigma"}_{mt},
+C>    \;\;\;\;\;\;\;\;\;\;(6)\\\\
+C>    F^{\sigma'}_{ab} &=& \sum_{cd}(ab|cd)D^{T\sigma'}_{cd}, \\\\
+C>    F^{\sigma}_{cd} &=& \sum_{ab}D^{T\sigma}_{ab}(ab|cd) \\\\
+C> \f}
+C> \f{eqnarray*}{
+C>    \frac{\mathrm{d}E^{2C}}{\mathrm{d}C^{D\sigma"}_{em}}
+C>    &=& \frac{1}{2}\sum_{\sigma\sigma'}\sum_{abcd}\sum_{ij}\sum_{pq}
+C>    \delta_{\sigma\sigma"}\delta_{ae}\delta_{im}
+C>    C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma'}_{cj}C^{D\sigma'}_{dj}
+C>    C^{O\sigma'}_{jq}C^{O\sigma'}_{jq} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma\sigma'}\sum_{abcd}\sum_{ij}\sum_{pq}
+C>    \delta_{\sigma\sigma"}\delta_{be}\delta_{im}
+C>    C^{D\sigma}_{ai}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma'}_{cj}C^{D\sigma'}_{dj}
+C>    C^{O\sigma'}_{jq}C^{O\sigma'}_{jq} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma\sigma'}\sum_{abcd}\sum_{ij}\sum_{pq}
+C>    \delta_{\sigma\sigma"}\delta_{ce}\delta_{jm}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma'}_{dj}
+C>    C^{O\sigma'}_{jq}C^{O\sigma'}_{jq} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma\sigma'}\sum_{abcd}\sum_{ij}\sum_{pq}
+C>    \delta_{\sigma\sigma"}\delta_{de}\delta_{jm}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma'}_{cj}
+C>    C^{O\sigma'}_{jq}C^{O\sigma'}_{jq}
+C>    \;\;\;\;\;\;\;\;\;\;(7) \\\\
+C>    &=& \frac{1}{2}\sum_{\sigma'}\sum_{bcd}\sum_{p}
+C>    C^{D\sigma"}_{bm}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    (eb|cd)D^{T\sigma'}_{cd} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma'}\sum_{acd}\sum_{p}
+C>    C^{D\sigma"}_{am}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    (ae|cd)D^{T\sigma'}_{cd} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma}\sum_{abd}\sum_{q}
+C>    D^{T\sigma}_{ab}(ab|ed)
+C>    C^{D\sigma"}_{dm}C^{O\sigma"}_{mq}C^{O\sigma"}_{mq} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma}\sum_{abc}\sum_{q}
+C>    D^{T\sigma}_{ab}(ab|ce)
+C>    C^{D\sigma"}_{cm}C^{O\sigma"}_{mq}C^{O\sigma"}_{mq}
+C>    \;\;\;\;\;\;\;\;\;\;(8) \\\\
+C>    &=& \frac{1}{2}\sum_{\sigma'}\sum_{b}\sum_{p}
+C>    C^{D\sigma"}_{bm}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    F^{\sigma'}_{ab}\delta_{ae} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma'}\sum_{a}\sum_{p}
+C>    C^{D\sigma"}_{am}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    F^{\sigma'}_{ab}\delta_{be} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma}\sum_{d}\sum_{q}
+C>    F^{\sigma}_{cd}\delta_{ce}
+C>    C^{D\sigma"}_{dm}C^{O\sigma"}_{mq}C^{O\sigma"}_{mq} \\\\
+C>    &&+ \frac{1}{2}\sum_{\sigma}\sum_{c}\sum_{q}
+C>    F^{\sigma}_{cd}\delta_{de}
+C>    C^{D\sigma"}_{cm}C^{O\sigma"}_{mq}C^{O\sigma"}_{mq}
+C>    \;\;\;\;\;\;\;\;\;\;(9) \\\\
+C>    F^{\sigma'}_{ab} &=& \sum_{cd}(ab|cd)D^{T\sigma'}_{cd}, \\\\
+C>    F^{\sigma}_{cd} &=& \sum_{ab}D^{T\sigma}_{ab}(ab|cd) \\\\
+C> \f}
+      subroutine wfn1_2el_C(do_grad,nbf,nst,nea,neb,r_noa,r_nob,
+     +                      r_ofa,r_ofb,eri,
+     +                      En,r_dnoa,r_dnob,r_dofa,r_dofb,
+     +                      da,db,d_fa,d_fb,docca,doccb,dcd,dvd)
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      logical do_grad  !< [Input] .True. if the energy gradient should
+                       !< be calculated, otherwise only the energy is
+                       !< evaluated.
+      integer nbf      !< [Input] The number of basis functions
+      integer nst      !< [Input] The number of states
+      integer nea(nst) !< [Input] The number of \f$\alpha\f$ electrons
+                       !< for each state
+      integer neb(nst) !< [Input] The number of \f$\beta\f$ electrons
+                       !< for each state
+c
+      double precision r_noa(nbf,nbf,nst) !< [Input] The \f$\alpha\f$
+                                          !< electron natural orbitals
+      double precision r_nob(nbf,nbf,nst) !< [Input] The \f$\beta\f$
+                                          !< electron natural orbitals
+      double precision r_ofa(nbf,nbf,nst) !< [Input] The \f$\alpha\f$
+                                          !< electron occupation
+                                          !< functions
+      double precision r_ofb(nbf,nbf,nst) !< [Input] The \f$\beta\f$
+                                          !< electron occupation
+                                          !< functions
+c
+      double precision eri(nbf,nbf,nbf,nbf) !< [Input] The actual
+                                            !< 2-electron integrals
+c
+      double precision En(nst) !< [Output] The 2-electron Coulomb 
+                               !< energy for each state
+c
+      double precision r_dnoa(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\alpha\f$-electron
+                                           !< natural orbitals.
+      double precision r_dnob(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\beta\f$-electron
+                                           !< natural orbitals.
+      double precision r_dofa(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\alpha\f$-electron
+                                           !< occupation functions.
+      double precision r_dofb(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\beta\f$-electron
+                                           !< occupation functions.
+c
+      double precision da(nbf,nbf)     !< [Scratch] Alpha-electron
+                                       !< density matrix.
+      double precision db(nbf,nbf)     !< [Scratch] Beta-electron
+                                       !< density matrix.
+      double precision d_fa(nbf,nbf)   !< [Scratch] Alpha-electron
+                                       !< Fock like matrix.
+      double precision d_fb(nbf,nbf)   !< [Scratch] Beta-electron
+                                       !< Fock like matrix.
+      double precision docca(nbf)      !< [Scratch] Alpha-electron
+                                       !< occupation numbers
+      double precision doccb(nbf)      !< [Scratch] Beta-electron
+                                       !< occupation numbers
+      double precision dcd(nbf,nbf)    !< [Scratch] Partially
+                                       !< transformed matrix
+      double precision dvd(nbf)        !< [Scratch] A vector in terms
+                                       !< of natural orbitals
+c
+c     Local variables
+c
+      integer ia, ib ! Counters over basis functions
+      integer ii     ! Counter over natural orbitals
+      integer ir     ! Counter over occupation functions
+      integer ist    ! Counter over states
+c
+c     Functions
+c
+      double precision ddot
+      external         ddot
+c
+c     Code
+c
+      do ist = 1, nst ! loop over all state
+c
+c       Compute the total 1-electron density matrices for this state
+c
+        do ii = 1, nbf
+          docca(ii) = 0.0d0
+          doccb(ii) = 0.0d0
+        enddo
+        do ir = 1, nea(ist)
+          do ii = 1, nbf
+            docca(ii) = docca(ii) + r_ofa(ii,ir,ist)*r_ofa(ii,ir,ist)
+          enddo
+        enddo
+        do ir = 1, neb(ist)
+          do ii = 1, nbf
+            doccb(ii) = doccb(ii) + r_ofb(ii,ir,ist)*r_ofb(ii,ir,ist)
+          enddo
+        enddo
+        call dfill(nbf*nbf,0.0d0,da,1)
+        call dfill(nbf*nbf,0.0d0,db,1)
+        do ib = 1, nbf
+          do ia = 1, nbf
+            do ii = 1, nbf
+              da(ia,ib) = da(ia,ib)
+     +                  + r_noa(ia,ii,ist)*r_noa(ib,ii,ist)*docca(ii)
+              db(ia,ib) = db(ia,ib)
+     +                  + r_nob(ia,ii,ist)*r_nob(ib,ii,ist)*doccb(ii)
+            enddo
+          enddo
+        enddo
+c
+c       Contract the density matrices with the 2-electron integrals
+c       to generate Fock-like quantities
+c
+        call dgemv('N',nbf*nbf,nbf*nbf,1.0d0,eri,nbf*nbf,da,1,
+     +             0.0d0,d_fa,1)
+        call dgemv('N',nbf*nbf,nbf*nbf,1.0d0,eri,nbf*nbf,db,1,
+     +             0.0d0,d_fb,1)
+        En(ist) = En(ist) + ddot(nbf*nbf,da,1,d_fa,1)/2.0d0
+        En(ist) = En(ist) + ddot(nbf*nbf,da,1,d_fb,1)/2.0d0
+        En(ist) = En(ist) + ddot(nbf*nbf,db,1,d_fa,1)/2.0d0
+        En(ist) = En(ist) + ddot(nbf*nbf,db,1,d_fb,1)/2.0d0
+c
+        if (do_grad) then
+c
+c         First compute the gradient wrt. the natural orbital
+c         coefficients, see Eq.(9).
+c
+c         = A-A: Compute F^A_am = sum_b F^A_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fa,nbf,
+     +               r_noa(1,1,ist),nbf,0.0d0,dcd,nbf)
+c
+c         = A-B: Compute F^A_am = sum_b F^B_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fb,nbf,
+     +               r_noa(1,1,ist),nbf,1.0d0,dcd,nbf)
+c
+c         = A-AB: Scale the column with the occupation numbers and add
+c           to derivative
+c
+          do ii = 1, nbf
+            call daxpy(nbf,docca(ii)/2.0d0,dcd(1,ii),1,
+     +                 r_dnoa(1,ii,ist),1)
+          enddo
+c
+c         = B-A: Compute F^B_am = sum_b F^A_ab C^DB_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fa,nbf,
+     +               r_nob(1,1,ist),nbf,0.0d0,dcd,nbf)
+c
+c         = B-B: Compute F^B_am = sum_b F^B_ab C^DB_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fb,nbf,
+     +               r_nob(1,1,ist),nbf,1.0d0,dcd,nbf)
+c
+c         = B-AB: Scale the column with the occupation numbers and add
+c           to derivative
+c
+          do ii = 1, nbf
+            call daxpy(nbf,doccb(ii)/2.0d0,dcd(1,ii),1,
+     +                 r_dnob(1,ii,ist),1)
+          enddo
+c
+c         Next compute the gradient wrt. the occupation function
+c         coefficients, see Eq.(6).
+c
+c         = A-A: Compute F^A_am = sum_b F^A_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fa,nbf,
+     +               r_noa(1,1,ist),nbf,0.0d0,dcd,nbf)
+c
+c         = A-B: Compute F^A_am = sum_b F^B_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fb,nbf,
+     +               r_noa(1,1,ist),nbf,1.0d0,dcd,nbf)
+c
+c         = A-AB: Contract each column with C^DA_am
+c
+          do ii = 1, nbf
+            dvd(ii) = ddot(nbf,r_noa(1,ii,ist),1,dcd(1,ii),1)
+          enddo
+c
+c         = A-AB: Add the contribution to the gradient
+c
+          do ir = 1, nea(ist)
+            do ii = 1, nbf
+              r_dofa(ii,ir,ist) = r_dofa(ii,ir,ist)
+     +                          + dvd(ii)*r_ofa(ii,ir,ist)/2.0d0
+            enddo
+          enddo
+c
+c         = B-A: Compute F^A_am = sum_b F^A_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fa,nbf,
+     +               r_nob(1,1,ist),nbf,0.0d0,dcd,nbf)
+c
+c         = B-B: Compute F^A_am = sum_b F^B_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fb,nbf,
+     +               r_nob(1,1,ist),nbf,1.0d0,dcd,nbf)
+c
+c         = B-AB: Contract each column with C^DA_am
+c
+          do ii = 1, nbf
+            dvd(ii) = ddot(nbf,r_nob(1,ii,ist),1,dcd(1,ii),1)
+          enddo
+c
+c         = B-AB: Add the contribution to the gradient
+c
+          do ir = 1, neb(ist)
+            do ii = 1, nbf
+              r_dofb(ii,ir,ist) = r_dofb(ii,ir,ist)
+     +                          + dvd(ii)*r_ofb(ii,ir,ist)/2.0d0
+            enddo
+          enddo
+  
+        endif
+c
+      enddo
+c
+      end
+C>
+C> \brief Calculate the exchange energy and optionally the gradient
+C> within the wfn1 formalism
+C> 
+C> This routine adds the exchange energy and optionally the
+C> corresponding gradient terms within the wfn1 formalism to its
+C> arguments. The current formulation assumes that all quantities are
+C> kept in memory and the implementation supports only serial execution.
+C>
+C> Within the wfn1 formalism the exchange energy is expressed in terms
+C> of the occupation functions and the natural orbitals as:
+C> \f{eqnarray*}{
+C>  E^{2X} &=& \frac{1}{2}\sum_{\sigma}\sum_{i}
+C>  \sum_{pq\in\{occ\}}
+C>  C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{iq}
+C>  (ab|cd)
+C>  C^{D\sigma}_{ci}C^{D\sigma}_{di}C^{O\sigma}_{iq}C^{O\sigma}_{ip}
+C>  \;\;\;\;\;\;\;\;\;\;(1)
+C> \f}
+C> Obviously this energy expression can be summarized in terms of the
+C> single 1-electron density matrix and using the orthonormality of the
+C> occupation functions as
+C> \f{eqnarray*}{
+C>    E^{2X} &=& \frac{1}{2}\sum_{\sigma}\sum_{p\in\{occ\}}\sum_{abcd}
+C>    D^{p\sigma}_{ab}(ab|cd)D^{p\sigma}_{cd},
+C>    \;\;\;\;\;\;\;\;\;\;(2) \\\\
+C>    D^{p\sigma}_{ab} &=& \sum_i 
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C> \f}
+C> Although the energy can be summarized this way the gradient of the
+C> energy cannot. The gradient requires the derivatives with respect to
+C> the occupation functions as well as the natural orbitals. I.e.
+C> \f{eqnarray*}{
+C>    \frac{\mathrm{d}E^{2X}}{\mathrm{d}C^{O\sigma"}_{mt}}
+C>    &=& \sum_{\sigma}\sum_{abcd}
+C>    \sum_{i}\sum_{p} \delta_{\sigma\sigma"}\delta_{im}\delta_{pt}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma}_{ci}C^{D\sigma}_{di}
+C>    C^{O\sigma}_{ip}C^{O\sigma}_{ip}\\\\
+C>    &&+ 
+C>    \sum_{\sigma}\sum_{abcd}
+C>    \sum_{i}\sum_{p} \delta_{\sigma\sigma"}\delta_{jm}\delta_{pt}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}
+C>    C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma}_{ci}C^{D\sigma}_{di}
+C>    C^{O\sigma}_{ip}
+C>    \;\;\;\;\;\;\;\;\;\;(3)\\\\
+C>    &=& \sum_{abcd}
+C>    C^{D\sigma"}_{am}C^{D\sigma"}_{bm}C^{O\sigma"}_{mt}
+C>    (ab|cd)
+C>    C^{D\sigma"}_{cm}C^{D\sigma"}_{dm}
+C>    C^{O\sigma"}_{mt}C^{O\sigma"}_{mt}\\\\
+C>    &&+ 
+C>    \sum_{abcd}
+C>    C^{D\sigma"}_{am}C^{D\sigma"}_{bm}
+C>    C^{O\sigma"}_{mt}C^{O\sigma"}_{mt}
+C>    (ab|cd)
+C>    C^{D\sigma"}_{cm}C^{D\sigma"}_{dm}
+C>    C^{O\sigma"}_{mt}
+C>    \;\;\;\;\;\;\;\;\;\;(4)\\\\
+C>    &=& \sum_{abcd}
+C>    C^{D\sigma"}_{am}C^{D\sigma"}_{bm}C^{O\sigma"}_{mt}
+C>    (ab|cd)D^{t\sigma"}_{cd} \\\\
+C>    &&+ 
+C>    \sum_{abcd}
+C>    D^{t\sigma"}_{ab}
+C>    (ab|cd)
+C>    C^{D\sigma"}_{cm}C^{D\sigma"}_{dm}
+C>    C^{O\sigma"}_{mt}
+C>    \;\;\;\;\;\;\;\;\;\;(5)\\\\
+C>    &=& \sum_{ab}
+C>    C^{D\sigma"}_{am}C^{D\sigma"}_{bm}C^{O\sigma"}_{mt}
+C>    F^{\sigma"}_{ab} \\\\
+C>    &&+ 
+C>    \sum_{cd}
+C>    F^{\sigma"}_{cd}
+C>    C^{D\sigma"}_{cm}C^{D\sigma"}_{dm}
+C>    C^{O\sigma"}_{mt},
+C>    \;\;\;\;\;\;\;\;\;\;(6)\\\\
+C>    F^{\sigma"}_{ab} &=& \sum_{cd}(ab|cd)D^{t\sigma"}_{cd}, \\\\
+C>    F^{\sigma"}_{cd} &=& \sum_{ab}D^{t\sigma"}_{ab}(ab|cd) \\\\
+C> \f}
+C> \f{eqnarray*}{
+C>    \frac{\mathrm{d}E^{2X}}{\mathrm{d}C^{D\sigma"}_{em}}
+C>    &=& \sum_{\sigma}\sum_{abcd}\sum_{i}\sum_{p}
+C>    \delta_{\sigma\sigma"}\delta_{ae}\delta_{im}
+C>    C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma}_{ci}C^{D\sigma}_{di}
+C>    C^{O\sigma}_{ip}C^{O\sigma}_{ip} \\\\
+C>    &&+ \sum_{\sigma}\sum_{abcd}\sum_{i}\sum_{p}
+C>    \delta_{\sigma\sigma"}\delta_{be}\delta_{im}
+C>    C^{D\sigma}_{ai}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma}_{ci}C^{D\sigma}_{di}
+C>    C^{O\sigma}_{ip}C^{O\sigma}_{ip} \\\\
+C>    &&+ \sum_{\sigma}\sum_{abcd}\sum_{i}\sum_{p}
+C>    \delta_{\sigma\sigma"}\delta_{ce}\delta_{im}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma}_{di}
+C>    C^{O\sigma}_{ip}C^{O\sigma}_{ip} \\\\
+C>    &&+ \sum_{\sigma}\sum_{abcd}\sum_{i}\sum_{p}
+C>    \delta_{\sigma\sigma"}\delta_{de}\delta_{im}
+C>    C^{D\sigma}_{ai}C^{D\sigma}_{bi}C^{O\sigma}_{ip}C^{O\sigma}_{ip}
+C>    (ab|cd)
+C>    C^{D\sigma}_{ci}
+C>    C^{O\sigma}_{iq}C^{O\sigma}_{ip}
+C>    \;\;\;\;\;\;\;\;\;\;(7) \\\\
+C>    &=& \sum_{bcd}\sum_{p}
+C>    C^{D\sigma"}_{bm}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    (eb|cd)D^{p\sigma"}_{cd} \\\\
+C>    &&+ \sum_{acd}\sum_{p}
+C>    C^{D\sigma"}_{am}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    (ae|cd)D^{p\sigma"}_{cd} \\\\
+C>    &&+ \sum_{abd}\sum_{p}
+C>    D^{p\sigma"}_{ab}(ab|ed)
+C>    C^{D\sigma"}_{dm}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp} \\\\
+C>    &&+ \sum_{abc}\sum_{p}
+C>    D^{p\sigma"}_{ab}(ab|ce)
+C>    C^{D\sigma"}_{cm}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    \;\;\;\;\;\;\;\;\;\;(8) \\\\
+C>    &=& \sum_{b}\sum_{p}
+C>    C^{D\sigma"}_{bm}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    F^{\sigma"}_{ab}\delta_{ae} \\\\
+C>    &&+ \sum_{a}\sum_{p}
+C>    C^{D\sigma"}_{am}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp}
+C>    F^{\sigma"}_{ab}\delta_{be} \\\\
+C>    &&+ \sum_{d}\sum_{p}
+C>    F^{\sigma"}_{cd}\delta_{ce}
+C>    C^{D\sigma"}_{dm}C^{O\sigma"}_{mp}C^{O\sigma"}_{mp} \\\\
+C>    &&+ \sum_{c}\sum_{p}
+C>    F^{\sigma"}_{cd}\delta_{de}
+C>    C^{D\sigma"}_{cm}C^{O\sigma"}_{mq}C^{O\sigma"}_{mq}
+C>    \;\;\;\;\;\;\;\;\;\;(9) \\\\
+C>    F^{\sigma"}_{ab} &=& \sum_{cd}(ab|cd)D^{p\sigma"}_{cd}, \\\\
+C>    F^{\sigma"}_{cd} &=& \sum_{ab}D^{p\sigma"}_{ab}(ab|cd) \\\\
+C> \f}
+      subroutine wfn1_2el_X(do_grad,nbf,nst,nea,neb,r_noa,r_nob,
+     +                      r_ofa,r_ofb,eri,
+     +                      En,r_dnoa,r_dnob,r_dofa,r_dofb,
+     +                      da,db,d_fa,d_fb,docca,doccb,dcd,dvd)
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      logical do_grad  !< [Input] .True. if the energy gradient should
+                       !< be calculated, otherwise only the energy is
+                       !< evaluated.
+      integer nbf      !< [Input] The number of basis functions
+      integer nst      !< [Input] The number of states
+      integer nea(nst) !< [Input] The number of \f$\alpha\f$ electrons
+                       !< for each state
+      integer neb(nst) !< [Input] The number of \f$\beta\f$ electrons
+                       !< for each state
+c
+      double precision r_noa(nbf,nbf,nst) !< [Input] The \f$\alpha\f$
+                                          !< electron natural orbitals
+      double precision r_nob(nbf,nbf,nst) !< [Input] The \f$\beta\f$
+                                          !< electron natural orbitals
+      double precision r_ofa(nbf,nbf,nst) !< [Input] The \f$\alpha\f$
+                                          !< electron occupation
+                                          !< functions
+      double precision r_ofb(nbf,nbf,nst) !< [Input] The \f$\beta\f$
+                                          !< electron occupation
+                                          !< functions
+c
+      double precision eri(nbf,nbf,nbf,nbf) !< [Input] The actual
+                                            !< 2-electron integrals
+c
+      double precision En(nst) !< [Output] The 2-electron exchange 
+                               !< energy for each state
+c
+      double precision r_dnoa(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\alpha\f$-electron
+                                           !< natural orbitals.
+      double precision r_dnob(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\beta\f$-electron
+                                           !< natural orbitals.
+      double precision r_dofa(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\alpha\f$-electron
+                                           !< occupation functions.
+      double precision r_dofb(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\beta\f$-electron
+                                           !< occupation functions.
+      double precision da(nbf,nbf)     !< [Scratch] Alpha-electron
+                                       !< density matrix.
+      double precision db(nbf,nbf)     !< [Scratch] Beta-electron
+                                       !< density matrix.
+      double precision d_fa(nbf,nbf)   !< [Scratch] Alpha-electron
+                                       !< Fock like matrix.
+      double precision d_fb(nbf,nbf)   !< [Scratch] Beta-electron
+                                       !< Fock like matrix.
+      double precision docca(nbf)      !< [Scratch] Alpha-electron
+                                       !< occupation numbers
+      double precision doccb(nbf)      !< [Scratch] Beta-electron
+                                       !< occupation numbers
+      double precision dcd(nbf,nbf)    !< [Scratch] Partially
+                                       !< transformed matrix
+      double precision dvd(nbf)        !< [Scratch] A vector in terms
+                                       !< of natural orbitals
+c
+      double precision Et
+      double precision Eij
+c
+c     Local variables
+c
+      integer ia, ib ! Counters over basis functions
+      integer ii     ! Counter over natural orbitals
+      integer ip     ! Counter over occupation functions
+      integer iq     ! Counter over occupation functions
+      integer ist    ! Counter over states
+c
+c     Functions
+c
+      double precision ddot
+      external         ddot
+c
+c     Code
+c
+      do ist = 1, nst ! loop over all state
+        Eij = 0.0d0
+c
+c       First do the alpha-electron part
+c
+        do ip = 1, nea(ist)
+          do iq = 1, nea(ist)
+            call dfill(nbf*nbf,0.0d0,da,1)
+            do ib = 1, nbf
+              do ia = 1, nbf
+                do ii = 1, nbf
+                  da(ia,ib) = da(ia,ib)
+     +                      + r_noa(ia,ii,ist)*r_noa(ib,ii,ist)*
+     +                        r_ofa(ii,ip,ist)*r_ofa(ii,iq,ist)
+                enddo
+              enddo
+            enddo
+c
+c           Contract the single electron density matrix with the
+c           2-electron integrals to generate Fock-like quantities
+c
+            call dgemv('N',nbf*nbf,nbf*nbf,1.0d0,eri,nbf*nbf,da,1,
+     +                 0.0d0,d_fa,1)
+            Et      = - ddot(nbf*nbf,da,1,d_fa,1)/2.0d0
+            En(ist) = En(ist) + Et
+            if (ip.ne.iq) Eij = Eij + Et
+c
+          enddo ! iq
+        enddo ! ip
+c
+c       Next do the beta-electron part
+c
+        do ip = 1, neb(ist)
+          do iq = 1, neb(ist)
+            call dfill(nbf*nbf,0.0d0,db,1)
+            do ib = 1, nbf
+              do ia = 1, nbf
+                do ii = 1, nbf
+                  db(ia,ib) = db(ia,ib)
+     +                      + r_nob(ia,ii,ist)*r_nob(ib,ii,ist)*
+     +                        r_ofb(ii,ip,ist)*r_ofb(ii,iq,ist)
+                enddo
+              enddo
+            enddo
+c
+c           Contract the single electron density matrix with the
+c           2-electron integrals to generate Fock-like quantities
+c
+            call dgemv('N',nbf*nbf,nbf*nbf,1.0d0,eri,nbf*nbf,db,1,
+     +                 0.0d0,d_fb,1)
+            Et      = - ddot(nbf*nbf,db,1,d_fb,1)/2.0d0
+            En(ist) = En(ist) + Et
+            if (ip.ne.iq) Eij = Eij + Et
+c
+          enddo ! iq
+        enddo ! ip
+c
+cDEBUG
+        write(*,*)"Eij: i!=j: ",Eij
+cDEBUG
+c
+      enddo
+c
+      end
+C>
+C> \brief Calculate the exchange energy as in Hartree-Fock
+C>
+C> The Hartree-Fock exchange energy is different in that it is computed
+C> from the total alpha and beta density matrices. This formulation
+C> is similar to the Coulomb term apart from the fact that alpha
+C> electrons interact only with alpha electrons, likewise for the beta
+C> electrons, and finally the 2-electron integrals are ordered 
+C> differently, i.e. the j and l labels are swapped.
+C>
+      subroutine wfn1_2el_hfX(do_grad,nbf,nst,nea,neb,r_noa,r_nob,
+     +                        r_ofa,r_ofb,eri,
+     +                        En,r_dnoa,r_dnob,r_dofa,r_dofb,
+     +                        da,db,d_fa,d_fb,docca,doccb,dcd,dvd)
+      implicit none
+c
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+c
+      logical do_grad  !< [Input] .True. if the energy gradient should
+                       !< be calculated, otherwise only the energy is
+                       !< evaluated.
+      integer nbf      !< [Input] The number of basis functions
+      integer nst      !< [Input] The number of states
+      integer nea(nst) !< [Input] The number of \f$\alpha\f$ electrons
+                       !< for each state
+      integer neb(nst) !< [Input] The number of \f$\beta\f$ electrons
+                       !< for each state
+c
+      double precision r_noa(nbf,nbf,nst) !< [Input] The \f$\alpha\f$
+                                          !< electron natural orbitals
+      double precision r_nob(nbf,nbf,nst) !< [Input] The \f$\beta\f$
+                                          !< electron natural orbitals
+      double precision r_ofa(nbf,nbf,nst) !< [Input] The \f$\alpha\f$
+                                          !< electron occupation
+                                          !< functions
+      double precision r_ofb(nbf,nbf,nst) !< [Input] The \f$\beta\f$
+                                          !< electron occupation
+                                          !< functions
+c
+      double precision eri(nbf,nbf,nbf,nbf) !< [Input] The actual
+                                            !< 2-electron integrals
+c
+      double precision En(nst) !< [Output] The 2-electron Coulomb 
+                               !< energy for each state
+c
+      double precision r_dnoa(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\alpha\f$-electron
+                                           !< natural orbitals.
+      double precision r_dnob(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\beta\f$-electron
+                                           !< natural orbitals.
+      double precision r_dofa(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\alpha\f$-electron
+                                           !< occupation functions.
+      double precision r_dofb(nbf,nbf,nst) !< [Output] The gradient of
+                                           !< the energy with respect to
+                                           !< the \f$\beta\f$-electron
+                                           !< occupation functions.
+c
+      double precision da(nbf,nbf)     !< [Scratch] Alpha-electron
+                                       !< density matrix.
+      double precision db(nbf,nbf)     !< [Scratch] Beta-electron
+                                       !< density matrix.
+      double precision d_fa(nbf,nbf)   !< [Scratch] Alpha-electron
+                                       !< Fock like matrix.
+      double precision d_fb(nbf,nbf)   !< [Scratch] Beta-electron
+                                       !< Fock like matrix.
+      double precision docca(nbf)      !< [Scratch] Alpha-electron
+                                       !< occupation numbers
+      double precision doccb(nbf)      !< [Scratch] Beta-electron
+                                       !< occupation numbers
+      double precision dcd(nbf,nbf)    !< [Scratch] Partially
+                                       !< transformed matrix
+      double precision dvd(nbf)        !< [Scratch] A vector in terms
+                                       !< of natural orbitals
+c
+c     Local variables
+c
+      integer ia, ib ! Counters over basis functions
+      integer ii     ! Counter over natural orbitals
+      integer ir     ! Counter over occupation functions
+      integer ist    ! Counter over states
+c
+c     Functions
+c
+      double precision ddot
+      external         ddot
+c
+c     Code
+c
+      do ist = 1, nst ! loop over all state
+c
+c       Compute the total 1-electron density matrices for this state
+c
+        do ii = 1, nbf
+          docca(ii) = 0.0d0
+          doccb(ii) = 0.0d0
+        enddo
+        do ir = 1, nea(ist)
+          do ii = 1, nbf
+            docca(ii) = docca(ii) + r_ofa(ii,ir,ist)*r_ofa(ii,ir,ist)
+          enddo
+        enddo
+        do ir = 1, neb(ist)
+          do ii = 1, nbf
+            doccb(ii) = doccb(ii) + r_ofb(ii,ir,ist)*r_ofb(ii,ir,ist)
+          enddo
+        enddo
+        call dfill(nbf*nbf,0.0d0,da,1)
+        call dfill(nbf*nbf,0.0d0,db,1)
+        do ib = 1, nbf
+          do ia = 1, nbf
+            do ii = 1, nbf
+              da(ia,ib) = da(ia,ib)
+     +                  + r_noa(ia,ii,ist)*r_noa(ib,ii,ist)*docca(ii)
+              db(ia,ib) = db(ia,ib)
+     +                  + r_nob(ia,ii,ist)*r_nob(ib,ii,ist)*doccb(ii)
+            enddo
+          enddo
+        enddo
+c
+c       Contract the density matrices with the 2-electron integrals
+c       to generate Fock-like quantities
+c
+        call dgemv('N',nbf*nbf,nbf*nbf,1.0d0,eri,nbf*nbf,da,1,
+     +             0.0d0,d_fa,1)
+        call dgemv('N',nbf*nbf,nbf*nbf,1.0d0,eri,nbf*nbf,db,1,
+     +             0.0d0,d_fb,1)
+        En(ist) = En(ist) - ddot(nbf*nbf,da,1,d_fa,1)/2.0d0
+        En(ist) = En(ist) - ddot(nbf*nbf,db,1,d_fb,1)/2.0d0
+c
+        if (do_grad) then
+          call errquit("wfn1_2el_hfX: gradients do not work",0,0)
+c
+c         First compute the gradient wrt. the natural orbital
+c         coefficients, see Eq.(9).
+c
+c         = A-A: Compute F^A_am = sum_b F^A_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fa,nbf,
+     +               r_noa(1,1,ist),nbf,0.0d0,dcd,nbf)
+c
+c         = A-B: Compute F^A_am = sum_b F^B_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fb,nbf,
+     +               r_noa(1,1,ist),nbf,1.0d0,dcd,nbf)
+c
+c         = A-AB: Scale the column with the occupation numbers and add
+c           to derivative
+c
+          do ii = 1, nbf
+            call daxpy(nbf,docca(ii)/2.0d0,dcd(1,ii),1,
+     +                 r_dnoa(1,ii,ist),1)
+          enddo
+c
+c         = B-A: Compute F^B_am = sum_b F^A_ab C^DB_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fa,nbf,
+     +               r_nob(1,1,ist),nbf,0.0d0,dcd,nbf)
+c
+c         = B-B: Compute F^B_am = sum_b F^B_ab C^DB_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fb,nbf,
+     +               r_nob(1,1,ist),nbf,1.0d0,dcd,nbf)
+c
+c         = B-AB: Scale the column with the occupation numbers and add
+c           to derivative
+c
+          do ii = 1, nbf
+            call daxpy(nbf,doccb(ii)/2.0d0,dcd(1,ii),1,
+     +                 r_dnob(1,ii,ist),1)
+          enddo
+c
+c         Next compute the gradient wrt. the occupation function
+c         coefficients, see Eq.(6).
+c
+c         = A-A: Compute F^A_am = sum_b F^A_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fa,nbf,
+     +               r_noa(1,1,ist),nbf,0.0d0,dcd,nbf)
+c
+c         = A-B: Compute F^A_am = sum_b F^B_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fb,nbf,
+     +               r_noa(1,1,ist),nbf,1.0d0,dcd,nbf)
+c
+c         = A-AB: Contract each column with C^DA_am
+c
+          do ii = 1, nbf
+            dvd(ii) = ddot(nbf,r_noa(1,ii,ist),1,dcd(1,ii),1)
+          enddo
+c
+c         = A-AB: Add the contribution to the gradient
+c
+          do ir = 1, nea(ist)
+            do ii = 1, nbf
+              r_dofa(ii,ir,ist) = r_dofa(ii,ir,ist)
+     +                          + dvd(ii)*r_ofa(ii,ir,ist)/2.0d0
+            enddo
+          enddo
+c
+c         = B-A: Compute F^A_am = sum_b F^A_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fa,nbf,
+     +               r_nob(1,1,ist),nbf,0.0d0,dcd,nbf)
+c
+c         = B-B: Compute F^A_am = sum_b F^B_ab C^DA_bm
+c
+          call dgemm('N','N',nbf,nbf,nbf,2.0d0,d_fb,nbf,
+     +               r_nob(1,1,ist),nbf,1.0d0,dcd,nbf)
+c
+c         = B-AB: Contract each column with C^DA_am
+c
+          do ii = 1, nbf
+            dvd(ii) = ddot(nbf,r_nob(1,ii,ist),1,dcd(1,ii),1)
+          enddo
+c
+c         = B-AB: Add the contribution to the gradient
+c
+          do ir = 1, neb(ist)
+            do ii = 1, nbf
+              r_dofb(ii,ir,ist) = r_dofb(ii,ir,ist)
+     +                          + dvd(ii)*r_ofb(ii,ir,ist)/2.0d0
+            enddo
+          enddo
+  
+        endif
+c
+      enddo
+c
+      end
+C> @}

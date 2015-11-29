@@ -1,0 +1,8 @@
+      interface
+        function wfn1_ad_dlapy2(x,y)
+          use wfn1_ad1
+          implicit none
+          type(wfn1_ad_dble) :: wfn1_ad_dlapy2
+          type(wfn1_ad_dble) :: x,y
+        end function
+      end interface

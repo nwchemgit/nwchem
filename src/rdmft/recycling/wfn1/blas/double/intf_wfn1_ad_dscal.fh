@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dscal(n,da,dx,incx)
+          use wfn1_ad1
+          implicit none
+          integer               n,incx
+          type(wfn1_ad_dble) :: da
+          type(wfn1_ad_dble) :: dx(*)
+        end subroutine
+      end interface

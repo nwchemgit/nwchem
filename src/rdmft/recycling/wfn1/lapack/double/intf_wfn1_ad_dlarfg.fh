@@ -1,0 +1,8 @@
+      interface
+        subroutine wfn1_ad_dlarfg(n,alpha,x,incx,tau)
+          use wfn1_ad1
+          implicit none
+          integer               n,incx
+          type(wfn1_ad_dble) :: tau,alpha,x(*)
+        end subroutine
+      end interface

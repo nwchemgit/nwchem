@@ -1,0 +1,10 @@
+      interface
+        subroutine wfn1_ad_daxpy(n,da,dx,incx,dy,incy)
+          use wfn1_ad1
+          implicit none
+          integer               n,incx,incy
+          type(wfn1_ad_dble) :: da
+          type(wfn1_ad_dble) :: dx(*)
+          type(wfn1_ad_dble) :: dy(*)
+        end subroutine
+      end interface

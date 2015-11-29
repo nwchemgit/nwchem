@@ -1,0 +1,11 @@
+      interface
+        subroutine wfn1_ad_dger(m,n,alpha,x,incx,y,incy,a,lda)
+          use wfn1_ad1
+          implicit none
+          integer               m,n,lda,incx,incy
+          type(wfn1_ad_dble) :: alpha
+          type(wfn1_ad_dble) :: a(lda,*)
+          type(wfn1_ad_dble) :: x(*)
+          type(wfn1_ad_dble) :: y(*)
+        end subroutine
+      end interface

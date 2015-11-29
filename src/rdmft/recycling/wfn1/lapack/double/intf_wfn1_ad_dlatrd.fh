@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dlatrd(uplo,n,nb,a,lda,e,tau,w,ldw)
+          use wfn1_ad1
+          implicit none
+          character             uplo
+          integer               n,nb,lda,ldw
+          type(wfn1_ad_dble) :: a(lda,*),e(*),tau(*),w(ldw,*)
+        end subroutine
+      end interface

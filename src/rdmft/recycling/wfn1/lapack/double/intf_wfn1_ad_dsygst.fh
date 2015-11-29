@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dsygst(itype,uplo,n,a,lda,b,ldb,info)
+          use wfn1_ad1
+          implicit none
+          character             uplo
+          integer               itype,n,info,lda,ldb
+          type(wfn1_ad_dble) :: a(lda,*),b(ldb,*)
+        end subroutine
+      end interface

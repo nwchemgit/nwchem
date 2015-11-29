@@ -1,0 +1,8 @@
+      interface
+        subroutine wfn1_ad_dlassq(n,x,incx,scale,sumsq)
+          use wfn1_ad1
+          implicit none
+          integer               n,incx
+          type(wfn1_ad_dble) :: scale,sumsq,x(*)
+        end subroutine
+      end interface

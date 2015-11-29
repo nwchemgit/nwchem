@@ -1,0 +1,11 @@
+      interface
+        subroutine wfn1_ad_dlarfb(side,trans,direct,storev,m,n,k,v,ldv,
+     +                            t,ldt,c,ldc,work,ldwork)
+          use wfn1_ad1
+          implicit none
+          character             side,trans,direct,storev
+          integer               m,n,k,ldv,ldt,ldc,ldwork
+          type(wfn1_ad_dble) :: t(ldt,*),c(ldc,*),v(ldv,*),
+     +                          work(ldwork,*)
+        end subroutine
+      end interface

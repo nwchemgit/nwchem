@@ -1,0 +1,724 @@
+/**
+@defgroup wfn1_nxt Next Step
+   @ingroup wfn1
+   The next step beyond using orthonormality
+@defgroup wfn1_nxt2 Next Step
+   @ingroup wfn1
+   The next step using Fock matrices
+*/
+
+/**
+\ingroup wfn1_nxt
+@{
+
+\file wfn1_next_step.dox
+Optimizing the energy expression with Newton steps
+
+\brief The single configuration wavefunction differentiation for optimization purposes
+
+# Analysis #
+
+So far we have tried numerical differentiation of the energy expression. The
+aspect of the Lagrangian multipliers has been dealt with by considering 
+explicitly rotations only. Both ground state energies and excited state 
+wavefunctions were obtained. The problem was that the excited state energies
+we not a good approximation of the real energies. The reason is that in our
+formulation of the density matrix based on occupation functions AND natural
+orbitals there are many redundant variables (the density matrix has only 
+\f$O(N^2)\f$ variables for one spin channel but the wavefunction in our
+formulation has \f$O(2N^2)\f$ variables, meaning half the variables are
+redundant). Imposing an orthogonality constraint in the presence of so many
+redundant variables leaves too much flexibility allowing a constrainted
+energy optimization to achieve unphysically low excitation energies.
+
+Given that a simple orthogonality constraint is insufficient we have to consider
+the true nature of electronic states. Electronic states each are stationary 
+points of the energy expression. This is true for the ground state as well
+as the excited states. Obviously the energy expression can be formulated in 
+terms of the density matrices, and here we assume that the exact energy 
+expression can be formulated in terms of the 1-electron density matrices 
+alone (even though that energy expression is currently unknown). 
+
+Hence what we need to be looking for are stationary points of the energy
+with respect to variations in the density matrix. The density matrices in
+turn are expressed in terms of occupation functions and natural orbitals
+(which helps enforcing the N-representability conditions). 
+
+The "obvious" thing to do then is to minimize the energy to obtain the ground
+state (we will calculate cannonical orbitals as that will aid finding the 
+excited states). For the excited states we will use a Newton-Raphson approach.
+This idea is based on two points:
+- 1. Given that we have a set of orbitals that minimize the total energy
+     any transformation mixing in virtual orbitals will raise the energy. 
+     The maximum of the energy along that mixing coordinate is reached at
+     a 180 degree rotation which corresponds to an orbital swap. Hence
+     interchanging orbitals will provide a guess with the correct structure
+     of the orbital Hessian.
+- 2. Direct inversion of the Hessian is impossible as the redundant variables
+     introduce a number of coordinates in which the derivatives on any order
+     are zero. However we can still attempt to solve a linear system of 
+     equations iteratively where we have \f$ A x = b\f$ and the null space
+     of \f$ A \f$ corresponds to null components of \f$b\f$ and hence the 
+     equation is satisfied for arbitrary values of \f$x\f$ in those 
+     coordinates (we will choose the corresponding components of \f$x\f$ to
+     be zero for convenience). 
+The task in hand here is to derive the gradient and Hessian expressions of this
+energy expression. 
+
+# Conventions #
+
+We have Occupation Functions which express the fractional occupation of every
+electron for each Natural orbital. The Natural Orbitals are expressed in terms
+of Basis Functions. We use the following variables to describe these 
+quantities:
+- \f$O\f$ the matrix of occupation function coefficients, one occupation 
+  function per column
+- \f$N\f$ the matrix of natural orbitals, one orbital per column
+- \f$D\f$ the 1-electron density matrix, density matrix for short
+- \f$d=\mathrm{eig}(D)\f$ the vector of eigenvalues of the density matrix
+- \f$p, q, r, s,\f$ occupation function labels
+- \f$i, j, k, l,\f$ natural orbital labels
+- \f$a, b, c, d,\f$ basis function labels (the context will disambiguate the
+  basis function label \f$d\f$ and the density matrix eigenvalue vector \f$d\f$,
+  where this fails the latter will be explicitly identified as \f$\vec{d}\f$).
+- \f$\sigma, \sigma', \alpha, \beta\f$ label spin-channels
+
+
+# Alternative approach - the method of Lagrange multipliers #
+
+The density matrices are by construction specified in the eigenvalue 
+representation. This also canonicalizes the corresponding orbitals as 
+natural orbitals. The eigenvalues of the density matrix, i.e. the occupation
+numbers are given by
+\f{eqnarray*}{
+  d^\sigma_i &=& \sum_{p=1}^{n_e^\sigma}O^\sigma_{ip}O^\sigma_{ip}
+\f}
+The density matrices are given by
+\f{eqnarray*}{
+  D^\sigma_{ab} &=& \sum_{i=1}^{N_{basis}}
+     N^{\sigma}_{ai}d^{\sigma}_{i}N^{\sigma}_{bi}
+\f}
+The natural orbitals are constrained to be orthonormal through a 
+Lagrangian \f$L_2\f$ defined as
+\f{eqnarray*}{
+  L_2 &=& \sum_\sigma \sum_{ij}\lambda_{ij}^{N\sigma}\left(
+          \sum_{ab}N^\sigma_{ai}S_{ab}N^\sigma_{bj}-\delta_{ij}\right)
+\f}
+Likewise the occupation functions are also orthonormal for which we have
+Lagrangian \f$L_1\f$ defined as
+\f{eqnarray*}{
+  L_1 &=& \sum_\sigma \sum_{pq}\lambda_{pq}^{O\sigma}\left(
+          \sum_{i}O^\sigma_{ip}O^\sigma_{iq}-\delta_{pq}\right)
+\f}
+The total energy can be expressed as
+\f{eqnarray*}{
+  E &=& E(D^\alpha,D^\beta)+L_1+L_2
+\f}
+We want to find expressions that allow the optimization of the 
+coefficients involved. We will consider this term-by-term starting with the
+Lagrangian terms.
+
+# Derivatives of Lagrangian \f$L_1\f$ #
+
+The 1st derivatives:
+\f{eqnarray*}{
+   \frac{\partial L_1}{\partial\lambda^{O\sigma}_{pq}}
+   &=& \sum_i O^\sigma_{ip}O^\sigma_{iq}-\delta_{pq}  \\\\
+   \frac{\partial L_1}{\partial O^{\sigma}_{js}}
+   &=& \sum_{pq}\lambda_{pq}^{O\sigma}\left(
+          \sum_i \delta_{ij}\delta_{ps}O^\sigma_{iq}
+       +  \sum_i \delta_{ij}\delta_{qs}O^\sigma_{ip}
+       \right) \\\\
+   &=& 2\sum_q\lambda^{O\sigma}_{sq}O_{jq}^\sigma
+\f}
+The 2nd derivatives:
+\f{eqnarray*}{
+   \frac{\partial^2 L_1}{\partial\lambda^{O\sigma}_{pq}\partial\lambda^{O\sigma'}_{st}}
+   &=& 0 \\\\
+   \frac{\partial^2 L_1}{\partial\lambda^{O\sigma}_{pq}\partial O^\sigma_{js}}
+   &=& \sum_i \delta_{ji}\delta_{ps}O^\sigma_{iq} +
+              \delta_{ji}\delta_{qs}O^\sigma_{ip}  \\\\
+   &=& \delta_{ps}O^\sigma_{jq} +
+       \delta_{qs}O^\sigma_{jp}  \\\\
+   \frac{\partial^2 L_1}{\partial O^{\sigma}_{js}\partial O^{\sigma'}_{kt}}
+   &=& 2\sum_q\delta_{\sigma\sigma'}\delta_{kj}\delta_{tq}\lambda^{O\sigma}_{sq} \\\\
+   &=& 2\delta_{\sigma\sigma'}\delta_{kj}\lambda^{O\sigma}_{st} \\\\
+\f}
+
+# Derivatives of Lagrangian \f$L_2\f$ #
+
+The 1st derivatives:
+\f{eqnarray*}{
+   \frac{\partial L_2}{\partial\lambda^{N\sigma}_{ij}}
+   &=& \sum_{ab} N^\sigma_{ai}S_{ab}N^\sigma_{bj}-\delta_{ij}  \\\\
+   \frac{\partial L_2}{\partial N^{\sigma}_{ck}}
+   &=& \sum_{ij}\lambda_{ij}^{N\sigma}\left(
+          \sum_{ab} \delta_{ik}\delta_{ac}S_{ab}N^\sigma_{bj}
+       +  \sum_{ab} \delta_{jk}\delta_{bc}S_{ab}N^\sigma_{ai}
+       \right) \\\\
+   &=& 2\sum_a\lambda^{N\sigma}_{ik}N_{ai}^\sigma S_{ac}
+\f}
+
+The 2nd derivatives:
+\f{eqnarray*}{
+   \frac{\partial^2 L_2}{\partial\lambda^{N\sigma}_{ij}\partial\lambda^{N\sigma'}_{kl}}
+   &=& 0 \\\\
+   \frac{\partial^2 L_2}{\partial\lambda^{N\sigma}_{ij}\partial N^\sigma_{ck}}
+   &=& 2\sum_a N^\sigma_{ai}S_{ac}\delta_{jk} \\\\
+   \frac{\partial^2 L_2}{\partial N^{\sigma'}_{ck}\partial N^{\sigma}_{dl}}
+   &=& 2\lambda^{N\sigma}_{kl}S_{cd}\delta_{\sigma\sigma'}
+\f}
+
+# Derivatives of the energy expression #
+
+The energy expression itself is given in terms of one-electron density
+matrices. This expression will be differentiated using the chain-rule.
+As part of this we will need derivatives of various components in the
+expressions. 
+
+## Derivatives of the density matrices ##
+
+First of all we construct the derivatives of the occupation numbers.
+\f{eqnarray*}{
+   \frac{\partial d_i^\sigma}{\partial O^{\sigma'}_{jq}}
+   &=& 2\delta_{\sigma\sigma'}\delta_{ij}O_{jq}^\sigma
+\f}
+The second derivatives are
+\f{eqnarray*}{
+   \frac{\partial^2 d_i^\sigma}{\partial O^{\sigma'}_{jq}\partial O^{\sigma"}_{ks}}
+   &=& 2\delta_{\sigma\sigma'}\delta_{\sigma\sigma"}\delta_{ij}\delta_{jk}\delta_{sq}
+\f}
+
+Second we derive the derivatives of the density matrix wrt. the natural 
+orbitals.
+\f{eqnarray*}{
+  \frac{\partial D^{\sigma}_{ab}}{\partial N^{\sigma'}_{cj}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}N_{aj}^\sigma d_j^\sigma
+\f}
+For the second derivative we have
+\f{eqnarray*}{
+  \frac{\partial^2 D^{\sigma}_{ab}}{\partial N^{\sigma'}_{cj}\partial N^{\sigma"}_{dk}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}\delta_{ad}\delta_{jk}d_j^\sigma
+\f}
+
+The cross term is 
+\f{eqnarray*}{
+  \frac{\partial^2 D^{\sigma}_{ab}}{\partial N^{\sigma'}_{cj}\partial O^{\sigma"}_{kq}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}N_{aj}^\sigma \frac{\partial d_j^\sigma}{\partial O^{\sigma"}_{kq}}
+\f}
+
+## Derivatives of the energy expression ##
+
+The energy expression can be partitioned in about four different terms.
+
+1. The one-electron energy expression
+   \f$E_1 = \sum_\sigma\sum_{ab} h_{ab}D^\sigma_{ab}\f$
+2. The Coulomb energy expression\
+   \f$E_C = \sum_{\sigma\sigma'}\sum_{abcd} D^\sigma_{ab}D^{\sigma'}_{cd}(ab|cd)\f$
+3. The exchange energy expression
+   \f$E_X = \sum_{\sigma}\sum_{abcd} F\left(D^\sigma_{ab}\right)F\left(D^{\sigma}_{cd}\right)(ad|cb)\f$
+4. The DFT exchange-correlation energy
+
+In the third equation \f$F\f$ is a function of the density matrix. In summary
+terms 2-4 can be thought of as sharing a common structure. Namely one where
+the energy term can be represented as \f$E=E(F(D^\sigma),F(D^{\sigma'}))\f$.
+From this we can derive the derivatives as
+\f{eqnarray*}{
+  \frac{\partial E}{\partial z^{\sigma"}} 
+  &=& E\left(\frac{\partial F}{\partial D},F\left(D\right)\right)
+      \frac{\partial D}{\partial z^{\sigma"}}
+\f}
+Differentiation of matrix valued matrix functions is non-trivial in that
+some aspects are not formalized or have only recently been addressed. However
+when a matrix function can be expressed directly in terms of the matrix elements
+then one can always differentiate wrt those matrix elements. In that case the
+normal rules of differentiation obviously apply. This approach has been the
+basis for calculating derivatives of matrix polynomials, for example. 
+
+So rather than using the derivative equation as suggested just above, we can use
+the idea from the previous paragraph. In our energy expression we have to deal
+with functions of the density matrix at worst. The evaluation of matrix
+functions is most easily executed in the eigenvalue representation of the 
+matrix
+\f{eqnarray*}{
+  [F\left(D^\sigma\right)]_{ab}
+  &=& \sum_i N^\sigma_{ai}f\left(d_i^\sigma\right)N^\sigma_{bi}
+\f}
+Hence it is fortunate that the occupation function concept expresses 
+the density matrices in exactly the right form that is needed for matrix
+function differentiation. In particular the density matrix function derivatives
+can easily be evaluated for derivative wrt. occupation function coefficients.
+
+The corresponding density matrix function derivatives can now be derived
+starting with the derivatives of the functions of the occupation numbers
+\f{eqnarray*}{
+   \frac{\partial f\left(d_i^\sigma\right)}{\partial O^{\sigma'}_{jq}}
+   &=& 2f'\left(d_i^\sigma\right)\delta_{\sigma\sigma'}\delta_{ij}O_{jq}^\sigma
+\f}
+The second derivatives are
+\f{eqnarray*}{
+   \frac{\partial^2 f\left(d_i^\sigma\right)}{\partial O^{\sigma'}_{jq}\partial O^{\sigma"}_{ks}}
+   &=& 2f'\left(d_i^\sigma\right)\delta_{\sigma\sigma'}\delta_{\sigma\sigma"}\delta_{ij}\delta_{jk}\delta_{sq}
+    +  2f"\left(d_i^\sigma\right)\delta_{\sigma\sigma'}\delta_{\sigma\sigma"}\delta_{ij}\delta_{ik}O^\sigma_{jq}O^\sigma_{ks}
+\f}
+
+The derivatives of functions of the density matrix can now be represented as
+follows. For the first order derivatives we have wrt the occupation functions
+we have.
+\f{eqnarray*}{
+  \frac{\partial f\left(D^\sigma\right)_{ab}}{\partial O^{\sigma'}_{jq}}
+  &=& \sum_{i=1}^{N_{basis}}
+     N^{\sigma}_{ai}
+     \frac{\partial f\left(d^{\sigma}_{i}\right)}{\partial O^{\sigma'}_{jq}}
+     N^{\sigma}_{bi}
+\f}
+The derivatives of the density matrix function wrt. the natural 
+orbitals are
+\f{eqnarray*}{
+  \frac{\partial f\left(D^{\sigma}\right)_{ab}}{\partial N^{\sigma'}_{cj}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}N_{aj}^\sigma f\left(d_j^\sigma\right)
+\f}
+For the second derivative we have
+\f{eqnarray*}{
+  \frac{\partial^2 f\left(D^\sigma\right)_{ab}}{\partial O^{\sigma'}_{jq}\partial O^{\sigma"}_{ks}}
+  &=& \sum_{i=1}^{N_{basis}}
+     N^{\sigma}_{ai}
+     \frac{\partial^2 f\left(d^{\sigma}_{i}\right)}{\partial O^{\sigma'}_{jq}\partial O^{\sigma"}_{ks}}
+     N^{\sigma}_{bi}
+\f}
+\f{eqnarray*}{
+  \frac{\partial^2 f\left(D^{\sigma}\right)_{ab}}{\partial N^{\sigma'}_{cj}\partial N^{\sigma"}_{dk}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}\delta_{ad}\delta_{jk}f\left(d_j^\sigma\right)
+\f}
+
+The cross term is 
+\f{eqnarray*}{
+  \frac{\partial^2 f\left(D^{\sigma}\right)_{ab}}{\partial N^{\sigma'}_{cj}\partial O^{\sigma"}_{kq}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}N_{aj}^\sigma \frac{\partial f\left(d_j^\sigma\right)}{\partial O^{\sigma"}_{kq}}
+\f}
+
+# Implementation plan #
+
+In this program we will have an energy expression and to optimize it we will
+need a gradient and the hessian. In order to be able to analyze the properties
+of the hessian matrix easily (e.g. compute its eigenvalues) this matrix
+will be computed explicitly. To be able to do this the data structures need
+to be serialized. Most parts of the data structures are NxN matrices and those
+will be serialized the same way that the matrices are stored natively in 
+Fortran. Beyond that the order of the main entities is needed. The main
+entities are listed in the order:
+
+1. The \f$\alpha\f$-electron occupation functions \f$O^\alpha\f$
+2. The \f$\alpha\f$-electron natural orbitals \f$N^\alpha\f$
+3. The \f$\alpha\f$-electron occupation function Lagragian multipliers 
+   \f$\lambda^{O\alpha}\f$
+4. The \f$\alpha\f$-electron natural orbital Lagragian multipliers 
+   \f$\lambda^{N\alpha}\f$
+5. The \f$\beta\f$-electron occupation functions \f$O^\beta\f$
+6. The \f$\beta\f$-electron natural orbitals \f$N^\beta\f$
+7. The \f$\beta\f$-electron occupation function Lagragian multipliers 
+   \f$\lambda^{O\beta}\f$
+8. The \f$\beta\f$-electron natural orbital Lagragian multipliers 
+   \f$\lambda^{N\beta}\f$
+
+The general approach will be that on the main level in the code the gradient
+and the wavefunction (including Lagrange multipliers) will be stored as a
+vectors, and the hessian as a matrix. Within the compute routines the 
+representation will be swapped so that the gradient and the wavefunction will
+be represented as matrices. The hessian will be represented as a 4-dimensional
+tensor. In the tensor representation the hessian the first 2 indeces will be
+flipped around compared to the last 2 to take the transposition into account.
+
+As for the starting conditions the calculation will be started using 
+Hartree-Fock orbitals for the natural orbitals. In addition the occupation
+functions will simply be unit vectors. The Lagrange multipliers will start off
+at 0. Note that these choices imply that at the start the Lagrangian 
+conditions will be met. At this moment I am not sure how the combination of 0
+Lagragian multipliers and the Lagrangian conditions being met will work out
+with the optimization on the first line search.
+
+To implement are:
+
+1. Routines to evaluate the energy expression
+2. Routines to evaluate the energy and gradient expression
+3. Routines to evaluate the energy, gradient and hessian expression.
+
+The algorithm overall is:
+
+1. Optimize the groundstate energy
+   1. Calculate the energy and gradient at the starting point
+   2. Do a line search for the minimum energy along the gradient
+   3. Go back to a. until converged
+2. Canonicalize the occupation functions (this requires updating the 
+   Lagrange multipliers)
+3. Swap occupied and virtual occupation functions to generate a guess for
+   the desired excited state
+4. Optimize the excited state with Newton-steps
+   1. Compute the energy, gradient (g), and hessian (H)
+   2. Solve \f$Hs=g\f$ for the step (s)
+   3. Update the wavefunction with the step
+   4. Go back to a. until converged
+
+Note that step e. will be a bit tricky as the hessian must have many 0 
+eigenvalues. This should not be a problem as the corresponding components of
+the gradient should also be 0. However the numerics might be rather sensitive
+about this.
+
+Furthermore to note is that for the DFT parts we have to base the gradient
+implementation on the fact that the DFT module can only provide terms to
+the Fock matrix. The equations will need to be formulated accordingly. 
+For the hessian the DFT contributions are even more troublesome. The DFT code
+is not written to produce an explicit hessian matrix. In the worst case we may
+need to extend the DFT module to be able to calculate that explicitly. 
+
+
+# Alternative approach - using penalty functions #
+
+The density matrices are by construction specified in the eigenvalue 
+representation. This also canonicalizes the corresponding orbitals as 
+natural orbitals. The eigenvalues of the density matrix, i.e. the occupation
+numbers are given by
+\f{eqnarray*}{
+  d^\sigma_i &=& \sum_{p=1}^{n_e^\sigma}O^\sigma_{ip}O^\sigma_{ip}
+\f}
+The density matrices are given by
+\f{eqnarray*}{
+  D^\sigma_{ab} &=& \sum_{i=1}^{N_{basis}}
+     N^{\sigma}_{ai}d^{\sigma}_{i}N^{\sigma}_{bi}
+\f}
+The natural orbitals are constrained to be orthonormal through a 
+penalty term \f$L_2\f$ defined as
+\f{eqnarray*}{
+  L_2 &=& \sum_\sigma \sum_{ij}\lambda_{ij}^{N\sigma}\left(
+          \sum_{ab}N^\sigma_{ai}S_{ab}N^\sigma_{bj}-\delta_{ij}\right)^2
+\f}
+Likewise the occupation functions are also orthonormal for which we have
+the penalty function \f$L_1\f$ defined as
+\f{eqnarray*}{
+  L_1 &=& \sum_\sigma \sum_{pq}\lambda_{pq}^{O\sigma}\left(
+          \sum_{i}O^\sigma_{ip}O^\sigma_{iq}-\delta_{pq}\right)^2
+\f}
+The total energy can be expressed as
+\f{eqnarray*}{
+  E &=& E(D^\alpha,D^\beta)+L_1+L_2
+\f}
+We want to find expressions that allow the optimization of the 
+coefficients involved. We will consider this term-by-term starting with the
+Lagrangian terms.
+
+# Derivatives of penalty function \f$L_1\f$ #
+
+The 1st derivatives:
+\f{eqnarray*}{
+   \frac{\partial L_1}{\partial\lambda^{O\sigma}_{pq}}
+   &=& \left(\sum_i O^\sigma_{ip}O^\sigma_{iq}-\delta_{pq}\right)^2  \\\\
+   \frac{\partial L_1}{\partial O^{\sigma}_{js}}
+   &=& 2\sum_{pq}\lambda_{pq}^{O\sigma}
+       \left(\sum_i O^\sigma_{ip}O^\sigma_{iq}-\delta_{pq}\right)
+       \left(
+          \sum_i \delta_{ij}\delta_{ps}O^\sigma_{iq}
+       +  \sum_i \delta_{ij}\delta_{qs}O^\sigma_{ip}
+       \right) \\\\
+   &=& 4\sum_q\lambda^{O\sigma}_{sq}
+       \left(\sum_i O^\sigma_{is}O^\sigma_{iq}-\delta_{sq}\right)
+       O_{jq}^\sigma
+\f}
+The 2nd derivatives <b>(not done)</b>:
+\f{eqnarray*}{
+   \frac{\partial^2 L_1}{\partial\lambda^{O\sigma}_{pq}\partial\lambda^{O\sigma'}_{st}}
+   &=& 0 \\\\
+   \frac{\partial^2 L_1}{\partial\lambda^{O\sigma}_{pq}\partial O^\sigma_{js}}
+   &=& \sum_i \delta_{ji}\delta_{ps}O^\sigma_{iq} +
+              \delta_{ji}\delta_{qs}O^\sigma_{ip}  \\\\
+   &=& \delta_{ps}O^\sigma_{jq} +
+       \delta_{qs}O^\sigma_{jp}  \\\\
+   \frac{\partial^2 L_1}{\partial O^{\sigma}_{js}\partial O^{\sigma'}_{kt}}
+   &=& 2\sum_q\delta_{\sigma\sigma'}\delta_{kj}\delta_{tq}\lambda^{O\sigma}_{sq} \\\\
+   &=& 2\delta_{\sigma\sigma'}\delta_{kj}\lambda^{O\sigma}_{st} \\\\
+\f}
+
+# Derivatives of penalty function \f$L_2\f$ #
+
+The 1st derivatives:
+\f{eqnarray*}{
+   \frac{\partial L_2}{\partial\lambda^{N\sigma}_{ij}}
+   &=& \left(\sum_{ab} N^\sigma_{ai}S_{ab}N^\sigma_{bj}-\delta_{ij}\right)^2  \\\\
+   \frac{\partial L_2}{\partial N^{\sigma}_{ck}}
+   &=& 2\sum_{ij}\lambda_{ij}^{N\sigma}
+       \left(\sum_{ab} N^\sigma_{ai}S_{ab}N^\sigma_{bj}-\delta_{ij}\right)
+       \left(
+          \sum_{ab} \delta_{ik}\delta_{ac}S_{ab}N^\sigma_{bj}
+       +  \sum_{ab} \delta_{jk}\delta_{bc}S_{ab}N^\sigma_{ai}
+       \right) \\\\
+   &=& 4\sum_i \lambda^{N\sigma}_{ik}
+        \left(\sum_{ab} N^\sigma_{ai}S_{ab}N^\sigma_{bk}-\delta_{ik}\right)
+       \left(\sum_a N_{ai}^\sigma S_{ac}\right)
+\f}
+
+The 2nd derivatives <b>(not done)</b>:
+\f{eqnarray*}{
+   \frac{\partial^2 L_2}{\partial\lambda^{N\sigma}_{ij}\partial\lambda^{N\sigma'}_{kl}}
+   &=& 0 \\\\
+   \frac{\partial^2 L_2}{\partial\lambda^{N\sigma}_{ij}\partial N^\sigma_{ck}}
+   &=& 2\sum_a N^\sigma_{ai}S_{ac}\delta_{jk} \\\\
+   \frac{\partial^2 L_2}{\partial N^{\sigma'}_{ck}\partial N^{\sigma}_{dl}}
+   &=& 2\lambda^{N\sigma}_{kl}S_{cd}\delta_{\sigma\sigma'}
+\f}
+
+# Derivatives of the energy expression #
+
+The energy expression itself is given in terms of one-electron density
+matrices. This expression will be differentiated using the chain-rule.
+As part of this we will need derivatives of various components in the
+expressions. 
+
+## Derivatives of the density matrices ##
+
+First of all we construct the derivatives of the occupation numbers.
+\f{eqnarray*}{
+   \frac{\partial d_i^\sigma}{\partial O^{\sigma'}_{jq}}
+   &=& 2\delta_{\sigma\sigma'}\delta_{ij}O_{jq}^\sigma
+\f}
+The second derivatives are
+\f{eqnarray*}{
+   \frac{\partial^2 d_i^\sigma}{\partial O^{\sigma'}_{jq}\partial O^{\sigma"}_{ks}}
+   &=& 2\delta_{\sigma\sigma'}\delta_{\sigma\sigma"}\delta_{ij}\delta_{jk}\delta_{sq}
+\f}
+
+Second we derive the derivatives of the density matrix wrt. the natural 
+orbitals.
+\f{eqnarray*}{
+  \frac{\partial D^{\sigma}_{ab}}{\partial N^{\sigma'}_{cj}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}N_{aj}^\sigma d_j^\sigma
+\f}
+For the second derivative we have
+\f{eqnarray*}{
+  \frac{\partial^2 D^{\sigma}_{ab}}{\partial N^{\sigma'}_{cj}\partial N^{\sigma"}_{dk}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}\delta_{ad}\delta_{jk}d_j^\sigma
+\f}
+
+The cross term is 
+\f{eqnarray*}{
+  \frac{\partial^2 D^{\sigma}_{ab}}{\partial N^{\sigma'}_{cj}\partial O^{\sigma"}_{kq}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}N_{aj}^\sigma \frac{\partial d_j^\sigma}{\partial O^{\sigma"}_{kq}}
+\f}
+
+## Derivatives of the energy expression ##
+
+The energy expression can be partitioned in about four different terms.
+
+1. The one-electron energy expression
+   \f$E_1 = \sum_\sigma\sum_{ab} h_{ab}D^\sigma_{ab}\f$
+2. The Coulomb energy expression\
+   \f$E_C = \sum_{\sigma\sigma'}\sum_{abcd} D^\sigma_{ab}D^{\sigma'}_{cd}(ab|cd)\f$
+3. The exchange energy expression
+   \f$E_X = \sum_{\sigma}\sum_{abcd} F\left(D^\sigma_{ab}\right)F\left(D^{\sigma}_{cd}\right)(ad|cb)\f$
+4. The DFT exchange-correlation energy
+
+In the third equation \f$F\f$ is a function of the density matrix. In summary
+terms 2-4 can be thought of as sharing a common structure. Namely one where
+the energy term can be represented as \f$E=E(F(D^\sigma),F(D^{\sigma'}))\f$.
+From this we can derive the derivatives as
+\f{eqnarray*}{
+  \frac{\partial E}{\partial z^{\sigma"}} 
+  &=& E\left(\frac{\partial F}{\partial D},F\left(D\right)\right)
+      \frac{\partial D}{\partial z^{\sigma"}}
+\f}
+Differentiation of matrix valued matrix functions is non-trivial in that
+some aspects are not formalized or have only recently been addressed. However
+when a matrix function can be expressed directly in terms of the matrix elements
+then one can always differentiate wrt those matrix elements. In that case the
+normal rules of differentiation obviously apply. This approach has been the
+basis for calculating derivatives of matrix polynomials, for example. 
+
+So rather than using the derivative equation as suggested just above, we can use
+the idea from the previous paragraph. In our energy expression we have to deal
+with functions of the density matrix at worst. The evaluation of matrix
+functions is most easily executed in the eigenvalue representation of the 
+matrix
+\f{eqnarray*}{
+  [F\left(D^\sigma\right)]_{ab}
+  &=& \sum_i N^\sigma_{ai}f\left(d_i^\sigma\right)N^\sigma_{bi}
+\f}
+Hence it is fortunate that the occupation function concept expresses 
+the density matrices in exactly the right form that is needed for matrix
+function differentiation. In particular the density matrix function derivatives
+can easily be evaluated for derivative wrt. occupation function coefficients.
+
+The corresponding density matrix function derivatives can now be derived
+starting with the derivatives of the functions of the occupation numbers
+\f{eqnarray*}{
+   \frac{\partial f\left(d_i^\sigma\right)}{\partial O^{\sigma'}_{jq}}
+   &=& 2f'\left(d_i^\sigma\right)\delta_{\sigma\sigma'}\delta_{ij}O_{jq}^\sigma
+\f}
+The second derivatives are
+\f{eqnarray*}{
+   \frac{\partial^2 f\left(d_i^\sigma\right)}{\partial O^{\sigma'}_{jq}\partial O^{\sigma"}_{ks}}
+   &=& 2f'\left(d_i^\sigma\right)\delta_{\sigma\sigma'}\delta_{\sigma\sigma"}\delta_{ij}\delta_{jk}\delta_{sq}
+    +  2f"\left(d_i^\sigma\right)\delta_{\sigma\sigma'}\delta_{\sigma\sigma"}\delta_{ij}\delta_{ik}O^\sigma_{jq}O^\sigma_{ks}
+\f}
+
+The derivatives of functions of the density matrix can now be represented as
+follows. For the first order derivatives we have wrt the occupation functions
+we have.
+\f{eqnarray*}{
+  \frac{\partial f\left(D^\sigma\right)_{ab}}{\partial O^{\sigma'}_{jq}}
+  &=& \sum_{i=1}^{N_{basis}}
+     N^{\sigma}_{ai}
+     \frac{\partial f\left(d^{\sigma}_{i}\right)}{\partial O^{\sigma'}_{jq}}
+     N^{\sigma}_{bi}
+\f}
+The derivatives of the density matrix function wrt. the natural 
+orbitals are
+\f{eqnarray*}{
+  \frac{\partial f\left(D^{\sigma}\right)_{ab}}{\partial N^{\sigma'}_{cj}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}N_{aj}^\sigma f\left(d_j^\sigma\right)
+\f}
+For the second derivative we have
+\f{eqnarray*}{
+  \frac{\partial^2 f\left(D^\sigma\right)_{ab}}{\partial O^{\sigma'}_{jq}\partial O^{\sigma"}_{ks}}
+  &=& \sum_{i=1}^{N_{basis}}
+     N^{\sigma}_{ai}
+     \frac{\partial^2 f\left(d^{\sigma}_{i}\right)}{\partial O^{\sigma'}_{jq}\partial O^{\sigma"}_{ks}}
+     N^{\sigma}_{bi}
+\f}
+\f{eqnarray*}{
+  \frac{\partial^2 f\left(D^{\sigma}\right)_{ab}}{\partial N^{\sigma'}_{cj}\partial N^{\sigma"}_{dk}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}\delta_{ad}\delta_{jk}f\left(d_j^\sigma\right)
+\f}
+
+The cross term is 
+\f{eqnarray*}{
+  \frac{\partial^2 f\left(D^{\sigma}\right)_{ab}}{\partial N^{\sigma'}_{cj}\partial O^{\sigma"}_{kq}}
+  &=& 2\delta_{\sigma\sigma'}\delta_{bc}N_{aj}^\sigma \frac{\partial f\left(d_j^\sigma\right)}{\partial O^{\sigma"}_{kq}}
+\f}
+
+# Implementation plan #
+
+In this program we will have an energy expression and to optimize it we will
+need a gradient and the hessian. In order to be able to analyze the properties
+of the hessian matrix easily (e.g. compute its eigenvalues) this matrix
+will be computed explicitly. To be able to do this the data structures need
+to be serialized. Most parts of the data structures are NxN matrices and those
+will be serialized the same way that the matrices are stored natively in 
+Fortran. Beyond that the order of the main entities is needed. The main
+entities are listed in the order:
+
+1. The \f$\alpha\f$-electron occupation functions \f$O^\alpha\f$
+2. The \f$\alpha\f$-electron natural orbitals \f$N^\alpha\f$
+3. The \f$\alpha\f$-electron occupation function Lagragian multipliers 
+   \f$\lambda^{O\alpha}\f$
+4. The \f$\alpha\f$-electron natural orbital Lagragian multipliers 
+   \f$\lambda^{N\alpha}\f$
+5. The \f$\beta\f$-electron occupation functions \f$O^\beta\f$
+6. The \f$\beta\f$-electron natural orbitals \f$N^\beta\f$
+7. The \f$\beta\f$-electron occupation function Lagragian multipliers 
+   \f$\lambda^{O\beta}\f$
+8. The \f$\beta\f$-electron natural orbital Lagragian multipliers 
+   \f$\lambda^{N\beta}\f$
+
+The general approach will be that on the main level in the code the gradient
+and the wavefunction (including Lagrange multipliers) will be stored as a
+vectors, and the hessian as a matrix. Within the compute routines the 
+representation will be swapped so that the gradient and the wavefunction will
+be represented as matrices. The hessian will be represented as a 4-dimensional
+tensor. In the tensor representation the hessian the first 2 indeces will be
+flipped around compared to the last 2 to take the transposition into account.
+
+As for the starting conditions the calculation will be started using 
+Hartree-Fock orbitals for the natural orbitals. In addition the occupation
+functions will simply be unit vectors. The Lagrange multipliers will start off
+at 0. Note that these choices imply that at the start the Lagrangian 
+conditions will be met. At this moment I am not sure how the combination of 0
+Lagragian multipliers and the Lagrangian conditions being met will work out
+with the optimization on the first line search.
+
+To implement are:
+
+1. Routines to evaluate the energy expression
+2. Routines to evaluate the energy and gradient expression
+3. Routines to evaluate the energy, gradient and hessian expression.
+
+The algorithm overall is:
+
+1. Optimize the groundstate energy
+   1. Calculate the energy and gradient at the starting point
+   2. Do a line search for the minimum energy along the gradient
+   3. Go back to a. until converged
+2. Canonicalize the occupation functions (this requires updating the 
+   Lagrange multipliers)
+3. Swap occupied and virtual occupation functions to generate a guess for
+   the desired excited state
+4. Optimize the excited state with Newton-steps
+   1. Compute the energy, gradient (g), and hessian (H)
+   2. Solve \f$Hs=g\f$ for the step (s)
+   3. Update the wavefunction with the step
+   4. Go back to a. until converged
+
+Note that step e. will be a bit tricky as the hessian must have many 0 
+eigenvalues. This should not be a problem as the corresponding components of
+the gradient should also be 0. However the numerics might be rather sensitive
+about this.
+
+Furthermore to note is that for the DFT parts we have to base the gradient
+implementation on the fact that the DFT module can only provide terms to
+the Fock matrix. The equations will need to be formulated accordingly. 
+For the hessian the DFT contributions are even more troublesome. The DFT code
+is not written to produce an explicit hessian matrix. In the worst case we may
+need to extend the DFT module to be able to calculate that explicitly. 
+
+# Notes on Rotations #
+
+The transformations used to move forward from one set of vectors to the next
+are rotations. In the general case these rotations take place in a high 
+dimensional space and around an arbitrary axis. Nevertheless, they are 
+rotations and therefore should satisfy certain condition (e.g. rotations must
+have a period of \f$2\pi\f$. As we will be doing line searches along these
+rotations it would seem good to know some of these properties so that sensible
+choices can be made. 
+
+From http://en.wikipedia.org/wiki/Rotation_matrix we have that the angle of
+rotation relates to the trace of the rotation matrix as
+\f{eqnarray*}{
+  \mathrm{trace}(R) &=& 1+2\cos\theta
+\f}
+Furthermore (at least in 3D) given a unit vector \f$u=(u_x,u_y,u_z)\f$ a 
+rotation by \f$\theta\f$ around that vector is given by
+\f{eqnarray*}{
+   R &=& I\cos\theta + \sin\theta [u]_{\times} + (1-\cos\theta)u\otimes u
+\f}
+where \f$[u]_\times\f$ is the cross-product matrix and \f$\otimes\f$ is the
+tensor product.
+
+
+# more stuff... #
+
+\f{eqnarray*}{
+  \frac{\partial E}{\partial C^{O\sigma}_{ip}} &=&
+  \sum_{ab}
+  \frac{\partial E}{\partial D^{\sigma}_{ab}}
+  \frac{\partial D^{\sigma}_{ab}}{\partial C^{O\sigma}_{ip}} \\\\
+  &=& 2\sum_{ab}\sum_i F^\sigma_{ab}C^{D\sigma}_{aj}C^{D\sigma}_{bi}
+      C^{O\sigma}_{ip}
+\f}
+\f{eqnarray*}{
+  \frac{\partial E}{\partial C^{D\sigma}_{cj}} &=&
+  \sum_{ab}
+  \frac{\partial E}{\partial D^{\sigma}_{ab}}
+  \frac{\partial D^{\sigma}_{ab}}{\partial C^{D\sigma}_{cj}} \\\\
+  &=& \sum_{ab} F^\sigma_{ab} \sum_{ip}\left(
+      \delta_{ca}\delta_{ij}C^{D\sigma}_{bi}
+      C^{O\sigma}_{ip}C^{O\sigma}_{ip}+
+      \delta_{cb}\delta_{ij}C^{D\sigma}_{ai}
+      C^{O\sigma}_{ip}C^{O\sigma}_{ip}\right) \\\\
+  &=& \sum_{ab} F^\sigma_{ab} \sum_{ip}
+      \delta_{ca}\delta_{ij}C^{D\sigma}_{bi}
+      C^{O\sigma}_{ip}C^{O\sigma}_{ip}+
+      \sum_{ab} F^\sigma_{ab} \sum_{ip}
+      \delta_{cb}\delta_{ij}C^{D\sigma}_{ai}
+      C^{O\sigma}_{ip}C^{O\sigma}_{ip} \\\\
+  &=& 2\sum_b F^\sigma_{ab}C^{D\sigma}_{bj}
+      \sum_p C^{O\sigma}_{jp}C^{O\sigma}_{jp}
+\f}
+@}
+*/

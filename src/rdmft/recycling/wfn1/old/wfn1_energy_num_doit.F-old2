@@ -1,0 +1,865 @@
+C> \ingroup wfn1
+C> @{
+C>
+C> \brief Go and numerically optimize the energy in wfn1 formalism
+C>
+C> Go and actually compute the total energy within the wfn1
+C> formalism. It is assumed that all the memory has been arranged in
+C> the calling routine.
+C>
+C> Because the gradient of the energy is somehow non-trivial to
+C> formulate correctly this routine uses numerical differentation
+C> to optimize the energy. Obviously this is rather inefficient but
+C> it will
+C> - provide an opportunity to assess the quality of the energy
+C>   expression,
+C> - provide a reference implementation that can be used to test
+C>   analytical derivatives.
+C> The routine uses the 3-point rule for the gradient:
+C> \f{eqnarray*}{
+C>   \frac{\partial f}{\partial x} 
+C>   &=& \frac{f(x+h)-f(x-h)}{2h} + O(h^2)
+C> \f}
+C> as well as the 3-point rule for the second derivative:
+C> \f{eqnarray*}{
+C>   \frac{\partial^2 f}{\partial x^2} 
+C>   &=& \frac{f(x+h)-2f(x)+f(x-h)}{h^2} + O(h)
+C> \f}
+C> This information allows a reasonable estimate of the displacement
+C> \f$d\f$ such that
+C> \f{eqnarray*}{
+C>   \left.\frac{\partial f(y)}{\partial y}\right|_{y=x+d} &=& 0
+C> \f}
+C> The question of picking the optimal \f$h\f$ involves the trade-off
+C> between two kinds of errors:
+C> - the truncation error is smaller for smaller \f$h\f$
+C> - the numerical round-off error is smaller for larger \f$h\f$
+C> On balance \f$h_{\mathrm{opt}} = max(|x|,1)\sqrt{\epsilon}\f$,
+C> where \f$\epsilon\f$ is the machine precision.
+C>
+C> The basic algorithm behind this routine is to go through the four
+C> sets of rotations:
+C> - \f$\alpha\f$-occupation functions
+C> - \f$\beta\f$-occupation functions
+C> - \f$\alpha\f$-natural orbitals functions
+C> - \f$\beta\f$-natural orbitals functions
+C> and for each set loop over all function pairs evaluating for each
+C> what a rotation by a small angle would do to the energy. These 
+C> iterations are repeated until the gradient gets really small.
+C>
+C> If we do the \f$\alpha\f$ rotations first and then the \f$\beta\f$
+C> rotations spin symmetry breaking occurs. The reason is that the 
+C> optimization of the beta orbitals takes place in a different 
+C> environment than the optimization of the alpha orbitals. Hence we
+C> need a different algorithm. The new algorithms is as follows:
+C> - For the occupation functions
+C>   - for all orbital pairs work out the rotations of alpha functions
+C>     (but do not apply the rotation)
+C>   - for all orbital pairs work out the rotations of beta functions
+C>     (but do not apply the rotation)
+C>   - having constructed the alpha and beta rotation matrices
+C>     apply both rotations to the wavefunction
+C> - For the natural orbitals
+C>   - for all orbital pairs work out the rotations of alpha functions
+C>     (but do not apply the rotation)
+C>   - for all orbital pairs work out the rotations of beta functions
+C>     (but do not apply the rotation)
+C>   - having constructed the alpha and beta rotation matrices
+C>     apply both rotations to the wavefunction
+C> In addition we need to start the calculation off in a smart way
+C> as the Hartree-Fock solution is typically meta-stable. We do this
+C> by starting with small rotations and increase the rotation angle
+C> until the entropy has a favorable effect. In this phase we do not
+C> calculate the gradient, but pick the lowest energy from the three
+C> points we calculate and use the corresponding rotation. Using the
+C> gradient could once again make the step too small and we get no 
+C> energy lowering. Finally to get a sensible distribution of the
+C> electrons over the natural orbitals we want to reduce the angle
+C> of rotation between orbitals with very different energies. For this
+C> purpose we can use the expression
+C> \f{eqnarray*}{
+C>   A &=& \frac{A0}{1+abs(\epsilon_s-\epsilon_t)}
+C> \f}
+C> where \f$A0\f$ is the base rotation, \f$A\f$ is the actual rotation,
+C> and \f$\epsilon_s\f$ and \f$\epsilon_t\f$ are orbital energies.
+C>
+      subroutine wfn1_energy_num_doit(rtdb,geom,basis,tol,nbf,nst,
+     +           nea,neb,h1,eri,erix,ov,r_noa,r_nob,r_ofa,r_ofb,
+     +           r_noa2,r_nob2,r_ofa2,r_ofb2,rota,rotb,sm1,En0,r_u,r_l,
+     +           l_acta,l_actb,Ehfa,Ehfb,Ewfa,Ewfb,enta,entb,
+     +           tol_act)
+      implicit none
+c
+#include "stdio.fh"
+c
+      integer rtdb     !< [Input] The runtime database handle
+      integer geom     !< [Input] The geometry handle
+      integer basis    !< [Input] The basis set handle
+      integer nbf      !< [Input] The number of basis functions
+      integer nst      !< [Input] The number of states
+      integer nea(nst) !< [Input] The number of alpha electrons
+      integer neb(nst) !< [Input] The number of beta electrons
+c
+      double precision h1(nbf,nbf) !< [Scratch] The 1-electron 
+                                   !< Hamiltonian
+      double precision ov(nbf,nbf) !< [Scratch] The overlap integrals
+      double precision eri(nbf,nbf,nbf,nbf) !< [Scratch] The 2-electron 
+                                            !< integrals
+      double precision erix(nbf,nbf,nbf,nbf) !< [Scratch] The 2-electron
+                                             !< integrals
+c
+      double precision tol                !< Convergence tolerance
+      double precision r_noa(nbf,nbf,nst) !< [In/Output] The alpha
+      !< electron natural orbitals
+      double precision r_nob(nbf,nbf,nst) !< [In/Output] The beta
+      !< electron natural orbitals
+      double precision r_ofa(nbf,nbf,nst) !< [In/Output] The alpha
+      !< electron occupation functions
+      double precision r_ofb(nbf,nbf,nst) !< [In/Output] The beta
+      !< electron occupation functions
+      double precision r_noa2(nbf,nbf,nst) !< [Scratch] The alpha
+      !< electron natural orbitals
+      double precision r_nob2(nbf,nbf,nst) !< [Scratch] The beta
+      !< electron natural orbitals
+      double precision r_ofa2(nbf,nbf,nst) !< [Scratch] The alpha
+      !< electron occupation functions
+      double precision r_ofb2(nbf,nbf,nst) !< [Scratch] The beta
+      !< electron occupation functions
+      double precision rota(nbf,nbf) !< [Scratch] The alpha
+      !< orbital rotation matrix
+      double precision rotb(nbf,nbf) !< [Scratch] The beta
+      !< orbital rotation matrix
+      double precision sm1(nbf,nbf) !< [Scratch] Matrix
+c
+      double precision En0(nst) !< [Output] The total energies
+c
+      double precision r_u(nbf,nbf) !< [Scratch] The rotation matrix
+      double precision r_l(nbf,nbf) !< [Scratch] The lagrangian matrix
+c
+      logical l_acta(nbf,nst) !< [Scratch] Which \f$\alpha\f$
+      !< natural orbitals are active
+      logical l_actb(nbf,nst) !< [Scratch] Which \f$\beta\f$
+      !< natural orbitals are active
+c
+      double precision Ehfa(nbf) !< [Input] The Hartree-Fock alpha 
+      !< orbital energies
+      double precision Ehfb(nbf) !< [Input] The Hartree-Fock beta
+      !< orbital energies
+      double precision Ewfa(nbf) !< [Scratch] The wfn1 alpha 
+      !< orbital energies
+      double precision Ewfb(nbf) !< [Scratch] The wfn1 beta
+      !< orbital energies
+      double precision enta(nbf) !< [Scratch] The alpha orbital
+      !< entropies
+      double precision entb(nbf) !< [Scratch] The beta orbital entropies
+c
+      double precision tol_act !< [Input] The threshold for active
+      !< natural orbitals
+c
+c     Local variables
+c
+      integer iteration           !< The iteration counter
+      integer it_ent              !< The iteration counter for entropy
+      double precision dnorm      !< The gradient norm
+      double precision dnorm1(nst)!< The gradient norm for each state
+      double precision damp       !< The damping factor
+                                  !< for an energy minimization
+      double precision h          !< The step size
+      double precision ho         !< The step size for
+                                  !< occupation functions
+      double precision sum        !< An accumulator
+      double precision d          !< The displacement
+      double precision rotup(2,2) !< Rotation over positive angle
+      double precision rotdn(2,2) !< Rotation over negative angle
+      double precision rotupo(2,2) !< Rotation over positive
+                                   !< angle occupation
+      double precision rotdno(2,2) !< Rotation over negative
+                                   !< angle occupation
+      double precision Em1(nst)   !< The total energies
+      double precision Ep1(nst)   !< The total energies
+      double precision dE         !< The energy gradient
+      double precision d2E        !< The energy Hessian
+      double precision serr       !< The error in S^2
+      double precision oerr       !< The error in the orbital ordering
+      double precision sfac       !< The scale factor for the spin
+                                  !< penality function
+      double precision ofac       !< The scale factor for the orbital
+                                  !< order penality function
+      double precision pi         !< The number Pi.
+      integer is                  !< Counter over occupation functions
+      integer it                  !< Counter over occupation functions
+      integer iu                  !< Counter over occupation functions
+      integer im                  !< Counter over natural orbitals
+      integer in                  !< Counter over natural orbitals
+      integer ist                 !< Counter over states
+c
+c     Parameters
+c
+      integer max_it  !< The maximum number of iterations in pre-opt
+                      !< loop.
+      parameter (max_it = 20)
+c
+c     Functions
+c
+      double precision wfn1_norm
+      external         wfn1_norm
+c
+c     Optimal h is the square root of the machine precision
+c
+      pi = acos(-1.0d0)
+      sfac = 1.0d-1
+      ofac = 1.0d0
+      tol_act = -1.0d0
+      h = 1.0d-8
+cDEBUG
+      write(*,*)'convergence tolerance = ',tol
+      h = 1.0d-4
+cDEBUG
+      rotup(1,1) =  cos(h)
+      rotup(2,1) = -sin(h)
+      rotup(1,2) =  sin(h)
+      rotup(2,2) =  cos(h)
+      rotdn(1,1) =  cos(-h)
+      rotdn(2,1) = -sin(-h)
+      rotdn(1,2) =  sin(-h)
+      rotdn(2,2) =  cos(-h)
+c
+c     For now we use a steepest decent implementation
+c
+      call dfill(nbf*nbf,0.0d0,h1,1)
+      call dfill(nbf*nbf,0.0d0,ov,1)
+      call dfill(nbf*nbf*nbf*nbf,0.0d0,eri,1)
+      call dfill(nbf*nbf*nbf*nbf,0.0d0,erix,1)
+      call dfill(nbf*nbf,0.0d0,r_l,1)
+c
+      call int_init(rtdb,1,basis)
+      call wfn1_1e_tv(basis,nbf,h1)
+      call wfn1_1e_s(basis,nbf,ov)
+      call wfn1_2e_rep(basis,nbf,eri,erix)
+      call int_terminate
+cDEBUG
+      write(*,*)'1-electron Hamiltonian'
+      call hess_hssout(h1,nbf,nbf,nbf)
+      write(*,*)'overlap matrix'
+      call hess_hssout(ov,nbf,nbf,nbf)
+cDEBUG
+c
+      do ist = 1, nst
+        iteration = 0
+        damp = 0.250d0
+        dnorm = 10.0d0
+        dnorm1(ist) = 10.0d0
+        serr  = 10.0d0
+        write(luout,'(3x,"iter",3x,"energy",6x,"norm",6x,"damping")')
+#ifdef FALSE
+c
+c       Pre-optimize the occupation functions to get away from the 
+c       meta-stable Hartree-Fock solution
+c
+        sum = 0.0d0
+        ho = h
+        it_ent = 0
+cDEBUG
+        do it = 1, nbf
+          write(*,*)'*** ehf = ',it,ehfa(it),ehfb(it)
+        enddo
+cDEBUG
+c
+        do while (sum.le.0.0d0.and.it_ent.lt.max_it)
+c
+c         Rotate occupation functions
+c
+          call dfill(nbf*nbf,0.0d0,rota,1)
+          call dfill(nbf*nbf,0.0d0,rotb,1)
+          do iu = 1, nbf
+             rota(iu,iu) = 1.0d0
+             rotb(iu,iu) = 1.0d0
+          enddo
+          call dcopy(nbf*nbf*ist,r_ofa,1,r_ofa2,1)
+          call dcopy(nbf*nbf*ist,r_ofb,1,r_ofb2,1)
+          call dcopy(nbf*nbf*ist,r_noa,1,r_noa2,1)
+          call dcopy(nbf*nbf*ist,r_nob,1,r_nob2,1)
+          do it = 1, nbf
+            do is = 1, it-1
+              d = ho/(1.0d0+abs(ehfa(it)-ehfa(is)))
+cDEBUG
+c         write(*,*)'*** a d=ho = ',d,ho
+cDEBUG
+              rotupo(1,1) =  cos(d)
+              rotupo(2,1) = -sin(d)
+              rotupo(1,2) =  sin(d)
+              rotupo(2,2) =  cos(d)
+              rotdno(1,1) =  cos(-d)
+              rotdno(2,1) = -sin(-d)
+              rotdno(1,2) =  sin(-d)
+              rotdno(2,2) =  cos(-d)
+cDEBUG
+c             write(*,*)'*** ho   = ',ho
+c             write(*,*)'*** roto = ',rotupo(1,1),rotupo(2,1)
+cDEBUG
+c
+c             Rotate alpha occupation functions
+c
+c             call dcopy(nbf*nbf,r_ofa(1,1,ist),1,r_ofa2,1)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         En0(ist),serr,oerr,.false.)
+              call dfill(nbf*nbf,0.0d0,r_u,1)
+              do iu = 1, nbf
+                r_u(iu,iu) = 1.0d0
+              enddo
+              r_u(is,is) = rotupo(1,1)
+              r_u(it,it) = rotupo(2,2)
+              r_u(it,is) = rotupo(2,1)
+              r_u(is,it) = rotupo(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofa(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_ofa2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Ep1(ist),serr,oerr,.false.)
+              r_u(is,is) = rotdno(1,1)
+              r_u(it,it) = rotdno(2,2)
+              r_u(it,is) = rotdno(2,1)
+              r_u(is,it) = rotdno(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofa(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_ofa2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Em1(ist),serr,oerr,.false.)
+c
+cDEBUG
+c       write(*,*)'Alpha,Em,E0,Ep=',Em1(1),En0(1),Ep1(1)
+c       write(*,*)
+cDEBUG
+              if (En0(ist).le.Em1(ist).and.En0(ist).le.Ep1(ist)) then
+                call dfill(nbf*nbf,0.0d0,r_u,1)
+                do iu = 1, nbf
+                  r_u(iu,iu) = 1.0d0
+                enddo
+              else if (Em1(ist).lt.En0(ist).and.Em1(ist).lt.Ep1(ist))
+      +       then
+                call dfill(nbf*nbf,0.0d0,r_u,1)
+                do iu = 1, nbf
+                  r_u(iu,iu) = 1.0d0
+                enddo
+                r_u(is,is) = rotdno(1,1)
+                r_u(it,it) = rotdno(2,2)
+                r_u(it,is) = rotdno(2,1)
+                r_u(is,it) = rotdno(1,2)
+                sum = sum + 1.0d0
+              else if (Ep1(ist).lt.En0(ist).and.Ep1(ist).le.Em1(ist))
+      +       then
+                call dfill(nbf*nbf,0.0d0,r_u,1)
+                do iu = 1, nbf
+                  r_u(iu,iu) = 1.0d0
+                enddo
+                r_u(is,is) = rotupo(1,1)
+                r_u(it,it) = rotupo(2,2)
+                r_u(it,is) = rotupo(2,1)
+                r_u(is,it) = rotupo(1,2)
+                sum = sum + 1.0d0
+              else
+                call errquit("ofa: weird",0,0)
+              endif
+c
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,rota,nbf,r_u,nbf,
+     +                   0.0d0,sm1,nbf)
+              call dcopy(nbf*nbf,sm1,1,rota,1)
+            enddo
+          enddo
+c
+          call dcopy(nbf*nbf*ist,r_ofa,1,r_ofa2,1)
+          call dcopy(nbf*nbf*ist,r_ofb,1,r_ofb2,1)
+          call dcopy(nbf*nbf*ist,r_noa,1,r_noa2,1)
+          call dcopy(nbf*nbf*ist,r_nob,1,r_nob2,1)
+          do it = 1, nbf
+            do is = 1, it-1
+              d = ho/(1.0d0+abs(ehfb(it)-ehfb(is)))
+cDEBUG
+c             write(*,*)'*** b d=ho = ',d,ho
+cDEBUG
+              rotupo(1,1) =  cos(d)
+              rotupo(2,1) = -sin(d)
+              rotupo(1,2) =  sin(d)
+              rotupo(2,2) =  cos(d)
+              rotdno(1,1) =  cos(-d)
+              rotdno(2,1) = -sin(-d)
+              rotdno(1,2) =  sin(-d)
+              rotdno(2,2) =  cos(-d)
+c
+c             Rotate beta occupation functions
+c
+c             call dcopy(nbf*nbf,r_ofb,1,r_ofb2,1)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         En0(ist),serr,oerr,.false.)
+              call dfill(nbf*nbf,0.0d0,r_u,1)
+              do iu = 1, nbf
+                r_u(iu,iu) = 1.0d0
+              enddo
+              r_u(is,is) = rotupo(1,1)
+              r_u(it,it) = rotupo(2,2)
+              r_u(it,is) = rotupo(2,1)
+              r_u(is,it) = rotupo(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofb(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_ofb2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Ep1(ist),serr,oerr,.false.)
+              r_u(is,is) = rotdno(1,1)
+              r_u(it,it) = rotdno(2,2)
+              r_u(it,is) = rotdno(2,1)
+              r_u(is,it) = rotdno(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofb(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_ofb2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Em1(ist),serr,oerr,.false.)
+c
+cDEBUG
+c     write(*,*)'Beta ,Em,E0,Ep=',Em1(1),En0(1),Ep1(1)
+c     write(*,*)
+cDEBUG
+              if (En0(ist).le.Em1(ist).and.En0(ist).le.Ep1(ist)) then
+                call dfill(nbf*nbf,0.0d0,r_u,1)
+                do iu = 1, nbf
+                  r_u(iu,iu) = 1.0d0
+                enddo
+              else if (Em1(ist).lt.En0(ist).and.Em1(ist).lt.Ep1(ist))
+     +        then
+                call dfill(nbf*nbf,0.0d0,r_u,1)
+                do iu = 1, nbf
+                  r_u(iu,iu) = 1.0d0
+                enddo
+                r_u(is,is) = rotdno(1,1)
+                r_u(it,it) = rotdno(2,2)
+                r_u(it,is) = rotdno(2,1)
+                r_u(is,it) = rotdno(1,2)
+                sum = sum + 1.0d0
+              else if (Ep1(ist).lt.En0(ist).and.Ep1(ist).le.Em1(ist))
+     +        then
+                call dfill(nbf*nbf,0.0d0,r_u,1)
+                do iu = 1, nbf
+                  r_u(iu,iu) = 1.0d0
+                enddo
+                r_u(is,is) = rotupo(1,1)
+                r_u(it,it) = rotupo(2,2)
+                r_u(it,is) = rotupo(2,1)
+                r_u(is,it) = rotupo(1,2)
+                sum = sum + 1.0d0
+              else
+                call errquit("ofb: weird",0,0)
+              endif
+c
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,rotb,nbf,r_u,nbf,
+     +                   0.0d0,sm1,nbf)
+              call dcopy(nbf*nbf,sm1,1,rotb,1)
+            enddo
+          enddo
+c
+          if (it_ent.le.max_it) then
+            if (sum.le.0.0d0) then
+              it_ent = it_ent + 1
+              ho = 2*ho
+            endif
+          endif
+        enddo
+c
+c       Now actually rotate the occupation functions
+c
+        call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofa(1,1,ist),nbf,rota,nbf,
+     +             0.0d0,r_ofa2(1,1,ist),nbf)
+        call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofb(1,1,ist),nbf,rotb,nbf,
+     +             0.0d0,r_ofb2(1,1,ist),nbf)
+        call dcopy(nbf*nbf,r_ofa2(1,1,ist),1,r_ofa(1,1,ist),1)
+        call dcopy(nbf*nbf,r_ofb2(1,1,ist),1,r_ofb(1,1,ist),1)
+#endif
+c
+c       Now move on to actually optimize the wavefunctions:
+c       - Minimize energy of states in increasing state number order,
+c       i.e. state 1 first, then state 2, etc.
+c     - Higher states have penalty function added for overlap with
+c       lower states.
+c
+        do while (dnorm.gt.tol.or.serr.gt.tol)
+cDEBUG
+c         write(*,*)
+c         write(*,*)'alpha natural orbitals'
+c         call hess_hssout(r_noa,nbf,nbf,nbf)
+c         write(*,*)
+c         write(*,*)'beta natural orbitals'
+c         call hess_hssout(r_nob,nbf,nbf,nbf)
+c         write(*,*)
+c         write(*,*)'alpha occupation functions'
+c         call hess_hssout(r_ofa,nbf,nbf,nbf)
+c         write(*,*)
+c         write(*,*)'beta occupation functions'
+c         call hess_hssout(r_ofb,nbf,nbf,nbf)
+c         write(*,*)
+cDEBUG
+          iteration = iteration + 1
+        enddo
+        do ist = 1, nst
+          write(luout,'(1x,i7," iter ",i3,f22.8,f22.8,f8.3)')
+     +          iteration,ist,en0(ist),dnorm1(ist),damp
+          dnorm1(ist) = 0.0d0
+        enddo
+        dnorm = 0.0d0
+cDEBUG
+c       write(*,*)'*** ho   = ',ho
+c       write(*,*)'*** roto = ',rotupo(1,1),rotupo(2,1)
+cDEBUG
+
+TOT HIER
+We optimalizeren 1 toestand tegelijkertijd. Maar de energie uitdrukking
+hangt af van alle toestanden met een lagere energy. Dus wfn1_engrad
+moet alle toestanden 1:ist kennen, maar alleen toestand ist wordt
+geoptimalizeerd.
+
+        do ist = 1, nst
+c
+c         Initialize rotations
+c
+          call dfill(nbf*nbf,0.0d0,rota,1)
+          call dfill(nbf*nbf,0.0d0,rotb,1)
+          do iu = 1, nbf
+             rota(iu,iu) = 1.0d0
+             rotb(iu,iu) = 1.0d0
+          enddo
+c
+c         Rotate occupation functions
+c
+          call dcopy(nbf*nbf*nst,r_ofb,1,r_ofb2,1)
+          call dcopy(nbf*nbf*nst,r_noa,1,r_noa2,1)
+          call dcopy(nbf*nbf*nst,r_nob,1,r_nob2,1)
+          do it = 1, nbf
+            do is = 1, it-1
+c
+c             Rotate alpha occupation functions
+c
+              call dcopy(nbf*nbf*nst,r_ofa,1,r_ofa2,1)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         En0,serr,oerr,.false.)
+              call dfill(nbf*nbf,0.0d0,r_u,1)
+              do iu = 1, nbf
+                r_u(iu,iu) = 1.0d0
+              enddo
+              r_u(is,is) = rotup(1,1)
+              r_u(it,it) = rotup(2,2)
+              r_u(it,is) = rotup(2,1)
+              r_u(is,it) = rotup(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofa(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_ofa2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Ep1,serr,oerr,.false.)
+              r_u(is,is) = rotdn(1,1)
+              r_u(it,it) = rotdn(2,2)
+              r_u(it,is) = rotdn(2,1)
+              r_u(is,it) = rotdn(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofa(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_ofa2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Em1,serr,oerr,.false.)
+              dE = (Ep1(1)-Em1(1))/(2*h)
+              d2E = (Ep1(1)-2*En0(1)+Em1(1))/(h*h)
+              d = -dE/max(1.0d0,abs(d2E))
+cDEBUG
+c             write(*,*)'*** ofa ',it,is,Em1(1),En0(1),Ep1(1)
+c             write(*,*)'*** ofa ',it,is,dE,d2E,d
+cDEBUG
+              if (abs(dE).lt.tol.and.Em1(1).lt.En0(1)) then
+                d = -h
+              endif
+              d = damp*d
+              dnorm1(ist) = max(abs(dE),dnorm1(ist))
+              r_u(is,is) =  cos(d)
+              r_u(it,it) =  cos(d)
+              r_u(it,is) = -sin(d)
+              r_u(is,it) =  sin(d)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,rota,nbf,r_u,nbf,
+     +                   0.0d0,sm1,nbf)
+              call dcopy(nbf*nbf,sm1,1,rota,1)
+            enddo
+          enddo
+cDEBUG
+c         write(*,*)
+cDEBUG
+c
+c         Rotate beta occupation functions
+c
+          call dcopy(nbf*nbf*nst,r_ofa,1,r_ofa2,1)
+          call dcopy(nbf*nbf*nst,r_noa,1,r_noa2,1)
+          call dcopy(nbf*nbf*nst,r_nob,1,r_nob2,1)
+          do it = 1, nbf
+            do is = 1, it-1
+c
+c             Rotate beta occupation functions
+c
+              call dcopy(nbf*nbf*nst,r_ofb,1,r_ofb2,1)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         En0,serr,oerr,.false.)
+              call dfill(nbf*nbf,0.0d0,r_u,1)
+              do iu = 1, nbf
+                r_u(iu,iu) = 1.0d0
+              enddo
+              r_u(is,is) = rotup(1,1)
+              r_u(it,it) = rotup(2,2)
+              r_u(it,is) = rotup(2,1)
+              r_u(is,it) = rotup(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofb(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_ofb2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Ep1,serr,oerr,.false.)
+              r_u(is,is) = rotdn(1,1)
+              r_u(it,it) = rotdn(2,2)
+              r_u(it,is) = rotdn(2,1)
+              r_u(is,it) = rotdn(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofb(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_ofb2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Em1,serr,oerr,.false.)
+              dE = (Ep1(1)-Em1(1))/(2*h)
+              d2E = (Ep1(1)-2*En0(1)+Em1(1))/(h*h)
+              d = -dE/max(1.0d0,abs(d2E))
+cDEBUG
+c             write(*,*)'*** ofb ',it,is,Em1(1),En0(1),Ep1(1)
+c             write(*,*)'*** ofb ',it,is,dE,d2E,d
+cDEBUG
+              if (abs(dE).lt.tol.and.Em1(1).lt.En0(1)) then
+                d = -h
+              endif
+              d = damp*d
+              dnorm1(ist) = max(abs(dE),dnorm1(ist))
+              r_u(is,is) =  cos(d)
+              r_u(it,it) =  cos(d)
+              r_u(it,is) = -sin(d)
+              r_u(is,it) =  sin(d)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,rotb,nbf,r_u,nbf,
+     +                   0.0d0,sm1,nbf)
+              call dcopy(nbf*nbf,sm1,1,rotb,1)
+            enddo
+          enddo
+c
+c         Now actually rotate the occupation functions
+c
+          call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofa(1,1,ist),nbf,
+     +               rota,nbf,0.0d0,r_ofa2(1,1,ist),nbf)
+          call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_ofb(1,1,ist),nbf,
+     +               rotb,nbf,0.0d0,r_ofb2(1,1,ist),nbf)
+          call dcopy(nbf*nbf,r_ofa2(1,1,ist),1,r_ofa(1,1,ist),1)
+          call dcopy(nbf*nbf,r_ofb2(1,1,ist),1,r_ofb(1,1,ist),1)
+cDEBUG
+c         write(*,*)
+cDEBUG
+c
+c         Initialize rotations
+c
+          call dfill(nbf*nbf,0.0d0,rota,1)
+          call dfill(nbf*nbf,0.0d0,rotb,1)
+          do iu = 1, nbf
+             rota(iu,iu) = 1.0d0
+             rotb(iu,iu) = 1.0d0
+          enddo
+c
+c         Rotate natural orbitals
+c
+          call dcopy(nbf*nbf*nst,r_ofa,1,r_ofa2,1)
+          call dcopy(nbf*nbf*nst,r_ofb,1,r_ofb2,1)
+          call dcopy(nbf*nbf*nst,r_nob,1,r_nob2,1)
+          do in = 1, nbf
+            do im = 1, in-1
+c
+c             Rotate alpha natural orbitals
+c
+              call dcopy(nbf*nbf*nst,r_noa,1,r_noa2,1)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         En0,serr,oerr,.false.)
+              call dfill(nbf*nbf,0.0d0,r_u,1)
+              do iu = 1, nbf
+                r_u(iu,iu) = 1.0d0
+              enddo
+              r_u(im,im) = rotup(1,1)
+              r_u(in,in) = rotup(2,2)
+              r_u(in,im) = rotup(2,1)
+              r_u(im,in) = rotup(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_noa(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_noa2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Ep1,serr,oerr,.false.)
+              r_u(im,im) = rotdn(1,1)
+              r_u(in,in) = rotdn(2,2)
+              r_u(in,im) = rotdn(2,1)
+              r_u(im,in) = rotdn(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_noa(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_noa2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Em1,serr,oerr,.false.)
+              dE = (Ep1(1)-Em1(1))/(2*h)
+              d2E = (Ep1(1)-2*En0(1)+Em1(1))/(h*h)
+              d = -dE/max(1.0d0,abs(d2E))
+              d = damp*d
+cDEBUG
+c             write(*,*)'*** noa ',in,im,Em1(1),En0(1),Ep1(1)
+c             write(*,*)'*** noa ',in,im,dE,d2E,d
+cDEBUG
+              dnorm1(ist) = max(abs(dE),dnorm1(ist))
+              r_u(im,im) =  cos(d)
+              r_u(in,in) =  cos(d)
+              r_u(in,im) = -sin(d)
+              r_u(im,in) =  sin(d)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,rota,nbf,r_u,nbf,
+     +                   0.0d0,sm1,nbf)
+              call dcopy(nbf*nbf,sm1,1,rota,1)
+            enddo
+          enddo
+cDEBUG
+c         write(*,*)
+cDEBUG
+c
+c         Rotate beta natural orbitals
+c
+          call dcopy(nbf*nbf*nst,r_ofa,1,r_ofa2,1)
+          call dcopy(nbf*nbf*nst,r_ofb,1,r_ofb2,1)
+          call dcopy(nbf*nbf*nst,r_noa,1,r_noa2,1)
+          do in = 1, nbf
+            do im = 1, in-1
+c
+c             Rotate beta natural orbitals
+c
+              call dcopy(nbf*nbf*nst,r_nob,1,r_nob2,1)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         En0,serr,oerr,.false.)
+              call dfill(nbf*nbf,0.0d0,r_u,1)
+              do iu = 1, nbf
+                r_u(iu,iu) = 1.0d0
+              enddo
+              r_u(im,im) = rotup(1,1)
+              r_u(in,in) = rotup(2,2)
+              r_u(in,im) = rotup(2,1)
+              r_u(im,in) = rotup(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_nob(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_nob2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Ep1,serr,oerr,.false.)
+              r_u(im,im) = rotdn(1,1)
+              r_u(in,in) = rotdn(2,2)
+              r_u(in,im) = rotdn(2,1)
+              r_u(im,in) = rotdn(1,2)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_nob(1,1,ist),nbf,
+     +                   r_u,nbf,0.0d0,r_nob2(1,1,ist),nbf)
+              call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                         r_noa2,r_nob2,
+     +                         r_ofa2,r_ofb2,
+     +                         ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                         Em1,serr,oerr,.false.)
+              dE = (Ep1(1)-Em1(1))/(2*h)
+              d2E = (Ep1(1)-2*En0(1)+Em1(1))/(h*h)
+              d = -dE/max(1.0d0,abs(d2E))
+              d = damp*d
+cDEBUG
+c             write(*,*)'*** nob ',in,im,Em1(1),En0(1),Ep1(1)
+c             write(*,*)'*** nob ',in,im,dE,d2E,d
+cDEBUG
+              dnorm1(ist) = max(abs(dE),dnorm1(ist))
+              r_u(im,im) =  cos(d)
+              r_u(in,in) =  cos(d)
+              r_u(in,im) = -sin(d)
+              r_u(im,in) =  sin(d)
+              call dgemm('n','n',nbf,nbf,nbf,1.0d0,rotb,nbf,
+     +                   r_u,nbf,0.0d0,sm1,nbf)
+              call dcopy(nbf*nbf,sm1,1,rotb,1)
+            enddo
+          enddo
+c
+c         Apply the actual rotations
+c
+          call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_noa(1,1,ist),nbf,
+     +               rota,nbf,0.0d0,r_noa2(1,1,ist),nbf)
+          call dgemm('n','n',nbf,nbf,nbf,1.0d0,r_nob(1,1,ist),nbf,
+     +               rotb,nbf,0.0d0,r_nob2(1,1,ist),nbf)
+          call dcopy(nbf*nbf*nst,r_noa2,1,r_noa,1)
+          call dcopy(nbf*nbf*nst,r_nob2,1,r_nob,1)
+          call dcopy(nbf*nbf*nst,r_ofa,1,r_ofa2,1)
+          call dcopy(nbf*nbf*nst,r_ofb,1,r_ofb2,1)
+          call wfn1_engrad(ist,nbf,nea,neb,h1,eri,erix,ov,sfac,ofac,
+     +                     r_noa2,r_nob2,
+     +                     r_ofa2,r_ofb2,
+     +                     ehfa,ehfb,ewfa,ewfb,enta,entb,
+     +                     En0,serr,oerr,.true.)
+          sfac = sfac * (1.0d0 + max(0.0d0,serr))
+          ofac = ofac * (1.0d0 + max(0.0d0,oerr))
+cDEBUG
+c         call dfill(nbf*nbf,0.0d0,r_noa2,1)
+c         Em1 = 0.0d0
+c         call wfn1_print_occ(nbf,nea,neb,r_ofa,r_ofb,r_noa2,r_noa2,
+c    +                        Em1,r_nob2)
+c         do is = 1, nbf
+c           write(*,'(" ehf a,b: ",3f20.8,3x,3f20.8)')
+c    +            enta(is),ehfa(is),ewfa(is),
+c    +            entb(is),ehfb(is),ewfb(is)
+c         enddo
+cDEBUG
+          dnorm = max(dnorm,dnorm1(ist))
+        enddo
+      enddo
+      write(luout,'(1x,i5,f22.8,f22.8,f8.3)')iteration,en0(1),dnorm,
+     +                                       damp
+c
+      write(*,*)
+      write(*,*)"Wavefunction analysis"
+      write(*,*)"====================="
+      write(*,*)
+      call dfill(nbf*nbf,0.0d0,r_noa2,1)
+      call dfill(nbf*nbf,0.0d0,r_nob2,1)
+      call wfn1_print_occ(nbf,nea,neb,r_ofa,r_ofb,r_noa2,r_noa2(1,2,1),
+     +                    en0,r_nob2)
+      call hess_hssout(r_noa,nbf,nbf,nbf)
+      call hess_hssout(r_nob,nbf,nbf,nbf)
+c
+      end
+C> @}

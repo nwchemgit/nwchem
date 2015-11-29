@@ -1,0 +1,38 @@
+      double precision wfn1_nxt_x_pow
+      logical wfn1_nxt_ad ! .true. if using automatic differentiation
+      logical wfn1_nxt_sc ! .true. if scaling Fock matrix with
+                          !        occupation numbers
+      logical wfn1_nxt_ls ! .true. if using linesearches instead of
+                          !        diagonalization
+c
+      integer wfn1_nxt_ncore(2) ! the number of core occupation
+                                ! functions for each spin channel
+      integer wfn1_nxt_nvirt(2) ! the number of virtual occupation
+                                ! functions for each spin channel
+
+      common/wfn1_nxt/wfn1_nxt_x_pow,wfn1_nxt_ad,wfn1_nxt_sc,
+     +                wfn1_nxt_ls,wfn1_nxt_ncore,wfn1_nxt_nvirt
+c
+      integer wfn1_nxt_aocc
+      integer wfn1_nxt_anat
+      integer wfn1_nxt_aoccl
+      integer wfn1_nxt_anatl
+      integer wfn1_nxt_aconf
+      integer wfn1_nxt_bocc
+      integer wfn1_nxt_bnat
+      integer wfn1_nxt_boccl
+      integer wfn1_nxt_bnatl
+      integer wfn1_nxt_bconf
+      integer wfn1_nxt_size1
+c
+      external wfn1_nxt_aocc
+      external wfn1_nxt_anat
+      external wfn1_nxt_aoccl
+      external wfn1_nxt_anatl
+      external wfn1_nxt_aconf
+      external wfn1_nxt_bocc
+      external wfn1_nxt_bnat
+      external wfn1_nxt_boccl
+      external wfn1_nxt_bnatl
+      external wfn1_nxt_bconf
+      external wfn1_nxt_size1

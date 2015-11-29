@@ -1,0 +1,8 @@
+      interface
+        function wfn1_ad_disnan(din)
+          use wfn1_ad1
+          implicit none
+          logical wfn1_ad_disnan
+          type(wfn1_ad_dble) :: din
+        end function
+      end interface

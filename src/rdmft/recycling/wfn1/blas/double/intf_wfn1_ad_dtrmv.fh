@@ -1,0 +1,10 @@
+      interface
+        subroutine wfn1_ad_dtrmv(uplo,trans,diag,n,a,lda,x,incx)
+          use wfn1_ad1
+          implicit none
+          character             uplo,trans,diag
+          integer               n,lda,incx
+          type(wfn1_ad_dble) :: a(lda,*)
+          type(wfn1_ad_dble) :: x(*)
+        end subroutine
+      end interface

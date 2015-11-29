@@ -1,0 +1,13 @@
+      interface
+        subroutine wfn1_ad_dsymv(uplo,n,alpha,a,lda,
+     +                           x,incx,beta,y,incy)
+          use wfn1_ad1
+          implicit none
+          character             uplo
+          integer               n,lda,incx,incy
+          type(wfn1_ad_dble) :: alpha, beta
+          type(wfn1_ad_dble) :: a(lda,*)
+          type(wfn1_ad_dble) :: x(*)
+          type(wfn1_ad_dble) :: y(*)
+        end subroutine
+      end interface

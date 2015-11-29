@@ -1,0 +1,388 @@
+head	1.5;
+access;
+symbols;
+locks; strict;
+comment	@c @;
+
+
+1.5
+date	2015.11.21.22.31.03;	author hvandam;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2015.05.09.05.55.25;	author D3Y133;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2015.04.06.05.30.31;	author D3Y133;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2015.04.02.06.30.28;	author D3Y133;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2015.03.23.03.29.06;	author D3Y133;	state Exp;
+branches;
+next	;
+
+
+desc
+@Construct Fock matrices and gradients given a Fock matrix in 
+natural orbital basis.
+@
+
+
+1.5
+log
+@Suppress symmetrizing the Fock matrix. As we no longer multiply with the
+occupation numbers the Fock is symmetric to begin with. So the symmetrization
+business is no longer needed anyway.
+@
+text
+@C> \ingroup wfn1_nxt2
+C> @@{
+C>
+C> \brief Take a Fock matrix and construct the gradient matrices
+C>
+      subroutine wfn1_nxt2_n_fg(nbf,nex,ox,nx,cx,fx,fo,fn,go,gn,occx,
+     +                          ex,tx,Ef,levelshift)
+      implicit none
+c
+#include "wfn1_nxt.fh"
+c
+      integer nbf !< [Input] The number of basis functions
+      integer nex !< [Input] The number of electrons in this spin
+                  !< channel
+c
+      double precision ox(nbf,nbf) !< [Input] The occupation functions
+                                   !< for the current spin channel
+      double precision nx(nbf,nbf) !< [Input] The natural orbitals
+                                   !< for the current spin channel
+      double precision cx(nbf)     !< [Input] The electron configuration
+                                   !< for the current spin channel
+c
+      double precision fx(nbf,nbf) !< [Input] The Fock matrix for the
+                                   !< current spin channel in natural
+                                   !< orbital basis
+c
+      double precision fo(nbf,nbf) !< [Output] The Fock matrix for the
+                                   !< occupation functions
+      double precision fn(nbf,nbf) !< [Output] The Fock matrix for the
+                                   !< natural orbitals
+c
+      double precision go(nbf,nbf) !< [Output] The gradient for the
+                                   !< occupation functions
+      double precision gn(nbf,nbf) !< [Output] The gradient for the
+                                   !< natural orbitals
+c
+      double precision occx(nbf)   !< [Scratch] The occupation numbers
+      double precision ex(nbf)     !< [Scratch] Expectation values
+      double precision tx(nbf,nbf) !< [Scratch] Temporary matrix
+      double precision Ef          !< [Output] Electronic energy as
+                                   !< calculated from trace(F,D)
+      double precision levelshift  !< [In/Output] The levelshifter
+c
+      integer ii !< Counter
+      integer jj !< Counter
+      integer iq !< Counter over occupation functions
+      integer ir !< Counter over occupation functions
+c
+      double precision tt !< Temporary
+c
+      double precision wfn1_ddot3 !< Ddot function with weights
+      external         wfn1_ddot3
+c
+c     First calculate the occupation numbers
+c
+      call dfill(nbf,0.0d0,occx,1)
+      do ir = 1, nbf
+        do ii = 1, nbf
+          occx(ii) = occx(ii) + ox(ii,ir)*ox(ii,ir)*cx(ir)
+        enddo
+      enddo
+c
+c     Transform the Fock matrix from AO basis into the natural orbital
+c     basis
+c
+c     call dgemm('n','n',nbf,nbf,nbf,1.0d0,fx,nbf,nx,nbf,0.0d0,tx,nbf)
+c     call dgemm('t','n',nbf,nbf,nbf,1.0d0,nx,nbf,tx,nbf,0.0d0,fn,nbf)
+      call dcopy(nbf*nbf,fx,1,fn,1)
+      if (levelshift.ge.0.0d0) then
+        do ii = 2, nbf
+cDEBUG
+c         write(*,'("lvlshft occx:",i4,2f14.6,3x,3f14.6)')ii,
+c    +          occx(ii-1),occx(ii),
+c    +          fn(ii-1,ii-1),fn(ii,ii),fn(ii-1,ii-1)-fn(ii,ii)
+cDEBUG
+          if (occx(ii-1).ge.occx(ii)) then
+            levelshift = max(levelshift,fn(ii-1,ii-1)-fn(ii,ii))
+          endif
+        enddo
+      endif
+c
+c     Now generate the Fock matrix in occupation function basis
+c
+      call dgemm('n','n',nbf,nbf,nbf,1.0d0,fn,nbf,ox,nbf,0.0d0,tx,nbf)
+      call dgemm('t','n',nbf,nbf,nbf,1.0d0,ox,nbf,tx,nbf,0.0d0,fo,nbf)
+      if (levelshift.ge.0.0d0) then
+        do ir = 2, nbf
+cDEBUG
+c         write(*,'("lvlshft   cx:",i4,2f14.6,3x,3f14.6)')ir,
+c    +          cx(ir-1),cx(ir),
+c    +          fo(ir-1,ir-1),fo(ir,ir),fo(ir-1,ir-1)-fo(ir,ir)
+cDEBUG
+          if (cx(ir-1).ge.cx(ir)) then
+            levelshift = max(levelshift,fo(ir-1,ir-1)-fo(ir,ir))
+          endif
+        enddo
+      endif
+cDEBUG
+c     write(*,*)'*** Fock diagonal occ, nat'
+c     do ii = 1, nbf
+c       write(*,*)ii,fo(ii,ii),fn(ii,ii)
+c     enddo
+cDEBUG
+c
+c     Extract the expectation values of the natural orbital energies
+c
+      do ii = 1, nbf
+        ex(ii) = fn(ii,ii)
+      enddo
+c
+c     Scale the columns with the occupation numbers
+c
+      if (wfn1_nxt_sc) then
+        do ii = 1, nbf
+          call dscal(nbf,occx(ii),fn(1,ii),1)
+        enddo
+      endif
+c
+c     Symmetrize the matrix
+c
+c     do jj = 1, nbf
+c       do ii = jj+1, nbf
+c         tt = 0.5d0*(fn(ii,jj)+fn(jj,ii))
+c         fn(ii,jj) = tt
+c         fn(jj,ii) = tt
+c       enddo
+c       Ef = Ef + fn(jj,jj)
+c     enddo
+c
+c     Copy the result to the gradient
+c
+c     call dcopy(nbf*nbf,fn,1,gn,1)
+      if (wfn1_nxt_sc) then
+        do jj = 1, nbf
+          do ii = 1, nbf
+            gn(ii,jj) = fn(ii,jj)-fn(jj,ii)
+            if (ii.lt.jj) gn(ii,jj)=-gn(ii,jj) ! wfn1_nxt2_sym_2_skw
+          enddo
+        enddo
+      else
+        call dcopy(nbf*nbf,fn,1,gn,1)
+      endif
+c
+c     Compute the gradient for the occupation functions
+c
+      do iq = 1, nbf
+        do ir = 1, nbf
+          fo(ir,iq) = wfn1_ddot3(nbf,ex,1,ox(1,ir),1,ox(1,iq),1)
+        enddo
+      enddo
+c
+c     Scale the columns with the occupation numbers
+c
+      if (wfn1_nxt_sc) then
+        do ir = 1, nbf
+cDEBUG
+c         write(*,*)'fg occ: ',ir,cx(ir)
+cDEBUG
+          call dscal(nbf,cx(ir),fo(1,ir),1)
+        enddo
+      endif
+c
+c     Symmetrize the matrix
+c
+c     do iq = 1, nbf
+c       do ir = iq+1, nbf
+c         tt = 0.5d0*(fo(ir,iq)+fo(iq,ir))
+c         fo(ir,iq) = tt
+c         fo(iq,ir) = tt
+c       enddo
+c     enddo
+c
+c     Copy the result to the gradient and zero the virtual-virtual
+c     block (the virtual orbitals do not contribute to the energy)
+c
+c     call dcopy(nbf*nbf,fo,1,go,1)
+c     do iq = 1, nbf
+c       if (cx(iq).le.0.0d0) then
+c         do ir = 1, nbf
+c           if (cx(ir).le.0.0d0) then
+c             go(ir,iq) = 0.0d0
+c           endif
+c         enddo
+c       else if (cx(iq).ge.1.0d0) then
+c         do ir = 1, nbf
+c           if (cx(ir).ge.1.0d0) then
+c             go(ir,iq) = 0.0d0
+c           endif
+c         enddo
+c       endif
+c     enddo
+      if (wfn1_nxt_sc) then
+        do iq = 1, nbf
+          do ir = 1, nbf
+            go(ir,iq) = fo(ir,iq)-fo(iq,ir)
+            if (ir.lt.iq) go(ir,iq)=-go(ir,iq) ! wfn1_nxt2_sym_2_skw
+          enddo
+        enddo
+      else
+        call dcopy(nbf*nbf,fo,1,go,1)
+      endif
+cDEBUG
+c     write(*,*)'*** occ-scaled Fock diagonal occ, nat'
+c     do ii = 1, nbf
+c       write(*,*)ii,fo(ii,ii),fn(ii,ii)
+c     enddo
+cDEBUG
+c
+      end
+C> @@}
+@
+
+
+1.4
+log
+@Replaced the gradient generator by one where the columns of the Fock matrix
+are scaled and then we compute F-F^T instead of computing (F+F^T)/2 and
+then flipping the sign on one of the triangles (upper or lower).
+@
+text
+@d133 6
+a138 4
+      do jj = 1, nbf
+        do ii = 1, nbf
+          gn(ii,jj) = fn(ii,jj)-fn(jj,ii)
+          if (ii.lt.jj) gn(ii,jj)=-gn(ii,jj) ! wfn1_nxt2_sym_2_skw
+d140 3
+a142 1
+      enddo
+d157 1
+a157 1
+          write(*,*)'fg occ: ',ir,cx(ir)
+d192 6
+a197 4
+      do iq = 1, nbf
+        do ir = 1, nbf
+          go(ir,iq) = fo(ir,iq)-fo(iq,ir)
+          if (ir.lt.iq) go(ir,iq)=-go(ir,iq) ! wfn1_nxt2_sym_2_skw
+d199 3
+a201 1
+      enddo
+@
+
+
+1.3
+log
+@Introduced an option to control whether the Fock matrix columns are
+scaled with the occupation numbers. In addition I have activated 
+the wfn1_ddot3 matrix generator again (maybe that is not necessary
+as the results seem very similar to the usual transformation 
+approach).
+@
+text
+@d121 12
+d134 3
+a136 4
+        do ii = jj+1, nbf
+          tt = 0.5d0*(fn(ii,jj)+fn(jj,ii))
+          fn(ii,jj) = tt
+          fn(jj,ii) = tt
+a137 1
+        Ef = Ef + fn(jj,jj)
+a139 4
+c     Copy the result to the gradient
+c
+      call dcopy(nbf*nbf,fn,1,gn,1)
+c
+d152 3
+d161 7
+a167 7
+      do iq = 1, nbf
+        do ir = iq+1, nbf
+          tt = 0.5d0*(fo(ir,iq)+fo(iq,ir))
+          fo(ir,iq) = tt
+          fo(iq,ir) = tt
+        enddo
+      enddo
+d172 1
+a172 1
+      call dcopy(nbf*nbf,fo,1,go,1)
+d180 6
+d188 6
+@
+
+
+1.2
+log
+@Added a way to establish a levelshifter that sufficiently damps the
+orbital rotations to achieve convergence.
+@
+text
+@d10 2
+d107 3
+a109 3
+c     do ii = 1, nbf
+c       ex(ii) = fn(ii,ii)
+c     enddo
+d113 5
+a117 3
+      do ii = 1, nbf
+        call dscal(nbf,occx(ii),fn(1,ii),1)
+      enddo
+d136 5
+a140 5
+c     do iq = 1, nbf
+c       do ir = 1, nbf
+c         fo(ir,iq) = wfn1_ddot3(nbf,ex,1,ox(1,ir),1,ox(1,iq),1)
+c       enddo
+c     enddo
+d144 5
+a148 3
+      do ir = 1, nbf
+        call dscal(nbf,cx(ir),fo(1,ir),1)
+      enddo
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 1
+a7 1
+     +                          ex,tx)
+d38 3
+d67 12
+d84 18
+d123 1
+d138 16
+d158 15
+a172 9
+      do iq = 1, nbf
+        if (cx(iq).le.0.0d0) then
+          do ir = 1, nbf
+            if (cx(ir).le.0.0d0) then
+              go(ir,iq) = 0.0d0
+            endif
+          enddo
+        endif
+      enddo
+@

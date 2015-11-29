@@ -1,0 +1,9 @@
+      interface
+        subroutine wfn1_ad_dpotf2(uplo,n,a,lda,info)
+          use wfn1_ad1
+          implicit none
+          character             uplo
+          integer               n,lda,info
+          type(wfn1_ad_dble) :: a(lda,*)
+        end subroutine
+      end interface

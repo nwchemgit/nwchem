@@ -1,0 +1,11 @@
+head	;
+access;
+symbols;
+locks; strict;
+comment	@c @;
+
+
+
+desc
+@Non-sorting versions of the corresponding LAPACK routines.
+@
