@@ -135,6 +135,9 @@ C>
 C> This routine is essentially a copy of the `subroutine determ` in
 C> GAMESS-UK, written by J. Verbeek and J.H. van Lenthe.
 C>
+C> This subroutine was obtained from GAMESS-UK, with permission by
+C> Joop H. van Lenthe (Jan, 2014).
+C>
 C> See also [2].
 C>
 C> ### References ###
@@ -247,6 +250,9 @@ C> as discussion of this approach.
 C> 
 C> This routine is essentially a copy of the `subroutine determ` in
 C> GAMESS-UK, written by J. Verbeek and J.H. van Lenthe.
+C>
+C> This subroutine was obtained from GAMESS-UK, with permission by
+C> Joop H. van Lenthe (Jan, 2014).
 C>
 C> See also [2].
 C>
