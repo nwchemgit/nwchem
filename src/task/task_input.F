@@ -229,6 +229,9 @@ c            oembed = .true.
          else if (inp_compare(.false.,test,
      >                        'lcao')) then
             operation='lcao'
+         else if (inp_compare(.false.,test,
+     >                        'pauls_matrix_diag')) then
+            operation='pauls_matrix_diag'
 
          else if (theory .eq. ' ') then
             theory = test
