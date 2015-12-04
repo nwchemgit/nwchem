@@ -853,8 +853,8 @@ c
       call ga_copy(g_vecs, g_tmp)
 c
       do i = lo+ga_nodeid(), hi, ga_nnodes()
-         call ga_get(g_tmp, 1, nbf, i, i, work, 1)
-         call ga_put(g_vecs,1, nbf, map(i), map(i), work, 1)
+         call ga_get(g_tmp, 1, nbf, i, i, work, nbf)
+         call ga_put(g_vecs,1, nbf, map(i), map(i), work, nbf)
       end do
 c
       if (.not. ga_destroy(g_tmp)) call errquit('moints: GA destroy?',0,

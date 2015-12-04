@@ -170,14 +170,16 @@ c
                      call ga_put(g_t_b,toff_b(sym_lo_vb(symb),syma)+1,
      $                    toff_b(sym_hi_vb(symb),syma)+num_ob(symj),
      $                    a_a-nva_lo+1,a_a-nva_lo+1,
-     $                    dbl_mb(k_ia_jb),1)
+     $                    dbl_mb(k_ia_jb),
+     L                 toff_b(sym_hi_vb(symb),syma)+num_ob(symj)-
+     M                 toff_b(sym_lo_vb(symb),syma))
 #else
                   jb=1
                   do b=sym_lo_vb(symb),sym_hi_vb(symb)
                      call ga_put(g_t_b,toff_b(b,syma)+1,
      $                    toff_b(b,syma)+num_ob(symj),
      $                    a_a-nva_lo+1,a_a-nva_lo+1,
-     $                    dbl_mb(k_ia_jb-1+jb),1)
+     $                    dbl_mb(k_ia_jb-1+jb),num_ob(symj))
                      jb=jb+num_ob(symj)
                   enddo
 #endif
@@ -195,7 +197,7 @@ c
                   call ga_get(g_t_a,toff_a(b,syma)+1,
      $                 toff_a(b,syma)+num_oa(symj),
      $                 a_a-nva_lo+1,a_a-nva_lo+1,
-     $                 dbl_mb(counta+k_ia_jb),1)
+     $                 dbl_mb(counta+k_ia_jb),num_oa(symj))
                   do j=sym_lo_oa(symj),sym_hi_oa(symj)
                      denom=eval_a(a_a)+eval_a(b)
      $                    -eval_a(i)-eval_a(j)
@@ -229,7 +231,7 @@ c
                   call ga_get(g_t_b,toff_b(b,syma)+1,
      $                 toff_b(b,syma)+num_ob(symj),
      $                 a_a-nva_lo+1,a_a-nva_lo+1,
-     $                 dbl_mb(countb+k_ia_jb),1)
+     $                 dbl_mb(countb+k_ia_jb),num_ob(symj))
                   do j=sym_lo_ob(symj),sym_hi_ob(symj)
                      denom=eval_a(a_a)+eval_b(b)
      $                    -eval_a(i)-eval_b(j)
