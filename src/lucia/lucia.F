@@ -1896,7 +1896,7 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
 *
       INTEGER FUNCTION IDIST_CIVEC(NBLK,NBATS,LBATS,I1BATS,IBATS)
       INTEGER NBLK,NBATS,LBATS(*),I1BATS(*),IBATS(8,*)
-      INTEGER IBLK,JBATS,ISBLK,ILEN,IMAP,IDUM
+      INTEGER IBLK,JBATS,ISBLK,ILEN,IMAP,IDUM,IMAP2
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -1905,6 +1905,7 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'IDIST ')
       CALL MEMMAN(IMAP,NBLK,'ADDL  ',1,'MAP1  ')
+      if (ga_nodeid().eq.0) write(*,*) 'VOGG: I AM IN IDIST_CIVEC'
       DO JBATS = 1, NBATS
          DO ISBLK = I1BATS(JBATS), I1BATS(JBATS)+LBATS(JBATS)-1
             int_mb(IMAP+IBLK) = ILEN+1
@@ -1921,10 +1922,21 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
 C Now we have a list of block starts/ Now merge until we have the # of procs = # blocks
 C if we set nblcok1 to number of procs, last one gets all remianing blocks and most of work
         if (iblk.gt.ga_nnodes()) iblk = ga_nnodes()
-        if ( .not. ga_create_irreg(mt_dbl,ILEN,1,'CONVC1',int_mb(IMAP), 
-     &                           IBLK, 1, 1, IDIST_CIVEC))
+*
+*. VOGs way
+cVOG    CALL MEMMAN(IMAP2,iblk,'ADDL  ',1,'MAP2  ')
+        CALL MEMMAN(IMAP2,nblk,'ADDL  ',1,'MAP2  ')
+        call distribute_CIblks(ILEN,NBATS,IBATS,NBLK,iblk,int_mb(IMAP),
+     &                         int_mb(IMAP2))
+        if ( .not. ga_create_irreg(mt_dbl,ILEN,1,'CONVC1',int_mb(IMAP2),
+     &                           iblk, 1, 1, IDIST_CIVEC))
+cVOG    if ( .not. ga_create_irreg(mt_dbl,ILEN,1,'CONVC1',int_mb(IMAP),
+cVOG &                           IBLK, 1, 1, IDIST_CIVEC))
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
+      newciblks = 1
       endif
+      if (ga_nodeid().eq.0) write(*,*) 'VOGG, FUNCTION IDIST_CIVEC'
+      call ga_print_distribution(IDIST_CIVEC)
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'IDIST ')
       RETURN
       END
@@ -1986,9 +1998,9 @@ c      INCLUDE 'mxpdim.inc'
       integer only_dens
       call luciaqenter('gasci')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
-      NTEST = 00
+      newciblks = 0
+      NTEST = 10000 ! VOG 000
       NTEST = MAX(NTEST,IPRNT)
-      IPRNT=2 !VOG
       MXACJ = 0
       MXACIJ = 0
       MXAADST = 0
@@ -2133,14 +2145,15 @@ CERR    LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,LBLOCK)
         LBLOCK  = MAX(N_SDAB_PER_OCCLS_MAX,LBLOCK)
       END IF
       LBLOCK = MAX(LBLOCK,LCSBLK)
-      IF(NTEST.GE.1000) WRITE(6,*) ' TEST: LBLOCK = ', LBLOCK
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0)
+     &  WRITE(6,*) ' TEST: LBLOCK = ', LBLOCK
 * 
 *. Information about block structure- needed by new PICO2 routine.
 *. Memory for partitioning of C vector
       ICOMP = 0
       ILTEST = -3006
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' KCIOIO, KCBLTP, KCIOCCLS_ACT, KCLBT = ',
      &               KCIOIO, KCBLTP, KCIOCCLS_ACT, KCLBT 
         WRITE(6,*) ' KCLEBT, KCLBLK, KCI1BT, KCIBT = ',
@@ -4892,7 +4905,7 @@ C?    WRITE(6,*) ' ISBSPPR_ACT = ', ISBSPPR_ACT
 C?    WRITE(6,*) ' ICISTR,LBLK = ', ICISTR,LBLK
 C?    WRITE(6,*) ' IPRT = ', IPRT
 C?    WRITE(6,*) ' ILAST in CIEIG5 ', ILAST 
-      NTEST=0000
+      NTEST=10000
       IPRT= 1
 *
 *               ====================================
@@ -4997,6 +5010,7 @@ CNW       CALL REWINO(LU1)
 * Initial CI vectors are already on file LU1, do nothing
 * ======================================================
 *
+         write(*,*) 'VOG, edw pethaineis? 09'
       IF( INICI .LT. 0 ) THEN
 *. Vectors assumed already in LU1
         IF(IPRT.GT. 1 .and. ga_nodeid().eq.0)
@@ -5032,6 +5046,7 @@ C    &   '  Largest allowed number of vectors..',MAXVEC
       KLRTCNV = KLFREE  
       KLFREE = KLRTCNV + NROOT
 *
+         write(*,*) 'VOG, edw pethaineis? 10'
       IF( IPRT .GE. 100 ) THEN
         WRITE(6,*) ' KRNRM KEIG  KFIN  KAPROJ KAVEC KWORK KLFREE: '
         WRITE(6,'(7I5)')  KRNRM,KEIG,KFIN,KAPROJ,KAVEC,KWORK,KLFREE
@@ -5049,6 +5064,7 @@ C    &   '  Largest allowed number of vectors..',MAXVEC
 CBERT  IOLSEN = 1
        IOLSEN = 0
        IPICO = 0
+         write(*,*) 'VOG, edw pethaineis? 11'
        IF(MXCIIT.NE.0) THEN
          CALL MINDV4(MV7,VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
      &              EROOT     ,MXCIIT,NDIM,LU3,LUDIA,NROOT,
@@ -5063,6 +5079,7 @@ CBERT  IOLSEN = 1
          END DO
        END IF
 *
+         write(*,*) 'VOG, edw pethaineis? 12'
        ENOT = SCR1(KFIN)
        CALL LUCIAQEXIT('CIEIG')
 *
@@ -5695,7 +5712,7 @@ CNW   CALL REWINE(LU,-1)
 *.LOOP OVER BLOCKS
 *
 C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
-      NTESTL = 00000
+      NTESTL = 10000 !VOG 00000
       NTEST = MAX(NTESTG,NTESTL)
 *
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
@@ -5725,6 +5742,7 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
           ELSE
             KBLK = -1
           END IF
+          write(*,*) 'VOG LBL', ga_nodeid(), LBL
             if(dra_read_section(.false.,SEGMNT,1,LBL,1,1,LU,1,LBL,
      &         1,1,itask).ne.0) call errquit('dra error',911)
           if (dra_wait(itask).ne.0) call errquit('dra read err',
@@ -5733,7 +5751,8 @@ CNW        CALL FRMDSC(SEGMNT,LBL ,-1,LU,IMZERO,IAMPACK)
            IF(NTEST.GE.10000) THEN
              if (ga_nodeid().eq.0) WRITE(6,*) ' Elements read in '
 CNW          CALL WRTMAT(SEGMNT,1,LBL,1,LBL)
-             call ga_print_patch(SEGMNT,1,LBL,1,1,0)
+cVOG It was causing problems...
+cVOG          call ga_print_patch(SEGMNT,1,LBL,1,1,1)!0)
            END IF
            IF(LBL .GE. 0 ) THEN
 *. LOWEST ELEMENTS IN SEGMNT  ( ADD TO PREVIOUS LIST )
@@ -8313,7 +8332,7 @@ cGLM         K(IORB,JORB) = GTIJKL(IORB,JORB,JORB,IORB)
         call ga_dgop(MT_DBL, K, NORB*NORB, '+')
       endif
 *
-      NTEST = 0
+      NTEST = 10 !VOG 0
       IF(NTEST.GT.10) THEN
         write(6,*) 'IORB IORB JORB JORB, J(IORB,JORB)'
         DO IORB = 1, NORB
@@ -9326,7 +9345,7 @@ CNW   DIMENSION DIAG(*)
 *. Offsets for alpha and beta supergroups
       IOCTPA = IBSPGPFTP(IATP)
       IOCTPB = IBSPGPFTP(IBTP)
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================'
         WRITE(6,*) ' GASDIA speaking '
         WRITE(6,*) ' ================'
@@ -9367,10 +9386,14 @@ CNW   DIMENSION DIAG(*)
 **. Diagonal of one-body integrals and coulomb and exchange integrals
 *   One-body integrals stored in KINT1 are used
 *
+cVOG
       CALL GT1DIA(dbl_mb(KLH1D))
       CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
 *
       IF( LUDIA .GT. 0 ) CALL REWINO(LUDIA)
+      if (ga_nodeid().eq.0) write(*,*) 'VOGG, GASDIA driven by TTSS'
+      call ga_print_distribution(DIAG)
+      if (ga_nodeid().eq.0) write(*,*) 'IEXP_PH', IEXP_PH
       IF(IEXP_PH.EQ.0) THEN
 *. Good old version where PH is not used for diagonal
         CALL GASDIAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
@@ -10969,6 +10992,10 @@ c
 * ======================================================
       call ga_sync()
       CALL INPCTL(rtdb,LUOUT)
+*
+*. VOG: Search optimum GAS spaces for parallel performance
+*
+      call optimum_gas_for_ciblocks
 *. Static memory, initialize
       KBASE = 1
       KADD = MAXMEM
@@ -11022,7 +11049,7 @@ CNW   CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY ')
       IF(I_DO_SBCNF.EQ.1) THEN
         CALL INFO_OCSBCLS
       END IF
-
+*
       IF(NOCSF.EQ.0) THEN
 *
        CALL PROTO_CSF_DIM
@@ -11173,6 +11200,21 @@ CNW   CALL STRINF_GAS(WORK,IPRSTR)
 * ========================================
 *
       CALL LCISPC(IPRCIX)
+c*
+c*. VOG: Condition if I should fragment further the GAS spaces and
+c*.      recalculate the number of blocks
+c      call ga_sync()
+c      nproc = ga_nnodes()
+c      if (ga_nodeid().eq.0) write(*,*) 'nblocks, nproc',
+c     &                                  NBLKIC(irefsm,1), nproc
+c      if (NBLKIC(irefsm,1).lt.nproc) then
+c       if (ga_nodeid().eq.0) write(*,*) 'I will fragment the GAS space'
+c       call memman(idum,idum,'flusm ',idum,'lucia')
+c       call fraggas(imegaloop)
+c      else
+c       exit
+c      end if
+c      end do ! VOG: End of Mega GAS Loop
 *
 * ============================================
 *. Dimension of explicit Hamiltonian subspace
@@ -13386,11 +13428,11 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 000
+      NTEST = 1000 !VOG 000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
-      ELSE IF(NTEST.GE.10) THEN
+      ELSE IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' Information from MV7: '
         WRITE(6,*) ' ======================'
@@ -13398,18 +13440,20 @@ COLD  DIMENSION C(*),HC(*)
         WRITE(6,'(A,A)') ' Task is ', CMV7TASK
       END IF
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Input vector to MV7 '
         WRITE(6,*) ' ==================='
         IF(ICISTR.GT.1) THEN
           CALL WRTVCD(dbl_mb(CB),LUC,1,-1)
         ELSE
+          call ga_print_distribution(CB)
           call ga_print(CB)
 CNW       CALL WRTMAT(CB,1,NCVAR,1,NCVAR)
         END IF
       END IF
 C?    WRITE(6,*) ' Ecore (MV7) = ', ECORE
         
+      if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 0.1.1'
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MV7   ')
 *. For the moment
@@ -13425,7 +13469,8 @@ C?    WRITE(6,*) ' Ecore (MV7) = ', ECORE
         IATP = IALTP_FOR_GAS(ISSPC)
         IBTP = IBETP_FOR_GAS(ISSPC)
       END IF
-      IF(NTEST.GE.10) WRITE(6,*) ' MV7TEST: IATP, IBTP = ', IATP, IBTP
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0)
+     &  WRITE(6,*) ' MV7TEST: IATP, IBTP = ', IATP, IBTP
 *
       NOCTPA = NOCTYP(IATP)
       NOCTPB = NOCTYP(IBTP)
@@ -13446,7 +13491,7 @@ C?    WRITE(6,*) ' Ecore (MV7) = ', ECORE
         LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,MXSOOB)
       END IF
       LBLOCK = MAX(LBLOCK,LCSBLK)
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' TEST, MV7: LCSBLK, LBLOCK, MXSOOB  = ', 
      &                          LCSBLK, LBLOCK, MXSOOB
       END IF
@@ -13454,7 +13499,7 @@ C?    WRITE(6,*) ' Ecore (MV7) = ', ECORE
       ILTEST = -3006
       CALL MEMCHK2('MV7BEZ')
 C?    WRITE(6,*) ' KSIOIO = ', KSIOIO
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ICSM, ISSM = ', ICSM, ISSM
         WRITE(6,*) ' KCLBT, KSLBT(a) == ', KCLBT, KSLBT
         WRITE(6,*) ' WORK(KCLBT): '
@@ -13478,7 +13523,7 @@ C?    WRITE(6,*) ' KSIOIO = ', KSIOIO
      &       int_mb(KCIBT),
      &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
         NCOCCLS = NCOCCLS_ACT
-        IF(NTEST.GE.1000) THEN
+        IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' KCLBT, KSLBT(b) == ',int_mb(KCLBT),int_mb(KSLBT)
           WRITE(6,*) ' WORK(KCLBT): '
           CALL IWRTMA(int_mb(KCLBT),1,1,1,1)
@@ -13502,7 +13547,7 @@ C             FILEMAN_MINI(IFILE,ITASK)
 CBERT SHOULD NOT BE CALLED
          CALL FILEMAN_MINI(LU_CDET,'ASSIGN')
          CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
-         IF(NTEST.GE.1000)  THEN
+         IF(NTEST.GE.1000.and.ga_nodeid().eq.0)  THEN
            WRITE(6,*) ' Test: LU_CDET, LU_SDET: ',
      &                        LU_CDET, LU_SDET
          END IF
@@ -13554,7 +13599,7 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
      &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,CB,HCB,ECORE,
      &         CMV7TASK)
 *. Input is in KCOMVEC1_SD, construct output in KCOMVEC2_SD
-          IF(NTEST.GE.1000) THEN
+          IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
             WRITE(6,*) ' NSVAR elements of output vector from RASSG3'
             CALL WRTMAT(dbl_mb(KVEC2P),1,NSVAR,1,NSVAR)
           END IF
@@ -13564,7 +13609,7 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
      &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,
      &         KCOMVEC1_SD,KCOMVEC2_SD,ECORE,
      &        CMV7TASK)
-          IF(NTEST.GE.1000) THEN
+          IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
             WRITE(6,*) ' NSVAR elements of output vector from RASSG3'
 CNW         CALL WRTMAT(WORK(KCOMVEC2_SD),1,NSVAR,1,NSVAR)
             call ga_print(KCOMVEC2_SD)
@@ -13572,6 +13617,8 @@ CNW         CALL WRTMAT(WORK(KCOMVEC2_SD),1,NSVAR,1,NSVAR)
         END IF ! CSF switch
       END IF ! ICISTR switch
 *
+      if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 1'
+!      call ga_sync() !VOG Debug
       IF(NOCSF.EQ.0) THEN
 * Transform sigma vector in KCOMVEC2_SD to CSF basis
        IF(ICNFBAT.EQ.1) THEN
@@ -13585,12 +13632,14 @@ C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
        END IF
       END IF
 *
+      if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 2'
+!      call ga_sync() !VOG Debug
       IF(NOCSF.EQ.0.AND.ICNFBAT.GE.2) THEN
         CALL FILEMAN_MINI(LU_CDET,'FREE  ')
         CALL FILEMAN_MINI(LU_SDET,'FREE  ')
       END IF
 *
-      IF(NTEST.GE.1000) THEN
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Output vector from MV7 '
         WRITE(6,*) ' ===================== '
         IF(ICISTR.GT.1) THEN
@@ -13603,6 +13652,7 @@ CNW       CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
       END IF
 *
 *. Eliminate local memory
+      call ga_sync() !VOG Debug
       CALL MEMMAN(KDUM ,IDUM,'FLUSM ',2,'MV7   ')
 *
       CALL LUCIAQEXIT('MV7  ')
@@ -15426,7 +15476,7 @@ CNW   DIMENSION SV(*),CV(*)
       LOGICAL ANYLOCAL
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 0000
+      NTEST = 10000 !VOG 0000
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -15448,13 +15498,17 @@ CNW   DIMENSION SV(*),CV(*)
 *. What is my local patch of Sigma Vector
 *
       call ga_distribution(SV,ga_nodeid(),ilo,ihi,idum,idum)
+      write(*,*) ' What is my local patch of Sigma Vector'
+      write(*,*) ga_nodeid(), ilo, ihi
+      write(*,*)
+      call ga_sync
 *
       IF(LUHC.GT.0) CALL REWINO(LUHC)
 * Loop over batches over sigma blocks
       IOFF_S = 1
       DO JBATS = 1, NBATS
-        IF(NTEST.GE.10000) WRITE(6,*) ' JBATS, LBATS(..) = ',
-     &                                  JBATS, LBATS(JBATS),NBATS
+        IF(NTEST.GE.10000.and.ga_nodeid().eq.0)
+     &   WRITE(6,*) ' JBATS, LBATS(..) = ', JBATS, LBATS(JBATS),NBATS
 *. Obtain sigma for batch of blocks
 C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK) 
         LEN = 0
@@ -15462,6 +15516,7 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
         ANYLOCAL = .FALSE.
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           ILEN = IBATS(8,ISBLK)
+          if (ga_nodeid().eq.0) write(*,'(a,i8)') 'ILEN', ILEN
           IF ((IOFF_T.GE.ilo).AND.(IOFF_T+ILEN-1.LE.ihi)) THEN
              ANYLOCAL = .TRUE.
           ELSE
@@ -15471,6 +15526,7 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
           IOFF_T = IOFF_T + ILEN
           LEN = LEN + ILEN
         ENDDO
+        if (ga_nodeid().eq.0) write(*,'(a,i8)') 'LEN ', LEN
 *
 *. Skip it all together if the SV range is outside local
 *
@@ -15478,6 +15534,11 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
            do isblk = 0, ncblock_t-1
               dbl_mb(KLSCLFAC+isblk) = dbl_mb(KLCNORM+isblk)
            enddo
+         if (ga_nodeid().eq.0) 
+     &      write(*,*) 'VOG, batches', ncblock_t, jbats, lbats(jbats)
+            call ga_sync()
+            call ga_print_distribution(CV)
+            call ga_print_distribution(SV)
           CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
      &         CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,
      &         dbl_mb(KLCNORM),dbl_mb(KLSCLFAC))
@@ -15522,7 +15583,8 @@ CNW       CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
 CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
         END IF
       END IF
-      IF(NTEST.GE.100) WRITE(6,*) ' Leaving RASSG3'
+      call ga_sync() !VOG Debug
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) WRITE(6,*) ' Leaving RASSG3'
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',2,'RASSG3')
       CALL LUCIAQEXIT('RASSG')
@@ -19561,7 +19623,6 @@ cnw       GOTO 999
 cglm    ^ end IF for skipping command in NWChem env.
 *
 cGLM   IF(CARD(2:7).EQ.'AKBKME') THEN
-cVOG   Obsolete. This is set to 1 (Q-vectors on DISC/GAs)
        IF(rtdb_get(rtdb,'lucia:IAKBK_MET',mt_int,1,iakbk_met)) then
 
 *. Readin method for performing AKBK calculations
@@ -21910,12 +21971,12 @@ C?    WRITE(6,*) ' Check,  I_DO_NEWCCV = ',  I_DO_NEWCCV
    
 *. Check number of orbitals and insert occupations for ALL/REST
 
-*
-*. VOG: Break GAS-spaces into smaller GAS spaces
 * 
-*      IF(CARDX(1:4).EQ.'AKBK') THEN 
-       write(*,*) 'Fragmeting the active spaces into smaller GAS spaces'
-c      call akbkqspace
+*. VOG: Break GAS-spaces into smaller GAS spaces
+*
+*      IF(CARDX(1:4).EQ.'AKBK') THEN
+c      write(*,*) 'Fragmeting the active spaces into smaller GAS spaces'
+c      call fraggas
 *      END IF
 ************************************************************
 *                                                          *

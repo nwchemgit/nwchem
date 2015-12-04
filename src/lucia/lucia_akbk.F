@@ -46,7 +46,7 @@
       WRITE(6,*) ' **************************************'
       end if
 *
-      NTEST = 000
+      NTEST = 1000 !VOG 000
       NTEST = MAX(NTEST,IPRINT)
 *
 * Test that CSFs are in use
@@ -63,7 +63,7 @@ cVOG        WRITE(6,*) ' Please make sure ICNFBAT .ge. 2 and ICISTR .ge. 2 '
 cVOG        STOP       ' AKBK calculation does not work with incore options'
       END IF
 *
-      IAKBK_MET = 1
+cVOG  IAKBK_MET = 1
       if (ga_nodeid().eq.0) then
       WRITE(6,*) ' Allowed number of outer iterations ', MAXITM
       WRITE(6,*) ' Allowed number of inner iterations ', MAXIT 
@@ -147,9 +147,51 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
 *
 * Info on batches
 *
-      LBLOCK  = MXSOOB 
-!      LBLOCK  = NSD_FOR_OCCLS_MAX
-!      IF (NOCSF.EQ.1) CALL IAIBCM(1,LBLOCK)
+      !
+      ! VOG: My quick-and-dirty way to solve the problem
+      !
+cVOG  LBLOCK  = MXSOOB 
+cVOG  LBLOCK  = NSD_FOR_OCCLS_MAX
+cVOG  IF (NOCSF.EQ.1) CALL IAIBCM(1,LBLOCK)
+      !
+      ! VOG: Solution based on Jeppe's suggestions
+      !
+      CALL MAX_NOPEN_NOCCLS_FOR_CISPAC(IGSOCC(1,1),IGSOCC(1,2),
+     &     MINOP,NOPEN_MAX,NOCCLS_MAX)
+      write(*,*) 'Number of occupation classes in compound space',
+     &            NOCCLS_MAX
+      ! Generate the actual occupations of the various GASpaces that
+      ! defines each occupation classes
+      CALL GEN_OCCLS_FOR_CISPAC(IGSOCC(1,1), IGSOCC(1,2), -1,
+     &     MINOP,int_mb(KIOCCLS),NOCCLS_MAX)
+      ! Obtain the AB supergroups that constitute the various occupation
+      ! classes
+*. Obtain mapping from occupation classes to supergroups
+      IATP = 1
+      IBTP = 2
+      NASPGP = NSPGPFTP(IATP)
+      NBSPGP = NSPGPFTP(IBTP)
+      IB_A = IBSPGPFTP(IATP)
+      IB_B = IBSPGPFTP(IBTP)
+*. First: offsets
+      write(*,*) ' Before work -LBLOCK', LBLOCK
+      CALL ABSPGP_TO_OCCLS(
+     &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
+     &     NGAS,IGSOCC,NELFGP,
+     &     NOCCLS_MAX,int_mb(KIOCCLS),N_ABSPGP_TOT2,
+     &     int_mb(KIABSPGP_FOR_OCCLS),int_mb(KNABSPGP_FOR_OCCLS),
+     &     int_mb(KIBABSPGP_FOR_OCCLS),1)
+*. And then the actual mappings
+      CALL ABSPGP_TO_OCCLS(
+     &     ISPGPFTP(1,IB_A),NASPGP,ISPGPFTP(1,IB_B),NBSPGP,
+     &     NGAS,IGSOCC,NELFGP,
+     &     NOCCLS_MAX,int_mb(KIOCCLS),N_ABSPGP_TOT2,
+     &     int_mb(KIABSPGP_FOR_OCCLS),int_mb(KNABSPGP_FOR_OCCLS),
+     &     int_mb(KIBABSPGP_FOR_OCCLS),0)
+      ! Order CI-vector, so AB supergroups so all supergroups belonging
+      ! to the same occupation class are stored consecutively and one batch consists
+      ! of one occupation class:
+*
       ICOMP = 0
 * Start be letting P be C-space and Q be S-space
       NCOCCLS = NOCCLS_P
@@ -173,6 +215,9 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
       ISSPC = IQSPC
       ISSM = IREFSM
       ILTEST = 3006
+      ! Trick code to use PART_CIV_OCC instead of PART_CIV for
+      ! partitioning of vector
+      NOCSF = 0
       CALL Z_BLKFO_FOR_CISPACE(ISSPC,ISSM,LBLOCK,ICOMP,
      &     IPRINT,NSBLOCK,NSBATCH,
      &     int_mb(KSIOIO),int_mb(KSBLTP),NSOCCLS_ACT,
@@ -180,10 +225,13 @@ C    &           IOCCLS,NGAS,NEXCIT,NRCONNECT,IRCONNECT)
      &     int_mb(KSLBT),int_mb(KSLEBT),int_mb(KSLBLK),int_mb(KSI1BT),
      &     int_mb(KSIBT),
      &     int_mb(KSNOCCLS_BAT),int_mb(KSIBOCCLS_BAT),ILTEST)
+      NOCSF = 1
       NBLOCK_Q = NSBLOCK
       NBATCH_Q = NSBATCH
       NSBLK = NSBLOCK
 *      if (IPRINT.ge.10.and.ga_nodeid().eq.0) then
+      write(*,*) ' After work -LBLOCK', LBLOCK
+      NSD_FOR_OCCLS_MAX = LBLOCK
       if (ga_nodeid().eq.0) then
       WRITE(6,'(a,2I9)')  
      & ' Number of blocks and batches in P  ',NBLOCK_P, NBATCH_P
@@ -244,8 +292,17 @@ cVOG   CALL GASANA(dbl_mb(KVEC1P),NBLOCK,NSDP,NSDP,LUC,ICISTR)
       IF(IAKBK_MET.EQ.2) THEN
 *.Allocate extra block for incore
         write(*,*) 'NSD_FOR_OCCLS_MAX', NSD_FOR_OCCLS_MAX
-        CALL MEMMAN(KVEC4,NSD_FOR_OCCLS_MAX,'ADDL  ',2,'VEC4  ')
+        IF (.not.ga_create(mt_dbl,NSD_FOR_OCCLS_MAX,1,'VEC4',0,0,KVEC4))
+     $    CALL ERRQUIT('AKBK: ga_create VEC4 failed',
+     &                 NSD_FOR_OCCLS_MAX, GA_ERR)
+        CALL ga_zero(KVEC4)
+cVOG    CALL MEMMAN(KVEC4,NSD_FOR_OCCLS_MAX,'ADDL  ',2,'VEC4  ')
         LCSBLK = LENP
+        IF(LENP.GT.LCSBLK) THEN
+         if (ga_nodeid().eq.0) WRITE(6,*)
+     &   ' Length of batch will be increased to accomodate P-expansion'
+         LCSBLK = LENP
+        END IF
       END IF
 *
        IF (NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
@@ -502,6 +559,8 @@ C?    END IF
      &     errquit('GASCI: ga_destroy kcomvec2 failed', 0 , GA_ERR)
       if (.not. ga_destroy(KCOMVEC1)) call
      &     errquit('GASCI: ga_destroy kcomvec1 failed', 0 , GA_ERR)
+      if (.not. ga_destroy(KVEC4)) call
+     &     errquit('GASCI: ga_destroy kvec4 failed',    0 , GA_ERR)
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',IDUM,'AKBKCT')
       CALL LUCIAQEXIT('AKBKCT')
 *
@@ -525,7 +584,7 @@ C?    END IF
       INTEGER IRCONNECT(*)
 *
       NTEST = 000
-      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.10) THEN
         WRITE(6,*)
         WRITE(6,*) ' Output from EXCIT_OCCLS_TO_OCCLS '
         WRITE(6,*) ' ================================='
@@ -556,7 +615,7 @@ C?    END IF
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
        WRITE(6,*) ' Number of connected R-classes = ', NRCONNECT
       END IF
-      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.1000) THEN
        WRITE(6,*) ' The connected classes '  
        CALL IWRTMA(IRCONNECT,1,NRCONNECT,1,NRCONNECT)
       END IF
@@ -2413,6 +2472,7 @@ C MATVCC(A,VIN,VOUT,NROW,NCOL,ITRNS)
      &               IPRDIALL,IIUSEH0PL,MPORENP_EL,
      &               ERROR_NORM_FINALL,CONV_FL,
      &               I_DO_CI_IN_INNER_ACT
+cVOG   COMMON/EXCTRNS/KLOOEXCC,KINT1_INI,KINT2_INI
 * A bit of local scratch
       INTEGER ISCR(2), ISCR_NTS((7+MXPR4T)*MXPOBS)
 *
@@ -3691,7 +3751,7 @@ cVOG  DIMENSION CB(*), HCB(*)
       CALL LUCIAQENTER('AKBKSI')
 *
       NTEST = 10000
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Information from AKBKSIGMA2'
         WRITE(6,*) ' ==========================='
         WRITE(6,*)
@@ -3699,12 +3759,13 @@ cVOG  DIMENSION CB(*), HCB(*)
         WRITE(6,*) ' NSDP , NSDQ  = ', NSDP , NSDQ
         WRITE(6,*) ' ISIMSYM      = ', ISIMSYM
         WRITE(6,*) ' IQINP        = ', IQINP
+        WRITE(6,*) ' ICISTR       = ', ICISTR
         WRITE(6,*) ' NSBATCH      = ', NSBATCH
       END IF 
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' LUC, LUHC = ', LUC, LUHC
-      END IF
-      IF(NTEST.GE.1000) THEN
+cVOG  IF(NTEST.GE.100) THEN
+cVOG    WRITE(6,*) ' LUC, LUHC = ', LUC, LUHC
+cVOG  END IF
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Input vector to AKBKSIGMA2 '
         CALL ga_print(CB)
 cVOG    CALL WRTVCD(CB,LUC,1,LBLK)
@@ -3715,17 +3776,20 @@ cVOG    CALL WRTVCD(CB,LUC,1,LBLK)
 *. For C and Sigma in det basis
 cVOG  CALL FILEMAN_MINI(LU_CDET,'ASSIGN')
 cVOG  CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
+      IF(ICISTR.EQ.1) THEN
+       LU_CDET = 0
+       LU_SDET = 0
+      ELSE
+       STOP ' Something is messy here...'
+      END IF       
 *
-      CALL MEMMAN(KVEC1P,NSDP,'ADDL  ',2,'VEC1  ')
-      CALL MEMMAN(KVEC2P,NSDP,'ADDL  ',2,'VEC2  ')
-*
-      IF ( .not. ga_create( mt_dbl, NSDP, 1, 'LU_CDET', 0, 0, KLU_CDET))
-     $   CALL ERRQUIT('AKBK: ga_create LU_CDET failed', NSDP, GA_ERR)
-      IF ( .not. ga_create( mt_dbl, NSDQ, 1, 'LU_SDET', 0, 0, KLU_SDET))
-     $   CALL ERRQUIT('AKBK: ga_create LU_SDET failed', NSDQ, GA_ERR)
-      CALL ga_zero(KLU_CDET)
-      CALL ga_zero(KLU_SDET)
-      call ga_print(KLU_SDET)
+!      IF ( .not. ga_create( mt_dbl, NSDP, 1, 'LU_CDET', 0, 0, KLU_CDET))
+!     $   CALL ERRQUIT('AKBK: ga_create LU_CDET failed', NSDP, GA_ERR)
+!      IF ( .not. ga_create( mt_dbl, NSDQ, 1, 'LU_SDET', 0, 0, KLU_SDET))
+!     $   CALL ERRQUIT('AKBK: ga_create LU_SDET failed', NSDQ, GA_ERR)
+!      CALL ga_zero(KLU_CDET)
+!      CALL ga_zero(KLU_SDET)
+!      call ga_print(KLU_SDET)
 *
 *. Construct info about the block-structures in P and Q space
 *
@@ -3735,7 +3799,8 @@ cVOG  CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
       ISSM = IREFSM
       ICSM = IREFSM
 *
-      ISFIRST = 1
+cVOG  ISFIRST = 1
+      ISFIRST = 0
       ICFIRST = 1
 *
       MAXK1_MX = 0
@@ -3753,6 +3818,7 @@ cVOG  CALL FILEMAN_MINI(LU_SDET,'ASSIGN')
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
 C Block for storing complete or partial CI-vector
+      write(*,*) 'MXSOOB, MXSOOB_AS', MXSOOB, MXSOOB_AS
       IF(ISIMSYM.EQ.0) THEN
         LBLOCK = MXSOOB
       ELSE
@@ -3764,7 +3830,7 @@ C Block for storing complete or partial CI-vector
         LBLOCK  = MAX(NSD_FOR_OCCLS_MAX,MXSOOB)
       END IF
       LBLOCK = MAX(LBLOCK,LCSBLK)
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' TEST: LCSBLK, LBLOCK, MXSOOB  = ',
      &                     LCSBLK, LBLOCK, MXSOOB
       END IF
@@ -3793,7 +3859,7 @@ C Block for storing complete or partial CI-vector
 *
       NPBLK = NCBLOCK
       NPBATCH = NCBATCH
-      IF(NTEST.GE.1000)
+      IF(NTEST.GE.1000.and.ga_nodeid().eq.0)
      &WRITE(6,*) '  NCOCCLS, NPBLK = ', NCOCCLS, NPBLK
       NPSD = IELSUM(int_mb(KCLBLK),NPBLK)
 *
@@ -3815,19 +3881,23 @@ C Block for storing complete or partial CI-vector
 * Scratch space for diagonal
 
 *. largest number of protype dets: that of maxop
-      NPDT_MAX = NPCMCNF(MAXOP+1)
-      NPCS_MAX = NPCSCNF(MAXOP+1)
+cVOG  NPDT_MAX = NPCMCNF(MAXOP+1)
+cVOG  NPCS_MAX = NPCSCNF(MAXOP+1)
+cVOG  NPCMCNF and NPCSCNF are initiallized only for NOCSF = 0
+cVOG  So, be careful!
 *
       NEL = NELFTP(IATP) + NELFTP(2)
 *
-      IF(NTEST.GE.100)
-     &WRITE(6,*) ' NPDT_NAX, NPCS_MAX = ', NPDT_MAX, NPCS_MAX
-      LISCR = 2*NPDT_MAX*NEL + NPDT_MAX + 6*NACOB
-      LRSCR = 2*NPDT_MAX**2
+cVOG  IF(NTEST.GE.100.and.ga_nodeid().eq.0)
+cVOG &WRITE(6,*) ' NPDT_NAX, NPCS_MAX = ', NPDT_MAX, NPCS_MAX
+cVOG  LISCR = 2*NPDT_MAX*NEL + NPDT_MAX + 6*NACOB
+cVOG  LRSCR = 2*NPDT_MAX**2
+      liscr = 2*nocob + 6*nacob !Achtung!
+      lrscr = 2*nocob**2        !Achtung!
       CALL MEMMAN(KLISCR,LISCR,'ADDL  ',1,'IS_CHC')
       CALL MEMMAN(KLRSCR,LRSCR,'ADDL  ',2,'RS_CHC')
-      LCSFHCSF = NPCS_MAX**2
-      CALL MEMMAN(KLCSFHCSF,LCSFHCSF,'ADDL  ',2,'CSHCS ')
+cVOG  LCSFHCSF = NPCS_MAX**2
+cVOG  CALL MEMMAN(KLCSFHCSF,LCSFHCSF,'ADDL  ',2,'CSHCS ')
 *. For holding info on largest batch = occupation class
       NBLK_BAT_MAX = IMNMX(int_mb(KSLBT),NSBATCH,2)
       CALL MEMMAN(KEIBT,8*NBLK_BAT_MAX,'ADDL  ',2,'EBT   ')
@@ -3847,6 +3917,8 @@ cVOG  CALL CSDTVCMN(CB,HCB,dbl_mb(KVEC3),
 cVOG &      1,0,ICSM,ICSPC,2,2,LU_CDET,LUC,NCOCCLS_ACT,
 cVOG &      int_mb(KCIOCCLS_ACT),int_mb(KCIBT),int_mb(KCLBT))
 cVOG  END IF
+!      call ga_copy(CB,KLU_CDET)
+!      call ga_print(KLU_CDET)
 * 2: HPP CP (in and out in SD/CM), save on LU_SDET
       ICSPC = IPSPC
       ISSPC = IQSPC
@@ -3854,11 +3926,21 @@ cVOG  END IF
 cVOG  CALL RASSG3(CB,HCB,NCBATCH,int_mb(KCLBT),int_mb(KCLEBT),
 cVOG &     int_mb(KCI1BT),int_mb(KCIBT),LU_CDET,LU_SDET,XDUM,XDUM,ECORE,
 cVOG &     ITASK)
+!~~~~~~~~~~~~~~~~~~~~~~COPIED FROM MV7~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+!          CALL RASSG3(dbl_mb(KVEC1P),dbl_mb(KVEC2P),NSBATCH,
+!     &         int_mb(KSLBT),int_mb(KSLEBT),
+!     &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,CB,HCB,ECORE,
+!     &         CMV7TASK)
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+      CALL WRTMAT(dbl_mb(KVEC1P),1,NSDP, 1, 1)
+      CALL WRTMAT(dbl_mb(KVEC2P),1,NSDP, 1, 1)
+      CALL ga_print(CB)
+      CALL ga_print(HCB)
       CALL RASSG3(dbl_mb(KVEC1P),dbl_mb(KVEC2P),NCBATCH,
      &     int_mb(KCLBT),int_mb(KCLEBT),
-     &     int_mb(KCI1BT),int_mb(KCIBT),-1,-1,CB,KLU_CDET,ECORE,ITASK)
+     &     int_mb(KCI1BT),int_mb(KCIBT),0,0,CB,HCB,ECORE,ITASK)
 **** I AM AT THIS POINT!
-      write(*,*) 'Out from the RASSG3(1)'
+      write(*,*) 'Out from the RASSG3(1) !!!'
       CALL WRTMAT(dbl_mb(KVEC1P),1,NSDP, 1, 1)
       CALL WRTMAT(dbl_mb(KVEC2P),1,NSDP, 1, 1)
       CALL ga_print(CB)
@@ -3866,10 +3948,9 @@ cVOG &     ITASK)
 !      CALL ga_get(HCB, 1, NSDP, 1, 1, dbl_mb(LU_SDET),1)
 !      CALL ga_copy(HCB,KLU_CDET)
 !      CALL ga_zero(HCB)
-      CALL ga_print(KLU_CDET)
-      CALL ga_print(KLU_SDET)
-!      CALL WRTMAT(dbl_mb(LU_CDET),1,NSDP, 1, 1)
-!      CALL WRTMAT(dbl_mb(LU_SDET),1,NSDP, 1, 1)
+!      CALL ga_print(KLU_CDET)
+!      CALL ga_print(KLU_SDET)
+*
 * and next the Q-contributions
 *
 *. Notice: at the moment, a batch is by construction an occupation class
@@ -4053,9 +4134,18 @@ C              SWAP_CS_TTSSARRAYS
            IF(NTEST.GE.1000)
      &     WRITE(6,*) ' IP_BATCH, NP_BLK_BAT, NP_CM_BAT = ',
      &                  IP_BATCH, NP_BLK_BAT, NP_CM_BAT
-           CALL SBLOCK(NP_BLK_BAT,int_mb(KSIBT),IP_B_BLK,CB,
-     &          HCB(IP_B_CM),
-     &          -1,0,0,1,IQBAT,IQBAT,dbl_mb(KVEC4),ECORE,ITASK)
+!~~~~~~~~~~~~~~~~~~~~~~COPIED FROM RASSG3~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+!        CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
+!     &       CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN)
+!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~!
+           ilen = NSD_FOR_OCCLS_MAX
+           CALL SBLOCK(NP_BLK_BAT,int_mb(KSIBT),IP_B_BLK,
+     &          dbl_mb(KVEC1P),dbl_mb(KVEC2P),
+     &          -1,0,0,1,IQBAT,IQBAT,dbl_mb(KVEC4),ECORE,ITASK,ilen)
+           CALL ga_print(KVEC4)
+cVOG       CALL SBLOCK(NP_BLK_BAT,WORK(KSIBT),IP_B_BLK,CB,
+cVOG &          HCB(IP_B_CM),
+cVOG &          -1,0,0,1,IQBAT,IQBAT,WORK(KVEC4),ECORE,ITASK)
 C               SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,
 C    &          LUCBLK,ICBAT_RES,ICBAT_INI,ICBAT_END,CV,
 C    &          ECORE,ITASK)
@@ -4066,7 +4156,7 @@ C    &          ECORE,ITASK)
           IF(NTEST.GE.1000) THEN
             WRITE(6,*) 
      &      ' Contribution to HPQ (HQQ - E)**-1 HQP for Q batch'
-!            CALL ga_print(HCB)
+            CALL ga_print(HCB)
 cVOG       CALL WRTMAT_EP(HCB,1,NPSD,1,NPSD)
           END IF
 *
@@ -4117,7 +4207,7 @@ cVOG    CALL WRTMAT_EP(CB,1,NPSD,1,NPSD)
       IF(NTEST.GE.1000) THEN
        WRITE(6,*) '  Final HPP(eff) CP in CSF basis '
        WRITE(6,*) ' ================================'
-!       CALL ga_print(HCB)
+       CALL ga_print(HCB)
 cVOG   CALL WRTVCD(HCB, LUHC,1,LBLK)
 C           WRTVCD(SEGMNT,LU,IREW,LBLK)
       END IF
@@ -4125,10 +4215,10 @@ C           WRTVCD(SEGMNT,LU,IREW,LBLK)
 cVOG  CALL FILEMAN_MINI(LU_CDET,'FREE  ')
 cVOG  CALL FILEMAN_MINI(LU_SDET,'FREE  ')
 *
-      if (.not. ga_destroy(KLU_CDET)) call
-     &     errquit('AKBK: ga_destroy KLU_CDET failed', 0 , GA_ERR)
-      if (.not. ga_destroy(KLU_SDET)) call
-     &     errquit('AKBK: ga_destroy KLU_SDET failed', 0 , GA_ERR)
+!      if (.not. ga_destroy(KLU_CDET)) call
+!     &     errquit('AKBK: ga_destroy KLU_CDET failed', 0 , GA_ERR)
+!      if (.not. ga_destroy(KLU_SDET)) call
+!     &     errquit('AKBK: ga_destroy KLU_SDET failed', 0 , GA_ERR)
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'AKBKSI')
       CALL LUCIAQEXIT('AKBKSI')
@@ -4967,11 +5057,11 @@ cVOG    else
       end
 *======================================================================*
 *======================================================================*
-      subroutine akbkqspace
+      subroutine fraggas(igasloop,ifrgasirrep,ngasadd)
 *======================================================================*
 *
-*.  Break the full Q-space into smaller GAS spaces for reducing memory
-*.  requirements in SplitGAS
+*.  Fragment the full GASspace into smaller GAS spaces for increasign
+*.  the number of CI blocks and reducing memory requirements 
 *.  
 *.  Konstantinos D. Vogiatzis, September 2015 
 *
@@ -4988,6 +5078,10 @@ cVOG    else
 #include "global.fh"
 #include "mafdecls.fh"
 *
+*. Input
+      integer igasloop
+      integer ifrgasirrep, ngasadd
+*
 *. Scratch
       integer igsoccupd(mxpngas,2,ncispc)
       integer ngsshupd(nirrep,mxpngas) 
@@ -5002,6 +5096,7 @@ cVOG    else
 *
 *. Print Input
 *
+      if (ga_nodeid().eq.0) WRITE(*,*) 'igasloop', igasloop
       if(ntest.ge.100.and.ga_nodeid().eq.0) then
       WRITE(*,*)
       WRITE(*,*) ' ***********************************'
@@ -5122,11 +5217,11 @@ cVOG    else
 *. Check in how many subspaces I want to split the given GAS spaces
 *. based on a rough estimate of the number of SDs (Weyl's formula)
 *
-      totsds = weyl(nactel,nmogasp,ms2)
-      totsds = totsds / nirrep
-      idigits = int(log10(dble(totsds))+1)
-      if ((ntest.ge.10).and.(ga_nodeid().eq.0))
-     &  write(*,*) 'SDs from Weyl (per irrep)', totsds, idigits
+!      totsds = weyl(nactel,nmogasp,ms2)
+!      totsds = totsds / nirrep
+!      idigits = int(log10(dble(totsds))+1)
+!      if ((ntest.ge.10).and.(ga_nodeid().eq.0))
+!     &  write(*,*) 'SDs from Weyl (per irrep)', totsds, idigits
 *
 *. Begin the fragmentation of the GAS spaces into smaller GAS
 *
@@ -5144,88 +5239,139 @@ cVOG    else
 *
       if (CSEQCI(1,2).ne.'AKBKCI') then
 *
-       ! In how many GAS spaces shall I split CAS? 
-       if (idigits.le.3) then
-        maxgas = 1
-       else if (idigits.eq.4) then
-        maxgas = 2
-       else if (idigits.eq.5) then
-        maxgas = 4
-       else if (idigits.eq.6) then
-        maxgas = 8
-       else if (idigits.gt.6) then
-        maxgas = mxpngas
-       end if
-!      maxgas = mxpngas
-*
        if (ngasq1.ne.0.and.ngasq2.ne.0) then
         ngasq1 = ngasq1 + ngasq2
         write(*,'(a,i3)') 'MCSCF: I found MOs in Q-Space'
-        CALL ERRQUIT('akbkqspace: wrong number of MOs', ngasq1,667)
+        CALL ERRQUIT('fraggas: wrong number of MOs', ngasq1,667)
        end if
 *
-*. Start work
+!       ! In how many GAS spaces shall I split CAS? 
+!        if (igasloop.eq.1) then
+!!         maxgas = 0
+!!         do irrep = 1, nirrep
+!!          if (NGSSH(IRREP,1).ne.0) maxgas = maxgas + 1
+!!         end do
+!!         write(*,*) 'maxgas', maxgas
 *
-       navailgas = maxgas
+*. Find from which irrep I will move one orbital
 *
-       do igasp = 1, ngasp
+       if (ifrgasirrep.eq.nirrep) then
+        ifrgasirrep = 1
+       else
+        ifrgasirrep = ifrgasirrep + 1        
+       end if
 *
-*. Get max MO occupation for the first GAS
+*. Find in which GAS I will move the orbital
+*. If I have not reached maximum allowed number of GAS, then create a
+*. new GAS space. Otherwise, add an MO to an existing one
 *
-        ngastotmo = get_mo_occ_gas(nmogasp,navailgas)
+       mxfraggas = mxpngas
+       ngasold = ngas
 *
-        do irrep = 1, nirrep
+       if (ngas.lt.mxfraggas) then
+        ngasupd = ngas + 1
+        ngas    = ngasupd
+        ngasadd = ngasupd
+       else 
+        write(*,*) ' I will add Orb in an existing GAS'
+        if (ngasadd.eq.mxfraggas) ngasadd = 1
+        ngasadd = ngasadd + 1
+        ngasupd = ngasadd
+       end if 
 *
-         do ish = 1, ngssh(irrep,igasp)
-          gathermos(irrep) = gathermos(irrep) + 1
-          ishdirrep = ishdirrep + 1
-          if (ishdirrep.eq.ngastotmo) then
-           !
-           ! I have reached the max MO occupation of the new GAS
-           !
-           ngasupd = ngasupd + 1
-           do jrrep = 1, irrep
-            ngsshupd(jrrep,ngasupd) = gathermos(jrrep)
-           end do
-           !
-           ! Nullify and redefine MO occupation
-           !
-           gathermos = 0
-           ishdirrep = 0
+*. Copy...
 *
-           nmogasp = nmogasp - ngastotmo
-           navailgas = navailgas - 1
-           if (navailgas.ne.0)
-     &         ngastotmo = get_mo_occ_gas(nmogasp,navailgas)
-          end if
-         end do
+       do irrep = 1, nirrep
+        do igas = 1, ngasold
+         ngsshupd(irrep,igas) = ngssh(irrep,igas) 
+        end do
+       end do
+*
+*. ...and move that orbital
+*
+!!! igas=1 means that the user requested CASSCF, not GASSCF (fix it!)
+       ngsshupd(ifrgasirrep,1)       = ngsshupd(ifrgasirrep,1)       - 1
+       ngsshupd(ifrgasirrep,ngasupd) = ngsshupd(ifrgasirrep,ngasupd) + 1
 
-*DISCARD?
-
-*          ! nfrgsh = number of fragments for this GAS shell
-*          nfrgsh = int(ngssh(irrep,igasp) / (moratio + 1))
-*          do ish = 1, nfrgsh
-*           ! Move to the next GAS
-*           ngasupd = ngasupd + 1
-*           ngsshupd(irrep,ngasupd) = moratio + 1
-*           write(*,*) 'KATI'
-*          end do
-**
-*          ! Remaining MOs in separate GAS
-*          nremain = ngssh(irrep,igasp) - (nfrgsh*(moratio + 1))
-*          if (nremain.ne.0) then
-*           ! Move to the next GAS
-*           ngasupd = ngasupd + 1
-*           ngsshupd(irrep,ngasupd) = nremain
-*           write(*,*) 'KATI' 
-*          end if
-**
-*          ! Update remaining MOs to be distributed for next GAS/irrep
-*          nmogasp = nmogasp - ngssh(irrep,igasp)
-*          navailgas = maxgas - ngasupd
-*
-        end do ! End Irrep loop
-       end do ! End GAS P-space loop
+*************************************************************************
+*** OLD Implementation based on Weyl's formula
+*************************************************************************
+!       if (idigits.le.3) then
+!        maxgas = 1
+!       else if (idigits.eq.4) then
+!        maxgas = 2
+!       else if (idigits.eq.5) then
+!        maxgas = 4
+!       else if (idigits.eq.6) then
+!        maxgas = 8
+!       else if (idigits.gt.6) then
+!        maxgas = mxpngas
+!       end if
+!!      maxgas = mxpngas
+!*
+!*. Start work
+!*
+!       navailgas = maxgas
+!*
+!       do igasp = 1, ngasp
+!*
+!*. Get max MO occupation for the first GAS
+!*
+!        ngastotmo = get_mo_occ_gas(nmogasp,navailgas)
+!*
+!        do irrep = 1, nirrep
+!*
+!         do ish = 1, ngssh(irrep,igasp)
+!          gathermos(irrep) = gathermos(irrep) + 1
+!          ishdirrep = ishdirrep + 1
+!          if (ishdirrep.eq.ngastotmo) then
+!           !
+!           ! I have reached the max MO occupation of the new GAS
+!           !
+!           ngasupd = ngasupd + 1
+!           do jrrep = 1, irrep
+!            ngsshupd(jrrep,ngasupd) = gathermos(jrrep)
+!           end do
+!           !
+!           ! Nullify and redefine MO occupation
+!           !
+!           gathermos = 0
+!           ishdirrep = 0
+!*
+!           nmogasp = nmogasp - ngastotmo
+!           navailgas = navailgas - 1
+!           if (navailgas.ne.0)
+!     &         ngastotmo = get_mo_occ_gas(nmogasp,navailgas)
+!          end if
+!         end do
+!*
+!*DISCARD?
+!*
+!*          ! nfrgsh = number of fragments for this GAS shell
+!*          nfrgsh = int(ngssh(irrep,igasp) / (moratio + 1))
+!*          do ish = 1, nfrgsh
+!*           ! Move to the next GAS
+!*           ngasupd = ngasupd + 1
+!*           ngsshupd(irrep,ngasupd) = moratio + 1
+!*           write(*,*) 'KATI'
+!*          end do
+!**
+!*          ! Remaining MOs in separate GAS
+!*          nremain = ngssh(irrep,igasp) - (nfrgsh*(moratio + 1))
+!*          if (nremain.ne.0) then
+!*           ! Move to the next GAS
+!*           ngasupd = ngasupd + 1
+!*           ngsshupd(irrep,ngasupd) = nremain
+!*           write(*,*) 'KATI' 
+!*          end if
+!**
+!*          ! Update remaining MOs to be distributed for next GAS/irrep
+!*          nmogasp = nmogasp - ngssh(irrep,igasp)
+!*          navailgas = maxgas - ngasupd
+!*
+!        end do ! End Irrep loop
+!       end do ! End GAS P-space loop
+*************************************************************************
 *
 *. Overwrite GAS information with updated values before exiting
 *
@@ -5459,7 +5605,6 @@ cVOG    else
         ! Max
         igsoccx(igas,2,icispc) = nactel
        end do
-
 *
 *. Add number of GAS spaces in Q-space for the total number of GAS
 *
@@ -5897,5 +6042,456 @@ cVOG    else
       return
       end
 *======================================================================*
+*======================================================================*
+      subroutine optimum_gas_for_ciblocks
+*======================================================================*
+*
+*.  Write some shit
+*.
+*.  Konstantinos D. Vogiatzis, November 2015, Berkeley
+*
+*======================================================================*
+*
+      include 'implicit.inc'
+      include 'mxpdim.inc'
+      include 'orbinp.inc'
+      include 'cgas.inc'
+      include 'crun.inc'
+      include 'clunit.inc'
+      include 'lucinp.inc'
+      include 'cstate.inc'
+      include 'cicisp.inc'
+      include 'glbbas.inc' 
+      include 'gasstr.inc'
+#include "global.fh"
+#include "mafdecls.fh"
+*
+      NTEST  = 10
+      IPRCIX = 0
+      IPRSTR = 0
+      IPRORB = 0
+*
+* Original Values
+*
+      if(ga_nodeid().eq.0) then
+      WRITE(*,*)
+      WRITE(*,*) ' ****************************************************'
+      WRITE(*,*) '  Pre-calculating supergroups for Optimum CI batches '
+      WRITE(*,*) ' ****************************************************'
+      WRITE(*,*)
+      end if
+*
+      if(ntest.ge.100.and.ga_nodeid().eq.0) then
+      WRITE(*,*)
+      WRITE(*,*) ' ***********************************'
+      WRITE(*,*) '   Input GAS Spaces for CI batches  '
+      WRITE(*,*) ' ***********************************'
+      WRITE(*,*)
+      WRITE(*,'(A)') ' Orbital subspaces:'
+      WRITE(*,'(A)') ' ================== '
+      WRITE(*,*)
+      WRITE(*,'(1H ,A,10I4,A)')
+     &  '                Irrep ',(I,I = 1,NIRREP)
+      WRITE(*,'(1H ,A,2X,10A,A)')
+     &  '                ===== ',('====',I = 1,NIRREP)
+      WRITE(*,'(A,10I4)')
+     &  '        Inactive       ',
+     &   ( NINASH(IRREP),IRREP = 1, NIRREP)
+
+      DO IGAS = 1, NGAS
+        WRITE(*,'(A,I2,A,10I4,6X,2I6)')
+     &  '        GAS',IGAS,'          ',
+     &  (NGSSH(IRREP,IGAS),IRREP = 1, NIRREP)
+      END DO
+      WRITE(*,'(A,10I4)')
+     &  '        Secondary      ',
+     &   ( NSECSH(IRREP),IRREP = 1, NIRREP)
+      WRITE(6,*)
+      IF(IGSFILL.NE.0) WRITE(6,'(7X,A,I3)')
+     &' Gas space provided by courtesy of LUCIA:',  IGSFILL
+      IF(ISECFILL.NE.0) WRITE(6,'(7X,A,I3)')
+     &' Secondary space provided by courtesy of LUCIA '
+*
+       WRITE(*,'(A,I3)')
+     &  ' Number of Occupation spaces: ',NCISPC
+       WRITE(*,*)
+       DO ICISPC = 1, NCISPC
+        WRITE(*,'(A,I3)')
+     &  ' Bounds on accumulated occupations for space: ',ICISPC
+        WRITE(*,'(A)')
+     &   ' ====================================================== '
+        WRITE(*,'(A)')
+        WRITE(*,'(A)') '         Min. occ    Max. occ '
+        WRITE(*,'(A)') '         ========    ======== '
+        DO IGAS = 1, NGAS
+          WRITE(*,'(A,I2,3X,I3,9X,I3)')
+     &    '   GAS',IGAS,IGSOCCX(IGAS,1,ICISPC),IGSOCCX(IGAS,2,ICISPC)
+        END DO
+       END DO
+       WRITE(*,*)
+      end if
+*
+* ====================
+* Begin the large Loop 
+* ====================
+*
+*. Irrep from which one MO will be moved to another GAS
+      ifrgasirrep = 0
+      ngasadd     = 0
+      nloop = 20 ! Arbitrary
+      do igasloop = 1, nloop
+*
+*. Set memory pointer
+*
+       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'OPTIMUM')
+*
+*. From shells to orbitals
+       CALL ORBINF(LUOUT,IPRORB)
+*
+*. 1. Occupation classes
+*. 2. Group of Strings
+*. 3. Types (two are needed, not six)
+*. 4. Supergroups
+*
+       call strtyp_gas(iprstr)
+       CALL ALLO_ALLO_0
+*. Divide orbital spaces into inactive/active/secondary
+       CALL GASSPC
+*. Symmetry information
+       CALL SYMINF(IPRORB)
+*
+       CALL GEN_OCCLS_FOR_CISPAC(IGSOCC(1,1), IGSOCC(1,2), -1,
+     &      int_mb(KIOCCLS),NOCCLS_MAX)
+       if (ntest.ge.10) call WRITE_OCCLS_AKBK(int_mb(KIOCCLS),
+     &                                        NOCCLS_MAX,NGAS)
+*
+*. 5. Strings
+*
+       CALL STRINF_GAS(IPRSTR)
+*
+*. 6. TTSSs (from combinations of supergroups)
+*
+       CALL LCISPC(IPRCIX)
+*
+*. 7. Prepare allocations for Z_BLKFO_FOR_CISPACE
+*
+       LEN_IOIO= NSPGPFTP_MAX**2
+       CALL MEMMAN(KCIOIO,LEN_IOIO,'ADDL  ',1,'CIOIO ')
+*
+       NTTS  = MXNTTS
+       NSMST = NIRREP
+       CALL MEMMAN(KCIBT ,8*NTTS,'ADDL  ',1,'CIBT  ')
+       CALL MEMMAN(KCBLTP,NSMST,'ADDL  ',1,'CBLTP ')
+       CALL MEMMAN(KCLBT ,NTTS  ,'ADDL  ',1,'CLBT  ')
+       CALL MEMMAN(KCLEBT,NTTS  ,'ADDL  ',1,'CLEBT ')
+       CALL MEMMAN(KCLBLK,NTTS  ,'ADDL  ',1,'CLBLK ')
+       CALL MEMMAN(KCI1BT,NTTS  ,'ADDL  ',1,'CI1BT ')
+       CALL MEMMAN(KCNOCCLS_BAT,NOCCLS_MAX,'ADDL  ',1,'NOCBAT')
+       CALL MEMMAN(KCIBOCCLS_BAT,NOCCLS_MAX,'ADDL  ',1,'NOCBAT')
+*
+*. 8. Prepare variables and call Z_BLKFO_FOR_CISPACE
+*
+       ICSPC  = 1
+       ICSM   = IREFSM
+       ICOMP  = 0
+       ILTEST = -3006
+*
+*. Block for storing complete or partial CI-vector
+       IF(ISIMSYM.EQ.1.OR.ICISTR.EQ.2) THEN
+        LBLOCK = MXSOOB_AS
+       ELSE
+        LBLOCK = MXSOOB
+       END IF
+       LBLOCK = MAX(LBLOCK,LCSBLK)
+       IF(NTEST.GE.10.and.ga_nodeid().eq.0)
+     &         WRITE(6,*) ' TEST: LBLOCK = ', LBLOCK
+*
+       CALL Z_BLKFO_FOR_CISPACE(ICSPC,ICSM,LBLOCK,ICOMP,
+     &       NTEST,NCBLOCK,NCBATCH,int_mb(KCIOIO),int_mb(KCBLTP),
+     &       NCOCCLS_ACT,int_mb(KCIOCCLS_ACT),
+     &       int_mb(KCLBT),int_mb(KCLEBT),int_mb(KCLBLK),int_mb(KCI1BT),
+     &       int_mb(KCIBT),
+     &       int_mb(KCNOCCLS_BAT),int_mb(KCIBOCCLS_BAT),ILTEST)
+*
+*. Caluclate blocks/nnodes ratio and print size of batches
+*
+       nnod = ga_nnodes()
+!       nfragagain = 0
+       call CI_batches_info(int_mb(KCIBT),NCBLOCK,nnod,ntest,
+     &                      nfragagain)
+       if (ntest.eq.10. and.ga_nodeid().eq.0)
+     &    write(*,'(a,3i10)') 'nblocks, nnod, nfragagain',
+     &                         NCBLOCK, nnod, nfragagain
+*
+*. Flush memory
+*
+       call memman(idum,idum,'FLUSM ',idum,'OPTIMUM')
+*
+*. Condition if I should fragment further the GAS spaces and
+*. recalculate the number of blocks
+*
+      if (NCBLOCK.lt.nnod) nfragagain = 1
+!      if ((NCBLOCK.lt.nnod).or.(nfragagain.eq.1)) then
+      if (nfragagain.eq.1) then
+       if (ga_nodeid().eq.0) write(*,*) 'I will fragment the GAS space'
+       call fraggas(igasloop,ifrgasirrep,ngasadd)
+      else
+       exit
+      end if
+*
+*. End Loop
+*
+      end do
+*
+*. Print Output
+*
+      if(ntest.ge.10.and.ga_nodeid().eq.0) then
+      WRITE(*,*)
+      WRITE(*,*) ' ***********************************'
+      WRITE(*,*) '  Updated GAS Spaces for CI batches '
+      WRITE(*,*) ' ***********************************'
+      WRITE(*,*)
+      WRITE(*,'(A)') ' Orbital subspaces:'
+      WRITE(*,'(A)') ' ================== '
+      WRITE(*,*)
+      WRITE(*,'(1H ,A,10I4,A)')
+     &  '                Irrep ',(I,I = 1,NIRREP)
+      WRITE(*,'(1H ,A,2X,10A,A)')
+     &  '                ===== ',('====',I = 1,NIRREP)
+      WRITE(*,'(A,10I4)')
+     &  '        Inactive       ',
+     &   ( NINASH(IRREP),IRREP = 1, NIRREP)
+
+      DO IGAS = 1, NGAS
+        WRITE(*,'(A,I2,A,10I4,6X,2I6)')
+     &  '        GAS',IGAS,'          ',
+     &  (NGSSH(IRREP,IGAS),IRREP = 1, NIRREP)
+      END DO
+      WRITE(*,'(A,10I4)')
+     &  '        Secondary      ',
+     &   ( NSECSH(IRREP),IRREP = 1, NIRREP)
+      WRITE(6,*)
+      IF(IGSFILL.NE.0) WRITE(6,'(7X,A,I3)')
+     &' Gas space provided by courtesy of LUCIA:',  IGSFILL
+      IF(ISECFILL.NE.0) WRITE(6,'(7X,A,I3)')
+     &' Secondary space provided by courtesy of LUCIA '
+*
+       WRITE(*,'(A,I3)')
+     &  ' Number of Occupation spaces: ',NCISPC
+       WRITE(*,*)
+       DO ICISPC = 1, NCISPC
+        WRITE(*,'(A,I3)')
+     &  ' Bounds on accumulated occupations for space: ',ICISPC
+        WRITE(*,'(A)')
+     &   ' ====================================================== '
+        WRITE(*,'(A)')
+        WRITE(*,'(A)') '         Min. occ    Max. occ '
+        WRITE(*,'(A)') '         ========    ======== '
+        DO IGAS = 1, NGAS
+          WRITE(*,'(A,I2,3X,I3,9X,I3)')
+     &    '   GAS',IGAS,IGSOCCX(IGAS,1,ICISPC),IGSOCCX(IGAS,2,ICISPC)
+        END DO
+       END DO
+       WRITE(*,*)
+       WRITE(*,*) ' Exiting optimum_gas_for_blocks '
+       WRITE(*,*)
+      end if
+*
+!      if(ga_nodeid().eq.0) stop !ABORT
+*
+      return
+      end
+*======================================================================*
+*======================================================================*
+      SUBROUTINE WRITE_OCCLS_AKBK(IOCCLS,NOCCLS,NGAS)
+*======================================================================*
+*
+* Print the NOCCLS classes IOCCLS
+*
+*. Jeppe Olsen, Jan. 2012
+*. K Vogiatzis, Nov. 2015, Berkeley
+*
+*======================================================================*
+*
+      INCLUDE 'implicit.inc'
+#include "global.fh"
+*
+      INTEGER IOCCLS(NGAS,NOCCLS)
+*
+      if(ga_nodeid().eq.0) then
+       WRITE(6,*)
+       WRITE(6,*) ' ======================='
+       WRITE(6,*) ' The occupation classes '
+       WRITE(6,*) ' ======================='
+       WRITE(6,*)
+*
+       WRITE(6,'(A, 16(2X,I4))')   '  Gas: ', (I, I = 1, NGAS)
+       WRITE(6,*)                  ' -----'
+       DO KOCCLS = 1, NOCCLS
+        WRITE(6,'(A, 16(2X,I4))') '       ', (IOCCLS(I,KOCCLS),I=1,NGAS)
+       END DO
+      end if
+*
+      RETURN
+      END
+*======================================================================*
+*======================================================================*
+*
+      SUBROUTINE CI_batches_info(KCIBT,NCBLOCK,nnod,ntest,nfragagain)
+*======================================================================*
+*
+      INCLUDE 'implicit.inc'
+#include "global.fh"
+*
+*. input
+      integer NCBLOCK, nnod, ntest
+      integer KCIBT(8,ncblock)
+*
+*. output
+      integer nfragagain
+*
+*. Get information of CI blocks and print them (if requested)
+*
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+       write(*,*)
+       write(*,*) ' =================='
+       write(*,*) '  BLK         SIZE '
+       write(*,*) ' =================='
+      end if
+*
+      isum = 0
+      nmaxblk = 0
+      do iblock = 1, ncblock
+       if (ga_nodeid().eq.0.and.ntest.ge.10)
+     &     write(*,'(i8,i10)') iblock, KCIBT(8,iblock)
+       isum = isum + KCIBT(8,iblock)
+       if (KCIBT(8,iblock).ge.nmaxblk) nmaxblk =  KCIBT(8,iblock)
+      end do
+*
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+       write(*,*) ' =================='
+       write(*,'(a5,i14)') '  SUM', isum
+       write(*,'(a5,i14)') '  MAX', nmaxblk
+       write(*,*) ' =================='
+      end if
+*
+*. Calculate blocks/nnod ratio, criterion if I will fragment further
+*. the GAS space
+*
+      nblkratio = int(isum/nnod)
+      nfragagain = 0
+      if (ga_nodeid().eq.0.and.ntest.ge.10)
+     & write(*,'(a,3i9)') 'isum, nnod, nblkratio', isum,nnod,nblkratio
+      do iblock = 1, ncblock
+       if (KCIBT(8,iblock).gt.nblkratio) nfragagain = 1
+       if (ga_nodeid().eq.0) write(*,*) 'nfragagain',nfragagain
+      end do
+*
+      RETURN
+      END
+*======================================================================*
+*======================================================================*
+*
+      SUBROUTINE distribute_CIblks(ILEN,NBATS,IBATS,NBLK,nnod,IMAP,
+     &                             IMAP2)
+*======================================================================*
+*
+*. Smthg
+*
+*. Konstantinos D. Vogiatzis, Nov. 2015, Minneapolis, after Bert
+*.                                                    thretening my life
+*
+*======================================================================*
+*
+      INCLUDE 'implicit.inc'
+#include "global.fh"
+*
+*. input
+      integer ILEN,NBATS,NBLK,nnod
+      integer IBATS(8,NBATS)
+      integer imap(NBLK)
+*
+*. input/output
+c      integer IMAP2(nnod)
+      integer IMAP2(NBLK)
+*
+*. Scratch
+      integer isize(nnod)
+*
+*. Initializations
+*
+      ntest = 10
+      if (ntest.ge.10) then
+       do i=1, NBLK
+        if (ga_nodeid().eq.0) write(*,*) 'imap', i ,imap(i)
+        imap2(i) = 0
+       end do
+      end if
+      do inode = 1, nnod
+c       imap2(inode) = 0
+       isize(inode) = 0
+      end do
+*
+      fctadd = 0.15 !Think if the factor should be dependent to the nnod
+      limitblk = int(ilen/nnod)
+      limitblk = int(limitblk + limitblk * fctadd)
+      isumele = 0
+      iaccuele = 0
+      inode = 0
+      ilenrem = ilen
+      inodrem = nnod
+      imap2(1) = 1
+*
+      do iblks = 1, nblk
+       isumele  = isumele  + IBATS(8,iblks)
+       iaccuele = iaccuele + IBATS(8,iblks)
+       ichkblk  = isumele + IBATS(8,iblks+1)
+       if (inode.lt.(nnod-1)) then
+        if (ichkblk.ge.limitblk) then
+         inode = inode + 1
+         isize(inode) = isumele
+         imap2(inode+1) = iaccuele + 1
+         ilenrem = ilenrem - isumele
+         inodrem = inodrem - 1
+         limitblk = int(ilenrem/inodrem)
+         limitblk = int(limitblk + limitblk * fctadd)
+         isumele = 0
+        end if
+       else
+        if (iblks.eq.nblk) isize(inode+1) = isumele
+       end if
+      end do
+*
+      do i = nnod+1,nblk
+       imap2(i) = ilen
+      end do
+*
+      if (ga_nodeid().eq.0.and.ntest.ge.10) then
+       isum = 0
+       nmaxblk = 0
+       write(*,*)
+       write(*,*) ' =============================='
+       write(*,*) '  BATCH       SIZE     MAPPING '
+       write(*,*) ' =============================='
+       do inode = 1, nblk
+        if (inode.le.nnod) then
+         write(*,'(i8,2i11)') inode,isize(inode), IMAP2(inode)
+         isum = isum + isize(inode)
+         if (isize(inode).ge.nmaxblk) nmaxblk =  isize(inode)
+        else
+         write(*,'(i8,2i11)') inode,           0, IMAP2(inode)
+        end if
+       end do
+       write(*,*) ' =============================='
+       write(*,'(a5,i14)') '  SUM', isum
+       write(*,'(a5,i14)') '  MAX', nmaxblk
+       write(*,*) ' =============================='
+       write(*,*)
+      end if
+*
+      RETURN
+      END
+*======================================================================*
+
 
 c $Id$

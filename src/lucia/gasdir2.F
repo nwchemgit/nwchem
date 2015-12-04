@@ -185,7 +185,10 @@ C?        write(6,*) ' Updated x', X
 *
 * Jeppe Olsen, August 1995   
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+cVOG  IMPLICIT REAL*8(A-H,O-Z)
+      INCLUDE 'wrkspc.inc'
+      include 'strinp.inc'
+#include "global.fh"
 *.Input
       INTEGER NSSOA(NSMST,*),NSSOB(NSMST,*)
       INTEGER IOCOC(NOCTPA,NOCTPB)
@@ -197,8 +200,12 @@ C?        write(6,*) ' Updated x', X
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 0000
-      IF(NTEST.GE.100) THEN
+      NTEST = 100 !VOG 00
+      if (newciblks.eq.1) then
+       IF(NTEST.GE.100.and.ga_nodeid().eq.0) write(*,*) 'You have work!'
+       stop
+      else
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' =================='
         WRITE(6,*) '     PART_CIV2     '
@@ -295,7 +302,7 @@ C?      WRITE(6,*) ' IA IB LBLOCK_AS', IA,IB, LBLOCK_AS
         ELSE IF(IDC.EQ.2.AND.IA.EQ.IB.AND.IASM.EQ.IBSM) THEN
           LBLOCKP = NSTA*(NSTA+1)/2
         END IF
-        IF(NTEST.GE.1000) THEN
+        IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
 cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,    
           WRITE(6,'(a,6I5)') ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
      &                 IASM,IBSM,IA,IB,LBLOCKP,LBLOCK
@@ -340,7 +347,7 @@ cVOG      WRITE(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK' ,
       END IF
  2002 CONTINUE
 *
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
 C?      WRITE(6,*) 'Output from PART_CIV'
 C?      WRITE(6,*) '====================='
         WRITE(6,*)
@@ -360,6 +367,7 @@ C?      WRITE(6,*) '====================='
           END DO
         END DO
       END IF
+      end if !End if newciblks
 *
       RETURN
       END

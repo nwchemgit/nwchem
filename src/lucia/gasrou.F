@@ -754,7 +754,7 @@ C?      WRITE(6,*) ' ISMSPGP , NST = ', ISMSPGP , NST
 *
       CALL LUCIAQENTER('STRTY')
 *
-      NTESTL = 00
+      NTESTL = 000
       NTEST = MAX(IPRNT,NTESTL)
 *
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
@@ -1585,7 +1585,7 @@ C     DIMENSION IOCTYP(MXPNGAS)
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' Output from STRINF_GAS '
          WRITE(6,*) ' ======================='
       END IF
@@ -1627,7 +1627,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
         MNRS3X = 0
         MXRS3X = 0
         IEL = NELFGP(IGRP)
-        IF(NTEST.GE.100) THEN
+        IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' IGRP, NORB1, NORB2,NORB3, IEL = ',
      &                 IGRP, NORB1, NORB2,NORB3, IEL
         END IF
@@ -1656,7 +1656,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
      &              ISTFSMGP(1,IGRP))
       END DO
 *
-      IF(NTEST.GE.10) THEN
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
       WRITE(6,*) ' Number of strings per group and symmetry '
       CALL IWRTMA10(int_mb(KNSTSGP(1)),NSMST,NGRP,NSMST,NGRP)
       WRITE(6,*) ' Number of strings per group and symmetry(2) '
@@ -1680,7 +1680,7 @@ c     IDUMMY = 2*NOCOB+(NACTEL+1)*(NOCOB+1)+NSMST
        MINMAX_SM_GP(2,IGP) = MX
 *
       END DO
-      IF(NTEST.GT.5) THEN
+      IF(NTEST.GT.5.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' MINMAX array for sym of groups '
         WRITE(6,*) ' =============================='
         CALL IWRTMA(MINMAX_SM_GP,1,NSMST,1,NSMST)
@@ -2823,7 +2823,7 @@ C?    write(6,*) ' LCISPC : NICISP ', NICISP
    50 CONTINUE
   100 CONTINUE
 *
-      NTEST = 5
+      NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
       if (ga_nodeid().eq.0) then
       WRITE(6,*) 
@@ -5087,7 +5087,7 @@ c      INCLUDE 'mxpdim.inc'
 *
       NTEST = 000
       CALL LUCIAQENTER('GETST')
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*)
         WRITE(6,*) ' ============================== '
         WRITE(6,*) ' Welcome to GETSTR_TOTSM_SPGP '
@@ -5138,7 +5138,7 @@ c      INCLUDE 'mxpdim.inc'
         END DO
       END DO
 * Largest and lowest active symmetries for each GAS space
-      IF(NTEST.GE.200) THEN
+      IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' Type of each GAS space '
          CALL IWRTMA(ITPFGS,1,NGAS,1,NGAS)
          WRITE(6,*) ' Number of elecs per GAS space '
@@ -5161,7 +5161,7 @@ c      INCLUDE 'mxpdim.inc'
          IF(NONEW.NE.0) GOTO 1001
         END IF
         IFIRST = 0
-        IF(NTEST.GE.200) THEN
+        IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
           WRITE(6,*) ' next symmetry of spaces 2-NGASL '
           CALL IWRTMA(ISMFGS(2),NGASL-1,1,NGASL-1,1)
         END IF
@@ -5180,7 +5180,7 @@ C         SYMCOM(ITASK,IOBJ,I1,I2,I12)
          DO IGAS = NGASL+1,NGAS
            ISMFGS(IGAS) = 1
          END DO
-         IF(NTEST.GE.200) THEN
+         IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
            WRITE(6,*) ' Next symmetry distribution '
            CALL IWRTMA(ISMFGS,1,NGAS,1,NGAS)
          END IF
@@ -5199,7 +5199,7 @@ CT       CALL LUCIAQEXIT('GASSM')
               LEX = LEX + IZ(ISTR(IEL,JSTR),IEL)
             END DO
 *
-            IF(NTEST.GE.200) THEN
+            IF(NTEST.GE.200.and.ga_nodeid().eq.0) THEN
               WRITE(6,*) ' string '
               CALL IWRTMA(ISTR(1,JSTR),1,NEL,1,NEL)
               WRITE(6,*) ' JSTR and LEX ', JSTR,LEX
@@ -5217,7 +5217,7 @@ CT       CALL LUCIAQEXIT('GASSM')
 *. End of loop over symmetry distributions
       NSTR = ISTRBS - 1
 *
-      IF(NTEST.GE.100) THEN
+      IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Number of strings generated ', NSTR
         WRITE(6,*)
         WRITE(6,*) ' Strings: '
@@ -5522,7 +5522,7 @@ CNW   DIMENSION DIAG(*)
       integer nxtask, next, itask, icount, nproc
       external nxtask
 * 
-      NTEST = 1000
+      NTEST = 1000 !VOG 000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -5691,7 +5691,7 @@ CNW         CALL WRTMAT(DIAG,1,IDET,1,IDET)
       next = nxtask(-nproc, 1)
       call ga_sync()
  
-      IF(NTEST.GE.10) WRITE(6,*)
+      IF(NTEST.GE.10.and.ga_nodeid().eq.0) WRITE(6,*)
      &' Number of diagonal elements generated ',ITDET
 *
       IF(NTEST .GE.100 .AND.ICISTR.LE.1 ) THEN
@@ -9692,7 +9692,7 @@ cnw   DIMENSION DIAG(*)
       integer nxtask, next, itask, icount, nproc
       external nxtask
 *
-      NTEST =  000
+      NTEST = 000
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0
@@ -9701,9 +9701,8 @@ cnw   DIMENSION DIAG(*)
       END IF
       NOCOB = NINOB + NACOB
 *
- 
-      IF( NTEST .GE. 20.OR.IPRINTEGRAL.GE.100 .and. 
-     &  ga_nodeid().eq.0) THEN
+      if (ga_nodeid().eq.0) THEN 
+      IF( NTEST .GE. 20.OR.IPRINTEGRAL.GE.100) THEN 
         WRITE(6,*) ' GASDIAS_PH in action:'
         WRITE(6,*) ' ====================='
         WRITE(6,*) ' Diagonal one electron integrals'
@@ -9718,7 +9717,8 @@ cnw   DIMENSION DIAG(*)
 *
         WRITE(6,*) ' TTSS for Blocks '
         DO IBLOCK = 1, NBLOCK               
-          WRITE(6,'(10X,4I3,2I8)') (IBLKFO(II,IBLOCK),II=1,4)
+          WRITE(6,'(10X,8I3,2I8)') (IBLKFO(II,IBLOCK),II=1,8)
+cVOG      WRITE(6,'(10X,4I3,2I8)') (IBLKFO(II,IBLOCK),II=1,4)
         END DO
 *
         WRITE(6,*) ' IBLTP: '
@@ -9726,6 +9726,7 @@ cnw   DIMENSION DIAG(*)
 *
         WRITE(6,*) ' I12 = ',I12
       END IF
+      end if
 *
 *  Diagonal elements according to Handys formulae
 *   (corrected for error)
@@ -9907,7 +9908,7 @@ CNW  &         IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
      &' Number of diagonal elements generated ',ITDET
 *
       IF(NTEST .GE.100 .AND.ICISTR.LE.1 ) THEN
-        WRITE(6,*) ' CIDIAGONAL ',DIAG
+        if (ga_nodeid().eq.0) WRITE(6,*) ' CIDIAGONAL ',DIAG
 CNW     CALL WRTMAT(DIAG(1),1,IDET,1,IDET)
         call ga_print(diag)
       END IF
