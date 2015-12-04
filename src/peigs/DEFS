@@ -560,6 +560,9 @@ ifeq ($(CC),ecc)
 	endif
 	endif
 
+ifeq ($(_CPU),$(findstring $(_CPU), mips mips64 mips64el))
+        peigs_CPU  = PENTIUM
+endif
 ifeq ($(_CPU),aarch64)
 	peigs_CPU  = PENTIUM
 endif
