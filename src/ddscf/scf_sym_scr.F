@@ -37,7 +37,7 @@ c
       do i = 1+ga_nodeid(),nclosed+nopen,ga_nnodes()
         if ((nclosed+nopen)*nvir .gt. 0) then
           ioff = 1+(i-1)*nvir + ivoff
-          call ga_get(g_v, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_buf), 1)
+          call ga_get(g_v, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_buf), nvir)
           do a=1,nvir
             if (irs(i).ne.irs(a+nclosed+nopen)) then
                test = abs(dbl_mb(k_buf-1+a))
@@ -46,7 +46,7 @@ c
                if (test.gt.1d-6) nmixed = nmixed + 1
             endif
           enddo
-          call ga_put(g_v, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_buf), 1)
+          call ga_put(g_v, ioff, ioff+nvir-1, 1, 1, dbl_mb(k_buf), nvir)
         endif
 c
         if (i.le.nclosed .and. nopen*nclosed.gt.0) then
