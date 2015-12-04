@@ -2370,13 +2370,11 @@ c         msgtype   = 1
 
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
 
-!$OMP SINGLE
 *     **** unpack A(i) array ****
       n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
       n3 = h_iz_to_i2_count(op,nbb)
       call D3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
       call D3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
-!$OMP END SINGLE
 
       return
       end

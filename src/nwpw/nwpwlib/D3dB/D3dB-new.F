@@ -5462,9 +5462,11 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO 
       do i=1,n
         b(index(i)) = a(i)
       end do
+!$OMP END DO
       return
       end
 
@@ -5477,8 +5479,10 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,n
         a(index(i)) = 0.0d0
       end do
+!$OMP END DO
       return
       end
