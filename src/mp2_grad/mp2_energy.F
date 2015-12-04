@@ -176,6 +176,7 @@ c
          noa=nocc
          nob=nocc
       else
+         if(ga_nodeid().eq.0)  write(6,*)  ' SCFTYPE = ',SCFTYPE
          call errquit('mp2_grad: unknown SCFTYPE ', 0, INPUT_ERR)
       end if
       nva=nmo-noa
