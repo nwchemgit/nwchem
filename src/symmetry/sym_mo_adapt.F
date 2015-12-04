@@ -136,7 +136,7 @@ c
          else
             call ga_sync()
             do i = me+1, nvec, nproc
-               call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_v), 1)
+               call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_v), nbf)
                call dfill(nbf, 0.0d0, dbl_mb(k_t), 1)
                do op = 1, nop-1   
                   if (class .eq. op_class_index(op)) then
@@ -144,7 +144,7 @@ c
      $                    dbl_mb(k_t))
                   endif
                enddo
-               call ga_put(g_t, 1, nbf, i, i, dbl_mb(k_t), 1)
+               call ga_put(g_t, 1, nbf, i, i, dbl_mb(k_t), nbf)
             enddo
          endif
 c     
@@ -156,8 +156,8 @@ c     Add into character for given mo and class
 c     
          do i = me+1, nvec, nproc
             ii = (i-1)/nproc
-            call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_v), 1)
-            call ga_get(g_q,    1, nbf, i, i, dbl_mb(k_q), 1)
+            call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_v), nbf)
+            call ga_get(g_q,    1, nbf, i, i, dbl_mb(k_q), nbf)
             ioff = k_c + ii*nir + class - 1
             trace = ddot(nbf, dbl_mb(k_v), 1, dbl_mb(k_q), 1)
             dbl_mb(ioff) = dbl_mb(ioff) + trace
@@ -277,7 +277,7 @@ c     Apply the projection operator ... again, note that
 c     in the case of complex conjugate representations we
 c     need a factor of two snuck in.
 c     
-            call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_v), 1)
+            call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_v), nbf)
 c     
 c     Identity
 c     
@@ -312,7 +312,7 @@ c
               enddo
            endif
 c     
-           call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_q), 1)
+           call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_q), nbf)
          endif
 c     
       enddo

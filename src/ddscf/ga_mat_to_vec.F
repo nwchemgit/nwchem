@@ -58,10 +58,11 @@ c
               k = klo + (j-jlo)*(ihi-ilo+1) + max(ilo,iplo) - ilo
               ioff = k_m + (j-jplo)*ld + max(ilo,iplo) - iplo
               if (op .eq. '=') then
-                call ga_put(g_v, k, k+numi-1, col, col, dbl_mb(ioff), 1)
+                call ga_put(g_v, k, k+numi-1, col, col, dbl_mb(ioff), 
+     N                numi)
               else if (op .eq. '+') then
-                call ga_acc(g_v, k, k+numi-1, col, col, dbl_mb(ioff), 1,
-     $                      scale)
+                call ga_acc(g_v, k, k+numi-1, col, col, dbl_mb(ioff), 
+     N                numi, scale)
               else
                 call errquit('ga_mat_to_vec: bad op', 0, GA_ERR)
               endif
@@ -110,7 +111,7 @@ c
            do j = max(jlo,jplo), min(jhi,jphi)
               k = klo + (j-jlo)*(ihi-ilo+1) + max(ilo,iplo) - ilo
               ioff = k_m + (j-jplo)*ld + max(ilo,iplo) - iplo
-              call ga_get(g_v, k, k+numi-1, col, col, dbl_mb(ioff), 1)
+              call ga_get(g_v, k, k+numi-1, col, col, dbl_mb(ioff),numi)
            enddo
            call ga_release(g_m,iplo,iphi,jplo,jphi)
          endif

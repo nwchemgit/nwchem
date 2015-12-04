@@ -95,7 +95,7 @@ c
  110     continue
          do i = ilo, ihi
 c
-            call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), 1)
+            call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), nbf)
 c
 c     Identify significant coefficients and sort by size
 c
@@ -263,7 +263,7 @@ c
       if (ga_nodeid() .eq. 0) then
          do i = 1, nmo
             call ga_get(g_xlm,(i-1)*6+1,(i-1)*6+6,i,i,
-     $           r_and_r2(1,i), 1)
+     $           r_and_r2(1,i), 6)
          enddo
 c
 c         write(LuOut,*)' x, y, z, x^2, y^2, z^2 at (0,0,0)'

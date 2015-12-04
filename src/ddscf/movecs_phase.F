@@ -24,7 +24,7 @@ c
      $     call errquit('movecs_fp: failed to allocate ', n, MA_ERR)
 c
       do i = ga_nodeid()+1,m, ga_nnodes()
-         call ga_get(g_vecs, 1, n, i, i, dbl_mb(k_x), 1)
+         call ga_get(g_vecs, 1, n, i, i, dbl_mb(k_x), n)
          v = 0.0d0
          k = 0
          do j = 0, n-1
@@ -42,7 +42,7 @@ c
          enddo
          if (dbl_mb(k_x+k) .lt. 0.0d0) then
             call dscal(n, -1.0d0, dbl_mb(k_x), 1)
-            call ga_put(g_vecs, 1, n, i, i, dbl_mb(k_x), 1)
+            call ga_put(g_vecs, 1, n, i, i, dbl_mb(k_x), n)
          endif
       enddo
 c

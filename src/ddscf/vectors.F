@@ -177,7 +177,7 @@ c
 *            read(unitno, err=1001, end=1001)
 *     $           (dbl_mb(k_vecs+j), j=0,nbf-1)
             call sread(unitno, dbl_mb(k_vecs), nbf)
-            call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), 1)
+            call ga_put(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), nbf)
          enddo
  9       close(unitno,err=1002)
          ok = 1
@@ -1168,7 +1168,7 @@ c
      $    call errquit('matrix_fwrite: ma failed', nrow, MA_ERR)
         lgth=8d0*nrow
         do j=jlo,jhi
-          call ga_get(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), 1)
+          call ga_get(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), ihi-ilo+1)
           ierr = eaf_write(unitno, offset, dbl_mb(k_tmp),lgth)
           if (ierr .ne. 0) then
              call eaf_errmsg(ierr, errmsg)
@@ -1323,7 +1323,7 @@ c
           goto 1001
         endif
         offset=offset+lgth
-        call ga_put(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), 1)
+        call ga_put(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), ihi-ilo+1)
         enddo
         if (.not. ma_pop_stack(l_tmp))
      $    call errquit('file_read_ga: ma pop failed', l_tmp, MA_ERR)

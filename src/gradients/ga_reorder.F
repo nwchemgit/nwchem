@@ -34,16 +34,16 @@ c
 c
       do j = 1+ga_nodeid(), dim2, ga_nnodes()
          if (orow) then
-            call ga_get(g_d, 1, dim1, j, j, dbl_mb(k_v), 1)
+            call ga_get(g_d, 1, dim1, j, j, dbl_mb(k_v), dim1)
             do i = 1, dim1
                dbl_mb(k_vv+rmap(i)-1) = dbl_mb(k_v+i-1)
             enddo
          else
-            call ga_get(g_d, 1, dim1, j, j, dbl_mb(k_vv), 1)
+            call ga_get(g_d, 1, dim1, j, j, dbl_mb(k_vv), dim1)
          endif
          jj = j
          if (ocol) jj = cmap(j)
-         call ga_put(g_a, 1, dim1, jj, jj, dbl_mb(k_vv), 1)
+         call ga_put(g_a, 1, dim1, jj, jj, dbl_mb(k_vv), dim1)
       enddo
       if (.not. ma_free_heap(l_vv)) call errquit('ga_reo: ma?',0,
      &       MA_ERR)
@@ -106,9 +106,9 @@ c
       call ga_copy(g_a, g_d)
 c
       ld(1) = 1
-      ld(2) = 1
       lo(2) = 1
       hi(2) = dim1
+      ld(2) = dim1
       do dim0 = 1, dims(1)
       lo(1) = dim0
       hi(1) = dim0

@@ -104,7 +104,7 @@ c
             do i = ga_nodeid()+1, nclosed, ga_nnodes()
                ioff = (i-1)*nvir + 1
                call ga_get(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nvir)
                do j=1,nvir
                   denominator = 4.d0*(fcv(j+vbase) - fcv(i+cbase)) +
      $                 lshift
@@ -119,7 +119,7 @@ c
                   dbl_mb(k_x+j-1) = dbl_mb(k_x+j-1) / denominator
                enddo
                call ga_put(g_x, ioff, ioff+nvir-1, ivec, ivec,
-     $              dbl_mb(k_x),1)
+     $              dbl_mb(k_x),nvir)
             enddo
          endif
 c     
