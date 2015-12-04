@@ -1559,13 +1559,20 @@ endif
       _CC=gcc
       endif
       FOPTIMIZE  = -O2 
-      ifeq ($(_FC),gfortran)
        ifeq ($(_CPU),aarch64)
          DONTHAVEM64OPT=Y
        endif
+       ifeq ($(_CPU),mips64)
+         DONTHAVEM64OPT=Y
+       endif
+      ifeq ($(_CC),gcc)
+       ifneq ($(DONTHAVEM64OPT),Y)
+         COPTIONS   = -m64
+       endif
+      endif
+      ifeq ($(_FC),gfortran)
        ifneq ($(DONTHAVEM64OPT),Y)
          FOPTIONS   = -m64
-         COPTIONS   = -m64
        endif
         COPTIONS += -Wall
         FOPTIONS   += -ffast-math #-Wunused  
@@ -1909,7 +1916,7 @@ $(error )
          COPTIMIZE += -ip -no-prec-div
       endif
       ifeq ($(_CC),gcc)
-        COPTIONS   =   -O3 -funroll-loops -ffast-math 
+        COPTIONS   +=   -O3 -funroll-loops -ffast-math 
         ifdef USE_OPENMP
           COPTIONS += -fopenmp
         endif
