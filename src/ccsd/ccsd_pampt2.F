@@ -201,8 +201,8 @@ c
       enddo
       call daxpy(lnov,-one,ht1,1,t1,1)
       if (nvp1.ge.ilo.and.nvp1.le.ihi)then
-       call ga_put(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,ht1,1)
-       call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,t1,1)
+       call ga_put(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,ht1,lnov)
+       call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,t1,lnov)
       endif
       call ga_sync()
 c
@@ -210,7 +210,7 @@ c
        print *,' sym ht1 '
        write(6,189)(ht1(i),i=1,lnov)
        do bv=1,nvir
-        call ga_get(g_ht2,offt2+1,offt2+lhoov,bv,bv,scra,1)
+        call ga_get(g_ht2,offt2+1,offt2+lhoov,bv,bv,scra,lhoov)
         print *,'sym sig2 for bv ',bv
         write(6,189)(scra(i),i=1,lhoov)
   189   format(4e14.4)
@@ -245,7 +245,7 @@ c
       call ga_sync()
       if (iam.eq.0.and.iprt.gt.50)then
        do bv=1,nvir
-        call ga_get(g_t2,offt2+1,offt2+lhoov,bv,bv,scra,1)
+        call ga_get(g_t2,offt2+1,offt2+lhoov,bv,bv,scra,lhoov)
         print *,'sym sig2 for bv ',bv
         write(6,189)(scra(i),i=1,lhoov)
        enddo

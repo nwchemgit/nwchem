@@ -125,7 +125,7 @@ c Note that if restart fails orestart will be set false
      M        ' Using MP2 initial guess vector '
         call dfill(lnov,zip,t1,1)
         if (nvp1.ge.ilo.and.nvp1.le.ihi)then
-         call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,1)
+         call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,lnov)
         endif
         call ccsd_mkt2(ncor,nocc,nvir,nact,eorb,scra,
      &                 scrb,g_nexch,g_t2,iprt)
@@ -260,11 +260,11 @@ c ----------------------------------------------------------
       call ga_sync
       do bev=1,nvir+1
          if (bev.ge.ilo.and.bev.le.ihi)then
-            call ga_put(g_ht2,offt2+1,offt2+lhoov,bev,bev,scra,1)
+            call ga_put(g_ht2,offt2+1,offt2+lhoov,bev,bev,scra,lhoov)
          endif
       enddo
       if (nvp1.ge.ilo.and.nvp1.le.ihi)then
-         call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,scra,1)
+         call ga_put(g_ht2,offt2+1,offt2+lnov,nvp1,nvp1,scra,lnov)
       endif
       call ga_sync()
       tx(1)=tcgtime()

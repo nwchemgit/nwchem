@@ -411,7 +411,7 @@ c
 #else
             if (mod(inode, nodes) .eq. iam) then
 #endif
-            call ga_get(g_nt2,1,lnov,ad1,ad1,scre,1)
+            call ga_get(g_nt2,1,lnov,ad1,ad1,scre,lnov)
             call dgemm('n','n',nvir,nocc,nocc,-1.0d00,scre,
      &                 nvir,giu,nocc,0.0d00,scrf,nvir)
             call ga_acc(g_nht2,1,lnov,ad1,ad1,scrf,lnov,1.0d00)
