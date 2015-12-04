@@ -18,7 +18,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 25)
+      parameter (num_dirs = 26)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -45,7 +45,8 @@ c
      >            'Metropolis',
      >            'nwpw-optimize',
      >            'aimd_properties',
-     >            'exafs'/
+     >            'exafs',
+     >            'pauls_matrix_diag'/
 
 c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
@@ -54,14 +55,14 @@ c     *** define external functions ****
       logical  pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
       logical  cgmontecarlov1,cgoptimize1
-      logical  task_aimd_properties,task_md_xs
+      logical  task_aimd_properties,task_md_xs,task_paulsmatrix
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       external pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
       external pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted,nwpw_rdf,lcaov1,pspw_et
       external cgmontecarlov1,cgoptimize1
-      external task_aimd_properties,task_md_xs
+      external task_aimd_properties,task_md_xs,task_paulsmatrix
 c
 c
       value = .false.
@@ -75,7 +76,7 @@ c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
      >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     >       1900, 2000, 2100, 2200, 2300, 2400, 2500 ) ind
+     >       1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600 ) ind
       call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -441,9 +442,18 @@ c
 
       call ga_sync()
       goto 9999
+c
+c  Pauls_matrix_diag
+c
+ 2600 if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> PSPW Parallel Module - pauls_matrix_diag <<<<"
+      end if
 
-
+      value = task_paulsmatrix(rtdb)
+      call ga_sync()
  9999 continue
+
+
       dummy = btdb_parallel(.true.)
       task_pspw = value
 

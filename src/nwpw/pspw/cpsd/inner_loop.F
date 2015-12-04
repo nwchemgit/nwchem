@@ -264,9 +264,7 @@ c       these two functions are now threadsafe/multithreaded
         end do
 !$OMP END DO
 
-
         call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
-
 
         call nwpw_timing_end(44)
 
