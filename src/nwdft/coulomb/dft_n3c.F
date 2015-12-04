@@ -28,6 +28,7 @@ c
       integer sh_lo_d, sh_hi_d, atom_d
       integer sh_lo_c, sh_hi_c, atom_c
       double precision THRESHOLD,ERI_est,n3,ischw1,batch_max
+      double precision imb_fact
       logical oprint_3c2e,spherical_ao,spherical_cd
 c
       oprint_3c2e = util_print('3c 2e integrals', print_default)
@@ -106,13 +107,10 @@ c     Loops are parallelized over the products of atoms
 c     (check for zero ... must be at least 1).
 c      
 
-      icount = (ncenters + mod(ncenters,2))/(2*nproc)
-
-      icount = max(icount,1)
-      if(nproc.eq.1)icount = 1
 c      
       nao2_max = mxcebf_ao**2
-      batch_max = dble(nao2_max)*dble(nbf_cd)*dble(icount)
+      nao2_max = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
+      batch_max = dble(nao2_max)*dble(nbf_cd)
 c
 c     Define n3 = maximum number of 3 center 2e- integrals. 
 c
@@ -123,15 +121,12 @@ c
       dft_n3cdbl=min(ischw1,n3)
 c
 c     Redefine dft_n3cdbl=buffer size of 3 center 2e- integrals per 
-c     processor and allow for some load-unbalance, e.g., 1.5
+c     processor and allow for some load-unbalance
 c
-      dft_n3cdbl = dft_n3cdbl/dble(nproc) + 4d0*dble(batch_max) +
+      imb_fact=1d0
+      if(nproc.gt.1) imb_fact=1.1d0
+      dft_n3cdbl = (imb_fact*dft_n3cdbl)/dble(nproc) + dble(batch_max) +
      + 4096.0d0
-c      dft_n3cdbl = dft_n3cdbl/dble(nproc) + dble(batch_max) + 1024.0d0
-c
-c     cannot be smaller than mxce*mxce*nbf_cd*icount
-c
-      dft_n3cdbl = max(dft_n3cdbl,batch_max)
 c
       if (oprint_3c2e.and.me.eq.0)then
          write(LuOut,*)
