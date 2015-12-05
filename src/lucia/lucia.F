@@ -1905,7 +1905,6 @@ C?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'IDIST ')
       CALL MEMMAN(IMAP,NBLK,'ADDL  ',1,'MAP1  ')
-      if (ga_nodeid().eq.0) write(*,*) 'VOGG: I AM IN IDIST_CIVEC'
       DO JBATS = 1, NBATS
          DO ISBLK = I1BATS(JBATS), I1BATS(JBATS)+LBATS(JBATS)-1
             int_mb(IMAP+IBLK) = ILEN+1
@@ -1935,8 +1934,6 @@ cVOG &                           IBLK, 1, 1, IDIST_CIVEC))
      $     call errquit('IDIST_CIVEC ga_create fail', ILEN, GA_ERR)
       newciblks = 1
       endif
-      if (ga_nodeid().eq.0) write(*,*) 'VOGG, FUNCTION IDIST_CIVEC'
-      call ga_print_distribution(IDIST_CIVEC)
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',1,'IDIST ')
       RETURN
       END
@@ -1999,7 +1996,7 @@ c      INCLUDE 'mxpdim.inc'
       call luciaqenter('gasci')
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'GASCI ')
       newciblks = 0
-      NTEST = 10000 ! VOG 000
+      NTEST = 000 ! VOG 000
       NTEST = MAX(NTEST,IPRNT)
       MXACJ = 0
       MXACIJ = 0
@@ -5010,7 +5007,6 @@ CNW       CALL REWINO(LU1)
 * Initial CI vectors are already on file LU1, do nothing
 * ======================================================
 *
-         write(*,*) 'VOG, edw pethaineis? 09'
       IF( INICI .LT. 0 ) THEN
 *. Vectors assumed already in LU1
         IF(IPRT.GT. 1 .and. ga_nodeid().eq.0)
@@ -5046,7 +5042,6 @@ C    &   '  Largest allowed number of vectors..',MAXVEC
       KLRTCNV = KLFREE  
       KLFREE = KLRTCNV + NROOT
 *
-         write(*,*) 'VOG, edw pethaineis? 10'
       IF( IPRT .GE. 100 ) THEN
         WRITE(6,*) ' KRNRM KEIG  KFIN  KAPROJ KAVEC KWORK KLFREE: '
         WRITE(6,'(7I5)')  KRNRM,KEIG,KFIN,KAPROJ,KAVEC,KWORK,KLFREE
@@ -5064,7 +5059,6 @@ C    &   '  Largest allowed number of vectors..',MAXVEC
 CBERT  IOLSEN = 1
        IOLSEN = 0
        IPICO = 0
-         write(*,*) 'VOG, edw pethaineis? 11'
        IF(MXCIIT.NE.0) THEN
          CALL MINDV4(MV7,VEC1,VEC2,LU1,LU2,SCR1(KRNRM),SCR1(KEIG),
      &              EROOT     ,MXCIIT,NDIM,LU3,LUDIA,NROOT,
@@ -5079,7 +5073,6 @@ CBERT  IOLSEN = 1
          END DO
        END IF
 *
-         write(*,*) 'VOG, edw pethaineis? 12'
        ENOT = SCR1(KFIN)
        CALL LUCIAQEXIT('CIEIG')
 *
@@ -5712,7 +5705,7 @@ CNW   CALL REWINE(LU,-1)
 *.LOOP OVER BLOCKS
 *
 C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
-      NTESTL = 10000 !VOG 00000
+      NTESTL = 00000 
       NTEST = MAX(NTESTG,NTESTL)
 *
       IF(NTEST.GE.100.and.ga_nodeid().eq.0) THEN
@@ -5742,17 +5735,17 @@ C     write(6,*) ' FNDMND NSUBMX = ', NSUBMX
           ELSE
             KBLK = -1
           END IF
-          write(*,*) 'VOG LBL', ga_nodeid(), LBL
             if(dra_read_section(.false.,SEGMNT,1,LBL,1,1,LU,1,LBL,
      &         1,1,itask).ne.0) call errquit('dra error',911)
           if (dra_wait(itask).ne.0) call errquit('dra read err',
      &        itask,911)
 CNW        CALL FRMDSC(SEGMNT,LBL ,-1,LU,IMZERO,IAMPACK)
            IF(NTEST.GE.10000) THEN
-             if (ga_nodeid().eq.0) WRITE(6,*) ' Elements read in '
+             if(ga_nodeid().eq.0) WRITE(6,*) ' Elements read in '
 CNW          CALL WRTMAT(SEGMNT,1,LBL,1,LBL)
 cVOG It was causing problems...
 cVOG          call ga_print_patch(SEGMNT,1,LBL,1,1,1)!0)
+              call ga_print(SEGMNT)
            END IF
            IF(LBL .GE. 0 ) THEN
 *. LOWEST ELEMENTS IN SEGMNT  ( ADD TO PREVIOUS LIST )
@@ -9391,9 +9384,6 @@ cVOG
       CALL GTJK(dbl_mb(KLJ),dbl_mb(KLK),NTOOB,dbl_mb(KLSCR2),IREOTS)
 *
       IF( LUDIA .GT. 0 ) CALL REWINO(LUDIA)
-      if (ga_nodeid().eq.0) write(*,*) 'VOGG, GASDIA driven by TTSS'
-      call ga_print_distribution(DIAG)
-      if (ga_nodeid().eq.0) write(*,*) 'IEXP_PH', IEXP_PH
       IF(IEXP_PH.EQ.0) THEN
 *. Good old version where PH is not used for diagonal
         CALL GASDIAS(NAEL,int_mb(KLASTR),NBEL,int_mb(KLBSTR),
@@ -13428,7 +13418,7 @@ COLD  DIMENSION C(*),HC(*)
 *
       CALL LUCIAQENTER('MV7  ')
 *
-      NTEST = 1000 !VOG 000
+      NTEST = 0000 !VOG 000
       NTEST = MAX(NTEST, IPRCIX)
       IF(NTEST.GE.5.AND.NTEST.LT.10) THEN
        WRITE(6,*) ' MV7 entered '
@@ -13440,20 +13430,20 @@ COLD  DIMENSION C(*),HC(*)
         WRITE(6,'(A,A)') ' Task is ', CMV7TASK
       END IF
 *
-      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.1000) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Input vector to MV7 '
         WRITE(6,*) ' ==================='
+        endif
         IF(ICISTR.GT.1) THEN
           CALL WRTVCD(dbl_mb(CB),LUC,1,-1)
         ELSE
-          call ga_print_distribution(CB)
           call ga_print(CB)
 CNW       CALL WRTMAT(CB,1,NCVAR,1,NCVAR)
         END IF
       END IF
 C?    WRITE(6,*) ' Ecore (MV7) = ', ECORE
         
-      if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 0.1.1'
       IDUM = 0
       CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'MV7   ')
 *. For the moment
@@ -13609,7 +13599,7 @@ C            RASSG3(CB,SB,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,C,HC,ECORE)
      &         int_mb(KSI1BT),int_mb(KSIBT),LLUC,LLUHC,
      &         KCOMVEC1_SD,KCOMVEC2_SD,ECORE,
      &        CMV7TASK)
-          IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
+          IF(NTEST.GE.1000) THEN
             WRITE(6,*) ' NSVAR elements of output vector from RASSG3'
 CNW         CALL WRTMAT(WORK(KCOMVEC2_SD),1,NSVAR,1,NSVAR)
             call ga_print(KCOMVEC2_SD)
@@ -13617,8 +13607,6 @@ CNW         CALL WRTMAT(WORK(KCOMVEC2_SD),1,NSVAR,1,NSVAR)
         END IF ! CSF switch
       END IF ! ICISTR switch
 *
-      if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 1'
-!      call ga_sync() !VOG Debug
       IF(NOCSF.EQ.0) THEN
 * Transform sigma vector in KCOMVEC2_SD to CSF basis
        IF(ICNFBAT.EQ.1) THEN
@@ -13632,16 +13620,16 @@ C CSDTVCM(CSFVEC,DETVEC,IWAY,ICOPY,ISYM,ISPC,IMAXMIN_OR_GAS)
        END IF
       END IF
 *
-      if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 2'
-!      call ga_sync() !VOG Debug
       IF(NOCSF.EQ.0.AND.ICNFBAT.GE.2) THEN
         CALL FILEMAN_MINI(LU_CDET,'FREE  ')
         CALL FILEMAN_MINI(LU_SDET,'FREE  ')
       END IF
 *
-      IF(NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
+      IF(NTEST.GE.1000) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,*) ' Output vector from MV7 '
         WRITE(6,*) ' ===================== '
+        endif
         IF(ICISTR.GT.1) THEN
           CALL WRTVCD(dbl_mb(CB),LUHC,1,-1)
         ELSE 
@@ -13652,7 +13640,6 @@ CNW       CALL WRTMAT(HCB,1,NSVAR,1,NSVAR)
       END IF
 *
 *. Eliminate local memory
-      call ga_sync() !VOG Debug
       CALL MEMMAN(KDUM ,IDUM,'FLUSM ',2,'MV7   ')
 *
       CALL LUCIAQEXIT('MV7  ')
@@ -15476,7 +15463,7 @@ CNW   DIMENSION SV(*),CV(*)
       LOGICAL ANYLOCAL
 *
       CALL LUCIAQENTER('RASSG')
-      NTEST = 10000 !VOG 0000
+      NTEST = 0000 
       NTEST = MAX(NTEST,IPRCIX)
       IF(NTEST.GE.20.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' ================='
@@ -15498,16 +15485,12 @@ CNW   DIMENSION SV(*),CV(*)
 *. What is my local patch of Sigma Vector
 *
       call ga_distribution(SV,ga_nodeid(),ilo,ihi,idum,idum)
-      write(*,*) ' What is my local patch of Sigma Vector'
-      write(*,*) ga_nodeid(), ilo, ihi
-      write(*,*)
-      call ga_sync
 *
       IF(LUHC.GT.0) CALL REWINO(LUHC)
 * Loop over batches over sigma blocks
       IOFF_S = 1
       DO JBATS = 1, NBATS
-        IF(NTEST.GE.10000.and.ga_nodeid().eq.0)
+        IF(NTEST.GE.10000)
      &   WRITE(6,*) ' JBATS, LBATS(..) = ', JBATS, LBATS(JBATS),NBATS
 *. Obtain sigma for batch of blocks
 C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK) 
@@ -15516,7 +15499,6 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
         ANYLOCAL = .FALSE.
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           ILEN = IBATS(8,ISBLK)
-          if (ga_nodeid().eq.0) write(*,'(a,i8)') 'ILEN', ILEN
           IF ((IOFF_T.GE.ilo).AND.(IOFF_T+ILEN-1.LE.ihi)) THEN
              ANYLOCAL = .TRUE.
           ELSE
@@ -15526,7 +15508,6 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
           IOFF_T = IOFF_T + ILEN
           LEN = LEN + ILEN
         ENDDO
-        if (ga_nodeid().eq.0) write(*,'(a,i8)') 'LEN ', LEN
 *
 *. Skip it all together if the SV range is outside local
 *
@@ -15534,11 +15515,6 @@ C            SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK)
            do isblk = 0, ncblock_t-1
               dbl_mb(KLSCLFAC+isblk) = dbl_mb(KLCNORM+isblk)
            enddo
-         if (ga_nodeid().eq.0) 
-     &      write(*,*) 'VOG, batches', ncblock_t, jbats, lbats(jbats)
-            call ga_sync()
-            call ga_print_distribution(CV)
-            call ga_print_distribution(SV)
           CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
      &         CB,SB,LUC,0,0,0,0,0,CV,ECORE,ITASK,LEN,
      &         dbl_mb(KLCNORM),dbl_mb(KLSCLFAC))
@@ -15572,6 +15548,7 @@ CNW       CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
       END DO
 *
       IF(ICISTR.NE.1) CALL ITODS(-1,1,-1,LUHC)
+      call ga_sync()
       IF(NTEST.GE.200) THEN
         IF(ICISTR.NE.1) THEN
           if (ga_nodeid().eq.0) WRITE(6,*) ' Final S-vector on disc'
@@ -15583,8 +15560,7 @@ CNW       CALL COPVEC(SB(IOFF),SV(IOFF_S),LEN)
 CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
         END IF
       END IF
-      call ga_sync() !VOG Debug
-      IF(NTEST.GE.100.and.ga_nodeid().eq.0) WRITE(6,*) ' Leaving RASSG3'
+      IF(NTEST.GE.100) WRITE(6,*) ' Leaving RASSG3'
 *
       CALL MEMMAN(IDUM,IDUM,'FLUSM ',2,'RASSG3')
       CALL LUCIAQEXIT('RASSG')
@@ -32209,6 +32185,9 @@ C
 C     Each nnode has it's bottom list, now global sum to get full list
 C
       if (ga_nnodes().gt.1) then
+      print*,'KEX',KEXSTV,ga_nnodes()
+      print*,'STVAL',(STVAL(i),i=1,KEXSTV*ga_nnodes())
+      print*,'ISTART',(ISTART(i),i=1,KEXSTV*ga_nnodes())
       call ga_dgop(1,STVAL(1),KEXSTV*ga_nnodes(),'+')
       call ga_igop(1,ISTART(1),KEXSTV*ga_nnodes(),'+')
 C

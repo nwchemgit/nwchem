@@ -4331,7 +4331,7 @@ C
        EXTERNAL MV7
 *
        TEST = 1.0D-6
-       IPRT= 1000 !VOG 1
+       IPRT= 1
        IF(IPRT.GE.1.and.ga_nodeid().eq.0) THEN
          WRITE(6,*) ' MINDV4 in action '
          WRITE(6,*) ' Convergence threshold for residual = ', TEST
@@ -4377,23 +4377,13 @@ CNW      CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
 *
 C?       CALL WRTMAT(VEC1,1,NVAR,1,NVAR)
 *
-         call ga_zero(VEC2) !VOG
-         if (ga_nodeid().eq.0) write(*,*) 'before MV7'
-         call ga_print_distribution(VEC1)
-         call ga_print(VEC1)
-         if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 0.1'
+         call ga_zero(VEC2) 
          CALL MV7(VEC1,VEC2,0,0,0,0)
-         if (ga_nodeid().eq.0) write(*,*) 'after MV7'
-         call ga_print_distribution(VEC1)
-         call ga_print(VEC1)
-         if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 2.2'
 CNW      CALL TODSC(VEC2,NVAR,-1  ,LU2)
-         status = dra_inquire(LU2,itype,idim1,idim2,myname,filename)
 !         write(*,*) ga_nodeid(), NVAR, IVEC
          if (dra_write_section(.false.,VEC2,1,NVAR,1,1,LU2,1,NVAR,
      &       IVEC,IVEC,itask).ne.0) call errquit('dra error',itask,911)
          if(dra_wait(itask).ne.0) call errquit('dra writ err',itask,911)
-         if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 2.2.1'
          
 *        PROJECTED MATRIX
 CNW      CALL REWINO( LU1)
@@ -4402,12 +4392,10 @@ CNW        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
            if (dra_read_section(.false.,VEC1,1,NVAR,1,1,LU1,1,NVAR,
      &        JVEC,JVEC,itask).ne.0) call errquit('dra error',itask,911)
            if (dra_wait(itask).ne.0) call errquit('read',itask,911)
-         if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 2.2.2'
            IJ = IVEC*(IVEC-1)/2 + JVEC
 CNW        APROJ(IJ) = INPROD(VEC1,VEC2)
            APROJ(IJ) = ga_ddot_patch(VEC1,'N',1,NVAR,1,1,
      &                               VEC2,'N',1,NVAR,1,1)
-         if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 2.2.3'
     8    CONTINUE
    10  CONTINUE
 *
@@ -4690,9 +4678,7 @@ CNW     CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
      &     call errquit('dra error',itask,911)
         if (dra_wait(itask).ne.0) call errquit('dra read err',
      &      itask,911)
-         if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 0.3'
         CALL MV7(VEC1,VEC2,0,0,0,0)
-         if (ga_nodeid().eq.0) write(*,*) 'DebugCIBatches 0.4'
 CNW     CALL TODSC(VEC2,NVAR,-1  ,LU2)
         if (dra_write_section(.false.,VEC2,1,NVAR,1,1,
      &     LU2,1,NVAR,NVEC+IVEC,NVEC+IVEC,itask).ne.0)
@@ -5071,7 +5057,6 @@ cVOG        CALL FRMDSC(VEC1,NVAR,-1  ,LU1,IMZERO,IAMPACK)
           END IF
           if (ga_nodeid().eq.0) then
           WRITE(6,1300)
-CVOG      if (ga_nodeid().eq.0) then
  1300     FORMAT(1H0,' Summary of iterations ',/,1H
      +          ,' ----------------------')
           WRITE(6,1310)

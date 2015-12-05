@@ -200,7 +200,7 @@ cVOG  IMPLICIT REAL*8(A-H,O-Z)
       INTEGER I1BATCH(*)
       INTEGER IBATCH(8,*)
 *
-      NTEST = 100 !VOG 00
+      NTEST = 00 
       if (newciblks.eq.1) then
        IF(NTEST.GE.100.and.ga_nodeid().eq.0) write(*,*) 'You have work!'
        stop

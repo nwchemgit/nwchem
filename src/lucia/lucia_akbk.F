@@ -305,7 +305,8 @@ cVOG    CALL MEMMAN(KVEC4,NSD_FOR_OCCLS_MAX,'ADDL  ',2,'VEC4  ')
         END IF
       END IF
 *
-       IF (NTEST.GE.1000.and.ga_nodeid().eq.0) THEN
+       IF (NTEST.GE.1000) THEN
+        if (ga_nodeid().eq.0) then
         WRITE(6,'(a)')     ' ================================= '
         WRITE(6,'(a)')     '  Dimensions for AKBK Calculation  '
         WRITE(6,'(a)')     ' ================================= '
@@ -315,8 +316,11 @@ cVOG    CALL MEMMAN(KVEC4,NSD_FOR_OCCLS_MAX,'ADDL  ',2,'VEC4  ')
         WRITE(6,'(a,i12)') ' Dimension of PQ space  ', NSDPQ
         WRITE(6,'(a,i12)') ' Max Num of Occ. Classes', NOCCLS_MAX
         WRITE(6,'(a)')     ' Print initial vector:'
+        endif
+        if (ga_nodeid().eq.0) then
         CALL ga_print(KCOMVEC1)
         WRITE(6,'(a)')     ' ================================= '
+        endif
        END IF
 *
       ELSE
@@ -6066,7 +6070,7 @@ cVOG    else
 #include "global.fh"
 #include "mafdecls.fh"
 *
-      NTEST  = 10
+      NTEST  = 1
       IPRCIX = 0
       IPRSTR = 0
       IPRORB = 0
@@ -6420,10 +6424,9 @@ c      integer IMAP2(nnod)
 *
 *. Initializations
 *
-      ntest = 10
+      ntest = 1
       if (ntest.ge.10) then
        do i=1, NBLK
-        if (ga_nodeid().eq.0) write(*,*) 'imap', i ,imap(i)
         imap2(i) = 0
        end do
       end if

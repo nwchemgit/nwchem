@@ -28,7 +28,7 @@
 *. Output
       INTEGER IADR(*), ICNF(*)
 *
-      NTEST = 100
+      NTEST = 000
 *
       IDUM = 0
       CALL LUCIAQENTER('GTMNAD')
@@ -321,7 +321,7 @@ C                   IS_IACC_CONF_IN_MINMAX_SPC(IOCC,MIN_OCC,MAX_OCC,NORB)
 *. Output
       INTEGER IA(*), IB(*)
 *
-      NTEST = 100
+      NTEST = 000
 *
       IDUM = 0
       CALL LUCIAQENTER('GTSLDT')
