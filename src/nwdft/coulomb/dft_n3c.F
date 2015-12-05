@@ -109,7 +109,6 @@ c
 
 c      
       nao2_max = mxcebf_ao**2
-      nao2_max = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       batch_max = dble(nao2_max)*dble(nbf_cd)
 c
 c     Define n3 = maximum number of 3 center 2e- integrals. 
@@ -125,7 +124,7 @@ c     processor and allow for some load-unbalance
 c
       imb_fact=1d0
       if(nproc.gt.1) imb_fact=1.1d0
-      dft_n3cdbl = (imb_fact*dft_n3cdbl)/dble(nproc) + dble(batch_max) +
+      dft_n3cdbl = (imb_fact*dft_n3cdbl)/dble(nproc) + 4d0*batch_max +
      + 4096.0d0
 c
       if (oprint_3c2e.and.me.eq.0)then
