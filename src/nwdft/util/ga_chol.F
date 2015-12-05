@@ -144,7 +144,7 @@ c
          do k = 1, n
             if (int_mb(-1+adrma+k) .eq. myproc) then
                myelem = n-k+1
-               call ga_get(g_a,k,n,k,k,dbl_mb(adrs+istart),1)
+               call ga_get(g_a,k,n,k,k,dbl_mb(adrs+istart),n-k+1)
                istart = istart + myelem
             endif
          enddo
@@ -190,7 +190,7 @@ c
          do k = 1, n
             if( int_mb(-1+adrma+k) .eq. myproc) then
               myelem = n-k+1
-               call ga_put(g_s,k,n,k,k,dbl_mb(adrs+istart),1)
+               call ga_put(g_s,k,n,k,k,dbl_mb(adrs+istart),n-k+1)
                istart = istart + myelem
             endif
          enddo
