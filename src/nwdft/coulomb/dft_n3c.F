@@ -30,6 +30,11 @@ c
       double precision THRESHOLD,ERI_est,n3,ischw1,batch_max
       double precision imb_fact
       logical oprint_3c2e,spherical_ao,spherical_cd
+      double precision dbldum
+      integer intdum,ndone
+      integer n_batch, n_bmax
+      integer dft_nao2_max
+      external dft_nao2_max
 c
       oprint_3c2e = util_print('3c 2e integrals', print_default)
       THRESHOLD=10.d0**(-itol2e)
@@ -100,15 +105,8 @@ c
       enddo
       enddo
       ischw1 = ischw1*nbf_cd
-c
-c     add max 3-center 2e- batch size
 c      
-c     Loops are parallelized over the products of atoms
-c     (check for zero ... must be at least 1).
-c      
-
-c      
-      nao2_max = mxcebf_ao**2
+      nao2_max = dft_nao2_max(ao_bas_han,ncenters)
       batch_max = dble(nao2_max)*dble(nbf_cd)
 c
 c     Define n3 = maximum number of 3 center 2e- integrals. 
@@ -120,12 +118,16 @@ c
       dft_n3cdbl=min(ischw1,n3)
 c
 c     Redefine dft_n3cdbl=buffer size of 3 center 2e- integrals per 
-c     processor and allow for some load-unbalance
 c
-      imb_fact=1d0
-      if(nproc.gt.1) imb_fact=1.1d0
-      dft_n3cdbl = (imb_fact*dft_n3cdbl)/dble(nproc) + 4d0*batch_max +
-     + 4096.0d0
+      call dft_getcdt(.true.,ndone,
+     N     ncenters, 1, .false., threshold, .true.,
+     N     intdum, 100000000, intdum,
+     &     intdum, dbldum,
+     T     dbldum, intdum)
+
+      write(6,*) ga_nodeid(),' ndone ',ndone
+      dft_n3cdbl = ndone
+
 c
       if (oprint_3c2e.and.me.eq.0)then
          write(LuOut,*)

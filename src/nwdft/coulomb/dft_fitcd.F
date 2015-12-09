@@ -57,7 +57,7 @@ c
       external dabsmax,nxtask
       logical spherical
       integer LU,ierr,ilo,ihi,jlo,jhi,nnii
-      integer adrc,ldc,iptr
+      integer adrc,ldc,iptr,intdum
       character*255 errmsg
       
 c     
@@ -95,7 +95,8 @@ c     If we already have the right side vectors for the fit, skip right
 c     to the determination of the fit coefficients
 c
       if (.not.have_Tvec) 
-     T     call dft_getcdt(natoms, nfit, derfit, threshold, 
+     T     call dft_getcdt(.false.,intdum,
+     N     natoms, nfit, derfit, threshold, 
      C     .false., ! do not compute 3c ints
      N     n_batch, n_bmax, iwhat,
      &     n3c_dbl, i3c_eri,

@@ -23,7 +23,7 @@ c
 c
 c
       double precision THRESHOLD
-      integer intdum(1)
+      integer intdum(1),intdum1
       double precision dbldum(1)
 c
       THRESHOLD=10.d0**(-itol2e)
@@ -32,7 +32,8 @@ c
       call dcopy(n3c_dbl,0d0,0,i3c_eri, 1)
 c      
 
-      call dft_getcdt(ncenters, 1, .false., threshold, .true.,
+      call dft_getcdt(.false.,intdum1,
+     N     ncenters, 1, .false., threshold, .true.,
      N     n_batch, n_bmax, iwhat,
      &     n3c_dbl, i3c_eri,
      T     dbldum, intdum)
@@ -40,7 +41,8 @@ c
       return
       end
 
-      subroutine dft_getcdt(natoms, nfit, derfit, threshold, compute,
+      subroutine dft_getcdt(dryrun, ndone,
+     N     natoms, nfit, derfit, threshold, compute,
      N     n_batch, n_bmax, iwhat,
      &     n3c_dbl, i3c_eri,
      T     tvec,g_dens)
@@ -56,6 +58,7 @@ c
 #include "schwarz.fh"
 #include "msgids.fh"
 #include "sym.fh"
+      logical dryrun
       integer natoms
       double precision tvec(*)
       integer nfit
@@ -101,8 +104,7 @@ c
      C     errquit('fitcd derfint not impl',5, 0)
       nproc  = ga_nnodes()
 c      
-
-c      
+      if(.not.dryrun) then
       if(.not.compute) then
       Nao2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(.not.MA_Push_Get(MT_Dbl,Nao2*nfit,'gather vector',l_p,k_p))
@@ -120,6 +122,7 @@ c
       nscr =  mscratch_2e3c 
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitcd: cannot allocate scr',0, MA_ERR)
+      endif
 
       if(.not.MA_Push_Get(MT_int,natoms,'at list',l_at,k_at))
      &  call errquit('dft_3cinc: cannot allocate at list',0, MA_ERR)
@@ -127,7 +130,7 @@ c     sort atoms list based on decreasing atomic weight
       call dft_sortatbyz(geom,natoms,int_mb(k_at))
 c
 c     invalidate iwhat for procs that might remain out of work
-      if(compute) then
+      if(compute.and.(.not.dryrun)) then
          do ishp=1,n_bmax
             iwhat(ishp)=-123
          enddo
@@ -138,7 +141,6 @@ c
       use_nxtask=compute.or.(.not.incore)
       n_batch=0
       if(use_nxtask) n1 = nxtask_static(nproc,1)
-
       icount = 0
       ndone = 1
       n_batch_done = 1
@@ -218,11 +220,12 @@ c introduce more screening to avoid instability
               if( Pmat_max*ERI_est.gt.THRESHOLD*1d-3 )then
 c              
                  istart = iERI
-                 call dcopy(nao2*nbf_cd,0d0,0,dbl_mb(istart), 1)
+                 if(.not.dryrun)
+     D                call dcopy(nao2*nbf_cd,0d0,0,dbl_mb(istart), 1)
 
                  fac = 2.0d0
-
                  if(atom_c.eq.atom_d) fac = 1.d0
+
                  if(.not.incore) then
 
                     do ishp = 1,nshells_cd
@@ -245,7 +248,7 @@ c
                        q1=1.d0
                        doshell=.true.
                        if(oskel) doshell=sym_shell(cd_bas_han,ishp,q1)
-
+                       if(.not.dryrun) then
                        if (doshell) then
                           if(istart+Ninteg_api-ieri.gt.maxg*nshells_cd)
      c    write(*,*)ga_nodeid(),'dlb_mb ieri small ',
@@ -259,16 +262,18 @@ c
                           call dcopy(nintegrals,0d0,0,
      D                         dbl_mb(istart),1)
                        endif
+                       endif
                        istart = istart+nintegrals
 c     
                     enddo       !ishp
 
                  endif! end of work for comp. ints
+                 if(.not.dryrun) then
                  if(compute) then
 c     incore 3c calculation
 c     copy (ahia!) ints to i3c_eri
                     if( (ndone+Nao2*nbf_cd-1) .gt. n3c_dbl) then
-                       write(LuOut,*) ' nlast n3cdbl ',
+                       write(LuOut,*) ga_nodeid(),' nlast n3cdbl ',
      N                      ndone+Nao2*nbf_cd-1, n3c_dbl
                        call errquit('dft_3cincor: blew out of dbls',
      C                      ga_nodeid(),UNKNOWN_ERR)
@@ -298,6 +303,7 @@ c
                        call errquit('dft_fitcd: not impl',1, BASIS_ERR)
                     endif
                  endif
+                 endif
                  ndone  = ndone  + Nao2*nbf_cd
               endif             ! schwartz with real pmax
               ipoint = ipoint + Nao2*nbf_cd
@@ -313,7 +319,7 @@ c
       else
          n_batch_done = n_batch_done + 1
       endif
-      if(compute) then
+      if(compute.and.(.not.dryrun)) then
          n_batch = n_batch + 1
          if( n_batch.gt.n_bmax)
      &        call errquit('dft_3cincor: out of ints',n_bmax,
@@ -330,13 +336,13 @@ c
           icount = icount + 1
        enddo ! atom_d
       enddo ! atom_c
-
 c
+      if(use_nxtask) n1 = nxtask_static(-nproc,1)
+      if(dryrun) return
       if(.not.ma_chop_stack(leri))
      &  call errquit('dft_fitcd: cannot pop stack',12, MA_ERR)
 
 c
-      if(use_nxtask) n1 = nxtask_static(-nproc,1)
       if(compute) return
       if(.not.ma_chop_stack(l_p))
      &  call errquit('dft_fitcd: cannot pop stack',12, MA_ERR)
