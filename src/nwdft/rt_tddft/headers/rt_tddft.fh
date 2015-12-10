@@ -53,7 +53,9 @@ C
 C     Vector for field, dipoles, etc.
 C
       type :: rt_vector_t
+#ifdef XLFLINUX
          sequence
+#endif
          double precision :: x, y, z
       end type rt_vector_t
 
@@ -62,7 +64,9 @@ C
 C     "half" of a 3x3 tensor (for quadrupole quantities)
 C
       type :: rt_quad_t
+#ifdef XLFLINUX
          sequence
+#endif
          double precision :: xx, xy, xz, yy, yz, zz
       end type rt_quad_t
 
@@ -71,7 +75,9 @@ C
 C     Handles for vector GA's
 C
       type :: rt_vector_handle_t
+#ifdef XLFLINUX
          sequence
+#endif
          integer :: x, y, z
       end type rt_vector_handle_t
 
@@ -80,7 +86,9 @@ C
 C     Handles for quadrupole GA's
 C
       type :: rt_quad_handle_t
+#ifdef XLFLINUX
          sequence
+#endif
          integer :: xx, xy, xz, yy, yz, zz
       end type rt_quad_handle_t
 
@@ -89,7 +97,9 @@ C
 C     Geometry fragments.
 C
       type :: rt_geom_t
+#ifdef XLFLINUX
          sequence
+#endif
          character*16       :: name
          integer            :: ncent
          integer            :: g_mask     !dbl, nbf_ao x nbf_ao, allocd in rt_tddft_init_geoms
@@ -106,7 +116,9 @@ C
 C     Time-dependent system energies.
 C
       type :: rt_energies_t
+#ifdef XLFLINUX
          sequence
+#endif
          double precision     :: core        
          double precision     :: coul
          double precision     :: xc(2)
@@ -119,7 +131,9 @@ C
 C     Contains parameters for an external field (excitation)
 C
       type :: rt_field_t
+#ifdef XLFLINUX
          sequence
+#endif
          character(16)     :: name         !hardcoded to match geom name max
          character(20)     :: type
          character(2)      :: polarization !x,y,z for dipole, xx, xy, ... for quad
@@ -138,7 +152,9 @@ C
 C     Rule for applying field
 C
       type :: rt_excite_t
+#ifdef XLFLINUX
          sequence
+#endif
          integer           :: field_indx
          integer           :: geom_indx
          integer           :: ao_indx
@@ -162,13 +178,15 @@ C     using "super" matrices.
 C
 C
       type :: rt_params_t
+#ifdef XLFLINUX
          sequence
+#endif
          integer          :: rtdb
 
          character(len=24):: tag
 
 C     (theory:  "CS"=closed shell, "OS"=open shell, "SO"=spin orbit)
-         character(len=2) :: theory
+         character(len=8) :: theory
 
 C     (override DFT disk settings)
          logical          :: nodisk
