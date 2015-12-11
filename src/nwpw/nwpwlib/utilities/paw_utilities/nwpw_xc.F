@@ -486,13 +486,21 @@ c      end if
      
 *     *** zero out vxclm multipole arrays ***
       nsize = ispin*n1dgrid_max*lmax2
-      call dcopy(nsize,0.0d0,0,dbl_mb(paw_vxc_ae(1)),1)
-      call dcopy(nsize,0.0d0,0,dbl_mb(paw_vxc_ps(1)),1)
+      !call dcopy(nsize,0.0d0,0,dbl_mb(paw_vxc_ae(1)),1)
+      !call dcopy(nsize,0.0d0,0,dbl_mb(paw_vxc_ps(1)),1)
+      call Parallel_shared_vector_zero(.false.,nsize,
+     >                                 dbl_mb(paw_vxc_ae(1)))
+      call Parallel_shared_vector_zero(.true.,nsize,
+     >                                 dbl_mb(paw_vxc_ps(1)))
 
 *     *** zero out dvxclm multipole arrays ***
       if (gga.ge.10) then
-         call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ae(1)),1)
-         call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ps(1)),1)
+         !call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ae(1)),1)
+         !call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ps(1)),1)
+         call Parallel_shared_vector_zero(.false.,3*nsize,
+     >                                    dbl_mb(paw_dvxc_ae(1)))
+         call Parallel_shared_vector_zero(.true.,3*nsize,
+     >                                    dbl_mb(paw_dvxc_ps(1)))
       end if
 
 *     *** find rholm multipole expansion on spherical grid ***
@@ -537,12 +545,24 @@ c      end if
       
 *       *** zero out temp arrays ***
         nsize = ispin*n1dgrid_max
-        call dcopy(nsize,0.0d0,0,dbl_mb(rho_ae(1)),1)
-        call dcopy(nsize,0.0d0,0,dbl_mb(rho_ps(1)),1)
-        call dcopy(nsize,0.0d0,0,dbl_mb(vxc_ae(1)),1)
-        call dcopy(nsize,0.0d0,0,dbl_mb(vxc_ps(1)),1)
-        call dcopy(nsize,0.0d0,0,dbl_mb(exc_ae(1)),1)
-        call dcopy(nsize,0.0d0,0,dbl_mb(exc_ps(1)),1)
+        !call dcopy(nsize,0.0d0,0,dbl_mb(rho_ae(1)),1)
+        !call dcopy(nsize,0.0d0,0,dbl_mb(rho_ps(1)),1)
+        !call dcopy(nsize,0.0d0,0,dbl_mb(vxc_ae(1)),1)
+        !call dcopy(nsize,0.0d0,0,dbl_mb(vxc_ps(1)),1)
+        !call dcopy(nsize,0.0d0,0,dbl_mb(exc_ae(1)),1)
+        !call dcopy(nsize,0.0d0,0,dbl_mb(exc_ps(1)),1)
+        call Parallel_shared_vector_zero(.false.,nsize,
+     >                                   dbl_mb(rho_ae(1)))
+        call Parallel_shared_vector_zero(.false.,nsize,
+     >                                   dbl_mb(rho_ps(1)))
+        call Parallel_shared_vector_zero(.false.,nsize,
+     >                                   dbl_mb(vxc_ae(1)))
+        call Parallel_shared_vector_zero(.false.,nsize,
+     >                                   dbl_mb(vxc_ps(1)))
+        call Parallel_shared_vector_zero(.false.,nsize,
+     >                                   dbl_mb(exc_ae(1)))
+        call Parallel_shared_vector_zero(.true., nsize,
+     >                                   dbl_mb(exc_ps(1)))
 
 *       *** generate atomic densities on spherical grid ***          
         call nwpw_xc_gen_atomic_densities(n1dgrid,lmax2,ispin,
@@ -671,6 +691,7 @@ c          **** find dvxclm multipole expansion ****
 *        ******************************************************
 *        *** compute the atomic exchange correlation energy ***
 *        ******************************************************
+!$OMP DO
          do ig=1,n1dgrid
             dbl_mb(xc_temp(1)+ig-1)=
      >             (
@@ -684,12 +705,15 @@ c          **** find dvxclm multipole expansion ****
      >             )*
      >             dbl_mb(exc_ps(1)+ig-1)
          end do
+!$OMP END DO
+!$OMP SINGLE
          exc_tmp = log_integrate_def(0,dbl_mb(xc_temp(1)),
      >                               2,rgrid,log_amesh,n1dgrid)
          dbl_mb(paw_xc_e(1)+ii-1)=dbl_mb(paw_xc_e(1)+ii-1)+
      >                           exc_tmp*
      >                           dbl_mb(paw_xc_w_theta(1)+i_t-1)*
      >                           dbl_mb(paw_xc_w_phi(1)+i_p-1)
+!$OMP END SINGLE
 
       end do !i_p
       end do !i_t
@@ -909,11 +933,13 @@ c
 
       integer    lm,ig
 
+!$OMP DO
       do lm=1,lmax2
          do ig=1,ng
            rho(ig) = rho(ig) + rholm(ig,lm)*Tlm(lm)
          end do
       end do
+!$OMP END DO
       
       return
       end
@@ -931,9 +957,11 @@ c
       real*8     rho(*)
 
       integer    ig
+!$OMP DO
       do ig=1,ic
         rho(ig) = rho(ig)/r(ig)
       end do
+!$OMP END DO
       return
       end
 
@@ -963,12 +991,14 @@ c
 
       do ms = 1,ispin
          do lm = 1,lmax2
+!$OMP DO
             do i  = 1,ic
                vxclm_ae(i,lm,ms) = vxclm_ae(i,lm,ms) 
      >                           + vxc_ae(i,ms)*(tlm(lm)*alpha)
                vxclm_ps(i,lm,ms) = vxclm_ps(i,lm,ms) 
      >                          + vxc_ps(i,ms)*(tlm(lm)*alpha)
             end do
+!$OMP END DO
          end do
       end do
       return
@@ -1005,6 +1035,7 @@ c
 
       do ms=1,ispin
          do lm=1,lmax2
+!$OMP DO
            do i=1,nb
            do j=i,nb
               do ig=1,ng
@@ -1019,6 +1050,7 @@ c
               if (i.ne.j) matr(j,i,lm,ms) = matr(i,j,lm,ms)
            end do
            end do
+!$OMP END DO
          end do
       end do
       return
@@ -1049,10 +1081,12 @@ c
      >                              rholm(1,1,ms),
      >                              tlm,
      >                              rho(1,ms))
-         call daxpy(ng,0.5d0,rhocore,1,rho(1,ms),1)
+         !call daxpy(ng,0.5d0,rhocore,1,rho(1,ms),1)
+!$OMP DO
          do i=1,ng
-            rho(i,ms) = dabs(rho(i,ms))
+            rho(i,ms) = dabs(rho(i,ms)+0.5d0*rhocore(i))
          end do
+!$OMP END DO
       end do
 
       return
@@ -1086,7 +1120,8 @@ c
 
       integer ms,i
 
-      call dcopy(3*ic*ispin,0.0d0,0,rho_prime,1)
+      !call dcopy(3*ic*ispin,0.0d0,0,rho_prime,1)
+      call Parallel_shared_vector_zero(.true.,3*ic*ispin,rho_prime)
 
       do ms=1,ispin
 
@@ -1097,7 +1132,13 @@ c
      >                              rho_prime(1,1,ms))
 
 *        *** add core d/dr densities***
-         call daxpy(ic,0.5d0,rhocore_prime,1,rho_prime(1,1,ms),1)
+         !call daxpy(ic,0.5d0,rhocore_prime,1,rho_prime(1,1,ms),1)
+!$OMP DO
+         do i=1,ic
+            rho_prime(i,1,ms) = rho_prime(i,1,ms) 
+     >                        + 0.5d0*rhocore_prime(i)
+         end do
+!$OMP END DO
 
 
          !*** only computate radial derivatives if lmax2==1 ****
@@ -1157,17 +1198,21 @@ c
       if (lmax2.eq.1) then
 
 c        **** compute |grad n| ****
+!$OMP DO
          do ig=1,ic
             agr(ig,2*ispin-1)
      >       = dsqrt( (rho_prime(ig,1,1)+rho_prime(ig,1,ispin))**2)
          end do
+!$OMP END DO
 
 c        **** compute |grad nup| and |grad ndn| ****
          if (ispin.eq.2) then
            do ms=1,ispin
+!$OMP DO
            do ig=1,ic
               agr(ig,ms) = dsqrt(rho_prime(ig,1,ms)**2)
            end do
+!$OMP END DO
            end do
          end if
 
@@ -1176,21 +1221,25 @@ c        **** compute |grad nup| and |grad ndn| ****
       !***  computate theta and phi derivatives if lmax2>1 ****
       else
 c        **** compute |grad n| ****
+!$OMP DO
          do ig=1,ic   
             agr(ig,2*ispin-1) 
      >       = dsqrt( (rho_prime(ig,1,1)+rho_prime(ig,1,ispin))**2
      >              + (rho_prime(ig,2,1)+rho_prime(ig,2,ispin))**2
      >              + (rho_prime(ig,3,1)+rho_prime(ig,3,ispin))**2)
          end do
+!$OMP END DO
 
 c        **** compute |grad nup| and |grad ndn| ****
          if (ispin.eq.2) then
            do ms=1,ispin
+!$OMP DO
            do ig=1,ic
               agr(ig,ms) = dsqrt( rho_prime(ig,1,ms)**2
      >                          + rho_prime(ig,2,ms)**2
      >                          + rho_prime(ig,3,ms)**2)
            end do
+!$OMP END DO
            end do
          end if
 
@@ -1227,15 +1276,18 @@ c        **** compute |grad nup| and |grad ndn| ****
 *     *** restricted ****
       if (ispin.eq.1) then
          do j=1,jmax
+!$OMP DO
           do i=1,ic
            rho_prime(i,j,1) = (rho_prime(i,j,1)+rho_prime(i,j,1))
      >                       *(fdn(i,1)/(agr(i,1)+eta))
           end do
+!$OMP END DO
          end do
 
 *     *** unrestricted ****
       else
          do j=1,jmax
+!$OMP DO
           do i=1,ic
             drho1 = rho_prime(i,j,1)
             drho2 = rho_prime(i,j,2)
@@ -1245,6 +1297,7 @@ c        **** compute |grad nup| and |grad ndn| ****
             rho_prime(i,j,2) = (drho2/(agr(i,2)+eta))*fdn(i,2)
      >                       + (drhoa/(agr(i,3)+eta))*fdn(i,3)
           end do
+!$OMP END DO
          end do
       end if
       return
@@ -1282,12 +1335,14 @@ c        **** compute |grad nup| and |grad ndn| ****
       do ms = 1,ispin
          do j  = 1,jmax
             do lm = 1,lmax2
+!$OMP DO
                do i  = 1,ic
                  dvxclm_ae(i,lm,j,ms) = dvxclm_ae(i,lm,j,ms)
      >                                + dvxc_ae(i,j,ms)*(tlm(lm)*alpha)
                  dvxclm_ps(i,lm,j,ms) = dvxclm_ps(i,lm,j,ms)
      >                                + dvxc_ps(i,j,ms)*(tlm(lm)*alpha)
                end do
+!$OMP END DO
             end do
          end do
       end do
@@ -1331,11 +1386,13 @@ c        **** compute |grad nup| and |grad ndn| ****
       real*8   log_integrate_def
       external log_integrate_def
 
-      call dcopy(nb*nb*lmax2*3*ispin,0.0d0,0,dmatr,1)
+      !call dcopy(nb*nb*lmax2*3*ispin,0.0d0,0,dmatr,1)
+      call Parallel_shared_vector_zero(.true.,nb*nb*lmax2*3*ispin,dmatr)
 
 *     **** radial derivative integral ****
       do ms=1,ispin
       do lm=1,lmax2
+!$OMP DO
         do i=1,nb
         do j=i,nb
 
@@ -1360,6 +1417,7 @@ c        **** compute |grad nup| and |grad ndn| ****
           if (i.ne.j) dmatr(j,i,lm,1,ms) = dmatr(i,j,lm,1,ms)
         end do
         end do
+!$OMP END DO
       end do
       end do
 
@@ -1370,6 +1428,7 @@ c        **** compute |grad nup| and |grad ndn| ****
 *     **** theta derivative integral ****
       do ms=1,ispin
       do lm=1,lmax2
+!$OMP DO
         do i=1,nb
         do j=i,nb
 
@@ -1387,12 +1446,14 @@ c        **** compute |grad nup| and |grad ndn| ****
           if (i.ne.j) dmatr(j,i,lm,2,ms) = dmatr(i,j,lm,2,ms)
         end do
         end do
+!$OMP END DO
       end do
       end do
 
 *     **** phi derivative integral ****
       do ms=1,ispin
       do lm=1,lmax2
+!$OMP DO
         do i=1,nb
         do j=i,nb
 
@@ -1410,6 +1471,7 @@ c        **** compute |grad nup| and |grad ndn| ****
           if (i.ne.j) dmatr(j,i,lm,3,ms) = dmatr(i,j,lm,3,ms)
         end do
         end do
+!$OMP END DO
       end do
       end do
 
@@ -1506,9 +1568,14 @@ c   overlap coefficients.
       scal = 1.0d0/lattice_omega()
 
 *     ***init to zero***
-      call dcopy(ispin*lmax2*n1dgrid,0.0d0,0,rholm_ae,1)
-      call dcopy(ispin*lmax2*n1dgrid,0.0d0,0,rholm_ps,1)
+      !call dcopy(ispin*lmax2*n1dgrid,0.0d0,0,rholm_ae,1)
+      !call dcopy(ispin*lmax2*n1dgrid,0.0d0,0,rholm_ps,1)
+      call Parallel_shared_vector_zero(.false.,ispin*lmax2*n1dgrid,
+     >                                 rholm_ae)
+      call Parallel_shared_vector_zero(.true.,ispin*lmax2*n1dgrid,
+     >                                 rholm_ps)
 
+!$OMP DO
       do i=1,nindx
          lm    = lm_rholm(i)
          iprj  = iprj_rholm(i)
@@ -1533,6 +1600,7 @@ c   overlap coefficients.
             end if
          end do
       end do
+!$OMP END DO
 
 
       call nwpw_timing_end(21)
@@ -1606,9 +1674,14 @@ c   overlap coefficients.
       scal = 1.0d0/lattice_omega()
 
 *     ***init to zero***
-      call dcopy(n1dgrid*lmax2*ispin,0.0d0,0,rholm_ae_prime,1)
-      call dcopy(n1dgrid*lmax2*ispin,0.0d0,0,rholm_ps_prime,1)
+      !call dcopy(n1dgrid*lmax2*ispin,0.0d0,0,rholm_ae_prime,1)
+      !call dcopy(n1dgrid*lmax2*ispin,0.0d0,0,rholm_ps_prime,1)
+      call Parallel_shared_vector_zero(.false.,n1dgrid*lmax2*ispin,
+     >                                 rholm_ae_prime)
+      call Parallel_shared_vector_zero(.true.,n1dgrid*lmax2*ispin,
+     >                                 rholm_ps_prime)
 
+!$OMP DO
       do i=1,nindx
          lm    = lm_rholm(i)
          iprj  = iprj_rholm(i)
@@ -1637,6 +1710,7 @@ c   overlap coefficients.
             end if
          end do
       end do
+!$OMP END DO
 
       call nwpw_timing_end(21)
       return
@@ -1705,6 +1779,7 @@ c
       !scal = 1.0d0/dsqrt(lattice_omega())
 
 *     ***init to zero***
+!$OMP DO
       do i=1,nindx
          lm    = lm_rholm(i)
          iprj  = iprj_rholm(i)
@@ -1722,6 +1797,7 @@ c
             end if
          end do
       end do
+!$OMP END DO
       call nwpw_timing_end(21)
       return
       end 
@@ -1770,6 +1846,7 @@ c
       !scal = 1.0d0/dsqrt(lattice_omega())
 
 *     ***init to zero***
+!$OMP DO
       do i=1,nindx
          lm    = lm_rholm(i)
          iprj  = iprj_rholm(i)
@@ -1791,6 +1868,7 @@ c
             end if
          end do
       end do
+!$OMP END DO
       call nwpw_timing_end(21)
       return
       end

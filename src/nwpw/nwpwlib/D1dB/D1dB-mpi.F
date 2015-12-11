@@ -211,6 +211,7 @@ c     implicit none
       logical value
       integer msglen
       integer sumall(2),np,mpierr
+      integer tid,nthr,nn,nnmod,istart
 
 *     **** external functions ****
       integer  Parallel2d_comm_j
@@ -224,6 +225,7 @@ c     implicit none
       value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+!$OMP MASTER
 #ifdef MPI4
       stupid_msglen = n
       call MPI_Allreduce(sum,dbl_mb(sumall(1)),stupid_msglen,
@@ -235,8 +237,12 @@ c     implicit none
      >                MPI_DOUBLE_PRECISION,
      >                MPI_SUM,Parallel2d_comm_j(),mpierr)
 #endif
-
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+!$OMP END MASTER
+!$OMP BARRIER
+
+      !call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+      !call Parallel_shared_vector_copy(.true.,n,dbl_mb(sumall(1)),sum)
       value = BA_pop_stack(sumall(2))
 
       end if

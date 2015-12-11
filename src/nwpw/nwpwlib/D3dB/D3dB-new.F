@@ -1007,7 +1007,8 @@ c      end
 
 #include "D3dB.fh"
 
-      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
+c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d_map(nb),A)
       return
       end
 
@@ -1063,8 +1064,10 @@ c      end
       real*8 B(*)
 
 #include "D3dB.fh"
+      integer i
+      !call dcopy(n2ft3d_map(nb),A,1,B,1)
+      call Parallel_shared_vector_copy(.true.,n2ft3d_map(nb),A,B)
 
-      call dcopy(n2ft3d_map(nb),A,1,B,1)
       return
       end
 
@@ -1126,8 +1129,6 @@ c      end
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
-#ifdef USE_OPENMP
-#endif
 
 #ifdef FFTW3
 #include "fftw3.fh"
@@ -1466,18 +1467,10 @@ c      end
       integer tmp2(2),tmp3(2)
       logical value
 
-      integer tid,nthr,offset
-      integer Parallel_threadid,Parallel_nthreads
+      integer  tid,nthr,offset
+      integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
-#ifdef USE_OPENMP
-#endif
-
-#ifdef USE_OPENMP
-#endif
-
-#ifdef USE_OPENMP
-#endif
 
       tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
@@ -1693,17 +1686,13 @@ c      end do
       call dfftw_execute_dft(plans(11,nb),A,A)
 
 #else
-#ifdef NUSE_OPENMP
-      call D3dB_fftbz_sub2(nq3(nb),nz(nb),dcpl_mb(tmpz(1,nb)),A)
-#else
 
       offset=tid*(2*nz(nb)+15)
-!$OMP DO 
-      do i=1,nq3(nb)
+      do i=tid+1,nq3(nb),nthr
         call dcfftb(nz(nb),A(1+(i-1)*nz(nb)),dcpl_mb(tmpz(1,nb)+offset))
       end do
-!$OMP END DO
-#endif
+!$OMP BARRIER
+
 #endif
 #endif
 
@@ -1726,16 +1715,11 @@ c      end do
       call dfftw_execute_dft(plans(12,nb),A,A)
 
 #else
-#ifdef NUSE_OPENMP
-      call D3dB_fftby_sub2(nq2(nb),ny(nb),dcpl_mb(tmpy(1,nb)),A)
-#else
       offset=tid*(2*ny(nb)+15)
-!$OMP DO 
-      do i=1,nq2(nb)
+      do i=tid+1,nq2(nb),nthr
         call dcfftb(ny(nb),A(1+(i-1)*ny(nb)),dcpl_mb(tmpy(1,nb)+offset))
       end do
-!$OMP END DO
-#endif
+!$OMP BARRIER
 #endif
 #endif
 
@@ -1758,22 +1742,15 @@ c      end do
       call dfftw_execute_dft_c2r(plans(13,nb),A,A)
 
 #else
-#ifdef NUSE_OPENMP
-      call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
-      call D3dB_fftbx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
-      call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
-#else
-      call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
-
       offset=tid*(2*nx(nb)+15)
-!$OMP DO 
-      do i=1,nq1(nb)
+      call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
+      do i=tid+1,nq1(nb),nthr
         call drfftb(nx(nb),A(1+(i-1)*nxh),dcpl_mb(tmpx(1,nb)+offset))
       end do
-!$OMP END DO
+!$OMP BARRIER
 
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
-#endif
+
 #endif
 #endif
 
@@ -1788,8 +1765,6 @@ c      end do
 
       call nwpw_timing_end(1)
 
-#ifdef USE_OPENMP
-#endif
       return
       end
 
@@ -1849,14 +1824,10 @@ c      end do
       integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,j,indx,tid,nthr
-      integer  Parallel_threadid,Parallel_nthreads
-      external Parallel_threadid,Parallel_nthreads
+      integer i,j,indx
 
-      tid  = Parallel_threadid()
-      nthr = Parallel_nthreads()
-
-      do j=1+tid,(ny*nq*ne),nthr
+!$OMP DO
+      do j=1,(ny*nq*ne)
         indx = 1+(j-1)*(nx+2)
 c        indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
 c    >            + (n-1)*(nx+2)*ny*nq
@@ -1864,6 +1835,7 @@ c    >            + (n-1)*(nx+2)*ny*nq
             A(indx+i-1) = A(indx+i)
          end do
       end do
+!$OMP END DO
 
 c     end do
 c     end do
@@ -1897,17 +1869,15 @@ c     end do
       integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,indx,tid,nthr
-      integer  Parallel_threadid,Parallel_nthreads
-      external Parallel_threadid,Parallel_nthreads
+      integer i,indx
 
-      tid  = Parallel_threadid()
-      nthr = Parallel_nthreads()
-      do i=1+tid,(ny*nq*ne),nthr
+!$OMP DO
+      do i=1,(ny*nq*ne)
          indx = nx+1+(i-1)*(nx+2)
          A(indx)   = 0.0d0
          A(indx+1) = 0.0d0
       end do
+!$OMP END DO
 
       return
       end 
@@ -2154,11 +2124,6 @@ c      end
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
-#ifdef USE_OPENMP
-#endif
-
-
-
 
 *     *** local variables ***
       integer i,j,k,q,indx,indx1
@@ -2168,15 +2133,11 @@ c      end
       integer tmp2(2),tmp3(2)
       logical value
 
-      integer tid,nthr,offset
-      integer Parallel_threadid,Parallel_nthreads
+      integer  tid,nthr,offset,nnn
+      integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
-#ifdef USE_OPENMP
-#endif
 
-#ifdef USE_OPENMP
-#endif
-      tid = Parallel_threadid()
+      tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
 
       call nwpw_timing_start(1)
@@ -2184,7 +2145,11 @@ c      end
 
 *     ***** allocate temporary space ****
       !call D3dB_nfft3d(nb,nfft3d)
-      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+      nnn = nfft3d(nb)
+      if ((nthr*ny(nb)).gt.nnn) nnn = nthr*ny(nb)
+      if ((nthr*nz(nb)).gt.nnn) nnn = nthr*nz(nb)
+      value = BA_push_get(mt_dcpl,nnn,'tmp2',tmp2(2),tmp2(1))
+c      value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -2217,28 +2182,12 @@ c     end do
       call dfftw_execute_dft_r2c(plans(4,nb),A,A)
 
 #else
-      !call drffti(nx(nb),dcpl_mb(tmp1(1)))
-      indx = 1
-      do q=1,nq(nb)
-      do j=1,ny(nb)
-c         indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-
-c        call dcopy((nx(nb)+2),A(indx),1,dbl_mb(tmp3(1)),1)
-c        call drfftf(nx(nb),dbl_mb(tmp3(1)),dcpl_mb(tmp1(1)))
-c        do i=nx(nb),2,-1
-c           dbl_mb(tmp3(1)+i) = dbl_mb(tmp3(1)+i-1)
-c        end do
-c        dbl_mb(tmp3(1)+1)    = 0.0d0
-c        dbl_mb(tmp3(1)+nx(nb)+1) = 0.0d0
-c        call dcopy((nx(nb)+2),dbl_mb(tmp3(1)),1,A(indx),1)
-
-         call drfftf(nx(nb),A(indx),dbl_mb(tmpx(1,nb)))
-         indx = indx + nxh
-      end do
+      offset=tid*(2*nx(nb)+15)
+      do j=tid+1,ny(nb)*nq(nb),nthr
+         call drfftf(nx(nb),A((j-1)*nxh+1),dbl_mb(tmpx(1,nb)+offset))
       end do
       call cshift_fftf(nx(nb),ny(nb),nq(nb),1,A)
 #endif
-
 #endif
 
 
@@ -2280,29 +2229,28 @@ c      end do
       end do
 
 #else
-      !call dcffti(ny(nb),dcpl_mb(tmp1(1)))
-      do i=1,nxh
+      offset=tid*(2*ny(nb)+15)
+      do i=tid+1,nxh,nthr
       indx = i
       indx1= i
       do q=1,nq(nb)
          do j=1,ny(nb)
             !indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-            dcpl_mb(tmp2(1)+j-1) = A(indx)
+            dcpl_mb(tmp2(1)+j-1+tid*ny(nb)) = A(indx)
             indx = indx + nxh
          end do
 
-         call dcfftf(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
+         call dcfftf(ny(nb),dcpl_mb(tmp2(1)+tid*ny(nb)),
+     >                      dcpl_mb(tmpy(1,nb)+offset))
 
          do j=1,ny(nb)
             !indx = i + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-            A(indx1) = dcpl_mb(tmp2(1)+j-1)
+            A(indx1) = dcpl_mb(tmp2(1)+j-1+tid*ny(nb))
             indx1 = indx1 + nxh
          end do
       end do
-      
       end do
 #endif
-
 #endif
 
 *     ********************************************
@@ -2340,21 +2288,22 @@ c      end do
       end do
 
 #else
-      !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
-      do i=1,nxh
+      offset=tid*(2*nz(nb)+15)
+      do i=tid+1,nxh,nthr
       indx  = i
       indx1 = i
       do q=1,nq(nb)
 
          do k=1,nz(nb)
             !indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-            dcpl_mb(tmp2(1)+k-1) = A(indx)
+            dcpl_mb(tmp2(1)+k-1+tid*nz(nb)) = A(indx)
             indx = indx + nxh
          end do
-         call dcfftf(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
+         call dcfftf(nz(nb),dcpl_mb(tmp2(1)+tid*nz(nb)),
+     >                      dcpl_mb(tmpz(1,nb)+offset))
          do k=1,nz(nb)
             !indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-            A(indx1) = dcpl_mb(tmp2(1)+k-1)
+            A(indx1) = dcpl_mb(tmp2(1)+k-1+tid*nz(nb))
             indx1 = indx1 + nxh
          end do
 
@@ -2362,7 +2311,6 @@ c      end do
       end do
 
 #endif
-
 #endif
 
 *     ********************************************
@@ -2370,7 +2318,6 @@ c      end do
 *     ***      A(kx,ky,kz) <- A(kx,kz,ky)      ***
 *     ********************************************
 c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
-
 
 
 
@@ -2393,23 +2340,18 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
       call dfftw_execute_dft_r2c(plans(14,nb),A,A)
 #else
-#ifdef NUSE_OPENMP
-      call D3dB_fftfx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
-      call cshift_fftf(nx(nb),nq1(nb),1,1,A)
-#else
-
 
       offset=tid*(2*nx(nb)+15)
-      do i=1,nq1(nb)
+      do i=tid+1,nq1(nb),nthr
         call drfftf(nx(nb),A(1+(i-1)*nxh),dcpl_mb(tmpx(1,nb)+offset))
       end do
-
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
-#endif
+
 #endif
 #endif
 
       call D3dB_c_transpose_ijk(nb,1,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+
 *     ********************************************
 *     ***     do fft along ny(nb) dimension        ***
 *     ***   A(ky,nz(nb),kx) <- fft1d[A(ny(nb),nz(nb),kx)]  ***
@@ -2427,14 +2369,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft(plans(15,nb),A,A)
 
 #else
-#ifdef NUSE_OPENMP
-      call D3dB_fftfy_sub2(nq2(nb),ny(nb),dcpl_mb(tmpy(1,nb)),A)
-#else
       offset=tid*(2*ny(nb)+15)
-      do i=1,nq2(nb)
+      do i=tid+1,nq2(nb),nthr
         call dcfftf(ny(nb),A(1+(i-1)*ny(nb)),dcpl_mb(tmpy(1,nb)+offset))
       end do
-#endif
+!$OMP BARRIER
 #endif
 #endif
 
@@ -2456,15 +2395,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #ifdef FFTW3
       call dfftw_execute_dft(plans(16,nb),A,A)
 #else
-#ifdef NUSE_OPENMP
-      call D3dB_fftfz_sub2(nq3(nb),nz(nb),dcpl_mb(tmpz(1,nb)),A)
-#else
       offset=tid*(2*nz(nb)+15)
-      do i=1,nq3(nb)
+      do i=tid+1,nq3(nb),nthr
         call dcfftf(nz(nb),A(1+(i-1)*nz(nb)),dcpl_mb(tmpz(1,nb)+offset))
       end do
+!$OMP BARRIER
 
-#endif
 #endif
 #endif
 
@@ -2477,8 +2413,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       call nwpw_timing_end(1)
 
-#ifdef USE_OPENMP
-#endif
       return
       end
 
@@ -2544,6 +2478,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       integer i,j,indx
 
+!$OMP BARRIER
+!$OMP DO 
       do j=1,(ny*nq*ne)
         indx = 1+(j-1)*(nx+2)
 c        indx = 1 + (j-1)*(nx+2) + (q-1)*(nx+2)*ny
@@ -2556,6 +2492,7 @@ c     >        + (n-1)*(nx+2)*ny*nq
          A(indx+nx+1) = 0.0d0
 !         indx = indx + (nx+2)
       end do
+!$OMP END DO
 
       return
       end 
@@ -2854,9 +2791,11 @@ c      end
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          C(i) = scale*A(i)
       end do
+!$OMP END DO
       return
       end 
 
@@ -2870,9 +2809,11 @@ c      end
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          A(i) = scale*A(i)
       end do
+!$OMP END DO
       return
       end
 
@@ -2993,9 +2934,11 @@ c      end
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          C(i) = A(i)**2
       end do
+!$OMP END DO
       return
       end
 
@@ -3041,9 +2984,11 @@ c      end
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          A(i) = A(i)**2
       end do
+!$OMP END DO
       return
       end
 
@@ -3087,9 +3032,11 @@ c      end
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          A(i) = dsqrt(A(i))
       end do
+!$OMP END DO
       return
       end
 
@@ -3807,9 +3754,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,nfft3d_map(nb)
             B(i) = B(i) * A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3864,9 +3813,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) * A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3890,9 +3841,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,nfft3d_map(nb)
          C(i) = A(i) + B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3914,9 +3867,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,nfft3d_map(nb)
          B(i) = B(i) + A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3939,9 +3894,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          C(i) = B(i)+A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -3962,9 +3919,11 @@ c      call Parallel2d_np_i(np)
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) + A(i)
       end do
+!$OMP END DO
       return
       end
 
@@ -4255,6 +4214,7 @@ CDIR$ NOVECTOR
       !do j=1,ny(nb)
       !do i=1,nx(nb)
 CDIR$ NOVECTOR
+!$OMP DO
       do index = 1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          if (dabs(A(index)) .le. eta) then
@@ -4263,6 +4223,7 @@ CDIR$ NOVECTOR
            B(index) = B(index) / A(index)
          end if
       end do
+!$OMP END DO
       !end do
       !end do
       !end do
@@ -4359,23 +4320,22 @@ CDIR$ NOVECTOR
 
       integer i
 
+!$OMP DO
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
+!$OMP END DO
 
       return
       end
 
-
-
-
 *     ***********************************
 *     *					*
-*     *          D3dB_r_Zero_Ends	*
+*     *          D3dB_r_Zero_Ends0	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_r_Zero_Ends(nb,A)
+      subroutine D3dB_r_Zero_Ends0(nb,A)
       integer nb
       real*8 A(*) 
 
@@ -4394,18 +4354,6 @@ CDIR$ NOVECTOR
             A(index+1) = 0.0d0
          end do
       end do
-
-!MATHIAS can't this be made homogeneous with Hilbert mapping ?
-!      call Parallel2d_taskid_i(taskid)
-!      do k=1,nz(nb)
-!         do j=1,ny(nb)
-!            D3dB_ijktoindex2p(nb,(nx(nb)+1),j,k,index,p)
-!           if (p.eq.taskid) then
-!              A(index)   = 0.0d0
-!              A(index+1) = 0.0d0
-!           end if
-!         end do
-!      end do
 
 
       !**** hilbert mapping ****
@@ -4428,6 +4376,67 @@ CDIR$ NOVECTOR
          call dcopy((n2ft3d(nb)-n2ft3d_map(nb)),
      >              0.0d0,0,A(n2ft3d_map(nb)+1),1)
       end if
+
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *					*
+*     *          D3dB_r_Zero_Ends	*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_r_Zero_Ends(nb,A)
+      integer nb
+      real*8 A(*) 
+
+#include "D3dB.fh"
+
+      integer j,k,q,index,taskid,p
+
+      !**** slab mapping ****
+      if (mapping.eq.1) then
+!$OMP DO
+      do q=1,nq(nb)
+         do j=1,ny(nb)
+            index = (nx(nb)+1) + (j-1)*(nx(nb)+2) 
+     >                         + (q-1)*(nx(nb)+2)*(ny(nb))
+
+            A(index)   = 0.0d0
+            A(index+1) = 0.0d0
+         end do
+      end do
+!$OMP END DO
+
+
+      !**** hilbert mapping ****
+      else
+        call Parallel2d_taskid_i(taskid)
+!$OMP DO
+        do k=1,nz(nb)
+        do j=1,ny(nb)
+
+         call D3dB_ijktoindex2p(nb,(nx(nb)+1),j,k,index,p)
+         if (p.eq.taskid) A(index) = 0.0d0
+
+         call D3dB_ijktoindex2p(nb,(nx(nb)+2),j,k,index,p)
+         if (p.eq.taskid) A(index) = 0.0d0
+
+        end do
+        end do
+!$OMP end DO
+      end if
+
+!$OMP SINGLE
+      if (n2ft3d_map(nb).lt.n2ft3d(nb)) then
+         call dcopy((n2ft3d(nb)-n2ft3d_map(nb)),
+     >              0.0d0,0,A(n2ft3d_map(nb)+1),1)
+      end if
+!$OMP END SINGLE
 
       return
       end
@@ -5011,9 +5020,11 @@ cpgi$r opt=1
 
       integer i
 
+!$OMP DO
       do i=1,nfft3d_map(nb)
             C(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -5034,9 +5045,11 @@ cpgi$r opt=1
 
       integer i
 
+!$OMP DO
       do i=1,nfft3d_map(nb)
             B(i) = dcmplx(0.0d0,A(i)) * B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -5060,9 +5073,12 @@ cpgi$r opt=1
       integer i,j,q,index1,index2
 
       if (mapping.eq.1) then
-      call dcopy(nq(nb2)*ny(nb2)*(nx(nb2)+2),0.0d0,0,B,1)
-      do q=1,nq(nb1)
+c      call dcopy(nq(nb2)*ny(nb2)*(nx(nb2)+2),0.0d0,0,B,1)
+      call Parallel_shared_vector_zero(.true.,
+     >                                 nq(nb2)*ny(nb2)*(nx(nb2)+2),B)
+!$OMP DO
       do j=1,ny(nb1)
+      do q=1,nq(nb1)
       do i=1,nx(nb1)
          index1 = i + (j-1)*(nx(nb1)+2) + (q-1)*(nx(nb1)+2)*ny(nb1)
          index2 = i + (j-1)*(nx(nb2)+2) + (q-1)*(nx(nb2)+2)*ny(nb2)
@@ -5070,9 +5086,12 @@ cpgi$r opt=1
       end do
       end do
       end do
+!$OMP END DO
 
       else
-      call dcopy(n2ft3d(nb2),0.0d0,0,B,1)
+c      call dcopy(n2ft3d(nb2),0.0d0,0,B,1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d(nb2),B)
+!$OMP DO
       do q=1,nq1(nb1)
       do i=1,nx(nb1)
          index1 = i + (q-1)*(nx(nb1)+2)
@@ -5080,6 +5099,7 @@ cpgi$r opt=1
          B(index2) = A(index1)
       end do
       end do
+!$OMP END DO
       end if
       return
       end
@@ -5102,9 +5122,12 @@ cpgi$r opt=1
       integer i,j,q,index1,index2
 
       if (mapping.eq.1) then
-      call dcopy(nq(nb1)*ny(nb1)*(nx(nb1)+2),0.0d0,0,A,1)
-      do q=1,nq(nb1)
+c      call dcopy(nq(nb1)*ny(nb1)*(nx(nb1)+2),0.0d0,0,A,1)
+      call Parallel_shared_vector_zero(.true.,
+     >                                 nq(nb1)*ny(nb1)*(nx(nb1)+2),A)
+!$OMP DO
       do j=1,ny(nb1)
+      do q=1,nq(nb1)
       do i=1,nx(nb1)
          index1 = i + (j-1)*(nx(nb1)+2) + (q-1)*(nx(nb1)+2)*ny(nb1)
          index2 = i + (j-1)*(nx(nb2)+2) + (q-1)*(nx(nb2)+2)*ny(nb2)
@@ -5112,9 +5135,12 @@ cpgi$r opt=1
       end do
       end do
       end do
+!$OMP END DO
 
       else
-      call dcopy(n2ft3d(nb1),0.0d0,0,A,1)
+c      call dcopy(n2ft3d(nb1),0.0d0,0,A,1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d(nb1),A)
+!$OMP DO
       do q=1,nq1(nb1)
       do i=1,nx(nb1)
          index1 = i + (q-1)*(nx(nb1)+2)
@@ -5122,6 +5148,7 @@ cpgi$r opt=1
          A(index1) = B(index2)
       end do
       end do
+!$OMP END DO
       end if
 
       return
@@ -5446,9 +5473,11 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,n
         b(i) = a(index(i))
       end do
+!$OMP END DO
 
       return
       end

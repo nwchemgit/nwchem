@@ -603,9 +603,8 @@ c     **** external functions ****
                nsz = n/nthr
             end if
             if (barrier) then
-c               write(*,*) "shared_copy, tid,nthr,istart,nsz,n=",
-c     >                    tid,nthr,istart,nsz,n
                call dcopy(nsz,a(istart),1,b(istart),1)
+!$OMP BARRIER
             else
                call dcopy(nsz,a(istart),1,b(istart),1)
             end if
@@ -613,6 +612,7 @@ c     >                    tid,nthr,istart,nsz,n
          else
             if (barrier) then
                call dcopy(n,a,1,b,1)
+!$OMP BARRIER
             else
                call dcopy(n,a,1,b,1)
             end if

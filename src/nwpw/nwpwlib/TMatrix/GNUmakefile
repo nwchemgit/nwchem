@@ -2,7 +2,7 @@
 # $Id: GNUmakefile 21430 2011-11-07 21:59:54Z d3p852 $
 #
 
-  OBJ_OPTIMIZE = TMatrix.o
+  OBJ_OPTIMIZE = dgemm_omp.o
   OBJ = 
 
 

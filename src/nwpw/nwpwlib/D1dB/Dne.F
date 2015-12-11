@@ -20,7 +20,6 @@
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -1593,6 +1592,7 @@ c     ****************************************
 
       
             call nwpw_timing_start(22)
+            write(*,*) "into tredq"
             call DMatrix_tredq(ne(ms),
      >                hml(shift2),dbl_mb(Q(1)),
      >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
@@ -1603,6 +1603,7 @@ c     ****************************************
      >                dbl_mb(V(1)),dbl_mb(VV(1)))
             call nwpw_timing_end(22)
 
+            write(*,*) "into get_diags"
             call nwpw_timing_start(23)
             call DMatrix_getdiags(ne(ms),
      >                eig(shift1),dbl_mb(tu(1)),
@@ -1615,6 +1616,7 @@ c     ****************************************
             call dcopy(mcq(ms)*ncq(ms),dbl_mb(Q(1)),1,hml(shift2),1)
             call nwpw_timing_end(23)
 
+            write(*,*) "into tqliq"
             call nwpw_timing_start(24)
             call DMatrix_tqliq(ne(ms),
      >                eig(shift1),dbl_mb(tu(1)),

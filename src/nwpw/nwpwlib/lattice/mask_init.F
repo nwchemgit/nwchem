@@ -141,9 +141,11 @@ c    >                        + i+1
       call nwpw_timing_start(9)
 
       call D3dB_nfft3d(1,nfft3d)
+!$OMP DO
       do i=1,nfft3d
          if (log_mb(masker(1,nb)+i-1)) A(i) = dcmplx(0.0d0,0.0d0)
       end do
+!$OMP END DO
 
       call nwpw_timing_end(9)
 

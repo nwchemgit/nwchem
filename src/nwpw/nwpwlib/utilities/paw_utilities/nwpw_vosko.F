@@ -57,13 +57,16 @@
       pi=4.0d0*datan(1.0d0)
 
 *     square root of wigner radius
+!$OMP DO
       do 100 k=1,ng
 c        rho=dn(k,1)+dn(k,ispin)+dncut
         rho=dn(k,1)+dn(k,ispin)+dncut
         x(k)=crs/rho**one6th
-  100 continue
+  100 end do
+!$OMP END DO
 
 *     paramagnetic correlation energy & potential
+!$OMP DO
       do 110 k=1,ng
         xx=1.0d0/(x(k)*(x(k)+bp)+cp)
         xce(k,1)=cp1*dlog(xx*x(k)**2)+cp2*dlog(xx*(x(k)+cp3)**2)
@@ -71,24 +74,30 @@ c        rho=dn(k,1)+dn(k,ispin)+dncut
         xcp(k,1)=xce(k,1)-one6th*x(k)*(
      &           dp1/x(k)+dp2/(x(k)+dp3)+dp4*xx*(2.0d0*x(k)+bp)
      &          +dp5/((x(k)+dp6)**2+dp7) )
-  110 continue
+  110 end do
+!$OMP END DO
 
 *     paramagnetic exchange energy & potential
+!$OMP DO
       do 120 k=1,ng
         xce(k,1)=xce(k,1)+(xp/x(k)**2)
         xcp(k,1)=xcp(k,1)+for3rd*(xp/x(k)**2)
-  120 continue
+  120 end do
+!$OMP END DO
 
 *     return if spin-restricted lda
 *      if(ispin.eq.1) go to 200
       if(ispin.eq.1) then
+!$OMP DO
         do k=1,ng
           xcp(k,2) = xcp(k,1)
         end do      
+!$OMP END DO
         return
       end if
 
 *     ferromagnetic correlation energy & potential
+!$OMP DO
       do 130 k=1,ng
         xx=1.0d0/(x(k)*(x(k)+bf)+cf)
         xce(k,2)=cf1*dlog(xx*x(k)**2)+cf2*dlog(xx*(x(k)+cf3)**2)
@@ -96,15 +105,19 @@ c        rho=dn(k,1)+dn(k,ispin)+dncut
         xcp(k,2)=xce(k,2)-one6th*x(k)*(
      &           df1/x(k)+df2/(x(k)+df3)+df4*xx*(2.0d0*x(k)+bf)
      &          +df5/((x(k)+df6)**2+df7) )
-  130 continue
+  130 end do
+!$OMP END DO
 
 *     ferromagnetic exchange-energy & potential
+!$OMP DO
       do 140 k=1,ng
         xce(k,2)=xce(k,2)+(xf/x(k)**2)
         xcp(k,2)=xcp(k,2)+for3rd*(xf/x(k)**2)
-  140 continue
+  140 end do
+!$OMP END DO
 
 *     spin polarized exchange-correlation potential
+!$OMP DO
       do 150 k=1,ng
         rho=dn(k,1)+dn(k,ispin)+dncut
         zup=2.0d0*dn(k,1)/rho
@@ -115,7 +128,8 @@ c        rho=dn(k,1)+dn(k,ispin)+dncut
         xcp(k,2)=xcp(k,1)-zup*df
         xcp(k,1)=xcp(k,1)+zdw*df
         xce(k,1)=xce(k,1)+f*(xce(k,2)-xce(k,1))
-  150 continue
+  150 end do
+!$OMP END DO
 
   200 continue
 

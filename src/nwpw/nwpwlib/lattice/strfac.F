@@ -571,9 +571,11 @@ c      end do
       complex*16 ex1(*),ex2(*),ex3(*),exi(*)
 
       integer i,j,k,indx
+!$OMP DO
       do indx=1,npack
         exi(indx) = ex1(indxi(indx))*ex2(indxj(indx))*ex3(indxk(indx))
       end do
+!$OMP END DO
       return
       end
 
