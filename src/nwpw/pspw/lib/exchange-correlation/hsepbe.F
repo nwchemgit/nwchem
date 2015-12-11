@@ -431,6 +431,7 @@ c     **** local variables ****
       rs_scale   = (0.75d0/pi)**onethird
       fdnx_const = -3.0d0/(8.0d0*pi)
       
+!$OMP DO
       do i=1,n2ft3d
          n     = rho_in(i)+ETA
          agr   = agr_in(i)
@@ -518,6 +519,7 @@ c       write(*,*) "pbe96:",i,ec,fnc,fdnc
 
 
       end do
+!$OMP END DO
 
       return
       end
@@ -677,6 +679,7 @@ c     **** local variables ****
       fdnx_const = -3.0d0/(8.0d0*pi)
 
       
+!$OMP DO
       do i=1,n2ft3d
          nup     = dn_in(i,1)+ETA
          agrup   = agr_in(i,1)
@@ -891,6 +894,7 @@ c        ********************************************
          fdn(i,3) = c_parameter*t_agr*Hpbe_t
 
       end do
+!$OMP END DO
       
       
       

@@ -1250,20 +1250,29 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
       if (.not.BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
      > call errquit('grad_v_lr_local:out of stack memory',0, MA_ERR)
 
-      call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
+c      call dcopy(3*nion,0.0d0,0,dbl_mb(ftmp(1)),1)
+      call Parallel_shared_vector_zero(.true.,3*nion,dbl_mb(ftmp(1)))
       if (psp_fmm) then
-         call dcopy((psp_fmm_lmax+1)**2,0.0d0,0,
-     >              dbl_mb(psp_fmm_Mlm(1)),1)
-         lm = 0
-         do l=0,psp_fmm_lmax
-         do m=-l,l
+c         call dcopy((psp_fmm_lmax+1)**2,0.0d0,0,
+c     >              dbl_mb(psp_fmm_Mlm(1)),1)
+         call Parallel_shared_vector_zero(.true.,
+     >                                    (psp_fmm_lmax+1)**2,
+     >                                    dbl_mb(psp_fmm_Mlm(1)))
+         !lm = 0
+         !do l=0,psp_fmm_lmax
+         !do m=-l,l
+!$OMP DO
+         do lm=0,(psp_fmm_lmax+1)**2-1
+            !lm = l*l+l+m
             do i=1,n2ft3d_map
                dbl_mb(psp_fmm_Mlm(1)+lm) = dbl_mb(psp_fmm_Mlm(1)+lm) 
      >            + dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)*rho(i)
             end do
-            lm = lm + 1
          end do
-         end do
+!$OMP END DO
+            !lm = lm + 1
+         !end do
+         !end do
          call D3dB_Vector_SumAll((psp_fmm_lmax+1)**2,
      >                           dbl_mb(psp_fmm_Mlm(1)))
          call FMM_fion_Mlm(psp_fmm_lmax,ion_nion(),
@@ -1278,6 +1287,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,fterf,verf
 
       if (control_fast_erf()) then
 
+!$OMP DO
       do j=1,nion
          if (mod(j-1,np_j).eq.taskid_j) then
             ia=ion_katm(j)
@@ -1320,9 +1330,11 @@ c                 verf = util_erf(yerf)
             end if
          end if
       end do
+!$OMP END DO
 
       else
 
+!$OMP DO
       do j=1,nion
        
          if (mod(j-1,np_j).eq.taskid_j) then
@@ -1377,11 +1389,19 @@ c         fion(3,j) = fion(3,j) - fz*dv
             end if
          end if
       end do
+!$OMP END DO
 
       end if
 
       call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
-      call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+c      call daxpy(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+!$OMP DO
+      do j=1,nion
+         fion(1,j) = fion(1,j) + dbl_mb(ftmp(1)+3*(j-1))
+         fion(2,j) = fion(2,j) + dbl_mb(ftmp(1)+3*(j-1)+1)
+         fion(3,j) = fion(3,j) + dbl_mb(ftmp(1)+3*(j-1)+2)
+      end do
+!$OMP END DO
 
       if (.not.BA_pop_stack(ftmp(2)))
      > call errquit('grad_v_lr_local:popping stack',1,MA_ERR)
@@ -1444,7 +1464,8 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
       call D3dB_n2ft3d_map(1,n2ft3d_map)
 
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
-      call dcopy(n2ft3d,0.0d0,0,vlr_out,1)
+      !call dcopy(n2ft3d,0.0d0,0,vlr_out,1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d,vlr_out)
 
       if (psp_fmm) then
          call FMM_rion_Llm(psp_fmm_lmax,ion_nion(),
@@ -1453,6 +1474,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
      >                     dbl_mb(psp_zv_ptr()),
      >                     psp_fmm_rmax2,
      >                     dbl_mb(psp_fmm_Llm(1)))
+!$OMP DO
          do i=1,n2ft3d_map
             lm = 0
             do l=0,psp_fmm_lmax
@@ -1464,6 +1486,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
             end do
             end do
          end do
+!$OMP END DO
       end if
 
       if (control_fast_erf()) then
@@ -1479,6 +1502,7 @@ c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
             q = -psp_zv(ia)
             c = 1.0d0/psp_rlocal(ia)
 
+!$OMP DO
             do i=1,n2ft3d_map
                r = dsqrt( (r_grid(1,i)-x)**2
      >                  + (r_grid(2,i)-y)**2
@@ -1496,6 +1520,7 @@ c                 yerf = util_erf(xerf)
                  vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
                end if
             end do
+!$OMP END DO
             end if
 
          end if
@@ -1515,6 +1540,7 @@ c                 yerf = util_erf(xerf)
             q = -psp_zv(ia)
             c = 1.0d0/psp_rlocal(ia)
 
+!$OMP DO
             do i=1,n2ft3d_map
                r = dsqrt( (r_grid(1,i)-x)**2
      >                  + (r_grid(2,i)-y)**2
@@ -1528,6 +1554,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
                  vlr_out(i) = vlr_out(i) + 2.0d0*q*c/sqrt_pi
                end if
             end do
+!$OMP END DO
             end if
 
          end if
@@ -1600,10 +1627,12 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
          G(1)  = Pack_G_indx(0,1)
          G(2)  = Pack_G_indx(0,2)
          G(3)  = Pack_G_indx(0,3)
-         call dcopy(3*nion,0.0d0,0,fion,1)
+         !call dcopy(3*nion,0.0d0,0,fion,1)
+         call Parallel_shared_vector_zero(.false.,3*nion,fion)
       end if
 
-      call dcopy((2*npack0),0.0d0,0,vl_out,1)
+      !call dcopy((2*npack0),0.0d0,0,vl_out,1)
+      call Parallel_shared_vector_zero(.true.,2*npack0,vl_out)
       do ii=1,nion
     
           if (mod(ii-1,np_j).eq.taskid_j) then
@@ -2160,7 +2189,9 @@ c           end do
 
 
 *     **** do Kleinman-Bylander Multiplication ****
+!$OMP SINGLE
       call dscal(nn*n_prj_indx,scal,dbl_mb(sw2a(1)),1)
+!$OMP END SINGLE
 
 *     **** apply the sw2 to psi ****
       jp  = 0
@@ -2205,6 +2236,7 @@ c           end do
 
 *              ***** scale (sw2a) psp by factor - used for generating antiferromagnetic structures ****
 *              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
+!$OMP SINGLE
                if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
@@ -2219,12 +2251,13 @@ c           end do
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw2a(1)+(swstart+l1)*nn+ne(1)),1)
                end if
+!$OMP END SINGLE
 
                l1 = l1 + 1
             end do
          end do
 
-         call DGEMM('N','T',2*npack1,nn,l1,
+         call DGEMM_OMP('N','T',2*npack1,nn,l1,
      >             (-1.0d0),
      >             dcpl_mb(prjtmp(1)), 2*npack1,
      >             dbl_mb(sw2a(1)+swstart*nn),   nn,
@@ -2257,6 +2290,7 @@ c           end do
 
                  !**** fractional weighting ****
                  if (fractional) then
+!$OMP DO
                   do n=1,nn
                    call Dneall_qton(n,i)
                    dbl_mb(sum(1)+3*(n-1))  
@@ -2266,18 +2300,23 @@ c           end do
                    dbl_mb(sum(1)+2+3*(n-1))
      >                =dbl_mb(sum(1)+2+3*(n-1))*occ(i)
                   end do
+!$OMP END DO
                  end if
  
+!OMP SINGLE
                  ff(1) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)),3)
                  ff(2) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)+1),3)
                  ff(3) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)+2),3)
+!OMP END SINGLE
                  call D1dB_Vector_SumAll(3,ff)
+!$OMP SINGLE
                  fion(1,ii) = fion(1,ii)  + ff(1)*(3-ispin)
                  fion(2,ii) = fion(2,ii)  + ff(2)*(3-ispin)
                  fion(3,ii) = fion(3,ii)  + ff(3)*(3-ispin)
+!$OMP END SINGLE
 
                  l1 = l1 + 1
               end do !** l **
@@ -2325,26 +2364,45 @@ c           end do
       real*8  sw2(nn,nprj)
 
       !**** local variables ****
-      integer a,b,na,nb,la,lb,ma,mb
+      integer a,b,na,nb,la,lb,ma,mb,ab
       
 
-      call dcopy(nn*nprj,0.0d0,0,sw2,1)
-      do b=1,nprj
+      !call dcopy(nn*nprj,0.0d0,0,sw2,1)
+      call Parallel_shared_vector_zero(.true.,nn*nprj,sw2)
+!$OMP DO
+      do ab=0,(nprj*nprj-1)
+         a = mod(ab,nprj)
+         b = (ab-a)/nprj
+         a = a+1
+         b = b+1
+         la = l_prj(a)
          lb = l_prj(b)
+         ma = m_prj(a)
          mb = m_prj(b)
-
-         do a=1,nprj
-            la = l_prj(a)
-            ma = m_prj(a)
-
-            if ((la.eq.lb).and.(ma.eq.mb)) then
-              na = n_prj(a)
-              nb = n_prj(b)
-              call daxpy(nn,G(nb,na,la),sw1(1,a),1,sw2(1,b),1)
-            end if
-
-         end do
+         if ((la.eq.lb).and.(ma.eq.mb)) then
+            na = n_prj(a)
+            nb = n_prj(b)
+            call daxpy(nn,G(nb,na,la),sw1(1,a),1,sw2(1,b),1)
+         end if
       end do
+!$OMP END DO
+
+c      do b=1,nprj
+c         lb = l_prj(b)
+c         mb = m_prj(b)
+c
+c         do a=1,nprj
+c            la = l_prj(a)
+c            ma = m_prj(a)
+c
+c            if ((la.eq.lb).and.(ma.eq.mb)) then
+c              na = n_prj(a)
+c              nb = n_prj(b)
+c              call daxpy(nn,G(nb,na,la),sw1(1,a),1,sw2(1,b),1)
+c            end if
+c
+c         end do
+c      end do
       return
       end
 

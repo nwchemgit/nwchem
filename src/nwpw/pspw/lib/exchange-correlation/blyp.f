@@ -91,6 +91,7 @@
       lda_c =(3.0d0/2.0d0)*(3.0d0/(4.0d0*pi))**(1.0d0/3.0d0)
 
 
+!$OMP DO
       do j=1,n2ft3d
        nup     = dn_in(j,1) + 0.5d0*ETA2 
        ndn     = dn_in(j,2) + 0.5d0*ETA2 
@@ -364,6 +365,7 @@ c       write(*,*)
 
 
       end do
+!$OMP END DO
       return
       end
 
@@ -455,6 +457,7 @@ c       write(*,*)
 
 
 
+!$OMP DO
       do i=1,n2ft3d
        n        = rho_in(i) + ETA
        agr      = agr_in(i)
@@ -564,5 +567,6 @@ c       write(*,*)
        fdn(i) 	= x_parameter*fdagrx + c_parameter*fdagrc
 
       end do
+!$OMP END DO
       return
       end

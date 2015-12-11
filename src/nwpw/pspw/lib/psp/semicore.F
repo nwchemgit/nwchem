@@ -224,7 +224,8 @@ c     logocal semicore(0:nkatmx)
      >  call errquit('semicore_density_update: push stack',0, MA_ERR)
 
       
-      call dcopy(n2ft3d, 0.0d0,0, dbl_mb(dncore(1)),1)
+c      call dcopy(n2ft3d, 0.0d0,0, dbl_mb(dncore(1)),1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(dncore(1)))
       do ii=1,ion_nion()
         ia=ion_katm(ii)
 
@@ -380,7 +381,9 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       integer n2ft3d
 
       call D3dB_n2ft3d(1,n2ft3d)
-      call dcopy(n2ft3d,dbl_mb(dncore(1)),1,dns,1)
+c      call dcopy(n2ft3d,dbl_mb(dncore(1)),1,dns,1)
+      call Parallel_shared_vector_copy(.true.,n2ft3d,
+     >                                 dbl_mb(dncore(1)),dns)
       return
       end
 

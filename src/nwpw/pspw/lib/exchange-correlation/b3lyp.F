@@ -139,6 +139,7 @@ c*------------------------------------------------------*
       AA = 2.0d0**thrd-1.0d0
 
 
+!$OMP DO
       do j=1,n2ft3d
        nup     = dn_in(j,1) + 0.5d0*ETA2 
        ndn     = dn_in(j,2) + 0.5d0*ETA2 
@@ -455,6 +456,7 @@ c       write(*,*)
      >                     + c_parameter*0.19d0*fncdn_vosko
    
       end do
+!$OMP END DO
       return
       end
 
@@ -580,6 +582,7 @@ c*------------------------------------------------------*
 
 
 
+!$OMP DO
       do i=1,n2ft3d
        n        = rho_in(i) + ETA
        agr      = agr_in(i)
@@ -709,5 +712,6 @@ c       write(*,*)
        fn(i)  = fn(i)  + x_parameter*0.10d0*fnx_dirac   
      >                 + c_parameter*0.19d0*fnc_vosko
       end do
+!$OMP END DO
       return
       end

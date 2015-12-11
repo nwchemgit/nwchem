@@ -680,6 +680,7 @@ c          r = (i-1)*drho
       external lattice_unita,lattice_omega
 
 
+!$OMP MASTER
 *     **** constants ****
       call Parallel_taskid(taskid)
       call D3dB_nfft3d(1,nfft3d)
@@ -745,6 +746,8 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       call dplot_gcube_write(rtdb,"kernel.cube",0,
      >          "Screened Coulomb KERNEL",vc)
 
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 

@@ -231,7 +231,9 @@ c     real*8     fion(3,natmx)
       do it=1,it_in
 
 
-!$OMP PARALLEL
+!$OMP PARALLEL private(tid,nthreads)
+      tid      = Parallel_threadid()
+      nthreads = Parallel_nthreads()
 
         call Pack_c_nCopy(1,nemax,psi2,psi1)
 
@@ -260,20 +262,22 @@ c       these two functions are now threadsafe/multithreaded
 
 !$OMP DO private(n)
         do n=n1(1),n2(ispin)
-           call Pack_c_Copy(1,psi1(1,n),psi_r(1,n))
+           call Pack_c_Copy0(1,psi1(1,n),psi_r(1,n))
         end do
 !$OMP END DO
 
+
         call Grsm_gh_fftb(nfft3d,n2(ispin),psi_r)
+
 
         call nwpw_timing_end(44)
 
 !$OMP DO private(n)
         do n=n1(1),n2(ispin)
-           call D3dB_r_Zero_Ends(1,psi_r(1,n))
+           call D3dB_r_Zero_Ends0(1,psi_r(1,n))
         end do
 !$OMP END DO
-!$OMP END PARALLEL
+
 
 c       this function calls non pipelined 3d fft
         call nwpw_meta_gga_gen_tau(ispin,ne,psi1)
@@ -282,39 +286,39 @@ c       this function calls non pipelined 3d fft
 *       *********************
 *       **** generate dn ****
 *       *********************
-        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
-        !call D3dB_r_nZero(1,ispin,dn)
+c        call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
+        call Parallel_shared_vector_zero(.true.,ispin*n2ft3d,dn)
         if (fractional) then
           do ms=1,ispin
              do n=n1(ms),n2(ms)
+!$OMP DO private(i)
                 do i=1,n2ft3d
                    dn(i,ms) = dn(i,ms) 
      >                      + scal2*(psi_r(i,n)**2)
      >                       *occ1(n)
                 end do
+!$OMP END DO
              end do
-             call D3dB_r_Zero_Ends(1,dn(1,ms))
-             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
+             !call D3dB_r_Zero_Ends(1,dn(1,ms))
+             !call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         else
           do ms=1,ispin
              do n=n1(ms),n2(ms)
+!$OMP DO private(i)
                 do i=1,n2ft3d
                    dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
                 end do
+!$OMP END DO
              end do
-             call D3dB_r_Zero_Ends(1,dn(1,ms))
-             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
+             !call D3dB_r_Zero_Ends(1,dn(1,ms))
+             !call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         end if
+        call D1dB_Vector_SumAll(ispin*n2ft3d,dn)
 
 
-        !exc = 0.0d0
-        !do i=1,n2ft3d
-        !  exc = exc + dn(i,2)
-        !end do
-        !call D3dB_SumAll(exc)
-        !write(*,*) "dnall=",exc*dv
+
 
 *       **********************
 *       **** generate dng ****
@@ -336,7 +340,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
            call semicore_density(dcpl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
         else
-           !call dcopy(n2ft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
            call D3dB_r_Zero(1,dcpl_mb(tmp1(1)))
         end if
         do ms=1,ispin
@@ -347,20 +350,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         
         call nwpw_timing_end(11)
 
-c
-c NOT NEEDED- moved to nonlocal psp
-c
-c*       **************************
-c*       **** update ncmp*Vloc ****
-c*       **************************
-c        if (psp_pawexist().and.(it.eq.1))
-c     >     call psp_dE_ncmp_vloc_Qlm(ispin,.false.,dbl_mb(fion(1)))
-c
-
-*       *****************************************
-*       **** generate local pseudopotential  ****
-*       **** and also get force if move true ****
-*       *****************************************
 
 !MATHIAS We might be able to add some parallelism between ions in that function 
         call v_local(dcpl_mb(vl(1)),
@@ -389,6 +378,7 @@ c
 
         if (control_version().eq.4) 
      >     call coulomb2_v(dbl_mb(rho(1)),dbl_mb(vc(1)))
+
 
         call nwpw_timing_start(46)
 *       *************************************************
@@ -427,6 +417,7 @@ c
 *       ******************
 *       **** get Hpsi ****
 *       ******************
+!$OMP END PARALLEL
         if (control_version().eq.3) 
      >     call psi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
@@ -442,6 +433,7 @@ c
      >             move,dbl_mb(fion(1)),fractional,occ1)
 
         call nwpw_timing_end(47)
+
         
 *       ************************************
 *       **** do a steepest descent step ****

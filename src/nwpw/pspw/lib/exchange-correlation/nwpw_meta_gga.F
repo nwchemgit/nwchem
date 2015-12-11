@@ -117,6 +117,7 @@
       external lattice_omega
 
 
+!$OMP MASTER
       if (meta_on) then 
       n1(1) = 1
       n2(1) = neq(1)
@@ -167,6 +168,8 @@
 
 
       end if
+
+!$OMP END MASTER
       return
       end
 

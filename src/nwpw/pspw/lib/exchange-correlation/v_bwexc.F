@@ -83,8 +83,10 @@ c        *****                          agr,fn,fdn      *****
      >        BA_push_get(mt_dbl, 2*n2ft3d,'fdn',fdn(2),fdn(1))
         tmp(1) = fdn(1)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rho(1)),1)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(agr(1)),1)
+      !call dcopy(n2ft3d,0.0d0,0,dbl_mb(rho(1)),1)
+      !call dcopy(n2ft3d,0.0d0,0,dbl_mb(agr(1)),1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(agr(1)))
+      call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(rho(1)))
 
 
 
@@ -119,27 +121,19 @@ c        ***** calculate agr = |grad n| ****
          call D3dB_rr_Sqr(1,dbl_mb(gry(1)),
      >                      dbl_mb(tmp(1)))
 
-c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-c     >                      dbl_mb(agr(1)),
-c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
          call D3dB_rr_Sqr(1,dbl_mb(grz(1)),
      >                      dbl_mb(tmp(1)))
 
-c         call D3dB_rr_Sum(1,dbl_mb(tmp(1)),
-c     >                      dbl_mb(agr(1)),
-c     >                      dbl_mb(agr(1)))
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
-c         use_nwxc = .false.
-c         if (util_module_avail("nwxc")) then
-c           use_nwxc = nwxc_is_on()
-c         endif
          if (use_nwxc) then
+!$OMP SINGLE
            call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
+!$OMP END SINGLE
 c
 c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
@@ -148,15 +142,15 @@ c
 c
 c          Calculate energy density from energy
 c
+!$OMP DO
            do k = 1, n2ft3d
              xce(k) = xce(k)/(dbl_mb(rho(1)-1+k)+dncut)
            enddo
+!$OMP END DO
            call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
            call D3dB_rr_Mul2(1,dbl_mb(agr(1)),dbl_mb(fdn(1)))
          else
            call D3dB_rr_Sqrt1(1,dbl_mb(agr(1)))
-c         call D3dB_rr_Sqrt(1,dbl_mb(agr(1)),
-c     >                       dbl_mb(agr(1)))
 
 c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
          if (gga.eq.10) then
@@ -352,9 +346,12 @@ c        *****                          agr,fn,fdn      *****
         fdn(3) = xfdn(1) + 2*n2ft3d
         tmp(1) = xfdn(1)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoup(1)),1)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhodn(1)),1)
-      call dcopy(3*n2ft3d,0.0d0,0,dbl_mb(xagr(1)),1)
+c      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoup(1)),1)
+c      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhodn(1)),1)
+c      call dcopy(3*n2ft3d,0.0d0,0,dbl_mb(xagr(1)),1)
+      call Parallel_shared_vector_zero(.false.,3*n2ft3d,dbl_mb(xagr(1)))
+      call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(rhodn(1)))
+      call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(rhoup(1)))
 
 c        ***** calculate rhoup  ****
          call D3dB_r_Copy(1,dn(1,1),dbl_mb(rhoup(1)))
@@ -508,15 +505,19 @@ c
 c
 c          Evaluate the functional
 c
+!$OMP SINGLE
            call nwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
+!$OMP END SINGLE
 c
 c          Replace f with the energy density f/n
 c
+!$OMP DO
            do k = 1, n2ft3d
              xce(k) = xce(k)/(dn(k,1)+dn(k,2)+dncut)
-           enddo
+           end do
+!$OMP END DO
 c          
 c          Replace (df/d|grad nup|^2) with (df/d|grad nup|)
 c
@@ -536,10 +537,16 @@ c
 c
 c          Put the results back into fdn
 c
-           call dcopy(n2ft3d,dbl_mb(gtmp(1)+n2ft3d),1,
-     +                       dbl_mb(fdn(2)),1) 
-           call dcopy(n2ft3d,dbl_mb(gtmp(1)+2*n2ft3d),1,
-     +                       dbl_mb(fdn(3)),1) 
+c           call dcopy(n2ft3d,dbl_mb(gtmp(1)+n2ft3d),1,
+c     +                       dbl_mb(fdn(2)),1) 
+c           call dcopy(n2ft3d,dbl_mb(gtmp(1)+2*n2ft3d),1,
+c     +                       dbl_mb(fdn(3)),1) 
+           call Parallel_shared_vector_copy(.false.,n2ft3d,
+     >                                      dbl_mb(gtmp(1)+n2ft3d),
+     >                                      dbl_mb(fdn(2)))
+           call Parallel_shared_vector_copy(.true.,n2ft3d,
+     >                                      dbl_mb(gtmp(1)+2*n2ft3d),
+     >                                      dbl_mb(fdn(3)))
 c
          else
 c        ***** calculate xce,fn=(df/dnup,df/dndn) and               ****

@@ -364,9 +364,6 @@ c     *** Expand the density ***
 
 c     **** Convolution g*dn ****
       call D3dB_rc_fft3f(2,dcpl_mb(tmpx(1)))
-c      call D3dB_tc_Mul(2,dbl_mb(gk(1)),
-c     >                   dcpl_mb(tmpx(1)),
-c     >                   dcpl_mb(tmpx(1)))
       call D3dB_tc_Mul2(2,dbl_mb(gk(1)),dcpl_mb(tmpx(1)))
       call D3dB_cr_fft3b(2,dcpl_mb(tmpx(1)))
 

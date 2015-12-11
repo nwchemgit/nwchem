@@ -519,8 +519,10 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
       if (.not.value) 
      > call errquit('v_local_seperate_paw:out of stack',0,MA_ERR)
 
-      call dcopy((2*npack0),0.0d0,0,vl_paw,1)
-      call dcopy((2*npack0),0.0d0,0,vl_notpaw,1)
+      !call dcopy((2*npack0),0.0d0,0,vl_paw,1)
+      !call dcopy((2*npack0),0.0d0,0,vl_notpaw,1)
+      call Parallel_shared_vector_zero(.false.,2*npack0,vl_paw)
+      call Parallel_shared_vector_zero(.true., 2*npack0,vl_notpaw)
 
       do ii=1,nion
     
@@ -3932,8 +3934,11 @@ c     >                                   dbl_mb(wtmp(1)))
       n1(2) = ne(1)+1
       n2(2) = ne(1)+ne(2)
 
-      call dcopy(ispin*nprj*nprj,0.0d0,0,wmatrix,1)
+      !call dcopy(ispin*nprj*nprj,0.0d0,0,wmatrix,1)
+      call Parallel_shared_vector_zero(.true.,ispin*nprj*nprj,wmatrix)
+!$OMP DO 
       do j=1,nprj
+         icount = j-1
          if (mod(icount,np_i).eq.taskid_i) then
             do ms=1,ispin
             do n=n1(ms),n2(ms)
@@ -3942,9 +3947,9 @@ c     >                                   dbl_mb(wtmp(1)))
             end do
          end if
          icount = icount + 1
-      end do
+      !end do
 
-      do j=1,nprj
+      !do j=1,nprj
          do i=j+1,nprj
             if (mod(icount,np_i).eq.taskid_i) then
                do ms=1,ispin
@@ -3958,6 +3963,7 @@ c     >                                   dbl_mb(wtmp(1)))
             icount = icount + 1
          end do
       end do
+!$OMP END DO
       !call D1dB_Vector_SumAll(ispin*nprj*nprj,wmatrix)
       call Parallel_Vector_SumAll(ispin*nprj*nprj,wmatrix)
 

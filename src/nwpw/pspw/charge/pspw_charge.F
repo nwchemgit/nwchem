@@ -581,6 +581,7 @@ c
               y1 = dbl_mb(r1(1)+3*(ii-1)+1)
               z1 = dbl_mb(r1(1)+3*(ii-1)+2)
               q1 = dbl_mb(charge(1)+ii-1)
+!$OMP DO
               do k=1,n2ft3d
                 r = (rgrid(1,k)-x1)**2
      >            + (rgrid(2,k)-y1)**2
@@ -588,6 +589,7 @@ c
                 r = dsqrt(r)
                 Vqm(k) = Vqm(k) - q1/r
               end do
+!$OMP END DO
            end do   
 
 *        **** switching charge potential **** 
@@ -597,6 +599,7 @@ c
               y1 = dbl_mb(r1(1)+3*(ii-1)+1)
               z1 = dbl_mb(r1(1)+3*(ii-1)+2)
               q1 = dbl_mb(charge(1)+ii-1)
+!$OMP DO
               do k=1,n2ft3d
                 r = (rgrid(1,k)-x1)**2
      >            + (rgrid(2,k)-y1)**2
@@ -614,6 +617,7 @@ c
 
                 Vqm(k) = Vqm(k) - epsilon*q1*util_erf(r/s_sigma)/r
               end do
+!$OMP END DO
            end do   
 
 *        **** short-range repulsion ****
@@ -631,6 +635,7 @@ c
               !rc1 = abs(q1)*rc**p1
               rc1 = rc**p1
               rc2 = rc**p2
+!$OMP DO
               do k=1,n2ft3d
                  r2 = (rgrid(1,k)-x1)**2
      >              + (rgrid(2,k)-y1)**2
@@ -643,6 +648,7 @@ c
 
                  Vqm(k) = Vqm(k) - q1*(ttt/sss)
               end do
+!$OMP END DO
            end do   
            !call sub_coulomb_screened_init_print(Vqm,1.0d0,q1)
 
@@ -659,9 +665,15 @@ c
      >             BA_push_get(mt_dcpl,npack0,'tmp',tmp(2),tmp(1))
            if (.not.value) call errquit('out of stack memory',0,MA_ERR)
 
-           call dcopy(n2ft3d,0.0d0,0,Vqm,1)
-           call dcopy(2*npack0,0.0d0,0,dcpl_mb(tmp(1)),1)
-           call dcopy(2*npack0,0.0d0,0,dcpl_mb(exi(1)),1)
+           !call dcopy(n2ft3d,0.0d0,0,Vqm,1)
+           !call dcopy(2*npack0,0.0d0,0,dcpl_mb(tmp(1)),1)
+           !call dcopy(2*npack0,0.0d0,0,dcpl_mb(exi(1)),1)
+           call Parallel_shared_vector_zero(.false.,n2ft3d,Vqm)
+           call Parallel_shared_vector_zero(.false.,2*npack0,
+     >                                      dcpl_mb(tmp(1)))
+           call Parallel_shared_vector_zero(.true.,2*npack0,
+     >                                      dcpl_mb(exi(1)))
+
            do ii=1,nion
              q1 = -dbl_mb(charge(1)+ii-1)
              call qstrfac_pack(0,ii,dcpl_mb(exi(1)))
@@ -683,7 +695,7 @@ c     >                                              dcpl_mb(tmp(1)))
      >     call errquit('pspw_charge_Generate_V:poppingstack memory',0,
      >       MA_ERR)
 
-           call sub_coulomb_screened_init_print(Vqm,1.0d0,q1)
+           !call sub_coulomb_screened_init_print(Vqm,1.0d0,q1)
 
 
          end if
