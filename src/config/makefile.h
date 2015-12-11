@@ -1770,13 +1770,11 @@ endif
          ifdef USE_OPENMP
            FOPTIONS += -qopenmp
            FOPTIONS += -qopt-report-phase=openmp
-           COPTIONS += -qopenmp
            DEFINES+= -DUSE_OPENMP 
          else
 	   ifeq ($(_IFCV15ORNEWER), Y)
            else
            FOPTIONS += -qno-openmp
-           COPTIONS += -qno-openmp
            endif
          endif		   
 	   else
