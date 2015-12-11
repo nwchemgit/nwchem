@@ -21,15 +21,15 @@ c     compute no. of 3-ctr integrals non null
 c     according to Schwarz screening
 c
       integer me,nproc,ishc,ifirstc,ilastc,nshbfc,ishd,
-     &        ifirstd,ilastd,nshbfd,mxcebf_ao,
-     &        nao2_max,icount
+     &        ifirstd,ilastd,nshbfd,mxcebf_ao
       integer maxg, mscratch_2e3c
       integer itype,nprimo,isphere
       integer sh_lo_d, sh_hi_d, atom_d
       integer sh_lo_c, sh_hi_c, atom_c
-      double precision THRESHOLD,ERI_est,n3,ischw1,batch_max
+      double precision THRESHOLD,ERI_est,n3,ischw1
       double precision imb_fact
-      logical oprint_3c2e,spherical_ao,spherical_cd
+      logical oprint_3c2e,spherical_ao,spherical_cd,
+     C     oprint_3c2eh
       double precision dbldum
       integer intdum,ndone
       integer n_batch, n_bmax
@@ -37,6 +37,7 @@ c
       external dft_nao2_max
 c
       oprint_3c2e = util_print('3c 2e integrals', print_default)
+      oprint_3c2eh = util_print('3c 2e integrals details', print_high)
       THRESHOLD=10.d0**(-itol2e)
       nproc=ga_nnodes()
       spherical_ao=bas_spherical(ao_bas_han)
@@ -106,8 +107,6 @@ c
       enddo
       ischw1 = ischw1*nbf_cd
 c      
-      nao2_max = dft_nao2_max(ao_bas_han,ncenters)
-      batch_max = dble(nao2_max)*dble(nbf_cd)
 c
 c     Define n3 = maximum number of 3 center 2e- integrals. 
 c
@@ -117,15 +116,16 @@ c     Define dft_n3cdbl=total number of non-zero 3 center 2e- ints.
 c
       dft_n3cdbl=min(ischw1,n3)
 c
-c     Redefine dft_n3cdbl=buffer size of 3 center 2e- integrals per 
+c     Redefine dft_n3cdbl=buffer size of 3 center 2e- integrals 
 c
       call dft_getcdt(.true.,ndone,
      N     ncenters, 1, .false., threshold, .true.,
      N     intdum, 100000000, intdum,
      &     intdum, dbldum,
      T     dbldum, intdum)
-
-      write(6,*) ga_nodeid(),' ndone ',ndone
+      if(oprint_3c2eh) then
+         write(6,*) ga_nodeid(),' ndone ',ndone
+      endif
       dft_n3cdbl = ndone
 
 c
@@ -134,12 +134,11 @@ c
          call util_print_centered
      &      (LuOut,'3 Center 2 Electron Integral Information',25,.true.)
          write(LuOut,1111)n3, ischw1, 
-     D        dft_n3cdbl, int(batch_max)
+     D        dft_n3cdbl
       endif
  1111 format(10x,'Maximum number of 3-center 2e- integrals is:',f17.0,
      &     /,10x,'  This is reduced with Schwarz screening to:',f17.0,
-     &     /,10x,'  Incore requires a per proc buffer size of:',f17.0,
-     &     /,10x,'        The minimum integral buffer size is: ',i15)
+     &     /,10x,'  Incore requires a per proc buffer size of:',f17.0)
 c      
       return
       end
@@ -167,12 +166,14 @@ c
 c       Allow for some load-imbalance (factor of 2).
 c
         dft_n3cint = ncenters*(ncenters+1)/nproc
-        if(ga_nodeid().eq.0)
-     C       write(6,*) ' dft_n3cint0 ',dft_n3cint, ' nctr0 ',ncenters
         dft_n3cint = dft_n3cint*2
         dft_n3cint=max(dft_n3cint,ncenters)
-        if(ga_nodeid().eq.0)
+#ifdef DEBUG
+        if(ga_nodeid().eq.0) then
+     C       write(6,*) ' dft_n3cint0 ',dft_n3cint, ' nctr0 ',ncenters
      C       write(6,*) ' dft_n3cint ',dft_n3cint, ' nctr ',ncenters
+        endif
+#endif
       else
          dft_n3cint = ncenters*(ncenters+1)
       endif

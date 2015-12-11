@@ -31,7 +31,7 @@
       integer dft_nao2_max
       external dft_n3cdbl,dft_nao2_max
       double precision n3c_dbl_r,n3c_dbl_max
-      integer nao2_max,batch_max
+      integer nao2_max
       integer nshpair_sum
       integer me,nproc,icount
       integer maxg,scrmx
@@ -133,29 +133,16 @@ c
 
       n3c_dbl = min(availm_r,n3c_dbl_r)
       if (me.eq.0 .and. oprint_parm)
-     &     write(LuOut,3228)avail, availm, n3c_dbl,n3c_int
+     &     write(LuOut,3228)avail, availm, 
+     N     n3c_dbl,nint(n3c_dbl_max),n3c_int
       
       if(deficit.ne.0.and.me.eq.0) write(luout,3230) deficit
 c     
 c     Loops are parallelized over the products of atoms
 c     (check for zero ... must be at least 1).
 c     
-      icount = (natoms + mod(natoms,2))/(2*nproc)
-      icount = max(icount,1)
-      if (nproc.eq.1)icount = 1
-c     
-cold      nao2_max = nbf_ao_mxnbf_ce**2
-      spherical_ao=bas_spherical(ao_bas_han)
-      nao2_max=dft_nao2_max(ao_bas_han,natoms)
 
-
-c     
-c     compute size of largest block of integrals computed
-c     
-      batch_max = nao2_max*nbf_cd*icount
-      batch_max=0
-
-      if ((n3c_dbl.lt.batch_max).or.direct)then
+      if (direct)then
          dft_mem3c = .false.
          n3c_dbl = 1
          n3c_int = 1
@@ -176,7 +163,8 @@ c     if(me.eq.0) call MA_summarize_allocated_blocks()
          return
  3228 format(10x,'Minimum dble words available (all nodes) is: ',i15,
      &     /,10x,'         This is reduced (for later use) to: ',i15,
-     &     /,10x,'                   Suggested buffer size is: ',i15,
+     &     /,10x,'            proc 0 Suggested buffer size is: ',i15,
+     &     /,10x,'               Max Suggested buffer size is: ',i15,
      &     /,10x,'                    no. integral batches is: ',i15)
 
  3230 format(/7x,
