@@ -13,6 +13,7 @@
 #include "basP.fh"
 #include "bas.fh"
 #include "rtdb.fh"
+#include "util.fh"
       integer rtdb   ! [in]
       integer natoms ! [in]
       integer npol ! [in]
@@ -142,7 +143,7 @@ c     Loops are parallelized over the products of atoms
 c     (check for zero ... must be at least 1).
 c     
 
-      if (direct)then
+      if (direct.or.(deficit.ne.0))then
          dft_mem3c = .false.
          n3c_dbl = 1
          n3c_int = 1
