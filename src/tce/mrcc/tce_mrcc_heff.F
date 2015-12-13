@@ -1275,9 +1275,9 @@ c ------
      1 dvalue = 0.0d0
           if(dvalue.lt.0.0d0) then
             if(abs(vr(i,j)).lt.abs(dvalue))
-     1     dsum = dsum + abs(dvalue)*abs(vr(i,j))
+     1     dsum = dsum + (dvalue)*(vr(i,j))
           else
-           dsum = dsum + abs(dvalue)*abs(vr(i,j))
+           dsum = dsum + (dvalue)*(vr(i,j))
           endif
         enddo
 c            write(6,"('SUM:',I4,4F16.12)")j,
