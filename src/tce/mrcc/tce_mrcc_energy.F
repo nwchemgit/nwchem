@@ -164,7 +164,13 @@ ckbn      double precision pt3_off2m(maxref*maxref)
       integer itype,idim1, idim2(4)
       integer tg_heff, ngheff, dg_heff
       integer sub_test
-
+c =========== USS variables ===============
+      logical lussd,lap_uss
+      double precision dbwcorr,dbwcorrf,dbwcorrf2,dbwcorr1,dbwuss
+      integer d_r1d(maxref), d_r2xy(maxref),d_corr1
+      double precision dsmult
+      integer signfact
+c =========================================
 c      logical lusesamefock
 c (t)
 c PNNL: new variables
@@ -293,6 +299,12 @@ ckbn roottooverlap
        else
         rec_mem=recforio
        end if
+ccccccccccccccccccccc USS correction settings ccccccccccccccccccccccccccccc
+      if (.not.rtdb_get(rtdb,'mrcc:ussd',mt_log,1,lussd))
+     1   lussd = .false.
+      if (.not.rtdb_get(rtdb,'mrcc:uss_ap',mt_log,1,lap_uss))
+     1   lap_uss = .false.
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 c IC logic 
        icrunl=.false.
@@ -1755,6 +1767,135 @@ c           close(unitn)
 c         endif
 ckbnttttt
 
+c                    Universal SS Correction
+c =====================================================================
+c
+          if(lap_uss) then
+             dbwcorrf = 0.0d0
+             dbwuss = 0.0d0
+
+             do iref=1,nref
+
+        if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
+     1 +innodes+ga_nodeid())).or.(.not.lusesub)) then
+
+         k_sym = k_symm(iref)
+         k_offset = k_offsetm(iref)
+         k_range = k_rangem(iref)
+         k_spin = k_spinm(iref)
+         k_movecs_sorted = k_movecs_sortedm(iref)
+         k_evl_sorted = k_evl_sortedm(iref)
+         k_active = k_active_tmpm(iref)
+
+            noa = nblcks(1,iref)
+            nob = nblcks(2,iref)
+            nva = nblcks(3,iref)
+            nvb = nblcks(4,iref)
+c
+            noab = noa+nob
+            nvab = nva+nvb
+
+          itcpu3 = - util_cpusec()
+          itwall3 = - util_wallsec()
+
+               if(.not.lusesub) then
+
+               call tce_filename('corr',filename)
+               call createfile(filename,d_corr,size_em(iref))
+C
+               call tce_filename('corr1',filename)
+               call createfile(filename,d_corr1,size_em(iref))
+
+               call  c1_d1(d_r1m(iref),d_t1m(iref),d_corr,
+     1 k_r1_offsetm(iref),k_t1_offsetm(iref),k_e_offsetm(iref))
+        call c2_d2(d_r2m(iref),d_t2m(iref),d_corr,k_r2_offsetm(iref),
+     1 k_t2_offsetm(iref),k_e_offsetm(iref))
+
+               call get_block(d_corr,dbwcorr,1,0)
+
+          dbwcorrf = dbwcorrf+dbwcorr*dbl_mb(k_sqc+(iref-1)*nref+
+     1 mkroot-1)*dbl_mb(k_sqcl+(iref-1)*nref+mkroot-1)
+
+       call deletefile(d_corr)
+
+      if(.not.lussd) then
+
+        do jref=1,nref
+c
+      call tce_filename('r1d',filename)
+      call createfile(filename,d_r1d(jref),size_r1m(jref))
+      call tce_filename('r2xy',filename)
+      call createfile(filename,d_r2xy(jref),size_r2m(jref))
+      call tce_filename('corr1',filename)
+      call createfile(filename,d_corr1,size_em(iref))
+! 
+       if(iref.ne.jref) then
+
+      call tce_uss_offdiagonal_1(d_r1m,d_r2m,k_r1_offsetm,
+     1 k_r2_offsetm,iref,jref,d_r1d(jref),
+     1 d_r2xy(jref))
+
+       call tce_uss_offdiagonal_2(d_r1m,d_r2m,k_r1_offsetm,
+     1 k_r2_offsetm,iref,jref,d_r2xy(jref),
+     1 d_r1d(jref))
+c
+       call tce_uss_offdiagonal_3(d_t2m(iref),d_v2m(iref),
+     2                 k_t2_offsetm(iref),
+     2                 k_v2_offsetm(iref),d_r1d(jref),d_r2xy(jref),
+     2                 iref,jref,k_r1_offsetm,k_r2_offsetm)
+
+
+       call tce_uss_offdiagonal_4(d_t2m(iref),d_v2m(iref),
+     2                 k_t2_offsetm(iref),
+     2                 k_v2_offsetm(iref),d_r1d(jref),d_r2xy(jref),
+     2                 iref,jref,k_r1_offsetm,k_r2_offsetm)
+
+
+      call signf(iref,jref,signfact)
+      dsmult=1.0d0
+      if(mod(signfact,2).eq.1)then
+      dsmult=-1.0d0
+      endif
+
+      call tce_uss_T1_R1(d_r1d(jref),d_t1m(jref),d_corr1,
+     1k_r1_offsetm(jref),k_t1_offsetm(jref),k_e_offsetm(jref),iref,jref)
+
+      call tce_uss_T2_R2(d_r2xy(jref),d_t2m(jref),d_corr1,
+     1k_r2_offsetm(jref),k_t2_offsetm(jref),k_e_offsetm(jref),iref,jref)
+
+       call get_block(d_corr1,dbwcorr1,1,0)
+      dbwuss = dbwuss +dsmult*dbwcorr1 * dbl_mb(k_sqc+(iref-1)*nref+
+     1 mkroot-1)*dbl_mb(k_sqcl+(jref-1)*nref+mkroot-1)
+c
+      endif
+!
+       call deletefile(d_r1d)
+       call deletefile(d_r2xy)
+       call deletefile(d_corr1)
+        end do ! jref
+        endif
+        endif!ussd
+        endif
+       enddo !iref
+
+      if(nodezero)write(6,"(/,'USSD Corr         :',F18.12)")dbwcorrf
+      if(nodezero)write(6,"(/,'Total USSD ENERGY : ',2F18.12)")
+     1 dbwcorrf+epsilon+enrep
+c
+      if(.not.lussd) then
+
+      if(nodezero)write(6,"(/,'USS(pt) Corr      : ',F18.12)")
+     1 dbwuss+dbwcorrf
+      if(nodezero)write(6,"(/,'BW-MRCCSD USS(pt) : ',F18.12,/)")
+     1 epsilon+enrep+dbwcorrf+dbwuss
+
+       endif
+
+        endif
+
+c
+c =====================================================================
+
 cxxx
 ckbn-2 avoid a posteriori correction
 c          if(nodezero)write(*,'(A,3F17.12)') 
@@ -2559,6 +2700,138 @@ c           close(unitn)
           enddo
         endif
 ckbnttttt
+
+c  ==================================
+c Universal State-Selective Correction
+c  ==================================
+c
+c
+          if(lap_uss) then
+             dbwcorrf = 0.0d0
+             dbwuss = 0.0d0
+
+             do iref=1,nref
+
+        if((int_mb(k_refafi+iref-1).eq.int_mb(k_innodes
+     1 +innodes+ga_nodeid())).or.(.not.lusesub)) then
+
+         k_sym = k_symm(iref)
+         k_offset = k_offsetm(iref)
+         k_range = k_rangem(iref)
+         k_spin = k_spinm(iref)
+         k_movecs_sorted = k_movecs_sortedm(iref)
+         k_evl_sorted = k_evl_sortedm(iref)
+         k_active = k_active_tmpm(iref)
+
+            noa = nblcks(1,iref)
+            nob = nblcks(2,iref)
+            nva = nblcks(3,iref)
+            nvb = nblcks(4,iref)
+c
+            noab = noa+nob
+            nvab = nva+nvb
+               if(.not.lusesub) then
+
+               call tce_filename('corr',filename)
+               call createfile(filename,d_corr,size_em(iref))
+C
+               call tce_filename('corr1',filename)
+               call createfile(filename,d_corr1,size_em(iref))
+
+               call  c1_d1(d_r1m(iref),d_t1m(iref),d_corr,
+     1 k_r1_offsetm(iref),k_t1_offsetm(iref),k_e_offsetm(iref))
+        call c2_d2(d_r2m(iref),d_t2m(iref),d_corr,k_r2_offsetm(iref),
+     1 k_t2_offsetm(iref),k_e_offsetm(iref))
+
+               call get_block(d_corr,dbwcorr,1,0)
+
+          dbwcorrf = dbwcorrf+dbwcorr*dbl_mb(k_sqc+(iref-1)*nref+
+     1 mkroot-1)*dbl_mb(k_sqc+(iref-1)*nref+mkroot-1)
+
+       call deletefile(d_corr)
+
+      if(.not.lussd) then
+
+        do jref=1,nref
+c
+      call tce_filename('r1d',filename)
+      call createfile(filename,d_r1d(jref),size_r1m(jref))
+      call tce_filename('r2xy',filename)
+      call createfile(filename,d_r2xy(jref),size_r2m(jref))
+      call tce_filename('corr1',filename)
+      call createfile(filename,d_corr1,size_em(iref))
+! 
+       if(iref.ne.jref) then
+
+      call tce_uss_offdiagonal_1(d_r1m,d_r2m,k_r1_offsetm,
+     1 k_r2_offsetm,iref,jref,d_r1d(jref),
+     1 d_r2xy(jref))
+
+       call tce_uss_offdiagonal_2(d_r1m,d_r2m,k_r1_offsetm,
+     1 k_r2_offsetm,iref,jref,d_r2xy(jref),
+     1 d_r1d(jref))
+c
+       call tce_uss_offdiagonal_3(d_t2m(iref),d_v2m(iref),
+     2                 k_t2_offsetm(iref),
+     2                 k_v2_offsetm(iref),d_r1d(jref),d_r2xy(jref),
+     2                 iref,jref,k_r1_offsetm,k_r2_offsetm)
+
+
+       call tce_uss_offdiagonal_4(d_t2m(iref),d_v2m(iref),
+     2                 k_t2_offsetm(iref),
+     2                 k_v2_offsetm(iref),d_r1d(jref),d_r2xy(jref),
+     2                 iref,jref,k_r1_offsetm,k_r2_offsetm)
+
+
+      call signf(iref,jref,signfact)
+      dsmult=1.0d0
+      if(mod(signfact,2).eq.1)then
+      dsmult=-1.0d0
+      endif
+
+      call tce_uss_T1_R1(d_r1d(jref),d_t1m(jref),d_corr1,
+     1k_r1_offsetm(jref),k_t1_offsetm(jref),k_e_offsetm(jref),iref,jref)
+
+      call tce_uss_T2_R2(d_r2xy(jref),d_t2m(jref),d_corr1,
+     1k_r2_offsetm(jref),k_t2_offsetm(jref),k_e_offsetm(jref),iref,jref)
+
+       call get_block(d_corr1,dbwcorr1,1,0)
+      dbwuss = dbwuss +dsmult*dbwcorr1 * dbl_mb(k_sqc+(iref-1)*nref+
+     1 mkroot-1)*dbl_mb(k_sqcl+(jref-1)*nref+mkroot-1)
+
+
+      endif
+!
+       call deletefile(d_r1d)
+       call deletefile(d_r2xy)
+       call deletefile(d_corr1)
+        end do ! jref
+        endif
+        endif!ussd
+        endif
+       enddo !iref
+c
+
+c      if(nodezero)write(luOut,*)"USS_OFFDIAGONAL",dbwuss
+      if(nodezero)write(6,"(/,'USSD Corr        :',F18.12)")
+     1 dbwcorrf
+      if(nodezero)write(6,"(/,'Mk-MRCCSD USSD   :',F18.12)")
+     1 dbwcorrf+epsilon+enrep
+
+      if(.not.lussd) then
+ 
+      if(nodezero)write(6,"(/,'USS(pt) Corr     :',F18.12)")
+     1 dbwuss+dbwcorrf
+      if(nodezero)write(6,"(/,'Mk-MRCCSD USS(pt):',F18.12,/)")
+     1 epsilon+enrep+dbwcorrf+dbwuss
+
+       endif
+
+          endif
+
+c
+c
+c ============END of main USS code =====================
 
 ckbn*******************************************************************
 ckbn**************************MkCCSD(T)********************************
