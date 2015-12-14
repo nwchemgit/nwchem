@@ -1645,10 +1645,11 @@ c     **** external functions ***
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
-      dutask = 0
+      !dutask = 0
 
+!$OMP DO
       do w1=1,nfrag
-         if (dutask.eq.taskid) then
+         if (mod(w1-1,np).eq.taskid) then
          ks1  = int_mb(indx_frag_start(1)+w1-1)
          wk1  = int_mb(kfrag(1)+w1-1)
          nbs  = int_mb(nbond(1)+wk1-1)
@@ -1728,8 +1729,9 @@ c     **** external functions ***
          end if
 
          end if
-         dutask = mod(dutask+1,np)
+         !dutask = mod(dutask+1,np)
       end do
+!$OMP END DO
 
 c     *** non-fragments ***
       if (pspw_2qmmm_found()) call pspw_2qmmm_spring_fion(fion)
@@ -1768,6 +1770,7 @@ c     >                      log_mb(self_interaction(1)),
 c     >                      qmmm_lmbda,
 c     >                      nshl3d,dbl_mb(rcell(1)),
 c     >                      dbl_mb(ion_rion_ptr()),fion)
+!$OMP SINGLE
          call  pspw_Pair_fion(ion_nion(),
      >                      ion_nion_qm(),
      >                      int_mb(ion_katm_ptr()),
@@ -1779,6 +1782,7 @@ c     >                      dbl_mb(ion_rion_ptr()),fion)
      >                      qmmm_lmbda,
      >                      nshl3d,dbl_mb(rcell(1)),
      >                      dbl_mb(ion_rion_ptr()),fion)
+!$OMP END SINGLE
       end if
       return
       end
@@ -1833,9 +1837,12 @@ c     **** external functions ***
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',3,MA_ERR)
            if (.not.BA_push_get(mt_dbl,nion3,'f4',f4(2),f4(1)))
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',4,MA_ERR)
-           call dcopy(nion3,0.0d0,0,dbl_mb(f2(1)),1)
-           call dcopy(nion3,0.0d0,0,dbl_mb(f3(1)),1)
-           call dcopy(nion3,0.0d0,0,dbl_mb(f4(1)),1)
+           !call dcopy(nion3,0.0d0,0,dbl_mb(f2(1)),1)
+           !call dcopy(nion3,0.0d0,0,dbl_mb(f3(1)),1)
+           !call dcopy(nion3,0.0d0,0,dbl_mb(f4(1)),1)
+           call Parallel_shared_vector_zero(.false.,nion3,dbl_mb(f2(1)))
+           call Parallel_shared_vector_zero(.false.,nion3,dbl_mb(f3(1)))
+           call Parallel_shared_vector_zero(.true., nion3,dbl_mb(f4(1)))
            if (control_version().eq.3) then
                call ewald_f_async(dbl_mb(f2(1)))
                call ewald_f_qm_async(dbl_mb(f3(1)))
@@ -1845,9 +1852,12 @@ c     **** external functions ***
                call ion_ion_f_qm_async(dbl_mb(f3(1)))
                call ion_ion_f_mm_async(dbl_mb(f4(1)))
            end if
-           call daxpy(nion3,(qmmm_lmbda-1.0d0),dbl_mb(f2(1)),1,fion,1)
-           call daxpy(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f3(1)),1,fion,1)
-           call daxpy(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f4(1)),1,fion,1)
+           call daxpy_omp(nion3,(qmmm_lmbda-1.0d0),dbl_mb(f2(1)),1,
+     >                    fion,1)
+           call daxpy_omp(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f3(1)),1,
+     >                    fion,1)
+           call daxpy_omp(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f4(1)),1,
+     >                    fion,1)
            if (.not.BA_pop_stack(f4(2)))
      >     call errquit('pspw_qmmm_Q_fion:pop stack memory',4,MA_ERR)
            if (.not.BA_pop_stack(f3(2)))
@@ -1935,7 +1945,8 @@ c     **** external functions ***
          if (.not.BA_push_get(mt_dbl,nion3,'ftmp',ftmp(2),ftmp(1)))
      >  call errquit('pspw_qmmm_fion:cannot push stack memory',0,MA_ERR)
 
-         call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
+         !call dcopy(nion3,0.0,0,dbl_mb(ftmp(1)),1)
+         call Parallel_shared_vector_zero(.true.,nion3,dbl_mb(ftmp(1)))
          if (.not.auxiliary_only) then
             call pspw_qmmm_LJ_fion(dbl_mb(ftmp(1)))
             call pspw_qmmm_Q_fion(dbl_mb(ftmp(1)))
@@ -1943,7 +1954,7 @@ c     **** external functions ***
          call pspw_qmmm_spring_fion(dbl_mb(ftmp(1)))
          call Parallel_Vector_SumAll(nion3,dbl_mb(ftmp(1)))
 
-         call daxpy(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+         call daxpy_omp(nion3,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
 
 
          if (.not.BA_pop_stack(ftmp(2)))
@@ -2105,6 +2116,7 @@ c     **** external functions ***
       integer w1,n1,ks1,ia
       real*8  rcm(3),mtotal
 
+!$OMP DO
       do w1=1,nfrag
 c        ia = int_mb(kfrag(1)+w1-1)
 c        if (log_mb(incell_frag(1)+ia-1)) then
@@ -2114,6 +2126,7 @@ c        if (log_mb(incell_frag(1)+ia-1)) then
         call lattice_incell1_frag(rcm,n1,r1(1,ks1))
 c        end if
       end do
+!$OMP END DO
       return
       end 
 
@@ -2225,6 +2238,7 @@ c        end if
       logical  pspw_2qmmm_found
       external pspw_2qmmm_found
 
+!$OMP DO
       do w1=1,nfrag
          wk1  = int_mb(kfrag(1)+w1-1)
          nshk = int_mb(nshake(1)+wk1-1)
@@ -2244,6 +2258,7 @@ c        end if
      >
          end if
       end do
+!$OMP END DO
   
 c     **** non-frags ****
       if (pspw_2qmmm_found()) call pspw_2qmmm_shake(r2,r1)

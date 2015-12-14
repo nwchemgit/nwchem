@@ -1366,8 +1366,9 @@ c     **** external functions ***
       call Parallel_taskid(taskid)
       dutask = 0
 
+!$OMP DO
       do w1=1,nfrag
-         if (dutask.eq.taskid) then
+         if (mod(w1-1,np).eq.taskid) then
          ks1  = int_mb(indx_frag_start(1)+w1-1)
          wk1  = int_mb(kfrag(1)+w1-1)
          nbs  = int_mb(nbond(1)+wk1-1)
@@ -1447,8 +1448,9 @@ c     **** external functions ***
          end if
 
          end if
-         dutask = mod(dutask+1,np)
+         !dutask = mod(dutask+1,np)
       end do
+!$OMP END DO
 
       return
       end
@@ -1483,6 +1485,7 @@ c     **** external functions ***
       integer  ion_amass_ptr
       external ion_amass_ptr
 
+!$OMP DO
       do w1=1,nfrag
          wk1  = int_mb(kfrag(1)+w1-1)
          nshk = int_mb(nshake(1)+wk1-1)
@@ -1502,6 +1505,7 @@ c     **** external functions ***
      >
          end if
       end do
+!$OMP END DO
   
 
       return

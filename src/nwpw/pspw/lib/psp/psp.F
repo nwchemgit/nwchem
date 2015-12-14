@@ -674,7 +674,10 @@ c     value = value.and.BA_free_heap(vnlnrm(2))
          if (.not.ok)
      >     call errquit('psp_prj_indx_alloc_sw1a_sw2a:freeing heap',
      >                  0,MA_ERR)
+!$OMP MASTER
          swaset = .false.
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 
       if (.not.swaset) then
@@ -684,8 +687,11 @@ c     value = value.and.BA_free_heap(vnlnrm(2))
          if (.not.ok)
      >     call errquit('psp_prj_indx_alloc_sw1a_sw2a: out of memory',
      >                  0,MA_ERR)
+!$OMP MASTER
          swaset = .true.
          swann  = nn
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 
       return
@@ -2152,7 +2158,6 @@ c           end do
      >                              dbl_mb(sw2a(1)+swstart*nn),
      >                              dbl_mb(wtmp(1)),
      >                              eh_atom)
-
          end if
       end do
 
@@ -2189,9 +2194,7 @@ c           end do
 
 
 *     **** do Kleinman-Bylander Multiplication ****
-!$OMP SINGLE
-      call dscal(nn*n_prj_indx,scal,dbl_mb(sw2a(1)),1)
-!$OMP END SINGLE
+      call dscal_omp(nn*n_prj_indx,scal,dbl_mb(sw2a(1)),1)
 
 *     **** apply the sw2 to psi ****
       jp  = 0
@@ -2236,7 +2239,7 @@ c           end do
 
 *              ***** scale (sw2a) psp by factor - used for generating antiferromagnetic structures ****
 *              **** nwchem input: pspspin up/down scale l ion_numbers                              ****
-!$OMP SINGLE
+!$OMP MASTER
                if (pspspin) then
                if (log_mb(pspspin_upions(1)+ii-1).and.
      >            (l_prj.eq.int_mb(pspspin_upl(1)+ii-1)) .and.
@@ -2251,7 +2254,8 @@ c           end do
      >            call dscal(ne(2),dbl_mb(pspspin_downscale(1)+ii-1),
      >                       dbl_mb(sw2a(1)+(swstart+l1)*nn+ne(1)),1)
                end if
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
                l1 = l1 + 1
             end do
@@ -2303,20 +2307,22 @@ c           end do
 !$OMP END DO
                  end if
  
-!OMP SINGLE
+!OMP BARRIER
                  ff(1) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)),3)
                  ff(2) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)+1),3)
                  ff(3) =2.0d0*ddot(nn,dbl_mb(sw2a(1)+(swstart+l1)*nn),1,
      >                                dbl_mb(sum(1)+2),3)
-!OMP END SINGLE
+!OMP END MASTER
+!$OMP BARRIER
                  call D1dB_Vector_SumAll(3,ff)
-!$OMP SINGLE
+!$OMP MASTER
                  fion(1,ii) = fion(1,ii)  + ff(1)*(3-ispin)
                  fion(2,ii) = fion(2,ii)  + ff(2)*(3-ispin)
                  fion(3,ii) = fion(3,ii)  + ff(3)*(3-ispin)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
                  l1 = l1 + 1
               end do !** l **

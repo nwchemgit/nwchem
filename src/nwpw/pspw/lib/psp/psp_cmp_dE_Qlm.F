@@ -183,6 +183,7 @@ c     *****************************************
 
          call Pack_c_SMul1(0,omega,dcpl_mb(vcmp(1)))
          call Pack_c_SMul1(0,omega,dcpl_mb(vcmp_smooth(1)))
+
          call nwpw_compcharge_gen_dE_Qlm(3,ispin,
      >                                   dcpl_mb(vcmp_smooth(1)),
      >                                   dcpl_mb(vcmp(1)),

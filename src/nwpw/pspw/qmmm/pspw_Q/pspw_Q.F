@@ -404,8 +404,9 @@ c     *************************************
       call Parallel_taskid(taskid)
       dutask = 0
 
+!$OMP DO
       do w1=1,nfrag-1
-         if (dutask.eq.taskid) then
+         if (mod(w1-1,np).eq.taskid) then
          ks1 = indx_frag_start(w1)
          n1  = size_frag(w1)
          Rin1  = switch_Rin(kfrag(w1))
@@ -428,13 +429,15 @@ c     *************************************
      >                                 nshl3d,rcell)
          end do
          end if
-         dutask = mod(dutask+1,np)
+         !dutask = mod(dutask+1,np)
       end do
+!$OMP END DO
 
 c     **** take out MM/MM Coulomb self energy ****
+!$OMP DO
       do w1 = 1,nfrag
          if (.not.self_interaction(kfrag(w1))) then
-         if (dutask.eq.taskid) then
+         if (mod(w1-1,np).eq.taskid) then
          ks1 = indx_frag_start(w1)
          do a=1,size_frag(w1)
          do b=a+1,size_frag(w1)
@@ -446,9 +449,10 @@ c     **** take out MM/MM Coulomb self energy ****
          end do
          end do
          end if
-         dutask = mod(dutask+1,np)
+         !dutask = mod(dutask+1,np)
          end if
       end do
+!$OMP END DO
 
       call nwpw_timing_end(41) 
       return

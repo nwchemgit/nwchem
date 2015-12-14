@@ -83,6 +83,7 @@
 *     *** do nothing if only one atom ***
       if (ion_nion().eq.1) return
 
+!$OMP MASTER
       do j=1,ion_nion()
         do i=1,j-1
           x = ion_rion(1,i) - ion_rion(1,j)
@@ -101,6 +102,8 @@
           f_ion(3,j) = f_ion(3,j) - (z*v)
         end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -350,6 +353,7 @@
       call Parallel_np(tnp)
       call Parallel_taskid(tid)
 
+!$OMP MASTER
       dutask = 0
       do j=1,ion_nion()
         do i=1,j-1
@@ -372,6 +376,8 @@
          dutask = mod((dutask+1),tnp)
         end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -416,6 +422,7 @@
       call Parallel_taskid(tid)
 
       dutask=0
+!$OMP MASTER
       do j=1,ion_nion_qm()
         do i=1,j-1
          if (dutask.eq.tid) then
@@ -437,6 +444,8 @@
          dutask = mod((dutask+1),tnp)
         end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -481,6 +490,7 @@
       call Parallel_taskid(tid)
 
       dutask = 0
+!$OMP MASTER
       do j=ion_nion_qm()+1,ion_nion()
         do i=ion_nion_qm()+1,j-1
          if (dutask.eq.tid) then
@@ -502,6 +512,8 @@
          dutask = mod((dutask+1),tnp)
         end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end

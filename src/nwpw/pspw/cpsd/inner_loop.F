@@ -414,10 +414,10 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 
         call nwpw_timing_start(47)
 
+
 *       ******************
 *       **** get Hpsi ****
 *       ******************
-!$OMP END PARALLEL
         if (control_version().eq.3) 
      >     call psi_H(ispin,ne,psi1,psi_r,
      >             dcpl_mb(vl(1)),
@@ -445,6 +445,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
           call Pack_cc_Sum2(1,psi1(1,n),psi2(1,n))
         end do
         call nwpw_timing_end(13)
+
 
 *       *******************************************
 *       **** get ewald and semicore forces     ****
@@ -495,6 +496,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call ion_optimize_step(dbl_mb(fion(1)))
         end if
 
+!$OMP END PARALLEL
 
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
