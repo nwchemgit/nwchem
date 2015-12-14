@@ -251,6 +251,7 @@
       if (value) then     
 
          call pspw_molecule_msize(msize)
+!$OMP DO
          do m=1,msize
 
             call pspw_molecule_data(m,na,indxa,blist,cyclic)
@@ -279,6 +280,8 @@
      >                          r2,r1,gabs(m))
             end if
          end do
+!$OMP END DO
+!$OMP MASTER
          if (gabprint) then
             if (mod(gabiter,gabmod).eq.0)  then
                write(51,'(100e19.10)') (gabs(m),m=1,msize)
@@ -286,6 +289,7 @@
             end if
             gabiter=gabiter+1
          end if
+!$OMP END MASTER
       end if
 
       return

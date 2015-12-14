@@ -23,3 +23,7 @@
 #ifdef USE_OPENMP
 !$OMP THREADPRIVATE(/ parallel_omp /)
 #endif
+
+*     **** parallel_wshared common block - used for simple OMP reductions ***
+      real*8 wshared(100),wshared1
+      common /parallel_wshared/ wshared,wshared1

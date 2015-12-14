@@ -32,6 +32,7 @@ c     implicit none
     
       call Parallel2d_np_j(np)
       if (np.gt.1) then
+!$OMP MASTER
 #ifdef MPI4
         stupid_msglen = 1
         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
@@ -42,6 +43,8 @@ c     implicit none
      >                      MPI_SUM,Parallel2d_comm_j(),mpierr)
 #endif
         sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 
       return

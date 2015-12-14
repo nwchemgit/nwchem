@@ -324,11 +324,11 @@ C
 C
 C           Form  C := C + alpha*A'*B
 C
+!$OMP DO
             DO 680 I = 1, M, MB
                IDEPTH = 2
                ISPAN = MIN(MB,M-I+1)
                ILEN = IDEPTH*(ISPAN/IDEPTH)
-!$OMP DO
                DO 660 L = 1, K, KB
                   LSPAN = MIN(KB,K-L+1)
                   DO 420 II = I, I + ISPAN - 1
@@ -397,8 +397,8 @@ C
                      END IF
   640             CONTINUE
   660          END DO
-!$OMP END DO
   680       END DO
+!$OMP END DO
          END IF
       ELSE
          IF (NOTA) THEN

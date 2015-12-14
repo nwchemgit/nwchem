@@ -1749,11 +1749,13 @@ c      end do
       real*8 fion(3,nion),r1(3,nion),r2(3,nion)
       integer i,ii
 
+!$OMP DO
       do ii=1,nion
       do i=1,3
          r2(i,ii) = r1(i,ii) + dsqrt(dti(ii))*fion(i,ii)
       end do
       end do
+!$OMP END DO
       return
       end 
 
@@ -3401,9 +3403,11 @@ c
       if (.not.BA_push_get(mt_dbl,3*nion,'gtmp',gtmp(2),gtmp(1)))
      >   call errquit("ion_disp_energy: pushstack gtmp",1,MA_ERR)
 
+!$OMP DO
       do ii=1,nion
          int_mb(iz(1)+ii-1) = ion_atn(ion_katm(ii))
       end do
+!$OMP END DO
       
       options1= control_options_disp()
       l = inp_strlen(options1)
@@ -3420,12 +3424,15 @@ c
          options = options1(1:l)//' -pbc -grad'
       end if
 
-      call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
+      !call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
+      call Parallel_shared_vector_zero(.true.,3*nion,dbl_mb(gtmp(1)))
 
+!$OMP SINGLE
       call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
      >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),g_lat)
+!$OMP END SINGLE
 
-      call daxpy(3*nion,-1.0d0,dbl_mb(gtmp(1)),1,fion,1)
+      call daxpy_omp(3*nion,-1.0d0,dbl_mb(gtmp(1)),1,fion,1)
 
       if (.not.BA_pop_stack(gtmp(2)))
      >   call errquit("ion_disp_energy: popstak gtmp",1,MA_ERR)

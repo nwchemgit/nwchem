@@ -1,4 +1,4 @@
-*> \brief \b DAXPY
+*> \brief \b DSCAL
 *
 *  =========== DOCUMENTATION ===========
 *
@@ -8,14 +8,14 @@
 *  Definition:
 *  ===========
 *
-*       SUBROUTINE DAXPY(N,DA,DX,INCX,DY,INCY)
+*       SUBROUTINE DSCAL(N,DA,DX,INCX)
 * 
 *       .. Scalar Arguments ..
 *       DOUBLE PRECISION DA
-*       INTEGER INCX,INCY,N
+*       INTEGER INCX,N
 *       ..
 *       .. Array Arguments ..
-*       DOUBLE PRECISION DX(*),DY(*)
+*       DOUBLE PRECISION DX(*)
 *       ..
 *  
 *
@@ -24,8 +24,8 @@
 *>
 *> \verbatim
 *>
-*>    DAXPY constant times a vector plus a vector.
-*>    uses unrolled loops for increments equal to one.
+*>    DSCAL scales a vector by a constant.
+*>    uses unrolled loops for increment equal to one.
 *> \endverbatim
 *
 *  Authors:
@@ -46,11 +46,12 @@
 *> \verbatim
 *>
 *>     jack dongarra, linpack, 3/11/78.
+*>     modified 3/93 to return if incx .le. 0.
 *>     modified 12/3/93, array(1) declarations changed to array(*)
 *> \endverbatim
 *>
 *  =====================================================================
-      SUBROUTINE DAXPY_OMP(N,DA,DX,INCX,DY,INCY)
+      SUBROUTINE DSCAL_OMP(N,DA,DX,INCX)
 *
 *  -- Reference BLAS level1 routine (version 3.4.0) --
 *  -- Reference BLAS is a software package provided by Univ. of Tennessee,    --
@@ -59,64 +60,58 @@
 *
 *     .. Scalar Arguments ..
       DOUBLE PRECISION DA
-      INTEGER INCX,INCY,N
+      INTEGER INCX,N
 *     ..
 *     .. Array Arguments ..
-      DOUBLE PRECISION DX(*),DY(*)
+      DOUBLE PRECISION DX(*)
 *     ..
 *
 *  =====================================================================
 *
 *     .. Local Scalars ..
-      INTEGER I,IX,IY,M,MP1
+      INTEGER I,M,MP1,NINCX
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC MOD
 *     ..
-      IF (N.LE.0) RETURN
-      IF (DA.EQ.0.0d0) RETURN
-      IF (INCX.EQ.1 .AND. INCY.EQ.1) THEN
+      IF (N.LE.0 .OR. INCX.LE.0) RETURN
+      IF (INCX.EQ.1) THEN
 *
-*        code for both increments equal to 1
+*        code for increment equal to 1
 *
 *
 *        clean-up loop
 *
-         M = MOD(N,4)
+         M = MOD(N,5)
          IF (M.NE.0) THEN
 !$OMP DO
             DO I = 1,M
-               DY(I) = DY(I) + DA*DX(I)
+               DX(I) = DA*DX(I)
             END DO
 !$OMP END DO
+            IF (N.LT.5) RETURN
          END IF
          MP1 = M + 1
-         IF (N.LT.4) RETURN
 !$OMP DO
-         DO I = MP1,N,4
-            DY(I) = DY(I) + DA*DX(I)
-            DY(I+1) = DY(I+1) + DA*DX(I+1)
-            DY(I+2) = DY(I+2) + DA*DX(I+2)
-            DY(I+3) = DY(I+3) + DA*DX(I+3)
+         DO I = MP1,N,5
+            DX(I) = DA*DX(I)
+            DX(I+1) = DA*DX(I+1)
+            DX(I+2) = DA*DX(I+2)
+            DX(I+3) = DA*DX(I+3)
+            DX(I+4) = DA*DX(I+4)
          END DO
 !$OMP END DO
       ELSE
 *
-*        code for unequal increments or equal increments
-*          not equal to 1
+*        code for increment not equal to 1
 *
-         IX = 1
-         IY = 1
+         NINCX = N*INCX
 !$OMP DO
-         DO I = 1,N
-          IX = 1+(I-1)*INCX
-          IY = 1+(I-1)*INCY
-          DY(IY) = DY(IY) + DA*DX(IX)
-          !IX = IX + INCX
-          !IY = IY + INCY
+         DO I = 1,NINCX,INCX
+            DX(I) = DA*DX(I)
          END DO
 !$OMP END DO
       END IF
       RETURN
       END
-c $Id: daxpy.f 24342 2013-06-22 05:32:15Z d3y133 $
+c $Id: dscal.f 24342 2013-06-22 05:32:15Z d3y133 $

@@ -615,19 +615,25 @@ c     implicit none
 
 #ifdef MPI4
       if (np.gt.1) then
+!$OMP MASTER
          stupid_msglen = 1
          call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
      >                      stupid_sum,stupid_world,stupid_ierr)
          sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 #else
       integer msglen,mpierr
 
       if (np.gt.1) then
+!$OMP MASTER
          msglen = 1
          call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
      >                       MPI_SUM,comm_world,mpierr)
          sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 #endif
 
@@ -733,7 +739,6 @@ c     implicit none
 !$OMP END MASTER
 !$OMP BARRIER
 
-c      call Parallel_shared_vector_copy(.true.,n,dbl_mb(sumall(1)),sum)
       value = BA_pop_stack(sumall(2))
       if (.not.value) call errquit('dealloc stack memory',0,MA_ERR)
 
@@ -879,17 +884,23 @@ c     implicit none
       integer*4 tpsend
 
       if (np.gt.1) then
+!$OMP MASTER
          stupid_msglen = nsize
          tpsend        = psend
          call MPI_Bcast(sum,stupid_msglen,stupid_double,
      >                  tpsend,stupid_world,stupid_ierr)
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 #else
       integer ierr
 
       if (np.gt.1) then
+!$OMP MASTER
          call MPI_Bcast(sum,nsize,MPI_DOUBLE_PRECISION,
      >                  psend,comm_world,ierr)
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 #endif
 

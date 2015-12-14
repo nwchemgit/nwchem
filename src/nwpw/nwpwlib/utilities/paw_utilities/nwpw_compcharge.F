@@ -947,39 +947,84 @@ c      end if
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
+      logical value
       integer iii,iia,n,k,ms,lm,iprj,jprj,shift,indx,indx1
+      integer tmp(2)
+      integer tid,nthr
       real*8  scal,coeff,w
 
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
+!     *** allocate tmp space ***
+      value = BA_push_get(mt_dbl,2*lm_size_max*nthr,'tmp3',
+     >                    tmp(2),tmp(1))
+      if (.not.value) 
+     >   call errquit("nwpw_compcharge_gen_Qlm:cannot push stack",
+     >                0,MA_ERR)
+
+      call Parallel_shared_vector_zero(.false.,2*lm_size_max*nthr,
+     >                                 dbl_mb(tmp(1)))
 
       iii = int_mb(ion_iontopaw(1) +ii-1)
       iia = int_mb(katm_iontopaw(1)+ia-1)
-
       indx = (iii-1)*2*lm_size_max
-      call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
-      scal = 1.0d0/lattice_omega()
 
+      !call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
+      call Parallel_shared_vector_zero(.true.,2*lm_size_max,
+     >                                 dbl_mb(Qlm(1)+indx))
+
+      scal = 1.0d0/lattice_omega()
       shift = int_mb(shift_Tndiff(1)+iia-1)
-!$OMP DO
-      do k=1,int_mb(nindx_Tndiff(1)+iia-1)
+      do k=tid+1,int_mb(nindx_Tndiff(1)+iia-1),nthr
          lm    = int_mb(lm_Tndiff(1)+shift+k-1)
          iprj  = int_mb(iprj_Tndiff(1)+shift+k-1)
          jprj  = int_mb(jprj_Tndiff(1)+shift+k-1)
          coeff = scal*dbl_mb(coeff_Tndiff(1)+shift+k-1)
          do ms=1,ispin
-            indx1 = indx + (ms-1)*lm_size_max + lm
-            dbl_mb(Qlm(1)+indx1) = dbl_mb(Qlm(1)+indx1) 
+c            indx1 = indx + (ms-1)*lm_size_max + lm
+c            dbl_mb(Qlm(1)+indx1) = dbl_mb(Qlm(1)+indx1) 
+c     >                           + coeff*wmatrix(iprj,jprj,ms)
+            indx1 = (ms-1)*lm_size_max + lm + tid*2*lm_size_max
+            dbl_mb(tmp(1)+indx1) = dbl_mb(tmp(1)+indx1) 
      >                           + coeff*wmatrix(iprj,jprj,ms)
          end do
       end do
-!$OMP END DO
+!$OMP BARRIER
+      call Parallel_shared_vector_reduction(2*lm_size_max,nthr,
+     >                                      dbl_mb(tmp(1)),
+     >                                      dbl_mb(Qlm(1)+indx))
       !call D1dB_Vector_SumAll(ispin*lm_size_max,dbl_mb(Qlm(1)+indx))
 
+    
+!     *** deallocate tmp space ***
+      value = BA_pop_stack(tmp(2))
+      if (.not.value) 
+     >   call errquit("nwpw_compcharge_gen_Qlm:pop stack",1,MA_ERR)
       return
       end 
+
+      subroutine Parallel_shared_vector_reduction(nsize,nthr,A,B)
+      implicit none
+      integer nsize,nthr
+      real*8 A(nsize,nthr)
+      real*8 B(nsize)
+      integer k
+
+!$OMP DO REDUCTION(+:B)
+      do k=1,nthr
+         call daxpy(nsize,1.0d0,A(1,k),1,B,1)
+      end do
+!$OMP END DO
+      return
+      end
 
 *     *************************************************
 *     *                                               *
@@ -1087,7 +1132,8 @@ c      end if
       integer np,np_j,np_k,taskid,taskid_j,taskid_k,pcount
       integer iii,iia,ii,ia,lm,l,m,k,jjj,ja,jja,l2,m2,ms
       integer indx1up,indx2up,indx,indx1,indx2
-      integer glm_cmp(2),glm_cmp_smooth(2),gvtmp(2),ftmp(2),Gx,Gy,Gz
+      integer glm_cmp(2),glm_cmp_smooth(2),gvtmp(2),ftmp(2),tmp(2)
+      integer Gx,Gy,Gz
       real*8  q22,e1,e2,fourpi
       real*8 e1x,e1y,e1z,e2x,e2y,e2z,qq
 
@@ -1108,6 +1154,8 @@ c     >           dbl_mb(dE_Qlm(1)),1)
       value = value.and.
      >        BA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
      >                    glm_cmp_smooth(2),glm_cmp_smooth(1))
+      value = value.and. BA_push_get(mt_dbl,8,'tmpdot',tmp(2),tmp(1))
+      call Parallel_shared_vector_zero(.true.,8,dbl_mb(tmp(1)))
       if (move) then
          value = value.and.
      >           BA_push_get(mt_dbl,npack0,'gvtmp',
@@ -1149,26 +1197,24 @@ c     >           dbl_mb(dE_Qlm(1)),1)
                call nwpw_compcharge_gen_glm2(ii,l,m,
      >                              dcpl_mb(glm_cmp(1)),
      >                              dcpl_mb(glm_cmp_smooth(1)))
-
-               indx  = (iii-1)*2*lm_size_max+lm
-!$OMP SINGLE
-               dbl_mb(dE_Qlm(1)+indx) = 0.0d0
-!$OMP END SINGLE
                if (docmp)
-     >            call Pack_cc_idot_addto(0,
+     >            call Pack_cc_idot(0,
      >                           dcpl_mb(glm_cmp(1)),
      >                           vcmp,
-     >                           dbl_mb(dE_Qlm(1)+indx))
+     >                           dbl_mb(tmp(1)))
                if (docmp_smooth)
-     >            call Pack_cc_idot_addto(0,
+     >            call Pack_cc_idot(0,
      >                           dcpl_mb(glm_cmp_smooth(1)),
      >                           vcmp_smooth,
-     >                           dbl_mb(dE_Qlm(1)+indx))
-!$OMP SINGLE
-               if (ispin.gt.1) 
-     >            dbl_mb(dE_Qlm(1)+indx+lm_size_max) 
-     >             = dbl_mb(dE_Qlm(1)+indx)
-!$OMP END SINGLE
+     >                           dbl_mb(tmp(1)+1))
+!$OMP MASTER
+               do ms=1,ispin
+                  indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+                  dbl_mb(dE_Qlm(1)+indx) = dbl_mb(tmp(1))
+     >                                   + dbl_mb(tmp(1)+1)
+               end do
+!$OMP END MASTER
+!$OMP BARRIER
 
 c               e1 = 0.0d0
 c               e2 = 0.0d0
@@ -1189,9 +1235,9 @@ c                  dbl_mb(dE_Qlm(1)+indx) = (e1+e2)
 c               end do
 
                if (move) then
-                   indx1  = (iii-1)*2*lm_size_max+lm
-                   indx2  = (iii-1)*2*lm_size_max
-     >                    + (ispin-1)*lm_size_max+lm
+                  indx1  = (iii-1)*2*lm_size_max+lm
+                  indx2  = (iii-1)*2*lm_size_max
+     >                   + (ispin-1)*lm_size_max+lm
                   qq = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
                   if (docmp)
      >               call Pack_cct_iaconjgMulAdd(0,qq,
@@ -1210,18 +1256,22 @@ c               end do
          end do
          end do
          if (move) then
-            !call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),e1x)
-            !call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),e1y)
-            !call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),e1z)
-            !dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  -e1x
-            !dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)-e1y
-            !dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)-e1z
-            call Pack_tt_idot_subto(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),
-     >                              dbl_mb(ftmp(1)+3*(iii-1)))
-            call Pack_tt_idot_subto(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),
-     >                              dbl_mb(ftmp(1)+3*(iii-1)+1))
-            call Pack_tt_idot_subto(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),
-     >                              dbl_mb(ftmp(1)+3*(iii-1)+2))
+            call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),
+     >                        dbl_mb(tmp(1)))
+            call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),
+     >                        dbl_mb(tmp(1)+1))
+            call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),
+     >                        dbl_mb(tmp(1)+2))
+
+!$OMP MASTER
+            dbl_mb(ftmp(1)+3*(iii-1))   = dbl_mb(ftmp(1)+3*(iii-1))  
+     >                                  - dbl_mb(tmp(1))
+            dbl_mb(ftmp(1)+3*(iii-1)+1) = dbl_mb(ftmp(1)+3*(iii-1)+1)
+     >                                  - dbl_mb(tmp(1)+1)
+            dbl_mb(ftmp(1)+3*(iii-1)+2) = dbl_mb(ftmp(1)+3*(iii-1)+2)
+     >                                  - dbl_mb(tmp(1)+2)
+!$OMP END MASTER
+!$OMP BARRIER
          end if
       end do
 
@@ -1293,6 +1343,7 @@ c               end do
          value = value.and.BA_pop_stack(ftmp(2))
          value = value.and.BA_pop_stack(gvtmp(2))
       end if
+      value = value.and.BA_pop_stack(tmp(2))
       value = value.and.BA_pop_stack(glm_cmp_smooth(2))
       value = value.and.BA_pop_stack(glm_cmp(2))
       if (.not.value)
@@ -1350,7 +1401,6 @@ c               end do
       !scal = 1.0d0/lattice_omega()
 
       shift = int_mb(shift_Tndiff(1)+iia-1)
-!$OMP DO
       do k=1,int_mb(nindx_Tndiff(1)+iia-1)
          lm    = int_mb(lm_Tndiff(1)+shift+k-1)
          iprj  = int_mb(iprj_Tndiff(1)+shift+k-1)
@@ -1359,12 +1409,13 @@ c               end do
          do ms=1,ispin
             indx1 = indx + (ms-1)*lm_size_max + lm
             w     = dbl_mb(dE_Qlm(1)+indx1)*coeff
+!$OMP DO
             do n=n1(ms),n2(ms)
                sw2(n,iprj) = sw2(n,iprj) + sw1(n,jprj)*w
             end do
+!$OMP END DO
          end do
       end do
-!$OMP END DO
 
       return
       end 
@@ -1608,7 +1659,7 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
 *     **** local variables ****
       logical value
       integer np_j,taskid_j,G(3)
-      integer i,iii,iia,ii,ia,tmp(2),exi(2),xtmp(2),ftmp(2)
+      integer i,iii,iia,ii,ia,tmp(2),exi(2),xtmp(2),ftmp(2),tmp1(2)
       real*8 fx,fy,fz
 
       integer  Pack_G_indx
@@ -1621,10 +1672,13 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
      >        BA_push_get(mt_dbl,npack0,"xtmp",xtmp(2),xtmp(1))
       value = value.and.
      >        BA_push_get(mt_dbl,3*nion_paw,"ftmp",ftmp(2),ftmp(1))
+      value = value.and.BA_push_get(mt_dbl,3,"tmp1",tmp1(2),tmp1(1))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_f_cmp_smooth:stack",0,MA_ERR)
 
-      call dcopy(3*nion_paw,0.0d0,0,dbl_mb(ftmp(1)),1)
+      !call dcopy(3*nion_paw,0.0d0,0,dbl_mb(ftmp(1)),1)
+      call Parallel_shared_vector_zero(.true.,3*nion_paw,
+     >                                 dbl_mb(ftmp(1)))
 
       if (isgamma) then
       call Parallel2d_np_j(np_j)
@@ -1647,24 +1701,34 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
      >                            dng,
      >                            dcpl_mb(tmp(1)),
      >                            dbl_mb(xtmp(1)))
-         call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),fx)
-         call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),fy)
-         call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),fz)
+
+         call Pack_tt_idot(0,dbl_mb(G(1)),dbl_mb(xtmp(1)),
+     >                     dbl_mb(tmp1(1)))
+         call Pack_tt_idot(0,dbl_mb(G(2)),dbl_mb(xtmp(1)),
+     >                     dbl_mb(tmp1(1)+1))
+         call Pack_tt_idot(0,dbl_mb(G(3)),dbl_mb(xtmp(1)),
+     >                     dbl_mb(tmp1(1)+2))
+!$OMP MASTER
          dbl_mb(ftmp(1)+3*(iii-1))   = dbl_mb(ftmp(1)+3*(iii-1))
-     >                               + zv(ia)*fx
+     >                               + zv(ia)*dbl_mb(tmp1(1))
          dbl_mb(ftmp(1)+3*(iii-1)+1) = dbl_mb(ftmp(1)+3*(iii-1)+1)
-     >                               + zv(ia)*fy
+     >                               + zv(ia)*dbl_mb(tmp1(1)+1)
          dbl_mb(ftmp(1)+3*(iii-1)+2) = dbl_mb(ftmp(1)+3*(iii-1)+2)
-     >                               + zv(ia)*fz
+     >                               + zv(ia)*dbl_mb(tmp1(1)+2)
+!$OMP END MASTER
+!$OMP BARRIER
+
        end if
       end do
       call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(ftmp(1)))
+!$OMP DO
       do iii=1,nion_paw
          ii = int_mb(ion_pawtoion(1)+iii-1)
          fion(1,ii) = fion(1,ii) + dbl_mb(ftmp(1)+3*(iii-1))
          fion(2,ii) = fion(2,ii) + dbl_mb(ftmp(1)+3*(iii-1)+1)
          fion(3,ii) = fion(3,ii) + dbl_mb(ftmp(1)+3*(iii-1)+2)
       end do
+!$OMP END DO
 
       else
       G(1)  = 0  !*** need to define :(
@@ -1697,7 +1761,8 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
 
       end if
 
-      value =           BA_pop_stack(ftmp(2))
+      value =           BA_pop_stack(tmp1(2))
+      value = value.and.BA_pop_stack(ftmp(2))
       value = value.and.BA_pop_stack(xtmp(2))
       value = value.and.BA_pop_stack(exi(2))
       value = value.and.BA_pop_stack(tmp(2))
@@ -1759,7 +1824,8 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
       call D3dB_n2ft3d(1,n2ft3d)
       call D3dB_n2ft3d_map(1,n2ft3d_map)
 
-      call dcopy(n2ft3d,0.0d0,0,vlr_smooth,1)
+      !call dcopy(n2ft3d,0.0d0,0,vlr_smooth,1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d,vlr_smooth)
 
       b = 1.0d0/dsqrt(4.0d0*datan(1.0d0))   !*** 1/sqrt(pi)
       c = 1.0d0/sigma_smooth
@@ -1774,6 +1840,7 @@ c        gl(i) = c*(r(i)**l)*dexp(-(r(i)/sigma)**2)
             x = ion_rion(1,ii)
             y = ion_rion(2,ii)
             z = ion_rion(3,ii)
+!$OMP DO
             do i=1,n2ft3d_map
                r = dsqrt((rgrid(1,i)-x)**2
      >                  +(rgrid(2,i)-y)**2
@@ -1792,6 +1859,7 @@ c                  yerf = util_erf(xerf)
                end if
 
             end do
+!$OMP END DO
          end if
          end do
       else
@@ -1804,6 +1872,7 @@ c                  yerf = util_erf(xerf)
             x = ion_rion(1,ii)
             y = ion_rion(2,ii)
             z = ion_rion(3,ii)
+!$OMP DO
             do i=1,n2ft3d_map
                r = dsqrt((rgrid(1,i)-x)**2
      >                  +(rgrid(2,i)-y)**2
@@ -1817,6 +1886,7 @@ c                  yerf = util_erf(xerf)
                end if
 
             end do
+!$OMP END DO
          end if
          end do
       end if
@@ -1892,6 +1962,7 @@ c                  yerf = util_erf(xerf)
       c = 1.0d0/sigma_smooth
 
       if (control_fast_erf()) then
+!$OMP SINGLE
          do iii=1,nion_paw
          if (mod(iii-1,np_j).eq.taskid_j) then
             iia = int_mb(katm_paw(1)+iii-1)
@@ -1933,7 +2004,9 @@ c                 verf = util_erf(yerf)
             dbl_mb(ftmp(1)+3*(iii-1)+2) = -fz*dv
          end if
          end do
+!$OMP END SINGLE
       else
+!$OMP SINGLE
          do iii=1,nion_paw
          if (mod(iii-1,np_j).eq.taskid_j) then
             iia = int_mb(katm_paw(1)+iii-1)
@@ -1970,14 +2043,17 @@ c                 verf = util_erf(yerf)
             dbl_mb(ftmp(1)+3*(iii-1)+2) = -fz*dv
          end if
          end do
+!$OMP END SINGLE
       end if
       call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(ftmp(1)))
+!$OMP DO
       do iii=1,nion_paw
          ii = int_mb(ion_pawtoion(1)+iii-1)
          fion(1,ii) = fion(1,ii) + dbl_mb(ftmp(1)+3*(iii-1))
          fion(2,ii) = fion(2,ii) + dbl_mb(ftmp(1)+3*(iii-1)+1)
          fion(3,ii) = fion(3,ii) + dbl_mb(ftmp(1)+3*(iii-1)+2)
       end do
+!$OMP END DO
 
       if (.not.BA_pop_stack(ftmp(2)))
      >call errquit('nwpw_compcharge_gen_f_lr_cmp_smooth:popping stack',
@@ -3888,7 +3964,7 @@ cc         end if
       call Parallel_shared_vector_zero(.true.,3*nion_paw,
      >                                 dbl_mb(fmult(1)))
 
-!$OMP DO
+!$OMP MASTER
       do k=1,ngauss
          iii1 = int_mb(iii1_gauss(1)+k-1)
          iii2 = int_mb(iii2_gauss(1)+k-1)
@@ -3955,7 +4031,8 @@ c            dbl_mb(fmult(1)+3*(iii2-1)+2)=dbl_mb(fmult(1)+3*(iii2-1)+2)
 c     >                                   +tmpz 
          end if
       end do
-!$OMP END DO
+!$OMP END MASTER
+!$OMP BARRIER
       call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(fmult(1)))
 
 !$OMP DO
@@ -4101,7 +4178,7 @@ c     >                                   +tmpz
       integer np,np_j,np_k,taskid,taskid_j,taskid_k,pcount
       integer iii,iia,ii,ia,lm,l,m,k,jjj,ja,jja,l1,m1,l2,m2,ms
       integer indx1up,indx2up,indx1,indx2,Gx,Gy,Gz
-      integer glm_cmp(2),glm_cmp_smooth(2),gvtmp(2),ftmp(2)
+      integer glm_cmp(2),glm_cmp_smooth(2),gvtmp(2),ftmp(2),tmp(2)
       real*8  q11,q22,e1,e2,fourpi
       real*8   qq,e1x,e1y,e1z
 
@@ -4121,6 +4198,7 @@ c     >           dbl_mb(dElocal_Qlm(1)),1)
       value = value.and.
      >        BA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
      >                    glm_cmp_smooth(2),glm_cmp_smooth(1))
+      value = value.and.BA_push_get(mt_dbl,30,'tmpdot',tmp(2),tmp(1))
       if (move) then
          value = value.and.
      >           BA_push_get(mt_dbl,npack0,'gvtmp',
@@ -4162,39 +4240,23 @@ c     >           dbl_mb(dElocal_Qlm(1)),1)
                call nwpw_compcharge_gen_glm2(ii,l,m,
      >                              dcpl_mb(glm_cmp(1)),
      >                              dcpl_mb(glm_cmp_smooth(1)))
-
-               indx1  = (iii-1)*2*lm_size_max+lm
-!$OMP SINGLE
-               dbl_mb(dElocal_Qlm(1)+indx1) = 0.0d0
-!$OMP END SINGLE
-               call Pack_cc_idot_addto(0,
+               call Pack_cc_idot(0,
      >                           dcpl_mb(glm_cmp(1)),
      >                           vcmp,
-     >                           dbl_mb(dElocal_Qlm(1)+indx1))
-               call Pack_cc_idot_addto(0,
+     >                           dbl_mb(tmp(1)))
+               call Pack_cc_idot(0,
      >                           dcpl_mb(glm_cmp_smooth(1)),
      >                           vcmp_smooth,
-     >                           dbl_mb(dElocal_Qlm(1)+indx1))
-!$OMP SINGLE
-               if (ispin.gt.1)
-     >         dbl_mb(dElocal_Qlm(1)+indx1+lm_size_max)
-     >           = dbl_mb(dElocal_Qlm(1)+indx1) 
-!$OMP END SINGLE
-
-            
-c               call Pack_cc_idot(0,
-c     >                           dcpl_mb(glm_cmp(1)),
-c     >                           vcmp,
-c     >                           e1)
-c               call Pack_cc_idot(0,
-c     >                           dcpl_mb(glm_cmp_smooth(1)),
-c     >                           vcmp_smooth,
-c     >                           e2)
-c               !lm = l*(l+1)+m
-c               do ms=1,ispin
-c                  indx1  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
-c                  dbl_mb(dElocal_Qlm(1)+indx1) = (e1+e2)
-c               end do
+     >                           dbl_mb(tmp(1)+1))
+               !lm = l*(l+1)+m
+!$OMP MASTER
+               do ms=1,ispin
+                  indx1  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
+                  dbl_mb(dElocal_Qlm(1)+indx1) 
+     >               = (dbl_mb(tmp(1))+dbl_mb(tmp(1)+1))
+               end do
+!$OMP END MASTER
+!$OMP BARRIER
 
                if (move) then
                   indx1  = (iii-1)*2*lm_size_max+lm
@@ -4217,18 +4279,22 @@ c               end do
          end do
          end do
          if (move) then
-            !call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),e1x)
-            !call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),e1y)
-            !call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),e1z)
-            !dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  -e1x
-            !dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)-e1y
-            !dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)-e1z
-            call Pack_tt_idot_subto(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),
-     >                              dbl_mb(ftmp(1)+3*(iii-1)))
-            call Pack_tt_idot_subto(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),
-     >                              dbl_mb(ftmp(1)+3*(iii-1)+1))
-            call Pack_tt_idot_subto(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),
-     >                              dbl_mb(ftmp(1)+3*(iii-1)+2))
+            call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(gvtmp(1)),
+     >                        dbl_mb(tmp(1)))
+            call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(gvtmp(1)),
+     >                        dbl_mb(tmp(1)+1))
+            call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(gvtmp(1)),
+     >                        dbl_mb(tmp(1)+2))
+!$OMP MASTER
+            dbl_mb(ftmp(1)+3*(iii-1))   = dbl_mb(ftmp(1)+3*(iii-1))  
+     >                                  - dbl_mb(tmp(1))
+            dbl_mb(ftmp(1)+3*(iii-1)+1) = dbl_mb(ftmp(1)+3*(iii-1)+1)
+     >                                  - dbl_mb(tmp(1)+1)
+            dbl_mb(ftmp(1)+3*(iii-1)+2) = dbl_mb(ftmp(1)+3*(iii-1)+2)
+     >                                  - dbl_mb(tmp(1)+2)
+!$OMP END MASTER
+!$OMP BARRIER
+
 
          end if
       end do !** iii **
@@ -4296,6 +4362,7 @@ c               end do
          value = value.and.BA_pop_stack(ftmp(2))
          value = value.and.BA_pop_stack(gvtmp(2))
       end if
+      value = value.and.BA_pop_stack(tmp(2))
       value = value.and.BA_pop_stack(glm_cmp_smooth(2))
       value = value.and.BA_pop_stack(glm_cmp(2))
       if (.not.value)
@@ -4303,7 +4370,7 @@ c               end do
      >               1,MA_ERR)
 
       fourpi = 16.0d0*datan(1.0d0)
-!$OMP DO
+!$OMP MASTER
       do k=1,ngauss
          indx1up = int_mb(lm1_gauss(1)+k-1)
          indx2up = int_mb(lm2_gauss(1)+k-1)
@@ -4340,7 +4407,8 @@ c               end do
      >                                   + q11*dbl_mb(e_gauss(1)+k-1)
          end do
       end do
-!$OMP END DO
+!$OMP END MASTER
+!$OMP BARRIER
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dElocal_Qlm(1)))
 
@@ -4381,25 +4449,30 @@ c               end do
       integer np,np_j,np_k,taskid,taskid_j,taskid_k,pcount
       integer iii,iia,ii,ia,lm,l,m,k,jjj,ja,jja,l2,m2,ms
       integer indx,indx1,indx2,Gx,Gy,Gz
-      integer glm_cmp(2),glmvcmp(2),ftmp(2)
+      integer glm_cmp(2),glmvcmp(2),ftmp(2),tmp(2)
       real*8  e1,qq,e1x,e1y,e1z
       integer  Pack_G_indx,c_G_indx
       external Pack_G_indx,c_G_indx
 
       call nwpw_timing_start(38)
 
-      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
-     >           dbl_mb(dElocal_Qlm(1)),1)
+c      call dcopy(2*nion_paw*lm_size_max,0.0d0,0,
+c     >           dbl_mb(dElocal_Qlm(1)),1)
+      call Parallel_shared_vector_zero(.true.,2*nion_paw*lm_size_max,
+     >                                 dbl_mb(dElocal_Qlm(1)))
 
 *     **** allocating stack memory ****
       value = BA_push_get(mt_dcpl,npack0,'glm_cmp',
      >                    glm_cmp(2),glm_cmp(1))
+      value = value.and.BA_push_get(mt_dbl,3,'tmpdot',tmp(2),tmp(1))
       if (move) then
          value = value.and.BA_push_get(mt_dbl,npack0,'glmvcmp',
      >                                 glmvcmp(2),glmvcmp(1))
          value = value.and.BA_push_get(mt_dbl,3*nion_paw,'ftmp',
      >                                 ftmp(2),ftmp(1))
-         call dcopy(3*nion_paw,0.0d0,0,dbl_mb(ftmp(1)),1)
+c         call dcopy(3*nion_paw,0.0d0,0,dbl_mb(ftmp(1)),1)
+         call Parallel_shared_vector_zero(.true.,3*nion_paw,
+     >                                    dbl_mb(ftmp(1)))
       end if
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:out of stack',
@@ -4419,7 +4492,9 @@ c               end do
          ii  = int_mb(ion_pawtoion(1)+iii-1)
          iia = int_mb(katm_paw(1)+iii-1)
          ia  = int_mb(katm_pawtoion(1)+iia-1)
-         if (move) call dcopy(npack0,0.0d0,0,dbl_mb(glmvcmp(1)),1)
+         !if (move) call dcopy(npack0,0.0d0,0,dbl_mb(glmvcmp(1)),1)
+         if (move) call Parallel_shared_vector_zero(.true.,npack0,
+     >                                              dbl_mb(glmvcmp(1)))
 
          lm = 0
          do l=0,int_mb(mult_l(1)+iia-1)
@@ -4430,12 +4505,15 @@ c               end do
                call Pack_cc_idot(0,
      >                           dcpl_mb(glm_cmp(1)),
      >                           vcmp,
-     >                           e1)
+     >                           dbl_mb(tmp(1)))
                !lm = l*(l+1)+m
-               do ms =1,ispin
+!$OMP MASTER
+               do ms=1,ispin
                   indx  = (iii-1)*2*lm_size_max+(ms-1)*lm_size_max+lm
-                  dbl_mb(dElocal_Qlm(1)+indx) = e1
+                  dbl_mb(dElocal_Qlm(1)+indx) = dbl_mb(tmp(1))
                end do
+!$OMP END MASTER
+!$OMP BARRIER
 
                if (move) then
                   indx1  = (iii-1)*2*lm_size_max+lm
@@ -4453,12 +4531,22 @@ c               end do
          end do
          end do
          if (move) then
-            call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(glmvcmp(1)),e1x)
-            call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(glmvcmp(1)),e1y)
-            call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(glmvcmp(1)),e1z)
-            dbl_mb(ftmp(1)+3*(iii-1))  = dbl_mb(ftmp(1)+3*(iii-1))  -e1x
-            dbl_mb(ftmp(1)+3*(iii-1)+1)= dbl_mb(ftmp(1)+3*(iii-1)+1)-e1y
-            dbl_mb(ftmp(1)+3*(iii-1)+2)= dbl_mb(ftmp(1)+3*(iii-1)+2)-e1z
+            call Pack_tt_idot(0,dbl_mb(Gx),dbl_mb(glmvcmp(1)),
+     >                        dbl_mb(tmp(1)))
+            call Pack_tt_idot(0,dbl_mb(Gy),dbl_mb(glmvcmp(1)),
+     >                        dbl_mb(tmp(1)+1))
+            call Pack_tt_idot(0,dbl_mb(Gz),dbl_mb(glmvcmp(1)),
+     >                        dbl_mb(tmp(1)+2))
+!$OMP MASTER
+            dbl_mb(ftmp(1)+3*(iii-1))   = dbl_mb(ftmp(1)+3*(iii-1))  
+     >                                  - dbl_mb(tmp(1))
+            dbl_mb(ftmp(1)+3*(iii-1)+1) = dbl_mb(ftmp(1)+3*(iii-1)+1)
+     >                                  - dbl_mb(tmp(1)+1)
+            dbl_mb(ftmp(1)+3*(iii-1)+2) = dbl_mb(ftmp(1)+3*(iii-1)+2)
+     >                                  - dbl_mb(tmp(1)+2)
+!$OMP END MASTER
+!$OMP BARRIER
+
          end if
       end do
 
@@ -4504,12 +4592,14 @@ c               end do
 
       if (move) then
          call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(ftmp(1)))
+!$OMP DO
          do iii=1,nion_paw
             ii  = int_mb(ion_pawtoion(1)+iii-1)
             fion(1,ii) = fion(1,ii) + dbl_mb(ftmp(1)+3*(iii-1))
             fion(2,ii) = fion(2,ii) + dbl_mb(ftmp(1)+3*(iii-1)+1)
             fion(3,ii) = fion(3,ii) + dbl_mb(ftmp(1)+3*(iii-1)+2)
          end do
+!$OMP END DO
       end if
 
 *     **** popping stack memory ****
@@ -4518,6 +4608,7 @@ c               end do
          value = value.and.BA_pop_stack(ftmp(2))
          value = value.and.BA_pop_stack(glmvcmp(2))
       end if
+      value = value.and.BA_pop_stack(tmp(2))
       value = value.and.BA_pop_stack(glm_cmp(2))
       if (.not.value)
      >  call errquit('nwpw_compcharge_gen_Elocal_Qlm:popping stack',
@@ -4546,9 +4637,16 @@ c               end do
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
-      call daxpy(2*nion_paw*lm_size_max,1.0d0,
-     >           dbl_mb(dElocal_Qlm(1)),1,
-     >           dbl_mb(dE_Qlm(1)),1)
+      integer k
+c      call daxpy(2*nion_paw*lm_size_max,1.0d0,
+c     >           dbl_mb(dElocal_Qlm(1)),1,
+c     >           dbl_mb(dE_Qlm(1)),1)
+!$OMP DO
+      do k=1,2*nion_paw*lm_size_max
+         dbl_mb(dE_Qlm(1)+k-1) = dbl_mb(dE_Qlm(1)+k-1) 
+     >                         + dbl_mb(dElocal_Qlm(1)+k-1) 
+      end do
+!$OMP END DO
 
       return
       end
@@ -4575,7 +4673,7 @@ c               end do
       !call dcopy(2*nion_paw*lm_size_max,0.0d0,0,dbl_mb(dEmult_Qlm(1)),1)
       call Parallel_shared_vector_zero(.true.,2*nion_paw*lm_size_max,
      >                                 dbl_mb(dEmult_Qlm(1)))
-!$OMP DO
+!$OMP MASTER
       do k=1,ngauss
          indx1up = int_mb(lm1_gauss(1)+k-1)
          indx1dn = indx1up + (ispin-1)*lm_size_max
@@ -4594,7 +4692,8 @@ c               end do
          end do
 
       end do
-!$OMP END DO
+!$OMP END MASTER
+!$OMP BARRIER
       call Parallel_Vector_SumAll(2*nion_paw*lm_size_max,
      >                            dbl_mb(dEmult_Qlm(1)))
 
@@ -4683,6 +4782,7 @@ cc     >                            dbl_mb(dE_Qlm(1)))
       fourpi = 16.0d0*datan(1.0d0)
 
       E = 0.0d0
+!$OMP MASTER
       do k=1,ngauss
          indx1up = int_mb(lm1_gauss(1)+k-1)
          indx1dn = indx1up + (ispin-1)*lm_size_max
@@ -4714,6 +4814,8 @@ cc     >                            dbl_mb(dE_Qlm(1)))
          E = E + q1*q2*dbl_mb(e_gauss(1)+k-1)
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
       call Parallel_SumAll(E)
 
       nwpw_compcharge_E_multipole_zv = E
@@ -4848,7 +4950,7 @@ c     *********************************************
       real*8  coeff_hartree(*)
 
       integer n,i,iprj,jprj,iprj1,jprj1
-      real*8  coeff,w,w1,scal
+      real*8  coeff,w,w1,scal,eh0
 
 *     **** external functions ****
       real*8   lattice_omega
@@ -4856,8 +4958,8 @@ c     *********************************************
 
       call nwpw_timing_start(21)
       scal = 1.0d0/lattice_omega()
+      eh0 = 0.0d0
 
-!$OMP DO
       do i=1,nindx
          iprj  = iprj_hartree(i)
          jprj  = jprj_hartree(i)
@@ -4866,15 +4968,20 @@ c     *********************************************
          coeff = coeff_hartree(i)
          w  = wmatrix(iprj,jprj,1)   + wmatrix(iprj,jprj,ispin)
          w1 = wmatrix(iprj1,jprj1,1) + wmatrix(iprj1,jprj1,ispin)
-         eh = eh + coeff*w*w1*scal*scal*0.5d0
+         eh0 = eh0 + coeff*w*w1*scal*scal*0.5d0
+!$OMP DO
          do n=1,ne(1)+ne(2)
             sw2(n,iprj) = sw2(n,iprj) 
      >                  + scal*coeff*sw1(n,jprj)*w1*0.5d0
             sw2(n,iprj1) = sw2(n,iprj1) 
      >                   + scal*coeff*sw1(n,jprj1)*w*0.5d0
          end do
-      end do
 !$OMP END DO
+      end do
+
+!$OMP MASTER
+      eh = eh0
+!$OMP END MASTER
    
       call nwpw_timing_end(21)
       return

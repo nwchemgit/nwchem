@@ -744,11 +744,13 @@ c        **** broadcast work2  within my column ***
       integer i,j,ii,jj
       integer kk,iwrk,icur,jcur,ierr,shift
 
+!$OMP DO
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
             C(i,j) = beta*C(i,j)
          end do
       end do
+!$OMP END DO
 
       ii = 0
       jj = 0
@@ -766,12 +768,15 @@ c     **** loop over all row pannels of C ***
 
 *           **** pack current iwrk columns of A into work1 ***
             if (taskid_j.eq.jcur) then
+!$OMP MASTER
                call dlacpy("G", ma(taskid_i+1),iwrk,
      >                   A(1,jj+1), lda,
      >                   work1,     ma(taskid_i+1))
+!$OMP END MASTER
             end if
 
 c           **** broadcast work1  within my row ***
+!$OMP MASTER
 #ifdef MPI4
             stupid_msglen = iwrk*ma(taskid_i+1)
             stupid_taskid = jcur
@@ -782,6 +787,8 @@ c           **** broadcast work1  within my row ***
             call MPI_Bcast(work1,iwrk*ma(taskid_i+1),
      >                     MPI_DOUBLE_PRECISION,jcur,comm_j,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 c            if ((iwrk.gt.0)          .and.
@@ -789,7 +796,7 @@ c     >          (nb(taskid_j+1).gt.0).and.
 c     >          (ma(taskid_i+1).gt.0))
             if ((iwrk.gt.0)          .and.
      >          (nb(taskid_j+1).gt.0))
-     >        call dgemm('T','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
+     >        call dgemm_omp('T','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
      >                   alpha,
      >                   work1, ma(taskid_i+1),
      >                   B, ldb,
@@ -798,11 +805,14 @@ c     >          (ma(taskid_i+1).gt.0))
 
 *        **** iwrk*nc(taskid_j+1) submatrix ==0 ****
          else
-            call dcopy(nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+            !call dcopy(nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+            call Parallel_shared_vector_zero(.true.,
+     >                                       nc(taskid_j+1)*iwrk,work2)
          end if
 
 
 c        **** summ to node that holds current rows of C ****
+!$OMP MASTER
 #ifdef MPI4
          stupid_msglen = nc(taskid_j+1)*iwrk
          stupid_taskid = icur
@@ -813,13 +823,15 @@ c        **** summ to node that holds current rows of C ****
          call MPI_Reduce(work2,work1,nc(taskid_j+1)*iwrk,
      >                   MPI_DOUBLE_PRECISION,MPI_SUM,icur,comm_i,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 c        **** add to current rows of C ****
          if (taskid_i.eq.icur) then
             shift = 1
             do i=ii,(ii+iwrk-1)
-               call daxpy(nc(taskid_j+1),1.0d0,work1(shift),iwrk,
+               call daxpy_omp(nc(taskid_j+1),1.0d0,work1(shift),iwrk,
      >                                    C(i+1,1),mc(taskid_i+1))
                shift = shift + 1
             end do

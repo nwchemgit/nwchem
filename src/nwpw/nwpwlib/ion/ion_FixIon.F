@@ -319,20 +319,25 @@
       integer i
 
       if (count.ne.0) then
+!$OMP DO
          do i=1,count
             force(1,int_mb(ion_number(1)+i-1)) = 0.0d0
             force(2,int_mb(ion_number(1)+i-1)) = 0.0d0
             force(3,int_mb(ion_number(1)+i-1)) = 0.0d0
          end do
+!$OMP END DO
       end if
 
       if (countz.ne.0) then
+!$OMP DO
          do i=1,countz
             force(3,int_mb(ion_numberz(1)+i-1)) = 0.0d0
          end do
+!$OMP END DO
       end if
 
       if (count2.ne.0) then
+!$OMP DO
          do i=1,count2
             force(1,int_mb(ion_number1r(1)+i-1)) =
      >     -force(1,int_mb(ion_number1(1)+i-1))
@@ -341,6 +346,7 @@
             force(3,int_mb(ion_number1r(1)+i-1)) = 
      >     -force(3,int_mb(ion_number1(1)+i-1))
          end do
+!$OMP END DO
       end if
 
 
@@ -370,6 +376,7 @@
       integer i
 
       if (count.ne.0) then
+!$OMP DO
          do i=1,count
             r2(1,int_mb(ion_number(1)+i-1)) 
      >      = r1(1,int_mb(ion_number(1)+i-1)) 
@@ -378,6 +385,7 @@
             r2(3,int_mb(ion_number(1)+i-1))
      >      = r1(3,int_mb(ion_number(1)+i-1)) 
          end do
+!$OMP END DO
       end if
 
       return

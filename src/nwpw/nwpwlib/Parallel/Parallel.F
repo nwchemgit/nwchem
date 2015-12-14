@@ -611,10 +611,14 @@ c     **** external functions ****
 
          else
             if (barrier) then
+!$OMP MASTER
                call dcopy(n,a,1,b,1)
+!$OMP END MASTER
 !$OMP BARRIER
             else
+!$OMP MASTER
                call dcopy(n,a,1,b,1)
+!$OMP END MASTER
             end if
          end if
       end if

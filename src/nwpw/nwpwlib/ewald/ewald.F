@@ -829,6 +829,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8  yerfc
       real*8  sum,scal2,f
       real*8  sw1,sw2,sw3,zii
+      common /ewald_f_sw1sw2/ sw1,sw2,sw3
 
 *     **** temporary workspace variables ****
       integer nion
@@ -864,14 +865,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call dcopy(nion,0.0d0,0,dbl_mb(fx(1)),1)
       call dcopy(nion,0.0d0,0,dbl_mb(fy(1)),1)
       call dcopy(nion,0.0d0,0,dbl_mb(fz(1)),1)
+      call Parallel_shared_vector_zero(.false.,nion,dbl_mb(fx(1)))
+      call Parallel_shared_vector_zero(.false.,nion,dbl_mb(fy(1)))
+      call Parallel_shared_vector_zero(.true., nion,dbl_mb(fz(1)))
      
 *     **** get the structure factor ****
       if (notzero_enpack) then
-         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         !call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         call Parallel_shared_vector_zero(.true.,2*enpack,dcpl_mb(s(1)))
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
             zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+            call daxpy_omp(2*enpack,zii,dcpl_mb(exi(1)),1,
+     >                     dcpl_mb(s(1)),1)
          end do
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
@@ -888,6 +894,7 @@ c         end do
      >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
      >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
+!$OMP MASTER
             zii=dbl_mb(zv(1)+ion_katm(ii)-1)
             sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
             dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
@@ -898,6 +905,8 @@ c         end do
             sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
             dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
      >                         +  sum*zii*scal2
+!$OMP END MASTER
+!$OMP BARRIER
          end do
       end if
     
@@ -909,9 +918,12 @@ c         end do
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
+!$OMP SINGLE
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
+!$OMP END SINGLE
+!$OMP DO REDUCTION(+:sw1,sw2,sw3)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
            y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
@@ -926,7 +938,9 @@ c         end do
               sw3=sw3+(z*f)
            end if
         end do
+!$OMP END DO
 
+!$OMP MASTER
         dbl_mb(fx(1)+i-1) = dbl_mb(fx(1)+i-1) + sw1
         dbl_mb(fy(1)+i-1) = dbl_mb(fy(1)+i-1) + sw2
         dbl_mb(fz(1)+i-1) = dbl_mb(fz(1)+i-1) + sw3
@@ -934,6 +948,8 @@ c         end do
         dbl_mb(fx(1)+j-1) = dbl_mb(fx(1)+j-1) - sw1
         dbl_mb(fy(1)+j-1) = dbl_mb(fy(1)+j-1) - sw2
         dbl_mb(fz(1)+j-1) = dbl_mb(fz(1)+j-1) - sw3
+!$OMP END MASTER
+!$OMP BARRIER
 
        end if
        dutask = mod((dutask+1),tnp)
@@ -945,11 +961,13 @@ c         end do
           call Parallel_Vector_SumAll(nion,dbl_mb(fz(1)))
       end if
 
+!$OMP DO
       do i=1,nion
          fion(1,i) = fion(1,i) + dbl_mb(fx(1)+i-1)
          fion(2,i) = fion(2,i) + dbl_mb(fy(1)+i-1)
          fion(3,i) = fion(3,i) + dbl_mb(fz(1)+i-1)
       end do
+!$OMP END DO
       
 *     **** deallocate temp workspace ****
       value =           BA_pop_stack(fz(2))
@@ -975,9 +993,11 @@ c         end do
 
       integer i
 
+!$OMP DO
       do i=1,n
         t(i) = v(i)*(dble(e(i))*dimag(s(i)) - dimag(e(i))*dble(s(i)))
       end do
+!$OMP END DO
 
       return
       end
@@ -2437,6 +2457,7 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       real*8  yerfc
       real*8  sum,scal2,f
       real*8  sw1,sw2,sw3,zii
+      common /ewald_f_async_sw1s2/ sw1,sw2,sw3
 
 *     **** temporary workspace variables ****
       integer nion
@@ -2462,11 +2483,13 @@ c      call dcopy(9,0.0d0,0,Cus,1)
          if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
 
 *        **** get the structure factor ****
-         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         !call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         call Parallel_shared_vector_zero(.true.,2*enpack,dcpl_mb(s(1)))
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
             zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+            call daxpy_omp(2*enpack,zii,dcpl_mb(exi(1)),1,
+     >                     dcpl_mb(s(1)),1)
          end do
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
@@ -2483,6 +2506,7 @@ c         end do
      >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
      >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
+!$OMP MASTER
             zii=dbl_mb(zv(1)+ion_katm(ii)-1)
             sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
             fion(1,ii) = fion(1,ii) + sum*zii*scal2
@@ -2490,6 +2514,8 @@ c         end do
             fion(2,ii) = fion(2,ii) + sum*zii*scal2
             sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
             fion(3,ii) = fion(3,ii) + sum*zii*scal2
+!$OMP END MASTER
+!$OMP BARRIER
          end do
       end if
     
@@ -2501,9 +2527,12 @@ c         end do
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
+!$OMP SINGLE
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
+!$OMP END SINGLE
+!$OMP DO REDUCTION(+:sw1,sw2,sw3)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
            y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
@@ -2518,7 +2547,9 @@ c         end do
               sw3=sw3+(z*f)
            end if
         end do
+!$OMP END DO
 
+!$OMP MASTER
         fion(1,i) = fion(1,i) + sw1
         fion(2,i) = fion(2,i) + sw2
         fion(3,i) = fion(3,i) + sw3
@@ -2526,6 +2557,8 @@ c         end do
         fion(1,j) = fion(1,j) - sw1
         fion(2,j) = fion(2,j) - sw2
         fion(3,j) = fion(3,j) - sw3
+!$OMP END MASTER
+!$OMP BARRIER
 
        end if
        dutask = mod((dutask+1),tnp)
@@ -2573,6 +2606,7 @@ c         end do
       real*8  yerfc
       real*8  sum,scal2,f
       real*8  sw1,sw2,sw3,zii
+      common /ewald_f_qm_async_sw1sw2/ sw1,sw2,sw3
 
 *     **** temporary workspace variables ****
       integer nion
@@ -2598,11 +2632,13 @@ c         end do
          if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
 
 *        **** get the structure factor ****
-         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         !call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         call Parallel_shared_vector_zero(.true.,2*enpack,dcpl_mb(s(1)))
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
             zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+            call daxpy_omp(2*enpack,zii,dcpl_mb(exi(1)),1,
+     >                     dcpl_mb(s(1)),1)
          end do
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
@@ -2619,6 +2655,7 @@ c         end do
      >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
      >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
+!$OMP MASTER
             zii=dbl_mb(zv(1)+ion_katm(ii)-1)
             sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
             fion(1,ii) = fion(1,ii) + sum*zii*scal2
@@ -2626,6 +2663,8 @@ c         end do
             fion(2,ii) = fion(2,ii) + sum*zii*scal2
             sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
             fion(3,ii) = fion(3,ii) + sum*zii*scal2
+!$OMP END MASTER
+!$OMP BARRIER
          end do
       end if
     
@@ -2637,9 +2676,12 @@ c         end do
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
+!$OMP SINGLE
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
+!$OMP END SINGLE
+!$OMP DO REDUCTION(+:sw1,sw2,sw3)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
            y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
@@ -2652,7 +2694,9 @@ c         end do
            sw2=sw2+(y*f)
            sw3=sw3+(z*f)
         end do
+!$OMP END DO
 
+!$OMP MASTER
         fion(1,i) = fion(1,i) + sw1
         fion(2,i) = fion(2,i) + sw2
         fion(3,i) = fion(3,i) + sw3
@@ -2660,6 +2704,7 @@ c         end do
         fion(1,j) = fion(1,j) - sw1
         fion(2,j) = fion(2,j) - sw2
         fion(3,j) = fion(3,j) - sw3
+!$OMP END MASTER
 
        end if
        dutask = mod((dutask+1),tnp)
@@ -2707,6 +2752,7 @@ c         end do
       real*8  yerfc
       real*8  sum,scal2,f
       real*8  sw1,sw2,sw3,zii
+      common /ewald_f_mm_async_sw1sw2/ sw1,sw2,sw3
 
 *     **** temporary workspace variables ****
       integer nion,nion_qm,nion_mm
@@ -2734,11 +2780,13 @@ c         end do
          if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
      
 *        **** get the structure factor ****
-         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         !call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         call Parallel_shared_vector_zero(.true.,2*enpack,dcpl_mb(s(1)))
          do ii=1,nion_mm
             call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
             zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
-            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+            call daxpy_omp(2*enpack,zii,dcpl_mb(exi(1)),1,
+     >                     dcpl_mb(s(1)),1)
          end do
          do ii=1,nion_mm
             call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
@@ -2747,6 +2795,7 @@ c         end do
      >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
      >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
+!$OMP MASTER
             zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
             sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
             fion(1,nion_qm+ii) = fion(1,nion_qm+ii) + sum*zii*scal2
@@ -2754,6 +2803,8 @@ c         end do
             fion(2,nion_qm+ii) = fion(2,nion_qm+ii) + sum*zii*scal2
             sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
             fion(3,nion_qm+ii) = fion(3,nion_qm+ii) + sum*zii*scal2
+!$OMP END MASTER
+!$OMP BARRIER
          end do
       end if
     
@@ -2765,9 +2816,12 @@ c         end do
         dy = ion_rion(2,nion_qm+i) - ion_rion(2,nion_qm+j)
         dz = ion_rion(3,nion_qm+i) - ion_rion(3,nion_qm+j)
         zz = ewald_zv(ion_katm(nion_qm+i))*ewald_zv(ion_katm(nion_qm+j))
+!$OMP SINGLE
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
+!$OMP END SINGLE
+!$OMP DO REDUCTION(+:sw1,sw2,sw3)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
            y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
@@ -2780,7 +2834,9 @@ c         end do
            sw2=sw2+(y*f)
            sw3=sw3+(z*f)
         end do
+!$OMP END DO
 
+!$OMP MASTER
         fion(1,nion_qm+i) = fion(1,nion_qm+i) + sw1
         fion(2,nion_qm+i) = fion(2,nion_qm+i) + sw2
         fion(3,nion_qm+i) = fion(3,nion_qm+i) + sw3
@@ -2788,6 +2844,8 @@ c         end do
         fion(1,nion_qm+j) = fion(1,nion_qm+j) - sw1
         fion(2,nion_qm+j) = fion(2,nion_qm+j) - sw2
         fion(3,nion_qm+j) = fion(3,nion_qm+j) - sw3
+!$OMP END MASTER
+!$OMP BARRIER
 
        end if
        dutask = mod((dutask+1),tnp)

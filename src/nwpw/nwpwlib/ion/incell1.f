@@ -44,6 +44,7 @@
       call dscal(9,volume,b,1)
 
 
+!$OMP DO
       do i =1,ni
 	
 *        *** Break the Ion positions into the a1, a2, and a3 components ***
@@ -137,6 +138,7 @@
         ENDIF
 
       end do 
+!$OMP END DO
 
       return
       end

@@ -2598,7 +2598,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do q=tid+1,nq2(1),nthr
          indx = 1+(q-1)*ny(1)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call dcfftf(ny(1),tmp1(indx),dcpl_mb(tmpy(1,1)))
+            call dcfftf(ny(1),tmp1(indx),dcpl_mb(tmpy(1,1)+offset))
          end if
          !indx = indx + ny(1)
       end do

@@ -3090,7 +3090,7 @@ c     ****************************************
          end if
       end if
 
-      call dscal(nn,alpha,M,1)
+      call dscal_omp(nn,alpha,M,1)
       return
       end
 
@@ -3903,8 +3903,13 @@ c     ****************************************
          if (.not.value)
      >   call errquit('Dneall_m_add_sw1sw2:push stack',0,MA_ERR)
 
-         call dcopy(nn*nprj,0.0d0,0,dbl_mb(sw1b(1)),1)
-         call dcopy(nn*nprj,0.0d0,0,dbl_mb(sw2b(1)),1)
+         !call dcopy(nn*nprj,0.0d0,0,dbl_mb(sw1b(1)),1)
+         !call dcopy(nn*nprj,0.0d0,0,dbl_mb(sw2b(1)),1)
+         call Parallel_shared_vector_zero(.false.,nn*nprj,
+     >                                    dbl_mb(sw1b(1)))
+         call Parallel_shared_vector_zero(.true.,nn*nprj,
+     >                                    dbl_mb(sw2b(1)))
+!$OMP MASTER
          do q=1,nnq
             call Dneall_qton(q+mshiftp,n)
             n = n-mshiftm
@@ -3915,6 +3920,8 @@ c     ****************************************
             call dcopy(nprj,sw1(q),nnq,dbl_mb(sw1b(1)+n-1),nn)
             call dcopy(nprj,sw2(q),nnq,dbl_mb(sw2b(1)+n-1),nn)
          end do
+!$OMP END MASTER
+!$OMP BARRIER
          call D1dB_SumAll(nn*nprj,dbl_mb(sw1b(1)))
          call D1dB_SumAll(nn*nprj,dbl_mb(sw2b(1)))
 
@@ -3938,9 +3945,12 @@ c     ****************************************
      >                                     int_mb(mc(1,ms)),
      >                                     int_mb(nc(1,ms)))
                   if (pto.eq.taskid) then
+!$OMP MASTER
                      w = ddot(nprj,dbl_mb(sw1b(1)+i-1+shift1),nn,
      >                             dbl_mb(sw2b(1)+j-1+shift1),nn)
                      call Dneall_m_add_value(scal*w,mb,ms,i,j,S)
+!$OMP END MASTER
+!$OMP BARRIER
                   end if
                end do
                end do
@@ -3962,7 +3972,7 @@ c     ****************************************
                if (ne(ms).gt.0) then
                   shift1 =   (ms-1)*ishift1
                   shift2 = 1+(ms-1)*ishift2
-                  call DGEMM('N','T',ne(ms),ne(ms),nprj,
+                  call DGEMM_OMP('N','T',ne(ms),ne(ms),nprj,
      >                       scal,
      >                       dbl_mb(sw1b(1)+shift1), nn,
      >                       dbl_mb(sw2b(1)+shift1), nn,
@@ -3993,7 +4003,7 @@ c     ****************************************
             if (ne(ms).gt.0) then
                shift1 = 1+(ms-1)*ishift1
                shift2 = 1+(ms-1)*ishift2
-               call DGEMM('N','T',
+               call DGEMM_OMP('N','T',
      >                    ne(ms),ne(ms),nprj,
      >                    scal,
      >                    sw1(shift1), nn,
@@ -4679,10 +4689,13 @@ c            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
       integer nall,npack,indx(*)
       real*8 A(*),B(*)
       integer i
-      call dcopy(nall,0.0d0,0,B,1)
+      !call dcopy(nall,0.0d0,0,B,1)
+      call Parallel_shared_vector_zero(.true.,nall,B)
+!$OMP DO
       do i=1,npack
          B(indx(i)) = A(i)
       end do  
+!$OMP END DO
       call Parallel_Vector_SumAll(nall,B)
       return
       end
@@ -4692,9 +4705,11 @@ c            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
       integer npack,indx(*)
       real*8 A(*),B(*)
       integer i
+!$OMP DO
       do i=1,npack
          B(i) = A(indx(i))
       end do  
+!$OMP END DO
       return
       end
 
@@ -7343,7 +7358,8 @@ c     ****************************************
          end if
       end if
 
-      call dcopy(nn,M1,1,M2,1)
+      !call dcopy(nn,M1,1,M2,1)
+      call Parallel_shared_vector_copy(.true.,nn,M1,M2)
       return
       end
 
@@ -7378,7 +7394,7 @@ c     ****************************************
          end if
       end if
 
-      call daxpy(nn,alpha,M1,1,M2,1)
+      call daxpy_omp(nn,alpha,M1,1,M2,1)
       return
       end
 
@@ -7414,7 +7430,8 @@ c     ****************************************
          end if
       end if
 
-      call dcopy(nn,0.0d0,0,M1,1)
+      !call dcopy(nn,0.0d0,0,M1,1)
+      call Parallel_shared_vector_zero(.true.,nn,M1)
       return
       end
 
