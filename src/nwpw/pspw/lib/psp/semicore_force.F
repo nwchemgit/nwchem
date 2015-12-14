@@ -31,12 +31,13 @@ c     logocal semicore(0:nkatmx)
       logical value
       integer npack0,nfft3d,n2ft3d
       integer ii,ia,nx,ny,nz
-      real*8  sumx,sumy,sumz
       real*8  scal1,scal2
       integer exi(2),vxcG(2)
       integer Gx(2),Gy(2),Gz(2)
       integer dng(2)
       integer dngx(2),dngy(2),dngz(2)
+      real*8  sumx,sumy,sumz
+      common /semicore_xc_F_sums/ sumx,sumy,sumz
 
 *     **** external functions ****
       integer  ion_nion,ion_katm,G_indx
@@ -148,9 +149,12 @@ c     >                        dcpl_mb(dngz(1)))
            call D3dB_rr_dot(1,dcpl_mb(dngy(1)),dcpl_mb(vxcG(1)),sumy)
            call D3dB_rr_dot(1,dcpl_mb(dngz(1)),dcpl_mb(vxcG(1)),sumz)
 
+!$OMP MASTER
            fion(1,ii) = fion(1,ii) + sumx*scal2*scal1
            fion(2,ii) = fion(2,ii) + sumy*scal2*scal1
            fion(3,ii) = fion(3,ii) + sumz*scal2*scal1
+!$OMP END MASTER
+!$OMP BARRIER
 
 c          write(*,*) "semicore-force:",sumx*scal2*scal1,
 c    >                                  sumy*scal2*scal1,
