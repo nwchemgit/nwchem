@@ -62,7 +62,8 @@ c     logocal semicore(0:nkatmx)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
-      call dcopy(n2ft3d,0.0d0,0,dcpl_mb(vxcG(1)),1)
+      !call dcopy(n2ft3d,0.0d0,0,dcpl_mb(vxcG(1)),1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d,dcpl_mb(vxcG(1)))
       call D3dB_rr_Sum(1,xcp(1),
      >                   xcp(1+(ispin-1)*n2ft3d),
      >                   dcpl_mb(vxcG(1)))
@@ -97,9 +98,12 @@ c     logocal semicore(0:nkatmx)
            call Pack_cc_dot(0,dcpl_mb(tmpy(1)),dcpl_mb(vxcG(1)),sumy)
            call Pack_cc_dot(0,dcpl_mb(tmpz(1)),dcpl_mb(vxcG(1)),sumz)
 
+!$OMP MASTER
            fion(1,ii) = fion(1,ii) + sumx*dsqrt(scal1*scal2)
            fion(2,ii) = fion(2,ii) + sumy*dsqrt(scal1*scal2)
            fion(3,ii) = fion(3,ii) + sumz*dsqrt(scal1*scal2)
+!$OMP END MASTER
+!$OMP BARRIER
          end if
 
       end do
