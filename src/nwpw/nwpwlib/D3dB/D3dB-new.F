@@ -3545,21 +3545,30 @@ c      call Parallel2d_np_i(np)
 
       integer i,np
       real*8  sum
+      common /D3dB_RR_TSUM/ sum
 
       call Parallel2d_np_i(np)
 
 *     **** sum up dot product on this node ****
+!$OMP MASTER
       sum = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:sum)
       do i=1,n2ft3d_map(nb)
          sum = sum + A(i)*B(i)
       end do
+!$OMP END DO
 
 *     **** add up sums from other nodes ****
       if (np.gt.1) then
          call D3dB_SumAll(sum)
       end if
 
+!$OMP MASTER
       sumall = sum
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
