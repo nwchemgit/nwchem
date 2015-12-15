@@ -53,6 +53,7 @@ c
       Character Coord(3)
       Character*8 Units,What,Spin,Where
       Character*80 File_Out
+      character*255 file_out_dir
       character*30 tag
       Character*255 Title
       Logical LResult, DeBug
@@ -367,9 +368,10 @@ c --  Set up the grid
       Out_Unit = LuOut
       If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .
      &    File_Out.ne.'OUTPUT') Then
+      call util_file_name(file_out,.false.,.false.,file_out_dir)
             Out_Unit=20
             Open(unit=Out_Unit,
-     &           file=File_Out,
+     &           file=file_out_dir,
      &           status='unknown',
      &           access='sequential',
      &           form='formatted',

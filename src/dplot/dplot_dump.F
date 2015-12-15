@@ -112,6 +112,7 @@ c
             Write(LuOut,'(a,f30.5)')'  Integrated Charge    = ',AppCh
          End If
       End If
+      call util_flush(out_unit)
       return
       end
 c $Id$
