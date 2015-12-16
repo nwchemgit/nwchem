@@ -47,6 +47,7 @@ c ---------- FA-definitions -------- END
 c
 c  set some defaults
 c
+      field=' '
       plot = 'normal' ! normal or resonance
       line = 'lorentzian' !  lorentzian (l) or gaussian (g) lineshape
       width = 20.0D+00 ! full-width at half maximum (FWHM) in 1/cm

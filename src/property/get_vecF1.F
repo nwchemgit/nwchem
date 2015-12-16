@@ -186,7 +186,6 @@ c --> Experimental (not published yet)
       integer alo(3), ahi(3),
      &        blo(3), bhi(3) 
       logical lvelocity,oskel,debug
-      external giao_aotomo
       oskel = .false.
       ndir=3 ! nr directions (x,y,z)
 c     Get dipole integrals in GA and transform to MO set (virt,occ)

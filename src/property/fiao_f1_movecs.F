@@ -88,8 +88,6 @@ c     nwchem file access character strings:
 c     external functions:
       logical  cphf2, cphf3, file_write_ga, file_read_ga, cphf
       external cphf2, cphf3, file_write_ga, file_read_ga, cphf
-      external get_vecF1,update_rhs_dipole,
-     &         get_nocc
 
 c  ====================================================================
       ndir=3 ! nr directions (x,y,z)
