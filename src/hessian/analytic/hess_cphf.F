@@ -18,7 +18,7 @@ c
 #include "util.fh"
 c
       integer rtdb 
-      integer ind, index, index1, index2
+      integer ind, index, index1
       integer nc
       integer nbf2, ndns, ndip
       integer l_evals, k_evals, l_occ, k_occ
@@ -571,23 +571,21 @@ c
       alo(3) = 1
       bhi(1) = 0
       index1 = 1
+      blo(1) = 1
       do ndns = 1, ndens
-        index2 = 1
         ahi(2) = nocc(ndns)
         ahi(3) = nvirt(ndns)
-        blo(1) = 1
-        if (ndns.ne.1) blo(1) = blo(1) + nocc(ndns-1)*nvirt(ndns-1)
         bhi(1) = bhi(1) + nocc(ndns)*nvirt(ndns)
         do ind = 1, nc
           alo(1) = index1
           ahi(1) = index1
-          blo(2) = index2
-          bhi(2) = index2
+          blo(2) = ind
+          bhi(2) = ind
           call nga_copy_patch('T',g_wax,alo,ahi,
      $      g_sol,blo,bhi)   ! put into format for current cphf
           index1 = index1 + 1
-          index2 = index2 + 1
         enddo
+        blo(1) = bhi(1)
       enddo
       if (.not.ga_destroy(g_wax)) call errquit
      $  ('cannot destroy g_wax ',555, GA_ERR)
@@ -601,13 +599,11 @@ c
         do idens = 1, ndens
           do i = 1, n3xyz
             ind = ind + 1
-            ilo(1) = ind
-            ilo(2) = 1
-            ilo(3) = 1
-            ihi(1) = ind
-            ihi(2) = nocc(idens)+nvirt(idens)
-            ihi(3) = nocc(idens)+nvirt(idens)
-            call nga_print_patch(g_sol,ilo,ihi,1)
+            blo(1) = ind
+            blo(2) = 1
+            bhi(1) = ind
+            bhi(2) = nocc(idens)+nvirt(idens)
+            call nga_print_patch(g_sol,blo,bhi,1)
           enddo
         enddo
       endif
@@ -616,13 +612,11 @@ c
         do idens = 1, ndens
           do i = 1, n3xyz
             ind = ind + 1
-            ilo(1) = ind
-            ilo(2) = 1
-            ilo(3) = 1
-            ihi(1) = ind
-            ihi(2) = nocc(idens)+nvirt(idens)
-            ihi(3) = nocc(idens)+nvirt(idens)
-            call nga_normf_patch(g_sol,ilo,ihi,dnrm)
+            blo(1) = ind
+            blo(2) = 1
+            bhi(1) = ind
+            bhi(2) = nocc(idens)+nvirt(idens)
+            call nga_normf_patch(g_sol,blo,bhi,dnrm)
             if (olprint) then
               write(LuOut,'(a,": solution =",i2,i4,f24.8)')
      &        __FILE__,
