@@ -368,7 +368,8 @@ c --  Set up the grid
       Out_Unit = LuOut
       If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .
      &    File_Out.ne.'OUTPUT') Then
-      call util_file_name(file_out,.false.,.false.,file_out_dir)
+      call util_file_name_noprefix(file_out,.false.,.false.,
+     F        file_out_dir)
             Out_Unit=20
             Open(unit=Out_Unit,
      &           file=file_out_dir,
