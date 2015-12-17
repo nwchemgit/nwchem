@@ -655,14 +655,14 @@ cold        if (.not.nwxc_input()) then
         value = .true.
         call nwxc_getvals("nwxc_has_hfx",out1)
         if (out1) then
+          call nwxc_getwght("nwxc_wght_hfx",xfac)
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
           value = value .and.
      +            rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,
-     +                     out1)
-           call nwxc_getwght("nwxc_wght_hfx",xfac)
+     +                     xfac)
           value = value .and.
      +            rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,
      +                     xfac)
