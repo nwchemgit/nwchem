@@ -207,10 +207,10 @@ Vx[],
     }/*for i*/
 
 
-    printf("------------------------------------\n");
-    for (i=0;i<Ngrid;++i)
-       printf("%le %le %le\n",rho[i],Vx[i],ex_density[i]);
-    printf("------------------------------------\n");
+//    printf("------------------------------------\n");
+//    for (i=0;i<Ngrid;++i)
+//       printf("%le %le %le\n",rho[i],Vx[i],ex_density[i]);
+//    printf("------------------------------------\n");
 
 
 

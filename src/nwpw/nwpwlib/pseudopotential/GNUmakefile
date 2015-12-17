@@ -23,7 +23,7 @@
                 perdew_wang.o perdew_zunger.o vosko.o \
                 pbe_exchange.o pbe_correlation.o \
                 revpbe_exchange.o revpbe_correlation.o \
-                becke_exchange.o lyp_correlation2.o \
+                becke_exchange.o lyp_correlation.o \
                 hamann.o \
                 troullier.o xpansion.o gaussj.o \
                 vanderbilt.o xpansion2.o \
