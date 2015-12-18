@@ -233,6 +233,7 @@ c     real*8     fion(3,natmx)
       nthreads = Parallel_nthreads()
       do it=1,it_in
 
+
         call Pack_c_nCopy(1,nemax,psi2,psi1)
 
         if (move) then
@@ -532,6 +533,8 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *     *** get orbital energies ****
       call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
       call Dneall_m_scal(0,(-1.0d0),hml)
+!$OMP END PARALLEL
+
       if (fractional) then
          !call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)
          eorbit = Dneall_m_trace(0,hml)
@@ -540,7 +543,6 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
          eorbit = Dneall_m_trace(0,hml)
       end if
       if (ispin.eq.1) eorbit = eorbit+eorbit
-!$OMP END PARALLEL
        
 
 *     **** get ewald energy ****
