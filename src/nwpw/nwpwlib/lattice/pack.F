@@ -2948,7 +2948,7 @@ c      end do
 
       !call dcopy(2*nfft3d,A,1,tmp1,1)
       !call dcopy(2*nfft3d,0.0d0,0,A,1)
-      call Parallel_shared_vector_copy(.true.,2*nfft3d,A,tmp1)
+      call Parallel_shared_vector_copy(.false.,2*nfft3d,A,tmp1)
       call Parallel_shared_vector_zero(.true.,2*nfft3d,A)
 
       n = nida(nb)+nidb(nb)

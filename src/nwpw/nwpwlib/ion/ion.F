@@ -2536,11 +2536,14 @@ c      end do
 #include "bafdecls.fh"
 #include "ion.fh"
 
-!$OMP MASTER
-      call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
-      call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
-!$OMP END MASTER
-!$OMP BARRIER
+      !call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
+      !call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
+      call Parallel_shared_vector_copy(.false.,3*nion,
+     >                                 dbl_mb(r1(1)),
+     >                                 dbl_mb(r0(1)))
+      call Parallel_shared_vector_copy(.true.,3*nion,
+     >                                 dbl_mb(r2(1)),
+     >                                 dbl_mb(r1(1)))
       return
       end
 

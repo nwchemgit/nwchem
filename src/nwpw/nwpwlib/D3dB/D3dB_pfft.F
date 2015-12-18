@@ -2890,6 +2890,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       else if (step.eq.4) then
          call D3dB_pfftf_final(nbb,tmp1,tmp2,request,reqcnt)
       end if
+!$OMP BARRIER
 
       return
       end
@@ -3782,7 +3783,7 @@ c      int_mb(qstatus(1)+last_index-1) = 1
       call Parallel_shared_iinc(.false.,1,qsize)
       call Parallel_shared_icopy(.false.,last_index,
      >                           int_mb(qindx(1)+qsize-1))
-      call Parallel_shared_icopy(.false.,1,
+      call Parallel_shared_icopy(.true.,1,
      >                           int_mb(qstatus(1)+last_index-1))
 
       status = 1
@@ -3795,7 +3796,6 @@ c      int_mb(qstatus(1)+last_index-1) = 1
      >                     dcpl_mb(tmp(1)+shift2),
      >                     int_mb(request(1)+shift3),
      >                     int_mb(reqcnt(1)+last_index-1))
-!$OMP BARRIER
 
 c      call nwpw_timing_end(1)
       call nwpw_timing_end(30)
@@ -3871,7 +3871,6 @@ c      end do
      >                                int_mb(qstatus(1)+indx-1))
          end do
       end do
-!$OMP BARRIER
 
 c      qsize = qsize -1
 c      do q=1,qsize
@@ -3959,7 +3958,7 @@ c      int_mb(qstatus(1)+last_index-1) = 1
       call Parallel_shared_iinc(.false.,1,qsize)
       call Parallel_shared_icopy(.false.,last_index,
      >                           int_mb(qindx(1)+qsize-1))
-      call Parallel_shared_icopy(.false.,1,
+      call Parallel_shared_icopy(.true.,1,
      >                           int_mb(qstatus(1)+last_index-1))
 
       status = 1
