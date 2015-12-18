@@ -228,12 +228,10 @@ c     real*8     fion(3,natmx)
 *     ****   Start of steepest descent loop ****
 *     ****                                  ****
 *     ******************************************
-      do it=1,it_in
-
-
-!$OMP PARALLEL private(tid,nthreads)
+!$OMP PARALLEL private(it,tid,nthreads)
       tid      = Parallel_threadid()
       nthreads = Parallel_nthreads()
+      do it=1,it_in
 
         call Pack_c_nCopy(1,nemax,psi2,psi1)
 
@@ -496,7 +494,6 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call ion_optimize_step(dbl_mb(fion(1)))
         end if
 
-!$OMP END PARALLEL
 
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
@@ -543,6 +540,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
          eorbit = Dneall_m_trace(0,hml)
       end if
       if (ispin.eq.1) eorbit = eorbit+eorbit
+!$OMP END PARALLEL
        
 
 *     **** get ewald energy ****
@@ -618,11 +616,13 @@ c      end do
 c      end do
 c      if (np.gt.1) call Parallel_SumAll(enlocal)
 c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
+
       enlocal = E_vnonlocal(ispin,ne,fractional,occ1)
 
 
 
 *     **** total energy ****
+!$OMP MASTER
       Eold=E(1)
       E(1) = eorbit + eion + exc - ehartr - pxc
       E(2) = eorbit
@@ -634,6 +634,7 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
       E(8) = enlocal
       E(9) = 2.0d0*ehartr
       E(10) = pxc
+!$OMP END MASTER
 
 *     **** QM/MM terms ****
       if (pspw_qmmm_found()) then
@@ -793,9 +794,6 @@ c     end do
       value = Dneall_m_pop_stack(tmp_L)
 
       call nwpw_timing_end(12)
-
-#ifdef USE_OPENMP
-#endif
 
       call nwpw_timing_end(42)
 

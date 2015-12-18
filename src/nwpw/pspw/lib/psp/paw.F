@@ -376,7 +376,7 @@ c     >              dbl_mb(psp_fmm_Mlm(1)),1)
 
       if (control_fast_erf()) then
 
-!$OMP SINGLE
+!$OMP MASTER
       do j=1,nion
          if (mod(j-1,np_j).eq.taskid_j) then
             ia=ion_katm(j)
@@ -426,11 +426,12 @@ c                 verf = util_erf(yerf)
             end if
          end if
       end do
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
       else
 
-!$OMP SINGLE
+!$OMP MASTER
       do j=1,nion
        
          if (mod(j-1,np_j).eq.taskid_j) then
@@ -482,7 +483,8 @@ c                verf = (1.0d0 - 1.0d0/fterf**4)
             end if
          end if
       end do
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
       end if
 
@@ -1364,7 +1366,8 @@ c           end do
       scal = 1.0d0/(omega)
       scalsqr = scal*scal
 
-      call dcopy(2*npack1*nn,psi1,1,psi2,1)
+      !call dcopy(2*npack1*nn,psi1,1,psi2,1)
+      call Parallel_shared_vector_copy(.true.,2*npack1*nn,psi1,psi2)
       do iii=1,nion_paw
         ii = int_mb(ion_pawtoion(1)+iii-1)
         ia = ion_katm(ii)
@@ -1437,9 +1440,9 @@ c           end do
         !scal = 1.0d0/(omega)
         !nproj = int_mb(nprj(1)+ia-1)
         !call dscal(nn*int_mb(nprj(1)+ia-1),scal,dbl_mb(sw2(1)),1)
-        call dscal(nn*nproj,scal,dbl_mb(sw2(1)),1)
+        call dscal_omp(nn*nproj,scal,dbl_mb(sw2(1)),1)
 
-        call DGEMM('N','T',2*npack1,nn,nproj,
+        call DGEMM_OMP('N','T',2*npack1,nn,nproj,
      >             (1.0d0),
      >             dcpl_mb(prjtmp(1)), 2*npack1,
      >             dbl_mb(sw2(1)),     nn,
@@ -2550,7 +2553,8 @@ c
       integer exi(2),sw1(2),sw2(2)
       logical value,sd_function
 
-      real*8  vloc_atom
+      real*8  vloc_atom,vloc_atom0
+      common /vloc_atom_tmp/ vloc_atom0
 
       integer i,j,n,li,lj,mi,mj,ni,nj
       real*8 w,ee
@@ -2632,36 +2636,36 @@ c
         call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
 
         Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),4)
-        ee = 0.0d0
-        do i=1,nproj
-        do j=1,nproj
-           w = 0.0d0
-           do n=1,nn
-              w = w + dbl_mb(sw1(1)+n-1+nn*(i-1))
-     >               *dbl_mb(sw1(1)+n-1+nn*(j-1))
-           end do 
-           ni = int_mb(n_projector(1)+(i-1)
-     >                 + (ia-1)*(nmax_max*lmmax_max)) 
-           li = int_mb(l_projector(1)+(i-1)
-     >                 + (ia-1)*(nmax_max*lmmax_max)) 
-           mi = int_mb(m_projector(1)+(i-1)
-     >                 + (ia-1)*(nmax_max*lmmax_max)) 
-           nj = int_mb(n_projector(1)+(j-1)
-     >                 + (ia-1)*(nmax_max*lmmax_max)) 
-           lj = int_mb(l_projector(1)+(j-1)
-     >                 + (ia-1)*(nmax_max*lmmax_max)) 
-           mj = int_mb(l_projector(1)+(j-1)
-     >                 + (ia-1)*(nmax_max*lmmax_max)) 
-
-          if ((li.eq.lj).and.(mi.eq.mj)) then
-           ee = ee + w*scal*dbl_mb(Gijl_indx+(ni-1)
-     >             +(nj-1)*int_mb(nmax(1)+ia-1)
-     >             + li*int_mb(nmax(1)+ia-1)**2) 
-        
-          end if
-
-        end do
-        end do
+c        ee = 0.0d0
+c        do i=1,nproj
+c        do j=1,nproj
+c           w = 0.0d0
+c           do n=1,nn
+c              w = w + dbl_mb(sw1(1)+n-1+nn*(i-1))
+c     >               *dbl_mb(sw1(1)+n-1+nn*(j-1))
+c           end do 
+c           ni = int_mb(n_projector(1)+(i-1)
+c     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+c           li = int_mb(l_projector(1)+(i-1)
+c     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+c           mi = int_mb(m_projector(1)+(i-1)
+c     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+c           nj = int_mb(n_projector(1)+(j-1)
+c     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+c           lj = int_mb(l_projector(1)+(j-1)
+c     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+c           mj = int_mb(l_projector(1)+(j-1)
+c     >                 + (ia-1)*(nmax_max*lmmax_max)) 
+c
+c          if ((li.eq.lj).and.(mi.eq.mj)) then
+c           ee = ee + w*scal*dbl_mb(Gijl_indx+(ni-1)
+c     >             +(nj-1)*int_mb(nmax(1)+ia-1)
+c     >             + li*int_mb(nmax(1)+ia-1)**2) 
+c        
+c          end if
+c
+c        end do
+c        end do
 
 
 *       **** sw2 = Tijl*sw1 ******
@@ -2681,9 +2685,15 @@ c
      >                         dbl_mb(sw2(1)))
 
 *       **** vloc_atom = transpose(sw1)*sw2) ****
+!$OMP MASTER
+        vloc_atom0 = 0.0d0
+!$OMP END MASTER
+!$OMP DO REDUCTION(+:vloc_atom0)
         do l=0,(nn*nproj-1)
-         vloc_atom = vloc_atom+dbl_mb(sw1(1)+l)*dbl_mb(sw2(1)+l)
+         vloc_atom0 = vloc_atom0+dbl_mb(sw1(1)+l)*dbl_mb(sw2(1)+l)
         end do
+!$OMP END DO
+        vloc_atom = vloc_atom + vloc_atom0
 
         end if !** nproj>0 **
       end do !** ii **
@@ -3547,6 +3557,7 @@ c     >                          l_prj(i),m_prj(i))
       integer n2ft3d,rho_cmp(2),rho_cmp_smooth(2)
       integer nx,ny,nz
       real*8 eh,e1,e2,eh0,eh1,eh2,scal1,dv
+      common /psp_cmp_eh12/ eh,e1,e2
       
 *     **** external functions ****
       integer  control_version
@@ -3560,7 +3571,6 @@ c     >                          l_prj(i),m_prj(i))
       real*8   nwpw_compcharge_E_multipole
       external nwpw_compcharge_E_multipole
 
-      eh = 0.0d0
       if (pawexist) then
 
       periodic = (control_version().eq.3)
@@ -3589,7 +3599,7 @@ c     >                          l_prj(i),m_prj(i))
          else
 
 *           **** multipole energy ****
-            eh = nwpw_compcharge_E_multipole(ispin)
+            eh0 = nwpw_compcharge_E_multipole(ispin)
 
             ok = BA_push_get(mt_dcpl,npack0,'dng_cmp_smooth',
      >                       dng_cmp_smooth(2),dng_cmp_smooth(1))
@@ -3606,8 +3616,10 @@ c     >                          l_prj(i),m_prj(i))
             call Pack_cc_dot(0,dcpl_mb(dng_cmp_smooth(1)),
      >                         dcpl_mb(vcmp_smooth(1)),e2)
 
+!$OMP MASTER
 *           **** add cmp energies ****
-            eh = eh + (e1-0.5d0*e2)*lattice_omega()
+            eh = eh0 + (e1-0.5d0*e2)*lattice_omega()
+!$OMP END MASTER
 
 
             ok = ok.and.BA_pop_stack(dng_cmp_smooth(2))
@@ -3649,13 +3661,15 @@ c     >                          l_prj(i),m_prj(i))
      >                      dbl_mb(vcmp_smooth(1)))
             call D3dB_rr_dot(1,dbl_mb(rho_cmp(1)),
      >                         dbl_mb(vcmp_smooth(1)),e1)
+!$OMP MASTER
             eh = 0.5d0*e1*dv
+!$OMP END MASTER
 
 *        **** Using gaussian Multipole energies ****
          else
 
 *           **** multipole energy ****
-            eh  = nwpw_compcharge_E_multipole(ispin)
+            eh0  = nwpw_compcharge_E_multipole(ispin)
 c            eh0 = nwpw_compcharge_E_multipole_zv(ispin,dbl_mb(zv(1)))
 c            eh2 = nwpw_compcharge_E_multipole_zv_zv(ispin,dbl_mb(zv(1)))
 c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
@@ -3682,7 +3696,9 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
             call D3dB_rr_dot(1,dbl_mb(rho_cmp_smooth(1)),
      >                         dbl_mb(vcmp_smooth(1)),e2)
 
+!$OMP MASTER
             eh = eh + (e1-0.5d0*e2)*dv
+!$OMP END MASTER
 
             ok = BA_pop_stack(rho_cmp_smooth(2))
             if (.not.ok)
@@ -3730,6 +3746,7 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
       integer npack0,dng_cmp(2),vcmp(2)
       integer n2ft3d,rho_cmp(2),nx,ny,nz
       real*8 eh,scal1,dv
+      common /psp_cmp_eh/ eh
 
 *     **** external functions ****
       integer  control_version
@@ -3737,7 +3754,6 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
       real*8   lattice_omega
       external lattice_omega
 
-      eh = 0.0d0
       if (pawexist) then
 
       periodic = (control_version().eq.3)
@@ -3755,7 +3771,9 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
          call nwpw_compcharge_gen_dn_cmp(ispin,dcpl_mb(dng_cmp(1)))
          call coulomb_v(dcpl_mb(dng_cmp(1)),dcpl_mb(vcmp(1)))
          call Pack_cc_dot(0,dng,dcpl_mb(vcmp(1)),eh)
+!$OMP MASTER
          eh = eh*lattice_omega()
+!$OMP END MASTER
 
          ok =        BA_pop_stack(vcmp(2))
          ok = ok.and.BA_pop_stack(dng_cmp(2))
@@ -3786,7 +3804,9 @@ c            eh1 = nwpw_compcharge_E_multipole_zv_ee(ispin,dbl_mb(zv(1)))
          call D3dB_rr_Sum(1,rho,rho(1+(ispin-1)*n2ft3d),
      >                    dbl_mb(rho_cmp(1)))
          call D3dB_rr_dot(1,dbl_mb(vcmp(1)),dbl_mb(rho_cmp(1)),eh)
+!$OMP MASTER
          eh = eh*dv
+!$OMP END MASTER
 
          ok =        BA_pop_stack(vcmp(2))
          ok = ok.and.BA_pop_stack(rho_cmp(2))

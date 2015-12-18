@@ -129,11 +129,12 @@ c        ***** calculate agr = |grad n| ****
          call D3dB_rr_Sum2(1,dbl_mb(tmp(1)),dbl_mb(agr(1)))
 
          if (use_nwxc) then
-!$OMP SINGLE
+!$OMP MASTER
            call nwxc_eval_df(1,n2ft3d,dbl_mb(rho(1)),dbl_mb(agr(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 c
 c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
@@ -505,11 +506,12 @@ c
 c
 c          Evaluate the functional
 c
-!$OMP SINGLE
+!$OMP MASTER
            call nwxc_eval_df(2,n2ft3d,dn,dbl_mb(grad(1)),
      >                       dumtau,xce,
      >                       dbl_mb(fn(1)),dbl_mb(fdn(1)),dumtau)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 c
 c          Replace f with the energy density f/n
 c
