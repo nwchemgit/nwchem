@@ -584,8 +584,10 @@ c
                if (j.lt.0 .or. j.gt.dim2) call errquit
      $              ('movecs_swap: invalid vector ', j, INPUT_ERR)
 c     
-               call ga_get(g_vecs(set), 1, dim1, i, i, dbl_mb(k_veci),1)
-               call ga_get(g_vecs(set), 1, dim1, j, j, dbl_mb(k_vecj),1)
+               call ga_get(g_vecs(set), 1, dim1, i, i, 
+     D              dbl_mb(k_veci),dim1)
+               call ga_get(g_vecs(set), 1, dim1, j, j, 
+     D              dbl_mb(k_vecj),dim1)
 c
                if(dorot) then 
                   if (.not. ma_push_get(mt_dbl, dim1, 'swap', 
@@ -628,8 +630,10 @@ c
                   if (.not. ma_chop_stack(l_ti)) call errquit(
      M                 'moswap: chop stack?', 0,MA_ERR)
             else
-               call ga_put(g_vecs(set), 1, dim1, i, i, dbl_mb(k_vecj),1)
-               call ga_put(g_vecs(set), 1, dim1, j, j, dbl_mb(k_veci),1)
+               call ga_put(g_vecs(set), 1, dim1, i, i, 
+     D              dbl_mb(k_vecj),dim1)
+               call ga_put(g_vecs(set), 1, dim1, j, j, 
+     D              dbl_mb(k_veci),dim1)
             endif
 c
             enddo
