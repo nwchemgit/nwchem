@@ -4440,12 +4440,13 @@ CDIR$ NOVECTOR
 !$OMP end DO
       end if
 
-!$OMP SINGLE
+!$OMP MASTER
       if (n2ft3d_map(nb).lt.n2ft3d(nb)) then
          call dcopy((n2ft3d(nb)-n2ft3d_map(nb)),
      >              0.0d0,0,A(n2ft3d_map(nb)+1),1)
       end if
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end

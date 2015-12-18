@@ -826,6 +826,7 @@ c     implicit none
 
       integer msglen,mpierr,np
       integer sumall
+      common /D3dB_ISumAll_tmp/ sumall
 
 *     **** external functions ****
       integer  Parallel2d_comm_i
@@ -833,21 +834,25 @@ c     implicit none
 
       call Parallel2d_np_i(np)
       if (np.gt.1) then
-!!$OMP SINGLE
 #ifdef MPI4
+!$OMP MASTER
          stupid_msglen = 1
          stupid_tsum = sum
          call MPI_Allreduce(stupid_tsum,stupid_tsum2,stupid_msglen,
      >                      stupid_integer,
      >                      stupid_sum,stupid_comm_i,stupid_ierr)
+!$OMP END MASTER
+!$OMP BARRIER
          sum = stupid_tsum2
 #else
+!$OMP MASTER
          msglen = 1
          call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
      >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
+!$OMP END MASTER
+!$OMP BARRIER
          sum = sumall
 #endif
-!!$OMP END SINGLE copyprivate(sum)
       end if
 
       return

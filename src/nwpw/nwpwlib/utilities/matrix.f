@@ -53,6 +53,7 @@
 *     -----------------------------------------------------------------
       implicit double precision(a-h, o-z)
       double precision D(NP),V(NP,NP)
+!$OMP DO
       DO 13 I=1,N-1
          K=I
          P=D(I)
@@ -71,7 +72,8 @@
                V(J,K)=P
    12       CONTINUE
          ENDIF
-   13 CONTINUE
+   13 END DO
+!$OMP END DO
       RETURN
       END
 

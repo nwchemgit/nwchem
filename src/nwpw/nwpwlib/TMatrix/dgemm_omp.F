@@ -405,11 +405,11 @@ C
 C
 C           Form  C := C + alpha*A*B'
 C
+!$OMP DO
             DO 1000 J = 1, N, NB
                JDEPTH = 2
                JSPAN = MIN(NB,N-J+1)
                JLEN = JDEPTH*(JSPAN/JDEPTH)
-!$OMP DO
                DO 980 L = 1, K, KB
                   LSPAN = MIN(KB,K-L+1)
                   DO 720 JJ = J, J + JSPAN - 1
@@ -482,8 +482,8 @@ C
                      END IF
   960             CONTINUE
   980          END DO
-!$OMP END DO
  1000       END DO
+!$OMP END DO
          ELSE
 C
 C           Form  C := C + alpha*A'*B'

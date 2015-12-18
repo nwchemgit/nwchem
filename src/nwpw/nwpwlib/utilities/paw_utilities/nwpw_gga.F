@@ -53,11 +53,12 @@ cccccc USE_NWXC needs to be checked cccccccc
               agr(i,1) = agr(i,1)**2
            end do
 !OMP END DO
-!$OMP SINGLE
+!$OMP MASTER
            call nwxc_eval_df(1,ic,tmp,agr,
      >                       dtmp,xce,
      >                       fn,fdn,dtmp)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 c
 c          Combine (df/d|grad a|) with (df/d(grad a|grad b))
 c
@@ -124,11 +125,12 @@ c     **** unrestricted calculations ****
              agr(i,3) = grad(3)
            enddo
 !$OMP END DO
-!$OMP SINGLE
+!$OMP MASTER
            call nwxc_eval_df(2,ic,rho,agr,
      >                       dtmp,xce,
      >                       fn,fdn,dtmp)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO
            do i = 1, ic
              xce(i)   = xce(i)/(rho(i,1)+rho(i,2)+dncut)

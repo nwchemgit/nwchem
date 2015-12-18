@@ -918,11 +918,12 @@ c         end do
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
-!$OMP SINGLE
+!$OMP MASTER
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:sw1,sw2,sw3)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
@@ -2527,11 +2528,12 @@ c         end do
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
-!$OMP SINGLE
+!$OMP MASTER
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:sw1,sw2,sw3)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
@@ -2676,11 +2678,12 @@ c         end do
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
-!$OMP SINGLE
+!$OMP MASTER
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:sw1,sw2,sw3)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
@@ -2816,11 +2819,12 @@ c         end do
         dy = ion_rion(2,nion_qm+i) - ion_rion(2,nion_qm+j)
         dz = ion_rion(3,nion_qm+i) - ion_rion(3,nion_qm+j)
         zz = ewald_zv(ion_katm(nion_qm+i))*ewald_zv(ion_katm(nion_qm+j))
-!$OMP SINGLE
+!$OMP MASTER
         sw1=0.0d0
         sw2=0.0d0
         sw3=0.0d0  
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:sw1,sw2,sw3)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx

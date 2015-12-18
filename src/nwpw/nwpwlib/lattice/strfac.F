@@ -257,7 +257,7 @@ C     ***********************************
 #include "strfac_common.fh"
 *     *** local variables
       integer    i,k
-      integer    nx,ny,nz
+      integer    nx,ny,nz,tid,nthr
       complex*16 cw1,cw2,cw3
       real*8     sw1,sw2,sw3
       real*8     pi
@@ -267,14 +267,18 @@ C     ***********************************
       real*8   lattice_unitg,ion_rion2
       external ion_nion
       external lattice_unitg,ion_rion2
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(20)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
       pi = 4.0d0*datan(1.0d0)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
 
-      do i=1,ion_nion()
+      do i=tid+1,ion_nion(),nthr
 
         sw1= lattice_unitg(1,1)*ion_rion2(1,i)
      >     + lattice_unitg(2,1)*ion_rion2(2,i)
@@ -333,7 +337,7 @@ c      !***DEBUG ***
 
 C     ***********************************
 C     *                                 *
-C     *         phafac_rion                     *
+C     *         phafac_rion             *
 C     *                                 *
 C     ***********************************
 C
@@ -353,7 +357,7 @@ C
 #include "strfac_common.fh"
 
 *     *** local variables
-      integer    i,k
+      integer    i,k,tid,nthr
       integer    nx,ny,nz
       complex*16 cw1,cw2,cw3
       real*8     sw1,sw2,sw3
@@ -364,8 +368,12 @@ C
       real*8   lattice_unitg
       external ion_nion
       external lattice_unitg
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(20)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -374,7 +382,7 @@ C
       call D3dB_nz(1,nz)
 
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
-      do i=1,ion_nion()
+      do i=tid+1,ion_nion(),nthr
         sw1= lattice_unitg(1,1)*ion_rion(1,i)
      >     + lattice_unitg(2,1)*ion_rion(2,i)
      >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
@@ -466,10 +474,15 @@ C
       integer i,j,k,index
       integer nx,ny,nz
       integer nxh
-      integer p,q,taskid
+      integer p,q,taskid,tid,nthr
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(8)
-
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
       call Parallel2d_taskid_i(taskid)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -483,7 +496,7 @@ C
          do j=0,ny-1
          do i=0,nxh
             call D3dB_ijktoindexp(1,i+1,j+1,k+1,index,p)
-            if (p.eq.taskid) then
+            if ((p.eq.taskid).and.(mod(index,nthr).eq.tid)) then
 c               index = (q-1)*(nxh+1)*ny
 c    >                + j*(nxh+1)
 c    >                + i+1
@@ -494,6 +507,7 @@ c    >                + i+1
          end do
          end do
       end do
+!$OMP BARRIER
 
       call nwpw_timing_end(8)
 
@@ -646,7 +660,7 @@ C     ***********************************
 
 C     ***********************************
 C     *                                 *
-C     *         qphafac_rion                    *
+C     *         qphafac_rion            *
 C     *                                 *
 C     ***********************************
 C
@@ -666,7 +680,7 @@ C
 #include "strfac_common.fh"
 
 *     *** local variables
-      integer    i,k
+      integer    i,k,tid,nthr
       integer    nx,ny,nz
       complex*16 cw1,cw2,cw3
       real*8     sw1,sw2,sw3
@@ -677,8 +691,12 @@ C
       real*8   lattice_unitg
       external ion_nion
       external lattice_unitg
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(20)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -687,7 +705,7 @@ C
       call D3dB_nz(1,nz)
 
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
-      do i=1,qnion
+      do i=tid+1,qnion,nthr
         sw1= lattice_unitg(1,1)*ion_rion(1,i)
      >     + lattice_unitg(2,1)*ion_rion(2,i)
      >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
@@ -767,9 +785,15 @@ C
       integer i,j,k,index
       integer nx,ny,nz
       integer nxh
-      integer p,q,taskid
+      integer p,q,taskid,tid,nthr
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(8)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       call Parallel2d_taskid_i(taskid)
       call D3dB_nx(1,nx)
@@ -782,7 +806,7 @@ C
          do j=0,ny-1
          do i=0,nxh
             call D3dB_ijktoindexp(1,i+1,j+1,k+1,index,p)
-            if (p.eq.taskid) then
+            if ((p.eq.taskid).and.(mod(index,nthr).eq.tid)) then
                 exi(index) = dcpl_mb(qex1(1)+i+(II-1)*nx)
      >                     * dcpl_mb(qex2(1)+j+(II-1)*ny)
      >                     * dcpl_mb(qex3(1)+k+(II-1)*nz)
@@ -790,6 +814,7 @@ C
          end do
          end do
       end do
+!$OMP BARRIER
 
       call nwpw_timing_end(8)
 

@@ -978,7 +978,7 @@ c     >             dbl_mb(rwork1(1)),dbl_mb(rwork2(1)))
             if (n.le.0) go to 30
             shift  = 1 + (ms-1)*ne(1)*npack1
             shift2 = 1 + (ms-1)*ishift2
-            call DGEMM('N','N',2*npack1,n,n,
+            call DGEMM_OMP('N','N',2*npack1,n,n,
      >                (alpha),
      >                Ain(shift),  2*npack1,
      >                hml(shift2),    n,
@@ -1682,14 +1682,17 @@ c     ****************************************
             shift2 = 1+(ms-1)*ishift2
             if (ne(ms).le.0) go to 30
 
+!$OMP MASTER
             call DSYEV('V','U',ne(ms),
      >                 hml(shift2),ne(ms), 
      >                 eig(shift1),
      >                 dbl_mb(tmp1(1)),2*ne(1)*ne(1),
      >                 ierr)
+!$OMP END MASTER
+!$OMP BARRIER
 
             if (.not.assending)
-     >         call eigsrt(eig(shift1),
+     >         call EIGSRT(eig(shift1),
      >                   hml(shift2),
      >                   ne(ms),ne(ms))
 
@@ -2312,11 +2315,13 @@ c     ****************************************
       real*8 A(n,n)
       real*8 B(n,n)
       integer i,j
+!$OMP DO
       do j=1,n
          do i=1,n
             B(i,j) = A(j,i)
          end do
       end do
+!$OMP END DO
       return
       end
 
@@ -2682,7 +2687,7 @@ c     ****************************************
             n     = ne(ms)
             if (n.le.0) go to 30
             shift2 = 1 + (ms-1)*ishift2
-            call DGEMM('T','N',n,n,n,1.0d0,
+            call DGEMM_OMP('T','N',n,n,n,1.0d0,
      >                A(shift2), n,
      >                B(shift2), n,
      >                0.0d0,
@@ -2770,7 +2775,7 @@ c     ****************************************
             n     = ne(ms)
             if (n.le.0) go to 30
             shift2 = 1 + (ms-1)*ishift2
-            call DGEMM('N','T',n,n,n,1.0d0,
+            call DGEMM_OMP('N','T',n,n,n,1.0d0,
      >                A(shift2), n,
      >                B(shift2), n,
      >                0.0d0,
@@ -2862,7 +2867,7 @@ c     ****************************************
             n     = ne(ms)
             if (n.le.0) go to 30
             shift2 = 1 + (ms-1)*ishift2
-            call DGEMM('N','N',n,n,n,
+            call DGEMM_OMP('N','N',n,n,n,
      >                alpha,
      >                A(shift2), n,
      >                B(shift2), n,
@@ -3648,7 +3653,8 @@ c     ****************************************
 
       end if
 
-      call dcopy(nn,A,1,A0(shift2),1)
+      !call dcopy(nn,A,1,A0(shift2),1)
+      call Parallel_shared_vector_copy(.true.,nn,A,A0(shift2))
       return
       end
 
@@ -4242,17 +4248,22 @@ c     ****************************************
            shift1 = 1 + (ms-1)*ishift1
            shift2 = 1 + (ms-1)*ishift2
 
-           indx1 = shift1
-           indx2 = shift2
+           !indx1 = shift1
+           !indx2 = shift2
+!$OMP DO
            do k=1,ne(ms)
-              indx3 = shift1
+              !indx3 = shift1
+              indx1 = shift1+(k-1)
               do j=1,ne(ms)
+                indx2 = shift2+(k-1)*ne(ms)+(j-1)
+                indx3 = shift1+(j-1)
                 A(indx2) = A(indx2)/(D(indx1)+D(indx3))
-                indx2 = indx2 + 1
-                indx3 = indx3 + 1
+                !indx2 = indx2 + 1
+                !indx3 = indx3 + 1
               end do
-              indx1 = indx1 + 1
+              !indx1 = indx1 + 1
            end do
+!$OMP END DO
 
  30        continue
          end do
@@ -4399,12 +4410,17 @@ c     ****************************************
          do ms=ms1,ms2
            if (ne(ms).le.0) go to 30
            shift2 = 1 + (ms-1)*ishift2
-           call dcopy(ne(ms)*ne(ms),0.0d0,0,A(shift2),1)
+           !call dcopy(ne(ms)*ne(ms),0.0d0,0,A(shift2),1)
+           call Parallel_shared_vector_zero(.true.,ne(ms)*ne(ms),
+     >                                      A(shift2))
            indx2 = shift2
+!$OMP DO
            do k=1,ne(ms)
+              indx2 = shift2 + (k-1)*(1+ne(ms))
               A(indx2) = alpha
-              indx2    = indx2 + (1+ne(ms))
+              !indx2    = indx2 + (1+ne(ms))
            end do
+!$OMP END DO
 
  30        continue
          end do
@@ -4578,7 +4594,9 @@ c     ****************************************
       integer ms,ms1,ms2,n,shift,j,k,indxk,indxj
       integer V(2),tmp2(2),S(2),A(2)
       integer jj,kk,jcur,kcur
-      real*8 sum1,w
+
+      real*8 w
+      common /Dneall_f_Sortho_tmp/ w
 
  
       if (parallelized) then
@@ -4603,9 +4621,15 @@ c     ****************************************
                if (kcur.eq.taskid_j) then
                  indxk = 1 + kk*npack1    + (ms-1)*shift
                   call Pack_cc_dot(1,U(indxk),SU(indxk),w)
+!$OMP MASTER
                   w        = 1.0d0/dsqrt(w)
+!$OMP END MASTER
+!$OMP BARRIER
                   call Pack_c_SMul1(1,w,U(indxk))
-                  call dcopy(2*npack1,U(indxk),1,dcpl_mb(A(1)),1)
+                  !call dcopy(2*npack1,U(indxk),1,dcpl_mb(A(1)),1)
+                  call Parallel_shared_vector_copy(.true.,2*npack1,
+     >                                        U(indxk),
+     >                                        dcpl_mb(A(1)))
                end if
                if (kcur.gt.0) 
      >            call D1dB_Brdcst_values(kcur,2*npack1,dcpl_mb(A(1)))
@@ -4624,7 +4648,10 @@ c              *** set j = k+1 ***
                   if (jcur.eq.taskid_j) then
                      indxj = 1 + jj*npack1    + (ms-1)*shift
                      call Pack_cc_dot(1,dcpl_mb(A(1)),SU(indxj),w)
+!$OMP MASTER
                      w = -w
+!$OMP END MASTER
+!$OMP BARRIER
                      call Pack_cc_daxpy(1,w,dcpl_mb(A(1)),U(indxj))
                   end if
 
@@ -4665,16 +4692,22 @@ c     **** not parallized ****
          do ms=ms1,ms2
          do k=ne(ms),1,-1
             indxk = 1+(k-1)*npack1 + (ms-1)*shift
-            call Pack_cc_dot(1,U(indxk),SU(indxk),sum1)
-            sum1 = 1.0d0/dsqrt(sum1)
-c            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
-            call Pack_c_SMul1(1,sum1,U(indxk))
+            call Pack_cc_dot(1,U(indxk),SU(indxk),w)
+!$OMP MASTER
+            w = 1.0d0/dsqrt(w)
+!$OMP END MASTER
+!$OMP BARRIER
+c            call Pack_c_SMul(1,w,U(indxk),U(indxk))
+            call Pack_c_SMul1(1,w,U(indxk))
 
             do j=k-1,1,-1
                indxj = 1+(j-1)*npack1 + (ms-1)*shift
-               call Pack_cc_dot(1,U(indxk),SU(indxj),sum1)
-               sum1 = -sum1
-               call Pack_cc_daxpy(1,sum1,U(indxk),U(indxj))
+               call Pack_cc_dot(1,U(indxk),SU(indxj),w)
+!$OMP MASTER
+               w = -w
+!$OMP END MASTER
+!$OMP BARRIER
+               call Pack_cc_daxpy(1,w,U(indxk),U(indxj))
             end do
          end do
          end do

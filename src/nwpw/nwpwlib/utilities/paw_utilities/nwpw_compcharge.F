@@ -1962,7 +1962,7 @@ c                  yerf = util_erf(xerf)
       c = 1.0d0/sigma_smooth
 
       if (control_fast_erf()) then
-!$OMP SINGLE
+!$OMP MASTER
          do iii=1,nion_paw
          if (mod(iii-1,np_j).eq.taskid_j) then
             iia = int_mb(katm_paw(1)+iii-1)
@@ -2004,9 +2004,10 @@ c                 verf = util_erf(yerf)
             dbl_mb(ftmp(1)+3*(iii-1)+2) = -fz*dv
          end if
          end do
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
       else
-!$OMP SINGLE
+!$OMP MASTER
          do iii=1,nion_paw
          if (mod(iii-1,np_j).eq.taskid_j) then
             iia = int_mb(katm_paw(1)+iii-1)
@@ -2043,7 +2044,8 @@ c                 verf = util_erf(yerf)
             dbl_mb(ftmp(1)+3*(iii-1)+2) = -fz*dv
          end if
          end do
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
       end if
       call Parallel_Vector_SumAll(3*nion_paw,dbl_mb(ftmp(1)))
 !$OMP DO
@@ -3435,21 +3437,23 @@ c     **** allocate temporary memory ****
      >   call errquit("nwpw_compcharge_set_gintegrals:stack",1,MA_ERR)
 
          nshl3d = 1
-!$OMP SINGLE
+!$OMP MASTER
          dbl_mb(rcell)   = 0.0d0
          dbl_mb(rcell+1) = 0.0d0
          dbl_mb(rcell+2) = 0.0d0
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 
 
       !**** these should not need to be called!!!! ****
-!$OMP SINGLE
+!$OMP MASTER
       call dcopy(ngauss_max,0.0d0,0,dbl_mb(e_tauss(1)),1)
       call dcopy(3*ngauss_max,0.0d0,0,dbl_mb(f_tauss(1)),1)
       call dcopy(ngauss_max,0.0d0,0,dbl_mb(e_gauss(1)),1)
       call dcopy(3*ngauss_max,0.0d0,0,dbl_mb(f_gauss(1)),1)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
       pcount = 0
       gcount = 0
@@ -3631,7 +3635,7 @@ c     >                                         l2,m2,s1,Rab)
       end do
 
 !$OMP BARRIER
-!$OMP SINGLE
+!$OMP MASTER
       call nwpw_gintegral_stripper(ngauss_max,
      >                             int_mb(iii1_tauss(1)),
      >                             int_mb(iii2_tauss(1)),
@@ -3646,7 +3650,8 @@ c     >                                         l2,m2,s1,Rab)
      >                             int_mb(lm2_gauss(1)),
      >                             dbl_mb(e_gauss(1)),
      >                             dbl_mb(f_gauss(1)))
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 c Need to have barrier before deallocation below.  This barrier could be removed
 c if the tauss variables were on the heap and not deallocated rather than stack.
 
@@ -3863,6 +3868,7 @@ c     **** local variables ****
 
       integer iic,jjc,lic,ljc
 c      real*8  etest,etest2
+      common /nwpw_compcharge_E_mul_tmp/ E
 
 c      do iii=1,nion_paw
 c         lm = 1
@@ -3886,7 +3892,11 @@ c      !jjc = 1
 c      !lic = 1
 c      !ljc = 1
 
+!$OMP MASTER
       E = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:E)
       do k=1,ngauss
          indx1up = int_mb(lm1_gauss(1)+k-1)
          indx1dn = indx1up + (ispin-1)*lm_size_max
@@ -3912,6 +3922,7 @@ cc            etest = etest + q1*q2*dbl_mb(e_gauss(1)+k-1)
 cc         end if
 
       end do
+!$OMP END DO
 
 
       call Parallel_SumAll(E)
@@ -5055,13 +5066,18 @@ c     *********************************************
       integer n,i,iprj,jprj,iprj1,jprj1
       real*8  coeff,w,w1,scal
       real*8  eh
+      common /nwpw_compcharge_coulomb_e_sub_tmp/ eh
 
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
 
-      eh = 0.0d0
       scal = 1.0d0/lattice_omega()
+!$OMP MASTER
+      eh = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:eh)
       do i=1,nindx
          iprj  = iprj_hartree(i)
          jprj  = jprj_hartree(i)
@@ -5072,6 +5088,7 @@ c     *********************************************
          w1 = wmatrix(iprj1,jprj1,1) + wmatrix(iprj1,jprj1,ispin)
          eh = eh + coeff*w*w1*scal*scal*0.5d0
       end do
+!$OMP END DO
 
       nwpw_compcharge_coulomb_e_sub = eh
       return

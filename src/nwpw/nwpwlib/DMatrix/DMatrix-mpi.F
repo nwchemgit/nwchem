@@ -90,11 +90,13 @@ c      real*8  B(ldb,*)
       ii    = 0
       do jcur=0,np_j-1
          iwrk  = na(jcur+1)
+!$OMP DO
          do j=1,iwrk2
          do i=1,iwrk
             Bwork(bshift+i+(j-1)*iwrk) = B(ii+i+(j+j1-1)*ne0)
          end do
          end do
+!$OMP END DO
          bshift = bshift + iwrk*iwrk2
          ii     = ii     + iwrk
       end do
@@ -102,13 +104,15 @@ c      real*8  B(ldb,*)
 
 *     *** C = beta*C ***
 c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
+!$OMP DO
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
             C(i,j) = beta*C(i,j)
          end do
       end do
+!$OMP END DO
 
-      call Dmatrix_start_rot(1,
+      call DMatrix_start_rot(1,
      >                       taskid_j,np_j,comm_j,
      >                       A,work1,lda,na,
      >                       request1)
@@ -118,7 +122,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       if ((mc(taskid_i+1).gt.0).and.
      >    (nc(taskid_j+1).gt.0).and.
      >    (iwrk.gt.0))
-     >     call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >     call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                A, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -131,15 +135,15 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
             jeven = .false.
             jcur = mod(jcur-1+np_j,np_j)
             iwrk = na(jcur+1)
-            call Dmatrix_end_rot(request1)
-            call Dmatrix_start_rot(j,
+            call DMatrix_end_rot(request1)
+            call DMatrix_start_rot(j,
      >                             taskid_j,np_j,comm_j,
      >                             A,work2,lda,na,
      >                             request2)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work1, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -150,15 +154,16 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
             jeven = .true.
             jcur = mod(jcur-1+np_j,np_j)
             iwrk = na(jcur+1)
-            call Dmatrix_end_rot(request2)
-            call Dmatrix_start_rot(j,
+            call DMatrix_end_rot(request2)
+            call DMatrix_start_rot(j,
      >                             taskid_j,np_j,comm_j,
      >                             A,work1,lda,na,
      >                             request1)
             if ((mc(taskid_i+1).gt.0).and.
      >          (nc(taskid_j+1).gt.0).and.
      >          (iwrk.gt.0))
-     >          call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >          call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),
+     >                iwrk,
      >                alpha,
      >                work2, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -170,11 +175,11 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       if (jeven) then
          jcur = mod(jcur-1+np_j,np_j)
          iwrk = na(jcur+1)
-         call Dmatrix_end_rot(request1)
+         call DMatrix_end_rot(request1)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >             alpha,
      >             work1, ma(taskid_i+1),
      >             Bwork(bshift2(jcur)), iwrk,
@@ -184,11 +189,11 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       else
          jcur = mod(jcur-1+np_j,np_j)
          iwrk = na(jcur+1)
-         call Dmatrix_end_rot(request2)
+         call DMatrix_end_rot(request2)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >             alpha,
      >             work2, ma(taskid_i+1),
      >             Bwork(bshift2(jcur)), iwrk,
@@ -279,14 +284,17 @@ c      real*8  B(ldb,*)
 
 
           !*** Allgather is flaky on my mac laptop ***
-          call dcopy(ne0,0.0,0,Bcol(1+(j-1)*ne0),1)
+          !call dcopy(ne0,0.0,0,Bcol(1+(j-1)*ne0),1)
+          call Parallel_shared_vector_zero(.true.,ne0,Bcol(1+(j-1)*ne0))
           bshift = 0
           do ii=1,taskid_i
              bshift = bshift + mb(ii)
           end do
+!$OMP DO
           do i=1,mb(taskid_i+1)
             Bcol(bshift+i+(j-1)*ne0) = B(i+(j-1)*mb(taskid_i+1))
           end do
+!$OMP END DO
           call D3dB_Vector_SumAll(ne0,Bcol(1+(j-1)*ne0))
          end do
 
@@ -295,12 +303,13 @@ c      real*8  B(ldb,*)
          ii    = 0
          do jcur=0,np_j-1
             iwrk  = na(jcur+1)
+!$OMP DO
             do j=1,iwrk2
             do i=1,iwrk
                Bwork(bshift+i+(j-1)*iwrk) = Bcol(ii+i+(j-1)*ne0)
-
             end do
             end do
+!$OMP END DO
             bshift = bshift + iwrk*iwrk2
             ii     = ii     + iwrk
          end do
@@ -310,11 +319,13 @@ c      real*8  B(ldb,*)
          ii    = 0
          do jcur=0,np_j-1
             iwrk  = na(jcur+1)
+!$OMP DO
             do j=1,iwrk2
             do i=1,iwrk
                Bwork(bshift+i+(j-1)*iwrk) = B(ii+i+(j-1)*ne0)
             end do
             end do
+!$OMP END DO
             bshift = bshift + iwrk*iwrk2
             ii     = ii     + iwrk
          end do
@@ -324,13 +335,15 @@ c      real*8  B(ldb,*)
 
 *     *** C = beta*C ***
 c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
+!$OMP DO
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
             C(i,j) = beta*C(i,j)
          end do
       end do
+!$OMP END DO
 
-      call Dmatrix_start_rot(1,
+      call DMatrix_start_rot(1,
      >                       taskid_j,np_j,comm_j,
      >                       A,work1,lda,na,
      >                       request1)
@@ -340,7 +353,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       if ((mc(taskid_i+1).gt.0).and.
      >    (nc(taskid_j+1).gt.0).and.
      >    (iwrk.gt.0))
-     >     call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >     call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                A, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -353,15 +366,15 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
             jeven = .false.
             jcur = mod(jcur-1+np_j,np_j)
             iwrk = na(jcur+1)
-            call Dmatrix_end_rot(request1)
-            call Dmatrix_start_rot(j,
+            call DMatrix_end_rot(request1)
+            call DMatrix_start_rot(j,
      >                             taskid_j,np_j,comm_j,
      >                             A,work2,lda,na,
      >                             request2)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work1, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -372,15 +385,16 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
             jeven = .true.
             jcur = mod(jcur-1+np_j,np_j)
             iwrk = na(jcur+1)
-            call Dmatrix_end_rot(request2)
-            call Dmatrix_start_rot(j,
+            call DMatrix_end_rot(request2)
+            call DMatrix_start_rot(j,
      >                             taskid_j,np_j,comm_j,
      >                             A,work1,lda,na,
      >                             request1)
             if ((mc(taskid_i+1).gt.0).and.
      >          (nc(taskid_j+1).gt.0).and.
      >          (iwrk.gt.0))
-     >          call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >          call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),
+     >                iwrk,
      >                alpha,
      >                work2, ma(taskid_i+1),
      >                Bwork(bshift2(jcur)), iwrk,
@@ -392,11 +406,11 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       if (jeven) then
          jcur = mod(jcur-1+np_j,np_j)
          iwrk = na(jcur+1)
-         call Dmatrix_end_rot(request1)
+         call DMatrix_end_rot(request1)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >             alpha,
      >             work1, ma(taskid_i+1),
      >             Bwork(bshift2(jcur)), iwrk,
@@ -406,11 +420,11 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       else
          jcur = mod(jcur-1+np_j,np_j)
          iwrk = na(jcur+1)
-         call Dmatrix_end_rot(request2)
+         call DMatrix_end_rot(request2)
          if ((mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0).and.
      >       (iwrk.gt.0))
-     >       call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >       call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >             alpha,
      >             work2, ma(taskid_i+1),
      >             Bwork(bshift2(jcur)), iwrk,
@@ -470,6 +484,7 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       amsglen = lda*na(taskid_j+1)
       wmsglen = lda*na(proc_from+1)
 
+!$OMP MASTER
 #ifdef MPI4
             if (wmsglen.gt.0) then
                stupid_msglen = wmsglen
@@ -530,6 +545,8 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       else 
          request(3) = 4
       end if
+!$OMP END MASTER
+
 
       return
       end
@@ -611,11 +628,13 @@ c      call dscal(ldc*nc(taskid_j+1),beta,C,1)
       integer kk,iwrk,icur,jcur,ierr,shift
 
 
+!$OMP DO
       do j=1,nc(taskid_j+1)
          do i=1,mc(taskid_i+1)
             C(i,j) = beta*C(i,j)
          end do
       end do
+!$OMP END DO
 
       ii = 0
       jj = 0
@@ -629,6 +648,7 @@ c     **** loop over all row pannels of C ***
 
 
 *        **** pack current iwrk columns of A into work1 ***
+!$OMP MASTER
          if (taskid_j.eq.jcur) then
             call dlacpy("G", ma(taskid_i+1),iwrk,
      >                   A(1,jj+1), lda,
@@ -663,12 +683,14 @@ c        **** broadcast work2  within my column ***
          call MPI_Bcast(work2,iwrk*nb(taskid_j+1),MPI_DOUBLE_PRECISION,
      >                  icur,comm_i,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
 
          if ((iwrk.gt.0)          .and.
      >       (mc(taskid_i+1).gt.0).and.
      >       (nc(taskid_j+1).gt.0))
-     >     call dgemm('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
+     >     call dgemm_omp('N','N',mc(taskid_i+1),nc(taskid_j+1),iwrk,
      >                alpha,
      >                work1, ma(taskid_i+1),
      >                work2, iwrk,
@@ -766,17 +788,15 @@ c     **** loop over all row pannels of C ***
 *        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
          if (ma(taskid_i+1).gt.0) then
 
+!$OMP MASTER
 *           **** pack current iwrk columns of A into work1 ***
             if (taskid_j.eq.jcur) then
-!$OMP MASTER
                call dlacpy("G", ma(taskid_i+1),iwrk,
      >                   A(1,jj+1), lda,
      >                   work1,     ma(taskid_i+1))
-!$OMP END MASTER
             end if
 
 c           **** broadcast work1  within my row ***
-!$OMP MASTER
 #ifdef MPI4
             stupid_msglen = iwrk*ma(taskid_i+1)
             stupid_taskid = jcur
@@ -924,6 +944,7 @@ c        **** add to current rows of C ****
          iwrk = min(iwrk,   nc(jcur+1)-jj)
 
 
+!$OMP MASTER
          if (taskid_i.eq.icur) then
             call dlacpy("G", iwrk,nb(taskid_j+1),
      >                   B(ii+1,1), ldb,
@@ -939,17 +960,20 @@ c        **** add to current rows of C ****
         call MPI_Bcast(work2,iwrk*nb(taskid_j+1),MPI_DOUBLE_PRECISION,
      >                  icur,comm_i,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
          if ((iwrk.gt.0)          .and.
      >       (na(taskid_j+1).gt.0).and.
      >       (mc(taskid_i+1).gt.0))
-     >      call dgemm('N','T',mc(taskid_i+1),iwrk,na(taskid_j+1),
+     >      call dgemm_omp('N','T',mc(taskid_i+1),iwrk,na(taskid_j+1),
      >              alpha,
      >              A, lda,
      >              work2, iwrk,
      >              0.0d0,
      >              work1, mc(taskid_i+1))
 
+!$OMP MASTER
 #ifdef MPI4
         stupid_msglen = mc(taskid_i+1)*iwrk
         stupid_taskid = jcur
@@ -960,12 +984,14 @@ c        **** add to current rows of C ****
         call MPI_Reduce(work1,work2,mc(taskid_i+1)*iwrk,
      >                   MPI_DOUBLE_PRECISION,MPI_SUM,jcur,comm_j,ierr)
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
 
 
          if (taskid_j.eq.jcur) then
             shift = 1
             do j=jj,(jj+iwrk-1)
-               call daxpy(mc(taskid_i+1),
+               call daxpy_omp(mc(taskid_i+1),
      >                    1.0d0,
      >                    work2(shift),1,
      >                    C(1,j+1),1)
@@ -1720,6 +1746,7 @@ c     implicit none
      > call errquit(' DMatrix_m_transpose:out of stack',0,MA_ERR)
 
 
+!$OMP MASTER
       jj   = 1
       jcur = 0
       rr   = 1
@@ -1805,6 +1832,8 @@ c     implicit none
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       !*** deallocate memory ***
       value = BA_pop_stack(status(2))

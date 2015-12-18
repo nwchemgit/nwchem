@@ -280,13 +280,13 @@
      >       BA_alloc_get(mt_dbl,(nion),'amass',amass(2),amass(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
-!$OMP SINGLE
+!$OMP MASTER
       call dcopy(3*nion,0.0d0,0,dbl_mb(r2(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r1(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(v2(1)),1)
-!$OMP END SINGLE
-!$cOMP BARRIER
+!$OMP END MASTER
+!$OMP BARRIER
       nion_qm_tmp = 0
       nion_mm_tmp = 0
       do i=1,nion
@@ -2536,10 +2536,11 @@ c      end do
 #include "bafdecls.fh"
 #include "ion.fh"
 
-!$OMP SINGLE
+!$OMP MASTER
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
       call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
@@ -2554,7 +2555,10 @@ c      end do
 #include "bafdecls.fh"
 #include "ion.fh"
               
+!$OMP MASTER
       call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end     
 
@@ -2571,7 +2575,10 @@ c      end do
 #include "bafdecls.fh"
 #include "ion.fh"
 
+!$OMP MASTER
       call dcopy((3*nion),dbl_mb(v2(1)),1,dbl_mb(v1(1)),1)
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
@@ -2593,7 +2600,10 @@ c      end do
 ***** ion common block ****
 #include "ion.fh"
 
+!$OMP MASTER
       call dcopy((3*nion),rion,1,dbl_mb(r1(1)),1)
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -2626,10 +2636,13 @@ c      end do
 
       integer dof
 
+!$OMP MASTER
       dof = 3*nion - 6 - nconstraints
       if (dof<1) dof = 1
 
       ion_ndof = dof
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
@@ -2645,7 +2658,10 @@ c      end do
 ***** ion common block ****
 #include "ion.fh"
 
+!$OMP MASTER
       nconstraints = nconstraints + nc
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
@@ -3427,10 +3443,11 @@ c
       !call dcopy(3*nion,0.0d0,0,dbl_mb(gtmp(1)),1)
       call Parallel_shared_vector_zero(.true.,3*nion,dbl_mb(gtmp(1)))
 
-!$OMP SINGLE
+!$OMP MASTER
       call nwxc_vdw3_dftd3(options,nion,int_mb(iz(1)),
      >               dbl_mb(r1(1)),lat,edisp,dbl_mb(gtmp(1)),g_lat)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
       call daxpy_omp(3*nion,-1.0d0,dbl_mb(gtmp(1)),1,fion,1)
 

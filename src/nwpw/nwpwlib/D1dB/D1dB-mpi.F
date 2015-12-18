@@ -347,10 +347,13 @@ c     implicit none
 
       call Parallel2d_np_j(np)
       if (np.gt.1) then
+!$OMP MASTER
          stupid_msglen = nsize
          tpsend        = psend
          call MPI_Bcast(sum,stupid_msglen,stupid_double,
      >                  tpsend,stupid_comm_j,stupid_ierr)
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 #else
 *     **** external functions ****
@@ -361,8 +364,11 @@ c     implicit none
 
       call Parallel2d_np_j(np)
       if (np.gt.1) then
+!$OMP MASTER
          call MPI_Bcast(sum,nsize,MPI_DOUBLE_PRECISION,
      >                  psend,Parallel2d_comm_j(),ierr)
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 #endif
 

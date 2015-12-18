@@ -68,7 +68,7 @@
       nyh = ny/2
       nzh = nz/2
       
-!$OMP SINGLE
+!$OMP MASTER
       do nb=0,1
          nida(nb) = 0
          nidb(nb) = 0
@@ -150,7 +150,8 @@
          
 
       end do
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
 
       nwave_in(0) = nida(0) + nidb(0)
@@ -188,7 +189,6 @@ c     >                                      nidb(1),nidb2(1)
      >                     'G_pack',G_pack_hndl,G_pack(1,0))
       if (.not. value) 
      > call errquit('Pack_init:error pushing stack',0,MA_ERR)
-!$OMP SINGLE
       G_pack(2,0) = G_pack(1,0) + (nida(0)+nidb2(0))
       G_pack(3,0) = G_pack(2,0) + (nida(0)+nidb2(0))
       G_pack(1,1) = G_pack(3,0) + (nida(0)+nidb2(0))
@@ -201,7 +201,6 @@ c     >                                      nidb(1),nidb2(1)
             call Pack_t_Copy(nb,dbl_mb(tmp(1)),dbl_mb(G_pack(i,nb)))
          end do
       end do
-!$OMP END SINGLE
       value = BA_pop_stack(tmp(2))
       if (.not. value) 
      > call errquit('Pack_init:error popping stack',0,MA_ERR)
@@ -1009,13 +1008,13 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
 
       npack = 2*(nida(nb)+nidb(nb))
 
-        call DGEMM('T','N',n,n,npack,
+        call DGEMM_OMP('T','N',n,n,npack,
      >             2.0d0,
      >             A,npack, 
      >             B,npack, 
      >             0.0d0,
      >             matrix,n)
-        call DGEMM('T','N',n,n,2*nida(nb),
+        call DGEMM_OMP('T','N',n,n,2*nida(nb),
      >             -1.0d0,
      >             A,npack, 
      >             B,npack, 
@@ -1231,9 +1230,10 @@ c      call Parallel2d_np_i(np)
 c      sum = ddot(2*nida(nb),A,1,B,1)
 c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 
-!$OMP SINGLE
+!$OMP MASTER
       sum = 0.0d0
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:sum)
       do i=1,2*nida(nb)
          sum = sum + A(i)*B(i)
@@ -1358,9 +1358,10 @@ c     if (np.gt.1) call D3dB_SumAll(sum)
 
 c      sum = ddot(2*nida(nb),A,1,B,1)
 c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
-!$OMP SINGLE
+!$OMP MASTER
       sum = 0.0d0
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:sum)
       do i=1,2*nida(nb)
          sum = sum + A(i)*B(i)
@@ -1411,9 +1412,10 @@ c      external ddot
 
 c      sum =         ddot(nida(nb),A,1,B,1)
 c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
-!$OMP SINGLE
+!$OMP MASTER
       sum = 0.0d0
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:sum)
       do i=1,nida(nb)
          sum = sum + A(i)*B(i)
@@ -1463,9 +1465,10 @@ c      external ddot
 
 c      sum =         ddot(nida(nb),A,1,B,1)
 c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
-!$OMP SINGLE
+!$OMP MASTER
       sum = 0.0d0
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:sum)
       do i=1,nida(nb)
          sum = sum + A(i)*B(i)
@@ -1638,7 +1641,8 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
       common / pack_blk / pack,nida,nidb
 
 
-      call dcopy((nida(nb)+nidb(nb)),A,1,B,1)
+      !call dcopy((nida(nb)+nidb(nb)),A,1,B,1)
+      call Parallel_shared_vector_copy(.true.,(nida(nb)+nidb(nb)),A,B)
 
       return
       end
@@ -1661,7 +1665,8 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
       common / pack_blk / pack,nida,nidb
 
 
-      call dcopy(2*(nida(nb)+nidb(nb)),0.0d0,0,A,1)
+      !call dcopy(2*(nida(nb)+nidb(nb)),0.0d0,0,A,1)
+      call Parallel_shared_vector_zero(.true.,2*(nida(nb)+nidb(nb)),A)
 
       return
       end
@@ -1690,9 +1695,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = A(i) + B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -1751,9 +1758,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = A(i) + B(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -1780,9 +1789,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         B(i) = B(i) + A(i)
       end do
+!$OMP END DO
 
       return
       end
@@ -1811,9 +1822,11 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
 *     **** local variables ****
       integer i
 
+!$OMP DO
       do i=1,(nida(nb)+nidb(nb))
         C(i) = A(i) - B(i)
       end do
+!$OMP END DO
 
       return
       end

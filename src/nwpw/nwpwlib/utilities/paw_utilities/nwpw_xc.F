@@ -482,9 +482,9 @@ c      end if
 
 *     *** index for spin down in temp arrays ***      
       lmax2  = (mult_l_max+1)**2
-!$OMP SINGLE
+!$OMP MASTER
       dbl_mb(paw_xc_e(1)+ii-1)=0.0d0
-!$OMP END SINGLE
+!$OMP END MASTER
      
 *     *** zero out vxclm multipole arrays ***
       nsize = ispin*n1dgrid_max*lmax2
@@ -708,14 +708,15 @@ c          **** find dvxclm multipole expansion ****
      >             dbl_mb(exc_ps(1)+ig-1)
          end do
 !$OMP END DO
-!$OMP SINGLE
+!$OMP MASTER
          exc_tmp = log_integrate_def_destroyf(0,dbl_mb(xc_temp(1)),
      >                               2,rgrid,log_amesh,n1dgrid)
          dbl_mb(paw_xc_e(1)+ii-1)=dbl_mb(paw_xc_e(1)+ii-1)+
      >                           exc_tmp*
      >                           dbl_mb(paw_xc_w_theta(1)+i_t-1)*
      >                           dbl_mb(paw_xc_w_phi(1)+i_p-1)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 
       end do !i_p
       end do !i_t
@@ -1049,11 +1050,12 @@ c
      >                    - vxclm_ps(ig,lm,ms)*tmp_ps
               end do
 !$OMP END DO
-!$OMP SINGLE
+!$OMP MASTER
               matr(i,j,lm,ms)
      >         = log_integrate_def_destroyf(0,tmpC,2,r,log_amesh,ng)
               if (i.ne.j) matr(j,i,lm,ms) = matr(i,j,lm,ms)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
            end do
            end do
          end do
@@ -1418,11 +1420,12 @@ c        **** compute |grad nup| and |grad ndn| ****
      >                - dvxclm_ps(ig,lm,1,ms)*tmp_ps
           end do
 !$OMP END DO
-!$OMP SINGLE
+!$OMP MASTER
           dmatr(i,j,lm,1,ms)
      >     = log_integrate_def_destroyf(0,tmpC,2,r,log_amesh,ng)
           if (i.ne.j) dmatr(j,i,lm,1,ms) = dmatr(i,j,lm,1,ms)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
         end do
         end do
       end do
@@ -1449,11 +1452,12 @@ c        **** compute |grad nup| and |grad ndn| ****
      >                - dvxclm_ps(ig,lm,2,ms)*tmp_ps
           end do
 !$OMP END DO
-!$OMP SINGLE
+!$OMP MASTER
           dmatr(i,j,lm,2,ms)
      >     = log_integrate_def_destroyf(0,tmpC,2,r,log_amesh,ng)
           if (i.ne.j) dmatr(j,i,lm,2,ms) = dmatr(i,j,lm,2,ms)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
         end do
         end do
       end do
@@ -1477,11 +1481,12 @@ c        **** compute |grad nup| and |grad ndn| ****
      >                - dvxclm_ps(ig,lm,3,ms)*tmp_ps
           end do
 !$OMP END DO
-!$OMP SINGLE
+!$OMP MASTER
           dmatr(i,j,lm,3,ms)
      >     = log_integrate_def_destroyf(0,tmpC,2,r,log_amesh,ng)
           if (i.ne.j) dmatr(j,i,lm,3,ms) = dmatr(i,j,lm,3,ms)
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
         end do
         end do
       end do
@@ -1600,9 +1605,10 @@ c   overlap coefficients.
          coeff = coeff_rholm(i)*scal
          do ms=1,ispin
             if (ne(ms).gt.0) then
-!$OMP SINGLE
+!$OMP MASTER
                wshared1 = 0.0d0
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:wshared1)
                do n=n1(ms),n2(ms)
                   wshared1 = wshared1 + sw1(n,iprj)*sw1(n,jprj)
@@ -1716,9 +1722,10 @@ c   overlap coefficients.
          coeff = coeff_rholm(i)*scal
          do ms=1,ispin
             if (ne(ms).gt.0) then
-!$OMP SINGLE
+!$OMP MASTER
                wshared1 = 0.0d0
-!$OMP END SINGLE
+!$OMP END MASTER
+!$OMP BARRIER
 !$OMP DO REDUCTION(+:wshared1)
                do n=n1(ms),n2(ms)
                   wshared1 = wshared1 + sw1(n,iprj)*sw1(n,jprj)
