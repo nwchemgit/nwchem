@@ -113,8 +113,9 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
          call ga_dgop(msg_igop_tru4,shiftm,ntypes,'absmax') 
       endif
 #else
-      do i=1,2*ntypes
-        rad_cutoff(i) = abs(rad_cutoff(i))
+      do i=1,ntypes
+        rad_cutoff(1,i) = abs(rad_cutoff(1,i))
+        rad_cutoff(2,i) = abs(rad_cutoff(2,i))
       enddo
       range_max = abs(range_max)
       call ga_igop(msg_igop_tru,rad_cutoff,2*ntypes,'max')
