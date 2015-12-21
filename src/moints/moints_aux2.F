@@ -1272,7 +1272,12 @@ C$Id$
        call ga_sync()
        jstat = 0
        if (status) jstat = 1
+! igop('*') detects the presence of one or more stat=0 inputs
+#if NWCHEM_USE_IGOP_PROD
        call ga_igop(Msg_ChkJK,jstat,1,'*')
+#else
+       call ga_igop(Msg_ChkJK,jstat,1,'min')
+#endif
 #ifdef DEBUG       
        write(6,901) my_id,jstat,dim1,dim2,n2n2,n1t,
      $      ilo,ihi,n2n2,jlo,jhi,n1t,status

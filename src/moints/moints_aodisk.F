@@ -262,8 +262,14 @@ c
 c
       inquire(file=moao_fname, exist=fexist) ! Equivalent is eaf_stat ?
       if (oreuse) then
+         stat=0
          if (fexist) stat=1
+! igop('*') detects the presence of one or more stat=0 inputs
+#if NWCHEM_USE_IGOP_PROD
          call ga_igop( 481, stat, 1, '*')
+#else
+         call ga_igop( 481, stat, 1, 'min')
+#endif
          if (stat.eq.1) then
             moao_ipass = 1
             if (ga_nodeid().eq.0) write(6,331)
