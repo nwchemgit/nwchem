@@ -302,8 +302,15 @@ c
             d = d + 1.0d0/qs
          end do
 c
+#ifdef NWCHEM_USE_GOP_ABSMAX
          call ga_dgop(1, gamma_max, 1, 'absmax')
          call ga_dgop(1, dmax, 1, 'absmax')
+#else
+         gamma_max = abs(gamma_max)
+         dmax      = abs(dmax)
+         call ga_dgop(1, gamma_max, 1, 'max')
+         call ga_dgop(1, dmax, 1, 'max')
+#endif
          call ga_dgop(2, d , 1, '+')
 c
          if (ga_nodeid() .eq. 0) then
@@ -507,8 +514,15 @@ c
             d = d + qs
          end do
 c
+#ifdef NWCHEM_USE_GOP_ABSMAX
          call ga_dgop(1, gamma_max, 1, 'absmax')
          call ga_dgop(1, dmax, 1, 'absmax')
+#else
+         gamma_max = abs(gamma_max)
+         dmax      = abs(dmax)
+         call ga_dgop(1, gamma_max, 1, 'max')
+         call ga_dgop(1, dmax, 1, 'max')
+#endif
          call ga_dgop(2, d , 1, '+')
 c
          if (ga_nodeid() .eq. 0) then

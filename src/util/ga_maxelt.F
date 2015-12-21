@@ -41,7 +41,12 @@ c
 c     Finally a global max via message passing
 c     
       call ga_sync()
+#ifdef NWCHEM_USE_GOP_ABSMAX
       call ga_dgop(Msg_MxElt, value, 1, 'absmax')
+#else
+      value = abs(value)
+      call ga_dgop(Msg_MxElt, value, 1, 'max')
+#endif
       call ga_sync()
 c     
       end

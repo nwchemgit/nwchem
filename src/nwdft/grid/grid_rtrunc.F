@@ -37,6 +37,7 @@ c
       integer xc_leb_nrd2acc
       external xc_leb_nrd2acc
       logical oprint
+      integer i
 c
 c     Set print options.
 c
@@ -103,6 +104,7 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
                rad_cutoff(2,iatype(iat)) = 0
          endif
       enddo
+#ifdef NWCHEM_USE_GOP_ABSMAX
       call ga_igop(msg_igop_tru,rad_cutoff,2*ntypes,'absmax') 
       call ga_dgop(msg_igop_tru3,range_max,1,'absmax') 
       if(llind) then
@@ -110,9 +112,36 @@ c               rad_cutoff(2,iatype(iat)) = int_mb(k_ics+iat-1)
          call ga_igop(msg_igop_tru2,ll,ntypes,'absmax') 
          call ga_dgop(msg_igop_tru4,shiftm,ntypes,'absmax') 
       endif
+#else
+      do i=1,2*ntypes
+        rad_cutoff(i) = abs(rad_cutoff(i))
+      enddo
+      range_max = abs(range_max)
+      call ga_igop(msg_igop_tru,rad_cutoff,2*ntypes,'max')
+      call ga_dgop(msg_igop_tru3,range_max,1,'max')
+      if(llind) then
+         do i=1,ntypes
+           exex(i)   = abs(exex(i))
+           ll(i)     = abs(ll(i))
+           shiftm(i) = abs(shiftm(i))
+         enddo
+         call ga_dgop(msg_igop_tru1,exex,ntypes,'max')
+         call ga_igop(msg_igop_tru2,ll,ntypes,'max')
+         call ga_dgop(msg_igop_tru4,shiftm,ntypes,'max')
+      endif
+#endif
       if(check_s) then 
+#ifdef NWCHEM_USE_GOP_ABSMAX
       call ga_igop(msg_igop_tru5,ldiff,ncenters,'absmax') 
       call ga_dgop(msg_igop_tru6,minexp,ncenters,'absmax') 
+#else
+      do i=1,ncenters
+        ldiff(i)  = abs(ldiff(i))
+        minexp(i) = abs(minexp(i))
+      enddo
+      call ga_igop(msg_igop_tru5,ldiff,ncenters,'max')
+      call ga_dgop(msg_igop_tru6,minexp,ncenters,'max')
+#endif
 
          do itype=1,ntypes
             iat=ityp2ctr(itype)
