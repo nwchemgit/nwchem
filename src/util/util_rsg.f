@@ -35,7 +35,7 @@ c
       util_epslon = eps*dabs(x)
       return
       end
-      subroutine tqlrat(n,d,e2,ierr)
+      subroutine util_tqlrat(n,d,e2,ierr)
 c
       integer i,j,l,m,n,ii,l1,mml,ierr
       double precision d(n),e2(n)
@@ -186,7 +186,7 @@ c
  20    util_pythag = p
       return
       end
-      subroutine rebak(nm,n,b,dl,m,z)
+      subroutine util_rebak(nm,n,b,dl,m,z)
 c
       integer i,j,k,m,n,i1,ii,nm
       double precision b(nm,n),dl(n),z(nm,m)
@@ -249,7 +249,7 @@ c
 c
  200                           return
       end
-      subroutine reduc(nm,n,a,b,dl,ierr)
+      subroutine util_reduc(nm,n,a,b,dl,ierr)
 c
       integer i,j,k,n,i1,j1,nm,nn,ierr
       double precision a(nm,n),b(nm,n),dl(n)
@@ -413,21 +413,21 @@ c
       ierr = 10 * n
       go to 50
 c
- 10    call  reduc(nm,n,a,b,fv2,ierr)
+ 10    call  util_reduc(nm,n,a,b,fv2,ierr)
       if (ierr .ne. 0) go to 50
       if (matz .ne. 0) go to 20
 c     .......... find eigenvalues only ..........
-      call  tred1(nm,n,a,w,fv1,fv2)
-      call  tqlrat(n,w,fv2,ierr)
+      call  util_tred1(nm,n,a,w,fv1,fv2)
+      call  util_tqlrat(n,w,fv2,ierr)
       go to 50
 c     .......... find both eigenvalues and eigenvectors ..........
- 20    call  tred2(nm,n,a,w,fv1,z)
-      call  tql2(nm,n,w,fv1,z,ierr)
+ 20    call  util_tred2(nm,n,a,w,fv1,z)
+      call  util_tql2(nm,n,w,fv1,z,ierr)
       if (ierr .ne. 0) go to 50
-      call  rebak(nm,n,b,fv2,n,z)
+      call  util_rebak(nm,n,b,fv2,n,z)
  50    return
       end
-      subroutine tql2(nm,n,d,e,z,ierr)
+      subroutine util_tql2(nm,n,d,e,z,ierr)
 c
       integer i,j,k,l,m,n,ii,l1,l2,nm,mml,ierr
       double precision d(n),e(n),z(nm,n)
@@ -599,7 +599,7 @@ c                eigenvalue after 30 iterations ..........
  1000  ierr = l
  1001   return
       end
-      subroutine tred1(nm,n,a,d,e,e2)
+      subroutine util_tred1(nm,n,a,d,e,e2)
 c
       integer i,j,k,l,n,ii,nm,jp1
       double precision a(nm,n),d(n),e(n),e2(n)
@@ -734,7 +734,7 @@ c
 c
       return
       end
-      subroutine tred2(nm,n,a,d,e,z)
+      subroutine util_tred2(nm,n,a,d,e,z)
 c
       integer i,j,k,l,n,ii,nm,jp1
       double precision a(nm,n),d(n),e(n),z(nm,n)
