@@ -84,7 +84,7 @@ c
      2   call errquit('ao_rdm_read: ma problem',0,ma_err)
          do i = 1, nbf
             call sread(unitno, dbl_mb(k_ao_rdm), nbf)
-            call ga_put(g_dens, 1, nbf, i, i, dbl_mb(k_ao_rdm), 1)
+            call ga_put(g_dens, 1, nbf, i, i, dbl_mb(k_ao_rdm), nbf)
          enddo
          if(.not.ma_pop_stack(l_ao_rdm))
      1   call errquit('ao_rdm_read: pop failed',l_ao_rdm,ma_err)
