@@ -83,7 +83,7 @@ C
 C     Loop over slices of mat and print to file.
 C         
          do i = 1, n1
-            call ga_get (g_a, 1, n1, i, i, dbl_mb(k_matsl), 1)
+            call ga_get (g_a, 1, n1, i, i, dbl_mb(k_matsl), n1)
             call swrite (unitno, dbl_mb(k_matsl), n1)
          enddo
 

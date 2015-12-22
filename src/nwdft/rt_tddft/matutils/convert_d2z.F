@@ -274,8 +274,8 @@ C
 
 
       do jslice = istart, iend
-         call ga_get (g_a, 1, n, jslice, jslice, dbl_mb(ia), 1)
-         call ga_get (g_b, 1, n, jslice, jslice, dbl_mb(ib), 1)
+         call ga_get (g_a, 1, n, jslice, jslice, dbl_mb(ia), n)
+         call ga_get (g_b, 1, n, jslice, jslice, dbl_mb(ib), n)
 
 
 C
@@ -292,7 +292,7 @@ C
      $           dcmplx (0d0, dbl_mb(ib+j-1))
          enddo
 
-         call ga_put (g_z, 1, n, jslice, jslice, dcpl_mb(iz), 1)
+         call ga_put (g_z, 1, n, jslice, jslice, dcpl_mb(iz), n)
          
       enddo                     ! end loop over slices on this proc
       

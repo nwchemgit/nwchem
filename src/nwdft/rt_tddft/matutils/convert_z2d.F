@@ -314,17 +314,17 @@ C
 C     See notes in convert_d2z ().
 C
       do jslice = istart, iend
-         call ga_get (g_z, 1, n, jslice, jslice, dcpl_mb(iz), 1)
+         call ga_get (g_z, 1, n, jslice, jslice, dcpl_mb(iz), n)
 
          do j = 1, n
             dbl_mb(ia+j-1) = dble (dcpl_mb(iz+j-1))
          enddo
-         call ga_put (g_a, 1, n, jslice, jslice, dbl_mb(ia), 1)
+         call ga_put (g_a, 1, n, jslice, jslice, dbl_mb(ia), n)
 
          do j = 1, n
             dbl_mb(ib+j-1) = aimag (dcpl_mb(iz+j-1))
          enddo
-         call ga_put (g_b, 1, n, jslice, jslice, dbl_mb(ib), 1)
+         call ga_put (g_b, 1, n, jslice, jslice, dbl_mb(ib), n)
       enddo
 
       
