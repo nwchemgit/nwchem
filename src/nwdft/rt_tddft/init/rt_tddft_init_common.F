@@ -165,7 +165,7 @@ CXXX  [KAL]: add check to ensure none of these are used
       params%g_vxc(4) = -999999
       params%g_xcinv  = -999999
       params%rho_n = -99d0
-
+      params%lzorasf = .false.
       
 C
 C     Nuclear repulsion energy
