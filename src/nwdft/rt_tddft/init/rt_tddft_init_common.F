@@ -98,6 +98,7 @@ C
       params%nbf_ao = nbf_ao
       params%ipol = ipol
       params%ao_bas_han = ao_bas_han
+      params%cd_bas_han = cd_bas_han
 
 
 C

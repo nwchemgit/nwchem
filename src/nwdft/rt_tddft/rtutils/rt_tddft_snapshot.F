@@ -247,6 +247,7 @@ C     == Variables ==
       double precision tt
       integer isnap
       integer me
+      integer num_basis,bas_handles(2)
       double precision elapsed
       character(64) title
 
@@ -297,6 +298,8 @@ C         call rt_tddft_snapshot_fname(params,1, params%tmin, fname_tail)  !this
      $        "Not subtracting reference density matrix")
       endif
 
+c     int cleanup to avoid clashes in dplot
+            call int_terminate
 
 C
 C     Loop over all times and convert each stored dens mat snapshot to
@@ -343,7 +346,6 @@ C     (load dplot params in rtdb)
      $           1,fname_dens))
      $           call errquit(pname//"Write failed to rtdb",0,RTDB_ERR)
 
-
 C     (call dplot to convert)
             if (.not. dplot (params%rtdb))
      $           call errquit (pname//"dplot call failed", 0, 0)
@@ -351,6 +353,15 @@ C     (call dplot to convert)
 
          it = it + 1
       enddo
+
+c     int cleanup to avoid clashes in dplot
+      bas_handles(1)=params%ao_bas_han
+      num_basis=1
+      if(params%iVcoul_opt.eq.1) then
+         num_basis=2
+         bas_handles(2)=params%cd_bas_han
+      endif
+      call int_init(params%rtdb,num_basis,bas_handles)
 
       if (params%prof) call prof_end (elapsed,
      $     "Converting snapshots to cube files")

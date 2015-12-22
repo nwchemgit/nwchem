@@ -202,6 +202,8 @@ C     (tolerances)
 
 C     (handle for AO basis)
          integer          :: ao_bas_han
+C     (handle for CD basis)
+         integer          :: cd_bas_han
 
 
 C     (profiling and checking)
