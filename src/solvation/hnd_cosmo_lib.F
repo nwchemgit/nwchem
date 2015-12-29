@@ -2445,7 +2445,7 @@ c
 c
          nodcmp=1
          call hnd_linequ(x(i30),nefc,x(ieq),nefc,
-     1                   x(i40),x(i50),deta,ierr,nodcmp)
+     1                   x(i40),x(i50),ierr,nodcmp)
          if (ierr.ne.0) call errquit("hnd_coschg: hnd_linequ failed",
      &                               ierr,UERR)
 c
@@ -2461,7 +2461,7 @@ c
 c
            nodcmp=1
            call hnd_linequ(x(i30),nefc,x(i80),nefc,
-     1                     x(i40),x(i50),deta,ierr,nodcmp)
+     1                     x(i40),x(i50),ierr,nodcmp)
            if (ierr.ne.0) call errquit("hnd_coschg: hnd_linequ failed",
      &                                 ierr,UERR)
 c
@@ -3641,7 +3641,7 @@ C> This is direct linear system solver, solving \f$Ax=b\f$ for \f$x\f$.
 C> On return the matrix \f$A\f$ has been destroyed, and \f$b\f$ has been
 C> overwritten with the answer \f$x\f$.
 C>
-      subroutine hnd_linequ(a,lda,b,n,ib,t,deta,ierr,nodcmp)
+      subroutine hnd_linequ(a,lda,b,n,ib,t,ierr,nodcmp)
       implicit none
       integer lda !< [Input] The leading dimension of \f$A\f$
       integer n   !< [Input] The dimension of matrix \f$A\f$
@@ -3651,7 +3651,6 @@ C>
       !< \f$b\f$; on output the solution \f$x\f$
       double precision t(n)
       integer ib(n)
-      double precision deta !< [Output] The determinant of \f$A\f$
       integer ierr !< [Output] Error code
       integer nodcmp !< [Input] Flag, if \f$\mathrm{nodcmp}\ne 1\f$
       !< then skip the LU decomposition
@@ -3662,10 +3661,7 @@ c
       ierr = 0
       if(nodcmp.ne.1) go to 20
 c
-      call hnd_ludcmp(a,lda,n,ib,t,deta,ierr)
-      do 10 j=1,n
-   10 deta=deta*a(j,j)
-c
+      call hnd_ludcmp(a,lda,n,ib,t,ierr)
    20 continue
       call hnd_lubksb(a,lda,n,ib,b)
 c
@@ -3708,15 +3704,20 @@ c
 C>
 C> \brief LU decomposition
 C>
-      subroutine hnd_ludcmp(a,lda,n,ib,vv,d,ierr)
-      implicit real*8 (a-h,o-z)
+      subroutine hnd_ludcmp(a,lda,n,ib,vv,ierr)
+      implicit none
 c
-      dimension a(lda,1),ib(n),vv(n)
+      integer n,ierr,lda
+      double precision a(lda,*),vv(*)
+      integer ib(*)
+c
+      integer i,j,k,imax
+      double precision aamax,sum,dum
+      double precision tiny,zero,one
       data tiny     /1.0d-20/
       data zero,one /0.0d+00,1.0d+00/
 c
       ierr=0
-      d=one
       do 12 i=1,n
          aamax=zero
          do 11 j=1,n
@@ -3762,7 +3763,6 @@ c
                a(imax,k)=a(j,k)
                a(j,k)=dum
    17       continue
-            d=-d
             vv(imax)=vv(j)
          endif
          ib(j)=imax
