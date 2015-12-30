@@ -1,5 +1,5 @@
 #$Id$
-ifdef USE_64TO32
+ifeq ($(BLAS_SIZE),4)
 USE_I4FLAGS=y
 endif
 include ../config/makefile.h
