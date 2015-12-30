@@ -1856,8 +1856,26 @@ $(error )
          FOPTIMIZE += -xW
         endif
        endif
-     endif	
-#      
+
+       # configuration options for MEMKIND library on Intel Xeon Phi processors
+       ifdef USE_FASTMEM
+           ifdef MEMKIND_PATH
+               FASTMEM_OPTIONS_LD += -L$(MEMKIND_PATH)
+           endif
+           ifdef USE_MEMKIND_TBB
+               FASTMEM_OPTIONS_LD += -L$(TBB_PATH)
+           endif
+           FASTMEM_OPTIONS_LD += -lmemkind
+           ifdef USE_MEMKIND_TBB
+               FASTMEM_OPTIONS_LD += -ltbbmalloc
+           endif
+           EXTRA_LIBS += $(FASTMEM_OPTIONS_LD)
+           # we need to use ALLOCATABLE data for MEMKIND
+           DEFINES += -DUSE_F90_ALLOCATABLE
+       endif
+
+     endif # _FC = ifort (i think)
+#
       ifeq ($(_FC),pgf90)
         FOPTIONS   += -Mdalign -Mllalign -Kieee 
 #        FOPTIONS   += -tp k8-64  
