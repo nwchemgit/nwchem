@@ -546,18 +546,27 @@ c
         levelshifting = .false.
         rlshift = rlshift_def
       endif
+c
+c     init diis handles to detect allocation
+c
+      k_gdiis=-1
+      k_mdiis=-1
+      k_hess=-1
+      
       if (nodiis)then
          diising = .false.
       else
          if (.not.MA_alloc_Get(MT_int,nfock*ipol*2,
      ,        'ga handle for diis',l_gdiis,k_gdiis))
      ,        call errquit('dft_scf: cannot allocate g_diis',0, MA_ERR)
-         if (.not.MA_alloc_Get(MT_DBL,nfock*nconstr,
-     ,        'ga handle for diis',l_mdiis,k_mdiis))
-     ,        call errquit('dft_scf: cannot allocate mdiis',0, MA_ERR)
-         if (.not.MA_alloc_Get(MT_DBL,max(nfock,nconstr)*nconstr,
-     ,        'ga handle for diis',l_hess,k_hess))
-     ,        call errquit('dft_scf: cannot allocate mdiis',0, MA_ERR)
+         if(nconstr.ne.0) then
+            if (.not.MA_alloc_Get(MT_DBL,nfock*nconstr,
+     ,           'ga handle for mdiis',l_mdiis,k_mdiis))
+     ,           call errquit('dft_scf: cannot allocate mdiis',0,MA_ERR)
+            if (.not.MA_alloc_Get(MT_DBL,max(nfock,nconstr)*nconstr,
+     ,           'ga handle for hess',l_hess,k_hess))
+     ,           call errquit('dft_scf: cannot allocate hess',0, MA_ERR)
+         endif
       endif
 
       homo_lumo_gap = 200.0d0
@@ -2272,10 +2281,18 @@ c
      &                    g_tmp, g_svecs, svals, diising, nodiis,
      .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p,.true.,
      $           nconstr,multipliers0,dbl_mb(k_mdiis))
-         if (.not. MA_free_heap(l_hess))
-     .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
-         if (.not. MA_free_heap(l_mdiis))
-     .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
+      endif
+      if(nconstr.ne.0) then
+         if(k_hess.ne.-1) then
+            if (.not. MA_free_heap(l_hess))
+     .           call errquit(' dft_scf:cannot popstack',111, MA_ERR)
+         endif
+         if(k_mdiis.ne.-1) then
+            if (.not. MA_free_heap(l_mdiis))
+     .           call errquit(' dft_scf:cannot popstack',111, MA_ERR)
+         endif
+      endif
+      if(k_gdiis.ne.-1) then
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
       endif
