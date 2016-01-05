@@ -92,7 +92,7 @@ c
             call ga_zero(g_tmp)
             do i = ga_nodeid()+1, nbf, ga_nnodes()
               call get_col(g_vecs, nbf, i, DBL_MB(itmpm))
-              call yscal(nbf, occ(i)*0.5d0, DBL_MB(itmpm), 1)
+              call dscal(nbf, occ(i)*0.5d0, DBL_MB(itmpm), 1)
               call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
            enddo
            do i=1,nbf 
@@ -275,7 +275,7 @@ c
            call ga_zero(g_tmp)
            do i = ga_nodeid()+1, nbf, ga_nnodes()
              call get_col(g_vecs, nbf, i, DBL_MB(itmpm))
-             call yscal(nbf, occ(i), DBL_MB(itmpm), 1)
+             call dscal(nbf, occ(i), DBL_MB(itmpm), 1)
              call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
            enddo
            do i=1,nbf 
@@ -336,7 +336,7 @@ c
           call ga_zero(g_tmp2)
           do i = ga_nodeid()+1, nbf, ga_nnodes()
               call get_col(g_vecs2, nbf, i, DBL_MB(itmpm))
-              call yscal(nbf, occ(i+nbf), DBL_MB(itmpm), 1)
+              call dscal(nbf, occ(i+nbf), DBL_MB(itmpm), 1)
               call put_col(g_tmp2, nbf, i, DBL_MB(itmpm))
           enddo
           if (.not.ma_pop_stack(ltmpm))
