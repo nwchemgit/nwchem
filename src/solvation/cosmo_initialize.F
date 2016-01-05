@@ -25,6 +25,7 @@ C>
 #include "bas.fh"
 #include "msgids.fh"
 #include "cosmoP.fh"
+#include "cosmo_params.fh"
 c
       integer rtdb   !< [Input] the RTDB handle
       integer geom   !< [Input] the geometry handle
@@ -45,16 +46,6 @@ c
       logical odbug, osome
       integer me
 c
-      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
-     +                 cosmo_sccor
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     +                  cosmo_sccor
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      double precision vdwr(102)
-      double precision vander(102)
 c
 c MN solvation models -->
 c

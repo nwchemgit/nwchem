@@ -167,23 +167,23 @@ c
      $     call errquit('ga_reorder: could not allocate column2', dim1,
      &       MA_ERR)
 c
-      call dcopy(dim1*dim2, a, 1, dbl_mb(k_d), 1)
+      call ycopy(dim1*dim2, a, 1, dbl_mb(k_d), 1)
 c
 *      write(6,*) ' BEFORE '
 *      call output(a, 1, dim1, 1, dim2, dim1, dim2, 1)
 c
       do j = 1, dim2
          if (orow) then
-            call dcopy(dim1, dbl_mb(k_d+(j-1)*dim1), 1, dbl_mb(k_v), 1)
+            call ycopy(dim1, dbl_mb(k_d+(j-1)*dim1), 1, dbl_mb(k_v), 1)
             do i = 1, dim1
                dbl_mb(k_vv+rmap(i)-1) = dbl_mb(k_v+i-1)
             enddo
          else
-            call dcopy(dim1, dbl_mb(k_d+(j-1)*dim1), 1, dbl_mb(k_vv), 1)
+            call ycopy(dim1, dbl_mb(k_d+(j-1)*dim1), 1, dbl_mb(k_vv), 1)
          endif
          jj = j
          if (ocol) jj = cmap(j)
-         call dcopy(dim1, dbl_mb(k_vv), 1, a(1,jj), 1)
+         call ycopy(dim1, dbl_mb(k_vv), 1, a(1,jj), 1)
       enddo
 c
 *      write(6,*) ' AFTER '

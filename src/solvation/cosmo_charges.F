@@ -21,6 +21,7 @@ c
 #include "nwc_const.fh"
 #include "stdio.fh"
 #include "prop.fh"
+#include "cosmo_params.fh"
 c
       integer rtdb          !< [Input] The RTDB handle
       integer basis         !< [Input] The basis set handle
@@ -43,13 +44,6 @@ c
 c
       character*255 cosmo_file
 c
-      double precision dielec,dielecinf,screen,rsolv,adiag,dsurf,dvol
-      double precision srfmol,volmol,zeta,ptspatm,gammas,swtol
-      integer do_cosmo_model,lineq,minbem,maxbem,ificos,cosmo_sccor
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efciat, k_efciat

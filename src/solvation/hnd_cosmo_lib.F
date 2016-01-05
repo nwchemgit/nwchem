@@ -29,6 +29,7 @@ c     pass  napex, nface, error =   4    1026    2048    2728    0.0451
 c     pass  napex, nface, error =   5    4098    8192   10920    0.0116
 c     pass  napex, nface, error =   6   16386   32768   43688    0.0029
 c
+#include "cosmo_params.fh"
 #include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -41,14 +42,6 @@ c
       double precision c(3,nat)    !< [Input] The atomic coordinates
       double precision radius(nat) !< [Input] The atomic radii
 c
-      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                 cosmo_sccor
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer   mxface, mxapex
       parameter (mxface=43688)
@@ -160,6 +153,7 @@ C>
       implicit none
 c
 #include "nwc_const.fh"
+#include "cosmo_params.fh"
 #include "rtdb.fh"
 #include "global.fh"
 #include "stdio.fh"
@@ -191,14 +185,6 @@ c
       logical    out
       logical    more
       logical    dbug
-      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                 cosmo_sccor
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer i, iat, lfac, lseg, ndiv, nfac, nseg
       integer mfac
@@ -367,6 +353,7 @@ C>
      2                      nseg,nfac,xyzseg,ijkseg,insseg,
      3                      numpps,xyzff,mxface,rtdb)
       implicit none
+#include "cosmo_params.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -387,14 +374,6 @@ c
       double precision bohr
       parameter  (bohr=0.529177249d+00)
       logical     dbug
-      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &        cosmo_sccor
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
       double precision xyzatm(3,mxatom) !< [Input] The atom positions
       double precision   ratm(  mxatom) !< [Input] The atom radii
       integer            nspa(  mxatom) !< [Output] The number of
@@ -881,8 +860,9 @@ C>     10.1039/P29930000799</a>.
 C>
       subroutine hnd_cossph(nseg,nfac,ndiv,
      1                  ijkfac,xyzseg,ijkseg,mxface,apex,mxapex,
-     2                  dsurf,dvol,adiag)
+     2                  dsurf_in,dvol_in,adiag_in)
       implicit double precision (a-h,o-z)
+#include "cosmo_params.fh"
 #include "global.fh"
 #include "stdio.fh"
 cnew
@@ -911,12 +891,6 @@ c
       dimension ijkfac(3,*)
       dimension ijkseg(  *)
       dimension xyzseg(3,*)
-      integer do_cosmo_model,cosmo_sccor
-c
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
-c
       parameter (mxpass=    7)
       dimension minfac(mxpass)
       dimension maxfac(mxpass)
@@ -1182,10 +1156,10 @@ c     ----- calculate -dsurf dvol- for the -cosmo- theory -----
 c
       if (do_cosmo_model.eq.DO_COSMO_YK) nfac =nseg
       ndiv =nfac/nseg
-      dsurf=srf/dble(nfac)
-      dvol =vol/dble(nfac)
+      dsurf_in=srf/dble(nfac)
+      dvol_in =vol/dble(nfac)
       if(some.or.out.or.dbug.and.ga_nodeid().eq.0) then
-         write(luout,9986) nseg,nfac,ndiv,dsurf,dvol
+         write(luout,9986) nseg,nfac,ndiv,dsurf_in,dvol_in
       endif
       if(out.and.ga_nodeid().eq.0) then
          write(luout,9985)
@@ -1223,17 +1197,17 @@ c
             endif
          enddo
          fac=(dble(nseg)-sum)/sqrt(dble(nseg))
-         adiag=sqrt(four*pi)*fac
+         adiag_in=sqrt(four*pi)*fac
          if(some.or.out.or.dbug.and.ga_nodeid().eq.0) then
-            write(luout,9983) mseg,adiag,fac,dble(nseg),sum
+            write(luout,9983) mseg,adiag_in,fac,dble(nseg),sum
          endif
-         avgdia=avgdia+adiag
+         avgdia=avgdia+adiag_in
          avgfac=avgfac+fac
       enddo
-      adiag=avgdia/dble(nseg)
+      adiag_in=avgdia/dble(nseg)
       fac  =avgfac/dble(nseg)
       if(some.or.out.or.dbug.and.ga_nodeid().eq.0) then
-         write(luout,9978)      adiag,fac               
+         write(luout,9978)      adiag_in,fac               
       endif
 c
       return
@@ -2049,6 +2023,7 @@ C>
 #include "prop.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "cosmo_params.fh"
 #include "cosmoP.fh"
 c
       integer ndens         !< [Input] the number of density matrices
@@ -2078,12 +2053,12 @@ c
       integer istrlen
       character*255 cosmo_file
       integer fn
-      integer lineq ! 0: fast direct solver, 1: slow iterative solver
-      integer minbem 
-      integer maxbem 
-      integer do_cosmo_model 
-      integer ificos ! 0 use octahedron, 1 use icosahedron tesselation
-      integer cosmo_sccor ! do correction?
+c      integer lineq ! 0: fast direct solver, 1: slow iterative solver
+c      integer minbem 
+c      integer maxbem 
+c      integer do_cosmo_model 
+c      integer ificos ! 0 use octahedron, 1 use icosahedron tesselation
+c      integer cosmo_sccor ! do correction?
       integer iat ! counter over atoms
       integer jef ! counter over COSMO charges
       integer l_i10, i10
@@ -2111,21 +2086,6 @@ c
       integer l_epot, l_xyzpt, l_zanpt ! memory handles
       integer k_epot, k_xyzpt, k_zanpt ! memory offsets
 c
-      double precision adiag
-      double precision dsurf
-      double precision dvol
-      double precision srfmol
-      double precision volmol
-      double precision dielec    ! dielectric constant (slow component)
-      double precision dielecinf ! optical dielectric constant (fast component)
-      double precision screen ! dielectric screening factor
-      double precision rsolv
-      double precision zeta,gammas,swtol
-      double precision ptspatm
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
       double precision charge ! the total QM region charge
       double precision chgnuc ! the total nuclear charge
       integer          nelec  ! the total number of electrons
@@ -3151,6 +3111,7 @@ C>
       implicit none
 c
 #include "cosmoP.fh"
+#include "cosmo_params.fh"
 c
       integer nat  !< [Input] The number of electrons
       integer nefc !< [Input] The number of COSMO charges
@@ -3185,14 +3146,6 @@ c
       double precision efcefc !< [Output] The COSMO charge - COSMO
                               !< charge interaction energy
 c
-      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                 cosmo_sccor
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 c
       integer ief, jef !< Counters over COSMO charges
       integer iat      !< Counter over atoms
@@ -3296,6 +3249,7 @@ C>
       subroutine hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,a)
       implicit none
 #include "cosmoP.fh"
+#include "cosmo_params.fh"
       integer          nat  !< [Input] The number of atoms
       integer          nefc !< [Input] The number of surface charges
       double precision efcc(3,nefc) !< [Input] The surface charge coords
@@ -3310,14 +3264,6 @@ c
       double precision zetai, zetaj, zetaij
       parameter (one = 1.0d0)
 c
-      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                 cosmo_sccor
-      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
 c
       double precision util_erf
       external util_erf
@@ -3385,6 +3331,7 @@ C>
 #include "global.fh"
 #include "msgids.fh"
 #include "cosmoP.fh"
+#include "cosmo_params.fh"
 c
       integer          nat  !< [Input] The number of atoms
       integer          nefc !< [Input] The number of surface charges
@@ -3401,14 +3348,6 @@ c
       double precision zero, one
       parameter (zero=0.0d+00, one=1.0d+00)
 c
-      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                 cosmo_sccor
-      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
-      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
-      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,ificos,
-     &                  cosmo_sccor
 c
       double precision util_erf
       external util_erf

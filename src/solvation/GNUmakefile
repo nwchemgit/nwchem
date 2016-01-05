@@ -11,7 +11,7 @@
          cosmo_tidy.o\
          cosmo_def_radii.o\
          cosmo_charges.o\
-         hnd_cosmo_lib.o
+         hnd_cosmo_lib.o  grad_hnd_cos.o
 
    LIBRARY = libsolvation.a
 
