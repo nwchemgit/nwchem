@@ -250,9 +250,7 @@ c
      &  errquit('cosmo_init,ma_pop_stack of l_tag failed',911, MA_ERR)
 c
       do_cosmo_model = DO_COSMO_YK
-      solvname_short  = 'unknown'
-      dielec   =78.4d+00
-      dielecinf = 1.333d0*1.333d0 ! n**2 (refractive index squarred)
+      dielec   =78.4d+00 ! default water dielectric
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -274,8 +272,20 @@ c
       sola = -1.d0
       solb = -1.d0
       solc = -1.d0
+      solg = -1.d0
       solh = -1.d0
       soln = -1.d0
+      if (dielec.eq.78.4d+00) then
+         solvname_short  = 'h2o'
+         solvname_long  = 'water'
+         sola =  0.82d0
+         solb =  0.35d0
+         solc =  0.d0
+         solg =  103.62d0
+         solh =  0.d0
+         soln =  1.333d0
+         dielecinf = soln*soln ! n**2 (refractive index squarred)
+      end if
       status = 
      $ rtdb_get(rtdb,'cosmo:do_cosmo_smd',mt_log,1,do_cosmo_smd)
 c

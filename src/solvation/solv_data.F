@@ -14,20 +14,9 @@ c
 c
       double precision sola,solb,solc,solg,solh,soln
 c
-c     initialize
-c      eps = -1.d0
-c      epsinf = -1.d0
-c      sola = -1.d0
-c      solb = -1.d0
-c      solc = -1.d0
-c      solg = -1.d0
-c      solh = -1.d0
-c      soln = -1.d0
-c      icds = 0
-c
 c     get the solvent data
 c
-      if (solvname_short.eq.'water') solvname_short='h2o'
+      if (solvname_short.eq.'h2o') solvname_long='water' ! default
       call DATSOLMN(solvname_short,solvname_long,
      &     EPS,EPSINF,
      &     SOLA,SOLB,SOLC,SOLG,SOLH,SOLN)

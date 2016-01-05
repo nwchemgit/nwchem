@@ -24,7 +24,7 @@
 
 USES_BLAS = 
 
-HEADERS = ../property/prop.fh ../property/atomdata.fh cosmoP.fh
+HEADERS = ../property/prop.fh ../property/atomdata.fh cosmoP.fh cosmo_params.fh
 
 include ../config/makefile.h
 include ../config/makelib.h
