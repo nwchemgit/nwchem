@@ -1,0 +1,13 @@
+c
+C     $Id: vectors_inp.F 26945 2015-03-22 19:18:52Z jhammond $
+c
+      double precision dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
+      double precision adiag,dsurf,dvol,srfmol,volmol,ptspatm
+      integer          do_cosmo_model,lineq,minbem,maxbem,ificos,ifscrn,
+     &                 cosmo_sccor
+      common/hnd_cospar/dielec,dielecinf,screen,rsolv,zeta,gammas,swtol
+      common/hnd_cosmod/do_cosmo_model,lineq,minbem,maxbem,
+     I     ificos,ifscrn,
+     &                  cosmo_sccor
+      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
+
