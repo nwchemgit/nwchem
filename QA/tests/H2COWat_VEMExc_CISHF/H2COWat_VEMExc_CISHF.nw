@@ -35,7 +35,7 @@ end
 cosmo
  do_cosmo_smd true
  do_cosmo_vem 1
- solvent water
+ solvent h2o
  dielec 78.4
  dielecinf 1.8
 end
