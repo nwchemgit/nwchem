@@ -31,7 +31,7 @@ end
 
 cosmo
  do_cosmo_smd true
- solvent water
+ solvent h2o
 end
 
 task dft energy
