@@ -293,6 +293,8 @@ c
       nopen = mult - 1
       if (.not.rtdb_put(rtdb, 'dft:nopen',mt_int,1,nopen))
      &   call errquit('dft_input: rtdb_put failed', 1201, RTDB_ERR)
+c     trigger odft when mult.ne.1
+      if(mult.ne.1) ipol=2
 c
       goto 10
 c             
