@@ -865,7 +865,7 @@ c
          endif
          if(lsigma .and. oprint_general) then
             write(luout,
-     .           "(10x,'Smearing applied: ',d8.2,' (hartree)')"
+     .           "(10x,'Smearing applied: ',d9.2,' (hartree)')"
      .           ) smear_sigma
          endif
          
@@ -886,7 +886,7 @@ c
  3231 format(10x,'Convergence aids based upon iterative change in ',/,
      &       10x,'total energy or number of iterations. ',/,
      &       10x,'Levelshifting, if invoked, occurs when the ',/,
-     &       10x,'HOMO/LUMO gap drops below (HL_TOL): ',1Pd8.2,/,
+     &       10x,'HOMO/LUMO gap drops below (HL_TOL): ',1Pd9.2,/,
      &       10x,'DIIS, if invoked, will attempt to extrapolate ',/,
      &       10x,'using up to (NFOCK): ',i2,' stored Fock matrices.',/)
  3232 format(10x,
@@ -905,9 +905,9 @@ c
  4005 format(10x,'Grid pruning is: ',a3)
  9020 format(10x,'SCF calculation type: DFT')
  9030 format(10x,'Maximum number of iterations: ',I3)
- 9035 format(10x,'Convergence on energy requested: ',1Pd8.2)
- 9040 format(10x,'Convergence on density requested: ',1Pd8.2)
- 9045 format(10x,'Convergence on gradient requested: ',1Pd8.2)
+ 9035 format(10x,'Convergence on energy requested: ',1Pd9.2)
+ 9040 format(10x,'Convergence on density requested: ',1Pd9.2)
+ 9045 format(10x,'Convergence on gradient requested: ',1Pd9.2)
  9050 format(10x,'Wavefunction type:  closed shell.')
  9052 format(10x,'Wavefunction type:  restricted open shell.')
  9055 format(10x,'Wavefunction type:  spin polarized.')
@@ -950,11 +950,11 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
      &       10x,' Short-Range HF  :',l6)
  8202 format(2x,a44)
  8203 format(11x,'---------------------------')
- 9372 format(10x,'Density screening/tol_rho: ',1Pd8.2,/,
+ 9372 format(10x,'Density screening/tol_rho: ',1Pd9.2,/,
      &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
      &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,
      &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
-     &       10x,'Schwarz screening/accCoul: ',1Pd8.2,/)
+     &       10x,'Schwarz screening/accCoul: ',1Pd9.2,/)
       end
       subroutine dft_inpanae(rtdb)
       implicit none
