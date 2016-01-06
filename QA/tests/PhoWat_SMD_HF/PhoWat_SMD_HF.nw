@@ -29,8 +29,8 @@ geometry nocenter
 symmetry c1
 end
 
-basis 
- * library 6-31G*            
+basis
+ * library 6-31G*
 end
 
 dft
@@ -39,8 +39,6 @@ end
 
 cosmo
  do_cosmo_smd true
- solvent water
 end
 
 task dft energy
-
