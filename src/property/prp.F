@@ -201,9 +201,12 @@ c
         call hnd_efgmap_Z4(rtdb,basis,geom)  ! with picture change (Z4) effects
       end if
 c
-c     ----- electron and spin densities -----
+c     ----- electron, spin, alpha and beta densities -----
 c
-      if(noden.eq.0) call hnd_eldmap(rtdb,basis,geom)
+      if(noden.eq.0) then
+        call hnd_eldmap(rtdb,basis,geom)
+        call hnd_eldmap_grid(rtdb,basis,geom)
+      end if
 c
 c     ----- giao -nmr- chemical shifts -----
 c

@@ -69,6 +69,7 @@
 	 raman_input.o \
 	 raman.o \
          waimfile.o \
+         hnd_eldmap_grid.o \
 	 prop_grid.o
 
 #   OBJ = aoresponse_giao_rhs.o

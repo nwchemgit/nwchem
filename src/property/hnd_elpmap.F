@@ -24,7 +24,6 @@ c
       character*16 element, at_tag
       integer iat, atn, nat, i
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt, l_epot, k_epot
-      integer l_eden, k_eden
       integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       character*3 scftyp
@@ -120,9 +119,6 @@ c
      +     ocube = .false.
 
       if(ocube) then
-c        call util_file_prefix("elp.cube",cube_name)
-c        call util_file_name("elp.cube",
-c     >                      .false.,.false.,cube_name)
         if (.not. rtdb_cget(rtdb, "prop:grid:output",1,cube_name))
      >     call util_file_prefix("elp.cube",cube_name)
       end if
@@ -161,21 +157,13 @@ c     total electric field array (M.V.)
 c     --------------------------------
       if (.not. ma_push_get(mt_dbl,nprp,'tot epot',l_tepot,k_tepot))
      &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
-
-      if (.not. ma_push_get(mt_dbl,nprp,'eden',l_eden,k_eden))
-     &    call errquit('hnd_elpmap: eden ma failed',911,MA_ERR)
-
-
+c
 cc
 c     ----- calculate electronic contribution at all points -----
 c
       call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(i_prp_c),nprp,
      &                dbl_mb(k_epot),0)
-
-c     ----- calculate electron density                     ------
-      call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(i_prp_c),nprp,
-     &                dbl_mb(k_eden),-1)
-
+c
       dobq = .false.
       if(geom_extbq_on()) then
         dobq = .true.
@@ -321,16 +309,7 @@ c
         call util_print_centered(luout, 
      >    "writing esp potential to "//cube_name,.true.,.true.)
         call prop_grid_write_cube(geom,nprp,dbl_mb(k_tepot),cube_name)
-
-        if (.not. rtdb_cget(rtdb, "prop:grid:output",1,cube_name))
-     >     call util_file_prefix("eld.cube",cube_name)
-
-        cube_name = trim(cube_name)//'_eld.cube'
-        call util_print_centered(luout,
-     >    "writing electron density to "//cube_name,.true.,.true.)
-        call prop_grid_write_cube(geom,nprp,dbl_mb(k_eden),cube_name)
       end if
-
 c
 c     if custom grid is requested save final electric 
 c     into rtdb(M.V.)
@@ -343,8 +322,6 @@ c     -----------------------------------------------
 cc
 c     ------- Deallocate MA memory ------
 c
-      if (.not.ma_pop_stack(l_eden)) call errquit
-     &   ('hnd_elpmap, ma_pop_stack of l_eden failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_tepot)) call errquit
      &   ('hnd_elpmap, ma_pop_stack of l_tepot failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_epot)) call errquit
