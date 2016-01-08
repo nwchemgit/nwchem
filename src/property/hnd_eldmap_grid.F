@@ -164,7 +164,7 @@ c
        call util_file_prefix("eld.beta.cube",cube_name_beta)
       end if
 c
-      if (ga_nodeid().eq.0) then
+      if (ga_nodeid().eq.0.and.ocube) then
          call prop_grid_write_cube(geom,nprp,dbl_mb(k_eden),
      &        cube_name_total)
          call prop_grid_write_cube(geom,nprp,dbl_mb(k_eden+nprp),
