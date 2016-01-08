@@ -1799,11 +1799,13 @@ c     vdw  bit
 c
 c     activate disp if is present in rtdb
 c     or include dispersion if this a functional that includes dispersion
+#if 0
       if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
      &   disp=.false.
 c
       if(disp.or.xc_chkdispauto())
      &      call xc_vdw(rtdb,geom,Etnew,dum,'energy')
+#endif
 c
 c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
