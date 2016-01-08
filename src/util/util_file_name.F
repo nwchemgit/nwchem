@@ -488,7 +488,7 @@ c     on BGP/BGQ all fs are parallel, therefore we need only node0
       iocheckk=ga_nodeid().eq.0
 #endif     
 c
-      if (nodeid() .gt. 0) goto 10000
+      if (ga_nodeid() .gt. 0) goto 10000
 c
 c     default is a startup with name extracted from that of the input
 c     file unless a database of that name is present in which case
