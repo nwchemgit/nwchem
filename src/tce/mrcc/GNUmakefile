@@ -1,5 +1,5 @@
 
-SUBDIRS = include ccsd ccsd_sub ccsd_t
+SUBDIRS = include ccsd ccsd_sub ccsd_t uss
 
 OBJ = tce_mrcc_input.o
 
